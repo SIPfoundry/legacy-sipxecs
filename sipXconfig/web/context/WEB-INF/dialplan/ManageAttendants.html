@@ -1,0 +1,24 @@
+<div jwcid="@Border">
+  <h2 id="manage:attendant"><span key="title">Auto Attendants</span></h2>
+  <div jwcid="@QuickHelp" value="message:help.attendantConfig">attendant config help text here...</div>
+  <span jwcid="@ErrorMsg"/>
+  <ul class="component-links">
+    <li><a jwcid="defaultAttendantGroupLink" id="defaultAttendantGroup" href="#"><span key="link.defaultGroup">Default Settings</span></a></li> 
+    <li><a jwcid="addAttendantLink" id="addAttendant" href="#"><span key="link.add">Add Attendant</span></a></li>        
+  </ul>        
+  <form jwcid="attendantListForm">
+    <table jwcid="tableView" id="list:attendant">
+      <span jwcid="nameColumnValue">
+        <span jwcid="editRowLink"><span jwcid="nameText"/></span>
+      </span>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="deleteButton" id="list:attendant:delete" value="message:button.delete"/>
+        <span jwcid="@common/Confirm" component="component:deleteButton" prompt="message:confirm.delete"/>          
+      </li>
+    </ul>
+    <h3><span key="section.specialAutoAttendant">Auto Attendant Mode</span></h3>
+    <span jwcid="specialAttendant"></span>
+  </form>
+</div>

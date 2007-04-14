@@ -1,0 +1,144 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema for sipX registration definitions
+  -->
+
+<xsd:schema
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://www.sipfoundry.org/sipX/schema/xml/registration-00-00"
+    targetNamespace="http://www.sipfoundry.org/sipX/schema/xml/registration-00-00"
+    xmlns:sip="http://www.sipfoundry.org/sipX/schema/xml/sip-00-01"
+    >
+
+  <xsd:import 
+      namespace="http://www.sipfoundry.org/sipX/schema/xml/sip-00-01" 
+      schemaLocation="@SIPX_SCHEMADIR@/sip_types.xsd"
+      />
+
+  <xsd:annotation>
+    <xsd:documentation>
+      Definitions of registrations for the sipX Registration/Redirect Server
+    </xsd:documentation>
+    <xsd:documentation source="http://scm.sipfoundry.org/rep/sipXregistry/main/doc/Redirection.txt"/>
+  </xsd:annotation>
+
+  <!-- Elements -->
+
+  <xsd:element name="items">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="item" minOccurs="0" maxOccurs="unbounded" />
+      </xsd:sequence>
+      <xsd:attribute name="type">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="registration"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="timestamp" type="xsd:integer"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="item">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="callid"        minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="cseq"          minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="uri"           minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="contact"       minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="qvalue"        minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="expires"       minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="instance_id"   minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="gruu"          minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="primary"       minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="update_number" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- TODO: Should really be type="sip:call_id" here, but that doesn't work -->
+  <xsd:element name="callid" type="xsd:string">
+    <xsd:annotation>
+      <xsd:documentation>
+        Globally unique ID for the SIP call that created this registration.
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+  <xsd:element name="cseq" type="xsd:integer">
+    <xsd:annotation>
+      <xsd:documentation>
+        SIP call sequence number.
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+  <!-- TODO: Should really be type="sip:user_at_domain" here, but that doesn't work -->
+  <xsd:element name="uri" type="xsd:string">
+    <xsd:annotation>
+      <xsd:documentation>
+        User"s address of record, a SIP or SIPS URI.
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+  <!-- TODO: Should really be type="sip:user_at_domain" here, but that doesn't work -->
+  <xsd:element name="contact" type="xsd:string">
+    <xsd:annotation>
+      <xsd:documentation>
+        A SIP or SIPS URI that represents a direct route to the user.
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+  <!-- TODO: restrict the qvalue to be between 0 and 1 -->
+  <xsd:element name="qvalue" type="xsd:decimal" default="1.0">
+    <xsd:annotation>
+      <xsd:documentation>
+        Preference ranking of this contact, a decimal number between 0 and 1 (1 is highest).
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+  <xsd:element name="expires" type="xsd:integer">
+    <xsd:annotation>
+      <xsd:documentation>
+        Expiration time of the registration, in seconds since Jan 1, 1970 ("epoch time").
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+  <xsd:element name="instance_id" type="xsd:string">
+    <xsd:annotation>
+      <xsd:documentation>
+        ID of a UA instance per the draft-ietf-sip-gruu-06 specification.
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+  <xsd:element name="gruu" type="xsd:string">
+    <xsd:annotation>
+      <xsd:documentation>
+        Globally routable user agent URI per the draft-ietf-sip-gruu-06 specification.
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+  <xsd:element name="primary" type="xsd:string">
+    <xsd:annotation>
+      <xsd:documentation>
+        Name of the primary registrar, the registrar that initially handled the registration.
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+  <xsd:element name="update_number" type="xsd:integer">
+    <xsd:annotation>
+      <xsd:documentation>
+        Update number for one or more modifications to the registration database.
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  
+</xsd:schema>

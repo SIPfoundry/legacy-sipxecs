@@ -1,0 +1,197 @@
+#!/bin/sh
+
+# Purpose of this script is to return locations of programs and
+# settings used by the sipx family of modules. This is installed for
+# runtime scripts usage
+
+# DEVELOPER NOTE: This is not meant to replace autoconf
+# macros. Instead this is to find programs (like java) that can differ
+# then what is used to compile then what is used to run.  This
+# difference is extremely important when building binary distributions
+# like RPMs
+
+MyDir=`dirname $0`
+PATH=$PATH:$MyDir
+
+# What operation this script is instructed by user to perform
+Action=""
+
+# Standard place to find java command
+JdkExecutable='jre/bin/java'
+JreExecutable='bin/java'
+
+# Set when java is found
+JavaCommand=""
+
+# Set when JVM is found
+JavaHome=""
+
+# All sipx programs require 1.4 or above, if this does not become
+# true, I suggest parameter-izing this
+JavaVersions="1\.[456]"
+
+# List of all sipx projects
+Projects="\
+  sipxportlib \
+  sipxtacklib \
+  sipxmedialib \
+  sipxcalllib \
+  sipxcommserverlib \
+  sipxregistry \
+  sipxpublisher \
+  sipxproxy \
+  sipxconfig \
+  sipxvxml \
+  sipxpbx"
+
+## Test the java executable command
+testJava()
+{
+    JavaPath=$1
+
+    # test java command
+    for CommandCandidate in $JavaPath/$JdkExecutable $JavaPath/$JreExecutable
+    do
+        if [ -x $CommandCandidate ]
+        then
+            if $CommandCandidate -version 2>&1 | grep "$JavaVersions" >/dev/null
+            then
+    	        JavaCommand=$CommandCandidate
+                return 0
+            fi
+        fi
+    done
+
+    return 1
+}
+
+findJava()
+{
+    # Gentoo
+    JavaConfig=`java-config --jdk 2>/dev/null`
+    if [ -n "${JavaConfig}" ]
+    then
+ 
+        testJava $JavaConfig
+
+    # If explict setting of location of java does not work, die
+    elif [ -n "${JAVA_HOME}" ]
+    then
+
+        testJava ${JAVA_HOME}
+
+    # otherwise try to find java
+    else
+
+        # Portions of this where copied from
+        # sipXportLib/config/general.m4. Plans to import general.m4
+        # file were scrapped because of carrying all of autoconf
+        TRY_JAVA_HOME=`ls -dr /usr/lib/jvm/java-1.* /usr/java/* 2> /dev/null | head -n 1`
+        for dir in /usr/lib/jvm/jre-ibm $TRY_JAVA_HOME /usr /usr/local/jdk /usr/local/java
+        do
+            if testJava ${dir}
+            then
+                break;
+            fi
+        done
+    fi
+}
+
+## Main program loop
+Action=HELP
+while [ "$#" -ne 0 ]
+do
+    case ${1} in
+
+        --java)
+        Action=JAVA
+        ;;
+
+        --javabin)
+        Action=JAVA_BIN
+        ;;
+
+        --version)
+        Action=VERSION
+        ;;
+
+        *)
+        Action=HELP
+        ;;
+    esac
+
+    shift #always consume 1
+done
+
+if test "$Action" = "JAVA"
+then
+
+    findJava
+
+    if [ -z $JavaCommand ]
+    then
+        cat >&2 <<NOJAVA
+Cannot locate Java VM on you machine. Please either install the Java
+ or set JAVA_HOME environment variable to where you've installed java
+
+NOJAVA
+
+        exit 1
+    fi
+
+    echo "$JavaCommand"
+    exit 0
+
+elif test "$Action" = "JAVA_BIN"
+then
+
+    findJava
+
+    if [ -z $JavaCommand ]
+    then
+        cat >&2 <<NOJAVAHOME
+Cannot locate Java VM on you machine. Please either install the Java
+ or set JAVA_HOME environment variable to where you've installed java
+
+NOJAVAHOME
+
+        exit 1
+    fi
+
+    echo `dirname "$JavaCommand"`
+    exit 0
+elif test "$Action" = "VERSION"
+then
+    echo "sipX version information:"
+    for Project in $Projects; do
+        echo -n "  $Project "
+        # Test if the script was installed
+        if ${MyDir}/${Project}-config >/dev/null 2>&1
+        then
+           ${MyDir}/${Project}-config --version --build
+        else
+           echo "not installed"
+        fi
+    done
+    exit 0
+fi
+
+cat <<USAGE
+
+Return settings or paths to programs for sipX family of modules
+
+Usage:
+
+    ./sipx-config [--java] [--javabin] [--version]
+
+Options are:
+
+     --java     Locate java vm command
+
+     --javabin  Locate path to java commands in vm home directory
+
+     --version  Display version of installed sipx packages
+
+USAGE
+
+exit

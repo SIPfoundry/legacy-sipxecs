@@ -1,0 +1,41 @@
+<table>
+  <tr>
+    <td>
+      <span jwcid="@If" condition="ognl:assetExists and !selectable">
+        <span jwcid="@Insert" value="prop:asset"/>
+      </span>
+      <span jwcid="@If" condition="prop:selectable">      
+        <input id="ognl:id" jwcid="prompt@PropertySelection"
+          model="ognl:tapestry.instructUserToSelect(assetSelectionModel, messages)"
+          value="prop:asset"
+          onchange="ognl:submitOnChange ? 'javascript:this.form.submit();' : ''"
+          disabled="prop:disabled"/>
+      </span>
+    </td>
+    <td>
+      <span jwcid="@If" condition="prop:assetExists">
+        <a jwcid="downloadLink@DownloadLink" id="link:download"
+          dirName="prop:assetDir"
+          fileName="prop:asset"
+          contentType="prop:contentType">
+          <span jwcid="@Insert" value="prop:downloadLabel"/>
+        </a>
+      </span>
+    </td>
+    <td>
+      <span jwcid="@If" condition="ognl:assetExists and !selectable">
+        <a jwcid="deleteLink@LinkSubmit" tag="prop:asset" selected="prop:deleteAsset" disabled="prop:disabled">
+          <span key="link.delete">Delete</span>
+        </a>
+      </span>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <span jwcid="@If" condition="ognl:!assetExists or selectable">
+        <input type="file" jwcid="promptUpload@Upload" 
+          file="prop:uploadAsset" disabled="prop:disabled"/>
+      </span>
+    </td>
+  </tr>
+</table>

@@ -1,0 +1,38 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+        <h2><span jwcid="pageLabel"/> Files</h2>
+        <span jwcid="@ErrorMsg"/>
+		<form jwcid="uploadForm">
+	        <fieldset>
+	        	<table>
+	                <tbody>
+		            <span jwcid="nameDescriptionEdit"/>
+	                </tbody>
+		        </table>
+	         </fieldset>    
+            <span jwcid="@If" condition="ognl:! upload.isNew()">
+	            <span jwcid="@If" condition="ognl:upload.deployed">
+	    	        <p><span key="warning"><strong>You cannot make changes when files are deployed.</strong></span></p>
+	             </span>
+	             <fieldset jwcid="settingsFieldset"/>
+             </span>
+             <span jwcid="applyOkCancel">
+                <span jwcid="@If" condition="ognl:! upload.isNew()">
+	                 <li>
+		                 <span jwcid="@If" condition="ognl:upload.deployed">
+		                     <input id="upload:inactivate" jwcid="inactivate"/>
+		                 </span>
+		                 <span jwcid="@If" condition="ognl:! upload.deployed">
+		                     <input id="upload:activate" jwcid="activate"/>
+		                 </span>
+	                 </li>
+                 </span>
+             </span>
+		</form>
+	</div>
+</body>
+</html>

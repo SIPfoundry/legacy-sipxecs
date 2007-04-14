@@ -1,0 +1,102 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.sipfoundry.sipxconfig</groupId>
+  <version>3.3.1</version>
+  <artifactId>sipxconfig</artifactId>
+  <packaging>pom</packaging>
+  <name>sipXconfig</name>
+  <url>http://www.sipfoundry.org/sipXconfig</url>
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://track.sipfoundry.org/browse/XCF</url>
+  </issueManagement>
+  <scm>
+    <!-- FIXME: this is now specific to 3.3 branch -->
+    <connection>scm:svn:http://scm.sipfoundry.org/rep/sipX/branches/sipXconfig/3.3</connection>
+    <url>http://scm.sipfoundry.org/viewsvn/sipX/main/sipXconfig</url>    
+  </scm>
+  <modules>
+    <module>neoconf</module>
+    <module>web</module>
+  </modules>
+  <build>
+    <!-- sipXconfig directory structure does not follow maven recommendations yet -->
+    <sourceDirectory>src</sourceDirectory>
+    <testSourceDirectory>test</testSourceDirectory>
+    <outputDirectory>${top.build.dir}/${artifactId}/classes</outputDirectory>
+    <testOutputDirectory>${top.build.dir}/${artifactId}/tests</testOutputDirectory>
+    <directory>${top.build.dir}/${artifactId}</directory>
+    <!-- we keep .xml resources in source directory -->
+    <resources>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+    <!-- test resources are kept in test directory (everything with the exception of java file is the resource) -->
+    <testResources>
+      <testResource>
+        <directory>test</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+        <excludes>
+          <exclude>**/*.java</exclude>          
+        </excludes>
+      </testResource>
+    </testResources>        
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <configuration>
+            <configLocation>${top.dir}/meta/checkstyle.xml</configLocation>
+            <includes>org/sipfoundry/**/*.java</includes>
+            <consoleOutput>true</consoleOutput>
+            <failsOnError>true</failsOnError>
+            <!-- sipXconfig specific: set default severity for checkstyle violations -->
+            <propertyExpansion>checkstyle.severity=error</propertyExpansion>
+            <propertyExpansion>top.dir=${top.dir}</propertyExpansion>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>1.4</source>
+            <target>1.4</target>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <forkMode>once</forkMode>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+  <reporting>
+    <outputDirectory>${project.build.directory}/site</outputDirectory>
+  </reporting>
+  <properties>
+    <sipx.src>${env.SIPXCONFIG_SRC}</sipx.src>
+    <top.dir>${sipx.src}</top.dir>
+    <top.build.dir>${top.dir}/build.maven</top.build.dir>
+    <dest.dir></dest.dir>
+    <!-- FIXME: hard-coded install directories -->
+    <install.dir>/opt/sipx/sipfoundry/3.3</install.dir>
+    <sipxpbx.conf.dir>${install.dir}/etc/sipxpbx</sipxpbx.conf.dir>
+    <sipxconfig.phone.dir>${install.dir}/var/sipxdata/configserver/phone</sipxconfig.phone.dir>
+    <sipxpbx.backup.dir>${install.dir}/var/sipxdata/backup</sipxpbx.backup.dir>
+    <sipxpbx.upgrade.dir>${install.dir}/var/sipxdata/upgrade</sipxpbx.upgrade.dir>
+    <sipxconfig.lib.dir>${install.dir}/share/sipxpbx/lib</sipxconfig.lib.dir>
+    <sipxpbx.bin.dir>${install.dir}/bin</sipxpbx.bin.dir>
+    <sipxpbx.data.dir>${install.dir}/share/sipxpbx</sipxpbx.data.dir>
+    <sipxvxml.data.dir>${install.dir}/var/sipxdata/mediaserver/data</sipxvxml.data.dir>
+    <sipxpark.audio.dir>${install.dir}/var/sipxdata/parkserver/music</sipxpark.audio.dir>
+    <sipxconfig.upload.dir>${install.dir}/var/sipxdata/upload</sipxconfig.upload.dir>
+  </properties>
+</project>

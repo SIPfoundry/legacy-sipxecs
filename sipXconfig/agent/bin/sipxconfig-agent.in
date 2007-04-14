@@ -1,0 +1,53 @@
+#!@RUBY@
+
+# see http://docs.rubygems.org/shelf
+#  RubyGemsUserGuide/Installing Ruby/Installing RubyGems in a User Directory
+# NOTE: Keep this at top of file, see XCF-1096 
+ENV['GEM_PATH'] = '@GEM_LIB_DIR@:/usr/lib/ruby/gems/1.8'
+
+require 'tempfile'
+require 'optparse'
+require 'ostruct'
+
+def load_config_defs
+  x = Tempfile.new('sipxconfig-agent')
+  `@SIPX_BINDIR@/config-defs > #{x.path}`
+
+  # assumes output from config-defs is directly consumable as 
+  # valid ruby file
+  load (x.path)
+
+  x.delete
+end
+
+def parse(args)
+  options = OpenStruct.new
+
+  opts = OptionParser.new do |opts|
+    opts.banner = "Usage: sipxconfig-agent [conftest]"
+
+    opts.separator ""
+    opts.separator "Specific options:"
+
+    opts.on_tail("-c", "--configtest", "Run tests on configuration") do 
+      if ! defined? CONFIG_SERVER_AGENT_PORT
+        raise "Missing items 'CONFIG_SERVER_AGENT_PORT' in config.defs" 
+      end
+      exit
+    end
+  end
+  opts.parse!(args)
+  options
+end
+
+load_config_defs
+parse(ARGV)
+
+require 'rubygems'
+require 'main'
+
+pid=File.open('@SIPX_RUNDIR@/sipxconfig-agent.pid', 'w')
+pid.puts Process.pid
+pid.close
+
+main('@SIPX_LOGDIR@/sipxacd_events.log', CONFIG_SERVER_AGENT_PORT)

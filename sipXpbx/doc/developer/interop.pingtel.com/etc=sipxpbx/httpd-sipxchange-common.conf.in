@@ -1,0 +1,99 @@
+# Listen 8090 - this is the unprotected part of the UI
+Listen 8090
+
+# Point core dump directory to a location where we can write to 
+# for CGI's and other such interesting information.
+# Core files will not appear unless "ulimit -c unlimited" (or whatever
+# is appropriate) is in effect, which is usually controlled by the
+# ulimit command in .../etc/init.d/sipxpbx.in.
+CoreDumpDirectory /var/log/sipxpbx 
+
+# This is only available to the default (*:8090) port if there is no SSL
+#<IfDefine !SSL>
+#    ScriptAlias /cgi-bin/ "/usr/share/www/cgi-bin/"
+#</IfDefine>
+
+# Added sipxchange Authentication Module. This uses the LoadModule syntax
+# and exports several commands
+# - LoadCPPHandler loads the specified handler shared object
+# - AddCPPHandler associates a particular handler with a directory spec
+#
+LoadModule cplusplus_module /etc/httpd/modules/libmod_cplusplus.so
+LoadCPPHandler mod_sipxauth /etc/httpd/modules/libmod_sipxauth.so
+
+# protect the sipxchange cgi-bin directory from unauthorized access
+<Directory "/usr/share/www/cgi-bin">
+    # Protect the directory hierarchy using Basic Authentication
+    # We use SSL as the secure transport so base64
+    # encoding is not a security risk.
+    AuthType Basic
+    AuthName "${SIPXCHANGE_REALM}"
+
+    # This is a case insensitive sipxchange username. The configserver
+    # and stand alone media server admin interface use this identity.
+#   require user sipxchange
+    require valid-user
+
+    # Ensure that the following authentication C++ module
+    # handles the authentication
+    AddCPPHandler mod_sipxauth
+
+    # Standard directory settings taken from httpd.conf
+    #AllowOverride All	# Commented out by Mike M.
+    Order Deny,Allow
+    Deny from all
+    Allow from 127.0.0.1
+    Satisfy any
+</Directory>
+
+#<Directory "/usr/share/www/cgi-bin/processmonitor">
+#    # Protect the directory hierarchy using Basic Authentication
+#    # We use SSL as the secure transport so base64
+#    # encoding is not a security risk.
+#    Options Indexes FollowSymLinks MultiViews
+#    AuthType Basic
+#    AuthName "${SIPXCHANGE_REALM}"
+#
+#    # This is a case insensitive sipxchange username. The configserver
+#    # and stand alone media server admin interface use this identity.
+#    require user superadmin
+##    require valid-user
+#
+#    # Ensure that the following authentication C++ module
+#    # handles the authentication
+#    AddCPPHandler mod_sipxauth
+#
+#    # Standard directory settings taken from httpd.conf
+#    #AllowOverride All	# Commented out by Mike M.
+#    Order Deny,Allow
+#    Deny from all
+#    Allow from 127.0.0.1
+#    Satisfy any
+#</Directory>
+#
+#<Directory "/usr/share/www/cgi-bin/replication">
+#    # Protect the directory hierarchy using Basic Authentication
+#    # We use SSL as the secure transport so base64
+#    # encoding is not a security risk.
+#    Options Indexes FollowSymLinks MultiViews
+#    AuthType Basic
+#    AuthName "${SIPXCHANGE_REALM}"
+#
+#    # This is a case insensitive sipxchange username. The configserver
+#    # and stand alone media server admin interface use this identity.
+#    require user superadmin
+##    require valid-user
+#
+#    # Ensure that the following authentication C++ module
+#    # handles the authentication
+#    AddCPPHandler mod_sipxauth
+#
+#    # Standard directory settings taken from httpd.conf
+#    #AllowOverride All	# Commented out by Mike M.
+#    Order Deny,Allow
+#    Deny from all
+#    Allow from 127.0.0.1
+#    Satisfy any
+#</Directory>
+
+Include /etc/sipxpbx/httpd-sipxchange-mediaserver.conf

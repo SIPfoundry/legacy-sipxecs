@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+        Extension       Voicemail       AutoAttendant   RecordSystemPrompts
+        111             Y               Y               Y
+        222             Y               Y               Y
+        333             Y               Y
+        444             Y               Y
+        555             Y               Y
+        666             Y
+        777             Y
+        888
+        999
+  -->
+<items type="permission">
+  <item>
+    <identity>111@[domain]</identity>
+    <permission>Voicemail</permission>
+  </item>
+  <item>
+    <identity>111@[domain]</identity>
+    <permission>AutoAttendant</permission>
+  </item>
+  <item>
+    <identity>111@[domain]</identity>
+    <permission>RecordSystemPrompts</permission>
+  </item>
+
+  <item>
+    <identity>222@[domain]</identity>
+    <permission>Voicemail</permission>
+  </item>
+  <item>
+    <identity>222@[domain]</identity>
+    <permission>AutoAttendant</permission>
+  </item>
+  <item>
+    <identity>222@[domain]</identity>
+    <permission>RecordSystemPrompts</permission>
+  </item>
+
+  <item>
+    <identity>333@[domain]</identity>
+    <permission>Voicemail</permission>
+  </item>
+  <item>
+    <identity>333@[domain]</identity>
+    <permission>AutoAttendant</permission>
+  </item>
+
+  <item>
+    <identity>444@[domain]</identity>
+    <permission>Voicemail</permission>
+  </item>
+  <item>
+    <identity>444@[domain]</identity>
+    <permission>AutoAttendant</permission>
+  </item>
+
+  <item>
+    <identity>555@[domain]</identity>
+    <permission>Voicemail</permission>
+  </item>
+  <item>
+    <identity>555@[domain]</identity>
+    <permission>AutoAttendant</permission>
+  </item>
+
+  <item>
+    <identity>666@[domain]</identity>
+    <permission>Voicemail</permission>
+  </item>
+
+  <item>
+    <identity>777@[domain]</identity>
+    <permission>Voicemail</permission>
+  </item>
+  <!-- 888 and 999 are configured to not have voicemail. -->
+</items>

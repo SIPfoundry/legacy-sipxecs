@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd"
+[
+  <!-- see: http://www.ietf.org/rfc/rfc3261.txt -->
+  <!-- this is actually concatenation of unreserver and user-unreserved sets -->
+  <!ENTITY SIP_USER_UNRESERVED "-_.!~*'\(\)&amp;=+$,;?/">
+  <!ENTITY SIP_USER_CHARS "a-zA-Z0-9&SIP_USER_UNRESERVED;">
+  <!-- 37 === percent -->
+  <!ENTITY SIP_USER_ESCAPED "&#37;[0-9a-fA-F]{2}">
+]>
+
+<model>
+  <type id="enable-disable">
+    <boolean>
+      <true>
+        <value>ENABLE</value>
+      </true>
+      <false>
+        <value>DISABLE</value>
+      </false>
+    </boolean>
+  </type>
+  <type id="sip-uri">
+    <string maxLen="255">
+      <pattern>^([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+$</pattern>
+    </string>
+  </type>
+  <group name="permission">
+    <group name="application">
+      <setting name="superadmin">
+        <type refid="enable-disable" />
+        <value>DISABLE</value>
+      </setting>
+      <setting name="tui-change-pin">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+    </group>
+    <group name="call-handling">
+      <setting name="900Dialing">
+        <type refid="enable-disable" />
+        <value>DISABLE</value>
+      </setting>
+      <setting name="AutoAttendant">
+        <type refid="enable-disable" />
+        <value>DISABLE</value>
+      </setting>
+      <setting name="InternationalDialing">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="LocalDialing">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="LongDistanceDialing">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="Mobile">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="TollFree">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="Voicemail">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="ForwardCallsExternal">
+        <type refid="enable-disable" />
+        <value>DISABLE</value>
+      </setting>
+      <setting name="RecordSystemPrompts">
+        <type refid="enable-disable" />
+        <value>DISABLE</value>
+      </setting>
+    </group>
+  </group>
+  <group name="caller-alias">
+    <setting name="external-number">
+      <type refid="sip-uri" />
+    </setting>
+    <setting name="anonymous-caller-alias">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+</model>

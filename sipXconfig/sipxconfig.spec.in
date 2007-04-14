@@ -1,0 +1,343 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary:  Configuration Management for SIP 
+License:  LGPL
+Group:    Productivity/Telephony/SIP/Servers
+Vendor:   SIPfoundry
+Packager: SIPfoundry <sipx-dev@lif.sipfoundry.org>
+Url:      http://www.sipfoundry.org/
+
+%define sipxpbxlog %{_localstatedir}/log/sipxpbx
+%define sipxpbxrun %{_localstatedir}/run/sipxpbx
+%define sipxpbxconf %{_sysconfdir}/sipxpbx
+%define sipxpbxdata %{_datadir}/sipxpbx
+%define sipxpbxvarlib %{_var}/lib/sipxpbx
+%define sipxconfiglib %{_datadir}/sipxpbx/lib
+%define tftproot /tftpboot
+
+# Should match sipXlib.m4:SIPX_CONFIGPHONEDIR
+%define phonedir %{_localstatedir}/sipxdata/configserver/phone
+
+Source: %name-%version.tar.gz
+
+Requires: sipxtacklib >= 3.7
+Requires: sipxcommserverlib >= 3.7
+Requires: sipxpbx >= 3.7
+Requires: postgresql-server
+Requires: ruby
+%if %{_vendor} == redhat
+Requires: ruby-gems
+%endif
+%if %{_vendor} == suse
+Requires: rubygems
+%endif
+
+# known incompatabilities w/gcj, unclear how to enforce. can be issue
+# when gcj gets to 1.5, until them sun and ibm jvms ok
+Requires: java >= 1.5
+
+# only used to serve phone profiles under http devices
+Requires: httpd >= 2.0
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+# should match sipXlib.m4:SIPX_UPGRADEDIR
+%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
+%define this_archive %{name}-%{version}-%{release}.tgz
+
+%description
+  Configuring one phone can be a daunting task, configuring a hundred
+phones can be maddening. sipXconfig leverages Jetty, Axis
+SOAP, postgresql and other JEE technologies to get the job done.
+
+# For phones that use TFTP to server profiles
+%package tftp
+%if %{_vendor} == redhat
+Requires: tftp-server
+%endif
+%if %{_vendor} == suse
+Requires: tftp
+%endif
+
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Configures/enables TFTP for devices controlled by %{name}
+
+%description tftp
+* requires tftp-server
+* turns on xinit.d/tftp service on
+* redirects /tftpboot to %{phonedir}/profile/tftproot
+
+%package ftp
+Requires: vsftpd
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Configures/enables FTP for devices controlled by %{name} 
+
+%define vsftpd_conf /etc/vsftpd/vsftpd.conf
+
+%description ftp
+* installs and configures vsftpd server
+* turns on xinit.d/vsftpd service on
+* add a user account w/default account for polycom phones
+
+%package agent
+Requires: sipxcommserverlib
+Requires: ruby
+%if %{_vendor} == redhat
+Requires: ruby-gems
+%endif
+%if %{_vendor} == suse
+Requires: rubygems
+%endif
+
+%if %{_vendor} == redhat
+# irb is for file-tail gem
+Requires: irb
+%endif
+
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Analyzes data from sipxpbx and provides SOAP API to information
+
+%description agent
+Provides a SOAP interface to automatic call distribution records. Ideal
+for CTI applications or report aggregating tools like sipxconfig-report
+or real-time analysys like sipxconfig's statistics web console.
+
+%package report
+Requires: ruby
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Aggregates data from sipxconfig-agent into a database for reporting tools
+
+%if %{_vendor} == redhat
+Requires: ruby-gems
+Requires: ruby-postgres
+%endif
+%if %{_vendor} == suse
+Requires: rubygems
+Requires: rubygem-ruby-postgres
+%endif
+
+Requires: ruby-dbi
+
+%description report
+Report peridocically queries sipxconfig-agent regarding automatic call distribution records
+and assembles data into a postgres database SIPXACD_HISTORY for reporting tools.
+
+Although this package does not have any other sipx dependencies because it's not required to
+run on the same machine it's default setup it to point to localhost.
+
+%prep
+%setup -q
+
+%build
+
+%configure --enable-rpmbuild --enable-reports --enable-agent @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use 
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
+mkdir -p %{upgrade_archive_root}
+tar --directory ${RPM_BUILD_ROOT} \
+    -czf %{upgrade_archive_root}/%{this_archive} \
+    etc \
+    var/sipxdata/configserver
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+# WARNING: Do use @ SIPX_CONFDIR @ because prefix used and 'make dist'
+# typically does not RPM's prefix
+
+%doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
+%attr(755,root,root) %{_bindir}/sipxconfig.sh
+%attr(755,root,root) %{_bindir}/sipxconfig-config
+%attr(755,root,root) %{_bindir}/sipx-upgrade-3.6-mailstore
+%attr(755,root,root) %{_bindir}/sipx-upgrade-3.6-mailstore-report
+%attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-keystore.sh
+%attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-truststore.sh
+
+# Because of generation of data and profiles
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/docroot
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/tftproot
+%config(noreplace) %{phonedir}/profile/tftproot/*
+
+%{sipxpbxdata}
+%dir %{_localstatedir}
+%{upgrade_archive_dir}/%{this_archive}
+%{upgrade_archive_dir}/%{name}-previous.tgz
+
+# Install configserver config files, directory only is created by pbx
+%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
+%config(noreplace) %{sipxpbxconf}/sipxconfig-jetty.xml
+%config(noreplace) %{sipxpbxconf}/log4j.properties
+%config(noreplace) %{sipxpbxconf}/sipxconfig.properties.in
+%config(noreplace) %{sipxpbxconf}/topology.xml.in
+%config(noreplace) %{sipxpbxconf}/VM_global_library.vm
+%config(noreplace) %{sipxpbxconf}/setting.dtd
+%config(noreplace) %{sipxpbxconf}/setting.xsl
+%config(noreplace) %{sipxpbxconf}/kphone/*
+%config(noreplace) %{sipxpbxconf}/acme/*
+%config(noreplace) %{sipxpbxconf}/acmePhone/*
+%config(noreplace) %{sipxpbxconf}/acd/*
+%config(noreplace) %{sipxpbxconf}/audiocodes/*
+%config(noreplace) %{sipxpbxconf}/ciscoAta/*
+%config(noreplace) %{sipxpbxconf}/clearone/*
+%config(noreplace) %{sipxpbxconf}/ciscoIp/*
+%config(noreplace) %{sipxpbxconf}/commserver/*
+%config(noreplace) %{sipxpbxconf}/database/*
+%config(noreplace) %{sipxpbxconf}/dialplan/*
+%config(noreplace) %{sipxpbxconf}/grandstream/*
+%config(noreplace) %{sipxpbxconf}/hitachi/*
+%config(noreplace) %{sipxpbxconf}/lg-nortel/*
+%config(noreplace) %{sipxpbxconf}/process.d/sipxconfig.process.xml
+%config(noreplace) %{sipxpbxconf}/polycom/*
+%config(noreplace) %{sipxpbxconf}/snom/*
+%config(noreplace) %{sipxpbxconf}/mitel/*
+%config(noreplace) %{sipxpbxconf}/sipxvxml/*
+%config(noreplace) %{sipxpbxconf}/sipxconference/*
+%config(noreplace) %{sipxpbxconf}/sipxpark/*
+%config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
+%config(noreplace) %{sipxpbxconf}/mailbox/*
+
+%pre
+
+%post
+
+%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
+%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
+if [ -f %{current_archive} ]; then
+  mv %{current_archive} %{previous_archive}
+fi
+mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
+
+pkg-upgrade --previous %{previous_archive} --current %{current_archive}
+
+%preun
+
+%postun
+# uninstall lucene index and Jetty scratch dir on every install
+rm -rf /var/sipxdata/tmp/index 2> /dev/null
+rm -rf /var/sipxdata/tmp/Jetty__8443__sipxconfig 2> /dev/null
+
+# empty but required to generate RPM
+%files tftp
+
+%post tftp
+sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\W*/tftpboot\W*| %{phonedir}/profile/tftproot|'
+# empty but required to generate RPM
+%files ftp
+
+%post ftp
+
+if ! id -u PlcmSpIp > /dev/null 2>&1
+then
+  # default user account polycom phones use
+  /usr/sbin/adduser -d %{phonedir}/profile/tftproot \
+    -s /sbin/nologin -M PlcmSpIp >/dev/null
+  echo -e "PlcmSpIp" | sudo passwd --stdin PlcmSpIp >/dev/null
+fi
+
+# 'install' ftpd config file
+mv %{vsftpd_conf} %{vsftpd_conf}.sipx-orig
+cat > %{vsftpd_conf} <<EOF
+# vsftpd config for sipxconfig 
+local_enable=YES
+write_enable=YES
+local_umask=022
+dirmessage_enable=YES
+xferlog_enable=YES
+connect_from_port_20=YES
+xferlog_std_format=YES
+pam_service_name=vsftpd
+userlist_enable=YES
+listen=YES
+tcp_wrappers=YES
+chroot_local_user=YES
+EOF
+chmod 600 %{vsftpd_conf}
+
+/sbin/chkconfig vsftpd on >/dev/null
+
+# anaconda installs may not have network installed or ready
+# however they do restart system post installation
+if [ -f /etc/sysconfig/network ] ; then
+  /sbin/service vsftpd start >/dev/null
+fi
+
+%preun ftp
+if [ "$1" = "0" ] ; then
+  /usr/sbin/userdel PlcmSpIp
+  if [ -e %{vsftpd_conf}.sipx-orig ]
+  then
+    mv %{vsftpd_conf}.sipx-orig %{vsftpd_conf}
+    service vsftpd restart
+  fi
+fi
+
+%files agent
+%defattr(644,root,root,755)
+%{sipxpbxvarlib}/sipXconfig-agent-*.gem
+%{sipxpbxvarlib}/file-tail-*.gem
+
+%attr(755,root,root) %{_bindir}/sipxconfig-agent
+
+%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
+%config(noreplace) %{sipxpbxconf}/process.d/sipxconfig-agent.process.xml
+
+%post agent
+gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-agent-*.gem >/dev/null
+gem install --no-rdoc --local %{sipxpbxvarlib}/file-tail-*.gem >/dev/null
+
+%preun agent
+# prevent uninstalling during an upgrade
+#   see http://www-128.ibm.com/developerworks/library/l-rpm3/
+if [ "$1" = "0" ] ; then
+  gem uninstall sipXconfig-agent >/dev/null 
+fi
+# not uninstalling file-tail incase it's used elsewhere
+
+%files report
+%defattr(644,root,root,755)
+%{sipxpbxvarlib}/sipXconfig-report-*.gem
+%config(noreplace) /etc/cron.d/sipxconfig-report-crontab
+
+%attr(755,root,root) %{_bindir}/sipxconfig-report
+
+%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
+%config(noreplace) %{sipxpbxconf}/report/sipxconfig-report-config
+%config(noreplace) %{sipxpbxconf}/report/schema.sql
+
+%post report
+gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-report-*.gem >/dev/null
+if ( ! test -f /etc/cron.d/cron.allow ) || ( ! grep '^@SIPXPBXUSER@$' /etc/cron.d/cron.allow ); then
+  echo @SIPXPBXUSER@ >> /etc/cron.d/cron.allow
+fi
+
+%preun report
+# prevent uninstalling during an upgrade
+#   see http://www-128.ibm.com/developerworks/library/l-rpm3/
+if [ "$1" = "0" ] ; then
+  gem uninstall sipXconfig-report >/dev/null
+fi

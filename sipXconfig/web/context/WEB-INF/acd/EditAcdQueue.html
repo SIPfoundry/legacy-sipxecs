@@ -1,0 +1,39 @@
+<div jwcid="border">
+  <h2>
+    <span key="title">ACD Queue</span>
+  </h2>
+  <span jwcid="ifRenderTabs">
+    <span jwcid="tabs"/>
+  </span>
+  <div id="settings-content">
+    <span jwcid="configBlock@Block">
+      <form jwcid="form" id="queue:form">
+        <fieldset>
+          <table>
+            <tbody>
+              <span jwcid="commonFieldset"/>
+              <tr for="queue:overflow" jwcid="queueSelectionPanel">
+                <span id="queue:overflow" jwcid="queueSelection"/>
+              </tr>
+            </tbody>
+          </table>
+        </fieldset>
+        <fieldset jwcid="settingsFieldset" id="fieldset:settings:acdQueue"/>
+        <span jwcid="formActions"/>
+      </form>
+    </span>
+    <span jwcid="agentsBlock@Block">
+      <form jwcid="agentsForm">
+        <fieldset jwcid="acdAgentsPanel"/>
+      </form>
+    </span>
+    <span jwcid="agentsStatsBlock@Block">
+      <span jwcid="acdAgentsStatsPanel"/>
+    </span>
+    <span jwcid="callsStatsBlock@Block">
+      <span jwcid="acdCallsStatsPanel"/>
+    </span>
+    <span jwcid="@ErrorMsg"/>
+    <span jwcid="tabContent"/>
+  </div>
+</div>

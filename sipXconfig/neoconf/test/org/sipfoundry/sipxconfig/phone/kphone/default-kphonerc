@@ -1,0 +1,12 @@
+[Call register]
+Dialled0=
+
+[General]
+TrayIcon=No
+
+[Registration]
+SipUri="Joe User"<sip:juser@sipfoundry.org>
+UserName=juser
+SipServer=sipfoundry.org
+AutoRegister=Yes
+qValue=

@@ -1,0 +1,76 @@
+# included directly (or indirectory) in every Makefile.am
+
+# unclear why this is nec, putting in common place incase this is
+# relevant to some odd platform
+INSTALL=@INSTALL@
+
+SIPX_VERSION:=@VERSION@-$(shell @abs_top_srcdir@/config/svn-version @abs_top_srcdir@)
+
+LocalizeSipXconfig = sed \
+		  -e 's,@PACKAGE\@,@PACKAGE@,g' \
+		  -e 's,@VERSION\@,@VERSION@,g' \
+		  -e 's,@SIPX_VERSION\@,$(SIPX_VERSION),g' \
+		  -e 's,@abs_builddir\@,@abs_builddir@,g' \
+		  -e 's,@abs_srcdir\@,@abs_srcdir@,g' \
+		  -e 's,@abs_top_srcdir\@,@abs_top_srcdir@,g' \
+		  -e 's,@CONFIGURE_OPTIONS\@,@CONFIGURE_OPTIONS@,g' \
+		  -e 's,@bindir\@,$(bindir),g' \
+		  -e 's,@datadir\@,$(datadir),g' \
+		  -e 's,@htmldir\@,@htmldir@,g' \
+		  -e 's,@INSTALL\@,@INSTALL@,g' \
+		  -e 's,@install_sh\@,@install_sh@,g' \
+		  -e 's,@libdir\@,$(libdir),g' \
+		  -e 's,@localstatedir\@,$(localstatedir),g' \
+		  -e 's,@pkgdatadir\@,@pkgdatadir@,g' \
+		  -e 's,@prefix\@,$(prefix),g' \
+		  -e 's,@profiledir\@,@profiledir@,g' \
+		  -e 's,@wwwdir\@,@wwwdir@,g' \
+		  -e 's,@host\@,@host@,g' \
+		  -e 's,@PERL\@,@PERL@,g' \
+		  -e 's,@RUBY\@,@RUBY@,g' \
+		  -e 's,@RAKE\@,@RAKE@,g' \
+		  -e 's,@GEM\@,@GEM@,g' \
+		  -e 's,@APACHE2_HTTPD\@,@APACHE2_HTTPD@,g' \
+		  -e 's,@APACHE2_MOD\@,@APACHE2_MOD@,g' \
+		  -e 's,@CLOVER_HOME\@,@CLOVER_HOME@,g' \
+		  -e 's,@JAVAC_DEBUG\@,@JAVAC_DEBUG@,g' \
+		  -e 's,@JAVAC_OPTIMIZED\@,@JAVAC_OPTIMIZED@,g' \
+		  -e 's,@JAVA\@,@JAVA@,g' \
+		  -e 's,@JAVA_HOME\@,@JAVA_HOME@,g' \
+		  -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g' \
+		  -e 's,@SIPXCONFIG_LIBDIR\@,@SIPXCONFIG_LIBDIR@,g' \
+		  -e 's,@SIPXPBXUSER\@,@SIPXPBXUSER@,g' \
+		  -e 's,@SIPX_BINDIR\@,@SIPX_BINDIR@,g' \
+		  -e 's,@SIPX_CONFDIR\@,@SIPX_CONFDIR@,g' \
+		  -e 's,@SIPX_CONFIGPHONEDIR\@,@SIPX_CONFIGPHONEDIR@,g' \
+		  -e 's,@SIPX_BACKUPDIR\@,@SIPX_BACKUPDIR@,g' \
+		  -e 's,@SIPX_DATADIR\@,@SIPX_DATADIR@,g' \
+		  -e 's,@SIPX_DBDIR\@,@SIPX_DBDIR@,g' \
+		  -e 's,@SIPX_DOCDIR\@,@SIPX_DOCDIR@,g' \
+		  -e 's,@SIPX_LOGDIR\@,@SIPX_LOGDIR@,g' \
+		  -e 's,@SIPX_RUNDIR\@,@SIPX_RUNDIR@,g' \
+		  -e 's,@SIPX_TMPDIR\@,@SIPX_TMPDIR@,g' \
+		  -e 's,@SIPX_INCDIR\@,@SIPX_INCDIR@,g' \
+		  -e 's,@SIPX_LIBDIR\@,@SIPX_LIBDIR@,g' \
+		  -e 's,@SIPX_PROCDIR\@,@SIPX_PROCDIR@,g' \
+		  -e 's,@SIPX_LIBEXECDIR\@,@SIPX_LIBEXECDIR@,g' \
+		  -e 's,@SIPX_VARDIR\@,@SIPX_VARDIR@,g' \
+		  -e 's,@SIPX_SCHEMADIR\@,@SIPX_SCHEMADIR@,g' \
+		  -e 's,@SIPX_UPGRADEDIR\@,@SIPX_UPGRADEDIR@,g' \
+		  -e 's,@SIPX_VXMLDATADIR\@,@SIPX_VXMLDATADIR@,g' \
+		  -e 's,@SIPX_PARKMUSICDIR\@,@SIPX_PARKMUSICDIR@,g' \
+		  -e 's,@XPRESSA_BUILD_NUMBER\@,@XPRESSA_BUILD_NUMBER@,g' \
+		  -e 's,@XPRESSA_BUILD_COMMENT\@,@XPRESSA_BUILD_COMMENT@,g' \
+		  -e 's,@SIPXPHONELIB\@,@SIPXPHONELIB@,g' \
+		  -e 's,@SIPXPHONEDATA\@,@SIPXPHONEDATA@,g' \
+		  -e 's,@SIPXPHONECONF\@,@SIPXPHONECONF@,g' \
+		  -e 's,@SIPXPBX_LABEL\@,@SIPXPBX_LABEL@,g' \
+		  -e 's,@NAMED_PROGRAM\@,@NAMED_PROGRAM@,g' \
+		  -e 's,@SELINUX_GETENFORCE\@,@SELINUX_GETENFORCE@,g' \
+		  -e 's,@LIBWWW_RPM\@,@LIBWWW_RPM@,g'
+
+# install sipx watchdog support
+$(DESTDIR)$(SIPX_PROCDIR)/%.process.xml : %.process.xml.in
+	$(LocalizeSipXconfig) $< > `basename $@`
+	$(INSTALL) -d $(DESTDIR)$(SIPX_PROCDIR)
+	$(INSTALL) -D -m 644 `basename $@` $@

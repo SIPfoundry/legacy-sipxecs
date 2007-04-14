@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.apache.tapestry.BaseComponent" allow-body="no" allow-informal-parameters="no">
+  <!-- P A R A M E T E R S -->
+  <parameter name="ring" required="yes"/>
+  <parameter name="index" required="yes"/>
+  <parameter name="deleteListener" required="yes"/>
+  
+  <!-- B E A N S -->
+  <bean name="delayModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
+    <set name="enumClass" value="@org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$Type@class"/>
+  </bean>
+  <bean name="ringMode" class="org.sipfoundry.sipxconfig.components.BooleanPropertySelectionModel" lifecycle="page">
+    <set name="falseLabel" value="message:disabled"/>
+    <set name="trueLabel" value="message:enabled"/>
+  </bean>
+  
+  <!-- C O M P O N E N T S -->
+  <component id="type" type="PropertySelection">
+    <binding name="value" value="ring.type"/>
+    <binding name="model" value="bean:delayModel"/>
+  </component>
+  <component id="enabled" type="PropertySelection">
+    <binding name="value" value="ring.enabled"/>
+    <binding name="model" value="bean:ringMode"/>
+  </component>
+  <component id="numberLabel" type="FieldLabel">
+    <binding name="field" value="components.number"/>
+  </component>
+  <component id="number" type="TextField">
+    <binding name="value" value="ring.number"/>
+    <binding name="validators" value="spring-validators:validPhoneOrAor,required"/>
+    <binding name="maxlength" value="255"/>
+    <binding name="size" value="20"/>
+    <binding name="displayName" value="message:label.forward"/>
+  </component>
+  <component id="expirationLabel" type="FieldLabel">
+    <binding name="field" value="components.expiration"/>
+  </component>
+  <component id="expiration" type="TextField">
+    <binding name="value" value="ring.expiration"/>
+    <binding name="displayName" value="message:label.ring"/>
+    <binding name="translator" value="translator:number"/>
+    <binding name="validators" value="validators:required,min=1,max=999"/>
+  </component>
+  <component id="deleteRing" type="DirectLink">
+    <binding name="listener" value="deleteListener"/>
+    <binding name="parameters" value="index"/>
+  </component>
+</component-specification>

@@ -1,0 +1,32 @@
+<div jwcid="@Border">
+  <h2><span key="Title">Phones</span></h2>
+  <div class="help"> 
+    <b><span key="label.quickLinks">Quick Links</span></b>
+    <ul>
+      <li><a jwcid="@PageLink" page="ManageUsers" href="#"><span key="users">Users</span></a>
+      </li>
+      <li><a jwcid="@PageLink" page="JobStatusPage" href="#"><span key="jobStatus">Job Status</span></a>
+      </li>
+    </ul>
+  </div>
+  <div jwcid="@QuickHelp" value="message:help.restart">restart help text...</div>
+  <span jwcid="@ErrorMsg"/>
+  <form jwcid="phoneManagement@Form" delegate="bean:validator">
+    <ul class="component-links">
+      <li>
+        <span jwcid="@phone/ModelSelector"/>
+      </li>    
+    </ul>    
+    <ul class="component-submit">
+      <li>
+        <span jwcid="@GroupFilter" 
+          selectedGroupId="ognl:groupId" 
+          groups="ognl:phoneContext.groups"
+          queryText="ognl:queryText"
+          searchMode="ognl:searchMode" />
+      </li>
+    </ul>
+    <table jwcid="@phone/PhoneTable" selections="bean:selections" source="ognl:tableModel"/>
+    <ul jwcid="@phone/PhoneTableActions" selections="bean:selections" actionModel="ognl:actionModel"/>
+  </form>
+</div>

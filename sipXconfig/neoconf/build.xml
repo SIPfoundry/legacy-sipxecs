@@ -1,0 +1,375 @@
+<project name="neoconf" default="default">
+  <property name="sipxconfig.db.pds" value="SIPXCONFIG_TEST" />
+  <property name="sipxconfig.db.user" value="postgres" />
+
+  <property name="test.src.dir" value="test" />
+  <property name="checkstyle.severity" value="error" />
+
+  <property name="project.dir" value="neoconf" />
+  <import file="../ant-targets.xml" />
+  <patternset id="test-db.classes" includes="**/${test.name}TestDb.class" />
+
+  <!-- 
+	    - common path unittests will need that interfaces w/sipxconfig lib 
+	    - all spring jars at this point
+	    -->
+  <path id="compile.dependencies">
+    <pathelement location="${saxpath.jar}" />
+    <pathelement location="${jaxen.jar}" />
+    <pathelement location="${commons-lang.jar}" />
+    <pathelement location="${spring.jar}" />
+    <pathelement location="${hibernate.jar}" />
+    <pathelement location="${servlet.jar}" />
+    <pathelement location="${velocity.jar}" />
+    <pathelement location="${commons-digester.jar}" />
+    <pathelement location="${commons-collections.jar}" />
+    <pathelement location="${commons-codec.jar}" />
+    <pathelement location="${commons-io.jar}" />
+    <pathelement location="${xmlrpc.jar}" />
+    <pathelement location="${acegi-security.jar}" />
+    <pathelement location="${xstream.jar}" />
+    <path refid="axis.path" />
+    <pathelement location="${agent-bindings.jar}" />
+    <pathelement location="${cdr-bindings.jar}" />
+  </path>
+
+  <!-- 
+	    - common path unittests will need that interfaces w/sipxconfig lib 
+	    - all spring jars at this point
+	    -->
+  <path id="runtime.dependencies">
+    <pathelement location="${commons-logging.jar}" />
+    <pathelement location="${logkit.jar}" />
+    <pathelement location="${c3p0.jar}" />
+    <pathelement location="${commons-pool.jar}" />
+    <pathelement location="${commons-beanutils.jar}" />
+    <pathelement location="${aopalliance.jar}" />
+    <pathelement location="${dom4j.jar}" />
+    <pathelement location="${ehcache.jar}" />
+    <pathelement location="${asm.jar}" />
+    <pathelement location="${cglib.jar}" />
+    <pathelement location="${antlr.jar}" />
+    <pathelement location="${jta.jar}" />
+    <pathelement location="${jdbc-driver.jar}" />
+    <pathelement location="${odmg.jar}" />
+    <pathelement location="${ehcache.jar}" />
+    <pathelement location="${lucene.jar}" />
+  </path>
+
+  <path id="base.path">
+
+    <path refid="compile.dependencies" />
+
+    <!-- TEST -->
+    <!-- TODO: Separate these from compile dependencies -->
+    <path refid="runtime.dependencies" />
+
+    <!-- TEST -->
+    <pathelement location="${easymock.jar}" />
+    <pathelement location="${easymockclassextension.jar}" />
+    <pathelement location="${dbunit.jar}" />
+    <pathelement location="${junitperf.jar}" />
+    <pathelement location="${p6spy.jar}" />
+    <pathelement location="${xmlunit.jar}" />
+    <pathelement location="${xerces.jar}" />
+    <pathelement location="${xml-apis.jar}" />
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <!-- INSTALL -->
+  <target name="install" depends="jar">
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}" />
+    <copy todir="${dest.dir}${sipxpbx.conf.dir}">
+      <fileset dir="etc">
+        <include name="**/*" />
+        <!-- goes into tftp root, see below -->
+        <exclude name="ciscoIp/syncinfo.xml" />
+        <exclude name="ciscoAta/sipx7912.logo" />
+      </fileset>
+    </copy>
+
+    <replace file="${dest.dir}${sipxpbx.conf.dir}/sipxconfig.properties.in"
+             propertyfile="${top.build.dir}/build.properties">
+      <replacefilter token="@version@" property="version" />
+      <replacefilter token="@sipxpbx.bin.dir@" property="sipxpbx.bin.dir" />
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
+      <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir" />
+      <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir" />
+      <replacefilter token="@sipxconfig.upload.dir@" property="sipxconfig.upload.dir" />
+      <replacefilter token="@sipxconfig.phonebook.dir@" property="sipxconfig.phonebook.dir" />
+      <replacefilter token="@sipxconfig.phone.dir@" property="sipxconfig.phone.dir" />
+      <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir" />
+      <replacefilter token="@sipxvxml.data.dir@" property="sipxvxml.data.dir" />
+      <replacefilter token="@sipxpark.audio.dir@" property="sipxpark.audio.dir" />
+      <replacefilter token="@sipxpbx.backup.dir@" property="sipxpbx.backup.dir" />
+      <replacefilter token="@sipxpbx.user@" property="sipxpbx.user" />
+      <replacefilter token="@www.dir@" property="www.dir" />
+    </replace>
+
+    <!-- copy jars and war -->
+    <mkdir dir="${dest.dir}${sipxpbx.data.dir}/lib" />
+    <copy todir="${dest.dir}${sipxpbx.data.dir}/lib">
+      <fileset file="${sipxconfig.jar}" />
+      <fileset file="${jetty.jar}" />
+      <fileset file="${servlet.jar}" />
+      <fileset file="${xerces.jar}" />
+      <fileset file="${xml-apis.jar}" />
+      <fileset file="${ant.jar}" />
+      <fileset file="${ant-launcher.jar}" />
+      <fileset file="${j2ee.jar}" />
+      <fileset file="${spring.jar}" />
+      <fileset file="${asm.jar}" />
+      <fileset file="${hibernate.jar}" />
+      <fileset file="${odmg.jar}" />
+      <fileset file="${ehcache.jar}" />
+      <fileset file="${jdbc-driver.jar}" />
+      <fileset file="${logkit.jar}" />
+      <fileset file="${velocity.jar}" />
+      <fileset file="${commons-logging.jar}" />
+      <fileset file="${servlet.jsp.jar}" />
+      <fileset file="${jasper-compiler.jar}" />
+      <fileset file="${jasper-runtime.jar}" />
+      <fileset file="${c3p0.jar}" />
+      <fileset file="${commons-pool.jar}" />
+      <fileset file="${commons-digester.jar}" />
+      <fileset file="${commons-collections.jar}" />
+      <fileset file="${commons-beanutils.jar}" />
+      <fileset file="${commons-lang.jar}" />
+      <fileset file="${commons-codec.jar}" />
+      <fileset file="${commons-fileupload.jar}" />
+      <fileset file="${commons-io.jar}" />
+      <fileset file="${aopalliance.jar}" />
+      <fileset file="${dom4j.jar}" />
+      <fileset file="${saxpath.jar}" />
+      <fileset file="${jaxen.jar}" />
+      <fileset file="${cglib.jar}" />
+      <fileset file="${jta.jar}" />
+      <fileset file="${javassist.jar}" />
+      <fileset file="${bsf.jar}" />
+      <fileset file="${jakarta-oro.jar}" />
+      <fileset file="${log4j.jar}" />
+      <fileset file="${xmlrpc.jar}" />
+      <fileset file="${antlr.jar}" />
+      <fileset file="${lucene.jar}" />
+      <fileset file="${agent-bindings.jar}" />
+      <fileset file="${cdr-bindings.jar}" />
+      <fileset file="${xstream.jar}" />
+    </copy>
+
+    <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot" />
+    <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" />
+    <mkdir dir="${dest.dir}${sipxconfig.phonebook.dir}" />
+    <mkdir dir="${dest.dir}${sipxpbx.log.dir}" />
+
+    <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoIp/syncinfo.xml" />
+    <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoAta/sipx7912.logo" />
+
+  </target>
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="agent.bindings,cdr.bindings,jar" />
+
+  <!-- J A R -->
+  <target name="jar" depends="compile,manifest" description="assemble sipxconfig jar library">
+    <sipx-jar file="${sipxconfig.jar}">
+      <fileset dir="${classes.dir}" />
+      <fileset dir="${src.dir}">
+        <include name="**/*.xml" />
+        <include name="**/*.properties" />
+      </fileset>
+      <!-- helpful when turning SQL debugging on -->
+      <!-- fileset file="${test.src.dir}/spy.properties"/ -->
+    </sipx-jar>
+  </target>
+
+  <target name="test-all" depends="ant-targets.test-all,test-db,test-models" />
+
+  <!--
+    - U N I T T E S T   W I T H   D A T A B A S E  A C C E S S
+    -->
+  <target name="test-db"
+          depends="compile.test, reset-db, test-datasets"
+          description="run junit tests that interact with database">
+
+    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
+      <classpath refid="test.path" />
+      <formatter type="plain" />
+      <formatter type="xml" />
+      <sysproperty key="basedir" value="${basedir}" />
+      <batchtest todir="${junit.results.dir}">
+        <fileset dir="${test.classes.dir}">
+          <patternset refid="test-db.classes" />
+        </fileset>
+      </batchtest>
+    </junit>
+    <antcall target="failure-report"/>
+    <fail if="junit.failed" />
+  </target>
+
+  <target name="test-performance"
+          depends="compile.test, reset-db"
+          description="run junit tests that run performance tests">
+
+    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
+      <classpath refid="test.path" />
+      <formatter type="plain" />
+      <formatter type="xml" />
+      <sysproperty key="basedir" value="${basedir}" />
+      <batchtest todir="${junit.results.dir}">
+        <fileset dir="${test.classes.dir}">
+          <patternset refid="test-performance.classes" />
+        </fileset>
+      </batchtest>
+    </junit>
+    <fail if="junit.failed" />
+  </target>
+
+
+  <target name="test-models">
+    <xmlvalidate description="validate setting description files">
+      <fileset dir="etc/audiocodes" includes="**/*.xml" excludes="types.xml">
+      </fileset>
+      <fileset dir="etc/ciscoIp">
+        <include name="**/*.xml" />
+        <exclude name="syncinfo.xml" />
+        <exclude name="types.xml" />
+      </fileset>
+      <fileset dir="etc/ciscoAta" includes="**/*.xml" excludes="types.xml">
+      </fileset>
+      <fileset dir="etc/commserver" includes="**/*.xml" excludes="types.xml">
+      </fileset>
+      <fileset dir="etc/kphone" includes="**/*.xml" excludes="types.xml">
+      </fileset>
+      <fileset dir="etc/polycom" includes="**/*.xml" excludes="types.xml">
+      </fileset>
+      <fileset dir="etc/snom" includes="**/*.xml" excludes="types.xml">
+      </fileset>
+      <fileset dir="etc/grandstream" includes="**/*.xml" excludes="types.xml">
+      </fileset>
+      <fileset dir="etc/sipxconference" includes="**/*.xml">
+      </fileset>
+      <dtd publicid="-//SIPFoundry//sipXconfig//Model specification 2.0//EN" location="etc/setting.dtd" />
+    </xmlvalidate>
+  </target>
+
+  <target name="test-datasets">
+    <xmlvalidate description="validate dataset files used in tests">
+      <!-- temporary exclude acd files - will fix them in a separate commit -->
+      <fileset dir="test" includes="**/*.db.xml" excludes="**/acd/**">
+      </fileset>
+    </xmlvalidate>
+  </target>
+
+  <target name="reset-db"
+          depends="reset-acd-history-db"
+          description="Resets the test database. Needs to be called before UI and WEB tests.">
+    <subant target="unittest-reset">
+      <!-- THIS PROPERTY VERY IMPORTANT -->
+      <property name="sipxconfig.db.name" value="SIPXCONFIG_TEST" />
+      <property name="jdbc-driver.jar" value="${jdbc-driver.jar}" />
+      <filelist dir="etc/database" files="database.xml" />
+    </subant>
+  </target>
+
+  <target name="reset-acd-history-db">
+    <property name="acd.history.test.db.url" value="jdbc:postgresql://localhost/${acd.history.test.db}" />
+    <exec executable="dropdb" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} ${acd.history.test.db}" />
+    </exec>
+    <exec executable="createdb" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} ${acd.history.test.db}" />
+    </exec>
+    <pgsql url="${acd.history.test.db.url}" src="${acd.history.db.schema}" />
+    <pgsql url="${acd.history.test.db.url}" src="test/org/sipfoundry/sipxconfig/acd/stats/history-seed.sql" />
+  </target>
+
+  <!-- Comment out hibernate stuff to avoid causing problems on Windows 
+    -->
+
+  <taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask">
+    <classpath>
+      <pathelement location="${top.dir}/lib/hibernate-3.1.3.jar" />
+      <pathelement location="${top.dir}/lib/hibernate-tools.jar" />
+      <path refid="base.path" />
+      <pathelement location="${jdbc-driver.jar}" />
+    </classpath>
+  </taskdef>
+
+  <target name="hbm2ddl" depends="default">
+    <hibernatetool destdir="${build.dir}">
+      <classpath location="${build.dir}/classes">
+        <pathelement location="${commons-lang.jar}" />
+      </classpath>
+      <configuration propertyFile="${top.dir}/meta/hibernate.properties">
+        <fileset dir="${src.dir}" id="id">
+          <include name="**/common.hbm.xml" />
+          <include name="**/setting.hbm.xml" />
+          <include name="**/speeddial.hbm.xml" />
+        </fileset>
+      </configuration>
+
+      <hbm2ddl export="false" outputfilename="schema.sql" format="true" />
+    </hibernatetool>
+  </target>
+
+  <!--
+	-->
+
+  <target name="dataset-db"
+          description="Generates the sipconfig-db.dtd which is used to validate datasets"
+          depends="compile.test, reset-db">
+    <java classname="org.sipfoundry.sipxconfig.GenerateDatabaseDtd" classpathref="test.path" fork="on">
+      <arg value="${test.classes.dir}" />
+    </java>
+    <echo level="info" message="Please remember to commit new sipxconfig-db.dtd file" />
+  </target>
+
+  <target name="generate.agent.bindings">
+    <delete dir="${agent.bindings.src.dir}" />
+    <mkdir dir="${agent.bindings.src.dir}" />
+    <wsdl2java url="${agent.wsdl}" output="${agent.bindings.src.dir}" noWrapped="true">
+      <mapping namespace="urn:StatsService" package="org.sipfoundry.sipxconfig.acd.stats" />
+    </wsdl2java>
+  </target>
+
+  <target name="agent.bindings" depends="generate.agent.bindings">
+    <delete dir="${agent.bindings.dir}" />
+    <mkdir dir="${agent.bindings.dir}" />
+    <sipx-javac srcdir="${agent.bindings.src.dir}" destdir="${agent.bindings.dir}" classpathref="base.path">
+      <classpath>
+        <pathelement path="${classes.dir}" />
+        <path refid="axis.path" />
+      </classpath>
+    </sipx-javac>
+    <jar destfile="${agent-bindings.jar}" basedir="${agent.bindings.dir}" />
+  </target>
+
+  <target name="generate.cdr.bindings">
+    <delete dir="${cdr.bindings.src.dir}" />
+    <mkdir dir="${cdr.bindings.src.dir}" />
+    <wsdl2java url="${cdr.wsdl}" output="${cdr.bindings.src.dir}" noWrapped="true">
+      <mapping namespace="urn:CdrService" package="org.sipfoundry.sipxconfig.cdr" />
+    </wsdl2java>
+  </target>
+
+  <target name="cdr.bindings" depends="generate.cdr.bindings">
+    <delete dir="${cdr.bindings.dir}" />
+    <mkdir dir="${cdr.bindings.dir}" />
+    <sipx-javac srcdir="${cdr.bindings.src.dir}" destdir="${cdr.bindings.dir}" classpathref="base.path">
+      <classpath>
+        <pathelement path="${classes.dir}" />
+        <path refid="axis.path" />
+      </classpath>
+    </sipx-javac>
+    <jar destfile="${cdr-bindings.jar}" basedir="${cdr.bindings.dir}" />
+  </target>
+
+
+  <presetdef name="pgsql">
+    <sql driver="org.postgresql.Driver"
+         userid="${sipxconfig.db.user}"
+         password="${sipxconfig.db.password}"
+         classpath="${jdbc-driver.jar}" />
+  </presetdef>
+
+</project>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- This is just an example of how to register new gateway -->
+  <bean id="acmeGatewayStandard" class="org.sipfoundry.sipxconfig.gateway.GatewayModel">
+    <property name="beanId" value="gwAcme"/>
+    <property name="label" value="Acme 1000"/>
+  </bean>
+
+  <bean id="gwAcme" class="org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway" singleton="false"
+    parent="gwGeneric">
+  </bean>
+</beans>

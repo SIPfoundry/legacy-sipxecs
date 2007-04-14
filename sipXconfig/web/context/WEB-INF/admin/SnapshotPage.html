@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>sipXconfig</title>
+		<link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
+	</head>
+	<body jwcid="$content$">
+		<div jwcid="@Border">
+			<h2><span key="title">Snapshot</span></h2>
+			<span jwcid="errors"/>
+			<p jwcid="ifResultsPresent">
+                <ul> 
+                    <li> 
+                        <span jwcid="snapshotLink"><span jwcid="linkText"/></span> 
+                    </li> 
+                </ul>
+                </p>
+			<form jwcid="form">
+				<fieldset>
+					<table>
+						<tbody>
+                            <span jwcid="logsPanel" for="snapshot:logs">
+                                <span jwcid="logsCheck" id="snapshot:logs"/>
+                            </span>
+                            <span jwcid="wwwPanel" for="snapshot:www">
+                                <span jwcid="wwwCheck" id="snapshot:www"/>
+                            </span>
+                            <span jwcid="credentialsPanel" for="snapshot:credentials">
+                                <span jwcid="credentialsCheck" id="snapshot:credentials"/>
+                            </span>
+						</tbody>
+					</table>
+				</fieldset>
+				<span jwcid="actions"/>
+			</form>
+		</div>
+	</body>
+</html>

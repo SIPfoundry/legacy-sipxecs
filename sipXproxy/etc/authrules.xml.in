@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00'>
+  <hostMatch>
+    <!-- No permissions are required to dial an emergency number. -->
+    <hostPattern>${GW_EMERGENCY_DIALING_ADDR}</hostPattern>
+    <userMatch>
+      <!-- Internet draft draft-schulzrinne-sipping-sos-04.txt describes
+           the emerging standard "sos" (case insensitive) as the
+           universal emergency assistance number, to unify the
+           incompatible national standards.
+           All other emergency assistance numbers (e.g., 9911) are mapped
+           to 911 by fallbackrules.xml and so need not be mentioned here. -->
+      <userPattern>sos</userPattern>
+      <userPattern>911</userPattern>
+      <permissionMatch>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+  <hostMatch>
+    <!-- This rule allows calls to be placed to certain destinations
+         without requiring authentication.  In particular, this
+         rule is needed to support "hairpin" calls where an incoming
+         call from the PSTN is forwarded or transferred to the PSTN. -->
+    <hostPattern>${GW_LONG_DISTANCE_DIALING_ADDR}</hostPattern>
+    <userMatch>
+      <!-- The user patterns should allow numbers with an optional
+           "1" prefix as in ...
+      <userPattern>12125551212</userPattern>
+      <userPattern>2125551212</userPattern>
+      -->
+      <permissionMatch>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+  <hostMatch>
+    <!-- Dialing an "800" number requires LocalDialing permission.
+         Accept "800" numbers with an optional "1" prefix. -->
+    <hostPattern>${GW_800_DIALING_ADDR}</hostPattern>
+    <userMatch>
+      <userPattern>1800xxxxxxx.</userPattern>
+      <userPattern>1888xxxxxxx.</userPattern>
+      <userPattern>1877xxxxxxx.</userPattern>
+      <userPattern>800xxxxxxx.</userPattern>
+      <userPattern>888xxxxxxx.</userPattern>
+      <userPattern>877xxxxxxx.</userPattern>
+      <permissionMatch>
+        <permission>LocalDialing</permission>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+  <hostMatch>
+    <!-- Dialing a "900" number requires 900Dialing permission.
+         Accept "900" numbers with an optional "1" prefix. -->
+    <hostPattern>${GW_900_DIALING_ADDR}</hostPattern>
+    <userMatch>
+      <userPattern>1900xxxxxxx.</userPattern>
+      <userPattern>900xxxxxxx.</userPattern>
+      <permissionMatch>
+        <permission>900Dialing</permission>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+  <hostMatch>
+    <!-- Ten digit numbers that start with a digit in the [2-9]
+         set of digits or eleven digit numbers that include
+         an optional "1" prefix represent outside calls and require
+         LongDistanceDialing permission -->
+    <hostPattern>${GW_LONG_DISTANCE_DIALING_ADDR}</hostPattern>
+    <userMatch>
+      <userPattern>1[2-9]xxxxxxxxx.</userPattern>
+      <userPattern>[2-9]xxxxxxxxx.</userPattern>
+      <permissionMatch>
+        <permission>LongDistanceDialing</permission>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+  <hostMatch>
+    <!-- International calls are designated by the 011 prefix and
+         require InternationalDialing permission. -->
+    <hostPattern>${GW_INTL_DIALING_ADDR}</hostPattern>
+    <userMatch>
+      <userPattern>011x.</userPattern>
+      <permissionMatch>
+        <permission>InternationalDialing</permission>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+  <hostMatch>
+    <!-- Local calls (seven digit external calls) are designated by the
+         xxxxxxx pattern and require LocalDialing permission -->
+    <hostPattern>${GW_LOCAL_DIALING_ADDR}</hostPattern>
+    <userMatch>
+      <userPattern>xxxxxxx</userPattern>
+      <permissionMatch>
+        <permission>LocalDialing</permission>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+  <hostMatch>
+    <!-- Reject all other calls to the gateways that are not handled
+         by the earlier rules -->
+    <hostPattern>${GW_EMERGENCY_DIALING_ADDR}</hostPattern>
+    <hostPattern>${GW_800_DIALING_ADDR}</hostPattern>
+    <hostPattern>${GW_900_DIALING_ADDR}</hostPattern>
+    <hostPattern>${GW_LONG_DISTANCE_DIALING_ADDR}</hostPattern>
+    <hostPattern>${GW_INTL_DIALING_ADDR}</hostPattern>
+    <hostPattern>${GW_LOCAL_DIALING_ADDR}</hostPattern>
+    <userMatch>
+      <userPattern>.</userPattern>
+      <permissionMatch>
+        <permission>NoAccess</permission>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+</mappings>

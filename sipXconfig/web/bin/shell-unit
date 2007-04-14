@@ -1,0 +1,46 @@
+#!/bin/sh
+
+##------------------------------------
+# ShellUnit test framework functions
+##------------------------------------
+assertEquals() {
+  if [ "${1}" != "${2}" ]; then
+    echo >&2 "FAILED: Expected"
+    echo >&2 " ${1}"
+    echo >&2 "Actual"
+    echo >&2 " ${2}"
+    exit 1
+  fi
+}
+
+assertNotEquals() {
+  if [ "${1}" == "${2}" ]; then
+    echo >&2 "FAILED: Values are identical"
+    echo >&2 " ${1}"
+    exit 1
+  fi
+}
+
+assertFileEquals() {
+  Diff=`diff ${1} ${2}`
+  if [ -n "${Diff}" ]; then
+    echo  >&2 "FAILED: Files differ ${1} ${2}"
+    echo  >&2 "${Diff}"
+    exit 1
+  fi
+}
+
+assertTrue() {
+  eval $@
+  if [ 0 -ne $? ] ; then
+    echo >&2 "FAILED: Assertion failed"
+    echo >&2 "$@" 
+    exit 1
+  fi
+}
+
+runTest() {
+  setUp
+  echo "[TEST:${1}]"
+  ${1}
+}

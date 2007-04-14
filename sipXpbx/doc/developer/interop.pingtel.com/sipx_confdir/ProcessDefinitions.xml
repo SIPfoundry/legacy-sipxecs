@@ -1,0 +1,250 @@
+<?xml version="1.0"?>
+<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     IMPORTANT NOTE
+     The startup scripts referenced here are also used (alas, directly)
+     from the sipxpbx.in startup script.  Do not change names or calling
+     parameters without making equivalent changes there.
+     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+
+<!-- Set the defaultdir for all processes to SIPX_LOGDIR as the
+     working directory, so that any core files they produce will be put
+     there. -->
+
+<process_definitions xmlns="http://www.sipfoundry.org/sipX/schema/xml/processdefinitions-00-00">
+    <dependentdelay wait="0" />
+    <workdir location="/var/sipxdata/tmp" />
+
+    <!-- =============================================== -->
+    <!-- LOGFILE FOR PROCESSCGI              -->
+    <!-- =============================================== -->
+    <logfile level="warning">/var/log/sipxpbx/processcgi.log</logfile>
+
+    <!-- ================================ -->
+    <!-- ======== CONFIG SERVER ========= -->
+    <!-- ================================ -->
+    <group name="ConfigServer">
+        <process name="ConfigServer">
+            <dependentdelay wait="0" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="false">
+                <execute command="/usr/bin/sipxconfig.sh"
+                         parameters=""
+                         defaultdir="/var/log/sipxpbx" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="false" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="false" />
+
+        </process>
+
+    </group>
+
+    <!-- ================================ -->
+    <!-- ======== COMM SERVER =========== -->
+    <!-- ================================ -->
+    <group name="CommServer" >
+        <process name="SIPRegistrar">
+            <dependentdelay wait="0" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="/usr/bin/sipregistrar.sh"
+                         parameters=""
+                         defaultdir="/var/log/sipxpbx" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+
+        <process name="SIPProxy">
+            <dependentdelay wait="1" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="/usr/bin/sipproxy.sh"
+                         parameters=""
+                         defaultdir="/var/log/sipxpbx" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+
+        <process name="SIPAuthProxy">
+            <dependentdelay wait="0" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="/usr/bin/sipauthproxy.sh"
+                         parameters=""
+                         defaultdir="/var/log/sipxpbx" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+
+        <process name="SIPStatus">
+            <dependentdelay wait="0" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="/usr/bin/sipstatus.sh"
+                         parameters=""
+                         defaultdir="/var/log/sipxpbx" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+    </group>
+
+    <!-- ================================ -->
+    <!-- ======== MEDIA SERVER ========== -->
+    <!-- ================================ -->
+    <group name="MediaServer" >
+        <process name="MediaServer">
+            <dependentdelay wait="0" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="/usr/bin/sipXvxml.sh"
+                         parameters="-config /etc/sipxpbx/mediaserver-config"
+                         defaultdir="/var/log/sipxpbx" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+
+        <process name="ParkServer">
+            <dependentdelay wait="0" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="/usr/bin/sipxpark.sh"
+                         parameters=""
+                         defaultdir="/var/log/sipxpbx" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+
+        <process name="PresenceServer">
+            <dependentdelay wait="0" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="/usr/bin/sipxpresence.sh"
+                         parameters=""
+                         defaultdir="/var/log/sipxpbx" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+
+        <process name="ConferenceBridge">
+            <dependentdelay wait="0" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="false">
+                <execute command="/usr/bin/sipxconference.sh"
+                         parameters=""
+                         defaultdir="/var/log/sipxpbx" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+    </group>
+
+    <!-- ================== -->
+    <!-- ====   Misc   ==== -->
+    <!-- ================== -->
+    <group name="Misc" >
+        <process name="KeepAlive">
+            <dependentdelay wait="0" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="/usr/bin/keepalive.sh"
+                         defaultdir="/var/log/sipxpbx" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="false" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="false" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+    </group>
+</process_definitions>

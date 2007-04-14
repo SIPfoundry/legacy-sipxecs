@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="domainManager" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.domain.DomainManager</value>
+    </property>
+    <property name="target">
+      <ref local="domainManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="domainManagerImpl"
+    class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    
+    <!--
+      - CIRCULAR REFERENCE WARNING: 
+      -  sipxServer->coreContext->domainMgr->sipXserver->...
+      - this can cause this error
+      -   "Cannot create AopProxy with no advisors and no target source"
+      - problem and solution is here
+      -  http://opensource.atlassian.com/projects/spring/browse/SPR-689
+      - notice there's no intention to fix this, so I'm implemented the
+      - recommend workaround. 
+      -
+      - I do not think domain manager should reference sipxServer because
+      - if other systems are integrated other than sipx, domain manager would
+      - need to maintain list to all.
+      -->
+    
+    <lookup-method name="getServer" bean="sipxServer"/>
+    <!-- property name="server" ref="sipxServer"/ -->
+    
+  </bean>
+  
+  <bean id="domainInitializer"
+    class="org.sipfoundry.sipxconfig.domain.DomainInitializer">
+    <property name="domainManager" ref="domainManager"/>
+    <property name="taskName" value="initialize-domain"/>
+  </bean>
+
+</beans>

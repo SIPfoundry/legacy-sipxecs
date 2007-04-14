@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="mailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.MailboxManagerImpl">
+    <property name="mailboxPreferencesReader">
+      <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesReader"/>
+    </property>
+    <property name="mailboxPreferencesWriter">
+      <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesWriter">
+        <property name="velocityEngine" ref="velocityEngine"/>
+      </bean>
+    </property>
+    <property name="distributionListsReader">
+      <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsReader"/>
+    </property>
+    <property name="distributionListsWriter">
+      <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsWriter">
+        <property name="velocityEngine" ref="velocityEngine"/>
+      </bean>
+    </property>
+  </bean>
+  <alias alias="mailboxManager" name="mailboxManagerImpl"/>
+  
+</beans>

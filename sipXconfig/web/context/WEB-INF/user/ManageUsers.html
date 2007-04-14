@@ -1,0 +1,27 @@
+<div jwcid="@Border">
+  <h2>
+    <span key="title">Users</span></h2>
+  <span jwcid="@ErrorMsg"/>
+  <ul class="component-links">
+    <li> <a href="#" id="AddUser" jwcid="addUser">
+      <span key="add">Add User</span></a>
+    </li>
+  </ul>
+  <form jwcid="userManagement">
+    <ul class="component-submit">
+      <li>
+        <span jwcid="groupFilter"/>
+      </li>
+    </ul>
+    <span jwcid="userTable" class="component"/>
+    <ul class="component-submit">
+      <li>
+        <input id="user:delete" jwcid="delete"/>
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>          
+      </li>
+      <li>
+        <span jwcid="groupActions"></span>
+      </li>
+    </ul>
+  </form>
+</div>

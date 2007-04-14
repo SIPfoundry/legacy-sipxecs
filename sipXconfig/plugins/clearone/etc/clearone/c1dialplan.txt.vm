@@ -1,0 +1,9 @@
+#set($dialplan = $phone.Settings.getSetting('dialplan'))
+#set($pd = $phone.PhoneContext.PhoneDefaults)
+#macro( attributes $names ) 
+#foreach($n in $names ) $n="$!dialplan.getSetting($n).Value"#end
+#end
+<C1DIALPLAN>
+	<SYSCONFIG #attributes(['DIALTIME', 'FIRST_DIGIT_WAIT', 'INTER_DIGIT_WAIT', 'TERMINATION_DIGIT'])/>
+	<DIGITMAP MATCH="+&" #attributes(['MIN_DIGITS', 'MAX_DIGITS']) STRIP_FIRST_DIGITS="0" ADD_PREFIX_AFTER_STRIP="" DIAL_STRING="+&@$pd.DomainName"/>
+</C1DIALPLAN>

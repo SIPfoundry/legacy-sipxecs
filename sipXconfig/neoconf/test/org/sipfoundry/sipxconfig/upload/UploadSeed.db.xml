@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+    <upload 
+        upload_id="1000" 		
+        name="test upload"
+        bean_id="upload"
+        deployed="true"
+		    specification_id="unmanagedUpload"
+        description="unittest upload"/>
+</dataset>

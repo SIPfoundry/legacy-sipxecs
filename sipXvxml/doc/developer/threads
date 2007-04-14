@@ -1,0 +1,116 @@
+What is the difference between a thread and a task?
+
+sipXportLib/main/include/os/linux/OsTaskLinux.h
+
+//:Task abstraction for Linux
+// A task represents a thread of execution. All tasks run within the same
+// address space but have their own stack and program counter. Tasks may be
+// created and deleted dynamically.
+//
+// Users create tasks by:
+// 1) Deriving a new class based on OsTask or one of its descendants,
+//    and overriding the run() method in the derived class.
+// 2) Calling the constructor for the derived class.
+// 3) Invoking the start() method for the derived class.  This creates the
+//    corresponding low-level OS task and associates it with the class.
+//
+// Note: Many of the methods in this class are only applicable once the
+// start() method for the object has been called and the corresponding
+// low-level task has been created.  Accordingly, before a successful call
+// to start(), most of the methods in this class return the
+// OS_TASK_NOT_STARTED status.
+
+Note more importantly, the task knows what it is to execute, and so
+can be stopped and restarted.
+
+OsServerTask goes further, in that its run-time code is a
+message-listen-and-process loop.
+
+Thread structure:
+
+* main thread
+
+Largely executes main().  Start up, shut down, and a main waiting loop
+that checks for shut-down signals and executes some sort of orphaned
+thread clean-up routine.
+
+* heartbeat thread
+
+Executes HeartbeatThread.  Periodically checks that malloc(10)
+succeeds and diddles with a particular temporary file.  Presumably the
+file is watched by some other process.
+
+* media thread
+
+Associated with the singular MediaTask object.  Seems to be run every
+"frame", which is configured to be 1/100 second.  Started by main.
+
+* call manager thread
+
+Associated with the singular CallManager object.  Started by main.
+Processes SIP messages.  Has an associated IvrCallListener,
+IvrDtmfListener, and IvrTelListener, each of which is also an
+OsServerTask.
+
+It looks like the Listener (IvrCallListener, IvrDtmfListener) is
+responsible for listening for incoming calls, and passes the VXML
+state processing to CallManager.
+
+----------------------------------------------------------------------
+
+* SBinet::Init (605)
+
+sipXvxml/src/inet/SBinet.cpp:    eTrdResult = VXItrdThreadCreate(&m_pEventThread,
+* call processing threads
+
+Started by IvrCallListener::handleMessage ->
+IvrCallListener::handleStartVXISession -> VXIProcessUrl, executes
+ChannelThread.
+
+* call cleanup threads
+
+Started by IvrTelListener::doCleanUpCall -> VXICleanUpCall, executes
+CallCleanupThread.
+
+
+Calls that start threads:
+
+in SBinet::Init
+sipXvxml/src/inet/SBinet.cpp:692:    eTrdResult = VXItrdThreadCreate(&m_pEventThread,
+
+in mediaserverHeartbeat, starting the heartbeat thread
+sipXvxml/src/client/ivr/clientMain.cpp:550:   VXItrdResult trdResult = VXItrdThreadCreate(&threadHandle,
+
+in VXIProcessUrl, starting a channel thread
+sipXvxml/src/client/ivr/clientMain.cpp:1349:   trdResult = VXItrdThreadCreate(&channel->threadHandle,
+
+in VXICleanUpCall, starting a call cleanup thread
+sipXvxml/src/client/ivr/clientMain.cpp:1501:      VXItrdResult trdResult = VXItrdThreadCreate(&threadHandle,
+
+in CMsgQueue::Initialize
+sipXmediaLib/main/src/rtcp/MsgQueue.cpp:120:    if(pthread_create(&thread, NULL, InitMessageThread, this))
+
+in dmaStartup
+sipXmediaLib/main/src/mp/dmaTask.cpp:1843:   res = pthread_create(&thread, NULL, soundCardReader, NULL);
+sipXmediaLib/main/src/mp/dmaTask.cpp:1846:   res = pthread_create(&thread, NULL, soundCardWriter, NULL);
+
+called from OsTaskLinux::restart and OsTaskLinux::start:
+in OsTaskLunux::doLinuxCreateTask
+sipXportLib/main/src/os/linux/OsTaskLinux.cpp:520:   linuxRes = pthread_create(&mTaskId, &attributes, taskEntry, (void *)this);
+
+
+----------------------------------------------------------------------
+
+These are the task types that are defined in sipXmediaLib, which may
+be the limit on the types that are used in the media server, or at
+least, cover all the bugs specific to the media server:
+
+			MpStreamPlayer sipXmediaLib/main/include/mp/MpStreamPlayer.h:43) also MpStreamPlayer
+			MpStreamPlaylistPlayer (sipXmediaLib/main/include/mp/MpStreamPlaylistPlayer.h:40) also MpPlayer
+			MpStreamQueuePlayer (sipXmediaLib/main/include/mp/MpStreamQueuePlayer.h:50) also MpPlayerListener
+			MpMediaTask (sipXmediaLib/main/include/mp/MpMediaTask.h:85)
+		StreamRAWFormatDecoder (sipXmediaLib/main/include/mp/StreamRAWFormatDecoder.h:33) also StreamQueueingFormatDecoder
+		DmaTask (sipXmediaLib/main/include/mp/dmaTask.h:71)
+		StreamWAVFormatDecoder (sipXmediaLib/main/include/mp/StreamWAVFormatDecoder.h:50) also StreamQueueingFormatDecoder
+		StreamHttpDataSource (sipXmediaLib/main/include/mp/StreamHttpDataSource.h:53) also StreamDataSource
+		NetInTaskHelper (sipXmediaLib/main/src/mp/NetInTask.cpp:113)

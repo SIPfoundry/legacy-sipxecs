@@ -1,0 +1,81 @@
+#!/usr/bin/perl
+
+$Usage = <<USAGE;    
+    sipx-readroute [ -h | --help ] <route-parameter-value>
+ 
+    sipx-readroute [ -h | --help ] - 
+
+      Prints a decoded version of the values in the sipX-route parameter.
+
+      The first form takes the parameter value as a command line argument;
+      the second form reads stdin and pipes it to stdout with values expanded.
+
+      Note: values are allowed to contain non-printable characters.
+
+USAGE
+
+    BEGIN
+{
+
+    $RequireMsg = <<REQUIREMENTS;
+
+    You must install the missing Perl package(s) to use this script.
+        As far as I know, these are not available as rpms.  You can install
+        them using 'cpan'.
+REQUIREMENTS
+
+    @modules = qw(Getopt::Long MIME::Base64 URI::Escape English );
+    for $pm ( @modules )
+    {
+        eval "require $pm;" || die "Failed to load $pm\n$@\n$RequireMsg\n";
+        $pm->import();
+    }
+}
+
+GetOptions( 'help|h' => \$Help
+            )
+    || exit -1;
+
+if ( $Help )
+{
+    print $Usage;
+    exit 0;
+}
+
+sub printroute
+{
+    my ($paramvalue) = shift;
+    $paramvalue =~ s/.*sipX-route=//;
+
+    my ($rawvalue) = uri_unescape($paramvalue);
+    my ($output, $nvpair, $pname, $pvalue, $pdecoded );
+
+    $rawvalue =~ s/![0-9a-f]{32}//;
+
+    $output = '';
+    for $nvpair ( split '\.', $rawvalue )
+    {
+        ( $pname, $pvalue ) = split '~', $nvpair;
+        $pvalue =~ tr/'`/+=/; #' undo idiosyncratic alphabet
+        $pdecoded=decode_base64($pvalue);
+        $output .= "    $pname=$pdecoded\n";
+    }
+    print $output;
+}
+
+$token = shift;
+if ( ! defined $token || $token eq '-' )
+{
+    while(<>)
+    {
+        print;
+        if ( m|\bsipX-route=([a-z0-9+/=%]+)%21[0-9a-f]{32}\b|i )
+        {
+            &printroute($1);
+        }
+    }
+}
+else
+{
+    &printroute($token);
+}

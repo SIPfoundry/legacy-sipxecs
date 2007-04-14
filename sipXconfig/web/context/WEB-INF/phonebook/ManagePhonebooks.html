@@ -1,0 +1,29 @@
+<body jwcid="$content$">
+	<span jwcid="@Border">
+		<h1>
+			<span key="title.managePhonebooks"/>
+		</h1>
+		<form jwcid="phonebookManagement">
+			<ul class="component-links">
+				<li>
+					<a href="#" id="addPhonebook" jwcid="addPhonebook">
+						<span key="link.addPhonebook">Add Phonebook</span>
+					</a>
+				</li>
+			</ul>
+			<table jwcid="phonebookTable" id="phonebook:list">
+				<span jwcid="nameColumnValue">
+					<a href="#" jwcid="editPhonebookLink">
+						<span jwcid="phonebookLabel">phonebook</span>
+					</a>
+				</span>
+			</table>
+      <ul class="component-submit">
+        <li>
+          <input id="phonebook:delete" jwcid="delete"/>
+          <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+        </li>
+      </ul>
+		</form>
+	</span>
+</body>

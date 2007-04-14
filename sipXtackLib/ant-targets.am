@@ -1,0 +1,26 @@
+# Automake - Ant adapter
+# ANT_FLAGS
+#  -e is to remove extraneous logging to console, not required
+#  -Dtop.build.dir is required if you call ./configure from a different dir
+abs_top_builddir=`cd $(top_builddir) && pwd`
+ANT_FLAGS=-e -Dtop.build.dir=$(abs_top_builddir) -f $(srcdir)/build.xml
+ANT_CMD=JAVA_HOME=$(JAVA_HOME) @ANT@
+
+all : all-ant
+
+.PHONY: all-ant
+all-ant :
+	$(ANT_CMD) $(ANT_FLAGS)
+
+clean :
+	$(ANT_CMD) $(ANT_FLAGS) clean
+
+.PHONY: doc
+doc :
+	$(ANT_CMD) $(ANT_FLAGS) doc
+
+install :
+	$(ANT_CMD) $(ANT_FLAGS) -Ddest.dir=$(DESTDIR) install
+
+check :
+	$(ANT_CMD) $(ANT_FLAGS) test

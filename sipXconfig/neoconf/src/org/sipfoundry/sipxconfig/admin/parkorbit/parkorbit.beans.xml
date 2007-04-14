@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="orbitsGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits">
+    <property name="configDirectory" value="${sysdir.etc}" />
+  </bean>
+
+  <bean id="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit"
+    class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit" singleton="false"
+    parent="beanWithSettings">
+  </bean>
+
+  <bean id="parkOrbitContextImpl"
+    class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContextImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="aliasManager" ref="aliasManager" />
+    <property name="settingDao" ref="settingDao" />
+    <property name="orbitsGenerator">
+      <ref local="orbitsGenerator" />
+    </property>
+  </bean>
+
+  <bean id="parkOrbitContext" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces"
+      value="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext" />
+    <property name="target">
+      <ref local="parkOrbitContextImpl" />
+    </property>
+  </bean>
+</beans>

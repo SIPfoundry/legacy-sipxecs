@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.site.user.UserTable" allow-body="no" allow-informal-parameters="no">
+  <description>add a description</description>
+  <!--
+      - P A R A M E T E R S
+      -->
+  <parameter name="userListener"  required="yes" />
+  <parameter name="groupId"  required="yes" />
+  <parameter name="searchString"  required="no"  default-value="null"/>
+  <parameter name="searchMode"  required="no"  default-value="false"/>
+  <!--
+      - P R O P E R T I E S
+      -->
+  <property name="selections" />
+  <property name="currentUser" />
+  <inject property="coreContext" object="spring:coreContext"/>
+  <!--
+	  - C O M P O N E N T S
+	  -->
+  <component id="userTable" type="Table">
+    <binding name="columns" value="literal:* userName,firstName,lastName,!aliases:aliasesString"/>
+    <binding name="usePager" value="true"/>
+    <binding name="source" value="tableModel"/>
+    <binding name="row" value="currentUser"/>
+    <binding name="selections" value="selections"/>
+    <binding name="initialSortColumn" value="literal:userName"/>
+  </component>
+  <component id="userNameColumnValue" type="Block"/>
+  <component id="userNameAsLinkConditional" type="If">
+    <binding name="condition" value="userListener != null"/>
+  </component>
+  <component id="userNameAsTextConditional" type="If">
+    <binding name="condition" value="userListener == null"/>
+  </component>
+  <component id="userNameLink" type="DirectLink">
+    <binding name="listener" value="userListener"/>
+    <binding name="parameters" value="currentUser.id"/>
+  </component>
+  <component id="userName" type="Insert">
+    <binding name="value" value="currentUser.userName"/>
+  </component>
+  <component id="userNameAsText" copy-of="userName"/>
+</component-specification>

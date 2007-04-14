@@ -1,0 +1,141 @@
+// 
+// 
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Contributors retain copyright to elements licensed under a Contributor Agreement.
+// Licensed to the User under the LGPL license.
+// 
+// $$
+//////////////////////////////////////////////////////////////////////////////
+
+#ifndef _XMLRPCBODY_H_
+#define _XMLRPCBODY_H_
+
+// SYSTEM INCLUDES
+// APPLICATION INCLUDES
+#include <net/HttpBody.h>
+
+// DEFINES
+#define CONTENT_TYPE_TEXT_XML "text/xml"
+
+#define BEGIN_METHOD_CALL "<methodCall>\r\n"
+#define END_METHOD_CALL "</methodCall>\r\n"
+
+#define BEGIN_METHOD_NAME "<methodName>"
+#define END_METHOD_NAME "</methodName>\r\n"
+
+#define BEGIN_PARAMS "<params>\r\n"
+#define END_PARAMS "</params>\r\n"
+
+#define BEGIN_PARAM "<param>\r\n"
+#define END_PARAM "</param>\r\n"
+
+#define BEGIN_I4 "<value><i4>"
+#define END_I4 "</i4></value>\r\n"
+
+#define BEGIN_INT "<value><int>"
+#define END_INT "</int></value>\r\n"
+
+#define BEGIN_I8 "<value><i8>"
+#define END_I8 "</i8></value>\r\n"
+
+#define BEGIN_BOOLEAN "<value><boolean>"
+#define END_BOOLEAN "</boolean></value>\r\n"
+
+#define BEGIN_STRING "<value><string>"
+#define END_STRING "</string></value>\r\n"
+
+#define BEGIN_TIME "<value><dateTime.iso8601>"
+#define END_TIME "</dataTime.iso8601></value>\r\n"
+
+#define BEGIN_ARRAY "<value><array><data>\r\n"
+#define END_ARRAY "</data></array></value>\r\n"
+
+#define BEGIN_STRUCT "<value><struct>\r\n"
+#define END_STRUCT "</struct></value>\r\n"
+
+#define BEGIN_MEMBER "<member>\r\n"
+#define END_MEMBER "</member>\r\n"
+
+#define BEGIN_NAME "<name>"
+#define END_NAME "</name>"
+
+#define BEGIN_RESPONSE "<methodResponse>\r\n"
+#define END_RESPONSE "</methodResponse>\r\n"
+
+#define BEGIN_FAULT "<fault>\r\n"
+#define END_FAULT "</fault>\r\n"
+
+#define FAULT_CODE "<name>faultCode</name>"
+#define FAULT_STRING "<name>faultString</name>"
+
+// MACROS
+// EXTERNAL FUNCTIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
+
+// STRUCTS
+// TYPEDEFS
+// FORWARD DECLARATIONS
+
+/**
+ * This class contains all the contents presented in a XML-RPC body. This class
+ * has the methods to construct a XML-RPC body. It is only used by XmlRpcRequest
+ * and XmlRpcResponse classes.
+ * 
+ */
+class XmlRpcBody : public HttpBody
+{
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+  public:
+
+   /// Construct an empty body of a XML-RPC
+   XmlRpcBody();
+
+   /// Destructor
+   virtual ~XmlRpcBody();
+
+   virtual XmlRpcBody* copy() const;
+
+   /// Append the string to the body
+   void append(const char* string);
+
+   /// Get the string length of this object
+   virtual int getLength() const;
+
+   /// Get the serialized char representation of this body.
+   virtual void getBytes(const char** bytes, ///< buffer space where the body content is written, null terminated
+                         int* length ///< the number of bytes written (not including the null terminator
+                         ) const;
+
+   /// Get the serialized string representation of this body.
+   virtual void getBytes(UtlString* bytes, ///< buffer space where the body content is written, null terminated
+                         int* length ///< the number of bytes written (not including the null terminator
+                         ) const;
+
+   /// Add a value to the XML-RPC content
+   bool addValue(UtlContainable* value);
+
+   /// Add an array to the XML-RPC content
+   bool addArray(UtlSList* array); ///< array of elements
+
+   /// Add a struct to the XML-RPC content
+   bool addStruct(UtlHashMap* members); ///< struct of members
+   
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+  protected:
+   
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+  private:
+
+   /// Disabled copy constructor
+   XmlRpcBody(const XmlRpcBody& rXmlRpcBody);
+
+   /// Disabled assignment operator
+   XmlRpcBody& operator=(const XmlRpcBody& rhs);
+
+};
+
+/* ============================ INLINE METHODS ============================ */
+
+#endif  // _XMLRPCBODY_H_

@@ -1,0 +1,13 @@
+<!DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd">
+<dataset>
+  <ldap_attr_map ldap_attr_map_id="1000" default_group_name="dgn" default_pin="dp"
+    object_class="person" search_base="" filter="filter"/>
+
+  <ldap_user_property_to_ldap_attr ldap_attr_map_id="1000" user_property="username"
+    ldap_attr="uid" />
+  <ldap_user_property_to_ldap_attr ldap_attr_map_id="1000" user_property="firstname"
+    ldap_attr="cn" />
+
+  <ldap_selected_object_classes ldap_attr_map_id="1000" object_class="abc" />
+  <ldap_selected_object_classes ldap_attr_map_id="1000" object_class="def" />
+</dataset>

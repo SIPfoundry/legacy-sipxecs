@@ -1,0 +1,15 @@
+<span jwcid="@common/TabControl">
+  <span jwcid="@RenderBody"/>
+  <span jwcid="settingsTabs@For" source="prop:navigationGroups"
+    value="prop:currentSetting" volatile="ognl:true">
+    <span jwcid="@If" condition="ognl:!currentSetting.hidden">
+      <span jwcid="@common/Tab" isActive="prop:settingsTabActive">
+        <a jwcid="settingsLink@DirectLink" listener="prop:editSettingsListener"
+          parameters="ognl:{bean.id, currentSetting.path}"
+          id="ognl:'link:' + currentSetting.labelKey">
+          <span jwcid="@Insert" value="prop:currentSettingLabel"/>
+        </a>
+      </span>
+    </span>
+  </span>
+</span>

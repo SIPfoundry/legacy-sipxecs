@@ -1,0 +1,19 @@
+<div jwcid="@Border" useDojo="true">
+  <h2><span key="title">Call Monitoring</span></h2>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'active', 'historic'}" selectedTab="prop:tab"/>  
+  <div id="settings-content">
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <span jwcid="activeTab@Block">
+    <span jwcid="@cdr/ActiveCallsPanel" />
+  </span>
+  <span jwcid="historicTab@Block">
+    <span jwcid="@cdr/CdrDates" 
+      startTime="prop:startTime" 
+      endTime="prop:endTime" />
+    <span jwcid="@cdr/CdrStatsPanel" 
+      startTime="prop:startTime"
+      endTime="prop:endTime"
+      cdrSearch="prop:cdrSearch"/>  
+  </span>
+</div>

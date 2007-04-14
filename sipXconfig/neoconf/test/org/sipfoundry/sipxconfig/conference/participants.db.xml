@@ -1,0 +1,9 @@
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>  
+  <meetme_bridge meetme_bridge_id="2005" name="bridge_2005" enabled="1" host="localhost" port="8201"/>
+  <meetme_bridge meetme_bridge_id="2006" name="bridge_2006" enabled="0" host="localhost" port="8202"/>
+  
+  <meetme_conference meetme_bridge_id="2005" meetme_conference_id="3001" name="conf_3001" extension="1699" enabled="0"/>
+  <meetme_conference meetme_bridge_id="2005" meetme_conference_id="3002" name="conf_3002" extension="1700" enabled="0"/>
+  <meetme_conference meetme_bridge_id="2006" meetme_conference_id="3003" name="conf_3003" extension="1701" enabled="0"/>  
+</dataset>

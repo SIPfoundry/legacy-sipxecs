@@ -1,0 +1,11 @@
+--- /usr/bin/ant.orig	2004-11-23 18:14:44.000000000 -0500
++++ /usr/bin/ant	2004-11-23 18:14:48.000000000 -0500
+@@ -56,7 +56,7 @@
+ fi
+ 
+ # add in the dependency .jar files
+-LOCALCLASSPATH="$ANT_LIB/ant-launcher.jar:${LOCALCLASSPATH}:`java-config --classpath=ant,ant-optional,log4j,xerces,xalan,junit,antlr,bcel,bsh,commons-beanutils,commons-logging,commons-net,oro,jdepend,jsch,regexp,rhino,jython,jta,jaf,javamail 2> /dev/null`"
++LOCALCLASSPATH="$ANT_LIB/ant-launcher.jar:${LOCALCLASSPATH}:`java-config --classpath=ant,ant-optional,log4j,xerces,xalan,junit,bcel,bsh,commons-collections,commons-beanutils,commons-logging,commons-net,oro,jdepend,jsch,regexp,rhino,jython,jta,jaf,javamail 2> /dev/null`"
+ 
+ if [ -n "$JAVA_HOME" ] ; then
+   if [ -f "$JAVA_HOME/lib/tools.jar" ] ; then

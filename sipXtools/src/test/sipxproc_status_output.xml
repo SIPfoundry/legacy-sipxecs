@@ -1,0 +1,78 @@
+<?xml version='1.0'?><!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     IMPORTANT NOTE
+     The startup scripts referenced here are also used (alas, directly)
+     from the sipxpbx.in startup script.  Do not change names or calling
+     parameters without making equivalent changes there.
+     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! --><!-- Set the defaultdir for all processes to SIPX_LOGDIR as the
+     working directory, so that any core files they produce will be put
+     there. --><process_definitions xmlns='http://www.sipfoundry.org/sipX/schema/xml/processdefinitions-00-00'>
+    <dependentdelay wait='0'/>
+    <workdir location='/opt/main-sipfoundry/var/sipxdata/tmp'/>
+    <!-- =============================================== -->
+    <!-- LOGFILE FOR PROCESSCGI              -->
+    <!-- =============================================== -->
+    <logfile level='warning'>/opt/main-sipfoundry/var/log/sipxpbx/processcgi.log</logfile>
+    <group name='CommServer'>
+        <process name='SIPRegistrar' status='Started'>
+            <dependentdelay wait='0'/>
+            <stdout file='/dev/null'/>
+            <stderr file='/dev/null'/>
+            <stdin file=''/>
+            <start control='true'>
+                <execute command='/opt/main-sipfoundry/bin/sipregistrar.sh' parameters='' defaultdir='/opt/main-sipfoundry/var/log/sipxpbx'/>
+            </start>
+            <!-- If no execute, then kill -->
+            <stop control='true'/>
+            <!-- If no execute, then stop-start -->
+            <restart control='true'/>
+            <!-- <dependency>??</dependency> -->
+        </process>
+    </group>
+    <group name='MediaServer'>
+        <process name='ParkServer' status='Failed'>
+            <dependentdelay wait='0'/>
+            <stdout file='/dev/null'/>
+            <stderr file='/dev/null'/>
+            <stdin file=''/>
+            <start control='true'>
+                <execute command='/opt/main-sipfoundry/bin/sipxpark.sh' parameters='' defaultdir='/opt/main-sipfoundry/var/log/sipxpbx'/>
+            </start>
+            <!-- If no execute, then kill -->
+            <stop control='true'/>
+            <!-- If no execute, then stop-start -->
+            <restart control='true'/>
+            <!-- <dependency>??</dependency> -->
+        </process>
+    </group>
+    <group name='CommServer'>
+        <process name='SIPAuthProxy' status='Started'>
+            <dependentdelay wait='0'/>
+            <stdout file='/dev/null'/>
+            <stderr file='/dev/null'/>
+            <stdin file=''/>
+            <start control='true'>
+                <execute command='/opt/main-sipfoundry/bin/sipauthproxy.sh' parameters='' defaultdir='/opt/main-sipfoundry/var/log/sipxpbx'/>
+            </start>
+            <!-- If no execute, then kill -->
+            <stop control='true'/>
+            <!-- If no execute, then stop-start -->
+            <restart control='true'/>
+            <!-- <dependency>??</dependency> -->
+        </process>
+    </group>
+    <group name='ConfigServer'>
+        <process name='ConfigServer' status='Started'>
+            <dependentdelay wait='0'/>
+            <stdout file='/dev/null'/>
+            <stderr file='/dev/null'/>
+            <stdin file=''/>
+            <start control='true'>
+                <execute command='/opt/main-sipfoundry/bin/sipxconfig.sh' parameters='' defaultdir='/opt/main-sipfoundry/var/log/sipxpbx'/>
+            </start>
+            <!-- If no execute, then kill -->
+            <stop control='false'/>
+            <!-- If no execute, then stop-start -->
+            <restart control='false'/>
+        </process>
+    </group>
+</process_definitions>

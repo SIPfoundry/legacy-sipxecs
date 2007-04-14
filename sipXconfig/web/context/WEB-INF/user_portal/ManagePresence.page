@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.user_portal.ManagePresence">
+  <description>Change Presence Server Status</description>
+  <inject property="presenceServer" object="spring:presenceServer"/>
+  <inject property="coreContext" object="spring:coreContext"/>
+  <inject property="userSession" type="state" object="userSession"/>
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <component id="form" type="Form">
+    <binding name="delegate" value="bean:validator"/>
+  </component>
+  <component id="signIn" type="Submit">
+    <binding name="listener" value="listener:signIn"/>
+  </component>
+  <component id="signOut" type="Submit">
+    <binding name="listener" value="listener:signOut"/>
+  </component>
+  <component id="refresh" type="Submit">
+    <binding name="listener" value="listener:refresh"/>
+  </component>
+</page-specification>

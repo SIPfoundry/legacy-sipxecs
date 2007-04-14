@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="sipviewer" default="jar" basedir="." >
+
+  <patternset id="test.classes" excludes="**"/>
+  <property name="top.build.dir" value="${basedir}/.."/>
+  <property name="build.dir" value="${top.build.dir}/sipviewer"/>
+  <import file="../ant-targets.xml"/>
+
+  <property name="sipviewer.lib.dir" value="${lib.dir}/sipviewer"/>
+
+  <path id="base.path" >
+    <pathelement location="${jdom.jar}"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="create jar file">
+
+    <jar jarfile="${build.dir}/dist/sipviewer.jar">
+      <fileset dir="${classes.dir}" >
+        <include name="**/*.class" />
+      </fileset>
+    </jar>
+  </target>
+
+  <!--
+    -  I N S T A L L
+    -->
+  <target name="install">
+
+    <!-- BINARIES/LIB/SCRIPTS -->
+    <mkdir dir="${dest.dir}${sipviewer.lib.dir}"/>
+    <copy file="${build.dir}/dist/sipviewer.jar" todir="${dest.dir}${sipviewer.lib.dir}"/>
+    <copy file="${jdom.jar}" tofile="${dest.dir}${sipviewer.lib.dir}/jdom.jar"/>
+
+    <copy file="bin/sipviewer.in" tofile="${dest.dir}${bin.dir}/sipviewer"/>
+    <replace file="${dest.dir}${bin.dir}/sipviewer" 
+         propertyfile="${top.build.dir}/config.properties">
+      <replacefilter token="@bin.dir@" property="bin.dir"/>
+      <replacefilter token="@sipviewer.lib.dir@" value="${sipviewer.lib.dir}"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/sipviewer" perm="ugo+x" />
+    
+  </target>
+
+  <target name="uninstall">
+    <delete file="${dest.dir}${bin.dir}/sipviewer"/>
+    <delete file="${dest.dir}${sipviewer.lib.dir}/sipviewer.jar"/>
+    <delete file="${dest.dir}${sipviewer.lib.dir}/jdom.jar"/>
+  </target>
+
+</project>

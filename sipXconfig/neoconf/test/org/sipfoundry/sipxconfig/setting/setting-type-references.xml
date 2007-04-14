@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+    <type id="true-false">
+      <boolean>
+        <true>Yes</true>
+        <false>No</false>
+      </boolean>
+    </type>
+    <group name="group">
+        <setting name="true-false-setting">
+            <label>True False Checkbox</label>
+            <type refid="true-false"/>
+        </setting>
+    </group>
+</model>

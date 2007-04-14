@@ -1,0 +1,41 @@
+<div jwcid="@Border" useDojo="true">
+  <h2><span key="title">Domain</span></h2>
+  <span jwcid="@QuickHelp" value="message:domain.description" />  
+  <span jwcid="errors"/>
+  <form jwcid="form">
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="namePanel" for="domain:name">
+            <input jwcid="name" id="domain:name" type="text"/>
+          </tr>          
+        </tbody>
+      </table>      
+    </fieldset>
+    <fieldset>
+      <legend><span key="label.aliasSection">Domain Aliases</span></legend>
+      <p><span key="description.alias"/></p>
+      <ul class="component-links">
+        <li><a jwcid="addAliasLink" href="#">
+          <span key="add.label">Add Alias</span></a>
+        </li>
+      </ul>
+      <table>
+        <tbody>
+            <tr jwcid="aliases" element="tr">
+              <td>
+                <label jwcid="aliasLabel">Alias</label>
+              </td>
+              <td>
+                <input jwcid="alias" type="text"/>
+              </td>
+              <td>
+                <a href="#" jwcid="removeAlias"><span key="label.removeAlias">Remove Alias</span></a>
+              </td>
+            </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul jwcid="formActions"/>
+	</form>                    
+</div>

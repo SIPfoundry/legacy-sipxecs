@@ -1,0 +1,379 @@
+This is a log of how I built sipXvxml from the distribution on a
+rather vanilla Red Hat Linux 9 system.  It includes revisions based on
+some changes that I've submitted that have not yet been commited.
+(See issues XVX-11 and XPL-55.)
+
+I'm attempting to follow the policy that the builder should not need
+to have administrative privileges on the computer, as requiring that
+is really a matter of laziness in release engineering, as well as
+restricting the audience to people who have administrative privileges.
+And why do that in an open source project?
+
+I have made exceptions by installing (as administrator) any
+distributed RPMs that are built for RH 9.
+
+Because I'm installing things into files in my account, I need to
+decide on a structure of target directories.  I've created the
+following directories:
+
+	~/bin		architecture-independent executables (scripts)
+	~/bin/$ARCH	architecture-dependent executables (binaries)
+	~/etc		configuration files
+	~/include	include files
+	~/lib/$ARCH	library files
+	~/man		manual pages
+	~/share		other stuff
+	~/var		variable size data
+	~/www		web pages
+
+sipXvxml uses all of these, so you want your target directory
+structure to have all of them.
+
+I've set up my .bash_login to set the environment variable ARCH to be
+the name of the hardware architecture, so I can write scripts that
+work across architectures:
+
+	$ export ARCH=$(arch)
+	$ PATH="$HOME/bin/$ARCH:$PATH"
+
+But this structure is problematic, as many build scripts assume by
+default that the install will be into a set of directories structured
+as <prefix>/bin, <prefix>/lib, <prefix>/include, etc.
+
+Usually this can be overridden by appropriate arguments to
+./configure, but many INSTALL files don't mention this.  It behooves
+you to study the output of './configure --help', including the options
+--prefix, --exec-prefix, --bindir, --libdir, etc. so you can control
+the targets as you want.
+
+But some build scripts (in particular, xerces), will not accept
+--bindir, etc.  So I've set up symbolic links so that ~/$ARCH will
+appear to have subdirectories bin, etc, include, lib, man, share, var,
+and www:
+
+	$ ls -l ~/$ARCH
+	total 0
+	lrwxrwxrwx    1 worley   users          11 Jul 31 23:50 bin -> ../bin/i686
+	lrwxrwxrwx    1 worley   users           6 Aug  1 10:22 etc -> ../etc
+	lrwxrwxrwx    1 worley   users          10 Jul 31 23:50 include -> ../include
+	lrwxrwxrwx    1 worley   users          11 Jul 31 23:50 lib -> ../lib/i686
+	lrwxrwxrwx    1 worley   users           6 Jul 31 23:50 man -> ../man
+	lrwxrwxrwx    1 worley   users           8 Jul 31 23:50 share -> ../share
+	lrwxrwxrwx    1 worley   users           6 Aug  1 10:22 var -> ../var
+	lrwxrwxrwx    1 worley   users           6 Aug  1 10:22 www -> ../www
+
+Thus, the effective installation prefix will be ~/$ARCH:
+
+	$ export INSTALL_PREFIX=$HOME/$ARCH
+
+No doubt configuring the installation is simpler if one is the
+administrator and uses the defaults.
+
+Create the master build directory.  I use the environment variable
+BUILD for its name:
+
+	$ export BUILD=$(pwd)
+
+Check out the project sipXvxml and its dependencies (listed on
+http://www.sipfoundry.org/sipX): sipXcallLib, sipXtackLib,
+sipXmediaLib, and sipXportLib, using the URLs specified in the
+SipFoundry pages (http://www.sipfoundry.org/*).  I'm doing things a
+little non-standardly as I'm checking out the entire projects, not
+just the main branch.
+
+	$ svn checkout http://scm.sipfoundry.org/rep/sipXvxml/
+	$ svn checkout http://scm.sipfoundry.org/rep/sipXcallLib/
+	$ svn checkout http://scm.sipfoundry.org/rep/sipXtackLib/
+	$ svn checkout http://scm.sipfoundry.org/rep/sipXmediaLib/
+	$ svn checkout http://scm.sipfoundry.org/rep/sipXportLib/
+
+Listing the Subversion versions of the checkouts:
+
+	$ for d in sipX* ; do ( cd $d ; svn info ) ; done | grep -E '^$|URL:|Revision:'
+	URL: http://scm.sipfoundry.org/rep/sipXcallLib
+	Revision: 27
+
+	URL: http://scm.sipfoundry.org/rep/sipXmediaLib
+	Revision: 25
+
+	URL: http://scm.sipfoundry.org/rep/sipXportLib
+	Revision: 168
+
+	URL: http://scm.sipfoundry.org/rep/sipXtackLib
+	Revision: 43
+
+	URL: http://scm.sipfoundry.org/rep/sipXvxml
+	Revision: 26
+
+Checking the list of required components in $BUILD/sipXvxml/main/INSTALL:
+
+sipXportLib 2.5.0
+sipXtackLib 2.5.0
+sipXmediaLib 2.5.0
+sipXcallLib 2.5.0
+
+	I just checked these out.
+
+libwww 5.4.0
+
+	I already have libwww version 5.4.0 installed, from RH 9 RPM
+	w3c-libwww-5.4.0-4.
+
+xerces-c 2.5.0
+
+	Not in the RH 9 disk set.
+
+Checking RPMfind to see if an RPM for xerces is available.  RPMfind
+has xerces 1.1.0, which is too old.
+
+Go to apache.org, as described in $BUILD/sipXvxml/main/INSTALL, fetch
+http://apache.bestwebcover.com/xml/xerces-c/xerces-c-current.tar.gz,
+unpacking into $BUILD to create xerces-c-src_2_5_0.
+
+xerces requires a program named libwww-config.  It is in RH 9 RPM
+w3c-libwww-devel-5.4.0-4.i386.rpm, not in w3c-libwww-5.4.0-4.  I
+install it.
+
+	$ cd $BUILD
+	$ tar -xzf $TMPDIR/xerces-c-current.tar.gz
+
+Building xerces according to the instructions in
+$BUILD/sipXvxml/main/INSTALL:
+
+Unfortunately, ./runConfigure does not correctly use -C to pass
+--bindir, etc. to configure, so we have to set the install prefix to
+be ~/$ARCH, and work through the symbolic links described above:
+
+	$ cd $BUILD/xerces-c-src_2_5_0
+	$ export XERCESCROOT=$(pwd)
+	$ cd src/xercesc
+	$ autoconf
+	$ ./runConfigure -p linux -n libwww -P $INSTALL_PREFIX
+	$ make
+	$ make install
+
+That finishes xerces.
+
+The Red Hat w3c-libwww RPMs do not provide libwwwssl.so, so we have to
+build it.
+
+I obtained the source RPM w3c-libwww-5.4.0-4.src.rpm from
+http://fr2.rpmfind.net//linux/RPM/redhat/gingin64/src/w3c-libwww-5.4.0-4.src.html
+and
+ftp://fr2.rpmfind.net/linux/redhat/preview/gingin64/en/os/x86_64/SRPMS/w3c-libwww-5.4.0-4.src.rpm,
+because the version number matches the binary RPM I have installed.
+
+I installed the source RPM as administrator, which left the source
+.tar.gz in /usr/src/redhat/SOURCES/w3c-libwww-5.4.0.tgz.  Unpacking it
+into $BUILD:
+
+	$ cd $BUILD
+	$ tar -xzf /usr/src/redhat/SOURCES/w3c-libwww-5.4.0.tgz
+
+Reading $BUILD/w3c-libwww-5.4.0/INSTALL.html:
+
+INSTALL.html says we need Gnu make, but 'make --version' reveals that
+my 'make' is a Gnu version.
+
+Need to point to /usr/kerberos/include so the build can find krb5.h,
+and use --with-ssl so libwwwssl is built (it is not built by default):
+
+	$ cd w3c-libwww-5.4.0
+	$ CPPFLAGS="-I/usr/kerberos/include" ./configure --prefix=$INSTALL_PREFIX --with-ssl
+	$ make
+	$ make install
+
+That finishes libwww.
+
+$BUILD/sipXvxml/main/INSTALL says I should look at
+$BUILD/sipXportLib/main/INSTALL for how to install the sipX libraries.
+sipXportLib is also the base of the dependency sequence.  The
+dependency sequence is: sipXportLib, sipXtackLib, sipXmediaLib,
+sipXcallLib.
+
+Now looking at $BUILD/sipXportLib/main/INSTALL:
+
+GLib2
+
+	I have glib2-2.2.1-1 installed from RH 9 RPM
+	glib2-2.2.1-1.i386.rpm.
+
+PCRE
+
+	I have pcre-3.9-10 installed from RH 9 RPM
+	pcre-devel-3.9-10.i386.rpm. (pcre-3.9-10 is not enough, because we need
+	the include files as well.)
+
+Cppunit 1.10.2
+
+	Cppunit is not in the RH 9 disk set.
+
+OpenSSL 0.9.7.c
+
+	I have OpenSSL 0.9.7 installed from RH 9 RPMs
+	openssl-0.9.7a-20.2.i386.rpm and
+	openssl-devel-0.9.7a-20.2.i386.rpm, which are updates from Red
+	Hat's update service, to RPMs in the RH 9 distribution.
+
+Autoconf 2.59 & Automake 1.8.3
+
+	I have automake 1.6.3 installed from RH 9 RPM
+	automake-1.6.3-5.i386.rpm.  Per instructions from Pingtel, it
+	is important to have these two no older than the versions
+	they've specified.
+
+Installing cppunit:
+
+I followed the cppunit WiKi
+(http://cppunit.sourceforge.net/cgi-bin/moin.cgi) to get the source of
+cppunit 1.20.2 from
+http://prdownloads.sourceforge.net/cppunit/cppunit-1.10.2.tar.gz?use_mirror=unc.
+Actually, those are redirections to mirrors.  This is a real URL for getting
+it:
+http://unc.dl.sourceforge.net/sourceforge/cppunit/cppunit-1.10.2.tar.gz
+
+Unpacking into $BUILD:
+
+	$ cd $BUILD
+	$ tar -xzf $TMPDIR/cppunit-1.10.2.tar.gz
+
+Build it according to $BUILD/cppunit-1.10.2/INSTALL:
+
+	$ cd cppunit-1.10.2
+	$ ./configure --prefix=$INSTALL_PREFIX
+	$ make
+	$ make check
+	$ make install
+
+This finishes cppunit.
+
+Updating autoconf and automake:
+
+(This has to be done before glib2 can be installed.)
+
+I obtained autoconf 2.59 at
+http://fr2.rpmfind.net//linux/RPM/fedora/2/i386/autoconf-2.59-3.noarch.html
+and
+ftp://fr2.rpmfind.net/linux/fedora/core/2/i386/os/Fedora/RPMS/autoconf-2.59-3.noarch.rpm.
+
+I obtained automake 1.8.5 at
+http://fr2.rpmfind.net//linux/RPM/fedora/development/i386/automake-1.8.5-2.noarch.html
+and
+ftp://fr2.rpmfind.net/linux/fedora/core/development/i386/Fedora/RPMS/automake-1.8.5-2.noarch.rpm.
+(That's been replaced by automake 1.9.1:
+ftp://fr2.rpmfind.net/linux/fedora/core/development/i386/Fedora/RPMS/automake-1.9.1-1.noarch.rpm.)
+
+I upgraded these using 'rpm --upgrade', as I can't uninstall the old
+RPMs first (other RPMs depend on them).
+
+Installing glib2:
+
+Notice in $BUILD/sipXportLib/main/INSTALL the note "***REDHAT USERS:".
+We have to install glib2 from the source tar, rather than using RPMs.
+
+I downloaded glib-2.2.1.tar.gz from
+ftp://ftp.gtk.org/pub/gtk/v2.2/glib-2.2.1.tar.gz.  Unpacked it.
+
+	$ cd $BUILD
+	$ tar -xzf $TMPDIR/glib-2.2.1.tar.gz
+	$ cd glib-2.2.1
+
+Build and install per instructions in $BUILD/glib-2.2.1/INSTALL:
+
+	$ ./configure --prefix=$INSTALL_PREFIX
+	$ make
+	$ rm -f $INSTALL_PREFIX/include/glib.h $INSTALL_PREFIX/include/gmodule.h
+	$ make install
+
+That finishes glib2.
+
+Continuing with installing sipXportLib.
+
+Continue with the section "Unix : Building From Subversion" in
+$BUILD/sipXportLib/main/INSTALL:
+
+	$ cd $BUILD/sipXportLib/main
+
+'autoreconf' runs 'aclocal', and 'aclocal' has to be able to find the
+files in $INSTALL_PREFIX/share/aclocal.  To provide this information, use the
+ACLOCAL environment variable:
+
+	$ export ACLOCAL="aclocal -I $INSTALL_PREFIX/share/aclocal"
+
+	$ autoreconf --install --force
+
+This produces many messages like:
+
+	.../glib-gettext.m4:329: warning: underquoted definition of AM_GLIB_GNU_GETTEXT
+
+But reading the indicated section of the info file
+['(automake)Extending aclocal'] shows that these warnings can be
+safely ignored.
+
+Continuing with "Unix : Building from Source Code":
+
+I need to supply ./configure with a lot of arguments to ensure that it
+finds the various components it needs.
+
+Also, make sure krb5-devel-1.2.7-10.i386.rpm is installed, as
+sipXportLib needs krb5.h.
+
+Now run ./configure:
+
+	$ CXX=g++ CPPFLAGS="-I$INSTALL_PREFIX/include -I$INSTALL_PREFIX/include/glib-2.0 -I$INSTALL_PREFIX/include/glib-2.0/include -I/usr/kerberos/include" LDFLAGS="-L$INSTALL_PREFIX/lib -lglib-2.0" PKG_CONFIG_PATH=$INSTALL_PREFIX/lib/pkgconfig ./configure --prefix=$INSTALL_PREFIX --with-pcre_includedir=/usr/include/pcre --with-pcre_libdir=/usr/lib
+	$ make all
+	$ make check
+	$ make install
+
+This finishes installing sipXportLib.
+
+Looking at $BUILD/sipXtackLib/main/INSTALL:
+
+	$ cd $BUILD/sipXtackLib/main
+	$ autoreconf --install --force
+
+Use --disable-sipviewer when running ./configure to avoid searching
+for the Java components.
+
+	$ CXX=g++ CPPFLAGS="-I$INSTALL_PREFIX/include -I$INSTALL_PREFIX/include/glib-2.0 -I$INSTALL_PREFIX/include/glib-2.0/include -I/usr/kerberos/include" LDFLAGS="-L$INSTALL_PREFIX/lib -lglib-2.0" PKG_CONFIG_PATH=$INSTALL_PREFIX/lib/pkgconfig ./configure --prefix=$INSTALL_PREFIX --with-pcre_includedir=/usr/include/pcre --with-pcre_libdir=/usr/lib --disable-sipviewer
+	$ make all
+	$ make check
+	$ make install
+
+That finishes installing sipXtackLib.
+
+Installing sipXmediaLib.
+
+	$ cd $BUILD/sipXmediaLib/main
+	$ autoreconf --install --force
+	$ CXX=g++ CPPFLAGS="-I$INSTALL_PREFIX/include -I$INSTALL_PREFIX/include/glib-2.0 -I$INSTALL_PREFIX/include/glib-2.0/include -I/usr/kerberos/include" LDFLAGS="-L$INSTALL_PREFIX/lib -lglib-2.0" PKG_CONFIG_PATH=$INSTALL_PREFIX/lib/pkgconfig ./configure --prefix=$INSTALL_PREFIX --with-pcre_includedir=/usr/include/pcre --with-pcre_libdir=/usr/lib
+	$ make
+	$ make install
+
+That finishes installing sipXmediaLib.
+
+Installing sipXcallLib.
+
+	$ cd $BUILD/sipXcallLib/main
+	$ autoreconf --install --force
+	$ CXX=g++ CPPFLAGS="-I$INSTALL_PREFIX/include -I$INSTALL_PREFIX/include/glib-2.0 -I$INSTALL_PREFIX/include/glib-2.0/include -I/usr/kerberos/include" LDFLAGS="-L$INSTALL_PREFIX/lib -lglib-2.0" PKG_CONFIG_PATH=$INSTALL_PREFIX/lib/pkgconfig ./configure --prefix=$INSTALL_PREFIX --with-pcre_includedir=/usr/include/pcre --with-pcre_libdir=/usr/lib
+	$ make
+	$ make install
+
+That finishes installing sipXcallLib.
+
+Back to installing sipXvxml.
+
+Have to run autoreconf, though that's not documented in
+$BUILD/sipXvxml/main/INSTALL.
+
+	$ cd $BUILD/sipXvxml/main
+	$ autoreconf --install --force
+
+Use '--with-xerces=$INSTALL_PREFIX' to specify where the xerces files are.
+
+	$ CXX=g++ CPPFLAGS="-I$INSTALL_PREFIX/include -I$INSTALL_PREFIX/include/glib-2.0 -I$INSTALL_PREFIX/include/glib-2.0/include -I/usr/kerberos/include" LDFLAGS="-L$INSTALL_PREFIX/lib -lglib-2.0" PKG_CONFIG_PATH=$INSTALL_PREFIX/lib/pkgconfig ./configure --prefix=$INSTALL_PREFIX --with-pcre_includedir=/usr/include/pcre --with-pcre_libdir=/usr/lib --with-xerces=$INSTALL_PREFIX
+	$ make
+	$ make install
+
+The executable 'sipXvxml' is now in $INSTALL_PREFIX/bin.

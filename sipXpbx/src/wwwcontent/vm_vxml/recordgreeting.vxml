@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<vxml version="2.0" application="root.vxml">
+    <!-- Script that allows voicemail owner to record their greeting. -->
+
+    <form id="recgreeting">
+        <property name="interdigittimeout" value="3s" />
+        <property name="timeout" value="10s" />
+
+        <!-- parameters passed in -->
+        <var name="mailbox" />
+        <var name="mediaserverurl" />
+        <var name="securemediaserverurl" />
+        <var name="greetingtype" />
+    
+        <!-- used by the CGI -->
+        <var name="action" expr="'savegreeting'" />
+        <var name="size" />
+
+        <!-- Get the type of greeting that the user wants to record -->
+        <field name="start" cond="greetingtype=='greeting'">
+            <grammar>1|2|3|*</grammar>
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'record_greeting.wav'"/>
+            </prompt>
+            <filled>
+                <if cond="start == '1'">
+                    <assign name="greetingtype" expr="'standard'" />
+                    <goto nextitem="playprompt"/>
+                <elseif cond="start == '2'" />
+                    <assign name="greetingtype" expr="'outofoffice'" />
+                    <goto nextitem="playprompt"/>
+                <elseif cond="start == '3'" />
+                    <assign name="greetingtype" expr="'extendedabsence'" />
+                    <goto nextitem="playprompt"/>
+                <elseif cond="start == '*'" />
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <return />
+                <else />
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="start" />
+                    <goto nextitem="start" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+
+        <block name="playprompt">
+            <prompt cond="greetingtype=='name'" bargein="false">
+                <audio expr="mediaserverurl + promptsalias + 'record_your_name.wav'" />
+            </prompt>
+            <prompt cond="greetingtype=='standard'||greetingtype=='outofoffice' || greetingtype=='extendedabsence'" bargein="false">
+                <audio expr="mediaserverurl + promptsalias + 'record_your_greeting.wav'" />
+            </prompt>
+        </block>
+    
+        <!-- Prompt users to record the greeting -->
+        <record name="data" beep="true" finalsilence="8000ms" dtmfterm="true">
+            <filled>
+                <if cond="data == '*'">
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <return />
+                <else />
+                    <goto nextitem="confirm" />
+                </if>
+            </filled>
+        </record>
+
+        <!-- Prompt users to confirm that they are satisfied with their recording -->
+        <field name="confirm" cond="data != 'undefined'">
+            <grammar>1 | 2 | 3 |*</grammar>
+            <prompt cond="greetingtype=='name'" timeout="11s">
+                <audio expr="mediaserverurl + promptsalias + 'name_record_options.wav'" />
+            </prompt>
+             <prompt cond="greetingtype=='standard'||greetingtype=='outofoffice' || greetingtype=='extendedabsence'" timeout="11s">
+                <audio expr="mediaserverurl + promptsalias + 'greeting_record_options.wav'" />
+            </prompt>
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'" />
+            </prompt>
+            <filled>
+                <if cond="confirm == '1'">
+                    <prompt>
+                        <value expr="data" />
+                    </prompt>
+                    <clear namelist="confirm" />
+                    <goto nextitem="confirm" />
+                <elseif cond="confirm == '2'"/>
+                    <assign name="size" expr="data$.size"/>
+                    <goto nextitem="savedata"/>
+                <elseif cond="confirm == '3'"/>
+                    <clear namelist="data confirm"/>
+                    <goto nextitem="playprompt" />
+                <elseif cond="confirm == '*'" />
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <return />
+                <else />
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="confirm" />
+                    <goto nextitem="confirm" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+
+        <!-- Invoke the CGI to save the recorded greeting -->
+        <subdialog cond="confirm=='2'" name="savedata" srcexpr="securemediaserverurl + cgiurl" method="post" enctype="audio/x-wav" namelist="action mailbox greetingtype data size">
+            <filled>
+                <if cond="savedata.result=='success'" >
+                    <prompt cond="greetingtype=='name'">
+                        <audio expr="mediaserverurl + promptsalias + 'name_recorded.wav'" />
+                    </prompt>
+                    <prompt cond="greetingtype=='standard'||greetingtype=='outofoffice' || greetingtype=='extendedabsence'">
+                        <audio expr="mediaserverurl + promptsalias + 'greeting_recorded.wav'" />
+                    </prompt>
+                    <return />
+                <else />
+                    <goto nextitem="failure"/>
+                </if>
+            </filled>
+        </subdialog>
+                        
+        <field name="failure" cond="savedata.result == 'failed'">
+            <grammar>1|*</grammar>
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'system_error.wav'" />
+            </prompt>
+            <filled>
+                <if cond="failure=='*'">
+                    <return />
+                <else/>
+                    <clear namelist="savedata" />
+                    <goto nextitem="savedata"/>
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+    </form>
+</vxml>
+

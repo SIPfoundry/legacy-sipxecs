@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- models -->
+  <bean id="mitel5224" class="org.sipfoundry.sipxconfig.phone.mitel.MitelModel">
+    <property name="label" value="Mitel 5224" />
+  </bean>
+  <!-- implementation -->
+  <bean id="mitel" class="org.sipfoundry.sipxconfig.phone.mitel.MitelPhone"
+    singleton="false" parent="abstractPhone">
+  </bean>
+</beans>

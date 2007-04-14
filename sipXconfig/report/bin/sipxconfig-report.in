@@ -1,0 +1,93 @@
+#!/usr/bin/env ruby
+
+# see http://docs.rubygems.org/shelf
+#  RubyGemsUserGuide/Installing Ruby/Installing RubyGems in a User Directory
+ENV['GEM_PATH'] = '@GEM_LIB_DIR@:/usr/lib/ruby/gems/1.8'
+
+require 'tempfile'
+require 'optparse'
+require 'ostruct'
+
+load '@SIPX_CONFDIR@/report/sipxconfig-report-config'
+
+def parse(args)
+  options = OpenStruct.new
+
+  opts = OptionParser.new do |opts|
+    opts.banner = "Usage: sipxconfig-report [--conftest]"
+
+    opts.separator ""
+    opts.separator "Specific options:"
+
+    opts.on_tail("-c", "--configtest", "Run tests on configuration") do 
+      if ! defined? CONFIG_SERVER_AGENT_URL
+        raise "Missing items 'CONFIG_SERVER_AGENT_URL' in config.defs" 
+      end
+      exit
+    end
+    
+    opts.on_tail("--createdb", "Create postgres database") do 
+      createdb
+      exit
+    end
+
+    opts.on_tail("--dropdb", "Drop postgres database") do 
+      dropdb
+      exit
+    end
+
+    opts.on_tail("--resetdb", "Drop and create postgres database") do 
+      dropdb
+      createdb
+      exit
+    end
+    
+    def dropdb
+      `dropdb -U #{DB_USER} #{DB_NAME}`
+    end
+    
+    def createdb
+      db_exists = `psql -U postgres -A -l | grep "^SIPXACD_HISTORY|" | wc -l`.chomp
+      if db_exists == "0"
+        `createdb -U #{DB_USER} #{DB_NAME}`
+        `psql -U #{DB_USER} #{DB_NAME} < @SIPX_CONFDIR@/report/schema.sql`
+      end
+    end
+        
+  end
+  opts.parse!(args)
+  options
+end
+
+# ruby-postgress RPM installs postgres.so in /usr/lib/site_ruby/1.8/i386-linux 
+# however on CentOS ruby 'sitearchdir' is /usr/lib/site_ruby/1.8/i386-linux-gnu
+# this function tries to load postgres from both places
+def load_postgres_driver()
+  require 'postgres'
+rescue LoadError
+  require 'rbconfig'
+  sad = Config::CONFIG['sitearchdir']
+  postgres_dir = sad.chomp('-gnu')
+  $:.unshift(postgres_dir)
+  require 'postgres'
+end
+
+load_postgres_driver
+
+require 'rubygems'
+require 'report'
+require 'dbi'
+
+parse(ARGV)
+
+pid=File.open('@SIPX_RUNDIR@/sipxconfig-report.pid', 'w')
+pid.puts Process.pid
+pid.close
+
+importer = Reports::Importer.new
+begin
+  importer.dbi=DBI.connect(DB_URI, DB_USER)
+  importer.run(CONFIG_SERVER_AGENT_URL)
+ensure
+  importer.dbi.disconnect if importer.dbi != nil
+end  

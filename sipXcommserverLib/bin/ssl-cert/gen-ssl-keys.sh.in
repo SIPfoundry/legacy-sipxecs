@@ -1,0 +1,761 @@
+#!/bin/sh
+##
+##  gen-ssl-keys.sh - generate SSL key and certificate files.
+##
+##  Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+##  Contributors retain copyright to elements licensed under a Contributor Agreement.
+##  Licensed to the User under the LGPL license.
+##
+##  Derived from:
+##  CCA -- Trivial Client CA management for testing purposes
+##  Copyright (c) 1998-2001 Ralf S. Engelschall, All Rights Reserved. 
+##
+
+myName=`basename $0`
+myDir=`dirname $0`
+# default Certificate Authority Expiration is 3 years
+AuthorityDays=3650
+# default server expiration is 3 years
+CertDays=1095 
+
+CAkeyBits=2048
+ServerKeyBits=1024
+
+randomFile=${HOME}/.rnd
+
+# default action - generate self-signed CA certificate and host certificate
+Action=DO_ALL
+AutoDefault=OFF
+
+#   external tools
+openssl="@OPENSSL@"
+
+# default base name for ca and its files
+caName=ca.`hostname --domain`
+
+# if there is a file of saved default answers for the questions, read them
+Defaults=SSL_DEFAULTS
+test -f ${Defaults} && . ${Defaults}
+############################################################################################
+## The variables that can be set from Defaults:
+## Name                     Description                             Default Value
+##
+## countryName              Country Name (2 letter code) 
+## stateOrProvinceName      State or Province Name (full name) 
+## localityName             Locality Name (eg, city) 
+## organizationName         Organization Name (eg, company) 
+## organizationalUnitName   Organization Unit Name (eg, section)     VoIP Services
+## caName                   CA Common Name (DNS name for CA)         ca.`hostname --domain` 
+## caEmail                  Email Contact Address for CA             root@${caName}
+## sipDomainName            SIP domain name                          `hostname --domain` 
+## server                   Full DNS name for the server             `hostname --fqdn`
+## server Server            Common Name (DNS name for Server)        `hostname --fqdn`
+## serverEmail              Email Contact Address for Server         ${caEmail}
+############################################################################################
+
+function showUsage()
+{
+    cat <<USAGE
+
+    Generate SSL keys and certificates.
+
+    This script can be used to create:
+
+    - A self-signed certificate for a single system:
+
+      gen-ssl-keys.sh
+
+    - A private key and certificate request for use
+      with a public or private certificate authority:
+
+      gen-ssl-keys.sh --csr
+
+    - A private self-signed authority certificate you can use to sign
+      certificates for multiple systems:
+
+      gen-ssl-keys.sh --new-ca
+.
+    - a certificate for your server signed by your own authority
+      certificate:
+
+      gen-ssl-keys.sh --sign <csr-file>
+                      [ --ca <ca-name> ]
+                      [ --ca-key <keyfile> ]
+.
+    See @SIPX_DOCDIR@/INSTALL.ssl for details on usage.
+
+    Derived from cca.sh:
+    Copyright (c) 1998-2001 Ralf S. Engelschall, All Rights Reserved.
+
+USAGE
+}
+
+### Prompts for a value for variable, 
+###    the default is the current value if variable is set, and the default argument if not
+###    the answer is stored in the $Defaults file unless NOSTORE is passed.as the fourth arg.
+function askfor () # variable, prompt, default, storeflag
+{
+    local var="$1"
+    local prompt="$2"
+    local default="${!var:-$3}"
+    local store=$4
+    local value=""
+
+    if [ "${AutoDefault}" = "AUTODEFAULT" ]
+    then
+        value="$default"
+        echo "  $prompt: $default"
+    else
+        until test -n "$value"
+        do
+            echo -n "$prompt [$default] : "
+            read value
+
+            if test -z "$value"
+            then
+                value="$default"
+            fi
+        done
+    fi
+
+    eval "$var=\"$value\""
+
+    if test "${store}" != "NOSTORE" && ! grep -q -e "^${var}=" ${Defaults} 2> /dev/null
+    then
+        cat >> ${Defaults} <<EOF
+${var}="${value}"
+EOF
+    fi
+}
+
+function seedRand()
+{
+    # ensures that randomFile has been set up and has new bits in it
+    if [ ! -f "${randomFile}" ]
+    then
+        # find some random files
+        # (do not use /dev/random here, because this device 
+        # doesn't work as expected on all platforms)
+        randfiles=''
+        numrandfiles=0
+        for file in /var/log/messages /var/adm/messages /tmp/* /etc/resolv.conf; do
+            if [ -r $file ]; then
+                if [ ".$randfiles" = . ]; then
+                    randfiles="$file"
+                else
+                    randfiles="${randfiles}:$file"
+                fi
+                numrandfiles=$(($numrandfiles + 1))
+                test $numrandfiles -ge 6 && break
+            fi
+        done
+        $openssl rand \
+            -rand ${randfiles} \
+            -out ${randomFile} \
+            ${CAkeyBits} \
+            > /dev/null 2>&1
+    else
+        $openssl rand \
+            -rand ${randomFile} \
+            -out ${randomFile} \
+            ${CAkeyBits} \
+            > /dev/null 2>&1
+    fi
+}
+
+################################################################
+#### GET FUNCTIONS
+#### These prompt for values from the user,
+####  but perform no actual computations.
+################################################################
+
+## Get the certificate values for where the subject is.
+function getLocality()
+{
+    askfor countryName            "Country Name (2 letter code)" ""
+    askfor stateOrProvinceName    "State or Province Name (full name)" ""
+    askfor localityName           "Locality Name (eg, city)" ""
+    askfor organizationName       "Organization Name (eg, company)" ""
+    askfor organizationalUnitName "Organization Unit Name (eg, section)" "VoIP Services"
+}
+
+# Get the CA name and email address
+function getCAInfo()
+{
+    cat <<EOF
+
+______________________________________________________________________
+Identifying information for your private Certificate Authority (CA)
+
+EOF
+
+    askfor caName   "CA Common Name (DNS name for CA)" 
+    askfor caEmail  "Email Contact Address for CA (name@example.org)" "root@${caName}"
+}
+
+# Get the server-specific information
+# - ensures that server name is not the same as ca name, which is not allowed by validation
+function getServerInfo()
+{
+    cat <<EOF
+
+______________________________________________________________________
+Identifying information for the server:
+
+EOF
+
+    askfor sipDomainName "SIP domain name" `hostname --domain` 
+    askfor server        "Full DNS name for the server" `hostname --fqdn` NOSTORE
+    while test ${caName} = ${server}
+      do
+      echo "" 1>&2
+      echo "Error: The Server name must not be the same as the CA name." 1>&2
+      server=""
+      askfor server "Server Common Name (DNS name for Server)" `hostname --fqdn` NOSTORE
+    done
+
+    askfor serverEmail "Email Contact Address for Server (name@example.org)" "${caEmail}" NOSTORE
+}
+
+################################################################
+#### GENERATOR FUNTIONS
+#### These perform calculations and create files, 
+#### They never prompt for anything, so that they can be combined
+#### by different action functions.
+################################################################
+
+## Generate a self-signed CA certificate
+function genCA()
+{
+    cat <<EOF
+
+Generating private Certificate Authority (CA)
+______________________________________________________________________
+
+        Generating RSA private key for CA (${CAkeyBits} bit)
+
+EOF
+    $openssl genrsa \
+        -rand ${randomFile} \
+        -out ${caName}.key \
+        ${CAkeyBits} \
+        > /dev/null 2> /dev/null
+
+    if [ $? -ne 0 ]; then
+        echo "${myName}:Error: Failed to generate RSA private key" 1>&2
+        exit 1
+    fi
+    chmod go= ${caName}.key
+
+    echo "______________________________________________________________________"
+    echo ""
+    echo "        Generating X.509 certificate signing request for CA"
+
+    cat >${caName}_csr.cfg <<EOT
+[ req ]
+default_bits                    = ${CAkeyBits}
+distinguished_name              = req_DN
+prompt                          = no
+RANDFILE                        = ${randomFile}
+[ req_DN ]
+countryName                     = ${countryName}
+stateOrProvinceName             = ${stateOrProvinceName}
+localityName                    = ${localityName}
+0.organizationName              = ${organizationName}
+organizationalUnitName          = ${organizationalUnitName}
+commonName                      = ${caName}
+emailAddress                    = ${caEmail}
+EOT
+
+    $openssl req \
+        -config ${caName}_csr.cfg \
+        -new \
+        -key ${caName}.key \
+        -sha1 \
+        -out ${caName}.csr \
+        > /dev/null
+
+    if [ $? -ne 0 ]; then
+        echo "${myName}:Error: Failed to generate certificate signing request" 1>&2
+        exit 1
+    fi
+    echo "______________________________________________________________________"
+    echo ""
+    echo "        Generating X.509 certificate for CA signed by itself"
+
+    # use minutes in the epoch as the initial serial number
+    # to prevent clashes when the admin wipes out the system and starts over.
+    startSerial=$((`date +%s` / 60 ))
+
+    cat >${caName}_crt.cfg <<EOT
+[ x509v3 ]
+basicConstraints = CA:true,pathlen:0
+nsComment        = "${myName} generated custom CA certificate"
+nsCertType       = sslCA
+EOT
+
+    $openssl x509 \
+        -req \
+        -signkey ${caName}.key \
+        -set_serial ${startSerial} \
+        -extfile ${caName}_crt.cfg \
+        -extensions x509v3 \
+        -days ${AuthorityDays} \
+        -sha1 \
+        -in ${caName}.csr \
+        -out ${caName}.crt \
+        -text \
+        > /dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+        echo "${myName}:Error: Failed to generate self-signed CA certificate" 1>&2
+        exit 1
+    fi
+    printf "%08x" $((${startSerial} + 1)) > ${caName}.ser
+
+    echo "______________________________________________________________________"
+    echo ""
+    echo -n "Verify..."
+    $openssl verify ${caName}.crt > /dev/null 2>&1
+
+    if [ $? -eq 0 ]; then
+        echo "CA certificate OK" 1>&2
+        rm -f ${caName}.csr  ${caName}_csr.cfg  ${caName}_crt.cfg
+    else
+        echo "${myName}:Error: Failed to verify resulting X.509 certificate" 1>&2
+        exit 1
+    fi
+}
+
+## Generate a Certificate Signing Request
+function genServerCSR()
+{
+    echo ""
+    echo "Generating server certificate request [$server]"
+    echo "______________________________________________________________________"
+    echo ""
+    echo "        Generating RSA private key for server (${ServerKeyBits} bit)"
+
+    $openssl genrsa \
+        -rand ${randomFile} \
+        -out $server.key \
+        ${ServerKeyBits} \
+        > /dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+        echo "${myName}:Error: Failed to generate RSA private key" 1>&2
+        exit 1
+    fi
+    chmod go= $server.key
+
+    echo "______________________________________________________________________"
+    echo ""
+    echo "        Generating X.509 certificate signing request for '${server}'"
+    cat >${server}_csr.cfg <<EOT
+[ req ]
+default_bits           = ${ServerKeyBits}
+distinguished_name     = req_DN
+prompt                 = no
+RANDFILE               = ${randomFile}
+[ req_DN ]
+countryName            = ${countryName}
+stateOrProvinceName    = ${stateOrProvinceName}
+localityName           = ${localityName}
+0.organizationName     = ${organizationName}
+organizationalUnitName = ${organizationalUnitName}
+commonName             = ${server}
+emailAddress           = ${serverEmail}
+[ extend_req ]
+basicConstraints       = CA:FALSE
+subjectAltName         = URI:sip:${sipDomainName},DNS:${server}
+subjectKeyIdentifier   = hash
+EOT
+
+    $openssl req \
+        -config ${server}_csr.cfg \
+        -new \
+        -sha1 \
+        -key $server.key \
+        -reqexts extend_req \
+        -out ${server}.csr \
+        -days ${CertDays} \
+        > /dev/null
+       
+    if [ $? -ne 0 ]; then
+        echo "${myName}:Error: Failed to generate certificate signing request" 1>&2
+        exit 1
+    else
+        rm -f  ${server}_csr.cfg
+    fi
+}
+
+## Sign a server certificate
+function signServerCertificate()
+{
+    echo "______________________________________________________________________"
+    echo ""
+    echo "        Generating X.509 certificate signed by ${caName}"
+
+    cat >${server}_crt.cfg <<EOT
+[ x509v3 ]
+basicConstraints = CA:false,pathlen:0
+[ extend_cert ]
+basicConstraints       = CA:FALSE
+subjectAltName         = URI:sip:${sipDomainName},DNS:${server}
+subjectKeyIdentifier   = hash
+EOT
+
+    $openssl x509 \
+        -req \
+        -CA ${caName}.crt \
+        -CAkey ${caKey:-${caName}.key} \
+        -CAserial ${caName}.ser \
+        -extfile ${server}_crt.cfg \
+        -extensions x509v3 \
+        -extensions extend_cert \
+        -sha1 \
+        -days ${CertDays} \
+        -in ${server}.csr \
+        -out ${server}.crt \
+        -text \
+        > /dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+        echo "${myName}:Error: Failed to generate X.509 certificate" 1>&2
+        exit 1
+    fi
+
+    ## how to generate pkcs12 certs...
+    #caname="`$openssl x509 -noout -text -in ${caName}.crt |\
+    #         grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`"
+    #servername="`$openssl x509 -noout -text -in $server.crt |\
+    #           grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`"
+    #echo "Assembling PKCS#12 package"
+    #$openssl pkcs12 -export -in $server.crt -inkey $server.key -certfile ${caName}.crt -name "$servername" -caname "$caname" -out $server.p12
+
+    echo "______________________________________________________________________"
+    echo ""
+    echo -n "Verify..."
+    $openssl verify \
+        -CAfile ${caName}.crt \
+        $server.crt \
+        > /dev/null
+
+    if [ $? -eq 0 ]; then
+        echo "Server certificate OK" 1>&2
+        rm -f ${server}_crt.cfg
+    else
+        echo "${myName}:Error: Failed to verify resulting X.509 certificate" 1>&2
+        exit 1
+    fi
+}
+
+
+################################################################
+#### ACTION FUNCTIONS
+#### These combine prompting the user with actually doing things.
+################################################################
+
+#### Do the one-step self-signed CA and a certificate from it.
+function doAll() 
+{
+    cat <<EOF
+
+  We need some information from you to generate the certificates: 
+
+EOF
+
+    getLocality
+    getCAInfo
+    getServerInfo
+
+    seedRand
+    
+    genCA
+    genServerCSR
+    signServerCertificate
+
+    cat <<EOF
+
+  To install your certificate, run the following command 
+  as root on the server:
+
+    @bindir@/ssl-cert/install-cert.sh
+
+EOF
+}
+
+################################################################
+#### Create a CA
+################################################################
+function doNewCA() 
+{
+    cat <<EOF
+
+  We need some information from you to set up your Certificate Authority:
+
+EOF
+
+    getLocality
+    getCAInfo
+
+    seedRand
+    genCA
+
+    cert_expires=`@OPENSSL@ x509 -in "${caName}.crt" -noout -enddate | sed 's/notAfter=//'`
+
+    cat <<EOF
+
+  These files have been created for your private Certificate Authority:
+
+       The root certificate of your CA:   ${caName}.crt 
+
+       You will need to make the ${caName}.crt file available to 
+       anyone who wishes to be able to validate certificates signed 
+       by your CA.
+
+             The secret key of your CA:   ${caName}.key
+
+       You MUST keep the ${caName}.key file as secure as possible; 
+       it is the foundation of the security of your CA, and by extension
+       anything using certificates signed by your CA.  You may move this
+       do removable media; if you do, then when signing keys you must
+       specify the full path to the key using the --ca-key switch.
+
+   The serial number store for your CA:   ${caName}.ser
+
+       This is used to ensure uniqueness when you regenerate certificates.
+
+  The CA certificate will expire ${cert_expires}; 
+  you will need to rerun this command to generate a new certificate
+  then (or, preferably, before then).
+  
+EOF
+}
+
+################################################################
+#### CSR
+################################################################
+function doCSR() 
+{
+    cat <<EOF
+
+  We need some information from you to generate the certificate signing request: 
+
+EOF
+
+    getLocality
+    getServerInfo
+
+    seedRand
+    genServerCSR
+
+    cat <<EOF
+______________________________________________________________________
+Results:
+
+   server key:         $server.key
+   server CSR:         $server.csr
+
+  To obtain your certificate from a Certificate Authority, send the
+  $server.csr file to your CA for signing.  When you get the response,
+  put the certificate data they give you into $server.crt, and then run
+  this command as root in this directory:
+
+      @bindir@/ssl-cert/install-cert.sh $server
+
+  You may also need to install the root certificate from the CA; if this
+  is needed, the install-cert.sh command will detect this and provide 
+  instructions.
+
+EOF
+
+}
+
+## Extract information from a CSR and present it for approval 
+function checkCSR()
+{
+    server=`@OPENSSL@ req -in "${csrFile}" -subject -nameopt RFC2253,multiline -noout | perl -ne 'use English; m/^\s+commonName\s+=\s+/ && print $POSTMATCH'`
+
+    if [ -z "${server}" ]
+    then
+        echo "${myName}:Error: unable to read name in certificate signing request." 1>&2
+        exit 1
+    fi
+
+    cat <<EOF
+
+ The data for the requested certificate is:
+
+EOF
+    echo ""
+    $openssl req \
+        -in ${csrFile} \
+        -text \
+        -nameopt RFC2253,multiline \
+        -noout \
+    | perl -n -e '/^\s+([0-9a-f]{2}:)+([0-9a-f]{2})?$/i || print;' 
+
+    cat <<EOF
+
+ Examine the information above carefully.
+
+ Do you wish to sign a certificate with the above
+       for server ${server}
+   with authority ${caName}
+
+EOF
+   
+    answer=""
+    until [ "${answer}" = "yes" -o "${answer}" = "no" ]; do
+        echo -n "   Sign Certificate? (yes|no): "
+        read answer
+    done
+
+    test "${answer}" = "no" && exit
+}
+
+################################################################
+#### Use a CSR to create a Certificate
+################################################################
+function doSignServer() 
+{
+    if [ -z "${csrFile}" ]
+    then
+        echo "Please specify a CSR file name" 1>&2
+        showUsage
+        exit 1
+    fi
+    
+    checkCSR 
+    signServerCertificate
+
+    cert_expires=`@OPENSSL@ x509 -in "${server}.crt" -noout -enddate | sed 's/notAfter=//'`
+
+    cat <<EOF
+______________________________________________________________________
+
+
+   CA certificate:     ${caName}.crt
+   server certificate: $server.crt
+
+  To install these certificates and the server key on this system, run the
+  following command as root in this directory:
+
+      @bindir@/ssl-cert/install-cert.sh $server
+
+  The server certificate will expire ${cert_expires}; 
+  you will need to rerun this command to generate new certificates
+  then (or, preferably, before then).  You do not need to create a 
+  new .csr file - you can just resign the same file.
+
+EOF
+}
+
+
+## parse arguments
+while [ $# -ne 0 ]
+do
+    case ${1} in
+
+        --csr)
+            ##
+            ## Create a key and a Certificate Signing Request
+            ##
+            Action=DO_CSR
+            ;;
+
+        --new-ca)
+            ##
+            ## Create a key and a Certificate Signing Request
+            ##
+            Action=DO_CA
+            ;;
+
+        --ca)
+            ##
+            ## Certificate Authority Name
+            ##
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <ca-name> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                caName=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        --ca-key)
+            ##
+            ## Certificate Authority Key File
+            ##
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <ca-key-file> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                caKey=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        --sign)
+            ##
+            ## Sign a CSR to produce a Server Certificate
+            ##
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <csr-file> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                csrFile=${2}
+                Action=DO_SERVER
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -d)
+            AutoDefault=AUTODEFAULT
+            ;;
+
+        *)
+            ##
+            ## unrecognized argument
+            ##
+            Action=USAGE
+            break
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+case ${Action} in
+
+    DO_ALL)
+        doAll
+        ;;
+
+    DO_CA)
+        doNewCA
+        ;;
+
+    DO_CSR)
+        doCSR
+        ;;
+
+    DO_SERVER)
+        doSignServer
+        ;;
+
+    *)
+        showUsage
+        exit 1
+        ;;
+esac
+
+exit

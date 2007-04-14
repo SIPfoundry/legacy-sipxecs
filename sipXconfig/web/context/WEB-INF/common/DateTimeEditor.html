@@ -1,0 +1,14 @@
+<tr jwcid="dateTimeLabel@FieldPanel" for="datetime:date" 
+  field="component:datePicker"
+  label="prop:label">
+  <input jwcid="datePicker@DatePicker" id="datetime:date" 
+    validators="validators:required"
+    value="prop:date" 
+    displayName="prop:label" />
+  <input jwcid="timePicker@TextField" id="datetime:time"
+    validators="validators:required"
+    translator="translator:date,pattern=h:mm a"
+    value="prop:time"
+    displayWidth="8"
+    displayName="prop:label"/>
+</tr>

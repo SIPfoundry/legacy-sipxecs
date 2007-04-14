@@ -1,0 +1,19 @@
+<?xml version="1.0" standalone="yes" ?>
+<!--
+  - Example registration.xml file
+  -
+  - You cannot pre-register calls by writing this file (well, you
+  - could just once, but then it will be overwritten).  It is here
+  - to explain how to read it.
+  -
+  -->
+<items type="registration">
+ <item>
+   <callid>01@origin</callid> <!-- call id of the registration dialog -->
+   <cseq>201</cseq>           <!-- cseq number of the registration -->
+   <uri>sip:user@example.com</uri> <!-- Target URI (address) -->
+   <contact>&lt;sip:line-01@192.168.1.101&gt;</contact> <!-- contact -->
+   <qvalue></qvalue>          <!-- q value used as priority -->
+   <expires>1067613029</expires> <!-- expiration time (unix epoch time) -->
+ </item>
+</items>

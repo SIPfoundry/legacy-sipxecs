@@ -1,0 +1,145 @@
+#!/bin/bash
+
+# Name of the back up directory
+BACKUP_DIR=backup-configs
+INTERACTIVE="yes"
+
+# All files (in $SIPXCHANGE_HOME or linked therefrom) with extensions in this list will be copied
+EXTENSION_MATCH="in"
+
+BackupFiles="\
+  @SIPX_CONFDIR@/config.defs \
+  @SIPX_CONFDIR@/WatchDog.xml \
+  @SIPX_CONFDIR@/security.policy \
+  @SIPX_CONFDIR@/resourcemap.xml \
+  @SIPX_CONFDIR@/ssl/ssl.crt \
+  @SIPX_CONFDIR@/ssl/ssl.key \
+  "
+
+Sets=" \
+  @SIPX_DBDIR@/*.xml \
+  @SIPX_CONFDIR@/*.in \
+  @SIPX_CONFDIR@/*.conf \
+  @SIPX_CONFDIR@/ssl/authorities/* \
+  "
+
+while [ "$#" -ne 0 ]
+do
+  case ${1} in
+    --non-interactive)
+      INTERACTIVE="no"
+      ;;
+
+    *)
+      echo "Unknown option: ${1}"
+      exit 3
+      ;;
+
+    esac
+    shift #always consume 1
+done
+
+for File in $BackupFiles; do
+  if [ -f $File ]; then
+    ExistingBackupFiles="$ExistingBackupFiles $File"
+  fi
+done
+
+for Set in $Sets; do
+  ExtraFiles=`ls $Set 2> /dev/null`
+
+  for File in $ExtraFiles; do
+    ExistingBackupFiles="$ExistingBackupFiles $File"
+  done
+done
+
+dump_database() {
+        pg_dump -U postgres -F t SIPXCONFIG
+}
+
+if [ ! -f /var/run/postmaster*.pid -a \
+     ! -f /var/lib/postgresql/data/postmaster*.pid -a \
+     ! -f /var/lib/pgsql/data/postmaster*.pid ]
+then
+        echo "PostgreSQL does not appear to be running. You must start it to back up."
+        exit 1
+fi
+
+# How much space will we need? We _could_ gzip the database here to get a more
+# accurate size, but we just need an approximate upper bound. We'll gzip it
+# when we actually back it up.
+SIZE=`(cd /; du -sc $ExistingBackupFiles | grep "       total$" | cut -d\        -f 1)`
+DBS=$((`dump_database | wc -c` / 1024))
+SIZE=$(($SIZE + $DBS))
+
+# Prompt the user for confirmation
+echo "Will back up the following configuration files:"
+for File in $ExistingBackupFiles
+do
+        true
+        echo "   /$File"
+done
+
+echo "Will back up the SIPxchange database."
+
+# Assume a 10:1 compression ratio
+echo "Will back up about $(($SIZE / 10))K to: `pwd`/$BACKUP_DIR"
+
+[ -d $BACKUP_DIR ] && echo "Will delete old back up directory."
+
+echo
+
+if [ "$INTERACTIVE" = "yes" ]; then
+  while :
+  do
+          echo -n "Is this correct? [y/N] "
+        read response
+          case $response in
+                  y* | Y*)
+                          echo "Excellent!"
+                        break
+                ;;
+                n* | N* | "")
+                        echo "Cancelled."
+                        echo
+                          exit
+                ;;
+          esac
+  done
+  echo
+fi
+
+# Clean out the backup directory
+[ -d $BACKUP_DIR ] && rm -rf $BACKUP_DIR
+mkdir -p $BACKUP_DIR
+
+# Make sure there is space
+disk_device() {
+        df -P "$1" | tail +2 | awk '{ print $1 }'
+}
+
+disk_free() {
+        df -P "$1" | tail +2 | awk '{ print $4 }'
+}
+
+FREE=`disk_free "$BACKUP_DIR"`
+
+if [ $SIZE -gt $FREE ]
+then
+        FS=`disk_device "$BACKUP_DIR"`
+        echo "Filesystem $FS does not have enough free space."
+        echo "(Free space: ${FREE}K, needed: ${SIZE}K)"
+        exit 2
+fi
+
+# Copy the files
+echo -n "Copying files... "
+tar cC / $ExistingBackupFiles | gzip --best > $BACKUP_DIR/fs.tar.gz
+echo "done."
+
+# Dump the database
+echo -n "Copying database... "
+dump_database | gzip --best > $BACKUP_DIR/pds.tar.gz
+echo "done."
+
+chown -R @SIPXPBXUSER@:@SIPXPBXUSER@ $BACKUP_DIR

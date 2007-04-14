@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<!--
+  - 1 user on 2 servers
+  - 1 user on 1 server
+  - 1 user nowhere
+  - 1 server w/no users
+  -->
+<dataset>
+	<users user_id="1001" user_name="testuser1"/>
+	<users user_id="1002" user_name="testuser2"/>
+	<users user_id="1003" user_name="testuser3"/>
+	<acd_server acd_server_id="1001" host="server1.example.com" port="8100"/>
+	<acd_server acd_server_id="1002" host="server2.example.com" port="8100"/>	
+	<acd_server acd_server_id="1003" host="empty.example.com" port="8100"/>	
+	<acd_agent acd_agent_id="3001" user_id="1001" acd_server_id="1001"/>
+	<acd_agent acd_agent_id="3002" user_id="1001" acd_server_id="1002"/>
+	<acd_agent acd_agent_id="3003" user_id="1002" acd_server_id="1001"/>
+</dataset>

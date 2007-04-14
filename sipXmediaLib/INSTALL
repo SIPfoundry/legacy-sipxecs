@@ -1,0 +1,21 @@
+Required Software
+====================
+sipXportLib 2.5.0
+  http://www.sipfoundry.org/sipXportLib
+
+sipXtackLib 2.5.0
+  http://www.sipfoundry.org/sipXtackLib
+
+Installation
+=====================
+Please see the sipXportLib INSTALL file for pointers on installing and 
+configuring all of the required software.  Once, the required libraries 
+are installed and built, installing sipXmediaLib is relatively easy:
+
+  ./configure --prefix=<DIR_TO_INSTALL>
+  make
+  make check
+  make install
+        
+Make sure to build all of required sipX libraries and install (make install)
+them before running configure on this project.

@@ -1,0 +1,33 @@
+<table>
+  <thead>
+    <tr>
+      <th jwcid="@For" 
+        source="prop:setting.settingNames" 
+        value="prop:currentColumn" 
+        volatile="true" 
+        element="th">
+        <span jwcid="@Insert" value="prop:currentColumnLabel"/>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr jwcid="@For" 
+      source="prop:indices"
+      value="prop:currentIndex"
+      volatile="true"
+      element="tr">
+      <td jwcid="@For" 
+        source="prop:setting.settingNames" 
+        value="prop:currentColumn" 
+        volatile="true" 
+        element="td">
+        <span jwcid="@setting/SettingEditor"
+          setting="prop:currentSetting"
+          enabled="prop:enabled"
+          requiredEnabled="prop:requiredEnabled"
+          messageSource="prop:messageSource"
+          decorated="false"/>
+      </td>
+    </tr>
+  </tbody>
+</table>

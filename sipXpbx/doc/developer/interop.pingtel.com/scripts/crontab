@@ -1,0 +1,3 @@
+# Summarize traffic through the proxy, just after the logs are rotated.
+30 4 * * *	$HOME/interop.pingtel.com/scripts/proxy-summary
+35 4 * * *	$HOME/interop.pingtel.com/scripts/dialog-event-summary

@@ -1,0 +1,43 @@
+* syslog2siptrace
+
+syslog2siptrace is a binary that uses the sipX libraries.  It is built
+in sipXtackLib/syslog2siptrace, and installed in
+.../bin/syslog2siptrace.
+
+It reads a sipX .log file and produces an XML summary of the incoming
+and outgoing SIP messages in the log, which is called a "siptrace"
+file.
+
+Typical usage:  syslog2siptrace <file.log >file.xml
+
+* siptrace-merge
+
+siptrace-merge is a Perl script in
+sipXtackLib/syslog2siptrace/siptrace-merge.  It combines one or more
+siptrace files to produce a summary siptrace file.  It also takes a
+number of arguments to select subsets of the SIP messages to include
+in the output file.  See the top of the file for a list of options.
+
+Typical usage:  siptrace-merge [selection-options] file.xml ... >merged.xml
+
+* sipviewer
+
+sipviewer is a standalone Java program.  The source is in
+sipXtackLib/sipviewer, and is installed in .../bin/sipviewer and
+.../lib/sipviewer.  It displays the SIP messages in a siptrace file in
+a nice graphical format.
+
+Typical usage:  sipviewer file.xml
+
+* merge-logs
+
+merge-logs is a Bash script in
+sipXtackLib/syslog2siptrace/merge-logs.  It is a wrapper around
+syslog2siptrace and siptrace-merge to make them more convenient.  It
+converts the specified log files (or *.log) into siptrace files, then
+merged them (using any specified arguments) into one siptrace file,
+merged.xml.
+
+Typical usage:  cd .../var/log/sipxpbx
+                merge-logs --exclude-method=REGISTER
+                sipviewer merged.xml

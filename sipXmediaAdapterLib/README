@@ -1,0 +1,45 @@
+sipXportLib is a library of general purpose utilities and OS
+abstraction APIs.  Being a library, it, itself has no end user
+application however this project also contains end user utilities
+related to this library's functionality.
+
+Utility Applications
+=================
+
+syslogviewer -h
+
+  Convert syslog format to more human readable content. Although it's
+little more than a CR/LF character converter, it's of great utility.
+
+
+Documentation
+=============
+
+To generate doxygen docs, you must have doxygen installed first then
+run this make target.
+
+ make doc
+
+
+Unit Testing
+============
+
+You can run unittests to ensure library is built properly on your
+system.  This checks the library before it's installed, but can be run
+at anytime.
+
+  make check
+
+Write unittests when developing new functionality or demonstrating a
+bug with or without a patch.  Read CPP Unittesting HOWTO for more
+information.
+
+  http://www.sipfoundry.org/sipX/cpp-unittesting.html
+
+
+Searching and Reporting Bugs
+============================
+
+Search JIRA bug list before reporting any new bugs.
+
+  http://track.sipfoundry.org/browse/XPL

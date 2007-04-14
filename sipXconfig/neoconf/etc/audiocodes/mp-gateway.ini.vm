@@ -1,0 +1,98 @@
+## Velocity macros
+## emit 'setting value' pair
+#macro(emit_setting $s)
+#if($s.Leaf)
+${s.ProfileName}=$!{s.Value}
+#end
+#end
+## emit setting line for every setting in the group
+#macro(emit_group_content $g)
+#foreach ($s in $g.Values)
+#emit_setting($s)
+#end
+#end
+## emit setting line for every setting in the group
+#macro(emit_group $g)
+[${g.ProfileName}]
+#emit_group_content($g)
+#end
+## emit setting line for some settings in the group
+#macro(emit_settings $g $setting_names)
+#foreach ($sn in $setting_names)
+#emit_setting($g.getSetting($sn))
+#end
+#end
+## emit all listed groups device
+#macro(emit_groups_by_name $group_names)
+#foreach ($gn in $group_names)
+#emit_group($gateway.Settings.getSetting("$gn"))
+
+#end
+#end
+## emit comma separated list of values
+#macro(emit_csv $group $setting_names)
+#foreach ($sn in $setting_names)
+#if($velocityCount > 1),#end
+#set($s=$group.getSetting($sn))
+#if($s && $s.Value)$s.Value#else$ignore#end
+#end
+
+#end
+## same as emit_csv but works with arrays
+#macro(emit_csv_index $array $index $setting_names)
+#foreach ($sn in $setting_names)
+#if($velocityCount > 1),#end
+#set($s=$array.getSetting("$sn[$index]"))
+#if($s && $s.Value)$s.Value#else$ignore#end
+#end
+
+#end
+;**************
+;** Ini File **
+;**************
+
+;generated from template by sipXconfig
+;------------------------------
+
+#emit_groups_by_name(['SIP', 'Network'])
+[Trunks]
+#set($trunks = $gateway.Settings.getSetting('Trunks/TRUNKGROUP'))
+#set($max_trunk = $trunks.size - 1)
+#foreach ($tg_index in [0..$max_trunk])
+#set($tg_conf_index = $tg_index + 1)
+TRUNKGROUP_$tg_conf_index=#emit_csv_index($trunks $tg_index ['ChannelRange', 'StartPhoneNumber', 'HuntGroupNumber'])
+#end
+
+#emit_groups_by_name(['Telephony'])
+[Voice]
+#foreach ($codec in $codecs)
+CoderName=$codec
+#end
+#set($voice = $gateway.Settings.getSetting('Voice'))
+#emit_group_content($voice)
+
+[Call_Routing]
+#set($cr = $gateway.Settings.getSetting('Call_Routing'))
+#set($prefix = $cr.getSetting('PREFIX'))
+PREFIX=#emit_csv($prefix ['number', 'ip_address', 'ANIPrefix'])
+#set($pstn_prefix = $cr.getSetting('PSTNPrefix'))
+PSTNPrefix=#emit_csv($pstn_prefix ['number', 'huntgroup_id', 'CallingPartyNumberPrefix', 'CallingPartyIPaddress'])
+
+[Digit_Manipulation]
+#set($dm = $gateway.Settings.getSetting('Digit_Manipulation'))
+#emit_settings($dm ['RouteModeIP2Tel', 'RouteModeTel2IP'])
+#set($t2i = $dm.getSetting('NUMBERMAPTEL2IP'))
+NUMBERMAPTEL2IP=#emit_csv($t2i ['prefixtomatch', 'stripdigitcount', 'prefix-suffix', 'leavefromright', 'numberplan', 'numbertype', 'ANIPrefix'])
+#set($i2t = $dm.getSetting('NUMBERMAPIP2TEL'))
+NUMBERMAPIP2TEL=#emit_csv($i2t ['prefixtomatch', 'stripdigitcount', 'prefix-suffix', 'leavefromright', 'ignore', 'ignore', 'ANIPrefix', 'ignore', 'sourceIP'])
+#set($s_t2i = $dm.getSetting('SourceNUMBERMAPTEL2IP'))
+SourceNUMBERMAPTEL2IP=#emit_csv($s_t2i ['prefixtomatch', 'stripdigitcount', 'prefix-suffix', 'leavefromright', 'numberplan', 'numbertype', 'DNISPrefix', 'PresRestricted'])
+#set($s_i2t = $dm.getSetting('SourceNUMBERMAPIP2TEL'))
+SourceNUMBERMAPIP2TEL=#emit_csv($s_i2t ['prefixtomatch', 'stripdigitcount', 'prefix-suffix', 'leavefromright', 'ignore', 'ignore', 'DNISPrefix', 'ignore', 'sourceIP'])
+
+#emit_groups_by_name(['Management_Interface'])
+; must exist in the file
+EnableLANWatchDog=1
+IdlePCMPattern=85
+LogoWidth=339
+## end of generated file

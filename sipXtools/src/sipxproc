@@ -1,0 +1,124 @@
+#!/usr/bin/env ruby
+
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+require 'getoptlong'
+require 'net/https'
+require 'rexml/document'
+
+class SipxProcess
+  attr_accessor :verbose, :host
+
+  def initialize
+    @host = `hostname -f`.chomp
+    @port = 8091
+  end
+  
+  def process_status(*unused)
+    get_url('/cgi-bin/processmonitor/process.cgi?command=status') {|response|
+      doc = REXML::Document.new(response.body)
+      puts doc if verbose
+      doc.root.each_element('//process') { |process|
+        puts process.attributes['name'] + ' ' + process.attributes['status']
+      }
+    }
+  end
+
+  def process_command(command, *processes)
+    processes.each { |process|
+      get_url("/cgi-bin/processmonitor/process.cgi?command=#{command}&process=#{process}") {|response|        
+        #
+        # SERVER SIDE BUG 
+        # I get a 500 error for any command other that status even when command does
+        # perform successfully
+        #
+        # puts response.body
+        
+        puts response.body if command == 'status' || verbose
+      }
+    }
+  end
+
+  def get_url(url)
+    puts "request url: #{url}" if verbose
+    http = Net::HTTP.new(@host, @port) 
+    http.use_ssl = true
+    http.start do |http|
+      request = Net::HTTP::Get.new(url)
+      response = http.request(request)
+      puts "response code: #{response.value}" if verbose
+      yield response
+    end
+  end
+  
+end
+
+def usage_exit(error_code=1)
+      usage = <<__EOU__
+
+  Usage: #{ $0 } parameters
+
+    Interace with sipXpbx watchdog processes
+
+  Parameters:
+  -h|--help          This help text
+  -v|--verbose       Dump debugging output to screen
+  -n|--host hostname Remote server running processes, e.g. HA slave
+  -s|--start         Start processes
+  -k|--stop          Stop processes
+  -r|--restart       Restart processes
+  -l|--status        Current status of processes
+
+__EOU__
+
+      STDERR << usage
+      exit error_code
+end
+
+if __FILE__ == $0
+  OptSet = [
+    ['--modified-configuration','-m', GetoptLong::NO_ARGUMENT],
+    ['--start','-s', GetoptLong::NO_ARGUMENT],
+    ['--host','-n', GetoptLong::REQUIRED_ARGUMENT],
+    ['--stop','-k', GetoptLong::NO_ARGUMENT],
+    ['--restart','-r', GetoptLong::NO_ARGUMENT],
+    ['--status','-l', GetoptLong::NO_ARGUMENT],
+    ['--verbose','-v', GetoptLong::NO_ARGUMENT],
+    ['--help','-h', GetoptLong::NO_ARGUMENT]
+  ]
+
+  setup = SipxProcess.new
+  opts = GetoptLong.new(*OptSet)
+  action = 'process_status'
+  args = []
+  begin
+    opts.each do |name, arg|
+      case name
+        when '--help'
+          usage_exit 0
+        when '--verbose'
+          setup.verbose = true
+        when '--start', '--stop', '--status', '--restart' 
+          action = 'process_command'
+          args << name.gsub(/--/, '')
+        when '--host'
+          setup.host = arg
+        else
+          usage_exit
+        end
+    end
+    
+  rescue StandardError => bang
+    puts bang
+    usage_exit
+  end
+
+  args << ARGV
+
+  begin
+    setup.send(action, *args)
+  end
+end
+

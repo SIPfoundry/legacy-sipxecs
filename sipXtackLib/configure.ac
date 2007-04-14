@@ -1,0 +1,90 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.57)
+AC_INIT(sipXtackLib, 3.7.0, sipx-dev@list.sipfoundry.org)
+
+AC_CONFIG_AUX_DIR(config)
+m4_include([config/general.m4])
+m4_include([config/sipXlib.m4])
+
+SFAC_SIPX_INSTALL_PREFIX
+AM_INIT_AUTOMAKE(foreign)
+SFAC_AUTOMAKE_VERSION([1.6])
+
+AC_CONFIG_SRCDIR([src/net/SipMessage.cpp])
+AM_CONFIG_HEADER([config.h])
+AC_PROG_LIBTOOL
+
+# Checks for programs.
+AC_PROG_CXX
+AX_COMPILER_VENDOR
+AC_PROG_CC
+
+# Checks for libraries.
+
+# Checks for header files.
+# Checks for typedefs, structures, and compiler characteristics.
+# Checks for library functions.
+
+CHECK_CPPUNIT
+CHECK_SSL
+
+# sipX dependancies
+
+SFAC_LIB_PORT
+
+SFAC_FEATURE_SIP_TLS
+
+ENABLE_DOXYGEN
+AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
+
+## Sipviewer is written in java and compiled w/ant so allow someone
+## w/o java or ant to effectively ignore anything about this
+AC_ARG_ENABLE(sipviewer, 
+  [  --disable-sipviewer       Do not try to compile java based sipviewer program],
+  , enable_sipviewer=yes)
+AM_CONDITIONAL(SIPVIEWER, test x$enable_sipviewer = xyes)
+
+if test x$enable_sipviewer = xyes
+then
+## SIPViewer is only part of project that uses java, so restrict
+## test only if installing sipviewer
+  CHECK_JDK
+  CHECK_ANT
+fi
+
+AC_ARG_ENABLE(stack-examples, 
+  [  --enable-stack-examples       Builds examples directory (disabled by default) ]
+  , enable_stack_examples=yes)
+AM_CONDITIONAL(EXAMPLES, test x$enable_stack_examples = xyes)
+
+# named is used in some sipXtackLib tests
+CHECK_NAMED
+
+AC_CONFIG_FILES([
+  Makefile 
+  include/Makefile 
+  src/Makefile 
+  bin/Makefile 
+  meta/Makefile 
+  src/test/Makefile
+  examples/Makefile
+  examples/im/Makefile
+  examples/xmlrpc/Makefile
+  syslog2siptrace/Makefile 
+  siplog2siptrace/Makefile
+  sipviewer/Makefile 
+  siptest/Makefile 
+  siptest/src/Makefile 
+  siptest/include/Makefile 
+  siptest/src/siptest/Makefile
+  doc/Makefile  
+  dialogwatch/Makefile
+])
+
+AC_OUTPUT
+
+# autoconf variables like datadir, localstatedir, etc are not resolved until make
+# time, so this allows ant to work immediately after ./configure
+make config.properties

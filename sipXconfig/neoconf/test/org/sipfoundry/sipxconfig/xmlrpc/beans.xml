@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="testXmlRpcFunctions" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean">
+    <property name="serviceUrl">
+      <value>http://localhost:9997</value>
+    </property>
+    <property name="serviceInterface">
+      <value>org.sipfoundry.sipxconfig.xmlrpc.TestFunctions</value>      
+    </property>
+  </bean>
+</beans>

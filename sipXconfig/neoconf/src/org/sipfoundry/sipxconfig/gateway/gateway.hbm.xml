@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.gateway" default-lazy="false">
+  <!-- 
+    - Gateway
+  -->
+  <class name="Gateway" table="gateway" discriminator-value="gwGeneric">
+    <id name="id" column="gateway_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">gateway_seq</param>
+      </generator>
+    </id>
+    <discriminator column="bean_id" />
+    <property name="name" />
+    <property name="address" />
+    <property name="prefix" />
+    <property name="description" />
+    <property name="serialNumber" />
+    <property name="beanId" column="bean_id" insert="false" update="false" />
+    <property name="modelId" />
+    <property name="deviceVersion" column="device_version_id"
+      type="org.sipfoundry.sipxconfig.device.DeviceVersion$Type" />
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
+
+    <component name="callerAliasInfo" class="GatewayCallerAliasInfo">
+      <property name="defaultCallerAlias" />
+      <property name="anonymous" not-null="true" />
+      <property name="ignoreUserInfo" not-null="true" />
+      <property name="transformUserExtension" not-null="true" />
+      <property name="addPrefix" />
+      <property name="keepDigits" not-null="true" />
+    </component>
+
+  </class>
+
+  <query name="gatewayIds">
+    <![CDATA[select g.id from Gateway g]]>
+  </query>
+</hibernate-mapping>

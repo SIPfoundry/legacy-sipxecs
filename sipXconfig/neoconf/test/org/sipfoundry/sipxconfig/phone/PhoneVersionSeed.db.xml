@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+	<phone 
+		serial_number="00001"
+		phone_id="1000" 
+		bean_id="polycom"
+    device_version_id="polycom2.0"
+    model_id="430"/>
+	
+</dataset>

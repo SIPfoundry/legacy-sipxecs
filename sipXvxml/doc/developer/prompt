@@ -1,0 +1,68 @@
+The handling of the VXML prompt element.
+
+When the VXI engine determines that a PROMPT element needs to be
+played, it calls the interface OSBpromptQueue
+(sipXvxml/src/prompt/osbprompt.cpp:629), as described in the VoiceXML
+Engine document.
+
+OSBpromptQueue calls impl->pPlayer->add() to do the queuing.
+impl is OSBpromptImpl *impl = ToOSBpromptImpl(vxip), where vxip is
+(VXIpromptInterface*) passed in as an argument.
+
+Checking how pPlayer value is created:
+
+    The only place ->pPlayer is set is
+    sipXvxml/src/prompt/osbprompt.cpp:386, in OSBpromptBeginSession.  The
+    pPlayer value is created at 379 as an output of calling
+    impl->pCallMgr->createPlayer.  Sadly, there are many methods with that
+    name.  CpCallManager, CpPhoneMediaInterface, CpMediaInterface and a
+    bunch of Tao things have them.  This one presumably refers to
+    CpCallManager.
+
+    CallManager::createPlayer composes a CP_CREATE_QUEUE_PLAYER message
+    and posts it to itself at 1423, then waits for a response.  Comment
+    claims that the player will be created by CpCall.
+
+    Indeed, CallManager::handleMessage forwards the CP_CREATE_QUEUE_PLAYER
+    message to the CpCall designated by the callId which has been carried
+    along in all these calls.
+
+    CpCall::handleMessage (CpCall.cpp:330) calls into the media interface:
+
+    mpMediaInterface->createQueuePlayer((MpStreamQueuePlayer**)ppPlayer,
+				mpManager->getMessageQueue(), callId.data());
+
+    That is implemented by CpPhoneMediaInterface.cpp:877, where it
+    sub-calls to new MpStreamQueuePlayer.
+
+    MpStreamQueuePlayer::MpStreamQueuePlayer is at
+    sipXmediaLib/main/src/mp/MpStreamQueuePlayer.cpp:35.
+
+    MpStreamQueuePlayer is an OsServerTask.
+
+    So there is an additional task for servicing a call.  But there is
+    only one for the entire VXI dialog.  (Consider that there may be
+    other tasks created in setting up VXI.)
+
+But, back to the queueing...
+
+Calls impl->pPlayer->add() to do the queueing.
+
+impl->pPlayer is the MpStreamQueuePlayer.
+
+MpStreamQueuePlayer::add is
+sipXmediaLib/main/src/mp/MpStreamQueuePlayer.cpp:142.
+
+MpStreamQueuePlayer::add locks the queue; creates a new MpStreamPlayer
+(which is an OsServerTask!) to the queue; have the MpStreamQueuePlayer
+be a listener for the MpStreamQueuePlayer.; call the
+MpStreamPlayer::realize.
+
+MpStreamPlayer::realize is at
+sipXmediaLib/main/src/mp/MpStreamPlayer.cpp::116.  It checks that the
+MpStreamPlayer hasn't already been realized (via member mbRealized);
+creates new OsQueuedEvent; send MpStreamQueuePlayer(?) either
+STREAM_REALIZE_URL or STREAM_REALIZE_BUFFER; wait for response; start
+the server task; wait for the start-up process to be done.
+
+At this point, it seems to become a standard media processing task...

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="gsPhoneBt" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel">
+    <property name="label" value="Grandstream BudgeTone" />
+    <property name="maxLineCount" value="1" />
+  </bean>
+  <bean id="gsPhoneGxp" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel">
+    <property name="label" value="Grandstream GXP2000" />
+    <property name="maxLineCount" value="4" />
+  </bean>
+  <bean id="gsPhoneGxv3000" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel">
+    <property name="label" value="Grandstream GXV3000" />
+    <property name="maxLineCount" value="3" />
+  </bean>
+  <bean id="gsHt286" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel">
+    <property name="label" value="Grandstream HandyTone 286" />
+    <property name="maxLineCount" value="1" />
+    <property name="isHandyTone" value="true" />
+  </bean>
+  <bean id="gsHt386" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel">
+    <property name="label" value="Grandstream HandyTone 386" />
+    <property name="maxLineCount" value="2" />
+    <property name="isHandyTone" value="true" />
+  </bean>
+  <bean id="gsHt486" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel">
+    <property name="label" value="Grandstream HandyTone 486" />
+    <property name="maxLineCount" value="1" />
+    <property name="isHandyTone" value="true" />
+  </bean>
+  <bean id="gsHt488" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel">
+    <property name="label" value="Grandstream HandyTone 488" />
+    <property name="maxLineCount" value="2" />
+    <property name="isHandyTone" value="true" />
+  </bean>
+  <bean id="gsHt496" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel">
+    <property name="label" value="Grandstream HandyTone 496" />
+    <property name="maxLineCount" value="2" />
+    <property name="isHandyTone" value="true" />
+  </bean>
+  <bean id="grandstreamProfileGenerator"
+    class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamProfileGenerator">
+    <property name="profileLocation" ref="tftpProfileLocation" />
+  </bean>
+  <bean id="grandstream" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamPhone"
+    singleton="false" parent="abstractPhone">
+    <property name="profileGenerator" ref="grandstreamProfileGenerator" />
+  </bean>
+  <bean id="gsPhoneFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <property name="beanId" value="zipUpload" />
+    <property name="modelFilePath" value="grandstream/upload.xml" />
+    <property name="label" value="Grandstream" />
+  </bean>
+</beans>

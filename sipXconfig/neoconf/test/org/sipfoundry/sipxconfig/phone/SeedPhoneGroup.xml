@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<dataset>
+    <value_storage 
+		  value_storage_id="1000"/> 
+    <group_storage
+       group_id="1000"
+       resource="phone"
+       weight="1000"
+       name="SeedPhoneGroup0"/>
+    <value_storage 
+		  value_storage_id="1001"/> 
+    <group_storage
+       group_id="1001"
+       weight="1001"
+       resource="phone"
+       name="SeedPhoneGroup1"/>
+</dataset>

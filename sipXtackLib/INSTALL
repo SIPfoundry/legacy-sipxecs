@@ -1,0 +1,103 @@
+============================================================
+        S Y S T E M    R E Q U I R E M E N T S
+============================================================
+
+Required Software
+=================
+sipXportLib 2.5.0
+  http://www.sipfoundry.org/sipXportLib
+
+
+Optional Software
+=================
+
+Only required for sipviewer installation, see below
+
+  Java SDK 1.4.2 (tested w/1.4.2.03)
+    http://java.sun.com
+
+  Ant 1.6 (tested with 1.6.1)
+
+    Ant can be installed from tar/zip files:
+
+    * http://mirrors.mix5.com/apache/ant/binaries/apache-ant-1.6.2-bin.zip
+    * http://mirrors.mix5.com/apache/ant/binaries/apache-ant-1.6.2-bin.tar.gz
+    * http://mirrors.mix5.com/apache/ant/binaries/apache-ant-1.6.2-bin.tar.gz
+    From main page http://ant.apache.org/
+
+    Or it can be installed from RPMs:
+
+    If installing via RPMs, you'll need the following RPMs both of
+    which can be found on http://rpm.pbone.net. Although you'll only
+    need versions 1.6.1. or better. At the time of this note, 1.6.1
+    was no longer available, but 1.6.2 was so I'll list them here:
+
+      * ant-1.6.2-1jpp.noarch.rpm
+        ftp://ftp.pbone.net/mirror/www.jpackage.org/jpackage/1.5/generic/devel/RPMS/ant-1.6.2-1jpp.noarch.rpm
+
+        ftp://ftp.kddlabs.co.jp/pub/Linux/packages/redhat/10/sourceforge/j/jp/jpackage/direct_download/1.5/generic/devel/RPMS/ant-1.6.2-1jpp.noarch.rpm
+
+      * ant-junit-1.6.2-1jpp.noarch.rpm
+        ftp://ftp.pbone.net/mirror/www.jpackage.org/jpackage/1.5/generic/devel/RPMS/ant-junit-1.6.2-1jpp.noarch.rpm
+
+============================================================
+               S Y S T E M  S E T U P
+============================================================
+
+For Sipviewer installation only
+
+  The Sipviewer requires Ant version 1.6 or later.
+
+  Check what version of ant is installed via 'rpm -q ant'.
+
+  The ant binary tar file is available at
+  http://mirrors.midco.net/pub/apache.org/ant/binaries/apache-ant-1.6.2-bin.tar.gz
+
+  Untar ant-1.6.2.tar.gz into the /usr/java directory.
+
+  Required Environment Variables
+
+     JAVA_HOME - The location of the Java DK home directory.
+                 For example: /opt/sun-jdk-1.4.2.04
+     ANT_HOME - The location of the Ant directory.
+                Needed if Ant is not installed via a standard RPM.
+                For example: /usr/java/apache-ant-1.6.2
+
+
+============================================================
+               I N S T A L L A T I O N
+============================================================
+
+Unix : Building From Subversion
+===============================
+
+If you've obtained source from subversion, you must do this first,
+then continue on with "Unix: Building from Source Code" or "Windows:
+Building from Source Code"
+
+  autoreconf --install --force
+
+
+Unix : Building from Source Code
+================================
+
+  ./configure [options]
+
+Noteworthy options:
+
+  --help                    See list of all options
+
+  --disable-sipviewer       Do not try to compile java based sipviewer program
+                            (This will not require you to install Java, Ant
+                            or JUnit)
+
+To build and install:
+
+  make
+  make check
+  make install
+
+
+Windows: Building from Source Code
+==================================
+Please see the instructions in the sipXportLib INSTALL

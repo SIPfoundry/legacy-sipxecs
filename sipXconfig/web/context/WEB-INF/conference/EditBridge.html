@@ -1,0 +1,29 @@
+<html title="Conference Bridge">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+	<h2><span key="title">Conference Bridge</span></h2>
+    <span jwcid="@ErrorMsg"/>
+    <form jwcid="form" id="bridge:form">
+        <fieldset>
+        	<table>
+                <tbody>
+                    <tr jwcid="itemCommon"/>
+                    <tr jwcid="hostPanel" for="bridge:host">
+                        <span jwcid="host" id="bridge:host"/>
+                    </tr>
+                    <tr jwcid="portPanel" for="bridge:port">
+                        <span jwcid="port" id="bridge:port"/>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+    	<fieldset jwcid="settingsFieldset"/>        
+        <span jwcid="conferencePanel"/>
+        <span jwcid="formActions"/>
+    </form>
+    </div>
+</body>
+</html>

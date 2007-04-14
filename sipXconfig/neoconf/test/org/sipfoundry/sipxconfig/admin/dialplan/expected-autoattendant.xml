@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<vxml>
+	<form id="aa">
+		<var name="failedoption" expr="1"/>
+		<property name="interdigittimeout" value="3s"/>
+		<property name="timeout" value="7s"/>
+		<field name="menu">
+			<filled>
+				<if cond="menu=='0'" >
+					<assign name="operation" expr="'operator'" />
+                    <assign name="extension" expr="'operatoraddr'"/>
+					<goto nextitem="menuaction" />
+					<elseif cond="menu=='1'" />
+					<assign name="operation" expr="'disconnect'" />
+                    <assign name="extension" expr="'none'"/>
+					<goto nextitem="menuaction" />
+					<else />
+					<assign name="operation" expr="'transfer_to_extension'" />
+					<assign name="extension" expr="menu" />
+					<goto nextitem="menuaction"/>
+				</if>
+			</filled>
+      <noinput count="3">
+          <goto nextitem="giveup" />
+      </noinput>
+		</field>
+	</form>
+</vxml>

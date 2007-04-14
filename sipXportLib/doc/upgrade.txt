@@ -1,0 +1,130 @@
+General upgrade procedure
+
+If you have configuration files that need to be upgraded or modified
+in any way to move gracefully from 2.6 to 2.8 there is a general 
+mechanism in place now that you can use.
+
+sipx-upgrade is an upgrade script that gets installed during the 
+commserver installation and is available in all other following 
+installs. I'm just going to go over the process for RPMs, install
+from source will follow later.
+
+For upgrades during the RPM install you have to modify the spec 
+files in the following way - add the lines
+
+%pre
+sipx-upgrade -p projectname -c
+
+%post
+sipx-upgrade -p projectname -u --ldir %{_localstatedir} \
+                               --cdir %{_sysconfdir}
+
+'projectname' is the name of the sipx package in lowercase letters
+(sipxpublisher, sipxregistry etc.).
+
+The first step runs sipx-upgrade during the pre-installation process
+where it determines the upgrade path if any (was another package
+already installed). It records the version number for the second
+step.
+
+The second step runs sipx-upgrade during post-installation and 
+passes in the _localstatedir (/var for RPMs) and _sysconfdir (/etc
+for RPMs) which can be used to locate configuration files.
+
+Now you have to add your upgrade operations to sipx-upgrade itself
+(located in sipXcommserverLib/bin). A working example is already
+included, I've moved Scott's upgrade function for sipXregistry and
+sipXproxy into sipx-upgrade already so you can follow that model.
+
+The first part of the script is the section that must be modified,
+the later part contains support functions that should not be used
+or called directly.
+
+Example: To add an upgrade function for sipXvxml edit the script.
+You will see something like this:
+
+SipxUpgrade() {
+    case $Project in
+
+        ## Upgrade section of sipXpublisher - add upgrade call here
+        ###########################################################
+        sipxpublisher)
+            ;;
+
+        ## Upgrade section of sipXregistry - add upgrade call here
+        ###########################################################
+        sipxregistry)
+            UpgradeRegistry
+            ;;
+
+        ## Upgrade section of sipXproxy - add upgrade call here
+        ###########################################################
+        sipxproxy)
+            UpgradeProxy
+            ;;
+
+        ## Upgrade section of sipXconfig - add upgrade call here
+        ###########################################################
+        sipxconfig)
+            ;;
+
+        ## Upgrade section of sipXvxml - add upgrade call here
+        ###########################################################
+        sipxvxml)
+            ;;
+
+        ## Upgrade section of sipXpbx - add upgrade call here
+        ###########################################################
+        sipxpbx)
+            ;;
+
+        ## We shouldn't be here
+        *)
+            ;;
+    esac
+}
+
+Add a function call 'UpgradeVxml' in the appropriate place:
+
+        ## Upgrade section of sipXvxml - add upgrade call here
+        ###########################################################
+        sipxvxml)
+            UpgradeVxml
+            ;;
+
+Now add that function in the section that begins with 
+
+## Add your upgrade functions in here
+##
+##    The following variables are available:
+##
+##          $Version   a version string of a previously installed project 
+##                     RPM in the format x.y.z
+##          $Major     Major version number x of installed RPM
+##          $Minor     Minor version number y of installed RPM
+##          $Sub       Version number z of installed RPM
+##          $Rel       Release number of installed RPM
+##
+##          $LocalStateDir   %{_localstatedir} if passed in with --sdir
+##          $SysConfDir      %{_sysconfdir} if passed in with --cdir
+###########################################################################
+
+Add
+
+UpgradeVxml() {
+   ## If we found an already installed 2.6 package we must upgrade
+   case $Version in
+       2.6.2 | 2.6.1)
+           ## Do some 2.6-to-2.8 stuff
+           if [ "$Rel" = "2" ]; then
+               ## Do some special stuff for release 2
+           fi
+           ;;
+
+       2.8.0)
+           ## Maybe we are at 2.8.1 and need to do something for 2.8.0
+           ;;
+}
+
+and that's how you would add upgrade operations that will be performed
+during the sipXvxml RPM install.

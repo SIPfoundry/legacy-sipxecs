@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.site.user.UserTable" allow-body="no" allow-informal-parameters="no">
+  <description>add a description</description>
+  <!--
+      - P A R A M E T E R S
+      -->
+  <parameter name="users"  required="yes" >
+  </parameter>
+  <parameter name="groupId"  required="no"  default-value="null"/>
+  <parameter name="searchString"  required="no"  default-value="null"/>
+  <parameter name="searchMode"  required="no"  default-value="false"/>
+  <!--
+      - P R O P E R T I E S
+      -->
+  <property name="selections" />
+  <property name="currentUser" />
+  <inject property="coreContext" object="spring:coreContext"/>
+  <!--
+      - C O M P O N E N T S
+      -->
+  <component id="userTable" type="Table">
+    <binding name="source" value="users"/>
+    <binding name="columns" value="literal:* userName,lastName,firstName,aliases:aliasesString"/>
+    <binding name="initialSortColumn" value="literal:lastName"/>
+    <binding name="row" value="currentUser"/>
+    <binding name="selections" value="selections"/>
+  </component>
+</component-specification>

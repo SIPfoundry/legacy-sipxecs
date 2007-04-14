@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<prefs>
+    <activegreeting>$!preferences.ActiveGreeting.Id</activegreeting>
+    <notification>
+        <contact type="email" attachments="$yesNo.encode($preferences.AttachVoicemailToEmail)">$!preferences.EmailAddress</contact>        
+#if ($hasAlternateEmailAddress)        
+        <contact type="email" attachments="$yesNo.encode($preferences.AttachVoicemailToAlternateEmail)">$!preferences.AlternateEmailAddress</contact>
+#end        
+    </notification>
+</prefs>

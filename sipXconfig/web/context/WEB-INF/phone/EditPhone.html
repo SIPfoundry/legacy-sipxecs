@@ -1,0 +1,32 @@
+<div jwcid="@Border" useDojo="true">
+  <span id="phone:edit"><!-- non-empty to avoid IE JS error -->
+  </span>
+  <span jwcid="@PhoneNavigation" bean="prop:phone"/>
+  <div id="settings-content">
+    <div class="help">
+      <b>
+        <span key="label.quickLinks">Quick Links</span>
+      </b>
+      <ul>
+        <li>
+          <a id="AddLine" jwcid="addLine@DirectLink" listener="listener:addLine"
+            parameters="ognl:phone.id">
+            <span key="add.line">Add Line</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <span jwcid="@GroupCloud" groups="ognl:phoneContext.groups"/>
+    <form jwcid="@Form" delegate="bean:validator">
+      <span jwcid="@EditPhoneForm" phone="prop:phone" validator="bean:validator"/>
+      <span jwcid="@FormActions" callback="ognl:callback"
+        listener="listener:commit">
+        <li>
+          <input jwcid="generateProfile@Submit" id="generateProfile"
+            value="message:button.generateProfile"
+            listener="listener:generateProfile"/>
+        </li>
+      </span>
+    </form>
+  </div>
+</div>

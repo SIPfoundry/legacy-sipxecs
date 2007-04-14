@@ -1,0 +1,35 @@
+#!/bin/bash
+
+SchemaDir="@SIPX_SCHEMADIR@"
+
+## Build the list of known namespaces by scanning the SchemaDir
+Schemas=""
+
+for xsd in ${SchemaDir}/*.xsd
+do
+  ns=`perl -n -e "/targetNamespace=([\"'])(.*?)\\1/ && print \\$2" ${xsd}`
+  if [ -n "${ns}" ]
+  then
+      Schemas="${Schemas} -s ${ns} file://${xsd}"
+  fi
+done
+
+ExitStatus=0
+ResultFile=/tmp/sipx-validate.$$
+cat /dev/null > ${ResultFile}
+
+for xml in $*
+do
+  echo "==== ${xml}:"        >> ${ResultFile}
+  @SIPX_BINDIR@/xsdvalid ${Schemas} ${xml} 2>> ${ResultFile}
+  ExitStatus=$((${ExitStatus} + $?))
+done
+
+if [ ${ExitStatus} -ne 0 ]
+then
+    cat ${ResultFile}
+fi
+
+rm -f ${ResultFile}
+
+exit ${ExitStatus}

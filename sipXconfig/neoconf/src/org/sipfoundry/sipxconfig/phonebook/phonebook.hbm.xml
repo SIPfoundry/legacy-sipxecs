@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.phonebook" default-lazy="false">
+  
+  <class name="Phonebook" table="phonebook">
+    <id name="id" column="phonebook_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">phonebook_seq</param>
+      </generator>
+    </id>
+    <property name="membersCsvFilename"/>
+	<property name="name"/>
+	<property name="description"/>	  
+    <set name="consumers" table="phonebook_consumer">
+      <key column="phonebook_id"/>
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
+    </set>    
+    <set name="members" table="phonebook_member">
+      <key column="phonebook_id"/>
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
+    </set>    
+  </class>	
+	<query name="phoneBooksByUser">
+    <![CDATA[select pb from Phonebook pb, User u where pb.consumers.id = u.groups.id and u.id = :userId]]>	
+	</query>
+</hibernate-mapping>

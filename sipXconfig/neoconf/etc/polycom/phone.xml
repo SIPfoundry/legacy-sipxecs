@@ -1,0 +1,1475 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  &types;
+  <group name="lcl">
+    <group name="time">
+      <setting name="24HourClock">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="datetime">
+      <setting name="date.format">
+        <type>
+          <string />
+        </type>
+        <value>D,Md</value>
+      </setting>
+      <setting name="date.longFormat">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="date.dateTop">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+    </group>
+  </group>
+  <group name="up">
+    <setting name="headsetMode">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="useDirectoryNames">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="oneTouchVoiceMail">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="welcomeSoundEnabled">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="welcomeSoundOnWarmBootEnabled">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="localClockEnabled">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+  </group>
+  <group name="tone.dtmf">
+    <setting name="level">
+      <type>
+        <integer min="-33" max="3" />
+      </type>
+      <value>-15</value>
+    </setting>
+    <setting name="onTime">
+      <type>
+        <integer min="1" />
+      </type>
+      <value>50</value>
+    </setting>
+    <setting name="offTime">
+      <type>
+        <integer min="1" />
+      </type>
+      <value>50</value>
+    </setting>
+    <setting name="chassis.masking">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="stim.pac.offHookOnly">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="viaRtp">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="rfc2833Control">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="rfc2833Payload">
+      <type>
+        <integer min="96" max="127" />
+      </type>
+      <value>101</value>
+    </setting>
+  </group>
+  <group name="se">
+    <setting name="stutterOnVoiceMail">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="appLocalEnabled">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <group name="patterns">
+      <group name="MESSAGE_WAITING">
+        <setting name="type">
+          <type refid="tone-pattern" />
+          <value>silence</value>
+        </setting>
+      </group>
+    </group>
+    <group name="ringType" advanced="yes">
+      <profileName>rt</profileName>
+      <group name="RING_ANSWER">
+        <profileName>4</profileName>
+        <setting name="timeout">
+          <type>
+            <integer />
+          </type>
+          <value>2000</value>
+        </setting>
+        <setting name="ringer">
+          <type refid="ringer-pattern" />
+          <value>2</value>
+        </setting>
+        <setting name="callWait">
+          <type refid="call_progress_pattern" />
+          <value>6</value>
+        </setting>
+        <setting name="mod" hidden="yes">
+          <type>
+            <boolean />
+          </type>
+          <value>1</value>
+        </setting>
+      </group>
+    </group>
+  </group>
+  <group name="voice">
+    <group name="codecPref">
+      <setting name="G711Mu">
+        <type refid="codecPref" />
+        <value>1</value>
+      </setting>
+      <setting name="G711A">
+        <type refid="codecPref" />
+        <value>2</value>
+      </setting>
+      <setting name="G729AB">
+        <type refid="codecPref" />
+        <value>3</value>
+      </setting>
+      <setting name="IP_300.G711Mu" copy-of="G711Mu">
+        <value>1</value>
+      </setting>
+      <setting name="IP_300.G711A" copy-of="G711A">
+        <value>2</value>
+      </setting>
+      <setting name="IP_300.G729AB" copy-of="G729AB">
+        <value>3</value>
+      </setting>
+      <setting name="IP_4000.G711Mu" copy-of="G711Mu">
+        <value>1</value>
+      </setting>
+      <setting name="IP_4000.G711A" copy-of="G711A">
+        <value>2</value>
+      </setting>
+      <setting name="IP_4000.G729AB" copy-of="G729AB">
+        <value />
+      </setting>
+      <setting name="IP_650.G722">
+        <type refid="codecPref" />
+        <value>1</value>
+      </setting>
+      <setting name="IP_650.G711Mu" copy-of="G711Mu">
+        <value>2</value>
+      </setting>
+      <setting name="IP_650.G711A" copy-of="G711A">
+        <value>3</value>
+      </setting>
+      <setting name="IP_650.G729AB" copy-of="G729AB">
+        <value>4</value>
+      </setting>
+    </group>
+    <group name="audioProfile">
+      <group name="G711Mu">
+        <setting name="payloadSize">
+          <type>
+            <!-- 10, 20, 30, ...80 -->
+            <integer min="10" max="80" />
+          </type>
+          <value>20</value>
+        </setting>
+        <setting name="jitterBufferMin">
+          <!-- 40, 50, 60, ... (multiple of 10) -->
+          <type>
+            <integer min="40" />
+          </type>
+          <value>40</value>
+        </setting>
+        <setting name="jitterBufferShrink">
+          <!--10, 20, 30, ... (multiple of 10) -->
+          <type>
+            <integer min="10" />
+          </type>
+          <value>500</value>
+        </setting>
+        <setting name="jitterBufferMax">
+          <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
+            160 for IP 300 -->
+          <type>
+            <integer min="10" max="500" />
+          </type>
+          <value>160</value>
+        </setting>
+      </group>
+      <group name="G711A">
+        <setting name="payloadSize">
+          <type>
+            <!-- 10, 20, 30, ...80 -->
+            <integer min="10" max="80" />
+          </type>
+          <value>20</value>
+        </setting>
+        <setting name="jitterBufferMin">
+          <!-- 40, 50, 60, ... (multiple of 10) -->
+          <type>
+            <integer min="40" />
+          </type>
+          <value>40</value>
+        </setting>
+        <setting name="jitterBufferShrink">
+          <type>
+            <!-- 10, 20, 30, ... (multiple of 10) -->
+            <integer min="10" />
+          </type>
+          <value>500</value>
+        </setting>
+        <setting name="jitterBufferMax">
+          <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
+            160 for IP 300 -->
+          <type>
+            <integer min="10" max="500" />
+          </type>
+          <value>160</value>
+        </setting>
+      </group>
+      <group name="G729AB">
+        <setting name="payloadSize">
+          <type>
+            <!-- 10, 20, 30, ...80 -->
+            <integer min="10" max="80" />
+          </type>
+          <value>20</value>
+        </setting>
+        <setting name="jitterBufferMin">
+          <!-- 40, 50, 60, ... (multiple of 10) -->
+          <type>
+            <integer min="40" />
+          </type>
+          <value>40</value>
+        </setting>
+        <setting name="jitterBufferShrink">
+          <type>
+            <!-- 10, 20, 30, ... (multiple of 10) -->
+            <integer min="10" />
+          </type>
+          <value>500</value>
+        </setting>
+        <setting name="jitterBufferMax">
+          <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
+            160 for IP 300 -->
+          <type>
+            <integer min="10" max="500" />
+          </type>
+          <value>160</value>
+        </setting>
+      </group>
+      <group name="G722">
+        <setting name="payloadSize">
+          <type>
+            <!-- 10, 20, 30, ...80 -->
+            <integer min="10" max="80" />
+          </type>
+          <value>20</value>
+        </setting>
+        <setting name="jitterBufferMin">
+          <!-- 40, 50, 60, ... (multiple of 10) -->
+          <type>
+            <integer min="40" />
+          </type>
+          <value>40</value>
+        </setting>
+        <setting name="jitterBufferShrink">
+          <!--10, 20, 30, ... (multiple of 10) -->
+          <type>
+            <integer min="10" />
+          </type>
+          <value>500</value>
+        </setting>
+        <setting name="jitterBufferMax">
+          <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
+            160 for IP 300 -->
+          <type>
+            <integer min="10" max="500" />
+          </type>
+          <value>160</value>
+        </setting>
+      </group>
+      <group name="Lin16">
+        <setting name="payloadSize">
+          <type>
+            <!-- 10, 20, 30, ...80 -->
+            <integer min="10" max="80" />
+          </type>
+          <value>10</value>
+        </setting>
+        <setting name="jitterBufferMin">
+          <!-- 40, 50, 60, ... (multiple of 10) -->
+          <type>
+            <integer min="20" />
+          </type>
+          <value>20</value>
+        </setting>
+        <setting name="jitterBufferShrink">
+          <type>
+            <!-- 10, 20, 30, ... (multiple of 10) -->
+            <integer min="10" />
+          </type>
+          <value>500</value>
+        </setting>
+        <setting name="jitterBufferMax">
+          <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
+            160 for IP 300 -->
+          <type>
+            <integer min="10" max="500" />
+          </type>
+          <value>100</value>
+        </setting>
+        <setting name="frequency" advanced="yes">
+          <type>
+            <integer required="yes" />
+          </type>
+          <value>16000</value>
+        </setting>
+        <setting name="payloadType" advanced="yes">
+          <type>
+            <integer required="yes" />
+          </type>
+          <value>117</value>
+        </setting>
+      </group>
+    </group>
+    <group name="volume">
+      <setting name="persist.handset">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="persist.headset">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="persist.handsfree">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+    </group>
+    <group name="vad">
+      <setting name="vadEnable">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="vadThresh">
+        <type>
+          <integer min="0" max="30" />
+        </type>
+        <value>15</value>
+      </setting>
+    </group>
+  </group>
+  <group name="qos">
+    <group name="ethernet">
+      <setting name="rtp.user_priority">
+        <type>
+          <integer min="0" max="7" />
+        </type>
+        <value>5</value>
+      </setting>
+      <setting name="callControl.user_priority">
+        <type>
+          <integer min="0" max="7" />
+        </type>
+        <value>5</value>
+      </setting>
+      <setting name="other.user_priority">
+        <type>
+          <integer min="0" max="7" />
+        </type>
+        <value>2</value>
+      </setting>
+    </group>
+    <group name="ip.rtp">
+      <setting name="min_delay">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="max_throughput">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="max_reliability">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="min_cost">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="precedence">
+        <type>
+          <integer min="0" max="7" />
+        </type>
+        <value>5</value>
+      </setting>
+    </group>
+    <group name="ip.callControl">
+      <setting name="min_delay">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="max_throughput">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="max_reliability">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="min_cost">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="precedence">
+        <type>
+          <integer min="0" max="7" />
+        </type>
+        <value>5</value>
+      </setting>
+    </group>
+  </group>
+  <group name="tcpIpApp.sntp">
+    <setting name="resyncPeriod">
+      <type>
+        <integer min="1" />
+      </type>
+      <value>86400</value>
+    </setting>
+    <setting name="address">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="address.overrideDHCP">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="gmtOffset">
+      <!-- 43200 == 12h -->
+      <type>
+        <integer min="-43200" max="43200" />
+      </type>
+      <value>-18000</value>
+    </setting>
+    <setting name="gmtOffset.overrideDHCP">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="daylightSavings.enable">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="daylightSavings.fixedDayEnable">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="daylightSavings.start.month">
+      <type refid="monthOfYear" />
+      <value>4</value>
+    </setting>
+    <setting name="daylightSavings.start.date">
+      <type>
+        <integer min="0" max="31" />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="daylightSavings.start.time">
+      <type>
+        <integer min="0" max="23" />
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="daylightSavings.start.dayOfWeek">
+      <type refid="dayOfWeek" />
+      <value>1</value>
+    </setting>
+    <setting name="daylightSavings.start.dayOfWeek.lastInMonth">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="daylightSavings.stop.month">
+      <type refid="monthOfYear" />
+      <value>10</value>
+    </setting>
+    <setting name="daylightSavings.stop.date">
+      <type>
+        <integer min="0" max="31" />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="daylightSavings.stop.time">
+      <type>
+        <integer min="0" max="23" />
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="daylightSavings.stop.dayOfWeek">
+      <type refid="dayOfWeek" />
+      <value>1</value>
+    </setting>
+    <setting name="daylightSavings.stop.dayOfWeek.lastInMonth">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+  </group>
+  <group name="tcpIpApp.port.rtp">
+    <setting name="filterByIp">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="filterByPort">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="forceSend">
+      <type>
+        <integer min="1024" max="65534" />
+      </type>
+      <value />
+    </setting>
+    <setting name="mediaPortRangeStart">
+      <!-- even values only -->
+      <type>
+        <integer min="1024" max="65534" />
+      </type>
+      <value />
+    </setting>
+  </group>
+  <group name="httpd">
+    <setting name="enabled">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <group name="cfg">
+      <setting name="enabled">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="port">
+        <type>
+          <integer min="1" max="65535" />
+        </type>
+        <value>80</value>
+      </setting>
+    </group>
+  </group>
+  <group name="call">
+    <!-- PhoneConfiguration -->
+    <setting name="donotdisturb.perReg">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <!-- AppConfiguration until end of group -->
+    <setting name="rejectBusyOnDnd">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="enableOnNotRegistered">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="offeringTimeOut">
+      <type>
+        <integer min="0" />
+      </type>
+      <value>60</value>
+    </setting>
+    <setting name="ringBackTimeOut">
+      <type>
+        <integer min="0" />
+      </type>
+      <value>60</value>
+    </setting>
+    <setting name="lastCallReturnString">
+      <type>
+        <string maxLen="32" />
+      </type>
+      <value>*69</value>
+    </setting>
+    <setting name="callsPerLineKey" unless="polycom600">
+      <type>
+        <integer min="1" max="8" />
+      </type>
+      <value>8</value>
+    </setting>
+    <setting name="callsPerLineKey_600" if="polycom600" copy-of="callsPerLineKey">
+      <profileName>callsPerLineKey</profileName>
+      <type>
+        <integer min="1" max="24" />
+      </type>
+      <value>24</value>
+    </setting>
+    <group name="shared">
+      <setting name="disableDivert">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="seizeFailReorder">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="oneTouchResume">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="exposeAutoHolds" unless="1.6">
+        <type>
+          <boolean />
+        </type>
+        <value />
+      </setting>
+    </group>
+  </group>
+  <group name="call.hold.localReminder">
+    <setting name="enabled">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="period">
+      <type>
+        <integer />
+      </type>
+      <value>60</value>
+    </setting>
+    <setting name="startDelay">
+      <type>
+        <integer />
+      </type>
+      <value>90</value>
+    </setting>
+  </group>
+  <group name="directory">
+    <group name="2mb">
+      <setting name="dir.local.volatile.2meg">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="dir.local.nonVolatile.maxSize.2meg">
+        <type>
+          <integer min="0" />
+        </type>
+        <value>20</value>
+      </setting>
+    </group>
+    <group name="4mb">
+      <setting name="dir.local.volatile.4meg">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="dir.local.nonVolatile.maxSize.4meg">
+        <type>
+          <integer min="0" />
+        </type>
+        <value>50</value>
+      </setting>
+    </group>
+    <group name="volatile">
+      <setting name="dir.local.volatile.maxSize">
+        <type>
+          <integer min="0" max="100" />
+        </type>
+        <value>100</value>
+      </setting>
+    </group>
+  </group>
+  <group name="presence" unless="1.6">
+    <setting name="pres.reg">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+  </group>
+  <group name="key">
+    <setting name="scrolling.timeout">
+      <type>
+        <integer min="1" />
+      </type>
+      <value>1</value>
+    </setting>
+  </group>
+  <group name="log">
+    <group name="sip">
+      <setting name="level.change.sip">
+        <type>
+          <integer min="0" max="5" />
+        </type>
+        <value>4</value>
+      </setting>
+    </group>
+    <group name="render">
+      <setting name="level">
+        <type>
+          <integer min="0" max="6" />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="type">
+        <type>
+          <integer min="0" max="2" />
+        </type>
+        <value>2</value>
+      </setting>
+      <setting name="realtime">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="stdout">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="file">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="file.size">
+        <type>
+          <integer min="1" />
+        </type>
+        <value>16</value>
+      </setting>
+      <setting name="file.upload.period">
+        <type>
+          <integer min="1" />
+        </type>
+        <value>172800</value>
+      </setting>
+      <setting name="file.upload.append">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="file.upload.append.sizeLimit">
+        <type>
+          <integer min="1" />
+        </type>
+        <value>512</value>
+      </setting>
+      <setting name="file.upload.append.limitMode">
+        <type>
+          <enum>
+            <option>
+              <value>delete</value>
+            </option>
+            <option>
+              <value>stop</value>
+            </option>
+          </enum>
+        </type>
+        <value>delete</value>
+      </setting>
+    </group>
+  </group>
+  <group name="sec">
+    <setting name="tagSerialNo">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <group name="pwd.length">
+      <setting name="admin">
+        <type>
+          <integer min="0" max="32" />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="user">
+        <type>
+          <integer min="0" max="32" />
+        </type>
+        <value>2</value>
+      </setting>
+    </group>
+    <group name="srtp" advanced="yes" unless="1.6">
+      <setting name="offer">
+        <type>
+          <string />
+        </type>
+        <value />
+      </setting>
+      <setting name="require">
+        <type>
+          <string />
+        </type>
+        <value />
+      </setting>
+      <setting name="lifetime">
+        <type>
+          <string />
+        </type>
+        <value />
+      </setting>
+    </group>
+  </group>
+  <group name="request.delay">
+    <setting name="type">
+      <type>
+        <enum>
+          <option>
+            <value>audio</value>
+          </option>
+          <option>
+            <value>call</value>
+          </option>
+          <option>
+            <value />
+          </option>
+        </enum>
+      </type>
+      <value>call</value>
+    </setting>
+  </group>
+  <group name="feature">
+    <setting name="presence">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="messaging">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="directory">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="calllist">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="ring-download">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="calllist-received">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="calllist-placed">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="calllist-missed">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="url-dialing">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="cpt-settings" if="1.6">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="call-park">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="group-call-pickup">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="directed-call-pickup">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="last-call-return">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="acd-login-logout">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <!-- should be feature number 15 (16 in 1.6.5 firmware oddly enough) -->
+    <setting name="acd-agent-availability">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="mb">
+    <setting name="proxy">
+      <type>
+        <!-- Null or domain name or IP address in the format address:port -->
+      </type>
+      <value />
+    </setting>
+    <group name="idleDisplay">
+      <setting name="home">
+        <type>
+          <!-- Null, or any fully formed valid HTTP URL. Length up to 255 characters.-->
+        </type>
+        <value />
+      </setting>
+      <setting name="refresh">
+        <type>
+          <!-- 0 or an integer greater than 5-->
+          <integer />
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="main">
+      <setting name="home">
+        <type>
+          <!-- Any fully formed valid HTTP URL. Length up to 255 characters.-->
+        </type>
+        <value />
+      </setting>
+    </group>
+    <group name="limits">
+      <setting name="nodes">
+        <type>
+          <integer />
+        </type>
+        <value />
+      </setting>
+      <setting name="cache">
+        <type>
+          <integer />
+        </type>
+        <value />
+      </setting>
+    </group>
+  </group>
+  <group name="voIpProt">
+    <!-- server.1 and server.3 not defined, these are adaquately
+      handled at line level -->
+    <group name="SIP.outboundProxy">
+      <setting name="address">
+        <type>
+          <!-- dotted-decimal IP address or host name -->
+        </type>
+        <value />
+      </setting>
+      <setting name="port">
+        <type>
+          <integer min="1" max="65535" />
+        </type>
+        <value>5060</value>
+      </setting>
+      <setting name="transport">
+        <type refid="transport" />
+        <value>DNSnaptr</value>
+      </setting>
+    </group>
+  </group>
+  <group name="voIpProt.SIP">
+    <group name="local">
+      <setting name="port">
+        <type>
+          <integer min="0" max="65535" />
+        </type>
+        <value />
+      </setting>
+    </group>
+    <group name="protocol">
+      <setting name="useRFC2543hold">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="lcs" if="1.6">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="sendCompactHdrs">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <!-- This is obsolete in 2.0 -->
+      <setting name="WM50">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="ms-forking" unless="1.6">
+        <type>
+          <boolean />
+        </type>
+      </setting>
+      <setting name="keepalive.sessionTimers">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="requestURI.E164.addGlobalPrefix">
+        <type>
+          <string />
+        </type>
+        <value />
+      </setting>
+      <setting name="allowTransferOnProceeding">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+    </group>
+    <group name="alertInfo">
+      <group name="1">
+        <setting name="value">
+          <type>
+            <!-- string to compare against the value of Alert-Info headers in INVITE requests -->
+            <string />
+          </type>
+          <value />
+        </setting>
+        <setting name="class">
+          <type>
+            <integer min="1" />
+          </type>
+          <value />
+        </setting>
+      </group>
+    </group>
+    <group name="requestValidation">
+      <group name="1">
+        <setting name="request">
+          <type>
+            <string />
+          </type>
+          <value />
+        </setting>
+        <setting name="method">
+          <type>
+            <string />
+          </type>
+          <value />
+        </setting>
+        <setting name="request.1.event">
+          <type>
+            <string />
+          </type>
+          <value />
+        </setting>
+      </group>
+    </group>
+    <group name="digest">
+      <setting name="realm">
+        <type>
+          <string />
+        </type>
+        <value>PolycomSPIP</value>
+      </setting>
+    </group>
+    <group name="specialEvent">
+      <setting name="lineSeize.nonStandard">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="checkSync.alwaysReboot">
+        <type>
+          <boolean />
+        </type>
+        <!-- 
+          - different from admin manual, gives us ability to reboot
+          - remotely on demand
+        -->
+        <value>1</value>
+      </setting>
+    </group>
+    <group name="conference">
+      <setting name="address">
+        <type>
+          <string maxLen="128" />
+        </type>
+        <value />
+      </setting>
+    </group>
+    <group name="dialog" unless="1.6">
+      <setting name="useSDP" advanced="yes">
+        <type>
+          <boolean />
+        </type>
+        <value />
+      </setting>
+      <setting name="usePvalue" advanced="yes">
+        <type>
+          <boolean />
+        </type>
+        <value />
+      </setting>
+    </group>
+    <group name="connectionReuse">
+      <setting name="useAlias" advanced="yes">
+        <type>
+          <boolean />
+        </type>
+        <value />
+      </setting>
+    </group>
+  </group>
+  <group name="voIpProt.server.dhcp">
+    <setting name="available">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="option">
+      <type>
+        <integer min="128" max="255" />
+      </type>
+      <value />
+    </setting>
+    <setting name="type">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value />
+    </setting>
+    <setting name="maxIpAddress">
+      <type />
+      <value />
+    </setting>
+  </group>
+  <!-- SIMILIAR SECTION EXISTS IN line.xml to control dialplans per line -->
+  <group name="dialplan">
+    <setting name="impossibleMatchHandling">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="removeEndOfDial">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <group name="digitmap">
+      <setting name="digitmap">
+        <!--string compatible with the digit map feature of MGCP described in 2.1.5 of RFC 3435. String
+          is limited to 512 bytes and 20 segments; a comma is also allowed; when reached in the digit map, a comma will
+          turn dial tone back on.-->
+        <value>
+          [2-9]11|0T|100|101|011xxx.T|9011xxx.T|1[2-9]xxxxxxxxx|91[2-9]xxxxxxxxx|9[2-9]xxxxxx|*xx|[8]xxx|[2-7]xx
+        </value>
+      </setting>
+      <setting name="digitmap.timeOut">
+        <type>
+          <integer min="1" />
+        </type>
+        <value>3</value>
+      </setting>
+      <group name="routing.1">
+        <setting name="address">
+          <type>
+            <!-- dotted-decimal IP address or host name -->
+          </type>
+          <value />
+        </setting>
+        <setting name="port">
+          <type>
+            <integer min="1" max="65535" />
+          </type>
+          <value>5060</value>
+        </setting>
+        <setting name="emergency.1.value">
+          <type>
+            <!--Comma separated list of entries or single entry representing a SIP URL or a combination of
+              SIP URLs.-->
+          </type>
+          <value>911</value>
+        </setting>
+      </group>
+    </group>
+  </group>
+  <group name="localization">
+    <setting name="language">
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value />
+          </option>
+          <!--
+            - no need to list US english twice as empty and 6 unless 
+            - polycom has an undocumented difference
+          -->
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+          <option>
+            <value>9</value>
+          </option>
+          <option>
+            <value>10</value>
+          </option>
+          <option>
+            <value>11</value>
+          </option>
+          <option>
+            <value>12</value>
+          </option>
+          <option>
+            <value>13</value>
+          </option>
+          <option>
+            <value>14</value>
+          </option>
+          <option>
+            <value>15</value>
+          </option>
+          <option>
+            <value>16</value>
+          </option>
+        </enum>
+      </type>
+      <value />
+    </setting>
+  </group>
+  <group name="msg">
+    <setting name="bypassInstantMessage">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="nat">
+    <setting name="ip">
+      <type>
+        <ipaddr />
+      </type>
+      <value />
+    </setting>
+    <setting name="signalPort">
+      <type>
+        <integer min="1024" max="65536" />
+      </type>
+      <value />
+    </setting>
+    <setting name="mediaPortStart">
+      <type>
+        <integer min="1024" max="65536" />
+      </type>
+      <value />
+    </setting>
+  </group>
+  <group name="attendant" unless="1.6">
+    <setting name="uri">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="reg">
+      <type refid="reg-server-index" />
+      <value />
+    </setting>
+  </group>
+  <group name="roaming_buddies" unless="1.6">
+    <setting name="reg">
+      <type refid="reg-server-index" />
+      <value />
+    </setting>
+  </group>
+  <group name="roaming_privacy" unless="1.6">
+    <setting name="reg">
+      <type refid="reg-server-index" />
+      <value />
+    </setting>
+  </group>
+</model>

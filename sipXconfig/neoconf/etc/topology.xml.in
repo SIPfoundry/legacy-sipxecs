@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+
+<!-- This file defines the "topology" file that resides on the 
+     configuration server.  This file acts as a registry/database for 
+     replication targets and remove process management agents -->
+
+<!DOCTYPE topology [
+     <!ELEMENT topology (location+)>
+     <!ELEMENT location (component+, replication_url, agent_url, sip_domain?)>
+     <!ATTLIST location id CDATA #REQUIRED>
+     <!ELEMENT component EMPTY>
+     <!ATTLIST component id CDATA  #REQUIRED>
+     <!ATTLIST component type  (media-server | config-server | comm-server) #REQUIRED>
+     <!ELEMENT replication_url (#PCDATA)>
+     <!ELEMENT agent_url (#PCDATA)>
+     <!ELEMENT sip_domain (#PCDATA)>
+]>
+ 
+<topology>
+   <location id="Config Server, Media Server and Comm Server">
+      <component id="MediaServer1" type="media-server" />         
+      <component id="CommServer1"  type="comm-server" />         
+      <replication_url>
+         https://${MY_FULL_HOSTNAME}:${CONFIG_SERVER_HTTPS_PORT}/cgi-bin/replication/replication.cgi
+      </replication_url>
+      <agent_url>
+         https://${MY_FULL_HOSTNAME}:${CONFIG_SERVER_HTTPS_PORT}/cgi-bin/processmonitor/process.cgi
+      </agent_url>
+   </location>   
+
+   <!-- REMOVE THIS LINE TO ADD DISTRIBUTED SERVER 
+   <location id="Distributed Comm Server">
+      <component id="CommServer2"  type="comm-server" />         
+      <replication_url>
+         https://DISTRIBUTED_HOSTNAME:${CONFIG_SERVER_HTTPS_PORT}/cgi-bin/replication/replication.cgi
+      </replication_url>
+      <agent_url>
+         https://DISTRIBUTED_HOSTNAME:${CONFIG_SERVER_HTTPS_PORT}/cgi-bin/processmonitor/process.cgi
+      </agent_url>
+   </location>   
+   REMOVE THIS LINE TO ADD DISTRIBUTED SERVER -->
+
+</topology>

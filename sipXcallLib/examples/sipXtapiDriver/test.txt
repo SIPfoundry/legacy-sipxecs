@@ -1,0 +1,5 @@
+AddLine jtzeng@pingtel.com
+CallCreate 1
+CallConnect 1 sip:4444@10.1.1.80
+sleep 5
+CallDestroy 1

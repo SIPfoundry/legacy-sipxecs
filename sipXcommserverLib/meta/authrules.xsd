@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema for sipX authrules rule set
+  -->
+<schema
+    xmlns:dmp='http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+  <annotation>
+    <documentation>
+      Rules for authorization of SIP requests
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='mappings'>
+    <annotation>
+      <documentation>
+        A container for a set of rules
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:hostMatch' minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='hostMatch'>
+    <annotation>
+      <documentation>
+        Contains a set of match specifiers for the host part of a SIP address
+        and then other rules to be applied to any address that matches at least
+        one of the specified hostPattern elements.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:description' minOccurs='0' />
+        <element ref='dmp:hostPattern' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:userMatch'   minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='hostPattern' type='normalizedString'>
+    <annotation>
+      <documentation>
+        A (perl-compatible) regular expression used to match the host part of a SIP URL.
+        The pattern is implicitly anchored at both ends.
+      </documentation>
+    </annotation>
+  </element>
+  
+  <element name='userMatch'>
+    <annotation>
+      <documentation>
+        Contains a set of userPattern specifiers for the user part of a SIP address
+        and then other rules (permissionMatch) to be applied to any address that
+        matches at least one of the specified user patterns.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:description' minOccurs='0' />
+        <element ref='dmp:userPattern' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:permissionMatch'   minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='userPattern' type='normalizedString'>
+    <annotation>
+      <documentation>
+        A pattern expression used to match the user part of a SIP URL.
+        The pattern is implicitly anchored at both ends.
+      </documentation>
+    </annotation>
+  </element>
+  
+  <element name='permissionMatch'>
+    <annotation>
+      <documentation>
+        Contains a set of permission specifiers; the caller must have at least one of the 
+        named permssions in order to use the SIP address in the request.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:description' minOccurs='0' />
+        <element ref='dmp:permission' minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='permission' type='normalizedString'>
+    <annotation>
+      <documentation>
+        A permission name required to use this SIP address.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='description' type='string'>
+    <annotation>
+      <documentation>
+        Used to describe the rule in the user interface.
+      </documentation>
+    </annotation>
+  </element>
+
+</schema>

@@ -1,0 +1,396 @@
+<?xml version="1.0"?>
+<vxml version="2.0" application="root.vxml">
+    <!-- VXML for managing auto attendant. -->
+
+    <form id="manageautoattendant">
+        <property name="interdigittimeout" value="3s" />
+        <property name="timeout" value="10s" />
+
+        <!-- parameters passed in -->
+        <var name="mailbox" />
+        <var name="mediaserverurl" />
+        <var name="securemediaserverurl" />
+    
+        <!-- used by the CGI -->
+        <var name="action" expr="'savesystemprompt'" />
+        <var name="size" expr="'0'"/>
+        <var name="prompttype" expr="'customautoattendant'" />
+        <var name="setoption" expr="'true'" />
+
+        <!-- Play the manage auto attendant options prompt -->
+        <field name="manageautoattendant">
+            <grammar>1|2|*</grammar>
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'manage_autoattendant_options.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'manage_special_menu_options.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'"/>
+            </prompt>
+            <filled>
+                <if cond="manageautoattendant == '1'">
+                    <!-- Administrator wants to record the auto attendant prompt -->
+                    <goto nextitem="playprompt"/>
+                <elseif cond="manageautoattendant == '2'" />
+                    <!-- Administrator wants to enable or disable the special AA menu -->
+                    <goto nextitem="specialmenu"/>
+                <elseif cond="manageautoattendant == '*'" />
+                    <!-- Cancel and return to the System Adminstration Options menu -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <return />
+                <else />
+                    <!-- Invalid entry -->
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="manageautoattendant" />
+                    <goto nextitem="manageautoattendant" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+
+        <!-- Prompt the user to start recording the auto attendant prompt. -->
+        <block name="playprompt" cond="manageautoattendant == '1'">
+            <prompt bargein="false">
+                <audio expr="mediaserverurl + promptsalias + 'record_autoattendant_prompt.wav'" />
+            </prompt>
+        </block>
+    
+        <!-- Begin recording the auto attendant prompt -->
+        <record name="data" beep="true" finalsilence="8000ms" dtmfterm="true"  cond="manageautoattendant == '1'">
+            <filled>
+                <if cond="data == '*'">
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <clear namelist="manageautoattendant data"/>
+                    <goto nextitem="manageautoattendant" />
+               <else />
+                    <!-- End recording. Ask for confirmation before writing recorded data to a file. -->
+                    <assign name="size" expr="data$.size"/>
+                    <goto nextitem="confirm" />
+                </if>
+            </filled>
+        </record>
+
+        <!-- Prompt users to confirm that they are satisfied with their recording -->
+        <field name="confirm" cond="size != '0'">
+            <grammar>1 | 2 | 3 |*</grammar>
+             <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'name_record_options.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'" />
+            </prompt>
+            <filled>
+                <if cond="confirm == '1'">
+                    <!-- Play back the recording. -->
+                    <prompt>
+                        <value expr="data" />
+                    </prompt>
+                    <clear namelist="confirm" />
+                    <goto nextitem="confirm" />
+                <elseif cond="confirm == '2'"/>
+                    <!-- Proceed to saving the recording -->
+                    <assign name="size" expr="data$.size"/>
+                    <goto nextitem="savedata"/>
+                <elseif cond="confirm == '3'"/>
+                    <!-- Delete the recording and try again. -->
+                    <clear namelist="data confirm"/>
+                    <goto nextitem="playprompt" />
+                <elseif cond="confirm == '*'" />
+                    <!-- Cancel and return to the Manage Auto attendant options menu -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <clear namelist="manageautoattendant data confirm"/>
+                    <goto nextitem="manageautoattendant" />
+                <else />
+                    <!-- Invalid entry -->
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="confirm" />
+                    <goto nextitem="confirm" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+
+        <!-- Invoke the CGI to save the recorded auto attendant prompt -->
+        <subdialog cond="confirm=='2'" name="savedata" srcexpr="securemediaserverurl + cgiurl" method="post" enctype="audio/x-wav" namelist="action prompttype data size">
+            <filled>
+                <if cond="savedata.result=='success'" >
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'autoattendant_prompt_recorded.wav'" />
+                    </prompt>
+                    <return />
+                <else />
+                    <goto nextitem="failure"/>
+                </if>
+            </filled>
+        </subdialog>
+
+
+        <!-- Prompts users to select the active auto attendant prompt -->
+        <field name="specialmenu" cond="manageautoattendant == '2'" type="digits?minlength=1;maxlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'special_menu_option.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'"/>
+            </prompt>
+            <filled>
+                <if cond="specialmenu == '1'" >
+                    <assign name="setoption" expr="'true'" />
+                    <assign name="action" expr="'setspecialmenu'" />
+                    <goto nextitem="setspecialmenu" />
+                <elseif cond="specialmenu == '2'" />
+                    <assign name="setoption" expr="'false'" />
+                    <assign name="action" expr="'setspecialmenu'" />
+                    <goto nextitem="setspecialmenu" />
+                <elseif cond="specialmenu == '*'" />
+                    <!-- Cancel and return to the Manage Autoattendant Options menu -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'"/>
+                    </prompt>
+                    <clear namelist="manageautoattendant" />
+                    <goto nextitem="manageautoattendant" />
+                <else />
+                    <!-- Invalid entry. -->
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="specialmenu" />
+                    <goto nextitem="specialmenu" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+        </field>
+        
+        <!-- Prompt users to confirm their selection -->
+        <field name="confirmselectgreeting" cond="selectgreeting == '2' || selectgreeting == '3' || selectgreeting == '4'"  type="digits?minlength=1;maxlength=1">
+            <grammar>1|2</grammar>
+            <prompt cond="selectgreeting=='2'">
+                <audio expr="mediaserverurl + promptsalias + 'recorded_autoattendant_selected.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'select_autoattendant_confirm.wav'"/>
+            </prompt>
+            <prompt cond="selectgreeting=='3'">
+                <audio expr="mediaserverurl + promptsalias + 'generic_autoattendant_selected.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'select_autoattendant_confirm.wav'"/>
+            </prompt>
+            <prompt cond="selectgreeting=='4'">
+                <audio expr="mediaserverurl + promptsalias + 'disable_autoattendant_selected.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'select_autoattendant_confirm.wav'"/>
+            </prompt>
+            <filled>
+                <if cond="confirmselectgreeting=='1'">
+                    <!-- Proceeding with setting the adminstrator's choice as the active prompt -->
+                    <assign name="action" expr="'setsystemprompt'" />
+                    <goto nextitem="setactivegreeting"/>
+                <elseif cond="confirmselectgreeting=='2'"/>
+                    <!-- Cancel and try again. -->
+                    <clear namelist="selectgreeting confirmselectgreeting"/>
+                    <goto nextitem="selectgreeting"/>
+                <else />
+                    <!-- Invalid entry. -->
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="confirmselectgreeting" />
+                    <goto nextitem="confirmselectgreeting" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+        </field>
+    
+        <!-- Invoke the CGI to set the active greeting -->
+        <subdialog name="setactivegreeting" cond="confirmselectgreeting == '1'" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action prompttype">
+            <filled>
+                <if cond="setactivegreeting.result == 'success'" >
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'autoattendant_prompt_selected.wav'" />
+                    </prompt>
+                    <return />
+                <elseif cond="setactivegreeting.result == 'filenotfound'" />
+                    <!-- WAV file corresponding to the selected prompt type does not exist. -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'autoattendant_prompt_not_found.wav'" />
+                    </prompt>
+                    <clear namelist="selectgreeting confirmselectgreeting setactivegreeting" />
+                    <goto nextitem="selectgreeting" />
+                <else />
+                    <goto nextitem="setactivefailed"/>
+                </if>
+            </filled>
+        </subdialog>
+
+
+        <!-- Invoke the CGI for set up the special AA menu -->
+        <subdialog name="setspecialmenu" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action setoption">
+            <filled>
+                <if cond="setspecialmenu.result =='failed'" >
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'special_menu_not_set.wav'" />
+                    </prompt>
+                    <clear namelist="manageautoattendant"/>
+                    <goto nextitem="manageautoattendant" />
+                <elseif cond="setspecialmenu.result =='success'" />
+                    <prompt cond="setoption == 'true'">
+                        <audio expr="mediaserverurl + promptsalias + 'special_menu_enabled.wav'" />
+                    </prompt>
+                    <prompt cond="setoption == 'false'">
+                        <audio expr="mediaserverurl + promptsalias + 'special_menu_disabled.wav'" />
+                    </prompt>
+                    <clear namelist="manageautoattendant"/>
+                    <goto nextitem="manageautoattendant" />
+                <else />
+                    <clear namelist="manageautoattendant"/>
+                    <goto nextitem="manageautoattendant" />                
+                </if>
+            </filled>
+        </subdialog>
+
+        <!-- Invoke the CGI for playing all the available auto attendant prompts -->
+        <subdialog name="playallgreetings" cond="selectgreeting == '1'" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action prompttype">
+            <filled>
+                <if cond="playallgreetings.result =='failed'" >
+                    <goto nextitem="playgreetingsfailed"/>
+                <else />
+                    <prompt cond="playallgreetings.custom != '-1'">
+                        <audio expr="mediaserverurl + promptsalias + 'recorded_autoattendant_prompt_is.wav'" />
+                        <audio expr="playallgreetings.custom" />
+                    </prompt>
+                    <prompt cond="playallgreetings.generic != '-1'">
+                        <audio expr="mediaserverurl + promptsalias + 'generic_autoattendant_prompt_is.wav'" />
+                        <audio expr="playallgreetings.generic" />
+                    </prompt>
+                    <clear namelist="selectgreeting playallgreetings" />
+                    <goto nextitem="selectgreeting" />
+                </if>
+            </filled>
+        </subdialog>
+
+        <!-- Handler for PlayAllGreetings CGI failure -->
+        <field name="playgreetingsfailed" cond="playallgreetings.result == 'failed'">
+            <grammar>1|*</grammar>
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'system_error.wav'" />
+            </prompt>
+            <filled>
+                <if cond="playgreetingsfailed=='*'">
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'"/>
+                    </prompt>
+                    <return />
+                <else/>
+                    <clear namelist="playallgreetings" />
+                    <goto nextitem="playallgreetings"/>
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+
+
+        <!-- Handler for SetActiveSystemPrompt CGI failure -->
+        <field name="setactivefailed" cond="setactivegreeting.result == 'failed'">
+            <grammar>1|*</grammar>
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'system_error.wav'" />
+            </prompt>
+            <filled>
+                <if cond="setactivefailed=='*'">
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'"/>
+                    </prompt>
+                    <return />
+                <else/>
+                    <clear namelist="setactivegreeting" />
+                    <goto nextitem="setactivegreeting"/>
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+
+
+        <!-- Handler for SaveSystemPrompt CGI failure -->
+       <field name="failure" cond="savedata.result == 'failed'">
+            <grammar>1|*</grammar>
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'system_error.wav'" />
+            </prompt>
+            <filled>
+                <if cond="failure=='*'">
+                    <return />
+                <else/>
+                    <clear namelist="savedata" />
+                    <goto nextitem="savedata"/>
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+    </form>
+</vxml>
+

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  - Example fallbackrules.xml file
+  -->
+<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'>
+  <hostMatch>
+    <hostPattern>example.edu</hostPattern>
+    <hostPattern>sipx.example.edu</hostPattern>
+    <hostPattern>10.1.20.20</hostPattern>
+
+    <userMatch>
+      <!-- Emergency dialing.  Allow both "911" and "9911". -->
+      <userPattern>sos</userPattern>
+      <userPattern>911</userPattern>
+      <userPattern>9911</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:911@pstn-gw.example.edu</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <!-- operator or extension 100 goes to AutoAttendant -->
+      <userPattern>operator</userPattern>
+      <userPattern>100</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <!-- 800 number dialing.  Allow optional "1" or "91" prefixes. -->
+      <userPattern>91800xxxxxxx.</userPattern>
+      <userPattern>1800xxxxxxx.</userPattern>
+      <userPattern>800xxxxxxx.</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>800{vdigits}@pstn-gw.example.edu</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <!-- Local/long distance number dialing.
+           Allow optional "1" or "91" prefixes. -->
+      <userPattern>91[2-9]xxxxxxxxx.</userPattern>
+      <userPattern>1[2-9]xxxxxxxxx.</userPattern>
+      <userPattern>[2-9]xxxxxxxxx.</userPattern>
+      <permissionMatch>
+        <permission>Administration</permission>
+        <permission>Faculty</permission>
+        <transform>
+          <url>{vdigits}@pstn-gw.example.edu</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <!-- International number dialing.
+           Do not allow dialing intl numbers with a "9" prefix as this
+           would conflict with the long distance pattern "[2-9]xxxxxxxxx." -->
+      <userPattern>011x.</userPattern>
+      <permissionMatch>
+        <permission>Administration</permission>
+        <transform>
+          <url>011{vdigits}@pstn-gw.example.edu</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+  </hostMatch>
+
+  <hostMatch>
+    <!-- Calls to example.org are routed via SIP through a session border controller -->
+    <hostPattern>example.org</hostPattern>
+    <userMatch>
+      <userPattern>.</userPattern>
+      <permissionMatch>
+        <transform>
+          <headerparams>route=sbc.example.edu</headerparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+
+</mappings>

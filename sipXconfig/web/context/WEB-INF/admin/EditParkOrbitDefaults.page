@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.setting.GroupSettings">
+  <description>add a description</description>
+
+  <inject property="settingDao" object="spring:settingDao" />
+
+  <property name="groupId" persist="client" />
+  <property name="settings" />
+  <property name="group" />
+  <property name="bean" persist="session" />
+
+  <property name="parentSettingName" persist="client" />
+  <property name="parentSetting" />
+
+  <property name="returnPage" persist="client" />
+
+  <!-- B E A N S -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
+
+  <!--
+    - C O M P O N E N T S
+  -->
+  <component id="settingsForm" type="SettingsForm">
+    <binding name="settings" value="settings" />
+    <binding name="cancelListener" value="listener:cancel" />
+    <binding name="okListener" value="listener:ok" />
+    <binding name="applyListener" value="listener:apply" />
+    <binding name="validator" value="bean:validator" />
+    <binding name="requiredEnabled" value="false" />
+  </component>
+</page-specification>

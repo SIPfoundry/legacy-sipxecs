@@ -1,0 +1,174 @@
+Name:     @PACKAGE@
+Version:  @VERSION@
+Release:  %{buildno}
+
+Summary:  SIP Proxy Servers
+License:  Pingtel Commercial License
+Group:    Productivity/Telephony/SIP/Servers
+Vendor:   Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url:      http://www.pingtel.com
+
+Source:   %name-%version.tar.gz
+
+Requires: sipxcommserverlib >= 3.7
+Requires: sipxpbx >= 3.7
+
+Prefix:    %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+# should match sipXlib.m4:SIPX_UPGRADEDIR
+%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
+%define this_archive %{name}-%{version}-%{release}.tgz
+%define sipxpbxvarlib %{_var}/lib/sipxpbx
+
+%description
+Two RFC 3261 compliant SIP proxies:
+ * sipForkingProxy
+ * sipAuthProxy
+These proxies are used in the sipXpbx project. However they may be used
+independently from the PBX as stand-alone SIP proxies. They may be used
+separately or together. The sipXregistry may also be used with the forking
+proxy. Though it is not necessary. The forking proxy provides service level
+routing as well as parallel and serial forking. The auth proxy provides AAA
+services.
+
+%package cdr
+Requires: %name >= %version
+Requires: ruby
+Requires: ruby-dbi
+
+%if %{_vendor} == redhat
+Requires: ruby-gems
+Requires: ruby-libs
+Requires: ruby-postgres >= 0.7.1
+%endif
+
+%if %{_vendor} == suse
+Requires: rubygems
+Requires: rubygem-ruby-postgres >= 0.7.1
+%endif
+
+Requires: sipxcommserverlib >= %version
+Group:    Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: CDR (Call Distribution Record) aggregration
+
+%description cdr
+Gather CSE (Call State Events) for one or more proxy servers and generate
+postgres database records from data.
+
+%package devel
+Requires: %name
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Internal documentation for %name 
+Requires: sipxcommserverlib-devel >= 3.7
+
+%description devel
+Internal class documentation for the proxy classes
+
+%prep
+%setup -q
+
+%build
+%configure --enable-rpmbuild --enable-cdr @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use 
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
+mkdir -p %{upgrade_archive_root}
+tar --directory ${RPM_BUILD_ROOT} \
+    -czf %{upgrade_archive_root}/%{this_archive} \
+    etc
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+%doc CONTRIBUTORS ChangeLog %name.configlog
+%attr(755,root,root) %{_bindir}/sipproxy.sh
+%attr(755,root,root) %{_bindir}/sipproxy
+%attr(755,root,root) %{_bindir}/sipauthproxy.sh
+%attr(755,root,root) %{_bindir}/sipauthproxy
+%attr(755,root,root) %{_bindir}/%name-config
+%attr(755,root,root) %{_bindir}/sipxha-distrib.sh
+%attr(755,root,root) %{_datadir}/sipx/schema/forwardingrules.xsd
+
+%attr(755,root,root) %{_libdir}/sipxauthproxy/libEnforceAuthRules.la
+%attr(755,root,root) %{_libdir}/sipxauthproxy/libEnforceAuthRules.a
+%attr(755,root,root) %{_libdir}/sipxauthproxy/libEnforceAuthRules.so*
+
+%attr(755,root,root) %{_libdir}/sipxauthproxy/libCallerAlias.la
+%attr(755,root,root) %{_libdir}/sipxauthproxy/libCallerAlias.a
+%attr(755,root,root) %{_libdir}/sipxauthproxy/libCallerAlias.so*
+
+# The configuration directory needs to be writeable because
+# config files are generated from templates via config.defs
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
+
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/proxy-config.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/forwardingrules.xml.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authproxy-config.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authrules.xml.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipproxy.process.xml
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipauthproxy.process.xml
+
+%{upgrade_archive_dir}/%{this_archive}
+%{upgrade_archive_dir}/%{name}-previous.tgz
+
+%files devel
+%defattr(644,root,root,755)
+%doc %{_datadir}/doc/sipx/%name/*
+
+%pre
+sipx-upgrade -p sipxproxy -c
+
+%post
+sipx-upgrade -p sipxproxy -u --bdir %{_bindir} --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
+
+%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
+%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
+if [ -f %{current_archive} ]; then
+  mv %{current_archive} %{previous_archive}
+fi
+mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
+
+pkg-upgrade --previous %{previous_archive} --current %{current_archive}
+
+%files cdr
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/callresolver-config.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxcallresolver.process.xml
+%config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr/*
+
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr
+%attr(755,root,root) %{sipxpbxvarlib}/sipxcallresolver-2.0.0.gem
+%attr(755,root,root) %{_bindir}/sipxcallresolver.sh
+
+%post cdr
+
+gem install --no-rdoc --local %{sipxpbxvarlib}/sipxcallresolver-*.gem >/dev/null 2>&1
+if [ -f %{_sysconfdir}/cron.daily/callresolver_run ]; then
+  rm -f %{_sysconfdir}/cron.daily/callresolver_run
+fi
+
+%preun cdr
+# prevent uninstalling during an upgrade
+#   see http://www-128.ibm.com/developerworks/library/l-rpm3/
+if [ "$1" = "0" ] ; then
+  gem uninstall sipxcallresolver >/dev/null 2>&1
+  sipxcallresolver.sh --uninstall  
+fi

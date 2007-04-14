@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<replicationdata>
+  <data type="database" action="replace" target_data_name="extension"
+    target_component_type="comm-server" target_component_id="CommServer1">
+    <payload>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGl</payload>
+  </data>
+</replicationdata>

@@ -1,0 +1,148 @@
+#! /bin/sh
+##
+## @PACKAGE@-config
+##
+## Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+## Contributors retain copyright to elements licensed under a Contributor Agreement.
+## Licensed to the User under the LGPL license.
+## 
+## 
+
+Action=PRINT
+Info=""
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+includedir=@includedir@
+libdir=@libdir@
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --bin)
+            Info="${Info} @SIPX_BINDIR@"
+            ;;
+
+        --include)
+            Info="${Info} @SIPX_INCDIR@"
+            ;;
+
+        --lib)
+            Info="${Info} @SIPX_LIBDIR@"
+            ;;
+
+        --host)
+            Info="${Info} @host@"
+            ;;
+
+        --version)
+            Info="${Info} @SIPX_VERSION@"
+            ;;
+
+        --build)
+            Info="${Info} @SIPX_BUILDSTAMP@"
+            ;;
+
+        --conf)
+            Info="${Info} @SIPX_CONFDIR@"
+            ;;
+
+        --data)
+            Info="${Info} @SIPX_DATADIR@"
+            ;;
+
+        --log)
+            Info="${Info} @SIPX_LOGDIR@"
+            ;;
+
+        --run)
+            Info="${Info} @SIPX_RUNDIR@"
+            ;;
+
+        --db)
+            Info="${Info} @SIPX_DBDIR@"
+            ;;
+
+        --all)
+            Action=ALL
+            break
+            ;;
+
+        --configopts)
+            Info="${Info} @CONFIGURE_OPTIONS@"
+            ;;
+
+        --help)
+            Action=USAGE
+            break
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+            echo "Unknown switch '${1}'" 1>&2
+            Action=USAGE
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+if [ "${Action}" = "PRINT" -a "${Info}" = "" ]
+then
+    Action=USAGE
+fi
+
+case ${Action} in
+
+    USAGE)
+        cat <<EOF
+Usage: @PACKAGE@-config [OPTIONS]
+ 
+     Option:      Displays:
+
+    --bin         executable installation directory
+    --include     header file installation directory
+    --lib         object-code installation directory
+    --conf        configuration directory
+    --data        run time data directory
+    --log         log directory
+    --run         pid directory
+    --db          database directory
+    --host        host information
+    --version     version information
+    --build       build information
+
+    --all         all of the above, with labels
+    --configopts  options passed to the configure script when this was built
+
+    --help        this message
+EOF
+        exit
+        ;;
+
+    PRINT)
+        echo ${Info}
+        ;;
+
+    ALL)
+        cat <<EOF
+@PACKAGE@ version  @SIPX_VERSION@
+@PACKAGE@ build    @SIPX_BUILDSTAMP@
+@PACKAGE@ bin      @SIPX_BINDIR@
+@PACKAGE@ include  @SIPX_INCDIR@
+@PACKAGE@ lib      @SIPX_LIBDIR@
+@PACKAGE@ host     @host@
+@PACKAGE@ conf     @SIPX_CONFDIR@
+@PACKAGE@ data     @SIPX_DATADIR@
+@PACKAGE@ log      @SIPX_LOGDIR@
+@PACKAGE@ run      @SIPX_RUNDIR@
+@PACKAGE@ db       @SIPX_DBDIR@
+@PACKAGE@ cfgopts  @CONFIGURE_OPTIONS@
+EOF
+        ;;
+
+esac
+
+exit

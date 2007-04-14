@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendant">
+  <description>add a description</description>
+  <!--
+      - P R O P E R T I E S
+      -->
+  <inject property="vxmlGenerator" object="spring:vxml"/>
+  <inject property="dialPlanContext" object="spring:dialPlanContext"/>
+  <inject property="tapestry" object="spring:tapestry"/>
+  
+  <property name="currentDialPadId" />
+  <property name="selections"  initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>
+  <property name="attendant"  persist="session"/>
+  <property name="currentDialPad" />
+  <property name="addMenuItemDialPad" />
+  <property name="addMenuItemAction" />
+  <property name="menuItems"/>
+  
+  <!--
+      - B E A N S
+      -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <bean name="dialPadSelectionModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel">
+    <set name="enumClass" value="@org.sipfoundry.sipxconfig.common.DialPad@class"/>
+  </bean>
+  <bean name="menuItemActions" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel">
+    <set name="enumClass" value="@org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction@class"/>
+  </bean>
+  <bean name="localizedMenuItemActions" class="org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator">
+    <set name="model" value="bean:menuItemActions"/>
+    <set name="resourcePrefix" value="literal:menuItemAction."/>
+    <set name="messages" value="messages"/>
+  </bean>
+  <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+    <set name="collection" value="dialPlanContext.autoAttendants"/>
+    <set name="labelExpression" value="literal:name"/>
+    <set name="valueExpression" value="literal:systemName"/>
+  </bean>
+  <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+  
+  <!--
+      - C O M P O N E N T S
+      -->
+  <component id="form" type="Form">
+    <binding name="delegate" value="bean:validator"/>
+  </component>
+  <component id="common" type="ItemCommon">
+    <binding name="item" value="attendant"/>
+    <binding name="useEnabled" value="false"/>
+    <binding name="useFieldset" value="false"/>
+  </component>
+  <!-- auto attendant prompts selection -->
+  <component id="attendantPromptLabel" type="FieldPanel">
+    <binding name="label" value="message:attendant.prompt"/>
+    <binding name="field" value="components.attendantPromptSelector.prompt"/>
+  </component>
+  <component id="attendantPromptSelector" type="AssetSelector">
+    <binding name="asset" value="attendant.prompt"/>
+    <binding name="assetDir" value="vxmlGenerator.promptsDirectory"/>
+    <binding name="errorMsg" value="message:error.select"/>
+    <binding name="contentType" value="literal:audio/x-wav"/>
+    <binding name="selectable" value="true"/>
+  </component>
+  <component id="settingsFieldset" type="setting/SettingsFieldset">
+    <binding name="settings" value="attendant.settings"/>
+    <binding name="renderGroupTitle" value="true"/>
+  </component>
+  <component id="reset" type="Submit">
+    <binding name="listener" value="listener:reset"/>
+  </component>
+  <component id="removeMenuItems" type="Submit">
+    <binding name="listener" value="listener:removeMenuItems"/>
+  </component>
+  <component id="menuItemTableView" type="contrib:TableView">
+    <binding name="source" value="menuItems.dialPadKeys"/>
+    <binding name="columns" value="literal:* !dialpad,!action:,!parameter:"/>
+    <binding name="pageSize" value="literal:-1"/>
+  </component>
+  <component id="menuItemColumns" type="contrib:TableColumns">
+  </component>
+  <component id="menuItemRows" type="contrib:TableRows">
+    <binding name="row" value="menuItems.currentDialPadKey"/>
+    <binding name="class" value="beans.rowClass.next"/>
+  </component>
+  <component id="menuItemValues" type="contrib:TableValues"/>
+  <!-- Column 1: select phone -->
+  <component id="selectedRow" type="Checkbox">
+    <binding name="value" value="selections.selected[menuItems.currentDialPadKey.name]"/>
+  </component>
+  <!-- Column 2: key dropdown -->
+  <component id="menuItemKey" type="PropertySelection">
+    <binding name="model" value="bean:dialPadSelectionModel"/>
+    <binding name="value" value="menuItems.currentMenuItemDialPadKeyAssignment"/>
+  </component>
+  <!-- Column 3: action dropdown -->
+  <component id="menuItemAction" type="Insert">
+    <binding name="value" value="getActionName(menuItems.currentMenuItem.action)"/>
+  </component>
+  <!-- Column 4: optional action parameter -->
+  <component id="ifExtensionParameter" type="If">
+    <binding name="condition" value="menuItems.currentMenuItem.action.extensionParameter"/>
+  </component>
+  <component id="extensionParameter" type="TextField">
+    <binding name="value" value="menuItems.currentMenuItem.parameter"/>
+  </component>
+  <component id="ifAttendantParameter" type="If">
+    <binding name="condition" value="menuItems.currentMenuItem.action.attendantParameter"/>
+  </component>
+  <component id="attendantParameter" type="PropertySelection">
+    <binding name="model" value="tapestry.instructUserToSelect(beans.autoAttendants, messages)"/>
+    <binding name="value" value="menuItems.currentMenuItem.parameter"/>
+  </component>
+  <!-- Last Row : Add Menu Item -->
+  <component id="addMenuItemRow" type="Any">
+    <binding name="class" value="beans.rowClass.next"/>
+  </component>
+  <component id="addMenuItemKey" type="PropertySelection">
+    <binding name="model" value="bean:dialPadSelectionModel"/>
+    <binding name="value" value="addMenuItemDialPad"/>
+  </component>
+  <component id="addMenuItemAction" type="PropertySelection">
+    <binding name="model" value="tapestry.instructUserToSelect(beans.localizedMenuItemActions, messages)"/>
+    <binding name="value" value="addMenuItemAction"/>
+  </component>
+  <component id="addMenuItem" type="Submit">
+    <binding name="listener" value="listener:addMenuItem"/>
+  </component>
+  <component id="formActions" type="FormActions">
+    <binding name="callback" value="callback"/>
+    <binding name="listener" value="listener:commit"/>
+  </component>
+</page-specification>

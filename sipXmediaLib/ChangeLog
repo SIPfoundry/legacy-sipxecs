@@ -1,0 +1,30 @@
+The most current information on the status of any release is in the
+SIPfoundry Issue Tracker at:
+
+	http://track.sipfoundry.org/browse?XMR
+
+
+Release Notes - sipXmediaLib - Version 2.6.2
+
+** Bug
+    * [XMR-17] - Many messages saying "RIFF not detected. Exiting!"
+
+
+Release Notes - sipXmediaLib - Version 2.6.1
+
+** Bug
+    * [XMR-16] - Clean up error message - Cannot find CallId: blah to post message
+
+
+Release Notes - sipXmediaLib - Version 2.5.2
+
+** Bug
+    * [XMR-2] - Unittest failure
+
+** Improvement
+    * [XMR-3] - Clean up code to remove all warnings.
+
+Release Notes - sipXmediaLib - Version 2.5.1
+
+** Bug
+    * [XMR-1] - won't build with sipXportLib

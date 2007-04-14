@@ -1,0 +1,6 @@
+# Very simple driver script.
+jobs 20
+time 300
+# Pause up to 30 seconds between job executions.
+randomize 30000
+script 1 leave-message

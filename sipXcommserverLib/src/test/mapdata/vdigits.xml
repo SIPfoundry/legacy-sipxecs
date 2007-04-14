@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings>
+  <hostMatch>
+    <hostPattern>thisdomain</hostPattern>
+    <userMatch>
+      <userPattern>[123]x.</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:123{vdigits}@pattern1</url>
+        </transform>
+        <transform>
+          <url>sip:321{vdigits}@pattern2</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>[45]xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:fourfive{vdigits}@pattern3</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>8[90]xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:eight{vdigits}@pattern4</url>
+        </transform>
+        <transform>
+          <url>sip:digits{digits}@pattern5</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>9999</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>{vdigits}</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+</mappings>

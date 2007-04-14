@@ -1,0 +1,459 @@
+--- Release version 1.16 (7.10.1999) -------------------------------------
+
+1. Make it possible sort records by length of array fields.
+
+2. Optional reporting database errors through C++ exception mechanism. 
+   Switched on by defining THROW_EXCEPTION_ON_ERROR name.
+
+--- Release version 1.17 (11.10.1999) -------------------------------------
+
+1. Remove F_SYNC attribute of open() system call for database data file.
+   2.2.x Linux kernel works with memory regions mapped to the file opened 
+   in synchronous mode in very inefficient way (more than 20 times slower 
+   than 2.0 Linux kernel). As far as synchronization of memory pages with
+   disk image is done by msync() function with MS_SYNC flag, usage of F_SYNC
+   is not really needed. 
+
+--- Release version 1.18 (14.10.1999) -------------------------------------
+
+1. Fix bugs with reseting cursors opened by at() method.
+
+--- Release version 1.19 (20.10.1999) -------------------------------------
+
+1. Add RAW BINARY type.
+
+--- Release version 1.20 (28.10.1999) -------------------------------------
+
+1. Cascade deletes.
+
+--- Release version 1.22 (11.11.1999) -------------------------------------
+
+1. Add get peer name method to the WWWapi.
+2. New implementation of cascade deletes.
+3. Implementation of queue manager for WWW API.
+4. New example of Web database publishing - CLIDB. 
+   Example of multithreaded server development using queue manager.
+5. Add type of cursor parameter to the select statement.
+6. Support pointers to arrays as query parameters
+
+--- Release version 1.23 (29.11.1999) -------------------------------------
+
+1. Correctly handle non-persistent connections to HTTP server
+2. Fix minor bugs in CLIDB example
+
+--- Release version 1.24 (07.12.1999) -------------------------------------
+
+1. Fix bug with specifying cursor type when at() method is used.
+2. Fix bug in cascade delete implementation.
+
+--- Release version 2.00 (20.01.2000) -------------------------------------
+
+1. Handle "create table" in SubSQL.
+2. Add CLI (call-level interface).
+3. Multithreaded server support.
+4. Fix bug with in place update of records with varying components. 
+
+--- Release version 2.01 (18.02.2000) -------------------------------------
+
+1. Add copy constructor to dbArray class
+2. Supports Sun CC compiler
+
+--- Release version 2.02 (22.02.2000) -------------------------------------
+
+1. Port to FreeBSD
+2. Fix typos in array.h
+
+--- Release version 2.03 (03.03.2000) -------------------------------------
+
+1. Check compilation flags in dbDatabase constructor
+
+--- Release version 2.04 (14.03.2000) -------------------------------------
+
+1. Fix bug in copy constructor of dbException class
+2. Compile with pthreads at Unix by default
+
+--- Release version 2.05 (27.03.2000) -------------------------------------
+
+1. Indexed joins (see testjoin.cpp example)
+2. Fix bug with sorting/comparing field with smallest integer value 
+
+--- Release version 2.06 (11.04.2000) -------------------------------------
+
+1. Fix bug with deleting first/last record in the cursor for all records in th table
+
+--- Release version 2.07 (30.04.2000) -------------------------------------
+
+1. Fix bug with packing array of strings
+2. Add dbDate class
+3. Non blocking online backup
+4. Fix bug in clitest.c
+5. Makes it possible to allocate array without specifying body
+
+--- Release version 2.08 (06.05.2000) -------------------------------------
+
+1. Fix bug with incorrent beginning of transaction by dbCursor::at method.
+2. Add dbDatabase.getAllocatedSize() method
+
+--- Release version 2.09 (12.05.2000) -------------------------------------
+
+1. Common makefile for all Unix platforms
+2. "make NO_PTHREADS=1"
+3. Cleanup IPC resources after closing database
+
+--- Release version 2.10 (21.07.2000) -------------------------------------
+
+1. Fix bug in local_win_socket::read 
+2. Fix memory leaks in CLI server
+3. Support GNU C library 
+4. Fix bug in implementation of global critical section for i86/Linux platform
+5. Add isLast, isFirst methods to the cursor
+
+--- Release version 2.11 (1.08.2000) -------------------------------------
+
+1. Fix bug in rollback "create table" statement
+2. Long-live cursor - freeze/unfreeze
+
+--- Release version 2.12 (4.08.2000) -------------------------------------
+
+1. Correctly set INDEXED flag when load classes from the database
+
+--- Release version 2.14 (17.10.2000) -------------------------------------
+
+1. Support NO_MMAP flag also for windows
+2. Fix some bugs in file model not using virtual memory mapping
+
+--- Release version 2.15 (23.11.2000) -------------------------------------
+
+1. Fix bug with file extension in NO_MMAP mode
+
+--- Release version 2.16 (29.11.2000) -------------------------------------
+
+1. Fix operator, problem for MS Visual C++
+2. Reduce number of memory leaks caused by "living forever" FastDB objects
+
+--- Release version 2.17 (19.03.2001) -------------------------------------
+
+1. Fix bug with scheme load. 
+2. Sharing of tables between several databases.
+
+--- Release version 2.18 (05.04.2001) -------------------------------------
+
+1. Compatibility with GCC 2.96
+
+--- Release version 2.19 (13.04.2001) -------------------------------------
+
+1. Fix bug with synchronization between different processes
+2. Add online recovery after client process fault
+
+--- Release version 2.20 (15.05.2001) -------------------------------------
+
+1. Revoked lock detection. 
+
+--- Release version 2.21 (08.06.2001) -------------------------------------
+
+1. Replace free with deallocate to make it possible to avoid conflict with free macro
+2. Fix bug with unassigned tables registration
+3. Build DLL for Windows
+
+
+--- Release version 2.22 (29.06.2001) -------------------------------------
+
+1. Add stricmp implementation
+2. Add query dump method
+
+--- Release version 2.23 (14.07.2001) -------------------------------------
+
+1. Fix bug with dealloaction of query elements
+2. Do not perform alignment on page boudary in allocator
+
+--- Release version 2.24 (27.07.2001) -------------------------------------
+
+1. Optimized version of memory allocator
+2. Fix bug with checkin duplicates in scheme load
+3. Fix bug with temporary cursors used by query optimizer
+
+--- Release version 2.25 (09.08.2001) -------------------------------------
+
+1. Fix bugs introduced in 2.24 release
+2. Add delayed binding of pararameters (make it possible to eexcute the same query concurrently
+by multiple threads.
+
+--- Release version 2.26 (20.08.2001) -------------------------------------
+
+1. Add online backup scheduler
+2. Implements delayed commit model
+3. Fix bug with sempahore destruction at Unix
+
+--- Release version 2.27 (09.09.2001) -------------------------------------
+
+1. Enable read access to the database during transaction commit
+2. Improved support of user defined types: now it is possible to use raw binary type in queries, 
+indices and sort clause.
+
+--- Release version 2.28 (11.09.2001) -------------------------------------
+
+1. Fix bugs of 2.27 release
+2. Introduce UDT raw binary type with user defined compare function
+
+--- Release version 2.29 (17.09.2001) -------------------------------------
+
+1. Add support of std::string type.
+
+--- Release version 2.30 (18.09.2001) -------------------------------------
+
+1. Add autoincrement fields support. To use it you should recompile the system
+with -DAUTOINCREMENT_SUPPORT enabled. Attension: FastDB compiled with this option will not be able
+to work with databases created without this option and visa versa.
+
+
+--- Release version 2.31 (25.09.2001) -------------------------------------
+
+1. Fix bug with autoincrement fields update
+
+--- Release version 2.32 (07.10.2001) -------------------------------------
+
+1. Preserve cursor consistency by automatic update of the current record in cursor when the 
+object is updated (by other cursor or because of inverse reference propagation).
+2. Add nextAvaiable method to cursor.
+
+--- Release version 2.33 (26.10.2001) -------------------------------------
+
+1. Add dbDatabase::cleanup method to avoid all memory leaks.
+2. Fix SMP bug in my local windows sockets implementation
+3. Add missed operator = method to the query
+
+--- Release version 2.34 (1.11.2001) -------------------------------------
+
+1. Fix compilation problems with 2.33 release.
+
+--- Release version 2.35 (27.11.2001) -------------------------------------
+
+1. Fix bug in rollback.
+2. Prohibit access to parent directory in GET method in built-in HTTP Server
+
+
+--- Release version 2.36 (1.12.2001) -------------------------------------
+
+1. Add CLONE_INDENTIFIERS macro which force cloning identifiers. This s needed to prevent
+   hanging references if library using GigaBASE was unloaded.
+2. Add verion information to the database header
+3. Fix bug with delayedCommitStopTimerEvent closing
+4. Fix bug with SubSQL method invokation in compiler
+
+--- Release version 2.37 (14.12.2001) -------------------------------------
+
+1. Fix bug with handling pasciiz type at server. 
+2. Fix bug with rollback
+3. Fix problem with opening read-only files
+4. Support of disk-less configurations
+5. Add forcerecovery utility
+
+--- Release version 2.38 (23.01.2002) -------------------------------------
+
+1. UPDATE statement in SubSQL
+2. Port to PharLap 
+3. User defined functions with more than one argument and user defined operators.
+4. Optional use of Posix semaphres instead of SysV IPC mechanism.
+
+--- Release version 2.39 (09.02.2002) -------------------------------------
+
+1. Support "backup compactify" command in SubSQL which makes it possible 
+to perform database defragmentation.
+2. Fix bug in delayed trasnaction mode.
+
+--- Release version 2.40 (20.02.2002) -------------------------------------
+
+1. Fix bug with locking during query destruction in non-recursive mutex at Unixes
+(bug was introduced in version 2.39).
+
+--- Release version 2.41 (14.03.2002) -------------------------------------
+
+1. Fix bug with hashed join by reference field.
+2. Fix bug in w32sock setting socket parameters
+3. Generic search tree support
+
+--- Release version 2.42 (20.03.2002) -------------------------------------
+
+1. Provide iterators for fields in dbTableDescriptor and dbTableField classes
+2. Add toArray method in cursor class
+
+--- Release version 2.43 (04.04.2002) -------------------------------------
+
+1. Fix bug in query omptimizer introduced with user defined types (in some cases 
+indices are not applied).
+2. Fix bug with multiprocess access to the database with DISKLESS_CONFIGURATION
+3. Fix bug with method descriptors.
+4. DOXYGEN generated documentation.
+
+--- Release version 2.44 (26.04.2002) -------------------------------------
+
+1. Fix problems with building DLL under Windows
+2. Fix bug with UPDATE in SubSQL utility
+
+--- Release version 2.45 (16.05.2002) -------------------------------------
+
+1. Port to MinGW (makefile.mingw)
+2. Fix bug with handling array components in SubSQL
+
+--- Release version 2.46 (01.06.2002) -------------------------------------
+
+1. Fix bug in copyRecordExceptOneField method for class descriptors with methods
+2. Fix bug with SubSQL comparision operators for date types
+3. Add cli_describe, cli_show_tables and cli_precommit methods to C CLI.
+4. Fix bug in dbDate::asString method
+5. Make it possible to use SysV shared memory instead of mmap for diskless confiuration.
+6. Fix bug in assembler implementation of atomic operations for GCC 3.0 and higher
+
+--- Release version 2.47 (05.07.2002) -------------------------------------
+
+1. Fix bug with comparison and sorting of user defined types
+2. Local CLI implementation
+3. Support of running FastDB application as Windows service by setting NULL DACL descriptor
+
+--- Release version 2.48 (09.08.2002) -------------------------------------
+
+1. Fix minor bug in backup method. 
+2. Repalce int8 type with db_int8
+
+--- Release version 2.49 (03.09.2002) -------------------------------------
+
+1. Fault tolerant support: replication model with 1 primary and serveral standby nodes
+2. Support of inserting/updating references in SubSQL
+
+--- Release version 2.50 (14.09.2002) -------------------------------------
+
+1. Fix bug in backup restore method.
+
+--- Release version 2.51 (28.10.2002) -------------------------------------
+
+1. Borland C++ Builder/Delphi/Kulix API implemented by "Serge Aleynikov" <serge@hq.idt.net>
+2. Make it possible to specify WHERE caluse in DELETE statement in SubSQL.
+3. Fix bugs in create_table/show_table methods in local CLI.
+4. Fix bug with accessing database by multiple processes.
+ 
+--- Release version 2.52 (06.11.2002) -------------------------------------
+
+1. Concurrent read/update mode 
+2. Fix bug with delayed commit
+3. Fix problem with compilation under Solaris
+4. Add dbContainer class
+5. Add pool of threads for parellel requests execution
+6. Change profile of set_fnc used in cli_column_array allowing this function to copy data itself.
+7. Fix bug in implementation of update method in remote CLI server.
+
+--- Release version 2.53 (15.11.2002) -------------------------------------
+
+1. Fix bug in cli_get_oid in local CLI implementation
+2. Add more methods to dbQueryExpression class
+3. Make it possible to keep thread context and skip commit of transaction in dbDatabase::detach method
+4. Make it possible to specify error handler without redefinition of dbDatabase::handleError method (also using local CLI API)
+5. Add support of cli_array_of_string type in remote CLI API
+
+--- Release version 2.54 (29.11.2002) -------------------------------------
+
+1. Updated version of fastdb.spec for preparing RPM for Linux
+2. Add cli_create_table, cli_drop_table, cli_alter_index and cli_skip methods to CLI API
+3. Add selectByKey, selectByKeyRange and skip methods to dbCursor class
+4. Add more parameters to cli_create function
+5. Fix bug in dbDatabase::close which can cause incorrect resetting dirty flag in database header
+6. Make it possible to access standby replication node in read only mode
+7. Update all opened cursors when record is deleted
+8. Support "select count(*)" in SubSQL
+
+--- Release version 2.55 (24.12.2002) -------------------------------------
+
+1. Add dbDatabase::allowColumnsDeletion method to allow column deletion from non empty table
+2. Ignore case of identifiers with IGNORE_CASE options
+3. Fix bug in cascade delete
+4. Add cli_freeze, cli_unfreeze functions
+5. Separate module for Borland C++/Delphi interface to FastDB impelmented by 
+Serge Aleynikov <serge@hq.idt.net>
+
+--- Release version 2.56 (22.01.2003) -------------------------------------
+
+1. Fix bug in handling query parameters with '_' in local CLI API
+2. Fix bug in cli_skip method
+3. Add dbCursor::seek and cli_seek methods
+4. Fix bug in cli_unfreeze
+5. Add cli_attach, cli_detach methods to local CLI API
+
+--- Release version 2.57 (11.02.2003) -------------------------------------
+
+1. Fix memory leak in cli_create ins case of database open failure
+2. Synchronize creation/deletion of statements in local CLI
+3. Fix bug in cli_create and cli_detach methods
+4. Support appending binary data in WWWapi
+
+--- Release version 2.58 (21.02.2003) -------------------------------------
+
+1. Make CLI API compatible with GigaBASE CLI API.
+2. Fix comilation bug in NO_PTHREAD mode
+
+--- Release version 2.59 (28.03.2003) -------------------------------------
+
+1. Fix bug with diskless mode under Solaris
+2. Fix bug with copying autoincrement counter during schema evaluation
+3. Add scattered array and bitmap classes
+
+--- Release version 2.60 (31.03.2003) -------------------------------------
+
+1. Fix bug in harray implementation
+2. Avoid useless set of dirty bit in beginTransaction
+
+--- Release version 2.61 (11.03.2003) -------------------------------------
+
+1. Fix bug with handling inverse references in SubSQL
+2. Fix bug with incorrect table creation in local CLI
+3. Add cli_free_memory function
+
+--- Release version 2.62 (06.05.2003) -------------------------------------
+
+1. Add replication socket which allows CLI client to broadcast requests
+to multiple servers and gather+compare responses from them. With replication
+socket client can continue work with the database even in case of fault
+of one or more servers. Client will just do not notice the server fault. 
+2. Fix compilation bug in HArray for Visual C++ 6.0 and earlier
+
+--- Release version 2.63 (12.05.2003) -------------------------------------
+
+1. Fix compilation bug in cli.cpp for MS-Visual C++ 6.0
+2. Add getNumberOfWriters(), getNumberOfReaders(), getNumberOfBlockedReaders(),
+getNumberOfBlockedWriters() and getNumberOfUsers() methods
+and cli_get_database_state() function in CLI
+
+--- Release version 2.64 (15.05.2003) -------------------------------------
+
+1. HTML database browser. "start http server URL" command was added to SubSQL. 
+Once HTTP server is started, you can login to the specified URL from any Web browser, 
+view database tables and execute queries. 
+
+--- Release version 2.65 (28.05.2003) -------------------------------------
+
+1. Suuport arbitrary expression in order-by clause
+2. Fix bug with in SubSQL close method introduced in version 2.63
+3. Make it possible to output trace messages using OutputDebugString 
+
+--- Release version 2.66 (03.06.2003) -------------------------------------
+
+1. Implement XML import/export in SubSQL 
+2. Fix bug with setting referenced table name in tables created by SubSQL and CLI
+3. Make it possible to define trace function and add cli_set_trace_function to CLI API. 
+
+--- Release version 2.67 (04.06.2003) -------------------------------------
+
+1. Fix bugs in replication support
+2. Make it possible to compare integer constants with references in queries
+
+--- Release version 2.68 (06.06.2003) -------------------------------------
+
+1. Fix bugs in XML import/export
+
+--- Release version 2.69 (18.06.2003) -------------------------------------
+
+1. Fix synchronization bug with accepting connections in CLI server 
+2. Fix the problem with unligned memory allocation in Borland C++ 
+
+--- Release version 2.70 (24.06.2003) -------------------------------------
+
+1. Provide more convenient way to access database by local CLI:
+   add cli_prepare_query, cli_execute_query and cli_insert_struct functions. 

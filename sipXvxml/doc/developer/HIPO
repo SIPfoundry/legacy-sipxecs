@@ -1,0 +1,747 @@
+This is the start of a HIPO description of the media server.
+
+HIPO means "Hierarchy, Input, Processing, Output".  It describes each
+routine in terms of Hierarchy (who calls it, who it calls), Input
+(sources of information), Processing (what it does), and Output
+(destinations of information).
+
+----------------------------------------------------------------------
+
+Routine template:
+
+Called by:  
+
+Calls:  
+
+Input:  
+
+Processing:  
+
+Output:  
+
+Variable template:
+
+Written by:  
+
+Read by:  
+
+----------------------------------------------------------------------
+
+* sipXcallLib
+
+** sipXcallLib/main/include/tao/TaoDefs.h
+
+*** HTTP_READ_TIMEOUT_MSECS (25)
+
+Note this #define is at least in a .h file, but these should probably
+be consolidated into one file or documentation should give a nice map.
+
+* sipXmediaLib
+
+** sipXcallLib/main/src/cp/CallManager.cpp
+
+*** CallManager::CallManager (79)
+
+A singleton class.  It looks like this is the thing that interacts
+with SIP.  It is an OsServerTask.
+
+Called by:  main
+
+Calls:  CpCallManager, mIsEarlyMediaFor180, SipUserAgent::addMessageObserver
+	SipUserAgent::getDefaultExpiresSeconds, UtlString::capacity
+
+
+Input:  many arguments
+
+Processing:  
+	Set many configuration parameters.
+	Register with the SIP user agent to receive various SIP
+	messages.
+	Allocate an array of nMaxNumListeners of (TaoListenerDB *)
+	Initialize the history log: mMessageEventCount, mCallManagerHistory[].
+
+Output:  
+
+*** CallManager::addTaoListener (307)
+
+Called by:  main
+
+Calls:  OsReadLock::lock, findHandlingCall, CpCall::addTaoListener,
+	infocusCall, callStack.isEmpty, UtlSListIterator::UtlSListIterator
+
+Input:  
+	OsServerTask *pListener
+	char *callId (defaults to null)
+	int ConnectId (defaults to 0)
+	int mask (defaults to 0)
+
+Processing:  
+	Seizes mCallListMutex for read.
+	If callId is given, find the CpCall handling that callId and
+	forward the addTaoListener to it.
+	If not, and there is an infocusCall, forward the
+	addTaoListener to it.
+	If the callStack is not empty, cycle through callStack (?) and
+	forward addTaoListener to all calls that meet some criterion (?).
+	In all cases, then call AddThisListener(pListener ...).
+
+Output:  
+
+
+** sipXmediaLib/main/src/mp/MpMediaTask.cpp
+
+The MpMediaTask is discussed in sipXmediaLib/main/include/mp/MpMediaTask.h.
+One thing to note is that there seem to be two classes of methods --
+ones called by other threads to enqueue requests for the media task to
+perform, and others called from the handleMessage method within the
+media task to carry out the requests.
+
+*** MpMediaTask::spInstance (48)
+
+Class variable to keep track of one instance of MpMediaTask.
+
+Written by:  MpMediaTask::getMediaTask
+
+Read by:  MpMediaTask::getMediaTask
+
+Protected by:  MpMediaTask::sLock
+
+*** MpMediaTask::sLock (49)
+
+Lock to protect access to MpMediaTask::spInstance.
+
+Written by:  MpMediaTask::getMediaTask
+
+*** MpMediaTask::getMediaTask (73)
+
+Called by:  main, CpMediaInterface::giveFocus, CpMediaInterface::defocus,
+	CpPhoneMediaInterface::~CpPhoneMediaInterface,
+	CpPhoneMediaInterface::giveFocus, CpPhoneMediaInterface::defocus,
+	MpMediaTask::mediaInfo, MprToSpkr::doProcessFrame,
+	MprToSpkr::doProcessFrame, MpFlowGraphBase::flowGraphInfo,
+	MpCallFlowGraph::MpCallFlowGraph, MpCallFlowGraph::~MpCallFlowGraph,
+	MpCallFlowGraph::closeRecorders, MpCallFlowGraph::Record,
+	MpCallFlowGraph::record, MpCallFlowGraph::record32, 
+	MpCallFlowGraph::disablePremiumSound,
+	MpCallFlowGraph::enablePremiumSound, MpCallFlowGraph::synchronize,
+	MpCallFlowGraph::handleStopToneOrPlay, MpConnection::setPremiumSound
+
+Calls:  new MpMediaTask, MpMediaTask::isStarted, MpMediaTask::start,
+	OsBSem::acquire OsBSem::release
+
+Input:  int maxFlowGraph
+
+Processing:  
+	If the MpMediaTask recorded in spInstance already exists and
+	has been started, return it.
+	(Note assumes that testing spInstance and
+	spInstance->isStarted() have no race conditions.)
+	Otherwise, acquire the lock sLock.
+	If spInstance is NULL, create an MpMediaTask passing to it
+	maxFlowGraph, and store it in spInstance.
+	If spInstance is not started, start it.
+	Release sLock.
+	(Note testing for error conditions seems to be incomplete.)
+
+Output:  Returns spInstance.
+
+*** MpMediaTask::manageFlowGraph (118)
+
+Directs the media processing task to add the flow graph to its 
+set of managed flow graphs.  The flow graph must be in the 
+MpFlowGraphBase::STOPPED state when this method is invoked.
+retcode == OS_SUCCESS - the flow graph will be added at the start of
+the next frame processing interval.
+retcode == OS_INVALID_ARGUMENT - flow graph is not in the STOPPED state
+
+Called by:  MpCallFlowGraph::MpCallFlowGraph
+
+Calls:  
+
+Input:  
+
+Processing:  
+
+Output:  
+
+** sipXmediaLib/main/src/mp/MpMisc.cpp
+
+*** mpStartUp (461)
+
+Called by:  main
+
+Calls:  showMpMisc, MpMuf_init, MpBuf_setMVE, new OsMsgQ setMaxMic,
+	setMaxSpkr, setMinRtp, mpStopSawTooth
+
+Input:  int sampleRate, int samplesPerFrame, int numAudioBuffers,
+	OsConfigDb* pConfigDb
+	(Note doesn't seem to use the same type of configuration DB as
+	the main config file is parsed into.  Currently, 4th arg is
+	always NULL.)
+
+Processing:  
+	Some checking and limiting of arguments.
+	(Note uses some hard-coded limits.)
+	Calls showMpMisc to dump some info.
+	Sets MpMisc.micMuteStatus and MpMisc.spkrMuteStatus.
+	Calculates what appear to be parameters for constructing audio packets.
+	Calls MpBuf_init ???
+	Use the config database (which is NULL) to set silence suppression
+	parameters.
+	Call MpBuf_setMVE ???
+	Delete MpMisc.{pMicQ,pSpkQ,pEchoQ} if they exist.
+	Create new OsMsqQ's for MpMisc.{pMicQ,pSpkQ,pEchoQ}.
+        Call setMaxMic.
+        Call setMaxSpkr.
+        Call setMinRtp.
+        call mpStopSawTooth.
+
+Output:  Elements of MpMisc.
+
+* sipXpbx
+
+** sipXpbx/main/src/mailboxmgr/AutoAttendantCGI.cpp
+
+*** AutoAttendantCGI::execute
+
+Looks like a CGI routine to generate a dynamic VXML document that sets
+the various global parameters for the other VXML documents (such as
+'systemgreetingurl').
+
+Called by:  
+
+Calls:  
+
+Input:  
+
+Processing:  
+
+Output:  
+
+** sipXpbx/main/src/wwwcontent/aa_vxml/autoattendant.vxml.in
+
+Substituted VXML for the start of the autoattendant dialog.
+
+** sipXpbx/main/src/wwwcontent/aa_vxml/dialbyname.vxml
+
+VXML for dialing by name.
+
+** sipXpbx/main/src/wwwcontent/vm_vxml/savemessage.vxml.in
+
+VXML for "please record a message".
+
+* sipXportLib
+
+** sipXportLib/main/include/os/linux/OsTaskLinux.h
+
+*** class OsTaskLinux (51)
+
+(Note that enum LinuxPriorities is visible but not consistent between
+subclasses of OsTaskBase.  This means that callers need to know which
+subclass they are dealing with, hindering polymorphism.  The mapping
+between higher-level scheduling strategies and the OS-specific
+priority systems should be encapsulated inside each subclass;
+OsTaskBase should present a uniform and OS-independent scheduling
+interface.  Though perhaps this is already being done, since at 126 a
+priority from 0 to 255 is used.)
+
+** sipXportLib/main/src/os/linux/OsTaskLinux.cpp
+
+*** OsTaskLinux::sEffectiveUid (34)
+
+Note UID 10_000 is used as a magic number.
+
+*** OsTaskLinux::sRealUid (35)
+
+Note UID 10_000 is used as a magic number.
+
+* sipXvxml
+
+** sipXvxml/src/client/ivr/IvrCallListener.cpp
+
+*** IvrCallListener::IvrCallListener (57)
+
+Called by:  main.
+
+Calls:  
+
+Input:  callManager, platform, channelNum, name
+
+Processing:  
+	Sets the mpCallManager, mpPlatform, mChannelNum fields based
+	on arguments.
+	Creates new IvrDtmfListener, saves pointer in mpDtmfListener,
+	starts it.  (Note Why does it start it?  Shouldn't that be done in
+	the start method?)
+	Sets the active and max calls counts.  (Note max calls is a
+	magic number.)
+	Allocate the mActiveCallIds array, initialize to NULLs.
+
+Output:  IvrCallListener object.
+
+
+*** IvrCallListener::handleMessage (134)
+
+Called by:  a polymorphic method invocation it looks like
+
+Calls:  
+
+Input:  
+
+Processing:  
+
+Output:  
+
+
+*** IvrCallListener::handleStartVXISession (258)
+
+Called by:  IvrCallListener::handleMessage
+
+Calls:  VXIProcessUrl
+
+Input:  incoming message
+
+Processing:  
+	Get the session object, call ID, and remote address.
+	Extract the field parameters play, user, and domain.
+	(Note 286 strange algorithm for handling case where play= can't be
+	found by getFieldParameter.  Seems failure-prone.)
+	Construct URL of VXML document to be processed.
+	Call VXIProcessUrl.
+
+Output:  
+
+** sipXvxml/src/client/ivr/IvrTelListener.cpp
+
+*** IvrTelListener::getTelListener (211)
+
+Called by:  main
+
+Calls:  
+
+Input:  
+
+Processing:  
+	Check on the spInstance object.
+	Make sure that it has been created and started.
+
+Output:  
+
+
+*** IvrTelListener::doCleanUpCall (792)
+
+Called by:  polymorphic method invocation
+
+Calls:  VXICleanUpCall
+
+Input:  
+
+Processing:  
+
+Output:  
+
+** sipXvxml/src/client/ivr/clientMain.cpp
+
+*** glbpThreadMutex (105)
+
+Pointer to a global mutex for locking the thread stack.  Created by
+main.  Used by LockThreadStack and UnlockThreadStack.
+
+*** sInSigHandler (135)
+
+Flag to indicate that sigHandler has been entered once, or perhaps,
+that it is currently entered.
+
+Written by:  sigHandler
+
+Read by:  sigHandler
+
+(Note should this be cloned for each thread?)
+(Note what is its type?  It is initialized as "0", but later set to
+"TRUE".)
+
+*** pt_signal (146)
+
+Called by:  Any routine wanting to set signal handlers.  In practice, main.
+
+Calls:  System signal handling functions.
+
+Input:  signal number, signal handler address
+
+Processing:
+	Sets the specified signal handler to handle the specified
+	signal number.  Ensures that POSIX flags for sigaction are
+	cleared, so as to prevent EINTR returns from system calls.
+
+Output:  Return value from system call.
+
+*** gShutdownFlag (166)
+
+Boolean flag to indicate that the main thread should shut down the system.
+
+Written by:  sigHandler
+
+Read by:  main
+
+Can be set from sigHandler in any thread.  Seems to not be a serious
+problem since it is repeatedly tested for true/false by loop in main.
+
+*** sigHandler (169)
+
+Called by:  Received signals.
+
+Calls:  OsSysLog::flush, OsSysLog::add, pt_signal
+
+Input:  signal number
+
+Processing:
+	Flushes the log via OsSysLog::flush if sInSigHandler is not
+	already set.
+	If not SIGPIPE, sets gShutdownFlag so main thread will shut
+	down the process.
+	Set signal handler for this signal to SIG_IGN (for SIGPIPE) or
+	SIG_DFL (for all others).
+	If not SIGPIPE, if sInSigHandler is not already set, set it
+	log a message, and flush via OsSysLog::flush.
+
+Output:  Can change sInSigHandler, signal handlers.  Logs messages.
+	Can set gShutdownFlag.
+
+(Note seems rather crufty.  Why is SIGPIPE handled differently?  Why
+is sInSigHandler not reset at end of routine?  Is OsSysLog really
+reentrant?  One global sInSigHandler seems to not have the right
+semantics.)
+
+*** LockThreadStack (204)
+
+Called by:  findCleanupThread, pushThread, popThread, main
+
+Calls:  VXItrdMutexLock, glbpThreadMutex
+
+Input:  
+
+Processing:  
+	Attempts to acquire the lock glbpThreadMutex.
+
+Output:
+	Has seized the lock, or Returns error.
+
+*** pushThread (323)
+
+Called by:  VXICleanUpCall
+
+Calls:  LockThreadStack, glbCleanupThreadStack, UnlockThreadStack
+
+Input:  thread pointer
+
+Processing:
+	Inserts the thread pointer into the "thread stack", which
+	is a list of threads that need cleaning up.
+
+Output: none 
+
+*** HeartbeatThread (472)
+
+(Note what is the capitalization convention?)
+
+Called by:  mediaserverHeartbeat (as start of new thread)
+
+Calls:  
+
+Input:  sleepSeconds (sleep interval)
+	(Note involves conversion between int and (void *), which is
+	not guaranteed to work.)
+
+Processing:  
+	Log message.
+	Calls pthread_setcanceltype to make sure thread dies promptly
+	when killed.
+	Logs stack debugging messages. (Note haven't we seen this in
+	main?  Why is it not a function?)
+	Loops, waiting sleepSeconds each time.
+		Attempt to allocate 10 bytes.  If attempt fails, log
+		message and exit loop.
+		(Note structure of 'if' is hard to read.  Should be
+		revised.)
+		Attempt to open /var/tmp/mediaserverHeartbeat.dat for
+		reading. (Note name should be parameterized.)
+		If that fails, wait 0.5 sec and try again.
+		If that fails, attempt to open for writing.
+		(Presumably "monitor" is watching for the consequences
+		of this opening.  But what could they be, as no I/O is
+		done?)
+		Close file.
+	Log message.
+	Call VXItrdThreadExit to terminate the thread.
+	Call exit() (in case VXItrdThreadExit fails?  But it cannot.)
+
+Output:  Modifications to mediaserverHeartbeat.dat(?)
+
+Note wouldn't a "touch" operation be more useful?  Or does this use
+some feature of locking to avoid changes that write through to the
+disk?  Perhaps a named pipe would be more effective?
+
+*** mediaserverHeartbeat (545)
+
+Called by:  main
+
+Calls:  VXItrdThreadCreate, HeartbeatThread
+
+Input:  sleepSeconds (interval to do checking on)
+
+Processing:  Starts watchdog thread and returns.
+
+Output:  Result from thread create.
+
+*** main (560)
+
+Called by:  is the main routine of the executable.
+	Runs in main thread.
+
+Calls:  mediaserverHeartbeat, ParseConfigFile, VXIplatformInit,
+	MpMediaTask::getMediaTask, mpStartUp, new CallManager,
+	new IvrCallListener, IvrTelListener::getTelListener, 
+
+Input:  Command line arguments (-url, -channels, -config, -calls)
+	(Note -url not handled.)
+
+Processing:  
+	(Note function is 482 lines, should probably be broken up.)
+	Sets up signal handlers.  Appears to set one signal hangler, sigHandler,
+	for all signals in all threads.  This probably works, since
+	sigHandler seems to abort the media server on any signal.  Uses
+	pt_signal to set handler.
+	Calls mediaserverHeartbeat to set up watchdog thread.
+	Processes command line arguments.
+	Determine the location of the configuration file if -config is not
+	specified.
+	Set glbMaxNumListeners, initialize glbPlayerListenerTable.
+	Call ParseConfigfile to parse the configuration file.
+	Determine the URL for use as VXML document base, glbDefaultVxmlURL,
+	from config BASE_CLIENT_VXML_URL, or theoretically, -url.
+	Call VXIplatformInit to initialize "the platform", which returns
+	maxChannels, the maximum number of channels that can be handled.
+	Adjusts nbChannels if necessary.
+	Determine working directory?
+	Determine log file name.
+	Determine logging level from config SYS_LOG_LEVEL.
+	Open sys log.
+	Sets log flush interval.
+	Creates glbpChannelMutex and glbThreadMutex.
+	(Note may not exit if cannot create these.)
+	(Note indentation needs work.  Also needs comments.)
+	(Note indentation amount is too large.)
+	Sets the port to be used as 5100 (why?).
+	(Note this 5100 and other magic numbers/strings should be
+	parameterized.)
+	Calls new SipUserAgent to establish the SIP user agent
+	(presumably to which calls are transferred for media server action),
+	sets options, starts it.
+	Set up codec list (but for later use).
+	Sets maxFlowGraphs as the maximum number of active calls, either
+	DEFAULT_MAX_ACTIVE_CALLS or config MAX_ACTIVE_CALLS.
+	Call getMediaTask to start the media task,
+	Call mpStartUp to do some initializing of the media task.
+	(Note parameters are hard-coded.)
+	Call new CallManager to create a new call manager.
+	Call new IvrCallListener.
+	Call addTaoListener, getTelListener, addListener to set up the
+	connection between IvrCallListener and CallManager.
+	Start them both with listener->start(), pCallMgr->start().
+	Log some debugging messages about compilation options.
+	(Note code at 867 et seq. could be condensed with better use of #if.
+	#else's and #endif's do not contain the #if condition.)
+	(Note at 907 et al. "*" not used in syntactically suggestive manner.)
+	Conditionally obtain and log stack location and size.
+	Adjust the effective UID.
+	(Note message at 912 should be below code at 914.)
+	Enter main loop, conditioned on isStarted and gShutdownFlag.
+		Sleep for 2 minutes.
+		(Seems to be some sort of orphaned thread clean-up.)
+		Lock the thread stack with LockThreadStack.
+		Iterate through the thread stack.
+			(Note tests threadCollectable for non-NULL
+			implicitly at 935.)
+			(Note strange loop seems to test on both
+			non-NULL of iterator and counter.  Redundant?)
+			(Note indentation in conflict with control structure.)
+			For each thread, call getValue to get
+			"thread", then from that extract "callID".
+			Log message.
+			Call findHandlingChannel.  If NULL, call removeThread
+			on "thread" to generate a new value of "thread" (???),
+			then reset the iterator.
+			If "thread" is now non-NULL, call freeThread on it.
+			To increment loop, increment the iterator and
+			increment the count of the number of times through.
+
+		What this loop is up to:
+		Cycle through glbCleanupThreadStack looking for entries for
+		which findHandlingChannel(thread->callId) == NULL.
+		These entries are removed from glbCleanupThreadStack.
+		All the machinery is because they're using an iterator to
+		go through glbCleanupThreadStack, but the iterator doesn't
+		work well if elements are deleted from it at the same time.
+
+	(Note at 959 comment on close-brace does not match head.)
+	Log shutdown message.
+	Call VXIplatformShutdown to shut down the "platform".
+	Using glbChannelStack, popChannel, and freeChannel, free all the
+	channels in glbChannelStack.
+	Using glbCleanupThreadStack, popThread, and freeThread, free all the
+	channels in glbCleanupThreadStack.
+	Unlock and destroy glbChannelMutex.
+	Unlock and destroy glbThreadMutes.
+	Call VXIMapDestroy to free glbConfigArgs.
+	Free configFile, listener, pMedia.
+	Call requestShutdown on userAgent.
+	Free pCallMgr, pIvrUtilTask, gpTelListener.
+	Log final message.
+	Exits (with status 1)
+	(Note shouldn't exit status depend on method of termination?)
+
+Output:  Returns Posix success/fail code.
+	(Note hard-codes 0/1, rather than using the standard symbols
+	EXIT_{SUCCESS,FAILURE}.)
+	Numerous log entries.
+
+*** ChannelThread (1146)
+
+Called by:  VXIProcessUrl
+
+Calls:  VXIplatformWaitForCall, VXIplatformProcessDocument
+
+Input:  
+
+Processing:  
+	Delay for one second to allow the other end to finish setting up.
+	Extract a lot of arguments.
+	Create some objects related to the "platform".
+	Call VXIplatformWaitForCall.  (why?)
+	Add gpTelListener as a listener for this call.
+	Call VXIplatformProcessDocument.
+	Log any result value or abnormal exit.
+	Remove gpTelListener from call.
+	Call VXIplatformDestroyResources to clean up resources.
+
+Output:  
+
+*** VXIProcessUrl (1251)
+
+Looks like this is the function that starts processing an IVR session.
+
+Called by:  IvrCallListener::handleStartVXISession
+
+Calls:  
+
+Input:  plistener, channelNum, callId, from, to, url
+
+Processing:  
+	Use plistener to recover IvrCallListener and CallManager
+	objects involved.
+	(Note comment at 1269 appears to be incorrect.)
+	Assemble URL of VXML document.  If url contains http, then use
+	it.  Otherwise, prepend gblDefaultVxmlURL.
+	(Note applies strlen to url before testing if non-NULL.  Note
+	implicitly tests for non-NULL.  Note uses strstr to test for
+	presence of http, which does not work:  Fails on
+	"httpxyzzy.vxml".  Better to use strncmp(url, "http:").  Or is
+	"https" also allowed as a method?)
+	(Note appears to fail at 1285 if url is NULL.)
+	Create a VXIMap, presumably to hold the state of the VXML
+	session, via VXIMapCreate.
+	Loads callId, to, and from into the callid, dnis, and ani
+	properties of the VXIMapCreate.
+	(Note code for callid seems to be re-typing callId as wide
+	characters.)
+	Create ChannelThreadArgs object.
+	Copy callId (if not NULL) into id.
+	(Note this copy uses new rather than malloc, and does not
+	check non-NULL.)
+	Create VXIplatform object.
+	Initialize fields of ChannelThreadArgs object, including
+	VXIMapClone of VXIMap we created above.
+	Call SBclientDiag to print some debugging info?
+	Call pushChannel on ChannelThreadArgs object?
+	Create thread executing ChannelThread with arguments in
+	ChannelThreadArg object.
+	Delete the VXIMap.  (Note why did we clone it above and then
+	delete it, rather than leaving it with the ChannelThreadArgs
+	object?)
+	Free 'ani' and 'dnis' from above.
+	Return the result code, which will always be success.
+
+Output:  return code
+
+*** VXICleanUpCall (1461)
+
+Called by:  
+
+Calls:  
+
+Input:  
+
+Processing:  
+
+Output:  
+
+      VXItrdResult trdResult = VXItrdThreadCreate(&threadHandle,
+      CLIENT_CHECK_RESULT("VXItrdThreadCreate()", trdResult);
+
+** sipXvxml/src/inet/SBinet.cpp
+
+*** SBinet::Init (605)
+
+    eTrdResult = VXItrdThreadCreate(&m_pEventThread,
+
+** sipXvxml/src/trd/OSBtrdPthreads.cpp
+
+*** VXItrdThreadCreate (304)
+
+Called by:  
+
+Calls:  
+
+Input:  
+
+Processing:  
+
+Output:  
+
+(Note many callers are sloppy about thread_arg, which is
+VXItrdThreadArg, which is (void *).  Any pointer type can be converted
+to/from this type, but integer types cannot.)
+
+** sipXvxml/src/VXI/VXI.cpp
+
+*** VXI::VXI (254)
+
+Called by:  VXIinterpreterCreateResource
+
+Calls:  
+
+Input:  
+
+Processing:  
+
+Output:  
+
+** sipXvxml/src/VXI/VXI_api.cpp
+
+(Note at 55 the explanation could be made clearer.)
+
+*** Interpreter (61)
+
+Structure to describe VXML interpretation.
+
+*** VXIinterpreterCreateResource (212)
+
+Called by:  
+
+Calls:  new Interpreter, new VXI
+
+Input:  
+
+Processing:  
+
+Output:  

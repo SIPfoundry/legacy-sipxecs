@@ -1,0 +1,341 @@
+#! /bin/bash
+
+# Program configuration.
+SIPTEST=siptest
+
+# Test driver system configuration
+# The IP address or DNS name of the host that will run this script.
+MY_ADDRESS=10.1.1.139
+# The SIP user name (not including domain part) to use in the From: headers.
+FROM_USER=Q
+# How long to wait to ensure that a SUBSCRIBE has replied.
+NOTIFY_DELAY=3
+
+# Output help message if no arguments, --help, or -h.
+if [[ "$1" == --help || "$1" == -h || $# == 0 ]]
+then
+    cat <<-EOF
+	To install:
+
+	Edit the definitions at the top of the script:
+
+	SIPTEST is the location of the siptest program.
+	MY_ADDRESS is the IP address or DNS name of this host.
+	FROM_USER is the user name (not including domain part) to us in
+	the From: headers of the SIP messages we send.
+
+	To run:
+
+	Beware that some phones will not send dialog events correctly if
+	they are not registered with a PBX.
+
+	Three arguments are mandatory:
+
+	-a/--addr - specify IP or DNS address of the phone
+	-p/--phone - model name of the phone
+	-l/--line - SIP user name (line number) for calling the phone
+
+	(It is useful to run the script for line numbers the phone is not
+	configured for as well as line numbers that it is configured for.)
+
+	This script executes four INVITEs each followed by a SUBSCRIBE for
+	dialog state events to see how different INVITEs are reported.
+	The whole process takes about a minute.
+
+	When the phone rings, you can answer it, or better, reject
+	the call.  Do not leave them ringing -- some phones do not clear them
+	promptly.
+
+	An optional argument is:
+
+	-s/--second - specify SIP user name of a second line on the phone
+
+	Causes INVITEs to the second line to be generated to see if
+	they are reported on the dialog events for the first line.
+	Increases the number of INVITEs to nine.
+
+	Output is stored in files named
+	"log_[phone]_[line]@[addr]_[n]{a,b,c}".  The integer n is chosen to
+	avoid writing over existing files.  The suffixes "a", "b", and "c"
+	designate progressively more processed forms of the output.
+
+	Run in a scratch directory, as it generates temporary files.
+EOF
+    exit 1
+fi
+
+# Process the arguments.
+
+function get_arg ()
+{
+    # $1 is the variable
+    # $2 is the option argument
+    # $3 is the value
+    # $4 is the description of the variable
+
+    # Check whether the value has been set already.
+    eval "X=\$$1"
+    if [[ -n "$X" ]]
+    then
+	echo >&2 "Argument '$2' duplicates previous specification of $4."
+	exit 1
+    fi
+    # Check whether the value is empty.
+    if [[ -z "$3" ]]
+    then
+	echo >&2 "Empty or no value given for argument '$2'."
+	exit 1
+    fi
+    # Set the value.
+    eval "$1=\"$3\""
+}
+
+while [ $# -ne 0 ]
+do
+  case "$1" in
+        -a)
+	get_arg PHONE_ADDR "$1" "$2" "phone address"
+	shift ; shift
+	;;
+
+        -a?*)
+	get_arg PHONE_ADDR "$1" "${1#-a}" "phone address"
+	shift
+	;;
+
+        --addr=*)
+	get_arg PHONE_ADDR "$1" "${1#--addr=}" "phone address"
+	shift
+	;;
+
+        -p)
+	get_arg PHONE_NAME "$1" "$2" "phone model name"
+	shift ; shift
+	;;
+
+        -p?*)
+	get_arg PHONE_NAME "$1" "${1#-p}" "phone model name"
+	shift
+	;;
+
+        --phone=*)
+	get_arg PHONE_NAME "$1" "${1#--phone=}" "phone model name"
+	shift
+	;;
+
+        -l)
+	get_arg TO_USER_LINE "$1" "$2" "user name"
+	shift ; shift
+	;;
+
+        -l?*)
+	get_arg TO_USER_LINE "$1" "${1#-l}" "user name"
+	shift
+	;;
+
+        --line=*)
+	get_arg TO_USER_LINE "$1" "${1#--line=}" "user name"
+	shift
+	;;
+
+        -s)
+	get_arg TO_USER_LINE2 "$1" "$2" "second user name"
+	shift ; shift
+	;;
+
+        -s?*)
+	get_arg TO_USER_LINE2 "$1" "${1#-s}" "second user name"
+	shift
+	;;
+
+        --second=*)
+	get_arg TO_USER_LINE2 "$1" "${1#--second=}" "second user name"
+	shift
+	;;
+
+        *)
+	echo >&2 "Invalid argument '$1'."
+	exit 1
+	;;
+  esac
+done
+
+# Check that required parameters are present.
+if [[ -z "${PHONE_ADDR}" ]]
+then
+    echo >&2 "No -a/-addr specified to give address of phone."
+    exit 1
+fi
+if [[ -z "${PHONE_NAME}" ]]
+then
+    echo >&2 "No -p/-phone specified to give phone model name."
+    exit 1
+fi
+if [[ -z "${TO_USER_LINE}" ]]
+then
+    echo >&2 "No -l/-line specified to give user name on phone."
+    exit 1
+fi
+
+# Target phone configuration
+TO_USER_AOR=C
+
+# Functions to generate Call-Ids and tags.
+Call_Id_sequence_no=0
+Call_Id_base=$$-$( date --iso-8601=seconds )@${PHONE_ADDR}
+function generate_Call_Id ()
+{
+    (( Call_Id_sequence_no++ ))
+    C=${Call_Id_sequence_no}-${Call_Id_base}
+}
+
+tag_sequence_no=0
+function generate_tag ()
+{
+    (( tag_sequence_no++ ))
+    T=t${tag_sequence_no}
+}
+
+cat /dev/null >temp.W1
+
+# Generate a variety of INVITEs.
+
+# Arguments:
+#   From: addr
+#   To: addr for INVITE
+#   request URI for INVITE
+#   To: addr for SUBSCRIBE
+#   request URI for SUBSCRIBE
+function invite_subscribe () {
+  (
+    echo
+    echo Send INVITE sip:$3 with To: sip:$2
+    echo Send SUBSCRIBE sip:$5 with To: sip:$4
+    echo
+  ) | tee -a temp.W1
+
+  # Generate an INVITE for a call.
+  generate_Call_Id
+  generate_tag
+  cat <<-EOF >temp.U
+	INVITE sip:$3 SIP/2.0
+	From: sip:$1;tag=${T}
+	To: sip:$2
+	Call-Id: ${C}
+	CSeq: 1000 INVITE
+
+	EOF
+
+  # Generate a SUBSCRIBE to get the dialog info about the call.
+  # Note the request URI for the SUBSCRIBE is always TO_USER_LINE,
+  # so we can see which dialogs will be returned for subscriptions to
+  # this URI.
+  generate_Call_Id
+  generate_tag
+  cat <<-EOF >temp.U1
+	SUBSCRIBE sip:$5 SIP/2.0
+	From: sip:$1;tag=${T}
+	To: sip:$4
+	Call-Id: ${C}
+	CSeq: 1000 SUBSCRIBE
+	Event: dialog
+	Expires: 0
+	Accept: application/dialog-info+xml
+
+	EOF
+
+  #cat temp.U temp.U1
+
+  # Send the INVITE and then the SUBSCRIBE.
+  ${SIPTEST} <<-EOF >>temp.W1
+	send temp.U
+	sleep 1
+	send temp.U1
+	sleep ${NOTIFY_DELAY}
+	log dump
+	EOF
+}
+
+for INVITE_REQUEST_USER in ${TO_USER_AOR} ${TO_USER_LINE} ${TO_USER_LINE2}
+do
+  for TO_USER in ${TO_USER_AOR} ${TO_USER_LINE} ${TO_USER_LINE2}
+  do
+    for SUBSCRIBE_REQUEST_URI in ${TO_USER_LINE}@${PHONE_ADDR}
+    do
+      invite_subscribe \
+	  ${FROM_USER}@${MY_ADDRESS} \
+	  ${TO_USER}@${PHONE_ADDR} \
+	  ${INVITE_REQUEST_USER}@${PHONE_ADDR} \
+	  ${TO_USER_AOR}@${PHONE_ADDR} \
+	  ${SUBSCRIBE_REQUEST_URI}
+    done
+  done
+done
+
+for INVITE_REQUEST_USER in ${TO_USER_AOR} ${TO_USER_LINE} ${TO_USER_LINE2}
+do
+  for TO_USER in ${TO_USER_AOR}
+  do
+    for SUBSCRIBE_REQUEST_URI in ${PHONE_ADDR}
+    do
+      invite_subscribe \
+	  ${FROM_USER}@${MY_ADDRESS} \
+	  ${TO_USER}@${PHONE_ADDR} \
+	  ${INVITE_REQUEST_USER}@${PHONE_ADDR} \
+	  ${TO_USER_AOR}@${PHONE_ADDR} \
+	  ${SUBSCRIBE_REQUEST_URI}
+    done
+  done
+done
+
+# Process the log files.
+
+# Extract the SIP messages.
+<temp.W1 >temp.W2 sed \
+    -e '/SipUserAgent::.* sent message:\|Read SIP message:/,/--------------------END--------------------\|====================END====================/!d' \
+    -e $'s/\015//'
+
+# Remove junk headers.
+<temp.W2 >temp.W3 sed \
+    -e 's%</dialog-info>.*$%</dialog-info>%' \
+    -e '/<dialog-info\|^INVITE \|^SUBSCRIBE \|^NOTIFY /,/<\/dialog-info>\|^$/!d' \
+    -e $'/<\\/dialog-info/a\\\n' \
+    -e '/^\(Cseq:\|Date:\|Max-Forwards:\|User-Agent:\|Accept-Language:\|Allow:\|Via:\|Content-Length:\)/d'
+
+# Remove all but the first NOTIFY for each SUBSCRIBE.
+cat <<-'EOF' >temp.P
+	# Read by paragraphs.
+	$/ = '';
+
+	while (<>) {
+	    ($verb) = $_ =~ /^(\w+) /;
+	    if ($verb eq 'INVITE' || $verb eq 'SUBSCRIBE') {
+		print $_;
+	    } elsif ($verb eq 'NOTIFY') {
+		($tag) = $_ =~ /tag=(\w+)/;
+		if (!$seen{$tag}) {
+		    $seen{$tag} = 1;
+		    print $_;
+		    $_ = <>;
+		    print $_;
+		    print "\n\n";
+		}
+	    }
+	}
+EOF
+perl temp.P <temp.W3 >temp.W4
+
+# Select base for log file names.
+(( i = 1 ))
+while LOG_BASE="log_${PHONE_NAME}_${TO_USER_LINE}@${PHONE_ADDR}_$i"
+      [[ -e ${LOG_BASE}a || -e ${LOG_BASE}b || -e ${LOG_BASE}c ||
+	      -e ${LOG_BASE}d ]]
+do
+  (( i++ ))
+done
+
+# Save the output.
+mv temp.W1 ${LOG_BASE}a
+mv temp.W2 ${LOG_BASE}b
+mv temp.W3 ${LOG_BASE}c
+mv temp.W4 ${LOG_BASE}d

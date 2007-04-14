@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--
+    - D I A L   P L A N S
+  -->
+  <bean id="defaultInternalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternalRule"
+    abstract="true">
+    <property name="name" value="Internal" />
+    <property name="description" value="Default internal dialing plan" />
+    <property name="enabled" value="true" />
+  </bean>
+
+  <bean id="defaultAttendantRule" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule"
+    abstract="true">
+    <property name="name" value="AutoAttendant" />
+    <property name="description" value="Default autoattendant dialing plan" />
+    <property name="enabled" value="true" />
+  </bean>
+
+  <bean id="defaultEmergencyRule" class="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule"
+    abstract="true">
+    <property name="name" value="Emergency" />
+    <property name="description" value="Emergency dialing plan" />
+    <property name="enabled" value="false" />
+  </bean>
+
+  <bean id="defaultLongDistanceRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule"
+    abstract="true">
+    <property name="permissionManager" ref="permissionManager" />
+    <property name="name" value="Long Distance" />
+    <property name="description" value="Long distance dialing plan" />
+    <property name="enabled" value="false" />
+  </bean>
+
+  <bean id="defaultTollFreeRule" parent="defaultLongDistanceRule" abstract="true">
+    <property name="name" value="Toll free" />
+    <property name="description" value="Toll free dialing" />
+    <property name="areaCodes" value="800, 866, 877, 888" />
+    <property name="permissionName" value="TollFree" />
+  </bean>
+
+  <bean id="defaultRestrictedRule" parent="defaultLongDistanceRule" abstract="true">
+    <property name="name" value="Restricted" />
+    <property name="description" value="Restricted dialing" />
+    <property name="areaCodes" value="900" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+
+  <bean id="defaultInternationalRule" parent="defaultLongDistanceRule" abstract="true">
+    <property name="name" value="International" />
+    <property name="description" value="International dialing" />
+    <property name="longDistancePrefix" value="011" />
+    <property name="externalLen" value="-1" />
+    <property name="permissionName" value="InternationalDialing" />
+  </bean>
+
+  <bean id="defaultLocalRule" parent="defaultLongDistanceRule" abstract="true">
+    <property name="name" value="Local" />
+    <property name="description" value="Local dialing" />
+    <property name="pstnPrefix" value="9" />
+    <property name="longDistancePrefix" value="" />
+    <property name="longDistancePrefixOptional" value="true" />
+    <property name="externalLen" value="7" />
+    <property name="permissionName" value="LocalDialing" />
+  </bean>
+
+  <bean id="defaultCustomRule" class="org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule"
+    singleton="false">
+    <property name="permissionManager" ref="permissionManager" />
+  </bean>
+
+  <bean id="defaultDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan" singleton="false"
+    abstract="true">
+  </bean>
+
+  <!-- list all the rules that should be accessible from Add New Rule menu -->
+  <bean id="defaultDialingRuleFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory"
+    abstract="true">
+  </bean>
+
+  <!-- this is the list of rules that are accesible from Add New Rule dropdown menu -->
+  <!-- some of the bean names here refer to beans defined in etc/dialplan/dialrules.beans.xml -->
+  <bean id="dialingRuleFactory" parent="defaultDialingRuleFactory">
+    <property name="beanIds">
+      <list>
+        <value>internalRule</value>
+        <value>defaultCustomRule</value>
+        <value>longDistanceRule</value>
+        <value>localRule</value>
+        <value>emergencyRule</value>
+        <value>internationalRule</value>
+        <value>attendantRule</value>
+      </list>
+    </property>
+  </bean>
+
+  <!--
+    - D I A L P L A N  C O N T E X T
+  -->
+  <bean id="dialPlanContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl">
+    <property name="coreContext" ref="coreContext" />
+    <property name="aliasManager" ref="aliasManager" />
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="settingDao" ref="settingDao" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
+    <property name="defaultDialPlanId" value="us.dialPlan" />
+  </bean>
+
+  <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext</value>
+    </property>
+    <property name="target">
+      <ref local="dialPlanContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="vxml" class="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator">
+    <property name="velocityEngine" ref="velocityEngine" />
+  </bean>
+
+  <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules" />
+  <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules" />
+  <bean id="authRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules" />
+  <bean id="forwardingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ForwardingRules">
+    <property name="velocityEngine" ref="velocityEngine" />
+  </bean>
+
+  <bean id="dialingRuleCollector" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleCollector" />
+
+  <bean id="dialPlanConfigGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator"
+    dependency-check="objects">
+    <property name="mappingRules">
+      <ref local="mappingRules" />
+    </property>
+    <property name="fallbackRules">
+      <ref local="fallbackRules" />
+    </property>
+    <property name="authRules">
+      <ref local="authRules" />
+    </property>
+    <property name="forwardingRules">
+      <ref local="forwardingRules" />
+    </property>
+    <property name="dialingRuleProvider">
+      <ref local="dialingRuleCollector" />
+    </property>
+  </bean>
+
+  <!-- A T T E N D A N T -->
+  <bean id="autoAttendant" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant" singleton="false"
+    parent="beanWithSettings">
+  </bean>
+
+  <bean id="attendantMigrationContextImpl"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContextImpl">
+    <property name="dialPlanContext">
+      <ref local="dialPlanContext" />
+    </property>
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+
+  <bean id="attendantMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContext</value>
+    </property>
+    <property name="target">
+      <ref local="attendantMigrationContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="attendantMigrationTrigger"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationTrigger">
+    <property name="attendantMigrationContext">
+      <ref local="attendantMigrationContext" />
+    </property>
+  </bean>
+</beans>

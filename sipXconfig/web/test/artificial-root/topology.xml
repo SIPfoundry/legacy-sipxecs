@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+
+<!-- this is just a dummy test file -->
+
+<!DOCTYPE topology [
+     <!ELEMENT topology (location+)>
+     <!ELEMENT location (component+, replication_url, agent_url, sip_domain?)>
+     <!ATTLIST location id CDATA #REQUIRED>
+     <!ELEMENT component EMPTY>
+     <!ATTLIST component id CDATA  #REQUIRED>
+     <!ATTLIST component type  (media-server | config-server | comm-server) #REQUIRED>
+     <!ELEMENT replication_url (#PCDATA)>
+     <!ELEMENT agent_url (#PCDATA)>
+     <!ELEMENT sip_domain (#PCDATA)>
+]>
+ 
+<topology>
+   <location id="Config Server, Media Server and Comm Server">
+      <component id="MediaServer1" type="media-server" />         
+      <component id="CommServer1"  type="comm-server" />         
+      <replication_url>
+         https://host.example.org:8091/cgi-bin/replication/replication.cgi
+      </replication_url>
+      <agent_url>
+         https://host.example.org:8091/cgi-bin/processmonitor/process.cgi
+      </agent_url>
+   </location>   
+
+</topology>
+

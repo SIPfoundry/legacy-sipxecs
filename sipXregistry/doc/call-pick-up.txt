@@ -1,0 +1,738 @@
+			     Call Pick-Up
+
+There are several different schemes for implementing call pick-up.
+The basic method is the one specified in SIP-B.  All other methods are
+variations on the same theme, usually by using an agent process (in
+the communication server) to provide a feature that the instruments
+are lacking.  Almost all the software development effort to support
+call pick-up is in implementing these agent processes, so we can
+easily see the trade-off between development effort and which features
+are supported on which instruments.
+
+Like call transfer, having call pick-up work requires some support
+from the *caller's* end.  These caller-end features will, therefore,
+soon come to be considered necessary for any "quality" SIP
+implementation.  We need to very that sipX provides this support.
+
+Scattered through this exposition are notes marked with "N.B.".  These
+designate work items or design considerations that are important for
+call pick-up but are not obvious from the signaling sequences.  (The
+marker "N.B." is so that we can easily search this document to
+assemble a list of such items.)
+
+** Basic call flow
+
+The SIP-B pick-up mechanism is implemented in the phones.  Thus, it
+requires a more sophisticated executing phone.  It also depends on the
+target phone serving dialog events, or there being a state agent doing
+so on its behalf.
+
+The basic SIP-B pick-up sequences is as follows.  (Only principal
+messages are shown.)  Suppose the incoming call is to the target
+phone, extension 123, and the phone executing the pick-up is extension
+456:
+
+
+     Caller                 Target             Executing
+                              123                 456
+
+       |                       |                   |
+       |   1 INVITE            |                   |
+       |---------------------->|                   |
+       |                       |                   |
+       |                       |                   |   2 Call Pick-Up on 123
+       |                       |                   |
+       |                       |   3 SUBSCRIBE     |
+       |                       |<------------------|
+       |                       |                   |
+       |                       |   4 NOTIFY        |
+       |                       |------------------>|
+       |                       |                   |
+       |   5 INVITE/Replaces   |                   |
+       |<------------------------------------------|
+       |                       |                   |
+       |   6 CANCEL            |                   |
+       |---------------------->|                   |
+       |                       |                   |
+       |   7 200 OK            |                   |
+       |------------------------------------------>|
+       |                       |                   |
+       |                       |                   |
+
+
+1. The caller (AOR Caller@example.com) sends an INVITE with URI
+123@example.com to phone 123.
+
+2. The user of phone 456 activates the call pick-up feature for
+extension 123.
+
+3. Phone 456 sends a SUBSCRIBE with URI 123@example.com to phone 123,
+requesting "Event: dialog" and "Expires: 0".
+
+4. Phone 123 sends one NOTIFY to phone 456 giving the status of its
+current dialogs for AOR 123@example.com, which includes the early
+dialog of INVITE 1 from Caller, and gives the "remote identity" and
+"remote target" of the dialog (which are the From: and Contact:  of
+INVITE 1), one of which is "Caller@example.com".
+
+5. Phone 456 sends INVITE 5 to Caller@example.com.  It has a Replaces:
+header specifying the dialog parameters sent in the NOTIFY.
+
+6. The caller sends a CANCEL of its INVITE 1 to phone 123.
+
+7. The caller sends a 200 response to the INVITE 5 from phone 456.
+
+At this point, Caller is talking to phone 456.
+
+** Detailed call flow
+
+A complete packet diagram of a SIP-B pick-up sequence is as follows.
+(100 responses are present only if the transport is UDP, and are
+omitted on this diagram..)  Messages in the same transaction are
+labeled with the same number but successive letters, e.g., 7a, 7b, 7c.
+
+
+     Caller                  Target              Executing
+                               123                  456
+
+       |                        |                    |
+       |   1a INVITE            |                    |
+       |----------------------->|                    |
+       |                        |                    |
+       |   1b 180 Ringing       |                    |
+       |<-----------------------|                    |
+       |                        |                    |
+       |                        |                    |   2a Call Pick-Up on 123
+       |                        |                    |
+       |                        |   3a SUBSCRIBE     |
+       |                        |<-------------------|
+       |                        |                    |
+       |                        |   3b 200 OK        |
+       |                        |------------------->|
+       |                        |                    |
+       |                        |   4a NOTIFY        |
+       |                        |------------------->|
+       |                        |                    |
+       |                        |   4b 200 OK        |
+       |                        |<-------------------|
+       |                        |                    |
+       |   5a INVITE/Replaces   |                    |
+       |<--------------------------------------------|
+       |                        |                    |
+       |   5b 200 OK            |                    |
+       |-------------------------------------------->|
+       |                        |                    |
+       |   5c ACK               |                    |
+       |<--------------------------------------------|
+       |                        |                    |
+       |   1c CANCEL            |                    |
+       |----------------------->|                    |
+       |                        |                    |
+       |   1d 200 OK            |                    |
+       |<-----------------------|                    |
+       |                        |                    |
+       |   1d 487 Request Term. |                    |
+       |<-----------------------|                    |
+       |                        |                    |
+       |   1e ACK               |                    |
+       |----------------------->|                    |
+       |                        |                    |
+       |                        |                    |
+
+
+1. The caller (AOR Caller@example.com) sends an INVITE 1a with URI
+123@example.com to phone 123.
+
+2. The user of phone 456 activates the call pick-up feature for
+extension 123.  This may be activated by a special button on the
+phone, or through a dialing prefix which is intercepted by the phone.
+
+N.B.: Activation of the Call Pick-Up feature or specification of the
+dialing prefix may need to be configured.
+
+3. Phone 456 sends a SUBSCRIBE 3a with URI 123@example.com to
+extension 123, requesting "Event: dialog" and "Expires: 0".  This
+SUBSCRIBE requests one NOTIFY containing the status of all dialogs
+involving AOR 123@example.com.
+
+N.B.: This requires that the other phones in the installation can
+produce dialog event notifications.  We discuss below using a state
+agent to support phones that cannot produce dialog event
+notifications.
+
+N.B.: Since dialog event notifications can contain sensitive
+information, the ability to SUBSCRIBE to them should be controlled by
+authentication.  This will be discussed below.
+
+N.B.: Generating the SUBSCRIBE requires that the phone know the
+correct SIP domain.  But the phone needs to know this anyway to
+generate its own From: address.
+
+4. Phone 123 sends one NOTIFY 4a to phone 456 giving the status of its
+current dialogs for AOR 123@example.com, which includes the early
+dialog of INVITE 1a from Caller, and gives the "remote identity"
+and/or "remote target" of the dialog (which are the From: and Contact:
+of INVITE 1a), which is "Caller@example.com".
+
+5. Phone 456 sends to Caller@example.com an INVITE 5a.  It has a
+Replaces: header specifying the dialog parameters sent in NOTIFY 4a.
+Its URI is the remote target address, and its has a Replaces: header
+specifying the dialog parameters sent in the NOTIFY.
+
+N.B.: Which does the phone use, the "remote identity" or "remote
+target" URI?  Will different phones do this differently?  This places
+constraints on INVITES that Caller's phone generates.
+
+N.B.: This requires that the Contact: and/or To: sent by Caller's UA
+is a globally routable URI.  However, it is (mostly) OK if the URI
+forks, as long as at least one fork reached Caller's UA -- the
+Replaces: header insures that INVITE 5a will be rejected by any other
+UA.  Ideally, Caller should be generating GRUUs for its Contact:
+header and proper AORs for its From: header, but the first is more
+important.
+
+6. The caller sends a CANCEL 1c of its INVITE 1a to phone 123.
+
+7. The caller sends a 200 response to the INVITE 5a from phone 456.
+
+At this point, Caller is talking to phone 456.
+
+** With proxy
+
+Now let us consider call pick-up when the organization has a proxy for
+routing calls.
+
+
+     Caller                Proxy            Target            Executing
+                                              123                456
+
+       |                     |                 |                  |
+       |  1a INVITE          |                 |                  |
+       |-------------------->|                 |                  |
+       |                     |  1b INVITE      |                  |
+       |                     |---------------->|                  |
+       |                     |  1c 180 Ring.   |                  |
+       |                     |<----------------|                  |
+       |  1d 180 Ringing     |                 |                  |
+       |<--------------------|                 |                  |
+       |                     |                 |                  |
+       |                     |                 |                  |  2a Call
+       |                     |                 |                  |  Pick-Up
+       |                     |                 |                  |  on 123
+       |                     |                 |                  |
+       |                     |                 |  3a SUBSCRIBE    |
+       |                     |<-----------------------------------|
+       |                     |  3b SUBSCRIBE   |                  |
+       |                     |---------------->|                  |
+       |                     |  3c OK          |                  |
+       |                     |<----------------|                  |
+       |                     |                 |  3d 200 OK       |
+       |                     |----------------------------------->|
+       |                     |                 |                  |
+       |                     |                 |  4a NOTIFY       |
+       |                     |                 |----------------->|
+       |                     |                 |  4b 200 OK       |
+       |                     |                 |<-----------------|
+       |                     |                 |                  |
+       |  5a INVITE/Replaces |                 |                  |
+       |<---------------------------------------------------------|
+       |  5b 200 OK          |                 |                  |
+       |--------------------------------------------------------->|
+       |  5c ACK             |                 |                  |
+       |<---------------------------------------------------------|
+       |                     |                 |                  |
+       |  1e CANCEL          |                 |                  |
+       |-------------------->|                 |                  |
+       |                     |  1f CANCEL      |                  |
+       |                     |---------------->|                  |
+       |                     |  1g 200 OK      |                  |
+       |                     |<----------------|                  |
+       |  1h 200 OK          |                 |                  |
+       |<--------------------|                 |                  |
+       |                     |  1i 487 Req.T.  |                  |
+       |                     |<----------------|                  |
+       |  1j 487 Req. Term.  |                 |                  |
+       |<--------------------|                 |                  |
+       |  1k ACK             |                 |                  |
+       |-------------------->|                 |                  |
+       |                     |  1l ACK         |                  |
+       |                     |---------------->|                  |
+       |                     |                 |                  |
+       |                     |                 |                  |
+
+
+The major differences in processing are:
+
+1. INVITE 1a and later messages in its transaction go through the
+proxy, thus allowing the proxy to convert 123@example.com to a series
+of contact points.
+
+3. SUBSCRIBE 3a also goes through the proxy, so it is also sent to a
+series of contact points.  The proxy should fork the SUBSCRIBE in the
+same way as it would fork an INVITE, except that it should fork all
+the contact points in parallel, even if they would fork serially for
+INVITEs, so phone 456 cab find its target call quickly.
+
+As SUBSCRIBE 3a is forked, its request URI is changed from the AOR
+123@example.com to various contact URIs, usually the same user name
+with domain names that are the IP addresses of the phone instruments.
+This will match the request URIs of the INVITEs 1b, so information
+about those dialogs will be reported in NOTIFYs.
+
+4. N.B.: Because SUBSCRIBE 3a can be forked, phone 456 should be
+prepared to receive multiple NOTIFYs from various phones for AOR 123,
+and be able to select the correct dialog if it discovers more than
+one.
+
+N.B.: Phone 456 should beware that it may see multiple instances of a
+single forked INVITE (which have the same Call-Id), and not present
+them to the user as alternatives.
+
+N.B.: Phone 456 should beware that one AOR might be forwarded to a URI
+with a different user name.  E.g., "123@example.com" might fork first
+to an instrument on 123's desk ("123@10.1.200.12") and then to a
+back-up responder ("789@example.com").  However, a UA that receives
+SUBSCRIBE 3a will see the same request URI as it saw when it received
+INVITE 1a, and thus will include any dialog it creates in its
+subsequent NOTIFY 4a.  But it may include dialogs that were originally
+sent to other AORs as well.  Unfortunately, there is no clean way to
+distinguish the dialogs that were originally for 123, as the best
+approximation is the "local identity" (i.e., "To:" URI), but that may
+have been an address that forwards to 123.  In the end, we don't want
+to forward one use name to another, so as to avoid this ambiguity.
+
+5. The INVITE/Replaces 5a may be forwarded through the proxy as well.
+Doing so makes no essential difference to the operation.
+
+** With proxy and state agent
+
+This case is when the phones themselves cannot handle dialog event
+subscriptions, so that work is delegated to a state agent which
+receives information from the site's proxy.
+
+
+Caller            Proxy            State           Target          Executing
+                                   Agent            123              456
+
+ |                  |                |               |                |
+ | 1a INVITE        |                |               |                |
+ |----------------->|                |               |                |
+ |                  |  1b INVITE     |               |                |
+ |                  |------------------------------->|                |
+ |                  |  1c 180 Ring.  |               |                |
+ |                  |<-------------------------------|                |
+ | 1d 180 Ringing   |                |               |                |
+ |------------------|                |               |                |
+ |                  |                |               |                |
+ |                  |  State Info.   |               |                |
+ |                  |+++++++++++++++>|               |                |
+ |                  |                |               |                |
+ |                  |                |               |                | 2a Call
+ |                  |                |               |                | Pick-Up
+ |                  |                |               |                | on 123
+ |                  |                |               |                |
+ |                  |                |               | 3a SUBSCRIBE   |
+ |                  |<------------------------------------------------|
+ |                  |  3b SUBSCRIBE  |               |                |
+ |                  |--------------->|               |                |
+ |                  |  3c OK         |               |                |
+ |                  |<---------------|               |                |
+ |                  |                |               | 3d 200 OK      |
+ |                  |----------------|------------------------------->|
+ |                  |                |               |                |
+ |                  |                | 4a NOTIFY     |                |
+ |                  |                |------------------------------->|
+ |                  |                | 4b 200 OK     |                |
+ |                  |                |<-------------------------------|
+ |                  |                |               |                |
+ |                  |                |               |                |
+    [Remainder of operation is as before.]
+
+
+The major differences in processing are:
+
+1. The proxy monitors the progress of dialogs and reports state
+information via a possibly non-SIP channel to the state agent.  Since
+the state agent needs to report only early dialog information, one
+possible channel is to do a non-blocking fork of every call to 123 to
+the state agent.  (This is a trick that Scott invented.)  However, if
+the state agent will be used to support applications that require
+knowledge of committed dialogs (e.g., attendant consoles), this
+technique alone will not be sufficient.
+
+3. The proxy routes SUBSCRIBE 3a not to phone 123 but rather to the
+state agent.  The state agent uses the request URI or the From: URI to
+determine the user on whose behalf it should generate events.
+
+N.B. Since a SIP call can be maintained indefinitely without any
+signaling, it is possible for the state agent to miss the termination
+of a call and believe that the call is continuing forever.  There
+needs to be a way to clear such state.  Early dialog state can be
+cleared due to the global time limit on INVITE transactions, but
+committed dialogs have no intrinsic time limit.  One way to be able to
+reset the state agent would be to have a special class of URIs, and an
+incoming call for such a URI would clear all dialogs for a
+corresponding user URI.  (Or any dialogs that had not had signaling
+activity for some time.)  In the product, it would probably be
+required to provide a Web UI as well.
+
+** With pick-up agent
+
+A further case allows calls to be picked up by phones that do not
+support SIP-B pick-up.  Essentially, the phone makes a call that is
+routed to a "pick-up agent" which executes the SIP-B pick-up process
+on the phone's behalf.
+
+
+     Caller                Target           Pick-up           Executing
+                            123              Agent                456
+
+       |                     |                 |                  |
+       |  1a INVITE          |                 |                  |
+       |-------------------->|                 |                  |
+       |  1b 180 Ringing     |                 |                  |
+       |<--------------------|                 |                  |
+       |                     |                 |                  |
+       |                     |                 |                  |  2a Dials
+       |                     |                 |                  |     *78123
+       |                     |                 |                  |
+       |                     |                 |  3a INVITE       |
+       |                     |                 |<-----------------|
+       |                     |                 |                  |
+       |                     |  4a SUBSCRIBE   |                  |
+       |                     |<----------------|                  |
+       |                     |  4b 200 OK      |                  |
+       |                     |---------------->|                  |
+       |                     |                 |                  |
+       |                     |  5a NOTIFY      |                  |
+       |                     |---------------->|                  |
+       |                     |  5b OK          |                  |
+       |                     |<----------------|                  |
+       |                     |                 |                  |
+       |  3b INVITE/Replaces |                 |                  |
+       |<--------------------------------------|                  |
+       |  3c 200 OK          |                 |                  |
+       |-------------------------------------->|                  |
+       |                     |                 |  3d 200 OK       |
+       |                     |                 |----------------->|
+       |  3e ACK             |                 |                  |
+       |<---------------------------------------------------------|
+       |                     |                 |                  |
+       |                     |                 |                  |
+            [Remainder of operation is as before.]
+
+
+The major differences in processing are:
+
+3. Because the dialed number starts with the pick-up prefix "*78", the
+call is routed (either by a phone dialplan or an outgoing call proxy)
+to the pick-up agent.
+
+4 and 5.  The pick-up agent executes the same sequence of actions as a
+SIP-B phone would.
+
+3b. After determining the Caller's URI, the pick-up agent appends a
+Replaces: header to the INVITE and forwards it as if it was proxying
+the call.
+
+Note that if the target phone is represented by a state agent, then
+the pick-up agent and the state agent could communicate by non-SIP
+means rather than using SUBSCRIBE and NOTIFY.
+
+N.B.: There must be a mean for configuring the pick-up prefix and
+arranging for forwarding of those calls to the pick-up agent.
+
+** With improved pick-up agent
+
+The previous packet flow is suboptimal in that the pick-up agent acts
+as a non-standard proxy, rewriting an INVITE into an INVITE with
+Replaces: header.  We can adopt a technique from Dan's Park Service
+document to be strictly conformant:
+
+
+     Caller                Target           Pick-up           Executing
+                            123              Agent                456
+
+       |                     |                 |                  |
+       |  1a INVITE          |                 |                  |
+       |-------------------->|                 |                  |
+       |  1b 180 Ringing     |                 |                  |
+       |<--------------------|                 |                  |
+       |                     |                 |                  |
+       |                     |                 |                  |  2a Dials
+       |                     |                 |                  |     *78123
+       |                     |                 |                  |
+       |                     |                 |  3a INVITE       |
+       |                     |                 |<-----------------|
+       |                     |                 |                  |
+       |                     |  4a SUBSCRIBE   |                  |
+       |                     |<----------------|                  |
+       |                     |  4b 200 OK      |                  |
+       |                     |---------------->|                  |
+       |                     |                 |                  |
+       |                     |  5a NOTIFY      |                  |
+       |                     |---------------->|                  |
+       |                     |  5b OK          |                  |
+       |                     |<----------------|                  |
+       |                     |                 |                  |
+       |                     |                 |  3b 302          |
+       |                     |                 |  ...?Replaces    |
+       |                     |                 |----------------->|
+       |                     |                 |                  |
+       |  4a INVITE/Replaces |                 |                  |
+       |<---------------------------------------------------------|
+       |  4b 200 OK          |                 |                  |
+       |--------------------------------------------------------->|
+       |  4c ACK             |                 |                  |
+       |<---------------------------------------------------------|
+       |                     |                 |                  |
+       |                     |                 |                  |
+            [Remainder of operation is as before.]
+
+
+The major differences in processing are:
+
+3. Instead of forwarding the INVITE to the Caller, the pick-up agent
+returns a 302 response, whose Contact is a URI for the Caller with the
+Replaces header specifying dialog 1a.  Phone 456 then sends
+INVITE/Replaces 4a to Caller.
+
+** With proxy and improved pick-up agent
+
+Let's combine some of the above flows to show a realistic case, where
+all signaling goes through the proxy, and we use the "improved"
+pick-up agent to support a phone that does not do call pick-up by
+itself.  (I've simplified the diagram by conflating all components of
+the comm. server.  Since the auth proxy keeps iself in the signaling
+path, all messages go through it.  And the pick-up agent is
+implemented as part of the registrar.)
+
+Caller             Proxy        Target         Pick-up        Executing
+                                 123            Agent            456
+
+  |                  |            |               |               |
+  | 1a INVITE        |            |               |               |
+  |----------------->|            |               |               |
+  |                  | 1b INVITE  |               |               |
+  |                  |----------->|               |               |
+  |                  | 1c 180 Rin.|               |               |
+  |                  |<-----------|               |               |
+  | 1d 180 Ringing   |            |               |               |
+  |<-----------------|            |               |               |
+  |                  |            |               |               |
+  |                  |            |               |               |  2a Dials
+  |                  |            |               |               |     *78123
+  |                  |            |               |               |
+  |                  |            |               | 3a INVITE     |
+  |                  |<-------------------------------------------|
+  |                  | 3b INVITE  |               |               |
+  |                  |--------------------------->|               |
+  |                  |            |               |               |
+  |                  |            | 4a SUBSCRIBE  |               |
+  |                  |<---------------------------|               |
+  |                  | 4b SUBSC.  |               |               |
+  |                  |----------->|               |               |
+  |                  | 4c 200 OK  |               |               |
+  |                  |<-----------|               |               |
+  |                  |            | 4d 200 OK     |               |
+  |                  |--------------------------->|               |
+  |                  |            |               |               |
+  |                  | 5a NOTIFY  |               |               |
+  |                  |<-----------|               |               |
+  |                  | 5b NOTIFY  |               |               |
+  |                  |--------------------------->|               |
+  |                  |            | 5c 200 OK     |               |
+  |                  |<---------------------------|               |
+  |                  | 5d 200 OK  |               |               |
+  |                  |----------->|               |               |
+  |                  |            |               |               |
+  |                  | 3c Mov.Temp. Caller?Replaces=xxx           |
+  |                  |<---------------------------|               |
+  |                  |            |               |               |
+  | 6a INVITE/Repl.  |            |               |               |
+  |<-----------------|            |               |               |
+  | 6b 200 OK        |            |               |               |
+  |----------------->|            |               |               |
+  |                  | 6c 200 OK  |               |               |
+  |                  |------------------------------------------->|
+  |                  | 6d ACK     |               |               |
+  |                  |<-------------------------------------------|
+  | 6e ACK           |            |               |               |
+  |<-----------------|            |               |               |
+  |                  |            |               |               |
+  | 1e CANCEL        |            |               |               |
+  |----------------->|            |               |               |
+  | 1f 200 OK        |            |               |               |
+  |<-----------------|            |               |               |
+  |                  | 1g CANCEL  |               |               |
+  |                  |--------------------------->|               |
+  |                  | 1h 200 OK  |               |               |
+  |                  |<---------------------------|               |
+  |                  |            | 1i 487 Req.T. |               |
+  |                  |<---------------------------|               |
+  | 1j 487 Req. Term |            |               |               |
+  |<-----------------|            |               |               |
+  | 1k ACK           |            |               |               |
+  |----------------->|            |               |               |
+  |                  |            | 1l ACK        |               |
+  |                  |--------------------------->|               |
+  |                  |            |               |               |
+  |                  |            |               |               |
+
+The overall call flow is:
+
+1. Caller sends invite to the target (123).
+
+2. Executing phone (456) dials *78123.
+
+3. By the normal mechanisms, the INVITE is routed to the registrar.
+
+4. In the registrar, the pick-up agent recognizes the dialing prefix
+*78 and puts the transaction aside for a moment.  It initiates a
+SUBSCRIBE with "Expires:0" (one-time) to 123.
+
+5. The target sends a NOTIFY back to the pick-up agent.
+
+The pick-up agent selects this dialog to be picked up, and returns a
+302 for INVITE 3b to the proxy.  The 302 contains "Contact:
+<caller?Replaces=dialog-1-parameters>".
+
+6. The proxy starts another fork of INVITE 3a, sending an INVITE with
+Replaces header to the Caller.  This INVITE is accepted, replacing the
+dialog initiated by INVITE 1a.  Caller then sends CANCEL for INVITE
+1a, leading to 200 OK responses for the CANCEL and 487 responses for
+the INVITE, as well as ACKs for the 487 responses.
+
+
+** Group call pick-up
+
+There are three kinds of group call pick-up:
+
+*** Picking up any call to any member of a group of individuals
+
+This is a pick-up directed to "any call to any of the people in my
+group", that is, being able to pick up a call without having to first
+determine the specific extension to which it was directed.
+
+If the proxy is configured to provide a URI that forwards to all
+members of the group, a SUBSCRIBE to that URI will be forwarded to all
+of the relevent instruments.  However, no incoming call contains the
+group URI as part of its dialog identifiaction, so it becomes
+questionable how the executing phone determines that it can pick-up
+the call.
+
+Because the dialog event package does not contain any sort of "start
+time", there seems to be no clean way to implement the common
+convention that a pick-up that has several possible targets should
+pick up the call that has been waiting longest.
+
+*** Picking up a call routed to several individuals
+
+In terms of the old key phone systems, this situation is like an
+extension number that rings on several people's multi-line phones.
+
+This can be handled without additional work, because the proxy will
+already be routing this URI to all of the individuals' instruments,
+and so it will route a SUBSCRIBE to that URI to all of the instruments
+as well, ensuring that the executing phone will see information about
+the incoming call.
+
+*** Picking up a call that is not routed to a specific instrument
+
+This is the situation of a call when the caller dials a number that is
+not immediately routed to any particular phone, but rather "rings in
+limbo" until someone picks it up.
+
+Call pick-up from this sort of "calling group" is very similar to call
+pick-up from a phone or individual line.  We need to provide an
+intangible user agent for the call to be forked to, and to generate
+ringing for the desired length of time.  (The proxy can terminate
+ringing, but a UA is needed to generate the 180 Ringing message.)
+
+** Pick-up from call park
+
+Picking up parked calls is similar to call pick-up, assuming that call
+parking is implemented as a call forward to an intangible UA
+representing the "parking orbit".  The crucial difference is that the
+dialog being picked up is committed, so the basic sequence needs to be
+modified in that the INVITE/Replaces is not marked "early-only".  This
+difference needs to be implemented at the executing phone or the
+pick-up agent.
+
+
+** Call park
+
+Call parking is very much like call pick-up.
+
+To park a call, the phone transfers it to an extension that is
+maintained by the "park server".  The park server is a multi-line
+software UA that accepts and maintains dialogs to a set of extensions
+that are defined as "parking orbits".
+
+To retrieve a parked call, a phone executes a call pick-up operation,
+except that the parameters of the Replaces header do not include the
+"early-only" operation, so that the confirmed dialog with the park
+server can be retrieved.
+
+When call pick-up and call retrieve are implemented by a pick-up
+agent, the pick-up agent is the only component that needs to
+distinguish the parking orbits and generate the Replaces header
+specification in its 302 response differently.
+
+
+* Forwarding rules considerations
+
+Some of these operations require a considerable number of intangible
+UAs.  (That is, UAs with minimal functionality and no user interface.)
+It would probably be best if these were implemented not by a series of
+URIs, but rather one URI specifying a class of intangible UAs with a
+parameter selecting the individual UA.
+
+Some of these operations depend rather sensitively on how URIs are
+rewritten as a call is forwarded to its various contact points.  In
+general, it is best if "user" part of the URI remains unchanged so
+that a phone doing a pick-up can distinguish which dialogs are
+possible targets for the pick-up.
+
+My impression is that this is normally the case.  To support this if
+several extension numbers have the same instrument as a contact point,
+the instrument accepts INVITEs regardless of the user part of the
+request URI, and the instrument is configured to register itself as a
+contact point for each of the configured extension numbers.
+
+However, this makes it difficult to set up a forwarding rule that
+means "if a call to 123 is now answered, fall back to 789".  (And only
+by programming this as a forwarding rule can we implement the behavior
+"after 3 rings, transfer to...")  Assuming that this rule is not to be
+specifically programmed for the instruments that are contact points
+for 789, the only way to implement it is to map "123@example.com" to
+"789@example.com", which loses the original user name.
+
+To add complexity, if a call comes in to 123 and then gets forwarded
+to 789, we want "pick-up on 789" to retrieve that call, as well as
+"pick-up on 123".
+
+Getting this right may require some tweaks to the SIP-B call pick-up
+algorithm.  And note that these aspects of the SIP-B algorithm are not
+well-defined in the documents.
+
+* Security considerations
+
+All of these mechanisms (with the exception of using an integrated
+state agent and pick-up agent) depend on SUBSCRIBE/NOTIFY for the
+dialog event package.  But SUBSCRIBE reveals information which could
+be sensitive -- we have just shown that anyone who can successfully
+SUBSCRIBE for an extension can take calls from that extension!
+
+Thus, we need to ensure that the acceptance of SUBSCRIBEs is
+controlled by suitable security mechanisms.
+
+Fortunately, each instrument is already provided with credentials,
+which it uses to register with the proxy.  We can use the same realm
+to authenticate SUBSCRIBE requests.  But we cannot require each
+instrument to recognize the credentials of every other instrument.  It
+would seem sensible to have all instruments configured with one set of
+known requester credentials which are held by the proxy, and have the
+proxy substitute its credentials for the instrument's credentials when
+it is forwarding a SUBSCRIBE request from one instrument to another.
+(How do existing instruments authenticate SUBSCRIBE requests?)

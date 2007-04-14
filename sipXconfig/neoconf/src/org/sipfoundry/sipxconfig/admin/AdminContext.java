@@ -1,0 +1,31 @@
+/*
+ * 
+ * 
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ * 
+ * $
+ */
+package org.sipfoundry.sipxconfig.admin;
+
+import java.io.File;
+
+public interface AdminContext {
+    
+    public static final String CONTEXT_BEAN_NAME = "adminContext";
+
+    public abstract BackupPlan getBackupPlan();
+    
+    public abstract void storeBackupPlan(BackupPlan plan);
+    
+    public File[] performBackup(BackupPlan plan);
+    
+    /** 
+     * After successfully sending event to application to perform a database
+     * related task, remove task from initialization task table.
+     */
+    public void deleteInitializationTask(String task);
+    
+    public String[] getInitializationTasks();
+}

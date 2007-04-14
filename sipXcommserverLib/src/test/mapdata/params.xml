@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings>
+  <hostMatch>
+    <hostPattern>thisdomain</hostPattern>
+    <userMatch>
+      <userPattern>ADDFIELDS</userPattern>
+      <permissionMatch>
+        <transform>
+          <fieldparams>NEWFIELDPARAM=FIELDVALUE</fieldparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>ADDURLPARAM</userPattern>
+      <permissionMatch>
+        <transform>
+          <urlparams>NEWURLPARAM=URLVALUE</urlparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>ADDHEADERPARAM</userPattern>
+      <permissionMatch>
+        <transform>
+          <headerparams>NEWHEADERPARAM=HEADERVALUE</headerparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+</mappings>

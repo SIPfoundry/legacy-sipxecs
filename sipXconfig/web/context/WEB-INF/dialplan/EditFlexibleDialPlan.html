@@ -1,0 +1,76 @@
+<div jwcid="@Border">
+  <h2><span key="title">Dial Plans</span></h2>
+  <div class="help">        
+    <b><span key="label.quickLinks">Quick Links</span></b>
+    <ul>
+      <li><a href="#" jwcid="@PageLink" page="ListGateways"><span key="link.gateways">Gateways</span></a></li>
+      <li><a href="#" jwcid="@PageLink" page="ListPermissions"><span key="link.permissions">Permissions</span></a></li>
+    </ul>
+  </div>
+  <div jwcid="@QuickHelp" value="message:quick.help"/>
+  <form jwcid="@Form" id="dialplan:list:form"
+    delegate="bean:validator"
+    listener="listener:formSubmit">
+    <ul class="component-links">
+      <li><span jwcid="selectRuleType@SelectRuleType"/></li>
+      <li>
+        <a jwcid="activate@DirectLink" id="dialplan:activate" listener="listener:activate">
+          <span key="link.activate">Activate</span>
+        </a>
+      </li>
+      <li>
+        <a jwcid="revert@DirectLink" id="dialplan:revert" listener="listener:revert">
+          <span key="link.revert">Reset</span>
+        </a>
+      </li>
+    </ul>
+    <table jwcid="@Table" id="dialplan:list"
+      columns="* !name,!enabled,!type,!description"
+      source="prop:dialPlanContext.rules"
+      row="prop:currentRow"
+      selections="bean:selections">
+      <tr jwcid="nameColumnValue@Block">
+        <td jwcid="editRowLink@DirectLink" 
+          listener="listener:edit"
+          parameters="ognl:currentRow.id">
+          <span jwcid="@Insert" value="prop:currentRow.name"/>
+        </td>
+      </tr>
+      <tr jwcid="enabledColumnValue@Block">
+        <td jwcid="@common/EnabledColumn" value="prop:currentRow.enabled"/>
+      </tr>
+      <tr jwcid="typeColumnValue@Block">
+        <td jwcid="@Insert" value="prop:currentRow.type" format="bean:typeFormat"/>
+      </tr>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="duplicate@Submit" id="dialplan:duplicate"
+          selected="prop:rowsToDuplicate"
+          tag="prop:allSelected"
+          value="message:button.duplicate" />
+      </li>
+      <li>
+        <input jwcid="delete@Submit" id="dialplan:delete" 
+          selected="prop:selectedRows"
+          tag="prop:allSelected"
+          value="message:button.delete" />
+        <span jwcid="@common/Confirm" 
+          component="component:delete"
+          prompt="message:confirm.delete"/>                    
+      </li>
+      <li>
+        <input jwcid="moveUp@Submit" id="dialplan:move:up"
+          selected="prop:rowsToMoveUp"
+          tag="prop:allSelected"
+          value="message:button.moveUp" />
+      </li>
+      <li>
+        <input jwcid="moveDown@Submit" id="dialplan:move:down"
+          selected="prop:rowsToMoveDown"
+          tag="prop:allSelected"
+          value="message:button.moveDown" />
+      </li>
+    </ul>
+  </form>
+</div>

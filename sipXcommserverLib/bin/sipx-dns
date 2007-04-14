@@ -1,0 +1,199 @@
+#!/bin/sh
+
+Action=GENERATE
+SipDomain=""
+HostMax=0
+ExitStatus=0
+
+
+showUsage() {
+    cat <<USAGE
+
+Usage:
+    
+    sipx-dns <sip-domain> <server-name>[/<ipaddr>]...
+
+    Output DNS records in BIND format for sipX services.  The output is
+    printed on the standard output; it can be captured in a file and 
+    editted into the zone file for your domain.
+
+      sip-domain   
+          Is the domain that will be used as the domain part of your SIP
+          addresses.  Typically, this will be your top level domain name
+          (example.com).
+
+      server-name  
+
+          This is the fully qualified name of a sipX server in your domain
+          (sipx.example.com).
+
+          May also include the IP address (sipx.example.com/10.1.1.10).  If
+          the address is given, then the A record for the host name will be
+          generated; if not, then you must supply that record.
+
+          The PTR records for reverse (address to name) lookups are not
+          generated.  They are nice to have for system management, but sipX
+          does not need them.
+USAGE
+}
+
+validateFullName() {
+    case ${1} in 
+        *.*)
+            echo ${1}
+            break
+            ;;
+        *.)
+            echo ${1} | sed 's/.$//'
+            break
+            ;;
+        *)
+            echo "'${1}' is not a fully qualified name." 1>&2
+            showUsage
+            exit 1
+            ;;
+    esac
+}
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        -h|-\?|--help)
+            showUsage
+            exit 0
+            ;;
+
+        ##
+        ## handle the 'end of options' marker
+        ##
+        --)
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+            echo "Unrecognized option '${1}'" 1>&2
+            showUsage
+            exit 1
+            ;;
+
+        *)
+            if [ -z "${SipDomain}" ]
+            then
+                SipDomain=`validateFullName ${1}`
+            else
+                ClusterHosts[${HostMax}]=${1}
+                HostMax=$(($HostMax + 1))
+            fi
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+HostMax=$(($HostMax - 1))
+
+if [ $HostMax -eq -1 ]
+then
+    echo "Must specify servers" 1>&2
+    showUsage
+    exit 1
+fi
+
+for host in `seq 0 $HostMax`
+  do
+  thishost=${ClusterHosts[$host]}
+  case $thishost in
+      */*)
+          hostname=`echo $thishost | cut -d / -f 1`
+          Host[$host]=`validateFullName $hostname`
+          Addr[$host]=`echo $thishost | cut -d / -f 2`
+          ;;
+      *)
+          Host[$host]=`validateFullName $thishost`
+          Addr[$host]=""
+          ;;
+  esac
+done
+
+cat <<EOF
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; sipX Servers for SIP domain '$SipDomain'
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+EOF
+
+for host in `seq 0 $HostMax`
+do
+  if [ -n "${Addr[$host]}" ]
+  then
+      cat <<EOF
+${Host[$host]}.	IN	A	${Addr[$host]}
+EOF
+  fi
+done
+
+cat <<EOF
+
+$SipDomain.		IN	NAPTR	2 0 "s" "SIP+D2T" "" _sip._tcp.$SipDomain.
+$SipDomain.		IN	NAPTR	2 0 "s" "SIP+D2U" "" _sip._udp.$SipDomain.
+
+EOF
+
+for host in `seq 0 $HostMax`
+do
+  server=${Host[$host]}
+cat <<EOF
+_sip._tcp.$SipDomain.	IN	SRV	1 0 5060 $server.
+EOF
+done
+
+for host in `seq 0 $HostMax`
+do
+  server=${Host[$host]}
+cat <<EOF
+_sip._udp.$SipDomain.	IN	SRV	1 0 5060 $server.
+EOF
+done
+
+if [ $HostMax -gt 0 ]
+then
+    rr=5070
+    Name[$rr]="registry/redirect"
+
+    ap=5080
+    Name[$ap]="authorization"
+
+    for host in `seq 0 $HostMax`
+      do
+      server=${Host[$host]}
+      for service in rr ap
+        do
+        cat <<EOF
+
+; $server routing for ${Name[${!service}]} service
+_sip._tcp.$service.$server.	IN	SRV	1   0 ${!service} $server.
+_sip._udp.$service.$server.	IN	SRV	3   0 ${!service} $server.
+EOF
+        for backuphost in `seq 0 $HostMax`
+          do
+          backup=${Host[$backuphost]}
+          if [ "$server" != "$backup" ] 
+              then
+              cat <<EOF
+_sip._tcp.$service.$server.	IN	SRV	2 100 ${!service} $backup.
+_sip._udp.$service.$server.	IN	SRV	4 100 ${!service} $backup.
+EOF
+          fi
+        done
+      done
+    done
+fi
+
+cat <<EOF
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+EOF
+
+exit

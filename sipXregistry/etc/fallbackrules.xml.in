@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  - Fallback Rules
+  -   These rules are invoked _only_ when no other redirection
+  -   mechanism has found a way to complete the call (it does not
+  -   match any locally configured extensions or aliases).
+  - 
+  -   Typically, this means that it is a call to an external
+  -   address, and needs to be routed to either another more 
+  -   knowledgeable call router, or a PSTN gateway.
+  - 
+  -   These examples are based on typical North American dialing
+  -   patterns - 3 digit area codes followed by 7 local digits.
+  -
+  -   They assume that the the phone has not modified the digits
+  -   dialled by the user, and that the gateway will just dial 
+  -   what it is sent.
+  -
+  -   The digit '9' is supported here as a prefix meaning that
+  -   the call is an outside number, although the length of the 
+  -   digit string is also sufficient to determine that.
+  -->
+<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'>
+
+  <hostMatch>
+    <!-- match local domains only 
+      -  (non-local domains will be routed via DNS)
+      -->
+    <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
+    <hostPattern>${MY_FULL_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_IP_ADDR}</hostPattern>
+
+
+    <!-- Emergency dialing.  Allow both "911" and "9911". -->
+    <userMatch>
+      <userPattern>sos</userPattern>
+      <userPattern>911</userPattern>
+      <userPattern>9911</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:911@${GW_EMERGENCY_DIALING_ADDR}</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+    <!-- 800 number dialing.  Allow optional "1" or "91" prefixes. -->
+    <userMatch>
+      <userPattern>91800xxxxxxx</userPattern>
+      <userPattern>1800xxxxxxx</userPattern>
+      <userPattern>800xxxxxxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>1800{vdigits}</user>
+          <host>${GW_800_DIALING_ADDR}</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+    <!-- 877 number dialing.  Allow optional "1" or "91" prefixes. -->
+    <userMatch>
+      <userPattern>91877xxxxxxx</userPattern>
+      <userPattern>1877xxxxxxx</userPattern>
+      <userPattern>877xxxxxxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>1877{vdigits}</user>
+          <host>${GW_800_DIALING_ADDR}</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+    <!-- 888 number dialing.  Allow optional "1" or "91" prefixes. -->
+    <userMatch>
+      <userPattern>91888xxxxxxx</userPattern>
+      <userPattern>1888xxxxxxx</userPattern>
+      <userPattern>888xxxxxxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>1888{vdigits}</user>
+          <host>${GW_800_DIALING_ADDR}</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+    <!-- 900 number dialing.  Allow optional "1" or "91" prefixes. -->
+    <userMatch>
+      <userPattern>91900xxxxxxx</userPattern>
+      <userPattern>1900xxxxxxx</userPattern>
+      <userPattern>900xxxxxxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>1900{vdigits}</user>
+          <host>${GW_900_DIALING_ADDR}</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+    <!-- International number dialing.
+      -  Do not allow dialing intl numbers with a "9" prefix as this
+      -  would conflict with the long distance pattern "[2-9]xxxxxxxxx." 
+      -->
+    <userMatch>
+      <userPattern>011x.</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>011{vdigits}</user>
+          <host>${GW_INTL_DIALING_ADDR}</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+    <!-- Long distance number dialing.
+      -  Allow optional "1" or "91" prefixes.
+      -->
+    <userMatch>
+      <userPattern>91[2-9]xxxxxxxxx</userPattern>
+      <userPattern>1[2-9]xxxxxxxxx</userPattern>
+      <userPattern>[2-9]xxxxxxxxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>1{vdigits}</user>
+          <host>${GW_LONG_DISTANCE_DIALING_ADDR}</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+    <!-- Local number dialing.
+      -  Allow optional "9" prefixe.
+      -->
+    <userMatch>
+      <userPattern>9xxxxxxx</userPattern>
+      <userPattern>xxxxxxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>{vdigits}</user>
+          <host>${GW_LOCAL_DIALING_ADDR}</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+  </hostMatch>
+</mappings>

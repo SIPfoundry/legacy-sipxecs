@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <users user_name="yellowthroat" user_id="1001" pintoken="1234" />
+  <users user_name="canadian" user_id="1002" pintoken="1234" />
+  <users user_name="chirping" user_id="1003" pintoken="1234" />
+  <users user_name="song" user_id="1004" pintoken="1234" />
+  <users user_name="mallard" user_id="1005" pintoken="1234"/>
+  <users user_name="pintail" user_id="1006" pintoken="1234"/>
+  
+  <value_storage value_storage_id="1001" />
+  <group_storage group_id="1001" resource="user" weight="1001" name="warblers" />
+  <user_group group_id="1001" user_id="1001" />
+  <user_group group_id="1001" user_id="1002" />
+  
+  <value_storage value_storage_id="1002" />
+  <group_storage group_id="1002" resource="user" weight="1002" name="sparrows" />
+  <user_group group_id="1002" user_id="1003" />
+  <user_group group_id="1002" user_id="1004" />
+  
+  <value_storage value_storage_id="1003" />
+  <group_storage group_id="1003" resource="user" weight="1003" name="ducks" />
+  <user_group group_id="1003" user_id="1005" />
+  <user_group group_id="1003" user_id="1006" />
+
+  <phonebook name="test1" phonebook_id="1001"/>
+  <phonebook_member phonebook_id="1001" group_id="1001"/>
+  <phonebook_consumer phonebook_id="1001" group_id="1001"/>
+
+  <phonebook name="test2" phonebook_id="1002"/>
+  <!-- intentionlally blank -->
+  
+  <phonebook name="test3" phonebook_id="1003"/>
+  <phonebook_member phonebook_id="1003" group_id="1003"/>
+  <phonebook_consumer phonebook_id="1003" group_id="1001"/>
+</dataset>

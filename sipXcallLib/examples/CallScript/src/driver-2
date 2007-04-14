@@ -1,0 +1,8 @@
+# Driver script with two test scripts.
+jobs 20
+# Run for 10 minutes
+time 600
+# Pause up to 30 seconds between job executions.
+randomize 30000
+script 1 leave-message
+script 1 retrieve-message

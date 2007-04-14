@@ -1,0 +1,112 @@
+#!/bin/bash
+##
+## create-ssl-truststore.sh
+##
+##  Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+##  Contributors retain copyright to elements licensed under a Contributor Agreement.
+##  Licensed to the User under the LGPL license.
+##
+
+Action=CREATE
+TrustStore="cacert"
+Password="changeit"
+Certificates=""
+CertificatesChecksum=""
+Checksum=""
+PreviousChecksum=""
+openssl="@openssl@"
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        ##
+        ## handle the 'end of options' marker
+        ##
+        --)
+            ;;
+
+        --checksum)
+            shift
+            if [ -z "${1}" ]; then
+                echo "Missing checksum file name: $@" 1>&2
+                ACTION=USAGE
+                break
+            fi
+            CertificatesChecksum=${1}
+            Action=CHECKSUM
+            ;;
+
+        --truststore)
+            shift
+            if [ -z "${1}" ]; then
+                echo "Missing truststore file name: $@" 1>&2
+                ACTION=USAGE
+                break
+            fi
+            TrustStore=${1}
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+            Action=USAGE
+            break
+            ;;
+
+        *)
+            Certificates="$@"
+            break
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+
+if [ "${Action}" = "USAGE" -o -z "${Certificates}" ]; then
+    cat <<EOF
+Usage:
+   create-ssl-truststore.sh 
+       [--truststore truststore]  filename of truststore, default is cacerts
+       [--checksum checksumfile]  create a checksum of contents and compare with previous run
+                                   to avoid recreating same truststore avoiding running keytool
+       CA certificate files...    all the certificates and CRL to be included
+
+   example :
+     find /etc/authorites | egrep -i "(.crt|.crl)$" | xargs create-ssl-truststore.sh
+
+EOF
+    exit 1
+fi
+
+if [ "${Action}" = "CHECKSUM" ]; then
+  Checksum=`cat $Certificates | md5sum | awk '{print $1}'`
+  if [ -f $CertificatesChecksum ]; then
+    if [ -f $TrustStore ]; then
+      PreviousChecksum=`cat $CertificatesChecksum`
+      if [ $Checksum == $PreviousChecksum ]; then
+        echo "Creating $TrustStore was skipped, previous checksum of contents matched"
+        exit 0;
+      fi
+    fi
+  fi
+fi
+
+rm $TrustStore 2> /dev/null
+for Certificate in $Certificates
+do
+    caname="`$openssl x509 -noout -text -in $Certificate |\
+         grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`" || exit 1
+
+    JavaBin=`@bin.dir@/sipx-config --javabin`
+    openssl x509 -in $Certificate | \
+        $JavaBin/keytool -import -noprompt -alias "$caname" \
+        -keystore $TrustStore -storepass "$Password" || exit 1
+    chown @sipxpbx.user@ $TrustStore
+    chmod 600 $TrustStore
+done
+
+if [ "${Action}" = "CHECKSUM" ]; then
+  echo $Checksum > $CertificatesChecksum
+fi

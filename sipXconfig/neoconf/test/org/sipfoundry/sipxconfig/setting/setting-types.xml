@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+  <group name="group">
+    <setting name="int_setting_0">
+      <label>Setting Label</label>
+      <profileName>Setting Profile Name</profileName>
+      <type>
+        <integer min="3" max="15" required="yes" />
+      </type>
+      <value>7</value>
+      <description>Setting Description</description>
+    </setting>
+    <setting name="int_setting_1">
+      <label>Setting Label</label>
+      <profileName>Setting Profile Name</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>7</value>
+      <description>Setting Description</description>
+    </setting>
+    <setting name="real_setting_0">
+      <label>Setting Label</label>
+      <profileName>Setting Profile Name</profileName>
+      <type>
+        <real min="3.14" max="15.12" required="yes" />
+      </type>
+      <value>5.0</value>
+      <description>Setting Description</description>
+    </setting>
+    <setting name="real_setting_1">
+      <label>Setting Label</label>
+      <profileName>Setting Profile Name</profileName>
+      <type>
+        <real />
+      </type>
+      <value>5.0</value>
+      <description>Setting Description</description>
+    </setting>
+    <setting name="str_setting_def">
+      <label>Setting Label</label>
+      <profileName>Setting Profile Name</profileName>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>Setting Description</description>
+    </setting>
+    <setting name="str_setting">
+      <label>Setting Label</label>
+      <profileName>Setting Profile Name</profileName>
+      <type>
+        <string maxLen="15" password="yes" required="yes">
+          <pattern>kuku</pattern>
+        </string>
+      </type>
+      <value>bongo</value>
+      <description>Setting Description</description>
+    </setting>
+    <setting name="enum_setting">
+      <label>Enum setting label</label>
+      <type>
+        <enum>
+          <option>
+            <label>Zero</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>XXX</label>
+            <value>something</value>
+          </option>
+          <option>
+            <value>no_label_value</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="boolean_default">
+      <label>Boolean setting label</label>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="boolean_setting">
+      <label>Boolean setting label</label>
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>false</value>
+    </setting>
+    <setting name="enabled_setting">
+      <label>Modified boolean type</label>
+      <type>
+        <boolean>
+          <true>
+            <value>ENABLED</value>
+          </true>
+          <false>
+            <value>DISABLED</value>
+          </false>
+        </boolean>
+      </type>
+      <value>DISABLED</value>
+    </setting>
+    <setting name="file_setting">
+      <label>File setting label</label>
+      <type>
+        <file required="yes">
+          <directory>/tmp</directory>
+          <contentType>audio/x-wav</contentType>
+        </file>
+      </type>
+      <value />
+    </setting>
+    <setting name="enum_setting_2">
+      <label>Another enum setting</label>
+      <type>
+        <enum>
+          <option>
+            <value>VALUE_0</value>
+          </option>
+          <option>
+            <value>VALUE_1</value>
+          </option>
+          <option>
+            <value>VALUE_2</value>
+          </option>
+        </enum>
+      </type>
+      <value>VALUE_0</value>
+    </setting>
+    <setting name="enum_setting_3">
+      <label>Another enum setting</label>
+      <type>
+        <enum labelKeyPrefix="type.enum3">
+          <option>
+            <value>VALUE_0</value>
+          </option>
+          <option>
+            <value>VALUE_2</value>
+          </option>
+        </enum>
+      </type>
+      <value>VALUE_0</value>
+    </setting>
+  </group>
+</model>

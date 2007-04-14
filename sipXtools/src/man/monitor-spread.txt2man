@@ -1,0 +1,54 @@
+MONITOR-SPREAD(1)
+=================
+
+NAME
+----
+monitor-spread - regularly monitor registration state and send alarms
+
+SYNOPSIS
+--------
+ monitor-spread [-u | --unconditional]
+                [-a | --alarm    <alarm-address>]
+                [-f | --from     <from-address>]
+                [-s | --site     <site-label>] 
+                [-i | --interval <sample-interval>]
+                [-e | --expect   <expected-registrations>]
+                [-r | --regtime  <registration-time>]
+
+DESCRIPTION
+-----------
+Runs 'expire-spread' and sends email if certain alarm conditions are true.
+
+OPTIONS
+-------
+ --unconditional 	- send a checkpoint report even if there are no alarms
+ --alarm <alarm-address>- reporting email address (may be used multiple times)
+ --from <from-address>	- source address for report email
+ --site <site-label>	- name of the site (for subject line)
+ --interval <sample-interval> 		- time intervals for histogram [60]
+ --expect   <expected-registrations>	- number of registrations expected
+ --regtime  <registration-time>      	- default maximum registration time
+
+ENVIRONMENT
+-----------
+NONE
+  
+EXAMPLE
+-------  
+Best used from cron with crontab entries like these:
+
+ 15,30,45 * * * * monitor-spread --expect 25 --site 'Example Corp.' --alarm admin@example.com
+ 0 * * * * monitor-spread --unconditional -e 25 -s 'Example Corp.' -a admin@example.com
+    
+SEE ALSO
+--------
+expire-spread
+
+BUGS
+----
+see http://tracker.sipfoundry.org
+  
+AUTHOR
+------
+Scott Lawrence
+

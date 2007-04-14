@@ -1,0 +1,114 @@
+Outline of the call tear-down process.
+
+Tear-downs can come from either the local end (VXI signals end of
+processing) or the remote end (SIP call hang-up).
+
+Starting with local termination:
+
+VXI signals end of processing:
+
+VXI terminates the session by calling
+VXItelResult OSBtelDisconnect(VXItelInterface * vxip)
+
+OSBtelDisconnect (sipXvxml/src/tel/osbtel.cpp:267) does a CallManager::drop.
+
+VXI closes down its tel API by calling 
+VXItelResult OSBtelEndSession(VXItelInterface *pThis, VXIMap *)
+at /home/worley/pingtel/sipXvxml/src/tel/osbtel.cpp:198.
+This tells the call manager to drop the call via
+CallManager::drop at 211. (may this be a duplicate?)
+
+void CallManager::drop(const char* callId)
+at sipXcallLib/main/src/cp/CallManager.cpp:1216
+posts a CP_DROP message to the CallManager and returns.
+
+Within the ChannelThread, the execution of VXI::Run at
+sipXvxml/src/client/api/OSBclient.cpp:1005 terminates.
+VXIplatformProcessDocument closes down the three service
+processes/objects (recognizer, prompt, tel session).
+
+VXIplatformProcessDocument returns to the code for the ChannelThread
+thread at clientMain.cpp:1229.  ChannelThread removes IvrTelListener
+through gpTelListener->removeListener, then waits till
+gpTelListener->isCleanupInProgress(callId) is false.  Cleans up resources used
+by VXI.  Terminates the ChannelThread thread.
+
+    IvrTelListener seems to be a unique object, created when the
+    CallManager is created, a pointer to which is stored in gpTelListener
+    in clientMain.cpp by the startup code in main().
+
+IvrTelListener::removeListener is at
+sipXvxml/src/client/ivr/IvrTelListener.cpp:622.  Doesn't do much
+interesting.
+
+----------------------------------------------------------------------
+
+void CallManager::drop(const char* callId)
+at sipXcallLib/main/src/cp/CallManager.cpp:1216
+posts a CP_DROP message to the CallManager and returns.
+
+CallManager::handleMessage at 465 passes it to the related CpCall object
+based on the callId.
+
+CpCall::handleMessage at 157 calls the hangUp function.
+
+sipXcallLib/main/src/cp/CpCall.cpp:655 CpCall::hangUp
+Sets some state variables, then calls onHook.
+
+sipXcallLib/main/src/cp/CpPeerCall.cpp:2349 CpPeerCall::onHook
+calls hangUp on all the connections, then dropIfDead().
+
+sipXcallLib/main/src/cp/CpPeerCall.cpp:2412 CpPeerCall::dropIfDead
+Composes a CP_CALL_EXITED message to send to CallManager after
+CALL_DELETE_DELAY_SECS (20 seconds).
+
+CallManager.cpp:212 processes CP_CALL_EXITED.
+calls removeCall, then call->requestShutdown
+
+CallManager::removeCall removes the call from callStack.
+
+CpCall::requestShutdown posts OS_SHUTDOWN to the call.
+
+
+
+
+----------------------------------------------------------------------
+
+OK, so the CleanupInProgress list holds calls that are being cleaned
+up.  A call is added to the list when Ivr{Tel,Call}Listener gets a
+message saying to shut down the call.  It is removed from the list
+when its CallCleanupThread is done with it.
+
+----------------------------------------------------------------------
+
+Call sequence for addToCleanupInProgress:
+
+IvrCallListener::handleMessage
+ if((taoEventId == PtEvent::CONNECTION_DISCONNECTED ||
+                   taoEventId == PtEvent::CONNECTION_FAILED) && 
+                   !localConnection)
+
+sipXvxml/src/client/ivr/IvrCallListener.cpp:          handleDisconnectCall((TaoMessage&)rMsg, arg);
+
+ IvrTelListener::processTaoEvent
+sipXvxml/src/client/ivr/IvrTelListener.cpp:417:				handleDisconnectCall(argList);
+
+in IvrTelListener::handleDisconnectCall
+sipXvxml/src/client/ivr/IvrTelListener.cpp:430:		doCleanUpCall(callId);
+also calls CallManager::drop
+
+in  IvrTelListener::doCleanUpCall
+sipXvxml/src/client/ivr/IvrTelListener.cpp:800:		addToCleanupInProgress(callId);
+
+----------------------------------------------------------------------
+
+Call sequence for removeFromCleanupInProgress:
+
+at 806 in IvrTelListener::doCleanUpCall
+sipXvxml/src/client/ivr/IvrTelListener.cpp:807:	VXICleanUpCall(this, callId, VXISessionEnded);
+
+CallCleanupThread is initiated at clientMain.cpp:1553 in VXICleanUpCall
+
+in CallCleanupThread
+sipXvxml/src/client/ivr/clientMain.cpp:1465:		gpTelListener->removeFromCleanupInProgress(callId);
+

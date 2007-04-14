@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!-- Audiocodes TP260 -->
+  <bean id="audiocodesTP" abstract="true"
+    class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
+    <property name="beanId" value="gwAudiocodesTp260" />
+    <property name="proxyNameSetting" value="SIP/ProxyName" />
+    <property name="proxyIpSetting" value="SIP/ProxyIP" />
+    <property name="profileTemplate" value="audiocodes/mp-gateway.ini.vm" />
+  </bean>
+
+  <bean id="audiocodesTP260_1_Span" parent="audiocodesTP">
+    <property name="label" value="AudioCodes TP260 1 Span T1/E1" />
+  </bean>
+
+  <bean id="audiocodesTP260_2_Span" parent="audiocodesTP">
+    <property name="label" value="AudioCodes TP260 2 Span T1/E1" />
+  </bean>
+
+  <bean id="audiocodesTP260_4_Span" parent="audiocodesTP">
+    <property name="label" value="AudioCodes TP260 4 Span T1/E1" />
+  </bean>
+
+  <bean id="audiocodesTP260_8_Span" parent="audiocodesTP">
+    <property name="label" value="AudioCodes TP260 8 Span T1/E1" />
+  </bean>
+
+  <bean id="gwAudiocodesTp260" class="org.sipfoundry.sipxconfig.gateway.audiocodes.Tp260Gateway"
+    singleton="false" parent="gwGeneric">
+  </bean>
+
+  <!-- Mediant -->
+  <bean id="audiocodesMP" abstract="true"
+    class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
+    <property name="beanId" value="gwAudiocodesMediant" />
+    <property name="proxyNameSetting" value="SIP/ProxyName" />
+    <property name="proxyIpSetting" value="SIP/ProxyIP" />
+    <property name="profileTemplate" value="audiocodes/mp-gateway.ini.vm" />
+  </bean>
+
+  <bean id="audiocodesMP1X4_4_FXO" parent="audiocodesMP">
+    <property name="label" value="AudioCodes MP1X4 4 Port FXO" />
+  </bean>
+
+  <bean id="audiocodesMP1X8_8_FXO" parent="audiocodesMP">
+    <property name="label" value="AudioCodes MP1X8 8 Port FXO" />
+  </bean>
+
+  <bean id="gwAudiocodesMediant" class="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway"
+    singleton="false" parent="gwGeneric">
+  </bean>
+
+</beans>

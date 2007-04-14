@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.gateway.ListGateways">
+  <!--
+    - P R O P E R T I E S
+  -->
+  <inject property="gatewayContext" object="spring:gatewayContext" />
+  <inject property="gatewayProfileManager" object="spring:gatewayProfileManager" />
+  <inject property="gatewayModelSource" object="spring:gatewayModelSource" />
+  <property name="gatewaysToDelete" />
+  <property name="gatewaysToPropagate" />
+  <property name="gatewayModel" />
+  <!--
+    - B E A N S
+  -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
+  <bean name="rawGatewaySelectionModel"
+    class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+    <set name="collection" value="gatewayModelSource.models"/>
+    <set name="labelExpression" value="literal:label" />
+  </bean>
+  <bean name="gatewaySelectionModel"
+    class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
+    <set name="model" value="bean:rawGatewaySelectionModel" />
+    <set name="extraLabel" value="message:addNewGateway" />
+    <set name="extraOption" value="null" />
+  </bean>
+  <!--
+    - C O M P O N E N T S
+  -->
+  <component id="gatewayTable" type="GatewayTable">
+    <binding name="gatewayCollection" value="gatewayContext.gateways" />
+  </component>
+  <component id="dialPlansLink" type="PageLink">
+    <binding name="page" value="literal:EditFlexibleDialPlan" />
+  </component>
+  <component id="deleteButton" type="Submit">
+    <binding name="selected" value="gatewaysToDelete" />
+    <binding name="tag" value="components.gatewayTable.selections.allSelected" />
+    <binding name="value" value="message:button.delete" />
+  </component>
+  <component id="propagateButton" type="Submit">
+    <binding name="selected" value="gatewaysToPropagate" />
+    <binding name="tag" value="components.gatewayTable.selections.allSelected" />
+    <binding name="value" value="message:button.propagate" />
+  </component>
+  <component id="propagateAllButton" type="Submit">
+    <binding name="listener" value="listener:propagateAllGateways" />
+    <binding name="value" value="message:button.propagateAll" />
+  </component>
+  <component id="gatewaysListForm" type="Form">
+    <binding name="delegate" value="bean:validator" />
+    <binding name="listener" value="listener:formSubmit" />
+  </component>
+  <component id="selectGatewayModel" type="PropertySelection">
+    <binding name="model" value="bean:gatewaySelectionModel" />
+    <binding name="value" value="gatewayModel" />
+    <binding name="onchange" value="literal:javascript:this.form.submit();" />
+  </component>
+</page-specification>

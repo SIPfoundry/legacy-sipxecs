@@ -1,0 +1,267 @@
+/usr/local/sipx/etc/sipxpbx/registrar-config
+
+SIP_REGISTRAR_VOICEMAIL_SERVER : https%3A%2F%2Flocalhost%3A8091
+
+
+
+
+----------------------------------------------------------------------
+
+/usr/local/sipx/etc:
+total 8
+drwxr-xr-x    2 dworley  dworley      4096 Sep  1 13:01 init.d
+drwxr-xr-x    3 dworley  dworley      4096 Sep  1 18:29 sipxpbx
+
+/usr/local/sipx/etc/init.d:
+total 24
+-rwxrwxr-x    1 dworley  dworley      6709 Sep  1 13:01 sipxpbx
+-rwxrwxr-x    1 dworley  dworley      6710 Aug 31 18:17 sipxpbx~
+-rw-------    1 dworley  dworley      6710 Sep  1 12:57 sipxpbx.orig
+
+/usr/local/sipx/etc/sipxpbx:
+total 5580
+-rw-r--r--    1 dworley  dworley       454 Sep  1 18:11 authproxy-config
+-rw-rw-r--    1 dworley  dworley       636 Aug 31 18:03 authproxy-config.in
+-rw-r--r--    1 dworley  dworley      3702 Sep  1 18:11 authrules.xml
+-rw-rw-r--    1 dworley  dworley      4036 Aug 31 18:03 authrules.xml.in
+-rw-r--r--    1 dworley  dworley      8040 Sep  1 17:34 autoattendant.vxml.in
+-rw-rw-r--    1 dworley  dworley      2710 Sep  1 13:01 config.defs
+-rw-rw-r--    1 dworley  dworley      2711 Aug 31 17:39 config.defs~
+-rw-------    1 dworley  dworley   8998912 Sep  1 18:10 core.13484
+-rw-------    1 dworley  dworley   8818688 Sep  1 18:10 core.13559
+-rw-------    1 dworley  dworley  44494848 Sep  1 18:10 core.13709
+-rw-------    1 dworley  dworley   8998912 Sep  1 18:29 core.14059
+-rw-------    1 dworley  dworley   9039872 Sep  1 18:29 core.14140
+-rw-------    1 dworley  dworley  47435776 Sep  1 18:29 core.14285
+-rw-r--r--    1 dworley  dworley      1400 Sep  1 18:11 forwardingrules.xml
+-rw-rw-r--    1 dworley  dworley      1663 Aug 31 18:03 forwardingrules.xml.in
+-rw-r--r--    1 dworley  dworley     16571 Sep  1 17:34 forwardmessage.vxml.in
+-rw-rw-r--    1 dworley  dworley       224 Aug 31 18:00 huntgroup.xml.in
+-rw-r--r--    1 dworley  dworley      8117 Sep  1 17:34 login_no_autoattendant.vxml.in
+-rw-r--r--    1 dworley  dworley      8621 Sep  1 17:34 login.vxml.in
+-rw-r--r--    1 dworley  dworley      4596 Sep  1 13:17 mappingrules2.xml
+-rw-rw-r--    1 dworley  dworley      4804 Aug 31 18:00 mappingrules2.xml.in
+-rw-r--r--    1 dworley  dworley       860 Sep  1 13:17 mappingrules.xml
+-rw-rw-r--    1 dworley  dworley       873 Aug 31 18:00 mappingrules.xml.in
+-rw-r--r--    1 dworley  dworley      6938 Sep  1 18:11 mediaserver-config
+-rw-rw-r--    1 dworley  dworley      6988 Aug 31 17:46 mediaserver-config.in
+-rw-rw-r--    1 dworley  dworley       367 Aug 31 17:57 pgs.props.in
+-rw-rw-r--    1 dworley  dworley      7233 Aug 31 18:17 ProcessDefinitions.xml
+-rw-rw-r--    1 dworley  dworley      1109 Aug 31 17:58 profilewriter.props.in
+-rw-r--r--    1 dworley  dworley       403 Sep  1 18:11 proxy-config
+-rw-rw-r--    1 dworley  dworley       526 Aug 31 18:03 proxy-config.in
+-rw-r--r--    1 dworley  dworley       562 Sep  1 13:17 registrar-config
+-rw-rw-r--    1 dworley  dworley       643 Sep  1 13:01 registrar-config.in
+-rw-rw-r--    1 dworley  dworley       642 Aug 31 18:00 registrar-config.in~
+-rw-------    1 dworley  dworley       642 Sep  1 13:00 registrar-config.in.orig
+-rw-rw-r--    1 dworley  dworley      1941 Aug 31 18:17 resourcemap.xml
+-rw-r--r--    1 dworley  dworley      3327 Sep  1 17:34 root.vxml.in
+-rw-r--r--    1 dworley  dworley     20098 Sep  1 17:34 savemessage_no_operator.vxml.in
+-rw-r--r--    1 dworley  dworley     21966 Sep  1 17:34 savemessage.vxml.in
+-rw-rw-r--    1 dworley  dworley       157 Aug 31 17:57 sds-config.in
+-rw-rw-r--    1 dworley  dworley       532 Aug 31 17:57 sds.props.in
+-rw-rw-r--    1 dworley  dworley       201 Aug 31 17:50 security.policy
+drwx------    2 dworley  dworley      4096 Sep  1 13:00 ssl
+-rw-r--r--    1 dworley  dworley       445 Sep  1 18:11 status-config
+-rw-rw-r--    1 dworley  dworley       539 Aug 31 18:05 status-config.in
+-rw-r--r--    1 dworley  dworley       506 Sep  1 18:11 status-plugin.xml
+-rw-rw-r--    1 dworley  dworley       532 Aug 31 18:05 status-plugin.xml.in
+-rw-rw-r--    1 dworley  dworley      1126 Aug 31 17:57 topology.xml.in
+-rw-r--r--    1 dworley  dworley      5735 Sep  1 18:11 voicemail.xml
+-rw-rw-r--    1 dworley  dworley      5874 Aug 31 18:17 voicemail.xml.in
+-rw-rw-r--    1 dworley  dworley      2510 Sep  1 13:42 WatchDog.xml
+-rw-rw-r--    1 root     root         2484 Sep  1 12:58 WatchDog.xml~
+-rw-rw-r--    1 dworley  dworley      2376 Aug 31 18:17 WatchDog.xml.orig
+
+/usr/local/sipx/etc/sipxpbx/ssl:
+total 8
+-rw-r--r--    1 dworley  dworley      1432 Sep  1 13:00 sipx.crt
+-rw-r--r--    1 dworley  dworley       887 Sep  1 13:00 sipx.key
+
+/usr/local/sipx/var/sipxdata:
+total 8
+drwxr-xr-x    3 dworley  dworley      4096 Sep  1 13:17 mediaserver
+drwxr-xr-x    2 dworley  dworley      4096 Sep  1 18:09 sipdb
+
+/usr/local/sipx/var/sipxdata/mediaserver:
+total 4
+drwxr-xr-x    6 dworley  dworley      4096 Sep  1 13:17 data
+
+/usr/local/sipx/var/sipxdata/mediaserver/data:
+total 16
+drwxr-xr-x    4 dworley  dworley      4096 Sep  1 13:17 autoattendant
+drwxr-xr-x    2 dworley  dworley      4096 Sep  1 13:17 mailstore
+drwxr-xr-x    2 dworley  dworley      4096 Sep  1 13:17 prompts
+drwxr-xr-x    4 dworley  dworley      4096 Sep  1 13:17 voicemail
+
+/usr/local/sipx/var/sipxdata/mediaserver/data/autoattendant:
+total 8
+drwxr-xr-x    3 dworley  dworley      4096 Sep  1 13:17 ui
+drwxr-xr-x    2 dworley  dworley      4096 Sep  1 13:17 vxml
+
+/usr/local/sipx/var/sipxdata/mediaserver/data/autoattendant/ui:
+total 4
+drwxr-xr-x    2 dworley  dworley      4096 Sep  1 13:17 adminui
+
+/usr/local/sipx/var/sipxdata/mediaserver/data/autoattendant/ui/adminui:
+total 0
+
+/usr/local/sipx/var/sipxdata/mediaserver/data/autoattendant/vxml:
+total 0
+
+/usr/local/sipx/var/sipxdata/mediaserver/data/mailstore:
+total 0
+
+/usr/local/sipx/var/sipxdata/mediaserver/data/prompts:
+total 0
+
+/usr/local/sipx/var/sipxdata/mediaserver/data/voicemail:
+total 8
+drwxr-xr-x    3 dworley  dworley      4096 Sep  1 13:17 ui
+drwxr-xr-x    2 dworley  dworley      4096 Sep  1 13:17 vxml
+
+/usr/local/sipx/var/sipxdata/mediaserver/data/voicemail/ui:
+total 4
+drwxr-xr-x    2 dworley  dworley      4096 Sep  1 13:17 adminui
+
+/usr/local/sipx/var/sipxdata/mediaserver/data/voicemail/ui/adminui:
+total 0
+
+/usr/local/sipx/var/sipxdata/mediaserver/data/voicemail/vxml:
+total 0
+
+/usr/local/sipx/var/sipxdata/sipdb:
+total 16
+-rw-rw-r--    1 root     root           86 Aug 31 15:28 alias.xml
+-rw-rw-r--    1 root     root          311 Sep  1 13:07 credential.xml
+-rw-rw-r--    1 root     root           90 Aug 31 15:28 huntgroup.xml
+-rw-rw-r--    1 root     root          199 Sep  1 13:07 permission.xml
+
+----------------------------------------------------------------------
+
+/usr/local/sipx/etc/sipxpbx/config.defs:PROXY_SERVER_SIP_PORT=5060
+/usr/local/sipx/etc/sipxpbx/config.defs:REGISTRAR_SERVER_SIP_PORT=5070
+/usr/local/sipx/etc/sipxpbx/config.defs:AUTH_PROXY_SERVER_SIP_PORT=5080
+/usr/local/sipx/etc/sipxpbx/config.defs:CONFIG_SERVER_HTTP_PORT=8090
+/usr/local/sipx/etc/sipxpbx/config.defs:CONFIG_SERVER_HTTPS_PORT=8091
+/usr/local/sipx/etc/sipxpbx/config.defs:CONFIG_SERVER_SIP_PORT=5090
+/usr/local/sipx/etc/sipxpbx/config.defs:MEDIA_SERVER_HTTP_PORT=8090
+/usr/local/sipx/etc/sipxpbx/config.defs:MEDIA_SERVER_HTTPS_PORT=8091
+/usr/local/sipx/etc/sipxpbx/config.defs:MEDIA_SERVER_SIP_PORT=5100
+/usr/local/sipx/etc/sipxpbx/config.defs:STATUS_SERVER_HTTP_PORT=8100
+/usr/local/sipx/etc/sipxpbx/config.defs:STATUS_SERVER_HTTPS_PORT=8101
+/usr/local/sipx/etc/sipxpbx/config.defs:STATUS_SERVER_SIP_PORT=5110
+/usr/local/sipx/etc/sipxpbx/config.defs:VOICEMAIL_SERVER_HTTP_PORT=8090
+/usr/local/sipx/etc/sipxpbx/config.defs:VOICEMAIL_SERVER_HTTPS_PORT=8091
+/usr/local/sipx/etc/sipxpbx/pgs.props.in:sds.rmi.url = rmi://localhost:2001/SDSProfileListener
+/usr/local/sipx/etc/sipxpbx/pgs.props.in:profilewriter.rmi.url = rmi://localhost:2001/ProfileWriter
+/usr/local/sipx/etc/sipxpbx/pgs.props.in:publishedHttpApplicationsDocRoot=http://${MY_FULL_HOSTNAME}:8090/phone/applications/
+/usr/local/sipx/etc/sipxpbx/voicemail.xml.in:        <mwiurl>https://localhost:8101/cgi/StatusEvent.cgi</mwiurl>
+/usr/local/sipx/etc/sipxpbx/proxy-config:SIP_PROXY_HOST_ALIASES : 10.1.1.106:5060 cdhcp106:5060 cdhcp106.pingtel.com:5060 cdhcp106.pingtel.com
+/usr/local/sipx/etc/sipxpbx/proxy-config:SIP_PROXY_TCP_PORT : 5060
+/usr/local/sipx/etc/sipxpbx/proxy-config:SIP_PROXY_UDP_PORT : 5060
+/usr/local/sipx/etc/sipxpbx/registrar-config:SIP_REGISTRAR_TCP_PORT : 5070
+/usr/local/sipx/etc/sipxpbx/registrar-config:SIP_REGISTRAR_UDP_PORT : 5070
+/usr/local/sipx/etc/sipxpbx/registrar-config:SIP_REGISTRAR_VOICEMAIL_SERVER : https%3A%2F%2Flocalhost%3A8091
+/usr/local/sipx/etc/sipxpbx/config.defs~:PROXY_SERVER_SIP_PORT=5060
+/usr/local/sipx/etc/sipxpbx/config.defs~:REGISTRAR_SERVER_SIP_PORT=5070
+/usr/local/sipx/etc/sipxpbx/config.defs~:AUTH_PROXY_SERVER_SIP_PORT=5080
+/usr/local/sipx/etc/sipxpbx/config.defs~:CONFIG_SERVER_HTTP_PORT=8090
+/usr/local/sipx/etc/sipxpbx/config.defs~:CONFIG_SERVER_HTTPS_PORT=8091
+/usr/local/sipx/etc/sipxpbx/config.defs~:CONFIG_SERVER_SIP_PORT=5090
+/usr/local/sipx/etc/sipxpbx/config.defs~:MEDIA_SERVER_HTTP_PORT=8090
+/usr/local/sipx/etc/sipxpbx/config.defs~:MEDIA_SERVER_HTTPS_PORT=8091
+/usr/local/sipx/etc/sipxpbx/config.defs~:MEDIA_SERVER_SIP_PORT=5100
+/usr/local/sipx/etc/sipxpbx/config.defs~:STATUS_SERVER_HTTP_PORT=8100
+/usr/local/sipx/etc/sipxpbx/config.defs~:STATUS_SERVER_HTTPS_PORT=8101
+/usr/local/sipx/etc/sipxpbx/config.defs~:STATUS_SERVER_SIP_PORT=5110
+/usr/local/sipx/etc/sipxpbx/config.defs~:VOICEMAIL_SERVER_HTTP_PORT=8090
+/usr/local/sipx/etc/sipxpbx/config.defs~:VOICEMAIL_SERVER_HTTPS_PORT=8091
+/usr/local/sipx/etc/sipxpbx/forwardingrules.xml:    <routeFrom>sipuaconfig.cdhcp106.pingtel.com:5060</routeFrom>
+/usr/local/sipx/etc/sipxpbx/forwardingrules.xml:    <routeFrom>sipuaconfig:5060</routeFrom>
+/usr/local/sipx/etc/sipxpbx/forwardingrules.xml:    <routeTo>10.1.1.106:5090</routeTo>
+/usr/local/sipx/etc/sipxpbx/forwardingrules.xml:    <routeFrom>cdhcp106.pingtel.com:5060</routeFrom>
+/usr/local/sipx/etc/sipxpbx/forwardingrules.xml:    <routeFrom>10.1.1.106:5060</routeFrom>
+/usr/local/sipx/etc/sipxpbx/forwardingrules.xml:    <routeFrom>cdhcp106.pingtel.com:5060</routeFrom>
+/usr/local/sipx/etc/sipxpbx/forwardingrules.xml:    <routeFrom>cdhcp106:5060</routeFrom>
+/usr/local/sipx/etc/sipxpbx/forwardingrules.xml:        <routeTo>10.1.1.106:5090</routeTo>
+/usr/local/sipx/etc/sipxpbx/forwardingrules.xml:        <routeTo>10.1.1.106:5110</routeTo>
+/usr/local/sipx/etc/sipxpbx/forwardingrules.xml:      <routeTo>10.1.1.106:5070</routeTo>
+/usr/local/sipx/etc/sipxpbx/forwardingrules.xml:    <routeTo>10.1.1.106:5070</routeTo>
+/usr/local/sipx/etc/sipxpbx/authproxy-config:SIP_AUTHPROXY_HOST_ALIASES : 10.1.1.106:5080 cdhcp106:5080 cdhcp106.pingtel.com:5080 10.1.1.106:5080
+/usr/local/sipx/etc/sipxpbx/authproxy-config:SIP_AUTHPROXY_ROUTE_NAME : 10.1.1.106:5080
+/usr/local/sipx/etc/sipxpbx/authproxy-config:SIP_AUTHPROXY_TCP_PORT : 5080
+/usr/local/sipx/etc/sipxpbx/authproxy-config:SIP_AUTHPROXY_UDP_PORT : 5080
+/usr/local/sipx/etc/sipxpbx/status-config:SIP_STATUS_HTTP_PORT : 8100
+/usr/local/sipx/etc/sipxpbx/status-config:SIP_STATUS_HTTPS_PORT : 8101
+/usr/local/sipx/etc/sipxpbx/status-config:SIP_STATUS_TCP_PORT : 5110
+/usr/local/sipx/etc/sipxpbx/status-config:SIP_STATUS_UDP_PORT : 5110
+/usr/local/sipx/etc/sipxpbx/status-plugin.xml:      <voicemail-cgi-url>https://localhost:8091/cgi-bin/voicemail/mediaserver.cgi</voicemail-cgi-url>
+/usr/local/sipx/etc/sipxpbx/mediaserver-config:client.vxi.beepURI                      VXIString       http://localhost:8090/stdprompts/beep.wav
+/usr/local/sipx/etc/sipxpbx/mediaserver-config:client.vxmlURL                          VXIString        http://localhost:8090/vm_vxml/
+/usr/local/sipx/etc/sipxpbx/voicemail.xml:        <mediaserver-url>http://localhost:8090</mediaserver-url>
+/usr/local/sipx/etc/sipxpbx/voicemail.xml:        <mediaserver-url-secure>https://localhost:8091</mediaserver-url-secure>
+/usr/local/sipx/etc/sipxpbx/voicemail.xml:        <full-mediaserver-url>http://cdhcp106.pingtel.com:8090</full-mediaserver-url>
+/usr/local/sipx/etc/sipxpbx/voicemail.xml:        <full-mediaserver-url-secure>https://cdhcp106.pingtel.com:8091</full-mediaserver-url-secure>
+/usr/local/sipx/etc/sipxpbx/voicemail.xml:        <mwiurl>https://localhost:8101/cgi/StatusEvent.cgi</mwiurl>
+
+----------------------------------------------------------------------
+
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address PID/Program name
+tcp        0      0 *:80          15977/httpd
+tcp        0      0 *:443         15977/httpd
+tcp        0      0 localhost.localdom:1258 connected to
+                        localhost.localdom:1259
+                                  16198/sipXvxml
+tcp        0      0 localhost.localdom:1259 connected to
+                        localhost.localdom:1258
+                                  16198/sipXvxml
+tcp        0      0 *:5060        15978/sipproxy
+udp        0      0 *:5060        15978/sipproxy
+tcp        0      0 *:5061        15978/sipproxy
+tcp        0      0 *:5070        15869/sipregistrar
+udp        0      0 *:5070        15869/sipregistrar
+tcp        0      0 *:5071        15869/sipregistrar
+udp        0      0 *:5080        16054/sipauthproxy
+tcp        0      0 *:5080        16054/sipauthproxy
+tcp        0      0 *:5081        16054/sipauthproxy
+tcp        0      0 *:5100        16198/sipXvxml
+udp        0      0 *:5100        16198/sipXvxml
+tcp        0      0 *:5101        16198/sipXvxml
+tcp        0      0 *:5110        16125/sipstatus
+udp        0      0 *:5110        16125/sipstatus
+tcp        0      0 *:5111        16125/sipstatus
+tcp        0      0 *:8101        16125/sipstatus
+
+----------------------------------------------------------------------
+
+As seen on dev-sipxchange:
+
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address State       PID/Program name
+tcp        0      0 *:22          LISTEN      654/sshd
+tcp        0      0 *:80          LISTEN      17133/httpd
+tcp        0      0 *:443         LISTEN      17133/httpd
+tcp        0      0 *:2001        LISTEN      17205/rmiregistry
+tcp        0      0 *:5060        LISTEN      17502/sipproxy
+udp        0      0 *:5060                    17502/sipproxy
+tcp        0      0 *:5061        LISTEN      17502/sipproxy
+tcp        0      0 *:5070        LISTEN      17370/sipregistrar
+udp        0      0 *:5070                    17370/sipregistrar
+tcp        0      0 *:5071        LISTEN      17370/sipregistrar
+tcp        0      0 *:5080        LISTEN      17572/sipauthproxy
+udp        0      0 *:5080                    17572/sipauthproxy
+tcp        0      0 *:5081        LISTEN      17572/sipauthproxy
+tcp        0      0 *:5100        LISTEN      16050/mediaserver
+udp        0      0 *:5100                    16050/mediaserver
+tcp        0      0 *:5101        LISTEN      16050/mediaserver
+tcp        0      0 *:5110        LISTEN      17642/sipstatus
+udp        0      0 *:5110                    17642/sipstatus
+tcp        0      0 *:5111        LISTEN      17642/sipstatus
+tcp        0      0 *:8090        LISTEN      17133/httpd
+tcp        0      0 *:8091        LISTEN      17133/httpd
+tcp        0      0 *:8101        LISTEN      17642/sipstatus
+tcp        0      0 *:8443        LISTEN      17133/httpd
+
+----------------------------------------------------------------------

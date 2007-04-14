@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
+  <type id="enablestate">
+    <boolean>
+      <true>
+        <value>ENABLE</value>
+      </true>
+      <false>
+        <value>DISABLE</value>
+      </false>
+    </boolean>
+  </type>
+  <type id="feature-code">
+    <string>
+      <pattern>[0-9*#]+</pattern>
+    </string>
+  </type>
+  <type id="port-number">
+    <integer required="yes" min="1024" max="65534" />
+  </type>
+  <group name="domain">
+    <setting name="SIPXCHANGE_DOMAIN_NAME" hidden="yes">
+      <profileName>config.defs</profileName>
+      <type />
+      <value />
+    </setting>
+    <setting name="SIP_PROXY_DEFAULT_SERIAL_EXPIRES" advanced="yes">
+      <profileName>proxy-config.in</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>20</value>
+    </setting>
+    <setting name="SIP_PROXY_DEFAULT_EXPIRES" advanced="yes">
+      <profileName>proxy-config.in</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>180</value>
+    </setting>
+    <setting name="SIP_REGISTRAR_DOMAIN_ALIASES" hidden="yes">
+      <profileName>registrar-config.in</profileName>
+      <value>${MY_FULL_HOSTNAME} ${MY_IP_ADDR}</value>
+    </setting>
+  </group>
+  <group name="isn">
+    <setting name="SIP_REDIRECT.190-ISN.BASE_DOMAIN">
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <boolean>
+          <true>
+            <value>freenum.org</value>
+          </true>
+          <false>
+            <value />
+          </false>
+        </boolean>
+      </type>
+      <value />
+    </setting>
+    <setting name="SIP_REDIRECT.190-ISN.PREFIX" advanced="yes">
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <string>
+          <pattern>[0-9*#]+</pattern>
+        </string>
+      </type>
+    </setting>
+  </group>
+  <group name="enum">
+    <setting name="SIP_REDIRECT.200-ENUM.BASE_DOMAIN">
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="SIP_REDIRECT.200-ENUM.DIAL_PREFIX">
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <string>
+          <pattern>[0-9*#]+</pattern>
+        </string>
+      </type>
+    </setting>
+    <setting name="SIP_REDIRECT.200-ENUM.ADD_PREFIX">
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <string>
+          <pattern>[0-9*#]+</pattern>
+        </string>
+      </type>
+    </setting>
+    <setting name="SIP_REDIRECT.200-ENUM.PREFIX_PLUS" advanced="yes">
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <boolean>
+          <true>
+            <value>Y</value>
+          </true>
+          <false>
+            <value>N</value>
+          </false>
+        </boolean>
+      </type>
+      <value>Y</value>
+    </setting>
+  </group>
+  <group name="voice-mail">
+    <setting name="VOICEMAIL_AGE_LIMIT">
+      <profileName>config.defs</profileName>
+      <type>
+        <integer min="1" max="365" required="yes" />
+      </type>
+      <value>7</value>
+    </setting>
+    <setting name="EXTENSION_LENGTH">
+      <profileName>config.defs</profileName>
+      <type>
+        <integer min="1" max="99" />
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="SMTP_SERVER" hidden="yes">
+      <profileName>config.defs</profileName>
+      <type />
+      <value />
+    </setting>
+  </group>
+  <group name="call-pick-up">
+    <setting name="SIP_REDIRECT.180-PICKUP.GLOBAL_CALL_PICKUP_CODE">
+      <profileName>registrar-config.in</profileName>
+      <type refid="feature-code" />
+      <value>*78*</value>
+    </setting>
+    <setting name="SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE">
+      <profileName>registrar-config.in</profileName>
+      <type refid="feature-code" />
+      <value>*78</value>
+    </setting>
+    <setting name="SIP_REDIRECT.180-PICKUP.CALL_RETRIEVE_CODE">
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <string required="yes">
+          <pattern>[0-9*#]+</pattern>
+        </string>
+      </type>
+      <value>*4</value>
+    </setting>
+    <setting name="SIP_REDIRECT.180-PICKUP.CALL_PICKUP_WAIT" advanced="yes">
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <real min="1" max="30" required="yes" />
+      </type>
+      <value>2</value>
+    </setting>
+  </group>
+  <group name="presence">
+    <setting name="SIP_PRESENCE_SIGN_IN_CODE">
+      <profileName>sipxpresence-config.in</profileName>
+      <type refid="feature-code" />
+      <value>*88</value>
+    </setting>
+    <setting name="SIP_PRESENCE_SIGN_OUT_CODE">
+      <profileName>sipxpresence-config.in</profileName>
+      <type refid="feature-code" />
+      <value>*86</value>
+    </setting>
+    <setting name="PRESENCE_SERVER_SIP_PORT" advanced="yes">
+      <profileName>config.defs</profileName>
+      <type refid="port-number" />
+      <value>5130</value>
+    </setting>
+    <setting name="PRESENCE_SERVER_HTTP_PORT" advanced="yes">
+      <profileName>config.defs</profileName>
+      <type refid="port-number" />
+      <value>8111</value>
+    </setting>
+    <setting name="SIP_PRESENCE_DOMAIN_NAME" hidden="yes">
+      <!-- treat as read-only: we are taking this from sipxpresence-config and not from sipxpresence-config.in -->
+      <profileName>sipxpresence-config</profileName>
+      <value />
+    </setting>
+    <setting name="SIP_PRESENCE_HTTP_PORT" hidden="yes">
+      <!-- treat as read-only: we are taking this from sipxpresence-config and not from sipxpresence-config.in -->
+      <profileName>sipxpresence-config</profileName>
+      <type refid="port-number" />
+      <value>8111</value>
+    </setting>
+  </group>
+  <group name="Logging">
+    <setting name="SIP_AUTHPROXY_LOG_LEVEL">
+      <profileName>authproxy-config.in</profileName>
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+    <setting name="SIP_PROXY_LOG_LEVEL">
+      <profileName>proxy-config.in</profileName>
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+    <setting name="SIP_REGISTRAR_LOG_LEVEL">
+      <profileName>registrar-config.in</profileName>
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+    <setting name="SIP_PARK_LOG_LEVEL">
+      <profileName>sipxpark-config.in</profileName>
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+    <setting name="SIP_STATUS_LOG_LEVEL">
+      <profileName>status-config.in</profileName>
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+    <setting name="SIP_PRESENCE_LOG_LEVEL">
+      <profileName>sipxpresence-config.in</profileName>
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_LOG_LEVEL">
+      <profileName>callresolver-config.in</profileName>
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+  </group>
+  <group name="cdr">
+    <setting name="CALLRESOLVER_CALL_STATE_DB">
+      <profileName>config.defs</profileName>
+      <type refid="enablestate" />
+      <value>ENABLE</value>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_PURGE">
+      <profileName>callresolver-config.in</profileName>
+      <type refid="enablestate" />
+      <value>ENABLE</value>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_PURGE_AGE_CDR">
+      <profileName>callresolver-config.in</profileName>
+      <type>
+        <integer min="1" max="365" />
+      </type>
+      <value>35</value>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_PURGE_AGE_CSE" advanced="yes">
+      <profileName>callresolver-config.in</profileName>
+      <type>
+        <integer min="1" max="365" />
+      </type>
+      <value>7</value>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_CALL_DIRECTION" hidden="yes">
+      <profileName>callresolver-config.in</profileName>
+      <type refid="enablestate" />
+      <value>DISABLE</value>
+    </setting>
+  </group>
+  <group name="park" hidden="yes">
+    <setting name="SIP_PARK_DOMAIN_NAME">
+      <profileName>sipxpark-config</profileName>
+    </setting>
+    <setting name="SIP_PARK_UDP_PORT">
+      <profileName>sipxpark-config</profileName>
+      <type refid="port-number" />
+    </setting>
+    <setting name="SIP_REGISTRAR_PARK_SERVER">
+      <profileName>registrar-config</profileName>
+    </setting>
+  </group>
+</model>

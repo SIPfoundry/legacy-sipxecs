@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.permission.ListPermissions">
+  <!--
+    - P R O P E R T I E S
+  -->
+  <bean name="converter" class="org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer">
+    <set name="source" value="permissionManager" />
+    <set name="class" value="@org.sipfoundry.sipxconfig.permission.Permission@class"></set>
+  </bean>
+
+</page-specification>

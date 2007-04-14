@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  - Mapping Rules
+  -   These rules are invoked for all redirection requests.
+  - 
+  -   Typically, this file is used to map in-domain addresses
+  -   that need to be changed in some systematic way, or that
+  -   should only be changed when there is a permission involved.
+  -   For simpler changes, prefer the use of aliases.
+  - 
+  -   These examples are based on typical small office dial plan
+  -   3 digit extensions.
+  -
+  -   They assume that the the phone has not modified the digits
+  -   dialed by the user.
+  -->
+<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'>
+
+  <!-- Restrict changes to the local domain -->
+  <hostMatch>
+    <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
+    <hostPattern>${MY_FULL_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_IP_ADDR}</hostPattern>
+
+
+    <!-- 'operator', '0', or extension 100 goes to AutoAttendant -->
+    <userMatch>
+      <userPattern>operator</userPattern>
+      <userPattern>100</userPattern>
+      <userPattern>0</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant%26name%3Doperator&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+    <!-- extension 101 is used to retrieve voicemail messages -->
+    <userMatch>
+      <userPattern>101</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+    <!-- transferring a call to 2xxx transfers the call to the voicemail box for extension xxx -->
+    <userMatch>
+      <userPattern>2xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{vdigits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits-escaped}&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+
+    <!-- Fall back to voicemail if call to a phone does not succeed
+      -  for any called number that has Voicemail permission; making 
+      -  it conditional is accomplished by adding the ';q=0.1' at the end.
+      -->
+    <userMatch>
+      <userPattern>x.</userPattern>
+      <permissionMatch>
+        <permission>Voicemail</permission>
+        <transform>
+          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits-escaped}&gt;;q=0.1</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+  </hostMatch>
+</mappings>

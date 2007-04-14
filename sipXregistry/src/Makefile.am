@@ -1,0 +1,57 @@
+## Process this file with automake to produce Makefile.in
+
+SUBDIRS = test
+
+bin_PROGRAMS = sipregistrar
+
+sipregistrar_CXXFLAGS = \
+	-I$(top_builddir)/config \
+	-I$(top_srcdir)/include \
+	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
+	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+
+sipregistrar_SOURCES =  \
+    main.cpp
+
+sipregistrar_LDADD = \
+	libsipXregistry.la \
+	@SIPXMEDIAADAPTER_LIBS@ \
+	@GIPS_NEQ_OBJS@
+
+sipregistrar_LDFLAGS = \
+	-rdynamic
+
+noinst_LTLIBRARIES = libsipXregistry.la
+
+libsipXregistry_la_CXXFLAGS = $(sipregistrar_CXXFLAGS)
+
+libsipXregistry_la_LIBADD = \
+	@SIPXCOMMSERVER_LIBS@
+
+libsipXregistry_la_SOURCES = \
+    $(top_builddir)/config/sipxregistry-buildstamp.h \
+    $(top_builddir)/config/sipxregistry-buildstamp.cpp \
+    RedirectPlugin.cpp \
+    RedirectResumeMsg.cpp \
+    RedirectSuspend.cpp \
+    RegistrarInitialSync.cpp \
+    RegistrarInitialSync.h \
+    RegistrarPeer.cpp \
+    RegistrarPeer.h \
+    RegistrarPersist.cpp \
+    RegistrarPersist.h \
+    RegistrarSync.cpp \
+    RegistrarSync.h \
+    RegistrarTest.cpp \
+    RegistrarTest.h \
+    SipRedirectServer.cpp \
+    SipRegEventServer.cpp \
+    SipRegEventServer.h \
+    SipRegistrar.cpp \
+    SipRegistrarServer.cpp \
+    RedirectResumeMsg.h \
+    SipRegistrarServer.h \
+    SyncRpc.cpp \
+    SyncRpc.h

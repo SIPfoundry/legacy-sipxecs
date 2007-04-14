@@ -1,0 +1,24 @@
+<fieldset>
+  <ul class="component-links">
+    <li>
+      <a jwcid="addLink" id="bridge:add" href="#">
+        <span key="add_link">Add New Line</span>
+      </a>
+    </li>
+  </ul>
+  <table jwcid="tableView" id="bridge:list">
+    <span jwcid="nameColumnValue">
+      <span jwcid="editRowLink">
+        <span jwcid="nameText"/>
+      </span>      
+    </span>
+    <span jwcid="enabledColumnValue@Block">
+      <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
+    </span>    
+  </table>
+  <ul class="component-submit">
+    <li>
+      <input jwcid="delete" type="submit" id="bridge:delete" name=""/>
+    </li>
+  </ul>
+</fieldset>

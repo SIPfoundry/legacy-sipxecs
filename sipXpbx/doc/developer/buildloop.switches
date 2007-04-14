@@ -1,0 +1,13 @@
+# Switches for build loop for automated build machines
+
+# tar.*  = machine kestrel
+# scm.*  = machine osprey
+# rpm.*  = machine vulture
+
+# override install dir for apache modules to avoid need for sudo
+tar.build.configure = --with-apache-modules=$Destination/apache/modules
+
+scm.build.configure = --with-apache-modules=$Destination/apache/modules
+
+# rpm doesn't need switch because DESTDIR diverts modules into staging dir
+rpm.build.configure = 

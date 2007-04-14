@@ -1,0 +1,586 @@
+#!/bin/sh
+###
+### Capture a sipXpbx configuration for reporting purposes
+###
+
+# Add /sbin to the end of PATH, because often if the user is not
+# running as root or if he su'ed to root, /sbin will not be in the
+# PATH, and ifconfig can't be found.  But put /sbin at the end of PATH
+# in case the user prefers a different ifconfig that is already in the
+# PATH.
+PATH=$PATH:/sbin
+
+Action=SNAPSHOT
+DoWebFiles=YES
+SaveCredentials=NO
+CoreFiles=
+ExtraFiles=
+CommentFiles=
+Tar=YES
+ToFile=
+Logs=current
+
+DefaultTarFile="sipx-configuration-`hostname -f`.tar.gz"
+
+# Define functions.
+
+# Make a file name absolute.
+# First argument is the file name, second is the default directory.
+# If file name contains no /, prepend the default directory.
+# If file name is relative, prepend the working directory.
+# If file name is absolute, leave it unchanged.
+# Output absolute file name to stdout.
+function make_absolute () {
+  case ${1} in
+      /*)
+          echo ${1}
+          ;;
+      */*)
+          echo ${PWD}/${1}
+          ;;
+      *)
+          echo ${2}/${1}
+          ;;
+  esac
+}
+
+# Process arguments.
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+
+        -v|--version)
+            echo @VERSION@
+            exit;
+            ;;
+
+        -w|--www)
+            DoWebFiles=YES
+            ;;
+
+        -nw|--no-www)
+            DoWebFiles=NO
+            ;;
+
+        -l|--logs)
+            if [ -z "${2}" ]
+            then
+                echo "No argument supplied for ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Logs=`echo ${2} | tr A-Z a-z`
+                case ${Logs} in
+                    current|none|all)
+                        :
+                        ;;
+                    *)
+                        echo "invalid selector for ${1}: '${2}'" 1>&2
+                        Action=USAGE
+                        break
+                        ;;
+                esac
+            fi
+            shift
+            ;;
+
+        -nl|--no-logs)
+            Logs=none
+            ;;
+
+        -c|--credentials)
+            SaveCredentials=YES
+            ;;
+
+        -i|--info-only)
+            Action=INFO
+            Tar=NO
+            ;;
+
+        -n|--notar)
+            Tar=NO
+            ;;
+
+        --core)
+            if [ -z "${2}" ]
+            then
+                echo "No argument supplied for --core" 1>&2
+                Action=USAGE
+                break
+            fi
+            CoreFiles="${CoreFiles} ${2}"
+            shift
+            ;;
+
+        --file)
+            if [ -z "${2}" ]
+            then
+                echo "No argument supplied for --file" 1>&2
+                Action=USAGE
+                break
+            fi
+            ExtraFiles="${ExtraFiles} ${2}"
+            shift
+                 ;;
+
+        --comment)
+            if [ -z "${2}" ]
+            then
+                echo "No argument supplied for --comment" 1>&2
+                Action=USAGE
+                break
+            fi
+            CommentFiles="${CommentFiles} ${2}"
+            shift
+            ;;
+
+        ##
+        ## handle the 'end of options' marker
+        ##
+        --)
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+            echo "Unknown switch: ${1}" 1>&2
+            Action=USAGE
+            break
+            ;;
+
+        *)
+            if [ -z "${ToFile}" ]
+            then
+                ToFile=${1}
+            else
+                echo "Too many arguments supplied: $@" 1>&2
+                Action=USAGE
+                break
+            fi
+            ;;
+    esac
+
+    shift # always consume 1 argument
+done
+
+# Set the working file tree.
+# Since the destination location may not be able to hold the uncompressed
+# data, place it in a recognized temporary location.
+Work=${TMPDIR:-/tmp}/sipx-snapshot.$$
+if [ ${Tar} = YES ]
+then
+  # Set default ToFile if necessary.
+  ToFile=${ToFile:-${DefaultTarFile}}
+else
+  # If Tar = NO, we copy the files directly to their destination.
+  Work=${ToFile:-${Work}}
+fi
+
+if [ ${Action} = USAGE ]
+then
+  cat <<USAGE
+
+Usage:
+
+    sipx-snapshot [ -c  | --credentials ]
+                  [ -nw | --no-www ]
+                  [ -l  | --logs {current|all|none} ]
+                  [ --core <core-file> ] ...
+                  [ --file <file-name> ] ...
+                  [ --comment <file-name> ] ...
+                                       [ <tar-file-name> ]
+
+    sipx-snapshot [ -i  | --info-only ]
+
+    sipx-snapshot -n  | --notar
+                  { options as in the first form }
+                                       [ <to-directory-name> ]
+
+    Collects important sipXpbx configuration information
+    and saves it in a file.  This is used to record configuration
+    information to accompany a problem report.
+
+    In the default mode (the first form shown), the output file is a
+    gzipped tar file named <tar-file-name>.  The default name is
+    '${DefaultTarFile}'.  The tar file contains a text file named
+    SystemConfig that describes various system configuration information,
+    and the sipXpbx configuration files.
+
+    The second form, with the --info-only switch, only the system
+    configuration information is collected; none of the sipXpbx configuration
+    files are included, and the output is to standard output.
+
+    The third form, with the --notar switch, prevents the saved files from
+    being tar'ed -- they remain in a file tree that mirrors the originals;
+    in this case the final argument is the name of the directory where the
+    information should be saved.
+
+    By default, all password information is removed from the recorded
+    credentials file.  If diagnosing a particular problem requires that the
+    real credential information be included, the --credentials switch
+    causes it to be left in.
+
+    The --no-www switch disables saving the apache configuration files.
+
+    The --logs switch selects which logs are saved:
+               current - saves all the current logs (not those saved by logrotate)
+               all     - saves all logs in the sipx log directory (large!)
+               none    - does not include any logs (not recommended)
+
+    The --no-logs switch causes the sipX and Apache logs to be omitted
+    from the snapshot; the default is to include them.  (deprecated but
+    left in for backward compatibility - use '--logs none').
+
+    The --core switch is used to specify the name of a core file to
+    include among the files archived.  If the file name does not contain
+    a /, it is searched for in @SIPX_LOGDIR@, otherwise it is searched for
+    as usual.  The program 'file' is used to determine the corresponding
+    executable file, the dynamic loader is used to determine the
+    required dynamic libraries, and the executable and libraries are
+    included among the files to be archived.  --core may be used
+    multiple times.
+
+    The --file switch is used to specify the name of a file to include
+    among the files archived.  --file may be used multiple times.
+
+    The --comment switch is used to specify the name of a file to include
+    among the files archived, but it will be at the top level of the saved
+    file structure, rather than placed according to its full file name.
+    --comment may be used multiple times.
+
+    The --delete-logs option has been removed.
+
+USAGE
+    exit
+fi
+
+# Establish the work directory, which will mirror the parts of the
+# file system that we are interested in, with $Work corresponding to /.
+rm -rf $Work
+mkdir  $Work
+
+# File into which to record random system configuration information.
+SystemConfig=${Work}/SystemConfig
+
+# Assemble the list of files to record.
+
+# These files and directories are always recorded.
+cat > $Work.copy-files <<EOF
+@SIPX_CONFDIR@
+@SIPX_DBDIR@
+/etc/host.conf
+/etc/resolv.conf
+/etc/hosts
+/etc/crontab
+EOF
+
+# Add the requested log files
+case ${Logs} in
+    none)
+        :
+        ;;
+    current)
+        for log in @SIPX_LOGDIR@/*.log
+        do
+          echo $log >> $Work.copy-files
+        done
+        ;;
+    all)
+        for log in @SIPX_LOGDIR@/*.log  @SIPX_LOGDIR@/*.log.*
+        do
+          echo $log >> $Work.copy-files
+        done
+        ;;
+esac
+
+# Add the --file files to the list.
+for File in ${ExtraFiles}
+do
+  # Point the file name to $PWD if it has no /.
+  File=$( make_absolute ${File} ${PWD} )
+
+  # Check that the file exists.
+  if [ ! -e ${File} ]
+  then
+      echo File ${File} does not exist. 1>&2
+      exit 1
+  fi
+
+  # Add the file name to the list.
+  echo "${File}" >> $Work.copy-files
+done
+
+# Copy the --comment files to $Work.
+for File in ${CommentFiles}
+do
+  # Point the file name to $PWD if it has no /.
+  File=$( make_absolute ${File} ${PWD} )
+
+  # Check that the file exists.
+  if [ ! -e ${File} ]
+  then
+      echo File ${File} does not exist. 1>&2
+      exit 1
+  fi
+
+  # Copy the file into the work directory.
+  cp -pR --dereference ${File} ${Work}/$( basename ${File} )
+done
+
+# Record miscellaneous information about the host.
+
+cat /dev/null            > ${SystemConfig}
+echo -n "Snapshot:  "   >> ${SystemConfig}
+echo $0                 >> ${SystemConfig}
+echo ""                 >> ${SystemConfig}
+echo -n "Host:      "   >> ${SystemConfig}
+hostname                >> ${SystemConfig}
+echo ""                 >> ${SystemConfig}
+echo -n "Date:      "   >> ${SystemConfig}
+date -u                 >> ${SystemConfig}
+echo ""                 >> ${SystemConfig}
+echo -n "Version:   "   >> ${SystemConfig}
+uname -a                >> ${SystemConfig}
+if [ -f /etc/redhat-release ]
+then
+echo ""                 >> ${SystemConfig}
+echo "Release:"         >> ${SystemConfig}
+cat /etc/redhat-release >> ${SystemConfig}
+fi
+echo ""                 >> ${SystemConfig}
+echo    "sipXpbx User:" >> ${SystemConfig}
+grep @SIPXPBXUSER@ /etc/passwd >> ${SystemConfig}
+echo ""                 >> ${SystemConfig}
+echo "SELinux:"                 >> ${SystemConfig}
+if selinuxenabled               >> ${SystemConfig} 2>&1
+then
+    echo -n "   Enabled; mode=" >> ${SystemConfig}
+    getenforce                  >> ${SystemConfig}
+else
+    echo    "   Disabled"       >> ${SystemConfig}
+fi 
+echo ""                         >> ${SystemConfig}
+
+echo "SSL Configuration:"      >> ${SystemConfig}
+ls -lR @SIPX_CONFDIR@/ssl/     >> ${SystemConfig}
+echo "  Certificate Dump:"     >> ${SystemConfig}
+cat @SIPX_CONFDIR@/ssl/ssl.crt >> ${SystemConfig} 2>&1
+echo ""
+
+# Process the core file specifications (if any) into the list of files to save
+# and include details in SystemConfig.
+
+# If core files were specified, determine the files to be copied.
+cat /dev/null >${Work}.core-related-files
+for Core in ${CoreFiles}
+do
+  # Point the core file name to SIPX_LOGDIR if it has no /.
+  Core=$( make_absolute ${Core} @SIPX_LOGDIR@ )
+
+  # Check that the file exists.
+  if [ ! -e ${Core} ]
+  then
+      echo File ${Core} does not exist. 1>&2
+      exit 1
+  fi
+
+  # Run 'file' on it.
+  file_output="$( file ${Core} )"
+
+  # Verify that it is a core file.
+  if [[ "${file_output}" != *" core file "* ]]
+  then
+      echo File ${Core} is not a core file. 1>&2
+      echo "'file ${Core}' reports: $f" 1>&2
+      exit 1
+  fi
+
+  Executable="${file_output##*\ from\ \'}"
+  Executable="${Executable%\'}"
+
+  # Point the executable file name to SIPX_BINDIR if it has no /.
+  Executable=$( make_absolute ${Executable} @SIPX_BINDIR@ )
+
+  # Check that the file exists.
+  if [ ! -e ${Executable} ]
+  then
+      echo File ${Executable}, the executable for ${Core}, does not exist. 1>&2
+      exit 1
+  fi
+
+  echo ""                               >> ${SystemConfig}
+  echo "Core file: ${Core}"             >> ${SystemConfig}
+  echo "${file_output}"                 >> ${SystemConfig}
+  echo "from executable: ${Executable}" >> ${SystemConfig}
+
+  # Accumulate the list of files to be added to the snapshot in 
+  echo "${Core}" >>${Work}.core-related-files
+  echo "${Executable}" >>${Work}.core-related-files
+  # Get the dynamic libraries this executable needs.
+  /lib/ld-linux.so* --list ${Executable} |
+      sed -e '/ => [^ ]/!d' -e 's/^.* => \([^ ]*\) .*$/\1/' >>${Work}.core-related-files
+
+done
+
+# Remove duplicates from the list, and add it to $Work.copy-files
+sort -u ${Work}.core-related-files >>$Work.copy-files
+
+# Get DNS and hostname information
+locale=""
+full_host=`hostname --fqdn | tr A-Z a-z`
+full_locale=$full_locale
+
+while [ -n "$full_locale" ]
+do
+    locale="$full_locale $locale"
+    full_locale=`echo $full_locale | sed 's/^[^.]*\.//; s/^[^.]*$//'`
+done
+
+sipDomain=`. @SIPX_CONFDIR@/config.defs > /dev/null 2>&1; echo ${SIPXCHANGE_DOMAIN_NAME}`
+echo "" >> ${SystemConfig}
+echo ======== SIP Domain: $sipDomain >> ${SystemConfig}
+
+echo "" >> ${SystemConfig}
+echo ======== DNS NAPTR $sipDomain >> ${SystemConfig}
+dig -t naptr +noidentify +nocmd +nocomments +noquestion +nostats +noauthority $sipDomain \
+>> ${SystemConfig}
+
+for d in $sipDomain rr.$full_host ap.$full_host
+do
+  echo ======== DNS SRV $d >> ${SystemConfig}
+  dig -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority _sip._tcp.$d _sip._udp.$d \
+  | sort -u -r \
+  >> ${SystemConfig}
+done
+
+# Get configuration information on sipX components
+for component in pbx config proxy registry publisher vxml commserverlib calllib medialib tacklib portlib
+do
+  echo "" >> ${SystemConfig}
+  if test -x @bindir@/sipx${component}-config
+  then
+      @bindir@/sipx${component}-config --all >> ${SystemConfig}
+  else
+      echo Missing: @SIPX_BINDIR@/sipx${component}-config >>   ${SystemConfig}
+  fi
+done
+
+# Get version info for key prerequisite packages
+for prereq in pcre cgicc glib
+do
+  echo "" >> ${SystemConfig}
+  prereq_version=`${prereq}-config --version 2> /dev/null`
+  if test $? -eq 0
+  then
+      echo -n "$prereq --version : ${prereq_version}" >> ${SystemConfig}
+  else
+      echo -n "$prereq --version : (not available)" >> ${SystemConfig}
+  fi
+done
+
+# Get info on installed sipx rpms
+for sipName in `rpm -qa --nodigest --nosignature | grep sipx`
+do
+   echo "" >> ${SystemConfig}
+   echo "======== RPM $d" >> ${SystemConfig}
+        rpm -qi $sipName     >> ${SystemConfig}
+done
+echo "======== RPMs" >> ${SystemConfig}
+rpm -qa --nodigest --nosignature | sort >> ${SystemConfig}
+
+echo ""       >> ${SystemConfig}
+echo ======== ifconfig -a >> ${SystemConfig}
+ifconfig -a   >> ${SystemConfig}
+
+# Get any firewall or other tricky IP manipulations
+echo "" >> ${SystemConfig}
+echo "======== IPTables:"       >> ${SystemConfig}
+for t in nat filter mangle
+do
+  echo "=== $t table:"            >> ${SystemConfig}
+  iptables --table $t --list --verbose --numeric --line-numbers >> ${SystemConfig} 2>&1
+done
+
+# Execute system monitoring commands
+for command in \
+    "ps -efww" \
+    "netstat -ap --ip --numeric-hosts" \
+    "top n 1 b" \
+    "vmstat 5 2" \
+    "free" \
+    "df" \
+    "ls -ld /tmp" \
+    "@SIPX_BINDIR@/analyze_483s @SIPX_LOGDIR@/sipproxy.log"
+do
+  echo "" >> ${SystemConfig}
+  echo ======== $command >> ${SystemConfig}
+  $command >> ${SystemConfig} 2>&1
+done
+
+# Collect sipX configuration information
+echo "" >> ${SystemConfig}
+
+if [ "${Action}" = "SNAPSHOT" ]
+then
+
+  # Copy all the files and directories that should be copied.
+  for file in `sort -u $Work.copy-files`
+  do
+    copyFile=`basename ${file}`
+    copyDir=${Work}`dirname ${file}`
+    if [ -f ${file} ]
+    then
+      mkdir -p ${copyDir}
+      # This is 'cp --archive', except with '--dereference'.
+      # '--dereference' is necessary, because if we're saving dynamic libraries
+      # for a core file, the linked dynamic library names are almost always
+      # symlinks.
+      cp -pR --dereference ${file} ${copyDir}/${copyFile}
+    elif [ -d ${file} ]
+    then
+      mkdir -p ${copyDir}
+      cp -pR --dereference ${file} ${Work}${file}
+    else
+      echo Missing or not a file/directory: ${file} >> ${SystemConfig}
+      ls -ld ${file} >> ${SystemConfig}
+    fi
+  done
+
+  # Remove the passtokens from credential.xml if we should do so.
+  if [ ${SaveCredentials} = NO ]
+  then
+    for file in `find $Work -name credential.xml`
+    do
+      mv ${file} ${file}.tmp
+      sed < ${file}.tmp > ${file} \
+            -e 's|<passtoken>[^<]*</passtoken>|<passtoken>ELIDED</passtoken>|' \
+            -e 's|<pintoken>[^<]*</pintoken>|<pintoken>ELIDED</pintoken>|'
+      rm ${file}.tmp
+    done
+  fi
+fi
+
+if [ ${Tar} = YES ]
+then
+  # Tar the entire directory tree and compress it.
+  # (Writing this pipe explicitly allows us to use tar's that do not understand
+  # the -z option.)
+  tar cf - -C ${Work} . | gzip >${ToFile}
+  # Remove the temporary files.
+  rm -rf $Work
+
+  echo "Configuration saved in '${ToFile}'"
+
+elif [ "${Action}" = "INFO" ]
+then
+  cat ${SystemConfig}
+  echo "(Configuration information is in '${SystemConfig}')"
+
+else
+  echo "Configuration saved in '${Work}'"
+fi
+
+# Remove the temporary files.
+rm -rf $Work.copy-files $Work.delete-files $Work.core-related-files

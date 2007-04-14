@@ -1,0 +1,82 @@
+/*
+ * 
+ * 
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ * 
+ * $
+ */
+package org.sipfoundry.sipxconfig.speeddial;
+
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
+
+public class ResourceLists extends XmlFile {
+    private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-00";
+
+    private Document m_document;
+
+    private CoreContext m_coreContext;
+
+    public Document getDocument() {
+        return m_document;
+    }
+
+    public void generate(SpeedDialManager speedDialManager) {
+        m_document = FACTORY.createDocument();
+        Element lists = m_document.addElement("lists", NAMESPACE);
+        List<User> users = m_coreContext.loadUsers();
+        for (User user : users) {
+            SpeedDial speedDial = speedDialManager.getSpeedDialForUserId(user.getId(), false);
+            // ignore disabled orbits
+            if (speedDial == null) {
+                continue;
+            }
+            List<Button> buttons = speedDial.getButtons();
+            Element list = null;
+            for (Button button : buttons) {
+                if (!button.isBlf()) {
+                    continue;
+                }
+                if (list == null) {
+                    list = createListForUser(lists, speedDial);
+                }
+                createResourceForUser(list, button, m_coreContext.getDomainName());
+            }
+        }
+    }
+
+    Element createResourceForUser(Element list, Button button, String domainName) {
+        Element resource = list.addElement("resource");
+        resource.addAttribute("uri", button.getUri(domainName));
+        addNameElement(resource, StringUtils.defaultIfEmpty(button.getLabel(), button.getNumber()));
+        return resource;
+    }
+
+    private void addNameElement(Element parent, String name) {
+        parent.addElement("name").setText(name);
+    }
+
+    private Element createListForUser(Element lists, SpeedDial speedDial) {
+        Element list = lists.addElement("list");
+        list.addAttribute("user", speedDial.getResourceListId(false));
+        addNameElement(list, speedDial.getResourceListName());
+        return list;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
+
+    public ConfigFileType getType() {
+        return ConfigFileType.RESOURCE_LISTS;
+    }
+}

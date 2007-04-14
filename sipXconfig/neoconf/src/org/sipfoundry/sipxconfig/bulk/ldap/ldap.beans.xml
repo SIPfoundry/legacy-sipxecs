@@ -1,0 +1,114 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  <bean id="attrMap" class="org.sipfoundry.sipxconfig.bulk.ldap.AttrMap" singleton="false">
+    <property name="userToLdap">
+      <map>
+        <entry key="userName" value="uid" />
+        <entry key="pin">
+          <null />
+        </entry>
+        <entry key="sipPassword">
+          <null />
+        </entry>
+        <entry key="firstName" value="givenName" />
+        <entry key="lastName" value="sn" />
+        <entry key="aliasesString" value="telephoneNumber" />
+        <entry key="userGroupName" value="ou" />
+      </map>
+    </property>
+    <property name="defaultGroupName" value="ldap_imports" />
+    <property name="defaultPin" value="1111" />
+    <property name="objectClass" value="person" />
+    <property name="selectedObjectClasses">
+      <set>
+        <value>person</value>
+        <value>inetOrgPerson</value>
+        <value>residentialPerson</value>
+        <value>organizationalPerson</value>
+      </set>
+    </property>
+  </bean>
+
+  <bean id="ldapConnectionParams" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams"
+    singleton="false">
+    <property name="host" value="localhost" />
+    <property name="port" value="389" />
+  </bean>
+
+  <bean id="ldapRowInserter" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapRowInserter" parent="rowInserter"
+    singleton="false">
+    <property name="coreContext" ref="coreContext" />
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="preserveMissingUsers" value="false" />
+  </bean>
+
+  <bean id="jndiTemplate" class="org.sipfoundry.sipxconfig.bulk.ldap.JndiLdapTemplate">
+    <property name="intialContextFactory" value="com.sun.jndi.ldap.LdapCtxFactory" />
+  </bean>
+
+  <bean id="ldapManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapManagerImpl">
+    <property name="sessionFactory">
+      <ref bean="sessionFactory" />
+    </property>
+    <property name="jndiTemplate">
+      <ref local="jndiTemplate" />
+    </property>
+  </bean>
+
+  <bean id="ldapManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.bulk.ldap.LdapManager" />
+    <property name="target">
+      <ref local="ldapManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="ldapImportManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="rowInserter">
+      <ref local="ldapRowInserter" />
+    </property>
+    <property name="jndiTemplate">
+      <ref local="jndiTemplate" />
+    </property>
+    <property name="ldapManager">
+      <ref local="ldapManager" />
+    </property>
+    <property name="previewSize" value="10" />
+  </bean>
+
+  <bean id="eagerLdapImportManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager" />
+    <property name="target">
+      <ref local="ldapImportManagerImpl" />
+    </property>
+    <property name="interceptorNames">
+      <list>
+        <value>hibernateInterceptor</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="ldapImportManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager" />
+    <property name="target">
+      <ref local="ldapImportManagerImpl" />
+    </property>
+    <property name="interceptorNames">
+      <list>
+        <value>backgroundTaskInterceptor</value>
+        <value>hibernateInterceptor</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="ldapImportTrigger" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapImportTrigger">
+    <property name="ldapImportManager">
+      <ref local="eagerLdapImportManager" />
+    </property>
+    <property name="ldapManager">
+      <ref local="ldapManager" />
+    </property>
+  </bean>
+</beans>

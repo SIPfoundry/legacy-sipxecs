@@ -1,0 +1,41 @@
+Library Decoupling Project
+==========================
+Ideally sipXcallLib is separated into 3 pieces
+  sipXtackLib 
+     net
+     resparse
+  sipXmediaLib - which replies on sipXtack
+     mp
+     rtcp
+  sipXcallLib - which relies on sipXmedia and sipXtack
+     cp
+     ptapi
+     tao
+     ps
+
+But under this ideal package structure, sipXtackLib has some
+references into sipXcallLib that make this entire separation
+impossible w/o the following the source code changes:
+
+1) The following module implementations relies on
+constants (e.g. CallManager::CP_SIP_MESSAGE).  These need to be
+abstracted or pulled out of net.  It is probably best to defined some
+of the common message sub types in OS or in NET.  For exmaple,
+SipUserAgent::SUA_SIP_MESSAGE or OsMsg:SUB_SIP_MESSAGE or something.
+    - SipCallProxyState
+    - SipConfigServerAgent
+    - SipMessageEvent
+    - SipNatProxy 
+    - SipNotifyStateTask
+    - SipProxy 
+
+2) SipProvider relies heavly on call state enumerations and events.
+It seems like SipProvider really SHOULD live in call processing layer.
+It doesn't add any value to the .net package.  This really asks a
+bigger question, if this is used by stuff like the SipCallProxyState,
+should some of call processing live in this lib?
+
+3) In SipProxyCallState.h/cpp, we pull in PtTerminalConnection for the
+TerminalConnectionState enumerated type.  In theory, the proxy
+shouldn't care about call state, if it MUST reference call state , we
+should pull the enumeration into the net package.

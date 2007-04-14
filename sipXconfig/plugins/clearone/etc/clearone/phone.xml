@@ -1,0 +1,307 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  <group name='admin'>
+    <label>Administration</label>
+    <setting name='username'>
+      <value>admin</value>
+      <description>web login id</description>
+    </setting>
+    <setting name='password'>
+      <type>
+        <string password="yes"></string>
+      </type>
+      <value>clearone</value>
+      <description>web login password</description>
+    </setting>
+  </group>
+  <group name='basic'>
+    <label>Settings</label>
+    <setting name='ringtone'>
+      <type>
+        <integer min="1" max="5" />
+      </type>
+      <value>1</value>
+      <description>ringtone index 1 to 5</description>
+    </setting>
+    <setting name='localnum'>
+      <value>1234</value>
+      <description>Local telephone number</description>
+    </setting>
+    <setting name='conference_num'>
+      <value>6625</value>
+      <description>Conference number</description>
+    </setting>
+    <setting name='helpline_num'>
+      <value>6356</value>
+      <description>helpline number</description>
+    </setting>
+    <setting name='allow_reboot_in_call'>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+      <description>1 - allow reboot during a call 0 - wait till call complete</description>
+    </setting>
+    <setting name='mute_ringtone'>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+      <description>1 - mute ringer on incoming call 0 - disable mute</description>
+    </setting>
+    <setting name='dialplan' hidden="yes">
+      <value>C1EngDialPlan.txt</value>
+      <description>File describing MAX Dialplan - TFTPed from server</description>
+    </setting>
+  </group>
+  <group name="time">
+    <label>Time</label>
+    <setting name='SNTP_server_1'>
+      <value/>
+      <description>SNTP 1 IP address</description>
+    </setting>
+    <setting name='SNTP_server_2'>
+      <value>0.0.0.0</value>
+      <description>SNTP 2 IP address</description>
+    </setting>
+    <setting name='timezone'>
+      <type>
+        <integer max="32" />
+      </type>
+      <value>5</value>
+      <description>Timezone offset</description>
+    </setting>
+    <setting name='adjust_dst'>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+      <description>1 - adjust for daylight savings time 0 - disable</description>
+    </setting>
+  </group>
+  <group name="speed_dial" hidden="yes">
+    <label>Speed dial</label>
+    <setting name='speed_dial_0'>
+      <label>Speed dial 0</label>
+      <value></value>
+    </setting>
+    <setting name='speed_dial_1'>
+      <label>Speed dial 1</label>
+      <value></value>
+    </setting>
+    <setting name='speed_dial_2'>
+      <label>Speed dial 2</label>
+      <value></value>
+    </setting>
+    <setting name='speed_dial_3'>
+      <label>Speed dial 3</label>
+      <value></value>
+    </setting>
+    <setting name='speed_dial_4'>
+      <label>Speed dial 4</label>
+      <value></value>
+    </setting>
+    <setting name='speed_dial_5'>
+      <label>Speed dial 5</label>
+      <value></value>
+    </setting>
+    <setting name='speed_dial_6'>
+      <label>Speed dial 6</label>
+      <value></value>
+    </setting>
+    <setting name='speed_dial_7'>
+      <label>Speed dial 7</label>
+      <value></value>
+    </setting>
+    <setting name='speed_dial_8'>
+      <label>Speed dial 8</label>
+      <value></value>
+    </setting>
+    <setting name='speed_dial_9'>
+      <label>Speed dial 9</label>
+      <value></value>
+    </setting>
+  </group>
+  <group name="voice">
+    <label>Voice</label>
+    <setting name='dtmf_relay_enable'>
+      <label>Inband DTMF</label>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name='dtmf_relay_payload'>
+      <label>DTMF relay payload</label>
+      <type>
+        <integer max="127" min="96" />
+      </type>
+      <value>96</value>
+    </setting>
+    <setting name='vad_enable'>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+      <description>1 - enable voice activity detection 0 - disable</description>
+    </setting>
+    <setting name='adaptive_vad'>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+      <description>1 - enable adaptive vad 0 - disable</description>
+    </setting>
+    <setting name='vad_thresh'>
+      <type>
+        <integer min="-20" max="10" />
+      </type>
+      <value>-20</value>
+      <description>vad threshold -20 to +10</description>
+    </setting>
+    <setting name='vad_noise_match'>
+      <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>level</value>
+          </option>
+          <option>
+            <value>g711a2</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+      <description>vad noise matching none, level, g711a2</description>
+    </setting>
+    <setting name='vad_noise_order'>
+      <type>
+        <integer max="10" />
+      </type>
+      <value>0</value>
+      <description>vad noise order 0 to 10</description>
+    </setting>
+    <setting name='g711ulaw_priority'>
+      <type>
+        <integer min="1" max="255" />
+      </type>
+      <value>255</value>
+      <description>g.711ulaw codec priority 1(lowest) to 255(highest)</description>
+    </setting>
+    <setting name='g711Alaw_priority'>
+      <type>
+        <integer min="1" max="255" />
+      </type>
+      <value>254</value>
+      <description>g.711Alaw codec priority 1(lowest) to 255(highest)</description>
+    </setting>
+    <setting name='g729ab_priority'>
+      <type>
+        <integer min="1" max="255" />
+      </type>
+      <value>250</value>
+      <description>g.729A/B codec priority 1(lowest) to 255(highest)</description>
+    </setting>
+    <setting name='g7231_53_priority'>
+      <type>
+        <integer min="1" max="255" />
+      </type>
+      <value>240</value>
+      <description>g.723.1 lowrate priority 1(lowest) to 255(highest)</description>
+    </setting>
+    <setting name='g7231_63_priority'>
+      <type>
+        <integer min="1" max="255" />
+      </type>
+      <value>245</value>
+      <description>g.723.1 highrate priority 1(lowest) to 255(highest)</description>
+    </setting>
+    <setting name='agc_enable'>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+      <description>AGC enable (1) disable (0)</description>
+    </setting>
+    <setting name='alc_enable'>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+      <description>ALC enable (1) disable (0)</description>
+    </setting>
+    <setting name='vlan_enable'>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+      <description>VLAN enable (1) disable (0)</description>
+    </setting>
+    <setting name='vlan_priority'>
+      <value>0</value>
+      <description>VLAN priority 0-7</description>
+    </setting>
+    <setting name='qos_precedence'>
+      <value>2</value>
+      <description>Diffserv Code Point index (0 - 7), custom (8)</description>
+    </setting>
+    <setting name='qos_custom_dscp'>
+      <value>0x32</value>
+      <description>Custom DSCP hex value (0x00 - 0x3F)</description>
+    </setting>
+  </group>
+  <group name="dialplan">
+    <label>Dialplan</label>
+    <profileName>$ignore$</profileName>
+    <setting name="DIALTIME">
+      <label>Dial time</label>
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>120000</value>
+    </setting>
+    <setting name="FIRST_DIGIT_WAIT">
+      <label>First digit wait</label>
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>30000</value>
+    </setting>
+    <setting name="INTER_DIGIT_WAIT">
+      <label>Inter-digit wait</label>
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>15000</value>
+    </setting>
+    <setting name="TERMINATION_DIGIT">
+      <label>Termination digit</label>
+      <type>
+        <string maxLen="1" required="yes">
+          <pattern>^[0-9#*]$</pattern>
+        </string>
+      </type>
+      <value>#</value>
+    </setting>
+    <setting name="MIN_DIGITS">
+      <label>Minimum number of digits</label>
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>4</value>
+    </setting>
+    <setting name="MAX_DIGITS">
+      <label>Minimum number of digits</label>
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>12</value>
+    </setting>
+  </group>
+</model>

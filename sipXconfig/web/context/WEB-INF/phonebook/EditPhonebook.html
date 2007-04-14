@@ -1,0 +1,35 @@
+<body jwcid="$content$">
+	<span jwcid="@Border" useDojo="true">
+		<h1>
+			<span key="title.phonebook"/>
+		</h1>
+		<span jwcid="@ErrorMsg"/>
+		<p><span key="description.phonebook" raw="true"/></p>
+		<span jwcid="@GroupCloud" groups="ognl:coreContext.groups"/>
+		<form jwcid="phonebookForm" id="phonebookForm">
+    		<span jwcid="nameDescription"/>
+			<fieldset>
+				<table>
+					<tbody>
+						<tr jwcid="memberGroupPanel">
+							<td>
+								<input jwcid="memberGroups" type="text"/>
+							</td>
+						</tr>
+						<tr jwcid="consumerGroupPanel">
+							<td>
+								<input jwcid="consumerGroups" type="text"/>
+							</td>
+						</tr>
+						<tr jwcid="phonebookFilePanel">
+							<td>
+								<fieldset jwcid="phonebookFile" id="phonebookFile"/>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</fieldset>
+			<span jwcid="formActions"/>
+		</form>
+	</span>
+</body>

@@ -1,0 +1,28 @@
+<html title="Bulk Import">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+<div jwcid="@Border">
+<h2><span key="title">Import</span></h2>
+<div class="help">
+	<b><span key="label.quickLinks">Quick Links</span></b>
+	<ul>
+		<li><a jwcid="@PageLink" page="JobStatusPage" href="#"><span key="job.status">Job Status</span></a></li>
+	</ul>
+</div>
+<div jwcid="@QuickHelp" value="message:quick.help"></div>
+<span jwcid="@ErrorMsg"/>
+<form jwcid="form">
+    <fieldset id="import:form">
+	    <table>
+            <tr for="import:upload" jwcid="csvPanel"><span id="import:upload" jwcid="csv"/></tr>
+		</table>
+    </fieldset>
+    <ul class="form-actions">
+	    <li><input jwcid="import" id="import:ok" type="submit" value="Import"/></li>
+    </ul>    
+</form>
+</div>
+</body>    
+</html>

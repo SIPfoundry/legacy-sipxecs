@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.upload.EditUpload">
+  <description>add a description</description>
+  <property name="upload" />
+  <property name="uploadId"  persist="session"/>
+  <property name="uploadSpecification"  persist="session"/>
+  <inject property="uploadManager" object="spring:uploadManager"/>
+  <property name="active" />
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <component id="pageLabel" type="Insert">
+    <binding name="value" value="upload.specification.label"/>
+  </component>
+  <component id="uploadForm" type="Form">
+    <binding name="delegate" value="bean:validator"/>
+  </component>
+  <component id="settingsFieldset" type="setting/SettingsFieldset">
+    <binding name="settings" value="upload.settings"/>
+    <binding name="renderGroupTitle" value="true"/>
+    <binding name="enabled" value="! upload.deployed"/>
+  </component>
+  <component id="nameDescriptionEdit" type="ItemCommon">
+    <binding name="useExtension" value="literal:false"/>
+    <binding name="useEnabled" value="literal:false"/>
+    <binding name="useFieldset" value="literal:false"/>
+    <binding name="item" value="upload"/>
+  </component>
+  <component id="activate" type="Submit">
+    <binding name="selected" value="active"/>
+    <binding name="tag" value="true"/>
+    <binding name="value" value="literal:Activate"/>
+    <binding name="listener" value="components.applyOkCancel.listeners.onApply"/>
+  </component>
+  <component id="inactivate" type="Submit">
+    <binding name="selected" value="active"/>
+    <binding name="tag" value="false"/>
+    <binding name="value" value="literal:Inactivate"/>
+    <binding name="listener" value="components.applyOkCancel.listeners.onApply"/>
+  </component>
+  <component id="applyOkCancel" type="FormActions">
+    <binding name="listener" value="listener:onSave"/>
+    <binding name="callback" value="callback"/>
+  </component>
+</page-specification>

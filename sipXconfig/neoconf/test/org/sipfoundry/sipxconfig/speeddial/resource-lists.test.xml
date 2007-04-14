@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<lists xmlns="http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-00">
+  <list user="~~rl~1">
+    <name>user_b</name>
+    <resource uri="sip:102@example.org">
+      <name>beta</name>
+    </resource>
+    <resource uri="sip:104@sipfoundry.org">
+      <name>gamma</name>
+    </resource>
+  </list>
+  <list user="~~rl~3">
+    <name>user_d</name>
+    <resource uri="sip:100@example.org">
+      <name>delta</name>
+    </resource>
+  </list>
+</lists>

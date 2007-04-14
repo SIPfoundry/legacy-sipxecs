@@ -1,0 +1,88 @@
+#!/bin/bash
+
+# SIPxchange home directory
+MAILSTORE=@SIPX_VXMLDATADIR@
+INTERACTIVE="yes"
+
+# Name of the back up directory
+BACKUP_DIR=backup-mailstore
+
+FILES="$MAILSTORE/messageid.txt $MAILSTORE/organizationprefs.xml $MAILSTORE/mailstore"
+
+SIZE=`du -sc $FILES | tail -n 1 | awk '{ print $1 }'`
+
+echo "Will back up mail stores."
+
+while [ "$#" -ne 0 ]
+do
+  case ${1} in
+    --non-interactive)
+      INTERACTIVE="no"
+      ;;
+
+    *)
+      echo "Unknown option: ${1}"
+      exit 3
+      ;;
+
+    esac
+    shift #always consume 1
+done
+
+# Assume a 2:1 compression ratio
+SIZE=$((SIZE / 2))
+echo "Will back up about ${SIZE}K to: `pwd`/$BACKUP_DIR"
+
+[ -d $BACKUP_DIR ] && echo "Will delete old back up directory."
+
+echo
+
+if [ "$INTERACTIVE" = "yes" ]; then
+  while :
+  do
+        echo -n "Is this correct? [y/N] "
+        read response
+        case $response in
+                y* | Y*)
+                        echo "Excellent!"
+                        break
+                ;;
+                n* | N* | "")
+                        echo "Cancelled."
+                          echo
+                        exit
+                ;;
+        esac
+  done
+  echo
+fi
+
+# Clean out the back up directory
+[ -d $BACKUP_DIR ] && rm -rf $BACKUP_DIR
+mkdir -p $BACKUP_DIR
+
+# Make sure there is space
+disk_device() {
+        df -P "$1" | tail +2 | awk '{ print $1 }'
+}
+
+disk_free() {
+        df -P "$1" | tail +2 | awk '{ print $4 }'
+}
+
+FREE=`disk_free "$BACKUP_DIR"`
+
+if [ $SIZE -gt $FREE ]
+then
+        FS=`disk_device "$BACKUP_DIR"`
+        echo "Filesystem $FS does not have enough free space."
+        echo "(Free space: ${FREE}K, needed: ${SIZE}K)"
+        exit 1
+fi
+
+# Copy the files
+echo -n "Copying files... "
+tar cC / $FILES | gzip --best > $BACKUP_DIR/mailstore.tar.gz
+echo "done."
+
+chown -R @SIPXPBXUSER@:@SIPXPBXUSER@ $BACKUP_DIR

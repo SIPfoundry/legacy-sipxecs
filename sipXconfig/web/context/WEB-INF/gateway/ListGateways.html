@@ -1,0 +1,44 @@
+<div jwcid="@Border">
+  <h2>
+    <span key="title">Gateways</span>
+  </h2>
+  <div class="help">
+    <b>
+      <span key="label.quickLinks">Quick Links</span>
+    </b>
+    <ul>
+      <li>
+        <a jwcid="dialPlansLink" id="dialPlans" href="#">
+          <span key="link.dialPlans">Dial Plans</span>
+        </a>
+      </li>
+      <li>
+        <a jwcid="@PageLink" page="JobStatusPage" href="#">
+          <span key="link.jobStatus">Job Status</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div jwcid="@QuickHelp" value="message:help.gatewayConfig">gateway config help text here...</div>
+  <span jwcid="@ErrorMsg"/>  
+  <form jwcid="gatewaysListForm" id="list:gateway:form">
+    <ul class="component-links">
+      <li>
+        <span jwcid="selectGatewayModel"/>
+      </li>
+    </ul>
+    <span jwcid="gatewayTable"></span>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="propagateButton" type="submit" id="list:gateway:propagate"/>
+      </li>
+      <li>
+        <input jwcid="propagateAllButton" type="submit" id="list:gateway:propagateAll"/>
+      </li>
+      <li>
+        <input jwcid="deleteButton" id="list:gateway:delete" />
+        <span jwcid="@common/Confirm" component="component:deleteButton" prompt="message:confirm.delete"/>          
+      </li>
+    </ul>
+  </form>
+</div>

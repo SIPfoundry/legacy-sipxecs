@@ -1,0 +1,36 @@
+<div jwcid="@Border" restricted="false">
+  <h2><span key="title">User Extension Pool</span></h2>
+  <span jwcid="@ErrorMsg"/>
+  <form jwcid="@Form" delegate="bean:validator" id="extPool:form">
+    <table>
+      <tr>
+        <td>
+          <input jwcid="enableExtensionPool@Checkbox" id="extPool:enable" 
+            value="prop:userExtensionPool.enabled"/>
+          <label for="extPool:enable">
+            <span key="label.extensionPoolEnable">Automatically assign user extensions from the pool</span>
+          </label>
+        </td>
+      </tr>
+    </table>
+    <table>
+      <tr jwcid="@FieldPanel" for="extPool:start" 
+        field="component:start" 
+        label="message:label.start">
+        <td jwcid="start@TextField" id="extPool:start"
+          value="ognl:userExtensionPool.firstExtension"
+          validators="spring-validators:validPhone,required"
+          displayName="message:label.start"/>
+      </tr>
+      <tr jwcid="@FieldPanel" for="extPool:end"
+        field="component:end" 
+        label="message:label.end">
+        <td jwcid="end@TextField" id="extPool:end"
+          value="ognl:userExtensionPool.lastExtension"
+          validators="spring-validators:validPhone,required"
+          displayName="message:label.end"/>
+      </tr>
+    </table>
+    <ul jwcid="@FormActions" callback="prop:callback" listener="listener:commit"/>
+  </form>
+</div>

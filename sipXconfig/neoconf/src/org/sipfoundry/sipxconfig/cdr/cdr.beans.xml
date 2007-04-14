@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="cdrDataSource" parent="dataSource">
+    <property name="jdbcUrl" value="jdbc:postgresql://localhost/SIPXCDR" />
+  </bean>
+
+  <!-- cdrAgentPort and cdrAgentHost are set from config.defs in sipxconfig.properties -->
+  <bean id="cdrManagerImpl" class="org.sipfoundry.sipxconfig.cdr.CdrManagerImpl">
+    <property name="dataSource" ref="cdrDataSource" />
+    <property name="cdrAgentHost" value="localhost" />
+    <property name="cdrAgentPort" value="8130" />
+    <property name="csvLimit" value="25000" />
+  </bean>
+
+  <!-- We probably do not need to proxy this -->
+  <alias alias="cdrManager" name="cdrManagerImpl" />
+</beans>

@@ -1,0 +1,770 @@
+// 
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Contributors retain copyright to elements licensed under a Contributor Agreement.
+// Licensed to the User under the LGPL license.
+// 
+// $$
+//////////////////////////////////////////////////////////////////////////////
+
+// SYSTEM INCLUDES
+// APPLICATION INCLUDES
+
+#include "ResourceListSet.h"
+#include "ResourceList.h"
+#include "SubscriptionSet.h"
+#include "ResourceNotifyReceiver.h"
+#include "ResourceSubscriptionReceiver.h"
+#include "ResourceListMsg.h"
+#include <os/OsSysLog.h>
+#include <os/OsLock.h>
+#include <os/OsEventMsg.h>
+#include <utl/XmlContent.h>
+#include <utl/UtlSListIterator.h>
+#include <net/SipDialogEvent.h>
+#include <net/NameValueTokenizer.h>
+#include <net/NameValuePair.h>
+#include <net/HttpMessage.h>
+#include <net/SipMessage.h>
+#include <xmlparser/tinyxml.h>
+
+// EXTERNAL FUNCTIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
+
+// URN for the xmlns attribute for Resource List Meta-Information XML.
+#define RLMI_XMLNS "urn:ietf:params:xml:ns:rlmi"
+// MIME information for RLMI XML.
+#define RLMI_CONTENT_TYPE "application/rlmi+xml"
+
+// Resubscription period.
+#define RESUBSCRIBE_PERIOD 3600
+
+// STATIC VARIABLE INITIALIZATIONS
+
+const UtlContainableType ResourceListSet::TYPE = "ResourceListSet";
+const int ResourceListSet::sSeqNoIncrement = 4;
+const int ResourceListSet::sSeqNoMask = 0x3FFFFFFC;
+
+
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+/* ============================ CREATORS ================================== */
+
+// Constructor
+ResourceListSet::ResourceListSet(ResourceListServer* resourceListServer) :
+   mResourceListServer(resourceListServer),
+   mSemaphore(OsBSem::Q_PRIORITY, OsBSem::FULL),
+   mResourceCache(this),
+   mNextSeqNo(0),
+   mSuspendPublishingCount(0),
+   mPublishingTimer(getResourceListServer()->getResourceListTask().
+                    getMessageQueue(),
+                    ResourceListSet::PUBLISH_TIMEOUT),
+   mVersion(0)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet:: this = %p",
+                 this);
+}
+
+// Destructor
+ResourceListSet::~ResourceListSet()
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::~ this = %p",
+                 this);
+}
+
+// Delete all ResourceList's and stop the publishing timer.
+void ResourceListSet::finalize()
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::finalize this = %p",
+                 this);
+
+   // Make sure the ResourceList's are destroyed before the ResourceCache,
+   // so that all references to the ResourceCached's are removed.
+   mResourceLists.destroyAll();
+
+   // Make sure the publishing timer is stopped before the ResourceListTask
+   // is destroyed, because the timer posts messages to ResourceListTask.
+   mPublishingTimer.stop();
+}
+
+/* ============================ MANIPULATORS ============================== */
+
+// Refresh the subscriptions of all resources in all resource lists.
+void ResourceListSet::refreshAllResources()
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::refreshAllResources this = %p",
+                 this);
+
+   // Serialize access to the resource list set.
+   OsLock lock(mSemaphore);
+   
+   // Send the request to the ResourceCache, which contains all the resources.
+   mResourceCache.refreshAllResources();
+}
+
+// Create and add a resource list.
+void ResourceListSet::addResourceList(const char* user,
+                                      const char* nameXml)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::addResourceList this = %p, user = '%s', nameXml = '%s'",
+                 this, user, nameXml);
+
+   // Serialize access to the ResourceListSet.
+   OsLock lock(mSemaphore);
+   
+   // Check to see if there is already a list with this name.
+   if (!findResourceList(user))
+   {
+      // Create the resource list.
+      ResourceList* resourceList = new ResourceList(this, user);
+
+      // Update the version number for consolidated events if it is too
+      // small for an existing subscription to this URI.
+      int v =
+         getResourceListServer()->getSubscriptionMgr().
+         getNextAllowedVersion(*resourceList->getResourceListUriCons());
+      if (v > mVersion)
+      {
+         mVersion = v;
+      }
+
+      // Add the resource list to the set.
+      mResourceLists.append(resourceList);
+
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceListSet::addResourceList added ResourceList, mVersion = %d",
+                    mVersion);
+   }
+   else
+   {
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceListSet::addResourceList ResourceList '%s' already exists",
+                    user);
+   }
+}
+
+// Delete all resource lists.
+void ResourceListSet::deleteAllResourceLists()
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::deleteAllResourceLists this = %p",
+                 this);
+
+   // Serialize access to the ResourceListSet.
+   OsLock lock(mSemaphore);
+   
+   // Delete all the ResourceList's.
+   mResourceLists.destroyAll();
+}
+
+// Delete all resources from a resource list.
+void ResourceListSet::deleteAllResources(const char* user)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::deleteAllResources this = %p, user = '%s'",
+                 this, user);
+
+   // Serialize access to the ResourceListSet.
+   OsLock lock(mSemaphore);
+   
+   ResourceList* resourceList = findResourceList(user);
+   if (resourceList)
+   {
+      resourceList->deleteAllResources();
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceListSet::deleteAllResources done");
+   }
+   else
+   {
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceListSet::deleteAllResources ResourceList '%s' not found",
+                    user);
+   }
+}
+
+// Get a list of the user-parts of all resource lists.
+void ResourceListSet::getAllResourceLists(UtlSList& list)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::getAllResourceLists this = %p",
+                 this);
+
+   // Serialize access to the ResourceListSet.
+   OsLock lock(mSemaphore);
+   
+   // Iterate through the resource lists.
+   UtlSListIterator resourceListItor(mResourceLists);
+   ResourceList* resourceList;
+   while ((resourceList = dynamic_cast <ResourceList*> (resourceListItor())))
+   {
+      list.append(new UtlString(*resourceList->getUserPart()));
+   }
+}
+
+//! Create and add a resource to the resource list.
+//  Returns the generated Resource object.
+void ResourceListSet::addResource(const char* user,
+                                  const char* uri,
+                                  const char* nameXml,
+                                  const char* display_name)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::addResource this = %p, user = '%s', uri = '%s', nameXml = '%s', display_name = '%s'",
+                 this, user, uri, nameXml, display_name);
+
+   // Serialize access to the resource list.
+   OsLock lock(mSemaphore);
+
+   ResourceList* resourceList = findResourceList(user);
+   if (resourceList)
+   {
+      resourceList->addResource(uri, nameXml, display_name);
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceListSet::addResource resource added");
+   }
+   else
+   {
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceListSet::addResource ResourceList '%s' not found",
+                    user);
+   }
+}
+
+// Callback routine for subscription state events.
+// Called as a callback routine.
+void ResourceListSet::subscriptionEventCallbackAsync(
+   SipSubscribeClient::SubscriptionState newState,
+   const char* earlyDialogHandle,
+   const char* dialogHandle,
+   void* applicationData,
+   int responseCode,
+   const char* responseText,
+   long expiration,
+   const SipMessage* subscribeResponse
+   )
+{
+   // earlyDialogHandle may be NULL for some termination callbacks.
+   if (!earlyDialogHandle)
+   {
+      earlyDialogHandle = "";
+   }
+   // dialogHandle may be NULL for some termination callbacks.
+   if (!dialogHandle)
+   {
+      dialogHandle = "";
+   }
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::subscriptionEventCallbackAsync newState = %d, applicationData = %p, earlyDialogHandle = '%s', dialogHandle = '%s'",
+                 newState, applicationData, earlyDialogHandle, dialogHandle);
+
+   // The ResourceListSet concerned is applicationData.
+   ResourceListSet* resourceListSet = (ResourceListSet*) applicationData;
+
+   // Determine the subscription state.
+   // Currently, this is only "active" or "terminated", which is not
+   // very good.  But the real subscription state is carried in the
+   // NOTIFY requests. :TODO: Handle subscription set correctly.
+   const char* subscription_state;
+   if (subscribeResponse)
+   {
+      int expires;
+      subscribeResponse->getExpiresField(&expires);
+      subscription_state = expires == 0 ? "terminated" : "active";
+   }
+   else
+   {
+      subscription_state = "active";
+   }
+
+   // Send a message to the ResourceListTask.
+   SubscriptionCallbackMsg msg(earlyDialogHandle, dialogHandle,
+                               newState, subscription_state);
+   resourceListSet->getResourceListServer()->getResourceListTask().
+      postMessage(msg);
+}
+
+// Callback routine for subscription state events.
+// Called by ResourceListTask.
+void ResourceListSet::subscriptionEventCallbackSync(
+   const UtlString* earlyDialogHandle,
+   const UtlString* dialogHandle,
+   SipSubscribeClient::SubscriptionState newState,
+   const UtlString* subscriptionState
+   )
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::subscriptionEventCallbackSync earlyDialogHandle = '%s', dialogHandle = '%s', newState = %d, subscriptionState = '%s'",
+                 earlyDialogHandle->data(), dialogHandle->data(), newState,
+                 subscriptionState->data());
+
+   // Serialize access to the resource list set.
+   OsLock lock(mSemaphore);
+
+   // Look up the ResourceSubscriptionReceiver to notify based on the
+   // earlyDialogHandle.
+   /* To call the handler, we dynamic_cast the object to
+    * (ResourceSubscriptionReceiver*).  Whether this is strictly
+    * conformant C++ I'm not sure, since UtlContainanble and
+    * ResourceSubscriptionReceiver are not base/derived classes of
+    * each other.  But it seems to work in GCC as long as the dynamic
+    * type of the object is a subclass of both UtlContainable and
+    * ResourceSubscriptionReceiver.
+    */
+   ResourceSubscriptionReceiver* receiver =
+      dynamic_cast <ResourceSubscriptionReceiver*>
+         (mSubscribeMap.findValue(earlyDialogHandle));
+
+   if (receiver)
+   {
+      receiver->subscriptionEventCallback(earlyDialogHandle,
+                                          dialogHandle,
+                                          newState,
+                                          subscriptionState);
+   }
+   else
+   {
+      OsSysLog::add(FAC_RLS, PRI_WARNING,
+                    "ResourceListSet::subscriptionEventCallbackSync this = %p, no ResourceSubscriptionReceiver found for earlyDialogHandle '%s'",
+                    this, earlyDialogHandle->data());
+   }
+}
+
+// Callback routine for NOTIFY events.
+// Called as a callback routine.
+void ResourceListSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
+                                               const char* dialogHandle,
+                                               void* applicationData,
+                                               const SipMessage* notifyRequest)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::notifyEventCallbackAsync applicationData = %p, earlyDialogHandle = '%s', dialogHandle = '%s'",
+                 applicationData, earlyDialogHandle, dialogHandle);
+
+   // The ResourceListSet concerned is applicationData.
+   ResourceListSet* resourceListSet = (ResourceListSet*) applicationData;
+
+   // Get the NOTIFY content.
+   const char* b;
+   int l;
+   notifyRequest->getBody()->getBytes(&b, &l);
+
+   // Send a message to the ResourceListTask.
+   NotifyCallbackMsg msg(dialogHandle, b, l);
+   resourceListSet->getResourceListServer()->getResourceListTask().
+      postMessage(msg);
+}
+
+// Callback routine for NOTIFY events.
+// Called by ResourceListTask.
+void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
+                                              const UtlString* content)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::notifyEventCallbackSync dialogHandle = '%s'",
+                 dialogHandle->data());
+
+   // Serialize access to the resource list set.
+   OsLock lock(mSemaphore);
+
+   // Look up the ResourceNotifyReceiver to notify based on the dialogHandle.
+   /* To call the handler, we dynamic_cast the object to
+    * (ResourceNotifyReceiver*).  Whether this is strictly
+    * conformant C++ I'm not sure, since UtlContainanble and
+    * ResourceNotifyReceiver are not base/derived classes of
+    * each other.  But it seems to work in GCC as long as the dynamic
+    * type of the object is a subclass of both UtlContainable and
+    * ResourceNotifyReceiver.
+    */
+   ResourceNotifyReceiver* receiver =
+      dynamic_cast <ResourceNotifyReceiver*>
+         (mNotifyMap.findValue(dialogHandle));
+
+   if (receiver)
+   {
+      receiver->notifyEventCallback(dialogHandle, content);
+   }
+   else
+   {
+      OsSysLog::add(FAC_RLS, PRI_WARNING,
+                    "ResourceListSet::notifyEventCallbackSync this = %p, no ResourceNotifyReceiver found for dialogHandle '%s'",
+                    this, dialogHandle->data());
+   }
+}
+
+/** Add a mapping for an early dialog handle to its handler for
+ *  subscription events.
+ */
+void ResourceListSet::addSubscribeMapping(UtlString* earlyDialogHandle,
+                                          UtlContainable* handler)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::addSubscribeMapping this = %p, earlyDialogHandle = '%s', handler = %p",
+                 this, earlyDialogHandle->data(), handler);
+
+   mSubscribeMap.insertKeyAndValue(earlyDialogHandle, handler);
+}
+
+/** Delete a mapping for an early dialog handle.
+ */
+void ResourceListSet::deleteSubscribeMapping(UtlString* earlyDialogHandle)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::deleteSubscribeMapping this = %p, earlyDialogHandle = '%s'",
+                 this, earlyDialogHandle->data());
+
+   mSubscribeMap.remove(earlyDialogHandle);
+}
+
+/** Add a mapping for a dialog handle to its handler for
+ *  NOTIFY events.
+ */
+void ResourceListSet::addNotifyMapping(UtlString* dialogHandle,
+                                       UtlContainable* handler)
+{
+   /* The machinery surrounding dialog handles is broken in that it
+    * does not keep straight which tag is local and which is remote,
+    * and the dialogHandle for notifyEventCallback has the tags
+    * reversed relative to the tags in the dialogHandle for
+    * subscriptionEventCallback.  So we reverse the tags in dialogHandle
+    * before inserting it into mNotifyMap, to match what
+    * notifyEventCallback will receive.  Yuck.  Ideally, we would fix
+    * the problem (XSL-146), but there are many places in the code
+    * where it is sloppy about tracking whether a message is incoming
+    * or outgoing when constructing a dialogHandle, and this is
+    * circumvented by making the lookup of dialogs by dialogHandle
+    * insensitive to reversing the tags.  (See SipDialog::isSameDialog.)
+    */
+   /* Correction:  Sometimes the NOTIFY tags are reversed, and
+    * sometimes they aren't.  So we have to file both handles in
+    * mNotifyMap.  Yuck.
+    */
+   mNotifyMap.insertKeyAndValue(dialogHandle, handler);
+
+   UtlString* swappedDialogHandleP = new UtlString;
+   swapTags(*dialogHandle, *swappedDialogHandleP);
+
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::addNotifyMapping this = %p, dialogHandle = '%s', swappedDialogHandle = '%s', handler = %p",
+                 this, dialogHandle->data(), swappedDialogHandleP->data(),
+                 handler);
+
+   // Note that we have allocated *swappedDialogHandleP.  Our caller
+   // owns *dialogHandle and will deallocate it after calling
+   // deleteNotifyMapping, but deleteNotify must remember to deallocate
+   // *swappedDialogHandleP, the key object in mNotifyMap.  Yuck.
+   mNotifyMap.insertKeyAndValue(swappedDialogHandleP, handler);
+}
+
+/** Delete a mapping for a dialog handle.
+ */
+void ResourceListSet::deleteNotifyMapping(const UtlString* dialogHandle)
+{
+   // See comment in addNotifyMapping for why we do this.
+   UtlString swappedDialogHandle;
+
+   swapTags(*dialogHandle, swappedDialogHandle);
+
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::deleteNotifyMapping this = %p, dialogHandle = '%s', swappedDialogHandle = '%s'",
+                 this, dialogHandle->data(), swappedDialogHandle.data());
+
+   // Delete the un-swapped mapping.
+   mNotifyMap.remove(dialogHandle);
+
+   // Have to get a pointer to the key object, as our caller won't
+   // free it.  Otherwise, we could just do "mNotifyMap.remove(dialogHandle)".
+   UtlContainable* value;
+   UtlContainable* keyString = mNotifyMap.removeKeyAndValue(&swappedDialogHandle, value);
+   if (keyString)
+   {
+      // Delete the key object.
+      delete keyString;
+   }
+}
+
+// Get the next sequence number for objects for the parent ResourceListServer.
+int ResourceListSet::getNextSeqNo()
+{
+   // Update mNextSeqNo.
+   mNextSeqNo = (mNextSeqNo + sSeqNoIncrement) & sSeqNoMask;
+
+   // Return the new value.
+   return mNextSeqNo;
+}
+
+// Returns TRUE if publish() should not have any effect.
+UtlBoolean ResourceListSet::publishingSuspended()
+{
+   return mSuspendPublishingCount > 0;
+}
+
+// Suspend the effect of publish().
+void ResourceListSet::suspendPublishing()
+{
+   // Serialize access to the resource list set.
+   OsLock lock(mSemaphore);
+
+   // Increment mSuspendPublishingCount.
+   mSuspendPublishingCount++;
+
+   // Stop the publishing timer, asynchronously.  This is to prevent
+   // it from firing, so ResourceListTask doesn't bother trying to
+   // publish the resource lists when it will have no effect, but also
+   // so that when publishing is resumed, the publishing timer will be
+   // started and eventually fire.
+   mPublishingTimer.stop(FALSE);
+
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::suspendPublishing mSuspendPublishingCount now = %d",
+                 mSuspendPublishingCount);
+}
+
+// Resume the effect of publish().
+void ResourceListSet::resumePublishing()
+{
+   // Serialize access to the resource list set.
+   OsLock lock(mSemaphore);
+
+   // Decrement mSuspendPublishingCount if > 0.
+   if (mSuspendPublishingCount > 0)
+   {
+      mSuspendPublishingCount--;
+
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceListSet::resumePublishing mSuspendPublishingCount now = %d",
+                    mSuspendPublishingCount);
+
+      // If mSuspendPublishingCount is now 0, publish all the lists.
+      if (mSuspendPublishingCount == 0)
+      {
+         schedulePublishing();
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_RLS, PRI_ERR,
+                    "ResourceListSet::resumePublishing called when mSuspendPublishingCount = 0");
+   }
+}
+
+// Declare that some content has changed and needs to be published.
+void ResourceListSet::schedulePublishing()
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::schedulePublishing this = %p",
+                 this);
+
+   // If publishing has been suspended, do not start the timer --
+   // it will be started when publishing is resumed.
+   if (!publishingSuspended())
+   {
+      // Start the timer if it is not already started.
+      // If it is already started, OsTimer::oneshotAfter() does nothing.
+      mPublishingTimer.oneshotAfter(getResourceListServer()->
+                                    getPublishingDelay());
+   }
+}
+
+// Publish all ResourceList's that have changes.
+void ResourceListSet::publish()
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::publish this = %p",
+                 this);
+
+   // Serialize access to the resource list set.
+   OsLock lock(mSemaphore);
+
+   // If publishing has been suspended, do nothing --
+   // publish() will be called again after publishing is resumed.
+   if (!publishingSuspended())
+   {
+      // Iterate through the resource lists.
+      UtlSListIterator resourceListItor(mResourceLists);
+      ResourceList* resourceList;
+      while ((resourceList =
+              dynamic_cast <ResourceList*> (resourceListItor())))
+      {
+         resourceList->publishIfNecessary();
+      }
+
+      // Purge dialogs with terminated state and terminated resource
+      // instances, now that we have published the fact that they've
+      // terminated (and their termination reasons).
+      getResourceCache().purgeTerminated();
+   }
+}
+
+/* ============================ ACCESSORS ================================= */
+
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+/* ============================ INQUIRY =================================== */
+
+/**
+ * Get the ContainableType for a UtlContainable-derived class.
+ */
+UtlContainableType ResourceListSet::getContainableType() const
+{
+   return ResourceListSet::TYPE;
+}
+
+// Split a userData value into the seqNo and "enum notifyCodes".
+void ResourceListSet::splitUserData(int userData,
+                                    int& seqNo,
+                                    enum notifyCodes& type)
+{
+   seqNo = userData & sSeqNoMask;
+   type = (enum notifyCodes) (userData & ~sSeqNoMask);
+}
+
+// Retrieve an entry from mEventMap and delete it.
+UtlContainable* ResourceListSet::retrieveObjectBySeqNoAndDeleteMapping(int seqNo)
+{
+   // Serialize access to the resource list set.
+   OsLock lock(mSemaphore);
+   
+   // Search for and possibly delete seqNo.
+   UtlInt search_key(seqNo);
+   UtlContainable* value;
+   UtlContainable* key = mEventMap.removeKeyAndValue(&search_key, value);
+
+   if (key)
+   {
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceListSet::retrieveObjectBySeqNoAndDeleteMapping seqNo = %d, value = %p",
+                    seqNo, value);
+      delete key;
+   }
+   else
+   {
+      OsSysLog::add(FAC_RLS, PRI_WARNING,
+                    "ResourceListSet::retrieveObjectBySeqNoAndDeleteMapping seqNo = %d not found",
+                    seqNo);
+   }
+   
+   return value;
+}
+
+// Add a mapping for a ResourceCached's sequence number.
+void ResourceListSet::addResourceSeqNoMapping(int seqNo,
+                                              ResourceCached* resource)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::addResourceSeqNoMappping seqNo = %d, instanceName = '%s'",
+                 seqNo, resource->getUri()->data());
+
+   // Allocate a UtlInt to hold the sequence number.
+   UtlInt* i = new UtlInt(seqNo);
+
+   // Put the pair in mEventMap.
+   mEventMap.insertKeyAndValue(i, resource);
+}
+
+//! Delete a mapping for a Resource's sequence number.
+void ResourceListSet::deleteResourceSeqNoMapping(int seqNo)
+{
+   // Search for and possibly delete seqNo.
+   UtlInt search_key(seqNo);
+   UtlContainable* value;
+   UtlContainable* key = mEventMap.removeKeyAndValue(&search_key, value);
+
+   if (key)
+   {
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceListSet::deleteResourceSeqNoMapping seqNo = %d, instanceName = '%s'",
+                    seqNo,
+                    (dynamic_cast <ResourceCached*> (value))->getUri()->data());
+      delete key;
+   }
+   else
+   {
+      OsSysLog::add(FAC_RLS, PRI_WARNING,
+                    "ResourceListSet::deleteResourceSeqNoMapping seqNo = %d not found",
+                    seqNo);
+   }
+}
+
+// Refresh the subscriptions of a resource.
+void ResourceListSet::refreshResourceBySeqNo(int seqNo)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::refreshResourceBySeqNo seqNo = %d",
+                 seqNo);
+
+   // Serialize access to the resource list set.
+   OsLock lock(mSemaphore);
+
+   // Search for seqNo.
+   UtlInt search_key(seqNo);
+   ResourceCached* resource =
+      dynamic_cast <ResourceCached*> (mEventMap.findValue(&search_key));
+
+   if (resource)
+   {
+      resource->refresh();
+   }
+   else
+   {
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceListSet::refreshResourceBySeqNo seqNo = %d not found",
+                    seqNo);
+   }
+}
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+// Search for a resource list with a given name (user-part).
+ResourceList* ResourceListSet::findResourceList(const char* user)
+{
+   ResourceList* ret = 0;
+
+   // Iterate through the resource lists.
+   UtlSListIterator resourceListItor(mResourceLists);
+   ResourceList* resourceList;
+   while (!ret &&
+          (resourceList = dynamic_cast <ResourceList*> (resourceListItor())))
+   {
+      if (resourceList->getUserPart()->compareTo(user) == 0)
+      {
+         ret = resourceList;
+      }
+   }
+
+   return ret;
+}
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+
+/* ============================ FUNCTIONS ================================= */
+
+// Swap the tags in a dialog handle.
+void ResourceListSet::swapTags(const UtlString& dialogHandle,
+                               UtlString& swappedDialogHandle)
+{
+   // Find the commas in the dialogHandle.
+   size_t index1 = dialogHandle.index(',');
+   size_t index2 = dialogHandle.index(',', index1+1);
+
+   // Copy the call-Id and the first comma.
+   swappedDialogHandle.remove(0);
+   swappedDialogHandle.append(dialogHandle,
+                              index1+1);
+
+   // Copy the second tag.
+   swappedDialogHandle.append(dialogHandle,
+                              index2+1,
+                              dialogHandle.length() - (index2+1));
+
+   // Copy the first comma and the first tag.
+   swappedDialogHandle.append(dialogHandle,
+                              index1,
+                              index2-index1);
+}

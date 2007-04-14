@@ -1,0 +1,18 @@
+<body jwcid="$content$">
+  <div jwcid="@Border" restricted="false">
+    <h2>
+      <span key="title"/>
+    </h2>
+    <span jwcid="@ErrorMsg"/>
+      <form jwcid="@Form" delegate="bean:validator">
+      <fieldset>
+        <table>
+          <span jwcid="@vm/MailboxPreferencesForm" preferences="prop:mailboxPreferences"/>
+          <tr jwcid="pin@ConfirmPassword" password="prop:pin" passwordDisplayName="message:label.pin" confirmPasswordDisplayName="message:label.pin2" passwordMismatchMessage="message:error.pinMismatch">
+          </tr>          
+        </table>
+      </fieldset>        
+      <ul jwcid="@FormActions" listener="listener:save" callback="prop:callback"/>      
+      </form>
+  </div>
+</body>

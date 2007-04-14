@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "../dataset.dtd" -->
+<!--
+  - Tables are deleted from bottom to top
+  -->
+<dataset>  
+  <!-- admin -->
+  <table name="backup_plan"/>
+  <table name="daily_backup_schedule"/>
+  <table name="patch"/>
+  <table name="initialization_task"/>
+  <table name="upload"/>
+
+  <!-- settings -->  
+  <table name="value_storage"/>
+  <table name="group_storage"/>
+  <table name="setting_value"/>  
+  
+  <!-- dial plans related -->
+  <table name="dial_plan"/>
+  <table name="auto_attendant"/>
+  <table name="attendant_group"/>
+  <table name="attendant_menu_item"/>
+  <table name="dialing_rule"/>
+  <table name="custom_dialing_rule"/>
+  <table name="dial_pattern"/>
+  <table name="international_dialing_rule"/>
+  <table name="local_dialing_rule"/>
+  <table name="custom_dialing_rule_permission"/>
+  <table name="emergency_dialing_rule"/>
+  <table name="internal_dialing_rule"/>
+  <table name="long_distance_dialing_rule"/>
+  <table name="attendant_dialing_rule"/>
+  <table name="holiday_dates"/>
+  <table name="attendant_working_hours"/>
+
+  <!-- park orbit -->
+  <table name="park_orbit"/>  
+  <table name="park_orbit_group"/>
+      
+  <!-- users -->
+  <table name="users"/>
+  <table name="user_alias"/>
+  <table name="user_ring"/>
+  <table name="user_group"/>
+  <table name="supervisor"/>
+    
+  <!-- phone -->  
+  <table name="job"/>
+  <table name="phone"/>
+  <table name="line"/>
+  <table name="phone_group"/>
+  <table name="line_group"/>
+    
+  <table name="gateway"/>  
+  <table name="extension_pool"/>
+  <table name="intercom"/>
+  <table name="intercom_phone_group"/>
+      
+  <table name="dialing_rule_gateway"/>
+        
+  <!-- forwarding -->
+  <table name="ring"/>
+	
+  <!-- ACD -->
+  <table name="acd_server"/>
+  <table name="acd_line"/>
+  <table name="acd_queue"/>
+  <table name="acd_agent"/>
+  <table name="acd_line_queue"/>	
+  <table name="acd_queue_agent"/>	
+  <table name="acd_agent_queue"/>
+
+
+  <!-- conference bridge -->
+  <table name="meetme_bridge"/>
+  <table name="meetme_conference"/>
+  <table name="meetme_participant"/>
+	
+  <!-- routing exceptions -->
+  <table name="emergency_routing"/>
+  <table name="routing_exception"/>
+  
+  <!-- ldap -->
+  <table name="cron_schedule"/>
+  <table name="ldap_connection"/>
+  <table name="ldap_attr_map"/>
+  <table name="ldap_user_property_to_ldap_attr"/>
+  <table name="ldap_selected_object_classes"/>  
+  
+  <table name="permission"/>
+  
+  <table name="domain">
+    <column>domain_id</column>
+    <column>name</column>
+    <row>
+      <value>1000</value>
+      <value>example.org</value>
+    </row>
+  </table>
+  <table name="domain_alias"/>
+  <table name="phonebook"/>
+  <table name="phonebook_member"/>
+  <table name="phonebook_consumer"/>
+  
+  <table name="speeddial"/>
+  <table name="speeddial_button"/>
+  <table name="service"/>
+</dataset>

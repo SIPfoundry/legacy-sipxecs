@@ -1,0 +1,888 @@
+The most current information on the status of any release is in the
+SIPfoundry Issue Tracker at:
+
+        http://track.sipfoundry.org/browse?XCF
+	
+Version 3.7.6
+
+** Bug
+    * [XCF-985] - When provisioning Cisco ATA-18x's, "<sip_domain>:<sip_port>" is provisioned as the proxy, causing SRV-lookups to fail.
+    * [XCF-1353] - Long Distance Rule: Field for Area Codes restricted to 40 characters - should allow up to 256
+    * [XCF-1461] - sipXconfing testbed 'ant run' should allow for testing of all screens.
+    * [XCF-1480] - Loss of menu items when displaying on a narrow screen
+    * [XCF-1544] - Migration of voicemail in custom folders
+    * [XCF-1545] - On "Phone" screens, the "presence" navigation item is not capitalized, unlike all other navigation items
+    * [XCF-1550] - Enabling BLF for blank speed dial fields gives exception on the speed dial page
+    * [XCF-1553] - reset-superadmin does not work
+    * [XCF-1558] - Deleting Cisco Phones gives exception with 3.7.5-008014 build
+    * [XCF-1561] - model XML files are parsed everytime settings are loaded
+    * [XCF-1563] - fix handling of "names" that are aliases for extensions [eg hunt groups]
+    * [XCF-1564] - Grandstream phone profles get generated in /var/log/sipxpbx directory
+    * [XCF-1568] - Build broken for /lib: Java version mismatch
+    * [XCF-1580] - cannot add a new gateway if editing old gateway was concluded when tab other than 'config' tab was active
+    * [XCF-1585] - An Exception page occured in Speed dial page
+    * [XCF-1586] - Enabling an Unmanaged Service causes an exception
+    * [XCF-1587] - speeddial page validation doesn't accept single character user id in sip addresses
+    * [XCF-1591] - Edit Configuration parameters under System-->General settings are not reflected in respective .in files
+    * [XCF-1599] - Adding a new phone accepts serial numbers containing blank spaces
+    * [XCF-1601] - Polycom timezone settings are different on group then on phone
+    * [XCF-1603] - "Enable periodic import from LDAP" setting won't stay enabled, and doesn't seem to work at all
+    * [XCF-1604] - LGNortel phones not setting timezone defaults
+
+** Improvement
+    * [XCF-858] - Allow user to enabled & disable forwarding targets without adding/deleting
+    * [XCF-971] - inter-page navigation does not show which tab is active
+    * [XCF-1072] - Grandstream profile generation is locale dependent
+    * [XCF-1133] - 'Send All [phone] Profiles' should have an 'Are you sure?' dialog
+    * [XCF-1340] - empty settings groups should be supported
+    * [XCF-1481] - Default display order for users should be ascending down the page
+    * [XCF-1521] - junit failure should emit to stderr during build
+    * [XCF-1549] - Allow for greater customization on login page and banner area
+    * [XCF-1582] - enable/disable firmware uploading on LG-Nortel phone
+
+** New Feature
+    * [XCF-1315] - support collection of entities when modelling phones and gateways
+    * [XCF-1528] - speed dial support for LG-Nortel phones
+    * [XCF-1529] - phone book support for LG-Nortel phones
+    * [XCF-1536] - Ability to change page title from skin properties
+    * [XCF-1567] - Set NTP server in one place for all phones
+    * [XCF-1602] - Ability to explicitly initialize NTP server during installation
+
+** Task
+    * [XCF-1362] - cleanup sipXconfig docs directory
+
+Version 3.7.5
+
+** Bug
+    * [XCF-1150] - Click on "Import" without uploading any file gives an exception
+    * [XCF-1347] - warnings during Polycom profile generation
+    * [XCF-1369] - Intercom gets enabled without any group assigned to it.
+    * [XCF-1373] - reset-superadmin task in some case does not restore admin privileges
+    * [XCF-1413] - Internal error deleting polycom firmware files entry
+    * [XCF-1419] - Configuration of presence server parameters incorrect
+    * [XCF-1450] - Uploaded CSV file to a phonebook cannot be deleted from the config ui
+    * [XCF-1453] - CDR: When either the start or end date in the cdr statistics page is set to blank, an exception page is seen
+    * [XCF-1455] - Call Resolver(CDR) : Start time displayed in CDR table is  UTC 
+    * [XCF-1460] - after 3.4 to 3.6 upgrade, selecting "Clear Completed" on Job Status screen generates an internal error
+    * [XCF-1462] - "keys per registration" setting of polycom is limited to a number of buttons on the phone
+    * [XCF-1463] - GUI gives no warning when user with no forwarding permission attempts to forward.
+    * [XCF-1470] - 'make install' leaves old jars in sipXconfig lib directory
+    * [XCF-1475] - sipxconfig-report doesn't start on CentOS or RHEL for various packaging reasons
+    * [XCF-1477] - sipXproxy configtest fails after activating the dialplan
+    * [XCF-1484] - Not able to configure Speed dial using Internet Explorer as the browser.
+    * [XCF-1486] - VM Web UI: Not able to login to the voicemail box when a message is sent via distribution list / Forward the messge
+    * [XCF-1487] - Heard and  unheard status is not displayed in new Voicemail UI
+    * [XCF-1500] - full version number is not displayed in page footer
+    * [XCF-1501] - Media server should send hyperlinks to new web portal in email notification
+    * [XCF-1507] - sipxconfig allows ACD line to use number already used by another line/extension/userID
+    * [XCF-1508] - Getting exception while configuring the Use caller sensitive forwarding.
+    * [XCF-1509] - Cosmetic change in Polycom Localization settings
+    * [XCF-1510] - Internal error hitting preview button on LDAP preview
+    * [XCF-1512] - checkconfig error: /usr/bin/sipxconfig-agent.sh not found
+    * [XCF-1519] - Page error showing new voicemail UI
+    * [XCF-1537] - ACD reports duplicates one record each time it runs
+    * [XCF-1540] -  MWI indication is not turned-off when an unheard voicemail is deleted from the web ui
+
+** Improvement
+    * [XCF-1523] - E-mail address is copied to the next page when Create another user checkbox is selected
+    * [XCF-1541] - Use same shell as interpreter in all the scripts.
+    * [XCF-1542] - display user and device information on home page
+
+** New Feature
+    * [XCF-1517] - Add managed support for LG/Nortel phones
+    * [XCF-1527] - MOH support for LG-Nortel phone
+
+Version 3.7.4
+
+** Bug
+    * [XCF-1409] - built-in permissions shown in English only on Permission screen and DialPlan screen
+    * [XCF-1430] - sipxconfig-agent SOAP API doesn't appear to honor request for data in a certain time window
+    * [XCF-1438] - wrong park server URI in SNOM profile
+    * [XCF-1443] - Grandstream GXV3000 and GXP2000 attempting to register anonymous lines
+    * [XCF-1452] - Getting exception while setting the extension pool.
+    * [XCF-1459] - Clicking on the "Add User" link of the Users page caused exception.
+    * [XCF-1467] - sipxconfig-agent gem not getting installed after fresh installation
+    * [XCF-1471] - supressing uncertifed gateway filter needs updating, mode ids changed
+    * [XCF-1482] - User edit page has pin and confirm pin with different values
+    * [XCF-1488] - In new VM UI, there is no Default System Greeting option in Active greeting dropdown menu
+
+** Improvement
+    * [XCF-688] - When creating a new user the admin should be able to define a default email address for voicemail delivery
+    * [XCF-1066] - Rewrite voicemail ui and integrate back into user portal
+    * [XCF-1218] - improve Enabled column in all tables
+    * [XCF-1325] - Improvements for sipXconfig Localization
+    * [XCF-1423] - ACD Calls export link
+    * [XCF-1428] - Only show ACD Call web ui when sipxconfig-report RPM is installed
+    * [XCF-1434] - Install one server component without having to install entire PBX
+    * [XCF-1436] - Install SSL certificates on remote server from CLI
+    * [XCF-1458] - Updates to support Polycom BLF feature
+
+** New Feature
+    * [XCF-1288] - Configure BLF for Polycom phones
+    * [XCF-1390] - display list of in-progress calls
+    * [XCF-1407] - localize enumeration labels specified in model XML files
+    * [XCF-1417] - Config Server create boilerplace mappingrules.xml section to route resource list URIs to the RLS
+    * [XCF-1442] - Add support for GXV3000 Grandstream phone
+    * [XCF-1445] - Support firmware upload for grandstream phones
+
+Version 3.7.3
+
+** Bug
+    * [XCF-1391] - initialize method is called twice for Phones
+    * [XCF-1394] - Better error-reporting in external phonebook CSV-file parser.
+    * [XCF-1405] - Current 3.7.0 mainline fails to start up.
+    * [XCF-1406] - Phonebooks cannot be edited or deleted.
+    * [XCF-1408] - group label and group description in setting fieldset does not render localized strings
+    * [XCF-1415] - incorrect help text on 'Devices | Phones | <polycom phone> | Directory Resources' screen
+    * [XCF-1429] - Resolve/fix places where unescaped HTML from localization files shows up
+    * [XCF-1431] - deploying Polycom firmware (.zip file) does not work correctly
+
+** Improvement
+    * [XCF-871] - simplify navigation from users to phones
+    * [XCF-1336] - if there are failed background jobs display status on all sipXconfig pages
+    * [XCF-1389] - all sipX configuration files should be owned by sipx user
+    * [XCF-1395] - When a phonebook gets removed from a phone or user, the previous phonebook XML-file will persist.
+    * [XCF-1422] - Allow reordering of speed dial entries
+    * [XCF-1424] - Show phone model name on new phone page
+
+** New Feature
+    * [XCF-1203] - speed dial support
+    * [XCF-1305] - Support for Polycom Soundpoint 550 (Rainbow)
+    * [XCF-1387] - configuration for ENUM plugin
+    * [XCF-1388] - add phones from the user screen
+    * [XCF-1418] - Auto Call Distribution Historical stats web reports
+
+	
+Version 3.7.2
+
+** Bug
+    * [XCF-1358] - address book created for Polycom should not add users to speed dial automatically
+    * [XCF-1370] - adding clearone phone does not work
+
+** Improvement
+    * [XCF-1217] - replace restore button on dial plan screen with drop down list of countries
+    * [XCF-1312] - support model localization
+
+** New Feature
+    * [XCF-478] - polycom localization support
+    * [XCF-981] - View/query call detail records (CDRs)
+    * [XCF-1299] - phone directory support
+    * [XCF-1309] - support multiple corporate directories
+    * [XCF-1384] - configure number of times autoattendant would repeat the prompt before giving up
+
+** Task
+    * [XCF-1297] - Config Server changes needed to support redirector plugins
+    * [XCF-1300] - Support outgoing ISN dialing
+
+
+Version 3.7.1
+
+** Bug
+    * [XCF-1338] - Adding a SIP Trunk gateway should not ask for a serial number
+
+** Improvement
+    * [XCF-1308] - Simplify phone API for adding support for new phones models
+
+** New Feature
+    * [XCF-1295] - add configuration of a session border controller or other intermediary as a route for SIP Trunks
+
+
+Version 3.5.6
+
+** Bug
+    * [XCF-1109] - Description has to be changed in Configserver ui for Polycom phone ->SNTP
+    * [XCF-1143] - logic is reversed for Polycom's "SNTP Server | Address from DHCP" option
+    * [XCF-1165] - problem setting Time Zone for Grandstream Phone Group
+    * [XCF-1168] - NonUniqueObjectException while importing LDAP users to Configserver
+    * [XCF-1194] - Deleted Non-default permission is not getting removed from the list of pemissions in the dialing rules.
+    * [XCF-1211] - In Intercom, when few parameters are validated , displays error message with parameter name as "null"
+    * [XCF-1214] - custom permissions are sometimes not automatically visible in dial plan rules
+    * [XCF-1215] - there should be "no permission required" entry in drop-down on dial plan rule screen
+    * [XCF-1226] - Build numbers coming out 00000
+    * [XCF-1232] - internal error when adding existing gateway to newly created dialing rule
+    * [XCF-1234] - In Dial plan PSTN Prefix and Long distance prefix accepts blank value even if Treat PSTN/Long distance prefix as optional checkbox is disabled
+    * [XCF-1235] - In dial plan PSTN prefix and Long distance prefix accepts negative value without giving any error message
+    * [XCF-1236] - In International dialing rule, if area code is set larger than external number length, then it accepts any digit greater than area code
+    * [XCF-1237] - In dialplan settings some parameter settings gives an improper error messages
+    * [XCF-1240] - The pattern generated in the authrules doesnt fully support custom dialing rule with the variable prefix of the form 01[2-9].
+    * [XCF-1243] - Alias field in the add new user page should be left blank.
+    * [XCF-1244] - In Polycom phone, some of the SNTP parameters are set to zero which is an invalid value
+    * [XCF-1245] - gateway prefix should be added to emergency dialing rule transformation
+    * [XCF-1249] - Permission selected for the Custom dialing rule is getting deselected automatically.
+    * [XCF-1255] - Getting exception while adding the gateway with the  name which already exists.
+    * [XCF-1257] - proxy rpm needs to include ruby related gems in proxy spec file
+    * [XCF-1258] - startup error with SQL error on postgres 7.4
+    * [XCF-1262] - authorization user name is incorrect for renamed user
+    * [XCF-1264] - Classpath errors for OEM plugins likely on data initialization 
+    * [XCF-1266] - Domain alias added from the configserver is added after default Internal Dialing rule in mappingrules.xml file 
+    * [XCF-1269] - In Configserver, System->Domain page  "folling" should be changed to "following"
+    * [XCF-1271] - In Internet explorer, Caller ID and Dial plan links doesn't open the corresponding pages for the newly added gateway
+    * [XCF-1277] - Unable to add External number  for user/usergroup in Caller ID page
+    * [XCF-1279] - Improve explanation on Manage Domain page
+    * [XCF-1286] - Activating the dialplans do not restart sipproxy 
+    * [XCF-1287] - When Permission name is set to blank , displays error message with parameter name as "null"
+
+** New Feature
+    * [XCF-1263] - Add support for provisioning Hitachi-Cable WiFi Phones 
+
+** Task
+    * [XCF-1268] - Freeze DB schema for 3.6 release
+
+** Improvement
+    * [XCF-1241] - Make domain name available from SOAP API
+    * [XCF-1247] - Move all applications defined in process definitions and watchdog config files to separate files into process.d
+    * [XCF-1259] - enable music on hold support in sipXconfig
+    * [XCF-1281] - Allow setting the default polycom version from 1.6 or 2.0 on a global basis 
+
+
+Version 3.5.5
+
+** Bug
+    * [XCF-1162] - Adding users and phones using IE browser is giving an exception 
+    * [XCF-1166] - Domain name is missing in the uri field in the credential DB, when the changes are made from general page of the config server ui.
+    * [XCF-1177] - Provisioning filename for Snom phones should not include model number with firmware >= 4.1
+    * [XCF-1209] - In callpark, park time-out parameter value is accepting blank value without giving an error message
+    * [XCF-1210] - Deleting the Phone group which is also an Intercom group gives an exception 
+    * [XCF-1213] - default dialplan and default autoattendants are not created after system restart
+    * [XCF-1225] - Supress all console output during RPM install
+    * [XCF-1248] - Cosmetic change in Dialplan page
+    * [XCF-1256] - cannot add new gateway after opening edit gatewar screen at least once
+
+** New Feature
+    * [XCF-1183] - Add configuration support for "aliased domain" - as described in XPB-454
+    * [XCF-1187] - Configure caller aliases (From header modification) 
+    * [XCF-1202] - support anonymous caller aliases
+
+
+** Improvement
+    * [XCF-1058] - sipxconfig.log should include date, currently only time
+	
+Version 3.5.4
+
+** Bug
+    * [XCF-1092] - outdated index can cause sipXconfig crash
+    * [XCF-1136] - Add new gateway, select gateway model => get validation error
+    * [XCF-1155] - Intercom timeout should default to 5 seconds (2 rings), not 2 seconds
+    * [XCF-1156] - Intercom: timeout must be configurable
+    * [XCF-1167] - null pointer exception in User.getAliasesString
+    * [XCF-1185] - Page exception on services page
+
+** New Feature
+    * [XCF-861] - SIPx install script should also install FTP server and configure it
+    * [XCF-1102] - Add simple test pages for viewing replication datasets as xml
+    * [XCF-1114] - Support one-to-one (or point-to-point) intercom using Polycom phone's auto-answer feature
+    * [XCF-1174] - Allow addtional services beyond those defined in watchdog and processdefitions to be controlled by respective daemons
+    * [XCF-1181] - Configure call park timeout value
+    * [XCF-1182] - Configure a system-wide call park parameter to enable or disable one parked call per orbit feature in XPB-731.
+
+
+** Improvement
+    * [XCF-441] - UI for optional gateway prefix in standard dialing rules
+    * [XCF-731] - International Dialing Rule - Missing fields
+    * [XCF-836] - adding new dialing rules requires selecting rule type on additional page
+    * [XCF-926] - config server dialplans can't modify numbers based on a routing target
+    * [XCF-1032] - Dialplan templating
+    * [XCF-1037] - Add default call timeout to Voice Mail config screen
+    * [XCF-1110] - add "mobile" permission
+    * [XCF-1121] - Allow Custom Permissions to be defined in sipXconfig as part of the dial plan
+    * [XCF-1142] - Dial plan in sipXconfig should alow entry of digit ranges using square brackets
+    * [XCF-1170] - Intercom feature timeout should be in seconds or number of rings
+    * [XCF-1171] - Adding new Gateway should be dropdown list instead of hyperlink
+    * [XCF-1172] - Create new single file installer decoupled from pingtel's single file installer
+    * [XCF-1175] - Refactor build environment to allow OEMs to build/and install components along-side value-add components
+
+	
+Version 3.5.3
+
+** Bug
+    * [XCF-1134] - cannot add external lines to Cisco ATA phone
+
+** New Feature
+    * [XCF-1115] - Add configuration support for Polycom SoundPoint IP430 phones
+    * [XCF-1116] - Add configuration support for Polycom 2.0 firmware
+    * [XCF-1119] - dynamically discover phone and gateway plugins
+
+** Improvement
+    * [XCF-1100] - Improve Implementation of Gateways
+
+	
+Version 3.5.2
+
+** Bug
+    * [XCF-1059] - Sipxconfig no longer reboots Polycoms.
+    * [XCF-1061] - The binary configuration-file generated for Grandstreams seems to have some kind of corruption
+    * [XCF-1079] - Generation of binary config for Cisco ATA-18x fails due to errors in generated text config-file.
+    * [XCF-1082] - Line-settings from phone-groups are no longer inherited by the phones in those groups.
+    * [XCF-1088] - CSV phone Import fails when there are extra spaces in the Manufacturer or Model names
+    * [XCF-1089] - CSV import is adding a user with the blank user id to the config server.
+    * [XCF-1096] - sipxconfig-agent startup error on gentoo
+
+** New Feature
+    * [XCF-1076] - Supervisor role - Allow a user to view statistics about specific users
+    * [XCF-1077] - LDAP: persist configuration in sipXconfig database
+
+
+** Improvement
+    * [XCF-1065] - HA load balance metrics cosmetic improvments
+    * [XCF-1073] - add filtering for LDAP imports
+    * [XCF-1074] - extended preview for LDAP import
+
+Version 3.5.1
+
+** Bug
+    * [XCF-972] - orbits.xml not being replicated when a system is upgraded
+    * [XCF-1044] - Navigating to phones or dial plans fails with an internal error.
+    * [XCF-1047] - NullPointerException when saving forms with empty fields in System->General screens
+
+** New Feature
+    * [XCF-829] - LDAP support
+    * [XCF-1021] - use registrations screen to check how well the HA registrar synchronization is working
+
+
+** Improvement
+    * [XCF-990] - Addition of total counts to the registrations-page.
+    * [XCF-1016] - Provide a more flexible and maintainable API to replace Phone.setDefaults and Line.setDefault implementations
+    * [XCF-1017] - Refactor API for SettingBeanAdapter to implement PhoneSetting and LineSettings
+
+
+Version 3.4
+	
+** Bug
+    * [XCF-915] - upgrade patch error when upgrading sipxconfig from 3.0.1 to 3.1.3
+    * [XCF-997] - Existing auto attendants do not inherit attendant defaults
+    * [XCF-1008] - Upgrade from 3.1 to 3.3 - configserver shows error for most operations
+    * [XCF-1019] - Double quoted strings in config.defs cause failures in sipxconfig-agent startup
+    * [XCF-1023] - chatty gem installs in rpms
+    * [XCF-1026] - hunt group with parallel fork at the end in some cases gets into voice-mail prematurely
+    * [XCF-1027] - Deleting an user assigned to the polycom phone which has an external line gives an exception.
+    * [XCF-1036] - Orphaned file name in the sipxregistry-current.tgz 
+    * [XCF-1080] - Configuration parameters are not updated in Config UI of Grandstream Budge tone phone after the Upgrade
+    * [XCF-1081] - Page title for System -> General menu is inconsistent
+    * [XCF-1088] - CSV phone Import fails when there are extra spaces in the Manufacturer or Model names
+    * [XCF-1089] - CSV import is adding a user with the blank user id to the config server.
+    * [XCF-1107] - hide Audiocodes support in 3.4
+
+** New Feature
+    * [XCF-823] - support for injecting dial rules from external file
+    * [XCF-1094] - Make help link skinn-able
+
+
+** Improvement
+    * [XCF-1055] - Good if the user is informed that the change of PIN is successful
+    * [XCF-1057] - "Add User" should be a button next to the Delete button
+
+Version 3.3.3
+
+** Bug
+    * [XCF-564] - allow any valid SIP username to be used as an alias
+    * [XCF-842] - Generation of Gateway Profiles never reported in Job status log
+    * [XCF-883] - Clicking on Devices tab takes between 5 and 25 seconds to load w/1000 users
+    * [XCF-914] - Polycom: Add external line field "auth.userid" missing
+    * [XCF-949] - Log rotate on sipxconfig.log creates empty log file, output still going to sipxconfig.log.1
+    * [XCF-961] - regression - sipxconfig.sh doesn't find IBM JRE anymore
+    * [XCF-964] - invalid external aliases files interferes with replication
+    * [XCF-966] - After logging out of the admin web-interface and immediately trying to log in again, the "session expired"-error is displayed.
+    * [XCF-974] - Javascript errors in IE in phone edit page
+    * [XCF-975] - Exception on firmware upload page
+    * [XCF-976] - Calling Setting.getTypedValue on enumeration settings always returns null
+    * [XCF-977] - SNTP group device settings don't affect Polycom phone configuration
+    * [XCF-978] - Device search function doesn't allow to find a phone to send its profile.
+    * [XCF-980] - Unable to delete last user from the group
+    * [XCF-986] - Some phone provisioning-options can't be set back to their default-values.
+    * [XCF-994] - Searching the phones is not working.
+    * [XCF-995] - sipXconfig-agent: sipXconfig cannot be uninstalled
+    * [XCF-997] - Existing auto attendants do not inherit attendant defaults
+    * [XCF-1004] - Initial web UI for Call Detail Records configuration does not reflect settings of *config.in
+    * [XCF-1008] - Upgrade from 3.1 to 3.3 - configserver shows error for most operations
+    * [XCF-1010] - SOAP test-api target is failing when executed as a part of test-all target
+    * [XCF-1012] - Exception occurred, when attempted to edit and add the edited gateway to the dial plan.
+    * [XCF-1013] - Even after selecting the "Donot Restart Services " option in dial plans page, authproxy and registrar services are getting restarted.
+
+** New Feature
+    * [XCF-1011] - Add an option to auto attendant to handle the invalid user responses
+
+
+** Improvement
+    * [XCF-902] - Default setting for polycom phones on MWI should be silent
+    * [XCF-936] - newly defined call permissions should be available in Custom Dialing Rule screen
+    * [XCF-963] - user call forwarding UI should support SIP URL
+    * [XCF-989] - Autocomplete for user and phone groups should remove groups already in the list
+    * [XCF-991] - Add full SIP AOR to user aliases to other domains
+    * [XCF-1009] - Support fr Polycom Firmware Version 1.6.5
+
+Version 3.3.2
+
+** Bug
+    * [XCF-928] - DailyBackupScheduleTest not working on machines w/locale outside US
+    * [XCF-929] - Startup reports parsing error w/Whacker
+    * [XCF-947] - Web UI doesn't work in IE when using IBM's JVM 
+    * [XCF-954] - Replication fails - sipxconfig claims that certificate is not installed.
+    * [XCF-957] - Exception occurred, while an attempt was made to add a Call Park extension.
+    * [XCF-962] - Internal error on login page when password empty
+    * [XCF-965] - Forwarding-settings are displayed incorrectly in the admin web-interface.
+
+** New Feature
+    * [XCF-937] - extend configuration options for autoattendant
+    * [XCF-959] - Presence Server sign-in/sign-out interface
+
+
+** Improvement
+    * [XCF-955] - Use OS signals to fresh log file to be inline w/linux system log rotator
+
+	
+Version 3.3.1
+
+** Bug
+    * [XCF-920] - show/hide advanced settings link does not work on Edit User page
+    * [XCF-924] - start-web-server ant target not working after T4 upgrade
+    * [XCF-927] - 0 is displayed as empty string - settings screen
+    * [XCF-930] - [PINMISMATCH] displayed instead of error message on user screen
+    * [XCF-932] - search results for dialing rules display Java object type instead of user readable name
+    * [XCF-943] - interacting with user call forwarding screen may leave emtpy rows in 'ring' table
+
+** Task
+    * [XCF-753] - upgrade to Tapestry 4.0
+
+** Improvement
+    * [XCF-700] - improve displaying default values for enumeration and boolean settings
+    * [XCF-807] - upgrade to Acegi Security 1.0 when it is released
+
+
+Version 3.2
+
+** Bug
+    * [XCF-636] - For Cisco - if change parameter to blank, configserver should set the value to its default
+    * [XCF-911] - Error message (probably benign?) displayed when attempted to upgrade sipxchange from 3.0 to the current version.
+    * [XCF-916] - Cancel button on Device Files page continues to create Device Files entry
+    * [XCF-922] - external aliases only parsed once
+    * [XCF-923] - Replication breaks after first call to SOAP API
+    * [XCF-931] - Migration from 2.8 to 3.2 does not run initialization tasks
+    * [XCF-933] - Sporadic lucene index lock-ups during SOAP replication
+    * [XCF-938] - JVM crashes on replication, appears more times on SMP machines
+    * [XCF-939] - Uninstall should remove lucene index and Jetty scratch dir
+    * [XCF-970] - pkg-upgrade script for sipXregistry includes upgrade tarballs themselves
+
+** New Feature
+    * [XCF-318] - Configurable dialing permission types
+    * [XCF-684] - Configure Time Zone in one place for all the phones
+    * [XCF-903] - show HA replication info on the Registrations page
+
+** Improvement
+    * [XCF-774] - it should be possible to redirect huntgroup to autoattendant	
+	
+Version 3.1.3
+** Bug
+    * [XCF-442] - KPhoneTest requires configured database
+    * [XCF-512] - handle usernames that contain punctuation characters properly
+    * [XCF-564] - allow any valid SIP username to be used as an alias
+    * [XCF-663] - loading users from the database is inefficient
+    * [XCF-701] - "green" navigation bar should extend to the bottom of the screen
+    * [XCF-751] - Cisco 7912 - A few of the network parameters have only headings
+    * [XCF-783] - Restriction of blank spaces for internal dialing rule name - but no such restriction for other rules. 
+    * [XCF-785] - Sorting User Groups / Phone groups by Name, is getting sorted according to the associated Number and not by name.
+    * [XCF-786] - Sorting the Phones by line and Model is not working
+    * [XCF-811] - when username is change UI should require specifying a new PIN
+    * [XCF-813] - Config server menus dont work in IE
+    * [XCF-815] - An exception occurred in the Files tab in the Devices menu option.
+    * [XCF-819] - New Grandstream configuration code incompatible with previously added phones
+    * [XCF-826] - Polycom digit map string (phone dial plan) does not allow for local calls
+    * [XCF-839] - dialing rules name uniqueness checking is too strict
+    * [XCF-846] - The autoattendant dialing rule should listed before internal dialing rule in the dial plans page.
+    * [XCF-850] - Internal server error occurred, when clicked on the alias header in the users page
+    * [XCF-857] - "ipmid.cfg" is no longer generated.
+    * [XCF-863] - CallGroupServiceTestAPi is failing
+    * [XCF-872] - attendant dialing plan is not properly added to search results
+    * [XCF-873] - Changes to the dial-plan take 2 activations to become active.
+    * [XCF-875] - Intermittent - Exception occurred ,When i tried to activate the dial plans - needs db drop recreate to resurrect.
+    * [XCF-878] - When trying to add line after maximum supported line are reached in phones, an exception occurs
+    * [XCF-881] - JobStatus is Displayed as "Complete" When try to restart grandstream phone
+    * [XCF-883] - Clicking on Devices tab takes between 5 and 25 seconds to load w/1000 users
+    * [XCF-888] - unit test failure: SearchManagerImplTestDb.testSearch 
+    * [XCF-890] - When csv file is imported, Existing user is added as alias
+    * [XCF-891] - When csv file is imported it accepts a blank user group 
+    * [XCF-892] - When csv file is imported it accepts a blank phone group
+    * [XCF-894] - sipXconfig restarts too many services (including itself) after applying changes on configuration screen
+    * [XCF-896] - location selector on sipXconfig services page should be displayed only if there is more than 1 location configured
+    * [XCF-899] - Hitting cancel when creating a new user and selecting "create new user" tries to validate page
+    * [XCF-901] - setting long (> 255 characters) description for file upload is causing DataIntegrityExceptions
+
+** New Feature
+    * [XCF-838] - "Special" autoattendant selection
+    * [XCF-869] - Add external lines thru SOAP
+
+** Task
+    * [XCF-880] - Freeze db schema to version 2 before 3.2 release
+
+** Improvement
+    * [XCF-567] - User gets no feedback when sending a profile to a phone
+    * [XCF-712] - adding multiple users
+    * [XCF-827] - Polycom phone "Dial Plan" screen includes wrong section headline (affects emergency routing setting)
+    * [XCF-840] - Please provide a way to disable the "message" beep on Polycom phones
+    * [XCF-844] - improve UI responsiveness when generating large number of profiles
+    * [XCF-845] - call forwarding link is easy to miss
+    * [XCF-865] - ensure that sipXconfig does not reboot too many phones at the same time
+    * [XCF-870] - improvement to add external line screen
+    * [XCF-897] - SIP password should be visible on new user screen
+    * [XCF-898] - Support Activate/Inactivate of Device File Sets (e.g. firmware updates)
+    * [XCF-900] - Index Upload objects
+    * [XCF-902] - Default setting for polycom phones on MWI should be silent
+	
+Version 3.1.2
+** Bug
+    * [XCF-475] - polycom - Configure directory memory size
+    * [XCF-531] - Phones - Add Line: user search should be case insensitive
+    * [XCF-656] - Searching for users in "Add Line" screen always searches for the first name entered
+    * [XCF-659] - Return in Add Line screen exits to Lines screen
+    * [XCF-660] - In Add Lines, a search finding no users does not say so
+    * [XCF-665] - Starting/Stopping Services does not work for KeepAlive service
+    * [XCF-716] - Groups field for New Phone should say "Groups" not "Additional Groups"
+    * [XCF-787] - PhoneDefaults.getProxyServerAddr() is deprecated, need to clean up the compiler warnings
+    * [XCF-801] - Indexer Exception running PhoneGroupTestUi on Windows
+    * [XCF-813] - Config server menus dont work in IE
+    * [XCF-814] - Link to download the sipx-snapshot result is missing.
+    * [XCF-816] - Partial phone search doesnt work.
+    * [XCF-817] - Global search results lists the users that have already been deleted. 
+    * [XCF-834] - Bug of at the same time calling setting in huntgroup
+    * [XCF-835] - Apply and OK do not behave correctly on Dialing rules pages
+    * [XCF-841] - one can only generate about 32 profiles in one shot
+    * [XCF-843] - duplicate users found in global search after re-indexing
+    * [XCF-847] - Adding a dial plan with duplicate name is giving an internal error.
+    * [XCF-848] - Dial plan activation page - Internal Server error occurred when was selected item in the drop down is not authrules, mappingrules or fallbackrules. 
+    * [XCF-849] - Generated profiles are not getting deleted, when the phones are deleted from the configserver for Cisco ata, Ciso 7912 and 7905 phones.
+    * [XCF-864] - Please provided timed release profile pushes 
+    * [XCF-868] - replication.cgi corrupts dial plans entries when dialplans are saved
+
+** New Feature
+    * [XCF-777] - Cutsheet - importing data from comma separated values file
+    * [XCF-809] - mapping rules replication for remotely managed hosts
+    * [XCF-818] - Implement time/day of week based, auto attendant feature (aka. Night menu)
+    * [XCF-823] - support for injecting dial rules from external file
+    * [XCF-824] - specifying SIP domain when replicating data
+
+** Task
+    * [XCF-752] - upgrade jakarta commons io
+    * [XCF-821] - Gather statistics on installation and upgrade issues
+
+** Improvement
+    * [XCF-328] - Maximum line limit for a (polycom) device
+    * [XCF-505] - manage services (start/stop/restart/status) on multiple machines
+    * [XCF-572] - Ability to add unmanaged users to phones
+    * [XCF-658] - Text on "Add Line" page is not so clear
+    * [XCF-730] - limit the number of users returned by a user search, for efficiency
+    * [XCF-735] - do not use "digits" and "vdigits" in UI
+    * [XCF-759] - user selection/search should offer quick search by default
+    * [XCF-805] - services screen - change "started" status to "OK" status
+    * [XCF-806] - Support Polycom 1.6.3 settings
+    * [XCF-822] - Upgrade and Installation Enhancements
+    * [XCF-859] - lazy daemon should optionally support quiet period	
+
+Version 3.1.1
+** Bug
+    * [XCF-598] - Ensure that no two aliases/extensions (no matter which feature) are duplicated
+    * [XCF-793] - When Call forward ring for is set to blank , gives an exception page instead of an error page. 
+    * [XCF-798] - media server and status server are restarting soon after PBX starts, every time
+    * [XCF-800] - trying to access config server returns 404
+
+** New Feature
+    * [XCF-405] - download sipx-snapshot result from sipXconfig
+    * [XCF-756] - global search
+    * [XCF-758] - support for conference bridge configuration
+    * [XCF-766] - SOAP support for listing park orbits, conferences, and call groups
+    * [XCF-767] - phone/gateway firmware management
+
+** Task
+    * [XCF-757] - table with selections component
+
+** Improvement
+    * [XCF-305] - JBOSS-To-TapSprHib: SOAP/ XMLRPC support
+    * [XCF-702] - bulk group tagging operations
+    * [XCF-713] - make it easier to find a user on the Users page, when there are many users
+    * [XCF-729] - search phones
+    * [XCF-795] - UserSearch component relies on permanent properties
+
+Version 3.0
+** Bug
+    * [XCF-27] - Data base creation warnning 
+    * [XCF-38] - profilepublisher: faulty error message on exit
+    * [XCF-245] - Config server restricts use of "+", "-" and possibly other legal chars in the UserId field
+    * [XCF-256] - Typing an invalid serial number clears all other form values
+    * [XCF-357] - Disallow gateways, auto attendants, and park orbits with duplicate names
+    * [XCF-393] - Update database version number to match before release
+    * [XCF-433] - Sending profiles to Cisco Ata 186/188 or the Cisco 7905/12 hangs the send profiles feature
+    * [XCF-435] - The Default group settings for each endpoint should have an appropriate title. 
+    * [XCF-437] - The directory_url option appears in two places once in Network parameters and once  in the Phone parameters. 
+    * [XCF-438] - In SNTP of  default group settings of polycom phone models, the
+    * [XCF-452] - Disable "user can dial 900 number" does not work
+    * [XCF-456] - Polycom phones try to download non-existent files from TFTP server
+    * [XCF-458] - Voicemail button doesn't work on multiline Polycom phones
+    * [XCF-459] - Voicemail button on polycom phones is hardcoded to x101
+    * [XCF-460] - Polycom configuration files are misformated with extra spaces
+    * [XCF-479] - do not allow duplicate usernames or extensions
+    * [XCF-482] - Configserver is missing the default 'Operator' autoattendent
+    * [XCF-488] - BackgroundTaskInterceptorTest unittest failure
+    * [XCF-494] - Warning in sipxconfig.log about ehcache
+    * [XCF-495] - Emergency routing page (UI) is not persistant after a sipx restart
+    * [XCF-496] - The Upgrade are Parameters not getting reflected in the config file for Cisco 7960/7940 phones.
+    * [XCF-497] - Deleting hunt groups doesn't triger replication
+    * [XCF-499] - Cisco 7912 / ATA Services page doesn't display correctly
+    * [XCF-500] - The changes made  in the group level for one type of polycom phones is also reflected in the other phones. 
+    * [XCF-504] - Primary Registration Server Address  in Polycom phone by default is set to IP address, but it should be SIPxchange Domain name
+    * [XCF-508] - failed unittests on windows
+    * [XCF-510] - Change PIN page: show success status for better usability
+    * [XCF-515] - for security, don't create a default superadmin user, use a bootstrap page
+    * [XCF-526] - Intermittent Buffer overflow exception when attempt to project the profiles for the polycom phone.
+    * [XCF-527] - Clicking on the generic phone link at the phone group level is giving out an exception.
+    * [XCF-528] - No UI available to edit user groups
+    * [XCF-529] - Permission mismatch for international dialing between sipdb and authrules
+    * [XCF-530] - The Config server admin web ui should not allow to delete the last superadmin user
+    * [XCF-534] - migration of postgres db from 2.8 to 3.0
+    * [XCF-535] - backup, uninstall and snapshot looking at incorrect files and DB
+    * [XCF-536] - sipxconfig.sh cannot create database schema
+    * [XCF-537] - jdk dependency in DB unit tests, fails with jdk 1.4.2, works with jdk 1.5
+    * [XCF-539] - Usability comments on the Web UI
+    * [XCF-541] - https port 8443, .authorities.jks does not get created when sipXconfig is started by initscript
+    * [XCF-542] - new phone doesn't get added to a group
+    * [XCF-545] - configserver generates exception when duplicate polycom device is added
+    * [XCF-546] - Phone group settings editing missing a heading
+    * [XCF-547] - There is no permissions tab for the users.
+    * [XCF-548] - Adding a blank phone/user group gives a long exception
+    * [XCF-549] - (intermittent) exception when clicked on Add existing gateway link in the dial plan page.
+    * [XCF-552] - Click on apply in configurations tab and the whole of sipx gets busted
+    * [XCF-554] - In add user page, the header needs to be bold
+    * [XCF-555] - Editing the Huntgroup extension to a value which is already present in the configserver shows an exception
+    * [XCF-556] - Cannot (reverse) sort the jobs using the start time and stop time.
+    * [XCF-557] - Polycom phone: Wrong default for daylight savings parameter
+    * [XCF-561] - "Internal" dial plan name cannot have space or in other language characters
+    * [XCF-562] - remove TestPage from release build
+    * [XCF-565] - pin fields in Edit User screen are a usability problem
+    * [XCF-566] - SIP password: improve usability of specifying this for new user
+    * [XCF-570] - Polycom IP3000
+    * [XCF-573] - Configserver generates profiles in upper case; Grandstream looks for lower case
+    * [XCF-574] - phone cannot assigned to a group at the time of adding
+    * [XCF-575] - After any validation error message, all the fields are set back to the original values.
+    * [XCF-576] - Phone groups should display the phone model for which configurations are being displayed.
+    * [XCF-577] - SNTP -> daylightSavings.start.dayOfWeek.lastInMonth parameter default value is set to 0 but valid values are from 1 to 7
+    * [XCF-578] - daylightSavings.start.dayOfWeek - accepts zero although 1-7 is the valid range. 
+    * [XCF-579] - Polycom IP501 does not register
+    * [XCF-580] - Automate the migration of postgres DB from 2.8 to 3.0
+    * [XCF-581] - Show error message if backup fails
+    * [XCF-585] - tweak the layout of the New User and Edit User screens for usability
+    * [XCF-586] - After migrating 2.8 database into 2.9, superadmin user loses permissions
+    * [XCF-587] - Generic phones attempting to generate profile gives error
+    * [XCF-590] - Login back in after UI timeout creates exception
+    * [XCF-591] - Polycom: 2nd line fails to register with third party proxy
+    * [XCF-593] - Authexception replication not triggerred when enduser manages call forwarding
+    * [XCF-594] - Attempting to add a duplicate user ID gives an excpetion
+    * [XCF-595] - An exception Ocurred when attempted to add an user with blank userid.
+    * [XCF-596] - Attempt to edit alias of a user to an alias that is already used another user as alias ? Exception displayed and previous alias gets deleted.
+    * [XCF-597] - Alias vs User ID - Ensure uniqueness while adding / editing users. 
+    * [XCF-599] - Give an error message if lower limit of extension pool is greater than the upper limit
+    * [XCF-600] - Delete call park extension from configserver doesn't update orbit.xml
+    * [XCF-602] - Grandstream BT100 doesn't respond to profiles from config server. 
+    * [XCF-603] - Configserver's registration page need not show expired registrations for uri's that have reregistered
+    * [XCF-604] - Listing phones and users is slow when greater than 30 items
+    * [XCF-605] - Toll free dialing plan is missing 866 area code
+    * [XCF-608] - No option to edit user group's name / description
+    * [XCF-609] - The proxy is set to 0 (disabled) by default in both Cisco 7912 and Cisco Ata 188/186 phones.
+    * [XCF-611] - on the login page, the sipXconfig logo appears twice & looks strange
+    * [XCF-612] - always require user PIN to be numeric
+    * [XCF-613] - CSS: error messages displayed on web pages are no longer red
+    * [XCF-614] - custom dialing rule lists superadmin in permissions list
+    * [XCF-615] - java.security.InvalidAlgorithmParameterException: Replication fails
+    * [XCF-616] - Create a config test to ensure FQDN resolves to 127.0.0.1
+    * [XCF-617] - Users with superadmin privileges cannot edit their call forwarding
+    * [XCF-619] - EXTENSION_LENGTH in config.defs is not editable and validate against autoattendant UI
+    * [XCF-621] - Tapestry error with ExtensionPools - appears benign
+    * [XCF-622] - call forwarding page doesn't pay attention to who is logged in
+    * [XCF-623] - edit user => get bogus error about user ID or alias being a duplicate
+    * [XCF-624] - The Check-sync Notify message for Cisco 7960 should not include the port in its AOR field.
+    * [XCF-625] - The Check-sync Notify message for Cisco 7912 has null value at its domain.
+    * [XCF-626] - Projecting profiles Cisco 7912 shows error messages in the sipxconfig log
+    * [XCF-628] - Migrate 3.0 db from a remote 2.8 sipx machine
+    * [XCF-631] - deleting users from hunt groups doesn't work
+    * [XCF-632] - user search broken for adding user to call group or adding line to phone
+    * [XCF-634] - Grandstream: default value of DNS SRV parameter should depend on system configuration
+    * [XCF-635] - uploding files from windows to unix/linux results in strange file names in UI
+    * [XCF-637] - In add user page, group 'pin' and 'confirm pin' such that they appear close to each other
+    * [XCF-639] - Editing a user id to an already existing value gives out an exception
+    * [XCF-642] - Grandstream binary format incompatible with config tool
+    * [XCF-647] - CSS: Some links are not recognizable as such
+    * [XCF-654] - reset-superadmin does not reset superadmin's password to blank
+    * [XCF-661] - sipxconfig.sh is still looking for tools.jar
+    * [XCF-662] - When adding lines to phones, pager and sort not working
+    * [XCF-666] - Cisco 7912/05 hangs during generating profiles, 
+    * [XCF-667] - If one phone job hangs, need to restart config server
+    * [XCF-668] - Cisco 7960 and Polycom phone defaults wrong for DNS SRV setups
+    * [XCF-669] - User/Phone Groups should show members
+    * [XCF-670] - Grandstream: GMT offset field does not accept negative number
+    * [XCF-671] - 3.0 Release note item: Grandstream: Phone restart does not work
+    * [XCF-673] - Add users - click on Apply and then Ok - shows error message.
+    * [XCF-675] - Grandstream - DTMF by default is set to 'via SIP INFO'. To be set to 'via RTP'
+    * [XCF-676] - must allow users to have non-numeric PINs
+    * [XCF-678] - Manage Phones page refresh performance problems
+    * [XCF-679] - Non-empty phone groups end up clearing phone settings
+    * [XCF-680] - emergency routing navigation is confusing
+    * [XCF-683] - Snom - Provision url by default set to <blank>. Must be set to configserver docroot
+    * [XCF-691] - assigning users to groups is confusing and nonstandard
+    * [XCF-693] - when attempt to set the schedule back up time field to blank, exception page shown
+    * [XCF-695] - sipXconfig generates empty configuration file for unmanaged phones
+    * [XCF-696] - c3p0 jar not installed
+    * [XCF-703] - Messages URI is not set to the VM number of internal dialing rule by default
+    * [XCF-708] - Make group dropdown filter selection persistent
+    * [XCF-709] - group dropdown auto-select fails to submit form.  have to log out and log back in 
+    * [XCF-711] - html tables are generated inconsistently making it very difficult to style w/css in IE and firefox
+    * [XCF-714] - migration fails because and instance of sipxconfig is already running
+    * [XCF-715] - After migration, no replication is triggered
+    * [XCF-719] - SNOM phone challenges for password periodically
+    * [XCF-720] - Navigation fully retracts during some "clicks"; some of the navigation becomes unusable at that point.
+
+    * [XCF-721] - Cisco 7912/05 logo won't upgrade
+    * [XCF-722] - MWI not working on SNOM 320 phone
+    * [XCF-723] - incorrect aliases generated for presence server
+    * [XCF-724] - 3.0 Release note item: Cisco phone profiles created in 2.8 got migrated as Cisco 7940 prrofile in 3.0
+    * [XCF-725] - 3.0 Release note item: Emergency routing information is not migrated from 2.8 to 3.0
+    * [XCF-726] - sipxconfig.properties.in has root ownership
+    * [XCF-732] - In Grandstream Network settings, Router parameter is displayed as subnet mask. 
+    * [XCF-733] - Cancel button is not working in the Hunt groups tab.
+    * [XCF-737] - Switching from FQHN to DNS SRV
+    * [XCF-739] - Change Polycom NTP setting from "clock" to "pool.ntp.org"
+    * [XCF-741] - SIP, NAT  and RTP setting groups were missing from SNOM line settings
+    * [XCF-742] - Cannot add more than 10 users
+    * [XCF-743] - SNOM: Setting URL has wrong value after changing to DNS SRV
+    * [XCF-760] - phoneDefaults.outboundProxy in the sipxconfig.property.in should be ${MY_FULL_HOSTNAME}
+    * [XCF-761] - Emergency routing with the Multiple gateways do not have an entry in the q value so both the gateways get the same call.
+
+** New Feature
+    * [XCF-559] - user extension pool
+    * [XCF-563] - presence server configuration
+
+** Task
+    * [XCF-332] - Provide upgrade script to migrate sipxconfig.properties from 2.8 to version XXX
+
+** Improvement
+    * [XCF-443] - Better feedback on pressing Apply button (both success and failure info)
+    * [XCF-498] - add conftest to detect when system was run by root
+    * [XCF-511] - On add/edit user, hide SIP password, with option to show it (admin only)
+    * [XCF-514] - validate the username when the user is created or edited
+    * [XCF-517] - make sure that there is always a user with admin permission
+    * [XCF-533] - Implement a search by group feature
+    * [XCF-543] - ordering of links in left column
+    * [XCF-588] - When editing a phone line, make phone label a link
+    * [XCF-592] - Typos on Lines Screen
+    * [XCF-610] - Usability: Dial Plan Activation
+    * [XCF-641] - Usability: After creating a new phone, coming back to manage page, phone is lost
+    * [XCF-677] - Simplify sending multiple profiles
+    * [XCF-697] - Managed Polycom phones should include new models
+    * [XCF-699] - Usability suggestions for user Call Forwarding screen
+    * [XCF-704] - user friendly exception page
+
+	
+Version 2.8
+
+** Bug
+    * [XCF-25] - Rpm uninstall must remove all files including config files.
+    * [XCF-96] - configuration defaults not shipped in /etc/sipxpbx directory
+    * [XCF-158] - Add  appropriate xmlns declaration to configurtion files, when upgrading from 2.6 to 2.7.
+    * [XCF-279] - check for .rpmnew files after upgrade
+    * [XCF-310] - AuthExceptions are not generated if user _has_ ForwardExternal Permission but is not set at the User level.
+    * [XCF-311] - Frequent Java.net.SocketException
+    * [XCF-312] - Rollback exception put config server into an unusable state 
+    * [XCF-314] - A solitary occurance of EJBException:Store Failed put the database into a bad state. 
+    * [XCF-315] - Restore-configs doesn't restore database
+    * [XCF-333] - Emergency dialing fails if multiple dialing rules share the same gateway
+    * [XCF-334] - Web UI should remind that changing user sensitive emergency forwarding requires dial plan activation
+    * [XCF-338] - polycom: Important default settings not set for basic operation
+    * [XCF-339] - polycom : Group names are not showing up on settings page
+    * [XCF-344] - q values generated by sipXconfig need to be expressed with decimal dot independent of locale
+    * [XCF-346] - Logout function in the config server doesn't work.
+    * [XCF-347] - install-ssl-keystore only installed certs names server-01
+    * [XCF-353] - custom dialing rules without gateways are not added properly to mappingrules.xml.in
+    * [XCF-361] - In the config server admin web ui the  default value for the external number length for restricted/toll free dialing is set to 7 instead of 10
+    * [XCF-368] - Java process restarted when adding a new user through the WebUI
+
+
+** Task
+    * [XCF-289] - document how to add support for new phones
+
+** Improvement
+    * [XCF-264] - Custom dialing rule should have an option to specify x. as the digit pattern
+    * [XCF-308] - dial plans - resulting call prefix should be optional in custom dialing rule
+    * [XCF-309] - dial plan - add 2 digit internal dialing rule 
+    * [XCF-354] - Make entering DNS Domain field on "Organization" screen less error prone.
+
+	
+
+Version 2.6.2
+
+** Bug
+    * [XCF-36] - config server will not run on an isolated Network
+    * [XCF-52] - incorect DTD referenced in profilegenerator/ejb/meta/MET-INF/ejb-jar.xml
+    * [XCF-61] - if JBOSS_HOME defined, use it or fail
+    * [XCF-72] - Permission of various .in files in $SIPX_HOME to be
+                 changed to allow write access to sipxchange
+    * [XCF-73] - Null Error when trying to project profiles for a device
+    * [XCF-90] - Configserver takes a very very long time, when you send
+                 profiles for a user who has a Cisco7940 device assigned to
+                 him.
+    * [XCF-102] - mappingrules.xml not accessible from UI
+    * [XCF-103] - sipXconfig 2.6.1 rpm should require JBoss 2.4.4
+    * [XCF-128] - After upgrade to 2.6 FCS, config server wont let me log in as superadmin
+    * [XCF-129] - Unable to add new device
+
+** New Feature
+    * [XCF-54] - Separate voicemail ui from end user phone config ui
+
+
+Version 2.6.1
+
+** Bug
+    * [XCF-7] - Web page error "null" pushing user profiles
+    * [XCF-10] - About: Version is null
+    * [XCF-15] - Exception while saving user (or creating new user)
+    * [XCF-16] - Java security exception while trying to send profiles
+    * [XCF-23] - Services page is dead
+    * [XCF-28] - Provide a mechanism to automatically start postgres (or atleast document the procedure to start it)
+    * [XCF-31] - Cannot delete Applications
+    * [XCF-35] - hardcoded path to java in rpm
+    * [XCF-37] - sipconfig rpm fails to install as the sqp script paths are inccorect
+    * [XCF-39] - User login, saving any page, get error message, save ok
+    * [XCF-40] - compile warning: Trying to override old definition
+    * [XCF-41] - Fedora RPM dependency issue for postgres
+    * [XCF-42] - Clean up output messages in sipXconfig rpm install
+    * [XCF-44] - Process Page broken to start/stop services
+    * [XCF-47] - Registrations doesn't seem to be displaying registrations
+    * [XCF-55] - Remove the need to drop DB when domain name is changed
+    * [XCF-57] - Unassigning a device gives a page error "null"
+    * [XCF-59] - Better protection from "Error Null" by moving response.sendRedirect
+    * [XCF-60] - tftp support for cisco phones
+    * [XCF-70] - Profiles not being pushed for Cisco Devices.
+    * [XCF-72] - Permission of various .in files in $SIPX_HOME to be changed to allow write access to sipxchange
+    * [XCF-73] - Null Error when trying to project profiles for a device
+    * [XCF-74] - cannot change domain name if Cisco phones are defined
+
+** New Feature
+    * [XCF-2] - Troubleshooting sections
+    * [XCF-58] - Add support for 7905 & 7912 in the Config
+    * [XCF-66] - Change "Pingte-xpressa_strongarm_vxworks" to "xpressa"
+
+** Task
+    * [XCF-34] - sipXpbx/etc/resourcemap.xml.in
+
+** Improvement
+    * [XCF-53] - allow credentials to be independant of SIP URI
+    * [XCF-65] - configuring domain name and realm name during initialization
+
+
+Release Notes - sipXconfig - Version 2.5.2
+
+** Bug
+    * [XCF-6] - 'make dist' failing
+    * [XCF-12] - have to click on logout.jsp before logging in first time
+
+** Improvement
+    * [XCF-5] - Clean up code to remove all warnings.
+
+Release Notes - sipXconfig - Version 2.5.1
+
+** Bug
+    * [XCF-4] - won't build with sipXportLib

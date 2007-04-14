@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+	<group name="USER_ACCOUNT">
+		<setting name="Displayname">
+			<label>Display name</label>
+			<type>
+				<string maxLen="30" />
+			</type>
+			<value />
+			<description>User name displayed on the phone</description>
+		</setting>
+		<setting name="Phone_Number">
+			<label>Phone Number</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description>User info part of the SIP URI</description>
+		</setting>
+		<setting name="User_ID">
+			<label>User ID</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description>
+				user ID to authenticate against the SIP server
+			</description>
+		</setting>
+		<setting name="User_Password" hidden="yes">
+			<label>Password</label>
+			<type>
+				<string password="yes" maxLen="32"></string>
+			</type>
+			<value />
+			<description>
+				Paswword to authenticate to the SIP server
+			</description>
+		</setting>
+		<setting name="URL_Scheme" advanced="yes">
+			<label>URL Scheme</label>
+			<type>
+				<enum>
+					<option>
+						<label>SIP url</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>phone url</label>
+						<value>1</value>
+					</option>
+				</enum>
+			</type>
+			<value>0</value>
+			<description>Set the URL scheme</description>
+		</setting>
+	</group>
+</model>

@@ -1,0 +1,75 @@
+
+# preserve header timestamps to preserve incremental builds across
+# projects
+nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
+
+# fastdb header have to be installed because 
+# of compile dependencies in other sipX projects
+nobase_include_HEADERS =  \
+    configrpc/ConfigRPC.h \
+    sipdb/AliasDB.h \
+    sipdb/AliasRow.h \
+    sipdb/AuthexceptionDB.h \
+    sipdb/AuthexceptionRow.h \
+    sipdb/CallerAliasDB.h \
+    sipdb/CallerAliasRow.h \
+    sipdb/CredentialDB.h \
+    sipdb/CredentialRow.h \
+    sipdb/DialByNameDB.h \
+    sipdb/DialByNameRow.h \
+    sipdb/ExtensionDB.h \
+    sipdb/ExtensionRow.h \
+    sipdb/HuntgroupDB.h \
+    sipdb/HuntgroupRow.h \
+    sipdb/PermissionDB.h \
+    sipdb/PermissionRow.h \
+    sipdb/RegistrationBinding.h \
+    sipdb/RegistrationDB.h \
+    sipdb/RegistrationRow.h \
+    sipdb/ResultSet.h \
+    sipdb/SIPDBManager.h \
+    sipdb/SIPXAuthHelper.h \
+    sipdb/SubscriptionDB.h \
+    sipdb/SubscriptionRow.h \
+    digitmaps/UrlMapping.h \
+    fastdb/array.h \
+    fastdb/bugdb.h \
+    fastdb/CHANGES \
+    fastdb/class.h \
+    fastdb/cli.h \
+    fastdb/clidb.h \
+    fastdb/cliproto.h \
+    fastdb/compiler.d \
+    fastdb/compiler.h \
+    fastdb/container.h \
+    fastdb/cursor.h \
+    fastdb/database.h \
+    fastdb/date.h \
+    fastdb/datetime.h \
+    fastdb/exception.h \
+    fastdb/fastdb.h \
+    fastdb/file.h \
+    fastdb/harray.h \
+    fastdb/hashtab.h \
+    fastdb/localcli.h \
+    fastdb/query.h \
+    fastdb/reference.h \
+    fastdb/repsock.h \
+    fastdb/server.h \
+    fastdb/set.h \
+    fastdb/sockio.h \
+    fastdb/stdtp.h \
+    fastdb/subsql.h \
+    fastdb/symtab.h \
+    fastdb/sync.h \
+    fastdb/ttree.h \
+    fastdb/unisock.h \
+    fastdb/w32sock.h \
+    fastdb/wwwapi.h \
+    filereader/OrbitFileReader.h \
+    filereader/RefreshingFileReader.h \
+    odbc/OdbcWrapper.h \
+    persist/SipPersistentSubscriptionMgr.h \
+    testlib/RegistrationDbTestContext.h \
+    testlib/SipDbTestContext.h \
+    testlib/FileTestContext.h

@@ -1,0 +1,20 @@
+--- PKCS12Import.java	2005-08-23 11:06:11.999587176 -0400
++++ PKCS12Import.java.orig	2005-08-23 11:08:39.759124312 -0400
+@@ -123,15 +123,10 @@
+       }
+    }
+ 
+-   /** 
+-    * share instance so stdin buffer doesn't gobble user inputs to next
+-    * call to readPassphase.  Important for automation or really really
+-    * fast users.
+-    */ 
+-   static InputStreamReader in = new InputStreamReader(System.in);
+-
+    static char[] readPassphrase() throws IOException
+    {
++      InputStreamReader in = new InputStreamReader(System.in);
++
+       char[] cbuf = new char[256];
+       int i = 0;
+ 

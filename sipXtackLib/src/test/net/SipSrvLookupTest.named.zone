@@ -1,0 +1,101 @@
+; zone file to test SIP URI resolution
+;
+$TTL	86400
+$ORIGIN .
+@	1D IN SOA	@ worley.ariadne.com. (
+			2005060702	; serial
+			24H		; refresh
+			1H		; retry
+			1W		; expire
+			1D )		; minimum
+.	1D IN NS	127.0.0.1
+
+;; Records to support specific tests.
+
+test2			1D IN A		1.2.1.0
+
+test3			1D IN A		1.3.1.0
+test3			1D IN A		1.3.1.1
+
+_sip._udp.test4		1D IN SRV	1 1 5060 test4.example.com.
+
+_sip._udp.test5		1D IN SRV	1 1 5999 test5.example.com.
+
+_sip._udp.test6		1D IN SRV	1 1 5066 test6a.example.com.
+_sip._udp.test6		1D IN SRV	1 1 5067 test6b.example.com.
+test6			1D IN A		1.6.1.0
+
+_sip._tcp.test7		1D IN SRV	1 1 5060 test4.example.com.
+
+_sip._tcp.test8		1D IN SRV	1 1 5999 test5.example.com.
+
+_sip._tcp.test9		1D IN SRV	1 1 5066 test6a.example.com.
+_sip._tcp.test9		1D IN SRV	1 1 5067 test6b.example.com.
+test9			1D IN A		1.9.1.0
+
+_sip._udp.test10	1D IN SRV	1 1 5060 invalid.com.
+test10			1D IN A		1.10.1.0
+
+_sip._tcp.test11	1D IN SRV	1 1 5060 invalid.com.
+test11			1D IN A		1.11.1.0
+
+_sip._udp.test12	1D IN SRV	1 1 666 test6a.example.com.
+_sip._tcp.test12	1D IN SRV	1 1 667 test6b.example.com.
+
+_sip._udp.test20	1D IN SRV	1 1 8000 test4.example.com.
+_sip._udp.test20	1D IN SRV	2 1 8001 test4.example.com.
+_sip._udp.test20	1D IN SRV	3 1 8002 test4.example.com.
+
+_sip._udp.test21	1D IN SRV	3 1 8000 test4.example.com.
+_sip._udp.test21	1D IN SRV	2 1 8001 test4.example.com.
+_sip._udp.test21	1D IN SRV	1 1 8002 test4.example.com.
+
+_sip._udp.test22	1D IN SRV	1 1 8000 test4.example.com.
+_sip._tcp.test22	1D IN SRV	2 1 8001 test4.example.com.
+_sip._tls.test22	1D IN SRV	3 1 8002 test4.example.com.
+
+_sip._udp.test23	1D IN SRV	1 1 8000 test4.example.com.
+_sip._udp.test23	1D IN SRV	1 1 8001 test4.example.com.
+_sip._udp.test23	1D IN SRV	1 1 8002 test4.example.com.
+_sip._udp.test23	1D IN SRV	1 1 8003 test4.example.com.
+
+_sip._udp.test24	1D IN SRV	1 1 8000 test4.example.com.
+_sip._udp.test24	1D IN SRV	1 1 8001 test4.example.com.
+_sip._udp.test24	1D IN SRV	1 2 8002 test4.example.com.
+_sip._udp.test24	1D IN SRV	1 2 8003 test4.example.com.
+
+c0.test25		1D IN A		1.25.1.0
+c1.test25		1D IN CNAME	c0.test25
+c2.test25		1D IN CNAME	c1.test25
+c3.test25		1D IN CNAME	c2.test25
+c4.test25		1D IN CNAME	c3.test25
+c5.test25		1D IN CNAME	c4.test25
+c6.test25		1D IN CNAME	c5.test25
+c7.test25		1D IN CNAME	c6.test25
+c8.test25		1D IN CNAME	c7.test25
+c9.test25		1D IN CNAME	c8.test25
+
+_sip._udp.test26	1D IN SRV	1 1 5060 c2.test25
+
+_sip._udp.test27	1D IN SRV	1 1 666 c2.test25
+_sip._tcp.test27	1D IN SRV	1 1 667 c2.test25
+
+_sip._udp.test28	1D IN SRV	1 1 8001 test4.example.com.
+_sip._udp.test28	1D IN SRV	3 1 8003 test4.example.com.
+_sip._tcp.test28	1D IN SRV	2 1 8002 test4.example.com.
+_sip._tcp.test28	1D IN SRV	4 1 8004 test4.example.com.
+
+_sip._udp.test29	1D IN SRV	1 1000 8001 test4.example.com.
+_sip._udp.test29	1D IN SRV	1 10   8003 test4.example.com.
+_sip._tcp.test29	1D IN SRV	1 100  8002 test4.example.com.
+_sip._tcp.test29	1D IN SRV	1 1    8004 test4.example.com.
+
+;; Records used by more than one test.
+
+test4.example.com	1D IN A		2.1.4.0
+test5.example.com	1D IN A		2.1.5.0
+test6a.example.com	1D IN A		2.1.6.0
+test6b.example.com	1D IN A		2.1.6.1
+test6udp.example.com	1D IN A		2.1.6.0
+test6tcp.example.com	1D IN A		2.1.6.1
+test7.example.com	1D IN A		2.1.7.0

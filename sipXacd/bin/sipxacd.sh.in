@@ -1,0 +1,46 @@
+#!/bin/bash
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
+
+case ${Action} in
+   RUN)
+     echo $$ > @SIPX_RUNDIR@/sipxacd.pid
+     if [ -f "$CONFIG_DEFS" ]
+     then
+         source $CONFIG_DEFS
+         exec @bindir@/sipxacd -P ${ACD_SERVER_PROVISIONING_PORT} $Args
+     else
+         exec @bindir@/sipxacd $Args
+     fi
+     ;;
+
+   CONFIGTEST)
+     #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/sipxacd.xml
+     #Status=$(($Status+$?))
+     ;;
+esac
+
+exit $Status

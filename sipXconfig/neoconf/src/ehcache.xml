@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!-- copy of configuration, minus comments, in ehcache-1.1.jar:ehcache-failsafe.xml -->
+<ehcache>
+    <diskStore path="java.io.tmpdir"/>
+    <defaultCache
+        maxElementsInMemory="10000"
+        eternal="false"
+        overflowToDisk="true"
+        timeToIdleSeconds="120"
+        timeToLiveSeconds="120"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="120"/>
+    <cache name="org.taha.cache.METHOD_CACHE"
+        maxElementsInMemory="30"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="300"
+        overflowToDisk="false"/>
+</ehcache>

@@ -1,0 +1,131 @@
+<div jwcid="@Border" restricted="false" loginRequired="false">
+  <h2>Web Unit Test Interface</h2>
+  <p>Links here are generally driven by unit tests, but you may interact with them manually as well.</p>
+  <div class="col">
+    <h3>Users</h3>
+    <ul>
+      <li><strong><a jwcid="login" id="login">Login</a></strong></li>
+      <li><a jwcid="@PageLink" id="LoginPage" page="LoginPage">Login Page</a></li>
+      <li><a jwcid="logout" id="Logout">Logout</a></li>
+      <li><a jwcid="toggleNavigation" id="toggleNavigation">Toggle navigation</a></li>
+      <li><a jwcid="hideNavigation" id="hideNavigation">Hide navigation</a></li>
+      <li><a jwcid="toggleAdmin" id="toggleAdmin">Toggle admin/user mode</a></li>
+      <li><a jwcid="seedTestUser" id="seedTestUser">Create test user</a></li>
+      <li><a jwcid="populateUsers" id="link:populateUsers">Add many unique users</a></li>
+      <li><a jwcid="@PageLink" id="NewUser" page="NewUser">New User</a></li>
+      <li><a jwcid="@PageLink" id="ManageUsers" page="ManageUsers">Manage Users</a></li>
+      <li><a jwcid="@PageLink" id="UserGroups" page="UserGroups">User Groups</a></li>
+      <li><a jwcid="newUserGroup" id="NewUserGroup">New User Group</a></li>
+      <li><a jwcid="@PageLink" id="ChangePin" page="ChangePin">Change Pin</a></li>
+      <li><a jwcid="loginFirstTestUser" id="loginFirstTestUser">Log in the first test user</a></li>
+      <li><a jwcid="deleteAllUsers" id="deleteAllUsers">Delete all users</a></li>
+      <li><a jwcid="@PageLink" id="managePresence" page="ManagePresence">Manage Presence</a></li>
+      <li><a jwcid="importLdap" id="importLdap">Import from LDAP</a></li>
+      <li><a jwcid="@PageLink" id="SpeedDialPage" page="speeddial/SpeedDialPage">Speed Dial</a></li>
+      <li><a jwcid="@PageLink" id="UserPhonesPage" page="user/UserPhones">User Phones</a></li>
+    </ul>
+    
+    <h3>Voicemail</h3>
+    <ul>
+      <li><a jwcid="@PageLink" id="ManageVoicemail" page="vm/ManageVoicemail">Voicemail</a></li>
+    </ul>
+    
+    <h3>Phones</h3>
+    <ul>
+      <li><a jwcid="@PageLink" id="ManagePhones" page="ManagePhones">List Phones</a></li>
+      <li><a jwcid="@PageLink" id="PhoneGroups" page="PhoneGroups">Phone Groups</a></li>
+      <li><a jwcid="newPhoneGroup" id="NewPhoneGroup">New Phone Group</a></li>
+      <li><a jwcid="@DirectLink" id="NewPhone" listener="listener:newPhone">New Phone</a></li>
+      <li><a jwcid="populatePhones" id="link:populatePhones">Populate Phones</a></li>
+      <li><a jwcid="@PageLink" id="link:managePhonebooks" page="ManagePhonebooks">Manage Phonebooks</a></li>
+      <li><a jwcid="@PageLink" id="link:phonebook" page="EditPhonebook">Phonebook</a></li>
+    </ul>
+    
+    <h3>Call Groups</h3>
+    <ul>
+      <li><a jwcid="@PageLink" id="NewCallGroup" page="EditCallGroup">New call group</a></li>
+      <li><a jwcid="@PageLink" id="ListCallGroups" page="ListCallGroups">Call groups</a></li>
+      <li><a jwcid="@PageLink" id="NewParkOrbit" page="EditParkOrbit">New Call Park Extension</a></li>
+      <li><a jwcid="@PageLink" id="ListParkOrbits" page="ListParkOrbits">Call Parking</a></li>
+      <li><a jwcid="@PageLink" id="MusicOnHold" page="MusicOnHold">MusicOnHold</a></li>
+    </ul>
+    
+  </div>
+  <div class="col">  
+    <h3>Dial Plans</h3>
+    <ul>
+      <li><a jwcid="@PageLink" id="ListGateways" page="ListGateways">List Gateways</a></li>
+      <li><a jwcid="@PageLink" id="NewAutoAttendant" page="EditAutoAttendant">New Auto Attendant</a></li>
+      <li><a jwcid="@PageLink" id="ManageAttendants" page="ManageAttendants">List Auto Attendants</a></li>
+      <li><a jwcid="@PageLink" id="FlexibleDialPlan" page="EditFlexibleDialPlan">Dial Plan</a></li>
+      <li><a jwcid="@PageLink" id="EmergencyRouting" page="EditEmergencyRouting">911 Routing</a></li>
+      <li><a jwcid="@PageLink" id="UserCallForwarding" page="UserCallForwarding">Call Forwarding</a></li>
+      <li><a jwcid="@PageLink" id="BackupPage" page="BackupPage">Backup</a></li>
+    </ul>
+    
+    <h3>System</h3>
+    <ul>
+      <li><a jwcid="@PageLink" id="ExtensionPools" page="ExtensionPools">User Extension Pool</a></li>
+      <li><a jwcid="@PageLink" id="ServerSettings" page="ServerSettings">Server Settings</a></li>
+      <li><a jwcid="RestartReminder" id="RestartReminder">Restart Reminder</a></li>
+      <li><a jwcid="@PageLink" id="LoginPage" page="LoginPage">Login Page</a></li>
+      <li><a jwcid="@PageLink" id="JobStatusPage" page="JobStatusPage">Job Status</a></li>
+      <li><a jwcid="populateJobs" id="jobs:populate">Populate Jobs</a></li>
+      <li><a jwcid="@PageLink" id="Services" page="Services">Services</a></li>
+      <li><a jwcid="@PageLink" id="Registrations" page="Registrations">Registrations</a></li>
+      <li><a jwcid="@PageLink" id="SnapshotPage" page="SnapshotPage">Snapshot</a></li>
+      <li><a jwcid="throwException" id="ShowExceptionPage">Show Exception Page</a></li>
+      <li><a jwcid="validateEditPageProvider" id="validateEditPageProvider">Validate Edit Pages</a></li>
+      <li><a jwcid="@PageLink" id="link:upload" page="ManageUploads">Uploads</a></li>
+      <li><a jwcid="newUpload" id="link:newUpload">New Upload</a></li>
+      <li><a jwcid="@PageLink" id="link:import" page="BulkImport">Import from CSV</a></li>
+      <li><a jwcid="@PageLink" id="link:intercom" page="Intercom">Intercom</a></li>
+      <li><a jwcid="@PageLink" id="link:domain" page="ManageDomain">Domain</a></li>
+      <li><a jwcid="@PageLink" id="link:configuredServices" page="service/ListConfiguredServices">Configured Services</a></li>
+    </ul>
+    
+    <h3>Conference Bridge</h3>
+    <ul>
+      <li><a jwcid="@PageLink" id="EditBridge" page="EditBridge">New Bridge</a></li>
+      <li><a jwcid="@PageLink" id="ListBridges" page="ListBridges">Conference Bridges</a></li>
+    </ul>
+  </div>      
+  <div class="col">    
+    <h3>Reset</h3>
+    <p>This clears all related data in that context!</p>
+    <ul>
+      <li><a jwcid="resetCoreContext" id="resetCoreContext">Reset core context</a></li>
+      <li><a jwcid="resetDialPlans" id="resetDialPlans">Reset dial plans</a></li>
+      <li><a jwcid="resetCallForwarding" id="resetCallForwarding">Reset Call Forwaring</a></li>
+      <li><a jwcid="resetPhoneContext" id="resetPhoneContext">Reset phone management</a></li>
+      <li><a jwcid="resetCallGroupContext" id="resetCallGroupContext">Reset call group context</a></li>
+      <li><a jwcid="resetParkOrbitContext" id="resetParkOrbitContext">Reset park orbit context</a></li>
+      <li><a jwcid="resetConferenceBridgeContext" id="resetConferenceBridgeContext">Reset conference bridge context</a></li>
+      <li><a jwcid="resetUpload" id="link:resetUpload">Reset Upload</a></li>
+      <li><a jwcid="resetVoicemail" id="resetVoicemail">Reset Voicemail</a></li>
+      <li><a jwcid="resetPhonebook" id="link:phonebookReset">Reset Phonebooks</a></li>
+      <li><a jwcid="@DirectLink" id="resetConfiguredServices" listener="listener:resetServiceManager">Reset Configured Services</a></li>
+      <li><a jwcid="disableVoicemail" id="disableVoicemail">Disable Voicemail</a></li>
+    </ul>
+
+    <h3>Dataset Generation</h3>
+    <ul jwcid="generateLinks">
+      <li><a jwcid="generateLink"><span jwcid="generateLinkLabel" /></a></li>
+      <li><a jwcid="generateFileLink"><span jwcid="generateFileLinkLabel"/></a></li>
+    </ul>
+    <h3>ACD</h3>
+    <ul>
+      <li><a jwcid="@PageLink" id="acdServerPage" page="AcdServerPage">New Acd Server</a></li>
+      <li><a jwcid="@PageLink" id="acdPresenceServer" page="AcdPresenceServer">ACD Presence Server</a></li>
+      <li><a jwcid="@PageLink" id="acdSupervisorConsole" page="AcdSupervisorConsole">ACD Supervisor Console</a></li>
+      <li><a jwcid="@PageLink" id="listAcdServers" page="ListAcdServers">ACD Servers</a></li>
+      <li><a jwcid="@PageLink" id="acdReports" page="acd/AcdHistoryPage">ACD Reports</a></li>
+      <li><a jwcid="resetAcdContext" id="resetAcdContext">Reset ACD context</a></li>
+    </ul>					        
+    <h3>Search</h3>
+    <ul>
+      <li><a jwcid="indexAll" id="link:indexAll">Index All</a></li>
+      <li><a jwcid="searchBongo" id="link:search">Search for bongo</a></li>
+    </ul>
+  </div>
+</div>

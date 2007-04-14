@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.admin.commserver.Registrations">
+  <description>Displays active and expired registrations</description>
+
+  <inject property="registrationContext" object="spring:registrationContext"/>
+
+  <property name="currentRow"/>
+  <property name="displayPrimary" persist="session"/>
+  <property name="registrations" initial-value="registrationContext.registrations"/>
+
+  <!--
+  - B E A N S
+  -->
+  <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd"/>
+  <bean name="metrics" class="org.sipfoundry.sipxconfig.admin.commserver.RegistrationMetrics">
+    <set name="registrations" value="registrations"/>
+    <set name="startTime" value="startTime"/>
+  </bean>
+  <bean name="twoDigitDecimal" class="java.text.DecimalFormat">
+    <set name="maximumFractionDigits" value="2"/>
+    <set name="minimumFractionDigits" value="2"/>
+  </bean>
+
+  <!--
+  - C O M P O N E N T S
+  -->
+  <component id="togglePrimary" type="ToggleLink">
+    <binding name="toggle" value="displayPrimary"/>
+    <binding name="labelOn" value="message:hide.primary"/>
+    <binding name="labelOff" value="message:show.primary"/>
+  </component>
+  <component id="tableView" type="contrib:TableView">
+    <binding name="source" value="beans.metrics.uniqueRegistrations"/>
+    <binding name="pageSize" value="literal:-1"/>
+    <binding name="columns" value="'uri,contact,=expiresColumn' + (displayPrimary ? ',primary' : '')"/>
+    <binding name="volatile" value="true"/>
+  </component>
+  <component id="tableColumns" type="contrib:TableColumns">
+  </component>
+  <component id="tableRows" type="contrib:TableRows">
+    <binding name="row" value="currentRow"/>
+    <binding name="class" value="beans.rowClass.next"/>
+  </component>
+  <component id="tableValues" type="contrib:TableValues"/>
+  <component id="refreshButton" type="Submit">
+    <binding name="value" value="message:button.refresh"/>
+  </component>
+</page-specification>

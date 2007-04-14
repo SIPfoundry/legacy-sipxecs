@@ -1,0 +1,67 @@
+Index: xdocs/changes.xml
+===================================================================
+--- xdocs/changes.xml	(revision 399793)
++++ xdocs/changes.xml	(working copy)
+@@ -41,8 +41,16 @@
+ 
+   <body>
+ 
+-    <release version="1.1" date="Pending" description="Nearing completion">
++    <release version="1.2" date="Pending" description="In development">
+ 
++      <action dev="martinc" type="fix">
++        File names were being inadvertently converted to lower case.
++      </action>
++
++    </release>
++
++    <release version="1.1" date="2005-12-24" description="Portlet support, substantial refactoring and numerous bug fixes">
++
+       <action dev="martinc" type="update">
+         Updates for FileUpload 1.1-RC1.
+       </action>
+@@ -321,6 +329,9 @@
+       </action>
+ 
+     </release>
++
++    <release version="1.0" date="2003-06-26" description="Initial release">
++    </release>
+   
+     
+   </body>
+Index: src/java/org/apache/commons/fileupload/FileUploadBase.java
+===================================================================
+--- src/java/org/apache/commons/fileupload/FileUploadBase.java	(revision 399793)
++++ src/java/org/apache/commons/fileupload/FileUploadBase.java	(working copy)
+@@ -433,8 +433,8 @@
+         String fileName = null;
+         String cd = getHeader(headers, CONTENT_DISPOSITION);
+         if (cd != null) {
+-            cd = cd.toLowerCase();
+-            if (cd.startsWith(FORM_DATA) || cd.startsWith(ATTACHMENT)) {
++            String cdl = cd.toLowerCase();
++            if (cdl.startsWith(FORM_DATA) || cdl.startsWith(ATTACHMENT)) {
+                 ParameterParser parser = new ParameterParser();
+                 parser.setLowerCaseNames(true);
+                 // Parameter parser can handle null input
+Index: build.xml
+===================================================================
+--- build.xml	(revision 399793)
++++ build.xml	(working copy)
+@@ -26,7 +26,7 @@
+   </property>
+   <property name="javadocdir" value="${basedir}/dist/docs/api">
+   </property>
+-  <property name="final.name" value="commons-fileupload-1.1">
++  <property name="final.name" value="commons-fileupload-1.1.1">
+   </property>
+   <property name="proxy.host" value="">
+   </property>
+@@ -254,4 +254,4 @@
+     <unjar dest="${maven.home}" src="${user.home}/maven-install-latest.jar">
+     </unjar>
+   </target>
+-</project>
+\ No newline at end of file
++</project>

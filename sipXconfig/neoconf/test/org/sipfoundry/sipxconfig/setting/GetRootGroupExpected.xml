@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd" -->
+<dataset>
+    <group_storage 
+		resource="unittest"
+		name="Default"
+    weight="0"  
+    description="[null]"
+		group_id="[group_id]"/> 
+</dataset>

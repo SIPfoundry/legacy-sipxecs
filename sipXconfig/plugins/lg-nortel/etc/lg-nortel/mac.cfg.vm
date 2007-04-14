@@ -1,0 +1,42 @@
+## Velocity macros
+## emit 'setting value' pair
+#macro(emit_setting $s)
+${s.ProfileName} $!{s.Value}
+#end
+## emit setting line for every setting in the group
+#macro(emit_group $g)
+[${g.ProfileName}]
+#foreach ($s in $g.Values)
+#emit_setting($s)
+#end
+
+#end
+#macro(emit_groups_by_name $group_names)
+#foreach ($gn in $group_names)
+#emit_group($phone.Settings.getSetting("$gn"))
+#end
+#end
+;================================================================================================
+; LIP-68XX configuration information
+;================================================================================================
+
+#emit_groups_by_name(['NETTIME'])
+#emit_groups_by_name(['VOIP'])
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount)
+#foreach ($group in $line.Settings.Values)
+#foreach ($setting in $group.Values)
+line${line_id}_${setting.ProfileName} $!{setting.Value}
+#end
+#end
+#end
+
+#emit_groups_by_name(['DSP', 'FWRD', 'DIAL', 'CALL', 'SNMP', 'SYSTEM', 'PROVISION'])
+
+#foreach ($button in $speeddials)
+#if($velocityCount == 1)
+[PROG]
+#end
+#set($button_id = $velocityCount + $speeddial_offset)
+add $button_id 1 $button.Number
+#end

@@ -1,0 +1,64 @@
+<span jwcid="integerBlock@Block">
+  <span jwcid="integerField@TextField"
+    id="prop:widgetId"
+    value="prop:setting.typedValue"
+    displayName="prop:label"
+    translator="translator:number,omitZero=false"
+    validators="prop:validatorList"
+    disabled="prop:disabled" />
+</span>
+<span jwcid="realBlock@Block">
+  <span jwcid="realField@TextField"
+    id="prop:widgetId"
+    value="prop:setting.typedValue"
+    displayName="prop:label"
+    translator="translator:number,omitZero=false"
+    validators="prop:validatorList"
+    disabled="prop:disabled" />
+</span>
+<span jwcid="stringBlock@Block">
+  <span jwcid="stringField@TextField"
+    id="prop:widgetId"
+    value="prop:setting.typedValue"
+    hidden="ognl:setting.type.password"
+    displayName="prop:label"
+    validators="prop:validatorList"
+    disabled="prop:disabled"
+    maxLength="ognl:setting.type.maxLen"/>
+</span>
+<span jwcid="enumBlock@Block">
+  <span jwcid="enumField@PropertySelection"
+    id="prop:widgetId"
+    value="prop:setting.value"
+    model="prop:enumModel"
+    disabled="prop:disabled" />  
+</span>
+<span jwcid="booleanBlock@Block">
+  <span jwcid="booleanField@Checkbox"
+    id="prop:widgetId"
+    value="prop:setting.typedValue"
+    disabled="prop:disabled" />
+</span>
+<span jwcid="fileBlock@Block">
+  <span jwcid="fileField@AssetSelector"
+    id="prop:widgetId"
+    asset="prop:setting.value"
+    assetDir="ognl:setting.type.directory"
+    selectable="ognl:setting.type.variable"
+    contentType="ognl:setting.type.contentType"
+    submitOnChange="ognl:false"
+    enabled="prop:enabled" />
+</span>
+<span jwcid="@If" condition="prop:decorated">
+  <span jwcid="@FieldPanel"
+    field="prop:formComponent"
+    label="prop:label"
+    defaultValue="prop:defaultValue"
+    description="prop:description"
+    highlight="prop:modified">
+    <span jwcid="field@RenderBlock" block="prop:widgetBlock"/>
+  </span>
+</span>
+<span jwcid="@Else">
+  <span jwcid="@RenderBlock" block="prop:widgetBlock"/>
+</span>

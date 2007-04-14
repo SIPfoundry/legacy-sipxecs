@@ -1,0 +1,271 @@
+#!/bin/sh
+###
+### Check name and date in ssl certificate
+###
+
+ExitStatus=0
+ShowCert="NO"
+Feedback=NORMAL
+ExpireWarn=30
+ExpireFail=0
+Names=""
+CAdir=@SIPX_CONFDIR@/ssl/authorities
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        ##
+        ## Verbose
+        ##
+        -v|--verbose)
+            Feedback=VERBOSE
+            ;;
+
+        ##
+        ## 
+        ##
+        -w|--warning)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <warning-days> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                ExpireWarn=${2}
+                shift # consume the switch
+            fi
+            ;;
+
+        -f|--fail)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <failure-days> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                ExpireFail=${2}
+                shift # consume the switch
+            fi
+            ;;
+
+        -n|--name)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <name> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Names="${Names} ${2}"
+                shift # consume the switch
+            fi
+            ;;
+
+        -a|--authority)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <authority-file> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Authority=${2}
+                shift # consume the switch
+            fi
+            ;;
+
+        ##
+        ## handle the 'end of options' marker
+        ##
+        --)
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+            Action=USAGE
+            break
+            ;;
+
+        *)
+            if [ -z "${Certificate}" ]
+            then
+                Certificate=${1}
+            else
+                echo "Too many arguments supplied: $@" 1>&2
+                Action=USAGE
+                break
+            fi
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+if [ "${Action}" = "USAGE" -o -z "${Certificate}" ]
+then
+    cat <<USAGE
+
+Usage:
+    
+    check-cert [ -v | --verbose ]
+               [ {-w | --warning} <warning-days> ]
+               [ {-f | --fail} <failure-days> ]
+               [ {-n | --name} <name> ]...
+               [ {-a | --authority} <authority-file> ]...
+               <certificate-file>
+
+    Checks signature validity, name, and expiration of certificate.
+
+    Prints a warning if the certificate will expire
+      in less than <warning-days> (default is 30)
+
+    Returns failure (and prints message) if the certificate expires 
+      in less than <failure-days> (default is 0)
+
+    Always returns a failure if the certificate has expired.
+    
+    The --name option may be repeated any number of times, and if it is
+    given, the commonName attribute of the certificate must equal one of
+    the names.
+
+    The acceptable certificate authorities must be installed in the
+         ${CAdir}
+    directory unless the --authority switch is used to point to an
+    authority certificate.
+USAGE
+    exit
+fi
+
+if [ -d ${CAdir} ]
+then
+    authorities=`find ${CAdir} \( -name \*.crt -o -name \*.crl -o -name \*.pem \) 2> /dev/null`
+    if [ -n "${authorities}" ]
+    then
+        AuthSwitches="-CApath ${CAdir}"
+    fi
+fi
+
+if [ -f "${Authority}" ]
+then 
+    AuthSwitches="${AuthSwitches} -CAfile ${Authority}"
+fi
+
+if [ -z "${AuthSwitches}" ]
+then
+    cat 1>&2 <<EOF
+    No certificate authorities found - cannot validate certificate 
+     Authorities directory: ${CAdir}
+     Authority certificate: ${Authority}
+EOF
+    ExitStatus=1
+fi
+
+if [ -r ${Certificate} ]
+then
+    
+    # Validate the signatures and issuers
+    #   (also checks expiration, but does not provide advance warning as below)
+    cat /dev/null > /tmp/check-cert.$$
+    @OPENSSL@ verify ${AuthSwitches} -purpose sslclient \
+         ${Certificate} \
+         > /tmp/check-cert.$$ 2>&1
+    if ! echo "${Certificate}: OK" | diff - /tmp/check-cert.$$ > /dev/null 2>&1
+    then
+        echo "SSL Certificate '${Certificate}' is invalid as client certificate." 1>&2
+        sed 's/^/    /' /tmp/check-cert.$$ 1>&2
+        ExitStatus=1
+    fi
+    cat /dev/null > /tmp/check-cert.$$
+    @OPENSSL@ verify ${AuthSwitches} -purpose sslserver \
+         ${Certificate} \
+         > /tmp/check-cert.$$ 2>&1
+    if ! echo "${Certificate}: OK" | diff - /tmp/check-cert.$$ > /dev/null 2>&1
+    then
+        echo "SSL Certificate '${Certificate}' is invalid as server certificate." 1>&2
+        sed 's/^/    /' /tmp/check-cert.$$ 1>&2
+        ExitStatus=1
+    fi
+    rm -f /tmp/check-cert.$$
+
+    # Check subject name if any correct answers are provided
+    cert_name=`@OPENSSL@ x509 -in "${Certificate}" -subject -nameopt RFC2253,multiline -noout | perl -ne 'use English; m/^ +commonName += / && print $POSTMATCH'`
+
+    if [ -n "${Names}" ]
+    then
+        UniqueNames=`for n in ${Names}; do echo $n; done | sort -u`
+        Matched="NO"
+        for name in ${UniqueNames}
+        do 
+          if [ "${name}" = "${cert_name}" ]; then Matched="YES"; fi
+        done
+        if [ "${Matched}" = "NO" ]
+        then
+            echo -n "SSL certificate name '${cert_name}' is not one of: " 1>&2
+            for name in ${UniqueNames}; do echo -n "'${name}' " 1>&2; done
+            echo "" 1>&2
+            ExitStatus=1
+            ShowCert="SHOW"
+        fi
+    fi
+
+    # Check expiration
+    warnSeconds=$((${ExpireWarn} * 3600 * 24))
+    failSeconds=$((${ExpireFail} * 3600 * 24))
+
+    cert_expires=`@OPENSSL@ x509 -in "${Certificate}" -noout -enddate | sed 's/notAfter=//'`
+    now=`date +%s`
+    if [ $? -eq 0 ] # date command support epoch format
+    then
+        exp=`date --date="${cert_expires}" +%s`
+        remaining=$(($exp - $now))
+
+        if [ ${remaining} -le 0 ] # cert expired
+        then
+            echo "SSL certificate expired: ${cert_expires}" 1>&2
+            ExitStatus=1
+
+        elif [ ${failSeconds} -gt 0 -a ${remaining} -le ${failSeconds} ]
+        then
+            echo "SSL certificate expires in less than ${ExpireFail} days: ${cert_expires}" 1>&2
+            ExitStatus=1
+
+        elif [ ${remaining} -le ${warnSeconds} ]
+        then
+            echo "SSL certificate expires in less than ${ExpireWarn} days: ${cert_expires}" 1>&2
+            ShowCert="SHOW"
+
+        fi
+    else
+        echo "Your 'date' command does not support %s format - cannot calculate expiration." 1>&2
+        echo "SSL certificate expires: ${cert_expires}" 1>&2
+        ShowCert="SHOW"
+    fi
+
+    if [ "${Feedback}" = "VERBOSE" ]
+    then
+        caName=`@OPENSSL@ x509 -in "${Certificate}" -issuer -nameopt RFC2253,multiline -noout | perl -ne 'use English; m/^ +commonName += / && print $POSTMATCH'`
+
+        echo "SSL certificate name:    ${cert_name}" 
+        echo "SSL certificate issuer:  ${caName}" 
+        echo "SSL certificate expires: ${cert_expires}" 
+    fi
+
+else
+    echo "SSL certificate not found." 1>&2
+    ExitStatus=1
+fi
+
+if [ ${ExitStatus} -ne 0 -o "${ShowCert}" = "SHOW" ]
+then
+    echo "SSL certificate: ${Certificate}" 1>&2
+fi
+
+exit ${ExitStatus}
+# DUMP x509v3 = @OPENSSL@ x509 -in /opt/ssl-sipit/ssl.crt -text -certopt ca_default -certopt no_sigdump -certopt no_validity -certopt no_serial -certopt no_subject -certopt no_signame -noout
+#         X509v3 extensions:
+#             X509v3 Basic Constraints: 
+#             CA:FALSE
+#             X509v3 Subject Alternative Name: 
+#             URI:sip:pt.sipit.net, DNS:scott.pt.sipit.net
+#             X509v3 Subject Key Identifier: 
+#             C1:54:B1:12:21:E5:70:ED:93:26:57:38:97:A9:CA:B4:8B:D4:74:D2

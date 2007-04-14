@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="snom300" class="org.sipfoundry.sipxconfig.phone.snom.SnomModel">
+    <property name="label" value="Snom 300"/>
+    <property name="maxLineCount" value="4"/>
+  </bean>
+  <bean id="snom320" class="org.sipfoundry.sipxconfig.phone.snom.SnomModel">
+    <property name="label" value="Snom 320"/>
+    <property name="maxLineCount" value="12"/>
+  </bean>
+  <bean id="snom360" class="org.sipfoundry.sipxconfig.phone.snom.SnomModel">
+    <property name="label" value="Snom 360"/>
+    <property name="maxLineCount" value="12"/>
+  </bean>
+  <bean id="snom" class="org.sipfoundry.sipxconfig.phone.snom.SnomPhone" singleton="false"
+    parent="abstractPhone">
+    <property name="profileGenerator" ref="httpProfileGenerator"/>
+  </bean>
+</beans>

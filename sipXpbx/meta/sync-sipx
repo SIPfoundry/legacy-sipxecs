@@ -1,0 +1,103 @@
+#!/bin/sh
+#      THIS IS FOR DEVELOPER USE ONLY
+#     IT IS NOT INSTALLED OR SUPPORTED FOR ANY PRODUCTION USE.
+
+Action=SYNC
+DryRun=""
+TargetHost=""
+InstallDir=
+IncludeConfig=FALSE
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        ##
+        ## handle a flag with no value followiing
+        ## 
+        -n|--dry-run)
+            DryRun=--dry-run
+            ;;
+
+        -v|--verbose)
+            ExtraVerbose=--verbose
+            ;;
+
+        --include-config)
+            IncludeConfig=TRUE
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+            Action=USAGE
+            break
+            ;;
+
+        *)
+            if [ -z "${TargetHost}" ]
+            then
+                TargetHost=${1}
+            elif [ -z "${InstallDir}" ]
+            then
+                InstallDir=${1}
+            else
+                echo "Too many arguments supplied: $@" 1>&2
+                Action=USAGE
+                break
+            fi
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+
+RsyncOpts="--recursive --links --dirs --perms --times --progress --delete --delete-after --rsh=ssh --verbose $ExtraVerbose"
+
+if [ -z "${InstallDir}" ]
+then
+    InstallDir=$SIPX_INSTALLDIR
+fi
+
+if [ "${Action}" = "USAGE" -o -z "$TargetHost" -o -z "$InstallDir" ]
+then
+    cat <<USAGE
+
+Usage:
+    
+                        THIS IS FOR DEVELOPER USE ONLY!
+   IT IS DELIBERATELY NOT INSTALLED AND IS NOT SUPPORTED FOR ANY PRODUCTION APPLICATION..
+
+   sync-sipx [ {-n | --dry-run} ]  [ {-v | --verbose} ] 
+             [ --include-config ]
+             target-host [install-dir]
+
+     Uses rsync to copy sipXpbx installation from current host to target-host.
+
+     The install-dir defaults to \$SIPX_INSTALLDIR ($SIPX_INSTALLDIR).
+
+     --include-config includes the etc directory, which is otherwise not included
+                      (useful the first time, but probably not after that).
+
+USAGE
+    exit
+fi
+
+case $InstallDir in
+   */)
+      InstallDir=`echo "$InstallDir" | perl -pe 's|/$||'`
+      ;;
+esac
+
+if [ $IncludeConfig = FALSE ]
+then
+    ConfigFilter="--exclude /etc/"
+fi
+
+set -x
+rsync $DryRun $RsyncOpts \
+    --exclude /include/ --exclude /share/doc/ --exclude '/var/log/sipxpbx/*' \
+    --exclude '/var/sipxdata/sipdb/*' --exclude '/var/sipxdata/tmp/*' --exclude '/var/run/sipxpbx/*' \
+    $ConfigFilter $InstallDir/ $TargetHost:$InstallDir/
+

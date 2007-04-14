@@ -1,0 +1,238 @@
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+#
+##############################################################################
+
+require 'test/unit'
+require 'thread'
+
+$:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+require 'state'
+
+$:.unshift File.join(File.dirname(__FILE__), '..', 'test')
+require 'test_util'
+include TestUtil
+
+class StateTest < Test::Unit::TestCase
+  
+  class DummyCdr
+    attr_reader :counter, :call_id
+    
+    def initialize(call_id)
+      @counter = 0
+      @call_id = call_id
+    end
+    
+    def accept(cse)
+      @counter += 1
+      return self if @counter > 1        
+    end
+    
+    def terminated?
+      true
+    end
+    
+    def retire; end
+  end
+    
+  class DummyCse
+    attr_reader :call_id, :event_time
+        
+    def initialize(call_id, event_time = Time.at(1000))
+      @call_id = call_id
+      @event_time = event_time
+    end    
+  end
+
+  def test_empty
+    q1 = Queue.new
+    q2 = Queue.new
+    t = Thread.new(State.new(q1, q2)) { | s | s.run }    
+    q1.enq(nil)
+    t.join
+  end
+  
+  def test_accept
+    observer = DummyQueue.new
+    cse1 = DummyCse.new('id1')
+    cse2 = DummyCse.new('id2')
+    
+    state = State.new([], observer, -1, DummyCdr )
+    
+    state.accept(cse1)    
+    assert_equal(0, observer.counter)
+    
+    state.accept(cse2)
+    assert_equal(0, observer.counter)
+    
+    state.accept(cse1)    
+    assert_equal(1, observer.counter)
+    
+    state.accept(cse2)
+    assert_equal(2, observer.counter)    
+  end
+  
+  def test_retired
+    observer = DummyQueue.new
+    cse1 = DummyCse.new('id1')
+    
+    state = State.new([], observer, -1, DummyCdr )
+    state.accept(cse1)    
+    state.accept(cse1)    
+    assert_equal(1, observer.counter)
+    assert_equal(2, observer.last.counter)
+    
+    state.accept(cse1)
+    state.accept(cse1)
+    # still only 1 since CDR was retired
+    assert_equal(1, observer.counter)
+    assert_equal(2, observer.last.counter)
+    
+    state.flush_retired(0)
+    state.accept(cse1)
+    state.accept(cse1)
+    # we should be notified again
+    assert_equal(2, observer.counter)
+    assert_equal(2, observer.last.counter)
+  end
+  
+  def test_retired_with_age
+    observer = DummyQueue.new
+    cse1 = DummyCse.new('id1')
+    cse2 = DummyCse.new('id2')
+    
+    state = State.new([], observer, -1, DummyCdr )
+    state.accept(cse1)    
+    state.accept(cse1)    
+    assert_equal(1, observer.counter)
+    assert_equal(2, observer.last.counter)
+    # generation == 2
+    
+    state.accept(cse1)
+    state.accept(cse1)
+    # still only 1 since CDR was retired
+    assert_equal(1, observer.counter)
+    assert_equal(2, observer.last.counter)
+    # generation == 4
+
+    state.flush_retired(3) # it's only 2 generations old at his point
+    state.accept(cse1)
+    state.accept(cse1)
+    # nothing was flushed - still one
+    assert_equal(1, observer.counter)    
+  end
+  
+  class MockCdr
+    @@results = []
+    
+    attr_reader :call_id, :start_time
+    
+    def initialize(call_id)
+      @call_id = call_id
+    end
+    
+    def accept(cse)
+      @start_time = cse.event_time  
+      self if @@results.shift
+    end
+    
+    def force_finish; end
+    def retire; end
+    
+    def terminated?
+      @@results.shift 
+    end
+    
+    def MockCdr.push_results(*arg)
+      @@results.push(*arg)
+    end
+    
+    def MockCdr.results(*arg)
+      @@results = arg
+    end        
+  end
+  
+  def test_failed
+    observer = DummyQueue.new
+    cse1 = DummyCse.new('id1')
+    
+    # results of calls to accept and terminated?
+    MockCdr.results( true, false )
+    state = State.new([], observer, -1, MockCdr )
+    
+    state.accept(cse1)
+    assert_equal(0, observer.counter)
+    
+    state.flush_failed(1)
+    assert_equal(0, observer.counter)
+
+    state.flush_failed(0)
+    assert_equal(1, observer.counter)
+    
+    MockCdr.push_results( true, true )
+    # now we should have a call in retired list so new events will be ignored
+    state.accept(cse1)
+    assert_equal(1, observer.counter)
+  end
+  
+  
+  def test_failed_and_then_succeeded
+    observer = DummyQueue.new
+    cse1 = DummyCse.new('id1')
+    
+    # results of calls to accept and terminated?
+    MockCdr.results( true, false, true, true )
+    state = State.new([], observer, -1, MockCdr )
+    
+    state.accept(cse1)
+    assert_equal(0, observer.counter)
+    
+    state.accept(cse1)
+    assert_equal(1, observer.counter)
+    
+    state.flush_failed(0)
+    # still only one - nothing flushed
+    assert_equal(1, observer.counter)
+  end  
+  
+  
+  def test_run
+    out_queue = []
+    
+    cse1 = DummyCse.new('id1')    
+    in_queue = [
+      cse1, cse1, [:flush_failed, 0]
+    ]
+    
+    # results of calls to accept and terminated?
+    MockCdr.results( true, false, true, true )
+    state = State.new(in_queue, out_queue, -1, MockCdr )
+    state.run
+    
+    # still only one - nothing flushed, and nil as the second
+    assert_equal(2, out_queue.size)
+    assert_nil(out_queue[1])
+  end
+  
+  def test_retire_long_calls
+    out_queue = []
+    cse1 = DummyCse.new('id1', Time.at(1000))    
+    cse2 = DummyCse.new('id2', Time.at(1100))    
+    cse3 = DummyCse.new('id3', Time.at(1200))    
+    in_queue = [
+      cse1, cse2, cse3, [:retire_long_calls]
+    ]
+    MockCdr.results( false, false, false, false, false, false )
+    state = State.new(in_queue, out_queue, 150, MockCdr )
+    state.run    
+    
+    # a single CDR will be recorded
+    assert_equal(2, out_queue.size)
+    assert_nil(out_queue[1])
+    
+    # and one CDR remains in the state
+    assert_equal(2, state.active_cdrs.size)
+  end
+end

@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
+  <!-- 
+  TODO: port type needs to handle - may be number, PORT_DEFAULT, or PORT_NONE (which disables use of that transport).
+  -->
+  <type id="port-number">
+    <integer required="yes" min="1024" max="65534"/>
+  </type>
+  <type id="optional-port-number">
+    <integer min="1024" max="65534"/>
+  </type>
+  <type id="feature-code">
+    <string required="yes">
+      <pattern>[0-9*#]+</pattern>
+    </string>
+  </type>
+  <type id="upload-music">
+    <file variable="yes"/>
+  </type>
+  
+  <group name="bridge-bridge">
+    <setting name="BOSTON_BRIDGE_LOG_LEVEL" advanced="yes">
+      <label>Bridge log level</label>
+      <type refid="loglevel"/>
+      <value>NOTICE</value>
+      <description>Maximum log severity level to be recorded.</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_RESIP_LOG_LEVEL" advanced="yes">
+      <label>Stack log level</label>
+      <type refid="loglevel"/>
+      <value>NOTICE</value>
+      <description>Maximum resiprocte stack log severity level to be recorded.</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_LOG_CONSOLE" advanced="yes">
+      <label>Log to console</label>
+      <type>
+        <boolean>
+          <true>
+            <value>ENABLED</value>
+          </true>
+          <false>
+            <value>DISABLED</value>
+          </false>
+        </boolean>
+      </type>
+      <value>DISABLED</value>
+      <description>If set log output will also be sent to the standard output.</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_LOG_DIR" hidden="yes">
+      <value></value>
+      <description>Directory path name for the log file.</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_TCP_PORT" advanced="yes">
+      <label>TCP port</label>
+      <type refid="port-number"/>
+      <value>5060</value>
+    </setting>
+    <setting name="BOSTON_BRIDGE_UDP_PORT" advanced="yes">
+      <label>UDP port</label>
+      <type refid="port-number"/>
+      <value>5060</value>
+    </setting>
+    <setting name="BOSTON_BRIDGE_TLS_PORT" advanced="yes">
+      <label>TLS port</label>
+      <type refid="port-number"/>
+      <value>5061</value>
+    </setting>
+    <setting name="BOSTON_BRIDGE_RTP_START" advanced="yes">
+      <label>Minimum RTP port</label>
+      <type refid="port-number"/>
+      <value>15000</value>
+      <description>Minimum RTP port number to be used for RTP streams.</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_RTP_END" advanced="yes">
+      <label>Maximum RTP port</label>
+      <type refid="port-number"/>
+      <value>20000</value>
+      <description>Maximum RTP port number to be used for RTP streams.</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_PROXY" advanced="yes">
+      <label>SIP Outbound Proxy</label>
+      <value/>
+      <description>An 'outbound proxy' that should be used as the first hop in any request originated from the
+        bridge.</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_MAX_LEGS">
+      <label>Maximum legs</label>
+      <type>
+        <integer required="yes"/>
+      </type>
+      <value>0</value>
+      <description>The maximum number of call legs to be allowed by this bridge. If a call request is received
+        when there are this many legs already active, a 486 Busy Here is returned with a Warning header indicating
+        that there are too many users on the bridge. 0 means unlimited.</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_ENTER_SOUND">
+      <label>Enter sound</label>
+      <type refid="upload-music"/>
+      <value>join.wav</value>
+      <description>The audio file to be played when a new call joins the conference.</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_EXIT_SOUND">
+      <label>Exit sound</label>
+      <type refid="upload-music"/>
+      <value>exit.wav</value>
+      <description>The audio file to be played when a call leaves the conference.</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_HOLD_MUSIC">
+      <label>Background music</label>
+      <type refid="upload-music"/>
+      <description> The audio file to be played when a call leg has been created but is not (for any reason)
+        receiving the bridged conference audio (such as prior to the start of the conference). </description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_SIP_DOMAIN" advanced="yes">
+      <label>SIP domain</label>
+      <value></value>
+      <description>The host[:port] of the SIP URI for the registry to be used for the bridge. Unless overridden
+        by other configuration, the host part of this value is used as the host part of the AOR for each
+        conference.</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_SIP_ALIASES" hidden="yes">
+      <value></value>
+      <description> A comma separated list of host and/or host:port values that the bridge should accept as
+        references to itself (in addition to the BOSTON_BRIDGE_SIP_DOMAIN value) </description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_COMMAND_MUTE">
+      <label>Mute code</label>
+      <type refid="feature-code"/>
+      <value>*33</value>
+      <description> The DTMF sequence to be entered by a conference participant to toggle the 'mute' of input
+        from thier own call leg.</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_COMMAND_END">
+      <label>End code</label>
+      <type refid="feature-code"/>
+      <value>*88</value>
+      <description> The DTMF sequence to be entered by a conference organizer to end a conference
+        (disconnecting all participants).</description>
+    </setting>
+  </group>
+</model>

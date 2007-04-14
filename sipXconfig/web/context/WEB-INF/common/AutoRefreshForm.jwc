@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification allow-body="yes" allow-informal-parameters="yes">
+
+  <!-- additional actions to be displayed on the left side of refresh button -->
+  <parameter name="actionBlock" required="no"/>
+
+  <!-- P R O P E R T I E S -->
+  <property name="interval" initial-value="30" persist="session" />
+  <property name="auto" initial-value="true" persist="session" />
+  
+  <!-- B E A N S  -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />  
+
+  <!-- C O M P O N E N T S -->
+  <component id="intervalForm" type="tacos:AjaxForm">
+    <binding name="delegate" value="bean:validator" />
+  </component>
+
+  <component id="intervalFormSubmitEvent" type="tacos:AjaxEventSubmit"></component>
+
+  <component id="auto" type="Checkbox">
+    <binding name="value" value="auto" />
+    <binding name="eventListener" value="literal:onchange=components.intervalFormSubmitEvent" />
+  </component>
+
+  <component id="interval" type="tacos:InlineEditBox">
+    <binding name="value" value="interval" />
+  </component>
+
+  <component id="refreshForm" type="tacos:AjaxForm">
+    <binding name="delegate" value="bean:validator" />  
+  </component>
+
+  <component id="refresh" type="tacos:AjaxSubmit">
+    <binding name="value" value="message:button.refresh" />
+    <binding name="updateComponents" value="{'refreshedContent'}"></binding>
+    <binding name="statusElement" value="literal:refreshStatus"></binding>
+  </component>
+
+  <!-- uncomment to use standard text field  
+    <component id="interval" type="TextField">
+    <binding name="value" value="interval" />
+    <binding name="translator" value="translator:number" />
+    <binding name="validators" value="validators:required,min=30,max=6000" />
+    </component>
+  -->
+
+  <component id="refreshScript" type="Script">
+    <binding name="script" value="literal:AutoRefreshForm.script"></binding>
+    <binding name="interval" value="interval"></binding>
+    <binding name="refreshButton" value="components.refresh"></binding>
+  </component>
+
+  <component id="renderRefreshScript" type="If">
+    <binding name="condition" value="auto" />
+  </component>
+
+</component-specification>

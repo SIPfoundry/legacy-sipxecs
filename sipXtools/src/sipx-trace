@@ -1,0 +1,179 @@
+#!/bin/sh
+###
+### SIP Trace something
+###
+
+Action=LOCAL
+Prefix="/"
+
+User=admin
+Password=
+
+DefaultComponents="sipproxy sipauthproxy sipregistrar"
+Components=""
+
+dump=cat
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        ##
+        ## handle an option with a value followiing
+        ##
+
+        -s|--server)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <server> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Action=SERVER
+                Server="${Server} ${2}"
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -P|--prefix)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <prefix-dir> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Action=LOCAL
+                Prefix="${2}"
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+            
+        -e|--extension)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <log-extension> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                LogExtension=${2}
+                case ${LogExtension} in
+                    *.gz)
+                        dump=zcat
+                        ;;
+                esac
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+            
+        -c|--component)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <component-name> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Components="${Components} ${2}"
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+            Action=USAGE
+            break
+            ;;
+
+        *)
+            if [ "${Token}"x = ""x ]
+            then
+                Token=${1}
+            else
+                echo "Too many arguments supplied: $@" 1>&2
+                Action=USAGE
+                break
+            fi
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+if [ -z "${Components}" ]
+then
+    Components=${DefaultComponents}
+fi
+
+if [ -z "${Token}" -a ${Action} != USAGE ]
+then
+    echo "Must specify a token to search for." 1>&2
+    exit 1;
+fi
+
+Trace=./trace_`date -u -Iminutes | perl -pe 's/://; s/\+.+$//;'`
+
+mkdir ${Trace}
+
+pullServer() { # server
+        
+    for c in ${Components}
+    do
+      echo searching $1 $c log
+      ssh ${1} "${dump} /var/log/sipxpbx/${c}.log${LogExtension} | grep -e \"${Token}\"" \
+        > ${Trace}/${1}.${c}.log
+    done
+}
+
+grepLog() { # prefix
+        
+    for c in ${Components}
+    do
+      echo searching $1 ${c} log
+      ${dump} ${1}/var/log/sipxpbx/${c}.log${LogExtension} \
+      | grep -e "${Token}" \
+      > ${Trace}/${c}.log
+    done
+}
+
+case ${Action} in
+    USAGE)
+        cat <<USAGE
+
+Usage:
+    
+    trace  [ {-c|--component} <component-name> ]...
+           { { {-P|--prefix} <prefix-dir> }* | { {-s|--server} <server> } }*
+           <token>
+           
+
+USAGE
+        exit
+        ;;
+    
+    SERVER)
+        for server in $Server
+        do 
+          pullServer $server
+        done        
+        ;;
+
+    LOCAL)
+        grepLog $Prefix
+        ;;
+esac
+
+
+for log in ${Trace}/*.log
+do 
+  xtract=`basename ${log} .log`
+  echo translating ${xtract}
+  syslog2siptrace <  ${log} > ${Trace}/${xtract}.trace.xml
+done
+
+echo merging
+siptrace-merge  ${Trace}/*.trace.xml > ${Trace}/merged.xml
+
+sipviewer ${Trace}/merged.xml
+
+
+

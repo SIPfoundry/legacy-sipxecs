@@ -1,0 +1,105 @@
+Name:     @PACKAGE@
+Version:  @VERSION@
+Release:  %{buildno}
+
+Summary:  SIP SUBSCRIBE/NOTIFY Server
+License:  Pingtel Commercial License
+Group:    Productivity/Telephony/SIP/Servers
+Vendor:   Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url:      http://www.pingtel.com
+
+Source:   %name-%version.tar.gz
+
+Requires: sipxcommserverlib >= 3.7
+Requires: sipxpbx >= 3.7
+
+Prefix:    %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+# should match sipXlib.m4:SIPX_UPGRADEDIR
+%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
+%define this_archive %{name}-%{version}-%{release}.tgz
+
+%description
+A modular server for handling SIP event subscriptions; event package types 
+can be added through a dynamically linked library interface, configured through 
+a simple XML plugin configuration file. 
+
+%package devel
+Requires: %name
+Requires: sipxcommserverlib-devel >= 3.7
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Header files for %name 
+
+%description devel
+Developer support for sipXpublisher.  This is needed in order to create event package 
+plug-in modules.
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use 
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
+mkdir -p %{upgrade_archive_root}
+tar --directory ${RPM_BUILD_ROOT} \
+    -czf %{upgrade_archive_root}/%{this_archive} \
+    etc
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+%doc CONTRIBUTORS %name.configlog
+%docdir doc
+%attr(755,root,root) %{_bindir}/sipstatus.sh
+%attr(755,root,root) %{_bindir}/sipstatus
+%attr(755,root,root) %{_bindir}/%name-config
+
+# The configuration directory needs to be writeable because
+# config files are generated from templates via config.defs
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/status-config.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/status-plugin.xml.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipstatus.process.xml
+
+%{upgrade_archive_dir}/%{this_archive}
+%{upgrade_archive_dir}/%{name}-previous.tgz
+
+%files devel
+%defattr(644,root,root,755)
+%{_includedir}/statusserver/*
+%doc %{_datadir}/doc/sipx/%name/*
+
+%pre
+sipx-upgrade -p sipxpublisher -c
+
+%post
+sipx-upgrade -p sipxpublisher -u --sdir %{_localstatedir} --cdir %{_sysconfdir}
+
+%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
+%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
+if [ -f %{current_archive} ]; then
+  mv %{current_archive} %{previous_archive}
+fi
+mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
+
+pkg-upgrade --previous %{previous_archive} --current %{current_archive}

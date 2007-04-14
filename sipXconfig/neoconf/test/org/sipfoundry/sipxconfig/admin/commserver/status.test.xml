@@ -1,0 +1,158 @@
+<?xml version="1.0" ?>
+
+<!-- This test output file was generated via:
+wget -O ~/status.txt https://localhost:8091/cgi-bin/processmonitor/process.cgi?command=status
+with sipxpbx running.  (Inserted this comment via manual editing.) -->
+
+<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     IMPORTANT NOTE
+     The startup scripts referenced here are also used (alas, directly)
+     from the sipxpbx.in startup script.  Do not change names or calling
+     parameters without making equivalent changes there.
+     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+<!-- Set the defaultdir for all processes to SIPX_LOGDIR as the
+     working directory, so that any core files they produce will be put
+     there. -->
+<process_definitions xmlns="http://www.sipfoundry.org/sipX/schema/xml/processdefinitions-00-00">
+    <dependentdelay wait="2" />
+    <workdir location="/opt/sipx-3.0/var/tmp" />
+    <!-- =============================================== -->
+    <!-- LOGFILE FOR PROCESSCGI              -->
+    <!-- =============================================== -->
+    <logfile level="warning">/opt/sipx-3.0/var/log/sipxpbx/processcgi.log</logfile>
+    <!-- ================================ -->
+    <!-- ======== CONFIG SERVER ========= -->
+    <!-- ================================ -->
+    <group name="ConfigServer">
+        <process name="ConfigServer" status="Failed">
+            <dependentdelay wait="30" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin file="" />
+            <start control="true">
+                <!--
+                <execute command="/opt/sipx-3.0/bin/sipxconfig.sh" 
+                         parameters=""
+                         defaultdir="/opt/sipx-3.0/var/log/sipxpbx" />
+-->
+            </start>
+            <!-- If no execute, then kill -->
+            <stop control="false" />
+            <!-- If no execute, then stop-start -->
+            <restart control="false" />
+        </process>
+    </group>
+    <!-- ================================ -->
+    <!-- ======== COMM SERVER =========== -->
+    <!-- ================================ -->
+    <group name="CommServer">
+        <process name="SIPRegistrar" status="Started">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin file="" />
+            <start control="true">
+                <execute command="/opt/sipx-3.0/bin/sipregistrar.sh" parameters="" defaultdir="/opt/sipx-3.0/var/log/sipxpbx" />
+            </start>
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+            <!-- <dependency>??</dependency> -->
+        </process>
+        <process name="SIPProxy" status="Started">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin file="" />
+            <start control="true">
+                <execute command="/opt/sipx-3.0/bin/sipproxy.sh" parameters="" defaultdir="/opt/sipx-3.0/var/log/sipxpbx" />
+            </start>
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+            <!-- <dependency>??</dependency> -->
+        </process>
+        <process name="SIPAuthProxy" status="Started">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin file="" />
+            <start control="true">
+                <execute command="/opt/sipx-3.0/bin/sipauthproxy.sh" parameters="" defaultdir="/opt/sipx-3.0/var/log/sipxpbx" />
+            </start>
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+            <!-- <dependency>??</dependency> -->
+        </process>
+        <process name="SIPStatus" status="Started">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin file="" />
+            <start control="true">
+                <execute command="/opt/sipx-3.0/bin/sipstatus.sh" parameters="" defaultdir="/opt/sipx-3.0/var/log/sipxpbx" />
+            </start>
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+            <!-- <dependency>??</dependency> -->
+        </process>
+    </group>
+    <!-- ================================ -->
+    <!-- ======== MEDIA SERVER ========== -->
+    <!-- ================================ -->
+    <group name="MediaServer">
+        <process name="MediaServer" status="Started">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin file="" />
+            <start control="true">
+                <execute command="/opt/sipx-3.0/bin/sipXvxml.sh" parameters="-config /opt/sipx-3.0/etc/sipxpbx/mediaserver-config" defaultdir="/opt/sipx-3.0/var/log/sipxpbx" />
+            </start>
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+            <!-- <dependency>??</dependency> -->
+        </process>
+        <process name="ParkServer" status="Started">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin file="" />
+            <start control="true">
+                <execute command="/opt/sipx-3.0/bin/sipxpark.sh" parameters="" defaultdir="/opt/sipx-3.0/var/log/sipxpbx" />
+            </start>
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+            <!-- <dependency>??</dependency> -->
+        </process>
+    </group>
+    <!-- ================== -->
+    <!-- ====   Misc   ==== -->
+    <!-- ================== -->
+    <group name="Misc">
+        <process name="KeepAlive" status="Started">
+            <dependentdelay wait="2" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin file="" />
+            <start control="true">
+                <execute command="/opt/sipx-3.0/bin/keepalive.sh" defaultdir="/opt/sipx-3.0/var/log/sipxpbx" />
+            </start>
+            <!-- If no execute, then kill -->
+            <stop control="false" />
+            <!-- If no execute, then stop-start -->
+            <restart control="false" />
+            <!-- <dependency>??</dependency> -->
+        </process>
+    </group>
+</process_definitions>

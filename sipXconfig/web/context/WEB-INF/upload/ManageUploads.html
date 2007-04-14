@@ -1,0 +1,32 @@
+<div jwcid="@Border">
+  <h2><span key="title">Device Files</span></h2>
+  <p><span key="prompt.description">description text...</span></p>
+  <p><span key="prompt.info">You can only upload when files are inactive.</span></p>
+  <span jwcid="@ErrorMsg"/>
+  <form jwcid="uploadManagement">
+    <ul class="component-links">
+      <li>
+        <select jwcid="selectSpecification"/>
+      </li>
+    </ul>
+    <table jwcid="uploadTable" id="upload:list">
+      <span jwcid="nameColumnValue">
+        <a jwcid="editUploadLink"><span jwcid="uploadLabel">upload</span></a>
+      </span>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input id="upload:delete" jwcid="delete" value="message:button.delete"/>
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+      </li>
+      <li>
+        <input id="upload:activate" jwcid="activate" value="message:button.activate"/>
+        <span jwcid="@common/Confirm" component="component:activate" prompt="message:confirm.activate"/>
+      </li>        
+      <li>
+        <input id="upload:inactivate" jwcid="inactivate" value="message:button.inactivate" />
+        <span jwcid="@common/Confirm" component="component:inactivate" prompt="message:confirm.inactivate"/>
+      </li>
+    </ul>
+  </form>
+</div>

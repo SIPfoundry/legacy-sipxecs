@@ -1,0 +1,26 @@
+<div jwcid="@Border">
+  <div jwcid="@If" condition="ognl:userSession.admin"> 
+    <span jwcid="@UserNavigation" bean="ognl:user" /> 
+  </div> 
+  <span jwcid="@Else">
+    <h2><span key="title">Phones</span></h2>    
+  </span><span jwcid="@ErrorMsg"/>
+  <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
+      <div class="help"> 
+        <b><span key="label.quickLinks">Quick Links</span></b>
+        <ul>
+          <li><a jwcid="@PageLink" page="JobStatusPage"><span key="jobStatus">Job Status</span></a></li>
+        </ul>
+      </div>
+      <span jwcid="@QuickHelp" value="message:quick.help" /> 
+    <form jwcid="@Form" delegate="bean:validator">
+      <ul class="component-links">
+        <li>
+          <span jwcid="@phone/ModelSelector" userId="ognl:userId"/>
+        </li>    
+      </ul>   
+      <table jwcid="@phone/PhoneTable" selections="bean:selections" source="ognl:phones"/>
+      <ul jwcid="@phone/PhoneTableActions" selections="bean:selections" userOnly="ognl:true"/>      
+    </form>
+  </div>
+</div>

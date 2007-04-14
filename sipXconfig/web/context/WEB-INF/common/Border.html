@@ -1,0 +1,39 @@
+<html jwcid="shell">
+  <span jwcid="@If" condition="prop:useDojo">
+    <script type="text/javascript">    
+djConfig = { isDebug: false,
+    disableFlashStorage: true,
+    baseRelativePath: "js/dojo",
+    parseWidgets: false,
+    preventBackButtonFix: false};
+    </script>
+    <script jwcid="@Any" type="text/javascript" src="ognl:baseURL + '/js/dojo/dojo.js'"></script>
+  </span>
+  <body jwcid="@Body">
+    <div jwcid="@If" condition="prop:userSession.navigationVisible">
+      <div id="banner">
+      	<div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
+        <div id="banner-links">
+          <a jwcid="@PageLink" id="link.home" page="Home"><span key="link.home">Home</span></a>
+          <a jwcid="helpLink" id="link.help"><span key="link.help">Online Help</span></a>
+          <a jwcid="logoutLink" id="link.logout"><span key="link.logout">Logout</span></a>
+        </div>
+      </div>
+      <div id="navigation">
+        <span jwcid="@If" condition="prop:userSession.admin">
+          <span jwcid="@AdminNavigation">Navigation bar goes here.</span>
+        </span>
+        <span jwcid="@Else">
+          <span jwcid="@UserPortalNavigation">User portal navigation bar goes here.</span>
+        </span>
+      </div>
+    </div>
+    <div id="content">
+      <span jwcid="@If" condition="prop:userSession.admin">
+        <span jwcid="@admin/StatusWarning"/>
+      </span>        
+      <span jwcid="@RenderBody">Page content goes here.</span>
+    </div>
+    <div jwcid="@common/Footer"></div>
+  </body>
+</html>

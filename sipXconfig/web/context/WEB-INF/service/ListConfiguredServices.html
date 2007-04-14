@@ -1,0 +1,40 @@
+<div jwcid="@Border">
+  <h2>
+    <span key="title"/>
+  </h2>
+  <span jwcid="@QuickHelp" value="message:quick.help"/>
+  <span jwcid="@ErrorMsg"/>
+  <form jwcid="@Form" delegate="bean:validator" listener="listener:formSubmit">    
+    <ul class="component-links">
+      <li>
+        <select jwcid="newService@PropertySelection"
+          model="ognl:serviceSelectionModel"
+          value="ognl:serviceDescriptor"                  
+          onchange="literal:javascript:this.form.submit();"/>
+      </li>
+    </ul>
+    <fieldset>
+      <table jwcid="@Table" id="service:list" source="prop:serviceManager.services" 
+        row="prop:currentRow" columns="literal:* !name,!enabled,address:address,!descriptor.label" 
+        selections="prop:selections" converter="prop:converter">
+        <tr jwcid="nameColumnValue@Block">
+          <span jwcid="@DirectLink" listener="listener:edit" parameters="prop:currentRow.id"><span jwcid="@Insert" value="prop:currentRow.name"/></span>
+        </tr>
+        <tr jwcid="enabledColumnValue@Block">
+          <td jwcid="@common/EnabledColumn" value="prop:currentRow.enabled"/>
+        </tr>
+      </table>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="delete@Submit" id="service:delete" 
+          selected="prop:rowsToDelete"
+          tag="prop:selections.allSelected"
+          value="message:button.delete" />
+        <span jwcid="@common/Confirm" 
+          component="component:delete"
+          prompt="message:confirm.delete"/>                    
+      </li>
+    </ul>
+    </fieldset>    
+  </form>
+</div>

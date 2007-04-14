@@ -1,0 +1,69 @@
+# Editing procedure
+#   End Users - add new settings to end of this file, be sure to add extra line feed
+#   Developers - add new settings anywhere but end of this file so pkg-upgrade script
+#                can have a better chance to migrate this file properly
+sip.proxyHost=${PROXY_SERVER_ADDR}
+sip.proxyPort=${PROXY_SERVER_SIP_PORT}
+# BEGIN: do not use
+phoneDefaults.proxyServerAddr=${PROXY_SERVER_ADDR}
+phoneDefaults.proxyServerSipPort=${PROXY_SERVER_SIP_PORT}
+# END: do not use
+phoneDefaults.tftpServer=${CONFIG_SERVER_ADDR}
+phoneDefaults.authorizationRealm=${SIPXCHANGE_REALM}
+phoneDefaults.fullyQualifiedDomainName=${MY_FULL_HOSTNAME}
+polycom.defaultVersionId=1.6
+# imdb/sipdb location for https access
+registrationContext.server=${MY_FULL_HOSTNAME}
+registrationContext.port=${CONFIG_SERVER_HTTPS_PORT}
+coreContextImpl.authorizationRealm=${SIPXCHANGE_REALM}
+adminContextImpl.backupDirectory=@sipxpbx.backup.dir@
+vxml.promptsDirectory=@sipxvxml.data.dir@/prompts
+vxml.scriptsDirectory=@www.dir@/doc/aa_vxml
+dialPlanContextImpl.scriptsDirectory=@www.dir@/doc/aa_vxml
+orbitsGenerator.audioDirectory=@sipxpark.audio.dir@
+conferenceBridge.host=${MY_FULL_HOSTNAME}
+conferenceBridge.admissionServer=${MEDIA_SERVER_SIP_SRV_OR_HOSTPORT}
+conferenceConference.admissionScriptServer=${MEDIA_SERVER_ADDR}:${MEDIA_SERVER_HTTPS_PORT}
+upload.uploadRootDirectory=@sipxconfig.upload.dir@
+upload.destinationDirectory=@sipxconfig.phone.dir@/profile/tftproot
+domainInitializer.initialDomain=${SIPXCHANGE_DOMAIN_NAME}
+phonebookManagerImpl.externalUsersDirectory=@sipxconfig.phonebook.dir@
+
+# The following directives can be used to provide external sources
+#    of call routing information.  If you find yourself using them, it would
+#    be helpful to post a note on sipx-dev@list.sipfoundry.org as to why 
+#    you could not accomplish what you needed using the normal mechanisms.
+# external aliases
+externalAliases.addinsDirectory=@sipxpbx.data.dir@
+externalAliases.aliasAddins=
+# external additions to internal call mapping rules
+mappingRules.externalRulesFileName=
+# external additions to external call fallback rules
+fallbackRules.externalRulesFileName=
+
+# name changes to anything starting w/sysdir need to be reflected in
+# VersionInfo class as well
+sysdir.bin=@sipxpbx.bin.dir@
+sysdir.etc=@sipxpbx.conf.dir@
+sysdir.log=@sipxpbx.log.dir@
+sysdir.share=@sipxpbx.data.dir@
+sysdir.phone=@sipxconfig.phone.dir@
+sysdir.tmp=@sipxpbx.tmp.dir@
+sysdir.version=@version@
+sysdir.build_number=0000
+sysdir.comment=opendev
+sysdir.user=@sipxpbx.user@
+acdContextImpl.audioServerUrl=http://${CONFIG_SERVER_ADDR}/phone/acd/audio
+# ACD server defaults - can be changed in UI
+acdServer.host=${MY_FULL_HOSTNAME}
+acdServer.port=${ACD_SERVER_PROVISIONING_PORT}
+acdServer.agentPort=${CONFIG_SERVER_AGENT_PORT}
+acdQueue.audioDirectory=@sipxconfig.phone.dir@/acd/audio
+presenceServer.enabled=true
+mailboxManagerImpl.mailstoreDirectory=@sipxvxml.data.dir@/mailstore
+mailboxManagerImpl.mediaServerCgiUrl=https://${VOICEMAIL_SERVER_HOSTNAME}:${VOICEMAIL_SERVER_HTTPS_PORT}/cgi-bin/voicemail/mediaserver.cgi
+cdrManagerImpl.cdrAgentHost=${CALLRESOLVER_AGENT_ADDR}
+cdrManagerImpl.cdrAgentPort=${CALLRESOLVER_AGENT_PORT}
+
+# ======= BEGIN NEW INSTALLATION SETTINGS =================
+

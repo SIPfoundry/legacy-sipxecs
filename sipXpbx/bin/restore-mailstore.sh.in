@@ -1,0 +1,100 @@
+#!/bin/bash
+
+# Clean out the existing profiles before restoring
+CLEAN_MAILSTORE=yes
+
+# Name of the back up directory
+BACKUP_DIR=backup-mailstore
+INTERACTIVE="yes"
+
+show_help() {
+        echo "`basename "$0"`: restore backed-up SIPxchange voicemail stores"
+        echo "Options:"
+        echo "    -h .......... Show this help message"
+        echo "    -e .......... Restore into existing voicemail store"
+        echo
+}
+
+# We could support changing the backup directory, but the backup
+# script doesn't support it. So we can leave that out for now.
+
+while [ $# -gt 0 ]
+do
+        case "$1" in
+                -h)
+                        show_help
+                        exit
+                ;;
+                -e)
+                        CLEAN_MAILSTORE=no
+    ;;
+    --non-interactive)
+      INTERACTIVE="no"
+                ;;
+                *)
+                        echo "Unknown parameter $1; run as '$0 -h' for more information."
+                        exit 1
+        esac
+        shift
+done
+
+if [ ! -d $BACKUP_DIR ]
+then
+        echo "No such directory: $BACKUP_DIR"
+        exit
+fi
+
+if [ ! -f $BACKUP_DIR/mailstore.tar.gz ]
+then
+        echo "Invalid backup directory: $BACKUP_DIR"
+        exit
+fi
+
+if [ -f @SIPX_RUNDIR@/watchdog.pid ]
+then
+        echo "The sipX daemons appear to be running. You must shut it down to restore."
+        exit
+fi
+
+echo "The following actions will be taken (use -h to get help on this):"
+echo
+
+echo "Will restore backed up voicemail stores from:"
+echo "    `pwd`/$BACKUP_DIR"
+echo
+
+
+if [ "$INTERACTIVE" = "yes" ]; then
+  while :
+  do
+        echo -n "Is this correct? [y/N] "
+        read response
+        case $response in
+                y* | Y*)
+                        echo "Excellent!"
+                        break
+                ;;
+                n* | N* | "")
+                        echo "Cancelled."
+                        echo
+                        exit
+                ;;
+        esac
+  done
+fi
+echo
+
+if [ "$CLEAN_MAILSTORE" == "yes" ]
+then
+        TARFLAGS=
+else
+        # If we did not clean the existing mailstores, we
+        # should not restore messageid.txt as it could cause
+        # conflicts. This assumes that the existing file has
+        # a higher number than the backed up version.
+        TARFLAGS="--exclude mediaserver/data/messageid.txt"
+fi
+
+echo -n "Restoring voicemail stores... "
+tar xzC / $TARFLAGS < $BACKUP_DIR/mailstore.tar.gz
+echo "done."

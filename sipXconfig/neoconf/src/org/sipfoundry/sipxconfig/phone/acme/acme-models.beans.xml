@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="acmePhoneStandard" class="org.sipfoundry.sipxconfig.phone.PhoneModel">
+    <property name="beanId" value="acmePhone"/>
+    <property name="label" value="Acme"/>
+    <property name="maxLineCount" value="3"/>
+  </bean>
+  <bean id="acmePhone" class="org.sipfoundry.sipxconfig.phone.acme.AcmePhone" singleton="false"
+    parent="abstractPhone">
+  </bean>    
+</beans>

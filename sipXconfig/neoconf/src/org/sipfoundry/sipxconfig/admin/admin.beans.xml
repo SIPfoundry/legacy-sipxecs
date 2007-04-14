@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- 
+  - A D M I N   C O N T E X T           
+  -->
+  <bean id="adminContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.admin.AdminContext</value>
+    </property>
+    <property name="target">
+			<ref local="adminContextImpl"/>      
+    </property>
+  </bean>
+  
+  <bean id="adminContextImpl" class="org.sipfoundry.sipxconfig.admin.AdminContextImpl"
+    autowire="byType">
+    <property name="binDirectory" value="${sysdir.bin}"/>
+  </bean>
+  
+  <bean id="snapshot" class="org.sipfoundry.sipxconfig.admin.Snapshot">
+    <property name="binDirectory" value="${sysdir.bin}"/>    
+    <property name="destDirectory" value="${sysdir.tmp}"/>    
+  </bean>
+
+  <bean id="whacker" class="org.sipfoundry.sipxconfig.admin.Whacker">
+    <property name="processContext" ref="sipxProcessContext"/>
+  </bean>
+  
+  <bean id="initializeSystemTask" class="org.sipfoundry.sipxconfig.admin.DataInitializer">
+    <property name="adminContext" ref="adminContext"/>
+  </bean>
+</beans>

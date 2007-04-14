@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE comps PUBLIC "-//The cAos Project//DTD Comps info//EN" "comps.dtd">
+<!-- 
+  - I cannot get groups to be recursive. groupreq doesn't appear to have 
+  - much effect. See
+  -   https://lists.dulug.duke.edu/pipermail/yum-devel/2006-May/002140.html
+  - categories do not help either. From what I can tell, you need to duplicate
+  - package dependencies
+  -->
+<comps>
+  <group>
+   <id>sipxpbx-base</id>
+   <uservisible>true</uservisible>
+   <name>Base sipXpbx</name>
+   <description>No frills, standard PBX</description>
+   <packagelist>
+     <!-- sipxpbx-base -->
+     <packagereq type="mandatory">sipxconfig</packagereq>
+     <packagereq type="mandatory">sipxconfig-ftp</packagereq>
+     <packagereq type="mandatory">sipxconfig-tftp</packagereq>
+     <packagereq type="mandatory">sipxproxy</packagereq>
+     <packagereq type="mandatory">sipxproxy-cdr</packagereq>
+     <packagereq type="mandatory">sipxpublisher</packagereq>
+     <packagereq type="mandatory">sipxregistry</packagereq>
+     <packagereq type="mandatory">sipxvxml</packagereq>
+   </packagelist>
+  </group>
+  <group>
+   <id>sipxpbx-full</id>
+   <uservisible>true</uservisible>
+   <name>Full sipXpbx</name>
+   <description>sipXpbx plus every other possible package</description>
+   <packagelist>
+     <!-- copy of sipxpbx-base packages -->
+     <packagereq type="mandatory">sipxconfig</packagereq>
+     <packagereq type="mandatory">sipxconfig-ftp</packagereq>
+     <packagereq type="mandatory">sipxconfig-tftp</packagereq>
+     <packagereq type="mandatory">sipxproxy</packagereq>
+     <packagereq type="mandatory">sipxproxy-cdr</packagereq>
+     <packagereq type="mandatory">sipxpublisher</packagereq>
+     <packagereq type="mandatory">sipxregistry</packagereq>
+     <packagereq type="mandatory">sipxvxml</packagereq>
+     <!-- start: addons -->
+     <packagereq type="mandatory">sipxconfig-report</packagereq>
+     <packagereq type="mandatory">sipxconfig-agent</packagereq>
+     <packagereq type="mandatory">sipxtools</packagereq>
+   </packagelist>
+  </group>
+</comps>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  
+  <bean name="conferenceBridge" class="org.sipfoundry.sipxconfig.conference.Bridge"
+    singleton="false" parent="beanWithSettings">
+    <property name="systemDefaults" ref="phoneDefaults"/>
+    <property name="audioDirectory" value="${sysdir.phone}/conference"/>
+    <!-- default value - overridden in sipxconfig.properties -->
+    <property name="host" value="localhost"/>
+    <property name="port" value="8201"/>
+    <!-- default value - overridden in sipxconfig.properties -->
+    <property name="admissionServer" value="localhost:5100"/>
+  </bean>
+
+  <bean name="conferenceConference" class="org.sipfoundry.sipxconfig.conference.Conference"
+    singleton="false" parent="beanWithSettings">
+    <!-- default value - overridden in sipxconfig.properties -->
+    <property name="admissionScriptServer" value="localhost:8091"/>
+  </bean>
+  
+  <bean id="conferenceBridgeContextImpl"
+    class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="aliasManager" ref="aliasManager"/>
+    <property name="coreContext" ref="coreContext"/>
+    <property name="provisioning">
+      <ref local="conferenceBridgeProvisioning"/>
+    </property>
+  </bean>
+  
+  <bean id="conferenceBridgeContext" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces"
+      value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext,
+      	org.sipfoundry.sipxconfig.admin.commserver.AliasProvider"/>
+    <property name="target">
+      <ref local="conferenceBridgeContextImpl"/>
+    </property>
+  </bean>
+  
+  <bean id="eagerConferenceBridgeProvisioning" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces"
+      value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioning"/>
+    <property name="target">
+      <bean class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioningImpl">
+        <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+  
+  <bean id="conferenceBridgeProvisioning" class="org.sipfoundry.sipxconfig.conference.LazyConferenceBridgeProvisioningImpl" 
+    init-method="init">
+    <property name="target">
+      <ref local="eagerConferenceBridgeProvisioning"></ref>
+    </property>
+    <property name="sleepInterval" value="15000"/>
+  </bean>
+  
+</beans>

@@ -1,0 +1,48 @@
+<ul jwcid="@If" condition="prop:renderAdvancedToggle" element="ul" class="component-links">
+  <li jwcid="@ToggleLink" toggle="prop:showAdvanced"/>
+</ul>
+<fieldset>
+  <table>
+    <tbody>      
+      <span jwcid="@For" 
+        source="prop:flattenedSettings" 
+        value="prop:currentSetting" 
+        volatile="true">
+        <tr jwcid="@RenderBlock" block="prop:currentBlock" />
+      </span>
+    </tbody>
+  </table>
+</fieldset>
+<div jwcid="groupBlock@Block">
+  <span jwcid="@If" condition="prop:renderGroup">
+    <tr>
+      <td colspan="2">
+        <h3><label jwcid="@Insert" value="ognl:label"/></h3>
+        <span jwcid="@Insert" value="ognl:description"/>
+      </td>
+    </tr>
+  </span>
+</div>
+<div jwcid="settingBlock@Block">
+  <span jwcid="@If" condition="prop:renderSetting">
+    <span jwcid="@setting/SettingEditor"
+      setting="prop:currentSetting"
+      enabled="prop:enabled"
+      requiredEnabled="prop:requiredEnabled"
+      messageSource="prop:messageSource" />
+  </span>
+  <span jwcid="@Else">
+    <span jwcid="@Hidden" value="prop:currentSetting.value"/>
+  </span>
+</div>
+<div jwcid="arrayBlock@Block">
+  <tr>
+    <td colspan="2">
+      <span jwcid="@setting/SettingsGrid"
+        setting="prop:currentSetting"
+        enabled="prop:enabled"
+        requiredEnabled="prop:requiredEnabled"
+        messageSource="prop:messageSource" />
+    </td>
+  </tr>
+</div>

@@ -1,0 +1,40 @@
+require 'rake'
+require 'rake/testtask'
+
+task :default => [:test_units]
+
+TEST_FILES = 'tests/**/*_test.rb'
+
+desc "Run basic tests"
+Rake::TestTask.new("test_units") { |t|
+  t.pattern = TEST_FILES
+  #t.verbose = true
+  t.warning = true
+}
+
+require 'rubygems'
+require 'rake/gempackagetask'
+
+#TODO: simplify layout
+#TODO: provide default_executable property
+
+spec = Gem::Specification.new do |s|
+  s.platform = Gem::Platform::RUBY
+  s.summary = "sipXconfig-agent provides SOAP interface for various sipX components"
+  s.name = 'sipXconfig-agent'
+  s.version = '1.0.0'
+  s.requirements << 'none'
+  s.require_path = 'lib'
+  s.files = FileList["{bin,lib,tests}/**/*"].to_a
+  s.test_files = FileList[TEST_FILES].to_a
+  s.description = <<EOF
+sipXconfig-agent implements a SOAP based API for:
+ - an event analyzer various sipX statistics
+EOF
+end
+
+Rake::GemPackageTask.new(spec) do |pkg|
+  pkg.need_zip = true
+  pkg.need_tar = true 
+  pkg.package_dir = "#{ENV['builddir']}/pkg" if ENV['builddir']
+end

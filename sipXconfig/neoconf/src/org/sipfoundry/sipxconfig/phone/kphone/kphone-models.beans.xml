@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="kphoneStandard" class="org.sipfoundry.sipxconfig.phone.PhoneModel">
+    <property name="label" value="KPhone" />
+    <property name="beanId" value="kphone" />
+  </bean>
+  <bean id="kphone" class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" singleton="false"
+    parent="abstractPhone">
+    <property name="profileGenerator" ref="httpProfileGenerator" />
+  </bean>
+</beans>

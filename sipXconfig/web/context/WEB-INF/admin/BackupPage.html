@@ -1,0 +1,64 @@
+<div jwcid="@Border">
+  <h2><span key="title">Backup</span></h2>
+  <span jwcid="ifInitialDescription">
+    <div jwcid="@QuickHelp" value="message:description" />
+  </span>
+  <p jwcid="ifResultsPresent">
+    <span key="backupCompleted">Success...</span>
+    <div jwcid="@QuickHelp" value="message:helpText" />
+    <ul>
+      <li jwcid="results"><span jwcid="link"><span jwcid="linkText" /></span></li>
+    </ul>
+  </p>
+  <span jwcid="errors" />
+  <form jwcid="form">
+    <fieldset>
+      <legend><span key="label.files"></span></legend>
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <input jwcid="checkConfigs" type="checkbox" id="backup:check:configs" checked="checked" />
+              <label for="backup:check:configs"><span key="label.configs"/></label>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input jwcid="checkDatabase" type="checkbox" id="backup:check:database" checked="checked" />
+              <label for="backup:check:database"><span key="label.database"/></label>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input jwcid="checkVoicemail" type="checkbox" id="backup:check:voicemail" checked="checked" />
+              <label for="backup:check:voicemail"><span key="label.voicemail"/></label>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label for="backup:limit"><span key="label.limitCount">Number of backups to keep</span></label>
+              <select id="backup:limit" jwcid="limitCount" />
+              <br />
+              <span key="description.limitCount" class="settingDescription"/>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul class="form-actions">
+      <li><input jwcid="backup" id="backup:now" type="button" name="save" value="Backup Now" /></li>
+    </ul>
+    <div jwcid="@QuickHelp" value="message:msg.schedule" />
+    <fieldset>
+      <legend><span key="label.schedule">Schedule</span></legend>
+      <span jwcid="schedules">
+        <input jwcid="dailyScheduleEnabled" type="checkbox" />
+        <select jwcid="dailyScheduledDay" />
+        <input jwcid="dailyScheduledTime" />
+      </span>
+      <ul class="form-actions">
+        <li><input jwcid="ok" id="backup:ok" type="submit" value="OK" /></li>
+      </ul>
+    </fieldset>
+  </form>
+</div>

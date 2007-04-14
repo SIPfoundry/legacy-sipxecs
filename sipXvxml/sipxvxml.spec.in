@@ -1,0 +1,107 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary:  Voice XML execution engine
+License:  Pingtel Commercial License
+Group:    Productivity/Telephony/SIP/Servers
+Vendor:   Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url:      http://www.pingtel.com
+
+Source: %name-%version.tar.gz
+
+Requires: sipxcalllib >= 3.7
+Requires: sipxcommserverlib >= 3.7
+Requires: sipxmedialib >= 3.7
+Requires: sipxmediaadapterlib >= 3.7
+Requires: sipxtacklib >= 3.7
+Requires: sipxportlib >= 3.7
+Requires: sipxpbx >= 3.7
+
+Requires: @LIBWWW_RPM@ >= 5.4.0
+
+# Httpd is needed to serve VXML applications and execute supporting CGIs.
+Requires: httpd >= 2.0
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+# should match sipXlib.m4:SIPX_UPGRADEDIR
+%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
+%define this_archive %{name}-%{version}-%{release}.tgz
+
+%description
+Voice XML processing engine.
+With scripts to implement the voicemail and auto-attendant functions of a PBX.
+
+%package devel
+Requires: %name
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Internal documentation for %name 
+Requires: sipxcommserverlib-devel >= 3.7
+
+%description devel
+Internal class documentation for the sipXvxml classes
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc. just for make install. This not copacetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
+mkdir -p %{upgrade_archive_root}
+tar --directory ${RPM_BUILD_ROOT} \
+    -czf %{upgrade_archive_root}/%{this_archive} \
+    etc
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%doc CONTRIBUTORS INSTALL NEWS README ChangeLog %name.configlog
+%attr(4755,root,root) %{_bindir}/sipXvxml
+%attr(755,root,root) %{_bindir}/sipXvxml.sh
+%attr(755,root,root) %{_bindir}/%name-config
+# A lot of these files are installed in ../include/ itself, which needs to be changed.
+%{_includedir}
+
+# This config file is reprocessed at start time, so it should be owned
+# by SIPXPBXUSER.
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
+%config %{_sysconfdir}/sipxpbx/mediaserver-config.in
+%config %{_sysconfdir}/sipxpbx/process.d/sipXvxml.process.xml
+
+%{upgrade_archive_dir}/%{this_archive}
+%{upgrade_archive_dir}/%{name}-previous.tgz
+
+%files devel
+%defattr(644,root,root,755)
+%doc %{_datadir}/doc/sipx/%name/*
+
+%post
+
+%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
+%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
+if [ -f %{current_archive} ]; then
+  mv %{current_archive} %{previous_archive}
+fi
+mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
+
+pkg-upgrade --previous %{previous_archive} --current %{current_archive}

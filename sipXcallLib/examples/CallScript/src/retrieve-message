@@ -1,0 +1,10 @@
+# Script to retrieve a message from the voicemail system and then delete it.
+call ${TO}
+pause 5000
+tones 555,1234#
+pause 20000
+tones 1
+pause 16000
+tones 4
+pause 20000
+hangup

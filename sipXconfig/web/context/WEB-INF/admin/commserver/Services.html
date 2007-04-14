@@ -1,0 +1,29 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+        <h2><span key="title">Services</span></h2>
+        <span jwcid="@QuickHelp" value="message:quick.help"/>
+		<form jwcid="form" id="services:form">
+            <fieldset jwcid="renderLocation" element="fieldset">
+                <table>
+                    <tr jwcid="locationPanel">
+                        <span jwcid="locationSelection"/>
+                    </tr>
+                </table>
+            </fieldset>
+            <fieldset>
+			<table jwcid="tableView" id="services"/>
+            </fieldset>
+			<ul class="component-submit">
+				<li><input jwcid="startButton" type="submit" id="services:start"/></li>
+				<li><input jwcid="stopButton" type="submit" id="services:stop"/></li>
+				<li><input jwcid="restartButton" type="submit" id="services:restart"/></li>
+				<li><input jwcid="refreshButton" type="submit" id="services:refresh"/></li>
+			</ul>
+		</form>
+    </div>
+</body>
+</html>

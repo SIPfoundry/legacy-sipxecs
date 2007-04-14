@@ -1,0 +1,181 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: Common Code for sipX servers
+License: Pingtel Commercial License
+Group: Development/Libraries
+Vendor: Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url: http://www.pingtel.com
+
+Source: %name-%version.tar.gz
+
+Requires: rpm
+%if %{_vendor} == suse
+Requires: Xerces-c >= 2.6.0
+%endif
+%if %{_vendor} == redhat
+Requires: xerces-c >= 2.6.0
+%endif
+Requires: sipxportlib >= 3.7
+Requires: sipxtacklib >= 3.7
+Requires: unixODBC >= 2.2
+Requires: ruby
+Requires: patch
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+# should match sipXlib.m4:SIPX_UPGRADEDIR
+%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
+%define this_archive %{name}-%{version}-%{release}.tgz
+
+%description
+ This project is used to hold code used in common by a number of the
+sipX family servers. It is not intended to be useful as a standalone
+project.
+
+# Install header files
+%package devel
+Requires: %name
+%if %{_vendor} == suse
+Requires: Xerces-c-devel >= 2.6.0
+%endif
+%if %{_vendor} == redhat
+Requires: xerces-c-devel >= 2.6.0
+%endif
+Requires: sipxportlib-devel >= 3.7
+Requires: sipxtacklib-devel >= 3.7
+Requires: unixODBC-devel >= 2.2
+
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Header files for %name 
+
+%description devel 
+This project is used to hold code used in common by a number of the
+sipX family servers. It is not intended to be useful as a standalone
+project.
+
+This package contains the neccessary header files and static libraries
+helpful to build projects from the sipX library
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use 
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
+mkdir -p %{upgrade_archive_root}
+tar --directory ${RPM_BUILD_ROOT} \
+    -czf %{upgrade_archive_root}/%{this_archive} \
+    etc
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
+%attr(755,root,root) %{_datadir}/doc/sipx/INSTALL.ssl
+%attr(755,root,root) %{_bindir}/configpp
+%attr(755,root,root) %{_bindir}/config-defs
+%attr(755,root,root) %{_bindir}/get_def_addr
+%attr(755,root,root) %{_bindir}/%name-config
+%attr(755,root,root) %{_bindir}/sipdbtest
+%attr(755,root,root) %{_bindir}/pkg-upgrade
+%attr(755,root,root) %{_bindir}/sipdbtest.sh
+%attr(755,root,root) %{_bindir}/xsdvalid
+%attr(755,root,root) %{_bindir}/sipx-validate-xml
+%attr(755,root,root) %{_bindir}/sipx-dns
+%attr(755,root,root) %{_bindir}/pgpatch.sh
+%attr(755,root,root) %{_bindir}/ssl-cert/gen-ssl-keys.sh
+%attr(755,root,root) %{_bindir}/ssl-cert/install-cert.sh
+%attr(755,root,root) %{_bindir}/ssl-cert/check-cert.sh
+%attr(755,root,root) %{_bindir}/ssl-cert/ca_rehash
+%attr(755,root,root) %{_libdir}/libsipXcommserver*.la
+%attr(755,root,root) %{_libdir}/libsipXcommserver.so*
+%{_libexecdir}/sipx-utils.sh
+%attr(755,root,root) %{_datadir}/sipx/schema/urlmap.xsd
+%attr(755,root,root) %{_datadir}/sipx/schema/authrules.xsd
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/config.defs
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/keepalive.process.xml
+
+# These should match sipXlib.m4 or at least sent 
+# to configure script
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/ssl
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/ssl/authorities
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_datadir}/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/log/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/run/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/tmp
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/sipdb
+
+%{upgrade_archive_dir}/%{this_archive}
+%{upgrade_archive_dir}/%{name}-previous.tgz
+
+%files devel
+%defattr(644,root,root,755)
+%{_libdir}/libsipXcommserver.la
+%{_libdir}/libsipXcommserver.a
+%{_libdir}/libsipXcommserverTest.la
+%{_libdir}/libsipXcommserverTest.a
+%doc %{_datadir}/doc/sipx/%name/*
+%{_includedir}/configrpc/*
+%{_includedir}/digitmaps/*
+%{_includedir}/fastdb/*
+%{_includedir}/filereader/*
+%{_includedir}/odbc/*
+%{_includedir}/persist/*
+%{_includedir}/sipdb/*
+%{_includedir}/testlib/*
+
+%pre
+# if needed, change open source daemon user names to the Pingtel name
+for openname in sipx sipxpbx; do 
+  if [ "@SIPXPBXUSER@" != "${openname}" ] && id -u ${openname} > /dev/null 2>&1 
+  then
+     /usr/sbin/usermod -l @SIPXPBXUSER@ ${openname}
+     /usr/sbin/groupmod -n @SIPXPBXUSER@ ${openname}
+  fi
+done
+
+# if there is no daemon user, create it
+id -u @SIPXPBXUSER@ > /dev/null 2>&1 \
+|| /usr/sbin/useradd \
+   -c "sipX service daemon" \
+   -d %{_sysconfdir}/sipxpbx \
+   -s /bin/bash \
+   @SIPXPBXUSER@
+
+# record the old version
+sipx-upgrade -p sipxcommserverlib -c
+
+%post
+sipx-upgrade -p sipxcommserverlib -u --bdir %{_bindir}  --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
+
+%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
+%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
+if [ -f %{current_archive} ]; then
+  mv %{current_archive} %{previous_archive}
+fi
+mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
+
+pkg-upgrade --previous %{previous_archive} --current %{current_archive}

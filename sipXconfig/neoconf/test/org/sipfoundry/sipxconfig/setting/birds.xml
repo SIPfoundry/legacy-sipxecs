@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+	<group name="towhee">
+		<setting name="canyon"/>
+		<setting name="rufous-sided"/>
+	</group>
+	<group name="flycatcher">
+	    <setting name="peewee"/>
+	    <setting name="least"/>
+	    <setting name="willow"/>
+	</group>
+  <group name="pigeon">
+      <setting name="passenger">
+        <value>0</value>
+        <description>extinct</description>
+      </setting>
+      <setting name="rock-dove">
+        <value>a.k.a. pigeon</value>
+      </setting>
+  </group>
+  <group name="woodpecker">
+      <setting name="ivory-billed">
+        <value>0</value>
+        <description>extinct (thought to be anyway until 2005...)</description>
+      </setting>
+      <setting name="red-bellied"/>
+  </group>
+    
+</model>

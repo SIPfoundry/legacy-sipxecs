@@ -1,0 +1,505 @@
+body
+{
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	font-size:12px;
+	margin:0;
+	padding:0;
+}
+
+h1
+{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:24px;
+}
+
+h2
+{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:20px;
+}
+
+h3
+{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:16px;
+	font-weight:bolder;
+}
+
+h4
+{
+	font:bold 100%;
+}
+
+h5
+{
+	font:italic 100%;
+}
+
+h6
+{
+	font:small-caps 100%;
+}
+
+dt
+{
+	font-weight:bold;
+}
+
+dd
+{
+	text-indent:0;
+	margin-top:5px;
+	margin-bottom:5px;
+}
+
+pre,tt,code,kbd,samp
+{
+	font-family:monospace;
+}
+
+ul
+{
+	list-style-type:none;
+}
+
+legend
+{
+	font:bold 80%;
+	font-size:120%;
+}
+
+ul.htabs, ul.vtabs
+{
+	list-style:none;
+	padding:2px;
+	white-space:nowrap;
+	margin:0;
+	padding:0 .3em 0 0;
+}
+
+ul.vtabs li
+{
+	display:inline;
+}
+
+div.tab 
+{
+	padding: .3em 1ex;
+}
+
+div.tab.active 
+{
+	background-color: #fff;
+	border: 1px solid #666;
+	padding: .2em .5ex;
+}
+
+div.shadow, div.tab.active
+{
+  position: relative;
+  bottom: 2px;
+  right: 2px;
+}
+
+div.shadow
+{
+  background: #666;
+  color: inherit;
+}
+
+#lastmodified
+{
+	align:right;
+	font-style:italic;
+}
+
+#home-graphic
+{
+    margin: 50px 0 50px 100px;
+    height: 220px;
+    width: 300px;
+}
+
+#banner
+{
+	height:0;
+	border-bottom-style:solid;
+	border-bottom-width:thick;
+	padding:55px 0 20px 120px;
+}
+
+#banner-links
+{
+	float:right;
+	padding:0 5px 0 0;
+}
+
+#banner-links a
+{
+	text-decoration:none;
+	padding:0 5px;
+}
+
+#navigation
+{       
+	float: left;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+#navigation ul,
+#navigation form
+{
+	margin: 0;
+	padding: 0;
+}
+
+#navigation li {
+	float: left;
+	position: relative;
+	width: 13em;
+	text-align:center;
+	margin: 0;
+	padding: 0;
+	/* IE explorer only - working around Z-index bug */
+    _z-index: 500;
+}
+
+#navigation li ul {
+	display: none;
+	position: absolute;
+	/* top and left are for IE only */
+	top: 2em;
+	left: 0em;
+}
+
+/* reset those values for all the browsers except for IE */
+#navigation li > ul {
+	top: auto;
+	left: auto;
+}
+
+#navigation li:hover ul,
+#navigation li.over ul { 
+	display: block; 
+    z-index: 500;
+}
+
+#navigation a {
+	display: block;
+	text-decoration: none;
+	padding: 5px 0;
+	border-width: 1px;
+	border-style: solid;
+}
+
+#content
+{
+	clear: left;
+	padding: 10px;
+}
+
+#settings-nav
+{
+	float:left;
+}
+
+#settings-nav ul
+{
+	list-style-type:none;
+	margin:2px;
+	padding:2px;
+}
+
+#settings-nav a
+{
+	white-space:nowrap;
+}
+
+#settings-content
+{
+	margin-left:12em;
+}
+
+.highlight
+{
+	border-style: dashed;
+	border-width: 1px;
+}
+
+#footer
+{
+	/* clear:both is important for IE guillotine bug */
+	clear:both;
+	text-align:center;
+    margin: 10em 0;
+    padding: 15px;
+}
+
+#footer p 
+{
+    margin: 0;
+    padding: 3px;
+}
+
+.pageLabel
+{
+	font-weight:bold;
+}
+
+p.message
+{
+	font-weight:bold;
+}
+
+.settingDefault
+{
+	font-style:italic;
+}
+
+.settingDescription
+{
+	font-style:80%;
+}
+
+li
+{
+	margin-top:5px;
+	margin-bottom:5px;
+}
+
+ul.component-links
+{
+	width:50em;
+	list-style-type:none;
+	text-align:right;
+}
+
+ul.component-links li,
+ul.component-links li form
+{
+	display:inline;
+	padding-left:1em;
+}
+
+ul.component-submit
+{
+	list-style-type:none;
+	margin:5px;
+	padding:0;
+}
+
+ul.component-submit li
+{
+	white-space:nowrap;
+	display:inline;
+	margin:0 5px;
+}
+
+table.component
+{
+	width: 50em;
+	border-collapse: collapse;
+	border-style: solid;
+	border-width: 1px;
+}
+
+
+table.component thead tr th
+{
+	border-width:1px;
+	border-style: solid;
+	white-space:nowrap;
+	padding:3px 5px;
+}
+
+table.component th a
+{
+    text-decoration:none;
+}
+
+table.component tbody tr td
+{
+	white-space:nowrap;
+	border-collapse:collapse;
+	padding:3px 5px;
+}
+
+table.component tfoot tr td
+{
+	text-align:center;
+	border-width:1px;
+	white-space:nowrap;
+	border-style:solid;
+	padding:3px;
+}
+
+ul.component-selection
+{
+	list-style-type:none;
+	margin:0 2px 2px;
+	padding:0;
+}
+
+ul.component-selection li
+{
+	display:inline;
+	margin:0 5px;
+}
+
+ul.component-selection li a
+{
+	text-decoration:none;
+	font-size:.8em;
+}
+
+.component-action
+{
+	font-style:italic;
+}
+
+ul.component-pager
+{
+	list-style-type:none;
+}
+
+ul.component-pager li
+{
+	display:inline;
+	margin:0 5px;
+}
+
+div.help
+{
+	clear:right;
+	float:right;
+	width:15em;
+	margin:5px 0;
+	border-collapse:collapse;
+	border-width:1px;
+	border-style:solid;
+	padding:5px;
+}
+
+div.search 
+{
+	float: right;
+	padding:0 5px 0 0;
+	margin: 0;
+}
+
+fieldset
+{
+	margin-top:1em;
+	border-style:none;
+}
+
+label
+{
+	font-size:120%;
+	padding-right:1em;
+}
+
+img
+{
+	border:none;
+}
+
+form.with-sections fieldset
+{
+	border-top-width:2em;
+	border-style:solid !important;
+}
+
+fieldset td
+{
+	padding:3px;
+}
+
+.page-label
+{
+	font-weight:bold;
+	margin:2px;
+	padding:2px;
+}
+
+ul.form-actions
+{
+	list-style-type:none;
+	text-align:left;
+}
+
+ul.form-actions li
+{
+	display:inline;
+}
+
+.banner-logo
+{
+	display:none;
+}
+
+.hide
+{
+	display:none;
+}
+
+.user-error, 
+.user-warning,
+.user-success
+{
+	font-weight:bold;
+}
+
+.fwd-voicemail
+{
+	font-style: italic;
+	margin-left: 2em;
+}
+
+.cloud
+{
+	padding: .5em 1em;
+	width: 40%;
+	float: left;
+	margin-bottom: 1em;
+	margin-right: 1em;
+}
+
+table.cloud thead 
+{
+	text-align: left;
+}
+
+table.cloud tbody tr td
+{
+  padding: 0.5em 0;
+}
+
+div.col
+{
+	float:left;
+	width:25em;
+}
+
+div.auto_complete {
+  width: 350px;
+}
+
+div.auto_complete ul {
+  margin:0;
+  padding:0;
+  width:100%;
+  list-style-type:none;
+}
+
+div.auto_complete ul li {
+  margin:0;
+  padding:3px;
+}
+
+div.auto_complete ul strong.highlight {
+  margin:0;
+  padding:0;
+}

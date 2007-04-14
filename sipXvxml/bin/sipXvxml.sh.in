@@ -1,0 +1,80 @@
+#!/bin/bash
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
+
+CONFIG_FILES="\
+  @SIPX_CONFDIR@/mediaserver-config \
+  @SIPX_CONFDIR@/voicemail.xml \
+  "
+
+# If the "config.defs" file exists and the <name>.in file exists for a
+# configuration file, then run the config preprocessor to generate the
+# fully resolved configuration file.
+if [ -f "$CONFIG_DEFS" ]
+then
+  for i in $CONFIG_FILES ; do
+    if [ -f "${i}.in" ]
+    then
+       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
+    fi
+  done
+
+
+  # run the config preprocessor over the voicexml scripts
+  for cfgfile in @wwwdir@/doc/aa_vxml/*.in @wwwdir@/doc/vm_vxml/*.in 
+  do
+    if [ -f ${cfgfile} ]
+    then
+       genfile=`basename ${cfgfile} .in`
+       gendir=`dirname ${cfgfile}`
+       genout="${gendir}/${genfile}"
+       rm -f ${genout}
+       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${cfgfile}" --out "${genout}"
+    fi
+  done
+fi
+
+case ${Action} in
+   RUN)
+     # Create the voicemail directories if they do not already exist.
+     mkdir -p @SIPX_VXMLDATADIR@/autoattendant/ui/adminui
+     mkdir -p @SIPX_VXMLDATADIR@/autoattendant/vxml
+     mkdir -p @SIPX_VXMLDATADIR@/mailstore
+     mkdir -p @SIPX_VXMLDATADIR@/prompts
+     mkdir -p @SIPX_VXMLDATADIR@/voicemail/ui/adminui
+     mkdir -p @SIPX_VXMLDATADIR@/voicemail/vxml
+
+     echo $$ > @SIPX_RUNDIR@/sipXvxml.pid
+     exec @bindir@/sipXvxml $Args
+     ;;
+
+   CONFIGTEST)
+     #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/?.xml
+     #Status=$(($Status+$?))
+     ;;
+esac
+
+exit $Status

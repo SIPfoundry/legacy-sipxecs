@@ -1,0 +1,69 @@
+#!/bin/bash
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
+
+CONFIG_FILES="\
+  @SIPX_CONFDIR@/status-config \
+  @SIPX_CONFDIR@/status-plugin.xml \
+  "
+
+# If the "config.defs" file exists and the <name>.in file exists for a
+# configuration file, then run the config preprocessor to generate the
+# fully resolved configuration file.
+if [ -f "$CONFIG_DEFS" ]
+then
+  for i in $CONFIG_FILES ; do
+    if [ -f "${i}.in" ]
+    then
+       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
+    fi
+  done
+fi
+
+case ${Action} in
+   RUN)
+     echo $$ > @SIPX_RUNDIR@/sipstatus.pid
+     exec @bindir@/sipstatus $Args
+     ;;
+
+   CONFIGTEST)
+     Status=0
+
+     #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/status-plugin.xml
+     #Status=$(($Status+$?))
+
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/sipstatus.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+	 echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+	 Status=1
+     fi
+
+     ;;
+esac
+
+exit $Status

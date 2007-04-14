@@ -1,0 +1,18 @@
+<span jwcid="header@Block">
+  <span jwcid="@Insert" value="prop:title"/>
+</span>
+<span jwcid="footer@Block">
+  <a jwcid="@DirectLink" listener="listener:add">
+    <span key="add">Add User</span>
+  </a>        
+</span>
+<span jwcid="@common/Cloud" header="component:header" footer="component:footer">
+  <span jwcid="@For" source="prop:users" value="prop:user">
+    <a jwcid="@DirectLink" listener="listener:edit" parameters="prop:user.id">
+      <span jwcid="@Insert" value="prop:user.userName"/>, 
+    </a>
+  </span>
+  <a jwcid="@PageLink" page="ManageUsers">
+    <span key="more.etc">more...</span>
+  </a>        
+</span>

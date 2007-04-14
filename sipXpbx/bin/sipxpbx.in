@@ -1,0 +1,771 @@
+#!/bin/sh
+#
+# chkconfig: 35 90 10
+# description: This script starts up the sipXpbx processes.  
+#              Most of the real startup is done by the watchdog - it starts
+#              up all other sipX processes and ensures that they are
+#              operating properly. It restarts them if they exit unexpectedly,
+#              and notifies the administrator of the failure. 
+#
+# processname: sipxpbx
+# pidfile: @SIPX_RUNDIR@/watchdog.pid
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+#
+### BEGIN INIT INFO
+# Provides:       sipxpbx
+# Required-Start: $network $remote_fs
+# Required-Stop:
+# Default-Start:  3 5
+# Default-Stop:
+# Description:    Start the sipXpbx IP PBX application servers
+### END INIT INFO
+
+# This is an interactive program; we need the current locale.
+[ -f /etc/profile.d/lang.sh ] && . /etc/profile.d/lang.sh
+
+if [ "$LANG" = "ja" -o "$LANG" = "ja_JP.eucJP" ]; then
+    # We can't Japanese on normal console at boot time.
+    # So, force to set LANG=C
+    if [ "$TERM" = "linux" ] ; then
+        LANG=C
+    fi
+fi
+
+## Source function library.
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+# Set up correctly depending on the distribution
+if [ -f /etc/redhat-release ]
+then
+  # Redhat 
+  . /etc/init.d/functions
+
+  HTTP_DAEMON_START="daemon @APACHE2_HTTPD@"
+
+elif [ -f /etc/SuSE-release ]
+then
+  # SuSE
+  . /etc/rc.status
+
+  echo_success() 
+  {
+      rc_reset
+      rc_status -v
+  }
+  echo_failure() 
+  {
+      rc_failed
+      rc_status -v
+  }
+
+  HTTP_DAEMON_START="start-stop-daemon --start --exec @APACHE2_HTTPD@ --"
+
+else
+  # Non-Redhat (Gentoo, Debian, and perhaps others)
+  echo_success() 
+  {
+      echo success
+  }
+  echo_failure() 
+  {
+      echo failure
+  }
+  . /etc/init.d/functions.sh
+
+  HTTP_DAEMON_START="start-stop-daemon --start --exec @APACHE2_HTTPD@ --"
+  
+fi
+
+# Source configuration
+. @SIPX_CONFDIR@/config.defs
+
+iam=`whoami`
+
+# Set the limit for core file size based on the SIPX_CORELIMIT
+# variable in config.defs.
+# This either allows core files to be generated when sipX
+# processes crash (if SIPX_CORELIMIT is "unlimited"), or
+# disallows it (if SIPX_CORELIMIT is "0").
+ulimit -c ${SIPX_CORELIMIT:-0}
+
+## if we are configured to create core files,
+## and this system is capable of creating core files for setuid 
+## executables, set it to create those core files (read-only to root).
+## this allows debugging of sipXvxml crashes
+
+if [ "${SIPX_CORELIMIT}" = "unlimited" -a -w /proc/sys/kernel/suid_dumpable ]
+  then
+    # RHEL uses this
+    echo 2 > /proc/sys/kernel/suid_dumpable
+  fi
+if [ "${SIPX_CORELIMIT}" = "unlimited" -a -w /proc/sys/fs/suid_dumpable ]
+  then
+    # FC4 and kernel.org use this
+    echo 1 > /proc/sys/fs/suid_dumpable
+
+    ## According to the PROC man page /proc/sys/fs/suid_dumpable has
+    ## the following behavior:
+    ##   0 (default)
+    ##   1 ("debug") All processes dump core when possible
+    ##   2 ("suidsafe") Any binary which normally would not be dumped 
+    ##     (see "0" above) is dumped readable by root only.
+    ## However experimentation shows 2 doesn't seem to work 
+    ## (with sipXvxml on FC4, anyway), and 1
+    ## creates core dumps that are only readable by root.  
+    ## So lets use 1 for now until proven otherwise.
+fi
+
+# This should somehow be syncronized with what's in 
+# the ProcessDefinitions.xml and Watchdog.xml
+sipx_processes="watchdog "`sipx_services`
+
+# Find the name of the process, use process_name.sh if found 
+# and executable otherwise use process_name
+process_command() {
+  proc_cmd="@bindir@/${1}"
+  proc_cmd_sh="${proc_cmd}.sh"
+  if [ -x "${proc_cmd_sh}" ]; then
+    echo -n "${proc_cmd_sh}"
+    return
+  fi
+  echo -n "${proc_cmd}"
+}
+
+# Low-level start function.
+# Unfortunately, $? will never report failure as su will always succeed.
+# Therefore we wait after the fork and see if the .pid file was created
+start() { # process-name 
+        proc_name=$1; shift
+        #proc_cmd=@bindir@/${proc_name}.sh
+        proc_cmd=`process_command ${proc_name}`
+        
+        echo -n $"Starting $proc_name: "
+
+        # The "-" option to su which used to be used below is supposed
+        # to clear the environment, but it does not on RH Linux 9 and
+        # RHE Linux 3.  This causes the wrapper scripts for the
+        # components to attempt to source $BASH_ENV, which is usually
+        # ~root/.bashrc at this point, and usually results in a
+        # permission error.  So we unset BASH_ENV manually here.
+        unset BASH_ENV
+
+        if [ $iam = @SIPXPBXUSER@ ]
+        then
+            ( exec $proc_cmd ) < /dev/null &
+        elif [ $iam = root ]
+        then
+
+            # Remove "-" because (as the above comment mentions) it wasn't
+            # doing what it is advertised as doing AND because on Gentoo
+            # it would quietly fail to even launch the processes.
+            su @SIPXPBXUSER@ -c "$proc_cmd" < /dev/null &
+
+        else
+            echo "You must be able to start as @SIPXPBXUSER@" 1>&2
+            echo_failure
+            exit 1
+        fi
+
+        for ticks in 3 2 1 0 
+        do
+           sleep 1
+           test -e @SIPX_RUNDIR@/$proc_name.pid && break || echo -n "."
+        done
+
+        if [ -e @SIPX_RUNDIR@/$proc_name.pid ]
+        then
+            echo_success
+        else
+            STATUS=1
+            echo_failure
+        fi
+
+        echo
+        return $STATUS
+}
+
+
+# Low-level stop function.
+stop() {
+   proc_name=$1; shift
+
+   echo -n "  Stopping: $proc_name "
+   STATUS=0
+
+   pidFile=@SIPX_RUNDIR@/$proc_name.pid
+   if [ ! -r ${pidFile} ]
+   then
+      echo "(Not started) "
+   else
+       PID=`cat ${pidFile} 2> /dev/null`
+
+       if [ ! -e /proc/$PID ]
+       then
+          echo "(Started but not running) "
+          rm -f ${pidFile}
+       else
+          echo ""
+          kill $PID 2> /dev/null
+       fi
+   fi
+}
+
+stopCheck() {
+   proc_name=$1; shift
+
+   STATUS=0
+
+   pidFile=@SIPX_RUNDIR@/$proc_name.pid
+   if [ -r ${pidFile} ]
+   then
+       echo -n "  Confirm Stop: $proc_name "
+       PID=`cat ${pidFile} 2> /dev/null`
+
+       if [ -e /proc/$PID ]
+       then
+          for ticks in 3 2 1 0 
+          do
+             sleep 1
+             test -e /proc/$PID && echo -n "." || break
+          done
+          if [ -e /proc/$PID ]
+          then
+              kill -9 $PID 2> /dev/null
+              for ticks in 3 2 1 0 
+              do
+                 sleep 1
+                 test -e /proc/$PID && echo -n "." || break
+              done
+          fi
+       fi
+          
+       if [ -e /proc/$PID ]
+       then
+           echo_failure
+           echo ""
+       else
+           echo_success
+           echo ""
+       fi
+
+       rm -f ${pidFile}
+   fi
+}
+
+# Low-level configtest function.
+configtest() { # process-name  process-wd  process-command 
+    proc_name=$1; shift
+    #proc_cmd=@bindir@/${proc_name}.sh
+    proc_cmd=`process_command ${proc_name}`
+
+    # Unset environment manually for same reason as stated in start() function
+    unset BASH_ENV
+    
+    status=0
+    if [ -x $proc_cmd ]
+    then
+        if [ $iam = @SIPXPBXUSER@ ]
+        then
+                $proc_cmd --configtest
+                status=$?
+        elif [ $iam = root ]
+        then
+            su @SIPXPBXUSER@ -c \
+              "test -x $proc_cmd && $proc_cmd --configtest; echo \$? > @SIPX_RUNDIR@/$proc_name.result"
+            status=`cat @SIPX_RUNDIR@/$proc_name.result`
+            rm -f @SIPX_RUNDIR@/$proc_name.result
+        else
+            echo "You must be able to run as @SIPXPBXUSER@" 1>&2
+            exit 1
+        fi
+    else
+        echo "Installation error? '$proc_cmd' not found" 1>&2
+        status=1
+    fi
+
+    test "$status" = 0 && echo "    OK"
+    # This assures that our return is either 0 or 1, regardless of what
+    # $status was.
+    return $?
+}
+
+
+# Shut down sipX services
+stop_sipx () {
+
+    # Iterate through the list of processes, above killing each one        
+    for process in ${sipx_processes[@]}
+    do
+        stop $process
+    done
+    for process in ${sipx_processes[@]}
+    do
+        stopCheck $process
+    done
+    
+    echo_success
+    echo
+}
+
+check_rpmnew() {
+    rpmstatus=0 # pass
+
+    RpmNews=""
+    for Rpm in `find @SIPX_CONFDIR@ -name \*.rpmnew -print 2>/dev/null`
+    do
+        Name=`expr match "$Rpm" "@SIPX_CONFDIR@/\([a-z]*\)\."`
+        case $Name in
+            mappingrules|fallbackrules|authrules)
+                # these are routinely modified by the configurator, 
+                # so it is responsible for any upgrades
+                rm -f ${Rpm}
+                ;;
+            *)
+                RpmNews="$RpmNews $Rpm"
+        esac 
+    done
+    if [ -n "$RpmNews" ]; then
+        cat <<EOF
+
+    The rpm installation has provided new versions of some of the
+    configuration files.  Because you had modified your files, they
+    were not overwritten.
+
+    You should compare each of the following files with your version
+    (the same name, with the '.rpmnew' removed).  To reconcile the 
+    differences, check for new settings in the .rpmnew file and copy them 
+    to your file.  When you have finished, remove the .rpmnew file to
+    suppress this warning.
+
+EOF
+        for Rpm in $RpmNews; do
+            echo "    $Rpm"
+        done
+        rpmstatus=1 # fail
+    fi
+
+    # Check for .NEW files, which are only created by the build system, not
+    # RPM installs.
+    RpmNews="$( find @SIPX_CONFDIR@ -name \*.NEW -print 2>/dev/null )"
+    if [ -n "$RpmNews" ]; then
+        cat <<EOF
+
+    The build has provided new versions of some of the configuration files.
+
+    You should compare each of the following files with your version
+    (the same name, with the '.NEW' removed).  When you have finished,
+    remove the .NEW file to suppress this warning.
+
+EOF
+        for Rpm in $RpmNews; do
+            echo "    $Rpm"
+        done
+        rpmstatus=1 # fail
+    fi
+
+    return $rpmstatus
+}
+
+start_check() {
+    echo -n "Checking $1:" 
+    echo "Check $1" >  ${steperrfile}
+    echo -n "   "   >> ${steperrfile}
+}
+
+finish_check() {
+    check_status=$1
+    STATUS=$(($STATUS+$check_status))
+
+    if [ $check_status -eq 0 ]
+    then
+        echo_success 
+        cat /dev/null > ${steperrfile}
+    else
+        echo_failure
+        cat ${steperrfile} >> ${errfile}
+        echo ""            >> ${errfile}
+    fi
+    echo ""
+}
+
+initialize_databases () {
+    ##
+    ## The installation process cannot create the postgres databases
+    ##   because (apparently) the network must be initialized first.
+    ## Since we have to have root privs for some of the setup operations,
+    ##   they must be done explicitly here rather than in the wrapper scripts
+    ##   (which are run as user @SIPXPBXUSER@)
+
+    # check to see if we need to do the initial database setup for sipxconfig
+    if test -x @bindir@/sipxconfig.sh
+    then
+        @bindir@/sipxconfig.sh --setup
+    fi
+    # and the cdr database setup for the proxies and call resolver
+    if test -x @bindir@/sipxcallresolver.sh
+    then
+        @bindir@/sipxcallresolver.sh --setup
+    fi
+    # and the report database setup for acd call history (not real-time stats)
+    if test -x @bindir@/sipxconfig-report
+    then
+        @bindir@/sipxconfig-report --createdb
+    fi
+}
+
+## High-level configtest function
+## Verify that the prerequisites for running sipX are OK.
+do_check() {
+    ## Do the 'global' checks first, then call each shell script
+    ## to let it do its own checks (using the configtest wrapper function)
+    
+    ## Start with a good status, accumulate each check result into this
+    STATUS=0
+
+    ## All output is captured in a temporary file,
+    ##   which is displayed at the end iff $STATUS != 0 
+    errfile=/tmp/sipxpbx_check.$$.log
+    steperrfile=/tmp/sipxpbx_check_step.$$.log
+    cat /dev/null > ${errfile}
+    cat /dev/null > ${steperrfile}
+
+    ## Check to see that SSL is configured.- THIS SHOULD BE FIRST
+    start_check "TLS/SSL configuration"
+    if ! [ -e @SIPX_CONFDIR@/ssl/ssl.key -a -e @SIPX_CONFDIR@/ssl/ssl.crt ]
+    then
+        cat <<EOF >> ${steperrfile}
+    SSL key and/or certificate not found (@SIPX_CONFDIR@/ssl/ssl.{key,crt})
+
+    Run setup wizard or see the instructions in
+        @datadir@/doc/sipx/INSTALL.ssl
+EOF
+        # if this has not been done, then lots of other stuff is going to fail
+        # in non-obvious ways.  Usually, this failure means that this is the first
+        # reboot after sipxpbx was activated, and the setup wizard has not been
+        # run yet.  Rather than let things go and appear to be partly working,
+        # just bail out now.
+        finish_check 1 # force error
+        cat ${steperrfile} 1>&2
+        exit 1
+    else
+        ## rehash certificate authorities certificates - if this fails, it will be caught below
+        @bindir@/ssl-cert/ca_rehash > /dev/null 2>&1
+
+        ## check certificate 
+        @bindir@/ssl-cert/check-cert.sh \
+            --name ${SIPXCHANGE_DOMAIN_NAME} --name ${MY_FULL_HOSTNAME} \
+            --fail 5 @SIPX_CONFDIR@/ssl/ssl.crt \
+            >> ${steperrfile} 2>&1
+        ssl_status=$?
+    fi
+    finish_check $ssl_status
+
+    initialize_databases
+
+    ## Regenerate httpd configuration files from their .in's.
+    @bindir@/httpd-sipxchange-config.sh
+
+    ## check for .rpmnew files in the configuration directories
+    start_check "rpm configuration file updates"
+    check_rpmnew >> ${steperrfile} 2>&1
+    finish_check $?
+    
+    ## check that SELinux is not enforcing
+    if [ "@SELINUX_GETENFORCE@" != "NOT_SUPPORTED" ]
+    then
+        start_check "selinux"
+        SELinuxStatus=`@SELINUX_GETENFORCE@ 2> /dev/null`
+        case $SELinuxStatus in
+            Permissive|Disabled)
+                SELinuxOk=0 # pass
+                ;;
+            *)
+                echo " selinux status is '${SELinuxStatus}'"                  >> ${steperrfile}
+                echo "    It must be 'Permissive' or 'Disabled' for sipxpbx;" >> ${steperrfile}
+                echo "    this may cause apache to fail."                     >> ${steperrfile}
+                echo "    Edit /etc/selinux/config and restart your system."  >> ${steperrfile}
+                SELinuxOk=1 # fail
+                ;;
+        esac
+        finish_check ${SELinuxOk}
+    fi
+
+    ## check apache configuration files
+    start_check "apache"
+    @APACHE2_HTTPD@ -t -f @SIPX_CONFDIR@/httpd.conf  >> ${steperrfile} 2>&1 
+    finish_check $? 
+
+    ## Verify that the hostname for this machine a fully qualified
+    start_check "hostname"
+    @SIPX_BINDIR@/check-fqdn >> ${steperrfile} 2>&1 
+    finish_check $?
+
+    ## Check to see that hosts file does not have extra names on localhost address
+    start_check "/etc/hosts file"
+    localhostStatus=0
+    badNames=/tmp/badnames.$$
+    cat /dev/null > ${badNames}
+    sed 's/#.*//' /etc/hosts \
+    | awk '$1 == "127.0.0.1" {for (n = 2; n <= NF; n++) print $n;}' \
+    | while read name ; \
+    do
+        case ${name} in
+            localhost)
+                ;;
+            localhost.localdomain)
+                ;;
+            *)
+                echo "      ${name}" >> ${badNames}
+                ;;
+        esac
+    done
+    if [ -s ${badNames} ]
+    then
+        cat <<EOF >> ${steperrfile}
+The 127.0.0.1 address should map to only the names 
+   'localhost.localdomain' and 'localhost'.
+
+   Any other name for that address may cause routing or authentication errors.
+
+   Remove the following names from the 127.0.0.1 line in /etc/hosts:
+EOF
+        cat ${badNames} >> ${steperrfile}
+        localhostStatus=1
+    fi
+    rm -f ${badNames}
+    finish_check ${localhostStatus}
+
+    ## Check for orphaned sipX processes
+    start_check "for orphaned sipX processes"
+    psOutput=/tmp/psOutput.$$
+    # Use Sys V arguments for ps, as they seem to be more widely implemented
+    # than the BSD arguments.
+    # Remember to ignore the process running this script.
+    # Also ignore the stunnel process, which starts at boot time rather
+    # than sipX start time.
+    # Save the whole output from ps so we can retrieve the header.
+    # Use a custom format to force the command arguments to print.
+    # This allows us to detect the Java process running the Config Server.
+    ps -wU @SIPXPBXUSER@ -o pid,tname,stat,bsdtime,args >${psOutput}.1
+    # Find the processes whose command name starts with "sip" or "watchdog".
+    grep <${psOutput}.1 -E ' sip| watchdog' |
+    grep -v "^ *$$ " >${psOutput}.2
+    # Add the Java processes whose arguments mention "/etc/sipxpbx", which
+    # should discover any sipXconfig.
+    PROCS="$( ps -wwU @SIPXPBXUSER@ -o pid,tname,stat,bsdtime,comm,args |
+              grep -E ' java' |
+	      grep /etc/sipxpbx |
+	      awk '{ print $1 }' )"
+    # "ps -p $PROCS" will error if $PROCS is empty.
+    [ -n "$PROCS" ] &&
+	ps -wp $PROCS -o pid,tname,stat,bsdtime,comm |
+	tail -n+2 >>${psOutput}.2
+    # Test if we've seen any suspicious processes.
+    [ `wc -l <${psOutput}.2` = 0 ] ; psOutputOk=$?
+    if [ ${psOutputOk} = 1 ]
+    then
+        cat <<EOF >>${steperrfile}
+There are processes owned by user '@SIPXPBXUSER@' whose names start with
+   'sip' or 'watchdog', or appear to be java executing sipXconfig.
+   They may be orphaned processes from a previous start of the sipX system.
+
+EOF
+        ( head -1 ${psOutput}.1 ; cat ${psOutput}.2 ) |
+        sed -e 's/^/   /' >>${steperrfile}
+    fi
+    rm -f ${psOutput}.1 ${psOutput}.2
+    finish_check ${psOutputOk}
+
+    ## Check that /tmp has the correct permissions.
+    start_check "/tmp directory"
+    if [[ "`ls -ld /tmp 2>/dev/null`" =~ drwxrwxrw[xt] ]]
+    then
+	status=0
+    else
+	echo 'Incorrect permissions on /tmp:' >> ${steperrfile}
+	ls -ld /tmp >> ${steperrfile} 2>&1 
+	status=1
+    fi
+    finish_check $status
+
+    # Iterate through the processes and let each shell script do its own checks 
+    for process in ${sipx_processes[@]}
+    do
+        start_check "$process"
+        configtest $process >> ${steperrfile} 2>&1
+        finish_check $?
+    done
+
+    testdate=`date -u +%Y-%m-%dT%H:%M:%S`
+    if [ ${STATUS} -ne 0 ]
+    then
+       (echo ""; echo "sipXpbx configuration problems found:"; echo""; cat ${errfile} ) \
+           | logger -s -t sipXpbx -p daemon.err 
+       echo "${testdate} sipXpbx configuration problems found:" >> @SIPX_LOGDIR@/configtest.log
+       cat ${errfile}                                           >> @SIPX_LOGDIR@/configtest.log
+    else
+        echo "${testdate} configtest passed"  >> @SIPX_LOGDIR@/configtest.log
+    fi
+    rm -f ${errfile} # clean up temporary results file
+
+    return $STATUS
+}
+
+# High-level stop function.
+# Stops the watchdog process (running as @SIPXPBXUSER@), and the
+# sipX services
+do_stop() {
+
+   echo -n "Stopping apache: "
+   @APACHE2_HTTPD@ -k stop -f @SIPX_CONFDIR@/httpd.conf
+   echo
+
+   echo "Stopping sipXpbx: "
+
+   stop_sipx
+
+   # The following line is so that the GUI
+   # detects a successful shutdown properly
+   true
+}
+
+# High-level start function.
+# Starts the watchdog process (running as @SIPXPBXUSER@), which starts
+# the sipX services
+do_start() {
+
+        ### Clean up various temporary files and locks.
+
+        # Remove the semaphores/memory segments associated with the imdb files
+        @bindir@/ipcclean.pl --remove @SIPX_TMPDIR@/imdb.*
+
+        # Clean up IMDB and all its dependent files.
+        rm -f @SIPX_TMPDIR@/imdb.*
+
+        # Remove the watchdog's temporary files.
+        rm -f @SIPX_TMPDIR@/processAlias.dat @SIPX_TMPDIR@/locked.lck
+                
+        ## Check configuration
+        do_check || echo "Attempting to start despite configuration problems"
+
+        ### Start the programs.
+
+        echo ""
+        echo "Starting sipXpbx: "
+
+        # Ensure that sipXvxml is owned by root and
+        # that the UID permission bit is set.
+	if test -e @bindir@/sipXvxml
+        then
+            if [ "$(ls -l @bindir@/sipXvxml | tr -s ' ' | cut -f3 -d' ')" != "root" ]
+            then
+                chown root @bindir@/sipXvxml
+            fi
+            if test ! -x @bindir@/sipXvxml -o ! -u @bindir@/sipXvxml
+            then
+                chmod 4755 @bindir@/sipXvxml
+            fi
+        fi
+
+        # Start up the watchdog
+        # Start the watchdog with SIPX_LOGDIR as the working directory,
+        # so that any core files it produces will be put there.
+        cd @SIPX_LOGDIR@ 
+        start watchdog 
+
+        # Wait for keepalive to prime the IMDB, as the CGIs need them
+        echo -n " Waiting for keepalive to start: "
+        for seconds in `seq 20 -1 0`
+        do
+            test -e @SIPX_RUNDIR@/keepalive.pid && break
+            [ $seconds == 0 ] && break
+            echo -n "$seconds "
+            sleep 1
+        done
+        echo 
+        [ $seconds != 0 ] && echo_success || echo_failure
+        echo
+        
+        sleep 1
+        echo -n "Starting httpd: "
+        ${HTTP_DAEMON_START} -k start -f @SIPX_CONFDIR@/httpd.conf -DSSL \
+            && echo_success || echo_failure
+        echo
+}
+
+## display the status of a process
+status() { # process-name
+   proc_name=$1
+
+   echo -n "Checking $proc_name: "
+   if [ ! -r @SIPX_RUNDIR@/$proc_name.pid ]
+   then
+      echo "[Not Running] "
+   else
+       PID=`cat @SIPX_RUNDIR@/$proc_name.pid 2> /dev/null`
+
+       if [ -e /proc/$PID ]
+       then
+          echo_success; echo ''
+       else
+          echo_failure; echo ''
+       fi
+   fi
+}
+
+do_status() {
+
+    # Iterate through the list of processes, display the status of each one
+    for process in ${sipx_processes[@]}
+    do
+        status $process
+    done
+}
+
+export PATH=$PATH:@bindir@
+
+# See how we were called.
+case "$1" in
+  start)
+        ### Verify that the sipX services are not already running.
+        if [ -e @SIPX_RUNDIR@/watchdog.pid ]
+        then
+            echo "   Found @SIPX_RUNDIR@/watchdog.pid - checking for running watchdog process"
+            runningdog=`cat @SIPX_RUNDIR@/watchdog.pid 2>/dev/null`
+            if [ -n "$runningdog" -a -e /proc/$runningdog ]
+            then
+                echo -n " The sipX watchdog may already be running. Try stop or restart."
+                echo_failure
+                echo
+            else
+                # stale pid file found? - do stop just in case
+                echo " watchdog not found - running restart to clean locks."
+                do_stop
+                do_start
+            fi
+        else
+            do_start
+        fi
+        ;;
+  stop)
+        do_stop
+        ;;
+  status)
+        do_status
+        ;;
+  configtest)
+        do_check
+        ;;
+  restart)
+        do_stop
+        do_start
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|status|configtest|restart}"
+        exit 1
+esac
+
+exit $?

@@ -1,0 +1,82 @@
+#!/bin/bash
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
+
+CONFIG_FILES="\
+  @SIPX_CONFDIR@/proxy-config \
+  @SIPX_CONFDIR@/forwardingrules.xml \
+  "
+
+# If the "config.defs" file exists and the <name>.in file exists for a
+# configuration file, then run the config preprocessor to generate the
+# fully resolved configuration file.
+if [ -f "$CONFIG_DEFS" ]
+then
+  for i in $CONFIG_FILES ; do
+    if [ -f "${i}.in" ]
+    then
+       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
+    fi
+  done
+fi
+
+case ${Action} in
+   RUN)
+     echo $$ > @SIPX_RUNDIR@/sipproxy.pid
+     exec @bindir@/sipproxy $Args
+     ;;
+
+   CONFIGTEST)
+     # check validity of xml routing rules
+     @bindir@/sipx-validate-xml @SIPX_CONFDIR@/forwardingrules.xml
+     Status=$?
+
+     myDomain=`. ${CONFIG_DEFS}; echo ${SIPXCHANGE_DOMAIN_NAME} | tr A-Z a-z`
+     status=$? 
+     Status=$((${Status}+${status}))
+
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/sipproxy.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+         echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+         Status=1
+     fi
+
+     myIp=`@SIPX_BINDIR@/get_def_addr`
+     if ! sip_resolves_to ${myDomain} ${myIp}
+     then
+         echo "    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to my IP address: ${myIp}" 1>&2
+         echo "    See the installation guide on setting the DNS SRV records and domain names" 1>&2
+         Status=1
+     fi
+     ;;
+esac
+
+exit $Status
+

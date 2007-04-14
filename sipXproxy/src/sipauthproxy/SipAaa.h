@@ -1,0 +1,155 @@
+// 
+// 
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Contributors retain copyright to elements licensed under a Contributor Agreement.
+// Licensed to the User under the LGPL license.
+// 
+// $$
+//////////////////////////////////////////////////////////////////////////////
+
+#ifndef _SipAaa_h_
+#define _SipAaa_h_
+
+// SYSTEM INCLUDES
+
+
+// APPLICATION INCLUDES
+#include <os/OsServerTask.h>
+#include <net/SipNonceDb.h>
+#include <utl/PluginHooks.h>
+#include "AuthPlugin.h"
+
+// DEFINES
+#define CONFIG_LOG_FILE       "sipauthproxy.log"
+#define CONFIG_LOG_DIR        SIPX_LOGDIR
+#define CONFIG_ETC_DIR        SIPX_CONFDIR
+#define CONFIG_SETTINGS_FILE  "authproxy-config"
+
+// Configuration names pulled from config-file
+#define CONFIG_SETTING_LOG_LEVEL      "SIP_AUTHPROXY_LOG_LEVEL"
+#define CONFIG_SETTING_LOG_CONSOLE    "SIP_AUTHPROXY_LOG_CONSOLE"
+#define CONFIG_SETTING_LOG_DIR        "SIP_AUTHPROXY_LOG_DIR"
+#define LOG_FACILITY                  FAC_SIP
+
+// MACROS
+// EXTERNAL FUNCTIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
+// STRUCTS
+// TYPEDEFS
+// FORWARD DECLARATIONS
+class SipUserAgent;
+class OsConfigDb;
+class SipMessage;
+class RouteState;
+
+/// SipAaa implements the main message handling for the authorization proxy. 
+/**
+ * The SipUserAgent sends a SipMessageEvent to the OsTask queue for this object;
+ * for each such message:
+ *
+ * -# Extract the SipMessage from the OsMsg passed by the SipUserAgent and call
+ *    the proxyMessage method to process it
+ *  - proxyMessage does:
+ *    -# Use SipMessage::normalizeProxyRoutes to get the route set into normal form,
+ *       keeping a copy of any removed Route headers.
+ *    -# Enforce Proxy-Require
+ *    -# Check for and validate any user authentication in the message for this domain.
+ *    -# Extract RouteState information (carried in Record-Route and Route headers)
+ *       from the message.
+ *    -# Invoke AuthPlugin::authorizeAndModify on the message for each configured AuthPlugin,
+ *       stopping if any returns AuthPlugin::UNAUTHORIZED
+ *       - An AuthPlugin may modify the message and/or the RouteState
+ *    -# If all AuthPlugin objects return AuthPlugin::ALLOW_REQUEST, then proxyMessage
+ *       returns true; if not, it sends a response before returning false:
+ *       - '403 Forbidden' if there was valid user authentication in the message.
+ *         (in this case, the reasonPhrase provided by AuthPlugin::authorizeAndModify
+ *         is used if it is not null).
+ *       - '407 Proxy Authentication Required' if there was no valid user authentication
+ *         in the message.
+ * -# If proxyMessage returned true, handleMessage passes it back to the SipUserAgent
+ *    to be sent.
+ *
+ * Most of the actual decision making is delegated to the AuthPlugin classes; see the
+ * AuthPlugin abstract base class for the interface and rules of operation.  This allows
+ * modular extensions and changes to the authproxy operation without changing the basic
+ * proxy behavior.
+ *
+ * @todo
+ * XPR-183 - Check for loops
+ */
+class SipAaa : public OsServerTask
+{
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+  public:
+
+   /// Default constructor
+   SipAaa(SipUserAgent& sipUserAgent,
+          OsConfigDb&   configDb
+          );
+
+   virtual ~SipAaa();
+   //:Destructor
+
+   virtual UtlBoolean handleMessage(OsMsg& rMsg);
+
+   /// Modify the message as needed to be proxied
+   bool proxyMessage(SipMessage& sipRequest);
+   ///< @returns true if message should be sent, false if not
+
+   /// @returns true iff the domain of url is a valid form of the domain name for this proxy.
+   bool isLocalDomain(const Url& url ///< a url to be tested
+                      ) const;
+   
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+  protected:
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+  private:
+   friend class SipAaaTest;
+
+   /// Extract configuration parameters from the configuration file.
+   void readConfig(OsConfigDb& configDb,  /// database to read for parameters
+                   const Url&  defaultUri /// to be used for default realm and route
+                   );
+
+   /// Find the authenticated identity for a request (if any).
+   bool isAuthenticated(const SipMessage& sipRequest, ///< message to be checked for authentication
+                        UtlString& authUser           ///< returned authenticated identity uri
+                        );
+   /**<
+    * Check the credentials in sipRequest for valid credentials for a
+    * user in mRealm.
+    * @returns true iff valid authentication is found (and sets authUser).
+    */
+   
+   /// Create an authentication challenge.
+   void authenticationChallenge(const SipMessage& sipRequest,///< message to be challenged. 
+                                SipMessage& challenge        ///< challenge response.
+                                );
+   
+
+   SipUserAgent* mpSipUserAgent;         ///< SIP stack interface
+   bool          mAuthenticationEnabled; ///< based on SIP_AUTHPROXY_AUTHENTICATE_ALGORITHM
+   UtlString     mRealm;                 ///< realm for challenges - common to replicatants
+   SipNonceDb    mNonceDb;               ///< generator for nonce values
+   long          mNonceExpiration;       ///< nonce lifetime in seconds
+   UtlString     mDomainName;            ///< for determining authority for addresses
+   UtlString     mRouteName;             ///< for writing Record-Route headers
+
+   PluginHooks   mAuthPlugins;           ///< decision making modules from configuration 
+
+   // @cond INCLUDENOCOPY
+
+   // There is no copy constructor.
+   SipAaa(const SipAaa& rSipAaa);
+
+   // There is no assignment operator.
+   SipAaa& operator=(const SipAaa& rhs);
+
+   // @endcond     
+};
+
+/* ============================ INLINE METHODS ============================ */
+
+#endif  // _SipAaa_h_

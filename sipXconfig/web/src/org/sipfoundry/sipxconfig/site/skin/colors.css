@@ -1,0 +1,248 @@
+body
+{
+	background: #FFFFCC;
+}
+
+a:link
+{
+	color: #000099;
+}
+
+a:visited
+{
+	color: #660099;
+}
+
+a:hover,a:active
+{
+	color: #006699;
+}
+
+h1
+{
+	color: #003333;
+}
+
+h2
+{
+	color: #003333;
+}
+
+h3
+{
+	color: #003333;
+}
+
+
+legend
+{
+	color: #000;
+}
+
+.hack
+{
+	color: #f60;
+}
+
+div.tab.active a:link,
+div.tab.active a:hover,
+div.tab.active a:visited
+{
+	color: #000;
+        font-weight: 700;
+        text-decoration: none;
+}
+
+div.tab 
+{
+	background-color: #ffc;
+}
+
+div.tab.active 
+{
+	background-color: #fff;
+}
+
+
+#banner
+{
+	color: #fff;
+	border-bottom-color: #669999;
+	background: url(/sipxconfig/skin/logo.png) no-repeat left #669999;
+}
+
+#banner-links a
+{
+	color: #fff;
+}
+
+#banner-links a:hover,
+#banner-links a:active
+{
+	color: #003333;
+}
+
+#navigation
+{
+	background: #669999;
+}
+
+#navigation li
+{
+	background: #669999;
+}
+
+#navigation a
+{
+	color: #fff;
+	background: #669999;
+	border-color: #FFFFCC;
+}
+
+#navigation a:hover,
+#navigation a.over
+{
+	color: #003333;
+	background: #999999;
+}
+
+.highlight
+{
+	border-color: #699;
+}
+
+#footer
+{
+	color: grey;
+	border-color: grey;
+	border-top-width: thin;
+	border-top-style: solid;	
+}
+
+p.message
+{
+	color: red;
+}
+
+.settingDescription
+{
+	color: #555;
+}
+
+table.component
+{
+	border-color: #ccc;
+	background: #fff;
+}
+
+table.component thead
+{
+	color: #fff;
+	background: #3d3d3d;
+}
+
+table.component thead tr th
+{
+	border-color: #FFFFCC;
+}
+
+table.component th a
+{
+	color: #fff;
+}
+
+table.component tfoot tr td
+{
+	background: #FFFFCC;
+	border-color: #FFFFCC;
+}
+
+tr.even, tr.even-unheard
+{
+	background: #eee;
+}
+
+tr.odd, tr.odd-unheard
+{
+	background: #fff;
+}
+
+tr.odd-unheard, tr.even-unheard
+{
+        font-weight: bold;
+}
+
+div.help
+{
+	background: #fff;
+	border-color: #ccc;
+}
+
+form.with-sections fieldset
+{
+	background: #FFFFCC;
+	border-color: #FFFFCC;
+}
+
+form.with-sections legend
+{
+	background: #F0E68C;
+}
+
+.cloud
+{
+}
+
+.user-error
+{
+	color: #CC3333;
+}
+
+.user-warning
+{
+	color: #BB44FF;
+}
+
+.user-success
+{
+	color: #3399FF;
+}
+
+.not-available
+{
+        border-style:dashed; 
+        border-width:1px; 
+        border-color:#777777;
+}
+
+.enabled
+{
+	color: #007733;
+}
+
+.disabled
+{
+	color: #0011cc;
+	font-style: italic;
+}
+
+#comments
+{
+	color: #000033;
+}
+
+div.auto_complete {
+  background: #fff;
+}
+
+div.auto_complete ul {
+  border:1px solid #888;
+}
+
+div.auto_complete ul li.selected {
+  background-color: #ffb;
+}
+
+div.auto_complete ul strong.highlight {
+  color: #800;
+}

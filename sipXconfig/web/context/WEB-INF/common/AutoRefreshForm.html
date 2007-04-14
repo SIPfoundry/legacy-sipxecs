@@ -1,0 +1,30 @@
+<span jwcid="$content$">
+  <span jwcid="renderRefreshScript">
+    <span jwcid="refreshScript"/>
+  </span>
+  <ul class="component-links">
+    <li>
+      <form jwcid="intervalForm">
+        <span jwcid="intervalFormSubmitEvent"/>
+        <span jwcid="auto"/>
+      </form>
+    </li>
+    <li>
+      <span key="refreshEvery">Refresh every</span>&nbsp;
+      <div jwcid="interval" maxlength="4" size="4">30</div>&nbsp;
+      <span key="seconds">seconds</span>
+    </li>
+  </ul>
+  <span jwcid="@QuickHelp" value="message:refreshHelp"/>
+  <form jwcid="refreshForm">
+    <div jwcid="@Any" element="div" id="refreshedContent">
+      <div jwcid="@RenderBody"/>
+    </div>
+    <ul class="component-submit">
+      <li jwcid="@RenderBlock" block="ognl:actionBlock"/>
+      <li>
+        <input jwcid="refresh" type="submit"/>
+      </li>
+    </ul>
+  </form>
+</span>

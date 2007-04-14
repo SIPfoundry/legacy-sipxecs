@@ -1,0 +1,43 @@
+<div jwcid="@Border" restricted="false">
+  <span jwcid="@If" condition="ognl:userSession.admin">
+    <span jwcid="userNavigation"/>
+  </span>
+  <h2 jwcid="@Else" element="h2">
+    <span key="title">Call Forwarding</span>
+  </h2>
+  <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
+    <span jwcid="@QuickHelp" value="message:quick.help"/>
+      <span jwcid="errors"></span>
+      <span jwcid="@If" condition="prop:renderForwardWarning">
+        <span class="user-warning" jwcid="@Insert" value="prop:forwardWarning"/>
+      </span>
+    <form jwcid="form">
+      <ul class="component-links">
+        <li><a jwcid="addRingLink">
+          <span key="add">Add Number</span></a>
+        </li>
+      </ul>
+      <fieldset>
+        <table>
+          <tbody>
+            <tr>
+              <td colspan="4">
+                <span jwcid="firstCall">Your extension will ring first.</span>
+              </td>
+            </tr>
+            <!-- iterate here -->
+            <tr jwcid="rings">
+              <span jwcid="ringEditor"></span>
+            </tr>
+            <tr jwcid="renderVoicemail" element="tr">
+              <td colspan="4">
+                <span key="msg.voicemail">If no-one answers your call will be forwarded to Voicemail.</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </fieldset>
+      <ul jwcid="formActions"/>
+    </form>
+  </div>
+</div>

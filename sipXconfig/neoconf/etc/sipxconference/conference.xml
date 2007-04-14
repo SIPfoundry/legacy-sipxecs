@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="bridge-conference">
+    <setting name="organizer-code">
+      <label>Organizer code</label>
+      <type>
+        <string required="yes">
+          <pattern>[\d#*]+</pattern>
+        </string>
+      </type>
+      <value></value>
+      <description>DTMF digits for organizer login.</description>
+    </setting>
+    <setting name="participant-code">
+      <label>Participant code</label>
+      <type>
+        <string>
+          <pattern>[\d#*]+</pattern>
+        </string>
+      </type>
+      <value></value>
+      <description>DTMF digits for participant login. Can be empty.</description>
+    </setting>
+    <setting name="organizer_admit">
+      <label>Require organizer</label>
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+      <description>If set the conference will admit participants only if there is an organizer in the
+        conference</description>
+    </setting>
+    
+    <setting name="BOSTON_BRIDGE_CONFERENCE_STATUS" hidden="yes">
+      <type>
+        <enum>
+          <option>
+            <value>CONFIGURE</value>
+          </option>
+          <option>
+            <value>AVAILABLE</value>
+          </option>
+        </enum>
+      </type>
+      <value>CONFIGURE</value>
+      <description> Controls the status of a conference; this may have the following values: CONFIGURE -
+        Instantiates the name of the conference, but does start it - only configuration operations are allowed.
+        In this state, the conference does not originate or accept any SIP signaling or RTP.
+        AVAILABLE - Set when the conference has been configured and may accept calls (subject to the access
+        controls configured for the conference). </description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_CONFERENCE.AOR" hidden="yes">
+      <value/>
+      <description>The SIP URI (may include the full name-addr value) this conference should register and use
+        as its AOR. The default is the conference 'name' token as the user part with the
+        BOSTON_BRIDGE_SIP_DOMAIN host part.</description>      
+    </setting>
+    <setting name="BOSTON_BRIDGE_CONFERENCE.REGISTER">
+      <label>Register</label>
+      <type>
+        <boolean>
+          <true>
+            <value>ENABLED</value>
+          </true>
+          <false>
+            <value>DISABLED</value>
+          </false>
+        </boolean>
+      </type>
+      <value>DISABLED</value>
+      <description>If set conference will attempt to register its AOR</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_CONFERENCE.REGISTER_USERNAME" advanced="yes">
+      <label>Registration name</label>
+      <value></value>
+      <description>Registration name used when registration is enabled. If empty conference name will be used.</description>      
+    </setting>
+    <setting name="BOSTON_BRIDGE_CONFERENCE.REGISTER_PASSWORD" advanced="yes">
+      <label>Registration password</label>
+      <type>
+        <string password="yes"/>
+      </type>
+      <value></value>
+      <description>Registration password used when registration is enabled. If empty empty password will be used.</description>
+    </setting>    
+    <setting name="BOSTON_BRIDGE_CONFERENCE.REGISTER_REALM" advanced="yes">
+      <label>Registration realm</label>
+      <value></value>
+      <description>Security realm to be used when conference is trying to register. Defaults to whatever realm
+        is sent in the challenge.</description>
+    </setting>    
+    <setting name="BOSTON_BRIDGE_CONFERENCE.ACCESS">
+      <label>Access control</label>
+      <type>
+        <enum>
+          <option>
+            <label>Open</label>
+            <value>OPEN</value>
+          </option>
+          <option>
+            <label>Use access codes</label>
+            <value>REMOTE_ADMIT</value>
+          </option>
+        </enum>
+      </type>
+      <value>OPEN</value>
+      <description>Selects the access control mechanism for this conference. If set to "Open" any call to the
+        AOR or contact address for the conference is accepted and immediatly joins the conference. Otherwise
+        participants are required to enter access code, and optionally wait for organizer to start a
+        conference. </description>      
+    </setting>
+    <setting name="BOSTON_BRIDGE_CONFERENCE.MAX_LEGS">
+      <label>Maximum legs</label>
+      <type>
+        <integer required="yes"/>
+      </type>
+      <value>0</value>
+      <description>The maximum number of call legs to be allowed by this bridge. 0 means
+        unlimited.</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET" hidden="yes">      
+			<description>Automatically generated value that is used by remote admittance control.</description>      
+    </setting>    
+  </group>  
+</model>

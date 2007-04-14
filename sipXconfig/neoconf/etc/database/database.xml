@@ -1,0 +1,576 @@
+<!--
+  - Manages database creation, dropping and upgrading.  The file is processed
+  - by ANT and thus the format complies with ANT project files.
+  -
+  - How to add a database patch for a new feature
+  -
+  -   1. add sql commands to a file called xxx.sql in this directory, where xxx is any
+  -      meaningful label you choose to represent your new feature
+  -
+  -   2. define a ant target xxx by copying a patch in the section for the database version
+  -      defined at the top of schema.sql
+  -
+  -      Example:
+
+  <target name="xxx" unless="xxx">
+    <db-patch patch="xxx"/>
+  </target>
+
+  -
+  -   3. add a reference to your patch in the ant target for the last version
+  - 
+  -      Example:
+  -
+  <target name="versionN" ... >
+...
+   <antcall target="xxx"/>  
+
+
+  -
+  - How to run some code to initialize tables beyond simple SQL.  
+  -  1. Follow the same instructions for adding a patch and add this to your SQL
+  -
+  -       insert into initialization_task (name) values ('xxx');
+  -
+  -    where 'xxx' is any meaningful lable you choose to represent your new operation
+  - 
+  -   2. The follow instructions in 
+  -
+  -        sipXconfig/neoconf/src/org/sipfoundry/sipXconfig/common/InitializationTask.java
+  -
+  -     on how to catch the initialization task event
+  -
+  -
+  - How to write a database patch that will reset itself in case you anticipate more changes to the
+  - schema.  Otherwise, you end up writing patches to the patches, and this can be messy.  The only
+  - disadvantage to this is that each time the system starts up, your data will be reset, but for 
+  - brand new features in development, this is usually accepatable
+  -
+  - 1. Create sql patch file as you normally would and add a reference to it in the versionN section
+  -
+  - 2. By altering the dependency you will be telling ant to always reset and always apply your patch
+
+ 
+  <target name="reset-xxx" if="xxx">
+     <sipx-sql>
+      drop table aaa_bbb;
+      drop sequence aaa_bbb_seq;
+      delete from patch where name = 'xxx
+    </sipx-sql>
+  </target>
+
+  <target name="xxx" depends="reset-xxx">
+    <db-patch patch="xxx"/>
+  </target>
+
+  -
+  -  TO TEST AND USE YOUR PATCH
+  -
+  -    cd sipXconfig/neoconf
+  -    ant reset-db
+  -
+  -
+  -->
+<project name="database" basedir=".">
+  <property name="sipxconfig.db.name" value="SIPXCONFIG"/>
+  <property name="sipxconfig.db.user" value="postgres"/>
+  <property name="sipxconfig.db.password" value=""/>
+  <property name="sql.dir" location="${basedir}"/>
+  <property name="sipxpbx.conf.dir" location="${basedir}/.."/>  
+  <property name="sipxconfig.db.url" value="jdbc:postgresql://localhost/${sipxconfig.db.name}"/>
+  <property name="dblink.sql" location="/usr/share/pgsql/contrib/dblink.sql"/>
+  <property name="log.dir" value="${basedir}"/>
+  <property name="migration.log" value="${log.dir}/sipxconfig-2.8-db-migration.log"/>
+  <property name="tmp.dir" value="${basedir}"/>
+  
+  <target name="patches">
+      <!-- ANT BUG: sql task has issues when output=absolute file path -->
+      <sipx-sql print="yes" output="${tmp.dir}/patches.properties" showheaders="no">
+        select name || '=true' from patch;
+        select 'version' || version || '=true' from version_history;
+      </sipx-sql>    
+      <loadproperties srcfile="${tmp.dir}/patches.properties"/>
+      <delete file="${tmp.dir}/patches.properties"/>  	  
+  </target>
+	
+  <!-- sets flag if any initialization needs to be done -->
+  <target name="tasks">
+    <sipx-sql print="yes" output="${tmp.dir}/tasks.properties" showheaders="no">      
+      select 'initialize=true' from initialization_task having count(*) > 0;
+    </sipx-sql>    
+    <loadproperties srcfile="${tmp.dir}/tasks.properties"/>
+    <delete file="${tmp.dir}/tasks.properties"/>
+  </target>
+	
+  <target name="drop" depends="drop-index" description="drops database!">
+    <exec executable="dropdb" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} ${sipxconfig.db.name}"/>
+    </exec>    
+  </target>
+
+  <!-- creates database void of schema -->
+  <target name="createdb">
+    <sleep seconds="3"/><!-- sporadic template1 in use, allow dropdb to disconnect... -->
+    <exec executable="createdb" failonerror="true">
+      <arg line="-q -U ${sipxconfig.db.user} --encoding=UNICODE ${sipxconfig.db.name}"/>
+    </exec>
+  </target>
+  
+  <!-- Resets database for unit testing -->
+  <target name="unittest-reset" depends="drop,create,upgrade-no-init"/>
+  
+  <!-- 
+    - NOTE: Creating a database and apply schema. Does not run any patches or initialize task.
+    -->
+  <target name="create" depends="createdb,schema"
+    description="create database with schema"/>
+
+  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5"/>
+	
+  <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks"
+    depends="upgrade-no-init,initialize"/>
+    	
+  <target name="initialize" depends="tasks" if="initialize">
+    <sipx-task output="/dev/null" beanId="initializeSystemTask">
+      <arg value="noexit"/>
+    </sipx-task>
+  </target>
+  
+  <!--
+    - Add service to system from CLI.  
+    -  Example:
+    -    -Dservice.id=ntpService -Dservice.address=address-or-hostname
+    -->  
+  <target name="add-service" depends="upgrade">
+    <sipx-task beanId="addServiceTask">
+      <arg value="${service.name}"/>
+      <arg value="${service.id}"/>
+      <arg value="${service.address}"/>
+    </sipx-task>
+  </target>
+
+  <!--
+    - Drop lucene index. It'll get recreated when we restart the application
+    --> 
+  <target name="drop-index">
+      <delete dir="${tmp.dir}/index" failonerror="false"/>
+	</target>    
+  
+  <!-- List each dependency on a separate line below to make source control merging easier -->
+  <target name="version1" description="upgrade from version 0" unless="version2">
+    <antcall target="conference_name_uniqueness"/>
+    <antcall target="upload"/>
+    <antcall target="grandstreamV2"/>
+    <antcall target="upload_deployed"/>
+    <antcall target="attendant_schedule"/>
+    <sipx-version version="2"/>
+  </target>
+
+  <target name="version2" description="upgrade from version 1" unless="version3">
+    <antcall target="attendant_settings"/>
+    <antcall target="group-names-no-spaces"/>
+    <antcall target="attendant_defaults"/>
+    <sipx-version version="3"/>
+  </target>
+  
+  <target name="version3" description="upgrade from version 2" unless="version4">
+    <antcall target="settings-refactoring"/>
+    <antcall target="ldap"/>
+    <antcall target="supervisor"/>
+    <antcall target="intercom"/>
+    <antcall target="device-version"/>  	
+    <antcall target="long-distance-rule"/>      
+    <antcall target="gateway-prefix"/>
+    <antcall target="permission"/>    
+    <antcall target="park-orbit-settings"/>    
+    <antcall target="caller-alias"/>    
+    <antcall target="domain"/>    
+    <antcall target="caller-alias-2"/>
+    <sipx-version version="4"/>
+  </target>
+	
+  <!-- bumped up ver only to keep 3.6 from running incompat. 3.7 db versions -->
+  <target name="version4" description="upgrade from version 3" unless="version5">
+    <sipx-version version="5"/>
+  </target>	
+
+  <target name="version5" description="upgrade from version 4" unless="version6">
+    <antcall target="afterhour"/>
+    <antcall target="unmanaged-to-acme"/>
+    <antcall target="model-refactoring"/>
+    <antcall target="phonebook"/>
+    <antcall target="clear-uploads"/>
+    <antcall target="speeddial"/>
+    <antcall target="acd"/>
+    <antcall target="acd_agents"/>
+    <antcall target="acd_ext"/>
+    <antcall target="service"/>
+    <antcall target="enable-schedule"/>
+    <antcall target="forwardrulemode"/>  
+    <!-- When freezing schema uncomment this line -->
+    <!-- sipx-version version="6" -->
+  </target>	
+	
+  <target name="enable-schedule" unless="enable-schedule">
+    <db-patch patch="enable-schedule"/>
+  </target>
+
+  <!-- BEGIN: only temporary user/developer convenience until 3.8 ships -->
+  <target name="reset-old-phonebook">
+    <sipx-sql>
+      drop table phonebook_member;
+      drop table phonebook;
+      drop sequence phonebook_seq;
+      delete from patch where name = 'phonebook'
+    </sipx-sql>
+  </target>
+  <target name="reset-speeddial">
+    <sipx-sql>
+      drop table speeddial_button;
+      drop table speeddial;
+      drop sequence speeddial_seq;
+      delete from patch where name = 'speeddial'
+    </sipx-sql>    
+  </target>
+  <target name="reset-service">
+    <sipx-sql>
+      drop table service;
+      drop sequence service_seq;
+      delete from patch where name = 'service'
+    </sipx-sql>    
+  </target>
+  <!-- END: only temporary user/developer convenience until 3.8 ships -->
+
+  <target name="speeddial" unless="speeddial">
+    <db-patch patch="speeddial"/>
+  </target>
+  
+  <target name="service" unless="service">
+    <db-patch patch="service"/>
+  </target>
+
+  <target name="clear-uploads" unless="clear-uploads">
+    <db-patch patch="clear-uploads"/>    
+  </target>
+  
+  <target name="phonebook" unless="phonebook">
+    <db-patch patch="phonebook"/>
+  </target>
+
+  <target name="model-refactoring" unless="model-refactoring">
+    <db-patch patch="model-refactoring"/>
+  </target>
+
+  <target name="unmanaged-to-acme" unless="unmanaged-to-acme">
+    <sipx-sql>
+      update phone set bean_id = 'acmePhone' where bean_id = 'unmanagedPhone';
+    </sipx-sql>
+    <mark-patch-applied patch="unmanaged-to-acme"/>
+  </target>
+
+  <target name="afterhour" unless="afterhour">
+    <!-- add default afterhour attendant -->
+    <sipx-sql>
+      insert into initialization_task (name) values ('afterhour');
+    </sipx-sql>
+    <mark-patch-applied patch="afterhour"/>
+  </target>
+	
+  <target name="domain" unless="domain">
+    <db-patch patch="domain"/>
+  </target>
+
+  <target name="supervisor" unless="supervisor">
+    <db-patch patch="supervisor"/>
+  </target>  
+  
+  <target name="intercom" unless="intercom">
+    <db-patch patch="intercom"/>
+  </target>  
+
+  <target name="settings-refactoring" unless="settings-refactoring">
+    <db-patch patch="settings-refactoring"/>
+  </target>  
+
+  <target name="ldap" unless="ldap">
+    <db-patch patch="ldap"/>
+  </target>  	
+	
+  <target name="device-version"	unless="device-version">
+    <sipx-sql>
+	    	alter table phone add column device_version_id varchar(32);
+	    	alter table gateway add column device_version_id varchar(32);
+    	    update phone set device_version_id = 'polycom1.6' where bean_id = 'polycom';
+    </sipx-sql>  	
+  	<mark-patch-applied patch="device-version"/>
+  </target>
+
+  <target name="long-distance-rule" unless="long-distance-rule">
+    <db-patch patch="long-distance-rule"/>
+  </target>
+
+  <target name="gateway-prefix" unless="gateway-prefix">
+    <sipx-sql>
+          alter table gateway add column prefix varchar(255);
+    </sipx-sql>     
+    <mark-patch-applied patch="gateway-prefix"/>
+  </target>
+  
+  <target name="permission" unless="permission">
+    <db-patch patch="permission"/>
+  </target>  
+
+  <target name="park-orbit-settings" unless="park-orbit-settings">
+    <db-patch patch="park-orbit-settings"/>
+  </target>  
+  
+  <target name="caller-alias" unless="caller-alias">
+    <db-patch patch="caller-alias"/>
+  </target>
+  
+  <target name="caller-alias-2" unless="caller-alias-2">
+    <db-patch patch="caller-alias-2"/>
+  </target>
+
+  <target name="attendant_defaults" unless="attendant_defaults">
+    <!-- remove spaces to enable things like auto-completion -->
+    <sipx-sql>
+      insert into initialization_task (name) values ('attendant_defaults');
+    </sipx-sql>
+    	<mark-patch-applied patch="attendant_defaults"/>    
+  </target>
+
+  <target name="group-names-no-spaces" unless="group-names-no-spaces">
+    <!-- remove spaces to enable things like auto-completion -->
+    <sipx-sql>
+     	update group_storage set name = replace(name, ' ', '-');
+    </sipx-sql>
+    	<mark-patch-applied patch="group-names-no-spaces"/>    
+  </target>
+
+  <target name="attendant_settings" unless="attendant_settings">
+    <db-patch patch="attendant_settings"/>
+  </target>    
+  
+  <target name="conference_name_uniqueness" unless="conference_name_uniqueness">
+    <sipx-sql>
+    	alter table meetme_conference add constraint conference_name_key unique(name);
+    </sipx-sql>
+  	<mark-patch-applied patch="conference_name_uniqueness"/>
+  </target>  
+  
+  <target name="upload" unless="upload">
+    <db-patch patch="upload"/>
+  </target>  
+
+  <target name="grandstreamV2" unless="grandstreamV2">
+    <db-patch patch="grandstreamV2"/>
+  </target>  
+
+  <target name="upload_deployed" unless="upload_deployed">
+    <db-patch patch="upload_deployed"/>
+  </target>  
+
+  <target name="attendant_schedule" unless="attendant_schedule">
+    <db-patch patch="attendant_schedule"/>
+  </target>  
+
+  <target name="schema" unless="schema">
+    <sipx-sql>
+      <transaction src="${sql.dir}/schema.sql"/>
+    </sipx-sql>
+  </target>  
+
+  <target name="migrate-2.8" depends="migrate-2.8-run,initialize" 
+        description="migrate existing 2.8 PDS database, note clears all existing 3.0 data"/>
+  
+  <target name="import-2.8" depends="import-2.8-run,migrate-2.8" 
+        description="import 2.8 PDS database from backup file, note clears all existing 3.0 data"/>
+
+  <target name="reset-superadmin" depends="upgrade"
+      description="initialize superadmin user, administation group and resets password to blank">
+    <sipx-task beanId="resetAdministrator"/>
+    <sipx-sql>
+      update users set pintoken = '' where user_name = 'superadmin';      
+    </sipx-sql>
+  </target>
+  
+  <target name="polycom-2.0" description="Migrate all polycom phones to generate 2.0 profiles">
+    <property name="polycom-from-id" value="1.6"/>
+    <property name="polycom-to-id" value="2.0"/>
+    <antcall target="migrate-polycom"/>
+  </target>
+  <target name="polycom-1.6" description="Migrate all polycom phones to generate 1.6 profiles">
+    <property name="polycom-from-id" value="2.0"/>
+    <property name="polycom-to-id" value="1.6"/>
+    <antcall target="migrate-polycom"/>
+  </target>
+  <target name="migrate-polycom">
+    <sipx-sql>
+      update phone set device_version_id = 'polycom${polycom-to-id}' where bean_id = 'polycom';
+    </sipx-sql>
+    <replace file="${sipxpbx.conf.dir}/sipxconfig.properties.in">
+      <replacefilter token="polycom.defaultVersionId=${polycom-from-id}" value="polycom.defaultVersionId=${polycom-to-id}" />
+    </replace>    
+  </target>
+
+  <target name="forwardrulemode" unless="forwardrulemode">
+    <db-patch patch="forwardrulemode"/>
+  </target>
+
+  <!-- 
+     Migration Targets Legend
+
+     migrate-2.8          - PDS to SIPXCONFIG, 2.8 release to 3.0 release
+    -->	
+
+  <!-- 
+     2.8 Migration
+     Because 2.8 database schema was entirely different than 3.0 schema, we have one giant migration script
+     written in PL/pgSQL db language and uses the 'dblink' module, a postgres contrib package to 
+     translate data.
+    -->
+  <target name="migrate-2.8-setup">
+    <exec executable="createlang" failonerror="true">
+      <arg line="-U ${sipxconfig.db.user} plpgsql ${sipxconfig.db.name}"/>
+    </exec>
+    <condition property="dblink-present">
+      <available file="${dblink.sql}"/>
+    </condition>
+    <fail unless="dblink-present">
+      Failed to find dblink SQL ${dblink.sql}.  You either need to install dblink which is part 
+      of the postgres contrib (rh: yum install postgresql-contrib) or specify your dblink file
+      by passing to this script the following parameter:
+
+        -Ddblink.sql=path to dblink.sql file
+
+    </fail>
+    <sipx-sql>
+      <transaction src="${dblink.sql}"/>
+    </sipx-sql>
+  </target>
+  <target name="migrate-2.8-run" depends="drop,create-3.0,upgrade-no-init,migrate-2.8-setup">
+    <echo>see migration log file for errors or warnings about potential data loss:</echo>
+    <echo>  ${migration.log}</echo>
+    <exec executable="psql" output="${migration.log}" failonerror="true">
+      <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql"/>
+    </exec>
+  </target>
+
+  <target name="create-3.0" depends="createdb">
+    <sipx-sql>
+      <transaction src="${sql.dir}/schema-3.0.sql"/>
+    </sipx-sql>
+  </target>  
+
+  <target name="import-2.8-run">
+    <fail unless="pds.tar.gz">Missing parameter
+
+  You must specify complete path to pds.tar.gz file.  Is one of the output 
+  files from running backup-configs.sh on a 2.8 system.
+
+ Example:
+ sipxconfig.sh -d -Dpds.tar.gz=/var/backup-configs/pds.tar.gz import-2.8
+
+    </fail>
+    <exec executable="createuser" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} --createdb --no-adduser sipxchange"/>
+    </exec>    
+    <exec executable="dropdb" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} PDS"/>
+    </exec>    
+    <sleep seconds="3"/><!-- sporadic template1 in use, allow dropdb to disconnect... -->
+    <exec executable="createdb" failonerror="true">
+      <arg line="-q -U ${sipxconfig.db.user} --encoding=UNICODE PDS"/>
+    </exec>
+    <!-- ignore error in this task, importing database can fail if going from Postgres 7 to 8 -->
+    <exec executable="/bin/sh" failonerror="false" outputproperty="eatme">
+      <arg value="-c"/>
+      <arg value="zcat ${pds.tar.gz} | pg_restore -U ${sipxconfig.db.user} -d PDS"/>
+    </exec>    
+  </target>
+	
+  <!--
+    - version1 patches
+    -->
+  <!-- 
+    - The phone uniqueness constraint was a mistake, get rid of it, 
+    - NOTE: Do not copy/paste this task to to create a new patch
+    - THIS is not a patch, rather a left-over task incase a customer has this
+    - issue.  Original schema was fixed.
+    -->
+  <target name="repair_phone_description_uniqueness">
+    <sipx-sql>
+      alter table phone drop constraint phone_description_key;
+    </sipx-sql>
+  </target>
+
+  <target name="acd" unless="acd">
+    <db-patch patch="acd"/>
+  </target>
+  <target name="acd_agents" unless="acd_agents">
+    <db-patch patch="acd_agents"/>
+  </target>
+  <target name="acd_ext" unless="acd_ext">
+    <db-patch patch="acd_ext"/>
+  </target>
+
+  <!--
+    - SUPPORT UTILITIES
+    -->
+  <!-- Run SQL on SIPXCONFIG database and update patch list if successful -->  
+  <macrodef name="db-patch">
+    <attribute name="patch"/>
+    <sequential>
+      <sipx-sql>
+        <transaction src="${sql.dir}/@{patch}.sql"/>
+      </sipx-sql>
+      <mark-patch-applied patch="@{patch}"/>    
+    </sequential>
+  </macrodef>
+      
+  <!-- patch list as successful -->  
+  <macrodef name="mark-patch-applied">
+    <attribute name="patch"/>
+    <sequential>
+    <sipx-sql>
+      insert into patch (name) values ('@{patch}');
+    </sipx-sql>  
+    <property name="@{patch}" value="true"/>
+    </sequential>
+  </macrodef>
+
+  <!-- Run SQL on SIPXCONFIG database -->  
+  <presetdef name="sipx-sql">
+    <sql driver="org.postgresql.Driver" 
+        url="${sipxconfig.db.url}" 
+        userid="${sipxconfig.db.user}" 
+        password="${sipxconfig.db.password}"
+        classpath="${jdbc-driver.jar}"/>
+  </presetdef>
+
+  <!-- declare schema version -->
+  <macrodef name="sipx-version">
+    <attribute name="version"/>
+    <sequential>
+      <sipx-sql>
+        insert into version_history (version, applied) values (@{version}, now());
+      </sipx-sql>
+    </sequential>
+  </macrodef>
+  
+  <!-- run spring beans implementing SystemTaskRunner from CLI -->
+  <macrodef name="sipx-task">
+    <attribute name="beanId"/>
+    <attribute name="output" default="/dev/stdout"/>
+    <element name="task-body" optional="yes" implicit="yes"/>
+    <sequential>
+      <java classname="org.sipfoundry.sipxconfig.common.SystemTaskRunner" output="@{output}">
+        <sysproperty key="org.apache.lucene.lockdir" value="${tmp.dir}/index"/>
+        <arg value="@{beanId}"/>
+        <task-body/>
+      </java>    
+    </sequential>
+  </macrodef>
+  
+</project>

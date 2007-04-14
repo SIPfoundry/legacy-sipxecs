@@ -1,0 +1,158 @@
+** CallScript
+
+The program CallScript executes a file of simple commands to make SIP
+calls.  Commands are lines read from standard input.
+
+Lines whose first non-whitespace character is '#' are comment are
+ignored, as are lines that are entirely whitespace.
+
+CallScript is not built by default, but the Makefiles to build it are.
+To build CallScript, first build sipXcallLib with ./configure -enable-tapi,
+then do:
+        make -C sipXcallLib/examples/CallScript/src
+
+The commands to CallScript are:
+
+* call URL
+
+Initiate a call to the specified SIP URL.  Note that this only starts
+the call, it does not wait for the call to connect.
+
+* tones STRING
+
+Emit a sequence of DTMF tones.  STRING is a string of characters
+specifying the tones (0 through 9, *, and #).  A comma (,) can be used
+to represent a 2 second pause in the sequence of DTMF tomes.  This
+command is synchronous.
+
+* file FILE
+
+Starts the asynchronous output of the contents of a WAV file named
+FILE.
+
+* pause MS
+
+MS is the decimal representation of a number of milliseconds to pause.
+
+* pause random MS
+
+Pause a random number of milliseconds between 0 and MS.
+
+* hangup
+
+Disconnect the call.
+
+If CallScript finds "${var}" in a command line, it will look for an
+argument to itself of form "var=value", and substitute "value".  (This
+variable substitution happens before the line is parsed into tokens.)
+If two arguments substitute for the same variable name, the *last*
+argument takes precedence.  This allows overriding of pre-set
+substitutions.
+
+Currently, CallScript is very stupid.  Among its restrictions are:
+
+- It can make only one call per run.
+- It does not disconnect the call automatically at the end of the run.
+- It does not listen for response from the other end of the call.
+
+** CallScriptDriver.pl
+
+A Perl script that operates many instances of CallScript.  It also
+provides them with -p and -r arguments so they do not use the same
+ports for SIP and RTP.
+
+(The file's #! line specifies Perl as "/bin/perl".  If that does not
+work on your system, you will have to specify Perl explicitly.  E.g.,
+"perl CallScriptDriver.pl ..." or
+"/usr/local/bin/perl CallScriptDriver.pl ...")
+
+Commands can be given as arguments, or read from files which are given
+as arguments.  The commands have similar syntax rules as for
+CallScript.  Variable substitutions can be given in the form
+"var=value", and must precede any command or file name that references
+them.
+
+(An argument is considered a command if it contains a space before the
+first "/".  The two cases can always be made unambiguous:  All
+commands can have whitespace after their verb, and all filenames can
+be started with either "/" or "./".  The only common case where this
+causes trouble are commands that take no arguments -- Express them
+with a trailing space, as 'noduplicates ' or 'nonrandom '.  Variable
+names may not contain whitespace or "/", which allows substitutions to
+be distinguished unambiguously.)
+
+Sending CallScriptDriver.pl HUP causes it to shut down gracefully by
+thinking the time limit has expired.  It waits for all outstanding
+jobs to terminate, then prints the run statistics.  Sending it QUIT
+causes it to shut down immediately by sending "kill -KILL" to all
+outstanding jobs, then printing the run statistics.
+
+The commands are:
+
+* jobs NNN
+
+Keep NNN copies of CallScript running at a time.  The default is 1.
+
+* time NNN
+
+After NNN seconds, stop initiating new instances of CallScript and
+then exit when the last CallScript exits.  The time can have a suffix
+of 's', 'm', 'h', or 'd' to express time in seconds, minutes, hours,
+or days.  The default is 1 day.
+
+* script NNN FFF AAA
+
+Record FFF as a control script for instances of CallScript.  Integer
+NNN is this script's relative weight for selection.  Additional
+arguments AAA to CallScript can be supplied as fourth and later tokens
+on the line.  These are usually "var=value" specifications for
+CallScript to substitute into its commands.
+
+* randomize NNN
+
+Inserts an effective "pause random NNN" before executing each job.
+Since CallScriptDriver uses sleep() to implement this, NNN should be a
+multiple of 1000 (1 second).
+
+* program NAME
+
+By default, CallScriptDriver.pl invokes "CallScript" to execute
+scripts.  (It will do a path search.)  This command changes the
+executor to NAME.  NAME must be the name of an executable file.
+
+* noduplicates
+
+By default, a single script can be run by any number of jobs at the
+same time.  If "noduplicates" is specified, a job will not be started
+running the same script as one that is already running.
+
+* nonrandom
+
+By default, when a subjob ends, it selects a new script to run at
+random, with the relative probability of each script being the weight
+specified for it.  If "nonrandom" is specified, each subjob slot will
+run only one script.  In this case, the weights of scripts are the
+number of slots that will run that script.  It is an error to have
+fewer scripts (accounting for weights) specified than there are subjob
+slots.  If there are more scripts, the later scripts will not be
+executed.  "noduplicates" has no effect if "nonrandom" is specified.
+
+** log-analyze
+
+Log-analyze can be used to determine the effective number of virtual
+ports used (on the average) during a run of CallScriptDriver.pl.  It
+totals the time spent in "pause random" statements and deducts it from
+the total run time.  Log-analyze has two arguments, the number of jobs
+and the number of seconds for the run.  The run output from
+CallScriptDriver.pl must be the standard input.
+
+** sample scripts
+
+In this directory there are sample scripts for CallScript:
+
+* driver-1
+* driver-2
+* hanging-call
+* leave-message
+* leave-retrieve
+* retrieve-message

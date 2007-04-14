@@ -1,0 +1,233 @@
+Name:     @PACKAGE@
+Version:  @VERSION@
+Release:  %{buildno}
+
+Summary:  SIP PBX
+License:  Pingtel Commercial License
+Group:    Productivity/Telephony/SIP/Servers
+Vendor:   Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url:      http://www.pingtel.com
+
+Source:   %name-%version.tar.gz
+
+Requires: expat >= 1.95
+Requires: httpd >= 2.0.46
+Requires: cgicc >= 3.2.2
+%if %{_vendor} == redhat
+Requires: mod_ssl
+Requires: chkconfig
+%endif
+
+Requires: sipxcalllib >= 3.7
+Requires: sipxcommserverlib >= 3.7
+
+# replication, processmgr cgis 
+Requires: httpd >= 2.0
+
+# sending email - an smtp listener must be running on localhost
+%if %{_vendor} == redhat
+Requires: smtpdaemon
+%endif
+%if %{_vendor} == suse
+Requires: postfix
+%endif
+
+Prefix:    %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+# should match sipXlib.m4:SIPX_UPGRADEDIR
+%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
+%define this_archive %{name}-%{version}-%{release}.tgz
+
+%description
+The sipXpbx project is a comprehansive small/medium scale Enterprise SIP PBX. It combines:
+
+ * Call routing sipXproxy
+ * sipXregistry registry/redirect server,
+ * the subscribe/notify framework and message waiting indication package from sipXpublisher,
+ * Media Server sipXvxml with auto-attendant and voice mail applications,
+ * PBX and phone configuration support from sipXconfig.
+
+%package devel
+Requires: %name
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Internal documentation for %name 
+Requires: sipxcommserverlib-devel >= 3.7
+Requires: sipxcalllib-devel >= 3.7
+
+%description devel
+Internal class documentation for the pbx classes
+
+%prep
+%setup -q
+
+%build
+%configure --enable-rpmbuild @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
+mkdir -p %{upgrade_archive_root}
+tar --directory ${RPM_BUILD_ROOT} \
+    -czf %{upgrade_archive_root}/%{this_archive} \
+    etc \
+    usr/share/www/doc/vm_vxml \
+    usr/share/www/doc/aa_vxml
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+%doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
+#%docdir doc
+%attr(755,root,root) %{_bindir}/blat
+%attr(755,root,root) %{_bindir}/analyze_483s
+%attr(755,root,root) %{_bindir}/autodel
+%attr(755,root,root) %{_bindir}/ipcclean.pl
+%attr(755,root,root) %{_bindir}/check-fqdn
+%attr(755,root,root) %{_bindir}/watchdog
+%attr(755,root,root) %{_bindir}/watchdog.sh
+%attr(755,root,root) %{_bindir}/keepalive.sh
+%attr(755,root,root) %{_bindir}/sipx-snapshot
+%attr(755,root,root) %{_bindir}/%name-config
+%attr(755,root,root) %{_bindir}/backup-configs.sh
+%attr(755,root,root) %{_bindir}/backup-mailstore.sh
+%attr(755,root,root) %{_bindir}/restore-configs.sh
+%attr(755,root,root) %{_bindir}/restore-mailstore.sh
+
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxpbx
+%attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-chkspace
+%attr(755,root,root) %{_sysconfdir}/cron.daily/voicemail_clean
+
+%attr(755,root,root) %{_datadir}/www/cgi-bin/processmonitor/process.cgi
+%attr(755,root,root) %{_datadir}/www/cgi-bin/voicemail/mediaserver.cgi
+%attr(755,root,root) %{_datadir}/www/cgi-bin/cbadmission/cbadmission.cgi
+%attr(755,root,root) %{_datadir}/www/cgi-bin/replication/replication.cgi
+
+# The configuration directory needs to be writeable because
+# config files are generated from templates via config.defs
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/WatchDog.xml
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/ProcessDefinitions.xml
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/resourcemap.xml
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/voicemail.xml.in
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cbadmission.xml.in
+
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxpark.process.xml
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxpresence.process.xml
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxrls.process.xml
+
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_bindir}/httpd-sipxchange-config.sh
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/mime.types
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common-ssl.conf.in
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common.conf.in
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd.conf
+
+%config(noreplace) %attr(644,root,root) %{_sysconfdir}/logrotate.d/sipxchange
+
+%config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/index.html
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_datadir}/www/doc/aa_vxml
+%config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/stdprompts
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_datadir}/www/doc/vm_vxml
+%config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/cb_vxml
+
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/mediaserver
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/parkserver
+
+%attr(755,root,root) %{_bindir}/sipxpark.sh
+%attr(755,root,root) %{_bindir}/sipxpark
+%attr(755,root,root) %{_bindir}/sipxpark-config
+
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxpark-config.in
+
+%attr(755,root,root) %{_bindir}/sipxdialog.sh
+%attr(755,root,root) %{_bindir}/sipxdialog
+%attr(755,root,root) %{_bindir}/sipxdialog-config
+
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxdialog-config.in
+
+%attr(755,root,root) %{_bindir}/sipxrls.sh
+%attr(755,root,root) %{_bindir}/sipxrls
+%attr(755,root,root) %{_bindir}/sipxrls-config
+
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxrls-config.in
+
+%attr(755,root,root) %{_datadir}/sipx/schema/watchdog.xsd
+%attr(755,root,root) %{_datadir}/sipx/schema/watchdogprocess.xsd
+%attr(755,root,root) %{_datadir}/sipx/schema/processdefinitions.xsd
+%attr(755,root,root) %{_datadir}/sipx/schema/resource-lists.xsd
+%attr(755,root,root) %{_datadir}/sipx/schema/xml.xsd
+
+%attr(755,root,root) %{_bindir}/sipxpresence.sh
+%attr(755,root,root) %{_bindir}/sipxpresence
+%attr(755,root,root) %{_bindir}/sipxpresence-config
+
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxpresence-config.in
+
+%{upgrade_archive_dir}/%{this_archive}
+%{upgrade_archive_dir}/%{name}-previous.tgz
+
+%files devel
+%defattr(644,root,root,755)
+%doc %{_datadir}/doc/sipx/%name/*
+
+%pre
+sipx-upgrade -p sipxpbx -c
+
+%post
+sipx-upgrade -p sipxpbx -u --bdir %{_bindir}  --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
+
+%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
+%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
+if [ -f %{current_archive} ]; then
+  mv %{current_archive} %{previous_archive}
+fi
+mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
+
+pkg-upgrade --previous %{previous_archive} --current %{current_archive}
+
+# Arrange for sipX to be started every time the system starts up.
+# It starts in runlevels 3 and 5.
+if [ -x /sbin/chkconfig ]; then
+  # RedHat / Fedora
+  chkconfig --add sipxpbx
+else
+  # SuSE
+  insserv sipxpbx
+fi
+
+
+%preun
+# see http://fedoraproject.org/wiki/Packaging/ScriptletSnippets
+if [ $1 = 0 ]; then
+  /etc/init.d/sipxpbx stop &>/dev/null || :
+
+  if [ -x /sbin/chkconfig ]; then
+    # RedHat / Fedora
+    chkconfig --del sipxpbx
+  else
+    # SuSE
+    insserv -r sipxpbx
+  fi
+fi
+
+%postun
+# only restart when upgrade
+# do not put in post section because other dependencies have not 
+# run their post section yet.
+if [ "$1" -ge "1" ]; then
+  /etc/init.d/sipxpbx restart &>/dev/null || :
+fi

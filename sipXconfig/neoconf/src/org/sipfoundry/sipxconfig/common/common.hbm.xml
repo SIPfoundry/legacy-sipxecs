@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.common" default-lazy="false">
+
+  <!-- 
+    - U S E R
+    -
+    - Ideally the table would be named "user" (singular) rather than "users",
+    - like other tables, but "user" exists already as a PostgreSQL internal table.
+  -->
+  <class name="User" table="users">
+    <id name="id" column="user_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">user_seq</param>
+      </generator>
+    </id>
+    <property name="firstName" />
+    <property name="pintoken" />
+    <property name="sipPassword" />
+    <property name="lastName" />
+    <property name="userName" />
+    <set name="aliases" table="user_alias">
+      <key column="user_id" />
+      <element type="string" column="alias" not-null="true" unique="true" />
+    </set>
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
+    <set name="groups" table="user_group" sort="natural" cascade="save-update">
+      <key column="user_id" />
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
+    </set>
+    <set name="supervisorForGroups" table="supervisor" sort="natural">
+      <key column="user_id" />
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
+    </set>
+  </class>
+
+  <class name="ExtensionPool" table="extension_pool">
+    <id name="id" column="extension_pool_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">extension_pool_seq</param>
+      </generator>
+    </id>
+    <property name="enabled" />
+    <property name="name" />
+    <property name="firstExtension" />
+    <property name="lastExtension" />
+    <property name="nextExtension" />
+  </class>
+
+  <query name="userByAlias">
+    <![CDATA[from User u join u.aliases alias where alias = :value]]>
+  </query>
+
+  <query name="userByNameOrAlias">
+    <![CDATA[from User u left outer join u.aliases alias where u.userName = :value or alias = :value]]>
+  </query>
+
+  <query name="userIdsByNameOrAlias">
+    <![CDATA[select distinct u.id from User u left outer join u.aliases alias where u.userName = :value or alias = :value]]>
+  </query>
+
+  <query name="userGroupMembers">
+    <![CDATA[from User u where u.groups.id = :groupId]]>
+  </query>
+
+  <query name="userNamesGroupMembers">
+    <![CDATA[select u.userName from User u where u.groups.id = :groupId]]>
+  </query>
+
+  <query name="extensionPoolByName">
+    <![CDATA[from ExtensionPool pool where pool.name = :name]]>
+  </query>
+
+  <query name="groupSupervisors">
+    <![CDATA[from User u where u.supervisorForGroups.id = :groupId]]>
+  </query>
+
+  <query name="usersThatISupervise">
+    <![CDATA[select distinct u from User u, Group g, User s where s.id = :supervisorId and s.supervisorForGroups.id = g.id 
+      and g.id = u.groups.id order by u.userName]]>
+  </query>  
+</hibernate-mapping>

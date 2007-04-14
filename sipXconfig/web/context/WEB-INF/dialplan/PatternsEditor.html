@@ -1,0 +1,35 @@
+<span jwcid="$content$">
+  <span jwcid="size"/>
+  <tr jwcid="foreach" element="tr">
+    <td>
+      <span jwcid="prefixLabel">Prefix</span>
+    </td>
+    <td>
+      <input jwcid="prefix" id="pattern:prefix" maxlength="40" type="text"/>
+    </td>
+    <td>
+      <select jwcid="digits" id="pattern:digits" size="1">
+        <option value="3">3 digits</option>
+        <option value="4">4 digits</option>
+        <option value="5">5 digits</option>
+        <option value="6">6 digits</option>
+        <option value="7" selected="selected">7 digits</option>
+        <option value="8">8 digits</option>
+      </select>
+    </td>
+    <td>
+      <span jwcid="conditionalAdd">
+        <a jwcid="add" href="#" id="pattern:add">
+          <span key="link.add">Add</span>
+        </a>
+      </span>
+    </td>
+    <td>
+      <span jwcid="conditionalDelete">
+        <a jwcid="delete" href="#" id="pattern:delete">
+          <span key="link.delete">Delete</span>
+        </a>
+      </span>
+    </td>
+  </tr>
+</span>

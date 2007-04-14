@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<vxml version="2.0" application="../vm_vxml/root.vxml">
+    <!-- 
+        This script takes care of basic admission control for conference bridge.
+    -->
+    <form id="cbadmission">
+        <property name="interdigittimeout" value="3s" />
+        <property name="timeout" value="10s" />
+        <var name="login_attempts" expr="0"/>
+
+        <!-- Parameters passed in when invoked by the subroutine -->
+        <var name="contact" />
+        <var name="confid" />
+        <var name="mediaserverurl" />
+        <var name="securemediaserverurl" />
+    
+        <!-- Action attribute is required by the CGI -->
+        <var name="action" expr="'login'"/>
+        <var name="accesscode" />
+        <var name="conferenceurl" />
+
+        <!-- Get access code -->
+        <field name="accesscode" type="digits?minlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'cb_welcome.wav'"/>
+            </prompt>
+            <filled>
+                <if cond="accesscode == '0'" >
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+                    </prompt>
+                    <goto next="root.vxml#operator" />
+                <else/>
+                    <goto nextitem="login"/>
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+        </field>
+
+        <!-- Call the CGI to do the validation -->
+        <subdialog name="login" method="get" srcexpr="securemediaserverurl + '/cgi-bin/cbadmission/cbadmission.cgi'" namelist="action contact confid accesscode">
+            <filled>
+                <if cond="login.result == 'success'">
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+                    </prompt>
+                	<assign name="action" expr="'transfer'" />
+                    <assign name="conferenceurl" expr="login.conferenceurl" />
+                    <goto nextitem="xfertocb"/>
+                <elseif cond="login_attempts == '2'"/>
+                    <!-- Extension and pin do not match. Only 3 attempts allowed. -->
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_access_code.wav'" />
+                        <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'"/>
+                    </prompt>
+                    <disconnect/>
+                <else/>
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_access_code.wav'" />
+                    <assign name="login_attempts" expr="login_attempts + 1"/>
+                    <goto nextitem="accesscode" />
+                </if>
+            </filled>
+        </subdialog>
+
+	    <subdialog name="xfertocb" srcexpr="securemediaserverurl + '/cgi-bin/cbadmission/cbadmission.cgi'" namelist="action conferenceurl">
+	    	<filled>
+				<if cond="transfertoextn.result=='failed'">
+				  	<prompt>
+				    	<audio expr="mediaserverurl + promptsalias + 'system_error.wav'" />
+				  	</prompt>
+                    <goto next="root.vxml#operator" />
+				<else />
+				  	<return />
+				</if>
+	      	</filled>
+	    </subdialog>
+ 
+    </form>
+</vxml>
+

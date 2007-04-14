@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="zip">
+    <file>
+      <contentType>application/zip</contentType>
+    </file>
+  </type>
+  <group name="firmware">
+    <label>Grandstream Firmware</label>
+    <description>Grandstream Video IP Phones.</description>
+    <setting name="gxv3000-release.zip">
+      <label>GXV 3000 Firmware (zip)</label>
+      <type refid="zip"/>
+      <description>Firmware. Example file name : Release_GXV3000_1.0.0.33.zip</description>
+    </setting>
+    <setting name="bt100-ht1-release.zip">
+      <label>Budgtone 100 and HT486/286 Firmware (zip)</label>
+      <type refid="zip"/>
+      <description>Firmware. Example file name : Release_BT100-HT486-HT286_1.0.8.33.zip</description>
+    </setting>
+    <setting name="bt200-gxp2000-release.zip">
+      <label>Budgtone 200 and GXP 2000 Firmware (zip)</label>
+      <type refid="zip"/>
+      <description>Firmware. Example file name : Release_GXP2000-BT200_1.1.1.14.zip</description>
+    </setting>
+    <setting name="ht2-release.zip">
+      <label>HT488, HT496 and HT386 Firmware (zip)</label>
+      <type refid="zip"/>
+      <description>Firmware. Example file name : Release_HT488-496-386_1.0.3.64.zip</description>
+    </setting>
+  </group>
+</model>
