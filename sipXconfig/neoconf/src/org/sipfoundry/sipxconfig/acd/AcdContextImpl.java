@@ -46,7 +46,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     private String m_audioServerUrl;
 
-    private boolean m_enabled;
+    private boolean m_enabled = true;
 
     private class NameInUseException extends UserException {
         private static final String ERROR = "The name \"{1}\" is already in use. "
