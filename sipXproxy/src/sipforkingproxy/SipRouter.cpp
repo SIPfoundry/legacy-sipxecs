@@ -172,10 +172,10 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
    }
    if (!disallowedExtensions.isNull())
    {
-      SipMessage* response = new SipMessage();
-      response->setRequestBadExtension(&sipRequest, disallowedExtensions.data());
-      mpSipUserAgent->setServerHeader(*response);
-      mpSipUserAgent->send(*response);
+      SipMessage response;
+      response.setRequestBadExtension(&sipRequest, disallowedExtensions.data());
+      mpSipUserAgent->setServerHeader(response);
+      mpSipUserAgent->send(response);
    }
    else
    {
