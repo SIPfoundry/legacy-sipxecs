@@ -139,7 +139,8 @@ function seedRand()
         randfiles=''
         numrandfiles=0
         for file in /var/log/messages /var/adm/messages /tmp/* /etc/resolv.conf; do
-            if [ -r $file ]; then
+            #  make sure file is readable and not empty
+            if [ -r $file -a -s $file ]; then
                 if [ ".$randfiles" = . ]; then
                     randfiles="$file"
                 else
