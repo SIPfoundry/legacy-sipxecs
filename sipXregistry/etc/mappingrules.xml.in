@@ -1,44 +1,45 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<!--
-  - Mapping Rules
-  -   These rules are invoked for all redirection requests.
-  - 
-  -   Typically, this file is used to map in-domain addresses
-  -   that need to be changed in some systematic way, or that
-  -   should only be changed when there is a permission involved.
-  -   For simpler changes, prefer the use of aliases.
-  - 
-  -   These examples are based on typical small office dial plan
-  -   3 digit extensions.
-  -
-  -   They assume that the the phone has not modified the digits
-  -   dialed by the user.
-  -->
-<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'>
+<?xml version="1.0" encoding="UTF-8"?>
 
-  <!-- Restrict changes to the local domain -->
+<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00">
   <hostMatch>
     <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
     <hostPattern>${MY_FULL_HOSTNAME}</hostPattern>
     <hostPattern>${MY_HOSTNAME}</hostPattern>
     <hostPattern>${MY_IP_ADDR}</hostPattern>
-
-
-    <!-- 'operator', '0', or extension 100 goes to AutoAttendant -->
     <userMatch>
-      <userPattern>operator</userPattern>
-      <userPattern>100</userPattern>
-      <userPattern>0</userPattern>
+      <!--Music on Hold-->
+      <description>Forward music on hold calls to Park Server</description>
+      <userPattern>~~mh~</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant%26name%3Doperator&gt;</url>
+          <url>&lt;sip:moh@${ORBIT_SERVER_SIP_SRV_OR_HOSTPORT}&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
-
-
-    <!-- extension 101 is used to retrieve voicemail messages -->
     <userMatch>
+      <!--RLS-->
+      <description>Forward resource list subscriptions to RLS</description>
+      <userPattern>~~rl~.</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{digits}@${RLS_ADDR}:${RLS_SIP_PORT}&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <!--AutoAttendant-->
+      <description>Default autoattendant dialing plan</description>
+      <userPattern>100</userPattern>
+      <userPattern>operator</userPattern>
+      <userPattern>0</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant%26name%3Daa_8&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <description>Default internal dialing plan</description>
       <userPattern>101</userPattern>
       <permissionMatch>
         <transform>
@@ -46,25 +47,18 @@
         </transform>
       </permissionMatch>
     </userMatch>
-
-
-    <!-- transferring a call to 2xxx transfers the call to the voicemail box for extension xxx -->
     <userMatch>
-      <userPattern>2xxx</userPattern>
+      <description>Default internal dialing plan</description>
+      <userPattern>8xxx</userPattern>
       <permissionMatch>
         <transform>
           <url>&lt;sip:{vdigits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits-escaped}&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
-
-
-    <!-- Fall back to voicemail if call to a phone does not succeed
-      -  for any called number that has Voicemail permission; making 
-      -  it conditional is accomplished by adding the ';q=0.1' at the end.
-      -->
     <userMatch>
-      <userPattern>x.</userPattern>
+      <description>Default internal dialing plan</description>
+      <userPattern>.</userPattern>
       <permissionMatch>
         <permission>Voicemail</permission>
         <transform>
@@ -72,6 +66,5 @@
         </transform>
       </permissionMatch>
     </userMatch>
-
   </hostMatch>
 </mappings>
