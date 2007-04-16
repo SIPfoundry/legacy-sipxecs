@@ -59,7 +59,7 @@ class PluginHooks
    ~PluginHooks();
 
    /// Read what hooks are configured, and instantiate and configure each hook.
-   void readConfig( OsConfigDb& configDb );
+   void readConfig(const OsConfigDb& configDb);
    /**<
     * This method actually reads the program configuration from the configDb passed in.
     * Each entry that has the prefix followed by "_HOOK_LIBRARY" configures a plugin library.

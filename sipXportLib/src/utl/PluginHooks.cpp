@@ -110,7 +110,7 @@ public:
       }
 
    /// Construct the subhash for the hook and configure it.
-   void readConfig(const UtlString& prefix, OsConfigDb& configDb)
+   void readConfig(const UtlString& prefix, const OsConfigDb& configDb)
       {
          if (hook)
          {
@@ -160,7 +160,7 @@ PluginHooks::~PluginHooks()
    mConfiguredHooks.destroyAll();
 }
 
-void PluginHooks::readConfig(OsConfigDb& configDb)
+void PluginHooks::readConfig(const OsConfigDb& configDb)
 {
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                  "PluginHooks::readConfig mFactory = '%s', mPrefix = '%s'",
