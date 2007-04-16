@@ -211,12 +211,12 @@ public class SIPChartModel
         {
             if ((!data.isRequest()) && (data.getSourceEntity() == null))
             {
-                Enumeration enum = getDescForBranch(strBranchID) ;
-                if (enum != null)
+                Enumeration enumerator = getDescForBranch(strBranchID) ;
+                if (enumerator != null)
                 {
-                    while (enum.hasMoreElements())
+                    while (enumerator.hasMoreElements())
                     {
-                        ChartDescriptor desc = (ChartDescriptor) enum.nextElement() ;
+                        ChartDescriptor desc = (ChartDescriptor) enumerator.nextElement() ;
                         if (desc.dataSource.isRequest())
                         {
                             addKeyAlias(desc.dataSource.getDestinationEntity(), objTrackableSourceKey) ;
@@ -398,10 +398,10 @@ public class SIPChartModel
         }
 
         // Next, search alias list
-        Enumeration enum = m_htAliases.keys() ;
-        while ((objRC == null) && enum.hasMoreElements())
+        Enumeration enumerator = m_htAliases.keys() ;
+        while ((objRC == null) && enumerator.hasMoreElements())
         {
-            String objAliasesSrc = (String) enum.nextElement() ;
+            String objAliasesSrc = (String) enumerator.nextElement() ;
             Vector vElements = (Vector) m_htAliases.get(objAliasesSrc) ;
             Enumeration vEnum = vElements.elements() ;
             while ((objRC == null) && vEnum.hasMoreElements())
