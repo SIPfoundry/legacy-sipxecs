@@ -35,7 +35,7 @@ public class Whacker implements ApplicationListener {
     }
 
     static final Process[] SERVICES = {
-        Process.MEDIA_SERVER, Process.REGISTRAR
+        Process.MEDIA_SERVER
     };
     private static final Log LOG = LogFactory.getLog(Whacker.class);
 
