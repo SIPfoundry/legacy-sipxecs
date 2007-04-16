@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -131,31 +130,16 @@ public abstract class Phone extends BeanWithGroups implements Device {
     }
 
     /**
-     * When loading the settings model.
-     * 
-     * Example If you can add "not-extinct" the following setting will not be loaded. Phone model
-     * id and version are added by default.
-     * 
-     * &lt;setting name="dinosaur" unless="not-extinct"/&gt;
-     */
-    protected Set getModelDefinitions() {
-        Set definitions = new HashSet();
-        PhoneModel model = getModel();
-        definitions.add(model.getModelId());
-        if (getDeviceVersion() != null) {
-            definitions.add(getDeviceVersion().getVersionId());
-        }
-        return definitions;
-    }
-
-    /**
      * If SimepleDefinitionEvaluator is not what you need override this function to provide your
      * own expression evaluator to be used when loading settings model.
      * 
      * @return reusable copy of expression evaluator
      */
     protected SettingExpressionEvaluator getSettingsEvaluator() {
-        Set defines = getModelDefinitions();
+        Set defines = getModel().getDefinitions();
+        if (getDeviceVersion() != null) {
+            defines.add(getDeviceVersion().getVersionId());
+        }
         return new SimpleDefinitionsEvaluator(defines);
     }
 

@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 
 public abstract class DeviceDescriptor {
@@ -120,5 +123,19 @@ public abstract class DeviceDescriptor {
 
     public void setModelFilePath(String modelFilePath) {
         m_modelFilePath = modelFilePath;
+    }
+
+    /**
+     * When loading the settings model.
+     * 
+     * Example If you can add "not-extinct" the following setting will not be loaded. Phone model
+     * id and version are added by default.
+     * 
+     * &lt;setting name="dinosaur" unless="not-extinct"/&gt;
+     */
+    public Set getDefinitions() {
+        Set definitions = new HashSet();
+        definitions.add(getModelId());
+        return definitions;
     }
 }

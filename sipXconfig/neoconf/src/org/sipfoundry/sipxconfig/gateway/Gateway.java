@@ -9,14 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
@@ -227,9 +225,7 @@ public class Gateway extends BeanWithSettings implements NamedObject, Device {
     }
 
     protected Set getModelDefinitions() {
-        Set definitions = new HashSet();
-        DeviceDescriptor model = getModel();
-        definitions.add(model.getModelId());
+        Set definitions = getModel().getDefinitions();
         if (getDeviceVersion() != null) {
             definitions.add(getDeviceVersion().getVersionId());
         }

@@ -12,20 +12,11 @@
     <property name="profileTemplate" value="audiocodes/mp-gateway.ini.vm" />
   </bean>
 
-  <bean id="audiocodesTP260_1_Span" parent="audiocodesTP">
-    <property name="label" value="AudioCodes TP260 1 Span T1/E1" />
-  </bean>
-
-  <bean id="audiocodesTP260_2_Span" parent="audiocodesTP">
-    <property name="label" value="AudioCodes TP260 2 Span T1/E1" />
-  </bean>
-
-  <bean id="audiocodesTP260_4_Span" parent="audiocodesTP">
-    <property name="label" value="AudioCodes TP260 4 Span T1/E1" />
-  </bean>
-
-  <bean id="audiocodesTP260_8_Span" parent="audiocodesTP">
-    <property name="label" value="AudioCodes TP260 8 Span T1/E1" />
+  <bean id="audiocodesTP260" parent="audiocodesTP">
+    <property name="label" value="AudioCodes TP260" />
+    <property name="fxo" value="true" />
+    <property name="fxs" value="false" />
+    <property name="digital" value="true" />
   </bean>
 
   <bean id="gwAudiocodesTp260" class="org.sipfoundry.sipxconfig.gateway.audiocodes.Tp260Gateway"
@@ -39,6 +30,7 @@
     <property name="proxyNameSetting" value="SIP/ProxyName" />
     <property name="proxyIpSetting" value="SIP/ProxyIP" />
     <property name="profileTemplate" value="audiocodes/mp-gateway.ini.vm" />
+    <property name="digital" value="false" />
   </bean>
 
   <bean id="audiocodesMP1X4_4_FXO" parent="audiocodesMP">
@@ -48,7 +40,7 @@
   <bean id="audiocodesMP1X8_8_FXO" parent="audiocodesMP">
     <property name="label" value="AudioCodes MP1X8 8 Port FXO" />
   </bean>
-
+  
   <bean id="gwAudiocodesMediant" class="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway"
     singleton="false" parent="gwGeneric">
   </bean>

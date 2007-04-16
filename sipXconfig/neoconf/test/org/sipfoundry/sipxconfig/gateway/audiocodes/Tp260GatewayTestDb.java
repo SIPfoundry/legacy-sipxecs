@@ -15,7 +15,6 @@ import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.BeanFactoryModelSource;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
@@ -27,7 +26,7 @@ public class Tp260GatewayTestDb extends TestCase {
     protected void setUp() throws Exception {
         BeanFactoryModelSource<GatewayModel> modelSource = (BeanFactoryModelSource<GatewayModel>) TestHelper
                 .getApplicationContext().getBean("nakedGatewayModelSource");
-        m_model = (AudioCodesModel) modelSource.getModel("audiocodesTP260_2_Span");
+        m_model = (AudioCodesModel) modelSource.getModel("audiocodesTP260");
         m_gateway = (Tp260Gateway) TestHelper.getApplicationContext().getBean(m_model.getBeanId());
         m_gateway.setModelId(m_model.getModelId());
         m_gateway.setSerialNumber("FT0123456");        
