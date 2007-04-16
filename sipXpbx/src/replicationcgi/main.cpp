@@ -523,53 +523,54 @@ updateDB ( const UtlString& importFileName, const UtlString& databaseName  )
 
 
 /**
-* Loads the resource map file and puts the name value pairs in a UtlHashMap specified.
-* Make sure, there is a file called "resourcemap.xml" in the location specified by
-* SIPXCHANGE_HOME. It should have resource mappings for the files and databases you are
-* going to update. This is the format of "resourcemap.xml file.
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-
-<!-- This file is located on the replication targets and maps
-     between arbitary resource names and a physical location on
-     the machine -->
-
-<!DOCTYPE identifer_lookup_table [
-   <!ELEMENT identifer_lookup_table (host*, component*) >
-
-   <!ELEMENT host( filemap*, databasemap*)>
-   <!ELEMENT component( filemap*, databasemap*)>
-
-   <!ELEMENT filemap (EMPTY)>
-   <!ATTLIST filemap identifier CDATA #REQUIRED>
-   <!ATTLIST filemap location CDATA #REQUIRED>
-   <!ELEMENT databasemap (EMPTY)>
-   <!ATTLIST databasemap identifier CDATA #REQUIRED>
-   <!ATTLIST databasemap location  CDATA #REQUIRED>
-
-]>
-
-<identifer_lookup_table>
-   <host>
-       <filemap identifier="user-config"      location="/var/local/user-config" />
-       <filemap identifier="pinger-config"    location="/var/local/pinger-config" />
-       <databasemap identifier="credentials"  location="credentials" />
-   </host>
-
-   <component id="MediaServer1">
-       <filemap identifier="user-config"      location="/usr/local/user-config" />
-       <filemap identifier="pinger-config"    location="/usr/local/pinger-config" />
-       <databasemap identifier="credentials"  location="credentials" />
-   </component>
-
-   <component id="MediaServer2">
-       <filemap identifier="user-config"   location="/usr/local/media_server2/user-config" />
-       <filemap identifier="pinger-config" location="/usr/local/media_server2/pinger-config" />
-   </component>
-
-
-</identifer_lookup_table>
-
-*/
+ * Loads the resource map file and puts the name-value pairs in a UtlHashMap specified.
+ * Make sure there is a file called "resourcemap.xml" in the location specified by
+ * SIPXCHANGE_HOME. It should have resource mappings for the files and databases you are
+ * going to update. This is the format of "resourcemap.xml" file:
+ * 
+ * <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+ * 
+ * <!-- This file is located on the replication targets and maps
+ *      between arbitary resource names and a physical location on
+ *      the machine -->
+ * 
+ * <!DOCTYPE identifer_lookup_table [
+ *    <!ELEMENT identifer_lookup_table (host*, component*) >
+ * 
+ *    <!ELEMENT host( filemap*, databasemap*)>
+ *    <!ELEMENT component( filemap*, databasemap*)>
+ * 
+ *    <!ELEMENT filemap (EMPTY)>
+ *    <!ATTLIST filemap identifier CDATA #REQUIRED>
+ *    <!ATTLIST filemap location CDATA #REQUIRED>
+ *    <!ELEMENT databasemap (EMPTY)>
+ *    <!ATTLIST databasemap identifier CDATA #REQUIRED>
+ *    <!ATTLIST databasemap location  CDATA #REQUIRED>
+ * 
+ * ]>
+ * 
+ * <identifer_lookup_table>
+ *    <host>
+ *        <filemap identifier="user-config"      location="/var/local/user-config" />
+ *        <filemap identifier="pinger-config"    location="/var/local/pinger-config" />
+ *        <databasemap identifier="credentials"  location="credentials" />
+ *    </host>
+ * 
+ *    <component id="MediaServer1">
+ *        <filemap identifier="user-config"      location="/usr/local/user-config" />
+ *        <filemap identifier="pinger-config"    location="/usr/local/pinger-config" />
+ *        <databasemap identifier="credentials"  location="credentials" />
+ *    </component>
+ * 
+ *    <component id="MediaServer2">
+ *        <filemap identifier="user-config"   location="/usr/local/media_server2/user-config" />
+ *        <filemap identifier="pinger-config" location="/usr/local/media_server2/pinger-config" />
+ *    </component>
+ * 
+ * 
+ * </identifer_lookup_table>
+ * 
+ */
 
 void  loadResourceMap ( const UtlString& resourcemapFileName, UtlHashMap& rResourceMaps )
 {
@@ -818,57 +819,57 @@ void usage()
 
 
 /**
-* handles input data  extracted from the inputsource of posted xml file.
-* The payload can be of any format, from a plian txt file, xml file
-* or a binary file. It basically updates the databases if the payload
-* type is of database. Otherwise, if the payload type is file, it updates
-* the files.  The xml file data should be in this format:
---------------------------------------------------------------------------------
-
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
- <!-- This file proposes a XML format (envelope, really) for sending
- between the configuration server and replication target components.  Here,
- the XML allows you to send one or more different bundles. -->
- <!DOCTYPE replicationdata [
-     <!ELEMENT replicationdata (data+) >
-
-     <!-- since payload element is of type #CDATA, the value will not be
-     parsed by the xml parser.  So, that value can be anything,
-     from xml data to any other format of data( like user-config type data) -->
-     <!ELEMENT data ( payload )>
-
-     <!ATTLIST data type       ( database | file   ) #REQUIRED>
-     <!ATTLIST data action     ( replace  | update ) #REQUIRED>
-     <!ATTLIST data target_data_name CDATA #REQUIRED>
-
-     <!-- if both component_id and component_type are not present,
-          send it to all the components residing in the host -->
-
-     <!--if component id is present, send this data to that
-                                  particular component only -->
-     <!ATTLIST data target_component_id CDATA #IMPLIED>
-
-     <!--if component type is present but component_id is not present,
-           send this data to all the components of this type -->
-     <!ATTLIST data target_component_type (media-server | config-server | comm-server)  #IMPLIED>
-
-     <!ELEMENT payload (#PCDATA) >
-]>
-
-<replicationdata>
-    <!-- text clob data example -->
-    <data type="database" action="replace" target_data_name="credentials"
-          target_component_type="comm_server" target_component_id="CommServer1"  >
-
-       <payload>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGl</payload>
-
-     </data>
-</replicationdata>
---------------------------------------------------------------------------------
-The payload data is Base64 encoded. Make sure you have no space in between payload
-opening and closing tages.
-
-*/
+ * handles input data  extracted from the inputsource of posted xml file.
+ * The payload can be of any format, from a plain txt file, an XML file
+ * or a binary file. It basically updates the databases if the payload
+ * type is of database. Otherwise, if the payload type is file, it updates
+ * the files.  The XML file data should be in this format:
+ * --------------------------------------------------------------------------------
+ * 
+ * <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+ *  <!-- This file proposes a XML format (envelope, really) for sending
+ *  between the configuration server and replication target components.  Here,
+ *  the XML allows you to send one or more different bundles. -->
+ *  <!DOCTYPE replicationdata [
+ *      <!ELEMENT replicationdata (data+) >
+ * 
+ *      <!-- since payload element is of type #CDATA, the value will not be
+ *      parsed by the xml parser.  So, that value can be anything,
+ *      from xml data to any other format of data( like user-config type data) -->
+ *      <!ELEMENT data ( payload )>
+ * 
+ *      <!ATTLIST data type       ( database | file   ) #REQUIRED>
+ *      <!ATTLIST data action     ( replace  | update ) #REQUIRED>
+ *      <!ATTLIST data target_data_name CDATA #REQUIRED>
+ * 
+ *      <!-- if both component_id and component_type are not present,
+ *           send it to all the components residing in the host -->
+ * 
+ *      <!--if component id is present, send this data to that
+ *                                   particular component only -->
+ *      <!ATTLIST data target_component_id CDATA #IMPLIED>
+ * 
+ *      <!--if component type is present but component_id is not present,
+ *            send this data to all the components of this type -->
+ *      <!ATTLIST data target_component_type (media-server | config-server | comm-server)  #IMPLIED>
+ * 
+ *      <!ELEMENT payload (#PCDATA) >
+ * ]>
+ * 
+ * <replicationdata>
+ *     <!-- text clob data example -->
+ *     <data type="database" action="replace" target_data_name="credentials"
+ *           target_component_type="comm_server" target_component_id="CommServer1"  >
+ * 
+ *        <payload>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGl</payload>
+ * 
+ *      </data>
+ * </replicationdata>
+ * --------------------------------------------------------------------------------
+ * The payload data is Base64 encoded. Make sure you have no space in between payload
+ * opening and closing tages.
+ * 
+ */
 void handleInput(const char* pBuf )
 {
 
@@ -984,31 +985,52 @@ void handleInput(const char* pBuf )
                {
                  UtlString mappedLocation(pStrTargetDataResourceMap->data());
 
-                 if( strTargetDataType == "file" ){
-                     //write to a file
-                     OsStatus rc;
-                     OsFile exportFile(mappedLocation);
-                     if( exportFile.open( OsFile::CREATE ) == OS_SUCCESS){
-
-                         unsigned long bytesRead;
-                         if ( (rc = exportFile.write
-                                     (pDecodedPayLoadData, iDecodedLength, bytesRead)) == OS_SUCCESS )
-                         {
-                             //good.
-                             //UtlString errorMessageSubstr("successfully write to file ");
-
-
-                         } else
-                         {
-                             UtlString errorMessageSubstr("couldn't write to file  ");
-                             gstrError = (errorMessageSubstr + mappedLocation +"\n");
-                         }
-                     } else
-                     {
-                         UtlString errorMessageSubstr("couldn't open file ");
-                         gstrError = (errorMessageSubstr + mappedLocation +"\n");
-                     }
-                 }else if( (strTargetDataType == "database") && (iDecodedLength > 0) )
+                 if( strTargetDataType == "file" )
+                 {
+                    // Write to a file.
+                    OsStatus rc;
+                    UtlString temporaryLocation(mappedLocation);
+                    temporaryLocation += ".new";
+                    OsFile temporaryFile(temporaryLocation);
+                    if (temporaryFile.open(OsFile::CREATE) == OS_SUCCESS)
+                    {
+                       unsigned long bytesRead;
+                       rc = temporaryFile.write(pDecodedPayLoadData, iDecodedLength, bytesRead);
+                       temporaryFile.close();
+                       if (rc == OS_SUCCESS)
+                       {
+                          rc = temporaryFile.rename(mappedLocation);
+                          if (rc == OS_SUCCESS)
+                          {
+                             // Success.
+                          }
+                          else
+                          {
+                             // Write succeeded, but rename failed.
+                             gstrError = "couldn't rename temporary file ";
+                             gstrError += temporaryLocation;
+                             gstrError += " to ";
+                             gstrError += mappedLocation;
+                             gstrError += "\n";
+                          }
+                       }
+                       else
+                       {
+                          // Write failed.
+                          gstrError = "couldn't write to file  ";
+                          gstrError += temporaryLocation;
+                          gstrError += "\n";
+                       }
+                    }
+                    else
+                    {
+                       // Open failed.
+                       gstrError = "couldn't open file ";
+                       gstrError += temporaryLocation;
+                       gstrError += "\n";
+                    }
+                 }
+                 else if( (strTargetDataType == "database") && (iDecodedLength > 0) )
                  {
                      //update databases.
 
@@ -1062,13 +1084,9 @@ void handleInput(const char* pBuf )
             UtlString errorMessageSubstr("payload data was not found to replicate\n");
             gstrError = (errorMessageSubstr );
          }
-
-
         }
     }
-
   }
-
 }
 
 /**
