@@ -1,0 +1,11 @@
+--- pcre-3.9/configure.orig	2002-09-18 18:52:48.000000000 -0400
++++ pcre-3.9/configure	2002-09-18 18:53:20.000000000 -0400
+@@ -3083,7 +3083,7 @@
+ # This must be Linux ELF.
+ linux-gnu*)
+   case $host_cpu in
+-  alpha* | i*86 | powerpc* | sparc* | ia64* )
++  alpha* | i*86 | powerpc* | sparc* | ia64* | s390* | x86_64* )
+     lt_cv_deplibs_check_method=pass_all ;;
+   *)
+     # glibc up to 2.1.1 does not perform some relocations on ARM

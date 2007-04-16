@@ -1,0 +1,15 @@
+include top.mak
+
+.PHONY: all
+all : rpm
+
+.PHONY: rpm
+rpm:
+	$(MAKE) recurse TARGETS="all"
+
+%:
+	$(MAKE) recurse TARGETS="$@"
+
+.PHONY: repo
+repo:
+	cd @DEST_RPM@ && createrepo .

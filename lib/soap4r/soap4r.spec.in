@@ -1,0 +1,47 @@
+Summary: SOAP4R
+Name: @NAME@
+Version: @VERSION@
+Release: @REL@
+License: GPL
+Group: Development/Languages
+URL: @URL@
+Source0: %{name}-%{release}.tar.gz
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+%define sitelib /usr/lib/site_ruby/1.8
+Requires: http-access
+
+%description
+Latest ruby SOAP library. Ruby through 1.8.5 has an older version of SOAP4R then what
+is required by some modules. This RPM installs a newer version of
+SOAP4R into the site_ruby directory to override the SOAP4R
+code that comes with ruby.  Eventually, this package will not be needed as newer
+versions for ruby get released that in turn contain newer versions of SOAP4R
+
+
+%prep
+rm -rf %{name}-%{release}
+tar -xzf %{SOURCE0}
+
+%build
+
+%install
+rm -rf $RPM_BUILD_ROOT
+SiteLibDir=$RPM_BUILD_ROOT%{sitelib}
+mkdir -p $SiteLibDir
+cd %{name}-%{release}
+cp -r lib/* $SiteLibDir
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root,-)
+%{sitelib}
+
+%doc
+
+
+%changelog
+* Fri Jan 26 2007 Douglas Hubler <dhubler@pingtel.com> - 
+- Initial build.
+

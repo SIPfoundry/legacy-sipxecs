@@ -1,0 +1,11 @@
+--- xerces-c-src_2_7_0/xerces-c.spec.~1~	2005-09-07 11:56:58.000000000 -0400
++++ xerces-c-src_2_7_0/xerces-c.spec	2006-04-01 23:57:24.000000000 -0500
+@@ -10,7 +10,7 @@
+ Release:	3
+ URL:		http://xml.apache.org/xerces-c/
+ Source0:    %{name}-src_%{tarversion}.tar.gz
+-Copyright:	Apache
++License:	Apache
+ Group:		Libraries
+ BuildRoot:	%{_tmppath}/%{name}-root
+ Prefix:		/usr
