@@ -61,7 +61,7 @@ public:
             "Cseq: 1 REGISTER\r\n"
             "Max-Forwards: 20\r\n"
             "User-Agent: DUMB/0.01\r\n"
-            "Contact: me@127.0.0.1\r\n"
+            "Contact: sip:me@127.0.0.1\r\n"
             "Expires: 1000\r\n"
             "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
             "Content-Length: 0\r\n"
@@ -100,7 +100,7 @@ public:
 
             UtlString subscriber;
             subscribeRequest.getContactUri(0, &subscriber);
-            ASSERT_STR_EQUAL("me@127.0.0.1", subscriber.data());
+            ASSERT_STR_EQUAL("sip:me@127.0.0.1", subscriber.data());
 
             UtlString event;
             subscribeRequest.getEventField(&event);
@@ -124,7 +124,7 @@ public:
             "Cseq: 1 REGISTER\r\n"
             "Max-Forwards: 20\r\n"
             "User-Agent: NOTDUMB/0.01\r\n"
-            "Contact: me@127.0.0.1\r\n"
+            "Contact: sip:me@127.0.0.1\r\n"
             "Expires: 1000\r\n"
             "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
             "Content-Length: 0\r\n"
@@ -142,7 +142,7 @@ public:
             "Cseq: 1 REGISTER\r\n"
             "Max-Forwards: 20\r\n"
             "User-Agent: SOMEDV/1.01\r\n"
-            "Contact: me@127.0.0.1\r\n"
+            "Contact: sip:me@127.0.0.1\r\n"
             "Expires: 1000\r\n"
             "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
             "Content-Length: 0\r\n"
