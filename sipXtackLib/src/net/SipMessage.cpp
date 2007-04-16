@@ -3172,15 +3172,15 @@ UtlBoolean SipMessage::getCSeqField(int* sequenceNum, UtlString* sequenceMethod)
 
 UtlBoolean SipMessage::getContactUri(int addressIndex, UtlString* uri) const
 {
-    UtlBoolean uriFound = getContactEntry(addressIndex, uri);
-    if(uriFound)
-    {
-        int trimIndex = uri->index('<');
-        if(trimIndex >= 0) uri->remove(0, trimIndex + 1);
-        trimIndex = uri->index('>');
-        if(trimIndex > 0) uri->remove(trimIndex);
-    }
-    return(uriFound);
+   UtlBoolean uriFound = getContactField(addressIndex, *uri);
+   if (uriFound)
+   {
+      // Parse as a name-addr.
+      Url parsed(uri->data(), FALSE);
+      // Un-parse as an addr-spec.
+      parsed.getUri(*uri);
+   }
+   return uriFound;
 }
 
 UtlBoolean SipMessage::getContactField(int addressIndex, UtlString& contactField) const

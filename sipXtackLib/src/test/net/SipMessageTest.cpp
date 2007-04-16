@@ -52,6 +52,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testSetInviteDataHeadersForbidden);
       CPPUNIT_TEST(testCompactNames);
       CPPUNIT_TEST(testApplyTargetUriHeaderParams);
+      CPPUNIT_TEST(testGetContactUri);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -1674,6 +1675,62 @@ class SipMessageTest : public CppUnit::TestCase
          
       };
 
+   void testGetContactUri()
+      {
+         // Template for messages.
+         const char* message_skeleton =
+            "REGISTER sip:sipx.local SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
+            "To: sip:sipx.local\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 REGISTER\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "Contact: %s\r\n"
+            "Expires: 300\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         // List of tests:  values for the Contact field and the URI
+         // that should be extracted from them.
+         struct test
+         {
+            const char* contact_field;
+            const char* contact_uri;
+         }
+         tests[] =
+         {
+            { "sip:me@127.0.0.1", "sip:me@127.0.0.1" },
+            { "<sip:me@127.0.0.1>", "sip:me@127.0.0.1" },
+            { "sip:me@127.0.0.1;transport=udp", "sip:me@127.0.0.1" },
+            { "<sip:me@127.0.0.1;transport=udp>", "sip:me@127.0.0.1;transport=udp" },
+            { "<sip:me@127.0.0.1>;transport=udp", "sip:me@127.0.0.1" },
+            { "\"Magic <trouble>\" <sip:me@127.0.0.1>", "sip:me@127.0.0.1" },
+         };
+
+         // Loop through all the cases.
+         for (int i = 0; i < sizeof (tests) / sizeof (tests[0]) ; i++)
+         {
+            // Assemble test message.
+            char msg[100];
+            sprintf(msg, "Test %d, Contact '%s'", i, tests[i].contact_field);
+            
+            // Compose a SipMessage with the right Contact field value.
+            char buffer[1000];
+            sprintf(buffer, message_skeleton, tests[i].contact_field);
+            SipMessage message(buffer, strlen(buffer));
+
+            UtlString uri;
+            UtlBoolean ret = message.getContactUri(0, &uri);
+
+            fprintf(stderr, "ret = %d, uri = '%s'\n", ret, uri.data());
+
+            CPPUNIT_ASSERT_MESSAGE(msg, ret);
+            ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].contact_uri, uri.data());
+         }
+      };
 
 };
 
