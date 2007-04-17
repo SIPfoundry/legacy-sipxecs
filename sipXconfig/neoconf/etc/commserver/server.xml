@@ -91,11 +91,7 @@
     </setting>
     <setting name="SIP_REDIRECT.190-ISN.PREFIX" advanced="yes">
       <profileName>registrar-config.in</profileName>
-      <type>
-        <string>
-          <pattern>[0-9*#]+</pattern>
-        </string>
-      </type>
+      <type refid="feature-code"/>
     </setting>
   </group>
   <group name="enum">
@@ -107,19 +103,11 @@
     </setting>
     <setting name="SIP_REDIRECT.200-ENUM.DIAL_PREFIX">
       <profileName>registrar-config.in</profileName>
-      <type>
-        <string>
-          <pattern>[0-9*#]+</pattern>
-        </string>
-      </type>
+      <type refid="feature-code"/>
     </setting>
     <setting name="SIP_REDIRECT.200-ENUM.ADD_PREFIX">
       <profileName>registrar-config.in</profileName>
-      <type>
-        <string>
-          <pattern>[0-9*#]+</pattern>
-        </string>
-      </type>
+      <type refid="feature-code"/>
     </setting>
     <setting name="SIP_REDIRECT.200-ENUM.PREFIX_PLUS" advanced="yes">
       <profileName>registrar-config.in</profileName>
@@ -161,7 +149,7 @@
     <setting name="SIP_REDIRECT.180-PICKUP.GLOBAL_CALL_PICKUP_CODE">
       <profileName>registrar-config.in</profileName>
       <type refid="feature-code" />
-      <value>*78*</value>
+      <value>*79</value>
     </setting>
     <setting name="SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE">
       <profileName>registrar-config.in</profileName>
@@ -170,11 +158,7 @@
     </setting>
     <setting name="SIP_REDIRECT.180-PICKUP.CALL_RETRIEVE_CODE">
       <profileName>registrar-config.in</profileName>
-      <type>
-        <string required="yes">
-          <pattern>[0-9*#]+</pattern>
-        </string>
-      </type>
+      <type refid="feature-code" required="yes"/>
       <value>*4</value>
     </setting>
     <setting name="SIP_REDIRECT.180-PICKUP.CALL_PICKUP_WAIT" advanced="yes">

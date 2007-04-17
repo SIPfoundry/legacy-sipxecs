@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
-public interface SettingType {
+public interface SettingType extends Cloneable {
     String getName();
 
     boolean isRequired();
@@ -32,4 +32,6 @@ public interface SettingType {
     String getLabel(Object value);
 
     void setId(String id);
+    
+    public SettingType clone();
 }

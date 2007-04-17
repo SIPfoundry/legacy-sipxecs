@@ -24,4 +24,12 @@ public abstract class AbstractSettingType implements SettingType {
         return m_id;
     }
 
+    @Override
+    public SettingType clone() {
+        try {
+            return (SettingType) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

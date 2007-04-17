@@ -33,4 +33,20 @@ public class SettingTypeReferencesTest extends TestCase {
         assertNotNull(type);
         assertTrue(type instanceof BooleanSetting);
     }
+    
+    public void testRequired() {
+        SettingType notrequired = group.getSetting("not-required-in-type/not-required").getType();
+        assertFalse(notrequired.isRequired());
+
+        SettingType required = group.getSetting("not-required-in-type/required").getType();
+        assertTrue(required.isRequired());
+    }
+
+    public void testRequiredInType() {
+        SettingType notrequired = group.getSetting("required-in-type/not-required").getType();
+        assertFalse(notrequired.isRequired());
+
+        SettingType required = group.getSetting("required-in-type/required").getType();
+        assertTrue(required.isRequired());
+    }
 }

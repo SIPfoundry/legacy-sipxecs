@@ -13,9 +13,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.digester.BeanPropertySetterRule;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
@@ -43,6 +45,7 @@ public class XmlModelBuilder implements ModelBuilder {
     private static final String ADD_SETTING_METHOD = "addSetting";
     private static final String EL_VALUE = "/value";
     private static final String EL_LABEL = "/label";
+    private static final String REQUIRED = "required";
 
     private final File m_configDirectory;
 
@@ -207,12 +210,24 @@ public class XmlModelBuilder implements ModelBuilder {
             m_id = attributes.getValue("id");
             String refid = attributes.getValue("refid");
             if (refid != null) {
-                SettingType type = (SettingType) m_types.get(refid);
-                if (type == null) {
+                SettingType prototype = (SettingType) m_types.get(refid);
+                if (prototype == null) {
                     throw new IllegalArgumentException("Setting type with id=" + refid + " not found.");
                 }
+                SettingType type = prototype.clone();
                 Setting setting = (Setting) getDigester().peek();
                 setting.setType(type);
+                
+                String required = attributes.getValue(REQUIRED);
+                if (!StringUtils.isBlank(required)) {
+                    try {
+                        BeanUtils.setProperty(type, REQUIRED, "yes".equals(required));
+                    } catch (IllegalAccessException e) {
+                        throw new IllegalArgumentException("Could not access 'required' property on " + type);
+                    } catch (InvocationTargetException e) {
+                        throw new IllegalArgumentException("Could not set 'required' property on " + type);
+                    }
+                }
             }
         }
     }
