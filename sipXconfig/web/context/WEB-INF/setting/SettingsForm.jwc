@@ -2,17 +2,14 @@
 <!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <component-specification class="org.sipfoundry.sipxconfig.site.setting.SettingsForm" allow-body="no" allow-informal-parameters="no">
   <description>Form to configure set of settings</description>
-  <parameter name="settings" required="yes"  >
-  </parameter>
-  <parameter name="cancelListener" required="yes"  >
-  </parameter>
-  <parameter name="okListener"  required="no"  default-value="null">
-  </parameter>
-  <parameter name="applyListener" required="yes"  >
-  </parameter>
-  <parameter name="validator" required="yes"  />
+  <parameter name="settings" required="yes"/>
+  <parameter name="cancelListener" required="yes"/>
+  <parameter name="okListener"  required="no"  default-value="null"/>
+  <parameter name="applyListener" required="yes"/>
+  <parameter name="validator" required="yes"/>  
   <parameter name="requiredEnabled" required="no" default-value="true"/>
-  <property name="action" />
+  <property name="action"/>
+  <inject property="tapestry" object="spring:tapestry"/>
   <component id="settingsForm" type="Form">
     <binding name="delegate" value="validator"/>
     <binding name="listener" value="listener:formSubmit"/>

@@ -42,7 +42,8 @@ public class PasswordSettingTestUi extends WebTestCase {
         clickLinkWithText(SiteTestHelper.TEST_USER);
         clickLinkWithText("Credentials");
         clickLink("setting:toggle");
-        Element passwordField = getDialog().getElement("setting:password");        
+        Element passwordField = getDialog().getElement("setting:password");    
+tester.dumpResponse();
         assertEquals("password", passwordField.getAttribute("type"));
     }
 }

@@ -19,6 +19,8 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxServer.ConflictingFeatureCodeException;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxServer.ConflictingFeatureCodeValidator;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -48,10 +50,34 @@ public class SipxServerTest extends TestCase {
         TestHelper.copyStreamToDirectory(registrar, TestHelper.getTestDirectory(),
                 "registrar-config.in");
     }
-
+    
     public void testGetSetting() {
         Setting settings = m_server.getSettings();
         assertNotNull(settings);
+    }
+
+    public void testConflictingFeatureCodes() {
+        Setting settings = m_server.getSettings().copy();        
+        ConflictingFeatureCodeValidator validator = new ConflictingFeatureCodeValidator();
+        validator.validate(settings);
+        
+        settings = m_server.getSettings().copy();        
+        settings.getSetting("call-pick-up/SIP_REDIRECT.180-PICKUP.GLOBAL_CALL_PICKUP_CODE").setValue("*7");
+        try {
+            validator.validate(settings);
+            fail();
+        } catch (ConflictingFeatureCodeException expected) {
+            assertTrue(true);
+        }
+        
+        settings = m_server.getSettings().copy();        
+        settings.getSetting("enum/SIP_REDIRECT.200-ENUM.ADD_PREFIX").setValue("*7");
+        try {
+            validator.validate(settings);
+            fail();
+        } catch (ConflictingFeatureCodeException expected) {
+            assertTrue(true);
+        }
     }
 
     public void testGetAliasMappings() {

@@ -25,8 +25,6 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class TapestryContextTest extends TestCase {
-    private TapestryContext m_context;
-
     static {
         // Note: this function is called by Tapestry object when first
         // ApplicationRunctimeException is called
@@ -34,10 +32,6 @@ public class TapestryContextTest extends TestCase {
         // I am calling it here explicitely, not to make it faster, but to better expose the reason
         // why the test is slow
         Locale.getAvailableLocales();
-    }
-
-    protected void setUp() throws Exception {
-        m_context = new TapestryContext();
     }
 
     public void testTreatUserExceptionAsValidationError() {
@@ -50,8 +44,7 @@ public class TapestryContextTest extends TestCase {
         IValidationDelegate validator = validatorControl.createMock(IValidationDelegate.class);
         validatorControl.replay();
 
-        IActionListener listener = m_context.treatUserExceptionAsValidationError(validator,
-                action);
+        IActionListener listener = new TapestryContext().treatUserExceptionAsValidationError(validator, action);
         listener.actionTriggered(null, null);
 
         actionControl.verify();
@@ -72,7 +65,7 @@ public class TapestryContextTest extends TestCase {
         validator.record((ValidatorException) EasyMock.anyObject());        
         validatorControl.replay();
 
-        IActionListener listener = m_context.treatUserExceptionAsValidationError(validator,
+        IActionListener listener = new TapestryContext().treatUserExceptionAsValidationError(validator,
                 action);
         listener.actionTriggered(null, null);
 
@@ -93,7 +86,7 @@ public class TapestryContextTest extends TestCase {
         IValidationDelegate validator = validatorControl.createMock(IValidationDelegate.class);
         validatorControl.replay();
 
-        IActionListener listener = m_context.treatUserExceptionAsValidationError(validator,
+        IActionListener listener = new TapestryContext().treatUserExceptionAsValidationError(validator,
                 action);
         try {
             listener.actionTriggered(null, null);
@@ -117,7 +110,7 @@ public class TapestryContextTest extends TestCase {
         IValidationDelegate validator = validatorControl.createMock(IValidationDelegate.class);
         validatorControl.replay();
 
-        IActionListener listener = m_context.treatUserExceptionAsValidationError(validator,
+        IActionListener listener = new TapestryContext().treatUserExceptionAsValidationError(validator,
                 action);
         try {
             listener.actionTriggered(null, null);

@@ -20,6 +20,8 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.ConfigFileStorage;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -65,12 +67,49 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     }
 
     public void applySettings() {
+        new ConflictingFeatureCodeValidator().validate(getSettings());
         try {
             m_storage.flush();
             handlePossiblePresenceServerChange();
         } catch (IOException e) {
             // TODO: catch and report as User Exception
             throw new RuntimeException(e);
+        }
+    }
+    
+    static class ConflictingFeatureCodeValidator extends AbstractSettingVisitor {
+        private List<Setting> m_codes;
+        
+        /**
+         * Reentrant but not multi-threaded
+         */
+        void validate(Setting settings) {
+            m_codes = new ArrayList();
+            settings.acceptVisitor(this);            
+        }
+        
+        public void visitSetting(Setting setting) {
+            String value = setting.getValue();
+            if (StringUtils.isBlank(value)) {
+                return;
+            }
+            String name = setting.getName();
+            if (name.endsWith("_CODE") || name.endsWith("_PREFIX")) {
+                for (Setting code : m_codes) {
+                    String codeValue = code.getValue();
+                    if (value.startsWith(codeValue) || codeValue.startsWith(value)) {
+                        throw new ConflictingFeatureCodeException(setting, code);
+                    }
+                }
+                m_codes.add(setting);
+            }
+        }        
+    }
+    
+    public static class ConflictingFeatureCodeException extends UserException {
+        ConflictingFeatureCodeException(Setting a, Setting b) {
+            // TODO: Localize
+            super("Conflicting feature codes: " + a.getLabel() + " and " + b.getLabel());
         }
     }
 

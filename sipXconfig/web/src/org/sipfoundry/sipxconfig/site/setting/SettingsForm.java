@@ -14,6 +14,7 @@ import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IForm;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.valid.IValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
 
 public abstract class SettingsForm extends BaseComponent {
 
@@ -32,7 +33,7 @@ public abstract class SettingsForm extends BaseComponent {
      */
     public void formSubmit(IRequestCycle cycle) {
         IActionListener action = getAction();
-        IValidationDelegate delegate = getValidator();
+        IValidationDelegate delegate = getValidator();        
         if (null == action) {
             delegate.clear();
             return;
@@ -42,7 +43,8 @@ public abstract class SettingsForm extends BaseComponent {
             delegate.clear();
         }
         if (!delegate.getHasErrors()) {
-            action.actionTriggered(this, cycle);
+            IActionListener adapter = new TapestryContext().treatUserExceptionAsValidationError(delegate, action);
+            adapter.actionTriggered(this, cycle);
         }
     }
 
