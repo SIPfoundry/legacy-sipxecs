@@ -43,7 +43,6 @@ public class PasswordSettingTestUi extends WebTestCase {
         clickLinkWithText("Credentials");
         clickLink("setting:toggle");
         Element passwordField = getDialog().getElement("setting:password");    
-tester.dumpResponse();
         assertEquals("password", passwordField.getAttribute("type"));
     }
 }
