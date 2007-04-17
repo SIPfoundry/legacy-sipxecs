@@ -310,7 +310,7 @@ private:
     UtlString mInitialMethod;
     UtlString msLocalRequestUri;
     UtlString msRemoteRequestUri;
-    UtlBoolean mLocalInitatedDialog;
+    UtlBoolean mLocalInitiatedDialog;
     int mInitialLocalCseq;
     int mInitialRemoteCseq;
     int mLastLocalCseq;

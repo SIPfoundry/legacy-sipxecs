@@ -168,7 +168,7 @@ private:
     int mDefaultExpiration;
     int mMaxExpiration;
 
-    // Container for the subscritption states
+    // Container for the subscription states
     UtlHashMap mSubscriptionStatesByDialogHandle;
 
     // Index to subscription states in mSubscriptionStatesByDialogHandle

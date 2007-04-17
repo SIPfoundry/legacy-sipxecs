@@ -40,7 +40,7 @@ SipDialog::SipDialog(const SipMessage* initialMessage,
            (initialMessage->isResponse() &&
            !isFromLocal))
        {
-           mLocalInitatedDialog = TRUE;
+           mLocalInitiatedDialog = TRUE;
            initialMessage->getFromUrl(mLocalField);
            mLocalField.getFieldParameter("tag", mLocalTag);
            initialMessage->getToUrl(mRemoteField);
@@ -53,7 +53,7 @@ SipDialog::SipDialog(const SipMessage* initialMessage,
        // The transaction was initiated from the other side
        else
        {
-           mLocalInitatedDialog = FALSE;
+           mLocalInitiatedDialog = FALSE;
            initialMessage->getFromUrl(mRemoteField);
            mRemoteField.getFieldParameter("tag", mRemoteTag);
            initialMessage->getToUrl(mLocalField);
@@ -91,6 +91,8 @@ SipDialog::SipDialog(const SipMessage* initialMessage,
    }
    else
    {
+       // Insert dummy values into fields that aren't automatically initialized.
+       mLocalInitiatedDialog = FALSE;
        mLastLocalCseq = -1;
        mLastRemoteCseq = -1;
        mInitialLocalCseq = -1;
@@ -130,7 +132,7 @@ SipDialog::SipDialog(const SipDialog& rSipDialog)
    mRemoteContact = rSipDialog.mRemoteContact;
    mRouteSet = rSipDialog.mRouteSet;
    mInitialMethod = rSipDialog.mInitialMethod;
-   mLocalInitatedDialog = rSipDialog.mLocalInitatedDialog;
+   mLocalInitiatedDialog = rSipDialog.mLocalInitiatedDialog;
    mInitialLocalCseq = rSipDialog.mInitialLocalCseq;
    mInitialRemoteCseq = rSipDialog.mInitialRemoteCseq;
    mLastLocalCseq = rSipDialog.mLastLocalCseq;
@@ -166,7 +168,7 @@ SipDialog::operator=(const SipDialog& rhs)
    mRemoteContact = rhs.mRemoteContact;
    mRouteSet = rhs.mRouteSet;
    mInitialMethod = rhs.mInitialMethod;
-   mLocalInitatedDialog = rhs.mLocalInitatedDialog;
+   mLocalInitiatedDialog = rhs.mLocalInitiatedDialog;
    mInitialLocalCseq = rhs.mInitialLocalCseq;
    mInitialRemoteCseq = rhs.mInitialRemoteCseq;
    mLastLocalCseq = rhs.mLastLocalCseq;
@@ -238,7 +240,7 @@ void SipDialog::updateDialogData(const SipMessage& message)
         {
             // A successful response to an INVITE or SUBSCRIBE
             // make this early dialog a set up dialog
-            if(mLocalInitatedDialog &&
+            if(mLocalInitiatedDialog &&
                message.isResponse() && 
                responseCode >= SIP_2XX_CLASS_CODE && // successful dialog setup
                responseCode < SIP_3XX_CLASS_CODE &&
@@ -292,7 +294,7 @@ void SipDialog::updateDialogData(const SipMessage& message)
         {
             // A response (e.g. NOTIFY) can come before we get the
             // successful response to the initial transaction
-            if(!mLocalInitatedDialog &&
+            if(!mLocalInitiatedDialog &&
                !message.isResponse() &&
                mRemoteTag.isNull()) // tag not set
             {
@@ -307,7 +309,7 @@ void SipDialog::updateDialogData(const SipMessage& message)
         // First successful response from the local side
         if(cSeq == mLastRemoteCseq)
         {
-            if(!mLocalInitatedDialog &&
+            if(!mLocalInitiatedDialog &&
                message.isResponse() && 
                responseCode >= SIP_2XX_CLASS_CODE && // successful dialog setup
                responseCode < SIP_3XX_CLASS_CODE &&
@@ -389,12 +391,12 @@ void SipDialog::getEarlyHandle(UtlString& earlyDialogHandle) const
     // Do not add the tag for the side that did not initiate the dialog
     earlyDialogHandle = *this; // callId
     earlyDialogHandle.append(DIALOG_HANDLE_SEPARATOR);
-    if(mLocalInitatedDialog)
+    if(mLocalInitiatedDialog)
     {
         earlyDialogHandle.append(mLocalTag);
     }
     earlyDialogHandle.append(DIALOG_HANDLE_SEPARATOR);
-    if(!mLocalInitatedDialog)
+    if(!mLocalInitiatedDialog)
     {
         earlyDialogHandle.append(mRemoteTag);
     }
@@ -860,8 +862,8 @@ void SipDialog::toString(UtlString& dialogDumpString)
     dialogDumpString.append(msLocalRequestUri);
     dialogDumpString.append("\nmsRemoteRequestUri:");
     dialogDumpString.append(msRemoteRequestUri);
-    dialogDumpString.append("\nmLocalInitatedDialog:");
-    dialogDumpString.append(mLocalInitatedDialog);
+    dialogDumpString.append("\nmLocalInitiatedDialog:");
+    dialogDumpString.append(mLocalInitiatedDialog ? "T" : "F");
     sprintf(numberString, "%d", mInitialLocalCseq);
     dialogDumpString.append("\nmInitialLocalCseq:");
     dialogDumpString.append(numberString);
