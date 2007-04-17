@@ -1,0 +1,623 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Pingtel Interop Online</title>
+<style>
+body
+{
+background-color: white;
+color: #336699;
+margin-left: 5%;
+margin-right: 5%;
+}
+h2
+{
+margin-left: -3%;
+}
+.nav
+{
+background-color: #336699;
+color: white;
+}
+.component
+{
+background-color: #CCCC99;
+}
+h1
+{
+color: #336699;
+margin-top: .75em;
+}
+
+.group
+{
+font-style: italic;
+border-color: #FFCC00;
+border-width: 1;
+border-style: solid;
+}
+code
+{
+white-space: pre;
+}
+img
+{
+   border-width: 0;
+}
+</style>
+</head>
+
+<body>
+<a href="http://www.pingtel.com/">
+<img src="logo_pingtel.gif" alt="Pingtel Corp." border="0" height="53"
+width="133" align="left" />
+</a>
+
+<h1 align="right">
+&nbsp;Interop Online
+</h1>
+<hr>
+
+<p>
+This test server is provided by <a
+href='http://www.pingtel.com/'>Pingtel</a> for open interoperability
+testing of SIP user agents.  It is the sipXpbx <a href='http://www.sipfoundry.org/sipXpbx/'>sipXpbx open source software</a>
+with a <a href='#config'>custom configuration</a>.  This configuration
+is designed to exercise issues we have found are important to
+interoperability between User Agents and Proxies.
+This server is restarted once a week, at 00:00 Sunday UTC.
+The restart process takes approximately 2 minutes.
+</p>
+<p>
+<a href='sipx-version.cgi'>Display the sipX version running on this server</a>
+</p>
+<p>
+This server is freely available to all, <strong>but Pingtel does not
+provide any free support for diagnosing problems you have with these
+tests.</strong>  If you are in need of help, consulting is available
+for a fee; contact &lt;<a href='mailto:%69%6E%74%65%72%6F%70%2D%63%6F%6E%66%69%67%40%70%69%6E%67%74%65%6C%2E%63%6F%6D'><b>interop-config</b><i>(at)</i><b>pingtel</b><i>(dot)</i><b>com</b></a>&gt;.
+</p>
+
+<blockquote>
+<p>
+<strong>NOTE WELL:</strong>  All communication with this server is
+logged and used under the
+"<a href="http://www.cs.columbia.edu/sip/sipit/faq.html">SIPit rules</a>":
+It may be used by Pingtel for internal testing and
+development, and aggregate information may be released to other
+parties.  Pingtel will not deliberately release to other parties any
+information identifiable to a specific user, product, or
+company.
+</p>
+
+<p>
+However, some information about your use of this server will be
+visible to the public through normal SIP capabilities and
+through the various CGIs linked to on these pages.
+</p>
+
+<p>
+Any information you obtain about other users of this server you may
+use only under the SIPit rules.
+</p>
+</blockquote>
+
+<p>
+Once you have used this server to verify your implementation's basic
+functionality, you should consider attending
+<a href="http://www.cs.columbia.edu/sip/sipit/">SIPit</a> to do
+thorough interoperability testing with dozens of other implementations.
+</p>
+
+<p>
+For more information and resources to help you assess and improve the
+interoperability of your SIP implementation, see the
+<a href='http://www.sipfoundry.org/interoperability.html'>
+SIPfoundry Interoperability Initiative
+</a>.
+</p>
+
+<hr />
+
+<h2>Addresses</h2>
+
+<p>
+The tests below are organized so that they can be used by more than
+one tester at a time - if you pick your own group of extensions.  Pick
+a number between 10 and 99 - this is your <span class='group'>group
+number</span>; in the addresses below, the group number
+is shown as "<span class='group'>gg</span>".  To see if the group
+number you have chosen is in use, check the
+<a href="registrations.cgi">registrations page</a> - look for any
+User values that use that group number.   Each group consists of 9
+addresses that you can register:
+<pre>
+    sip:1<span class='group'>gg</span>1@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>2@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>3@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>4@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>5@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>6@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>7@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>8@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>9@@SIPXCHANGE_DOMAIN_NAME@
+</pre>
+
+<!-- REMOVED TEMPORARILY until we are sure that TCP is working right.
+
+<h2>DNS SRV</h2>
+
+<p>
+The SRV records for <code>@SIPXCHANGE_DOMAIN_NAME@</code> are set to prefer
+TCP; your user agent should choose TCP over UDP.
+</p>
+
+-->
+
+<h2>Registration</h2>
+
+<p>
+The credentials for the test addresses are:
+</p>
+<dl>
+  <dt>Address Of Record</dt>
+  <dd><code>sip:1<span class='group'>gg</span>n@@SIPXCHANGE_DOMAIN_NAME@</code>
+    <br />(for n= 1..9)
+  </dd>
+  <dt>User Name<dt>
+  <dd><code>1<span class='group'>gg</span>n</code>
+    <br />(The user part of the address)
+  </dd>
+  <dt>Realm<dt>
+  <dd><code>@SIPXCHANGE_DOMAIN_NAME@</code></dd>
+  <dt>Password</dt>
+  <dd><code>1234</code></dd>
+</dl>
+
+<p>
+The database of current registration information can be seen on the
+<a href="registrations.cgi">registrations page</a>.
+</p>
+
+<p>
+Confirm that your UA is refreshing its registration correctly - note
+that the registrar randomizes the expiration time of each register
+request, so it will normally be less than the requested time.
+</p>
+
+<!--
+<p>
+If the UA provides a <code>+sip.instance</code> parameter and the
+extension it is registering for is not 
+<code>1<span class='group'>gg</span>7</code>,
+<code>1<span class='group'>gg</span>8</code>,
+or <code>1<span class='group'>gg</span>9</code>, the registrar will
+assign a GRUU to the UA.
+(The GRUU suppression feature is not yet implemented.)
+</p>
+-->
+
+<!--
+<p>
+The registrar returns to the UA a fictitious contact from another UA
+with a very short expiration time.  (This behavior is allowed by RFC 3261.)
+(This feature is not yet implemented.)
+Some UAs respond incorrectly to the short expiration time by
+immediately re-registering.
+A <font color='red'>red</font> value in the "CSeq" column means that
+the UA has incorrectly sent more than 2
+registrations in the last 5 minutes, which probably indicates it has
+this error.
+</p>
+-->
+
+<h2>Confirming Basic Functionality</h2>
+
+<p>
+A call to "<code>sip:100@@SIPXCHANGE_DOMAIN_NAME@</code>" will be answered by an
+auto-attendant.
+Any SIP UA can call a registered UA by calling its AOR,
+"<code>sip:1<span class='group'>gg</span>n@@SIPXCHANGE_DOMAIN_NAME@</code>".
+</p>
+
+<hr />
+
+<h2>The Tests</h2>
+
+<ol>
+<li><a href='#MWI'>DTMF Generation and Message Waiting Indication (MWI)</a></li>
+<li><a href='#xfer'>Transfer</a></li>
+<li><a href='#407'>Authenticated INVITE (407 Proxy Authentication Required)</a></li>
+<li><a href='#403'>Authenticated INVITE (403 Forbidden)</a></li>
+<li><a href='#sfork'>Serial Forking</a></li>
+<li><a href='#pfork'>Parallel Forking</a></li>
+<li><a href='#long'>Long Paths / Large Messages</a></li>
+<li><a href='#merged'>Merged INVITE</a></li>
+<li><a href='#hoplimit'>Hop Limit Exceeded</a></li>
+<li><a href='#pickup'>Call Pick-Up</a></li>
+<li><a href='#pickup'>Call Pick-Up of a Forked Call</a></li>
+<li><a href='#park'>Call Park and Retrieve</a></li>
+<li><a href='#dialog'>Dialog Event Package</a></li>
+<li><a href='#ISN'>ISN Dialing</a></li>
+<li><a href='#moh'>Music on Hold</a></li>
+<li><a href='#ENUM'>ENUM Dialing</a></li>
+<li><a href='#JOIN'>Ad-hoc Conferencing</a></li>
+<li><a href='#SRV'>DNS SRV Record Processing</a></li>
+</ol>
+
+<h3><a name='MWI'>1</a>. DTMF Generation and Message Waiting Indication (MWI)</h3>
+
+<p>
+The addresses 1<span class='group'>gg</span>1 and 1<span
+class='group'>gg</span>2 each have a voicemail box; they may SUBSCRIBE
+for the <code>message-summary</code> event package.  You can call the
+voicemail box directly by calling user
+<code>2<span class='group'>gg</span>1</code> or <code>2<span class='group'>gg</span>2</code>.
+to deposit voicemail.
+</p>
+
+<p>
+Voicemail can be retrieved by calling 101 from UAs registered as
+1<span class='group'>gg</span>1 and 1<span class='group'>gg</span>2.
+The voicemail PIN is the same as the SIP registration password for the AOR.
+The voicemail server interprets RFC 2833 DTMF packets.
+</p>
+
+<h3><a name='xfer'>2</a>. Transfer</h3>
+
+<p>
+A call to "<code>sip:100@@SIPXCHANGE_DOMAIN_NAME@</code>" will be answered by an
+auto-attendant - when you enter a registered extension at the prompt,
+the auto-attendant will blind-transfer your call (REFER without Replaces).
+</p>
+
+<p>
+If your user agent(s) can do consultative transfer (REFER with
+Replaces), then you should also try that through the proxy using
+another UA.
+</p>
+
+<h3><a name='407'>3</a>. Authenticated INVITE (407 Proxy Authentication Required)</h3>
+
+<p>
+A call to <code>3<span class='group'>gg</span>x</code> (for any x 1-9)
+will be challenged for authentication, and when successfully
+authenticated will ring <code>1<span class='group'>gg</span>x</code>.
+</p>
+
+<h3><a name='403'>4</a>. Authenticated INVITE (403 Forbidden)</h3>
+
+<p>
+A call to <code>4<span class='group'>gg</span>x</code> (for any x 1-9)
+will be challenged for authentication, but even when authenticated
+only a caller with an extension ending in 7, 8, or 9 is allowed to
+complete the call
+(which will ring <code>1<span class='group'>gg</span>x</code>).  Any
+other caller will get a 403 Forbidden response.  This allows you to
+test whether or not your user interface communicates the reason for
+the call failure.
+</p>
+
+<h3><a name='sfork'>5</a>. Serial Forking</h3>
+
+<p>
+A call to <code>5<span class='group'>gg</span>0</code>
+will be forked to <code>1<span class='group'>gg</span>3</code>,
+<code>1<span class='group'>gg</span>4</code>, <code>1<span
+class='group'>gg</span>5</code>, and <code>1<span
+class='group'>gg</span>6</code> in some random order.  If not
+answered, the first extension called will receive a CANCEL when the
+next is called.  Make sure that your caller connects with the phone
+that answers, and that all the others correctly clean up the
+canceled requests.
+Note that ringing four contacts can take quite a while, and the
+calling phone or the sipX proxy may time out the call attempt before
+all four phones ring.
+</p>
+
+<h3><a name='pfork'>6</a>. Parallel Forking</h3>
+
+<p>
+A call to <code>6<span class='group'>gg</span>0</code>
+will be simultaneously forked to <code>1<span class='group'>gg</span>3</code>,
+<code>1<span class='group'>gg</span>4</code>, <code>1<span
+class='group'>gg</span>5</code>, and <code>1<span
+class='group'>gg</span>6</code>.  When one answers, the others will
+receive a CANCEL.  Make sure that your caller connects with the phone
+that answers, and that all the others correctly clean up the
+canceled requests.
+</p>
+
+<h3><a name='long'>7</a>. Long Paths / Large Messages</h3>
+
+<p>
+A call to <code>7<span class='group'>gg</span>x</code> (for any x 1-9)
+will spiral several times within the proxy so that when received at <code>1<span
+class='group'>gg</span>x</code> it will have several Vias.  This
+checks your handling of large messages (if UDP, they will be fragmented).
+</p>
+
+<h3><a name='merged'>8</a>. Merged INVITE</h3>
+
+<p>
+A call to <code>8<span class='group'>gg</span>x</code> (for any x 1-9)
+will be forked such that two INVITE requests will be received at <code>1<span
+class='group'>gg</span>x</code> with the same Call-Id, Cseq, and From tag
+values, but different branch ids.  The UAC should accept the first one
+and return a 482 Loop Detected response to the second.  Make sure that
+the loop detected error is sent and that the call is correctly set up
+when the called phone answers.
+</p>
+
+<h3><a name='hoplimit'>9</a>. Hop Limit Exceeded</h3>
+
+<p>
+Any call to <code>9000</code> will return a 483 Too Many Hops.  As a
+diagnostic aid, this software returns part of the failed request in
+the body of the 483 response.  This allows you to test whether or not
+your user interface conveys the reason for the failure (and is not
+troubled by the response body).  This is being considered for
+standardization; see
+<a href='http://www.ietf.org/internet-drafts/draft-ietf-sip-hop-limit-diagnostics-03.txt'>draft-ietf-sip-hop-limit-diagnostics-03</a>.
+</p>
+
+<h3><a name='pickup'>10</a>. Call Pick-Up</h3>
+
+<p>
+Any call to <code>*78xxxx</code> will pick up the call ringing on the
+UA at <code>xxxx</code>.  To use this feature:
+</p>
+
+<ol>
+<li>From one UA, call a second UA via <code>1<span
+class='group'>gg</span>n</code>.</li>
+<li>Leave the call ringing.</li>
+<li>From a third UA, call <code>*781<span
+class='group'>gg</span>n</code>.</li>
+<li>The third UA should now be talking to the first UA, and the second
+should no longer be ringing.</li>
+<li>If the second UA answers the call before the third UA calls <code>*781<span
+class='group'>gg</span>n</code>, the third UA should receive a
+<code>404</code> response rather than connecting to the first UA.</li>
+</ol>
+
+<p>
+This test should work whether or not the first or third UAs are
+registered to the test server.
+</p>
+
+<p>
+This test checks that the first UA correctly handles INVITE with Replaces and
+the early-only option, and whether the second UA generates
+dialog event notices with usable endpoint identification.
+</p>
+
+<h3><a name='pickup-forked'>11</a>. Call Pick-Up of a Forked Call</h3>
+
+<p>
+From one UA, call <code>6<span class='group'>gg</span>0</code>, which
+will be simultaneously forked to <code>1<span class='group'>gg</span>3</code>,
+<code>1<span class='group'>gg</span>4</code>, <code>1<span
+class='group'>gg</span>5</code>, and <code>1<span
+class='group'>gg</span>6</code>.
+</p>
+
+<p>
+The call should ring on <code>1<span class='group'>gg</span>3</code>,
+<code>1<span class='group'>gg</span>4</code>, <code>1<span
+class='group'>gg</span>5</code>, and <code>1<span
+class='group'>gg</span>6</code> (or all of those which have registered
+user agents).
+</p>
+
+<p>
+From another UA, call <code>*781<span class='group'>gg</span>3</code>.
+It should pick up the first call.
+</p>
+
+<p>
+Hang up and repeat the sequence, calling 
+<code>*781<span class='group'>gg</span>4</code>,
+<code>*781<span class='group'>gg</span>5</code>, and
+<code>*781<span class='group'>gg</span>6</code>.
+Each should pick up the forked call.
+</p>
+
+<p>
+This test checks that the first UA correctly tracks the four early
+dialogs generated by the forked call.
+</p>
+
+<h3><a name='park'>12</a>. Call Park and Retrieve</h3>
+
+<p>
+The extensions <code>5<span class='group'>gg</span>x</code> (for any x
+1-9) are <em>parking orbits</em>.
+(The extensions <code>5<span class='group'>gg</span>0</code> are used
+in the Serial Forking test described above.)
+If a call is transferred to a parking orbit, it will connect to the
+<em>park server</em> user agent, which plays music.
+A call can be retrieved from a parking orbit by calling
+<code>*4xxxx</code>, where <code>xxxx</code> is the parking orbit.
+If there are several calls parked on the same orbit, the one that was
+parked there first is retrieved.
+</p>
+
+<p>
+This test checks that the parked UA handles in-dialog REFERs and the
+retrieving UA handles INVITE with Replaces.
+</p>
+
+<p>
+You can subscribe to the call park extensions to get their dialog events.
+</p>
+
+<h3><a name='dialog'>13</a>. Dialog Event Package</h3>
+
+<p>
+Once a registered UA has generated a dialog event package, this server
+can retrieve a copy from its logs and display an analysis of the
+dialog event package against some of the criteria in the
+Internet-Draft
+<a href="http://tools.ietf.org/wg/sip/draft-worley-sip-dialog-03.txt"><code>draft-worley-sip-dialog-03</code></a>,
+"Guidelines for Implementing the Dialog Event Package in User Agents".
+</p>
+
+<p>
+To use this feature, execute a call pick-up where the second UA in the
+procedure (the called UA) is the UA whose dialog event package you
+would like to examine.
+Then enter its extension number in the box below and click on the
+link.
+Violations of the guidelines are marked in
+<font color='red'>red</font> in the analysis.
+</p>
+
+<form action='dialog-event.cgi' method='GET'>
+Extension: <input name='extension' size='4' maxlength='4' />
+<input type='submit' value='Analyze dialog event' />
+</form>
+
+<p>
+You can subscribe to the call park extensions to get their dialog events.
+</p>
+
+<h3><a name='ISN'>14</a>. ISN Dialing</h3>
+
+<!-- Generated using http://freenum.org/gotISN.cgi -->
+<!--START "GOT ISN?" WEB BADGE -->
+<div style="
+  border: medium outset ;
+  margin: 10px;
+  padding: 0.21em;
+  float: right;
+  background-color: #ffffff ;
+  font-size: 18pt" align="center">
+<a href="http://freenum.org/gotISN.cgi">
+  <img src="http://freenum.org/images/gotISN36.png" alt="got ISN?" border="no"></a><br><a style="text-decoration: none" href="isn:100*413">
+100<img border="none" src="http://freenum.org/images/isn_asterisk1.png" alt="*">413</a>
+<br>
+<a href="http://freenum.org/">
+  <font size=-1>freenum.org</font>
+</a>
+</div>
+<!--END "GOT ISN?" WEB BADGE -->
+
+<p>
+This server supports
+<a href="http://freenum.org/">ISN dialing</a>.
+It is reachable via ITAD 413 (for the time being), so for example, the
+auto-attendant can be reached at <code>100*413</code>.
+To contact an ISN destination from this server, the user-part of the URI
+should be <code>*1</code> followed by the ISN dial string.
+For example:
+</p>
+<dl>
+  <dt><code>*1 100*413</code></dt>
+  <dd>This server's auto-attendant</dd>
+  <dt><code>*1 613*262</code></dt>
+  <dd>Free World Dialup echo test</dd>
+  <dt><code>*1 2425*259</code><dt>
+  <dd>Tello echo test</dd>
+</dl>
+
+<h3><a name='moh'>15</a>. Music on Hold</h3>
+
+<p>
+User agents that provide "music on hold" via the technique of
+<a href="http://tools.ietf.org/wg/sipping/draft-ietf-sipping-service-examples/draft-ietf-sipping-service-examples-10.txt">draft-ietf-sipping-service-examples-10</a>
+can use the URI <code>sip:~~mh~@@SIPXCHANGE_DOMAIN_NAME@</code> as an
+audio source.
+</p>
+
+<h3><a name='ENUM'>16</a>. ENUM Dialing</h3>
+
+<p>
+This server supports ENUM dialing using the "official" public enum
+tree <code>e164.arpa</code>.
+To contact an ENUM destination from this server, the user-part of the URI
+should be <code>*2</code> followed by the ENUM dial string.
+For example:
+</p>
+<dl>
+  <dt><code>*2 1 800 555 1234</code>
+  <dd>Routes to the ENUM for the E.164 number +1 800 555 1234.</dd>
+  <dt><code>*2 43 720 0101011</code>
+  <dd>Routes to the ENUM test number +43 720 0101011.</dd>
+</dl>
+<p>
+Additional ENUM test numbers can be found at
+<a href="http://www.enum-test.at/index_en.html"><code>http://www.enum-test.at/index_en.html</code></a>.
+</p>
+
+<h3><a name='JOIN'>17</a>. Ad-hoc Conferencing</h3>
+
+<p>
+Ad-hoc conferencing is useful in call-control applications.
+It is implemented using an INVITE with the Join header.
+</p>
+
+<p>
+Any call to <code>*79xxxx</code> will be turned into an
+INVITE-with-Join to the call that is active on the
+UA at <code>xxxx</code>, which sets up an ad-hoc conference of the new
+caller with the existing participants of the call on <code>xxxx</code>.
+To use this feature:
+</p>
+
+<ol>
+<li>From one UA, call a second UA via <code>1<span
+class='group'>gg</span>n</code>.</li>
+<li>Answer the call.</li>
+<li>From a third UA, call <code>*791<span
+class='group'>gg</span>n</code>.</li>
+<li>The the three UAs should all be conferenced together.</li>
+</ol>
+
+<p>
+This test should work whether or not the first or third UAs are
+registered to the test server.
+</p>
+
+<p>
+This test checks that the first UA correctly handles INVITE with Join,
+and whether the second UA generates
+dialog event notices with usable endpoint identification.
+</p>
+
+<h3><a name='SRV'>18</a>. DNS SRV Record Processing</h3>
+
+<p>
+This server also supports the SIP domains
+<code>@INTEROP_ALIAS_UDP@</code> and <code>@INTEROP_ALIAS_TCP@</code>.
+These domain names do not have DNS A records, rather they are
+configured with DNS SRV records for the UDP and TCP protocols,
+respectively.  A UA should support DNS SRV records and both the UDP
+and TCP protocols, so it should be able to use either of these domain
+names in place of <code>@SIPXCHANGE_DOMAIN_NAME@</code> in all of the tests.
+</p>
+
+<p>
+(Note that the SIP domains 
+<code>@INTEROP_ALIAS_UDP@</code> and <code>@INTEROP_ALIAS_TCP@</code>
+are implemented via sipX's domain aliasing feature, so they are usable
+for call routing but not for registering AORs.)
+</p>
+
+<hr />
+
+<h2><a name='config'>How this server is configured</a></h2>
+
+<p>
+<a href='sipx-version.cgi'>Display the sipX version running on this server</a>
+</p>
+<p>
+This server uses a
+<a href='https://scm.sipfoundry.org/rep/sipX/main/sipXpbx/doc/developer/interop.pingtel.com'>special test configuration</a> of the 
+<a href='http://www.sipfoundry.org/sipXpbx/'>sipXpbx Open Source
+PBX Project</a>.
+(It would not make a very friendly configuration in a real PBX :-).)
+</p>
+
+</body>
+</html>

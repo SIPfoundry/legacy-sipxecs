@@ -1,0 +1,65 @@
+Notes on managing a sipX "interop server".
+
+* To update the sipX code:
+
+From a machine inside Pingtel, create a directory and download the
+RPMs for the desired version.  E.g.:
+
+	wget --no-parent -r -nd \
+		http://falcon.pingtel.com/sipfoundry/main/FC/5/008551/RPM
+
+Create a destination directory on interop (e.g., ~/8551) and upload
+the RPMs to it:
+
+	scp *.rpm interop:8551
+
+On interop, stop sipX and install the new PRMs:
+
+	sudo /sbin/service sipxpbx stop
+
+	sudo rpm --upgrade *.rpm
+
+Note that rpm will attempt to install any RPMs that have the *same*
+version as the currently installed version, as well as any that are
+*newer*.  The former will fail (which causes the entire rpm command to
+fail), so you have to inspect the output of rpm for messages like
+this:
+
+	package xerces-c-2.7.0-3 is already installed
+	package ruby-gems-0.8.11-2 is already installed
+	package cgicc-3.2.3-2 is already installed
+
+Rename these RPMs to have a different extension (or delete them), and
+run the rpm command again.
+
+Do not install the sipXconfig RPMs (sipxconfig, sipxconfig-agent,
+sipxconfig-ftp, sipxconfig-report, and sipxconfig-tftp), as the
+interop configuration uses special config files.  Also, do not install
+the Call Resolver (sipxproxy-cdr), as that requires Postgres to be set
+up.
+
+Once the RPMs are installed, restart sipX:
+
+	sudo /sbin/service sipxpbx start
+
+* To update the Interop sipX configuration:
+
+Create an updated working copy of the configuration files:
+
+	svn co -q https://scm.sipfoundry.org/rep/sipX/main/sipXpbx/doc/developer/interop.pingtel.com
+
+Generate the config.defs file:
+
+	cd ./interop.pingtel.com
+	touch sipx_confdir/config.defs.in
+	sudo make /etc/sipxpbx/config.defs
+
+Edit /etc/sipxpbx/config.defs for any needed customization.
+
+Generate the remainder of the configuration files:
+
+	sudo make install
+
+Restart sipX:
+
+	sudo /sbin/service sipxpbx restart
