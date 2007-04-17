@@ -284,9 +284,9 @@ public class SipBranchData
 
         if(branchIds != null)
         {
-            for(Enumeration enum = branchIds.elements() ; enum.hasMoreElements() ;)
+            for(Enumeration enumerator = branchIds.elements() ; enumerator.hasMoreElements() ;)
             {
-                buffer.append("   branchId: " + (String) enum.nextElement() + "\n");
+                buffer.append("   branchId: " + (String) enumerator.nextElement() + "\n");
             }
         }
 
