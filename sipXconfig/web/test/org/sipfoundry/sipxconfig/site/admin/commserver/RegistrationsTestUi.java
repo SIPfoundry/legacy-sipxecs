@@ -25,23 +25,27 @@ public class RegistrationsTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(tester);
-        SiteTestHelper.setScriptingEnabled(true);
+        //SiteTestHelper.setScriptingEnabled(true);
         clickLink("Registrations");
     }
 
-    public void testDisplay() {
+    public void testRefresh() {
         SiteTestHelper.assertNoException(tester);
-        setWorkingForm("buttonsForm");
-        assertButtonPresent("registrations:refresh");
+        setWorkingForm("refreshForm");
+        assertButtonPresent("refresh");
         assertElementPresent("registrations:page");
-        clickButton("registrations:refresh");
+        clickButton("refresh");
         SiteTestHelper.assertNoException(tester);
-        setWorkingForm("buttonsForm");
-        assertButtonPresent("registrations:refresh");
+        setWorkingForm("refreshForm");
+        assertButtonPresent("refresh");
         assertElementPresent("registrations:page");
     }
 
-    public void testShowPrimary() {
+    /**
+     * DISABLED because this requires javascript and javascript has to be disabled now that 
+     * page uses dojo which is incompatible with the version of httpunit we are using  
+     */
+    public void DISABLED_testShowPrimary() {
         SiteTestHelper.assertNoException(tester);
         
         // display primary column

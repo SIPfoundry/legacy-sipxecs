@@ -35,7 +35,7 @@
     <binding name="source" value="beans.metrics.uniqueRegistrations"/>
     <binding name="pageSize" value="literal:-1"/>
     <binding name="columns" value="'uri,contact,=expiresColumn' + (displayPrimary ? ',primary' : '')"/>
-    <binding name="volatile" value="true"/>
+    <binding name="volatile" value="literal:true"/>
   </component>
   <component id="tableColumns" type="contrib:TableColumns">
   </component>
@@ -44,7 +44,4 @@
     <binding name="class" value="beans.rowClass.next"/>
   </component>
   <component id="tableValues" type="contrib:TableValues"/>
-  <component id="refreshButton" type="Submit">
-    <binding name="value" value="message:button.refresh"/>
-  </component>
 </page-specification>

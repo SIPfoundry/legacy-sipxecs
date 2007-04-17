@@ -1,28 +1,27 @@
-<html>
-<head>
-  <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
-</head>
-<body jwcid="$content$">
-  <div jwcid="@Border">
-    <h2 id="registrations:page">
-      <span key="title">Registrations</span> </h2>
-    <span jwcid="@QuickHelp" value="message:quick.help"/>    
-    <form jwcid="linkForm@Form">
-      <ul class="component-links">
-        <li jwcid="togglePrimary">Display Primary</li>
-      </ul>
-    </form>
+<div jwcid="@Border" useDojo="ognl:true">
+  <h2 id="registrations:page">
+    <span key="title">Registrations</span>
+  </h2>
+  <span jwcid="@QuickHelp" value="message:quick.help"/>
+  <form jwcid="linkForm@Form">
+    <ul class="component-links">
+      <li jwcid="togglePrimary">Display Primary</li>
+    </ul>
+  </form>    
+  <form jwcid="@AutoRefreshForm">
     <ul>
-      <li><span jwcid="@Insert" value="message:registrationCount"/> : 
-          <span jwcid="@Insert" value="ognl:beans.metrics.uniqueRegistrations.size()"/> 
-      </li>
-      <li><span jwcid="@Insert" value="message:activeRegistrationCount"/> : 
-          <span jwcid="@Insert" value="ognl:beans.metrics.activeRegistrationCount"/>
-      </li>
-      <li><span jwcid="@Insert" value="message:registrationBalance"/> : 
-          <span jwcid="@Insert" value="ognl:beans.metrics.loadBalance"
-             format="ognl:beans.twoDigitDecimal"/> 
-      </li>
+      <li>
+        <span jwcid="@Insert" value="message:registrationCount"/> :
+        <span jwcid="@Insert"
+          value="ognl:beans.metrics.uniqueRegistrations.size()"/> </li>
+      <li>
+        <span jwcid="@Insert" value="message:activeRegistrationCount"/> :
+        <span jwcid="@Insert" value="ognl:beans.metrics.activeRegistrationCount"/>
+        </li>
+      <li>
+        <span jwcid="@Insert" value="message:registrationBalance"/> :
+        <span jwcid="@Insert" value="ognl:beans.metrics.loadBalance"
+          format="ognl:beans.twoDigitDecimal"/> </li>
     </ul>
     <table jwcid="tableView" id="registrations:list" class="component">
       <thead>
@@ -36,13 +35,5 @@
         </span>
       </tbody>
     </table>
-    <form jwcid="buttonsForm@Form">
-      <ul class="component-submit">
-        <li>
-          <input jwcid="refreshButton" type="submit" id="registrations:refresh"/>
-        </li>
-      </ul>
-    </form>
-  </div>
-</body>
-</html>
+  </form>
+</div>
