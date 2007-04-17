@@ -154,13 +154,16 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
       UtlString argList(taoMessage->getArgList());
       TaoString arg(argList, TAOMESSAGE_DELIMITER);
 
-#ifdef DEBUGGING
-      dumpTaoMessageArgs(taoEventId, arg) ;
-#endif        
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage TaoMessage args %d",arg.getCnt());
       UtlBoolean localConnection = atoi(arg[TAO_OFFER_PARAM_LOCAL_CONNECTION]);
       UtlString  callId = arg[TAO_OFFER_PARAM_CALLID] ;
       UtlString  address = arg[TAO_OFFER_PARAM_ADDRESS] ;
+      OsSysLog::add(FAC_PARK, PRI_DEBUG, "DialogEventPublisher::handleMessage TaoMessage type %d, subtype %d, Tao event %d, args %d, localConnection %d, callId '%s', address '%s'",
+                    rMsg.getMsgType(), rMsg.getMsgSubType(),
+                    taoEventId, arg.getCnt(),
+                    localConnection, callId.data(), address.data());
+#ifdef DEBUGGING
+      dumpTaoMessageArgs(taoEventId, arg) ;
+#endif        
 
       switch (taoEventId) 
       {
@@ -383,7 +386,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             
          case PtEvent::CONNECTION_DISCONNECTED:
          case PtEvent::CONNECTION_FAILED:
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_DISCONNECTED, CONNECTION_FAILED");         
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_DISCONNECTED/CONNECTION_FAILED");         
             if (!localConnection) 
             {
                if (mpCallManager->getSipDialog(callId, address, sipDialog) !=
