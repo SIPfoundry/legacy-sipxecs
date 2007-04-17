@@ -45,11 +45,18 @@ dns_a () { # ( DOMAIN )
   }
 
 
-sip_resolves_to () { # ( unresolved, targetIp )
-    # returns true (0) if the unresolved name resolves to the targetIp address by sip rules
+sip_resolves_to () { # ( unresolved, target )
+    # returns true (0) if "unresolved" resolves to "target" (an IP address) by SIP rules
      unresolvedName=$1
      targetAddr=$2
 
+     # If unresolvedName is the target IP address.
+     if [ "${unresolvedName}" = "${targetAddr}" ]
+     then
+	 return 0
+     fi
+
+     # Look up A records.
      for ip in `dns_a ${unresolvedName}`
      do
        if [ "${ip}" = "${targetAddr}" ]
@@ -58,6 +65,7 @@ sip_resolves_to () { # ( unresolved, targetIp )
        fi
      done
 
+     # Look up CNAME followed by A records.
      for cName in `dns_cname ${unresolvedName}`
      do
        for ip in `dns_a ${cName}`
@@ -69,6 +77,7 @@ sip_resolves_to () { # ( unresolved, targetIp )
        done
      done
 
+     # Look up SRV followed by A records.
      for tcpSrv in `dns_sipsrv tcp ${unresolvedName}`
      do
        if [ "${tcpSrv}" = "${targetAddr}" ]
@@ -103,4 +112,3 @@ sip_resolves_to () { # ( unresolved, targetIp )
         
      return 1
 }
-
