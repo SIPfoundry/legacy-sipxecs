@@ -48,12 +48,15 @@ debug:
 
 $(CONFIG_FILES): $(SIPX_CONFDIR)/%: sipx_confdir/%
 	cp $< $@
+	chmod a+r $@
 
 $(DOC_FILES): $(HTTP_ROOTDIR)/%: http_rootdir/%
 	cp $< $@
+	chmod a+r $@
 
 $(SIPDB_FILES): $(SIPX_DATADIR)/sipdb/%: sipx_dbdir/%
 	cp $< $@
+	chmod a+r $@
 
 $(SIPX_CONFDIR)/config.defs: $(SIPX_CONFDIR)/config.defs.in
 	sh -c \
@@ -69,6 +72,7 @@ $(SIPX_CONFDIR)/config.defs: $(SIPX_CONFDIR)/config.defs.in
 			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
 			-e 's!@HTTP_MODULEDIR@!$(HTTP_MODULEDIR)!g' \
 		<$< >$@"
+	chmod a+r $@
 
 $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIPX_CONFDIR)/config.defs
 	. $(SIPX_CONFDIR)/config.defs ;\
@@ -89,6 +93,7 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
 			-e 's!@HTTP_MODULEDIR@!$(HTTP_MODULEDIR)!g' \
 		<$< >$@"
+	chmod a+r $@
 
 $(SIPX_DATADIR)/sipdb/credential.xml: $(SIPX_DATADIR)/sipdb/credential.xml.in $(SIPX_CONFDIR)/config.defs
 	sh -c \
