@@ -308,7 +308,7 @@
     </setting>
   </group>
   <group name='DIAL'>
-    <setting name='dial_mode'>
+    <setting name='dial_mode' advanced="yes">
       <!--Dial Mode, number/ip/url (default: number)
       -->
       <type>
