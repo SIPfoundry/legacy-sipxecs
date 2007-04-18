@@ -101,6 +101,9 @@ class ContactSet : public UtlContainableAtomic,
    //! Remove dialogs in terminated state and terminated resource instances.
    void purgeTerminated();
 
+   //! Dump the contents of the ContactSet.
+   void dump();
+
    /**
     * Get the ContainableType for a UtlContainable-derived class.
     */

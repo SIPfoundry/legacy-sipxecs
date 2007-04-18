@@ -542,6 +542,31 @@ void ContactSet::purgeTerminated()
 
 /* ============================ INQUIRY =================================== */
 
+void ContactSet::dump()
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ContactSet::dump this = %p, mUri = '%s'",
+                 this, mUri.data());
+   UtlHashMapIterator itor(mSubscriptions);
+   UtlString* handle;
+   while ((handle = dynamic_cast <UtlString*> (itor())))
+   {
+      UtlHashMap* h = dynamic_cast <UtlHashMap*> (itor.value());
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ContactSet::dump           %p handle '%s'",
+                    h, handle->data());
+      UtlHashMapIterator itor2(*h);
+      UtlString* id;
+      while ((id = dynamic_cast <UtlString*> (itor2())))
+      {
+         OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                       "ContactSet::dump                     id '%s' URI '%s'",
+                       id->data(),
+                       (dynamic_cast <UtlString*> (itor2.value()))->data());
+      }
+   }
+}
+
 /**
  * Get the ContainableType for a UtlContainable-derived class.
  */
