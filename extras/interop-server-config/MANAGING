@@ -6,7 +6,7 @@ From a machine inside Pingtel, create a directory and download the
 RPMs for the desired version.  E.g.:
 
 	wget --no-parent -r -nd \
-		http://falcon.pingtel.com/sipfoundry/main/FC/5/008551/RPM
+		http://falcon.pingtel.com/ecs/main/FC/6/010020/RPM
 
 Create a destination directory on interop (e.g., ~/8551) and upload
 the RPMs to it:
@@ -17,7 +17,7 @@ On interop, stop sipX and install the new PRMs:
 
 	sudo /sbin/service sipxpbx stop
 
-	sudo rpm --upgrade *.rpm
+	sudo rpm --upgrade -p *.rpm
 
 Note that rpm will attempt to install any RPMs that have the *same*
 version as the currently installed version, as well as any that are
@@ -46,7 +46,7 @@ Once the RPMs are installed, restart sipX:
 
 Create an updated working copy of the configuration files:
 
-	svn co -q https://scm.sipfoundry.org/rep/sipX/main/sipXpbx/doc/developer/interop.pingtel.com
+	svn co -q https://sipxecs.sipfoundry.org/rep/sipXecs/main/extras/interop-server-config
 
 Generate the config.defs file:
 
