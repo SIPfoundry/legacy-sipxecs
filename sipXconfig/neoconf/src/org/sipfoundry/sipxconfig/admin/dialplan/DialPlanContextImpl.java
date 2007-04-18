@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.EntitySaveListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -46,13 +47,10 @@ import org.springframework.context.ApplicationListener;
 public class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
         DialPlanContext, ApplicationListener {
     private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
-
+    private static final String ATTENDANT_GROUP_ID = "auto_attendant";
     private static final String OPERATOR_CONSTANT = "operator";
-
     private static final String VALUE = "value";
-
     private static final String AUTO_ATTENDANT = "auto attendant";
-
     private static final String DIALING_RULE = "dialing rule";
 
     private CoreContext m_coreContext;
@@ -68,6 +66,8 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     private String m_scriptsDirectory;
 
     private String m_defaultDialPlanId;
+    
+    private VxmlGenerator m_vxmlGenerator;
 
     /**
      * Loads dial plan, creates a new one if none exist
@@ -257,6 +257,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         }
         clearUnsavedValueStorage(aa.getValueStorage());
         getHibernateTemplate().saveOrUpdate(aa);
+        m_vxmlGenerator.generate(aa);
     }
 
     public AutoAttendant getOperator() {
@@ -533,7 +534,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     }
 
     public Group getDefaultAutoAttendantGroup() {
-        return m_settingDao.getGroupCreateIfNotFound("auto_attendant", "default");
+        return m_settingDao.getGroupCreateIfNotFound(ATTENDANT_GROUP_ID, "default");
     }
 
     public AutoAttendant newAutoAttendantWithDefaultGroup() {
@@ -554,4 +555,27 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
                 AutoAttendant.class);
         return aa.getSettings();
     }
+
+    public EntitySaveListener<Group> createGroupSaveListener() {
+        return new OnGroupSave();
+    }
+    
+    private class OnGroupSave extends EntitySaveListener<Group> {
+        public OnGroupSave() {
+            super(Group.class);
+        }
+
+        protected void onEntitySave(Group group) {
+            if (ATTENDANT_GROUP_ID.equals(group.getResource()) && !group.isNew()) {
+                List<AutoAttendant> attendants = getAutoAttendants();
+                for (AutoAttendant aa : attendants) {
+                    m_vxmlGenerator.generate(aa);
+                }
+            }
+        }
+    }
+
+    public void setVxmlGenerator(VxmlGenerator vxmlGenerator) {
+        m_vxmlGenerator = vxmlGenerator;
+    }    
 }

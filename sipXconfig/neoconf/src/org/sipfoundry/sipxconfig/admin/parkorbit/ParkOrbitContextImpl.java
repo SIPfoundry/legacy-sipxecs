@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.event.EntitySaveListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
@@ -35,6 +36,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         BeanFactoryAware {
     private static final String VALUE = "value";
     private static final String QUERY_PARK_ORBIT_IDS_WITH_ALIAS = "parkOrbitIdsWithAlias";
+    private static final String PARK_ORBIT_GROUP_ID = "park_orbit";
 
     private SipxReplicationContext m_replicationContext;
     private AliasManager m_aliasManager;
@@ -156,7 +158,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     }
 
     public Group getDefaultParkOrbitGroup() {
-        return m_settingDao.getGroupCreateIfNotFound("park_orbit", "default");
+        return m_settingDao.getGroupCreateIfNotFound(PARK_ORBIT_GROUP_ID, "default");
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
@@ -176,5 +178,21 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
             new MohRule()
         };
         return Arrays.asList(rules);
+    }
+    
+    public EntitySaveListener<Group> createGroupSaveListener() {
+        return new OnGroupSave();
+    }
+    
+    private class OnGroupSave extends EntitySaveListener<Group> {
+        public OnGroupSave() {
+            super(Group.class);
+        }
+
+        protected void onEntitySave(Group group) {
+            if (PARK_ORBIT_GROUP_ID.equals(group.getResource()) && !group.isNew()) {
+                activateParkOrbits();
+            }
+        }
     }
 }

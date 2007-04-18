@@ -20,7 +20,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -34,8 +33,6 @@ public abstract class EditAutoAttendant extends PageWithCallback implements
     public abstract AutoAttendant getAttendant();
 
     public abstract void setAttendant(AutoAttendant attendant);
-
-    public abstract VxmlGenerator getVxmlGenerator();
 
     public abstract SelectMap getSelections();
 
@@ -70,7 +67,6 @@ public abstract class EditAutoAttendant extends PageWithCallback implements
         IValidationDelegate validator = TapestryUtils.getValidator(this);
         if (!validator.getHasErrors()) {
             getDialPlanContext().storeAutoAttendant(getAttendant());
-            getVxmlGenerator().generate(getAttendant());
         }
     }
 

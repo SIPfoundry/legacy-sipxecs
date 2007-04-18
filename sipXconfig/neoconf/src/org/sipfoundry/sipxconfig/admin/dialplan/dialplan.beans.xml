@@ -106,6 +106,7 @@
     <property name="settingDao" ref="settingDao" />
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
     <property name="defaultDialPlanId" value="us.dialPlan" />
+    <property name="vxmlGenerator" ref="vxml"/>
   </bean>
 
   <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean"
@@ -121,6 +122,9 @@
   <bean id="vxml" class="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator">
     <property name="velocityEngine" ref="velocityEngine" />
   </bean>
+
+  <bean id="attendantSaveDefaultGroup" factory-bean="dialPlanContextImpl"
+    factory-method="createGroupSaveListener" />
 
   <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules" />
   <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules" />

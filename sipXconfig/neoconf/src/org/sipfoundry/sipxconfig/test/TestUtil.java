@@ -185,6 +185,8 @@ public final class TestUtil {
         sysProps.setProperty("upload.destinationDirectory", outputDirectory + "/tftproot");
         sysProps.setProperty("phonebookManagerImpl.externalUsersDirectory", outputDirectory
                 + "/phonebook");
+        sysProps.setProperty("vxml.scriptsDirectory", outputDirectory + "/vxml");
+        
         File vmDir = new File(outputDirectory + "/mailstore");
         if (!vmDir.exists()) {
             if (!vmDir.mkdirs()) {

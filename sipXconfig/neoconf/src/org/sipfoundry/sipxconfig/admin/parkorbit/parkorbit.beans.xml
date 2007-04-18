@@ -30,4 +30,7 @@
       <ref local="parkOrbitContextImpl" />
     </property>
   </bean>
+
+  <bean id="parkOrbitSaveDefaultGroup" factory-bean="parkOrbitContextImpl"
+    factory-method="createGroupSaveListener" />
 </beans>
