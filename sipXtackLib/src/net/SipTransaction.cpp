@@ -2964,6 +2964,23 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
                 }
             }
 
+            // 487 is better than any other 4xx, 5xx, or 6xx if the
+            // transaction has been canceled.
+            // This improves the odds that we send a 487 response to
+            // canceled transactions, which is not required, but tends
+            // to make UAs behave better.
+            else if (mIsCanceled &&
+                     bestResponseCode >= SIP_4XX_CLASS_CODE &&
+                     childResponseCode == SIP_REQUEST_TERMINATED_CODE)
+            {
+               bestResponse = *(childResponse);
+
+               bestResponse.removeLastVia();
+               bestResponse.resetTransport();
+               bestResponse.clearDNSField();
+               responseFound = TRUE;
+            }
+
             // 401 & 407 are better than any other 4xx, 5xx or 6xx
             else if(bestResponseCode >= SIP_4XX_CLASS_CODE &&
                 (bestResponseCode != HTTP_UNAUTHORIZED_CODE &&
