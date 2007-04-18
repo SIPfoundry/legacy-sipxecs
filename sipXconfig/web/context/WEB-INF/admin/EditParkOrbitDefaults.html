@@ -1,4 +1,7 @@
 <div jwcid="@Border">
   <h2><span key="title">Park Orbit Defaults</span></h2>
-  <span jwcid="settingsForm" />
+  <span jwcid="settingsForm@SettingsForm" settings="prop:parentSetting"
+    cancelListener="listener:cancel" okListener="listener:ok"
+    applyListener="listener:apply" validator="bean:validator"
+    requiredEnabled="literal:false"/>
 </div>

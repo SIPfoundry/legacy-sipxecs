@@ -1,11 +1,7 @@
-<html>
-<head>
-    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
-</head>
-<body jwcid="$content$">
-	<div jwcid="@Border">
-        <h2><span key="title">Auto Attendant Defaults</span></h2>
-        <span jwcid="settingsForm"/>
-    </div>   
-</body>
-</html>
+<div jwcid="@Border">
+  <h2><span key="title">Auto Attendant Defaults</span></h2>
+  <span jwcid="settingsForm@SettingsForm" settings="prop:parentSetting"
+    cancelListener="listener:cancel" okListener="listener:ok"
+    applyListener="listener:apply" validator="bean:validator"
+    requiredEnabled="literal:false"/>
+</div>   

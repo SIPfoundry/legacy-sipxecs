@@ -75,7 +75,8 @@ public abstract class ListParkOrbits extends BasePage implements PageBeginRender
         // get new orbit and its default group
         BeanWithGroups po = getParkOrbitContext().newParkOrbit();
         Group group = po.getGroups().iterator().next();
-        GroupSettings page = (GroupSettings) cycle.getPage("EditParkOrbitDefaults");
+        GroupSettings page = (GroupSettings) cycle.getPage(EditParkOrbitDefaults.PAGE);
+        page.setReturnPage(PAGE);
         page.editGroup(group.getId(), po, PAGE);
         return page;
     }

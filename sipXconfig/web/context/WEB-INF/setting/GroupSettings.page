@@ -1,40 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<page-specification class="org.sipfoundry.sipxconfig.site.setting.GroupSettings">
-  <description>Editing group settings for user.</description>
-
-  <property name="groupId" persist="session" />
-  <property name="settings" />
-  <property name="bean" persist="session" />
-  <property name="parentSettingName" persist="session" />
-  <property name="returnPage" persist="session" />
-
-  <property name="group" />
-  <property name="parentSetting" />
-
-  <inject property="settingDao" object="spring:settingDao" />
-
-  <!-- B E A N S -->
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
-
-  <!--
-    - C O M P O N E N T S
-  -->
-  <component id="settingsNavigation" type="setting/SettingsNavigation">
-    <binding name="bean" value="prop:bean" />  
-    <binding name="source" value="prop:settings.values" />
-    <binding name="activeSetting" value="prop:parentSetting"/>
-    <binding name="editSettingsListener" value="listener:editGroupSettings" />
-  </component>
-  <component id="settingsForm" type="SettingsForm">
-    <binding name="settings" value="parentSetting" />
-    <binding name="cancelListener" value="listener:cancel" />
-    <binding name="okListener" value="listener:ok" />
-    <binding name="applyListener" value="listener:apply" />
-    <binding name="validator" value="bean:validator" />
-    <binding name="requiredEnabled" value="false" />
-  </component>
-  <component id="editGroup" type="DirectLink">
-    <binding name="listener" value="listener:editGroupName" />
-  </component>
+<page-specification>
 </page-specification>

@@ -32,7 +32,6 @@
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="BackupPage" specification-path="admin/BackupPage.page"/>
     <page name="ChangePin" specification-path="user_portal/ChangePin.page"/>
-    <page name="EditAttendantDefaults" specification-path="dialplan/EditAttendantDefaults.page"/>
     <page name="EditAttendantDialRule" specification-path="dialplan/EditAttendantDialRule.page"/>
 	<page name="EditAutoAttendant" specification-path="dialplan/EditAutoAttendant.page"/>
     <page name="EditCallGroup" specification-path="admin/EditCallGroup.page"/>
@@ -52,13 +51,11 @@
     <page name="EditPhoneDefaults" specification-path="phone/EditPhoneDefaults.page"/>
     <page name="EditGateway" specification-path="gateway/EditGateway.page"/>
     <page name="EditParkOrbit" specification-path="admin/EditParkOrbit.page"/>
-    <page name="EditParkOrbitDefaults" specification-path="admin/EditParkOrbitDefaults.page"/>
     <page name="EditPermission" specification-path="permission/EditPermission.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
     <page name="EditUser" specification-path="user/EditUser.page"/>    
     <page name="ExtensionPools" specification-path="admin/ExtensionPools.page"/>    
     <page name="FirstUser" specification-path="user/FirstUser.page"/>
-    <page name="GroupSettings" specification-path="setting/GroupSettings.page"/>    
     <page name="Home" specification-path="Home.page"/>
     <page name="Intercom" specification-path="admin/Intercom.page"/>
     <page name="JobStatusPage" specification-path="admin/JobStatusPage.page"/>    
