@@ -177,5 +177,9 @@
     <property name="exceptionPresenter" object="service:ExceptionPresenter" />
     <property name="componentMessagesSource" object="service:SkinMessagesSource" />
   </contribution>
+  
+  <contribution configuration-id="tapestry.form.translator.Translators">
+    <bean name="integer" class="org.sipfoundry.sipxconfig.site.common.IntTranslator"/>
+  </contribution>
 
 </module>
