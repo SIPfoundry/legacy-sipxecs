@@ -78,6 +78,8 @@ public class Holiday extends ScheduledAttendant {
      * @param maxDayIndex the index of the last objects retained in the list
      */
     public void chop(int maxDayIndex) {
-        m_dates.subList(maxDayIndex + 1, m_dates.size()).clear();
+        if (maxDayIndex < m_dates.size()) {
+            m_dates.subList(maxDayIndex + 1, m_dates.size()).clear();
+        }
     }
 }

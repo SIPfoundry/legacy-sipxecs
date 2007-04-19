@@ -82,5 +82,15 @@ public class HolidayTest extends TestCase {
         holiday.chop(2);
         assertEquals(3, holiday.getDates().size());
     }
-
+    
+    public void testChopOutOfRange() {
+        Holiday holiday = new Holiday();
+        assertTrue(holiday.getDates().isEmpty());
+        for (int i = 0; i < 3; i++) {
+            holiday.addDay(new Date());
+        }
+        assertEquals(3, holiday.getDates().size());
+        holiday.chop(4);
+        assertEquals(3, holiday.getDates().size());
+    }
 }
