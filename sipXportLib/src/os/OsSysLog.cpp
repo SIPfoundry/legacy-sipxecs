@@ -833,11 +833,11 @@ void mysprintf(UtlString& results, const char* format, ...)
 }
 
 
-// a version of vsprintf that stores results in an UtlString
+// a version of vsprintf that stores results in a UtlString
 void myvsprintf(UtlString& results, const char* format, va_list& args)
 {    
     /* Start by alocating 900 bytes.  The logs from a production
-     *  system show that 90% of messages are shorter than 900 bytes.
+     * system show that 90% of messages are shorter than 900 bytes.
      */
     int n, size = 900;
     char *p;
