@@ -15,7 +15,7 @@
         description="message:description.address">
         <input jwcid="gatewayAddress@TextField" id="gateway:address" maxlength="40"
           value="prop:gateway.address"
-          validators="validators:required"
+          validators="spring-validators:required,validHostOrIp"
           displayName="message:label.address"/>
       </label>
       <span jwcid="@If" condition="prop:gateway.model.hasSerialNumber">
