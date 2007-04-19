@@ -8,6 +8,7 @@
     <description>
       Matches the SIPXCHANGE_DOMAIN_NAME (and all aliases for it).
       Routes SUBSCRIBE for message waiting indication to the status server.
+      Routes SUBSCRIBE for "reg" events to the reg event server.
       All other requests go to the SIP registry/redirect service.
     </description>
 
