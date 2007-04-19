@@ -335,7 +335,7 @@ SipTransaction::addResponse(SipMessage*& response,
         // was early media or not.
         if(!mProvisionalSdp)
         {
-            if((response->getSdpBody()))
+            if((response->hasSdpBody()))
             {
                 mProvisionalSdp = TRUE;
             }

@@ -779,7 +779,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
 #endif
 
     UtlBoolean answerOk = FALSE;
-    const SdpBody* sdpBody = NULL;
+    UtlBoolean hasSdpBody = FALSE;
     UtlString rtpAddress;
     int receiveRtpPort;
     int receiveRtcpPort;
@@ -815,8 +815,8 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
             remoteRtpAddress, remoteRtpPort, remoteRtcpPort);
 
 
-        sdpBody = inviteMsg->getSdpBody();
-        if(numMatchingCodecs <= 0 && sdpBody)
+        hasSdpBody = inviteMsg->hasSdpBody();
+        if(numMatchingCodecs <= 0 && hasSdpBody)
         {
 #ifdef TEST_PRINT
             osPrintf("No matching codecs rejecting call\n");
@@ -841,7 +841,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
 
             // There was no SDP in the INVITE, so give them all of
             // the codecs we support.
-            if(!sdpBody)
+            if(!hasSdpBody)
             {
 #ifdef TEST_PRINT
                 osPrintf("Sending initial SDP in OK\n");
@@ -853,7 +853,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
             }
 
             // If there was SDP in the INVITE and it indicated hold:
-            if(sdpBody && remoteRtpPort <= 0)
+            if(hasSdpBody && remoteRtpPort <= 0)
             {
                 rtpAddress = "0.0.0.0";  // hold address
             }
@@ -3985,7 +3985,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
         }
         // If there is SDP we have early media or remote ringback
         int cause = CONNECTION_CAUSE_NORMAL;
-        if(response->getSdpBody() && isEarlyMedia && mpMediaInterface != NULL)
+        if(response->hasSdpBody() && isEarlyMedia && mpMediaInterface != NULL)
         {
             cause = CONNECTION_CAUSE_UNKNOWN;
 

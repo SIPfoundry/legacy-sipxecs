@@ -605,6 +605,23 @@ public:
                               int derPkcs12Length = 0,
                               const char* pkcs12SymmetricKey = NULL) const;
 
+    //! Check whether the message has a valid SDP body 
+    /*
+     *  \param derPkcs12PrivateKey - DER format pkcs12 container for the 
+     *         private key and public key/Certificate for a recipent who is 
+     *         allowed to decrypt this pkcs7 (S/MIME) encapsulated body.
+     *  \param derPkcs12PrivateKeyLength - length in bytes of derPkcs12PrivateKey
+     *  \param pkcs12SymmetricKey - symetric key used to protect (encrypt) the
+     *         derPkcs12PrivateKey (the private key is contained in a
+     *         pkcs12 in an encrypted format to protect it from theft).
+     *  \param pkcs12SymmetricKeyLength - the length in bytes of 
+     *         pkcs12SymmetricKey.
+     */
+    UtlBoolean hasSdpBody(const char* derPkcs12 = NULL,
+                          int derPkcs12Length = 0,
+                          const char* pkcs12SymmetricKey = NULL) const;
+
+
 
     //! @name Response builders
     /*! The following methods are used to build responses

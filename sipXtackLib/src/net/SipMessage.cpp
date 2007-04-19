@@ -559,6 +559,20 @@ const SdpBody* SipMessage::getSdpBody(const char* derPkcs12,
     return(body);
 }
 
+
+UtlBoolean SipMessage::hasSdpBody(const char* derPkcs12,
+                                  int derPkcs12Length,
+                                  const char* pkcs12SymmetricKey) const
+{
+    const SdpBody * sdpBody = getSdpBody(derPkcs12, derPkcs12Length, pkcs12SymmetricKey);
+    if ( sdpBody )
+    {
+        delete sdpBody;
+        return TRUE;
+    }
+    return FALSE;
+}
+
 void SipMessage::setRequestData(const char* method, const char* uri,
                      const char* fromField, const char* toField,
                      const char* callId,
@@ -886,6 +900,11 @@ void SipMessage::setInviteOkData(const SipMessage* inviteRequest,
                numRtpCodecs, rtpCodecs,
                srtpParams,
                sequenceNum, localContact);
+
+   if ( inviteSdp )
+   {
+       delete inviteSdp;
+   }
 
    setViaFromRequest(inviteRequest);
 
