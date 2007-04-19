@@ -307,14 +307,14 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
                 pri = PRI_WARNING;
 
           OsSysLog::add(FAC_KERNEL, pri,
-                        "OsMsgQShared::doSend Message queue 0x%x increased to %d msgs (max=%d)\n",
-                        (int) this, curCount, mMaxMsgs);
+                        "OsMsgQShared::doSend Message queue %p increased to %d msgs (max=%d)\n",
+                        this, curCount, mMaxMsgs);
       }
       else if (decreasedLevel)
       {
           OsSysLog::add(FAC_KERNEL, PRI_INFO,
-                        "OsMsgQShared::doSend Message queue 0x%x decreased to %d msgs (max=%d)\n",
-                        (int) this, curCount, mMaxMsgs);
+                        "OsMsgQShared::doSend Message queue %p decreased to %d msgs (max=%d)\n",
+                        this, curCount, mMaxMsgs);
       }
 #endif
    }
