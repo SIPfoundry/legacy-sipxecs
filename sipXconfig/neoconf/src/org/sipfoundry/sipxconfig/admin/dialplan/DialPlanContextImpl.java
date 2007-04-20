@@ -566,6 +566,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         }
 
         protected void onEntitySave(Group group) {
+            // FIXME: See XCF-768
+            getHibernateTemplate().update(group);
+
             if (ATTENDANT_GROUP_ID.equals(group.getResource()) && !group.isNew()) {
                 List<AutoAttendant> attendants = getAutoAttendants();
                 for (AutoAttendant aa : attendants) {

@@ -190,6 +190,9 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         }
 
         protected void onEntitySave(Group group) {
+            // FIXME: See XCF-768
+            getHibernateTemplate().update(group);
+            
             if (PARK_ORBIT_GROUP_ID.equals(group.getResource()) && !group.isNew()) {
                 activateParkOrbits();
             }
