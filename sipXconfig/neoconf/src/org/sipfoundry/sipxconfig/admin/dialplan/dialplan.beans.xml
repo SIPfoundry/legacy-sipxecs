@@ -124,8 +124,8 @@
   </bean>
 
   <bean id="attendantSaveDefaultGroup" factory-bean="dialPlanContextImpl"
-    factory-method="createGroupSaveListener" />
-
+    factory-method="createGroupSaveListener">
+  </bean>
   <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules" />
   <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules" />
   <bean id="authRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules" />
@@ -157,6 +157,18 @@
   <!-- A T T E N D A N T -->
   <bean id="autoAttendant" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant" singleton="false"
     parent="beanWithSettings">
+  </bean>
+  
+  <bean id="operatorPrototype" parent="autoAttendant" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant">    
+    <property name="systemId" value="operator"/>
+    <property name="name" value="Operator"/>
+    <property name="prompt" value="welcome.wav"/>
+  </bean>
+
+  <bean id="afterhourPrototype" parent="autoAttendant" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant">    
+    <property name="systemId" value="afterhour"/>
+    <property name="name" value="After hours"/>
+    <property name="prompt" value="afterhours.wav"/>
   </bean>
 
   <bean id="attendantMigrationContextImpl"

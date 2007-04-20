@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -31,18 +30,6 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
 
     private static final String SYSTEM_NAME_PREFIX = "xcf";
 
-    private static final Map<String, String[]> AA_DATA = new HashMap<String, String[]>(2);
-
-    // TODO: localize attendant names
-    static {
-        AA_DATA.put(AFTERHOUR_ID, new String[] {
-            "After hours", "afterhours.wav"
-        });
-        AA_DATA.put(OPERATOR_ID, new String[] {
-            "Operator", "welcome.wav"
-        });
-    }
-
     private String m_name;
 
     private String m_description;
@@ -52,21 +39,6 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
     private Map m_menuItems;
 
     private String m_systemId;
-
-    public static AutoAttendant createOperator(String attendantId) {
-        String[] data = AA_DATA.get(attendantId);
-        if (data == null) {
-            throw new IllegalArgumentException("Unknown system attendant id: " + attendantId);
-        }
-
-        AutoAttendant a = new AutoAttendant();
-        a.setSystemId(attendantId);
-
-        a.setName(data[0]);
-        a.setPrompt(data[1]);
-        a.resetToFactoryDefault();
-        return a;
-    }
 
     @Override
     protected Setting loadSettings() {

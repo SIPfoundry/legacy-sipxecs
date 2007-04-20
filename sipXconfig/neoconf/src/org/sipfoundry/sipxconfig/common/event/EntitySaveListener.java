@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.common.event;
 
+
 public abstract class EntitySaveListener<T> implements DaoEventListener {
     private Class<T> m_klass;
 

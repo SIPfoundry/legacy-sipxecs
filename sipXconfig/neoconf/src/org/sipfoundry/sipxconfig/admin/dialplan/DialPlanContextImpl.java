@@ -422,7 +422,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         if (attendant != null) {
             return;
         }
-        attendant = AutoAttendant.createOperator(attendantId);
+        attendant = createSystemAttendant(attendantId);
         attendant.addGroup(getDefaultAutoAttendantGroup());
         storeAutoAttendant(attendant);
         if (attendant.isOperator()) {
@@ -566,9 +566,6 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         }
 
         protected void onEntitySave(Group group) {
-            // FIXME: See XCF-768
-            getHibernateTemplate().update(group);
-
             if (ATTENDANT_GROUP_ID.equals(group.getResource()) && !group.isNew()) {
                 List<AutoAttendant> attendants = getAutoAttendants();
                 for (AutoAttendant aa : attendants) {
@@ -581,4 +578,10 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public void setVxmlGenerator(VxmlGenerator vxmlGenerator) {
         m_vxmlGenerator = vxmlGenerator;
     }    
+
+    public AutoAttendant createSystemAttendant(String systemId) {
+        AutoAttendant aa = (AutoAttendant) m_beanFactory.getBean(systemId + "Prototype");
+        aa.resetToFactoryDefault();
+        return aa;
+    }
 }

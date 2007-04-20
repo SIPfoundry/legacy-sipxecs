@@ -44,28 +44,34 @@ public class AutoAttendantTest extends XMLTestCase {
         assertFalse(aa.isOperator());
         assertFalse(aa.isPermanent());
 
-        AutoAttendant operator = AutoAttendant.createOperator(AutoAttendant.OPERATOR_ID);
+        AutoAttendant operator = new AutoAttendant();
+        operator.setSystemId(AutoAttendant.OPERATOR_ID);
         assertEquals("operator", operator.getSystemName());
         assertFalse(operator.isAfterhour());
         assertTrue(operator.isOperator());
         assertTrue(operator.isPermanent());
 
-        AutoAttendant afterhour = AutoAttendant.createOperator(AutoAttendant.AFTERHOUR_ID);
+        AutoAttendant afterhour = new AutoAttendant();
+        afterhour.setSystemId(AutoAttendant.AFTERHOUR_ID);
         assertEquals("afterhour", afterhour.getSystemName());
         assertTrue(afterhour.isAfterhour());
         assertFalse(afterhour.isOperator());
         assertTrue(afterhour.isPermanent());
+    }
+    
+    private AutoAttendant newAutoAttendant() {
+        return new AutoAttendant() {
+            protected Setting loadSettings() {
+                return TestHelper.loadSettings("sipxvxml/autoattendant.xml");
+            }
+        };        
     }
 
     // TODO: fix the test after autoattendant.vm has been changed
     // see: http://paradise.pingtel.com/viewsvn/sipX?view=rev&rev=6846
     // test should not depend on real autoattendant.vm
     public void testActivateDefaultAttendant() throws Exception {
-        AutoAttendant aa = new AutoAttendant() {
-            protected Setting loadSettings() {
-                return TestHelper.loadSettings("sipxvxml/autoattendant.xml");
-            }
-        };
+        AutoAttendant aa = newAutoAttendant();
         aa.setPrompt("prompt.wav");
         aa.addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
         aa.addMenuItem(DialPad.NUM_1, new AttendantMenuItem(AttendantMenuAction.DISCONNECT));
@@ -76,7 +82,7 @@ public class AutoAttendantTest extends XMLTestCase {
         m_vxml.generate(aa, actualXml);
         assertVxmlEquals("expected-autoattendant.xml", actualXml.toString());
     }
-
+    
     private void assertVxmlEquals(String expectedFile, String actualXml) throws Exception {
         Reader actualRdr = new StringReader(actualXml);
         StringWriter actual = new StringWriter();

@@ -24,7 +24,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
  * Implementation: we could probably use Spring application context event publishing facility but
  * it would require that our event handling is aware of ApplicationEvent class.
  */
-public class DaoEventPublisherImpl implements DaoEventPublisher, BeanFactoryAware {    
+public class DaoEventPublisherImpl  implements DaoEventPublisher, BeanFactoryAware {    
     private Collection m_listeners;
 
     private ListableBeanFactory m_beanFactory;
