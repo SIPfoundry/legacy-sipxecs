@@ -35,13 +35,13 @@
     <binding name="source" value="beans.metrics.uniqueRegistrations"/>
     <binding name="pageSize" value="literal:-1"/>
     <binding name="columns" value="'uri,contact,=expiresColumn' + (displayPrimary ? ',primary' : '')"/>
-    <binding name="volatile" value="literal:true"/>
   </component>
   <component id="tableColumns" type="contrib:TableColumns">
   </component>
   <component id="tableRows" type="contrib:TableRows">
     <binding name="row" value="currentRow"/>
     <binding name="class" value="beans.rowClass.next"/>
+    <binding name="volatile" value="literal:true"/>
   </component>
   <component id="tableValues" type="contrib:TableValues"/>
 </page-specification>
