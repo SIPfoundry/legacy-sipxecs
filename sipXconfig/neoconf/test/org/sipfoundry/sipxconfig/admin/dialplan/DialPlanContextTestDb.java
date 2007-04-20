@@ -182,7 +182,7 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("admin/dialplan/emergency_routing.db.xml");
 
         EmergencyRouting er = m_context.getEmergencyRouting();
-        RoutingException re = (RoutingException) er.getExceptions().iterator().next();
+        RoutingException re = er.getExceptions().iterator().next();
         m_context.removeRoutingException(re.getId());
 
         IDatabaseConnection db = TestHelper.getConnection();

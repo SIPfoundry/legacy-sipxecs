@@ -61,6 +61,29 @@ public class EmergencyRoutingTest extends TestCase {
         assertEquals(DEFAULT_EXTENSION, rule.getPatterns()[0]);
     }
 
+    public void testAsDialingRulesListExceptionsWithoutGateways() {
+        EmergencyRouting routing = new EmergencyRouting();
+        routing.setDefaultGateway(m_defaultGateway);
+        routing.setExternalNumber(DEFAULT_EXTENSION);
+        for (int i = 0; i < TEST_DATA.length; i++) {
+            RoutingException re = new RoutingException("abc, ddd", TEST_DATA[i][0], null);
+            routing.addException(re);
+        }        
+        List rules = routing.asDialingRulesList();
+        assertEquals(1, rules.size());
+
+        IDialingRule rule = (IDialingRule) rules.get(0);
+        List gateways = rule.getGateways();
+        assertEquals(1, gateways.size());
+        assertEquals(m_defaultGateway.getAddress(), ((Gateway) gateways.get(0)).getAddress());
+
+        assertTrue(rule.getPermissionNames().isEmpty());
+
+        assertEquals(1, rule.getPatterns().length);
+
+        assertEquals(DEFAULT_EXTENSION, rule.getPatterns()[0]);
+    }
+    
     public void testAsDialingRulesListFull() {
         EmergencyRouting routing = new EmergencyRouting();
         routing.setDefaultGateway(m_defaultGateway);

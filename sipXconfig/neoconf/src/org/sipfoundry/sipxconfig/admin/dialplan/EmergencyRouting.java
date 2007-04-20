@@ -27,7 +27,7 @@ public class EmergencyRouting extends BeanWithId {
     private Gateway m_defaultGateway;
     private String m_externalNumber;
 
-    private Collection m_exceptions = new ArrayList();
+    private Collection<RoutingException> m_exceptions = new ArrayList<RoutingException>();
 
     public void addException(RoutingException exception) {
         exception.setEmergencyRouting(this);
@@ -48,11 +48,11 @@ public class EmergencyRouting extends BeanWithId {
         m_defaultGateway = defaultGateway;
     }
 
-    public Collection getExceptions() {
+    public Collection<RoutingException> getExceptions() {
         return m_exceptions;
     }
 
-    public void setExceptions(Collection exceptions) {
+    public void setExceptions(Collection<RoutingException> exceptions) {
         m_exceptions = exceptions;
     }
 
@@ -76,10 +76,13 @@ public class EmergencyRouting extends BeanWithId {
             DialingRule rule = createDialRule(m_defaultGateway, m_externalNumber);
             rules.add(rule);
         }
-        for (Iterator i = m_exceptions.iterator(); i.hasNext();) {
-            RoutingException re = (RoutingException) i.next();
-            DialingRule rule = createDialRule(re.getGateway(), re.getExternalNumber());
-            rules.add(rule);
+        for (RoutingException re : m_exceptions) {
+            Gateway gateway = re.getGateway();
+            String externalNumber = re.getExternalNumber();
+            if (null != gateway && StringUtils.isNotBlank(externalNumber)) {
+                DialingRule rule = createDialRule(gateway, externalNumber);
+                rules.add(rule);
+            }
         }
         return rules;
     }
@@ -100,14 +103,14 @@ public class EmergencyRouting extends BeanWithId {
     }
 
     public void removeGateways(Collection gatewayIds) {
-        Collection exceptions = new HashSet(getExceptions());
+        Collection<RoutingException> exceptions = new HashSet<RoutingException>(getExceptions());
         for (Iterator i = gatewayIds.iterator(); i.hasNext();) {
             Object id = i.next();
             if (m_defaultGateway != null && m_defaultGateway.getId().equals(id)) {
                 m_defaultGateway = null;
             }
-            for (Iterator j = exceptions.iterator(); j.hasNext();) {
-                RoutingException re = (RoutingException) j.next();
+            for (Iterator<RoutingException> j = exceptions.iterator(); j.hasNext();) {
+                RoutingException re = j.next();
                 Gateway gateway = re.getGateway();
                 if (gateway != null && gateway.getId().equals(id)) {
                     re.setGateway(null);
