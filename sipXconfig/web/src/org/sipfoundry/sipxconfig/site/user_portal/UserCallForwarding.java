@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
@@ -33,11 +34,16 @@ public abstract class UserCallForwarding extends UserBasePage implements PageBeg
     @InjectObject(value = "spring:forwardingContext")
     public abstract ForwardingContext getForwardingContext();
 
+    @Persist
+    public abstract List<Ring> getRings();
+
+    public abstract void setRings(List<Ring> rings);
+
     public abstract String getAction();
 
-    public abstract List getRings();
+    public abstract Ring getRing();
 
-    public abstract void setRings(List rings);
+    public abstract int getIndex();
 
     public void pageBeginRender(PageEvent event) {
         if (getRings() != null) {
@@ -56,11 +62,11 @@ public abstract class UserCallForwarding extends UserBasePage implements PageBeg
      * The list is a clone of the list kept by current call sequence, ring objects do not have
      * valid ids and their call sequence field is set to null.
      */
-    private List createDetachedRingList(CallSequence callSequence) {
-        List rings = callSequence.getRings();
-        List list = new ArrayList();
-        for (Iterator i = rings.iterator(); i.hasNext();) {
-            BeanWithId ring = (BeanWithId) i.next();
+    private List<Ring> createDetachedRingList(CallSequence callSequence) {
+        List<Ring> rings = callSequence.getRings();
+        List<Ring> list = new ArrayList<Ring>();
+        for (Iterator<Ring> i = rings.iterator(); i.hasNext();) {
+            BeanWithId ring = i.next();
             Ring dup = (Ring) ring.duplicate();
             dup.setCallSequence(null);
             list.add(dup);

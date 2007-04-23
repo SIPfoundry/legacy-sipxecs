@@ -1,19 +1,19 @@
 <div jwcid="@Border" restricted="false">
   <span jwcid="@If" condition="ognl:userSession.admin">
-    <span jwcid="userNavigation"/>
+    <span jwcid="@UserNavigation" bean="prop:user"/>    
   </span>
   <h2 jwcid="@Else" element="h2">
     <span key="title">Call Forwarding</span>
   </h2>
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <span jwcid="@QuickHelp" value="message:quick.help"/>
-      <span jwcid="errors"></span>
-      <span jwcid="@If" condition="prop:renderForwardWarning">
-        <span class="user-warning" jwcid="@Insert" value="prop:forwardWarning"/>
-      </span>
-    <form jwcid="form">
-      <ul class="component-links">
-        <li><a jwcid="addRingLink">
+    <span jwcid="@ErrorMsg"/>
+    <span jwcid="@If" condition="prop:renderForwardWarning">
+      <span class="user-warning" jwcid="@Insert" value="prop:forwardWarning"/>
+    </span>      
+    <form jwcid="@Form" delegate="bean:validator" listener="listener:submit">
+      <ul class="component-links">      
+        <li><a jwcid="addRingLink@LinkSubmit" selected="prop:action" tag="add">
           <span key="add">Add Number</span></a>
         </li>
       </ul>
@@ -22,22 +22,22 @@
           <tbody>
             <tr>
               <td colspan="4">
-                <span jwcid="firstCall">Your extension will ring first.</span>
+                <span jwcid="@InsertText" value="prop:firstCallMsg">Your extension will ring first.</span>
               </td>
             </tr>
-            <!-- iterate here -->
-            <tr jwcid="rings">
-              <span jwcid="ringEditor"></span>
+            <!-- iterate here -->            
+            <tr jwcid="@For" source="prop:rings" value="prop:ring" index="prop:index" volatile="true">
+              <span jwcid="@RingEditor" ring="prop:ring" index="prop:index" deleteListener="listener:deleteRing"/>
             </tr>
-            <tr jwcid="renderVoicemail" element="tr">
+            <tr jwcid="@If" condition="prop:hasVoiceMail" element="tr">
               <td colspan="4">
                 <span key="msg.voicemail">If no-one answers your call will be forwarded to Voicemail.</span>
               </td>
-            </tr>
+            </tr>            
           </tbody>
         </table>
-      </fieldset>
-      <ul jwcid="formActions"/>
+      </fieldset>      
+      <ul jwcid="@FormActions" callback="prop:callback" listener="listener:commit"/>
     </form>
   </div>
 </div>
