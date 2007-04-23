@@ -13,6 +13,7 @@
 #include <assert.h>
 #include "utl/UtlMemCheck.h"
 #endif //TEST
+#include <ctype.h>
 #include <stdio.h>
 #include <time.h>
 
@@ -1208,26 +1209,55 @@ int OSBpromptTTS::getAcronymUrls(Url** prompts)
 
    UtlString urlstr;
    mPrompts = new Url[mCount];
+   int n = 0 ;
    for (int i = 0; i < mCount; i++)
    {
+      char c = tolower(text[i]) ;
+      const char *name = NULL ;
+      char easy[2] = {0} ;
+     
+      if (isalnum(c)) // It's alphanumeric, so the file name is the character
+      {
+         easy[0] = c ;
+         name = easy ;
+      }
+      else
+      {
+         switch(c) // The file name is not so obvious, we need to handle 
+         {         // each one specially
+            case '.': name = "dot"; break ;
+            case '-': name = "dash"; break ;
+            case ':': name = "colon"; break ;
+            case '+': name = "plus"; break ;
+            case '@': name = "at"; break ;
+            default:  name = NULL ; // No prompt for that one.
+         }
+      }
+      
 #if 0
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
-                    "OSBpromptTTS::getAcronymUrls: text = '%s', text[%d] = '%c'",
-                    text, i, text[i]);
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
-                    "OSBpromptTTS::getAcronymUrls: text[%d] = '%c', UtlString(&text[%d], 1) = '%s'",
-                    i, text[i], i, UtlString(&text[i], 1).data());
+                    "OSBpromptTTS::getAcronymUrls: text = '%s', text[%d] = '%c' c='%c' name=%s",
+                    text, i, text[i], c, name?name:"(NULL)");
 #endif
-      urlstr = mBaseUrl + UtlString(&text[i], 1) + ".wav";
-      mPrompts[i] = Url(urlstr);
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
+      if (name)
+      {
+         urlstr = mBaseUrl + name + ".wav";
+         mPrompts[n++] = Url(urlstr);
+         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getAcronymUrls: mPrompts[%d] = '%s'",
-                    i, mPrompts[i].toString().data());
+                    i, urlstr.data());
+      }
+      else
+      {
+         // Skip ones we cannot speak
+         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_WARNING,
+                    "OSBpromptTTS::getAcronymUrls: no prompt for '%c'",c);
+      }
    }
 
    *prompts = mPrompts;
 
-   return mCount;
+   return n;
 }
 
 

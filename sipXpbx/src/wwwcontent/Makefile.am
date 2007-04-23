@@ -220,11 +220,13 @@ wwwcontent = \
 	stdprompts/c.wav \
 	stdprompts/cancelled.wav \
 	stdprompts/cb_welcome.wav \
+	stdprompts/colon.wav \
 	stdprompts/comment_options.wav \
 	stdprompts/confirm_new_passwd.wav \
 	stdprompts/confirm_new_pin.wav \
 	stdprompts/copy_to_extn.wav \
 	stdprompts/d.wav \
+	stdprompts/dash.wav \
 	stdprompts/day.wav \
 	stdprompts/day_after_tomorrow.wav \
 	stdprompts/day_before_yesterday.wav \
@@ -240,6 +242,7 @@ wwwcontent = \
 	stdprompts/deposit_greeting_extn_no_operator_pound.wav \
 	stdprompts/deposit_greeting_extn_pound.wav \
 	stdprompts/deposit_options.wav \
+	stdprompts/dot.wav \
 	stdprompts/dial_0.wav \
 	stdprompts/dial_extn.wav \
 	stdprompts/dial_extn_short.wav \
@@ -360,6 +363,7 @@ wwwcontent = \
 	stdprompts/pin_not_changed.wav \
 	stdprompts/please_hold.wav \
 	stdprompts/please_leave_a_msg.wav \
+	stdprompts/plus.wav \
 	stdprompts/pm.wav \
 	stdprompts/pound.wav \
 	stdprompts/press.wav \
