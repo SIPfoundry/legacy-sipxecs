@@ -75,7 +75,7 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
 
-        Map<Integer, Integer> counts = m_settingContext
+        Map<Integer, Long> counts = m_settingContext
                 .getGroupMemberCountIndexedByGroupId(Phone.class);
         assertEquals(2, counts.size());
         assertEquals(2, counts.get(1001).intValue());

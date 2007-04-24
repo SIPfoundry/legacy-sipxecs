@@ -54,7 +54,7 @@ public class DialPlanContextImplTest extends TestCase {
         generator.getForwardingRules().setVelocityEngine(TestHelper.getVelocityEngine());
         return generator;
     }
-
+    
     public void testMoveRules() throws Exception {
         IMocksControl mock = org.easymock.classextension.EasyMock.createNiceControl();
         DialPlan plan = mock.createMock(DialPlan.class);

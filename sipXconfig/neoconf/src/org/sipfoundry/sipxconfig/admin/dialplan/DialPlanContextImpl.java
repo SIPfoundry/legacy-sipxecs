@@ -45,7 +45,7 @@ import org.springframework.context.ApplicationListener;
  * DialPlanContextImpl is an implementation of DialPlanContext with hibernate support.
  */
 public class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
-        DialPlanContext, ApplicationListener {
+        DialPlanContext , ApplicationListener {
     private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
     private static final String ATTENDANT_GROUP_ID = "auto_attendant";
     private static final String OPERATOR_CONSTANT = "operator";

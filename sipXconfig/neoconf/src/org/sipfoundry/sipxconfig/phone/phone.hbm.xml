@@ -56,11 +56,11 @@
   </query>  
 
   <query name="phonesByGroupId">
-    <![CDATA[from Phone p where p.groups.id = :groupId]]>
+    <![CDATA[select p from Phone as p join p.groups as pgroups where pgroups.id = :groupId]]>
   </query>
   
   <query name="phonesByUserId">
-    <![CDATA[select distinct line.phone from Line line where line.user.id = :userId]]>
+    <![CDATA[select distinct line.phone from Line as line join line.user as line_user where line_user.id = :userId]]>
   </query>
   
 </hibernate-mapping>

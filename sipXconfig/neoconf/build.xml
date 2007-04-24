@@ -284,7 +284,6 @@
   </target>
 
   <!-- Comment out hibernate stuff to avoid causing problems on Windows 
-    -->
 
   <taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask">
     <classpath>
@@ -311,9 +310,7 @@
       <hbm2ddl export="false" outputfilename="schema.sql" format="true" />
     </hibernatetool>
   </target>
-
-  <!--
-	-->
+    -->
 
   <target name="dataset-db"
           description="Generates the sipconfig-db.dtd which is used to validate datasets"

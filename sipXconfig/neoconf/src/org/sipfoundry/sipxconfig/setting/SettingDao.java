@@ -49,7 +49,7 @@ public interface SettingDao extends DataObjectSource {
      * 
      * @return map {groupId as Integer, count as Integer} 
      */
-    public Map<Integer, Integer> getGroupMemberCountIndexedByGroupId(Class groupOwner);
+    public Map<Integer, Long> getGroupMemberCountIndexedByGroupId(Class groupOwner);
 
     /**
      * convienence: find and create group if not found

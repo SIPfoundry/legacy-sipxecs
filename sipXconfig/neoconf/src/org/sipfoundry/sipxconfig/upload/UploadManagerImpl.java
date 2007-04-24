@@ -76,12 +76,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
         getHibernateTemplate().deleteAll(getUpload());
     }
 
-    public void deploy(Upload upload) {
-        // ensure upload is saved first.  Allows it to create directory identifier 
-        if (upload.isNew()) {
-            saveUpload(upload);
-        }
-        
+    public void deploy(Upload upload) {        
         UploadSpecification spec = upload.getSpecification();
         List<Upload> existing = getActiveUpload(spec);
         // should never happen
@@ -99,6 +94,10 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
             }
         }
         
+        // ensure upload is saved first.  Allows it to create directory identifier 
+        if (upload.isNew()) {
+            saveUpload(upload);
+        }
         upload.deploy();        
         saveUpload(upload);
     }

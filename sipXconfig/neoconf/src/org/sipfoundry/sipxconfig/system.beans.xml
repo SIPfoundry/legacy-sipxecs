@@ -151,6 +151,11 @@
       </list>
     </property>
   </bean>
+
+  <bean name="preInitializeSessionFactory" class="org.sipfoundry.sipxconfig.common.SpringBeanPreInitializer">
+    <property name="beanName" value="sessionFactory"/>
+  </bean>
+  
   <!--
     - H I B E R N A T E   S E S S I O N
   -->
@@ -219,23 +224,8 @@
   <bean id="daoEventPublisher" class="org.sipfoundry.sipxconfig.common.event.DaoEventPublisherImpl">
   </bean>
 
-  <!-- bean id="daoEventPublisher" class="org.springframework.aop.framework.ProxyFactoryBean">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.common.event.DaoEventPublisher</value>
-    </property>
-    <property name="target">
-      <ref local="daoEventPublisherImpl"/>
-    </property>
-    <property name="interceptorNames">
-      <list>
-        <value>hibernateInterceptor</value>
-      </list>
-    </property>
-  </bean -->
-
   <bean id="onDeleteEventDispatcher" class="org.sipfoundry.sipxconfig.common.event.DaoEventDispatcher"
     factory-method="createDeleteDispatcher">
-    <property name="sessionFactory" ref="sessionFactory"/>
     <property name="publisher">
       <ref local="daoEventPublisher" />
     </property>
@@ -243,7 +233,6 @@
 
   <bean id="onSaveEventDispatcher" class="org.sipfoundry.sipxconfig.common.event.DaoEventDispatcher"
     factory-method="createSaveDispatcher">
-    <property name="sessionFactory" ref="sessionFactory"/>
     <property name="publisher">
       <ref local="daoEventPublisher" />
     </property>

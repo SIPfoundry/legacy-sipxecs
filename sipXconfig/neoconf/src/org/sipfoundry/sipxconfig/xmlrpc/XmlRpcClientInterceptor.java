@@ -59,14 +59,18 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
         }
     }
 
-    public void afterPropertiesSet() throws MalformedURLException {
+    public void afterPropertiesSet() {
         if (getServiceInterface() == null) {
             throw new IllegalArgumentException("serviceInterface is required");
         }
         if (getServiceUrl() == null) {
             throw new IllegalArgumentException("serviceUrl is required");
         }
-        m_xmlRpcClient = new XmlRpcClient(getServiceUrl());
+        try {
+            m_xmlRpcClient = new XmlRpcClient(getServiceUrl());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

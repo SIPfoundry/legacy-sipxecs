@@ -22,6 +22,10 @@
     </set>    
   </class>	
 	<query name="phoneBooksByUser">
-    <![CDATA[select pb from Phonebook pb, User u where pb.consumers.id = u.groups.id and u.id = :userId]]>	
+    <![CDATA[
+      select pb from Phonebook as pb, User as u 
+          join pb.consumers as pbconsumers 
+          join u.groups as ugroups 
+      where pbconsumers.id = ugroups.id and u.id = :userId]]>
 	</query>
 </hibernate-mapping>

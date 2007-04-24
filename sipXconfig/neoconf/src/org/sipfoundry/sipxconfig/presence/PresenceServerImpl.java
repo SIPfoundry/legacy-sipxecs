@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.presence;
 
-import java.net.MalformedURLException;
 import java.util.Hashtable;
 
 import org.apache.commons.lang.StringUtils;
@@ -76,11 +75,7 @@ public class PresenceServerImpl implements PresenceServer {
         XmlRpcProxyFactoryBean factory = new XmlRpcProxyFactoryBean();
         factory.setServiceInterface(SignIn.class);
         factory.setServiceUrl(m_sipxServer.getPresenceServiceUri());
-        try {
-            factory.afterPropertiesSet();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Could not construct URI to presence server", e);
-        }
+        factory.afterPropertiesSet();
         SignIn api = (SignIn) factory.getObject();
         return userAction(api, action, user);
     }

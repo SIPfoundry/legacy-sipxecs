@@ -1,4 +1,6 @@
-<project name="sipxconfig" default="default">
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project xmlns:ivy="antlib:fr.jayasoft.ivy.ant" name="sipxconfig" default="default">
  
   <condition property="build.properties">
     <available file="${basedir}/top.build.dir"/>
@@ -75,5 +77,11 @@
       </fileset>
     </delete>
   </target>
+
+  <target name="retrieve">
+    <ivy:retrieve />
+  </target>
+
+
 
 </project>

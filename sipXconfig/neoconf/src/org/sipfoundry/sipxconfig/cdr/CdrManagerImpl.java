@@ -35,7 +35,6 @@ import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.ResultReader;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
@@ -73,7 +72,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, int limit, int offset) {
         CdrsStatementCreator psc = new SelectAll(from, to, search, m_tz, limit, offset);
         CdrsResultReader resultReader = new CdrsResultReader(m_tz);
-        return getJdbcTemplate().query(psc, resultReader);
+        getJdbcTemplate().query(psc, resultReader);
+        return resultReader.getResults();
     }
 
     /**
@@ -232,7 +232,11 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         }
     }
 
-    static class CdrsResultReader implements ResultReader {
+    /**
+     * Spring 2.0.4 introduced ResultSetExtractor interface, may be more of a fit
+     * for what this class is trying to acheive 
+     */
+    static class CdrsResultReader implements RowCallbackHandler {
         private List<Cdr> m_cdrs = new ArrayList<Cdr>();
 
         private Calendar m_calendar;

@@ -143,11 +143,11 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         return groups;
     }
 
-    public Map<Integer, Integer> getGroupMemberCountIndexedByGroupId(Class groupOwner) {
+    public Map<Integer, Long> getGroupMemberCountIndexedByGroupId(Class groupOwner) {
         String query = "select g.id, count(*) from " + groupOwner.getName()
                 + " o join o.groups g group by g.id";
         List<Object[]> l = getHibernateTemplate().find(query);
-        Map<Integer, Integer> members = asMap(l);
+        Map<Integer, Long> members = asMap(l);
 
         return members;
     }

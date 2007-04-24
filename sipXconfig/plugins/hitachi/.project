@@ -3,6 +3,7 @@
 	<name>sipXconfig-plugins-hitachi</name>
 	<comment></comment>
 	<projects>
+		<project>sipXconfig-neoconf</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

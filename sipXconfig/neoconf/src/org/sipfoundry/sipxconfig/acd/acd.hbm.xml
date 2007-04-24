@@ -100,11 +100,14 @@
 	</query>
 	
   <query name="usersWithAgents">
-    <![CDATA[select distinct u from User u, AcdAgent a where a.user.id = u.id order by u.userName]]>
+    <![CDATA[select distinct u from User u, AcdAgent a join a.user as auser where auser.id = u.id order by u.userName]]>
   </query>
   
   <query name="queuesForUsers">
-		<![CDATA[select distinct q from AcdQueue q, AcdAgent a where a.user.id in (:userIds) and a.acdServer.id = :serverId and a.queues.id = q.id order by q.name]]>
+		<![CDATA[select distinct q from AcdQueue q, AcdAgent a 
+      join a.user as auser
+      join a.queues as aqueues 
+      where auser.id in (:userIds) and a.acdServer.id = :serverId and aqueues.id = q.id order by q.name]]>
   </query>
   
 </hibernate-mapping>

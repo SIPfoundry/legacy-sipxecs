@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.xmlrpc;
 
-import java.net.MalformedURLException;
-
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.FactoryBean;
 
@@ -18,7 +16,7 @@ public class XmlRpcProxyFactoryBean extends XmlRpcClientInterceptor implements F
 
     private Object m_serviceProxy;
 
-    public void afterPropertiesSet() throws MalformedURLException {
+    public void afterPropertiesSet() {
         super.afterPropertiesSet();
         m_serviceProxy = ProxyFactory.getProxy(getServiceInterface(), this);
     }

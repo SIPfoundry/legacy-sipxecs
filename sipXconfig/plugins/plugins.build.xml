@@ -43,7 +43,7 @@
     <pathelement location="${asm.jar}" />
     <pathelement location="${commons-beanutils.jar}" />
     <pathelement location="${commons-logging.jar}" />
-    <pathelement location="${commons-logging.jar}" />
+    <pathelement location="${commons-io.jar}" />
     <pathelement location="${commons-pool.jar}" />
     <pathelement location="${c3p0.jar}" />
     <pathelement location="${cglib.jar}" />

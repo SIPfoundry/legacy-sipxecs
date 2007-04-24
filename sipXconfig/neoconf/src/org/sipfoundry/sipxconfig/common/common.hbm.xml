@@ -50,11 +50,11 @@
   </class>
 
   <query name="userByAlias">
-    <![CDATA[from User u join u.aliases alias where alias = :value]]>
+    <![CDATA[select u from User u join u.aliases alias where alias = :value]]>
   </query>
 
   <query name="userByNameOrAlias">
-    <![CDATA[from User u left outer join u.aliases alias where u.userName = :value or alias = :value]]>
+    <![CDATA[select u from User u left outer join u.aliases alias where u.userName = :value or alias = :value]]>
   </query>
 
   <query name="userIdsByNameOrAlias">
@@ -62,23 +62,26 @@
   </query>
 
   <query name="userGroupMembers">
-    <![CDATA[from User u where u.groups.id = :groupId]]>
+    <![CDATA[select u from User u join u.groups as ugroups where ugroups.id = :groupId]]>
   </query>
 
   <query name="userNamesGroupMembers">
-    <![CDATA[select u.userName from User u where u.groups.id = :groupId]]>
+    <![CDATA[select u.userName from User u join u.groups as ugroups where ugroups.id = :groupId]]>
   </query>
 
   <query name="extensionPoolByName">
-    <![CDATA[from ExtensionPool pool where pool.name = :name]]>
+    <![CDATA[select pool from ExtensionPool pool where pool.name = :name]]>
   </query>
 
   <query name="groupSupervisors">
-    <![CDATA[from User u where u.supervisorForGroups.id = :groupId]]>
+    <![CDATA[select u from User u join u.supervisorForGroups as sgroups where sgroups.id = :groupId]]>
   </query>
 
   <query name="usersThatISupervise">
-    <![CDATA[select distinct u from User u, Group g, User s where s.id = :supervisorId and s.supervisorForGroups.id = g.id 
-      and g.id = u.groups.id order by u.userName]]>
+    <![CDATA[select distinct u from User u, Group g, User s 
+      join s.supervisorForGroups as sgroups 
+      join u.groups as ugroups
+      where s.id = :supervisorId and sgroups.id = g.id 
+      and g.id = ugroups.id order by u.userName]]>
   </query>  
 </hibernate-mapping>

@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.acd;
 
 import java.io.Serializable;
-import java.net.MalformedURLException;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
@@ -43,8 +42,6 @@ public class AcdProvisioningContextImpl extends HibernateDaoSupport implements
             server.deploy(xmlRpc);
             success = true;
             m_sipxReplicationContext.generate(DataSet.ALIAS);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
         } finally {
             if (success) {
                 m_jobContext.success(jobId);

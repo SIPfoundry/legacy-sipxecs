@@ -227,6 +227,12 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("0").size() == 1); // auto
     }
 
+    public void testGetAutoAttendantSettings() throws Exception {
+        TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
+        AutoAttendant autoAttendant = m_context.getAutoAttendant(new Integer(2000));
+        assertNotNull(autoAttendant.getSettings());
+    }
+
     public void testStoreAttendantRule() throws Exception {
         TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
         AutoAttendant autoAttendant = m_context.getAutoAttendant(new Integer(2000));

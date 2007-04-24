@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.conference;
 
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -35,23 +34,19 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
     private SipxReplicationContext m_sipxReplicationContext;
 
     public void deploy(Serializable bridgeId) {
-        try {
-            Bridge bridge = (Bridge) getHibernateTemplate().load(Bridge.class, bridgeId);
-            // get settings for bridge and all conferences
+        Bridge bridge = (Bridge) getHibernateTemplate().load(Bridge.class, bridgeId);
+        // get settings for bridge and all conferences
 
-            XmlRpcProxyFactoryBean factory = new XmlRpcProxyFactoryBean();
-            factory.setServiceInterface(ConfigDbParameter.class);
-            factory.setServiceUrl(bridge.getServiceUri());
-            factory.afterPropertiesSet();
-            ConfigDbParameter configDb = (ConfigDbParameter) factory.getObject();
-            ConfigDbSettingAdaptor adaptor = new ConfigDbSettingAdaptor();
-            adaptor.setConfigDbParameter(configDb);
-            deploy(bridge, adaptor);
-            generateAdmissionData();
-            m_sipxReplicationContext.generate(DataSet.ALIAS);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
+        XmlRpcProxyFactoryBean factory = new XmlRpcProxyFactoryBean();
+        factory.setServiceInterface(ConfigDbParameter.class);
+        factory.setServiceUrl(bridge.getServiceUri());
+        factory.afterPropertiesSet();
+        ConfigDbParameter configDb = (ConfigDbParameter) factory.getObject();
+        ConfigDbSettingAdaptor adaptor = new ConfigDbSettingAdaptor();
+        adaptor.setConfigDbParameter(configDb);
+        deploy(bridge, adaptor);
+        generateAdmissionData();
+        m_sipxReplicationContext.generate(DataSet.ALIAS);
     }
 
     void generateAdmissionData() {

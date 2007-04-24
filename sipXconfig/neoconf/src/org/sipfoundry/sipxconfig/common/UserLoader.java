@@ -21,7 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 
 /** Helper class for loading users by query */
 public class UserLoader {
@@ -32,12 +31,7 @@ public class UserLoader {
     private static final String PARAM_SEARCH = "search";
     private static final String PARAM_VALUE = "value";
 
-    // strings for SQL aliases (not sipX aliases!)
-    private static final String ALIASES_ALIAS = "alias";
-    private static final String USER_ALIAS = "u";
-    
     // checkstyle wants you to name your string literals
-    private static final String DOT = ".";
     private static final String SPACE = " ";
     private static final String WHERE = "where";
     
@@ -101,14 +95,13 @@ public class UserLoader {
         init(getUserIdsOnly);
         
         // add constraints
-        handleSearchConstraint(search);
+        handleSearchConstraint(search, groupId);
         handleGroupConstraint(groupId);
 
         // sort the results
-        m_queryBuf.append("order by " + USER_ALIAS + DOT);
-        m_queryBuf.append(StringUtils.defaultIfEmpty(orderBy, User.LAST_NAME_PROP));
-        m_queryBuf.append(SPACE);
-        m_queryBuf.append(orderAscending ? "asc" : "desc");
+        m_queryBuf.append(" order by u.");
+        m_queryBuf.append(StringUtils.defaultIfEmpty(orderBy, "lastName"));
+        m_queryBuf.append(orderAscending ? " asc " : " desc ");
                         
         // create the query and add parameters
         Query query = m_session.createQuery(m_queryBuf.toString());
@@ -122,35 +115,21 @@ public class UserLoader {
         return query;
     }
     
-    private void handleSearchConstraint(String search) {
+    private void handleSearchConstraint(String search, Integer groupId) {
+        if (groupId != null) {
+            m_queryBuf.append(" join u.groups ugroups ");
+        }
+
         if (!StringUtils.isEmpty(search)) {
-            // append "left outer join u.aliases alias "
-            m_queryBuf.append("left outer join " + USER_ALIAS + DOT + User.ALIASES_PROP
-                    + SPACE + ALIASES_ALIAS + SPACE);
+            m_queryBuf.append(" left outer join u.aliases alias ");            
             m_outerJoin = true;
             
-            // start the constraint with "where "
             addWhere();
             
-            // query userName
-            // append "( lower(u.userName) like :search"
-            final String likeSearch = ") like :" + PARAM_SEARCH;
-            final String lower = "lower(";
-            final String or = " or ";
-            m_queryBuf.append("(" + lower + USER_ALIAS + DOT + User.USER_NAME_PROP + likeSearch);
-            
-            // query aliases
-            // append " or lower(alias) like :search "
-            m_queryBuf.append(or + lower + ALIASES_ALIAS + likeSearch);
-            
-            // query firstName
-            // append " or lower(u.firstName) like :search "
-            m_queryBuf.append(or + lower + USER_ALIAS + DOT + User.FIRST_NAME_PROP + likeSearch);
-            
-            // query lastName and close paren
-            // append " or lower(u.lastName) like :search "
-            m_queryBuf.append(or + lower + USER_ALIAS + DOT + User.LAST_NAME_PROP + likeSearch + ")"
-                    + SPACE);
+            m_queryBuf.append("(lower(u.userName) like :search ");
+            m_queryBuf.append(" or lower(alias) like :search");
+            m_queryBuf.append(" or lower(u.firstName) like :search");
+            m_queryBuf.append(" or lower(u.lastName) like :search) ");
             
             m_paramNames.add(PARAM_SEARCH);
             addWildParamValue_(search.toLowerCase());
@@ -167,11 +146,8 @@ public class UserLoader {
                 m_queryBuf.append(" and ");
             }
             
-            // append "u.groups.id = :groupId"
-            m_queryBuf.append(USER_ALIAS + DOT + BeanWithGroups.GROUPS_PROP + DOT + "id = :"
-                    + PARAM_GROUP_ID + SPACE);
-            
-            m_paramNames.add(PARAM_GROUP_ID);
+            m_queryBuf.append(" ugroups.id = :groupId ");            
+            m_paramNames.add(PARAM_GROUP_ID);            
             addParamValue_(groupId.toString());            
         }
     }
@@ -328,11 +304,13 @@ public class UserLoader {
 
     /** Initialize internal state to get ready for a new query */
     private void init(boolean getUserIdsOnly) {
-        String beginQuery = "";
+        m_queryBuf = new StringBuffer();
         if (getUserIdsOnly) {
-            beginQuery = "select " + USER_ALIAS + DOT + BeanWithId.ID_PROPERTY + SPACE;
+            m_queryBuf.append("select distinct u.id ");
+        } else {
+            m_queryBuf.append("select distinct u ");            
         }
-        m_queryBuf = new StringBuffer(beginQuery + "from User " + USER_ALIAS + SPACE);
+        m_queryBuf.append(" from User u ");
         m_noWhere = true;
         m_paramNames.clear();
         m_paramValues.clear();

@@ -32,7 +32,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.RowMapperResultReader;
+import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
@@ -113,9 +113,9 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
     public List<Map<String, Object>> getReport(String reportName, Date startTime, Date endTime) {
         AcdHistoricalReport report = (AcdHistoricalReport) m_factory.getBean(reportName);
         ColumnMapRowMapper columnMapper = new ColumnTransformer();
-        RowMapperResultReader rowReader = new RowMapperResultReader(columnMapper);
+        RowMapperResultSetExtractor rowReader = new RowMapperResultSetExtractor(columnMapper);
         ReportStatement statement = new ReportStatement(report.getQuery(), startTime, endTime);        
-        return getJdbcTemplate().query(statement, rowReader);
+        return (List<Map<String, Object>>) getJdbcTemplate().query(statement, rowReader);
     }
     
     static class ColumnTransformer extends ColumnMapRowMapper {

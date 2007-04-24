@@ -9,15 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.common.event;
 
-import java.sql.SQLException;
-
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public final class DaoEventDispatcher extends HibernateDaoSupport implements MethodInterceptor {
+public final class DaoEventDispatcher implements MethodInterceptor {
 
     private static final int ON_DELETE = 1;
 
@@ -51,52 +46,36 @@ public final class DaoEventDispatcher extends HibernateDaoSupport implements Met
     public Object invoke(final MethodInvocation method) throws Throwable {
         if (method.getArguments().length == 0) {
             // empty arg calls like save() or delete() won't be considered
-            method.proceed();
+            // because there is no entity to distinguish event
+            return method.proceed();
         }
         
-        try {            
-            Object o = getHibernateTemplate().execute(new HibernateCallback() {
-                public Object doInHibernate(Session session) throws SQLException {
-                    try {
-                        Object entity = method.getArguments()[0];
-                        Object response;
-                        switch (m_eventType) {
-                        case ON_SAVE:
-                            
-                            // XCF-768  Call save first to ensure session initializes correctly (whatever 
-                            // correctly means) before sending event that may trigger a "redundant object
-                            // in session" exception
-                            response = method.proceed();
-                            
-                            m_publisher.publishSave(entity);
-                            break;
-                        case ON_DELETE:
-                            m_publisher.publishDelete(entity);
-                            
-                            // XCF-768 Delete may have same problem as save, but I wouldn't want to send 
-                            // an event about an object that has already been deleted, especially in case
-                            // there's a listner that wishes to veto delete.  Until there's a problem or
-                            // XCF-768 gets resolved once and for all, leave ordering as is.
-                            response = method.proceed();
-                            
-                            break;
-                        default:
-                            throw new RuntimeException("Unknown event type " + m_eventType);
-                        }
-                        return response;
-                    } catch (RuntimeException e) {
-                        throw e;
-                    } catch (Throwable t) {
-                        throw new WrappedException(t);
-                    }
-                }
-            });
+        Object entity = method.getArguments()[0];
+        Object response;
+        switch (m_eventType) {
+        case ON_SAVE:
             
-            return o;
+            // XCF-768  Call save first to ensure session initializes correctly (whatever 
+            // correctly means) before sending event that may trigger a "redundant object
+            // in session" exception
+            response = method.proceed();
             
-        } catch (WrappedException e) {
-            throw e.getCause();
-        }        
+            m_publisher.publishSave(entity);
+            break;
+        case ON_DELETE:
+            m_publisher.publishDelete(entity);
+            
+            // XCF-768 Delete may have same problem as save, but I wouldn't want to send 
+            // an event about an object that has already been deleted, especially in case
+            // there's a listner that wishes to veto delete.  Until there's a problem or
+            // XCF-768 gets resolved once and for all, leave ordering as is.
+            response = method.proceed();
+            
+            break;
+        default:
+            throw new RuntimeException("Unknown event type " + m_eventType);
+        }
+        return response;
     }
     
     class WrappedException extends RuntimeException {
