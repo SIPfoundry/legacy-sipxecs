@@ -1,0 +1,14 @@
+How to debug the mediaserver.cgi code
+
+Envornment Variables:
+REQUEST_URI
+   The URI given to the web server, minus the web site:
+      /cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox=%2B9663&from=%22320%2BSNOM%22%3Csip%3A203%40cdhcp151.pingtel.com%3Btransport%253Dudp%3E%3Btag%253Dpe8iwqsk5n
+
+
+QUERY_STRING
+   The REQUEST_URI part after the first ? or &
+      action=deposit&mailbox=%2B9663&from=%22320%2BSNOM%22%3Csip%3A203%40cdhcp151.pingtel.com%3Btransport%253Dudp%3E%3Btag%253Dpe8iwqsk5n
+
+Set up the QUERY_STRING environment variable.  Run gdb.  Set a breakpoint at
+the desired function, and run!

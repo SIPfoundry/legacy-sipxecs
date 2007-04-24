@@ -40,6 +40,7 @@
 #include "utl/UtlTokenizer.h"
 #include "utl/UtlHashMap.h"
 #include "utl/UtlHashMapIterator.h"
+#include "utl/UtlRegex.h"
 #include "os/OsDateTime.h"
 
 // DEFINES
@@ -4450,14 +4451,10 @@ MailboxManager::generateDefaultGreetings (
             infiles[1] = greetingSuffix ;
             infiles[2] = "" ;
 
-            if (mergeWaveFiles(infiles, greetingLocation ) != OS_SUCCESS)
-                OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
-                              "MailboxManager::generateDefaultGreetings failed to generate default %s prompt for %s",
-                              greetingType.data(), mailboxIdentity.data());
-                  
-                result = OS_FAILED;
 
-        } else
+            result = mergeWaveFiles(infiles, greetingLocation);
+        } 
+        else
         {
             UtlString identity, extension ;
 
@@ -4484,52 +4481,79 @@ MailboxManager::generateDefaultGreetings (
             if ( extension.index ("@") != UTL_NOT_FOUND )
                 extensionLength = extension.index ("@");
 
-            // WAV files to be merged is:
-            // extension.wav + <each digit of the extension>.wav + "is_not_available.wav"
-
-            // Hence array size is:
-            // prefix wav file + suffix wav file + length of the extension +
-            // 1 blank entry to indicate the end of WAV files
-            int arrayLength = 3 + extensionLength ;
-
-            // Create the array for storing the WAV files to be merged
-            UtlString* infiles = new UtlString[ arrayLength ] ;
-
-            if( infiles )
+            // If the extension is longer than 5 characters, or contains
+            // anything other than digits, use a more generic greeting,
+            bool generic = true ;
+            if (extensionLength <= 5)
             {
-                // First element of the array is the prefix greeting URL
-                infiles[0] = extensionUrl ;
-
-                // Get individual digits of the extension
-                int arrayIndex = 1 ;
-                while( extensionLength > 0 )
+                // Check if all of those characters are digits
+                RegEx pattern("^[0-9]+$");
+                if (pattern.Search(extension.data(), extensionLength))
                 {
-                    infiles[ arrayIndex ] =
-                        m_mediaserverUrl + "/" + PROMPT_ALIAS + "/" + extension( 0, 1 ) + ".wav";
-                    extensionLength-- ;
-                    extension = extension( 1, extensionLength) ;
-                    arrayIndex ++ ;
+                   // Yes, they are.  Can use the more specific prompt
+                   generic = false ;
                 }
+            }
+            
+            if (generic)
+            {
+               // "The owner of this extension" + {suffix}"
+               UtlString infiles[3] ;
+               infiles[0] =
+                  m_mediaserverUrl + "/" + PROMPT_ALIAS + "/" + "owner.wav" ;
+               infiles[1] = greetingSuffix ;
+               infiles[2] = "" ;
 
-                infiles[arrayIndex] = greetingSuffix ;
-                infiles[arrayIndex + 1] = "" ;
-
-                if (mergeWaveUrls(infiles, greetingLocation ) != OS_SUCCESS)
-                {
-                    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
-                                  "MailboxManager::generateDefaultGreetings failed to generate default %s prompt for %s",
-                                  greetingType.data(), mailboxIdentity.data());
-                  
-                    result = OS_FAILED;
-                }
-
-                delete [] infiles ;
+            writeToLog("GenerateDefaultGreetings", "Extension: " + extension + "Using generic greeting", PRI_DEBUG );
+               result = mergeWaveUrls(infiles, greetingLocation);
             }
             else
-                result = OS_FAILED ;
-        }
+            {
 
-        result = OS_SUCCESS ;
+               // WAV files to be merged is:
+               // extension.wav + <each digit of the extension>.wav + "is_not_available.wav"
+
+               // Hence array size is:
+               // prefix wav file + suffix wav file + length of the extension +
+               // 1 blank entry to indicate the end of WAV files
+               int arrayLength = 3 + extensionLength ;
+
+               // Create the array for storing the WAV files to be merged
+               UtlString* infiles = new UtlString[ arrayLength ] ;
+
+               if( infiles )
+               {
+                   // First element of the array is the prefix greeting URL
+                   infiles[0] = extensionUrl ;
+   
+                   // Get individual digits of the extension
+                   int arrayIndex = 1 ;
+                   while( extensionLength > 0 )
+                   {
+                       infiles[ arrayIndex ] =
+                           m_mediaserverUrl + "/" + PROMPT_ALIAS + "/" + extension( 0, 1 ) + ".wav";
+                       extensionLength-- ;
+                       extension = extension( 1, extensionLength) ;
+                       arrayIndex ++ ;
+                   }
+
+                   infiles[arrayIndex] = greetingSuffix ;
+                   infiles[arrayIndex + 1] = "" ;
+
+                    writeToLog("GenerateDefaultGreetings", "Extension: " + extension + "Using digit greeting", PRI_DEBUG );
+                   result = mergeWaveUrls(infiles, greetingLocation);
+                   delete [] infiles ;
+               }
+            }
+        }
+    }
+
+    if (result != OS_SUCCESS)
+    {
+       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
+          "MailboxManager::generateDefaultGreetings failed to generate default %s prompt for %s",
+          greetingType.data(), mailboxIdentity.data());
+                  
     }
     return result ;
 }

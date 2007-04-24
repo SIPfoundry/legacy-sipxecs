@@ -357,6 +357,7 @@ wwwcontent = \
 	stdprompts/operator.wav \
 	stdprompts/outofoffice_greeting_is.wav \
 	stdprompts/outofoffice_selected.wav \
+	stdprompts/owner.wav \
 	stdprompts/p.wav \
 	stdprompts/passwd_changed.wav \
 	stdprompts/pin_changed.wav \
