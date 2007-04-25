@@ -9,9 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.springframework.ldap.LdapTemplate;
+import org.springframework.ldap.support.LdapContextSource;
 
 /**
  * Used to store LDAP connections in the DB LdapConnectionParams
@@ -67,11 +68,14 @@ public class LdapConnectionParams extends BeanWithId {
         return m_schedule;
     }
 
-    public void applyToTemplate(JndiLdapTemplate template) {
-        template.setProviderUrl(getUrl());
-        template.setSecurityPrincipal(m_principal);
-        template.setSecurityCredentials(m_secret);
-        String authentication = StringUtils.isEmpty(m_secret) ? "none" : "basic";
-        template.setSecurityAuthentication(authentication);
+    public void applyToTemplate(LdapTemplate template) {
+        applyToTemplate(template, new LdapContextSource());
+    }
+    
+    void applyToTemplate(LdapTemplate template, LdapContextSource config) {
+        config.setUserName(m_principal);
+        config.setPassword(m_secret);
+        config.setUrl(getUrl());
+        template.setContextSource(config);
     }
 }

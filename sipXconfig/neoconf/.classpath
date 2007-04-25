@@ -55,5 +55,7 @@
 	<classpathentry kind="lib" path="etc"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/xstream-1.2.1.jar" sourcepath="/LIB_SRC/xstream/1.2.1/src.zip"/>
 	<classpathentry kind="var" path="SIPX_BUILD/neoconf/dist/cdr-bindings.jar" sourcepath="/SIPX_BUILD/neoconf/dist/cdr-bindings-src"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/spring-ldap-1.1.2.jar" sourcepath="/LIB_SRC/spring-ldap/1.1.2/spring-ldap-src-1.1.2.zip"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/ldapbp.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

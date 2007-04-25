@@ -42,18 +42,25 @@
     <property name="coreContext" ref="coreContext" />
     <property name="mailboxManager" ref="mailboxManager" />
     <property name="preserveMissingUsers" value="false" />
+  </bean>	
+	
+  <bean id="ldapTemplate" class="org.springframework.ldap.LdapTemplate">
+	<!-- FIXME: dummy context, gets replaced before operations. not multithreaded! -->
+    <property name="contextSource" ref="ldapDummyConnection"/>
   </bean>
-
-  <bean id="jndiTemplate" class="org.sipfoundry.sipxconfig.bulk.ldap.JndiLdapTemplate">
-    <property name="intialContextFactory" value="com.sun.jndi.ldap.LdapCtxFactory" />
+	
+  <bean id="ldapDummyConnection" class="org.springframework.ldap.support.LdapContextSource">
+	  <property name="url" value="ldap://localhost:389"/>
+	  <!-- avoid npe, unclear why -->
+	  <property name="cacheEnvironmentProperties" value="false"/>
   </bean>
 
   <bean id="ldapManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapManagerImpl">
     <property name="sessionFactory">
       <ref bean="sessionFactory" />
     </property>
-    <property name="jndiTemplate">
-      <ref local="jndiTemplate" />
+    <property name="ldapTemplate">
+      <ref local="ldapTemplate" />
     </property>
   </bean>
 
@@ -69,8 +76,8 @@
     <property name="rowInserter">
       <ref local="ldapRowInserter" />
     </property>
-    <property name="jndiTemplate">
-      <ref local="jndiTemplate" />
+    <property name="ldapTemplate">
+      <ref local="ldapTemplate" />
     </property>
     <property name="ldapManager">
       <ref local="ldapManager" />

@@ -12,9 +12,10 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import javax.naming.NamingEnumeration;
+import javax.naming.NameClassPair;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
@@ -29,12 +30,15 @@ import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
+import org.springframework.ldap.CollectingNameClassPairCallbackHandler;
+import org.springframework.ldap.LdapTemplate;
+import org.springframework.ldap.NameClassPairMapper;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapImportManager {
     public static final Log LOG = LogFactory.getLog(LdapImportManager.class);
 
-    private JndiLdapTemplate m_jndiTemplate;
+    private LdapTemplate m_ldapTemplate;
 
     private LdapManager m_ldapManager;
 
@@ -44,9 +48,9 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
 
     public void insert() {
         try {
-            NamingEnumeration<SearchResult> result = search(0);
+            Iterator<SearchResult> result = search(0).iterator();
             m_rowInserter.beforeInserting();
-            while (result.hasMore()) {
+            while (result.hasNext()) {
                 SearchResult searchResult = result.next();
                 m_rowInserter.execute(searchResult);
             }
@@ -60,8 +64,8 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
     public List<UserPreview> getExample() {
         try {
             ArrayList<UserPreview> example = new ArrayList<UserPreview>(m_previewSize);
-            NamingEnumeration<SearchResult> result = search(m_previewSize);
-            while (result.hasMore()) {
+            Iterator<SearchResult> result = search(m_previewSize).iterator();
+            while (result.hasNext()) {
                 SearchResult searchResult = result.next();
                 UserPreview preview = getUserPreview(searchResult);
                 example.add(preview);
@@ -89,8 +93,8 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
             String[] allNames = Index.getAllNames();
             writer.write(allNames, false);
             
-            NamingEnumeration<SearchResult> result = search(0);
-            while (result.hasMore()) {
+            Iterator<SearchResult> result = search(0).iterator();
+            while (result.hasNext()) {
                 SearchResult searchResult = result.next();
                 UserPreview preview = getUserPreview(searchResult);
                 String groupNamesString = StringUtils.join(preview.getGroupNames().iterator(), ", ");
@@ -112,8 +116,8 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         }
     }
 
-    public void setJndiTemplate(JndiLdapTemplate jndiTemplate) {
-        m_jndiTemplate = jndiTemplate;
+    public void setLdapTemplate(LdapTemplate ldapTemplate) {
+        m_ldapTemplate = ldapTemplate;
     }
 
     public void setRowInserter(LdapRowInserter rowInserter) {
@@ -128,7 +132,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         m_previewSize = previewSize;
     }
 
-    private NamingEnumeration<SearchResult> search(long limit) throws NamingException {
+    private List<SearchResult> search(long limit) throws NamingException {
         SearchControls sc = new SearchControls();
         sc.setCountLimit(limit);
         sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -145,10 +149,28 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
 
         // FIXME: this is a potential threading problem - we cannot have one template shared
         // if we are changing the connection params for each insert operation
-        m_ldapManager.getConnectionParams().applyToTemplate(m_jndiTemplate);
+        m_ldapManager.getConnectionParams().applyToTemplate(m_ldapTemplate);
+        
         m_rowInserter.setAttrMap(attrMap);
-        NamingEnumeration<SearchResult> result = m_jndiTemplate.search(base, filter, sc);
+        CollectingNameClassPairCallbackHandler handler = new NameClassPassThru();
+        m_ldapTemplate.search(base, filter, sc, handler);
+        List<SearchResult> result = handler.getList();
         return result;
+    }
+    
+    class NameClassPassThru extends CollectingNameClassPairCallbackHandler implements NameClassPairMapper {
+        public Object mapFromNameClassPair(NameClassPair nameClassPair) throws NamingException {
+            return (SearchResult) nameClassPair;
+        }
+
+        @Override
+        public Object getObjectFromNameClassPair(NameClassPair nameClassPair) {
+            try {
+                return mapFromNameClassPair(nameClassPair);
+            } catch (NamingException e) {
+                throw m_ldapTemplate.getExceptionTranslator().translate(e);
+            }
+        }   
     }
 
 }

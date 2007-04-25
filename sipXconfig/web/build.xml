@@ -70,6 +70,8 @@
     <pathelement path="${antlr.jar}"/>
     <pathelement path="${lucene.jar}"/>
     <pathelement path="${xstream.jar}" />
+    <pathelement path="${spring-ldap.jar}" />
+    <pathelement path="${ldap.jar}" />
     <!-- SOAP -->
     <pathelement path="${jaxrpc.jar}"/>
     <pathelement path="${javamail.jar}"/>

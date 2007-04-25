@@ -18,6 +18,8 @@
     <pathelement location="${jaxen.jar}" />
     <pathelement location="${commons-lang.jar}" />
     <pathelement location="${spring.jar}" />
+    <pathelement location="${spring-ldap.jar}" />
+    <pathelement location="${ldap.jar}" />
     <pathelement location="${hibernate.jar}" />
     <pathelement location="${servlet.jar}" />
     <pathelement location="${velocity.jar}" />

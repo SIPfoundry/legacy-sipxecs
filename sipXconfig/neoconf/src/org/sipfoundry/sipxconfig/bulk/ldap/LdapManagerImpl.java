@@ -13,8 +13,8 @@ import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -24,6 +24,9 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.ldap.AttributesMapper;
+import org.springframework.ldap.DefaultNameClassPairMapper;
+import org.springframework.ldap.LdapTemplate;
 
 /**
  * Maintains LDAP connection params, attribute maps and schedule LdapManagerImpl
@@ -33,12 +36,12 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
     public static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
 
-    private JndiLdapTemplate m_jndiTemplate;
+    private LdapTemplate m_ldapTemplate;
 
     private ApplicationContext m_applicationContext;
 
     public void verify(LdapConnectionParams params, AttrMap attrMap) {
-        params.applyToTemplate(m_jndiTemplate);
+        params.applyToTemplate(m_ldapTemplate);
 
         try {
             String searchBase = retrieveDefaultSearchBase();
@@ -53,7 +56,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     }
 
     public Schema getSchema() {
-        getConnectionParams().applyToTemplate(m_jndiTemplate);
+        getConnectionParams().applyToTemplate(m_ldapTemplate);
         try {
             return retrieveSchema();
         } catch (NamingException e) {
@@ -80,13 +83,19 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
         cons.setReturningAttributes(attrs);
         cons.setSearchScope(SearchControls.OBJECT_SCOPE);
-        NamingEnumeration<SearchResult> results = m_jndiTemplate.search("", FILTER_ALL_CLASSES, cons);
+        List<Attributes> results = m_ldapTemplate.search("", FILTER_ALL_CLASSES, cons, 
+                new AttributesPassThru(), null);
         // only interested in the first result
-        if (results.hasMore()) {
-            SearchResult result = results.next();
-            return (String) result.getAttributes().get(attrs[0]).get();
+        if (results.size() > 0) {
+            return (String) results.get(0).get(attrs[0]).get();
         }
         return StringUtils.EMPTY;
+    }
+    
+    static class AttributesPassThru implements AttributesMapper {
+        public Object mapFromAttributes(Attributes attributes) throws NamingException {
+            return attributes;
+        }    
     }
 
     private Schema retrieveSchema() throws NamingException {
@@ -97,16 +106,20 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
         cons.setReturningAttributes(attrs);
         cons.setSearchScope(SearchControls.OBJECT_SCOPE);
-        NamingEnumeration<SearchResult> results = m_jndiTemplate.search("cn=subSchema", FILTER_ALL_CLASSES,
-                cons);
+        
+        new DefaultNameClassPairMapper();
+        
+        
+        List<Attributes> results = m_ldapTemplate.search("cn=subSchema", FILTER_ALL_CLASSES,
+                cons, new AttributesPassThru(), null);
         // only interested in the first result
 
         Schema schema = new Schema();
-        if (!results.hasMore()) {
+        if (results.size() == 0) {
             return schema;
         }
-        SearchResult result = results.next();
-        NamingEnumeration definitions = result.getAttributes().get(attrs[0]).getAll();
+        Attributes result = results.get(0);
+        NamingEnumeration definitions = result.get(attrs[0]).getAll();
         while (definitions.hasMoreElements()) {
             String classDefinition = (String) definitions.nextElement();
             schema.addClassDefinition(classDefinition);
@@ -163,8 +176,8 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         getHibernateTemplate().saveOrUpdate(params);
     }
 
-    public void setJndiTemplate(JndiLdapTemplate jndiTemplate) {
-        m_jndiTemplate = jndiTemplate;
+    public void setLdapTemplate(LdapTemplate jndiTemplate) {
+        m_ldapTemplate = jndiTemplate;
     }
 
     public void setApplicationContext(ApplicationContext applicationContext) {
