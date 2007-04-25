@@ -6,7 +6,7 @@
   -
   - NOTES:
   -
-  -  Attempts to define targets w/standard target names, but no authorative
+  -  Attempts to define targets w/standard target names, but no authoritative
   -    standard was used.
   -->
 <project xmlns:ivy="antlib:fr.jayasoft.ivy.ant" name="ant-targets" default="default">
