@@ -4,12 +4,12 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="/sipXconfig-neoconf"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/bsf-2.3.0.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/bsf-2.4.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-beanutils-1.7.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-codec-1.3.jar" sourcepath="LIB_SRC/commons-codec/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-collections-3.2.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-discovery-0.2.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-lang-2.2.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-discovery-0.4.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-lang-2.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-pool-1.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock-2.2.jar"/>
@@ -45,7 +45,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/hivemind-1.1.jar" sourcepath="LIB_SRC/hivemind/1.1.1/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/hivemind-lib-1.1.jar" sourcepath="LIB_SRC/hivemind/1.1.1/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-4.0.2.jar" sourcepath="/LIB_SRC/tapestry/4.0.2/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/js-1.6R2.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/js-1.6R5.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tacos-4.0.0-lib.jar" sourcepath="/LIB_SRC/tacos/tacos-4.0.0-src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-annotations-4.0.2.jar" sourcepath="/LIB_SRC/tapestry/4.0.2/src.zip"/>
