@@ -62,7 +62,9 @@
 
 // Constructor
 OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
-       const char* remoteHost, int localHostPortNum, const char* localHost) :
+                                   const char* remoteHost,
+                                   int localHostPortNum,
+                                   const char* localHost) :
    mNumTotalWriteErrors(0),
    mNumRecentWriteErrors(0),
    mSimulatedConnect(FALSE)     // Simulated connection is off until
@@ -103,9 +105,10 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
         close();
 
         OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                "OsDatagramSocket::OsDatagramSocket( %s:%d %s:%d) failed w/ errno %d)",
-                        remoteHost, remoteHostPortNum, localHost, 
-                        localHostPortNum, error);
+                      "OsDatagramSocket::OsDatagramSocket(%s:%d %s:%d) socket(%d, %d, %d) failed w/ errno %d)",
+                      remoteHost, remoteHostPortNum, localHost, localHostPortNum,
+                      AF_INET, SOCK_DGRAM, IPPROTO_UDP,
+                      error);
 
         goto EXIT;
     }
@@ -141,7 +144,18 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
 #   endif
     if(error == OS_INVALID_SOCKET_DESCRIPTOR)
     {
+        error = OsSocketGetERRNO();
         close();
+
+        // Extract the address and port we were trying to bind() to.
+        const char *addr = inet_ntoa(localAddr.sin_addr);
+        int port = ntohs(localAddr.sin_port);
+        OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                      "OsDatagramSocket::OsDatagramSocket(%s:%d %s:%d) bind(%d, %s:%d) failed w/ errno %d)",
+                      remoteHost, remoteHostPortNum, localHost, localHostPortNum,
+                      socketDescriptor, addr, port,
+                      error);
+
         goto EXIT;
     }
     else

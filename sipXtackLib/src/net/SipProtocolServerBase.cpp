@@ -243,9 +243,14 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
         }
 
         UtlBoolean isOk = clientSocket->isOk();
+        if(!isOk)
+        {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "SIP %s socket %s:%d not OK",
+                          mProtocolString.data(), hostAddress, hostPort);
+        }
         int writeWait = 3000; // mSec
         UtlBoolean isReadyToWrite = clientSocket->isReadyToWrite(writeWait);
-
         if(!isReadyToWrite)
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
@@ -285,7 +290,7 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
                 }
             }
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::createClient client: %p %s:%d",
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer(SipProtocolServerBase)::createClient client: %p %s:%d",
                 mProtocolString.data(), client, hostAddress, hostPort);
 
             mClientList.push(client);
@@ -304,7 +309,7 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
                 clientSocket = NULL;
             }
             OsSysLog::add(FAC_SIP, PRI_WARNING,
-                          "Sip%sServer::createClient client %p Failed to create socket %s:%d",
+                          "Sip%sServer(SipProtocolServerBase)::createClient client %p Failed to create socket %s:%d",
                           mProtocolString.data(), this, hostAddress, hostPort);
         }
     }
