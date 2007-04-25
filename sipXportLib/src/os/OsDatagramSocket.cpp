@@ -239,8 +239,8 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
                 int error = OsSocketGetERRNO();
                 close();
                 OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                        "OsDatagramSocket::doConnect( %s:%d ) failed w/ errno %d)",
-                        remoteHost, remoteHostPortNum, error);
+                              "OsDatagramSocket::doConnect( %s:%d ) failed w/ errno %d)",
+                              remoteHost, remoteHostPortNum, error);
             }
             else
             {
@@ -313,8 +313,10 @@ int OsDatagramSocket::write(const char* buffer, int bufferLength,
         if(bytesSent != bufferLength)
         {
            OsSysLog::add(FAC_SIP, PRI_ERR,
-                         "OsDatagramSocket::write(4) bytesSent = %d, "
+                         "OsDatagramSocket::write(4) ipAddress = '%s', "
+                         "port = %d, bytesSent = %d, "
                          "bufferLength = %d, errno = %d",
+                         ipAddress ? ipAddress : "[null]", port,
                          bytesSent, bufferLength, errno);
             time_t rightNow;
 
