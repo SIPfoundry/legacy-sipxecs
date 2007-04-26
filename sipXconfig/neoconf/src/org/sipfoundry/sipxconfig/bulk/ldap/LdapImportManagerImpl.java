@@ -33,6 +33,7 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.springframework.ldap.CollectingNameClassPairCallbackHandler;
 import org.springframework.ldap.LdapTemplate;
 import org.springframework.ldap.NameClassPairMapper;
+import org.springframework.ldap.SearchLimitExceededException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapImportManager {
@@ -153,7 +154,12 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         
         m_rowInserter.setAttrMap(attrMap);
         CollectingNameClassPairCallbackHandler handler = new NameClassPassThru();
-        m_ldapTemplate.search(base, filter, sc, handler);
+        try {
+            m_ldapTemplate.search(base, filter, sc, handler);
+        } catch (SearchLimitExceededException normal) {
+            // See http://forum.springframework.org/archive/index.php/t-27836.html
+            LOG.debug("Normal overflow, requesting to preview more records then exist");
+        }
         List<SearchResult> result = handler.getList();
         return result;
     }

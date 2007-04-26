@@ -42,8 +42,8 @@
     <property name="coreContext" ref="coreContext" />
     <property name="mailboxManager" ref="mailboxManager" />
     <property name="preserveMissingUsers" value="false" />
-  </bean>	
-	
+  </bean>
+
   <bean id="ldapTemplate" class="org.springframework.ldap.LdapTemplate">
 	<!-- FIXME: dummy context, gets replaced before operations. not multithreaded! -->
     <property name="contextSource" ref="ldapDummyConnection"/>
