@@ -96,7 +96,6 @@ rm -rf $RPM_BUILD_ROOT
 #%docdir doc
 %attr(755,root,root) %{_bindir}/blat
 %attr(755,root,root) %{_bindir}/analyze_483s
-%attr(755,root,root) %{_bindir}/autodel
 %attr(755,root,root) %{_bindir}/ipcclean.pl
 %attr(755,root,root) %{_bindir}/check-fqdn
 %attr(755,root,root) %{_bindir}/watchdog
