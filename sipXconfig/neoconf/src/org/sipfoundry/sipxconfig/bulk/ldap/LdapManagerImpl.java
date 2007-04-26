@@ -14,6 +14,7 @@ import java.util.List;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 
 import org.apache.commons.lang.StringUtils;
@@ -26,6 +27,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.ldap.AttributesMapper;
 import org.springframework.ldap.DefaultNameClassPairMapper;
+import org.springframework.ldap.DirContextProcessor;
 import org.springframework.ldap.LdapTemplate;
 
 /**
@@ -84,12 +86,20 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         cons.setReturningAttributes(attrs);
         cons.setSearchScope(SearchControls.OBJECT_SCOPE);
         List<Attributes> results = m_ldapTemplate.search("", FILTER_ALL_CLASSES, cons, 
-                new AttributesPassThru(), null);
+                new AttributesPassThru(), new NullDirContextProcessor());
         // only interested in the first result
         if (results.size() > 0) {
             return (String) results.get(0).get(attrs[0]).get();
         }
         return StringUtils.EMPTY;
+    }
+    
+    private final class NullDirContextProcessor implements DirContextProcessor {
+        public void postProcess(DirContext ctx) throws NamingException {
+        }
+
+        public void preProcess(DirContext ctx) throws NamingException {
+        }
     }
     
     static class AttributesPassThru implements AttributesMapper {
@@ -109,9 +119,8 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         
         new DefaultNameClassPairMapper();
         
-        
         List<Attributes> results = m_ldapTemplate.search("cn=subSchema", FILTER_ALL_CLASSES,
-                cons, new AttributesPassThru(), null);
+                cons, new AttributesPassThru(), new NullDirContextProcessor());
         // only interested in the first result
 
         Schema schema = new Schema();

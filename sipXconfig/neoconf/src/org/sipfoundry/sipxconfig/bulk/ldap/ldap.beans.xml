@@ -51,8 +51,6 @@
 	
   <bean id="ldapDummyConnection" class="org.springframework.ldap.support.LdapContextSource">
 	  <property name="url" value="ldap://localhost:389"/>
-	  <!-- avoid npe, unclear why -->
-	  <property name="cacheEnvironmentProperties" value="false"/>
   </bean>
 
   <bean id="ldapManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapManagerImpl">

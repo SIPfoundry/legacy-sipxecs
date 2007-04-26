@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.springframework.ldap.LdapTemplate;
@@ -69,12 +70,19 @@ public class LdapConnectionParams extends BeanWithId {
     }
 
     public void applyToTemplate(LdapTemplate template) {
-        applyToTemplate(template, new LdapContextSource());
+        LdapContextSource contextSource = new LdapContextSource();
+        applyToTemplate(template, contextSource);
+        // FIXME: instantiate new contextSource
+        try {
+            contextSource.afterPropertiesSet();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
     
     void applyToTemplate(LdapTemplate template, LdapContextSource config) {
-        config.setUserName(m_principal);
-        config.setPassword(m_secret);
+        config.setUserName(StringUtils.defaultString(m_principal, StringUtils.EMPTY));
+        config.setPassword(StringUtils.defaultString(m_secret, StringUtils.EMPTY));
         config.setUrl(getUrl());
         template.setContextSource(config);
     }
