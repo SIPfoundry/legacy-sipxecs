@@ -1,5 +1,4 @@
 <project name="web" default="default">
-  <property name="ruby-test.src.dir" value="${test.src.dir}/org/sipfoundry/sipxconfig/api"/>
   <property name="checkstyle.severity" value="error"/>
   <property name="project.dir" value="web"/>
   <import file="../ant-targets.xml"/>
@@ -9,6 +8,7 @@
   <property name="server.bindings.dir" value="${dist.dir}/server-bindings"/>
   <property name="ruby.debug" value=""/>
   <property name="ruby.flags" value="-w ${ruby.debug}"/>
+  <property name="ruby-test.src.dir" value="${test.src.dir}/org/sipfoundry/sipxconfig/api"/>
   <property name="server-bindings.jar" value="${dist.dir}/server-bindings.jar"/>
     
   <!-- common path unit tests need that interfaces w/sipXconfig lib 
