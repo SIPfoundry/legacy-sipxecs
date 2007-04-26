@@ -23,6 +23,7 @@
   <property file="${top.dir}/lib.properties"/>
   <property name="build.dir" value="${top.build.dir}/${project.dir}"/>  
   <property name="src.dir" value="src" />
+  <property name="test.src.dir" value="test"/>
   <property name="classes.dir" value="${build.dir}/classes" />
   <property name="dist.dir" value="${build.dir}/dist" />
   <property name="style.dir" value="${build.dir}/style" />
@@ -32,13 +33,6 @@
   <property name="test.classes.dir" value="${build.dir}/tests"/>
   <property name="clover.dir" value="${build.dir}/clover"/>
   <property name="test.name" value="*"/>
-  <patternset id="test-performance.classes" includes="**/${test.name}TestPerformance.class" />        
-
-  <!-- 
-    - going forward this default will change to just 'test'
-    - until then, projects like neoconf will override this
-    -->
-  <property name="test.src.dir" value="${src.dir}/test"/>
 
   <path id="axis.path">
     <pathelement location="${jaxrpc.jar}"/>
@@ -60,8 +54,11 @@
     <echo>${classpath}</echo>
   </target>
 
-  <!-- Default pattern for unittest naming schema -->
-  <patternset id="test.classes" includes="**/${test.name}Test.class" />
+  <!-- Default patterns for unittest naming schema -->
+  <patternset id="test.src" includes="**/${test.name}Test.java" />
+  <patternset id="test-db.src" includes="**/${test.name}TestDb.java" />
+  <patternset id="test-ui.src" includes="**/${test.name}TestUi.java" />
+  <patternset id="test-performance.src" includes="**/${test.name}TestPerformance.java" />
 
   <!--
     - T A S K   D E F I N I T I O N S
@@ -265,8 +262,8 @@
       <formatter type="xml"/>
       <sysproperty key="basedir" value="${basedir}"/>
       <batchtest todir="${junit.results.dir}">
-        <fileset dir="${test.classes.dir}"> 
-          <patternset refid="test.classes"/>
+        <fileset dir="${test.src.dir}">
+          <patternset refid="test.src" />
         </fileset>
       </batchtest>
     </junit>        

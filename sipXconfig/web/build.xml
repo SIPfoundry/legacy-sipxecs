@@ -1,5 +1,4 @@
 <project name="web" default="default">
-  <property name="test.src.dir" value="test"/>
   <property name="ruby-test.src.dir" value="${test.src.dir}/org/sipfoundry/sipxconfig/api"/>
   <property name="checkstyle.severity" value="error"/>
   <property name="project.dir" value="web"/>
@@ -11,7 +10,6 @@
   <property name="ruby.debug" value=""/>
   <property name="ruby.flags" value="-w ${ruby.debug}"/>
   <property name="server-bindings.jar" value="${dist.dir}/server-bindings.jar"/>
-  <patternset id="test-ui.classes" includes="**/${test.name}TestUi.class"/> 
     
   <!-- common path unit tests need that interfaces w/sipXconfig lib 
        all spring jars at this point -->
@@ -315,8 +313,8 @@
       <formatter type="xml"/>
       <sysproperty key="basedir" value="${basedir}"/>
       <batchtest todir="${junit.results.dir}">
-        <fileset dir="${test.classes.dir}">
-          <patternset refid="test-ui.classes"/>
+        <fileset dir="${test.src.dir}">
+          <patternset refid="test-ui.src" />
         </fileset>
       </batchtest>
     </junit>
