@@ -65,6 +65,14 @@
 extern "C" int enetIsLinkActive(void);
 #endif
 
+#ifdef __hpux
+// getdomainname prototype is not defined in hp-ux header files.
+extern "C"
+{
+   int getdomainname(char *name, int namelen);
+}
+#endif
+
 // EXTERNAL VARIABLES
 // CONSTANTS
 const UtlContainableType OsSocket::TYPE = "OsSocket";

@@ -7,14 +7,20 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
+#ifndef _MPAUDIOUTILS_H_
+#define _MPAUDIOUTILS_H_
+
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "os/OsStatus.h"
+#include "utl/UtlString.h"
 #include "mp/MpTypes.h"
 
 void ConvertUnsigned8ToSigned16(unsigned char *in_buffer, Sample *out_buffer, int numBytesToConvert);
+
+extern const char* MpWaveFileFormat;
 
 //returns the GCD of a and b
 //don't pass it negative numbers or (0, 0)
@@ -42,3 +48,5 @@ unsigned char ALawEncode2(Sample s);
 unsigned char MuLawEncode2(Sample s);
 Sample MuLawDecode2(unsigned char ulaw);
 Sample ALawDecode2(unsigned char alaw);
+
+#endif // _MPAUDIOUTILS_H_

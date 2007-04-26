@@ -17,6 +17,8 @@ CHECK_AUTOCONF
 AC_CONFIG_SRCDIR([src/os/OsConfigDb.cpp])
 AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
+# check the shared library file extension - sets LTDL_SHLIB_EXT
+AC_LTDL_SHLIBEXT
 
 # Checks for programs.
 AC_PROG_CXX
@@ -37,8 +39,23 @@ CHECK_PCRE
 CHECK_SSL
 
 SFAC_INIT_FLAGS
+# SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED
 
 SFAC_FEATURE_SIP_TLS
+
+AC_MSG_CHECKING(for system type for process iterator ($host))
+case $host in 
+    *-*-hpux)
+    PROCESS_ITERATOR=src/os/hpux/OsProcessIteratorHpux.cpp 
+    ;;
+    *-*-linux-gnu)
+    PROCESS_ITERATOR=src/os/linux/OsProcessIteratorLinux.cpp 
+    ;;
+esac
+AC_MSG_RESULT($PROCESS_ITERATOR)
+AC_CONFIG_LINKS(src/os/OsProcessIterator.cpp:$PROCESS_ITERATOR)
+
+AC_CHECK_FUNCS(setenv)
 
 ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)

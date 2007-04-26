@@ -41,7 +41,7 @@ typedef enum tagOsSysLogPriority
    PRI_ERR,       // error conditions
    PRI_CRIT,      // critical conditions
    PRI_ALERT,     // action must be taken immediately
-   PRI_EMERG,     // system is unusable
+   PRI_EMERG      // system is unusable
 
    // NOTE: If adding/removing priorities, please adjust static name
    // initializer in OsSysLog.cpp and the SYSLOG_NUM_PRIORITIES define above.
@@ -187,7 +187,7 @@ public:
    enum OsSysLogOptions
    {
         OPT_NONE           = 0x00000000,     // No Options
-        OPT_SHARED_LOGFILE = 0x00000001,     // Assume a shared log file
+        OPT_SHARED_LOGFILE = 0x00000001      // Assume a shared log file
 
      // NOTE: Options are designed to be used as bitmasks (and ORed together).
      //       Make sure new additions are defined as power of twos (0x01,

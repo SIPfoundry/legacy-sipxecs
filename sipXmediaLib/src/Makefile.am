@@ -2,8 +2,6 @@
 
 SUBDIRS = test
 
-INCLUDES = -I$(top_srcdir)/include 
-
 lib_LTLIBRARIES = libsipXmedia.la
 
 
@@ -24,7 +22,9 @@ LOCAL_AUDIO_CXXFLAGS = -D_INCLUDE_AUDIO_SUPPORT
 endif
 
 libsipXmedia_la_CXXFLAGS = \
-	-D_REALTIME_LINUX_AUDIO_THREADS $(LOCAL_AUDIO_CXXFLAGS)
+	-D_REALTIME_LINUX_AUDIO_THREADS $(LOCAL_AUDIO_CXXFLAGS) \
+	-I$(top_srcdir)/include \
+	-I$(top_builddir)
 
 libsipXmedia_la_LIBADD = \
 	@SIPXTACK_LIBS@ @SIPXPORT_LIBS@ @CA_LIBS@ -lstdc++

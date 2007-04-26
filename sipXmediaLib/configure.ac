@@ -15,6 +15,7 @@ CHECK_AUTOCONF
 
 AC_CONFIG_SRCDIR([src/mp/MpCallFlowGraph.cpp])
 AM_CONFIG_HEADER([config.h])
+AC_C_BIGENDIAN
 AC_PROG_LIBTOOL
 
 # Checks for programs.

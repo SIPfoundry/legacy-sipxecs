@@ -331,6 +331,9 @@ struct myAPI {
   void *impl_;
 };
 
+#ifdef setbit
+#undef setbit
+#endif
 
 class OSBlog {
 public:

@@ -271,13 +271,15 @@ OsStatus OsFileBase::open(const int mode)
     {
         switch(errno)
         {
-            case EACCES     :
-            case EMFILE     :
-                                stat = OS_FILE_ACCESS_DENIED;
-                                break;
-            case ENOENT     :   stat = OS_FILE_NOT_FOUND;
-                                break;
-
+        case EACCES:
+        case EMFILE:
+           stat = OS_FILE_ACCESS_DENIED;
+           break;
+        case ENOENT:
+           stat = OS_FILE_NOT_FOUND;
+           break;
+        default:
+           break;
         }
     }
 #else

@@ -140,8 +140,8 @@ libsipXport_la_SOURCES =  \
     os/linux/OsFileLinux.cpp \
     os/linux/OsMutexLinux.cpp \
     os/linux/OsPathLinux.cpp \
-    os/linux/OsProcessIteratorLinux.cpp \
     os/linux/OsProcessLinux.cpp \
+	 os/OsProcessIterator.cpp \
     os/linux/OsSharedLibMgrLinux.cpp \
     os/linux/OsTaskLinux.cpp \
     os/linux/OsUtilLinux.cpp \
@@ -153,6 +153,7 @@ libsipXport_la_SOURCES =  \
     xmlparser/tinyxmlerror.cpp \
     xmlparser/tinyxmlparser.cpp \
     xmlparser/TiXmlIterator.cpp
+
 
 EXTRA_DIST= \
     os/Wnt/getWindowsDNSServers.cpp \
@@ -171,6 +172,8 @@ EXTRA_DIST= \
     os/Wnt/OsSharedLibMgrWnt.cpp \
     os/Wnt/OsTaskWnt.cpp \
     os/Wnt/OsUtilWnt.cpp \
-    os/Wnt/WindowsAdapterInfo.cpp 
+    os/Wnt/WindowsAdapterInfo.cpp \
+    os/linux/OsProcessIteratorLinux.cpp \
+	 os/hpux/OsProcessIteratorHpux.cpp 
 
 DISTCLEANFILES = Makefile.in

@@ -8,6 +8,7 @@
 //////
 
 
+#include "mp/MpAudioUtils.h"
 #include "rtcp/RtcpConfig.h"
 
 #ifndef __pingtel_on_posix__
@@ -1414,7 +1415,7 @@ UtlBoolean MpCallFlowGraph::writeWAVHeader(int handle)
 
     //write RIFF & length
     //8 bytes written
-    strcpy(tmpbuf,"RIFF");
+    strcpy(tmpbuf,MpWaveFileFormat);
     unsigned long length = 0;
     bytesWritten += write(handle,tmpbuf, strlen(tmpbuf));
     bytesWritten += write(handle, (char*)&length, sizeof(length)); //filled in on close
@@ -1713,13 +1714,12 @@ UtlBoolean MpCallFlowGraph::handleStopToneOrPlay()
 UtlBoolean MpCallFlowGraph::handleSynchronize(MpFlowGraphMsg& rMsg)
 {
    OsNotification* pSync = (OsNotification*) rMsg.getPtr1();
-   char* tag = (char*) rMsg.getPtr2();
+
    int val1  = rMsg.getInt1();
-   int val2  = rMsg.getInt2();
 
    if (0 != pSync) {
       pSync->signal(val1);
-      // if (NULL != tag) osPrintf(tag, val1, val2);
+
 #ifdef DEBUG_POSTPONE /* [ */
    } else {
       // just delay (postPone()), for debugging race conditions...

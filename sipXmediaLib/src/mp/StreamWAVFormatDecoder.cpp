@@ -144,13 +144,16 @@ UtlBoolean StreamWAVFormatDecoder::validDecoder()
       int read = 0 ;
       if (pSrc->peek((char*) &id, sizeof(WAVChunkID), read) == OS_SUCCESS)
       {
-         if (memcmp(id.ckID, "RIFF", 4) == 0)
+         if (memcmp(id.ckID, MpWaveFileFormat, 4) == 0)
          {
             bRC = TRUE ;
          }
          else
          {
-            syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::validDecoder (RIFF not detected.)");
+            syslog(FAC_STREAMING, PRI_ERR,
+                   "StreamWAVFormatDecoder::validDecoder (%s not detected.)",
+                   MpWaveFileFormat
+                   );
          }
       }
    }
@@ -393,7 +396,7 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
       while (!mbEnd && pDataSource->read((char*) Header, 4, iRead) == OS_SUCCESS)
       {      
           pDataSource->getPosition(iCurrentPosition);
-         if (iCurrentPosition == 4 && memcmp(Header, "RIFF", 4) != 0)
+         if (iCurrentPosition == 4 && memcmp(Header, MpWaveFileFormat, 4) != 0)
          {
              //if this is true, then this file is not a wav, since
              //all wave files start with RIFF.
@@ -406,13 +409,16 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
              if (strstr(Header, "404 Not Found") != NULL)
                 syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::nextDataChunk (404 Not Found).)");
              else
-                syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::nextDataChunk (RIFF not detected.)");
+                syslog(FAC_STREAMING, PRI_ERR,
+                       "StreamWAVFormatDecoder::nextDataChunk (%s not detected.)",
+                       MpWaveFileFormat
+                       );
 
              // Just return successful with zero data read.
              return TRUE;
          }
          else
-         if (memcmp(Header, "RIFF", 4) == 0)
+         if (memcmp(Header, MpWaveFileFormat, 4) == 0)
          {
              //just read the block size
             if (pDataSource->read((char*) &blockSize, sizeof(blockSize), iRead) != OS_SUCCESS)

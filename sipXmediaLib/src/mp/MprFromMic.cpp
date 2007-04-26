@@ -15,21 +15,7 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
-
-#ifdef __pingtel_on_posix__
-#  ifdef __linux__
-#     include <stdlib.h>
-      typedef __int64_t __int64;
-#  elif defined(sun)
-#     include <sys/int_types.h>
-      typedef int64_t __int64;
-#  elif defined(__MACH__) /* OS X */
-#     include <sys/types.h>
-      typedef int64_t __int64;
-#  else
-#     error Unsupported POSIX OS.
-#  endif
-#endif
+#include "os/OsDefs.h"
 
 // APPLICATION INCLUDES
 #include "mp/MpMisc.h"

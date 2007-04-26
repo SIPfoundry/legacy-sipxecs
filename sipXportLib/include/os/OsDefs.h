@@ -36,6 +36,22 @@ void osPrintf(const char* format , ...)
             __attribute__ ((format (printf, 1, 2)))
 #endif
          ;
+
+// @TODO clean up definition of 64 bit integer types - see also UtlDefs.h
+#ifdef __pingtel_on_posix__
+#  ifdef __linux__
+#     include <stdlib.h>
+   typedef __int64_t __int64;
+#  elif defined(sun)
+#     include <sys/int_types.h>
+   typedef int64_t __int64;
+#  elif defined(__MACH__) /* OS X */
+#     include <sys/types.h>
+   typedef int64_t __int64;
+#  else
+#     error "Need a definition of __int64 for this platform"
+#  endif
+#endif
          
 // A special value for "port number" which means that no port is specified.
 #define PORT_NONE (-1)

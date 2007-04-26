@@ -59,7 +59,7 @@ public:
            { "Na:Va\r\n", "Na", "Va" },
         };
 
-        for (int i = 0; i < sizeof (test_table) / sizeof (test_table[0]); i++)
+        for (unsigned int i = 0; i < sizeof (test_table) / sizeof (test_table[0]); i++)
         {
            char msg[1024];
            db.insertEntry(test_table[i].line);

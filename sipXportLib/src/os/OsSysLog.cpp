@@ -553,6 +553,8 @@ OsStatus OsSysLog::parseLogString(const char *szSource,
          case '\\':
             bEscapeNext = true ;
             break ;
+      default:
+            break;
       }
 
       switch (iParseState)
@@ -584,6 +586,8 @@ OsStatus OsSysLog::parseLogString(const char *szSource,
          case PS_CONTENT:
             content.append(*pTraverse) ;
             break ;
+         default:
+            break;
       }
 
       pTraverse++ ;

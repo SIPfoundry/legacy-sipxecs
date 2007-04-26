@@ -77,7 +77,9 @@ public:
  */
     virtual unsigned long Release(void)=0;
 
-
+    virtual ~IBaseClass() 
+    {
+    };
 };
 
 

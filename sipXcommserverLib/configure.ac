@@ -15,6 +15,8 @@ CHECK_AUTOCONF
 
 AC_CONFIG_SRCDIR([src/sipdb/SIPDBManager.cpp])
 AM_CONFIG_HEADER([config.h])
+AC_CHECK_FUNCS(setenv)
+
 AC_PROG_LIBTOOL
 
 # Checks for programs.

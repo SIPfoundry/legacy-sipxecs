@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ##
 ##  gen-ssl-keys.sh - generate SSL key and certificate files.
 ##

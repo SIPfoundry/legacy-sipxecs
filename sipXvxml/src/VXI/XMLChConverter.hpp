@@ -28,7 +28,7 @@
 // surrogate pairs.
 
 #if defined(__linux__) || \
-    defined(SOLARIS) || defined(__SVR4) || defined(UNIXWARE)
+    defined(SOLARIS) || defined(__SVR4) || defined(UNIXWARE) || defined(__hpux)
 #define UTF16TO32
 
 // ------*---------*---------*---------*---------*---------*---------*---------

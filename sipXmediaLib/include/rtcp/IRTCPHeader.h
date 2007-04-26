@@ -231,7 +231,9 @@ public:
  */
     virtual void SetSSRC(unsigned long ulSSRC)=0;
 
-
+    virtual ~IRTCPHeader()
+    {
+    };
 
 };
 

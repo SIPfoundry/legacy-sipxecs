@@ -73,10 +73,14 @@ else
   {
       echo failure
   }
-  . /etc/init.d/functions.sh
 
-  HTTP_DAEMON_START="start-stop-daemon --start --exec @APACHE2_HTTPD@ --"
-  
+  if [ -f /etc/init.d/functions.sh ]
+  then
+       . /etc/init.d/functions.sh
+       HTTP_DAEMON_START="start-stop-daemon --start --exec @APACHE2_HTTPD@ --"
+  else
+       HTTP_DAEMON_START="@APACHE2_HTTPD@ --"
+  fi
 fi
 
 # Source configuration
@@ -132,6 +136,13 @@ process_command() {
     return
   fi
   echo -n "${proc_cmd}"
+}
+
+# Check if the process is alive
+proc_alive() # pid
+{
+	2>/dev/null kill -0 $1
+	echo $?
 }
 
 # Low-level start function.
@@ -202,7 +213,7 @@ stop() {
    else
        PID=`cat ${pidFile} 2> /dev/null`
 
-       if [ ! -e /proc/$PID ]
+       if [ `proc_alive $PID` -ne 0 ]
        then
           echo "(Started but not running) "
           rm -f ${pidFile}
@@ -224,25 +235,25 @@ stopCheck() {
        echo -n "  Confirm Stop: $proc_name "
        PID=`cat ${pidFile} 2> /dev/null`
 
-       if [ -e /proc/$PID ]
+       if [ `proc_alive $PID` -eq 0 ]
        then
           for ticks in 3 2 1 0 
           do
              sleep 1
-             test -e /proc/$PID && echo -n "." || break
+             test `proc_alive $PID` -eq 0 && echo -n "." || break
           done
-          if [ -e /proc/$PID ]
+          if [ `proc_alive $PID` -eq 0 ]
           then
               kill -9 $PID 2> /dev/null
               for ticks in 3 2 1 0 
               do
                  sleep 1
-                 test -e /proc/$PID && echo -n "." || break
+                 test `proc_alive $PID` -eq 0 && echo -n "." || break
               done
           fi
        fi
           
-       if [ -e /proc/$PID ]
+       if [ `proc_alive $PID` -eq 0 ]
        then
            echo_failure
            echo ""
@@ -707,7 +718,7 @@ status() { # process-name
    else
        PID=`cat @SIPX_RUNDIR@/$proc_name.pid 2> /dev/null`
 
-       if [ -e /proc/$PID ]
+       if [ `proc_alive $PID` -eq 0 ]
        then
           echo_success; echo ''
        else
@@ -735,7 +746,7 @@ case "$1" in
         then
             echo "   Found @SIPX_RUNDIR@/watchdog.pid - checking for running watchdog process"
             runningdog=`cat @SIPX_RUNDIR@/watchdog.pid 2>/dev/null`
-            if [ -n "$runningdog" -a -e /proc/$runningdog ]
+            if [ -n "$runningdog" -a `proc_alive $runningdog` -eq 0 ]
             then
                 echo -n " The sipX watchdog may already be running. Try stop or restart."
                 echo_failure

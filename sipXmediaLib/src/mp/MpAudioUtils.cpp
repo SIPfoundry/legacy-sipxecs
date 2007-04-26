@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
+#define _MPAUDIOUTILS_CPP_
 
 // SYSTEM INCLUDES
 #include <stdlib.h>
@@ -35,6 +36,16 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const char* MpWaveFileFormat =
+#ifdef WORDS_BIGENDIAN
+/* Wave File TypeID for BIG endian Platforms - RIFX */
+   "RIFX"
+#else
+/* Wave File TypeID for LITTLE endian Platforms - RIFF */
+   "RIFF"
+#endif
+   ;
+
 // STATIC VARIABLE INITIALIZATIONS
 
 #define MAX_WAVBUF_SIZE 65535
@@ -148,7 +159,7 @@ OsStatus WriteWaveHdr(OsFile &file)
 
     //write RIFF & length
     //8 bytes written
-    strcpy(tmpbuf,"RIFF");
+    strcpy(tmpbuf,MpWaveFileFormat);
     unsigned long length = 0;
     
     file.write(tmpbuf, strlen(tmpbuf),bytesWritten);
@@ -275,7 +286,7 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
                 unsigned char chunkId[4];
                 if (reader.read((char *)chunkId,4,bytesRead) == OS_SUCCESS)
                 {
-                    if (memcmp(chunkId,"RIFF",4) == 0) //continue if RIFF                
+                    if (memcmp(chunkId,MpWaveFileFormat,4) == 0) //continue if the right format
                     {
                         //now read bytes left
                         if (reader.read((char *)&filesize,sizeof(long),bytesRead) == OS_SUCCESS)

@@ -13,8 +13,12 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#ifdef _VXWORKS
-  #include <envLib.h>  //needed for putenv
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#else
+#  ifdef _VXWORKS
+    #include <envLib.h>  //needed for putenv
+#  endif
 #endif
 
 // APPLICATION INCLUDES
@@ -134,13 +138,13 @@ OsStatus OsProcessBase::ApplyEnv()
     while (nextKey != "")
     {
         searchKey = nextKey;
-#ifndef __pingtel_on_posix__
+#ifndef HAVE_SETENV
         fullEnv = nextKey;
         fullEnv += "=";
         fullEnv += nextValue;
 
         if (putenv((char *)fullEnv.data()) != 0)
-#else
+#else // HAVE_SETENV
         if (setenv((char *)nextKey.data(), (char *)nextValue.data(), 1) != 0)
 #endif
         {

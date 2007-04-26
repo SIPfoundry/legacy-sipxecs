@@ -24,6 +24,23 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
+#ifndef HAVE_SETENV
+int setenv(const char *name, const char *value, int overwrite)
+{
+	UtlString fullEnv = "";
+	fullEnv = name;
+	fullEnv += "=";
+	fullEnv += value;
+	putenv(fullEnv.data());
+	return 0;
+}
+#endif
+
+
 /// constructor
 SipDbTestContext::SipDbTestContext( const char* testInputDir
                                    ,const char* testWorkingDir

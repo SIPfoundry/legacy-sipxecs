@@ -292,7 +292,7 @@ AC_DEFUN([CHECK_SSL],
 
     AC_MSG_CHECKING([for openssl libraries])
     found_ssl_lib="no";
-    for libsubdir in lib lib64 lib32; do
+    for libsubdir in lib lib64 lib32 lib/hpux32; do
       for dir in $openssl_path ; do
         if test -f "$dir/$libsubdir/libssl.so" -o -f "$dir/$libsubdir/libssl.dylib" -o -f "$dir/$libsubdir/libssl.a"; then
             found_ssl_lib="yes";
@@ -695,7 +695,8 @@ AC_DEFUN([CHECK_CGICC],
 
     found_cgicc="no";
     for cgicc_dir in $cgicc_path; do
-           if test -f "$cgicc_dir/lib/libcgicc.so" -a -f "$cgicc_dir/include/cgicc/Cgicc.h"
+	   if test -f "$cgicc_dir/include/cgicc/Cgicc.h" \
+               -a -f "$cgicc_dir/lib/libcgicc.so" -o "$cgicc_dir/lib/libcgicc.a"
        then
          found_cgicc="yes";
          break;
@@ -740,10 +741,10 @@ AC_DEFUN([CHECK_LIBWWW],
         AC_MSG_ERROR(not found; 'include/w3c-libwww/WWWLib.h' and 'include/WWWLib.h' not in any of: $withval /usr/local/w3c-libwww /usr/lib/w3c-libwww /usr/w3c-libwww /usr/pkg /usr/local /usr)
     fi
 
-    if test ! -e "$dir/lib/libwwwapp.so";then
+    if test ! -e "$dir/lib/libwwwapp.so" -a  ! -e "$dir/lib/libwwwapp.a";then
         AC_MSG_ERROR(not found; 'libwwwapps.so' not in: $dir/lib)
     fi
-    if test ! -e "$dir/lib/libwwwssl.so";then
+    if test ! -e "$dir/lib/libwwwssl.so" -a  ! -e "$dir/lib/libwwwssl.a";then
         AC_MSG_ERROR(not found; 'libwwwssl.so' not in: $dir/lib)
     fi
     if test x_$found_www = x_yes; then
@@ -1498,4 +1499,19 @@ AC_DEFUN([CHECK_GENERATE_MANPAGES],
   fi
 
   AM_CONDITIONAL(GENERATE_MANPAGES, test x$missing_dependency != xyes)
+])
+
+# ============ XARGS_REPLACE  =========================
+AC_DEFUN([CHECK_XARGS_REPLACE],
+[
+   AC_MSG_CHECKING([for xargs replace option])
+
+   echo | xargs -I % echo
+   if test $? -eq 0  ; then
+        AC_SUBST(XARGS_REPLACE,"-I ")
+	AC_MSG_RESULT([-I])
+   else
+        AC_SUBST(XARGS_REPLACE,"--replace=")
+	AC_MSG_RESULT([--replace])
+   fi
 ])

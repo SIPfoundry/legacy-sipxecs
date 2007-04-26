@@ -1031,9 +1031,11 @@ SBinetURL::WideToNarrowString(const VXIchar* pszWide,
 
        for (size_t i=0; i < nCharCount; i++) 
        {
-         if (  pszWide[i] < CHAR_MIN || pszWide[i] > CHAR_MAX) 
-	       eResult = VXIinet_RESULT_INVALID_ARGUMENT; 
-         tmp[i] = (char)pszWide[i];
+          if ((signed)pszWide[i] < (signed)CHAR_MIN || (signed)pszWide[i] > (signed)CHAR_MAX) 
+          {
+             eResult = VXIinet_RESULT_INVALID_ARGUMENT; 
+          }
+          tmp[i] = (char)pszWide[i];
        }
  
        tmp[nCharCount] = 0;

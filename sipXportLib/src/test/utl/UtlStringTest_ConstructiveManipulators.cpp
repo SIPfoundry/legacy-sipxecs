@@ -151,9 +151,6 @@ public:
             size_t minExpectedCapacity ;
         } ;
 
-        const char* prefix = "One arg(int) constructor test for string with a capacity ";
-        const char* suffix1 = ":- test data" ;
-        const char* suffix2 = ":- test capacity" ;
         string Message ;
 
         const CapacityConstructorVerifier testData[] = { \

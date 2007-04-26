@@ -4,7 +4,6 @@ include $(top_srcdir)/config/subdir.am
 bin_SCRIPTS = \
     ${PACKAGE}-config \
     analyze_483s \
-    autodel \
     ipcclean.pl \
     blat \
     check-fqdn

@@ -66,7 +66,7 @@ typedef enum
 
     AUTO = -1,  /**< Automatic contact selection; used for API 
                      parameters */
-    ALL  = -2,  /**< Filter value for the SipContactDb, for looking
+    ALL  = -2   /**< Filter value for the SipContactDb, for looking
                      up records of all types. */
                      
 } CONTACT_TYPE ;

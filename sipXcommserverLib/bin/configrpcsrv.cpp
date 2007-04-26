@@ -59,8 +59,8 @@ void showHelp(char* argv[])
    printf("Usage: \n"
           "   %s:\n"
           "   [ {-v|--verbose} | {-q|--quiet} ]\n"
-          "   [ {-d|--duration} <seconds> ]\n",
-          "   [ {-p|--port} <port> ]\n",
+          "   [ {-d|--duration} <seconds> ]\n"
+          "   [ {-p|--port} <port> ]\n"
           "   [ {-h|-?|--help} ]\n"
           , argv[0]
           );

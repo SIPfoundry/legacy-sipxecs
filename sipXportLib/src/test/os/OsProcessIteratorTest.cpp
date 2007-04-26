@@ -40,8 +40,8 @@ public:
         {
             UtlString name;
             process.getProcessName(name);
-            #ifdef WIN32
-            /*on Windows, the system process is pid 0 */
+            #if defined(WIN32) || defined(__hpux)
+            /*on Windows and HP-UX, the system process is pid 0 */
             CPPUNIT_ASSERT_MESSAGE("Valid PID",process.getPID() >= 0);
             #else
             CPPUNIT_ASSERT_MESSAGE("Valid PID", process.getPID() != 0);

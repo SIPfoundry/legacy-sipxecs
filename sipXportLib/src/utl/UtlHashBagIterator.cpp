@@ -236,7 +236,7 @@ void UtlHashBagIterator::removing(const UtlLink* link)
 {
    // caller is holding the mContainerLock
 
-   if (link = mpCurrentLink)
+   if ((link = mpCurrentLink))
    {
       mLinkIsValid  = false;
       mpCurrentLink = mpCurrentLink->prev();

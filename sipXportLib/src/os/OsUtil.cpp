@@ -429,6 +429,8 @@ int OsUtil::getPlatformType(void)
    platform = PLATFORM_LINUX;
 #elif defined(sun) /* ] [ */
    platform = PLATFORM_SOLARIS;
+#elif defined(__hpux) /* ] [ */
+   platform = PLATFORM_HPUX;
 #else /* ] [ */
 #error Unexpected Platform/CPU type
 #endif /* ] ]*/

@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
+#include "config.h"
 
 #include "mp/MpAudioWaveFileRead.h"
 #include "mp/MpAudioFileDecompress.h"
@@ -19,11 +20,19 @@
   + ((static_cast<unsigned long>(c)&255)<<8)           \
   + ((static_cast<unsigned long>(d)&255)))
 
+#ifdef WORD_BIGENDIAN
+/* ChunkID in BIG endian platforms - RIFX */
+#   define WAVE_CHUNK_FORMAT ChunkName('R','I','F','X')
+#else
+/* ChunkID in LITTLE endian platforms - RIFF */
+#   define WAVE_CHUNK_FORMAT ChunkName('R','I','F','F')
+#endif
+
 
 bool isWaveFile(istream &file) {
    file.seekg(0);
    unsigned long form = readIntMsb(file,4);
-   if (form != ChunkName('R','I','F','F'))
+   if (form != WAVE_CHUNK_FORMAT)
       return false; // Not RIFF file
    skipBytes(file,4);  // Skip chunk size
    unsigned long type = readIntMsb(file,4);
@@ -52,7 +61,7 @@ MpAudioWaveFileRead::MpAudioWaveFileRead(istream & s): mStream(s) {
    nextChunk();
    // Ensure first chunk is RIFF/WAVE container
    if (  (_currentChunk != 0)
-      || (_chunk[0].type != ChunkName('R','I','F','F'))
+      || (_chunk[0].type != WAVE_CHUNK_FORMAT)
       || (_chunk[0].isContainer != true)
       || (_chunk[0].containerType != ChunkName('W','A','V','E'))
       )
@@ -304,15 +313,14 @@ void MpAudioWaveFileRead::nextChunk(void)
    _chunk[_currentChunk].containerType = 0;
 
    if ((_currentChunk >= 0) &&
-      (_chunk[0].type != ChunkName('R','I','F','F')))
+      (_chunk[0].type != WAVE_CHUNK_FORMAT))
    {
-      osPrintf("Outermost chunk is not RIFF ?!?!\n");
       mbIsOk = false;
       _currentChunk = -1;
       return;
    }
 
-   if (type == ChunkName('R','I','F','F'))
+   if (type == WAVE_CHUNK_FORMAT)
    {
       _chunk[_currentChunk].isContainer = true;
       // Need to check size of container first.

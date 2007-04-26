@@ -57,6 +57,7 @@ MprDecode::MprDecode(const UtlString& rName, MpConnection* pConn,
 :  MpResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
    mPreloading(1),
    mpMyDJ(NULL),
+   mLock(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE),
    mpCurrentCodecs(NULL),
    mNumCurrentCodecs(0),
    mpPrevCodecs(NULL),
@@ -65,7 +66,6 @@ MprDecode::MprDecode(const UtlString& rName, MpConnection* pConn,
    mNumMarkerNotices(0),
    mFrameLastMarkerNotice(0),
    mFrameCounter(0),
-   mLock(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE),
    mpNotify(NULL),
    mpRecorder(NULL)
 {
@@ -260,7 +260,7 @@ static int numWarnings = 0;
 #endif /* DEBUG_DECODING ] */
 
    MpDecoderBase* pCurDec;
-   Sample* pSamples;
+   Sample* pSamples = NULL;
 
    mFrameCounter++;
 

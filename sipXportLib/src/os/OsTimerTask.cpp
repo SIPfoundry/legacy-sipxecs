@@ -358,6 +358,9 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
       // the timer task.
       delete timer;
       break;
+   default:
+      // :TODO: ? all cases handled?
+      break;
    }
 
    return TRUE;

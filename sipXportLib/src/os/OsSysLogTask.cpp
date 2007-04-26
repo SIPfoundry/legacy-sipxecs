@@ -249,6 +249,8 @@ UtlBoolean OsSysLogTask::handleMessage(OsMsg& eventMessage)
             case OsEventMsg::NOTIFY:
                processFlushLog(NULL) ;
                break;
+         default:
+               break;
          }
          bRC = TRUE ;
          break ;

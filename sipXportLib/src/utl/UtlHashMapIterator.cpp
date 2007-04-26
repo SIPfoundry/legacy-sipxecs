@@ -212,7 +212,7 @@ UtlContainable* UtlHashMapIterator::value() const
 void UtlHashMapIterator::removing(const UtlPair* key)
 {
    // the caller already holds the mContainerLock
-   if (key = mpCurrentPair)
+   if ((key = mpCurrentPair))
    {
       mPairIsValid = false;
       mpCurrentPair  = static_cast<UtlPair*>(mpCurrentPair->UtlChain::prev);

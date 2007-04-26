@@ -11,5 +11,11 @@
 #127.0.0.0       0.0.0.0         255.0.0.0       U     0      0        0 lo
 #0.0.0.0         10.1.1.1        0.0.0.0         UG    0      0        0 eth0
 
-IFACE=`/sbin/route -n | grep '^0\\.0\\.0\\.0' | cut -c 73-`
-/sbin/ifconfig $IFACE | grep "inet addr" | head -n 1 | cut -d: -f 2 | awk '{ print $1 }'
+if test $(uname -s) = HP-UX; then
+   IFACE=`/usr/bin/netstat -nr | grep default | awk '{print $5}'`
+   /usr/sbin/ifconfig $IFACE | grep "inet " | head -n 1 | awk '{ print $2 }'
+else
+   IFACE=`/sbin/route -n | grep '^0\\.0\\.0\\.0' | cut -c 73-`
+   /sbin/ifconfig $IFACE | grep "inet addr" | head -n 1 | cut -d: -f 2 | awk '{ print $1 }'
+fi
+

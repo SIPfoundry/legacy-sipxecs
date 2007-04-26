@@ -85,6 +85,8 @@
 #  define PLATFORM_UA_PARAM " (Linux)"
 #elif defined(sun)
 #  define PLATFORM_UA_PARAM " (Solaris)"
+#elif defined(__hpux)
+#  define PLATFORM_UA_PARAM " (HP-UX)"
 #endif
 #endif /* PLATFORM_UA_PARAM */
 

@@ -3,7 +3,9 @@ lib_LTLIBRARIES = libsipXcommserverTest.la
 
 libsipXcommserverTest_la_LDFLAGS = -static # no version info for static libs
 
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = \
+	-I$(top_srcdir)/include
+	-I$(top_builddir)
 
 libsipXcommserverTest_la_SOURCES =  \
 	FileTestContext.cpp \
