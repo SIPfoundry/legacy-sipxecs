@@ -63,8 +63,22 @@ then
 
   HTTP_DAEMON_START="start-stop-daemon --start --exec @APACHE2_HTTPD@ --"
 
+elif [ -f /etc/debian_version ]
+then
+  # Debian
+  echo_success()
+  {
+      echo success
+  }
+  echo_failure()
+  {
+      echo failure
+  }
+
+  HTTP_DAEMON_START="start-stop-daemon --start --exec @APACHE2_HTTPD@ --"
+
 else
-  # Non-Redhat (Gentoo, Debian, and perhaps others)
+  # Other distos
   echo_success() 
   {
       echo success
