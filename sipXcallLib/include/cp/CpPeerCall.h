@@ -349,11 +349,6 @@ private:
     SIPX_CALLSTATE_EVENT eLastMajor ;
     SIPX_CALLSTATE_CAUSE eLastMinor ;
     
-    // For media server
-    CpIntMessage* pExitMsg;
-    OsQueuedEvent* queuedEvent;
-    OsTimer* timer;
-
     CpPeerCall(const CpPeerCall& rCpPeerCall);
     //:Copy constructor
 

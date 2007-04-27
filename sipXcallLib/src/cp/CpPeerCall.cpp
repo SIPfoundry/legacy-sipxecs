@@ -215,27 +215,6 @@ CpPeerCall::~CpPeerCall()
         OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall-%s destructor:: callId is Null\n", name.data());       
     }
 #endif
-
-                  
-#if 0
-    // We might have the memory leak here because those three objects might not being deleted yet!!!
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::~CpPeerCall deleting CpIntMessage %p queuedEvent %p timer %p",
-                  pExitMsg, queuedEvent, timer);
-    if (pExitMsg)
-    {
-        delete pExitMsg;
-    }
-    
-    if (queuedEvent)
-    {
-        delete queuedEvent;
-    }
-    
-    if (timer)
-    {
-        delete timer;
-    }
-#endif    
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -3020,17 +2999,16 @@ void CpPeerCall::dropIfDead()
                     else
                     {                    
                         // For media server we need to hold off the deletion for a while
-                        pExitMsg = new CpIntMessage(CallManager::CP_CALL_EXITED,(int)this);
-                        queuedEvent = new OsQueuedEvent(*(mpManager->getMessageQueue()), (int)pExitMsg);
-                        timer = new OsTimer(*queuedEvent);
+                        CpIntMessage * pExitMsg = new CpIntMessage(CallManager::CP_CALL_EXITED,(int)this);
+                        OsTimer * timer = new OsTimer(mpManager->getMessageQueue(), (int)pExitMsg);
                         OsTime timerTime(mpManager->getDelayInDeleteCall(), 0);
                         timer->oneshotAfter(timerTime);
                         UtlString thisCallId;
                         getCallId(thisCallId);
                         OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::dropIfDead Wait for %d secs to signal the exit for call %s ...",
                                      mpManager->getDelayInDeleteCall(), thisCallId.data());
-                        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::dropIfDead creating CpIntMessage %p queuedEvent %p timer %p",
-                                     pExitMsg, queuedEvent, timer);
+                        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::dropIfDead creating CpIntMessage %p timer %p",
+                                     pExitMsg, timer);
                     }
                     
             }
