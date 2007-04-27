@@ -32,6 +32,7 @@ import org.springframework.ldap.AttributesMapper;
  */
 public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapManager, ApplicationContextAware {
     private static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
+    private static final String OBJECT_CLASSES = "objectClasses";
     private LdapTemplateFactory m_templateFactory;
     private ApplicationContext m_applicationContext;
 
@@ -54,7 +55,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             // only interested in the first result
             cons.setCountLimit(1);
             String[] attrs = new String[] {
-                "objectClasses"
+                OBJECT_CLASSES
             };
     
             cons.setReturningAttributes(attrs);
@@ -82,7 +83,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         public Object mapFromAttributes(Attributes attributes) throws NamingException {
             // only interested in the first result
             if (!m_initialized) {
-                NamingEnumeration definitions = attributes.get("objectClasses").getAll();
+                NamingEnumeration definitions = attributes.get(OBJECT_CLASSES).getAll();
                 while (definitions.hasMoreElements()) {
                     String classDefinition = (String) definitions.nextElement();
                     m_schema.addClassDefinition(classDefinition);
