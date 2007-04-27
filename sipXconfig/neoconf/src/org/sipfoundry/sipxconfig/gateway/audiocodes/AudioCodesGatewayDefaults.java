@@ -10,13 +10,9 @@
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
-import org.sipfoundry.sipxconfig.setting.SettingValue;
-import org.sipfoundry.sipxconfig.setting.SettingValueHandler;
-import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
 
-public class AudioCodesGatewayDefaults implements SettingValueHandler {
+public class AudioCodesGatewayDefaults {
     private AudioCodesGateway m_gateway;
     private DeviceDefaults m_defaults;
 
@@ -25,31 +21,23 @@ public class AudioCodesGatewayDefaults implements SettingValueHandler {
         m_defaults = defaults;
     }
 
-    @SettingEntry(path = "SIP/SIPGATEWAYNAME")
+    @SettingEntry(path = "SIP_Proxy_Registration/SIPGatewayName")
     public String getGatewayName() {
-        return m_gateway.getDefaults().getDomainName();
+        return m_gateway.getName();
     }
 
-    @SettingEntry(path = "SIP/SIPDESTINATIONPORT")
+    @SettingEntry(path = "SIP_Proxy_Registration/SIPDestinationPort")
     public String getDestinationPort() {
-        return m_gateway.getDefaults().getProxyServerSipPort();
+        return m_defaults.getProxyServerSipPort();
     }
-    
+
+    @SettingEntry(path = "SIP_Proxy_Registration/ProxyIP")
+    public String getDomainName() {
+        return m_defaults.getDomainName();
+    }
+
     @SettingEntry(path = "Network/NTPServerIP")
     public String getNtpServer() {
         return m_gateway.getDefaults().getNtpServer();
-    }
-
-    public SettingValue getSettingValue(Setting setting) {
-        SettingValue value = null;
-        String path = setting.getPath();
-        AudioCodesModel model = (AudioCodesModel) m_gateway.getModel();
-        if (path.equals(model.getProxyNameSetting())) {
-            value = new SettingValueImpl(m_defaults.getDomainName());
-        } else if (path.equals(model.getProxyIpSetting())) {
-            value = new SettingValueImpl(m_defaults.getProxyServerAddr());
-        }
-
-        return value;
     }
 }

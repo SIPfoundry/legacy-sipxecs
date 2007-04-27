@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -19,14 +20,13 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingArray;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.setting.SettingVisitor;
 
 public abstract class AudioCodesGateway extends Gateway {
     @Override
     public void initialize() {
         AudioCodesGatewayDefaults defaults = new AudioCodesGatewayDefaults(this, getDefaults());
-        // Added twice, Provides setting value directly by implementing SettingValueHandler
-        // and also being wrapped by BeanValueStorage
-        addDefaultSettingHandler(defaults);
         addDefaultBeanSettingHandler(defaults);
     }
 
@@ -58,7 +58,8 @@ public abstract class AudioCodesGateway extends Gateway {
 
     @Override
     public void generateProfiles() {
-        getProfileGenerator().copy("audiocodes/MP11x-02-1-FXS_16KHZ.dat", "MP11x-02-1-FXS_16KHZ.dat");
+        getProfileGenerator().copy("audiocodes/MP11x-02-1-FXS_16KHZ.dat",
+                "MP11x-02-1-FXS_16KHZ.dat");
         getProfileGenerator().copy("audiocodes/usa_tones_12.dat", "usa_tones_12.dat");
         super.generateProfiles();
     }
@@ -73,12 +74,17 @@ public abstract class AudioCodesGateway extends Gateway {
             // $$ is used as ignore value
             context.put("ignore", "$$");
             context.put("codecs", getCodecs());
+
+            SettingsIron iron = new SettingsIron();
+            getDevice().getSettings().acceptVisitor(iron);
+            context.put("flatSettings", iron.getFlat());
             return context;
         }
 
         private String[] getCodecs() {
             BeanWithSettings gateway = getDevice();
-            SettingArray codecs = (SettingArray) gateway.getSettings().getSetting("Voice/Codecs");
+            SettingArray codecs = (SettingArray) gateway.getSettings().getSetting(
+                    "SIP_coders/Codecs");
             List<String> list = new ArrayList<String>(codecs.getSize());
             for (int i = 0; i < codecs.getSize(); i++) {
                 String codecName = (String) codecs.getSetting(i, "CoderName").getTypedValue();
@@ -87,6 +93,35 @@ public abstract class AudioCodesGateway extends Gateway {
                 }
             }
             return list.toArray(new String[list.size()]);
+        }
+
+    }
+
+    static class SettingsIron implements SettingVisitor {
+        private Collection<Setting> m_flat = new ArrayList<Setting>();
+
+        public Collection<Setting> getFlat() {
+            return m_flat;
+        }
+
+        public void visitSetting(Setting setting) {
+            m_flat.add(setting);
+        }
+
+        public boolean visitSettingArray(SettingArray array) {
+            // skip arrays
+            return false;
+        }
+
+        public boolean visitSettingGroup(SettingSet group) {
+            // skip empty groups
+            if (group.isLeaf()) {
+                return false;
+            }
+            if (group.getParent() != null) {
+                visitSetting(group);
+            }
+            return true;
         }
     }
 }

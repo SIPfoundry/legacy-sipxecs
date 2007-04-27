@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import java.io.InputStream;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -39,10 +40,14 @@ public class MediantGatewayTestDb extends TestCase {
     }
 
     public void testModel() {
-        assertSame(m_model, m_gateway.getModel());        
+        assertSame(m_model, m_gateway.getModel());
+        Set definitions = m_model.getDefinitions();        
+        assertTrue(definitions.contains("fxo"));
+        assertFalse(definitions.contains("fxs"));
     }
     
     public void testGenerateProfiles() throws Exception {
+        m_gateway.setName("ac_gateway");
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
         m_gateway.generateProfiles();
 
@@ -71,25 +76,22 @@ public class MediantGatewayTestDb extends TestCase {
         DeviceDefaults defaults = defaultsCtrl.createMock(DeviceDefaults.class);
         defaults.getDomainName();
         defaultsCtrl.andReturn("mysipdomain.com").anyTimes();
-        defaults.getProxyServerAddr();
-        defaultsCtrl.andReturn("10.1.2.3").atLeastOnce();
 
         defaultsCtrl.replay();
 
         m_gateway.setDefaults(defaults);
 
-        assertEquals("10.1.2.3", m_gateway.getSettingValue("SIP/ProxyIP"));
-        assertEquals("mysipdomain.com", m_gateway.getSettingValue("SIP/ProxyName"));
+        assertEquals("mysipdomain.com", m_gateway.getSettingValue("SIP_Proxy_Registration/ProxyIP"));
 
         defaultsCtrl.verify();
     }
 
     public void testGetSettings() throws Exception {
         Setting settings = m_gateway.getSettings();
-        assertEquals("13", settings.getSetting("Voice/MaxDigits").getValue());
+        assertEquals("14", settings.getSetting("SIP_DTMF/MaxDigits").getValue());
         assertTrue(settings instanceof SettingSet);
         SettingSet root = (SettingSet) settings;
-        SettingSet currentSettingSet = (SettingSet) root.getSetting("Voice");
-        assertEquals("13", currentSettingSet.getSetting("MaxDigits").getValue());
+        SettingSet currentSettingSet = (SettingSet) root.getSetting("SIP_DTMF");
+        assertEquals("14", currentSettingSet.getSetting("MaxDigits").getValue());
     }
 }

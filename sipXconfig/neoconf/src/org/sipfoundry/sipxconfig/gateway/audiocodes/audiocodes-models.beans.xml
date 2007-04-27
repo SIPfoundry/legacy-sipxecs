@@ -7,8 +7,6 @@
   <bean id="audiocodesTP" abstract="true"
     class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
     <property name="beanId" value="gwAudiocodesTp260" />
-    <property name="proxyNameSetting" value="SIP/ProxyName" />
-    <property name="proxyIpSetting" value="SIP/ProxyIP" />
     <property name="profileTemplate" value="audiocodes/mp-gateway.ini.vm" />
   </bean>
 
@@ -27,18 +25,18 @@
   <bean id="audiocodesMP" abstract="true"
     class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
     <property name="beanId" value="gwAudiocodesMediant" />
-    <property name="proxyNameSetting" value="SIP/ProxyName" />
-    <property name="proxyIpSetting" value="SIP/ProxyIP" />
     <property name="profileTemplate" value="audiocodes/mp-gateway.ini.vm" />
     <property name="digital" value="false" />
   </bean>
 
   <bean id="audiocodesMP1X4_4_FXO" parent="audiocodesMP">
     <property name="label" value="AudioCodes MP1X4 4 Port FXO" />
+    <property name="fxo" value="true"/>
   </bean>
 
   <bean id="audiocodesMP1X8_8_FXO" parent="audiocodesMP">
     <property name="label" value="AudioCodes MP1X8 8 Port FXO" />
+    <property name="fxo" value="true"/>
   </bean>
   
   <bean id="gwAudiocodesMediant" class="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway"

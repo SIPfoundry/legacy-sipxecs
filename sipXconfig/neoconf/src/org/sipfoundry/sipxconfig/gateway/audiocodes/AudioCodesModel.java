@@ -15,8 +15,6 @@ import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 
 public class AudioCodesModel extends GatewayModel {
     private String m_profileTemplate;
-    private String m_proxyNameSetting;
-    private String m_proxyIpSetting;
     private boolean m_fxo;
     private boolean m_fxs;
     private boolean m_digital;
@@ -27,22 +25,6 @@ public class AudioCodesModel extends GatewayModel {
 
     public String getProfileTemplate() {
         return m_profileTemplate;
-    }
-
-    public String getProxyIpSetting() {
-        return m_proxyIpSetting;
-    }
-
-    public void setProxyIpSetting(String proxyIpSetting) {
-        m_proxyIpSetting = proxyIpSetting;
-    }
-
-    public String getProxyNameSetting() {
-        return m_proxyNameSetting;
-    }
-
-    public void setProxyNameSetting(String proxyNameSetting) {
-        m_proxyNameSetting = proxyNameSetting;
     }
 
     public void setFxo(boolean fxo) {
