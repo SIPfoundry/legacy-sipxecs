@@ -9,11 +9,31 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
-import org.springframework.ldap.LdapTemplate;
+import org.springframework.ldap.DirContextProcessor;
 
 public interface LdapManager {
+    public static final String FILTER_ALL_CLASSES = "objectclass=*";
     public static final String CONTEXT_BEAN_NAME = "ldapManager";
+
+    public static final DirContextProcessor NULL_PROCESSOR = new DirContextProcessor() {
+        public void postProcess(DirContext ctx) throws NamingException {
+        }
+        public void preProcess(DirContext ctx) throws NamingException {
+        }
+    };
+    
+    /**
+     * Retrieves LDAP schema.
+     * 
+     * Schema contains list of object classes and their attributes.
+     * 
+     * @throws UserException if connection is not possible for some reason
+     */
+    Schema getSchema();
 
     LdapConnectionParams getConnectionParams();
 
@@ -33,27 +53,4 @@ public interface LdapManager {
      * @throws UserException if connection is not possible for some reason
      */
     void verify(LdapConnectionParams params, AttrMap attrMap);
-    
-    /**
-     * Retrieves LDAP schema.
-     * 
-     * Schema contains list of object classes and their attributes.
-     * 
-     * @throws UserException if connection is not possible for some reason
-     */
-    Schema getSchema();
-
-    /**
-     * access to spring's enhanced API into LDAP
-     * @return new instance every call
-     */
-    LdapTemplate getLdapTemplate();
-
-    /**
-     * useful for testing a connection by getting access to API  before saving
-     * connection params
-     * 
-     * @return new instance every call
-     */
-    LdapTemplate getLdapTemplate(LdapConnectionParams params);
 }

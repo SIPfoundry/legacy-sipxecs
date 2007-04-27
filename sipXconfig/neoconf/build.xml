@@ -118,6 +118,8 @@
       <fileset file="${ant-launcher.jar}" />
       <fileset file="${j2ee.jar}" />
       <fileset file="${spring.jar}" />
+      <fileset file="${spring-ldap.jar}" />
+      <fileset file="${ldap.jar}" />
       <fileset file="${asm.jar}" />
       <fileset file="${hibernate.jar}" />
       <fileset file="${odmg.jar}" />

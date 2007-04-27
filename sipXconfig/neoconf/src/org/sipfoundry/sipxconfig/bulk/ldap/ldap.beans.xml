@@ -2,6 +2,7 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+  <!-- prototype, call ldapManager.getAttrMap for system's current attribute mapping  -->
   <bean id="attrMap" class="org.sipfoundry.sipxconfig.bulk.ldap.AttrMap" singleton="false">
     <property name="userToLdap">
       <map>
@@ -42,19 +43,41 @@
     <property name="coreContext" ref="coreContext" />
     <property name="mailboxManager" ref="mailboxManager" />
     <property name="preserveMissingUsers" value="false" />
+    <property name="userMapper">
+      <ref local="ldapUserMapper"/>
+    </property>
+    <property name="ldapManager">
+      <ref local="ldapManager"/>
+    </property>
+  </bean>
+  
+  <bean id="ldapUserMapper" class="org.sipfoundry.sipxconfig.bulk.ldap.UserMapper" singleton="false">
+    <property name="mailboxManager" ref="mailboxManager" />    
+    <property name="ldapManager">
+      <ref local="ldapManager"/>
+    </property>
   </bean>
 
   <bean id="ldapTemplate" class="org.springframework.ldap.LdapTemplate" singleton="false">
-    <property name="contextSource" ref="ldapContextSource"/>
+    <property name="contextSource">
+      <ref local="ldapContextSource"/>
+    </property>
   </bean>
+  
+  <bean id="ldapTemplateFactory" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapTemplateFactory"/>
 		
   <bean id="ldapContextSource" class="org.sipfoundry.sipxconfig.bulk.ldap.ContextSourceFromConnectionParams" singleton="false">
-	  <property name="ldapManager" ref="ldapManager"/>	  
+	  <property name="ldapManager">
+      <ref local="ldapManager"/>	 
+   </property> 
   </bean>
 
   <bean id="ldapManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapManagerImpl">
     <property name="sessionFactory">
       <ref bean="sessionFactory" />
+    </property>
+    <property name="templateFactory">
+      <ref local="ldapTemplateFactory"/>
     </property>
   </bean>
 
@@ -67,6 +90,9 @@
 
   <bean id="ldapImportManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
+    <property name="userMapper">
+      <ref local="ldapUserMapper" />
+    </property>
     <property name="rowInserter">
       <ref local="ldapRowInserter" />
     </property>
@@ -74,6 +100,7 @@
       <ref local="ldapManager" />
     </property>
     <property name="previewSize" value="10" />
+    <property name="templateFactory" ref="ldapTemplateFactory"/>
   </bean>
 
   <bean id="eagerLdapImportManager" class="org.springframework.aop.framework.ProxyFactoryBean">
