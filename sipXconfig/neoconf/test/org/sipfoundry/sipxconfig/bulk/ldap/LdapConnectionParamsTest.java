@@ -13,7 +13,6 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
-import org.springframework.ldap.LdapTemplate;
 import org.springframework.ldap.support.LdapContextSource;
 
 public class LdapConnectionParamsTest extends TestCase {
@@ -32,8 +31,7 @@ public class LdapConnectionParamsTest extends TestCase {
         params.setPrincipal("uid=bongo,dc=sipfoundry,dc=com");
         params.setSecret("abc");
 
-        LdapTemplate template = new LdapTemplate();
-        params.applyToTemplate(template, config);
+        params.applyToContext(config);
 
         configCtrl.verify();
     }

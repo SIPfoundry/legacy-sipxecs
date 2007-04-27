@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
-import org.springframework.ldap.LdapTemplate;
 import org.springframework.ldap.support.LdapContextSource;
 
 /**
@@ -68,22 +67,10 @@ public class LdapConnectionParams extends BeanWithId {
     public CronSchedule getSchedule() {
         return m_schedule;
     }
-
-    public void applyToTemplate(LdapTemplate template) {
-        LdapContextSource contextSource = new LdapContextSource();
-        applyToTemplate(template, contextSource);
-        // FIXME: instantiate new contextSource
-        try {
-            contextSource.afterPropertiesSet();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
     
-    void applyToTemplate(LdapTemplate template, LdapContextSource config) {
+    public void applyToContext(LdapContextSource config) {
         config.setUserName(StringUtils.defaultString(m_principal, StringUtils.EMPTY));
         config.setPassword(StringUtils.defaultString(m_secret, StringUtils.EMPTY));
         config.setUrl(getUrl());
-        template.setContextSource(config);
     }
 }

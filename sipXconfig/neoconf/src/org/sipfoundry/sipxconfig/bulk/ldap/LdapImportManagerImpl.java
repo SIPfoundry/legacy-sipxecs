@@ -31,15 +31,12 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.springframework.ldap.CollectingNameClassPairCallbackHandler;
-import org.springframework.ldap.LdapTemplate;
 import org.springframework.ldap.NameClassPairMapper;
 import org.springframework.ldap.SearchLimitExceededException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapImportManager {
     public static final Log LOG = LogFactory.getLog(LdapImportManager.class);
-
-    private LdapTemplate m_ldapTemplate;
 
     private LdapManager m_ldapManager;
 
@@ -117,10 +114,6 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         }
     }
 
-    public void setLdapTemplate(LdapTemplate ldapTemplate) {
-        m_ldapTemplate = ldapTemplate;
-    }
-
     public void setRowInserter(LdapRowInserter rowInserter) {
         m_rowInserter = rowInserter;
     }
@@ -137,7 +130,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         SearchControls sc = new SearchControls();
         sc.setCountLimit(limit);
         sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
+        
         AttrMap attrMap = m_ldapManager.getAttrMap();
         if (!attrMap.verified()) {
             m_ldapManager.verify(m_ldapManager.getConnectionParams(), attrMap);
@@ -148,14 +141,10 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         String base = attrMap.getSearchBase();
         String filter = attrMap.getSearchFilter();
 
-        // FIXME: this is a potential threading problem - we cannot have one template shared
-        // if we are changing the connection params for each insert operation
-        m_ldapManager.getConnectionParams().applyToTemplate(m_ldapTemplate);
-        
         m_rowInserter.setAttrMap(attrMap);
         CollectingNameClassPairCallbackHandler handler = new NameClassPassThru();
         try {
-            m_ldapTemplate.search(base, filter, sc, handler);
+            m_ldapManager.getLdapTemplate().search(base, filter, sc, handler);
         } catch (SearchLimitExceededException normal) {
             // See http://forum.springframework.org/archive/index.php/t-27836.html
             LOG.debug("Normal overflow, requesting to preview more records then exist");
@@ -174,7 +163,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
             try {
                 return mapFromNameClassPair(nameClassPair);
             } catch (NamingException e) {
-                throw m_ldapTemplate.getExceptionTranslator().translate(e);
+                throw m_ldapManager.getLdapTemplate().getExceptionTranslator().translate(e);
             }
         }   
     }

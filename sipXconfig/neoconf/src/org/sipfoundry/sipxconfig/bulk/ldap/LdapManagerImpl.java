@@ -36,17 +36,15 @@ import org.springframework.ldap.LdapTemplate;
 public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapManager, ApplicationContextAware {
     public static final String FILTER_ALL_CLASSES = "objectclass=*";
 
-    public static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
-
-    private LdapTemplate m_ldapTemplate;
+    private static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
+    private static final String LDAP_TEMPLATE_BEAN_ID = "ldapTemplate";
+    private static final String LDAP_CONTEXT_SOURCE_BEAN_ID = "ldapContextSource";
 
     private ApplicationContext m_applicationContext;
 
     public void verify(LdapConnectionParams params, AttrMap attrMap) {
-        params.applyToTemplate(m_ldapTemplate);
-
         try {
-            String searchBase = retrieveDefaultSearchBase();
+            String searchBase = retrieveDefaultSearchBase(params);
             // it will only overwrite the search base if not set yet
             if (StringUtils.isBlank(attrMap.getSearchBase())) {
                 attrMap.setSearchBase(searchBase);
@@ -58,7 +56,6 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     }
 
     public Schema getSchema() {
-        getConnectionParams().applyToTemplate(m_ldapTemplate);
         try {
             return retrieveSchema();
         } catch (NamingException e) {
@@ -77,7 +74,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
      *         specific is provided
      * @throws NamingException
      */
-    private String retrieveDefaultSearchBase() throws NamingException {
+    private String retrieveDefaultSearchBase(LdapConnectionParams params) throws NamingException {
         SearchControls cons = new SearchControls();
         String[] attrs = new String[] {
             "namingContexts"
@@ -85,7 +82,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
         cons.setReturningAttributes(attrs);
         cons.setSearchScope(SearchControls.OBJECT_SCOPE);
-        List<Attributes> results = m_ldapTemplate.search("", FILTER_ALL_CLASSES, cons, 
+        List<Attributes> results = getLdapTemplate(params).search("", FILTER_ALL_CLASSES, cons, 
                 new AttributesPassThru(), new NullDirContextProcessor());
         // only interested in the first result
         if (results.size() > 0) {
@@ -119,7 +116,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         
         new DefaultNameClassPairMapper();
         
-        List<Attributes> results = m_ldapTemplate.search("cn=subSchema", FILTER_ALL_CLASSES,
+        List<Attributes> results = getLdapTemplate().search("cn=subSchema", FILTER_ALL_CLASSES,
                 cons, new AttributesPassThru(), new NullDirContextProcessor());
         // only interested in the first result
 
@@ -185,10 +182,20 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         getHibernateTemplate().saveOrUpdate(params);
     }
 
-    public void setLdapTemplate(LdapTemplate jndiTemplate) {
-        m_ldapTemplate = jndiTemplate;
+    public LdapTemplate getLdapTemplate() {
+        return (LdapTemplate) m_applicationContext.getBean(LDAP_TEMPLATE_BEAN_ID);
     }
 
+    public LdapTemplate getLdapTemplate(LdapConnectionParams params) {
+        LdapTemplate template = getLdapTemplate();        
+        ContextSourceFromConnectionParams source = (ContextSourceFromConnectionParams) 
+            m_applicationContext.getBean(LDAP_CONTEXT_SOURCE_BEAN_ID);
+        params.applyToContext(source);
+        source.applyParameters(params);
+        template.setContextSource(source);
+        return template;
+    }
+    
     public void setApplicationContext(ApplicationContext applicationContext) {
         m_applicationContext = applicationContext;
     }
