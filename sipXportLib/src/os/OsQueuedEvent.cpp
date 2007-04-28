@@ -70,6 +70,14 @@ OsStatus OsQueuedEvent::getUserData(int& rUserData) const
    return OS_SUCCESS;
 }
 
+//:Return the message queue specified when this object was constructed
+// Always returns OS_SUCCESS.
+OsStatus OsQueuedEvent::getMsgQ(OsMsgQ*& rpMsgQ) const
+{
+   rpMsgQ = mpMsgQ;
+   return OS_SUCCESS;
+}
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

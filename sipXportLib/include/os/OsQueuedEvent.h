@@ -81,6 +81,10 @@ public:
      //:Return the user data specified when this object was constructed
      // Always returns OS_SUCCESS.
 
+   virtual OsStatus getMsgQ(OsMsgQ*& rpMsgQ) const;
+     //:Return the message queue specified when this object was constructed
+     // Always returns OS_SUCCESS.
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
