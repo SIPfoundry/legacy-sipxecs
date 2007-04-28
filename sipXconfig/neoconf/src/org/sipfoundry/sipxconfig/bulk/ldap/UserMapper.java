@@ -34,10 +34,9 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.ldap.NameClassPairMapper;
 
-public class UserMapper implements NameClassPairMapper, InitializingBean {
+public class UserMapper implements NameClassPairMapper {
     private LdapManager m_ldapManager;
     private AttrMap m_attrMap;
     private MailboxManager m_mailboxManager;
@@ -92,7 +91,7 @@ public class UserMapper implements NameClassPairMapper, InitializingBean {
 
     public Collection<String> getGroupNames(SearchResult sr) throws NamingException {
         Set<String> groupNames = new HashSet<String>();
-        String defaultGroupName = m_attrMap.getDefaultGroupName();
+        String defaultGroupName = getAttrMap().getDefaultGroupName();
         if (defaultGroupName != null) {
             groupNames.add(defaultGroupName);
         }
@@ -135,7 +134,7 @@ public class UserMapper implements NameClassPairMapper, InitializingBean {
     }
 
     private String getValue(Attributes attrs, Index index) throws NamingException {
-        String attrName = m_attrMap.userProperty2ldapAttribute(index.getName());
+        String attrName = getAttrMap().userProperty2ldapAttribute(index.getName());
         if (attrName == null) {
             // no attribute for this property - nothing to do
             return null;
@@ -144,12 +143,21 @@ public class UserMapper implements NameClassPairMapper, InitializingBean {
     }
 
     private Set<String> getValues(Attributes attrs, Index index) throws NamingException {
-        String attrName = m_attrMap.userProperty2ldapAttribute(index.getName());
+        String attrName = getAttrMap().userProperty2ldapAttribute(index.getName());
         if (attrName == null) {
             // no attribute for this property - nothing to do
             return null;
         }
         return getValues(attrs, attrName);
+    }
+    
+    private AttrMap getAttrMap() {
+        if (m_attrMap != null) {
+            return m_attrMap;
+        }
+        
+        m_attrMap = m_ldapManager.getAttrMap();
+        return m_attrMap;
     }
 
     /**
@@ -197,13 +205,13 @@ public class UserMapper implements NameClassPairMapper, InitializingBean {
         String pin = getValue(attrs, Index.PIN);
         if (pin == null && newUser) {
             // for new users consider default pin
-            pin = m_attrMap.getDefaultPin();
+            pin = getAttrMap().getDefaultPin();
         }
         return pin;
     }
 
     public String getUserName(Attributes attrs) throws NamingException {
-        String attrName = m_attrMap.getIdentityAttributeName();
+        String attrName = getAttrMap().getIdentityAttributeName();
         String userName = getValue(attrs, attrName);
         return userName;
     }
@@ -217,10 +225,6 @@ public class UserMapper implements NameClassPairMapper, InitializingBean {
 
     public void setMailboxManager(MailboxManager mailboxManager) {
         m_mailboxManager = mailboxManager;
-    }
-    
-    public void afterPropertiesSet() throws Exception {
-        setAttrMap(m_ldapManager.getAttrMap());
     }
     
     public void setLdapManager(LdapManager ldapManager) {

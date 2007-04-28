@@ -24,12 +24,11 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Specialized version of row inserter for inserting users from LDAP searches LdapRowinserter
  */
-public class LdapRowInserter extends RowInserter<SearchResult> implements InitializingBean {
+public class LdapRowInserter extends RowInserter<SearchResult> {
     private LdapManager m_ldapManager;
     private CoreContext m_coreContext;    
     private MailboxManager m_mailboxManager;
@@ -42,7 +41,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> implements Initia
     public void beforeInserting() {
         // get all the users from LDAP group
         m_existingUserNames = new HashSet<String>();
-        Group defaultGroup = m_coreContext.getGroupByName(m_attrMap.getDefaultGroupName(), false);
+        Group defaultGroup = m_coreContext.getGroupByName(getAttrMap().getDefaultGroupName(), false);
         if (defaultGroup != null) {
             Collection<String> userNames = m_coreContext.getGroupMembersNames(defaultGroup);
             m_existingUserNames.addAll(userNames);
@@ -133,11 +132,16 @@ public class LdapRowInserter extends RowInserter<SearchResult> implements Initia
         m_userMapper = userMapper;
     }
 
-    public void afterPropertiesSet() throws Exception {
-        setAttrMap(m_ldapManager.getAttrMap());
-    }
-
     public void setLdapManager(LdapManager ldapManager) {
         m_ldapManager = ldapManager;
+    }
+
+    private AttrMap getAttrMap() {
+        if (m_attrMap != null) {
+            return m_attrMap;
+        }
+        
+        m_attrMap = m_ldapManager.getAttrMap();
+        return m_attrMap;
     }
 }

@@ -32,7 +32,6 @@ import org.springframework.ldap.AttributesMapper;
  */
 public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapManager, ApplicationContextAware {
     private static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
-    private static final String OBJECT_CLASSES = "objectClasses";
     private LdapTemplateFactory m_templateFactory;
     private ApplicationContext m_applicationContext;
 
@@ -54,11 +53,9 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             SearchControls cons = new SearchControls();
             // only interested in the first result
             cons.setCountLimit(1);
-            String[] attrs = new String[] {
-                OBJECT_CLASSES
-            };
     
-            cons.setReturningAttributes(attrs);
+            SchemaMapper mapper = new SchemaMapper();
+            cons.setReturningAttributes(mapper.getReturningAttributes());
             cons.setSearchScope(SearchControls.OBJECT_SCOPE);        
     
             Schema schema = (Schema) m_templateFactory.getLdapTemplate().search("cn=subSchema",
@@ -74,16 +71,22 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
     private static class SchemaMapper implements AttributesMapper {
         private Schema m_schema;
-        private boolean m_initialized;
+        private boolean m_initialized;        
         
         SchemaMapper() {
             m_schema = new Schema();
+        }
+        
+        public String[] getReturningAttributes() {
+            return new String[] { 
+                    "objectClasses"
+            };            
         }
     
         public Object mapFromAttributes(Attributes attributes) throws NamingException {
             // only interested in the first result
             if (!m_initialized) {
-                NamingEnumeration definitions = attributes.get(OBJECT_CLASSES).getAll();
+                NamingEnumeration definitions = attributes.get(getReturningAttributes()[0]).getAll();
                 while (definitions.hasMoreElements()) {
                     String classDefinition = (String) definitions.nextElement();
                     m_schema.addClassDefinition(classDefinition);

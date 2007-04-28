@@ -27,10 +27,6 @@ public class AcdAgentTest extends TestCase {
         m_agent = (AcdAgent) TestHelper.getApplicationContext().getBean("acdAgent");
     }
 
-    public void testGetSettings() throws Exception {
-        assertNotNull(m_agent.getSettings());
-    }
-
     public void testCalculateUri() {
         IMocksControl mc = EasyMock.createControl();
         CoreContext coreContext = mc.createMock(CoreContext.class);
