@@ -79,7 +79,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         
         public String[] getReturningAttributes() {
             return new String[] { 
-                    "objectClasses"
+                "objectClasses"
             };            
         }
     
