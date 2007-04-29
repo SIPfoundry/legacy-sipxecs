@@ -125,8 +125,12 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   long mSeconds;
-   long mUsecs;
+   // The time interval denoted is (mSeconds + mUsecs/1,000,000) seconds.
+   // This is effectively two's complement notation.
+   long mSeconds;               /* May be negative, if the time
+                                 * interval is negative */
+   long mUsecs;                 /* 0 <= mUsecs < USECS_PER_SEC,
+                                 * even if mSeconds < 0 */
 
 };
 

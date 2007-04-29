@@ -20,6 +20,8 @@ class OsTimeTest : public CppUnit::TestCase
     CPPUNIT_TEST_SUITE(OsTimeTest);
     CPPUNIT_TEST(testSeconds);
     CPPUNIT_TEST(testCopyConstructor);
+    CPPUNIT_TEST(testOverflow);
+    CPPUNIT_TEST(testCompare);
     CPPUNIT_TEST_SUITE_END();
 
 
@@ -119,7 +121,114 @@ non-default constructor";
         delete pInterval1;
         delete pInterval2;
     }
+
+    void testOverflow()
+    {
+       OsTime t900(0, 900000);
+
+       OsTime t1(1, 0);
+       OsTime t2 = t1 + t900;
+       CPPUNIT_ASSERT_MESSAGE("t2 = (1, 900000)",
+                              t2.seconds() == 1 && t2.usecs() == 900000);
+
+       OsTime t3 = t2 + t900;
+       CPPUNIT_ASSERT_MESSAGE("t3 = (2, 800000)",
+                              t3.seconds() == 2 && t3.usecs() == 800000);
+
+       OsTime t4 = t2 + t3;
+       CPPUNIT_ASSERT_MESSAGE("t4 = (4, 700000)",
+                              t4.seconds() == 4 && t4.usecs() == 700000);
+
+       OsTime t10(-1, 0);
+       OsTime t11 = t10 + t900;
+       CPPUNIT_ASSERT_MESSAGE("t11 = (-1, 900000)",
+                              t11.seconds() == -1 && t11.usecs() == 900000);
+
+       OsTime t12 = t11 + t900;
+       CPPUNIT_ASSERT_MESSAGE("t12 = (0, 800000)",
+                              t12.seconds() == 0 && t12.usecs() == 800000);
+
+       OsTime t21(1, 0);
+       OsTime t22 = t21 - t900;
+       CPPUNIT_ASSERT_MESSAGE("t22 = (0, 100000)",
+                              t22.seconds() == 0 && t22.usecs() == 100000);
+
+       OsTime t23 = t22 - t900;
+       CPPUNIT_ASSERT_MESSAGE("t23 = (-1, 200000)",
+                              t23.seconds() == -1 && t23.usecs() == 200000);
+
+       OsTime t24 = t22 - t23;
+       CPPUNIT_ASSERT_MESSAGE("t24 = (0, 900000)",
+                              t24.seconds() == 0 && t24.usecs() == 900000);
+
+       OsTime t30(-1, 0);
+       OsTime t31 = t30 - t900;
+       CPPUNIT_ASSERT_MESSAGE("t31 = (-2, 100000)",
+                              t31.seconds() == -2 && t31.usecs() == 100000);
+
+       OsTime t100(0, 100000);
+       OsTime t32 = t31 - t100;
+       CPPUNIT_ASSERT_MESSAGE("t32 = (-2, 0)",
+                              t32.seconds() == -2 && t32.usecs() == 0);
+    }
+
+    void testCompare()
+    {
+       // Array of integer pairs to initialize an array of OsTime's.
+       // Must be in increasing order.
+       int array[][2] = {
+          {-10, 0},
+          {-10, 1},
+          {-10, 999999},
+          {-2, 0},
+          {-2, 1},
+          {-2, 500000},
+          {-1, 0},
+          {-1, 1},
+          {-1, 999999},
+          {0, 0},
+          {0, 1},
+          {0, 999999},
+          {1, 0},
+          {1, 1}
+       };
+       #define N (sizeof (array) / sizeof (array[0]))
+       OsTime times[N];
+       int i, j;
+       char msg[1000];
+
+       // Initialize the array of OsTime's.
+       for (i = 0; i < N; i++)
+       {
+          times[i] = OsTime(array[i][0], array[i][1]);
+       }
+
+       // Test the comparison operators.
+       for (i = 0; i < N; i++)
+       {
+          for (j = 0; j < N; j++)
+          {
+             sprintf(msg, "Comparing times[%d] and times[%d]", i, j);
+             #if 0
+             fprintf(stderr, "* %d %d.%06d %d %d.%06d\n",
+                     i, times[i].seconds(), times[i].usecs(), 
+                     j, times[j].seconds(), times[j].usecs());
+             #endif // 0
+             CPPUNIT_ASSERT_MESSAGE(msg,
+                                    (i == j) == (times[i] == times[j]));
+             CPPUNIT_ASSERT_MESSAGE(msg,
+                                    (i != j) == (times[i] != times[j]));
+             CPPUNIT_ASSERT_MESSAGE(msg,
+                                    (i < j) == (times[i] < times[j]));
+             CPPUNIT_ASSERT_MESSAGE(msg,
+                                    (i <= j) == (times[i] <= times[j]));
+             CPPUNIT_ASSERT_MESSAGE(msg,
+                                    (i > j) == (times[i] > times[j]));
+             CPPUNIT_ASSERT_MESSAGE(msg,
+                                    (i >= j) == (times[i] >= times[j]));
+          }
+       }
+    }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OsTimeTest);
-

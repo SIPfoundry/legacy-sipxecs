@@ -112,6 +112,12 @@ OsTime OsTime::operator+(const OsTime& rhs)
 {
    OsTime sum(this->mSeconds + rhs.mSeconds,
               this->mUsecs   + rhs.mUsecs);
+   // Adjust for overflow.
+   if (sum.mUsecs >= USECS_PER_SEC)
+   {
+      sum.mSeconds += 1;
+      sum.mUsecs   -= USECS_PER_SEC;
+   }
    return sum;
 }
 
@@ -120,6 +126,12 @@ OsTime OsTime::operator-(const OsTime& rhs)
 {
    OsTime diff(this->mSeconds - rhs.mSeconds,
                this->mUsecs   - rhs.mUsecs);
+   // Adjust for underflow.
+   if (diff.mUsecs < 0)
+   {
+      diff.mSeconds -= 1;
+      diff.mUsecs   += USECS_PER_SEC;
+   }
    return diff;
 }
 
@@ -154,69 +166,37 @@ bool OsTime::operator!=(const OsTime& rhs) const
 // Test for greater than
 bool OsTime::operator>(const OsTime& rhs) const
 {
-   if (this->mSeconds >= 0)
-   {  // "this" is a positive time value
-      return (this->mSeconds > rhs.mSeconds) ||
-              ((this->mSeconds == rhs.mSeconds) &&
-               (this->mUsecs   >  rhs.mUsecs));
-   }
-   else
-   {  // "this" is a negative time value
-      return (this->mSeconds > rhs.mSeconds) ||
-              ((this->mSeconds == rhs.mSeconds) &&
-               (this->mUsecs   <  rhs.mUsecs));
-   }
+   return
+      this->mSeconds > rhs.mSeconds ||
+      (this->mSeconds == rhs.mSeconds &&
+       this->mUsecs > rhs.mUsecs);
 }
 
 // Test for greater than or equal
 bool OsTime::operator>=(const OsTime& rhs) const
 {
-   if (this->mSeconds >= 0)
-   {  // "this" is a positive time value
-      return (this->mSeconds > rhs.mSeconds) ||
-              ((this->mSeconds == rhs.mSeconds) &&
-               (this->mUsecs   >= rhs.mUsecs));
-   }
-   else
-   {  // "this" is a negative time value
-      return (this->mSeconds > rhs.mSeconds) ||
-              ((this->mSeconds == rhs.mSeconds) &&
-               (this->mUsecs   <= rhs.mUsecs));
-   }
+   return
+      this->mSeconds > rhs.mSeconds ||
+      (this->mSeconds == rhs.mSeconds &&
+       this->mUsecs >= rhs.mUsecs);
 }
 
 // Test for less than
 bool OsTime::operator<(const OsTime& rhs) const
 {
-   if (this->mSeconds >= 0)
-   {  // "this" is a positive time value
-      return (this->mSeconds < rhs.mSeconds) ||
-              ((this->mSeconds == rhs.mSeconds) &&
-               (this->mUsecs   <  rhs.mUsecs));
-   }
-   else
-   {  // "this" is a negative time value
-      return (this->mSeconds < rhs.mSeconds) ||
-              ((this->mSeconds == rhs.mSeconds) &&
-               (this->mUsecs   >  rhs.mUsecs));
-   }
+   return
+      this->mSeconds < rhs.mSeconds ||
+      (this->mSeconds == rhs.mSeconds &&
+       this->mUsecs < rhs.mUsecs);
 }
 
 // Test for less than or equal
 bool OsTime::operator<=(const OsTime& rhs) const
 {
-   if (this->mSeconds >= 0)
-   {  // "this" is a positive time value
-      return (this->mSeconds < rhs.mSeconds) ||
-              ((this->mSeconds == rhs.mSeconds) &&
-               (this->mUsecs   <= rhs.mUsecs));
-   }
-   else
-   {  // "this" is a negative time value
-      return (this->mSeconds < rhs.mSeconds) ||
-              ((this->mSeconds == rhs.mSeconds) &&
-               (this->mUsecs   >= rhs.mUsecs));
-   }
+   return
+      this->mSeconds < rhs.mSeconds ||
+      (this->mSeconds == rhs.mSeconds &&
+       this->mUsecs <= rhs.mUsecs);
 }
 
 /* ============================ ACCESSORS ================================= */
