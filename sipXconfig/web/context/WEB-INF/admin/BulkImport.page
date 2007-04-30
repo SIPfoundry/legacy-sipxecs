@@ -10,9 +10,6 @@
      - B E A N S
      -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-  <bean name="scheduledDaysPropertyModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel">
-    <set name="enumClass" value="@org.sipfoundry.sipxconfig.admin.ScheduledDay@class"/>
-  </bean>
   <!--
      - C O M P O N E N T S
      -->
