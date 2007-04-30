@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.ldap.AttributesMapper;
 
@@ -43,9 +44,15 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
                 attrMap.setSearchBase(searchBase);
             }
         } catch (NamingException e) {
-            LOG.debug("Verifying LDAP connection failed.", e);
-            throw new UserException("Cannot connect to LDAP server: " + e.getMessage());
+            verifyException("Failed to read data LDAP information : ", e);
+        } catch (DataAccessException e) {
+            verifyException("Failed connection to LDAP server : ", e);
         }
+    }
+    
+    private void verifyException(String message, Exception e) {
+        LOG.debug("Verifying LDAP connection failed.", e);
+        throw new UserException(message + e.getMessage());        
     }
 
     public Schema getSchema() {
