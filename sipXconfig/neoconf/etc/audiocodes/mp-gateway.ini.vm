@@ -37,6 +37,18 @@ TRUNKGROUP_$tg_conf_index=#emit_csv_index($trunks $tg_index ['ChannelRange', 'St
 #foreach ($codec in $codecs)
 CoderName=$codec
 #end
+## fxs paramaters only
+#if(${gateway.Model.Fxs})
+
+[Lines]
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount)
+#set($settings = $line.Settings)
+#set($username = $line.getSettingValue('SIP/Authentication/Username'))
+#set($password = $line.getSettingValue('SIP/Authentication/Password'))
+Authentication_${line_id}=$username,$password
+#end
+#end
 
 ## parameters that are not configurable per gateway go here 
 [IniFileOnlyParams]

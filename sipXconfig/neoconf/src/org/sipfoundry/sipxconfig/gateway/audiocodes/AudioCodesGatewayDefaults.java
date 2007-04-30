@@ -12,8 +12,16 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
+/**
+ * FIXME: This is currently shared by fxs and fxo gateways. Ideally both gateway classes would be
+ * derived from the same base.
+ */
 public class AudioCodesGatewayDefaults {
     private AudioCodesGateway m_gateway;
+
+    @SuppressWarnings("unused")
+    private AudioCodesFxsGateway m_fxsGateway;
+
     private DeviceDefaults m_defaults;
 
     AudioCodesGatewayDefaults(AudioCodesGateway gateway, DeviceDefaults defaults) {
@@ -21,9 +29,17 @@ public class AudioCodesGatewayDefaults {
         m_defaults = defaults;
     }
 
+    AudioCodesGatewayDefaults(AudioCodesFxsGateway fxsGateway, DeviceDefaults defaults) {
+        m_fxsGateway = fxsGateway;
+        m_defaults = defaults;
+    }
+
     @SettingEntry(path = "SIP_Proxy_Registration/SIPGatewayName")
     public String getGatewayName() {
-        return m_gateway.getName();
+        if (m_gateway != null) {
+            return m_gateway.getName();
+        }
+        return null;
     }
 
     @SettingEntry(path = "SIP_Proxy_Registration/SIPDestinationPort")
@@ -31,13 +47,13 @@ public class AudioCodesGatewayDefaults {
         return m_defaults.getProxyServerSipPort();
     }
 
-    @SettingEntry(path = "SIP_Proxy_Registration/ProxyIP")
+    @SettingEntry(paths = { "SIP_Proxy_Registration/ProxyIP", "SIP_Proxy_Registration/RegistrarIP" })
     public String getDomainName() {
         return m_defaults.getDomainName();
     }
 
     @SettingEntry(path = "Network/NTPServerIP")
     public String getNtpServer() {
-        return m_gateway.getDefaults().getNtpServer();
+        return m_defaults.getNtpServer();
     }
 }
