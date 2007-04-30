@@ -15,13 +15,15 @@
     </span>
     </div>  
     <div id="settings-content">
+      <span jwcid="@Insert" value="ognl:messages.getMessage('description.' + reportName)"/>
+      <span jwcid="@QuickHelp" value="message:acdHistory.help"/>
       <ul class="component-links">
         <li>
           <a jwcid="@ExportLink" id="acdHistory:export" listener="listener:export"> 
               <span key="link.export">Export</span>
           </a>
         </li>
-      </ul>  
+      </ul>        
       <span jwcid="@cdr/CdrDates" startTime="ognl:startTime" endTime="ognl:endTime"/>
       <table jwcid="@StatsTable" id="acd:history:list" class="component" 
         source="ognl:rows"

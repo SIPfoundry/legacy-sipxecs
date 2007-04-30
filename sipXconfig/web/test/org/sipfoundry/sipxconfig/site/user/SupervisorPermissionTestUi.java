@@ -22,14 +22,31 @@ public class SupervisorPermissionTestUi extends WebTestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.home(tester);
         SiteTestHelper.seedUser(tester);
-        clickLink("ManageUsers");
-        clickLinkWithText(SiteTestHelper.TEST_USER);        
     }
 
     public void testDisplay() throws Exception {
-        clickLink("groupSupervisorLink");        
+        gotoTestUserPermissionPage();
         SiteTestHelper.assertNoException(tester);                
+    }
+    
+    private void gotoTestUserPermissionPage() {
+        tester.beginAt(SiteTestHelper.TEST_PAGE_URL);
+        clickLink("ManageUsers");
+        clickLinkWithText(SiteTestHelper.TEST_USER);        
+        clickLink("groupSupervisorLink");                
+    }
+
+    public void testSetGroups() throws Exception {
+        gotoTestUserPermissionPage();
+        setFormElement("supervisorForGroups", "group1");
+        clickButton("form:apply");
+        gotoTestUserPermissionPage();
+        setFormElement("supervisorForGroups", "group2");
+        clickButton("form:apply");
+        gotoTestUserPermissionPage();
+        assertFormElementEquals("supervisorForGroups", "group2");
     }
 }

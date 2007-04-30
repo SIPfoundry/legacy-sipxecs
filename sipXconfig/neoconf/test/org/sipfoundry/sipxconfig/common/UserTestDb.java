@@ -237,4 +237,20 @@ public class UserTestDb extends SipxDatabaseTestCase {
         User peon = m_core.loadUser(1000);
         assertFalse(peon.isSupervisor());
     }
+    
+    public void testUpdateSuperviser() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");        
+        User supervisor = m_core.loadUser(1001);
+        
+        Group newGroup = m_core.getGroupByName("group2", true);        
+        supervisor.clearSupervisorForGroups();
+        supervisor.addSupervisorForGroup(newGroup);
+        m_core.saveUser(supervisor);
+        
+        ITable actual = TestHelper.getConnection().createQueryTable("x", "select * from supervisor");
+        assertEquals(1, actual.getRowCount());
+        assertEquals(supervisor.getId(), actual.getValue(0, "user_id"));        
+        assertEquals(newGroup.getId(), actual.getValue(0, "group_id"));        
+    }
 }

@@ -67,14 +67,15 @@ public abstract class SupervisorPermission extends PageWithCallback implements
         User user = getUser();
 
         String groupsString = getSupervisorForGroupsString();
+        user.clearSupervisorForGroups();
         if (groupsString != null) {
-            List<Group> groups = getSettingDao().getGroupsByString(User.GROUP_RESOURCE_ID,
+            List<Group> groupList = getSettingDao().getGroupsByString(User.GROUP_RESOURCE_ID,
                     groupsString, true);
-            for (Group group : groups) {
-                user.addSupervisorForGroup(group);
+            for (Group g : groupList) {
+                user.addSupervisorForGroup(g);
             }
         }
 
         getCoreContext().saveUser(user);
-    }
+    }    
 }

@@ -307,13 +307,19 @@ public class User extends BeanWithGroups implements NamedObject {
         return m_supervisorForGroups;
     }
 
-    public void setSupervisorForGroups(Set supervisorForGroups) {
+    public void setSupervisorForGroups(Set<Group> supervisorForGroups) {
         m_supervisorForGroups = supervisorForGroups;
+    }
+    
+    public void clearSupervisorForGroups() {
+        if (m_supervisorForGroups != null) {
+            m_supervisorForGroups.clear();
+        }
     }
 
     public void addSupervisorForGroup(Group group) {
         if (group.isNew()) {
-            throw new RuntimeException("Group needs to be save before it's added to the set.");
+            throw new RuntimeException("Group needs to be saved before it can be added to the set.");
         }
         if (m_supervisorForGroups == null) {
             m_supervisorForGroups = new HashSet();

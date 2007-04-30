@@ -83,7 +83,7 @@ public class CsvRowInserterTest extends TestCase {
         String[] rowShort = {
             "kuku", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone"
         };
-        assertFalse(impl.checkRowData(rowShort));
+        assertTrue(impl.checkRowData(rowShort));
         row[Index.USERNAME.getValue()] = "";
         assertFalse(impl.checkRowData(row));
         row[Index.SERIAL_NUMBER.getValue()] = "";
