@@ -87,6 +87,10 @@ foreach $alias ( @{$aliases->{'item'}} )
     $tgtnode            = &token($target);
     $NodeName{$tgtnode} = &label($target);
 
+    if ( $contact =~ m/;q=(\d\.\d+)/ )
+    {
+        $Q{"$idnode->$tgtnode"} = $1;
+    }
     push @{${$idnode}}, $tgtnode;
 }
 
@@ -118,7 +122,12 @@ foreach $node ( keys %NodeName )
 {
     foreach $fwd ( @${$node} )
     {
-        print "$node->$fwd;\n";
+        print "$node->$fwd" ;
+        if ( defined $Q{"$node->$fwd"} )
+        {
+            print " [decorate label=\"" . $Q{"$node->$fwd"} . "\"]";
+        }
+        print ";\n";
     }
 }
 
