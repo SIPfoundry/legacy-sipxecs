@@ -44,4 +44,6 @@ public interface GatewayContext {
     void removeGatewaysFromRule(Integer dialRuleIs, Collection<Integer> gatewaysIds);
 
     Gateway newGateway(GatewayModel model);
+
+    void removePortsFromGateway(Integer gatewayId, Collection<Integer> portIds);
 }

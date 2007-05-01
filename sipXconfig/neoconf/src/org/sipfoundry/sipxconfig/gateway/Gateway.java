@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.gateway;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -58,7 +57,7 @@ public class Gateway extends BeanWithSettings implements NamedObject, Device {
 
     private DeviceDefaults m_defaults;
 
-    private List<FxoPort> m_ports = Collections.emptyList();
+    private List<FxoPort> m_ports = new ArrayList<FxoPort>();
 
     public Gateway() {
     }
@@ -279,12 +278,9 @@ public class Gateway extends BeanWithSettings implements NamedObject, Device {
         if (ports.size() >= maxPorts) {
             throw new MaxPortsException(maxPorts);
         }
-        if (ports.size() == 0) {
-            ports = new ArrayList<FxoPort>();
-            setPorts(ports);
+        if (ports.add(port)) {
+            port.setGateway(this);
         }
-        port.setGateway(this);
-        ports.add(port);
     }
 
     public void removePort(FxoPort port) {

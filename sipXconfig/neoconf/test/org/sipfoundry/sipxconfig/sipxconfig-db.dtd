@@ -224,6 +224,7 @@
 <!ATTLIST fxo_port
     fxo_port_id CDATA #REQUIRED
     gateway_id CDATA #REQUIRED
+    position CDATA #REQUIRED    
     value_storage_id CDATA #IMPLIED
 >
 

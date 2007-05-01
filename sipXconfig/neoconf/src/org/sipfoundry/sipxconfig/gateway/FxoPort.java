@@ -51,4 +51,8 @@ public class FxoPort extends BeanWithSettings {
         gateway.initializePort(this);
         m_initialized = true;
     }
+
+    public String getLabel() {
+        return "Temporary user visible name";
+    }
 }

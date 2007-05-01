@@ -158,4 +158,13 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     public void setReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
     }
+
+    public void removePortsFromGateway(Integer gatewayId, Collection<Integer> portIds) {
+        Gateway gateway = getGateway(gatewayId);
+        for (Integer portId : portIds) {
+            FxoPort port = (FxoPort) getHibernateTemplate().load(FxoPort.class, portId);
+            gateway.removePort(port);
+        }
+        getHibernateTemplate().saveOrUpdate(gateway);
+    }
 }

@@ -27,23 +27,24 @@ import org.springframework.context.ApplicationContext;
 public class GatewayContextTestDb extends SipxDatabaseTestCase {
 
     private GatewayContext m_context;
-    
+
     private ModelSource<GatewayModel> m_modelSource;
 
     private DialPlanContext m_dialPlanContext;
 
     private ApplicationContext m_appContext;
-    
+
     private GatewayModel m_genericModel;
-    
-    private GatewayModel m_genericSipTrunk;   
+
+    private GatewayModel m_genericSipTrunk;
 
     protected void setUp() throws Exception {
         m_appContext = TestHelper.getApplicationContext();
         m_context = (GatewayContext) m_appContext.getBean(GatewayContext.CONTEXT_BEAN_NAME);
         m_dialPlanContext = (DialPlanContext) m_appContext
                 .getBean(DialPlanContext.CONTEXT_BEAN_NAME);
-        m_modelSource = (ModelSource<GatewayModel>) m_appContext.getBean("nakedGatewayModelSource");
+        m_modelSource = (ModelSource<GatewayModel>) m_appContext
+                .getBean("nakedGatewayModelSource");
         m_genericModel = m_modelSource.getModel("genericGatewayStandard");
         m_genericSipTrunk = m_modelSource.getModel("sipTrunkStandard");
         TestHelper.cleanInsert("ClearDb.xml");
@@ -187,7 +188,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
 
         m_context.addGatewaysToRule(ruleId, Collections.singleton(gatewayId));
         rule = (InternationalRule) m_dialPlanContext.getRule(ruleId);
-        assertEquals(gateway, rule.getGateways().get(0));        
+        assertEquals(gateway, rule.getGateways().get(0));
     }
 
     public void testDeleteGatewayInUseByEmergencyRouting() {
@@ -229,19 +230,35 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         Gateway gateway = m_context.getGateway(1001);
         assertNotNull(gateway.getProfileGenerator());
     }
-    
+
     public void testGatewayWithPorts() throws Exception {
         m_genericModel.setMaxPorts(10);
         Gateway g1 = new Gateway(m_genericModel);
         g1.setAddress("10.1.1.1");
-        
-        for(int i = 0; i < 3; i++) {
+
+        for (int i = 0; i < 3; i++) {
             g1.addPort(new FxoPort());
         }
-        
+
         m_context.storeGateway(g1);
         ITable actual = TestHelper.getConnection().createDataSet().getTable("fxo_port");
-        assertEquals(3,actual.getRowCount());
+        assertEquals(3, actual.getRowCount());
     }
 
+    public void testRemovePortsFromGateway() throws Exception {
+        TestHelper.cleanInsertFlat("gateway/gateway_ports.db.xml");
+        ITable ports = TestHelper.getConnection().createDataSet().getTable("fxo_port");
+        assertEquals(3, ports.getRowCount());
+
+        Integer[] ids = new Integer[] {
+            1000, 1005
+        };
+        m_context.removePortsFromGateway(1001, Arrays.asList(ids));
+
+        ports = TestHelper.getConnection().createDataSet().getTable("fxo_port");
+        assertEquals(1, ports.getRowCount());
+
+        Gateway gateway = m_context.getGateway(1001);
+        assertEquals(1, gateway.getPorts().size());
+    }
 }
