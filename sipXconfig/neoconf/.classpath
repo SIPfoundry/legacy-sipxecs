@@ -28,7 +28,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/cglib-nodep-2.1_3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/asm-2.2.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.2-504.jdbc3.jar" sourcepath="/LIB_SRC/pgsql/8.2/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/dbunit-2.1.jar" sourcepath="LIB_SRC/dbunit/src.zip"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/dbunit-2.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/xercesImpl-2.9.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/xerces_resolver-2.9.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/xml-apis.jar"/>
