@@ -9,6 +9,7 @@ MAN_PAGES = \
 	sipx-alias2dot.1 \
 	sipx-readroute.1 \
 	sipx-trace.1 \
+	sipx-log-cut.1 \
 	expire-spread.1 \
 	monitor-spread.1 \
 	regtimes.1 \

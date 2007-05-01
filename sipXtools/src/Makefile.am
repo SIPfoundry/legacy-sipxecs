@@ -17,6 +17,7 @@ dist_bin_SCRIPTS = \
 	sipx-alias2dot \
 	sipx-trace \
 	sipx-readroute \
+	sipx-log-cut \
 	sipxcar \
 	sipxproc \
 	sipdb-dump \
