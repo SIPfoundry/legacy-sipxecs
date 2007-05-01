@@ -4,7 +4,7 @@
 ###
 
 Action=LOCAL
-Prefix="/"
+Prefixes=""
 
 User=admin
 Password=
@@ -42,7 +42,7 @@ do
                 break
             else
                 Action=LOCAL
-                Prefix="${2}"
+                Prefixes="${Prefixes} ${2}"
                 shift # consume the switch ( for n values, consume n-1 )
             fi
             ;;
@@ -126,12 +126,13 @@ pullServer() { # server
 
 grepLog() { # prefix
         
+    prefix_name=`echo $1 | tr / _`
     for c in ${Components}
     do
       echo searching $1 ${c} log
       ${dump} ${1}/var/log/sipxpbx/${c}.log${LogExtension} \
       | grep -e "${Token}" \
-      > ${Trace}/${c}.log
+      > ${Trace}/${prefix_name}.${c}.log
     done
 }
 
@@ -158,7 +159,10 @@ USAGE
         ;;
 
     LOCAL)
-        grepLog $Prefix
+        for Prefix in $Prefixes
+        do
+          grepLog $Prefix
+        done
         ;;
 esac
 
