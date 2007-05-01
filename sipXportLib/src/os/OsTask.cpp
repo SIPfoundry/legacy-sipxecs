@@ -155,7 +155,7 @@ OsTaskBase::OsTaskBase(const UtlString& name,
    mpArg(pArg),
    mUserData(0)
 {
-        // If name contains %d insert the task count/index
+    // If name contains %d insert the task count/index
     assert(name.length() < 240);
     char nameBuffer[256];
     sprintf(nameBuffer, name.data(), taskCount++);
@@ -190,6 +190,12 @@ UtlBoolean OsTaskBase::waitUntilShutDown(int milliSecToWait)
       return TRUE;
 
    UtlString taskName = getName();
+   if (taskName.isNull())
+   {
+      char b[40];
+      sprintf(b, "[%p]", this);
+      taskName.append(b);
+   }
 
    if (isStarted())
    {
@@ -209,7 +215,7 @@ UtlBoolean OsTaskBase::waitUntilShutDown(int milliSecToWait)
 
       for (i = 1; (i < 20) && isShuttingDown(); i++)
       {
-         OsSysLog::add(FAC_KERNEL, PRI_WARNING, "Task: %s failed to terminate after %f seconds",
+         OsSysLog::add(FAC_KERNEL, PRI_WARNING, "Task '%s' failed to terminate after %f seconds",
                   taskName.data(), (milliSecToWait * i) / 20000.0);
          delay(milliSecToWait/20);
       }
@@ -218,7 +224,7 @@ UtlBoolean OsTaskBase::waitUntilShutDown(int milliSecToWait)
       // destroy the object
       if (isShuttingDown())
       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Task: %s failed to terminate after %f seconds",
+         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Task '%s' failed to terminate after %f seconds",
                   taskName.data(), milliSecToWait / 1000.0);
       }
    }
@@ -226,7 +232,7 @@ UtlBoolean OsTaskBase::waitUntilShutDown(int milliSecToWait)
    // Do not exit if not shut down
    while (isShuttingDown())
    {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Task: %s failed to terminate, waiting...",
+         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Task '%s' failed to terminate, waiting...",
                   taskName.data());
          delay(300000);
    }
