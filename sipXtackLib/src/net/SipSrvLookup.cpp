@@ -195,10 +195,11 @@ static int server_compare(const void* a, const void* b);
 /**<
  * Compares two server_t's which represent two servers.
  * Used by qsort to sort the list of server entries into preference
- * order.  The sort rules are that the first (smallest) element is:
+ * order.  The sort rules are that the first (smallest, and in
+ * ordinary use, most preferred) element is:
  * # Lowest priority
  * # Highest weighting score
- * Transport type (UDP, TCP, etc.) is ignored.
+ * # Other transport types (UDP) are preferred over TCP
  *
  * @returns Integer comparison result as needed by qsort.
  */
@@ -634,7 +635,7 @@ void lookup_A(server_t*& list,
                                      response);
 
    // Search the list of RRs.
-   // For each answer that is an SRV record for this domain name.
+   // For each answer that is an A record for this domain name.
    if (response != NULL)
    {
        unsigned int i;
