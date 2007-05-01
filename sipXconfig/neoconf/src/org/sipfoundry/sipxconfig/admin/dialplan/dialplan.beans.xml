@@ -162,7 +162,7 @@
   <bean id="operatorPrototype" parent="autoAttendant" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant">    
     <property name="systemId" value="operator"/>
     <property name="name" value="Operator"/>
-    <property name="prompt" value="welcome.wav"/>
+    <property name="prompt" value="autoattendant.wav"/>
   </bean>
 
   <bean id="afterhourPrototype" parent="autoAttendant" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant">    
