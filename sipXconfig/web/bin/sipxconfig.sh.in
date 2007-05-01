@@ -263,7 +263,7 @@ onSetup() {
        postgresSetup
        setPostgresRunlevels
        databaseCommand create
-       echo -n "Configuration database initialized"
+       echo "Configuration database initialized"
    fi
 }
 
