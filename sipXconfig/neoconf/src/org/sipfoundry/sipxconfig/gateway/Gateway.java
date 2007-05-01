@@ -9,10 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
@@ -54,6 +58,8 @@ public class Gateway extends BeanWithSettings implements NamedObject, Device {
 
     private DeviceDefaults m_defaults;
 
+    private List<FxoPort> m_ports = Collections.emptyList();
+
     public Gateway() {
     }
 
@@ -63,6 +69,10 @@ public class Gateway extends BeanWithSettings implements NamedObject, Device {
 
     @Override
     public void initialize() {
+    }
+
+    @SuppressWarnings("unused")
+    public void initializePort(FxoPort port) {
     }
 
     /**
@@ -130,6 +140,14 @@ public class Gateway extends BeanWithSettings implements NamedObject, Device {
 
     public void setSerialNumber(String serialNumber) {
         m_serialNumber = serialNumber;
+    }
+
+    public List<FxoPort> getPorts() {
+        return m_ports;
+    }
+
+    public void setPorts(List<FxoPort> ports) {
+        m_ports = ports;
     }
 
     public void setProfileGenerator(ProfileGenerator profileGenerator) {
@@ -204,6 +222,10 @@ public class Gateway extends BeanWithSettings implements NamedObject, Device {
         return null;
     }
 
+    public Setting loadPortSettings() {
+        return null;
+    }
+
     /**
      * Prepends gateway specific call pattern to call pattern.
      */
@@ -249,5 +271,31 @@ public class Gateway extends BeanWithSettings implements NamedObject, Device {
 
     public DeviceDefaults getDefaults() {
         return m_defaults;
+    }
+
+    public void addPort(FxoPort port) {
+        List<FxoPort> ports = getPorts();
+        int maxPorts = getModel().getMaxPorts();
+        if (ports.size() >= maxPorts) {
+            throw new MaxPortsException(maxPorts);
+        }
+        if (ports.size() == 0) {
+            ports = new ArrayList<FxoPort>();
+            setPorts(ports);
+        }
+        port.setGateway(this);
+        ports.add(port);
+    }
+
+    public void removePort(FxoPort port) {
+        if (getPorts().remove(port)) {
+            port.setGateway(null);
+        }
+    }
+
+    private static class MaxPortsException extends UserException {
+        public MaxPortsException(int max) {
+            super("Maximum number of ports is {0}", max);
+        }
     }
 }

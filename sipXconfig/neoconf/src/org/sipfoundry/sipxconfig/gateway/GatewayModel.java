@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.gateway;
 import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 
 public class GatewayModel extends DeviceDescriptor {
+    private int m_maxPorts;
 
     public GatewayModel() {
     }
@@ -22,5 +23,13 @@ public class GatewayModel extends DeviceDescriptor {
 
     public GatewayModel(String beanId, String modelId) {
         super(beanId, modelId);
+    }
+
+    public void setMaxPorts(int maxPorts) {
+        m_maxPorts = maxPorts;
+    }
+
+    public int getMaxPorts() {
+        return m_maxPorts;
     }
 }

@@ -229,5 +229,19 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         Gateway gateway = m_context.getGateway(1001);
         assertNotNull(gateway.getProfileGenerator());
     }
+    
+    public void testGatewayWithPorts() throws Exception {
+        m_genericModel.setMaxPorts(10);
+        Gateway g1 = new Gateway(m_genericModel);
+        g1.setAddress("10.1.1.1");
+        
+        for(int i = 0; i < 3; i++) {
+            g1.addPort(new FxoPort());
+        }
+        
+        m_context.storeGateway(g1);
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("fxo_port");
+        assertEquals(3,actual.getRowCount());
+    }
 
 }

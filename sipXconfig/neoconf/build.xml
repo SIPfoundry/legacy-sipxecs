@@ -285,12 +285,14 @@
     <pgsql url="${acd.history.test.db.url}" src="test/org/sipfoundry/sipxconfig/acd/stats/history-seed.sql" />
   </target>
 
-  <!-- Comment out hibernate stuff to avoid causing problems on Windows 
-
+  <!-- if you want to use this task define hibertnate-tools.dir property for example
+   ant -Dhibernate-tools.dir=/usr/local/share/libsrc/hibernate-tools/3.2.0b9a/tools/ hbm2dd
   <taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask">
     <classpath>
-      <pathelement location="${top.dir}/lib/hibernate-3.1.3.jar" />
-      <pathelement location="${top.dir}/lib/hibernate-tools.jar" />
+      <pathelement location="${hibernate.jar}" />
+      <fileset dir="${hibernate-tools.dir}">
+        <include name="**/*.jar"/>
+      </fileset>
       <path refid="base.path" />
       <pathelement location="${jdbc-driver.jar}" />
     </classpath>
@@ -305,15 +307,15 @@
         <fileset dir="${src.dir}" id="id">
           <include name="**/common.hbm.xml" />
           <include name="**/setting.hbm.xml" />
-          <include name="**/speeddial.hbm.xml" />
+          <include name="**/gateway.hbm.xml" />
         </fileset>
       </configuration>
 
       <hbm2ddl export="false" outputfilename="schema.sql" format="true" />
     </hibernatetool>
   </target>
-    -->
-
+   -->
+	
   <target name="dataset-db"
           description="Generates the sipconfig-db.dtd which is used to validate datasets"
           depends="compile.test, reset-db">

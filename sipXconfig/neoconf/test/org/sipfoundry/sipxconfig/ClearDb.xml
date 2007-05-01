@@ -53,6 +53,7 @@
   <table name="line_group"/>
     
   <table name="gateway"/>  
+  <table name="fxo_port"/>  
   <table name="extension_pool"/>
   <table name="intercom"/>
   <table name="intercom_phone_group"/>

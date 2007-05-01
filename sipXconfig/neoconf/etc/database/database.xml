@@ -206,7 +206,8 @@
     <antcall target="acd_ext"/>
     <antcall target="service"/>
     <antcall target="enable-schedule"/>
-    <antcall target="forwardrulemode"/>  
+    <antcall target="forwardrulemode"/>
+  	<antcall target="fxo-port"/>  	
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="6" -->
   </target>	
@@ -416,6 +417,10 @@
 
   <target name="forwardrulemode" unless="forwardrulemode">
     <db-patch patch="forwardrulemode"/>
+  </target>
+
+  <target name="fxo-port" unless="fxo-port">
+    <db-patch patch="fxo-port"/>
   </target>
 
   <!-- 

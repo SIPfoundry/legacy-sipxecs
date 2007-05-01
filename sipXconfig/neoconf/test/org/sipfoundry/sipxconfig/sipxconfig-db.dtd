@@ -128,6 +128,7 @@
 <!ATTLIST cron_schedule
     cron_schedule_id CDATA #REQUIRED
     cron_string CDATA #IMPLIED
+    enabled CDATA #REQUIRED
 >
 
 <!ELEMENT custom_dialing_rule EMPTY>
@@ -217,6 +218,13 @@
     first_extension CDATA #IMPLIED
     last_extension CDATA #IMPLIED
     next_extension CDATA #IMPLIED
+>
+
+<!ELEMENT fxo_port EMPTY>
+<!ATTLIST fxo_port
+    fxo_port_id CDATA #REQUIRED
+    gateway_id CDATA #REQUIRED
+    value_storage_id CDATA #IMPLIED
 >
 
 <!ELEMENT gateway EMPTY>
@@ -480,9 +488,9 @@
     number CDATA #IMPLIED
     position CDATA #IMPLIED
     expiration CDATA #IMPLIED
-    enabled CDATA #IMPLIED
     ring_type CDATA #IMPLIED
     user_id CDATA #REQUIRED
+    enabled CDATA #REQUIRED
 >
 
 <!ELEMENT routing_exception EMPTY>
@@ -498,7 +506,7 @@
 <!ATTLIST service
     service_id CDATA #REQUIRED
     name CDATA #REQUIRED
-    address CDATA #IMPLIED
+    address CDATA #REQUIRED
     bean_id CDATA #REQUIRED
     enabled CDATA #REQUIRED
     descriptor_id CDATA #IMPLIED
@@ -523,9 +531,9 @@
 <!ATTLIST speeddial_button
     speeddial_id CDATA #REQUIRED
     label CDATA #IMPLIED
-    number CDATA #IMPLIED
-    position CDATA #REQUIRED
+    number CDATA #REQUIRED
     blf CDATA #REQUIRED
+    position CDATA #REQUIRED
 >
 
 <!ELEMENT supervisor EMPTY>
