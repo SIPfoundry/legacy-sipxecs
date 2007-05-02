@@ -27,7 +27,9 @@ ${s.ProfileName}=$!{s.Value}
 
 #if(${gateway.Model.Fxo})
 [Trunks]
-TRUNKGROUP=1-8,201
+TRUNKGROUP_1=1-8,201,0
+PSTNPREFIX=*,1,*,*,0
+TRUNKGROUPSETTINGS=1,1
 
 #end
 [VoiceCodecs]

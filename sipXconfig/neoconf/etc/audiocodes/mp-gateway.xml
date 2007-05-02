@@ -95,7 +95,7 @@
           </option>
         </enum>
       </type>
-      <value>0</value>
+      <value>1</value>
     </setting>
     <setting name='EnableEarlyMedia' advanced="yes">
       <label>Enable Early Media</label>
