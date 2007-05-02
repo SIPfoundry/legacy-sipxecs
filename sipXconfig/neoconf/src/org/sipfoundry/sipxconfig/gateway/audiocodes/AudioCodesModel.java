@@ -39,6 +39,18 @@ public class AudioCodesModel extends GatewayModel {
         m_digital = digital;
     }
 
+    public boolean isFxo() {
+        return m_fxo;
+    }
+
+    public boolean isFxs() {
+        return m_fxs;
+    }
+
+    public boolean isDigital() {
+        return m_digital;
+    }
+
     public Set getDefinitions() {
         Set definitions = super.getDefinitions();
         if (m_fxo) {

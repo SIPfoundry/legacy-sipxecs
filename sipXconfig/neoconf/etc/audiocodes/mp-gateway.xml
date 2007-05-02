@@ -496,7 +496,7 @@
       <type>
         <boolean />
       </type>
-      <value>1</value>
+      <value>0</value>
       <description>0: Standard SIP call flow, 1: All messages and responses sent to proxy.</description>
     </setting>
     <setting name='IsRegisterNeeded' hidden="yes" if="fxs">
@@ -1836,6 +1836,7 @@
       </setting>
     </group>
   </group>
+  <!-- 
   <group name="Trunks" hidden="yes" if="fxo">
     <label>Endpoint phone numbers</label>
     <collection name="TRUNKGROUP" size="4">
@@ -1868,6 +1869,7 @@
       </setting>
     </collection>
   </group>
+   -->
   <group name='Management_Interface'>
     <label>Management Interface Parameters</label>
     <group name="SNMP">

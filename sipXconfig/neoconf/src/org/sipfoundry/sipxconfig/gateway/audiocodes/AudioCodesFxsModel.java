@@ -38,9 +38,17 @@ public class AudioCodesFxsModel extends PhoneModel {
     public void setDigital(boolean digital) {
         m_digital = digital;
     }
-    
+
     public boolean isFxs() {
         return m_fxs;
+    }
+
+    public boolean isFxo() {
+        return m_fxo;
+    }
+
+    public boolean isDigital() {
+        return m_digital;
     }
 
     public Set getDefinitions() {
