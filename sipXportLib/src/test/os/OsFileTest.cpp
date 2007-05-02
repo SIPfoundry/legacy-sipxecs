@@ -13,6 +13,7 @@
 
 #include <os/OsFS.h>
 #include <os/OsTestUtilities.h>
+#include "os/OsTask.h"
 
 #include <stdlib.h>
 
@@ -189,7 +190,7 @@ public:
         file.getFileInfo(info);
         info.getModifiedTime(time1);
         // Get the modification time and sleep for a few seconds
-        sleep( 2 );
+        OsTask::delay(2000);
         // Touch the file and get the modification time again
         file.touch();
         file.getFileInfo(info);
