@@ -35,6 +35,10 @@ public class GrandstreamProfileWriter extends AbstractSettingVisitor {
 
     public void write(OutputStream wtr) {
         setOutputStream(wtr);
+        write();
+    }
+    
+    protected void write() { 
         m_phone.getSettings().acceptVisitor(this);
         for (Line line : getLines()) {
             line.getSettings().acceptVisitor(this);

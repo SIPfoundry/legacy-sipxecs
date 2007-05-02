@@ -13,16 +13,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.sipfoundry.sipxconfig.phone.Line;
-
 public class GrandstreamBinaryProfileWriter extends GrandstreamProfileWriter {
     private static final int CR = 0x0d;
     private static final int HEXFF = 0xff;
     private static final int OXIOOOO = 0x10000;
     private static final String ET = "&";
-    private static final String PARAM_DELIM = "-";
-    private int m_lineIndex;
-    private boolean m_prefixLineIndex;
 
     GrandstreamBinaryProfileWriter(GrandstreamPhone phone) {
         super(phone);
@@ -31,13 +26,7 @@ public class GrandstreamBinaryProfileWriter extends GrandstreamProfileWriter {
     public void write(OutputStream wtr) {
         ByteArrayOutputStream inmemory = new ByteArrayOutputStream();
         setOutputStream(inmemory);
-        getPhone().getSettings().acceptVisitor(this);
-        for (Line line : getLines()) {
-            m_prefixLineIndex = true;
-            line.getSettings().acceptVisitor(this);
-            m_lineIndex++;
-        }
-
+        write();
         writeBody(inmemory, wtr);
     }
 
@@ -54,17 +43,8 @@ public class GrandstreamBinaryProfileWriter extends GrandstreamProfileWriter {
 
     @Override
     protected void writeLineEntry(String name, String value) {
-        String line = getProfileName(name) + '=' + nonNull(value) + ET;
+        String line = name + '=' + nonNull(value) + ET;
         writeString(line);
-    }
-
-    String getProfileName(String pname) {
-        if (!m_prefixLineIndex || pname.indexOf(PARAM_DELIM) < 0) {
-            return pname;
-        }
-
-        String[] ppn = pname.split(PARAM_DELIM);
-        return ppn[m_lineIndex];
     }
 
     void finalizeBody(ByteArrayOutputStream wtr) throws IOException {
