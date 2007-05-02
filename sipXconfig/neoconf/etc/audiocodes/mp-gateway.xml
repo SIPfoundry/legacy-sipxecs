@@ -1836,7 +1836,7 @@
       </setting>
     </group>
   </group>
-  <group name="Trunks" hidden="yes">
+  <group name="Trunks" hidden="yes" if="fxo">
     <label>Endpoint phone numbers</label>
     <collection name="TRUNKGROUP" size="4">
       <label>Trunk Group #1</label>

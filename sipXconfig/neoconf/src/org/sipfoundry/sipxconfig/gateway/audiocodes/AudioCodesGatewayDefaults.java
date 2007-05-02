@@ -17,6 +17,7 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
  * derived from the same base.
  */
 public class AudioCodesGatewayDefaults {
+    @SuppressWarnings("unused")
     private AudioCodesGateway m_gateway;
 
     @SuppressWarnings("unused")
@@ -34,20 +35,13 @@ public class AudioCodesGatewayDefaults {
         m_defaults = defaults;
     }
 
-    @SettingEntry(path = "SIP_Proxy_Registration/SIPGatewayName")
-    public String getGatewayName() {
-        if (m_gateway != null) {
-            return m_gateway.getName();
-        }
-        return null;
-    }
-
     @SettingEntry(path = "SIP_Proxy_Registration/SIPDestinationPort")
     public String getDestinationPort() {
         return m_defaults.getProxyServerSipPort();
     }
 
-    @SettingEntry(paths = { "SIP_Proxy_Registration/ProxyIP", "SIP_Proxy_Registration/RegistrarIP" })
+    @SettingEntry(paths = { "SIP_Proxy_Registration/ProxyIP", 
+            "SIP_Proxy_Registration/RegistrarIP", "SIP_Proxy_Registration/SIPGatewayName" })
     public String getDomainName() {
         return m_defaults.getDomainName();
     }

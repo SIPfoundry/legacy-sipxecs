@@ -25,6 +25,7 @@ ${s.ProfileName}=$!{s.Value}
 #end
 #end
 
+#if(${gateway.Model.Fxo})
 [Trunks]
 #set($trunks = $gateway.Settings.getSetting('Trunks/TRUNKGROUP'))
 #set($max_trunk = $trunks.size - 1)
@@ -33,6 +34,7 @@ ${s.ProfileName}=$!{s.Value}
 TRUNKGROUP_$tg_conf_index=#emit_csv_index($trunks $tg_index ['ChannelRange', 'StartPhoneNumber', 'HuntGroupNumber'])
 #end
 
+#end
 [VoiceCodecs]
 #foreach ($codec in $codecs)
 CoderName=$codec
@@ -42,11 +44,13 @@ CoderName=$codec
 
 [Lines]
 #foreach ($line in $phone.lines)
-#set($line_id = $velocityCount)
+#set($line_id = $velocityCount - 1)
+#set($trunk_id = $velocityCount)
 #set($settings = $line.Settings)
 #set($username = $line.getSettingValue('SIP/Authentication/Username'))
 #set($password = $line.getSettingValue('SIP/Authentication/Password'))
 Authentication_${line_id}=$username,$password
+TRUNKGROUP_${trunk_id}=${trunk_id},${username}
 #end
 #end
 
