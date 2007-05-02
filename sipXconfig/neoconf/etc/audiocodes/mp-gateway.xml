@@ -499,6 +499,16 @@
       <value>0</value>
       <description>0: Standard SIP call flow, 1: All messages and responses sent to proxy.</description>
     </setting>
+    <setting name="SendInviteToProxy" advanced="yes">
+      <label>Send All INVITE to Proxy</label>
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>1</value>
+      <description>
+        If disabled, INVITE messages resulting from redirect or transfer will be sent directrly to destination URI.
+      </description>
+    </setting>
     <setting name='IsRegisterNeeded' hidden="yes" if="fxs">
       <label>Enable Registration</label>
       <type>
@@ -1837,39 +1847,39 @@
     </group>
   </group>
   <!-- 
-  <group name="Trunks" hidden="yes" if="fxo">
+    <group name="Trunks" hidden="yes" if="fxo">
     <label>Endpoint phone numbers</label>
     <collection name="TRUNKGROUP" size="4">
-      <label>Trunk Group #1</label>
-      <setting name='ChannelRange'>
-        <label>Ports Range</label>
-        <type>
-          <string>
-            <pattern>\d{1,2}-\d{1,2}</pattern>
-          </string>
-        </type>
-        <value>1-24</value>
-        <description>Range of ports</description>
-      </setting>
-      <setting name='StartPhoneNumber'>
-        <label>Starting Phone Number</label>
-        <type>
-          <integer />
-        </type>
-        <value>101</value>
-        <description>Starting phone number</description>
-      </setting>
-      <setting name='HuntGroupNumber' hidden="yes">
-        <label>Hunt Group ID</label>
-        <type>
-          <integer />
-        </type>
-        <value>0</value>
-        <description>Hunt group number, optional</description>
-      </setting>
+    <label>Trunk Group #1</label>
+    <setting name='ChannelRange'>
+    <label>Ports Range</label>
+    <type>
+    <string>
+    <pattern>\d{1,2}-\d{1,2}</pattern>
+    </string>
+    </type>
+    <value>1-24</value>
+    <description>Range of ports</description>
+    </setting>
+    <setting name='StartPhoneNumber'>
+    <label>Starting Phone Number</label>
+    <type>
+    <integer />
+    </type>
+    <value>101</value>
+    <description>Starting phone number</description>
+    </setting>
+    <setting name='HuntGroupNumber' hidden="yes">
+    <label>Hunt Group ID</label>
+    <type>
+    <integer />
+    </type>
+    <value>0</value>
+    <description>Hunt group number, optional</description>
+    </setting>
     </collection>
-  </group>
-   -->
+    </group>
+  -->
   <group name='Management_Interface'>
     <label>Management Interface Parameters</label>
     <group name="SNMP">
