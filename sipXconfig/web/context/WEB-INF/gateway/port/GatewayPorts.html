@@ -1,16 +1,23 @@
-<ul class="component-links">
-  <li>
-    <a jwcid="addPort@LinkSubmit" listener="listener:addPort">
-    	<span key="link.addPort">Add Port</span>
-    </a>
-  </li>
-</ul>        
-<table jwcid="@common/Table" id="line:list"
-   source="prop:ports"
-   columns="* !label"
-   selections="prop:selections"
-   row="prop:port">
-   <span jwcid="labelColumnValue@Block">
-     <span jwcid="@Insert" value="prop:port.label"></span>
-   </span>        	
-</table>
+<span jwcid="$content$">
+  <ul class="component-links">
+    <li>
+      <a jwcid="addPort@LinkSubmit" listener="ognl:tapestryContext.treatUserExceptionAsValidationError(#this, listeners.addPort)">
+        <span key="link.addPort">Add Port</span>
+      </a>
+    </li>
+  </ul>
+  <table jwcid="@common/Table" id="line:list" source="prop:ports" columns="* !label"
+    selections="prop:selections" row="prop:port">
+    <span jwcid="labelColumnValue@Block">
+      <a href="#" jwcid="@DirectLink" listener="listener:editPort" parameters="prop:port.id"><span jwcid="@Insert" value="prop:port.label"/></a>
+    </span>
+  </table>
+  <ul class="component-submit">
+    <li>
+      <input id="port:delete" jwcid="delete@Submit" listener="listener:deletePorts"
+        value="message:label.delete"/>
+      <span jwcid="@common/Confirm" component="component:delete"
+        prompt="message:confirm.delete"/>
+    </li>
+  </ul>
+</span>

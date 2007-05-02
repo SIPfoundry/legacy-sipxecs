@@ -73,6 +73,14 @@ public class TapestryContext {
         return new UserExceptionAdapter(validator, listener);
     }
 
+    /**
+     * Translates UserExceptions into form errors instead redirecting to an error page.
+     */
+    public IActionListener treatUserExceptionAsValidationError(IComponent component,
+            IActionListener listener) {
+        return new UserExceptionAdapter(TapestryUtils.getValidator(component), listener);
+    }
+
     static class UserExceptionAdapter implements IActionListener {
 
         private IActionListener m_listener;

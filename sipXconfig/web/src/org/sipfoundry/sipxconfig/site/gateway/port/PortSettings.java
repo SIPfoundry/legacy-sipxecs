@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.gateway.port;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
@@ -47,6 +48,11 @@ public abstract class PortSettings extends PageWithCallback implements PageBegin
     public abstract Setting getParentSetting();
 
     public abstract void setParentSetting(Setting parent);
+    
+    public IPage editSettings(Integer portId, String section) {
+        setParentSettingName(section);
+        return this;
+    }
 
     public void pageBeginRender(PageEvent event_) {
         if (getPort() != null) {
@@ -56,7 +62,12 @@ public abstract class PortSettings extends PageWithCallback implements PageBegin
         FxoPort port = getGatewayContext().getPort(getPortId());
         setPort(port);
         Setting root = port.getSettings();
-        Setting parent = root.getSetting(getParentSettingName());
+        String parentName = getParentSettingName();
+        if (parentName == null) {
+            parentName = root.getValues().iterator().next().getPath();
+            setParentSettingName(parentName);
+        }
+        Setting parent = root.getSetting(parentName);
         setParentSetting(parent);
     }
 

@@ -20,6 +20,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.gateway.FxoPort;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
@@ -31,6 +32,9 @@ public abstract class GatewayPorts extends BaseComponent {
 
     @InjectObject(value = "spring:gatewayContext")
     public abstract GatewayContext getGatewayContext();
+
+    @InjectObject(value = "spring:tapestry")
+    public abstract TapestryContext getTapestryContext();
 
     @Parameter
     public abstract Gateway getGateway();
@@ -74,13 +78,14 @@ public abstract class GatewayPorts extends BaseComponent {
         return editPortPage;
     }
 
-    void deletePort() {
+    public IPage deletePorts() {
         Collection allSelected = getSelections().getAllSelected();
-        if (allSelected.isEmpty()) {
-            return;
+        if (!allSelected.isEmpty()) {
+            getGatewayContext().removePortsFromGateway(getGateway().getId(), allSelected);
+            setPorts(null);
         }
 
-        getGatewayContext().removePortsFromGateway(getGateway().getId(), allSelected);
-        setPorts(null);
+        // returning this page from component to cause refresh
+        return getPage();
     }
 }
