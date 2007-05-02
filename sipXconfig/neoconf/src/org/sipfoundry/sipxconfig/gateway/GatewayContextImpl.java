@@ -66,6 +66,10 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         return (Gateway) getHibernateTemplate().load(Gateway.class, id);
     }
 
+    public FxoPort getPort(Integer id) {
+        return (FxoPort) getHibernateTemplate().load(FxoPort.class, id);
+    }
+
     public void storeGateway(Gateway gateway) {
         // Before storing the gateway, make sure that it has a unique name.
         // Throw an exception if it doesn't.
@@ -79,6 +83,10 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         hibernate.saveOrUpdate(gateway);
 
         m_replicationContext.generate(DataSet.CALLER_ALIAS);
+    }
+
+    public void storePort(FxoPort port) {
+        getHibernateTemplate().saveOrUpdate(port);
     }
 
     public boolean deleteGateway(Integer id) {
@@ -162,7 +170,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     public void removePortsFromGateway(Integer gatewayId, Collection<Integer> portIds) {
         Gateway gateway = getGateway(gatewayId);
         for (Integer portId : portIds) {
-            FxoPort port = (FxoPort) getHibernateTemplate().load(FxoPort.class, portId);
+            FxoPort port = getPort(portId);
             gateway.removePort(port);
         }
         getHibernateTemplate().saveOrUpdate(gateway);

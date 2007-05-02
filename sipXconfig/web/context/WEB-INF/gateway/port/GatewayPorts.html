@@ -1,0 +1,16 @@
+<ul class="component-links">
+  <li>
+    <a jwcid="addPort@LinkSubmit" listener="listener:addPort">
+    	<span key="link.addPort">Add Port</span>
+    </a>
+  </li>
+</ul>        
+<table jwcid="@common/Table" id="line:list"
+   source="prop:ports"
+   columns="* !label"
+   selections="prop:selections"
+   row="prop:port">
+   <span jwcid="labelColumnValue@Block">
+     <span jwcid="@Insert" value="prop:port.label"></span>
+   </span>        	
+</table>

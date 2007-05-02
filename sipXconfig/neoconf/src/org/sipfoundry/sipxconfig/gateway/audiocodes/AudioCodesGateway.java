@@ -9,12 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
-
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public abstract class AudioCodesGateway extends Gateway {
+    private static final String MANUFACTURER = "audiocodes";
+
     @Override
     public void initialize() {
         AudioCodesGatewayDefaults defaults = new AudioCodesGatewayDefaults(this, getDefaults());
@@ -43,7 +44,13 @@ public abstract class AudioCodesGateway extends Gateway {
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadDynamicModelFile("mp-gateway.xml", "audiocodes",
+        return getModelFilesContext().loadDynamicModelFile("mp-gateway.xml", MANUFACTURER,
+                getSettingsEvaluator());
+    }
+
+    @Override
+    public Setting loadPortSettings() {
+        return getModelFilesContext().loadDynamicModelFile("mp-trunk.xml", MANUFACTURER,
                 getSettingsEvaluator());
     }
 

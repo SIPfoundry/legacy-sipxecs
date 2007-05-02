@@ -23,7 +23,11 @@ public interface GatewayContext {
 
     Gateway getGateway(Integer id);
 
+    FxoPort getPort(Integer id);
+
     void storeGateway(Gateway gateway);
+
+    void storePort(FxoPort port);    
 
     void clear();
 

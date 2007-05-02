@@ -1,0 +1,15 @@
+<div jwcid="@Border">
+  <div id="settings-nav">
+    <span jwcid="@setting/SettingsNavigation" bean="prop:port"
+      activeSetting="prop:parentSetting"
+      editSettingsListener="listener:editSettings">
+    </span>
+  </div>
+  <span jwcid="@SettingsForm"
+    settings="prop:parentSetting"
+    cancelListener="listener:cancel"
+    okListener="listener:ok"
+    applyListener="listener:apply"
+    validator="bean:validator"
+  />
+</div>   

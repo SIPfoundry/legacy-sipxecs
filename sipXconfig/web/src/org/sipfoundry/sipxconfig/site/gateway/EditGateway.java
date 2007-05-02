@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.gateway;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -39,7 +40,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
 
     @InjectObject(value = "spring:gatewayContext")
     public abstract GatewayContext getGatewayContext();
-    
+
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
@@ -64,21 +65,34 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
 
     @Persist
     public abstract String getCurrentSettingSetName();
-    
+
     public abstract void setCurrentSettingSetName(String settingName);
 
     public abstract void setCurrentSettingSet(SettingSet currentSettingSet);
 
     public abstract SettingSet getCurrentSettingSet();
-    
+
     @InitialValue(value = "literal:config")
     public abstract void setActiveTab(String tab);
-    
+
     public abstract String getActiveTab();
-    
+
     public abstract String getCurrentTab();
-    
-    public abstract void setActiveSetting(String setting);    
+
+    public abstract void setActiveSetting(String setting);
+
+    /**
+     * Names of the tabs that are not in navigation components
+     */
+    public String[] getTabNames() {
+        String[] tabs = new String[] {
+            "config", "gcai", "dialplan"
+        };
+        if (getGateway().getModel().getMaxPorts() > 0) {
+            tabs = (String[]) ArrayUtils.add(tabs, "ports");
+        }
+        return tabs;
+    }
 
     public void pageBeginRender(PageEvent event_) {
         Gateway gateway = getGateway();
@@ -95,17 +109,17 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         setGateway(gateway);
         setSettingProperties(getCurrentSettingSetName());
     }
-    
+
     public void editNonSettings(String tabId) {
         setCurrentSettingSetName(null);
-        setActiveTab(tabId);        
+        setActiveTab(tabId);
     }
-    
+
     public void editSettings(Integer gatewayId, String settingPath) {
         setActiveTab("settings");
         setGatewayId(gatewayId);
         setGateway(getGatewayContext().getGateway(gatewayId));
-        setSettingProperties(settingPath);        
+        setSettingProperties(settingPath);
     }
 
     private void setSettingProperties(String settingPath) {
@@ -154,8 +168,8 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         return page;
     }
 
-    public static EditGateway getAddPage(IRequestCycle cycle, GatewayModel model, IPage returnPage,
-            Integer ruleId) {
+    public static EditGateway getAddPage(IRequestCycle cycle, GatewayModel model,
+            IPage returnPage, Integer ruleId) {
         EditGateway page = (EditGateway) cycle.getPage(PAGE);
         page.setGatewayModel(model);
         page.setGatewayId(null);

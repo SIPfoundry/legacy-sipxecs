@@ -14,6 +14,7 @@
     <property name="fxo" value="true" />
     <property name="fxs" value="false" />
     <property name="digital" value="true" />
+    <property name="maxPorts" value="2" />
   </bean>
 
   <bean id="gwAudiocodesTp260" class="org.sipfoundry.sipxconfig.gateway.audiocodes.Tp260Gateway" singleton="false"
