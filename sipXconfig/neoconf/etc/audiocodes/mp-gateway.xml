@@ -108,7 +108,7 @@
       <value>0</value>
     </setting>
     <setting name="MINSE" hidden="yes">
-      <value>0</value>
+      <value>10</value>
     </setting>
     <setting name="SessionExpiresMethod" hidden="yes">
       <value>0</value>
@@ -471,7 +471,7 @@
       <type>
         <integer />
       </type>
-      <value>0</value>
+      <value>5</value>
     </setting>
     <setting name='IsFallbackUsed' hidden='yes'>
       <label>Enable Fallback to Internal Routing Table</label>
@@ -920,6 +920,7 @@
       </setting>
       <setting name='CDRSyslogServerIP'>
         <label>CDR Server IP Address</label>
+        <value>0.0.0.0</value>
         <description>
           Optional separate Syslog server to collect CDRs only. If null and CDR is enabled, the output is mixed with the
           log messages and is routed to the Syslog server IP.
@@ -974,7 +975,7 @@
       <type>
         <integer min="1" required="yes" />
       </type>
-      <value>16</value>
+      <value>4</value>
     </setting>
     <setting name="MaxCallDuration" advanced="yes">
       <label>Max Call Duration [min]</label>
@@ -1308,10 +1309,12 @@
     </setting>
     <setting name='DNSPriServerIP'>
       <label>Primary DNS Server</label>
+      <value>0.0.0.0</value>
       <description>Primary DNS server</description>
     </setting>
     <setting name='DNSSecServerIP'>
       <label>Secondary DNS Server</label>
+      <value>0.0.0.0</value>
       <description>Secondary DNS server</description>
     </setting>
     <setting name='NTPServerIP'>

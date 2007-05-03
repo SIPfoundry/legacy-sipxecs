@@ -18,7 +18,9 @@
 
 #foreach ($s in $flatSettings)
 #if($s.Leaf)
+#if(${s.Value})
 ${s.ProfileName}=$!{s.Value}
+#end
 #else
 
 [${s.ProfileName}]
