@@ -25,7 +25,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         model.setBeanId("gwAudiocodes");
         model.setModelId("audiocodes");
         model.setFxs(false);
-        model.setFxo(true);
+        model.setFxo(false);
         model.setDigital(true);
         model.setMaxPorts(4);
         model.setProfileTemplate("audiocodes/mp-gateway.ini.vm");

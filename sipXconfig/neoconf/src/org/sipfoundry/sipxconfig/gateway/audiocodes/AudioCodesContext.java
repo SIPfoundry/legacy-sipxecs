@@ -28,7 +28,7 @@ class AudioCodesContext extends ProfileContext {
     public Map<String, Object> getContext() {
         Map<String, Object> context = super.getContext();
         // $$ is used as ignore value
-        context.put("ignore", "$$");
+        context.put("ignore", SettingsIron.IGNORE);
         context.put("codecs", getCodecs());
 
         SettingsIron iron = new SettingsIron();

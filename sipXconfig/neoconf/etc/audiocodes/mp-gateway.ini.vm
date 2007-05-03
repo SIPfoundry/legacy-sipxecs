@@ -31,7 +31,21 @@ ${s.ProfileName}=$!{s.Value}
 [Trunks]
 TRUNKGROUP_1=1-8,201,0
 PSTNPREFIX=*,1,*,*,0
-TRUNKGROUPSETTINGS=1,1
+TRUNKGROUPSETTINGS=1,1,255,$ignore
+
+#end
+#if(${gateway.Model.Digital})
+[Trunks]
+#foreach ($port in $gateway.ports)
+#set($port_id = $velocityCount - 1)
+#set($trunk_id = $velocityCount)
+#set($number = ($port_id*100) + 1000)
+#set($minChannel = $port.getSettingValue('Trunk/MinChannel'))
+#set($maxChannel = $port.getSettingValue('Trunk/MaxChannel'))
+TRUNKGROUP_$trunk_id=${port_id}-${port_id}/${minChannel}-${maxChannel},$number,0
+TRUNKGROUPSETTINGS=$trunk_id,1,255,$ignore
+#end
+PSTNPREFIX=*,1,*,*,0
 
 #end
 [VoiceCodecs]
@@ -55,7 +69,7 @@ TRUNKGROUP=${trunk_id}-${trunk_id},${username}
 
 #if(${gateway.Model.Digital})
 #foreach ($portSettings in $portFlatSettings)
-#set($port_id = $velocityCount)
+#set($port_id = $velocityCount - 1)
 ; Parameters for trunk: $port_id
 #foreach ($s in $portSettings)
 #if($s.Leaf)

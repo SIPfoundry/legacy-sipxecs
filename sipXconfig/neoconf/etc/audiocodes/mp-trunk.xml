@@ -121,41 +121,89 @@
           </option>
           <option>
             <label>Internal TDM bus</label>
-            <value>0</value>
+            <value>1</value>
           </option>
         </enum>
       </type>
       <value>0</value>
     </setting>
-    <setting name="LineCode"></setting>
-    <setting name="LineBuildOutLoss"></setting>
-    <setting name="TraceLevel"></setting>
+    <setting name="LineCode">
+
+    </setting>
+    <setting name="LineBuildOutLoss" advanced="yes"></setting>
+    <setting name="TraceLevel" advanced="yes"></setting>
     <setting name="FramingMethod"></setting>
+    <setting name="MinChannel">
+      <profileName>$$</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="MaxChannel">
+      <profileName>$$</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>24</value>
+    </setting>
   </group>
   <group name='ISDN'>
-    <setting name="Termination"></setting>
-    <setting name="Layer"></setting>
-    <setting name="TerminationSide"></setting>
-    <setting name="ISDNIBehavior"></setting>
-    <setting name="ISDNOutCallsBehavior"></setting>
-    <setting name="ISDNInCallsBehavior"></setting>
-    <setting name="ISDNGeneralCCBehavior"></setting>
-    <setting name="NFASGroupNumber"></setting>
-    <setting name="ISDNNFASInterfaceID"></setting>
-    <setting name="DchConfig"></setting>
-    <setting name="CASTablesNum"></setting>
-    <setting name="CASTableIndex"></setting>
-    <setting name="PlayRBTone2Trunk"></setting>
-    <setting name="LocalISDNRBSource"></setting>
-    <setting name="PIForDisconnectMsg"></setting>
-    <setting name="ISDNTransferCapability"></setting>
-    <setting name="ProgressIndicator2ISDN"></setting>
-    <setting name="ISDNRxOverlap"></setting>
+    <setting name="TerminationSide">
+      <label>Termination Side</label>
+      <type>
+        <enum>
+          <option>
+            <label>User Side</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>Network Side</label>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="ISDNIBehavior" advanced="yes"></setting>
+    <setting name="ISDNOutCallsBehavior" advanced="yes"></setting>
+    <setting name="ISDNInCallsBehavior" advanced="yes"></setting>
+    <setting name="ISDNGeneralCCBehavior" advanced="yes"></setting>
+    <setting name="NFASGroupNumber" advanced="yes"></setting>
+    <setting name="ISDNNFASInterfaceID" advanced="yes"></setting>
+    <setting name="DchConfig" advanced="yes"></setting>
+    <setting name="CASTablesNum" advanced="yes"></setting>
+    <setting name="CASTableIndex" advanced="yes"></setting>
+    <setting name="PlayRBTone2Trunk" advanced="yes"></setting>
+    <setting name="LocalISDNRBSource" advanced="yes"></setting>
+    <setting name="PIForDisconnectMsg" advanced="yes"></setting>
+    <setting name="ISDNTransferCapability" advanced="yes"></setting>
+    <setting name="ProgressIndicator2ISDN" advanced="yes"></setting>
+    <setting name="ISDNRxOverlap" advanced="yes"></setting>
   </group>
   <group name="TDM">
     <setting name="PCMLawSelect"></setting>
-    <setting name="TDMBusClockSource"></setting>
-    <setting name="TDMBusLocalReference"></setting>
+    <setting name="TDMBusClockSource">
+      <type>
+        <enum>
+          <option>
+            <label>Generate from Local Source</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>Recover from PSTN</label>
+            <value>4</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="TDMBusLocalReference">
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
+    </setting>
     <setting name="TDMBusPSTNAutoClockEnable"></setting>
     <setting name="IdlePCMPattern"></setting>
     <setting name="IdleABCDPattern"></setting>

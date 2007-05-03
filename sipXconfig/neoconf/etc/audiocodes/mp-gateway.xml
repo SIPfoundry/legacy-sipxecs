@@ -741,7 +741,7 @@
       </type>
       <value>0</value>
     </setting>
-    <group name="FlashHook" advanced="yes">
+    <group name="FlashHook" advanced="yes" unless="digital">
       <label>Flash-Hook Detection</label>
       <setting name="MinFlashHookTime" if="fxs">
         <label>Minimal Period</label>
@@ -796,7 +796,7 @@
       </type>
       <value>0</value>
     </setting>
-    <setting name='EnableDIDWink' advanced='yes'>
+    <setting name='EnableDIDWink' advanced='yes' unless="digital">
       <label>DID Wink Support</label>
       <type>
         <boolean />
@@ -828,7 +828,7 @@
         Defines the time interval (in seconds) between detection of offhook and generation of DID Wink.
       </description>
     </setting>
-    <group name="Disconnect" advanced="yes">
+    <group name="Disconnect" advanced="yes" unless="digital">
       <label>Disconnect and Answer Supervision</label>
       <setting name='EnableReversalPolarity'>
         <label>Enable Call Disconnect on Polarity Reversal</label>

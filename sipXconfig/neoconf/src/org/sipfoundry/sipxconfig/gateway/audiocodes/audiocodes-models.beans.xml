@@ -11,10 +11,18 @@
 
   <bean id="audiocodesTP260" parent="audiocodesTP">
     <property name="label" value="AudioCodes TP260" />
-    <property name="fxo" value="true" />
+    <property name="fxo" value="false" />
     <property name="fxs" value="false" />
     <property name="digital" value="true" />
-    <property name="maxPorts" value="2" />
+    <property name="maxPorts" value="4" />
+  </bean>
+
+  <bean id="audiocodesMediant" parent="audiocodesTP">
+    <property name="label" value="AudioCodes Mediant 1000" />
+    <property name="fxo" value="false" />
+    <property name="fxs" value="false" />
+    <property name="digital" value="true" />
+    <property name="maxPorts" value="4" />
   </bean>
 
   <bean id="gwAudiocodesTp260" class="org.sipfoundry.sipxconfig.gateway.audiocodes.Tp260Gateway" singleton="false"

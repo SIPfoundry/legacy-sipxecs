@@ -17,6 +17,8 @@ import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.sipfoundry.sipxconfig.setting.SettingVisitor;
 
 class SettingsIron implements SettingVisitor {
+    public static final String IGNORE = "$$";
+
     private Collection<Setting> m_flat = new ArrayList<Setting>();
 
     public Collection<Setting> getFlat() {
@@ -24,7 +26,9 @@ class SettingsIron implements SettingVisitor {
     }
 
     public void visitSetting(Setting setting) {
-        m_flat.add(setting);
+        if (!IGNORE.equals(setting.getProfileName())) {
+            m_flat.add(setting);
+        }
     }
 
     public boolean visitSettingArray(SettingArray array) {
