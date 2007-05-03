@@ -53,6 +53,23 @@ TRUNKGROUP=${trunk_id}-${trunk_id},${username}
 #end
 #end
 
+#if(${gateway.Model.Digital})
+#foreach ($portSettings in $portFlatSettings)
+#set($port_id = $velocityCount)
+; Parameters for trunk: $port_id
+#foreach ($s in $portSettings)
+#if($s.Leaf)
+#if(${s.Value})
+${s.ProfileName}_$port_id=$!{s.Value}
+#end
+#else
+
+[${s.ProfileName}_$port_id]
+#end
+#end
+#end
+
+#end
 ## parameters that are not configurable per gateway go here 
 [IniFileOnlyParams]
 EnableLANWatchDog=1

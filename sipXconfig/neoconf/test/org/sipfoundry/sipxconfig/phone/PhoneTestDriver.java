@@ -91,8 +91,8 @@ public class PhoneTestDriver {
         _phone.setSipService(sip);
 
     }
-    
-    public static void supplyVitalTestData(IMocksControl control, PhoneContext phoneContext, Phone phone) {
+
+    public static DeviceDefaults getDeviceDefaults() {
         DeviceDefaults defaults = new DeviceDefaults();
         defaults.setDeviceTimeZone(new DeviceTimeZone("Etc/GMT+5")); // no DST for consistent
         // results
@@ -103,6 +103,15 @@ public class PhoneTestDriver {
         defaults.setProxyServerSipPort("5555");
         defaults.setAuthorizationRealm("realm.sipfoundry.org");
         defaults.setSipxServer(SipxServerTest.setUpSipxServer());
+        ServiceManager serviceManager = EasyMock.createNiceMock(ServiceManager.class);
+        EasyMock.replay(serviceManager);
+        defaults.setServiceManager(serviceManager);
+        
+        return defaults;
+    }
+    
+    public static void supplyVitalTestData(IMocksControl control, PhoneContext phoneContext, Phone phone) {
+        DeviceDefaults defaults = getDeviceDefaults();
 
         String sysdir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
         phoneContext.getSystemDirectory();

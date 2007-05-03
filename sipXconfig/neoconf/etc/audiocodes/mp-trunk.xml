@@ -4,11 +4,160 @@
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
   <group name='Trunk'>
-    <setting name="Protocol"></setting>
-    <setting name="ClockMaster"></setting>
+    <setting name="ProtocolType">
+      <label>Protocol Type</label>
+      <type>
+        <enum>
+          <option>
+            <label>E1_EURO_ISDN</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>T1_CAS</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>T1_RAW_CAS</label>
+            <value>3</value>
+          </option>
+          <option>
+            <label>T1_TRANSPARENT</label>
+            <value>4</value>
+          </option>
+          <option>
+            <label>E1_TRANSPARENT_31</label>
+            <value>5</value>
+          </option>
+          <option>
+            <label>E1_TRANSPARENT_30</label>
+            <value>6</value>
+          </option>
+          <option>
+            <label>E1_MFCR2</label>
+            <value>7</value>
+          </option>
+          <option>
+            <label>E1_CAS_R2</label>
+            <value>8</value>
+          </option>
+          <option>
+            <label>E1_RAW_CAS</label>
+            <value>9</value>
+          </option>
+          <option>
+            <label>T1_NI2_ISDN</label>
+            <value>10</value>
+          </option>
+          <option>
+            <label>T1_4ESS_ISDN</label>
+            <value>11</value>
+          </option>
+          <option>
+            <label>T1_5ESS_9_ISDN</label>
+            <value>12</value>
+          </option>
+          <option>
+            <label>T1_5ESS_10_ISDN</label>
+            <value>13</value>
+          </option>
+          <option>
+            <label>T1_DMS100_ISDN</label>
+            <value>14</value>
+          </option>
+          <option>
+            <label>J1_TRANSPARENT</label>
+            <value>15</value>
+          </option>
+          <option>
+            <label>T1_NTT_ISDN (Japan - Nippon Telegraph)</label>
+            <value>16</value>
+          </option>
+          <option>
+            <label>E1_AUSTEL_ISDN (Australian Telecom)</label>
+            <value>17</value>
+          </option>
+          <option>
+            <label>T1_HKT_ISDN (Hong Kong – HKT)</label>
+            <value>18</value>
+          </option>
+          <option>
+            <label>E1_KOR_ISDN (Korean operator)</label>
+            <value>19</value>
+          </option>
+          <option>
+            <label>T1_HKT_ISDN (Hong Kong - HKT over T1)</label>
+            <value>20</value>
+          </option>
+          <option>
+            <label>E1_QSIG</label>
+            <value>21</value>
+          </option>
+          <option>
+            <label>T1_QSIG</label>
+            <value>23</value>
+          </option>
+          <option>
+            <label>E1_FRENCH_VN3_ISDN</label>
+            <value>31</value>
+          </option>
+          <option>
+            <label>T1_DMS100_Meridian</label>
+            <value>35</value>
+          </option>
+          <option>
+            <label>E1_NI2_ISDN</label>
+            <value>40</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+    <setting name="ClockMaster">
+      <label>Clock Master</label>
+      <type>
+        <enum>
+          <option>
+            <label>E1/T1 Rx</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>Internal TDM bus</label>
+            <value>0</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="LineCode"></setting>
+    <setting name="LineBuildOutLoss"></setting>
+    <setting name="TraceLevel"></setting>
+    <setting name="FramingMethod"></setting>
   </group>
   <group name='ISDN'>
     <setting name="Termination"></setting>
     <setting name="Layer"></setting>
+    <setting name="TerminationSide"></setting>
+    <setting name="ISDNIBehavior"></setting>
+    <setting name="ISDNOutCallsBehavior"></setting>
+    <setting name="ISDNInCallsBehavior"></setting>
+    <setting name="ISDNGeneralCCBehavior"></setting>
+    <setting name="NFASGroupNumber"></setting>
+    <setting name="ISDNNFASInterfaceID"></setting>
+    <setting name="DchConfig"></setting>
+    <setting name="CASTablesNum"></setting>
+    <setting name="CASTableIndex"></setting>
+    <setting name="PlayRBTone2Trunk"></setting>
+    <setting name="LocalISDNRBSource"></setting>
+    <setting name="PIForDisconnectMsg"></setting>
+    <setting name="ISDNTransferCapability"></setting>
+    <setting name="ProgressIndicator2ISDN"></setting>
+    <setting name="ISDNRxOverlap"></setting>
+  </group>
+  <group name="TDM">
+    <setting name="PCMLawSelect"></setting>
+    <setting name="TDMBusClockSource"></setting>
+    <setting name="TDMBusLocalReference"></setting>
+    <setting name="TDMBusPSTNAutoClockEnable"></setting>
+    <setting name="IdlePCMPattern"></setting>
+    <setting name="IdleABCDPattern"></setting>
   </group>
 </model>

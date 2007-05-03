@@ -13,7 +13,7 @@ import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public abstract class AudioCodesGateway extends Gateway {
+public class AudioCodesGateway extends Gateway {
     private static final String MANUFACTURER = "audiocodes";
 
     @Override
