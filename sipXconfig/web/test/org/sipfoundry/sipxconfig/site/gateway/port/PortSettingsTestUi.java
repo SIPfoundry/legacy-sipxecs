@@ -33,8 +33,8 @@ public class PortSettingsTestUi extends WebTestCase {
         assertEquals(1, SiteTestHelper.getRowCount(tester, "line:list"));  // 1 is header
         clickLink("addPort");
         assertElementPresent("settingsForm");        
-        assertElementPresent("setting:Protocol");  // TP260 port setting
-        setFormElement("stringField", "flibble");
+        assertElementPresent("setting:ProtocolType");  // TP260 port setting
+        setFormElement("integerField", "2");
         clickButton("setting:ok");
         SiteTestHelper.assertNoException(tester);        
         clickLink("tab:ports");

@@ -128,11 +128,67 @@
       <value>0</value>
     </setting>
     <setting name="LineCode">
-
+      <label>Line Code</label>
+      <type>
+        <enum>
+          <option>
+            <label>B8ZS</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>AMI</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>HDB3</label>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+      <description>Select B8ZS or AMI for T1 spans, and HDB3 or AMI for E1 spans.</description>
     </setting>
-    <setting name="LineBuildOutLoss" advanced="yes"></setting>
-    <setting name="TraceLevel" advanced="yes"></setting>
-    <setting name="FramingMethod"></setting>
+    <setting name="FramingMethod">
+      <label>Framing Method</label>
+      <type>
+        <enum>
+          <option>
+            <label>Default</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>E1 - Double frame</label>
+            <value>a</value>
+          </option>
+          <option>
+            <label>E1 - Multiframe with CRC4</label>
+            <value>c</value>
+          </option>
+          <option>
+            <label>T1 - F4</label>
+            <value>A</value>
+          </option>
+          <option>
+            <label>T1 - Super frame D4, F12</label>
+            <value>B</value>
+          </option>
+          <option>
+            <label>T1 - Extended super frame without CRC6</label>
+            <value>C</value>
+          </option>
+          <option>
+            <label>T1 - Extended super frame with CRC6</label>
+            <value>D</value>
+          </option>
+          <option>
+            <label>J1 - Japan (ESF with CRC6 and JT)</label>
+            <value>F</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+      <description>Default for T1 is Extended super frame with CRC6; for E1 - Multiframe with CRC4</description>
+    </setting>
     <setting name="MinChannel">
       <profileName>$$</profileName>
       <type>
@@ -165,15 +221,61 @@
       </type>
       <value>0</value>
     </setting>
-    <setting name="ISDNIBehavior" advanced="yes"></setting>
-    <setting name="ISDNOutCallsBehavior" advanced="yes"></setting>
-    <setting name="ISDNInCallsBehavior" advanced="yes"></setting>
-    <setting name="ISDNGeneralCCBehavior" advanced="yes"></setting>
-    <setting name="NFASGroupNumber" advanced="yes"></setting>
-    <setting name="ISDNNFASInterfaceID" advanced="yes"></setting>
-    <setting name="DchConfig" advanced="yes"></setting>
-    <setting name="CASTablesNum" advanced="yes"></setting>
-    <setting name="CASTableIndex" advanced="yes"></setting>
+    <setting name="ISDNIBehavior" advanced="yes">
+      <type>
+        <integer />
+      </type>
+    </setting>
+    <setting name="ISDNOutCallsBehavior" advanced="yes">
+      <type>
+        <integer />
+      </type>
+    </setting>
+    <setting name="ISDNInCallsBehavior" advanced="yes">
+      <type>
+        <integer />
+      </type>
+    </setting>
+    <setting name="ISDNGeneralCCBehavior" advanced="yes">
+      <type>
+        <integer />
+      </type>
+    </setting>
+    <setting name="NFASGroupNumber" advanced="yes">
+      <label>NFAS Group Number</label>
+      <type>
+        <integer min="0" max="4" />
+      </type>
+      <description>
+        Trunks that belong to the same NFAS group have the same number. With ISDN Non-Facility Associated Signaling you
+        can use single D-channel to control multiple PRI interfaces. Applicable only to T1 ISDN protocols.
+      </description>
+    </setting>
+    <setting name="ISDNNFASInterfaceID" advanced="yes">
+      <label>NFAS Interface ID</label>
+      <type>
+        <integer min="0" max="100" />
+      </type>
+    </setting>
+    <setting name="DchConfig" advanced="yes">
+      <label>D-channel Configuration</label>
+      <type>
+        <enum>
+          <option>
+            <label>Primary Trunk</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>Backup Trunk</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>NFAS Trunk</label>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
     <setting name="PlayRBTone2Trunk" advanced="yes"></setting>
     <setting name="LocalISDNRBSource" advanced="yes"></setting>
     <setting name="PIForDisconnectMsg" advanced="yes"></setting>
@@ -199,13 +301,29 @@
       <value>0</value>
     </setting>
     <setting name="TDMBusLocalReference">
+      <label>TDM Bus Local Reference</label>
       <type>
         <integer />
       </type>
       <value>0</value>
+      <description>Trunk from which clock will be recovered.</description>
     </setting>
-    <setting name="TDMBusPSTNAutoClockEnable"></setting>
-    <setting name="IdlePCMPattern"></setting>
-    <setting name="IdleABCDPattern"></setting>
+    <setting name="TDMBusPSTNAutoClockEnable" advanced="yes">
+      <label>TDM Bus PSTN Auto Clock</label>
+      <type>
+        <enum>
+          <option>
+            <label>Recover clock from Local Reference Only</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>Recover clock from any synchronized trunk</label>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+      <description></description>
+    </setting>
   </group>
 </model>
