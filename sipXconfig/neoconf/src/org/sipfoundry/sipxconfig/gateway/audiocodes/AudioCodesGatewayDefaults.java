@@ -52,10 +52,8 @@ public class AudioCodesGatewayDefaults {
         return m_defaults.getProxyServerSipPort();
     }
 
-    @SettingEntry(paths = {
-        "SIP_Proxy_Registration/ProxyIP", "SIP_Proxy_Registration/RegistrarIP",
-        "SIP_Proxy_Registration/SIPGatewayName"
-    })
+    @SettingEntry(paths = { "SIP_Proxy_Registration/ProxyIP", "SIP_Proxy_Registration/RegistrarIP",
+            "SIP_Proxy_Registration/SIPGatewayName" })
     public String getDomainName() {
         return m_defaults.getDomainName();
     }
