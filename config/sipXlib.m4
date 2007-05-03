@@ -564,6 +564,11 @@ AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],
   AC_SUBST(CPPUNIT_URL, http://umn.dl.sourceforge.net/sourceforge/cppunit)
   AC_SUBST(GRAPHVIZ_URL, ftp://194.199.20.114/linux/SuSE-Linux/i386/9.3/suse/src)
   AC_SUBST(CENTOS_URL, http://mirrors.easynews.com/linux/centos)
+  AC_SUBST(FC5_URL, http://redhat.download.fedoraproject.org/pub/fedora/linux/core)
+  AC_SUBST(FC5_EXTRAS_URL, http://download.fedora.redhat.com/pub/fedora/linux/extras)
+  AC_SUBST(FC5_UPDATES_URL, http://download.fedora.redhat.com/pub/fedora/linux/core/updates)
+  AC_SUBST(RHEL5_URL, http://mirrors.kernel.org/centos)
+  AC_SUBST(RHEL5_UPDATES_URL, http://mirrors.kernel.org/centos/5/updates)
 
   SFAC_SRCDIR_EXPAND
   download_file="$abs_srcdir/config/download-file"

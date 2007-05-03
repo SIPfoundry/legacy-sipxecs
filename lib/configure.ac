@@ -62,6 +62,18 @@ AC_ARG_ENABLE(rhe4,
           http_access=yes
         ])
 
+AC_ARG_ENABLE(rhe5,
+        AC_HELP_STRING([--enable-rhe5], [Enable dependencies for RHE5 and Centos5]),
+        [
+          java_sun=yes
+          w3c_libwww=yes
+          xerces_c=yes
+          ruby_gems=yes
+          ruby_postgres=yes
+          cgicc=yes
+          ruby_dbi=yes
+        ])
+
 AC_ARG_ENABLE(soap4r,
 	AC_HELP_STRING([--enable-soap4r], [Build soap4r dependency]),
 	[ soap4r=${enableval} ])
