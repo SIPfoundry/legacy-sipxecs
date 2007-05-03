@@ -34,7 +34,9 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -44,6 +46,7 @@ import org.sipfoundry.sipxconfig.search.IndexManager;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.sipfoundry.sipxconfig.site.admin.commserver.ReplicationData;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
+import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 import org.sipfoundry.sipxconfig.site.phone.NewPhone;
 import org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider;
@@ -81,6 +84,9 @@ public abstract class TestPage extends BasePage {
     public abstract DialPlanContext getDialPlanContext();
 
     public abstract GatewayContext getGatewayContext();
+    
+    @InjectObject(value = "spring:nakedGatewayModelSource")
+    public abstract ModelSource<GatewayModel> getGatewayModels();
 
     public abstract PhoneContext getPhoneContext();
 
@@ -260,6 +266,20 @@ public abstract class TestPage extends BasePage {
         // Log it in
         UserSession userSession = getUserSession();
         userSession.login(user.getId(), false, true);
+    }
+    
+    public IPage seedFxoGateway() {
+        getDialPlanContext().clear();
+        GatewayContext gatewayService = getGatewayContext();
+        gatewayService.clear();
+        GatewayModel fxoModel = getGatewayModels().getModel("audiocodesTP260");
+        Gateway fxo = gatewayService.newGateway(fxoModel);
+        fxo.setName("fxo");
+        fxo.setAddress("1.1.1.1");
+        gatewayService.storeGateway(fxo);
+        EditGateway page = (EditGateway) getRequestCycle().getPage(EditGateway.PAGE);
+        page.setGatewayId(fxo.getId());
+        return page;
     }
 
     public void deleteAllUsers() {

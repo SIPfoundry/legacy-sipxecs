@@ -78,14 +78,13 @@ public abstract class GatewayPorts extends BaseComponent {
         return editPortPage;
     }
 
-    public IPage deletePorts() {
+    public void deletePorts() {
         Collection allSelected = getSelections().getAllSelected();
         if (!allSelected.isEmpty()) {
             getGatewayContext().removePortsFromGateway(getGateway().getId(), allSelected);
             setPorts(null);
+            // setting null resets page for fresh data
+            setGateway(null);
         }
-
-        // returning this page from component to cause refresh
-        return getPage();
     }
 }

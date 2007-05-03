@@ -7,7 +7,7 @@
           editSettingsListener="listener:editSettings" activeSetting="prop:currentSettingSet">
         <span jwcid="@For" source="prop:tabNames" value="prop:currentTab">
             <span jwcid="@common/Tab" isActive="ognl:currentTab.equals(activeTab)">
-              <a jwcid="@DirectLink" listener="listener:editNonSettings" parameters="prop:currentTab">
+              <a jwcid="@DirectLink" id="ognl:'tab:' + currentTab" listener="listener:editNonSettings" parameters="prop:currentTab">
                 <span jwcid="@Insert" value="ognl:messages.getMessage('tab.' + currentTab)"/>
               </a>
             </span>
