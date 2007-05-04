@@ -37,6 +37,9 @@
 **
 ** Author: Kipp E.B. Hickman
 */
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
 #include "jsstddef.h"
 #include <stdarg.h>
 #include <stdio.h>
