@@ -192,7 +192,9 @@ public class SnomPhone extends Phone {
             if (user != null) {
                 // XPB-398 This forces TCP, this is defined in conjunction with "transport=udp"
                 // This is benign w/o SRV, but required w/SRV
-                outboundProxy = m_defaults.getFullyQualifiedDomainName();
+                // XCF-1680 - IFF this still needs to be set, this should domain name to allow
+                // for HA systems.  Remember, domain name is really FQHN for non SRV systems
+                outboundProxy = m_defaults.getDomainName();
             }
 
             return outboundProxy;
