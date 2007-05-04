@@ -73,6 +73,7 @@ Summary: Configures/enables TFTP for devices controlled by %{name}
 
 %package ftp
 Requires: vsftpd
+Requires: sudo
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Configures/enables FTP for devices controlled by %{name} 
@@ -110,6 +111,7 @@ or real-time analysys like sipxconfig's statistics web console.
 
 %package report
 Requires: ruby
+Requires: sipxcommserverlib
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Aggregates data from sipxconfig-agent into a database for reporting tools
