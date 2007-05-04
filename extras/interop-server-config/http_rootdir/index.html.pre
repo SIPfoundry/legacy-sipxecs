@@ -594,7 +594,8 @@ These domain names do not have DNS A records, rather they are
 configured with DNS SRV records for the UDP and TCP protocols,
 respectively.  A UA should support DNS SRV records and both the UDP
 and TCP protocols, so it should be able to use either of these domain
-names in place of <code>@SIPXCHANGE_DOMAIN_NAME@</code> in all of the tests.
+names in place of <code>@SIPXCHANGE_DOMAIN_NAME@</code> to place calls
+in all of the tests.
 </p>
 
 <p>

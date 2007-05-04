@@ -1,5 +1,15 @@
 Notes on managing a sipX "interop server".
 
+* DNS configuration
+
+The SIPXCHANGE_DOMAIN_NAME name should have an ordinary DNS A record.
+
+To support the "DNS SRV Record Processing" test, the INTEROP_ALIAS_UDP
+and INTEROP_ALIAS_TCP names should have DNS SRV records like these:
+
+_sip._tcp.{INTEROP_ALIAS_TCP}. IN SRV	1 1 5060 {SIPXCHANGE_DOMAIN_NAME}.
+_sip._udp.{INTEROP_ALIAS_UDP}. IN SRV	1 1 5060 {SIPXCHANGE_DOMAIN_NAME}.
+
 * To update the sipX code:
 
 From a machine inside Pingtel, create a directory and download the
