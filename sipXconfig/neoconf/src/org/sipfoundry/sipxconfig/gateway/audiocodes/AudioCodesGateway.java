@@ -14,7 +14,7 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class AudioCodesGateway extends Gateway {
-    private static final String MANUFACTURER = "audiocodes";
+    static final String MANUFACTURER = "audiocodes";
 
     @Override
     public void initialize() {
@@ -44,13 +44,7 @@ public class AudioCodesGateway extends Gateway {
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadDynamicModelFile("mp-gateway.xml", MANUFACTURER,
-                getSettingsEvaluator());
-    }
-
-    @Override
-    public Setting loadPortSettings() {
-        return getModelFilesContext().loadDynamicModelFile("mp-trunk.xml", MANUFACTURER,
+        return getModelFilesContext().loadDynamicModelFile("gateway.xml", MANUFACTURER,
                 getSettingsEvaluator());
     }
 

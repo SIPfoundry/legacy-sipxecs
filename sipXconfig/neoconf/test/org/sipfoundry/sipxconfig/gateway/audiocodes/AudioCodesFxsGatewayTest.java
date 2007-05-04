@@ -25,12 +25,12 @@ public class AudioCodesFxsGatewayTest extends TestCase {
         AudioCodesFxsModel model = new AudioCodesFxsModel();
         model.setBeanId("gwFxsAudiocodes");
         model.setFxs(true);
-        model.setProfileTemplate("audiocodes/mp-gateway.ini.vm");
-        
+        model.setProfileTemplate("audiocodes/gateway.ini.vm");
+
         AudioCodesFxsGateway gateway = new AudioCodesFxsGateway(model);
-        
+
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(gateway);
-        
+
         User u1 = new User();
         u1.setUserName("juser");
         u1.setFirstName("Joe");
@@ -42,17 +42,16 @@ public class AudioCodesFxsGatewayTest extends TestCase {
         u2.setSipPassword("abcdef");
         u2.addAlias("432");
 
-        
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(gateway, Arrays.asList(new User[] {
             u1, u2
-        }));        
-        
+        }));
+
         gateway.generateProfiles();
-        
+
         String actual = location.toString();
-        
-        InputStream expectedProfile = getClass().getResourceAsStream("mp-gateway-fxs.ini");
+
+        InputStream expectedProfile = getClass().getResourceAsStream("fxs-gateway.ini");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);
 

@@ -110,6 +110,7 @@
           </option>
         </enum>
       </type>
+      <value>10</value>
     </setting>
     <setting name="ClockMaster">
       <label>Clock Master</label>
@@ -141,7 +142,7 @@
           </option>
           <option>
             <label>HDB3</label>
-            <value>1</value>
+            <value>2</value>
           </option>
         </enum>
       </type>
@@ -189,20 +190,58 @@
       <value>0</value>
       <description>Default for T1 is Extended super frame with CRC6; for E1 - Multiframe with CRC4</description>
     </setting>
-    <setting name="MinChannel">
+    <setting name="Prefix" advanced="yes">
+      <label>Destination Number Prefix</label>
       <profileName>$$</profileName>
-      <type>
-        <integer />
+      <type required="yes">
+        <string />
+      </type>
+      <value>*</value>
+      <description>
+        A number or a range of numbers that will be directed to this trunk. For example: 10[340-451]xxx
+      </description>
+    </setting>
+    <setting name="MinChannel" advanced="yes">
+      <label>Starting B-channel</label>
+      <profileName>$$</profileName>
+      <type required="yes">
+        <integer min="1" max="32" />
       </type>
       <value>1</value>
     </setting>
     <setting name="MaxChannel">
+      <label>Ending B-channel</label>
+      <profileName>$$</profileName>
+      <type required="yes">
+        <integer min="1" max="99" />
+      </type>
+      <value>23</value>
+    </setting>
+    <setting name='ChannelSelectMode' advanced="yes">
+      <label>Channel Select Mode</label>
       <profileName>$$</profileName>
       <type>
-        <integer />
+        <enum>
+          <option>
+            <label>Cyclic Ascending</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>Ascending</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>Cyclic Descending</label>
+            <value>3</value>
+          </option>
+          <option>
+            <label>Descending</label>
+            <value>4</value>
+          </option>
+        </enum>
       </type>
-      <value>24</value>
-    </setting>
+      <value>1</value>
+    </setting>    
   </group>
   <group name='ISDN'>
     <setting name="TerminationSide">
@@ -284,7 +323,6 @@
     <setting name="ISDNRxOverlap" advanced="yes"></setting>
   </group>
   <group name="TDM">
-    <setting name="PCMLawSelect"></setting>
     <setting name="TDMBusClockSource">
       <type>
         <enum>
@@ -298,7 +336,7 @@
           </option>
         </enum>
       </type>
-      <value>0</value>
+      <value>4</value>
     </setting>
     <setting name="TDMBusLocalReference">
       <label>TDM Bus Local Reference</label>

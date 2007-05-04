@@ -14,7 +14,7 @@ import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway;
+import org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxoGateway;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 public class SpringHibernateInstantiatorTest extends TestCase {
@@ -40,8 +40,8 @@ public class SpringHibernateInstantiatorTest extends TestCase {
 
     public void testInstantiateSubclass() {
         Integer id = new Integer(5);
-        BeanWithId bean = (BeanWithId) m_instantiator.instantiate(MediantGateway.class, id);
-        assertSame(MediantGateway.class, bean.getClass());
+        BeanWithId bean = (BeanWithId) m_instantiator.instantiate(AudioCodesFxoGateway.class, id);
+        assertSame(AudioCodesFxoGateway.class, bean.getClass());
         assertSame(id, bean.getId());
     }
 

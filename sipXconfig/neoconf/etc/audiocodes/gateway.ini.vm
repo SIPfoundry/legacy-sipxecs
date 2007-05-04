@@ -32,6 +32,12 @@ ${s.ProfileName}=$!{s.Value}
 TRUNKGROUP_1=1-8,201,0
 PSTNPREFIX=*,1,*,*,0
 TRUNKGROUPSETTINGS=1,1,255,$ignore
+#foreach ($port in $gateway.ports)
+#set($port_id = $velocityCount - 1)
+#set($extension = $port.getSettingValue('Port/Extension'))
+#set($enable = $port.getSettingValue('Port/AutomaticDialing'))
+TARGETOFCHANNEL${port_id}=${extension},${enable}
+#end
 
 #end
 #if(${gateway.Model.Digital})
@@ -40,12 +46,14 @@ TRUNKGROUPSETTINGS=1,1,255,$ignore
 #set($port_id = $velocityCount - 1)
 #set($trunk_id = $velocityCount)
 #set($number = ($port_id*100) + 1000)
+#set($prefix = $port.getSettingValue('Trunk/Prefix'))
 #set($minChannel = $port.getSettingValue('Trunk/MinChannel'))
 #set($maxChannel = $port.getSettingValue('Trunk/MaxChannel'))
+#set($csm = $port.getSettingValue('Trunk/ChannelSelectMode'))
 TRUNKGROUP_$trunk_id=${port_id}-${port_id}/${minChannel}-${maxChannel},$number,0
-TRUNKGROUPSETTINGS=$trunk_id,1,255,$ignore
+TRUNKGROUPSETTINGS=${trunk_id},${csm},255,$ignore
+PSTNPREFIX=${prefix},${trunk_id},*,*,0
 #end
-PSTNPREFIX=*,1,*,*,0
 
 #end
 [VoiceCodecs]
@@ -81,8 +89,8 @@ ${s.ProfileName}_$port_id=$!{s.Value}
 [${s.ProfileName}_$port_id]
 #end
 #end
-#end
 
+#end
 #end
 ## parameters that are not configurable per gateway go here 
 [IniFileOnlyParams]

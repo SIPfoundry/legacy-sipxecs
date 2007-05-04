@@ -3,60 +3,55 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
-  <!-- Audiocodes FXO gateways -->
+  <!-- Audiocodes digital gateways -->
   <bean id="audiocodesTP" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
     <property name="beanId" value="gwAudiocodesTp260" />
-    <property name="profileTemplate" value="audiocodes/mp-gateway.ini.vm" />
+    <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
+    <property name="digital" value="true" />
   </bean>
 
   <bean id="audiocodesTP260" parent="audiocodesTP">
     <property name="label" value="AudioCodes TP260" />
-    <property name="fxo" value="false" />
-    <property name="fxs" value="false" />
-    <property name="digital" value="true" />
     <property name="maxPorts" value="4" />
   </bean>
 
   <bean id="audiocodesMediant" parent="audiocodesTP">
     <property name="label" value="AudioCodes Mediant 1000" />
-    <property name="fxo" value="false" />
-    <property name="fxs" value="false" />
-    <property name="digital" value="true" />
+    <property name="maxPorts" value="8" />
+  </bean>
+
+  <bean id="gwAudiocodesTp260" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesDigitalGateway"
+    singleton="false" parent="gwGeneric">
+  </bean>
+
+  <!-- audiocodes Media Pack FXO gateways -->
+  <bean id="audiocodesFxo" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
+    <property name="beanId" value="gwAudiocodesMediant" />
+    <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
+    <property name="fxo" value="true" />
+  </bean>
+
+  <bean id="audiocodesMP1X4_4_FXO" parent="audiocodesFxo">
+    <property name="label" value="AudioCodes MP114 FXO" />
     <property name="maxPorts" value="4" />
   </bean>
 
-  <bean id="gwAudiocodesTp260" class="org.sipfoundry.sipxconfig.gateway.audiocodes.Tp260Gateway" singleton="false"
-    parent="gwGeneric">
+  <bean id="audiocodesMP1X8_8_FXO" parent="audiocodesFxo">
+    <property name="label" value="AudioCodes MP118 FXO" />
+    <property name="maxPorts" value="8" />
   </bean>
 
-  <bean id="audiocodesMP" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
-    <property name="beanId" value="gwAudiocodesMediant" />
-    <property name="profileTemplate" value="audiocodes/mp-gateway.ini.vm" />
-    <property name="digital" value="false" />
-  </bean>
-
-  <bean id="audiocodesMP1X4_4_FXO" parent="audiocodesMP">
-    <property name="label" value="AudioCodes MP1X4 4 Port FXO" />
-    <property name="fxo" value="true" />
-  </bean>
-
-  <bean id="audiocodesMP1X8_8_FXO" parent="audiocodesMP">
-    <property name="label" value="AudioCodes MP1X8 8 Port FXO" />
-    <property name="fxo" value="true" />
-  </bean>
-
-  <bean id="gwAudiocodesMediant" class="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway" singleton="false"
-    parent="gwGeneric">
+  <bean id="gwAudiocodesMediant" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxoGateway"
+    singleton="false" parent="gwGeneric">
   </bean>
 
   <!-- AudioCodes FXS gateways -->
   <bean id="audiocodesFxs" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxsModel">
+    <property name="label" value="AudioCodes MP11x FXS" />
     <property name="beanId" value="gwFxsAudiocodes" />
-    <property name="label" value="Audiocodes MP 1xx FXS" />
-    <property name="profileTemplate" value="audiocodes/mp-gateway.ini.vm" />
-    <property name="fxo" value="false" />
-    <property name="digital" value="false" />
+    <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
     <property name="fxs" value="true" />
+    <property name="maxLineCount" value="8"></property>
   </bean>
 
   <bean id="gwFxsAudiocodes" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxsGateway" singleton="false"

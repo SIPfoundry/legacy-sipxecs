@@ -14,14 +14,14 @@ import junit.framework.TestCase;
 public class AudioCodesGatewayTest extends TestCase {
 
     public void testGetProfileFilename() {
-        AudioCodesGateway gateway = new AudioCodesGateway() {            
+        AudioCodesGateway gateway = new AudioCodesGateway() {
         };
-        
+
         gateway.setSerialNumber("00908f03f59B");
         assertEquals("00908F03F59B.ini", gateway.getProfileFilename());
 
         gateway.setSerialNumber(null);
-        assertNull(gateway.getProfileFilename());        
+        assertNull(gateway.getProfileFilename());
     }
 
 }

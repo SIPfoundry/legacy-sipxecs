@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name='Port'>
+    <setting name="AutomaticDialing">
+      <label>Automatic Dialing</label>
+      <profileName>$$</profileName>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+      <description>
+        If enabled calls received on this port will be automatically send to Extension specified below.
+      </description>
+    </setting>
+    <setting name="Extension">
+      <label>Extension</label>
+      <profileName>$$</profileName>
+      <type required="yes">
+        <string />
+      </type>
+      <value>operator</value>
+      <description>Auto attendant, ACD line or DID extension.</description>
+    </setting>
+  </group>
+</model>

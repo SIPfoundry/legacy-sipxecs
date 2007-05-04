@@ -58,13 +58,13 @@ public class AudioCodesFxsGateway extends Phone {
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadDynamicModelFile("mp-gateway.xml", MANUFACTURER,
+        return getModelFilesContext().loadDynamicModelFile("gateway.xml", MANUFACTURER,
                 getSettingsEvaluator());
     }
 
     @Override
     protected Setting loadLineSettings() {
-        return getModelFilesContext().loadDynamicModelFile("mp-line.xml", MANUFACTURER,
+        return getModelFilesContext().loadDynamicModelFile("line.xml", MANUFACTURER,
                 getSettingsEvaluator());
     }
 

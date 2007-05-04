@@ -1198,6 +1198,23 @@
   <group name="digital-trunk" if="digital">
     <label>E1/T1</label>
     <description>E1/T1 trunk parameters shared by all trunks.</description>
+    <setting name="PCMLawSelect">
+      <label>PCM Law Select</label>
+      <type>
+        <enum>
+          <option>
+            <label>A-law</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>µ-Law</label>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>3</value>
+      <description>Usually A-Law is used for E1 spans and µ-Law for T1 and J1 spans</description>
+    </setting>
     <setting name="LineBuildOutLoss">
       <label>Line Build Out Loss</label>
       <type>
@@ -1714,7 +1731,7 @@
         <type>
           <boolean />
         </type>
-        <value>0</value>
+        <value>1</value>
         <description>Enable generation (FXS) and detection (FXO) of Caller ID on the telephony ports</description>
       </setting>
       <setting name='CallerIDType'>
@@ -1967,47 +1984,5 @@
         <description>Trap community string</description>
       </setting>
     </group>
-    <!-- unused auto update parameters
-      <group name="INI_File" advanced="yes">
-      <label>Auto update</label>
-      <setting name='IniFileURL' advanced='yes'>
-      <label>URL for Auto-update INI File</label>
-      <description>URL for Auto-update INI file location</description>
-      </setting>
-      <setting name='CmpFileURL' advanced='yes'>
-      <label>URL for Auto-update CMP File</label>
-      <description>URL for Auto-update CMP file location</description>
-      </setting>
-      <setting name='AutoUpdatePredefinedTime' advanced='yes'>
-      <label>Time of Day (HH:MM) for Auto Update</label>
-      <description>Time of day for scheduled auto-update.</description>
-      </setting>
-      <setting name='AutoUpdateFrequency' advanced='yes'>
-      <label>Interval for Cyclic Auto-Update (Mins)</label>
-      <value>0</value>
-      <description>Minutes between auto-update. Enter 0 to disable auto-update at fixed cycles.</description>
-      </setting>
-      <setting name='AutoUpdateCmpFile' advanced='yes'>
-      <label>Enable Auto-Firmware Update</label>
-      <type>
-      <boolean />
-      </type>
-      <value>0</value>
-      <description>Enables/disables auto-update for CMP file only</description>
-      </setting>
-      <setting name='CptFileUrl' advanced='yes'>
-      <label>URL for Auto-Update Call Progress Tone File</label>
-      <description>URL for Auto-update Call Progress Tone file</description>
-      </setting>
-      <setting name='FXSCoeffFileUrl' advanced='yes'>
-      <label>URL for Auto-Update Analog FXS Coefficients File</label>
-      <description>URL for Auto-update Analog coefficients file</description>
-      </setting>
-      <setting name='FXOCoeffFileUrl' advanced='yes'>
-      <label>URL for Auto-Update Analog FXO Coefficients File</label>
-      <description>URL for Auto-update Analog coefficients file</description>
-      </setting>
-      </group>
-    -->
   </group>
 </model>

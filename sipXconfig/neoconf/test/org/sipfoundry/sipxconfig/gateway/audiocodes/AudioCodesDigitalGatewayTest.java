@@ -16,9 +16,16 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.gateway.FxoPort;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 
 public class AudioCodesDigitalGatewayTest extends TestCase {
+    private ModelFilesContext m_modelFilesContext;
+
+    protected void setUp() throws Exception {
+        m_modelFilesContext = TestHelper.getModelFilesContext();
+    }
 
     public void testGenerateTypicalProfiles() throws Exception {
         AudioCodesModel model = new AudioCodesModel();
@@ -28,28 +35,30 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         model.setFxo(false);
         model.setDigital(true);
         model.setMaxPorts(4);
-        model.setProfileTemplate("audiocodes/mp-gateway.ini.vm");
-        
-        AudioCodesGateway gateway = new AudioCodesGateway();
+        model.setProfileTemplate("audiocodes/gateway.ini.vm");
+
+        Gateway gateway = new AudioCodesDigitalGateway();
         gateway.setModel(model);
-        gateway.addPort(new FxoPort());
+
+        for (int i = 0; i < 2; i++) {
+            FxoPort trunk = new FxoPort();
+            gateway.addPort(trunk);
+        }
+
         gateway.setSerialNumber("001122334455");
-        
-        gateway.setModelFilesContext(TestHelper.getModelFilesContext());
-        
+
+        gateway.setModelFilesContext(m_modelFilesContext);
         gateway.setDefaults(PhoneTestDriver.getDeviceDefaults());
-        
+
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(gateway);
-        
-        
+
         // call this to inject dummy data
-        
+
         gateway.generateProfiles();
-        
+
         String actual = location.toString();
-        System.err.println(actual);
-        
-        InputStream expectedProfile = getClass().getResourceAsStream("mp-gateway-digital.ini");
+
+        InputStream expectedProfile = getClass().getResourceAsStream("digital-gateway.ini");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);
 

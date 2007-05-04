@@ -20,14 +20,14 @@ import org.easymock.IMocksControl;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.util.DTDEntityResolver;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway;
+import org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxoGateway;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 public class DynamicSessionFactoryBeanTest extends TestCase {
 
     public void testXmlMapping() throws Exception {
         DynamicSessionFactoryBean factory = new DynamicSessionFactoryBean();
-        String mapping = factory.xmlMapping(Gateway.class, MediantGateway.class, "gwMediant1000");
+        String mapping = factory.xmlMapping(Gateway.class, AudioCodesFxoGateway.class, "gwMediant1000");
         validateXml(mapping);
     }
     
@@ -39,7 +39,7 @@ public class DynamicSessionFactoryBeanTest extends TestCase {
         factory.getType("gwGeneric");
         controlFactory.andReturn(Gateway.class);
         factory.getType("gwMediant1000");
-        controlFactory.andReturn(MediantGateway.class);
+        controlFactory.andReturn(AudioCodesFxoGateway.class);
         controlFactory.replay();
         
         ConfigurationMock config = new ConfigurationMock();
@@ -61,7 +61,7 @@ public class DynamicSessionFactoryBeanTest extends TestCase {
         factory.getType("gwGeneric");
         controlFactory.andReturn(Gateway.class);
         factory.getType("gwMediant1000");
-        controlFactory.andReturn(MediantGateway.class);
+        controlFactory.andReturn(AudioCodesFxoGateway.class);
         controlFactory.replay();
         
         ConfigurationMock config = new ConfigurationMock();
@@ -83,7 +83,7 @@ public class DynamicSessionFactoryBeanTest extends TestCase {
         Document document = xmlReader.read(new StringReader(xml));
         
         assertEquals(Gateway.class.getName(), document.valueOf("/hibernate-mapping/subclass/@extends"));
-        assertEquals(MediantGateway.class.getName(),
+        assertEquals(AudioCodesFxoGateway.class.getName(),
                 document.valueOf("/hibernate-mapping/subclass/@name"));
         assertEquals("gwMediant1000",
                 document.valueOf("/hibernate-mapping/subclass/@discriminator-value"));        
