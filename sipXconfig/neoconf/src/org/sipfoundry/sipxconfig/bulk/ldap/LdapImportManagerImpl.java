@@ -17,7 +17,6 @@ import java.util.List;
 import javax.naming.NameClassPair;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 import org.apache.commons.collections.Closure;
 import org.apache.commons.lang.StringUtils;
@@ -49,7 +48,8 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
     public void insert() {
         m_rowInserter.setAttrMap(m_ldapManager.getAttrMap());
         m_rowInserter.beforeInserting();
-        NameClassPairCallbackHandler handler = new NameClassPairMapperClosureAdapter(m_rowInserter);
+        NameClassPairCallbackHandler handler = new NameClassPairMapperClosureAdapter(
+                m_rowInserter);
         runSearch(handler, 0);
         m_rowInserter.afterInserting();
     }
@@ -57,17 +57,18 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
     public List<UserPreview> getExample() {
         return search(m_previewSize);
     }
-    
+
     public void dumpExample(Writer out) {
         try {
             CsvWriter writer = new CsvWriter(out);
             String[] allNames = Index.getAllNames();
             writer.write(allNames, false);
-            
+
             Iterator<UserPreview> result = search(0).iterator();
             while (result.hasNext()) {
                 UserPreview preview = result.next();
-                String groupNamesString = StringUtils.join(preview.getGroupNames().iterator(), ", ");
+                String groupNamesString = StringUtils.join(preview.getGroupNames().iterator(),
+                        ", ");
                 String[] row = new String[allNames.length];
                 Index.USERNAME.set(row, preview.getUser().getUserName());
                 Index.FIRST_NAME.set(row, preview.getUser().getFirstName());
@@ -75,8 +76,8 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
                 Index.ALIAS.set(row, preview.getUser().getAliasesString());
                 Index.SIP_PASSWORD.set(row, preview.getUser().getSipPassword());
                 Index.EMAIL.set(row, preview.getMailboxPreferences().getEmailAddress());
-                Index.USER_GROUP.set(row, groupNamesString);                
-                
+                Index.USER_GROUP.set(row, groupNamesString);
+
                 writer.write(row, true);
             }
         } catch (IOException e) {
@@ -99,17 +100,18 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
     private List<UserPreview> search(long limit) {
         LdapTemplate template = m_templateFactory.getLdapTemplate();
         m_userMapper.setAttrMap(m_ldapManager.getAttrMap());
-        CollectingNameClassPairCallbackHandler handler = new NameClassPairMapperCollector(template, m_userMapper);
+        CollectingNameClassPairCallbackHandler handler = new NameClassPairMapperCollector(
+                template, m_userMapper);
         runSearch(handler, limit);
         List<UserPreview> result = handler.getList();
         return result;
     }
-    
+
     private void runSearch(NameClassPairCallbackHandler handler, long limit) {
         SearchControls sc = new SearchControls();
         sc.setCountLimit(limit);
         sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        
+
         AttrMap attrMap = m_ldapManager.getAttrMap();
         if (!attrMap.verified()) {
             m_ldapManager.verify(m_ldapManager.getConnectionParams(), attrMap);
@@ -128,18 +130,19 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
             LOG.debug("Normal overflow, requesting to preview more records then exist");
         }
     }
-    
+
     static class NameClassPairMapperClosureAdapter implements NameClassPairCallbackHandler {
         private Closure m_closure;
+
         NameClassPairMapperClosureAdapter(Closure closure) {
             m_closure = closure;
         }
 
         public void handleNameClassPair(NameClassPair nameClassPair) {
-            m_closure.execute((SearchResult) nameClassPair);
-        }        
+            m_closure.execute(nameClassPair);
+        }
     }
-    
+
     static class NameClassPairMapperCollector extends CollectingNameClassPairCallbackHandler {
         private NameClassPairMapper m_mapper;
         private LdapTemplate m_template;
@@ -155,8 +158,8 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
             } catch (NamingException e) {
                 throw m_template.getExceptionTranslator().translate(e);
             }
-        }        
-    };
+        }
+    }
 
     public void setTemplateFactory(LdapTemplateFactory templateFactory) {
         m_templateFactory = templateFactory;

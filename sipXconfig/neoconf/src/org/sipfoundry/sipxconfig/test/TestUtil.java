@@ -141,7 +141,7 @@ public final class TestUtil {
                 dir = dir.getParentFile();
             }
             throw new RuntimeException(String.format(
-                    "Cannot find %s in any of the parent of %s.", propName, dir.getPath()));
+                    "Cannot find %s in any of the parent of %s.", propName, getProjectDirectory()));
         } catch (IOException ioe) {
             throw new RuntimeException("Could not find top build directory", ioe);
         }

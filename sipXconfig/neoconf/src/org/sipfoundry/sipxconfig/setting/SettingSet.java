@@ -23,7 +23,7 @@ public class SettingSet extends AbstractSetting implements Cloneable, Serializab
 
     private SettingMap m_children = new SettingMap();
 
-    private MessageSource m_messageSource;
+    private transient MessageSource m_messageSource;
 
     /**
      * Root setting group and bean access only
