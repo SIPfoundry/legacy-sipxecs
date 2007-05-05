@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.service;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -64,11 +65,11 @@ public class ServiceManagerImpl extends SipxHibernateDaoSupport<ConfiguredServic
         }
     }
 
-    public Collection<ConfiguredService> getServices() {
+    public List<ConfiguredService> getServices() {
         return getHibernateTemplate().findByNamedQuery("services");
     }
 
-    public Collection<ConfiguredService> getEnabledServicesByType(ServiceDescriptor descriptor) {
+    public List<ConfiguredService> getEnabledServicesByType(ServiceDescriptor descriptor) {
         return getHibernateTemplate().findByNamedQueryAndNamedParam("enabled-services-by-id", "descriptorId", 
                 descriptor.getModelId());
     }

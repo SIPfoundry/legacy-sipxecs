@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
@@ -49,9 +49,9 @@ public class DeviceDefaults {
     private String m_proxyServerSipPort;
 
     private DeviceTimeZone m_timeZone = new DeviceTimeZone();
-    
+
     private ServiceManager m_serviceManager;
-    
+
     private String m_defaultNtpService = "pool.ntp.org";
 
     public void setDefaultNtpService(String defaultNtpService) {
@@ -69,29 +69,33 @@ public class DeviceDefaults {
     public String getDomainName() {
         return m_domainManager.getDomain().getName();
     }
-    
+
     public String getNtpServer() {
         String server = getServer(0, UnmanagedService.NTP);
-        return server == null ? m_defaultNtpService : server; 
+        return server == null ? m_defaultNtpService : server;
     }
-    
+
     /**
      * @return null if not set
      */
     public String getAlternateNtpServer() {
-        String server = getServer(1, UnmanagedService.NTP);
-        return server;
+        return getServer(1, UnmanagedService.NTP);
     }
-    
-    private String getServer(int index, ServiceDescriptor s) {
-        String service = null;
-        Collection<ConfiguredService> servers = m_serviceManager.getEnabledServicesByType(s);
-        if (servers != null && servers.size() > index) {
-            service = servers.iterator().next().getAddress();
+
+    /**
+     * Find IP address (or FQDN) of the specific type of server.
+     * 
+     * @param index 0-based index of the server (0 == Primary, 1 = Secondary, etc._
+     * @param s service descriptor
+     * @return null if service is not defineds
+     */
+    public String getServer(int index, ServiceDescriptor s) {
+        List<ConfiguredService> servers = m_serviceManager.getEnabledServicesByType(s);
+        if (servers == null || servers.size() <= index) {
+            return null;
         }
-        return service;
+        return servers.get(index).getAddress();
     }
-   
 
     public String getTftpServer() {
         return m_tftpServer;

@@ -10,29 +10,28 @@
 package org.sipfoundry.sipxconfig.service;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 
-
-
 public interface ServiceManager extends DataObjectSource<ConfiguredService> {
     public static final String CONTEXT_ID = "serviceManager";
-    
+
     public ConfiguredService newService(ServiceDescriptor descriptor);
 
     public ConfiguredService loadService(Integer serviceId);
-    
+
     public void saveService(ConfiguredService service);
 
     public void deleteService(ConfiguredService service);
-    
+
     public void deleteServices(Collection<Integer> serviceIds);
 
     public ConfiguredService getServiceByName(String name);
 
-    public Collection<ConfiguredService> getServices();
+    public List<ConfiguredService> getServices();
 
-    public Collection<ConfiguredService> getEnabledServicesByType(ServiceDescriptor descriptor);
-    
+    public List<ConfiguredService> getEnabledServicesByType(ServiceDescriptor descriptor);
+
     public void clear();
 }

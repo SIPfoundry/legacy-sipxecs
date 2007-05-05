@@ -3,17 +3,16 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
-  <bean id="nakedServiceDescriptorSource"
-    class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
+  <bean id="nakedServiceDescriptorSource" class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
     <constructor-arg>
       <value>org.sipfoundry.sipxconfig.service.ServiceDescriptor</value>
     </constructor-arg>
   </bean>
 
   <bean id="serviceDescriptorSource" class="org.sipfoundry.sipxconfig.device.FilteredModelSource">
-    <property name="modelSource" ref="nakedServiceDescriptorSource"/>
+    <property name="modelSource" ref="nakedServiceDescriptorSource" />
   </bean>
-  
+
   <bean id="serviceManagerImpl" class="org.sipfoundry.sipxconfig.service.ServiceManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
   </bean>
@@ -26,21 +25,27 @@
       <ref local="serviceManagerImpl" />
     </property>
   </bean>
-  
+
   <bean id="abstractService" class="org.sipfoundry.sipxconfig.service.ConfiguredService" singleton="false"
     parent="beanWithSettings" abstract="true">
-       <property name="descriptorSource" ref="nakedServiceDescriptorSource"/>
+    <property name="descriptorSource" ref="nakedServiceDescriptorSource" />
   </bean>
 
-  <bean id="unmanagedService" class="org.sipfoundry.sipxconfig.service.UnmanagedService"
-    singleton="false" parent="abstractService">
+  <bean id="unmanagedService" class="org.sipfoundry.sipxconfig.service.UnmanagedService" singleton="false"
+    parent="abstractService">
   </bean>
-  
-  <bean id="ntpService" factory-bean="unmanagedService" factory-method="ntp"/>
-  
+
+  <bean id="unmanagedServiceDescriptor" abstract="true" class="org.sipfoundry.sipxconfig.service.ServiceDescriptor">
+    <property name="beanId" value="unmanagedService" />
+  </bean>
+
+  <bean id="ntpService" factory-bean="unmanagedService" factory-method="ntp" />
+  <bean id="dnsService" factory-bean="unmanagedService" factory-method="dns" />
+  <bean id="syslogService" factory-bean="unmanagedService" factory-method="syslog" />
+
   <bean id="addServiceTask" class="org.sipfoundry.sipxconfig.service.AddServiceTask">
-    <property name="serviceManager" ref="serviceManager"/>
-    <property name="servicesSource" ref="serviceDescriptorSource"/>
+    <property name="serviceManager" ref="serviceManager" />
+    <property name="servicesSource" ref="serviceDescriptorSource" />
   </bean>
 
 </beans>

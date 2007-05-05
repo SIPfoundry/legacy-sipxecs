@@ -11,7 +11,9 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
@@ -20,6 +22,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxServerTest;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
+import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
@@ -110,6 +113,14 @@ public class PhoneTestDriver {
         return defaults;
     }
     
+    private static Map<ServiceDescriptor, String> SERVICES;
+    static {
+        SERVICES = new HashMap<ServiceDescriptor, String>();
+        SERVICES.put(UnmanagedService.NTP, "ntp.example.org");
+        SERVICES.put(UnmanagedService.DNS, "10.4.5.1");
+        SERVICES.put(UnmanagedService.SYSLOG, "10.4.5.2");
+    }
+    
     public static void supplyVitalTestData(IMocksControl control, PhoneContext phoneContext, Phone phone) {
         DeviceDefaults defaults = getDeviceDefaults();
 
@@ -127,13 +138,16 @@ public class PhoneTestDriver {
         
         IMocksControl serviceManagerControl = EasyMock.createNiceControl();
         ServiceManager serviceManager = serviceManagerControl.createMock(ServiceManager.class);
-        serviceManager.getEnabledServicesByType(UnmanagedService.NTP);
-        UnmanagedService ntp = new UnmanagedService();
-        ntp.setDescriptor(UnmanagedService.NTP);
-        ntp.setAddress("ntp.example.org");
-        serviceManagerControl.andReturn(Collections.singleton(ntp)).anyTimes();        
-        serviceManagerControl.replay();
-        
+        for (Map.Entry<ServiceDescriptor, String> entry : SERVICES.entrySet()) {
+            ServiceDescriptor sd = entry.getKey();
+            String addr = entry.getValue();
+            serviceManager.getEnabledServicesByType(sd);
+            UnmanagedService us = new UnmanagedService();
+            us.setDescriptor(sd);
+            us.setAddress(addr);
+            serviceManagerControl.andReturn(Collections.singletonList(us)).anyTimes();        
+        }        
+        serviceManagerControl.replay();        
         defaults.setServiceManager(serviceManager);
         
         phone.setPhoneContext(phoneContext);

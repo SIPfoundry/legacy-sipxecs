@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 /**
@@ -60,6 +61,26 @@ public class AudioCodesGatewayDefaults {
     @SettingEntry(path = "Network/NTPServerIP")
     public String getNtpServer() {
         return m_defaults.getNtpServer();
+    }
+
+    @SettingEntry(path = "Network/DNSPriServerIP")
+    public String getDNSPriServerIP() {
+        return m_defaults.getServer(0, UnmanagedService.DNS);
+    }
+
+    @SettingEntry(path = "Network/DNSSecServerIP")
+    public String getDNSSecServerIP() {
+        return m_defaults.getServer(1, UnmanagedService.DNS);
+    }
+
+    @SettingEntry(path = "Network/EnableSyslog")
+    public boolean getEnableSyslog() {
+        return null != m_defaults.getServer(0, UnmanagedService.SYSLOG);
+    }
+
+    @SettingEntry(paths = { "Network/SyslogServerIP", "advanced_general/CDR/CDRSyslogServerIP" })
+    public String getSyslogServerIP() {
+        return m_defaults.getServer(0, UnmanagedService.SYSLOG);
     }
 
     @SettingEntry(path = "advanced_general/MaxActiveCalls")
