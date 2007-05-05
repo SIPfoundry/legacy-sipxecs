@@ -73,6 +73,7 @@ public abstract class GatewayPorts extends BaseComponent {
 
     public IPage editPort(Integer portId) {
         PortSettings editPortPage = getPortSettingsPage();
+        editPortPage.setParentSettingName(null);
         editPortPage.setPortId(portId);
         editPortPage.setReturnPage(getPage());
         return editPortPage;
