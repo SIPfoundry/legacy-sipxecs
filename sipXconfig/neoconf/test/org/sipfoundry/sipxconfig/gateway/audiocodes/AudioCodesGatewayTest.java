@@ -15,6 +15,9 @@ public class AudioCodesGatewayTest extends TestCase {
 
     public void testGetProfileFilename() {
         AudioCodesGateway gateway = new AudioCodesGateway() {
+            int getMaxCalls() {
+                return 0;
+            }
         };
 
         gateway.setSerialNumber("00908f03f59B");

@@ -19,7 +19,6 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 public class AudioCodesGatewayDefaults {
     private AudioCodesGateway m_fxoGateway;
 
-    @SuppressWarnings("unused")
     private AudioCodesFxsGateway m_fxsGateway;
 
     private DeviceDefaults m_defaults;
@@ -61,5 +60,13 @@ public class AudioCodesGatewayDefaults {
     @SettingEntry(path = "Network/NTPServerIP")
     public String getNtpServer() {
         return m_defaults.getNtpServer();
+    }
+
+    @SettingEntry(path = "advanced_general/MaxActiveCalls")
+    public int getMaxActiveCalls() {
+        if (m_fxoGateway != null) {
+            return m_fxoGateway.getMaxCalls();
+        }
+        return m_fxsGateway.getLines().size();
     }
 }

@@ -17,4 +17,11 @@ public class AudioCodesFxoGateway extends AudioCodesGateway {
         return getModelFilesContext().loadDynamicModelFile("fxo-port.xml",
                 AudioCodesGateway.MANUFACTURER, getSettingsEvaluator());
     }
+
+    /**
+     * Number of active calls is equal to number of channels.
+     */
+    int getMaxCalls() {
+        return getPorts().size();
+    }
 }

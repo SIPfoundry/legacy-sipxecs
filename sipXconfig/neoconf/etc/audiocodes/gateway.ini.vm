@@ -29,7 +29,7 @@ ${s.ProfileName}=$!{s.Value}
 
 #if(${gateway.Model.Fxo})
 [Trunks]
-TRUNKGROUP_1=1-8,201,0
+TRUNKGROUP_1=1-${gateway.ports.size()},201,0
 PSTNPREFIX=*,1,*,*,0
 TRUNKGROUPSETTINGS=1,1,255,$ignore
 #foreach ($port in $gateway.ports)

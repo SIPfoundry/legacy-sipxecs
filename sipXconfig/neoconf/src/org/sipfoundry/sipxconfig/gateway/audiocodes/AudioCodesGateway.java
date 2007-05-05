@@ -13,7 +13,7 @@ import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class AudioCodesGateway extends Gateway {
+public abstract class AudioCodesGateway extends Gateway {
     static final String MANUFACTURER = "audiocodes";
 
     @Override
@@ -55,4 +55,6 @@ public class AudioCodesGateway extends Gateway {
         getProfileGenerator().copy("audiocodes/usa_tones_12.dat", "usa_tones_12.dat");
         super.generateProfiles();
     }
+    
+    abstract int getMaxCalls();
 }

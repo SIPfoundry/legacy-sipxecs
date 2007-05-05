@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
+import org.sipfoundry.sipxconfig.gateway.FxoPort;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class AudioCodesDigitalGateway extends AudioCodesGateway {
@@ -16,5 +17,18 @@ public class AudioCodesDigitalGateway extends AudioCodesGateway {
     public Setting loadPortSettings() {
         return getModelFilesContext().loadDynamicModelFile("trunk.xml",
                 AudioCodesGateway.MANUFACTURER, getSettingsEvaluator());
+    }
+
+    /**
+     * Number of active calls is equal to number of channels
+     */
+    int getMaxCalls() {
+        int activeCalls = 0;
+        for (FxoPort port : getPorts()) {
+            int minChannel = (Integer) port.getSettingTypedValue("Trunk/MinChannel");
+            int maxChannel = (Integer) port.getSettingTypedValue("Trunk/MaxChannel");
+            activeCalls += (maxChannel - minChannel) + 1;
+        }
+        return activeCalls;
     }
 }

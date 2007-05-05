@@ -16,18 +16,15 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.gateway.FxoPort;
-import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 
 public class AudioCodesDigitalGatewayTest extends TestCase {
     private ModelFilesContext m_modelFilesContext;
+    private AudioCodesGateway m_gateway;
 
     protected void setUp() throws Exception {
         m_modelFilesContext = TestHelper.getModelFilesContext();
-    }
-
-    public void testGenerateTypicalProfiles() throws Exception {
         AudioCodesModel model = new AudioCodesModel();
         model.setBeanId("gwAudiocodes");
         model.setModelId("audiocodes");
@@ -37,24 +34,25 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         model.setMaxPorts(4);
         model.setProfileTemplate("audiocodes/gateway.ini.vm");
 
-        Gateway gateway = new AudioCodesDigitalGateway();
-        gateway.setModel(model);
+        m_gateway = new AudioCodesDigitalGateway();
+        m_gateway.setModel(model);
+        m_gateway.setModelFilesContext(m_modelFilesContext);
+        m_gateway.setDefaults(PhoneTestDriver.getDeviceDefaults());
+    }
 
+    public void testGenerateTypicalProfiles() throws Exception {
         for (int i = 0; i < 2; i++) {
             FxoPort trunk = new FxoPort();
-            gateway.addPort(trunk);
+            m_gateway.addPort(trunk);
         }
 
-        gateway.setSerialNumber("001122334455");
+        m_gateway.setSerialNumber("001122334455");
 
-        gateway.setModelFilesContext(m_modelFilesContext);
-        gateway.setDefaults(PhoneTestDriver.getDeviceDefaults());
-
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(gateway);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
 
         // call this to inject dummy data
 
-        gateway.generateProfiles();
+        m_gateway.generateProfiles();
 
         String actual = location.toString();
 
@@ -64,4 +62,19 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
 
         assertEquals(expected, actual);
     }
+
+    public void testGetActiveCalls() throws Exception {
+        assertEquals(0, m_gateway.getMaxCalls());
+
+        final int n = 3;
+        for (int i = 0; i < n; i++) {
+            FxoPort trunk = new FxoPort();
+            m_gateway.addPort(trunk);
+            trunk.setSettingValue("Trunk/MaxChannel", Integer.toString(5 + i));
+            
+        }
+        // 18 == (5 + 0) + (5 + 1) + (5 + 2)
+        assertEquals(18, m_gateway.getMaxCalls());
+    }
+
 }
