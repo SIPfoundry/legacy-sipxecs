@@ -58,4 +58,11 @@
     parent="abstractPhone">
     <constructor-arg ref="audiocodesFxs"></constructor-arg>
   </bean>
+  
+  <!-- Firmware specification -->
+  <bean id="audiocodesFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <property name="beanId" value="upload" />
+    <property name="modelFilePath" value="audiocodes/upload.xml" />
+    <property name="label" value="AudioCodes Gateways" />
+  </bean>
 </beans>
