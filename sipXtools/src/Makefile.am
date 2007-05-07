@@ -18,6 +18,7 @@ dist_bin_SCRIPTS = \
 	sipx-trace \
 	sipx-readroute \
 	sipx-log-cut \
+	sipx-servtest \
 	sipxcar \
 	sipxproc \
 	sipdb-dump \
