@@ -44,7 +44,7 @@ public class ListConfiguredServicesTestUi extends WebTestCase {
     }
     
     private void seedNtpService(String name) {
-        setFormElement("newService", "0");
+        selectOption("newService", "NTP");
         assertElementPresent("server:form");
         setFormElement("name", name);
         setFormElement("address", "1.1.1.1");
