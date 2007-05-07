@@ -6,28 +6,28 @@
 	<classpathentry kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/bsf-2.4.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-beanutils-1.7.0.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-codec-1.3.jar" sourcepath="LIB_SRC/commons-codec/src.zip"/>
+	<classpathentry sourcepath="LIB_SRC/commons-codec/src.zip" kind="var" path="SIPX_CONFIG/lib/commons-codec-1.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-collections-3.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-discovery-0.4.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-lang-2.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-pool-1.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock-2.2.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/httpunit-1.6.2.jar" sourcepath="/LIB_SRC/httpunit/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar" sourcepath="/LIB_SRC/oro/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/javassist-3.0.jar" sourcepath="/LIB_SRC/javassist/3.0/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar" sourcepath="LIB_SRC/junit/src.zip"/>
+	<classpathentry sourcepath="/LIB_SRC/httpunit/src.zip" kind="var" path="SIPX_CONFIG/lib/httpunit-1.6.2.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/oro/src.zip" kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/javassist/3.0/src.zip" kind="var" path="SIPX_CONFIG/lib/javassist-3.0.jar"/>
+	<classpathentry sourcepath="LIB_SRC/junit/src.zip" kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.14.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/ognl-2.6.7.jar" sourcepath="LIB_SRC/ognl/ognl-2.6.7-dist.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jar" sourcepath="JRE_SRC"/>
+	<classpathentry sourcepath="LIB_SRC/ognl/ognl-2.6.7-dist.zip" kind="var" path="SIPX_CONFIG/lib/ognl-2.6.7.jar"/>
+	<classpathentry sourcepath="JRE_SRC" kind="var" path="SIPX_CONFIG/lib/javax.servlet.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tidy-04aug2000r6.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/jwebunit-1.2.jar" sourcepath="LIB_SRC/jwebunit/src.zip">
+	<classpathentry sourcepath="LIB_SRC/jwebunit/src.zip" kind="var" path="SIPX_CONFIG/lib/jwebunit-1.2.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="http://jwebunit.sourceforge.net/apidocs"/>
+			<attribute value="http://jwebunit.sourceforge.net/apidocs" name="javadoc_location"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-4.0.2.jar" sourcepath="/LIB_SRC/tapestry/4.0.2/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/jetty-5.1.4.jar" sourcepath="LIB_SRC/jetty/src.zip"/>
+	<classpathentry sourcepath="/LIB_SRC/tapestry/4.0.2/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-4.0.2.jar"/>
+	<classpathentry sourcepath="LIB_SRC/jetty/src.zip" kind="var" path="SIPX_CONFIG/lib/jetty-5.1.4.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jasper-compiler-4.1.31.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jasper-runtime-4.1.31.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jsp.jar"/>
@@ -42,14 +42,14 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymockclassextension-2.2.1.jar"/>
 	<classpathentry kind="var" path="SIPX_BUILD/web/dist/server-bindings.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/lucene-core-2.0.0.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/hivemind-1.1.jar" sourcepath="LIB_SRC/hivemind/1.1.1/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/hivemind-lib-1.1.jar" sourcepath="LIB_SRC/hivemind/1.1.1/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-4.0.2.jar" sourcepath="/LIB_SRC/tapestry/4.0.2/src.zip"/>
+	<classpathentry sourcepath="LIB_SRC/hivemind/1.1.1/src.zip" kind="var" path="SIPX_CONFIG/lib/hivemind-1.1.jar"/>
+	<classpathentry sourcepath="LIB_SRC/hivemind/1.1.1/src.zip" kind="var" path="SIPX_CONFIG/lib/hivemind-lib-1.1.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/tapestry/4.0.2/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-4.0.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/js-1.6R5.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/tacos-4.0.0-lib.jar" sourcepath="/LIB_SRC/tacos/tacos-4.0.0-src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.2.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-annotations-4.0.2.jar" sourcepath="/LIB_SRC/tapestry/4.0.2/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.2-504.jdbc3.jar" sourcepath="/LIB_SRC/pgsql/8.2/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-prop-1.0.0-3.jar" sourcepath="/LIB_SRC/tapestry-prop/1.0/tapestry-prop-1.0.0-20061122.201931-3-sources.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/tacos/tacos-4.0.0-src.zip" kind="var" path="SIPX_CONFIG/lib/tacos-4.0.0-lib.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.1.1.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/tapestry/4.0.2/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-annotations-4.0.2.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/pgsql/8.2/src.zip" kind="var" path="SIPX_CONFIG/lib/postgresql-8.2-504.jdbc3.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/tapestry-prop/1.0/tapestry-prop-1.0.0-20061122.201931-3-sources.jar" kind="var" path="SIPX_CONFIG/lib/tapestry-prop-1.0.0-3.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
