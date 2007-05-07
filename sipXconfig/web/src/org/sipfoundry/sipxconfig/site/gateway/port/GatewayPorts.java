@@ -27,6 +27,8 @@ import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class GatewayPorts extends BaseComponent {
+    private int m_index;
+
     @InjectPage(value = PortSettings.PAGE)
     public abstract PortSettings getPortSettingsPage();
 
@@ -49,12 +51,21 @@ public abstract class GatewayPorts extends BaseComponent {
 
     public abstract void setPort(FxoPort port);
 
+    public int getIndex() {
+        return ++m_index;
+    }
+
+    public void resetIndex() {
+        m_index = 0;
+    }
+
     @InitialValue(value = "new org.sipfoundry.sipxconfig.components.SelectMap()")
     public abstract SelectMap getSelections();
 
     public abstract void setSelections(SelectMap selections);
 
     protected void prepareForRender(IRequestCycle cycle) {
+        resetIndex();
         if (getPorts() != null) {
             return;
         }

@@ -53,6 +53,17 @@ public class FxoPort extends BeanWithSettings {
     }
 
     public String getLabel() {
-        return "Temporary user visible name";
+        String[] settingNames = getGateway().getModel().getPortLabelSettings();
+        String format = getGateway().getModel().getPortLabelFormat();
+        if (settingNames == null) {
+            return "Port";
+        }
+        Object[] values = new Object[settingNames.length];
+        for (int i = 0; i < settingNames.length; i++) {
+            Setting setting = getSettings().getSetting(settingNames[i]);
+            Object value = setting.getValue();
+            values[i] = setting.getType().getLabel(value);
+        }
+        return String.format(format, values);
     }
 }

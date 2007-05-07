@@ -14,6 +14,13 @@ import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 public class GatewayModel extends DeviceDescriptor {
     private int m_maxPorts;
 
+    /**
+     * Array of setting names that comprise the port label
+     */
+    private String[] m_portLabelSettings;
+
+    private String m_portLabelFormat;
+
     public GatewayModel() {
     }
 
@@ -31,5 +38,21 @@ public class GatewayModel extends DeviceDescriptor {
 
     public int getMaxPorts() {
         return m_maxPorts;
+    }
+
+    public void setPortLabelSettings(String... portLabelSettings) {
+        m_portLabelSettings = portLabelSettings;
+    }
+
+    public String[] getPortLabelSettings() {
+        return m_portLabelSettings;
+    }
+
+    public void setPortLabelFormat(String portLabelFormat) {
+        m_portLabelFormat = portLabelFormat;
+    }
+
+    public String getPortLabelFormat() {
+        return m_portLabelFormat;
     }
 }

@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-	"http://www.springframework.org/dtd/spring-beans.dtd">
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+		  "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
 <beans>
 
   <!-- Audiocodes digital gateways -->
@@ -8,6 +7,14 @@
     <property name="beanId" value="gwAudiocodesTp260" />
     <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
     <property name="digital" value="true" />
+    <property name="portLabelFormat" value="%s (%s-%s)" />
+    <property name="portLabelSettings">
+      <list>
+        <value>Trunk/ProtocolType</value>
+        <value>Trunk/MinChannel</value>
+        <value>Trunk/MaxChannel</value>
+      </list>
+    </property>
   </bean>
 
   <bean id="audiocodesTP260" parent="audiocodesTP">
@@ -21,7 +28,7 @@
   </bean>
 
   <bean id="gwAudiocodesTp260" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesDigitalGateway"
-    singleton="false" parent="gwGeneric">
+    scope="prototype" parent="gwGeneric">
   </bean>
 
   <!-- audiocodes Media Pack FXO gateways -->
@@ -29,6 +36,12 @@
     <property name="beanId" value="gwAudiocodesMediant" />
     <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
     <property name="fxo" value="true" />
+    <property name="portLabelFormat" value="%s" />
+    <property name="portLabelSettings">
+      <list>
+        <value>Port/Extension</value>
+      </list>
+    </property>
   </bean>
 
   <bean id="audiocodesMP1X4_4_FXO" parent="audiocodesFxo">
@@ -42,7 +55,7 @@
   </bean>
 
   <bean id="gwAudiocodesMediant" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxoGateway"
-    singleton="false" parent="gwGeneric">
+    scope="prototype" parent="gwGeneric">
   </bean>
 
   <!-- AudioCodes FXS gateways -->
@@ -51,14 +64,14 @@
     <property name="beanId" value="gwFxsAudiocodes" />
     <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
     <property name="fxs" value="true" />
-    <property name="maxLineCount" value="8"></property>
+    <property name="maxLineCount" value="8" />
   </bean>
 
-  <bean id="gwFxsAudiocodes" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxsGateway" singleton="false"
+  <bean id="gwFxsAudiocodes" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxsGateway" scope="prototype"
     parent="abstractPhone">
     <constructor-arg ref="audiocodesFxs"></constructor-arg>
   </bean>
-  
+
   <!-- Firmware specification -->
   <bean id="audiocodesFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
     <property name="beanId" value="upload" />

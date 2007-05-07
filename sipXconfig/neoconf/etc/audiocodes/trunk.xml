@@ -193,8 +193,8 @@
     <setting name="Prefix" advanced="yes">
       <label>Destination Number Prefix</label>
       <profileName>$$</profileName>
-      <type required="yes">
-        <string />
+      <type>
+        <string required="yes" />
       </type>
       <value>*</value>
       <description>
@@ -204,16 +204,16 @@
     <setting name="MinChannel" advanced="yes">
       <label>Starting B-channel</label>
       <profileName>$$</profileName>
-      <type required="yes">
-        <integer min="1" max="32" />
+      <type>
+        <integer min="1" max="32" required="yes"/>
       </type>
       <value>1</value>
     </setting>
     <setting name="MaxChannel">
       <label>Ending B-channel</label>
       <profileName>$$</profileName>
-      <type required="yes">
-        <integer min="1" max="99" />
+      <type>
+        <integer min="1" max="99" required="yes"/>
       </type>
       <value>23</value>
     </setting>
@@ -241,7 +241,7 @@
         </enum>
       </type>
       <value>1</value>
-    </setting>    
+    </setting>
   </group>
   <group name='ISDN'>
     <setting name="TerminationSide">

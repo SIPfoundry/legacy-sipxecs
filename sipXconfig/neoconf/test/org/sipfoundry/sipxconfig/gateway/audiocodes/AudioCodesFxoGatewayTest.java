@@ -101,4 +101,14 @@ public class AudioCodesFxoGatewayTest extends TestCase {
 
         assertEquals(n, m_gateway.getMaxCalls());
     }
+
+    public void testGetPortLabelTest() {
+        FxoPort trunk = new FxoPort();
+        m_gateway.addPort(trunk);
+
+        assertEquals("Port", trunk.getLabel());
+        m_model.setPortLabelSettings("Port/Extension", "Port/Extension");
+        m_model.setPortLabelFormat("%s - (%s)");
+        assertEquals("operator - (operator)", trunk.getLabel());
+    }
 }

@@ -18,8 +18,8 @@
     <setting name="Extension">
       <label>Extension</label>
       <profileName>$$</profileName>
-      <type required="yes">
-        <string />
+      <type>
+        <string required="yes"/>
       </type>
       <value>operator</value>
       <description>Auto attendant, ACD line or DID extension.</description>
