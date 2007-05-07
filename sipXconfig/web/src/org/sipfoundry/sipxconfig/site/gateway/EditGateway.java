@@ -89,7 +89,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
             "config", "gcai", "dialplan"
         };
         if (getGateway().getModel().getMaxPorts() > 0) {
-            tabs = (String[]) ArrayUtils.add(tabs, "ports");
+            tabs = (String[]) ArrayUtils.add(tabs, 1, "ports");
         }
         return tabs;
     }
