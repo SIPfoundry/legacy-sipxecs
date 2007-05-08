@@ -59,17 +59,34 @@
   </bean>
 
   <!-- AudioCodes FXS gateways -->
-  <bean id="audiocodesFxs" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxsModel">
-    <property name="label" value="AudioCodes MP11x FXS" />
+  <bean id="audiocodesFxs" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxsModel">
     <property name="beanId" value="gwFxsAudiocodes" />
     <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
     <property name="fxs" value="true" />
+  </bean>
+  
+  <bean id="audiocodesMP112_FXS" parent="audiocodesFxs">
+    <property name="label" value="AudioCodes MP112 FXS" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+
+  <bean id="audiocodesMP114_FXS" parent="audiocodesFxs">
+    <property name="label" value="AudioCodes MP114 FXS" />
+    <property name="maxLineCount" value="4" />
+  </bean>
+
+  <bean id="audiocodesMP118_FXS" parent="audiocodesFxs">
+    <property name="label" value="AudioCodes MP118 FXS" />
     <property name="maxLineCount" value="8" />
+  </bean>
+
+  <bean id="audiocodesMP124_FXS" parent="audiocodesFxs">
+    <property name="label" value="AudioCodes MP124 FXS" />
+    <property name="maxLineCount" value="24" />
   </bean>
 
   <bean id="gwFxsAudiocodes" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxsGateway" scope="prototype"
     parent="abstractPhone">
-    <constructor-arg ref="audiocodesFxs"></constructor-arg>
   </bean>
 
   <!-- Firmware specification -->

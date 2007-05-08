@@ -23,6 +23,10 @@ public class AudioCodesFxsGateway extends Phone {
         super(model);
     }
 
+    public AudioCodesFxsGateway() {
+        super("gwFxsAudiocodes");
+    }
+    
     @Override
     public void initialize() {
         DeviceDefaults dd = getPhoneContext().getPhoneDefaults();

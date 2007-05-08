@@ -9,103 +9,103 @@
       <type>
         <enum>
           <option>
-            <label>E1_EURO_ISDN</label>
+            <label>E1 EURO ISDN</label>
             <value>1</value>
           </option>
           <option>
-            <label>T1_CAS</label>
+            <label>T1 CAS</label>
             <value>2</value>
           </option>
           <option>
-            <label>T1_RAW_CAS</label>
+            <label>T1 raw CAS</label>
             <value>3</value>
           </option>
           <option>
-            <label>T1_TRANSPARENT</label>
+            <label>T1 Transparent</label>
             <value>4</value>
           </option>
           <option>
-            <label>E1_TRANSPARENT_31</label>
+            <label>E1 Transparent 31</label>
             <value>5</value>
           </option>
           <option>
-            <label>E1_TRANSPARENT_30</label>
+            <label>E1 Transparent 30</label>
             <value>6</value>
           </option>
           <option>
-            <label>E1_MFCR2</label>
+            <label>E1 MFCR2</label>
             <value>7</value>
           </option>
           <option>
-            <label>E1_CAS_R2</label>
+            <label>E1 CAS R2</label>
             <value>8</value>
           </option>
           <option>
-            <label>E1_RAW_CAS</label>
+            <label>E1 raw CAS</label>
             <value>9</value>
           </option>
           <option>
-            <label>T1_NI2_ISDN</label>
+            <label>T1 NI2 ISDN</label>
             <value>10</value>
           </option>
           <option>
-            <label>T1_4ESS_ISDN</label>
+            <label>T1 4ESS ISDN</label>
             <value>11</value>
           </option>
           <option>
-            <label>T1_5ESS_9_ISDN</label>
+            <label>T1 5ESS 9 ISDN</label>
             <value>12</value>
           </option>
           <option>
-            <label>T1_5ESS_10_ISDN</label>
+            <label>T1 5ESS 10 ISDN</label>
             <value>13</value>
           </option>
           <option>
-            <label>T1_DMS100_ISDN</label>
+            <label>T1 DMS100 ISDN</label>
             <value>14</value>
           </option>
           <option>
-            <label>J1_TRANSPARENT</label>
+            <label>J1 Transparent</label>
             <value>15</value>
           </option>
           <option>
-            <label>T1_NTT_ISDN (Japan - Nippon Telegraph)</label>
+            <label>T1 NTT ISDN (Japan - Nippon Telegraph)</label>
             <value>16</value>
           </option>
           <option>
-            <label>E1_AUSTEL_ISDN (Australian Telecom)</label>
+            <label>E1 AUSTEL ISDN (Australian Telecom)</label>
             <value>17</value>
           </option>
           <option>
-            <label>T1_HKT_ISDN (Hong Kong – HKT)</label>
+            <label>T1 HKT ISDN (Hong Kong – HKT)</label>
             <value>18</value>
           </option>
           <option>
-            <label>E1_KOR_ISDN (Korean operator)</label>
+            <label>E1 KOR ISDN (Korean operator)</label>
             <value>19</value>
           </option>
           <option>
-            <label>T1_HKT_ISDN (Hong Kong - HKT over T1)</label>
+            <label>T1 HKT ISDN (Hong Kong - HKT over T1)</label>
             <value>20</value>
           </option>
           <option>
-            <label>E1_QSIG</label>
+            <label>E1 QSIG</label>
             <value>21</value>
           </option>
           <option>
-            <label>T1_QSIG</label>
+            <label>T1 QSIG</label>
             <value>23</value>
           </option>
           <option>
-            <label>E1_FRENCH_VN3_ISDN</label>
+            <label>E1 French VN3 ISDN</label>
             <value>31</value>
           </option>
           <option>
-            <label>T1_DMS100_Meridian</label>
+            <label>T1 DMS100 Meridian</label>
             <value>35</value>
           </option>
           <option>
-            <label>E1_NI2_ISDN</label>
+            <label>E1 NI2 ISDN</label>
             <value>40</value>
           </option>
         </enum>

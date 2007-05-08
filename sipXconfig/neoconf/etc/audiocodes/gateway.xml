@@ -773,7 +773,7 @@
     </group>
   </group>
   <group name="advanced_general" advanced="yes">
-    <label>Advanced General Parameters</label>
+    <label>Advanced Parameters</label>
     <setting name="SecureCallsFromIP" advanced="yes">
       <type>
         <boolean />
@@ -1149,7 +1149,7 @@
     </group>
   </group>
   <group name="keypad" if="fxs">
-    <label>Advanced Configuration - Keypad</label>
+    <label>Keypad</label>
     <group name="dnd">
       <label>Do Not Disturb</label>
       <setting name="KeyCFDoNotDisturb">
@@ -1922,7 +1922,7 @@
     </group>
   </group>
   <group name='Management_Interface'>
-    <label>Management Interface Parameters</label>
+    <label>Management</label>
     <group name="SNMP">
       <setting name='SNMPManagerIsUsed_0'>
         <label>Enable SNMP</label>
