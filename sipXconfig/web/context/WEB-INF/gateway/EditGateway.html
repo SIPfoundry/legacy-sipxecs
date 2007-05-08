@@ -1,8 +1,7 @@
 <div jwcid="@Border">
-  <h2><span key="title">Gateway Details</span></h2>
-  <span jwcid="@Insert" value="prop:gateway.model.label"/>
   <span jwcid="@If" condition="ognl:!gateway.isNew()">
-    <div id="settings-nav">
+      <div id="settings-nav">
+      <span jwcid="@gateway/GatewayNavigation" gateway="prop:gateway" dialingRuleId="prop:ruleId"/>
       <span jwcid="@setting/SettingsNavigation" bean="prop:gateway" 
           editSettingsListener="listener:editSettings" activeSetting="prop:currentSettingSet">
         <span jwcid="@For" source="prop:tabNames" value="prop:currentTab">
@@ -47,7 +46,9 @@
       
       <div jwcid="portsBlock@Block">
       	<fieldset jwcid="@gateway/port/GatewayPorts" 
-          gateway="prop:gateway"/>
+          gateway="prop:gateway"
+          editPortListener="listener:editPort"
+          addPortListener="listener:addPort"/>
       	
       </div>
       
@@ -55,7 +56,7 @@
           <fieldset jwcid="@setting/SettingsFieldset" settings="prop:currentSettingSet"/>
       </div>
                   
-      <span jwcid="@ErrorMsg"/>      
+      <span jwcid="@ErrorMsg"/>
       <span jwcid="@RenderBlock" block="ognl:components.get(activeTab + 'Block')"/>
       <ul jwcid="@FormActions"
         listener="listener:saveGateway"

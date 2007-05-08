@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.IPage;
+import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InitialValue;
@@ -40,6 +40,12 @@ public abstract class GatewayPorts extends BaseComponent {
 
     @Parameter
     public abstract Gateway getGateway();
+    
+    @Parameter(required = true)
+    public abstract IActionListener getEditPortListener();
+    
+    @Parameter(required = true)
+    public abstract IActionListener getAddPortListener();
 
     public abstract void setGateway(Gateway gateway);
 
@@ -51,6 +57,11 @@ public abstract class GatewayPorts extends BaseComponent {
 
     public abstract void setPort(FxoPort port);
 
+    @InitialValue(value = "new org.sipfoundry.sipxconfig.components.SelectMap()")
+    public abstract SelectMap getSelections();
+
+    public abstract void setSelections(SelectMap selections);
+
     public int getIndex() {
         return ++m_index;
     }
@@ -59,35 +70,12 @@ public abstract class GatewayPorts extends BaseComponent {
         m_index = 0;
     }
 
-    @InitialValue(value = "new org.sipfoundry.sipxconfig.components.SelectMap()")
-    public abstract SelectMap getSelections();
-
-    public abstract void setSelections(SelectMap selections);
-
     protected void prepareForRender(IRequestCycle cycle) {
         resetIndex();
         if (getPorts() != null) {
             return;
         }
         setPorts(getGateway().getPorts());
-    }
-
-    public IPage addPort() {
-        Gateway gateway = getGateway();
-        gateway.addPort(new FxoPort());
-        getGatewayContext().storeGateway(gateway);
-        int last = gateway.getPorts().size() - 1;
-        FxoPort port = gateway.getPorts().get(last);
-
-        return editPort(port.getId());
-    }
-
-    public IPage editPort(Integer portId) {
-        PortSettings editPortPage = getPortSettingsPage();
-        editPortPage.setParentSettingName(null);
-        editPortPage.setPortId(portId);
-        editPortPage.setReturnPage(getPage());
-        return editPortPage;
     }
 
     public void deletePorts() {

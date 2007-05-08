@@ -16,6 +16,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -23,17 +24,22 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.gateway.FxoPort;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.site.gateway.port.PortSettings;
 
 /**
  * EditGateway
  */
 public abstract class EditGateway extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "EditGateway";
+
+    @InjectPage(value = PortSettings.PAGE)
+    public abstract PortSettings getPortSettingsPage();
 
     @InjectObject(value = "spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();
@@ -156,7 +162,26 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
             setGateway(null);
         }
     }
+    
+    public IPage addPort() {
+        Gateway gateway = getGateway();
+        gateway.addPort(new FxoPort());
+        getGatewayContext().storeGateway(gateway);
+        int last = gateway.getPorts().size() - 1;
+        FxoPort port = gateway.getPorts().get(last);
 
+        return editPort(port.getId());
+    }
+
+    public IPage editPort(Integer portId) {
+        PortSettings editPortPage = getPortSettingsPage();
+        editPortPage.setParentSettingName(null);
+        editPortPage.setPortId(portId);
+        editPortPage.setRuleId(getRuleId());
+        editPortPage.setReturnPage(getPage());
+        return editPortPage;
+    }
+    
     public static EditGateway getEditPage(IRequestCycle cycle, Integer gatewayId,
             IPage returnPage, Integer ruleId) {
         EditGateway page = (EditGateway) cycle.getPage(PAGE);
