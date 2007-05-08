@@ -29,6 +29,8 @@ class ForwardRulesTest : public CppUnit::TestCase
       CPPUNIT_TEST(testSimpleMapMatchFieldLong);
       CPPUNIT_TEST(testSimpleMapNonMatchFieldPrefix);
       CPPUNIT_TEST(testSimpleMapNoField);
+      CPPUNIT_TEST(testSimpleMapForeignSubnet);
+      CPPUNIT_TEST(testSimpleMapForeignDNS);
       CPPUNIT_TEST_SUITE_END();
 
 
@@ -38,6 +40,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          ForwardRules theRules;
          UtlString     theRoute;
          UtlString     mappingType;
+         bool          authRequired;
          UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
             
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
@@ -49,7 +52,8 @@ class ForwardRulesTest : public CppUnit::TestCase
                                                       "\r\n"
                                                       ),
                                            theRoute,
-                                           mappingType
+                                           mappingType,
+                                           authRequired
                                            )
                         == OS_SUCCESS
                         );
@@ -64,6 +68,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          ForwardRules theRules;
          UtlString     theRoute;
          UtlString     mappingType;
+         bool          authRequired;
          UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
             
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
@@ -75,7 +80,8 @@ class ForwardRulesTest : public CppUnit::TestCase
                                                       "\r\n"
                                                       ),
                                            theRoute,
-                                           mappingType
+                                           mappingType,
+                                           authRequired
                                            )
                         != OS_SUCCESS
                         );
@@ -90,6 +96,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          ForwardRules theRules;
          UtlString     theRoute;
          UtlString     mappingType;
+         bool          authRequired;
          UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
             
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
@@ -101,7 +108,8 @@ class ForwardRulesTest : public CppUnit::TestCase
                                                       "\r\n"
                                                       ),
                                            theRoute,
-                                           mappingType
+                                           mappingType,
+                                           authRequired
                                            )
                         == OS_SUCCESS
                         );
@@ -114,6 +122,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          ForwardRules theRules;
          UtlString     theRoute;
          UtlString     mappingType;
+         bool          authRequired;
          UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
@@ -126,7 +135,8 @@ class ForwardRulesTest : public CppUnit::TestCase
                                                       "\r\n"
                                                       ),
                                            theRoute,
-                                           mappingType
+                                           mappingType,
+                                           authRequired
                                            )
                         == OS_SUCCESS
                         );
@@ -139,6 +149,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          ForwardRules theRules;
          UtlString     theRoute;
          UtlString     mappingType;
+         bool          authRequired;
          UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
@@ -151,7 +162,8 @@ class ForwardRulesTest : public CppUnit::TestCase
                                                       "\r\n"
                                                       ),
                                            theRoute,
-                                           mappingType
+                                           mappingType,
+                                           authRequired
                                            )
                         == OS_SUCCESS
                         );
@@ -164,6 +176,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          ForwardRules theRules;
          UtlString     theRoute;
          UtlString     mappingType;
+         bool          authRequired;
          UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
@@ -176,7 +189,8 @@ class ForwardRulesTest : public CppUnit::TestCase
                                                       "\r\n"
                                                       ),
                                            theRoute,
-                                           mappingType
+                                           mappingType,
+                                           authRequired
                                            )
                         == OS_SUCCESS
                         );
@@ -189,6 +203,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          ForwardRules theRules;
          UtlString     theRoute;
          UtlString     mappingType;
+         bool          authRequired;
          UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
@@ -200,7 +215,8 @@ class ForwardRulesTest : public CppUnit::TestCase
                                                       "\r\n"
                                                       ),
                                            theRoute,
-                                           mappingType
+                                           mappingType,
+                                           authRequired
                                            )
                         == OS_SUCCESS
                         );
@@ -208,6 +224,73 @@ class ForwardRulesTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( strcmp(mappingType.data(),"local") == 0 );
       }
 
+      void testSimpleMapForeignSubnet()
+      {
+         ForwardRules theRules;
+         UtlString     theRoute;
+         UtlString     mappingType;
+         bool          authRequired;
+         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+
+         CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
+                        == OS_SUCCESS
+                        );
+
+         CPPUNIT_ASSERT( theRules.getRoute(Url("sip:10.1.1.1:4242"),
+                                           SipMessage("UNKNOWN sip:SIPXCHANGE_DOMAIN_NAME SIP/2.0\r\n"
+                                                      "\r\n"
+                                                      ),
+                                           theRoute,
+                                           mappingType,
+                                           authRequired
+                                           )
+                        == OS_SUCCESS
+                        );
+         CPPUNIT_ASSERT( strcmp(theRoute.data(),"FOREIGN_SUBNET") == 0 );
+         CPPUNIT_ASSERT( strcmp(mappingType.data(),"foreignSubnet") == 0 );
+         CPPUNIT_ASSERT( authRequired == true );
+      }
+
+      void testSimpleMapForeignDNS()
+      {
+         ForwardRules theRules;
+         UtlString     theRoute;
+         UtlString     mappingType;
+         bool          authRequired;
+         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+
+         CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
+                        == OS_SUCCESS
+                        );
+
+         CPPUNIT_ASSERT( theRules.getRoute(Url("sip:user@puppy.dog.woof.NeT"),
+                                           SipMessage("UNKNOWN sip:SIPXCHANGE_DOMAIN_NAME SIP/2.0\r\n"
+                                                      "\r\n"
+                                                      ),
+                                           theRoute,
+                                           mappingType,
+                                           authRequired
+                                           )
+                        == OS_SUCCESS
+                        );
+         CPPUNIT_ASSERT( strcmp(theRoute.data(),"FOREIGN_DNS") == 0 );
+         CPPUNIT_ASSERT( strcmp(mappingType.data(),"foreignDns") == 0 );
+         CPPUNIT_ASSERT( authRequired == true );
+
+         CPPUNIT_ASSERT( theRules.getRoute(Url("sip:user@woof.net."),
+                                           SipMessage("UNKNOWN sip:SIPXCHANGE_DOMAIN_NAME SIP/2.0\r\n"
+                                                      "\r\n"
+                                                      ),
+                                           theRoute,
+                                           mappingType,
+                                           authRequired
+                                           )
+                        == OS_SUCCESS
+                        );
+         CPPUNIT_ASSERT( strcmp(theRoute.data(),"FOREIGN_DNS") == 0 );
+         CPPUNIT_ASSERT( strcmp(mappingType.data(),"foreignDns") == 0 );
+         CPPUNIT_ASSERT( authRequired == true );
+      }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(ForwardRulesTest);

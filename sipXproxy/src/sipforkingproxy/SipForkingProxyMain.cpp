@@ -775,10 +775,12 @@ main(int argc, char* argv[])
         Url msgUrl(uri);
         UtlString routeTo;
         UtlString routeType;
+        bool authRequired;
         OsStatus routeStatus = forwardingRules.getRoute(msgUrl, 
                                                         foo, 
                                                         routeTo, 
-                                                        routeType);
+                                                        routeType,
+                                                        authRequired);
 
         Url msgRouteToUri(routeTo);
         osPrintf("Message:\n\tmethod: %s\n\turi: %s\n\tevent: %s\nRouted:\n\tstring: %s\n\turi: %s\n\ttype: %s\n",

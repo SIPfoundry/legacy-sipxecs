@@ -18,12 +18,17 @@
 #include "os/OsStatus.h"
 #include "sipdb/ResultSet.h"
 #include "xmlparser/tinyxml.h"
+#include "digitmaps/Patterns.h"
 
 // DEFINES
 #define XML_TAG_MAPPINGS            "mappings"
 
 #define XML_TAG_HOSTMATCH           "hostMatch"
 #define XML_TAG_HOSTPATTERN         "hostPattern"
+#define XML_ATT_FORMAT              "format"
+#define XML_SYMBOL_URL              "url"
+#define XML_SYMBOL_IPV4SUBNET       "IPv4subnet"
+#define XML_SYMBOL_DNSWILDCARD      "DnsWildcard"
 
 #define XML_TAG_USERMATCH           "userMatch"
 #define XML_TAG_USERPATTERN         "userPattern"
@@ -119,6 +124,7 @@ protected:
     TiXmlNode* mPrevPermMatchNode;
     TiXmlDocument *mDoc;
     UtlBoolean mParseFirstTime;
+    Patterns *mPatterns ;
     UtlString mVoicemail;
     UtlString mLocalhost;
     UtlString mMediaServer;

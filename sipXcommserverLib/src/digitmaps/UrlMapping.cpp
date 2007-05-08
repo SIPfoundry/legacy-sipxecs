@@ -42,8 +42,9 @@ UrlMapping::UrlMapping() :
     mPrevHostMatchNode(NULL),
     mPrevUserMatchNode(NULL),
     mPrevPermMatchNode(NULL),
+    mDoc(NULL),
     mParseFirstTime(false),
-    mDoc(NULL)
+    mPatterns(NULL)
 {
 }
 
@@ -53,6 +54,11 @@ UrlMapping::~UrlMapping()
    if (mDoc != NULL)
    {
       delete mDoc ;
+   }
+ 
+   if (mPatterns != NULL)
+   {
+      delete mPatterns ;
    }
 }
 
@@ -70,6 +76,12 @@ UrlMapping::loadMappings(const UtlString& configFileName,
     {
        delete mDoc ;
     }
+
+    if (mPatterns != NULL)
+    {
+       delete mPatterns ;
+    }
+    mPatterns = new Patterns() ;
 
     mDoc = new TiXmlDocument(configFileName.data());
     if (mDoc->LoadFile())
@@ -116,6 +128,12 @@ UrlMapping::loadMappingsString(const UtlString& contents,
     {
        delete mDoc ;
     }
+
+    if (mPatterns != NULL)
+    {
+       delete mPatterns ;
+    }
+    mPatterns = new Patterns() ;
 
     mDoc = new TiXmlDocument();
     if (mDoc->Parse(contents.data()))
@@ -275,16 +293,57 @@ UrlMapping::parseHostMatchContainer(const Url& requestUri,
                       TiXmlText* Xmlhost = hostPatternText->ToText();
                       if (Xmlhost)
                       {
-                         UtlString host = Xmlhost->Value();
-                         Url xmlUrl(host.data());
-                         UtlString xmlHost;
-                         xmlUrl.getHostAddress(xmlHost);
-                         int xmlPort = xmlUrl.getHostPort();
+                         UtlString pattern = Xmlhost->Value();
 
-                         if(   (xmlHost.compareTo(testHost, UtlString::ignoreCase) == 0)
-                            && (xmlPort == SIP_PORT || xmlPort == testPort) )
+                         // Get the "format" attribute to determine what
+                         // type of pattern is to be searched
+                         const char * xFormat = 
+                            hostPatternElement->Attribute(XML_ATT_FORMAT);
+                         
+                         UtlString fmt ;
+                         if (xFormat)
                          {
-                            hostMatchFound = true;
+                            fmt.append(xFormat) ;
+                         }
+                         else
+                         {
+                            // Attribute "format" is missing, 
+                            // so default to 'url'
+                            fmt.append(XML_SYMBOL_URL) ;
+                         }
+                         
+                         // format='url' matches host and port of a URL
+                         if (fmt.compareTo(XML_SYMBOL_URL, 
+                             UtlString::ignoreCase) == 0)
+                         {
+                            Url xmlUrl(pattern.data());
+                            UtlString xmlHost;
+                            xmlUrl.getHostAddress(xmlHost);
+                            int xmlPort = xmlUrl.getHostPort();
+
+                            hostMatchFound = (xmlHost.compareTo(
+                               testHost, UtlString::ignoreCase) == 0)
+                               && (xmlPort == SIP_PORT || xmlPort == testPort) ;
+                         }
+                         // format='IPv4subnet' matches IP address if it is
+                         // within the subnet specified in CIDR format
+                         else if (fmt.compareTo(XML_SYMBOL_IPV4SUBNET, 
+                                  UtlString::ignoreCase) == 0)
+                         {
+                            hostMatchFound =
+                               mPatterns->IPv4subnet(testHost, pattern);
+                         }
+                         // format='DnsWildcard' matches FQDN
+                         // if it ends with the correct domain
+                         else if (fmt.compareTo(XML_SYMBOL_DNSWILDCARD, 
+                                  UtlString::ignoreCase) == 0)
+                         {
+                            hostMatchFound =
+                               mPatterns->DnsWildcard(testHost, pattern);
+                         }
+
+                         if (hostMatchFound)
+                         {
                             mPrevHostMatchNode = hostMatchNode;
                             userMatchFound = parseUserMatchContainer(requestUri,
                                                                      rRegistrations,

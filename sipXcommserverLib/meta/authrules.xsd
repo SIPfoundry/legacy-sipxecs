@@ -45,13 +45,61 @@
     </complexType>
   </element>
 
-  <element name='hostPattern' type='normalizedString'>
+  <simpleType name='validFormats'>
     <annotation>
       <documentation>
-        A (perl-compatible) regular expression used to match the host part of a SIP URL.
-        The pattern is implicitly anchored at both ends.
+        The header format names valid in a format attribute.
       </documentation>
     </annotation>
+    <restriction base='normalizedString'>
+       <enumeration value='url'/>
+       <enumeration value='IPv4subnet'/>
+       <enumeration value='DnsWildcard'/>
+    </restriction>
+  </simpleType>
+
+  <element name='hostPattern'>
+    <annotation>
+      <documentation>
+         One of three types of patterns:
+
+         format='url' (default)
+            A url where the host and port must match exactly (except in case)
+            and the port 5060 matches an unspecified value.
+
+         format='DnsWildcard'
+            A "wildcard" DNS Domain whose leftmost lable is '*'.
+            The asterisk ('*') in the pattern matches any sequence of DNS
+            name tokens and dots.  The pattern must match the full domain
+            value from the request URI.  No port may be specified, and port
+            is not considered in the match.
+
+               Examples:
+                  *.example.com (matches any subdomain in example.com INCLUDING
+                     example.com itself)
+                  * (matches all domains)
+
+         format='IPv4subnet'
+            An IPv4 subnet, specified as a series of IPv4 address decimal 
+            octet values separated by dots (.), followed by a forward slash
+            (/) and a decimal number of bits to be used as a subnet mask value.
+            In order to match, the request URI "host" must be a valid IPv4
+            dottend quad address whose value is within the subnet specified.
+            No port may be specified, and port is not considered in the match.
+
+               Examples:
+                  10.0.0.0/8  Matchs any IP address with first 8 bits = '10'
+                  192.168/16  
+      </documentation>
+    </annotation>
+    <complexType>
+      <simpleContent>
+        <extension base='normalizedString'>
+          <attribute name='format' use='optional' default='url' 
+                     type='dmp:validFormats'/>
+        </extension>
+      </simpleContent>
+    </complexType>
   </element>
   
   <element name='userMatch'>

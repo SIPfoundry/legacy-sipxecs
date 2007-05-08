@@ -101,9 +101,9 @@ SipRouter::~SipRouter()
 
 UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
 {
-	if(OsMsg::PHONE_APP == eventMessage.getMsgType())
-	{
-		SipMessageEvent* sipMsgEvent = dynamic_cast<SipMessageEvent*>(&eventMessage);
+   if(OsMsg::PHONE_APP == eventMessage.getMsgType())
+   {
+      SipMessageEvent* sipMsgEvent = dynamic_cast<SipMessageEvent*>(&eventMessage);
 
       int messageType = sipMsgEvent->getMessageStatus();
       if(messageType == SipMessageEvent::TRANSPORT_ERROR)
@@ -111,8 +111,8 @@ UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
          OsSysLog::add(FAC_SIP, PRI_CRIT,
                        "SipRouter::handleMessage received transport error message");
       }
-		else
-		{
+      else
+      {
          SipMessage* sipRequest = const_cast<SipMessage*>(sipMsgEvent->getMessage());
          if(sipRequest)
          {
@@ -203,10 +203,11 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
    {
       UtlString mappedTo;
       UtlString routeType;               
+      bool authRequired;
                   
       // see if we have a mapping for the normalized request uri
       if (   mpForwardingRules 
-          && (mpForwardingRules->getRoute(requestUri, sipRequest, mappedTo, routeType)==OS_SUCCESS)
+          && (mpForwardingRules->getRoute(requestUri, sipRequest, mappedTo, routeType, authRequired)==OS_SUCCESS)
           )
       {
          // Yes, so add a loose route to the mapped server
@@ -219,6 +220,11 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRouter fowardingrules added route type '%s' to: '%s'",
                        routeType.data(), routeString.data());
+         if (authRequired)
+         {
+            // And a route to the authproxy if required
+            addAuthRoute(sipRequest);
+         }
       }
       else
       {

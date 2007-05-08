@@ -32,6 +32,7 @@ nobase_include_HEADERS =  \
     sipdb/SubscriptionDB.h \
     sipdb/SubscriptionRow.h \
     digitmaps/UrlMapping.h \
+    digitmaps/Patterns.h \
     fastdb/array.h \
     fastdb/bugdb.h \
     fastdb/CHANGES \

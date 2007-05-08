@@ -24,6 +24,9 @@
 #   define SIPX_MAX_REGEX_RECURSION 800
 #endif
 
+// STATIC VARIABLE INITIALIZATIONS
+const UtlContainableType RegEx::TYPE = "UtlRegex";
+
 const unsigned long int RegEx::MAX_RECURSION = SIPX_MAX_REGEX_RECURSION;
 
 // Some versions do not separately define a limit for stack recursion;
@@ -162,6 +165,12 @@ RegEx::~RegEx()
      pcre_free(pe);
   }
   pcre_free(re);
+}
+
+// Get the ContainableType for a UtlContainable derived class.
+UtlContainableType RegEx::getContainableType() const
+{
+    return RegEx::TYPE;
 }
 
 /////////////////////////////////

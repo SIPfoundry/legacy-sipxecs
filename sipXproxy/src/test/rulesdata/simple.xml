@@ -40,5 +40,13 @@
     <!-- All other requests go to the SIP registry service -->
     <routeTo>REGISTRAR_SERVER_DEFAULT</routeTo>
   </route>
+  <route mappingType="foreignSubnet">
+     <routeIPv4subnet>10/8</routeIPv4subnet>
+     <routeTo authRequired="true">FOREIGN_SUBNET</routeTo>
+  </route>
+  <route mappingType="foreignDns">
+     <routeDnsWildcard>*.WOOF.net</routeDnsWildcard>
+     <routeTo authRequired="true">FOREIGN_DNS</routeTo>
+  </route>
 </routes>
 

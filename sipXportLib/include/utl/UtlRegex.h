@@ -14,6 +14,7 @@
 #include <string.h>
 #include <pcre.h>
 #include "utl/UtlString.h"
+#include "utl/UtlContainableAtomic.h"
 
 /**
  * RegEx impelments Perl-compatible regular expressions
@@ -50,7 +51,7 @@
  *
  * @nosubgrouping
  */
-class RegEx
+class RegEx : public UtlContainableAtomic
 {
  public:
 
@@ -130,6 +131,21 @@ class RegEx
 
 ///@}
 
+// ================================================================
+/** @name           Container Support Operations
+ *
+ */
+///@{
+
+    /// Determine whether or not the values in a containable are comparable.
+    virtual UtlContainableType getContainableType() const;
+    /**<
+     * This returns a unique type for UtlString
+     */
+
+    static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+
+///@}
 // ================================================================
 /** @name Searching
  *

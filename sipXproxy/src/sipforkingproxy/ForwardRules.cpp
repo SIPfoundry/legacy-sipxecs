@@ -13,9 +13,10 @@
 
 // APPLICATION INCLUDES
 #include "os/OsSysLog.h"
-#include "utl/UtlRegex.h"
+#include "utl/UtlString.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
+#include "digitmaps/Patterns.h"
 
 #include "ForwardRules.h"
 
@@ -26,15 +27,15 @@
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 // Constructor
 ForwardRules::ForwardRules()
+   : mDoc(NULL),
+   mPatterns(NULL)
 {
-   mDoc = NULL;
-
 }
 
 // Destructor
 ForwardRules::~ForwardRules()
 {
- 
+   delete mPatterns;
 }
 /* ============================ MANIPULATORS ============================== */
 OsStatus ForwardRules::loadMappings(const UtlString configFileName,
@@ -44,9 +45,14 @@ OsStatus ForwardRules::loadMappings(const UtlString configFileName,
 {
    OsStatus currentStatus = OS_SUCCESS;
 
+   // Remove any old mappings first
    if(mDoc) delete mDoc;
 
- 	mDoc = new TiXmlDocument( configFileName.data() );
+   // Destroy patterns, and start clean
+   if (mPatterns) delete mPatterns ;
+   mPatterns = new Patterns() ;
+
+   mDoc = new TiXmlDocument( configFileName.data() );
    if( !mDoc->LoadFile() )
    {
       UtlString parseError = mDoc->ErrorDesc();
@@ -76,6 +82,10 @@ void ForwardRules::buildDefaultRules(const char* domain,
                                      int localPort)
 {
     if(mDoc) delete mDoc;
+
+    // Destroy patterns, and start clean
+    if (mPatterns) delete mPatterns ;
+    mPatterns = new Patterns() ;
 
     mDoc = new TiXmlDocument();
     buildDefaultRules(domain,
@@ -175,7 +185,7 @@ void ForwardRules::buildDefaultRules(const char* domain,
     TiXmlElement routeFromConfig("routeFrom");
     TiXmlText configText(configAddress.data());
 
-    // Link everyting up in reverse order as it TinyXml 
+    // Link everything up in reverse order as it TinyXml 
     // makes copies
     routeFromDomain.InsertEndChild(domainText);
     route.InsertEndChild(routeFromDomain);
@@ -226,7 +236,8 @@ void ForwardRules::buildDefaultRules(const char* domain,
 OsStatus ForwardRules::getRoute(const Url& requestUri,
                                 const SipMessage& request,
                                 UtlString& routeToString,
-                                UtlString& mappingType)
+                                UtlString& mappingType,
+                                bool& authRequired)
 
 {
     OsStatus currentStatus = OS_FAILED;
@@ -243,6 +254,7 @@ OsStatus ForwardRules::getRoute(const Url& requestUri,
                                             request,
                                             routeToString,
                                             mappingType,
+                                            authRequired,
                                             prevRouteNode);
 
     return currentStatus;
@@ -252,6 +264,7 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
                                               const SipMessage& request,
                                               UtlString& routeToString,
                                               UtlString& mappingType,
+                                              bool& authRequired,
                                               TiXmlNode* routesNode,
                                               TiXmlNode* previousRouteMatchNode)
 {
@@ -274,8 +287,6 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
    while ( (routeMatchNode = routesElement->IterateChildren(routeMatchNode)) 
       && methodMatchFound != OS_SUCCESS)
    {
-      mappingType.remove(0);
-
       // Skip non-elements
       if(routeMatchNode && routeMatchNode->Type() != TiXmlNode::ELEMENT)
       {
@@ -290,6 +301,8 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
          continue;
       }
 
+      mappingType.remove(0);
+      routeToString.remove(0);
       const char* mappingTypePtr = 
           routeMatchElement->Attribute(XML_ATT_MAPPINGTYPE);
 
@@ -297,46 +310,96 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
       mappingType.append(mappingTypePtr ? mappingTypePtr : "");
 
       // Iterate through the route container's children looking
-      // for routeFrom elements
+      // for routeFrom, routeIPv4subnet, or routeDnsWildcard elements
       TiXmlNode* routeFromPatternNode = NULL;
-      for( routeFromPatternNode = routeMatchElement->FirstChild( XML_TAG_ROUTEFROM);
+      for( routeFromPatternNode = routeMatchElement->FirstChildElement();
          routeFromPatternNode;
-         routeFromPatternNode = routeFromPatternNode->NextSibling( XML_TAG_ROUTEFROM ) )
+         routeFromPatternNode = routeFromPatternNode->NextSiblingElement() )
       {
-             // Skip non-elements
-         if(routeFromPatternNode && routeFromPatternNode->Type() != TiXmlNode::ELEMENT)
+         // Skip elements that aren't of the "domainMatches" family 
+         enum {ret_from, ret_ip, ret_dns} routeElementType ;
+
+         const char *name = routeFromPatternNode->Value() ;
+         if (strcmp(name, XML_TAG_ROUTEFROM) == 0)
          {
-            continue;
+            routeElementType = ret_from;
+         }
+         else if (strcmp(name, XML_TAG_ROUTEIPV4SUBNET) == 0)
+         {
+            routeElementType = ret_ip;
+         }
+         else if (strcmp(name, XML_TAG_ROUTEDNSWILDCARD) == 0)
+         {
+            routeElementType = ret_dns;
+         }
+         else
+         {
+            continue ;
          }
 
-         //found routeFrom pattern tag
+
+         //found "domainMatches" pattern tag
          TiXmlElement* routeFromPatternElement = routeFromPatternNode->ToElement();
-         //get the host text value from it
+         //get the text value from it
          TiXmlNode* routeFromPatternText = routeFromPatternElement->FirstChild();
          if(routeFromPatternText && routeFromPatternText->Type() == TiXmlNode::TEXT)
          {
-            TiXmlText* Xmlhost = routeFromPatternText->ToText();
-            if (Xmlhost)
+            TiXmlText* Xmlpattern = routeFromPatternText->ToText();
+            if (Xmlpattern)
             {
-               UtlString host = Xmlhost->Value();
-               Url xmlUrl(host.data());
-               UtlString xmlHost;
-               xmlUrl.getHostAddress(xmlHost);
-               int xmlPort = xmlUrl.getHostPort();
+               UtlString pattern = Xmlpattern->Value();
 
-               // See if the host and port of the routeFrom elelment
-               // match that of the URI
-               if( (xmlHost.compareTo(testHost, UtlString::ignoreCase) == 0) &&
-                  ((xmlPort == SIP_PORT && testPort == PORT_NONE) ||
-                   xmlPort == testPort) )
+               switch(routeElementType)
                {
-                  routeMatchFound = true;
+                  case ret_from: // a routeFrom element matches host and port
+                  {
+                     Url xmlUrl(pattern.data());
+                     UtlString xmlHost;
+                     xmlUrl.getHostAddress(xmlHost);
+                     int xmlPort = xmlUrl.getHostPort();
+
+                     // See if the host and port of the routeFrom elelment
+                     // match that of the URI
+                     if( (xmlHost.compareTo(testHost, UtlString::ignoreCase) == 0) &&
+                        ((xmlPort == SIP_PORT && testPort == PORT_NONE) ||
+                         xmlPort == testPort) )
+                     {
+                        routeMatchFound = true;
+                        OsSysLog::add(FAC_SIP, PRI_DEBUG, "ForwardRules::parseRouteMatchContainer - routeFrom %s matches %s", testHost.data(), pattern.data());
+                     }
+                  }
+                  break ;
+
+                  case ret_ip: // a routeIPv4subnet matches if the subnet does
+                  {
+                     // "pattern" is a subnet in CIDR notation (x.y.z.q/size)
+                     // "testHost is supposed to be an IPv4 dotted quad
+
+                     routeMatchFound = mPatterns->
+                                          IPv4subnet(testHost, pattern);
+                  }
+                  break ;
+
+                  case ret_dns: // a routeDnsWildcard matches if the domain name does
+                  {
+                     // "pattern" is a wildcard DNS (*.pingtel.com)
+                     // "testHost is a FQDN
+                     routeMatchFound = mPatterns->
+                                          DnsWildcard(testHost, pattern);
+  
+                  }
+                  break ;
+               }
+
+               if (routeMatchFound)
+               {
                   previousRouteMatchNode = routeMatchNode;
                   // Find a match to the request method and recurse
                   // to find child element field(s) matches  and
                   // get the routeTo value
                   methodMatchFound = parseMethodMatchContainer(request,
                      routeToString,
+                     authRequired,
                      routeMatchNode);
 
                   if( methodMatchFound == OS_SUCCESS)
@@ -351,6 +414,7 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
 
 OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
                                                  UtlString& routeToString,
+                                                 bool& authRequired,
                                                  TiXmlNode* routeMatchNode,
                                                  TiXmlNode* previousMethodMatchNode)
 {
@@ -416,6 +480,7 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
                   methodMatchFound = true;
                   fieldMatchFound = parseFieldMatchContainer(request,
                      routeToString,
+                     authRequired,
                      methodMatchNode);
 
                   if(fieldMatchFound == OS_SUCCESS)
@@ -430,6 +495,7 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
                   else
                   {
                       fieldMatchFound = getRouteTo(routeToString, 
+                          authRequired,
                           methodMatchElement);
                       if(fieldMatchFound == OS_SUCCESS)
                       {
@@ -446,7 +512,7 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
    {
       // if none of the method match were successfull or if no methodMatch node present
       // get the default routeTo for this routeNode.
-      fieldMatchFound = getRouteTo(routeToString,
+      fieldMatchFound = getRouteTo(routeToString, authRequired,
             routeMatchNode);
    }
    return fieldMatchFound;
@@ -454,6 +520,7 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
 
 OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
                                                 UtlString& routeToString,
+                                                bool& authRequired,
                                                 TiXmlNode* methodMatchNode,
                                                 TiXmlNode* previousFieldMatchNode)
 {
@@ -546,14 +613,54 @@ OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
           || noFieldPatternRequired )
       {
             //get the routeTo field
-         getRouteFound = getRouteTo(routeToString,
+         getRouteFound = getRouteTo(routeToString, authRequired,
             fieldMatchNode);
       }
 
    }
    return getRouteFound;
 }
+
+// Function to get a boolean configuration setting based on the Y/N value of
+// a configuration parameter.  Snarfed from 
+// sipXregistry/lib/redirect_plugins/SipRedirectorJoin.cpp, 
+// probably both should be reconciled into a lib one day
+static bool getYN(const char* boolText,
+                        bool defaultValue)
+{
+   // Start with the default value.
+   bool value = defaultValue;
+   if (boolText)
+   {
+      // Examine the first character.
+      switch (boolText[0])
+      {
+      case 'y':
+      case 'Y':
+      case 'T':
+      case 't':
+      case '1':
+         // If the value starts with Y or 1, set the result to TRUE.
+         value = true;
+         break;
+      case 'n':
+      case 'N':
+      case 'F':
+      case 'f':
+      case '0':
+         // If the value starts with N or 0, set the result to FALSE.
+         value = false;
+         break;
+      default:
+         // Ignore all other values.
+         break;
+      }
+   }
+   return value;
+}
+
 OsStatus ForwardRules::getRouteTo(UtlString& RouteToString,
+                                 bool& authRequired,
                                   TiXmlNode* nodeWithRouteToChild)
 {
    
@@ -562,17 +669,24 @@ OsStatus ForwardRules::getRouteTo(UtlString& RouteToString,
    TiXmlNode* routeToNode = NULL;
    TiXmlNode* routeToText = NULL;
 
+
    //get the user text value from it
    routeToNode = nodeWithRouteToChild->FirstChild( XML_TAG_ROUTETO);
    if(routeToNode)
    {
-      currentStatus = OS_SUCCESS;
       if(routeToNode && routeToNode->Type() != TiXmlNode::ELEMENT)
       {
          return currentStatus;
       }
 
       TiXmlElement* routeToElement = routeToNode->ToElement();
+
+      const char* authRequiredPtr = 
+         routeToElement->Attribute(XML_ATT_AUTHREQUIRED);
+
+      //set the authRequired attribute
+      authRequired=getYN(authRequiredPtr, false) ; //defaults to false
+
       routeToText = routeToElement->FirstChild();
       if(routeToText && routeToText->Type() == TiXmlNode::TEXT)
       {

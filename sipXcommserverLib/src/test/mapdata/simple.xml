@@ -38,4 +38,17 @@
       </permissionMatch>
     </userMatch>
   </hostMatch>
+  <hostMatch>
+    <hostPattern format='UrL'>example.com:4242</hostPattern>
+    <hostPattern format='DnsWildcard'>*.example.com</hostPattern>
+    <hostPattern format='IPv4subnet'>192.168/16</hostPattern>
+    <userMatch>
+      <userPattern>.</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:PATTERNS@MATCHING</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
 </mappings>

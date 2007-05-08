@@ -190,6 +190,45 @@ class UrlMappingTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( registrations.getSize() == 0 );
          registrations.destroyAll();
 
+
+         // Check the hostPattern format='url'
+         urlmap->getContactList( Url("sip:PortUser@example.com:4242")
+                                ,registrations, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 1 );
+         getResult( registrations, 0, "contact", actual);
+         ASSERT_STR_EQUAL( "sip:PATTERNS@MATCHING", actual );
+         registrations.destroyAll();
+
+         // Check the hostPattern format='DnsWildcard'
+         urlmap->getContactList( Url("sip:DnsUser@a.b.c.d.e.f.example.com")
+                                ,registrations, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 1 );
+         getResult( registrations, 0, "contact", actual);
+         ASSERT_STR_EQUAL( "sip:PATTERNS@MATCHING", actual );
+         registrations.destroyAll();
+
+         // Check the hostPattern format='IPv4subnet'
+         urlmap->getContactList( Url("sip:SubnetUser@192.168.1.1")
+                                ,registrations, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 1 );
+         getResult( registrations, 0, "contact", actual);
+         ASSERT_STR_EQUAL( "sip:PATTERNS@MATCHING", actual );
+         registrations.destroyAll();
+
+         // Check the hostPattern format='IPv4subnet' (nomatch)
+         urlmap->getContactList( Url("sip:SubnetUser@192.169.1.1")
+                                ,registrations, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 0 );
+         registrations.destroyAll();
+
          delete urlmap;
       }
 
@@ -755,7 +794,7 @@ class UrlMappingTest : public CppUnit::TestCase
          delete urlmap;
       }
 
-   void testSpecials()
+      void testSpecials()
       {
          /* tests characters that are special in Perl Regular Expressions
           * but not in a dial string

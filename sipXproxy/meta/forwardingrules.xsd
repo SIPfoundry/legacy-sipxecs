@@ -117,7 +117,7 @@
     </annotation>
     <simpleType>
       <restriction base="normalizedString">
-        <pattern value="(\*(\.([a-zA-Z0-9](-[a-zA-Z0-9]+)*[a-zA-Z0-9]?))*" />
+         <pattern value="\*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*[a-zA-Z0-9]*)*" />
       </restriction>
     </simpleType>
   </element>
@@ -200,12 +200,19 @@
     </annotation>
   </element>
 
-  <element name='routeTo' type='normalizedString'>
+  <element name='routeTo'>
     <annotation>
       <documentation>
         The SIP URL to be inserted as a loose route.
       </documentation>
     </annotation>
+    <complexType>
+       <simpleContent>
+          <extension base='normalizedString'>
+             <attribute name='authRequired' use='optional' type='boolean' default='false'/>
+          </extension>
+       </simpleContent>
+    </complexType>
   </element>
   
   <element name='description' type='string'>
