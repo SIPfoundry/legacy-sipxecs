@@ -281,6 +281,9 @@
       <type>
         <enum>
           <option>
+            <value>-1</value>
+          </option>
+          <option>
             <value>0</value>
           </option>
           <option>
@@ -297,7 +300,7 @@
           </option>
         </enum>
       </type>
-      <value>0</value>
+      <value>-1</value>
     </setting>
     <setting name='forwarding_address'></setting>
     <setting name='noanswer_time'>
