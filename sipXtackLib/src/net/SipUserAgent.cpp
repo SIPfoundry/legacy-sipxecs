@@ -477,8 +477,9 @@ SipUserAgent::~SipUserAgent()
         mpAuthorizationPasswords = NULL;
     }
 
-    allowedSipMethods.destroyAll();
     mMessageObservers.destroyAll();
+    allowedSipExtensions.destroyAll();
+    allowedSipMethods.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
