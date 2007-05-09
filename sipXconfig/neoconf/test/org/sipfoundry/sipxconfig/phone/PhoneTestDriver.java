@@ -102,7 +102,7 @@ public class PhoneTestDriver {
         defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
         defaults.setFullyQualifiedDomainName("pbx.sipfoundry.org");
         defaults.setTftpServer("tftp.sipfoundry.org");
-        defaults.setProxyServerAddr("outbound.sipfoundry.org");
+        defaults.setProxyServerAddr("10.1.2.3");
         defaults.setProxyServerSipPort("5555");
         defaults.setAuthorizationRealm("realm.sipfoundry.org");
         defaults.setSipxServer(SipxServerTest.setUpSipxServer());

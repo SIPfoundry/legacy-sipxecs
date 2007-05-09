@@ -774,12 +774,24 @@
   </group>
   <group name="advanced_general" advanced="yes">
     <label>Advanced Parameters</label>
-    <setting name="SecureCallsFromIP" advanced="yes">
+    <setting name="SecureCallsFromIP" advanced="yes" unless="fxs">
+      <label>Secure SIP Calls</label>
       <type>
         <boolean />
       </type>
-      <value>0</value>
-      <!-- TODO: we may need to always force it to true -->
+      <value>1</value>
+      <description>If enabled, gateways will only accept SIP calls from IP addresses listed below.</description>
+    </setting>
+    <setting name="AllowedIPs" advanced="yes" unless="fxs">
+      <label>Accepted IP Addresses</label>
+      <profileName>$$</profileName>
+      <type>
+        <string></string>
+      </type>
+      <description>
+        Space separated list of IP addresses from which gateway will accept the calls. It is taken into account only if
+        Secure SIP Calls is enabled.
+      </description>
     </setting>
     <setting name='EnableDigitDelivery' advanced='yes'>
       <label>Digit Delivery to Telephony Port</label>

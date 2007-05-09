@@ -47,7 +47,7 @@
    <sip_proxy_server> sipfoundry.org </sip_proxy_server> <!-- SIP proxy server IP, hostname or FQDN -->
    <sip_proxy_port> 5555 </sip_proxy_port>           <!-- SIP proxy server port -->
    <outbound_sip_proxy_enable> 0 </outbound_sip_proxy_enable>   <!-- Use outbound proxy -->
-   <outbound_sip_proxy> outbound.sipfoundry.org </outbound_sip_proxy> <!-- SIP outbound proxy IP, hostname or FQDN -->
+   <outbound_sip_proxy> sipfoundry.org </outbound_sip_proxy> <!-- SIP outbound proxy IP, hostname or FQDN -->
    <outbound_proxy_port> 5555 </outbound_proxy_port> <!-- SIP outbound proxy port -->
    <sip_register_timeout> 3600 </sip_register_timeout> <!-- SIP registration timeout in seconds -->
    <sip_transport> 0 </sip_transport>                <!-- Transport -->

@@ -90,4 +90,12 @@ public class AudioCodesGatewayDefaults {
         }
         return m_fxsGateway.getLines().size();
     }
+
+    /**
+     * Only allow calls from SIP proxy by default.
+     */
+    @SettingEntry(path = "advanced_general/AllowedIPs")
+    public String getAllowedIPs() {
+        return m_defaults.getProxyServerAddr();
+    }
 }

@@ -92,6 +92,13 @@ ${s.ProfileName}_$port_id=$!{s.Value}
 
 #end
 #end
+#if($allowedIPs)
+; only accept calls from these IP addreses
+#foreach($ip in $allowedIPs)
+PREFIX=*,${ip},*,1,255
+#end
+
+#end
 ## parameters that are not configurable per gateway go here 
 [IniFileOnlyParams]
 EnableLANWatchDog=1

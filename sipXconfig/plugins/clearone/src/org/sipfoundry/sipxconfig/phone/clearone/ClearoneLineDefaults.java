@@ -59,8 +59,7 @@ public class ClearoneLineDefaults {
 
     @SettingEntry(path = "sip/outbound_sip_proxy")
     public String getSipOutboundProxy() {
-        return m_defaults.getProxyServerAddr();
-
+        return m_defaults.getDomainName();
     }
 
     @SettingEntry(path = REGISTRATION_SERVER_SETTING)

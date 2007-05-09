@@ -38,6 +38,7 @@ class AudioCodesContext extends ProfileContext {
         if (portFlatSettings != null) {
             context.put("portFlatSettings", portFlatSettings);
         }
+        context.put("allowedIPs", getAllowedIPs());
         return context;
     }
 
@@ -53,6 +54,15 @@ class AudioCodesContext extends ProfileContext {
             }
         }
         return list.toArray(new String[list.size()]);
+    }
+
+    private String[] getAllowedIPs() {
+        BeanWithSettings gateway = getDevice();
+        Setting setting = gateway.getSettings().getSetting("advanced_general/AllowedIPs");
+        if (setting != null) {
+            return StringUtils.split(setting.getValue());
+        }
+        return null;
     }
 
     private Collection[] getPortFlatSettings() {
