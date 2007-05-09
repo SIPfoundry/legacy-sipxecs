@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-
 ###
 ###   Check if various SIP servers are working correctly
 ###
@@ -15,15 +14,14 @@ use Socket;
 use Digest::MD5 qw(md5_hex);
 use Getopt::Long;
 use File::Basename;
-
+use Net::Ping;
 
 #') fix the perl indenting funnies caused by the above
 
 ## Constants
 $CRLF = "\r\n";
 $SipVersion = '2.0';
-$CommandLine = $0 ." ". join(' ', @ARGV) ;
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 ## Globals
 $Child = 0 ;
@@ -33,6 +31,7 @@ $DefaultUserAgent = "$Me/$VERSION";
 ## Defaults
 $SipPort = 5060;
 $RegistrarPort = 5070;
+$AuthProxyPort = 5080;
 $UserAgent = $DefaultUserAgent ;
 $MaxForwards = 3;
 $UseViaName = 0;
@@ -52,8 +51,12 @@ $SHORT_HELP = <<SHORT_HELP;
 
    sipx-servtest [--test-id <label>]
                  [--domain <domain>]
+                 [--commserver <server>]...  
+
                  [--proxy <proxy-server>]...  
+                 [--authproxy <auth-proxy-server>]...  
                  [--redirect <redirect-server>]...  
+
                  [--aor <aor>]...  
                  [--alarm <alarm-address>]...  
 
@@ -91,6 +94,18 @@ $SHORT_HELP
          Valid examples:
             sip:woof\@pingtel.com
             sip:100\@myserver.example.com
+
+      --commserver <server>
+         Specifies a server name or address for a server in the
+         domain; this specifies that the server runs a proxy, an authproxy,
+         and a registrar, so it is equivalent to specifying:
+           --proxy server --auth-proxy server --redirect server
+         (may be specified more than once) 
+      
+      --auth-proxy <auth-proxy-server>
+         Specifies a server name or address and port for an authorization
+         proxy in the domain (if not specified, the port defaults to 5080).
+         (may be specified more than once) 
 
       --proxy <proxy-server>
          Specifies a server name or address and port for a proxy in the
@@ -164,6 +179,20 @@ $SHORT_HELP
 
    sipx-servtest executes the following tests:
 
+   Connect:
+      For each server (of any type), the tester checks that it can create 
+      a connection to the specified address (it uses TCP to the standard 'echo' 
+      port - no data is sent or expected); the test fails if there is no
+      response or if an error response is received.
+
+   Auth Proxy Forwarding:
+      Sends an 'OPTIONS <tester>' request to each <auth-proxy-server> (the
+      <tester> address is a dynamic port opened by sipx-servtest for its own
+      use), and responds to it with a 200 response; this passes if both the
+      request and response are delivered by the auth proxy.  
+
+      This tests that the authproxy is routing requests correctly.
+
    Proxy Forwarding:
       Sends an 'OPTIONS <tester>' request to each <proxy-server> (the
       <tester> address is a dynamic port opened by sipx-servtest for its own
@@ -212,8 +241,12 @@ GetOptions(
            'test-id=s'      => \$TestId,
 
            'domain=s'       => \$Domain,
-           'proxy=s'        => \@Proxies,
-           'redirect=s'     => \@Redirectors,
+           'commserver|c=s' => \@CommServers,
+
+           'authproxy|a=s'  => \@AuthProxies,
+           'proxy|p=s'      => \@Proxies,
+           'redirect|r=s'   => \@Redirectors,
+
            'aor=s'          => \@Aors,
 
            'verbose|v'      => \$Verbose,
@@ -224,7 +257,7 @@ GetOptions(
            # 'route=s'        => \$Route,
 
            'test-alarm'     => \$TestAlarm,
-           'alarm=s'        => \@EmailAddrs,
+           'alarm|e=s'      => \@EmailAddrs,
 
            'help|h'         => \$Help,
            ) 
@@ -259,10 +292,14 @@ $SIG{INTR} = \&Catch;
 ##
 ## Test Types
 ##
-$ProxyForwarding = 'Proxy Forwarding';
-$Redirect        = 'Redirect';
-$DomainResponse  = 'Domain Response';
-$EndPoint        = 'Endpoint';
+$Connect             = 'Connect';
+$AuthProxyForwarding = 'Auth Proxy Forwarding';
+$ProxyForwarding     = 'Proxy Forwarding';
+$Redirect            = 'Redirect';
+$DomainResponse      = 'Domain Response';
+$EndPoint            = 'Endpoint';
+
+sub byOrder { return defined $DependsOn{$a} && defined $DependsOn{$a}->{$b} }
 
 ## 
 ## Test List 
@@ -270,41 +307,69 @@ $EndPoint        = 'Endpoint';
 @TestList=();
 
 ## Calculate which tests we can perform with the arguments given.
-foreach ( sort @Proxies )
+foreach ( ( @Proxies, @Redirectors, @AuthProxies, @CommServers ) )
+{
+    $Servers{$_} = 1;
+}
+foreach ( sort keys %Servers )
+{
+    push @TestList, "$Connect->$_";
+}
+
+foreach ( ( @AuthProxies, @CommServers ) )
+{
+    push @TestList, "$AuthProxyForwarding->$_";
+    $DependsOn{"$AuthProxyForwarding->$_"} = { "$Connect->$_" => 1 };
+}
+
+foreach ( ( @Proxies, @CommServers ) )
 {
     push @TestList, "$ProxyForwarding->$_";
+    $DependsOn{"$ProxyForwarding->$_"} = { "$AuthProxyForwarding->$_" => 1 };
 }
-foreach $Redirector ( sort @Redirectors )
+
+foreach $Redirector ( ( @Redirectors, @CommServers ) )
 {
     foreach ( sort @Aors )
     {
         push @TestList, "$Redirect->$Redirector,$_";
+        $DependsOn{"$Redirect->$Redirector,$_"} = { "$Connect->$Redirector" => 1 };
     }
 }
+
 if ( $Domain )
 {
-    foreach ( sort @Proxies )
+    foreach ( ( @Proxies, @CommServers ) )
     {
         push @TestList, "$DomainResponse->$_";
+        $DependsOn{"$DomainResponse->$_"} = { "$Connect->$_" => 1 };
     }
 }
-foreach $Proxy ( sort @Proxies )
+
+foreach $Proxy ( ( @Proxies, @CommServers ) )
 {
     foreach ( sort @Aors )
     {
         push @TestList, "$EndPoint->$Proxy,$_";
+        $DependsOn{"$EndPoint->$Proxy,$_"} = { "$ProxyForwarding->$Proxy" => 1 };
     }
 }
 
+
 ##
-## Initialize results table
+## Initialize results table - assume all is well
 ##
 foreach ( @TestList )
 {
     $ErrorState{$_} = "Good" ;
+
 }
 
-print "Planned Test Sequence:\n".join("\n   ",@TestList)."\n"
+$Pinger = Net::Ping->new();
+
+@TestSequence =  sort byOrder @TestList;
+
+print "Planned Test Sequence:\n   ".join("\n   ", @TestSequence )."\n"
     if $Verbose;
 
 ## and counters
@@ -316,31 +381,44 @@ do
 {
     ## $Test is a global used by various subroutines
 
-    foreach $Test ( @TestList )
+    foreach $Test ( @TestSequence )
     {
         my ($testtype, $target) = split '->', $Test;
         
-        &TestStart("$Test\n");
-
-        if ($testtype eq $ProxyForwarding)
+        if ( &TestStart($Test) )
         {
-            &ProxyForwardingTest($target);
-        }
-        elsif ($testtype eq $Redirect)
-        {
-            &RedirectTest($target);
-        }
-        elsif ($testtype eq $DomainResponse)
-        {
-            &DomainResponseTest($target);
-        }
-        elsif ($testtype eq $EndPoint)
-        {
-            &EndPointTest($target);
+            if ($testtype eq $Connect)
+            {
+                &ConnectTest($target);
+            }
+            elsif ($testtype eq $ProxyForwarding)
+            {
+                &ProxyForwardingTest($target);
+            }
+            elsif ($testtype eq $AuthProxyForwarding)
+            {
+                &AuthProxyForwardingTest($target);
+            }
+            elsif ($testtype eq $Redirect)
+            {
+                &RedirectTest($target);
+            }
+            elsif ($testtype eq $DomainResponse)
+            {
+                &DomainResponseTest($target);
+            }
+            elsif ($testtype eq $EndPoint)
+            {
+                &EndPointTest($target);
+            }
+            else
+            {
+                warn "Internal Error: unrecognized test type '$Test'\n";
+            }
         }
         else
         {
-            warn "Internal Error: unrecognized test type '$Test'\n";
+            &Skip;
         }
     }
 
@@ -362,21 +440,36 @@ if ($ErrorCount)
 {
     my $testcount = @TestList;
 
-    print "Failed ".&Red().$ErrorCount.&Black()." of $testcount tests";
+    print "Failed ".&Red().$ErrorCount.&Black()." of $testcount tests\n";
 }
 else
 {
-    print "Passed all tests.";
+    print &GreenBackground()."Passed all tests.".&Black()."\n";
 }
 
 exit $ErrorCount;
+
+sub ConnectTest
+{
+    my $host = shift;
+    $host =~ s/:\d+$//;
+
+    if ( $Pinger->ping($host) )
+    {
+        &Pass;
+    }
+    else
+    {
+        &Failure("Cannot connect to TCP echo on server");
+    }
+}
 
 sub ProxyForwardingTest
 {
     my ($proxy) = shift;
     my ($server, $port);
 
-    # Send Ping to AOR to test for 302
+    # Send SIP PING to AOR to test for 302
     if ( $proxy =~ m/([^:]+):(\d+)/ )
     {
         $server = $1;
@@ -396,12 +489,38 @@ sub ProxyForwardingTest
     &SendOptions($server, $port, "sip:$UasAddr:$UasPort");
 }
 
+
+sub AuthProxyForwardingTest
+{
+    my ($proxy) = shift;
+    my ($server, $port);
+
+    # Send SIP PING to AOR to test for 302
+    if ( $proxy =~ m/([^:]+):(\d+)/ )
+    {
+        $server = $1;
+        $port = $2;
+    }
+    else
+    {
+        $server=$proxy;
+        $port = $AuthProxyPort;
+    }
+    
+    ## Start up the UAS child process
+    ($UasPort, $UasAddr) = &StartUas($server, $port) 
+        unless $Child;
+
+    # Send Options to sip:{this server} to test the proxy
+    &SendOptions($server, $port, "sip:$UasAddr:$UasPort");
+}
+
 sub RedirectTest
 {
     my ($target) = shift;
     my ($registrarServer, $aor) = split(',', $target) ;
 
-    # Send Ping to AOR to test for 302
+    # Send SIP PING to AOR to test for 302
     my $port = $RegistrarPort ;
     my $server = $registrarServer;
     if ( $registrarServer =~ m/([^:]+):(\d+)/ )
@@ -455,13 +574,33 @@ sub EndPointTest
 }
 
 sub TestStart
+
 {
+    my $test = shift;
+    my $isReady = 1;
+
     if ($Verbose)
     {
         print &Black()."================================================================\n"
             if $Verbose;
-        print $_[0];
+        print "$test\n";
     }
+
+    if ( defined $DependsOn{$Test} )
+    {
+        foreach ( keys %{$DependsOn{$Test}} )
+        {
+            my $condition = $ErrorState{$_};
+            if ( $condition ne "Good" )
+            {
+                print &Black()."   skipped because $condition $_\n".&Black()
+                    if $Verbose;
+                $isReady = 0;
+            }
+        }
+    }
+
+    return $isReady;
 }
 
 &Bye() ;
@@ -695,6 +834,7 @@ sub SendPing
 #
 sub Bye
 {
+   $Pinger->close();
    print &Black();
    if ($Child > 0)
    {
@@ -732,7 +872,7 @@ sub Failure
 # Everything went as planned
 sub Pass
 {
-    if ($ErrorState{$Test} ne "Good")
+    if ($ErrorState{$Test} eq "Failed")
     {
         $ErrorCount--;
     }
@@ -745,6 +885,16 @@ sub Pass
     }
 
     $ErrorState{$Test} = "Good";
+}
+
+sub Skip
+{
+    if (! @EmailAddrs)
+    {
+        print &BlueBackground()."(Skip)".&Black()." $Test\n";
+    }
+
+    $ErrorState{$Test} = "Skip";
 }
 
 #
@@ -1094,7 +1244,8 @@ sub GetLine
 {
    my ($fh, $timeout, $buffer) = @_ ;
    my $error ;
-   my $rin = '', $rout ;
+   my $rin = '';
+   my $rout ;
    vec($rin, fileno($fh), 1) = 1 ;
    my ($n, $timeleft, $rlen, $buf);
    my $response = "" ;
@@ -1151,6 +1302,11 @@ sub Blue
 sub GreenBackground
 {
     return "\033[42m";
+}
+
+sub BlueBackground
+{
+    return "\033[44m";
 }
 
 #
