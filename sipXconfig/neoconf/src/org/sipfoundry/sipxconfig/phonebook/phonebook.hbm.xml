@@ -28,4 +28,9 @@
           join u.groups as ugroups 
       where pbconsumers.id = ugroups.id and u.id = :userId]]>
 	</query>
+	<query name="phoneBookByName">
+    <![CDATA[
+      select pb from Phonebook as pb
+      where pb.name = :name]]>
+	</query>
 </hibernate-mapping>

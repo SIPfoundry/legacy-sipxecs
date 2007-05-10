@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
+import static org.apache.commons.lang.StringUtils.defaultString;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -32,8 +34,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
-
-import static org.apache.commons.lang.StringUtils.defaultString;
 
 public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> implements PhonebookManager, 
         DaoEventListener {
@@ -103,6 +103,13 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         m_externalUsersDirectory = externalUsersDirectory;
     }
     
+    public Phonebook getPhonebookByName(String name) {
+        String query = "phoneBookByName";
+        Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam(query, 
+                "name", name);
+        return DaoUtils.requireOneOrZero(books, query);
+    }
+
     public Collection<Phonebook> getPhonebooksByUser(User consumer) {
         Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam("phoneBooksByUser", 
                 "userId", consumer.getId());

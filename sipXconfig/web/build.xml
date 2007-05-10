@@ -26,7 +26,12 @@
     <pathelement path="${tapestry-annotations.jar}"/>
     <pathelement path="${tacos.jar}"/>
     <pathelement path="${ognl.jar}"/>
+    <pathelement path="${restlet.jar}"/>
+    <pathelement path="${restlet-impl.jar}"/>
+    <pathelement path="${restlet-servlet.jar}"/>
+    <pathelement path="${restlet-spring.jar}"/>
 	<pathelement location="${server-bindings.jar}"/>
+
   </path>
 
   <!-- common path unit tests need that interfaces w/sipXconfig lib 
@@ -248,6 +253,10 @@
       <fileset file="${activation.jar}"/>
       <fileset file="${axis-schema.jar}"/>
       <fileset file="${acegi-security.jar}"/>
+      <fileset file="${restlet.jar}"/>
+      <fileset file="${restlet-impl.jar}"/>
+      <fileset file="${restlet-servlet.jar}"/>
+      <fileset file="${restlet-spring.jar}"/>
     </copy>
   </target>	
 

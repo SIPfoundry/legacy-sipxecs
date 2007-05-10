@@ -25,6 +25,8 @@ public interface PhonebookManager  {
     
     public Phonebook getPhonebook(Integer phonebookId);
     
+    public Phonebook getPhonebookByName(String name);
+    
     public void savePhonebook(Phonebook phonebook);
 
     public String getExternalUsersDirectory();

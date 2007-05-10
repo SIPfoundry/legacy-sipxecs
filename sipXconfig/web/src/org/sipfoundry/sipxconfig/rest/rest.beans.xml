@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+  
+  <!--
+    -  Wouldn't be that hard to create a finder that finds beans by using some
+    - convention so you wouldn't have to define this bean so many times.
+    -->
+  <bean id="springFinder" class="org.restlet.ext.spring.SpringFinder" abstract="true"/>
+    
+  <bean id="restManager" class="org.sipfoundry.sipxconfig.rest.RestManager">
+    <property name="resourceMappings">
+      <map>
+        <entry key="/phonebook/{name}">
+          <bean parent="springFinder">
+            <lookup-method bean="phonebookResource" name="createResource"/>
+          </bean>
+        </entry>
+      </map>
+    </property>  
+  </bean>
+  
+  <bean id="phonebookResource" class="org.sipfoundry.sipxconfig.site.phonebook.PhonebookResource" scope="prototype">
+    <property name="phonebookManager" ref="phonebookManager"/>
+  </bean>
+  
+</beans>

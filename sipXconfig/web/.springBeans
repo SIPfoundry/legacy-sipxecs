@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beansProjectDescription>
+	<configExtensions>
+		<configExtension>xml</configExtension>
+	</configExtensions>
 	<configs>
 		<config>src/org/sipfoundry/sipxconfig/site/tapestry.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/rest/rest.beans.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

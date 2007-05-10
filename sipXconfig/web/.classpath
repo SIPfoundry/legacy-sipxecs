@@ -51,5 +51,9 @@
 	<classpathentry sourcepath="/LIB_SRC/tapestry/4.0.2/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-annotations-4.0.2.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/pgsql/8.2/src.zip" kind="var" path="SIPX_CONFIG/lib/postgresql-8.2-504.jdbc3.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/tapestry-prop/1.0/tapestry-prop-1.0.0-20061122.201931-3-sources.jar" kind="var" path="SIPX_CONFIG/lib/tapestry-prop-1.0.0-3.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/restlet/1.0.1/src.zip" kind="var" path="SIPX_CONFIG/lib/restlet-1.0.1.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/restlet-noelios-impl-1.0.1.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/restlet/1.0.1/src.zip" kind="var" path="SIPX_CONFIG/lib/restlet-spring-1.0.1.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/restlet/1.0.1/src.zip" kind="var" path="SIPX_CONFIG/lib/restlet-servlet-2.4-1.0.1.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

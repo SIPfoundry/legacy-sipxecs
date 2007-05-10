@@ -19,8 +19,9 @@
   of "httpSessionContextIntegrationFilter" in the list below -->
   <bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
     <property name="filterInvocationDefinitionSource">
-      <value> CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON PATTERN_TYPE_APACHE_ANT
-        /services/**=httpSessionContextIntegrationFilter, basicProcessingFilter, securityEnforcementFilter
+      <value>
+        CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+        /(services|rest)/.*=httpSessionContextIntegrationFilter,basicProcessingFilter,securityEnforcementFilter
         </value>
     </property>
   </bean>
@@ -99,7 +100,6 @@
     class="org.acegisecurity.context.HttpSessionContextIntegrationFilter">
   </bean>
 
-
   <!-- ===================== HTTP REQUEST SECURITY ==================== -->
   
   <bean id="securityEnforcementFilter"
@@ -160,8 +160,8 @@
       <ref local="httpRequestAccessDecisionManager"/>
     </property>
     <property name="objectDefinitionSource">
-      <value> CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON PATTERN_TYPE_APACHE_ANT
-        /services/**=ROLE_ADMIN </value>
+      <value> CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+        /(services|rest)/.*=ROLE_ADMIN</value>
     </property>
   </bean>
   

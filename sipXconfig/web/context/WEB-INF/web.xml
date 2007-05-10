@@ -51,9 +51,10 @@
       classpath:/org/sipfoundry/sipxconfig/acd/stats/acdstats.beans.xml
       classpath:/org/sipfoundry/sipxconfig/vm/vm.beans.xml
       classpath:/org/sipfoundry/sipxconfig/service/service.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/rest/rest.beans.xml
     </param-value>
   </context-param>
-	
+
   <!--
     - When users go to the root URL, redirect them to the web app.
     - See http://jakarta.apache.org/tapestry/UsersGuide/configuration.html .
@@ -87,9 +88,9 @@
     -->
   <filter-mapping>
     <filter-name>Acegi Filter Chain Proxy</filter-name>
-    <url-pattern>/services/*</url-pattern>
+    <url-pattern>/*</url-pattern>
   </filter-mapping>
-  	
+  
   <!--
     - Loads the root application context of this web app at startup.
     - The application context is then available via 
@@ -124,7 +125,7 @@
     <load-on-startup>100</load-on-startup>
   </servlet>
   <!-- END AXIS -->
-  
+     
   <servlet>
     <servlet-name>sipXconfig-web</servlet-name>
     <servlet-class>org.apache.tapestry.ApplicationServlet</servlet-class>
@@ -134,6 +135,11 @@
     <servlet-name>change-pintoken</servlet-name>
     <servlet-class>
       org.sipfoundry.sipxconfig.site.user.PinTokenChangeServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>rest</servlet-name>
+    <servlet-class>org.sipfoundry.sipxconfig.rest.RestSpringAdapterServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -156,11 +162,17 @@
 	<url-pattern>/skin/*</url-pattern>
   </servlet-mapping>
 	
+  <servlet-mapping>
+    <servlet-name>rest</servlet-name>
+    <url-pattern>/rest/*</url-pattern>
+  </servlet-mapping>
+
   <!-- START AXIS -->
   <servlet-mapping>
     <servlet-name>AdminServlet</servlet-name>
     <url-pattern>/servlet/AdminServlet</url-pattern>
   </servlet-mapping>
+  
   <servlet-mapping>
     <servlet-name>services</servlet-name>
     <url-pattern>/services/*</url-pattern>
