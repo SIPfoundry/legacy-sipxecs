@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
-import static org.apache.commons.lang.StringUtils.defaultString;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -35,11 +33,14 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 
+import static org.apache.commons.lang.StringUtils.defaultString;
+
 public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> implements PhonebookManager, 
         DaoEventListener {
+    private static final String NAME = "name";
     private String m_externalUsersDirectory;
     private CoreContext m_coreContext;
-
+    
     public Collection<Phonebook> getPhonebooks() {
         Collection<Phonebook> books = getHibernateTemplate().loadAll(Phonebook.class);
         return books;
@@ -61,7 +62,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public void savePhonebook(Phonebook phonebook) {
-        DaoUtils.checkDuplicates(getHibernateTemplate(), Phonebook.class, phonebook, "name", 
+        DaoUtils.checkDuplicates(getHibernateTemplate(), Phonebook.class, phonebook, NAME, 
                 new DuplicatePhonebookName());
         getHibernateTemplate().saveOrUpdate(phonebook);
     }
@@ -106,7 +107,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     public Phonebook getPhonebookByName(String name) {
         String query = "phoneBookByName";
         Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam(query, 
-                "name", name);
+                NAME, name);
         return DaoUtils.requireOneOrZero(books, query);
     }
 

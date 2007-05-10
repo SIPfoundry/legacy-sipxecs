@@ -18,12 +18,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.noelios.restlet.ext.servlet.ServletConverter;
+
 import org.restlet.Restlet;
 import org.restlet.Router;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import com.noelios.restlet.ext.servlet.ServletConverter;
 
 /**
  * Style II of RESTlet integration where you keep Spring as ApplicationContext
@@ -51,7 +51,8 @@ public class RestSpringAdapterServlet extends HttpServlet {
     }
 
     protected void service(HttpServletRequest req, HttpServletResponse res)
-            throws ServletException, IOException {
+        throws ServletException, IOException {
+        
         m_converter.service(req, res);
     }
 }

@@ -29,14 +29,14 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 
 public class PhonebookResource extends Resource {
-    private PhonebookManager m_phonebookManager;
-    private Phonebook m_phonebook;
-    private final static MediaType CSV = new MediaType("text/comma-separated-values");
-    private final static String[] HEADERS = new String[] {
+    private static final MediaType CSV = new MediaType("text/comma-separated-values");
+    private static final String[] HEADERS = new String[] {
         "First name",
         "Last name",
         "Number"
     };
+    private PhonebookManager m_phonebookManager;
+    private Phonebook m_phonebook;
     
     @Override
     public void init(Context context, Request request, Response response) {
@@ -52,7 +52,7 @@ public class PhonebookResource extends Resource {
     }
     
     static final class PhonebookCsv extends OutputRepresentation {
-        Collection<PhonebookEntry> m_entries;
+        private Collection<PhonebookEntry> m_entries;
         PhonebookCsv(Collection<PhonebookEntry> entries) {
             super(CSV);
             m_entries = entries;

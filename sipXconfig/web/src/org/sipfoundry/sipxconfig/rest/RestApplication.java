@@ -16,10 +16,12 @@ import org.restlet.Router;
 import org.restlet.ext.spring.SpringContext;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.web.context.WebApplicationContext;
 
 public class RestApplication extends Application {
-    WebApplicationContext m_springAppContext = null;
+
+    public RestApplication(Context context) {
+        super(context);
+    }
 
     @Override
     public Restlet createRoot() {
@@ -32,9 +34,5 @@ public class RestApplication extends Application {
         manager.init(router);
 
         return router;
-    }
-
-    public RestApplication(Context context) {
-        super(context);
     }
 }
