@@ -2,31 +2,33 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="cisco7960" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
+  <bean id="ciscoModel" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel" parent="abstractPhoneModel"
+    abstract="true" />
+  <bean id="cisco7960" parent="ciscoModel">
     <property name="beanId" value="ciscoIp" />
     <property name="label" value="Cisco IP 7960" />
     <property name="maxLineCount" value="6" />
   </bean>
-  <bean id="cisco7940" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
+  <bean id="cisco7940" parent="ciscoModel">
     <property name="beanId" value="ciscoIp" />
     <property name="label" value="Cisco IP 7940" />
     <property name="maxLineCount" value="2" />
   </bean>
-  <bean id="cisco7912" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
+  <bean id="cisco7912" parent="ciscoModel">
     <property name="beanId" value="ciscoAta" />
     <property name="label" value="Cisco IP 7912" />
     <property name="maxLineCount" value="1" />
     <property name="cfgPrefix" value="gk" />
     <property name="upgCode" value="0x601,0x400,0x200" />
   </bean>
-  <bean id="cisco7905" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
+  <bean id="cisco7905" parent="ciscoModel">
     <property name="beanId" value="ciscoAta" />
     <property name="label" value="Cisco IP 7905" />
     <property name="maxLineCount" value="1" />
     <property name="cfgPrefix" value="ld" />
     <property name="upgCode" value="0x501,0x400,0x200" />
   </bean>
-  <bean id="cisco18x" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
+  <bean id="cisco18x" parent="ciscoModel">
     <property name="beanId" value="ciscoAta" />
     <property name="label" value="Cisco ATA 186/188" />
     <property name="maxLineCount" value="2" />
@@ -48,9 +50,7 @@
   <bean id="ciscoAta" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" singleton="false"
     parent="abstractPhone">
     <property name="profileGenerator">
-      <bean class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaProfileWriter">
-        <property name="profileLocation" ref="tftpProfileLocation"/>
-      </bean>
+      <bean class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaProfileWriter" />
     </property>
   </bean>
 </beans>

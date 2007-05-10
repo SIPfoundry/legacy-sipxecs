@@ -58,4 +58,14 @@ public class FileSystemProfileLocationTest extends TestCase {
         location.removeProfile("abc.txt");
         assertFalse(profile.exists());
     }
+
+    public void testRemove() throws IOException {
+        FileSystemProfileLocation location = new FileSystemProfileLocation();
+        location.setParentDir(m_parentDir.getPath());
+
+        location.removeProfile(null);
+        location.removeProfile("");
+        assert (m_parentDir.exists());
+    }
+
 }

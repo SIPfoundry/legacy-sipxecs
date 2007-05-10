@@ -26,7 +26,7 @@ public class AcmePhoneTest extends TestCase {
         PhoneTestDriver.supplyTestData(phone);
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
                 
-        phone.generateProfiles();
+        phone.generateProfiles(location);
         
         InputStream expectedProfile = getClass().getResourceAsStream("expected-config");
         String expected = IOUtils.toString(expectedProfile);

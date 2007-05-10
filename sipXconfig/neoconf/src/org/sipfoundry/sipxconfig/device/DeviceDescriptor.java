@@ -23,6 +23,8 @@ public abstract class DeviceDescriptor {
 
     private String m_modelId;
 
+    private ProfileLocation m_defaultProfileLocation;
+
     /**
      * By default we accept MAC address as serial number. Device plugin developers can define
      * other regular expressions to accept serial number in a format specific for a device.
@@ -137,5 +139,13 @@ public abstract class DeviceDescriptor {
         Set definitions = new HashSet();
         definitions.add(getModelId());
         return definitions;
+    }
+    
+    public void setDefaultProfileLocation(ProfileLocation defaultProfileLocation) {
+        m_defaultProfileLocation = defaultProfileLocation;
+    }
+    
+    public ProfileLocation getDefaultProfileLocation() {
+        return m_defaultProfileLocation;
     }
 }

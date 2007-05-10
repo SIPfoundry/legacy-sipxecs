@@ -55,10 +55,9 @@ public class CiscoAtaPhoneTest extends TestCase {
         PhoneTestDriver.supplyTestData(phone);
         MemoryProfileLocation location = new MemoryProfileLocation();
         AbstractProfileGenerator pg = new CiscoAtaProfileWriter();
-        pg.setProfileLocation(location);        
         phone.setProfileGenerator(pg);
 
-        phone.generateProfiles();
+        phone.generateProfiles(location);
         
         return location.toString();
     }

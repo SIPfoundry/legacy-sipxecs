@@ -3,11 +3,11 @@
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <!-- models -->
-  <bean id="clearoneMax" class="org.sipfoundry.sipxconfig.phone.clearone.ClearoneModel">
+  <bean id="clearoneMax" class="org.sipfoundry.sipxconfig.phone.clearone.ClearoneModel" parent="abstractPhoneModel">
     <property name="label" value="ClearOne MAX IP" />
   </bean>
   <!-- implementation -->
-  <bean id="clearone" class="org.sipfoundry.sipxconfig.phone.clearone.ClearonePhone"
-    singleton="false" parent="abstractPhone">
+  <bean id="clearone" class="org.sipfoundry.sipxconfig.phone.clearone.ClearonePhone" singleton="false"
+    parent="abstractPhone">
   </bean>
 </beans>

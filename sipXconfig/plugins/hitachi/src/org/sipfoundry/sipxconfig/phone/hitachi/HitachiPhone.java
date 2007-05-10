@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.phone.hitachi;
 
 import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -51,11 +52,11 @@ public class HitachiPhone extends Phone {
     }
 
     @Override
-    public void generateProfiles() {
-        super.generateProfiles();
+    public void generateProfiles(ProfileLocation location) {
+        super.generateProfiles(location);
         // and copy loadrun.ini as well
         ProfileContext context = new ProfileContext(this, getLoadrunTemplate());
-        getProfileGenerator().generate(context, "loadrun.ini");
+        getProfileGenerator().generate(location, context, "loadrun.ini");
     }
 
     /**

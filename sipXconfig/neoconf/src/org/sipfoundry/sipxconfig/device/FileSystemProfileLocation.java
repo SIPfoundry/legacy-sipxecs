@@ -17,6 +17,7 @@ import java.io.OutputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -40,6 +41,9 @@ public class FileSystemProfileLocation implements ProfileLocation {
     }
 
     public void removeProfile(String profileName) {
+        if (StringUtils.isEmpty(profileName)) {
+            return;
+        }
         try {
             File file = getProfileFile(profileName);
             FileUtils.forceDelete(file);

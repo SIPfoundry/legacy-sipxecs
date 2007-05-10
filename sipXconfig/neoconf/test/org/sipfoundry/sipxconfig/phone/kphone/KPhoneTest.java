@@ -27,7 +27,7 @@ public class KPhoneTest extends TestCase {
         PhoneTestDriver.supplyTestData(phone);
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
-        phone.generateProfiles();
+        phone.generateProfiles(location);
         InputStream expectedProfile = getClass().getResourceAsStream("default-kphonerc");
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();
@@ -48,7 +48,7 @@ public class KPhoneTest extends TestCase {
         phone.setSerialNumber("000000000000");
 
         // method to test
-        phone.generateProfiles();
+        phone.generateProfiles(location);
 
         // test output file is a copy of the basic template and located in same directory
         // as this java source file

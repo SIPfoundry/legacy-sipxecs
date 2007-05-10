@@ -36,8 +36,6 @@ public class DeviceTest extends TestCase {
         FileSystemProfileLocation location = new FileSystemProfileLocation();
         location.setParentDir(root);
 
-        generator.setProfileLocation(location);
-
         final String profileFilename = "gateway.cfg";
 
         Phone device = new TestPhone() {
@@ -49,9 +47,9 @@ public class DeviceTest extends TestCase {
         device.setProfileGenerator(generator);
 
         File profile = new File(root, profileFilename);
-        device.generateProfiles();
+        device.generateProfiles(location);
         assertTrue(profile.exists());
-        device.removeProfiles();
+        device.removeProfiles(location);
         assertFalse(profile.exists());
 
         new File(root).delete();
@@ -64,8 +62,6 @@ public class DeviceTest extends TestCase {
         FileSystemProfileLocation location = new FileSystemProfileLocation();
         location.setParentDir(root);
 
-        generator.setProfileLocation(location);
-
         final String profileFilename = "gateway.cfg";
 
         Gateway device = new Gateway() {
@@ -77,9 +73,9 @@ public class DeviceTest extends TestCase {
         device.setProfileGenerator(generator);
 
         File profile = new File(root, profileFilename);
-        device.generateProfiles();
+        device.generateProfiles(location);
         assertTrue(profile.exists());
-        device.removeProfiles();
+        device.removeProfiles(location);
         assertFalse(profile.exists());
 
         new File(root).delete();

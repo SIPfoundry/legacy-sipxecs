@@ -32,7 +32,6 @@ public class LgNortelPhonebookTest extends TestCase {
         m_location = new MemoryProfileLocation();
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
         pg.setVelocityEngine(TestHelper.getVelocityEngine());
-        pg.setProfileLocation(m_location);
         m_pg = pg;
     }
     
@@ -47,7 +46,7 @@ public class LgNortelPhonebookTest extends TestCase {
 
         LgNortelPhonebook book = new LgNortelPhonebook(Collections.singleton(phonebookEntry));
 
-        m_pg.generate(book, "phonebook");
+        m_pg.generate(m_location, book, "phonebook");
         List<String> list = IOUtils.readLines(m_location.getReader());
         assertEquals(2, list.size());
         assertEquals("1, \"Joe \", 1234,", list.get(1));

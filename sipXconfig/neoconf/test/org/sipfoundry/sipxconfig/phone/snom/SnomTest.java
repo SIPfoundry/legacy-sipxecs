@@ -20,7 +20,7 @@ public class SnomTest extends TestCase {
         
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
         
-        phone.generateProfiles();
+        phone.generateProfiles(location);
         String expected = IOUtils.toString(this.getClass()
                 .getResourceAsStream("expected-360.cfg"));
 

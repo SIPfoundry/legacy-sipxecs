@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -91,7 +92,8 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     public boolean deleteGateway(Integer id) {
         Gateway g = getGateway(id);
-        g.removeProfiles();
+        ProfileLocation location = g.getModel().getDefaultProfileLocation();
+        g.removeProfiles(location);
         getHibernateTemplate().delete(g);
         return true;
     }

@@ -40,18 +40,18 @@ public class PolycomPhoneTest extends TestCase {
 
     private String m_root;
 
+    private FileSystemProfileLocation m_location;
+
     protected void setUp() {
         m_root = TestHelper.getTestDirectory() + "/polycom";
         m_phone = new PolycomPhone();
         m_tester = PhoneTestDriver.supplyTestData(m_phone);
         m_phone.setTftpRoot(m_root);
         
-        FileSystemProfileLocation location = new FileSystemProfileLocation();
-        location.setParentDir(m_root);
+        m_location = new FileSystemProfileLocation();
+        m_location.setParentDir(m_root);
         
         VelocityProfileGenerator profileGenerator = TestHelper.getProfileGenerator();
-        profileGenerator.setProfileLocation(location);
-        
         m_phone.setProfileGenerator(profileGenerator);       
         
         IMocksControl uploadControl = EasyMock.createNiceControl();
@@ -68,13 +68,13 @@ public class PolycomPhoneTest extends TestCase {
 
     public void testGenerateProfiles() throws Exception {
         ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone, m_root);
-        m_phone.generateProfiles();
+        m_phone.generateProfiles(m_location);
 
         // content of profiles is tested in individual base classes of ConfigurationTemplate
         File file = new File(m_root, cfg.getAppFilename());
         assertTrue(file.exists());
 
-        m_phone.removeProfiles();
+        m_phone.removeProfiles(m_location);
         assertFalse(file.exists());
     }
 

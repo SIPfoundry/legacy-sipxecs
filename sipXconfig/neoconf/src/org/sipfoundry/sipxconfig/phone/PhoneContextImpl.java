@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
@@ -40,8 +41,8 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
-public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, PhoneContext,
-        ApplicationListener, DaoEventListener {
+public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
+        PhoneContext, ApplicationListener, DaoEventListener {
 
     private static final String GROUP_RESOURCE_ID = "phone";
     private static final String QUERY_PHONE_ID_BY_SERIAL_NUMBER = "phoneIdsWithSerialNumber";
@@ -100,14 +101,15 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public void storePhone(Phone phone) {
         HibernateTemplate hibernate = getHibernateTemplate();
         String serialNumber = phone.getSerialNumber();
-        DaoUtils.checkDuplicatesByNamedQuery(hibernate, phone, QUERY_PHONE_ID_BY_SERIAL_NUMBER, serialNumber,
-                new DuplicateSerialNumberException(serialNumber));
+        DaoUtils.checkDuplicatesByNamedQuery(hibernate, phone, QUERY_PHONE_ID_BY_SERIAL_NUMBER,
+                serialNumber, new DuplicateSerialNumberException(serialNumber));
         phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
         hibernate.saveOrUpdate(phone);
     }
 
     public void deletePhone(Phone phone) {
-        phone.removeProfiles();
+        ProfileLocation location = phone.getModel().getDefaultProfileLocation();
+        phone.removeProfiles(location);
         phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
         for (Line line : phone.getLines()) {
             line.setValueStorage(clearUnsavedValueStorage(line.getValueStorage()));
@@ -138,8 +140,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return getBeansInGroupCount(Phone.class, groupId);
     }
 
-    public List<Phone> loadPhonesByPage(Integer groupId, int firstRow, int pageSize, String[] orderBy,
-            boolean orderAscending) {
+    public List<Phone> loadPhonesByPage(Integer groupId, int firstRow, int pageSize,
+            String[] orderBy, boolean orderAscending) {
         return loadBeansByPage(Phone.class, groupId, firstRow, pageSize, orderBy, orderAscending);
     }
 
@@ -158,8 +160,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public Integer getPhoneIdBySerialNumber(String serialNumber) {
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_PHONE_ID_BY_SERIAL_NUMBER,
-                "value", serialNumber);
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_PHONE_ID_BY_SERIAL_NUMBER, "value", serialNumber);
         return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_PHONE_ID_BY_SERIAL_NUMBER);
     }
 
@@ -222,8 +224,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public Collection getPhonesByGroupId(Integer groupId) {
-        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByGroupId", "groupId",
-                groupId);
+        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "phonesByGroupId", "groupId", groupId);
         return users;
     }
 
@@ -264,7 +266,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public Collection<Phone> getPhonesByUserId(Integer userId) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByUserId", "userId", userId);
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByUserId", "userId",
+                userId);
     }
 
     public void addToGroup(Integer groupId, Collection<Integer> ids) {

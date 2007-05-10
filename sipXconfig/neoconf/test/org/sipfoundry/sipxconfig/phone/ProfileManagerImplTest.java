@@ -15,11 +15,12 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.RestartManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
 public class ProfileManagerImplTest extends TestCase {
-    
+
     public void testNewPhone() {
         new TestPhone();
     }
@@ -43,14 +44,22 @@ public class ProfileManagerImplTest extends TestCase {
         jobContext.success(jobId);
         jobContextCtrl.replay();
 
+        MemoryProfileLocation location = new MemoryProfileLocation();
+        PhoneModel model = new PhoneModel();
+        model.setDefaultProfileLocation(location);
+
         IMocksControl phoneControl = org.easymock.classextension.EasyMock.createStrictControl();
         Phone phone = phoneControl.createMock(Phone.class);
         phone.getSerialNumber();
         phoneControl.andReturn("110000000000");
-        phone.generateProfiles();
+        phone.getModel();
+        phoneControl.andReturn(model);
+        phone.generateProfiles(EasyMock.same(location));
         phone.getSerialNumber();
         phoneControl.andReturn("120000000000");
-        phone.generateProfiles();
+        phone.getModel();
+        phoneControl.andReturn(model);
+        phone.generateProfiles(EasyMock.same(location));
         phoneControl.replay();
 
         IMocksControl phoneContextCtrl = EasyMock.createControl();
@@ -92,11 +101,17 @@ public class ProfileManagerImplTest extends TestCase {
         jobContext.success(jobId);
         jobContextCtrl.replay();
 
+        MemoryProfileLocation location = new MemoryProfileLocation();
+        PhoneModel model = new PhoneModel();
+        model.setDefaultProfileLocation(location);
+
         IMocksControl phoneControl = org.easymock.classextension.EasyMock.createStrictControl();
         Phone phone = phoneControl.createMock(Phone.class);
         phone.getSerialNumber();
         phoneControl.andReturn("110000000000");
-        phone.generateProfiles();
+        phone.getModel();
+        phoneControl.andReturn(model);
+        phone.generateProfiles(EasyMock.same(location));
         phoneControl.replay();
 
         IMocksControl phoneContextCtrl = EasyMock.createControl();

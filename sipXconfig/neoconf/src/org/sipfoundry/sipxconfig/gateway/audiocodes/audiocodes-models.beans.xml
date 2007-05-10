@@ -3,7 +3,8 @@
 <beans>
 
   <!-- Audiocodes digital gateways -->
-  <bean id="audiocodesTP" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
+  <bean id="audiocodesTP" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel"
+    parent="abstractGatewayModel">
     <property name="beanId" value="gwAudiocodesTp260" />
     <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
     <property name="digital" value="true" />
@@ -32,7 +33,8 @@
   </bean>
 
   <!-- audiocodes Media Pack FXO gateways -->
-  <bean id="audiocodesFxo" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
+  <bean id="audiocodesFxo" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel"
+    parent="abstractGatewayModel">
     <property name="beanId" value="gwAudiocodesMediant" />
     <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
     <property name="fxo" value="true" />
@@ -59,12 +61,13 @@
   </bean>
 
   <!-- AudioCodes FXS gateways -->
-  <bean id="audiocodesFxs" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxsModel">
+  <bean id="audiocodesFxs" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxsModel"
+    parent="abstractGatewayModel">
     <property name="beanId" value="gwFxsAudiocodes" />
     <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
     <property name="fxs" value="true" />
   </bean>
-  
+
   <bean id="audiocodesMP112_FXS" parent="audiocodesFxs">
     <property name="label" value="AudioCodes MP112 FXS" />
     <property name="maxLineCount" value="2" />

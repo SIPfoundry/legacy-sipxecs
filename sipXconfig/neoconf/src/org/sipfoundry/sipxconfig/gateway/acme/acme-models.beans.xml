@@ -3,7 +3,7 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <!-- This is just an example of how to register new gateway -->
-  <bean id="acmeGatewayStandard" class="org.sipfoundry.sipxconfig.gateway.GatewayModel">
+  <bean id="acmeGatewayStandard" parent="abstractGatewayModel">
     <property name="beanId" value="gwAcme"/>
     <property name="label" value="Acme 1000"/>
   </bean>

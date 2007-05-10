@@ -47,7 +47,7 @@ public class AudioCodesFxsGatewayTest extends TestCase {
             u1, u2
         }));
 
-        gateway.generateProfiles();
+        gateway.generateProfiles(location);
 
         String actual = location.toString();
 

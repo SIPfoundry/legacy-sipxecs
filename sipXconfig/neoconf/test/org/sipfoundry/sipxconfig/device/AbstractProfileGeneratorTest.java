@@ -15,8 +15,6 @@ import java.io.OutputStream;
 
 import junit.framework.TestCase;
 
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class AbstractProfileGeneratorTest extends TestCase {
@@ -25,7 +23,9 @@ public class AbstractProfileGeneratorTest extends TestCase {
         ProfileGeneratorStub() {
             setTemplateRoot(TestUtil.getTestSourceDirectory(AbstractProfileGeneratorTest.class));
         }
-        protected void generateProfile(ProfileContext context, OutputStream out) throws IOException {
+
+        protected void generateProfile(ProfileContext context, OutputStream out)
+                throws IOException {
             out.write(context.getProfileTemplate().getBytes("US-ASCII"));
         }
     }
@@ -47,50 +47,22 @@ public class AbstractProfileGeneratorTest extends TestCase {
     public void testCopy() throws IOException {
         MemoryProfileLocation location = new MemoryProfileLocation();
         AbstractProfileGenerator pg = new ProfileGeneratorStub();
-        pg.setProfileLocation(location);
-        pg.copy("CopyFileTest.txt", "whatever");
+        pg.copy(location, "CopyFileTest.txt", "whatever");
         assertEquals("test file contents\n", location.toString());
     }
 
     public void testGenerateProfileContextStringString() {
         MemoryProfileLocation location = new MemoryProfileLocation();
         AbstractProfileGenerator pg = new ProfileGeneratorStub();
-        pg.setProfileLocation(location);
-        pg.generate(new ProfileContext(null, "bongo"), "ignored");
+        pg.generate(location, new ProfileContext(null, "bongo"), "ignored");
         assertEquals("bongo", location.toString());
     }
 
     public void testGenerateProfileContextStringProfileFilterString() {
         MemoryProfileLocation location = new MemoryProfileLocation();
         AbstractProfileGenerator pg = new ProfileGeneratorStub();
-        pg.setProfileLocation(location);
-        pg.generate(new ProfileContext(null, "bongo"), new DoublingProfileFilter(), "ignored");
+        pg.generate(location, new ProfileContext(null, "bongo"), new DoublingProfileFilter(),
+                "ignored");
         assertEquals("bboonnggoo", location.toString());
-    }
-
-    public void testRemove() {
-        IMocksControl locationControl = EasyMock.createControl();
-        ProfileLocation location = locationControl.createMock(ProfileLocation.class);
-
-        AbstractProfileGenerator pg = new ProfileGeneratorStub();
-        pg.setProfileLocation(location);
-
-        locationControl.replay();
-
-        pg.remove(null);
-        locationControl.verify();
-
-        locationControl.reset();
-        locationControl.replay();
-
-        pg.remove("");
-        locationControl.verify();
-
-        locationControl.reset();
-        location.removeProfile("kuku");
-        locationControl.replay();
-
-        pg.remove("kuku");
-        locationControl.verify();
     }
 }

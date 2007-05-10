@@ -2,26 +2,28 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="genericGatewayStandard" class="org.sipfoundry.sipxconfig.gateway.GatewayModel">
+  <bean id="abstractGatewayModel" class="org.sipfoundry.sipxconfig.gateway.GatewayModel" abstract="true">
+    <property name="defaultProfileLocation" ref="tftpProfileLocation" />
+  </bean>
+
+  <bean id="genericGatewayStandard" parent="abstractGatewayModel">
     <property name="beanId" value="gwGeneric" />
     <!-- do not require serial number for unmanaged gateways -->
-    <property name="serialNumberPattern" value=""/>
+    <property name="serialNumberPattern" value="" />
     <property name="label" value="Unmanaged gateway" />
   </bean>
 
-  <bean id="sipTrunkStandard" class="org.sipfoundry.sipxconfig.gateway.SipTrunkModel">
+  <bean id="sipTrunkStandard" class="org.sipfoundry.sipxconfig.gateway.SipTrunkModel" parent="abstractGatewayModel">
     <property name="label" value="SIP trunk" />
   </bean>
 
-  <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false"
-    parent="beanWithSettings">
-    <property name="profileGenerator" ref="tftpProfileGenerator" />
+  <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false" parent="beanWithSettings">
+    <property name="profileGenerator" ref="velocityProfileGenerator" />
     <property name="gatewayModelSource" ref="nakedGatewayModelSource" />
     <property name="defaults" ref="phoneDefaults" />
   </bean>
 
-  <bean id="gwSipTrunk" class="org.sipfoundry.sipxconfig.gateway.SipTrunk" singleton="false"
-    parent="gwGeneric">
+  <bean id="gwSipTrunk" class="org.sipfoundry.sipxconfig.gateway.SipTrunk" singleton="false" parent="gwGeneric">
     <property name="modelFilesContext" ref="modelFilesContext" />
   </bean>
 
@@ -58,8 +60,7 @@
     <property name="jobContext" ref="jobContext" />
   </bean>
 
-  <bean id="gatewayProfileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl"
-    init-method="init">
+  <bean id="gatewayProfileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl" init-method="init">
     <property name="target">
       <ref local="eagerGatewayProfileManager" />
     </property>

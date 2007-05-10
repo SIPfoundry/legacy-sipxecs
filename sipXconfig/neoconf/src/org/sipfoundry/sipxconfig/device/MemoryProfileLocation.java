@@ -37,6 +37,9 @@ public class MemoryProfileLocation implements ProfileLocation {
     }
 
     public String toString() {
+        if (m_stream == null) {
+            return null;
+        }
         try {
             return m_stream.toString("UTF-8");
         } catch (UnsupportedEncodingException e) {

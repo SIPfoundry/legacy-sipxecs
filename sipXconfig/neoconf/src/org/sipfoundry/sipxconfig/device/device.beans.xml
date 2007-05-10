@@ -6,7 +6,7 @@
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="domainManager" ref="domainManager" />
     <property name="sipxServer" ref="sipxServer" />
-    <property name="serviceManager" ref="serviceManager"/>
+    <property name="serviceManager" ref="serviceManager" />
   </bean>
 
 
@@ -26,17 +26,9 @@
       <value>${sysdir.phone}/profile/docroot</value>
     </property>
   </bean>
-  
-  <bean id="abstractProfileGenerator" abstract="true">
-    <property name="templateRoot" value="${sysdir.etc}"/>
-    <property name="velocityEngine" ref="velocityEngine" />    
-  </bean>
 
-  <bean id="tftpProfileGenerator" class="org.sipfoundry.sipxconfig.device.VelocityProfileGenerator" parent="abstractProfileGenerator">
-    <property name="profileLocation" ref="tftpProfileLocation" />
+  <bean id="velocityProfileGenerator" class="org.sipfoundry.sipxconfig.device.VelocityProfileGenerator">
+    <property name="templateRoot" value="${sysdir.etc}" />
+    <property name="velocityEngine" ref="velocityEngine" />
   </bean>
-  
-  <bean id="httpProfileGenerator" class="org.sipfoundry.sipxconfig.device.VelocityProfileGenerator" parent="abstractProfileGenerator">
-    <property name="profileLocation" ref="httpProfileLocation" />
-  </bean>  
 </beans>

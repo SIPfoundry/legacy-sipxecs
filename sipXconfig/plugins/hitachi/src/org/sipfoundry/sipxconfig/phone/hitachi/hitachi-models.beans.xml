@@ -3,17 +3,21 @@
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <!-- models -->
-  <bean id="hitachi3000" class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiModel">
-    <property name="label" value="Hitachi Wireless IP 3000"/>
+  <bean id="hitachiModel" abstract="true" parent="abstractPhoneModel"
+    class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiModel">
+    <property name="label" value="Hitachi Wireless IP 3000" />
   </bean>
-  <bean id="hitachi5000" class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiModel">
-    <property name="label" value="Hitachi Wireless IP 5000"/>
+  <bean id="hitachi3000" parent="hitachiModel">
+    <property name="label" value="Hitachi Wireless IP 3000" />
   </bean>
-  <bean id="hitachi5000A" class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiModel">
-    <property name="label" value="Hitachi Wireless IP 5000A"/>
+  <bean id="hitachi5000" parent="hitachiModel">
+    <property name="label" value="Hitachi Wireless IP 5000" />
+  </bean>
+  <bean id="hitachi5000A" parent="hitachiModel">
+    <property name="label" value="Hitachi Wireless IP 5000A" />
   </bean>
   <!-- implementation -->
-  <bean id="hitachi" class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiPhone"
-    singleton="false" parent="abstractPhone">
+  <bean id="hitachi" class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiPhone" singleton="false"
+    parent="abstractPhone">
   </bean>
 </beans>

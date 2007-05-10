@@ -42,9 +42,7 @@ public class ApplicationConfigurationTest extends XMLTestCase {
 
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
         pg.setVelocityEngine(TestHelper.getVelocityEngine());
-        pg.setProfileLocation(m_location);
         m_pg = pg;
-
     }
 
     public void testGenerateProfile() throws Exception {
@@ -52,9 +50,10 @@ public class ApplicationConfigurationTest extends XMLTestCase {
 
         ApplicationConfiguration app = new ApplicationConfiguration(phone, root);
 
-        m_pg.generate(app, "profile");
+        m_pg.generate(m_location, app, "profile");
 
-        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-macaddress.cfg");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream(
+                "expected-macaddress.cfg");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
         Reader generatedXml = new StringReader(m_location.toString());
 
@@ -67,7 +66,8 @@ public class ApplicationConfigurationTest extends XMLTestCase {
     }
 
     public void testGetUniqueDirectory() {
-        String root = TestHelper.getTestDirectory() + "/testGetUniqueDirectory-" + System.currentTimeMillis();
+        String root = TestHelper.getTestDirectory() + "/testGetUniqueDirectory-"
+                + System.currentTimeMillis();
         new File(root).mkdirs();
         String base = "000000000000";
 

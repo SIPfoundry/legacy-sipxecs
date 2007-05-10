@@ -89,7 +89,7 @@ public class LgNortelPhoneTest extends TestCase {
         LgNortelModel lgNortelModel = new LgNortelModel();
         lgNortelModel.setMaxLineCount(4); // we are testing 2 lines
         LgNortelPhone phone = new LgNortelPhone(lgNortelModel);
-        
+
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
         User u1 = new User();
@@ -108,7 +108,7 @@ public class LgNortelPhoneTest extends TestCase {
             u1, u2
         }));
 
-        phone.generateProfiles();
+        phone.generateProfiles(location);
         InputStream expectedProfile = getClass().getResourceAsStream("mac.cfg");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);
@@ -125,15 +125,14 @@ public class LgNortelPhoneTest extends TestCase {
         }
         assertEquals(expectedLines.length, actualLines.length);
     }
-    
+
     public void testSpeeddial() throws Exception {
         Button[] buttons = new Button[] {
-            new Button("Yogi", "yogi@example.com"),
-            new Button("Daffy Duck", "213")                
+            new Button("Yogi", "yogi@example.com"), new Button("Daffy Duck", "213")
         };
         SpeedDial sp = new SpeedDial();
         sp.setButtons(Arrays.asList(buttons));
-        
+
         LgNortelModel lgNortelModel = new LgNortelModel();
         Phone phone = new LgNortelPhone(lgNortelModel);
         IMocksControl phoneContextControl = EasyMock.createNiceControl();
@@ -142,13 +141,13 @@ public class LgNortelPhoneTest extends TestCase {
 
         phoneContext.getSpeedDial(phone);
         phoneContextControl.andReturn(sp).anyTimes();
-        
+
         phoneContextControl.replay();
 
         {
             MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
-            phone.generateProfiles();
-            String actual = location.toString();      
+            phone.generateProfiles(location);
+            String actual = location.toString();
             String actualLines[] = StringUtils.split(actual, "\n");
             int i = find(actualLines, "[PROG]");
             assertTrue(i >= 0);
@@ -163,8 +162,8 @@ public class LgNortelPhoneTest extends TestCase {
         phone.addLine(line);
         {
             MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
-            phone.generateProfiles();
-            String actual = location.toString();    
+            phone.generateProfiles(location);
+            String actual = location.toString();
             String actualLines[] = StringUtils.split(actual, "\n");
             int i = find(actualLines, "[PROG]");
             assertTrue(i >= 0);
@@ -174,7 +173,7 @@ public class LgNortelPhoneTest extends TestCase {
 
         phoneContextControl.verify();
     }
-    
+
     private int find(String[] lines, String match) {
         for (int i = 0; i < lines.length; i++) {
             if (match.equals(lines[i])) {

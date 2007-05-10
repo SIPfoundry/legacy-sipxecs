@@ -21,6 +21,7 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ProfileFilter;
+import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -41,7 +42,7 @@ public class PolycomPhone extends Phone {
     static final String PASSWORD_PATH = "reg/auth.password";
     static final String USER_ID_PATH = "reg/address";
     static final String AUTHORIZATION_ID_PATH = "reg/auth.userId";
-    static final String TEMPLATE_DIR = "polycom/mac-address.d";    
+    static final String TEMPLATE_DIR = "polycom/mac-address.d";
 
     private String m_tftpRoot;
     private UploadManager m_uploadManager;
@@ -77,8 +78,8 @@ public class PolycomPhone extends Phone {
     @Override
     public void initialize() {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
-        PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext().getPhoneDefaults(),
-                speedDial);
+        PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext()
+                .getPhoneDefaults(), speedDial);
         addDefaultBeanSettingHandler(phoneDefaults);
 
         PolycomIntercomDefaults intercomDefaults = new PolycomIntercomDefaults(this);
@@ -87,47 +88,51 @@ public class PolycomPhone extends Phone {
 
     @Override
     public void initializeLine(Line line) {
-        PolycomLineDefaults lineDefaults = new PolycomLineDefaults(getPhoneContext().getPhoneDefaults(), line);
+        PolycomLineDefaults lineDefaults = new PolycomLineDefaults(getPhoneContext()
+                .getPhoneDefaults(), line);
         line.addDefaultBeanSettingHandler(lineDefaults);
     }
 
-    public void generateProfiles() {
+    @Override
+    public void generateProfiles(ProfileLocation location) {
         FormatFilter format = new FormatFilter();
 
         ApplicationConfiguration app = new ApplicationConfiguration(this, m_tftpRoot);
 
-        getProfileGenerator().generate(app, format, app.getAppFilename());
+        getProfileGenerator().generate(location, app, format, app.getAppFilename());
 
         SipConfiguration sip = new SipConfiguration(this);
-        getProfileGenerator().generate(sip, format, app.getSipFilename());
+        getProfileGenerator().generate(location, sip, format, app.getSipFilename());
 
         PhoneConfiguration phone = new PhoneConfiguration(this);
-        getProfileGenerator().generate(phone, format, app.getPhoneFilename());
+        getProfileGenerator().generate(location, phone, format, app.getPhoneFilename());
 
         app.deleteStaleDirectories();
 
         Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
         DirectoryConfiguration dir = new DirectoryConfiguration(entries, speedDial);
-        getProfileGenerator().generate(dir, format, app.getDirectoryFilename());
-        
+        getProfileGenerator().generate(location, dir, format, app.getDirectoryFilename());
+
         // Don't copy in vendor skeleton templates if there's a firmware active as it would
         // contain it's own copies that should match the phone's firmware version
-        if (!m_uploadManager.isActiveUploadById(m_uploadManager.getSpecification("polycomFirmware"))) {
-            getProfileGenerator().copy("polycom/sip.cfg", "sip.cfg");            
-            getProfileGenerator().copy("polycom/phone1.cfg", "phone1.cfg");            
-        }        
+        if (!m_uploadManager.isActiveUploadById(m_uploadManager
+                .getSpecification("polycomFirmware"))) {
+            getProfileGenerator().copy(location, "polycom/sip.cfg", "sip.cfg");
+            getProfileGenerator().copy(location, "polycom/phone1.cfg", "phone1.cfg");
+        }
     }
-    
-    public void removeProfiles() {
+
+    @Override
+    public void removeProfiles(ProfileLocation location) {
         ApplicationConfiguration app = new ApplicationConfiguration(this, m_tftpRoot);
         // new to call this function to generate stale directories list
         app.getDirectory();
         // this will remove all old directories
         app.deleteStaleDirectories();
 
-        getProfileGenerator().remove(app.getAppFilename());
-        getProfileGenerator().remove(app.getDirectoryFilename());
+        location.removeProfile(app.getAppFilename());
+        location.removeProfile(app.getDirectoryFilename());
     }
 
     /**

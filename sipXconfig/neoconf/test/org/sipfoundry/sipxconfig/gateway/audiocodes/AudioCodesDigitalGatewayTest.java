@@ -45,14 +45,10 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
             FxoPort trunk = new FxoPort();
             m_gateway.addPort(trunk);
         }
-
         m_gateway.setSerialNumber("001122334455");
-
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
-
-        // call this to inject dummy data
-
-        m_gateway.generateProfiles();
+        
+        m_gateway.generateProfiles(location);
 
         String actual = location.toString();
 

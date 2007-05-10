@@ -17,6 +17,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -56,23 +57,23 @@ public class LgNortelPhone extends Phone {
     }
     
     @Override
-    public void generateProfiles() {
-        super.generateProfiles();
-        generatePhonebook();
+    public void generateProfiles(ProfileLocation location) {
+        super.generateProfiles(location);
+        generatePhonebook(location);
     }
     
-    void generatePhonebook() {
+    void generatePhonebook(ProfileLocation location) {
         Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
         if (entries != null && entries.size() > 0) {
             LgNortelPhonebook phonebook = new LgNortelPhonebook(entries);
-            getProfileGenerator().generate(phonebook, getPhonebookFilename());
+            getProfileGenerator().generate(location, phonebook, getPhonebookFilename());
         }
     }
 
     @Override
-    public void removeProfiles() {
-        super.removeProfiles();
-        getProfileGenerator().remove(getPhonebookFilename());
+    public void removeProfiles(ProfileLocation location) {
+        super.removeProfiles(location);
+        location.removeProfile(getPhonebookFilename());
     }
 
     @Override

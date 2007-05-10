@@ -174,7 +174,6 @@ public final class TestHelper {
         MemoryProfileLocation location = new MemoryProfileLocation();
         VelocityProfileGenerator profileGenerator = new VelocityProfileGenerator();
         profileGenerator.setVelocityEngine(getVelocityEngine());
-        profileGenerator.setProfileLocation(location);
         profileGenerator.setTemplateRoot(getSysDirProperties().getProperty("sysdir.etc"));
         device.setProfileGenerator(profileGenerator);
 

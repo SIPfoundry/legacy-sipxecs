@@ -2,10 +2,9 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="testPhoneModel" class="org.sipfoundry.sipxconfig.phone.TestPhoneModel">
-    <property name="label" value="Test Phone"/>
+  <bean id="testPhoneModel" parent="abstractPhoneModel" class="org.sipfoundry.sipxconfig.phone.TestPhoneModel">
+    <property name="label" value="Test Phone" />
   </bean>
 
-  <bean id="testPhone" class="org.sipfoundry.sipxconfig.phone.TestPhone" singleton="false"
-    parent="abstractPhone"/>
+  <bean id="testPhone" class="org.sipfoundry.sipxconfig.phone.TestPhone" singleton="false" parent="abstractPhone" />
 </beans>

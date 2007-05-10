@@ -2,12 +2,11 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="kphoneStandard" class="org.sipfoundry.sipxconfig.phone.PhoneModel">
+  <bean id="kphoneStandard" parent="abstractPhoneModel">
     <property name="label" value="KPhone" />
     <property name="beanId" value="kphone" />
+    <property name="defaultProfileLocation" ref="httpProfileLocation" />
   </bean>
-  <bean id="kphone" class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" singleton="false"
-    parent="abstractPhone">
-    <property name="profileGenerator" ref="httpProfileGenerator" />
+  <bean id="kphone" class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" singleton="false" parent="abstractPhone">
   </bean>
 </beans>

@@ -43,12 +43,6 @@ public class MitelPhone extends Phone {
     }
 
     @Override
-    public void generateProfiles() {
-        super.generateProfiles();
-        // generate some other files
-    }
-
-    @Override
     public String getPhoneFilename() {
         String serialNumber = getSerialNumber();
         return "mn_" + serialNumber + ".txt";

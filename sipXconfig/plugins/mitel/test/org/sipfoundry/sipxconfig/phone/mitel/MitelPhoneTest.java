@@ -39,7 +39,7 @@ public class MitelPhoneTest extends XMLTestCase {
         PhoneTestDriver.supplyTestData(phone);
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
-        phone.generateProfiles();
+        phone.generateProfiles(location);
         InputStream expectedProfile = getClass().getResourceAsStream("mn.txt");
         assertNotNull(expectedProfile);
 

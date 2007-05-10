@@ -45,7 +45,6 @@ public class SipConfigurationTest extends XMLTestCase {
         m_location = new MemoryProfileLocation();
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
         pg.setVelocityEngine(TestHelper.getVelocityEngine());
-        pg.setProfileLocation(m_location);
         m_pg = pg;
     }
 
@@ -73,7 +72,7 @@ public class SipConfigurationTest extends XMLTestCase {
 
         ProfileContext cfg = new SipConfiguration(phone);
 
-        m_pg.generate(cfg, "profile");
+        m_pg.generate(m_location, cfg, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream(expected);
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);

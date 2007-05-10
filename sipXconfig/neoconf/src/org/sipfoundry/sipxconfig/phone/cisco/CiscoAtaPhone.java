@@ -14,6 +14,7 @@ import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileFilter;
+import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -71,14 +72,15 @@ public class CiscoAtaPhone extends CiscoPhone {
         return getCiscoModel().getCfgPrefix() + phoneFilename.toLowerCase();
     }
 
-    public void generateProfiles() {
+    @Override
+    public void generateProfiles(ProfileLocation location) {
         ProfileFilter filter = null;
         if (!m_isTextFormatEnabled) {
             String systemDir = getPhoneContext().getSystemDirectory();
             filter = new BinaryFilter(systemDir + "/ciscoAta", getCiscoModel());
         }
         ProfileContext context = new ProfileContext(this, null);
-        getProfileGenerator().generate(context, filter, getPhoneFilename());
+        getProfileGenerator().generate(location, context, filter, getPhoneFilename());
     }
 
     public Collection<Line> getProfileLines() {

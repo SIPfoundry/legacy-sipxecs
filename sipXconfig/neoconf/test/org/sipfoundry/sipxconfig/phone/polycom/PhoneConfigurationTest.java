@@ -40,7 +40,6 @@ public class PhoneConfigurationTest extends XMLTestCase {
         m_location = new MemoryProfileLocation();
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
         pg.setVelocityEngine(TestHelper.getVelocityEngine());
-        pg.setProfileLocation(m_location);
         m_pg = pg;
     }
 
@@ -55,7 +54,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
 
     private void assertExpectedProfile(String expected) throws Exception {
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
-        m_pg.generate(cfg, "profile");
+        m_pg.generate(m_location, cfg, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream(expected);
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);

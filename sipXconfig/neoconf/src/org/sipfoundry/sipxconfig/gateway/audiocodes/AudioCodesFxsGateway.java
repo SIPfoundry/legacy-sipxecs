@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -26,7 +27,7 @@ public class AudioCodesFxsGateway extends Phone {
     public AudioCodesFxsGateway() {
         super("gwFxsAudiocodes");
     }
-    
+
     @Override
     public void initialize() {
         DeviceDefaults dd = getPhoneContext().getPhoneDefaults();
@@ -73,11 +74,11 @@ public class AudioCodesFxsGateway extends Phone {
     }
 
     @Override
-    public void generateProfiles() {
-        getProfileGenerator().copy("audiocodes/MP11x-02-1-FXS_16KHZ.dat",
+    public void generateProfiles(ProfileLocation location) {
+        getProfileGenerator().copy(location, "audiocodes/MP11x-02-1-FXS_16KHZ.dat",
                 "MP11x-02-1-FXS_16KHZ.dat");
-        getProfileGenerator().copy("audiocodes/usa_tones_12.dat", "usa_tones_12.dat");
-        super.generateProfiles();
+        getProfileGenerator().copy(location, "audiocodes/usa_tones_12.dat", "usa_tones_12.dat");
+        super.generateProfiles(location);
     }
 
     protected LineInfo getLineInfo(Line line) {

@@ -55,7 +55,7 @@ public class AudioCodesFxoGatewayTest extends TestCase {
 
         // call this to inject dummy data
 
-        m_gateway.generateProfiles();
+        m_gateway.generateProfiles(location);
 
         String actual = location.toString();
 

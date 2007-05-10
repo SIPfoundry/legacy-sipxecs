@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
+import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
@@ -79,18 +80,18 @@ public class Gateway extends BeanWithSettings implements NamedObject, Device {
      * template are provided
      * 
      */
-    public void generateProfiles() {
+    public void generateProfiles(ProfileLocation location) {
         String profileFileName = getProfileFilename();
         ProfileContext context = createContext();
-        m_profileGenerator.generate(context, profileFileName);
+        m_profileGenerator.generate(location, context, profileFileName);
     }
 
     protected ProfileContext createContext() {
         return new ProfileContext(this, getProfileTemplate());
     }
 
-    public void removeProfiles() {
-        getProfileGenerator().remove(getProfileFilename());
+    public void removeProfiles(ProfileLocation location) {
+        location.removeProfile(getProfileFilename());
     }
 
     protected String getProfileTemplate() {

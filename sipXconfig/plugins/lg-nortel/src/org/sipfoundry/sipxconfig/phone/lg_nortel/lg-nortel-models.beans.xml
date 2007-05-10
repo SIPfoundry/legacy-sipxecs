@@ -3,25 +3,30 @@
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <!-- models -->
-  <bean id="lip6804" class="org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelModel">
+  <bean id="lipModel" abstract="true" parent="abstractPhoneModel"
+    class="org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelModel">
     <property name="label" value="LIP-6804" />
     <property name="maxLineCount" value="4" />
   </bean>
-  <bean id="lip6812" class="org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelModel">
+  <bean id="lip6804" parent="lipModel">
+    <property name="label" value="LIP-6804" />
+    <property name="maxLineCount" value="4" />
+  </bean>
+  <bean id="lip6812" parent="lipModel">
     <property name="label" value="LIP-6812" />
     <property name="maxLineCount" value="11" />
   </bean>
-  <bean id="lip6830" class="org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelModel">
+  <bean id="lip6830" parent="lipModel">
     <property name="label" value="LIP-6830" />
     <property name="maxLineCount" value="24" />
   </bean>
   <!-- implementation -->
-  <bean id="lg-nortel" class="org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelPhone"
-    singleton="false" parent="abstractPhone">
+  <bean id="lg-nortel" class="org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelPhone" singleton="false"
+    parent="abstractPhone">
   </bean>
   <bean id="lg-nortelFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
-    <property name="beanId" value="zipUpload"/>
-    <property name="modelFilePath" value="lg-nortel/upload.xml"/>
+    <property name="beanId" value="zipUpload" />
+    <property name="modelFilePath" value="lg-nortel/upload.xml" />
     <property name="label" value="LG-Nortel LIP-68xx" />
-  </bean>      
+  </bean>
 </beans>

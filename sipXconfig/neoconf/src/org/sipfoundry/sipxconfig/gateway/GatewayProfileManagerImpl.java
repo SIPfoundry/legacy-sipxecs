@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
@@ -30,7 +31,8 @@ public class GatewayProfileManagerImpl implements ProfileManager {
         Serializable jobId = m_jobContext.schedule("Projection for gateway " + g.getName());
         try {
             m_jobContext.start(jobId);
-            g.generateProfiles();
+            ProfileLocation location = g.getModel().getDefaultProfileLocation();
+            g.generateProfiles(location);
             m_jobContext.success(jobId);
         } catch (RuntimeException e) {
             m_jobContext.failure(jobId, null, e);

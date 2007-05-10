@@ -13,9 +13,9 @@ public interface Device {
 
     void setProfileGenerator(ProfileGenerator profileGenerator);
 
-    void generateProfiles();
+    void generateProfiles(ProfileLocation profileLocation);
 
-    void removeProfiles();
+    void removeProfiles(ProfileLocation profileLocation);
 
     String getSerialNumber();
 }

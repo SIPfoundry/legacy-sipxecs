@@ -46,11 +46,9 @@ public class ClearonePhoneTest extends TestCase {
         FileSystemProfileLocation location = new FileSystemProfileLocation();
         location.setParentDir(parentDir);
         AbstractProfileGenerator profileGenerator = TestHelper.getProfileGenerator();
-        profileGenerator.setProfileLocation(location);
-
         phone.setProfileGenerator(profileGenerator);
 
-        phone.generateProfiles();
+        phone.generateProfiles(location);
 
         String expected = getResourceAsString("C1MAXIP.txt");
 
@@ -67,7 +65,7 @@ public class ClearonePhoneTest extends TestCase {
 
         compareProfiles(expectedDialPlan, actualDialPlan);
 
-        phone.removeProfiles();
+        phone.removeProfiles(location);
 
         assertFalse(actualProfileFile.exists());
         assertFalse(actualDialPlanFile.exists());

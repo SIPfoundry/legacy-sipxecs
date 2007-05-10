@@ -33,13 +33,12 @@ public class VelocityProfileGeneratorTest extends TestCase {
         m_generator.setVelocityEngine(engine);
 
         m_location = new MemoryProfileLocation();
-        m_generator.setProfileLocation(m_location);
     }
 
     public void testGenerateProfile() {
         ProfileContext context = new ProfileContextStub();
 
-        m_generator.generate(context, "ignored");
+        m_generator.generate(m_location, context, "ignored");
 
         assertEquals("testPhone has 17 lines", m_location.toString());
     }

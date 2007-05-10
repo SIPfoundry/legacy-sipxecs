@@ -40,8 +40,7 @@
     <property name="jobContext" ref="jobContext" />
   </bean>
 
-  <bean id="restartManager" class="org.sipfoundry.sipxconfig.device.LazyRestartManagerImpl"
-    init-method="init">
+  <bean id="restartManager" class="org.sipfoundry.sipxconfig.device.LazyRestartManagerImpl" init-method="init">
     <property name="target">
       <ref local="eagerRestartManager" />
     </property>
@@ -58,20 +57,23 @@
     <property name="jobContext" ref="jobContext" />
   </bean>
 
-  <bean id="profileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl"
-    init-method="init">
+  <bean id="profileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl" init-method="init">
     <property name="target">
       <ref local="eagerProfileManager" />
     </property>
     <property name="sleepInterval" value="5000" />
   </bean>
 
-  <bean id="abstractPhone" class="org.sipfoundry.sipxconfig.phone.Phone" singleton="false"
-    parent="beanWithSettings" abstract="true">
+  <bean id="abstractPhone" class="org.sipfoundry.sipxconfig.phone.Phone" singleton="false" parent="beanWithSettings"
+    abstract="true">
     <property name="phoneModelSource" ref="nakedPhoneModelSource" />
     <property name="phoneContext" ref="phoneContext" />
-    <property name="profileGenerator" ref="tftpProfileGenerator" />
+    <property name="profileGenerator" ref="velocityProfileGenerator" />
     <property name="sipService" ref="sip" />
+  </bean>
+
+  <bean id="abstractPhoneModel" abstract="true" class="org.sipfoundry.sipxconfig.phone.PhoneModel">
+    <property name="defaultProfileLocation" ref="tftpProfileLocation" />
   </bean>
 
   <bean id="sip" class="org.sipfoundry.sipxconfig.phone.SipServiceImpl" />
