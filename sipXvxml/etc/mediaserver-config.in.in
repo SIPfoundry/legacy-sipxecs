@@ -77,6 +77,12 @@ client.inet.acceptCookies               VXIInteger      1
 # client.prompt.baseUrl                   VXIString       http://localhost:${MEDIA_SERVER_HTTP_PORT}/stdprompts/
 client.prompt.baseUrl                   VXIString       file://@wwwdir@/doc/stdprompts/
 
+### Controls HTAnchor patch
+### n is an integer equal or greater then zero.
+### Zero disables the patch, otherwise n controls how many times the  number if active 
+### instances of SBinetHttpStream class has to drop t zero before the HTAnchor cache is cleaned
+#inet.htAnchorPeriod                     VXIInteger     n
+
 ### JavaScript
 client.jsi.runtimeSizeBytes             VXIInteger      16384000
 client.jsi.contextSizeBytes             VXIInteger      131072

@@ -115,6 +115,7 @@ OSBINET_API VXIinetResult OSBinetInit (VXIlogInterface  *log,
 				      VXIulong          proxyPort,
 				      const VXIchar    *userAgentName,
 				      const VXIMap     *extensionRules,
+                                      const VXIMap     *configArgs,
 				      const VXIVector  *reserved);
 
 /**

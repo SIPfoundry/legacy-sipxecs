@@ -64,6 +64,7 @@
 #include "HTReqMan.h"
 
 #include "os/OsSysLog.h"
+#include "SBclientUtils.h"
 
 #ifdef WIN32
 /* Suppress/disable warnings */
@@ -72,6 +73,8 @@
 #endif
 
 #define INET_INFO_HTTP_STATUS L"inet.httpStatus"
+
+#define INET_PERIODIC_HTANCHOR_CLEANUP L"inet.htAnchorPeriod"
 
 
 extern "C" {
@@ -83,6 +86,68 @@ extern "C" {
 #endif
  
 #define MAX_CHUNK_SIZE (10 * 1024 * 1024)
+
+/**
+May 2007 Mark Gertsvolf
+Disclaimer: I do not pretend to understand this code well. All I know is it was originally designed to work with W3C wwwlib library and 
+hence this API is used extensively. The original code may have been designed to use HTCache to prevent repetitive HTTP gets.
+Comments in the code suggest that the original designers struggled a bit and decided to first disable the cache, then the code
+may have been patched to use sipXtacklib HTTP transfers.
+However the wwwlib calls have been left all over the place and they do serve some purpose I recon, at least the HTChunk carries the result of the HTTP
+get to be retrieved by Read call later on.
+
+There is a memory leak or an ever growing HTAnchor cache. It is about ~180 octets per message retrieval.
+The size of the leak depends on the SIP domain names of the calling user
+For a single message deposit the following URLs are searched, then inserted into the cache if not found.  
+1. 'https://localhost:8091/cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox=19801&from=sipp%3Csip%3A19811%40markg-sipx2.example.com%3E%3Btag%253D1' 
+2. `https://localhost:8091/cgi-bin/voicemail/mediaserver.cgi`
+3. `http://localhost:8090/vm_vxml/root.vxml'
+4. `http://localhost:8090/vm_vxml/savemessage.vxml'
+5. `file:/tmp/fileUk6Ekj'
+
+Note that there are 2 URLs that are unique per call: one is the 
+temporary file (presumably the message being recorded). The second URL 
+is the URL to call CGI script.This URL contains from header of an 
+incoming call including the to tag, which means that it will be unique 
+for each message deposit call.
+
+My preference would be to rewrite this whole module, but at this point I am just here to fix the leak.
+The code seems fragile and I am afraid to make large scale changes. Instead, I am adding a band aid, i.e. an
+instance counting logic and a call to clear the cache whenever the number of SBinetHttpStream objects drops
+to zero and in periods that are controlled via config parameter.
+Modules other then SBinetHttpStream do not seem to be using HTAnchor cache
+The configuration is there to allow external control over this fix in case it does damage.
+
+In order to configure the patch add the following line into VXI config file:
+inet.htAnchorPeriod      VXIInteger      <n>
+
+where n is an integer equal or greater then zero. Zero disables the patch, otherwise n controls how many times the  number if active 
+instances of SBinetHttpStream class has to drop t zero before the HTAnchor cache is cleaned
+
+**/
+
+#define PERIODIC_HTANCHOR_CLEANUP 1000
+
+int SBinetHttpStream::sm_instanceCount = 0;
+int SBinetHttpStream::sm_cleanupPeriod = PERIODIC_HTANCHOR_CLEANUP;
+
+void SBinetHttpStream::Init(const VXIMap* configArgs) {
+
+  OsSysLog::add(FAC_HTTP, PRI_DEBUG,"SBinetHttpStream::Init configArgs = '%p'\n", configArgs);
+
+  int newCleanupPeriod = -1;
+  VXIplatformResult rc = VXIplatform_RESULT_SUCCESS;
+  VXIint32 tempInt = 0;
+  rc = SBclientGetParamInt(configArgs, INET_PERIODIC_HTANCHOR_CLEANUP, &tempInt, FALSE);
+  if (rc == VXIplatform_RESULT_SUCCESS) {
+    OsSysLog::add(FAC_HTTP, PRI_DEBUG,"SBinetHttpStream::Init Found config oparam %s:\n", INET_PERIODIC_HTANCHOR_CLEANUP);
+    newCleanupPeriod = (VXIunsigned) tempInt;
+  }
+
+  sm_cleanupPeriod = (newCleanupPeriod != -1) ? newCleanupPeriod : PERIODIC_HTANCHOR_CLEANUP;
+  OsSysLog::add(FAC_HTTP, PRI_DEBUG,"SBinetHttpStream::Init sm_cleanupPeriod = '%d'\n", sm_cleanupPeriod);
+}
+
 
 HTChunk*
 SBinetHttpStream::Get(SBinetURL*       url,
@@ -853,14 +918,40 @@ SBinetHttpStream::SBinetHttpStream(SBinetURL* url, SBinetChannel* ch,
   m_content_length = 0;
   m_reader = 2;
   m_ch = ch;
+
+  SBinetInterface::LockLibwww( );
+  sm_instanceCount++;
+  SBinetInterface::UnlockLibwww( );
+
   OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                "SBinetHttpStream::SBinetHttpStream m_url = '%ls'",
-                url->GetAbsolute());
+                "SBinetHttpStream::SBinetHttpStream(instance='%d') m_url = '%ls'",
+                sm_instanceCount, m_url->GetAbsolute());
 }
 
 SBinetHttpStream::~SBinetHttpStream()
 {
   Close();
+
+  int instance;
+  static int onceInaWhileTrigger = 0;
+  SBinetInterface::LockLibwww( );
+  instance = sm_instanceCount--;
+  // If sm_cleanupPeriod is 0 - do not ever cleanup
+  if (sm_cleanupPeriod && (sm_instanceCount == 0)) {
+    onceInaWhileTrigger = (onceInaWhileTrigger+1)%sm_cleanupPeriod;
+    if (!onceInaWhileTrigger) {
+      HTAnchor_deleteAll(NULL);
+      OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+		    "SBinetHttpStream::~SBinetHttpStream(instance='%d') m_url = '%ls' - perform HTAnchor cleanup",
+		    instance, m_url->GetAbsolute());
+    }
+  }
+  SBinetInterface::UnlockLibwww( );
+
+  OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                "SBinetHttpStream::~SBinetHttpStream(instance='%d') m_url = '%ls'",
+                instance, m_url->GetAbsolute());
+
   if(m_url) delete m_url;
   m_url = NULL;
 }

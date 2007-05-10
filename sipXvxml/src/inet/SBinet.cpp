@@ -90,6 +90,7 @@ public:
                         const VXIchar*   pszProxyServer,
                         const VXIulong   nProxyPort,
                         const VXIchar*   userAgentName,
+                        const VXIMap*    configArgs,
                         const VXIMap*    extensionRules);
     VXIinetResult  Terminate(VXIbool     clearLogResource);
 
@@ -342,6 +343,7 @@ VXIinetResult SBinetInit( VXIlogInterface* piVXILog,
                           const VXIulong   nProxyPort,
                           const VXIchar*   userAgentName,
                           const VXIMap*    extensionRules,
+                          const VXIMap*    configArgs,
                           const VXIVector* reserved )
 {
     VXIinetResult rc = VXIinet_RESULT_SUCCESS;
@@ -351,10 +353,10 @@ VXIinetResult SBinetInit( VXIlogInterface* piVXILog,
     SBinetLogFunc apiTrace (piVXILog, diagLogBase+ MODULE_SBINET_TAGID,
                             L"SBinetInit", (int *) &rc, 
                             L"entering: 0x%p, %s, %d, %d, %d, %s, %lu, %s, "
-                            L"0x%p, 0x%p", piVXILog, pszCacheFolder, 
+                            L"0x%p, 0x%p, 0x%p", piVXILog, pszCacheFolder, 
                             nCacheTotalSizeMB, nCacheEntryMaxSizeMB,
                             nCacheEntryExpTimeSec, pszProxyServer, nProxyPort,
-                            userAgentName, extensionRules, reserved);
+                            userAgentName, extensionRules, configArgs, reserved);
 
     /* check the remaining arguments */
     if ( (nCacheTotalSizeMB < 0)     ||
@@ -391,7 +393,7 @@ VXIinetResult SBinetInit( VXIlogInterface* piVXILog,
         rc = g_SBinet->Init(pszCacheFolder, nCacheTotalSizeMB, 
                             nCacheEntryMaxSizeMB, nCacheEntryExpTimeSec, 
                             pszProxyServer, nProxyPort, userAgentName,
-                            extensionRules);
+                            configArgs, extensionRules);
         if ( rc != VXIinet_RESULT_SUCCESS )
         {
             // To avoid use of global during shutdown
@@ -417,12 +419,13 @@ VXIinetResult OSBinetInit( VXIlogInterface* piVXILog,
                            const VXIulong   nProxyPort,
                            const VXIchar*   userAgentName,
                            const VXIMap*    extensionRules,
+                           const VXIMap*    configArgs,
                            const VXIVector* reserved )
 {
     return SBinetInit(piVXILog, diagLogBase, pszCacheFolder, nCacheTotalSizeMB,
                       nCacheEntryMaxSizeMB, nCacheEntryExpTimeSec, 
                       pszProxyServer, nProxyPort, userAgentName, extensionRules,
-                      reserved);
+                      configArgs, reserved);
 }
 
 
@@ -609,6 +612,7 @@ VXIinetResult SBinet::Init(const VXIchar*   pszCacheFolder,
                            const VXIchar*   pszProxyServer,
                            const VXIulong   nProxyPort,
                            const VXIchar*   userAgentName,
+                           const VXIMap*    configArgs,
                            const VXIMap*    extensionRules)
 {
     // Check if the environment is correct for supporting SBinet
@@ -679,6 +683,9 @@ VXIinetResult SBinet::Init(const VXIchar*   pszCacheFolder,
 
     // Initialize the cache lock table
     SBinetCacheLockTable::Init(GetLog(), GetDiagBase());
+
+    // Initialize SBinetHttpStream
+    SBinetHttpStream::Init(configArgs);
 
     // Create timer.  The EventThreadMain wakes this timer when it is complete.
     eTrdResult = VXItrdTimerCreate(&m_nInitializeStatus);
@@ -960,7 +967,7 @@ SBinet::InitializeCache()
         // At last, enable or disable the persistent cache 
         HTCacheMode_setEnabled(1);
         Diag (MODULE_SBINET_TAGID, L"SBinet::InitializeCache",
-              L"Enabled Inet cache, folder is %S", parsedTempStr);
+              L"Enabled Inet cache, folder is %s", parsedTempStr);
         // TODO
         // typedef enum _HTExpiresMode {HT_EXPIRES_IGNORE=0, HT_EXPIRES_NOTIFY, HT_EXPIRES_AUTO} HTExpiresMode;
         // extern void HTCacheMode_setExpires (HTExpiresMode mode);
@@ -1530,7 +1537,7 @@ PUBLIC int SBinet::PrintCallback(const char * fmt, va_list pArgs)
         char buffer[4096];
         rc = vsprintf(buffer, fmt, pArgs);
         if ( (buffer) && (buffer[0]) )
-            g_SBinet->Diag (MODULE_SBINET_HTPRINT_TAGID, NULL, L"%S", buffer);
+            g_SBinet->Diag (MODULE_SBINET_HTPRINT_TAGID, NULL, L"%s", buffer);
     }
 
     return rc;
@@ -1546,7 +1553,7 @@ PUBLIC int SBinet::TraceCallback(const char * fmt, va_list pArgs)
         char buffer[4096];
         rc = vsprintf(buffer, fmt, pArgs);
         if ( (buffer) && (buffer[0]) )
-            g_SBinet->Diag (MODULE_SBINET_HTTRACE_TAGID, NULL, L"%S", buffer);
+            g_SBinet->Diag (MODULE_SBINET_HTTRACE_TAGID, NULL, L"%s", buffer);
     }
 
     return rc;
@@ -1587,7 +1594,7 @@ SBinet::TraceDataCallback(char * data, size_t len, char * fmt, va_list pArgs)
         }
 
         if ( (buffer) && (buffer[0]) )
-            g_SBinet->Diag (MODULE_SBINET_HTTRACEDATA_TAGID, NULL, L"%S", buffer);
+            g_SBinet->Diag (MODULE_SBINET_HTTRACEDATA_TAGID, NULL, L"%s", buffer);
     }
 
     return rc;
@@ -1610,7 +1617,7 @@ SBinet::AlertCallback(HTRequest*    pHtRequest,
                                  pvInput);
 
         if ( (pszMessageText) && (pszMessageText[0]) )
-            g_SBinet->Diag (MODULE_SBINET_HTALERT_TAGID, NULL, L"%S", 
+            g_SBinet->Diag (MODULE_SBINET_HTALERT_TAGID, NULL, L"%s", 
                             pszMessageText);
 
         HT_FREE(pszMessageText);
@@ -1624,7 +1631,7 @@ PUBLIC void
 SBinet::OutOfMemoryExitCallback(char *name, char *file, unsigned long line)
 {
     if ( g_SBinet )
-        g_SBinet->Error(106, L"%s%S%s%S%s%lu", L"name", name, L"file", file,
+        g_SBinet->Error(106, L"%s%s%s%s%s%lu", L"name", name, L"file", file,
                         L"line", line);
 
     // Libwww doesn't know how to recover so we have to exit, see

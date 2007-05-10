@@ -244,7 +244,7 @@ VXIplatformInit(VXIMap *configArgs, VXIunsigned *nbChannels)
     inetResult = OSBinetInit(gblLog, (VXIunsigned) diagLogBase, cachePath, 
                             cacheTotalSizeMB, cacheEntryMaxSizeMB,
                             cacheEntryExpTimeSec, proxyServer, proxyPort,
-                            gblUserAgentName, extensionRules, NULL);
+			     gblUserAgentName, extensionRules, configArgs, NULL);
     CLIENT_CHECK_RESULT("OSBinetInit()", inetResult);
 
     if (loadedExtensionRules)

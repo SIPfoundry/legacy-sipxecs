@@ -109,6 +109,7 @@ class SBinetHttpStream : public SBinetStream, public SBinetLogger {
 		const VXIMap             *properties,
 		VXIMap                   *streamInfo);
 
+  static void Init(const VXIMap * configArgs);
 
  private:
   HTChunk* PostMulti(SBinetURL*       url,
@@ -177,6 +178,9 @@ class SBinetHttpStream : public SBinetStream, public SBinetLogger {
   SBinetCacheLock* m_lock;
   int m_reader;
   SBinetChannel* m_ch;  // for cookie mapping
+
+  static int sm_instanceCount;
+  static int sm_cleanupPeriod;
 };
 
 #endif
