@@ -33,7 +33,7 @@
 // Constructor
 XmlRpcBody::XmlRpcBody()
 {
-   mBody = XML_VERSION_1_0_CRLF;
+   mBody = XML_VERSION_1_0;
 }
 
 XmlRpcBody::XmlRpcBody(const XmlRpcBody& rhs)

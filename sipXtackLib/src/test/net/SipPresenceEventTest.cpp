@@ -30,15 +30,15 @@ public:
    void testGetPresencePackage()
       {
          const char *package = 
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
-            "<presence xmlns=\"urn:ietf:params:xml:ns:pidf\" entity=\"dong@panther.pingtel.com\">\r\n"
-            "<tuple id=\"1\">\r\n"
-            "<status>\r\n"
-            "<basic>open</basic>\r\n"
-            "</status>\r\n"
-            "<contact>tel:+0123456789</contact>\r\n"
-            "</tuple>\r\n"
-            "</presence>\r\n"
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<presence xmlns=\"urn:ietf:params:xml:ns:pidf\" entity=\"dong@panther.pingtel.com\">\n"
+            "<tuple id=\"1\">\n"
+            "<status>\n"
+            "<basic>open</basic>\n"
+            "</status>\n"
+            "<contact>tel:+0123456789</contact>\n"
+            "</tuple>\n"
+            "</presence>\n"
             ;
        
          SipPresenceEvent presenceEvent("dong@panther.pingtel.com");
@@ -67,15 +67,15 @@ public:
    void testPresencePackageParser()
       {
          const char *package = 
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
-            "<presence xmlns=\"urn:ietf:params:xml:ns:pidf\" entity=\"dong@panther.pingtel.com\">\r\n"
-            "<tuple id=\"1\">\r\n"
-            "<status>\r\n"
-            "<basic>open</basic>\r\n"
-            "</status>\r\n"
-            "<contact>tel:+0123456789</contact>\r\n"
-            "</tuple>\r\n"
-            "</presence>\r\n"
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<presence xmlns=\"urn:ietf:params:xml:ns:pidf\" entity=\"dong@panther.pingtel.com\">\n"
+            "<tuple id=\"1\">\n"
+            "<status>\n"
+            "<basic>open</basic>\n"
+            "</status>\n"
+            "<contact>tel:+0123456789</contact>\n"
+            "</tuple>\n"
+            "</presence>\n"
             ;
        
          SipPresenceEvent body("dong@panther.pingtel.com", package);

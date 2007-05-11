@@ -30,19 +30,19 @@ public:
    void testDialogPackageParser()
       {
          const char *package = 
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
-            "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" version=\"0\" state=\"full\" entity=\"sip:moh@panther.pingtel.com:5120\">\r\n"
-            "<dialog id=\"2\" call-id=\"call-1116603513-890@10.1.1.153\" local-tag=\"264460498\" remote-tag=\"1c10982\" direction=\"recipient\">\r\n"
-            "<state>confirmed</state>\r\n"
-            "<local>\r\n"
-            "<identity>moh@panther.pingtel.com:5120</identity>\r\n"
-            "<target uri=\"sip:moh@10.1.1.26:5120\"/>\r\n"
-            "</local>\r\n"
-            "<remote>\r\n"
-            "<identity>4444@10.1.1.153</identity>\r\n"
-            "</remote>\r\n"
-            "</dialog>\r\n"
-            "</dialog-info>\r\n"
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" version=\"0\" state=\"full\" entity=\"sip:moh@panther.pingtel.com:5120\">\n"
+            "<dialog id=\"2\" call-id=\"call-1116603513-890@10.1.1.153\" local-tag=\"264460498\" remote-tag=\"1c10982\" direction=\"recipient\">\n"
+            "<state>confirmed</state>\n"
+            "<local>\n"
+            "<identity>moh@panther.pingtel.com:5120</identity>\n"
+            "<target uri=\"sip:moh@10.1.1.26:5120\"/>\n"
+            "</local>\n"
+            "<remote>\n"
+            "<identity>4444@10.1.1.153</identity>\n"
+            "</remote>\n"
+            "</dialog>\n"
+            "</dialog-info>\n"
             ;
        
          // Construct a SipDialogEvent from the XML.
@@ -76,19 +76,19 @@ public:
    void testDialogPackageFromPolycom()
       {
          const char *package = 
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
-            "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" version=\"4\" state=\"partial\" entity=\"sip:222@panther.pingtel.com\">\r\n"
-            "<dialog id=\"ida648720b\" call-id=\"62c3a00e-2f2662f8-53cfd2f7@10.1.20.231\" local-tag=\"B7691142-47C44851\" remote-tag=\"1900354342\" direction=\"initiator\">\r\n"
-            "<state>terminated</state>\r\n"
-            "<local>\r\n"
-            "<target uri=\"sip:222@panther.pingtel.com\"/>\r\n"
-            "</local>\r\n"
-            "<remote>\r\n"
-            "<identity>sip:100@panther.pingtel.com</identity>\r\n"
-            "<target uri=\"sip:10.1.1.26:5100\"/>\r\n"
-            "</remote>\r\n"
-            "</dialog>\r\n"
-            "</dialog-info>\r\n"
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" version=\"4\" state=\"partial\" entity=\"sip:222@panther.pingtel.com\">\n"
+            "<dialog id=\"ida648720b\" call-id=\"62c3a00e-2f2662f8-53cfd2f7@10.1.20.231\" local-tag=\"B7691142-47C44851\" remote-tag=\"1900354342\" direction=\"initiator\">\n"
+            "<state>terminated</state>\n"
+            "<local>\n"
+            "<target uri=\"sip:222@panther.pingtel.com\"/>\n"
+            "</local>\n"
+            "<remote>\n"
+            "<identity>sip:100@panther.pingtel.com</identity>\n"
+            "<target uri=\"sip:10.1.1.26:5100\"/>\n"
+            "</remote>\n"
+            "</dialog>\n"
+            "</dialog-info>\n"
             ;
        
          // Construct a SipDialogEvent from the XML.

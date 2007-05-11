@@ -28,21 +28,21 @@
 #define PRESENCE_EVENT_TYPE "presence"
 
 #define BEGIN_PRESENCE "<presence xmlns=\"urn:ietf:params:xml:ns:pidf\""
-#define END_PRESENCE "</presence>\r\n"
+#define END_PRESENCE "</presence>\n"
 
 #define PRESENTITY_EQUAL " entity="
 
 #define BEGIN_TUPLE "<tuple id="
-#define END_TUPLE "</tuple>\r\n"
+#define END_TUPLE "</tuple>\n"
 
-#define BEGIN_STATUS "<status>\r\n"
-#define END_STATUS "</status>\r\n"
+#define BEGIN_STATUS "<status>\n"
+#define END_STATUS "</status>\n"
 
 #define BEGIN_BASIC "<basic>"
-#define END_BASIC "</basic>\r\n"
+#define END_BASIC "</basic>\n"
 
 #define BEGIN_CONTACT "<contact>"
-#define END_CONTACT "</contact>\r\n"
+#define END_CONTACT "</contact>\n"
 
 
 #define STATUS_OPEN "open"

@@ -17,53 +17,53 @@
 // DEFINES
 #define CONTENT_TYPE_TEXT_XML "text/xml"
 
-#define BEGIN_METHOD_CALL "<methodCall>\r\n"
-#define END_METHOD_CALL "</methodCall>\r\n"
+#define BEGIN_METHOD_CALL "<methodCall>\n"
+#define END_METHOD_CALL "</methodCall>\n"
 
 #define BEGIN_METHOD_NAME "<methodName>"
-#define END_METHOD_NAME "</methodName>\r\n"
+#define END_METHOD_NAME "</methodName>\n"
 
-#define BEGIN_PARAMS "<params>\r\n"
-#define END_PARAMS "</params>\r\n"
+#define BEGIN_PARAMS "<params>\n"
+#define END_PARAMS "</params>\n"
 
-#define BEGIN_PARAM "<param>\r\n"
-#define END_PARAM "</param>\r\n"
+#define BEGIN_PARAM "<param>\n"
+#define END_PARAM "</param>\n"
 
 #define BEGIN_I4 "<value><i4>"
-#define END_I4 "</i4></value>\r\n"
+#define END_I4 "</i4></value>\n"
 
 #define BEGIN_INT "<value><int>"
-#define END_INT "</int></value>\r\n"
+#define END_INT "</int></value>\n"
 
 #define BEGIN_I8 "<value><i8>"
-#define END_I8 "</i8></value>\r\n"
+#define END_I8 "</i8></value>\n"
 
 #define BEGIN_BOOLEAN "<value><boolean>"
-#define END_BOOLEAN "</boolean></value>\r\n"
+#define END_BOOLEAN "</boolean></value>\n"
 
 #define BEGIN_STRING "<value><string>"
-#define END_STRING "</string></value>\r\n"
+#define END_STRING "</string></value>\n"
 
 #define BEGIN_TIME "<value><dateTime.iso8601>"
-#define END_TIME "</dataTime.iso8601></value>\r\n"
+#define END_TIME "</dataTime.iso8601></value>\n"
 
-#define BEGIN_ARRAY "<value><array><data>\r\n"
-#define END_ARRAY "</data></array></value>\r\n"
+#define BEGIN_ARRAY "<value><array><data>\n"
+#define END_ARRAY "</data></array></value>\n"
 
-#define BEGIN_STRUCT "<value><struct>\r\n"
-#define END_STRUCT "</struct></value>\r\n"
+#define BEGIN_STRUCT "<value><struct>\n"
+#define END_STRUCT "</struct></value>\n"
 
-#define BEGIN_MEMBER "<member>\r\n"
-#define END_MEMBER "</member>\r\n"
+#define BEGIN_MEMBER "<member>\n"
+#define END_MEMBER "</member>\n"
 
 #define BEGIN_NAME "<name>"
 #define END_NAME "</name>"
 
-#define BEGIN_RESPONSE "<methodResponse>\r\n"
-#define END_RESPONSE "</methodResponse>\r\n"
+#define BEGIN_RESPONSE "<methodResponse>\n"
+#define END_RESPONSE "</methodResponse>\n"
 
-#define BEGIN_FAULT "<fault>\r\n"
-#define END_FAULT "</fault>\r\n"
+#define BEGIN_FAULT "<fault>\n"
+#define END_FAULT "</fault>\n"
 
 #define FAULT_CODE "<name>faultCode</name>"
 #define FAULT_STRING "<name>faultString</name>"

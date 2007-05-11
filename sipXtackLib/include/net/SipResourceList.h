@@ -29,16 +29,16 @@
 #define RESOURCE_LIST_XMLNS "urn:ietf:params:xml:ns:rlmi"
 
 #define BEGIN_LIST "<list xmlns=\"urn:ietf:params:xml:ns:rlmi\""
-#define END_LIST "</list>\r\n"
+#define END_LIST "</list>\n"
 
 #define URI_EQUAL " uri="
 #define FULL_STATE_EQUAL " fullState="
 
 #define BEGIN_RESOURCE "<resource uri="
-#define END_RESOURCE "</resource>\r\n"
+#define END_RESOURCE "</resource>\n"
 
 #define BEGIN_NAME "<name>"
-#define END_NAME "</name>\r\n"
+#define END_NAME "</name>\n"
 
 #define BEGIN_INSTANCE "<instance id="
 

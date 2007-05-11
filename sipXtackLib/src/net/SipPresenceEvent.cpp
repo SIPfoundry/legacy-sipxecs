@@ -20,7 +20,7 @@
 // CONSTANTS
 #define DOUBLE_QUOTE "\""
 #define END_BRACKET ">"
-#define END_LINE ">\r\n"
+#define END_LINE ">\n"
 
 // STATIC VARIABLE INITIALIZATIONS
 const UtlContainableType Tuple::TYPE = "Tuple";
@@ -317,7 +317,7 @@ void SipPresenceEvent::buildBody(int& version) const
    version = 0;
 
    // Construct the xml document of Tuple event
-   PresenceEvent = UtlString(XML_VERSION_1_0_CRLF);
+   PresenceEvent = UtlString(XML_VERSION_1_0);
 
    // Presence Structure
    PresenceEvent.append(BEGIN_PRESENCE);

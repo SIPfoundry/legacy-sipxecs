@@ -605,7 +605,7 @@ void SipDialogEvent::buildBody(int& version) const
    version = mVersion;
 
    // Construct the xml document of dialog event
-   dialogEvent = UtlString(XML_VERSION_1_0_CRLF);
+   dialogEvent = UtlString(XML_VERSION_1_0);
 
    // Dialog Information Structure
    dialogEvent.append(BEGIN_DIALOG_INFO);

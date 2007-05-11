@@ -326,7 +326,7 @@ void SipResourceList::buildBody(int& version) const
    version = mVersion;
 
    // Construct the xml document of resource list
-   resourceList = UtlString(XML_VERSION_1_0_CRLF);
+   resourceList = UtlString(XML_VERSION_1_0);
 
    //  Information Structure
    Url listUri(mListUri);

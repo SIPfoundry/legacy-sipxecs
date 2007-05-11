@@ -19,10 +19,8 @@
 #include "utl/UtlString.h"
 
 // DEFINES
-// XML declaratin, with newline (linefeed) EOL.
-#define XML_VERSION_1_0_NL "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-// XML declaratin, with carriage return-linefeed EOL.
-#define XML_VERSION_1_0_CRLF "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+#define XML_VERSION_1_0 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+
 
 // MACROS
 // EXTERNAL FUNCTIONS
