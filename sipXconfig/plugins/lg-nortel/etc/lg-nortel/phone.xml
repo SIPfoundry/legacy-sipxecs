@@ -622,18 +622,20 @@
       <type>
         <enum>
           <option>
-            <value>interval</value>
+            <label>interval</label>
+            <value>1</value>
           </option>
           <option>
-            <value>daily</value>
+            <label>daily</label>
+            <value>2</value>
           </option>
         </enum>
       </type>
-      <value>daily</value>
+      <value>2</value>
     </setting>
     <setting name='smartup_interval'>
       <type>
-        <integer min="0" max="86400" />
+        <integer min="3600" max="86400" />
       </type>
       <value>3600</value>
     </setting>
