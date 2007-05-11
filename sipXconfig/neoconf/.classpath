@@ -24,7 +24,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/aopalliance-1.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jta.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/odmg-3.0.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/ehcache-1.2.4.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/ehcache/ehcache-1.2.4-sources.jar" kind="var" path="SIPX_CONFIG/lib/ehcache-1.2.4.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/cglib-nodep-2.1_3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/asm-2.2.3.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/pgsql/8.2/src.zip" kind="var" path="SIPX_CONFIG/lib/postgresql-8.2-504.jdbc3.jar"/>
@@ -57,5 +57,7 @@
 	<classpathentry sourcepath="/SIPX_BUILD/neoconf/dist/cdr-bindings-src" kind="var" path="SIPX_BUILD/neoconf/dist/cdr-bindings.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/spring-ldap/1.1.2/spring-ldap-src-1.1.2.zip" kind="var" path="SIPX_CONFIG/lib/spring-ldap-1.1.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/ldapbp.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/spring/2.0.4/src-mock.zip" kind="var" path="SIPX_CONFIG/lib/spring-mock-2.0.4.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/oro/src.zip" kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

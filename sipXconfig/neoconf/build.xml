@@ -54,6 +54,7 @@
     <pathelement location="${odmg.jar}" />
     <pathelement location="${ehcache.jar}" />
     <pathelement location="${lucene.jar}" />
+    <pathelement location="${jakarta-oro.jar}" />
   </path>
 
   <path id="base.path">
@@ -73,6 +74,7 @@
     <pathelement location="${xmlunit.jar}" />
     <pathelement location="${xerces.jar}" />
     <pathelement location="${xml-apis.jar}" />
+    <pathelement location="${spring-mock.jar}" />
   </path>
   <property name="classpath" refid="base.path" />
 
@@ -184,7 +186,7 @@
     </sipx-jar>
   </target>
 
-  <target name="test-all" depends="ant-targets.test-all,test-db,test-models" />
+  <target name="test-all" depends="ant-targets.test-all,test-integration,test-db,test-models" />
 
   <!--
     - U N I T T E S T   W I T H   D A T A B A S E  A C C E S S
@@ -193,6 +195,29 @@
           depends="compile.test, reset-db, test-datasets"
           description="run junit tests that interact with database">
 
+    <antcall target="tests-that-require-db">
+      <param name="test-pattern" value="test-db.src"/>
+    </antcall>
+  </target>
+
+  <target name="test-integration"
+          depends="compile.test, reset-db"
+          description="run junit tests that interact with database that rollback transations and use spring injection">
+
+    <antcall target="tests-that-require-db">
+      <param name="test-pattern" value="test-integration.src"/>
+    </antcall>
+  </target>
+
+  <target name="test-performance"
+          depends="compile.test, reset-db"
+          description="run junit tests that run performance tests">
+    <antcall target="tests-that-require-db">
+      <param name="test-pattern" value="test-performance.src"/>
+    </antcall>
+  </target>
+
+  <target name="tests-that-require-db">
     <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
       <classpath refid="test.path" />
       <formatter type="plain" />
@@ -200,32 +225,13 @@
       <sysproperty key="basedir" value="${basedir}" />
       <batchtest todir="${junit.results.dir}">
         <fileset dir="${test.src.dir}">
-          <patternset refid="test-db.src" />
+          <patternset refid="${test-pattern}" />
         </fileset>
       </batchtest>
     </junit>
     <antcall target="failure-report"/>
     <fail if="junit.failed" />
   </target>
-
-  <target name="test-performance"
-          depends="compile.test, reset-db"
-          description="run junit tests that run performance tests">
-
-    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
-      <classpath refid="test.path" />
-      <formatter type="plain" />
-      <formatter type="xml" />
-      <sysproperty key="basedir" value="${basedir}" />
-      <batchtest todir="${junit.results.dir}">
-        <fileset dir="${test.src.dir}">
-          <patternset refid="test-performance.src" />
-        </fileset>
-      </batchtest>
-    </junit>
-    <fail if="junit.failed" />
-  </target>
-
 
   <target name="test-models">
     <xmlvalidate description="validate setting description files">

@@ -57,6 +57,7 @@
   <!-- Default patterns for unittest naming schema -->
   <patternset id="test.src" includes="**/${test.name}Test.java" />
   <patternset id="test-db.src" includes="**/${test.name}TestDb.java" />
+  <patternset id="test-integration.src" includes="**/${test.name}TestIntegration.java" />
   <patternset id="test-ui.src" includes="**/${test.name}TestUi.java" />
   <patternset id="test-performance.src" includes="**/${test.name}TestPerformance.java" />
 
@@ -239,8 +240,8 @@
 
 
   <path id="test.path">
-    <pathelement location="${test.src.dir}"/>
     <pathelement location="${src.dir}"/>
+    <pathelement location="${test.src.dir}"/>
     <pathelement location="${log4j.jar}"/>
     <pathelement location="etc"/>
     <pathelement location="${clover.jar}"/> 

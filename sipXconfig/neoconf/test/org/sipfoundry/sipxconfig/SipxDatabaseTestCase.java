@@ -25,16 +25,24 @@ public abstract class SipxDatabaseTestCase extends TestCase {
             dumpSqlExceptionMessages(e);
             throw e;
         } catch (DataIntegrityViolationException e) {
-            if (e.getCause() instanceof SQLException) {
-                dumpSqlExceptionMessages((SQLException) e.getCause());
-            }
+            dumpSqlExceptionMessages(e);
             throw e;
         }
     }
+    
+    static void handleException(Exception e) {
+        
+    }
 
-    private void dumpSqlExceptionMessages(SQLException e) {
+    static void dumpSqlExceptionMessages(SQLException e) {
         for (SQLException next = e; next != null; next = next.getNextException()) {
             System.err.println(next.getMessage());
+        }
+    }
+
+    static void dumpSqlExceptionMessages(DataIntegrityViolationException e) {
+        if (e.getCause() instanceof SQLException) {
+            dumpSqlExceptionMessages((SQLException) e.getCause());
         }
     }
 
