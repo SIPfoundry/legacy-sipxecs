@@ -79,12 +79,4 @@ public abstract class IntegrationTestCase extends AbstractTransactionalDataSourc
     public void setSessionFactory(SessionFactory sessionFactory) {
         m_sessionFactory = sessionFactory;
     }
-
-    // HACK: Because this unit test properly shutsdown spring, EH Cache thrown benign exception
-    // to stderr that cache was not initialize, it wasn't initialized because it was probably not
-    // created.  So by injecting the bean, we intialize it so it will shutdown properly
-    public void setMethodCache(Object methodCache) {
-        // weird: you actually have to do something here otherwise method gets optimized out
-        int nop;
-    }
 }
