@@ -14,39 +14,38 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class KPhone extends Phone {    
+public class KPhone extends Phone {
     public static final String BEAN_ID = "kphone";
-    
+
     private static final String REG_URI = "Registration/SipUri";
     private static final String REG_USER = "Registration/UserName";
     private static final String REG_SERVER = "Registration/SipServer";
-    
+
     public KPhone() {
-        super(new PhoneModel(BEAN_ID, BEAN_ID + "Standard"));
-        setPhoneTemplate("kphone/kphonerc.vm");
+        setProfileTemplate("kphone/kphonerc.vm");
     }
-    
-    public String getPhoneFilename() {
+
+    public String getProfileFilename() {
         return getSerialNumber() + ".kphonerc";
-    }    
-    
+    }
+
     @Override
     public void initializeLine(Line line) {
         line.addDefaultBeanSettingHandler(new KPhoneLineDefaults(line));
     }
-    
+
     @Override
     protected void setLineInfo(Line line, LineInfo lineInfo) {
-        int port = SipUri.parsePort(lineInfo.getRegistrationServerPort(), SipUri.DEFAULT_SIP_PORT);
-        String uri = SipUri.formatIgnoreDefaultPort(lineInfo.getDisplayName(), lineInfo.getUserId(), 
-                lineInfo.getRegistrationServer(), port);
-        
+        int port = SipUri
+                .parsePort(lineInfo.getRegistrationServerPort(), SipUri.DEFAULT_SIP_PORT);
+        String uri = SipUri.formatIgnoreDefaultPort(lineInfo.getDisplayName(), lineInfo
+                .getUserId(), lineInfo.getRegistrationServer(), port);
+
         line.setSettingValue(REG_URI, uri);
     }
-    
+
     @Override
     protected LineInfo getLineInfo(Line line) {
         LineInfo lineInfo = new LineInfo();
@@ -60,15 +59,16 @@ public class KPhone extends Phone {
 
     public static class KPhoneLineDefaults {
         private Line m_line;
+
         public KPhoneLineDefaults(Line line) {
             m_line = line;
         }
-        
+
         @SettingEntry(path = REG_URI)
         public String getUri() {
             return m_line.getUri();
         }
-        
+
         @SettingEntry(path = REG_USER)
         public String getUserName() {
             String userName = null;
@@ -76,13 +76,13 @@ public class KPhone extends Phone {
             if (user != null) {
                 userName = user.getUserName();
             }
-            
-            return userName;            
+
+            return userName;
         }
-        
+
         @SettingEntry(path = REG_SERVER)
         public String getRegistrationServer() {
-            return m_line.getPhoneContext().getPhoneDefaults().getDomainName();            
+            return m_line.getPhoneContext().getPhoneDefaults().getDomainName();
         }
     }
 }

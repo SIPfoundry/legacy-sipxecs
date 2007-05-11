@@ -34,11 +34,12 @@ public class ClearonePhoneTest extends TestCase {
     public void testGetFileName() throws Exception {
         ClearonePhone phone = new ClearonePhone();
         phone.setSerialNumber("0011aabb4455");
-        assertEquals("C1MAXIP_0011AABB4455.txt", phone.getPhoneFilename());
+        assertEquals("C1MAXIP_0011AABB4455.txt", phone.getProfileFilename());
     }
 
     public void testGenerateTypicalProfile() throws Exception {
-        ClearonePhone phone = new ClearonePhone(new ClearoneModel());
+        ClearonePhone phone = new ClearonePhone();
+        phone.setModel(new ClearoneModel());
 
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
@@ -52,7 +53,7 @@ public class ClearonePhoneTest extends TestCase {
 
         String expected = getResourceAsString("C1MAXIP.txt");
 
-        File actualProfileFile = new File(parentDir, phone.getPhoneFilename());
+        File actualProfileFile = new File(parentDir, phone.getProfileFilename());
         assertTrue(actualProfileFile.exists());
         String actual = IOUtils.toString(new FileReader(actualProfileFile));
 

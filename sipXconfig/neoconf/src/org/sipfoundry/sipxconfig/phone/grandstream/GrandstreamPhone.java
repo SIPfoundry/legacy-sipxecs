@@ -52,20 +52,20 @@ public class GrandstreamPhone extends Phone {
     private boolean m_isTextFormatEnabled;
 
     public GrandstreamPhone() {
-        super(new GrandstreamModel());
-        setPhoneTemplate("grandstream/grandstream.vm");
+        setProfileTemplate("grandstream/grandstream.vm");
     }
 
     @Override
     protected SettingExpressionEvaluator getSettingsEvaluator() {
-        SettingExpressionEvaluator evaluator = new GrandstreamSettingExpressionEvaluator(getModel()
-                .getModelId());
+        SettingExpressionEvaluator evaluator = new GrandstreamSettingExpressionEvaluator(
+                getModel().getModelId());
         return evaluator;
     }
 
     @Override
     public void initialize() {
-        GrandstreamDefaults defaults = new GrandstreamDefaults(getPhoneContext().getPhoneDefaults());
+        GrandstreamDefaults defaults = new GrandstreamDefaults(getPhoneContext()
+                .getPhoneDefaults());
         addDefaultBeanSettingHandler(defaults);
     }
 
@@ -129,7 +129,7 @@ public class GrandstreamPhone extends Phone {
         return getModel().getLabel();
     }
 
-    public String getPhoneFilename() {
+    public String getProfileFilename() {
         String phoneFilename = getSerialNumber();
         return "cfg" + phoneFilename.toLowerCase();
     }
@@ -158,7 +158,7 @@ public class GrandstreamPhone extends Phone {
             int offset = ((m_defaults.getTimeZone().getOffsetWithDst() / 60) + (12 * 60));
             return offset;
         }
-        
+
         @SettingEntry(path = "network/P30")
         public String getNtpServer() {
             return m_defaults.getNtpServer();
@@ -207,8 +207,8 @@ public class GrandstreamPhone extends Phone {
             return displayName;
         }
 
-        @SettingEntry(paths = { REGISTRATION_SERVER_PATH, REGISTRATION_SERVER2_PATH, 
-                HT_REGISTRATION_SERVER_PATH, HT_REGISTRATION_SERVER2_PATH })
+        @SettingEntry(paths = { REGISTRATION_SERVER_PATH, REGISTRATION_SERVER2_PATH, HT_REGISTRATION_SERVER_PATH,
+                HT_REGISTRATION_SERVER2_PATH })
         public String getRegistationServer() {
             return m_phone.getPhoneContext().getPhoneDefaults().getDomainName();
         }

@@ -27,7 +27,8 @@ public class AudioCodesFxsGatewayTest extends TestCase {
         model.setFxs(true);
         model.setProfileTemplate("audiocodes/gateway.ini.vm");
 
-        AudioCodesFxsGateway gateway = new AudioCodesFxsGateway(model);
+        AudioCodesFxsGateway gateway = new AudioCodesFxsGateway();
+        gateway.setModel(model);
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(gateway);
 

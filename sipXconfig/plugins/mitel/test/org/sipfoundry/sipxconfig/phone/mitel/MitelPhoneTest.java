@@ -29,11 +29,12 @@ public class MitelPhoneTest extends XMLTestCase {
     public void testGetFileName() throws Exception {
         MitelPhone phone = new MitelPhone();
         phone.setSerialNumber("001122334455");
-        assertEquals("mn_001122334455.txt", phone.getPhoneFilename());
+        assertEquals("mn_001122334455.txt", phone.getProfileFilename());
     }
 
     public void testGenerateTypicalProfile() throws Exception {
-        MitelPhone phone = new MitelPhone(new MitelModel());
+        MitelPhone phone = new MitelPhone();
+        phone.setModel(new MitelModel());
 
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);

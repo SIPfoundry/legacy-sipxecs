@@ -23,11 +23,6 @@ public class HitachiPhone extends Phone {
     private static final String REGISTRATION_SERVER_SETTING = "SERVER_SETTINGS/1st_Registrar";
 
     public HitachiPhone() {
-        super(BEAN_ID);
-    }
-
-    public HitachiPhone(HitachiModel model) {
-        super(model);
     }
 
     public String getLoadrunTemplate() {
@@ -35,7 +30,7 @@ public class HitachiPhone extends Phone {
     }
 
     @Override
-    public String getPhoneTemplate() {
+    public String getProfileTemplate() {
         return "hitachi/user.ini.vm";
     }
 
@@ -47,7 +42,8 @@ public class HitachiPhone extends Phone {
 
     @Override
     public void initialize() {
-        HitachiPhoneDefaults defaults = new HitachiPhoneDefaults(getPhoneContext().getPhoneDefaults());
+        HitachiPhoneDefaults defaults = new HitachiPhoneDefaults(getPhoneContext()
+                .getPhoneDefaults());
         addDefaultBeanSettingHandler(defaults);
     }
 
@@ -65,7 +61,7 @@ public class HitachiPhone extends Phone {
      * %muser.ini means “3 bytes of MAC address + user.ini”
      */
     @Override
-    public String getPhoneFilename() {
+    public String getProfileFilename() {
         String serialNumber = getSerialNumber();
         String prefix = serialNumber.substring(6);
         return prefix + "user.ini";

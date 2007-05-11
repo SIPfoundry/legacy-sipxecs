@@ -20,12 +20,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public class AudioCodesFxsGateway extends Phone {
     private static final String MANUFACTURER = "audiocodes";
 
-    public AudioCodesFxsGateway(AudioCodesFxsModel model) {
-        super(model);
-    }
-
     public AudioCodesFxsGateway() {
-        super("gwFxsAudiocodes");
     }
 
     @Override
@@ -42,7 +37,7 @@ public class AudioCodesFxsGateway extends Phone {
     }
 
     @Override
-    public String getPhoneFilename() {
+    public String getProfileFilename() {
         String serialNumber = getSerialNumber();
         if (serialNumber == null) {
             return null;
@@ -52,11 +47,11 @@ public class AudioCodesFxsGateway extends Phone {
 
     @Override
     protected ProfileContext createContext() {
-        return new AudioCodesContext(this, getPhoneTemplate());
+        return new AudioCodesContext(this, getProfileTemplate());
     }
 
     @Override
-    public String getPhoneTemplate() {
+    public String getProfileTemplate() {
         AudioCodesFxsModel model = (AudioCodesFxsModel) getModel();
         return model.getProfileTemplate();
     }

@@ -17,38 +17,33 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 public abstract class CiscoPhone extends Phone {
 
     public static final String PORT = "port";
-    
+
     public static final String SIP = "sip";
 
     private String m_phoneTemplate;
-    
-    protected CiscoPhone(String beanId) {
-        super(beanId);
+
+    protected CiscoPhone() {
     }
-    
-    protected CiscoPhone(CiscoModel model) {
-        super(model);
-    }
-    
+
     public CiscoModel getCiscoModel() {
         return (CiscoModel) getModel();
     }
 
-    public abstract String getPhoneFilename();
+    public abstract String getProfileFilename();
 
-    public String getPhoneTemplate() {
+    public String getProfileTemplate() {
         return m_phoneTemplate;
     }
 
-    public void setPhoneTemplate(String phoneTemplate) {
+    public void setProfileTemplate(String phoneTemplate) {
         m_phoneTemplate = phoneTemplate;
     }
 
     public int getMaxLineCount() {
         return getModel().getMaxLineCount();
     }
-    
+
     public void restart() {
-        sendCheckSyncToFirstLine();        
+        sendCheckSyncToFirstLine();
     }
 }

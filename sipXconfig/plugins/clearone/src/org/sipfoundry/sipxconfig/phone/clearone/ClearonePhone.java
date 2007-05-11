@@ -24,15 +24,10 @@ public class ClearonePhone extends Phone {
     public static final String DIALPLAN_FILE = "c1dialplan_%s.txt";
 
     public ClearonePhone() {
-        super(BEAN_ID);
-    }
-
-    public ClearonePhone(ClearoneModel model) {
-        super(model);
     }
 
     @Override
-    public String getPhoneTemplate() {
+    public String getProfileTemplate() {
         return "clearone/C1MAXIP.txt.vm";
     }
 
@@ -74,7 +69,7 @@ public class ClearonePhone extends Phone {
     }
 
     @Override
-    public String getPhoneFilename() {
+    public String getProfileFilename() {
         return formatName(CONFIG_FILE);
     }
 

@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-
 import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 
 public class PhoneModel extends DeviceDescriptor {
@@ -17,14 +16,14 @@ public class PhoneModel extends DeviceDescriptor {
     private static final int DEFAULT_MAX_LINES = 4;
 
     private int m_maxLineCount = DEFAULT_MAX_LINES;
-    
-    public PhoneModel() {        
+
+    public PhoneModel() {
     }
-    
+
     public PhoneModel(String beanId) {
         super(beanId);
     }
-    
+
     public PhoneModel(String beanId, String modelId) {
         super(beanId, modelId);
     }

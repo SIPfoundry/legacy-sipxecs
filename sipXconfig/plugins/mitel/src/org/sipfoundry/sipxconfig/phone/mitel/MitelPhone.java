@@ -17,15 +17,10 @@ public class MitelPhone extends Phone {
     public static final String BEAN_ID = "mitel";
 
     public MitelPhone() {
-        super(BEAN_ID);
-    }
-
-    public MitelPhone(MitelModel model) {
-        super(model);
     }
 
     @Override
-    public String getPhoneTemplate() {
+    public String getProfileTemplate() {
         return "mitel/mn.txt.vm";
     }
 
@@ -43,7 +38,7 @@ public class MitelPhone extends Phone {
     }
 
     @Override
-    public String getPhoneFilename() {
+    public String getProfileFilename() {
         String serialNumber = getSerialNumber();
         return "mn_" + serialNumber + ".txt";
     }

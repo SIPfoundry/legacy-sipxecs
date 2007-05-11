@@ -45,15 +45,16 @@ public class PolycomPhoneTest extends TestCase {
     protected void setUp() {
         m_root = TestHelper.getTestDirectory() + "/polycom";
         m_phone = new PolycomPhone();
+        m_phone.setModel(new PolycomModel());
         m_tester = PhoneTestDriver.supplyTestData(m_phone);
         m_phone.setTftpRoot(m_root);
-        
+
         m_location = new FileSystemProfileLocation();
         m_location.setParentDir(m_root);
-        
+
         VelocityProfileGenerator profileGenerator = TestHelper.getProfileGenerator();
-        m_phone.setProfileGenerator(profileGenerator);       
-        
+        m_phone.setProfileGenerator(profileGenerator);
+
         IMocksControl uploadControl = EasyMock.createNiceControl();
         UploadManager uploadManager = uploadControl.createMock(UploadManager.class);
         uploadManager.getSpecification("polycomFirmware");
@@ -114,7 +115,7 @@ public class PolycomPhoneTest extends TestCase {
     public void testFormat() throws Exception {
         InputStream in = getClass().getResourceAsStream("unformatted.xml");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        
+
         FormatFilter format = new PolycomPhone.FormatFilter();
         format.copy(in, out);
         Reader expected = new InputStreamReader(getClass().getResourceAsStream("formatted.xml"));

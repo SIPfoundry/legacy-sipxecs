@@ -46,7 +46,7 @@ public class AcmeGateway extends Gateway {
     }
 
     @Override
-    protected String getProfileFilename() {
+    public String getProfileFilename() {
         return getSerialNumber() + ".ini";
     }
 }

@@ -39,7 +39,7 @@ public class DeviceTest extends TestCase {
         final String profileFilename = "gateway.cfg";
 
         Phone device = new TestPhone() {
-            public String getPhoneFilename() {
+            public String getProfileFilename() {
                 return profileFilename;
             }
         };
@@ -64,8 +64,8 @@ public class DeviceTest extends TestCase {
 
         final String profileFilename = "gateway.cfg";
 
-        Gateway device = new Gateway() {
-            protected String getProfileFilename() {
+        Device device = new Gateway() {
+            public String getProfileFilename() {
                 return profileFilename;
             }
         };

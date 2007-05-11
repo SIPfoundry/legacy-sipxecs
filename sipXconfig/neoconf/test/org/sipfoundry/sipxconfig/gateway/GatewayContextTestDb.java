@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.springframework.context.ApplicationContext;
 
@@ -227,7 +228,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
 
     public void testGetGatewaySettings() throws Exception {
         TestHelper.cleanInsertFlat("gateway/seed_gateway.db.xml");
-        Gateway gateway = m_context.getGateway(1001);
+        Device gateway = m_context.getGateway(1001);
         assertNotNull(gateway.getProfileGenerator());
     }
 

@@ -24,7 +24,7 @@ public abstract class AudioCodesGateway extends Gateway {
     }
 
     @Override
-    protected String getProfileFilename() {
+    public String getProfileFilename() {
         String serialNumber = getSerialNumber();
         if (serialNumber == null) {
             return null;

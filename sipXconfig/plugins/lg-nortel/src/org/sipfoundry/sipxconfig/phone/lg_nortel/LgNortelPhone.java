@@ -29,18 +29,13 @@ public class LgNortelPhone extends Phone {
     private String m_phonebookFilename = "{0}-phonebook.csv";
 
     public LgNortelPhone() {
-        super(BEAN_ID);
-    }
-
-    public LgNortelPhone(LgNortelModel model) {
-        super(model);
     }
 
     @Override
-    public String getPhoneTemplate() {
+    public String getProfileTemplate() {
         return "lg-nortel/mac.cfg.vm";
     }
-    
+
     @Override
     public void initializeLine(Line line) {
         DeviceDefaults phoneDefaults = getPhoneContext().getPhoneDefaults();
@@ -55,13 +50,13 @@ public class LgNortelPhone extends Phone {
         LgNortelPhoneDefaults defaults = new LgNortelPhoneDefaults(phoneDefaults, lines);
         addDefaultBeanSettingHandler(defaults);
     }
-    
+
     @Override
     public void generateProfiles(ProfileLocation location) {
         super.generateProfiles(location);
         generatePhonebook(location);
     }
-    
+
     void generatePhonebook(ProfileLocation location) {
         Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
         if (entries != null && entries.size() > 0) {
@@ -79,7 +74,7 @@ public class LgNortelPhone extends Phone {
     @Override
     protected ProfileContext createContext() {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
-        return new LgNortelProfileContext(this, speedDial, getPhoneTemplate());
+        return new LgNortelProfileContext(this, speedDial, getProfileTemplate());
     }
 
     static class LgNortelProfileContext extends ProfileContext {
@@ -110,7 +105,7 @@ public class LgNortelPhone extends Phone {
     }
 
     @Override
-    public String getPhoneFilename() {
+    public String getProfileFilename() {
         return StringUtils.defaultString(getSerialNumber()).toUpperCase();
     }
 
@@ -133,7 +128,7 @@ public class LgNortelPhone extends Phone {
     public void setPhonebookFilename(String phonebookFilename) {
         m_phonebookFilename = phonebookFilename;
     }
-    
+
     public String getPhonebookFilename() {
         return MessageFormat.format(m_phonebookFilename, getSerialNumber().toUpperCase());
     }

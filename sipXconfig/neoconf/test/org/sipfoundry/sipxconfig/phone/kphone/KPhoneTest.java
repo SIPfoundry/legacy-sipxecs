@@ -16,12 +16,14 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class KPhoneTest extends TestCase {
 
     public void testGenerateTypicalProfile() throws Exception {
         KPhone phone = new KPhone();
+        phone.setModel(new PhoneModel(KPhone.BEAN_ID));
 
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
@@ -40,6 +42,7 @@ public class KPhoneTest extends TestCase {
 
     public void testGenerateEmptyProfile() throws Exception {
         KPhone phone = new KPhone();
+        phone.setModel(new PhoneModel(KPhone.BEAN_ID));
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
         phone.setModelFilesContext(TestHelper.getModelFilesContext());
 

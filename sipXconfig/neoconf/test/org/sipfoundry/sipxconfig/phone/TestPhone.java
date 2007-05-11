@@ -6,20 +6,21 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public class TestPhone extends Phone {
     public static final String BEAN_ID = "testPhone";
     public static final String MODEL_ID = "testPhoneModel";
-    
+
     public TestPhone() {
-        super(BEAN_ID);
+        setBeanId(BEAN_ID);
+        setModelId(MODEL_ID);
     }
-    
+
     @Override
-    protected Setting loadSettings() {    
+    protected Setting loadSettings() {
         return loadSettings("phone.xml");
     }
-    
+
     Setting loadSettings(String resource) {
         return TestHelper.loadSettings(getClass(), resource);
     }
-    
+
     @Override
     protected Setting loadLineSettings() {
         return loadSettings("line.xml");

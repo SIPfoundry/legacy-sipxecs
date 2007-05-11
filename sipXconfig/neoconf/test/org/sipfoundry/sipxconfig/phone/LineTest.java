@@ -47,6 +47,7 @@ public class LineTest extends TestCase {
         phoneContextCtrl.replay();        
 
         Phone phone = new AcmePhone();
+        phone.setModel(new PhoneModel(AcmePhone.BEAN_ID));
         phone.setPhoneContext(phoneContext);
 
         phone.setModelFilesContext(TestHelper.getModelFilesContext());

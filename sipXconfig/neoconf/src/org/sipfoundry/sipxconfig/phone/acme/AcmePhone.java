@@ -14,7 +14,6 @@ import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 /**
@@ -29,8 +28,7 @@ public class AcmePhone extends Phone {
     private static final String REGISTRATION_SERVER_PORT_SETTING = "server/registrationServerPort";
 
     public AcmePhone() {
-        super(new PhoneModel(BEAN_ID, BEAN_ID + "Standard"));
-        setPhoneTemplate(BEAN_ID + "/config.vm");
+        setProfileTemplate(BEAN_ID + "/config.vm");
     }
 
     @Override
@@ -39,7 +37,7 @@ public class AcmePhone extends Phone {
     }
 
     @Override
-    public String getPhoneFilename() {
+    public String getProfileFilename() {
         return getSerialNumber() + ".config";
     }
 

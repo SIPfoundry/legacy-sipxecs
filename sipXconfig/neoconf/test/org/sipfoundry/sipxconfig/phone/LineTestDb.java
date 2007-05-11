@@ -199,6 +199,7 @@ public class LineTestDb extends SipxDatabaseTestCase {
      */
     public void testGetLineInfo() {
         Phone phone = new AcmePhone();
+        phone.setModel(new PhoneModel(AcmePhone.BEAN_ID));
         PhoneContext context = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
         phone.setPhoneContext(context);
@@ -209,5 +210,5 @@ public class LineTestDb extends SipxDatabaseTestCase {
         line.setUser(u);
         phone.addLine(line);
         assertEquals("turkey", line.getLineInfo().getUserId());
-    }    
+    }
 }

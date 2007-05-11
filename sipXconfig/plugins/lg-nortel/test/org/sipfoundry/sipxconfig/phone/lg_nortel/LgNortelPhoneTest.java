@@ -41,12 +41,13 @@ public class LgNortelPhoneTest extends TestCase {
     public void testGetFileName() throws Exception {
         LgNortelPhone phone = new LgNortelPhone();
         phone.setSerialNumber("0011aabb4455");
-        assertEquals("0011AABB4455", phone.getPhoneFilename());
+        assertEquals("0011AABB4455", phone.getProfileFilename());
     }
 
     public void testExternalLine() throws Exception {
         LgNortelModel lgNortelModel = new LgNortelModel();
-        Phone phone = new LgNortelPhone(lgNortelModel);
+        Phone phone = new LgNortelPhone();
+        phone.setModel(lgNortelModel);
 
         PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
         LineInfo li = new LineInfo();
@@ -64,7 +65,8 @@ public class LgNortelPhoneTest extends TestCase {
 
     public void testRestart() throws Exception {
         LgNortelModel lgNortelModel = new LgNortelModel();
-        Phone phone = new LgNortelPhone(lgNortelModel);
+        Phone phone = new LgNortelPhone();
+        phone.setModel(lgNortelModel);
 
         PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone);
         phone.restart();
@@ -74,7 +76,8 @@ public class LgNortelPhoneTest extends TestCase {
 
     public void testRestartNoLine() throws Exception {
         LgNortelModel lgNortelModel = new LgNortelModel();
-        Phone phone = new LgNortelPhone(lgNortelModel);
+        Phone phone = new LgNortelPhone();
+        phone.setModel(lgNortelModel);
 
         PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
         try {
@@ -88,7 +91,8 @@ public class LgNortelPhoneTest extends TestCase {
     public void testGenerateTypicalProfile() throws Exception {
         LgNortelModel lgNortelModel = new LgNortelModel();
         lgNortelModel.setMaxLineCount(4); // we are testing 2 lines
-        LgNortelPhone phone = new LgNortelPhone(lgNortelModel);
+        LgNortelPhone phone = new LgNortelPhone();
+        phone.setModel(lgNortelModel);
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
@@ -134,7 +138,8 @@ public class LgNortelPhoneTest extends TestCase {
         sp.setButtons(Arrays.asList(buttons));
 
         LgNortelModel lgNortelModel = new LgNortelModel();
-        Phone phone = new LgNortelPhone(lgNortelModel);
+        Phone phone = new LgNortelPhone();
+        phone.setModel(lgNortelModel);
         IMocksControl phoneContextControl = EasyMock.createNiceControl();
         PhoneContext phoneContext = phoneContextControl.createMock(PhoneContext.class);
         PhoneTestDriver.supplyVitalTestData(phoneContextControl, phoneContext, phone);

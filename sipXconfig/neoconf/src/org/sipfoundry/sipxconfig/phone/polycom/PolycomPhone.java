@@ -48,11 +48,6 @@ public class PolycomPhone extends Phone {
     private UploadManager m_uploadManager;
 
     public PolycomPhone() {
-        super(new PolycomModel());
-        init();
-    }
-
-    private void init() {
         setDeviceVersion(PolycomModel.VER_2_0);
     }
 

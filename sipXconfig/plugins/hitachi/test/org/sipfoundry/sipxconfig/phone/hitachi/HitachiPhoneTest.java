@@ -33,17 +33,18 @@ public class HitachiPhoneTest extends TestCase {
     public void testGetFileName() throws Exception {
         HitachiPhone phone = new HitachiPhone();
         phone.setSerialNumber("001122334455");
-        assertEquals("334455user.ini", phone.getPhoneFilename());
+        assertEquals("334455user.ini", phone.getProfileFilename());
     }
 
     public void testGenerateTypicalProfile() throws Exception {
-        HitachiPhone phone = new HitachiPhone(new HitachiModel("hitachi5000"));
+        HitachiPhone phone = new HitachiPhone();
+        phone.setModel(new HitachiModel("hitachi5000"));
 
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
-        ProfileContext context = new ProfileContext(phone, phone.getPhoneTemplate());
+        ProfileContext context = new ProfileContext(phone, phone.getProfileTemplate());
         phone.getProfileGenerator().generate(location, context, "ignore");
         InputStream expectedProfile = getClass().getResourceAsStream("test.user.ini");
         assertNotNull(expectedProfile);

@@ -35,7 +35,9 @@ public class ApplicationConfigurationTest extends XMLTestCase {
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
         phone = new PolycomPhone();
-        phone.getModel().setMaxLineCount(6);
+        PolycomModel model = new PolycomModel();
+        model.setMaxLineCount(6);
+        phone.setModel(model);
         PhoneTestDriver.supplyTestData(phone);
 
         m_location = new MemoryProfileLocation();

@@ -16,12 +16,14 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class AcmePhoneTest extends TestCase {
 
     public void testGenerateTypicalProfile() throws Exception {
         AcmePhone phone = new AcmePhone();
+        phone.setModel(new PhoneModel(AcmePhone.BEAN_ID));        
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);

@@ -43,12 +43,7 @@ public class SnomPhone extends Phone {
     private static final String UDP_TRANSPORT_TAG = ";transport=udp";
 
     public SnomPhone() {
-        super(new SnomModel());
-        init();
-    }
-
-    private void init() {
-        setPhoneTemplate("snom/snom.vm");
+        setProfileTemplate("snom/snom.vm");
     }
 
     @Override
@@ -59,7 +54,8 @@ public class SnomPhone extends Phone {
 
     @Override
     public void initializeLine(Line line) {
-        SnomLineDefaults defaults = new SnomLineDefaults(getPhoneContext().getPhoneDefaults(), line);
+        SnomLineDefaults defaults = new SnomLineDefaults(getPhoneContext().getPhoneDefaults(),
+                line);
         line.addDefaultBeanSettingHandler(defaults);
     }
 
@@ -83,7 +79,7 @@ public class SnomPhone extends Phone {
         return lineInfo;
     }
 
-    public String getPhoneFilename() {
+    public String getProfileFilename() {
         String serialNumber = getSerialNumber();
         if (StringUtils.isEmpty(serialNumber)) {
             return "snom.htm";
@@ -129,7 +125,8 @@ public class SnomPhone extends Phone {
 
         @SettingEntry(path = CONFIG_URL)
         public String getConfigUrl() {
-            String configUrl = m_defaults.getProfileRootUrl() + '/' + m_phone.getPhoneFilename();
+            String configUrl = m_defaults.getProfileRootUrl() + '/'
+                    + m_phone.getProfileFilename();
             return configUrl;
         }
 
@@ -143,11 +140,11 @@ public class SnomPhone extends Phone {
 
             return '+' + String.valueOf(tzsec);
         }
-        
+
         @SettingEntry(path = "Basic_Network_Settings/ntp_server")
         public String getNtpServer() {
             return m_defaults.getNtpServer();
-        }        
+        }
 
         @SettingEntry(path = DST_SETTING)
         public String getDstSetting() {
@@ -156,11 +153,11 @@ public class SnomPhone extends Phone {
                 return null;
             }
 
-            String dst = String.format("%d %02d.%02d.%02d %02d:00:00 %02d.%02d.%02d %02d:00:00", zone
-                    .getDstOffset(), zone.getStartMonth(), Math.min(zone.getStartWeek(), 5), (zone
-                    .getStartDayOfWeek() + 5) % 7 + 1, zone.getStartTime() / 3600, zone.getStopMonth(), Math
-                    .min(zone.getStopWeek(), 5), (zone.getStopDayOfWeek() + 5) % 7 + 1,
-                    zone.getStopTime() / 3600);
+            String dst = String.format("%d %02d.%02d.%02d %02d:00:00 %02d.%02d.%02d %02d:00:00",
+                    zone.getDstOffset(), zone.getStartMonth(), Math.min(zone.getStartWeek(), 5),
+                    (zone.getStartDayOfWeek() + 5) % 7 + 1, zone.getStartTime() / 3600, zone
+                            .getStopMonth(), Math.min(zone.getStopWeek(), 5), (zone
+                            .getStopDayOfWeek() + 5) % 7 + 1, zone.getStopTime() / 3600);
             return dst;
         }
     }
@@ -193,7 +190,7 @@ public class SnomPhone extends Phone {
                 // XPB-398 This forces TCP, this is defined in conjunction with "transport=udp"
                 // This is benign w/o SRV, but required w/SRV
                 // XCF-1680 - IFF this still needs to be set, this should domain name to allow
-                // for HA systems.  Remember, domain name is really FQHN for non SRV systems
+                // for HA systems. Remember, domain name is really FQHN for non SRV systems
                 outboundProxy = m_defaults.getDomainName();
             }
 

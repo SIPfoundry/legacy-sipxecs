@@ -28,6 +28,7 @@ public class PhoneTest extends TestCase {
         phoneContextCtrl.replay();
 
         Phone phone = new AcmePhone();
+        phone.setModel(new PhoneModel(AcmePhone.BEAN_ID));
         phone.setPhoneContext(phoneContext);
         phone.setSerialNumber("123456789012");
         Line l = phone.createLine();
@@ -53,6 +54,7 @@ public class PhoneTest extends TestCase {
         phoneContextCtrl.replay();
 
         Phone phone = new AcmePhone();
+        phone.setModel(new PhoneModel(AcmePhone.BEAN_ID));        
         phone.setPhoneContext(phoneContext);
         phone.setModelFilesContext(TestHelper.getModelFilesContext());
         phone.setSerialNumber("123456789012");
@@ -84,7 +86,6 @@ public class PhoneTest extends TestCase {
 
     static class LimitedPhone extends Phone {
         LimitedPhone() {
-            super("beanId");
             setModel(new LimitedLinePhoneModel());
         }
 

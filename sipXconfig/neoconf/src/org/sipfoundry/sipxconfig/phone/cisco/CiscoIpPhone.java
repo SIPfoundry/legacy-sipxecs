@@ -37,12 +37,11 @@ public class CiscoIpPhone extends CiscoPhone {
     private static final String MESSAGES_URI_PATH = "phone/messages_uri";
 
     public CiscoIpPhone() {
-        super(new CiscoModel(BEAN_ID));
         init();
     }
 
     private void init() {
-        setPhoneTemplate("ciscoIp/cisco-ip.vm");
+        setProfileTemplate("ciscoIp/cisco-ip.vm");
     }
 
     public void initialize() {
@@ -50,7 +49,7 @@ public class CiscoIpPhone extends CiscoPhone {
         addDefaultBeanSettingHandler(defaults);
     }
 
-    public String getPhoneFilename() {
+    public String getProfileFilename() {
         String phoneFilename = getSerialNumber();
         return "SIP" + phoneFilename.toUpperCase() + ".cnf";
     }
@@ -157,7 +156,7 @@ public class CiscoIpPhone extends CiscoPhone {
         public int getStopWeekOfMonth() {
             return isDstAutoAdjust() ? getZone().getStopWeek() : 0;
         }
-        
+
         @SettingEntry(path = "network/sntp_server")
         public String getNtpServer() {
             return m_defaults.getNtpServer();
@@ -190,10 +189,7 @@ public class CiscoIpPhone extends CiscoPhone {
             return password;
         }
 
-        @SettingEntry(
-            paths = {
-                SHORTNAME_PATH, AUTH_NAME_PATH, USER_NAME_PATH
-                })
+        @SettingEntry(paths = { SHORTNAME_PATH, AUTH_NAME_PATH, USER_NAME_PATH })
         public String getUserName() {
             String name = null;
             User u = m_line.getUser();
@@ -246,10 +242,7 @@ public class CiscoIpPhone extends CiscoPhone {
     }
 
     public static class CiscpIpStubbedLineDefaults {
-        @SettingEntry(
-            paths = {
-                REGISTRATION_PATH, REGISTRATION_PORT_PATH
-                })
+        @SettingEntry(paths = { REGISTRATION_PATH, REGISTRATION_PORT_PATH })
         public String getEmpty() {
             return StringUtils.EMPTY;
         }

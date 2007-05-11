@@ -29,7 +29,6 @@ public class CiscoAtaPhone extends CiscoPhone {
     private boolean m_isTextFormatEnabled;
 
     public CiscoAtaPhone() {
-        super(new CiscoModel(BEAN_ID));
     }
 
     @Override
@@ -67,7 +66,7 @@ public class CiscoAtaPhone extends CiscoPhone {
         m_isTextFormatEnabled = isTextFormatEnabled;
     }
 
-    public String getPhoneFilename() {
+    public String getProfileFilename() {
         String phoneFilename = getSerialNumber();
         return getCiscoModel().getCfgPrefix() + phoneFilename.toLowerCase();
     }
@@ -80,7 +79,7 @@ public class CiscoAtaPhone extends CiscoPhone {
             filter = new BinaryFilter(systemDir + "/ciscoAta", getCiscoModel());
         }
         ProfileContext context = new ProfileContext(this, null);
-        getProfileGenerator().generate(location, context, filter, getPhoneFilename());
+        getProfileGenerator().generate(location, context, filter, getProfileFilename());
     }
 
     public Collection<Line> getProfileLines() {
