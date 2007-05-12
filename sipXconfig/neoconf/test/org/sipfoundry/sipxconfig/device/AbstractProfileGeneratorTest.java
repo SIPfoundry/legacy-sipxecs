@@ -54,7 +54,7 @@ public class AbstractProfileGeneratorTest extends TestCase {
     public void testGenerateProfileContextStringString() {
         MemoryProfileLocation location = new MemoryProfileLocation();
         AbstractProfileGenerator pg = new ProfileGeneratorStub();
-        pg.generate(location, new ProfileContext(null, "bongo"), "ignored");
+        pg.generate(location, new ProfileContext(null, "bongo"), null, "ignored");
         assertEquals("bongo", location.toString());
     }
 

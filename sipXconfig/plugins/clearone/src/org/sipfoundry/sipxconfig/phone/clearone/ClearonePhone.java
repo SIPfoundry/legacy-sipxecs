@@ -59,7 +59,8 @@ public class ClearonePhone extends Phone {
     public void generateProfiles(ProfileLocation location) {
         super.generateProfiles(location);
         ProfileContext context = new ProfileContext(this, getDialplanTemplate());
-        getProfileGenerator().generate(location, context, getDialplanFileName());
+        getProfileGenerator().generate(location, context, getProfileFilter(),
+                getDialplanFileName());
     }
 
     @Override

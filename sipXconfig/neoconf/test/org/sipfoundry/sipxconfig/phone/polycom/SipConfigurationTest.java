@@ -72,7 +72,7 @@ public class SipConfigurationTest extends XMLTestCase {
 
         ProfileContext cfg = new SipConfiguration(phone);
 
-        m_pg.generate(m_location, cfg, "profile");
+        m_pg.generate(m_location, cfg, null, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream(expected);
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);

@@ -21,10 +21,6 @@ import org.apache.commons.io.IOUtils;
 public abstract class AbstractProfileGenerator implements ProfileGenerator {
     private String m_templateRoot;
 
-    public void generate(ProfileLocation location, ProfileContext context, String outputFileName) {
-        generate(location, context, null, outputFileName);
-    }
-
     public void setTemplateRoot(String templateRoot) {
         m_templateRoot = templateRoot;
     }

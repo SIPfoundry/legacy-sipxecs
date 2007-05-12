@@ -65,6 +65,21 @@ public class AudioCodesFxoGatewayTest extends TestCase {
 
         assertEquals(expected, actual);
     }
+    
+    public void testGeneratePrevieProfiles() {
+        for (int i = 0; i < 2; i++) {
+            FxoPort trunk = new FxoPort();
+            m_gateway.addPort(trunk);
+        }
+
+        m_gateway.setSerialNumber("001122334455");
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
+
+        for (String profile : m_gateway.getProfileTypes()) {
+            m_gateway.generateProfile(location, profile);
+            assertTrue(location.toString().length() > 0);            
+        }
+    }
 
     public void testPrepareSettings() throws Exception {
         IMocksControl defaultsCtrl = EasyMock.createControl();

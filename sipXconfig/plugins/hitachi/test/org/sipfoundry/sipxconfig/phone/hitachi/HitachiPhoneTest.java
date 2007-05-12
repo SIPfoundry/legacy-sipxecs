@@ -45,7 +45,7 @@ public class HitachiPhoneTest extends TestCase {
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
         ProfileContext context = new ProfileContext(phone, phone.getProfileTemplate());
-        phone.getProfileGenerator().generate(location, context, "ignore");
+        phone.getProfileGenerator().generate(location, context, null, "ignore");
         InputStream expectedProfile = getClass().getResourceAsStream("test.user.ini");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);

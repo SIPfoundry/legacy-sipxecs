@@ -61,7 +61,7 @@ public class LgNortelPhone extends Phone {
         Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
         if (entries != null && entries.size() > 0) {
             LgNortelPhonebook phonebook = new LgNortelPhonebook(entries);
-            getProfileGenerator().generate(location, phonebook, getPhonebookFilename());
+            getProfileGenerator().generate(location, phonebook, null, getPhonebookFilename());
         }
     }
 

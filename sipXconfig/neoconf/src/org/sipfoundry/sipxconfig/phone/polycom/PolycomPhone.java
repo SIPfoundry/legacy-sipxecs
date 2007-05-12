@@ -88,9 +88,13 @@ public class PolycomPhone extends Phone {
         line.addDefaultBeanSettingHandler(lineDefaults);
     }
 
+    protected ProfileFilter getProfileFilter() {
+        return new FormatFilter();
+    }
+
     @Override
     public void generateProfiles(ProfileLocation location) {
-        FormatFilter format = new FormatFilter();
+        ProfileFilter format = getProfileFilter();
 
         ApplicationConfiguration app = new ApplicationConfiguration(this, m_tftpRoot);
 

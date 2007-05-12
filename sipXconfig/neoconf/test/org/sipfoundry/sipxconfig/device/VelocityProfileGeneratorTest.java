@@ -38,7 +38,7 @@ public class VelocityProfileGeneratorTest extends TestCase {
     public void testGenerateProfile() {
         ProfileContext context = new ProfileContextStub();
 
-        m_generator.generate(m_location, context, "ignored");
+        m_generator.generate(m_location, context, null, "ignored");
 
         assertEquals("testPhone has 17 lines", m_location.toString());
     }

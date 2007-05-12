@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.gateway.FxoPort;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -21,7 +22,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingArray;
 
 class AudioCodesContext extends ProfileContext {
-    public AudioCodesContext(BeanWithSettings device, String profileTemplate) {
+    public AudioCodesContext(Device device, String profileTemplate) {
         super(device, profileTemplate);
     }
 

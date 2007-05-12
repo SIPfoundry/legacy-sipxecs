@@ -52,7 +52,7 @@ public class ApplicationConfigurationTest extends XMLTestCase {
 
         ApplicationConfiguration app = new ApplicationConfiguration(phone, root);
 
-        m_pg.generate(m_location, app, "profile");
+        m_pg.generate(m_location, app, null, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream(
                 "expected-macaddress.cfg");

@@ -69,7 +69,7 @@ public class DirectoryConfigurationTest extends XMLTestCase {
 
         DirectoryConfiguration dir = new DirectoryConfiguration(null, null);
 
-        m_pg.generate(m_location, dir, "profile");
+        m_pg.generate(m_location, dir, null, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-empty-directory.xml");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
@@ -95,7 +95,7 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         Collection<PhonebookEntry> entries = Collections.singleton(phonebookEntry);
         DirectoryConfiguration dir = new DirectoryConfiguration(entries, null);
 
-        m_pg.generate(m_location, dir, "profile");
+        m_pg.generate(m_location, dir, null, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-directory.xml");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
@@ -118,7 +118,7 @@ public class DirectoryConfigurationTest extends XMLTestCase {
 
         DirectoryConfiguration dir = new DirectoryConfiguration(null, speedDial);
 
-        m_pg.generate(m_location, dir, "profile");
+        m_pg.generate(m_location, dir, null, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-speeddial-directory.xml");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);

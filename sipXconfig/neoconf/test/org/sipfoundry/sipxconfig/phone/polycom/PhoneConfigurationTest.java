@@ -56,7 +56,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
 
     private void assertExpectedProfile(String expected) throws Exception {
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
-        m_pg.generate(m_location, cfg, "profile");
+        m_pg.generate(m_location, cfg, null, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream(expected);
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);

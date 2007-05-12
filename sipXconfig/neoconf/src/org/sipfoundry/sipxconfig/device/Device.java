@@ -36,14 +36,24 @@ public abstract class Device extends BeanWithGroups {
     }
 
     /**
-     * Default implementation generates a single profile file if profile file name and profile
-     * template are provided
-     * 
+     * Default implementation generates a single profile file if profile file name is provided.
      */
     public void generateProfiles(ProfileLocation location) {
         String profileFileName = getProfileFilename();
+        generateProfile(location, profileFileName);
+    }
+
+    public final void generateProfile(ProfileLocation location, String profileFileName) {
         ProfileContext context = createContext();
-        m_profileGenerator.generate(location, context, profileFileName);
+        ProfileFilter profileFilter = getProfileFilter();
+        m_profileGenerator.generate(location, context, profileFilter, profileFileName);
+    }
+
+    /**
+     * By default no filter will be used.
+     */
+    protected ProfileFilter getProfileFilter() {
+        return null;
     }
 
     protected Set getModelDefinitions() {
@@ -52,6 +62,18 @@ public abstract class Device extends BeanWithGroups {
             definitions.add(getDeviceVersion().getVersionId());
         }
         return definitions;
+    }
+
+    /**
+     * Return the list of profile types for this device is generating.
+     * 
+     * The intention is to use this method to check if there are any profiles that can be
+     * previewed. It's OK to return null or just a subset of profiles here.
+     * 
+     * @return list
+     */
+    public String[] getProfileTypes() {
+        return null;
     }
 
     public abstract DeviceDescriptor getModel();

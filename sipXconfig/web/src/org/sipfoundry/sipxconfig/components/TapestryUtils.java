@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.components;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -282,7 +283,7 @@ public final class TapestryUtils {
         column.setValueRendererSource(new DateTableRendererSource(getDateFormat(locale)));
         return column;
     }
-    
+
     public static DateFormat getDateFormat(Locale locale) {
         return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
     }
@@ -333,31 +334,39 @@ public final class TapestryUtils {
 
     public static PrintWriter getCsvExportWriter(WebResponse response, String filename)
         throws IOException {
+        prepareResponse(response, filename);
+        ContentType csvType = new ContentType("text/comma-separated-values");
+        return response.getPrintWriter(csvType);
+    }
+
+    public static OutputStream getResponseOutputStream(WebResponse response, String filename,
+            String contentType) throws IOException {
+        prepareResponse(response, filename);
+        ContentType ct = new ContentType(contentType);
+        return response.getOutputStream(ct);
+    }
+
+    private static void prepareResponse(WebResponse response, String filename) {
         response.setHeader("Expires", "0");
         response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
         response.setHeader("Pragma", "public");
         response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"",
                 filename));
-
-        ContentType csvType = new ContentType("text/comma-separated-values");
-
-        PrintWriter writer = response.getPrintWriter(csvType);
-        return writer;
     }
-    
+
     public static String joinBySpace(String[] array) {
         String s = null;
         if (array != null) {
             s = StringUtils.join(array, ' ');
         }
-        return s;        
+        return s;
     }
-    
+
     public static String[] splitBySpace(String s) {
         String[] array = null;
         if (s != null) {
             array = s.split("\\s+");
-        }  
+        }
         return array;
     }
 

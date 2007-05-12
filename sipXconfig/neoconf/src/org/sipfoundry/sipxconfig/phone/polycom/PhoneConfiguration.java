@@ -14,9 +14,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 
 /**
  * Responsible for generating MAC_ADDRESS.d/phone.cfg
@@ -25,8 +25,8 @@ public class PhoneConfiguration extends ProfileContext {
 
     private static final int TEMPLATE_DEFAULT_LINE_COUNT = 6;
 
-    public PhoneConfiguration(BeanWithSettings device) {
-        super(device, PolycomPhone.TEMPLATE_DIR + "/phone.cfg.vm");        
+    public PhoneConfiguration(Device device) {
+        super(device, PolycomPhone.TEMPLATE_DIR + "/phone.cfg.vm");
     }
 
     public Map<String, Object> getContext() {
@@ -44,7 +44,7 @@ public class PhoneConfiguration extends ProfileContext {
         for (Line line : lines) {
             linesSettings.add(line.getSettings());
         }
-        
+
         if (PolycomModel.VER_1_6.equals(phone.getDeviceVersion())) {
             // copy in blank lines of all unused lines because 1.6 does not
             // have manufacturor template files

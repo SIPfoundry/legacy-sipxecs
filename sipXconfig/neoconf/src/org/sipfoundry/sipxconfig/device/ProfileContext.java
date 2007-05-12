@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
@@ -41,11 +40,11 @@ public class ProfileContext {
         }
     };
 
-    private BeanWithSettings m_device;
+    private Device m_device;
 
     private String m_profileTemplate;
 
-    public ProfileContext(BeanWithSettings device, String profileTemplate) {
+    public ProfileContext(Device device, String profileTemplate) {
         m_device = device;
         m_profileTemplate = profileTemplate;
     }
@@ -58,7 +57,7 @@ public class ProfileContext {
         return context;
     }
 
-    public BeanWithSettings getDevice() {
+    public Device getDevice() {
         return m_device;
     }
     

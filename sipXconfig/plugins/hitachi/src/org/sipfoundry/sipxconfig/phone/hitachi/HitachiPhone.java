@@ -52,7 +52,7 @@ public class HitachiPhone extends Phone {
         super.generateProfiles(location);
         // and copy loadrun.ini as well
         ProfileContext context = new ProfileContext(this, getLoadrunTemplate());
-        getProfileGenerator().generate(location, context, "loadrun.ini");
+        getProfileGenerator().generate(location, context, getProfileFilter(), "loadrun.ini");
     }
 
     /**
