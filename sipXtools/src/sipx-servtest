@@ -21,10 +21,10 @@ use Net::Ping;
 ## Constants
 $CRLF = "\r\n";
 $SipVersion = '2.0';
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 ## Globals
-$Child = 0 ;
+# %Child holds pids for each UAS, indexed by $server:$port
 $Me = fileparse($0) ;
 $DefaultUserAgent = "$Me/$VERSION";
 
@@ -447,7 +447,7 @@ else
     print &GreenBackground()."Passed all tests.".&Black()."\n";
 }
 
-exit $ErrorCount;
+&Bye($ErrorCount);
 
 sub ConnectTest
 {
@@ -483,7 +483,7 @@ sub ProxyForwardingTest
     
     ## Start up the UAS child process
     ($UasPort, $UasAddr) = &StartUas($server, $port) 
-        unless $Child;
+        unless $Child{"$server:$port"};
 
     # Send Options to sip:{this server} to test the proxy
     &SendOptions($server, $port, "sip:$UasAddr:$UasPort");
@@ -509,7 +509,7 @@ sub AuthProxyForwardingTest
     
     ## Start up the UAS child process
     ($UasPort, $UasAddr) = &StartUas($server, $port) 
-        unless $Child;
+        unless $Child{"$server:$port"};
 
     # Send Options to sip:{this server} to test the proxy
     &SendOptions($server, $port, "sip:$UasAddr:$UasPort");
@@ -603,12 +603,10 @@ sub TestStart
     return $isReady;
 }
 
-&Bye() ;
-
 sub Catch
 {
-   warn "Shutting down due to signal\n" ;
-   &Bye() ;
+   warn "Shutting down $Me due to signal\n" ;
+   &Bye(0) ;
 }
 
 sub StartUas
@@ -637,8 +635,25 @@ sub StartUas
    ($myPort, $myAddr) = sockaddr_in(getsockname(UAS));
    $MyAddr = inet_ntoa($myAddr);
 
-   $Child = fork() ;
-   &SipUas($myPort, $MyAddr) if ($Child == 0) ;
+   my $pid = fork() ;
+   if ($pid == 0) 
+   {
+       # this is the child (the UAS), delete any record of siblings
+       $Me = "SipUas($server:$port)";
+       foreach ( keys %Child )
+       {
+           undef $Child{$_};
+       }
+       # and start listening
+       &SipUas($myPort, $MyAddr) ;
+   }
+   else
+   {
+       # this is the parent, so record the pid of the child for that server:port
+       print "Spawned child $pid for '$server:$port'\n"
+           if $Verbose;
+       $Child{"$server:$port"} = $pid;
+   }
    
    return ($myPort, $MyAddr) ;
 }
@@ -834,13 +849,22 @@ sub SendPing
 #
 sub Bye
 {
+   my $exitVal = shift;
+
    $Pinger->close();
    print &Black();
-   if ($Child > 0)
+   my $child;
+   foreach $target ( keys %Child )
    {
-      kill 0, $Child 
+       if ($Child{$target})
+       {
+           print "Terminating UAS $Child{$target} for '$target'\n"
+               if $Verbose;
+           kill TERM, $Child{$target};
+       }
    }
-   die ;
+
+   exit $exitVal;
 }
 
 #
