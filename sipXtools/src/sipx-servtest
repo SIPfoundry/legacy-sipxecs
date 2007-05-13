@@ -249,7 +249,7 @@ GetOptions(
 
            'aor=s'          => \@Aors,
 
-           'verbose|v'      => \$Verbose,
+           'verbose|v+'     => \$Verbose,
            'timeout|t=i'    => \$Timeout,
            'delay=i'        => \$RepeatDelay,
            'symmetric=i'    => \$SymmetricPort,
@@ -583,7 +583,7 @@ sub TestStart
     {
         print &Black()."================================================================\n"
             if $Verbose;
-        print "$test\n";
+        print "======== $test\n";
     }
 
     if ( defined $DependsOn{$Test} )
@@ -605,7 +605,8 @@ sub TestStart
 
 sub Catch
 {
-   warn "Shutting down $Me due to signal\n" ;
+   warn "Shutting down $Me due to signal\n" 
+       if $Verbose > 1;
    &Bye(0) ;
 }
 
@@ -642,7 +643,7 @@ sub StartUas
        $Me = "SipUas($server:$port)";
        foreach ( keys %Child )
        {
-           undef $Child{$_};
+           delete $Child{$_};
        }
        # and start listening
        &SipUas($myPort, $MyAddr) ;
@@ -651,7 +652,7 @@ sub StartUas
    {
        # this is the parent, so record the pid of the child for that server:port
        print "Spawned child $pid for '$server:$port'\n"
-           if $Verbose;
+           if $Verbose > 1;
        $Child{"$server:$port"} = $pid;
    }
    
@@ -663,7 +664,7 @@ sub SipUas
    my ($myPort, $MyAddr) = @_ ;
 
    print "SipUas listening on $MyAddr:$myPort\n" 
-       if $Verbose;
+       if $Verbose > 1;
    for(;;)
    {
       my ($Request, $error, $Response);
@@ -678,7 +679,7 @@ sub SipUas
       if ($Verbose)
       {
             print "+++++++++++++++++++++++++++\n";
-            print "UAS ".&Magenta()."Accepting Connection\n".&Black();
+            print "$Me ".&Magenta()."Accepting Connection\n".&Black();
             print "+++++++++++++++++++++++++++\n";
             print &Black() ;
       }
@@ -686,14 +687,14 @@ sub SipUas
    
       if ($error)
       {
-         &Failure("UAS Problem reading OPTIONS request",$error) ;
+         &Failure("$Me Problem reading OPTIONS request",$error) ;
       }
       else
       {
          if ($Verbose)
          {
             print "+++++++++++++++++++++++++++\n";
-            print "UAS Receiving:\n".&Magenta().$Request.&Black()."\n";
+            print "$Me Receiving:\n".&Magenta().$Request.&Black()."\n";
             print "+++++++++++++++++++++++++++\n";
 
          }
@@ -706,7 +707,7 @@ sub SipUas
          if ($Verbose)
          {
             print "+++++++++++++++++++++++++++\n";
-            print "UAS Sending:\n".&Blue().$Response.&Black()."\n";
+            print "$Me Sending:\n".&Blue().$Response.&Black()."\n";
             print "+++++++++++++++++++++++++++\n";
             print &Black() ;
          }
@@ -735,7 +736,7 @@ sub SendOptions
    }
 
    print "Connecting: to $server:$Port\n" 
-       if ($Verbose);
+       if ($Verbose > 1);
 
    # Connect to the server
    if (!connect( UAC, $serverAddr ))
@@ -800,7 +801,7 @@ sub SendPing
    }
 
    print "Connecting: to $server:$Port\n"
-       if ($Verbose);
+       if ($Verbose > 1);
 
    # Connect to the server
    if (!connect( UAC, $serverAddr ))
@@ -854,12 +855,12 @@ sub Bye
    $Pinger->close();
    print &Black();
    my $child;
-   foreach $target ( keys %Child )
+   foreach $target ( sort { $Child{$a} cmp $Child{$b} } keys %Child )
    {
-       if ($Child{$target})
+       if ($target)
        {
-           print "Terminating UAS $Child{$target} for '$target'\n"
-               if $Verbose;
+           print "Terminating SipUas $Child{$target} for '$target'\n"
+               if $Verbose > 1;
            kill TERM, $Child{$target};
        }
    }
