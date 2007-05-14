@@ -206,21 +206,15 @@ OsConnectionSocket* OsServerSocket::accept()
    if (clientSocket < 0)
    {
       int error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: accept call failed with error: %d=0x%x",
-         error, error);
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: accept(%d) error: %d=%s",
+                    socketDescriptor, error, strerror(error));
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
-      return NULL;
    }
-
-/*
-    Don't know why we don't want to route...we do support subnets, do we not?
+   else
+   {
+      connectSock = new OsConnectionSocket(mLocalIp,clientSocket);
+   }
    
-   const int one = 1 ;
-   setsockopt(clientSocket, SOL_SOCKET, SO_DONTROUTE, (char *)&one, sizeof(one)) ;
-*/
-
-   connectSock = new OsConnectionSocket(mLocalIp,clientSocket);
-
    return(connectSock);
 }
 

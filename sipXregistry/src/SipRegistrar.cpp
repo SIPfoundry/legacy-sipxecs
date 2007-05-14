@@ -153,10 +153,15 @@ int SipRegistrar::run(void* pArg)
     */
    startupPhase(); 
  
-   operationalPhase();
+   int taskResult = 0;
+   
+   if (!isShuttingDown())
+   {
+      operationalPhase();
 
-   int taskResult = OsServerTask::run(pArg);
-
+      taskResult = OsServerTask::run(pArg);
+   }
+   
    return taskResult;
 }
 
@@ -176,11 +181,11 @@ void SipRegistrar::startupPhase()
       createReplicationThreads();
 
       // Begin the RegistrarInitialSync thread and then wait for it.
-      mRegistrarInitialSync->start();
-      yield();
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRegistrar::startupPhase waiting for initialSyncThread"
                     );
+      mRegistrarInitialSync->start();
+      yield();
       mRegistrarInitialSync->waitForCompletion();
 
       // The initial sync thread has no further value, to the ash heap of history it goes

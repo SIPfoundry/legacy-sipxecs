@@ -92,7 +92,8 @@ void RegistrarInitialSync::pullLocalUpdatesFromPeers()
 {
    auto_ptr<UtlSListIterator> peers(mRegistrar.getPeers());
    RegistrarPeer* peer;
-   while ((peer = static_cast<RegistrarPeer*>((*peers)())))
+   while (   (peer = static_cast<RegistrarPeer*>((*peers)()))
+          && !isShuttingDown())
    {
       RegistrarPeer::SynchronizationState state = peer->synchronizationState();
 
@@ -152,7 +153,8 @@ void RegistrarInitialSync::pullPeerUpdatesFromPeers()
    auto_ptr<UtlSListIterator> peers(mRegistrar.getPeers());
    RegistrarPeer* peer;
    const char* primaryName = getPrimaryName();
-   while ((peer = static_cast<RegistrarPeer*>((*peers)())))
+   while (   (peer = static_cast<RegistrarPeer*>((*peers)()))
+          && !isShuttingDown())
    {
       RegistrarPeer::SynchronizationState state = peer->synchronizationState();
       assert(state != RegistrarPeer::Reachable);
@@ -199,14 +201,16 @@ void RegistrarInitialSync::recoverUnReachablePeers()
    auto_ptr<UtlSListIterator> peers(mRegistrar.getPeers());
    RegistrarPeer* reachablePeer;
    const char* primaryName = getPrimaryName();
-   while ((reachablePeer = static_cast<RegistrarPeer*>((*peers)())))
+   while (   (reachablePeer = static_cast<RegistrarPeer*>((*peers)()))
+          && !isShuttingDown())
    {
       if (reachablePeer->synchronizationState() == RegistrarPeer::Uninitialized)
       {
          // loop over unreachable peers
          auto_ptr<UtlSListIterator> peers2(mRegistrar.getPeers());
          RegistrarPeer* unreachablePeer;
-         while ((unreachablePeer = static_cast<RegistrarPeer*>((*peers)())))
+         while (   (unreachablePeer = static_cast<RegistrarPeer*>((*peers)()))
+                && !isShuttingDown())
          {
             if (unreachablePeer->synchronizationState() == RegistrarPeer::UnReachable)
             {

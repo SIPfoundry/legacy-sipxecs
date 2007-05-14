@@ -67,22 +67,24 @@ int RegistrarSync::run(void* pArg)
       // Wait until there is work to do - this is signalled by the sendUpdates method
       mMutex.acquire();
       
-      // Loop over all peers, pushing a single update for each peer.  Keep going until
-      // there are no updates left to push to any peer.
-      // There is a benign race condition here: a local registration might happen just
-      // after we have checked the last peer and decided that there is nothing to do.
-      // That's OK because the mutex will have been signalled -- we'll acquire it again
-      // immediately and come right back to the loop.
-      bool pushedUpdate;
-      do
+      bool pushedUpdate = true;
+      while (pushedUpdate && !isShuttingDown())
       {
          pushedUpdate = false;
+         // Loop over all peers, pushing a single update for each peer.  Keep going until
+         // there are no updates left to push to any peer.
+         // There is a benign race condition here: a local registration might happen just
+         // after we have checked the last peer and decided that there is nothing to do.
+         // That's OK because the mutex will have been signalled -- we'll acquire it again
+         // immediately and come right back to the loop.
 
          // For each Reachable peer, if the local DbUpdateNumber is greater than the
          // PeerSentDbUpdateNumber, then push a single update.
          auto_ptr<UtlSListIterator> peers(mRegistrar.getPeers());
          RegistrarPeer* peer;
-         while ((peer = static_cast<RegistrarPeer*>((*peers)())))
+         while (   (peer = static_cast<RegistrarPeer*>((*peers)()))
+                && !isShuttingDown()
+                )
          {
             if (peer->isReachable())
             {
@@ -99,9 +101,8 @@ int RegistrarSync::run(void* pArg)
             }
          }
       }
-      while (pushedUpdate);
    }
-
+    
    return 0;
 }
 

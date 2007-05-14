@@ -215,5 +215,4 @@ void RegistrarTest::restartTimer()
 /// destructor
 RegistrarTest::~RegistrarTest()
 {
-   // :TODO: 
 }
