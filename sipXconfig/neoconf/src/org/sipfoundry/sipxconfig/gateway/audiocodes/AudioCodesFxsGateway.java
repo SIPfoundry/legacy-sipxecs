@@ -43,17 +43,6 @@ public class AudioCodesFxsGateway extends Phone {
     }
 
     @Override
-    public String[] getProfileTypes() {
-        String profileFilename = getProfileFilename();
-        if (profileFilename == null) {
-            return null;
-        }
-        return new String[] {
-            profileFilename
-        };
-    }
-
-    @Override
     protected ProfileContext createContext() {
         return new AudioCodesContext(this, getModel().getProfileTemplate());
     }

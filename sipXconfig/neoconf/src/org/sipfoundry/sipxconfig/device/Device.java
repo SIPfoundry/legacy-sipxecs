@@ -88,7 +88,13 @@ public abstract class Device extends BeanWithGroups {
      * @return list
      */
     public String[] getProfileTypes() {
-        return null;
+        String profileFilename = getProfileFilename();
+        if (profileFilename == null) {
+            return null;
+        }
+        return new String[] {
+            profileFilename
+        };
     }
 
     public abstract DeviceDescriptor getModel();

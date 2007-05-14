@@ -26,19 +26,19 @@
     <property name="modelDir" value="ciscoAta" />
   </bean>
 
-  <bean id="cisco7912" parent="ciscoModel">
+  <bean id="cisco7912" parent="ciscoAtaModel">
     <property name="label" value="Cisco IP 7912" />
     <property name="maxLineCount" value="1" />
     <property name="cfgPrefix" value="gk" />
     <property name="upgCode" value="0x601,0x400,0x200" />
   </bean>
-  <bean id="cisco7905" parent="ciscoModel">
+  <bean id="cisco7905" parent="ciscoAtaModel">
     <property name="label" value="Cisco IP 7905" />
     <property name="maxLineCount" value="1" />
     <property name="cfgPrefix" value="ld" />
     <property name="upgCode" value="0x501,0x400,0x200" />
   </bean>
-  <bean id="cisco18x" parent="ciscoModel">
+  <bean id="cisco18x" parent="ciscoAtaModel">
     <property name="label" value="Cisco ATA 186/188" />
     <property name="maxLineCount" value="2" />
     <property name="cfgPrefix" value="ata" />

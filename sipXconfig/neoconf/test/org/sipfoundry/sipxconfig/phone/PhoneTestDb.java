@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
@@ -21,6 +22,7 @@ import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -36,11 +38,15 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
 
     private CoreContext core;
 
+    private ModelSource<PhoneModel> phoneModelSource;
+
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
         context = (PhoneContext) app.getBean(PhoneContext.CONTEXT_BEAN_NAME);
         settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
         core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
+        phoneModelSource = (ModelSource<PhoneModel>) app.getBean("nakedPhoneModelSource");
+        
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -238,5 +244,13 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsertFlat("phone/PhoneVersionSeed.db.xml");
         Phone phone = context.loadPhone(1000);
         assertNull(phone.getPrimaryUser());
+    }
+
+    public void testPopulatePhones() throws Exception {
+        for (PhoneModel model : phoneModelSource.getModels()) {
+            Phone phone = context.newPhone(model);
+            phone.setSerialNumber(RandomStringUtils.randomNumeric(12));
+            context.storePhone(phone);
+        }
     }
 }
