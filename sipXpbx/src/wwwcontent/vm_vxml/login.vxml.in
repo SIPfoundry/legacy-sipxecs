@@ -41,7 +41,7 @@
     
 
         <!-- Get user's extension -->
-        <field name="extension" type="digits?minlength=1;maxlength=${EXTENSION_LENGTH}">
+        <field name="extension" type="digits?minlength=1;maxlength=100">
             <prompt>
                 <audio expr="mediaserverurl + promptsalias + 'dial_extn_short.wav'"/>
             </prompt>

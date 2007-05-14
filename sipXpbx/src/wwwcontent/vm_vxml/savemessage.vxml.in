@@ -356,7 +356,7 @@
         </field>
 
         <!-- Prompt user for other extensions to which they want to deliver the same voicemail -->
-        <field name="copymessage" cond="moreoptions == '1' || called_by == 'sendmessage'" type="digits?minlength=1;maxlength=${EXTENSION_LENGTH}">
+        <field name="copymessage" cond="moreoptions == '1' || called_by == 'sendmessage'" type="digits?minlength=1;maxlength=100">
             <prompt>
                 <audio expr="mediaserverurl + promptsalias + 'dial_extn.wav'" />
             </prompt>

@@ -165,7 +165,7 @@
 
         
         <!-- Prompts user for the destination extension -->
-        <field name="toextension" cond="confirm == '2' || withcomments == 'no'" type="digits?minlength=1;maxlength=${EXTENSION_LENGTH}">
+        <field name="toextension" cond="confirm == '2' || withcomments == 'no'" type="digits?minlength=1;maxlength=100">
             <prompt>
                 <audio expr="mediaserverurl + promptsalias + 'dial_extn.wav'" />
             </prompt>

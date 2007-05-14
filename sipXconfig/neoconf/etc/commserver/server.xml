@@ -132,13 +132,6 @@
       </type>
       <value>7</value>
     </setting>
-    <setting name="EXTENSION_LENGTH">
-      <profileName>config.defs</profileName>
-      <type>
-        <integer min="1" max="99" />
-      </type>
-      <value>3</value>
-    </setting>
     <setting name="SMTP_SERVER" hidden="yes">
       <profileName>config.defs</profileName>
       <type />
