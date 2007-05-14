@@ -42,6 +42,7 @@ Projects="\
   sipxproxy \
   sipxconfig \
   sipxvxml \
+  sipxacd \
   sipxpbx"
 
 ## Test the java executable command
