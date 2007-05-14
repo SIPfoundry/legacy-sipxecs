@@ -17,14 +17,11 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class KPhone extends Phone {
-    public static final String BEAN_ID = "kphone";
-
     private static final String REG_URI = "Registration/SipUri";
     private static final String REG_USER = "Registration/UserName";
     private static final String REG_SERVER = "Registration/SipServer";
 
     public KPhone() {
-        setProfileTemplate("kphone/kphonerc.vm");
     }
 
     public String getProfileFilename() {

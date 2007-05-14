@@ -26,6 +26,7 @@ public class AudioCodesFxsGatewayTest extends TestCase {
         model.setBeanId("gwFxsAudiocodes");
         model.setFxs(true);
         model.setProfileTemplate("audiocodes/gateway.ini.vm");
+        model.setModelDir("audiocodes");        
 
         AudioCodesFxsGateway gateway = new AudioCodesFxsGateway();
         gateway.setModel(model);
@@ -58,5 +59,4 @@ public class AudioCodesFxsGatewayTest extends TestCase {
 
         assertEquals(expected, actual);
     }
-
 }

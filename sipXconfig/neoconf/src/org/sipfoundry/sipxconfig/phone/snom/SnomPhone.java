@@ -43,7 +43,6 @@ public class SnomPhone extends Phone {
     private static final String UDP_TRANSPORT_TAG = ";transport=udp";
 
     public SnomPhone() {
-        setProfileTemplate("snom/snom.vm");
     }
 
     @Override

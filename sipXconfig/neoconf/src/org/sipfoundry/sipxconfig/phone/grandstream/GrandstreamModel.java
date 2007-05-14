@@ -19,7 +19,6 @@ public final class GrandstreamModel extends PhoneModel {
     private boolean m_isHandyTone;
     
     public GrandstreamModel() {
-        setBeanId(GrandstreamPhone.BEAN_ID);
     }
     
     public void setIsHandyTone(boolean isHandyTone) {

@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
+import java.io.File;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
@@ -25,22 +26,36 @@ public abstract class Device extends BeanWithGroups {
 
     private ProfileGenerator m_profileGenerator;
 
-    private String m_profileTemplate;
-
     private String m_serialNumber;
 
     private DeviceVersion m_version;
 
     protected ProfileContext createContext() {
-        return new ProfileContext(this, getProfileTemplate());
+        return new ProfileContext(this, getModel().getProfileTemplate());
     }
 
     /**
      * Default implementation generates a single profile file if profile file name is provided.
      */
     public void generateProfiles(ProfileLocation location) {
+        copyFiles(location);
         String profileFileName = getProfileFilename();
         generateProfile(location, profileFileName);
+    }
+
+    /**
+     * Gets list of files to be copies and used profileGenerator to copy them over to provisioning
+     * location
+     * 
+     * @param location
+     */
+    public final void copyFiles(ProfileLocation location) {
+        String[] names = getModel().getStaticProfileNames();
+        String dir = getModel().getModelDir();
+        for (String name : names) {
+            String sourceName = dir + File.separator + name;
+            m_profileGenerator.copy(location, sourceName, name);
+        }
     }
 
     public final void generateProfile(ProfileLocation location, String profileFileName) {
@@ -117,10 +132,6 @@ public abstract class Device extends BeanWithGroups {
         return m_profileGenerator;
     }
 
-    protected String getProfileTemplate() {
-        return m_profileTemplate;
-    }
-
     public String getSerialNumber() {
         return m_serialNumber;
     }
@@ -147,10 +158,6 @@ public abstract class Device extends BeanWithGroups {
 
     public void setProfileGenerator(ProfileGenerator profileGenerator) {
         m_profileGenerator = profileGenerator;
-    }
-
-    public void setProfileTemplate(String phoneTemplate) {
-        m_profileTemplate = phoneTemplate;
     }
 
     public void setSerialNumber(String serialNumber) {

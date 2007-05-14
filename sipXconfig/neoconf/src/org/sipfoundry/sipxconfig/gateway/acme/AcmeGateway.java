@@ -18,7 +18,7 @@ public class AcmeGateway extends Gateway {
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadModelFile("acme-gateway.xml", "acme");
+        return getModelFilesContext().loadModelFile("acme-gateway.xml", getModel().getModelDir());
     }
 
     @Override
@@ -38,11 +38,6 @@ public class AcmeGateway extends Gateway {
             return m_defaults.getProxyServerAddr();
         }
 
-    }
-
-    @Override
-    protected String getProfileTemplate() {
-        return "acme/acme-gateway.vm";
     }
 
     @Override

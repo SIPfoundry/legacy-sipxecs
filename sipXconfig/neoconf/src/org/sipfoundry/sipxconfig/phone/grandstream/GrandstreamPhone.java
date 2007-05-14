@@ -29,8 +29,6 @@ import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
  * Support for Grandstream BudgeTone / HandyTone
  */
 public class GrandstreamPhone extends Phone {
-    public static final String BEAN_ID = "grandstream";
-
     private static final String TIMEZONE_SETTING = "phone/P64";
     private static final String USERID_PATH = "port/P35-P404-P504-P604";
     private static final String HT_USERID_PATH = "port/P35-P735";
@@ -52,7 +50,6 @@ public class GrandstreamPhone extends Phone {
     private boolean m_isTextFormatEnabled;
 
     public GrandstreamPhone() {
-        setProfileTemplate("grandstream/grandstream.vm");
     }
 
     @Override

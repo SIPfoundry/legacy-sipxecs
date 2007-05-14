@@ -3,7 +3,11 @@
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <bean id="gsModel" abstract="true" parent="abstractPhoneModel"
-    class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel" />
+    class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel">
+    <property name="beanId" value="grandstream" />
+    <property name="profileTemplate" value="grandstream/grandstream.vm" />
+    <property name="modelDir" value="grandstream" />
+  </bean>
   <bean id="gsPhoneBt" parent="gsModel">
     <property name="label" value="Grandstream BudgeTone" />
     <property name="maxLineCount" value="1" />

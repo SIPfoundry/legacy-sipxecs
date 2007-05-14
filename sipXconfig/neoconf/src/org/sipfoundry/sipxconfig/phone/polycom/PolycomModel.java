@@ -25,15 +25,10 @@ public final class PolycomModel extends PhoneModel {
 
     
     public PolycomModel() {
-        setBeanId(PolycomPhone.BEAN_ID);
+        super(PolycomPhone.BEAN_ID);
         setVersions(new DeviceVersion[] { 
             VER_1_6, 
             VER_2_0
         });
-    }
-    
-    public PolycomModel(String modelId) {
-        this();
-        setModelId(modelId);
-    }
+    }    
 }

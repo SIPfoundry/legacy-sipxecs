@@ -23,7 +23,9 @@ public class AcmePhoneTest extends TestCase {
 
     public void testGenerateTypicalProfile() throws Exception {
         AcmePhone phone = new AcmePhone();
-        phone.setModel(new PhoneModel(AcmePhone.BEAN_ID));        
+        PhoneModel model = new PhoneModel("acmePhone");
+        model.setProfileTemplate("acmePhone/config.vm");
+        phone.setModel(model);        
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);

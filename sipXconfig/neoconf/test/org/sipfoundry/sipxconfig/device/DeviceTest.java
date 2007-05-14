@@ -18,8 +18,10 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.TestPhone;
+import org.sipfoundry.sipxconfig.phone.TestPhoneModel;
 
 public class DeviceTest extends TestCase {
 
@@ -42,7 +44,8 @@ public class DeviceTest extends TestCase {
             public String getProfileFilename() {
                 return profileFilename;
             }
-        };
+        };        
+        device.setModel(new TestPhoneModel());
 
         device.setProfileGenerator(generator);
 
@@ -64,11 +67,12 @@ public class DeviceTest extends TestCase {
 
         final String profileFilename = "gateway.cfg";
 
-        Device device = new Gateway() {
+        Gateway device = new Gateway() {
             public String getProfileFilename() {
                 return profileFilename;
             }
         };
+        device.setModel(new GatewayModel("test"));
 
         device.setProfileGenerator(generator);
 

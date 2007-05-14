@@ -20,7 +20,6 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
  * Example phone.
  */
 public class AcmePhone extends Phone {
-    public static final String BEAN_ID = "acmePhone";
     private static final String USER_ID_SETTING = "credential/userId";
     private static final String DISPLAY_NAME_SETTING = "credential/displayName";
     private static final String PASSWORD_SETTING = "credential/password";
@@ -28,7 +27,6 @@ public class AcmePhone extends Phone {
     private static final String REGISTRATION_SERVER_PORT_SETTING = "server/registrationServerPort";
 
     public AcmePhone() {
-        setProfileTemplate(BEAN_ID + "/config.vm");
     }
 
     @Override

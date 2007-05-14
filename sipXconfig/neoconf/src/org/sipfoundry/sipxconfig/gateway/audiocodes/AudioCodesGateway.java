@@ -10,13 +10,10 @@
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import org.sipfoundry.sipxconfig.device.ProfileContext;
-import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public abstract class AudioCodesGateway extends Gateway {
-    static final String MANUFACTURER = "audiocodes";
-
     @Override
     public void initialize() {
         AudioCodesGatewayDefaults defaults = new AudioCodesGatewayDefaults(this, getDefaults());
@@ -45,27 +42,13 @@ public abstract class AudioCodesGateway extends Gateway {
 
     @Override
     protected ProfileContext createContext() {
-        return new AudioCodesContext(this, getProfileTemplate());
-    }
-
-    @Override
-    protected String getProfileTemplate() {
-        AudioCodesModel model = (AudioCodesModel) getModel();
-        return model.getProfileTemplate();
+        return new AudioCodesContext(this, getModel().getProfileTemplate());
     }
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadDynamicModelFile("gateway.xml", MANUFACTURER,
-                getSettingsEvaluator());
-    }
-
-    @Override
-    public void generateProfiles(ProfileLocation location) {
-        getProfileGenerator().copy(location, "audiocodes/MP11x-02-1-FXS_16KHZ.dat",
-                "MP11x-02-1-FXS_16KHZ.dat");
-        getProfileGenerator().copy(location, "audiocodes/usa_tones_12.dat", "usa_tones_12.dat");
-        super.generateProfiles(location);
+        return getModelFilesContext().loadDynamicModelFile("gateway.xml",
+                getModel().getModelDir(), getSettingsEvaluator());
     }
 
     abstract int getMaxCalls();

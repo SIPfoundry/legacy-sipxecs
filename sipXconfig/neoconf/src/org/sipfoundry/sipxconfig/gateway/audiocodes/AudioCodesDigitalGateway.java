@@ -15,8 +15,8 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public class AudioCodesDigitalGateway extends AudioCodesGateway {
     @Override
     public Setting loadPortSettings() {
-        return getModelFilesContext().loadDynamicModelFile("trunk.xml",
-                AudioCodesGateway.MANUFACTURER, getSettingsEvaluator());
+        return getModelFilesContext().loadDynamicModelFile("trunk.xml", getModel().getModelDir(),
+                getSettingsEvaluator());
     }
 
     /**

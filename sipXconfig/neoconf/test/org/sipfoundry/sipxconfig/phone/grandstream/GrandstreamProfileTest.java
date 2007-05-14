@@ -42,6 +42,7 @@ public class GrandstreamProfileTest extends TestCase {
 
     protected void assertProfile(String modelId, String expectedProfile) throws IOException {
         GrandstreamModel model = new GrandstreamModel();
+        model.setModelDir("grandstream");
         model.setMaxLineCount(1);
         model.setModelId(modelId);
         phone = new GrandstreamPhone();

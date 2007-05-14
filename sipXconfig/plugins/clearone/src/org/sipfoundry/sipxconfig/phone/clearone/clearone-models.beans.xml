@@ -3,9 +3,14 @@
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <!-- models -->
-  <bean id="clearoneMax" class="org.sipfoundry.sipxconfig.phone.clearone.ClearoneModel" parent="abstractPhoneModel">
+  <bean id="clearoneMax" parent="abstractPhoneModel">
+    <property name="beanId" value="clearone" />
+    <property name="modelDir" value="clearone" />
     <property name="label" value="ClearOne MAX IP" />
+    <property name="maxLineCount" value="1" />
+    <property name="profileTemplate" value="clearone/C1MAXIP.txt.vm" />
   </bean>
+
   <!-- implementation -->
   <bean id="clearone" class="org.sipfoundry.sipxconfig.phone.clearone.ClearonePhone" singleton="false"
     parent="abstractPhone">

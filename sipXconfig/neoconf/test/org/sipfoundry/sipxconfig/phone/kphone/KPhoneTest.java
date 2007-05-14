@@ -20,16 +20,22 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class KPhoneTest extends TestCase {
+    private KPhone m_phone;
+
+    protected void setUp() throws Exception {
+        m_phone = new KPhone();
+        PhoneModel phoneModel = new PhoneModel("kphone");
+        phoneModel.setProfileTemplate("kphone/kphonerc.vm");
+        m_phone.setModel(phoneModel);
+
+    }
 
     public void testGenerateTypicalProfile() throws Exception {
-        KPhone phone = new KPhone();
-        phone.setModel(new PhoneModel(KPhone.BEAN_ID));
-
         // call this to inject dummy data
-        PhoneTestDriver.supplyTestData(phone);
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        PhoneTestDriver.supplyTestData(m_phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
 
-        phone.generateProfiles(location);
+        m_phone.generateProfiles(location);
         InputStream expectedProfile = getClass().getResourceAsStream("default-kphonerc");
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();
@@ -41,17 +47,15 @@ public class KPhoneTest extends TestCase {
     }
 
     public void testGenerateEmptyProfile() throws Exception {
-        KPhone phone = new KPhone();
-        phone.setModel(new PhoneModel(KPhone.BEAN_ID));
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
-        phone.setModelFilesContext(TestHelper.getModelFilesContext());
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
+        m_phone.setModelFilesContext(TestHelper.getModelFilesContext());
 
         // All phones in system have a unique id, this will be important for
         // selecting which profile to download
-        phone.setSerialNumber("000000000000");
+        m_phone.setSerialNumber("000000000000");
 
         // method to test
-        phone.generateProfiles(location);
+        m_phone.generateProfiles(location);
 
         // test output file is a copy of the basic template and located in same directory
         // as this java source file

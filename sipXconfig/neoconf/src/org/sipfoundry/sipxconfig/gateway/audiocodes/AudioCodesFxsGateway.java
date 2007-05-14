@@ -11,15 +11,12 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
-import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class AudioCodesFxsGateway extends Phone {
-    private static final String MANUFACTURER = "audiocodes";
-
     public AudioCodesFxsGateway() {
     }
 
@@ -58,33 +55,19 @@ public class AudioCodesFxsGateway extends Phone {
 
     @Override
     protected ProfileContext createContext() {
-        return new AudioCodesContext(this, getProfileTemplate());
-    }
-
-    @Override
-    public String getProfileTemplate() {
-        AudioCodesFxsModel model = (AudioCodesFxsModel) getModel();
-        return model.getProfileTemplate();
+        return new AudioCodesContext(this, getModel().getProfileTemplate());
     }
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadDynamicModelFile("gateway.xml", MANUFACTURER,
-                getSettingsEvaluator());
+        return getModelFilesContext().loadDynamicModelFile("gateway.xml",
+                getModel().getModelDir(), getSettingsEvaluator());
     }
 
     @Override
     protected Setting loadLineSettings() {
-        return getModelFilesContext().loadDynamicModelFile("line.xml", MANUFACTURER,
+        return getModelFilesContext().loadDynamicModelFile("line.xml", getModel().getModelDir(),
                 getSettingsEvaluator());
-    }
-
-    @Override
-    public void generateProfiles(ProfileLocation location) {
-        getProfileGenerator().copy(location, "audiocodes/MP11x-02-1-FXS_16KHZ.dat",
-                "MP11x-02-1-FXS_16KHZ.dat");
-        getProfileGenerator().copy(location, "audiocodes/usa_tones_12.dat", "usa_tones_12.dat");
-        super.generateProfiles(location);
     }
 
     protected LineInfo getLineInfo(Line line) {

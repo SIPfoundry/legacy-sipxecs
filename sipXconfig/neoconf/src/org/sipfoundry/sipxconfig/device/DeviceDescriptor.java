@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.device;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 public abstract class DeviceDescriptor {
@@ -23,6 +24,17 @@ public abstract class DeviceDescriptor {
 
     private String m_modelId;
 
+    /**
+     * Directory under 'etc/sipxpbx' directory where model files and templates are kept
+     */
+    private String m_modelDir;
+
+    /**
+     * Names of the files that should be copied from model directory to profile location during
+     * profile generation
+     */
+    private String[] m_staticProfileFilenames = ArrayUtils.EMPTY_STRING_ARRAY;
+
     private ProfileLocation m_defaultProfileLocation;
 
     /**
@@ -33,11 +45,15 @@ public abstract class DeviceDescriptor {
 
     private DeviceVersion[] m_versions = new DeviceVersion[0];
 
+    private String m_profileTemplate;
+
     public DeviceDescriptor() {
     }
 
     public DeviceDescriptor(String beanId) {
         setBeanId(beanId);
+        // mostly to simplify testing - for many phones and gateways they are the same
+        setModelDir(beanId);
     }
 
     public DeviceDescriptor(String beanId, String modelId) {
@@ -140,12 +156,36 @@ public abstract class DeviceDescriptor {
         definitions.add(getModelId());
         return definitions;
     }
-    
+
     public void setDefaultProfileLocation(ProfileLocation defaultProfileLocation) {
         m_defaultProfileLocation = defaultProfileLocation;
     }
-    
+
     public ProfileLocation getDefaultProfileLocation() {
         return m_defaultProfileLocation;
+    }
+
+    public String getModelDir() {
+        return m_modelDir;
+    }
+
+    public void setModelDir(String modelDir) {
+        m_modelDir = modelDir;
+    }
+
+    public String[] getStaticProfileNames() {
+        return m_staticProfileFilenames;
+    }
+
+    public void setStaticProfileFilenames(String[] staticProfileFilenames) {
+        m_staticProfileFilenames = staticProfileFilenames;
+    }
+
+    public void setProfileTemplate(String profileTemplate) {
+        m_profileTemplate = profileTemplate;
+    }
+
+    public String getProfileTemplate() {
+        return m_profileTemplate;
     }
 }

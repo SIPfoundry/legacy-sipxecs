@@ -21,10 +21,10 @@ public class CiscoIpPhoneTest extends TestCase {
     private CiscoIpPhone m_phone;
 
     protected void setUp() {
-        CiscoModel model = new CiscoModel();
-        model.setBeanId(CiscoIpPhone.BEAN_ID);
+        CiscoModel model = new CiscoModel("ciscoIp");
         model.setMaxLineCount(6);
         model.setModelId("cisco7960");
+        model.setProfileTemplate("ciscoIp/cisco-ip.vm");
         m_phone = new CiscoIpPhone();
         m_phone.setModel(model);
         PhoneTestDriver.supplyTestData(m_phone);

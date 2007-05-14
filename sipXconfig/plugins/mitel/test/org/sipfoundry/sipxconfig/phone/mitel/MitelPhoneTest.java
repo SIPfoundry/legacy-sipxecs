@@ -17,13 +17,14 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class MitelPhoneTest extends XMLTestCase {
     public void _testFactoryRegistered() {
         PhoneContext pc = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
-        assertNotNull(pc.newPhone(new MitelModel()));
+        assertNotNull(pc.newPhone(new PhoneModel("mitel")));
     }
 
     public void testGetFileName() throws Exception {
@@ -34,7 +35,9 @@ public class MitelPhoneTest extends XMLTestCase {
 
     public void testGenerateTypicalProfile() throws Exception {
         MitelPhone phone = new MitelPhone();
-        phone.setModel(new MitelModel());
+        PhoneModel model = new PhoneModel("mitel");
+        model.setProfileTemplate("mitel/mn.txt.vm");
+        phone.setModel(model);
 
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);

@@ -2,10 +2,11 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="snomModel" abstract="true" parent="abstractPhoneModel"
-    class="org.sipfoundry.sipxconfig.phone.snom.SnomModel">
+  <bean id="snomModel" abstract="true" parent="abstractPhoneModel">
+    <property name="beanId" value="snom" />
     <property name="defaultProfileLocation" ref="httpProfileLocation" />
-
+    <property name="profileTemplate" value="snom/snom.vm" />
+    <property name="modelDir" value="snom" />
   </bean>
 
   <bean id="snom300" parent="snomModel">
@@ -20,6 +21,7 @@
     <property name="label" value="Snom 360" />
     <property name="maxLineCount" value="12" />
   </bean>
+
   <bean id="snom" class="org.sipfoundry.sipxconfig.phone.snom.SnomPhone" singleton="false" parent="abstractPhone">
   </bean>
 </beans>

@@ -47,7 +47,9 @@ public class LineTest extends TestCase {
         phoneContextCtrl.replay();        
 
         Phone phone = new AcmePhone();
-        phone.setModel(new PhoneModel(AcmePhone.BEAN_ID));
+        PhoneModel model = new PhoneModel("acmePhone");
+        model.setModelFilePath("acmePhone");
+        phone.setModel(model);
         phone.setPhoneContext(phoneContext);
 
         phone.setModelFilesContext(TestHelper.getModelFilesContext());
@@ -55,11 +57,11 @@ public class LineTest extends TestCase {
         line.setModelFilesContext(TestHelper.getModelFilesContext());
         phone.addLine(line);
 
-        LineInfo settings = new LineInfo();
-        settings.setDisplayName("Display Name");
-        settings.setUserId("user_id");
-        settings.setRegistrationServer("sipfoundry.org");
-        phone.setLineInfo(line, settings);
+        LineInfo li = new LineInfo();
+        li.setDisplayName("Display Name");
+        li.setUserId("user_id");
+        li.setRegistrationServer("sipfoundry.org");
+        phone.setLineInfo(line, li);
 
         String actual = line.getUri();
         assertEquals("\"Display Name\"<sip:user_id@sipfoundry.org>", actual);

@@ -28,6 +28,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         AudioCodesModel model = new AudioCodesModel();
         model.setBeanId("gwAudiocodes");
         model.setModelId("audiocodes");
+        model.setModelDir("audiocodes");        
         model.setFxs(false);
         model.setFxo(false);
         model.setDigital(true);

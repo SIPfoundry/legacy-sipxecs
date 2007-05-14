@@ -22,8 +22,6 @@ import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
  * Support for Cisco ATA186/188 and Cisco 7905/7912
  */
 public class CiscoAtaPhone extends CiscoPhone {
-    public static final String BEAN_ID = "ciscoAta";
-
     private boolean m_isTextFormatEnabled;
 
     public CiscoAtaPhone() {
@@ -46,12 +44,12 @@ public class CiscoAtaPhone extends CiscoPhone {
 
     @Override
     protected LineInfo getLineInfo(Line line) {
-        return CiscoAtaLineDefaults.getLineInfo(getCiscoModel(), line);
+        return CiscoAtaLineDefaults.getLineInfo(getModel(), line);
     }
 
     @Override
     protected void setLineInfo(Line line, LineInfo lineInfo) {
-        CiscoAtaLineDefaults.setLineInfo(getCiscoModel(), line, lineInfo);
+        CiscoAtaLineDefaults.setLineInfo(getModel(), line, lineInfo);
     }
 
     /**
@@ -66,19 +64,18 @@ public class CiscoAtaPhone extends CiscoPhone {
 
     public String getProfileFilename() {
         String phoneFilename = getSerialNumber();
-        return getCiscoModel().getCfgPrefix() + phoneFilename.toLowerCase();
+        return getModel().getCfgPrefix() + phoneFilename.toLowerCase();
     }
 
-    
     @Override
     protected ProfileFilter getProfileFilter() {
         if (!m_isTextFormatEnabled) {
             String systemDir = getPhoneContext().getSystemDirectory();
-            return new BinaryFilter(systemDir + "/ciscoAta", getCiscoModel());
+            return new BinaryFilter(systemDir + "/ciscoAta", getModel());
         }
         return null;
     }
-    
+
     public Collection<Line> getProfileLines() {
         ArrayList<Line> lines = new ArrayList(getMaxLineCount());
 

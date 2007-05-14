@@ -15,7 +15,7 @@ public class AudioCodesFxoGateway extends AudioCodesGateway {
     @Override
     public Setting loadPortSettings() {
         return getModelFilesContext().loadDynamicModelFile("fxo-port.xml",
-                AudioCodesGateway.MANUFACTURER, getSettingsEvaluator());
+                getModel().getModelDir(), getSettingsEvaluator());
     }
 
     /**

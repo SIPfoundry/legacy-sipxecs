@@ -3,8 +3,12 @@
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <!-- models -->
-  <bean id="mitel5224" class="org.sipfoundry.sipxconfig.phone.mitel.MitelModel">
+  <bean id="mitel5224">
     <property name="label" value="Mitel 5224" />
+    <property name="beanId" value="mitel" />
+    <property name="modelDir" value="mitel" />
+    <property name="maxLineCount" value="1" />
+    <property name="profileTemplate" value="mitel/mn.txt.vm" />
   </bean>
   <!-- implementation -->
   <bean id="mitel" class="org.sipfoundry.sipxconfig.phone.mitel.MitelPhone"

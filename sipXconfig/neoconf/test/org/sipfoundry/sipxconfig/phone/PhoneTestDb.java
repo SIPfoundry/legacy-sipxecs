@@ -141,7 +141,9 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     }
 
     public void testPhoneSubclassSave() throws Exception {
-        Phone subclass = context.newPhone(new PolycomModel("polycom300"));
+        PhoneModel model = new PolycomModel();
+        model.setModelId("polycom300");
+        Phone subclass = context.newPhone(model);
         subclass.setSerialNumber("000000000000");
         context.storePhone(subclass);
 

@@ -26,11 +26,6 @@ public class ClearonePhone extends Phone {
     public ClearonePhone() {
     }
 
-    @Override
-    public String getProfileTemplate() {
-        return "clearone/C1MAXIP.txt.vm";
-    }
-
     public String getDialplanTemplate() {
         return "clearone/c1dialplan.txt.vm";
     }

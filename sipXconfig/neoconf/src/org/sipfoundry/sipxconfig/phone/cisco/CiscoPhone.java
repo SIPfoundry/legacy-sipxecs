@@ -20,29 +20,19 @@ public abstract class CiscoPhone extends Phone {
 
     public static final String SIP = "sip";
 
-    private String m_phoneTemplate;
-
     protected CiscoPhone() {
     }
 
-    public CiscoModel getCiscoModel() {
-        return (CiscoModel) getModel();
-    }
-
-    public abstract String getProfileFilename();
-
-    public String getProfileTemplate() {
-        return m_phoneTemplate;
-    }
-
-    public void setProfileTemplate(String phoneTemplate) {
-        m_phoneTemplate = phoneTemplate;
+    @Override
+    public CiscoModel getModel() {
+        return (CiscoModel) super.getModel();
     }
 
     public int getMaxLineCount() {
         return getModel().getMaxLineCount();
     }
 
+    @Override
     public void restart() {
         sendCheckSyncToFirstLine();
     }

@@ -1,12 +1,22 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
 		  "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
 <beans>
+  <!-- default AudioCodes gateway model -->
+  <bean id="audiocodesGatewayModel" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel"
+    parent="abstractGatewayModel">
+    <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
+    <property name="modelDir" value="audiocodes" />
+    <property name="staticProfileFilenames">
+      <list>
+        <value>MP11x-02-1-FXS_16KHZ.dat</value>
+        <value>usa_tones_12.dat</value>
+      </list>
+    </property>
+  </bean>
 
   <!-- Audiocodes digital gateways -->
-  <bean id="audiocodesTP" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel"
-    parent="abstractGatewayModel">
+  <bean id="audiocodesTP" abstract="true" parent="audiocodesGatewayModel">
     <property name="beanId" value="gwAudiocodesTp260" />
-    <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
     <property name="digital" value="true" />
     <property name="portLabelFormat" value="%s (%s-%s)" />
     <property name="portLabelSettings">
@@ -33,10 +43,8 @@
   </bean>
 
   <!-- audiocodes Media Pack FXO gateways -->
-  <bean id="audiocodesFxo" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel"
-    parent="abstractGatewayModel">
+  <bean id="audiocodesFxo" abstract="true" parent="audiocodesGatewayModel">
     <property name="beanId" value="gwAudiocodesMediant" />
-    <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
     <property name="fxo" value="true" />
     <property name="portLabelFormat" value="%s" />
     <property name="portLabelSettings">
@@ -66,6 +74,13 @@
     <property name="beanId" value="gwFxsAudiocodes" />
     <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
     <property name="fxs" value="true" />
+    <property name="modelDir" value="audiocodes" />
+    <property name="staticProfileFilenames">
+      <list>
+        <value>MP11x-02-1-FXS_16KHZ.dat</value>
+        <value>usa_tones_12.dat</value>
+      </list>
+    </property>
   </bean>
 
   <bean id="audiocodesMP112_FXS" parent="audiocodesFxs">

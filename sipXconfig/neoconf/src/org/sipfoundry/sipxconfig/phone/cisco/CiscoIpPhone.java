@@ -25,7 +25,6 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
  * Support for Cisco 7940/7960
  */
 public class CiscoIpPhone extends CiscoPhone {
-    public static final String BEAN_ID = "ciscoIp";
     private static final String ZEROMIN = ":00";
     private static final String SHORTNAME_PATH = "line/shortname";
     private static final String AUTH_NAME_PATH = "line/authname";
@@ -37,11 +36,6 @@ public class CiscoIpPhone extends CiscoPhone {
     private static final String MESSAGES_URI_PATH = "phone/messages_uri";
 
     public CiscoIpPhone() {
-        init();
-    }
-
-    private void init() {
-        setProfileTemplate("ciscoIp/cisco-ip.vm");
     }
 
     public void initialize() {

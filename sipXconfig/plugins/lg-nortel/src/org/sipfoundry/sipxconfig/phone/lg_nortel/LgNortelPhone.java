@@ -25,15 +25,9 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class LgNortelPhone extends Phone {
-    public static final String BEAN_ID = "lg-nortel";
     private String m_phonebookFilename = "{0}-phonebook.csv";
 
     public LgNortelPhone() {
-    }
-
-    @Override
-    public String getProfileTemplate() {
-        return "lg-nortel/mac.cfg.vm";
     }
 
     @Override
@@ -74,7 +68,7 @@ public class LgNortelPhone extends Phone {
     @Override
     protected ProfileContext createContext() {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
-        return new LgNortelProfileContext(this, speedDial, getProfileTemplate());
+        return new LgNortelProfileContext(this, speedDial, getModel().getProfileTemplate());
     }
 
     static class LgNortelProfileContext extends ProfileContext {

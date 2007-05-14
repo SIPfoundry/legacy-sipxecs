@@ -53,7 +53,7 @@ public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements S
         settings.acceptVisitor(this);
         List<Line> lines = phone.getLines();
         if (!lines.isEmpty()) {
-            writeProxy(lines.get(0).getLineInfo(), phone.getCiscoModel().isAta());
+            writeProxy(lines.get(0).getLineInfo(), phone.getModel().isAta());
         }
         writeSoftwareUpgradeConfig(phone);
         writeLogoUpgradeConfig(phone);
@@ -79,7 +79,7 @@ public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements S
     void writeCountyDialTones(CiscoAtaPhone phone) {
         Setting country = phone.getSettings().getSetting("country");
         String countryCode = country.getSetting("_country").getValue();
-        String countryModelId = phone.getCiscoModel().isAta() ? "ata" : "79xx";
+        String countryModelId = phone.getModel().isAta() ? "ata" : "79xx";
         String tonePath = "_tone." + countryCode + '.' + countryModelId;
         Setting tones = country.getSetting(tonePath);
         if (tones != null) {
@@ -113,10 +113,10 @@ public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements S
         if (swupgrade == null) {
             return;
         }
-        String cfg = phone.getCiscoModel().getCfgPrefix();
+        CiscoModel model = phone.getModel();
+        String cfg = model.getCfgPrefix();
         String swimage = swupgrade.getSetting("upgradecode." + cfg).getValue();
         String imageid = swupgrade.getSetting(IMAGE_ID + '.' + cfg).getValue();
-        CiscoModel model = (CiscoModel) phone.getModel();
         String upghex = model.getUpgCode();
 
         if (StringUtils.isBlank(swimage) || swimage.equals(NONE) || imageid.equals(ZERO)) {
@@ -128,7 +128,7 @@ public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements S
     }
 
     public void writeLogoUpgradeConfig(CiscoAtaPhone phone) {
-        if (phone.getCiscoModel().isAta()) {
+        if (phone.getModel().isAta()) {
             return;
         }
 

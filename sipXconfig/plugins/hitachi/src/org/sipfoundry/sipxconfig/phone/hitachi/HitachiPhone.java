@@ -9,29 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.phone.hitachi;
 
-import org.sipfoundry.sipxconfig.device.ProfileContext;
-import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 
 public class HitachiPhone extends Phone {
-    public static final String BEAN_ID = "hitachi";
     private static final String USER_ID_SETTING = "USER_ACCOUNT/User_ID";
     private static final String DISPLAY_NAME_SETTING = "USER_ACCOUNT/Displayname";
     private static final String PASSWORD_SETTING = "USER_ACCOUNT/User_Password";
     private static final String REGISTRATION_SERVER_SETTING = "SERVER_SETTINGS/1st_Registrar";
 
     public HitachiPhone() {
-    }
-
-    public String getLoadrunTemplate() {
-        return "hitachi/loadrun.ini";
-    }
-
-    @Override
-    public String getProfileTemplate() {
-        return "hitachi/user.ini.vm";
     }
 
     @Override
@@ -45,14 +33,6 @@ public class HitachiPhone extends Phone {
         HitachiPhoneDefaults defaults = new HitachiPhoneDefaults(getPhoneContext()
                 .getPhoneDefaults());
         addDefaultBeanSettingHandler(defaults);
-    }
-
-    @Override
-    public void generateProfiles(ProfileLocation location) {
-        super.generateProfiles(location);
-        // and copy loadrun.ini as well
-        ProfileContext context = new ProfileContext(this, getLoadrunTemplate());
-        getProfileGenerator().generate(location, context, getProfileFilter(), "loadrun.ini");
     }
 
     /**

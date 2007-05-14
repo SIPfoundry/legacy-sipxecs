@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.speeddial.Button;
@@ -35,7 +36,7 @@ public class LgNortelPhoneTest extends TestCase {
     public void _testFactoryRegistered() {
         PhoneContext pc = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
-        assertNotNull(pc.newPhone(new LgNortelModel()));
+        assertNotNull(pc.newPhone(new PhoneModel("lg-nortel")));
     }
 
     public void testGetFileName() throws Exception {
@@ -45,7 +46,7 @@ public class LgNortelPhoneTest extends TestCase {
     }
 
     public void testExternalLine() throws Exception {
-        LgNortelModel lgNortelModel = new LgNortelModel();
+        PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
         Phone phone = new LgNortelPhone();
         phone.setModel(lgNortelModel);
 
@@ -64,7 +65,7 @@ public class LgNortelPhoneTest extends TestCase {
     }
 
     public void testRestart() throws Exception {
-        LgNortelModel lgNortelModel = new LgNortelModel();
+        PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
         Phone phone = new LgNortelPhone();
         phone.setModel(lgNortelModel);
 
@@ -75,7 +76,7 @@ public class LgNortelPhoneTest extends TestCase {
     }
 
     public void testRestartNoLine() throws Exception {
-        LgNortelModel lgNortelModel = new LgNortelModel();
+        PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
         Phone phone = new LgNortelPhone();
         phone.setModel(lgNortelModel);
 
@@ -89,7 +90,8 @@ public class LgNortelPhoneTest extends TestCase {
     }
 
     public void testGenerateTypicalProfile() throws Exception {
-        LgNortelModel lgNortelModel = new LgNortelModel();
+        PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
+        lgNortelModel.setProfileTemplate("lg-nortel/mac.cfg.vm");
         lgNortelModel.setMaxLineCount(4); // we are testing 2 lines
         LgNortelPhone phone = new LgNortelPhone();
         phone.setModel(lgNortelModel);
@@ -137,7 +139,8 @@ public class LgNortelPhoneTest extends TestCase {
         SpeedDial sp = new SpeedDial();
         sp.setButtons(Arrays.asList(buttons));
 
-        LgNortelModel lgNortelModel = new LgNortelModel();
+        PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
+        lgNortelModel.setProfileTemplate("lg-nortel/mac.cfg.vm");
         Phone phone = new LgNortelPhone();
         phone.setModel(lgNortelModel);
         IMocksControl phoneContextControl = EasyMock.createNiceControl();

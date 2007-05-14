@@ -22,13 +22,14 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.AbstractProfileGenerator;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class ClearonePhoneTest extends TestCase {
     public void _testFactoryRegistered() {
         PhoneContext pc = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
-        assertNotNull(pc.newPhone(new ClearoneModel()));
+        assertNotNull(pc.newPhone(new PhoneModel("clearone")));
     }
 
     public void testGetFileName() throws Exception {
@@ -39,7 +40,9 @@ public class ClearonePhoneTest extends TestCase {
 
     public void testGenerateTypicalProfile() throws Exception {
         ClearonePhone phone = new ClearonePhone();
-        phone.setModel(new ClearoneModel());
+        PhoneModel model = new PhoneModel("clearone");
+        model.setProfileTemplate("clearone/C1MAXIP.txt.vm");
+        phone.setModel(model);
 
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);

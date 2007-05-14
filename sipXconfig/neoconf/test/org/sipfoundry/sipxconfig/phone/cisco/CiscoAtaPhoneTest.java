@@ -20,8 +20,7 @@ public class CiscoAtaPhoneTest extends TestCase {
     private CiscoModel m_model;
 
     protected void setUp() {
-        m_model = new CiscoModel();
-        m_model.setBeanId(CiscoAtaPhone.BEAN_ID);
+        m_model = new CiscoModel("ciscoAta");
     }
 
     public void testAtaProfile() throws Exception {
@@ -29,8 +28,9 @@ public class CiscoAtaPhoneTest extends TestCase {
         m_model.setModelId("cisco18x");
         m_model.setMaxLineCount(2);
         String actual = runPhoneTest();
-        
-        String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-ata18x.cfg"));
+
+        String expected = IOUtils.toString(this.getClass().getResourceAsStream(
+                "expected-ata18x.cfg"));
         assertNotNull(expected);
         assertEquals(expected, actual);
     }
@@ -41,15 +41,15 @@ public class CiscoAtaPhoneTest extends TestCase {
         m_model.setMaxLineCount(1);
         String actual = runPhoneTest();
 
-        String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-7912.cfg"));
+        String expected = IOUtils.toString(this.getClass().getResourceAsStream(
+                "expected-7912.cfg"));
         assertNotNull(expected);
-        assertEquals(expected, actual);    
+        assertEquals(expected, actual);
     }
 
     String runPhoneTest() throws Exception {
         CiscoAtaPhone phone = new CiscoAtaPhone();
-        
-        
+
         phone.setTextFormatEnabled(true);
         phone.setModel(m_model);
         PhoneTestDriver.supplyTestData(phone);
@@ -58,7 +58,7 @@ public class CiscoAtaPhoneTest extends TestCase {
         phone.setProfileGenerator(pg);
 
         phone.generateProfiles(location);
-        
+
         return location.toString();
     }
 }

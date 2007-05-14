@@ -14,18 +14,9 @@ import java.util.Set;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 
 public class AudioCodesModel extends GatewayModel {
-    private String m_profileTemplate;
     private boolean m_fxo;
     private boolean m_fxs;
     private boolean m_digital;
-
-    public void setProfileTemplate(String profileTemplate) {
-        m_profileTemplate = profileTemplate;
-    }
-
-    public String getProfileTemplate() {
-        return m_profileTemplate;
-    }
 
     public void setFxo(boolean fxo) {
         m_fxo = fxo;

@@ -74,6 +74,7 @@
 
   <bean id="abstractPhoneModel" abstract="true" class="org.sipfoundry.sipxconfig.phone.PhoneModel">
     <property name="defaultProfileLocation" ref="tftpProfileLocation" />
+    <property name="maxLineCount" value="4" />
   </bean>
 
   <bean id="sip" class="org.sipfoundry.sipxconfig.phone.SipServiceImpl" />

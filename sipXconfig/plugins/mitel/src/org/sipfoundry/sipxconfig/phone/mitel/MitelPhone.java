@@ -14,14 +14,7 @@ import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 
 public class MitelPhone extends Phone {
-    public static final String BEAN_ID = "mitel";
-
     public MitelPhone() {
-    }
-
-    @Override
-    public String getProfileTemplate() {
-        return "mitel/mn.txt.vm";
     }
 
     @Override

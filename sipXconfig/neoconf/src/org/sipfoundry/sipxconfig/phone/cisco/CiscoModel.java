@@ -23,7 +23,7 @@ public final class CiscoModel extends PhoneModel {
     }
     
     public CiscoModel(String beanId) {
-        setBeanId(beanId);
+        super(beanId);
     }
 
     public String getCfgPrefix() {

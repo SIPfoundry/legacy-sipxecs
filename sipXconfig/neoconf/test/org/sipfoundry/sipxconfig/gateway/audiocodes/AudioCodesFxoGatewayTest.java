@@ -34,6 +34,7 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         m_model = new AudioCodesModel();
         m_model.setBeanId("gwAudiocodes");
         m_model.setModelId("audiocodes");
+        m_model.setModelDir("audiocodes");        
         m_model.setFxo(true);
         m_model.setMaxPorts(4);
         m_model.setProfileTemplate("audiocodes/gateway.ini.vm");

@@ -199,7 +199,7 @@ public class LineTestDb extends SipxDatabaseTestCase {
      */
     public void testGetLineInfo() {
         Phone phone = new AcmePhone();
-        phone.setModel(new PhoneModel(AcmePhone.BEAN_ID));
+        phone.setModel(new PhoneModel("acmePhone"));
         PhoneContext context = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
         phone.setPhoneContext(context);

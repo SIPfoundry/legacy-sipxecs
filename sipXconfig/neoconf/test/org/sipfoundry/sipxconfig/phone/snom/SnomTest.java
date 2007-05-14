@@ -6,14 +6,17 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class SnomTest extends TestCase {
 
     public void testGenerateProfiles() throws Exception {
         SnomPhone phone = new SnomPhone();
-        SnomModel model = new SnomModel();
+        PhoneModel model = new PhoneModel("snom");
         model.setLabel("Snom 360");
+        model.setModelDir("snom");
+        model.setProfileTemplate("snom/snom.vm");
         
         phone.setModel(model);
         PhoneTestDriver.supplyTestData(phone);
@@ -24,8 +27,6 @@ public class SnomTest extends TestCase {
         String expected = IOUtils.toString(this.getClass()
                 .getResourceAsStream("expected-360.cfg"));
 
-        System.err.println(location.toString());
-        
         assertEquals(expected, location.toString());
     }
 

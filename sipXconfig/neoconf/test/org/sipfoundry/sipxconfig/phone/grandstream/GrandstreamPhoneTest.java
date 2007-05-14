@@ -30,6 +30,7 @@ public class GrandstreamPhoneTest extends TestCase {
         GrandstreamModel model = new GrandstreamModel();
         model.setMaxLineCount(1);
         model.setModelId("gsPhoneBt");
+        model.setModelDir("grandstream");
         phone = new GrandstreamPhone();
         phone.setModel(model);
         tester = PhoneTestDriver.supplyTestData(phone);

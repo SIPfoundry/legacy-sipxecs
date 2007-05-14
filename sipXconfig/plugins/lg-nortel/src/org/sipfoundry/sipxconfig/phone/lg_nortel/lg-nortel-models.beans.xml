@@ -2,12 +2,14 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <!-- models -->
-  <bean id="lipModel" abstract="true" parent="abstractPhoneModel"
-    class="org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelModel">
+  <bean id="lipModel" abstract="true" parent="abstractPhoneModel">
+    <property name="beanId" value="lg-nortel" />
     <property name="label" value="LIP-6804" />
     <property name="maxLineCount" value="4" />
+    <property name="profileTemplate" value="lg-nortel/mac.cfg.vm" />
   </bean>
+
+  <!-- models -->
   <bean id="lip6804" parent="lipModel">
     <property name="label" value="LIP-6804" />
     <property name="maxLineCount" value="4" />
@@ -20,10 +22,12 @@
     <property name="label" value="LIP-6830" />
     <property name="maxLineCount" value="24" />
   </bean>
+
   <!-- implementation -->
   <bean id="lg-nortel" class="org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelPhone" singleton="false"
     parent="abstractPhone">
   </bean>
+
   <bean id="lg-nortelFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
     <property name="beanId" value="zipUpload" />
     <property name="modelFilePath" value="lg-nortel/upload.xml" />
