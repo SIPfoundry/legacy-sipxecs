@@ -20,13 +20,7 @@
   + ((static_cast<unsigned long>(c)&255)<<8)           \
   + ((static_cast<unsigned long>(d)&255)))
 
-#ifdef WORD_BIGENDIAN
-/* ChunkID in BIG endian platforms - RIFX */
-#   define WAVE_CHUNK_FORMAT ChunkName('R','I','F','X')
-#else
-/* ChunkID in LITTLE endian platforms - RIFF */
-#   define WAVE_CHUNK_FORMAT ChunkName('R','I','F','F')
-#endif
+#define WAVE_CHUNK_FORMAT ChunkName('R','I','F','F')
 
 
 bool isWaveFile(istream &file) {

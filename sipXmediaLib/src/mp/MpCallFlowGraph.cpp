@@ -99,7 +99,7 @@ int nwR() {return wantRecorders(1);}
 #ifndef O_BINARY
 #define O_BINARY 0      // O_BINARY is needed for WIN32 not for VxWorks or Linux
 #endif
- 
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -1420,26 +1420,32 @@ UtlBoolean MpCallFlowGraph::writeWAVHeader(int handle)
     bytesWritten += write(handle,tmpbuf, strlen(tmpbuf));
     bytesWritten += write(handle, (char*)&length, sizeof(length)); //filled in on close
     
-    //write WAVE & length
-    //8 bytes written
+    //write WAVE
+    //4 bytes written
     strcpy(tmpbuf,"WAVE");
     bytesWritten += write(handle,tmpbuf, strlen(tmpbuf));
-//    bytesWritten += write(handle,&length, sizeof(length)); //filled in on close
 
     //write fmt & length
     //8 bytes written
     strcpy(tmpbuf,"fmt ");
     length = 16;
     bytesWritten += write(handle,tmpbuf,strlen(tmpbuf));
+    length = htolel(length);
     bytesWritten += write(handle, (char*)&length,sizeof(length)); //filled in on close
     
     //now write each piece of the format
     //16 bytes written
+    compressionCode = htoles(compressionCode);
     bytesWritten += write(handle, (char*)&compressionCode, sizeof(compressionCode));
+    numChannels = htoles(numChannels);
     bytesWritten += write(handle, (char*)&numChannels, sizeof(numChannels));
+    samplesPerSecond = htolel(samplesPerSecond);
     bytesWritten += write(handle, (char*)&samplesPerSecond, sizeof(samplesPerSecond));
+    averageSamplePerSec = htolel(averageSamplePerSec);
     bytesWritten += write(handle, (char*)&averageSamplePerSec, sizeof(averageSamplePerSec));
+    blockAlign = htoles(blockAlign);
     bytesWritten += write(handle, (char*)&blockAlign, sizeof(blockAlign));
+    bitsPerSample = htoles(bitsPerSample);
     bytesWritten += write(handle, (char*)&bitsPerSample, sizeof(bitsPerSample));
 
 
@@ -1447,6 +1453,7 @@ UtlBoolean MpCallFlowGraph::writeWAVHeader(int handle)
     strcpy(tmpbuf,"data");
     length = 0;
     bytesWritten += write(handle,tmpbuf,strlen(tmpbuf));
+    length = htolel(length);
     bytesWritten += write(handle, (char*)&length,sizeof(length)); //filled in on close
     
     //total length at this point should be 48 bytes

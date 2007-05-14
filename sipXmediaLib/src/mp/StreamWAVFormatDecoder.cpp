@@ -258,6 +258,16 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                 //just read in the data, because it's the format we need
                 retval = pSrc->read((char *)OutBuffer, iRead, iRead);
                 numOutSamples = iRead/2;
+#ifdef __BIG_ENDIAN__
+                if (retval == OS_SUCCESS)
+                {
+                    //We are running on a big endian processor - 16-bit samples are
+                    //in the little endian byte order - convert them to big endian.
+                    unsigned short *pData = (unsigned short *)OutBuffer;
+                    for ( int index = 0; index < numOutSamples; index++, pData++ )
+                        *pData = letohs(*pData);
+                }
+#endif
             }
             else
             if (mFormatChunk.formatTag == 6 || mFormatChunk.formatTag == 7) //16 bit signed
@@ -395,7 +405,7 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
    {      
       while (!mbEnd && pDataSource->read((char*) Header, 4, iRead) == OS_SUCCESS)
       {      
-          pDataSource->getPosition(iCurrentPosition);
+         pDataSource->getPosition(iCurrentPosition);
          if (iCurrentPosition == 4 && memcmp(Header, MpWaveFileFormat, 4) != 0)
          {
              //if this is true, then this file is not a wav, since
@@ -438,6 +448,8 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
             FORMATChunkInfo formatChunkInfo;
             if (pDataSource->read((char*) &blockSize, sizeof(blockSize), iRead) == OS_SUCCESS)
             {
+                blockSize = letohl(blockSize);
+
                 //save the current position, well need it for the jump
                 if (pDataSource->getPosition(iCurrentPosition) != OS_SUCCESS)
                 {
@@ -446,6 +458,13 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
 
                 if (pDataSource->read((char*) &formatChunkInfo, sizeof(formatChunkInfo), iRead) == OS_SUCCESS)
                 {
+                    //Make sure the read integer values are in the host byte order
+                    formatChunkInfo.formatTag = letohs(formatChunkInfo.formatTag);
+                    formatChunkInfo.nChannels = letohs(formatChunkInfo.nChannels);
+                    formatChunkInfo.nSamplesPerSec = letohl(formatChunkInfo.nSamplesPerSec);
+                    formatChunkInfo.nAvgBytesPerSec = letohl(formatChunkInfo.nAvgBytesPerSec);
+                    formatChunkInfo.nBlockAlign = letohs(formatChunkInfo.nBlockAlign);
+                    formatChunkInfo.nBitsPerSample = letohs(formatChunkInfo.nBitsPerSample);
                     // for streaming, we currently only support one format:
                     // 16 bit, 8khz, signed.
                     if (formatChunkInfo.nSamplesPerSec != 8000 || formatChunkInfo.nBitsPerSample != 16 ||
@@ -485,7 +504,7 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
          {
             if (pDataSource->read((char*) &blockSize, sizeof(blockSize), iRead) == OS_SUCCESS)
             {
-                 iLength = blockSize ;
+                 iLength = letohl(blockSize);
                  bSuccess = TRUE ;
                  break ;
             }
@@ -493,11 +512,11 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
          else
          {
             // Unsupported chunk, advance to the next one...
-             //just read the block size & block
+            //just read the block size & block
             if (pDataSource->read((char*) &blockSize, sizeof(blockSize), iRead) == OS_SUCCESS)
             {
                 char tmpbuf[16000];
-                int totalLeftToRead = blockSize;
+                int totalLeftToRead = letohl(blockSize);
                 OsStatus retval = OS_FAILED;
                 do
                 {

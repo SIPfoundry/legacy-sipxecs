@@ -36,15 +36,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-const char* MpWaveFileFormat =
-#ifdef WORDS_BIGENDIAN
-/* Wave File TypeID for BIG endian Platforms - RIFX */
-   "RIFX"
-#else
-/* Wave File TypeID for LITTLE endian Platforms - RIFF */
-   "RIFF"
-#endif
-   ;
+const char* MpWaveFileFormat = "RIFF";
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -165,6 +157,7 @@ OsStatus WriteWaveHdr(OsFile &file)
     file.write(tmpbuf, strlen(tmpbuf),bytesWritten);
     TotalBytesWritten += bytesWritten;
     
+    length = htolel(length);
     file.write((char*)&length, sizeof(length),bytesWritten); //filled in on close
     TotalBytesWritten += bytesWritten;
     
@@ -183,26 +176,33 @@ OsStatus WriteWaveHdr(OsFile &file)
     file.write(tmpbuf,strlen(tmpbuf),bytesWritten);
     TotalBytesWritten += bytesWritten;
 
+    length = htolel(length);
     file.write((char*)&length,sizeof(length),bytesWritten); //filled in on close
     TotalBytesWritten += bytesWritten;
     
     //now write each piece of the format
     //16 bytes written
+    compressionCode = htoles(compressionCode);
     file.write((char*)&compressionCode, sizeof(compressionCode),bytesWritten);
     TotalBytesWritten += bytesWritten;
 
+    numChannels = htoles(numChannels);
     file.write((char*)&numChannels, sizeof(numChannels),bytesWritten);
     TotalBytesWritten += bytesWritten;
     
+    samplesPerSecond = htolel(samplesPerSecond);
     file.write((char*)&samplesPerSecond, sizeof(samplesPerSecond),bytesWritten);
     TotalBytesWritten += bytesWritten;
     
+    averageSamplePerSec = htolel(averageSamplePerSec);
     file.write((char*)&averageSamplePerSec, sizeof(averageSamplePerSec),bytesWritten);
     TotalBytesWritten += bytesWritten;
     
+    blockAlign = htoles(blockAlign);
     file.write((char*)&blockAlign, sizeof(blockAlign),bytesWritten);
     TotalBytesWritten += bytesWritten;
     
+    bitsPerSample = htoles(bitsPerSample);
     file.write((char*)&bitsPerSample, sizeof(bitsPerSample),bytesWritten);
     TotalBytesWritten += bytesWritten;
 
@@ -214,6 +214,7 @@ OsStatus WriteWaveHdr(OsFile &file)
     file.write(tmpbuf,strlen(tmpbuf),bytesWritten);
     TotalBytesWritten += bytesWritten;
     
+    length = htolel(length);
     file.write((char*)&length,sizeof(length),bytesWritten); //filled in on close
     TotalBytesWritten += bytesWritten;
     
@@ -238,16 +239,16 @@ OsStatus updateWaveHeaderLengths(OsFile &file)
     file.setPosition(4);
     
     //and update the RIFF length
-    unsigned long rifflength = length-8;
-    file.write((char*)&rifflength,sizeof(length),bytesWritten);
-    if (bytesWritten == sizeof(length))
+    unsigned long rifflength = htolel(length-8);
+    file.write((char*)&rifflength,sizeof(rifflength),bytesWritten);
+    if (bytesWritten == sizeof(rifflength))
     {
 
         //now seek to the data length
         file.setPosition(40);
     
         //this should be the length of just the data
-        unsigned long datalength = length-44;
+        unsigned long datalength = htolel(length-44);
         file.write((char*)&datalength,sizeof(datalength),bytesWritten);
 
         if (bytesWritten == sizeof(datalength))
@@ -291,8 +292,9 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
                         //now read bytes left
                         if (reader.read((char *)&filesize,sizeof(long),bytesRead) == OS_SUCCESS)
                         {
+                            filesize = letohl(filesize);
                             filesize +=8; //eight bytes we already read
-    
+
                             if (reader.read((char *)chunkId,4,bytesRead) == OS_SUCCESS) //now read WAVE marker
                             {
                                 if (memcmp(chunkId,"WAVE",4) == 0) //continue if RIFF                
@@ -305,6 +307,7 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
                                             long fmtlength;
                                             if (reader.read((char *)&fmtlength,sizeof(long),bytesRead) == OS_SUCCESS)
                                             {
+                                                fmtlength = letohl(fmtlength);
                                                 if (bytesRead == 4)
                                                 {
                                                     char fmtbuffer[100];
@@ -324,6 +327,7 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
                                                         long datalength;
                                                         if (reader.read((char *)&datalength,sizeof(long),bytesRead) == OS_SUCCESS)
                                                         {
+                                                            datalength = letohl(datalength);
                                                             if (bytesRead == sizeof(long)) 
                                                             {
                                                                 unsigned char *charBuffer = (unsigned char*)malloc(datalength);

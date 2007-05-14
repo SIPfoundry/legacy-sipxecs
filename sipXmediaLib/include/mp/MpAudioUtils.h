@@ -18,6 +18,24 @@
 #include "utl/UtlString.h"
 #include "mp/MpTypes.h"
 
+//Host to little endian and little endian to host conversion macros used
+//for handling of wave files (RIFF).
+#ifdef __BIG_ENDIAN__
+#define letohs( s )                     ((((s) & 0xFF00) >> 8) | \
+                                         (((s) & 0xFF) << 8))
+#define letohl( l )                     ((((l) & 0xFF000000) >> 24) | \
+                                         (((l) & 0xFF0000) >> 8) | \
+                                         (((l) & 0xFF00) << 8) | \
+                                         (((l) & 0xFF) << 24))
+#define htoles( s )                     (letohs(s))
+#define htolel( l )                     (letohl(l))
+#else
+#define letohs( s )                     (s)
+#define letohl( l )                     (l)
+#define htoles( s )                     (s)
+#define htolel( l )                     (l)
+#endif
+
 void ConvertUnsigned8ToSigned16(unsigned char *in_buffer, Sample *out_buffer, int numBytesToConvert);
 
 extern const char* MpWaveFileFormat;

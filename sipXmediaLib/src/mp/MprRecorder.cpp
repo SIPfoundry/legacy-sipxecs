@@ -21,6 +21,7 @@
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
 #include "mp/MprRecorder.h"
+#include "mp/MpAudioUtils.h"
 #include "os/OsProtectEventMgr.h"
 
 #ifndef ABS
@@ -251,14 +252,14 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle)
     lseek(handle,4,SEEK_SET);
 
     //and update the RIFF length
-    unsigned long rifflength = length-8;
-    write(handle, (char*)&rifflength,sizeof(length));
+    unsigned long rifflength = htolel(length-8);
+    write(handle, (char*)&rifflength,sizeof(rifflength));
 
     //now seek to the data length
     lseek(handle,40,SEEK_SET);
     
     //this should be the length of just the data
-    unsigned long datalength = length-44;
+    unsigned long datalength = htolel(length-44);
     write(handle, (char*)&datalength,sizeof(datalength));
 
     return retCode;
@@ -345,8 +346,27 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
       numSamples = MpBuf_getNumSamples(in);
       numBytes = numSamples * sizeof(Sample);
       if (mFileDescriptor > -1)
-        bytesWritten = write(mFileDescriptor, (char *)input, numBytes);
-   
+      {
+#ifdef __BIG_ENDIAN__
+         //We are running on a big endian processor - 16-bit samples are in the big endian
+         //byte order - convert them to little endian before writing them to the file.
+         unsigned short *pData;
+         int index;
+
+         for ( index = 0, pData = (unsigned short *)input; index < numSamples; index++, pData++ )
+             *pData = htoles(*pData);
+#endif
+         bytesWritten = write(mFileDescriptor, (char *)input, numBytes);
+#ifdef __BIG_ENDIAN__
+         if (numOutputs() > 1)
+         {
+             //There is more than one output - convert the samples back to big endian
+             for ( index = 0, pData = (unsigned short *)input; index < numSamples; index++, pData++ )
+                 *pData = letohs(*pData);
+         }
+#endif
+      }
+
       if (bytesWritten != numBytes) {
          disable(WRITE_ERROR);
       } else {
