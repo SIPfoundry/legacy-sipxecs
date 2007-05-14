@@ -317,11 +317,15 @@ protected:
      //:The entry point for the task
      // Derive new tasks as subclasses of OsTask, overriding this method.
 
+   /// Wait until the task is shut down and the run method has exited.
    virtual UtlBoolean waitUntilShutDown(int milliSecToWait = 20000);
-    //: Wait until the task is shut down and the run method has exited.
-    // Most subclasses of OsTask should call this method in
-    // the destructor before deleting any members which are
-    // accessed by the run method.
+   /**<
+    * Most subclasses of OsTask should call this method in
+    * the destructor before deleting any members which are
+    * accessed by the run method.
+    *
+    * @NOTE If milliSecToWait expires, the process is assumed to be hung and is aborted.
+    */
 
    virtual void ackShutdown(void);
      //:Acknowledge a shutdown request

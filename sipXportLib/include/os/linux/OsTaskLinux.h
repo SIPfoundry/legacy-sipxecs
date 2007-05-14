@@ -258,11 +258,11 @@ private:
    int       mStackSize;
 
    UtlBoolean doLinuxCreateTask(const char* pTaskName);
-     //:Do the real work associated with creating a new VxWorks task
+     //:Do the real work associated with creating a new Linux task
      // The mDataGuard lock should be held upon entry into this method.
 
    void doLinuxTerminateTask(UtlBoolean doForce);
-     //:Do the real work associated with terminating a VxWorks task
+     //:Do the real work associated with terminating a Linux task
      // The mDataGuard lock should be held upon entry into this method.
 
    /**

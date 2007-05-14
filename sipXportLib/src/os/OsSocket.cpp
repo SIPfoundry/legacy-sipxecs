@@ -99,48 +99,28 @@ unsigned long osSocketGetDefaultBindAddress()
 
 // Constructor
 OsSocket::OsSocket()
-        
-{
-        mActual_socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
-        socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
-
-        localHostPort = OS_INVALID_SOCKET_DESCRIPTOR;
-        remoteHostPort = OS_INVALID_SOCKET_DESCRIPTOR;
-    mIsConnected = FALSE;
-}
-
-
-// Copy constructor
-/* Abstract class
-OsSocket::OsSocket(const OsSocket& rOsSocket)
+   : socketDescriptor(OS_INVALID_SOCKET_DESCRIPTOR)
+   , localHostPort(OS_INVALID_SOCKET_DESCRIPTOR)
+   , remoteHostPort(OS_INVALID_SOCKET_DESCRIPTOR)
+   , mIsConnected(FALSE)
+   , mActual_socketDescriptor(OS_INVALID_SOCKET_DESCRIPTOR)
 {
 }
-*/
 
 // Destructor
 OsSocket::~OsSocket()
 {
-        close();
-        if(mActual_socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
-        {
-           // Now it is safe to give this descriptor back to the OS
-           ::close(mActual_socketDescriptor);
-        }
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::~");
+   close();
+   if(mActual_socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
+   {
+      // Now it is safe to give this descriptor back to the OS
+      ::close(mActual_socketDescriptor);
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
 
-// Assignment operator
-/* Abstract class
-OsSocket&
-OsSocket::operator=(const OsSocket& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
-}
-*/
 
 int OsSocket::write(const char* buffer, int bufferLength)
 {
@@ -314,18 +294,24 @@ int OsSocket::read(char* buffer, int bufferLength,
 
          // Others should not.
          default:
+            OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                          "OsSocket::read %d recvfrom returned %d: %s",
+                          socketDescriptor, error, strerror(error)
+                          );
             close();
-            // perror("OsSocket::read call to recvfrom failed\n");
-            osPrintf("recvfrom call failed with error: %d\n", error);
       }
 
    }
    else
    {
       if (NULL != fromPort)
+      {
          *fromPort = ntohs(fromSockAddress.sin_port);
+      }
       if (NULL != fromAddress)
+      {
          *fromAddress = fromSockAddress.sin_addr;
+      }
    }
 
    return (bytesRead);
@@ -357,13 +343,18 @@ int OsSocket::read(char* buffer, int bufferLength,
    int bytesRead;
    struct in_addr fromSockAddress;
 
-   if (NULL != fromAddress) fromAddress->remove(0);
+   if (fromAddress)
+   {
+      fromAddress->remove(0);
+   }
 
    bytesRead = read(buffer, bufferLength, &fromSockAddress, fromPort);
    if(bytesRead != -1)
    {
       if (NULL != fromAddress)
+      {
          inet_ntoa_pt(fromSockAddress, *fromAddress);
+      }
    }
 
    return(bytesRead);
@@ -676,28 +667,26 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
 
 void OsSocket::close()
 {
-        if(socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
-        {
-#ifdef TEST_PRINT
-                osPrintf("Closing type: %d socket: %d\n", getIpProtocol(), socketDescriptor);
-#endif
-#       if defined(_WIN32)
-                closesocket(socketDescriptor);
-#       elif defined(_VXWORKS) || defined(__pingtel_on_posix__)
+   if(socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
+   {
+#     if defined(_WIN32)
+      closesocket(socketDescriptor);
+#     elif defined(_VXWORKS) || defined(__pingtel_on_posix__)
 
-#          if defined(__pingtel_on_posix__)
-              // This forces any selects which are blocked on
-              // this socket to return
-              shutdown(socketDescriptor, SHUT_RDWR);
-#           endif
-              mActual_socketDescriptor = socketDescriptor ;
-// Don't really close the actual descriptor until the destructor.
+#     if defined(__pingtel_on_posix__)
+      // This forces any selects which are blocked on
+      // this socket to return
+      shutdown(socketDescriptor, SHUT_RDWR);
+#     endif
 
-#       else
+      // Don't really close the actual descriptor until the destructor.
+      mActual_socketDescriptor = socketDescriptor ;
+
+#     else
 #       error Unsupported target platform.
-#       endif
-                socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
-        }
+#     endif
+      socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
+   }
 }
 
 const char* socketType_UNKNOWN = "UNKNOWN";
@@ -734,6 +723,7 @@ const char* OsSocket::ipProtocolString(OsSocket::IpProtocolSocketType type)
 
 void OsSocket::makeNonblocking()
 {
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::makeNonblocking %d", socketDescriptor);
 #if defined(_WIN32)
     unsigned long c_ONDELAY=1;
     ioctlsocket(socketDescriptor, FIONBIO, &c_ONDELAY);
@@ -748,6 +738,7 @@ void OsSocket::makeNonblocking()
 
 void OsSocket::makeBlocking()
 {
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::makeBlocking %d", socketDescriptor);
 #if defined(_WIN32)
     unsigned long c_ONDELAY=0;
     ioctlsocket(socketDescriptor, FIONBIO, &c_ONDELAY);
@@ -1082,7 +1073,7 @@ int OsSocket::getLocalHostPort() const
 
 UtlBoolean OsSocket::isOk() const
 {
-        return(socketDescriptor != OS_INVALID_SOCKET_DESCRIPTOR);
+   return(socketDescriptor != OS_INVALID_SOCKET_DESCRIPTOR);
 }
 
 UtlBoolean OsSocket::isConnected() const

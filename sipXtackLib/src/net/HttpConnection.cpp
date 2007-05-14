@@ -118,13 +118,14 @@ int HttpConnection::run(void* runArg)
                 // isReadyToRead indicated readability but the read returned 0 bytes - the peer
                 // must have shut down
                 bConnected = FALSE;
-                OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpConnection::run - read 0 bytes, indicating peer shut down");
+                OsSysLog::add(FAC_HTTP, PRI_WARNING, "HttpConnection::run"
+                              " read 0 bytes, indicating peer shut down");
             }
         }
     }
     // If we're here either we're shutting down or the socket went bad. Mark for deletion
     mbToBeDeleted = true;
-    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpConnection::run exiting");
+    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpConnection::run shutting down");
 
     return(TRUE);
 }

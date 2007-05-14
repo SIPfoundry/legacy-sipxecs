@@ -40,6 +40,8 @@
 
 // CONSTANTS
 
+const unsigned int OsConnectionSocket::DefaultConnectionTimeoutMs = 4000;
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -49,20 +51,32 @@
 // Constructor
 OsConnectionSocket::OsConnectionSocket(int connectedSocketDescriptor)
 {
-        socketDescriptor = connectedSocketDescriptor;
+   OsSysLog::add(FAC_KERNEL, PRI_INFO,
+                 "OsConnectionSocket::_[1] (%d)",
+                 connectedSocketDescriptor
+                 );
+   socketDescriptor = connectedSocketDescriptor;
 }
 
 OsConnectionSocket::OsConnectionSocket(const char* szLocalIp, int connectedSocketDescriptor)
 {
-        socketDescriptor = connectedSocketDescriptor;
-        mLocalIp = szLocalIp;
+   OsSysLog::add(FAC_KERNEL, PRI_INFO,
+                 "OsConnectionSocket::_[2] (%s, %d)",
+                 szLocalIp, connectedSocketDescriptor
+                 );
+
+   socketDescriptor = connectedSocketDescriptor;
+   mLocalIp = szLocalIp;
 }
 
 // Constructor
 OsConnectionSocket::OsConnectionSocket(int serverPort,
                                        const char* serverName,
                                        UtlBoolean blockingConnect,
-                                       const char* localIp)
+                                       const char* localIp,
+                                       unsigned int timeoutInMilliseconds
+                                       )
+   : OsSocket()
 {
    int error = 0;
    UtlBoolean isIp;
@@ -71,8 +85,9 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    struct sockaddr_in serverSockAddr;
    UtlString temp_output_address;
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "OsConnectionSocket::_ attempt %s:%d %s"
-                 ,serverName, serverPort, blockingConnect ? "BLOCKING" : "NON-BLOCKING" );
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ attempt %s:%d %s timeout %d"
+                 ,serverName, serverPort,
+                 blockingConnect ? "BLOCKING" : "NON-BLOCKING", timeoutInMilliseconds );
 
    socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
 
@@ -81,53 +96,55 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    // Connect to a remote host if given
    if(! serverName || strlen(serverName) == 0)
    {
-#if defined(_VXWORKS)
+#     if defined(_VXWORKS)
       serverName = "127.0.0.1";
-#elif defined(__pingtel_on_posix__)
-    unsigned long address_val = OsSocket::getDefaultBindAddress();
+#     elif defined(__pingtel_on_posix__)
+      unsigned long address_val = OsSocket::getDefaultBindAddress();
       
-    if (!localIp)
-    {
-        if (address_val == htonl(INADDR_ANY))
+      if (!localIp)
+      {
+         if (address_val == htonl(INADDR_ANY))
+         {
             serverName = "localhost";
-        else
-        {
+         }
+         else
+         {
             struct in_addr in;
             in.s_addr = address_val;
 
             serverName = inet_ntoa(in);
-        }
-    }
-    else
-    {
-        mLocalIp = localIp;
-        serverName = localIp;
-    }
+         }
+      }
+      else
+      {
+         mLocalIp = localIp;
+         serverName = localIp;
+      }
 
-#elif defined(WIN32)
+#     elif defined(WIN32)
       unsigned long address_val = OsSocket::getDefaultBindAddress();
       
-    if (!localIp)
-    {
-        if (address_val == htonl(INADDR_ANY))
+      if (!localIp)
+      {
+         if (address_val == htonl(INADDR_ANY))
             serverName = "localhost";
-        else
-        {
+         else
+         {
             struct in_addr in;
             in.S_un.S_addr = address_val;
 
             serverName = inet_ntoa(in);
-        }
-    }
-    else
-    {
-        mLocalIp = localIp;
-        serverName = localIp;
-    }
+         }
+      }
+      else
+      {
+         mLocalIp = localIp;
+         serverName = localIp;
+      }
       
-#else
-#error Unsupported target platform.
-#endif
+#     else
+#        error Unsupported target platform.
+#     endif
 
    }
    if(serverName)
@@ -137,7 +154,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
 
    if (localIp)
    {
-        mLocalIp = localIp;
+      mLocalIp = localIp;
    }
 
    if(!socketInit())
@@ -145,9 +162,9 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       goto EXIT;
    }
 
-#       if defined(_VXWORKS)
+#  if defined(_VXWORKS)
    char hostentBuf[512];
-#       endif
+#  endif
 
    // Create the socket
    socketDescriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -155,11 +172,13 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    {
       error = OsSocketGetERRNO();
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
-      OsSysLog::add(FAC_SIP, PRI_ERR, "OsConnectionSocket::_ 'socket' failed: %x", error);
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsConnectionSocket::_ 'socket' failed: %x", error);
       goto EXIT;
    }
 
-   if(!blockingConnect)
+   if(   !blockingConnect
+      || (blockingConnect && timeoutInMilliseconds > 0) 
+      )
    {
       makeNonblocking();
    }
@@ -167,21 +186,21 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    isIp = isIp4Address(serverName);
    if(!isIp)
    {
-#       if defined(_WIN32) || defined(__pingtel_on_posix__)
+#     if defined(_WIN32) || defined(__pingtel_on_posix__)
       server = gethostbyname(serverName);
-#       elif defined(_VXWORKS)
+#     elif defined(_VXWORKS)
       server = resolvGetHostByName((char*) serverName,
                                    hostentBuf, sizeof(hostentBuf));
-#       else
+#     else
 #       error Unsupported target platform.
-#       endif //_VXWORKS
+#     endif //_VXWORKS
    }
 
    if(!isIp && !server)
    {
       close();
-      OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "DNS failed to look up host: '%s'\n",
+      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                    "DNS failed to look up host: '%s'",
                     serverName);
       goto EXIT;
    }
@@ -189,8 +208,8 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    if (!isIp)
    {
       inet_ntoa_pt(*((in_addr*) (server->h_addr)),temp_output_address);
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "OsConnectionSocket::_: connecting to host at: %s:%d\n",
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                    "OsConnectionSocket::_: connecting to host at: %s:%d",
                     temp_output_address.data(), serverPort);
       serverAddr = (in_addr*) (server->h_addr);
       serverSockAddr.sin_family = server->h_addrtype;
@@ -204,21 +223,61 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       serverSockAddr.sin_addr.s_addr = inet_addr(serverName);
    }
 
-   // Set the default destination address for the socket
+   // Ask the TCP layer to connect
    int connectReturn;
-#       if defined(_WIN32) || defined(__pingtel_on_posix__)
+#  if defined(_WIN32) || defined(__pingtel_on_posix__)
    connectReturn = connect(socketDescriptor,
                            (const struct sockaddr*) &serverSockAddr,
                            sizeof(serverSockAddr));
-#       elif defined(_VXWORKS)
+   if (blockingConnect && timeoutInMilliseconds > 0)
+   {
+      struct timeval timeout;
+      timeout.tv_sec = timeoutInMilliseconds / OsTime::MSECS_PER_SEC;
+      timeout.tv_usec = (timeoutInMilliseconds % OsTime::MSECS_PER_SEC ) * OsTime::USECS_PER_MSEC;
+
+      fd_set writable;
+      FD_ZERO(&writable);
+      FD_SET(socketDescriptor, &writable);
+
+      int selectResult = select(socketDescriptor+1,
+                                NULL /* no readers */,
+                                &writable,
+                                NULL /* no exceptions */,
+                                &timeout );
+      /*
+       * On  Linux, select() modifies timeout to reflect the amount of time not slept;
+       * most other implementations do not do this.   (POSIX.1-2001  permits  either  behaviour.)
+       * Don't use that information.
+       */
+      if (1 == selectResult)
+      {
+         // the connect has completed
+         connectReturn = 0;
+         error = 0;
+      }
+      else if (0 == selectResult)
+      {
+         // timeout
+         connectReturn = -1;
+         error = ETIMEDOUT;
+      }
+      else if (0 > selectResult)
+      {
+         // some error
+         connectReturn = -1;
+         error = OsSocketGetERRNO();
+      }
+
+      makeBlocking();
+   }
+#  elif defined(_VXWORKS)
    connectReturn = connect(socketDescriptor,
                            (struct sockaddr*) &serverSockAddr,
                            sizeof(serverSockAddr));
-#       else
-#       error Unsupported target platform.
-#       endif
-
    error = OsSocketGetERRNO();
+#  else
+#    error Unsupported target platform.
+#  endif
 
 #if defined(_WIN32)
    if(error == WSAEWOULDBLOCK &&
@@ -249,28 +308,16 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       close();
 
       msgBuf = strerror(error);
-      OsSysLog::add(FAC_SIP, PRI_INFO, "OsConnectionSocket(%s:%d): call to connect() failed: %s\n"
-                    "connect call failed with error: %d %d\n",
-                    serverName, serverPort, msgBuf, error, connectReturn);
-#if 0
-      // Report exactly what the arguments to connect() were
-      // to diagnose difficult errors.
-      char buffer[100];
-      int i;
-      unsigned char* p;
-      for (i = 0, p = (unsigned char*) &serverSockAddr;
-           i < sizeof(serverSockAddr); i++)
-      {
-         sprintf(buffer + 2 * i, "%02X", *p++);
-      }
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "OsConnectionSocket socketDescriptor = %d, "
-                    "serverSockAddr = %s",
-                    socketDescriptor, buffer);
-#endif
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsConnectionSocket(%s:%d): call to connect() failed:\n"
+                    "connect call failed with error: %d %d\n%s",
+                    serverName, serverPort, error, connectReturn, msgBuf);
    }
    else
    {
+      OsSysLog::add(FAC_KERNEL, PRI_INFO,
+                    "OsConnectionSocket::_[5] connected %d to %s:%d",
+                    socketDescriptor, serverName, serverPort
+                    );
       mIsConnected = TRUE;
    }
         
@@ -311,8 +358,9 @@ bool OsConnectionSocket::peerIdentity( UtlSList* altNames
 // Destructor
 OsConnectionSocket::~OsConnectionSocket()
 {
-        remoteHostName = OsUtil::NULL_OS_STRING;
-        close();
+   OsSysLog::add(FAC_KERNEL, PRI_INFO, "OsConnectionSocket::~");
+   remoteHostName = OsUtil::NULL_OS_STRING;
+   close();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -329,7 +377,7 @@ OsConnectionSocket::operator=(const OsConnectionSocket& rhs)
 
 UtlBoolean OsConnectionSocket::reconnect()
 {
-        OsSysLog::add(FAC_SIP, PRI_WARNING, " reconnect NOT implemented!\n");
+        OsSysLog::add(FAC_KERNEL, PRI_WARNING, " reconnect NOT implemented!");
         return(FALSE);
 }
 
@@ -340,6 +388,22 @@ int OsConnectionSocket::read(char* buffer, int bufferLength)
 {
     // Use base class implementation
     int bytesRead = OsSocket::read(buffer, bufferLength);
+    if (!bytesRead)
+    {
+       int error = OsSocketGetERRNO();
+       if (error != EINTR && error != EAGAIN)
+       {
+          char* msgBuf;
+          msgBuf = strerror(error);
+
+          OsSysLog::add(FAC_KERNEL, PRI_INFO,
+                        "OsConnectionSocket::read[2] EOF on %d (%s)",
+                        socketDescriptor, msgBuf
+                        );
+          close();
+       }
+    }
+    
     return(bytesRead);
 }
 
@@ -351,11 +415,28 @@ int OsConnectionSocket::read(char* buffer,
     // Overide base class version as recvfrom does not
     // seem to return host info correctly for TCP
     // Use base class version without the remote host info
-    int bytesRead = OsSocket::read(buffer, bufferLength);
+   int bytesRead = OsSocket::read(buffer, bufferLength);
+    if (bytesRead)
+    {
+       // Explicitly get the remote host info.
+       getRemoteHostIp(ipAddress, port);
+    }
+    else 
+    {
+       int error = OsSocketGetERRNO();
+       if (error != EINTR && error != EAGAIN)
+       {
+          char* msgBuf;
+          msgBuf = strerror(error);
 
-    // Explicitly get the remote host info.
-    getRemoteHostIp(ipAddress, port);
-
+          OsSysLog::add(FAC_KERNEL, PRI_INFO,
+                        "OsConnectionSocket::read[4] EOF on %d (%s)",
+                        socketDescriptor, msgBuf
+                        );
+          close();
+       }
+    }
+    
     return(bytesRead);
 }
 
@@ -368,6 +449,22 @@ int OsConnectionSocket::read(char* buffer,
 {
     // Use base class implementation
     int bytesRead = OsSocket::read(buffer, bufferLength, waitMilliseconds);
+    if (!bytesRead)
+    {
+       int error = OsSocketGetERRNO();
+       if (error != EINTR && error != EAGAIN)
+       {
+          char* msgBuf;
+          msgBuf = strerror(error);
+
+          OsSysLog::add(FAC_KERNEL, PRI_INFO,
+                        "OsConnectionSocket::read[3] EOF on %d (%s)",
+                        socketDescriptor, msgBuf
+                        );
+          close();
+       }
+    }
+    
     return(bytesRead);
 }
 

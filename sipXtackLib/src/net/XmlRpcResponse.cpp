@@ -56,10 +56,14 @@ XmlRpcResponse::~XmlRpcResponse()
 
 bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
 {
-   bool result = false;
+   bool isFault = true;
+
+   // assume the worst
+   mFaultCode   = IllFormedContents;
+   mFaultString = ILL_FORMED_CONTENTS_FAULT_STRING;
    
    // Parse the XML-RPC response
-   TiXmlDocument doc("XmlRpcResponse.xml");
+   TiXmlDocument doc("XmlRpcResponse.xml"); // document name is required but not used
    
    doc.Parse(responseContent);      
    if (!doc.Error())
@@ -67,7 +71,7 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
       TiXmlNode* rootNode = doc.FirstChild ("methodResponse");      
       if (rootNode != NULL)
       {
-         // Positive response example
+         // Positive response (example)
          // 
          // <methodResponse> 
          //   <params>
@@ -80,19 +84,40 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
          TiXmlNode* paramsNode = rootNode->FirstChild("params");        
          if (paramsNode != NULL)
          {
+            bool parseOk = false;
+
             TiXmlNode* paramNode = paramsNode->FirstChild("param");
             if (paramNode)
             {
                TiXmlNode* subNode = paramNode->FirstChild("value");              
                if (subNode)
                {
-                  result = parseValue(subNode);
+                  parseOk = parseValue(subNode);
+               }
+               else
+               {
+                  OsSysLog::add(FAC_SIP, PRI_ERR,
+                                "XmlRpcResponse::parseXmlRpcResponse"
+                                " Invalid response - "
+                                "no value element in param");
                }
             }
-         }
+            else
+            {
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "XmlRpcResponse::parseXmlRpcResponse"
+                             " Invalid response - "
+                             "no param element in params");
+            }
+
+            if (parseOk)
+            {
+               isFault = false;
+            }
+         } // end of params (success) parsing
          else
          {
-            // Fault response example
+            // Fault response 
             //
             // <methodResponse>
             //   <fault>
@@ -128,29 +153,47 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
                           memberNode = memberNode->NextSibling("member"))
                      {
                         UtlString nameValue;
-                        if (memberNode->FirstChild("name") && (memberNode->FirstChild("name"))->FirstChild())
+                        if (memberNode->FirstChild("name")
+                            && (memberNode->FirstChild("name"))->FirstChild())
                         {
-                           nameValue = (memberNode->FirstChild("name"))->FirstChild()->Value();                         
+                           nameValue = (memberNode->FirstChild("name"))->FirstChild()->Value();
                         
                            if (nameValue.compareTo("faultCode") == 0)
                            {
                               if (memberNode->FirstChild("value"))
                               {
-                                 TiXmlNode* valueNode = (memberNode->FirstChild("value"))->FirstChild("int");
+                                 TiXmlNode* valueNode =
+                                    (memberNode->FirstChild("value"))->FirstChild("int");
                                  if (valueNode && valueNode->FirstChild())
                                  {
                                     mFaultCode = atoi(valueNode->FirstChild()->Value());
                                  }
-                                 
-                                 valueNode = (memberNode->FirstChild("value"))->FirstChild("i4");
-                                 if (valueNode && valueNode->FirstChild())
+                                 else
                                  {
-                                    mFaultCode = atoi(valueNode->FirstChild()->Value());
+                                    valueNode =
+                                       (memberNode->FirstChild("value"))->FirstChild("i4");
+                                    if (valueNode && valueNode->FirstChild())
+                                    {
+                                       mFaultCode = atoi(valueNode->FirstChild()->Value());
+                                    }
+                                    else
+                                    {
+                                       OsSysLog::add(FAC_SIP, PRI_ERR,
+                                                     "XmlRpcResponse::parseXmlRpcResponse"
+                                                     " Invalid response - "
+                                                     "no int or i4 element in faultCode value");
+                                    }
                                  }
                               }
+                              else
+                              {
+                                 OsSysLog::add(FAC_SIP, PRI_ERR,
+                                               "XmlRpcResponse::parseXmlRpcResponse"
+                                               " Invalid response - "
+                                               "no value element in faultCode member");
+                              }
                            }
-                              
-                           if (nameValue.compareTo("faultString") == 0)
+                           else if (nameValue.compareTo("faultString") == 0)
                            {
                               TiXmlNode* valueNode = memberNode->FirstChild("value");
                               if (valueNode)
@@ -172,57 +215,107 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
                                     }
                                  }
                               }
+                              else
+                              {
+                                 OsSysLog::add(FAC_SIP, PRI_ERR,
+                                               "XmlRpcResponse::parseXmlRpcResponse"
+                                               " Invalid response - "
+                                               "no value element in faultString member");
+                              }
+                           }
+                           else
+                           {
+                              // unrecognized element - ignore it
                            }
                         }
-                     }
+                        else
+                        {
+                           OsSysLog::add(FAC_SIP, PRI_ERR,
+                                         "XmlRpcResponse::parseXmlRpcResponse"
+                                         " Invalid response - no name element in fault member");
+                        }
+                     } // loop over members
+                  }
+                  else
+                  {
+                     OsSysLog::add(FAC_SIP, PRI_ERR,
+                                   "XmlRpcResponse::parseXmlRpcResponse"
+                                   " Invalid response - no struct element in fault value");
                   }
                }
+               else
+               {
+                  OsSysLog::add(FAC_SIP, PRI_ERR,
+                                "XmlRpcResponse::parseXmlRpcResponse"
+                                " Invalid response - no value element in fault");
+               }
             }
-         }
+            else
+            {
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "XmlRpcResponse::parseXmlRpcResponse"
+                             " Invalid response - no params or fault element");
+            }
+         } // end of fault parsing
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "XmlRpcResponse::parseXmlRpcResponse"
+                       " Invalid response - no methodResponse element");
       }
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "XmlRpcResponse::parseXmlRpcResponse ill formatted xml contents in %s. Parsing error = %s",
+                    "XmlRpcResponse::parseXmlRpcResponse"
+                    " ill formatted xml contents in %s. Parsing error = %s",
                      responseContent.data(), doc.ErrorDesc());
-      result = false;
    }
    
-   
-   return result;  
+   return !isFault;  
 }
 
-/* ============================ MANIPULATORS ============================== */
 
-
-/* ============================ ACCESSORS ================================= */
+/// Set the method name (for logging and comment in return)
+void XmlRpcResponse::setMethod(const UtlString& methodName)
+{
+   mMethod = methodName;
+}
 
 bool XmlRpcResponse::setResponse(UtlContainable* value)
 {
    bool result = false;
-   assert(mpResponseBody == NULL);    // response body should only be created once
-   
+   if (mpResponseBody != NULL)    // response body should only be created once
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "XmlRpcResponse::setResponse - body already set");
+      assert(false);
+   }
 
    // Start to construct the XML-RPC body
    mpResponseBody = new XmlRpcBody();
-   assert(mpResponseBody != NULL);    // if not true, allocation failed
+   if (mpResponseBody != NULL)
+   {
+      mpResponseBody->append(BEGIN_RESPONSE);   // includes comment leader...
+      mpResponseBody->append(mMethod);          // method name in the comment
+      mpResponseBody->append(END_NAME_COMMENT); // and close the comment
 
-   mpResponseBody->append(BEGIN_RESPONSE);   
-   mpResponseBody->append(BEGIN_PARAMS);   
-   mpResponseBody->append(BEGIN_PARAM);  
+      mpResponseBody->append(BEGIN_PARAMS BEGIN_PARAM);  
    
-   result = mpResponseBody->addValue(value);        
+      result = mpResponseBody->addValue(value);        
    
-   mpResponseBody->append(END_PARAM);
-   mpResponseBody->append(END_PARAMS);   
-   mpResponseBody->append(END_RESPONSE);   
+      mpResponseBody->append(END_PARAM END_PARAMS END_RESPONSE);   
         
-   UtlString bodyString;
-   int bodyLength;
-   mpResponseBody->getBytes(&bodyString, &bodyLength);
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "mpResponseBody::setResponse XML-RPC response message = \n%s", bodyString.data());
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "XmlRpcResponse::setResponse called");
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "XmlRpcResponse::setResponse body allocation failed");
+   }
+   
    return result;
 }
 
@@ -234,61 +327,57 @@ bool XmlRpcResponse::setFault(int faultCode, const char* faultString)
    mFaultString = faultString;
 
    // Start to construct the XML-RPC body for fault response
-   assert(mpResponseBody == NULL);    // response body should only be created once
+   if (mpResponseBody != NULL)    // response body should only be created once
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "XmlRpcResponse::setResponse - body already set");
+      assert(false);
+   }
 
    mpResponseBody = new XmlRpcBody();
-   assert(mpResponseBody != NULL);    // if not true, allocation failed
-   
-   // Fault response example
-   //
-   // <methodResponse>
-   //   <fault>
-   //     <value>
-   //       <struct>
-   //         <member>
-   //           <name>faultCode</name>
-   //           <value><int>4</int></value>
-   //         </member>
-   //         <member>
-   //           <name>faultString</name>
-   //           <value><string>Too many parameters.</string></value>
-   //         </member>
-   //       </struct>
-   //     </value>
-   //   </fault>
-   // </methodResponse>
+   if (mpResponseBody)
+   {
+      // Fault response example
+      //
+      // <methodResponse>
+      //   <fault>
+      //     <value>
+      //       <struct>
+      //         <member>
+      //           <name>faultCode</name>
+      //           <value><int>4</int></value>
+      //         </member>
+      //         <member>
+      //           <name>faultString</name>
+      //           <value><string>Too many parameters.</string></value>
+      //         </member>
+      //       </struct>
+      //     </value>
+      //   </fault>
+      // </methodResponse>
 
-   mpResponseBody->append(BEGIN_RESPONSE);   
-   mpResponseBody->append(BEGIN_FAULT);   
-   mpResponseBody->append(BEGIN_STRUCT);
+      mpResponseBody->append(BEGIN_RESPONSE);   // includes comment leader...
+      mpResponseBody->append(mMethod);          // method name in the comment
+      mpResponseBody->append(END_NAME_COMMENT); // and close the comment
+
+      mpResponseBody->append(BEGIN_FAULT BEGIN_STRUCT BEGIN_MEMBER FAULT_CODE BEGIN_INT);
+   
+      char temp[10];
+      sprintf(temp, "%d", mFaultCode);
+      mpResponseBody->append(temp);
+   
+      mpResponseBody->append(END_INT END_MEMBER BEGIN_MEMBER FAULT_STRING BEGIN_STRING);
+      mpResponseBody->append(mFaultString);
+      mpResponseBody->append(END_STRING END_MEMBER END_STRUCT END_FAULT END_RESPONSE);
       
-   mpResponseBody->append(BEGIN_MEMBER);   
-   mpResponseBody->append(FAULT_CODE);
-   
-   char temp[10];
-   sprintf(temp, "%d", mFaultCode);
-   UtlString paramValue = BEGIN_INT + UtlString(temp) + END_INT;
-   mpResponseBody->append(paramValue);
-   
-   mpResponseBody->append(END_MEMBER);   
-   
-   mpResponseBody->append(BEGIN_MEMBER);   
-   mpResponseBody->append(FAULT_STRING);
-   
-   paramValue = BEGIN_STRING + mFaultString + END_STRING;
-   mpResponseBody->append(paramValue);
-   
-   mpResponseBody->append(END_MEMBER);   
-      
-   mpResponseBody->append(END_STRUCT);   
-   mpResponseBody->append(END_FAULT);   
-   mpResponseBody->append(END_RESPONSE);
-      
-   UtlString bodyString;
-   int bodyLength;
-   mpResponseBody->getBytes(&bodyString, &bodyLength);
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "mpResponseBody::setFault XML-RPC response message = \n%s", bodyString.data());
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "mpResponseBody::setFault %d %s", mFaultCode, mFaultString.data());
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "mpResponseBody::setFault body allocation failed");
+   }
 
    return result;
 }
@@ -296,20 +385,8 @@ bool XmlRpcResponse::setFault(int faultCode, const char* faultString)
 
 bool XmlRpcResponse::getResponse(UtlContainable*& value)
 {
-   bool result = false;
-   
    value = mResponseValue;
-   
-   if (value)
-   {
-      result = true;
-   }
-   else
-   {
-      result = false;
-   }
-   
-   return result;
+   return value != NULL;
 }
 
 
@@ -350,7 +427,9 @@ bool XmlRpcResponse::parseValue(TiXmlNode* subNode)
       }
       else
       {
-         result = false;
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "XmlRpcResponse::parseValue - no value in i4"
+                       );
       }
    }
    else
@@ -366,7 +445,9 @@ bool XmlRpcResponse::parseValue(TiXmlNode* subNode)
          }
          else
          {
-            result = false;
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "XmlRpcResponse::parseValue - no value in int"
+                          );
          }
       }
       else
@@ -382,7 +463,9 @@ bool XmlRpcResponse::parseValue(TiXmlNode* subNode)
             }
             else
             {
-               result = false;
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "XmlRpcResponse::parseValue - no value in i8"
+                             );
             }
          }
          else
@@ -399,7 +482,9 @@ bool XmlRpcResponse::parseValue(TiXmlNode* subNode)
                }
                else
                {
-                  result = false;
+                  OsSysLog::add(FAC_SIP, PRI_ERR,
+                                "XmlRpcResponse::parseValue - no value in boolean"
+                                );
                }
             }
             else
@@ -415,7 +500,7 @@ bool XmlRpcResponse::parseValue(TiXmlNode* subNode)
                   }
                   else
                   {
-                     mResponseValue = NULL;
+                     mResponseValue = NULL; // empty strings are allowed
                   }
                   result = true;
                }
@@ -433,7 +518,9 @@ bool XmlRpcResponse::parseValue(TiXmlNode* subNode)
                      }
                      else
                      {
-                        result = false;
+                        OsSysLog::add(FAC_SIP, PRI_ERR,
+                                      "XmlRpcResponse::parseValue - no value in dateTime.iso8601"
+                                      );
                      }
                   }
                   else
@@ -491,14 +578,14 @@ bool XmlRpcResponse::parseValue(TiXmlNode* subNode)
    
 bool XmlRpcResponse::parseStruct(TiXmlNode* subNode, UtlHashMap* members)
 {
-   bool result = false;
+   bool result = true;
 
    // struct
    UtlString name;
    UtlString paramValue;
    TiXmlNode* memberValue;
    for (TiXmlNode* memberNode = subNode->FirstChild("member");
-        memberNode; 
+        result && memberNode; 
         memberNode = memberNode->NextSibling("member"))
    {
       TiXmlNode* memberName = memberNode->FirstChild("name");
@@ -507,35 +594,12 @@ bool XmlRpcResponse::parseStruct(TiXmlNode* subNode, UtlHashMap* members)
          if (memberName->FirstChild())
          {
             name = memberName->FirstChild()->Value();
-         }
-         else
-         {
-            result = false;
-            break;
-         }
-         
-         memberValue = memberNode->FirstChild("value");        
-         if (memberValue)
-         {
-            // four-byte signed integer                         
-            TiXmlNode* valueElement = memberValue->FirstChild("i4");
-            if (valueElement)
+
+            memberValue = memberNode->FirstChild("value");        
+            if (memberValue)
             {
-               if (valueElement->FirstChild())
-               {
-                  paramValue = valueElement->FirstChild()->Value();
-                  members->insertKeyAndValue(new UtlString(name), new UtlInt(atoi(paramValue)));
-                  result = true;
-               }
-               else
-               {
-                  result = false;
-                  break;
-               }
-            }
-            else
-            {
-               valueElement = memberValue->FirstChild("int");
+               // four-byte signed integer                         
+               TiXmlNode* valueElement = memberValue->FirstChild("i4");
                if (valueElement)
                {
                   if (valueElement->FirstChild())
@@ -552,13 +616,13 @@ bool XmlRpcResponse::parseStruct(TiXmlNode* subNode, UtlHashMap* members)
                }
                else
                {
-                  valueElement = memberValue->FirstChild("i8");
+                  valueElement = memberValue->FirstChild("int");
                   if (valueElement)
                   {
                      if (valueElement->FirstChild())
                      {
                         paramValue = valueElement->FirstChild()->Value();
-                        members->insertKeyAndValue(new UtlString(name), new UtlLongLongInt(strtoll(paramValue, 0, 0)));
+                        members->insertKeyAndValue(new UtlString(name), new UtlInt(atoi(paramValue)));
                         result = true;
                      }
                      else
@@ -569,13 +633,14 @@ bool XmlRpcResponse::parseStruct(TiXmlNode* subNode, UtlHashMap* members)
                   }
                   else
                   {
-                     valueElement = memberValue->FirstChild("boolean");
+                     valueElement = memberValue->FirstChild("i8");
                      if (valueElement)
                      {
                         if (valueElement->FirstChild())
                         {
                            paramValue = valueElement->FirstChild()->Value();
-                           members->insertKeyAndValue(new UtlString(name), new UtlBool((atoi(paramValue)==1)));
+                           members->insertKeyAndValue(new UtlString(name),
+                                                      new UtlLongLongInt(strtoll(paramValue, 0, 0)));
                            result = true;
                         }
                         else
@@ -585,77 +650,100 @@ bool XmlRpcResponse::parseStruct(TiXmlNode* subNode, UtlHashMap* members)
                         }
                      }
                      else
-                     {              
-                        valueElement = memberValue->FirstChild("string");
+                     {
+                        valueElement = memberValue->FirstChild("boolean");
                         if (valueElement)
                         {
                            if (valueElement->FirstChild())
                            {
                               paramValue = valueElement->FirstChild()->Value();
-                              members->insertKeyAndValue(new UtlString(name), new UtlString(paramValue));
+                              members->insertKeyAndValue(new UtlString(name),
+                                                         new UtlBool((atoi(paramValue)==1)));
+                              result = true;
                            }
                            else
                            {
-                              members->insertKeyAndValue(new UtlString(name), new UtlString());
+                              result = false;
+                              break;
                            }
-                           
-                           result = true;
                         }
                         else
-                        {
-                           valueElement = memberValue->FirstChild("dateTime.iso8601");
+                        {              
+                           valueElement = memberValue->FirstChild("string");
                            if (valueElement)
                            {
                               if (valueElement->FirstChild())
                               {
                                  paramValue = valueElement->FirstChild()->Value();
-                                 members->insertKeyAndValue(new UtlString(name), new UtlString(paramValue));
-                                 result = true;
+                                 members->insertKeyAndValue(new UtlString(name),
+                                                            new UtlString(paramValue));
                               }
                               else
                               {
-                                 result = false;
-                                 break;
+                                 members->insertKeyAndValue(new UtlString(name), new UtlString());
                               }
+                           
+                              result = true;
                            }
                            else
                            {
-                              valueElement = memberValue->FirstChild("struct");
+                              valueElement = memberValue->FirstChild("dateTime.iso8601");
                               if (valueElement)
                               {
-                                 UtlHashMap* members = new UtlHashMap();
-                                 if (parseStruct(valueElement, members))
+                                 if (valueElement->FirstChild())
                                  {
-                                    members->insertKeyAndValue(new UtlString(name), members);
+                                    paramValue = valueElement->FirstChild()->Value();
+                                    members->insertKeyAndValue(new UtlString(name),
+                                                               new UtlString(paramValue));
                                     result = true;
+                                 }
+                                 else
+                                 {
+                                    result = false;
+                                    break;
                                  }
                               }
                               else
                               {
-                                 valueElement = memberValue->FirstChild("array");
+                                 valueElement = memberValue->FirstChild("struct");
                                  if (valueElement)
                                  {
-                                    UtlSList* subArray = new UtlSList();
-                                    if (parseArray(valueElement, subArray))
+                                    UtlHashMap* members = new UtlHashMap();
+                                    if (parseStruct(valueElement, members))
                                     {
-                                       members->insertKeyAndValue(new UtlString(name), subArray);
+                                       members->insertKeyAndValue(new UtlString(name), members);
                                        result = true;
                                     }
                                  }
                                  else
                                  {
-                                    // default for string
-                                    if (memberValue->FirstChild())
+                                    valueElement = memberValue->FirstChild("array");
+                                    if (valueElement)
                                     {
-                                       paramValue = memberValue->FirstChild()->Value();
-                                       members->insertKeyAndValue(new UtlString(name), new UtlString(paramValue));
+                                       UtlSList* subArray = new UtlSList();
+                                       if (parseArray(valueElement, subArray))
+                                       {
+                                          members->insertKeyAndValue(new UtlString(name), subArray);
+                                          result = true;
+                                       }
                                     }
                                     else
                                     {
-                                       members->insertKeyAndValue(new UtlString(name), new UtlString());
-                                    }
+                                       // default for string
+                                       if (memberValue->FirstChild())
+                                       {
+                                          paramValue = memberValue->FirstChild()->Value();
+                                          members->insertKeyAndValue(new UtlString(name),
+                                                                     new UtlString(paramValue));
+                                       }
+                                       else
+                                       {
+                                          members->insertKeyAndValue(new UtlString(name),
+                                                                     new UtlString());
+                                       }
                                     
-                                    result = true;
+                                       result = true;
+                                    }
                                  }
                               }
                            }
@@ -664,7 +752,28 @@ bool XmlRpcResponse::parseStruct(TiXmlNode* subNode, UtlHashMap* members)
                   }
                }
             }
+            else
+            {
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "XmlRpcResponse::parseStruct - no value element in member"
+                             );
+
+            }
          }
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "XmlRpcResponse::parseStruct - empty name"
+                          );
+            result = false;
+         }
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "XmlRpcResponse::parseStruct - no name element in member"
+                       );
+
       }
    }
    
@@ -832,7 +941,11 @@ void XmlRpcResponse::cleanUp(UtlContainable* value)
 /// Get the content of the response
 XmlRpcBody* XmlRpcResponse::getBody()
 {
-   assert(mpResponseBody); // if false, no response was set
+   if (!mpResponseBody)
+   {
+      OsSysLog::add(FAC_SIP,PRI_CRIT,"XmlRpcResponse::getBody no body set");
+      assert(false);
+   }
    
    return mpResponseBody;
 }

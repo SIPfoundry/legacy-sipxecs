@@ -20,11 +20,11 @@
 #include "net/XmlRpcBody.h"
 
 // DEFINES
-#define ILL_FORMED_CONTENTS_FAULT_STRING "Ill-formed XML contents"
-#define METHOD_NAME_FAULT_STRING "Method name is missing"
-#define UNREGISTERED_METHOD_FAULT_STRING "Method has not been registered"
+#define ILL_FORMED_CONTENTS_FAULT_STRING "Ill-formed XML contents "
+#define INVALID_ELEMENT_FAULT_STRING "Message not schema valid: "
+#define UNREGISTERED_METHOD_FAULT_STRING "Method has not been registered "
 #define AUTHENTICATION_REQUIRED_FAULT_STRING "Authentication is required"
-#define EMPTY_PARAM_VALUE_FAULT_STRING "Empty param value"
+#define EMPTY_PARAM_VALUE_FAULT_STRING "Empty param value "
 #define CONNECTION_FAILURE_FAULT_STRING "Connection Failed"
 
 // MACROS
@@ -34,7 +34,7 @@
 
 // for backward compatibility with old #define codes
 #define ILL_FORMED_CONTENTS_FAULT_CODE     XmlRpcResponse::IllFormedContents
-#define METHOD_NAME_FAULT_CODE             XmlRpcResponse::InvalidMethodName
+#define INVALID_ELEMENT                    XmlRpcResponse::InvalidElement
 #define UNREGISTERED_METHOD_FAULT_CODE     XmlRpcResponse::UnregisteredMethod
 #define AUTHENTICATION_REQUIRED_FAULT_CODE XmlRpcResponse::AuthenticationRequired
 #define EMPTY_PARAM_VALUE_FAULT_CODE       XmlRpcResponse::EmptyParameterValue
@@ -70,7 +70,7 @@ public:
    typedef enum
       {
          IllFormedContents = -1,      ///< xmlrpc message was not well formed xml
-         InvalidMethodName = -2,      ///< name is not syntactically valid
+         InvalidElement = -2,         ///< message is not schema-valid - text should explain
          UnregisteredMethod = -3,     ///< no server found for requested method 
          AuthenticationRequired = -4, ///< request was not properly authenticated
          EmptyParameterValue = -5,    ///< missing value for a required parameter
@@ -84,6 +84,9 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
+   /// Set the method name (for logging and comment in return)
+   void setMethod(const UtlString& methodName);
+   
    /// Set the XML-RPC response
    bool setResponse(UtlContainable* value); ///< value for the response
 
@@ -102,7 +105,8 @@ public:
 
    /// Parse the XML-RPC response
    bool parseXmlRpcResponse(UtlString& responseContent); ///< response content from XML-RPC request
-   
+   ///< @returns true for a good response, false for a fault (including unparsable response)
+
    /// Get the content of the response
    XmlRpcBody* getBody();
          
@@ -128,6 +132,9 @@ private:
 
    // Clean up the memory in a UtlContainable
    void cleanUp(UtlContainable* value);
+   
+   /// The name of the method this is a response to
+   UtlString   mMethod;
    
    /// XML-RPC body
    XmlRpcBody* mpResponseBody;

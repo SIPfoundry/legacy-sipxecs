@@ -199,7 +199,7 @@ public:
             "</methodCall>\n"
             ;
 
-         Url url;
+         Url url("http://server/RPC");
          XmlRpcRequest request(url, "addExtension");
 
          // Use quotes, "<" and ">" to test that XML special chars are escaped properly
@@ -229,11 +229,13 @@ public:
          request.addParam(&members);         
 
          XmlRpcResponse response;
+         response.setMethod("addExtension");
+         
          request.execute(response);
 
          UtlString requestBody;
          int length;
-         request.mpRequestBody->getBytes(&requestBody, &length);
+         request.mpHttpRequest->getBody()->getBytes(&requestBody, &length);
          
          ASSERT_STR_EQUAL(ref, requestBody.data());
       }
@@ -303,14 +305,14 @@ public:
             
          const char *faultResponse =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            "<methodResponse>\n"
+            "<methodResponse><!-- addExtension -->\n"
             "<fault>\n"
             "<value><struct>\n"
             "<member>\n"
             "<name>faultCode</name><value><int>-3</int></value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>faultString</name><value><string>Method has not been registered</string></value>\n"
+            "<name>faultString</name><value><string>Method has not been registered </string></value>\n"
             "</member>\n"
             "</struct></value>\n"
             "</fault>\n"
@@ -319,7 +321,7 @@ public:
 
          const char *successResponse =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            "<methodResponse>\n"
+            "<methodResponse><!-- addExtension -->\n"
             "<params>\n"
             "<param>\n"
             "<value><string>method call &quot;AddExtension&quot; successful</string></value>\n"
@@ -356,6 +358,11 @@ public:
          XmlRpcMethod::ExecutionStatus status = XmlRpcMethod::OK;
          XmlRpcMethod::Get* methodGet;
          void* user;
+
+         UtlString methodName;
+         method->getName(methodName);
+         newResponse.setMethod(methodName);
+
          method->getData(methodGet, user);
          XmlRpcMethod* addEx = methodGet();
          addEx->execute(context, params, userData, newResponse, status);
@@ -373,7 +380,7 @@ public:
       {
          const char *faultResponse =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            "<methodResponse>\n"
+            "<methodResponse><!-- addExtension -->\n"
             "<fault>\n"
             "<value><struct>\n"
             "<member>\n"
@@ -389,7 +396,7 @@ public:
 
          const char *successResponse1 =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            "<methodResponse>\n"
+            "<methodResponse><!-- addExtension -->\n"
             "<params>\n"
             "<param>\n"
             "<value><string>method call \"AddExtension\" successful</string></value>\n"
@@ -400,7 +407,7 @@ public:
 
          const char *successResponse2 =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            "<methodResponse>\n"
+            "<methodResponse><!-- addExtension -->\n"
             "<params>\n"
             "<param>\n"
             "<value><struct>\n"
@@ -454,7 +461,7 @@ public:
       {
          const char *ref =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            "<methodResponse>\n"
+            "<methodResponse><!-- addExtension -->\n"
             "<params>\n"
             "<param>\n"
             "<value><struct>\n"
@@ -472,7 +479,7 @@ public:
             "</methodResponse>\n"
             ;
 
-         Url url;
+         Url url("http://server/RPC");
          XmlRpcResponse response;
          
          UtlString stringValue("acd@pingtel.com");
@@ -489,6 +496,9 @@ public:
          
          UtlHashMap members;
          members.insertKeyAndValue(&stringValue, &list);
+
+         UtlString methodName("addExtension");
+         response.setMethod(methodName);         
          response.setResponse(&members);         
 
          UtlString responseBody;
@@ -565,14 +575,14 @@ public:
             
          const char *faultResponse =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            "<methodResponse>\n"
+            "<methodResponse><!--  -->\n"
             "<fault>\n"
             "<value><struct>\n"
             "<member>\n"
             "<name>faultCode</name><value><int>-5</int></value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>faultString</name><value><string>Empty param value</string></value>\n"
+            "<name>faultString</name><value><string>Empty param value </string></value>\n"
             "</member>\n"
             "</struct></value>\n"
             "</fault>\n"

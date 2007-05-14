@@ -24,6 +24,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const char* XmlVersion = XML_VERSION_1_0;
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -32,8 +33,8 @@
 
 // Constructor
 XmlRpcBody::XmlRpcBody()
+   : HttpBody(XmlVersion,strlen(XmlVersion),CONTENT_TYPE_TEXT_XML)
 {
-   mBody = XML_VERSION_1_0;
 }
 
 XmlRpcBody::XmlRpcBody(const XmlRpcBody& rhs)
@@ -152,7 +153,8 @@ bool XmlRpcBody::addValue(UtlContainable* value)
    }
    else
    {
-      assert(false); // unsupported type
+      OsSysLog::add(FAC_SIP, PRI_CRIT, "XmlRpcBody::addValue unsupported type");
+      assert(false);
    }                     
             
    mBody.append(paramValue);

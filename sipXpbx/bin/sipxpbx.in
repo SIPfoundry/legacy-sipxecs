@@ -277,6 +277,9 @@ stopCheck() {
        fi
 
        rm -f ${pidFile}
+   else
+       echo -n "no record found for '${proc_name}'"
+       echo_failure
    fi
 }
 

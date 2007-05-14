@@ -75,7 +75,8 @@ public:
       REQUIRE_AUTHENTICATION
    } ExecutionStatus;
 
-
+   static const char* ExecutionStatusString(ExecutionStatus value);
+   
    typedef XmlRpcMethod* Get();
    
    /// Get the instance of this method. Subclasses must provide a definition for this method.
@@ -91,6 +92,7 @@ public:
                         XmlRpcResponse& response, ///< request response
                         ExecutionStatus& status) = 0; ///< execution status
 
+   
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 

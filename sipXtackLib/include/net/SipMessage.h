@@ -733,6 +733,10 @@ public:
 
     void setByeErrorData(const SipMessage* byeRequest);
 
+    /// set the body of a response to contain the received request as message/sipfrag
+    void setRequestDiagBody(SipMessage request);
+    ///< @note as a side effect, this deletes any body in request
+
     void setReferOkData(const SipMessage* referRequest);
 
     void setReferDeclinedData(const SipMessage* referRequest);

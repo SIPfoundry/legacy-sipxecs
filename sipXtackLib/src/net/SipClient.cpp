@@ -12,8 +12,6 @@
 // SYSTEM INCLUDES
 #include <stdio.h>
 
-//#define TEST_PRINT
-
 // APPLICATION INCLUDES
 #include <net/SipMessage.h>
 #include <net/SipClient.h>
@@ -26,6 +24,8 @@
 #include <os/OsEvent.h>
 
 #define SIP_DEFAULT_RTT 500
+
+#define LOG_TIME
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -48,8 +48,7 @@ l: 0 \n\r
 #define MAX_UDP_PACKET_SIZE (1024 * 64)
 
 // STATIC VARIABLE INITIALIZATIONS
-//#define TEST_PRINT
-//#define LOG_TIME
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -75,13 +74,17 @@ SipClient::SipClient(OsSocket* socket) :
        clientSocket->getRemoteHostName(&mRemoteHostName);
        clientSocket->getRemoteHostIp(&mRemoteSocketAddress, &mRemoteHostPort);
 
-#ifdef TEST_PRINT
        UtlString remoteSocketHost;
        socket->getRemoteHostName(&remoteSocketHost);
-                osPrintf("SipClient created with socket descriptor: %d host: %s port: %d\n",
-                        socket->getSocketDescriptor(), remoteSocketHost.data(),
-            socket->getRemoteHostPort());
-#endif
+       OsSysLog::add(FAC_SIP, PRI_INFO,
+                     "%s::_ created %s %s socket %d: host '%s' port %d",
+                     this->mName.data(),
+                     OsSocket::ipProtocolString(mSocketType),
+                     mbSharedSocket ? "shared" : "unshared",
+                     socket->getSocketDescriptor(),
+                     remoteSocketHost.data(),
+                     socket->getRemoteHostPort()
+                     );
    }
 
 }
@@ -96,10 +99,6 @@ SipClient::SipClient(const SipClient& rSipClient)
 // Destructor
 SipClient::~SipClient()
 {
-#ifdef TEST_PRINT
-    osPrintf("SipClient::~SipClient Start\n");
-#endif  
-
     // Do not delete the event listers they are not subordinate
 
     // Free the socket
@@ -109,15 +108,10 @@ SipClient::~SipClient()
         // in case it is blocked in a waitForReadyToRead or
         // a read on the clientSocket.  This should also
         // cause the run method to exit.
-#ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient %p socket %p closing %s socket",
-            this, clientSocket, OsSocket::ipProtocolString(mSocketType));
-
-        osPrintf("SipClient::~SipClient closing socket\n");
-#endif
-
         if (!mbSharedSocket)
         {
+           OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient %p socket %p closing %s socket",
+                         this, clientSocket, OsSocket::ipProtocolString(mSocketType));
            clientSocket->close();
         }
 
@@ -129,17 +123,9 @@ SipClient::~SipClient()
         // get deleted.
         if(isStarted() || isShuttingDown())
         {
-#ifdef TEST_PRINT
-            osPrintf("SipClient::~SipClient waitUntilShutDown\n");
-#endif
             waitUntilShutDown();
         }
 
-#ifdef TEST_PRINT
-        osPrintf("SipClient::~SipClient shutDown\n");
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient %p socket %p deleting socket",
-            this, clientSocket);
-#endif
         if (!mbSharedSocket)
         {
             delete clientSocket;
@@ -148,10 +134,6 @@ SipClient::~SipClient()
     }
     else if(isStarted() || isShuttingDown())
     {
-#ifdef TEST_PRINT
-        osPrintf("SipClient::~SipClient Wait until shutdown\n");
-#endif
-
         // It should not get here but just in case
         waitUntilShutDown();
     }
@@ -162,7 +144,7 @@ SipClient::~SipClient()
         if(numEvents)
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING, "SipClient::~SipClient has %d waiting events",
-                numEvents);
+                          numEvents);
         }
 
         delete mWaitingList;
@@ -218,19 +200,21 @@ int SipClient::run(void* runArg)
                           readAMessage, buffer.length(), clientSocket);
 #endif
             if (clientSocket
-                && ((readAMessage
-                     && buffer.length() >= MINIMUM_SIP_MESSAGE_SIZE)
-                    || waitForReadyToRead()))
+                && ((  readAMessage && buffer.length() >= MINIMUM_SIP_MESSAGE_SIZE)
+                    || waitForReadyToRead()
+                    )
+                )
             {
-#ifdef LOG_TIME
+#               ifdef LOG_TIME
                 eventTimes.addEvent("locking");
-#endif
-                // Lock to prevent multitreaded read or write
+#               endif
+
+                // Lock to prevent multithreaded read or write
                 mSocketLock.acquire();
 
-#ifdef LOG_TIME
+#               ifdef LOG_TIME
                 eventTimes.addEvent("locked");
-#endif
+#               endif
                 // This second check is in case there is
                 // some sort of race with the destructor.  This should
                 // not actually ever happen.
@@ -251,9 +235,9 @@ int SipClient::run(void* runArg)
                                     isReadyToRead() ? "READY" : "NOT READY"
                          );
                    }
-#ifdef LOG_TIME
+#                   ifdef LOG_TIME
                     eventTimes.addEvent("reading");
-#endif
+#                   endif
                     bytesRead = message->read(clientSocket, readBufferSize, &buffer);
 
 #                   if 0 // turn on to check socket read problems
@@ -262,31 +246,26 @@ int SipClient::run(void* runArg)
                                   this, bytesRead);
 #                   endif
 
-#ifdef LOG_TIME
+#                   ifdef LOG_TIME
                     eventTimes.addEvent("read");
-#endif
+#                   endif
                 }
                 else
                 {
                    OsSysLog::add(FAC_SIP, PRI_ERR,
                                  "SipClient::run client 0%p socket attempt to read NULL",
                                  this);
-                    bytesRead = 0;
+                   bytesRead = 0;
                 }
 
                 mSocketLock.release();
 
-#ifdef LOG_TIME
+#               ifdef LOG_TIME
                 eventTimes.addEvent("released");
-#endif
+#               endif
+
                 message->replaceShortFieldNames();
                 message->getSendAddress(&fromIpAddress, &fromPort);
-
-#               if 0 // turn on to check socket address problems
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                              "SipClient::run new msg got addr %s:%d",
-                              fromIpAddress.data(), fromPort);
-#               endif
             }
             else
             {
@@ -325,11 +304,11 @@ int SipClient::run(void* runArg)
             }
             else if(bytesRead > 0)
             {
+                eventTimes.addEvent("bytesread");
+
                 numFailures = 0;
-                    touch();
-#ifdef TEST_PRINT
-               osPrintf("Read SIP message:\n%s====================END====================\n", buffer.data());
-#endif
+                touch();
+
                 if(sipUserAgent)
                 {
                     UtlString socketRemoteHost;
@@ -338,8 +317,9 @@ int SipClient::run(void* runArg)
                     int lastPort;
 
                     // Only bother processing if the logs are enabled
-                    if (sipUserAgent->isMessageLoggingEnabled() ||
-                            OsSysLog::willLog(FAC_SIP_INCOMING, PRI_INFO))
+                    if (   sipUserAgent->isMessageLoggingEnabled()
+                        || OsSysLog::willLog(FAC_SIP_INCOMING, PRI_INFO)
+                        )
                     {
                        UtlString logMessage;
                        logMessage.append("Read SIP message:\n");
@@ -441,7 +421,7 @@ int SipClient::run(void* runArg)
                          || toField.isNull()))
                     {
 #ifdef LOG_TIME
-                        eventTimes.addEvent("dispatching");
+                       eventTimes.addEvent("dispatching");
 #endif
                         sipUserAgent->dispatch(message);
 #ifdef LOG_TIME
@@ -487,12 +467,15 @@ int SipClient::run(void* runArg)
                 }
             } // if bytesRead > 0
 
-#ifdef LOG_TIME
-            UtlString timeString;
-            eventTimes.getLogString(timeString);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::run time log: %s",
-                timeString.data());
-#endif
+#           ifdef LOG_TIME
+            {
+               UtlString timeString;
+               eventTimes.getLogString(timeString);
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::run time log: %s",
+                             this->mName.data(),
+                             timeString.data());
+            }
+#           endif
             if(message)
             {
                 delete message;
@@ -524,9 +507,6 @@ UtlBoolean SipClient::waitForReadyToRead()
 
 UtlBoolean SipClient::send(SipMessage* message)
 {
-#ifdef TEST_PRINT
-   osPrintf("BEGIN SipClient::send\n");
-#endif
    UtlBoolean sendOk = FALSE;
    UtlString viaProtocol;
 
@@ -582,10 +562,6 @@ UtlBoolean SipClient::send(SipMessage* message)
          }
       }
    }
-
-#ifdef TEST_PRINT
-   osPrintf("END SipClient::send\n");
-#endif
 
    return(sendOk);
 }
@@ -683,31 +659,23 @@ void SipClient::signalNextAvailableForWrite()
 {
     if(mWaitingList)
     {
-#ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::signalNextAvailableForWrite %p",
-                    this);
-#endif
-
         // Remove the first event that is waiting for this transaction
         UtlInt* eventNode = (UtlInt*) mWaitingList->get();
 
         if(eventNode)
         {
             OsEvent* waitingEvent = (OsEvent*) eventNode->getValue();
-#ifdef TEST_PRINT
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::signalNextAvailableForWrite %p signaling: %p",
-                    this, waitingEvent);
-#endif
+
             if(waitingEvent)
             {
-                                // If the other side is done accessing the event
-                                // and has already signalled it, then we can delete
-                                // this.  Otherwise the other side must do the delete.
-                if(OS_ALREADY_SIGNALED == waitingEvent->signal(1))
-                                {
-                                        delete waitingEvent;
-                                        waitingEvent = NULL;
-                                }
+               // If the other side is done accessing the event
+               // and has already signalled it, then we can delete
+               // this.  Otherwise the other side must do the delete.
+               if(OS_ALREADY_SIGNALED == waitingEvent->signal(1))
+               {
+                  delete waitingEvent;
+                  waitingEvent = NULL;
+               }
             }
             delete eventNode;
             eventNode = NULL;
@@ -719,11 +687,6 @@ void SipClient::signalAllAvailableForWrite()
 {
     if(mWaitingList)
     {
-#ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::signalAllAvailableForWrite %p",
-                    this);
-#endif
-
         // Remove the first event that is waiting for this transaction
         UtlInt* eventNode = NULL;
         while((eventNode = (UtlInt*) mWaitingList->get()))
@@ -731,20 +694,16 @@ void SipClient::signalAllAvailableForWrite()
             if(eventNode)
             {
                 OsEvent* waitingEvent = (OsEvent*) eventNode->getValue();
-#ifdef TEST_PRINT
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::signalAllAvailableForWrite %p signaling: %p",
-                    this, waitingEvent);
-#endif
                 if(waitingEvent)
                 {
-                                        // If the other side is done accessing the event
-                                        // and has already signalled it, then we can delete
-                                        // this.  Otherwise the other side must do the delete.
-                                        if(OS_ALREADY_SIGNALED == waitingEvent->signal(1))
-                                        {
-                                                delete waitingEvent;
-                                                waitingEvent = NULL;
-                                        }
+                   // If the other side is done accessing the event
+                   // and has already signalled it, then we can delete
+                   // this.  Otherwise the other side must do the delete.
+                   if(OS_ALREADY_SIGNALED == waitingEvent->signal(1))
+                   {
+                      delete waitingEvent;
+                      waitingEvent = NULL;
+                   }
                 }
                 delete eventNode;
                 eventNode = NULL;

@@ -32,11 +32,13 @@ const UtlContainableType XmlRpcMethodContainer::TYPE = "XmlRpcMethod";
 
 #undef TEST_HTTP /* turn on to log raw http messages */
 
-XmlRpcMethodContainer::XmlRpcMethodContainer()
+XmlRpcMethodContainer::XmlRpcMethodContainer(const char* name)
+   :mMethodName(name)
+   ,mpUserData(NULL)
+   ,mpMethod(NULL)     
 {
-    mpUserData = NULL;
-    mpMethod = NULL;
 }
+
 XmlRpcMethodContainer::~XmlRpcMethodContainer()
 {
 }
@@ -71,6 +73,12 @@ void XmlRpcMethodContainer::getData(XmlRpcMethod::Get*& method, void*& userData)
    method = mpMethod;
    userData = mpUserData;
 }
+
+void XmlRpcMethodContainer::getName(UtlString& methodName)
+{
+   methodName = mMethodName;
+}
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -125,13 +133,6 @@ XmlRpcDispatch::XmlRpcDispatch(int httpServerPort,
 }
 
 
-// Copy constructor NOT IMPLEMENTED
-XmlRpcDispatch::XmlRpcDispatch(const XmlRpcDispatch& rXmlRpcDispatch)
-   : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
-{
-}
-
-
 // Destructor
 XmlRpcDispatch::~XmlRpcDispatch()
 {
@@ -147,15 +148,6 @@ XmlRpcDispatch::~XmlRpcDispatch()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Assignment operator
-XmlRpcDispatch& 
-XmlRpcDispatch::operator=(const XmlRpcDispatch& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
-}
 
 void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
                                     const HttpMessage& request,
@@ -182,55 +174,73 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
    const HttpBody* requestBody = request.getBody();
    requestBody->getBytes(&bodyString, &bodyLength);
    
+   XmlRpcMethod::ExecutionStatus status;
+   UtlString methodName("<unparsed>");
    XmlRpcResponse responseBody;
    XmlRpcMethodContainer* methodContainer = NULL;
    UtlSList params;
-   parseXmlRpcRequest(bodyString, methodContainer, params, responseBody);
-   
-   XmlRpcMethod::ExecutionStatus status;
-   if (methodContainer)
+   OsSysLog::add(FAC_SIP, PRI_INFO,
+                 "XmlRpcDispatch::processRequest received request\n%s",
+                 bodyString.data()
+                 );
+
+   if (parseXmlRpcRequest(bodyString, methodContainer, params, responseBody))
    {
-      XmlRpcMethod::Get* methodGet;
-      void* userData;
-      methodContainer->getData(methodGet, userData);
-      XmlRpcMethod* method = methodGet();
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "XmlRpcDispatch::processRequest start to execute the request ...");
-      method->execute(requestContext,
-                      params, 
-                      userData,
-                      responseBody,
-                      status);
-      
-      // Delete the instance of the method                
-      if (method)
+      if (methodContainer)
       {
-         delete method;
-      }
+         methodContainer->getName(methodName);
+         responseBody.setMethod(methodName);
       
-      // Clean up the memory allocated in params
-      cleanUp(&params);
-   }
+         XmlRpcMethod::Get* methodGet;
+         void* userData;
+         methodContainer->getData(methodGet, userData);
+         XmlRpcMethod* method = methodGet();
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "XmlRpcDispatch::processRequest calling method '%s'",
+                       methodName.data()
+                       );
+         method->execute(requestContext,
+                         params, 
+                         userData,
+                         responseBody,
+                         status
+                         );
+      
+         // Delete the instance of the method                
+         delete method;
 
-   if (status == XmlRpcMethod::REQUIRE_AUTHENTICATION)
+         // Clean up the memory allocated in params
+         cleanUp(&params);
+
+         // if the method wants authentication, build the standard response
+         // for anything else, it's already built one.
+         if (XmlRpcMethod::REQUIRE_AUTHENTICATION == status)
+         {
+            // Create an authentication challenge response
+            responseBody.setFault(AUTHENTICATION_REQUIRED_FAULT_CODE,
+                                  AUTHENTICATION_REQUIRED_FAULT_STRING);
+         }
+      }
+      else
+      {
+         // could not find a registered method - logged and response built in parseXmlRpcRequest
+         status = XmlRpcMethod::FAILED;         
+      }
+   }
+   else
    {
-      // Create an authentication challenge response
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
-                    "XmlRpcDispatch::processRequest request does not have authentication."
-                    );
-      responseBody.setFault(AUTHENTICATION_REQUIRED_FAULT_CODE,
-                            AUTHENTICATION_REQUIRED_FAULT_STRING);
+      // Parsing the request failed - it will have logged a specific error a
+      // and created an appropriate response body
+      status = XmlRpcMethod::FAILED;
    }
-
 
    // Send the response back
    responseBody.getBody()->getBytes(&bodyString, &bodyLength);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "XmlRpcDispatch::processRequest request returned %s\n%s",
-                 (  status == XmlRpcMethod::OK
-                  ? "OK" : "FAILED"
-                  ),
+   OsSysLog::add(FAC_SIP, PRI_INFO,
+                 "XmlRpcDispatch::processRequest method '%s' response status=%s\n%s",
+                 methodName.data(),
+                 XmlRpcMethod::ExecutionStatusString(status),
                  bodyString.data()
                  );
    
@@ -247,7 +257,7 @@ void XmlRpcDispatch::addMethod(const char* methodName, XmlRpcMethod::Get* method
    UtlString name(methodName);
    if (mMethods.findValue(&name) == NULL)
    {
-      XmlRpcMethodContainer *methodContainer = new XmlRpcMethodContainer();
+      XmlRpcMethodContainer *methodContainer = new XmlRpcMethodContainer(methodName);
       methodContainer->setData(method, userData);
       mMethods.insertKeyAndValue(new UtlString(methodName), methodContainer);
    }
@@ -275,7 +285,7 @@ HttpServer* XmlRpcDispatch::getHttpServer()
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
+bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
                                         XmlRpcMethodContainer*& methodContainer,
                                         UtlSList& params,
                                         XmlRpcResponse& response)
@@ -316,7 +326,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
             if (methodContainer)
             {
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "XmlRpcDispatch::parseXmlRpcRequest requestMethod = %s",
+                             "XmlRpcDispatch::parseXmlRpcRequest requestMethod = '%s'",
                              methodCall.data());
                              
                TiXmlNode* paramsNode = rootNode->FirstChild("params");
@@ -336,9 +346,11 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
                         if (!result)
                         {
                            OsSysLog::add(FAC_SIP, PRI_ERR,
-                                         "XmlRpcDispatch::parseXmlRpcRequest ill-formed XML contents in %s.",
+                                         "XmlRpcDispatch::parseXmlRpcRequest"
+                                         " ill-formed XML contents in %s.",
                                           requestContent.data());
-                           response.setFault(EMPTY_PARAM_VALUE_FAULT_CODE, EMPTY_PARAM_VALUE_FAULT_STRING);
+                           response.setFault(EMPTY_PARAM_VALUE_FAULT_CODE,
+                                             EMPTY_PARAM_VALUE_FAULT_STRING);
                            break;
                         }
                         index++;
@@ -351,23 +363,36 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
                OsSysLog::add(FAC_SIP, PRI_ERR,
                              "XmlRpcDispatch::parseXmlRpcRequest no method named %s is registered",
                              methodCall.data());
+               response.setMethod(methodCall);
                response.setFault(UNREGISTERED_METHOD_FAULT_CODE, UNREGISTERED_METHOD_FAULT_STRING);
                result = false;
             }
          }
          else
          {
+            UtlString faultMsg(INVALID_ELEMENT_FAULT_STRING);
+            faultMsg.append("methodName not found");
             OsSysLog::add(FAC_SIP, PRI_ERR,
-                          "XmlRpcDispatch::parseXmlRpcRequest method name does not exist");
-            response.setFault(METHOD_NAME_FAULT_CODE, METHOD_NAME_FAULT_STRING);
+                          "XmlRpcDispatch::parseXmlRpcRequest %s", faultMsg.data());
+            response.setFault(INVALID_ELEMENT, faultMsg.data());
             result = false;
          }
-      } 
+      }
+      else
+      {
+         UtlString faultMsg(INVALID_ELEMENT_FAULT_STRING);
+         faultMsg.append("methodCall not found");
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "XmlRpcDispatch::parseXmlRpcRequest %s", faultMsg.data());
+         response.setFault(INVALID_ELEMENT, faultMsg.data());
+         result = false;
+      }
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "XmlRpcDispatch::parseXmlRpcRequest ill-formed XML contents in %s. Parsing error = %s",
+                    "XmlRpcDispatch::parseXmlRpcRequest"
+                    " ill-formed XML contents in %s. Parsing error = %s",
                      requestContent.data(), doc.ErrorDesc());
       response.setFault(ILL_FORMED_CONTENTS_FAULT_CODE, ILL_FORMED_CONTENTS_FAULT_STRING);
       result = false;
@@ -609,7 +634,8 @@ bool XmlRpcDispatch::parseStruct(TiXmlNode* subNode, UtlHashMap*& members)
                      if (valueElement->FirstChild())
                      {
                         paramValue = valueElement->FirstChild()->Value();
-                        pMembers->insertKeyAndValue(new UtlString(name), new UtlLongLongInt(strtoll(paramValue, 0, 0)));
+                        pMembers->insertKeyAndValue(new UtlString(name),
+                                                    new UtlLongLongInt(strtoll(paramValue, 0, 0)));
                         result = true;
                      }
                      else
@@ -626,7 +652,8 @@ bool XmlRpcDispatch::parseStruct(TiXmlNode* subNode, UtlHashMap*& members)
                         if (valueElement->FirstChild())
                         {
                            paramValue = valueElement->FirstChild()->Value();
-                           pMembers->insertKeyAndValue(new UtlString(name), new UtlBool((atoi(paramValue)==1)));
+                           pMembers->insertKeyAndValue(new UtlString(name),
+                                                       new UtlBool((atoi(paramValue)==1)));
                            result = true;
                         }
                         else
@@ -643,7 +670,8 @@ bool XmlRpcDispatch::parseStruct(TiXmlNode* subNode, UtlHashMap*& members)
                            if (valueElement->FirstChild())
                            {
                               paramValue = valueElement->FirstChild()->Value();
-                              pMembers->insertKeyAndValue(new UtlString(name), new UtlString(paramValue));
+                              pMembers->insertKeyAndValue(new UtlString(name),
+                                                          new UtlString(paramValue));
                            }
                            else
                            {
@@ -659,7 +687,8 @@ bool XmlRpcDispatch::parseStruct(TiXmlNode* subNode, UtlHashMap*& members)
                               if (valueElement->FirstChild())
                               {
                                  paramValue = valueElement->FirstChild()->Value();
-                                 pMembers->insertKeyAndValue(new UtlString(name), new UtlString(paramValue));
+                                 pMembers->insertKeyAndValue(new UtlString(name),
+                                                             new UtlString(paramValue));
                                  result = true;
                               }
                               else
@@ -698,11 +727,13 @@ bool XmlRpcDispatch::parseStruct(TiXmlNode* subNode, UtlHashMap*& members)
                                     if (memberValue->FirstChild())
                                     {
                                        paramValue = memberValue->FirstChild()->Value();
-                                       pMembers->insertKeyAndValue(new UtlString(name), new UtlString(paramValue));
+                                       pMembers->insertKeyAndValue(new UtlString(name),
+                                                                   new UtlString(paramValue));
                                     }
                                     else
                                     {
-                                       pMembers->insertKeyAndValue(new UtlString(name), new UtlString());
+                                       pMembers->insertKeyAndValue(new UtlString(name),
+                                                                   new UtlString());
                                     }
                                     
                                     result = true;

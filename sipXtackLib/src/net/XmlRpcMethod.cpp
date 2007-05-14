@@ -24,6 +24,7 @@
 
 XmlRpcMethod* XmlRpcMethod::get()
 {
+   OsSysLog::add(FAC_SIP, PRI_CRIT, "XmlRpcMethod base class get factory called");
    assert(0);
    return NULL;
 }
@@ -33,10 +34,37 @@ XmlRpcMethod::~XmlRpcMethod()
 {
 }
 
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
+const char* XmlRpcMethod::ExecutionStatusString(ExecutionStatus value)
+{
+   const char* returnString;
+   
+   const char* StatusString[] = 
+   {
+      "OK",
+      "FAILED",
+      "REQUIRE_AUTHENTICATION"
+   };
 
+   const char* OutOfRange = "<Invalid ExecutionStatus>";
+   
+   switch (value)
+   {
+   case OK:
+   case FAILED:
+   case REQUIRE_AUTHENTICATION:
+      returnString = StatusString[value];
+      break;
+
+   default:
+      returnString = OutOfRange;
+      break;
+   }
+
+   return returnString;
+}
+
+   
 // Constructor
 XmlRpcMethod::XmlRpcMethod()
 {

@@ -211,30 +211,27 @@ UtlBoolean OsTaskBase::waitUntilShutDown(int milliSecToWait)
 
       // wait up to a second for the task to terminate.
       for (i = 0; (i < 10) && isShuttingDown(); i++)
+      {
          delay(milliSecToWait/200);         // wait 1/10 second
-
+      }
+      
       for (i = 1; (i < 20) && isShuttingDown(); i++)
       {
-         OsSysLog::add(FAC_KERNEL, PRI_WARNING, "Task '%s' failed to terminate after %f seconds",
-                  taskName.data(), (milliSecToWait * i) / 20000.0);
+         OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                       "Task failed to terminate after %f seconds",
+                       (milliSecToWait * i) / 20000.0);
          delay(milliSecToWait/20);
       }
 
       // if still no response from the task, assume it is unresponsive and
-      // destroy the object
+      // destroy the entire process.
       if (isShuttingDown())
       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Task '%s' failed to terminate after %f seconds",
-                  taskName.data(), milliSecToWait / 1000.0);
+         OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+                       "Task failed to terminate after %f seconds - aborting",
+                       milliSecToWait / 1000.0);
+         assert(false);
       }
-   }
-
-   // Do not exit if not shut down
-   while (isShuttingDown())
-   {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Task '%s' failed to terminate, waiting...",
-                  taskName.data());
-         delay(300000);
    }
 
    return(isShutDown());

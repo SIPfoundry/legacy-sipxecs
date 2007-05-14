@@ -59,7 +59,8 @@
 #define BEGIN_NAME "<name>"
 #define END_NAME "</name>"
 
-#define BEGIN_RESPONSE "<methodResponse>\n"
+#define BEGIN_RESPONSE "<methodResponse><!-- "
+#define END_NAME_COMMENT " -->\n"
 #define END_RESPONSE "</methodResponse>\n"
 
 #define BEGIN_FAULT "<fault>\n"
@@ -103,13 +104,13 @@ class XmlRpcBody : public HttpBody
    virtual int getLength() const;
 
    /// Get the serialized char representation of this body.
-   virtual void getBytes(const char** bytes, ///< buffer space where the body content is written, null terminated
-                         int* length ///< the number of bytes written (not including the null terminator
+   virtual void getBytes(const char** bytes, ///< body content output, null terminated
+                         int* length ///< # bytes written (not including the null terminator
                          ) const;
 
    /// Get the serialized string representation of this body.
-   virtual void getBytes(UtlString* bytes, ///< buffer space where the body content is written, null terminated
-                         int* length ///< the number of bytes written (not including the null terminator
+   virtual void getBytes(UtlString* bytes, ///< body content output, null terminated
+                         int* length ///< # bytes written (not including the null terminator
                          ) const;
 
    /// Add a value to the XML-RPC content

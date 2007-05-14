@@ -10,7 +10,6 @@
 
 
 // SYSTEM INCLUDES
-#include <assert.h>
 #include <stdio.h>
 #if defined(_WIN32)
 #   include <io.h>
@@ -104,7 +103,12 @@ HttpServer::HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
    {
       mbPersistentConnection = false;
       OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer failed to allocate mpHttpConnectionList");
-   }   
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_INFO, "HttpServer: Using persistent connections" );
+   }
+   
 }
 
 void HttpServer::loadValidIpAddrList()
@@ -190,6 +194,7 @@ HttpServer::~HttpServer()
     {
         mpHttpConnectionList->destroyAll();
         delete mpHttpConnectionList;
+        mpHttpConnectionList = NULL;
     }
 }
 
@@ -217,7 +222,7 @@ int HttpServer::run(void* runArg)
     if (!mpServerSocket->isOk())
     {
         OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer: port not ok" );
-                httpStatus = OS_PORT_IN_USE;
+        httpStatus = OS_PORT_IN_USE;
     }
 
     while(!isShuttingDown() && mpServerSocket->isOk())
@@ -228,9 +233,7 @@ int HttpServer::run(void* runArg)
         {
             if (mbPersistentConnection)
             {
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Using persistent connection" );
-                   
-                // Check for any old HttpConnections that can be deleted
+                // Take this opportunity to check for any old HttpConnections that can be deleted
                 int items = mpHttpConnectionList->entries();
                 if (items != 0)
                 {
@@ -242,20 +245,22 @@ int HttpServer::run(void* runArg)
                     {
                         if (connection->toBeDeleted())
                         {
-                            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Destroying connection %p",
-                                          connection);
-                            mpHttpConnectionList->destroy(connection);                            
-                            ++deleted;
+                           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                         "HttpServer: destroying connection %p",
+                                         connection);
+                           mpHttpConnectionList->destroy(connection);                            
+                           ++deleted;
                             
-                            if (mHttpConnections > 0)
-                            {
-                                --mHttpConnections;
-                            }
+                           if (mHttpConnections > 0)
+                           {
+                              --mHttpConnections;
+                           }
                         }
                     }
                     items = mpHttpConnectionList->entries();
                     OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                                  "Destroyed %d inactive HttpConnections, %d remaining", 
+                                  "HttpServer: "
+                                  "destroyed %d inactive HttpConnections, %d remaining", 
                                   deleted, items);                    
                 }
                 // Create new persistent connection             
@@ -264,8 +269,8 @@ int HttpServer::run(void* runArg)
                     ++mHttpConnections;
                     HttpConnection* newConnection = new HttpConnection(requestSocket, this);
                     mpHttpConnectionList->append(newConnection);
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                  "HttpServer: starting persistent connection %d (%p)", 
+                    OsSysLog::add(FAC_SIP, PRI_INFO,
+                                  "HttpServer::run starting persistent connection %d (%p)", 
                                   mHttpConnections, newConnection);                    
                     newConnection->start();
                 }
@@ -349,16 +354,6 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
     // If digest authentication is enabled
     else if(mpUserPasswordDigestDb && !mpUserPasswordDigestDb->isEmpty())
     {
-#ifdef TEST_PRINT
-                osPrintf("HttpServer::isRequestAuthorized\n") ;
-        UtlString requestBytes;
-        int requestLen;
-        request.getBytes(&requestBytes, & requestLen);
-        osPrintf("HTTP digest request:\n%s\n_______________________\n",
-            requestBytes.data());
-                  requestBytes.remove(0);
-#endif
-
         UtlString user;
         UtlString nonce;
         UtlString nonceKey;
@@ -369,18 +364,11 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
         UtlString userPasswordDigest;
 
         mpUserPasswordDigestDb->get(user.data(), userPasswordDigest);
-#ifdef TEST_PRINT
-            osPrintf("HttpServer::isRequestAuthorized got db User \"%s\" db userPasswordDigest: \"%s\"\n",
-                user.data(), userPasswordDigest.data());
-#endif
+
         // Get the nonce for the user/URI pair
         if(!user.isNull())
         {
             mpNonceDb->get(nonceKey.data(), nonce);
-#ifdef TEST_PRINT
-            osPrintf("HttpServer::isRequestAuthorized got nonceKey \"%s\" nonce: \"%s\"\n",
-                nonceKey.data(), nonce.data());
-#endif
 
             // Remove the nonce from the database, so that it cannot be re-used
             mpNonceDb->remove(nonceKey.data());
@@ -412,10 +400,7 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
 
             // Add it to the database for when the authorized request comes in
             mpNonceDb->set(nonceKey.data(), nonce.data());
-#ifdef TEST_PRINT
-            osPrintf("HttpServer::isRequestAuthorized set nonceKey \"%s\" nonce: \"%s\"\n",
-                nonceKey.data(), nonce.data());
-#endif
+
             // Create the response
             UtlString hostIp;
             OsSocket::getHostIp(&hostIp);
@@ -435,21 +420,13 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
                                 nonceSeed.remove(0);
                                 hostIp.remove(0);
         }
-                user.remove(0);
-                nonce.remove(0);
-                nonceKey.remove(0);
-                userPasswordDigest.remove(0);
+        user.remove(0);
+        nonce.remove(0);
+        nonceKey.remove(0);
+        userPasswordDigest.remove(0);
     }
     else if(mpUserPasswordBasicDb && !mpUserPasswordBasicDb->isEmpty())
     {
-#ifdef TEST_PRINT
-        UtlString requestBytes;
-        int requestLen;
-        request.getBytes(&requestBytes, & requestLen);
-        osPrintf("HTTP basic request:\n%s\n_______________________\n",
-            requestBytes.data());
-                        requestBytes.remove(0);
-#endif
         UtlString user;
         UtlString msgPassword;
         UtlString dbPassword;
@@ -459,23 +436,15 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
         OsStatus userFound = mpUserPasswordBasicDb->get(user.data(),
             dbPassword);
 
-#ifdef TEST_PRINT
-                osPrintf("HttpServer::isRequestAuthorized user: %s, password: %s\n",user.data(), dbPassword.data()) ;
-        if(userFound == OS_NOT_FOUND)
-        {
-            osPrintf("HttpServer::isRequestAuthorized user: %s not in database\n",
-                user.data());
-        }
-#endif
 
-                // Passwords stored as digest in user-config.
-                // Must convert passwords to encrypted ones also
-                UtlString digestPassword ;
-                UtlString realm(PASSWORD_SECRET) ;
-                HttpMessage::buildMd5UserPasswordDigest((const char*) user.data(),
-                                                                                        (const char*) realm.data(),
-                                                                                        (const char*) msgPassword.data(),
-                                                                                        digestPassword) ;
+        // Passwords stored as digest in user-config.
+        // Must convert passwords to encrypted ones also
+        UtlString digestPassword ;
+        UtlString realm(PASSWORD_SECRET) ;
+        HttpMessage::buildMd5UserPasswordDigest((const char*) user.data(),
+                                                (const char*) realm.data(),
+                                                (const char*) msgPassword.data(),
+                                                digestPassword) ;
 
 
         // The user does not exist or passwords do not match
@@ -483,16 +452,6 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
             user.isNull() ||
             dbPassword.compareTo(digestPassword) != 0)
         {
-#ifdef TEST_PRINT
-            if(userFound == OS_SUCCESS)
-            {
-                osPrintf("HttpServer::isRequestAuthorized user:%s, realm:%s, msgPassword:%s, digestPassword:%s\n", user.data(), realm.data(), msgPassword.data(), digestPassword.data()) ;
-
-                osPrintf("HttpServer::isRequestAuthorized password: %s, generated digest: %s\n", dbPassword.data(), digestPassword.data()) ;
-                                osPrintf("HttpServer::isRequestAuthorized user: %s password does not match\n",
-                    user.data());
-            }
-#endif
             allowRequest = FALSE;
 
             // Generate a unauthorized response
@@ -521,20 +480,16 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
             allowRequest = TRUE;
             userId = user;
         }
-                user.remove(0);
-                msgPassword.remove(0);
-                dbPassword.remove(0);
-                digestPassword.remove(0);
-                realm.remove(0);
+        user.remove(0);
+        msgPassword.remove(0);
+        dbPassword.remove(0);
+        digestPassword.remove(0);
+        realm.remove(0);
     }
-
     else
     {
-        // AJS - Disabled unauthorized access for 0.8.0
-                allowRequest = FALSE;
-#ifdef TEST_PRINT
-        osPrintf("HttpServer::requestAuthorized authentication enabled\n");
-#endif
+       // AJS - Disabled unauthorized access for 0.8.0
+       allowRequest = FALSE;
     }
 
     return(allowRequest);
@@ -599,7 +554,8 @@ void HttpServer::processRequest(const HttpMessage& request,
         }
         if(badCharsIndex >= 0)
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "Disallowing URI: \"%s\"", uriFileName.data());
+            OsSysLog::add(FAC_SIP, PRI_ERR, "HttpServer::processRequest "
+                          "Disallowing URI: \"%s\"", uriFileName.data());
 
             // Disallow relative path names going up for security reasons
             mappedUriFileName.append("/");
@@ -696,7 +652,8 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
 
     if(!uriFileName.isNull())
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"\n", uriFileName.data());
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"",
+                      uriFileName.data());
 
         int fileDesc = open(uriFileName.data(), O_BINARY | O_RDONLY, 0);
         if(fileDesc < 0)
@@ -722,24 +679,12 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
                 indexFileName.append("index.html");
                 //HttpMessage::convertToPlatformPath(indexFileName.data(),
                 //    indexFileName);
-#ifdef TEST_PRINT
-                osPrintf("HttpServer: Trying to open: \"%s\"\n",
-                    indexFileName.data());
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"",
-                    indexFileName.data());
-#endif
 
                 fileDescToGet = open(indexFileName.data(), O_RDONLY, 0);
                 if(fileDescToGet < 0)
                 {
                     // Try index.htm
                     indexFileName.remove(indexFileName.length() - 1);
-#ifdef TEST_PRINT
-                    osPrintf("HttpServer: Trying to open: \"%s\"\n",
-                        indexFileName.data());
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"",
-                        indexFileName.data());
-#endif
 
                     fileDescToGet = open(indexFileName.data(), O_RDONLY | O_BINARY, 0);
                 }
@@ -853,10 +798,6 @@ void HttpServer::constructFileList(UtlString & indexText, UtlString uri, UtlStri
         char tmpDateBuf[80];
 #endif /* _VXWORKS ] */
 
-
-#ifdef TEST_PRINT
-        osPrintf("HttpServer::constructFileList entered, uri = %s, uriFileName = %s", uri.data(), uriFileName.data()) ;
-#endif
     indexText.append("<BODY>\n");
     indexText.append("<H3>Contents of ");
     // Use the public uri not the mapped one
@@ -1049,29 +990,21 @@ int HttpServer::doPostFile(const HttpRequestContext& requestContext,
 
                 firstPartFileBody->getBytes(&fileData, &fileDataLength);
 
-                                if (fileDataLength > 0)
-                                {
-                                        while (fileDataLength &&
-                                                (*fileData == ' ' ||
-                                                 *fileData == '\r' ||
-                                                 *fileData == '\n'))
-                                        {
-#ifdef TEST_PRINT
-                                                osPrintf("HttpServer::doPostFile - Trimming kernal char %02X from front of kernel.\n",*fileData);
-#endif
-                                                fileData++;
-                                                fileDataLength--;
-                                        }
-                                }
+                if (fileDataLength > 0)
+                {
+                   while (fileDataLength &&
+                          (*fileData == ' ' ||
+                           *fileData == '\r' ||
+                           *fileData == '\n'))
+                   {
+                      fileData++;
+                      fileDataLength--;
+                   }
+                }
 
 
-                                if (fileDataLength > 0)
-                                {
-
-
-#ifdef TEST_UPLOAD_FILE_DEBUG
-                                        incrementalCheckSum(&bufferCheckSum, fileData, fileDataLength);
-#endif
+                if (fileDataLength > 0)
+                {
 
                                         UtlString fieldValue;
                                         firstPartFileBody->getPartHeaderValue(HTTP_CONTENT_DISPOSITION_FIELD,
@@ -1085,10 +1018,6 @@ int HttpServer::doPostFile(const HttpRequestContext& requestContext,
                                                 while(tokenizer.getNextAttribute(tokenName, tokenValue))
                                                 {
                                                         tokenName.toUpper();
-#ifdef TEST_PRINT
-                                                        //osPrintf("Token name: \"%s\" value: \"%s\"\n",
-                                                        //    tokenName.data(), tokenValue.data());
-#endif
                      if(tokenName.compareTo("NAME") == 0)
                                                         {
                                                                 // The value is the file name use to save the body as
@@ -1220,19 +1149,12 @@ If you need further assistance, please contact Pingtel at <a href=mailto:custsup
                                                                                 htmlMessage.append(tokenValue);
                                                                                 htmlMessage.append("\" for write\n");
 
-#ifdef TEST_PRINT
-                                                                                osPrintf("Unable to open file \"%s\" for write\n",
-                                                                                        tokenValue.data());
-#endif
                            }
                                                                 }
                                                                 else
                                                                 {
                                                                         htmlMessage.append("<H3>Upload Failed</H3>\n");
                                                                         htmlMessage.append("Zero length file");
-#ifdef TEST_PRINT
-                                                                        osPrintf("Zero length file");
-#endif
                         }
 
                                                                 break;
@@ -1242,9 +1164,6 @@ If you need further assistance, please contact Pingtel at <a href=mailto:custsup
                                                 {
                                                         htmlMessage.append("<H3>Upload Failed</H3>\n");
                                                         htmlMessage.append("No file name given to save content\n");
-#ifdef TEST_PRINT
-                                                        osPrintf("No file name given to save content\n");
-#endif
                   }
                                                 tokenName.remove(0);
                                                 tokenValue.remove(0);
@@ -1253,9 +1172,6 @@ If you need further assistance, please contact Pingtel at <a href=mailto:custsup
                                         {
                                                 htmlMessage.append("<H3>Upload Failed</H3>\n");
                                                 htmlMessage.append("Content-Disposition field not found\n");
-#ifdef TEST_PRINT
-                                                osPrintf("Content-Disposition field not found\n");
-#endif
                }
                                         fieldValue.remove(0);
                                 }
@@ -1263,9 +1179,6 @@ If you need further assistance, please contact Pingtel at <a href=mailto:custsup
                                 {
                                         htmlMessage.append("<H3>Upload Failed</H3>\n");
                                         htmlMessage.append("First part file body contains zero byte data. Please check the filename and try again.\n");
-#ifdef TEST_PRINT
-                                        osPrintf("First part file body contains zero byte data.  Please check the filename and try again.\n");
-#endif
             }
                         }
             else
@@ -1274,18 +1187,12 @@ If you need further assistance, please contact Pingtel at <a href=mailto:custsup
                 htmlMessage.append("<H3>Upload Failed</H3>\n");
                         htmlMessage.append("First part has NO file body.\n");
                 htmlMessage.append(strMessage.data());
-#ifdef TEST_PRINT
-                osPrintf("%s",strMessage.data());
-#endif
             }
         }
         else
         {
             htmlMessage.append("<H3>Upload Failed</H3>\n");
             htmlMessage.append("Single part body\n");
-#ifdef TEST_PRINT
-            osPrintf("Single part body\n");
-#endif
         }
     }
     else
@@ -1294,9 +1201,6 @@ If you need further assistance, please contact Pingtel at <a href=mailto:custsup
         htmlMessage.append("<H3>Upload Failed</H3>\n");
         htmlMessage.append("NO file body.\n");
         htmlMessage.append(strMessage.data());
-#ifdef TEST_PRINT
-        osPrintf("%s",strMessage.data());
-#endif
     }
 
     htmlMessage.append("\n<BR><BR>\n<A HREF=\"/\">Home</A>\n</BODY>\n</HTML>\n");
@@ -1348,9 +1252,6 @@ void HttpServer::processUserNotAuthorized(const HttpRequestContext& requestConte
                                      HttpMessage*& response,
                                      const char* text)
 {
-#ifdef TEST_PRINT
-        osPrintf("HttpServer::processUserNotAuthorized reached\n") ;
-#endif
 
     UtlString hostIp;
     OsSocket::getHostIp(&hostIp);
@@ -1439,9 +1340,6 @@ void HttpServer::testCgiRequest(const HttpRequestContext& requestContext,
     UtlString name;
     while(requestContext.getCgiVariable(index, name, value))
     {
-#ifdef TEST_PRINT
-                osPrintf("getCgiVariable: %s = %s\n", name.data(), value.data());
-#endif
       cgiDump.append("<TR>\n<TD  ALIGN=LEFT>");
         cgiDump.append(name);
         cgiDump.append("</TD>\n<TD ALIGN=LEFT>");
@@ -1556,9 +1454,6 @@ void HttpServer::getDigest(const char* user, const char* password,
 {
   HttpMessage::buildMd5UserPasswordDigest(user, mRealm, password,
             userPasswordDigest);
-#ifdef TEST_PRINT
-  osPrintf("HttpServer::getDigest user = %s password = %s realm = %s digestpassword = %s", user, password, mRealm.data(), userPasswordDigest.data()) ;
-#endif
 }
 
 void HttpServer::removeUser(const char* user, const char* password)

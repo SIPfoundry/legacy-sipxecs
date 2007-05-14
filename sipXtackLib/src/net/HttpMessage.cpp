@@ -47,10 +47,10 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define HTTP_READ_TIMEOUT_MSECS  30000
-#define MAX_UDP_MESSAGE 65536
+const unsigned int HTTP_READ_TIMEOUT_MSECS = 30000;
+const unsigned int HTTP_MIN_DELAY_MSECS = 20;
+const int MAX_UDP_MESSAGE = 65536;
 
-// :TODO: need this to be cleaned up - there are at least three controls here
 #undef MSG_DEBUG
 #undef TEST_PRINT
 #undef TEST
@@ -72,57 +72,52 @@ int HttpMessage::smHttpMessageCount = 0;
 
 // Constructor
 HttpMessage::HttpMessage(const char* messageBytes, int byteCount)
+   : mHeaderCacheClean(FALSE)
+   , body(NULL)
+   , transportTimeStamp(0)
+   , lastResendDuration(0)
+   , transportProtocol(OsSocket::UNKNOWN)
+   , timesSent(0)
+   , mFirstSent(FALSE)
+   , mSendPort(PORT_NONE)
+   , mpResponseListenerQueue(NULL)
+   , mResponseListenerData(NULL)
 {
-    smHttpMessageCount++;
+   smHttpMessageCount++;
 
-    mHeaderCacheClean = FALSE;
-
-        //nameValues = new UtlHashBag(100);
-        body = NULL;
-        transportTimeStamp = 0;
-        lastResendDuration = 0;
-        timesSent = 0;
-        transportProtocol = OsSocket::UNKNOWN;
-    mFirstSent = FALSE;
-    mSendPort = PORT_NONE;
-    mpResponseListenerQueue = NULL;
-    mResponseListenerData = NULL;
 #ifdef HTTP_TIMELOG
-    mTimeLog.addEvent("CREATED");
+   mTimeLog.addEvent("CREATED");
 #endif
 
-
-        parseMessage(messageBytes, byteCount);
+   parseMessage(messageBytes, byteCount);
 }
 
 HttpMessage::HttpMessage(OsSocket* inSocket, int bufferSize)
+   : mHeaderCacheClean(FALSE)
+   , body(NULL)
+   , transportTimeStamp(0)
+   , lastResendDuration(0)
+   , transportProtocol(OsSocket::UNKNOWN)
+   , timesSent(0)
+   , mFirstSent(FALSE)
+   , mSendPort(PORT_NONE)
+   , mpResponseListenerQueue(NULL)
+   , mResponseListenerData(NULL)
 {
-    smHttpMessageCount++;
+   smHttpMessageCount++;
 
-    mHeaderCacheClean = FALSE;
-
-        //mNameValues = new UtlHashBag(100);
-        body = NULL;
-        transportTimeStamp = 0;
-        lastResendDuration = 0;
-        timesSent = 0;
-        transportProtocol = OsSocket::UNKNOWN;
-    mFirstSent = FALSE;
-    mSendPort = PORT_NONE;
-    mpResponseListenerQueue = NULL;
-    mResponseListenerData = NULL;
 #ifdef HTTP_TIMELOG
-    mTimeLog.addEvent("READ FROM SOCKET");
+   mTimeLog.addEvent("READ FROM SOCKET");
 #endif
 
-        read(inSocket, bufferSize);
+   read(inSocket, bufferSize);
 }
 
 
 // Copy constructor
 HttpMessage::HttpMessage(const HttpMessage& rHttpMessage)
 {
-    smHttpMessageCount++;
+   smHttpMessageCount++;
 
     mHeaderCacheClean = rHttpMessage.mHeaderCacheClean;
     mFirstHeaderLine = rHttpMessage.mFirstHeaderLine;
@@ -294,55 +289,53 @@ int HttpMessage::parseFirstLine(const char* messageBytesPtr, int byteCount)
    return(bytesConsumed);
 }
 
-// Parse message out of byte bucket
-// Note: this should be broken up into smaller methods as
-// the need arrises for it atomic functionality
+// Parse message out of messageBytes
 void HttpMessage::parseMessage(const char* messageBytes, int byteCount)
 {
-    mHeaderCacheClean = FALSE;
+   mHeaderCacheClean = FALSE;
 
-    if(byteCount <= 0)
-    {
-       if(messageBytes)
-       {
-                    byteCount = strlen(messageBytes);
-       }
-       else
-       {
-                    byteCount = 0;
-                        mFirstHeaderLine = OsUtil::NULL_OS_STRING;
-            if(body) delete body;
-                    body = NULL;
-       }
-    }
+   if(byteCount <= 0)
+   {
+      if(messageBytes)
+      {
+         byteCount = strlen(messageBytes);
+      }
+      else
+      {
+         byteCount = 0;
+         mFirstHeaderLine = OsUtil::NULL_OS_STRING;
+         if(body) delete body;
+         body = NULL;
+      }
+   }
 
-        if(byteCount > 0)
-        {
-                int bytesConsumed = 0;
-                const char* messageBytesPtr = messageBytes;
+   if(byteCount > 0)
+   {
+      int bytesConsumed = 0;
+      const char* messageBytesPtr = messageBytes;
 
-                // Read the first header line
-        bytesConsumed = parseFirstLine(messageBytes, byteCount);
+      // Read the first header line
+      bytesConsumed = parseFirstLine(messageBytes, byteCount);
 
-        // Parse the headers out and add them to the list
-                bytesConsumed += parseHeaders(messageBytes + bytesConsumed, byteCount - bytesConsumed,
-            mNameValues);
+      // Parse the headers out and add them to the list
+      bytesConsumed += parseHeaders(messageBytes + bytesConsumed, byteCount - bytesConsumed,
+                                    mNameValues);
 
-                // Create the body if there is stuff left
-                if(byteCount > bytesConsumed)
-                {
-                        messageBytesPtr = messageBytes + bytesConsumed;
+      // Create the body if there is stuff left
+      if(byteCount > bytesConsumed)
+      {
+         messageBytesPtr = messageBytes + bytesConsumed;
 
-                        if(body)
-                        {
-                                delete body;
-                        }
+         if(body)
+         {
+            delete body;
+         }
 
-            // Construct the body from the remaining bytes
-            parseBody(messageBytesPtr, byteCount - bytesConsumed);
+         // Construct the body from the remaining bytes
+         parseBody(messageBytesPtr, byteCount - bytesConsumed);
 
-        }
-        }
+      }
+   }
 }
 
 void HttpMessage::parseBody(const char* messageBytesPtr, int bodyLength)
@@ -484,11 +477,11 @@ int HttpMessage::parseHeaders(const char* headerBytes, int messageLength,
         return(parser.getProcessedIndex());
 }
 
-int HttpMessage::get(Url& httpUrl,
-                     int maxWaitMilliSeconds,
-                     bool bPersistent)
+int HttpMessage::get/*[3]*/(Url& httpUrl,
+                            int  maxWaitMilliSeconds,
+                            bool bPersistent)
 {
-    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get(2) httpUrl = '%s'",
+    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[3] httpUrl = '%s'",
                   httpUrl.toString().data());
 
     HttpMessage request;
@@ -502,13 +495,13 @@ int HttpMessage::get(Url& httpUrl,
     return(get(httpUrl, request, maxWaitMilliSeconds, bPersistent));
 }
 
-OsStatus HttpMessage::get(Url& httpUrl,
-                          int iMaxWaitMilliSeconds,
-                          GetDataCallbackProc pCallbackProc,
-                          void* pOptionalData,
-                          OsConnectionSocket** socket)
+OsStatus HttpMessage::get/*[5]*/(Url& httpUrl,
+                                 int iMaxWaitMilliSeconds,
+                                 GetDataCallbackProc pCallbackProc,
+                                 void* pOptionalData,
+                                 OsConnectionSocket** socket)
 {
-   OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get(5) httpUrl = '%s'",
+   OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[5] httpUrl = '%s'",
                  httpUrl.toString().data());
    OsStatus rc = OS_SUCCESS ;
    UtlString uriString;
@@ -527,15 +520,9 @@ OsStatus HttpMessage::get(Url& httpUrl,
    UtlString hostPort(httpHost);
    httpPort = httpUrl.getHostPort();
 
-   UtlString urlType;
-   httpUrl.getUrlType(urlType);
-
    if (!portIsValid(httpPort))
    {
-      if (httpUrl.getScheme() == Url::HttpsUrlScheme)
-         httpPort = 443;
-      else
-         httpPort = 80;
+      httpPort = (httpUrl.getScheme() == Url::HttpsUrlScheme) ? 443 : 80;
 
       hostPort.append(":");
       char tmpportbuf[10];
@@ -558,8 +545,8 @@ OsStatus HttpMessage::get(Url& httpUrl,
          httpSocket = (OsConnectionSocket *)new OsSSLConnectionSocket(httpPort, httpHost, iMaxWaitMilliSeconds/1000);
 #else /* ! HAVE_SSL */
          // SSL is not configured in, so we cannot do https: gets.
-         OsSysLog::add(FAC_SIP, PRI_CRIT,
-                       "HttpMessage::get(Url&,int,...) SSL not configured; "
+         OsSysLog::add(FAC_HTTP, PRI_CRIT,
+                       "HttpMessage::get[5] SSL not configured; "
                        "cannot get URL '%s'", httpUrl.toString().data());
          httpSocket = NULL;
 #endif /* HAVE_SSL */
@@ -573,12 +560,12 @@ OsStatus HttpMessage::get(Url& httpUrl,
          connected = httpSocket->isConnected();
          if (!connected)
          {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
-                          "HttpMessage::get socket connection to %s:%d failed, try again %d ...",
+            OsSysLog::add(FAC_HTTP, PRI_ERR,
+                          "HttpMessage::get[5] socket connection to %s:%d failed, try again %d ...",
                           httpHost.data(), httpPort, tries);
             delete httpSocket;
             httpSocket = 0;
-            OsTask::delay(20*exp);
+            OsTask::delay(HTTP_MIN_DELAY_MSECS*exp);
             exp = exp*2;
          }
          else
@@ -590,8 +577,8 @@ OsStatus HttpMessage::get(Url& httpUrl,
 
    if (!connected)
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "HttpMessage::get socket connection to %s:%d failed, give up...",
+      OsSysLog::add(FAC_HTTP, PRI_ERR,
+                    "HttpMessage::get[5] socket connection to %s:%d failed, give up...",
                     httpHost.data(), httpPort);
       return OS_FAILED;
    }
@@ -634,13 +621,23 @@ OsStatus HttpMessage::get(Url& httpUrl,
    return rc ;
 }
 
-int HttpMessage::get(Url& httpUrl,
-                     HttpMessage& request,
-                     int maxWaitMilliSeconds,
-                     bool bPersistent)
+int HttpMessage::get/*[4]*/(Url& httpUrl,
+                            HttpMessage& request,
+                            int maxWaitMilliSeconds,
+                            bool bPersistent)
 {
-    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get(3) httpUrl = '%s'",
-                  httpUrl.toString().data());
+    int httpStatus = -1; // indicates a connection error if unchanged.
+    if (OsSysLog::willLog(FAC_HTTP, PRI_DEBUG))
+    {
+       UtlString url;
+       httpUrl.toString(url);
+       OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                     "HttpMessage::get[4](httpUrl = '%s' maxwait = %d %s)",
+                     url.data(),
+                     maxWaitMilliSeconds,
+                     bPersistent ? "PERSISTENT" : "NOT PERSISTENT");
+    }
+    
     HttpConnectionMap *pConnectionMap = NULL;
     HttpConnectionMapEntry* pConnectionMapEntry = NULL;
     UtlString uriString;
@@ -654,16 +651,6 @@ int HttpMessage::get(Url& httpUrl,
     UtlString httpHost;
     httpUrl.getHostAddress(httpHost);
 
-    UtlString urlType;
-    httpUrl.getUrlType(urlType);
-    
-    // Construct the key for the persistent connection mapping
-    UtlString key;    
-    if (bPersistent)
-    { 
-
-    }
- 
     // preserve these fields if they are already set
     if (request.getHeaderValue(0, HTTP_HOST_FIELD) == NULL)
     {
@@ -671,15 +658,12 @@ int HttpMessage::get(Url& httpUrl,
         httpPort = httpUrl.getHostPort();
         if (httpPort == PORT_NONE)
         {
-            if (httpUrl.getScheme() == Url::HttpUrlScheme)
-                httpPort = 80;
-            else
-                httpPort = 443;
+           httpPort = (httpUrl.getScheme() == Url::HttpsUrlScheme) ? 443 : 80;
 
-            hostPort.append(":");
-            char tmpportbuf[10];
-            sprintf(tmpportbuf,"%d",httpPort);
-            hostPort += tmpportbuf;
+           hostPort.append(":");
+           char tmpportbuf[10];
+           sprintf(tmpportbuf,"%d",httpPort);
+           hostPort += tmpportbuf;
         }
         request.addHeaderField(HTTP_HOST_FIELD, hostPort.data());
     }
@@ -690,8 +674,7 @@ int HttpMessage::get(Url& httpUrl,
     }
 
     OsConnectionSocket *httpSocket = NULL;
-    int connected = 0;    
-    int httpStatus = -1;
+    bool connected = false;    
    
     int bytesRead = 0;
     int bytesSent = 0;    
@@ -705,55 +688,66 @@ int HttpMessage::get(Url& httpUrl,
         request.setHeaderValue(HTTP_CONNECTION_FIELD, "Keep-Alive");         
         pConnectionMapEntry = pConnectionMap->getPersistentConnection(httpUrl, httpSocket);
     }            
+
     // Try to send request at least once, on persistent connections retry once if it fails.
     // Retry on persistent connections because the getPersistentConnection call may return
     // a non-NULL socket, assuming the connection is persistent when the other side is not.
-    while (sendTries < HttpMessageRetries && bytesRead == 0)
+    bool responseReceived = false;
+    while (sendTries < HttpMessageRetries && ! responseReceived && 0 == bytesRead)
     {        
         if (httpSocket == NULL)
         {
             int tries = 0;
-    
             int exp = 1;
-            while (tries++ < HttpMessageRetries)
+            while (!connected && (tries++ < HttpMessageRetries))
             {
-               if (urlType == "https")
+               if (Url::HttpsUrlScheme == httpUrl.getScheme())
                {
-        #ifdef HAVE_SSL
-                  httpSocket = (OsConnectionSocket *)new OsSSLConnectionSocket(httpPort, httpHost, maxWaitMilliSeconds/1000);
-        #else /* ! HAVE_SSL */
+#                 ifdef HAVE_SSL
+                  httpSocket = dynamic_cast<OsConnectionSocket*>
+                     (new OsSSLConnectionSocket(httpPort, httpHost,
+                                                maxWaitMilliSeconds/OsTime::MSECS_PER_SEC));
+#                 else /* ! HAVE_SSL */
                   // SSL is not configured in, so we cannot do https: gets.
-                  OsSysLog::add(FAC_SIP, PRI_CRIT,
-                                "HttpMessage::get(Url&,HttpMessage&,int) SSL not configured; "
+                  OsSysLog::add(FAC_HTTP, PRI_CRIT,
+                                "HttpMessage::get[4] SSL not configured; "
                                 "cannot get URL '%s'", httpUrl.toString().data());
                   httpSocket = NULL;
-        #endif /* HAVE_SSL */
+#                 endif /* HAVE_SSL */
                }
                else
                {
                   httpSocket = new OsConnectionSocket(httpPort, httpHost);
                }
+
                if (httpSocket)
                {
                   connected = httpSocket->isConnected();
                   if (!connected)
                   {
-                     OsSysLog::add(FAC_SIP, PRI_ERR,
-                                   "HttpMessage::get socket connection to %s:%d failed, try again %d ...\n",
-                                   httpHost.data(), httpPort, tries);
+                     int retryTime = HTTP_MIN_DELAY_MSECS*exp;
+                     OsSysLog::add(FAC_HTTP, PRI_ERR,
+                                   "HttpMessage::get[4]"
+                                   " socket to %s:%d not connected, retry %d after %dms",
+                                   httpHost.data(), httpPort, tries, retryTime);
                      delete httpSocket;
                      httpSocket = 0;
-                     OsTask::delay(20*exp);
+                     OsTask::delay(retryTime);
                      exp = exp*2;
                   }
-                  else
-                  {
-                     break;
-                  }
                }
-            }
-            // If we created a new connection and are persistent then remember the socket in the map
-            // and mark connection as being used
+               else
+               {
+                  OsSysLog::add(FAC_HTTP, PRI_ERR,
+                                "HttpMessage::get[4]"
+                                " socket creation failed to %s:%d",
+                                httpHost.data(), httpPort
+                                );
+               }
+            } // while (!connected && (tries++ < HttpMessageRetries))
+
+            // If we created a new connection and are persistent
+            // then remember the socket in the map and mark connection as being used
             if (pConnectionMapEntry)
             {
                 pConnectionMapEntry->mpSocket = httpSocket;
@@ -764,10 +758,11 @@ int HttpMessage::get(Url& httpUrl,
         {
             connected = httpSocket->isConnected();          
         }
+
         if (!connected)
         {
-           OsSysLog::add(FAC_SIP, PRI_ERR,
-                         "HttpMessage::get socket connection to %s:%d failed, give up...\n",
+           OsSysLog::add(FAC_HTTP, PRI_ERR,
+                         "HttpMessage::get[4] socket connection to %s:%d failed, give up...\n",
                          httpHost.data(), httpPort);
            if (pConnectionMap)
            {
@@ -778,67 +773,85 @@ int HttpMessage::get(Url& httpUrl,
         }
       
         // Send the request - most of the time returns 1 for some reason, 0 indicates problem
-        if (httpSocket->isReadyToWrite(maxWaitMilliSeconds))
+        if (httpSocket && httpSocket->isReadyToWrite(maxWaitMilliSeconds))
         {
             bytesSent = request.write(httpSocket);
+            OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[4] sent request");      
         }
 
         if (bytesSent == 0)            
         {
+           OsSysLog::add(FAC_HTTP, PRI_WARNING, 
+                         "HttpMessage::get[4] "
+                         "failed sending on try %d",
+                         sendTries);      
+
             if (pConnectionMap)
             {
-                // No bytes were sent .. if this is a persistent connection and it failed on retry
-                // mark it unused in the connection map. Set socket to NULL
-                if (sendTries == HttpMessageRetries-1)
-                { 
-                    pConnectionMapEntry->mbInUse = false;
-                }
-                // Close socket to avoid timeouts in subsequent calls
-                httpSocket->close();
-                delete httpSocket;
-                pConnectionMapEntry->mpSocket = NULL;
-                httpSocket = NULL;
-                OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
-                              "HttpMessage::get Sending failed sending on persistent connection on try %d",
-                              sendTries);      
+               // No bytes were sent .. if this is a persistent connection and it failed on retry
+               // mark it unused in the connection map. Set socket to NULL
+               if (sendTries == HttpMessageRetries-1)
+               { 
+                  pConnectionMapEntry->mbInUse = false;
+               }
+               if (httpSocket)
+               {
+                  // Close socket to avoid timeouts in subsequent calls
+                  OsSysLog::add(FAC_HTTP, PRI_ERR, 
+                                "HttpMessage::get[4] "
+                                "closing failed socket after %d tries",
+                                sendTries);      
+                  httpSocket->close();
+                  delete httpSocket;
+                  pConnectionMapEntry->mpSocket = NULL;
+                  httpSocket = NULL;
+               }
             }
         }
         else if(   bytesSent > 0
+                && httpSocket
                 && httpSocket->isReadyToRead(maxWaitMilliSeconds))
         {
-            bytesRead = read(httpSocket);
-
-            // Close a non-persistent connection
-            if (pConnectionMap == NULL)
-            {
-                httpSocket->close();
-            }
-            else
-            {
-                if (bytesRead == 0)
-                {
-                    // No bytes were read .. if this is a persistent connection
-                    // and it failed on retry mark it unused  
-                    // in the connection map. Set socket to NULL
-                    if (sendTries == HttpMessageRetries-1)                    
-                    {
-                        pConnectionMapEntry->mbInUse = false;
-                    }
+           bytesRead = read(httpSocket); // consumes bytes until full message is read
+           OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
+                         "HttpMessage::get[4] read returned %d bytes",
+                         bytesRead);
+           if (!bytesRead)
+           {
+              // Close a non-persistent connection
+              if (!pConnectionMap)
+              {
+                 OsSysLog::add(FAC_HTTP, PRI_ERR, "HttpMessage::get[4] read failed - closing");
+                 httpSocket->close();
+              }
+              else
+              {
+                 // persistent connection
+                 // No bytes were read .. if this is a persistent connection
+                 // and it failed on retry mark it unused  
+                 // in the connection map. Set socket to NULL
+                 OsSysLog::add(FAC_HTTP, PRI_ERR, 
+                               "HttpMessage::get[4] "
+                               "Receiving failed on persistent connection on try %d",
+                               sendTries);
+                 if (sendTries == HttpMessageRetries-1)                    
+                 {
+                    pConnectionMapEntry->mbInUse = false;
+                 }
+                 if (httpSocket)
+                 {
                     httpSocket->close();
                     delete httpSocket;
                     pConnectionMapEntry->mpSocket = NULL;
                     httpSocket = NULL;
-                    OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
-                                  "HttpMessage::get Receiving failed on persistent connection on try %d",
-                                  sendTries);
-                }
-                else
-                {
-                    // On success don't retry for persistent connection, set sendTries 
-                    // to mamximum to break out of loop
-                    sendTries = HttpMessageRetries;
-                }                
-            }
+                 }
+              }
+           }
+        }
+        else
+        {
+           // Success - we got a response
+           responseReceived = true;
         }
         ++sendTries;
     }
@@ -846,7 +859,7 @@ int HttpMessage::get(Url& httpUrl,
     {        
         // Release lock on persistent connection
         pConnectionMapEntry->mLock.release(); 
-    }    
+    }
     if(bytesRead > 0)
     {
         httpStatus = getResponseStatusCode();
@@ -856,7 +869,6 @@ int HttpMessage::get(Url& httpUrl,
         {
             authEntity = SERVER;
         }
-
         else if(httpStatus == HTTP_PROXY_UNAUTHORIZED_CODE)
         {
             authEntity = PROXY;
@@ -879,73 +891,77 @@ int HttpMessage::get(Url& httpUrl,
                 // Construct a new socket
                 OsConnectionSocket *httpAuthSocket = NULL;
 
-                int httpStatus = -1;
                 int tries = 0;
                 int connected = 0;
                 int exp = 1;
-                while (tries++ < 6)
+                while (!connected && (tries++ < 6))
                 {
-                   if (urlType == "https")
+                   if (Url::HttpsUrlScheme == httpUrl.getScheme())
                    {
-#ifdef HAVE_SSL
-                      httpAuthSocket = (OsConnectionSocket *)new OsSSLConnectionSocket(httpPort, httpHost, maxWaitMilliSeconds/1000);
-#else /* ! HAVE_SSL */
+#                     ifdef HAVE_SSL
+                      httpAuthSocket = (OsConnectionSocket *)
+                         new OsSSLConnectionSocket(httpPort, httpHost, maxWaitMilliSeconds/1000);
+#                     else /* ! HAVE_SSL */
                       // SSL is not configured in, so we cannot do https: gets.
-                      OsSysLog::add(FAC_SIP, PRI_CRIT,
-                                    "HttpMessage::get(Url&,HttpMessage&,int) SSL not configured; "
+                      OsSysLog::add(FAC_HTTP, PRI_CRIT,
+                                    "HttpMessage::get[4] basic auth SSL not configured; "
                                     "cannot get URL '%s'", httpUrl.toString().data());
                       httpAuthSocket = NULL;
-#endif /* HAVE_SSL */
+#                     endif /* HAVE_SSL */
                    }
                    else
+                   {
                       httpAuthSocket = new OsConnectionSocket(httpPort, httpHost);
+                   }
+                   
                    if (httpAuthSocket)
                    {
                       connected = httpAuthSocket->isConnected();
                       if (!connected)
                       {
-                         OsSysLog::add(FAC_SIP, PRI_ERR,
-                                       "HttpMessage::get socket connection to %s:%d failed, try again %d ...\n",
+                         OsSysLog::add(FAC_HTTP, PRI_ERR,
+                                       "HttpMessage::get[4] basic auth "
+                                       "socket connection to %s:%d failed, try again %d ...\n",
                                        httpHost.data(), httpPort, tries);
                          delete httpAuthSocket;
                          httpAuthSocket = 0;
-                         OsTask::delay(20*exp);
+                         OsTask::delay(HTTP_MIN_DELAY_MSECS*exp);
                          exp = exp*2;
                       }
-                      else
-                      {
-                         break;
-                      }
                    }
-                }
+                } // while (!connected && (tries++ < 6))
 
                 if (!connected)
                 {
-                   OsSysLog::add(FAC_SIP, PRI_ERR,
-                                 "HttpMessage::get socket connection to %s:%d failed, give up...\n",
+                   OsSysLog::add(FAC_HTTP, PRI_ERR,
+                                 "HttpMessage::get[4] basic auth "
+                                 "socket connection to %s:%d failed, give up...\n",
                                  httpHost.data(), httpPort);
                    return httpStatus;
                 }
 
                 // Sent the request again
                 if (httpAuthSocket->isReadyToWrite(maxWaitMilliSeconds))
-                  bytesSent = request.write(httpAuthSocket);
+                {
+                   bytesSent = request.write(httpAuthSocket);
+                }
                 bytesRead = 0;
 
                 // Clear out the data in the previous response
                 mHeaderCacheClean = FALSE;
                 mNameValues.destroyAll();
-                    if(body)
-                    {
-                            delete body;
-                            body = 0;
-                    }
+                if(body)
+                {
+                   delete body;
+                   body = NULL;
+                }
 
                 // Wait for the response
-                if(bytesSent > 0 &&
-                    httpAuthSocket->isReadyToRead(maxWaitMilliSeconds))
+                if(   bytesSent > 0
+                   && httpAuthSocket->isReadyToRead(maxWaitMilliSeconds))
                 {
-                    bytesRead = read(httpAuthSocket);
+                   bytesRead = read(httpAuthSocket); // consumes full msg
+
                     httpAuthSocket->close();
                 }
 
@@ -956,8 +972,10 @@ int HttpMessage::get(Url& httpUrl,
                 }
 
                 if (httpAuthSocket)
-                    delete httpAuthSocket;
-
+                {
+                   delete httpAuthSocket;
+                }
+                
             } // end if auth. retry
 
         } // End if Basic Auth.
@@ -966,9 +984,11 @@ int HttpMessage::get(Url& httpUrl,
 
     if (httpSocket && !bPersistent)
     {
-        delete httpSocket;
-        httpSocket = 0;
+       OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[4] closing non-persistent connection");
+       delete httpSocket;
+       httpSocket = 0;
     }
+    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[4] returning %d response", httpStatus);
     return(httpStatus);
 }
 
@@ -1105,8 +1125,9 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
    // allBytes is the buffer we will be using to assemble the message.
    // If externalBuffer is supplied, use that, otherwise use localBuffer.
    UtlString localBuffer;
-   UtlString* allBytes =
-      externalBuffer != NULL ? externalBuffer : &localBuffer;
+   UtlString* allBytes = externalBuffer ? externalBuffer : &localBuffer;
+
+   int residualBytes = allBytes->length(); // passed into this read already in the buffer
    int returnMessageLength = 0;
 
    // Attempt to minimize the number of times that the string gets
@@ -1120,27 +1141,29 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       // Get information about the socket.
       UtlString remoteHost;
       int remotePort;
-      inSocket->getRemoteHostIp(&remoteHost, &remotePort);
+
       OsSocket::IpProtocolSocketType socketType = inSocket->getIpProtocol();
       setSendProtocol(socketType);
 
-#ifdef TEST
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpMessage::read socket: %p "
+#     ifdef TEST
+      OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::read socket: %p "
                     "getIpProtocol: %d remoteHost: %s remotePort: %d\n",
                     inSocket, socketType,
                     remoteHost.data(), remotePort);
-#endif
+#     endif
 
       // Initialize control variables.
-      char* buffer = new char[bufferSize];
-      int bytesTotal = allBytes->length();
-      int bytesRead = 0;
+      char buffer[bufferSize];  // fixed buffer to read into from the socket
+      int bytesTotal = 0;       // total bytes accumulated
+
       // The byte offset of the end of the header.  -1 means the end
       // has not yet been seen.
       int headerEnd = -1;
+
       // The length of the content.  -1 means the end is not yet known.
       int contentLength = -1;
       UtlBoolean contentLengthSet = FALSE;
+
       // Assume content-type is set until we read all of the headers.
       UtlBoolean contentTypeSet = TRUE;
       UtlString contentType;
@@ -1148,213 +1171,266 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       //
       // Read the HTTP message.
       //
-
-      // If there are no residual bytes in the buffer, read from the socket.
-      // :TODO:  This is probably not quite right.  I suspect that its
-      // main effect is to have the first read from the socket use 4
-      // arguments (to get the remote host/port), whereas the read at
-      // the bottom of the do-while uses 2 arguments (because it
-      // usually does later reads, and don't need to get the remote
-      // ost/port again).  But this scheme doesn't work so well, as
-      // there is a third fetch of remote host/port inside the body of
-      // the do-while.
-      if (bytesTotal <= 0 &&
-          inSocket->isOk() &&
-          (OsSocket::isFramed(socketType) ||
-           inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)))
+      bool finished = false;
+      int bytesRead = 0;
+      while (   ! finished
+             && (   residualBytes > 0 // there are bytes already in the buffer - no need to read
+                 || (   inSocket->isOk() 
+                     && (   OsSocket::isFramed(socketType)
+                         || inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)
+                         )
+                     && (bytesRead = inSocket->read(buffer, bufferSize,
+                                                    &remoteHost, &remotePort)
+                         ) > 0
+                     )
+                 )
+             )
       {
-         bytesRead = inSocket->read(buffer, bufferSize,
-                                    &remoteHost, &remotePort);
-
-         setSendAddress(remoteHost.data(), remotePort);
-      }
-
-      do
-      {
-         if (bytesRead > 0)
+         if (residualBytes)
          {
-            if (allBytes->append(buffer, bytesRead).length() > 0)
+            // set the variables as though this had been read from the socket.
+            bytesRead = residualBytes;
+            residualBytes = 0;
+            
+            if (mSendAddress.isNull())
             {
-               bytesTotal += bytesRead;
+               // There can only be residual buffer data if this is TCP, so we know
+               // that the socket has the remote party data cached.
+               inSocket->getRemoteHostIp(&remoteHost, &remotePort);
+               setSendAddress(remoteHost.data(), remotePort);
+            }
+         }
+         else // we must have read bytes from the socket
+         {
+            allBytes->append(buffer, bytesRead); // move from temporary buffer into UtlString
+            
+            if (mSendAddress.isNull())
+            {
+               setSendAddress(remoteHost.data(), remotePort);
+            }
+         }
+
+         bytesTotal += bytesRead;
+         bytesRead = 0;
+
+         if (bytesTotal > 0)
+         {
+            // If we have not yet found the end of the headers
+            if (headerEnd < 0)
+            {
+               headerEnd = findHeaderEnd(allBytes->data(), bytesTotal);
+
+               // UDP and Multicast UDP you can only do one read
+               // The fragmentation is handled at the socket layer
+               // If we did not get it all we are not going to get any more
+               if (headerEnd <= 0 && OsSocket::isFramed(socketType))
+               {
+                  headerEnd = bytesTotal;
+               }
+
+               // We found the end of all the headers.  Parse them.
+               if (headerEnd > 0)
+               {
+                  // Parse the first line
+                  int endOfFirstLine = parseFirstLine(allBytes->data(),
+                                                      headerEnd);
+                  // Parse all of the headers
+                  parseHeaders(&(allBytes->data()[endOfFirstLine]),
+                               headerEnd - endOfFirstLine,
+                               mNameValues);
+
+                  // Get the content length
+                  {
+                     const char* value;
+                     if ((value = getHeaderValue(0, HTTP_CONTENT_LENGTH_FIELD)))
+                     {
+                        contentLengthSet = TRUE;
+                        contentLength = atoi(value);
+                     }
+                     else if ((value = getHeaderValue(0, SIP_SHORT_CONTENT_LENGTH_FIELD)))
+                     {
+                        contentLengthSet = TRUE;
+                        contentLength = atoi(value);
+                     } 
+                  }
+
+                  // Get the content type
+                  contentTypeSet = getContentType(&contentType);
+
+#                 ifdef TEST
+                  OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                                "HttpMessage::read contentLengthSet %d, "
+                                "contentLength %d, contentTypeSet %d, "
+                                "contentType '%s'",
+                                contentLengthSet, contentLength, contentTypeSet,
+                                contentType.data());
+#                 endif
+
+                  // If this is UDP we know that the message has
+                  // a maximum size of 64K
+                  if (   socketType == OsSocket::UDP
+                      && contentLength > MAX_UDP_MESSAGE)
+                  {
+                     OsSysLog::add(FAC_HTTP, PRI_ERR,
+                                   "HttpMessage::read Content-Length too big for "
+                                   "UDP: %d, from %s:%d assuming: %d",
+                                   contentLength, remoteHost.data(), remotePort,
+                                   MAX_UDP_MESSAGE);
+                     contentLength = MAX_UDP_MESSAGE;
+                  }
+
+                  // Make sure we do not try to allocate something
+                  // outrageously large.
+                  if (contentLength > maxContentLength)
+                  {
+                     contentLengthSet = FALSE;
+                     OsSysLog::add(FAC_HTTP, PRI_ERR,
+                                   "HttpMessage::read "
+                                   "Content-Length(%d) > maxContentLength(%d): "
+                                   "closing socket type: %d to %s:%d",
+                                   contentLength, maxContentLength,
+                                   socketType, remoteHost.data(), remotePort);
+                     // Shut it all down, because it may be an abusive sender.
+                     inSocket->close();
+                     allBytes->remove(0);
+                     bytesTotal = 0;
+                     finished = true;
+                  }
+                     
+                  // If a content length is set adjust the capacity
+                  // to minimize the number of resizing and memory
+                  // shuffling operations
+                  else if (contentLength > 0)
+                  {
+                     byteCapacity = headerEnd + contentLength + 100;
+                     allBytes->capacity(byteCapacity);
+                  }
+               }
+            }
+
+            // analyze whether or not we've got the whole message.
+            if ( headerEnd > 0 ) // we have seen the end of the headers
+            {
+               if (OsSocket::isFramed(socketType))
+               {
+                  if (contentLengthSet)
+                  {
+                     if (contentLength + headerEnd <= ((int) allBytes->length()))
+                     {
+                        finished = true;
+                     }
+                     else
+                     {
+                        // we got a content length on a framed socket,
+                        // but there is not that much data in the message
+                        OsSysLog::add(FAC_HTTP, PRI_WARNING,
+                                      "HttpMessage::read "
+                                      "truncated body on framed %s socket",
+                                      OsSocket::ipProtocolString(socketType));
+                        // @TODO - I think we want to pass this up so that it can return
+                        // a bad request error, but need to check up the stack.
+                        finished = true;
+                     }
+                  }
+                  else
+                  {
+                     // We've seen the end of the headers on a framed socket,
+                     // but with no Content-Length set - sloppy, but allowed.
+                     OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                                   "HttpMessage::read "
+                                   "no content-length set on framed %s socket",
+                                   OsSocket::ipProtocolString(socketType));
+                     // Assume that they forgot 
+                     finished = true;
+                  }
+               }
+               else
+               {
+                  // seen the end of the headers, on an unframed socket 
+                  if (contentLengthSet)
+                  {
+                     if (contentLength + headerEnd <= ((int) allBytes->length()))
+                     {
+                        // we got all of the body, so we're done
+                        finished = true;
+                     }
+                     else
+                     {
+                        // there is more to read on the stream, so let the loop iterate
+                     }
+                  }
+                  else
+                  {
+                     // end of headers on an unframed socket, but no Content-Length set
+                     // Log and discard the message
+                     OsSysLog::add(FAC_HTTP, PRI_ERR,
+                                   "HttpMessage::read Message has no Content-Length "
+                                   "on unframed socket type: %s\n%s",
+                                   OsSocket::ipProtocolString(socketType), allBytes->data());
+                     allBytes->remove(0);
+
+                     // Close the connection (having lost framing, it is no longer usable)
+                     inSocket->close();
+               
+                     // Exit the loop
+                     finished = true;
+                  }
+               }
             }
             else
             {
-               osPrintf("ERROR: Error appending data. possible out of memory error.\n");
-               bytesRead = 0;
-               break;
-            }
-         }
-
-         //osPrintf("HttpMessage::read buffer capacity: %d buff addr: %X\n", allBytes.capacity(), allBytes.data());
-
-         // If we have not yet found the end of the headers
-         if (headerEnd < 0)
-         {
-            headerEnd = findHeaderEnd(allBytes->data(), bytesTotal);
-
-            // UDP and Multicast UDP you can only do one read
-            // The fragmentation is handled at the socket layer
-            // If we did not get it all we are not going to get any more
-            if (OsSocket::isFramed(socketType) && headerEnd <= 0)
-            {
-               headerEnd = bytesTotal;
-            }
-
-            // We found the end of all the headers.  Parse them.
-            if (headerEnd > 0)
-            {
-               // Parse the first line
-               int endOfFirstLine = parseFirstLine(allBytes->data(),
-                                                   headerEnd);
-               // Parse all of the headers
-               parseHeaders(&(allBytes->data()[endOfFirstLine]),
-                            headerEnd - endOfFirstLine,
-                            mNameValues);
-
-#ifdef TEST
-               // Print out the header values as we have extracted them.
-               if (OsSysLog::getLoggingPriority() <= PRI_DEBUG)
+               // We have not yet seen the end of the headers
+               if (OsSocket::isFramed(socketType))
                {
-                  UtlDListIterator iterator((UtlDList&) mNameValues);
-                  NameValuePair* headerField;
-
-#                 ifdef MSG_DEBUG
-                  // :TODO: Commented out for the time being to reduce
-                  // the volume of debug messages.  We really need
-                  // finer-grained control over debugging messages
-                  // than we have now.
-                  while ((headerField = (NameValuePair*) iterator()) != NULL) 
+                  // framed transport, but no header end seen yet - probably not good
+                  if (contentLengthSet)
                   {
-                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                   "HttpMessage::read Found header '%s': '%s'",
-                                   headerField->data(),
-                                   headerField->getValue());
+                     // there was suppose to be a body, but we never saw it
+                     if (contentLength > 0)
+                     {
+                        // The headers we got said there was a body, but we didn't find
+                        // the end of the headers, so this is truncated.
+                        OsSysLog::add(FAC_HTTP, PRI_ERR,
+                                      "HttpMessage::read "
+                                      "truncated message on framed %s socket:\n%s",
+                                      OsSocket::ipProtocolString(socketType),
+                                      allBytes->data()
+                                      );
+                        // message is not good, but pass it up so we can return Bad Request
+                        finished = true;
+                     }
+                     else
+                     {
+                        // unterminated headers on a framed socket, with a content length of 0
+                        // probably just forgot the blank line to terminate the headers
+                        OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                                      "HttpMessage::read "
+                                      "unterminated headers with content-length 0 on %s socket",
+                                      OsSocket::ipProtocolString(socketType));
+                     }
                   }
-#                 endif /* MSG_DEBUG */
-               }
-
-#endif
-               // Get the content length
-               {
-                  const char* value;
-
-                  if ((value =
-                       getHeaderValue(0, HTTP_CONTENT_LENGTH_FIELD)) != NULL)
+                  else
                   {
-                     contentLengthSet = TRUE;
-                     contentLength = atoi(value);
-                  } else if ((value =
-                              getHeaderValue(0, SIP_SHORT_CONTENT_LENGTH_FIELD)) != NULL)
-                  {
-                     contentLengthSet = TRUE;
-                     contentLength = atoi(value);
-                  } 
+                     // No header end seen, on framed socket, with no content length set
+                     // Technically an error, but they may have just forgotten the blank line
+                     // so let it go
+                     OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                                   "HttpMessage::read "
+                                   "unterminated headers with no content-length on %s socket",
+                                   OsSocket::ipProtocolString(socketType));
+                     finished = true;
+                  }
                }
-
-               // Get the content type
-               contentTypeSet = getContentType(&contentType);
-
-#ifdef TEST
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "HttpMessage::read contentLengthSet %d, "
-                             "contentLength %d, contentTypeSet %d, "
-                             "contentType '%s'",
-                             contentLengthSet, contentLength, contentTypeSet,
-                             contentType.data());
-#endif
-
-               // If this is UDP we know that the message has
-               // a maximum size of 64K
-               if (socketType == OsSocket::UDP &&
-                  contentLength > MAX_UDP_MESSAGE)
+               else
                {
-                  OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                "HttpMessage::read Content-Length too big for "
-                                "UDP: %d, from %s:%d assuming: %d",
-                                contentLength, remoteHost.data(), remotePort,
-                                MAX_UDP_MESSAGE);
-                  contentLength = MAX_UDP_MESSAGE;
-               }
-
-               // Make sure we do not try to allocate something
-               // outrageously large.
-               if (contentLength > maxContentLength)
-               {
-                  contentLengthSet = FALSE;
-                  OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                "HttpMessage::read Content-Length too big: %d,"
-                                "closing socket type: %d to %s:%d",
-                                contentLength, socketType, remoteHost.data(),
-                                remotePort);
-                  // Shut it all down, because it may be an abusive sender.
-                  inSocket->close();
-                  allBytes->remove(0);
-                  break;
-               }
-
-               // If a content length is set adjust the capacity
-               // to minimize the number of resizing and memory
-               // shuffling operations
-               else if (contentLength > 0)
-               {
-                  byteCapacity = headerEnd + contentLength + 100;
-
-                  allBytes->capacity(headerEnd + contentLength + 100);
+                  // We have not yet seen the end of the headers on an unframed socket,
+                  // so keep reading...
                }
             }
          }
-
-         // If we know we have all of the message, exit this loop.
-         // To know we have all of the message, we need to have seen the end of the headers.
-         // If there was a Content-Length, we need to have read that many more bytes.
-         // If there was no Content-Length, this socket must have a framed protocol.
-         if (headerEnd > 0 &&
-             (contentLengthSet ? 
-              contentLength + headerEnd <= ((int) allBytes->length()) :
-              OsSocket::isFramed(socketType)))
-         {
-            break;
-         }
-
-         // Check to see if this is a non-framed protocol, we have seen the end of the headers,
-         // but we haven't seen a Content-Length header.  That is an error condition.
-         if (!OsSocket::isFramed(socketType) &&
-             headerEnd > 0 &&
-             !contentLengthSet)
-         {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
-                          "HttpMessage::read Message has no Content-Length "
-                          "on unframed socket type: %d\n",
-                          socketType);
-            // Exit the loop with the defective message, because we have no way to find its end.
-            break;
-         }
-
-         // Check to see if this is a framed protocol, because to get here, the first read
-         // of the message did not get to its end.  That is an error condition.
-         if (OsSocket::isFramed(socketType))
-         {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
-                          "HttpMessage::read Attempt to do second read for a message "
-                          "on framed socket type: %d\n",
-                          socketType);
-            // Exit the loop with the defective message, because we have no way to find its end.
-            break;
-         }
-
-         // Make sure we set the source of the bytes
-         if (remoteHost.isNull())
-         {
-            inSocket->getRemoteHostIp(&remoteHost);
-            remotePort = inSocket->getRemoteHostPort();
-            setSendAddress(remoteHost.data(), remotePort);
-         }
-
+         
          // Read more of the message and continue processing it.
-      } while (inSocket->isOk() &&
-               (OsSocket::isFramed(socketType) ||
-                inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)) &&
-               (bytesRead = inSocket->read(buffer, bufferSize)) > 0);
+      }
 
       //
       // We have reached one of the conditions that indicates to stop
@@ -1365,9 +1441,10 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       // Calculate the end of the message & body length
       unsigned int bodyLength = 0;
       unsigned int messageLength = 0;
-      if (headerEnd > 0 &&
-          (!contentLengthSet ||
-           OsSocket::isFramed(socketType)))
+      if (   headerEnd > 0
+          && (   !contentLengthSet
+              || OsSocket::isFramed(socketType)
+              ))
       {
          messageLength = allBytes->length();
          bodyLength = messageLength - headerEnd;
@@ -1383,17 +1460,14 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
             // We have the entire expected length of the message.
             bodyLength = contentLength;
             messageLength = headerEnd + contentLength;
+ 
+            OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                          "HttpMessage::read full msg rcvd bytes %d: header: %d content: %d",
+                          bytesTotal, headerEnd, contentLength);
 
             // There is residual bytes for the next message
             if (messageLength < allBytes->length())
             {
-#ifdef TEST_PRINT
-               int residual = allBytes->length() - messageLength;
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "HttpMessage::read bytes left over: %d\n",
-                             residual);
-#endif
-
                // Get rid of initial white space as the residual is
                // supposed to be the beginning of the next message
                int endOfWhiteSpace = FALSE;
@@ -1413,12 +1487,6 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                      break;
                   }
                }
-#ifdef TEST_PRINT
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "HttpMessage::read trimming whitespace from "
-                             "residual: %d\n",
-                             residual + messageLength - allBytes->length());
-#endif
             }
          }
          else
@@ -1428,21 +1496,12 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
 #           ifdef MSG_DEBUG
             // At this point, the entire message should have been read
             // (in multiple reads if necessary).
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            OsSysLog::add(FAC_HTTP, PRI_WARNING,
                           "HttpMessage::read Not all content data "
                           "successfully read: received %d body bytes but "
                           "Content-Length was %d",
                           bodyLength, contentLength);
 #           endif /* MSG_DEBUG */
-#ifdef TEST
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
-                          "HttpMessage::read protocol %d, remoteHost %s, "
-                          "remotePort %d",
-                          socketType, remoteHost.data(), remotePort);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "HttpMessage::read Content:\n>>>%.*s<<<\n",
-                          allBytes->length(), allBytes->data());
-#endif
          }
       }
       else if (allBytes->length() > 0)
@@ -1453,7 +1512,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
 #        ifdef MSG_DEBUG
          // This should not happen because the message will have been
          // fetched with multiple reads if necessary.
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         OsSysLog::add(FAC_HTTP, PRI_ERR,
                        "HttpMessage::read End of headers not found.  "
                        "%d bytes read.  Content:\n>>>%.*s<<<\n",
                        allBytes->length(), allBytes->length(),
@@ -1465,12 +1524,9 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       if (headerEnd > 0 && bodyLength)
       {
          // All that is left is the body to deal with
-         parseBody(&(allBytes->data()[headerEnd]),
-                   bodyLength);
+         parseBody(&(allBytes->data()[headerEnd]), bodyLength);
       }
-
-      delete[] buffer;
-
+      
       returnMessageLength = messageLength;
    }
    else
@@ -1478,7 +1534,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       // Attempt to resize the input buffer to the requested
       // approximate size (allBytes->capacity(bufferSize)) failed, so
       // return an error.
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      OsSysLog::add(FAC_HTTP, PRI_ERR,
                     "HttpMessage::read allBytes->capacity(%d) failed, "
                     "returning %d",
                     bufferSize, byteCapacity);
@@ -1572,7 +1628,7 @@ void HttpMessage::unescape(UtlString& escapedText)
                 else
                 {
 #ifdef TEST_PRINT
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "Bogus dude: escaped char wo/ 2 hex digits: %s\n",
+                    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "Bogus dude: escaped char wo/ 2 hex digits: %s\n",
                         escapedText.data());
 #endif
                     break;
@@ -1581,7 +1637,7 @@ void HttpMessage::unescape(UtlString& escapedText)
             else
             {
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "Bogus dude: escaped char wo/ 2 hex digits: %s\n",
+                OsSysLog::add(FAC_HTTP, PRI_DEBUG, "Bogus dude: escaped char wo/ 2 hex digits: %s\n",
                     escapedText.data());
 #endif
                 break;
@@ -1836,7 +1892,10 @@ void HttpMessage::setFirstSent()
 void HttpMessage::setSendAddress(const char* address, int port)
 {
     mSendAddress.remove(0);
-    if(address) mSendAddress.append(address);
+    if(address)
+    {
+       mSendAddress.append(address);
+    }
     mSendPort = port;
 }
 
@@ -2262,7 +2321,7 @@ void HttpMessage::getBytes(UtlString* bufferString, int* length) const
             {
                 char bodyLengthString[40];
                 sprintf(bodyLengthString, "%d", bodyLen);
-                OsSysLog::add(FAC_SIP, PRI_WARNING, "HttpMessage::getBytes content-length: %s wrong setting to: %s",
+                OsSysLog::add(FAC_HTTP, PRI_WARNING, "HttpMessage::getBytes content-length: %s wrong setting to: %s",
                     value ? value : "", bodyLengthString);
                 headerField->setValue(bodyLengthString);
                 value = headerField->getValue();
@@ -2384,7 +2443,7 @@ void HttpMessage::setRequestFirstHeaderLine(const char* method,
 {
    if (uri[0] == '<')
    {
-      OsSysLog::add(FAC_SIP,
+      OsSysLog::add(FAC_HTTP,
                     PRI_ERR,
                     "HttpMessage::setRequestFirstHeaderLine(3) request URI has <>: '%s'",
                     uri);
@@ -2476,7 +2535,7 @@ void HttpMessage::setAuthenticationData(const char* scheme,
     }
     else
     {
-        OsSysLog::add( FAC_SIP, PRI_ERR,
+        OsSysLog::add( FAC_HTTP, PRI_ERR,
                       "HttpMessage::setAuthenticationData: no realm specified"
                       );
     }
@@ -3100,8 +3159,8 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
     }
 
 #ifdef TEST
-    OsSysLog::add(FAC_SIP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization got digest response: \"%s\"\n", msgDigestHash.data());
-    OsSysLog::add(FAC_SIP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization wanted     response: \"%s\"\n", referenceHash.data());
+    OsSysLog::add(FAC_HTTP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization got digest response: \"%s\"\n", msgDigestHash.data());
+    OsSysLog::add(FAC_HTTP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization wanted     response: \"%s\"\n", referenceHash.data());
 #endif
     return(allowed);
 }
@@ -3160,8 +3219,8 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userPasswordDigest,
     }
 
 #ifdef TEST
-    OsSysLog::add(FAC_SIP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization got digest response: \"%s\"\n", msgDigestHash.data());
-    OsSysLog::add(FAC_SIP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization wanted     response: \"%s\"\n", referenceHash.data());
+    OsSysLog::add(FAC_HTTP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization got digest response: \"%s\"\n", msgDigestHash.data());
+    OsSysLog::add(FAC_HTTP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization wanted     response: \"%s\"\n", referenceHash.data());
 #endif
     return(allowed);
 }

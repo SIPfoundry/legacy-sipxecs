@@ -36,15 +36,23 @@ class OsConnectionSocket : public OsSocket
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+   static const unsigned int DefaultConnectionTimeoutMs;
+   
 /* ============================ CREATORS ================================== */
 
-   OsConnectionSocket(int remoteHostPort,
-                      const char* remoteHostName,
-                      UtlBoolean makeBlocking = TRUE,
-                      const char* localIp = NULL);
+   /// Create a new connection
+   OsConnectionSocket(int          remoteHostPort,
+                      const char*  remoteHostName, ///< May be dns name or ip address as string
+                      UtlBoolean   makeBlocking = TRUE, 
+                      const char*  localIp = NULL, ///< Defaults to INADDR_ANY
+                      unsigned int timeoutInMilliseconds = DefaultConnectionTimeoutMs 
+                      );
+   ///< timeoutInMilliseconds has no effect on non-blocking connects
 
+   /// Wrap an existing socket in an OsConnectionSocket object
    OsConnectionSocket(int connectedSocketDescriptor);
 
+   
    OsConnectionSocket(const char* localIp,
                       int connectedSocketDescriptor);
 

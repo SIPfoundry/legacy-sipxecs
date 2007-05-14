@@ -1804,6 +1804,12 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             {
                response = new SipMessage();
                response->setRequestBadAddress(message);
+               setSelfHeader(*response);
+
+               if(mReturnViasForMaxForwards) // overload config switch
+               {
+                  response->setRequestDiagBody(*message);
+               }
             }
 
             // Check SIP version
@@ -1856,6 +1862,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                response->setResponseData(message,
                                          SIP_OK_CODE,
                                          SIP_OK_TEXT);
+               setSelfHeader(*response);
 
                delete(message);
                message = NULL;
@@ -1880,28 +1887,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                   // error response for Max-Forwards exeeded
                   if(mReturnViasForMaxForwards)
                   {
-
-                     // The setBody method frees up the body before
-                     // setting the new one, if there is a body
-                     // We remove the body so that we can serialize
-                     // the message without getting the body
-                     message->setBody(NULL);
-
-                     UtlString sipFragString;
-                     int sipFragLen;
-                     message->getBytes(&sipFragString, &sipFragLen);
-
-                     // Create a body to contain the Vias from the request
-                     HttpBody* sipFragBody =
-                        new HttpBody(sipFragString.data(),
-                                     sipFragLen,
-                                     CONTENT_TYPE_MESSAGE_SIPFRAG);
-
-                     // Attach the body to the response
-                     response->setBody(sipFragBody);
-
-                     // Set the content type of the body to be sipfrag
-                     response->setContentType(CONTENT_TYPE_MESSAGE_SIPFRAG);
+                     response->setRequestDiagBody(*message);
                   }
 
                   delete(message);

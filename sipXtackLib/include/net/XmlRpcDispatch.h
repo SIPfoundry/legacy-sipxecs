@@ -33,7 +33,7 @@
 class XmlRpcMethodContainer : public UtlContainable
 {
 public:
-   XmlRpcMethodContainer();
+   XmlRpcMethodContainer(const char* methodName);
 
    virtual ~XmlRpcMethodContainer();
 
@@ -49,10 +49,13 @@ public:
    
    void getData(XmlRpcMethod::Get*& method, void*& userData);
 
+   void getName(UtlString& methodName);
+   
 private:
 
-   void* mpUserData;
-   XmlRpcMethod::Get* mpMethod;
+   UtlString          mMethodName; ///< record to be put in responses
+   void*              mpUserData;  ///< unique instance data
+   XmlRpcMethod::Get* mpMethod;    ///< factory to construct method instance
     
    //! DISALLOWED accidental copying
    XmlRpcMethodContainer(const XmlRpcMethodContainer& rXmlRpcMethodContainer);
@@ -115,10 +118,15 @@ protected:
    friend class XmlRpcTest;
    
    /// Parse the XML-RPC request
-   bool parseXmlRpcRequest(UtlString& requestContent,
-                           XmlRpcMethodContainer*& method,
-                           UtlSList& params,
-                           XmlRpcResponse& response);
+   bool parseXmlRpcRequest(const UtlString& requestContent, ///< HttpBody of received request
+                           XmlRpcMethodContainer*& method,  ///< output method data
+                           UtlSList& params,                ///< output parameter items
+                           XmlRpcResponse& response         /**< response
+                                                             * if return is false, this is a
+                                                             * fault message ready to send.
+                                                             */
+                           ); 
+   /**< @returns false if request did not parse cleanly */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -146,6 +154,7 @@ private:
    
    /// reader/writer lock for synchronization
    OsBSem mLock;
+
 
    /// Disabled copy constructor
    XmlRpcDispatch(const XmlRpcDispatch& rXmlRpcDispatch);

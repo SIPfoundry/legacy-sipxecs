@@ -63,12 +63,12 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int connectedSocketDescriptor, long
 {
    if (mIsConnected)
    {
-      mbExternalSSLSocket = FALSE;
-      SSLInitSocket(connectedSocketDescriptor, timeoutInSecs);
       OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
                     "OsSSLConnectionSocket::_(socket %d , timeout %ld)",
                     connectedSocketDescriptor, timeoutInSecs
                     );
+      mbExternalSSLSocket = FALSE;
+      SSLInitSocket(connectedSocketDescriptor, timeoutInSecs);
    }
    else
    {
@@ -91,18 +91,20 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(SSL *s, int connectedSocketDescript
 // Constructor
 OsSSLConnectionSocket::OsSSLConnectionSocket(int serverPort, const char* serverName,
                                              long timeoutInSecs) :
-   OsConnectionSocket(serverPort,serverName),
+   OsConnectionSocket(serverPort,serverName,TRUE /* BLOCKING */,
+                      NULL /* local address == INADDR_ANY */,
+                      timeoutInSecs * OsTime::MSECS_PER_SEC ),
    mSSL(NULL),
    mPeerIdentity(NOT_IDENTIFIED)
 {
     mbExternalSSLSocket = FALSE;
     if (mIsConnected)
     {
-       SSLInitSocket(socketDescriptor, timeoutInSecs);
        OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
                      "OsSSLConnectionSocket::_(port %d, name '%s', timeout %ld)",
                      serverPort, serverName, timeoutInSecs
                      );
+       SSLInitSocket(socketDescriptor, timeoutInSecs);
     }
 }
 
@@ -128,6 +130,8 @@ UtlBoolean OsSSLConnectionSocket::reconnect()
 
 void OsSSLConnectionSocket::close()
 {
+   OsSysLog::add(FAC_KERNEL, PRI_INFO, "OsSSLConnectionSocket::close");
+
     if (mSSL)
     {
        if (mIsConnected)
@@ -339,7 +343,7 @@ void OsSSLConnectionSocket::SSLInitSocket(int socket, long timeoutInSecs)
           if (err > 0)
           {
              OsSSL::logConnectParams(FAC_KERNEL, PRI_DEBUG,
-                                     "OsSSLConnectionSocket",
+                                     "OsSSLConnectionSocket::SSLInitSocket",
                                      mSSL);
           }
           else
@@ -354,7 +358,7 @@ void OsSSLConnectionSocket::SSLInitSocket(int socket, long timeoutInSecs)
        }
        else
        {
-          OsSysLog::add(FAC_KERNEL, PRI_DEBUG
+          OsSysLog::add(FAC_KERNEL, PRI_CRIT
                         , "OsSSLConnectionSocket bad parameters mSSL=%p,%d, closing socket..."
                         , mSSL, socketDescriptor);
           mIsConnected = FALSE;

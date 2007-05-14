@@ -77,7 +77,8 @@ void HttpConnectionMap::clearHttpConnectionMap()
 }
 /* ============================ MANIPULATORS ============================== */
 
-HttpConnectionMapEntry* HttpConnectionMap::getPersistentConnection(const Url& url, OsConnectionSocket*& socket)
+HttpConnectionMapEntry* HttpConnectionMap::getPersistentConnection(const Url& url,
+                                                                   OsConnectionSocket*& socket)
 {
     UtlString keyString;
     socket = NULL;

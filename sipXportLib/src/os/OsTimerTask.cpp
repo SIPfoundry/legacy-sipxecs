@@ -23,6 +23,10 @@
 // EXTERNAL VARIABLES
 
 // CONSTANTS
+// Maximum time to allow a timer event routine, in microseconds.
+const int maxFiringTime = 10000; // 10 milliseconds
+// Maximum time to sleep while waiting for incoming messages and timeouts.
+const OsTime maxSleepTime(1, 0); // 1 second
 
 // STATIC VARIABLE INITIALIZATIONS
 // spInstance can be tested and set asynchronously by different threads.
@@ -147,6 +151,13 @@ int OsTimerTask::run(void* pArg)
             OsTimer::cvtToOsTime(timeout,
                                  OsTimer::subtractTimes(mTimerQueue->mQueuedExpiresAt,
                                                         now));
+            // Limit the timeout time that we will wait.
+            // This reduces the length of time OsTimerTask can wait if an
+            // incoming message does not wake it up.
+            if (timeout > maxSleepTime)
+            {
+               timeout = maxSleepTime;
+            }
          }
          else
          {
@@ -195,12 +206,15 @@ int OsTimerTask::run(void* pArg)
          // Check to see if timer firing took too long.
          OsTimer::Time after = OsTimer::now();
          OsTimer::Time t = OsTimer::subtractTimes(after, now);
-         if (t >= 1000000 /* 1 second */)
+         if (t > maxFiringTime)
          {
             OsSysLog::add(FAC_KERNEL, PRI_WARNING,
                           "OsTimerTask::run firing took %" FORMAT_INTLL "d usecs, queue length = %d",
                           t, getMessageQueue()->numMsgs());
          }
+         // Advance 'now', because the event routine may have taken
+         // some time.
+         now = after;
       }
    }
    while (!doShutdown);
@@ -435,13 +449,15 @@ void OsTimerTask::insertTimer(OsTimer* timer)
    // in processing.
    if (OsSysLog::willLog(FAC_KERNEL, PRI_WARNING))
    {
-      // Check to see if timer firing took too long.
+      // Check to see if timer is set to fire in the past (which most likely
+      // means that the timer task has been delayed).
       OsTimer::Time now = OsTimer::now();
       if (OsTimer::compareTimes(timer->mQueuedExpiresAt, now) < 0)
       {
          OsSysLog::add(FAC_KERNEL, PRI_WARNING,
-                       "OsTimerTask::insertTimer timer to fire %" FORMAT_INTLL "d in the past",
-                       OsTimer::subtractTimes(now, timer->mQueuedExpiresAt));
+                       "OsTimerTask::insertTimer timer to fire %" FORMAT_INTLL "d in the past, queue length = %d",
+                       OsTimer::subtractTimes(now, timer->mQueuedExpiresAt),
+                       getMessageQueue()->numMsgs());
       }
    }
 

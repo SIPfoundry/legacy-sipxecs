@@ -671,6 +671,7 @@ void SipMessage::setLoopDetectedData(const SipMessage* inviteRequest)
    setLocalIp(inviteRequest->getLocalIp());
    setResponseData(inviteRequest, SIP_LOOP_DETECTED_CODE,
         SIP_LOOP_DETECTED_TEXT);
+   setRequestDiagBody(*inviteRequest);
 }
 
 void SipMessage::setInviteBusyData(const SipMessage* inviteRequest)
@@ -817,6 +818,31 @@ void SipMessage::setRequestBadUrlType(const SipMessage* request)
    setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_UNSUPPORTED_URI_SCHEME_CODE,
                    SIP_UNSUPPORTED_URI_SCHEME_TEXT);
+}
+
+void SipMessage::setRequestDiagBody(SipMessage request)
+{
+   // The setBody method frees up the body before
+   // setting the new one, if there is a body
+   // We remove the body so that we can serialize
+   // the message without getting the body
+   request.setBody(NULL);
+
+   UtlString sipFragString;
+   int sipFragLen;
+   request.getBytes(&sipFragString, &sipFragLen);
+
+   // Create a body to contain the Vias from the request
+   HttpBody* sipFragBody =
+      new HttpBody(sipFragString.data(),
+                   sipFragLen,
+                   CONTENT_TYPE_MESSAGE_SIPFRAG);
+
+   // Attach the body to the response
+   setBody(sipFragBody);
+
+   // Set the content type of the body to be sipfrag
+   setContentType(CONTENT_TYPE_MESSAGE_SIPFRAG);
 }
 
 void SipMessage::setInviteOkData(const char* fromField, 
