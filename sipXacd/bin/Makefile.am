@@ -1,23 +1,32 @@
 include $(top_srcdir)/config/subdir.am
 
+editscripts_IN = \
+    sipxacd.sh
+
+bin_SCRIPTS = \
+	${PACKAGE}-config
+
 $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP
 
-editscripts_IN = \
-    sipxacd.sh.in
+${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
+	@echo "making ${PACKAGE}-config"
+	@BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
+	; ${LocalizeSipXconfig} -e "s/@SIPX_BUILDSTAMP\@/$${BuildStamp}/" \
+	    $(top_srcdir)/config/sipX-config.in \
+	  > ${PACKAGE}-config
+	chmod +x ${PACKAGE}-config
 
-editscripts :
-	@for f in $(editscripts_IN); \
-	do \
-	  target=`basename $$f .in`; \
-     $(LocalizeSipXconfig) $(srcdir)/$$f > $$target; \
-	  $(INSTALL) -D -m 755 $$target $(DESTDIR)$(bindir)/$$target; \
-	done
+install-exec-hook: $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file))
+
+$(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bindir)/% : %
+	$(INSTALL) -D -m 755 $< $@
+
+$(foreach file,$(editscripts_IN),$(file)) : % : %.in
+	$(LocalizeSipXconfig) $< > $@
 
 EXTRA_DIST = \
-    $(editscripts_IN)
+   $(foreach file,$(editscripts_IN),$(file).in) \
+   $(bin_SCRIPTS)
 
-install-exec-hook : editscripts
-
-.PHONY : editscripts
 
