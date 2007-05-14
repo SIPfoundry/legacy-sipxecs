@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
+#include <sys/socket.h>
 
 
 // APPLICATION INCLUDES
