@@ -93,7 +93,7 @@ else
        . /etc/init.d/functions.sh
        HTTP_DAEMON_START="start-stop-daemon --start --exec @APACHE2_HTTPD@ --"
   else
-       HTTP_DAEMON_START="@APACHE2_HTTPD@ --"
+       HTTP_DAEMON_START="@APACHE2_HTTPD@"
   fi
 fi
 
