@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
  */
 public interface PhoneContext extends DataObjectSource {
 
+    String GROUP_RESOURCE_ID = "phone";
     String CONTEXT_BEAN_NAME = "phoneContext";
 
     /**

@@ -37,7 +37,6 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         DaoEventListener, BeanFactoryAware {
 
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
-    private static final String USER_GROUP_RESOURCE_ID = "user";
     private static final String USERNAME_PROP_NAME = "userName";
     private static final String VALUE = "value";
     /** nothing special about this name */

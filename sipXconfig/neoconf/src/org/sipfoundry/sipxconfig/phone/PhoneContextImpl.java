@@ -44,7 +44,6 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
         PhoneContext, ApplicationListener, DaoEventListener {
 
-    private static final String GROUP_RESOURCE_ID = "phone";
     private static final String QUERY_PHONE_ID_BY_SERIAL_NUMBER = "phoneIdsWithSerialNumber";
 
     private CoreContext m_coreContext;

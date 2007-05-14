@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
  */
 public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner {
 
+    public static final String USER_GROUP_RESOURCE_ID = "user";
     public static final String CONTEXT_BEAN_NAME = "coreContext";
     
     /**

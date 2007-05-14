@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.bulk.csv;
 
+import java.util.Collection;
+
 import org.apache.commons.collections.Closure;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -21,6 +23,7 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
@@ -29,6 +32,8 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
     private CoreContext m_coreContext;
 
     private PhoneContext m_phoneContext;
+    
+    private SettingDao m_settingDao;
 
     private ModelSource<PhoneModel> m_modelSource;
 
@@ -63,23 +68,19 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
      */
     protected void insertRow(String[] row) {
         User user = userFromRow(row);
-        Phone phone = phoneFromRow(row);
-
-        String phoneGroupName = Index.PHONE_GROUP.get(row);
-        Group phoneGroup = null;
-        if (StringUtils.isNotBlank(phoneGroupName)) {
-            phoneGroup = m_phoneContext.getGroupByName(phoneGroupName, true);
-        }
-
         String userGroupName = Index.USER_GROUP.get(row);
-        Group userGroup = null;
-        if (StringUtils.isNotBlank(userGroupName)) {
-            userGroup = m_coreContext.getGroupByName(userGroupName, true);
-        }
+        Collection<Group> userGroups = m_settingDao.getGroupsByString(CoreContext.USER_GROUP_RESOURCE_ID, 
+                userGroupName, true);
+
+        Phone phone = phoneFromRow(row);        
+        String phoneGroupName = Index.PHONE_GROUP.get(row);
+        Collection<Group> phoneGroups = m_settingDao.getGroupsByString(PhoneContext.GROUP_RESOURCE_ID, 
+                phoneGroupName, true);
+        
 
         MailboxPreferences mboxPrefs = mailboxPreferencesFromRow(row);
 
-        insertData(user, userGroup, phone, phoneGroup, mboxPrefs);
+        insertData(user, userGroups, phone, phoneGroups, mboxPrefs);
     }
 
     MailboxPreferences mailboxPreferencesFromRow(String[] row) {
@@ -156,15 +157,17 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
      * @param phone phone to add or update
      * @param phoneGroup phone group to which phone will be added
      */
-    private void insertData(User user, Group userGroup, Phone phone, Group phoneGroup,
+    private void insertData(User user, Collection<Group> userGroups, Phone phone, Collection<Group> phoneGroups,
             MailboxPreferences mboxPrefs) {
-        if (userGroup != null) {
+        for (Group userGroup : userGroups) {
             user.addGroup(userGroup);
         }
         m_coreContext.saveUser(user);
 
-        if (phoneGroup != null) {
-            phone.addGroup(phoneGroup);
+        if (phoneGroups != null) {
+            for (Group phoneGroup : phoneGroups) {
+                phone.addGroup(phoneGroup);
+            }
         }
 
         addLine(phone, user);
@@ -197,5 +200,9 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
             return row[0];
         }
         return ArrayUtils.toString(row);
+    }
+
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
     }
 }
