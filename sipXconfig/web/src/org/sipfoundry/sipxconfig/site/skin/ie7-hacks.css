@@ -1,10 +1,12 @@
 #navigation li ul {
-	/* top and left are for IE only */
 	top: 2em;
 	left: 0em;
 }
 
-#navigation li {
-	/* IE explorer only - working around Z-index bug */
+div#navigation < ul < li {
     _z-index: 500;
+}
+
+div#navigation < ul < li < ul < li  {
+    _z-index: 600;
 }
