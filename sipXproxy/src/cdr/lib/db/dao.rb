@@ -30,10 +30,11 @@ end
 class Dao
   attr_reader :log
   
-  def initialize(database_url, purge_age, log)
+  def initialize(database_url, purge_age, table_name, log)
     @connection = database_url.to_dbi
     @username = database_url.username
     @purge_age = purge_age
+    @table_name = table_name
     @last_purge_time = nil    
     @log = log
   end
@@ -46,6 +47,7 @@ class Dao
   def purge(time)
     connect do | dbh |
       purge_now(dbh, time)
+      vacuum_now(dbh, @table_name)
       @last_purge_time = now
     end    
   end
@@ -59,5 +61,12 @@ class Dao
       purge_now(dbh, first_entry_time)
       @last_purge_time = now
     end
+  end
+  
+  def vacuum_now(dbh, table_name)
+    sql = "VACUUM ANALYZE #{table_name}"
+    dbh.prepare(sql) do | sth |
+      sth.execute
+    end      
   end    
 end

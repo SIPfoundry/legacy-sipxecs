@@ -13,7 +13,7 @@ require 'db/dao'
 class CdrWriter < Dao
   
   def initialize(database_url, purge_age, log = nil)
-    super
+    super(database_url, purge_age, 'cdrs', log)
   end
   
   def run(queue)

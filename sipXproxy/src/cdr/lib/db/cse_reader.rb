@@ -15,7 +15,7 @@ require 'utils/terminator'
 class CseReader < Dao
 
   def initialize(database_url, purge_age, polling_interval, log = nil)
-    super(database_url, purge_age, log)
+    super(database_url, purge_age, 'call_state_events', log)
     @last_read_id = nil
     @last_read_time = nil
     log.debug("Polling CSE DB every #{polling_interval} seconds.")
