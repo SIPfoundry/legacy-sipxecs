@@ -225,8 +225,13 @@ bool SyncRpcReset::execute(const HttpRequestContext& requestContext, ///< reques
             peer->markReachable();
             response.setResponse(&returnedUpdateNumber);
             OsSysLog::add(FAC_SIP, PRI_NOTICE,
-                          "registerSync.reset received from '%s'; update numbering synchronized.",
-                          callingRegistrar->data()
+                          "registerSync.reset received from '%s'; update numbering synchronized to %0#16" FORMAT_INTLL "x.",
+                          callingRegistrar->data(),
+                          returnedUpdateNumber.getValue()
+                          );
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "registerSync.reset : %s is now marked Reachable",
+                          peer->name()
                           );
             status = XmlRpcMethod::OK;
             result = true;
@@ -297,7 +302,7 @@ SyncRpcReset::invoke(const char*    myName, ///< primary name of the caller
       {
          OsSysLog::add(FAC_SIP, PRI_CRIT,
                        "SyncRpcReset::invoke : no update number returned : "
-                       " %s marked incompatible for replication",
+                       " %s marked Incompatible for replication",
                        peer.name()
                        );
          resultState = RegistrarPeer::Incompatible;
@@ -433,7 +438,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                      OsSysLog::add(FAC_SIP, PRI_CRIT,
                                    "SyncRpcPullUpdates::invoke : "
                                    "inconsistent number of updates %d != %d : "
-                                   " %s marked incompatible for replication",
+                                   " %s marked Incompatible for replication",
                                    numUpdates->getValue(),
                                    responseUpdates->entries(),
                                    source->name()
@@ -446,7 +451,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                {
                   OsSysLog::add(FAC_SIP, PRI_CRIT,
                                 "SyncRpcPullUpdates::invoke : no updates element found  "
-                                " %s marked incompatible for replication",
+                                " %s marked Incompatible for replication",
                                 source->name()
                                 );
                   resultState = RegistrarPeer::Incompatible;
@@ -466,7 +471,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
          {
             OsSysLog::add(FAC_SIP, PRI_CRIT,
                           "SyncRpcPullUpdates::invoke : no numUpdates element found : "
-                          " %s marked incompatible for replication",
+                          " %s marked Incompatible for replication",
                           source->name()
                           );
             resultState = RegistrarPeer::Incompatible;
@@ -477,7 +482,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
       {
          OsSysLog::add(FAC_SIP, PRI_CRIT,
                        "SyncRpcPullUpdates::invoke : no response data returned : "
-                       " %s marked incompatible for replication",
+                       " %s marked Incompatible for replication",
                        source->name()
                        );
          resultState = RegistrarPeer::Incompatible;
@@ -606,7 +611,7 @@ void SyncRpcMethod::handleMissingExecuteParam(const char* methodName,
 
       faultMsg += ": '";
       faultMsg += peer->name();
-      faultMsg += "' marked incompatible for replication";
+      faultMsg += "' marked Incompatible for replication";
    }
    response.setFault(SyncRpcMethod::InvalidParameter, faultMsg);
    OsSysLog::add(FAC_SIP, PRI_CRIT, faultMsg);
@@ -929,7 +934,7 @@ SyncRpcPushUpdates::invoke(RegistrarPeer* peer,       ///< peer to push to
       {
          OsSysLog::add(FAC_SIP, PRI_CRIT,
                        "SyncRpcPushUpdates::invoke : invalid response "
-                       " %s marked incompatible for replication",
+                       " %s marked Incompatible for replication",
                        peer->name()
                        );
 
