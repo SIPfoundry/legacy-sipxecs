@@ -23,4 +23,19 @@ public class DeviceDescriptorTest extends TestCase {
         assertEquals("totallybogus", dd.cleanSerialNumber("totallybogus"));
         assertNull(dd.cleanSerialNumber(null));
     }
+
+    public void testGetModelDir() {
+        DeviceDescriptor dd = new DeviceDescriptor() {
+        };
+
+        assertNull(dd.getModelDir());
+
+        dd.setBeanId("bean");
+        assertEquals("bean", dd.getModelDir());
+        assertEquals("bean", dd.getBeanId());
+
+        dd.setModelDir("dir");
+        assertEquals("dir", dd.getModelDir());
+        assertEquals("bean", dd.getBeanId());
+    }
 }

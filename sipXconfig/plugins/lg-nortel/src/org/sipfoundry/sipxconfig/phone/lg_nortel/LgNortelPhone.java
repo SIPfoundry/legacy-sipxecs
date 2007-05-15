@@ -15,8 +15,11 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.device.ProfileFilter;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
@@ -45,18 +48,15 @@ public class LgNortelPhone extends Phone {
         addDefaultBeanSettingHandler(defaults);
     }
 
-    @Override
-    public void generateProfiles(ProfileLocation location) {
-        super.generateProfiles(location);
-        generatePhonebook(location);
+    public Profile[] getProfileTypes() {
+        return new Profile[] {
+            new Profile(this), new PhonebookeProfile(getPhonebookFilename())
+        };
     }
 
-    void generatePhonebook(ProfileLocation location) {
+    public ProfileContext getPhonebook() {
         Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
-        if (entries != null && entries.size() > 0) {
-            LgNortelPhonebook phonebook = new LgNortelPhonebook(entries);
-            getProfileGenerator().generate(location, phonebook, null, getPhonebookFilename());
-        }
+        return new LgNortelPhonebook(entries);
     }
 
     @Override
@@ -98,6 +98,21 @@ public class LgNortelPhone extends Phone {
         }
     }
 
+    static class PhonebookeProfile extends Profile {
+        public PhonebookeProfile(String name) {
+            super(name, "text/csv");
+        }
+
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        protected ProfileContext createContext(Device device) {
+            LgNortelPhone phone = (LgNortelPhone) device;
+            return phone.getPhonebook();
+        }
+    }
+
     @Override
     public String getProfileFilename() {
         return StringUtils.defaultString(getSerialNumber()).toUpperCase();
@@ -124,6 +139,6 @@ public class LgNortelPhone extends Phone {
     }
 
     public String getPhonebookFilename() {
-        return MessageFormat.format(m_phonebookFilename, getSerialNumber().toUpperCase());
+        return MessageFormat.format(m_phonebookFilename, getProfileFilename());
     }
 }

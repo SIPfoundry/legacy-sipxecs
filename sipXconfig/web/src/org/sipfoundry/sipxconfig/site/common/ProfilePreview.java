@@ -13,16 +13,19 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.device.Device;
+import org.sipfoundry.sipxconfig.device.Profile;
 
 @ComponentClass(allowInformalParameters = false, allowBody = false)
 public abstract class ProfilePreview extends BaseComponent {
     @Parameter
     public abstract Device getDevice();
     
-    public abstract String getProfileType();
+    public abstract Profile getProfileType();
+    
+    public abstract int getIndex();
 
     public boolean getRender() {
-        String[] profileTypes = getDevice().getProfileTypes();
+        Profile[] profileTypes = getDevice().getProfileTypes();
         return profileTypes != null && profileTypes.length > 0;
     }
 }

@@ -7,7 +7,6 @@
     <property name="beanId" value="kphone" />
     <property name="defaultProfileLocation" ref="httpProfileLocation" />
     <property name="profileTemplate" value="kphone/kphonerc.vm" />
-    <property name="modelDir" value="kphone" />
   </bean>
 
   <bean id="kphone" class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" singleton="false" parent="abstractPhone">

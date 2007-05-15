@@ -6,7 +6,6 @@
     class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel">
     <property name="beanId" value="grandstream" />
     <property name="profileTemplate" value="grandstream/grandstream.vm" />
-    <property name="modelDir" value="grandstream" />
   </bean>
   <bean id="gsPhoneBt" parent="gsModel">
     <property name="label" value="Grandstream BudgeTone" />

@@ -93,7 +93,18 @@ public class PolycomPhone extends Phone {
     }
 
     @Override
-    public void generateProfiles(ProfileLocation location) {
+    protected void copyFiles(ProfileLocation location) {
+        // Don't copy in vendor skeleton templates if there's a firmware active as it would
+        // contain it's own copies that should match the phone's firmware version
+        if (!m_uploadManager.isActiveUploadById(m_uploadManager
+                .getSpecification("polycomFirmware"))) {
+            getProfileGenerator().copy(location, "polycom/sip.cfg", "sip.cfg");
+            getProfileGenerator().copy(location, "polycom/phone1.cfg", "phone1.cfg");
+        }
+    }
+
+    @Override
+    public void generateFiles(ProfileLocation location) {
         ProfileFilter format = getProfileFilter();
 
         ApplicationConfiguration app = new ApplicationConfiguration(this, m_tftpRoot);
@@ -112,14 +123,6 @@ public class PolycomPhone extends Phone {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
         DirectoryConfiguration dir = new DirectoryConfiguration(entries, speedDial);
         getProfileGenerator().generate(location, dir, format, app.getDirectoryFilename());
-
-        // Don't copy in vendor skeleton templates if there's a firmware active as it would
-        // contain it's own copies that should match the phone's firmware version
-        if (!m_uploadManager.isActiveUploadById(m_uploadManager
-                .getSpecification("polycomFirmware"))) {
-            getProfileGenerator().copy(location, "polycom/sip.cfg", "sip.cfg");
-            getProfileGenerator().copy(location, "polycom/phone1.cfg", "phone1.cfg");
-        }
     }
 
     @Override

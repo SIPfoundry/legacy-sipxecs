@@ -6,7 +6,6 @@
     <property name="beanId" value="acmePhone" />
     <property name="label" value="Acme" />
     <property name="maxLineCount" value="3" />
-    <property name="modelDir" value="acmePhone" />
     <property name="profileTemplate" value="acmePhone/config.vm" />
   </bean>
 

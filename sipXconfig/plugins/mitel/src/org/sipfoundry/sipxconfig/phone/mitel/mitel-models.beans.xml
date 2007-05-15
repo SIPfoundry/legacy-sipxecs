@@ -6,12 +6,10 @@
   <bean id="mitel5224" parent="abstractPhoneModel">
     <property name="label" value="Mitel 5224" />
     <property name="beanId" value="mitel" />
-    <property name="modelDir" value="mitel" />
     <property name="maxLineCount" value="1" />
     <property name="profileTemplate" value="mitel/mn.txt.vm" />
   </bean>
   <!-- implementation -->
-  <bean id="mitel" class="org.sipfoundry.sipxconfig.phone.mitel.MitelPhone"
-    singleton="false" parent="abstractPhone">
+  <bean id="mitel" class="org.sipfoundry.sipxconfig.phone.mitel.MitelPhone" singleton="false" parent="abstractPhone">
   </bean>
 </beans>

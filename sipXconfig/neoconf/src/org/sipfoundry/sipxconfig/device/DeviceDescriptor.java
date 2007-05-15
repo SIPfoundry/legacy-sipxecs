@@ -52,8 +52,6 @@ public abstract class DeviceDescriptor {
 
     public DeviceDescriptor(String beanId) {
         setBeanId(beanId);
-        // mostly to simplify testing - for many phones and gateways they are the same
-        setModelDir(beanId);
     }
 
     public DeviceDescriptor(String beanId, String modelId) {
@@ -165,8 +163,17 @@ public abstract class DeviceDescriptor {
         return m_defaultProfileLocation;
     }
 
+    /**
+     * Return the name of the directory (under etc)
+     * 
+     * For most models model files are located in the directory identified by bean_id. Howewer it
+     * is possible have multiple bean_ids sharing model in the same directory.
+     */
     public String getModelDir() {
-        return m_modelDir;
+        if (m_modelDir != null) {
+            return m_modelDir;
+        }
+        return m_beanId;
     }
 
     public void setModelDir(String modelDir) {

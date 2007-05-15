@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.phone.clearone;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.device.Device;
+import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -24,10 +26,6 @@ public class ClearonePhone extends Phone {
     public static final String DIALPLAN_FILE = "c1dialplan_%s.txt";
 
     public ClearonePhone() {
-    }
-
-    public String getDialplanTemplate() {
-        return "clearone/c1dialplan.txt.vm";
     }
 
     @Override
@@ -51,11 +49,10 @@ public class ClearonePhone extends Phone {
     }
 
     @Override
-    public void generateProfiles(ProfileLocation location) {
-        super.generateProfiles(location);
-        ProfileContext context = new ProfileContext(this, getDialplanTemplate());
-        getProfileGenerator().generate(location, context, getProfileFilter(),
-                getDialplanFileName());
+    public Profile[] getProfileTypes() {
+        return new Profile[] {
+            new Profile(this), new DialPlanProfile(this)
+        };
     }
 
     @Override
@@ -88,5 +85,15 @@ public class ClearonePhone extends Phone {
     @Override
     protected void setLineInfo(Line line, LineInfo lineInfo) {
         ClearoneLineDefaults.setLineInfo(this, line, lineInfo);
+    }
+
+    private static class DialPlanProfile extends Profile {
+        public DialPlanProfile(ClearonePhone device) {
+            super(device.getDialplanFileName());
+        }
+
+        protected ProfileContext createContext(Device device) {
+            return new ProfileContext(device, "clearone/c1dialplan.txt.vm");
+        }
     }
 }

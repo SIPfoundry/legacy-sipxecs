@@ -76,10 +76,8 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         m_gateway.setSerialNumber("001122334455");
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
 
-        for (String profile : m_gateway.getProfileTypes()) {
-            m_gateway.generateProfile(location, profile);
-            assertTrue(location.toString().length() > 0);            
-        }
+        m_gateway.generateFiles(location);
+        assertTrue(location.toString().length() > 0);            
     }
 
     public void testPrepareSettings() throws Exception {

@@ -8,7 +8,6 @@
 
   <bean id="ciscoIpModel" abstract="true" parent="ciscoModel">
     <property name="beanId" value="ciscoIp" />
-    <property name="modelDir" value="ciscoIp" />
     <property name="profileTemplate" value="ciscoIp/cisco-ip.vm" />
   </bean>
 
@@ -23,7 +22,6 @@
 
   <bean id="ciscoAtaModel" abstract="true" parent="ciscoModel">
     <property name="beanId" value="ciscoAta" />
-    <property name="modelDir" value="ciscoAta" />
   </bean>
 
   <bean id="cisco7912" parent="ciscoAtaModel">

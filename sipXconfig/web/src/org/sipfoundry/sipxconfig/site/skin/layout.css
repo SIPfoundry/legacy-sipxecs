@@ -371,6 +371,12 @@ div.help
 	padding:5px;
 }
 
+div.help ul
+{
+	padding-left: 1em;
+	margin-left: 0;
+}
+
 div.search 
 {
 	float: right;

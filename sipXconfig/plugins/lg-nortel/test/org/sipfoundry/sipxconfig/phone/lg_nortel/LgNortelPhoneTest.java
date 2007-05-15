@@ -114,7 +114,7 @@ public class LgNortelPhoneTest extends TestCase {
             u1, u2
         }));
 
-        phone.generateProfiles(location);
+        phone.getProfileTypes()[0].generate(phone, location);
         InputStream expectedProfile = getClass().getResourceAsStream("mac.cfg");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);
@@ -154,7 +154,7 @@ public class LgNortelPhoneTest extends TestCase {
 
         {
             MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
-            phone.generateProfiles(location);
+            phone.getProfileTypes()[0].generate(phone, location);
             String actual = location.toString();
             String actualLines[] = StringUtils.split(actual, "\n");
             int i = find(actualLines, "[PROG]");
@@ -170,7 +170,7 @@ public class LgNortelPhoneTest extends TestCase {
         phone.addLine(line);
         {
             MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
-            phone.generateProfiles(location);
+            phone.getProfileTypes()[0].generate(phone, location);
             String actual = location.toString();
             String actualLines[] = StringUtils.split(actual, "\n");
             int i = find(actualLines, "[PROG]");

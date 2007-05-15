@@ -6,7 +6,6 @@
     <property name="beanId" value="snom" />
     <property name="defaultProfileLocation" ref="httpProfileLocation" />
     <property name="profileTemplate" value="snom/snom.vm" />
-    <property name="modelDir" value="snom" />
   </bean>
 
   <bean id="snom300" parent="snomModel">

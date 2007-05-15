@@ -5,7 +5,6 @@
   <!-- models -->
   <bean id="hitachiModel" abstract="true" parent="abstractPhoneModel">
     <property name="beanId" value="hitachi" />
-    <property name="modelDir" value="hitachi" />
     <property name="label" value="Hitachi Wireless IP 3000" />
     <property name="maxLineCount" value="1" />
     <property name="profileTemplate" value="hitachi/user.ini.vm" />

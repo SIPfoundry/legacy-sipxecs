@@ -1,14 +1,15 @@
-<div class="help" if="prop:render" element="div">
+<div class="help" jwcid="@If" condition="prop:render" element="div">
   <span key="msg.preview">To download device configuration files click on the links below:</span>
   <ul>
-    <li jwcid="@For"
+    <li jwcid="@For" element="li"
       source="prop:device.profileTypes"
-      value="prop:profileType">
+      value="prop:profileType" 
+      index="prop:index">
       <a jwcid="@common/ProfileLink"
       	device="prop:device"
-      	profile="prop:profileType"
+      	profileIndex="prop:index"
       	>
-        <span jwcid="@Insert" value="prop:profileType"/>
+        <span jwcid="@Insert" value="prop:profileType.name"/>
       </a>
     </li>
   </ul>

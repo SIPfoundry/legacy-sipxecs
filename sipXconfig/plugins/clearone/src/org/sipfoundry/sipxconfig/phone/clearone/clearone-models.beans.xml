@@ -5,7 +5,6 @@
   <!-- models -->
   <bean id="clearoneMax" parent="abstractPhoneModel">
     <property name="beanId" value="clearone" />
-    <property name="modelDir" value="clearone" />
     <property name="label" value="ClearOne MAX IP" />
     <property name="maxLineCount" value="1" />
     <property name="profileTemplate" value="clearone/C1MAXIP.txt.vm" />

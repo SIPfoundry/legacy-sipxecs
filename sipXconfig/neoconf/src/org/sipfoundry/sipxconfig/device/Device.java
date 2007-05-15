@@ -39,17 +39,16 @@ public abstract class Device extends BeanWithGroups {
      */
     public void generateProfiles(ProfileLocation location) {
         copyFiles(location);
-        String profileFileName = getProfileFilename();
-        generateProfile(location, profileFileName);
+        generateFiles(location);
     }
 
     /**
      * Gets list of files to be copies and used profileGenerator to copy them over to provisioning
      * location
      * 
-     * @param location
+     * @param location profile location
      */
-    public final void copyFiles(ProfileLocation location) {
+    protected void copyFiles(ProfileLocation location) {
         String[] names = getModel().getStaticProfileNames();
         String dir = getModel().getModelDir();
         for (String name : names) {
@@ -58,10 +57,20 @@ public abstract class Device extends BeanWithGroups {
         }
     }
 
-    public final void generateProfile(ProfileLocation location, String profileFileName) {
-        ProfileContext context = createContext();
-        ProfileFilter profileFilter = getProfileFilter();
-        m_profileGenerator.generate(location, context, profileFilter, profileFileName);
+    /**
+     * Default implementation gets the list of profile types and calls generate for each of those
+     * types
+     * 
+     * @param location profile location
+     */
+    public void generateFiles(ProfileLocation location) {
+        Profile[] profileTypes = getProfileTypes();
+        if (profileTypes == null) {
+            return;
+        }
+        for (Profile profile : profileTypes) {
+            profile.generate(this, location);
+        }
     }
 
     /**
@@ -87,13 +96,13 @@ public abstract class Device extends BeanWithGroups {
      * 
      * @return list
      */
-    public String[] getProfileTypes() {
+    public Profile[] getProfileTypes() {
         String profileFilename = getProfileFilename();
         if (profileFilename == null) {
             return null;
         }
-        return new String[] {
-            profileFilename
+        return new Profile[] {
+            new Profile(profileFilename)
         };
     }
 
