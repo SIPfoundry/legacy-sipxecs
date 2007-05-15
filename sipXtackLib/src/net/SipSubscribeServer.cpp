@@ -630,7 +630,10 @@ UtlBoolean SipSubscribeServer::handleNotifyResponse(const SipMessage& notifyResp
     int responseCode = notifyResponse.getResponseStatusCode();
 
     // Ignore provisional responses or success cases
-    if(responseCode >= SIP_3XX_CLASS_CODE)
+    // Also consider a 500 response as a success case, as it can
+    // result from out-of-order processing at the subscriber.
+    if(responseCode >= SIP_3XX_CLASS_CODE &&
+       responseCode != SIP_SERVER_INTERNAL_ERROR_CODE)
     {
         UtlString dialogHandle;
         notifyResponse.getDialogHandle(dialogHandle);
