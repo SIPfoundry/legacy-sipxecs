@@ -3,7 +3,7 @@
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <!-- models -->
-  <bean id="mitel5224">
+  <bean id="mitel5224" parent="abstractPhoneModel">
     <property name="label" value="Mitel 5224" />
     <property name="beanId" value="mitel" />
     <property name="modelDir" value="mitel" />
