@@ -606,7 +606,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                     // registerToStr is only the identity part.
                     UtlString aorString;
                     toUrl.getUri(aorString);
-                    mpSipRegEventServer->generateAndPublishContent(aorString, toUrl);
+                    //mpSipRegEventServer->generateAndPublishContent(aorString, toUrl);
 
                     // something changed - garbage collect and persist the database
                     scheduleCleanAndPersist();
@@ -794,7 +794,7 @@ Int64 SipRegistrarServer::updateOneBinding(
       const Url* aor = reg->getUri();
       UtlString aor_string;
       aor->getUri(aor_string);
-      mpSipRegEventServer->generateAndPublishContent(aor_string, *aor);
+      //mpSipRegEventServer->generateAndPublishContent(aor_string, *aor);
    }
 
    return maxUpdateNumber;
@@ -1305,7 +1305,7 @@ void SipRegistrarServer::cleanAndPersist()
    while ((aor = dynamic_cast <UtlString*> (itor())))
    {
       Url aor_uri(*aor, TRUE);
-      mpSipRegEventServer->generateAndPublishContent(*aor, aor_uri);
+      //mpSipRegEventServer->generateAndPublishContent(*aor, aor_uri);
    }
 
    // Critical Section here
