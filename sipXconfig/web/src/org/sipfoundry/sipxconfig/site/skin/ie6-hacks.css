@@ -1,0 +1,10 @@
+#navigation li ul {
+	/* top and left are for IE only */
+	top: 2em;
+	left: 0em;
+}
+
+#navigation li {
+	/* IE explorer only - working around Z-index bug */
+    _z-index: 500;
+}

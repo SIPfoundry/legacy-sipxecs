@@ -162,22 +162,11 @@ div.shadow
 	text-align:center;
 	margin: 0;
 	padding: 0;
-	/* IE explorer only - working around Z-index bug */
-    _z-index: 500;
 }
 
 #navigation li ul {
 	display: none;
 	position: absolute;
-	/* top and left are for IE only */
-	top: 2em;
-	left: 0em;
-}
-
-/* reset those values for all the browsers except for IE */
-#navigation li > ul {
-	top: auto;
-	left: auto;
 }
 
 #navigation li:hover ul,
@@ -232,7 +221,7 @@ div.shadow
 {
 	/* clear:both is important for IE guillotine bug */
 	clear:both;
-	text-align:center;
+    text-align:center;
     margin: 10em 0;
     padding: 15px;
 }

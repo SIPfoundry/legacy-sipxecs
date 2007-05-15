@@ -12,7 +12,7 @@
   <inject property="userSession" type="state" object="userSession"/>
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="restartService" object="engine-service:restart"/>
-  <inject property="skin" object="spring:skin"/>
+  <inject property="tapestry" object="spring:tapestry"/>
   <inject property="webRequest" object="infrastructure:request"/>  
   
   <property name="baseURL" initial-value="webRequest.contextPath" />  
@@ -23,7 +23,7 @@
    -->
 
   <component id="shell" type="Shell">
-    <binding name="stylesheets" value="prop:skin.stylesheetAssets"/>
+    <binding name="stylesheets" value="tapestry.getStylesheets(#this)"/>
     <binding name="title" value="message:product.name"/>
     <binding name="renderBaseTag" value="!useDojo"/>
     <!-- binding name="delegate" value="bean:ajaxDelegate" / -->        

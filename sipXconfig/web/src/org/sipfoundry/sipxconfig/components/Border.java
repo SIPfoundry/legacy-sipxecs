@@ -27,16 +27,13 @@ import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.Home;
 import org.sipfoundry.sipxconfig.site.LoginPage;
 import org.sipfoundry.sipxconfig.site.UserSession;
-import org.sipfoundry.sipxconfig.site.skin.SkinControl;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
 
 public abstract class Border extends BaseComponent implements PageValidateListener {
     private VersionInfo m_version = new VersionInfo();
 
     public abstract CoreContext getCoreContext();
-
-    public abstract SkinControl getSkin();
-
+    
     /**
      * When true - page does not require login
      */
@@ -76,7 +73,7 @@ public abstract class Border extends BaseComponent implements PageValidateListen
             throw new PageRedirectException(Home.PAGE);
         }
     }
-
+    
     public ILink logout(IRequestCycle cycle) {
         getApplicationLifecycle().logout();
         return new StaticLink(cycle.getAbsoluteURL("/"));

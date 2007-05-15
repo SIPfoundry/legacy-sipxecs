@@ -5,14 +5,14 @@
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="loginContext" object="spring:loginContext"/>
   <inject property="userSession" type="state" object="userSession"/>
-  <inject property="skin" object="spring:skin"/>
+  <inject property="tapestry" object="spring:tapestry"/>
   <property name="userName" />
   <property name="password" />
   <!-- B E A N S -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <!-- C O M P O N E N T S -->
   <component id="shell" type="Shell">
-    <binding name="stylesheets" value="skin.stylesheetAssets"/>
+    <binding name="stylesheets" value="tapestry.getStylesheets(#this)"/>
     <binding name="title" value="message:product.name"/>
   </component>
   <component id="form" type="Form">

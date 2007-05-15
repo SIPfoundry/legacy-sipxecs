@@ -6,8 +6,7 @@
   <!--
       - P R O P E R T I E S
       -->
-  <inject property="coreContext" object="spring:coreContext"/>
-  <inject property="skin" object="spring:skin"/>
+  <inject property="tapestry" object="spring:tapestry"/>
   <property name="pin" />
   <!--
       - B E A N S 
@@ -17,7 +16,7 @@
       - C O M P O N E N T S
       -->
   <component id="shell" type="Shell">
-    <binding name="stylesheets" value="skin.stylesheetAssets"/>
+    <binding name="stylesheets" value="tapestry.getStylesheets(#this)"/>
     <binding name="title" value="message:product.name"/>
   </component>
   <component id="form" type="Form">

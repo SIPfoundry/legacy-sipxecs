@@ -144,7 +144,9 @@
     <property name="tablePageSize" value="20"/>    
   </bean>
   <!-- tapestry utilities -->
-  <bean id="tapestry" class="org.sipfoundry.sipxconfig.components.TapestryContext"/>
+  <bean id="tapestry" class="org.sipfoundry.sipxconfig.components.TapestryContext">
+    <property name="skinControl" ref="skin"/>
+  </bean>
   <bean id="editPageProvider" class="org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider"/>
   <bean id="skin" class="org.sipfoundry.sipxconfig.site.skin.SkinControl">	
 	  <property name="tapestryContext" ref="tapestry"/>

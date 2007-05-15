@@ -18,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.ApplicationRuntimeException;
 import org.apache.hivemind.Messages;
 import org.apache.tapestry.IActionListener;
+import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
@@ -25,6 +26,7 @@ import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.site.skin.SkinControl;
 
 /**
  * Tapestry utilities available to web pages
@@ -33,6 +35,8 @@ public class TapestryContext {
     public static final String CONTEXT_BEAN_NAME = "tapestry";
 
     private HivemindContext m_hivemindContext;
+
+    private SkinControl m_skinControl;
 
     public void setHivemindContext(HivemindContext hivemindContext) {
         m_hivemindContext = hivemindContext;
@@ -144,5 +148,16 @@ public class TapestryContext {
      */
     public DateFormat date(Locale locale) {
         return TapestryUtils.getDateFormat(locale);
+    }
+
+    
+    public IAsset[] getStylesheets(IComponent component) {        
+        String userAgent = component.getPage().getRequestCycle().getInfrastructure().getRequest().getHeader(
+                "user-agent");
+        return m_skinControl.getStylesheetAssets(userAgent);
+    }
+
+    public void setSkinControl(SkinControl skinControl) {
+        m_skinControl = skinControl;
     }
 }

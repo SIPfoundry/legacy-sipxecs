@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.site.skin;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.asset.AssetFactory;
@@ -26,8 +28,11 @@ import org.springframework.context.NoSuchMessageException;
  */
 public class SkinControl implements BeanFactoryAware {
     public static final String CONTEXT_BEAN_NAME = "skin";
+    static final Pattern IE_REGEX = Pattern.compile(".*(\\s+|\\()MSIE ([0-9]{1,}[\\.0-9]{0,}).*");
     private static final String ASSET_COLORS = "colors.css";
     private static final String ASSET_LAYOUT = "layout.css";
+    private static final String ASSET_IE6 = "ie6-hacks.css";
+    private static final String ASSET_IE7 = "ie7-hacks.css";
     private TapestryContext m_tapestryContext;
     // overrideable in skin
     private Map<String, String> m_assets = new HashMap();
@@ -41,12 +46,25 @@ public class SkinControl implements BeanFactoryAware {
         m_assets.put("logo.png", pkg + "/sipxconfig-logo.png");
         m_assets.put(ASSET_LAYOUT, pkg + "/layout.css");
         m_assets.put(ASSET_COLORS, pkg + "/colors.css");
+        m_assets.put(ASSET_IE6, pkg + "/ie6-hacks.css");
+        m_assets.put(ASSET_IE7, pkg + "/ie7-hacks.css");
     }
 
-    public IAsset[] getStylesheetAssets() {
-        IAsset[] assets = new IAsset[2];
+    public IAsset[] getStylesheetAssets(String userAgent) {
+        Matcher ie = IE_REGEX.matcher(userAgent);
+        boolean isIe = ie.matches();
+        IAsset[] assets = new IAsset[isIe ? 3 : 2];
         assets[0] = getAsset(ASSET_COLORS);
         assets[1] = getAsset(ASSET_LAYOUT);
+        if (isIe) {
+            String ver = ie.group(2);
+            Float fver = Float.parseFloat(ver);
+            if (fver < 7) {
+                assets[2] = getAsset(ASSET_IE6);                            
+            } else {
+                assets[2] = getAsset(ASSET_IE7);                                            
+            }
+        }
         return assets;
     }
 
