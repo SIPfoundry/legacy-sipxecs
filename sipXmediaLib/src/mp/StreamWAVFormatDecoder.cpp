@@ -516,13 +516,22 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
             if (pDataSource->read((char*) &blockSize, sizeof(blockSize), iRead) == OS_SUCCESS)
             {
                 char tmpbuf[16000];
-                int totalLeftToRead = letohl(blockSize);
-                OsStatus retval = OS_FAILED;
-                do
+                int  totalLeftToRead, bytesToRead;
+                
+                blockSize = letohl(blockSize);
+                for (totalLeftToRead = blockSize; totalLeftToRead > 0; totalLeftToRead -= iRead )
                 {
-                    retval = pDataSource->read(tmpbuf, 16000, iRead);
-                    totalLeftToRead -= iRead;
-                } while (totalLeftToRead > 0 && retval == OS_SUCCESS);
+                    bytesToRead = sizeof(tmpbuf);
+                    if (totalLeftToRead < bytesToRead)
+                    {
+                        bytesToRead = totalLeftToRead;
+                    }
+                    if (pDataSource->read(tmpbuf, bytesToRead, iRead) != OS_SUCCESS)
+                    {
+                        syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::nextDataChunk (Error reading block data)");
+                        break;
+                    }
+                }
             }
             else
             {
