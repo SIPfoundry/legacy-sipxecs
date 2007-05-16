@@ -17,6 +17,16 @@ public class PhoneModel extends DeviceDescriptor {
 
     private int m_maxLineCount = DEFAULT_MAX_LINES;
 
+    /**
+     * Used to test if phone supports external lines.
+     * 
+     * External line is a line that registers with a different SIP proxy than out default proxy.
+     * Some phones support multiple lines but all of the have to be registered with the same
+     * proxy. This flag needs to be switched to falso for such phones.
+     * 
+     */
+    private boolean m_externalLinesSupported = true;
+
     public PhoneModel() {
     }
 
@@ -34,5 +44,13 @@ public class PhoneModel extends DeviceDescriptor {
 
     public int getMaxLineCount() {
         return m_maxLineCount;
+    }
+
+    public void setExternalLinesSupported(boolean externalLinesSupported) {
+        m_externalLinesSupported = externalLinesSupported;
+    }
+
+    public boolean isExternalLinesSupported() {
+        return m_externalLinesSupported;
     }
 }

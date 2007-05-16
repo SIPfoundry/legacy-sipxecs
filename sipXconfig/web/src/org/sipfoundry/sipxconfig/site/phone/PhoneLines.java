@@ -12,13 +12,18 @@ package org.sipfoundry.sipxconfig.site.phone;
 import java.util.Collection;
 
 import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.callback.PageCallback;
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectPage;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -32,13 +37,31 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
 
     public static final String PAGE = "PhoneLines";
 
+    @InjectObject(value = "spring:phoneContext")
+    public abstract PhoneContext getPhoneContext();
+
+    @InjectObject(value = "spring:tapestry")
+    public abstract TapestryContext getTapestry();
+
+    @InjectPage(value = AddPhoneUser.PAGE)
+    public abstract AddPhoneUser getAddPhoneUserPage();
+
+    @InjectPage(value = AddExternalLine.PAGE)
+    public abstract AddExternalLine getAddExternalLinePage();
+
+    @InjectPage(value = EditLine.PAGE)
+    public abstract EditLine getEditLinePage();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+
     public abstract Phone getPhone();
 
     public abstract void setPhone(Phone phone);
 
+    @Persist
     public abstract Integer getPhoneId();
 
-    /** REQUIRED PROPERTY */
     public abstract void setPhoneId(Integer id);
 
     public Collection getLines() {
@@ -49,11 +72,10 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
 
     public abstract void setCurrentRow(Line line);
 
+    @InitialValue(value = "new org.sipfoundry.sipxconfig.components.SelectMap()")
     public abstract SelectMap getSelections();
 
     public abstract void setSelections(SelectMap selections);
-
-    public abstract PhoneContext getPhoneContext();
 
     public abstract String getActiveTab();
 
@@ -61,18 +83,13 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
         PhoneContext context = getPhoneContext();
         Phone phone = context.loadPhone(getPhoneId());
         setPhone(phone);
-
-        // Generate the list of phone items
-        if (getSelections() == null) {
-            setSelections(new SelectMap());
-        }
     }
 
-    public IPage addExternalLine(IRequestCycle cycle, Integer phoneId) {
+    public IPage addExternalLine(Integer phoneId) {
         checkMaxLines(phoneId);
-        AddExternalLine page = (AddExternalLine) cycle.getPage(AddExternalLine.PAGE);
+        AddExternalLine page = getAddExternalLinePage();
         page.setPhoneId(phoneId);
-        page.setCallback(new PageCallback(this));
+        page.setReturnPage(this);
         return page;
     }
 
@@ -81,15 +98,15 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
         phone.addLine(phone.createLine());
     }
 
-    public IPage addLine(IRequestCycle cycle, Integer phoneId) {
+    public IPage addLine(Integer phoneId) {
         checkMaxLines(phoneId);
-        AddPhoneUser page = (AddPhoneUser) cycle.getPage(AddPhoneUser.PAGE);
+        AddPhoneUser page = getAddPhoneUserPage();
         page.setPhoneId(phoneId);
         return page;
     }
 
-    public IPage editLine(IRequestCycle cycle, Integer lineId) {
-        EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
+    public IPage editLine(Integer lineId) {
+        EditLine page = getEditLinePage();
         page.setLineId(lineId);
         return page;
     }
@@ -137,5 +154,13 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
 
     public String cancel() {
         return ManagePhones.PAGE;
+    }
+
+    public boolean isExternalLinesSupported() {
+        return getPhone().getModel().isExternalLinesSupported();
+    }
+
+    public int getMaxLineCount() {
+        return getPhone().getModel().getMaxLineCount();
     }
 }

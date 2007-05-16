@@ -75,6 +75,7 @@
     <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
     <property name="fxs" value="true" />
     <property name="modelDir" value="audiocodes" />
+    <property name="externalLinesSupported" value="false" />
     <property name="staticProfileFilenames">
       <list>
         <value>MP11x-02-1-FXS_16KHZ.dat</value>
