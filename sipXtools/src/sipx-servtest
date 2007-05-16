@@ -21,7 +21,7 @@ use Net::Ping;
 ## Constants
 $CRLF = "\r\n";
 $SipVersion = '2.0';
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 ## Globals
 # %Child holds pids for each UAS, indexed by $server:$port
@@ -82,7 +82,7 @@ $SHORT_HELP
       --domain <domain>
          Specifies the URI of your sip domain.
 
-      --aor <aor>
+      --aor <aor> or -a <aor>
          Specifies the SIP URL of a User Agent that MUST be valid;
          that is, that the registry/redirect service will translate to a
          Contact address, and which will respond to an OPTIONS request
@@ -126,7 +126,7 @@ $SHORT_HELP
             myserver.example.com:5000
             127.0.0.1:12000
 
-      --alarm <alarm-address>
+      --alarm <alarm-address>  or -e <alarm-address>
          An email address where mail messages are sent when errors are
          detected.    (may be specified more than once)
 
@@ -243,11 +243,11 @@ GetOptions(
            'domain=s'       => \$Domain,
            'commserver|c=s' => \@CommServers,
 
-           'authproxy|a=s'  => \@AuthProxies,
+           'authproxy=s'    => \@AuthProxies,
            'proxy|p=s'      => \@Proxies,
            'redirect|r=s'   => \@Redirectors,
 
-           'aor=s'          => \@Aors,
+           'aor|a=s'        => \@Aors,
 
            'verbose|v+'     => \$Verbose,
            'timeout|t=i'    => \$Timeout,
