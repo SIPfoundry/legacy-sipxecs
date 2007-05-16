@@ -31,7 +31,7 @@
 // STATIC VARIABLE INITIALIZATIONS
 
 SipServerBroker::SipServerBroker(OsServerTask* pTask, OsServerSocket* pSocket) :
-    OsTask("SipServerBroker - %d"),
+    OsTask("SipServerBroker-%d"),
     mpSocket(pSocket),
     mpOwnerTask(pTask)
 {
