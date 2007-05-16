@@ -3,10 +3,10 @@
 	left: 0em;
 }
 
-div#navigation < ul < li {
-    _z-index: 500;
+#navigation  ul li {
+	z-index: 500;
 }
 
-div#navigation < ul < li < ul < li  {
-    _z-index: 600;
+#navigation  ul li ul li  {
+	z-index: 600;
 }
