@@ -512,6 +512,7 @@ for command in \
     "free" \
     "df" \
     "ls -ld /tmp" \
+    "cat /etc/issue" \
     "@SIPX_BINDIR@/analyze_483s @SIPX_LOGDIR@/sipproxy.log"
 do
   echo "" >> ${SystemConfig}
