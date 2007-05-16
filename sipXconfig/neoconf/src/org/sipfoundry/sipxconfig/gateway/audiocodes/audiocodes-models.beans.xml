@@ -108,9 +108,21 @@
   </bean>
 
   <!-- Firmware specification -->
-  <bean id="audiocodesFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+  <bean id="abstractAudiocodesFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification" abstract="true">
     <property name="beanId" value="upload" />
     <property name="modelFilePath" value="audiocodes/upload.xml" />
-    <property name="label" value="AudioCodes Gateways" />
+  </bean>
+
+  <bean id="audiocodesFirmware" parent="abstractAudiocodesFirmware">
+    <property name="label" value="AudioCodes MP 11x" />
+  </bean>
+  <bean id="audiocodesFirmwareMediant100" parent="abstractAudiocodesFirmware">
+    <property name="label" value="AudioCodes Mediant 1000" />
+  </bean>
+  <bean id="audiocodesFirmwareTp260" parent="abstractAudiocodesFirmware">
+    <property name="label" value="AudioCodes TP260" />
+  </bean>
+  <bean id="audiocodesFirmwareMP128" parent="abstractAudiocodesFirmware">
+    <property name="label" value="AudioCodes MP128" />
   </bean>
 </beans>

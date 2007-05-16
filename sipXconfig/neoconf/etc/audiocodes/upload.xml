@@ -10,7 +10,7 @@
   <group name="firmware">
     <label>Firmware</label>
     <setting name="file.cmp">
-      <label>Mxxxx_SIP_xxxxx.cmp</label>
+      <label>Firmware (*.cmp)</label>
       <type refid="binary"/>
     </setting>
   </group>
