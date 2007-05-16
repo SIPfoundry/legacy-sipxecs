@@ -381,7 +381,7 @@ UtlBoolean OsConnectionSocket::reconnect()
         return(FALSE);
 }
 
-// Because we have overided one read method, we
+// Because we have overridden one read method, we
 // must implement them all in OsConnectionSocket or
 // we end up hiding some of the methods.
 int OsConnectionSocket::read(char* buffer, int bufferLength)

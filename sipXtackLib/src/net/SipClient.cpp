@@ -77,7 +77,7 @@ SipClient::SipClient(OsSocket* socket) :
        UtlString remoteSocketHost;
        socket->getRemoteHostName(&remoteSocketHost);
        OsSysLog::add(FAC_SIP, PRI_INFO,
-                     "%s::_ created %s %s socket %d: host '%s' port %d",
+                     "SipClient[%s]::_ created %s %s socket %d: host '%s' port %d",
                      this->mName.data(),
                      OsSocket::ipProtocolString(mSocketType),
                      mbSharedSocket ? "shared" : "unshared",
@@ -110,8 +110,9 @@ SipClient::~SipClient()
         // cause the run method to exit.
         if (!mbSharedSocket)
         {
-           OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient %p socket %p closing %s socket",
-                         this, clientSocket, OsSocket::ipProtocolString(mSocketType));
+           OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient[%s]::~SipClient %p socket %p closing %s socket",
+                         this->mName.data(), this,
+                         clientSocket, OsSocket::ipProtocolString(mSocketType));
            clientSocket->close();
         }
 
@@ -143,7 +144,8 @@ SipClient::~SipClient()
         int numEvents = mWaitingList->entries();
         if(numEvents)
         {
-            OsSysLog::add(FAC_SIP, PRI_WARNING, "SipClient::~SipClient has %d waiting events",
+            OsSysLog::add(FAC_SIP, PRI_WARNING, "SipClient[%s]::~SipClient has %d waiting events",
+                          this->mName.data(),
                           numEvents);
         }
 
@@ -195,9 +197,13 @@ int SipClient::run(void* runArg)
             // not actually ever happen.
 #ifdef TEST_SOCKET
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipClient::run readAMessage = %d, "
+                          "SipClient[%s]::run preparing to waitForReadyToRead readAMessage = %d, "
                           "buffer.length() = %d, clientSocket = %p",
+                          this->mName.data(),
                           readAMessage, buffer.length(), clientSocket);
+#endif
+#ifdef LOG_TIME
+                eventTimes.addEvent("waiting");
 #endif
             if (clientSocket
                 && ((  readAMessage && buffer.length() >= MINIMUM_SIP_MESSAGE_SIZE)
@@ -223,9 +229,10 @@ int SipClient::run(void* runArg)
                    if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
                    {
                       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                    "SipClient::run %p socket %p host: %s "
+                                    "SipClient[%s]::run %p socket %p host: %s "
                                     "sock addr: %s via addr: %s rcv addr: %s "
                                     "sock type: %s read ready %s",
+                                    this->mName.data(),
                                     this, clientSocket,
                                     mRemoteHostName.data(),
                                     mRemoteSocketAddress.data(),
@@ -242,7 +249,8 @@ int SipClient::run(void* runArg)
 
 #                   if 0 // turn on to check socket read problems
                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                  "SipClient::run client %p read %d bytes",
+                                  "SipClient[%s]::run client %p read %d bytes",
+                                  this->mName.data(),
                                   this, bytesRead);
 #                   endif
 
@@ -253,7 +261,8 @@ int SipClient::run(void* runArg)
                 else
                 {
                    OsSysLog::add(FAC_SIP, PRI_ERR,
-                                 "SipClient::run client 0%p socket attempt to read NULL",
+                                 "SipClient[%s]::run client %p socket attempt to read NULL",
+                                 this->mName.data(),
                                  this);
                    bytesRead = 0;
                 }
@@ -274,7 +283,8 @@ int SipClient::run(void* runArg)
                 if(clientSocket == NULL)
                 {
                     OsSysLog::add(FAC_SIP, PRI_ERR,
-                                  "SipClient::run client 0%p socket is NULL",
+                                  "SipClient[%s]::run client %p socket is NULL",
+                                  this->mName.data(),
                                   this);
                 }
             }
@@ -293,7 +303,8 @@ int SipClient::run(void* runArg)
                     remoteHostName.remove(0);
                     clientSocket->getRemoteHostName(&remoteHostName);
                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                  "Shutting down client: %s due to failed socket (%d)? bytes: %d isOk: %s",
+                                  "SipClient[%s]::run Shutting down client: %s due to failed socket (%d)? bytes: %d isOk: %s",
+                                  this->mName.data(),
                                   remoteHostName.data(), clientSocket->getSocketDescriptor(),
                                   bytesRead, (clientSocket->isOk() ? "OK" : "NO")
                                   );
@@ -462,7 +473,8 @@ int SipClient::run(void* runArg)
                                   // for TCP or TLS.
                                   (clientSocket->getIpProtocol() ==
                                    OsSocket::UDP) ? PRI_ERR : PRI_DEBUG,
-                                  "SipClient::run buffer residual bytes: %d\n===>%s<===\n",
+                                  "SipClient[%s]::run buffer residual bytes: %d\n===>%s<===\n",
+                                  this->mName.data(),
                                   buffer.length(), buffer.data());
                 }
             } // if bytesRead > 0
@@ -471,7 +483,7 @@ int SipClient::run(void* runArg)
             {
                UtlString timeString;
                eventTimes.getLogString(timeString);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::run time log: %s",
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient[%s]::run time log: %s",
                              this->mName.data(),
                              timeString.data());
             }
@@ -484,7 +496,8 @@ int SipClient::run(void* runArg)
         }
         else
         {
-           OsSysLog::add(FAC_SIP, PRI_ERR, "SipClient::run client 0%p socket is NULL yielding",
+           OsSysLog::add(FAC_SIP, PRI_ERR, "SipClient[%s]::run client %p socket is NULL yielding",
+                         this->mName.data(),
                          this);
            yield();  // I do not know why this yield is here
         }
@@ -517,8 +530,12 @@ UtlBoolean SipClient::send(SipMessage* message)
          clientSocket->reconnect();
 #ifdef TEST_SOCKET
          if(clientSocket)
-            osPrintf("SipClient reconnected with socket descriptor: %d\n",
-                     reconnect->getSocketDescriptor());
+         {
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipClient[%s]::send reconnected with socket descriptor %d",
+                          this->mName.data(),
+                          clientSocket->getSocketDescriptor());
+         }
 #endif
       }
       else
@@ -547,7 +564,8 @@ UtlBoolean SipClient::send(SipMessage* message)
             eventTimes.addEvent("released");
             UtlString timeString;
             eventTimes.getLogString(timeString);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::send time log: %s",
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient[%s]::send time log: %s",
+                          this->mName.data(),
                           timeString.data());
 #endif
 
@@ -616,7 +634,9 @@ UtlBoolean SipClient::sendTo(const SipMessage& message,
 
        default:
           OsSysLog::add(FAC_SIP, PRI_CRIT,
-                        "SipClient::sendTo called for invalid socket type %d", mSocketType
+                        "SipClient[%s]::sendTo called for invalid socket type %d",
+                        this->mName.data(),
+                        mSocketType
                         );
           sendOk = FALSE;
        }
@@ -624,7 +644,8 @@ UtlBoolean SipClient::sendTo(const SipMessage& message,
     else
     {
        OsSysLog::add(FAC_SIP, PRI_CRIT,
-                     "SipClient::sendTo called for client without socket"
+                     "SipClient[%s]::sendTo called for client without socket",
+                     this->mName.data()
                      );
        sendOk = FALSE;
     }
@@ -766,8 +787,8 @@ void SipClient::touch()
    OsTime time;
    OsDateTime::getCurTimeSinceBoot(time);
    touchedTime = time.seconds();
-   //OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::touch client: %p time: %d\n",
-   //             this, touchedTime);
+   //OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient[%s]::touch client: %p time: %d\n",
+   //             this->mName.data(), this, touchedTime);
 }
 
 int SipClient::isInUseForWrite(void)
@@ -807,7 +828,8 @@ UtlBoolean SipClient::isConnectedTo(UtlString& hostName, int hostPort)
         // Cannot trust what the other side said was their IP address
         // as this is a bad spoofing/denial of service whole
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipClient::isConnectedTo matches %s:%d but is not trusted",
+                      "SipClient[%s]::isConnectedTo matches %s:%d but is not trusted",
+                      this->mName.data(),
                       mRemoteViaAddress.data(), mRemoteViaPort);
     }
 

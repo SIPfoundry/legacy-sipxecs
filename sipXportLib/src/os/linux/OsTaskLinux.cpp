@@ -500,6 +500,9 @@ UtlBoolean OsTaskLinux::doLinuxCreateTask(const char* pTaskName)
    }
    
    linuxRes = pthread_create(&mTaskId, &attributes, taskEntry, (void *)this);
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                 "OsTaskLinux::doLinuxCreateTask this = %p, mTaskId = %d",
+                 this, (int)mTaskId);
    pthread_attr_destroy(&attributes);
 
    if (linuxRes == POSIX_OK)
@@ -526,8 +529,9 @@ void OsTaskLinux::doLinuxTerminateTask(UtlBoolean doForce)
    pthread_t savedTaskId;
 
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                 "OsTaskLinux::doLinuxTerminateTask, deleting task thread: %x,"
-                 " force = %d", (int)mTaskId, doForce);
+                 "OsTaskLinux::doLinuxTerminateTask, deleting task thread:"
+                 " mTaskId = %x, this = %p, force = %d",
+                 (int)mTaskId, this, doForce);
 
    // if there is no low-level task, or entry in the name database, just return
    if ((mState != UNINITIALIZED) && ((int)mTaskId != 0))
@@ -713,6 +717,9 @@ void OsTaskLinux::taskUnregister(void)
                     " mTaskId = 0x%08x, key '%s', returns %d",
                     (int) mTaskId, idString, res);
    }
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                 "OsTaskLinux::taskUnregister this = %p, previous mTaskId = %d",
+                 this, (int)mTaskId);
    mTaskId = 0;
 
    assert(res == OS_SUCCESS || res == OS_NOT_FOUND);
