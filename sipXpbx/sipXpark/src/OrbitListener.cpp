@@ -970,7 +970,6 @@ void OrbitListener::setUpParkedCallEstablished(const UtlString& callId,
                           "OrbitListener::setUpParkedCallOffered - Dropping callId '%s' because playAudio() failed",
                           callId.data());
             mpCallManager->drop(callId);
-            delete pThisCall;
          }
       }
       else
