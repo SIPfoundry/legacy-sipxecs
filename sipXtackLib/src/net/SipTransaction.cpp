@@ -1774,18 +1774,16 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                 mDispatchedFinalResponse = TRUE;
             }
 
-            // This should not occur.  All 2xx class message for which
+            // This should not occur.  All 2xx class messages for which
             // there is no parent server transaction should get dispatched
-            else if(mpParentTransaction == NULL)
+            else if(   mpParentTransaction == NULL
+                    && responseCode >= SIP_2XX_CLASS_CODE
+                    )
             {
-               // xmlscott: despite the comment above, this happens a lot, 
-               //           and seems to not always be bad,
-               //           so I'm changing the priority to get it out of
-               //           the logs.
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                              "SipTransaction::handleChildIncoming "
-                              "%d response with parent client transaction NOT dispatched",
-                              responseCode);
+               OsSysLog::add(FAC_SIP, PRI_WARNING,
+                             "SipTransaction::handleChildIncoming "
+                             "%d response with parent client transaction NOT dispatched, but it should have been",
+                             responseCode);
             }
         }
         else
@@ -2982,11 +2980,11 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
             }
 
             // 401 & 407 are better than any other 4xx, 5xx or 6xx
-            else if(bestResponseCode >= SIP_4XX_CLASS_CODE &&
-                (bestResponseCode != HTTP_UNAUTHORIZED_CODE &&
-                bestResponseCode != HTTP_PROXY_UNAUTHORIZED_CODE) &&
-                (childResponseCode == HTTP_UNAUTHORIZED_CODE ||
-                childResponseCode == HTTP_PROXY_UNAUTHORIZED_CODE))
+            else if (bestResponseCode >= SIP_4XX_CLASS_CODE &&
+                     (bestResponseCode != HTTP_UNAUTHORIZED_CODE &&
+                      bestResponseCode != HTTP_PROXY_UNAUTHORIZED_CODE) &&
+                     (childResponseCode == HTTP_UNAUTHORIZED_CODE ||
+                      childResponseCode == HTTP_PROXY_UNAUTHORIZED_CODE))
             {
                 bestResponse = *(childResponse);
 
@@ -3001,7 +2999,7 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
                 childResponseCode <= SIP_4XX_CLASS_CODE &&
                 childTransaction->mChildTransactions.isEmpty())
             {
-                // An untryed 3xx response
+                // An untried 3xx response
                 bestResponse = *(childResponse);
 
                 bestResponse.removeLastVia();
