@@ -30,6 +30,8 @@ Summary: Header files for %name
 %description devel
 Developer support for sipXacd.
 
+@RPMBUILD_DEBUG_PACKAGE_SPEC@
+
 %prep
 %setup -q
 

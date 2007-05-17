@@ -48,6 +48,8 @@ GIPS VoiceEngine, and GIPS ConferenceEngine. The applications must select an
 appropriate library during the link time in order to use the right media
 subsystem.
 
+@RPMBUILD_DEBUG_PACKAGE_SPEC@
+
 %prep
 %setup -q
 

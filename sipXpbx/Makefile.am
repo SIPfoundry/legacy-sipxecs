@@ -13,7 +13,7 @@ SUBDIRS = . \
     meta \
     $(doc_SUBDIRS)
 
-RPMS = $(DEFAULT_RPMS)
+RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)
 
 EXTRA_DIST = \
     BUILDSTAMP \

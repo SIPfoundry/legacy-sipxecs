@@ -2,7 +2,7 @@
 
 include config/project.am
 
-RPMS = $(DEFAULT_RPMS)
+RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)
 
 SUBDIRS = \
 	. \

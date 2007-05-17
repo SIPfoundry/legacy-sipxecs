@@ -27,6 +27,7 @@ AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 # Checks for libraries.
 CHECK_LIBRT
 CHECK_CPPUNIT
+CHECK_RPM_DEBUG
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
 # Checks for library functions.

@@ -29,6 +29,7 @@ AC_PROG_CC
 
 CHECK_CPPUNIT
 CHECK_SSL
+CHECK_RPM_DEBUG
 
 # sipX dependancies
 

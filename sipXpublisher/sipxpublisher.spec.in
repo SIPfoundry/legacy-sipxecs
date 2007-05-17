@@ -37,6 +37,8 @@ Summary: Header files for %name
 Developer support for sipXpublisher.  This is needed in order to create event package 
 plug-in modules.
 
+@RPMBUILD_DEBUG_PACKAGE_SPEC@
+
 %prep
 %setup -q
 

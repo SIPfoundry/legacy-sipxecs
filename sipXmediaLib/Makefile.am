@@ -11,7 +11,7 @@ EXTRA_DIST = \
     BUILDSTAMP \
     sipxmedialib.spec
 
-RPMS = $(DEFAULT_RPMS)
+RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)
 
 SUBDIRS = \
 	. \

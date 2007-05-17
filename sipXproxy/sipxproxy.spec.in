@@ -68,6 +68,8 @@ Requires: sipxcommserverlib-devel >= 3.7
 %description devel
 Internal class documentation for the proxy classes
 
+@RPMBUILD_DEBUG_PACKAGE_SPEC@
+
 %prep
 %setup -q
 

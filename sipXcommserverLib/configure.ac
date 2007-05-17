@@ -31,10 +31,9 @@ AC_PATH_PROG([OPENSSL],[openssl])
 # Checks for library functions.
 
 CHECK_CPPUNIT
-
 CHECK_XERCES
-
 CHECK_ODBC
+CHECK_RPM_DEBUG
 
 SFAC_LIB_STACK
 

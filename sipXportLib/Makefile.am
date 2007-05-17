@@ -12,7 +12,7 @@ EXTRA_DIST = \
     SVN-VERSION \
     sipxportlib.spec
 
-RPMS = $(DEFAULT_RPMS)
+RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)
 
 SUBDIRS = \
 	. \

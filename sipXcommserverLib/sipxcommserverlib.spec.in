@@ -62,6 +62,8 @@ project.
 This package contains the neccessary header files and static libraries
 helpful to build projects from the sipX library
 
+@RPMBUILD_DEBUG_PACKAGE_SPEC@
+
 %prep
 %setup -q
 

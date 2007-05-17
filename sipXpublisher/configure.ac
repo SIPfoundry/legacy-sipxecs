@@ -30,6 +30,7 @@ AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 # Checks for library functions.
 
 CHECK_SSL
+CHECK_RPM_DEBUG
 
 SFAC_LIB_COMMSERVER
 

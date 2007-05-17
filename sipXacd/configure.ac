@@ -51,6 +51,8 @@ AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet_ntoa localtime_r memchr memset mkdir putenv rmdir select setenv socket strchr strdup strerror strrchr strstr strtol strtoul tzset])
 
+CHECK_RPM_DEBUG
+
 SFAC_LIB_CALL
 SFAC_LIB_MEDIA
 SFAC_LIB_STACK

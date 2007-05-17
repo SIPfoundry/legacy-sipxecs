@@ -33,6 +33,8 @@ AM_CONDITIONAL(IS_RPMBUILD, test x$enable_rpmbuild = xyes)
 # Checks for typedefs, structures, and compiler characteristics.
 # Checks for library functions.
 
+CHECK_RPM_DEBUG
+
 SFAC_LIB_COMMSERVER
 
 SFAC_FEATURE_SIP_TLS
