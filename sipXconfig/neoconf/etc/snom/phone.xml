@@ -1355,6 +1355,79 @@
       <value>on</value>
     </setting>
   </group>
+  <group name="Action_URLs">
+    <setting name="action_dnd_on_url">
+      <type>
+        <string/>
+      </type>
+    </setting>
+    <setting name="action_dnd_off_url">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="action_redirection_on_url">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="action_redirection_off_url">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="action_incoming_url">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="action_outgoing_url">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="action_setup_url">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="action_offhook_url">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="action_onhook_url">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="action_missed_url">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="action_connected_url">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="action_disconnected_url">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+  </group>
   <group name="Privacy">
     <setting name="privacy_in">
       <type refid="on-off" />
