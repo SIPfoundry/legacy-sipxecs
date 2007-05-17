@@ -149,6 +149,14 @@
     </sipx-task>
   </target>
 
+  <target name="add-upload" depends="upgrade">
+    <sipx-task beanId="uploadTask">
+      <arg value="${upload.spec}"/>
+      <arg value="${file.setting}"/>
+      <arg value="${upload.file}"/>
+    </sipx-task>
+  </target>
+
   <!--
     - Drop lucene index. It'll get recreated when we restart the application
     --> 

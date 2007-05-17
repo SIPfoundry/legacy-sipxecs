@@ -36,6 +36,11 @@
     <property name="uploadSpecificationSource" ref="uploadSpecificationSource"/>
   </bean>
 
+  <bean id="uploadTask" class="org.sipfoundry.sipxconfig.upload.UploadTask">
+    <property name="uploadSpecificationSource" ref="uploadSpecificationSource"/>
+    <property name="uploadManager" ref="uploadManager"/>
+  </bean>
+
   <bean id="zipUpload" class="org.sipfoundry.sipxconfig.upload.ZipUpload"
     singleton="false" parent="upload">
   </bean>

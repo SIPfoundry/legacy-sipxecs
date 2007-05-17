@@ -104,6 +104,10 @@ public class Upload extends BeanWithSettings {
         return m_specificationId;
     }
     
+    public void setSpecification(UploadSpecification specification) {
+        m_specification = specification;
+    }
+    
     public void setSpecificationId(String specificationId) {        
         m_specificationId = specificationId;
         m_specification = null;
