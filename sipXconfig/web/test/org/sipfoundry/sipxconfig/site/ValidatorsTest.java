@@ -139,4 +139,5 @@ public class ValidatorsTest extends TestCase {
             // successful test
             assertTrue(true);
         }
+    }
 }
