@@ -53,12 +53,12 @@ public class SipUriTest extends TestCase {
     }
 
     public void testFormatDisplayNameUserNameDomainName() {
-        String uri = SipUri.format("Adam Słodowy", "adam", "zróbtosam.com");
-        assertEquals("\"Adam Słodowy\"<sip:adam@zróbtosam.com>", uri);
-        uri = SipUri.format("", "adam", "zróbtosam.com");
-        assertEquals("sip:adam@zróbtosam.com", uri);
-        uri = SipUri.format(null, "adam", "zróbtosam.com");
-        assertEquals("sip:adam@zróbtosam.com", uri);
+        String uri = SipUri.format("Adam S\u00f3odowy", "adam", "zrobtosam.com");
+        assertEquals("\"Adam S\u00f3odowy\"<sip:adam@zrobtosam.com>", uri);
+        uri = SipUri.format("", "adam", "zrobtosam.com");
+        assertEquals("sip:adam@zrobtosam.com", uri);
+        uri = SipUri.format(null, "adam", "zrobtosam.com");
+        assertEquals("sip:adam@zrobtosam.com", uri);
     }
 
     public void testFormatNameDomainPort() {
@@ -88,6 +88,7 @@ public class SipUriTest extends TestCase {
         assertEquals("name", SipUri.extractUser("   <sip:name@sipfoundry.org>"));
         assertEquals("name", SipUri.extractUser("name@sipfoundry.org"));
         assertEquals("name", SipUri.extractUser("name@sipfoundry@.org"));
+        assertEquals("O", SipUri.extractUser("A <sip:O@us.calivia.com>"));
     }
 
     public void testExtractUserFromFullUser() {
@@ -104,13 +105,17 @@ public class SipUriTest extends TestCase {
         assertEquals("name", SipUri.extractFullUser("name@sipfoundry.org"));
         assertEquals("name", SipUri.extractFullUser("name@sipfoundry@.org"));
 
-        assertEquals("first last - name", SipUri
-                .extractFullUser("\"first last\"<sip:name@sipfoundry.org>"));
-        assertEquals("Alice Smith - 180", SipUri
-                .extractFullUser("\"Alice Smith\" <sip:180@example.com> "));
-        
-        assertEquals("Douglas+Hubler - 201", SipUri
-                .extractFullUser("\"Douglas+Hubler\"<sip:201@nuthatch.pingtel.com>;tag%3D53585A61-338ED896"));        
+        String fullUser = SipUri.extractFullUser("\"first last\"<sip:name@sipfoundry.org>");
+        assertEquals("first last - name", fullUser);
+        fullUser = SipUri.extractFullUser("\"Alice Smith\" <sip:180@example.com> ");
+        assertEquals("Alice Smith - 180", fullUser);
+
+        fullUser = SipUri
+                .extractFullUser("\"Douglas+Hubler\"<sip:201@nuthatch.pingtel.com>;tag%3D53585A61-338ED896");
+        assertEquals("Douglas+Hubler - 201", fullUser);
+
+        assertEquals("O", SipUri.extractFullUser("O <sip:O@us.calivia.com>"));
+        assertEquals("Abc - 1234", SipUri.extractFullUser("Abc <sip:1234@us.calivia.com>"));
     }
 
     public void testMatches() {
@@ -132,8 +137,8 @@ public class SipUriTest extends TestCase {
     }
 
     public void testStripSipPrefix() {
-        assertEquals("name@sipfoundry.org", SipUri.stripSipPrefix("sip:name@sipfoundry.org"));        
-        assertEquals("name@sipfoundry.org", SipUri.stripSipPrefix("name@sipfoundry.org"));        
-        assertNull(SipUri.stripSipPrefix(null));        
+        assertEquals("name@sipfoundry.org", SipUri.stripSipPrefix("sip:name@sipfoundry.org"));
+        assertEquals("name@sipfoundry.org", SipUri.stripSipPrefix("name@sipfoundry.org"));
+        assertNull(SipUri.stripSipPrefix(null));
     }
 }

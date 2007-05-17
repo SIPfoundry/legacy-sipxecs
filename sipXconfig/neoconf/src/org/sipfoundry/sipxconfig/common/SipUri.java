@@ -21,7 +21,7 @@ public final class SipUri {
 
     private static final Pattern EXTRACT_USER_RE = Pattern.compile("\\s*<?(?:sip:)?(.+?)@.+");
     private static final Pattern EXTRACT_FULL_USER_RE = Pattern
-            .compile("(?:\"(.*)\")?\\s*<?(?:sip:)?(.+?)@.+");
+            .compile("(?:\"?\\s*(\\b.*\\b)\\s*\"?)\\s*<(?:sip:)?(.+?)@.+");
     private static final Pattern SIP_URI_RE = Pattern
             .compile("(?:\".*\")?\\s*<?(?:sip:)?.+?@.+>?");
 
@@ -130,12 +130,16 @@ public final class SipUri {
         }
         Matcher matcher = EXTRACT_FULL_USER_RE.matcher(uri);
         if (!matcher.matches()) {
+            matcher = EXTRACT_USER_RE.matcher(uri);
+            if (matcher.matches()) {
+                return matcher.group(1);
+            }
             return null;
         }
         String fullName = matcher.group(1);
         String userId = matcher.group(2);
 
-        if (fullName == null) {
+        if (fullName == null || fullName.equals(userId)) {
             return userId;
         }
         return fullName + " - " + userId;
