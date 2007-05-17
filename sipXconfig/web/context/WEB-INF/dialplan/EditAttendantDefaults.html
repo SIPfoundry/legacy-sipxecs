@@ -1,5 +1,10 @@
 <div jwcid="@Border">
   <h2><span key="title">Auto Attendant Defaults</span></h2>
+  <div id="settings-nav">
+    <span jwcid="settingsNavigation@setting/SettingsNavigation" bean="prop:bean"
+      source="prop:settings.values" activeSetting="prop:parentSetting"
+      editSettingsListener="listener:editGroupSettings"/>
+  </div>
   <span jwcid="settingsForm@SettingsForm" settings="prop:parentSetting"
     cancelListener="listener:cancel" okListener="listener:ok"
     applyListener="listener:apply" validator="bean:validator"

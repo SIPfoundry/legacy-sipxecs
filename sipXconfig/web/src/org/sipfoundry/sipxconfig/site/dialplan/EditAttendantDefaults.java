@@ -12,5 +12,6 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
 public abstract class EditAttendantDefaults extends GroupSettings {
+    @SuppressWarnings("hiding")
     public static final String PAGE = "dialplan/EditAttendantDefaults"; 
 }

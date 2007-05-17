@@ -12,5 +12,6 @@ package org.sipfoundry.sipxconfig.site.admin;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
 public abstract class EditParkOrbitDefaults extends GroupSettings {    
+    @SuppressWarnings("hiding")
     public static final String PAGE = "admin/EditParkOrbitDefaults";     
 }
