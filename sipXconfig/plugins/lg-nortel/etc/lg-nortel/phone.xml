@@ -26,6 +26,9 @@
   <type id="port-number">
     <integer required="yes" max="65534" />
   </type>
+  <type id="restricted-port-number">
+    <integer required="yes" min="1024" max="35000" />
+  </type>
   <type id="day-of-week">
     <enum>
       <option>
@@ -113,18 +116,20 @@
   <group name='VOIP'>
     <setting name='outbound_proxy_server'></setting>
     <setting name='outbound_proxy_port' advanced="yes">
-      <type refid="port-number" />
+      <type refid="restricted-port-number" />
       <value>5060</value>
     </setting>
     <setting name='backup_proxy_server' advanced="yes"></setting>
     <setting name='backup_proxy_port' advanced="yes">
-      <type refid="port-number" />
+      <type refid="restricted-port-number" />
       <value>5060</value>
     </setting>
     <setting name='SIP_service_domain' advanced="yes"></setting>
     <setting name="moh_url" advanced="yes"></setting>
     <setting name='rtp_port' advanced="yes">
-      <type refid="port-number" />
+      <type>
+        <integer required="yes" min="16300" max="32700" />
+      </type>
       <value>23000</value>
     </setting>
     <setting name='prack_mode' advanced="yes">
@@ -140,7 +145,7 @@
       <value>enable</value>
     </setting>
     <setting name='local_udp_port' advanced="yes">
-      <type refid="port-number" />
+      <type refid="restricted-port-number" />
       <value>5060</value>
     </setting>
     <setting name='message_url' advanced="yes">
@@ -152,25 +157,25 @@
     </setting>
     <setting name='timer_register_expires' advanced="yes">
       <type>
-        <integer min="0" max="6400" />
+        <integer required="yes" min="0" max="6400" />
       </type>
       <value>3600</value>
     </setting>
     <setting name='timer_session' advanced="yes">
       <type>
-        <integer min="0" max="640" />
+        <integer required="yes" min="0" max="640" />
       </type>
       <value>0</value>
     </setting>
     <setting name='timer_t1'>
       <type>
-        <integer />
+        <integer required="yes" min="100" max="640"/>
       </type>
       <value>500</value>
     </setting>
     <setting name='timer_t2'>
       <type>
-        <integer />
+        <integer required="yes" min="641" max="6400"/>
       </type>
       <value>4000</value>
     </setting>
@@ -257,19 +262,19 @@
     </setting>
     <setting name='jitterbuffer_min_delay'>
       <type>
-        <integer min="0" max="150" />
+        <integer required="yes" min="0" max="150" />
       </type>
       <value>30</value>
     </setting>
     <setting name='jitterbuffer_nom_delay'>
       <type>
-        <integer min="0" max="150" />
+        <integer required="yes" min="0" max="150" />
       </type>
       <value>60</value>
     </setting>
     <setting name='jitterbuffer_max_delay'>
       <type>
-        <integer min="0" max="150" />
+        <integer required="yes" min="0" max="150" />
       </type>
       <value>120</value>
     </setting>
