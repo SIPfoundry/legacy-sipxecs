@@ -34,7 +34,7 @@ install-gem : package-gem
 install-gem-for-rpm : package-gem
 	echo "Installing call resolver gem"
 	$(INSTALL) -d -m755 $(DESTDIR)@SIPX_VARLIB@
-	$(INSTALL) pkg/sipxcallresolver*.gem $(DESTDIR)@SIPX_VARLIB@
+	$(INSTALL) -m 644 pkg/sipxcallresolver*.gem $(DESTDIR)@SIPX_VARLIB@
 
 check :
 	builddir=`pwd`; \

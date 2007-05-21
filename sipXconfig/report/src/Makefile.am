@@ -44,7 +44,7 @@ install-gem : package-gem
 .PHONY: install-gem-for-rpm
 install-gem-for-rpm : package-gem
 	$(mkdir_p) $(DESTDIR)@SIPX_VARLIB@
-	$(INSTALL) pkg/sipXconfig-report-*.gem $(DESTDIR)@SIPX_VARLIB@
+	$(INSTALL) -m 644 pkg/sipXconfig-report-*.gem $(DESTDIR)@SIPX_VARLIB@
 
 check :
 	builddir=`pwd`; \
