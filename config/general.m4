@@ -457,7 +457,7 @@ AC_DEFUN([CHECK_APR],
     AC_ARG_WITH(apr,
                 [--with-apr=PATH to apr header files directory],
                 [apr_path=$withval],
-                [apr_path="/usr/include/httpd /usr/include/apr-1 /usr/include/apr-0 /usr/local/apache2/include /usr/apache2/include /etc/httpd/include /usr/include/apache2"
+                [apr_path="/usr/include/httpd /usr/include/apr-1 /usr/include/apr-1.0 /usr/include/apr-0 /usr/local/apache2/include /usr/apache2/include /etc/httpd/include /usr/include/apache2"
                 ]
                )
     for apr_dir in $apr_path ; do
