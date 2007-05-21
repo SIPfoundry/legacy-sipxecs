@@ -480,6 +480,11 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name='phone_password'>
+      <type>
+        <string maxLen="10" password="yes" />
+      </type>
+    </setting>
     <setting name='lock_outgoing_call'>
       <type>
         <boolean>
