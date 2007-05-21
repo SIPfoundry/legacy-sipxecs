@@ -985,14 +985,14 @@
     <setting name="MaxActiveCalls" advanced="yes">
       <label>Max Number of Active Calls</label>
       <type>
-        <integer min="1" required="yes" />
+        <integer required="yes" />
       </type>
       <value>4</value>
     </setting>
     <setting name="MaxCallDuration" advanced="yes">
       <label>Max Call Duration [min]</label>
       <type>
-        <integer min="1" required="yes" />
+        <integer required="yes" />
       </type>
       <value>0</value>
     </setting>
