@@ -28,24 +28,96 @@ public class ValidatorsTest extends TestCase {
     private ValidationMessages m_validationMessages;
     private ApplicationContext m_context;
     private IFormComponent m_field;
-    
-    
-    protected void setUp() { 
-        m_context = new ClassPathXmlApplicationContext("org/sipfoundry/sipxconfig/site/tapestry.xml");
-        
+
+    protected void setUp() {
+        m_context = new ClassPathXmlApplicationContext(
+                "org/sipfoundry/sipxconfig/site/tapestry.xml");
+
         m_validationMessagesControl = EasyMock.createNiceControl();
         m_validationMessages = m_validationMessagesControl.createMock(ValidationMessages.class);
         m_validationMessagesControl.replay();
-        
+
         IMocksControl fieldControl = EasyMock.createNiceControl();
-        m_field = fieldControl.createMock(IFormComponent.class);        
+        m_field = fieldControl.createMock(IFormComponent.class);
         fieldControl.replay();
     }
-    
+
     public void testValidPhoneOrAor() throws ValidatorException {
         Pattern p = (Pattern) m_context.getBean("validPhoneOrAor");
         p.validate(m_field, m_validationMessages, "123");
         p.validate(m_field, m_validationMessages, "abc@abc.com");
-        p.validate(m_field, m_validationMessages, "a@abc.com");        
+        p.validate(m_field, m_validationMessages, "a@abc.com");
+    }
+
+    public void testValidHostOrIp() throws ValidatorException {
+        Pattern p = (Pattern) m_context.getBean("validHostOrIp");
+        p.validate(m_field, m_validationMessages, "10.1.1.25");
+        p.validate(m_field, m_validationMessages, "192.1.15.149");
+        p.validate(m_field, m_validationMessages, "abc.com");
+        p.validate(m_field, m_validationMessages, "www.abc.com");
+        p.validate(m_field, m_validationMessages, "server.domain123.com");
+        p.validate(m_field, m_validationMessages, "server.domain-name.com");
+        p.validate(m_field, m_validationMessages, "abc.us");
+        p.validate(m_field, m_validationMessages, "machine1.domain1.co.uk");
+        p.validate(m_field, m_validationMessages, "m1.d2.net");
+        p.validate(m_field, m_validationMessages, "3com.net");
+        p.validate(m_field, m_validationMessages, "www.a.com");
+        p.validate(m_field, m_validationMessages, "localhost");
+        p.validate(m_field, m_validationMessages, "localhost.localdomain");
+
+        // sipX does not support IPv6 - but when it does...
+        // p.validate(m_field, m_validationMessages, "2001:0db8:85a3:08d3:1319:8a2e:0370:7334");
+        // p.validate(m_field, m_validationMessages, "7:8:9:A:B:CC:DDD:FFFF");
+
+        // invalid hosts and ip's:
+        try {
+            p.validate(m_field, m_validationMessages, "\'testing-single-quotes\'");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+
+        try {
+            p.validate(m_field, m_validationMessages, "\"testing-double-quotes\"");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+
+        // invalid IPv6:
+        try {
+            p.validate(m_field, m_validationMessages, "1111:2222:3333:4444:5555:6666:7777");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+
+        try {
+            p.validate(m_field, m_validationMessages, "GGGG:aaaa:aaaa:aaaa:aaaa:aaaa:aaaa:aaaa");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+
+        // invalid Domain:
+        try {
+            p.validate(m_field, m_validationMessages, "-domain.org");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+
+        try {
+            p.validate(m_field, m_validationMessages, "www-.domain.org");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
     }
 }
