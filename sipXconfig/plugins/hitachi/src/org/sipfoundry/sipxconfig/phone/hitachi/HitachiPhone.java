@@ -38,7 +38,7 @@ public class HitachiPhone extends Phone {
     /**
      * Check loadrun.ini section [3] for a proper format of the file name.
      * 
-     * %muser.ini means “3 bytes of MAC address + user.ini”
+     * %muser.ini means "3 bytes of MAC address + user.ini"
      */
     @Override
     public String getProfileFilename() {
