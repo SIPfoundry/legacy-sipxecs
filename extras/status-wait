@@ -1,0 +1,29 @@
+#! /bin/bash
+
+# Script to run from cron every hour (shortly after the hour) to check whether
+# the number of 'not ready for writing after 3 seconds' messages in the
+# last hour in the Status Server log exceeds a limit.
+
+# The maximum number 'not ready for writing' messages allowed before a
+# report is made.
+SOCKET_LIMIT=10
+
+START_TIMESTAMP=$( date -d'1 hour ago' -u +'%Y-%m-%d %H:00:00' )
+TEMP1=$( mktemp )
+
+# We have to suppress the normal stderr of sipx-log-cut to prevent
+# a report every time this script is run.
+sipx-log-cut -i /var/log/sipxpbx/sipstatus.log -s "$START_TIMESTAMP" -t 2>/dev/null |
+grep 'not ready for writing after' |
+cut -c 2-17 |
+sort |
+uniq -c >$TEMP1
+
+if [[ $( wc -l <$TEMP1 ) -gt $SOCKET_LIMIT ]]
+then
+    echo "Number of 'not ready for writing' messages exceeds $SOCKET_LIMIT."
+    echo
+    cat $TEMP1
+fi
+
+rm $TEMP1
