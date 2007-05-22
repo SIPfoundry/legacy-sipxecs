@@ -28,11 +28,10 @@ ${s.ProfileName} $!{s.Value}
 #foreach ($setting in $group.Values)
 line${line_id}_${setting.ProfileName} $!{setting.Value}
 #end
-#end
-#end
 
+#end
+#end
 #emit_groups_by_name(['DSP', 'FWRD', 'DIAL', 'CALL', 'SNMP', 'SYSTEM', 'PROVISION'])
-
 #foreach ($button in $speeddials)
 #if($velocityCount == 1)
 [PROG]

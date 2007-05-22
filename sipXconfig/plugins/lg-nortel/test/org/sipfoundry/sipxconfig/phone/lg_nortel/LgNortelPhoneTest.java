@@ -98,6 +98,43 @@ public class LgNortelPhoneTest extends TestCase {
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
+        supplyTestData(phone);
+
+        phone.getProfileTypes()[0].generate(phone, location);
+        InputStream expectedProfile = getClass().getResourceAsStream("mac.cfg");
+        assertNotNull(expectedProfile);
+        String expected = IOUtils.toString(expectedProfile);
+        expectedProfile.close();
+
+        String actual = location.toString();
+
+        assertEquals(expected, actual);
+    }
+
+    public void testGenerateLgNortel6804() throws Exception {
+        PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
+        lgNortelModel.setProfileTemplate("lg-nortel/mac.cfg.vm");
+        lgNortelModel.setMaxLineCount(4); // we are testing 2 lines
+        lgNortelModel.setModelId("lip6804");
+        LgNortelPhone phone = new LgNortelPhone();
+        phone.setModel(lgNortelModel);
+
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+
+        supplyTestData(phone);
+
+        phone.getProfileTypes()[0].generate(phone, location);
+        InputStream expectedProfile = getClass().getResourceAsStream("mac_6804.cfg");
+        assertNotNull(expectedProfile);
+        String expected = IOUtils.toString(expectedProfile);
+        expectedProfile.close();
+
+        String actual = location.toString();
+
+        assertEquals(expected, actual);
+    }
+
+    private void supplyTestData(LgNortelPhone phone) {
         User u1 = new User();
         u1.setUserName("juser");
         u1.setFirstName("Joe");
@@ -113,23 +150,6 @@ public class LgNortelPhoneTest extends TestCase {
         PhoneTestDriver.supplyTestData(phone, Arrays.asList(new User[] {
             u1, u2
         }));
-
-        phone.getProfileTypes()[0].generate(phone, location);
-        InputStream expectedProfile = getClass().getResourceAsStream("mac.cfg");
-        assertNotNull(expectedProfile);
-        String expected = IOUtils.toString(expectedProfile);
-        expectedProfile.close();
-
-        String actual = location.toString();
-
-        String expectedLines[] = StringUtils.split(expected, "\n");
-        String actualLines[] = StringUtils.split(actual, "\n");
-
-        int len = Math.min(actualLines.length, expectedLines.length);
-        for (int i = 0; i < len; i++) {
-            assertEquals(expectedLines[i], actualLines[i]);
-        }
-        assertEquals(expectedLines.length, actualLines.length);
     }
 
     public void testSpeeddial() throws Exception {
