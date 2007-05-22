@@ -29,7 +29,7 @@ public class OrbitsTest extends XMLTestCase {
         {
             "disable", "101", "x.wav", "this one should not be generated"
         }, {
-            "sales", "400", "basia.wav", "test description"
+            "sales", "400", "name with spaces.wav", "test description"
         }, {
             "CEO orbit", "179", "marketing.wav", null
         }

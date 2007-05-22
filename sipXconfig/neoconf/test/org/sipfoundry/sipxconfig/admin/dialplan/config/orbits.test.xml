@@ -6,7 +6,7 @@
   <orbit>
     <name>sales</name>
     <extension>400</extension>
-    <background-audio>file:///var/sipxdata/parkserver/music/basia.wav</background-audio>
+    <background-audio>file:///var/sipxdata/parkserver/music/name%20with%20spaces.wav</background-audio>
     <capacity>1</capacity>
     <description>test description</description>
   </orbit>

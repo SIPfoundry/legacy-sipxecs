@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
@@ -69,8 +71,13 @@ public class Orbits extends XmlFile {
     }
 
     private void addBackgroundAudio(Element parent, File dir, BackgroundMusic music) {
-        File audioFile = new File(dir, music.getMusic());
-        parent.addElement("background-audio").setText("file://" + audioFile.getAbsolutePath());
+        try {
+            File audioFile = new File(dir, music.getMusic());
+            URI uri = new URI("file", StringUtils.EMPTY, audioFile.getAbsolutePath(), null);
+            parent.addElement("background-audio").setText(uri.toString());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
