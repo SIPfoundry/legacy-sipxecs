@@ -545,6 +545,12 @@ SipRedirectorPickUp::lookUpDialog(
    // recorded in private storage.
    if (privateStorage)
    {
+      // Any previously added contacts are moot.  The pickup code was
+      // matched, so just in case nothing responded (so no contacts get
+      // added below), we want to send a 404, as no ringing phones were 
+      // found
+      removeAllContacts(response) ;
+
       // Cast the private storage pointer to the right type so we can
       // access the needed dialog information.
       SipRedirectorPrivateStoragePickUp* dialog_info =
