@@ -35,7 +35,7 @@ install-exec-hook : \
 install-data-hook : \
 	$(PROCESS_XML_FILES)
 
-$(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)/$(sysconfdir)/sipxpbx/% : %
+$(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)/$(sysconfdir)/sipxpbx/% : %.local
 	@if ! test -f $@; \
 	then \
 		echo "Installing default $@"; \
@@ -46,6 +46,9 @@ $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DEST
 		    ; $(INSTALL) -D -m 644 $< $@.NEW; \
 			); \
 	fi
+
+$(foreach file,$(cfgfiles_IN),$(file).local) : %.local : %
+	$(LocalizeSipXconfig) $< > $@
 
 .PHONY: upgrade-auth-rules
 upgrade-auth-rules:
