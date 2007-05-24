@@ -14,6 +14,7 @@
 // APPLICATION INCLUDES
 #include "mp/StreamFileDataSource.h"
 #include "os/OsLock.h"
+#include "net/HttpMessage.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -61,6 +62,7 @@ OsStatus StreamFileDataSource::open()
       fireEvent(LoadingStartedEvent) ;
    
       mUrl.getPath(pathName) ;
+      HttpMessage::unescape(pathName) ; // unescape it, so %xx become chars
       mpFile = new OsFile(pathName) ;
 
 	  if (mpFile != NULL)
