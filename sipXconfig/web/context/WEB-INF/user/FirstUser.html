@@ -1,23 +1,46 @@
-<html jwcid="shell">
+<html jwcid="@Shell" 
+  title="message:product.name"
+  stylesheets="prop:stylesheets">
 <body jwcid="@Body">
   <div id="banner">
    	<div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
   </div>
   <span jwcid="@ErrorMsg"/>
-  <div class="help">
-  <p><span key="help1">The superadmin user has special administrative privileges, so it is important to choose a secure alphanumeric
-  PIN that cannot be easily guessed.  For example, "ch33zeW1z" is a better PIN than "dog" or "123".</span></p>
-  <p><span key="help2">PINs for non-admin user accounts are typically numeric, since only numbers can be dialed.  However, the superadmin account is generally used for
-  administering sipXconfig via the web, where this is not an issue.</span></p>
+  <div jwcid="@If" condition="prop:renderLicense">
+    <form jwcid="@Form" delegate="bean:validator" focus="false">
+      <fieldset>
+        <legend><span key="prompt.license"/></legend>
+        <textarea jwcid="@TextArea" value="prop:license" rows="35" cols="100" readonly="true"/>
+      </fieldset>
+      <ul class="form-actions">
+	    <li>
+	      <input jwcid="@Submit" 
+	        tag="ognl:true"
+	        selected="prop:licenseAccepted"
+	        value="message:button.agree"/>
+	    </li>
+      </ul>        
+    </form>
   </div>
-  <form jwcid="form">
-    <fieldset id="firstuser:form">
-    <legend><span key="prompt">Please choose a PIN for the "superadmin" user</span></legend>
-    <table>
-      <span jwcid="pin"/>
-    </table>
-    </fieldset>
-    <ul jwcid="formActions"/>
-  </form>
+  <div jwcid="@Else">
+    <div class="help">    
+	    <p><span key="help1">who's superadmin</span></p>
+	    <p><span key="help2">PIN advice.</span></p>
+    </div>  
+    <form jwcid="@Form" delegate="bean:validator">
+      <fieldset id="firstuser:form">
+        <legend><span key="prompt">Please choose a PIN for the "superadmin" user</span></legend>
+        <table>
+          <tbody jwcid="pin@ConfirmPassword"        
+            password="prop:pin"
+            passwordDisplayName="message:label.newPin"
+            confirmPasswordDisplayName="message:label.confirmNewPin"
+            passwordMismatchMessage="message:message.newPinMismatch"
+            passwordValidator="spring-validators:validPin,required"/>
+        </table>
+      </fieldset>
+      <ul jwcid="@FormActions" listener="listener:commit"/>
+    </form>
+  </div>    
 </body>
 </html>

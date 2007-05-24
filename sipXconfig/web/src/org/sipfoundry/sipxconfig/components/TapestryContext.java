@@ -9,11 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Locale;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.ApplicationRuntimeException;
 import org.apache.hivemind.Messages;
@@ -68,7 +71,7 @@ public class TapestryContext {
 
         return decorated;
     }
-    
+
     /**
      * Translates UserExceptions into form errors instead redirecting to an error page.
      */
@@ -141,23 +144,42 @@ public class TapestryContext {
         Collection names = CollectionUtils.collect(namedItems, new NamedObject.ToName());
         return StringUtils.join(names.iterator(), delim);
     }
-    
+
     /**
-     * Example:
-     *  <span jwcid="@Insert" value="someDate" format="tapestry.date(locale)"/>
+     * Example: <span jwcid="@Insert" value="someDate" format="tapestry.date(locale)"/>
      */
     public DateFormat date(Locale locale) {
         return TapestryUtils.getDateFormat(locale);
     }
 
-    
-    public IAsset[] getStylesheets(IComponent component) {        
-        String userAgent = component.getPage().getRequestCycle().getInfrastructure().getRequest().getHeader(
-                "user-agent");
+    public IAsset[] getStylesheets(IComponent component) {
+        String userAgent = component.getPage().getRequestCycle().getInfrastructure().getRequest()
+                .getHeader("user-agent");
         return m_skinControl.getStylesheetAssets(userAgent);
     }
 
     public void setSkinControl(SkinControl skinControl) {
         m_skinControl = skinControl;
     }
+
+    public boolean isLicenseRequired() {
+        return null != m_skinControl.getAsset(SkinControl.ASSET_LICENSE);
+    }
+
+    /**
+     * Retrieves text of the license usually provided by OEM plugin. Only works if
+     * isLicenseRequired returns true.
+     */
+    public String getLicense() {
+        IAsset asset = m_skinControl.getAsset(SkinControl.ASSET_LICENSE);
+        InputStream licenseStream = asset.getResourceAsStream();
+        try {
+            return IOUtils.toString(licenseStream, "UTF-8");
+        } catch (IOException e) {
+            throw new UserException(e);
+        } finally {
+            IOUtils.closeQuietly(licenseStream);
+        }
+    }
+
 }

@@ -28,11 +28,14 @@ import org.springframework.context.NoSuchMessageException;
  */
 public class SkinControl implements BeanFactoryAware {
     public static final String CONTEXT_BEAN_NAME = "skin";
+
+    public static final String ASSET_LICENSE = "license.txt";
     static final Pattern IE_REGEX = Pattern.compile(".*(\\s+|\\()MSIE ([0-9]{1,}[\\.0-9]{0,}).*");
     private static final String ASSET_COLORS = "colors.css";
     private static final String ASSET_LAYOUT = "layout.css";
     private static final String ASSET_IE6 = "ie6-hacks.css";
     private static final String ASSET_IE7 = "ie7-hacks.css";
+
     private TapestryContext m_tapestryContext;
     // overrideable in skin
     private Map<String, String> m_assets = new HashMap();
@@ -60,9 +63,9 @@ public class SkinControl implements BeanFactoryAware {
             String ver = ie.group(2);
             Float fver = Float.parseFloat(ver);
             if (fver < 7) {
-                assets[2] = getAsset(ASSET_IE6);                            
+                assets[2] = getAsset(ASSET_IE6);
             } else {
-                assets[2] = getAsset(ASSET_IE7);                                            
+                assets[2] = getAsset(ASSET_IE7);
             }
         }
         return assets;
@@ -92,14 +95,14 @@ public class SkinControl implements BeanFactoryAware {
     public void setTapestryContext(TapestryContext tapestryContext) {
         m_tapestryContext = tapestryContext;
     }
-    
+
     /**
      * To override any resource string
      */
     public void setMessageSourceBeanId(String messageSourceBeanId) {
         m_messageSourceBeanId = messageSourceBeanId;
     }
-    
+
     public String getLocalizeString(String key, Locale locale, String defaultString) {
         if (m_messageSourceBeanId == null) {
             return defaultString;
@@ -111,7 +114,7 @@ public class SkinControl implements BeanFactoryAware {
         try {
             // pass null for message args, tapestry will use MessageFormat later.
             return m_messageSource.getMessage(key, null, locale);
-        } catch (NoSuchMessageException extremelyLikely) {            
+        } catch (NoSuchMessageException extremelyLikely) {
             return defaultString;
         }
     }
