@@ -310,7 +310,7 @@
     <setting name='forwarding_address'></setting>
     <setting name='noanswer_time'>
       <type>
-        <integer min="0" max="30" />
+        <integer min="1" max="30" />
       </type>
       <value>10</value>
     </setting>
