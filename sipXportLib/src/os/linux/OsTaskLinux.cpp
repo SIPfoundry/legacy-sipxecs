@@ -533,8 +533,8 @@ void OsTaskLinux::doLinuxTerminateTask(UtlBoolean doForce)
                  " mTaskId = %x, this = %p, force = %d",
                  (int)mTaskId, this, doForce);
 
-   // if there is no low-level task, or entry in the name database, just return
-   if ((mState != UNINITIALIZED) && ((int)mTaskId != 0))
+   // if low-level task does not exist, just return
+   if (mState != UNINITIALIZED)
    {
       // DEBUGGING HACK:  Suspend requestor if target is suspended $$$
       while (isSuspended())
@@ -570,6 +570,8 @@ void OsTaskLinux::doLinuxTerminateTask(UtlBoolean doForce)
       {
          if (savedTaskId != 0)
          {
+            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                          "OsTaskLinux::doLinuxTerminateTask task %p force = %d canceling", (void *)this, doForce);
             pthread_cancel(savedTaskId);
          }
       }
