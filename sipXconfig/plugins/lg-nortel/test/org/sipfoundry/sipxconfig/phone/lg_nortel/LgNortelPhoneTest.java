@@ -106,9 +106,7 @@ public class LgNortelPhoneTest extends TestCase {
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();
 
-        String actual = location.toString();
-
-        assertEquals(expected, actual);
+        assertEquals(expected, location.toString());
     }
 
     public void testGenerateLgNortel6804() throws Exception {
@@ -129,9 +127,7 @@ public class LgNortelPhoneTest extends TestCase {
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();
 
-        String actual = location.toString();
-
-        assertEquals(expected, actual);
+        assertEquals(expected, location.toString());
     }
 
     private void supplyTestData(LgNortelPhone phone) {
