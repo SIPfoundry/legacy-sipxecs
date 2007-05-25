@@ -542,22 +542,22 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name='call_park'>
+    <setting name='call_park' hidden="yes">
       <profileName>function call_park</profileName>
       <type refid="ena-dis" />
       <value>disable</value>
     </setting>
-    <setting name='call_pickup'>
+    <setting name='call_pickup' hidden="yes">
       <profileName>function call_pickup</profileName>
       <type refid="ena-dis" />
       <value>disable</value>
     </setting>
-    <setting name='group_call_pickup'>
+    <setting name='group_call_pickup' hidden="yes">
       <profileName>function group_call_pickup</profileName>
       <type refid="ena-dis" />
       <value>disable</value>
     </setting>
-    <setting name='direct_call_pickup'>
+    <setting name='direct_call_pickup' hidden="yes">
       <profileName>function direct_call_pickup</profileName>
       <type refid="ena-dis" />
       <value>disable</value>
