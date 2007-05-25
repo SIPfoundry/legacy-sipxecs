@@ -764,6 +764,14 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
                                              NULL); // no response
                 }
             }
+            else
+            {
+                // There is a race condition which may cause the early dialog
+                // to be promoted to established by RefreshManager thread
+                // after this thread determined that the NOTIFY corresponds to
+                // an early dialog
+                clientState = getState(notifyDialogHandle);
+            }
         }
 
         // Established dialog
