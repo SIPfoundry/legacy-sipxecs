@@ -564,7 +564,7 @@
     </setting>
   </group>
   <group name='PROVISION'>
-    <setting name='type'>
+    <setting name='type' advanced="yes">
       <type>
         <enum>
           <option>
@@ -591,23 +591,23 @@
       <type refid="ena-dis" />
       <value>enable</value>
     </setting>
-    <setting name='https_url'>
+    <setting name='https_url' advanced="yes">
       <value></value>
     </setting>
-    <setting name='dhcp_get_http'>
+    <setting name='dhcp_get_http' advanced="yes">
       <type refid="ena-dis" />
       <value>enable</value>
     </setting>
-    <setting name='https_port'>
+    <setting name='https_port' advanced="yes">
       <type refid="port-number" />
       <value>443</value>
     </setting>
-    <setting name='https_id'>
+    <setting name='https_id' advanced="yes">
       <type>
         <string maxLen="50" />
       </type>
     </setting>
-    <setting name='https_password'>
+    <setting name='https_password' advanced="yes">
       <type>
         <string maxLen="50" />
       </type>
@@ -618,7 +618,7 @@
       </type>
       <value>$MAC</value>
     </setting>
-    <setting name='verifying_cert'>
+    <setting name='verifying_cert' advanced="yes">
       <type>
         <integer min="0" max="7" />
       </type>
