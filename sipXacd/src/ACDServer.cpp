@@ -13,6 +13,7 @@
 #include <os/OsFS.h>
 #include <os/OsTask.h>
 #include <os/OsSysLog.h>
+#include <os/OsProcessMgr.h>
 #include <utl/UtlString.h>
 #include <utl/UtlHashMap.h>
 #include <utl/UtlSList.h>
@@ -33,6 +34,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 extern UtlBoolean gShutdownFlag;
+extern UtlBoolean gRestartFlag;
 
 // CONSTANTS
 #define MAX_CONNECTIONS    30
@@ -803,6 +805,21 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
          gShutdownFlag = true;
       }
       else {
+         // sipXconfig always sets ADMIN_STATE to active as the last step
+         // in configuration.  As we don't yet track which items have changed
+         // and thus require a restart, for now just always force a restart
+         // on configuration change/update.
+
+         // At some point in the future, the individual settings need to 
+         // determine if they changed, and if that change requires a restart.
+         // If so, set gRestartFlag to true.
+         //
+         // A better approach would be to make the restart flag a parameter
+         // and sipXconfig would query it after making a change to see if a
+         // restart is required.  If so, it would send a RESTART action command
+         // (currently unused and uncoded)
+         gRestartFlag = true ;
+
          mOperationalState = mAdministrativeState;
          setPSAttribute(pInstanceNode, ADMINISTRATIVE_STATE_TAG, mAdministrativeState);
 
@@ -825,6 +842,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
             
             // Indicate that the server is fully operational
             mServerStarted = true;
+            gRestartFlag = false ;
          }
       }
    }
@@ -838,6 +856,29 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
    pResponse->setAttribute("method-name", "set");
    pResponse->setAttribute("result-code", ProvisioningAgent::SUCCESS);
    pResponse->setAttribute("result-text", "SUCCESS");
+
+
+   // This needs a better place to live.  It is here because of the current
+   // behavior of sipXconfig always setting ADMINISTRATIVE_STATE_TAG to
+   // active when it has finished sending all the other config changes.
+   if (gRestartFlag == true) {
+      OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
+      UtlString myName ;
+      if (pProcessMgr->getAliasByPID(OsProcess::getCurrentPID(), myName)
+           == OS_SUCCESS)
+      {
+         OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Set - Restart %s",
+            myName.data());
+         // Have the watchdog stop and restart me
+         pProcessMgr->setUserRequestState(myName ,USER_PROCESS_RESTART) ;
+      }
+      else
+      {
+         OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ACDServer::Set - This process doesn't seem to be controlled by the watchdog.  Exit, stage left.");
+         exit(0) ;
+      }
+   }
+
    return pResponse;
 }
 

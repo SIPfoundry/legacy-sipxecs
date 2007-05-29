@@ -53,6 +53,7 @@ extern "C" {
 // GLOBAL VARIABLE INITIALIZATIONS
 OsSysLogPriority gACD_DEBUG = PRI_DEBUG;
 UtlBoolean       gShutdownFlag = FALSE;
+UtlBoolean       gRestartFlag = FALSE;
 
 
 
