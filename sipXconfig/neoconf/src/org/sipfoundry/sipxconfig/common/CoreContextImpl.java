@@ -87,7 +87,8 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         m_aliasManager = aliasManager;
     }
 
-    public void saveUser(User user) {
+    public boolean saveUser(User user) {
+        boolean newUserName = user.isNew();
         String dup = checkForDuplicateNameOrAlias(user);
         if (dup != null) {
             throw new NameInUseException(dup);
@@ -98,6 +99,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         if (!user.isNew()) {
             String origUserName = (String) getOriginalValue(user, USERNAME_PROP_NAME);
             if (!origUserName.equals(user.getUserName())) {
+                newUserName = true;
                 String origPintoken = (String) getOriginalValue(user, "pintoken");
                 if (origPintoken.equals(user.getPintoken())) {
                     throw new ChangePintokenRequiredException(
@@ -107,6 +109,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         }
 
         getHibernateTemplate().saveOrUpdate(user);
+        return newUserName;
     }
 
     /**

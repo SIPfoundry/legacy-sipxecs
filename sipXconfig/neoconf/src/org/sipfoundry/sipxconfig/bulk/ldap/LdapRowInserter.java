@@ -30,7 +30,7 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
  */
 public class LdapRowInserter extends RowInserter<SearchResult> {
     private LdapManager m_ldapManager;
-    private CoreContext m_coreContext;    
+    private CoreContext m_coreContext;
     private MailboxManager m_mailboxManager;
     private Set<String> m_existingUserNames;
     private UserMapper m_userMapper;
@@ -41,7 +41,8 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
     public void beforeInserting() {
         // get all the users from LDAP group
         m_existingUserNames = new HashSet<String>();
-        Group defaultGroup = m_coreContext.getGroupByName(getAttrMap().getDefaultGroupName(), false);
+        Group defaultGroup = m_coreContext.getGroupByName(getAttrMap().getDefaultGroupName(),
+                false);
         if (defaultGroup != null) {
             Collection<String> userNames = m_coreContext.getGroupMembersNames(defaultGroup);
             m_existingUserNames.addAll(userNames);
@@ -56,15 +57,15 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         m_coreContext.deleteUsersByUserName(m_existingUserNames);
         m_existingUserNames.clear();
     }
-    
+
     protected void insertRow(SearchResult searchResult) {
         Attributes attrs = searchResult.getAttributes();
         LOG.info("Inserting:" + attrs.toString());
         insertRow(searchResult, attrs);
     }
-    
-    void insertRow(SearchResult searchResult, Attributes attrs) {        
-        try {            
+
+    void insertRow(SearchResult searchResult, Attributes attrs) {
+        try {
             String userName = m_userMapper.getUserName(attrs);
             User user = m_coreContext.loadUserByUserName(userName);
             boolean newUser = user == null;
@@ -88,12 +89,15 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
                 user.addGroup(userGroup);
             }
             m_coreContext.saveUser(user);
-            
+
+            if (newUser) {
+                m_mailboxManager.deleteMailbox(user.getUserName());
+            }
             MailboxPreferences mboxPrefs = m_userMapper.getMailboxPreferences(attrs);
             if (mboxPrefs != null) {
-                Mailbox mailbox = m_mailboxManager.getMailbox(user.getUserName());               
+                Mailbox mailbox = m_mailboxManager.getMailbox(user.getUserName());
                 m_mailboxManager.saveMailboxPreferences(mailbox, mboxPrefs);
-            }            
+            }
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -140,7 +144,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         if (m_attrMap != null) {
             return m_attrMap;
         }
-        
+
         m_attrMap = m_ldapManager.getAttrMap();
         return m_attrMap;
     }

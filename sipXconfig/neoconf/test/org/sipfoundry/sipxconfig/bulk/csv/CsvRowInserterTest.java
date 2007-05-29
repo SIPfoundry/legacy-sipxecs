@@ -100,7 +100,7 @@ public class CsvRowInserterTest extends TestCase {
         Integer phoneId = new Integer(5);
         Phone phone = new TestPhone();
         PhoneModel model = new TestPhoneModel();
-        
+
         phone.setSerialNumber("001122334466");
         phone.setDescription("old description");
 
@@ -113,14 +113,14 @@ public class CsvRowInserterTest extends TestCase {
         phoneContextCtrl.andReturn(phone);
 
         phoneContextCtrl.replay();
-        
+
         IMocksControl phoneModelSourceControl = EasyMock.createControl();
-        ModelSource<PhoneModel> phoneModelSource = phoneModelSourceControl.createMock(ModelSource.class);
+        ModelSource<PhoneModel> phoneModelSource = phoneModelSourceControl
+                .createMock(ModelSource.class);
         phoneModelSource.getModel("polycom300");
         phoneModelSourceControl.andReturn(model);
-        
+
         phoneModelSourceControl.replay();
-        
 
         CsvRowInserter impl = new CsvRowInserter();
         impl.setPhoneContext(phoneContext);
@@ -140,11 +140,11 @@ public class CsvRowInserterTest extends TestCase {
             "", "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone",
             "phone in John room"
         };
-        
+
         Phone phone = new TestPhone();
         PhoneModel model = new TestPhoneModel();
         phone.setDescription("old description");
-        
+
         IMocksControl phoneContextCtrl = EasyMock.createControl();
         PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
 
@@ -154,12 +154,13 @@ public class CsvRowInserterTest extends TestCase {
         phoneContextCtrl.andReturn(phone);
 
         phoneContextCtrl.replay();
-        
+
         IMocksControl phoneModelSourceControl = EasyMock.createControl();
-        ModelSource<PhoneModel> phoneModelSource = phoneModelSourceControl.createMock(ModelSource.class);
+        ModelSource<PhoneModel> phoneModelSource = phoneModelSourceControl
+                .createMock(ModelSource.class);
         phoneModelSource.getModel(model.getModelId());
         phoneModelSourceControl.andReturn(model);
-        
+
         phoneModelSourceControl.replay();
 
         CsvRowInserter impl = new CsvRowInserter();
@@ -196,10 +197,11 @@ public class CsvRowInserterTest extends TestCase {
         phoneContextCtrl.replay();
 
         IMocksControl phoneModelSourceControl = EasyMock.createControl();
-        ModelSource<PhoneModel> phoneModelSource = phoneModelSourceControl.createMock(ModelSource.class);
+        ModelSource<PhoneModel> phoneModelSource = phoneModelSourceControl
+                .createMock(ModelSource.class);
         phoneModelSource.getModel(model.getModelId());
         phoneModelSourceControl.andReturn(model);
-        
+
         phoneModelSourceControl.replay();
 
         CsvRowInserter impl = new CsvRowInserter();
@@ -214,48 +216,57 @@ public class CsvRowInserterTest extends TestCase {
         phoneModelSourceControl.verify();
         phoneContextCtrl.verify();
     }
-    
-    public void testMailboxPreferencesFromRow() {
+
+    public void testUpdateMailboxPreferences() {
+        User user = new User();
+        user.setUserName("kuku");
         Mailbox mailbox = new Mailbox(new File("."), "kuku");
-        MailboxPreferences exepected = new MailboxPreferences(); 
-        IMocksControl mailboxManagerControl =  EasyMock.createStrictControl();
+        MailboxPreferences expected = new MailboxPreferences();
+
+        IMocksControl mailboxManagerControl = EasyMock.createStrictControl();
         MailboxManager mailboxManager = mailboxManagerControl.createMock(MailboxManager.class);
+        
+        mailboxManager.isEnabled();
+        mailboxManagerControl.andReturn(true);
+        mailboxManager.deleteMailbox("kuku");
+        mailboxManager.getMailbox("kuku");
+        mailboxManagerControl.andReturn(mailbox);
+        mailboxManager.loadMailboxPreferences(mailbox);
+        mailboxManagerControl.andReturn(expected);
+        mailboxManager.saveMailboxPreferences(mailbox, expected);
+
         mailboxManager.isEnabled();
         mailboxManagerControl.andReturn(true);
         mailboxManager.getMailbox("kuku");
         mailboxManagerControl.andReturn(mailbox);
         mailboxManager.loadMailboxPreferences(mailbox);
-        mailboxManagerControl.andReturn(exepected);
+        mailboxManagerControl.andReturn(expected);
+        mailboxManager.saveMailboxPreferences(mailbox, expected);
+        
         mailboxManager.isEnabled();
         mailboxManagerControl.andReturn(false);
         mailboxManagerControl.replay();
-        
-        String[] userRow = new String[] {
-                "kuku", "", "", "", "", "", "jlennon@example.com"
-            };
-        
-        
+
         CsvRowInserter impl = new CsvRowInserter();
         impl.setMailboxManager(mailboxManager);
-        MailboxPreferences actual = impl.mailboxPreferencesFromRow(userRow);
-        assertEquals("jlennon@example.com", actual.getEmailAddress());
-        assertSame(exepected, actual);
-
-        MailboxPreferences preferencesDisabled = impl.mailboxPreferencesFromRow(userRow);
-        assertNull(preferencesDisabled);
         
+        impl.updateMailboxPreferences(user, "jlennon@example.com", true);
+
+        impl.updateMailboxPreferences(user, "jlennon@example.com", false);
+
+        impl.updateMailboxPreferences(user, "jlennon@example.com", true);        
         mailboxManagerControl.verify();
     }
-    
+
     public void testAddLine() {
         CsvRowInserter impl = new CsvRowInserter();
         Phone phone = new TestPhone();
         phone.setModel(new PhoneModel("test"));
         User user = new User();
-        Line expected = impl.addLine(phone, user);        
+        Line expected = impl.addLine(phone, user);
         Line actual = impl.addLine(phone, user);
         assertSame(expected, actual);
-        
+
         User newuser = new TestUser(1);
         Line newline = impl.addLine(phone, newuser);
         assertNotSame(expected, newline);
@@ -263,10 +274,11 @@ public class CsvRowInserterTest extends TestCase {
 
     private class TestUser extends User {
         private Integer m_id;
+
         TestUser(Integer id) {
             m_id = id;
         }
-        
+
         public Integer getId() {
             return m_id;
         }

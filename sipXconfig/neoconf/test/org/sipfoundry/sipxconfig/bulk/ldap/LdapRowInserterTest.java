@@ -21,6 +21,7 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 public class LdapRowInserterTest extends TestCase {
     private LdapRowInserter m_rowInserter;
@@ -63,11 +64,20 @@ public class LdapRowInserterTest extends TestCase {
         coreContext.getGroupByName("sales", true);
         coreContextControl.andReturn(null);
         coreContext.saveUser(joe);
+        coreContextControl.andReturn(true);
         coreContext.deleteUsersByUserName(Collections.singleton("olderImportUser"));
         coreContextControl.replay();
-        
+
+        IMocksControl mailboxManagerControl = EasyMock.createControl();
+        MailboxManager mailboxManager = mailboxManagerControl.createMock(MailboxManager.class);
+        mailboxManager.isEnabled();
+        mailboxManagerControl.andReturn(true);
+        mailboxManager.deleteMailbox("joe");
+        mailboxManagerControl.replay();
+
         m_rowInserter.setCoreContext(coreContext);
         m_rowInserter.setUserMapper(userMapper);
+        m_rowInserter.setMailboxManager(mailboxManager);
         m_rowInserter.beforeInserting();
         m_rowInserter.insertRow(searchResult, attributes);
         m_rowInserter.afterInserting();

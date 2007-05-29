@@ -45,7 +45,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
     public abstract String getButtonPressed();
 
     public abstract MailboxManager getMailboxManager();
-    
+
     public IPage onCommit(IRequestCycle cycle) {
         if (!TapestryUtils.isValid(this)) {
             return null;
@@ -55,10 +55,12 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         User user = getUser();
         EditGroup.saveGroups(getSettingDao(), user.getGroups());
         core.saveUser(user);
-        
+
         MailboxManager mmgr = getMailboxManager();
         if (mmgr.isEnabled()) {
-            Mailbox mailbox = mmgr.getMailbox(user.getUserName());
+            String userName = user.getUserName();
+            mmgr.deleteMailbox(userName);
+            Mailbox mailbox = mmgr.getMailbox(userName);
             mmgr.saveMailboxPreferences(mailbox, getMailboxPreferences());
         }
 
@@ -71,7 +73,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
 
         return null;
     }
-    
+
     private MailboxPreferences getMailboxPreferences() {
         return (MailboxPreferences) getBeans().getBean("mailboxPreferences");
     }
@@ -97,7 +99,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
 
         public void performCallback(IRequestCycle cycle) {
             if (isStay() && FormActions.OK.equals(getButtonPressed())) {
-                // Explicitly null out information that should not be used for multiple users, 
+                // Explicitly null out information that should not be used for multiple users,
                 // otherwise keep form values as is theory that creating users in bulk will want
                 // all the same settings by default
                 setUser(null);

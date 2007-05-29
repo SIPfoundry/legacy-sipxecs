@@ -32,7 +32,7 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
     private CoreContext m_coreContext;
 
     private PhoneContext m_phoneContext;
-    
+
     private SettingDao m_settingDao;
 
     private ModelSource<PhoneModel> m_modelSource;
@@ -69,30 +69,16 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
     protected void insertRow(String[] row) {
         User user = userFromRow(row);
         String userGroupName = Index.USER_GROUP.get(row);
-        Collection<Group> userGroups = m_settingDao.getGroupsByString(CoreContext.USER_GROUP_RESOURCE_ID, 
-                userGroupName, true);
+        Collection<Group> userGroups = m_settingDao.getGroupsByString(
+                CoreContext.USER_GROUP_RESOURCE_ID, userGroupName, true);
 
-        Phone phone = phoneFromRow(row);        
+        Phone phone = phoneFromRow(row);
         String phoneGroupName = Index.PHONE_GROUP.get(row);
-        Collection<Group> phoneGroups = m_settingDao.getGroupsByString(PhoneContext.GROUP_RESOURCE_ID, 
-                phoneGroupName, true);
-        
+        Collection<Group> phoneGroups = m_settingDao.getGroupsByString(
+                PhoneContext.GROUP_RESOURCE_ID, phoneGroupName, true);
 
-        MailboxPreferences mboxPrefs = mailboxPreferencesFromRow(row);
-
-        insertData(user, userGroups, phone, phoneGroups, mboxPrefs);
-    }
-
-    MailboxPreferences mailboxPreferencesFromRow(String[] row) {
         String emailAddress = Index.EMAIL.get(row);
-        if (!m_mailboxManager.isEnabled() || StringUtils.isBlank(emailAddress)) {
-            return null;
-        }
-        String userId = Index.USERNAME.get(row);
-        Mailbox mailbox = m_mailboxManager.getMailbox(userId);
-        MailboxPreferences mboxPrefs = m_mailboxManager.loadMailboxPreferences(mailbox);
-        mboxPrefs.setEmailAddress(emailAddress);
-        return mboxPrefs;
+        insertData(user, userGroups, phone, phoneGroups, emailAddress);
     }
 
     /**
@@ -157,12 +143,12 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
      * @param phone phone to add or update
      * @param phoneGroup phone group to which phone will be added
      */
-    private void insertData(User user, Collection<Group> userGroups, Phone phone, Collection<Group> phoneGroups,
-            MailboxPreferences mboxPrefs) {
+    private void insertData(User user, Collection<Group> userGroups, Phone phone,
+            Collection<Group> phoneGroups, String emailAddress) {
         for (Group userGroup : userGroups) {
             user.addGroup(userGroup);
         }
-        m_coreContext.saveUser(user);
+        boolean newMailbox = m_coreContext.saveUser(user);
 
         if (phoneGroups != null) {
             for (Group phoneGroup : phoneGroups) {
@@ -174,12 +160,27 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
 
         m_phoneContext.storePhone(phone);
 
-        if (mboxPrefs != null) {
-            Mailbox mailbox = m_mailboxManager.getMailbox(user.getUserName());
+        updateMailboxPreferences(user, emailAddress, newMailbox);
+    }
+
+    void updateMailboxPreferences(User user, String emailAddress, boolean newMailbox) {
+        if (!m_mailboxManager.isEnabled()) {
+            return;
+        }
+        String userName = user.getUserName();
+        if (newMailbox) {
+            m_mailboxManager.deleteMailbox(userName);
+        }
+
+        if (StringUtils.isNotBlank(emailAddress)) {
+            Mailbox mailbox = m_mailboxManager.getMailbox(userName);
+            MailboxPreferences mboxPrefs = m_mailboxManager.loadMailboxPreferences(mailbox);
+            mboxPrefs.setEmailAddress(emailAddress);
+
             m_mailboxManager.saveMailboxPreferences(mailbox, mboxPrefs);
         }
     }
-    
+
     Line addLine(Phone phone, User user) {
         for (Line l : phone.getLines()) {
             User candidate = l.getUser();
@@ -188,7 +189,7 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
                 return l;
             }
         }
-        
+
         Line line = phone.createLine();
         line.setUser(user);
         phone.addLine(line);

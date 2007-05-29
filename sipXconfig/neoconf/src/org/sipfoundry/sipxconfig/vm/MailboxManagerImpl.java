@@ -27,7 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.UserException;
 
-public class MailboxManagerImpl implements MailboxManager {    
+public class MailboxManagerImpl implements MailboxManager {
     private static final String MESSAGE_SUFFIX = "-00.xml";
     private static final FilenameFilter MESSAGE_FILES = new SuffixFileFilter(MESSAGE_SUFFIX);
     private static final Log LOG = LogFactory.getLog(MailboxManagerImpl.class);
@@ -37,11 +37,11 @@ public class MailboxManagerImpl implements MailboxManager {
     private MailboxPreferencesWriter m_mailboxPreferencesWriter;
     private DistributionListsReader m_distributionListsReader;
     private DistributionListsWriter m_distributionListsWriter;
-    
+
     public boolean isEnabled() {
         return m_mailstoreDirectory != null && m_mailstoreDirectory.exists();
     }
-    
+
     public DistributionList[] loadDistributionLists(Mailbox mailbox) {
         File file = mailbox.getDistributionListsFile();
         DistributionList[] lists = m_distributionListsReader.readObject(file);
@@ -55,7 +55,7 @@ public class MailboxManagerImpl implements MailboxManager {
         File file = mailbox.getDistributionListsFile();
         m_distributionListsWriter.writeObject(lists, file);
     }
-   
+
     public List<Voicemail> getVoicemail(Mailbox mbox, String folder) {
         checkMailstoreDirectory();
         File vmdir = new File(mbox.getUserDirectory(), folder);
@@ -71,31 +71,27 @@ public class MailboxManagerImpl implements MailboxManager {
         }
         return vms;
     }
-    
-    /** 
-     * tell mediaserver cgi to mark voicemail as heard by using these
-     * parameters
-     *    action = updatestatus
-     *    mailbox = userid
-     *    category = inbox
-     *    messageidlist = space delimited message ids
+
+    /**
+     * tell mediaserver cgi to mark voicemail as heard by using these parameters action =
+     * updatestatus mailbox = userid category = inbox messageidlist = space delimited message ids
      */
     public void markRead(Mailbox mailbox, Voicemail voicemail) {
-        String request = String.format("action=updatestatus&mailbox=%s&category=%s&messageidlist=%s",
-                mailbox.getUserId(), voicemail.getFolderId(), voicemail.getMessageId());
+        String request = String.format(
+                "action=updatestatus&mailbox=%s&category=%s&messageidlist=%s", mailbox
+                        .getUserId(), voicemail.getFolderId(), voicemail.getMessageId());
         // triggers NOTIFY (iff folder is inbox, bug in mediaserver?)
         mediaserverCgiRequest(request);
     }
-    
+
     public void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId) {
         File destination = new File(mailbox.getUserDirectory(), destinationFolderId);
         for (File f : voicemail.getAllFiles()) {
             f.renameTo(new File(destination, f.getName()));
         }
-        
+
         triggerSipNotify(mailbox);
     }
-
 
     public void delete(Mailbox mailbox, Voicemail voicemail) {
         for (File f : voicemail.getAllFiles()) {
@@ -104,14 +100,14 @@ public class MailboxManagerImpl implements MailboxManager {
 
         triggerSipNotify(mailbox);
     }
-    
+
     private void triggerSipNotify(Mailbox mailbox) {
         // reversed engineered this string from using sipx 3.6 system.
         String request = String.format("action=updatestatus&from=gateway&category=inbox&"
                 + "mailbox=%s&messageidlist=-2", mailbox.getUserId());
         mediaserverCgiRequest(request);
     }
-    
+
     public void mediaserverCgiRequest(String cgiRequest) {
         String errMsg = "Cannot contact media server to update voicemail status";
         if (StringUtils.isBlank(m_mediaServerCgiUrl)) {
@@ -126,12 +122,12 @@ public class MailboxManagerImpl implements MailboxManager {
         } catch (MalformedURLException e) {
             throw new RuntimeException(errMsg, e);
         } catch (IOException e) {
-            // not a fatal exception either. (unfort,. likely if mediaserver cert. isn't valid 
+            // not a fatal exception either. (unfort,. likely if mediaserver cert. isn't valid
             // for multitude of reasons including reverse DNS not resolving)
             LOG.warn(errMsg, e);
         } finally {
             IOUtils.closeQuietly(updateResponse);
-        }        
+        }
     }
 
     /**
@@ -143,27 +139,29 @@ public class MailboxManagerImpl implements MailboxManager {
         }
         if (!m_mailstoreDirectory.exists()) {
             throw new MailstoreMisconfigured(m_mailstoreDirectory.getAbsolutePath());
-        }        
+        }
     }
-    
+
     static class MailstoreMisconfigured extends UserException {
         MailstoreMisconfigured() {
             super("Mailstore directory configuration setting is missing.");
         }
+
         MailstoreMisconfigured(String dir) {
             super(String.format("Mailstore directory does not exist '%s'", dir));
         }
+
         MailstoreMisconfigured(String message, IOException cause) {
             super(message, cause);
         }
     }
-    
-    /** 
+
+    /**
      * extract file name w/o ext.
      */
     static String basename(String filename) {
         int suffix = filename.lastIndexOf(MESSAGE_SUFFIX);
-        return suffix >= 0 ? filename.substring(0, suffix) : filename; 
+        return suffix >= 0 ? filename.substring(0, suffix) : filename;
     }
 
     public String getMailstoreDirectory() {
@@ -173,16 +171,21 @@ public class MailboxManagerImpl implements MailboxManager {
     public void setMailstoreDirectory(String mailstoreDirectory) {
         m_mailstoreDirectory = new File(mailstoreDirectory);
     }
-    
+
     public Mailbox getMailbox(String userId) {
         return new Mailbox(m_mailstoreDirectory, userId);
     }
-    
+
+    public void deleteMailbox(String userId) {
+        Mailbox mailbox = getMailbox(userId);
+        mailbox.deleteUserDirectory();
+    }
+
     public void saveMailboxPreferences(Mailbox mailbox, MailboxPreferences preferences) {
         File file = mailbox.getVoicemailPreferencesFile();
         m_mailboxPreferencesWriter.writeObject(preferences, file);
     }
-    
+
     public MailboxPreferences loadMailboxPreferences(Mailbox mailbox) {
         File prefsFile = mailbox.getVoicemailPreferencesFile();
         MailboxPreferences preferences = m_mailboxPreferencesReader.readObject(prefsFile);
@@ -191,11 +194,11 @@ public class MailboxManagerImpl implements MailboxManager {
         }
         return preferences;
     }
-    
+
     public static class YesNo {
         public String encode(Object o) {
             return Boolean.TRUE.equals(o) ? "yes" : "no";
-        }        
+        }
     }
 
     public void setMailboxPreferencesReader(MailboxPreferencesReader mailboxReader) {

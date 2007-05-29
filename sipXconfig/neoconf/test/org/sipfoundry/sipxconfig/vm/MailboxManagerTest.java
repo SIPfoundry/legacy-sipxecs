@@ -22,29 +22,54 @@ import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class MailboxManagerTest extends TestCase {
     private MailboxManagerImpl m_mgr;
-    
-    public static final File READONLY_MAILSTORE = new File(TestUtil.getTestSourceDirectory(MailboxManagerTest.class));
-    
+
+    public static final File READONLY_MAILSTORE = new File(TestUtil
+            .getTestSourceDirectory(MailboxManagerTest.class));
+
     protected void setUp() {
         m_mgr = new MailboxManagerImpl();
         String thisDir = TestUtil.getTestSourceDirectory(getClass());
-        m_mgr.setMailstoreDirectory(thisDir);        
+        m_mgr.setMailstoreDirectory(thisDir);
     }
-    
+
     public static File createTestMailStore() throws IOException {
-        File testMailstore = new File(TestHelper.getTestDirectory() + '/' + System.currentTimeMillis());
+        File testMailstore = new File(TestHelper.getTestDirectory() + '/'
+                + System.currentTimeMillis());
         testMailstore.mkdirs();
-        FileUtils.copyDirectory(new File(READONLY_MAILSTORE, "200"), new File(testMailstore, "200"));        
+        FileUtils.copyDirectory(new File(READONLY_MAILSTORE, "200"), new File(testMailstore,
+                "200"));
         return testMailstore;
     }
-    
+
     public void testEnabled() {
         assertTrue(m_mgr.isEnabled());
         m_mgr.setMailstoreDirectory("bogus-mogus");
         assertFalse(m_mgr.isEnabled());
     }
 
-    public void testGetVoicemailWhenInvalid() {        
+    public void testDeleteMailbox() throws IOException {
+        File mailstore = MailboxManagerTest.createTestMailStore();
+        MailboxManagerImpl mgr = new MailboxManagerImpl();
+        mgr.setMailstoreDirectory(mailstore.getAbsolutePath());
+        Mailbox mbox = mgr.getMailbox("200");
+
+        assertTrue(mbox.getUserDirectory().exists());
+        mgr.deleteMailbox("200");
+        assertFalse(mbox.getUserDirectory().exists());
+
+        mgr.deleteMailbox("200");
+        assertFalse(mbox.getUserDirectory().exists());
+
+        Mailbox nombox = mgr.getMailbox("non-existing-user");
+        assertFalse(nombox.getUserDirectory().exists());
+        mgr.deleteMailbox("non-existing-user");
+        assertFalse(nombox.getUserDirectory().exists());
+
+        // nice, not critical
+        FileUtils.deleteDirectory(mailstore);
+    }
+
+    public void testGetVoicemailWhenInvalid() {
         MailboxManagerImpl mgr = new MailboxManagerImpl();
         Mailbox mbox = mgr.getMailbox("200");
         try {
@@ -54,7 +79,6 @@ public class MailboxManagerTest extends TestCase {
             assertTrue(true);
         }
 
-
         try {
             mgr.setMailstoreDirectory("bogus");
             mgr.getVoicemail(mbox, "inbox").size();
@@ -63,8 +87,8 @@ public class MailboxManagerTest extends TestCase {
             assertTrue(true);
         }
     }
-    
-    public void testGetVoicemailWhenEmpty() {        
+
+    public void testGetVoicemailWhenEmpty() {
         assertEquals(0, m_mgr.getVoicemail(m_mgr.getMailbox("200"), "inbox-bogus").size());
         assertEquals(0, m_mgr.getVoicemail(m_mgr.getMailbox("200-bogus"), "inbox").size());
     }
@@ -75,23 +99,23 @@ public class MailboxManagerTest extends TestCase {
         assertEquals("00000001", vm.get(0).getMessageId());
         assertTrue(vm.get(0).getMediaFile().exists());
     }
-    
+
     public void testBasename() {
         assertEquals("bird", MailboxManagerImpl.basename("bird-00.xml"));
         assertEquals("bird", MailboxManagerImpl.basename("bird"));
     }
-    
+
     public void testGetFolders() {
         List<String> folderIds = m_mgr.getMailbox("200").getFolderIds();
         assertEquals(3, folderIds.size());
     }
-    
+
     public void testGetDeletedVoicemail() {
         List<Voicemail> deleted = m_mgr.getVoicemail(m_mgr.getMailbox("200"), "deleted");
         assertEquals(1, deleted.size());
         assertEquals("00000002", deleted.get(0).getMessageId());
     }
-    
+
     public void testLoadPreferencesWhenEmpty() {
         Mailbox mailbox = m_mgr.getMailbox("300");
         MailboxPreferencesReader reader = new MailboxPreferencesReader();
@@ -99,7 +123,7 @@ public class MailboxManagerTest extends TestCase {
         MailboxPreferences preferences = m_mgr.loadMailboxPreferences(mailbox);
         assertNotNull(preferences);
     }
-    
+
     public void testSavePreferencesWhenEmpty() {
         m_mgr.setMailstoreDirectory(TestHelper.getTestDirectory());
         MailboxPreferencesWriter writer = new MailboxPreferencesWriter();

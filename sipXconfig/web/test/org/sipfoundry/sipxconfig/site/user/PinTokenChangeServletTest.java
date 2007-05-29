@@ -76,6 +76,7 @@ public class PinTokenChangeServletTest extends TestCase {
         coreContext.loadUserByUserName("joe");
         coreContextCtrl.andReturn(m_user);
         coreContext.saveUser(m_user);
+        coreContextCtrl.andReturn(false);
         coreContextCtrl.replay();
 
         m_servlet.changePin(coreContext, "joe;oldpintoken;newpintoken");

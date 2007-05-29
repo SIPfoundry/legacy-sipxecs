@@ -23,18 +23,22 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
 
     public static final String USER_GROUP_RESOURCE_ID = "user";
     public static final String CONTEXT_BEAN_NAME = "coreContext";
-    
+
     /**
      * Instantiates a user complete w/setting model
      */
     public User newUser();
 
-    public void saveUser(User user);
+    /**
+     * @return true if username has changed, false if it's an update to existing user without
+     *         username change
+     */
+    public boolean saveUser(User user);
 
     public void deleteUser(User user);
 
     public void deleteUsers(Collection<Integer> usersIds);
-    
+
     public void deleteUsersByUserName(Collection<String> usersName);
 
     public User loadUser(Integer id);
@@ -100,7 +104,7 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
     public Group getGroupByName(String userGroupName, boolean createIfNotFound);
 
     public Collection<User> getGroupMembers(Group group);
-    
+
     public Collection<String> getGroupMembersNames(Group group);
 
     /**
@@ -121,6 +125,6 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
     public void removeFromGroup(Integer groupId, Collection<Integer> ids);
 
     public List<User> getGroupSupervisors(Group group);
-    
+
     public List<User> getUsersThatISupervise(User uservisor);
 }

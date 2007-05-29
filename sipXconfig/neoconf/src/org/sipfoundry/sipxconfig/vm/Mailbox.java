@@ -10,8 +10,12 @@
 package org.sipfoundry.sipxconfig.vm;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.sipfoundry.sipxconfig.vm.MailboxManagerImpl.MailstoreMisconfigured;
 
 public class Mailbox {
     private File m_mailstoreDirectory;
@@ -34,6 +38,17 @@ public class Mailbox {
     
     public File getUserDirectory() {
         return new File(getMailstoreDirectory(), getUserId());
+    }
+    
+    public void deleteUserDirectory() {
+        File userDir = getUserDirectory();
+        if (userDir.exists()) {
+            try {
+                FileUtils.deleteDirectory(userDir);
+            } catch (IOException e) {
+                throw new MailstoreMisconfigured("Cannot delete mailbox directory " + userDir.getAbsolutePath(), e);
+            }
+        }
     }
     
     public File getDistributionListsFile() {

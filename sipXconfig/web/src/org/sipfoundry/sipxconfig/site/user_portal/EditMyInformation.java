@@ -19,26 +19,27 @@ import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
-
 public abstract class EditMyInformation extends UserBasePage implements EditPinComponent {
-    
+
     public abstract String getPin();
-    
+
     public abstract User getUserForEditing();
+
     public abstract void setUserForEditing(User user);
-    
+
     public abstract MailboxPreferences getMailboxPreferences();
+
     public abstract void setMailboxPreferences(MailboxPreferences preferences);
-    
+
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
-    
+
     public void save() {
         if (TapestryUtils.isValid(this)) {
-            User user = getUserForEditing(); 
+            User user = getUserForEditing();
             UserForm.updatePin(this, user, getCoreContext().getAuthorizationRealm());
             getCoreContext().saveUser(user);
-            
+
             MailboxManager mailMgr = getMailboxManager();
             if (mailMgr.isEnabled()) {
                 Mailbox mailbox = mailMgr.getMailbox(user.getUserName());
@@ -46,11 +47,11 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             }
         }
     }
-    
+
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
-        
-        User user = getUserForEditing(); 
+
+        User user = getUserForEditing();
         if (user == null) {
             user = getUser();
             setUserForEditing(user);
@@ -58,12 +59,12 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
         if (getPin() == null) {
             UserForm.initializePin(getComponent("pin"), this, user);
-        }        
-        
+        }
+
         MailboxManager mailMgr = getMailboxManager();
         if (getMailboxPreferences() == null && mailMgr.isEnabled()) {
             Mailbox mailbox = mailMgr.getMailbox(user.getUserName());
-            setMailboxPreferences(mailMgr.loadMailboxPreferences(mailbox));            
+            setMailboxPreferences(mailMgr.loadMailboxPreferences(mailbox));
         }
     }
 }

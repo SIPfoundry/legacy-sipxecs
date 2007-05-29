@@ -37,9 +37,11 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
     public abstract User getUser();
 
     public abstract void setUser(User user);
-    
+
     public abstract MailboxManager getMailboxManager();
+
     public abstract MailboxPreferences getMailboxPreferences();
+
     public abstract void setMailboxPreferences(MailboxPreferences preferences);
 
     public void commit() {
@@ -48,10 +50,13 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
         }
         User user = getUser();
         EditGroup.saveGroups(getSettingDao(), user.getGroups());
-        getCoreContext().saveUser(user);
-        
+        boolean newUsername = getCoreContext().saveUser(user);
+
         MailboxManager mmgr = getMailboxManager();
         if (mmgr.isEnabled()) {
+            if (newUsername) {
+                mmgr.deleteMailbox(user.getUserName());
+            }
             Mailbox mailbox = mmgr.getMailbox(user.getUserName());
             mmgr.saveMailboxPreferences(mailbox, getMailboxPreferences());
         }
@@ -63,14 +68,14 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
             user = getCoreContext().loadUser(getUserId());
             setUser(user);
         }
-        
+
         MailboxPreferences preferences = getMailboxPreferences();
         MailboxManager mmgr = getMailboxManager();
         if (preferences == null && mmgr.isEnabled()) {
             Mailbox mailbox = mmgr.getMailbox(user.getUserName());
             preferences = mmgr.loadMailboxPreferences(mailbox);
             setMailboxPreferences(preferences);
-        }        
+        }
 
         // If no callback has been given, then navigate back to Manage Users on OK/Cancel
         if (getCallback() == null) {
