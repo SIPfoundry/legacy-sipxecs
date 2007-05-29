@@ -16,6 +16,7 @@ import java.util.Iterator;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
@@ -129,6 +130,15 @@ public class GrandstreamPhone extends Phone {
     public String getProfileFilename() {
         String phoneFilename = getSerialNumber();
         return "cfg" + phoneFilename.toLowerCase();
+    }
+    
+    
+    public Profile[] getProfileTypes() {
+        String profileFilename = getProfileFilename();
+        Profile profile = new Profile(profileFilename, "application/octet-stream");
+        return new Profile[] {
+            profile
+        };
     }
 
     public void setDefaultIfExists(Setting sroot, String param, String value) {
