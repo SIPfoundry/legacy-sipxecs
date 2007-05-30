@@ -31,32 +31,33 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {    
-    
+public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {
+
     /**
-     * Check if a bean exists w/o loading it or trying to load it and getting
-     * a dataintegrityexcepiton
+     * Check if a bean exists w/o loading it or trying to load it and getting a
+     * dataintegrityexcepiton
      */
     public boolean isBeanAvailable(Class c, Serializable id) {
-        ClassMetadata classMetadata = getHibernateTemplate().getSessionFactory().getClassMetadata(c);
+        ClassMetadata classMetadata = getHibernateTemplate().getSessionFactory()
+                .getClassMetadata(c);
         String name = classMetadata.getEntityName();
-        List results = getHibernateTemplate().findByNamedParam("select 1 from " + name + " where id = :id", 
-                "id", id);
-        return !results.isEmpty();        
+        List results = getHibernateTemplate().findByNamedParam(
+                "select 1 from " + name + " where id = :id", "id", id);
+        return !results.isEmpty();
     }
-    
+
     public T load(Class<T> c, Serializable id) {
         return (T) getHibernateTemplate().load(c, id);
     }
-    
+
     protected void saveBeanWithSettings(BeanWithSettings bean) {
         bean.setValueStorage(clearUnsavedValueStorage(bean.getValueStorage()));
-        getHibernateTemplate().saveOrUpdate(bean);                    
+        getHibernateTemplate().saveOrUpdate(bean);
     }
 
     protected void deleteBeanWithSettings(BeanWithSettings bean) {
         // avoid hibernate errors about new object references when calling delete on parent object
-        bean.setValueStorage(clearUnsavedValueStorage(bean.getValueStorage()));        
+        bean.setValueStorage(clearUnsavedValueStorage(bean.getValueStorage()));
         getHibernateTemplate().delete(bean);
     }
 
@@ -137,12 +138,15 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {
             entities.add(entity);
         }
         template.deleteAll(entities);
+        // HACK: this is to fix XCF-1732, it should not be needed but FLASH_AUTO strategy does not
+        // work here
+        template.flush();
     }
 
     protected Storage clearUnsavedValueStorage(Storage storage) {
         // requirement, otherwise you wouldn't be calling this function
         ValueStorage vs = (ValueStorage) storage;
-        
+
         // If no settings don't bother saving anything.
         return vs != null && vs.isNew() && vs.size() == 0 ? null : vs;
     }
