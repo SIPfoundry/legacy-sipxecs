@@ -649,8 +649,8 @@ MailboxManager::parseMessageDescriptor (
        if (f == NULL)
        {
           OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
-                        "parseMessageDescriptor: Received errno = %d while opening file",
-                        errno);
+                        "parseMessageDescriptor: Received errno = %d '%s' while opening file",
+                        errno, strerror(errno));
        }
        else
        {
@@ -1314,8 +1314,9 @@ MailboxManager::saveMessage (
                   wavFile.remove();
                   logContent = "Unable to create message descriptor file : " + nameWithoutExtension + ".xml\n" ;
                   OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
-                                "MailboxManager::saveMessage: Error opening metadata file '%s.xml' for output, errno = %d",
-                                nameWithoutExtension.data(), errno);
+                                "MailboxManager::saveMessage: Error opening metadata file '%s.xml' for output, errno = %d '%s'",
+                                nameWithoutExtension.data(),
+                                errno, strerror(errno));
                }
             } else
             {
@@ -1323,9 +1324,9 @@ MailboxManager::saveMessage (
                wavFile.remove();
                logContent = "Failed to write recorded voicemail to " + nameWithoutExtension + ".wav\n" ;
                OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
-                             "MailboxManager::saveMessage: write(fd = %d, size = %d) failed, fd opened on audio file '%s.wav', errno = %d",
+                             "MailboxManager::saveMessage: write(fd = %d, size = %d) failed, fd opened on audio file '%s.wav', errno = %d '%s'",
                              file, datasize, nameWithoutExtension.data(),
-                             errno);
+                             errno, strerror(errno));
             }
 
             // succesfully saved wav file close file
@@ -1335,8 +1336,8 @@ MailboxManager::saveMessage (
          {
             logContent = "Unable to create file " + nameWithoutExtension + ".wav\n";
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
-                          "MailboxManager::saveMessage: Error opening audio file '%s.wav' for output: errno = %d",
-                          nameWithoutExtension.data(), errno);
+                          "MailboxManager::saveMessage: Error opening audio file '%s.wav' for output: errno = %d '%s'",
+                          nameWithoutExtension.data(), errno, strerror(errno));
          }
       } else
       {

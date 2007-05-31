@@ -508,8 +508,9 @@ int NetInTask::run(void *pNotUsed)
             ostc = *pOsTC;
             selectCounter++;
             if (0 > numReady) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: select returned %d, errno=%d=0x%X\n",
-                    numReady, errno, errno);
+                OsSysLog::add(FAC_MP, PRI_ERR,
+                              " *** NetInTask: select returned %d, errno=%d '%s'",
+                              numReady, errno, strerror(errno));
                 i = findPoisonFds(mpReadSocket->getSocketDescriptor());
                 if (i < 0) {
                     OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: My comm socket failed! Quitting!\n");

@@ -104,11 +104,11 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
         error = OsSocketGetERRNO();
         close();
 
-        OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                      "OsDatagramSocket::OsDatagramSocket(%s:%d %s:%d) socket(%d, %d, %d) failed w/ errno %d)",
+        OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                      "OsDatagramSocket::OsDatagramSocket(%s:%d %s:%d) socket(%d, %d, %d) failed w/ errno %d '%s')",
                       remoteHost, remoteHostPortNum, localHost, localHostPortNum,
                       AF_INET, SOCK_DGRAM, IPPROTO_UDP,
-                      error);
+                      error, strerror(error));
 
         goto EXIT;
     }
@@ -150,11 +150,12 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
         // Extract the address and port we were trying to bind() to.
         const char *addr = inet_ntoa(localAddr.sin_addr);
         int port = ntohs(localAddr.sin_port);
-        OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                      "OsDatagramSocket::OsDatagramSocket(%s:%d %s:%d) bind(%d, %s:%d) failed w/ errno %d)",
+        OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                      "OsDatagramSocket::OsDatagramSocket %d (%s:%d %s:%d) bind(%d, %s:%d) failed w/ errno %d '%s')",
+                      socketDescriptor,
                       remoteHost, remoteHostPortNum, localHost, localHostPortNum,
                       socketDescriptor, addr, port,
-                      error);
+                      error, strerror(error));
 
         goto EXIT;
     }
@@ -238,9 +239,12 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
             {
                 int error = OsSocketGetERRNO();
                 close();
-                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                              "OsDatagramSocket::doConnect( %s:%d ) failed w/ errno %d)",
-                              remoteHost, remoteHostPortNum, error);
+                OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                              "OsDatagramSocket::doConnect %d (%s:%d %s:%d) failed w/ errno %d '%s')",
+                              socketDescriptor,
+                              remoteHost, remoteHostPortNum,
+                              localHostName.data(), localHostPort,
+                              error, strerror(error));
             }
             else
             {
@@ -313,11 +317,12 @@ int OsDatagramSocket::write(const char* buffer, int bufferLength,
         if(bytesSent != bufferLength)
         {
            OsSysLog::add(FAC_SIP, PRI_ERR,
-                         "OsDatagramSocket::write(4) ipAddress = '%s', "
+                         "OsDatagramSocket::write(4) %d ipAddress = '%s', "
                          "port = %d, bytesSent = %d, "
-                         "bufferLength = %d, errno = %d",
+                         "bufferLength = %d, errno = %d '%s'",
+                         socketDescriptor,
                          ipAddress ? ipAddress : "[null]", port,
-                         bytesSent, bufferLength, errno);
+                         bytesSent, bufferLength, errno, strerror(errno));
             time_t rightNow;
 
             (void) time(&rightNow);

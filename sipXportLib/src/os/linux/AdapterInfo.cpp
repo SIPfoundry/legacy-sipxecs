@@ -43,8 +43,8 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
    if (sock < 0)
    {
       OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                    "getAllLocalHostIps unable to open socket, errno = %d",
-                    errno);
+                    "getAllLocalHostIps unable to open socket, errno = %d '%s'",
+                    errno, strerror(errno));
       rc = FALSE;
    }
    else
@@ -55,8 +55,8 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
       if (ret < 0)
       {
          OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                       "getAllLocalHostIps error performing SIOCGIFCONF, errno = %d",
-                       errno);
+                       "getAllLocalHostIps %d error performing SIOCGIFCONF, errno = %d '%s'",
+                       sock, errno, strerror(errno));
          rc = FALSE;
       }
       else

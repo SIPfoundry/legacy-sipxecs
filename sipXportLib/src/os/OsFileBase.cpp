@@ -723,7 +723,9 @@ UtlBoolean OsFileBase::close()
         if (::fclose(mOsFileHandle) != 0)
         {
             retval = FALSE;
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::close failed, mOsFileHandle=%p, errno=%d", mOsFileHandle, errno);
+            OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                          "OsFileBase::close failed, mOsFileHandle=%p, errno=%d '%s'",
+                          mOsFileHandle, errno, strerror(errno));
         }
         mOsFileHandle = 0;
     }

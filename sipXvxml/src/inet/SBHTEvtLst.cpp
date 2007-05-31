@@ -828,7 +828,7 @@ SBPUBLIC int SBinetHTEventList_newLoop (void)
 		continue;
 	    }
 #endif
-	    HTTRACE(THD_TRACE, "Event Loop.. select returned error %d\n" _ socerrno);
+	    HTTRACE(THD_TRACE, "Event Loop.. select returned error %d '%s'\n" _ socerrno _ strerror(socerrno));
 
 #ifdef HTDEBUG
 	    EventList_dump();

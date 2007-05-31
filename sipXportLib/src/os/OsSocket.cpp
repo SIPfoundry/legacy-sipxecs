@@ -162,7 +162,12 @@ int OsSocket::write(const char* buffer, int bufferLength)
    bytesSent = send(socketDescriptor, buffer, bufferLength, flags);
    if (bytesSent != bufferLength)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsSocket::write send returned %d, errno=%d\n", bytesSent, errno);
+      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                    "OsSocket::write %d (%s:%d %s:%d) send returned %d, errno=%d '%s'",
+                    socketDescriptor,
+                    remoteHostName.data(), remoteHostPort,
+                    localHostName.data(), localHostPort,
+                    bytesSent, errno, strerror(errno));
    }
 
    // 10038 WSAENOTSOCK not a valid socket descriptor
@@ -295,9 +300,12 @@ int OsSocket::read(char* buffer, int bufferLength,
          // Others should not.
          default:
             OsSysLog::add(FAC_KERNEL, PRI_WARNING,
-                          "OsSocket::read %d recvfrom returned %d: %s",
-                          socketDescriptor, error, strerror(error)
-                          );
+                          "OsSocket::read %d (%s:%d %s:%d) recvfrom returned %d '%s'",
+                          socketDescriptor,
+                          remoteHostName.data(), remoteHostPort,
+                          localHostName.data(), localHostPort,
+                          error, strerror(error)
+               );
             close();
       }
 
@@ -436,16 +444,19 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
         {
             rSocketError = TRUE;
             numReady = -1;
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                "OsSocket::isReadyToRead poll returned %d (errno=%d) in socket: %x %p\n",
-                resCode, errno, tempSocketDescr, this);
+            OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                          "OsSocket::isReadyToRead %d (%s:%d %s:%d) poll returned %d (errno=%d '%s') in socket: %x %p",
+                          socketDescriptor,
+                          remoteHostName.data(), remoteHostPort,
+                          localHostName.data(), localHostPort,
+                          resCode, errno, strerror(errno), tempSocketDescr, this);
         }
         else if(resCode > 0 && pollState.revents && ! POLLSET(POLLIN))
         {
             numReady = -1;
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                           "OsSocket::isReadyToRead polllState.revents = %d: "
-                          "POLLIN: %d POLLPRI: %d POLLERR: %d POLLHUP: %d POLLNVAL: %d\n",
+                          "POLLIN: %d POLLPRI: %d POLLERR: %d POLLHUP: %d POLLNVAL: %d",
                 pollState.revents, POLLSET(POLLIN), POLLSET(POLLPRI), POLLSET(POLLERR), POLLSET(POLLHUP), POLLSET(POLLNVAL));
         }
         else if(resCode > 0 && POLLSET(POLLIN))
@@ -463,7 +474,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
             {
 #              if 0 // turn on to debug socket polling problems
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                             "OsSocket::isReadyToRead poll returned %d in socket: %x 0%p\n",
+                             "OsSocket::isReadyToRead poll returned %d in socket: %d %p",
                              resCode, tempSocketDescr, this);
 #              endif
             }
@@ -531,7 +542,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
            if(numReady < 0 || numReady > 1 || (numReady == 0 && waitMilliseconds < 0))
            {
                // perror("OsSocket::isReadyToRead()");
-               OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToRead select returned %d in socket: %d 0%x\n",
+               OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToRead select returned %d in socket: %d 0%x",
                    resCode, tempSocketDescr, this);
            }
         } //if tempSocketDescr if ok
@@ -635,8 +646,12 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
 
          if(resCode < 0)
          {
-               OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToWrite select returned %d (errno=%d) in socket: %d %p\n",
-                  resCode, errno, tempSocketDescr, this);
+               OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                             "OsSocket::isReadyToWrite %d (%s:%d %s:%d) select returned %d (errno=%d '%s') in socket: %d %p",
+                             socketDescriptor,
+                             remoteHostName.data(), remoteHostPort,
+                             localHostName.data(), localHostPort,
+                             resCode, errno, strerror(errno), tempSocketDescr, this);
          }
    #endif
 
@@ -656,7 +671,7 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
          if(numReady < 0 || numReady > 1 || (numReady == 0 && waitMilliseconds < 0))
          {
              // perror("OsSocket::isReadyToWrite()");
-             OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToWrite select returned %d in socket: %d %p\n",
+             OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToWrite select returned %d in socket: %d %p",
                  resCode, tempSocketDescr, this);
          }
 

@@ -162,8 +162,9 @@ void ACDRtRecord::appendCallEvent(int event, UtlString queueString, ACDCall* pCa
          fclose(mFp);
       }
       else {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::appendCallEvent - File not found for recording event ACDRtRecord::appendCallEvent [event %s, error %d]",
-                       eventString.data(), errno);
+         OsSysLog::add(FAC_ACD, PRI_ERR,
+                       "ACDRtRecord::appendCallEvent - File not found for recording event ACDRtRecord::appendCallEvent [event %s, error %d '%s']",
+                       eventString.data(), errno, strerror(errno));
       }
 
       mLock.release();
@@ -196,8 +197,9 @@ void ACDRtRecord::appendTransferCallEvent(int event, ACDCall* pCallRef)
          fclose(mFp);
       }
       else {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::appendTransferCallEvent - File not found for recording event ACDRtRecord::appendTransferCallEvent [event %s, error %d]",
-                       eventString.data(), errno);
+         OsSysLog::add(FAC_ACD, PRI_ERR,
+                       "ACDRtRecord::appendTransferCallEvent - File not found for recording event ACDRtRecord::appendTransferCallEvent [event %s, error %d '%s']",
+                       eventString.data(), errno, strerror(errno));
       }
 
       mLock.release();
@@ -245,8 +247,9 @@ void ACDRtRecord::appendAgentEvent(int event, UtlString* pQueueListString, ACDAg
          fclose(mFp);
       }
       else {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::appendAgentEvent - File not found for recording event ACDRtRecord::appendAgentEvent [event %s, error %d]",
-                 eventString.data(), errno);
+         OsSysLog::add(FAC_ACD, PRI_ERR,
+                       "ACDRtRecord::appendAgentEvent - File not found for recording event ACDRtRecord::appendAgentEvent [event %s, error %d '%s']",
+                       eventString.data(), errno, strerror(errno));
       }
 
       mLock.release();
@@ -295,8 +298,9 @@ void ACDRtRecord::appendAcdEvent(int event)
          fclose(mFp);
       }
       else {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "appendAcdEvent - File not found for recording event ACDRtRecord::appendCallEvent [event %s, error %d]",
-                       eventString.data(), errno);
+         OsSysLog::add(FAC_ACD, PRI_ERR,
+                       "appendAcdEvent - File not found for recording event ACDRtRecord::appendCallEvent [event %s, error %d '%s']",
+                       eventString.data(), errno, strerror(errno));
       }
 
       mLock.release();

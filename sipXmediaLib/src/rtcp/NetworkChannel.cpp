@@ -366,8 +366,8 @@ int  CNetworkChannel::Send(unsigned char *puchDataBuffer,
         // Send failed. Report why.
 /*
         osPrintf("**** FAILURE **** CNetworkChannel::Send() - Send Failed:\n"
-           "   iSent=%d, BytesToSend = %lu, errno=%d=0x%x\n",
-           iSent, ulBytesToSend, errno, errno);
+           "   iSent=%d, BytesToSend = %lu, errno=%d '%s'\n",
+           iSent, ulBytesToSend, errno, strerror(errno));
 */
     }
 

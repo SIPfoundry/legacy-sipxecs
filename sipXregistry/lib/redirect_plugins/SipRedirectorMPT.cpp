@@ -277,8 +277,9 @@ void SipRedirectorMPT::writeMappings(UtlString* file_name,
    if (f == NULL)
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "%s::writeMappings fopen('%s') failed, errno = %d", mLogName.data(),
-                    temp_file_name.data(), errno);
+                    "%s::writeMappings fopen('%s') failed, errno = %d '%s'",
+                    mLogName.data(), temp_file_name.data(),
+                    errno, strerror(errno));
    }
    else
    {
@@ -309,8 +310,9 @@ void SipRedirectorMPT::writeMappings(UtlString* file_name,
       if (rename(temp_file_name.data(), file_name->data()) != 0)
       {
          OsSysLog::add(FAC_SIP, PRI_CRIT,
-                       "%s::writeMappings rename('%s', '%s') failed, errno = %d", mLogName.data(),
-                       temp_file_name.data(), file_name->data(), errno);
+                       "%s::writeMappings rename('%s', '%s') failed, errno = %d '%s'",
+                       mLogName.data(), temp_file_name.data(), file_name->data(),
+                       errno, strerror(errno));
       }
    }
 }
