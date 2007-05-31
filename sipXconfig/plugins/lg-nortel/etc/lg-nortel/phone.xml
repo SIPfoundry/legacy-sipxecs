@@ -27,7 +27,7 @@
     <integer required="yes" max="65534" />
   </type>
   <type id="restricted-port-number">
-    <integer required="yes" min="1024" max="35000" />
+    <integer required="yes" min="1024" max="32000" />
   </type>
   <type id="day-of-week">
     <enum>
