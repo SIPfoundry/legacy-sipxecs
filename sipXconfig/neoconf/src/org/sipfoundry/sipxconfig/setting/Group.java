@@ -105,13 +105,14 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
      * @return copy of settings to be edited
      */
     public Setting inherhitSettingsForEditing(BeanWithSettings bean) {
+        Setting beanSettings = bean.getSettings();
         // base settings for the group cannot have any model
-        Setting baseSettings = bean.getSettings().copy();
+        Setting baseSettings = beanSettings.copy();
         baseSettings.acceptVisitor(new BeanWithSettingsModel.SetModelReference(null));
-        
+
         // settings have model constructed with baseSettings
-        Setting settings = bean.getSettings().copy();
-        SettingModel model = new GroupSettingModel(this, bean);
+        Setting settings = beanSettings.copy();
+        SettingModel model = new GroupSettingModel(this, baseSettings);
         settings.acceptVisitor(new BeanWithSettingsModel.SetModelReference(model));
         return settings;
     }
@@ -121,11 +122,11 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
      */
     static class GroupSettingModel implements SettingModel {
         private Group m_group;
-        private BeanWithSettings m_bean;
+        private Setting m_baseSetting;
 
-        public GroupSettingModel(Group group, BeanWithSettings bean) {
+        public GroupSettingModel(Group group, Setting baseSetting) {
             m_group = group;
-            m_bean = bean;
+            m_baseSetting = baseSetting;
         }
 
         public void setSettingValue(Setting setting, String value) {
@@ -142,13 +143,13 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
         }
 
         public SettingValue getDefaultSettingValue(Setting setting) {
-            String settingValue = m_bean.getSettingValue(setting.getPath());
-            return new SettingValueImpl(settingValue);
+            Setting baseSetting = m_baseSetting.getSetting(setting.getPath());
+            return new SettingValueImpl(baseSetting.getDefaultValue());
         }
 
         public SettingValue getProfileName(Setting setting) {
-            String profileName = m_bean.getSettings().getSetting(setting.getPath()).getProfileName();
-            return new SettingValueImpl(profileName);
+            Setting baseSetting = m_baseSetting.getSetting(setting.getPath());
+            return new SettingValueImpl(baseSetting.getProfileName());
         }
     }
 }
