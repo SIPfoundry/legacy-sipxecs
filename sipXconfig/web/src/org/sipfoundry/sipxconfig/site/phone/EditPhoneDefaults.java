@@ -99,7 +99,7 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
     public Collection getPhoneNavigationSettings() {
         return getPhone().getSettings().getValues();
     }
-    
+
     public Line getLine() {
         return getPhone().getLine(0);
     }
@@ -210,4 +210,11 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         return TapestryUtils.getSettingLabel(this, getCurrentNavigationSetting());
     }
 
+    public Setting getLineActiveSetting() {
+        return LINE_SETTITNGS == getResourceId() ? getEditFormSetting() : null;
+    }
+
+    public Setting getPhoneActiveSetting() {
+        return PHONE_SETTINGS == getResourceId() ? getEditFormSetting() : null;
+    }
 }
