@@ -491,7 +491,7 @@ UtlBoolean SipTransactionList::waitUntilAvailable(SipTransaction* transaction,
                     waitStatus = waitEvent->wait(transBusyTimeout);
                     waitTime+=1;
                 }
-                while(waitStatus != OS_SUCCESS && waitTime < 30);
+                while(waitStatus != OS_SUCCESS && waitTime < 2);
 
                 // If we were never signaled, then we signal the
                 // event so the other side knows that it has to
