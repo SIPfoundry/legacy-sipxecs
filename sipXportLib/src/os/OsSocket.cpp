@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <poll.h>
 
 //uncomment and recompile to make the socket layer fail after 20 calls.
 //after that, every 10 calls
@@ -430,26 +431,15 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
         int resCode;
         struct pollfd pollState;
         pollState.fd = tempSocketDescr;
-        pollState.events = POLLIN | POLLPRI | POLLERR | POLLHUP | POLLNVAL;
+        pollState.events = POLLIN;
 
         // In a POSIX system the system call might be interrupted...
-        while(1)
+        do
         {
-            pollState.revents = 0;
             resCode = poll(&pollState, 1, waitMilliseconds);
-
-            if (   (resCode == -1 && errno == EINTR) // system call was interrupted
-                && socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR // socket has not been closed
-                )
-            {
-               usleep(100);
-            }
-            else
-            {
-               // Otherwise, break out of the loop.
-               break;
-            }
-        }
+        } while (   resCode == -1 && errno == EINTR // system call was interrupted
+                 && socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR // socket has not been closed
+                );
 
         if(resCode < 0)
         {
@@ -462,13 +452,14 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
                           localHostName.data(), localHostPort,
                           resCode, errno, strerror(errno), tempSocketDescr, this);
         }
-        else if(resCode > 0 && pollState.revents && ! POLLSET(POLLIN))
+        else if(resCode > 0 &&  pollState.revents != 0 && !POLLSET(POLLIN))
         {
             numReady = -1;
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                           "OsSocket::isReadyToRead polllState.revents = %d: "
                           "POLLIN: %d POLLPRI: %d POLLERR: %d POLLHUP: %d POLLNVAL: %d",
-                pollState.revents, POLLSET(POLLIN), POLLSET(POLLPRI), POLLSET(POLLERR), POLLSET(POLLHUP), POLLSET(POLLNVAL));
+                          pollState.revents,
+                          POLLSET(POLLIN), POLLSET(POLLPRI), POLLSET(POLLERR), POLLSET(POLLHUP), POLLSET(POLLNVAL));
         }
         else if(resCode > 0 && POLLSET(POLLIN))
         {
@@ -499,44 +490,22 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
 
 #else /* __pingtel_on_posix__ ] [ */
 
-        fd_set read_fdset;
-        fd_set exc_fdset;
-        int    resCode;
-        struct timeval tv;
-        struct timeval *pTv;
-
-        if (waitMilliseconds < 0) {
-            pTv = NULL;
-        } else {
-            if (0 == waitMilliseconds) {
-                tv.tv_sec = 0;
-                tv.tv_usec = 0;
-            } else {
-                tv.tv_sec = waitMilliseconds / 1000;
-                tv.tv_usec = (waitMilliseconds % 1000) * 1000;
-            }
-            pTv = &tv;
-        }
-
-        FD_ZERO(&read_fdset);
-        FD_ZERO(&exc_fdset);
-
         //making a temp copy of the descriptor because it may change from another
         //thread.  And we wouldn't want to use a bad descriptor
         //in this next piece of code.
         tempSocketDescr = socketDescriptor;
         if (tempSocketDescr > OS_INVALID_SOCKET_DESCRIPTOR)
         {
-           FD_SET((unsigned int) tempSocketDescr, &read_fdset);
-           FD_SET((unsigned int) tempSocketDescr, &exc_fdset);
+           struct pollfd pset[1];
+           pset[0].fd = tempSocketDescr;
+           pset[0].events = POLLIN;
 
            // if wait time is less than zero block indefinitely
-           resCode = select(tempSocketDescr + 1, &read_fdset, NULL, &exc_fdset,
-                            pTv);
+           int resCode = poll(pset, 1, waitMilliseconds);
 
-           // if select returns an error, then numReady is set to -1
+           // if poll returns an error, then numReady is set to -1
            // if there has been an exception on the socket, then numReady is set to -1
-           // otherwise, numReady is set to the value returned by select()
+           // otherwise, numReady is set to the value returned by poll()
 
            //test socketDescriptor to be sure it didn't become invalid
            //while in select
@@ -545,7 +514,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
               numReady = -1;
               rSocketError = TRUE;
            }
-           else if (resCode > 0 && FD_ISSET(tempSocketDescr, &exc_fdset))
+           else if (resCode > 0 && (pset[0].revents & POLLERR) != 0)
               numReady = -1;
            else
               numReady = resCode;
@@ -553,7 +522,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
            if(numReady < 0 || numReady > 1 || (numReady == 0 && waitMilliseconds < 0))
            {
                // perror("OsSocket::isReadyToRead()");
-               OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToRead select returned %d in socket: %d 0%x",
+               OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToRead poll returned %d in socket: %d %p",
                    resCode, tempSocketDescr, this);
            }
         } //if tempSocketDescr if ok
@@ -601,92 +570,60 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
     int numReady = 0;
     if(socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
     {
-        fd_set write_fdset;
-        fd_set exc_fdset;
-        int    resCode = 0;
-        struct timeval tv;
-        struct timeval *pTv;
-
-        if (waitMilliseconds < 0) {
-            pTv = NULL;
-        } else {
-            if (0 == waitMilliseconds) {
-                tv.tv_sec = 0;
-                tv.tv_usec = 0;
-            } else {
-                tv.tv_sec = waitMilliseconds / 1000;
-                tv.tv_usec = (waitMilliseconds % 1000) * 1000;
-            }
-            pTv = &tv;
-        }
-
+       int    resCode = 0;
+       struct pollfd pset[1];
 
 // In a POSIX system the system call might be interrupted...
 #ifdef __pingtel_on_posix__
-        while(1)
-        {
+       do
+       {
+#endif
+          //making a temp copy of the descriptor because it may change from another
+          //thread.  And we wouldn't want to use a bad descriptor
+          //in this next piece of code.
+          tempSocketDescr = socketDescriptor;
+          if (tempSocketDescr > OS_INVALID_SOCKET_DESCRIPTOR)
+          {
+             pset[0].fd = tempSocketDescr;
+             pset[0].events = POLLOUT;
+
+             // if wait time is less than zero block indefinitely
+             resCode = poll(pset, 1, waitMilliseconds);
+          }
+
+#ifdef __pingtel_on_posix__
+       } while (resCode == -1 && errno == EINTR);
 #endif
 
-            FD_ZERO(&write_fdset);
-            FD_ZERO(&exc_fdset);
-            //making a temp copy of the descriptor because it may change from another
-            //thread.  And we wouldn't want to use a bad descriptor
-            //in this next piece of code.
-            tempSocketDescr = socketDescriptor;
-            if (tempSocketDescr > OS_INVALID_SOCKET_DESCRIPTOR)
-            {
-               FD_SET((unsigned int) tempSocketDescr, &write_fdset);
-               FD_SET((unsigned int) tempSocketDescr, &exc_fdset);
+       if(resCode < 0)
+       {
+          OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                        "OsSocket::isReadyToWrite %d (%s:%d %s:%d) poll returned %d (errno=%d '%s') in socket: %d %p",
+                        socketDescriptor,
+                        remoteHostName.data(), remoteHostPort,
+                        localHostName.data(), localHostPort,
+                        resCode, errno, strerror(errno), tempSocketDescr, this);
+       }
 
-               // if wait time is less than zero block indefinitely
-               resCode = select(tempSocketDescr + 1, NULL, &write_fdset,
-                                &exc_fdset, pTv);
-            }
+       // if select returns an error, then numReady is set to -1
+       // if there has been an exception on the socket, then numReady is set to -1
+       // otherwise, numReady is set to the value returned by select()
 
-   #ifdef __pingtel_on_posix__
-               // If the system call was interrupted, stay in the loop.
-               // Otherwise, break out of the loop.
-            if (resCode == -1 && errno == EINTR)
-            {
-               usleep(100);
-            }
-            else
-            {
-               break;
-            }
+       //test socketDescriptor to be sure it didn't become invalid
+       //while in select
+       if (resCode == -1 || socketDescriptor <= OS_INVALID_SOCKET_DESCRIPTOR)
+          numReady = -1;
+       else if (resCode > 0 && (pset[0].revents & POLLERR) != 0)
+          numReady = -1;
+       else
+          numReady = resCode;
 
-        } //while (1)
-
-         if(resCode < 0)
-         {
-               OsSysLog::add(FAC_KERNEL, PRI_WARNING,
-                             "OsSocket::isReadyToWrite %d (%s:%d %s:%d) select returned %d (errno=%d '%s') in socket: %d %p",
-                             socketDescriptor,
-                             remoteHostName.data(), remoteHostPort,
-                             localHostName.data(), localHostPort,
-                             resCode, errno, strerror(errno), tempSocketDescr, this);
-         }
-   #endif
-
-         // if select returns an error, then numReady is set to -1
-         // if there has been an exception on the socket, then numReady is set to -1
-         // otherwise, numReady is set to the value returned by select()
-
-         //test socketDescriptor to be sure it didn't become invalid
-         //while in select
-         if (resCode == -1 || socketDescriptor <= OS_INVALID_SOCKET_DESCRIPTOR)
-             numReady = -1;
-         else if (resCode > 0 && FD_ISSET(tempSocketDescr, &exc_fdset))
-             numReady = -1;
-         else
-             numReady = resCode;
-
-         if(numReady < 0 || numReady > 1 || (numReady == 0 && waitMilliseconds < 0))
-         {
-             // perror("OsSocket::isReadyToWrite()");
-             OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToWrite select returned %d in socket: %d %p",
-                 resCode, tempSocketDescr, this);
-         }
+       if(numReady < 0 || numReady > 1 || (numReady == 0 && waitMilliseconds < 0))
+       {
+          // perror("OsSocket::isReadyToWrite()");
+          OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToWrite poll returned %d in socket: %d %p",
+                        resCode, tempSocketDescr, this);
+       }
 
     }     //socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR
 

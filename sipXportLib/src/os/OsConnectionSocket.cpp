@@ -11,6 +11,7 @@
 
 // SYSTEM INCLUDES
 #include <stdio.h>
+#include <poll.h>
 
 #if defined(_WIN32)
 #   include <winsock.h>
@@ -241,42 +242,35 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       error = OsSocketGetERRNO();
       if ( EINPROGRESS == error )
       {
-         struct timeval timeout;
-         timeout.tv_sec = timeoutInMilliseconds / OsTime::MSECS_PER_SEC;
-         timeout.tv_usec = (timeoutInMilliseconds % OsTime::MSECS_PER_SEC ) * OsTime::USECS_PER_MSEC;
-
-         fd_set writable;
-         FD_ZERO(&writable);
-         FD_SET(socketDescriptor, &writable);
-
-         OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ select %d time %d.%06d",
-                       socketDescriptor, timeout.tv_sec, timeout.tv_usec);
+         OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ poll %d timeout %d msec",
+                       socketDescriptor, timeoutInMilliseconds);
       
-         int selectResult = select(socketDescriptor+1,
-                                   NULL /* no readers */,
-                                   &writable,
-                                   NULL /* no exceptions */,
-                                   &timeout );
-         /*
-          * On  Linux, select() modifies timeout to reflect the amount of time not slept;
-          * most other implementations do not do this.   (POSIX.1-2001  permits  either  behaviour.)
-          * Don't use that information.
-          */
-         if (1 == selectResult)
+         struct pollfd pset[1];
+         pset[0].fd = socketDescriptor;
+         pset[0].events = POLLOUT;
+         int pollResult = poll(pset, 1, timeoutInMilliseconds);
+
+         if (1 == pollResult && (pset[0].revents & POLLERR) != 0)
+         {
+            // some error on the socket
+            connectReturn = -1;
+            error = OsSocketGetERRNO();
+         }
+         else if (1 == pollResult && (pset[0].revents & POLLOUT) != 0)
          {
             // the connect has completed
             connectReturn = 0;
             error = 0;
          }
-         else if (0 == selectResult)
+         else if (0 == pollResult)
          {
             // timeout
             connectReturn = -1;
             error = ETIMEDOUT;
          }
-         else if (0 > selectResult)
+         else
          {
-            // some error
+            // pollResult < 0, some other error
             connectReturn = -1;
             error = OsSocketGetERRNO();
          }
