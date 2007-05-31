@@ -243,43 +243,65 @@ stopCheck() {
 
    STATUS=0
 
+   echo -n "  Confirm Stop: $proc_name "
    pidFile=@SIPX_RUNDIR@/$proc_name.pid
    if [ -r ${pidFile} ]
    then
-       echo -n "  Confirm Stop: $proc_name "
        PID=`cat ${pidFile} 2> /dev/null`
-
        if [ `proc_alive $PID` -eq 0 ]
        then
-          for ticks in 3 2 1 0 
+          for ticks in `seq 19 -1 0`
           do
              sleep 1
              test `proc_alive $PID` -eq 0 && echo -n "." || break
           done
           if [ `proc_alive $PID` -eq 0 ]
           then
-              kill -9 $PID 2> /dev/null
-              for ticks in 3 2 1 0 
+              # It didn't die!  Try to get a core dump
+              echo ""
+              echo    "    $proc_name did not Stop."
+              echo -n "    Trying to abort $proc_name "
+              kill -ABRT $PID 2> /dev/null
+              for ticks in `seq 55 -5 0`
               do
-                 sleep 1
-                 test `proc_alive $PID` -eq 0 && echo -n "." || break
+                 sleep 5
+                 test `proc_alive $PID` -eq 0 && echo -n " $ticks" || break
               done
+              if [ `proc_alive $PID` -eq 0 ]
+              then
+                  echo ""
+                  echo    "    $proc_name did not abort."
+                  echo -n "    Trying to kill $proc_name "
+                  kill -KILL $PID 2> /dev/null
+                  for ticks in `seq 55 -5 0`
+                  do
+                     sleep 5
+                     test `proc_alive $PID` -eq 0 && echo -n " $ticks" || break
+                  done
+              fi
           fi
        fi
           
        if [ `proc_alive $PID` -eq 0 ]
        then
+           # Holy fluff!  It didn't die!  The end is nigh!
+           echo ""
            echo_failure
            echo ""
+           [ "$BOOTUP" = "color" ] && $SETCOLOR_FAILURE
+           echo "    $proc_name will not die."
+           echo "    Machine must be restarted!"
+           [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
        else
            echo_success
            echo ""
+           rm -f ${pidFile}
        fi
 
-       rm -f ${pidFile}
    else
-       echo -n "no record found for '${proc_name}'"
-       echo_failure
+       echo -n "(Not started) "
+       echo_success
+       echo ""
    fi
 }
 
@@ -333,9 +355,6 @@ stop_sipx () {
     do
         stopCheck $process
     done
-    
-    echo_success
-    echo
 }
 
 check_rpmnew() {
