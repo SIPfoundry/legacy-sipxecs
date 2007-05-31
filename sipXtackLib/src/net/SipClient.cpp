@@ -74,16 +74,13 @@ SipClient::SipClient(OsSocket* socket) :
        clientSocket->getRemoteHostName(&mRemoteHostName);
        clientSocket->getRemoteHostIp(&mRemoteSocketAddress, &mRemoteHostPort);
 
-       UtlString remoteSocketHost;
-       socket->getRemoteHostName(&remoteSocketHost);
        OsSysLog::add(FAC_SIP, PRI_INFO,
                      "SipClient[%s]::_ created %s %s socket %d: host '%s' port %d",
                      this->mName.data(),
                      OsSocket::ipProtocolString(mSocketType),
                      mbSharedSocket ? "shared" : "unshared",
                      socket->getSocketDescriptor(),
-                     remoteSocketHost.data(),
-                     socket->getRemoteHostPort()
+                     mRemoteHostName.data(), mRemoteHostPort
                      );
    }
 
@@ -808,9 +805,16 @@ UtlBoolean SipClient::isConnectedTo(UtlString& hostName, int hostPort)
     UtlBoolean isSame = FALSE;
     int tempHostPort = portIsValid(hostPort) ? hostPort : SIP_PORT; // :TODO: not correct for TLS
 
+#ifdef TEST_SOCKET
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipClient[%s]::isConnectedTo hostName = '%s', tempHostPort = %d, mRemoteHostName = '%s', mRemoteHostPort = %d, mRemoteSocketAddress = '%s', mReceivedAddress = '%s', mRemoteViaAddress = '%s'",
+                  this->mName.data(),
+                  hostName.data(), tempHostPort, mRemoteHostName.data(), mRemoteHostPort, mRemoteSocketAddress.data(), mReceivedAddress.data(), mRemoteViaAddress.data());
+#endif
+
     // If the ports match and the host is the same as either the
     // original name that the socket was constructed with or the
-    // name it was resolved to (usual an IP address).
+    // name it was resolved to (usually an IP address).
     if (   mRemoteHostPort == tempHostPort
         && (   hostName.compareTo(mRemoteHostName, UtlString::ignoreCase) == 0
             || hostName.compareTo(mRemoteSocketAddress, UtlString::ignoreCase) == 0))
@@ -826,7 +830,7 @@ UtlBoolean SipClient::isConnectedTo(UtlString& hostName, int hostPort)
              && hostName.compareTo(mRemoteViaAddress, UtlString::ignoreCase) == 0)
     {
         // Cannot trust what the other side said was their IP address
-        // as this is a bad spoofing/denial of service whole
+        // as this is a bad spoofing/denial of service hole
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipClient[%s]::isConnectedTo matches %s:%d but is not trusted",
                       this->mName.data(),

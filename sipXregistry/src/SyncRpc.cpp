@@ -285,7 +285,7 @@ SyncRpcReset::invoke(const char*    myName, ///< primary name of the caller
    XmlRpcResponse response;
    if (request.execute(response)) // blocks; returns false for any fault
    {
-      // Apparently successfull, so update the PeerSentDbUpdateNumber for this peer
+      // Apparently successful, so update the PeerSentDbUpdateNumber for this peer
       UtlContainable* value;
       response.getResponse(value);
 

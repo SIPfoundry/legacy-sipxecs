@@ -73,8 +73,8 @@ SipProtocolServerBase::~SipProtocolServerBase()
 
 
 UtlBoolean SipProtocolServerBase::send(SipMessage* message,
-                            const char* hostAddress,
-                            int hostPort)
+                                       const char* hostAddress,
+                                       int hostPort)
 {
     UtlBoolean sendOk = FALSE;
 
@@ -212,15 +212,15 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
 
     if(! client)
     {
-#       if TEST_CLIENT_CREATION
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipProtocolServerBase::createClient( %s, %d )",
+#       ifdef TEST_CLIENT_CREATION
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipProtocolServerBase::createClient('%s', %d)",
                       hostAddress, hostPort);
 #       endif
 
         if(!portIsValid(hostPort))
         {
             hostPort = mDefaultPort;
-#           if TEST_CLIENT_CREATION
+#           ifdef TEST_CLIENT_CREATION
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipProtocolServerBase::createClient port defaulting to %d",
                           hostPort);
@@ -290,7 +290,7 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
                 }
             }
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer(SipProtocolServerBase)::createClient client: %p %s:%d",
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer(SipProtocolServerBase)::createClient client: %p '%s':%d",
                 mProtocolString.data(), client, hostAddress, hostPort);
 
             mClientList.push(client);
@@ -454,9 +454,9 @@ SipClient* SipProtocolServerBase::getClient(const char* hostAddress,
     int iteratorHandle = mClientList.getIteratorHandle();
     SipClient* client = NULL;
 
-#   if TEST_CLIENT_CREATION
+#   ifdef TEST_CLIENT_CREATION
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipProtocolServerBase::getClient( %s, %d )",
+                  "SipProtocolServerBase::getClient('%s', %d)",
                   hostAddress, hostPort);
 #   endif
 
@@ -475,8 +475,8 @@ SipClient* SipProtocolServerBase::getClient(const char* hostAddress,
         {
             if(!client->isOk())
             {
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s Client matches but is not OK",
-                    mProtocolString.data());
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "'%s':%d Client matches but is not OK",
+                              mProtocolString.data(), hostPort);
             }
         }
     }
@@ -486,7 +486,7 @@ SipClient* SipProtocolServerBase::getClient(const char* hostAddress,
     if (!client)
     {
        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "SipProtocolServerBase::getClient( %s, %d ) NOT FOUND",
+                     "SipProtocolServerBase::getClient('%s', %d) NOT FOUND",
                      hostAddress, hostPort);
     }
 #   endif

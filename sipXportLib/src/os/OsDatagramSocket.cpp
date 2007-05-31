@@ -71,7 +71,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
                                 // activated in doConnect.
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "OsDatagramSocket::_ attempt %s:%d"
-                  ,remoteHost, remoteHostPortNum);
+                  ,remoteHost != NULL ? remoteHost : "[null]", remoteHostPortNum);
 
     int                error = 0;
     struct sockaddr_in localAddr;
@@ -105,8 +105,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
         close();
 
         OsSysLog::add(FAC_KERNEL, PRI_WARNING,
-                      "OsDatagramSocket::OsDatagramSocket(%s:%d %s:%d) socket(%d, %d, %d) failed w/ errno %d '%s')",
-                      remoteHost, remoteHostPortNum, localHost, localHostPortNum,
+                      "OsDatagramSocket::_ socket(%d, %d, %d) failed w/ errno %d '%s')",
                       AF_INET, SOCK_DGRAM, IPPROTO_UDP,
                       error, strerror(error));
 
@@ -151,7 +150,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
         const char *addr = inet_ntoa(localAddr.sin_addr);
         int port = ntohs(localAddr.sin_port);
         OsSysLog::add(FAC_KERNEL, PRI_WARNING,
-                      "OsDatagramSocket::OsDatagramSocket %d (%s:%d %s:%d) bind(%d, %s:%d) failed w/ errno %d '%s')",
+                      "OsDatagramSocket::_ %d (%s:%d %s:%d) bind(%d, %s:%d) failed w/ errno %d '%s')",
                       socketDescriptor,
                       remoteHost, remoteHostPortNum, localHost, localHostPortNum,
                       socketDescriptor, addr, port,
@@ -166,6 +165,11 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
         error = getsockname(socketDescriptor, (struct sockaddr*) &addr, SOCKET_LEN_TYPE& addrSize);
         localHostPort = htons(addr.sin_port);
     }
+
+    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                  "OsDatagramSocket::_ %d (%s:%d %s:%d) socket and bind succeeded",
+                  socketDescriptor,
+                  remoteHost, remoteHostPortNum, localHost, localHostPortNum);
 
     // Kick off connection
     mSimulatedConnect = FALSE;
@@ -201,7 +205,8 @@ UtlBoolean OsDatagramSocket::reconnect()
     return(FALSE);
 }
 
-void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
+void OsDatagramSocket::doConnect(int remoteHostPortNum,
+                                 const char* remoteHost,
                                  UtlBoolean simulateConnect)
 {
     struct hostent* server;    
@@ -249,12 +254,17 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
             else
             {
                 mIsConnected = TRUE;
+                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                              "OsDatagramSocket::doConnect %d (%s:%d %s:%d) succeeded)",
+                              socketDescriptor,
+                              remoteHost, remoteHostPortNum,
+                              localHostName.data(), localHostPort);
             }
         }
         else
         {
             close();
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+            OsSysLog::add(FAC_KERNEL, PRI_WARNING,
                     "OsDatagramSocket::doConnect( %s:%d ) failed host lookup)",
                     remoteHost, remoteHostPortNum);           
 
@@ -265,6 +275,11 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
     {
         mIsConnected = TRUE;
         mSimulatedConnect = TRUE;
+        OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                      "OsDatagramSocket::doConnect %d (%s:%d %s:%d) simulated connect)",
+                      socketDescriptor,
+                      remoteHost, remoteHostPortNum,
+                      localHostName.data(), localHostPort);
     }
 EXIT:
    ;

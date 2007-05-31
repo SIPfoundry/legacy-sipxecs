@@ -110,12 +110,13 @@ OsSocket::OsSocket()
 // Destructor
 OsSocket::~OsSocket()
 {
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::~");
    close();
    if(mActual_socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
    {
       // Now it is safe to give this descriptor back to the OS
       ::close(mActual_socketDescriptor);
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::~ close socket %d",
+                    mActual_socketDescriptor);
    }
 }
 
@@ -139,6 +140,8 @@ int OsSocket::write(const char* buffer, int bufferLength)
       closesocket(socketDescriptor);
 #else
       ::close(socketDescriptor);
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::write close socket %d",
+                    socketDescriptor);
 #endif
       return 0;
    }
@@ -208,6 +211,8 @@ int OsSocket::read(char* buffer, int bufferLength)
       closesocket(socketDescriptor);
 #else
       ::close(socketDescriptor);
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::read[2] close socket %d",
+                    socketDescriptor);
 #endif
       return 0;
    }
@@ -237,7 +242,7 @@ int OsSocket::read(char* buffer, int bufferLength)
 }
 
 int OsSocket::read(char* buffer, int bufferLength,
-                struct in_addr* fromAddress, int* fromPort)
+                   struct in_addr* fromAddress, int* fromPort)
 {
 
 #ifdef FORCE_SOCKET_ERRORS
@@ -254,6 +259,8 @@ int OsSocket::read(char* buffer, int bufferLength,
       closesocket(socketDescriptor);
 #else
       ::close(socketDescriptor);
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::read[4in_addr] close socket %d",
+                    socketDescriptor);
 #endif
       return 0;
    }
@@ -343,6 +350,8 @@ int OsSocket::read(char* buffer, int bufferLength,
                 closesocket(socketDescriptor);
 #else
                 ::close(socketDescriptor);
+                OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::read[4UtlString] close socket %d",
+                              socketDescriptor);
 #endif
       return 0;
    }
@@ -398,6 +407,8 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
                 closesocket(socketDescriptor);
 #else
                 ::close(socketDescriptor);
+                OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToReadEx close socket %d",
+                              socketDescriptor);
 #endif
       rSocketError = TRUE;
       return FALSE;
@@ -580,6 +591,8 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
                 closesocket(socketDescriptor);
 #else
                 ::close(socketDescriptor);
+                OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::isReadyToWrite close socket %d",
+                              socketDescriptor);
 #endif
       return FALSE;
    }
@@ -695,7 +708,7 @@ void OsSocket::close()
 #     endif
 
       // Don't really close the actual descriptor until the destructor.
-      mActual_socketDescriptor = socketDescriptor ;
+      mActual_socketDescriptor = socketDescriptor;
 
 #     else
 #       error Unsupported target platform.
