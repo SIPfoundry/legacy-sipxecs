@@ -33,7 +33,7 @@
 
 // Constructor
 SipTcpServer::SipTcpServer(int port,
-	  		   SipUserAgent* userAgent,
+                           SipUserAgent* userAgent,
                            const char* protocolString, 
                            const char* taskName,
                            UtlBoolean bUseNextAvailablePort,
@@ -41,8 +41,10 @@ SipTcpServer::SipTcpServer(int port,
     SipProtocolServerBase(userAgent, protocolString, taskName)
 {   
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipTcpServer::_ port = %d, taskName = '%s', bUseNextAvailablePort = %d, szBindAddr = '%s'",
-                 port, taskName, bUseNextAvailablePort, szBindAddr);
+                 "SipTcpServer::_  '%s' %s port %d szBindAddr = '%s'",
+                 mName.data(),
+                 bUseNextAvailablePort ? "use next available" : "specific",
+                 port, szBindAddr);
 
    mServerPort = port ;
    mpServerBrokerListener = new SipServerBrokerListener(this);
@@ -236,10 +238,10 @@ int SipTcpServer::run(void* runArgument)
 
 void SipTcpServer::shutdownListener()
 {
-#   ifdef TEST_PRINT
-    osPrintf("Sip%sServer::shutdownListener() - before requestShutDown\n",
-        mProtocolString.data());
-#   endif
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "%s::shutdownListener - before requestShutDown",
+                 mName.data());
+
     requestShutdown();
 
     shutdownClients();

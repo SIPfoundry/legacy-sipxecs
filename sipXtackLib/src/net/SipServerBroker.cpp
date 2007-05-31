@@ -17,6 +17,7 @@
 #include "os/OsDefs.h"
 #include "os/OsTask.h"
 #include "os/OsServerTask.h"
+#include "os/OsSysLog.h"
 #include "os/OsConnectionSocket.h"
 #include "os/OsEvent.h"
 #include "os/OsNotification.h"
@@ -43,33 +44,48 @@ int SipServerBroker::run(void *pNotUsed)
     
     OsConnectionSocket* clientSocket = NULL;
 
-    while(mpSocket && !isShuttingDown() &&
-        mpSocket->isOk())
+    while(!isShuttingDown() && mpSocket && mpSocket->isOk())
     {
         clientSocket = mpSocket->accept();   
 
-        // post a message, containing the the client socket,
-        // to the owner
+        // post a message, containing the the client socket, to the owner
+        // @TODO - what about when we are shutting down?
         if(clientSocket)
         {
-            OsPtrMsg ptrMsg(OsMsg::OS_EVENT, SipTcpServer::SIP_SERVER_BROKER_NOTIFY, (void*)clientSocket);
+            OsPtrMsg ptrMsg(OsMsg::OS_EVENT, SipTcpServer::SIP_SERVER_BROKER_NOTIFY,
+                            (void*)clientSocket);
             mpOwnerTask->postMessage(ptrMsg);
         }
     }
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipServerBroker::run '%s' terminating %s OsSocket %p status %s",
+                  mName.data(),
+                  isShuttingDown() ? "task shutdown" : "socket problem",
+                  mpSocket,
+                  mpSocket ? ( mpSocket->isOk() ? "ok" : "not ok" ) : "deleted"
+                  );
     return 0;
 }
 
 // Destructor
 SipServerBroker::~SipServerBroker()
 {
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipServerBroker::~ OsSocket %p status %s",
+                  mpSocket,
+                  mpSocket ? ( mpSocket->isOk() ? "ok" : "not ok" ) : "deleted"
+                  );
+
     if (mpSocket)
     {
         mpSocket->close();
     }
     waitUntilShutDown();
-    delete mpSocket;
-    mpSocket = NULL;
-
+    if (mpSocket)
+    {
+       delete mpSocket;
+       mpSocket = NULL;
+    }
 }
 
 /************************************************************************/

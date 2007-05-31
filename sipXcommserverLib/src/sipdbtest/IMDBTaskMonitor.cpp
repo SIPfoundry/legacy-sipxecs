@@ -143,7 +143,6 @@ IMDBTaskMonitor::handleMessage ( OsMsg &rMsg )
                     OsFile imdbBrokenIPCFile ( IMDB_BAD_FILE );
                     imdbBrokenIPCFile.touch();
                     imdbBrokenIPCFile.close();
-                    mpIMDBWorkerTask->deleteForce();
                     delete mpIMDBWorkerTask;
                     mpIMDBWorkerTask = NULL;
                 }

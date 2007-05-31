@@ -61,7 +61,6 @@ int RegistrarInitialSync::run(void* pArg)
    
    // allow SipRegistrar to proceed to operational phase
    mFinished.release(); 
-
    return 0; // exit thread
 }
 

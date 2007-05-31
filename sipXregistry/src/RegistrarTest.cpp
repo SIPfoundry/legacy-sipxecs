@@ -29,6 +29,7 @@ const size_t REGISTER_TEST_MAX_WAIT = 32;    // Maximum seconds between tests
 
 /// constructor
 RegistrarTest::RegistrarTest(SipRegistrar& sipRegistrar) :
+   OsServerTask("RegistrarTest"),
    mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mTestState(StartupPhase),
    mRetryTimer(getMessageQueue(),0),
@@ -161,11 +162,25 @@ void RegistrarTest::checkPeers()
    }
 }
 
+void RegistrarTest::requestShutdown(void)
+{
+   /*
+    * This is called from the SipRegistrar task destructor.
+    * Use the shutdown message to wake up the RegistrarTest task
+    * to stop the timer before starting the shutdown of the task
+    */
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarTest::requestShutdown" );
+   OsMsg msg(OsMsg::OS_SHUTDOWN, 0);
+   
+   postMessage(msg); // wake up the task by sending a message to it.
+   yield(); // make the caller wait so that RegistrarTest can run.
+}
+
 // handle the expiration of the check timer
 UtlBoolean RegistrarTest::handleMessage( OsMsg& eventMessage ///< Timer expiration msg
                                         )
 {
-   UtlBoolean handled = TRUE;
+   UtlBoolean handled = FALSE;
    
    int msgType    = eventMessage.getMsgType();
    int msgSubType = eventMessage.getMsgSubType();
@@ -174,7 +189,24 @@ UtlBoolean RegistrarTest::handleMessage( OsMsg& eventMessage ///< Timer expirati
        && OsEventMsg::NOTIFY == msgSubType
        )
    {
-      checkPeers();
+      checkPeers();  // this aborts if isShuttingDown() is true
+      handled = TRUE;
+   }
+   else if ( OsMsg::OS_SHUTDOWN == msgType )
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "RegistrarTest::handleMessage received shutdown message"
+                    );
+      {
+         OsLock mutex(mLock);
+
+         if ( TimerRunning == mTestState )
+         {
+            mRetryTimer.stop();
+         }
+      }
+      OsTask::requestShutdown(); // tell OsServerTask::run to exit
+      handled = TRUE;
    }
    else
    {
@@ -187,27 +219,30 @@ UtlBoolean RegistrarTest::handleMessage( OsMsg& eventMessage ///< Timer expirati
    return handled;
 }
 
-/// See if we need to start a timer and do so if needed
+/// See if we need to start a timer and do so if needed - caller must be holding mLock
 void RegistrarTest::restartTimer()
 {
-   if ( mRetryTime == 0 || mTestState == Idle )
+   if (!isShuttingDown())
    {
-      mRetryTime = REGISTER_TEST_INITIAL_WAIT;
-   }
-   else if ( mRetryTime < REGISTER_TEST_MAX_WAIT ) // has timer reached the backoff limit?
-   {
-      // no - so back off by doubling it
-      mRetryTime *= 2;
-   }
+      if ( mRetryTime == 0 || mTestState == Idle )
+      {
+         mRetryTime = REGISTER_TEST_INITIAL_WAIT;
+      }
+      else if ( mRetryTime < REGISTER_TEST_MAX_WAIT ) // has timer reached the backoff limit?
+      {
+         // no - so back off by doubling it
+         mRetryTime *= 2;
+      }
 
-   // start the timer
-   mTestState = TimerRunning;
-   OsSysLog::add( FAC_SIP, PRI_DEBUG,
-                 "RegistrarTest::restartTimer %d"
-                 ,mRetryTime
-                 );
+      // start the timer
+      mTestState = TimerRunning;
+      OsSysLog::add( FAC_SIP, PRI_DEBUG,
+                    "RegistrarTest::restartTimer %d"
+                    ,mRetryTime
+                    );
 
-   mRetryTimer.oneshotAfter(OsTime(mRetryTime,0));
+      mRetryTimer.oneshotAfter(OsTime(mRetryTime,0));
+   }
 }
 
    
@@ -215,4 +250,5 @@ void RegistrarTest::restartTimer()
 /// destructor
 RegistrarTest::~RegistrarTest()
 {
+   waitUntilShutDown();
 }

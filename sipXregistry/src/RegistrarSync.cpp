@@ -45,6 +45,7 @@ using std::auto_ptr;
 
 /// constructor
 RegistrarSync::RegistrarSync(SipRegistrar& registrar) :
+   OsTask("RegistrarSync"),
    mRegistrar(registrar),
    mMutex(OsBSem::Q_PRIORITY, OsBSem::EMPTY)
 {
@@ -54,6 +55,15 @@ RegistrarSync::RegistrarSync(SipRegistrar& registrar) :
 void RegistrarSync::sendUpdates()
 {
    mMutex.release();
+}
+
+/// 
+void RegistrarSync::requestShutdown(void)
+{
+   // this is called from the SipRegistrar destructor in its thread.
+
+   OsTask::requestShutdown(); // mark base OsTask as shutting down.
+   mMutex.release(); // wake up the task from waiting for this.
 }
 
 
@@ -102,7 +112,7 @@ int RegistrarSync::run(void* pArg)
          }
       }
    }
-    
+
    return 0;
 }
 
@@ -116,4 +126,7 @@ SipRegistrarServer& RegistrarSync::getRegistrarServer()
 /// destructor
 RegistrarSync::~RegistrarSync()
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarSync::~ waiting for task completion");
+   waitUntilShutDown();
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarSync::~ task complete");
 };

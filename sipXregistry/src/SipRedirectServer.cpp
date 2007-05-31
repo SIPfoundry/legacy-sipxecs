@@ -52,37 +52,24 @@ SipRedirectServer::SipRedirectServer(OsConfigDb*   pOsConfigDb,  ///< Configurat
    initialize(*pOsConfigDb);
 }
 
+void SipRedirectServer::requestShutdown(void)
+{
+   /*
+    * This is called from the SipRegistrar task destructor.
+    * Use the shutdown message to wake up the SipRedirectServer task
+    * so that we can clean up all the redirectors before actually
+    * starting the shutdown of the task
+    */
+   OsMsg msg(OsMsg::OS_SHUTDOWN, 0);
+    
+   postMessage(msg);
+   yield(); // make the caller wait so that the task can run.
+}
+
 // Destructor
 SipRedirectServer::~SipRedirectServer()
 {
-   // Seize the lock that protects the list of suspend objects.
-   OsLock lock(mRedirectorMutex);
-
-   // Cancel all suspended requests.
-   UtlHashMapIterator itor(mSuspendList);
-   UtlInt* key;
-   while ((key = dynamic_cast<UtlInt*> (itor())))
-   {
-      cancelRedirect(*key,
-                     dynamic_cast<RedirectSuspend*> (itor.value()));
-   }
-
-   // Finalize all the redirectors.
-   PluginIterator iterator(mRedirectPlugins);
-   RedirectPlugin* redirector;
-   while ((redirector = static_cast <RedirectPlugin*> (iterator.next())))
-   {
-      // A redirector is finalized even if mpActive[i] is FALSE.
-      redirector->finalize();
-   }
-
-   spInstance = NULL;
-
-   if (mpActive)
-   {
-      delete[] mpActive;
-      mpActive = NULL;
-   }
+   waitUntilShutDown();   
 }
 
 // Get the unique instance, if it exists.  Will not create it, though.
@@ -447,6 +434,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
 UtlBoolean
 SipRedirectServer::handleMessage(OsMsg& eventMessage)
 {
+   UtlBoolean handled = FALSE;
    int msgType = eventMessage.getMsgType();
 
    switch (msgType)
@@ -543,6 +531,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
          // Initially, the suspendObject is NULL.
          processRedirect(message, method, mNextSeqNo, (RedirectSuspend*) 0);
       }
+      handled = TRUE;
    }
    break;
 
@@ -611,11 +600,52 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
 
          processRedirect(message, method, seqNo, suspendObject);
       }
+      handled = TRUE;
    }
-      break;
+   break;
+
+   case OsMsg::OS_SHUTDOWN:
+   {      
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRedirectServer::handleMessage received shutdown request"
+                    );
+
+      // Seize the lock that protects the list of suspend objects.
+      OsLock lock(mRedirectorMutex);
+
+      // Cancel all suspended requests.
+      UtlHashMapIterator itor(mSuspendList);
+      UtlInt* key;
+      while ((key = dynamic_cast<UtlInt*> (itor())))
+      {
+         cancelRedirect(*key, dynamic_cast<RedirectSuspend*>(itor.value()));
+      }
+
+      // Finalize and delete all the redirectors.
+      PluginIterator redirectors(mRedirectPlugins);
+      RedirectPlugin* redirector;
+      while ((redirector = dynamic_cast<RedirectPlugin*>(redirectors.next())))
+      {
+         redirector->finalize();
+         delete redirector;
+      }
+
+      spInstance = NULL;
+      OsTask::requestShutdown(); // tell OsServerTask::run to exit
+      handled = TRUE;
+   }
+   break;
+
+   default:
+   {      
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "SipRedirectServer::handleMessage unhandled msg type %d",
+                    msgType
+                    );
+   }
    }
 
-   return TRUE;
+   return handled;
 }
 
 void

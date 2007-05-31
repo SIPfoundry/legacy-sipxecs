@@ -69,6 +69,9 @@ public:
     /// top level task
     virtual int run(void* pArg);
     
+    /// Signal the task that it is time to shut down.
+    virtual void requestShutdown();
+    
     /// Receive SIP or other OS messages.
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
     /**< Messages are dispatched to either the SipRegistrarServer or SipRedirectServer thread */

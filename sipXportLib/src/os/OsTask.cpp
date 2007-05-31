@@ -1,7 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
-// Contributors retain copyright to elements licensed under a Contributor Agreement.
-// Licensed to the User under the LGPL license.
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
 //
 // $$
@@ -36,7 +34,7 @@ const int OsTaskBase::DEF_PRIO      = 128;           // default task priority
 const int OsTaskBase::DEF_STACKSIZE = 16384;         // default task stacksize
 const UtlString OsTaskBase::TASK_PREFIX("Task.");     // Task name db prefix
 const UtlString OsTaskBase::TASKID_PREFIX("TaskID."); // TaskId name db prefix
-int OsTaskBase::taskCount = 0;
+int OsTaskBase::taskCount = 0; 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -51,11 +49,23 @@ int OsTaskBase::taskCount = 0;
 void OsTaskBase::requestShutdown(void)
 {
    OsLock lock(mDataGuard);
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskBase::requestShutdown '%s' %s", mName.data(),
+                 TaskStateName(mState));
 
-   if (!isStarted() && !isShuttingDown())
-      mState = SHUT_DOWN;
-   else
-      mState = SHUTTING_DOWN;
+   switch (mState)
+   {
+   case UNINITIALIZED:
+      mState = TERMINATED;      
+      break;
+
+   case RUNNING:
+      mState = SHUTTING_DOWN;      
+      break;
+   case SHUTTING_DOWN:
+   case TERMINATED:
+      // already done - not really correct, but let it go
+      break;
+   }
 }
 
 // Set the userData for the task.
@@ -127,19 +137,19 @@ OsStatus OsTaskBase::delay(const int milliSecs)
 // Return TRUE if a task shutdown has been requested and acknowledged
 UtlBoolean OsTaskBase::isShutDown(void)
 {
-   return (mState == SHUT_DOWN);
+   return (TERMINATED == mState);
 }
 
 // Return TRUE if a task shutdown has been requested but not acknowledged
 UtlBoolean OsTaskBase::isShuttingDown(void)
 {
-   return (mState == SHUTTING_DOWN);
+   return (SHUTTING_DOWN == mState);
 }
 
 // Return TRUE if the task has been started (and has not been shut down)
 UtlBoolean OsTaskBase::isStarted(void)
 {
-   return (mState == STARTED);
+   return (RUNNING == mState);
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -155,99 +165,75 @@ OsTaskBase::OsTaskBase(const UtlString& name,
    mpArg(pArg),
    mUserData(0)
 {
-    // If name contains %d insert the task count/index
+        // If name contains %d insert the task count/index
     assert(name.length() < 240);
     char nameBuffer[256];
     sprintf(nameBuffer, name.data(), taskCount++);
     mName.append(nameBuffer);
 
-   if (mName != "")
+    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTask::_ '%s' created %p", mName.data(), this);
+
+    if (!mName.isNull())
+    {
       OsUtil::insertKeyValue(TASK_PREFIX, mName, (int) this);
+    }
 }
 
 // Destructor
 OsTaskBase::~OsTaskBase()
 {
-   OsStatus res;
-
-   if (mName != "")
+   if (!mName.isNull())
    {
-      res = OsUtil::deleteKeyValue(TASK_PREFIX, mName);
-      //assert(res == OS_SUCCESS);
+      OsUtil::deleteKeyValue(TASK_PREFIX, mName);
    }
 
-   mName = OsUtil::NULL_OS_STRING;
+   mName.remove(0);
 }
 
-// Wait until the task is shut down and the run method has exited.
-// Most sub classes of OsTask should call this method in
-// the destructor before deleting any members which are
-// accessed by the run method.
-UtlBoolean OsTaskBase::waitUntilShutDown(int milliSecToWait)
-{
-   // If task is already shut down, just return.
-   if (isShutDown())
-      return TRUE;
-
-   UtlString taskName = getName();
-   if (taskName.isNull())
-   {
-      char b[40];
-      sprintf(b, "[%p]", this);
-      taskName.append(b);
-   }
-
-   if (isStarted())
-   {
-      requestShutdown();  // ask the task to shut itself down
-      yield();            // yield the CPU so the target task can terminate
-   }
-
-   // wait up to another nineteen seconds (20 total) for the task to terminate
-   // printing out a console complaint every second
-   if (isShuttingDown())
-   {
-      int i;
-
-      // wait up to a second for the task to terminate.
-      for (i = 0; (i < 10) && isShuttingDown(); i++)
-      {
-         delay(milliSecToWait/200);         // wait 1/10 second
-      }
-      
-      for (i = 1; (i < 20) && isShuttingDown(); i++)
-      {
-         OsSysLog::add(FAC_KERNEL, PRI_WARNING,
-                       "Task failed to terminate after %f seconds",
-                       (milliSecToWait * i) / 20000.0);
-         delay(milliSecToWait/20);
-      }
-
-      // if still no response from the task, assume it is unresponsive and
-      // destroy the entire process.
-      if (isShuttingDown())
-      {
-         OsSysLog::add(FAC_KERNEL, PRI_CRIT,
-                       "Task failed to terminate after %f seconds - aborting",
-                       milliSecToWait / 1000.0);
-         assert(false);
-      }
-   }
-
-   return(isShutDown());
-}
-
-// Acknowledge a shutdown request
-// The platform specific entry point which calls the run
-// method should call this method immediately after run exits.
-// to indicate that it is now shut down.
+// Acknowledge a shutdown request.
 void OsTaskBase::ackShutdown(void)
 {
    OsLock lock(mDataGuard);
 
-   assert(isStarted() || isShuttingDown() || isShutDown());
+   switch (mState)
+   {
+   case UNINITIALIZED:
+   case RUNNING:
+   case SHUTTING_DOWN:
+      mState = TERMINATED;
+      break;
 
-   mState = SHUT_DOWN;
+   case TERMINATED:
+      // already done - not really correct, but let it go
+      break;
+   }
+}
+
+const char* OsTaskBase::TaskStateName(enum TaskState state)
+{
+   const char* StateName[] =
+   {
+      "UNINITIALIZED",
+      "RUNNING",
+      "SHUTTING_DOWN",
+      "TERMINATED",
+      "<INVALID>"
+   };
+   const char* name;
+
+   switch (state)
+   {
+   case UNINITIALIZED:
+   case RUNNING:
+   case SHUTTING_DOWN:
+   case TERMINATED:
+      name = StateName[state];
+      break;
+   default:
+      name = StateName[4];
+   }
+
+   return name;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

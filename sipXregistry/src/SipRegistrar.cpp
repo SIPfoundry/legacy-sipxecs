@@ -59,7 +59,7 @@ OsBSem SipRegistrar::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
 // Constructor
 SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
-   OsServerTask("SipRegistrarMain", NULL, SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE),
+   OsServerTask("SipRegistrar", NULL, SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE),
    mConfigDb(configDb),
    mRegistrationDB(RegistrationDB::getInstance()), // implicitly loads database
    mHttpServer(NULL),
@@ -159,9 +159,10 @@ int SipRegistrar::run(void* pArg)
    {
       operationalPhase();
 
+      // from here on, everything happens in handleMessage
       taskResult = OsServerTask::run(pArg);
    }
-   
+
    return taskResult;
 }
 
@@ -177,12 +178,14 @@ void SipRegistrar::startupPhase()
 
    if (mReplicationConfigured)
    {
-      // Create replication-related thread objects, but don't start them yet
+      // Create replication-related thread objects, because they own some
+      // the data that the RegistrarInitialSync thread needs,
+      // but don't start them yet.
       createReplicationThreads();
 
       // Begin the RegistrarInitialSync thread and then wait for it.
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRegistrar::startupPhase waiting for initialSyncThread"
+                    "SipRegistrar::startupPhase starting initialSyncThread"
                     );
       mRegistrarInitialSync->start();
       yield();
@@ -329,72 +332,43 @@ OsConfigDb* SipRegistrar::getConfigDB()
    return mConfigDb;
 }
 
+void SipRegistrar::requestShutdown(void)
+{
+   // This is called from the SipRegistrar task destructor below in the main routine thread.
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::requestShutdown");
+
+   // Set the low level task flag and wake up the SipRegistrar task
+
+   OsMsg msg(OsMsg::OS_SHUTDOWN, 0);
+   /*
+    * Let the shutdown message wake up the SipRegistrar task
+    * so that it can shut down all the other threads in an orderly way.
+    */
+   postMessage(msg);
+   yield(); // make the caller wait so that SipRegistrar can run.
+}
+
 // Destructor
 SipRegistrar::~SipRegistrar()
 {
-    // Wait for the owned servers to shutdown first
-    // Deleting a server task is the only way of
-    // waiting for shutdown to complete cleanly
+   // this is called from the main routine
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::~ waiting for task exit");
 
-    if ( mRedirectServer )
-    {
-        mRedirectServer->requestShutdown();
-        delete mRedirectServer;
-        mRedirectServer = NULL;
-        mRedirectMsgQ = NULL;
-    }
+   waitUntilShutDown(); // wait for the thread to exit
+   
+   // all other threads have been shut down
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::~ task shut down - complete destructor");
 
-    if ( mRegistrarServer )
-    {
-       mRegistrarServer->requestShutdown();
-       delete mRegistrarServer;
-       mRegistrarServer = NULL;
-       mRegistrarMsgQ = NULL;
-    }
+   mPeers.destroyAll();
 
-    if ( mHttpServer )
-    {
-       mHttpServer->requestShutdown();
-       delete mHttpServer;
-       mHttpServer = NULL;
-    }
+   mValidDomains.destroyAll();
 
-    if ( mRegistrarTest )
-    {
-       mRegistrarTest->requestShutdown();
-       delete mRegistrarTest;
-       mRegistrarTest = NULL;
-    }
-
-    if ( mRegistrarSync )
-    {
-       mRegistrarSync->requestShutdown();
-       delete mRegistrarSync;
-       mRegistrarSync = NULL;
-    }
-
-    if ( mRegistrarPersist )
-    {
-       mRegistrarPersist->requestShutdown();
-       delete mRegistrarPersist;
-       mRegistrarPersist = NULL;
-    }
-
-    if ( mSipUserAgent )
-    {
-       mSipUserAgent->shutdown();
-       delete mSipUserAgent ;
-       mSipUserAgent = NULL ;
-    }
-
-    mValidDomains.destroyAll();
-
-    // release the registration database instance
-    if (mRegistrationDB)
-    {
-       mRegistrationDB->releaseInstance();
-       mRegistrationDB = NULL;
-    }
+   // release the registration database instance
+   if (mRegistrationDB)
+   {
+      mRegistrationDB->releaseInstance();
+      mRegistrationDB = NULL;
+   }
 }
 
 /// Get the default domain name for this registrar 
@@ -413,15 +387,18 @@ int SipRegistrar::domainProxyPort() const
 
 UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::handleMessage()"
-                  " Start processing SIP message") ;
-
+    UtlBoolean handled = FALSE;
+    
     int msgType = eventMessage.getMsgType();
     int msgSubType = eventMessage.getMsgSubType();
 
-    if ( (msgType == OsMsg::PHONE_APP) &&
-         (msgSubType == SipMessage::NET_SIP_MESSAGE) )
+    if (   (msgType == OsMsg::PHONE_APP)
+        && (msgSubType == SipMessage::NET_SIP_MESSAGE)
+        )
     {
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::handleMessage()"
+                      " Start processing SIP message") ;
+
         const SipMessage* message =
            ((SipMessageEvent&)eventMessage).getMessage();
         UtlString callId;
@@ -455,16 +432,103 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
                          "SipRegistrar::handleMessage no message."
                          ) ;
         }
+
+        handled = TRUE;
+    }
+    else if ( OsMsg::OS_SHUTDOWN == msgType )
+    {      
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipRegistrar::handleMessage shutting down all tasks");
+
+       // Do an orderly shutdown of all the various threads.
+
+       // Deleting an OsServerTask is the only way of
+       // waiting for it to complete cleanly
+       if ( mRegistrarInitialSync )
+       {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipRegistrar::handleMessage shutting down RegistrarInitialSync");
+          mRegistrarInitialSync->requestShutdown();
+          delete mRegistrarInitialSync;
+          mRegistrarInitialSync = NULL;
+       }
+
+       if ( mSipUserAgent )
+       {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipRegistrar::handleMessage shutting down SipUserAgent");
+          mSipUserAgent->shutdown();
+          delete mSipUserAgent ;
+          mSipUserAgent = NULL ;
+       }
+
+       if ( mHttpServer )
+       {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipRegistrar::handleMessage shutting down HttpServer");
+          mHttpServer->requestShutdown();
+          delete mHttpServer;
+          mHttpServer = NULL;
+       }
+
+       if ( mRegistrarTest )
+       {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipRegistrar::handleMessage shutting down RegistrarTest");
+          delete mRegistrarTest;
+          mRegistrarTest = NULL;
+       }
+
+       if ( mRegistrarSync )
+       {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipRegistrar::handleMessage shutting down RegistrarSync");
+          mRegistrarSync->requestShutdown();
+          delete mRegistrarSync;
+          mRegistrarSync = NULL;
+       }
+
+       if ( mRegistrarPersist )
+       {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipRegistrar::handleMessage shutting down RegistrarPersist");
+          mRegistrarPersist->requestShutdown();
+          delete mRegistrarPersist;
+          mRegistrarPersist = NULL;
+       }
+
+       if ( mRedirectServer )
+       {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipRegistrar::handleMessage shutting down RedirectServer");
+          mRedirectServer->requestShutdown();
+          delete mRedirectServer;
+          mRedirectServer = NULL;
+          mRedirectMsgQ = NULL;
+       }
+
+       if ( mRegistrarServer )
+       {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipRegistrar::handleMessage shutting down RegistrarServer");
+          mRegistrarServer->requestShutdown();
+          delete mRegistrarServer;
+          mRegistrarServer = NULL;
+          mRegistrarMsgQ = NULL;
+       }
+
+       OsTask::requestShutdown(); // tell OsServerTask::run to exit
+       handled = TRUE;
     }
     else
     {
        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "SipRegistrar::handleMessage unexpected message type %d/%d",
+                     "SipRegistrar::handleMessage unhandled type %d/%d",
                      msgType, msgSubType
                      ) ;
     }
     
-    return(TRUE);
+    return handled;
 }
 
 SipRegistrar*

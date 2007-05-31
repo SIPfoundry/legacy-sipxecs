@@ -51,10 +51,9 @@ SipProtocolServerBase::SipProtocolServerBase(const SipProtocolServerBase& rSipPr
 // Destructor
 SipProtocolServerBase::~SipProtocolServerBase()
 {
-    mDataGuard.acquire();
-    mClientLock.acquireWrite();
-
     waitUntilShutDown();
+
+    mClientLock.acquireWrite();
     
     int iteratorHandle = mClientList.getIteratorHandle();
     SipClient* client = NULL;
@@ -65,7 +64,7 @@ SipProtocolServerBase::~SipProtocolServerBase()
     }
     mClientList.releaseIteratorHandle(iteratorHandle);
     mClientLock.releaseWrite();
-    mDataGuard.release();
+
 }
 
 /* ============================ MANIPULATORS ============================== */

@@ -37,6 +37,9 @@ public:
    /// Signal that there may be updates ready to send.
    void sendUpdates();
 
+   /// Signal that it is time to shut down the task.
+   void requestShutdown(void);
+
    /// Task main loop.
    virtual int run(void* pArg);
    

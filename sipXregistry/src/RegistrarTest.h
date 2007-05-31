@@ -34,6 +34,9 @@ class RegistrarTest : public OsServerTask
    /// destructor
    virtual ~RegistrarTest();
    
+   /// Call from another task to stop the RegistrarTest task.
+   virtual void requestShutdown(void);
+
    /// Override default run method to do one initial check before waiting for timers
    int run(void* pArg);
 

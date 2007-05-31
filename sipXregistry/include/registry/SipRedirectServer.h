@@ -51,10 +51,12 @@ class SipRedirectServer : public OsServerTask
    static SipRedirectServer* getInstance();
    static SipRedirectServer* spInstance;
 
+   /// Initiate cleanup and shutdown.
+   virtual void requestShutdown(void);
+   
    /// Read in the configuration for the redirect server.
-   UtlBoolean initialize(OsConfigDb& configDb
-                         ///< Configuration parameters
-      );
+   UtlBoolean initialize( OsConfigDb& configDb    ///< Configuration parameters
+                         );
 
    /**
     * Used by redirector asynchronous processing to request that

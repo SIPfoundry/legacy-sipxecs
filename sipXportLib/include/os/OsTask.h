@@ -31,24 +31,42 @@
 // FORWARD DECLARATIONS
 class OsTime;
 
-//:Task abstraction
-// A task represents a thread of execution. All tasks run within the same
-// address space but have their own stack and program counter. Tasks may be
-// created and deleted dynamically.
-//
-// <p>Users create tasks by:
-// <ol><li>Deriving a new class based on OsTask or one of its descendants,
-//    and overriding the run() method in the derived class.</li>
-// <li>Calling the constructor for the derived class.</li>
-// <li>Invoking the start() method for the derived class.  This creates
-//    the corresponding low-level OS task and associates it with the class.</li>
-// </ol>
-// <p>Note: Many of the methods in this class are only applicable once the
-// start() method for the object has been called and the corresponding
-// low-level task has been created.  Accordingly, before a successful call
-// to start(), most of the methods in this class return the
-// OS_TASK_NOT_STARTED status.
-
+/// Task abstraction
+/**
+ * A task object encapsulates an execution thread.  All tasks run within the same
+ * address space but each has its own stack and program counter. Tasks may be
+ * created and deleted dynamically.
+ *
+ * A task is created by instantiating an object of some subclass of this one.
+ * Instantiating the object allows certain properties of the task to be manipulated,
+ * but does not actually instantiate the thread or start the task execution.
+ *
+ * To start the task, invoke the start() method for the derived class.  This creates
+ * the corresponding low-level OS thread and associates it with the OsTask object.
+ *
+ * The normal way to stop the task is to delete the object: the destructor will block,
+ * and invoke the requestShutdown method on the object.  The requestShutdown method sends
+ * an indication to the task that it should exit, which the task should acknowledge by
+ * calling OsTask::requestShutdown to set the state to SHUTTING_DOWN.  The task is run()
+ * method is responsible for checking the state, or the derived class may override the
+ * requestShutdown method to ensure that the indication is delivered.   When the task
+ * exits, the ackShutdown method of this class sets the object state to TERMINATED, and
+ * the destructor is allowed to complete.
+ *
+ * @Note if the destructor for the derived class is going to manipulate any members
+ * that are also used by the executing thread, then it must call waitUntilShutDown
+ * before using the member variables; this blocks until the thread has completed.
+ *
+ * @see OsServerTask for an abstraction suitable for any task that uses OsMsg events
+ * as its primary method of communication with other tasks.
+ *
+ * Many of the methods in this class are only applicable once the
+ * start() method for the object has been called and the corresponding
+ * low-level task has been created.  Accordingly, before a successful call
+ * to start(), most of the methods in this class return the
+ * OS_TASK_NOT_STARTED status.
+ *
+ */
 class OsTaskBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -64,280 +82,230 @@ public:
 
    static int taskCount;
 
+   /// The state of the thread associated with this OsTask object.
    enum TaskState
    {
-      UNINITIALIZED,   // no low-level task, no name DB entries
-      STARTED,         // low-level task and name DB entries exist
-      SHUTTING_DOWN,   // requested low-level task shutdown
-      SHUT_DOWN        // no low-level task, name DB entries still exist
+      UNINITIALIZED,   ///< thread not created, no name DB entries
+      RUNNING,         ///< thread running, name DB entries exist
+      SHUTTING_DOWN,   ///< requested thread shutdown
+      TERMINATED       ///< thread has exited, name DB entries still exist
    };
 
-     //!enumcode: UNINITIALIZED - no low-level task, no name DB entries
-     //!enumcode: STARTED  - low-level task and name DB entries exist
-     //!enumcode: SHUTTING_DOWN - requested low-level task shutdown
-     //!enumcode: SHUT_DOWN - no low-level task, name DB entries still exist
-
-/* ============================ CREATORS ================================== */
-
-   virtual OsStatus deleteForce(void) = 0;
-     //:Delete the task even if the task is protected from deletion
-     // After calling this method, the user will still need to delete the
-     // corresponding OsTask object to reclaim its storage.
-
-/* ============================ MANIPULATORS ============================== */
-
-   virtual void requestShutdown(void);
-     //:Request a task shutdown
-     // The run() method of the derived class is expected to call the
-     // isShuttingDown() method to detect when a task shutdown has been
-     // requested.  After a task has been shut down, it may be restarted
-     // by calling the start() method.
-
-   virtual UtlBoolean restart(void) = 0;
-     //:Restart the task
-     // The task is first terminated, and then reinitialized with the same
-     // name, priority, options, stack size, original entry point, and
-     // parameters it had when it was terminated.
-     // Return TRUE if the restart of the task is successful.
-
-   virtual OsStatus resume(void) = 0;
-     //:Resume the task
-     // This routine resumes the task. The task suspension is cleared, and
-     // the task operates in the remaining state.
-
+   static const char* TaskStateName(enum TaskState state);
+   
+   /// Spawn a new task and invoke its run() method..
    virtual UtlBoolean start(void) = 0;
-     //:Spawn a new task and invoke its run() method.
-     // Return TRUE if the spawning of the new task is successful.
-     // Return FALSE if the task spawn fails or if the task has already
-     // been started.
+   /**<         
+    * @Return TRUE if the spawning of the new task is successful,
+    *         FALSE if the task spawn fails or if the task has already been started.
+    */
 
+   /// Request a task shutdown.
+   virtual void requestShutdown(void);
+   /**<
+    * Normally, it is not necessary to explicitly call this method, since it is
+    * implicitly called from waitUntilShutDown if the task is in RUNNING state.
+    *
+    * If the derived task class ever waits on anything, then it MUST either:
+    * - Check isShuttingDown frequently enough to detect a shutdown request
+    * or
+    * - Override this method with something that wakes the task up and
+    *   initiates shutdown processing.  The derived method should call this
+    *   one to set the mState to SHUTTING_DOWN.
+    *
+    * @see OsServerTask::requestShutdown for an example.
+    */
+
+   /// Suspend the task.
    virtual OsStatus suspend(void) = 0;
-     //:Suspend the task
-     // This routine suspends the task. Suspension is additive: thus, tasks
-     // can be delayed and suspended, or pended and suspended. Suspended,
-     // delayed tasks whose delays expire remain suspended. Likewise,
-     // suspended, pended tasks that unblock remain suspended only.
+   /**<         
+    * This routine suspends the task. Suspension is additive: thus, tasks
+    * can be delayed and suspended, or pended and suspended. Suspended,
+    * delayed tasks whose delays expire remain suspended. Likewise,
+    * suspended, pended tasks that unblock remain suspended only.
+    */
+   
+   /// Resume the task.
+   virtual OsStatus resume(void) = 0;
+   /**<         
+    * This routine resumes the task. The task suspension is cleared, and
+    * the task operates in the remaining state.
+    */
 
+   /// Set the errno status for the task.
    virtual OsStatus setErrno(int errno) = 0;
-     //:Set the errno status for the task
+   /**<         
+    * The only option that can be changed after a task has been created
+    * is whether to allow breakpoint debugging.
+    */
 
-   virtual OsStatus setOptions(int options) = 0;
-     //:Set the execution options for the task
-     // The only option that can be changed after a task has been created
-     // is whether to allow breakpoint debugging.
-
+   /// Set the priority of the task.
    virtual OsStatus setPriority(int priority) = 0;
-     //:Set the priority of the task
-     // Priorities range from 0, the highest priority, to 255, the lowest
-     // priority.
+   /**<         
+    * Priorities range from 0, the highest priority, to 255, the lowest
+    * priority.
+    */
 
+   /// Set the userData for the task..
    virtual void setUserData(int data);
-     //:Set the userData for the task.
-     // The class does not use this information itself, but merely stores
-     // it on behalf of the caller.
+   /**<         
+    * The class does not use this information itself, but merely stores
+    * it on behalf of the caller.
+    */
 
-   virtual OsStatus varAdd(int* pVar) = 0;
-     //:Add a task variable to the task
-     // This routine adds a specified variable pVar (4-byte memory
-     // location) to its task's context. After calling this routine, the
-     // variable is private to the task. The task can access and modify
-     // the variable, but the modifications are not visible to other tasks,
-     // and other tasks' modifications to that variable do not affect the
-     // value seen by the task. This is accomplished by saving and restoring
-     // the variable's value each time a task switch occurs to or from the
-     // calling task.
+   /// Adds a syslog entry to the system logger.
+   virtual OsStatus syslog(const OsSysLogFacility facility, ///< See OsSysLogFacility.
+                           const OsSysLogPriority priority, ///< See OsSysLogPriority.
+                           const char*            format,   ///< sprintf format string
+                           ... )
+#                          ifdef __GNUC__
+                            // with the -Wformat switch, this enables format string checking
+                           __attribute__ ((format (printf, 4, 5)))
+#                          endif
+                           ;
+   /**<
+    * @deprecated please use OsSysLog::add
+    */
 
-   virtual OsStatus varDelete(int* pVar) = 0;
-     //:Remove a task variable from the task
-     // This routine removes a specified task variable, pVar, from its
-     // task's context. The private value of that variable is lost.
-
-   virtual OsStatus varSet(int* pVar, int value) = 0;
-     //:Set the value of a private task variable
-     // This routine sets the private value of the task variable for a
-     // specified task. The specified task is usually not the calling task,
-     // which can set its private value by directly modifying the variable.
-     // This routine is provided primarily for debugging purposes.
-
-   virtual OsStatus syslog(const OsSysLogFacility facility,
-                           const OsSysLogPriority priority,
-                           const char*            format,
-                                                  ...)
-#ifdef __GNUC__
-       // with the -Wformat switch, this enables format string checking
-//      !TBD! __attribute__ ((format (printf, 3, 4)))
-#endif
-       ;
-
-     //:Adds a syslog entry to the system logger.
-     //
-     //!param: facility - Defines the facility responsible for adding the
-     //        event.  See the OsSysLogFacility for more information.
-     //!param: priority - Defines the priority of the event.  See
-     //        OsSysLogPriority for more information.
-
+   /// Delay a task from executing for the specified number of milliseconds.
    static OsStatus delay(const int milliSecs);
-     //:Delay a task from executing for the specified number of milliseconds
-     // This routine causes the calling task to relinquish the CPU for the
-     // duration specified. This is commonly referred to as manual
-     // rescheduling, but it is also useful when waiting for some external
-     // condition that does not have an interrupt associated with it.
+   /**<         
+    * This routine causes the calling task to relinquish the CPU for the
+    * duration specified. This is commonly referred to as manual
+    * rescheduling, but it is also useful when waiting for some external
+    * condition that does not have an interrupt associated with it.
+    */
 
-   static OsStatus lock(void);
-     //:Disable rescheduling for the currently executing task
-     // This routine disables task context switching. The task that calls
-     // this routine will be the only task that is allowed to execute,
-     // unless the task explicitly gives up the CPU by making itself no
-     // longer ready. Typically this call is paired with unlock();
-     // together they surround a critical section of code. These
-     // preemption locks are implemented with a counting variable that
-     // allows nested preemption locks. Preemption will not be unlocked
-     // until unlock() has been called as many times as lock().
-
-   static OsStatus unlock(void);
-     //:Enable rescheduling for the currently executing task
-     // This routine decrements the preemption lock count. Typically
-     // this call is paired with lock() and concludes a critical
-     // section of code. Preemption will not be unlocked until
-     // unlock() has been called as many times as lock(). When
-     // the lock count is decremented to zero, any tasks that were
-     // eligible to preempt the current task will execute.
-
-   static OsStatus safe(void);
-     //:Make the calling task safe from deletion
-     // This routine protects the calling task from deletion. Tasks that
-     // attempt to delete a protected task will block until the task is
-     // made unsafe, using unsafe(). When a task becomes unsafe, the
-     // deleter will be unblocked and allowed to delete the task.
-     // The safe() primitive utilizes a count to keep track of
-     // nested calls for task protection. When nesting occurs,
-     // the task becomes unsafe only after the outermost unsafe()
-     // is executed.
-
-   static OsStatus unsafe(void);
-     //:Make the calling task unsafe from deletion
-     // This routine removes the calling task's protection from deletion.
-     // Tasks that attempt to delete a protected task will block until the
-     // task is unsafe. When a task becomes unsafe, the deleter will be
-     // unblocked and allowed to delete the task.
-     // The unsafe() primitive utilizes a count to keep track of nested
-     // calls for task protection. When nesting occurs, the task becomes
-     // unsafe only after the outermost unsafe() is executed.
-
+   /// Yield the CPU if a task of equal or higher priority is ready to run.
    static void yield(void);
-     //:Yield the CPU if a task of equal or higher priority is ready to run
 
 /* ============================ ACCESSORS ================================= */
 
+   /// Return a pointer to the OsTask object for the currently executing task.
    static OsTaskBase* getCurrentTask(void);
-     //:Return a pointer to the OsTask object for the currently executing task
-     // Return NULL if none exists.
+   /**<         
+    * Return NULL if none exists.
+    */
 
+   /// Return an Id of the currently executing task.
    static OsStatus getCurrentTaskId(int &rid);
-     //:Return an Id of the currently executing task
-     // This Id is unique within the current process, but not necessarily
-     // over the entire host.
-     // Any two simultaneous executions that share their memory space
-     // will have different values from getCurrentTaskId().
+   /**<         
+    * This Id is unique within the current process, but not necessarily
+    * over the entire host.
+    * Any two simultaneous executions that share their memory space
+    * will have different values from getCurrentTaskId().
+    */
 
+   /// Return a pointer to the OsTask object corresponding to the named task.
    static OsTaskBase* getTaskByName(const UtlString& taskName);
-     //:Return a pointer to the OsTask object corresponding to the named task
-     // Return NULL if there is no task object with that name.
+   /**<         
+    * Return NULL if there is no task object with that name.
+    */
 
+   /// Return a pointer to the OsTask object corresponding to taskId.
    static OsTaskBase* getTaskById(const int taskId);
-     //:Return a pointer to the OsTask object corresponding to taskId
-     // Return NULL is there is no task object with that id.
+   /**<         
+    * Return NULL is there is no task object with that id.
+    */
 
+   /// Get the void* value passed as an argument to the task.
    virtual void* getArg(void);
-     //:Get the void* value passed as an argument to the task
 
+   /// Get the errno status for the task.
    virtual OsStatus getErrno(int& rErrno) = 0;
-     //:Get the errno status for the task
 
+   /// Get the name associated with the task.
    virtual const UtlString& getName(void);
-     //:Get the name associated with the task
 
+   /// Return the execution options for the task.
    virtual int getOptions(void) = 0;
-     //:Return the execution options for the task
 
+   /// Return the priority of the task.
    virtual OsStatus getPriority(int& rPriority) = 0;
-     //:Return the priority of the task
 
+   /// Return the userData for the task..
    virtual int getUserData(void);
-     //:Return the userData for the task.
-
-   virtual OsStatus varGet(void) = 0;
-     //:Get the value of a task variable
-     // This routine returns the private value of a task variable for its
-     // task. The task is usually not the calling task, which can get its
-     // private value by directly accessing the variable. This routine is
-     // provided primarily for debugging purposes.
 
 /* ============================ INQUIRY =================================== */
 
+   /// Get the task ID for this task.
    virtual OsStatus id(int& rId) = 0;
-     //:Get the task ID for this task
 
+   /// Check if the task is ready to run.
    virtual UtlBoolean isReady(void) = 0;
-     //:Check if the task is ready to run
-     // Return TRUE is the task is ready, otherwise FALSE.
+   /**<         
+    * Return TRUE is the task is ready, otherwise FALSE.
+    */
 
+   /// Return TRUE if a task shutdown has been requested and acknowledged.
    virtual UtlBoolean isShutDown(void);
-     //:Return TRUE if a task shutdown has been requested and acknowledged
 
+   /// Return TRUE if a task shutdown has been requested but not acknowledged.
    virtual UtlBoolean isShuttingDown(void);
-     //:Return TRUE if a task shutdown has been requested but not acknowledged
 
+   /// Return TRUE if the task has been started (and has not been shut down).
    virtual UtlBoolean isStarted(void);
-     //:Return TRUE if the task has been started (and has not been shut down)
 
+   /// Check if the task is suspended.
    virtual UtlBoolean isSuspended(void) = 0;
-     //:Check if the task is suspended
-     // Return TRUE is the task is suspended, otherwise FALSE.
+   /**<         
+    * Return TRUE is the task is suspended, otherwise FALSE.
+    */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-   OsMutex   mDataGuard;  // Mutex guard to protect the OsTask internal data
-   UtlString  mName;       // global name associated with the task
+   OsMutex    mDataGuard; ///< protects mName and mState
+   UtlString  mName;      ///< global name of the task (used in logging)
 
-   TaskState mState;      // Task object state
+   TaskState mState;      ///< the relationship between this object and the actual thread
 
    OsTaskBase(const UtlString& name,
               void* pArg,
               const int priority,
               const int options,
               const int stackSize);
-     //:Constructor
 
    virtual
    ~OsTaskBase();
-     //:Destructor
 
+   /// The entry point for the task.
    virtual int run(void* pArg) = 0;
-     //:The entry point for the task
-     // Derive new tasks as subclasses of OsTask, overriding this method.
-
-   /// Wait until the task is shut down and the run method has exited.
-   virtual UtlBoolean waitUntilShutDown(int milliSecToWait = 20000);
-   /**<
-    * Most subclasses of OsTask should call this method in
-    * the destructor before deleting any members which are
-    * accessed by the run method.
+   /**<         
+    * This method is called in the underlying thread context when
+    * the thread begins execution (triggered by a call to the start method).
+    * When this routine exits, the underlying thread is destroyed.
     *
-    * @NOTE If milliSecToWait expires, the process is assumed to be hung and is aborted.
+    * This method and anything it calls must provide a means for shutting
+    * down the task, which may be a simple as periodically checking the
+    * isShuttingDown method, or may mean overriding the requestShutdown
+    * method to provide some other synchronization primitive.
     */
 
+   /// Wait until the task is shut down and the run method has exited.
+   virtual UtlBoolean waitUntilShutDown(int milliSecToWait = 20 * OsTime::MSECS_PER_SEC) = 0;
+   /**<
+    * Any subclass of OsTask should call this method in
+    * the destructor to protect access to any members which are
+    * used by the run method.
+    *
+    * @NOTE If milliSecToWait expires, the thread is assumed to be hung,
+    * and the entire process is aborted with a critical error.
+    */
+
+   /// Acknowledge a shutdown request.
    virtual void ackShutdown(void);
-     //:Acknowledge a shutdown request
-     // The task should call this method just prior to returning from its
-     // run() method to indicate that it is now shut down.
+   /**<         
+    * The OsTask object calls this method just after the run() method exits to indidate that
+    * the thread has stopped execution.
+    */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   void*     mpArg;       // argument passed to the task
-   int       mUserData;   // data stored on behalf of the user.  This data
-                          //  is read/written via getUserData()/setUserData()
+   void*     mpArg;       ///< argument passed to the task
+   int       mUserData;   /**< data stored on behalf of the user.  This data
+                           *  is read/written via getUserData()/setUserData()
+                           */
 
    OsTaskBase(const OsTaskBase& rOsTask);
      //:Copy constructor (not implemented for this class)
@@ -357,9 +325,6 @@ private:
 #if defined(_WIN32)
 #  include "os/Wnt/OsTaskWnt.h"
    typedef class OsTaskWnt OsTask;
-#elif defined(_VXWORKS)
-#  include "os/Vxw/OsTaskVxw.h"
-   typedef class OsTaskVxw OsTask;
 #elif defined(__pingtel_on_posix__)
 #  include "os/linux/OsTaskLinux.h"
    typedef class OsTaskLinux OsTask;

@@ -76,7 +76,6 @@ int TaoListeningTask::run(void* pArg)
         }
 
         osPrintf("++++ TaoListeningTask::run shutting down.\n");
-        ackShutdown();   // acknowledge the task shutdown request
         return 0;        // and then exit
 }
 

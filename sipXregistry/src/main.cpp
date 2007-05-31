@@ -24,6 +24,7 @@
 
 #include "os/OsConfigDb.h"
 #include "os/OsFS.h"
+#include "os/OsTime.h"
 #include "os/OsTask.h"
 
 #include "net/NameValueTokenizer.h"
@@ -123,7 +124,6 @@ sigHandler( int sig_num )
    pt_signal( sig_num, SIG_DFL );
 
    // Minimize the chance that we loose log data
-   OsSysLog::flush();
    if (SIGTERM == sig_num)
    {
       OsSysLog::add( LOG_FACILITY, PRI_INFO, "sigHandler: terminate signal received.");
@@ -132,11 +132,7 @@ sigHandler( int sig_num )
    {
       OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
    }
-   OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: closing IMDB connections" );
    OsSysLog::flush();
-
-   // Finally close the IMDB connections
-   closeIMDBConnections();
 }
 
 // Initialize the OsSysLog
@@ -393,28 +389,9 @@ main(int argc, char* argv[] )
    // Do not exit, let the services run...
    while( !gShutdownFlag )
    {
-      if ( interactiveSet)
-      {
-
-         int charCode = getchar();
-
-         if (charCode != '\n' && charCode != '\r')
-         {
-            if ( charCode == 'e')
-            {
-               OsSysLog::enableConsoleOutput(TRUE);
-            }
-            else if ( charCode == 'd')
-            {
-               OsSysLog::enableConsoleOutput(FALSE);
-            }
-         }
-      }
-      else
-      {
-         OsTask::delay(2000);
-      }
+      OsTask::delay(1 * OsTime::MSECS_PER_SEC);
    }
+   OsSysLog::add(LOG_FACILITY, PRI_NOTICE, "main: cleaning up.");
 
    // This is a server task so gracefully shut down the
    // server task using the waitForShutdown method, this
@@ -424,7 +401,7 @@ main(int argc, char* argv[] )
    {
       // Deleting a server task is the only way of
       // waiting for shutdown to complete cleanly
-      pServerTask->requestShutdown();
+      OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "main: shut down server task.");
       delete pServerTask;
       pServerTask = NULL;
    }

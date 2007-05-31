@@ -32,12 +32,12 @@ libsipXport_la_LIBADD = \
 
 # this is helpful if you're debugging something with lots of inlines (like the UtlLink code)
 # 		-fno-gcse -O0 -fno-implement-inlines -fno-default-inline
-
 libsipXport_la_CXXFLAGS = \
 	@PCRE_CFLAGS@ \
 	@SSL_CXXFLAGS@ \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
-	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+	-fno-gcse -O0 -fno-implement-inlines -fno-default-inline
 
 libsipXport_la_SOURCES =  \
     $(top_builddir)/config/sipxportlib-buildstamp.h \

@@ -40,10 +40,9 @@ OsServerTask::OsServerTask(const UtlString& name,
 {
    if (OsSysLog::willLog(FAC_KERNEL, PRI_INFO))
    {
-
-           OsSysLog::add(FAC_KERNEL, PRI_INFO,
-                                "OsServerTask::OsServerTask %s queue: %p queue limit: %d",
-                                mName.data(), &mIncomingQ, maxRequestQMsgs);
+      OsSysLog::add(FAC_KERNEL, PRI_INFO,
+                    "OsServerTask::_ '%s' queue: %p queue limit: %d",
+                    mName.data(), &mIncomingQ, maxRequestQMsgs);
    }
 }
 
@@ -52,8 +51,10 @@ OsServerTask::OsServerTask(const UtlString& name,
 // OsMsgQ.
 OsServerTask::~OsServerTask()
 {
-   waitUntilShutDown(20000);  // up to 20 seconds
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsServerTask::~ '%s' %s",
+                 mName.data(), TaskStateName(mState));
 
+   waitUntilShutDown(20 * OsTime::MSECS_PER_SEC);
    mIncomingQ.flush();    // dispose of any messages in the request queue
 }
 
@@ -72,13 +73,13 @@ UtlBoolean OsServerTask::handleMessage(OsMsg& rMsg)
    switch (rMsg.getMsgType())
    {
    case OsMsg::OS_SHUTDOWN:
+      OsTask::requestShutdown();
       handled = TRUE;
       break;
    default:
       OsSysLog::add(FAC_KERNEL, PRI_CRIT,
-                    "OsServerTask::handleMessage: Unhandled message, "
-                    "type is %d.%d, not OS_SHUTDOWN",
-                    rMsg.getMsgType(), rMsg.getMsgSubType());
+                    "OsServerTask::handleMessage: '%s' unhandled message type %d.%d",
+                    mName.data(), rMsg.getMsgType(), rMsg.getMsgSubType());
       // Consider doing "assert(FALSE);" here, as this situation never seems
       // to happen in normal operation.
       break;
@@ -107,8 +108,8 @@ void OsServerTask::requestShutdown(void)
 {
    OsMsg msg(OsMsg::OS_SHUTDOWN, 0);
 
-   OsTask::requestShutdown();
-   postMessage(msg);
+   OsTask::requestShutdown(); // causes isShuttingDown to return TRUE
+   postMessage(msg); // wake up the task run loop
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -142,7 +143,6 @@ OsStatus OsServerTask::receiveMessage(OsMsg*& rpMsg,
 // is called.
 int OsServerTask::run(void* pArg)
 {
-   UtlBoolean doShutdown;
    OsMsg*    pMsg = NULL;
    OsStatus  res;
 
@@ -151,19 +151,18 @@ int OsServerTask::run(void* pArg)
       res = receiveMessage((OsMsg*&) pMsg);          // wait for a message
       assert(res == OS_SUCCESS);
 
-      doShutdown = isShuttingDown();
-      if (!doShutdown)
-      {                                              // comply with shutdown
-         if (!handleMessage(*pMsg))                  // process the message
-            OsServerTask::handleMessage(*pMsg);
+      if (!handleMessage(*pMsg))                  // process the message
+      {
+         OsServerTask::handleMessage(*pMsg);
       }
 
       if (!pMsg->getSentFromISR())
+      {
          pMsg->releaseMsg();                         // free the message
+      }
    }
-   while (!doShutdown);
+   while (isStarted());
 
-   ackShutdown();   // acknowledge the task shutdown request
    return 0;        // and then exit
 }
 

@@ -35,6 +35,9 @@ public:
    /// Destructor
    virtual ~RegistrarPersist();
    
+   /// Catch the shutdown request so that we can flush the database.
+   virtual void requestShutdown(void);
+
    /// Start the timer that triggers garbage collection and DB persistence, if it's not running
    void scheduleCleanAndPersist();
 

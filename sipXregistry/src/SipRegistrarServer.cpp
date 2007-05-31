@@ -808,9 +808,12 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
     int msgType = eventMessage.getMsgType();
     int msgSubType = eventMessage.getMsgSubType();
 
+    UtlBoolean handled = FALSE;
+    
     // Timer event
-    if(msgType == OsMsg::OS_EVENT &&
-                msgSubType == OsEventMsg::NOTIFY)
+    if(   msgType    == OsMsg::OS_EVENT
+       && msgSubType == OsEventMsg::NOTIFY
+       )
     {
         // Garbage collect nonces
         //osPrintf("Garbage collecting nonces\n");
@@ -821,8 +824,9 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
         // Remove nonces more than 5 minutes old
         long oldTime = now - mNonceExpiration;
         mNonceDb.removeOldNonces(oldTime);
-    }
 
+        handled = TRUE;
+    }
     // SIP message event
     else if (msgType == OsMsg::PHONE_APP)
     {
@@ -1085,8 +1089,26 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
         }
         
         mSipUserAgent->send(finalResponse);
+
+        handled = TRUE;
     }
-    return TRUE;
+    else if ( msgType == OsMsg::OS_SHUTDOWN )
+    {      
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRegistrarServer::handleMessage received shutdown request"
+                     );
+       OsTask::requestShutdown(); // tell OsServerTask::run to exit
+       handled = TRUE;
+    }
+    else
+    {
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipRegistrarServer::handleMessage unexpected message type %d/%d",
+                     msgType, msgSubType
+                     ) ;
+    }
+
+    return handled;
 }
 
 

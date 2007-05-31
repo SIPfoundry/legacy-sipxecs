@@ -2,9 +2,7 @@
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
 //
-// $$
 ////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -42,7 +40,7 @@ OsTaskLinux::OsTaskLinux(const UtlString& name,
                      const int stackSize)
 :  OsTaskBase(name, pArg, priority, options, stackSize),
    mTaskId(0),
-   mDeleteGuard(OsRWMutex::Q_PRIORITY),
+   mDeleteGuard(OsBSemLinux::Q_PRIORITY, OsBSemBase::EMPTY),
    mSuspendCnt(0),
    mOptions(options),
    mPriority(priority),
@@ -54,34 +52,90 @@ OsTaskLinux::OsTaskLinux(const UtlString& name,
 // Destructor
 OsTaskLinux::~OsTaskLinux()
 {
-   waitUntilShutDown();
-   doLinuxTerminateTask(FALSE);
+   waitUntilShutDown(); 
 }
 
-// Delete the task even if the task is protected from deletion.
-// After calling this method, the user will still need to delete the
-// corresponding OsTask object to reclaim its storage.
-OsStatus OsTaskLinux::deleteForce(void)
+void OsTaskLinux::ackShutdown()
 {
-   OsLock lock(mDataGuard);
+   // the task thread is done - we can now get rid of it.
+   mDataGuard.acquire();
+   UtlString taskName = getName();
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::ackShutdown '%s' %s",
+                 taskName.data(), TaskStateName(mState));
 
-   doLinuxTerminateTask(TRUE);
+   switch (mState)
+   {
+   case UNINITIALIZED:
+   case RUNNING:
+   case SHUTTING_DOWN:
+      mState = TERMINATED;
 
-   return OS_SUCCESS;
-}
-/* ============================ MANIPULATORS ============================== */
+      if (OsSysLog::willLog(FAC_KERNEL, PRI_DEBUG))
+      {
+          OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                    "OsTaskLinux::ackShutdown '%s' shut down",
+                        taskName.data());
+      }
+      
+      // DEBUGGING HACK:  Suspend requestor if target is suspended $$$
+      while (isSuspended())
+      {
+         mDataGuard.release();
+         suspend();
+         mDataGuard.acquire();
+      }
+      
+      // taskUnregister sets mTaskId to zero, so this serves as a flag
+      // If this method is called more than once, then on the first
+      // call savedTaskId will be non-zero, but on subsequent calls
+      // it will be zero.
+      if (mTaskId != 0) // only signal waiters on the first call
+      {
+         OsStatus res;
+         char     idString[15];
+         // Remove the key from the internal task list, before terminating it
+         sprintf(idString, "%d", (int)mTaskId);    // convert the id to a string
+         res = OsUtil::deleteKeyValue(TASKID_PREFIX, idString);
 
-// Restart the task.
-// The task is first terminated, and then reinitialized with the same
-// name, priority, options, stack size, original entry point, and
-// parameters it had when it was terminated.
-// Return TRUE if the restart of the task is successful.
-UtlBoolean OsTaskLinux::restart(void)
-{
-   OsLock lock(mDataGuard);
+         if (res != OS_SUCCESS)
+         {
+            OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                          "OsTaskLinux::ackShutdown '%s' unregister failed"
+                          " mTaskId = 0x%08x, key '%s', returns %d",
+                          mName.data(), (int) mTaskId, idString, res);
+         }
+         else
+         {
+            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                          "OsTaskLinux::ackShutdown unregistered '%s'",
+                          mName.data());
+         }
+         mTaskId = 0;
+         mDataGuard.release();
 
-   doLinuxTerminateTask(FALSE);
-   return doLinuxCreateTask(getName());
+         /********************************************************************
+          * No reference through 'this' is allowed after the following signal
+          * because the destructor will unblock, so the memory may be freed.
+          ********************************************************************/
+         mDeleteGuard.release(); // signal any task in waitUntilShutDown
+      }
+      else
+      {
+         mDataGuard.release();
+      }
+      break;
+
+   case TERMINATED:
+      // already done - not really correct, but let it go
+      mDataGuard.release();
+      break;
+
+   default:
+      OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+                    "OsTaskLinux::ackShutdown '%s' invalid mState %d",
+                    taskName.data(), mState);
+      assert(false);
+   }
 }
 
 // Resume the task.
@@ -110,10 +164,80 @@ UtlBoolean OsTaskLinux::start(void)
 {
    OsLock lock(mDataGuard);
 
-   if (isStarted())
-      return FALSE;
+   if (UNINITIALIZED == mState)
+   {
+      int                       linuxRes;
+      char                      idString[15];
+      pthread_attr_t            attributes;
 
-   return doLinuxCreateTask(getName());
+      // construct thread attribute
+      linuxRes = pthread_attr_init(&attributes);
+      if (linuxRes != POSIX_OK)
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                       "OsTaskLinux::start pthread_attr_init failed %d %s",
+                       linuxRes, strerror(linuxRes));
+      }
+
+      // Instead of using the default 2M as stack size, reduce it to 1M
+      size_t stacksize = 0;
+      linuxRes = pthread_attr_getstacksize(&attributes, &stacksize);
+      if (linuxRes != POSIX_OK)
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                       "OsTaskLinux:start pthread_attr_getstacksize error %d %s",
+                       linuxRes, strerror(linuxRes));
+      }
+      else
+      {
+         linuxRes = pthread_attr_setstacksize(&attributes, OSTASK_STACK_SIZE_1M);
+         if (linuxRes != POSIX_OK)
+         {
+            OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                          "OsTaskLinux:start pthread_attr_setstacksize error %d %s",
+                          linuxRes, strerror(linuxRes));
+         }
+      }
+
+      // Create threads detached
+      linuxRes = pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_DETACHED);
+      if (linuxRes != POSIX_OK)
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                       "OsTaskLinux:start pthread_attr_setdetachstate error %d %s",
+                       linuxRes, strerror(linuxRes));
+      }
+   
+      linuxRes = pthread_create(&mTaskId, &attributes, taskEntry, (void *)this);
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                    "OsTaskLinux::start '%s' this = %p, mTaskId = %d",
+                    mName.data(), this, (int)mTaskId);
+      pthread_attr_destroy(&attributes);
+
+      if (linuxRes == POSIX_OK)
+      {
+         // Enter the thread id into the global name database so that given the
+         // thread id we will be able to find the corresponding OsTask object
+         sprintf(idString, "%d", (int)mTaskId);   // convert the id to a string
+         OsUtil::insertKeyValue(TASKID_PREFIX, idString, (int) this);
+
+         mState = RUNNING;
+      }
+      else
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                       "OsTaskLinux:start '%s' pthread_create failed %d %s",
+                       mName.data(), linuxRes, strerror(linuxRes));
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                    "OsTaskLinux:start '%s' attempting to start but already running",
+                    mName.data()
+                    );
+   }
+   return RUNNING == mState;
 }
      
 // Suspend the task.
@@ -140,14 +264,6 @@ OsStatus OsTaskLinux::setErrno(int errno)
       return OS_TASK_NOT_STARTED;
 
    return OS_SUCCESS;
-}
-
-// Set the execution options for the task
-// The only option that can be changed after a task has been created
-// is whether to allow breakpoint debugging.
-OsStatus OsTaskLinux::setOptions(int options)
-{
-   return OS_NOT_YET_IMPLEMENTED;
 }
 
 // Set the priority of the task.
@@ -178,47 +294,6 @@ OsStatus OsTaskLinux::setPriority(int priority)
    return OS_INVALID_PRIORITY;
 }
 
-// Add a task variable to the task.
-// This routine adds a specified variable pVar (4-byte memory
-// location) to its task's context. After calling this routine, the
-// variable is private to the task. The task can access and modify
-// the variable, but the modifications are not visible to other tasks,
-// and other tasks' modifications to that variable do not affect the
-// value seen by the task. This is accomplished by saving and restoring
-// the variable's value each time a task switch occurs to or from the
-// calling task.
-OsStatus OsTaskLinux::varAdd(int* pVar)
-{
-   if (!isStarted())
-      return OS_TASK_NOT_STARTED;
-
-   return OS_NOT_YET_IMPLEMENTED;
-}
-
-// Remove a task variable from the task.
-// This routine removes a specified task variable, pVar, from its
-// task's context. The private value of that variable is lost.
-OsStatus OsTaskLinux::varDelete(int* pVar)
-{
-   if (!isStarted())
-      return OS_TASK_NOT_STARTED;
-
-   return OS_NOT_YET_IMPLEMENTED;
-}
-
-// Set the value of a private task variable.
-// This routine sets the private value of the task variable for a
-// specified task. The specified task is usually not the calling task,
-// which can set its private value by directly modifying the variable.
-// This routine is provided primarily for debugging purposes.
-OsStatus OsTaskLinux::varSet(int* pVar, int value)
-{
-   if (!isStarted())
-      return OS_TASK_NOT_STARTED;
-
-   return OS_NOT_YET_IMPLEMENTED;
-}
-
 // Delay a task from executing for the specified number of milliseconds.
 // This routine causes the calling task to relinquish the CPU for the
 // duration specified. This is commonly referred to as manual
@@ -229,78 +304,11 @@ OsStatus OsTaskLinux::delay(const int milliSecs)
    struct timespec ts;
    assert(milliSecs >= 0);       // negative delays don't make sense
 
-   ts.tv_sec = milliSecs / 1000;
-   ts.tv_nsec = (milliSecs % 1000) * 1000000;
+   ts.tv_sec = milliSecs / OsTime::MSECS_PER_SEC;
+   ts.tv_nsec = (milliSecs % OsTime::MSECS_PER_SEC) * OsTime::USECS_PER_SEC; // @TODO - retest
    nanosleep(&ts, NULL);
 
    return OS_SUCCESS;
-}
-
-// Disable rescheduling for the currently executing task.
-// This routine disables task context switching. The task that calls
-// this routine will be the only task that is allowed to execute,
-// unless the task explicitly gives up the CPU by making itself no
-// longer ready. Typically this call is paired with unlock();
-// together they surround a critical section of code. These
-// preemption locks are implemented with a counting variable that
-// allows nested preemption locks. Preemption will not be unlocked
-// until unlock() has been called as many times as lock().
-OsStatus OsTaskLinux::lock(void)
-{
-   return OS_NOT_YET_IMPLEMENTED;
-}
-
-// Enable rescheduling for the currently executing task.
-// This routine decrements the preemption lock count. Typically
-// this call is paired with lock() and concludes a critical
-// section of code. Preemption will not be unlocked until
-// unlock() has been called as many times as lock(). When
-// the lock count is decremented to zero, any tasks that were
-// eligible to preempt the current task will execute.
-OsStatus OsTaskLinux::unlock(void)
-{
-   return OS_NOT_YET_IMPLEMENTED;
-}
-
-// Make the calling task safe from deletion.
-// This routine protects the calling task from deletion. Tasks that
-// attempt to delete a protected task will block until the task is
-// made unsafe, using unsafe(). When a task becomes unsafe, the
-// deleter will be unblocked and allowed to delete the task.
-// The safe() primitive utilizes a count to keep track of
-// nested calls for task protection. When nesting occurs,
-// the task becomes unsafe only after the outermost unsafe()
-// is executed.
-OsStatus OsTaskLinux::safe(void)
-{
-   OsTask*  pTask;
-   OsStatus res;
-
-   pTask = getCurrentTask();
-   res = pTask->mDeleteGuard.acquireRead();
-   assert(res == OS_SUCCESS);
-
-   return res;
-}
-
-// Make the calling task unsafe from deletion.
-// This routine removes the calling task's protection from deletion.
-// Tasks that attempt to delete a protected task will block until the
-// task is unsafe. When a task becomes unsafe, the deleter will be
-// unblocked and allowed to delete the task.
-// The unsafe() primitive utilizes a count to keep track of nested
-// calls for task protection. When nesting occurs, the task becomes
-// unsafe only after the outermost unsafe() is executed.
-OsStatus OsTaskLinux::unsafe(void)
-{
-   OsTask*  pTask;
-   OsStatus res;
-
-   pTask = getCurrentTask();
-   res = pTask->mDeleteGuard.releaseRead();
-   assert(res == OS_SUCCESS);
-
-   return res;
 }
 
 // Yield the CPU if a task of equal or higher priority is ready to run.
@@ -309,7 +317,91 @@ void OsTaskLinux::yield(void)
    delay(0);
 }
 
-/* ============================ ACCESSORS ================================= */
+
+// Wait until the task is shut down and the run method has exited.
+UtlBoolean OsTaskLinux::waitUntilShutDown(int milliSecToWait)
+{
+   mDataGuard.acquire();
+   UtlString taskName = mName; // make a stable copy for any logging below
+
+   if (OsSysLog::willLog(FAC_KERNEL, PRI_DEBUG))
+   {
+      OsTask* current = getCurrentTask();
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::waitUntilShutDown '%s' for '%s' %s",
+                    current ? current->mName.data() : "<UNKNOWN>", taskName.data(),
+                    TaskStateName(mState));
+   }
+   
+   switch (mState)
+   {
+   case UNINITIALIZED:
+      // the task object was created but was never started,
+      // so transition straight to shut down
+      mState = TERMINATED;
+      mDataGuard.release();
+
+      mDeleteGuard.release(); // if anyone else is waiting, let them run too.
+      break;
+      
+   case RUNNING:
+      // no one has asked the task to shut down yet, so give it a chance
+      mDataGuard.release();
+      requestShutdown();  // ask the task to shut itself down
+      yield();            // yield the CPU so the target task can terminate
+      mDataGuard.acquire(); // get the lock back and fall through to waiting
+
+   case SHUTTING_DOWN:
+      // wait only as much time as the caller allowed
+      mDataGuard.release(); // don't hold the lock while waiting
+
+      if (OS_WAIT_TIMEOUT == mDeleteGuard.acquire(milliSecToWait))
+      {
+         // the task we're waiting for is unresponsive - destroy the process.
+         OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+                       "OsTaskLinux::waitUntilShutDown "
+                       "'%s' failed to terminate after %ld.%03ld seconds - aborting process",
+                       taskName.data(), milliSecToWait / OsTime::MSECS_PER_SEC,
+                       milliSecToWait % OsTime::MSECS_PER_SEC);
+
+         assert(false);  // core dump to find deadlock
+         /*
+          * If you hit the above, look at each of the threads - set the frame pointer
+          * to the OsTask::run in each thread, and print this->mName until you find
+          * the one that matches taskName.  That is the thread that did not exit in time.
+          */
+      }
+      else
+      {
+         if (OsSysLog::willLog(FAC_KERNEL, PRI_DEBUG))
+         {
+            OsTask* currentTask = getCurrentTask();
+            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                          "OsTaskLinux::waitUntilShutDown task '%s' done waiting for '%s'",
+                          currentTask ? currentTask->mName.data() : "<UNKNOWN>",
+                          taskName.data()
+                          );
+         }
+         mDeleteGuard.release(); // if anyone else is waiting, let them run too.
+      }
+      break;
+      
+   case TERMINATED:
+      // no need to wait - the task is gone.
+      mDataGuard.release();
+
+      if (OsSysLog::willLog(FAC_KERNEL, PRI_DEBUG))
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                       "OsTaskLinux::waitUntilShutDown task '%s' already shut down",
+                       taskName.data()
+                       );
+      }
+      mDeleteGuard.release(); // if anyone else is waiting, let them run too.
+
+   }
+
+   return TRUE;
+}
 
 // Return a pointer to the OsTask object for the currently executing task
 // Return NULL if none exists.
@@ -408,19 +500,6 @@ OsStatus OsTaskLinux::getPriority(int& rPriority)
 
    return OS_SUCCESS;
 }
-     
-// Get the value of a task variable.
-// This routine returns the private value of a task variable for its
-// task. The task is usually not the calling task, which can get its
-// private value by directly accessing the variable. This routine is
-// provided primarily for debugging purposes.
-OsStatus OsTaskLinux::varGet(void)
-{
-   if (!isStarted())
-      return OS_TASK_NOT_STARTED;
-
-   return OS_NOT_YET_IMPLEMENTED;
-}
 
 /* ============================ INQUIRY =================================== */
 
@@ -469,123 +548,6 @@ UtlBoolean OsTaskLinux::isSuspended(void)
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-// Do the real work associated with creating a new Linux task
-UtlBoolean OsTaskLinux::doLinuxCreateTask(const char* pTaskName)
-{
-   int                       linuxRes;
-   char                      idString[15];
-   pthread_attr_t            attributes;
-
-  // construct thread attribute
-   linuxRes = pthread_attr_init(&attributes);
-   if (linuxRes != POSIX_OK) {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "doLinuxCreateTask: pthread_attr_init failed (%d) ", linuxRes);
-   }
-
-   // Instead of using the default 2M as stack size, reduce it to 1M
-   size_t stacksize = 0;
-   linuxRes = pthread_attr_getstacksize(&attributes, &stacksize);
-   if (linuxRes != POSIX_OK) {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_attr_getstacksize error, returned %d", linuxRes);
-   } else {
-      linuxRes = pthread_attr_setstacksize(&attributes, OSTASK_STACK_SIZE_1M);
-      if (linuxRes != POSIX_OK)
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_attr_setstacksize error, returned %d", linuxRes);
-   }
-
-   // Create threads detached
-   linuxRes = pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_DETACHED);
-   if (linuxRes != POSIX_OK) {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_attr_setdetachstate error, returned %d", linuxRes);
-   }
-   
-   linuxRes = pthread_create(&mTaskId, &attributes, taskEntry, (void *)this);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                 "OsTaskLinux::doLinuxCreateTask this = %p, mTaskId = %d",
-                 this, (int)mTaskId);
-   pthread_attr_destroy(&attributes);
-
-   if (linuxRes == POSIX_OK)
-   {
-      // Enter the thread id into the global name database so that given the
-      // thread id we will be able to find the corresponding OsTask object
-      sprintf(idString, "%d", (int)mTaskId);   // convert the id to a string
-      OsUtil::insertKeyValue(TASKID_PREFIX, idString, (int) this);
-
-      mState = STARTED;
-      return TRUE;
-   }
-   else
-   {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_create failed, returned %d in %s (%p)", linuxRes, mName.data(), this);
-      return FALSE;
-   }
-}
-
-// Do the real work associated with terminating a Linux task
-void OsTaskLinux::doLinuxTerminateTask(UtlBoolean doForce)
-{
-   OsStatus res;
-   pthread_t savedTaskId;
-
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                 "OsTaskLinux::doLinuxTerminateTask, deleting task thread:"
-                 " mTaskId = %x, this = %p, force = %d",
-                 (int)mTaskId, this, doForce);
-
-   // if low-level task does not exist, just return
-   if (mState != UNINITIALIZED)
-   {
-      // DEBUGGING HACK:  Suspend requestor if target is suspended $$$
-      while (isSuspended())
-      {
-         suspend();
-      }
-      
-      if (!doForce)
-      {
-         // We are being well behaved and will wait until the task is no longer
-         // safe from deletes.  A task is made safe from deletes by acquiring
-         // a read lock on its mDeleteGuard. In order to delete a task, the
-         // application must acquire a write lock. This will only happen after
-         // all of the read lock holders have released their locks.
-         res = mDeleteGuard.acquireWrite();
-         assert(res == OS_SUCCESS);
-      }
-
-      savedTaskId = mTaskId; // taskUnregister sets mTaskId to zero;
-      taskUnregister();
-      
-      // Send the thread the actual cancellation request.
-      if (mState == STARTED)
-      {
-         requestShutdown();
-         /* maybe replace this with a call to waitUntilShutDown() ? */
-         for(int i = 0; i < 10 && isShuttingDown(); i++)
-         {
-            delay(100);
-         }
-      }
-      if (mState == SHUTTING_DOWN)
-      {
-         if (savedTaskId != 0)
-         {
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                          "OsTaskLinux::doLinuxTerminateTask task %p force = %d canceling", (void *)this, doForce);
-            pthread_cancel(savedTaskId);
-         }
-      }
-      
-      if (!doForce)
-      {
-         res = mDeleteGuard.releaseWrite();     // release the write lock
-         assert(res == OS_SUCCESS);
-      }
-   }
-
-   mState = UNINITIALIZED;
-}
-
 extern "C" {int setLinuxTaskStartSuspended(int susp);}
 extern "C" {int setVTSusp(int susp);}
 
@@ -604,7 +566,6 @@ int setVTSusp(int susp)
 // Function that serves as the starting address for a Linux thread
 void * OsTaskLinux::taskEntry(void* arg)
 {
-   OsStatus                  res;
    int                       linuxRes;
    OsTaskLinux*              pTask;
    pthread_attr_t            attributes;
@@ -625,10 +586,13 @@ void * OsTaskLinux::taskEntry(void* arg)
       pthread_kill(pthread_self(), SIGSTOP);
    }
 
-  // construct thread attribute
+   // construct thread attribute
    linuxRes = pthread_attr_init(&attributes);
-   if (linuxRes != 0) {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux::taskEntry: pthread_attr_init failed (%d) ", linuxRes);
+   if (linuxRes != 0)
+   {
+      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                    "OsTaskLinux::taskEntry: pthread_attr_init failed %d %s",
+                    linuxRes, strerror(linuxRes));
    }
 
    int linuxPriority = OsUtilLinux::cvtOsPrioToLinuxPrio(pTask->mPriority);
@@ -641,14 +605,14 @@ void * OsTaskLinux::taskEntry(void* arg)
       if (linuxRes == POSIX_OK)
       {
          OsSysLog::add(FAC_KERNEL, PRI_INFO, 
-                       "OsTaskLinux::taskEntry: starting %s at RT linux priority: %d", 
+                       "OsTaskLinux::taskEntry: starting '%s' at RT linux priority: %d", 
                        pTask->mName.data(), linuxPriority);
       }
       else
       {
          OsSysLog::add(FAC_KERNEL, PRI_ERR, 
-                       "OsTaskLinux::taskEntry: failed to set RT linux priority: %d for task: %s", 
-                       linuxPriority, pTask->mName.data());
+                       "OsTaskLinux::taskEntry '%s' failed to set RT linux priority %d", 
+                       pTask->mName.data(), linuxPriority);
       }
 
       // keep all memory locked into physical mem, to guarantee realtime-behaviour
@@ -658,74 +622,28 @@ void * OsTaskLinux::taskEntry(void* arg)
          if (linuxRes != POSIX_OK)
          {
             OsSysLog::add(FAC_KERNEL, PRI_ERR, 
-                          "OsTaskLinux::taskEntry: failed to lock memory for task: %s", 
+                          "OsTaskLinux::taskEntry '%s' failed to lock memory", 
                           pTask->mName.data());
          }
       }
    }
 
-   // Wait until our init in doLinuxCreateTask() is finished
-   int waitTime = 0;
-   // Beware that the task may get from Starting to Started to ShuttingDown
-   // before we have a chance to test its status!
-   while (!(pTask->isStarted() || pTask->isShuttingDown() ||
-            pTask->isShutDown()))
-   {
-       delay(waitTime);
-       waitTime += 10;
-   }
+   /*
+    * Wait until the initialization in ::start() is finished.
+    * Since that method is holding the mDataGuard before it calls the pthread_create
+    * that created this thread and only releases it on exit, we can use it to synchronize.
+    */
+   pTask->mDataGuard.acquire();
+   // start is done, so now we can let the OsTask::run method execute.
+   pTask->mDataGuard.release();
 
    // Run the code the task is supposed to run, namely the run()
    // method of its class.
+   pTask->run(pTask->getArg());   
 
-   // Mark the task as not safe to delete.
-   res = pTask->mDeleteGuard.acquireRead();
-   assert(res == OS_SUCCESS);
-
-   unsigned int returnCode = pTask->run(pTask->getArg());
-
-   // After run returns be sure to mark the thread as shut down.
+   // The thread has completed now, so clean up and signal the destructor
    pTask->ackShutdown();
-
-   // Then remove it from the OsNameDb.
-   pTask->taskUnregister();
-
-   // Mark the task as now safe to delete.
-   res = pTask->mDeleteGuard.releaseRead();
-   assert(res == OS_SUCCESS);
-
-   return ((void *)returnCode);
-}
-
-void OsTaskLinux::taskUnregister(void)
-{
-   OsStatus res;
-   char     idString[15];
-   
-   if ( 0 != (int)mTaskId )
-   {
-      // Remove the key from the internal task list, before terminating it
-      sprintf(idString, "%d", (int)mTaskId);    // convert the id to a string
-      res = OsUtil::deleteKeyValue(TASKID_PREFIX, idString);
-   }
-   else
-   {
-      res = OS_SUCCESS;
-   }
-
-   if (res != OS_SUCCESS)
-   {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux::doLinuxTerminateTask, failed to delete"
-                    " mTaskId = 0x%08x, key '%s', returns %d",
-                    (int) mTaskId, idString, res);
-   }
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                 "OsTaskLinux::taskUnregister this = %p, previous mTaskId = %d",
-                 this, (int)mTaskId);
-   mTaskId = 0;
-
-   assert(res == OS_SUCCESS || res == OS_NOT_FOUND);
-
+   return NULL;
 }
 
 /* ============================ FUNCTIONS ================================= */

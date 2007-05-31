@@ -18,6 +18,7 @@
 #include <os/OsTimerTask.h>
 #include <os/OsProcess.h>
 #include <os/OsStunAgentTask.h>
+#include <os/OsSysLog.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
 #include <net/SipLineMgr.h>
@@ -115,58 +116,61 @@ public:
 
       for(int i = 0; i < SHUTDOWN_TEST_ITERATIONS; ++i)
       {
-         SipLineMgr    lineMgr;
-         SipRefreshMgr refreshMgr;
+         {
+            SipLineMgr    lineMgr;
+            SipRefreshMgr refreshMgr;
 
-         lineMgr.StartLineMgr();
-         lineMgr.initializeRefreshMgr( &refreshMgr );
+            lineMgr.StartLineMgr();
+            lineMgr.initializeRefreshMgr( &refreshMgr );
 
-         SipUserAgent sipUA( 5090
-                            ,5090
-                            ,5091
-                            ,NULL     // default publicAddress
-                            ,NULL     // default defaultUser
-                            ,"127.0.0.1"     // default defaultSipAddress
-                            ,NULL     // default sipProxyServers
-                            ,NULL     // default sipDirectoryServers
-                            ,NULL     // default sipRegistryServers
-                            ,NULL     // default authenticationScheme
-                            ,NULL     // default authenicateRealm
-                            ,NULL     // default authenticateDb
-                            ,NULL     // default authorizeUserIds
-                            ,NULL     // default authorizePasswords
-                            ,NULL     // default natPingUrl
-                            ,0        // default natPingFrequency
-                            ,"PING"   // natPingMethod
-                            ,&lineMgr
-                            );
+            SipUserAgent sipUA( 5090
+                               ,5090
+                               ,5091
+                               ,NULL     // default publicAddress
+                               ,NULL     // default defaultUser
+                               ,"127.0.0.1"     // default defaultSipAddress
+                               ,NULL     // default sipProxyServers
+                               ,NULL     // default sipDirectoryServers
+                               ,NULL     // default sipRegistryServers
+                               ,NULL     // default authenticationScheme
+                               ,NULL     // default authenicateRealm
+                               ,NULL     // default authenticateDb
+                               ,NULL     // default authorizeUserIds
+                               ,NULL     // default authorizePasswords
+                               ,NULL     // default natPingUrl
+                               ,0        // default natPingFrequency
+                               ,"PING"   // natPingMethod
+                               ,&lineMgr
+                               );
 
-         sipUA.start();
-         refreshMgr.init(&sipUA);
+            sipUA.start();
+            refreshMgr.init(&sipUA);
 
-         sipUA.send(testMsg);
+            sipUA.send(testMsg);
 
-         // Wait long enough for some stack timeouts/retansmits to occur
-         OsTask::delay(10000); // 10 seconds
+            // Wait long enough for some stack timeouts/retansmits to occur
+            OsTask::delay(10000); // 10 seconds
 
-         // Shut down the tasks in reverse order.
-         refreshMgr.requestShutdown();
-         sipUA.shutdown(TRUE);
-         lineMgr.requestShutdown();
+            // Shut down the tasks in reverse order.
+            refreshMgr.requestShutdown();
+            sipUA.shutdown(TRUE);
+            lineMgr.requestShutdown();
 
-         CPPUNIT_ASSERT(sipUA.isShutdownDone());
+            CPPUNIT_ASSERT(sipUA.isShutdownDone());
 
-         OsTimerTask::destroyTimerTask();
-         OsStunAgentTask::releaseInstance();
-
+            OsTimerTask::destroyTimerTask();
+            OsStunAgentTask::releaseInstance();
+         }
+      
          // Test to see that all the threads created by the above operations
          // get properly shut down.
-         // Since the threads do not shut down synchronously with the above
-         // calls, we have to wait before we know they will be cleared.
-         OsTask::delay(1000);   // 1 second
          int numThreads = getNumThreads(myPID);
-         KNOWN_BUG("threads not shutting down", "XSL-152");
-         CPPUNIT_ASSERT_EQUAL(startingThreads,numThreads);
+
+         OsSysLog::add(FAC_SIP, PRI_NOTICE, "SipUserAgentTest::testShutdownBlocking "
+                       "numThreads=%d startingThreads=%d",
+                       numThreads, startingThreads);
+                       
+         CPPUNIT_ASSERT(numThreads <= startingThreads);
       }
    };
 
@@ -190,61 +194,62 @@ public:
 
       for(int i = 0; i < SHUTDOWN_TEST_ITERATIONS; ++i)
       {
-         SipLineMgr    lineMgr;
-         SipRefreshMgr refreshMgr;
-
-         lineMgr.StartLineMgr();
-         lineMgr.initializeRefreshMgr( &refreshMgr );
-
-         SipUserAgent sipUA( 5090
-                            ,5090
-                            ,5091
-                            ,NULL     // default publicAddress
-                            ,NULL     // default defaultUser
-                            ,"127.0.0.1"     // default defaultSipAddress
-                            ,NULL     // default sipProxyServers
-                            ,NULL     // default sipDirectoryServers
-                            ,NULL     // default sipRegistryServers
-                            ,NULL     // default authenticationScheme
-                            ,NULL     // default authenicateRealm
-                            ,NULL     // default authenticateDb
-                            ,NULL     // default authorizeUserIds
-                            ,NULL     // default authorizePasswords
-                            ,NULL     // default natPingUrl
-                            ,0        // default natPingFrequency
-                            ,"PING"   // natPingMethod
-                            ,&lineMgr
-                            );
-
-         sipUA.start();
-         refreshMgr.init(&sipUA);
-
-         sipUA.send(testMsg);
-
-         // Wait long enough for some stack timeouts/retansmits to occur
-         OsTask::delay(10000); // 10 seconds
-
-         sipUA.shutdown(FALSE);
-         lineMgr.requestShutdown();
-         refreshMgr.requestShutdown();
-
-         while(!sipUA.isShutdownDone())
          {
-            ;
+            SipLineMgr    lineMgr;
+            SipRefreshMgr refreshMgr;
+
+            lineMgr.StartLineMgr();
+            lineMgr.initializeRefreshMgr( &refreshMgr );
+
+            SipUserAgent sipUA( 5090
+                               ,5090
+                               ,5091
+                               ,NULL     // default publicAddress
+                               ,NULL     // default defaultUser
+                               ,"127.0.0.1"     // default defaultSipAddress
+                               ,NULL     // default sipProxyServers
+                               ,NULL     // default sipDirectoryServers
+                               ,NULL     // default sipRegistryServers
+                               ,NULL     // default authenticationScheme
+                               ,NULL     // default authenicateRealm
+                               ,NULL     // default authenticateDb
+                               ,NULL     // default authorizeUserIds
+                               ,NULL     // default authorizePasswords
+                               ,NULL     // default natPingUrl
+                               ,0        // default natPingFrequency
+                               ,"PING"   // natPingMethod
+                               ,&lineMgr
+                               );
+
+            sipUA.start();
+            refreshMgr.init(&sipUA);
+
+            sipUA.send(testMsg);
+
+            // Wait long enough for some stack timeouts/retansmits to occur
+            OsTask::delay(10000); // 10 seconds
+
+            sipUA.shutdown(FALSE);
+            lineMgr.requestShutdown();
+            refreshMgr.requestShutdown();
+
+            while(!sipUA.isShutdownDone())
+            {
+            }
+            CPPUNIT_ASSERT(sipUA.isShutdownDone());
+
+            OsTimerTask::destroyTimerTask();
+            OsStunAgentTask::releaseInstance();
          }
-         CPPUNIT_ASSERT(sipUA.isShutdownDone());
-
-         OsTimerTask::destroyTimerTask();
-         OsStunAgentTask::releaseInstance();
-
+         
          // Test to see that all the threads created by the above operations
          // get properly shut down.
-         // Since the threads do not shut down synchronously with the above
-         // calls, we have to wait before we know they will be cleared.
-         OsTask::delay(1000);   // 1 second
          int numThreads = getNumThreads(myPID);
-         KNOWN_BUG("threads not shutting down", "XSL-152");
-         CPPUNIT_ASSERT_EQUAL(startingThreads,numThreads);
+
+         OsSysLog::add(FAC_SIP, PRI_NOTICE, "SipUserAgentTest::testShutdownBlocking "
+                       "numThreads=%d startingThreads=%d",
+                       numThreads, startingThreads);
+         CPPUNIT_ASSERT(numThreads <= startingThreads);
       }
    };
 

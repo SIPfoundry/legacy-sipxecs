@@ -15,6 +15,7 @@
 #include <cppunit/TestFailure.h>
 #include <sipxunit/TestUtilities.h>
 #include <sipxunit/TestMonitor.h>
+#include "os/OsSysLog.h"
 
 TestMonitor::TestMonitor()
     : CppUnit::TestResultCollector()
@@ -47,15 +48,24 @@ void TestMonitor::addFailure(const CppUnit::TestFailure &failure)
         m_wasSuccessful = false;
     }
 
+    CppUnit::Message msg;
+    msg = failure.thrownException()->message();
+    
     // Add bug details to final message
     if (strlen(TestUtilities::getKnownBugMessage()) != 0)
     {
-        CppUnit::Message msg = failure.thrownException()->message();
         msg.addDetail(TestUtilities::getKnownBugMessage());
         failure.thrownException()->setMessage(msg);
     }
 
     TestResultCollector::addFailure(failure);
+
+    std::string stdMessage;
+    stdMessage = msg.shortDescription();
+    stdMessage += "\n";
+    stdMessage += msg.details();
+
+    OsSysLog::add(FAC_KERNEL, PRI_ERR, "%s", stdMessage.c_str());
 }
 
 bool TestMonitor::wasSuccessful() const

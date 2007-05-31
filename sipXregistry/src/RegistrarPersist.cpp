@@ -29,6 +29,7 @@ const int RegistrarPersist::SIP_REGISTRAR_DEFAULT_PERSIST_INTERVAL = 20;  // uni
 
 /// Constructor
 RegistrarPersist::RegistrarPersist(SipRegistrar& sipRegistrar) :
+   OsServerTask("RegistrarPersist"),
    mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mIsTimerRunning(false),
    mPersistTimer(getMessageQueue(), 0),
@@ -50,8 +51,30 @@ RegistrarPersist::RegistrarPersist(SipRegistrar& sipRegistrar) :
 /// Destructor
 RegistrarPersist::~RegistrarPersist()
 {
+   /*
+    * This is called from the SipRegistrar task destructor.
+    * The shutdown message has already been sent to wake up the task;
+    * block the destructor until shutdown is complete.
+    */
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarPersist::~ waiting for shutdown");
+   waitUntilShutDown();
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarPersist::~ task shutdown");
 }
 
+void RegistrarPersist::requestShutdown(void)
+{
+   /*
+    * This is called from the SipRegistrar task destructor.
+    * Use the shutdown message to wake up the RegistrarPersist task
+    * so that we can flush the database to disk before actually
+    * starting the shutdown of the task
+    */
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarPersist::requestShutdown");
+   OsMsg msg(OsMsg::OS_SHUTDOWN, 0);
+
+   postMessage(msg);
+   yield(); // make the caller wait so that RegistrarPersist can run.
+}
 
 // Start the timer that triggers garbage collection and DB persistence, if it's not running.
 void RegistrarPersist::scheduleCleanAndPersist()
@@ -74,7 +97,7 @@ void RegistrarPersist::scheduleCleanAndPersist()
 // Handle the expiration of the persist timer
 UtlBoolean RegistrarPersist::handleMessage(OsMsg& eventMessage)    ///< Timer expiration msg
 {
-   UtlBoolean handled = TRUE;
+   UtlBoolean handled = FALSE;
 
    int msgType    = eventMessage.getMsgType();
    int msgSubType = eventMessage.getMsgSubType();
@@ -84,11 +107,38 @@ UtlBoolean RegistrarPersist::handleMessage(OsMsg& eventMessage)    ///< Timer ex
        )
    {
       cleanAndPersist();
+      handled = TRUE;
+   }
+   else if ( OsMsg::OS_SHUTDOWN == msgType )
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "RegistrarPersist::handleMessage received shutdown message"
+                    );
+      bool persistWasScheduled;
+      {
+         OsLock mutex(mLock);
+         persistWasScheduled = mIsTimerRunning;
+         mIsTimerRunning = false;
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "RegistrarPersist::handleMessage stopping timer for shutdown"
+                       );
+         mPersistTimer.stop();
+      }
+
+      if (persistWasScheduled)
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "RegistrarPersist::handleMessage persist before shutdown"
+                    );
+         cleanAndPersist();
+      }
+      OsTask::requestShutdown(); // tell OsServerTask::run to exit
+      handled = TRUE;      
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "RegistrarPersist::handleMessage received unexpected message %d/%d",
+                    "RegistrarPersist::handleMessage unhandled message %d/%d",
                     msgType, msgSubType);
    }
    

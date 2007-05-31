@@ -221,8 +221,6 @@ int OsTimerTask::run(void* pArg)
 
    OsSysLog::add(FAC_KERNEL, PRI_INFO,
                  "OsTimerTask::run OsTimerTask shutting down");
-
-   ackShutdown();   // acknowledge the task shutdown request
    return 0;        // and then exit
 }
 
