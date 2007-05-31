@@ -224,52 +224,71 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    }
 
    // Ask the TCP layer to connect
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ connect %d",
+                 socketDescriptor);
+      
    int connectReturn;
 #  if defined(_WIN32) || defined(__pingtel_on_posix__)
    connectReturn = connect(socketDescriptor,
                            (const struct sockaddr*) &serverSockAddr,
                            sizeof(serverSockAddr));
-   if (blockingConnect && timeoutInMilliseconds > 0)
+   if(   connectReturn != 0
+      && (   !blockingConnect
+          || (blockingConnect && timeoutInMilliseconds > 0)
+          )
+      )
    {
-      struct timeval timeout;
-      timeout.tv_sec = timeoutInMilliseconds / OsTime::MSECS_PER_SEC;
-      timeout.tv_usec = (timeoutInMilliseconds % OsTime::MSECS_PER_SEC ) * OsTime::USECS_PER_MSEC;
+      error = OsSocketGetERRNO();
+      if ( EINPROGRESS == error )
+      {
+         struct timeval timeout;
+         timeout.tv_sec = timeoutInMilliseconds / OsTime::MSECS_PER_SEC;
+         timeout.tv_usec = (timeoutInMilliseconds % OsTime::MSECS_PER_SEC ) * OsTime::USECS_PER_MSEC;
 
-      fd_set writable;
-      FD_ZERO(&writable);
-      FD_SET(socketDescriptor, &writable);
+         fd_set writable;
+         FD_ZERO(&writable);
+         FD_SET(socketDescriptor, &writable);
 
-      int selectResult = select(socketDescriptor+1,
-                                NULL /* no readers */,
-                                &writable,
-                                NULL /* no exceptions */,
-                                &timeout );
-      /*
-       * On  Linux, select() modifies timeout to reflect the amount of time not slept;
-       * most other implementations do not do this.   (POSIX.1-2001  permits  either  behaviour.)
-       * Don't use that information.
-       */
-      if (1 == selectResult)
-      {
-         // the connect has completed
-         connectReturn = 0;
-         error = 0;
-      }
-      else if (0 == selectResult)
-      {
-         // timeout
-         connectReturn = -1;
-         error = ETIMEDOUT;
-      }
-      else if (0 > selectResult)
-      {
-         // some error
-         connectReturn = -1;
-         error = OsSocketGetERRNO();
+         OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ select %d time %d.%06d",
+                       socketDescriptor, timeout.tv_sec, timeout.tv_usec);
+      
+         int selectResult = select(socketDescriptor+1,
+                                   NULL /* no readers */,
+                                   &writable,
+                                   NULL /* no exceptions */,
+                                   &timeout );
+         /*
+          * On  Linux, select() modifies timeout to reflect the amount of time not slept;
+          * most other implementations do not do this.   (POSIX.1-2001  permits  either  behaviour.)
+          * Don't use that information.
+          */
+         if (1 == selectResult)
+         {
+            // the connect has completed
+            connectReturn = 0;
+            error = 0;
+         }
+         else if (0 == selectResult)
+         {
+            // timeout
+            connectReturn = -1;
+            error = ETIMEDOUT;
+         }
+         else if (0 > selectResult)
+         {
+            // some error
+            connectReturn = -1;
+            error = OsSocketGetERRNO();
+         }
       }
 
       makeBlocking();
    }
+   else // connectReturn == 0
+   {
+      error = 0;
+   }
+   
 #  elif defined(_VXWORKS)
    connectReturn = connect(socketDescriptor,
                            (struct sockaddr*) &serverSockAddr,
