@@ -1,6 +1,6 @@
 // ========================================================================
 // Copyright (c) 1999 Jason Gilbert
-// $Id: PKCS12Import.java,v 1.3 2004/05/09 20:32:49 gregwilkins Exp $
+// $Id: PKCS12Import.java,v 1.4 2005/08/24 07:12:14 gregwilkins Exp $
 // ========================================================================
 
 
@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.io.OutputStream;
 import java.security.Key;
 import java.security.KeyStore;
@@ -79,10 +80,11 @@ public class PKCS12Import
       KeyStore kspkcs12 = KeyStore.getInstance("pkcs12");
       KeyStore ksjks = KeyStore.getInstance("jks");
 
+      LineNumberReader in = new LineNumberReader(new InputStreamReader(System.in));
       System.out.print("Enter input keystore passphrase: ");
-      char[] inphrase = readPassphrase();
+      char[] inphrase = in.readLine().toCharArray();
       System.out.print("Enter output keystore passphrase: ");
-      char[] outphrase = readPassphrase();
+      char[] outphrase = in.readLine().toCharArray();
 
       kspkcs12.load(new FileInputStream(fileIn), inphrase);
 
@@ -123,34 +125,5 @@ public class PKCS12Import
       }
    }
 
-   /** 
-    * share instance so stdin buffer doesn't gobble user inputs to next
-    * call to readPassphase.  Important for automation or really really
-    * fast users.
-    */ 
-   static InputStreamReader in = new InputStreamReader(System.in);
-
-   static char[] readPassphrase() throws IOException
-   {
-      char[] cbuf = new char[256];
-      int i = 0;
-
-readchars:
-      while (i < cbuf.length) {
-         char c = (char)in.read();
-         switch (c) {
-            case '\r':
-               break readchars;
-            case '\n':
-               break readchars;
-            default:
-               cbuf[i++] = c;
-         }
-      }
-
-      char[] phrase = new char[i];
-      System.arraycopy(cbuf, 0, phrase, 0, i);
-      return phrase;
-   }
 }
 
