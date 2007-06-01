@@ -19,7 +19,7 @@
 #include "os/OsTask.h"
 #include "os/OsLock.h"
 #include "os/OsSocket.h"
-#include "os/OsRWMutex.h"
+#include "os/OsMutex.h"
 #include "mp/MpTypes.h"
 #include "mp/MpBuf.h"
 #include "mp/MpMisc.h"
@@ -137,7 +137,7 @@ public:
    OsConnectionSocket* getWriteSocket(void);
    OsConnectionSocket* getReadSocket(void);
    void openWriteFD(void);
-   static OsRWMutex& getLockObj() { return sLock; }
+   static OsMutex& getLockObj() { return sLock; }
 
 /* ============================ INQUIRY =================================== */
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -155,7 +155,7 @@ private:
    // Static data members used to enforce Singleton behavior
    static NetInTask* spInstance;    // pointer to the single instance of
                                     //  the MpNetInTask class
-   static OsRWMutex     sLock;         // semaphore used to ensure that there
+   static OsMutex     sLock;         // semaphore used to ensure that there
                                     //  is only one instance of this class
 
    OsConnectionSocket* mpWriteSocket;

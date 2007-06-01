@@ -91,7 +91,7 @@ static  netInTaskMsg pairs[NET_TASK_MAX_FD_PAIRS];
 static  int numPairs;
 
 NetInTask* NetInTask::spInstance = 0;
-OsRWMutex     NetInTask::sLock(OsBSem::Q_PRIORITY);
+OsMutex    NetInTask::sLock(OsBSem::Q_PRIORITY);
 
 const int NetInTask::DEF_NET_IN_TASK_PRIORITY  = 100; // default task priority
 const int NetInTask::DEF_NET_IN_TASK_OPTIONS   = 0;   // default task options
@@ -166,9 +166,9 @@ int NetInTask::getWriteFD()
     }
 
     // connect to the socket
-    sLock.acquireRead();
+    sLock.acquire();
     if (NULL != mpWriteSocket) {
-        sLock.releaseWrite();
+        sLock.release();
         return mpWriteSocket->getSocketDescriptor();
     }
 
@@ -191,7 +191,7 @@ int NetInTask::getWriteFD()
         OsSysLog::add(FAC_MP, PRI_DEBUG, "Not NetInTask: opening connection directly\n");
         openWriteFD();
     }
-    sLock.releaseRead();
+    sLock.release();
     return mpWriteSocket->getSocketDescriptor();
 }
 
@@ -548,14 +548,14 @@ int NetInTask::run(void *pNotUsed)
                         mpReadSocket->getSocketDescriptor(), 0,0,0,0,0);
                     OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: closing pipeFd (%d)\n",
                         mpReadSocket->getSocketDescriptor());
-                    sLock.acquireWrite();
+                    sLock.acquire();
                     if (mpReadSocket)
                     {
                         mpReadSocket->close();
                        delete mpReadSocket;
                         mpReadSocket = NULL;
                     }
-                    sLock.releaseWrite();
+                    sLock.release();
                 } else if (NULL != msg.fwdTo) {
                     if ((NULL != msg.pRtpSocket) || (NULL != msg.pRtcpSocket)) {
                         /* add a new pair of file descriptors */
@@ -706,33 +706,25 @@ OsStatus startNetInTask()
 
 NetInTask* NetInTask::getNetInTask()
 {
-   UtlBoolean isStarted;
-   // OsStatus  stat;
+   // Lock to ensure that only one instance of the task is started
+   sLock.acquire();
 
-   // If the task object already exists, and the corresponding low-level task
-   // has been started, then use it
-   if (spInstance != NULL && spInstance->isStarted())
-      return spInstance;
-
-   // If the task does not yet exist or hasn't been started, then acquire
-   // the lock to ensure that only one instance of the task is started
-   sLock.acquireRead();
-   if (spInstance == NULL) {
-       spInstance = new NetInTask();
-   }
-   isStarted = spInstance->isStarted();
-   if (!isStarted)
+   // If the task object already exists, then use it, else create and start it
+   if (NULL == spInstance)
    {
-      isStarted = spInstance->start();
-      assert(isStarted);
+      spInstance = new NetInTask(); 
+      UtlBoolean isStarted = spInstance->start();
+      assert(isStarted); 
    }
-   sLock.releaseRead();
-   return spInstance;
+
+   sLock.release();
+
+   return spInstance;  
 }
 
 void NetInTask::shutdownSockets()
 {
-        getLockObj().acquireWrite();
+        getLockObj().acquire();
         
         if (mpWriteSocket)
         {
@@ -747,7 +739,7 @@ void NetInTask::shutdownSockets()
             delete mpReadSocket;
             mpReadSocket =  NULL;
         }*/
-        getLockObj().releaseWrite();
+        getLockObj().release();
 
 }
 // Default constructor (called only indirectly via getNetInTask())
@@ -768,7 +760,7 @@ NetInTask::~NetInTask()
 
 OsStatus shutdownNetInTask()
 {
-        NetInTask::getLockObj().acquireWrite();
+        NetInTask::getLockObj().acquire();
 
         netInTaskMsg msg;
         int wrote;
@@ -783,14 +775,12 @@ OsStatus shutdownNetInTask()
         msg.fwdTo = NULL;
 
         wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
-        NetInTask::getLockObj().releaseWrite();
 
         pInst->shutdownSockets();
         
         NetInTask* pTask = NetInTask::getNetInTask();
-        NetInTask::getLockObj().acquireWrite();
         pTask->requestShutdown();
-        NetInTask::getLockObj().releaseWrite();
+        NetInTask::getLockObj().release();
         return ((NET_TASK_MAX_MSG_LEN == wrote) ? OS_SUCCESS : OS_BUSY);
 }
 
