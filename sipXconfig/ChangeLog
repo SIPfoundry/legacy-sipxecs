@@ -3,6 +3,95 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 	
+Version 3.7.7
+
+** Bug
+    * [XCF-942] - Unused polycom lines generate non-default values in profiles when used in groups
+    * [XCF-968] - Options in Hold Remainder Tab accepts decimal values
+    * [XCF-1129] - Succesive User Import Causes Same User Assigned Multiple Time to Single Phone
+    * [XCF-1392] - Gateways screen:  underscore should not be allowed as char in domain name
+    * [XCF-1416] - When the domain alias with 'bracket" is added gives an exception
+    * [XCF-1435] - Reordering Speed Dial entries fails under some error conditions
+    * [XCF-1439] - In Callpark,  edit the Transfer key  parameter in Default settings is not getting updated in Orbit.xml file
+    * [XCF-1472] - out of memory errors when displaying large collection of calls
+    * [XCF-1520] - Unit test failure on FC5  when eclipse is installed
+    * [XCF-1530] - Click on "Listen to message" link in VM e-mail notification gives an exception in configserver
+    * [XCF-1532] - An exception is produced while navigating to next page in the voicemail web ui
+    * [XCF-1554] - Unable to change PIN from Config Server user portal (Changing PIN from TUI works.)
+    * [XCF-1557] - LDAP import preview does not work
+    * [XCF-1571] - When Double quoted and single quoted strings are added in Domain name field, causes the system failure
+    * [XCF-1573] - Typo error in VM web UI--->My Information page ("Confirm Password" should be "Confirm PIN")
+    * [XCF-1577] - Selecting number of back ups to keep is not working
+    * [XCF-1578] - Intermittent: Could not able to login to Voicemail web UI after edit the subject line of the User
+    * [XCF-1598] - Enabling Subscribe to presence for blank Name with some Number in speed dial page gives an exception
+    * [XCF-1608] - De-select the MOH wav file is not working
+    * [XCF-1610] - several screens with EnumPropertySelection model cannot be localized fully
+    * [XCF-1618] - CDR: click on Download link on Historic page gives an exception
+    * [XCF-1619] - LG phone: No validation for few parameters, eg: Under SIP link "outbound_proxy_port"
+    * [XCF-1620] - Download from Historic Calls under Diagnostics causes Internal error (NullPointerException)
+    * [XCF-1622] - Audiocodes gateways are not accepting Serial numbers
+    * [XCF-1628] - Speed Dial configuration not persistent
+    * [XCF-1631] - ACD Reports: 'Total calls Handled' is wrong in Agent Activity Summary page
+    * [XCF-1633] - CSV Import not working beyond 15 users
+    * [XCF-1641] - In ACD, not able to modify/delete the group added to the user for supervision.
+    * [XCF-1642] - Time gets wrongly logged in the ACD statistics page.
+    * [XCF-1643] - Agent availabilty report is generating duplicate entries.
+    * [XCF-1644] - Agent activity summary page under ACD historical reports displays fake values
+    * [XCF-1645] - Duplicate parameters for the grandstream TFTP Server address field.
+    * [XCF-1651] - CDR record FROM field often does not display understandable information
+    * [XCF-1657] - Config server generates exception when adding lines to a Polycom phone
+    * [XCF-1658] - An Exception is found in Registrations page 
+    * [XCF-1660] - An exception page is seen in Default link of Auto attendants page
+    * [XCF-1661] - Startup failure on first install. Domain not initialized is the symptom.
+    * [XCF-1663] - cannot activate dial plan after opening 'caller sensitive routing' screen
+    * [XCF-1664] - two tabs selected at the same time
+    * [XCF-1674] - Grandstream configuration missing user related configuration settings
+    * [XCF-1677] - ACD:An exception is produced while adding  an ACD queue
+    * [XCF-1688] - Snom: Typo error in many pages
+    * [XCF-1689] - developer comment on Snom 'Keys' screen should be removed
+    * [XCF-1692] - Snom: Junk characters in Redirection page
+    * [XCF-1699] - only 1 audiocodes firmware can be active
+    * [XCF-1707] - Configserver treats *88 and *8 as same in the call pickup codes in Build 010172
+    * [XCF-1710] - Parameters are found missing in the Default Auto Attendent page
+    * [XCF-1718] - Install Ruby gems mode 644 instead of 755
+    * [XCF-1725] - AudioCodes digital gateways: TDM parameters should be gateway not trunk parameters
+    * [XCF-1732] - Delete call park extension from configserver doesn't update orbit.xml
+    * [XCF-1735] - Strange UI behavior with Call Park; default values get reverted to previous defaults when modified
+    * [XCF-1736] - LG Phone's "noanswer_time" parameter under the Call Forwarding page not validated
+    * [XCF-1738] - Grandstream Phone : Link to download configuration file of the device displays a blank page
+
+** Improvement
+    * [XCF-886] - Enhance Audiocodes support in ConfigServer for practical use
+    * [XCF-1108] - better help needed for setting call pickup codes
+    * [XCF-1125] - Add a warning comment regarding sending profile to the "Phones" page
+    * [XCF-1414] - enable autorefresh for registrations page
+    * [XCF-1548] - new voicemail - minor UI changes
+    * [XCF-1588] - Deleting a User from the Config UI should clean up the mailstore directory
+    * [XCF-1609] - Deleting a LG phone from the Config UI should clean up the tftproot directory
+    * [XCF-1617] - Allow user and admin to define a second email address for vm notification
+    * [XCF-1623] - Add ability to filter out firmware upload items
+    * [XCF-1624] - Provide easier support for updating polycom firmware support, field and in development
+    * [XCF-1627] - User initiated Speed Dial activation needs to provide for a mechanism to make this effective on the phone
+    * [XCF-1635] - Allow a csv import record to end without following commas when the last few fields of a record is empty
+    * [XCF-1649] - ACD Historic reports should be using new tab UI
+    * [XCF-1650] - Support multiple groups on CSV import
+    * [XCF-1675] - AudioCodes FXO gateway should only accept SIP requests from sipx proxy
+    * [XCF-1693] - Add navigation between dialing rule, gateway and port
+    * [XCF-1694] - Phones and Gateways should have download configuration file option
+    * [XCF-1704] - Reduce boilerplate code in database related unit tests
+    * [XCF-1711] - add GUI support for snom 'Action URL Settings' config parameters
+    * [XCF-1716] - LG-Nortel - allow the admin to lock the set
+    * [XCF-1719] - Junk characters generate compile-time warnings at phone/hitachi/HitachiPhone.java:41
+
+** New Feature
+    * [XCF-1671] - phone plugins should be able to disable/enable external line creation feature
+    * [XCF-1684] - add DNS and syslog servers to the list of Network Services
+    * [XCF-1701] - Provide access to phonebooks as CSV file
+    * [XCF-1726] - sipXconfig skin needs to allow for adding custom license agreement for skin providers
+
+** Task
+    * [XCF-1595] - Remove or hide "call direction" check box on System->Call Detail Record->Advanced Setting since call direction is not supported
+
 Version 3.7.6
 
 ** Bug
