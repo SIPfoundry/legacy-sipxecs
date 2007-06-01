@@ -124,8 +124,8 @@ libRedirectorSubscribe_la_CXXFLAGS = \
 	-I$(top_builddir)/config
 
 libRedirectorSubscribe_la_SOURCES =  \
-	SipRedirectorRegDB.cpp \
-	SipRedirectorRegDB.h
+	SipRedirectorSubscribe.cpp \
+	SipRedirectorSubscribe.h
 
 # SipRedirectorRegDB
 

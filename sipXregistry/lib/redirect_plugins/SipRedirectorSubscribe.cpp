@@ -43,11 +43,12 @@ SipRedirectorSubscribe::~SipRedirectorSubscribe()
 }
 
 // Initializer
+
 OsStatus
-SipRedirectorSubscribe::initialize(const UtlHashMap& configParameters,
-                                   OsConfigDb& configDb,
+SipRedirectorSubscribe::initialize(OsConfigDb& configDb,
                                    SipUserAgent* pSipUserAgent,
-                                   int redirectorNo)
+                                   int redirectorNo,
+                                   const UtlString& localDomainHost)
 {
    return OS_SUCCESS;
 }
@@ -69,33 +70,34 @@ SipRedirectorSubscribe::lookUp(
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage)
 {
-   // Return immediately if the method is not SUBSCRIBE.
-   if (method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase) != 0)
+   // This redirector operates only on SUBSCRIBE requests.
+   if (method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase))
    {
-      return RedirectPlugin::LOOKUP_SUCCESS;
-   }
-
-   UtlString thisContact;
-   for (int contactNum = 0;
-        response.getContactField(contactNum, thisContact);
-        contactNum++)
-   {
-      Url contactUri(thisContact);
-      UtlString qValue;
-
-      // Check if the contact has a q value.
-      if (contactUri.getFieldParameter(SIP_Q_FIELD, qValue))
+      // Remove q values from all contacts so that SUBSCRIBE is parallel-forked
+      // (otherwise the low value subscriptions will never be found because the
+      // proxy will CANCEL after the high values return final status).
+      UtlString thisContact;
+      for (int contactNum = 0;
+           response.getContactField(contactNum, thisContact);
+           contactNum++)
       {
-         // If so, remove it.
-         contactUri.removeFieldParameter(SIP_Q_FIELD);
-         UtlString contactUriString(contactUri.toString());
-         response.setContactField(contactUriString, contactNum);
+         Url contactUri(thisContact);
+         UtlString qValue;
 
-         OsSysLog::add(FAC_SIP, PRI_NOTICE,
-                       "%s::lookUp Remove q value '%s' from '%s'",
-                       mLogName.data(), qValue.data(), contactUriString.data());
-      }
-   } // for all contacts
+         // Check if the contact has a q value.
+         if (contactUri.getFieldParameter(SIP_Q_FIELD, qValue))
+         {
+            // If so, remove it.
+            contactUri.removeFieldParameter(SIP_Q_FIELD);
+            UtlString contactUriString(contactUri.toString());
+            response.setContactField(contactUriString, contactNum);
+
+            OsSysLog::add(FAC_SIP, PRI_NOTICE,
+                          "%s::lookUp Remove q value '%s' from '%s'",
+                          mLogName.data(), qValue.data(), contactUriString.data());
+         }
+      } // for all contacts
+   } 
 
    return RedirectPlugin::LOOKUP_SUCCESS;
 }
