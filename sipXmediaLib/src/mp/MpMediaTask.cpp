@@ -44,7 +44,7 @@
 
 // STATIC VARIABLE INITIALIZATIONS
 MpMediaTask* MpMediaTask::spInstance = 0;
-OsBSem       MpMediaTask::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
+OsMutex      MpMediaTask::sLock(OsMutex::Q_PRIORITY);
 int          MpMediaTask::mMaxFlowGraph = 0;
 
 
@@ -62,26 +62,13 @@ int          MpMediaTask::mMaxFlowGraph = 0;
 // Return a pointer to the media task, creating it if necessary
 MpMediaTask* MpMediaTask::getMediaTask(int maxFlowGraph)
 {
-   UtlBoolean isStarted;
+   OsLock singletonLock(sLock);
 
-   // If the task object already exists, and the corresponding low-level task
-   // has been started, then use it
-   if (spInstance != NULL && spInstance->isStarted())
-      return spInstance;
-
-   // If the task does not yet exist or hasn't been started, then acquire
-   // the lock to ensure that only one instance of the task is started
-   sLock.acquire();
    if (spInstance == NULL)
-       spInstance = new MpMediaTask(maxFlowGraph);
-
-   isStarted = spInstance->isStarted();
-   if (!isStarted)
    {
-      isStarted = spInstance->start();
-      assert(isStarted);
+       spInstance = new MpMediaTask(maxFlowGraph);
+       spInstance->start();
    }
-   sLock.release();
 
    return spInstance;
 }
