@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
@@ -25,15 +24,6 @@ public class PolycomLineDefaults {
         m_line = line;
     }
 
-    @SettingEntry(paths = { "reg/server/1/transport", "reg/server/2/transport" })
-    public String transport() {
-        DeviceVersion ver = m_line.getPhone().getDeviceVersion();
-        if (ver == PolycomModel.VER_1_6) {
-            return "UDPonly";
-        }    
-        return "DNSnaptr";
-    }
-    
     @SettingEntry(path = "msg.mwi/subscribe")
     public String getMwiSubscribe() {
         String uri = null;

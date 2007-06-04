@@ -98,7 +98,7 @@
         <setting name="transport">
           <profileName>server.1.transport</profileName>
           <type refid="transport" />
-          <value>DNSnaptr</value>
+          <value>UDPonly</value>
         </setting>
         <setting name="expires">
           <profileName>server.1.expires</profileName>
@@ -157,7 +157,7 @@
         <setting name="transport">
           <profileName>server.2.transport</profileName>
           <type refid="transport" />
-          <value>DNSnaptr</value>
+          <value>UDPonly</value>
         </setting>
         <setting name="expires">
           <profileName>server.2.expires</profileName>
