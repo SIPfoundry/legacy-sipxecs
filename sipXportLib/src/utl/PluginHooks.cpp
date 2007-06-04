@@ -214,11 +214,19 @@ void PluginHooks::readConfig(const OsConfigDb& configDb)
             thisHook = new ConfiguredHook(hookName, mFactory, hookLibrary);
          }
 
-         // put the hook onto the list of active hooks
-         mConfiguredHooks.insert(thisHook);
+         if (thisHook->plugin() != NULL)
+         {
+            // put the hook onto the list of active hooks
+            mConfiguredHooks.insert(thisHook);
 
-         // (re)configure the hook
-         thisHook->readConfig(mPrefix, configDb);
+            // (re)configure the hook
+            thisHook->readConfig(mPrefix, configDb);
+         }
+         else
+         {
+            // It failed (prob. lib didn't load) , no need to keep it around.
+            delete thisHook ;
+         }
       }
    }
    else

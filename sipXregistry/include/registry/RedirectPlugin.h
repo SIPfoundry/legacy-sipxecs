@@ -138,6 +138,8 @@ class RedirectPlugin : public Plugin
                                int redirectorNo,
                                const UtlString& localDomainHost) = 0;
 
+   virtual void readConfig(OsConfigDb& configDb);
+
    /**
     * All finalization should be done in ::finalize() in preference
     * to in the destructor, so that we have finer control over when

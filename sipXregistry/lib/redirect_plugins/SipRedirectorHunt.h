@@ -35,8 +35,6 @@ public:
 
    ~SipRedirectorHunt();
 
-   virtual void readConfig(OsConfigDb& configDb);
-
    virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
                                int redirectorNo,

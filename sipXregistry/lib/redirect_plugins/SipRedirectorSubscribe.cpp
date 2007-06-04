@@ -70,6 +70,9 @@ SipRedirectorSubscribe::lookUp(
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage)
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp uri '%s'",
+                 mLogName.data(), requestUri.toString().data());
+
    // This redirector operates only on SUBSCRIBE requests.
    if (method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase))
    {

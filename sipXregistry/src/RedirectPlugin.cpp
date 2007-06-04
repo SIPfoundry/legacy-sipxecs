@@ -39,6 +39,12 @@ void RedirectPlugin::cancel(RequestSeqNo request)
 {
 }
 
+// Null default readConfig() implementation
+void 
+RedirectPlugin::readConfig(OsConfigDb& configDb)
+{
+}
+
 void
 RedirectPlugin::addContact(SipMessage& response,
                           const UtlString& requestString,

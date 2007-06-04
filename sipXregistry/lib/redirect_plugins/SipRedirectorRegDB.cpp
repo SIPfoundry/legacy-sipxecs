@@ -48,11 +48,6 @@ SipRedirectorRegDB::~SipRedirectorRegDB()
 {
 }
 
-// Read config information.
-void SipRedirectorRegDB::readConfig(OsConfigDb& configDb)
-{
-}
-
 // Initializer
 OsStatus
 SipRedirectorRegDB::initialize(OsConfigDb& configDb,

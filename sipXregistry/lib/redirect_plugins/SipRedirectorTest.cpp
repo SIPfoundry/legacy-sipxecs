@@ -72,11 +72,6 @@ SipRedirectorTest::~SipRedirectorTest()
 {
 }
 
-// Read config information.
-void SipRedirectorTest::readConfig(OsConfigDb& configDb)
-{
-}
-
 // Initializer
 OsStatus
 SipRedirectorTest::initialize(OsConfigDb& configDb,

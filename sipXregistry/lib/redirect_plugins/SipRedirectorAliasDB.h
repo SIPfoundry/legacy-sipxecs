@@ -38,8 +38,6 @@ class SipRedirectorAliasDB : public RedirectPlugin
 
    ~SipRedirectorAliasDB();
 
-   virtual void readConfig(OsConfigDb& configDb);
-
    virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
                                int redirectorNo,

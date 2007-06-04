@@ -51,11 +51,6 @@ SipRedirectorHunt::~SipRedirectorHunt()
 {
 }
 
-// Read config information.
-void SipRedirectorHunt::readConfig(OsConfigDb& configDb)
-{
-}
-
 // Initializer
 OsStatus
 SipRedirectorHunt::initialize(OsConfigDb& configDb,

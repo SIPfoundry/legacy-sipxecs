@@ -48,11 +48,6 @@ SipRedirectorAliasDB::~SipRedirectorAliasDB()
 {
 }
 
-// Read config information.
-void SipRedirectorAliasDB::readConfig(OsConfigDb& configDb)
-{
-}
-
 // Initializer
 OsStatus
 SipRedirectorAliasDB::initialize(OsConfigDb& configDb,
