@@ -22,7 +22,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -48,16 +47,18 @@ public abstract class EditPhone extends PageWithCallback implements PageBeginRen
     @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();
 
-    @InjectObject(value = "spring:profileManager")
-    public abstract ProfileManager getProfileManager();
-
     @InjectObject(value = "spring:settingDao")
     public abstract SettingDao getSettingDao();
-        
+
     public abstract String getActiveTab();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
+
+    @Persist
+    public abstract Collection<Integer> getGenerateProfileIds();
+
+    public abstract void setGenerateProfileIds(Collection<Integer> ids);
 
     public IPage addLine(IRequestCycle cycle, Integer phoneId) {
         AddPhoneUser page = (AddPhoneUser) cycle.getPage(AddPhoneUser.PAGE);
@@ -83,10 +84,8 @@ public abstract class EditPhone extends PageWithCallback implements PageBeginRen
     }
 
     public void generateProfile() {
-        Collection phoneIds = Collections.singleton(getPhone().getId());
-        getProfileManager().generateProfiles(phoneIds, true);
-        String msg = getMessages().getMessage("msg.success.profiles");
-        TapestryUtils.recordSuccess(this, msg);
+        Collection<Integer> phoneIds = Collections.singleton(getPhone().getId());
+        setGenerateProfileIds(phoneIds);
     }
 
     public void pageBeginRender(PageEvent event_) {

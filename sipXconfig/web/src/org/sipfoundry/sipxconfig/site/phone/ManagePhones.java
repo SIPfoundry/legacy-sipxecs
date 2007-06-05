@@ -64,6 +64,9 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
     @Persist
     public abstract boolean getSearchMode();
 
+    @Persist
+    public abstract Collection<Integer> getGenerateProfileIds();
+
     public IBasicTableModel getTableModel() {
         String queryText = getQueryText();
         if (!getSearchMode() || StringUtils.isBlank(queryText)) {

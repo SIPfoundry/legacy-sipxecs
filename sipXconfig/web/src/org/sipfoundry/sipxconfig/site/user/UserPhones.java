@@ -13,6 +13,7 @@ import java.util.Collection;
 
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -30,6 +31,9 @@ public abstract class UserPhones extends UserBasePage {
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
+
+    @Persist
+    public abstract Collection<Integer> getGenerateProfileIds();
 
     public Collection<Phone> getPhones() {
         return getPhoneContext().getPhonesByUserId(getUserId());

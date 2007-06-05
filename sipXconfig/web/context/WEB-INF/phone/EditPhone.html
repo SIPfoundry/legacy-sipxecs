@@ -16,17 +16,22 @@
         </li>
       </ul>
     </div>
-    <span jwcid="@GroupCloud" groups="ognl:phoneContext.groups"/>
-    <form jwcid="@Form" delegate="bean:validator">
-      <span jwcid="@EditPhoneForm" phone="prop:phone" validator="bean:validator"/>
-      <span jwcid="@FormActions" callback="ognl:callback"
-        listener="listener:commit">
-        <li>
-          <input jwcid="generateProfile@Submit" id="generateProfile"
-            value="message:button.generateProfile"
-            listener="listener:generateProfile"/>
-        </li>
-      </span>
-    </form>
+    <div jwcid="@If" condition="ognl:generateProfileIds != null">
+    	<span jwcid="@device/ConfirmProfileGeneration" deviceIds="prop:generateProfileIds"/>
+    </div>
+    <div jwcid="@Else">
+      <span jwcid="@GroupCloud" groups="ognl:phoneContext.groups"/>
+      <form jwcid="@Form" delegate="bean:validator">
+        <span jwcid="@EditPhoneForm" phone="prop:phone" validator="bean:validator"/>
+        <span jwcid="@FormActions" callback="ognl:callback"
+          listener="listener:commit">
+          <li>
+            <input jwcid="generateProfile@Submit" id="generateProfile"
+              value="message:button.generateProfile"
+              listener="listener:generateProfile"/>
+          </li>
+        </span>
+      </form>
+    </div>
   </div>
 </div>

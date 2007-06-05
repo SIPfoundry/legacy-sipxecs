@@ -20,25 +20,30 @@
     </ul>
   </div>
   <div jwcid="@QuickHelp" value="message:help.gatewayConfig">gateway config help text here...</div>
-  <span jwcid="@ErrorMsg"/>  
-  <form jwcid="gatewaysListForm" id="list:gateway:form">
-    <ul class="component-links">
-      <li>
-        <span jwcid="selectGatewayModel"/>
-      </li>
-    </ul>
-    <span jwcid="gatewayTable"></span>
-    <ul class="component-submit">
-      <li>
-        <input jwcid="propagateButton" type="submit" id="list:gateway:propagate"/>
-      </li>
-      <li>
-        <input jwcid="propagateAllButton" type="submit" id="list:gateway:propagateAll"/>
-      </li>
-      <li>
-        <input jwcid="deleteButton" id="list:gateway:delete" />
-        <span jwcid="@common/Confirm" component="component:deleteButton" prompt="message:confirm.delete"/>          
-      </li>
-    </ul>
-  </form>
+  <span jwcid="@ErrorMsg"/>
+  <div jwcid="@If" condition="ognl:generateProfileIds != null">
+    <span jwcid="@device/ConfirmProfileGeneration" deviceIds="prop:generateProfileIds"/>
+  </div>
+  <div jwcid="@Else">
+    <form jwcid="gatewaysListForm" id="list:gateway:form">
+      <ul class="component-links">
+        <li>
+          <span jwcid="selectGatewayModel"/>
+        </li>
+      </ul>
+      <span jwcid="gatewayTable"></span>
+      <ul class="component-submit">
+        <li>
+          <input jwcid="propagateButton" type="submit" id="list:gateway:propagate"/>
+        </li>
+        <li>
+          <input jwcid="propagateAllButton" type="submit" id="list:gateway:propagateAll"/>
+        </li>
+        <li>
+          <input jwcid="deleteButton" id="list:gateway:delete" />
+          <span jwcid="@common/Confirm" component="component:deleteButton" prompt="message:confirm.delete"/>          
+        </li>
+      </ul>
+    </form>
+  </div>
 </div>

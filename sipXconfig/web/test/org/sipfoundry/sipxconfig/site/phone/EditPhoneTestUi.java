@@ -50,6 +50,9 @@ public class EditPhoneTestUi extends WebTestCase {
     
     public void testGenerateProfiles() {
         clickButton("generateProfile");
+        // check for confirm screen
+        assertCheckboxSelected("restart");
+        clickButton("generate:ok");
         assertElementPresent("user:success");
     }
 }

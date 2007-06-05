@@ -13,8 +13,8 @@ import java.util.Collection;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
@@ -34,6 +34,9 @@ public abstract class ListGateways extends BasePage {
     public abstract Collection getGatewaysToPropagate();
 
     public abstract GatewayModel getGatewayModel();
+    
+    @Persist
+    public abstract void setGenerateProfileIds(Collection<Integer> ids);
 
     /**
      * When user clicks on link to edit a gateway
@@ -45,7 +48,7 @@ public abstract class ListGateways extends BasePage {
         }
         selectedRows = getGatewaysToPropagate();
         if (selectedRows != null) {
-            propagateGateways(selectedRows);
+            setGenerateProfileIds(selectedRows);
         }
         GatewayModel model = getGatewayModel();
         if (model != null) {
@@ -56,13 +59,6 @@ public abstract class ListGateways extends BasePage {
 
     public void propagateAllGateways() {
         Collection gatewayIds = getGatewayContext().getAllGatewayIds();
-        propagateGateways(gatewayIds);
-    }
-
-    private void propagateGateways(Collection gatewayIds) {
-        getGatewayProfileManager().generateProfiles(gatewayIds, true);
-        String msg = getMessages().format("msg.success.profiles",
-                Integer.toString(gatewayIds.size()));
-        TapestryUtils.recordSuccess(this, msg);
+        setGenerateProfileIds(gatewayIds);
     }
 }

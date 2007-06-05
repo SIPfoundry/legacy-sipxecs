@@ -19,7 +19,6 @@ import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.device.RestartManager;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -38,30 +37,25 @@ public abstract class PhoneTableActions extends BaseComponent {
     @Parameter(required = false, defaultValue = "ognl:null")
     public abstract IPropertySelectionModel getActionModel();
 
+    @Parameter(required = true)
+    public abstract Collection<Integer> getGenerateProfileIds();
+
+    public abstract void setGenerateProfileIds(Collection<Integer> ids);
+
     @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();
-
-    @InjectObject(value = "spring:profileManager")
-    public abstract ProfileManager getProfileManager();
 
     @InjectObject(value = "spring:restartManager")
     public abstract RestartManager getRestartManager();
 
     public void generateProfiles() {
         Collection phoneIds = getSelections().getAllSelected();
-        generateProfiles(phoneIds);
+        setGenerateProfileIds(phoneIds);
     }
 
     public void generateAllProfiles() {
         Collection phoneIds = getPhoneContext().getAllPhoneIds();
-        generateProfiles(phoneIds);
-    }
-
-    private void generateProfiles(Collection phoneIds) {
-        getProfileManager().generateProfiles(phoneIds, true);
-        String msg = getMessages().format("msg.success.profiles",
-                Integer.toString(phoneIds.size()));
-        TapestryUtils.recordSuccess(this, msg);
+        setGenerateProfileIds(phoneIds);
     }
 
     public void restart() {
