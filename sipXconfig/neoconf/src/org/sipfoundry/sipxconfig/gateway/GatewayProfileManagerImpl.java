@@ -26,7 +26,7 @@ public class GatewayProfileManagerImpl implements ProfileManager {
 
     private JobContext m_jobContext;
 
-    public void generateProfileAndRestart(Integer gatewayId) {
+    public void generateProfile(Integer gatewayId, boolean restart) {
         Gateway g = m_gatewayContext.getGateway(gatewayId);
         Serializable jobId = m_jobContext.schedule("Projection for gateway " + g.getName());
         try {
@@ -42,10 +42,10 @@ public class GatewayProfileManagerImpl implements ProfileManager {
         }
     }
 
-    public void generateProfilesAndRestart(Collection gateways) {
+    public void generateProfiles(Collection<Integer> gateways, boolean restart) {
         for (Iterator i = gateways.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
-            generateProfileAndRestart(id);
+            generateProfile(id, true);
         }
     }
 

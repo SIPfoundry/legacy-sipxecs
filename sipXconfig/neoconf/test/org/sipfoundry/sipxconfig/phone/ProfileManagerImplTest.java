@@ -81,7 +81,7 @@ public class ProfileManagerImplTest extends TestCase {
         pm.setPhoneContext(phoneContext);
         pm.setRestartManager(restartManager);
 
-        pm.generateProfilesAndRestart(Arrays.asList(ids));
+        pm.generateProfiles(Arrays.asList(ids), true);
 
         jobContextCtrl.verify();
         phoneControl.verify();
@@ -130,11 +130,60 @@ public class ProfileManagerImplTest extends TestCase {
         pm.setPhoneContext(phoneContext);
         pm.setRestartManager(restartManager);
 
-        pm.generateProfileAndRestart(phoneId);
+        pm.generateProfile(phoneId, true);
 
         jobContextCtrl.verify();
         phoneControl.verify();
         phoneContextCtrl.verify();
         restartManagerCtrl.verify();
     }
+
+    public void testGenerateProfile() {
+        Integer jobId = new Integer(4);
+        Integer phoneId = new Integer(1000);
+
+        IMocksControl jobContextCtrl = EasyMock.createStrictControl();
+        JobContext jobContext = jobContextCtrl.createMock(JobContext.class);
+        jobContext.schedule("Projection for phone 110000000000");
+        jobContextCtrl.andReturn(jobId);
+        jobContext.start(jobId);
+        jobContext.success(jobId);
+        jobContextCtrl.replay();
+
+        MemoryProfileLocation location = new MemoryProfileLocation();
+        PhoneModel model = new PhoneModel();
+        model.setDefaultProfileLocation(location);
+
+        IMocksControl phoneControl = org.easymock.classextension.EasyMock.createStrictControl();
+        Phone phone = phoneControl.createMock(Phone.class);
+        phone.getSerialNumber();
+        phoneControl.andReturn("110000000000");
+        phone.getModel();
+        phoneControl.andReturn(model);
+        phone.generateProfiles(EasyMock.same(location));
+        phoneControl.replay();
+
+        IMocksControl phoneContextCtrl = EasyMock.createControl();
+        PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
+        phoneContext.loadPhone(phoneId);
+        phoneContextCtrl.andReturn(phone);
+        phoneContextCtrl.replay();
+
+        IMocksControl restartManagerCtrl = EasyMock.createControl();
+        RestartManager restartManager = restartManagerCtrl.createMock(RestartManager.class);
+        restartManagerCtrl.replay();
+
+        ProfileManagerImpl pm = new ProfileManagerImpl();
+        pm.setJobContext(jobContext);
+        pm.setPhoneContext(phoneContext);
+        pm.setRestartManager(restartManager);
+
+        pm.generateProfile(phoneId, false);
+
+        jobContextCtrl.verify();
+        phoneControl.verify();
+        phoneContextCtrl.verify();
+        restartManagerCtrl.verify();
+    }
+
 }

@@ -16,8 +16,9 @@ public interface ProfileManager {
      * Generate profile on phones in background
      * 
      * @param deviceIds collection of ids of device (phone or gateway) objects
+     * @param restart TODO
      */
-    public void generateProfilesAndRestart(Collection deviceIds);
+    public void generateProfiles(Collection<Integer> deviceIds, boolean restart);
 
-    public void generateProfileAndRestart(Integer deviceId);
+    public void generateProfile(Integer deviceId, boolean restart);
 }

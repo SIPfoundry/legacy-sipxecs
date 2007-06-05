@@ -58,7 +58,7 @@ public abstract class PhoneTableActions extends BaseComponent {
     }
 
     private void generateProfiles(Collection phoneIds) {
-        getProfileManager().generateProfilesAndRestart(phoneIds);
+        getProfileManager().generateProfiles(phoneIds, true);
         String msg = getMessages().format("msg.success.profiles",
                 Integer.toString(phoneIds.size()));
         TapestryUtils.recordSuccess(this, msg);

@@ -42,17 +42,19 @@ public class ProfileManagerImpl implements ProfileManager {
         m_restartManager = restartManager;
     }
 
-    public void generateProfilesAndRestart(Collection phones) {
+    public void generateProfiles(Collection<Integer> phones, boolean restart) {
         for (Iterator iter = phones.iterator(); iter.hasNext();) {
             Integer id = (Integer) iter.next();
-            generateProfileAndRestart(id);
+            generateProfile(id, restart);
         }
     }
 
-    public void generateProfileAndRestart(Integer phoneId) {
+    public void generateProfile(Integer phoneId, boolean restart) {
         Phone phone = m_phoneContext.loadPhone(phoneId);
         generate(phone);
-        m_restartManager.restart(phoneId);
+        if (restart) {
+            m_restartManager.restart(phoneId);
+        }
     }
 
     private void generate(Phone phone) {

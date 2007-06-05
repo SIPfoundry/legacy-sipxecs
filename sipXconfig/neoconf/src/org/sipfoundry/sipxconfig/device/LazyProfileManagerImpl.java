@@ -11,13 +11,13 @@ package org.sipfoundry.sipxconfig.device;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 
 public class LazyProfileManagerImpl implements ProfileManager {
-    private Set m_ids = new HashSet();
+    private Map<Integer, Boolean> m_ids = new HashMap<Integer, Boolean>();
 
     private ProfileManager m_target;
 
@@ -33,16 +33,26 @@ public class LazyProfileManagerImpl implements ProfileManager {
         m_target = target;
     }
 
-    public synchronized void generateProfilesAndRestart(Collection phoneIds) {
-        m_ids.addAll(phoneIds);
+    public synchronized void generateProfiles(Collection<Integer> phoneIds, boolean restart) {
+        for (Integer id : phoneIds) {
+            updateRestart(id, restart);
+        }
         m_worker.workScheduled();
         notify();
     }
 
-    public synchronized void generateProfileAndRestart(Integer phoneId) {
-        m_ids.add(phoneId);
+    public synchronized void generateProfile(Integer phoneId, boolean restart) {
+        updateRestart(phoneId, restart);
         m_worker.workScheduled();
         notify();
+    }
+
+    private void updateRestart(Integer id, boolean restart) {
+        boolean newRestart = restart;
+        if (m_ids.containsKey(id)) {
+            newRestart = restart || m_ids.get(id);
+        }
+        m_ids.put(id, newRestart);
     }
 
     private synchronized void waitForWork() throws InterruptedException {
@@ -56,12 +66,12 @@ public class LazyProfileManagerImpl implements ProfileManager {
         m_worker.start();
     }
 
-    private synchronized Set getTasks() {
+    private synchronized Map<Integer, Boolean> getTasks() {
         if (m_ids.isEmpty()) {
-            return Collections.EMPTY_SET;
+            return Collections.emptyMap();
         }
-        Set oldTasks = m_ids;
-        m_ids = new HashSet();
+        Map<Integer, Boolean> oldTasks = m_ids;
+        m_ids = new HashMap<Integer, Boolean>();
         return oldTasks;
     }
 
@@ -75,7 +85,10 @@ public class LazyProfileManagerImpl implements ProfileManager {
         }
 
         protected boolean work() {
-            m_target.generateProfilesAndRestart(getTasks());
+            Map<Integer, Boolean> tasks = getTasks();
+            for (Map.Entry<Integer, Boolean> entry : tasks.entrySet()) {
+                m_target.generateProfile(entry.getKey(), entry.getValue());
+            }
             return true;
         }
     }

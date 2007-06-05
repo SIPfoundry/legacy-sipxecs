@@ -60,7 +60,7 @@ public abstract class ListGateways extends BasePage {
     }
 
     private void propagateGateways(Collection gatewayIds) {
-        getGatewayProfileManager().generateProfilesAndRestart(gatewayIds);
+        getGatewayProfileManager().generateProfiles(gatewayIds, true);
         String msg = getMessages().format("msg.success.profiles",
                 Integer.toString(gatewayIds.size()));
         TapestryUtils.recordSuccess(this, msg);

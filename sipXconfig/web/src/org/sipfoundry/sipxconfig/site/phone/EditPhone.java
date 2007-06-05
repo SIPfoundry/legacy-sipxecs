@@ -84,7 +84,7 @@ public abstract class EditPhone extends PageWithCallback implements PageBeginRen
 
     public void generateProfile() {
         Collection phoneIds = Collections.singleton(getPhone().getId());
-        getProfileManager().generateProfilesAndRestart(phoneIds);
+        getProfileManager().generateProfiles(phoneIds, true);
         String msg = getMessages().getMessage("msg.success.profiles");
         TapestryUtils.recordSuccess(this, msg);
     }

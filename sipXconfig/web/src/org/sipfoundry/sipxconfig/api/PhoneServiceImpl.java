@@ -131,7 +131,7 @@ public class PhoneServiceImpl implements PhoneService {
         org.sipfoundry.sipxconfig.phone.Phone[] myPhones = phoneSearch(managePhone.getSearch());
         Collection ids = CollectionUtils.collect(Arrays.asList(myPhones), new BeanWithId.BeanToId());
         if (Boolean.TRUE.equals(managePhone.getGenerateProfiles())) {
-            m_profileManager.generateProfilesAndRestart(ids);
+            m_profileManager.generateProfiles(ids, true);
         } else if (Boolean.TRUE.equals(managePhone.getRestart())) {
             m_restartManager.restart(ids);
         } else {

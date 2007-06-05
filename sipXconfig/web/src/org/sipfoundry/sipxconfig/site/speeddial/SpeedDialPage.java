@@ -88,7 +88,7 @@ public abstract class SpeedDialPage extends UserBasePage {
             onApply();
             Collection<Phone> phones = getPhoneContext().getPhonesByUserId(getActiveUserId());
             Collection<Integer> ids = DataCollectionUtil.extractPrimaryKeys(phones);
-            getProfileManager().generateProfilesAndRestart(ids);
+            getProfileManager().generateProfiles(ids, true);
         }
     }
 }
