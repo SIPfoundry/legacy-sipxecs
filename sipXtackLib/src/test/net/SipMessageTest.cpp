@@ -1711,7 +1711,7 @@ class SipMessageTest : public CppUnit::TestCase
          };
 
          // Loop through all the cases.
-         for (int i = 0; i < sizeof (tests) / sizeof (tests[0]) ; i++)
+         for (unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]) ; i++)
          {
             // Assemble test message.
             char msg[100];
@@ -1725,7 +1725,7 @@ class SipMessageTest : public CppUnit::TestCase
             UtlString uri;
             UtlBoolean ret = message.getContactUri(0, &uri);
 
-            fprintf(stderr, "ret = %d, uri = '%s'\n", ret, uri.data());
+            // fprintf(stderr, "ret = %d, uri = '%s'\n", ret, uri.data());
 
             CPPUNIT_ASSERT_MESSAGE(msg, ret);
             ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].contact_uri, uri.data());

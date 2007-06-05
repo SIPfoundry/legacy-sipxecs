@@ -170,6 +170,7 @@ public:
                        "numThreads=%d startingThreads=%d",
                        numThreads, startingThreads);
                        
+         KNOWN_BUG("XECS-48", "Some threads are not cleaned up?");
          CPPUNIT_ASSERT(numThreads <= startingThreads);
       }
    };
@@ -249,6 +250,8 @@ public:
          OsSysLog::add(FAC_SIP, PRI_NOTICE, "SipUserAgentTest::testShutdownBlocking "
                        "numThreads=%d startingThreads=%d",
                        numThreads, startingThreads);
+
+         KNOWN_BUG("XECS-48", "Some threads are not cleaned up?");
          CPPUNIT_ASSERT(numThreads <= startingThreads);
       }
    };

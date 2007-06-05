@@ -40,7 +40,7 @@ public:
        UtlString output[CASES];
 
        // Generate some call-Ids.
-       for (int i = 0; i < sizeof (output) / sizeof (output[0]); i++)
+       for (unsigned int i = 0; i < sizeof (output) / sizeof (output[0]); i++)
        {
           CallId::getNewCallId("t", output[i]);
           // Enable this statement if you want to see some sample values
@@ -51,15 +51,15 @@ public:
        }
 
        // Compare that they're different enough.
-       for (int i = 0; i < sizeof (output) / sizeof (output[0]); i++)
+       for (unsigned int i = 0; i < sizeof (output) / sizeof (output[0]); i++)
        {
-          for (int j = i+1; j < sizeof (output) / sizeof (output[0]); j++)
+          for (unsigned int j = i+1; j < sizeof (output) / sizeof (output[0]); j++)
           {
              UtlString* s1 = &output[i];
              UtlString* s2 = &output[j];
              
              int differences = 0;
-             for (int k = 0; k < s1->length() && k < s1->length(); k++)
+             for (unsigned int k = 0; k < s1->length() && k < s1->length(); k++)
              {
                 if ((*s1)(k) != (*s2)(k))
                 {
@@ -105,7 +105,7 @@ public:
                 &chars_consumed);
          sprintf(msg, "Cannot parse call ID '%s'", callId.data());
          CPPUNIT_ASSERT_MESSAGE(msg,
-                                chars_consumed == callId.length());
+                                chars_consumed == (int)callId.length());
          sprintf(msg, "Actual prefix '%s' does not match expected prefix '%s' in call ID '%s'",
                  actual_prefix, expected_prefix, callId.data());
          CPPUNIT_ASSERT_MESSAGE(msg,
@@ -123,7 +123,7 @@ public:
          // Access buffer through p, to confuse simple optimizers.
          int *p = &buffer[0];
 
-         for (i = 0; i < sizeof (buffer) / sizeof (int); i++)
+         for (unsigned int i = 0; i < sizeof (buffer) / sizeof (int); i++)
          {
             p[i] = i;
          }
@@ -139,17 +139,17 @@ public:
 
        testGetNewCallId_hose_stack();
        CallId::getNewCallId("prefix1", callId1);
-       fprintf(stderr, "%s\n", callId1.data());
+       //fprintf(stderr, "%s\n", callId1.data());
        testGetNewCallId_validate(callId1, "prefix1", &counter);
 
        testGetNewCallId_hose_stack();
        CallId::getNewCallId("prefix2", callId2);
-       fprintf(stderr, "%s\n", callId2.data());
+       //fprintf(stderr, "%s\n", callId2.data());
        testGetNewCallId_validate(callId2, "prefix2", &counter);
 
        testGetNewCallId_hose_stack();
        CallId::getNewCallId("prefix3", callId3);
-       fprintf(stderr, "%s\n", callId3.data());
+       //fprintf(stderr, "%s\n", callId3.data());
        testGetNewCallId_validate(callId3, "prefix3", &counter);
 #undef CASES
 #undef MIN_DIFFS
@@ -166,25 +166,25 @@ public:
        UtlString output[CASES];
 
        // Generate some tags.
-       for (int i = 0; i < sizeof (output) / sizeof (output[0]); i++)
+       for (unsigned int i = 0; i < sizeof (output) / sizeof (output[0]); i++)
        {
           CallId::getNewTag("", output[i]);
           // Enable this statement if you want to see some sample values.
-          #if 1
+          #if 0
             fprintf(stderr, "%s\n", output[i].data());
           #endif
        }
 
        // Compare that they're different enough.
-       for (int i = 0; i < sizeof (output) / sizeof (output[0]); i++)
+       for (unsigned int i = 0; i < sizeof (output) / sizeof (output[0]); i++)
        {
-          for (int j = i+1; j < sizeof (output) / sizeof (output[0]); j++)
+          for (unsigned int j = i+1; j < sizeof (output) / sizeof (output[0]); j++)
           {
              UtlString* s1 = &output[i];
              UtlString* s2 = &output[j];
              
              int differences = 0;
-             for (int k = 0; k < s1->length() && k < s1->length(); k++)
+             for (unsigned int k = 0; k < s1->length() && k < s1->length(); k++)
              {
                 if ((*s1)(k) != (*s2)(k))
                 {
