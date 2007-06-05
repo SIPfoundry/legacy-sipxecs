@@ -79,6 +79,7 @@ MpMediaTask::~MpMediaTask()
    // $$$ need to figure out how to cleanly shut down this task after
    // $$$ unmanaging and destroying all of its flow graphs
 
+   waitUntilShutDown() ;
    delete[] mManagedFGs;
    spInstance = NULL;
 }

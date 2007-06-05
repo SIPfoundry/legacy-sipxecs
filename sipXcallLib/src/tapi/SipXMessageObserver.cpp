@@ -55,40 +55,47 @@ UtlBoolean SipXMessageObserver::handleMessage(OsMsg& rMsg)
 {
     UtlBoolean bRet = FALSE ;
 
-    if (rMsg.getMsgType() == OsMsg::OS_EVENT)
+    switch (rMsg.getMsgType())
     {
-        OsEventMsg* pEventMsg = (OsEventMsg*) &rMsg ;
-        int eventType ;
-        pEventMsg->getUserData(eventType) ;
+       case OsMsg::OS_EVENT:
+       {
+           OsEventMsg* pEventMsg = (OsEventMsg*) &rMsg ;
+           int eventType ;
+           pEventMsg->getUserData(eventType) ;
 
-        switch (eventType)
-        {
-            case SIPXMO_NOTIFICATION_STUN:
-                handleStunOutcome(pEventMsg) ;
-                bRet = TRUE ;
-                break ;
-        }                
-    }
-    else
-    {
-	    SipMessage* pSipMessage = (SipMessage*) ((SipMessageEvent&)rMsg).getMessage() ;
-        UtlString method;
-    
-        pSipMessage->getRequestMethod(&method);
-        
-        if (pSipMessage && pSipMessage->isResponse())
-        {
-            // ok, the phone has received a response to a sent INFO message.
-            bRet = handleIncomingInfoStatus(pSipMessage);
+           switch (eventType)
+           {
+               case SIPXMO_NOTIFICATION_STUN:
+                   handleStunOutcome(pEventMsg) ;
+                   bRet = TRUE ;
+                   break ;
+           }                
+           break ;
         }
-        else if (pSipMessage && !pSipMessage->isResponse())
+        case OsMsg::PHONE_APP:
         {
-            if (method == SIP_INFO_METHOD)
-            {
-                // ok, the phone has received an INFO message.
-                bRet = handleIncomingInfoMessage(pSipMessage);
-            }
-        }        
+	   SipMessage* pSipMessage = (SipMessage*) ((SipMessageEvent&)rMsg).getMessage() ;
+           UtlString method;
+    
+           pSipMessage->getRequestMethod(&method);
+        
+           if (pSipMessage && pSipMessage->isResponse())
+           {
+               // ok, the phone has received a response to a sent INFO message.
+               bRet = handleIncomingInfoStatus(pSipMessage);
+           }
+           else if (pSipMessage && !pSipMessage->isResponse())
+           {
+               if (method == SIP_INFO_METHOD)
+               {
+                   // ok, the phone has received an INFO message.
+                   bRet = handleIncomingInfoMessage(pSipMessage);
+               }
+           }
+           break ;
+       }
+       default:
+          break ;
     }
     return bRet;
 }
