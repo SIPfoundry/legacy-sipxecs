@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="linksysPhoneStandard" abstract="true" parent="abstractPhoneModel">
+    <property name="beanId" value="linksysPhone" />
+    <property name="modelDir" value="linksysPhone" />
+    <property name="profileTemplate" value="linksysPhone/config.vm" />
+  </bean>
+
+  <bean id="linksys941" parent="linksysPhoneStandard">
+    <property name="label" value="Linksys941" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+  <bean id="linksys942" parent="linksysPhoneStandard">
+    <property name="label" value="Linksys942" />
+    <property name="maxLineCount" value="3" />
+  </bean>
+
+  <bean id="linksysPhone" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysPhone" singleton="false"
+    parent="abstractPhone">
+  </bean>
+</beans>

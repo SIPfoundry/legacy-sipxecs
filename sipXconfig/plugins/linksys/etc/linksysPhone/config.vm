@@ -1,0 +1,24 @@
+<flat-profile>
+#foreach ($group in $phone.Settings.Values)
+[${group.Name}]
+#foreach ($setting in $group.Values)
+#if ($!setting.Value)
+<${setting.Name} group="$!{setting.ProfileName}">$!{setting.Value}</${setting.Name}>
+#else
+<${setting.Name} group="$!{setting.ProfileName}"/>
+#end
+#end
+
+#end
+#foreach ($line in $phone.lines)
+#foreach ($group in $line.Settings.Values)
+[${group.Name}]
+#foreach ($setting in $group.Values)
+#if ($!setting.Value)
+<${setting.Name} group="$!{setting.ProfileName}">$!{setting.Value}</${setting.Name}>
+#else
+<${setting.Name} group="$!{setting.ProfileName}"/>
+#end
+#end
+#end
+#end</flat-profile>
