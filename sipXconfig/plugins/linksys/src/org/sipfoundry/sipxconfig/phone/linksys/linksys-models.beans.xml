@@ -2,7 +2,11 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="linksysPhoneStandard" abstract="true" parent="abstractPhoneModel">
+  <bean id="LinksysModel" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysModel" parent="abstractPhoneModel"
+    abstract="true">
+  </bean>
+
+  <bean id="linksysPhoneStandard" abstract="true" parent="LinksysModel">
     <property name="beanId" value="linksysPhone" />
     <property name="modelDir" value="linksysPhone" />
     <property name="profileTemplate" value="linksysPhone/config.vm" />

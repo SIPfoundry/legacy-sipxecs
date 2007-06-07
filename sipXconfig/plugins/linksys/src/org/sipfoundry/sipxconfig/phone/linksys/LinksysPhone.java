@@ -13,13 +13,13 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 /**
  * Linksys942 phone.
  */
-public class LinksysPhone extends Phone {
+public class LinksysPhone extends Linksys {
+
     private static final String USER_ID_SETTING = "Extension_1/User_ID_1_";
     private static final String DISPLAY_NAME_SETTING = "Extension_1/Display_Name_1_";
     private static final String PASSWORD_SETTING = "Extension_1/Password_1_";

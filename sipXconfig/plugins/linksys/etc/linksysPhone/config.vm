@@ -11,6 +11,7 @@
 
 #end
 #foreach ($line in $phone.lines)
+#set ($i = $velocityCount)
 #foreach ($group in $line.Settings.Values)
 [${group.Name}]
 #foreach ($setting in $group.Values)

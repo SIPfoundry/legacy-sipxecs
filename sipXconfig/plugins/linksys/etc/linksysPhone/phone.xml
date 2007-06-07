@@ -5,8 +5,8 @@
 <model>
   <group name="System">
     <setting name="Enable_Web_Server">
-      <profileName>System/System_Configuration</profileName>
       <label>Enable Web Server</label>
+      <profileName>System/System_Configuration</profileName>
       <type>
         <enum>
           <option>
@@ -19,8 +19,8 @@
       </type>
     </setting>
     <setting name="Connection_Type">
-      <profileName>System/Internet_Connection_Type_</profileName>
       <label>Connection Type</label>
+      <profileName>System/Internet_Connection_Type_</profileName>
       <type>
         <enum>
           <option>
@@ -36,43 +36,43 @@
       </type>
     </setting>
     <setting name="Static_IP">
-      <profileName>System/_Static_IP_Settings</profileName>
       <label>Static IP</label>
+      <profileName>System/_Static_IP_Settings</profileName>
       <value />
     </setting>
     <setting name="NetMask">
-      <profileName>System/_Static_IP_Settings</profileName>
       <label>NetMask</label>
+      <profileName>System/_Static_IP_Settings</profileName>
       <value />
     </setting>
     <setting name="Gateway">
-      <profileName>System/_Static_IP_Settings</profileName>
       <label>Gateway</label>
+      <profileName>System/_Static_IP_Settings</profileName>
       <value />
     </setting>
     <setting name="HostName">
-      <profileName>System/Optional_Network_Configuration</profileName>
       <label>HostName</label>
+      <profileName>System/Optional_Network_Configuration</profileName>
       <value />
     </setting>
     <setting name="Domain">
-      <profileName>System/Optional_Network_Configuration</profileName>
       <label>Domain</label>
+      <profileName>System/Optional_Network_Configuration</profileName>
       <value />
     </setting>
     <setting name="Primary_DNS">
-      <profileName>System/Optional_Network_Configuration</profileName>
       <label>Primary DNS</label>
+      <profileName>System/Optional_Network_Configuration</profileName>
       <value />
     </setting>
     <setting name="Secondary_DNS">
-      <profileName>System/Optional_Network_Configuration</profileName>
       <label>Secondary DNS</label>
+      <profileName>System/Optional_Network_Configuration</profileName>
       <value />
     </setting>
     <setting name="DNS_Query_Mode">
-      <profileName>System/System_Configuration</profileName>
       <label>DNS Query Mode</label>
+      <profileName>System/System_Configuration</profileName>
       <type>
         <enum>
           <option>
@@ -85,18 +85,18 @@
       </type>
     </setting>
     <setting name="Syslog_Server">
-      <profileName>System/Optional_Network_Configuration</profileName>
       <label>Syslog Server</label>
+      <profileName>System/Optional_Network_Configuration</profileName>
       <value />
     </setting>
     <setting name="Debug_Server">
-      <profileName>System/Optional_Network_Configuration</profileName>
       <label>Debug Server</label>
+      <profileName>System/Optional_Network_Configuration</profileName>
       <value />
     </setting>
     <setting name="Debug_Level">
-      <profileName>System/System_Configuration</profileName>
       <label>Debug Level</label>
+      <profileName>System/System_Configuration</profileName>
       <type>
         <enum>
           <option>
@@ -115,80 +115,77 @@
       </type>
     </setting>
   </group>
-
-
   <group name="Regional">
     <setting name="Set_Local_Date_mm_dd_">
-      <profileName>Regional/Miscellaneous</profileName>
       <label>Set Local Date (mm/dd)</label>
+      <profileName>Regional/Miscellaneous</profileName>
       <value />
     </setting>
     <setting name="Set_Local_Time_HH_mm_">
-      <profileName>Regional/Miscellaneous</profileName>
       <label>Set Local Time (HH/mm)</label>
+      <profileName>Regional/Miscellaneous</profileName>
       <value />
     </setting>
     <setting name="Time_Zone">
-      <profileName>Regional/Miscellaneous</profileName>
       <label>Time Zone</label>
+      <profileName>Regional/Miscellaneous</profileName>
       <value>GMT</value>
     </setting>
     <setting name="Time_Offset_HH_mm">
-      <profileName>Regional/Miscellaneous</profileName>
       <label>Time Offset (HH/mm)</label>
+      <profileName>Regional/Miscellaneous</profileName>
       <value />
     </setting>
   </group>
-
   <group name="Phone">
     <setting name="Station_Name">
-      <profileName>phone/General</profileName>
       <label>Station Name</label>
+      <profileName>phone/General</profileName>
       <value />
     </setting>
     <setting name="Extension_1_">
-      <profileName>phone/Line_Key_1</profileName>
       <label>Line Key 1 Extension</label>
+      <profileName>phone/Line_Key_1</profileName>
       <value>1</value>
     </setting>
     <setting name="Short_Name_1_">
-      <profileName>phone/Line_Key_1</profileName>
       <label>Line Key 1 Short Name</label>
+      <profileName>phone/Line_Key_1</profileName>
       <value>$USER</value>
     </setting>
     <setting name="Extension_2_">
-      <profileName>phone/Line_Key_2</profileName>
       <label>Line Key 2 Extension</label>
+      <profileName>phone/Line_Key_2</profileName>
       <value>1</value>
     </setting>
     <setting name="Short_Name_2_">
-      <profileName>phone/Line_Key_2</profileName>
       <label>Line Key 2 Short Name</label>
+      <profileName>phone/Line_Key_2</profileName>
       <value>$USER</value>
     </setting>
     <setting name="Extension_3_">
-      <profileName>phone/Line_Key_3</profileName>
       <label>Line Key 3 Extension</label>
+      <profileName>phone/Line_Key_3</profileName>
       <value>1</value>
     </setting>
     <setting name="Short_Name_3_">
-      <profileName>phone/Line_Key_3</profileName>
       <label>Line Key 1 Short Name</label>
+      <profileName>phone/Line_Key_3</profileName>
       <value>$USER</value>
     </setting>
     <setting name="Extension_4_">
-      <profileName>phone/Line_Key_4</profileName>
       <label>Line Key 4 Extension</label>
+      <profileName>phone/Line_Key_4</profileName>
       <value>1</value>
     </setting>
     <setting name="Short_Name_4_">
-      <profileName>phone/Line_Key_4</profileName>
       <label>Line Key 4 Short Name</label>
+      <profileName>phone/Line_Key_4</profileName>
       <value>$USER</value>
     </setting>
     <setting name="SCA_Line_ID_Mapping">
-      <profileName>phone/Miscellaneous_Line_Key_Setings</profileName>
       <label>SCA Line ID Mapping</label>
+      <profileName>phone/Miscellaneous_Line_Key_Setings</profileName>
       <type>
         <enum>
           <option>
@@ -201,8 +198,8 @@
       </type>
     </setting>
     <setting name="ACD_Ext">
-      <profileName>phone/Supplementary_Services</profileName>
       <label>ACD Ext</label>
+      <profileName>phone/Supplementary_Services</profileName>
       <type>
         <enum>
           <option>
@@ -215,13 +212,13 @@
       </type>
     </setting>
     <setting name="Voice_Mail_Number">
-      <profileName>phone/General</profileName>
       <label>Voice Mail Number</label>
+      <profileName>phone/General</profileName>
       <value />
     </setting>
     <setting name="Text_Logo">
-      <profileName>phone/General</profileName>
       <label>Text Logo</label>
+      <profileName>phone/General</profileName>
       <value />
     </setting>
   </group>
@@ -229,68 +226,68 @@
 
   <group name="User">
     <setting name="Cfwd_All_Dest">
-      <profileName>User/Call_Forward</profileName>
       <label>Cfwd All Dest</label>
+      <profileName>User/Call_Forward</profileName>
       <value />
     </setting>
     <setting name="Cfwd_Busy_Dest">
-      <profileName>User/Call_Foward</profileName>
       <label>Cfwd Busy Dest</label>
+      <profileName>User/Call_Foward</profileName>
       <value>vm</value>
     </setting>
     <setting name="Cfwd_No_Ans_Dest">
-      <profileName>User/Call_Forward</profileName>
       <label>Cfwd No Ans Dest</label>
+      <profileName>User/Call_Forward</profileName>
       <value>vm</value>
     </setting>
     <setting name="Cfwd_No_Ans_Delay">
-      <profileName>User/Call_Forward</profileName>
       <label>Cfwd No Ans Delay</label>
+      <profileName>User/Call_Forward</profileName>
       <value>20</value>
     </setting>
     <setting name="Speed_Dial_2">
-      <profileName>User/Call_Forward</profileName>
       <label>Speed Dial 2</label>
+      <profileName>User/Call_Forward</profileName>
       <value />
     </setting>
     <setting name="Speed_Dial_3">
-      <profileName>User/Call_Forward</profileName>
       <label>Speed Dial 3</label>
+      <profileName>User/Call_Forward</profileName>
       <value />
     </setting>
     <setting name="Speed_Dial_4">
-      <profileName>User/Call_Forward</profileName>
       <label>Speed Dial 4</label>
+      <profileName>User/Call_Forward</profileName>
       <value />
     </setting>
     <setting name="Speed_Dial_5">
-      <profileName>User/Call_Forward</profileName>
       <label>Speed Dial 5</label>
+      <profileName>User/Call_Forward</profileName>
       <value />
     </setting>
     <setting name="Speed_Dial_6">
-      <profileName>User/Call_Forward</profileName>
       <label>Speed Dial 6</label>
+      <profileName>User/Call_Forward</profileName>
       <value />
     </setting>
     <setting name="Speed_Dial_7">
-      <profileName>User/Call_Forward</profileName>
       <label>Speed Dial 7</label>
+      <profileName>User/Call_Forward</profileName>
       <value />
     </setting>
     <setting name="Speed_Dial_8">
-      <profileName>User/Call_Forward</profileName>
       <label>Speed Dial 8</label>
+      <profileName>User/Call_Forward</profileName>
       <value />
     </setting>
     <setting name="Speed_Dial_9">
-      <profileName>User/Call_Forward</profileName>
       <label>Speed Dial 9</label>
+      <profileName>User/Call_Forward</profileName>
       <value />
     </setting>
     <setting name="CW_Setting">
-      <profileName>User/Supplementary_Services</profileName>
       <label>CW Setting</label>
+      <profileName>User/Supplementary_Services</profileName>
       <type>
         <enum>
           <option>
@@ -303,8 +300,8 @@
       </type>
     </setting>
     <setting name="Block_CID_Setting">
-      <profileName>User/Supplementary_Services</profileName>
       <label>Block CID Setting</label>
+      <profileName>User/Supplementary_Services</profileName>
       <type>
         <enum>
           <option>
@@ -317,8 +314,8 @@
       </type>
     </setting>
     <setting name="Block_ANC_Setting">
-      <profileName>User/Supplementary_Services</profileName>
       <label>Block ANC Setting</label>
+      <profileName>User/Supplementary_Services</profileName>
       <type>
         <enum>
           <option>
@@ -331,8 +328,8 @@
       </type>
     </setting>
     <setting name="DND_Setting">
-      <profileName>User/Supplementary_Services</profileName>
       <label>DND Setting</label>
+      <profileName>User/Supplementary_Services</profileName>
       <type>
         <enum>
           <option>
@@ -345,8 +342,8 @@
       </type>
     </setting>
     <setting name="Secure_Call_Setting">
-      <profileName>User/Supplementary_Services</profileName>
       <label>Secure Call Setting</label>
+      <profileName>User/Supplementary_Services</profileName>
       <type>
         <enum>
           <option>
@@ -359,8 +356,8 @@
       </type>
     </setting>
     <setting name="Dial_Assistance">
-      <profileName>User/Supplementary_Services</profileName>
       <label>Dial Assistance</label>
+      <profileName>User/Supplementary_Services</profileName>
       <type>
         <enum>
           <option>
@@ -373,8 +370,8 @@
       </type>
     </setting>
     <setting name="Auto_Answer_Page">
-      <profileName>User/Supplementary_Services</profileName>
       <label>Auto Answer Page</label>
+      <profileName>User/Supplementary_Services</profileName>
       <type>
         <enum>
           <option>
@@ -387,8 +384,8 @@
       </type>
     </setting>
     <setting name="Preferred_Audio_Device">
-      <profileName>User/Supplementary_Services</profileName>
       <label>Preferred Audio Device</label>
+      <profileName>User/Supplementary_Services</profileName>
       <type>
         <enum>
           <option>
@@ -401,8 +398,8 @@
       </type>
     </setting>
     <setting name="Time_Format">
-      <profileName>User/Supplementary_Services</profileName>
       <label>Time Format</label>
+      <profileName>User/Supplementary_Services</profileName>
       <type>
         <enum>
           <option>
@@ -415,8 +412,8 @@
       </type>
     </setting>
     <setting name="Date_Format">
-      <profileName>User/Supplementary_Services</profileName>
       <label>Date Format</label>
+      <profileName>User/Supplementary_Services</profileName>
       <type>
         <enum>
           <option>
@@ -429,8 +426,8 @@
       </type>
     </setting>
     <setting name="Accept_Media_Loopback_Request">
-      <profileName>User/Supplementary_Services</profileName>
       <label>Accept Media Loopback Request</label>
+      <profileName>User/Supplementary_Services</profileName>
       <type>
         <enum>
           <option>
@@ -446,33 +443,33 @@
       </type>
     </setting>
     <setting name="Ringer_Volume">
-      <profileName>User/Audio_Volume</profileName>
       <label>Ringer Volume</label>
+      <profileName>User/Audio_Volume</profileName>
       <value>0</value>
     </setting>
     <setting name="Speaker_Volume">
-      <profileName>User/Audio_Volume</profileName>
       <label>Speaker Volume</label>
+      <profileName>User/Audio_Volume</profileName>
       <value>5</value>
     </setting>
     <setting name="Handset_Volume">
-      <profileName>User/Audio_Volume</profileName>
       <label>Handset Volume</label>
+      <profileName>User/Audio_Volume</profileName>
       <value>13</value>
     </setting>
     <setting name="Headset_Volume">
-      <profileName>User/Audio_Volume</profileName>
       <label>Head Volume</label>
+      <profileName>User/Audio_Volume</profileName>
       <value>10</value>
     </setting>
     <setting name="LCD_Contrast">
-      <profileName>User/Audio_Volume</profileName>
       <label>LCD Contrast</label>
+      <profileName>User/Audio_Volume</profileName>
       <value>8</value>
     </setting>
     <setting name="Back_Light_Timer">
-      <profileName>User/Audio_Volume</profileName>
       <label>Back Light Timer</label>
+      <profileName>User/Audio_Volume</profileName>
       <type>
         <enum>
           <option>
@@ -492,4 +489,3 @@
     </setting>
   </group>
 </model>
-
