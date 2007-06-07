@@ -10,6 +10,9 @@
             <label>G.726-32</label><value>2</value>
         </option>
         <option>
+            <label>GSM</label><value>3</value>
+        </option>
+        <option>
             <label>G.723.1</label><value>4</value>
         </option>
         <option>

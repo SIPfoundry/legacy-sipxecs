@@ -24,7 +24,7 @@
     </boolean>
   </type>
   <type id="port-number">
-    <integer required="yes" max="65534" />
+    <integer required="yes" min="1" max="65534" />
   </type>
   <type id="restricted-port-number">
     <integer required="yes" min="1024" max="32000" />
@@ -169,13 +169,13 @@
     </setting>
     <setting name='timer_t1'>
       <type>
-        <integer required="yes" min="100" max="640"/>
+        <integer required="yes" min="100" max="640" />
       </type>
       <value>500</value>
     </setting>
     <setting name='timer_t2'>
       <type>
-        <integer required="yes" min="641" max="6400"/>
+        <integer required="yes" min="641" max="6400" />
       </type>
       <value>4000</value>
     </setting>
@@ -307,7 +307,11 @@
       </type>
       <value>-1</value>
     </setting>
-    <setting name='forwarding_address'></setting>
+    <setting name='forwarding_address'>
+      <type>
+        <string maxLen="60" />
+      </type>
+    </setting>
     <setting name='noanswer_time'>
       <type>
         <integer min="1" max="30" />
