@@ -10,8 +10,11 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
@@ -23,7 +26,6 @@ import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.vm.DistributionList;
 import org.springframework.context.ApplicationContext;
 
 public class CoreContextImplTestDb extends SipxDatabaseTestCase {
@@ -455,19 +457,25 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         PermissionManagerImpl pm = new PermissionManagerImpl();
         pm.setModelFilesContext(TestHelper.getModelFilesContext());
 
-        DistributionList[] lists = DistributionList.createBlankList();
+        User user = m_core.loadUserByAlias("2");
+        assertNotNull(user);
+        user.setPermissionManager(pm);
+        user.setPermission(PermissionName.VOICEMAIL, false);
+        m_core.saveUser(user);
+
+        user = m_core.loadUserByAlias("3");
+        assertNotNull(user);
+        user.setPermissionManager(pm);
+        user.setPermission(PermissionName.VOICEMAIL, true);
+        m_core.saveUser(user);
 
         // An blank lists should have no invalid exceptions
-        m_core.checkForValidExtensions(lists);
+        Set<String> empty = Collections.emptySet();
+        m_core.checkForValidExtensions(empty, PermissionName.VOICEMAIL);
 
         // User with extension "10" doesn't exist
         try {
-            String[] extensions = new String[] {
-                "10"
-            };
-            // lists[0] is not available
-            lists[1].setExtensions(extensions);
-            m_core.checkForValidExtensions(lists);
+            m_core.checkForValidExtensions(Arrays.asList("10"), PermissionName.VOICEMAIL);
             fail();
         } catch (UserException e) {
             assertTrue(true);
@@ -475,38 +483,22 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
         // User with extension "2" exist, but doesn't have voicemail permission
         try {
-            User user = m_core.loadUserByAlias("2");
-            assertNotNull(user);
-            user.setPermissionManager(pm);
-            user.setPermission(PermissionName.VOICEMAIL, false);
-            m_core.saveUser(user);
-
-            String[] extensions = new String[] {
-                "2"
-            };
-            lists[1].setExtensions(extensions);
-            m_core.checkForValidExtensions(lists);
+            m_core.checkForValidExtensions(Arrays.asList("2"), PermissionName.VOICEMAIL);
             fail();
         } catch (UserException e) {
             assertTrue(true);
         }
 
         // User with extension "3" and voicemail permission;
+        m_core.checkForValidExtensions(Arrays.asList("3"), PermissionName.VOICEMAIL);
         try {
-            User user = m_core.loadUserByAlias("3");
-            assertNotNull(user);
-            user.setPermissionManager(pm);
-            user.setPermission(PermissionName.VOICEMAIL, true);
-            m_core.saveUser(user);
-
-            String[] extensions = new String[] {
-                "3"
-            };
-            lists[1].setExtensions(extensions);
-            m_core.checkForValidExtensions(lists);
-            assertTrue(true);
-        } catch (UserException e) {
+            m_core.checkForValidExtensions(Arrays.asList("2", "3", "10"),
+                    PermissionName.VOICEMAIL);
             fail();
+        } catch (UserException e) {
+            assertTrue(e.getMessage().contains("2"));
+            assertTrue(e.getMessage().contains("10"));
+            assertFalse(e.getMessage().contains("3"));
         }
     }
 }

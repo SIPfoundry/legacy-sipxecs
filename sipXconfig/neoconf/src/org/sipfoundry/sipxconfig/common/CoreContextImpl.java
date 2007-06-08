@@ -29,7 +29,6 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.vm.DistributionList;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -512,38 +511,34 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
 
     /**
-     * Given a collection of extensions, looks for invalid user or user without voicemail permission.  
-     * Throw a exception for invalid extension.
-     */    
-    public void checkForValidExtensions(DistributionList[] lists) {
-        String invalidExtensions = new String();
-        for (DistributionList distributionList : lists) {
-            // distributionList should not be null
-            String[] extensions = distributionList.getExtensions();
-            if (extensions != null) {
-                for (String extension : extensions) {
-                    User user = loadUserByUserNameOrAlias(extension);
-                    if (user != null) {
-                        if (!user.hasPermission(PermissionName.VOICEMAIL)) {
-                            invalidExtensions += extension + String.valueOf(' ');
-                        }
-                    } else {
-                        invalidExtensions += extension + String.valueOf(' ');
-                    }
-                }
+     * Given a collection of extensions, looks for invalid user or user without a specified
+     * permission. Throw a exception if an invalid extension found.
+     * 
+     * @param list of user aliases
+     * @param permission permission to check
+     * @throws ExtensionException if at least one of the aliases does not represent a valid user
+     *         with permission enabled
+     */
+    public void checkForValidExtensions(Collection<String> aliases, PermissionName permission) {
+        Collection<String> invalidExtensions = new ArrayList<String>();
+        for (String extension : aliases) {
+            User user = loadUserByUserNameOrAlias(extension);
+            if (user == null) {
+                invalidExtensions.add(extension);
+            } else if (!user.hasPermission(permission)) {
+                invalidExtensions.add(extension);
             }
         }
-        if (invalidExtensions.length() > 0) {
-            throw new ExtensionException(invalidExtensions.trim());
+        if (!invalidExtensions.isEmpty()) {
+            throw new ExtensionException(permission, invalidExtensions);
         }
     }
 
     static class ExtensionException extends UserException {
-        private static final String ERROR = 
-            "The following extensions does not exist/have voicemail permission: \"{0}\".";
+        private static final String ERROR = "The following extensions do not exist or do not have {0} permission: {1}.";
 
-        ExtensionException(String invalidExtensions) {
-            super(ERROR, invalidExtensions);
+        ExtensionException(PermissionName permission, Collection<String> invalidExtensions) {
+            super(ERROR, permission.getName(), StringUtils.join(invalidExtensions, ", "));
         }
     }
 }

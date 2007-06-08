@@ -14,8 +14,8 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.vm.DistributionList;
 
 /**
  * CoreContext
@@ -129,5 +129,5 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
 
     public List<User> getUsersThatISupervise(User uservisor);
 
-    public void checkForValidExtensions(DistributionList[] lists);
+    public void checkForValidExtensions(Collection<String> aliases, PermissionName permission);
 }
