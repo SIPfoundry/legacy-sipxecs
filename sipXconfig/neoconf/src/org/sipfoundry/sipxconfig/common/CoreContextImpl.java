@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.vm.DistributionList;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -508,5 +509,41 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
+    }
+
+    /**
+     * Given a collection of extensions, looks for invalid user or user without voicemail permission.  
+     * Throw a exception for invalid extension.
+     */    
+    public void checkForValidExtensions(DistributionList[] lists) {
+        String invalidExtensions = new String();
+        for (DistributionList distributionList : lists) {
+            // distributionList should not be null
+            String[] extensions = distributionList.getExtensions();
+            if (extensions != null) {
+                for (String extension : extensions) {
+                    User user = loadUserByUserNameOrAlias(extension);
+                    if (user != null) {
+                        if (!user.hasPermission(PermissionName.VOICEMAIL)) {
+                            invalidExtensions += extension + String.valueOf(' ');
+                        }
+                    } else {
+                        invalidExtensions += extension + String.valueOf(' ');
+                    }
+                }
+            }
+        }
+        if (invalidExtensions.length() > 0) {
+            throw new ExtensionException(invalidExtensions.trim());
+        }
+    }
+
+    static class ExtensionException extends UserException {
+        private static final String ERROR = 
+            "The following extensions does not exist/have voicemail permission: \"{0}\".";
+
+        ExtensionException(String invalidExtensions) {
+            super(ERROR, invalidExtensions);
+        }
     }
 }

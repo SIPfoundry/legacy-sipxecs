@@ -42,6 +42,15 @@
     <property name="message">
       <value>Please enter valid DNS host name or IP address, for example server.domain.org, 10.1.1.25</value>
     </property>
+  </bean>
+  <!-- distribution lists validator - space-separated list of extensions, can be empty -->
+  <bean name="validExtensions" class="org.apache.tapestry.form.validator.Pattern">
+    <property name="pattern">
+      <value>^(([0-9]+)|(([0-9])+(\ )+)|((([0-9]+)(\ )+)+)([0-9])+(\ ){0,})$</value>
+    </property>
+    <property name="message">
+      <value>Please enter valid extensions, for example:201 202 (use blank as separator)</value>
+    </property>
   </bean>  
   <!-- phone sequence validator - comma-separated list of area codes, can be empty -->
   <bean name="validPhoneSequence" class="org.apache.tapestry.form.validator.Pattern">

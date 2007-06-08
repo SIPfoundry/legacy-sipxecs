@@ -120,4 +120,42 @@ public class ValidatorsTest extends TestCase {
             assertTrue(true);
         }
     }
+
+    public void testValidExtensions() throws ValidatorException {
+        Pattern p = (Pattern) m_context.getBean("validExtensions");
+        p.validate(m_field, m_validationMessages, "123");
+        p.validate(m_field, m_validationMessages, "123 456");
+        p.validate(m_field, m_validationMessages, "123  456");
+        try {
+            p.validate(m_field, m_validationMessages, " 123");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "123 @");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "! 456");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "john 456");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "123,456");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+    }
 }

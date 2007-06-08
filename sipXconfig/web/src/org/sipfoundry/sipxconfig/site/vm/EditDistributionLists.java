@@ -45,6 +45,10 @@ public abstract class EditDistributionLists extends UserBasePage {
     }
     
     public void save() {
+        // XCF-1569
+        if (getDistributionLists() != null) {
+            getCoreContext().checkForValidExtensions(getDistributionLists());
+        }
         if (!getValidator().getHasErrors()) {
             Mailbox mailbox = getMailboxManager().getMailbox(getUser().getUserName()); 
             getMailboxManager().saveDistributionLists(mailbox, getDistributionLists());
