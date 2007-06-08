@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.vm;
 
-import java.util.Collection;
-
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Lifecycle;
@@ -18,7 +16,6 @@ import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.RowInfo;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 import org.sipfoundry.sipxconfig.vm.DistributionList;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
@@ -49,14 +46,9 @@ public abstract class EditDistributionLists extends UserBasePage {
     }
 
     public void save() {
-        DistributionList[] dls = getDistributionLists();
-        if (dls != null) {
-            Collection<String> aliases = DistributionList.getUniqueExtensions(dls);
-            getCoreContext().checkForValidExtensions(aliases, PermissionName.VOICEMAIL);
-        }
-        if (!getValidator().getHasErrors()) {
+        if (TapestryUtils.isValid(this)) {
             Mailbox mailbox = getMailboxManager().getMailbox(getUser().getUserName());
-            getMailboxManager().saveDistributionLists(mailbox, dls);
+            getMailboxManager().saveDistributionLists(mailbox, getDistributionLists());
         }
     }
 

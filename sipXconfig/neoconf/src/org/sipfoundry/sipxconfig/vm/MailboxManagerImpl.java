@@ -17,6 +17,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,7 +26,9 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public class MailboxManagerImpl implements MailboxManager {
     private static final String MESSAGE_SUFFIX = "-00.xml";
@@ -37,6 +40,7 @@ public class MailboxManagerImpl implements MailboxManager {
     private MailboxPreferencesWriter m_mailboxPreferencesWriter;
     private DistributionListsReader m_distributionListsReader;
     private DistributionListsWriter m_distributionListsWriter;
+    private CoreContext m_coreContext;
 
     public boolean isEnabled() {
         return m_mailstoreDirectory != null && m_mailstoreDirectory.exists();
@@ -52,6 +56,8 @@ public class MailboxManagerImpl implements MailboxManager {
     }
 
     public void saveDistributionLists(Mailbox mailbox, DistributionList[] lists) {
+        Collection<String> aliases = DistributionList.getUniqueExtensions(lists);
+        m_coreContext.checkForValidExtensions(aliases, PermissionName.VOICEMAIL);
         File file = mailbox.getDistributionListsFile();
         m_distributionListsWriter.writeObject(lists, file);
     }
@@ -219,5 +225,9 @@ public class MailboxManagerImpl implements MailboxManager {
 
     public void setMediaServerCgiUrl(String mediaServerCgiUrl) {
         m_mediaServerCgiUrl = mediaServerCgiUrl;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 }

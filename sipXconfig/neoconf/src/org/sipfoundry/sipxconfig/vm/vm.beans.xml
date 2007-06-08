@@ -3,22 +3,23 @@
 <beans>
   <bean id="mailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.MailboxManagerImpl">
     <property name="mailboxPreferencesReader">
-      <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesReader"/>
+      <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesReader" />
     </property>
     <property name="mailboxPreferencesWriter">
       <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesWriter">
-        <property name="velocityEngine" ref="velocityEngine"/>
+        <property name="velocityEngine" ref="velocityEngine" />
       </bean>
     </property>
     <property name="distributionListsReader">
-      <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsReader"/>
+      <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsReader" />
     </property>
     <property name="distributionListsWriter">
       <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsWriter">
-        <property name="velocityEngine" ref="velocityEngine"/>
+        <property name="velocityEngine" ref="velocityEngine" />
       </bean>
     </property>
+    <property name="coreContext" ref="coreContext" />
   </bean>
-  <alias alias="mailboxManager" name="mailboxManagerImpl"/>
-  
+  <alias alias="mailboxManager" name="mailboxManagerImpl" />
+
 </beans>
