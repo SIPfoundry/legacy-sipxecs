@@ -57,6 +57,7 @@ SubscribeServerThread::SubscribeServerThread(StatusServer& statusServer):
 
 SubscribeServerThread::~SubscribeServerThread()
 {
+    waitUntilShutDown();
     if( mpSipUserAgent )
         mpSipUserAgent = NULL;
 
@@ -245,6 +246,14 @@ void SubscribeServerThread::removeErrorRow (
 UtlBoolean
 SubscribeServerThread::handleMessage(OsMsg& eventMessage)
 {
+
+    // Only handle SIP messages
+    if (eventMessage.getMsgType() != OsMsg::PHONE_APP || 
+        eventMessage.getMsgSubType() != SipMessage::NET_SIP_MESSAGE)
+    {
+       return FALSE ;
+    }
+
     const SipMessage* message =
         ((SipMessageEvent&)eventMessage).getMessage();
 

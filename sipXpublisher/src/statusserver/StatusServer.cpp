@@ -141,15 +141,21 @@ StatusServer::StatusServer(
 // Destructor
 StatusServer::~StatusServer()
 {
+   waitUntilShutDown();
+
    // Wait for the owned servers to shutdown first
    if ( mSubscribeServerThread )
    {
       // Deleting a server task is the only way of 
       // waiting for shutdown to complete cleanly
-      mSubscribeServerThread->requestShutdown();
       delete mSubscribeServerThread;
       mSubscribeServerThread = NULL;
       mSubscribeServerThreadQ = NULL;
+   }
+   if ( mSubscribePersistThread)
+   {
+      delete mSubscribePersistThread;
+      mSubscribePersistThread = NULL;
    }
    // HTTP server shutdown
    if (mHttpServer)
@@ -220,8 +226,9 @@ StatusServer::handleMessage( OsMsg& eventMessage )
                 }
             }
         }
+        return(TRUE);
     }
-    return(TRUE);
+    return(FALSE);
 }
 
 StatusServer* 

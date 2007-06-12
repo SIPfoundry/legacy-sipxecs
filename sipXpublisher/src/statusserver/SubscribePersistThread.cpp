@@ -29,6 +29,7 @@ const int SubscribePersistThread::SIP_STATUS_DEFAULT_PERSIST_INTERVAL = 20;  // 
 
 /// Constructor
 SubscribePersistThread::SubscribePersistThread(StatusServer& statusServer) :
+   OsServerTask("SubscribePersistThread", NULL, 2000),
    mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mIsTimerRunning(false),
    mPersistTimer(getMessageQueue(), 0),
@@ -50,6 +51,8 @@ SubscribePersistThread::SubscribePersistThread(StatusServer& statusServer) :
 /// Destructor
 SubscribePersistThread::~SubscribePersistThread()
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SubscribePersistThread::~SubscribePersistThread ");
+   waitUntilShutDown();
 }
 
 
@@ -75,22 +78,21 @@ void SubscribePersistThread::schedulePersist()
 // Handle the expiration of the persist timer
 UtlBoolean SubscribePersistThread::handleMessage(OsMsg& eventMessage)    ///< Timer expiration msg
 {
-   UtlBoolean handled = TRUE;
+   UtlBoolean handled = FALSE;
 
    int msgType    = eventMessage.getMsgType();
    int msgSubType = eventMessage.getMsgSubType();
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SubscribePersistThread::handleMessage received message %d/%d",
+                    msgType, msgSubType);
 
    if (   OsMsg::OS_EVENT    == msgType
        && OsEventMsg::NOTIFY == msgSubType
        )
    {
       persist();
-   }
-   else
-   {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "SubscribePersistThread::handleMessage received unexpected message %d/%d",
-                    msgType, msgSubType);
+      handled = TRUE;
    }
    
    return handled;

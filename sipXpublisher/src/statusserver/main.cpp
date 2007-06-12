@@ -372,7 +372,6 @@ main(int argc, char* argv[] )
     {
         // Deleting a server task is the only way of
         // waiting for shutdown to complete cleanly
-        pServerTask->requestShutdown();
         delete pServerTask;
         pServerTask = NULL;
     }
