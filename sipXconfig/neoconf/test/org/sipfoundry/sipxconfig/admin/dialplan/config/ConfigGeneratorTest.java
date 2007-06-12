@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 
 /**
  * ConfigGeneratorTest
@@ -41,12 +42,11 @@ public class ConfigGeneratorTest extends XMLTestCase {
         dialPlanContext.getAttendantRules();
         planCtrl.andReturn(Collections.EMPTY_LIST);
         planCtrl.replay();
-        
+
         EmergencyRouting er = new EmergencyRouting();
 
-        ConfigGenerator generator = new ConfigGenerator();
+        ConfigGenerator generator = createConfigGenerator();
         generator.setDialingRuleProvider(dialingRuleProvider);
-        generator.getForwardingRules().setVelocityEngine(TestHelper.getVelocityEngine());
         generator.generate(dialPlanContext, er);
 
         AuthRules authRules = new AuthRules();
@@ -75,11 +75,20 @@ public class ConfigGeneratorTest extends XMLTestCase {
         // The XML diff is getting confused by whitespace, so remove it
         actualXml = removeTroublesomeWhitespace(actualXml);
         expectedXml = removeTroublesomeWhitespace(expectedXml);
-        
+
         assertXMLEqual("Comparing: " + type, expectedXml, actualXml);
     }
-    
+
     private String removeTroublesomeWhitespace(String text) {
         return text.replaceAll("\\n\\s*", "");
+    }
+
+    public static ConfigGenerator createConfigGenerator() {
+        SbcManager sbcManager = EasyMock.createNiceMock(SbcManager.class);
+        EasyMock.replay(sbcManager);
+        ConfigGenerator generator = new ConfigGenerator();
+        generator.getForwardingRules().setVelocityEngine(TestHelper.getVelocityEngine());
+        generator.getForwardingRules().setSbcManager(sbcManager);
+        return generator;
     }
 }

@@ -15,8 +15,8 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGeneratorTest;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -30,9 +30,9 @@ public class DialPlanContextImplTest extends TestCase {
         IMocksControl bfCtrl = EasyMock.createControl();
         BeanFactory bf = bfCtrl.createMock(ListableBeanFactory.class);
         bf.getBean(ConfigGenerator.BEAN_NAME, ConfigGenerator.class);
-        bfCtrl.andReturn(createConfigGenerator());
-        bfCtrl.andReturn(createConfigGenerator());
-        bfCtrl.andReturn(createConfigGenerator());
+        bfCtrl.andReturn(ConfigGeneratorTest.createConfigGenerator());
+        bfCtrl.andReturn(ConfigGeneratorTest.createConfigGenerator());
+        bfCtrl.andReturn(ConfigGeneratorTest.createConfigGenerator());
         bfCtrl.replay();
 
         DialPlanContextImpl manager = new MockDialPlanContextImpl(new DialPlan());
@@ -48,13 +48,7 @@ public class DialPlanContextImplTest extends TestCase {
 
         bfCtrl.verify();
     }
-    
-    private ConfigGenerator createConfigGenerator() {
-        ConfigGenerator generator = new ConfigGenerator();
-        generator.getForwardingRules().setVelocityEngine(TestHelper.getVelocityEngine());
-        return generator;
-    }
-    
+
     public void testMoveRules() throws Exception {
         IMocksControl mock = org.easymock.classextension.EasyMock.createNiceControl();
         DialPlan plan = mock.createMock(DialPlan.class);

@@ -26,7 +26,6 @@ import org.dom4j.Element;
 import org.dom4j.VisitorSupport;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
@@ -251,8 +250,7 @@ public class MappingRulesTest extends XMLTestCase {
         controlPlan.andReturn(Collections.EMPTY_LIST);
         controlPlan.replay();
 
-        ConfigGenerator generator = new ConfigGenerator();
-        generator.getForwardingRules().setVelocityEngine(TestHelper.getVelocityEngine());
+        ConfigGenerator generator = ConfigGeneratorTest.createConfigGenerator();
         generator.generate(plan, null);
 
         String generatedXml = generator.getFileContent(ConfigFileType.MAPPING_RULES);
