@@ -16,6 +16,7 @@
       classpath:/org/sipfoundry/sipxconfig/system.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/admin.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/dialplan/sbc/sbc.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/parkorbit/parkorbit.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml

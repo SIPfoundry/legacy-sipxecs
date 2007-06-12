@@ -224,7 +224,7 @@
 <!ATTLIST fxo_port
     fxo_port_id CDATA #REQUIRED
     gateway_id CDATA #REQUIRED
-    position CDATA #REQUIRED    
+    position CDATA #IMPLIED
     value_storage_id CDATA #IMPLIED
 >
 
@@ -501,6 +501,27 @@
     external_number CDATA #IMPLIED
     callers CDATA #IMPLIED
     emergency_routing_id CDATA #IMPLIED
+>
+
+<!ELEMENT sbc EMPTY>
+<!ATTLIST sbc
+    sbc_id CDATA #REQUIRED
+    enabled CDATA #IMPLIED
+    address CDATA #IMPLIED
+>
+
+<!ELEMENT sbc_route_domain EMPTY>
+<!ATTLIST sbc_route_domain
+    sbc_id CDATA #REQUIRED
+    domain CDATA #REQUIRED
+    index CDATA #REQUIRED
+>
+
+<!ELEMENT sbc_route_subnet EMPTY>
+<!ATTLIST sbc_route_subnet
+    sbc_id CDATA #REQUIRED
+    subnet CDATA #REQUIRED
+    index CDATA #REQUIRED
 >
 
 <!ELEMENT service EMPTY>

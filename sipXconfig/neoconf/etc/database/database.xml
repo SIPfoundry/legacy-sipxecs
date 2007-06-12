@@ -216,7 +216,8 @@
     <antcall target="enable-schedule"/>
     <antcall target="forwardrulemode"/>
   	<antcall target="fxo-port"/>  	
-  	<antcall target="update-ac-model"/>  	
+  	<antcall target="update-ac-model"/>
+  	<antcall target="sbc"/>  	
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="6" -->
   </target>	
@@ -437,6 +438,10 @@
     <sipx-sql>
       update phone SET model_id='audiocodesMP118_FXS'  where model_id = 'audiocodesFxs';
     </sipx-sql>  	
+  </target>
+
+  <target name="sbc" unless="sbc">
+    <db-patch patch="sbc"/>
   </target>
 
   <!-- 

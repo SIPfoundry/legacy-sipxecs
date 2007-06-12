@@ -18,11 +18,15 @@ import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.operation.DatabaseOperation;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
 
-public abstract class IntegrationTestCase extends AbstractTransactionalDataSourceSpringContextTests {    
+public abstract class IntegrationTestCase extends
+        AbstractTransactionalDataSourceSpringContextTests {
     private SessionFactory m_sessionFactory;
-    
+
+    private HibernateTemplate m_hibernateTemplate;
+
     static {
         // triggers creating sipxconfig.properties in classpath so spring app context
         // is properly configured with test settings
@@ -30,15 +34,15 @@ public abstract class IntegrationTestCase extends AbstractTransactionalDataSourc
     }
 
     public IntegrationTestCase() {
-        setAutowireMode(AUTOWIRE_BY_NAME);        
+        setAutowireMode(AUTOWIRE_BY_NAME);
     }
 
     protected String[] getConfigLocations() {
         // There are many interdependencies between spring files so in general you need
         // to load them all. However, if you do have isolated spring file, this is definitely
         // overrideable
-        return new String[] { 
-          "classpath:**/*.beans.xml", 
+        return new String[] {
+            "classpath:**/*.beans.xml",
         };
     }
 
@@ -57,7 +61,8 @@ public abstract class IntegrationTestCase extends AbstractTransactionalDataSourc
     protected void loadDataSet(String resource) {
         IDatabaseConnection connection = getConnection();
         try {
-            DatabaseOperation.CLEAN_INSERT.execute(connection, TestHelper.loadDataSetFlat(resource));
+            DatabaseOperation.CLEAN_INSERT.execute(connection, TestHelper
+                    .loadDataSetFlat(resource));
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -73,10 +78,22 @@ public abstract class IntegrationTestCase extends AbstractTransactionalDataSourc
         DatabaseConfig config = dbunitConnection.getConfig();
         config.setFeature("http://www.dbunit.org/features/batchedStatements", true);
 
-        return dbunitConnection;        
+        return dbunitConnection;
     }
-        
+
+    /**
+     * Flush hibernate session.
+     * 
+     * Flush need to be called after hibernate/spring operations, before testing the content of
+     * the database with jdbcTemplate or DBUnit assertions.
+     */
+    protected void flush() {
+        m_hibernateTemplate.flush();
+    }
+
     public void setSessionFactory(SessionFactory sessionFactory) {
         m_sessionFactory = sessionFactory;
+        m_hibernateTemplate = new HibernateTemplate();
+        m_hibernateTemplate.setSessionFactory(m_sessionFactory);
     }
 }

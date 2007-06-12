@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.dialplan.sbc" default-lazy="false">
+
+  <class name="Sbc" table="sbc">
+    <id name="id" column="sbc_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">sbc_seq</param>
+      </generator>
+    </id>
+    <property name="enabled"/>
+    <property name="address"/>
+    <component name="routes" class="SbcRoutes">
+      <list name="domains" table="sbc_route_domain">
+        <key column="sbc_id" foreign-key="fk_sbc_route_domain_sbc" />
+        <index column="index" />
+        <element type="string" column="domain" not-null="true" />
+      </list>
+      <list name="subnets" table="sbc_route_subnet">
+        <key column="sbc_id" foreign-key="fk_sbc_route_subnet_sbc" />
+        <index column="index" />
+        <element type="string" column="subnet" not-null="true" />
+      </list>
+    </component>
+  </class>
+
+</hibernate-mapping>
