@@ -25,16 +25,12 @@
       label="message:label.domains"
       addLinkLabel="message:link.addDomain"
       itemDisplayName="message:label.domain"
-      source="prop:sbc.routes.domains"
-      addListener="listener:addDomain"
-      deleteListener="listener:deleteDomain" />
+      source="prop:sbc.routes.domains"/>
     <fieldset jwcid="@common/ListPanel"
       label="message:label.subnets" 
       addLinkLabel="message:link.addSubnet"
       itemDisplayName="message:label.subnet"
-      source="prop:sbc.routes.subnets"
-      addListener="listener:addSubnet"
-      deleteListener="listener:deleteSubnet" />
+      source="prop:sbc.routes.subnets"/>
     <span jwcid="@FormActions" listener="listener:save"/>
   </form>
 </div>

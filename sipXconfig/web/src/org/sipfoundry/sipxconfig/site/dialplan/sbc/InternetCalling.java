@@ -9,9 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan.sbc;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
@@ -19,12 +20,15 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.site.dialplan.ActivateDialPlan;
 
 public abstract class InternetCalling extends BasePage implements PageBeginRenderListener {
     @InjectObject(value = "spring:sbcManager")
     public abstract SbcManager getSbcManager();
 
-    @Persist
+    @InjectPage(value = ActivateDialPlan.PAGE)
+    public abstract ActivateDialPlan getActivateDialPlan();
+
     public abstract Sbc getSbc();
 
     public abstract void setSbc(Sbc sbc);
@@ -40,27 +44,14 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
         }
     }
 
-    public void save() {
-
-    }
-
-    public void addDomain() {
-        if (TapestryUtils.isValid(this)) {
-            getSbc().getRoutes().addDomain();
+    public IPage save() {
+        if (!TapestryUtils.isValid(this)) {
+            return null;
         }
-    }
+        getSbcManager().saveDefaultSbc(getSbc());
 
-    public void addSubnet() {
-        if (TapestryUtils.isValid(this)) {
-            getSbc().getRoutes().addSubnet();
-        }
-    }
-
-    public void deleteDomain(int index) {
-        getSbc().getRoutes().removeDomain(index);
-    }
-
-    public void deleteSubnet(int index) {
-        getSbc().getRoutes().removeSubnet(index);
+        ActivateDialPlan dialPlans = getActivateDialPlan();
+        dialPlans.setReturnPage(this);
+        return dialPlans;
     }
 }

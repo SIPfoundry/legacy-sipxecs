@@ -2,11 +2,12 @@
   <legend><span jwcid="@Insert" value="prop:label"/></legend>
   <ul class="component-links">      
     <li>
-      <a jwcid="addLink@LinkSubmit" action="prop:addListener">
+      <a jwcid="addLink@LinkSubmit" selected="prop:add" tag="ognl:true">
         <span jwcid="@Insert" value="prop:addLinkLabel">Add</span>
       </a>
     </li>
   </ul>
+  <span jwcid="@Hidden" value="prop:size"/>
   <table>
     <tbody>
       <tr jwcid="@For"
@@ -22,7 +23,7 @@
             displayName="prop:itemDisplayName" />
         </td>
         <td>
-          <a jwcid="deleteLink@LinkSubmit" action="prop:deleteListener" parameters="prop:index">
+          <a jwcid="deleteLink@LinkSubmit" selected="prop:removeIndex" tag="prop:index">
             <span key="button.delete">Delete</span>
           </a>  
         </td>
