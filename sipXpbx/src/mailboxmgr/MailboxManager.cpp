@@ -1475,17 +1475,17 @@ MailboxManager::doLogin (
 
     // lazy create the Mailbox if the extension is valid
     OsStatus result = validateMailbox (
-        loginString,
-        TRUE, // resolve extension
-        TRUE, // check permissions
-        rMailboxIdentity,
+        loginString,       // userid/extension with/without domain
+        TRUE,              // resolve extension
+        TRUE,              // check permissions
+        rMailboxIdentity,  // URL of actual mailbox found
         rExtension );
 
         if (result == OS_SUCCESS)
     {
                 // Common security library algorithm used in AuthModule and also here
         if ( !SIPXAuthHelper::getInstance()->isAuthorizedUser (
-                    loginString,        // userid/extension with/without domain
+                    rMailboxIdentity,   // URL of mailbox
                     loginPassToken,     // password (numeric PIN here)
                     m_defaultRealm,     // realm
                     m_defaultDomain,    // domain
@@ -1496,6 +1496,7 @@ MailboxManager::doLogin (
             {
                 logContent =
                     "User : " + loginString +
+                    " Mailbox : " + rMailboxIdentity +
                     " Password : " + loginPassToken +
                     " not authorized for realm : " + m_defaultRealm;
                 result = OS_FAILED;
@@ -1738,8 +1739,8 @@ MailboxManager::validateMailbox (
         while ( !validated && ( result != OS_FAILED ) && (loopCount < 3) )
         {
            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                         "MailboxManager::validateMailbox: top of loop, loopCount = %d",
-                         loopCount);
+                         "MailboxManager::validateMailbox: top of loop, loopCount = %d mailboxUrl = '%s'",
+                         loopCount, mailboxUrl.toString().data());
 
             // check the IMDB for a matching identity
             if (CredentialDB::getInstance()->isUriDefined(
@@ -1924,7 +1925,6 @@ MailboxManager::validateMailbox (
                             " in ExtensionsDB, trying Aliases for Unique Row";
                         writeToLog( "validateMailbox", logContent, PRI_DEBUG);
 
-                        UtlString contactKey ("contact");
                         ResultSet aliasContacts;
 
                         // Ensure that we construct a valid Url to search the AliasDB
@@ -1960,21 +1960,28 @@ MailboxManager::validateMailbox (
                              result = OS_FAILED;
                         } else // Successful match
                         {
-                            writeToLog( "validateMailbox", logContent, PRI_DEBUG);
-                            logContent = "Success, found contact setting mailboxUrl to - " +
-                                mailboxUrl.toString();
-                            writeToLog( "validateMailbox", logContent, PRI_DEBUG);
-
-                            // update the userOrExtensionAtOptDomain
-                            CredentialDB::getInstance()->getUserPin (
-                                   mailboxUrl,                  // IN
-                                   m_defaultRealm,              // IN
-                                   userOrExtensionAtOptDomain,  // OUT
-                                   dbPassToken,                 // OUT
-                                   dbAuthType );                // OUT
-
-                            // keep the alias identity, so do not validate, exit the while loop
-                            validated = TRUE;
+                            // set the mailboxUrl to the first contact returned
+                            // (ideally we want to loop thru them all till we
+                            //  find a mailbox, but that's just asking too much
+                            //  for now! --Woof!)
+                            UtlHashMap record;
+                            aliasContacts.getIndex(0, record) ;
+                            UtlString *contact = (UtlString*)record.findValue(&contactKey);
+                            if (contact != NULL)
+                            {
+                               mailboxUrl = *contact ;
+                               logContent = "Success, found contact setting mailboxUrl to - " +
+                                   mailboxUrl.toString();
+                               writeToLog( "validateMailbox", logContent, PRI_DEBUG);
+                               // Now try to validate the new contact
+                               // (back to top of loop)
+                            }
+                            else
+                            {
+                               logContent = "FAILED- did not find contact for alias" + aliasIdentityUrl.toString();
+                               writeToLog( "validateMailbox", logContent, PRI_DEBUG);
+                               result = OS_FAILED;
+                            }
                         }
                     } else  // mailboxUrl is now valid
                     {
