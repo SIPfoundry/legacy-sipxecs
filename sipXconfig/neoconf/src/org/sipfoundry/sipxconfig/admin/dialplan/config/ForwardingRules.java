@@ -22,6 +22,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 
 /**
  * Controls very initial SIP message routing from proxy based on SIP method and potentialy message
@@ -29,12 +30,18 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  */
 public class ForwardingRules extends XmlFile {
     private VelocityEngine m_velocityEngine;
+    private SbcManager m_sbcManager;
+
     private String m_template = "commserver/forwardingrules.vm";
     private Document m_doc;
     private List<String> m_routes;
 
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         m_velocityEngine = velocityEngine;
+    }
+
+    public void setSbcManager(SbcManager sbcManager) {
+        m_sbcManager = sbcManager;
     }
 
     public void begin() {
@@ -48,19 +55,19 @@ public class ForwardingRules extends XmlFile {
     public void end() {
         VelocityContext velocityContext = new VelocityContext();
         velocityContext.put("routes", m_routes);
+        velocityContext.put("sbc", m_sbcManager.loadDefaultSbc());
         velocityContext.put("dollar", "$");
-        Writer out = new StringWriter();
         try {
-            m_velocityEngine.mergeTemplate(m_template, velocityContext, out);
-        } catch (Exception e) {
-            throw new RuntimeException("Error using velocity template " + m_template, e);
-        }
-        String xml = out.toString();
-        SAXReader xmlReader = new SAXReader();
-        try {
+            Writer out = new StringWriter();
+            m_velocityEngine.mergeTemplate(m_template, "UTF-8", velocityContext, out);
+            String xml = out.toString();
+            SAXReader xmlReader = new SAXReader();
             m_doc = xmlReader.read(new StringReader(xml));
         } catch (DocumentException e) {
             throw new RuntimeException(e);
+        } catch (Exception e) {
+            // merge template throws exception!
+            throw new RuntimeException("Error using velocity template " + m_template, e);
         }
     }
 

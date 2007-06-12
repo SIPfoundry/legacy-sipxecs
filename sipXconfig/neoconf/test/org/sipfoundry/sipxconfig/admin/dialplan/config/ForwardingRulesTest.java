@@ -9,40 +9,72 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.util.Arrays;
+
 import org.custommonkey.xmlunit.XMLTestCase;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
 
 public class ForwardingRulesTest extends XMLTestCase {
     protected void setUp() throws Exception {
         XmlUnitHelper.setNamespaceAware(false);
+        XMLUnit.setIgnoreWhitespace(true);
     }
-    
+
     public void testGenerate() throws Exception {
-        IMocksControl control = EasyMock.createNiceControl();
-        IDialingRule rule = control.createMock(IDialingRule.class);
+
+        IDialingRule rule = createNiceMock(IDialingRule.class);
         rule.getHostPatterns();
-        control.andReturn(new String[] {
+        expectLastCall().andReturn(new String[] {
             "gander"
         });
 
-        control.replay();
+        SbcRoutes routes = new SbcRoutes();
+        routes.setDomains(Arrays.asList("*.example.org", "*.example.net"));
+        routes.setSubnets(Arrays.asList("10.1.2.3/16"));
+
+        Sbc sbc = new Sbc();
+        sbc.setRoutes(routes);
+        sbc.setAddress("10.1.2.3");
+        sbc.setEnabled(true);
+
+        SbcManager sbcManager = createNiceMock(SbcManager.class);
+        sbcManager.loadDefaultSbc();
+        expectLastCall().andReturn(sbc);
+
+        replay(rule, sbcManager);
 
         ForwardingRules rules = new ForwardingRules();
         rules.setVelocityEngine(TestHelper.getVelocityEngine());
+        rules.setSbcManager(sbcManager);
         rules.begin();
         rules.generate(rule);
         rules.end();
 
         Document document = rules.getDocument();
-        String domDoc = XmlUnitHelper.asString(document);
-        
-        assertXpathEvaluatesTo("gander", "/routes/route/routeFrom[5]", domDoc);
+        String generatedXml = XmlUnitHelper.asString(document);
 
-        control.verify();
+        InputStream referenceXmlStream = ForwardingRulesTest.class
+                .getResourceAsStream("forwardingrules.test.xml");
+
+        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
+
+        assertXpathEvaluatesTo("gander", "/routes/route/routeFrom[5]", generatedXml);
+
+        verify(rule, sbcManager);
     }
 }

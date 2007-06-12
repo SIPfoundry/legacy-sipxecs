@@ -66,7 +66,7 @@ public abstract class XmlUnitHelper {
         try {
             StringWriter writer = new StringWriter();
             OutputFormat format = new OutputFormat();
-            format.setNewlines(true);
+            format.setNewlines(false);
             format.setIndent(true);
             XMLWriter xmlWriter = new XMLWriter(writer, format);
             xmlWriter.write(doc);
