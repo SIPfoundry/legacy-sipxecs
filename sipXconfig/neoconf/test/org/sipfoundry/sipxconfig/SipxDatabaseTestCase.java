@@ -30,10 +30,6 @@ public abstract class SipxDatabaseTestCase extends TestCase {
         }
     }
     
-    static void handleException(Exception e) {
-        
-    }
-
     static void dumpSqlExceptionMessages(SQLException e) {
         for (SQLException next = e; next != null; next = next.getNextException()) {
             System.err.println(next.getMessage());

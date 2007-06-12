@@ -60,7 +60,7 @@ public interface SipxProcessContext {
             processes.removeAll(Arrays.asList(noRestart));
             return Collections.unmodifiableList(processes);
         }
-    };
+    }
 
     public static class Command extends Enum {
         public static final Command START = new Command("start");
