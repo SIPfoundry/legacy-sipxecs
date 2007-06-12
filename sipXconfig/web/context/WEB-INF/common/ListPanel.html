@@ -1,0 +1,32 @@
+<fieldset>
+  <legend><span jwcid="@Insert" value="prop:label"/></legend>
+  <ul class="component-links">      
+    <li>
+      <a jwcid="addLink@LinkSubmit" action="prop:addListener">
+        <span jwcid="@Insert" value="prop:addLinkLabel">Add</span>
+      </a>
+    </li>
+  </ul>
+  <table>
+    <tbody>
+      <tr jwcid="@For"
+        source="prop:source"
+        value="prop:value"
+        index="prop:index"
+        volatile="true"
+        element="tr">
+        <td>
+          <input jwcid="@TextField" 
+            value="prop:value" 
+            validators="validators:required"
+            displayName="prop:itemDisplayName" />
+        </td>
+        <td>
+          <a jwcid="deleteLink@LinkSubmit" action="prop:deleteListener" parameters="prop:index">
+            <span key="button.delete">Delete</span>
+          </a>  
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</fieldset>

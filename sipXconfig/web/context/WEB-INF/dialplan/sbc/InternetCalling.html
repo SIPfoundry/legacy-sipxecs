@@ -1,0 +1,40 @@
+<div jwcid="@Border">
+  <h2><span key="title">Internet Calling</span></h2>
+  <span jwcid="@ErrorMsg" />
+  <form jwcid="@Form" delegate="bean:validator">
+    <fieldset>
+      <p>
+        <input jwcid="@Checkbox" value="prop:sbc.enabled" id="sbc:enabled"/>
+        <label for="sbc:enabled"><span key="label.enableInternetCalling"/></label>
+      </p>
+      <table>
+        <tbody>
+          <tr jwcid="@FieldPanel" for="sbc:address"
+            field="component:sbcAddress"
+            label="message:label.address"
+            description="message:description.address">
+            <input jwcid="sbcAddress@TextField" id="sbc:address" maxlength="40"
+              value="prop:sbc.address"
+              validators="spring-validators:required,validHostOrIp"
+              displayName="message:label.address"/>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <fieldset jwcid="@common/ListPanel"
+      label="message:label.domains"
+      addLinkLabel="message:link.addDomain"
+      itemDisplayName="message:label.domain"
+      source="prop:sbc.routes.domains"
+      addListener="listener:addDomain"
+      deleteListener="listener:deleteDomain" />
+    <fieldset jwcid="@common/ListPanel"
+      label="message:label.subnets" 
+      addLinkLabel="message:link.addSubnet"
+      itemDisplayName="message:label.subnet"
+      source="prop:sbc.routes.subnets"
+      addListener="listener:addSubnet"
+      deleteListener="listener:deleteSubnet" />
+    <span jwcid="@FormActions" listener="listener:save"/>
+  </form>
+</div>
