@@ -13,4 +13,8 @@
     <!-- we are not mapping the type yet - only call permissions are stored in DB -->
   </class>
 
+
+  <query name="anotherPermissionWithTheSameLabel">
+    <![CDATA[select count (*) from Permission p where p.id != :id and p.label = :label]]>
+  </query>
 </hibernate-mapping>

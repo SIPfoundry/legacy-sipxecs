@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.permission;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -20,8 +21,10 @@ import java.util.TreeSet;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.springframework.dao.support.DataAccessUtils;
 
 public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> implements
         PermissionManager {
@@ -31,6 +34,10 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
     private SipxReplicationContext m_replicationContext;
 
     public void addCallPermission(Permission permission) {
+        if (isLabelInUse(permission)) {
+            throw new DuplicatePermissionLabelException(permission.getLabel());
+        }
+
         getHibernateTemplate().saveOrUpdate(permission);
         m_replicationContext.generate(DataSet.PERMISSION);
     }
@@ -129,16 +136,22 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
         m_modelFilesContext = modelFilesContext;
     }
 
-    public Permission getCustomPermissionByLabel(String permissionLabel) {
-        if (permissionLabel == null) {
-            return null;
+    private boolean isLabelInUse(Permission permission) {
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "anotherPermissionWithTheSameLabel", new String[] {
+                    "id", "label"
+                }, new Object[] {
+                    permission.getId(), permission.getLabel()
+                });
+
+        return DataAccessUtils.intResult(count) > 0;
+    }
+
+    private static class DuplicatePermissionLabelException extends UserException {
+        private static final String ERROR = "Permission {0} was already defined. Please choose another name.";
+
+        public DuplicatePermissionLabelException(String label) {
+            super(ERROR, label);
         }
-        Collection<Permission> custom = loadCustomPermissions();
-        for (Permission customPermission : custom) {
-            if (customPermission.getLabel().equalsIgnoreCase(permissionLabel)) {
-                return customPermission;
-            }
-        }
-        return null;
     }
 }
