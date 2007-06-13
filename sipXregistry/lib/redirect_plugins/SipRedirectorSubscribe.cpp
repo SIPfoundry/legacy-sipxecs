@@ -74,7 +74,7 @@ SipRedirectorSubscribe::lookUp(
                  mLogName.data(), requestUri.toString().data());
 
    // This redirector operates only on SUBSCRIBE requests.
-   if (method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase))
+   if (method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase)==0)
    {
       // Remove q values from all contacts so that SUBSCRIBE is parallel-forked
       // (otherwise the low value subscriptions will never be found because the
