@@ -1078,7 +1078,7 @@ sub GetResponse
 
        if ( $RspState ne 'Done' )
        {
-           return ("premature connection close; state=$RspState expected=$RspContentLength more", $Rsp, "");
+           return ("premature connection close; state=$RspState expected $RspContentLength more bytes", $Rsp, "");
        }
 
       if(0)
