@@ -210,16 +210,19 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
           && (mpForwardingRules->getRoute(requestUri, sipRequest, mappedTo, routeType, authRequired)==OS_SUCCESS)
           )
       {
-         // Yes, so add a loose route to the mapped server
-         Url nextHopUrl(mappedTo);
-         nextHopUrl.setUrlParameter("lr", NULL);
-         UtlString routeString;
-         nextHopUrl.toString(routeString);
-         sipRequest.addRouteUri(routeString.data());
+         if (mappedTo.length() > 0)
+         {
+            // Yes, so add a loose route to the mapped server
+            Url nextHopUrl(mappedTo);
+            nextHopUrl.setUrlParameter("lr", NULL);
+            UtlString routeString;
+            nextHopUrl.toString(routeString);
+            sipRequest.addRouteUri(routeString.data());
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRouter fowardingrules added route type '%s' to: '%s'",
                        routeType.data(), routeString.data());
+         }
          if (authRequired)
          {
             // And a route to the authproxy if required

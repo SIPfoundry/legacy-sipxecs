@@ -31,6 +31,7 @@ class ForwardRulesTest : public CppUnit::TestCase
       CPPUNIT_TEST(testSimpleMapNoField);
       CPPUNIT_TEST(testSimpleMapForeignSubnet);
       CPPUNIT_TEST(testSimpleMapForeignDNS);
+      CPPUNIT_TEST(testSimpleMapAuthProxy);
       CPPUNIT_TEST_SUITE_END();
 
 
@@ -290,6 +291,44 @@ class ForwardRulesTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( strcmp(theRoute.data(),"FOREIGN_DNS") == 0 );
          CPPUNIT_ASSERT( strcmp(mappingType.data(),"foreignDns") == 0 );
          CPPUNIT_ASSERT( authRequired == true );
+      }
+
+      void testSimpleMapAuthProxy()
+      {
+         ForwardRules theRules;
+         UtlString     theRoute;
+         UtlString     mappingType;
+         bool          authRequired;
+         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+
+         CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
+                        == OS_SUCCESS
+                        );
+
+         CPPUNIT_ASSERT( theRules.getRoute(Url("sip:AUTHPROXY.GOOD"),
+                                           SipMessage("UNKNOWN sip:SIPXCHANGE_DOMAIN_NAME SIP/2.0\r\n"
+                                                      "\r\n"
+                                                      ),
+                                           theRoute,
+                                           mappingType,
+                                           authRequired
+                                           )
+                        == OS_SUCCESS
+                        );
+         CPPUNIT_ASSERT( theRoute.length() == 0 );
+         CPPUNIT_ASSERT( strcmp(mappingType.data(),"authProxy good") == 0 );
+         CPPUNIT_ASSERT( authRequired == true );
+
+         CPPUNIT_ASSERT( theRules.getRoute(Url("sip:AUTHPROXY.BAD"),
+                                           SipMessage("UNKNOWN sip:SIPXCHANGE_DOMAIN_NAME SIP/2.0\r\n"
+                                                      "\r\n"
+                                                      ),
+                                           theRoute,
+                                           mappingType,
+                                           authRequired
+                                           )
+                        == OS_FAILED
+                        );
       }
 };
 

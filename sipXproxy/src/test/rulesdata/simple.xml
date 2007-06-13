@@ -48,5 +48,15 @@
      <routeDnsWildcard>*.WOOF.net</routeDnsWildcard>
      <routeTo authRequired="true">FOREIGN_DNS</routeTo>
   </route>
+  <route mappingType="authProxy good">
+     <routeFrom>AUTHPROXY.GOOD</routeFrom>
+     <routeTo authRequired="true">  	
+		    	
+     </routeTo>
+  </route>
+  <route mappingType="authProxyBad">
+     <routeFrom>AUTHPROXY.BAD</routeFrom>
+     <routeTo authRequired="false"/>  	
+  </route>
 </routes>
 
