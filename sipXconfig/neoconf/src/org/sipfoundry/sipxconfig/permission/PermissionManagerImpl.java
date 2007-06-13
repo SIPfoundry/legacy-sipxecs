@@ -128,4 +128,17 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
     public void setModelFilesContext(ModelFilesContext modelFilesContext) {
         m_modelFilesContext = modelFilesContext;
     }
+
+    public Permission getCustomPermissionByLabel(String permissionLabel) {
+        if (permissionLabel == null) {
+            return null;
+        }
+        Collection<Permission> custom = loadCustomPermissions();
+        for (Permission customPermission : custom) {
+            if (customPermission.getLabel().equalsIgnoreCase(permissionLabel)) {
+                return customPermission;
+            }
+        }
+        return null;
+    }
 }

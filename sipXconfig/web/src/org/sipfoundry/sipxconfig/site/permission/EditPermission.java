@@ -9,11 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.site.permission;
 
+import java.text.MessageFormat;
+
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -54,8 +58,14 @@ public abstract class EditPermission extends PageWithCallback implements PageBeg
     }
 
     public void commit() {
+        PermissionManager pm = getPermissionManager();
+        Permission permission = pm.getCustomPermissionByLabel(getLabel());
         if (isValid()) {
-            saveValid();
+            if (permission != null && !(permission.equals(getPermission()))) {
+                recordError("message.duplicatePermission", getLabel());
+            } else {
+                saveValid();
+            }
         }
     }
 
@@ -86,5 +96,13 @@ public abstract class EditPermission extends PageWithCallback implements PageBeg
 
     public void setDescription(String description) {
         getPermission().setDescription(description);
+    }
+
+    private void recordError(String messageId, String label) {
+        IValidationDelegate delegate = TapestryUtils.getValidator(getPage());
+        String message = MessageFormat.format(getMessages().getMessage(messageId), new Object[] {
+            label
+        });
+        delegate.record(message, ValidationConstraint.CONSISTENCY);
     }
 }
