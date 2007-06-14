@@ -430,8 +430,9 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
 
         int resCode;
         struct pollfd pollState;
-        pollState.fd = tempSocketDescr;
-        pollState.events = POLLIN;
+        pollState.fd      = tempSocketDescr;
+        pollState.events  = POLLIN;
+        pollState.revents = 0;
 
         // In a POSIX system the system call might be interrupted...
         do
@@ -499,6 +500,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
            struct pollfd pset[1];
            pset[0].fd = tempSocketDescr;
            pset[0].events = POLLIN;
+           pset[0].revents = 0;
 
            // if wait time is less than zero block indefinitely
            int resCode = poll(pset, 1, waitMilliseconds);
@@ -586,6 +588,7 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
           {
              pset[0].fd = tempSocketDescr;
              pset[0].events = POLLOUT;
+             pset[0].revents = 0;
 
              // if wait time is less than zero block indefinitely
              resCode = poll(pset, 1, waitMilliseconds);

@@ -615,7 +615,7 @@ void SipRegistrar::configurePeers()
    else
    {
       OsSysLog::add(FAC_SIP, PRI_INFO, "SipRegistrar::configurePeers "
-                    "SIP_REGISTRAR_NAME not set - replication disbled"
+                    "SIP_REGISTRAR_NAME not set - replication disabled"
                     );
    }
 }

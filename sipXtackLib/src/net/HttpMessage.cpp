@@ -779,7 +779,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
             OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[4] sent request");      
         }
 
-        if (bytesSent == 0)            
+        if (bytesSent <= 0)            
         {
            OsSysLog::add(FAC_HTTP, PRI_WARNING, 
                          "HttpMessage::get[4] "
@@ -808,50 +808,65 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                }
             }
         }
-        else if(   bytesSent > 0
-                && httpSocket
-                && httpSocket->isReadyToRead(maxWaitMilliSeconds))
+        else // request was sent
         {
-           bytesRead = read(httpSocket); // consumes bytes until full message is read
-           OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
-                         "HttpMessage::get[4] read returned %d bytes",
-                         bytesRead);
-           if (!bytesRead)
+           if (httpSocket && httpSocket->isReadyToRead(maxWaitMilliSeconds))
            {
-              // Close a non-persistent connection
-              if (!pConnectionMap)
+              bytesRead = read(httpSocket); // consumes bytes until full message is read
+              OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
+                            "HttpMessage::get[4] read returned %d bytes",
+                            bytesRead);
+              if (!bytesRead)
               {
-                 OsSysLog::add(FAC_HTTP, PRI_ERR, "HttpMessage::get[4] read failed - closing");
-                 httpSocket->close();
-              }
-              else
-              {
-                 // persistent connection
-                 // No bytes were read .. if this is a persistent connection
-                 // and it failed on retry mark it unused  
-                 // in the connection map. Set socket to NULL
-                 OsSysLog::add(FAC_HTTP, PRI_ERR, 
-                               "HttpMessage::get[4] "
-                               "Receiving failed on persistent connection on try %d",
-                               sendTries);
-                 if (sendTries == HttpMessageRetries-1)                    
+                 // Close a non-persistent connection
+                 if (!pConnectionMap)
                  {
-                    pConnectionMapEntry->mbInUse = false;
-                 }
-                 if (httpSocket)
-                 {
+                    OsSysLog::add(FAC_HTTP, PRI_ERR, "HttpMessage::get[4] read failed - closing");
                     httpSocket->close();
-                    delete httpSocket;
-                    pConnectionMapEntry->mpSocket = NULL;
-                    httpSocket = NULL;
+                 }
+                 else
+                 {
+                    // persistent connection
+                    // No bytes were read .. if this is a persistent connection
+                    // and it failed on retry mark it unused  
+                    // in the connection map. Set socket to NULL
+                    OsSysLog::add(FAC_HTTP, PRI_ERR, 
+                                  "HttpMessage::get[4] "
+                                  "Receiving failed on persistent connection on try %d",
+                                  sendTries);
+                    if (sendTries == HttpMessageRetries-1)                    
+                    {
+                       pConnectionMapEntry->mbInUse = false;
+                    }
+                    if (httpSocket)
+                    {
+                       httpSocket->close();
+                       delete httpSocket;
+                       pConnectionMapEntry->mpSocket = NULL;
+                       httpSocket = NULL;
+                    }
                  }
               }
            }
-        }
-        else
-        {
-           // Success - we got a response
-           responseReceived = true;
+           else
+           {
+              // Either the socket closed or the read timed out
+              if (httpSocket)
+              {
+                 /*
+                  * If it timed out, close it.  This is required because otherwise the
+                  * response may eventually show up and be associated with some other request.
+                  * There is no way to recover the HTTP request/response framing.
+                  */
+                 OsSysLog::add(FAC_HTTP, PRI_ERR, "HttpMessage::get[4] read timed out - closing");
+                 httpSocket->close();
+                 delete httpSocket;
+                 pConnectionMapEntry->mpSocket = NULL;
+                 httpSocket = NULL;
+              }
+
+              responseReceived = true; // to get out of the loop and bail
+           }
         }
         ++sendTries;
     }

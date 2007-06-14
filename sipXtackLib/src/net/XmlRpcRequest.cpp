@@ -101,7 +101,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
       else
       {
          OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "XmlRpcRequest::execute XML-RPC received invalid response = \n%s",
+                       "XmlRpcRequest::execute XML-RPC received fault response = \n%s",
                        bodyString.data());
       }
    }

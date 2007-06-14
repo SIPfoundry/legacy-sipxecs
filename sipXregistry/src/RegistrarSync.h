@@ -11,7 +11,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsTask.h"
+#include "os/OsServerTask.h"
 
 // DEFINES
 // CONSTANTS
@@ -25,7 +25,7 @@ class SipRegistrarServer;
  * This thread is the XML-RPC client that sends updates to
  * each peer server.
  */
-class RegistrarSync : public OsTask
+class RegistrarSync : public OsServerTask
 {
 public:
    /// constructor
@@ -37,11 +37,8 @@ public:
    /// Signal that there may be updates ready to send.
    void sendUpdates();
 
-   /// Signal that it is time to shut down the task.
-   void requestShutdown(void);
-
-   /// Task main loop.
-   virtual int run(void* pArg);
+   /// Send any updates that we can.
+   UtlBoolean handleMessage(OsMsg& eventMessage);
    
 protected:
    SipRegistrarServer& getRegistrarServer();
@@ -49,11 +46,6 @@ protected:
 private:
    SipRegistrar& mRegistrar;
 
-   /// mutex must be locked with OsLock to access any other member variable.
-   OsBSem mMutex;
-
-   // OsCSem mUpdatesPending;   :TODO: this may need to change to a queue
-   
    /// There is no copy constructor.
    RegistrarSync(const RegistrarSync&);
 

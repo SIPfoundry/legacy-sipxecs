@@ -43,50 +43,67 @@ using std::auto_ptr;
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+/// Simple message (only the type is significant) to signal that updates may need to be sent.
+class SyncMsg : public OsMsg
+{
+public:
+
+   typedef enum 
+   {
+      RegistrationChange = OsMsg::USER_START
+   } RegistrarMsgType;
+
+   SyncMsg()
+      : OsMsg( RegistrationChange, 0 )
+      {
+      };
+
+   virtual ~SyncMsg()
+      {
+      };
+};
+
 /// constructor
 RegistrarSync::RegistrarSync(SipRegistrar& registrar) :
-   OsTask("RegistrarSync"),
-   mRegistrar(registrar),
-   mMutex(OsBSem::Q_PRIORITY, OsBSem::EMPTY)
+   OsServerTask("RegistrarSync"),
+   mRegistrar(registrar)
 {
 };
 
 /// Signal that there may be updates ready to send
 void RegistrarSync::sendUpdates()
 {
-   mMutex.release();
+   SyncMsg syncMsg;
+
+   getMessageQueue()->send(syncMsg);
 }
 
-/// 
-void RegistrarSync::requestShutdown(void)
+/// Send any updates that we can.
+int RegistrarSync::handleMessage(OsMsg& eventMessage)
 {
-   // this is called from the SipRegistrar destructor in its thread.
+   UtlBoolean handled = FALSE;
 
-   OsTask::requestShutdown(); // mark base OsTask as shutting down.
-   mMutex.release(); // wake up the task from waiting for this.
-}
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarSync::handleMessage started");
 
-
-/// Task main loop
-int RegistrarSync::run(void* pArg)
-{
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarSync started");
-
-   while (!isShuttingDown())
+   if (SyncMsg::RegistrationChange == eventMessage.getMsgType())
    {
-      // Wait until there is work to do - this is signalled by the sendUpdates method
-      mMutex.acquire();
-      
+      /*
+       * Loop over all peers, pushing a single update to each peer.  Keep going until
+       * we get through the loop without pushing to any peer or we are asked to shut down.
+       *
+       * On some invocations, this loop will do the 'normal' thing and push the one change
+       * to each peer, but this is not the only possibility.  The change may already have
+       * been sent by a pullUpdates from the peer, or by some earlier call to this routine,
+       * or it may fail and need to be sent by a subsequent push attempt.
+       *
+       * Failure to push to a peer marks that peer as UnReachable, which prevents this
+       * loop from further attempts to that peer, and also triggers the RegistrarTest
+       * task to begin polling for when it comes back.
+       */ 
       bool pushedUpdate = true;
       while (pushedUpdate && !isShuttingDown())
       {
          pushedUpdate = false;
-         // Loop over all peers, pushing a single update for each peer.  Keep going until
-         // there are no updates left to push to any peer.
-         // There is a benign race condition here: a local registration might happen just
-         // after we have checked the last peer and decided that there is nothing to do.
-         // That's OK because the mutex will have been signalled -- we'll acquire it again
-         // immediately and come right back to the loop.
 
          // For each Reachable peer, if the local DbUpdateNumber is greater than the
          // PeerSentDbUpdateNumber, then push a single update.
@@ -102,18 +119,32 @@ int RegistrarSync::run(void* pArg)
                bool isUpdateToSend = getRegistrarServer().getNextUpdateToSend(peer, bindings);
                if (isUpdateToSend)
                {
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarSync::handleMessage "
+                                "attempting to push an update to peer '%s'",
+                                peer->name()
+                                );
                   // :LATER: move updating of PeerSentDbUpdateNumber out of
                   // SyncRpcPushUpdates::invoke and into RegistrarSync?
                   SyncRpcPushUpdates::invoke(peer, mRegistrar.primaryName(), &bindings);
-                  pushedUpdate = true;
+                  if (peer->isReachable() /* will not be true if the pushUpdate failed */ )
+                  {
+                     pushedUpdate = true;
+                  }
                   bindings.destroyAll();
                }
             }
          }
       }
+      handled = TRUE;
+   }
+   else
+   {
+      // let the base class handle any other event - should be just the shutdown request.
    }
 
-   return 0;
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarSync::handleMessage finished");
+   
+   return handled;
 }
 
 

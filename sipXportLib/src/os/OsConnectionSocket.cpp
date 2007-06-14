@@ -246,21 +246,24 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
                        socketDescriptor, timeoutInMilliseconds);
       
          struct pollfd pset[1];
-         pset[0].fd = socketDescriptor;
-         pset[0].events = POLLOUT;
-         int pollResult = poll(pset, 1, timeoutInMilliseconds);
-
-         if (1 == pollResult && (pset[0].revents & POLLERR) != 0)
+         pset[0].fd      = socketDescriptor;
+         pset[0].events  = POLLOUT;
+         pset[0].revents = 0;
+         int pollResult  = poll(pset, 1, timeoutInMilliseconds); // returns # of events
+         if (1 == pollResult)
          {
-            // some error on the socket
-            connectReturn = -1;
-            error = OsSocketGetERRNO();
-         }
-         else if (1 == pollResult && (pset[0].revents & POLLOUT) != 0)
-         {
-            // the connect has completed
-            connectReturn = 0;
-            error = 0;
+            if (pset[0].revents & POLLERR)
+            {
+               // some error on the socket
+               connectReturn = -1;
+               error = OsSocketGetERRNO();
+            }
+            else if (pset[0].revents & POLLOUT)
+            {
+               // the connect has completed
+               connectReturn = 0;
+               error = 0;
+            }
          }
          else if (0 == pollResult)
          {

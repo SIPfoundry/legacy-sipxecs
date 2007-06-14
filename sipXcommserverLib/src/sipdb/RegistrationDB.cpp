@@ -246,7 +246,7 @@ OsStatus RegistrationDB::cleanAndPersist( int newerThanTime )
         if ( rows > 0 )
         {
             OsSysLog::add( FAC_SIP, PRI_DEBUG
-                          ,"RegistrationDB::cleanAndPersist cleaning out %d rows\n"
+                          ,"RegistrationDB::cleanAndPersist cleaning out %d rows"
                           ,rows
                           );
             expireCursor.removeAllSelected();
@@ -265,7 +265,7 @@ OsStatus RegistrationDB::cleanAndPersist( int newerThanTime )
         if ( rows > 0 )
         {
             OsSysLog::add( FAC_SIP, PRI_DEBUG
-                          ,"RegistrationDB::cleanAndPersist writing %d rows\n"
+                          ,"RegistrationDB::cleanAndPersist writing %d rows"
                           ,rows
                           );
 

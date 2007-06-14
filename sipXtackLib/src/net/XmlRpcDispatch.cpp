@@ -179,10 +179,6 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
    XmlRpcResponse responseBody;
    XmlRpcMethodContainer* methodContainer = NULL;
    UtlSList params;
-   OsSysLog::add(FAC_SIP, PRI_INFO,
-                 "XmlRpcDispatch::processRequest received request\n%s",
-                 bodyString.data()
-                 );
 
    if (parseXmlRpcRequest(bodyString, methodContainer, params, responseBody))
    {
@@ -325,10 +321,6 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
             methodContainer = (XmlRpcMethodContainer*) mMethods.findValue(&methodCall);
             if (methodContainer)
             {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "XmlRpcDispatch::parseXmlRpcRequest requestMethod = '%s'",
-                             methodCall.data());
-                             
                TiXmlNode* paramsNode = rootNode->FirstChild("params");
                
                if (paramsNode)
@@ -361,7 +353,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
             else
             {
                OsSysLog::add(FAC_SIP, PRI_ERR,
-                             "XmlRpcDispatch::parseXmlRpcRequest no method named %s is registered",
+                             "XmlRpcDispatch::parseXmlRpcRequest no method '%s' registered",
                              methodCall.data());
                response.setMethod(methodCall);
                response.setFault(UNREGISTERED_METHOD_FAULT_CODE, UNREGISTERED_METHOD_FAULT_STRING);
