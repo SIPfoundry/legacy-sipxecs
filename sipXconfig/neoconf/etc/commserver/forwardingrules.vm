@@ -58,7 +58,26 @@
 
     <routeTo>&lt;${dollar}{AUTH_PROXY_SERVER_SIP_SRV_OR_HOSTPORT}&gt;</routeTo>
   </route>
-    
+
+  #foreach($auxSbc in $auxSbcs)
+    #if($auxSbc.enabled)
+  <route mappingType='auxiliary SBC'>
+    <description>
+      Subnets and domains routed to ${auxSbc.address}
+    </description>
+
+      #foreach($subnet in ${auxSbc.routes.subnets})
+    <routeIPv4subnet>$subnet</routeIPv4subnet>
+      #end
+
+      #foreach($domain in ${auxSbc.routes.domains})
+    <routeDnsWildcard>$domain</routeDnsWildcard>
+      #end
+
+    <routeTo authRequired="true">&lt;${auxSbc.address}&gt;</routeTo>
+  </route>
+    #end
+  #end
   <route mappingType='external destinations'>
     <description>
       Any foreign domain - route via session border.

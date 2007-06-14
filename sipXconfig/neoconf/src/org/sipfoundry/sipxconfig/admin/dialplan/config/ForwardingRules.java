@@ -56,6 +56,7 @@ public class ForwardingRules extends XmlFile {
         VelocityContext velocityContext = new VelocityContext();
         velocityContext.put("routes", m_routes);
         velocityContext.put("sbc", m_sbcManager.loadDefaultSbc());
+        velocityContext.put("auxSbcs", m_sbcManager.loadAuxSbcs());
         velocityContext.put("dollar", "$");
         try {
             Writer out = new StringWriter();
