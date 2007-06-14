@@ -1,0 +1,35 @@
+<fieldset>
+  <legend><span key="label.additionalSbcs"/></legend>
+  <ul class="component-links">
+    <li>
+      <a jwcid="@DirectLink" id="sbc:add" listener="listener:add">
+        <span key="link.add">Add SBC</span>
+      </a>
+    </li>
+  </ul>
+  <table jwcid="@Table" id="sbc:list"
+    source="prop:sbcs"
+    columns="* address,enabled"
+    row="prop:currentRow"
+    selections="bean:selections">
+    <span jwcid="addressColumnValue@Block">
+      <span jwcid="editRowLink@DirectLink"
+          listener="listener:edit" parameters="prop:currentRow.primaryKey">
+        <span jwcid="@Insert" value="prop:currentRow.address"/>
+      </span>
+    </span>
+    <span jwcid="enabledColumnValue@Block">
+      <span jwcid="@common/EnabledColumn" value="prop:currentRow.enabled"/>
+    </span>
+  </table>
+  <ul class="component-submit">
+    <li>
+      <input jwcid="delete@Submit"
+        id="sbc:delete"
+        selected="prop:rowsToDelete"
+        tag="prop:allSelected"
+        value="message:button.delete" />
+      <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+    </li>
+  </ul>
+</fieldset>

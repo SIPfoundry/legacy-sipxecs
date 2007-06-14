@@ -1,0 +1,8 @@
+<div jwcid="@Border">
+  <h2><span key="title">SBC</span></h2>
+  <span jwcid="@ErrorMsg" />
+  <form jwcid="@Form" delegate="bean:validator">
+    <fieldset jwcid="@dialplan/sbc/SbcPanel" sbc="prop:sbc"/>
+    <span jwcid="@FormActions" listener="listener:save" callback="prop:callback"/>
+  </form>
+</div>

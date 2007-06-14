@@ -7,4 +7,5 @@
   <sbc_route_domain index="0" sbc_id="1000" domain="*.example.org" />
   <sbc_route_domain index="1" sbc_id="1000" domain="*.example.net" />
   <sbc_route_subnet index="0" sbc_id="1000" subnet="10.1.2.3/24" />
+  <sbc_route_subnet index="0" sbc_id="1001" subnet="10.1.2.5/24" />
 </dataset>

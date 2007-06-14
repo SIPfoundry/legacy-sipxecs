@@ -1,0 +1,29 @@
+<fieldset>
+  <p>
+    <input jwcid="@Checkbox" value="prop:sbc.enabled" id="sbc:enabled"/>
+    <label for="sbc:enabled"><span key="enabled"/></label>
+  </p>
+  <table>
+    <tbody>
+      <tr jwcid="@FieldPanel" for="sbc:address"
+        field="component:sbcAddress"
+        label="message:label.address"
+        description="message:description.address">
+        <input jwcid="sbcAddress@TextField" id="sbc:address" maxlength="40"
+          value="prop:sbc.address"
+          validators="spring-validators:required,validHostOrIp"
+          displayName="message:label.address"/>
+      </tr>
+    </tbody>
+  </table>
+</fieldset>
+<fieldset jwcid="@common/ListPanel"
+  label="message:label.domains"
+  addLinkLabel="message:link.addDomain"
+  itemDisplayName="message:label.domain"
+  source="prop:sbc.routes.domains"/>
+<fieldset jwcid="@common/ListPanel"
+  label="message:label.subnets"
+  addLinkLabel="message:link.addSubnet"
+  itemDisplayName="message:label.subnet"
+  source="prop:sbc.routes.subnets"/>

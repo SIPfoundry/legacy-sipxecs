@@ -2,6 +2,9 @@
   <h2><span key="title">Internet Calling</span></h2>
   <span jwcid="@ErrorMsg" />
   <form jwcid="@Form" delegate="bean:validator">
+    <ul class="component-links">
+      <li jwcid="@ToggleLink" toggle="prop:advanced"></li>
+    </ul>
     <fieldset>
       <p>
         <input jwcid="@Checkbox" value="prop:sbc.enabled" id="sbc:enabled"/>
@@ -31,6 +34,9 @@
       addLinkLabel="message:link.addSubnet"
       itemDisplayName="message:label.subnet"
       source="prop:sbc.routes.subnets"/>
-    <span jwcid="@FormActions" listener="listener:save"/>
+    <fieldset jwcid="@If" condition="prop:advanced">
+      <div jwcid="@dialplan/sbc/ListSbcs" validator="bean:validator"/>
+    </fieldset>
+    <span jwcid="@FormActions" listener="listener:activate"/>
   </form>
 </div>

@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
@@ -84,7 +85,7 @@ public abstract class TestPage extends BasePage {
     public abstract DialPlanContext getDialPlanContext();
 
     public abstract GatewayContext getGatewayContext();
-    
+
     @InjectObject(value = "spring:nakedGatewayModelSource")
     public abstract ModelSource<GatewayModel> getGatewayModels();
 
@@ -113,7 +114,7 @@ public abstract class TestPage extends BasePage {
     public abstract JobContext getJobContext();
 
     public abstract AcdContext getAcdContext();
-    
+
     public abstract IndexManager getIndexManager();
 
     public abstract LdapImportManager getLdapImportManager();
@@ -123,17 +124,19 @@ public abstract class TestPage extends BasePage {
     public abstract UserSession getUserSession();
 
     public abstract IEngineService getRestartService();
-    
+
     public abstract MailboxManager getMailboxManager();
-    
+
     @InjectObject(value = "spring:serviceManager")
     public abstract ServiceManager getServiceManager();
 
-    
+    @InjectObject(value = "spring:sbcManager")
+    public abstract SbcManager getSbcManager();
+
     public void resetServiceManager() {
         getServiceManager().clear();
     }
-    
+
     public void resetCallForwarding() {
         getForwardingContext().clear();
     }
@@ -143,6 +146,10 @@ public abstract class TestPage extends BasePage {
         getGatewayContext().clear();
     }
 
+    public void resetInternetCalling() {
+        getSbcManager().clear();
+    }
+
     public void resetPhoneContext() {
         getPhoneContext().clear();
     }
@@ -150,10 +157,10 @@ public abstract class TestPage extends BasePage {
     public void resetCallGroupContext() {
         getCallGroupContext().clear();
     }
-    
+
     public void resetAcdContext() {
         getAcdContext().clear();
-    }    
+    }
 
     public void resetParkOrbitContext() {
         getParkOrbitContext().clear();
@@ -175,9 +182,9 @@ public abstract class TestPage extends BasePage {
         // any links are clicked
         return PAGE;
     }
-    
+
     public void resetPhonebook() {
-        getPhonebookManager().reset();        
+        getPhonebookManager().reset();
     }
 
     public String logout() {
@@ -267,7 +274,7 @@ public abstract class TestPage extends BasePage {
         UserSession userSession = getUserSession();
         userSession.login(user.getId(), false, true);
     }
-    
+
     public IPage seedFxoGateway() {
         getDialPlanContext().clear();
         GatewayContext gatewayService = getGatewayContext();
@@ -365,19 +372,20 @@ public abstract class TestPage extends BasePage {
         page.setDataSetName(setName);
         return page;
     }
-    
+
     public void disableVoicemail() {
-        MailboxManager mgr = getMailboxManager();        
+        MailboxManager mgr = getMailboxManager();
         File existing = new File(mgr.getMailstoreDirectory());
         try {
             FileUtils.deleteDirectory(existing);
         } catch (IOException e) {
-            throw new RuntimeException("Could not delete mailstore " + existing.getAbsolutePath(), e);
+            throw new RuntimeException(
+                    "Could not delete mailstore " + existing.getAbsolutePath(), e);
         }
     }
-    
+
     public void resetVoicemail() {
-        MailboxManager mgr = getMailboxManager();        
+        MailboxManager mgr = getMailboxManager();
         File existing = new File(mgr.getMailstoreDirectory());
         if (!existing.exists()) {
             existing.mkdir();
@@ -385,21 +393,25 @@ public abstract class TestPage extends BasePage {
         try {
             FileUtils.cleanDirectory(existing);
         } catch (IOException e) {
-            throw new RuntimeException("Could not clean existing sample voicemail store " + existing.getAbsolutePath());
+            throw new RuntimeException("Could not clean existing sample voicemail store "
+                    + existing.getAbsolutePath());
         }
 
         Class manageVmTestUiClass;
         try {
-            manageVmTestUiClass = Class.forName("org.sipfoundry.sipxconfig.site.vm.ManageVoicemailTestUi");
+            manageVmTestUiClass = Class
+                    .forName("org.sipfoundry.sipxconfig.site.vm.ManageVoicemailTestUi");
         } catch (ClassNotFoundException e1) {
             throw new RuntimeException("Cannot access ui test directory via test class resource");
         }
-        File original = new File(TestUtil.getTestSourceDirectory(manageVmTestUiClass) + "/mailstore");
+        File original = new File(TestUtil.getTestSourceDirectory(manageVmTestUiClass)
+                + "/mailstore");
         try {
-            FileUtils.copyDirectory(original, existing);        
+            FileUtils.copyDirectory(original, existing);
         } catch (IOException e) {
-            String msg = String.format("Could not reset sample voicemail store from original '%s' to '%s'",
-                    original.getAbsolutePath(), existing.getAbsolutePath());
+            String msg = String.format(
+                    "Could not reset sample voicemail store from original '%s' to '%s'", original
+                            .getAbsolutePath(), existing.getAbsolutePath());
             throw new RuntimeException(msg);
         }
     }

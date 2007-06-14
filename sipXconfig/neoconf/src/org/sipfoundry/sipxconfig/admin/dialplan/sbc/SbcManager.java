@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface SbcManager {
@@ -17,4 +18,10 @@ public interface SbcManager {
     List<AuxSbc> loadAuxSbcs();
 
     void saveSbc(Sbc sbc);
+
+    AuxSbc loadSbc(Integer sbcId);
+
+    void removeSbcs(Collection<Integer> sbcIds);
+
+    void clear();
 }

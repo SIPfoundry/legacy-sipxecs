@@ -13,6 +13,7 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
@@ -36,6 +37,9 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
+    @Persist
+    public abstract boolean isAdvanced();
+
     public void pageBeginRender(PageEvent event_) {
         Sbc sbc = getSbc();
         if (sbc == null) {
@@ -44,14 +48,18 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
         }
     }
 
-    public IPage save() {
+    public IPage activate() {
         if (!TapestryUtils.isValid(this)) {
             return null;
         }
-        getSbcManager().saveSbc(getSbc());
+        saveValid();
 
         ActivateDialPlan dialPlans = getActivateDialPlan();
         dialPlans.setReturnPage(this);
         return dialPlans;
+    }
+
+    private void saveValid() {
+        getSbcManager().saveSbc(getSbc());
     }
 }

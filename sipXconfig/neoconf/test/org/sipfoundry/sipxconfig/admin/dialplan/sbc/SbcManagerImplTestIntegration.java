@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
@@ -41,11 +42,43 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("*.example.net", routes.getDomains().get(1));
     }
 
-    public void testLoadAuxSbc() throws Exception {
+    public void testLoadAuxSbcs() throws Exception {
         loadDataSet("admin/dialplan/sbc/sbc.db.xml");
         assertEquals(3, countRowsInTable("sbc"));
         List<AuxSbc> sbcs = m_sbcManager.loadAuxSbcs();
         assertEquals(2, sbcs.size());
+    }
+
+    public void testRemoveAuxSbcs() throws Exception {
+        loadDataSet("admin/dialplan/sbc/sbc.db.xml");
+        assertEquals(3, countRowsInTable("sbc"));
+        assertEquals(2, countRowsInTable("sbc_route_subnet"));
+        m_sbcManager.removeSbcs(Arrays.asList(1001));
+        flush();
+
+        assertEquals(2, countRowsInTable("sbc"));
+        assertEquals(1, countRowsInTable("sbc_route_subnet"));
+    }
+
+    public void testClear() throws Exception {
+        loadDataSet("admin/dialplan/sbc/sbc.db.xml");
+        assertEquals(3, countRowsInTable("sbc"));
+        assertEquals(2, countRowsInTable("sbc_route_subnet"));
+        m_sbcManager.clear();
+        flush();
+
+        assertEquals(0, countRowsInTable("sbc"));
+        assertEquals(0, countRowsInTable("sbc_route_subnet"));
+    }
+
+    public void testLoadAuxSbc() throws Exception {
+        loadDataSet("admin/dialplan/sbc/sbc.db.xml");
+        assertEquals(3, countRowsInTable("sbc"));
+        AuxSbc sbc = m_sbcManager.loadSbc(1001);
+
+        assertEquals("10.1.2.4", sbc.getAddress());
+        assertEquals("10.1.2.5/24", sbc.getRoutes().getSubnets().get(0));
+        assertEquals(0, sbc.getRoutes().getDomains().size());
     }
 
     public void testSaveSbc() throws Exception {
