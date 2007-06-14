@@ -48,7 +48,7 @@
     <routeDnsWildcard>*.example.org</routeDnsWildcard>
     <routeDnsWildcard>*.example.net</routeDnsWildcard>
 
-    <routeTo>&lt;${AUTH_PROXY_SERVER_SIP_SRV_OR_HOSTPORT}&gt;</routeTo>
+    <routeTo authRequired="true"/>
   </route>
 
   <route mappingType="auxiliary SBC">
@@ -57,7 +57,7 @@
     <routeDnsWildcard>*.sipfoundry.org</routeDnsWildcard>
     <routeDnsWildcard>*.sipfoundry.net</routeDnsWildcard>
 
-    <routeTo authRequired="true">&lt;10.1.2.4&gt;</routeTo>
+    <routeTo authRequired="true">10.1.2.4</routeTo>
   </route>
 
   <route mappingType="auxiliary SBC">
@@ -68,7 +68,7 @@
     <routeDnsWildcard>*.xxx</routeDnsWildcard>
     <routeDnsWildcard>*.example.tm</routeDnsWildcard>
 
-    <routeTo authRequired="true">&lt;sbc.example.org&gt;</routeTo>
+    <routeTo authRequired="true">sbc.example.org</routeTo>
   </route>
 
   <route mappingType="external destinations">
@@ -77,6 +77,6 @@
     <routeDnsWildcard>*</routeDnsWildcard>
     <routeIPv4subnet>0/0</routeIPv4subnet>
 
-    <routeTo authRequired="true">&lt;10.1.2.3&gt;</routeTo>
+    <routeTo authRequired="true">10.1.2.3</routeTo>
   </route>
 </routes>
