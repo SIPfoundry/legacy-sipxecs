@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 
 public class SbcManagerImplTestIntegration extends IntegrationTestCase {
@@ -22,12 +24,12 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
         assertNotNull(sbc.getRoutes());
         assertFalse(sbc.isNew());
         flush();
-        assertEquals(1, countRowsInTable("sbc"));        
+        assertEquals(1, countRowsInTable("sbc"));
     }
 
     public void testLoadDefaultSbc() throws Exception {
         loadDataSet("admin/dialplan/sbc/sbc.db.xml");
-        assertEquals(1, countRowsInTable("sbc"));
+        assertEquals(3, countRowsInTable("sbc"));
         Sbc sbc = m_sbcManager.loadDefaultSbc();
         assertNotNull(sbc);
         assertEquals("10.1.2.3", sbc.getAddress());
@@ -39,6 +41,13 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("*.example.net", routes.getDomains().get(1));
     }
 
+    public void testLoadAuxSbc() throws Exception {
+        loadDataSet("admin/dialplan/sbc/sbc.db.xml");
+        assertEquals(3, countRowsInTable("sbc"));
+        List<AuxSbc> sbcs = m_sbcManager.loadAuxSbcs();
+        assertEquals(2, sbcs.size());
+    }
+
     public void testSaveSbc() throws Exception {
         assertEquals(0, countRowsInTable("sbc"));
         Sbc sbc = m_sbcManager.loadDefaultSbc();
@@ -47,10 +56,34 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
         sbc.getRoutes().addDomain();
         sbc.getRoutes().getDomains().set(0, "*.example.us");
 
-        m_sbcManager.saveDefaultSbc(sbc);
+        m_sbcManager.saveSbc(sbc);
 
         flush();
 
+        assertEquals("D", jdbcTemplate.queryForObject("select sbc_type from sbc", null,
+                String.class));
+        assertEquals("*.example.us", jdbcTemplate.queryForObject(
+                "select domain from sbc_route_domain", null, String.class));
+        assertEquals("20.1.1.1", jdbcTemplate.queryForObject("select address from sbc", null,
+                String.class));
+    }
+
+    public void testSaveAuxSbc() throws Exception {
+        assertEquals(0, countRowsInTable("sbc"));
+        Sbc sbc = new AuxSbc();
+        sbc.setRoutes(new SbcRoutes());
+
+        sbc.setAddress("20.1.1.1");
+        sbc.getRoutes().addDomain();
+        sbc.getRoutes().getDomains().set(0, "*.example.us");
+
+        m_sbcManager.saveSbc(sbc);
+
+        flush();
+
+        assertEquals(1, countRowsInTable("sbc"));
+        assertEquals("A", jdbcTemplate.queryForObject("select sbc_type from sbc", null,
+                String.class));
         assertEquals("*.example.us", jdbcTemplate.queryForObject(
                 "select domain from sbc_route_domain", null, String.class));
         assertEquals("20.1.1.1", jdbcTemplate.queryForObject("select address from sbc", null,

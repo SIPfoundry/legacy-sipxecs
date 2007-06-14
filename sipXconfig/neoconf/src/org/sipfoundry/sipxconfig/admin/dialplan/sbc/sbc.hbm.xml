@@ -3,14 +3,15 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.admin.dialplan.sbc" default-lazy="false">
 
-  <class name="Sbc" table="sbc">
+  <class name="Sbc" table="sbc" abstract="true" discriminator-value="D">
     <id name="id" column="sbc_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">sbc_seq</param>
       </generator>
     </id>
-    <property name="enabled"/>
-    <property name="address"/>
+    <discriminator column="sbc_type" type="character" />
+    <property name="enabled" />
+    <property name="address" />
     <component name="routes" class="SbcRoutes">
       <list name="domains" table="sbc_route_domain">
         <key column="sbc_id" foreign-key="fk_sbc_route_domain_sbc" />
@@ -23,6 +24,9 @@
         <element type="string" column="subnet" not-null="true" />
       </list>
     </component>
+
+    <subclass name="AuxSbc" discriminator-value="A"></subclass>
+    <subclass name="DefaultSbc" discriminator-value="D"></subclass>
   </class>
 
 </hibernate-mapping>

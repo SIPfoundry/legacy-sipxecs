@@ -11,7 +11,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
-public class Sbc extends BeanWithId {
+public abstract class Sbc extends BeanWithId {
     private boolean m_enabled;
 
     private String m_address;

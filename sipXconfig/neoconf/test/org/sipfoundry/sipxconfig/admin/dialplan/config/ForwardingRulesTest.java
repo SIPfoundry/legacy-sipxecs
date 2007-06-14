@@ -25,6 +25,7 @@ import org.dom4j.Document;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.DefaultSbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
@@ -47,7 +48,7 @@ public class ForwardingRulesTest extends XMLTestCase {
         routes.setDomains(Arrays.asList("*.example.org", "*.example.net"));
         routes.setSubnets(Arrays.asList("10.1.2.3/16"));
 
-        Sbc sbc = new Sbc();
+        Sbc sbc = new DefaultSbc();
         sbc.setRoutes(routes);
         sbc.setAddress("10.1.2.3");
         sbc.setEnabled(true);

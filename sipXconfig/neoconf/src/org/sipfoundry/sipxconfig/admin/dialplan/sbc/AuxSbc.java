@@ -5,16 +5,14 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  * 
- * 
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
-import java.util.List;
-
-public interface SbcManager {
-    DefaultSbc loadDefaultSbc();
-
-    List<AuxSbc> loadAuxSbcs();
-
-    void saveSbc(Sbc sbc);
+/**
+ * Auxiliary SBC has the same fields as default SBC. The only difference is that in case of
+ * default SBC one specifies Inranet routes, that are *not* sent trough the SBC. In case of
+ * auxiliary SBC one specifis the routes that *are* sent through SBC.
+ */
+public class AuxSbc extends Sbc {
 }

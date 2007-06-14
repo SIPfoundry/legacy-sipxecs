@@ -508,6 +508,7 @@
     sbc_id CDATA #REQUIRED
     enabled CDATA #IMPLIED
     address CDATA #IMPLIED
+    sbc_type CDATA #REQUIRED
 >
 
 <!ELEMENT sbc_route_domain EMPTY>

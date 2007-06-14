@@ -5,16 +5,12 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  * 
- * 
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
-import java.util.List;
-
-public interface SbcManager {
-    DefaultSbc loadDefaultSbc();
-
-    List<AuxSbc> loadAuxSbcs();
-
-    void saveSbc(Sbc sbc);
+/**
+ * Default SBC. Specifies Intranet routes, that are *not* sent trough the SBC.
+ */
+public class DefaultSbc extends Sbc {
 }

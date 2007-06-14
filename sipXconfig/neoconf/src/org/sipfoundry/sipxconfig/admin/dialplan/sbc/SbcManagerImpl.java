@@ -16,19 +16,22 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager {
 
-    public Sbc loadDefaultSbc() {
-        List sbcs = getHibernateTemplate().loadAll(Sbc.class);
-        Sbc sbc = (Sbc) DataAccessUtils.singleResult(sbcs);
+    public DefaultSbc loadDefaultSbc() {
+        List sbcs = getHibernateTemplate().loadAll(DefaultSbc.class);
+        DefaultSbc sbc = (DefaultSbc) DataAccessUtils.singleResult(sbcs);
         if (sbc == null) {
-            sbc = new Sbc();
+            sbc = new DefaultSbc();
             sbc.setRoutes(new SbcRoutes());
-            saveDefaultSbc(sbc);
+            saveSbc(sbc);
         }
         return sbc;
     }
 
-    public void saveDefaultSbc(Sbc sbc) {
-        getHibernateTemplate().saveOrUpdate(sbc);
+    public List<AuxSbc> loadAuxSbcs() {
+        return getHibernateTemplate().loadAll(AuxSbc.class);
     }
 
+    public void saveSbc(Sbc sbc) {
+        getHibernateTemplate().saveOrUpdate(sbc);
+    }
 }

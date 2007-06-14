@@ -217,7 +217,8 @@
     <antcall target="forwardrulemode"/>
   	<antcall target="fxo-port"/>  	
   	<antcall target="update-ac-model"/>
-  	<antcall target="sbc"/>  	
+    <antcall target="sbc"/>
+    <antcall target="sbc-aux"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="6" -->
   </target>	
@@ -442,6 +443,10 @@
 
   <target name="sbc" unless="sbc">
     <db-patch patch="sbc"/>
+  </target>
+
+  <target name="sbc-aux" unless="sbc-aux">
+    <db-patch patch="sbc-aux"/>
   </target>
 
   <!-- 

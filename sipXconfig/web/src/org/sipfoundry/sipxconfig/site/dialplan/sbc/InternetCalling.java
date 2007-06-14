@@ -48,7 +48,7 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
         if (!TapestryUtils.isValid(this)) {
             return null;
         }
-        getSbcManager().saveDefaultSbc(getSbc());
+        getSbcManager().saveSbc(getSbc());
 
         ActivateDialPlan dialPlans = getActivateDialPlan();
         dialPlans.setReturnPage(this);
