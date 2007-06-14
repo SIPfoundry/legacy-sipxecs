@@ -236,7 +236,16 @@ $SHORT_HELP
       service are operating.
 
 HELP
-                                            ;
+
+# If no arguments, tell the user how to get help.  Otherwise, that situation will be
+# processed in the trivial but specified way, with no tests being done and the message
+# "All tests passed.", which probably isn't what the user intended.  But since no arguments
+# causing no tests is within spec, do not flag it as an error.
+if ( $#ARGV == -1 )
+{
+    print "For help, use '--help'.\n";
+}
+
 GetOptions(
            'test-id=s'      => \$TestId,
 
@@ -641,10 +650,7 @@ sub StartUas
    {
        # this is the child (the UAS), delete any record of siblings
        $Me = "SipUas($server:$port)";
-       foreach ( keys %Child )
-       {
-           delete $Child{$_};
-       }
+       %Child = ();
        # and start listening
        &SipUas($myPort, $MyAddr) ;
    }
