@@ -720,8 +720,10 @@ AC_DEFUN([CHECK_LIBWWW],
 [   AC_MSG_CHECKING([for libwww])
     AC_ARG_WITH(libwww,
                 [--with-libwww=PATH to libwww source directory],
+		[libwww_path=$withval],
+		[libwww_path="/usr/local/w3c-libwww /usr/lib/w3c-libwww /usr/w3c-libwww /usr/pkg /usr/local /usr"]
                 )
-    for dir in $withval /usr/local/w3c-libwww /usr/lib/w3c-libwww /usr/w3c-libwww /usr/pkg /usr/local /usr; do
+    for dir in $libwww_path ; do
         lwwwdir="$dir"
         if test -f "$dir/include/w3c-libwww/WWWLib.h"; then
             found_www="yes";
@@ -738,7 +740,7 @@ AC_DEFUN([CHECK_LIBWWW],
     done
 
     if test x_$found_www != x_yes; then
-        AC_MSG_ERROR(not found; 'include/w3c-libwww/WWWLib.h' and 'include/WWWLib.h' not in any of: $withval /usr/local/w3c-libwww /usr/lib/w3c-libwww /usr/w3c-libwww /usr/pkg /usr/local /usr)
+        AC_MSG_ERROR(not found; 'include/w3c-libwww/WWWLib.h' and 'include/WWWLib.h' not in any of: $libwww_path)
     fi
 
     if test ! -e "$dir/lib/libwwwapp.so" -a  ! -e "$dir/lib/libwwwapp.a";then
