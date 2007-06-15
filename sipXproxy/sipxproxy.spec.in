@@ -39,7 +39,11 @@ Requires: ruby
 Requires: ruby-dbi
 
 %if %{_vendor} == redhat
+%ifarch ppc ppc64
+Requires: rubygems
+%else
 Requires: ruby-gems
+%endif
 Requires: ruby-libs
 Requires: ruby-postgres >= 0.7.1
 %endif
