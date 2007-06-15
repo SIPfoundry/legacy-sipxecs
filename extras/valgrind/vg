@@ -1,0 +1,10 @@
+#! /bin/bash
+
+echo ++++++++++ Starting >&2
+date >&2
+date -u >&2
+
+exec valgrind \
+	--tool=memcheck --num-callers=20 --freelist-vol=10000000 \
+	--suppressions=$HOME/lib/valgrind.suppressions.sipX \
+	"$@"

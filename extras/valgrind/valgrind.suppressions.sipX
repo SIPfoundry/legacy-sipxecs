@@ -1,0 +1,226 @@
+{
+	pthread_initialize_minimal/uninit
+	Memcheck:Cond
+	fun:strstr
+	fun:__pthread_initialize_minimal
+}
+{
+	memcpy/ssl3_read_bytes/uninit
+	Memcheck:Cond
+	fun:memcpy
+	fun:ssl3_read_bytes
+}
+{
+	RSA_verify/uninit
+	Memcheck:Cond
+	fun:RSA_verify
+}
+{
+	tls1_end/unint
+	Memcheck:Cond
+	fun:tls1_end
+}
+{
+	BN_bin2bn/uninit
+	Memcheck:Cond
+	fun:BN_bin2bn
+}
+{
+	BN_mod_exp_mont/uninit
+	Memcheck:Cond
+	fun:BN_mod_exp_mont
+}
+{
+	BN_mod_exp_mont_word/uninit
+	Memcheck:Cond
+	fun:BN_mod_exp_mont_word
+}
+{
+	BN_mod_exp_mont_consttime/u4
+	Memcheck:Value4
+	fun:BN_mod_exp_mont_consttime
+}
+{
+	BN_num_bits_word/uninit
+	Memcheck:Cond
+	fun:BN_num_bits_word
+}
+{
+	BUF_MEM_grow_clean/uninit
+	Memcheck:Cond
+	fun:BUF_MEM_grow_clean
+}
+{
+	MD5_Update/uninit
+	Memcheck:Cond
+	fun:MD5_Update
+}
+{
+	RSA_verify/uninit
+	Memcheck:Cond
+	fun:RSA_verify
+}
+{
+	SHA1_Final/uninit
+	Memcheck:Cond
+	fun:SHA1_Final
+}
+{
+	SHA1_Update/uninit
+	Memcheck:Cond
+	fun:SHA1_Update
+}
+{
+	sha1_block_asm_data_order/uninit
+	Memcheck:Cond
+	fun:sha1_block_asm_data_order
+}
+{
+	ssl3_get_finished/uninit
+	Memcheck:Cond
+	fun:ssl3_get_finished
+}
+{
+	ssl3_get_message/uninit
+	Memcheck:Cond
+	fun:ssl3_get_message
+}
+{
+	ssl3_get_record/uninit
+	Memcheck:Cond
+	fun:ssl3_get_record
+}
+{
+	ssl3_read/uninit
+	Memcheck:Cond
+	fun:ssl3_read
+}
+{
+	ssl3_read_bytes/uninit
+	Memcheck:Cond
+	fun:ssl3_read_bytes
+}
+{
+	memcpy/ssl3_read_bytes/u4
+	Memcheck:Value4
+	fun:memcpy
+	fun:ssl3_read_bytes
+}
+{
+	ssl3_read_bytes/u4
+	Memcheck:Value4
+	fun:ssl3_read_bytes
+}
+{
+	AES_decrypt/u4
+	Memcheck:Value4
+	fun:AES_decrypt
+}
+{
+	AES_encrypt/u4
+	Memcheck:Value4
+	fun:AES_encrypt
+}
+{
+	_x86_AES_encrypt/u4
+	Memcheck:Value4
+	fun:_x86_AES_encrypt
+}
+{
+	_x86_AES_decrypt/u4
+	Memcheck:Value4
+	fun:_x86_AES_decrypt
+}
+{
+	AES_cbc_encrypt/w4
+	Memcheck:Addr4
+	fun:AES_cbc_encrypt
+}
+{
+	AES_set_decrypt_key/u4
+	Memcheck:Value4
+	fun:AES_set_decrypt_key
+}
+{
+	AES_set_encrypt_key/u4
+	Memcheck:Value4
+	fun:AES_set_encrypt_key
+}
+{
+	BN_num_bits_word/u4
+	Memcheck:Value4
+	fun:BN_num_bits_word
+}
+{
+	MD5_Update/u4
+	Memcheck:Value4
+	fun:MD5_Update
+}
+{
+	RSA_verify/u4
+	Memcheck:Value4
+	fun:RSA_verify
+}
+{
+	SHA1_Final/u4
+	Memcheck:Value4
+	fun:SHA1_Final
+}
+{
+	SHA1_Update/u4
+	Memcheck:Value4
+	fun:SHA1_Update
+}
+{
+	ssl3_get_finished/u4
+	Memcheck:Value4
+	fun:ssl3_get_finished
+}
+{
+	ssl3_get_record/u4
+	Memcheck:Value4
+	fun:ssl3_get_record
+}
+{
+	tls1_enc/u4
+	Memcheck:Value4
+	fun:tls1_enc
+}
+{
+	tls1_enc/uninit
+	Memcheck:Cond
+	fun:tls1_enc
+}
+{
+	BIO_write/param
+	Memcheck:Param
+	write(buf)
+	fun:BIO_write
+}
+{
+	libpthread/BIO_write/param
+	Memcheck:Param
+	write(buf)
+	obj:/lib/libpthread-2.4.so
+	fun:BIO_write
+}
+{
+	libssl/SSL_read/uninit
+	Memcheck:Cond
+	obj:/lib/libssl.so.0.9.8a
+	fun:SSL_read
+}
+{
+	memset/BUF_MEM_grow_clean/ssl3_get_message/uninit
+	Memcheck:Cond
+	fun:memset
+	fun:BUF_MEM_grow_clean
+	fun:ssl3_get_message
+}
+{
+	memset/BUF_MEM_grow_clean/ssl3_get_message/u4
+	Memcheck:Value4
+	fun:memset
+	fun:BUF_MEM_grow_clean
+	fun:ssl3_get_message
+}
