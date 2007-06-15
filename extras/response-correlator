@@ -1,0 +1,135 @@
+#! /usr/bin/perl
+
+# Correlate requests and responses in proxy log.
+
+# Find all incoming requests and outgoing responses that were the 1st
+# leg (direct from the phone).  Correlate request, 1st (non-100)
+# provisional response, and final response.
+
+$= = 1_000_000;
+
+while (<>) {
+    if (($method, $uri) = /:INCOMING:.*---- Port:[ \d]*----\\n([A-Z0-9]+) (sip[^ ]+)/) {
+	# Incoming request.
+	if (!/branch=.*branch=/) {
+	    # Only one Via, so this is the original instance of the request.
+	    ($time, $branch) = m/^"...........(...............).*branch=([^\\;]*)/; #";
+	    ($date) = m/\\nDate: *([^\\]*)/i;
+            ($date) = $date =~ m/(\d\d:\d\d:\d\d)/;
+            # Mark the branch specially if this is a CANCEL.
+            $branch .= ' ' if /\\ncseq: *\d* *cancel/i;
+            $sortdate = $date ne '' ? $date : $time;
+	    $sortdate{$branch} = $sortdate unless defined($sortdate{$branch}) && $sortdate{$branch} lt $sortdate;
+	    if (!(defined($reqtime{$branch}) && $reqtime{$branch} lt $time)) {
+                if ($method eq 'SUBSCRIBE') {
+		    # For SUBSCRIBE, use as method "Sxx", where "xx" is the
+		    # first two letters of the event-type.
+	            ($event) = m/\\nEvent: *([^\\;]*)/i;
+                    $method = 'S' . substr($event . '  ', 0, 2);
+                } elsif ($method eq 'REGISTER') {
+		    # For REGISTER, use the To-URI instead of the rquest-URI,
+		    # as it includes the user-part.
+		    my ($u, $v);
+		    ($u) = m/\\nTo: *([^\\]*)/i;
+		    ($v) = $u =~ m/<(.*)>/;
+		    $uri =
+			$v ne '' ? $v :
+			$u ne '' ? $u :
+			$uri;
+                }
+                $uri =~ s/^sips?://i;
+                $req = substr($method, 0, 3) . ' ' . $uri;
+	        $req{$branch} = $req;
+	        $reqtime{$branch} = $time;
+                $reqdate{$branch} = $date;
+            }
+	}
+    } elsif (($response) = /:OUTGOING:.*----\\nSIP\/2\.0 (\d\d\d) /) {
+	# Outgoing response.
+        # Exclude 100 responses, and ones with multiple Via's.
+	if ($response ne '100' && !/branch=.*branch=/) {
+	    # Only one Via, so this is the response to the original
+	    # instance of the request.
+	    ($time, $branch) = m/^"...........(...............).*branch=([^\\;]*)/;
+	    ($date) = m/\\nDate: *([^\\]*)/i;
+            # Mark the branch specially if this is a CANCEL.
+            $branch .= ' ' if /\\ncseq: *\d* *cancel/i;
+	    $sortdate{$branch} = $time unless defined($sortdate{$branch}) && $sortdate{$branch} lt $time;
+	    if (substr($response, 0, 1) eq '1') {
+		# Provisional response.
+		if (!(defined($provtime{$branch}) && $provtime{$branch} lt $time)) {
+		    $prov{$branch} = $response;
+		    $provtime{$branch} = $time;
+		    $provdate{$branch} = $date;
+		}
+	    } else {
+		# Final response.
+		if (!(defined($resptime{$branch}) && $resptime{$branch} lt $time)) {
+		    $resp{$branch} = $response;
+		    $resptime{$branch} = $time;
+		    $respdate{$branch} = $date;
+		}
+	    }
+	}
+    }
+}
+
+foreach $branch (sort { $sortdate{$a} cmp $sortdate{$b} } keys(%sortdate)) {
+    my($i, $first_time);
+    # @times is global so the format can see it.
+    # Get the times for the request.
+    @times = ($reqdate{$branch},
+	      $reqtime{$branch},
+	      $provtime{$branch},
+	      $resptime{$branch});
+    # Change all but the first into relative times.
+    $first_time = undef;
+    #print "A", join('|', @times), "\n";
+    for ($i = 0; $i <= $#times; $i++) {
+	if ($times[$i]) {
+	    if (defined($first_time)) {
+		$times[$i] = &tdiff($times[$i], $first_time);
+	    } else {
+		$first_time = $times[$i];
+	    }
+	}
+    }
+    #print "B", join('|', @times), "\n";
+    write STDOUT;
+}
+
+format STDOUT_TOP =
+Branch     Request   Request   Provisional   Final         Method
+z9hG4bK+   sent      received      sent          sent          Req-URI sip(s):+
+
+.
+
+format STDOUT =
+@<<<<<<<<  @<<<<<<<  @<<<<<<<  @>> @<<<<<<<  @>> @<<<<<<<  @<<<<<<<<<<<<<<<<<<<<
+{ substr($branch, 0, 7) eq 'z9hG4bK' ? substr($branch, 7) : $branch,
+           $times[0],
+		     $times[1],
+			       $prov{$branch}, $times[2],
+					     $resp{$branch}, $times[3],
+							   $req{$branch} }
+.
+
+sub tdiff {
+    my($time, $base) = @_;
+
+    return '' if $time eq '';
+    return $time if $base eq '';
+    {
+	my ($a, $b, $c, $times, $bases);
+
+	($a, $b, $c) = split(/:/, $time);
+	$times = 3600 * $a + 60 * $b + $c;
+	($a, $b, $c) = split(/:/, $base);
+	$bases = 3600 * $a + 60 * $b + $c;
+	$times = $times - $bases;
+	return 
+	    $times == 0 ? ' 0' :
+	    $times < 0 ? $times . '' :
+	    '+' . $times;
+    }
+}
