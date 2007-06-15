@@ -23,4 +23,4 @@ done
 echo "Started at: '${startTime}'"
 echo ""
 ${sipx_log_cut} -i ${regLog} -s ${startTime} -t 2> /dev/null \
-| grep -e '\(Sync.reset success\|Incompatible\)'
+| grep -e '\(update numbering synchronized\|Incompatible\)'
