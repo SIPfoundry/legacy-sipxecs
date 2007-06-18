@@ -1721,14 +1721,9 @@ MailboxManager::validateMailbox (
     if ( !userOrExtensionAtOptDomain.isNull() )
     {
         UtlString sipAddress;
-        // this method should return a good URL from the input string
-        // even if it is url encoded or if it comes directly from the web
-        // where it may not be url encoded or may be missing the 'sip:' prefix
-        Url mailboxUrl;
-        getWellFormedURL ( userOrExtensionAtOptDomain, mailboxUrl );
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                      "MailboxManager::validateMailbox: mailboxUrl = '%s'",
-                      mailboxUrl.toString().data());
+                      "MailboxManager::validateMailbox: userOrExtension = '%s'",
+                      userOrExtensionAtOptDomain.data());
 
         // Look up credentials database to see if we can find a match
         UtlString realmName, authType;
@@ -1736,8 +1731,14 @@ MailboxManager::validateMailbox (
 
         // Infinite loop detector
         int loopCount = 0;
-        while ( !validated && ( result != OS_FAILED ) && (loopCount < 3) )
+        while ( !validated && ( result != OS_FAILED ) && (loopCount < 4) )
         {
+           // this method should return a good URL from the input string
+           // even if it is url encoded or if it comes directly from the web
+           // where it may not be url encoded or may be missing the 'sip:' 
+           // prefix
+           Url mailboxUrl;
+           getWellFormedURL ( userOrExtensionAtOptDomain, mailboxUrl );
            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                          "MailboxManager::validateMailbox: top of loop, loopCount = %d mailboxUrl = '%s'",
                          loopCount, mailboxUrl.toString().data());
@@ -1969,12 +1970,15 @@ MailboxManager::validateMailbox (
                             UtlString *contact = (UtlString*)record.findValue(&contactKey);
                             if (contact != NULL)
                             {
-                               mailboxUrl = *contact ;
+                               mailboxUrl = *contact;
+                               // return the validated identity to the caller
+                               mailboxUrl.getIdentity( rMailboxIdentity );
                                logContent = "Success, found contact setting mailboxUrl to - " +
-                                   mailboxUrl.toString();
+                                   rMailboxIdentity;
                                writeToLog( "validateMailbox", logContent, PRI_DEBUG);
-                               // Now try to validate the new contact
-                               // (back to top of loop)
+                               // knowing the alias exists is enough.
+                               // return that and be happy.
+                               validated = TRUE ;
                             }
                             else
                             {
@@ -2036,7 +2040,7 @@ MailboxManager::validateMailbox (
 
         // See if we've exceeded the loop count, which could happen if the IMDB tables
         // have a recurcive relationship, extension's contact URI is not in contacts for ex.
-        if ( loopCount > 2 )
+        if ( !validated && ( result != OS_FAILED ) )
         {
             writeToLog( "validateMailbox", "ERROR ExtensionDB does not have a valid CredentialDB Contact!\n", PRI_DEBUG);;
             result = OS_FAILED;
