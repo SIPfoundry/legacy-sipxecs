@@ -334,7 +334,7 @@ gem install --no-rdoc --local %{sipxpbxvarlib}/file-tail-*.gem >/dev/null
 # prevent uninstalling during an upgrade
 #   see http://www-128.ibm.com/developerworks/library/l-rpm3/
 if [ "$1" = "0" ] ; then
-  gem uninstall sipXconfig-agent >/dev/null 
+  gem uninstall sipXconfig-agent >/dev/null 2>&1 || true
 fi
 # not uninstalling file-tail incase it's used elsewhere
 
@@ -359,5 +359,5 @@ fi
 # prevent uninstalling during an upgrade
 #   see http://www-128.ibm.com/developerworks/library/l-rpm3/
 if [ "$1" = "0" ] ; then
-  gem uninstall sipXconfig-report >/dev/null
+  gem uninstall sipXconfig-report >/dev/null 2>&1 || true
 fi
