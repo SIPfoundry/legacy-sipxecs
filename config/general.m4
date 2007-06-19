@@ -47,6 +47,9 @@ AC_ARG_WITH(cppunit-prefix,[  --with-cppunit-prefix=PFX   Prefix where CppUnit i
 AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix where CppUnit is installed (optional)],
             cppunit_config_exec_prefix="$withval", cppunit_config_exec_prefix="")
 
+  dnl Assemble the arguments to be passed to cppunit-config in cppunit_config_args.
+  dnl Construct the cppunit-config executable name in CPPUNIT_CONFIG.
+  cppunit_config_args=
   if test x$cppunit_config_exec_prefix != x ; then
      cppunit_config_args="$cppunit_config_args --exec-prefix=$cppunit_config_exec_prefix"
      if test x${CPPUNIT_CONFIG+set} != xset ; then
@@ -60,6 +63,8 @@ AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix w
      fi
   fi
 
+  dnl Find cppunit-config, put path in CPPUNIT_CONFIG, but if CPPUNIT_CONFIG
+  dnl already has a value containing '/', use that value.
   AC_PATH_PROG(CPPUNIT_CONFIG, cppunit-config, no)
   cppunit_version_min=$1
 
@@ -69,9 +74,11 @@ AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix w
     AC_MSG_RESULT(no)
     no_cppunit=yes
   else
-    CPPUNIT_CFLAGS=`$CPPUNIT_CONFIG --cflags`
-    CPPUNIT_LIBS=`$CPPUNIT_CONFIG --libs`
-    cppunit_version=`$CPPUNIT_CONFIG --version`
+    dnl Get cppunit's recommendations for cflags and libraries.
+    CPPUNIT_CFLAGS=`$CPPUNIT_CONFIG $cppunit_config_args --cflags`
+    CPPUNIT_LIBS=`$CPPUNIT_CONFIG $cppunit_config_args --libs`
+    dnl Query cppunit to determine its version.
+    cppunit_version=`$CPPUNIT_CONFIG $cppunit_config_args --version`
 
     cppunit_major_version=`echo $cppunit_version | \
            sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
