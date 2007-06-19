@@ -449,6 +449,10 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 
     switch(msgType)
     {
+    case OsMsg::OS_SHUTDOWN:
+        messageProcessed = FALSE ; // Let the superclass handle this
+        break ;
+
     case OsMsg::PHONE_APP:
         {
             char eventDescription[100];
@@ -1105,7 +1109,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
     default:
         {
             OsSysLog::add(FAC_CP, PRI_ERR, "Unknown TYPE %d of CallManager message subtype: %d\n", msgType, msgSubType);
-            messageProcessed = TRUE;
+            messageProcessed = FALSE;
             break;
         }
     }

@@ -31,6 +31,7 @@
 #include "os/OsEventMsg.h"
 #include "os/OsEvent.h"
 #include "os/OsSysLogFacilities.h"
+#include "os/OsLock.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -54,6 +55,8 @@ IvrUtilTask::IvrUtilTask(const IvrUtilTask& rIvrUtilTask)
 // Destructor
 IvrUtilTask::~IvrUtilTask()
 {
+   waitUntilShutDown();
+
    // Delete the timer.
    if (mpTimer != NULL)
    {
@@ -80,28 +83,16 @@ IvrUtilTask::~IvrUtilTask()
 
 IvrUtilTask* IvrUtilTask::getIvrUtilTask()
 {
-   UtlBoolean isStarted;
+   OsLock singletonLock(sLock) ;
+   // Make sure one and only one IvrUtlTask exists and is started.
+   // First caller creates and starts it.  Subsequent callers get that one.
 
-   // If the task object already exists, and the corresponding low-level task
-   // has been started, then use it
-   if (spInstance != NULL && spInstance->isStarted())
-      return spInstance;
-
-   // If the task does not yet exist or hasn't been started, then acquire
-   // the lock to ensure that only one instance of the task is started
-   sLock.acquire();
    if (spInstance == NULL)
    {
       spInstance = new IvrUtilTask();
-   }
-
-   isStarted = spInstance->isStarted();
-   if (!isStarted)
-   {
-      isStarted = spInstance->start();
+      bool isStarted = spInstance->start();
       assert(isStarted);
    }
-   sLock.release();
 
 #ifdef TEST
    if (!sIsTested)

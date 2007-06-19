@@ -28,6 +28,8 @@
 #include "IvrTelListener.h"
 #include "tao/TaoMessage.h"
 #include "tao/TaoString.h"
+#include "os/OsLock.h"
+
 #ifdef DMALLOC
 #include <dmalloc.h>
 #endif
@@ -146,6 +148,7 @@ mTransferSem(OsBSem::Q_PRIORITY, OsBSem::FULL)
 // Destructor
 IvrTelListener::~IvrTelListener()
 {
+   waitUntilShutDown();
    mListenerSem.acquire();
    int i;
    for (i = 0; i < mListenerCnt; i++)
@@ -217,28 +220,17 @@ IvrTelListener::~IvrTelListener()
 
 IvrTelListener* IvrTelListener::getTelListener(CallManager* pCallMgr)
 {
-   UtlBoolean isStarted;
+   OsLock singletonLock(sLock) ;
 
-   // If the task object already exists, and the corresponding low-level task
-   // has been started, then use it
-   if (spInstance != NULL && spInstance->isStarted())
-      return spInstance;
+   // Make sure one and only one IvrUtlTask exists and is started.
+   // First caller creates and starts it.  Subsequent callers get that one.
 
-   // If the task does not yet exist or hasn't been started, then acquire
-   // the lock to ensure that only one instance of the task is started
-   sLock.acquire();
    if (spInstance == NULL)
    {
       spInstance = new IvrTelListener(pCallMgr);
-   }
-
-   isStarted = spInstance->isStarted();
-   if (!isStarted)
-   {
-      isStarted = spInstance->start();
+      UtlBoolean isStarted = spInstance->start();
       assert(isStarted);
    }
-   sLock.release();
 
 #ifdef TEST
    if (!sIsTested)

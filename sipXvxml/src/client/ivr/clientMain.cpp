@@ -928,10 +928,6 @@ int main(int argc, char *argv[])
                  gShutdownFlag, listener->isStarted());
    OsSysLog::flush();
 
-   /* Shut down the platform */
-   platformResult = VXIplatformShutdown();
-   CLIENT_CHECK_RESULT("VXIplatformShutdown()", platformResult);
-
    while(getStackSize(glbChannelStack))
    {
       ChannelThreadArgs* channel = popChannel();
@@ -1010,6 +1006,11 @@ If we delete it here, we get crashes when we CallManager tries to as well.
       delete gpTelListener;
       gpTelListener = 0;
    }
+
+   /* Shut down the platform */
+   platformResult = VXIplatformShutdown();
+   CLIENT_CHECK_RESULT("VXIplatformShutdown()", platformResult);
+
 
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "mediaserver main thread exited.");
 

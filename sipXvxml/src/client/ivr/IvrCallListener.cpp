@@ -106,6 +106,7 @@ IvrCallListener::IvrCallListener(const IvrCallListener& rIvrCallListener)
 // Destructor
 IvrCallListener::~IvrCallListener()
 {
+   waitUntilShutDown();
    if (mpDtmfListener)
    {
       mpDtmfListener->requestShutdown();
