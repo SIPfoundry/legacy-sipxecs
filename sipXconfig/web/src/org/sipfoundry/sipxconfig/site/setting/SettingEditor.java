@@ -89,18 +89,21 @@ public abstract class SettingEditor extends BaseComponent {
     }
 
     /**
-     * This is to support new Tapestry4 types of validators
+     * Prepares Tapestry4 validators list
      * 
      * @return list of Validator objects
      */
     public List getValidatorList() {
         SettingType type = getSetting().getType();
-        return validatorListForType(type, isRequiredEnabled());
+        // see XCF-1726 'required' constraint *is* enforced (even if isRequiredEnabled is false)
+        // for all settings that have non empty default values
+        boolean hasDefault = StringUtils.isNotEmpty(getSetting().getDefaultValue());
+        return validatorListForType(type, hasDefault || isRequiredEnabled());
     }
 
-    static List validatorListForType(SettingType type, boolean isRequiredEnabled) {
+    static List validatorListForType(SettingType type, boolean enforceRequired) {
         List<Validator> validators = new ArrayList<Validator>();
-        if (type.isRequired() && isRequiredEnabled) {
+        if (type.isRequired() && enforceRequired) {
             validators.add(new Required());
         }
         if (type instanceof IntegerSetting) {

@@ -46,6 +46,15 @@ AC_ARG_ENABLE(fc6,
           ruby_dbi=yes
         ])
 
+AC_ARG_ENABLE(f7,
+        AC_HELP_STRING([--enable-f7], [Enable dependencies for Fedora 7]),
+        [
+          java_sun=yes
+          ruby_gems=yes
+          cgicc=yes
+          ruby_dbi=yes
+        ])
+
 AC_ARG_ENABLE(rhe4,
 	AC_HELP_STRING([--enable-rhe4], [Enable dependencies for RHE4 and Centos4]),
 	[ 
@@ -72,6 +81,7 @@ AC_ARG_ENABLE(rhe5,
           ruby_postgres=yes
           cgicc=yes
           ruby_dbi=yes
+          cppunit=yes
         ])
 
 AC_ARG_ENABLE(soap4r,
