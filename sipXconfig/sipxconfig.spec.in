@@ -26,7 +26,6 @@ Requires: sipxtacklib >= 3.7
 Requires: sipxcommserverlib >= 3.7
 Requires: sipxpbx >= 3.7
 Requires: postgresql-server
-Requires: jakarta-commons-beanutils
 Requires: ruby
 %if %{_vendor} == redhat
 %ifarch ppc ppc64
