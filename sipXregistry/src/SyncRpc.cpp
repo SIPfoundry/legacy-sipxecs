@@ -948,18 +948,14 @@ SyncRpcPushUpdates::invoke(RegistrarPeer* peer,       ///< peer to push to
       int faultCode;
       UtlString faultMsg;
       response.getFault(&faultCode, faultMsg);
-      if (faultCode != IncompatiblePeer)
-      {
-         // Mark the peer UnReachable, since there was an error
-         peer->markUnReachable();
-         resultState = RegistrarPeer::UnReachable;
-      }
-      else
-      {
-         // Special case: the peer has declared us Incompatible, so return the favor
-         peer->markIncompatible();
-         resultState = RegistrarPeer::Incompatible;
-      }
+      // Mark the peer UnReachable, since there was an error
+      // (A previous version of this code would, if the error was
+      // IncompatiblePeer, mark the peer incompatible.  But that is a bad
+      // idea, as it causes "incompatible" states to propagate through the
+      // network of peers.  Instead, mark the peer unreachable and check
+      // again later, at which point the peer may have been restarted.)
+      peer->markUnReachable();
+      resultState = RegistrarPeer::UnReachable;
    }
 
    return resultState;
