@@ -222,8 +222,6 @@
       <value />
     </setting>
   </group>
-
-
   <group name="User">
     <setting name="Cfwd_All_Dest">
       <label>Cfwd All Dest</label>
@@ -489,3 +487,4 @@
     </setting>
   </group>
 </model>
+

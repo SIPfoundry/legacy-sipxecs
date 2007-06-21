@@ -12,13 +12,29 @@
     <property name="profileTemplate" value="linksysPhone/config.vm" />
   </bean>
 
+  <bean id="linksys901" parent="linksysPhoneStandard">
+    <property name="label" value="Linksys901" />
+    <property name="maxLineCount" value="1" />
+  </bean>
+  <bean id="linksys921" parent="linksysPhoneStandard">
+    <property name="label" value="Linksys921" />
+    <property name="maxLineCount" value="1" />
+  </bean>
+  <bean id="linksys922" parent="linksysPhoneStandard">
+    <property name="label" value="Linksys922" />
+    <property name="maxLineCount" value="1" />
+  </bean>
   <bean id="linksys941" parent="linksysPhoneStandard">
     <property name="label" value="Linksys941" />
-    <property name="maxLineCount" value="2" />
+    <property name="maxLineCount" value="4" />
   </bean>
   <bean id="linksys942" parent="linksysPhoneStandard">
     <property name="label" value="Linksys942" />
-    <property name="maxLineCount" value="3" />
+    <property name="maxLineCount" value="4" />
+  </bean>
+  <bean id="linksys962" parent="linksysPhoneStandard">
+    <property name="label" value="Linksys962" />
+    <property name="maxLineCount" value="6" />
   </bean>
 
   <bean id="linksysPhone" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysPhone" singleton="false"

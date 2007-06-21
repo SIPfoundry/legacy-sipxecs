@@ -9,10 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.phone.linksys;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 /**
@@ -20,11 +26,11 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
  */
 public class LinksysPhone extends Linksys {
 
-    private static final String USER_ID_SETTING = "Extension_1/User_ID_1_";
-    private static final String DISPLAY_NAME_SETTING = "Extension_1/Display_Name_1_";
-    private static final String PASSWORD_SETTING = "Extension_1/Password_1_";
-    private static final String REGISTRATION_SERVER_SETTING = "Extension_1/Outbound_Proxy_1_";
-    private static final String REGISTRATION_SERVER_PORT_SETTING = "Extension_1/SIP_Port_1_";
+    private static final String USER_ID_SETTING = "Ext/User_ID";
+    private static final String DISPLAY_NAME_SETTING = "Ext/Display_Name";
+    private static final String PASSWORD_SETTING = "Ext/Password";
+    private static final String REGISTRATION_SERVER_SETTING = "Ext/Outbound_Proxy";
+    private static final String REGISTRATION_SERVER_PORT_SETTING = "Ext/SIP_Port";
 
     public LinksysPhone() {
     }
@@ -37,6 +43,31 @@ public class LinksysPhone extends Linksys {
     @Override
     public String getProfileFilename() {
         return "spa" + getSerialNumber() + ".cfg";
+    }
+
+    public int getMaxLineCount() {
+        return getModel().getMaxLineCount();
+    }
+
+    public Collection<Setting> getProfileLines() {
+        int lineCount = getModel().getMaxLineCount();
+        List<Setting> linesSettings = new ArrayList<Setting>(getMaxLineCount());
+
+        Collection<Line> lines = getLines();
+        int i = 0;
+        Iterator<Line> ilines = lines.iterator();
+        for (; ilines.hasNext() && (i < lineCount); i++) {
+            linesSettings.add(ilines.next().getSettings());
+        }
+
+        for (; i < lineCount; i++) {
+            Line line = createLine();
+            line.setPhone(this);
+            line.setPosition(i);
+            linesSettings.add(line.getSettings());
+        }
+
+        return linesSettings;
     }
 
     public static class LinksysLineDefaults {

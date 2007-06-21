@@ -16,9 +16,9 @@
 [${group.Name}]
 #foreach ($setting in $group.Values)
 #if ($!setting.Value)
-<${setting.Name} group="$!{setting.ProfileName}">$!{setting.Value}</${setting.Name}>
+<${setting.Name}_${i}_ group="${group.name}_${i}/$!{setting.ProfileName}">$!{setting.Value}</${setting.Name}_${i}_>
 #else
-<${setting.Name} group="$!{setting.ProfileName}"/>
+<${setting.Name}_${i}_ group="${group.name}_${i}/$!{setting.ProfileName}"/>
 #end
 #end
 #end

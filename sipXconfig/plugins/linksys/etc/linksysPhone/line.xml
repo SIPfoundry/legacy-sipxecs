@@ -3,10 +3,11 @@
     PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
-  <group name="Extension_1">
-    <setting name="Line_Enable_1_">
+  <group name="Ext">
+    <label>Extensions</label>
+    <setting name="Line_Enable">
       <label>Line Enable</label>
-      <profileName>Ext_1/General</profileName>
+      <profileName>General</profileName>
       <type>
         <enum>
           <option>
@@ -19,9 +20,9 @@
       </type>
       <value />
     </setting>
-    <setting name="NAT_Mapping_Enable_1_">
+    <setting name="NAT_Mapping_Enable">
       <label>NAT Mapping Enable</label>
-      <profileName>Ext_1/NAT_Settings</profileName>
+      <profileName>NAT_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -34,9 +35,9 @@
       </type>
       <value />
     </setting>
-    <setting name="NAT_Keep_Alive_Enable_1_">
+    <setting name="NAT_Keep_Alive_Enable">
       <label>NAT Keep Alive Enable</label>
-      <profileName>Ext_1/NAT_Settings</profileName>
+      <profileName>NAT_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -49,32 +50,32 @@
       </type>
       <value />
     </setting>
-    <setting name="User_ID_1_">
+    <setting name="User_ID">
       <label>User ID</label>
-      <profileName>Ext_1/Subscriber_Information</profileName>
+      <profileName>Subscriber_Information</profileName>
       <value />
     </setting>
-    <setting name="Display_Name_1_" advanced="yes">
+    <setting name="Display_Name" advanced="yes">
       <label>Display Name</label>
-      <profileName>Ext_1/Subscriber_Information</profileName>
+      <profileName>Subscriber_Information</profileName>
       <value />
     </setting>
-    <setting name="Password_1_" advanced="yes">
+    <setting name="Password" advanced="yes">
       <label>Password</label>
-      <profileName>Ext_1/Subscriber_Information</profileName>
+      <profileName>Subscriber_Information</profileName>
       <type>
         <string password="yes" />
       </type>
       <value />
     </setting>
-    <setting name="Proxy_1_">
+    <setting name="Proxy">
       <label>Proxy</label>
-      <profileName>Ext_1/Proxy_and_Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <value />
     </setting>
-    <setting name="Register_1_">
+    <setting name="Register">
       <label>Register</label>
-      <profileName>Ext_1/Proxy_and_Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <type>
         <enum>
           <option>
@@ -87,9 +88,9 @@
       </type>
       <value />
     </setting>
-    <setting name="Make_Call_Without_Reg_1_">
+    <setting name="Make_Call_Without_Reg">
       <label>Make Call Without Reg</label>
-      <profileName>Ext_1/Proxy_and_Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <type>
         <enum>
           <option>
@@ -102,25 +103,25 @@
       </type>
       <value />
     </setting>
-    <setting name="Register_Expires_1_">
+    <setting name="Register_Expires">
       <label>Register Expires</label>
-      <profileName>Ext_1/Proxy_and_Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <type>
         <integer />
       </type>
       <value>3600</value>
     </setting>
-    <setting name="SIP_Port_1_">
+    <setting name="SIP_Port">
       <label>SIP Port</label>
-      <profileName>Ext_1/SIP_Settings</profileName>
+      <profileName>SIP_Settings</profileName>
       <type>
         <integer />
       </type>
       <value>5060</value>
     </setting>
-    <setting name="Message_Waiting_1_">
+    <setting name="Message_Waiting">
       <label>Message Waiting</label>
-      <profileName>Ext_1/Call_Feature_Settings</profileName>
+      <profileName>Call_Feature_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -133,9 +134,9 @@
       </type>
       <value />
     </setting>
-    <setting name="Default_Ring_1_">
+    <setting name="Default_Ring">
       <label>Default Ring</label>
-      <profileName>Ext_1/Call_Feature_Settings</profileName>
+      <profileName>Call_Feature_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -154,9 +155,9 @@
       </type>
       <value />
     </setting>
-    <setting name="Mailbox_ID_1_">
+    <setting name="Mailbox_ID">
       <label>Mailbox ID</label>
-      <profileName>Ext_1/Call_Feature_Settings</profileName>
+      <profileName>Call_Feature_Settings</profileName>
       <value />
     </setting>
   </group>
