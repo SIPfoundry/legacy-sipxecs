@@ -21,9 +21,11 @@
   label="message:label.domains"
   addLinkLabel="message:link.addDomain"
   itemDisplayName="message:label.domain"
+  validators="spring-validators:required,validDnsWildcard"
   source="prop:sbc.routes.domains"/>
 <fieldset jwcid="@common/ListPanel"
   label="message:label.subnets"
   addLinkLabel="message:link.addSubnet"
   itemDisplayName="message:label.subnet"
+  validators="spring-validators:required,validIPv4subnet"
   source="prop:sbc.routes.subnets"/>

@@ -15,6 +15,7 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Parameter;
+import org.apache.tapestry.form.validator.Validator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class ListPanel extends BaseComponent {
@@ -29,6 +30,9 @@ public abstract class ListPanel extends BaseComponent {
 
     @Parameter(defaultValue = "message:button.add")
     public abstract String getAddLinkLabel();
+
+    @Parameter
+    public abstract List<Validator> getValidators();
 
     public abstract int getIndex();
 

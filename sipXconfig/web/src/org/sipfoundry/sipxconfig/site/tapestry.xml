@@ -15,8 +15,8 @@
 
   <!-- V A L I D A T O R S -->
   <bean name="validFieldSize" class="org.apache.tapestry.form.validator.MaxLength">
-    <property name="maxLength" value="255"/>
-    <property name="message" value="Enter at most 255 characters."/>
+    <property name="maxLength" value="255" />
+    <property name="message" value="Enter at most 255 characters." />
   </bean>
   <!-- phone validator - only digits, at least one -->
   <bean name="validPhone" class="org.apache.tapestry.form.validator.Pattern">
@@ -33,11 +33,11 @@
     </property>
     <property name="message">
       <value>Please enter digits or sip address only, for example: 123 or john@example.com</value>
-    </property>	  
+    </property>
   </bean>
   <bean name="validHostOrIp" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
-      <value>^((([0-9A-z][-0-9A-z]*[0-9A-z])|([0-9A-z])\.?)+)$</value> 
+      <value>^((([0-9A-z][-0-9A-z]*[0-9A-z])|([0-9A-z])\.?)+)$</value>
     </property>
     <property name="message">
       <value>Please enter valid DNS host name or IP address, for example server.domain.org, 10.1.1.25</value>
@@ -51,7 +51,7 @@
     <property name="message">
       <value>Please enter valid extensions, for example:201 202 (use blank as separator)</value>
     </property>
-  </bean>  
+  </bean>
   <!-- phone sequence validator - comma-separated list of area codes, can be empty -->
   <bean name="validPhoneSequence" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
@@ -77,16 +77,25 @@
     </property>
   </bean>
 
+  <bean name="validDnsWildcard" class="org.apache.tapestry.form.validator.Pattern">
+    <property name="pattern" value="^\*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*[a-zA-Z0-9]*)*$" />
+    <property name="message" value="Please enter a valid domain pattern: *.example.org or *.net" />
+  </bean>
+  <bean name="validIPv4subnet" class="org.apache.tapestry.form.validator.Pattern">
+    <property name="pattern" value="^[0-9]{1,3}(\.[0-9]{1,3}){0,3}/[0-9]{1,2}$" />
+    <property name="message" value="Please enter a valid IP4 subnet address, for example: 10.1.1.0/24" />
+  </bean>
+
   <bean name="validSipUserId" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
       <value>^([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+$</value>
     </property>
     <property name="message">
-      <value>Only a limited set of characters is valid in SIP URLs. Spaces and some special 
+      <value>Only a limited set of characters is valid in SIP URLs. Spaces and some special
         characters are not allowed. For example: 321, joedoe, joe!?~*222</value>
     </property>
   </bean>
-  
+
   <bean name="validMappingRuleSipUserId" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
       <value>^([&SIP_USER_CHARS;&SIP_USER_REGEX;]|&SIP_USER_ESCAPED;)+$</value>
@@ -95,7 +104,7 @@
       <value>Only a limited set of characters is allowed in dialing rules patterns: &SIP_USER_CHARS;&SIP_USER_REGEX;</value>
     </property>
   </bean>
-  
+
   <bean name="validRule" class="org.sipfoundry.sipxconfig.site.dialplan.RuleValidator">
     <property name="message">
       <value>Add at least one gateway before enabling the rule.</value>
@@ -109,40 +118,37 @@
       <value>Cannot contain spaces or other whitespace characters.</value>
     </property>
   </bean>
-  
 
-  <!-- T R A N S L A T O R S -->	
+
+  <!-- T R A N S L A T O R S -->
   <bean name="validTime" class="org.sipfoundry.sipxconfig.components.DateWithTimezoneTranslator">
-	  <!-- timezone has to match w/DailyBackupSchedule, at least for Backup page -->
-	  <property name="timeZone">
-		  <bean id="org.sipfoundry.sipxconfig.admin.DailyBackupSchedule.GMT"
-			class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>		  
-	  </property>
-	  <!-- pattern doesn't have to match w/DailyBackupSchedule internal patterns -->
-	  <property name="pattern" value="h:mm a"/>
+    <!-- timezone has to match w/DailyBackupSchedule, at least for Backup page -->
+    <property name="timeZone">
+      <bean id="org.sipfoundry.sipxconfig.admin.DailyBackupSchedule.GMT"
+        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+    </property>
+    <!-- pattern doesn't have to match w/DailyBackupSchedule internal patterns -->
+    <property name="pattern" value="h:mm a" />
   </bean>
-  
-  <bean name="timeOfDayTranslator" class="org.sipfoundry.sipxconfig.components.TimeOfDayTranslator">
-  </bean>
-  
-	<!-- used in item common - most names in sipXconfig have the same limitation as user URL -->
-  <bean id="limitedBackupCountModelPart1"
-    class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+
+  <bean name="timeOfDayTranslator" class="org.sipfoundry.sipxconfig.components.TimeOfDayTranslator"></bean>
+
+  <!-- used in item common - most names in sipXconfig have the same limitation as user URL -->
+  <bean id="limitedBackupCountModelPart1" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
     <property name="collection">
       <bean id="org.sipfoundry.sipxconfig.site.admin.BackupPage.BACKUP_LIMIT_MODEL"
-        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
     </property>
     <property name="labelExpression">
       <value>toString()</value>
     </property>
   </bean>
-  <bean name="limitedBackupCountModel"
-    class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
+  <bean name="limitedBackupCountModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
     <property name="model">
-      <ref local="limitedBackupCountModelPart1"/>
+      <ref local="limitedBackupCountModelPart1" />
     </property>
     <property name="extraOption">
-      <null/>
+      <null />
     </property>
     <property name="extraLabel">
       <value>Unlimited</value>
@@ -150,14 +156,14 @@
   </bean>
   <!-- prototype for a visit object -->
   <bean id="tableVariables" class="org.sipfoundry.sipxconfig.components.TableVariables" singleton="false">
-    <property name="tablePageSize" value="20"/>    
+    <property name="tablePageSize" value="20" />
   </bean>
   <!-- tapestry utilities -->
   <bean id="tapestry" class="org.sipfoundry.sipxconfig.components.TapestryContext">
-    <property name="skinControl" ref="skin"/>
+    <property name="skinControl" ref="skin" />
   </bean>
-  <bean id="editPageProvider" class="org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider"/>
-  <bean id="skin" class="org.sipfoundry.sipxconfig.site.skin.SkinControl">	
-	  <property name="tapestryContext" ref="tapestry"/>
-  </bean>	  
+  <bean id="editPageProvider" class="org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider" />
+  <bean id="skin" class="org.sipfoundry.sipxconfig.site.skin.SkinControl">
+    <property name="tapestryContext" ref="tapestry" />
+  </bean>
 </beans>
