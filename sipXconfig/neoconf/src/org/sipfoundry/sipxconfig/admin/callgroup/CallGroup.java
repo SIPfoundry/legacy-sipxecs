@@ -9,14 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class CallGroup extends AbstractCallSequence implements NamedObject {
@@ -24,6 +27,7 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
     private String m_name;
     private String m_extension;
     private String m_description;
+    private String m_fallbackDestination;
 
     public CallGroup() {
         // bean usage only
@@ -76,6 +80,14 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
         m_description = description;
     }
 
+    public String getFallbackDestination() {
+        return m_fallbackDestination;
+    }
+
+    public void setFallbackDestination(String fallbackDestination) {
+        m_fallbackDestination = fallbackDestination;
+    }
+
     /**
      * Inserts a new ring for a specific user
      * 
@@ -97,21 +109,39 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
             ring.setCallGroup(this);
         }
     }
-    
+
     /**
      * Create list of aliases that descibe forwarding for this group. All aliases have the form
-     * group_name@domain => user_name@domain with the specific q value In addtion alias extension =>
+     * group_name@domain => user_name@domain with the specific q value. In addtion alias extension =>
      * group name is added to allow calling to extension
      * 
      * @return list of AliasMapping objects (identity => contact)
      */
-    public List generateAliases(String domainName) {
+    public List<AliasMapping> generateAliases(String domainName) {
         if (!isEnabled()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         String myIdentity = AliasMapping.createUri(m_name, domainName);
 
-        List aliases = generateAliases(myIdentity, domainName, false);
+        List<AliasMapping> aliases = null;
+        if (StringUtils.isEmpty(m_fallbackDestination)) {
+            aliases = generateAliases(myIdentity, domainName, false);
+        } else {
+            ForkQueueValue forkQueueValue = new ForkQueueValue(getRings().size() + 1);
+            aliases = generateAliases(myIdentity, domainName, true, forkQueueValue);
+            String sipString;
+            if (m_fallbackDestination.contains("@")) {
+                sipString = m_fallbackDestination;
+            } else {
+                sipString = SipUri.format(StringUtils.EMPTY, m_fallbackDestination, domainName);
+            }
+            MessageFormat sipStringFormat = new MessageFormat("<{0}>;{1}");
+            Object[] sipStringValues = {
+                sipString, forkQueueValue.getSerial()
+            };
+            aliases.add(new AliasMapping(myIdentity, sipStringFormat.format(sipStringValues)));
+        }
+
         if (StringUtils.isNotBlank(m_extension) && !m_extension.equals(m_name)) {
             AliasMapping extensionAlias = new AliasMapping(AliasMapping.createUri(m_extension,
                     domainName), myIdentity);

@@ -32,6 +32,7 @@
     <property name="name"/>
     <property name="extension"/>
     <property name="description"/>
+    <property name="fallbackDestination"/>
     <list name="rings" inverse="true" cascade="all-delete-orphan">
       <key column="call_group_id"/>
       <index column="position"/>

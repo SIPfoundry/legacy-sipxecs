@@ -1,21 +1,32 @@
-<html title="Edit Call Group">
-<head>
-    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
-</head>
-<body jwcid="$content$">
 <div jwcid="@Border">
-	<div class="help">
-        <span key="help.add"/>
-		<br/>
-        <span key="help.change"/>
-    </div>
+  <div class="help">
+    <span key="help.add"/>
+    <br/>
+    <span key="help.change"/>
+  </div>
 <h2 id="callgroup:edit"><span key="title">Call group</span></h2>    
 <span jwcid="@ErrorMsg"/>
-<form jwcid="form">
-    <fieldset  jwcid="common"/>
-    <fieldset jwcid="ringTable"/>
-    <ul jwcid="formActions"/>
+<form jwcid="form@Form" delegate="bean:validator"
+  listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)">
+  <fieldset  jwcid="common@ItemCommon" item="prop:callGroup"
+    useExtension="ognl:true" nameValidator="spring-validators:required,validSipUserId"/>
+  <fieldset jwcid="ringTable@UserRingTable" rings="prop:callGroup.rings"
+    idConverter="prop:idConverter"/>
+  <fieldset>
+    <table>
+      <tr jwcid="@FieldPanel" 
+        for="callgroup:fallbackDestination" 
+        label="message:label.fallbackDestination"
+        field="component:fallbackDestination">
+        <td jwcid="fallbackDestination@TextField" 
+          id="callgroup:fallbackDestination"
+          value="prop:callGroup.fallbackDestination"
+          validators="spring-validators:validPhoneOrAor"
+          displayName="message:label.fallbackDestination"/>
+      </tr>
+    </table>
+  </fieldset>
+  <ul jwcid="formActions@FormActions" callback="ognl:callback"
+    listener="listener:commit"/>
 </form>
 </div>
-</body>    
-</html>

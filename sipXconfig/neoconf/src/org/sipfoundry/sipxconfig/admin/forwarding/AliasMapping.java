@@ -14,7 +14,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * AliasMapping
+ * AliasMapping defines the relationships between an identity and
+ * a contact.  For example (in context of hunt group):
+ * (identity ->  contact)
+ * 300      ->  sip:sales@kuku
+ * sales    ->  sip:user-one@kuku
+ * sales    ->  sip:user-two@kuku
  */
 public class AliasMapping {
     private String m_identity;

@@ -36,6 +36,7 @@ public class EditCallGroupTestUi extends WebTestCase {
         assertElementPresent("item:extension");
         assertElementPresent("item:description");
         assertElementPresent("item:enabled");
+        assertElementPresent("callgroup:fallbackDestination");
 
         assertLinkPresent("callgroup:addRing");
         assertEquals(1, SiteTestHelper.getRowCount(tester, "userring:list"));

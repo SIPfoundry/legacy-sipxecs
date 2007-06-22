@@ -219,6 +219,7 @@
   	<antcall target="update-ac-model"/>
     <antcall target="sbc"/>
     <antcall target="sbc-aux"/>
+    <antcall target="callgroup-fallback-destination"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="6" -->
   </target>	
@@ -447,6 +448,10 @@
 
   <target name="sbc-aux" unless="sbc-aux">
     <db-patch patch="sbc-aux"/>
+  </target>
+
+  <target name="callgroup-fallback-destination" unless="callgroup-fallback-destination">
+    <db-patch patch="callgroup-fallback-destination"/>
   </target>
 
   <!-- 

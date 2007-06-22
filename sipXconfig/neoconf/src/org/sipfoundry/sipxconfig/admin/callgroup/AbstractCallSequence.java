@@ -111,14 +111,16 @@ public class AbstractCallSequence extends BeanWithId {
      * @param domain used to calculate proper URI for ring contact
      * @param neverRouteToVoicemail set to true if call should never be routed to voicemail, set
      *        to false to allow for routing the last call to voicemail
+     * @param q allows calling method to control size of fork queue value. Should be initizlized
+     *        with a number at least as large as the size of the rings list
      * @return list of AliasMapping objects
      */
-    protected List generateAliases(String identity, String domain, boolean neverRouteToVoicemail) {
+    protected List<AliasMapping> generateAliases(String identity, String domain,
+            boolean neverRouteToVoicemail, ForkQueueValue q) {
 
         List rings = getRings();
-        
-        List aliases = new ArrayList(rings.size());
-        ForkQueueValue q = new ForkQueueValue(rings.size());
+
+        List<AliasMapping> aliases = new ArrayList<AliasMapping>(rings.size());
         for (Iterator i = rings.iterator(); i.hasNext();) {
             AbstractRing r = (AbstractRing) i.next();
             if (StringUtils.isEmpty(r.getUserPart().toString()) || !r.isEnabled()) {
@@ -139,6 +141,22 @@ public class AbstractCallSequence extends BeanWithId {
             aliases.add(alias);
         }
         return aliases;
+    }
+
+    /**
+     * Generate aliases from the calling list. All aliases have the following form: identity ->
+     * ring_contact
+     * 
+     * @param identity
+     * @param domain used to calculate proper URI for ring contact
+     * @param neverRouteToVoicemail set to true if call should never be routed to voicemail, set
+     *        to false to allow for routing the last call to voicemail
+     * @return list of AliasMapping objects
+     */
+    protected List<AliasMapping> generateAliases(String identity, String domain,
+            boolean neverRouteToVoicemail) {
+        ForkQueueValue forkQueueValue = new ForkQueueValue(getRings().size());
+        return generateAliases(identity, domain, neverRouteToVoicemail, forkQueueValue);
     }
 
     /**
