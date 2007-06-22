@@ -4,12 +4,27 @@
 <beans>
   <bean id="sbcManagerImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="sbcManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager" />
     <property name="target">
       <ref local="sbcManagerImpl" />
+    </property>
+  </bean>
+
+  <!--
+    Configure standard private networks by default.
+    see: http://en.wikipedia.org/wiki/Private_network
+  -->
+  <bean id="defaultSbcRoutes" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes" scope="prototype">
+    <property name="subnets">
+      <list>
+        <value>10.0.0.0/8</value>
+        <value>172.16.0.0/12</value>
+        <value>192.168.0.0/16</value>
+      </list>
     </property>
   </bean>
 </beans>

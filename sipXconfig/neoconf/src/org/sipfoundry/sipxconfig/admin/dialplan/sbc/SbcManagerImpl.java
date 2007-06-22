@@ -9,22 +9,31 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager {
+public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, BeanFactoryAware {
+    private DomainManager m_domainManager;
+
+    private BeanFactory m_beanFactory;
 
     public DefaultSbc loadDefaultSbc() {
         List sbcs = getHibernateTemplate().loadAll(DefaultSbc.class);
         DefaultSbc sbc = (DefaultSbc) DataAccessUtils.singleResult(sbcs);
         if (sbc == null) {
             sbc = new DefaultSbc();
-            sbc.setRoutes(new SbcRoutes());
+            sbc.setRoutes(createDefaultSbcRoutes());
             saveSbc(sbc);
         }
         return sbc;
@@ -52,5 +61,27 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager {
         HibernateTemplate hibernate = getHibernateTemplate();
         Collection sbcs = hibernate.loadAll(Sbc.class);
         hibernate.deleteAll(sbcs);
+    }
+
+    @Required
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
+    }
+
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = beanFactory;
+    }
+
+    protected SbcRoutes createDefaultSbcRoutes() {
+        Domain domain = m_domainManager.getDomain();
+        String wildcard = String.format("*.%s", domain.getName());
+        List<String> domains = new ArrayList<String>();
+        domains.add(wildcard);
+
+        SbcRoutes sbcRoutes = (SbcRoutes) m_beanFactory.getBean("defaultSbcRoutes",
+                SbcRoutes.class);
+        sbcRoutes.setDomains(domains);
+
+        return sbcRoutes;
     }
 }

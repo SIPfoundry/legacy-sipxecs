@@ -18,11 +18,14 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     private SbcManager m_sbcManager;
 
     public void testCreateDefaultSbc() throws Exception {
+        loadDataSet("admin/dialplan/sbc/domain.db.xml");
         assertEquals(0, countRowsInTable("sbc"));
         Sbc sbc = m_sbcManager.loadDefaultSbc();
         assertNotNull(sbc);
         assertFalse(sbc.isEnabled());
         assertNotNull(sbc.getRoutes());
+        assertEquals(3, sbc.getRoutes().getSubnets().size());
+        assertEquals("*.example.org", sbc.getRoutes().getDomains().get(0));
         assertFalse(sbc.isNew());
         flush();
         assertEquals(1, countRowsInTable("sbc"));
@@ -82,11 +85,11 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testSaveSbc() throws Exception {
+        loadDataSet("admin/dialplan/sbc/domain.db.xml");
         assertEquals(0, countRowsInTable("sbc"));
         Sbc sbc = m_sbcManager.loadDefaultSbc();
 
         sbc.setAddress("20.1.1.1");
-        sbc.getRoutes().addDomain();
         sbc.getRoutes().getDomains().set(0, "*.example.us");
 
         m_sbcManager.saveSbc(sbc);
