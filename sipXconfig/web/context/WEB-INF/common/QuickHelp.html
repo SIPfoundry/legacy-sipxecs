@@ -1,5 +1,3 @@
-<span jwcid="$content$">
-	<div class="help">
-        <span jwcid="text">Quick Help text</span>
-	</div>        
-</span>
+<div jwcid="@If" condition="ognl:value != null" class="help" element="div">
+  <span jwcid="text">Quick Help text</span>
+</div>
