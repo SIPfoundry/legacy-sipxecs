@@ -3,9 +3,8 @@
     PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
-
   <group name="Ext">
-    <label>Subscriber</label>
+    <label>Ext</label>
     <setting name="Line_Enable" advanced="yes">
       <label>Line Enable</label>
       <profileName>General</profileName>
@@ -43,10 +42,9 @@
 
   <group name="Share_Line_Appearance">
     <label>Share Line Appearance</label>
-    <profileName>Share Line Appearance</profileName>
     <setting name="Share_Ext">
       <label>Share Extension</label>
-      <profileName>Share Line Appearance</profileName>
+      <profileName>Share_Line_Appearance</profileName>
       <type>
         <enum>
           <option>
@@ -61,12 +59,12 @@
     </setting>
     <setting name="Shared_User_ID" advanced="yes">
       <label>Shared User ID</label>
-      <profileName>Share Line Appearance</profileName>
+      <profileName>Share_Line_Appearance</profileName>
       <value />
     </setting>
     <setting name="Subscription_Expires" advanced="yes">
       <label>Subscription Expires</label>
-      <profileName>Share Line Appearance</profileName>
+      <profileName>Share_Line_Appearance</profileName>
       <type>
         <integer />
       </type>
@@ -76,10 +74,9 @@
 
   <group name="NAT_Settings">
     <label>NAT Settings</label>
-    <profileName>NAT Settings</profileName>
     <setting name="NAT_Mapping_Enable">
       <label>NAT Mapping Enable</label>
-      <profileName>NAT Settings</profileName>
+      <profileName>NAT_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -94,7 +91,7 @@
     </setting>
     <setting name="NAT_Keep_Alive_Enable" advanced="yes">
       <label>NAT Keep Alive Enable</label>
-      <profileName>NAT Settings</profileName>
+      <profileName>NAT_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -111,15 +108,14 @@
 
   <group name="Network_Settings">
     <label>Network Settings</label>
-    <profileName>Network Settings</profileName>
     <setting name="SIP_TOS_DiffServ_Value" advanced="yes">
       <label>SIP TOS DiffServ Value</label>
-      <profileName>Network Settings</profileName>
+      <profileName>Network_Settings</profileName>
       <value>0x68</value>
     </setting>
     <setting name="SIP_CoS_Value" advanced="yes">
       <label>SIP CoS Value</label>
-      <profileName>Network Settings</profileName>
+      <profileName>Network_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -152,12 +148,12 @@
     </setting>
     <setting name="RTP_TOS_DiffServ_Value" advanced="yes">
       <label>RTP TOS DiffServ Value</label>
-      <profileName>Network Settings</profileName>
+      <profileName>Network_Settings</profileName>
       <value>0xb8</value>
     </setting>
     <setting name="RTP_COS_Value" advanced="yes">
       <label>RTP COS Value</label>
-      <profileName>Network Settings</profileName>
+      <profileName>Network_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -190,7 +186,7 @@
     </setting>
     <setting name="Network_Jitter_Level" advanced="yes">
       <label>Network Jitter Level</label>
-      <profileName>Network Settings</profileName>
+      <profileName>Network_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -214,7 +210,7 @@
     </setting>
     <setting name="Jitter_Buffer_Adjustment" advanced="yes">
       <label>Jitter Buffer Adjustment</label>
-      <profileName>Network Settings</profileName>
+      <profileName>Network_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -237,10 +233,9 @@
 
   <group name="SIP_Settings">
     <label>SIP Settings</label>
-    <profileName>SIP Settings</profileName>
     <setting name="SIP_Port">
       <label>SIP Port</label>
-      <profileName>SIP Settings</profileName>
+      <profileName>SIP_Settings</profileName>
       <type>
         <integer />
       </type>
@@ -248,7 +243,7 @@
     </setting>
     <setting name="SIP_100REL_Enable" advanced="yes">
       <label>SIP 100REL Enable</label>
-      <profileName>SIP Settings</profileName>
+      <profileName>SIP_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -263,7 +258,7 @@
     </setting>
     <setting name="EXT_SIP_Port" advanced="yes">
       <label>EXT SIP Port</label>
-      <profileName>SIP Settings</profileName>
+      <profileName>SIP_Settings</profileName>
       <type>
         <integer />
       </type>
@@ -271,7 +266,7 @@
     </setting>
     <setting name="Auth_Resync-Reboot" advanced="yes">
       <label>Auth Resync-Reboot</label>
-      <profileName>SIP Settings</profileName>
+      <profileName>SIP_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -286,12 +281,12 @@
     </setting>
     <setting name="SIP_Proxy-Require" advanced="yes">
       <label>SIP Proxy-Require</label>
-      <profileName>SIP Settings</profileName>
+      <profileName>SIP_Settings</profileName>
       <value />
     </setting>
     <setting name="SIP_Remote-Party-ID" advanced="yes">
       <label>SIP Remote-Party-ID</label>
-      <profileName>SIP Settings</profileName>
+      <profileName>SIP_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -306,15 +301,15 @@
     </setting>
     <setting name="Referor_Bye_Delay" advanced="yes">
       <label>Referor Bye Delay</label>
-      <profileName>SIP Settings</profileName>
+      <profileName>SIP_Settings</profileName>
       <type>
         <integer />
       </type>
       <value />
     </setting>
     <setting name="Refer-To_Target_Contact" advanced="yes">
-      <label>Refer-To_Target_Contact</label>
-      <profileName>SIP Settings</profileName>
+      <label>Refer-To Target Contact</label>
+      <profileName>SIP_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -329,7 +324,7 @@
     </setting>
     <setting name="Referee_Bye_Delay" advanced="yes">
       <label>Referee Bye Delay</label>
-      <profileName>SIP Settings</profileName>
+      <profileName>SIP_Settings</profileName>
       <type>
         <integer />
       </type>
@@ -337,7 +332,7 @@
     </setting>
     <setting name="SIP_Debug_Option">
       <label>SIP Debug Option</label>
-      <profileName>SIP Settings</profileName>
+      <profileName>SIP_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -379,15 +374,15 @@
     </setting>
     <setting name="Refer_Target_Bye_Delay" advanced="yes">
       <label>Refer Target Bye Delay</label>
-      <profileName>SIP Settings</profileName>
+      <profileName>SIP_Settings</profileName>
       <type>
         <integer />
       </type>
       <value>0</value>
     </setting>
     <setting name="Sticky_183" advanced="yes">
-      <label>Sticky_183</label>
-      <profileName>SIP Settings</profileName>
+      <label>Sticky 183</label>
+      <profileName>SIP_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -404,10 +399,9 @@
 
   <group name="Call_Feature_Settings">
     <label>Call Feature Settings</label>
-    <profileName>Call Feature Settings</profileName>
     <setting name="Blind_Attn-Xfer_Enable">
       <label>Blind Attn Xfer Enable</label>
-      <profileName>Call Feature Settings</profileName>
+      <profileName>Call_Feature_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -422,12 +416,12 @@
     </setting>
     <setting name="MOH_Server" advanced="yes">
       <label>MOH Server</label>
-      <profileName>Call Feature Settings</profileName>
+      <profileName>Call_Feature_Settings</profileName>
       <value />
     </setting>
     <setting name="Message_Waiting">
       <label>Message Waiting</label>
-      <profileName>Call Feature Settings</profileName>
+      <profileName>Call_Feature_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -442,7 +436,7 @@
     </setting>
     <setting name="Default_Ring">
       <label>Default Ring</label>
-      <profileName>Call Feature Settings</profileName>
+      <profileName>Call_Feature_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -489,8 +483,8 @@
       <value>1</value>
     </setting>
     <setting name="Auth_Page" advanced="yes">
-      <label>Auth_Page</label>
-      <profileName>Call Feature Settings</profileName>
+      <label>Auth Page</label>
+      <profileName>Call_Feature_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -504,13 +498,13 @@
       <value>no</value>
     </setting>
     <setting name="Auth_Page_Realm" advanced="yes">
-      <label>Auth_Page_Realm</label>
-      <profileName>Call Feature Settings</profileName>
+      <label>Auth Page Realm</label>
+      <profileName>Call_Feature_Settings</profileName>
       <value />
     </setting>
     <setting name="Auth_Page_Password" advanced="yes">
-      <label>Auth_Page_Password</label>
-      <profileName>Call Feature Settings</profileName>
+      <label>Auth Page Password</label>
+      <profileName>Call_Feature_Settings</profileName>
       <type>
         <string password="yes" />
       </type>
@@ -518,32 +512,32 @@
     </setting>
     <setting name="Conference_Bridge_URL" advanced="yes">
       <label>Conference Bridge URL</label>
-      <profileName>Call Feature Settings</profileName>
+      <profileName>Call_Feature_Settings</profileName>
       <value />
     </setting>
     <setting name="Mailbox_ID">
       <label>Mailbox ID</label>
-      <profileName>Call Feature Settings</profileName>
+      <profileName>Call_Feature_Settings</profileName>
       <value />
     </setting>
     <setting name="Voice_Mail_Server" advanced="yes">
-      <label>Voice_Mail_Server</label>
-      <profileName>Call Feature Settings</profileName>
+      <label>Voice Mail Server</label>
+      <profileName>Call_Feature_Settings</profileName>
       <value />
     </setting>
     <setting name="State_Agent" advanced="yes">
       <label>State Agent</label>
-      <profileName>Call Feature Settings</profileName>
+      <profileName>Call_Feature_Settings</profileName>
       <value />
     </setting>
     <setting name="CFWD_Notifier" advanced="yes">
       <label>CFWD Notifier</label>
-      <profileName>Call Feature Settings</profileName>
+      <profileName>Call_Feature_Settings</profileName>
       <value />
     </setting>
     <setting name="CFWD_Notify_Serv" advanced="yes">
       <label>CFWD Notify Serv</label>
-      <profileName>Call Feature Settings</profileName>
+      <profileName>Call_Feature_Settings</profileName>
       <type>
         <enum>
           <option>
@@ -560,20 +554,14 @@
 
   <group name="Proxy_and_Registration">
     <label>Proxy and Registration</label>
-    <profileName>Proxy and Registration</profileName>
     <setting name="Proxy">
       <label>Proxy</label>
-      <profileName>Proxy and Registration</profileName>
-      <value />
-    </setting>
-    <setting name="Proxy">
-      <label>Proxy</label>
-      <profileName>Proxy and Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <value />
     </setting>
     <setting name="Use_Outbound_Proxy" advanced="yes">
       <label>Use Outbound Proxy</label>
-      <profileName>Proxy and Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <type>
         <enum>
           <option>
@@ -588,12 +576,12 @@
     </setting>
     <setting name="Outbound_Proxy" advanced="yes">
       <label>Outbound Proxy</label>
-      <profileName>Proxy and Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <value />
     </setting>
     <setting name="Use_OB_Proxy_In_Dialog" advanced="yes">
       <label>Use Outbound Proxy in Dialog</label>
-      <profileName>Proxy and Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <type>
         <enum>
           <option>
@@ -608,7 +596,7 @@
     </setting>
     <setting name="Register">
       <label>Register</label>
-      <profileName>Proxy and Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <type>
         <enum>
           <option>
@@ -623,7 +611,7 @@
     </setting>
     <setting name="Make_Call_Without_Reg">
       <label>Make Call Without Reg</label>
-      <profileName>Proxy and Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <type>
         <enum>
           <option>
@@ -638,7 +626,7 @@
     </setting>
     <setting name="Register_Expires" advanced="yes">
       <label>Register Expires</label>
-      <profileName>Proxy and Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <type>
         <integer />
       </type>
@@ -646,7 +634,7 @@
     </setting>
     <setting name="Ans_Call_Without_Reg">
       <label>Ans Call Without Reg</label>
-      <profileName>Proxy and Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <type>
         <enum>
           <option>
@@ -661,7 +649,7 @@
     </setting>
     <setting name="Use_DNS_SRV" advanced="yes">
       <label>Use DNS SRV</label>
-      <profileName>Proxy and Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <type>
         <enum>
           <option>
@@ -676,7 +664,7 @@
     </setting>
     <setting name="DNS_SRV_Auto_Prefix" advanced="yes">
       <label>DNS SRV Auto Prefix</label>
-      <profileName>Proxy and Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <type>
         <enum>
           <option>
@@ -690,8 +678,8 @@
       <value>yes</value>
     </setting>
     <setting name="Proxy_Fallback_Intvl" advanced="yes">
-      <label>Proxy_Fallback_Intvl</label>
-      <profileName>Proxy and Registration</profileName>
+      <label>Proxy Fallback Intvl</label>
+      <profileName>Proxy_and_Registration</profileName>
       <type>
         <integer />
       </type>
@@ -699,7 +687,7 @@
     </setting>
     <setting name="Proxy_Redundancy_Method" advanced="yes">
       <label>Proxy Redundancy Method</label>
-      <profileName>Proxy and Registration</profileName>
+      <profileName>Proxy_and_Registration</profileName>
       <type>
         <enum>
           <option>
@@ -930,15 +918,14 @@
 
   <group name="Dial_Plan">
     <label>Dial Plan</label>
-    <profileName>Dial Plan</profileName>
     <setting name="Dial_Plan">
       <label>Dial Plan</label>
-      <profileName>Dial Plan</profileName>
+      <profileName>Dial_Plan</profileName>
       <value>(*xx|[3469]11|0|00|[2-9]xxxxxx|1xxx[2-9]xxxxxxS0|xxxxxxxxxxxx.)</value>
     </setting>
     <setting name="Enable_IP_Dialing" advanced="yes">
       <label>Enable IP Dialing</label>
-      <profileName>Dial Plan</profileName>
+      <profileName>Dial_Plan</profileName>
       <type>
         <enum>
           <option>
@@ -952,6 +939,5 @@
       <value>yes</value>
     </setting>
   </group>
-
 </model>
 
