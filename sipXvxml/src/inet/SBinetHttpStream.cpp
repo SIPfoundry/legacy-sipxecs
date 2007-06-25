@@ -504,7 +504,7 @@ SBinetHttpStream::OsPostData(HTParentAnchor* source,
    request.setBody(body);
    request.setRequestFirstHeaderLine(HTTP_POST_METHOD,
                                     newUrl.toString(),
-                                    contentType);
+                                    HTTP_PROTOCOL_VERSION);
    request.setContentType(contentType);
    request.setContentLength(body->getLength());
    request.getBytes(&bytes,&reqlen);
