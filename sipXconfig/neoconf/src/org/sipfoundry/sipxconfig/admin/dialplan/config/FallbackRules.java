@@ -12,8 +12,8 @@ package org.sipfoundry.sipxconfig.admin.dialplan.config;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 /**
- * Special type of falbackrules document with a single host match matching
- * standard SIPx hosts
+ * Special type of fallbackrules document with a single host match matching
+ * standard sipX hosts
  * 
  */
 public class FallbackRules extends MappingRules {
