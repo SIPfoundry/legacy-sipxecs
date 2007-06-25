@@ -49,7 +49,7 @@ public class LgNortelPhonebookTest extends TestCase {
         m_pg.generate(m_location, book, null, "phonebook");
         List<String> list = IOUtils.readLines(m_location.getReader());
         assertEquals(2, list.size());
-        assertEquals("1, \"Joe \", 1234,", list.get(1));
+        assertEquals("1,\"Joe \",1234,", list.get(1));
 
         phonebookEntryControl.verify();
     }

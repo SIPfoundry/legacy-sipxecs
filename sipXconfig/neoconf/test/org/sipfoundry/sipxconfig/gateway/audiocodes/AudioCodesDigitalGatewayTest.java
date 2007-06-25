@@ -49,6 +49,9 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         m_gateway.setSerialNumber("001122334455");
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
         
+        m_gateway.setSettingValue("SIP_general/SOURCENUMBERMAPIP2TEL","*,0,$$,$$,$$,$$,*,1,*");
+        m_gateway.setSettingValue("SIP_general/REMOVECLIWHENRESTRICTED","1");
+
         m_gateway.generateProfiles(location);
 
         String actual = location.toString();

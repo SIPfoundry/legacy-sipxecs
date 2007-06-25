@@ -20,6 +20,7 @@ ${s.ProfileName} $!{s.Value}
 ; LIP-68XX configuration information
 ;================================================================================================
 
+#emit_groups_by_name(['LAN']) 
 #emit_groups_by_name(['NETTIME'])
 #emit_groups_by_name(['VOIP'])
 #foreach ($line in $phone.lines)
@@ -31,7 +32,12 @@ line${line_id}_${setting.ProfileName} $!{setting.Value}
 
 #end
 #end
-#emit_groups_by_name(['DSP', 'FWRD', 'DIAL', 'CALL', 'SNMP', 'SYSTEM', 'PROVISION'])
+#emit_groups_by_name(['DSP', 'FWRD', 'DIAL', 'CALL', 'SNMP', 'SYSTEM'])
+#set($lowercase = "$phone.SerialNumber")
+#set($caps = "${lowercase.toUpperCase()}")
+include ${caps}-phonebook.csv phonebook
+
+#emit_groups_by_name(['PROVISION']) 
 #foreach ($button in $speeddials)
 #if($velocityCount == 1)
 [PROG]

@@ -41,6 +41,29 @@
   </type>
   <group name="SIP_general">
     <label>SIP</label>
+    <setting name='SOURCENUMBERMAPIP2TEL' advanced="yes" if="digital">
+      <label>Source Number Map from IP to Tel</label>
+      <value></value>
+      <description>
+       Manipulate the source number for IP to Tel calls (see Audicodes documentation for details).
+       When certain NI-2 protocol configured central offices require calling name to be disabled.
+       Set this to:
+       *,0,$$,$$,$$,$$,*,1,*
+      </description>
+    </setting>
+    <setting name='REMOVECLIWHENRESTRICTED' advanced="yes" if="digital">
+      <label>Remove CLI when restricted</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+      <description>
+        The Remove CLI when restricted (for IP to Tel calls) determines whether the Calling Number
+        IE and Calling Name IE are removed from the outgoing ISDN Setup message if the
+        presentation is set to Restricted. Typically used in certain NI-2 protocol enabled
+        carriers.
+      </description>
+    </setting> 
     <setting name='PRACKMode' advanced="yes">
       <label>PRACK Mode</label>
       <type>

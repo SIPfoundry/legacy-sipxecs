@@ -113,6 +113,60 @@
       </option>
     </enum>
   </type>
+  <type id="priority-802">
+    <enum>
+      <option>
+        <label>disable</label>
+        <value>-1</value>
+      </option>
+      <option>
+        <value>0</value>
+      </option>
+      <option>
+        <value>1</value>
+      </option>
+      <option>
+        <value>2</value>
+      </option>
+      <option>
+        <value>3</value>
+      </option>
+      <option>
+        <value>4</value>
+      </option>
+      <option>
+        <value>5</value>
+      </option>
+      <option>
+        <value>6</value>
+      </option>
+      <option>
+        <value>7</value>
+      </option>
+    </enum>
+  </type>
+  <type id="vlan_id">
+    <integer required="yes" min="0" max="4094" />
+  </type>
+  <group name='LAN'>
+    <setting name='tos'><value>b8</value></setting>
+    <setting name='pc_802_priority'>
+      <type refid="priority-802" />
+      <value>3</value>
+    </setting>
+    <setting name='pc_vlan_id'>
+      <type refid="vlan_id" />
+      <value>0</value>
+    </setting>
+    <setting name='phone_802_priority'>
+      <type refid="priority-802" />
+      <value>5</value>
+    </setting>
+    <setting name='phone_vlan_id'>
+      <type refid="vlan_id" />
+      <value>0</value>
+    </setting>
+  </group>
   <group name='VOIP'>
     <setting name='outbound_proxy_server'></setting>
     <setting name='outbound_proxy_port' advanced="yes">
