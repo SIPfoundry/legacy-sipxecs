@@ -348,10 +348,14 @@ public:
     */
     void setFirstHeaderLine(const char* newHeaderLine);
 
-
-    void setFirstHeaderLine(const char* subfields0,
-                            const char* subfield1,
-                                                    const char* subfield2);
+    //! Set the header line
+    /*! \param method - method part of header line
+     *  \param uri - URI part of header line
+     *  \param protocol - protocol part of header line
+    */
+    void setFirstHeaderLine(const char* method,
+                            const char* uri,
+                            const char* protocol);
 
    //! Get part of header line
    /*! \param partIndex - index into space delimited first header line
