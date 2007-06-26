@@ -115,7 +115,7 @@
     </annotation>
     <complexType>
       <choice>
-        <element ref='dmp:url'          minOccurs='0' maxOccurs='1'>
+        <element ref='dmp:url' minOccurs='0' maxOccurs='1'>
           <annotation>
             <documentation>
               This specifies the complete Contact address.
@@ -163,7 +163,33 @@
     </annotation>
   </element>
   
-  <element name='fieldparams' type='normalizedString'>
+  <simpleType name='paramString'>
+    <annotation>
+      <documentation>
+        A string which represents a parameter name and its value.
+        The parameter may be a URI parameter, header parameter, or
+        field parameter.  (In RFC 3261 section 25.1 terminology,
+        'uri-parameter', 'header', or 'contact-params'[='generic-param'].)
+        The string consists of a non-empty parameter name, followed by
+        '=', followed by a possibly empty parameter value.
+        The name and value are given as XML content as their underlying
+        character strings, not as escaped for their destination location
+        in the URI -- escaping is the responsibility of the URL mapping
+        processor.
+        (Of course, XML's escaping applies, as it is un-done before the
+        URL mapping processor sees the content.)
+        As a consequence, the parameter name may not contain '='.
+        RFC 3261 allows URI parameter names and header parameter names
+        to contain '=' (which would have to be escaped), but there is
+        no reason to believe that that will ever be used in practice.
+      </documentation>
+    </annotation>
+    <restriction base='normalizedString'>
+      <pattern value='[^=\n\r]+=.*'/>
+    </restriction>
+  </simpleType>
+
+  <element name='fieldparams' type='dmp:paramString'>
     <annotation>
       <documentation>
         A field parameter to be set on the output SIP URL.
@@ -171,7 +197,7 @@
     </annotation>
   </element>
   
-  <element name='headerparams' type='normalizedString'>
+  <element name='headerparams' type='dmp:paramString'>
     <annotation>
       <documentation>
         A header parameter to be set on the output SIP URL.
@@ -179,7 +205,7 @@
     </annotation>
   </element>
   
-  <element name='urlparams' type='normalizedString'>
+  <element name='urlparams' type='dmp:paramString'>
     <annotation>
       <documentation>
         A URL parameter to be set on the output SIP URL.
