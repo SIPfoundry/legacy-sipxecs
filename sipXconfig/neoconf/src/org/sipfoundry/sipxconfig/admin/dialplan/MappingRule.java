@@ -26,7 +26,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 /**
  * MappingRule
  * 
- * Strangely URLs im mapping rules are partially URL encoded
+ * Strangely, URLs in mapping rules are partially URL encoded
  * 
  * <code>
  * 

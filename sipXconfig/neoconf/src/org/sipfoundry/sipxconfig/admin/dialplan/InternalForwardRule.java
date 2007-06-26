@@ -16,7 +16,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
  * Generic mapping rule used to forward SIP messages to various components of SIPx system
  * (Resource List Server, Park Server etc.)
  * 
- * It is always internal (added to mapping rules) and it usually has a the following form:
+ * It is always internal (added to mapping rules) and it usually has the following form:
  * 
  * <code>
  * <userMatch>

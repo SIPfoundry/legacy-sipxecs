@@ -320,7 +320,7 @@ OsStatus OsSysLog::vadd(const char*            taskName,
                    sProcessId.data(),
                    logData.data()) ;         
 
-         // If the logger for some reason trys to log a message
+         // If the logger for some reason tries to log a message
          // there is a recursive problem.  Drop the message on the
          // floor for now.  This can occur if one of the os utilities
          // logs a message.
