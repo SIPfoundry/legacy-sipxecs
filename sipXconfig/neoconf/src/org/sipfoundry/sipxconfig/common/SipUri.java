@@ -165,6 +165,21 @@ public final class SipUri {
         return String.format("<sip:%s@%s%s>", name, domain, paramsBuffer);
     }
 
+    public static String format(String name, String domain, int port, Map< ? , ? > urlParams) {
+        StringBuilder paramsBuffer = new StringBuilder();
+        for (Map.Entry< ? , ? > entry : urlParams.entrySet()) {
+            paramsBuffer.append(';');
+            paramsBuffer.append(entry.getKey());
+            Object value = entry.getValue();
+            if (value != null) {
+                paramsBuffer.append('=');
+                paramsBuffer.append(value);
+            }
+        }
+
+        return String.format("<sip:%s@%s:%d%s>", name, domain, port, paramsBuffer);
+    }
+
     public static String stripSipPrefix(String sipUri) {
         if (sipUri == null) {
             return null;

@@ -132,8 +132,10 @@ public class SipUriTest extends TestCase {
         urlParams.put("a-key", "aa");
         urlParams.put("b-key", null);
         urlParams.put("c-key", "cc");
-        assertEquals("<sip:name@domain.com;a-key=aa;b-key;c-key=cc>", SipUri.format("name",
-                "domain.com", urlParams));
+        assertEquals("<sip:name@domain.com;a-key=aa;b-key;c-key=cc>",
+		     SipUri.format("name", "domain.com", urlParams));
+        assertEquals("<sip:name@domain.com:1234;a-key=aa;b-key;c-key=cc>",
+		     SipUri.format("name", "domain.com", 1234, urlParams));
     }
 
     public void testStripSipPrefix() {
