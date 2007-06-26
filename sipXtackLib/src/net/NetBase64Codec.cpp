@@ -88,14 +88,11 @@ void NetBase64Codec::encode(int dataSize, const char data[],
 void NetBase64Codec::encode(int dataSize, const char data[], UtlString& encodedData)
 {
    int numEncodeBytes = encodedSize(dataSize);
-   char* encodeBuffer = new char[numEncodeBytes];
+   char encodeBuffer[numEncodeBytes];
 
    encode(dataSize, data, numEncodeBytes, encodeBuffer);
    encodedData.remove(0);
    encodedData.append(encodeBuffer, numEncodeBytes);
-
-   delete encodeBuffer;
-   encodeBuffer = NULL;
 }
 
 int NetBase64Codec::encodedSize(int dataSize)
