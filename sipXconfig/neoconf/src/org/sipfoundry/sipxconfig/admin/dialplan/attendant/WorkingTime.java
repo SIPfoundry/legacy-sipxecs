@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -22,9 +23,10 @@ public class WorkingTime extends ScheduledAttendant {
     private WorkingHours[] m_workingHours;
 
     /**
-     * Initialization is a bit tricky - days here are numbered from 0 to 6, with - 0 being Monday and 6 being Sunday.
-     * Days in getScheduleDay and in Calenar object are number from 1 to 7 with 1 being Sunday and 7 being Saturday.
-     *
+     * Initialization is a bit tricky - days here are numbered from 0 to 6, with - 0 being Monday
+     * and 6 being Sunday. Days in getScheduleDay and in Calenar object are number from 1 to 7
+     * with 1 being Sunday and 7 being Saturday.
+     * 
      */
     public WorkingTime() {
         final int days = ScheduledDay.DAYS_OF_WEEK.length;
@@ -53,14 +55,20 @@ public class WorkingTime extends ScheduledAttendant {
         return clone;
     }
 
-    public static class WorkingHours {
+    public static class WorkingHours implements Serializable {
         public static final int DEFAULT_START = 9;
         public static final int DEFAULT_STOP = 18;
+        public static final Integer MIN_MINUTES = 0;
+        public static final Integer MAX_MINUTES = 10080;
 
         public static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm", Locale.US);
+        public static final DateFormat HOUR_FORMAT = new SimpleDateFormat("HH", Locale.US);
+        public static final DateFormat MINUTE_FORMAT = new SimpleDateFormat("mm", Locale.US);
 
         static {
             TIME_FORMAT.setTimeZone(getGmtTimeZone());
+            HOUR_FORMAT.setTimeZone(getGmtTimeZone());
+            MINUTE_FORMAT.setTimeZone(getGmtTimeZone());
         }
 
         private boolean m_enabled;
@@ -135,6 +143,44 @@ public class WorkingTime extends ScheduledAttendant {
 
         private static TimeZone getGmtTimeZone() {
             return TimeZone.getTimeZone("GMT");
+        }
+
+        private static String formatHour(Date date) {
+            return HOUR_FORMAT.format(date);
+        }
+
+        private static String formatMinute(Date date) {
+            return MINUTE_FORMAT.format(date);
+        }
+
+        public String getStartHour() {
+            return formatHour(m_start);
+        }
+
+        public String getStopHour() {
+            return formatHour(m_stop);
+        }
+
+        public String getStartMinute() {
+            return formatMinute(m_start);
+        }
+
+        public String getStopMinute() {
+            return formatMinute(m_stop);
+        }
+
+        public boolean isInvalidPeriod() {
+            if (getStart().after(getStop())) {
+                return true;
+            }
+            return false;
+        }
+
+        public boolean isTheSameHour() {
+            if (getStart().getTime() == getStop().getTime()) {
+                return true;
+            }
+            return false;
         }
     }
 }

@@ -61,7 +61,9 @@
   <table name="dialing_rule_gateway"/>
         
   <!-- forwarding -->
+  <table name="schedule"/>
   <table name="ring"/>
+  <table name="schedule_hours"/>
 	
   <!-- ACD -->
   <table name="acd_server"/>

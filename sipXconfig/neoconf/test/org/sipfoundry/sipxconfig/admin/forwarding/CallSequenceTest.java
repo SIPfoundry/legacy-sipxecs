@@ -49,7 +49,7 @@ public class CallSequenceTest extends TestCase {
             assertEquals("abc@sipfoundry.org", a.getIdentity());
             String contact = a.getContact();
             assertTrue(contact
-                    .matches("<sip:\\d+@sipfoundry.org;sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));
+                    .matches("<sip:\\d+@sipfoundry.org;sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+;"));
         }
     }
 
@@ -79,7 +79,7 @@ public class CallSequenceTest extends TestCase {
             assertEquals("abc@sipfoundry.org", a.getIdentity());
             String contact = a.getContact();
             assertTrue(contact
-                    .matches("<sip:\\d+@sipfoundry.org;sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));
+                    .matches("<sip:\\d+@sipfoundry.org;sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+;"));
         }
     }
 

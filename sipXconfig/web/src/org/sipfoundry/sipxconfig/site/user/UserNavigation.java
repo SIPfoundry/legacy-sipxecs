@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 import org.sipfoundry.sipxconfig.site.speeddial.SpeedDialPage;
 import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
+import org.sipfoundry.sipxconfig.site.user_portal.UserSchedules;
 
 public abstract class UserNavigation extends BeanNavigation<User> {
 
@@ -32,6 +33,9 @@ public abstract class UserNavigation extends BeanNavigation<User> {
 
     @InjectPage(value = UserCallForwarding.PAGE)
     public abstract UserCallForwarding getUserCallForwardingPage();
+
+    @InjectPage(value = UserSchedules.PAGE)
+    public abstract UserSchedules getUserSchedulesPage();
 
     @InjectPage(value = EditUser.PAGE)
     public abstract EditUser getEditUserPage();
@@ -49,6 +53,13 @@ public abstract class UserNavigation extends BeanNavigation<User> {
         UserCallForwarding page = getUserCallForwardingPage();
         page.setUserId(userId);
         page.setRings(null);
+        page.setReturnPage(ManageUsers.PAGE);
+        return page;
+    }
+
+    public IPage editSchedules(Integer userId) {
+        UserSchedules page = getUserSchedulesPage();
+        page.setUserId(userId);
         page.setReturnPage(ManageUsers.PAGE);
         return page;
     }
@@ -86,7 +97,7 @@ public abstract class UserNavigation extends BeanNavigation<User> {
         page.setReturnPage(ManageUsers.PAGE);
         return page;
     }
-    
+
     public boolean isIdentificationTabActive() {
         return EditUser.PAGE.equals(getPage().getPageName());
     }
@@ -94,15 +105,19 @@ public abstract class UserNavigation extends BeanNavigation<User> {
     public boolean isPhonesTabActive() {
         return UserPhones.PAGE.equals(getPage().getPageName());
     }
-    
+
     public boolean isCallForwardingTabActive() {
         return UserCallForwarding.PAGE.equals(getPage().getPageName());
     }
-    
+
+    public boolean isUserSchedulesTabActive() {
+        return UserSchedules.PAGE.equals(getPage().getPageName());
+    }
+
     public boolean isSpeedDialTabActive() {
         return SpeedDialPage.PAGE.equals(getPage().getPageName());
     }
-    
+
     public boolean isSupervisorTabActive() {
         return SupervisorPermission.PAGE.equals(getPage().getPageName());
     }

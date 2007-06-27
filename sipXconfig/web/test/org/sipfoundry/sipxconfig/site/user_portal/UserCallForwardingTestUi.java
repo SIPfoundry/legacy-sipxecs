@@ -69,5 +69,52 @@ public class UserCallForwardingTestUi extends WebTestCase {
         setFormElement("number", "john@example@bogus.com");
         clickButton("form:apply");
         assertElementPresent("user:error");
+
+        clickLinkWithText("Delete");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+    }
+
+    public void testAddSchedule() throws Exception {
+        SiteTestHelper.home(getTester());
+        SiteTestHelper.setScriptingEnabled(true);
+        clickLink("loginFirstTestUser");
+        clickLink("toggleNavigation");
+        clickLink("menu.callForwarding");
+        clickLink("addRingLink");
+
+        assertOptionEquals("schedule", "Always");
+        setFormElement("number", "222");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+        clickLinkWithText("Delete");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+
+        clickLink("menu.schedules");
+        clickLinkWithText("Add Schedule");
+        setFormElement("name", "schedule");
+        clickLink("addPeriod");
+        clickButton("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
+
+        clickLink("menu.callForwarding");
+        clickLink("addRingLink");
+        selectOption("schedule", "schedule");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
+
+        setFormElement("number", "222");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+
+        clickLinkWithText("Delete");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+
+        clickLink("menu.schedules");
+        checkCheckbox("checkbox");
+        clickButton("schedule:delete");
+        SiteTestHelper.assertNoUserError(tester);
     }
 }

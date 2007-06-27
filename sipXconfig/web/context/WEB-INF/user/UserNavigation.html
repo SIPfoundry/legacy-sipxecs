@@ -23,6 +23,12 @@
           <span key="link.forwarding">Call Forwarding</span>
         </a>
       </span>
+      <span jwcid="@common/Tab" isActive="prop:userSchedulesTabActive">
+	    <a jwcid="userSchedulesLink@DirectLink"
+          listener="listener:editSchedules" parameters="prop:bean.id">
+          <span key="link.schedules">Schedules</span>
+        </a>
+      </span>
       <span jwcid="@common/Tab" isActive="prop:speedDialTabActive">
         <a jwcid="speedDialLink@DirectLink" listener="listener:editSpeedDial"
           parameters="prop:bean.id">

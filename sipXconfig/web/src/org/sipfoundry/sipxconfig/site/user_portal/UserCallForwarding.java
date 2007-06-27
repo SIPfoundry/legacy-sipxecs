@@ -17,6 +17,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.admin.forwarding.AbstractSchedule;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
@@ -45,15 +46,29 @@ public abstract class UserCallForwarding extends UserBasePage implements PageBeg
 
     public abstract int getIndex();
 
+    public abstract List getAvailableSchedules();
+
+    public abstract void setAvailableSchedules(List schedules);
+
     public void pageBeginRender(PageEvent event) {
         if (getRings() != null) {
+            refreshAvailableSchedules();
             return;
         }
 
         super.pageBeginRender(event);
 
+        refreshAvailableSchedules();
+
         List rings = createDetachedRingList(getCallSequence());
         setRings(rings);
+    }
+
+    private void refreshAvailableSchedules() {
+        ForwardingContext forwardingContext = getForwardingContext();
+        forwardingContext.loadAlwaysSchedule();
+        List<AbstractSchedule> availableSchedules = getSchedules();
+        setAvailableSchedules(availableSchedules);
     }
 
     /**
@@ -78,6 +93,12 @@ public abstract class UserCallForwarding extends UserBasePage implements PageBeg
         ForwardingContext forwardingContext = getForwardingContext();
         Integer userId = getUserId();
         return forwardingContext.getCallSequenceForUserId(userId);
+    }
+
+    private List<AbstractSchedule> getSchedules() {
+        ForwardingContext forwardingContext = getForwardingContext();
+        Integer userId = getUserId();
+        return forwardingContext.getSchedulesForUserIdIncludingAlways(userId);
     }
 
     public void submit() {

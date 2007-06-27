@@ -6,6 +6,7 @@
   <parameter name="ring" required="yes"/>
   <parameter name="index" required="yes"/>
   <parameter name="deleteListener" required="yes"/>
+  <parameter name="availableSchedules" required="yes"/>
   
   <!-- B E A N S -->
   <bean name="delayModel_en" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
@@ -19,6 +20,9 @@
   <bean name="ringMode" class="org.sipfoundry.sipxconfig.components.BooleanPropertySelectionModel" lifecycle="page">
     <set name="falseLabel" value="message:disabled"/>
     <set name="trueLabel" value="message:enabled"/>
+  </bean>
+  <bean name="scheduleModel" class="org.sipfoundry.sipxconfig.components.ScheduleListPropertySelectionModel" lifecycle="render">
+	<set name="options" value="availableSchedules"/>
   </bean>
   
   <!-- C O M P O N E N T S -->
@@ -52,5 +56,9 @@
   <component id="deleteRing" type="DirectLink">
     <binding name="listener" value="deleteListener"/>
     <binding name="parameters" value="index"/>
+  </component>
+  <component id="schedule" type="PropertySelection">
+    <binding name="value" value="ring.schedule"/>
+    <binding name="model" value="bean:scheduleModel"/>
   </component>
 </component-specification>

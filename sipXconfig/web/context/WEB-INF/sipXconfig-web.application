@@ -92,7 +92,9 @@
     <page name="SupervisorPermission" specification-path="user/SupervisorPermission.page"/>
     <page name="UserCallForwarding" specification-path="user_portal/UserCallForwarding.page"/>
     <page name="UserGroups" specification-path="user/UserGroups.page"/>
-    <page name="UserSettings" specification-path="user/UserSettings.page"/>    
+    <page name="UserSettings" specification-path="user/UserSettings.page"/>
+    <page name="UserSchedules" specification-path="user_portal/UserSchedules.page"/>
+    <page name="EditSchedule" specification-path="setting/EditSchedule.page"/>
 
     <!--
       -  C O M P O N E N T S
@@ -179,4 +181,6 @@
     <component-type type="AcdQueueSelector" specification-path="acd/AcdQueueSelector.jwc"/>
     <component-type type="AcdQueuesPanel" specification-path="acd/AcdQueuesPanel.jwc"/>
     <component-type type="AcdQueuesStatsPanel" specification-path="acd/AcdQueuesStatsPanel.jwc"/>
+    <component-type type="SchedulesTable" specification-path="setting/SchedulesTable.jwc"/>
+    <component-type type="ScheduleWorkingHours" specification-path="common/ScheduleWorkingHours.jwc"/>
 </application>

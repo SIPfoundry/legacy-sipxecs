@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
@@ -35,4 +36,18 @@ public interface ForwardingContext extends AliasProvider {
     public void clear();
 
     public void flush();
+
+    public List<AbstractSchedule> getSchedulesForUserId(Integer userId);
+
+    public List<AbstractSchedule> getSchedulesForUserIdIncludingAlways(Integer userId);
+
+    public void saveSchedule(AbstractSchedule schedule);
+
+    public Schedule getScheduleById(Integer scheduleId);
+
+    public List<Schedule> deleteSchedulesById(Collection<Integer> scheduleIds);
+
+    public AlwaysSchedule loadAlwaysSchedule();
+
+    public void notifyCommserver();
 }

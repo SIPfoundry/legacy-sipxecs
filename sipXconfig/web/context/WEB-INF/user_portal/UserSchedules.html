@@ -1,0 +1,21 @@
+<div jwcid="@Border" restricted="false">
+  <span jwcid="@If" condition="ognl:userSession.admin">
+	  <span jwcid="@UserNavigation" bean="prop:user"/>
+  </span>
+  <h2 jwcid="@Else" element="h2">
+    <span key="title">User Schedules</span>
+  </h2>
+  <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
+   <span jwcid="@ErrorMsg"/>
+   <form jwcid="userSchedules@Form" delegate="bean:validator">
+    <ul class="component-links">
+      <li>
+      	<a jwcid="addSchedule">
+        	<span key="add">Add Schedule</span>
+        </a>
+      </li>
+    </ul>
+	<span jwcid="schedulesTable"/>
+  </form>
+  </div>
+</div>

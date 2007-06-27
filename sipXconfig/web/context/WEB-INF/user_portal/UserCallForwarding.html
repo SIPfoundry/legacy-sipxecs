@@ -27,7 +27,7 @@
             </tr>
             <!-- iterate here -->            
             <tr jwcid="@For" source="prop:rings" value="prop:ring" index="prop:index" volatile="true">
-              <span jwcid="@RingEditor" ring="prop:ring" index="prop:index" deleteListener="listener:deleteRing"/>
+              <span jwcid="@RingEditor" ring="prop:ring" index="prop:index" deleteListener="listener:deleteRing" availableSchedules="prop:availableSchedules"/>
             </tr>
             <tr jwcid="@If" condition="prop:hasVoiceMail" element="tr">
               <td colspan="4">
