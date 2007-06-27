@@ -79,6 +79,11 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         getHibernateTemplate().flush();
     }
 
+    public void removeSchedulesForUserID(Integer userId) {
+        List schedules = getSchedulesForUserId(userId);
+        getHibernateTemplate().deleteAll(schedules);
+    }
+
     public Ring getRing(Integer id) {
         HibernateTemplate hibernate = getHibernateTemplate();
         return (Ring) hibernate.load(Ring.class, id);
@@ -142,6 +147,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     private class OnUserDelete extends UserDeleteListener {
         protected void onUserDelete(User user) {
             removeCallSequenceForUserId(user.getId());
+            removeSchedulesForUserID(user.getId());
         }
     }
 

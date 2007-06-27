@@ -45,8 +45,6 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS = "userIdsByNameOrAlias";
     private static final String QUERY_USER = "from User";
     private static final String QUERY_PARAM_GROUP_ID = "groupId";
-    private static final String QUERY_PARAM_USER_ID = "userId";
-    private static final String QUERY_SCHEDULE_BY_USER_ID = "userSchedulesForUserId";
 
     private String m_authorizationRealm;
     private DomainManager m_domainManager;
@@ -149,10 +147,6 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     public void deleteUser(User user) {
         getHibernateTemplate().delete(user);
-
-        List schedules = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_SCHEDULE_BY_USER_ID, QUERY_PARAM_USER_ID, user.getId());
-        getHibernateTemplate().deleteAll(schedules);
     }
 
     public void deleteUsers(Collection<Integer> userIds) {
@@ -165,10 +159,6 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
             User user = loadUser(id);
             users.add(user);
             m_daoEventPublisher.publishDelete(user);
-
-            List schedules = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                    QUERY_SCHEDULE_BY_USER_ID, QUERY_PARAM_USER_ID, user.getId());
-            getHibernateTemplate().deleteAll(schedules);
         }
         getHibernateTemplate().deleteAll(users);
     }
@@ -183,10 +173,6 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
             User user = loadUserByUserName(userName);
             users.add(user);
             m_daoEventPublisher.publishDelete(user);
-
-            List schedules = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                    QUERY_SCHEDULE_BY_USER_ID, QUERY_PARAM_USER_ID, user.getId());
-            getHibernateTemplate().deleteAll(schedules);
         }
         getHibernateTemplate().deleteAll(users);
     }
