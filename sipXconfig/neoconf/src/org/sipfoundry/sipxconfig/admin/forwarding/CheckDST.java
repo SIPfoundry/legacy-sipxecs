@@ -10,66 +10,66 @@
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.Date;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * Time task that runs once a day and checks if DST will change during next 24 hours. If DST
+ * change is going to happen, it schedules notification that regenerates aliases.
+ */
 public class CheckDST extends TimerTask {
 
     private ForwardingContext m_fwdContext;
 
-    public CheckDST() {
-    }
-
-    public ForwardingContext getFwdContext() {
-        return m_fwdContext;
-    }
-
     public void setFwdContext(ForwardingContext context) {
-        this.m_fwdContext = context;
+        m_fwdContext = context;
+    }
+
+    private void setupNotifyTask(Date dstChangeTime) {
+        Timer timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            public void run() {
+                m_fwdContext.notifyCommserver();
+            }
+        }, dstChangeTime);
     }
 
     public void run() {
         TimeZone tzLocal = TimeZone.getDefault();
-
-        // today
-        GregorianCalendar today = new GregorianCalendar();
-        today.set(Calendar.DATE, today.get(Calendar.DATE));
-        // tomorrow
-        GregorianCalendar tomorrow = new GregorianCalendar();
-        tomorrow.set(Calendar.DATE, tomorrow.get(Calendar.DATE) + 1);
-
-        // if tomorrow the DST state will change
-        if (tzLocal.inDaylightTime(today.getTime()) != tzLocal.inDaylightTime(tomorrow.getTime())) {
-            GregorianCalendar dstChangeCalendar = null;
-            // try from hour to hour to see when it will happen
-            for (int i = 0; i < 24; i++) {
-                today.set(Calendar.HOUR, today.get(Calendar.HOUR) + 1);
-                if (tzLocal.inDaylightTime(tomorrow.getTime()) == tzLocal.inDaylightTime(today
-                        .getTime())) {
-                    dstChangeCalendar = new GregorianCalendar();
-                    dstChangeCalendar.set(Calendar.DATE, today.get(Calendar.DATE));
-                    dstChangeCalendar.set(Calendar.HOUR_OF_DAY, today.get(Calendar.HOUR_OF_DAY));
-                    dstChangeCalendar.set(Calendar.MINUTE, 0);
-                    dstChangeCalendar.set(Calendar.SECOND, 0);
-                    // break if we found the hour
-                    break;
-                }
-            }
-
-            // create a timer task that generates the alias at DST change hour
-            if (dstChangeCalendar != null) {
-                Timer timer = new Timer();
-
-                timer.schedule(new TimerTask() {
-                    public void run() {
-                        getFwdContext().notifyCommserver();
-                    }
-                }, dstChangeCalendar.getTime());
-            }
-
+        Date dstChangeTime = findDstChangeTime(tzLocal, new Date());
+        if (dstChangeTime != null) {
+            setupNotifyTask(dstChangeTime);
         }
+    }
 
+    /**
+     * Find the aproximate time of DTS change
+     * 
+     * @param tz time zone
+     * @param today time from which we will start checking
+     * @return null if not DST change in next 24 hours, otherwise time of the spproximate DST
+     *         switch (after switch happens)
+     */
+    Date findDstChangeTime(TimeZone tz, Date today) {
+        Calendar calendar = Calendar.getInstance(tz);
+        calendar.setTime(today);
+
+        // check one day ahead
+        calendar.roll(Calendar.DAY_OF_MONTH, true);
+        Date future = calendar.getTime();
+        boolean dtsNow = tz.inDaylightTime(today);
+
+        Date dstChangeTime = null;
+
+        // find when it changes
+        while (dtsNow != tz.inDaylightTime(future)) {
+            dstChangeTime = future;
+            calendar.roll(Calendar.HOUR_OF_DAY, false);
+            future = calendar.getTime();
+        }
+        return dstChangeTime;
     }
 }
