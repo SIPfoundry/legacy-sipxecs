@@ -125,7 +125,7 @@
   <target name="create" depends="createdb,schema"
     description="create database with schema"/>
 
-  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5"/>
+  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6"/>
 	
   <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks"
     depends="upgrade-no-init,initialize"/>
@@ -219,11 +219,15 @@
   	<antcall target="update-ac-model"/>
     <antcall target="sbc"/>
     <antcall target="sbc-aux"/>
+    <sipx-version version="6"/>
+  </target>	
+
+  <target name="version6" description="upgrade from version 5" unless="version7">
     <antcall target="callgroup-fallback-destination"/>
     <!-- When freezing schema uncomment this line -->
-    <!-- sipx-version version="6" -->
+    <!-- sipx-version version="7" -->
   </target>	
-	
+
   <target name="enable-schedule" unless="enable-schedule">
     <db-patch patch="enable-schedule"/>
   </target>

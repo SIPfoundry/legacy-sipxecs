@@ -14,12 +14,14 @@ create table version_history(
  * For sipXconfig v3.3-r6543, the database version is 3.
  * For sipXconfig v3.5-r7552, the database version is 4.
  * For sipXconfig v3.7-r7934, the database version is 5.
+ * For sipXconfig v3.8-r10357, the database version is 6.
  */
 insert into version_history (version, applied) values (1, now());
 insert into version_history (version, applied) values (2, now());
 insert into version_history (version, applied) values (3, now());
 insert into version_history (version, applied) values (4, now());
 insert into version_history (version, applied) values (5, now());
+insert into version_history (version, applied) values (6, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -33,7 +35,7 @@ create table phone (
    serial_number varchar(255) not null unique,
    bean_id varchar(255),
    value_storage_id int4,
-   model_id varchar(64),
+   model_id varchar(64) not null,
    device_version_id varchar(32),
    primary key (phone_id)
 );
@@ -123,7 +125,7 @@ create table gateway (
    description varchar(255),
    serial_number varchar(255),
    value_storage_id int4,
-   model_id varchar(64),
+   model_id varchar(64) not null,
    device_version_id varchar(32),
    prefix varchar(255),
    default_caller_alias varchar(255),
@@ -232,6 +234,7 @@ create table ring (
    expiration int4,
    ring_type varchar(255),
    user_id int4 not null,
+   enabled bool not null default true,   
    primary key (ring_id)
 );
 create table users (
@@ -411,9 +414,9 @@ create table ldap_selected_object_classes (
 create table cron_schedule (
     cron_schedule_id int4 not null,   
     cron_string varchar(255),
+    enabled bool not null default false,
     primary key (cron_schedule_id)   
 );
-
 
 create table supervisor(
    user_id int4 not null,
@@ -472,6 +475,139 @@ create table domain_alias (
    primary key (domain_id, alias)   
 );
 
+create table phonebook (
+   phonebook_id int4 not null,      
+   name varchar(255) not null unique,
+   description varchar(255),
+   members_csv_filename varchar(255),
+   primary key (phonebook_id)
+);
+
+create table phonebook_member (
+   phonebook_id int4 not null,      
+   group_id int4 not null,      
+   primary key (phonebook_id, group_id)
+);
+
+create table phonebook_consumer (
+   phonebook_id int4 not null,      
+   group_id int4 not null,      
+   primary key (phonebook_id, group_id)
+);
+
+create table speeddial (
+    speeddial_id int4 not null,
+    user_id int4 not null,
+    primary key (speeddial_id)
+);
+
+create table speeddial_button (
+    speeddial_id int4 not null,
+    label varchar(255),
+    number varchar(255) not null,
+    blf boolean not null default false,
+    position int4 not null,
+    primary key (speeddial_id, position)
+);
+
+create table acd_agent (
+    acd_agent_id int4 not null,
+    value_storage_id int4,
+    user_id int4 not null,
+    acd_server_id int4 not null,
+    primary key (acd_agent_id)
+);
+
+create table acd_line (
+    acd_line_id int4 not null,
+    name varchar(255) not null,
+    description varchar(255),
+    value_storage_id int4,
+    acd_server_id int4 not null,
+    extension varchar(255),
+    primary key (acd_line_id)
+);
+
+create table acd_line_queue (
+    acd_line_id int4 not null,
+    acd_queue_id int4 not null,
+    primary key (acd_line_id)
+);
+
+create table acd_queue (
+    acd_queue_id int4 not null,
+    name varchar(255) not null,
+    description varchar(255),
+    value_storage_id int4,
+    acd_server_id int4 not null,
+    overflow_queue_id int,
+    primary key (acd_queue_id)
+);
+
+create table acd_queue_agent (
+    acd_queue_id int4 not null,
+    acd_agent_id int4 not null,
+    agent_position int4,
+    primary key (acd_queue_id, agent_position)
+);
+
+create table acd_agent_queue (
+    acd_queue_id int4 not null,
+    acd_agent_id int4 not null,
+    queue_position int4 not null,
+    primary key (acd_agent_id, queue_position)
+);
+
+create table acd_server (
+    acd_server_id int4 not null,
+    host varchar(255),
+    port int4,
+    description varchar(255),
+    value_storage_id int4,
+    primary key (acd_server_id)
+);
+
+create table service(
+  service_id int4 not null primary key,
+  name varchar(255) not null unique,
+  address varchar(255) not null,
+  bean_id varchar(32) not null,
+  enabled bool not null,
+  descriptor_id varchar(32),
+  value_storage_id int4,
+  description varchar(255)
+);
+
+create table fxo_port (
+  fxo_port_id int4 not null,
+  gateway_id int4 not null,
+  position int4,
+  value_storage_id int4,
+  primary key (fxo_port_id)
+);
+
+create table sbc (
+    sbc_id int4 not null,
+    enabled bool,
+    address varchar(255),
+    sbc_type char(1) not null,
+    primary key (sbc_id)
+);
+
+create table sbc_route_domain (
+    sbc_id int4 not null,
+    domain varchar(255) not null,
+    index int4 not null,
+    primary key (sbc_id, index)
+);
+
+create table sbc_route_subnet (
+    sbc_id int4 not null,
+    subnet varchar(255) not null,
+    index int4 not null,
+    primary key (sbc_id, index)
+);
+
 /*
  * Foreign key constraints
  */
@@ -480,7 +616,7 @@ alter table intercom_phone_group
   add constraint intercom_phone_group_fk1
   foreign key (intercom_id)
   references intercom;
-  
+
 alter table intercom_phone_group
   add constraint intercom_phone_group_fk2
   foreign key (group_id)
@@ -572,7 +708,103 @@ alter table attendant_dialing_rule
   references auto_attendant;  
 
 alter table meetme_conference add constraint conference_name_key unique(name);
+
+alter table phonebook_member add constraint phonebook_member_fk1 foreign key (phonebook_id) references phonebook;
+alter table phonebook_member add constraint phonebook_member_fk2 foreign key (group_id) references group_storage;
+alter table phonebook_consumer add constraint phonebook_consumer_fk1 foreign key (phonebook_id) references phonebook;
+alter table phonebook_consumer add constraint phonebook_consumer_fk2 foreign key (group_id) references group_storage;
+
+alter table speeddial 
+    add constraint fk_speeddial_user 
+    foreign key (user_id) 
+    references users;
+
+alter table speeddial_button 
+    add constraint fk_speeddial_button_speeddial
+    foreign key (speeddial_id) 
+    references speeddial;
+
+alter table acd_queue_agent
+    add constraint fk_acd_queue_agent_queue_id
+    foreign key (acd_queue_id) 
+    references acd_queue;
+alter table acd_queue_agent 
+    add constraint fk_acd_queue_agent_agent_id 
+    foreign key (acd_agent_id) 
+    references acd_agent;
     
+alter table acd_agent_queue
+    add constraint fk_acd_agent_queue_queue_id
+    foreign key (acd_queue_id) 
+    references acd_queue;
+alter table acd_agent_queue 
+    add constraint fk_acd_agent_queue_agent_id 
+    foreign key (acd_agent_id) 
+    references acd_agent;
+    
+alter table acd_agent 
+    add constraint FKAB953508A53EB3E4 
+    foreign key (user_id) 
+    references users;
+alter table acd_agent 
+    add constraint FKAB9535086C899BCE 
+    foreign key (value_storage_id) 
+    references value_storage;
+alter table acd_agent 
+    add constraint fk_acd_agent_server 
+    foreign key (acd_server_id) 
+    references acd_server;
+alter table acd_line 
+    add constraint FK816CF191D04BF1FA 
+    foreign key (acd_server_id) 
+    references acd_server;
+alter table acd_line 
+    add constraint FK816CF1916C899BCE 
+    foreign key (value_storage_id) 
+    references value_storage;
+alter table acd_line_queue 
+    add constraint FK1D273CE31DACB05A 
+    foreign key (acd_line_id) 
+    references acd_line;
+alter table acd_line_queue 
+    add constraint FK1D273CE3BEE3CFA 
+    foreign key (acd_queue_id) 
+    references acd_queue;
+alter table acd_queue 
+    add constraint FKAC7D0B14D04BF1FA 
+    foreign key (acd_server_id) 
+    references acd_server;
+alter table acd_queue 
+    add constraint FKAC7D0B146C899BCE 
+    foreign key (value_storage_id) 
+    references value_storage;
+alter table acd_server 
+    add constraint FKE5B27DA06C899BCE 
+    foreign key (value_storage_id) 
+    references value_storage;
+
+alter table service add constraint service_value_storage foreign key (value_storage_id) references value_storage;
+
+alter table fxo_port 
+  add constraint fk_fxo_port_gateway 
+  foreign key (gateway_id) 
+  references gateway;
+
+alter table fxo_port 
+  add constraint fk_fxo_port_value_storage 
+  foreign key (value_storage_id) 
+  references value_storage;
+
+alter table sbc_route_domain 
+    add constraint fk_sbc_route_domain_sbc 
+    foreign key (sbc_id) 
+    references sbc;
+
+alter table sbc_route_subnet 
+    add constraint fk_sbc_route_subnet_sbc 
+    foreign key (sbc_id) 
+    references sbc;
+
 create sequence group_weight_seq;
 create sequence dialing_rule_seq;
 create sequence ring_seq;
@@ -593,8 +825,18 @@ create sequence extension_pool_seq;
 create sequence upload_seq;
 create sequence intercom_seq;
 create sequence domain_seq;
+create sequence phonebook_seq;
+create sequence speeddial_seq;
+create sequence acd_seq;
+create sequence service_seq;
+create sequence fxo_port_seq;
+create sequence sbc_seq;
+
 -- used for native hibernate ids  
 create sequence hibernate_sequence;
+
+-- index
+create index index_acd_agent_user_server on acd_agent(acd_agent_id, user_id, acd_server_id);
 
 /* will trigger app event to execute java code before next startup to insert default data */
 insert into initialization_task (name) values ('dial-plans');
@@ -602,3 +844,4 @@ insert into initialization_task (name) values ('default-phone-group');
 insert into initialization_task (name) values ('add_default_user_group');
 insert into initialization_task (name) values ('operator');
 insert into initialization_task (name) values ('initialize-domain');
+insert into initialization_task (name) values ('afterhour');
