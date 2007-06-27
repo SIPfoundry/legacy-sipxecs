@@ -103,8 +103,8 @@ public class ScheduleTest extends TestCase {
         Integer stopWithTimezone = minutesFromSunday + stopHour * 60 + stopMinute - tz_offset;
 
         String expected = Integer.toHexString(startWithTimezone) + COLON
-                + Integer.toHexString(WorkingHours.MAX_MINUTES) + COLON + "0" + COLON
-                + Integer.toHexString(stopWithTimezone - WorkingHours.MAX_MINUTES);
+                + Integer.toHexString(WorkingHours.MINUTES_PER_WEEK) + COLON + "0" + COLON
+                + Integer.toHexString(stopWithTimezone - WorkingHours.MINUTES_PER_WEEK);
         String actual = sch.calculateValidTime();
 
         assertEquals(expected, actual);
@@ -148,8 +148,8 @@ public class ScheduleTest extends TestCase {
         Integer startWithTimezone = minutesFromSunday + startHour * 60 + startMinute - tz_offset;
         Integer stopWithTimezone = minutesFromSunday + stopHour * 60 + stopMinute - tz_offset;
 
-        String expected = Integer.toHexString(startWithTimezone + WorkingHours.MAX_MINUTES)
-                + COLON + Integer.toHexString(WorkingHours.MAX_MINUTES) + COLON + "0" + COLON
+        String expected = Integer.toHexString(startWithTimezone + WorkingHours.MINUTES_PER_WEEK)
+                + COLON + Integer.toHexString(WorkingHours.MINUTES_PER_WEEK) + COLON + "0" + COLON
                 + Integer.toHexString(stopWithTimezone);
         String actual = sch.calculateValidTime();
 

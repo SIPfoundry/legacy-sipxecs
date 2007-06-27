@@ -113,9 +113,11 @@ public class WorkingTime extends ScheduledAttendant {
     }
 
     public static class WorkingHours implements Serializable {
+        public static final int MINUTES_PER_HOUR = 60;
+        public static final int MINUTES_PER_DAY = MINUTES_PER_HOUR * 24;
+        public static final int MINUTES_PER_WEEK = MINUTES_PER_DAY * 7;
         public static final int DEFAULT_START = 9;
         public static final int DEFAULT_STOP = 18;
-        public static final Integer MAX_MINUTES = 10080;
 
         public static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm", Locale.US);
 
@@ -224,78 +226,41 @@ public class WorkingTime extends ScheduledAttendant {
         }
 
         int getMinutesFromMidnight(Date date) {
-            return getHour(date) * 60 + getMinute(date);
+            return getHour(date) * MINUTES_PER_HOUR + getMinute(date);
         }
 
         void addMinutesFromSunday(List<Integer> minutes, int timeZoneOffsetInMinutes) {
             ScheduledDay day = getDay();
             // days here are numbered from 1 to 7 with 1 being Sunday and 7 being Saturday
-            int minutesFromSunday = (day.getDayOfWeek() - 1) * 24 * 60;
-            int startMinutes = minutesFromSunday + getMinutesFromMidnight(m_start);
-            int stopMinutes = minutesFromSunday + getMinutesFromMidnight(m_stop);
+            int minutesFromSunday = (day.getDayOfWeek() - 1) * MINUTES_PER_DAY;
 
-            if (timeZoneOffsetInMinutes > 0) {
-                minutes.addAll(getPeriodsIfGMTPlusTimezone(startMinutes, stopMinutes,
-                        timeZoneOffsetInMinutes));
-            } else if (timeZoneOffsetInMinutes < 0) {
-                minutes.addAll(getPeriodsIfGMTMinusTimezone(startMinutes, stopMinutes,
-                        -timeZoneOffsetInMinutes));
-            } else {
-                minutes.add(startMinutes);
-                minutes.add(stopMinutes);
+            int offset = timeZoneOffsetInMinutes;
+            if (offset < 0) {
+                offset += MINUTES_PER_WEEK;
             }
-        }
+            minutesFromSunday -= offset;
 
-        // for GMT-xx
-        // returns the rolled periods if roll happends or the normal period if not
-        public static List<Integer> getPeriodsIfGMTMinusTimezone(int start, int stop,
-                int timezoneOffset) {
-            List<Integer> result = new ArrayList<Integer>();
-            if (stop + timezoneOffset > MAX_MINUTES) {
-                int rolledStopMinutes = stop + timezoneOffset - MAX_MINUTES;
-                int stopRolled = rolledStopMinutes;
-                if (start + timezoneOffset > MAX_MINUTES) {
-                    int rolledStartMinutes = start + timezoneOffset - MAX_MINUTES;
-                    int startRolled = rolledStartMinutes;
-                    result.add(startRolled);
-                    result.add(stopRolled);
-                } else {
-                    result.add(start + timezoneOffset);
-                    result.add(MAX_MINUTES);
-                    result.add(0);
-                    result.add(stopRolled);
-                }
-            } else {
-                result.add(start + timezoneOffset);
-                result.add(stop + timezoneOffset);
+            List<Integer> intervals = new ArrayList<Integer>();
+            int start = minutesFromSunday + getMinutesFromMidnight(m_start);
+            if (start < 0) {
+                start += MINUTES_PER_WEEK;
             }
-            return result;
-        }
 
-        // for GMT+xx
-        // returns the rolled periods if roll happends or the normal period if not
-        public static List<Integer> getPeriodsIfGMTPlusTimezone(int start, int stop,
-                int timezoneOffset) {
-            List<Integer> result = new ArrayList<Integer>();
-            if (start - timezoneOffset < 0) {
-                int rolledStartMinutes = start - timezoneOffset;
-                int startRolled = MAX_MINUTES + rolledStartMinutes;
-                if (stop - timezoneOffset < 0) {
-                    int rolledStopMinutes = stop - timezoneOffset;
-                    int stopRolled = MAX_MINUTES + rolledStopMinutes;
-                    result.add(startRolled);
-                    result.add(stopRolled);
-                } else {
-                    result.add(startRolled);
-                    result.add(MAX_MINUTES);
-                    result.add(0);
-                    result.add(stop - timezoneOffset);
-                }
-            } else {
-                result.add(start - timezoneOffset);
-                result.add(stop - timezoneOffset);
+            int stop = minutesFromSunday + getMinutesFromMidnight(m_stop);
+            if (stop < 0) {
+                stop += MINUTES_PER_WEEK;
             }
-            return result;
+
+            if (start <= stop) {
+                intervals.add(start);
+                intervals.add(stop);
+            } else {
+                intervals.add(start);
+                intervals.add(MINUTES_PER_WEEK);
+                intervals.add(0);
+                intervals.add(stop);
+            }
+            minutes.addAll(intervals);
         }
     }
 

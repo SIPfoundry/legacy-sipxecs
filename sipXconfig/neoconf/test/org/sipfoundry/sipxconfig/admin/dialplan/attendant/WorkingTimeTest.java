@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
@@ -60,5 +62,146 @@ public class WorkingTimeTest extends TestCase {
         assertFalse(workingHours[5].isEnabled());
         assertFalse(workingHours[6].isEnabled());
         assertEquals(ScheduledDay.SUNDAY, workingHours[6].getDay());
+    }
+
+    public void testAddMinutesFromSunday() {
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        c.set(1970, Calendar.JANUARY, 1);
+
+        WorkingHours hours = new WorkingHours();
+        hours.setDay(ScheduledDay.SUNDAY);
+
+        c.set(Calendar.HOUR_OF_DAY, 1);
+        c.set(Calendar.MINUTE, 3);
+        hours.setStart(c.getTime());
+
+        c.set(Calendar.HOUR_OF_DAY, 2);
+        c.set(Calendar.MINUTE, 5);
+        hours.setStop(c.getTime());
+
+        List<Integer> minutes = new ArrayList<Integer>();
+        hours.addMinutesFromSunday(minutes, 0);
+        assertEquals(2, minutes.size());
+        assertEquals(63, minutes.get(0).intValue());
+        assertEquals(125, minutes.get(1).intValue());
+
+        hours.setDay(ScheduledDay.TUESDAY);
+        minutes.clear();
+        hours.addMinutesFromSunday(minutes, 0);
+        assertEquals(2, minutes.size());
+        assertEquals(2 * 24 * 60 + 63, minutes.get(0).intValue());
+        assertEquals(2 * 24 * 60 + 125, minutes.get(1).intValue());
+    }
+
+    public void testAddMinutesFromSundayWithTimezone() {
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        c.set(1970, Calendar.JANUARY, 1);
+
+        WorkingHours hours = new WorkingHours();
+        hours.setDay(ScheduledDay.TUESDAY);
+
+        c.set(Calendar.HOUR_OF_DAY, 1);
+        c.set(Calendar.MINUTE, 3);
+        hours.setStart(c.getTime());
+
+        c.set(Calendar.HOUR_OF_DAY, 2);
+        c.set(Calendar.MINUTE, 5);
+        hours.setStop(c.getTime());
+
+        List<Integer> minutes = new ArrayList<Integer>();
+        hours.addMinutesFromSunday(minutes, 120);
+        assertEquals(2, minutes.size());
+        assertEquals(2 * 24 * 60 + 63 - 120, minutes.get(0).intValue());
+        assertEquals(2 * 24 * 60 + 125 - 120, minutes.get(1).intValue());
+
+        minutes.clear();
+        hours.addMinutesFromSunday(minutes, -183);
+        assertEquals(2, minutes.size());
+        assertEquals(2 * 24 * 60 + 63 + 183, minutes.get(0).intValue());
+        assertEquals(2 * 24 * 60 + 125 + 183, minutes.get(1).intValue());
+    }
+
+    public void testAddMinutesFromSundayRollback() {
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        c.set(1970, Calendar.JANUARY, 1);
+
+        WorkingHours hours = new WorkingHours();
+        hours.setDay(ScheduledDay.SUNDAY);
+
+        c.set(Calendar.HOUR_OF_DAY, 1);
+        c.set(Calendar.MINUTE, 3);
+        hours.setStart(c.getTime());
+
+        c.set(Calendar.HOUR_OF_DAY, 2);
+        c.set(Calendar.MINUTE, 5);
+        hours.setStop(c.getTime());
+
+        List<Integer> minutes = new ArrayList<Integer>();
+        hours.addMinutesFromSunday(minutes, 180);
+        assertEquals(2, minutes.size());
+        assertEquals(63 + WorkingHours.MINUTES_PER_WEEK - 180, minutes.get(0).intValue());
+        assertEquals(125 + WorkingHours.MINUTES_PER_WEEK - 180, minutes.get(1).intValue());
+
+        hours.setDay(ScheduledDay.SATURDAY);
+        c.set(Calendar.HOUR_OF_DAY, 20);
+        c.set(Calendar.MINUTE, 3);
+        hours.setStart(c.getTime());
+
+        c.set(Calendar.HOUR_OF_DAY, 22);
+        c.set(Calendar.MINUTE, 5);
+        hours.setStop(c.getTime());
+
+        minutes.clear();
+        hours.addMinutesFromSunday(minutes, -360);
+        assertEquals(2, minutes.size());
+        assertEquals(6 * 24 * 60 + 20 * 60 + 3 + 360 - WorkingHours.MINUTES_PER_WEEK, minutes.get(0)
+                .intValue());
+        assertEquals(6 * 24 * 60 + 22 * 60 + 5 + 360 - WorkingHours.MINUTES_PER_WEEK, minutes.get(1)
+                .intValue());
+
+    }
+
+    public void testAddMinutesFromSundayRollbackSplit() {
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        c.set(1970, Calendar.JANUARY, 1);
+
+        WorkingHours hours = new WorkingHours();
+        hours.setDay(ScheduledDay.SUNDAY);
+
+        c.set(Calendar.HOUR_OF_DAY, 1);
+        c.set(Calendar.MINUTE, 3);
+        hours.setStart(c.getTime());
+
+        c.set(Calendar.HOUR_OF_DAY, 2);
+        c.set(Calendar.MINUTE, 5);
+        hours.setStop(c.getTime());
+
+        List<Integer> minutes = new ArrayList<Integer>();
+        hours.addMinutesFromSunday(minutes, 80);
+        assertEquals(4, minutes.size());
+        assertEquals(63 + WorkingHours.MINUTES_PER_WEEK - 80, minutes.get(0).intValue());
+        assertEquals(WorkingHours.MINUTES_PER_WEEK, minutes.get(1).intValue());
+        assertEquals(0, minutes.get(2).intValue());
+        assertEquals(125 - 80, minutes.get(3).intValue());
+
+        hours.setDay(ScheduledDay.SATURDAY);
+        c.set(Calendar.HOUR_OF_DAY, 20);
+        c.set(Calendar.MINUTE, 3);
+        hours.setStart(c.getTime());
+
+        c.set(Calendar.HOUR_OF_DAY, 22);
+        c.set(Calendar.MINUTE, 5);
+        hours.setStop(c.getTime());
+
+        minutes.clear();
+        hours.addMinutesFromSunday(minutes, -130);
+        assertEquals(4, minutes.size());
+        assertEquals(6 * 24 * 60 + 20 * 60 + 3 + 130, minutes.get(0)
+                .intValue());
+        assertEquals(WorkingHours.MINUTES_PER_WEEK, minutes.get(1).intValue());
+        assertEquals(0, minutes.get(2).intValue());
+        assertEquals(6 * 24 * 60 + 22 * 60 + 5 + 130 - WorkingHours.MINUTES_PER_WEEK, minutes.get(3)
+                .intValue());
+
     }
 }
