@@ -10,22 +10,25 @@
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.dbunit.Assertion;
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.ScheduledDay;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataAccessException;
 
-/**
- * ForwardingContextImplTestDb
- */
 public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
     private ForwardingContext m_context;
     private CoreContext m_coreContext;
@@ -64,10 +67,23 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         User user = m_coreContext.loadUser(testUserId);
         ITable rings = TestHelper.getConnection().createDataSet().getTable("ring");
         assertEquals(5, rings.getRowCount());
+        ITable schedules = TestHelper.getConnection().createDataSet().getTable("schedule");
+        assertEquals(3, schedules.getRowCount());
+        ITable scheduleHours = TestHelper.getConnection().createDataSet().getTable(
+                "schedule_hours");
+        assertEquals(8, scheduleHours.getRowCount());
+        
         m_coreContext.deleteUser(user);
+        
         rings = TestHelper.getConnection().createDataSet().getTable("ring");
         // 3 rings should disappear from that
         assertEquals(2, rings.getRowCount());
+        schedules = TestHelper.getConnection().createDataSet().getTable("schedule");
+        // 2 schedules should disappear from that
+        assertEquals(1, schedules.getRowCount());
+        scheduleHours = TestHelper.getConnection().createDataSet().getTable("schedule_hours");
+        // 7 schedule hours should disappear from that
+        assertEquals(1, scheduleHours.getRowCount());
     }
 
     public void testSave() throws Exception {
@@ -186,5 +202,66 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
 
         ringTable = TestHelper.getConnection().createDataSet().getTable("ring");
         assertEquals(remainingRingCount, ringTable.getRowCount());
+    }
+
+    public void testGetSchedulesForUserID() throws Exception {
+        User user = m_coreContext.loadUser(testUserId);
+        List<Schedule> schedules = m_context.getSchedulesForUserId(user.getId());
+
+        assertEquals(2, schedules.size());
+        for (Schedule schedule : schedules) {
+            assertEquals(user, schedule.getUser());
+        }
+    }
+
+    public void testGetSchedulesByID() throws Exception {
+        Schedule schedule = m_context.getScheduleById(new Integer(100));
+
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("schedule");
+        assertEquals(schedule.getName(), actual.getValue(0, "name"));
+        assertEquals(schedule.getDescription(), actual.getValue(0, "description"));
+    }
+
+    public void testSaveSchedule() throws Exception {
+        User user = m_coreContext.loadUser(testUserId);
+
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        c.set(1970, Calendar.JANUARY, 1);
+        WorkingTime wt = new WorkingTime();
+
+        WorkingHours[] hours = new WorkingHours[1];
+        hours[0] = new WorkingHours();
+        hours[0].setDay(ScheduledDay.SUNDAY);
+        c.set(Calendar.HOUR_OF_DAY, 9);
+        c.set(Calendar.MINUTE, 0);
+        hours[0].setStart(c.getTime());
+
+        c.set(Calendar.HOUR_OF_DAY, 18);
+        c.set(Calendar.MINUTE, 0);
+        hours[0].setStop(c.getTime());
+
+        wt.setWorkingHours(hours);
+
+        Schedule schedule = new Schedule();
+        schedule.setUser(user);
+        schedule.setName("TestSchedule");
+        schedule.setDescription("Test Schedule");
+
+        m_context.saveSchedule(schedule);
+        m_context.flush();
+
+        ITable actualSchedules = TestHelper.getConnection().createDataSet().getTable("schedule");
+        assertEquals(user.getId(), actualSchedules.getValue(0, "user_id"));
+        assertEquals("TestSchedule", actualSchedules.getValue(0, "name"));
+        assertEquals("Test Schedule", actualSchedules.getValue(0, "description"));
+    }
+
+    public void testDeleteSchedulesById() throws Exception {
+        List<Integer> scheduleIds = new ArrayList<Integer>();
+        scheduleIds.add(new Integer(100));
+        scheduleIds.add(new Integer(101));
+
+        List<Schedule> schedulesWithRings = m_context.deleteSchedulesById(scheduleIds);
+        assertEquals(2, schedulesWithRings.size());
     }
 }

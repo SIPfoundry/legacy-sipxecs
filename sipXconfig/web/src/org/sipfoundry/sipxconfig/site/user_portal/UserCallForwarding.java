@@ -25,9 +25,6 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
-/**
- * UserCallForwarding
- */
 public abstract class UserCallForwarding extends UserBasePage implements PageBeginRenderListener {
     public static final String PAGE = "UserCallForwarding";
     private static final String ACTION_ADD = "add";
@@ -51,13 +48,14 @@ public abstract class UserCallForwarding extends UserBasePage implements PageBeg
     public abstract void setAvailableSchedules(List schedules);
 
     public void pageBeginRender(PageEvent event) {
-        refreshAvailableSchedules();
         if (getRings() != null) {
+            refreshAvailableSchedules();
             return;
         }
 
         super.pageBeginRender(event);
 
+        refreshAvailableSchedules();
         List rings = createDetachedRingList(getCallSequence());
         setRings(rings);
     }
