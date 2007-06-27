@@ -49,6 +49,9 @@ class VXIString : public VXIValue {
     : VXIValue (VALUE_STRING), value(v, u) { }
   virtual ~VXIString( ) { }
 
+  virtual const char *toString(char *ret, size_t len ) const { 
+     snprintf(ret, len, "%ls", value); return ret;}
+
   // Get the length of the string
   VXIunsigned GetLength( ) const { return value.length( ); }
 

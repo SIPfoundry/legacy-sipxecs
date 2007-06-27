@@ -41,6 +41,18 @@ VXIVALUE_API VXIvalueType VXIValueGetType(const VXIValue *v)
   return v->GetType( );
 }
 
+/**
+ * Get the string of a Value
+ *
+ * @param   v   Value to check
+ * @return      Type of value
+ */
+VXIVALUE_API const char * VXIValueToString(const VXIValue *v, char *buff, size_t len)
+{
+  if ( v == NULL ) return "(nil)";
+  return v->toString(buff, len);
+}
+
 
 /**
  * Generic Value destructor

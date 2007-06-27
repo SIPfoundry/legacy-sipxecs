@@ -110,7 +110,7 @@ VXIjsiResult SBjsiCreateContext(VXIjsiInterface        *pThis,
   static const wchar_t func[] = L"SBjsiCreateContext";
   GET_SBJSI (pThis, context, rc);
   sbJsi->log->Diagnostic (sbJsi->log, sbJsi->diagTagBase + SBJSI_LOG_API,
-			  func, L"entering: 0x%p", context);
+			  func, L"entering: %p", context);
 
   // Allocate the wrapper object and the new context
   *context = NULL;
@@ -144,7 +144,7 @@ VXIjsiResult SBjsiCreateContext(VXIjsiInterface        *pThis,
   }
 
   sbJsi->log->Diagnostic (sbJsi->log, sbJsi->diagTagBase + SBJSI_LOG_API,
-			  func, L"exiting: returned %d, 0x%p", rc, *context);
+			  func, L"exiting: returned %d, %p", rc, *context);
   return rc;
 }
 
@@ -163,7 +163,7 @@ VXIjsiResult SBjsiDestroyContext(VXIjsiInterface        *pThis,
   static const wchar_t func[] = L"SBjsiDestroyContext";
   GET_SBJSI (pThis, context, rc);
   sbJsi->log->Diagnostic (sbJsi->log, sbJsi->diagTagBase + SBJSI_LOG_API, 
-			  func, L"entering: 0x%p (0x%p)", 
+			  func, L"entering: %p (%p)", 
 			  context, (context ? *context : NULL));
 
   if ( *context == NULL ) {
@@ -209,7 +209,7 @@ VXIjsiResult SBjsiCreateVarExpr(VXIjsiInterface        *pThis,
   static const wchar_t func[] = L"SBjsiCreateVarExpr";
   GET_SBJSI (pThis, context, rc);
   context->jsiContext->Diag (SBJSI_LOG_API, func, 
-			     L"entering: 0x%p, '%s', '%s'", 
+			     L"entering: %p, '%ls', '%ls'", 
 			     context, name, expr);
 
   rc = context->jsiContext->CreateVar (name, expr);
@@ -239,10 +239,11 @@ VXIjsiResult SBjsiCreateVarValue(VXIjsiInterface        *pThis,
 				 const VXIValue         *value)
 {
   static const wchar_t func[] = L"SBjsiCreateVarValue";
+  char buff[256];
   GET_SBJSI (pThis, context, rc);
   context->jsiContext->Diag (SBJSI_LOG_API, func, 
-			     L"entering: 0x%p, '%s', 0x%p", 
-			     context, name, value);
+			     L"entering: %p, '%ls', '%s'", 
+			     context, name, VXIValueToString(value, buff, sizeof(buff)));
 
   rc = context->jsiContext->CreateVar (name, value);
 
@@ -273,7 +274,7 @@ VXIjsiResult SBjsiSetVarExpr(VXIjsiInterface        *pThis,
   static const wchar_t func[] = L"SBjsiSetVarExpr";
   GET_SBJSI (pThis, context, rc);
   context->jsiContext->Diag (SBJSI_LOG_API, func, 
-			     L"entering: 0x%p, '%s', '%s'", 
+			     L"entering: %p, '%ls', '%ls'", 
 			     context, name, expr);
 
   rc = context->jsiContext->SetVar (name, expr);
@@ -300,10 +301,11 @@ VXIjsiResult SBjsiSetVarValue(VXIjsiInterface        *pThis,
 			      const VXIValue         *value)
 {
   static const wchar_t func[] = L"SBjsiSetVarValue";
+  char buff[256];
   GET_SBJSI (pThis, context, rc);
   context->jsiContext->Diag (SBJSI_LOG_API, func, 
-			     L"entering: 0x%p, '%s', 0x%p", 
-			     context, name, value);
+			     L"entering: %p, '%ls', '%s'", 
+			     context, name, VXIValueToString(value, buff, sizeof(buff)));
 
   rc = context->jsiContext->SetVar (name, value);
 
@@ -338,16 +340,17 @@ VXIjsiResult SBjsiGetVar(VXIjsiInterface         *pThis,
 			 VXIValue               **value)
 {
   static const wchar_t func[] = L"SBjsiGetVar";
+  char buff[256];
   GET_SBJSI (pThis, context, rc);
   context->jsiContext->Diag (SBJSI_LOG_API, func, 
-			     L"entering: 0x%p, '%s', 0x%p", 
+			     L"entering: %p, '%ls', %p", 
 			     context, name, value);
 
   rc = context->jsiContext->GetVar (name, value);
 
   context->jsiContext->Diag (SBJSI_LOG_API, func, 
-			     L"exiting: returned %d, 0x%p (0x%p)",
-			     rc, value, (value ? *value : NULL));
+			     L"exiting: returned %d, %p ('%s')",
+			     rc, value, (value ? VXIValueToString(*value, buff, sizeof(buff)) : "(nil)"));
   return rc;
 }
 
@@ -371,7 +374,7 @@ VXIjsiResult SBjsiCheckVar(VXIjsiInterface        *pThis,
 {
   static const wchar_t func[] = L"SBjsiCheckVar";
   GET_SBJSI (pThis, context, rc);
-  context->jsiContext->Diag (SBJSI_LOG_API, func, L"entering: 0x%p, '%s'",
+  context->jsiContext->Diag (SBJSI_LOG_API, func, L"entering: %p, '%ls'",
 			     context, name);
 
   rc = context->jsiContext->CheckVar (name);
@@ -406,16 +409,17 @@ VXIjsiResult SBjsiEval(VXIjsiInterface         *pThis,
 		       VXIValue               **result)
 {
   static const wchar_t func[] = L"SBjsiEval";
+  char buff[256] ;
   GET_SBJSI (pThis, context, rc);
   context->jsiContext->Diag (SBJSI_LOG_API, func, 
-			     L"entering: 0x%p, '%s', 0x%p", 
+			     L"entering: %p, '%ls', %p", 
 			     context, expr, result);
 
   rc = context->jsiContext->Eval (expr, result);
 
   context->jsiContext->Diag (SBJSI_LOG_API, func, 
-			     L"exiting: returned %d, 0x%p (0x%p)", 
-			     rc, result, (result ? *result : NULL));
+			     L"exiting: returned %d, %p ('%s')", 
+			     rc, result, (result ? VXIValueToString(*result, buff, sizeof(buff)) : "(nil)"));
   return rc;
 }
 
@@ -437,7 +441,7 @@ VXIjsiResult SBjsiPushScope(VXIjsiInterface        *pThis,
 {
   static const wchar_t func[] = L"SBjsiPushScope";
   GET_SBJSI (pThis, context, rc);
-  context->jsiContext->Diag (SBJSI_LOG_API, func, L"entering: 0x%p, '%s'",
+  context->jsiContext->Diag (SBJSI_LOG_API, func, L"entering: %p, '%ls'",
 			     context, name);
 
   rc = context->jsiContext->PushScope (name);
@@ -460,7 +464,7 @@ VXIjsiResult SBjsiPopScope(VXIjsiInterface        *pThis,
 {
   static const wchar_t func[] = L"SBjsiPopScope";
   GET_SBJSI (pThis, context, rc);
-  context->jsiContext->Diag (SBJSI_LOG_API, func, L"entering: 0x%p", context);
+  context->jsiContext->Diag (SBJSI_LOG_API, func, L"entering: %p", context);
 
   rc = context->jsiContext->PopScope( );
 
@@ -482,7 +486,7 @@ VXIjsiResult SBjsiClearScopes(VXIjsiInterface        *pThis,
 {
   static const wchar_t func[] = L"SBjsiClearScopes";
   GET_SBJSI (pThis, context, rc);
-  context->jsiContext->Diag (SBJSI_LOG_API, func, L"entering: 0x%p", context);
+  context->jsiContext->Diag (SBJSI_LOG_API, func, L"entering: %p", context);
 
   rc = context->jsiContext->ClearScopes( );
 

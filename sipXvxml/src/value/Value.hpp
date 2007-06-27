@@ -20,6 +20,9 @@
 #ifndef _VALUE_HPP
 #define _VALUE_HPP
 
+#include <stdio.h>
+#include <stdlib.h>
+
 // Forward declarations, required because we mask out the struct definitions
 // in VXIvalue.h with the define below
 class VXIValue;
@@ -53,6 +56,8 @@ class VXIValue {
   // Get the value type
   VXIvalueType GetType( ) const { return type; }
 
+  virtual const char *toString(char *ret, size_t len ) const {return "{dunno}"; }
+
  private:
   VXIvalueType type;
 };
@@ -69,6 +74,8 @@ class VXIInteger : public VXIValue {
   // Get the value
   VXIint32 GetValue( ) const { return value; }
 
+  virtual const char *toString(char *ret, size_t len ) const { snprintf(ret, len, "%d", value); return ret;}
+
  private:
   VXIint32  value;
 };
@@ -82,6 +89,8 @@ class VXIFloat : public VXIValue {
   // Get the value
   VXIflt32 GetValue( ) const { return value; }
 
+  virtual const char *toString(char *ret, size_t len ) const { snprintf(ret, len, "%f", value); return ret;}
+
  private:
   VXIflt32  value;
 };
@@ -94,6 +103,8 @@ class VXIPtr : public VXIValue {
 
   // Get the value
   VXIptr GetValue( ) const { return value; }
+
+  virtual const char *toString(char *ret, size_t len ) const { snprintf(ret, len, "%p", value); return ret;}
 
  private:
   VXIptr        value;

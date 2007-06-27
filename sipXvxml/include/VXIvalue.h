@@ -200,6 +200,16 @@ typedef enum VXIvalueResult {
 VXIVALUE_API VXIvalueType VXIValueGetType(const VXIValue *v);
 
 /**
+ * Get the string of a Value
+ *
+ * @param   v   Value to check
+ * @param   ret Buffer to hold the value
+ * @param   len Size of the buffer
+ * @return      either the buffer or a constant string
+ */
+VXIVALUE_API const char * VXIValueToString(const VXIValue *v, char *ret, size_t len);
+
+/**
  * Generic Value destructor
  *
  * This automatically invokes the appropriate type specific
