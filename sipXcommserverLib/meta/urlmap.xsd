@@ -178,7 +178,13 @@
         processor.
         (Of course, XML's escaping applies, as it is un-done before the
         URL mapping processor sees the content.)
-        As a consequence, the parameter name may not contain '='.
+        In addition, the value may contain URL mapping substitutions
+        of the format '{keyword}'.  These are substituted before the
+        value is escaped for insertion into the URI.  (There is no
+        escape mechanism for inserting what appears to be a URL mapping
+        substitution literally into the value.)
+        A consequence of this grammer is that the parameter name may
+        not contain '='.
         RFC 3261 allows URI parameter names and header parameter names
         to contain '=' (which would have to be escaped), but there is
         no reason to believe that that will ever be used in practice.
