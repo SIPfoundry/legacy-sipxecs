@@ -17,10 +17,10 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.forwarding.AbstractSchedule;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
+import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -51,14 +51,12 @@ public abstract class UserCallForwarding extends UserBasePage implements PageBeg
     public abstract void setAvailableSchedules(List schedules);
 
     public void pageBeginRender(PageEvent event) {
+        refreshAvailableSchedules();
         if (getRings() != null) {
-            refreshAvailableSchedules();
             return;
         }
 
         super.pageBeginRender(event);
-
-        refreshAvailableSchedules();
 
         List rings = createDetachedRingList(getCallSequence());
         setRings(rings);
@@ -66,9 +64,9 @@ public abstract class UserCallForwarding extends UserBasePage implements PageBeg
 
     private void refreshAvailableSchedules() {
         ForwardingContext forwardingContext = getForwardingContext();
-        forwardingContext.loadAlwaysSchedule();
-        List<AbstractSchedule> availableSchedules = getSchedules();
-        setAvailableSchedules(availableSchedules);
+        Integer userId = getUserId();
+        List<Schedule> schedules = forwardingContext.getSchedulesForUserId(userId);
+        setAvailableSchedules(schedules);
     }
 
     /**
@@ -93,12 +91,6 @@ public abstract class UserCallForwarding extends UserBasePage implements PageBeg
         ForwardingContext forwardingContext = getForwardingContext();
         Integer userId = getUserId();
         return forwardingContext.getCallSequenceForUserId(userId);
-    }
-
-    private List<AbstractSchedule> getSchedules() {
-        ForwardingContext forwardingContext = getForwardingContext();
-        Integer userId = getUserId();
-        return forwardingContext.getSchedulesForUserIdIncludingAlways(userId);
     }
 
     public void submit() {

@@ -20,11 +20,11 @@ import org.sipfoundry.sipxconfig.admin.ScheduledDay;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 
-public class AbstractScheduleTest extends TestCase {
+public class ScheduleTest extends TestCase {
     private static final String COLON = ":";
 
     public void testCalculateValidTime() {
-        AbstractSchedule sch = new Schedule();
+        Schedule sch = new Schedule();
         WorkingHours[] hours = new WorkingHours[1];
         WorkingTime wt = new WorkingTime();
 
@@ -68,7 +68,7 @@ public class AbstractScheduleTest extends TestCase {
     public void testCalculateValidTimeSaturdayWithTwoPeriods() {
         TimeZone default_tz = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("GMT-11"));
-        AbstractSchedule sch = new Schedule();
+        Schedule sch = new Schedule();
         WorkingHours[] hours = new WorkingHours[1];
         WorkingTime wt = new WorkingTime();
 
@@ -114,7 +114,7 @@ public class AbstractScheduleTest extends TestCase {
     public void testCalculateValidTimeSundayWithTwoPeriods() {
         TimeZone default_tz = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+5"));
-        AbstractSchedule sch = new Schedule();
+        Schedule sch = new Schedule();
         WorkingHours[] hours = new WorkingHours[1];
         WorkingTime wt = new WorkingTime();
 

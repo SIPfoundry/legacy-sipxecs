@@ -21,10 +21,20 @@
     <set name="falseLabel" value="message:disabled"/>
     <set name="trueLabel" value="message:enabled"/>
   </bean>
-  <bean name="scheduleModel" class="org.sipfoundry.sipxconfig.components.ScheduleListPropertySelectionModel" lifecycle="render">
-	<set name="options" value="availableSchedules"/>
+
+  <bean name="bareScheduleModel" 
+    class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="render">
+	<set name="collection" value="availableSchedules"/>
+    <set name="labelExpression" value="literal:name"/>
   </bean>
-  
+
+  <bean name="scheduleModel"
+    class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator" lifecycle="render">
+    <set name="model" value="bean:bareScheduleModel"/>
+    <set name="extraLabel" value="message:label.always"/>
+    <set name="extraOption" value="null"/>
+  </bean>
+
   <!-- C O M P O N E N T S -->
   <component id="type" type="PropertySelection">
     <binding name="value" value="ring.type"/>

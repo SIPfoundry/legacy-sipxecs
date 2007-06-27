@@ -17,7 +17,7 @@
     <property name="enabled" />
     <property name="type" column="ring_type" type="org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$UserType" />
     <many-to-one name="callSequence" column="user_id" class="CallSequence" not-null="true" />
-    <many-to-one name="schedule" column="schedule_id" class="AbstractSchedule" />
+    <many-to-one name="schedule" column="schedule_id" class="Schedule" />
   </class>
 
   <!--
@@ -37,16 +37,12 @@
     </list>
   </class>
 
-  <!-- 
-    - AbstractSchedule 
-  -->
-  <class name="AbstractSchedule" table="schedule" abstract="true" discriminator-value="N">
+  <class name="Schedule" table="schedule">
     <id name="id" column="schedule_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">schedule_seq</param>
       </generator>
     </id>
-    <discriminator column="schedule_type" type="character" />
     <property name="name" />
     <property name="description" />
     <component name="workingTime" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime">
@@ -60,27 +56,14 @@
         </composite-element>
       </array>
     </component>
-    <!-- laur -->
     <many-to-one name="user" column="user_id" class="org.sipfoundry.sipxconfig.common.User" />
-    <subclass name="AlwaysSchedule" discriminator-value="A"></subclass>
-    <subclass name="Schedule" discriminator-value="N"></subclass>
   </class>
 
   <query name="userSchedulesForUserId">
-    <![CDATA[from AbstractSchedule schedule where schedule.user.id = :userId order by schedule.name]]>
-  </query>
-
-  <query name="userSchedulesForUserIdIncludingAlways">
-    <![CDATA[from AbstractSchedule schedule
-      where schedule.user.id = :userId or schedule.user is null order by schedule.id]]>
+    <![CDATA[from Schedule schedule where schedule.user.id = :userId order by schedule.name]]>
   </query>
 
   <query name="ringsForScheduleId">
     <![CDATA[from Ring ring where ring.schedule.id = :scheduleId]]>
   </query>
-
-  <query name="ringsWithoutSchedule">
-    <![CDATA[from Ring ring where ring.schedule.id is null]]>
-  </query>
-
 </hibernate-mapping>

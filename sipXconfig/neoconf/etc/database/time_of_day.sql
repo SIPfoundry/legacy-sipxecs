@@ -1,12 +1,10 @@
 -- create schedule table
-create table schedule
-(
-  schedule_id integer not null,
+create table schedule (
+  schedule_id integer not null primary key,
   user_id integer,
   name varchar(255) not null,
   description varchar(255),
-  schedule_type char(1) not null,
-  constraint schedule_pkey primary key (schedule_id)
+  constraint fk_schedule_users foreign key (user_id) references users
 );
 
 -- create schedule_hours table
@@ -24,16 +22,11 @@ create table schedule_hours
 );
 
 -- create sequence fot schedule table
-create sequence schedule_seq
-  increment 1
-  minvalue 1
-  maxvalue 9223372036854775807
-  start 98
-  cache 1;
+create sequence schedule_seq;
 
 -- modify ring table to add schedule_id column
 alter table ring add schedule_id integer;
 
 -- modify ring table to add foreign key constraint to schedules table
-alter table ring add constraint schedule_fkey foreign key (schedule_id) 
+alter table ring add constraint fk_ring_schedule_id foreign key (schedule_id) 
 	references schedule(schedule_id) match full;

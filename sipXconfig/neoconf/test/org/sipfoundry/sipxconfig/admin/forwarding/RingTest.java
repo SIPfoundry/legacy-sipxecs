@@ -47,7 +47,7 @@ public class RingTest extends TestCase {
         ring.setExpiration(45);
         ring.setType(AbstractRing.Type.IMMEDIATE);
 
-        AbstractSchedule schedule = new Schedule();
+        Schedule schedule = new Schedule();
         WorkingHours[] hours = new WorkingHours[1];
         WorkingTime wt = new WorkingTime();
         hours[0] = new WorkingHours();

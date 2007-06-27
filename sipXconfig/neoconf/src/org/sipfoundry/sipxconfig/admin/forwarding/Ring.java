@@ -22,7 +22,7 @@ public class Ring extends AbstractRing {
 
     private String m_number = StringUtils.EMPTY;
     private CallSequence m_callSequence;
-    private AbstractSchedule m_schedule;
+    private Schedule m_schedule;
 
     /**
      * Default "bean" constructor
@@ -70,11 +70,11 @@ public class Ring extends AbstractRing {
         m_callSequence = callSequence;
     }
 
-    public AbstractSchedule getSchedule() {
+    public Schedule getSchedule() {
         return m_schedule;
     }
 
-    public void setSchedule(AbstractSchedule schedule) {
+    public void setSchedule(Schedule schedule) {
         m_schedule = schedule;
     }
 

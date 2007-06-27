@@ -16,7 +16,6 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.forwarding.AbstractSchedule;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -79,10 +78,7 @@ public abstract class UserSchedules extends UserBasePage implements PageBeginRen
 
         Integer userId = getUserId();
         ForwardingContext forwardingContext = getForwardingContext();
-        List<AbstractSchedule> availableSchedules = forwardingContext
-                .getSchedulesForUserId(userId);
-        forwardingContext.loadAlwaysSchedule();
-
-        setSchedules(availableSchedules);
+        List<Schedule> schedules = forwardingContext.getSchedulesForUserId(userId);
+        setSchedules(schedules);
     }
 }

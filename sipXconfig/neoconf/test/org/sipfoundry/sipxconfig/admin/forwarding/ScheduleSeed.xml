@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dataset>
-	<schedule schedule_id="98" name="Always" description="Generic schedule" schedule_type="A"/>
-	<schedule schedule_id="99" user_id="19" name="WorkingHours" description="Working Hours" schedule_type="N"/>
-	<schedule schedule_id="100" user_id="19" name="WeekEnd" description="Week End" schedule_type="N"/>
-	<schedule schedule_id="101" user_id="20" name="Monday Schedule" description="Week End" schedule_type="N"/>
+  <schedule schedule_id="98" name="Always" description="Generic schedule" />
+  <schedule schedule_id="99" user_id="19" name="WorkingHours" description="Working Hours" />
+  <schedule schedule_id="100" user_id="19" name="WeekEnd" description="Week End" />
+  <schedule schedule_id="101" user_id="20" name="Monday Schedule" description="Week End" />
 </dataset>

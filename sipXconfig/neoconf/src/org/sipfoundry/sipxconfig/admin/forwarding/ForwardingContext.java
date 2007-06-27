@@ -37,17 +37,13 @@ public interface ForwardingContext extends AliasProvider {
 
     public void flush();
 
-    public List<AbstractSchedule> getSchedulesForUserId(Integer userId);
+    public List<Schedule> getSchedulesForUserId(Integer userId);
 
-    public List<AbstractSchedule> getSchedulesForUserIdIncludingAlways(Integer userId);
-
-    public void saveSchedule(AbstractSchedule schedule);
+    public void saveSchedule(Schedule schedule);
 
     public Schedule getScheduleById(Integer scheduleId);
 
     public List<Schedule> deleteSchedulesById(Collection<Integer> scheduleIds);
-
-    public AlwaysSchedule loadAlwaysSchedule();
 
     public void notifyCommserver();
 }
