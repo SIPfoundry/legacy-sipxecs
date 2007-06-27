@@ -14,7 +14,6 @@ import java.text.MessageFormat;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
-import org.sipfoundry.sipxconfig.admin.forwarding.AbstractSchedule;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
@@ -23,15 +22,13 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
     public static final String TYPE_PROP = "type";
 
     private static final int DEFAULT_EXPIRATION = 30;
-    private static final String FORMAT = "<sip:{0}{1}{4}?expires={2}>;{3};{5}";
+    private static final String FORMAT = "<sip:{0}{1}{4}?expires={2}>;{3}";
     private static final String IGNORE_VOICEMAIL_FIELD_PARAM = ";sipx-noroute=Voicemail";
-    private static final String VALID_TIME_PARAM = "sipx-ValidTime={0}";
 
     private int m_expiration = DEFAULT_EXPIRATION;
     private Type m_type = Type.DELAYED;
     private int m_position;
     private boolean m_enabled = true;
-    private AbstractSchedule m_schedule;
 
     public int getExpiration() {
         return m_expiration;
@@ -63,14 +60,6 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
 
     public void setEnabled(boolean enabled) {
         m_enabled = enabled;
-    }
-
-    public AbstractSchedule getSchedule() {
-        return m_schedule;
-    }
-
-    public void setSchedule(AbstractSchedule schedule) {
-        m_schedule = schedule;
     }
 
     public static class Type extends Enum {
@@ -125,23 +114,19 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
             domainPart = '@' + domain;
         }
 
-        MessageFormat format = new MessageFormat(FORMAT);
-        String urlParams = appendIgnoreVoicemail ? IGNORE_VOICEMAIL_FIELD_PARAM
+        String fieldParams = appendIgnoreVoicemail ? IGNORE_VOICEMAIL_FIELD_PARAM
                 : StringUtils.EMPTY;
 
-        MessageFormat sipxValidTimeFormat = new MessageFormat(VALID_TIME_PARAM);
-        String validTime = "";
-        AbstractSchedule schedule = getSchedule();
-        if (schedule != null && schedule.getId() != 0) {
-            validTime = sipxValidTimeFormat.format(new Object[] {
-                schedule.calculateValidTime()
-            });
-        }
+        StringBuilder urlParams = new StringBuilder(q.getValue(m_type));
+        addUrlParams(urlParams);
 
         Object[] params = new Object[] {
-            userPart, domainPart, new Integer(m_expiration), q.getValue(m_type), urlParams,
-            validTime
+            userPart, domainPart, new Integer(m_expiration), urlParams.toString(), fieldParams,
         };
+        MessageFormat format = new MessageFormat(FORMAT);
         return format.format(params);
+    }
+
+    protected void addUrlParams(StringBuilder params) {
     }
 }

@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
+import java.util.Formatter;
+
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
 
@@ -16,8 +18,11 @@ import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
  * Ring - represents one stage in a call forwaring sequence
  */
 public class Ring extends AbstractRing {
+    private static final String VALID_TIME_PARAM = ";sipx-ValidTime=%s";
+
     private String m_number = StringUtils.EMPTY;
     private CallSequence m_callSequence;
+    private AbstractSchedule m_schedule;
 
     /**
      * Default "bean" constructor
@@ -63,5 +68,21 @@ public class Ring extends AbstractRing {
 
     public synchronized void setCallSequence(CallSequence callSequence) {
         m_callSequence = callSequence;
+    }
+
+    public AbstractSchedule getSchedule() {
+        return m_schedule;
+    }
+
+    public void setSchedule(AbstractSchedule schedule) {
+        m_schedule = schedule;
+    }
+
+    @Override
+    protected void addUrlParams(StringBuilder params) {
+        if (m_schedule != null) {
+            Formatter formatter = new Formatter(params);
+            formatter.format(VALID_TIME_PARAM, m_schedule.calculateValidTime());
+        }
     }
 }

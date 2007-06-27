@@ -16,6 +16,7 @@ import java.util.TimeZone;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.ScheduledDay;
+import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
@@ -31,6 +32,20 @@ public class RingTest extends TestCase {
         ring.setNumber("555");
         ring.setExpiration(45);
         ring.setType(Ring.Type.IMMEDIATE);
+
+        String contact = ring.calculateContact("sipfoundry.org", q, false);
+        assertEquals("<sip:555@sipfoundry.org?expires=45>;q=1.0", contact);
+    }
+
+    public void testCalculateContactWithValidTime() {
+        Ring ring = new Ring();
+        ring.setNumber("444");
+        ring.setExpiration(45);
+        ring.setType(Ring.Type.IMMEDIATE);
+
+        ForkQueueValue q = new ForkQueueValue(3);
+        ring.setExpiration(45);
+        ring.setType(AbstractRing.Type.IMMEDIATE);
 
         AbstractSchedule schedule = new Schedule();
         WorkingHours[] hours = new WorkingHours[1];
@@ -61,8 +76,24 @@ public class RingTest extends TestCase {
                 + Integer.toHexString(stopWithTimezone);
 
         String contact = ring.calculateContact("sipfoundry.org", q, false);
-        assertEquals("<sip:555@sipfoundry.org?expires=45>;q=1.0;sipx-ValidTime=" + expected,
+        assertEquals("<sip:444@sipfoundry.org?expires=45>;q=1.0;sipx-ValidTime=" + expected,
                 contact);
+
+        Ring ring2 = new Ring();
+        ring2.setNumber("333");
+        ring2.setExpiration(25);
+        ring2.setType(AbstractRing.Type.DELAYED);
+        ring2.setSchedule(schedule);
+        String contact2 = ring2.calculateContact("sipfoundry.org", q, true);
+        assertEquals(
+                "<sip:333@sipfoundry.org;sipx-noroute=Voicemail?expires=25>;q=0.95;sipx-ValidTime="
+                        + expected, contact2);
+
+        // with new q value - ring2 is delayed, q mustbe < 1.0
+        ForkQueueValue q1 = new ForkQueueValue(3);
+        contact2 = ring2.calculateContact("sipfoundry.org", q1, false);
+        assertEquals("<sip:333@sipfoundry.org?expires=25>;q=0.95;sipx-ValidTime=" + expected,
+                contact2);
     }
 
     public void testCalculateAorContact() {
@@ -73,6 +104,6 @@ public class RingTest extends TestCase {
         ring.setType(Ring.Type.IMMEDIATE);
 
         String contact = ring.calculateContact("shouldnt-be-used.com", q, false);
-        assertEquals("<sip:joe@example.com?expires=45>;q=1.0;", contact);
+        assertEquals("<sip:joe@example.com?expires=45>;q=1.0", contact);
     }
 }
