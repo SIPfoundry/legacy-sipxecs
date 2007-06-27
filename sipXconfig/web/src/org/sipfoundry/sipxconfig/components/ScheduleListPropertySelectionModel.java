@@ -27,7 +27,7 @@ public class ScheduleListPropertySelectionModel implements IPropertySelectionMod
     }
 
     public Object getOption(int index) {
-        return (AbstractSchedule) m_options.get(index);
+        return m_options.get(index);
     }
 
     public String getLabel(int index) {

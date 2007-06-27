@@ -10,18 +10,19 @@
 
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
-import java.util.Date;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
+
+import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.ScheduledDay;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 
-import junit.framework.TestCase;
-
 public class AbstractScheduleTest extends TestCase {
     private static final String COLON = ":";
+
     public void testCalculateValidTime() {
         AbstractSchedule sch = new Schedule();
         WorkingHours[] hours = new WorkingHours[1];
@@ -63,7 +64,7 @@ public class AbstractScheduleTest extends TestCase {
 
         assertEquals(expected, actual);
     }
-    
+
     public void testCalculateValidTimeSaturdayWithTwoPeriods() {
         TimeZone default_tz = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("GMT-11"));
@@ -100,17 +101,16 @@ public class AbstractScheduleTest extends TestCase {
 
         Integer startWithTimezone = minutesFromSunday + startHour * 60 + startMinute - tz_offset;
         Integer stopWithTimezone = minutesFromSunday + stopHour * 60 + stopMinute - tz_offset;
-        
-        String expected = Integer.toHexString(startWithTimezone) + 
-                COLON + Integer.toHexString(WorkingHours.MAX_MINUTES) + 
-                COLON + Integer.toHexString(WorkingHours.MIN_MINUTES) + 
-                COLON + Integer.toHexString(stopWithTimezone - WorkingHours.MAX_MINUTES);
+
+        String expected = Integer.toHexString(startWithTimezone) + COLON
+                + Integer.toHexString(WorkingHours.MAX_MINUTES) + COLON + "0" + COLON
+                + Integer.toHexString(stopWithTimezone - WorkingHours.MAX_MINUTES);
         String actual = sch.calculateValidTime();
 
         assertEquals(expected, actual);
         TimeZone.setDefault(default_tz);
     }
-    
+
     public void testCalculateValidTimeSundayWithTwoPeriods() {
         TimeZone default_tz = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+5"));
@@ -147,11 +147,10 @@ public class AbstractScheduleTest extends TestCase {
 
         Integer startWithTimezone = minutesFromSunday + startHour * 60 + startMinute - tz_offset;
         Integer stopWithTimezone = minutesFromSunday + stopHour * 60 + stopMinute - tz_offset;
-        
-        String expected = Integer.toHexString(startWithTimezone + WorkingHours.MAX_MINUTES) + 
-                COLON + Integer.toHexString(WorkingHours.MAX_MINUTES) +
-                COLON + Integer.toHexString(WorkingHours.MIN_MINUTES) +
-                COLON + Integer.toHexString(stopWithTimezone);
+
+        String expected = Integer.toHexString(startWithTimezone + WorkingHours.MAX_MINUTES)
+                + COLON + Integer.toHexString(WorkingHours.MAX_MINUTES) + COLON + "0" + COLON
+                + Integer.toHexString(stopWithTimezone);
         String actual = sch.calculateValidTime();
 
         assertEquals(expected, actual);

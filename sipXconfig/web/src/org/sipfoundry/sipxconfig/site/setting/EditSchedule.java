@@ -120,7 +120,8 @@ public abstract class EditSchedule extends UserBasePage implements PageBeginRend
         }
 
         Schedule schedule = getSchedule();
-        schedule.getWorkingTime().setWorkingHours(getWorkingHours());
+        WorkingTime workingTime = schedule.getWorkingTime();
+        workingTime.setWorkingHours(getWorkingHours());
         schedule.checkForValidSchedule();
         getForwardingContext().saveSchedule(schedule);
     }
