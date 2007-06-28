@@ -32,19 +32,19 @@ module AcdEvents
   class CallEvent < Event
     attr_reader :call_id, :from
     
-    def initialize(time, call_id)
+    def initialize(time, from, call_id = nil)
       super(time)
-      @call_id = call_id
-      # TODO: parse only important info into from field
-      @from = from
+      # if call_id is not set use from field as call_id
+      @call_id = @from = from
+      @call_id = call_id if call_id
     end
   end
   
   class EnterQueue < CallEvent
     attr_reader :queue_uri
     
-    def initialize(time, queue_uri, call_id)
-      super(time, call_id)
+    def initialize(time, queue_uri, from, call_id = nil)
+      super(time, from, call_id)
       @queue_uri = queue_uri
     end 
   end
@@ -54,8 +54,8 @@ module AcdEvents
   class PickUp < CallEvent
     attr_reader :agent_uri, :queue_uri
     
-    def initialize(time, queue_uri, agent_uri, call_id)
-      super(time, call_id)
+    def initialize(time, queue_uri, agent_uri, from, call_id = nil)
+      super(time, from, call_id)
       @agent_uri = agent_uri
       @queue_uri = queue_uri
     end    
@@ -64,8 +64,8 @@ module AcdEvents
   class Transfer < CallEvent
     attr_reader :agent_uri
     
-    def initialize(time, agent_uri, call_id)
-      super(time, call_id)
+    def initialize(time, agent_uri, from, call_id = nil)
+      super(time, from, call_id)
       @agent_uri = agent_uri      
     end    
   end

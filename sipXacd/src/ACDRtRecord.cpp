@@ -139,17 +139,22 @@ void ACDRtRecord::appendCallEvent(int event, UtlString queueString, ACDCall* pCa
    eventString = getEventString(EVENT_CALL, event);
    if (NULL != eventString.data()) {
       if (agentRec) {
-       	 sprintf(realTimeDataRecord, "%s : %s : %s : %s : %s\n", eventString.data(), dateString.data(), 
-	             queueString.data(), pCallRef->getAcdAgent()->getUriString()->data(), pCallRef->getCallIdentity());
+         sprintf(realTimeDataRecord, "%s : %s : %s : %s : %s : %d\n", 
+            eventString.data(), dateString.data(), queueString.data(), 
+            pCallRef->getAcdAgent()->getUriString()->data(),
+            pCallRef->getCallIdentity(), pCallRef->getCallHandle());
       }
       else if (TERMINATE == event) {
-     	 sprintf(realTimeDataRecord, "%s : %s : %s\n", eventString.data(), dateString.data(),
-                 						pCallRef->getCallIdentity());
+         sprintf(realTimeDataRecord, "%s : %s : %s : %d\n", 
+            eventString.data(), dateString.data(),
+            pCallRef->getCallIdentity(), pCallRef->getCallHandle());
          
       }
       else {
-     	 sprintf(realTimeDataRecord, "%s : %s : %s : %s\n", eventString.data(), dateString.data(), 
-                 queueString.data(), pCallRef->getCallIdentity());
+         sprintf(realTimeDataRecord, "%s : %s : %s : %s : %d\n", 
+            eventString.data(), dateString.data(), 
+            queueString.data(), pCallRef->getCallIdentity(), 
+            pCallRef->getCallHandle());
                  
       }
 
@@ -184,9 +189,11 @@ void ACDRtRecord::appendTransferCallEvent(int event, ACDCall* pCallRef)
    UtlString eventString;
    eventString = getEventString(EVENT_TRANSFER, event);
    if ((NULL != eventString.data()) && (NULL != pCallRef)) {
-      sprintf(realTimeDataRecord, "%s : %s : %s : %s\n", eventString.data(), dateString.data(), 
-	             pCallRef->getAcdAgent() ? pCallRef->getAcdAgent()->getUriString()->data() : NULL, pCallRef->getCallIdentity());
-                 
+      sprintf(realTimeDataRecord, "%s : %s : %s : %s : %d\n", 
+         eventString.data(), dateString.data(), 
+         pCallRef->getAcdAgent() ? 
+            pCallRef->getAcdAgent()->getUriString()->data() : "(none)", 
+         pCallRef->getCallIdentity(), pCallRef->getCallHandle());
 
       mLock.acquire();
 

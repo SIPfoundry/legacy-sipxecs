@@ -11,7 +11,7 @@ require 'state/acd_audits'
 module States
   
   class Call < State  
-    attr_reader :queue_uri, :agent_uri, :state, :call_id
+    attr_reader :queue_uri, :agent_uri, :state, :call_id, :from
     attr_reader :enter_time, :pick_up_time, :terminate_time
     
     # Values need to match constantct in AcdCallStats.java
@@ -27,6 +27,7 @@ module States
       @enter_time = nil
       @pick_up_time = nil
       @terminate_time = nil
+      @from = nil
     end
     
     def accept_EnterQueue(event)    
@@ -34,6 +35,7 @@ module States
       @enter_time = event.time if ! @enter_time
       # current queue
       @queue_uri = event.queue_uri
+      @from = event.from
     end
     
     def accept_PickUp(event)
@@ -42,7 +44,8 @@ module States
       @agent_uri = event.agent_uri
       # this should be the same as current queue - but just in case we did not get proper enter queue event...
       # it means the call was quietly rolled over to another queue
-      @queue_uri = event.queue_uri  
+      @queue_uri = event.queue_uri
+      @from = event.from
     end
     
     def accept_Terminate(event)

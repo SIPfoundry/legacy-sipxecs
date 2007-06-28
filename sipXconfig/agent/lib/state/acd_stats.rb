@@ -56,7 +56,7 @@ module AcdStats
     
     def init(acd, call, now)
       @state = call.state
-      @from = call.call_id
+      @from = call.from
       @agent_uri = call.agent_uri
       @queue_uri = call.queue_uri
       @processing_time = call.processing_time(now)
