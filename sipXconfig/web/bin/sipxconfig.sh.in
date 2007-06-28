@@ -45,7 +45,7 @@ TEST_WRITE_ACCESS="\
   @sipxpbx.conf.dir@/forwardingrules.xml.in"
 
 Database=SIPXCONFIG
-RequiredDatabaseVersion=5
+RequiredDatabaseVersion=6
 IndexDir=${TmpDir}/index
 
 # This function determines the correct service name for Postgres.
