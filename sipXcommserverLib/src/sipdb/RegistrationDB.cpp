@@ -18,6 +18,7 @@
 #include "os/OsDateTime.h"
 #include "os/OsFS.h"
 #include "os/OsSysLog.h"
+#include "os/OsTimeLog.h"
 #include "net/Url.h"
 #include "fastdb/fastdb.h"
 
@@ -269,6 +270,10 @@ OsStatus RegistrationDB::cleanAndPersist( int newerThanTime )
                           ,rows
                           );
 
+            // Create and start time log.
+            OsTimeLog time_log;
+            time_log.addEvent("starting");
+
             // Create an empty document
             TiXmlDocument document;
 
@@ -329,7 +334,20 @@ OsStatus RegistrationDB::cleanAndPersist( int newerThanTime )
             } while ( cursor.next() );
             // Attach the root node to the document
             document.InsertEndChild ( itemsElement );
+
+            // Log that we've finished building the XML.
+            time_log.addEvent("XML built");
+
             document.SaveFile ( fileName );
+
+            // Write logging
+            time_log.addEvent("file written");
+            UtlString text;
+            time_log.getLogString(text);
+            OsSysLog::add( FAC_SIP, PRI_DEBUG
+                           ,"RegistrationDB::cleanAndPersist %s"
+                           ,text.data()
+               );
         }
         else
         {
@@ -348,6 +366,7 @@ OsStatus RegistrationDB::cleanAndPersist( int newerThanTime )
         OsSysLog::add(FAC_DB, PRI_CRIT, "RegistrationDB::cleanAndPersist failed - no DB");
         result = OS_FAILED;
     }
+
     return result;
 }
 
