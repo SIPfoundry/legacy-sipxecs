@@ -35,14 +35,14 @@ NetMd5Codec::~NetMd5Codec()
 {
 }
 
-void NetMd5Codec::hash(const char* input,
+void NetMd5Codec::hash(const void*  input,
                        unsigned int length
                        )
 {
    /* The MD5Final operation is not idempotent, so this may not be called after it */
    assert(!mFinalized);
 
-   MD5Update (&mContext, (unsigned char *)input, length);
+   MD5Update (&mContext, (const unsigned char*)input, length);
 }
 
 /// Append the ascii representation of the md5 value to output.
@@ -75,7 +75,7 @@ void NetMd5Codec::encode(const char* text, UtlString& encodedText)
 
   memset(digest,0,sizeof(digest));
   MD5Init (&context);
-  MD5Update (&context, (unsigned char *)text, len);
+  MD5Update (&context, (const unsigned char*)text, len);
   MD5Final (digest, &context);
 
   // Empty encodedText.
@@ -144,11 +144,11 @@ void NetMd5Codec::encode(const char* text, UtlString& encodedText)
 #define S43 15
 #define S44 21
 
-static void MD5Transform PROTO_LIST ((UINT4 [4], unsigned char [64]));
+static void MD5Transform PROTO_LIST ((UINT4 [4], const unsigned char [64]));
 static void Encode PROTO_LIST
-  ((unsigned char *, UINT4 *, unsigned int));
+  ((unsigned char *, const UINT4 *, unsigned int));
 static void Decode PROTO_LIST
-  ((UINT4 *, unsigned char *, unsigned int));
+  ((UINT4 *, const unsigned char *, unsigned int));
 static void MD5_memcpy PROTO_LIST ((POINTER, POINTER, unsigned int));
 static void MD5_memset PROTO_LIST ((POINTER, int, unsigned int));
 
@@ -211,7 +211,7 @@ void MD5Init (MD5_CTX_PT *context) /* context */
   context.
  */
 void MD5Update (MD5_CTX_PT *context, /* context */
-                unsigned char *input, /* input block */
+                const unsigned char *input, /* input block */
                 unsigned int inputLen) /* length of input block */
 {
   unsigned int i, index, partLen;
@@ -278,7 +278,7 @@ void MD5Final (unsigned char *digest, /* message digest */
 
 /* MD5 basic transformation. Transforms state based on block.
  */
-static void MD5Transform (UINT4 state[4], unsigned char block[64])
+static void MD5Transform (UINT4 state[4], const unsigned char block[64])
 {
   UINT4 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
 
@@ -369,7 +369,7 @@ static void MD5Transform (UINT4 state[4], unsigned char block[64])
 /* Encodes input (UINT4) into output (unsigned char). Assumes len is
   a multiple of 4.
  */
-static void Encode (unsigned char *output, UINT4 *input, unsigned int len)
+static void Encode (unsigned char *output, const UINT4 *input, unsigned int len)
 {
   unsigned int i, j;
 
@@ -384,7 +384,7 @@ static void Encode (unsigned char *output, UINT4 *input, unsigned int len)
 /* Decodes input (unsigned char) into output (UINT4). Assumes len is
   a multiple of 4.
  */
-static void Decode (UINT4 *output, unsigned char *input, unsigned int len)
+static void Decode (UINT4 *output, const unsigned char *input, unsigned int len)
 {
   unsigned int i, j;
 

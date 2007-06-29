@@ -161,34 +161,34 @@ const RegEx HostAndPort(
 //   does not require, but matches a trailing '?'
 //   $0 matches path?
 //   $1 matches path
-const RegEx UrlPath( "([^?\\s]++)\\??" );
+const RegEx UrlPath( "([^?,\\s]++)[?,]?" );
 
 // UrlParams
 //   allows leading whitespace
 //   is terminated by but does not require a trailing '?' or '>'
 //   $0 matches ;params
 //   $1 matches params
-const RegEx UrlParams( SWS ";([^?>]++)" );
+const RegEx UrlParams( SWS ";([^?>,]++)" );
 
 // FieldParams
 //   allows leading whitespace
 //   is terminated by end of string
 //   $0 matches ;params
 //   $1 matches params
-const RegEx FieldParams( SWS ";(.+)$" );
+const RegEx FieldParams( SWS ";([^,]+)" );
 
 // HeaderOrQueryParams
 //   allows leading whitespace
 //   is terminated by but does not require a trailing '>'
 //   $0 matches ?params
 //   $1 matches params
-const RegEx HeaderOrQueryParams( SWS "\\?([^>]++)>?" );
+const RegEx HeaderOrQueryParams( SWS "\\?([^,>]++)[,>]?" );
 
 // AllDigits
 const RegEx AllDigits("^\\+?[0-9*]++$");
 
-// The end of the value (allowing optional whitespace)
-const RegEx TheEnd("^" SWS "$");
+// Comma separator between multiple values
+const RegEx CommaSeparator(SWS "," SWS);
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -201,6 +201,21 @@ const RegEx TheEnd("^" SWS "$");
 /* ============================ CREATORS ================================== */
 
 // Constructor
+Url::Url(const UtlString& urlString, ///< string to parse URL from
+         UriForm          uriForm,   ///< context to be used to parse the uri
+         UtlString*       nextUri    ///< anything after trailing comma
+         ) :
+   mpUrlParameters(NULL),
+   mpHeaderOrQueryParameters(NULL),
+   mpFieldParameters(NULL)
+{
+   reset();
+   if (urlString && *urlString)
+   {
+      parseString(urlString, uriForm, nextUri);
+   }
+}
+
 Url::Url(const char* urlString, UtlBoolean isAddrSpec) :
    mpUrlParameters(NULL),
    mpHeaderOrQueryParameters(NULL),
@@ -209,17 +224,18 @@ Url::Url(const char* urlString, UtlBoolean isAddrSpec) :
    reset();
    if (urlString && *urlString)
    {
-      parseString(urlString ,isAddrSpec);
+      parseString(urlString ,isAddrSpec ? AddrSpec : NameAddr, NULL);
    }
 }
 
-void Url::fromString(const UtlString& urlString,
-                UtlBoolean isAddrSpec
-                )
+bool Url::fromString(const UtlString& urlString, ///< string to parse URL from
+                     UriForm          uriForm,   ///< context to be used to parse the uri
+                     UtlString*       nextUri    ///< anything after trailing comma
+                     )
 {
    reset();
    
-   parseString(urlString.data(), isAddrSpec);
+   return parseString(urlString.data(), uriForm, nextUri);
 }
 
 // Copy constructor
@@ -338,7 +354,7 @@ Url& Url::operator=(const char* urlString)
    
    if (urlString && *urlString)
    {
-      parseString(urlString, FALSE);
+      parseString(urlString, NameAddr, NULL);
    }
 
    return *this;
@@ -1234,11 +1250,14 @@ UtlBoolean Url::isIncludeAngleBracketsSet() const
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
+bool Url::parseString(const char* urlString, ///< string to parse URL from
+                      UriForm     uriForm,   ///< which context should be used to parse the uri
+                      UtlString*  nextUri    ///< any leftover value following a trailing comma
+                      )
 {
-   // If isAddrSpec:
+   // If uriForm == AddrSpec:
    //                userinfo@hostport;uriParameters?headerParameters
-   // If !isAddrSpec:
+   // If uriForm == NameAddr:
    //    DisplayName<userinfo@hostport;urlParameters?headerParameters>;fieldParameters
    //    or:
    //    userinfo@hostport;fieldParameters
@@ -1247,13 +1266,18 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    OsTimeLog timeLog;
    LOG_TIME("start    ");
 #  endif
+   // ensure that the leftover value is cleared out in any case
+   if (nextUri)
+   {
+      nextUri->remove(0);
+   }
 
    // Try to catch when a name-addr is passed but we are expecting an
    // addr-spec -- many name-addr's start with '<' or '"'.
-   if (isAddrSpec && (urlString[0] == '<' || urlString[0] == '"'))
+   if (AddrSpec == uriForm && (urlString[0] == '<' || urlString[0] == '"'))
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "Url::parseString Invalid addr-spec found (probably name-addr format): '%s'",
+      OsSysLog::add(FAC_SIP, PRI_ERR, "Url::parseString "
+                    "Invalid addr-spec found (probably name-addr format): '%s'",
                     urlString);
    }
 
@@ -1261,7 +1285,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    
    size_t afterAngleBrackets = UTL_NOT_FOUND;
    
-   if (isAddrSpec)
+   if (AddrSpec == uriForm)
    {
       mAngleBracketsIncluded = FALSE; 
    }
@@ -1442,8 +1466,10 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
           */
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "Url::parseString no valid host found at char %d in '%s', "
-                       "isAddrSpec = %d",
-                       workingOffset, urlString, isAddrSpec
+                       "uriForm = %s",
+                       workingOffset, urlString,
+                       (AddrSpec == uriForm ? "addr-spec" :
+                        NameAddr == uriForm ? "name-addr" : "INVALID")
                        );
          mScheme = UnknownUrlScheme;
          mDisplayName.remove(0);
@@ -1489,7 +1515,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    {
       // it may have url parameters of the form ";" param "=" value ...
       //                iff it meets the right conditions:
-      if (   isAddrSpec                          // in addr-spec, any param is a url param
+      if (   AddrSpec == uriForm                 // in addr-spec, any param is a url param
           || afterAngleBrackets != UTL_NOT_FOUND // inside angle brackets there may be a url param
           ) 
       {
@@ -1534,7 +1560,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
       }
 
       // Parse the field parameters
-      if (!isAddrSpec) // can't have field parameters in an addrspec
+      if (NameAddr == uriForm) // can't have field parameters in an AddrSpec
       {
          if (afterAngleBrackets != UTL_NOT_FOUND)
          {
@@ -1549,9 +1575,21 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
          {
             LOG_TIME("fldparm   > ");
             fieldParameters.MatchString(&mRawFieldParameters, 1);
-
+            workingOffset = fieldParameters.AfterMatch(0);
+            
             // actual parsing of the parameters is in parseFieldParameters
             // so that it only happens if someone asks for them.
+         }
+      }
+
+      if (nextUri)
+      {
+         RegEx commaSeparator(CommaSeparator);
+         if (   (commaSeparator.SearchAt(urlString, workingOffset))
+             && (commaSeparator.MatchStart(0) == workingOffset)
+             )
+         {
+            commaSeparator.AfterMatchString(nextUri);
          }
       }
    }
@@ -1560,6 +1598,8 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    timeLog.getLogString(timeDump);
    printf("\n%s\n", timeDump.data());
 #  endif
+
+   return UnknownUrlScheme != mScheme;
 }
 
 UtlBoolean Url::isUserHostPortEqual(const Url &url,

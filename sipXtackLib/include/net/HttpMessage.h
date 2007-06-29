@@ -527,7 +527,7 @@ public:
      * \param bytes - gets allocated and must be freed
      * \param length - the length of bytes
      */
-    void getBytes(UtlString* bytes, int* length) const;
+    void getBytes(UtlString* bytes, int* length, bool includeBody = true) const;
 
 
    //! @name Authentication access methods

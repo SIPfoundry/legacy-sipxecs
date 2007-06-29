@@ -21,6 +21,7 @@ testsuite_LDADD = \
     ../libsipXtack.la
 
 testsuite_SOURCES = \
+    net/BranchIdTest.cpp \
     net/CallIdTest.cpp \
     net/NameValuePairInsensitiveTest.cpp \
     net/NameValuePairTest.cpp \

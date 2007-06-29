@@ -18,6 +18,8 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 #define MD5_SIZE NetMd5Codec::ENCODED_SIZE
+// a recognizer for an MD5 value for use in regular expressions
+#define MD5_REGEX "[0-9a-f]{32}"
 
 // FORWARD DECLARATIONS
 
@@ -59,7 +61,7 @@ The following makes PROTOTYPES default to 0 if it has not already
 #endif
 
 /* POINTER defines a generic pointer type */
-typedef unsigned char *POINTER;
+typedef unsigned char* POINTER;
 
 /* UINT2 defines a two byte word */
 typedef unsigned short int UINT2;
@@ -87,7 +89,7 @@ typedef struct {
 
 void MD5Init PROTO_LIST ((MD5_CTX_PT *));
 void MD5Update PROTO_LIST
-  ((MD5_CTX_PT *, unsigned char *, unsigned int));
+  ((MD5_CTX_PT *, const unsigned char *, unsigned int));
 void MD5Final PROTO_LIST ((unsigned char [16], MD5_CTX_PT *));
 
 #ifdef __cplusplus
@@ -134,7 +136,7 @@ class NetMd5Codec
     */
 
    /// Provide input to the hash - may be called repeatedly with additional input.
-   void hash(const char* input,
+   void hash(const void*  input,
              unsigned int length
              );
 

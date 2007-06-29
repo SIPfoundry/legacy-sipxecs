@@ -14,6 +14,12 @@
 #include <net/CallId.h>
 #include <utl/UtlString.h>
 
+#if 0
+#  define DEBUG_PRINT( format, data ) fprintf(stderr, format, data)
+#else
+#  define DEBUG_PRINT( format, data ) /* fprintf(stderr, format, data) */
+#endif
+
 /**
  * Unit tests for CallId.
  */
@@ -45,9 +51,7 @@ public:
           CallId::getNewCallId("t", output[i]);
           // Enable this statement if you want to see some sample values
           // from getNewCallId.
-          #if 0
-            fprintf(stderr, "%s\n", output[i].data());
-          #endif
+          DEBUG_PRINT( "%s\n", output[i].data());
        }
 
        // Compare that they're different enough.
@@ -96,7 +100,7 @@ public:
          // Fields in generated call IDs must never contain this character.
          #define FIELD_SEPARATOR_CHAR "-"
 
-         int chars_consumed = -1;
+         unsigned int chars_consumed = -1;
          sscanf(callId.data(),
                 "%[^" FIELD_SEPARATOR_CHAR "]" FIELD_SEPARATOR_CHAR
                 "%[^" FIELD_SEPARATOR_CHAR "]" FIELD_SEPARATOR_CHAR
@@ -105,7 +109,7 @@ public:
                 &chars_consumed);
          sprintf(msg, "Cannot parse call ID '%s'", callId.data());
          CPPUNIT_ASSERT_MESSAGE(msg,
-                                chars_consumed == (int)callId.length());
+                                chars_consumed == callId.length());
          sprintf(msg, "Actual prefix '%s' does not match expected prefix '%s' in call ID '%s'",
                  actual_prefix, expected_prefix, callId.data());
          CPPUNIT_ASSERT_MESSAGE(msg,
@@ -119,7 +123,6 @@ public:
      void testGetNewCallId_hose_stack()
       {
          int buffer[1024];
-         int i;
          // Access buffer through p, to confuse simple optimizers.
          int *p = &buffer[0];
 
@@ -139,17 +142,17 @@ public:
 
        testGetNewCallId_hose_stack();
        CallId::getNewCallId("prefix1", callId1);
-       //fprintf(stderr, "%s\n", callId1.data());
+       DEBUG_PRINT( "%s\n", callId1.data());
        testGetNewCallId_validate(callId1, "prefix1", &counter);
 
        testGetNewCallId_hose_stack();
        CallId::getNewCallId("prefix2", callId2);
-       //fprintf(stderr, "%s\n", callId2.data());
+       DEBUG_PRINT( "%s\n", callId2.data());
        testGetNewCallId_validate(callId2, "prefix2", &counter);
 
        testGetNewCallId_hose_stack();
        CallId::getNewCallId("prefix3", callId3);
-       //fprintf(stderr, "%s\n", callId3.data());
+       DEBUG_PRINT( "%s\n", callId3.data());
        testGetNewCallId_validate(callId3, "prefix3", &counter);
 #undef CASES
 #undef MIN_DIFFS
@@ -171,7 +174,7 @@ public:
           CallId::getNewTag("", output[i]);
           // Enable this statement if you want to see some sample values.
           #if 0
-            fprintf(stderr, "%s\n", output[i].data());
+            DEBUG_PRINT( "%s\n", output[i].data());
           #endif
        }
 

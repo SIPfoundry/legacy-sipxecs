@@ -21,6 +21,7 @@
 #include <os/OsDefs.h>
 #include <os/OsSocket.h>
 #include <os/OsMsgQ.h>
+#include <net/BranchId.h>
 #include <net/Url.h>
 #include <net/SipSrvLookup.h>
 
@@ -48,10 +49,6 @@ class SipTransaction : public UtlString {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-    static int smTransactionNum;
-    static UtlString smBranchIdBase;
-
-
     /*** States of a transaction.
      * @note
      *   See RFC 3261 for a defininition and description
@@ -59,13 +56,17 @@ public:
      * @endnote
      */
     enum transactionStates {
-        TRANSACTION_UNKNOWN = 0,       ///< not yet set
+        TRANSACTION_UNKNOWN,           ///< not yet set
         TRANSACTION_LOCALLY_INIITATED, ///< No messages sent (usually client)
         TRANSACTION_CALLING,           ///< Request sent
         TRANSACTION_PROCEEDING,        ///< Provisional response received
         TRANSACTION_COMPLETE,          ///< Final response received
         TRANSACTION_CONFIRMED,         ///< ACK recieved for 300-699 response classes
-        TRANSACTION_TERMINATED
+        TRANSACTION_TERMINATED,        ///< Ready to be garbage collected
+        NUM_TRANSACTION_STATES         /**< used for array allocation and limit checks.
+                                        * New values must be added before this one, and must also
+                                        * be added to the string constants in the stateString
+                                        * method. */
     };
 
     /// The relationship of a message to a transaction
@@ -82,31 +83,32 @@ public:
         MESSAGE_CANCEL_RESPONSE,
         MESSAGE_ACK,              ///< An ACK for this non-2xx TX
         MESSAGE_2XX_ACK,          ///< An ACK assocated with this TX (but considered a different TX)
-        MESSAGE_DUPLICATE         ///< A duplicate message for this TX
+        MESSAGE_DUPLICATE,        ///< A duplicate message for this TX
+        NUM_RELATIONSHIPS         /**< used for array allocation and limit checks.
+                                   * New values must be added before this one, and must also
+                                   * be added to the string constants in the relationshipString
+                                   * method. */
     };
 
 /* ============================ CREATORS ================================== */
 
-    SipTransaction(SipMessage* request = NULL,
-                   UtlBoolean isOutgoing = TRUE,
-                   UtlBoolean userAgentTransaction = TRUE);
-    //:Default constructor
-    // When this is an out going request, this is a client
-    // transaction.  The via header field MUST be added before
-    // constructing this transaction as this sets the branch ID.
-    //! param: userAgentTransaction - user agent (vs proxy) client or
-    //         server
-
-
+    /// Create a new transaction
+    SipTransaction(SipMessage* request = NULL,            ///< message whose state this tracks
+                   UtlBoolean isOutgoing = TRUE,          ///< direction 
+                   UtlBoolean userAgentTransaction = TRUE,///< local initiated 
+                   BranchId*  parentBranch = NULL         ///< for use in loop detection
+                   );
+    /**<
+     * When this is an out going request, this is a client
+     * transaction.  The via header field MUST be added before
+     * constructing this transaction as this sets the branch ID.
+     */
 
     virtual
     ~SipTransaction();
     //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
-
-    void getNewBranchId(SipMessage& request,
-                        UtlString& branchId);
 
     UtlBoolean handleOutgoing(SipMessage& outgoingMessage,
                              SipUserAgent& userAgent,
@@ -160,12 +162,10 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-    static void getStateString(enum transactionStates state,
-                               UtlString& stateString);
+    static const char* stateString(enum transactionStates state);
 
-    static void getRelationshipString(enum messageRelationship relationship,
-                                      UtlString& relationshipString);
-
+    static const char* relationshipString(enum messageRelationship relationship);
+    
     static void buildHash(const SipMessage& message, 
                           UtlBoolean isOutgoing,
                           UtlString& hash);
@@ -332,7 +332,7 @@ private:
     // the key for the hash (i.e. stored as the string/data in
     // the parent UtlString
     UtlString mCallId;
-    UtlString mBranchId;
+    BranchId* mpBranchId;
     UtlString mRequestUri;
     Url mFromField;
     Url mToField;

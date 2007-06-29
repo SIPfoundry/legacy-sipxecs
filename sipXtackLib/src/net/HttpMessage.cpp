@@ -2269,24 +2269,24 @@ void HttpMessage::setLocationField(const char* locationField)
     setHeaderValue(HTTP_LOCATION_FIELD, locationField);
 }
 
-void HttpMessage::getBytes(UtlString* bufferString, int* length) const
+void HttpMessage::getBytes(UtlString* bufferString, int* length, bool includeBody) const
 {
-        *length = 0;
-        UtlString name;
-        const char* value;
+    *length = 0;
+    UtlString name;
+    const char* value;
 
-        *bufferString = mFirstHeaderLine;
+    *bufferString = mFirstHeaderLine;
 
-        bufferString->append(END_OF_LINE_DELIMITOR);
+    bufferString->append(END_OF_LINE_DELIMITOR);
 
-        UtlDListIterator iterator((UtlDList&)mNameValues);
-        NameValuePair* headerField;
+    UtlDListIterator iterator((UtlDList&)mNameValues);
+    NameValuePair* headerField;
     UtlBoolean foundContentLengthHeader = FALSE;
-        int bodyLen = 0;
-        UtlString bodyBytes;
-        if(body)
-        {
-                body->getBytes(&bodyBytes, &bodyLen);
+    int bodyLen = 0;
+    UtlString bodyBytes;
+    if(includeBody && body)
+    {
+       body->getBytes(&bodyBytes, &bodyLen);
     }
 
     int oldLen = 0 ;

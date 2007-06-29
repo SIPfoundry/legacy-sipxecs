@@ -20,6 +20,7 @@
 #include <os/OsQueuedEvent.h>
 #include <os/OsEvent.h>
 #include <net/SipTransaction.h>
+#include <net/BranchId.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
 #include <net/SipMessageEvent.h>
@@ -31,14 +32,10 @@
 // CONSTANTS
 #define SIP_UDP_RESEND_TIMES 7
 #define MIN_Q_DELTA_SQUARE 0.0000000001 // Smallest Q difference is 0.00001
-#define BRANCH_ID_PREFIX "z9hG4bK"
 
-// STATIC VARIABLE INITIALIZATIONS
-int SipTransaction::smTransactionNum = 0;
-UtlString SipTransaction::smBranchIdBase;
-//#define TEST_PRINT
 //#define LOG_FORKING
 //#define ROUTE_DEBUG
+//#define LOG_TRANSLOCK
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -46,31 +43,35 @@ UtlString SipTransaction::smBranchIdBase;
 
 // Constructor
 SipTransaction::SipTransaction(SipMessage* request,
-                               UtlBoolean isOutgoing,
-                               UtlBoolean userAgentTransaction) :
-    mRequestMethod("")
+                               UtlBoolean  isOutgoing,
+                               UtlBoolean  userAgentTransaction,
+                               BranchId*   parentBranch
+                               )
+   : mpBranchId(NULL)
+   , mRequestMethod("")
+   , mIsUaTransaction(userAgentTransaction)
+   , mSendToPort(PORT_NONE)
+   , mSendToProtocol(OsSocket::UNKNOWN)
+   , mpDnsSrvRecords(NULL)
+   , mpRequest(NULL)
+   , mpLastProvisionalResponse(NULL)
+   , mpLastFinalResponse(NULL)
+   , mpAck(NULL)
+   , mpCancel(NULL)
+   , mpCancelResponse(NULL)
+   , mpParentTransaction(NULL)
+   , mTransactionStartTime(-1)
+   , mTransactionState(TRANSACTION_LOCALLY_INIITATED)
+   , mDispatchedFinalResponse(FALSE)
+   , mProvisionalSdp(FALSE)
+   , mIsCanceled(FALSE)
+   , mIsRecursing(FALSE)
+   , mIsDnsSrvChild(FALSE)
+   , mQvalue(1.0)
+   , mExpires(-1)
+   , mIsBusy(FALSE)
+   , mWaitingList(NULL)
 {
-   mIsUaTransaction = userAgentTransaction;
-
-   mpRequest = NULL;
-   mpLastProvisionalResponse = NULL;
-   mpLastFinalResponse = NULL;
-   mpAck = NULL;
-   mpCancel = NULL;
-   mpCancelResponse = NULL;
-   mpParentTransaction = NULL;
-   mIsCanceled = FALSE;
-   mIsRecursing = FALSE;
-   mQvalue = 1.0;
-   mExpires = -1;
-   mIsBusy = FALSE;
-   mWaitingList = NULL;
-   mDispatchedFinalResponse = FALSE;
-   mProvisionalSdp = FALSE;
-   mpDnsSrvRecords = NULL;
-   mIsDnsSrvChild = FALSE;
-   mSendToPort = PORT_NONE;
-   mSendToProtocol = OsSocket::UNKNOWN;
 
 #  ifdef ROUTE_DEBUG
    {
@@ -118,8 +119,24 @@ SipTransaction::SipTransaction(SipMessage* request,
 
        if(!mIsServerTransaction) // is this a new client transaction?
        {
-           // Yes - create a new branch id
-           getNewBranchId(*request, mBranchId);
+          if (mIsUaTransaction)
+          {
+             // Yes - create a new branch id
+             mpBranchId = new BranchId(*request);
+          }
+          else
+          {
+             if (parentBranch)
+             {
+                // child transaction - use loop key from parent
+                mpBranchId = new BranchId(*parentBranch, *request);
+             }
+             else
+             {
+                // new server transaction
+                mpBranchId = new BranchId(*request);
+             }
+          }
        }
        else
        {
@@ -127,7 +144,9 @@ SipTransaction::SipTransaction(SipMessage* request,
           // created by the client and passed in the via
            UtlString viaField;
            request->getViaFieldSubField(&viaField, 0);
-           SipMessage::getViaTag(viaField.data(), "branch", mBranchId);
+           UtlString branchValue;
+           SipMessage::getViaTag(viaField.data(), "branch", branchValue);
+           mpBranchId = new BranchId(branchValue);
        }
    }
    else
@@ -135,52 +154,58 @@ SipTransaction::SipTransaction(SipMessage* request,
        mIsServerTransaction = FALSE;
    }
 
-   mTransactionState = TRANSACTION_LOCALLY_INIITATED;
-   mTransactionStartTime = -1;
-   touch();
+   touch(); // sets mTimeStamp
    mTransactionCreateTime = mTimeStamp;
 }
 
-// Copy constructor
-SipTransaction::SipTransaction(const SipTransaction& rSipTransaction)
-{
-}
 
 // Destructor
 SipTransaction::~SipTransaction()
 {
-#ifdef TEST_PRINT
-    osPrintf("*******************************\n");
-    osPrintf("Deleting messages at:\n");
-    osPrintf("    %X\n",mpRequest);
-    osPrintf("    %X\n",mpLastProvisionalResponse);
-    osPrintf("    %X\n",mpLastFinalResponse);
-    osPrintf("    %X\n",mpAck);
-    osPrintf("    %X\n",mpCancel);
-    osPrintf("    %X\n",mpCancelResponse);
-    osPrintf("*******************************\n");
-#endif
-
     // Optimization: stop timers before doing anything else
     deleteTimers();
 
-    if(mpRequest) delete mpRequest;
-    mpRequest = NULL;
+    if(mpBranchId)
+    {
+       delete mpBranchId;
+       mpBranchId = NULL;
+    }
 
-    if(mpLastProvisionalResponse) delete mpLastProvisionalResponse;
-    mpLastProvisionalResponse = NULL;
+    if(mpRequest)
+    {
+       delete mpRequest;
+       mpRequest = NULL;
+    }
 
-    if(mpLastFinalResponse) delete mpLastFinalResponse;
-    mpLastFinalResponse = NULL;
+    if(mpLastProvisionalResponse)
+    {
+       delete mpLastProvisionalResponse;
+       mpLastProvisionalResponse = NULL;
+    }
 
-    if(mpAck) delete mpAck;
-    mpAck = NULL;
+    if(mpLastFinalResponse)
+    {
+       delete mpLastFinalResponse;
+       mpLastFinalResponse = NULL;
+    }
 
-    if(mpCancel) delete mpCancel;
-    mpCancel = NULL;
+    if(mpAck)
+    {
+       delete mpAck;
+       mpAck = NULL;
+    }
 
-    if(mpCancelResponse) delete mpCancelResponse;
-    mpCancelResponse = NULL;
+    if(mpCancel)
+    {
+       delete mpCancel;
+       mpCancel = NULL;
+    }
+
+    if(mpCancelResponse)
+    {
+       delete mpCancelResponse;
+       mpCancelResponse = NULL;
+    }
 
     if(mpDnsSrvRecords)
     {
@@ -193,8 +218,9 @@ SipTransaction::~SipTransaction()
 
         if(mpParentTransaction)
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::~SipTransaction non parent has %d waiting events",
-                numEvents);
+            OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::~SipTransaction"
+                          " non parent has %d waiting events",
+                          numEvents);
         }
 
         if(numEvents > 0)
@@ -245,43 +271,6 @@ SipTransaction::operator=(const SipTransaction& rhs)
    return *this;
 }
 
-void SipTransaction::getNewBranchId(SipMessage& request,
-                    UtlString& branchId)
-{
-   branchId.remove(0);
-   branchId.append(BRANCH_ID_PREFIX); // Magic cookie must be in front
-   branchId.append("-");
-
-   // :TODO: it would be interesting to add some debugging data here
-   //        For example, if we could encode what sort of
-   //        transaction this is and where it is in the tree (what # child?)
-   //        into a short code here so that we could recognize it in traces...
-
-    // build up the unique part of the branch id by hashing
-    //  - a value unique to this call
-    //  - a value unique to this host
-    //  - a monotonically increasing counter
-    UtlString branchUniqCode;
-    UtlString branchSeed; // input to the hash
-    request.getCallIdField(&branchSeed);
-
-    if(smBranchIdBase.isNull())
-    {
-        // use the ip address as a value unique to this host (better be true)
-        OsSocket::getHostIp(&smBranchIdBase);
-    }
-    branchSeed.append(smBranchIdBase);
-
-    int transNum = (smTransactionNum++);
-    char buf[32];
-    sprintf(buf, "%d", transNum);
-    branchSeed.append(buf);
-
-    NetMd5Codec::encode(branchSeed.data(), branchUniqCode);
-
-    branchId.append(branchUniqCode);
-}
-
 enum SipTransaction::messageRelationship
 SipTransaction::addResponse(SipMessage*& response,
                             UtlBoolean isOutGoing,  // intravert/extravert
@@ -301,7 +290,8 @@ SipTransaction::addResponse(SipMessage*& response,
         if(mpRequest)
         {            
            OsSysLog::add(FAC_SIP, PRI_WARNING,
-                         "SipTransaction::addResponse of request to existing transaction, IGNORED");
+                         "SipTransaction::addResponse"
+                         " of request to existing transaction, IGNORED");
             delete response ;
             response = NULL;
         }
@@ -416,8 +406,6 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
                                          enum messageRelationship relationship)
 {
     UtlBoolean isResponse = outgoingMessage.isResponse();
-    //UtlString toAddress;
-    //UtlString protocol;
     SipMessage* message = &outgoingMessage;
     UtlBoolean isOrignalRequest = FALSE;
     UtlBoolean sendSucceeded = FALSE;
@@ -465,7 +453,9 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
                                         protocolString);
 #       ifdef ROUTE_DEBUG
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipTransaction::handleOutgoing called getResponseSendAddress, returned toAddress = '%s', port = %d, protocolString = '%s'",
+                      "SipTransaction::handleOutgoing"
+                      " called getResponseSendAddress, "
+                      "returned toAddress = '%s', port = %d, protocolString = '%s'",
                       toAddress.data(), port, protocolString.data());
 #       endif
         SipMessage::convertProtocolStringToEnum(protocolString.data(),
@@ -482,17 +472,20 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
                               protocol);
 #       ifdef ROUTE_DEBUG
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipTransaction::handleOutgoing called prepareRequestForSend, returned toAddress = '%s', port = %d, protocol = OsSocket::SocketProtocolTypes(%d), addressRequiresDnsSrvLookup = %d",
+                      "SipTransaction::handleOutgoing"
+                      " called prepareRequestForSend, returned toAddress = '%s', port = %d, "
+                      "protocol = OsSocket::SocketProtocolTypes(%d), "
+                      "addressRequiresDnsSrvLookup = %d",
                       toAddress.data(), port, protocol,
                       addressRequiresDnsSrvLookup);
 #       endif
 
         if(mSendToAddress.isNull())
         {
-#       ifdef ROUTE_DEBUG
+#          ifdef ROUTE_DEBUG
            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                          "SipTransaction::handleOutgoing setting mSendTo* variables");
-#       endif
+#          endif
             mSendToAddress = toAddress;
             mSendToPort = port;
             mSendToProtocol = protocol;
@@ -549,8 +542,6 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
         {
             if (OsSysLog::willLog(FAC_SIP, PRI_WARNING))
             {
-                UtlString relString;
-                SipTransaction::getRelationshipString(relationship, relString);
                 UtlString requestString;
                 int len;
                 outgoingMessage.getBytes(&requestString, &len);
@@ -558,7 +549,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
                 toString(transString, TRUE);
                 OsSysLog::add(FAC_SIP, PRI_WARNING,
                     "SipTransaction::handleOutgoing invalid relationship: %s\n%s\n%s",
-                    relString.data(),
+                    relationshipString(relationship),
                     requestString.data(),
                     transString.data());
             }
@@ -666,7 +657,8 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
         userAgent.getProxyServer(0, &toAddress, &port, &protocol);
 #       ifdef ROUTE_DEBUG
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipTransaction::prepareRequestForSend %p got proxy toAddress '%s', port %d, protocol '%s'",
+                      "SipTransaction::prepareRequestForSend"
+                      " %p got proxy toAddress '%s', port %d, protocol '%s'",
                       &request, toAddress.data(), port, protocol.data());
 #       endif
 
@@ -802,10 +794,6 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
             toAddress = toMaddr;
         }
 
-#ifdef TEST_PRINT
-        osPrintf("SipTransaction::prepareRequestForSend UA Sending SIP REQUEST to: \"%s\" port: %d\n", toAddress.data(), port);
-#endif
-
         //SDUA
         UtlString sPort;
         UtlString thisMethod;
@@ -886,13 +874,12 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
 #   ifdef ROUTE_DEBUG
     {
-       UtlString logRelationship;
-       SipTransaction::getRelationshipString(relationship, logRelationship);
        UtlString logProtocol;
        SipMessage::convertProtocolEnumToString(toProtocol, logProtocol);
        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                      "SipTransaction::doFirstSend %p %s to %s:%d via '%s'",
-                     &message, logRelationship.data(), toAddress.data(), port, logProtocol.data()
+                     &message, relationshipString(relationship),
+                     toAddress.data(), port, logProtocol.data()
                      );
     }
 #   endif
@@ -969,7 +956,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
         message.addVia(viaAddress.data(),
                        viaPort,
                        viaProtocolString,
-                       mBranchId.data(),
+                       mpBranchId->data(),
                        (toProtocol == OsSocket::UDP) && userAgent.getUseRport());
 
 #       ifdef ROUTE_DEBUG
@@ -1037,9 +1024,6 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
     if(toProtocol == OsSocket::TCP)
     {
-#       ifdef TEST_PRINT
-        message.logTimeEvent("SENDING TCP");
-#       endif
         sendSucceeded = userAgent.sendTcp(&message,
                                       toAddress.data(),
                                       port);
@@ -1047,21 +1031,12 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
     else if(toProtocol == OsSocket::SSL_SOCKET)
     {
-
-#           ifdef TEST_PRINT
-            message.logTimeEvent("SENDING TLS");
-#           endif
-
             sendSucceeded = userAgent.sendTls(&message,
                                           toAddress.data(),
                                           port);
     }
     else
     {
-#       ifdef TEST_PRINT
-        message.logTimeEvent("SENDING UDP");
-#       endif
-
         sendSucceeded = userAgent.sendUdp(&message,
                                           toAddress.data(),
                                           port);
@@ -1072,14 +1047,6 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
     {
         mTransactionState = TRANSACTION_TERMINATED;
     }
-
-#   ifdef TEST_PRINT
-    message.dumpTimeLog();
-#   endif
-
-#   ifdef TEST_PRINT
-    osPrintf("SipTransaction::doFirstSend set Scheduling & resend data\n");
-#   endif
 
     // Increment after the send so the logging messages are
     // acurate
@@ -1103,11 +1070,6 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                )
            )
         {
-#           ifdef TEST_PRINT
-            osPrintf("SipTransaction::doFirstSend Scheduling UDP %s timeout in %d msec\n",
-                method.data(),
-                userAgent.getFirstResendTimeout());
-#           endif
             // Set the transaction for the timeout message to make
             // it easier to find the transaction when the timer fires.
             message.setTransaction(this);
@@ -1117,10 +1079,6 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
             SipMessageEvent* resendEvent =
                 new SipMessageEvent(new SipMessage(message),
                                 SipMessageEvent::TRANSACTION_RESEND);
-#           ifdef TEST_PRINT
-            osPrintf("SipTransaction::doFirstSend timer scheduled for: %x\n",
-                      resendEvent->getMessage());
-#           endif
 
             // Set an event timer to resend the message
             // queue a message on this OsServerTask
@@ -1128,9 +1086,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
             OsTimer* timer = new OsTimer(incomingQ,
                 (int)resendEvent);
             mTimers.append(timer);
-#ifdef TEST_PRINT
-            osPrintf("SipTransaction::doFirstSend added timer %p to timer list.\n", timer);
-#endif
+
             // Convert from mSeconds to uSeconds
             OsTime timerTime(0,
                              resendTime);
@@ -1184,11 +1140,9 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                 OsTimer* expiresTimer = new OsTimer(incomingQ,
                         (int)expiresEvent);
                 mTimers.append(expiresTimer);
-#ifdef TEST_PRINT
-                osPrintf("SipTransaction::doFirstSend added timer %p to timer list.\n", expiresTimer);
-#endif
 
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::doFirstSend %p setting timeout %d",
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::doFirstSend"
+                              " %p setting timeout %d",
                               this, expireSeconds
                               );
 
@@ -1210,7 +1164,8 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
 {
     if(delayedDispatchedMessage)
     {
-        OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleResendEvent %p delayedDispatchedMessage is not NULL", this);
+        OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleResendEvent"
+                      " %p delayedDispatchedMessage is not NULL", this);
         delayedDispatchedMessage = NULL;
     }
 
@@ -1221,11 +1176,9 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
     if(relationship != MESSAGE_DUPLICATE &&
         relationship != MESSAGE_CANCEL)
     {
-        UtlString relationString;
-        getRelationshipString(relationship, relationString);
-
-        OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleResendEvent %p timeout message is not duplicate: %s",
-            this, relationString.data());
+        OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleResendEvent"
+                      " %p timeout message is not duplicate: %s",
+                      this, relationshipString(relationship));
     }
 
     // Responses
@@ -1236,7 +1189,8 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
 
         if(mpLastFinalResponse == NULL)
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::handleResendEvent response timeout with no response");
+            OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::handleResendEvent"
+                          " response timeout with no response");
         }
 
         // If this is a user agent server transaction and
@@ -1263,19 +1217,6 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 // Schedule the next timeout
                 // As this is a resend, we should be able to use
                 // the same copy of the SIP message for the next timeout
-#ifdef TEST_PRINT
-                if(outgoingMessage.getSipTransaction() == NULL)
-                {
-                    UtlString msgString;
-                    int msgLen;
-                    outgoingMessage.getBytes(&msgString, &msgLen);
-                    OsSysLog::add(FAC_SIP, PRI_WARNING,
-                        "SipTransaction::handleResendEvent reschedule of response resend with NULL transaction",
-                        msgString.data());
-                    osPrintf("SipTransaction::handleResendEvent reschedule of response resend with NULL transaction\n",
-                        msgString.data());
-                }
-#endif
 
                 // Schedule a timeout for requests which do not
                 // receive a response
@@ -1289,9 +1230,6 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                     (int)resendEvent);
 
                 mTimers.append(timer);
-#ifdef TEST_PRINT
-                osPrintf("SipTransaction::handleResendEvent added timer %p to timer list.\n", timer);
-#endif
 
                 // Convert from mSeconds to uSeconds
                 OsTime lapseTime(0,
@@ -1336,7 +1274,8 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
         // This should never be the case
         if(outgoingMessage.isFirstSend())
         {
-            OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleResendEvent %p called for first time send of message", this);
+            OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleResendEvent"
+                          " %p called for first time send of message", this);
         }
         else if(!mIsCanceled &&
                 mpLastFinalResponse == NULL &&
@@ -1347,17 +1286,11 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
             outgoingMessage.getRequestMethod(&method);
 
             // This is a resend retrieve the address and port to send the message to.
-#ifdef TEST_PRINT
-            UtlString toAddress;
-            int port;
-            outgoingMessage.getSendAddress(&toAddress, &port);
-            osPrintf("SipTransaction::handleResendEvent Resend request %s:%d\n", toAddress.data(), port);
-#endif
-
             SipMessage* resendMessage = NULL;
             if(method.compareTo(SIP_ACK_METHOD) == 0)
             {
-                OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleResendEvent resend of ACK");
+                OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleResendEvent"
+                              " resend of ACK");
                 resendMessage = mpAck;
             }
             else if(method.compareTo(SIP_CANCEL_METHOD) == 0)
@@ -1376,19 +1309,6 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 nextTimeout > 0)
             {
                 // Schedule the next timeout
-#ifdef TEST_PRINT
-                if(outgoingMessage.getSipTransaction() == NULL)
-                {
-                    UtlString msgString;
-                    int msgLen;
-                    outgoingMessage.getBytes(&msgString, &msgLen);
-                    OsSysLog::add(FAC_SIP, PRI_WARNING,
-                        "SipTransaction::handleResendEvent reschedule of request resend with NULL transaction",
-                        msgString.data());
-                    osPrintf("SipTransaction::handleResendEvent reschedule of request resend with NULL transaction\n",
-                        msgString.data());
-                }
-#endif
                 // As this is a resend, we should be able to use
                 // the same copy of the SIP message for the next timeout
 
@@ -1403,9 +1323,6 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 OsTimer* timer = new OsTimer(incomingQ,
                     (int)resendEvent);
                 mTimers.append(timer);
-#ifdef TEST_PRINT
-                osPrintf("SipTransaction::handleResendEvent added timer %p to timer list.\n", timer);
-#endif
 
                 // Convert from mSeconds to uSeconds
                 OsTime lapseTime(0,
@@ -1422,11 +1339,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 //outgoingMessage = NULL;
                 //userAgent.dispatch(outgoingMessage,
                 //                   SipMessageEvent::TRANSPORT_ERROR);
-#ifdef TEST_PRINT
-                osPrintf("SipTransaction::handleResendEvent sentOk: %d nextTimeout: %d\n",
-                    sentOk, nextTimeout);
-#endif
-                if(!sentOk)
+               if(!sentOk)
                 {
                     if ( MESSAGE_REQUEST == relationship )
                     {
@@ -1440,9 +1353,6 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 else if ( nextTimeout < 0 )
                 {
                     mTransactionState = TRANSACTION_COMPLETE;
-#ifdef TEST_PRINT
-                    osPrintf("SipTransaction::handleResendEvent failed to send request, TRANSACTION_COMPLETE\n");
-#endif
                 }
                 // else nextTimeout == 0, which should mean the
                 // final response was received
@@ -1456,7 +1366,8 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
             nextTimeout = -1;
             if(mTransactionState == TRANSACTION_CALLING)
                 mTransactionState = TRANSACTION_COMPLETE;
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleResendEvent no response, TRANSACTION_COMPLETE");
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleResendEvent"
+                          " no response, TRANSACTION_COMPLETE");
         }
     }
 
@@ -1481,13 +1392,10 @@ void SipTransaction::handleExpiresEvent(const SipMessage& outgoingMessage,
                                         int& nextTimeout,
                                         SipMessage*& delayedDispatchedMessage)
 {
-#ifdef TEST_PRINT
-    osPrintf( "SipTransaction::handleExpiresEvent %p\n", this );
-#endif
-
     if(delayedDispatchedMessage)
     {
-        OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleExpiresEvent delayedDispatchedMessage not NULL");
+        OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleExpiresEvent"
+                      " delayedDispatchedMessage not NULL");
 
         delayedDispatchedMessage = NULL;
     }
@@ -1495,23 +1403,16 @@ void SipTransaction::handleExpiresEvent(const SipMessage& outgoingMessage,
     // Responses
     if(outgoingMessage.isResponse())
     {
-        OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleExpiresEvent %p expires event timed out on SIP response", this);
+        OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleExpiresEvent"
+                      " %p expires event timed out on SIP response", this);
     }
 
     // Requests
     else
     {
-#ifdef TEST_PRINT
-        UtlString transactionTreeString;
-        dumpTransactionTree(transactionTreeString, FALSE);
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-            "SipTransaction::handleExpiresEvent %p\n%s",
-            this, transactionTreeString.data());
-#else
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipTransaction::handleExpiresEvent %p",
                       this);
-#endif
 
         // Do not cancel a DNS SRV child that received any response.
         // The parent client transaction may be canceled which will
@@ -1541,7 +1442,8 @@ void SipTransaction::handleExpiresEvent(const SipMessage& outgoingMessage,
         {
             // no op
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                "SipTransaction::handleExpiresEvent %p ignoring cancel of early media branch of serial search", this);
+                          "SipTransaction::handleExpiresEvent"
+                          " %p ignoring cancel of early media branch of serial search", this);
         }
 
         // Do not cancel a completed transaction
@@ -1551,29 +1453,14 @@ void SipTransaction::handleExpiresEvent(const SipMessage& outgoingMessage,
            mTransactionState == TRANSACTION_LOCALLY_INIITATED))
         {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                "SipTransaction::handleExpiresEvent %p canceling expired transaction", this);
+                          "SipTransaction::handleExpiresEvent"
+                          " %p canceling expired transaction", this);
 
             // This transaction has expired cancel it
             cancel(userAgent,
                    transactionList);
 
         }
-
-#ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleExpiresEvent this: %p", this);
-        UtlString transactionDump;
-        if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-        {
-            dumpTransactionTree(transactionDump, FALSE);
-        }
-        else
-        {
-            transactionDump = "NOT DUMPED";
-        }
-        // dpetrie: The following is very expensive (and not necessary in this context)
-        // transactionList.toString(transactionDump);
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s", transactionDump.data());
-#endif
 
         // Check the parents in the heirarchy to see if there are
         // other branches to pursue
@@ -1614,15 +1501,10 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
 {
     UtlBoolean shouldDispatch = childSaysShouldDispatch;
 
-#ifdef TEST_PRINT
-    {
-        UtlString relateStr;
-        getRelationshipString( relationship, relateStr );
-        osPrintf("SipTransaction::handleChildIncoming %p relate %s childSays %d\n",
-                 this, relateStr.data(), childSaysShouldDispatch);
-    }
-#endif
-    //UtlBoolean isResponse = incomingMessage.isResponse();
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipTransaction::handleChildIncoming %p relationship %s parent %p",
+                  this, relationshipString(relationship), mpParentTransaction
+                  );
 
     if(   relationship == MESSAGE_FINAL
        || relationship == MESSAGE_PROVISIONAL
@@ -1646,10 +1528,6 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                                             transactionList,
                                             childSaysShouldDispatch,
                                             delayedDispatchedMessage);
-#           ifdef TEST_PRINT
-            osPrintf("SipTransaction::handleChildIncoming %p parent says %d\n",
-                     this, shouldDispatch);
-#           endif
         }
         else // this is the topmost parent transaction
         {
@@ -1697,16 +1575,12 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
             }
         }
 
-#       ifdef TEST_PRINT
-        osPrintf("SipTransaction::handleChildIncoming %p check response %d\n",
-                 this, responseCode );
-#       endif
-
         if(responseCode < SIP_TRYING_CODE)
         {
             // What is this????
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
-                          "SipTransaction::handleChildIncoming dropped invalid response code: %d",
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "SipTransaction::handleChildIncoming"
+                          " dropped invalid response code: %d",
                           responseCode);
         }
 
@@ -1731,16 +1605,12 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
             // response must be forwarded up stream
             if(mIsServerTransaction)
             {
-                // If this is the
                 // Forward immediately
                 SipMessage response(incomingMessage);
                 response.removeLastVia();
                 response.resetTransport();
                 response.clearDNSField();
-#ifdef TEST_PRINT
-                osPrintf("SipTransaction::handleChildIncoming immediately forwarding %d response\n",
-                    responseCode);
-#endif
+
                 handleOutgoing(response,
                                 userAgent,
                                 transactionList,
@@ -1766,11 +1636,6 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                && responseCode >= SIP_2XX_CLASS_CODE
                )
             {
-#               ifdef TEST_PRINT
-                osPrintf("SipTransaction::handleChildIncoming %p"
-                         " should dispatch final response %d\n",
-                         this, __LINE__);
-#               endif
                 mDispatchedFinalResponse = TRUE;
             }
 
@@ -1780,10 +1645,13 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                     && responseCode >= SIP_2XX_CLASS_CODE
                     )
             {
-               OsSysLog::add(FAC_SIP, PRI_WARNING,
-                             "SipTransaction::handleChildIncoming "
-                             "%d response with parent client transaction NOT dispatched, but it should have been",
-                             responseCode);
+               // xmlscott: despite the comment above, 
+               //           this happens a lot and seems to not always be bad,
+               //           so I'm changing the priority to get it out of the logs.
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::handleChildIncoming "
+                              "%d response with parent client transaction NOT dispatched",
+                              responseCode);
             }
         }
         else
@@ -1792,10 +1660,6 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
             if(responseCode <= SIP_4XX_CLASS_CODE)
             {
                 // Recursion is handled by the child
-#               ifdef TEST_PRINT
-                osPrintf( "SipTransaction::handleChildIncoming %p"
-                         " 3XX response - should not dispatch\n", this);
-#               endif
 
                 // Wait until all the children have been searched
                 // before dispatching
@@ -1818,14 +1682,6 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                 shouldDispatch = FALSE;
             }
 
-#           ifdef TEST_PRINT
-            osPrintf( "SipTransaction::handleChildIncoming %p"
-                     " response=%d parent=%p final=%p dispatched=%d \n"
-                     ,this, responseCode, mpParentTransaction,
-                     mpLastFinalResponse, mDispatchedFinalResponse
-                     );
-#           endif
-
             // If this is the server transaction and we have not
             // yet sent back a final response check what is next
             if(   (   mIsServerTransaction
@@ -1840,15 +1696,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                    )
                )
             {
-#               ifdef TEST_PRINT
-                UtlString dumpString;
-                osPrintf( "SipTransaction::handleChildIncoming %p UAS/nofinal | UAC/parent\n", this );
-                dumpTransactionTree(dumpString,FALSE);
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleChildIncoming\n%s",
-                              dumpString.data());
-#               else
                 OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleChildIncoming %p", this );
-#               endif
 
                 if(mpParentTransaction)
                 {
@@ -1872,10 +1720,6 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                         && recurseChildren(userAgent, transactionList) // true if something started
                         )
                 {
-#                   ifdef TEST_PRINT
-                    osPrintf("SipTransaction::handleChildIncoming %p creating children for 3XX\n",
-                             this);
-#                   endif
                 }
 
                 // Not waiting for outstanding transactions to complete
@@ -1884,11 +1728,6 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                     SipMessage bestResponse;
                     if(findBestResponse(bestResponse))
                     {
-#                       ifdef TEST_PRINT
-                        osPrintf("SipTransaction::handleChildIncoming %p sending best response\n",
-                                 this);
-#                       endif
-
                         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
                         {
                            int bestResponseCode = bestResponse.getResponseStatusCode();
@@ -1930,11 +1769,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                                           "delayed dispatch of %d\n",
                                           this, delayedResponseCode );
 #                           endif
-#                           ifdef TEST_PRINT
-                            osPrintf("SipTransaction::handleChildIncoming %p "
-                                     "should dispatch delayed message %d\n",
-                                     this, __LINE__);
-#                           endif
+
                             mDispatchedFinalResponse = TRUE;
                         }
                     }
@@ -1950,10 +1785,6 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
             // Keep track of the fact that we dispatched a final
             // response
             mDispatchedFinalResponse = TRUE;
-#           ifdef TEST_PRINT
-            osPrintf("SipTransaction::handleChildIncoming %p should dispatch final response %d\n",
-                     this, __LINE__);
-#           endif
 
             if(delayedDispatchedMessage)
             {
@@ -1963,7 +1794,8 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                 // occurs
                 // xmlscott: lowered priority 
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "sipTransaction::handleChildIncoming %p dropping delayed response", this);
+                              "SipTransaction::handleChildIncoming"
+                              " %p dropping delayed response", this);
                 delete delayedDispatchedMessage;
                 delayedDispatchedMessage = NULL;
             }
@@ -2015,7 +1847,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                                                        mSendToAddress,
                                                        mSendToPort,
                                                        mSendToProtocol,
-                                                       mBranchId);
+                                                       *mpBranchId);
                     }
 
                     // If this is a duplicate 2xx response and there is only
@@ -2049,7 +1881,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                                                    mSendToAddress,
                                                    mSendToPort,
                                                    mSendToProtocol,
-                                                   mBranchId);
+                                                   *mpBranchId);
                 }
 
                 // No ACK for a duplicate failed response.  Something
@@ -2092,9 +1924,10 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
     // Top most parent
     else
     {
-#ifdef LOG_FORKING
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleChildTimeoutEvent found top most parent: %p", this);
-#endif
+#       ifdef LOG_FORKING
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleChildTimeoutEvent"
+                      " found top most parent: %p", this);
+#       endif
 
         //if(mIsServerTransaction)
         {
@@ -2106,7 +1939,8 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                && method.compareTo(SIP_ACK_METHOD) == 0
                )
             {
-                OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::handleChildTimeoutEvent timeout of ACK");
+                OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::handleChildTimeoutEvent"
+                              " timeout of ACK");
             }
 
             else if(   ! isResponse
@@ -2138,21 +1972,16 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                     // We do not dispatch proxy transactions
                     nextTimeout = -1;
 
-#ifdef TEST_PRINT
-                    osPrintf("SipTransaction::handleChildTimeoutEvent %d %p\n",__LINE__, this );
-                    UtlString dumpString;
-                    dumpTransactionTree(dumpString,FALSE);
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "sipTransaction::handleChildTimeoutEvent\n%s",
-                        dumpString.data());
-#else
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "sipTransaction::handleChildTimeoutEvent %p", this );
-#endif
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleChildTimeoutEvent"
+                                  " %p", this );
 
                     if(startSequentialSearch(userAgent, transactionList))
                     {
-#ifdef LOG_FORKING
-                        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleChildTimeoutEvent %p starting/still searching", this);
-#endif
+#                       ifdef LOG_FORKING
+                        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                      "SipTransaction::handleChildTimeoutEvent "
+                                      "%p starting/still searching", this);
+#                       endif
                     }
 
                     // Not waiting for outstanding transactions to complete
@@ -2172,7 +2001,8 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                                          // Format the Call-Id so it looks like
                                          // a header line in a SIP message,
                                          // so log processors see it.
-                                         "SipTransaction::handleChildTimeoutEvent: response %d for \r\nCall-Id: %s\r",
+                                         "SipTransaction::handleChildTimeoutEvent: "
+                                         "response %d for \r\nCall-Id: %s\r",
                                          bestResponseCode, callId.data());
                         }
 
@@ -2184,9 +2014,11 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                            && foundBestResponse
                            )
                         {
-#ifdef LOG_FORKING
-                            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleChildTimeoutEvent %p sending best response", this);
-#endif
+#                           ifdef LOG_FORKING
+                            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                          "SipTransaction::handleChildTimeoutEvent "
+                                          "%p sending best response", this);
+#                           endif
                             if (   (SIP_REQUEST_TIMEOUT_CODE == bestResponseCode)
                                 && (!bestResponse.hasSelfHeader())
                                 )
@@ -2201,11 +2033,13 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                         }
                         else
                         {
-#ifdef LOG_FORKING
-                            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleChildTimeoutEvent %p not sending %d best response",
+#                           ifdef LOG_FORKING
+                            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                          "SipTransaction::handleChildTimeoutEvent "
+                                          "%p not sending %d best response",
                                           this, bestResponseCode);
 
-#endif
+#                           endif
                         }
 
                         if(foundBestResponse &&
@@ -2217,10 +2051,6 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                                 delayedDispatchedMessage = NULL;
                             }
                             delayedDispatchedMessage = new SipMessage(bestResponse);
-#                           ifdef TEST_PRINT
-                            osPrintf("SipTransaction::handleChildIncoming %p should dispatch final response %d\n",
-                                     this, __LINE__);
-#                           endif
                             mDispatchedFinalResponse = TRUE;
                         }
                     }
@@ -2229,11 +2059,6 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
             } // Request timeout
 
         } // server transaction
-
-        //else
-        //{
-        //    OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::handleChildTimeoutEvent top most parent is not server transaction\n");
-        //}
     }
 
 }
@@ -2246,10 +2071,6 @@ UtlBoolean SipTransaction::startSequentialSearch(SipUserAgent& userAgent,
     UtlBoolean childStillProceeding = FALSE;
     UtlBoolean startingNewSearch = FALSE;
 
-#ifdef TEST_PRINT
-    osPrintf("SipTransaction::startSequentialSearch %p\n", this );
-#endif
-
     while ((childTransaction = (SipTransaction*) iterator()))
     {
         if(   ! childTransaction->mIsCanceled
@@ -2260,10 +2081,11 @@ UtlBoolean SipTransaction::startSequentialSearch(SipUserAgent& userAgent,
         {
             // The child is not done
             childStillProceeding = TRUE;
-#ifdef LOG_FORKING
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch %p child: %p still proceeding",
-                this, childTransaction);
-#endif
+#           ifdef LOG_FORKING
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch "
+                          "%p child: %p still proceeding",
+                          this, childTransaction);
+#           endif
         }
 
         else if( childTransaction->mIsRecursing )
@@ -2273,17 +2095,19 @@ UtlBoolean SipTransaction::startSequentialSearch(SipUserAgent& userAgent,
                 transactionList))
             {
                 childStillProceeding = TRUE;
-#ifdef LOG_FORKING
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch %p child: %p decendent still proceeding",
-                    this, childTransaction);
-#endif
+#               ifdef LOG_FORKING
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch "
+                              "%p child: %p decendent still proceeding",
+                              this, childTransaction);
+#               endif
             }
             else
             {
-#ifdef LOG_FORKING
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch %p child: %p no longer proceeding",
-                    this, childTransaction);
-#endif
+#               ifdef LOG_FORKING
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch "
+                              "%p child: %p no longer proceeding",
+                              this, childTransaction);
+#               endif
             }
         }
 
@@ -2296,10 +2120,11 @@ UtlBoolean SipTransaction::startSequentialSearch(SipUserAgent& userAgent,
                 && ! childTransaction->mIsCanceled
                 )
         {
-#ifdef LOG_FORKING
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch %p child: %p completed, now recursing",
-                    this, childTransaction);
-#endif
+#           ifdef LOG_FORKING
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch "
+                          "%p child: %p completed, now recursing",
+                          this, childTransaction);
+#           endif
             UtlBoolean recurseStartedNewSearch = childTransaction->recurseChildren(userAgent,
                     transactionList);
             if(!startingNewSearch)
@@ -2310,10 +2135,11 @@ UtlBoolean SipTransaction::startSequentialSearch(SipUserAgent& userAgent,
             // Do not break out of the loop because we want
             // to check all the currently proceeding transaction
             // to see if we should recurse.
-#ifdef LOG_FORKING
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch %p child: %p startingNewSearch: %s",
-                this, childTransaction, startingNewSearch ? "True" : "False");
-#endif
+#           ifdef LOG_FORKING
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch "
+                          "%p child: %p startingNewSearch: %s",
+                          this, childTransaction, startingNewSearch ? "True" : "False");
+#                         endif
         }
 
         // If there is another sequential search to kick off on this
@@ -2340,38 +2166,35 @@ UtlBoolean SipTransaction::startSequentialSearch(SipUserAgent& userAgent,
             {
                 startingNewSearch = recurseStartedNewSearch;
             }
-#ifdef LOG_FORKING
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch %p child: %p starting sequential startingNewSearch: %s",
-                    this, childTransaction,
-                    startingNewSearch ? "True" : "False");
-#endif
+#           ifdef LOG_FORKING
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch "
+                          "%p child: %p starting sequential startingNewSearch: %s",
+                          this, childTransaction,
+                          startingNewSearch ? "True" : "False");
+#           endif
             if( recurseStartedNewSearch )
             {
                 break;
             }
             else
             {
-#ifdef LOG_FORKING
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch %p failed to find child to transaction to pursue", this);
-#endif
+#               ifdef LOG_FORKING
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::startSequentialSearch "
+                              "%p failed to find child to transaction to pursue", this);
+#               endif
             }
         }
     }
 
     mIsRecursing = childStillProceeding || startingNewSearch;
-#ifdef LOG_FORKING
-#ifdef TEST_PRINT
-    osPrintf("SipTransaction::startSequentialSearch  %p returning: %s childStillProceeding: %s startingNewSearch:%s\n",
+#   ifdef LOG_FORKING
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch "
+                  "%p returning: %s childStillProceeding: %s startingNewSearch:%s",
                   this, mIsRecursing ? "True" : "False",
                   childStillProceeding ? "True" : "False",
                   startingNewSearch ? "True" : "False");
-#endif
-
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::startSequentialSearch %p returning: %s childStillProceeding: %s startingNewSearch:%s",
-        this, mIsRecursing ? "True" : "False",
-        childStillProceeding ? "True" : "False",
-        startingNewSearch ? "True" : "False");
-#endif
+#   endif
     return(mIsRecursing);
 }
 
@@ -2389,7 +2212,8 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
     {
         if(mSendToAddress.isNull())
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::recurseDnsSrvChildren no send address");
+            OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::recurseDnsSrvChildren"
+                          " no send address");
         }
         else if(mTransactionState < TRANSACTION_CONFIRMED)
         {
@@ -2397,7 +2221,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
 
             // Do the DNS SRV lookup for the request destination
             mpDnsSrvRecords = SipSrvLookup::servers(mSendToAddress.data(),
-                                                    "sip", // TODO - should be from the request URI
+                                                    "sip", // TODO - scheme should be from the request URI
                                                     mSendToProtocol,
                                                     mSendToPort);
 
@@ -2406,37 +2230,31 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
             // identified (by branchId) which transaction it is related to
             if(mpRequest)
             {
-                // This via should never see the light of day (or rather
-                // the bits of the network).
+                // This via should never see the light of day
+                // (or rather the bits of the network).
                 mpRequest->addVia("127.0.0.1",
                        9999,
                        "UNKNOWN",
-                       mBranchId.data());
+                       mpBranchId->data());
             }
 
             // Set the transaction expires timeout for the DNS SRV parent
             int expireSeconds = mExpires;
-            int maxExpires = userAgent.getDefaultExpiresSeconds();
 
             // Non-INVITE transactions timeout sooner
-            if(this->mRequestMethod.compareTo(SIP_INVITE_METHOD) != 0)
-            {
-                maxExpires = (userAgent.getSipStateTransactionTimeout())/1000;
-            }
+            int maxExpires = (  (this->mRequestMethod.compareTo(SIP_INVITE_METHOD) != 0)
+                              ? (userAgent.getSipStateTransactionTimeout())/1000
+                              : userAgent.getDefaultExpiresSeconds()
+                              );
 
             if(expireSeconds <= 0)
             {
-                if(   mpParentTransaction
-                   && mpParentTransaction->isChildSerial())
-                {
-                    expireSeconds = userAgent.getDefaultSerialExpiresSeconds();
-
-                }
-
-                else
-                {
-                    expireSeconds = maxExpires;
-                }
+               expireSeconds = (  (   mpParentTransaction
+                                   && mpParentTransaction->isChildSerial()
+                                   )
+                                ? userAgent.getDefaultSerialExpiresSeconds()
+                                : maxExpires
+                                );
             }
 
             // Make sure the expiration is not longer than
@@ -2459,18 +2277,12 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                                     SipMessageEvent::TRANSACTION_EXPIRATION);
 
             OsMsgQ* incomingQ = userAgent.getMessageQueue();
-            OsTimer* expiresTimer = new OsTimer(incomingQ, 
-                    (int)expiresEvent);
+            OsTimer* expiresTimer = new OsTimer(incomingQ, (int)expiresEvent);
                     
             mTimers.append(expiresTimer);
-#ifdef TEST_PRINT
-            osPrintf("SipTransaction::recurseDnsSrvChildren added timer %p to timer list.\n",
-                expiresTimer);
-#endif
 
             OsTime expiresTime(expireSeconds, 0);
             expiresTimer->oneshotAfter(expiresTime);
-
 
             if(mpDnsSrvRecords)
             {
@@ -2484,8 +2296,12 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                 {
                     SipTransaction* childTransaction =
                         new SipTransaction(mpRequest,
-                                            TRUE, // outgoing
-                                            mIsUaTransaction); // same as parent
+                                           TRUE, // outgoing
+                                           mIsUaTransaction,
+                                           (  mpParentTransaction
+                                            ? mpParentTransaction->mpBranchId
+                                            : NULL )
+                                           ); // same as parent
 
                     mpDnsSrvRecords[numSrvRecords].
                        getIpAddressFromServerT(childTransaction->mSendToAddress);
@@ -2496,7 +2312,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                     childTransaction->mSendToProtocol =
                         mpDnsSrvRecords[numSrvRecords].getProtocolFromServerT();
 
-#                        ifdef ROUTE_DEBUG
+#                   ifdef ROUTE_DEBUG
                          {
                             UtlString protoString;
                             SipMessage::convertProtocolEnumToString(childTransaction->mSendToProtocol,
@@ -2508,17 +2324,16 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                                           childTransaction->mSendToPort,
                                           protoString.data());
                          }
-#                        endif
+#                   endif
+
                     // Do not create child for unsupported protocol types
-                    if(childTransaction->mSendToProtocol ==
-                        OsSocket::UNKNOWN)
+                    if(childTransaction->mSendToProtocol == OsSocket::UNKNOWN)
                     {
                         maxSrvRecords++;
                         delete childTransaction;
                         childTransaction = NULL;
                     }
-
-                    if(childTransaction)
+                    else
                     {
                         // Set the q values of the child based upon the parent
                         // As DNS SRV is recursed serially the Q values are decremented
@@ -2543,11 +2358,11 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                     numSrvRecords++;
                 }
             }
-
             // We got no DNS SRV records back
             else
             {
-                OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::recurseDnsSrvChildren no DNS SRV records");
+                OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::recurseDnsSrvChildren "
+                              "no DNS SRV records");
             }
         }
     }
@@ -2577,14 +2392,15 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                 recursedRequest.resetTransport();
                 recursedRequest.clearDNSField();
 
-#ifdef LOG_FORKING
+#               ifdef LOG_FORKING
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipTransaction::recurseDnsSrvChildren %p sending child transaction request %s:%d protocol: %d",
+                              "SipTransaction::recurseDnsSrvChildren "
+                              "%p sending child transaction request %s:%d protocol: %d",
                               this,
                               childTransaction->mSendToAddress.data(),
                               childTransaction->mSendToPort,
                               childTransaction->mSendToProtocol);
-#endif
+#               endif
                 // Start the transaction by sending its request
                 if(childTransaction->handleOutgoing(recursedRequest,
                                                  userAgent,
@@ -2603,9 +2419,10 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                 !childTransaction->mIsCanceled)
             {
                 childRecursing = TRUE;
-#ifdef LOG_FORKING
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseDnsSrvChildren %p still pursing", this);
-#endif
+#               ifdef LOG_FORKING
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseDnsSrvChildren "
+                              "%p still pursing", this);
+#               endif
             }
 
             // This parent is not canceled (implicit) and we found a non-canceled
@@ -2621,13 +2438,11 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
 
             else
             {
-#ifdef LOG_FORKING
-                UtlString state;
-                SipTransaction::getStateString(childTransaction->mTransactionState,
-                    state);
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseDnsSrvChildren %p transaction not recursed state: %s", this,
-                    state.data());
-#endif
+#               ifdef LOG_FORKING
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseDnsSrvChildren "
+                              "%p transaction not recursed state: %s", this,
+                              stateString(childTransaction->mTransactionState));
+#               endif
             }
         }
     }
@@ -2641,20 +2456,17 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
 {
     UtlBoolean childRecursed = FALSE;
 
-#ifdef LOG_FORKING
-#ifdef TEST_PRINT
-    osPrintf("SipTransaction::recurseChildren %p\n", this);
-#endif
-
+#   ifdef LOG_FORKING
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren %p", this);
-#endif
+#   endif
 
     if(mpRequest == NULL)
     {
         UtlString transactionString;
         toString(transactionString, TRUE);
-        OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::recurseChildren NULL mpResponse\n======>\n%s\n======>",
-            transactionString.data());
+        OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::recurseChildren "
+                      "NULL mpResponse\n======>\n%s\n======>",
+                      transactionString.data());
     }
 
     if(mpLastFinalResponse && mpRequest)
@@ -2662,95 +2474,151 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
         SipTransaction* childTransaction = NULL;
         int responseCode = mpLastFinalResponse->getResponseStatusCode();
 
-#       ifdef TEST_PRINT
-        osPrintf("SipTransaction: lastfinalsresponse & request forking enabled: %d ce: %d\n"
-                 ,userAgent.isForkingEnabled(), mChildTransactions.isEmpty()
-                 );
-#       endif
         // If this is a client transaction for which we received
-        // a 3XX response on which recursion makes sense, create
-        // the child transactions
+        // a 3XX response on which recursion makes sense,
+        // decide whether or not to pursue the contacts
         if(   userAgent.isForkingEnabled()
            && responseCode >= SIP_3XX_CLASS_CODE
            && responseCode < SIP_4XX_CLASS_CODE
            && mChildTransactions.isEmpty()
            )
         {
-            int contactIndex = 0;
+            // collect all the fork urls and calculate the loop detection hash
+            UtlSList children;
             UtlString contactString;
-            while( mpLastFinalResponse->getContactField(contactIndex,
-                                                        contactString)
+            for ( int contactIndex = 0;
+                  mpLastFinalResponse->getContactEntry(contactIndex, &contactString);
+                  contactIndex++
                   )
             {
                 Url contactUrl(contactString);
+                mpBranchId->addFork(contactUrl);
 
-                // Make sure we do not add the contact twice and
-                // we have not already pursued this contact
-                if(!isUriChild(contactUrl) &&
-                   !isUriRecursed(contactUrl))
-                {
-                    childTransaction = new SipTransaction(mpRequest,
-                        TRUE, // outgoing
-                        FALSE); // proxy transactions
+                children.insert(new UtlString(contactString));
+            }
 
-#ifdef LOG_FORKING
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren %p adding child %p for contact: %s",
-                                  this, childTransaction, contactString.data());
-#ifdef TEST_PRINT
-                    osPrintf( "SipTransaction::recurseChildren adding transaction %p for contact: %s\n",
-                             childTransaction, contactString.data());
-#endif
-#endif
-                    // Add it to the list of all transactions
-                    transactionList.addTransaction(childTransaction);
+            /*
+             * Before actually creating the child transactions, check for loops.
+             * This look for a match between the loop detection key we just built
+             * and one in an earlier via of the request; if they match, the request
+             * has had exactly this set of contacts before, so reject it as a loop.
+             */
+            unsigned int loopHop = mpBranchId->loopDetected(*mpRequest);
+            if (!loopHop) // no loop was detected
+            {
+               // no loop - go over the list of child addresses and create the new transactions
+               UtlSListIterator nextChild(children);
+               UtlString* contact;
+               while ((contact = dynamic_cast<UtlString*>(nextChild())))
+               {
+                  Url contactUrl(*contact);
 
-                    // Set the URI of the copy to that from the contact
-                    contactUrl.getUri(childTransaction->mRequestUri);
+                  // Make sure we do not add the contact twice and
+                  // we have not already pursued this contact
+                  if(!isUriRecursed(contactUrl))
+                  {
+                     
+                     childTransaction = new SipTransaction(mpRequest,
+                                                           TRUE, // outgoing
+                                                           FALSE,
+                                                           mpBranchId 
+                                                           ); // proxy transaction
 
-                    // Set the Q value and Expires value
-                    UtlString qString;
-                    UtlString expiresString;
-                    double qValue = 1.0;
-                    if(contactUrl.getFieldParameter("q", qString))
+#                   ifdef LOG_FORKING
+                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                   "SipTransaction::recurseChildren "
+                                   "%p adding child %p for contact: '%s'",
+                                   this, childTransaction, contact->data());
+#                   endif
+                     // Add it to the list of all transactions
+                     transactionList.addTransaction(childTransaction);
+
+                     // Set the URI of the copy to that from the contact
+                     contactUrl.getUri(childTransaction->mRequestUri);
+
+                     // Set the Q value and Expires value
+                     UtlString qString;
+                     UtlString expiresString;
+                     double qValue = 1.0;
+                     if(contactUrl.getFieldParameter("q", qString))
                         qValue = atof(qString.data());
-                    int expiresSeconds = -1;
-                    if((mRequestMethod.compareTo(SIP_INVITE_METHOD) == 0) &&
+                     int expiresSeconds = -1;
+                     if((mRequestMethod.compareTo(SIP_INVITE_METHOD) == 0) &&
                         contactUrl.getHeaderParameter("expires", expiresString))
-                    {
-                        // All digits, the format is relative seconds
+                     {
                         if(Url::isDigitString(expiresString.data()))
                         {
-                            expiresSeconds = atoi(expiresString.data());
+                           // All digits, the format is relative seconds
+                           expiresSeconds = atoi(expiresString.data());
                         }
-
-                        // Alphanumeric, it is an HTTP absolute date
-                        else
+                        else // Alphanumeric, it is an HTTP absolute date
                         {
-                            expiresSeconds = OsDateTime::convertHttpDateToEpoch(expiresString.data());
-                            OsTime time;
-                            OsDateTime::getCurTimeSinceBoot(time);
-                            expiresSeconds -= time.seconds();
-                            //expiresSeconds -= OsDateTime::getSecsSinceEpoch();
+                           expiresSeconds =
+                              OsDateTime::convertHttpDateToEpoch(expiresString.data());
+                           OsTime time;
+                           OsDateTime::getCurTimeSinceBoot(time);
+                           expiresSeconds -= time.seconds();
                         }
-                    }
+                     }
 
-                    // Set the values of the child
-                    childTransaction->mQvalue = qValue;
-                    childTransaction->mExpires = expiresSeconds;
+                     // Set the values of the child
+                     childTransaction->mQvalue = qValue;
+                     childTransaction->mExpires = expiresSeconds;
 
-                    // Link it in to this parent
-                    this->linkChild(*childTransaction);
-                }
+                     // Link it in to this parent
+                     this->linkChild(*childTransaction);
+                  }
+                  else // We have already recursed this contact
+                  {
+                     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren "
+                                   "%p already recursed: %s",
+                                   this, contactString.data());
+                  }
+               } // end for each contact
+            }
+            else
+            {
+               // detected a loop, so change the redirection response into a loop detected.
+               OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::recurseChildren "
+                             "loop detected on call '%s' "
+                             "%d hops ago had same contacts",
+                             mCallId.data(), loopHop
+                             );
 
-                // We have all ready recursed this contact
-                else
-                {
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren %p already recursed: %s",
-                        this, contactString.data());
-                }
+               UtlString myAddress;
+               int myPort;
+               userAgent.getViaInfo(OsSocket::TCP, myAddress, myPort);
+               Url mySipAddress;
+               mySipAddress.setHostAddress(myAddress.data());
+               mySipAddress.setHostPort(myPort);
 
-                contactIndex++;
-            } // end for each contact
+               UtlString identityAddress;
+               mySipAddress.getUri(identityAddress);
+
+               char loopDetectedText[128];
+               sprintf(loopDetectedText, SIP_LOOP_DETECTED_TEXT " with %d hops ago", loopHop);
+               
+               SipMessage* loopDetectedResponse = new SipMessage;
+               loopDetectedResponse->setDiagnosticSipFragResponse(*mpRequest,
+                                                                  SIP_LOOP_DETECTED_CODE,
+                                                                  loopDetectedText,
+                                                                  SIP_WARN_MISC_CODE,
+                                                                  loopDetectedText,
+                                                                  identityAddress
+                                                                 );
+               userAgent.setSelfHeader(*loopDetectedResponse);
+
+               loopDetectedResponse->resetTransport();
+               loopDetectedResponse->clearDNSField();
+               
+               // Change the redirect response we have into the loop detected response
+               delete mpLastFinalResponse;
+               mpLastFinalResponse = loopDetectedResponse;
+               
+               childRecursed = FALSE;
+            }
+            
+            children.destroyAll(); // release the urls for the forks
         }
 
         double nextQvalue = -1.0;
@@ -2761,35 +2629,32 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
             // Until a request is successfully sent, reset the
             // current Q value at which transactions of equal
             // value are searched in parallel
-            if(numRecursed == 0) nextQvalue = -1.0;
-
+            if(numRecursed == 0)
+            {
+               nextQvalue = -1.0;
+            }
+            
             if(childTransaction->mTransactionState == TRANSACTION_LOCALLY_INIITATED)
             {
                 double qDelta = nextQvalue - childTransaction->mQvalue;
                 double qDeltaSquare = qDelta * qDelta;
 
-#ifdef LOG_FORKING
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren %p qDelta: %f qDeltaSquare: %f mQvalue: %f",
+#               ifdef LOG_FORKING
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren"
+                              " %p qDelta: %f qDeltaSquare: %f mQvalue: %f",
                               this, qDelta, qDeltaSquare, childTransaction->mQvalue);
-#ifdef TEST_PRINT
-                osPrintf( "SipTransaction::recurseChildren qDelta: %f qDeltaSquare: %f mQvalue: %f\n",
-                              qDelta, qDeltaSquare, childTransaction->mQvalue);
-#endif
-#endif
+#               endif
 
                 if(nextQvalue <= 0.0 ||
                    qDeltaSquare < MIN_Q_DELTA_SQUARE)
                 {
                     nextQvalue = childTransaction->mQvalue;
 
-#ifdef LOG_FORKING
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren %p should recurse child: %p q: %f",
+#                   ifdef LOG_FORKING
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren"
+                                  " %p should recurse child: %p q: %f",
                                   this, childTransaction, childTransaction->mQvalue);
-#ifdef TEST_PRINT
-                    osPrintf( "SipTransaction::recurseChildren parent: %p should recurse child: %p q: %f\n",
-                                  this, childTransaction, childTransaction->mQvalue);
-#endif
-#endif
+#                   endif
 
                     // Make a local copy to modify and send
                     SipMessage recursedRequest(*mpRequest);
@@ -2809,7 +2674,8 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
                     recursedRequest.getRouteUri(0, &routeUri);
                     Url routeUrlParser(routeUri);
                     UtlString dummyValue;
-                    UtlBoolean nextHopLooseRoutes = routeUrlParser.getUrlParameter("lr", dummyValue, 0);
+                    UtlBoolean nextHopLooseRoutes =
+                       routeUrlParser.getUrlParameter("lr", dummyValue, 0);
                     if(nextHopLooseRoutes)
                     {
                         recursedRequest.removeRouteUri(0, &routeUri);
@@ -2830,12 +2696,10 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
                         recursedRequest.setMaxForwards(maxForwards - 1);
                     }
 
-#ifdef LOG_FORKING
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren %p sending child transaction request", this);
-#ifdef TEST_PRINT
-                    osPrintf( "SipTransaction::recurseChildren sending child transaction request\n");
-#endif
-#endif
+#                   ifdef LOG_FORKING
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren"
+                                  " %p sending child transaction request", this);
+#                   endif
                     // Start the transaction by sending its request
                     if(childTransaction->handleOutgoing(recursedRequest,
                                                      userAgent,
@@ -2851,14 +2715,11 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
 
                 else
                 {
-#ifdef LOG_FORKING
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren %p nextQvalue: %f qDeltaSquare: %f", this,
-                        nextQvalue, qDeltaSquare);
-#ifdef TEST_PRINT
-                    osPrintf( "SipTransaction::recurseChildren nextQvalue: %f qDeltaSquare: %f\n",
+#                   ifdef LOG_FORKING
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren"
+                                  " %p nextQvalue: %f qDeltaSquare: %f", this,
                                   nextQvalue, qDeltaSquare);
-#endif
-#endif
+#                   endif
                 }
             }
 
@@ -2869,27 +2730,19 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
                 !childTransaction->mIsCanceled)
             {
                 nextQvalue = childTransaction->mQvalue;
-#ifdef LOG_FORKING
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren %p still pursing", this);
-#ifdef TEST_PRINT
-                osPrintf( "SipTransaction::recurseChildren still pursing\n");
-#endif
-#endif
+#               ifdef LOG_FORKING
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren"
+                              " %p still pursing", this);
+#               endif
             }
 
             else
             {
-#ifdef LOG_FORKING
-                UtlString state;
-                SipTransaction::getStateString(childTransaction->mTransactionState,
-                    state);
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren %p transaction not recursed state: %s",
-                              this, state.data());
-#ifdef TEST_PRINT
-                osPrintf( "SipTransaction::recurseChildren transaction not recursed state: %s\n",
-                         state.data());
-#endif
-#endif
+#               ifdef LOG_FORKING
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren"
+                              " %p transaction not recursed state: %s",
+                              this, stateString(childTransaction->mTransactionState));
+#               endif
             }
 
             // Optionally we only look at the first contact
@@ -2905,7 +2758,8 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
 
 UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
 {
-    //osPrintf("SipTransaction::findBestResponse\n");
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::findBestResponse %p", this);
+
     UtlSListIterator iterator(mChildTransactions);
     SipTransaction* childTransaction = NULL;
     UtlBoolean responseFound = FALSE;
@@ -2914,9 +2768,6 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
     int childResponseCode;
     UtlString authField;
     UtlBoolean foundChild = FALSE;
-#ifdef TEST_PRINT
-    osPrintf("SipTransaction::findBestResponse %p\n", this);
-#endif
 
     while ((childTransaction = (SipTransaction*) iterator()))
     {
@@ -2924,20 +2775,22 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
         // Note: we need to check the child's children even if this child
         // has no response.
         foundChild = childTransaction->findBestResponse(bestResponse);
-        if(foundChild) responseFound = TRUE;
+        if(foundChild)
+        {
+           responseFound = TRUE;
+        }
 
         childResponse = childTransaction->mpLastFinalResponse;
         if(childResponse)
         {
             bestResponseCode = bestResponse.getResponseStatusCode();
 
-            childResponseCode =
-                childResponse->getResponseStatusCode();
+            childResponseCode = childResponse->getResponseStatusCode();
 
-            if((bestResponseCode == HTTP_UNAUTHORIZED_CODE ||
-                bestResponseCode == HTTP_PROXY_UNAUTHORIZED_CODE) &&
-                (childResponseCode == HTTP_UNAUTHORIZED_CODE ||
-                childResponseCode == HTTP_PROXY_UNAUTHORIZED_CODE))
+            if(   (   bestResponseCode == HTTP_UNAUTHORIZED_CODE
+                   || bestResponseCode == HTTP_PROXY_UNAUTHORIZED_CODE)
+               && (   childResponseCode == HTTP_UNAUTHORIZED_CODE
+                   || childResponseCode == HTTP_PROXY_UNAUTHORIZED_CODE))
             {
                 // Aggregate Authenticate fields
 
@@ -2961,15 +2814,14 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
                     authIndex++;
                 }
             }
-
             // 487 is better than any other 4xx, 5xx, or 6xx if the
             // transaction has been canceled.
             // This improves the odds that we send a 487 response to
             // canceled transactions, which is not required, but tends
             // to make UAs behave better.
-            else if (mIsCanceled &&
-                     bestResponseCode >= SIP_4XX_CLASS_CODE &&
-                     childResponseCode == SIP_REQUEST_TERMINATED_CODE)
+            else if (   mIsCanceled
+                     && bestResponseCode >= SIP_4XX_CLASS_CODE
+                     && childResponseCode == SIP_REQUEST_TERMINATED_CODE)
             {
                bestResponse = *(childResponse);
 
@@ -2978,13 +2830,12 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
                bestResponse.clearDNSField();
                responseFound = TRUE;
             }
-
             // 401 & 407 are better than any other 4xx, 5xx or 6xx
-            else if (bestResponseCode >= SIP_4XX_CLASS_CODE &&
-                     (bestResponseCode != HTTP_UNAUTHORIZED_CODE &&
-                      bestResponseCode != HTTP_PROXY_UNAUTHORIZED_CODE) &&
-                     (childResponseCode == HTTP_UNAUTHORIZED_CODE ||
-                      childResponseCode == HTTP_PROXY_UNAUTHORIZED_CODE))
+            else if (   bestResponseCode >= SIP_4XX_CLASS_CODE
+                     && (   bestResponseCode != HTTP_UNAUTHORIZED_CODE
+                         && bestResponseCode != HTTP_PROXY_UNAUTHORIZED_CODE)
+                     && (   childResponseCode == HTTP_UNAUTHORIZED_CODE
+                         || childResponseCode == HTTP_PROXY_UNAUTHORIZED_CODE))
             {
                 bestResponse = *(childResponse);
 
@@ -2993,11 +2844,10 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
                 bestResponse.clearDNSField();
                 responseFound = TRUE;
             }
-
             // 3xx is better than 4xx
-            else if(bestResponseCode >= SIP_4XX_CLASS_CODE &&
-                childResponseCode <= SIP_4XX_CLASS_CODE &&
-                childTransaction->mChildTransactions.isEmpty())
+            else if(   bestResponseCode  >= SIP_4XX_CLASS_CODE
+                    && childResponseCode <= SIP_4XX_CLASS_CODE
+                    && childTransaction->mChildTransactions.isEmpty())
             {
                 // An untried 3xx response
                 bestResponse = *(childResponse);
@@ -3007,15 +2857,14 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
                 bestResponse.clearDNSField();
                 responseFound = TRUE;
             }
-
             // have not found a response that is not recursed yet
             // Ignore any 487s as these are responses to forking.
             // CANCELs from the client are responded to on the
             // server transaction upon receipt.
-            else if(!responseFound &&
-                childResponse &&
-                childTransaction->mChildTransactions.isEmpty() &&
-                childResponseCode != SIP_REQUEST_TERMINATED_CODE)
+            else if(   !responseFound
+                    && childResponse
+                    && childTransaction->mChildTransactions.isEmpty()
+                    && childResponseCode != SIP_REQUEST_TERMINATED_CODE)
             {
                 bestResponse = *(childResponse);
 
@@ -3035,15 +2884,12 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
                 // For now we do not support forking, just return
                 // the first and should be the only final response
                 responseFound = TRUE;
-                //break;
             }
         }
-
     }
 
     // We have made it to the top and there are no responses
-    if(!responseFound &&
-        mpParentTransaction == NULL)
+    if ( !responseFound && mpParentTransaction == NULL)
     {
         if(mpRequest)
         {
@@ -3075,14 +2921,9 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
             OsSysLog::add(FAC_SIP, PRI_ERR,
                         "SipTransaction::findBestResponse invalid response:\n%s",
                         msgString.data());
-#           ifdef TEST_PRINT
-            osPrintf("SipTransaction::findBestResponse invalid response:\n%s",
-                     msgString.data());
-#           endif
             }
         }
     }
-
 
     return(responseFound);
 }
@@ -3199,20 +3040,6 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                resendMessage.setResendDuration(nextTimeout);
                resendMessage.setSendProtocol(protocol);
 
-#ifdef TEST_PRINT
-                if(resendMessage.getSipTransaction() == NULL)
-                {
-                    UtlString msgString;
-                    int msgLen;
-                    resendMessage.getBytes(&msgString, &msgLen);
-                    OsSysLog::add(FAC_SIP, PRI_WARNING,
-                        "SipTransaction::doResend reschedule of request resend with NULL transaction",
-                        msgString.data());
-                    osPrintf("SipTransaction::doResend reschedule of request resend with NULL transaction\n",
-                        msgString.data());
-                }
-#endif
-
                // Schedule a timeout for requests which do not
                // receive a response
                SipMessageEvent* resendEvent =
@@ -3223,9 +3050,6 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                OsTimer* timer = new OsTimer(incomingQ,
                    (int)resendEvent);
                mTimers.append(timer);
-#ifdef TEST_PRINT
-               osPrintf("SipTransaction::doResend added timer %p to timer list.\n", timer);
-#endif
 
                // Convert from mSeconds to uSeconds
                OsTime lapseTime(0,
@@ -3261,6 +3085,11 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                                          SipTransactionList& transactionList,
                                          SipMessage*& delayedDispatchedMessage)
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipTransaction::handleIncoming %p relationship %s",
+                 this, relationshipString(relationship)
+                 );
+
     if(delayedDispatchedMessage)
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -3316,44 +3145,33 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                     mpLastFinalResponse : mpLastProvisionalResponse;
             }
 
-
-#ifdef TEST_PRINT
-            osPrintf("SipTransaction::handleIncoming duplicate REQUEST response\n");
-
             if(response)
-            {
-               osPrintf("response protocol: %d\n", response->getSendProtocol());
-            }
-#endif
-            if(response)
-            // No longer filter on reliable protocol as even if this
-            // was TCP there could be a switch from TCP to UDP somewhere
-            // in the proxy chain.  Hense we should resend anyway
-            //&&  response->getSendProtocol() == OsSocket::UDP)
             {
                 int sendProtocol = response->getSendProtocol();
                 UtlString sendAddress;
                 int sendPort;
                 response->getSendAddress(&sendAddress, &sendPort);
 
-                if(sendProtocol == OsSocket::UDP)
+                switch (sendProtocol)
                 {
+                case OsSocket::UDP:
                     userAgent.sendUdp(response, sendAddress.data(), sendPort);
-                }
-                else if(sendProtocol == OsSocket::TCP)
-                {
-                    userAgent.sendTcp(response, sendAddress.data(), sendPort);
-                }
-#ifdef SIP_TLS
-                else if(sendProtocol == OsSocket::SSL_SOCKET)
-                {
-                    userAgent.sendTls(response, sendAddress.data(), sendPort);
-                }
-#endif
+                    break;
 
-#ifdef TEST_PRINT
-                osPrintf("SipTransaction::handleIncoming resending response\n");
-#endif
+                case OsSocket::TCP:
+                    userAgent.sendTcp(response, sendAddress.data(), sendPort);
+                    break;
+                    
+#               ifdef SIP_TLS
+                case OsSocket::SSL_SOCKET:
+                    userAgent.sendTls(response, sendAddress.data(), sendPort);
+                    break;
+#               endif
+
+                default:
+                   OsSysLog::add(FAC_SIP, PRI_CRIT, "SipTransaction::handleIncoming"
+                                 " invalid response send protocol %d", sendProtocol);
+                }
             }
         }
 
@@ -3373,32 +3191,30 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                 && mIsUaTransaction
                 )
             {
-#ifdef TEST_PRINT
                 OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleIncoming resending ACK");
-#endif
+
                 int sendProtocol = mpAck->getSendProtocol();
                 UtlString sendAddress;
                 int sendPort;
                 mpAck->getSendAddress(&sendAddress, &sendPort);
 
-                if(sendProtocol == OsSocket::UDP)
+                switch (sendProtocol)
                 {
+                case OsSocket::UDP:
                     userAgent.sendUdp(mpAck, sendAddress.data(), sendPort);
-                }
-                else if(sendProtocol == OsSocket::TCP)
-                {
+                    break;
+                case OsSocket::TCP:
                     userAgent.sendTcp(mpAck, sendAddress.data(), sendPort);
+                    break;
+#               ifdef SIP_TLS
+                case OsSocket::SSL_SOCKET:
+                   userAgent.sendTls(mpAck, sendAddress.data(), sendPort);
+                   break;
+#               endif
+                default:
+                   OsSysLog::add(FAC_SIP, PRI_CRIT, "SipTransaction::handleIncoming"
+                                 " invalid ACK send protocol %d", sendProtocol);
                 }
-#ifdef SIP_TLS
-                else if(sendProtocol == OsSocket::SSL_SOCKET)
-                {
-                    userAgent.sendTls(mpAck, sendAddress.data(), sendPort);
-                }
-#endif
-
-#ifdef TEST_PRINT
-                osPrintf("SipTransaction::handleIncoming resent ACK\n");
-#endif
             }
         }
     }
@@ -3421,20 +3237,23 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
             int sendPort;
             mpAck->getSendAddress(&sendAddress, &sendPort);
 
-            if(sendProtocol == OsSocket::UDP)
+            switch (sendProtocol)
             {
-                userAgent.sendUdp(mpAck, sendAddress.data(), sendPort);
+            case OsSocket::UDP:
+               userAgent.sendUdp(mpAck, sendAddress.data(), sendPort);
+               break;
+            case OsSocket::TCP:
+               userAgent.sendTcp(mpAck, sendAddress.data(), sendPort);
+               break;
+#           ifdef SIP_TLS
+            case OsSocket::SSL_SOCKET:
+               userAgent.sendTls(mpAck, sendAddress.data(), sendPort);
+               break;
+#           endif
+            default:
+               OsSysLog::add(FAC_SIP, PRI_CRIT, "SipTransaction::handleIncoming"
+                             " invalid ACK send protocol %d", sendProtocol);
             }
-            else if(sendProtocol == OsSocket::TCP)
-            {
-                userAgent.sendTcp(mpAck, sendAddress.data(), sendPort);
-            }
-#ifdef SIP_TLS
-            else if(sendProtocol == OsSocket::SSL_SOCKET)
-            {
-                userAgent.sendTls(mpAck, sendAddress.data(), sendPort);
-            }
-#endif
             mpAck->incrementTimesSent();
             mpAck->touchTransportTime();
 
@@ -3445,7 +3264,6 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                           "sending existing ACK"
                           );
         }
-
         else
         {
             // If this is an error final response to an INVITE
@@ -3472,9 +3290,6 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                                    address,
                                    port);
                }
-#ifdef TEST_PRINT
-               osPrintf("SipTransaction::handleIncoming %p sending ACK for error response\n", this);
-#endif
                handleOutgoing(ack,
                               userAgent,
                               transactionList,
@@ -3513,11 +3328,13 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
         {
             if(mpLastProvisionalResponse)
             {
-               OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleIncoming new request with and existing provisional response");
+               OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleIncoming"
+                             " new request with and existing provisional response");
             }
             else if(mpLastFinalResponse)
             {
-                OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleIncoming new request with and existing final response");
+                OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleIncoming"
+                              " new request with and existing final response");
             }
             // INVITE transactions we can send trying to stop the resends
             else if(mRequestMethod.compareTo(SIP_INVITE_METHOD) == 0)
@@ -3525,9 +3342,7 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                 // Create and send a 100 Trying
                 SipMessage trying;
                 trying.setTryingResponseData(&incomingMessage);
-#ifdef TEST_PRINT
-                osPrintf("SipTransaction::handleIncoming sending trying response\n");
-#endif
+
                 handleOutgoing(trying,
                                userAgent,
                                transactionList,
@@ -3548,9 +3363,7 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
             SipMessage cancel;
 
             cancel.setCancelData(mpRequest);
-#ifdef TEST_PRINT
-            osPrintf("SipTransaction::handleIncoming sending cancel after receiving first provisional response\n");
-#endif
+
             handleOutgoing(cancel,
                            userAgent,
                            transactionList,
@@ -3605,9 +3418,7 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                 cancelResponse.setResponseData(&incomingMessage,
                                     SIP_OK_CODE,
                                     SIP_OK_TEXT);
-#ifdef TEST_PRINT
-                osPrintf("SipTransaction::handleIncoming sending CANCEL response\n");
-#endif
+
                 handleOutgoing(cancelResponse,
                                userAgent,
                                transactionList,
@@ -3620,9 +3431,7 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                 // Send a transaction not found error
                 SipMessage cancelError;
                 cancelError.setBadTransactionData(&incomingMessage);
-#ifdef TEST_PRINT
-                osPrintf("SipTransaction::handleIncoming transaction not found, sending CANCEL response\n");
-#endif
+
                 handleOutgoing(cancelError,
                                userAgent,
                                transactionList,
@@ -3670,11 +3479,6 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
         }
     } // End: Requests, provisional responses, Cancel response
 
-#   ifdef TEST_PRINT
-    osPrintf("SipTransaction::handleIncoming %p asking parent shouldDispatch=%d delayed=%p\n",
-             this, shouldDispatch, delayedDispatchedMessage );
-#   endif
-
 #   ifdef DISPATCH_DEBUG
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipTransaction::handleIncoming %p " 
@@ -3696,11 +3500,6 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                   "after handleChildIncoming shouldDispatch=%d delayed=%p\n",
                   this, shouldDispatch, delayedDispatchedMessage );
 #   endif
-#   ifdef TEST_PRINT
-    osPrintf("SipTransaction::handleIncoming %p "
-             "parent says shouldDispatch=%d delayed=%p\n",
-             this, shouldDispatch, delayedDispatchedMessage );
-#   endif
     touch();
 
     return(shouldDispatch);
@@ -3710,28 +3509,9 @@ void SipTransaction::removeTimer(OsTimer* timer)
 {
     OsTimer* pt = dynamic_cast<OsTimer*>(mTimers.find(timer));
 
-    if(pt == NULL)
+    if(pt)
     {
-#ifdef TEST_PRINT
-        osPrintf("SipTransaction::removeTimer could not find timer %p in timer list.\n", timer);
-#endif
-    }
-    else
-    {
-       OsTimer* removedTimer = dynamic_cast<OsTimer*>(mTimers.remove(pt));
-
-#ifdef TEST_PRINT
-       if(removedTimer == NULL)
-       {
-           osPrintf("SipTransaction::removeTimer failed to remove timer %p from timer list.\n", timer);
-       }
-       else
-       {
-           osPrintf("SipTransaction::removeTimer removed timer %p from timer list.\n", timer);
-       }
-#else
-       removedTimer = removedTimer; // supress unused variable warning
-#endif
+       mTimers.remove(pt);
     }
 }
 
@@ -3742,9 +3522,6 @@ void SipTransaction::deleteTimers()
 
     while ((timer = (OsTimer*)iterator()))
     {
-#ifdef TEST_PRINT
-        osPrintf("SipTransaction::deleteTimers deleting timer %p\n", timer);
-#endif
         removeTimer(timer);
         
         // Only delete the timer if not stopped -- the timer will be cleaned 
@@ -3789,7 +3566,8 @@ void SipTransaction::cancel(SipUserAgent& userAgent,
         {
             if(mpCancel)
             {
-                OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::cancel cancel request already exists");
+                OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::cancel"
+                              " cancel request already exists");
             }
             // Do not send CANCELs for non-INVITE transactions
             // (all the other state stuff should be done)
@@ -3802,9 +3580,7 @@ void SipTransaction::cancel(SipUserAgent& userAgent,
                 // final response it is too late
                 SipMessage cancel;
                 cancel.setCancelData(mpRequest);
-#ifdef TEST_PRINT
-                osPrintf("SipTransaction::cancel sending CANCEL\n");
-#endif
+
                 handleOutgoing(cancel,
                                userAgent,
                                transactionList,
@@ -3826,13 +3602,10 @@ void SipTransaction::cancel(SipUserAgent& userAgent,
         }
 
     }
-
-#ifdef TEST_PRINT
     else
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::cancel already canceled");
     }
-#endif
 }
 
 void SipTransaction::cancelChildren(SipUserAgent& userAgent,
@@ -3870,26 +3643,32 @@ void SipTransaction::linkChild(SipTransaction& newChild)
         UtlBoolean childInserted = FALSE;
         int sortIndex = 0;
 
-        while ((childTransaction = (SipTransaction*) iterator()))
+        while (!childInserted && (childTransaction = (SipTransaction*) iterator()))
         {
             if(childTransaction->mQvalue < newChild.mQvalue)
             {
                 mChildTransactions.insertAt(sortIndex, &newChild);
                 childInserted = TRUE;
-                break;
             }
-            sortIndex++;
+            else
+            {
+               sortIndex++;
+            }
         }
 
         // It goes last
-        if(!childInserted) mChildTransactions.append(&newChild);
+        if(!childInserted)
+        {
+           mChildTransactions.append(&newChild);
+        }
     }
 
     if(mIsServerTransaction &&
         mIsUaTransaction)
     {
         mIsUaTransaction = FALSE;
-        OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::linkChild converting server UA transaction to server proxy transaction");
+        OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::linkChild"
+                      " converting server UA transaction to server proxy transaction");
     }
 }
 
@@ -3940,8 +3719,8 @@ void SipTransaction::toString(UtlString& dumpString,
     dumpString.append(this->data());
     dumpString.append("\n\tmCallId: ");
     dumpString.append(mCallId);
-    dumpString.append("\n\tmBranchId: ");
-    dumpString.append(mBranchId);
+    dumpString.append("\n\tmpBranchId->data(): ");
+    dumpString.append(mpBranchId->data());
     dumpString.append("\n\tmRequestUri: ");
     dumpString.append(mRequestUri);
     dumpString.append("\n\tmSendToAddress: ");
@@ -4132,10 +3911,8 @@ void SipTransaction::toString(UtlString& dumpString,
     sprintf(numBuffer, "%ld", mTimeStamp);
     dumpString.append(numBuffer);
 
-    UtlString state;
-    getStateString(mTransactionState, state);
     dumpString.append("\n\tmTransactionState: ");
-    dumpString.append(state);
+    dumpString.append(stateString(mTransactionState));
 
     dumpString.append("\n\tmIsCanceled: ");
     dumpString.append(mIsCanceled ? "TRUE" : " FALSE");
@@ -4197,8 +3974,9 @@ void SipTransaction::notifyWhenAvailable(OsEvent* availableEvent)
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::notifyWhenAvailable parent: %p avialableEvent: %p",
-            parent, availableEvent);
+        OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::notifyWhenAvailable"
+                      " parent: %p avialableEvent: %p",
+                      parent, availableEvent);
     }
 }
 
@@ -4215,10 +3993,11 @@ void SipTransaction::signalNextAvailable()
         if(eventNode)
         {
             OsEvent* waitingEvent = (OsEvent*) eventNode->getValue();
-//#ifdef TEST_PRINT
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::signalNextAvailable %p signaling: %p",
-                    parent, waitingEvent);
-//#endif
+
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::signalNextAvailable"
+                          " %p signaling: %p",
+                          parent, waitingEvent);
+
             if(waitingEvent)
             {
                 // If the event is already signaled, the other side
@@ -4251,10 +4030,7 @@ void SipTransaction::signalAllAvailable()
             if(eventNode)
             {
                 OsEvent* waitingEvent = (OsEvent*) eventNode->getValue();
-#ifdef TEST_PRINT
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::signalAllAvailable %p signaling: %p",
-                    parent, waitingEvent);
-#endif
+
                 if(waitingEvent)
                 {
                     // If the event is already signaled, the other side
@@ -4276,107 +4052,45 @@ void SipTransaction::signalAllAvailable()
 
 /* ============================ ACCESSORS ================================= */
 
-void SipTransaction::getStateString(enum transactionStates state,
-                                           UtlString& stateString)
+const char* SipTransaction::stateString(enum transactionStates state)
 {
-    switch(state)
-    {
-    case TRANSACTION_UNKNOWN:
-        stateString = "TRANSACTION_UNKNOWN";
-        break;
-
-    case TRANSACTION_LOCALLY_INIITATED:
-        stateString = "TRANSACTION_LOCALLY_INITIATED";
-        break;
-
-    case TRANSACTION_CALLING:
-        stateString = "TRANSACTION_CALLING";
-        break;
-
-    case TRANSACTION_PROCEEDING:
-        stateString = "TRANSACTION_PROCEEDING";
-        break;
-
-    case TRANSACTION_COMPLETE:
-        stateString = "TRANSACTION_COMPLETE";
-        break;
-
-    case TRANSACTION_CONFIRMED:
-        stateString = "TRANSACTION_CONFIRMED";
-        break;
-
-    case TRANSACTION_TERMINATED:
-        stateString = "TRANSACTION_TERMINATED";
-        break;
-
-    default:
-        char numBuffer[128];
-        sprintf(numBuffer, "UKNOWN Transaction state: %d", state);
-        stateString = numBuffer;
-        break;
-    }
+   const char* stateStrings[NUM_TRANSACTION_STATES+1] =
+      {      
+         "UNKNOWN",
+         "LOCALLY_INITIATED",
+         "CALLING",
+         "PROCEEDING",
+         "COMPLETE",
+         "CONFIRMED",
+         "TERMINATED",
+         "UNDEFINED"
+      };
+   return (state >= TRANSACTION_UNKNOWN && state < NUM_TRANSACTION_STATES)
+      ? stateStrings[state]
+      : stateStrings[NUM_TRANSACTION_STATES] /* UNDEFINED */;
 }
 
-void SipTransaction::getRelationshipString(enum messageRelationship relationship,
-                                           UtlString& relationshipString)
+const char* SipTransaction::relationshipString(enum messageRelationship relationship)
 {
-    switch(relationship)
-    {
-    case MESSAGE_UNKNOWN:
-        relationshipString = "MESSAGE_UNKNOWN";
-        break;
-
-        case MESSAGE_UNRELATED:
-        relationshipString = "MESSAGE_UNRELATED";
-        break;
-
-        case MESSAGE_SAME_SESSION:
-        relationshipString = "MESSAGE_SAME_SESSION";
-        break;
-
-        case MESSAGE_DIFFERENT_BRANCH:
-        relationshipString = "MESSAGE_DIFFERENT_BRANCH";
-        break;
-
-        case MESSAGE_REQUEST:
-        relationshipString = "MESSAGE_REQUEST";
-        break;
-
-        case MESSAGE_PROVISIONAL:
-        relationshipString = "MESSAGE_PROVISIONAL";
-        break;
-
-        case MESSAGE_FINAL:
-        relationshipString = "MESSAGE_FINAL";
-        break;
-
-        case MESSAGE_NEW_FINAL:
-        relationshipString = "MESSAGE_NEW_FINAL";
-        break;
-
-        case MESSAGE_CANCEL:
-        relationshipString = "MESSAGE_CANCEL";
-        break;
-
-        case MESSAGE_ACK:
-        relationshipString = "MESSAGE_ACK";
-        break;
-
-        case MESSAGE_2XX_ACK:
-        relationshipString = "MESSAGE_2XX_ACK";
-        break;
-
-        case MESSAGE_DUPLICATE:
-        relationshipString = "MESSAGE_DUPLICATE";
-        break;
-
-        default:
-        char buffer[128];
-        sprintf(buffer, "UKNOWN transaction relationship: %d",
-            relationship);
-        relationshipString = buffer;
-        break;
-    }
+   const char* relationshipStrings[NUM_RELATIONSHIPS+1] =
+      {
+         "UNKNOWN",
+         "UNRELATED",
+         "SAME_SESSION",
+         "DIFFERENT_BRANCH",
+         "REQUEST",
+         "PROVISIONAL",
+         "FINAL",
+         "NEW_FINAL",
+         "CANCEL",
+         "ACK",
+         "2XX_ACK",
+         "DUPLICATE",
+         "UNDEFINED"
+      };
+   return (relationship >= MESSAGE_UNKNOWN && relationship < NUM_RELATIONSHIPS)
+      ? relationshipStrings[relationship]
+      : relationshipStrings[NUM_RELATIONSHIPS] /* UNDEFINED */;
 }
 
 void SipTransaction::buildHash(const SipMessage& message,
@@ -4469,12 +4183,6 @@ void SipTransaction::touchBelow(int newDate)
 {
     mTimeStamp = newDate;
 
-#ifdef TEST_PRINT
-    UtlString serialized;
-    toString(serialized, FALSE);
-    osPrintf("%s\n", serialized.data());
-#endif // TEST_PRINT
-
     SipTransaction* child = NULL;
     UtlSListIterator iterator(mChildTransactions);
     while((child = (SipTransaction*) iterator()))
@@ -4501,9 +4209,10 @@ SipMessage* SipTransaction::getLastFinalResponse()
 
 void SipTransaction::markBusy()
 {
-#ifdef TEST_PRINT
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::markBusy %p", this);
-#endif
+#   ifdef LOG_TRANSLOCK
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::markBusy %p", this);
+#   endif
+    
     if(mpParentTransaction) mpParentTransaction->markBusy();
     else
     {
@@ -4522,10 +4231,10 @@ void SipTransaction::markBusy()
 
 void SipTransaction::doMarkBusy(int markData)
 {
-#ifdef TEST_PRINT
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::doMarkBusy(%d) %p", markData, this);
-#endif
-
+#   ifdef LOG_TRANSLOCK
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::doMarkBusy(%d) %p", markData, this);
+#   endif
+    
     mIsBusy = markData;
 
     // Recurse through the children and mark them busy
@@ -4539,9 +4248,9 @@ void SipTransaction::doMarkBusy(int markData)
 
 void SipTransaction::markAvailable()
 {
-#ifdef TEST_PRINT
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::markAvailable %p", this);
-#endif
+#   ifdef LOG_TRANSLOCK
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::markAvailable %p", this);
+#   endif
 
     // Recurse to the parent
     if(mpParentTransaction) mpParentTransaction->markAvailable();
@@ -4626,23 +4335,17 @@ UtlBoolean SipTransaction::isEarlyDialogWithMedia()
         // This should not occur, the state should be ?TERMINATED?
         if(mIsCanceled)
         {
-            UtlString stateString;
-            SipTransaction::getStateString(mTransactionState, stateString);
-
-            OsSysLog::add(FAC_SIP, PRI_ERR,
-                "SipTransaction::isEarlyDialogWithMedia transaction state: %s incorrect for canceled transaction",
-                stateString.data());
+            OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::isEarlyDialogWithMedia"
+                          " transaction state: %s incorrect for canceled transaction",
+                          stateString(mTransactionState));
         }
 
         // This should not occur, the state should be COMPETED or CONFIRMED
         if(mIsRecursing)
         {
-            UtlString stateString;
-            SipTransaction::getStateString(mTransactionState, stateString);
-
-            OsSysLog::add(FAC_SIP, PRI_ERR,
-                "SipTransaction::isEarlyDialogWithMedia transaction state: %s incorrect for recursing transaction",
-                stateString.data());
+           OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::isEarlyDialogWithMedia"
+                         " transaction state: %s incorrect for recursing transaction",
+                          stateString(mTransactionState));
         }
     }
 
@@ -4681,12 +4384,36 @@ enum SipTransaction::messageRelationship
 SipTransaction::whatRelation(const SipMessage& message,
                              UtlBoolean isOutgoing) const
 {
-    enum messageRelationship relationship = MESSAGE_UNKNOWN;
+    enum messageRelationship relationship;
+#   ifdef LOG_FORKING
+    int matchClause;
+#   define SET_RELATIONSHIP(r) \
+    {                          \
+       relationship = r;       \
+       matchClause = __LINE__; \
+    }
+#   else
+#   define SET_RELATIONSHIP(r) \
+    {                          \
+       relationship = r;       \
+    }
+#   endif
+    SET_RELATIONSHIP(MESSAGE_UNKNOWN);
+    
     UtlString msgCallId;
     message.getCallIdField(&msgCallId);
 
     // Note: this is nested to bail out as soon as possible
     // for efficiency reasons
+
+#   ifdef LOG_FORKING
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipTransaction::whatRelation %s\n"
+                  "\tmsg call: '%s'\n"
+                  "\tcmp call: '%s'",
+                  isOutgoing ? "out" : "in",
+                  msgCallId.data(), mCallId.data());
+#   endif
 
     // CallId matches
     if(mCallId.compareTo(msgCallId) == 0)
@@ -4701,18 +4428,20 @@ SipTransaction::whatRelation(const SipMessage& message,
         UtlString viaField;
         UtlString msgBranch;
         UtlBoolean msgHasVia = message.getViaFieldSubField(&viaField, 0);
-        SipMessage::getViaTag(viaField.data(), "branch",
-           msgBranch);
+        SipMessage::getViaTag(viaField.data(), "branch", msgBranch);
 
-        //osPrintf("SipTransaction::whatRelation\n\tvia: %s \tbranch: %s\n",
-        //    viaField.data(), msgBranch.data());
-
-        UtlBoolean branchPrefixSet =
-            (mBranchId.index(BRANCH_ID_PREFIX) != UTL_NOT_FOUND);
+#       ifdef LOG_FORKING
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipTransaction::whatRelation call id matched\n"
+                      "\tvia: '%s'\n\tbranch: '%s'",
+                      viaField.data(), msgBranch.data());
+#       endif
+        
+        bool branchPrefixSet = BranchId::isRFC3261(msgBranch);
 
         UtlBoolean toTagMatches = FALSE;
         UtlBoolean fromTagMatches;
-        UtlBoolean branchIdMatches = mBranchId.compareTo(msgBranch) == 0;
+        UtlBoolean branchIdMatches = mpBranchId->equals(msgBranch);
         UtlBoolean mustCheckTags;
 
         // If the branch prefix is set, we can assume that
@@ -4720,7 +4449,7 @@ SipTransaction::whatRelation(const SipMessage& message,
         // determine if this is the same transaction or not.
         // ACK to INVITEs with 200 response are really a different
         // transaction.  For convenience we consider them to be
-        // the same.  CANCLE is also a different transaction
+        // the same.  CANCEL is also a different transaction
         // that we store in the same SipTransaction object.
         if(!branchPrefixSet ||
            (!isResponse &&
@@ -4752,7 +4481,16 @@ SipTransaction::whatRelation(const SipMessage& message,
             fromTagMatches = branchIdMatches;
         }
 
-
+#       ifdef LOG_FORKING
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipTransaction::whatRelation  %s %s %s %s",
+                      branchIdMatches ? "BranchMatch" : "NoBranchMatch",
+                      mustCheckTags ? "CheckTags" : "NoCheckTags",
+                      fromTagMatches ? "FromTagMatch" : "NoFromTagMatch",
+                      toTagMatches ? "ToTagMatch" : "NoToTagMatch"
+                      );
+#       endif
+        
         // From field tag matches
         if(fromTagMatches)
         {
@@ -4808,8 +4546,8 @@ SipTransaction::whatRelation(const SipMessage& message,
                             SipTransaction* parent = getTopMostParent();
                             // Should this matter whether it is a server or client TX?
                             if(parent &&
-                                parent->mIsServerTransaction &&
-                                msgBranch.compareTo(parent->mBranchId) == 0)
+                               parent->mIsServerTransaction &&
+                               parent->mpBranchId->equals(msgBranch))
                             {
                                 // We know that the request originated from
                                 // this client transaction's parent server
@@ -4863,7 +4601,7 @@ SipTransaction::whatRelation(const SipMessage& message,
                                 // Provisional responses
                                 if(msgResponseCode < SIP_2XX_CLASS_CODE)
                                 {
-                                    relationship = MESSAGE_PROVISIONAL;
+                                    SET_RELATIONSHIP(MESSAGE_PROVISIONAL);
                                 }
 
                                 // Final responses
@@ -4871,12 +4609,14 @@ SipTransaction::whatRelation(const SipMessage& message,
                                 {
                                     if(msgMethod.compareTo(SIP_ACK_METHOD) == 0)
                                     {
-                                        OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::messageRelationship ACK response");
+                                        OsSysLog::add(FAC_SIP, PRI_ERR,
+                                                      "SipTransaction::messageRelationship"
+                                                      " ACK response");
                                     }
 
                                     else if(msgMethod.compareTo(SIP_CANCEL_METHOD) == 0)
                                     {
-                                        relationship = MESSAGE_CANCEL_RESPONSE;
+                                        SET_RELATIONSHIP(MESSAGE_CANCEL_RESPONSE);
                                     }
 
                                     else if(mpLastFinalResponse)
@@ -4905,36 +4645,27 @@ SipTransaction::whatRelation(const SipMessage& message,
 
                                                 if (toTagMatches)
                                                 {
-#ifdef TEST_PRINT
-                                                    osPrintf("DUPLICATED msg finalResponseCode - %d toTagMatches %d \n", finalResponseCode, toTagMatches);
-#endif
-                                                    relationship = MESSAGE_DUPLICATE;
+                                                    SET_RELATIONSHIP(MESSAGE_DUPLICATE);
                                                 }
                                                 else
                                                 {
-#ifdef TEST_PRINT
-                                                    osPrintf("MESSAGE_NEW_FINAL - finalResponseCode - %d toTagMatches %d \n", finalResponseCode, toTagMatches);
-#endif
-                                                    relationship = MESSAGE_NEW_FINAL;
+                                                    SET_RELATIONSHIP(MESSAGE_NEW_FINAL);
                                                 }
 
                                             }
                                             else
                                             {
-#ifdef TEST_PRINT
-                                               osPrintf("DUPLICATED msg finalResponseCode - %d \n", finalResponseCode);
-#endif
-                                               relationship = MESSAGE_DUPLICATE;
+                                               SET_RELATIONSHIP(MESSAGE_DUPLICATE);
                                             }
                                         }
                                         else
                                         {
-                                            relationship = MESSAGE_NEW_FINAL;
+                                            SET_RELATIONSHIP(MESSAGE_NEW_FINAL);
                                         }
                                     }
                                     else
                                     {
-                                        relationship = MESSAGE_FINAL;
+                                        SET_RELATIONSHIP(MESSAGE_FINAL);
                                     }
                                 }
                             }
@@ -4949,10 +4680,7 @@ SipTransaction::whatRelation(const SipMessage& message,
 
                                     if(previousRequestMethod.compareTo(msgMethod) == 0)
                                     {
-#ifdef TEST_PRINT
-                                        osPrintf("DUPLICATED msg previousRequestMethod - %s \n", previousRequestMethod.data());
-#endif
-                                        relationship = MESSAGE_DUPLICATE;
+                                        SET_RELATIONSHIP(MESSAGE_DUPLICATE);
                                     }
                                     else if(msgMethod.compareTo(SIP_ACK_METHOD) == 0)
                                     {
@@ -4962,82 +4690,98 @@ SipTransaction::whatRelation(const SipMessage& message,
                                                 mpLastFinalResponse->getResponseStatusCode();
                                             if(finalResponseCode >= SIP_3XX_CLASS_CODE)
                                             {
-                                                relationship = MESSAGE_ACK;
+                                                SET_RELATIONSHIP(MESSAGE_ACK);
                                             }
                                             else
                                             {
                                                 if(!mIsUaTransaction)
                                                 {
-                                                    OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::messageRelationship ACK matches transaction with 2XX class response");
+                                                   OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                                                 "SipTransaction::messageRelationship"
+                                                                 " ACK matches transaction"
+                                                                 " with 2XX class response");
                                                 }
-                                                relationship = MESSAGE_2XX_ACK;
+                                                SET_RELATIONSHIP(MESSAGE_2XX_ACK);
                                             }
                                         }
                                         else
                                         {
-                                            OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::messageRelationship ACK matches transaction with NO final response");
-                                            relationship = MESSAGE_ACK;
+                                            OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                                          "SipTransaction::messageRelationship"
+                                                          " ACK matches transaction "
+                                                          "with NO final response");
+                                            SET_RELATIONSHIP(MESSAGE_ACK);
                                         }
                                     }
                                     else if(msgMethod.compareTo(SIP_CANCEL_METHOD) == 0)
                                     {
-                                        relationship = MESSAGE_CANCEL;
+                                        SET_RELATIONSHIP(MESSAGE_CANCEL);
                                     }
                                     else
                                     {
-                                        relationship = MESSAGE_DUPLICATE;
-                                        OsSysLog::add(FAC_SIP, PRI_WARNING, "WARNING SipTransaction::messageRelationship found %s request for transaction with %s",
-                                            msgMethod.data(), previousRequestMethod.data());
-
+                                        SET_RELATIONSHIP(MESSAGE_DUPLICATE);
+                                        OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                                      "SipTransaction::messageRelationship"
+                                                      " found %s request for transaction with %s",
+                                                      msgMethod.data(),
+                                                      previousRequestMethod.data());
                                     }
                                 }
                                 else
                                 {
                                     if(msgMethod.compareTo(SIP_CANCEL_METHOD) == 0)
                                     {
-                                        relationship = MESSAGE_CANCEL;
+                                        SET_RELATIONSHIP(MESSAGE_CANCEL);
                                     }
                                     else if(msgMethod.compareTo(SIP_ACK_METHOD) == 0)
                                     {
-                                        relationship = MESSAGE_ACK;
+                                        SET_RELATIONSHIP(MESSAGE_ACK);
                                     }
                                     else
                                     {
-                                        relationship = MESSAGE_REQUEST;
+                                        SET_RELATIONSHIP(MESSAGE_REQUEST);
                                     }
                                 }
                             }
                         }
                         else
                         {
-                            relationship = MESSAGE_DIFFERENT_BRANCH;
+                            SET_RELATIONSHIP(MESSAGE_DIFFERENT_BRANCH);
                         }
                     }
                     else
                     {
-                        relationship = MESSAGE_DIFFERENT_BRANCH;
+                        SET_RELATIONSHIP(MESSAGE_DIFFERENT_BRANCH);
                     }
                 }
                 else
                 {
-                    relationship = MESSAGE_SAME_SESSION;
+                    SET_RELATIONSHIP(MESSAGE_SAME_SESSION);
                 }
             }
             else
             {
-                relationship = MESSAGE_UNRELATED;
+                SET_RELATIONSHIP(MESSAGE_UNRELATED);
             }
         }
         else
         {
-            relationship = MESSAGE_UNRELATED;
+            SET_RELATIONSHIP(MESSAGE_UNRELATED);
         }
 
     }
     else
     {
-        relationship = MESSAGE_UNRELATED;
+        SET_RELATIONSHIP(MESSAGE_UNRELATED);
     }
+
+#   ifdef LOG_FORKING
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipTransaction::whatRelation returning %s set on %d"
+                  ,relationshipString(relationship)
+                  ,matchClause
+                  );
+#   endif
 
     return(relationship);
 }
@@ -5047,6 +4791,7 @@ UtlBoolean SipTransaction::isBusy()
     return(mIsBusy);
 }
 
+#if 0 // TODO redundant?
 UtlBoolean SipTransaction::isUriChild(Url& uri)
 {
     UtlSListIterator iterator(mChildTransactions);
@@ -5066,6 +4811,7 @@ UtlBoolean SipTransaction::isUriChild(Url& uri)
 
     return(childHasSameUri);
 }
+#endif
 
 UtlBoolean SipTransaction::isUriRecursed(Url& uri)
 {
@@ -5079,26 +4825,18 @@ UtlBoolean SipTransaction::isUriRecursed(Url& uri)
 
 UtlBoolean SipTransaction::isUriRecursedChildren(UtlString& uriString)
 {
-    UtlSListIterator iterator(mChildTransactions);
-    SipTransaction* childTransaction = NULL;
     UtlBoolean childHasSameUri = FALSE;
 
-    while ((childTransaction = (SipTransaction*) iterator()))
-    {
-        if(childTransaction->mTransactionState > TRANSACTION_LOCALLY_INIITATED &&
-            uriString.compareTo(childTransaction->mRequestUri) == 0)
-        {
-            childHasSameUri = TRUE;
-            break;
-        }
+    UtlSListIterator iterator(mChildTransactions);
+    SipTransaction* childTransaction;
 
-        // Check recursively
-        if(childTransaction->mTransactionState > TRANSACTION_LOCALLY_INIITATED &&
-            isUriRecursedChildren(uriString))
-        {
-            childHasSameUri = TRUE;
-            break;
-        }
+    while (!childHasSameUri && (childTransaction = (SipTransaction*) iterator()))
+    {
+       childHasSameUri = (   childTransaction->mTransactionState > TRANSACTION_LOCALLY_INIITATED 
+                          && (   0 == uriString.compareTo(childTransaction->mRequestUri)
+                              || isUriRecursedChildren(uriString)
+                              )
+                          );
     }
 
     return(childHasSameUri);

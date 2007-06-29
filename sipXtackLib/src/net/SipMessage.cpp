@@ -2005,14 +2005,9 @@ void SipMessage::addViaField(const char* viaField, UtlBoolean afterOtherVias)
     // Look for other via fields
     unsigned int fieldIndex = mNameValues.index(nv);
 
-    //osPrintf("SipMessage::addViaField via: %s after: %s fieldIndex: %d headername: %s\n",
-    //    viaField, afterOtherVias ? "true" : "false", fieldIndex,
-    //    SIP_VIA_FIELD);
-
-
     if(fieldIndex == UTL_NOT_FOUND)
     {
-#ifdef TEST_PRINT
+#       ifdef TEST_PRINT
         UtlDListIterator iterator(mNameValues);
 
         //remove whole line
@@ -2021,7 +2016,7 @@ void SipMessage::addViaField(const char* viaField, UtlBoolean afterOtherVias)
         {
             osPrintf("\tName: %s\n", nv->data());
         }
-#endif
+#       endif
     }
 
     mHeaderCacheClean = FALSE;
@@ -3255,11 +3250,6 @@ UtlBoolean SipMessage::getContactEntry(int addressIndex, UtlString* uriAndParame
       uriAndParameters->remove(0);
       if(value)
       {
-            #ifdef TEST_PRINT
-                    osPrintf("SipMessage::getContactEntry addressIndex: %d\n", addressIndex);
-            #endif
-           //NameValueTokenizer::getSubField(value, addressIndex, ",",
-         //    uriAndParameters);
            int addressStart = 0;
            int addressCount = 0;
            int charIndex = 0;
@@ -3270,10 +3260,6 @@ UtlBoolean SipMessage::getContactEntry(int addressIndex, UtlString* uriAndParame
                if(value[charIndex] == '"')
                {
                    doubleQuoteCount++;
-                  #ifdef TEST_PRINT
-                                  osPrintf("SipMessage::getContactEntry doubleQuoteCount parity:%d",
-                                      doubleQuoteCount % 2);
-                  #endif
                }
 
                // We found a comma that is not in the middle of a quoted string
@@ -3285,10 +3271,6 @@ UtlBoolean SipMessage::getContactEntry(int addressIndex, UtlString* uriAndParame
                    {
 
                        uriAndParameters->append(&value[addressStart], charIndex - addressStart);
-                        #ifdef TEST_PRINT
-                                            osPrintf("SipMessage::getContactEntry found contact[%d] starting: %d ending: %d \"%s\"\n",
-                                                addressIndex, addressStart, charIndex, uriAndParameters->data());
-                        #endif
                        currentEntryValue ++;
                        contactFound = TRUE;
                        break;
@@ -5138,4 +5120,31 @@ SdpBody* SipMessage::convertToSdpBody(const HttpBody* pHttpBody)
     }
     return pSdpBody;
 
+}
+
+void SipMessage::setDiagnosticSipFragResponse(const SipMessage& message,
+                                              int               responseCode,
+                                              const char*       responseText,
+                                              int               warningCode,
+                                              const char*       warningText,
+                                              const UtlString&  address
+                                              )
+{
+   setResponseData(&message, responseCode, responseText);
+
+   setWarningField(warningCode, address.data(), warningText);
+
+   UtlString sipFragString;
+   int sipFragLen;
+   message.getBytes(&sipFragString, &sipFragLen, false /* don't inlcude the body */);
+
+   // Create a body to contain the Vias from the request
+   HttpBody* sipFragBody =
+      new HttpBody(sipFragString.data(), sipFragLen, CONTENT_TYPE_MESSAGE_SIPFRAG);
+
+   // Attach the body to the response
+   setBody(sipFragBody);
+
+   // Set the content type of the body to be sipfrag
+   setContentType(CONTENT_TYPE_MESSAGE_SIPFRAG);
 }

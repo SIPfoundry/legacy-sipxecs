@@ -78,15 +78,16 @@ SipDialog::SipDialog(const SipMessage* initialMessage,
            }
        }
 
+       // :TODO: this should use a new interface to get a parsed value
        UtlString contact;
        initialMessage->getContactUri(0, &contact);
        if(isFromLocal)
        {
-           mLocalContact = contact;
+           mLocalContact.fromString(contact);
        }
        else
        {
-           mRemoteContact = contact;
+           mRemoteContact.fromString(contact);
        }
    }
    else

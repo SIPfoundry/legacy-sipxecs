@@ -33,7 +33,7 @@ class NameValuePair ;
 
 /// URL parser and constructor
 /**
- * This object is used to parse and construct URL strings.  This object
+ * This object is used to parse and construct URL strings.  It
  * contains all of the parsed components of a URL.  It has the ability
  * to construct a serialized string of the object using the toString()
  * method.  It can also be used as a parser using the constructor 
@@ -112,13 +112,53 @@ public:
     * The general rules for URIs are in RFC 3986
     */
 
-/* ============================ CREATORS ================================== */
-
+   /// Selector for the syntax form to be used to parse a URI.
+   typedef enum
+   {
+      AddrSpec, ///< the form of a URI used in the request line
+      NameAddr  ///< the form of a URI used in most header fields
+   } UriForm;
+   /**<
+    * Unfortunately, a SIP URI cannot be parsed in a completely
+    * context-free way because the semicolon is used both to delimit
+    * url parameters and to delimit header field parameters.  The
+    * ambiguity is resolved by the following rules per RFC 3261 section 20:
+    *
+    * - When the UriForm is NameAddr, if there are no angle brackets
+    *   used as in 'sip:user@domain;foo=bar', then foo is a field parameter.
+    *
+    * - When the UriForm is AddrSpec, no angle brackets are allowed, so
+    *   there can be no field parameters.  In 'sip:user@domain;foo=bar',
+    *   foo is a url parameter.
+    *
+    * Normally, AddrSpec is used only when parsing a Url value taken from
+    * the target URI in the request line.  For any header field value, NameAddr
+    * should be used.
+    */
+   
    /// Default constructor from string
+   Url(const UtlString& urlString,  ///< string to parse URL from
+       UriForm     uriForm,         ///< context to be used to parse the uri
+       UtlString*  nextUri   = NULL ///< anything after a trailing comma
+       );
+   /**<
+    * The urlString value is parsed and the components saved.
+    *
+    * Since a constructor cannot return an error, and we don't like to raise exceptions,
+    * the validity of the urlString input must be tested by checking the scheme of
+    * the resulting Url object.  When the input was not successfully parsed, the
+    * getScheme() method returns UnknownUrlScheme (even if the scheme specified by the
+    * input was ok and the parse error was in some later part of the string).
+    *
+    * For a description of how the nextUri argument is used, see fromString.
+    */
+
+   /// Backward compatibilty constructor for (confusing) UtlBoolean isAddrSpec parameter.
    Url(const char* urlString = NULL, ///< string to parse URL from
        UtlBoolean isAddrSpec = FALSE /**< - TRUE if this is an addrspec (a Request URI)
                                       *   - FALSE if this is a URL from a header field */
        );
+   ///< @DEPRECATED because the use of UtlBoolean is confusing - use the three argument form.
 
     //! Copy constructor
     Url(const Url& rUrl);
@@ -133,17 +173,66 @@ public:
     Url& operator=(const Url& rhs);
 
     //! Assignment from string
-    /*! Parse the given null terminated string and set the
-     *  URL parts as found in the string.
-     *  Assumes urlString is in name-addr format.
-     */
     Url& operator=(const char* urlString);
+    /**<
+     *  @DEPRECATED due to poor error handling - use the fromString method instead
+     *  Parse the given null terminated string and set the
+     *  URL parts as found in the string.
+     *  Assumes urlString is in NameAddr format.
+     */
+
+    /// Set the value of this url by parsing the given string.
+    bool fromString(const UtlString& urlString,  ///< string to parse URL from
+                    UriForm     uriForm,         ///< context to be used to parse the uri
+                    UtlString*  nextUri   = NULL ///< anything after a trailing comma
+                    );
+    /**<
+     * This is used just like the constructor, but resets the values for an existing Url.
+     * For convenience, it also @returns true iff the urlString parsed as valid.
+     *
+     *     *
+     * Many header field are defined to allow multiple comma-separated Url values.
+     * If the values have display name components that contain commas (legal), it
+     * is safest to do a complete parse of the Urls.  The nextUri parameter provides
+     * a straightforward way to accomplish this by returning any part of the input string
+     * that follows a trailing comma after the first url in the string has been parsed:
+     *
+     * @code
+     * UtlString nextUrl;
+     * for 
+     * @endcode
+     *
+     * Many header field are defined to allow multiple comma-separated Url values.
+     * If the values have display name components that contain commas (legal), it
+     * is safest to do a complete parse of the Urls.  The nextUri parameter provides
+     * a straightforward way to accomplish this by returning any part of the input string
+     * that follows a trailing comma after the first url in the string has been parsed.
+     * In the following example, assume that 'someMethod' fills its argument UtlString
+     * with some header field value that may have multiple URL values (such as
+     * Contact, Route, and Record-Route):
+     *
+     * @code
+     * Url url;
+     * UtlString inputUrl;
+     * UtlString nextUrl;
+     * for ( someMethod(inputUrl);
+     *       url.fromString(inputUrl, NameAddr, &nextUrl);
+     *       inputUrl = nextUrl
+     *      )
+     * {
+     *     ...operate on url...
+     * }
+     * @endcode
+     */
 
     /// set the value of this url by parsing the given string.
-    void fromString(const UtlString& urlString,
+    bool fromString(const UtlString& urlString,
                     UtlBoolean isAddrSpec = FALSE
-                    );
-    ///< all arguments are the same as for the constructor.
+                    )
+    {
+       return fromString(urlString, isAddrSpec ? AddrSpec : NameAddr, NULL );
+    }
+    ///< @DEPRECATED - use the form taking a UriForm for the second argument.
 
     //! Serialize this URL to a string in name-addr format, suitable for use
     //  as a field in a header.
@@ -512,10 +601,9 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    /// parse a URL in string form into its component parts
-   void parseString(const char* urlString, ///< the raw URL string
-                    UtlBoolean isAddrSpec = FALSE  /**< TRUE if this came from a Request URI or
-                                                    *   other place where only the addr-spec production
-                                                    *   is valid. */
+   bool parseString(const char* urlString, ///< string to parse URL from
+                    UriForm     uriForm,   ///< context to be used to parse the uri
+                    UtlString*  nextUri    ///< anything after trailing comma
                     );
 
    Scheme    mScheme;

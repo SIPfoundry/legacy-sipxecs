@@ -44,7 +44,7 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testLongHostname);
     CPPUNIT_TEST(testSipParameters);
     CPPUNIT_TEST(testFieldParameterWhitespace);
-    CPPUNIT_TEST(testFullSip);
+   CPPUNIT_TEST(testFullSip);
     CPPUNIT_TEST(testQuotedName);
     CPPUNIT_TEST(testFancyNames);
     CPPUNIT_TEST(testEncoded);
@@ -58,6 +58,7 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testHostAndPort);
     CPPUNIT_TEST(testIPv6Host);
     CPPUNIT_TEST(testBogusPort);
+    CPPUNIT_TEST(testMultiple);
     CPPUNIT_TEST(testNoBracketUrlWithAllParamsWithVaryingSpace);
     CPPUNIT_TEST(testConstruction);
     CPPUNIT_TEST(testHttpConstruction);
@@ -632,6 +633,47 @@ public:
 	// could not parse it.
         CPPUNIT_ASSERT_EQUAL_MESSAGE(szUrl, PORT_NONE, url.getHostPort());
     }
+
+   void testMultiple()
+      {
+         const char *url1 =
+            "Display Name<sip:uname@sipserver:555;"
+            "tag=xxxxx;transport=TCP;msgId=4?call-Id=call2&cseq=2+INVITE>;"
+            "fieldParam1=1234;fieldParam2=2345";
+         const char *url2 =            
+            "Second Name<sip:two@sipserver2:666;"
+            "tag=yyyy;transport=UCP;msgId=4?call-Id=call3&cseq=7+INVITE>;"
+            "fieldParam1=5678;fieldParam2=6789";
+
+         UtlString combinedUrl;
+         combinedUrl.append(url1);
+         combinedUrl.append(",");
+         combinedUrl.append(url2);
+
+         UtlString nextUrl;
+         Url url(combinedUrl.data(), Url::NameAddr, &nextUrl);
+
+         ASSERT_STR_EQUAL("sipserver", getHostAddress(url));
+         ASSERT_STR_EQUAL("sip", getUrlType(url));
+         ASSERT_STR_EQUAL("uname", getUserId(url));
+         ASSERT_STR_EQUAL("Display Name", getDisplayName(url));
+         CPPUNIT_ASSERT_EQUAL(555, url.getHostPort());
+         ASSERT_STR_EQUAL("xxxxx", getParam("tag", url));
+         ASSERT_STR_EQUAL("TCP", getParam("transport", url));
+         ASSERT_STR_EQUAL("4", getParam("msgId", url));
+         ASSERT_STR_EQUAL("call2", getHeaderParam("call-Id", url));
+         ASSERT_STR_EQUAL("2 INVITE", getHeaderParam("cseq", url));
+         ASSERT_STR_EQUAL("1234", getFieldParam("fieldParam1", url));
+         ASSERT_STR_EQUAL("2345", getFieldParam("fieldParam2", url));
+
+         ASSERT_STR_EQUAL(url1, toString(url));
+         ASSERT_STR_EQUAL(
+            "sip:uname@sipserver:555;tag=xxxxx;transport=TCP;msgId=4?call-Id=call2&cseq=2+INVITE",
+            getUri(url)
+                          );
+
+         ASSERT_STR_EQUAL(url2, nextUrl.data());
+      }
 
    void testIPv6Host()
       {
@@ -1460,7 +1502,7 @@ public:
          Url url;
 
          UtlString inputUrl("sip:192.168.1.102");
-         url.fromString(inputUrl);
+         CPPUNIT_ASSERT(url.fromString(inputUrl, Url::NameAddr));
          
          UtlString firstString("SHOULD_BE_REPLACED");
          url.toString(firstString) ;
@@ -1468,12 +1510,16 @@ public:
          ASSERT_STR_EQUAL(inputUrl.data(), firstString.data()) ;
 
          UtlString rewrittenUrl("sip:user@host");
-         url.fromString(rewrittenUrl);
+         CPPUNIT_ASSERT(url.fromString(rewrittenUrl, Url::AddrSpec));
          
          UtlString secondString("SHOULD_BE_REPLACED");
          url.toString(secondString) ;
 
          ASSERT_STR_EQUAL(rewrittenUrl.data(), secondString.data()) ;
+
+         UtlString badUrl("!bad:");
+         CPPUNIT_ASSERT(!url.fromString(badUrl));
+         CPPUNIT_ASSERT(Url::UnknownUrlScheme == url.getScheme());
       }
 
 

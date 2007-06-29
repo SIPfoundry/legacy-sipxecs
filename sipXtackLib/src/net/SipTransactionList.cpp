@@ -184,11 +184,10 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
         {
             if (OsSysLog::willLog(FAC_SIP, PRI_WARNING))
             {
-                UtlString relationString;
-                SipTransaction::getRelationshipString(relationship, relationString);
                 OsSysLog::add(FAC_SIP, PRI_WARNING,
-                              "SipTransactionList::findTransactionFor %p not available relation: %s",
-                              transactionFound, relationString.data());
+                              "SipTransactionList::findTransactionFor"
+                              " %p not available relation: %s",
+                              transactionFound, SipTransaction::relationshipString(relationship));
             }
 #           ifdef TIME_LOG
             findTimes.addEvent("notavail");
@@ -204,8 +203,6 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
 #   endif
 
 #if 0 // 
-    UtlString relationString;
-    SipTransaction::getRelationshipString(relationship, relationString);
     UtlString bytes;
     int len;
     message.getBytes(&bytes, &len);
@@ -217,7 +214,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
                   ,&message
                   ,isOutgoing ? "OUTGOING" : "INCOMING"
                   ,transactionFound ? "FOUND" : "NOT FOUND"
-                  ,relationString.data()
+                  ,relationshipString(relationship)
 #                 ifdef TIME_LOG
                   ,findTimeLog.data()
 #                 endif
@@ -408,13 +405,11 @@ void SipTransactionList::toStringWithRelations(UtlString& string,
     SipTransaction* transactionFound = NULL;
     UtlString oneTransactionString;
     SipTransaction::messageRelationship relation;
-    UtlString relationString;
 
     while((transactionFound = (SipTransaction*) iterator()))
     {
         relation = transactionFound->whatRelation(message, isOutGoing);
-        SipTransaction::getRelationshipString(relation, relationString);
-        string.append(relationString);
+        string.append(SipTransaction::relationshipString(relation));
         string.append(" ");
 
 

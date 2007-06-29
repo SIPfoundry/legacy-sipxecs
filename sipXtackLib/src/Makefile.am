@@ -52,6 +52,7 @@ libsipXtack_la_LIBADD = \
 libsipXtack_la_SOURCES =  \
     $(top_builddir)/config/sipxtacklib-buildstamp.h \
     $(top_builddir)/config/sipxtacklib-buildstamp.cpp \
+    net/BranchId.cpp \
     net/CallId.cpp \
     net/HttpBody.cpp \
     net/HttpConnection.cpp \

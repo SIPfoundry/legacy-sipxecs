@@ -743,6 +743,15 @@ public:
 
     void setReferFailedData(const SipMessage* referRequest);
 
+    /// Builds a response with the codes and a message/sipfrag body containing the request headers.
+    void setDiagnosticSipFragResponse(const SipMessage& message,
+                                      int               responseCode,
+                                      const char*       responseText,
+                                      int               warningCode,
+                                      const char*       warningText,
+                                      const UtlString&  address
+                                      );
+
     //@}
 
 

@@ -175,10 +175,8 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
           SipSubscribeServer::buildBasicServer(userAgent, 
                                                eventType);
        SipSubscriptionMgr* subMgr = subServer->getSubscriptionMgr(eventType);
-       SipDialogMgr* serverDialogMgr = subMgr->getDialogMgr();
-       SipPublishContentMgr* contentMgr = subServer->getPublishMgr(eventType);
-       HttpBody* preexistingBodyPtr = NULL;
-       UtlBoolean isDefaultContent;
+       subMgr->getDialogMgr();
+       subServer->getPublishMgr(eventType);
 
        subServer->start();
        // Enable the handler for the MWI server

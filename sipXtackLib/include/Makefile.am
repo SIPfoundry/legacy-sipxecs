@@ -18,6 +18,7 @@ EXTRA_DIST = \
     resparse/wnt/utilNT.h
 
 nobase_include_HEADERS =  \
+    net/BranchId.h \
     net/CallId.h \
     net/HttpBody.h \
     net/HttpConnection.h \
