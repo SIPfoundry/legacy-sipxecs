@@ -35,9 +35,9 @@ _CrtMemState MemStateDiff;
 /**
  * Unittest for CallManager
  */
-class CallManangerTest : public CppUnit::TestCase
+class CallManagerTest : public CppUnit::TestCase
 {
-    CPPUNIT_TEST_SUITE(CallManangerTest);
+    CPPUNIT_TEST_SUITE(CallManagerTest);
 
 #ifdef BROKEN_UNITTEST
     CPPUNIT_TEST(testOnOffHook);
@@ -432,4 +432,4 @@ public:
 
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(CallManangerTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CallManagerTest);
