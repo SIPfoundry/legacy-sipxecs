@@ -29,6 +29,7 @@ void TestOsSysLogListener::startTest( CPPUNIT_NS::Test *test )
    
    OsSysLog::initialize(0,"UnitTest");
    OsSysLog::setLoggingPriority(PRI_DEBUG);
+   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 
    std::string testLogFile = testName + ".log";
 

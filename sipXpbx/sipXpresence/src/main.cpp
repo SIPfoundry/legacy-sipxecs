@@ -223,6 +223,7 @@ void initSysLog(OsConfigDb* pConfig)
       }
    }
    OsSysLog::setLoggingPriority(priority);
+   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 
    //
    // Get/Apply console logging

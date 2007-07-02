@@ -246,6 +246,8 @@ void initSysLog(OsConfigDb* pConfig)
       }
    }
    OsSysLog::setLoggingPriority(priority);
+   // disable extra logging of every message after parsing
+   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 
    //
    // Get/Apply console logging

@@ -85,6 +85,7 @@ int main(int argc, char* argv[])
    OsSysLog::initialize(0, "test");
    OsSysLog::setOutputFile(0, "log");
    OsSysLog::setLoggingPriority(PRI_DEBUG);
+   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 
    if (argc == 1 || argc == 3)
    {

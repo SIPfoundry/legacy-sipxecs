@@ -347,6 +347,7 @@ void ACDServer::setSysLogLevel(UtlString& rLogLevel)
       }
    }
    OsSysLog::setLoggingPriority(priority);
+   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 }
 
 

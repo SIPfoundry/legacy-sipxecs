@@ -74,6 +74,8 @@ void initLogger(char* argv[])
           OsSysLog::setLoggingPriority(PRI_DEBUG);
           break;
     }
+    OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
+
 }
 
 void showHelp(char* argv[])

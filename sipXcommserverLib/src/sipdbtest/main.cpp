@@ -147,6 +147,7 @@ void
 setLogLevel()
 {
     OsSysLog::setLoggingPriority( PRI_DEBUG );
+    OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 }
 
 OsStatus
