@@ -50,6 +50,7 @@ public class InternationalRule extends DialingRule {
             FullTransform transform = new FullTransform();
             transform.setUser(gateway.getCallPattern(user));
             transform.setHost(gateway.getAddress());
+            transform.setUrlParams(new String[] {"transport=udp"});
             String[] fieldParams = new String[] {
                 q.getSerial()
             };

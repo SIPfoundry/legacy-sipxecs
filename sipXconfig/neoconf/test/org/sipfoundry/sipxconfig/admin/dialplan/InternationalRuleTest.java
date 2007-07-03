@@ -52,9 +52,11 @@ public class InternationalRuleTest extends TestCase {
         FullTransform transform = (FullTransform) transforms[0];
         assertEquals("011{vdigits}", transform.getUser());
         assertEquals("i1.gateway.com", transform.getHost());
+        assertEquals("transport=udp", transform.getUrlParams()[0]);
         transform = (FullTransform) transforms[1];
         assertEquals("4321011{vdigits}", transform.getUser());
         assertEquals("i2.gateway.com", transform.getHost());
+        assertEquals("transport=udp", transform.getUrlParams()[0]);
     }
 
     public void testGetPermissionNames() {

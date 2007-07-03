@@ -52,7 +52,7 @@ $(DESTDIR)$(sysconfdir)/sipxpbx/registrar-config.in: registrar-config.in.tmp
 	  	 echo " ok" ; \
 	  else \
 	  	 echo " adding authproxy"; \
-	  	 echo 'SIP_REGISTRAR_AUTH_PROXY : $${AUTH_PROXY_SERVER_SIP_SRV_OR_HOSTPORT}' \
+	  	 echo 'SIP_REGISTRAR_AUTH_PROXY : $${AUTH_PROXY_SERVER_SIP_SRV_OR_HOSTPORT};transport=udp' \
 	  	 >> $@ ; \
 	  fi; \
    else \

@@ -82,6 +82,7 @@ public class CustomDialingRuleTest extends TestCase {
             assertTrue(full.getFieldParams()[0].startsWith("q="));
             assertNull(full.getHeaderParams());
             assertEquals(GATEWAYS[i], full.getHost());
+            assertEquals(full.getUrlParams()[0], "transport=udp");
             assertTrue(full.getUser().startsWith(StringUtils.defaultString(PREFIXES[i]) + "999"));
         }
     }

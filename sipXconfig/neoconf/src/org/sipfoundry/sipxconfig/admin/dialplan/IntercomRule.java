@@ -31,6 +31,7 @@ public class IntercomRule extends DialingRule {
         m_transform.setHeaderParams(new String[] {
             headerParam
         });
+        m_transform.setUrlParams(new String[] {"transport=udp"});
     }
 
     public IntercomRule(Intercom intercom) {

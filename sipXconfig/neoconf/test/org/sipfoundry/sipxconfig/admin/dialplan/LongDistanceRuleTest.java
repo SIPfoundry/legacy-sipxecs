@@ -98,6 +98,7 @@ public class LongDistanceRuleTest extends TestCase {
         FullTransform transform = (FullTransform) transforms[0];
         assertEquals("1{vdigits}", transform.getUser());
         assertEquals("longdistance.gateway.com", transform.getHost());
+        assertEquals("transport=udp", transform.getUrlParams()[0]);
     }
 
     public void testGetPermissionNames() {
@@ -233,6 +234,7 @@ public class LongDistanceRuleTest extends TestCase {
             FullTransform transform = (FullTransform) transforms[0];
             assertTrue(transform.getUser().endsWith("{vdigits}"));
             assertEquals("longdistance.gateway.com", transform.getHost());
+            assertEquals("transport=udp", transform.getUrlParams()[0]);
         }
     }
 

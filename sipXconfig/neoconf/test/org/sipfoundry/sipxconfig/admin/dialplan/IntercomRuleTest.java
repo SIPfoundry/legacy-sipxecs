@@ -36,5 +36,6 @@ public class IntercomRuleTest extends TestCase {
         assertEquals(1, headerparams.length);
         assertEquals("Alert-info=Ipek", headerparams[0]);
         assertNull(transform.getHost());
+        assertEquals("transport=udp", transform.getUrlParams()[0]);
     }    
 }

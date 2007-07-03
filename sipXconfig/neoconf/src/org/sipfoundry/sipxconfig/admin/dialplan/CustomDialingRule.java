@@ -103,6 +103,7 @@ public class CustomDialingRule extends DialingRule {
             };
             transform.setHeaderParams(headerParams);
         }
+        transform.setUrlParams(new String[] {"transport=udp"});
         return transform;
     }
 
