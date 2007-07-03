@@ -9,7 +9,7 @@
   <inject property="tapestry" object="spring:tapestry" />
 
   <property name="connectionParams" />
-  <property name="attrMap" />
+  <property name="attrMap" persist="session" />
   <property name="schema" persist="session" />
   <property name="selectedAttributes" persist="session" />
 

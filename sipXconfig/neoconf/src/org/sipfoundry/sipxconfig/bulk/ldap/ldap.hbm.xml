@@ -32,9 +32,9 @@
       <index column="user_property" type="string" />
       <element column="ldap_attr" type="string" />
     </map>
-    <set name="selectedObjectClasses" table="ldap_selected_object_classes">
+    <bag name="selectedObjectClasses" table="ldap_selected_object_classes">
       <key column="ldap_attr_map_id" foreign-key="fk_ldsp_selected_object_classes_ldap_attr_map"></key>
       <element column="object_class" type="string" />
-    </set>
+    </bag>
   </class>
 </hibernate-mapping>
