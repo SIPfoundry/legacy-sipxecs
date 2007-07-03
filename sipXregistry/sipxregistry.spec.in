@@ -101,6 +101,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libRedirectorSubscribe.so*
 %attr(755,root,root) %{_libdir}/libRedirectorTest.la
 %attr(755,root,root) %{_libdir}/libRedirectorTest.so*
+%attr(755,root,root) %{_libdir}/libRedirectorTimeOfDay.la
+%attr(755,root,root) %{_libdir}/libRedirectorTimeOfDay.so*
 %attr(755,root,root) %{_datadir}/sipx/schema/alias.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/caller-alias.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/huntgroup.xsd
@@ -129,6 +131,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libRedirectorRegDB.a
 %attr(755,root,root) %{_libdir}/libRedirectorSubscribe.a
 %attr(755,root,root) %{_libdir}/libRedirectorTest.a
+%attr(755,root,root) %{_libdir}/libRedirectorTimeOfDay.a
 %{_includedir}/registry/*
 
 %pre
