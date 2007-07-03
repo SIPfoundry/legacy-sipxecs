@@ -11,6 +11,7 @@
 //#include <...>
 
 // APPLICATION INCLUDES
+#include "os/OsFS.h"
 #include "net/HttpMessage.h"
 #include "mailboxmgr/VXMLDefs.h"
 #include "mailboxmgr/ActiveGreetingHelper.h"
@@ -120,13 +121,37 @@ DepositCGI::execute(UtlString* out)
             "<var name=\"msgurltype\" expr=\"'alphanumeric'\"/>\n";
       }
 
+      // If mailboxpath/savemessage.vxml exists, use it, otherwise use the 
+      // generic version
+      UtlString src ;
+      UtlString vxmlScript ;
+      pMailboxManager->getMailboxPath(m_mailboxIdentity, vxmlScript);
+      vxmlScript += OsPath::separator + "savemessage.vxml" ;
+      if (OsFileSystem::exists(vxmlScript))
+      {
+         // use the user specific one 
+         pMailboxManager->getMailboxURL(m_mailboxIdentity, src, false);
+         src += "/savemessage.vxml" ;
+         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                 "DepositCGI::execute: using user specific vxml script %s",
+                 src.data()) ;
+      }
+      else
+      {
+         // use the generic one
+         src =  mediaserverUrl + "/vm_vxml/savemessage.vxml" ;
+         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                 "DepositCGI::execute: using generic vxml script %s",
+                 src.data()) ;
+      }
+
       // Be careful here as the the vxmlFriendlyFrom will be sent back to us again
       UtlString vxmlFriendlyFrom = m_from.toString();
       MailboxManager::convertUrlStringToXML( vxmlFriendlyFrom );
       // HttpMessage::escape( vxmlFriendlyFrom );
 
       dynamicVxml +=
-         "<subdialog name=\"send_msg\" src=\"" + mediaserverUrl + "/vm_vxml/savemessage.vxml\">\n" +
+         "<subdialog name=\"send_msg\" src=\"" + src + "\">\n" +
          "<param name=\"called_by\" value=\"incoming\"/>\n" \
          "<param name=\"mailbox\" value=\"" + m_mailboxIdentity + "\"/>\n" \
          "<param name=\"from\" value=\"" + vxmlFriendlyFrom + "\"/>\n" \
