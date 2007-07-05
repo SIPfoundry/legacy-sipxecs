@@ -4,6 +4,20 @@ SIPfoundry Issue Tracker at:
         http://track.sipfoundry.org/browse?XCF
 
 
+Version 3.9.1
+
+** Bug
+    * [XCF-1230] - Able to add Duplicate permission Name, on system wide permission page
+    * [XCF-1522] - New voicemail UI : strings and special characters, comma seperating 2 users can be added to Distribution list
+    * [XCF-1569] - New voicemail UI : User without  VM permission and an invalid user extn can be added to Distribution list
+
+** Improvement
+    * [XCF-1344] - allow save of phone configs, without restarting phones
+    * [XCF-1773] - Linksys 942 line settings patch
+
+** New Feature
+    * [XECS-70] - sipX needs to have time of day routing
+
 Version 3.8
 
 ** Bug
