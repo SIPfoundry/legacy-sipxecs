@@ -2,6 +2,48 @@ The most current information on the status of any release is in the
 SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
+
+
+Version 3.8
+
+** Bug
+
+    * [XCF-1130] - minor label error on sipx's Grandstream phone Network config screen
+    * [XCF-1272] - Add holiday edit box fails to validate the invalid input as a result exception is shown.
+    * [XCF-1409] - built-in permissions shown in English only on Permission screen and DialPlan screen
+    * [XCF-1415] - incorrect help text on 'Devices | Phones | <polycom phone> | Directory Resources' screen
+    * [XCF-1494] - Activating the dialplan hangs the screen
+    * [XCF-1552] - incorrect text description for Polycom config option [re 'get NTP offset from DHCP']
+    * [XCF-1573] - Typo error in VM web UI--->My Information page ("Confirm Password" should be "Confirm PIN")
+    * [XCF-1600] - LG phones are not taking the profiles from the Tftp root
+    * [XCF-1633] - CSV Import not working beyond 15 users
+    * [XCF-1656] - The Configuration parameters for LIP-6830 phone are not validated in the configserver
+    * [XCF-1682] - sipxconfig-report RPM prints error during installation
+    * [XCF-1683] - sipXconfig generates exception when saving ACD queue configuration with advanced setting.
+    * [XCF-1729] - Activate ACD server does not restart ACD server when restarting is necessary.
+    * [XCF-1752] - Internal exception when filtering the Imported users in LDAP
+    * [XCF-1761] - input pattern validation needed on SBC screen
+    * [XCF-1762] - Setting the park timeout to blank under default link in callpark is giving exception
+    * [XCF-1769] - Incomplete help text in ACD Historic Reports
+
+** Improvement
+
+    * [XCF-1754] - Need to Add GSM(3) codec for GXP-2000 phones
+    * [XCF-1776] - support disabling CLI name for Audiocodes digital gateways
+
+** New Feature
+
+    * [XCF-1304] - Allow Hunt Group to transfer to SIP URI
+    * [XCF-1407] - localize enumeration labels specified in model XML files
+    * [XCF-1717] - Configure routes through session border element
+    * [XCF-1750] - Add the ability to program LG phones' Qos parameters from the sipXconfig Web UI
+
+** Task
+
+    * [XCF-1652] - Remove registrar from the list of processes to be whacked by the whacker.
+    * [XCF-1666] - Change the default value of the transport parameter of Polycom phone to "Only UDP"
+    * [XCF-1667] - Add help text for "Subscribe to presence" to state that it should only be used by phones that support this capability.
+    * [XCF-1756] - freeze DB schema before 3.8 release
 	
 Version 3.7.7
 
