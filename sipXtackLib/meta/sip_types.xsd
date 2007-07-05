@@ -96,11 +96,24 @@
     </restriction>
   </simpleType>
 
+  <simpleType name="sip_URI">
+    <annotation>
+      <documentation>
+        A 'SIP-URI' or 'SIPS-URI' per RFC 3261 section 25.1.
+        This should be further restricted, but for now is just a string.
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="normalizedString"/>
+  </simpleType>
+
   <simpleType name="name_addr">
     <annotation>
       <documentation>
-      The values allowed in the SIP To or From header fields.
-      This should be further restricted, but for now is just a string.
+        The values allowed in the SIP To or From header fields.
+        A 'name-addr' or 'addr-spec' per RFC 3261 section 25.1, subject
+        to the disambiguation rule of the last paragraph of section 20.
+        This should be further restricted, but for now is just a string.
       </documentation>
       <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
     </annotation>

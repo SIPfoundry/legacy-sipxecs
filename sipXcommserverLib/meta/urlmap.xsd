@@ -125,8 +125,8 @@
         <sequence>
           <annotation>
             <documentation>
-              These elements allow substitution of or addition to the existing address
-              any parts not explictly specified are copied from the input address.
+              These elements allow substitution of or addition to the existing address.
+              Any parts not explictly specified are copied from the input address.
             </documentation>
           </annotation>
           <element ref='dmp:user'         minOccurs='0' maxOccurs='1'/>
@@ -183,8 +183,9 @@
         value is escaped for insertion into the URI.  (There is no
         escape mechanism for inserting what appears to be a URL mapping
         substitution literally into the value.)
-        A consequence of this grammer is that the parameter name may
-        not contain '='.
+        The parameter name is separated from the parameter value by the
+        first '=' in the string.  A consequence  is that the parameter
+        name may not contain '=', although the parameter value may.
         RFC 3261 allows URI parameter names and header parameter names
         to contain '=' (which would have to be escaped), but there is
         no reason to believe that that will ever be used in practice.
