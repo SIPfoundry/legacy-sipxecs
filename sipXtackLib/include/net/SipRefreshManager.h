@@ -34,7 +34,7 @@ class OsTimer;
 
 //! Class for refreshing SIP subscriptions and registrations
 /*! This is currently verified for SUBSCRIPTIONS ONLY.
- *  This class is intended to depricate the SipRefreshMgr class.
+ *  This class is intended to deprecate the SipRefreshMgr class.
  *
  * \par 
  */
@@ -52,7 +52,7 @@ public:
     };
 
     /*! Typedef defining the signature of the callback used to inform
-     *  applications of refresh subscritption and registration state
+     *  applications of refresh subscription and registration state
      *  changes.
      *  \param requestState - the state of the last SUBSCRIBE or NOTIFY
      *         transaction.  Note: this is not the same as the dialog state.
@@ -113,7 +113,7 @@ public:
      *  be sent, the refresh state is set to REFRESH_FAILED.
      *  The caller of this method must explictly call stopRefresh
      *  to clean up the refresh state even if this method fails.
-     *  This meghod may fail if the dialog or refresh state already
+     *  This method may fail if the dialog or refresh state already
      *  exists or if the request immediately fails to send.  The
      *  refresh manager will attempt to resend the request to
      *  subscribe or register even if it fails the first time while
@@ -208,7 +208,7 @@ private:
 
     //! set the given state and attached request so that it can be resent
     void setForResend(RefreshDialogState& state, 
-                             UtlBoolean expireNow);
+                      UtlBoolean expireNow);
 
     //! Get the expiration from the initial SUBSCRIBE or REGISTER request
     static UtlBoolean getInitialExpiration(const SipMessage& sipRequest, 

@@ -203,7 +203,7 @@ UtlBoolean SipSubscribeClient::addSubscription(SipMessage& subscriptionRequest,
         subscriptionRequest.setRawFromField(fromFieldValue);
     }
 
-    // Get the event type and make sure we are registerd to
+    // Get the event type and make sure we are registered to
     // receive NOTIFY requests for this event type
     UtlString eventType;
     subscriptionRequest.getEventField(&eventType, NULL, NULL);
@@ -223,7 +223,7 @@ UtlBoolean SipSubscribeClient::addSubscription(SipMessage& subscriptionRequest,
 
         // Note: we do not register to receive SUBSCRIBE responses
         // as the refreshManager will do that and invoke the 
-        // SubScribeClient'c callback.
+        // SubScribeClient's callback.
 
         // Add this event type to the list so we know we
         // have registered for the responses with the user agent
