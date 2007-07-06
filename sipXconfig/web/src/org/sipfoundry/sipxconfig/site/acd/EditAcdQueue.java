@@ -122,7 +122,7 @@ public abstract class EditAcdQueue extends PageWithCallback implements PageBegin
     
     public String getAcdQueueUri() {
         AcdQueue q = getAcdQueue();
-        if (q == null) {
+        if (q == null || q.getAcdServer() == null) {
             return null;
         }
         
