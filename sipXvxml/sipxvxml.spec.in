@@ -11,13 +11,13 @@ Url:      http://www.pingtel.com
 
 Source: %name-%version.tar.gz
 
-Requires: sipxcalllib >= 3.7
-Requires: sipxcommserverlib >= 3.7
-Requires: sipxmedialib >= 3.7
-Requires: sipxmediaadapterlib >= 3.7
-Requires: sipxtacklib >= 3.7
-Requires: sipxportlib >= 3.7
-Requires: sipxpbx >= 3.7
+Requires: sipxcalllib >= 3.9
+Requires: sipxcommserverlib >= 3.9
+Requires: sipxmedialib >= 3.9
+Requires: sipxmediaadapterlib >= 3.9
+Requires: sipxtacklib >= 3.9
+Requires: sipxportlib >= 3.9
+Requires: sipxpbx >= 3.9
 
 Requires: @LIBWWW_RPM@ >= 5.4.0
 
@@ -40,7 +40,7 @@ Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Internal documentation for %name 
-Requires: sipxcommserverlib-devel >= 3.7
+Requires: sipxcommserverlib-devel >= 3.9
 
 %description devel
 Internal class documentation for the sipXvxml classes

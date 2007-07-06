@@ -11,8 +11,8 @@ Url: http://www.sipfoundry.org/sipXcallLib
 
 Source: %name-%version.tar.gz
 
-Requires: sipxtacklib >= 3.7
-Requires: sipxmedialib >= 3.7
+Requires: sipxtacklib >= 3.9
+Requires: sipxmedialib >= 3.9
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -35,8 +35,8 @@ contains technologies related to call processing:
 # Install header files
 %package devel
 Requires: %name
-Requires: sipxtacklib-devel >= 3.7
-Requires: sipxmedialib-devel >= 3.7
+Requires: sipxtacklib-devel >= 3.9
+Requires: sipxmedialib-devel >= 3.9
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Header files for %name 

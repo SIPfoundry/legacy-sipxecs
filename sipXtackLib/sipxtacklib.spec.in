@@ -9,7 +9,7 @@ Vendor: Pingtel Corp.
 Packager: Pingtel <support@pingtel.com>
 Url: http://www.pingtel.com
 
-Requires: sipxportlib >= 3.7
+Requires: sipxportlib >= 3.9
 
 Source: %name-%version.tar.gz
 
@@ -28,7 +28,7 @@ class. This project depends upon the sipXportLib OS abstraction layer.
 # Install header files
 %package devel
 Requires: %name
-Requires: sipxportlib-devel >= 3.7
+Requires: sipxportlib-devel >= 3.9
 
 Group: Development/Libraries
 Vendor: SIPfoundry

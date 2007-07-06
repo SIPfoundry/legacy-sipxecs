@@ -12,9 +12,9 @@ Url: http://www.pingtel.com
 Requires: openssl >= 0.9.7a
 Requires: pcre >= 4.5
 
-Requires: sipxmedialib >= 3.7
-Requires: sipxtacklib >= 3.7
-Requires: sipxportlib >= 3.7
+Requires: sipxmedialib >= 3.9
+Requires: sipxtacklib >= 3.9
+Requires: sipxportlib >= 3.9
 
 Source: %name-%version.tar.gz
 
@@ -37,9 +37,9 @@ Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Header files for %name 
 
-Requires: sipxmedialib >= 3.7
-Requires: sipxtacklib >= 3.7
-Requires: sipxportlib >= 3.7
+Requires: sipxmedialib >= 3.9
+Requires: sipxtacklib >= 3.9
+Requires: sipxportlib >= 3.9
 
 %description devel
  This library provides a set of adapters for using a media subsystem. Three

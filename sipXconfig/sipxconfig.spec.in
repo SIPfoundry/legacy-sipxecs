@@ -22,9 +22,9 @@ Url:      http://www.sipfoundry.org/
 
 Source: %name-%version.tar.gz
 
-Requires: sipxtacklib >= 3.7
-Requires: sipxcommserverlib >= 3.7
-Requires: sipxpbx >= 3.7
+Requires: sipxtacklib >= 3.9
+Requires: sipxcommserverlib >= 3.9
+Requires: sipxpbx >= 3.9
 Requires: postgresql-server
 Requires: ruby
 %if %{_vendor} == redhat
