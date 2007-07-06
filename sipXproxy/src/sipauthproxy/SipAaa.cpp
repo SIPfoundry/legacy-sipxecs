@@ -271,7 +271,8 @@ bool SipAaa::proxyMessage(SipMessage& sipRequest)
                                       &removedRoutes        // route headers popped 
                                       );
 
-      RouteState routeState(sipRequest, removedRoutes);
+      RouteState routeState(sipRequest, removedRoutes); // use routes to construct state
+      removedRoutes.destroyAll(); // done with routes - discard them.
       
       UtlString authUser;
       bool requestIsAuthenticated = isAuthenticated(sipRequest, authUser);
