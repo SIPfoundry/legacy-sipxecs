@@ -30,7 +30,7 @@ class AddExtension : public XmlRpcMethod
 public:
 
    /// Get the instance of this method.
-   static AddExtension* get()
+   static XmlRpcMethod* get()
       {
          return (new AddExtension());
       };
@@ -152,6 +152,7 @@ class XmlRpcTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE(XmlRpcTest);
    CPPUNIT_TEST(testXmlRpcRequestCreation);
    CPPUNIT_TEST(testXmlRpcRequestParse);
+   CPPUNIT_TEST(testXmlRpcNoParamsParse);
    CPPUNIT_TEST(testXmlRpcResponseParse);
    CPPUNIT_TEST(testXmlRpcResponseSetting);
    CPPUNIT_TEST(testIllFormattedXmlRpcRequest);   
@@ -349,8 +350,8 @@ public:
          ASSERT_STR_EQUAL(faultResponse, body.data());
 
          XmlRpcResponse newResponse;
-         char userData[] = "AddExtension"; 
-         dispatch.addMethod("addExtension", (XmlRpcMethod::Get *)AddExtension::get, (void*)userData);
+         char* userData = "AddExtension"; 
+         dispatch.addMethod("addExtension", AddExtension::get, userData);
          result = dispatch.parseXmlRpcRequest(requestContent, method, params, newResponse);
          CPPUNIT_ASSERT(result == true);
          
@@ -375,6 +376,32 @@ public:
          ASSERT_STR_EQUAL(successResponse, body.data());
       }
 
+   void testXmlRpcNoParamsParse()
+      {
+         const char *ref =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<methodCall>\n"
+            "<methodName>getStatus</methodName>\n"
+            "<params>\n"
+            "</params>\n"
+            "</methodCall>\n"
+            ;
+
+
+         XmlRpcDispatch dispatch(8200, false, "/RPC2");
+
+         dispatch.addMethod("getStatus", AddExtension::get);
+
+         UtlString requestContent(ref);
+         XmlRpcResponse response;
+         XmlRpcMethodContainer* method;
+         UtlSList params;
+
+         bool result = dispatch.parseXmlRpcRequest(requestContent, method, params, response);
+         CPPUNIT_ASSERT(result == true);
+
+         CPPUNIT_ASSERT(params.isEmpty());
+      }
 
    void testXmlRpcResponseParse()
       {
@@ -596,8 +623,8 @@ public:
          XmlRpcMethodContainer* method;
          UtlSList params;
 
-         const char* userData = "AddExtension"; 
-         dispatch.addMethod("addExtension", (XmlRpcMethod::Get *)AddExtension::get, (void*)userData);
+         char* userData = "AddExtension"; 
+         dispatch.addMethod("addExtension", AddExtension::get, userData);
          bool result = dispatch.parseXmlRpcRequest(requestContent1, method, params, response1);
          CPPUNIT_ASSERT(result == false);
          dispatch.cleanUp(&params);

@@ -321,13 +321,18 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
             methodContainer = (XmlRpcMethodContainer*) mMethods.findValue(&methodCall);
             if (methodContainer)
             {
+               /*
+                * Since params are optional,
+                * assume all is well until proven otherwise now
+                */
+               result = true; 
                TiXmlNode* paramsNode = rootNode->FirstChild("params");
                
                if (paramsNode)
                {
                   int index = 0;
                   for (TiXmlNode* paramNode = paramsNode->FirstChild("param");
-                       paramNode; 
+                       result /* stop if any error */ && paramNode /* or no more param nodes */; 
                        paramNode = paramNode->NextSibling("param"))
                   {
                      TiXmlNode* subNode = paramNode->FirstChild("value");
@@ -343,7 +348,6 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
                                           requestContent.data());
                            response.setFault(EMPTY_PARAM_VALUE_FAULT_CODE,
                                              EMPTY_PARAM_VALUE_FAULT_STRING);
-                           break;
                         }
                         index++;
                      }                     
