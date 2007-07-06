@@ -66,8 +66,6 @@ SubscribeServerEventData::~SubscribeServerEventData()
 SipSubscribeServer* SipSubscribeServer::buildBasicServer(SipUserAgent& userAgent,
                                                          const char* eventType)
 {
-    SipSubscribeServer* newServer = NULL;
-
     // Create a default publisher container
     SipPublishContentMgr* publishContent = new SipPublishContentMgr();
 
@@ -77,10 +75,10 @@ SipSubscribeServer* SipSubscribeServer::buildBasicServer(SipUserAgent& userAgent
     // Create a default subscription mgr
     SipSubscriptionMgr* subscriptionMgr = new SipSubscriptionMgr();
 
-    newServer = new SipSubscribeServer(userAgent, 
-                                      *publishContent,
-                                      *subscriptionMgr,
-                                      *eventHandler);
+    SipSubscribeServer* newServer = new SipSubscribeServer(userAgent, 
+                                                           *publishContent,
+                                                           *subscriptionMgr,
+                                                           *eventHandler);
 
     if(eventType && *eventType)
     {
@@ -92,7 +90,7 @@ SipSubscribeServer* SipSubscribeServer::buildBasicServer(SipUserAgent& userAgent
                                    subscriptionMgr);
     }
 
-    return(newServer);
+    return newServer;
 }
 
 // Constructor
