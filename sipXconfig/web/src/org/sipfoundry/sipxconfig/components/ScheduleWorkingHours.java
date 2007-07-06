@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.admin.ScheduledDay;
@@ -29,16 +28,18 @@ public abstract class ScheduleWorkingHours extends BaseComponent {
     protected void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
         if (getDayOfWeekModel() == null) {
-            EnumPropertySelectionModel dayModel = new EnumPropertySelectionModel();
-            dayModel.setOptions(ScheduledDay.DAYS_OF_WEEK);
-            setDayOfWeekModel(dayModel);
+            setDayOfWeekModel(createDayOfWeekModel());
         }
     }
 
-    protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
-        super.renderComponent(writer, cycle);
-        if (!cycle.isRewinding()) {
-            return;
-        }
+    private IPropertySelectionModel createDayOfWeekModel() {
+        EnumPropertySelectionModel dayModel = new EnumPropertySelectionModel();
+        dayModel.setOptions(ScheduledDay.DAYS_OF_WEEK);
+
+        LocalizedOptionModelDecorator decoratedModel = new LocalizedOptionModelDecorator();
+        decoratedModel.setModel(dayModel);
+        decoratedModel.setMessages(getMessages());
+        decoratedModel.setResourcePrefix("scheduleDay.");
+        return decoratedModel;
     }
 }
