@@ -98,14 +98,11 @@ public class WorkingTime extends ScheduledAttendant {
             stopHours[i] = times.get(j + 1);
         }
 
-        // What's this!?
-        for (int j = 0; j < startHours.length; j++) {
-            for (int k = 0; k < startHours.length; k++) {
-                if (j != k) {
-                    if ((startHours[j] >= startHours[k] && startHours[j] < stopHours[k])
-                            || (stopHours[j] > startHours[k] && stopHours[j] <= stopHours[k])) {
-                        return true;
-                    }
+        for (int j = 0; j < hoursLen - 1; j++) {
+            for (int k = j + 1; k < hoursLen; k++) {
+                if ((startHours[j] >= startHours[k] && startHours[j] < stopHours[k])
+                        || (stopHours[j] > startHours[k] && stopHours[j] <= stopHours[k])) {
+                    return true;
                 }
             }
         }
