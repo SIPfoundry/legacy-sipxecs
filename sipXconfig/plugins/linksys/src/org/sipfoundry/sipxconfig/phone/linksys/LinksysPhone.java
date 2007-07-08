@@ -29,8 +29,7 @@ public class LinksysPhone extends Linksys {
     private static final String USER_ID_SETTING = "Ext/User_ID";
     private static final String DISPLAY_NAME_SETTING = "Ext/Display_Name";
     private static final String PASSWORD_SETTING = "Ext/Password";
-    private static final String REGISTRATION_SERVER_SETTING = "Ext/Outbound_Proxy";
-    private static final String REGISTRATION_SERVER_PORT_SETTING = "Ext/SIP_Port";
+    private static final String REGISTRATION_SERVER_SETTING = "Proxy_and_Registration/Proxy";
 
     public LinksysPhone() {
     }
@@ -119,12 +118,11 @@ public class LinksysPhone extends Linksys {
      * own setting model.
      */
     @Override
-    protected void setLineInfo(Line line, LineInfo info) {
-        line.setSettingValue(USER_ID_SETTING, info.getUserId());
-        line.setSettingValue(DISPLAY_NAME_SETTING, info.getDisplayName());
-        line.setSettingValue(PASSWORD_SETTING, info.getPassword());
-        line.setSettingValue(REGISTRATION_SERVER_SETTING, info.getRegistrationServer());
-        line.setSettingValue(REGISTRATION_SERVER_PORT_SETTING, info.getRegistrationServerPort());
+    protected void setLineInfo(Line line, LineInfo externalLine) {
+        line.setSettingValue(DISPLAY_NAME_SETTING, externalLine.getDisplayName());
+        line.setSettingValue(USER_ID_SETTING, externalLine.getUserId());
+        line.setSettingValue(PASSWORD_SETTING, externalLine.getPassword());
+        line.setSettingValue(REGISTRATION_SERVER_SETTING, externalLine.getRegistrationServer());
     }
 
     /**
@@ -138,7 +136,6 @@ public class LinksysPhone extends Linksys {
         info.setUserId(line.getSettingValue(USER_ID_SETTING));
         info.setPassword(line.getSettingValue(PASSWORD_SETTING));
         info.setRegistrationServer(line.getSettingValue(REGISTRATION_SERVER_SETTING));
-        info.setRegistrationServerPort(line.getSettingValue(REGISTRATION_SERVER_PORT_SETTING));
         return info;
     }
 }

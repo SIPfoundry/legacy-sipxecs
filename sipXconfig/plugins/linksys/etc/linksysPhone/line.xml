@@ -1,23 +1,17 @@
 <?xml version="1.0"?>
-<!DOCTYPE model
-    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
-    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
 <model>
+  &types;
+
   <group name="Ext">
     <label>Ext</label>
     <setting name="Line_Enable" advanced="yes">
       <label>Line Enable</label>
       <profileName>General</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>yes</value>
     </setting>
     <setting name="User_ID" advanced="yes">
@@ -43,7 +37,7 @@
   <group name="Share_Line_Appearance">
     <label>Share Line Appearance</label>
     <setting name="Share_Ext">
-      <label>Share Extension</label>
+      <label>Share Ext</label>
       <profileName>Share_Line_Appearance</profileName>
       <type>
         <enum>
@@ -77,32 +71,24 @@
     <setting name="NAT_Mapping_Enable">
       <label>NAT Mapping Enable</label>
       <profileName>NAT_Settings</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
     </setting>
     <setting name="NAT_Keep_Alive_Enable" advanced="yes">
       <label>NAT Keep Alive Enable</label>
       <profileName>NAT_Settings</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
+    </setting>
+    <setting name="NAT_Keep_Alive_Msg">
+      <label>NAT Keep Alive Msg</label>
+      <profileName>Ext_1/NAT_Settings</profileName>
+      <value>$NOTIFY</value>
+    </setting>
+    <setting name="NAT_Keep_Alive_Dest">
+      <label>NAT Keep Alive Dest</label>
+      <profileName>Ext_1/NAT_Settings</profileName>
+      <value>$PROXY</value>
     </setting>
   </group>
 
@@ -244,16 +230,7 @@
     <setting name="SIP_100REL_Enable" advanced="yes">
       <label>SIP 100REL Enable</label>
       <profileName>SIP_Settings</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
     </setting>
     <setting name="EXT_SIP_Port" advanced="yes">
@@ -267,17 +244,8 @@
     <setting name="Auth_Resync-Reboot" advanced="yes">
       <label>Auth Resync-Reboot</label>
       <profileName>SIP_Settings</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
-      <value>no</value>
+      <type refid="yes-no" />
+      <value>yes</value>
     </setting>
     <setting name="SIP_Proxy-Require" advanced="yes">
       <label>SIP Proxy-Require</label>
@@ -287,16 +255,7 @@
     <setting name="SIP_Remote-Party-ID" advanced="yes">
       <label>SIP Remote-Party-ID</label>
       <profileName>SIP_Settings</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
     </setting>
     <setting name="Referor_Bye_Delay" advanced="yes">
@@ -305,21 +264,12 @@
       <type>
         <integer />
       </type>
-      <value />
+      <value>4</value>
     </setting>
     <setting name="Refer-To_Target_Contact" advanced="yes">
       <label>Refer-To Target Contact</label>
       <profileName>SIP_Settings</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
     </setting>
     <setting name="Referee_Bye_Delay" advanced="yes">
@@ -383,16 +333,7 @@
     <setting name="Sticky_183" advanced="yes">
       <label>Sticky 183</label>
       <profileName>SIP_Settings</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
     </setting>
   </group>
@@ -400,18 +341,9 @@
   <group name="Call_Feature_Settings">
     <label>Call Feature Settings</label>
     <setting name="Blind_Attn-Xfer_Enable">
-      <label>Blind Attn Xfer Enable</label>
+      <label>Blind Attn-Xfer Enable</label>
       <profileName>Call_Feature_Settings</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
     </setting>
     <setting name="MOH_Server" advanced="yes">
@@ -422,16 +354,7 @@
     <setting name="Message_Waiting">
       <label>Message Waiting</label>
       <profileName>Call_Feature_Settings</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>yes</value>
     </setting>
     <setting name="Default_Ring">
@@ -485,16 +408,7 @@
     <setting name="Auth_Page" advanced="yes">
       <label>Auth Page</label>
       <profileName>Call_Feature_Settings</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
     </setting>
     <setting name="Auth_Page_Realm" advanced="yes">
@@ -538,16 +452,7 @@
     <setting name="CFWD_Notify_Serv" advanced="yes">
       <label>CFWD Notify Serv</label>
       <profileName>Call_Feature_Settings</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
     </setting>
   </group>
@@ -562,16 +467,7 @@
     <setting name="Use_Outbound_Proxy" advanced="yes">
       <label>Use Outbound Proxy</label>
       <profileName>Proxy_and_Registration</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
     </setting>
     <setting name="Outbound_Proxy" advanced="yes">
@@ -580,48 +476,21 @@
       <value />
     </setting>
     <setting name="Use_OB_Proxy_In_Dialog" advanced="yes">
-      <label>Use Outbound Proxy in Dialog</label>
+      <label>Use OB Proxy In Dialog</label>
       <profileName>Proxy_and_Registration</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
     </setting>
     <setting name="Register">
       <label>Register</label>
       <profileName>Proxy_and_Registration</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>yes</value>
     </setting>
     <setting name="Make_Call_Without_Reg">
       <label>Make Call Without Reg</label>
       <profileName>Proxy_and_Registration</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>no</value>
-          </option>
-          <option>
-            <value>yes</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
     </setting>
     <setting name="Register_Expires" advanced="yes">
@@ -635,46 +504,19 @@
     <setting name="Ans_Call_Without_Reg">
       <label>Ans Call Without Reg</label>
       <profileName>Proxy_and_Registration</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>no</value>
-          </option>
-          <option>
-            <value>yes</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
     </setting>
     <setting name="Use_DNS_SRV" advanced="yes">
       <label>Use DNS SRV</label>
       <profileName>Proxy_and_Registration</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>yes</value>
     </setting>
     <setting name="DNS_SRV_Auto_Prefix" advanced="yes">
       <label>DNS SRV Auto Prefix</label>
       <profileName>Proxy_and_Registration</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>yes</value>
     </setting>
     <setting name="Proxy_Fallback_Intvl" advanced="yes">
@@ -740,155 +582,65 @@
     <setting name="G729a_Enable">
       <label>G729a Enable</label>
       <profileName>Audio</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>yes</value>
     </setting>
     <setting name="G723_Enable">
       <label>G723 Enable</label>
       <profileName>Audio</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>yes</value>
     </setting>
     <setting name="G726-16_Enable">
       <label>G726-16 Enable</label>
       <profileName>Audio</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>yes</value>
     </setting>
     <setting name="G726-24_Enable">
       <label>G726-24 Enable</label>
       <profileName>Audio</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>yes</value>
     </setting>
     <setting name="G726-32_Enable">
       <label>G726-32 Enable</label>
       <profileName>Audio</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>yes</value>
     </setting>
     <setting name="G726-40_Enable">
       <label>G726-40 Enable</label>
       <profileName>Audio</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>yes</value>
     </setting>
     <setting name="Release_Unused_Codec" advanced="yes">
-      <label>Release unused Codec</label>
+      <label>Release Unused Codec</label>
       <profileName>Audio</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>yes</value>
     </setting>
     <setting name="Use_Pref_Codec_Only">
-      <label>Use Preferred Codec Only</label>
+      <label>Use Pref Codec Only</label>
       <profileName>Audio</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>yes</value>
-          </option>
-          <option>
-            <value>no</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
     </setting>
     <setting name="Silence_Supp_Enable">
-      <label>Silence Suppression Enable</label>
+      <label>Silence Supp Enable</label>
       <profileName>Audio</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>no</value>
-          </option>
-          <option>
-            <value>yes</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>no</value>
     </setting>
     <setting name="DTMF_Process_AVT" advanced="yes">
       <label>DTMF Process AVT</label>
       <profileName>Audio</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>no</value>
-          </option>
-          <option>
-            <value>yes</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>yes</value>
     </setting>
     <setting name="DTMF_Tx_Method" advanced="yes">
-      <label>DTMF TX Method</label>
+      <label>DTMF Tx Method</label>
       <profileName>Audio</profileName>
       <type>
         <enum>
@@ -926,16 +678,7 @@
     <setting name="Enable_IP_Dialing" advanced="yes">
       <label>Enable IP Dialing</label>
       <profileName>Dial_Plan</profileName>
-      <type>
-        <enum>
-          <option>
-            <value>no</value>
-          </option>
-          <option>
-            <value>yes</value>
-          </option>
-        </enum>
-      </type>
+      <type refid="yes-no" />
       <value>yes</value>
     </setting>
   </group>
