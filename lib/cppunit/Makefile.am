@@ -14,11 +14,12 @@ $(SRC) :
 
 # cppunit has a rpmbuild error that some files aren't part of
 # spec but are part of 'make install'. Fix that here.
+# unpack and patch the spec file and build from it instead of directly from the tar.gz
 .PHONY: build-rpms
 build-rpms : $(SRC)
-	rpmbuild -ts $(SRC)
-	rpm -i $(SRPM)
-	patch -p0 @RPMBUILD_TOPDIR@/SPECS/cppunit.spec < $(srcdir)/cppunit-sipx.patch
+	tar xfzO $(SRC) cppunit-$(VER)/cppunit.spec > $(shell rpm --eval '%{_topdir}')/SPECS/cppunit.spec
+	cp $(SRC) $(shell rpm --eval '%{_topdir}')/SOURCES/
+	patch -p0 $(shell rpm --eval '%{_topdir}')/SPECS/cppunit.spec < $(srcdir)/cppunit-sipx.patch
 	rpmbuild -ba @RPMBUILD_TOPDIR@/SPECS/cppunit.spec
 
 $(RPMS) : build-rpms
