@@ -80,14 +80,15 @@ SipDialog::SipDialog(const SipMessage* initialMessage,
 
        // :TODO: this should use a new interface to get a parsed value
        UtlString contact;
+       // Get the Contact, but as an addr-spec.
        initialMessage->getContactUri(0, &contact);
        if(isFromLocal)
        {
-           mLocalContact.fromString(contact);
+          mLocalContact.fromString(contact, TRUE);
        }
        else
        {
-           mRemoteContact.fromString(contact);
+          mRemoteContact.fromString(contact, TRUE);
        }
    }
    else
@@ -219,6 +220,7 @@ void SipDialog::updateDialogData(const SipMessage& message)
         {
             // Always update the contact if it is set
             UtlString messageContact;
+            // Get the Contact value, but as an addr-spec.
             if(message.getContactUri(0, &messageContact) &&
                 !messageContact.isNull())
             {
@@ -276,6 +278,7 @@ void SipDialog::updateDialogData(const SipMessage& message)
         {
             // Always update the contact if it is set
             UtlString messageContact;
+            // Get the Contact value, but as an addr-spec.
             if(message.getContactUri(0, &messageContact) &&
                 !messageContact.isNull())
             {
@@ -334,7 +337,7 @@ void SipDialog::setRequestData(SipMessage& request, const char* method)
     
     // The request URI should be the remote contact
     UtlString remoteContact;
-    // Use getUri() to get the contact in name-addr format.
+    // Use getUri() to get the contact in addr-spec format.
     // (mRemoteContact should have no field parameters, but if it has
     // URI parameters, toString would add <...>, which are not allowed
     // in URIs.)

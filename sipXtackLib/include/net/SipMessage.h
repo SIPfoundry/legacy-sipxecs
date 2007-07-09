@@ -760,8 +760,12 @@ public:
     UtlBoolean getFieldSubfield(const char* fieldName, int subfieldIndex,
                                UtlString* subfieldValue) const;
 
+    // Get the Contact field, but in URI (addr-spec) format (despite
+    // that the Contact: header value has name-addr format).
     UtlBoolean getContactUri(int addressIndex, UtlString* uri) const;
 
+    // Get the Contact field in name-addr format (as the value appears in the
+    // header).
     UtlBoolean getContactField(int addressIndex,
                               UtlString& contactField) const;
 

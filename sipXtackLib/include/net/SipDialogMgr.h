@@ -72,8 +72,8 @@ public:
     UtlBoolean deleteDialog(const char* dialogHandle);
 
 
-    //! Get the dialog related fields and set them in the given request
-    /*! Increments the dialogs local Cseq as well.
+    //! Get the dialog-related fields and set them in the given request
+    /*! Increments the dialog's local Cseq as well.
      */
     UtlBoolean setNextLocalTransactionInfo(SipMessage& request,
                                            const char* method = NULL,

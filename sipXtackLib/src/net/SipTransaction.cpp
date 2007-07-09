@@ -563,8 +563,8 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
                     TRUE, // outgoing
                     relationship);
 
-        // Look up the DNS SRV records, create the children tranaction
-        // and start pursuing the first child
+        // Look up the DNS SRV records, create the child transactions,
+        // and start pursuing the first child.
         sendSucceeded = recurseDnsSrvChildren(userAgent, transactionList);
     }
 
