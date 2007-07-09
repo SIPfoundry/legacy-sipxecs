@@ -27,6 +27,7 @@ $VERSION = '0.05';
 # %Child holds pids for each UAS, indexed by $server:$port
 $Me = fileparse($0) ;
 $DefaultUserAgent = "$Me/$VERSION";
+$TopLevel=1; # is this the top level process?
 
 ## Defaults
 $SipPort = 5060;
@@ -237,15 +238,6 @@ $SHORT_HELP
 
 HELP
 
-# If no arguments, tell the user how to get help.  Otherwise, that situation will be
-# processed in the trivial but specified way, with no tests being done and the message
-# "All tests passed.", which probably isn't what the user intended.  But since no arguments
-# causing no tests is within spec, do not flag it as an error.
-if ( $#ARGV == -1 )
-{
-    print "For help, use '--help'.\n";
-}
-
 GetOptions(
            'test-id=s'      => \$TestId,
 
@@ -283,7 +275,7 @@ if ($TestAlarm)
     die "No alarm addresses specified.\n\n$SHORT_HELP\n"
         unless (@EmailAddrs);
 
-    print STDERR "To: " . join(',', @EmailAddrs) ."\n" ;
+    print STDERR "Sending To: " . join(',', @EmailAddrs) ."\n" ;
 
     &SendEmail(\@EmailAddrs, "$TestId test message", 
                "This is a test of alarm delivery.\n"
@@ -371,15 +363,22 @@ foreach $Proxy ( ( @Proxies, @CommServers ) )
 foreach ( @TestList )
 {
     $ErrorState{$_} = "Good" ;
-
 }
-
-$Pinger = Net::Ping->new();
 
 @TestSequence =  sort byOrder @TestList;
 
-print "Planned Test Sequence:\n   ".join("\n   ", @TestSequence )."\n"
-    if $Verbose;
+if ( @TestSequence )
+{
+    print "Planned Test Sequence:\n   ".join("\n   ", @TestSequence )."\n"
+        if $Verbose;
+}
+else
+{
+    die "\nNot enough information to execute any test.\n"
+        . "\nUsage:\n" . $SHORT_HELP . "\n";
+}
+
+$Pinger = Net::Ping->new();
 
 ## and counters
 $ErrorCount = 0 ;
@@ -616,6 +615,10 @@ sub Catch
 {
    warn "Shutting down $Me due to signal\n" 
        if $Verbose > 1;
+
+   &SendEmail(\@EmailAddrs, "$TestId $Me monitor shutting down", "")
+       if $TopLevel && @EmailAddrs;
+
    &Bye(0) ;
 }
 
@@ -651,6 +654,7 @@ sub StartUas
        # this is the child (the UAS), delete any record of siblings
        $Me = "SipUas($server:$port)";
        %Child = ();
+       $TopLevel=0;
        # and start listening
        &SipUas($myPort, $MyAddr) ;
    }
@@ -1357,7 +1361,6 @@ sub SendEmail
    print SENDMAIL "." ;
    close(SENDMAIL)
 }
-
 
 
 __END__
