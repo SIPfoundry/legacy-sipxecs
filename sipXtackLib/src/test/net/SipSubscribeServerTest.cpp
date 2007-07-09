@@ -88,14 +88,6 @@ class SipSubscribeServerTest : public CppUnit::TestCase
    {
       UtlString hostIp("127.0.0.1");
 
-      // The resource address to use.
-      UtlString aor;
-      {
-         char buffer[100];
-         sprintf(buffer, "sip:111@%s:%d", hostIp.data(), UNIT_TEST_SIP_PORT);
-         aor = buffer;
-      }
-
       // Test MWI messages
       const char* mwiSubscribe =
          "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
@@ -120,9 +112,41 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
       UtlString eventName(SIP_EVENT_MESSAGE_SUMMARY);
       UtlString mwiMimeType(CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY);
-      SipUserAgent userAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT, PORT_NONE,
+
+      // Construct a user agent that will function both as the subscriber
+      // and the notfier.
+      // Listen on only a TCP port, as we do not want to have to specify a
+      // fixed port number (to allow multiple executions of the test),
+      // and the code to select a port automatically cannot be told to
+      // open matching UDP and TCP ports.
+      SipUserAgent userAgent(PORT_DEFAULT, PORT_NONE, PORT_NONE,
                              NULL, NULL, hostIp);
       userAgent.start();
+
+      // Construct the URI of the notifier, which is also the URI of
+      // the subscriber.
+      UtlString aor;
+      // Also construct the name-addr version of the URI, which may be
+      // different if it has a "transport" parameter.
+      UtlString aor_name_addr;
+      // And the resource-id to use, which is the AOR with any
+      // parameters stripped off.
+      UtlString resource_id;
+      {
+         char buffer[100];
+         sprintf(buffer, "sip:111@%s:%d", hostIp.data(),
+                 userAgent.getTcpPort());
+         resource_id = buffer;
+
+         // Specify TCP transport, because that's all the UA listens to.
+         // Using an address with a transport parameter also exercises
+         // SipDialog to ensure it handles contact addresses with parameters.
+         strcat(buffer, ";transport=tcp");
+         aor = buffer;
+
+         Url aor_uri(buffer, TRUE);
+         aor_uri.toString(aor_name_addr);
+      }
 
       SipSubscribeServer* subServer = 
          SipSubscribeServer::buildBasicServer(userAgent, 
@@ -182,7 +206,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
                                                        aor, 
                                                        SIP_PROTOCOL_VERSION);
-      mwiSubscribeRequest.setContactField(aor);
+      mwiSubscribeRequest.setContactField(aor_name_addr);
 
       CPPUNIT_ASSERT(userAgent.send(mwiSubscribeRequest));
 
@@ -235,7 +259,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          const int version = 0;
          SipPublishContentMgr* publishMgr = subServer->getPublishMgr(eventName);
          CPPUNIT_ASSERT(publishMgr);
-         publishMgr->publish(aor, 
+         publishMgr->publish(resource_id, 
                              eventName, 
                              eventName, 
                              1, 
@@ -277,7 +301,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       oneTimeMwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
                                                               aor, 
                                                               SIP_PROTOCOL_VERSION);
-      oneTimeMwiSubscribeRequest.setContactField(aor);
+      oneTimeMwiSubscribeRequest.setContactField(aor_name_addr);
       oneTimeMwiSubscribeRequest.setEventField(SIP_EVENT_MESSAGE_SUMMARY);
 
       CPPUNIT_ASSERT(userAgent.send(oneTimeMwiSubscribeRequest));
