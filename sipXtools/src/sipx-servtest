@@ -60,6 +60,7 @@ $SHORT_HELP = <<SHORT_HELP;
 
                  [--aor <aor>]...  
                  [--alarm <alarm-address>]...  
+                 [--alarm-from <from-address>]...  
 
                  [--delay <delay-seconds>]
                  [--timeout <timeout-seconds>]
@@ -168,6 +169,9 @@ $SHORT_HELP
          platform reaches each recipient promptly.  
          Does not actually run any tests.
 
+      --alarm-from <from-address> or -f <from-address>
+        The From address for alarm email mail messages.
+
       --timeout <timeout-seconds> (default is 10)
          How long to wait for an expected event in any test.
 
@@ -259,6 +263,7 @@ GetOptions(
 
            'test-alarm'     => \$TestAlarm,
            'alarm|e=s'      => \@EmailAddrs,
+           'alarm-from|f=s' => \$AlarmFrom,
 
            'help|h'         => \$Help,
            ) 
@@ -1355,6 +1360,8 @@ sub SendEmail
 
    open(SENDMAIL, "|$SendMailCmd") || die "Cannot open $SendMailCmd: $!" ;
    print SENDMAIL "To: " . join(',', @{$addrlist}) ."\n" ;
+   print SENDMAIL "From: ${AlarmFrom}\n" 
+       if ${AlarmFrom};
    print SENDMAIL "Subject: $subject\n" ;
    print SENDMAIL "Content-type: text/plain\n\n" ;
    print SENDMAIL "$message\n" ;
