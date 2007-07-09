@@ -86,8 +86,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
    void subscriptionTest()
    {
-      UtlString hostIp = "127.0.0.1";
-      // OsSocket::getHostIp(&hostIp);
+      UtlString hostIp("127.0.0.1");
 
       // The resource address to use.
       UtlString aor;
@@ -100,8 +99,8 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       // Test MWI messages
       const char* mwiSubscribe =
          "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
-         "From: \"Dan Petrie\"<sip:111@example.com>;tag=1612c1612\r\n"
-         "To: \"Dan Petrie\"<sip:111@example.com>\r\n"
+         "From: <sip:111@example.com>;tag=1612c1612\r\n"
+         "To: <sip:111@example.com>\r\n"
          "Call-Id: e2aab34a72a0eb18300fbec445d5d665\r\n"
          "Cseq: 1 SUBSCRIBE\r\n"
          "Event: message-summary\r\n"
@@ -119,8 +118,8 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          "Messages-Waiting: no\r\n"
          "Voice-Message: 0/0 (0/0)\r\n";
 
-      UtlString eventName("message-summary");
-      UtlString mwiMimeType("application/simple-message-summary");
+      UtlString eventName(SIP_EVENT_MESSAGE_SUMMARY);
+      UtlString mwiMimeType(CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY);
       SipUserAgent userAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT, PORT_NONE,
                              NULL, NULL, hostIp);
       userAgent.start();
@@ -252,20 +251,24 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       CPPUNIT_ASSERT(subscribeResponse == NULL);
 
       // Check that the body of the NOTIFY is what we expect (mwiStateString).
-      const HttpBody* secondNotifyBody = secondNotify->getBody();
-      CPPUNIT_ASSERT(secondNotifyBody);
-      int notifyBodySize;
-      const char* notifyBodyBytes;
-      secondNotifyBody->getBytes(&notifyBodyBytes, &notifyBodySize);
-      CPPUNIT_ASSERT(notifyBodyBytes);
-      ASSERT_STR_EQUAL(mwiStateString, notifyBodyBytes);
+      {
+         const HttpBody* secondNotifyBody = secondNotify->getBody();
+         CPPUNIT_ASSERT(secondNotifyBody);
+         int notifyBodySize;
+         const char* notifyBodyBytes;
+         secondNotifyBody->getBytes(&notifyBodyBytes, &notifyBodySize);
+         CPPUNIT_ASSERT(notifyBodyBytes);
+         ASSERT_STR_EQUAL(mwiStateString, notifyBodyBytes);
+      }
 
       // Check that the Dialog Manager reports that the dialog handle is OK.
-      UtlString secondNotifyDialogHandle;
-      secondNotify->getDialogHandle(secondNotifyDialogHandle);
-      CPPUNIT_ASSERT(!secondNotifyDialogHandle.isNull());
-      CPPUNIT_ASSERT(dialogMgr->dialogExists(secondNotifyDialogHandle));
-      CPPUNIT_ASSERT(dialogMgr->countDialogs() == 1);
+      {
+         UtlString secondNotifyDialogHandle;
+         secondNotify->getDialogHandle(secondNotifyDialogHandle);
+         CPPUNIT_ASSERT(!secondNotifyDialogHandle.isNull());
+         CPPUNIT_ASSERT(dialogMgr->dialogExists(secondNotifyDialogHandle));
+         CPPUNIT_ASSERT(dialogMgr->countDialogs() == 1);
+      }
 
       // Create a new one-time SUBSCRIBE
       SipMessage oneTimeMwiSubscribeRequest(mwiSubscribe);
@@ -275,6 +278,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
                                                               aor, 
                                                               SIP_PROTOCOL_VERSION);
       oneTimeMwiSubscribeRequest.setContactField(aor);
+      oneTimeMwiSubscribeRequest.setEventField(SIP_EVENT_MESSAGE_SUMMARY);
 
       CPPUNIT_ASSERT(userAgent.send(oneTimeMwiSubscribeRequest));
 
@@ -283,99 +287,55 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       runListener(incomingClientMsgQueue, userAgent, messageTimeout,
                   oneTimeNotifyRequest, oneTimeSubscribeResponse, SIP_OK_CODE);
 
-#if 0
-
-      // Get the subscribe response or notify request
-      incomingClientMsgQueue.receive(osMessage, messageTimeout);
-      msgType = osMessage->getMsgType();
-      msgSubType = osMessage->getMsgSubType();
-      CPPUNIT_ASSERT(msgType == OsMsg::PHONE_APP);
-      CPPUNIT_ASSERT(msgSubType == SipMessage::NET_SIP_MESSAGE);
-      const SipMessage* sipMessage = ((SipMessageEvent*)osMessage)->getMessage();
-      messageType = ((SipMessageEvent*)osMessage)->getMessageStatus();
-      CPPUNIT_ASSERT(sipMessage);
-      CPPUNIT_ASSERT(messageType == SipMessageEvent::APPLICATION);
-      // SUBSCRIBE response and NOTIFY request can come in either order
-      if(sipMessage->isResponse())
-      {
-         oneTimeSubscribeResponse = sipMessage;
-      }
-      else
-      {
-         oneTimeNotifyRequest = sipMessage;
-         // Immediately generate a NOTIFY response
-         SipMessage notifyResponse;
-         notifyResponse.setResponseData(oneTimeNotifyRequest, 
-                                        SIP_OK_CODE,
-                                        SIP_OK_TEXT);
-         userAgent.send(notifyResponse);
-      }
-
-      // Get the subscribe response or notify request
-      incomingClientMsgQueue.receive(osMessage, messageTimeout);
-      msgType = osMessage->getMsgType();
-      msgSubType = osMessage->getMsgSubType();
-      CPPUNIT_ASSERT(msgType == OsMsg::PHONE_APP);
-      CPPUNIT_ASSERT(msgSubType == SipMessage::NET_SIP_MESSAGE);
-      sipMessage = ((SipMessageEvent*)osMessage)->getMessage();
-      messageType = ((SipMessageEvent*)osMessage)->getMessageStatus();
-      CPPUNIT_ASSERT(sipMessage);
-      CPPUNIT_ASSERT(messageType == SipMessageEvent::APPLICATION);
-      // SUBSCRIBE response and NOTIFY request can come in either order
-      if(sipMessage->isResponse())
-      {
-         oneTimeSubscribeResponse = sipMessage;
-      }
-      else
-      {
-         oneTimeNotifyRequest = sipMessage;
-         // Immediately generate a NOTIFY response
-         SipMessage notifyResponse;
-         notifyResponse.setResponseData(oneTimeNotifyRequest, 
-                                        SIP_OK_CODE,
-                                        SIP_OK_TEXT);
-         userAgent.send(notifyResponse);
-      }
-
       // Validate the one time subscribe response and notify request
       CPPUNIT_ASSERT(oneTimeSubscribeResponse);
       CPPUNIT_ASSERT(oneTimeNotifyRequest);
 
-      UtlString oneTimeSubscribeMethod;
-      UtlString oneTimeNotifyMethod;
-      oneTimeNotifyRequest->getRequestMethod(&oneTimeNotifyMethod);
-      oneTimeSubscribeResponse->getCSeqField(NULL, &oneTimeSubscribeMethod);
-      ASSERT_STR_EQUAL(SIP_SUBSCRIBE_METHOD, oneTimeSubscribeMethod.data());
-      ASSERT_STR_EQUAL(SIP_NOTIFY_METHOD, oneTimeNotifyMethod.data());
-      UtlString oneTimeNotifyEventHeader;
-      UtlString oneTimeSubscribeEventHeader;
-      oneTimeNotifyRequest->getEventField(oneTimeNotifyEventHeader);
-      oneTimeSubscribeResponse->getEventField(oneTimeSubscribeEventHeader);
-      ASSERT_STR_EQUAL(oneTimeSubscribeEventHeader, oneTimeNotifyEventHeader);
+      {
+         UtlString oneTimeSubscribeMethod;
+         oneTimeSubscribeResponse->getCSeqField(NULL, &oneTimeSubscribeMethod);
+         ASSERT_STR_EQUAL(SIP_SUBSCRIBE_METHOD, oneTimeSubscribeMethod.data());
+         UtlString oneTimeSubscribeEventHeader;
+         oneTimeSubscribeResponse->getEventField(oneTimeSubscribeEventHeader);
+         // The Event: header never appears in responses -- see RFC 3265 section 7.2.
+         // The "R" in the "where" column means that "Event" appears only in
+         // requests -- see RFC 3261 table 2 and page 160.
+         ASSERT_STR_EQUAL("", oneTimeSubscribeEventHeader);
+      }
 
-      const HttpBody* oneTimeBodyPtr = NULL;
-      oneTimeBodyPtr = oneTimeNotifyRequest->getBody();
-      CPPUNIT_ASSERT(oneTimeBodyPtr != NULL);
-      const char* oneTimeBodyString = NULL;
-      int oneTimeNotifyBodySize;
-      oneTimeBodyPtr->getBytes(&oneTimeBodyString, &oneTimeNotifyBodySize);
-      ASSERT_STR_EQUAL(mwiStateString, oneTimeBodyString);
-      UtlString oneTimeNotifyDialogHandle;
-      secondNotify->getDialogHandle(oneTimeNotifyDialogHandle);
-      CPPUNIT_ASSERT(!oneTimeNotifyDialogHandle.isNull());
-      CPPUNIT_ASSERT(dialogMgr->dialogExists(oneTimeNotifyDialogHandle));
-      CPPUNIT_ASSERT(dialogMgr->countDialogs() == 2);
-      long now = OsDateTime::getSecsSinceEpoch();
-      UtlString dialogDump;
-      dialogMgr->toString(dialogDump);
-      //ASSERT_STR_EQUAL(dialogDump.isNull() ? "" : dialogDump.data(), "");
-      subMgr->removeOldSubscriptions(now + 1);
-      // The one time subscription should get garbage collected
-      // leaving only the persistant 3600 second subscription
-      CPPUNIT_ASSERT(dialogMgr->countDialogs() == 1);
+      {
+         UtlString oneTimeNotifyMethod;
+         oneTimeNotifyRequest->getRequestMethod(&oneTimeNotifyMethod);
+         ASSERT_STR_EQUAL(SIP_NOTIFY_METHOD, oneTimeNotifyMethod.data());
+         UtlString oneTimeNotifyEventHeader;
+         oneTimeNotifyRequest->getEventField(oneTimeNotifyEventHeader);
+         // The Event: header should appear in the NOTIFY.
+         ASSERT_STR_EQUAL(SIP_EVENT_MESSAGE_SUMMARY, oneTimeNotifyEventHeader);
+      }
 
-      // Cleanup to prevent use of the queue after it goes out of
-      // scope
+      {
+         const HttpBody* oneTimeBodyPtr = oneTimeNotifyRequest->getBody();
+         CPPUNIT_ASSERT(oneTimeBodyPtr != NULL);
+         const char* oneTimeBodyString;
+         int oneTimeNotifyBodySize;
+         oneTimeBodyPtr->getBytes(&oneTimeBodyString, &oneTimeNotifyBodySize);
+         ASSERT_STR_EQUAL(mwiStateString, oneTimeBodyString);
+      }
+
+      {
+         UtlString oneTimeNotifyDialogHandle;
+         secondNotify->getDialogHandle(oneTimeNotifyDialogHandle);
+         CPPUNIT_ASSERT(!oneTimeNotifyDialogHandle.isNull());
+         CPPUNIT_ASSERT(dialogMgr->dialogExists(oneTimeNotifyDialogHandle));
+         CPPUNIT_ASSERT(dialogMgr->countDialogs() == 2);
+         long now = OsDateTime::getSecsSinceEpoch();
+         subMgr->removeOldSubscriptions(now + 1);
+         // The one time subscription should get garbage collected
+         // leaving only the persistant 3600 second subscription
+         CPPUNIT_ASSERT(dialogMgr->countDialogs() == 1);
+      }
+
+      // Clean up to prevent use of the queue after it goes out of scope.
       userAgent.removeMessageObserver(incomingClientMsgQueue);
       userAgent.removeMessageObserver(incomingClientMsgQueue);
 
@@ -383,7 +343,6 @@ class SipSubscribeServerTest : public CppUnit::TestCase
        
       delete subServer;
       subServer = NULL;
-#endif // 0
    }
 
 };
