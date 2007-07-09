@@ -157,7 +157,7 @@ public:
                                 const char* eventType,
                                 int numContentTypes,
                                 HttpBody* eventContent[],
-                                int eventVersion[]);
+                                const int eventVersion[]);
 
     /** Add a default content constructor function.
      *
@@ -221,7 +221,7 @@ public:
                          const char* eventType,
                          int numContentTypes,
                          HttpBody* eventContent[],
-                         int eventVersion[],
+                         const int eventVersion[],
                          UtlBoolean noNotify = FALSE);
 
     /** Remove the content for the given resourceId and eventTypeKey

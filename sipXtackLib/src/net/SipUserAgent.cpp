@@ -621,8 +621,8 @@ void SipUserAgent::allowMethod(const char* methodName, const bool bAllow)
 
 
 UtlBoolean SipUserAgent::send(SipMessage& message,
-                            OsMsgQ* responseListener,
-                            void* responseListenerData)
+                              OsMsgQ* responseListener,
+                              void* responseListenerData)
 {
    if(mbShuttingDown)
    {

@@ -126,7 +126,7 @@ void SipPublishContentMgr::publish(const char* resourceId,
                                    const char* eventType,
                                    int numContentTypes,
                                    HttpBody* eventContent[],
-                                   int eventVersion[],
+                                   const int eventVersion[],
                                    UtlBoolean noNotify)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -215,7 +215,7 @@ void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
                                           const char* eventType,
                                           int numContentTypes,
                                           HttpBody* eventContent[],
-                                          int eventVersion[])
+                                          const int eventVersion[])
 {
     publish(NULL,
             eventTypeKey,
@@ -515,8 +515,8 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
            UtlSListIterator versionIterator(container->mEventVersion);
            UtlInt* versionPtr;
            while (!foundContent &&
-                  (bodyPtr = (HttpBody*)contentIterator(),
-                   versionPtr = (UtlInt*)versionIterator()))
+                  (bodyPtr = dynamic_cast <HttpBody*> (contentIterator()),
+                   versionPtr = dynamic_cast <UtlInt*> (versionIterator())))
            {
               // Test if ';' is present in *bodyPtr's MIME type.
               // (Remember that an HttpBody considered as a UtlString has
@@ -552,8 +552,10 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
         else
         {
            // No MIME types were specified, take the first content in the list.
-           HttpBody* bodyPtr = (HttpBody*) container->mEventContent.first();
-           UtlInt* versionPtr = (UtlInt*) container->mEventVersion.first();
+           HttpBody* bodyPtr =
+              dynamic_cast <HttpBody*> (container->mEventContent.first());
+           UtlInt* versionPtr =
+              dynamic_cast <UtlInt*> (container->mEventVersion.first());
            if (bodyPtr)
            {
               content = bodyPtr->copy();
