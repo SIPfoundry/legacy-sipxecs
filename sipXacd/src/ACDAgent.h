@@ -35,7 +35,7 @@ class UtlSList;
 class ACDCallManager;
 class ACDAgentManager;
 class ACDQueue;
-
+class ACDCall;
 
 class ACDAgent : public UtlContainable, public LinePresenceBase, public OsServerTask {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -67,8 +67,8 @@ public:
    // Convert the comma seperated list of ACDQueues to an SList of ACDQueue pointers.
    void buildACDQueueList(void);
 
-   // Initiate an outbound call on the specified line to this agent
-   SIPX_CALL connect(SIPX_LINE hLine, const char* pCallId, const char * pFrom);
+   // Initiate an outbound call to this agent using ACDCall information
+   SIPX_CALL connect(ACDCall* pCall);
 
    // Drop the ACDAgent connection
    void drop(void);

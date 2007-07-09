@@ -100,7 +100,7 @@ void ACDCallRouteState_IDLE::routeRequestEvent(ACDCall* pAcdCallInstance)
    UtlSListIterator listIterator(pAcdCallInstance->mAgentCandidateList);
    ACDAgent* pAgent;
    while ((pAgent = dynamic_cast<ACDAgent*>(listIterator())) != NULL) {
-      SIPX_CALL hCall = pAgent->connect(pAcdCallInstance->mhAcdAgentLineHandle, pAcdCallInstance->mCallId, pAcdCallInstance->mpCallIdentity);
+      SIPX_CALL hCall = pAgent->connect(pAcdCallInstance);
       if (hCall != SIPX_CALL_NULL)
       {
          pAcdCallInstance->getAcdCallManager()->addMapAgentCallHandleToCall(hCall, pAcdCallInstance);

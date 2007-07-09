@@ -1379,8 +1379,7 @@ void ACDCall::routeRequestAddAgentMessage(ACDAgent* pTargetAgent)
       // Add the agent to the candidate list
       mAgentCandidateList.append(pTargetAgent);
       // and initiate a connect request to it.
-      SIPX_CALL hCall = pTargetAgent->connect(mhAcdAgentLineHandle, 
-         mCallId, mpCallIdentity);
+      SIPX_CALL hCall = pTargetAgent->connect(this);
       if (hCall != SIPX_CALL_NULL)
       {
          mpAcdCallManager->addMapAgentCallHandleToCall(hCall, this);

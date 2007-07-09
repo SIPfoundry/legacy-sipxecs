@@ -202,12 +202,7 @@ void ACDAgent::updateState(ePresenceStateType type, bool state)
 //  NAME:        ACDAgent::connect
 //
 //  SYNOPSIS:    SIPX_CALL connect(
-//                 SIPX_LINE   hLine,    sipXtapi outbound line handle
-//                 const char* pCallId   the Call ID of the incoming call that
-//                                       this agent is being requested to 
-//                                       service
-//                 const char* pFrom     the From URI of the incoming call
-//                                       so we can spoof our outbound call
+//                 ACDCall *   pACDCall, incoming ACD call  
 //                                 )
 //
 //  DESCRIPTION: Create an outbound sipXtapi call to the ACDAgents configured URI.  It will
@@ -221,8 +216,12 @@ void ACDAgent::updateState(ePresenceStateType type, bool state)
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SIPX_CALL ACDAgent::connect(SIPX_LINE hLine, const char* pCallId, const char *pFrom)
+SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
 {
+   SIPX_LINE hLine = pACDCall->getAcdAgentLineHandle();
+   const char *pCallId = pACDCall->getCallId() ; // The Call-Id of ACDCall
+   const char *pFrom = pACDCall->getCallIdentity() ; // The "From" of ACDCall
+
    // Create the outbound call to the agent URI
    if (sipxCallCreate(mhAcdCallManagerHandle, hLine, &mhCallHandle) != SIPX_RESULT_SUCCESS) {
       OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAgent::connect - ACDAgent(%s) failed to create outbound call",
@@ -245,14 +244,26 @@ SIPX_CALL ACDAgent::connect(SIPX_LINE hLine, const char* pCallId, const char *pF
    // Mark the agent as being off-hook
    setOnHook(false) ;
 
+   UtlString agentUrlString ;
+
+   // get the queue name where the call came from
+   ACDQueue* acdQueue = pACDCall->getMpManagingQueue();
+   if(acdQueue) {
+      UtlString *queueName = acdQueue->getQueueName();
+      if (queueName) {
+         // Add the queue name where the call came from as the text part 
+         // of the SIP URL in To header.
+         agentUrlString = "\"" + *queueName + "\" " ;
+      }
+   }
+
    // Add the sipx-noroute=Voicemail parameter to prevent the proxy from
    // routing this Agent call to voicemail if the agent doesn't answer, and
    // has voicemail enabled.
 
    // The angle brackets are required to make the parameter a URI parameter
    // and show up in the request URI not just the "To" field.
-   UtlString agentUrlString = "<" + mUriString + ";sipx-noroute=VoiceMail>" ;
-   
+   agentUrlString += "<" + mUriString + ";sipx-noroute=VoiceMail>" ;
    
    // Fire off the call
    if (sipxCallConnect(mhCallHandle, agentUrlString, 0, NULL, pTempId, pFrom) != SIPX_RESULT_SUCCESS) {

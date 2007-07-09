@@ -135,7 +135,10 @@ public:
    virtual UtlContainableType getContainableType() const;
    
    // Return the connection scheme used by this queue
-   int getConnectionScheme() {return mCallConnectScheme;};
+   virtual int getConnectionScheme() {return mCallConnectScheme;};
+
+   // Return the name of this queue
+   virtual UtlString* getQueueName() {return &mName;};
 
 /* ============================ INQUIRY =================================== */
 
@@ -156,9 +159,9 @@ protected:
    virtual void adjustTimers(void);
    
    ACDQueueManager* mpAcdQueueManager;       // Reference to the parent QueueManager object
-   Url              mUri;                    // The AOR for this Agent
-   UtlString        mUriString;              // The AOR for this Agent
-   UtlString        mName;                   // The descriptive name for this Agent
+   Url              mUri;                    // The AOR for this Queue
+   UtlString        mUriString;              // The AOR for this Queue
+   UtlString        mName;                   // The descriptive name for this Queue
    int              mAcdScheme;
    const char*      mAcdSchemeString;
    int              mMaxRingDelay;

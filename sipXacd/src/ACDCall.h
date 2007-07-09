@@ -133,7 +133,6 @@ public:
 
    ACDAgent* isBeingPickedUp(bool& bRet);
 
-   UtlString getCallId() { return mCallId; }
 
 #endif
 
@@ -142,6 +141,8 @@ public:
    SIPX_CALL getCallHandle(void);
 
    const char* getCallIdentity(void);
+
+   UtlString getCallId() { return mCallId; }
 
    virtual unsigned hash() const;
 
@@ -162,6 +163,9 @@ public:
 
    void resetRouteState(void);
 
+   ACDQueue* getMpManagingQueue() { return mpManagingQueue; };
+
+   SIPX_LINE getAcdAgentLineHandle() { return mhAcdAgentLineHandle; };
 
 /* ============================ INQUIRY =================================== */
 
