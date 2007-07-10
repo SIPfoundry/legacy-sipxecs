@@ -14,6 +14,7 @@
 #include <utl/UtlString.h>
 #include <os/OsDefs.h>
 #include <os/OsDateTime.h>
+#include <net/CallId.h>
 #include <net/SipDialog.h>
 #include <net/SipMessage.h>
 #include <net/SipDialogMgr.h>
@@ -105,7 +106,6 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
          "From: <sip:111@example.com>;tag=1612c1612\r\n"
          "To: <sip:111@example.com>\r\n"
-         "Call-Id: e2aab34a72a0eb18300fbec445d5d665\r\n"
          "Cseq: 1 SUBSCRIBE\r\n"
          "Event: message-summary\r\n"
          "Accept: application/simple-message-summary\r\n"
@@ -215,6 +215,11 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
       // Send a SUBSCRIBE to ourselves
       SipMessage mwiSubscribeRequest(mwiSubscribe);
+      {
+         UtlString c;
+         CallId::getNewCallId(c);
+         mwiSubscribeRequest.setCallIdField(c);
+      }
       mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
                                                        aor, 
                                                        SIP_PROTOCOL_VERSION);
@@ -316,7 +321,11 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
       // Create a new one-time SUBSCRIBE
       SipMessage oneTimeMwiSubscribeRequest(mwiSubscribe);
-      oneTimeMwiSubscribeRequest.setCallIdField("1234567890");
+      {
+         UtlString c;
+         CallId::getNewCallId(c);
+         oneTimeMwiSubscribeRequest.setCallIdField(c);
+      }
       oneTimeMwiSubscribeRequest.setExpiresField(0);
       oneTimeMwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
                                                               aor, 
@@ -405,7 +414,6 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
          "From: <sip:111@example.com>;tag=1612c1612\r\n"
          "To: <sip:111@example.com>\r\n"
-         "Call-Id: e2aab34a72a0eb18300fbec445d5d665\r\n"
          "Cseq: 1 SUBSCRIBE\r\n"
          "Event: message-summary\r\n"
          "Accept: application/simple-message-summary\r\n"
@@ -492,6 +500,11 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
       // Send a SUBSCRIBE to ourselves
       SipMessage mwiSubscribeRequest(mwiSubscribe);
+      {
+         UtlString c;
+         CallId::getNewCallId(c);
+         mwiSubscribeRequest.setCallIdField(c);
+      }
       mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
                                                        aor, 
                                                        SIP_PROTOCOL_VERSION);
@@ -574,7 +587,6 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
          "From: <sip:111@example.com>;tag=1612c1612\r\n"
          "To: <sip:111@example.com>\r\n"
-         "Call-Id: e2aab34a72a0eb18300fbec445d5d665\r\n"
          "Cseq: 1 SUBSCRIBE\r\n"
          "Event: message-summary\r\n"
          "Accept: application/simple-message-summary\r\n"
@@ -661,6 +673,11 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
       // Send a SUBSCRIBE to ourselves
       SipMessage mwiSubscribeRequest(mwiSubscribe);
+      {
+         UtlString c;
+         CallId::getNewCallId(c);
+         mwiSubscribeRequest.setCallIdField(c);
+      }
       mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
                                                        aor, 
                                                        SIP_PROTOCOL_VERSION);
@@ -748,7 +765,6 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
          "From: <sip:111@example.com>;tag=1612c1612\r\n"
          "To: <sip:111@example.com>\r\n"
-         "Call-Id: e2aab34a72a0eb18300fbec445d5d665\r\n"
          "Cseq: 1 SUBSCRIBE\r\n"
          "Event: message-summary\r\n"
          "Accept: application/simple-message-summary\r\n"
@@ -835,6 +851,11 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
       // Send a SUBSCRIBE to ourselves
       SipMessage mwiSubscribeRequest(mwiSubscribe);
+      {
+         UtlString c;
+         CallId::getNewCallId(c);
+         mwiSubscribeRequest.setCallIdField(c);
+      }
       mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
                                                        aor, 
                                                        SIP_PROTOCOL_VERSION);
@@ -910,7 +931,6 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
          "From: <sip:111@example.com>;tag=1612c1612\r\n"
          "To: <sip:111@example.com>\r\n"
-         "Call-Id: e2aab34a72a0eb18300fbec445d5d665\r\n"
          "Cseq: 1 SUBSCRIBE\r\n"
          "Event: message-summary\r\n"
          "Accept: application/simple-message-summary\r\n"
@@ -997,6 +1017,11 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
       // Send a SUBSCRIBE to ourselves
       SipMessage mwiSubscribeRequest(mwiSubscribe);
+      {
+         UtlString c;
+         CallId::getNewCallId(c);
+         mwiSubscribeRequest.setCallIdField(c);
+      }
       mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
                                                        aor, 
                                                        SIP_PROTOCOL_VERSION);
