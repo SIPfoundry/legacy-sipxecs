@@ -1,20 +1,64 @@
-<span jwcid="$content$">
 <fieldset>
     <legend><span key="section">ACD Lines</span></legend>
     <ul class="component-links">
-        <li jwcid="ifRenderAddLink">
-            <a jwcid="addLink"  id="queue:add" href="#"><span key="add_link">Add New Line</span></a>
+        <li jwcid="ifRenderAddLink@If"
+           condition="ognl:addListener != null"
+           element="literal:li">
+           <a jwcid="addLink@DirectLink" id="queue:add" href="#"
+              listener="ognl:addListener">
+              <span key="add_link">Add New Line</span>
+           </a>
         </li>
     </ul>
-	<table jwcid="tableView" id="queue:list" class="component">
-		<span jwcid="nameColumnValue">
-			<span jwcid="editRowLink"><span jwcid="nameText"/></span>
+	<table jwcid="tableView@Table" id="queue:list" class="component"
+	   source="prop:queues"
+	   columns="literal:* name:name,description:description,overflowQueue:overflowQueue"
+	   row="prop:currentRow"
+	   converter="prop:converter"
+	   selections="ognl:selections"
+	   usePager="ognl:false">
+		<span jwcid="nameColumnValue@Block">
+			<span jwcid="editRowLink@DirectLink"
+			   listener="ognl:selectListener"
+               parameters="ognl:currentRow.id">
+			   <span jwcid="nameText@Insert"
+			      value="ognl:currentRow.name"/>
+			</span>
 		</span>
+		<span jwcid="overflowQueueColumnValue@Block">
+           <span jwcid="@If" condition="ognl:currentRow.overflowQueue">
+              <span jwcid="@DirectLink"
+                 listener="ognl:selectListener"
+                 parameters="ognl:currentRow.overflowQueue.id">
+                 <span jwcid="@Insert" value="ognl:currentRow.overflowQueue.name"/>
+              </span>
+          </span>
+       </span>
 	</table>
     <ul class="component-submit">
-        <li jwcid="ifRenderDelete"><input jwcid="delete" type="submit" id="queue:delete" name=""/></li>
-        <li jwcid="ifRenderMoveUp"><input jwcid="moveUp" type="submit" id="agent:moveUp"/></li>
-        <li jwcid="ifRenderMoveDown"><input jwcid="moveDown" type="submit" id="agent:moveDown"/></li>        
+        <li jwcid="ifRenderDelete@If"
+           condition="ognl:acdAgentId == null"
+           element="literal:li">
+           <input jwcid="delete@Submit" type="submit" id="queue:delete" name=""
+              selected="prop:rowsToDelete"
+              tag="ognl:selections.allSelected"
+              value="message:button.delete"/>
+        </li>
+        <li jwcid="ifRenderMoveUp@If"
+           condition="ognl:acdAgentId != null"
+           element="literal:li">
+           <input jwcid="moveUp@Submit" type="submit" id="agent:moveUp"
+              selected="prop:rowsToMoveUp"
+              tag="ognl:selections.allSelected"
+              value="message:button.moveUp"/>
+        </li>
+        <li jwcid="ifRenderMoveDown@If"
+           condition="ognl:acdAgentId != null"
+           element="literal:li">
+           <input jwcid="moveDown@Submit" type="submit" id="agent:moveDown"
+              selected="prop:rowsToMoveDown"
+              tag="ognl:selections.allSelected"
+              value="message:button.moveDown"/>
+        </li>
     </ul>
 </fieldset>
-</span>        
