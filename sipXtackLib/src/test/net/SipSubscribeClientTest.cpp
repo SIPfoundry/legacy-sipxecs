@@ -23,7 +23,7 @@
 #include <net/SipPublishContentMgr.h>
 
 #define UNIT_TEST_SIP_PORT 44446
-#define NUM_OF_ITERATIONS 1000
+#define NUM_OF_ITERATIONS 10
 
 /**
  * Unit test for SipSubscribeClient
@@ -33,10 +33,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(SipSubscribeClientMgr);
     CPPUNIT_TEST(subscribeHandleTest);
-#if 0
-    // Fails -- see XECS-252.
     CPPUNIT_TEST(subscribeCountNotifyMwiClientTest);
-#endif
     CPPUNIT_TEST(subscribeMwiClientTest);
     CPPUNIT_TEST_SUITE_END();
 
@@ -613,79 +610,80 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
 	serverHostPort = serverurl.toString();
 
         int i = 0;
-        for (i = 0 ; i < NUM_OF_ITERATIONS ; i++ ) {
-        SipUserAgent serverUserAgent(UNIT_TEST_SIP_PORT+1, UNIT_TEST_SIP_PORT+1);
-        SipUserAgent clientUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT);
+        for (i = 0 ; i < NUM_OF_ITERATIONS ; i++ )
+        {
+           SipUserAgent serverUserAgent(UNIT_TEST_SIP_PORT+1, UNIT_TEST_SIP_PORT+1);
+           SipUserAgent clientUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT);
 
-        serverUserAgent.start();
-        clientUserAgent.start();
+           serverUserAgent.start();
+           clientUserAgent.start();
 
 
-        // Set up the subscribe client
-        SipDialogMgr clientDialogMgr;
-        SipRefreshManager refreshMgr(clientUserAgent, clientDialogMgr);
-        refreshMgr.start();
-        SipSubscribeClient subClient(clientUserAgent, clientDialogMgr, refreshMgr);
-        subClient.start();
+           // Set up the subscribe client
+           SipDialogMgr clientDialogMgr;
+           SipRefreshManager refreshMgr(clientUserAgent, clientDialogMgr);
+           refreshMgr.start();
+           SipSubscribeClient subClient(clientUserAgent, clientDialogMgr, refreshMgr);
+           subClient.start();
 
-        // Set up the subscribe server
-        SipSubscribeServer* subServer = 
-           SipSubscribeServer::buildBasicServer(serverUserAgent, 
-                                                eventType);
-        subServer->start();
-        // Enable the handler for the MWI server
-        subServer->enableEventType(eventType, &serverUserAgent);
+           // Set up the subscribe server
+           SipSubscribeServer* subServer = 
+              SipSubscribeServer::buildBasicServer(serverUserAgent, 
+                                                   eventType);
+           subServer->start();
+           // Enable the handler for the MWI server
+           subServer->enableEventType(eventType, &serverUserAgent);
 
-        UtlString resourceId("111@");
-        UtlString domain;
-        serverurl.getHostWithPort(domain);
-        resourceId.append(domain);
+           UtlString resourceId("111@");
+           UtlString domain;
+           serverurl.getHostWithPort(domain);
+           resourceId.append(domain);
 
-        clienturl.setUserId("111");
-        clienturl.setDisplayName("Frida");
-        clienturl.setScheme(Url::SipUrlScheme);
-        clienturl.includeAngleBrackets();
-        clienturl.includeAngleBrackets();
-        UtlString from = clienturl.toString();
-        UtlString contact(from);
+           clienturl.setUserId("111");
+           clienturl.setDisplayName("Frida");
+           clienturl.setScheme(Url::SipUrlScheme);
+           clienturl.includeAngleBrackets();
+           clienturl.includeAngleBrackets();
+           UtlString from = clienturl.toString();
+           UtlString contact(from);
 
-        serverurl.setUserId("222");
-        serverurl.setDisplayName("Tia");
-        serverurl.setScheme(Url::SipUrlScheme);
-        serverurl.includeAngleBrackets();
-        UtlString to = serverurl.toString();
+           serverurl.setUserId("222");
+           serverurl.setDisplayName("Tia");
+           serverurl.setScheme(Url::SipUrlScheme);
+           serverurl.includeAngleBrackets();
+           UtlString to = serverurl.toString();
 
-        int notifiesRxed = smNumClientNotifiesReceived;
-        int substateRxed = smNumClientSubResponsesReceived;
+           int notifiesRxed = smNumClientNotifiesReceived;
+           int substateRxed = smNumClientSubResponsesReceived;
 
-        // Create a subscribe request, send it and keep it refreshed
-        UtlString earlyDialogHandle;
-        CPPUNIT_ASSERT(subClient.addSubscription(resourceId,
-                                                  eventType,
-                                                  NULL,
-                                                  from.data(),
-                                                  to.data(),
-                                                  contact.data(),
-                                                  300, // seconds expiration
-                                                  this,
-                                                  subStateCallback,
-                                                  notifyCallback,
-                                                  earlyDialogHandle));
+           // Create a subscribe request, send it and keep it refreshed
+           UtlString earlyDialogHandle;
+           CPPUNIT_ASSERT(subClient.addSubscription(resourceId,
+                                                    eventType,
+                                                    NULL,
+                                                    from.data(),
+                                                    to.data(),
+                                                    contact.data(),
+                                                    300, // seconds expiration
+                                                    this,
+                                                    subStateCallback,
+                                                    notifyCallback,
+                                                    earlyDialogHandle));
 
-        OsTask::delay(1000);   // 5 second to establish dialog and first NOTIFY to arrive
+           OsTask::delay(1000);   // 1 second to establish dialog and first NOTIFY to arrive
 
-        CPPUNIT_ASSERT((substateRxed+1) == smNumClientSubResponsesReceived);
-        CPPUNIT_ASSERT((notifiesRxed+1) == smNumClientNotifiesReceived);
+           CPPUNIT_ASSERT((substateRxed+1) == smNumClientSubResponsesReceived);
+           CPPUNIT_ASSERT((notifiesRxed+1) == smNumClientNotifiesReceived);
 
-        subClient.requestShutdown();
-        refreshMgr.requestShutdown();
+           subClient.requestShutdown();
+           refreshMgr.requestShutdown();
 
-        clientUserAgent.shutdown(TRUE);
-        serverUserAgent.shutdown(TRUE);
+           clientUserAgent.shutdown(TRUE);
+           serverUserAgent.shutdown(TRUE);
 
-        OsTask::delay(1000);   // 1 second to let other threads clean up
+           OsTask::delay(1000);   // 1 second to let other threads clean up
 
-        delete subServer;
+           delete subServer;
 
 	}
     }
