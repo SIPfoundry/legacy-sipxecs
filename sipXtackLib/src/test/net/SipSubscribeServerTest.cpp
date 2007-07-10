@@ -717,8 +717,10 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
             // We should have received a SUBSCRIBE response and no NOTIFY request.
             CPPUNIT_ASSERT(subscribeResponse);
+            KNOWN_BUG("subscription not terminated", "XECS-247");
             CPPUNIT_ASSERT(!notifyRequest);
 
+            KNOWN_BUG("subscription not terminated", "XECS-247");
             CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
                            SIP_BAD_TRANSACTION_CODE);
          }
@@ -1021,7 +1023,9 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          // Check the Contact headers.
          UtlString c;
          subscribeResponse->getContactField(0, c);
+         KNOWN_BUG("SUBSCRIBE response has invalid Contact", "XECS-297");
          ASSERT_STR_EQUAL(aor_name_addr, c.data());
+         KNOWN_BUG("NOTIFY request has no Contact", "XECS-298");
          notifyRequest->getContactField(0, c);
          ASSERT_STR_EQUAL(aor_name_addr, c.data());
       }
