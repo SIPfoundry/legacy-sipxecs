@@ -42,8 +42,8 @@ testsuite_SOURCES = \
     net/SipPresenceEventTest.cpp \
     net/SipPublishContentMgrTest.cpp \
     net/SipSrvLookupTest.cpp \
+    net/SipSubscribeClientTest.cpp \
     net/SipSubscribeServerTest.cpp \
-    net/SipSubscriptionClientTest.cpp \
     net/SipSubscriptionMgrTest.cpp \
     net/SipProxyMessageTest.cpp \
     net/XmlRpcTest.cpp
