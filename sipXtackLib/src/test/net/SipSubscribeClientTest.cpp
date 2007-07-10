@@ -26,21 +26,23 @@
 #define NUM_OF_ITERATIONS 1000
 
 /**
- * Unittest for SipSubscribeClientMgr
+ * Unit test for SipSubscribeClient
  */
 
 class SipSubscribeClientMgr : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(SipSubscribeClientMgr);
-#if 0
-    // Fails -- see XSL-146.
     CPPUNIT_TEST(subscribeHandleTest);
+#if 0
+    // Fails -- see XECS-252.
     CPPUNIT_TEST(subscribeCountNotifyMwiClientTest);
 #endif
     CPPUNIT_TEST(subscribeMwiClientTest);
     CPPUNIT_TEST_SUITE_END();
 
     public:
+
+    // Static variables to communicate with the callback routines.
 
     // Notify affected states:
     static int smNumClientNotifiesReceived;
@@ -136,32 +138,116 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         return(gotMessage);
     }
 
+    // Function to compare dialog handles -- returns true if they are the same.
+    // Dialog handles should be presented consistently, but they are not.
+    // (See XECS-252.)  Therefore, this function dissects handles and compares
+    // them both directly and with the tags reversed.  Once XECS-252 is fixed,
+    // this can be replaced with strcmp().
+    UtlBoolean compareHandles(const char *a,
+                              const char* b)
+    {
+       UtlBoolean result;
+
+       if (strcmp(a, b) == 0)
+       {
+          result = TRUE;
+       }
+       else
+       {
+          // Cut each handle into the Call-Id, to-tag, and from-tag.
+          const char* a1 = strchr(a, ',');
+          CPPUNIT_ASSERT(a1);
+          const char* a2 = strchr(a1+1, ',');
+          CPPUNIT_ASSERT(a2);
+          const char* b1 = strchr(b, ',');
+          CPPUNIT_ASSERT(b1);
+          const char* b2 = strchr(b1+1, ',');
+          CPPUNIT_ASSERT(b2);
+
+          // The first segments have to be the same.
+          int n;
+          n = a1 - a;
+          if (b1 - b == n && strncmp(a, b, n) == 0)
+          {
+             // Cross-compare the second and third segments.
+             n = a2 - (a1+1);
+             if (strlen(b2+1) == n && strncmp(a1+1, b2+1, n) == 0)
+             {
+                n = strlen(a2+1);
+                result = b2 - (b1+1) == n && strncmp(a2+1, b1+1, n) == 0;
+             }
+             else
+             {
+                result = FALSE;
+             }
+          }
+          else
+          {
+             result = FALSE;
+          }
+       }
+
+       return result;
+    }
+
     // Test to check that subscribe events and notify events return the same
     // dialog handle.
     void subscribeHandleTest()
     {
-       UtlString hostPort;
-       OsSocket::getHostIp(&hostPort);
-       hostPort.append(':');
-       char portText[20];
-       sprintf(portText, "%d", UNIT_TEST_SIP_PORT);
-       hostPort.append(portText);
+       UtlString hostIp("127.0.0.1");
 
-       UtlString resourceId("111@");
+       SipUserAgent userAgent(PORT_DEFAULT, PORT_NONE, PORT_NONE,
+                              NULL, NULL, hostIp);
+       userAgent.start();
+
+       // Construct the URI of the notifier.
+       UtlString notifier_addr_spec;
+       // Also construct the name-addr version of the URI, which may be
+       // different if it has a "transport" parameter.
+       UtlString notifier_name_addr;
+       // And the resource-id to use, which is the AOR with any
+       // parameters stripped off.
+       UtlString resource_id;
+       {
+          char buffer[100];
+          sprintf(buffer, "sip:222@%s:%d", hostIp.data(),
+                  userAgent.getTcpPort());
+          resource_id = buffer;
+
+          // Specify TCP transport, because that's all the UA listens to.
+          // Using an address with a transport parameter also exercises
+          // SipDialog to ensure it handles contact addresses with parameters.
+          strcat(buffer, ";transport=tcp");
+          notifier_addr_spec = buffer;
+
+          Url notifier_uri(buffer, TRUE);
+          notifier_uri.setDisplayName("Tia");
+          notifier_uri.toString(notifier_name_addr);
+       }
+
+       // Construct the URI of the subscriber.
+       UtlString subscriber_addr_spec;
+       // Also construct the name-addr version of the URI, which may be
+       // different if it has a "transport" parameter.
+       UtlString subscriber_name_addr;
+       {
+          char buffer[100];
+          sprintf(buffer, "sip:111@%s:%d", hostIp.data(),
+                  userAgent.getTcpPort());
+
+          // Specify TCP transport, because that's all the UA listens to.
+          // Using an address with a transport parameter also exercises
+          // SipDialog to ensure it handles contact addresses with parameters.
+          strcat(buffer, ";transport=tcp");
+          subscriber_addr_spec = buffer;
+
+          Url subscriber_uri(buffer, TRUE);
+          subscriber_uri.setDisplayName("Frida");
+          subscriber_uri.toString(subscriber_name_addr);
+       }
+
        UtlString eventTypeKey("message-summary");
        UtlString eventType(eventTypeKey);
-       UtlString from("Frida<sip:111@");
-       UtlString to("Tia<sip:222@");
-       UtlString contact("sip:111@");
-
-       resourceId.append(hostPort);
-       from.append(hostPort);
-       from.append('>');
-       to.append(hostPort);
-       to.append('>');
-       contact.append(hostPort);
-       SipUserAgent userAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT);
-       userAgent.start();
 
        // Set up the subscribe client
        SipDialogMgr clientDialogMgr;
@@ -184,27 +270,27 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
 
        // Create a subscribe request, send it and keep it refreshed
        UtlString earlyDialogHandle;
-       CPPUNIT_ASSERT(subClient.addSubscription(resourceId,
+       CPPUNIT_ASSERT(subClient.addSubscription(notifier_addr_spec,
                                                 eventType,
                                                 NULL,
-                                                from,
-                                                to,
-                                                contact,
+                                                subscriber_name_addr,
+                                                notifier_name_addr,
+                                                subscriber_name_addr,
                                                 60, // seconds expiration
                                                 this,
                                                 subStateCallback,
                                                 notifyCallback,
                                                 earlyDialogHandle));
 
-       // Wait 2 seconds for the callbacks to happen.
-       OsTask::delay(2000);
+       // Wait 1 second for the callbacks to happen.
+       OsTask::delay(1000);
 
        CPPUNIT_ASSERT_MESSAGE("Early dialog handles are different.",
-                              strcmp(smClientSubEarlyDialog.data(),
-                                     smClientNotifyEarlyDialog.data()) == 0);
+                              compareHandles(smClientSubEarlyDialog.data(),
+                                             smClientNotifyEarlyDialog.data()));
        CPPUNIT_ASSERT_MESSAGE("Established dialog handles are different.",
-                              strcmp(smClientSubEstablishedDialog.data(),
-                                     smClientNotifyEstablishedDialog.data()) == 0);
+                              compareHandles(smClientSubEstablishedDialog.data(),
+                                             smClientNotifyEstablishedDialog.data()));
 
        subClient.requestShutdown();
        refreshMgr.requestShutdown();
@@ -507,8 +593,6 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
 #     endif
     }
 
-
-
     void subscribeCountNotifyMwiClientTest()
     {
         UtlString eventTypeKey("message-summary");
@@ -608,6 +692,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
 
 };
 
+// Static variables to communicate with the callback routines.
 int SipSubscribeClientMgr::smNumClientNotifiesReceived;
 SipMessage* SipSubscribeClientMgr::smLastClientNotifyReceived;
 UtlString SipSubscribeClientMgr::smClientNotifyEarlyDialog;

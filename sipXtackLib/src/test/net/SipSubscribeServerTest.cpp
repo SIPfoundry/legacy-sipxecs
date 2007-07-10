@@ -25,7 +25,7 @@
 #include <net/SipPublishContentMgr.h>
 
 /**
- * Unittest for SipSubscriptionMgr
+ * Unit test for SipSubscribeServer
  */
 class SipSubscribeServerTest : public CppUnit::TestCase
 {
