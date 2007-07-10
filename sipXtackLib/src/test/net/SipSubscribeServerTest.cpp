@@ -9,8 +9,9 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
-#include <utl/UtlHashMap.h>
 
+#include <utl/UtlHashMap.h>
+#include <utl/UtlString.h>
 #include <os/OsDefs.h>
 #include <os/OsDateTime.h>
 #include <net/SipDialog.h>
@@ -32,6 +33,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       CPPUNIT_TEST(resubscribeContentTest);
       CPPUNIT_TEST(terminateSubscriptionOnError);
       CPPUNIT_TEST(terminateSubscriptionOnErrorRetryAfter);
+      CPPUNIT_TEST(responseContact);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -882,6 +884,146 @@ class SipSubscribeServerTest : public CppUnit::TestCase
             CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
                            SIP_ACCEPTED_CODE);
          }
+      }
+
+      // Clean up to prevent use of the queue after it goes out of scope.
+      userAgent.removeMessageObserver(incomingClientMsgQueue);
+      userAgent.removeMessageObserver(incomingClientMsgQueue);
+
+      userAgent.shutdown(TRUE);
+       
+      delete subServer;
+      subServer = NULL;
+   }
+
+   // Check the Contact header of responses to SUBSCRIBE.
+   // Check the Contact header of NOTIFY.
+   // XECS-297 and XECS-298.
+   void responseContact()
+   {
+      UtlString hostIp("127.0.0.1");
+
+      // Test MWI messages
+      const char* mwiSubscribe =
+         "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
+         "From: <sip:111@example.com>;tag=1612c1612\r\n"
+         "To: <sip:111@example.com>\r\n"
+         "Call-Id: e2aab34a72a0eb18300fbec445d5d665\r\n"
+         "Cseq: 1 SUBSCRIBE\r\n"
+         "Event: message-summary\r\n"
+         "Accept: application/simple-message-summary\r\n"
+         "Expires: 3600\r\n"
+         "Date: Tue, 26 Apr 2005 14:59:30 GMT\r\n"
+         "Max-Forwards: 20\r\n"
+         "User-Agent: Pingtel/2.2.0 (VxWorks)\r\n"
+         "Accept-Language: en\r\n"
+         "Supported: sip-cc, sip-cc-01, timer, replaces\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      UtlString eventName(SIP_EVENT_MESSAGE_SUMMARY);
+      UtlString mwiMimeType(CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY);
+
+      // Construct a user agent that will function both as the subscriber
+      // and the notfier.
+      // Listen on only a TCP port, as we do not want to have to specify a
+      // fixed port number (to allow multiple executions of the test),
+      // and the code to select a port automatically cannot be told to
+      // open matching UDP and TCP ports.
+      SipUserAgent userAgent(PORT_DEFAULT, PORT_NONE, PORT_NONE,
+                             NULL, NULL, hostIp);
+      userAgent.start();
+
+      // Construct the URI of the notifier, which is also the URI of
+      // the subscriber.
+      UtlString aor;
+      // Also construct the name-addr version of the URI, which may be
+      // different if it has a "transport" parameter.
+      UtlString aor_name_addr;
+      // And the resource-id to use, which is the AOR with any
+      // parameters stripped off.
+      UtlString resource_id;
+      {
+         char buffer[100];
+         sprintf(buffer, "sip:111@%s:%d", hostIp.data(),
+                 userAgent.getTcpPort());
+         resource_id = buffer;
+
+         // Specify TCP transport, because that's all the UA listens to.
+         // Using an address with a transport parameter also exercises
+         // SipDialog to ensure it handles contact addresses with parameters.
+         strcat(buffer, ";transport=tcp");
+         aor = buffer;
+
+         Url aor_uri(buffer, TRUE);
+         aor_uri.toString(aor_name_addr);
+      }
+
+      SipSubscribeServer* subServer = 
+         SipSubscribeServer::buildBasicServer(userAgent, 
+                                              eventName);
+      subServer->start();
+
+      // Get pointers to the Subscription Manager and Dialog Manager.
+      SipSubscriptionMgr* subMgr = subServer->getSubscriptionMgr(eventName);
+      CPPUNIT_ASSERT(subMgr);
+      SipDialogMgr* dialogMgr = subMgr->getDialogMgr();
+      CPPUNIT_ASSERT(dialogMgr);
+
+      // Create a crude Subscription client
+      OsMsgQ incomingClientMsgQueue;
+      // Register an interest in SUBSCRIBE responses and NOTIFY requests
+      // for this event type
+      userAgent.addMessageObserver(incomingClientMsgQueue,
+                                   SIP_SUBSCRIBE_METHOD,
+                                   FALSE, // no requests
+                                   TRUE, // reponses
+                                   TRUE, // incoming
+                                   FALSE, // no outgoing
+                                   eventName,
+                                   NULL,
+                                   NULL);
+      userAgent.addMessageObserver(incomingClientMsgQueue,
+                                   SIP_NOTIFY_METHOD,
+                                   TRUE, // requests
+                                   FALSE, // not reponses
+                                   TRUE, // incoming
+                                   FALSE, // no outgoing
+                                   eventName,
+                                   NULL,
+                                   NULL);
+
+      // Send a SUBSCRIBE to ourselves
+      SipMessage mwiSubscribeRequest(mwiSubscribe);
+      mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
+                                                       aor, 
+                                                       SIP_PROTOCOL_VERSION);
+      mwiSubscribeRequest.setContactField(aor_name_addr);
+
+      CPPUNIT_ASSERT(userAgent.send(mwiSubscribeRequest));
+
+      // We should get a 202 response and a NOTIFY request in the queue
+      // Send the specified response to the NOTIFY.
+      OsTime messageTimeout(1, 0);  // 1 second
+      {
+         const SipMessage* subscribeResponse;
+         const SipMessage* notifyRequest;
+         runListener(incomingClientMsgQueue, userAgent, messageTimeout,
+                     notifyRequest, subscribeResponse, SIP_OK_CODE);
+
+         // We should have received a SUBSCRIBE response and a NOTIFY request.
+         CPPUNIT_ASSERT(subscribeResponse);
+         CPPUNIT_ASSERT(notifyRequest);
+
+         CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
+                        SIP_ACCEPTED_CODE);
+
+         // Check the Contact headers.
+         UtlString c;
+         subscribeResponse->getContactField(0, c);
+         ASSERT_STR_EQUAL(aor_name_addr, c.data());
+         notifyRequest->getContactField(0, c);
+         ASSERT_STR_EQUAL(aor_name_addr, c.data());
       }
 
       // Clean up to prevent use of the queue after it goes out of scope.
