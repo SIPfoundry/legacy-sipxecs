@@ -226,8 +226,11 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          CPPUNIT_ASSERT(subscribeResponse);
          CPPUNIT_ASSERT(notifyRequest);
 
-         // Check that the CSeq method in the subscribe response is OK.
+         // Check that the response code and CSeq method in the
+         // subscribe response are OK.
          {
+            CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
+                           SIP_ACCEPTED_CODE);
             UtlString subscribeMethod;
             subscribeResponse->getCSeqField(NULL, &subscribeMethod);
             ASSERT_STR_EQUAL(SIP_SUBSCRIBE_METHOD, subscribeMethod.data());
@@ -326,6 +329,8 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          CPPUNIT_ASSERT(oneTimeNotifyRequest);
 
          {
+            CPPUNIT_ASSERT(oneTimeSubscribeResponse->getResponseStatusCode() ==
+                           SIP_ACCEPTED_CODE);
             UtlString oneTimeSubscribeMethod;
             oneTimeSubscribeResponse->getCSeqField(NULL, &oneTimeSubscribeMethod);
             ASSERT_STR_EQUAL(SIP_SUBSCRIBE_METHOD, oneTimeSubscribeMethod.data());
@@ -382,6 +387,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
    // Test for XECS-243, Subscribe Server does not send NOTIFY when it
    // processes a re-SUBSCRIBE.
+//*** Error scenario not yet found.
    void resubscribeContentTest()
    {
       UtlString hostIp("127.0.0.1");
@@ -403,10 +409,6 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          "Supported: sip-cc, sip-cc-01, timer, replaces\r\n"
          "Content-Length: 0\r\n"
          "\r\n";
-
-      const char* mwiStateString =
-         "Messages-Waiting: no\r\n"
-         "Voice-Message: 0/0 (0/0)\r\n";
 
       UtlString eventName(SIP_EVENT_MESSAGE_SUMMARY);
       UtlString mwiMimeType(CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY);
@@ -490,16 +492,21 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       CPPUNIT_ASSERT(userAgent.send(mwiSubscribeRequest));
 
       // We should get a 202 response and a NOTIFY request in the queue
+      // Send a 500 response to the NOTIFY.
       OsTime messageTimeout(1, 0);  // 1 second
       {
          const SipMessage* subscribeResponse;
          const SipMessage* notifyRequest;
          runListener(incomingClientMsgQueue, userAgent, messageTimeout,
-                     notifyRequest, subscribeResponse, SIP_OK_CODE);
+                     notifyRequest, subscribeResponse,
+                     SIP_SERVER_INTERNAL_ERROR_CODE);
 
          // We should have received a SUBSCRIBE response and a NOTIFY request.
          CPPUNIT_ASSERT(subscribeResponse);
          CPPUNIT_ASSERT(notifyRequest);
+
+         CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
+                        SIP_ACCEPTED_CODE);
 
          // The NOTIFY should have no body because none has been published yet.
          {
@@ -524,6 +531,9 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          // We should have received a SUBSCRIBE response and a NOTIFY request.
          CPPUNIT_ASSERT(subscribeResponse);
          CPPUNIT_ASSERT(notifyRequest);
+
+         CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
+                        SIP_ACCEPTED_CODE);
 
          // The NOTIFY should have no body because none has been published yet.
          {
