@@ -1080,17 +1080,17 @@ UtlBoolean OsSocket::isIp4Address(const char* address)
     //       ^====== dot2
     //    ^========= dot1
 
-    char* dot1 = strchr(address, '.');
+    const char* dot1 = strchr(address, '.');
     UtlBoolean isIp4 = FALSE;
     if(dot1)
     {
-        char* dot2 = strchr(dot1 + 1, '.');
+        const char* dot2 = strchr(dot1 + 1, '.');
         if((dot2) && (dot2-dot1 > 1))
         {
-            char* dot3 = strchr(dot2 + 1, '.');
+            const char* dot3 = strchr(dot2 + 1, '.');
             if((dot3) && (dot3-dot2 > 1))
             {
-                char* dot4 = strchr(dot3 + 1, '.');
+                const char* dot4 = strchr(dot3 + 1, '.');
                 if((dot4 == NULL) && strlen(dot3) > 1)
                 {
                     if(INADDR_NONE != inet_addr(address))
