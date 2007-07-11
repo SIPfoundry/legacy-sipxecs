@@ -124,16 +124,37 @@ public:
      *  be sent, the subscription state is set to SUSCRIPTION_FAILED.
      */
     UtlBoolean addSubscription(const char* resourceId,
+                               /**< The request-URI for the SUBSCRIBE.
+                                *   The request-URI as it arrives at the
+                                *   notifier will (conventionally) be used
+                                *   to derive the identity ("user@hostport") as
+                                *   the resourceId to subscribe to.
+                                */
                                const char* eventHeaderValue,
+                               //< value of the Event header
                                const char* acceptHeaderValue,
+                               //< value of the Accept header
                                const char* fromFieldValue,
+                               //< value of the From header
                                const char* toFieldValue,
+                               //< value of the To header
                                const char* contactFieldValue,
+                               /**< Value of the Contact header.
+                                *   Must route to this UA.
+                                */
                                int subscriptionPeriodSeconds,
+                               //< subscription period to request
                                void* applicationData,
+                               //< application data to pass to the callback funcs.
                                const SubscriptionStateCallback subscriptionStateCallback,
+                               //< callback function for begin/end of subscriptions
                                const NotifyEventCallback notifyEventsCallback,
-                               UtlString& earlyDialogHandle);
+                               //< callback function for incoming NOTIFYs
+                               UtlString& earlyDialogHandle
+                               /**< returned handle for the early
+                                *   dialog created by the SUBSCRIBE
+                                */
+       );
 
     //! Create a SIP event subscription based on a provided SUBSCRIBE request
     /*! 

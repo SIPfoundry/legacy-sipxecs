@@ -66,6 +66,13 @@ class SipMessage;
  *  notifies the SipSubscribeServer (via callback) of content changes made 
  *  by the application.
  *
+ *  \par
+ *  Content is stored in a SipPublishContentMgr, indexed by 'resourceId'.
+ *  Conventionally, the resourceId is a SIP identity (i.e., "user@hostport").
+ *  When a SUBSCRIBE is received, it creates a subscription for the content
+ *  of the resourceId which is the identity derived from the request-URI of
+ *  the incoming SUBSCRIBE.
+ *
  *  \par Subscription State
  *  The SipSubscriptionMgr is used by SipSubscribeServer to maintain
  *  the subscription state (SUBSCRIBE dialog state not Event state

@@ -49,6 +49,11 @@ class SipPublishContentMgrDefaultConstructor;
  *  1 (control-A), so that the concatenation of resourceId and
  *  eventTypeKey can be split unambiguously.
  *
+ *  Conventionally, resourceId is usually the "identity" part
+ *  ("user@hostport") of the SIP URI which will be the request-URI of
+ *  the SUBSCRIBE or PUBLISH for the information, and that is how the
+ *  Subscribe Server and Publish Server implementations use them.
+ *
  *  It is up to the application or event package to decide what the
  *  resourceId and eventTypeKey look like.  In addition, there is an
  *  eventType that may provide a coarser classification than
