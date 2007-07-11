@@ -163,6 +163,7 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
                                           int         maxWaitTime,
                                           bool        fifoOverflow,
                                           const char* pOverflowQueue,
+                                          const char* pOverflowEntry,
                                           int         answerMode,
                                           int         callConnectScheme,
                                           const char* pWelcomeAudio,
@@ -185,7 +186,7 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
       case ACDQueue::CIRCULAR:
          pQueueRef = new ACDQueue_Circular(this, pQueueUriString, pName, 
             acdScheme, maxRingDelay, maxQueueDepth, maxWaitTime, fifoOverflow,
-            pOverflowQueue, answerMode, callConnectScheme,
+            pOverflowQueue, pOverflowEntry, answerMode, callConnectScheme,
             pWelcomeAudio, bargeIn, pQueueAudio, pBackgroundAudio,
             queueAudioInterval, pCallTerminationAudio, terminationToneDuration,
             pAcdAgentList, pExternalLineList);
@@ -195,7 +196,7 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
       case ACDQueue::LINEAR:
          pQueueRef = new ACDQueue_Linear(this, pQueueUriString, pName, 
             acdScheme, maxRingDelay, maxQueueDepth, maxWaitTime, fifoOverflow,
-            pOverflowQueue, answerMode, callConnectScheme,
+            pOverflowQueue, pOverflowEntry, answerMode, callConnectScheme,
             pWelcomeAudio, bargeIn, pQueueAudio, pBackgroundAudio,
             queueAudioInterval, pCallTerminationAudio, terminationToneDuration,
             pAcdAgentList, pExternalLineList);
@@ -205,7 +206,7 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
       case ACDQueue::LONGEST_IDLE:
          pQueueRef = new ACDQueue_LongestIdle(this, pQueueUriString, pName, 
             acdScheme, maxRingDelay, maxQueueDepth, maxWaitTime, fifoOverflow,
-            pOverflowQueue, answerMode, callConnectScheme,
+            pOverflowQueue, pOverflowEntry, answerMode, callConnectScheme,
             pWelcomeAudio, bargeIn, pQueueAudio, pBackgroundAudio,
             queueAudioInterval, pCallTerminationAudio, terminationToneDuration,
             pAcdAgentList, pExternalLineList);
@@ -215,7 +216,7 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
       case ACDQueue::RING_ALL:
          pQueueRef = new ACDQueue_RingAll(this, pQueueUriString, pName, 
             acdScheme, maxRingDelay, maxQueueDepth, maxWaitTime, fifoOverflow,
-            pOverflowQueue, answerMode, callConnectScheme,
+            pOverflowQueue, pOverflowEntry, answerMode, callConnectScheme,
             pWelcomeAudio, bargeIn, pQueueAudio, pBackgroundAudio,
             queueAudioInterval, pCallTerminationAudio, terminationToneDuration,
             pAcdAgentList, pExternalLineList);
@@ -316,6 +317,7 @@ ProvisioningAttrList* ACDQueueManager::Create(ProvisioningAttrList& rRequestAttr
    UtlString             queueUriString;
    UtlString             name;
    UtlString             overflowQueue;
+   UtlString             overflowEntry;
    UtlString             welcomeAudio;
    UtlString             queueAudio;
    UtlString             backgroundAudio;
@@ -445,6 +447,11 @@ ProvisioningAttrList* ACDQueueManager::Create(ProvisioningAttrList& rRequestAttr
       setPSAttribute(pInstanceNode, QUEUE_OVERFLOW_QUEUE_TAG, overflowQueue);
    }
 
+   // overflow-entry (optional)
+   if (rRequestAttributes.getAttribute(QUEUE_OVERFLOW_ENTRY_TAG, overflowEntry)) {
+      setPSAttribute(pInstanceNode, QUEUE_OVERFLOW_ENTRY_TAG, overflowEntry);
+   }
+
    // answer-mode
    rRequestAttributes.getAttribute(QUEUE_ANSWER_MODE_TAG, answerMode);
    setPSAttribute(pInstanceNode, QUEUE_ANSWER_MODE_TAG, answerMode);
@@ -502,7 +509,7 @@ ProvisioningAttrList* ACDQueueManager::Create(ProvisioningAttrList& rRequestAttr
    if (mpAcdServer->getAdministrativeState() == ACDServer::ACTIVE) {
       createACDQueue(queueUriString, name, acdScheme,
                      maxRingDelay, maxQueueDepth, maxWaitTime, fifoOverflow,
-                     overflowQueue, answerMode, callConnectScheme,
+                     overflowQueue,overflowEntry, answerMode, callConnectScheme,
                      welcomeAudio, bargeIn, queueAudio,
                      backgroundAudio, queueAudioInterval,
                      callTerminationAudio, terminationToneDuration,
@@ -615,6 +622,7 @@ ProvisioningAttrList* ACDQueueManager::Set(ProvisioningAttrList& rRequestAttribu
    UtlString             queueUriString;
    UtlString             name;
    UtlString             overflowQueue;
+   UtlString             overflowEntry;
    UtlString             welcomeAudio;
    UtlString             queueAudio;
    UtlString             backgroundAudio;
@@ -747,6 +755,11 @@ ProvisioningAttrList* ACDQueueManager::Set(ProvisioningAttrList& rRequestAttribu
    // overflow-queue
    if (rRequestAttributes.getAttribute(QUEUE_OVERFLOW_QUEUE_TAG, overflowQueue)) {
       setPSAttribute(pInstanceNode, QUEUE_OVERFLOW_QUEUE_TAG, overflowQueue);
+   }
+
+   // overflow-queue
+   if (rRequestAttributes.getAttribute(QUEUE_OVERFLOW_ENTRY_TAG, overflowEntry)) {
+      setPSAttribute(pInstanceNode, QUEUE_OVERFLOW_ENTRY_TAG, overflowEntry);
    }
 
    // answer-mode
@@ -940,6 +953,7 @@ bool ACDQueueManager::loadConfiguration(void)
    UtlString             queueUriString;
    UtlString             name;
    UtlString             overflowQueue;
+   UtlString             overflowEntry;
    UtlString             welcomeAudio;
    UtlString             queueAudio;
    UtlString             backgroundAudio;
@@ -990,6 +1004,7 @@ bool ACDQueueManager::loadConfiguration(void)
       getPSAttribute(pInstanceNode, QUEUE_MAX_WAIT_TIME_TAG,             maxWaitTime);
       getPSAttribute(pInstanceNode, QUEUE_FIFO_OVERFLOW_TAG,             fifoOverflow);
       getPSAttribute(pInstanceNode, QUEUE_OVERFLOW_QUEUE_TAG,            overflowQueue);
+      getPSAttribute(pInstanceNode, QUEUE_OVERFLOW_ENTRY_TAG,            overflowEntry);
       getPSAttribute(pInstanceNode, QUEUE_ANSWER_MODE_TAG,               answerMode);
       getPSAttribute(pInstanceNode, QUEUE_CALL_CONNECT_SCHEME_TAG,       callConnectScheme);
       getPSAttribute(pInstanceNode, QUEUE_WELCOME_AUDIO_TAG,             welcomeAudio);
@@ -1005,7 +1020,7 @@ bool ACDQueueManager::loadConfiguration(void)
       // Create the ACDQueue
       createACDQueue(queueUriString, name, acdScheme,
                      maxRingDelay, maxQueueDepth, maxWaitTime, fifoOverflow,
-                     overflowQueue, answerMode, callConnectScheme,
+                     overflowQueue, overflowEntry, answerMode, callConnectScheme,
                      welcomeAudio, bargeIn, queueAudio,
                      backgroundAudio, queueAudioInterval,
                      callTerminationAudio, terminationToneDuration,

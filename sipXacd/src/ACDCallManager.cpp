@@ -301,7 +301,7 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
                      // Also check if there is any agent signed in !
                      UtlString mQueueUriString = pLineRef->getAcdQueue();
                      ACDQueue* pDestinationQueue = pLineRef->getAcdLineManager()->getAcdQueueManager()->getAcdQueueReference(mQueueUriString);
-                     if ((pDestinationQueue != NULL) && (pDestinationQueue->checkAgentAvailable())) {
+                     if ((pDestinationQueue != NULL) && ( pDestinationQueue->checkAgentAvailable() || pDestinationQueue->isOverflowEntryAvailable())) {
                      // Accept the call!
                      sipxCallAccept(pCallInfo->hCall);
                      osPrintf("OFFERING ACCEPTED - Line: %d, Call: %d\n", pCallInfo->hLine, pCallInfo->hCall);

@@ -30,6 +30,7 @@
 #define QUEUE_MAX_WAIT_TIME_TAG             "max-wait-time"
 #define QUEUE_FIFO_OVERFLOW_TAG             "fifo-overflow"
 #define QUEUE_OVERFLOW_QUEUE_TAG            "overflow-queue"
+#define QUEUE_OVERFLOW_ENTRY_TAG            "overflow-entry"
 #define QUEUE_ANSWER_MODE_TAG               "answer-mode"
 #define QUEUE_CALL_CONNECT_SCHEME_TAG       "call-connect-scheme"
 #define QUEUE_WELCOME_AUDIO_TAG             "welcome-audio"
@@ -89,6 +90,7 @@ public:
                             int         maxWaitTime,
                             bool        fifoOverflow,
                             const char* pOverflowQueue,
+                            const char* pOverflowEntry,
                             int         answerMode,
                             int         callConnectScheme,
                             const char* pWelcomeAudio,

@@ -59,6 +59,7 @@ public:
             int              maxWaitTime,
             bool             fifoOverflow,
             const char*      pOverflowQueue,
+            const char*      pOverflowEntry,
             int              answerMode,
             int              callConnectScheme,
             const char*      pWelcomeAudio,

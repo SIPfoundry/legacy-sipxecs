@@ -78,6 +78,7 @@ public:
             int              maxWaitTime,
             bool             fifoOverflow,
             const char*      pOverflowQueue,
+            const char*      pOverflowEntry,
             int              answerMode,
             int              callConnectScheme,
             const char*      pWelcomeAudio,
@@ -120,6 +121,8 @@ public:
    virtual void setRingNoAnswerState(ACDCall* pCallRef, ACDAgent* pAgentRef, bool state);
 
    virtual bool checkAgentAvailable();
+
+   virtual bool isOverflowEntryAvailable() { return mOverflowEntry!=NULL; };
 
 /* ============================ ACCESSORS ================================= */
 
@@ -169,6 +172,7 @@ protected:
    int              mMaxWaitTime;
    bool             mFifoOverflow;
    UtlString        mOverflowQueue;
+   UtlString        mOverflowEntry;          
    int              mAnswerMode;
    int              mCallConnectScheme;
    UtlString        mWelcomeAudio;
@@ -212,6 +216,9 @@ protected:
 
    // Handle a queue overflow condition
    virtual void overflowCall(ACDCall* pCallRef);
+
+   // To transfer call to other destination other than overflow queue upon queue overflow condition
+   virtual void transferOverflowCall(ACDCall* pCallRef);
 
    // Handler for ACDQueueMsg::REMOVE_CALL message
    virtual void removeCallMessage(ACDCall* pCallRef);

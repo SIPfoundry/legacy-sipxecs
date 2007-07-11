@@ -66,6 +66,7 @@ ACDQueue::ACDQueue(ACDQueueManager* pAcdQueueManager,
                    int              maxWaitTime,
                    bool             fifoOverflow,
                    const char*      pOverflowQueue,
+                   const char*      pOverflowEntry,
                    int              answerMode,
                    int              callConnectScheme,
                    const char*      pWelcomeAudio,
@@ -90,6 +91,7 @@ ACDQueue::ACDQueue(ACDQueueManager* pAcdQueueManager,
    mMaxWaitTime             = maxWaitTime;
    mFifoOverflow            = fifoOverflow;
    mOverflowQueue           = pOverflowQueue;
+   mOverflowEntry           = pOverflowEntry;
    mAnswerMode              = answerMode;
    mCallConnectScheme       = callConnectScheme;
    mWelcomeAudio            = pWelcomeAudio;
@@ -111,6 +113,14 @@ ACDQueue::ACDQueue(ACDQueueManager* pAcdQueueManager,
    mUnroutedCallCount       = 0;
    mpRoutePendingAnswer     = NULL;
 
+   if (mOverflowEntry!= NULL && !mOverflowEntry.contains("@")) {
+      UtlString domainName;
+      domainName =  (mpAcdQueueManager->getAcdServer())->getDomain();
+      mOverflowEntry.append("@");
+      mOverflowEntry.append(domainName);
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::ACDQueue[%s] - mOverflowEntry  = %s",mUriString.data(),mOverflowEntry.data());
+   }
+ 
    // Convert the comma delimited list of ACDAgent URI's to an SList of ACDAgent pointers
    buildACDAgentList();
 
@@ -354,6 +364,9 @@ void ACDQueue::setAttributes(ProvisioningAttrList& rRequestAttributes)
 
    // overflow-queue
    rRequestAttributes.getAttribute(QUEUE_OVERFLOW_QUEUE_TAG, mOverflowQueue);
+
+   // overflow-entry
+   rRequestAttributes.getAttribute(QUEUE_OVERFLOW_ENTRY_TAG, mOverflowEntry);
 
    // answer-mode
    rRequestAttributes.getAttribute(QUEUE_ANSWER_MODE_TAG, mAnswerMode);
@@ -672,6 +685,11 @@ void ACDQueue::getAttributes(ProvisioningAttrList& rRequestAttributes, Provision
          prResponse->setAttribute(QUEUE_OVERFLOW_QUEUE_TAG, mOverflowQueue);
       }
 
+      // overflow-entry
+      if (rRequestAttributes.attributePresent(QUEUE_OVERFLOW_ENTRY_TAG)) {
+         prResponse->setAttribute(QUEUE_OVERFLOW_QUEUE_TAG, mOverflowEntry);
+      }
+
       // answer-mode
       if (rRequestAttributes.attributePresent(QUEUE_ANSWER_MODE_TAG)) {
          prResponse->setAttribute(QUEUE_ANSWER_MODE_TAG, mAnswerMode);
@@ -756,6 +774,9 @@ void ACDQueue::getAttributes(ProvisioningAttrList& rRequestAttributes, Provision
 
       // overflow-queue
       prResponse->setAttribute(QUEUE_OVERFLOW_QUEUE_TAG, mOverflowQueue);
+
+      // overflow-queue
+      prResponse->setAttribute(QUEUE_OVERFLOW_ENTRY_TAG, mOverflowEntry);
 
       // answer-mode
       prResponse->setAttribute(QUEUE_ANSWER_MODE_TAG, mAnswerMode);
@@ -1000,8 +1021,8 @@ void ACDQueue::unableToRoute(ACDCall* pCallRef, bool priority)
    resetRingNoAnswerStates(pCallRef);
 
    // Before decide whether the call should be overflowed or not, first check
-   // whether there is an overflow queue being defined
-   if (mOverflowQueue == NULL) {
+   // whether there is an overflow queue/entry being defined
+   if (mOverflowQueue == NULL &&  mOverflowEntry == NULL) {
       if (anyAgentSignedIn()) {
          // Add the call to the unrouted call list
          unroute(pCallRef, priority) ;
@@ -1101,7 +1122,7 @@ void ACDQueue::addCallMessage(ACDCall* pCallRef)
    bool agentsSignedIn = anyAgentSignedIn();
 
    // Hangup on the call if there is no way to handle it.
-   if (mOverflowQueue == NULL) {
+   if (mOverflowQueue == NULL &&  mOverflowEntry == NULL) {
       // Check whether there is any agents signed in
       if (agentsSignedIn != true) {
          OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::addCallMessage - no agents have signed in and no overflow so drop ACDCall(%d), state %d",
@@ -1163,11 +1184,14 @@ void ACDQueue::addCallMessage(ACDCall* pCallRef)
 void ACDQueue::overflowCall(ACDCall* pCallRef)
 {
    ACDCall* pOverflowCall = dynamic_cast<ACDCall*>(mUnroutedCallList.first());
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::overflowCall - ACDCall(%d) entering overflowCall routine in the overflow queue %s",
-                       pCallRef->getCallHandle(), mOverflowQueue.data() ? mOverflowQueue.data() : NULL);
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::overflowCall - ACDCall(%d) entering overflowCall routine.",
+                       pCallRef->getCallHandle());
 
    // Determine how to handle the overflow condition
-   if ((mMaxQueueDepth != 0) && mFifoOverflow && (pOverflowCall != NULL)) {
+   if ( (mOverflowQueue!= NULL) && (mMaxQueueDepth != 0) && mFifoOverflow && (pOverflowCall != NULL)) {
+
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::overflowCall - ACDCall(%d) entering overflowCall routine in the overflow queue %s",pCallRef->getCallHandle(), mOverflowQueue.data() ? mOverflowQueue.data() : NULL);
+
       // The queue is configured as a FIFO, so overflow the oldest call and add this one
 
       // Send the call to the configured overflow queue
@@ -1188,11 +1212,14 @@ void ACDQueue::overflowCall(ACDCall* pCallRef)
          OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::overflowCall - ACDCall(%d) is being added to the overflow queue %s",
                        pOverflowCall->getCallHandle(), mOverflowQueue.data());
       }
+      else if (mOverflowEntry != NULL) {
+         // Could not find the overflow queue, but there is overflowEntry defined, so transfer the call
+         transferOverflowCall(pCallRef);
+      }
       else {
          // Could not find the overflow queue, drop the call
          pCallRef->dropCall(mTerminationToneDuration, mCallTerminationAudio);
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::overflowCall - could not find the overflow queue so drop ACDCall(%d)",
-                       pCallRef->getCallHandle());
+         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::overflowCall - could not find the overflow queue so drop ACDCall(%d)", pCallRef->getCallHandle());
       }
       
       // Now we add this call to the unrounted list
@@ -1201,11 +1228,15 @@ void ACDQueue::overflowCall(ACDCall* pCallRef)
    else {
       // The max-queue-depth == 0 or queue is configured as a LIFO, so this call gets overflowed
       if (mOverflowQueue == NULL) {
-         // We should never come to here, but just in case
-         // No overflow queue configured, drop the call
-         pCallRef->dropCall(mTerminationToneDuration, mCallTerminationAudio);
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::overflowCall - no overflow is set up so drop ACDCall(%d)",
+         if (mOverflowEntry!= NULL) {
+            transferOverflowCall(pCallRef); 
+         } else {
+            // We should never come to here, but just in case
+            // No overflow queue configured, drop the call
+            pCallRef->dropCall(mTerminationToneDuration, mCallTerminationAudio);
+            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::overflowCall - no overflow is set up so drop ACDCall(%d)",
                        pCallRef->getCallHandle());
+         }
       }
       else {
          // Send the call to the configured overflow queue
@@ -1222,12 +1253,61 @@ void ACDQueue::overflowCall(ACDCall* pCallRef)
                pACDRtRec->appendCallEvent(ACDRtRecord::ENTER_QUEUE, mOverflowQueue.data(), pCallRef);
             }
          }
+         else if (mOverflowEntry != NULL) {
+            transferOverflowCall(pCallRef); 
+         } 
          else {
             // Could not find the overflow queue, drop the call
             pCallRef->dropCall(mTerminationToneDuration, mCallTerminationAudio);
             OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::overflowCall - ACDCall(%d) has to be dropped due to bad overflow queue",
                           pCallRef->getCallHandle());
          }
+      }
+   }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  NAME:        ACDQueue::transferOverflowCall
+//
+//  SYNOPSIS:
+//
+//  DESCRIPTION:
+//
+//  RETURNS:     None.
+//
+//  ERRORS:      None.
+//
+//  CAVEATS:     None.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ACDQueue::transferOverflowCall(ACDCall* pCallRef)
+{
+   SIPX_RESULT rc ;
+
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::transferOverflowCall - ACDCall(%d) to %s",
+                 pCallRef->getCallHandle(),mOverflowEntry.data());
+
+   if (pCallRef->getCurrentCallState() != ACDCall::CONNECTED) {
+      // Mark this call to be routed once answered
+      pCallRef->setRoutePendingAnswer();
+      pCallRef->answerCall(mWelcomeAudio, mBargeIn);
+      sipxCallAnswer(pCallRef->getCallHandle());
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::transferOverflowCall - ACDCall(%d) is being answered",
+         pCallRef->getCallHandle());
+      unroute(pCallRef, true);
+   } else {
+      // now transfer the call
+      rc = sipxCallBlindTransfer(pCallRef->getCallHandle(),mOverflowEntry.data());
+      mUnroutedCallList.remove(pCallRef);
+      removeRoutingCall(pCallRef);
+
+      if ( rc!= SIPX_RESULT_SUCCESS) {
+         // failed to transfer the call to overflow entry, drop the call
+         pCallRef->dropCall(mTerminationToneDuration, mCallTerminationAudio);
+         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::transferOverflowCall - could not transfer the call to desinated address so drop ACDCall(%d)", pCallRef->getCallHandle());
+
       }
    }
 }
@@ -1433,6 +1513,12 @@ void ACDQueue::updateRouteStateAborted(ACDCall* pCallRef)
 
    // See if an overflow queue has been configured
    if (mOverflowQueue == NULL) {
+      
+      // See if an overflow queue/entry has been configured
+      if(mOverflowEntry!= NULL) {
+         transferOverflowCall(pCallRef);
+         return;
+      }
       // No overflow queue configured, drop the call
       OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::updateRouteStateAborted - Dropping call %s",
                     pCallRef->getCallIdentity());
@@ -1699,8 +1785,8 @@ void ACDQueue::adjustTimers()
    if (mMaxWaitTime == 0) {
       mOverflowQueue = NULL;
    }
-   // Disable the max wait time if there is no overflow queue is defined
-   if (mOverflowQueue == NULL) {
+   // Disable the max wait time if there is no overflow queue/entry is defined
+   if (mOverflowQueue == NULL &&  mOverflowEntry == NULL ) {
       mMaxWaitTime = 0;
       
       if (mAcdScheme == RING_ALL) {
