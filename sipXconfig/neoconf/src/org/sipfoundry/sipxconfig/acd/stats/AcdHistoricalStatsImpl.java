@@ -54,7 +54,6 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
         throws IOException {
 
         // nothing ACD specific here, could be reused
-        // not a requirement to use locale, but it was easy and I thought it would be nice touch
 
         if (reportData.size() == 0) {
             return;
@@ -70,8 +69,14 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
             Object[] recordData = record.values().toArray();
             String[] recordDataStrings = new String[recordData.length];
             for (int i = 0; i < recordData.length; i++) {
-                recordDataStrings[i] = LocaleConvertUtils.convert(recordData[i], locale,
-                        m_exportDatePattern);
+
+                // convert date field (if present) to appropriate locale
+                if (recordData[i] instanceof Date) {
+                    recordDataStrings[i] = LocaleConvertUtils.convert(recordData[i], locale,
+                            m_exportDatePattern);
+                } else {
+                    recordDataStrings[i] = String.valueOf(recordData[i]);
+                }
             }
 
             csv.write(recordDataStrings, false);
@@ -114,34 +119,34 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
         AcdHistoricalReport report = (AcdHistoricalReport) m_factory.getBean(reportName);
         ColumnMapRowMapper columnMapper = new ColumnTransformer();
         RowMapperResultSetExtractor rowReader = new RowMapperResultSetExtractor(columnMapper);
-        ReportStatement statement = new ReportStatement(report.getQuery(), startTime, endTime);        
+        ReportStatement statement = new ReportStatement(report.getQuery(), startTime, endTime);
         return (List<Map<String, Object>>) getJdbcTemplate().query(statement, rowReader);
     }
-    
+
     static class ColumnTransformer extends ColumnMapRowMapper {
         static final Calendar UTC = Calendar.getInstance(DateUtils.UTC_TIME_ZONE);
-        static {            
+        static {
             UTC.setTimeInMillis(0);
         }
 
         protected Object getColumnValue(ResultSet rs, int index) throws SQLException {
-            Object obj = rs.getObject(index);            
+            Object obj = rs.getObject(index);
             if (obj != null && obj instanceof java.sql.Timestamp) {
-                // Timestamp is invalid, force timezone to utc  
+                // Timestamp is invalid, force timezone to utc
                 obj = rs.getTimestamp(index, UTC);
             } else {
                 obj = super.getColumnValue(rs, index);
             }
-            
+
             return obj;
-        }        
+        }
     }
-    
-    
+
     static class ReportStatement implements PreparedStatementCreator {
         private String m_sql;
         private Timestamp m_from;
         private Timestamp m_to;
+
         ReportStatement(String sql, Date from, Date to) {
             m_sql = sql;
             long fromMillis = from != null ? from.getTime() : 0;
@@ -156,7 +161,7 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
             ps.setTimestamp(1, m_from, calendar);
             ps.setTimestamp(2, m_to, calendar);
             return ps;
-        }        
+        }
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {

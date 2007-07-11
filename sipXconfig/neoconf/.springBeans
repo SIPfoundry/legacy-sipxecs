@@ -42,10 +42,11 @@
 		<config>src/org/sipfoundry/sipxconfig/job/job.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/bulk/ldap/ldap.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/acd/stats/acdstats.beans.xml</config>
 	</configs>
 	<configSets>
 		<configSet>
-			<name>neoconf</name>
+			<name><![CDATA[neoconf]]></name>
 			<allowBeanDefinitionOverriding>false</allowBeanDefinitionOverriding>
 			<incomplete>false</incomplete>
 			<configs>
@@ -87,6 +88,7 @@
 				<config>src/org/sipfoundry/sipxconfig/service/service.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/phone/acme/acme-models.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/admin/dialplan/sbc/sbc.beans.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/acd/stats/acdstats.beans.xml</config>
 			</configs>
 		</configSet>
 	</configSets>
