@@ -1098,7 +1098,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
             }
             else
             {
-               assert(call->postMessage(eventMessage) == OS_SUCCESS);
+               OsStatus s = call->postMessage(eventMessage);
+               assert(s == OS_SUCCESS);
             }
             
             //assert(false);
@@ -1540,7 +1541,8 @@ void CallManager::toneStart(const char* callId, int toneId, UtlBoolean local, Ut
         callId, NULL, NULL, NULL, NULL,
         toneId, local, remote);
 
-    assert(postMessage(startToneMessage) == OS_SUCCESS);
+    OsStatus s = postMessage(startToneMessage);
+    assert(s == OS_SUCCESS);
 }
 
 void CallManager::toneStop(const char* callId)
