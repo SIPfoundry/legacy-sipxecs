@@ -37,11 +37,16 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-    CpMultiStringMessage(unsigned char messageSubtype = CallManager::CP_UNSPECIFIED,
+    CpMultiStringMessage(
+       unsigned char messageSubtype = CallManager::CP_UNSPECIFIED,
        const char* str1 = NULL, const char* str2 = NULL,
-       const char* str3 = NULL, const char* str4 = NULL, const char* str5 = NULL,
-       int int1 = 0, int int2 = 0, int int3 = 0, int int4 = 0, int int5 = 0, int int6 = 0, int int7 = 0);
-     //:Default constructor
+       const char* str3 = NULL, const char* str4 = NULL,
+       const char* str5 = NULL,
+       int int1 = 0, int int2 = 0,
+       int int3 = 0, int int4 = 0,
+       int int5 = 0, int int6 = 0,
+       int int7 = 0);
+    //:Default constructor
 
 
    virtual

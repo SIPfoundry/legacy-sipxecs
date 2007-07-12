@@ -1435,7 +1435,11 @@ PtStatus CallManager::transfer(const char* sourceCallId,
                                          sourceCallId, sourceAddress,
                                          targetCallId, targetAddress,
                                          transferTargetUrlString,
-                                         NULL,
+                                         0,
+                                         // :TODO: Is this parameter used?
+                                         // CpPeerCall::handleTransferAddress
+                                         // processes these messages but does
+                                         // not look at value int2.
                                          /* int2 */ remoteHoldBeforeTransfer
                                          );
 

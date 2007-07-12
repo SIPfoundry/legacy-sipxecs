@@ -207,7 +207,7 @@ void CpCallManager::getEventSubTypeString(EventSubTypes type,
         break;
 
       case CP_CONSULT_TRANSFER_ADDRESS:
-          typeString = "CP_CONSULT_TRANSFER_ADDRESS";
+        typeString = "CP_CONSULT_TRANSFER_ADDRESS";
         break;
 
       case CP_TRANSFER_CONNECTION:
