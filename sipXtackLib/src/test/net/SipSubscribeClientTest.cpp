@@ -29,12 +29,13 @@
  * Unit test for SipSubscribeClient
  */
 
-class SipSubscribeClientMgr : public CppUnit::TestCase
+class SipSubscribeClientTest : public CppUnit::TestCase
 {
-    CPPUNIT_TEST_SUITE(SipSubscribeClientMgr);
+    CPPUNIT_TEST_SUITE(SipSubscribeClientTest);
     CPPUNIT_TEST(subscribeHandleTest);
     CPPUNIT_TEST(subscribeCountNotifyMwiClientTest);
     CPPUNIT_TEST(subscribeMwiClientTest);
+    CPPUNIT_TEST(terminate481);
     CPPUNIT_TEST_SUITE_END();
 
     public:
@@ -265,7 +266,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
        // Enable the handler for the MWI server
        subServer->enableEventType(eventType, &userAgent);
 
-       // Create a subscribe request, send it and keep it refreshed
+       // Create a subscription.
        UtlString earlyDialogHandle;
        CPPUNIT_ASSERT(subClient.addSubscription(notifier_addr_spec,
                                                 eventType,
@@ -652,17 +653,27 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
 	}
     }
 
+    // XECS-244: When a re-SUBSCRIBE receives a 481 response, it terminates the
+    // subscription.
+    void terminate481()
+    {
+       // Set up subscriber UA.
+
+       // Set up notifier UA.
+//       createTestSipUserAgent
+    }
+
 };
 
 // Static variables to communicate with the callback routines.
-int SipSubscribeClientMgr::smNumClientNotifiesReceived;
-SipMessage* SipSubscribeClientMgr::smLastClientNotifyReceived;
-UtlString SipSubscribeClientMgr::smClientNotifyEarlyDialog;
-UtlString SipSubscribeClientMgr::smClientNotifyEstablishedDialog;
-int SipSubscribeClientMgr::smNumClientSubResponsesReceived;
-long SipSubscribeClientMgr::smClientExpiration;
-UtlString SipSubscribeClientMgr::smClientSubEarlyDialog;
-UtlString SipSubscribeClientMgr::smClientSubEstablishedDialog;
-SipMessage* SipSubscribeClientMgr::smLastClientSubResponseReceived;
+int SipSubscribeClientTest::smNumClientNotifiesReceived;
+SipMessage* SipSubscribeClientTest::smLastClientNotifyReceived;
+UtlString SipSubscribeClientTest::smClientNotifyEarlyDialog;
+UtlString SipSubscribeClientTest::smClientNotifyEstablishedDialog;
+int SipSubscribeClientTest::smNumClientSubResponsesReceived;
+long SipSubscribeClientTest::smClientExpiration;
+UtlString SipSubscribeClientTest::smClientSubEarlyDialog;
+UtlString SipSubscribeClientTest::smClientSubEstablishedDialog;
+SipMessage* SipSubscribeClientTest::smLastClientSubResponseReceived;
 
-CPPUNIT_TEST_SUITE_REGISTRATION(SipSubscribeClientMgr);
+CPPUNIT_TEST_SUITE_REGISTRATION(SipSubscribeClientTest);

@@ -44,6 +44,7 @@ testsuite_SOURCES = \
     net/SipSrvLookupTest.cpp \
     net/SipSubscribeClientTest.cpp \
     net/SipSubscribeServerTest.cpp \
+    net/SipSubscribeTestSupport.cpp \
     net/SipSubscriptionMgrTest.cpp \
     net/SipProxyMessageTest.cpp \
     net/XmlRpcTest.cpp
@@ -62,4 +63,6 @@ EXTRA_DIST = \
 sandbox_LDADD = $(testsuite_LDADD)
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
-	net/SipSubscribeClientTest.cpp
+	net/SipSubscribeTestSupport.cpp \
+	net/SipSubscribeClientTest.cpp \
+	net/SipSubscribeServerTest.cpp

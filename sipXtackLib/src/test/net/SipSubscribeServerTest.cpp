@@ -24,6 +24,8 @@
 #include <net/SipSubscribeServer.h>
 #include <net/SipPublishContentMgr.h>
 
+#include "SipSubscribeTestSupport.h"
+
 /**
  * Unit test for SipSubscribeServer
  */
@@ -127,14 +129,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
       // Construct a user agent that will function both as the subscriber
       // and the notfier.
-      // Listen on only a TCP port, as we do not want to have to specify a
-      // fixed port number (to allow multiple executions of the test),
-      // and the code to select a port automatically cannot be told to
-      // open matching UDP and TCP ports.
-      SipUserAgent userAgent(PORT_DEFAULT, PORT_NONE, PORT_NONE,
-                             NULL, NULL, hostIp);
-      userAgent.start();
-
+      SipUserAgent* userAgentp;
       // Construct the URI of the notifier, which is also the URI of
       // the subscriber.
       UtlString aor;
@@ -144,24 +139,16 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       // And the resource-id to use, which is the AOR with any
       // parameters stripped off.
       UtlString resource_id;
-      {
-         char buffer[100];
-         sprintf(buffer, "sip:111@%s:%d", hostIp.data(),
-                 userAgent.getTcpPort());
-         resource_id = buffer;
 
-         // Specify TCP transport, because that's all the UA listens to.
-         // Using an address with a transport parameter also exercises
-         // SipDialog to ensure it handles contact addresses with parameters.
-         strcat(buffer, ";transport=tcp");
-         aor = buffer;
-
-         Url aor_uri(buffer, TRUE);
-         aor_uri.toString(aor_name_addr);
-      }
+      createTestSipUserAgent(hostIp,
+                             "111",
+                             userAgentp,
+                             aor,
+                             aor_name_addr,
+                             resource_id);
 
       SipSubscribeServer* subServer = 
-         SipSubscribeServer::buildBasicServer(userAgent, 
+         SipSubscribeServer::buildBasicServer(*userAgentp,
                                               eventName);
       subServer->start();
 
@@ -175,24 +162,24 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       OsMsgQ incomingClientMsgQueue;
       // Register an interest in SUBSCRIBE responses and NOTIFY requests
       // for this event type
-      userAgent.addMessageObserver(incomingClientMsgQueue,
-                                   SIP_SUBSCRIBE_METHOD,
-                                   FALSE, // no requests
-                                   TRUE, // reponses
-                                   TRUE, // incoming
-                                   FALSE, // no outgoing
-                                   eventName,
-                                   NULL,
-                                   NULL);
-      userAgent.addMessageObserver(incomingClientMsgQueue,
-                                   SIP_NOTIFY_METHOD,
-                                   TRUE, // requests
-                                   FALSE, // not reponses
-                                   TRUE, // incoming
-                                   FALSE, // no outgoing
-                                   eventName,
-                                   NULL,
-                                   NULL);
+      userAgentp->addMessageObserver(incomingClientMsgQueue,
+                                     SIP_SUBSCRIBE_METHOD,
+                                     FALSE, // no requests
+                                     TRUE, // reponses
+                                     TRUE, // incoming
+                                     FALSE, // no outgoing
+                                     eventName,
+                                     NULL,
+                                     NULL);
+      userAgentp->addMessageObserver(incomingClientMsgQueue,
+                                     SIP_NOTIFY_METHOD,
+                                     TRUE, // requests
+                                     FALSE, // not reponses
+                                     TRUE, // incoming
+                                     FALSE, // no outgoing
+                                     eventName,
+                                     NULL,
+                                     NULL);
 
       // Validate that authentication and authorization are
       // disabled by default.
@@ -225,14 +212,14 @@ class SipSubscribeServerTest : public CppUnit::TestCase
                                                        SIP_PROTOCOL_VERSION);
       mwiSubscribeRequest.setContactField(aor_name_addr);
 
-      CPPUNIT_ASSERT(userAgent.send(mwiSubscribeRequest));
+      CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
 
       // We should get a 202 response and a NOTIFY request in the queue
       OsTime messageTimeout(1, 0);  // 1 second
       {
          const SipMessage* subscribeResponse;
          const SipMessage* notifyRequest;
-         runListener(incomingClientMsgQueue, userAgent, messageTimeout,
+         runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
                      notifyRequest, subscribeResponse, SIP_OK_CODE);
 
          // We should have received a SUBSCRIBE response and a NOTIFY request.
@@ -293,7 +280,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       {
          const SipMessage* subscribeResponse;
          const SipMessage* secondNotify;
-         runListener(incomingClientMsgQueue, userAgent, messageTimeout,
+         runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
                      secondNotify, subscribeResponse, SIP_OK_CODE);
          CPPUNIT_ASSERT(secondNotify);
          CPPUNIT_ASSERT(subscribeResponse == NULL);
@@ -333,12 +320,12 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       oneTimeMwiSubscribeRequest.setContactField(aor_name_addr);
       oneTimeMwiSubscribeRequest.setEventField(SIP_EVENT_MESSAGE_SUMMARY);
 
-      CPPUNIT_ASSERT(userAgent.send(oneTimeMwiSubscribeRequest));
+      CPPUNIT_ASSERT(userAgentp->send(oneTimeMwiSubscribeRequest));
 
       {
          const SipMessage* oneTimeNotifyRequest;
          const SipMessage* oneTimeSubscribeResponse;
-         runListener(incomingClientMsgQueue, userAgent, messageTimeout,
+         runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
                      oneTimeNotifyRequest, oneTimeSubscribeResponse, SIP_OK_CODE);
 
          // Validate the one time subscribe response and notify request
@@ -393,10 +380,11 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       }
 
       // Clean up to prevent use of the queue after it goes out of scope.
-      userAgent.removeMessageObserver(incomingClientMsgQueue);
-      userAgent.removeMessageObserver(incomingClientMsgQueue);
+      userAgentp->removeMessageObserver(incomingClientMsgQueue);
+      userAgentp->removeMessageObserver(incomingClientMsgQueue);
 
-      userAgent.shutdown(TRUE);
+      userAgentp->shutdown(TRUE);
+      delete userAgentp;
        
       delete subServer;
       subServer = NULL;
@@ -431,14 +419,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
       // Construct a user agent that will function both as the subscriber
       // and the notfier.
-      // Listen on only a TCP port, as we do not want to have to specify a
-      // fixed port number (to allow multiple executions of the test),
-      // and the code to select a port automatically cannot be told to
-      // open matching UDP and TCP ports.
-      SipUserAgent userAgent(PORT_DEFAULT, PORT_NONE, PORT_NONE,
-                             NULL, NULL, hostIp);
-      userAgent.start();
-
+      SipUserAgent* userAgentp;
       // Construct the URI of the notifier, which is also the URI of
       // the subscriber.
       UtlString aor;
@@ -448,24 +429,16 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       // And the resource-id to use, which is the AOR with any
       // parameters stripped off.
       UtlString resource_id;
-      {
-         char buffer[100];
-         sprintf(buffer, "sip:111@%s:%d", hostIp.data(),
-                 userAgent.getTcpPort());
-         resource_id = buffer;
 
-         // Specify TCP transport, because that's all the UA listens to.
-         // Using an address with a transport parameter also exercises
-         // SipDialog to ensure it handles contact addresses with parameters.
-         strcat(buffer, ";transport=tcp");
-         aor = buffer;
-
-         Url aor_uri(buffer, TRUE);
-         aor_uri.toString(aor_name_addr);
-      }
+      createTestSipUserAgent(hostIp,
+                             "111",
+                             userAgentp,
+                             aor,
+                             aor_name_addr,
+                             resource_id);
 
       SipSubscribeServer* subServer = 
-         SipSubscribeServer::buildBasicServer(userAgent, 
+         SipSubscribeServer::buildBasicServer(*userAgentp,
                                               eventName);
       subServer->start();
 
@@ -479,24 +452,24 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       OsMsgQ incomingClientMsgQueue;
       // Register an interest in SUBSCRIBE responses and NOTIFY requests
       // for this event type
-      userAgent.addMessageObserver(incomingClientMsgQueue,
-                                   SIP_SUBSCRIBE_METHOD,
-                                   FALSE, // no requests
-                                   TRUE, // reponses
-                                   TRUE, // incoming
-                                   FALSE, // no outgoing
-                                   eventName,
-                                   NULL,
-                                   NULL);
-      userAgent.addMessageObserver(incomingClientMsgQueue,
-                                   SIP_NOTIFY_METHOD,
-                                   TRUE, // requests
-                                   FALSE, // not reponses
-                                   TRUE, // incoming
-                                   FALSE, // no outgoing
-                                   eventName,
-                                   NULL,
-                                   NULL);
+      userAgentp->addMessageObserver(incomingClientMsgQueue,
+                                     SIP_SUBSCRIBE_METHOD,
+                                     FALSE, // no requests
+                                     TRUE, // reponses
+                                     TRUE, // incoming
+                                     FALSE, // no outgoing
+                                     eventName,
+                                     NULL,
+                                     NULL);
+      userAgentp->addMessageObserver(incomingClientMsgQueue,
+                                     SIP_NOTIFY_METHOD,
+                                     TRUE, // requests
+                                     FALSE, // not reponses
+                                     TRUE, // incoming
+                                     FALSE, // no outgoing
+                                     eventName,
+                                     NULL,
+                                     NULL);
 
       // Send a SUBSCRIBE to ourselves
       SipMessage mwiSubscribeRequest(mwiSubscribe);
@@ -510,7 +483,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
                                                        SIP_PROTOCOL_VERSION);
       mwiSubscribeRequest.setContactField(aor_name_addr);
 
-      CPPUNIT_ASSERT(userAgent.send(mwiSubscribeRequest));
+      CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
 
       // We should get a 202 response and a NOTIFY request in the queue
       // Send a 500 response to the NOTIFY.
@@ -518,7 +491,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       {
          const SipMessage* subscribeResponse;
          const SipMessage* notifyRequest;
-         runListener(incomingClientMsgQueue, userAgent, messageTimeout,
+         runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
                      notifyRequest, subscribeResponse,
                      SIP_SERVER_INTERNAL_ERROR_CODE);
 
@@ -540,13 +513,13 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       mwiSubscribeRequest.incrementCSeqNumber();
       // Leave the Expires header with the default value.
 
-      CPPUNIT_ASSERT(userAgent.send(mwiSubscribeRequest));
+      CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
 
       // We should get a 202 response and a NOTIFY request in the queue
       {
          const SipMessage* subscribeResponse;
          const SipMessage* notifyRequest;
-         runListener(incomingClientMsgQueue, userAgent, messageTimeout,
+         runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
                      notifyRequest, subscribeResponse, SIP_OK_CODE);
 
          // We should have received a SUBSCRIBE response and a NOTIFY request.
@@ -564,10 +537,11 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       }
 
       // Clean up to prevent use of the queue after it goes out of scope.
-      userAgent.removeMessageObserver(incomingClientMsgQueue);
-      userAgent.removeMessageObserver(incomingClientMsgQueue);
+      userAgentp->removeMessageObserver(incomingClientMsgQueue);
+      userAgentp->removeMessageObserver(incomingClientMsgQueue);
 
-      userAgent.shutdown(TRUE);
+      userAgentp->shutdown(TRUE);
+      delete userAgentp;
        
       delete subServer;
       subServer = NULL;
@@ -604,14 +578,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
       // Construct a user agent that will function both as the subscriber
       // and the notfier.
-      // Listen on only a TCP port, as we do not want to have to specify a
-      // fixed port number (to allow multiple executions of the test),
-      // and the code to select a port automatically cannot be told to
-      // open matching UDP and TCP ports.
-      SipUserAgent userAgent(PORT_DEFAULT, PORT_NONE, PORT_NONE,
-                             NULL, NULL, hostIp);
-      userAgent.start();
-
+      SipUserAgent* userAgentp;
       // Construct the URI of the notifier, which is also the URI of
       // the subscriber.
       UtlString aor;
@@ -621,24 +588,16 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       // And the resource-id to use, which is the AOR with any
       // parameters stripped off.
       UtlString resource_id;
-      {
-         char buffer[100];
-         sprintf(buffer, "sip:111@%s:%d", hostIp.data(),
-                 userAgent.getTcpPort());
-         resource_id = buffer;
 
-         // Specify TCP transport, because that's all the UA listens to.
-         // Using an address with a transport parameter also exercises
-         // SipDialog to ensure it handles contact addresses with parameters.
-         strcat(buffer, ";transport=tcp");
-         aor = buffer;
-
-         Url aor_uri(buffer, TRUE);
-         aor_uri.toString(aor_name_addr);
-      }
+      createTestSipUserAgent(hostIp,
+                             "111",
+                             userAgentp,
+                             aor,
+                             aor_name_addr,
+                             resource_id);
 
       SipSubscribeServer* subServer = 
-         SipSubscribeServer::buildBasicServer(userAgent, 
+         SipSubscribeServer::buildBasicServer(*userAgentp,
                                               eventName);
       subServer->start();
 
@@ -652,24 +611,24 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       OsMsgQ incomingClientMsgQueue;
       // Register an interest in SUBSCRIBE responses and NOTIFY requests
       // for this event type
-      userAgent.addMessageObserver(incomingClientMsgQueue,
-                                   SIP_SUBSCRIBE_METHOD,
-                                   FALSE, // no requests
-                                   TRUE, // reponses
-                                   TRUE, // incoming
-                                   FALSE, // no outgoing
-                                   eventName,
-                                   NULL,
-                                   NULL);
-      userAgent.addMessageObserver(incomingClientMsgQueue,
-                                   SIP_NOTIFY_METHOD,
-                                   TRUE, // requests
-                                   FALSE, // not reponses
-                                   TRUE, // incoming
-                                   FALSE, // no outgoing
-                                   eventName,
-                                   NULL,
-                                   NULL);
+      userAgentp->addMessageObserver(incomingClientMsgQueue,
+                                     SIP_SUBSCRIBE_METHOD,
+                                     FALSE, // no requests
+                                     TRUE, // reponses
+                                     TRUE, // incoming
+                                     FALSE, // no outgoing
+                                     eventName,
+                                     NULL,
+                                     NULL);
+      userAgentp->addMessageObserver(incomingClientMsgQueue,
+                                     SIP_NOTIFY_METHOD,
+                                     TRUE, // requests
+                                     FALSE, // not reponses
+                                     TRUE, // incoming
+                                     FALSE, // no outgoing
+                                     eventName,
+                                     NULL,
+                                     NULL);
 
       // Send a SUBSCRIBE to ourselves
       SipMessage mwiSubscribeRequest(mwiSubscribe);
@@ -699,7 +658,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       for (int i = 0; i < sizeof (test_codes) / sizeof (test_codes[0]); i++)
       {
          mwiSubscribeRequest.incrementCSeqNumber();
-         CPPUNIT_ASSERT(userAgent.send(mwiSubscribeRequest));
+         CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
 
          // We should get a 202 response and a NOTIFY request in the queue
          // Send the specified response to the NOTIFY.
@@ -707,7 +666,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          {
             const SipMessage* subscribeResponse;
             const SipMessage* notifyRequest;
-            runListener(incomingClientMsgQueue, userAgent, messageTimeout,
+            runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
                         notifyRequest, subscribeResponse,
                         test_codes[i]);
 
@@ -723,13 +682,13 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          mwiSubscribeRequest.incrementCSeqNumber();
          // Leave the Expires header with the default value.
 
-         CPPUNIT_ASSERT(userAgent.send(mwiSubscribeRequest));
+         CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
 
          // We should get a 481 response and no NOTIFY.
          {
             const SipMessage* subscribeResponse;
             const SipMessage* notifyRequest;
-            runListener(incomingClientMsgQueue, userAgent, messageTimeout,
+            runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
                         notifyRequest, subscribeResponse, SIP_OK_CODE);
 
             // We should have received a SUBSCRIBE response and no NOTIFY request.
@@ -744,10 +703,11 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       }
 
       // Clean up to prevent use of the queue after it goes out of scope.
-      userAgent.removeMessageObserver(incomingClientMsgQueue);
-      userAgent.removeMessageObserver(incomingClientMsgQueue);
+      userAgentp->removeMessageObserver(incomingClientMsgQueue);
+      userAgentp->removeMessageObserver(incomingClientMsgQueue);
 
-      userAgent.shutdown(TRUE);
+      userAgentp->shutdown(TRUE);
+      delete userAgentp;
        
       delete subServer;
       subServer = NULL;
@@ -782,14 +742,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
       // Construct a user agent that will function both as the subscriber
       // and the notfier.
-      // Listen on only a TCP port, as we do not want to have to specify a
-      // fixed port number (to allow multiple executions of the test),
-      // and the code to select a port automatically cannot be told to
-      // open matching UDP and TCP ports.
-      SipUserAgent userAgent(PORT_DEFAULT, PORT_NONE, PORT_NONE,
-                             NULL, NULL, hostIp);
-      userAgent.start();
-
+      SipUserAgent* userAgentp;
       // Construct the URI of the notifier, which is also the URI of
       // the subscriber.
       UtlString aor;
@@ -799,24 +752,16 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       // And the resource-id to use, which is the AOR with any
       // parameters stripped off.
       UtlString resource_id;
-      {
-         char buffer[100];
-         sprintf(buffer, "sip:111@%s:%d", hostIp.data(),
-                 userAgent.getTcpPort());
-         resource_id = buffer;
 
-         // Specify TCP transport, because that's all the UA listens to.
-         // Using an address with a transport parameter also exercises
-         // SipDialog to ensure it handles contact addresses with parameters.
-         strcat(buffer, ";transport=tcp");
-         aor = buffer;
-
-         Url aor_uri(buffer, TRUE);
-         aor_uri.toString(aor_name_addr);
-      }
+      createTestSipUserAgent(hostIp,
+                             "111",
+                             userAgentp,
+                             aor,
+                             aor_name_addr,
+                             resource_id);
 
       SipSubscribeServer* subServer = 
-         SipSubscribeServer::buildBasicServer(userAgent, 
+         SipSubscribeServer::buildBasicServer(*userAgentp, 
                                               eventName);
       subServer->start();
 
@@ -830,24 +775,24 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       OsMsgQ incomingClientMsgQueue;
       // Register an interest in SUBSCRIBE responses and NOTIFY requests
       // for this event type
-      userAgent.addMessageObserver(incomingClientMsgQueue,
-                                   SIP_SUBSCRIBE_METHOD,
-                                   FALSE, // no requests
-                                   TRUE, // reponses
-                                   TRUE, // incoming
-                                   FALSE, // no outgoing
-                                   eventName,
-                                   NULL,
-                                   NULL);
-      userAgent.addMessageObserver(incomingClientMsgQueue,
-                                   SIP_NOTIFY_METHOD,
-                                   TRUE, // requests
-                                   FALSE, // not reponses
-                                   TRUE, // incoming
-                                   FALSE, // no outgoing
-                                   eventName,
-                                   NULL,
-                                   NULL);
+      userAgentp->addMessageObserver(incomingClientMsgQueue,
+                                     SIP_SUBSCRIBE_METHOD,
+                                     FALSE, // no requests
+                                     TRUE, // reponses
+                                     TRUE, // incoming
+                                     FALSE, // no outgoing
+                                     eventName,
+                                     NULL,
+                                     NULL);
+      userAgentp->addMessageObserver(incomingClientMsgQueue,
+                                     SIP_NOTIFY_METHOD,
+                                     TRUE, // requests
+                                     FALSE, // not reponses
+                                     TRUE, // incoming
+                                     FALSE, // no outgoing
+                                     eventName,
+                                     NULL,
+                                     NULL);
 
       // Send a SUBSCRIBE to ourselves
       SipMessage mwiSubscribeRequest(mwiSubscribe);
@@ -866,7 +811,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       for (int i = 0; i < sizeof (test_codes) / sizeof (test_codes[0]); i++)
       {
          mwiSubscribeRequest.incrementCSeqNumber();
-         CPPUNIT_ASSERT(userAgent.send(mwiSubscribeRequest));
+         CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
 
          // We should get a 202 response and a NOTIFY request in the queue
          // Send the specified response to the NOTIFY.
@@ -874,7 +819,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          {
             const SipMessage* subscribeResponse;
             const SipMessage* notifyRequest;
-            runListener(incomingClientMsgQueue, userAgent, messageTimeout,
+            runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
                         notifyRequest, subscribeResponse,
                         test_codes[i], TRUE);
 
@@ -890,14 +835,14 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          mwiSubscribeRequest.incrementCSeqNumber();
          // Leave the Expires header with the default value.
 
-         CPPUNIT_ASSERT(userAgent.send(mwiSubscribeRequest));
+         CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
 
          // We should get a 202 response and a NOTIFY, because the Retry-After
          // header suppresses the termination of the subscription.
          {
             const SipMessage* subscribeResponse;
             const SipMessage* notifyRequest;
-            runListener(incomingClientMsgQueue, userAgent, messageTimeout,
+            runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
                         notifyRequest, subscribeResponse, SIP_OK_CODE);
 
             // We should have received a SUBSCRIBE response and no NOTIFY request.
@@ -910,10 +855,11 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       }
 
       // Clean up to prevent use of the queue after it goes out of scope.
-      userAgent.removeMessageObserver(incomingClientMsgQueue);
-      userAgent.removeMessageObserver(incomingClientMsgQueue);
+      userAgentp->removeMessageObserver(incomingClientMsgQueue);
+      userAgentp->removeMessageObserver(incomingClientMsgQueue);
 
-      userAgent.shutdown(TRUE);
+      userAgentp->shutdown(TRUE);
+      delete userAgentp;
        
       delete subServer;
       subServer = NULL;
@@ -948,14 +894,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
       // Construct a user agent that will function both as the subscriber
       // and the notfier.
-      // Listen on only a TCP port, as we do not want to have to specify a
-      // fixed port number (to allow multiple executions of the test),
-      // and the code to select a port automatically cannot be told to
-      // open matching UDP and TCP ports.
-      SipUserAgent userAgent(PORT_DEFAULT, PORT_NONE, PORT_NONE,
-                             NULL, NULL, hostIp);
-      userAgent.start();
-
+      SipUserAgent* userAgentp;
       // Construct the URI of the notifier, which is also the URI of
       // the subscriber.
       UtlString aor;
@@ -965,24 +904,16 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       // And the resource-id to use, which is the AOR with any
       // parameters stripped off.
       UtlString resource_id;
-      {
-         char buffer[100];
-         sprintf(buffer, "sip:111@%s:%d", hostIp.data(),
-                 userAgent.getTcpPort());
-         resource_id = buffer;
 
-         // Specify TCP transport, because that's all the UA listens to.
-         // Using an address with a transport parameter also exercises
-         // SipDialog to ensure it handles contact addresses with parameters.
-         strcat(buffer, ";transport=tcp");
-         aor = buffer;
-
-         Url aor_uri(buffer, TRUE);
-         aor_uri.toString(aor_name_addr);
-      }
+      createTestSipUserAgent(hostIp,
+                             "111",
+                             userAgentp,
+                             aor,
+                             aor_name_addr,
+                             resource_id);
 
       SipSubscribeServer* subServer = 
-         SipSubscribeServer::buildBasicServer(userAgent, 
+         SipSubscribeServer::buildBasicServer(*userAgentp, 
                                               eventName);
       subServer->start();
 
@@ -996,24 +927,24 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       OsMsgQ incomingClientMsgQueue;
       // Register an interest in SUBSCRIBE responses and NOTIFY requests
       // for this event type
-      userAgent.addMessageObserver(incomingClientMsgQueue,
-                                   SIP_SUBSCRIBE_METHOD,
-                                   FALSE, // no requests
-                                   TRUE, // reponses
-                                   TRUE, // incoming
-                                   FALSE, // no outgoing
-                                   eventName,
-                                   NULL,
-                                   NULL);
-      userAgent.addMessageObserver(incomingClientMsgQueue,
-                                   SIP_NOTIFY_METHOD,
-                                   TRUE, // requests
-                                   FALSE, // not reponses
-                                   TRUE, // incoming
-                                   FALSE, // no outgoing
-                                   eventName,
-                                   NULL,
-                                   NULL);
+      userAgentp->addMessageObserver(incomingClientMsgQueue,
+                                     SIP_SUBSCRIBE_METHOD,
+                                     FALSE, // no requests
+                                     TRUE, // reponses
+                                     TRUE, // incoming
+                                     FALSE, // no outgoing
+                                     eventName,
+                                     NULL,
+                                     NULL);
+      userAgentp->addMessageObserver(incomingClientMsgQueue,
+                                     SIP_NOTIFY_METHOD,
+                                     TRUE, // requests
+                                     FALSE, // not reponses
+                                     TRUE, // incoming
+                                     FALSE, // no outgoing
+                                     eventName,
+                                     NULL,
+                                     NULL);
 
       // Send a SUBSCRIBE to ourselves
       SipMessage mwiSubscribeRequest(mwiSubscribe);
@@ -1027,7 +958,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
                                                        SIP_PROTOCOL_VERSION);
       mwiSubscribeRequest.setContactField(aor_name_addr);
 
-      CPPUNIT_ASSERT(userAgent.send(mwiSubscribeRequest));
+      CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
 
       // We should get a 202 response and a NOTIFY request in the queue
       // Send the specified response to the NOTIFY.
@@ -1035,7 +966,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       {
          const SipMessage* subscribeResponse;
          const SipMessage* notifyRequest;
-         runListener(incomingClientMsgQueue, userAgent, messageTimeout,
+         runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
                      notifyRequest, subscribeResponse, SIP_OK_CODE);
 
          // We should have received a SUBSCRIBE response and a NOTIFY request.
@@ -1056,10 +987,11 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       }
 
       // Clean up to prevent use of the queue after it goes out of scope.
-      userAgent.removeMessageObserver(incomingClientMsgQueue);
-      userAgent.removeMessageObserver(incomingClientMsgQueue);
+      userAgentp->removeMessageObserver(incomingClientMsgQueue);
+      userAgentp->removeMessageObserver(incomingClientMsgQueue);
 
-      userAgent.shutdown(TRUE);
+      userAgentp->shutdown(TRUE);
+      delete userAgentp;
        
       delete subServer;
       subServer = NULL;
