@@ -9,6 +9,10 @@
     <property name="label" value="Polycom SoundPoint IP 300/301" />
     <property name="maxLineCount" value="2" />
   </bean>
+  <bean id="polycom330" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 320/330" />
+    <property name="maxLineCount" value="2" />
+  </bean>
   <bean id="polycom430" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 430" />
     <property name="maxLineCount" value="2" />
