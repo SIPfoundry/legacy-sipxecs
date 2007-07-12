@@ -21,7 +21,7 @@
 /* ****************************************************************
  * The syntax for a sipX branch id is:
  *
- * branchid           ::= cookie "-" uniquepart [ "$" loopdetectkey ]
+ * branchid           ::= cookie "-" uniquepart [ "%" loopdetectkey ]
  * cookie             ::= 3261cookie "-sipX-" 
  * 3261cookie         ::= "z9hG4bK"
  * uniquepart         ::= smCounter signed-branch
@@ -50,7 +50,7 @@ const char* BranchId::RFC3261_MAGIC_COOKIE = RFC3261_MAGIC_COOKIE_VALUE;
 const char*        SIPX_MAGIC_COOKIE        = RFC3261_MAGIC_COOKIE_VALUE SIPX_COOKIE_EXTENSION;
 const unsigned int SIPX_MAGIC_COOKIE_LENGTH = strlen(SIPX_MAGIC_COOKIE);
 
-#define SIPX_LOOP_KEY_SEPARATOR "$"
+#define SIPX_LOOP_KEY_SEPARATOR "%"
 
 /// The (secret) unique value used to sign the uniquepart hash.
 UtlString BranchId::smIdSecret;

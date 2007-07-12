@@ -245,7 +245,7 @@ public:
 
          ASSERT_STR_EQUAL(sipXbranchId.data(), sipXcopied.data());
          
-         UtlString non_sipXbranchId("z9hG4bK-94rkdeeepdeloepw$ww-lflll");
+         UtlString non_sipXbranchId("z9hG4bK-94rkdeeepdeloepw%ww-lflll");
          BranchId  non_sipXcopied(non_sipXbranchId);
 
          ASSERT_STR_EQUAL(sipXbranchId.data(), sipXcopied.data());
