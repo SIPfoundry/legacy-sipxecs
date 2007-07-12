@@ -548,6 +548,7 @@ class SipSubscribeClientTest : public CppUnit::TestCase
 
        subClient.requestShutdown();
        refreshMgr.requestShutdown();
+       subServer->requestShutdown();
 
        userAgent.shutdown(TRUE);
 

@@ -103,23 +103,6 @@ class SipSubscribeServerTest : public CppUnit::TestCase
    {
       UtlString hostIp("127.0.0.1");
 
-      // Test MWI messages
-      const char* mwiSubscribe =
-         "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
-         "From: <sip:111@example.com>;tag=1612c1612\r\n"
-         "To: <sip:111@example.com>\r\n"
-         "Cseq: 1 SUBSCRIBE\r\n"
-         "Event: message-summary\r\n"
-         "Accept: application/simple-message-summary\r\n"
-         "Expires: 3600\r\n"
-         "Date: Tue, 26 Apr 2005 14:59:30 GMT\r\n"
-         "Max-Forwards: 20\r\n"
-         "User-Agent: Pingtel/2.2.0 (VxWorks)\r\n"
-         "Accept-Language: en\r\n"
-         "Supported: sip-cc, sip-cc-01, timer, replaces\r\n"
-         "Content-Length: 0\r\n"
-         "\r\n";
-
       const char* mwiStateString =
          "Messages-Waiting: no\r\n"
          "Voice-Message: 0/0 (0/0)\r\n";
@@ -127,28 +110,47 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       UtlString eventName(SIP_EVENT_MESSAGE_SUMMARY);
       UtlString mwiMimeType(CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY);
 
-      // Construct a user agent that will function both as the subscriber
-      // and the notfier.
-      SipUserAgent* userAgentp;
+      // Construct the notifier (Subscription Server) user agent.
+      SipUserAgent* notifierUserAgentp;
       // Construct the URI of the notifier, which is also the URI of
       // the subscriber.
-      UtlString aor;
+      UtlString notifier_aor;
       // Also construct the name-addr version of the URI, which may be
       // different if it has a "transport" parameter.
-      UtlString aor_name_addr;
+      UtlString notifier_name_addr;
       // And the resource-id to use, which is the AOR with any
       // parameters stripped off.
-      UtlString resource_id;
+      UtlString notifier_resource_id;
 
       createTestSipUserAgent(hostIp,
-                             "111",
-                             userAgentp,
-                             aor,
-                             aor_name_addr,
-                             resource_id);
+                             "notifier",
+                             notifierUserAgentp,
+                             notifier_aor,
+                             notifier_name_addr,
+                             notifier_resource_id);
+
+
+      // Construct the subscriber (Subscription Client) user agent.
+      SipUserAgent* subscriberUserAgentp;
+      // Construct the URI of the notifier, which is also the URI of
+      // the subscriber.
+      UtlString subscriber_aor;
+      // Also construct the name-addr version of the URI, which may be
+      // different if it has a "transport" parameter.
+      UtlString subscriber_name_addr;
+      // And the resource-id to use, which is the AOR with any
+      // parameters stripped off.
+      UtlString subscriber_resource_id;
+
+      createTestSipUserAgent(hostIp,
+                             "subscriber",
+                             subscriberUserAgentp,
+                             subscriber_aor,
+                             subscriber_name_addr,
+                             subscriber_resource_id);
 
       SipSubscribeServer* subServer = 
-         SipSubscribeServer::buildBasicServer(*userAgentp,
+         SipSubscribeServer::buildBasicServer(*notifierUserAgentp,
                                               eventName);
       subServer->start();
 
@@ -158,30 +160,30 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       SipDialogMgr* dialogMgr = subMgr->getDialogMgr();
       CPPUNIT_ASSERT(dialogMgr);
 
-      // Create a crude Subscription client
+      // Create a simple Subscription client
       OsMsgQ incomingClientMsgQueue;
       // Register an interest in SUBSCRIBE responses and NOTIFY requests
       // for this event type
-      userAgentp->addMessageObserver(incomingClientMsgQueue,
-                                     SIP_SUBSCRIBE_METHOD,
-                                     FALSE, // no requests
-                                     TRUE, // reponses
-                                     TRUE, // incoming
-                                     FALSE, // no outgoing
-                                     eventName,
-                                     NULL,
-                                     NULL);
-      userAgentp->addMessageObserver(incomingClientMsgQueue,
-                                     SIP_NOTIFY_METHOD,
-                                     TRUE, // requests
-                                     FALSE, // not reponses
-                                     TRUE, // incoming
-                                     FALSE, // no outgoing
-                                     eventName,
-                                     NULL,
-                                     NULL);
+      subscriberUserAgentp->addMessageObserver(incomingClientMsgQueue,
+                                               SIP_SUBSCRIBE_METHOD,
+                                               FALSE, // no requests
+                                               TRUE, // reponses
+                                               TRUE, // incoming
+                                               FALSE, // no outgoing
+                                               eventName,
+                                               NULL,
+                                               NULL);
+      subscriberUserAgentp->addMessageObserver(incomingClientMsgQueue,
+                                               SIP_NOTIFY_METHOD,
+                                               TRUE, // requests
+                                               FALSE, // not reponses
+                                               TRUE, // incoming
+                                               FALSE, // no outgoing
+                                               eventName,
+                                               NULL,
+                                               NULL);
 
-      // Validate that authentication and authorization are
+      // Verify that authentication and authorization are
       // disabled by default.
       {
          SipSubscribeServerEventHandler* eventHandler = 
@@ -200,26 +202,33 @@ class SipSubscribeServerTest : public CppUnit::TestCase
                                                    bogusSubscribeResponse));
       }
 
-      // Send a SUBSCRIBE to ourselves
-      SipMessage mwiSubscribeRequest(mwiSubscribe);
+      // Send a SUBSCRIBE to the notifier.
+      SipMessage mwiSubscribeRequest;
       {
          UtlString c;
          CallId::getNewCallId(c);
-         mwiSubscribeRequest.setCallIdField(c);
+         mwiSubscribeRequest.setSubscribeData(notifier_aor, // request URI
+                                              subscriber_name_addr, // From
+                                              notifier_name_addr, // To
+                                              c, // Call-Id
+                                              0, // CSeq
+                                              eventName, // Event
+                                              mwiMimeType, // Accept
+                                              NULL, // Event id
+                                              subscriber_name_addr, // Contact
+                                              NULL, // Route
+                                              3600 // Expires
+            );
       }
-      mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
-                                                       aor, 
-                                                       SIP_PROTOCOL_VERSION);
-      mwiSubscribeRequest.setContactField(aor_name_addr);
 
-      CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
+      CPPUNIT_ASSERT(subscriberUserAgentp->send(mwiSubscribeRequest));
 
       // We should get a 202 response and a NOTIFY request in the queue
       OsTime messageTimeout(1, 0);  // 1 second
       {
          const SipMessage* subscribeResponse;
          const SipMessage* notifyRequest;
-         runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
+         runListener(incomingClientMsgQueue, *subscriberUserAgentp, messageTimeout,
                      notifyRequest, subscribeResponse, SIP_OK_CODE);
 
          // We should have received a SUBSCRIBE response and a NOTIFY request.
@@ -268,7 +277,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
          const int version = 0;
          SipPublishContentMgr* publishMgr = subServer->getPublishMgr(eventName);
          CPPUNIT_ASSERT(publishMgr);
-         publishMgr->publish(resource_id, 
+         publishMgr->publish(notifier_resource_id, 
                              eventName, 
                              eventName, 
                              1, 
@@ -280,7 +289,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       {
          const SipMessage* subscribeResponse;
          const SipMessage* secondNotify;
-         runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
+         runListener(incomingClientMsgQueue, *subscriberUserAgentp, messageTimeout,
                      secondNotify, subscribeResponse, SIP_OK_CODE);
          CPPUNIT_ASSERT(secondNotify);
          CPPUNIT_ASSERT(subscribeResponse == NULL);
@@ -307,25 +316,31 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       }
 
       // Create a new one-time SUBSCRIBE
-      SipMessage oneTimeMwiSubscribeRequest(mwiSubscribe);
+      SipMessage oneTimeMwiSubscribeRequest;
       {
          UtlString c;
          CallId::getNewCallId(c);
-         oneTimeMwiSubscribeRequest.setCallIdField(c);
+         oneTimeMwiSubscribeRequest.
+            setSubscribeData(notifier_aor, // request URI
+                             subscriber_name_addr, // From
+                             notifier_name_addr, // To
+                             c, // Call-Id
+                             0, // CSeq
+                             eventName, // Event
+                             mwiMimeType, // Accept
+                             NULL, // Event id
+                             subscriber_name_addr, // Contact
+                             NULL, // Route
+                             0 // Expires
+               );
       }
-      oneTimeMwiSubscribeRequest.setExpiresField(0);
-      oneTimeMwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
-                                                              aor, 
-                                                              SIP_PROTOCOL_VERSION);
-      oneTimeMwiSubscribeRequest.setContactField(aor_name_addr);
-      oneTimeMwiSubscribeRequest.setEventField(SIP_EVENT_MESSAGE_SUMMARY);
 
-      CPPUNIT_ASSERT(userAgentp->send(oneTimeMwiSubscribeRequest));
+      CPPUNIT_ASSERT(subscriberUserAgentp->send(oneTimeMwiSubscribeRequest));
 
       {
          const SipMessage* oneTimeNotifyRequest;
          const SipMessage* oneTimeSubscribeResponse;
-         runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
+         runListener(incomingClientMsgQueue, *subscriberUserAgentp, messageTimeout,
                      oneTimeNotifyRequest, oneTimeSubscribeResponse, SIP_OK_CODE);
 
          // Validate the one time subscribe response and notify request
@@ -380,11 +395,14 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       }
 
       // Clean up to prevent use of the queue after it goes out of scope.
-      userAgentp->removeMessageObserver(incomingClientMsgQueue);
-      userAgentp->removeMessageObserver(incomingClientMsgQueue);
+      notifierUserAgentp->removeMessageObserver(incomingClientMsgQueue);
+      notifierUserAgentp->removeMessageObserver(incomingClientMsgQueue);
 
-      userAgentp->shutdown(TRUE);
-      delete userAgentp;
+      notifierUserAgentp->shutdown(TRUE);
+      delete notifierUserAgentp;
+       
+      subscriberUserAgentp->shutdown(TRUE);
+      delete subscriberUserAgentp;
        
       delete subServer;
       subServer = NULL;
@@ -448,7 +466,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       SipDialogMgr* dialogMgr = subMgr->getDialogMgr();
       CPPUNIT_ASSERT(dialogMgr);
 
-      // Create a crude Subscription client
+      // Create a simple Subscription client
       OsMsgQ incomingClientMsgQueue;
       // Register an interest in SUBSCRIBE responses and NOTIFY requests
       // for this event type
@@ -607,7 +625,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       SipDialogMgr* dialogMgr = subMgr->getDialogMgr();
       CPPUNIT_ASSERT(dialogMgr);
 
-      // Create a crude Subscription client
+      // Create a simple Subscription client
       OsMsgQ incomingClientMsgQueue;
       // Register an interest in SUBSCRIBE responses and NOTIFY requests
       // for this event type
@@ -771,7 +789,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       SipDialogMgr* dialogMgr = subMgr->getDialogMgr();
       CPPUNIT_ASSERT(dialogMgr);
 
-      // Create a crude Subscription client
+      // Create a simple Subscription client
       OsMsgQ incomingClientMsgQueue;
       // Register an interest in SUBSCRIBE responses and NOTIFY requests
       // for this event type
@@ -923,7 +941,7 @@ class SipSubscribeServerTest : public CppUnit::TestCase
       SipDialogMgr* dialogMgr = subMgr->getDialogMgr();
       CPPUNIT_ASSERT(dialogMgr);
 
-      // Create a crude Subscription client
+      // Create a simple Subscription client
       OsMsgQ incomingClientMsgQueue;
       // Register an interest in SUBSCRIBE responses and NOTIFY requests
       // for this event type
