@@ -976,7 +976,7 @@ void SipMessage::setOkResponseData(const SipMessage* request,
    setResponseData(request, SIP_OK_CODE, SIP_OK_TEXT, localContact);
 }
 
-void SipMessage::setNotifyData(SipMessage *subscribeRequest,
+void SipMessage::setNotifyData(const SipMessage *subscribeRequest,
                                int localCSequenceNumber,
                                const char* route,
                                const char* stateField,

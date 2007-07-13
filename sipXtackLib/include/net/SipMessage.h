@@ -472,7 +472,7 @@ public:
                         const char* routeField,
                         const char* localContact);
 
-    void setNotifyData(SipMessage *subscribeRequest,
+    void setNotifyData(const SipMessage *subscribeRequest,
                        int lastLocalSequenceNumber,
                        const char* route,
                        const char* stateField = NULL,
