@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -22,47 +23,34 @@ import org.apache.commons.logging.LogFactory;
  */
 
 public class Restore {
-
-    public static final String BACKUP_CONFIGS = "configuration.tar.gz";
-
-    public static final String BACKUP_MAILSTORE = "voicemail.tar.gz";
-
     private static final Log LOG = LogFactory.getLog(Restore.class);
 
-    private static final String ERROR = "Errors when executing restore script: {0}";
+    private static final String ERROR = "Errors when executing restore script: %s";
 
     private static final String RESTORE_BINARY = "sipx-sudo-restore";
 
     private String m_binDirectory;
 
     public boolean perform(List<BackupBean> backups) {
+        String[] cmdLine = getCmdLine(backups);
         try {
             Runtime runtime = Runtime.getRuntime();
-            runtime.exec(getCmdLine(backups));
-
+            runtime.exec(cmdLine);
+            return true;
         } catch (IOException e) {
-            LOG.error(ERROR);
+            LOG.error(String.format(ERROR, StringUtils.join(cmdLine, " ")));
             return false;
         }
-        return true;
     }
 
     String[] getCmdLine(List<BackupBean> backups) {
-
         File executable = new File(getBinDirectory(), RESTORE_BINARY);
         List<String> cmds = new ArrayList<String>();
         cmds.add(executable.getAbsolutePath());
 
-        for (int i = 0; i < backups.size(); i++) {
-            if (backups.get(i).getName().equalsIgnoreCase("Configuration")) {
-                cmds.add("-c");
-                cmds.add(backups.get(i).getPath());
-            } else if (backups.get(i).getName().equalsIgnoreCase("Voicemail")) {
-                cmds.add("-v");
-                cmds.add(backups.get(i).getPath());
-            } else {
-                LOG.error("getCmdLine unknown archive type: '" + backups.get(i).getName() + "'.");
-            }
+        for (BackupBean backup : backups) {
+            cmds.add(backup.getType().getOption());
+            cmds.add(backup.getPath());
         }
         cmds.add("--non-interactive");
         return cmds.toArray(new String[cmds.size()]);

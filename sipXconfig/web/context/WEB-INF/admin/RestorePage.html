@@ -18,8 +18,8 @@
                 <tr jwcid="@Foreach" source="ognl:backups" value="ognl:currentBackup">
                   <span jwcid="@If" condition="prop:sameBackupFolder">
                     <td>
-                      <span jwcid="defaultValue@Checkbox" id="currentBackup.id" value="ognl:currentBackup.checked"/>
-                      <span jwcid="@Insert" value="ognl:currentBackup.name"/>
+                      <span jwcid="defaultValue@Checkbox" value="ognl:selections.selected[currentBackup.file]"/>
+                      <span jwcid="@Insert" value="ognl:currentBackupName"/>
                     </td>
                   </span>
                 </tr>

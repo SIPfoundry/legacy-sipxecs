@@ -15,7 +15,6 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.springframework.context.ApplicationContext;
 
@@ -25,8 +24,6 @@ public class AdminContextImplTest extends TestCase {
     private static final String SECOND_BACKUP = "200706101101";
 
     private static final String THIRD_BACKUP = "200706101102";
-
-    private static final String SEPARATOR = "/";
 
     private static final String BACKUP_FOLDER = "/backup/";
 
@@ -57,8 +54,7 @@ public class AdminContextImplTest extends TestCase {
         try {
             File file = new File(configBackup);
             file.mkdirs();
-            configBackup += SEPARATOR + Restore.BACKUP_CONFIGS;
-            File backup = new File(configBackup);
+            File backup = new File(file, BackupPlan.CONFIGURATION_ARCHIVE);
             backup.createNewFile();
         } catch (IOException ex) {
             fail("Could not create the configs backup");
@@ -72,8 +68,7 @@ public class AdminContextImplTest extends TestCase {
         try {
             File file = new File(voicemailBackup);
             file.mkdirs();
-            voicemailBackup += SEPARATOR + Restore.BACKUP_MAILSTORE;
-            File backup = new File(voicemailBackup);
+            File backup = new File(file, BackupPlan.VOICEMAIL_ARCHIVE);
             backup.createNewFile();
         } catch (IOException ex) {
             fail("Could not create the mailstore backup");

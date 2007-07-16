@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,27 +23,24 @@ public class RestoreTest extends TestCase {
         Restore restore = new Restore();
         restore.setBinDirectory("");
 
-        BackupBean configBackupBean = new BackupBean();
-        configBackupBean.setName("Configuration");
-        configBackupBean.setPath("path_to_config_backup");
+        File conf = new File("path_to_config_backup", BackupPlan.CONFIGURATION_ARCHIVE);
+        BackupBean configBackupBean = new BackupBean(conf);
 
         List<BackupBean> list = new ArrayList<BackupBean>();
         list.add(configBackupBean);
 
         String cmdLine = StringUtils.join(restore.getCmdLine(list), ' ');
-        assertEquals(restore.getBinDirectory()
-                + "/sipx-sudo-restore -c path_to_config_backup --non-interactive", cmdLine);
+        assertEquals(restore.getBinDirectory() + "/sipx-sudo-restore -c " + conf.getAbsolutePath()
+                + " --non-interactive", cmdLine);
 
-        BackupBean voicemailBackupBean = new BackupBean();
-        voicemailBackupBean.setName("Voicemail");
-        voicemailBackupBean.setPath("path_to_mailstore_backup");
+        File voicemail = new File("path_to_mailstore_backup", BackupPlan.VOICEMAIL_ARCHIVE);
+        BackupBean voicemailBackupBean = new BackupBean(voicemail);
         list.add(voicemailBackupBean);
 
         cmdLine = StringUtils.join(restore.getCmdLine(list), ' ');
-        assertEquals(
-                restore.getBinDirectory()
-                        + "/sipx-sudo-restore -c path_to_config_backup -v path_to_mailstore_backup --non-interactive",
-                cmdLine);
+        assertEquals(restore.getBinDirectory() + "/sipx-sudo-restore -c "
+                + conf.getAbsolutePath() + " -v " + voicemail.getAbsolutePath()
+                + " --non-interactive", cmdLine);
 
     }
 }

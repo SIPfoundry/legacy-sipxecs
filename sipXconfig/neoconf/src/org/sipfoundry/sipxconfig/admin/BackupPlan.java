@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -31,11 +32,17 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
  * Backup various parts of the system to a fixed backup directory.
  */
 public class BackupPlan extends BeanWithId {
+    public static final String VOICEMAIL_ARCHIVE = "voicemail.tar.gz";
+    public static final String CONFIGURATION_ARCHIVE = "configuration.tar.gz";
+
+    public static final FilenameFilter BACKUP_FILE_FILTER = new FilenameFilter() {
+        public boolean accept(File dir, String name) {
+            return name.equalsIgnoreCase(VOICEMAIL_ARCHIVE)
+                    || name.equalsIgnoreCase(CONFIGURATION_ARCHIVE);
+        }
+    };
 
     private static final Log LOG = LogFactory.getLog(BackupPlan.class);
-
-    private static final String VOICEMAIL_ARCHIVE = "voicemail.tar.gz";
-    private static final String CONFIGURATION_ARCHIVE = "configuration.tar.gz";
 
     /* ensures we do not get caught in infinite loop */
     private static final int MAX_BACKUPS_TO_DELETE = 100;

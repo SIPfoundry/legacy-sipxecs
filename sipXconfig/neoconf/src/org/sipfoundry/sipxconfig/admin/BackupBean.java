@@ -9,52 +9,55 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import java.io.File;
 import java.io.Serializable;
 
 public class BackupBean implements Serializable {
-    private String m_name;
-    private String m_parent;
-    private String m_path;
-    private boolean m_checked;
+    enum Type {
+        CONFIGURATION("-c"), VOICEMAIL("-v");
+
+        private String m_option;
+
+        Type(String option) {
+            m_option = option;
+        }
+
+        String getOption() {
+            return m_option;
+        }
+
+        static Type typeFromName(String name) {
+            if (BackupPlan.CONFIGURATION_ARCHIVE.equalsIgnoreCase(name)) {
+                return CONFIGURATION;
+            }
+            return VOICEMAIL;
+        }
+    }
+
+    private Type m_type;
+    private File m_backupFile;
 
     public BackupBean() {
     }
 
-    public BackupBean(String name, String parent, String path) {
-        m_name = name;
-        m_parent = parent;
-        m_path = path;
+    public BackupBean(File backupFile) {
+        m_backupFile = backupFile;
+        m_type = Type.typeFromName(m_backupFile.getName());
     }
 
     public String getPath() {
-        return m_path;
-    }
-
-    public void setPath(String path) {
-        m_path = path;
+        return m_backupFile.getAbsolutePath();
     }
 
     public String getParent() {
-        return m_parent;
+        return m_backupFile.getParentFile().getName();
     }
 
-    public void setParent(String parent) {
-        m_parent = parent;
+    public File getFile() {
+        return m_backupFile;
     }
 
-    public String getName() {
-        return m_name;
-    }
-
-    public void setName(String name) {
-        m_name = name;
-    }
-
-    public boolean isChecked() {
-        return m_checked;
-    }
-
-    public void setChecked(boolean checked) {
-        m_checked = checked;
+    public Type getType() {
+        return m_type;
     }
 }

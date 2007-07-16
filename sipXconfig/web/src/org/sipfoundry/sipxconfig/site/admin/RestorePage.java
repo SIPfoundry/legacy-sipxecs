@@ -9,10 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -20,20 +24,24 @@ import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.BackupBean;
 import org.sipfoundry.sipxconfig.admin.Restore;
+import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
 public abstract class RestorePage extends UserBasePage implements PageBeginRenderListener {
+    @InjectObject(value = "spring:adminContext")
+    public abstract AdminContext getAdminContext();
+
+    @Bean
+    public abstract SelectMap getSelections();
+
     public abstract void setBackups(BackupBean[] backups);
 
     public abstract BackupBean[] getBackups();
 
-    @InjectObject(value = "spring:adminContext")
-    public abstract AdminContext getAdminContext();
+    public abstract Set getBackupFolders();
 
-    public abstract List getBackupFolders();
-
-    public abstract void setBackupFolders(List list);
+    public abstract void setBackupFolders(Set folders);
 
     public abstract String getFolder();
 
@@ -53,13 +61,10 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         AdminContext context = getAdminContext();
         setBackups(context.getBackups());
 
-        List<String> backupFolders = new ArrayList<String>();
+        Set<String> backupFolders = new TreeSet<String>();
         for (BackupBean backupBean : getBackups()) {
-            if (!backupFolders.contains(backupBean.getParent())) {
-                backupFolders.add(backupBean.getParent());
-            }
+            backupFolders.add(backupBean.getParent());
         }
-        Collections.sort(backupFolders);
         setBackupFolders(backupFolders);
     }
 
@@ -67,13 +72,15 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         return getCurrentBackup().getParent().equalsIgnoreCase(getFolder());
     }
 
-    public void restore() {
+    public String getCurrentBackupName() {
+        return getMessages().getMessage("backup." + getCurrentBackup().getType());
+    }
 
+    public void restore() {
+        Collection<File> selectedFiles = getSelections().getAllSelected();
         List<BackupBean> selectedBackups = new ArrayList<BackupBean>();
-        for (BackupBean backupBean : getBackups()) {
-            if (backupBean.isChecked()) {
-                selectedBackups.add(backupBean);
-            }
+        for (File file : selectedFiles) {
+            selectedBackups.add(new BackupBean(file));
         }
 
         if (!validateSelections(selectedBackups)) {
@@ -89,11 +96,14 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         TapestryUtils.recordSuccess(this, getMessages().getMessage("message.label.success"));
     }
 
-    private boolean validateSelections(List<BackupBean> list) {
-        int listSize = list.size();
-        if (listSize == 1
-                || (listSize == 2 && (!list.get(0).getName().equalsIgnoreCase(
-                        list.get(1).getName())))) {
+    static boolean validateSelections(List<BackupBean> list) {
+        final int size = list.size();
+        if (size == 1) {
+            // a single selection is OK
+            return true;
+        }
+        if (size == 2 && (list.get(0).getType() != list.get(1).getType())) {
+            // 2 selections are OK if they are of different types
             return true;
         }
         return false;

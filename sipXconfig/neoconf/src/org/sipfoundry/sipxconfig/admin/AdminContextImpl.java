@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.springframework.context.ApplicationEvent;
@@ -87,7 +88,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         if (m_timer != null) {
             m_timer.cancel();
         }
-        m_timer = new Timer(false); // deamon, dies with main thread
+        m_timer = new Timer(false); // daemon, dies with main thread
         plan.schedule(m_timer, m_backupDirectory, m_binDirectory);
     }
 
@@ -102,38 +103,19 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     }
 
     public BackupBean[] getBackups() {
-        final String configurationName = "Configuration";
-        final String voicemailName = "Voicemail";
-        List<BackupBean> backupList = new ArrayList<BackupBean>();
-        File backupDirectory = new File(getBackupDirectory());
-        File[] backupFolders = backupDirectory.listFiles();
+        List<BackupBean> backupBeans = new ArrayList<BackupBean>();
 
-        for (File backupFolder : backupFolders) {
-            if (backupFolder.isDirectory()) {
-                File[] backups = backupFolder.listFiles(getBackupFileFilter());
-                String backupName = null;
-                for (File backup : backups) {
-                    if (backup.getName().equalsIgnoreCase(Restore.BACKUP_CONFIGS)) {
-                        backupName = configurationName;
-                    } else {
-                        backupName = voicemailName;
-                    }
-                    backupList.add(new BackupBean(backupName, backupFolder.getName(), backup
-                            .getAbsolutePath()));
-                }
+        File backupDirectory = new File(getBackupDirectory());
+
+        FileFilter dirFilter = DirectoryFileFilter.DIRECTORY;
+
+        for (File backupFolder : backupDirectory.listFiles(dirFilter)) {
+            File[] backups = backupFolder.listFiles(BackupPlan.BACKUP_FILE_FILTER);
+            for (File backup : backups) {
+                backupBeans.add(new BackupBean(backup));
             }
         }
 
-        return backupList.toArray(new BackupBean[backupList.size()]);
-    }
-
-    private FileFilter getBackupFileFilter() {
-        FileFilter backupFileFilter = new FileFilter() {
-            public boolean accept(File file) {
-                return file.getName().equalsIgnoreCase(Restore.BACKUP_CONFIGS)
-                        || file.getName().equalsIgnoreCase(Restore.BACKUP_MAILSTORE);
-            }
-        };
-        return backupFileFilter;
+        return backupBeans.toArray(new BackupBean[backupBeans.size()]);
     }
 }
