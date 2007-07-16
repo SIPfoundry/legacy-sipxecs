@@ -42,7 +42,6 @@ public class BackupPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         checkCheckbox("checkVoicemail");
         checkCheckbox("checkConfigs");
-        checkCheckbox("checkDatabase");
         selectOption("limitCount", "10");
         checkCheckbox("dailyScheduleEnabled");
         selectOption("dailyScheduledDay", "Wednesday");
@@ -51,7 +50,6 @@ public class BackupPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         assertCheckboxSelected("checkVoicemail");
         assertCheckboxSelected("checkConfigs");
-        assertCheckboxSelected("checkDatabase");
         assertOptionEquals("limitCount", "10");
         assertCheckboxSelected("dailyScheduleEnabled");
         assertOptionEquals("dailyScheduledDay", "Wednesday");
@@ -62,7 +60,6 @@ public class BackupPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         checkCheckbox("checkVoicemail");
         checkCheckbox("checkConfigs");
-        checkCheckbox("checkDatabase");
         selectOption("limitCount", "10");
         checkCheckbox("dailyScheduleEnabled");
         selectOption("dailyScheduledDay", "Wednesday");
