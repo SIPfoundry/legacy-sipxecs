@@ -84,6 +84,7 @@
     <page name="ReplicationData" specification-path="admin/commserver/ReplicationData.page"/>
     <page name="ResetDialPlan" specification-path="dialplan/ResetDialPlan.page"/>
     <page name="RestartReminder" specification-path="admin/commserver/RestartReminder.page"/>
+    <page name="RestorePage" specification-path="admin/RestorePage.page"/>
     <page name="SelectGateways" specification-path="gateway/SelectGateways.page"/>
     <page name="SelectUsers" specification-path="user/SelectUsers.page"/>
     <page name="ServerSettings" specification-path="admin/commserver/ServerSettings.page"/>    

@@ -1,0 +1,53 @@
+# Common to both the sipx-backup and sipx-restore scripts.
+
+CONFIG_DATABASE_NAME=SIPXCONFIG
+DB_TAR=db.tar
+
+operation_stamp() {
+   echo $OPERATION" script invoked at "`date`", INTERACTIVE="$INTERACTIVE"."
+}
+
+confirm_action() {
+  if [ "$INTERACTIVE" = "yes" ]; then
+    while :
+    do
+      echo -n "Is this OK? [y/N] "
+      read response
+      case $response in
+        y* | Y*)
+          break
+          ;;
+
+        n* | N* | "")
+          echo "Cancelled."
+          exit
+          ;;
+      esac
+    done
+  fi
+}
+
+bad_usage() {
+  usage
+  exit 1
+}
+
+postgresql_running() {
+  if [ ! -f /var/run/postmaster*.pid -a \
+       ! -f /var/lib/postgresql/data/postmaster*.pid -a \
+       ! -f /var/lib/pgsql/data/postmaster*.pid ]
+  then
+    echo "PostgreSQL does not appear to be running. You must start it in order to $OPERATION."
+    exit 2
+  fi
+}
+
+delete_old_file() {
+  if [ -a $1 ]
+  then
+    echo "Will delete the old $1 file..."
+    confirm_action
+    rm -rf $1
+  fi
+}
+

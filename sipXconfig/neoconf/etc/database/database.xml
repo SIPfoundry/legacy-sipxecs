@@ -225,12 +225,17 @@
   <target name="version6" description="upgrade from version 5" unless="version7">
     <antcall target="callgroup-fallback-destination"/>
     <antcall target="time_of_day"/>
+    <antcall target="backup-configs-converge"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="7" -->
   </target>	
 
   <target name="time_of_day" unless="time_of_day">
     <db-patch patch="time_of_day"/>
+  </target>
+
+  <target name="backup-configs-converge" unless="backup-configs-converge">
+    <db-patch patch="backup-configs-converge"/>
   </target>
 
   <target name="enable-schedule" unless="enable-schedule">

@@ -6,7 +6,8 @@ bin_SCRIPTS = \
     analyze_483s \
     ipcclean.pl \
     blat \
-    check-fqdn
+    check-fqdn \
+    sipx-archive-common
 
 $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP
@@ -21,10 +22,8 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 SCRIPT_TEMPLATES = \
 	keepalive.sh.in \
 	sipx-snapshot.in \
-	backup-configs.sh.in \
-	backup-mailstore.sh.in \
-	restore-configs.sh.in \
-	restore-mailstore.sh.in
+	sipx-backup.in \
+	sipx-restore.in
 
 EXTRA_DIST = \
 	sipxpbx.in \
@@ -36,6 +35,11 @@ EXTRA_DIST = \
 install-exec-hook : $(DESTDIR)$(sysconfdir)/init.d/sipxpbx bin-scripts \
                     $(DESTDIR)$(sysconfdir)/cron.daily/voicemail_clean \
                     $(DESTDIR)$(sysconfdir)/cron.daily/sipx-chkspace
+	rm -f $(DESTDIR)$(bindir)/backup-mailstore.sh
+	rm -f $(DESTDIR)$(bindir)/restore-configs.sh
+	rm -f $(DESTDIR)$(bindir)/restore-mailstore.sh
+	rm -f $(DESTDIR)$(bindir)/backup-configs.sh
+
 
 $(DESTDIR)$(sysconfdir)/init.d/sipxpbx: $(sysconfdir)/init.d sipxpbx
 	$(INSTALL) -D -m 755 sipxpbx $(DESTDIR)$(sysconfdir)/init.d/sipxpbx

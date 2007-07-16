@@ -66,6 +66,7 @@ AC_CONFIG_FILES([
   src/test/testlib/Makefile 
   doc/Makefile
   meta/Makefile
+  src/sipxrestorebinary/Makefile
 ])
 AC_OUTPUT
 

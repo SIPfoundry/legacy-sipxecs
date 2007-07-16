@@ -31,9 +31,6 @@
   <component id="checkConfigs" type="Checkbox">
     <binding name="value" value="backupPlan.configs"/>
   </component>
-  <component id="checkDatabase" type="Checkbox">
-    <binding name="value" value="backupPlan.database"/>
-  </component>
   <component id="checkVoicemail" type="Checkbox">
     <binding name="value" value="backupPlan.voicemail"/>
   </component>

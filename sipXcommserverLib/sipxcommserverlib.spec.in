@@ -100,6 +100,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/config-defs
 %attr(755,root,root) %{_bindir}/get_def_addr
 %attr(755,root,root) %{_bindir}/%name-config
+%attr(4755,root,root) %{_bindir}/sipx-sudo-restore
 %attr(755,root,root) %{_bindir}/sipdbtest
 %attr(755,root,root) %{_bindir}/pkg-upgrade
 %attr(755,root,root) %{_bindir}/sipdbtest.sh

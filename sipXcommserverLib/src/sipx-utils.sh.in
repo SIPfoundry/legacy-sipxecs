@@ -8,7 +8,7 @@ sipx_services() {
 }
 
 sipx_config_value() { # ( CONFIG-FILE, DIRECTIVE )
-#   prints the value of DIRECTIVE from CONFIG-FILE 
+#   prints the value of DIRECTIVE from CONFIG-FILE
 #   list values have any commas removed
     perl -n \
         -e 'use English;' \
@@ -18,7 +18,7 @@ sipx_config_value() { # ( CONFIG-FILE, DIRECTIVE )
 }
 
 dns_sipsrv () { # ( TRANSPORT, DOMAIN )
-  # returns the SRV host name for DOMAIN over TRANSPORT 
+  # returns the SRV host name for DOMAIN over TRANSPORT
   target=`echo _sip._$1.$2 | tr A-Z a-z`
   dig  -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority ${target} \
   | tr A-Z a-z \
@@ -109,6 +109,138 @@ sip_resolves_to () { # ( unresolved, target )
            done
        fi
      done
-        
+
      return 1
 }
+
+get_user_groups() { # USERNAME
+    id $1 -Gn
+}
+
+get_file_owneruser() { # FILE
+    ls -l $1 |  tr -s ' ' | cut -f3 -d' '
+}
+
+get_file_ownergroup() { # FILE
+    ls -l $1 |  tr -s ' ' | cut -f4 -d' '
+}
+
+is_file_owned_by_username() { # FILE, USERNAME
+# Returns true (0) if the specified FILE is user owned by the
+# specified USERNAME.  Otherwise, returns false (1).
+
+    if [ `get_file_owneruser $1` = $2 ]
+    then
+        return 0
+    else
+        return 1
+    fi
+}
+
+is_file_grouped_by_username() { # FILE, USERNAME
+# Returns true (0) if the specified FILE is group owned by one
+# (or more) of the groups that the specified USERNAME belongs
+# to.  Otherwise, returns false (1).
+
+    file_group=`get_file_ownergroup $1`
+    for in_group in `get_user_groups $2`;
+    do
+        if [ $file_group = $in_group ]
+        then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+is_file_executable_by_username() { # FILE, USERNAME
+# Returns true (0) if the specified FILE is executable by
+# the specified USERNAME, false (1) otherwise.
+
+    # User?
+    is_file_owned_by_username $1 $2
+    if [ $? = 0 ]
+    then
+        if [ "$(ls -l $1 | cut -c4)" = "x" ]
+        then
+            # USERNAME user owns FILE, and has execute permissions.
+            return 0
+        fi
+    else
+        # Group?
+        is_file_grouped_by_username $1 $2
+        if [ $? = 0 ]
+        then
+            if [ "$(ls -l $1 | cut -c7)" = "x" ]
+            then
+                # USERNAME is in a group that group owns FILE, and has
+                # execute permissions.
+                return 0
+            fi
+        else
+            # Other?
+            if [ "$(ls -l $1 | cut -c10)" = "x" ]
+            then
+                # USERNAME is one of the others to the FILE, and has
+                # execute permissions.
+                return 0
+            fi
+        fi
+    fi
+
+    return 1
+}
+
+make_root_writable_only() { # ( FILE )
+# This function ensures the specified FILE writable by root only.  It first
+# ensures that the file's owner and group are both root.  It then ensures
+# that neither group nor other have write permissions on the file.  If a
+# chown/chmod fails, then the function returns with the exit status of
+# the failed command.  (Note that chown and chmod will fail if the caller
+# is not root.)
+    if [ -f $1 ]
+    then
+        # The file exists.  Ensure its owner and group are both root.
+        is_file_owned_by_username $1 "root"
+        if [ $? = 1 ]
+        then
+            # The owner is not root, so fix it.
+            chown root $1
+            if [ 0 != $? ]
+            then
+                return $?
+            fi
+        fi
+        if [ `get_file_ownergroup $1` != "root" ]
+        then
+            # The group is not root, so fix it.
+            chown :root $1
+            if [ 0 != $? ]
+            then
+                return $?
+            fi
+        fi
+
+        # At this point the file's owner and group are both root.
+        # Ensure it is not writeable by either group or other.
+        if [ "$(ls -l $1 | cut -c6)" != "-" ]
+        then
+            chmod g-w $1
+            if [ 0 != $? ]
+            then
+                return $?
+            fi
+        fi
+        if [ "$(ls -l $1 | cut -c9)" != "-" ]
+        then
+            chmod o-w $1
+            if [ 0 != $? ]
+            then
+                return $?
+            fi
+        fi
+    fi
+}
+
+

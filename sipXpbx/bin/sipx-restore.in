@@ -1,0 +1,157 @@
+#!/bin/bash
+
+OPERATION="Restore"
+source @SIPX_BINDIR@/sipx-archive-common
+
+# Look for the INTERACTIVE flag first, before processing any other command-line arguments.
+INTERACTIVE="yes"
+for arg in "$@"
+do
+  case $arg in
+    -n|--non-interactive)
+      INTERACTIVE="no"
+      # Re-direct stderr and stdout to a log file.
+      rm -rf @SIPX_LOGDIR@/sipx-restore.log
+      exec 3<>@SIPX_LOGDIR@/sipx-restore.log
+      exec 2>&3
+      exec 1>&3
+      ;;
+    esac
+done
+
+operation_stamp
+
+if [ "`whoami`" != root ]
+then
+  echo "You must be root in order to restore."
+  exit 4
+fi
+
+usage() {
+  echo
+  echo Usage: $0 parameters
+  echo
+  echo "   Restore the specified Configuration and/or Voicemail archive(s.)  At least one archive"
+  echo "   must be specified."
+  echo
+  echo Parameters:
+  echo "   -h|--help                     Display this help text."
+  echo "   -n|--non-interactive          Do not run in interactive mode.  All output is logged"
+  echo "                                 to sipx-restore.log."
+  echo "   -c|--configuration <archive>  Restore the specified Configuration archive."
+  echo "   -v|--voicemail <archive>      Restore the specified voicemail archive."
+  echo
+}
+
+bad_archive() {
+  echo "Invalid archive file path: '$1'."
+  exit 3
+}
+
+# Process the rest of the command-line arguments.
+while [ $# -ne 0 ]
+do
+  case ${1} in
+    -n|--non-interactive)
+      # Ignore at this point.
+      ;;
+
+    -h|--help)
+      usage
+      exit
+      ;;
+
+    -v|--voicemail)
+      # Parse and check the Voicemail archive file path.
+      if [ -z "${2}" ]
+      then
+        echo "No argument specified for ${1}."
+        bad_usage
+      elif [ -f "${2}" ]
+      then
+        # The extra argument specifies a regular file.
+        # Store it, then consume it.
+        VOICEMAIL_PATH="${2}"
+        shift
+      else
+        bad_archive ${2}
+      fi
+      ;;
+
+    -c|--configuration)
+      # Parse and check the Configuration archive file path.
+      if [ -z "${2}" ]
+      then
+        echo "No argument specified for ${1}."
+        bad_usage
+      elif [ -f "${2}" ]
+      then
+        # The extra argument specifies a regular file.
+        # Store it, then consume it.
+        CONFIGURATION_PATH="${2}"
+        shift
+      else
+        bad_archive ${2}
+      fi
+      ;;
+
+    *)
+      echo "Unknown option: ${1}"
+      bad_usage
+      ;;
+    esac
+  shift # always consume one argument
+done
+
+# Ensure at least one archive was specified.
+if [ -z "$CONFIGURATION_PATH" ] &&  [ -z "$VOICEMAIL_PATH" ]
+then
+  echo "Must specify at least one archive file to restore."
+  bad_usage
+fi
+
+# If Configuration is to be restored, then PostgreSQL must be running.
+if [ -n "$CONFIGURATION_PATH" ]
+then
+  postgresql_running
+fi
+
+# Stop all services.  After this point, the script MUST NOT exit without
+# starting all the services back up again.
+/bin/bash -p @SIPX_CONFDIR@/../init.d/sipxpbx stop
+
+# *** BEGIN Configuration ***
+PATH_DB_TAR=@SIPX_BACKUPDIR@/$DB_TAR
+if [ -n "$CONFIGURATION_PATH" ]
+then
+
+  # Configuration database.
+  echo -n "Restoring the '$CONFIG_DATABASE_NAME' database contents..."
+  dropdb -U postgres $CONFIG_DATABASE_NAME > /dev/null
+  createdb -U postgres --encoding=UNICODE $CONFIG_DATABASE_NAME > /dev/null
+  tar -xzvC @SIPX_BACKUPDIR@ $DB_TAR < $CONFIGURATION_PATH
+  cat $PATH_DB_TAR | pg_restore -U postgres -d $CONFIG_DATABASE_NAME 2> /dev/null
+  rm $PATH_DB_TAR
+  echo "done."
+
+  # Configuration files.
+  echo -n "Restoring configuration files..."
+  tar xzvC / --exclude $DB_TAR < $CONFIGURATION_PATH
+  echo "done."
+
+fi # *** END Configuration ***
+
+# *** BEGIN Voicemail ***
+if [ -n "$VOICEMAIL_PATH"  ]
+then
+
+  # Voicemail files.
+  echo -n "Restoring voicemail files..."
+  tar xzvC / < $VOICEMAIL_PATH
+  echo "done."
+
+fi # *** END Voicemail ***
+
+# Start all services.
+/bin/bash -p @SIPX_CONFDIR@/../init.d/sipxpbx start
+

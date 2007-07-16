@@ -34,26 +34,17 @@ public class BackupPlan extends BeanWithId {
 
     private static final Log LOG = LogFactory.getLog(BackupPlan.class);
 
-    private static final String MAILSTORE = "mailstore.tar.gz";
-    private static final String CONFIGS = "fs.tar.gz";
-    private static final String DATABASE = "pds.tar.gz";
+    private static final String VOICEMAIL_ARCHIVE = "voicemail.tar.gz";
+    private static final String CONFIGURATION_ARCHIVE = "configuration.tar.gz";
 
-    private static final String BACKUP_CONFIGS = "backup-configs";
-    private static final String BACKUP_MAILSTORE = "backup-mailstore";
-
-    private static final String SCRIPT_SUFFIX = ".sh";
-    private static final String OPTIONS = "--non-interactive";
-    
     /* ensures we do not get caught in infinite loop */
     private static final int MAX_BACKUPS_TO_DELETE = 100;
 
     private static final int SUCCESS = 0;
 
-    private String m_backupConfigScript = BACKUP_CONFIGS + SCRIPT_SUFFIX;
-    private String m_backupMailstoreScript = BACKUP_MAILSTORE + SCRIPT_SUFFIX;
+    private String m_backupScript = "sipx-backup";
 
     private boolean m_voicemail = true;
-    private boolean m_database = true;
     private boolean m_configs = true;
     private Integer m_limitedCount;
     private Date m_backupTime;
@@ -84,7 +75,7 @@ public class BackupPlan extends BeanWithId {
         m_backupTime = new Date();
         DateFormat fmt = new SimpleDateFormat("yyyyMMddHHmm");
         File nextDir = new File(rootBackupDir, fmt.format(m_backupTime));
-        
+
         String purgeable;
         int i = 0;
         do {
@@ -92,7 +83,8 @@ public class BackupPlan extends BeanWithId {
             if (purgeable != null) {
                 try {
                     File oldBackup = new File(rootBackupDir, purgeable);
-                    LOG.info(String.format("Deleting old backup '%s'", oldBackup.getAbsolutePath()));
+                    LOG.info(String.format("Deleting old backup '%s'", oldBackup
+                            .getAbsolutePath()));
                     FileUtils.deleteDirectory(oldBackup);
                     if (i++ > MAX_BACKUPS_TO_DELETE) {
                         LOG.error("Avoiding infinite loop trying to remove old backups");
@@ -121,67 +113,40 @@ public class BackupPlan extends BeanWithId {
         return filelist[0];
     }
 
-    void setConfigsScript(String script) {
-        m_backupConfigScript = script;
-    }
-
-    void setMailstoreScript(String script) {
-        m_backupMailstoreScript = script;
-    }
-
-    String buildExecName(File path, String script) {
-        File scriptPath = new File(path, script);
-        StringBuffer cmdLine = new StringBuffer(scriptPath.getAbsolutePath());
-        cmdLine.append(' ');
-        cmdLine.append(OPTIONS);
-        return cmdLine.toString();
-    }
-
-    private Process exec(String cmdLine, File workingDir) throws IOException {
-        Runtime runtime = Runtime.getRuntime();
-        return runtime.exec(cmdLine, ArrayUtils.EMPTY_STRING_ARRAY, workingDir);
+    void setScript(String script) {
+        m_backupScript = script;
     }
 
     private int perform(File workingDir, File binDir) throws IOException, InterruptedException {
-        List<Process> processes = new ArrayList<Process>();
-        if (isConfigs() || isDatabase()) {
-            String cmdLine = buildExecName(binDir, m_backupConfigScript);
-            processes.add(exec(cmdLine, workingDir));
+        String cmdLine = new String(binDir.getPath() + File.separator + m_backupScript + " -n");
+        if (!isVoicemail()) {
+            // Configuration only.
+            cmdLine += " -c";
+        } else if (!isConfigs()) {
+            // Voicemail only.
+            cmdLine += " -v";
+        }
 
+        Process process = Runtime.getRuntime().exec(cmdLine, ArrayUtils.EMPTY_STRING_ARRAY,
+                workingDir);
+        int code = process.waitFor();
+        if (SUCCESS != code) {
+            String errorMsg = String.format("Backup operation failed. Exit code: %d", code);
+            LOG.error(errorMsg);
         }
-        if (isVoicemail()) {
-            String cmdLine = buildExecName(binDir, m_backupMailstoreScript);
-            processes.add(exec(cmdLine, workingDir));
 
-        }
-        for (Process proc : processes) {
-            int code = proc.waitFor();
-            if (code != SUCCESS) {
-                String errorMsg = String.format("Backup operation failed. Exit code: %d", code);
-                LOG.error(errorMsg);
-                // does not make sense to wait for everything if one of the operations failed
-                return code;
-            }
-        }
-        return SUCCESS;
+        return code;
     }
 
     File[] getBackupFiles(File backupDir) {
         List files = new ArrayList();
         if (isConfigs()) {
-            File path = new File(backupDir, BACKUP_CONFIGS);
-            File configs = new File(path, CONFIGS);
-            files.add(configs);
-        }
-        if (isDatabase()) {
-            File path = new File(backupDir, BACKUP_CONFIGS);
-            File database = new File(path, DATABASE);
-            files.add(database);
+            File configuration = new File(backupDir, CONFIGURATION_ARCHIVE);
+            files.add(configuration);
         }
         if (isVoicemail()) {
-            File path = new File(backupDir, BACKUP_MAILSTORE);
-            File mailstore = new File(path, MAILSTORE);
-            files.add(mailstore);
+            File voicemail = new File(backupDir, VOICEMAIL_ARCHIVE);
+            files.add(voicemail);
         }
         return (File[]) files.toArray(new File[files.size()]);
     }
@@ -213,14 +178,6 @@ public class BackupPlan extends BeanWithId {
 
     public void setConfigs(boolean configs) {
         m_configs = configs;
-    }
-
-    public boolean isDatabase() {
-        return m_database;
-    }
-
-    public void setDatabase(boolean database) {
-        m_database = database;
     }
 
     public boolean isVoicemail() {

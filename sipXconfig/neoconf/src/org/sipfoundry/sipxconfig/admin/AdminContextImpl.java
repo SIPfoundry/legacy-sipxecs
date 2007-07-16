@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
@@ -73,7 +75,8 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
      * start backup timers after app is initialized
      */
     public void onApplicationEvent(ApplicationEvent event) {
-        // No need to register listener, all beans that implement listener interface are
+        // No need to register listener, all beans that implement listener
+        // interface are
         // automatically registered
         if (event instanceof ApplicationInitializedEvent) {
             resetTimer(getBackupPlan());
@@ -96,5 +99,41 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     public void deleteInitializationTask(String task) {
         List l = getHibernateTemplate().findByNamedQueryAndNamedParam("taskByName", "task", task);
         getHibernateTemplate().deleteAll(l);
+    }
+
+    public BackupBean[] getBackups() {
+        final String configurationName = "Configuration";
+        final String voicemailName = "Voicemail";
+        List<BackupBean> backupList = new ArrayList<BackupBean>();
+        File backupDirectory = new File(getBackupDirectory());
+        File[] backupFolders = backupDirectory.listFiles();
+
+        for (File backupFolder : backupFolders) {
+            if (backupFolder.isDirectory()) {
+                File[] backups = backupFolder.listFiles(getBackupFileFilter());
+                String backupName = null;
+                for (File backup : backups) {
+                    if (backup.getName().equalsIgnoreCase(Restore.BACKUP_CONFIGS)) {
+                        backupName = configurationName;
+                    } else {
+                        backupName = voicemailName;
+                    }
+                    backupList.add(new BackupBean(backupName, backupFolder.getName(), backup
+                            .getAbsolutePath()));
+                }
+            }
+        }
+
+        return backupList.toArray(new BackupBean[backupList.size()]);
+    }
+
+    private FileFilter getBackupFileFilter() {
+        FileFilter backupFileFilter = new FileFilter() {
+            public boolean accept(File file) {
+                return file.getName().equalsIgnoreCase(Restore.BACKUP_CONFIGS)
+                        || file.getName().equalsIgnoreCase(Restore.BACKUP_MAILSTORE);
+            }
+        };
+        return backupFileFilter;
     }
 }

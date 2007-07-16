@@ -43,7 +43,7 @@ then
   # Redhat 
   . /etc/init.d/functions
 
-  HTTP_DAEMON_START="daemon @APACHE2_HTTPD@"
+  HTTP_DAEMON_START="@APACHE2_HTTPD@"
 
 elif [ -f /etc/SuSE-release ]
 then
@@ -61,7 +61,7 @@ then
       rc_status -v
   }
 
-  HTTP_DAEMON_START="start-stop-daemon --start --exec @APACHE2_HTTPD@ --"
+  HTTP_DAEMON_START="start-stop-daemon --start --chuid root --exec @APACHE2_HTTPD@ --"
 
 elif [ -f /etc/debian_version ]
 then
@@ -75,7 +75,7 @@ then
       echo failure
   }
 
-  HTTP_DAEMON_START="start-stop-daemon --start --exec @APACHE2_HTTPD@ --"
+  HTTP_DAEMON_START="start-stop-daemon --start --chuid root --exec @APACHE2_HTTPD@ --"
 
 else
   # Other distos
@@ -91,7 +91,7 @@ else
   if [ -f /etc/init.d/functions.sh ]
   then
        . /etc/init.d/functions.sh
-       HTTP_DAEMON_START="start-stop-daemon --start --exec @APACHE2_HTTPD@ --"
+       HTTP_DAEMON_START="start-stop-daemon --start --chuid root --exec @APACHE2_HTTPD@ --"
   else
        HTTP_DAEMON_START="@APACHE2_HTTPD@"
   fi
@@ -160,22 +160,13 @@ proc_alive() # pid
 }
 
 # Low-level start function.
-# Unfortunately, $? will never report failure as su will always succeed.
-# Therefore we wait after the fork and see if the .pid file was created
+# We wait after the fork and see if the .pid file was created
 start() { # process-name 
         proc_name=$1; shift
         #proc_cmd=@bindir@/${proc_name}.sh
         proc_cmd=`process_command ${proc_name}`
         
         echo -n $"Starting $proc_name: "
-
-        # The "-" option to su which used to be used below is supposed
-        # to clear the environment, but it does not on RH Linux 9 and
-        # RHE Linux 3.  This causes the wrapper scripts for the
-        # components to attempt to source $BASH_ENV, which is usually
-        # ~root/.bashrc at this point, and usually results in a
-        # permission error.  So we unset BASH_ENV manually here.
-        unset BASH_ENV
 
         if [ $iam = @SIPXPBXUSER@ ]
         then
@@ -186,7 +177,7 @@ start() { # process-name
             # Remove "-" because (as the above comment mentions) it wasn't
             # doing what it is advertised as doing AND because on Gentoo
             # it would quietly fail to even launch the processes.
-            su @SIPXPBXUSER@ -c "$proc_cmd" < /dev/null &
+            $proc_cmd -u @SIPXPBXUSER@ < /dev/null &
 
         else
             echo "You must be able to start as @SIPXPBXUSER@" 1>&2
@@ -311,9 +302,6 @@ configtest() { # process-name  process-wd  process-command
     #proc_cmd=@bindir@/${proc_name}.sh
     proc_cmd=`process_command ${proc_name}`
 
-    # Unset environment manually for same reason as stated in start() function
-    unset BASH_ENV
-    
     status=0
     if [ -x $proc_cmd ]
     then
@@ -323,8 +311,8 @@ configtest() { # process-name  process-wd  process-command
                 status=$?
         elif [ $iam = root ]
         then
-            su @SIPXPBXUSER@ -c \
-              "test -x $proc_cmd && $proc_cmd --configtest; echo \$? > @SIPX_RUNDIR@/$proc_name.result"
+            test "is_file_executable_by_username $proc_cmd @SIPXPBXUSER@" && $proc_cmd --configtest
+            echo $? > @SIPX_RUNDIR@/$proc_name.result
             status=`cat @SIPX_RUNDIR@/$proc_name.result`
             rm -f @SIPX_RUNDIR@/$proc_name.result
         else
@@ -454,7 +442,7 @@ initialize_databases () {
     # and the cdr database setup for the proxies and call resolver
     if test -x @bindir@/sipxcallresolver.sh
     then
-        @bindir@/sipxcallresolver.sh --setup
+        /bin/bash -p @bindir@/sipxcallresolver.sh --setup
     fi
     # and the report database setup for acd call history (not real-time stats)
     if test -x @bindir@/sipxconfig-report
@@ -707,7 +695,8 @@ do_start() {
         # that the UID permission bit is set.
 	if test -e @bindir@/sipXvxml
         then
-            if [ "$(ls -l @bindir@/sipXvxml | tr -s ' ' | cut -f3 -d' ')" != "root" ]
+            is_file_owned_by_username @bindir@/sipXvxml "root"
+            if [ $? != 0 ]
             then
                 chown root @bindir@/sipXvxml
             fi
@@ -716,6 +705,26 @@ do_start() {
                 chmod 4755 @bindir@/sipXvxml
             fi
         fi
+
+        # Ensure that sipx-sudo-restore is owned by root and
+        # that the UID permission bit is set.
+	if test -e @bindir@/sipx-sudo-restore
+        then
+            is_file_owned_by_username  @bindir@/sipx-sudo-restore "root"
+            if [ $? != 0 ]
+            then
+                chown root @bindir@/sipx-sudo-restore
+            fi
+            if test ! -x @bindir@/sipx-sudo-restore -o ! -u @bindir@/sipx-sudo-restore
+            then
+                chmod 4755 @bindir@/sipx-sudo-restore
+            fi
+        fi
+
+        # Ensure the sipx-restore and sipx-archive-common scripts are
+        # both owned by root.
+        make_root_writable_only @SIPX_BINDIR@/sipx-restore
+        make_root_writable_only @SIPX_BINDIR@/sipx-archive-common
 
         # Start up the watchdog
         # Start the watchdog with SIPX_LOGDIR as the working directory,

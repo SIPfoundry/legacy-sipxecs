@@ -20,7 +20,8 @@ watchdog_SOURCES =  \
     WatchDog.cpp
 
 watchdog_LDADD = \
-    ../processcgi/libprocesscgi.la
+    ../processcgi/libprocesscgi.la \
+    @SIPXTACK_LIBS@
 
 noinst_HEADERS = \
 	EmailReporter.h \

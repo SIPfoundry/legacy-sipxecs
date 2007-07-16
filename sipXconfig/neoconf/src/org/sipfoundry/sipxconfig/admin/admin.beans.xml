@@ -24,10 +24,14 @@
     <property name="destDirectory" value="${sysdir.tmp}"/>    
   </bean>
 
+  <bean id="restore" class="org.sipfoundry.sipxconfig.admin.Restore">
+    <property name="binDirectory" value="${sysdir.bin}"/>
+  </bean>
+  
   <bean id="whacker" class="org.sipfoundry.sipxconfig.admin.Whacker">
     <property name="processContext" ref="sipxProcessContext"/>
   </bean>
-  
+
   <bean id="initializeSystemTask" class="org.sipfoundry.sipxconfig.admin.DataInitializer">
     <property name="adminContext" ref="adminContext"/>
   </bean>

@@ -27,21 +27,12 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 public abstract class BackupPage extends BasePage implements PageBeginRenderListener {
 
     /**
-     * Conceivable, available backup limits. Otherwise arbitrary.
-     * NOTE : Spring 1.1 couldn't define Integers in lists see
-     * DefaultXmlBeanDefinitionParser.java:parsePropertySubelement() 
+     * Conceivable, available backup limits. Otherwise arbitrary. NOTE : Spring 1.1 couldn't
+     * define Integers in lists see DefaultXmlBeanDefinitionParser.java:parsePropertySubelement()
      */
     public static final List BACKUP_LIMIT_MODEL = Arrays.asList(new Integer[] {
-        new Integer(1),
-        new Integer(2),
-        new Integer(3),
-        new Integer(4),
-        new Integer(5),
-        new Integer(10),
-        new Integer(20),
-        new Integer(30),
-        new Integer(40),
-        new Integer(50)
+        new Integer(1), new Integer(2), new Integer(3), new Integer(4), new Integer(5),
+        new Integer(10), new Integer(20), new Integer(30), new Integer(40), new Integer(50)
     });
 
     public abstract AdminContext getAdminContext();
@@ -49,24 +40,24 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
     public abstract List getBackupFiles();
 
     public abstract void setBackupFiles(List files);
-    
+
     public abstract BackupPlan getBackupPlan();
 
     public abstract void setBackupPlan(BackupPlan plan);
-    
+
     public void pageBeginRender(PageEvent event_) {
         List urls = getBackupFiles();
         if (urls == null) {
             setBackupFiles(Collections.EMPTY_LIST);
         }
-        
+
         // every plan has at least 1 schedule, thought of having this somewhere in
-        // library, but you could argue it's application specific.        
+        // library, but you could argue it's application specific.
         BackupPlan plan = getBackupPlan();
         if (plan == null) {
             plan = getAdminContext().getBackupPlan();
             if (plan.getSchedules().isEmpty()) {
-                DailyBackupSchedule schedule = new DailyBackupSchedule(); 
+                DailyBackupSchedule schedule = new DailyBackupSchedule();
                 plan.addSchedule(schedule);
             }
             setBackupPlan(plan);
@@ -87,15 +78,21 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
         }
         AdminContext adminContext = getAdminContext();
         BackupPlan plan = getBackupPlan();
-        File[] backupFiles = adminContext.performBackup(plan);
-        if (null != backupFiles) {
-            setBackupFiles(Arrays.asList(backupFiles));
+        if (!plan.isConfigs() && !plan.isVoicemail()) {
+            IValidationDelegate delegate = TapestryUtils.getValidator(getPage());
+            delegate.record(getMessages().getMessage("message.emptySelection"),
+                    ValidationConstraint.REQUIRED);
         } else {
-            IValidationDelegate validator = TapestryUtils.getValidator(this);
-            validator.record("Backup operation failed.", ValidationConstraint.CONSISTENCY);
+            File[] backupFiles = adminContext.performBackup(plan);
+            if (null != backupFiles) {
+                setBackupFiles(Arrays.asList(backupFiles));
+            } else {
+                IValidationDelegate validator = TapestryUtils.getValidator(this);
+                validator.record("Backup operation failed.", ValidationConstraint.CONSISTENCY);
+            }
         }
     }
-    
+
     public void ok() {
         AdminContext adminContext = getAdminContext();
         BackupPlan plan = getBackupPlan();

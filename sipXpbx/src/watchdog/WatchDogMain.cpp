@@ -11,9 +11,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <memory>
+#include <pwd.h>
 #include <signal.h>
 
 // APPLICATION INCLUDES
+#include "net/NameValueTokenizer.h"
 #include "processcgi/processXMLCommon.h"
 #include "WatchDog.h"
 #include "os/OsSysLog.h"
@@ -35,7 +37,7 @@ int gnCheckPeriod = 10;
 UtlBoolean gbDone = FALSE;
 MonitoredProcess *gpProcessList[1000]; //should be enough  :)
 int gnProcessCount = 0; //how many processes are we checking?
-UtlString strWatchDogFilename = ".";
+UtlString strWatchDogFilename;
 UtlString strWatchDogPath = ".";
 UtlString gEmailExecuteStr;
 
@@ -458,6 +460,88 @@ int main(int argc, char* argv[])
     UtlString gstrErrorMsg;
     UtlString processXMLPath = ".";
 
+    UtlString argString;
+    const char * sipxpbxuser = NULL;
+    for (int argIndex = 1; argIndex < argc; argIndex++) 
+    {
+        bool usageExit = false;
+
+        argString = argv[argIndex];
+        NameValueTokenizer::frontBackTrim(&argString, "\t ");
+
+        if (argString.compareTo("-h") == 0) 
+        {
+            usageExit = true;
+        }
+        else if (argString.compareTo("-u") == 0)
+        {
+            if (argIndex+1 >= argc)
+            {
+                // Missing the username.
+                usageExit = true;
+            }
+            else
+            {
+                sipxpbxuser = argv[++argIndex];
+            }
+        }
+        else if (argString.compareTo("-f") == 0)
+        {
+            if (argIndex+1 >= argc)
+            {
+                // Missing the filename.
+                usageExit = true;
+            }
+            else
+            {
+                strWatchDogFilename = argv[++argIndex];
+                // This is OK to print directly, since it happens at startup and is
+                // triggered only by special arguments.
+                osPrintf("WatchDog XML configuration set to %s\n", strWatchDogFilename.data());
+            }
+        }
+
+        if (usageExit)
+        {
+            enableConsoleOutput(true);
+            osPrintf("usage: %s [-h] [-u username]\n", argv[0]);
+            osPrintf(" -h           Print this help and exit.\n");
+            osPrintf(" -u username  Drop privileges down to the specified user.\n");
+            osPrintf(" -f filename  Use the specified watchdog config file.\n");
+            return 1;
+        }
+    }
+
+    // Drop privileges down to the specified user.
+    if (NULL != sipxpbxuser)
+    {
+        errno = 0;
+        struct passwd * pwd = getpwnam(sipxpbxuser);
+        if (NULL == pwd)
+        {
+            if (0 != errno)
+            {
+                OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "getpwnam(%s) failed, errno = %d.", sipxpbxuser, errno);
+            }
+            else
+            {
+                OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "getpwnam(%s) failed, user does not exist.", sipxpbxuser);
+            }
+        }
+        else
+        {
+            errno = 0;
+            if (0 == setuid(pwd->pw_uid))
+            {
+                OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Drop privileges with setuid() to '%s'.", sipxpbxuser);
+            }
+            else
+            {
+                OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "setuid(%d) failed, errno = %d.", (int)pwd->pw_uid, errno);
+            }
+        }
+    }
+
     signal(SIGABRT,sig_routine);
     signal(SIGTERM,sig_routine);
     signal(SIGINT,sig_routine);
@@ -468,20 +552,14 @@ int main(int argc, char* argv[])
 #ifdef DEBUG
     osPrintf("SIPxchange WatchDog - Copyright 2002 Pingtel Corp. All Rights Reserved.\n");
 #endif /* DEBUG */
-    // If the user specifies an argument, it is the location of the watchdog
-    // config file.
+
+
+    // The location of the watchdog config file might have been supplied on the command-line.
     // Otherwise, check for the SIPX_HOME env var.  If it is set, the watchdog
     // config file is $SIPX_HOME/watchdog/etc/WatchDog.xml.
     // :TODO: That last file name is now incorrect.
     // Otherwise, the config file is SIPX_CONFDIR/WatchDog.xml.
-    if ( argc > 2 )
-    {
-        strWatchDogFilename = argv[1];
-        // This is OK to print directly, since it happens at startup and is
-        // triggered only by special arguments.
-        osPrintf("WatchDog XML configuration set to %s\n",strWatchDogFilename.data());
-    }
-    else
+    if (strWatchDogFilename.isNull())
     {
         //first thing we check is if the path to the processdef xml file is set
         char *pWatchDogXMLPathEnv = getenv("SIPX_HOME");

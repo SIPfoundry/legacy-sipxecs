@@ -105,10 +105,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/keepalive.sh
 %attr(755,root,root) %{_bindir}/sipx-snapshot
 %attr(755,root,root) %{_bindir}/%name-config
-%attr(755,root,root) %{_bindir}/backup-configs.sh
-%attr(755,root,root) %{_bindir}/backup-mailstore.sh
-%attr(755,root,root) %{_bindir}/restore-configs.sh
-%attr(755,root,root) %{_bindir}/restore-mailstore.sh
+%attr(755,root,root) %{_bindir}/sipx-backup
+%attr(755,root,root) %{_bindir}/sipx-restore
+%attr(755,root,root) %{_bindir}/sipx-archive-common
 
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxpbx
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-chkspace
@@ -190,6 +189,10 @@ sipx-upgrade -p sipxpbx -c
 
 %post
 sipx-upgrade -p sipxpbx -u --bdir %{_bindir}  --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
+rm -f %{_bindir}/backup-mailstore.sh
+rm -f %{_bindir}/restore-configs.sh 
+rm -f %{_bindir}/restore-mailstore.sh
+rm -f %{_bindir}/backup-configs.sh
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz

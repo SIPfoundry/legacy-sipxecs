@@ -1,0 +1,39 @@
+<div jwcid="@Border">
+  <h2><span key="title">Restore</span></h2>
+  <span jwcid="@QuickHelp" value="message:quick.help"/>
+  <span jwcid="@ErrorMsg"/>
+  <span jwcid="@If" condition="ognl:backups.length < 1">
+    <p id="message.noBackups">There is no backup files saved in the backup folder.</p>
+  </span>
+  <span jwcid="@Else">
+    <form jwcid="@Form" id="backups:form" delegate="bean:validator">
+      <fieldset>
+        <table>
+          <tr jwcid="@Foreach" source="ognl:backupFolders" value="ognl:folder" element="tr">
+            <td>
+              <table>
+                <tr>
+                  <td colspan="2"><span jwcid="@Insert" value="ognl:folder"/>
+                </tr>
+                <tr jwcid="@Foreach" source="ognl:backups" value="ognl:currentBackup">
+                  <span jwcid="@If" condition="prop:sameBackupFolder">
+                    <td>
+                      <span jwcid="defaultValue@Checkbox" id="currentBackup.id" value="ognl:currentBackup.checked"/>
+                      <span jwcid="@Insert" value="ognl:currentBackup.name"/>
+                    </td>
+                  </span>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </fieldset>
+      <ul class="component-submit">
+        <li>
+          <input jwcid="restore@Submit" id="backups:restore" listener="listener:restore" tag="selections.allSelected" value="message:button.restore"/>
+          <span jwcid="@common/Confirm" component="component:restore" prompt="message:confirm.restore"/>
+        </li>
+      </ul>
+    </form>
+  </span>
+</div>
