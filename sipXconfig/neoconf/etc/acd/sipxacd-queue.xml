@@ -17,6 +17,12 @@
       <type />
       <value />
     </setting>
+	<setting name="overflow-entry">
+      <type>
+        <string required="no" />
+      </type>
+      <value />
+    </setting>
     <setting name="acd-scheme">
       <type>
         <enum>
