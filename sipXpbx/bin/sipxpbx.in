@@ -693,7 +693,7 @@ do_start() {
 
         # Ensure that sipXvxml is owned by root and
         # that the UID permission bit is set.
-	if test -e @bindir@/sipXvxml
+        if test -e @bindir@/sipXvxml
         then
             is_file_owned_by_username @bindir@/sipXvxml "root"
             if [ $? != 0 ]
@@ -708,7 +708,7 @@ do_start() {
 
         # Ensure that sipx-sudo-restore is owned by root and
         # that the UID permission bit is set.
-	if test -e @bindir@/sipx-sudo-restore
+        if test -e @bindir@/sipx-sudo-restore
         then
             is_file_owned_by_username  @bindir@/sipx-sudo-restore "root"
             if [ $? != 0 ]
