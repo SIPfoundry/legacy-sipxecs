@@ -153,7 +153,9 @@ EnforceAuthRules::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to p
    UtlString callId;
    request.getCallIdField(&callId);
 
-   if (!routeState.getParameter(mInstanceName.data(), RULES_ENFORCED_ROUTE_PARAM, unused))
+   if (   routeState.isMutable()
+       || !routeState.getParameter(mInstanceName.data(), RULES_ENFORCED_ROUTE_PARAM, unused)
+       )
    {
       UtlString userid;
       requestUri.getUserId(userid);

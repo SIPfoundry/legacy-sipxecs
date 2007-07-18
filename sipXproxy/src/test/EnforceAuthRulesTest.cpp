@@ -33,6 +33,7 @@ class EnforceAuthRulesTest : public CppUnit::TestCase
    CPPUNIT_TEST(testForbidden);
    CPPUNIT_TEST(testException);
    CPPUNIT_TEST(testNoChallengeAuth);
+   CPPUNIT_TEST(testChallengeAuthSpiral);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -509,6 +510,92 @@ public:
                                                         indialogRequestUri,
                                                         indialogRouteState,
                                                         indialogForwardMsg,
+                                                        rejectReason
+                                                        ));
+         CPPUNIT_ASSERT(rejectReason.isNull());
+      }
+
+   // Test that a dialog forming request with an authorized route is challenged.
+   void testChallengeAuthSpiral()
+      {
+         // first, simulate the initial invite to generate the route
+
+         UtlString identity("supercaster@enforce.example.com"); // has only 'fishing' permission
+         Url okRequestUri("sip:user@boat");
+
+         UtlSList noRemovedRoutes;
+
+         UtlString rejectReason;
+         
+         const char* okMessage =
+            "INVITE sip:user@boat SIP/2.0\r\n" 
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@boat\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: authorized-1\r\n"
+            "Cseq: 2 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage okMsg(okMessage, strlen(okMessage));
+         RouteState okRouteState( okMsg, noRemovedRoutes );
+
+         // confirm that supercaster can call boat
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+                        == enforcer->authorizeAndModify(NULL,
+                                                        identity,
+                                                        okRequestUri,
+                                                        okRouteState,
+                                                        okMsg,
+                                                        rejectReason
+                                                        ));
+         CPPUNIT_ASSERT(rejectReason.isNull());
+
+         UtlString routeName("example.com");
+         okRouteState.update(&okMsg, routeName);
+
+         UtlString recordRoute;
+         CPPUNIT_ASSERT(okMsg.getRecordRouteField(0, &recordRoute));
+         ASSERT_STR_EQUAL("<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21c2ce876a02a4f62e6a4ba3069bfb75b5>",
+                          recordRoute );
+
+         /*
+          * Note that the request uri for this message is now 'lodge', simulating a
+          * spiral where boat became lodge (perhaps due to forwarding).  Since 'supercaster'
+          * cannot call lodge, this should be rejected even though it has an approved
+          * route header based on the earlier spiral that approved the call to 'boat'.
+          */
+         const char* newdialogForwardMessage =
+            "INFO sip:user@lodge SIP/2.0\r\n" // 'lodge' requires 'hunting' permission
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@boat\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: authorized-1\r\n"
+            "Cseq: 2 INFO\r\n"
+            "Record-Route: <sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21c2ce876a02a4f62e6a4ba3069bfb75b5>\r\n"
+            "Max-Forwards: 19\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage newdialogForwardMsg(newdialogForwardMessage, strlen(newdialogForwardMessage));
+         UtlSList noApprovedRouteList; // empty
+         RouteState newdialogRouteState( newdialogForwardMsg, noApprovedRouteList );
+         Url newdialogRequestUri("sip:user@lodge");
+
+         // verify that it is still mutable (has no To tag or signed Route header)
+         CPPUNIT_ASSERT(newdialogRouteState.isMutable());
+         
+         // confirm that the spiraled new dialog message with that route is
+         // not allowed even though it is not authenticated.
+         UtlString noIdentity;
+         CPPUNIT_ASSERT(AuthPlugin::UNAUTHORIZED
+                        == enforcer->authorizeAndModify(NULL,
+                                                        noIdentity,
+                                                        newdialogRequestUri,
+                                                        newdialogRouteState,
+                                                        newdialogForwardMsg,
                                                         rejectReason
                                                         ));
          CPPUNIT_ASSERT(rejectReason.isNull());
