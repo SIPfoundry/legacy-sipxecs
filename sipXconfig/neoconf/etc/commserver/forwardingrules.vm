@@ -41,23 +41,25 @@
     <routeTo>&lt;${dollar}{REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT};transport=udp&gt;</routeTo>
 
   </route>
+
 #if(${sbc.enabled})
+  #if(${exportLocalIpAddress})
+    <route mappingType='local ip address'>
+      <description>
+        Any host address in the local subnets is routed to the auth proxy.
+      </description>
 
-  <route mappingType='local ip address'>
-    <description>
-      Any host address in the local subnets is routed to the auth proxy.
-    </description>
+    #foreach($subnet in ${sbc.routes.subnets})
+      <routeIPv4subnet>$subnet</routeIPv4subnet>
+    #end
 
-  #foreach($subnet in ${sbc.routes.subnets})
-    <routeIPv4subnet>$subnet</routeIPv4subnet>
+    #foreach($domain in ${sbc.routes.domains})
+      <routeDnsWildcard>$domain</routeDnsWildcard>
+    #end
+
+      <routeTo authRequired="true"/>
+    </route>
   #end
-
-  #foreach($domain in ${sbc.routes.domains})
-    <routeDnsWildcard>$domain</routeDnsWildcard>
-  #end
-
-    <routeTo authRequired="true"/>
-  </route>
 
   #foreach($auxSbc in $auxSbcs)
     #if($auxSbc.enabled)

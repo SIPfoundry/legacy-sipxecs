@@ -70,6 +70,38 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         verify(rule, sbcManager);
     }
+    
+    public void testGenerateWithEmptyDomainsAndIntranets() throws Exception {
+
+        IDialingRule rule = createNiceMock(IDialingRule.class);
+        rule.getHostPatterns();
+        expectLastCall().andReturn(new String[] {
+            "gander"
+        });
+
+        Sbc sbc = configureSbc(new DefaultSbc(), "10.1.2.3", 
+        		new ArrayList<String>(), new ArrayList<String>());
+
+        SbcManager sbcManager = createNiceMock(SbcManager.class);
+        sbcManager.loadDefaultSbc();
+        expectLastCall().andReturn(sbc);
+
+        replay(rule, sbcManager);
+
+        ForwardingRules rules = generate(rule, sbcManager);
+
+        Document document = rules.getDocument();
+        String generatedXml = XmlUnitHelper.asString(document);
+        
+        InputStream referenceXmlStream = ForwardingRulesTest.class
+                .getResourceAsStream("forwardingrules-no-local-ip.test.xml");
+
+        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
+
+        assertXpathEvaluatesTo("gander", "/routes/route/routeFrom[5]", generatedXml);
+
+        verify(rule, sbcManager);
+    }
 
     public void testGenerateAuxSbcs() throws Exception {
 

@@ -53,4 +53,8 @@ public class SbcRoutes {
     public String removeSubnet(int index) {
         return getSubnets().remove(index);
     }
+
+    public boolean isEmpty() {
+        return getSubnets().isEmpty() && getDomains().isEmpty();
+    }
 }

@@ -22,6 +22,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.DefaultSbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 
 /**
@@ -45,7 +46,7 @@ public class ForwardingRules extends XmlFile {
     }
 
     public void begin() {
-        m_routes = new ArrayList();
+        m_routes = new ArrayList<String>();
     }
 
     public void generate(IDialingRule rule) {
@@ -55,7 +56,14 @@ public class ForwardingRules extends XmlFile {
     public void end() {
         VelocityContext velocityContext = new VelocityContext();
         velocityContext.put("routes", m_routes);
-        velocityContext.put("sbc", m_sbcManager.loadDefaultSbc());
+
+        DefaultSbc sbc = m_sbcManager.loadDefaultSbc();
+        velocityContext.put("sbc", sbc);
+
+        if (sbc != null) {
+            velocityContext.put("exportLocalIpAddress", !sbc.getRoutes().isEmpty());
+        }
+
         velocityContext.put("auxSbcs", m_sbcManager.loadAuxSbcs());
         velocityContext.put("dollar", "$");
         try {

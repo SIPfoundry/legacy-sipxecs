@@ -103,6 +103,7 @@ class State
       end
     end    
     retire_long_calls() if 0 == @generation % 1000
+    flush_failed(100) if 0 == @generation % 200 	
   end
   
   # Strictly speaking this function does not have to be called.
