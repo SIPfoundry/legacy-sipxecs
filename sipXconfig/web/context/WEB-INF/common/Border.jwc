@@ -25,7 +25,7 @@
   <component id="shell" type="Shell">
     <binding name="stylesheets" value="tapestry.getStylesheets(#this)"/>
     <binding name="title" value="message:product.name"/>
-    <binding name="renderBaseTag" value="!useDojo"/>
+    <binding name="renderBaseTag" value="tapestry.renderBaseTag and !useDojo"/>
     <!-- binding name="delegate" value="bean:ajaxDelegate" / -->        
   </component>
   <component id="logoutLink" type="DirectLink">

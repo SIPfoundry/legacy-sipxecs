@@ -41,6 +41,12 @@ public class TapestryContext {
 
     private SkinControl m_skinControl;
 
+    /**
+     * Set to false to suppress rendering base tag which is important with some older HTTP
+     * proxies.
+     */
+    private boolean m_renderBaseTag;
+
     public void setHivemindContext(HivemindContext hivemindContext) {
         m_hivemindContext = hivemindContext;
     }
@@ -137,8 +143,12 @@ public class TapestryContext {
     }
 
     /**
-     * Join a list of names objects into a string give a delimitor Example <span jwcid="@Insert"
-     * value="ognl:tapestry.joinNamed(items, ', ')"/>
+     * Join a list of names objects into a string give a delimiter.
+     * 
+     * Example:
+     * <code>
+     *  <span jwcid="@Insert" value="ognl:tapestry.joinNamed(items, ', ')"/>
+     * </code>
      */
     public String joinNamed(Collection namedItems, String delim) {
         Collection names = CollectionUtils.collect(namedItems, new NamedObject.ToName());
@@ -164,6 +174,14 @@ public class TapestryContext {
 
     public boolean isLicenseRequired() {
         return null != m_skinControl.getAsset(SkinControl.ASSET_LICENSE);
+    }
+
+    public void setRenderBaseTag(boolean renderBaseTag) {
+        m_renderBaseTag = renderBaseTag;
+    }
+
+    public boolean isRenderBaseTag() {
+        return m_renderBaseTag;
     }
 
     /**
