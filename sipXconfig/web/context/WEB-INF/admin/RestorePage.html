@@ -2,30 +2,26 @@
   <h2><span key="title">Restore</span></h2>
   <span jwcid="@QuickHelp" value="message:quick.help"/>
   <span jwcid="@ErrorMsg"/>
-  <span jwcid="@If" condition="ognl:backups.length < 1">
+  <span jwcid="@If" condition="ognl:backups.empty">
     <p id="message.noBackups">There is no backup files saved in the backup folder.</p>
   </span>
   <span jwcid="@Else">
     <form jwcid="@Form" id="backups:form" delegate="bean:validator">
       <fieldset>
         <table>
-          <tr jwcid="@Foreach" source="ognl:backupFolders" value="ognl:folder" element="tr">
-            <td>
-              <table>
-                <tr>
-                  <td colspan="2"><span jwcid="@Insert" value="ognl:folder"/>
-                </tr>
-                <tr jwcid="@Foreach" source="ognl:backups" value="ognl:currentBackup">
-                  <span jwcid="@If" condition="prop:sameBackupFolder">
-                    <td>
-                      <span jwcid="defaultValue@Checkbox" value="ognl:selections.selected[currentBackup.file]"/>
-                      <span jwcid="@Insert" value="ognl:currentBackupName"/>
-                    </td>
-                  </span>
-                </tr>
-              </table>
-            </td>
-          </tr>
+          <span jwcid="@Foreach" source="ognl:backups" value="ognl:currentFolder">
+            <tr>
+              <td colspan="2"><span jwcid="@Insert" value="ognl:currentFolderName"/>
+            </tr>
+            <tr>
+              <td jwcid="@Foreach" source="ognl:backupTypes" value="ognl:currentType" element="td">
+                <span jwcid="@If" condition="ognl:currentFolder[currentType]">
+                  <span jwcid="defaultValue@Checkbox" value="ognl:selections.selected[currentFolder[currentType].file]"/>
+                  <span jwcid="@Insert" value="ognl:currentBackupName"/>
+                </span>
+              </td>
+            </tr>
+          </span>
         </table>
       </fieldset>
       <ul class="component-submit">

@@ -12,10 +12,14 @@ package org.sipfoundry.sipxconfig.admin;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.springframework.context.ApplicationEvent;
@@ -102,20 +106,36 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         getHibernateTemplate().deleteAll(l);
     }
 
-    public BackupBean[] getBackups() {
-        List<BackupBean> backupBeans = new ArrayList<BackupBean>();
-
+    /**
+     * Prepares a list of backup files that can be used to restore sipX configuration or sipX
+     * voice mail.
+     * 
+     * Each list items is a map: backup type -> backup bean(file name). Each list items contains
+     * files from a single directory. List is sorted by directory name in the backup order.
+     * 
+     */
+    public List<Map<Type, BackupBean>> getBackups() {
         File backupDirectory = new File(getBackupDirectory());
-
         FileFilter dirFilter = DirectoryFileFilter.DIRECTORY;
-
-        for (File backupFolder : backupDirectory.listFiles(dirFilter)) {
-            File[] backups = backupFolder.listFiles(BackupPlan.BACKUP_FILE_FILTER);
-            for (File backup : backups) {
-                backupBeans.add(new BackupBean(backup));
-            }
+        File[] backupFolders = backupDirectory.listFiles(dirFilter);
+        if (backupFolders == null) {
+            return Collections.emptyList();
         }
 
-        return backupBeans.toArray(new BackupBean[backupBeans.size()]);
+        List<Map<Type, BackupBean>> backupBeans = new ArrayList<Map<Type, BackupBean>>();
+        for (File backupFolder : backupFolders) {
+            Map<Type, BackupBean> backups = new HashMap<Type, BackupBean>(2);
+            File[] backupFiles = backupFolder.listFiles(BackupPlan.BACKUP_FILE_FILTER);
+            for (File file : backupFiles) {
+                BackupBean backupBean = new BackupBean(file);
+                backups.put(backupBean.getType(), backupBean);
+
+            }
+            if (!backups.isEmpty()) {
+                backupBeans.add(backups);
+            }
+        }
+        Collections.sort(backupBeans, new BackupBean.CompareFolders());
+        return backupBeans;
     }
 }

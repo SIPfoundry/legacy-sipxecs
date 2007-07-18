@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 public interface AdminContext {
     public static final String CONTEXT_BEAN_NAME = "adminContext";
@@ -28,5 +30,5 @@ public interface AdminContext {
 
     public String[] getInitializationTasks();
 
-    public BackupBean[] getBackups();
+    public List<Map<BackupBean.Type, BackupBean>> getBackups();
 }

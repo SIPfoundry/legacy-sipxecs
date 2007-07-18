@@ -11,10 +11,13 @@ package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.springframework.context.ApplicationContext;
 
@@ -44,8 +47,25 @@ public class AdminContextImplTest extends TestCase {
     public void testGetBackups() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_adminContext = (AdminContext) appContext.getBean(AdminContext.CONTEXT_BEAN_NAME);
-        BackupBean[] backups = m_adminContext.getBackups();
-        assertEquals(4, backups.length);
+        List<Map<Type, BackupBean>> backups = m_adminContext.getBackups();
+
+        for (Map<Type, BackupBean> map : backups) {
+            System.err.println(map.entrySet().iterator().next().getValue().getParent());
+        }
+
+        assertEquals(3, backups.size());
+        Map<Type, BackupBean> first = backups.get(0);
+        assertEquals(2, first.size());
+        assertTrue(first.containsKey(Type.CONFIGURATION));
+        assertTrue(first.containsKey(Type.VOICEMAIL));
+        Map<Type, BackupBean> second = backups.get(1);
+        assertEquals(1, second.size());
+        assertTrue(second.containsKey(Type.CONFIGURATION));
+        assertFalse(second.containsKey(Type.VOICEMAIL));
+        Map<Type, BackupBean> third = backups.get(2);
+        assertEquals(1, third.size());
+        assertFalse(third.containsKey(Type.CONFIGURATION));
+        assertTrue(third.containsKey(Type.VOICEMAIL));
     }
 
     private void buildConfigurationBackup(String folder) {
@@ -59,7 +79,6 @@ public class AdminContextImplTest extends TestCase {
         } catch (IOException ex) {
             fail("Could not create the configs backup");
         }
-
     }
 
     private void buildVoicemailBackup(String folder) {

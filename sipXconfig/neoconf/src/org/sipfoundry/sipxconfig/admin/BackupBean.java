@@ -11,9 +11,11 @@ package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Comparator;
+import java.util.Map;
 
 public class BackupBean implements Serializable {
-    enum Type {
+    public enum Type {
         CONFIGURATION("-c"), VOICEMAIL("-v");
 
         private String m_option;
@@ -31,6 +33,14 @@ public class BackupBean implements Serializable {
                 return CONFIGURATION;
             }
             return VOICEMAIL;
+        }
+    }
+
+    public static class CompareFolders implements Comparator<Map<Type, BackupBean>> {
+        public int compare(Map<Type, BackupBean> o1, Map<Type, BackupBean> o2) {
+            BackupBean bean1 = o1.entrySet().iterator().next().getValue();
+            BackupBean bean2 = o2.entrySet().iterator().next().getValue();
+            return bean1.getParent().compareTo(bean2.getParent());
         }
     }
 

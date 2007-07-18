@@ -13,9 +13,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -23,6 +23,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.BackupBean;
+import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.admin.Restore;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -35,21 +36,17 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
     @Bean
     public abstract SelectMap getSelections();
 
-    public abstract void setBackups(BackupBean[] backups);
+    public abstract void setBackups(List<Map<Type, BackupBean>> list);
 
-    public abstract BackupBean[] getBackups();
+    public abstract List<Map<Type, BackupBean>> getBackups();
 
-    public abstract Set getBackupFolders();
+    public abstract Type getCurrentType();
 
-    public abstract void setBackupFolders(Set folders);
+    public abstract void setCurrentType(Type type);
 
-    public abstract String getFolder();
+    public abstract Map<Type, BackupBean> getCurrentFolder();
 
-    public abstract void setFolder(String folder);
-
-    public abstract BackupBean getCurrentBackup();
-
-    public abstract void setCurrentBackup(BackupBean folder);
+    public abstract void setCurrentFolder(Map<Type, BackupBean> folder);
 
     @InjectObject(value = "spring:restore")
     public abstract Restore getRestore();
@@ -60,20 +57,21 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         }
         AdminContext context = getAdminContext();
         setBackups(context.getBackups());
-
-        Set<String> backupFolders = new TreeSet<String>();
-        for (BackupBean backupBean : getBackups()) {
-            backupFolders.add(backupBean.getParent());
-        }
-        setBackupFolders(backupFolders);
-    }
-
-    public boolean isSameBackupFolder() {
-        return getCurrentBackup().getParent().equalsIgnoreCase(getFolder());
     }
 
     public String getCurrentBackupName() {
-        return getMessages().getMessage("backup." + getCurrentBackup().getType());
+        return getMessages().getMessage("backup." + getCurrentType());
+    }
+
+    public String getCurrentFolderName() {
+        for (Map.Entry<Type, BackupBean> entry : getCurrentFolder().entrySet()) {
+            return entry.getValue().getParent();
+        }
+        return StringUtils.EMPTY;
+    }
+
+    public Type[] getBackupTypes() {
+        return Type.values();
     }
 
     public void restore() {
@@ -92,7 +90,9 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         if (!getRestore().perform(selectedBackups)) {
             TapestryUtils.getValidator(getPage()).record(
                     new ValidatorException(getMessages().getMessage("message.noScriptFound")));
+            return;
         }
+
         TapestryUtils.recordSuccess(this, getMessages().getMessage("message.label.success"));
     }
 
