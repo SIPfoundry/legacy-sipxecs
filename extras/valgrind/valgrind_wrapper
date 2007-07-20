@@ -44,9 +44,9 @@ logdir=`sipxportlib-config --log`
 #    --gen-suppressions=all \
 
 exec valgrind \
-	 --tool=memcheck \
+    --tool=memcheck \
     --freelist-vol=10000000 \
-	 --suppressions=${confdir}/valgrind.suppressions.sipX \
+    --suppressions=${confdir}/valgrind.suppressions.sipX \
     --leak-check=full \
-	"$@" \
-    2> $logdir/$target.valgrind.log
+    "$@" \
+    2> ${logdir}/${target}.valgrind.log
