@@ -2814,25 +2814,32 @@ void HttpMessage::addAuthenticationField(const char* authenticationField,
     addHeaderField(fieldName, authenticationField);
 }
 
-UtlBoolean HttpMessage::getAuthenticationField(int index,
+bool HttpMessage::getAuthenticationField(int index,
                                          enum HttpEndpointEnum authEntity,
-                                         const char* authenticationField) const
+                                         UtlString& authenticationField) const
 {
-    const char* fieldName = "bad-auth-entity";
-    if(authEntity == SERVER)
-    {
-        fieldName = HTTP_PROXY_AUTHENTICATE_FIELD;
-    }
+   authenticationField.remove(0);
+   
+   const char* fieldName;
+   switch( authEntity )
+   {
+   case SERVER:
+      fieldName = HTTP_WWW_AUTHENTICATE_FIELD;
+      break;
+   case PROXY:
+      fieldName = HTTP_PROXY_AUTHENTICATE_FIELD;
+      break;
+   default:
+      assert(false); // invalid authEntity value
+   }
 
-    else if(authEntity == PROXY)
-    {
-        fieldName = HTTP_WWW_AUTHENTICATE_FIELD;
-    }
-
-    const char* value = getHeaderValue(index, fieldName);
-    authenticationField = value ? value : "";
-
-    return(value != NULL);
+   const char* fieldValue = getHeaderValue(index, fieldName);
+   if (fieldValue)
+   {
+      authenticationField.append(fieldValue);
+   }
+   
+   return(fieldValue != NULL);
 }
 
 void HttpMessage::addAuthenticationField(const char * AuthorizeField,

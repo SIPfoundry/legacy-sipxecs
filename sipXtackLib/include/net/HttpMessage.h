@@ -551,9 +551,9 @@ public:
    void addAuthenticationField(const char* authenticationField,
                                enum HttpEndpointEnum authType);
 
-   UtlBoolean getAuthenticationField(int index,
-                                    enum HttpEndpointEnum authEntity,
-                                    const char* authenticationField) const;
+   bool getAuthenticationField(int index,
+                               enum HttpEndpointEnum authEntity,
+                               UtlString& authenticationField) const;
 
    void addAuthenticationField(const char * AuthorizeField,
                                          const char * AuthorizeValue,

@@ -28,6 +28,7 @@ class HttpMessageTest : public CppUnit::TestCase
     CPPUNIT_TEST(testSdp);
     CPPUNIT_TEST(testMd5Digest);
     CPPUNIT_TEST(testEscape);
+    CPPUNIT_TEST(testGetAuthenticateField);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -448,6 +449,163 @@ public:
     HttpMessage::unescape(umlautString);
     ASSERT_STR_EQUAL(umlautUriValue, umlautString.data());
   }
+
+   void testGetAuthenticateField()
+      {
+         UtlString value;
+
+         HttpMessage proxyRspOne(
+            "SIP/2.0 407 Proxy Authentication Required\r\n"
+            "From: <sip:9496722379@example.com>;tag=1c1198308561\r\n"
+            "To: <sip:9499291387@example.com;user=phone>\r\n"
+            "Call-Id: 119830821391200002619@10.139.33.244\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Via: SIP/2.0/UDP 10.139.4.84;branch=z9hG4bK-de2c934952294f774ee0acbc133e9b1d\r\n"
+            "Via: SIP/2.0/UDP 10.139.33.244;branch=z9hG4bKac1198312375\r\n"
+            "Proxy-Authenticate: Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"\r\n"
+            "Server: sipX/3.6.6 sipX/authproxy (Linux)\r\n"
+            "Date: Wed, 18 Jul 2007 19:34:26 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n"
+                                 );
+
+         CPPUNIT_ASSERT(!proxyRspOne.getAuthenticationField(0,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(value.isNull());
+         CPPUNIT_ASSERT(!proxyRspOne.getAuthenticationField(1,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(value.isNull());
+
+         CPPUNIT_ASSERT(proxyRspOne.getAuthenticationField(0,HttpMessage::PROXY,value));
+         ASSERT_STR_EQUAL("Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"",
+                          value.data());
+         
+         CPPUNIT_ASSERT(!proxyRspOne.getAuthenticationField(1,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(value.isNull());
+
+         HttpMessage proxyRspTwo(
+            "SIP/2.0 407 Proxy Authentication Required\r\n"
+            "From: <sip:9496722379@example.com>;tag=1c1198308561\r\n"
+            "To: <sip:9499291387@example.com;user=phone>\r\n"
+            "Call-Id: 119830821391200002619@10.139.33.244\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Via: SIP/2.0/UDP 10.139.4.84;branch=z9hG4bK-de2c934952294f774ee0acbc133e9b1d\r\n"
+            "Via: SIP/2.0/UDP 10.139.33.244;branch=z9hG4bKac1198312375\r\n"
+            "Proxy-Authenticate: Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"\r\n"
+            "Proxy-Authenticate: Digest realm=\"example.net\", nonce=\"nothernonce\"\r\n"
+            "Server: sipX/3.6.6 sipX/authproxy (Linux)\r\n"
+            "Date: Wed, 18 Jul 2007 19:34:26 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n"
+                                 );
+
+         CPPUNIT_ASSERT(!proxyRspTwo.getAuthenticationField(0,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(value.isNull());
+         CPPUNIT_ASSERT(!proxyRspTwo.getAuthenticationField(1,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(value.isNull());
+         CPPUNIT_ASSERT(!proxyRspTwo.getAuthenticationField(2,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(value.isNull());
+
+         CPPUNIT_ASSERT(proxyRspTwo.getAuthenticationField(0,HttpMessage::PROXY,value));
+         ASSERT_STR_EQUAL("Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"",
+                          value.data());
+         CPPUNIT_ASSERT(proxyRspTwo.getAuthenticationField(1,HttpMessage::PROXY,value));
+         ASSERT_STR_EQUAL("Digest realm=\"example.net\", nonce=\"nothernonce\"",
+                          value.data());
+         
+         CPPUNIT_ASSERT(!proxyRspTwo.getAuthenticationField(2,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(value.isNull());
+
+         HttpMessage serverRspOne(
+            "SIP/2.0 401 Authentication Required\r\n"
+            "From: <sip:9496722379@example.com>;tag=1c1198308561\r\n"
+            "To: <sip:9499291387@example.com;user=phone>\r\n"
+            "Call-Id: 119830821391200002619@10.139.33.244\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Via: SIP/2.0/UDP 10.139.4.84;branch=z9hG4bK-de2c934952294f774ee0acbc133e9b1d\r\n"
+            "Via: SIP/2.0/UDP 10.139.33.244;branch=z9hG4bKac1198312375\r\n"
+            "WWW-Authenticate: Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"\r\n"
+            "Server: sipX/3.6.6 sipX/authproxy (Linux)\r\n"
+            "Date: Wed, 18 Jul 2007 19:34:26 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n"
+                                 );
+
+         CPPUNIT_ASSERT(!serverRspOne.getAuthenticationField(0,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(value.isNull());
+         CPPUNIT_ASSERT(!serverRspOne.getAuthenticationField(1,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(value.isNull());
+
+         CPPUNIT_ASSERT(serverRspOne.getAuthenticationField(0,HttpMessage::SERVER,value));
+         ASSERT_STR_EQUAL("Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"",
+                          value.data());
+         
+         CPPUNIT_ASSERT(!serverRspOne.getAuthenticationField(1,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(value.isNull());
+
+         HttpMessage serverRspTwo(
+            "SIP/2.0 401 Authentication Required\r\n"
+            "From: <sip:9496722379@example.com>;tag=1c1198308561\r\n"
+            "To: <sip:9499291387@example.com;user=phone>\r\n"
+            "Call-Id: 119830821391200002619@10.139.33.244\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Via: SIP/2.0/UDP 10.139.4.84;branch=z9hG4bK-de2c934952294f774ee0acbc133e9b1d\r\n"
+            "Via: SIP/2.0/UDP 10.139.33.244;branch=z9hG4bKac1198312375\r\n"
+            "WWW-Authenticate: Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"\r\n"
+            "WWW-Authenticate: Digest realm=\"example.net\", nonce=\"nothernonce\"\r\n"
+            "Server: sipX/3.6.6 sipX/authproxy (Linux)\r\n"
+            "Date: Wed, 18 Jul 2007 19:34:26 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n"
+                                 );
+
+         CPPUNIT_ASSERT(!serverRspTwo.getAuthenticationField(0,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(value.isNull());
+         CPPUNIT_ASSERT(!serverRspTwo.getAuthenticationField(1,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(value.isNull());
+         CPPUNIT_ASSERT(!serverRspTwo.getAuthenticationField(2,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(value.isNull());
+
+         CPPUNIT_ASSERT(serverRspTwo.getAuthenticationField(0,HttpMessage::SERVER,value));
+         ASSERT_STR_EQUAL("Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"",
+                          value.data());
+         CPPUNIT_ASSERT(serverRspTwo.getAuthenticationField(1,HttpMessage::SERVER,value));
+         ASSERT_STR_EQUAL("Digest realm=\"example.net\", nonce=\"nothernonce\"",
+                          value.data());
+         
+         CPPUNIT_ASSERT(!serverRspTwo.getAuthenticationField(2,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(value.isNull());
+
+         HttpMessage proxyRspMixed(
+            "SIP/2.0 407 Proxy Authentication Required\r\n"
+            "From: <sip:9496722379@example.com>;tag=1c1198308561\r\n"
+            "To: <sip:9499291387@example.com;user=phone>\r\n"
+            "Call-Id: 119830821391200002619@10.139.33.244\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Via: SIP/2.0/UDP 10.139.4.84;branch=z9hG4bK-de2c934952294f774ee0acbc133e9b1d\r\n"
+            "Via: SIP/2.0/UDP 10.139.33.244;branch=z9hG4bKac1198312375\r\n"
+            "Proxy-Authenticate: Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"\r\n"
+            "WWW-Authenticate: Digest realm=\"example.net\", nonce=\"nothernonce\"\r\n"
+            "Server: sipX/3.6.6 sipX/authproxy (Linux)\r\n"
+            "Date: Wed, 18 Jul 2007 19:34:26 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n"
+                                 );
+
+         CPPUNIT_ASSERT(proxyRspMixed.getAuthenticationField(0,HttpMessage::SERVER,value));
+         ASSERT_STR_EQUAL("Digest realm=\"example.net\", nonce=\"nothernonce\"",
+                          value.data());
+
+         CPPUNIT_ASSERT(!proxyRspMixed.getAuthenticationField(1,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(value.isNull());
+
+         CPPUNIT_ASSERT(proxyRspMixed.getAuthenticationField(0,HttpMessage::PROXY,value));
+         ASSERT_STR_EQUAL("Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"",
+                          value.data());
+         
+         CPPUNIT_ASSERT(!proxyRspMixed.getAuthenticationField(1,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(value.isNull());
+
+      }
+   
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(HttpMessageTest);
