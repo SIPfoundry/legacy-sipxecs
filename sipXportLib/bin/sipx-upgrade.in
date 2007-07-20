@@ -125,7 +125,7 @@ EOF
             fi
             ;;
 
-        2.9* | 3.[1-7]*)
+        2.9* | 3.[1-7].*)
             # Add the new columns to the subscription.xml table, if they are
 	    # not present.
 	    SUBSCRIPTION=$LocalStateDir/sipxdata/sipdb/subscription.xml
@@ -158,10 +158,6 @@ UpgradeRegistry() {
        2.9* | 3.0.0)
            AddConfigLine ${SysConfDir}/sipxpbx/registrar-config.in \
                SIP_REGISTRAR_PROXY_PORT '${PROXY_SERVER_SIP_PORT}'
-           ;;
-
-       3.1*)
-           # New installation needs no upgrade.
            ;;
 
        *)
@@ -242,10 +238,6 @@ UpgradeProxy() {
         2.8* | 2.9* | 3.0*)
             ;;
 
-        3.1*)
-            # New installation needs no upgrade.
-            ;;
-
         *)
             ;;
     esac
@@ -266,10 +258,6 @@ UpgradeSubscriptions() {
 
         2.8* | 2.9* | 3.0*)
            ;;
-
-        3.1*)
-            # New installation needs no upgrade.
-            ;;
 
         *)
            ;;
@@ -300,6 +288,18 @@ RemoveObsoleteVoicemailSummaryFiles () {
     find ${LocalStateDir}/sipxdata/mediaserver/data/mailstore -name summary.xml -print0 | xargs -0 rm -f > /dev/null 2>&1
 }
 
+UpgradeMailstoreNoPrivateFolders () {
+    # As of 3.7, the mailstore no longer supports private folders. 
+    # Move anything in a private folder into the "saved" folder
+    f=${LocalStateDir}/sipxdata/mediaserver/data/mailstore/sipx-upgrade-3.6-mailstore.log 
+    if test -r $f
+    then
+        true # Already done.  No need to do it again
+    else
+         @bindir@/sipx-upgrade-3.6-mailstore > $f
+    fi
+}
+
 ##########################
 ## Upgrade the PBX 
 ##########################
@@ -328,15 +328,24 @@ UpgradePbx() {
             AddNamespaceToProcessDefinitions
             ;;
 
-        3.1*)
-            # New installation needs no upgrade.
+        3.1.*)
+            ;;
+
+        3.[2-6].*) # 3.2 thru 3.6
+            RemoveObsoleteVoicemailSummaryFiles
             ;;
 
         *)
-            AddNamespaceToWatchDog
-            AddNamespaceToProcessDefinitions
-            RemoveObsoleteVoicemailSummaryFiles
             ;;
+    esac
+
+    # Overlaps above so start a new case so this is done as well
+    case $Version in
+        2.* | 3.[0-6].*)  # 2.0 thru 3.6 
+            UpgradeMailstoreNoPrivateFolders
+            ;;
+        *)
+           ;;
     esac
 }
 
