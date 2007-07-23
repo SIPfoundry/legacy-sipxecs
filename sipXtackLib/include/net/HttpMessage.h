@@ -436,7 +436,7 @@ public:
     /*! \param index - index into the header fields or if name is not null
      *        the index into the set of header fields having the given name
      * \param name - string containing the name of the header field
-     * \return read only string if a header field exist <br>
+     * \return read only string if a header field exists <br>
      *       null if no header field is found
      */
     const char* getHeaderValue(int index, const char* name = NULL) const;

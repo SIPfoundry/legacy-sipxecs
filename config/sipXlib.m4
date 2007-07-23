@@ -577,3 +577,11 @@ AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],
   download_file="$abs_srcdir/config/download-file"
   AC_SUBST(DOWNLOAD_FILE, $download_file)
 ])
+
+## Enable executing unit tests that take a long time.
+## "long time" should be approximately "10 seconds or longer".
+
+AC_ARG_ENABLE(slow-tests, 
+  AC_HELP_STRING([--enable-slow-tests], 
+    [Enable execution of slow unit tests.]),
+  AC_DEFINE(EXECUTE_SLOW_TESTS, 1, [Define to run "slow" unit tests.]))

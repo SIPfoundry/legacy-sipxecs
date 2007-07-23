@@ -299,7 +299,7 @@ public:
      *        from the network.
      * \param wantOutGoing - (not implemented) want to observe SIP
      *        messages originating from locally.
-     * \param eventName - want to observer SUBSCRIBE or NOTIFY requests
+     * \param eventName - want to observe SUBSCRIBE or NOTIFY requests
      *        having the given event type
      * \param pSession - want to observe SIP message with the
      *        specified session (call-id, to url, from url)

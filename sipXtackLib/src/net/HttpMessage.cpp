@@ -1923,9 +1923,9 @@ void HttpMessage::getSendAddress(UtlString* address, int* port) const
 void HttpMessage::resetTransport()
 {
     transportTimeStamp = 0;
-        lastResendDuration = 0;
-        timesSent = 0;
-        transportProtocol = OsSocket::UNKNOWN;
+    lastResendDuration = 0;
+    timesSent = 0;
+    transportProtocol = OsSocket::UNKNOWN;
     mFirstSent = FALSE;
     mSendAddress = "";
     mSendPort = PORT_NONE;

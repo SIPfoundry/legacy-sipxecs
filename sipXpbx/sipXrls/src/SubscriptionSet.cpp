@@ -130,8 +130,6 @@ void SubscriptionSet::subscriptionEventCallback(
 
    switch (newState)
    {
-   case SipSubscribeClient::SUBSCRIPTION_UNKNOWN:
-      break;
    case SipSubscribeClient::SUBSCRIPTION_INITIATED:
       break;
    case SipSubscribeClient::SUBSCRIPTION_SETUP:
@@ -141,7 +139,6 @@ void SubscriptionSet::subscriptionEventCallback(
       addInstance(dialogHandle->data(), "pending");
    }
    break;
-   case SipSubscribeClient::SUBSCRIPTION_FAILED:
    case SipSubscribeClient::SUBSCRIPTION_TERMINATED:
    {
       deleteInstance(dialogHandle->data(), "terminated",

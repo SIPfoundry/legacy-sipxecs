@@ -571,26 +571,14 @@ void sipxSubscribeClientSubCallback(SipSubscribeClient::SubscriptionState newSta
             pInfo.state = SIPX_SUBSCRIPTION_ACTIVE;
             break;
 
-        case SipSubscribeClient::SUBSCRIPTION_FAILED:    // Failed dialog setup or refresh
-            // Could potentially differentiate between failed active
-            // and failed expired based upon the expiration and the 
-            // current time
-            pInfo.state = SIPX_SUBSCRIPTION_FAILED;
-            break;
-
         case SipSubscribeClient::SUBSCRIPTION_TERMINATED:
             pInfo.state = SIPX_SUBSCRIPTION_EXPIRED;
-            break;
-
-        case SipSubscribeClient::SUBSCRIPTION_UNKNOWN:
-            errorState = "SUBSCRIPTION_UNKNOWN";
-            pInfo.state = SIPX_SUBSCRIPTION_FAILED;
             break;
 
         default:
             {
                 pInfo.state = SIPX_SUBSCRIPTION_FAILED;
-                errorState ="unknown: ";
+                errorState = "unknown: ";
                 char numBuf[20];
                 sprintf(numBuf, "%d", newState);
                 errorState.append(numBuf);

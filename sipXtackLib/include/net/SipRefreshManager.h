@@ -115,16 +115,16 @@ public:
      *  to clean up the refresh state even if this method fails.
      *  This method may fail if the dialog or refresh state already
      *  exists or if the request immediately fails to send.  The
-     *  refresh manager will attempt to resend the request to
+     *  refresh manager may attempt to resend the request to
      *  subscribe or register even if it fails the first time while
-     *  this method is invoked.  The theory is that it may have
-     *  failed due to a provisioning race condition or a temporary
-     *  network problem.
+     *  this method is invoked, but most error responses to the
+     *  request terminate the refresh state.
      */
     UtlBoolean initiateRefresh(SipMessage& subscribeOrRegisterRequest,
                                void* applicationData,
                                const RefreshStateCallback refreshStateCallback,
-                               UtlString& earlyDialogHandle);
+                               UtlString& earlyDialogHandle,
+                               UtlBoolean suppressFirstSend = FALSE);
 
     //! End the SIP refresh (registration or subscription) indicated by 
     /*! the dialog handle.  If the given dialogHandle is an early dialog it
@@ -149,6 +149,10 @@ public:
     UtlBoolean handleMessage(OsMsg &eventMessage);
 
 /* ============================ ACCESSORS ================================= */
+
+    //! Get a copy of the refresh request message for a given dialog handle.
+    //  Returns true if the state was found.
+    UtlBoolean getRequest(const UtlString& dialogHandle, SipMessage& message);
 
     //! Debugging method to get an dump of all refresh states
     int dumpRefreshStates(UtlString& dumpString);
@@ -177,7 +181,7 @@ private:
     SipRefreshManager& operator=(const SipRefreshManager& rhs);
 
     //! Accessor to get the state that matches either an established or early dialog
-    RefreshDialogState* getAnyDialog(UtlString& messageDialogHandle);
+    RefreshDialogState* getAnyDialog(const UtlString& messageDialogHandle);
 
     //! Accessor to verify state is still in the mRefreshes container
     UtlBoolean stateExists(RefreshDialogState* statePtr);

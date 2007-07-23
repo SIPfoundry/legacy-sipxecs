@@ -249,7 +249,7 @@ UtlBoolean SipDialogMgr::getEarlyDialogHandleFor(const char* establishedDialogHa
 }
 
 UtlBoolean SipDialogMgr::getEstablishedDialogHandleFor(const char* earlyDialogHandle,
-                                             UtlString& establishedDialogHandle)
+                                                       UtlString& establishedDialogHandle)
 {
     UtlBoolean foundDialog = FALSE;
     UtlString handle(earlyDialogHandle ? earlyDialogHandle : "");
@@ -260,7 +260,7 @@ UtlBoolean SipDialogMgr::getEstablishedDialogHandleFor(const char* earlyDialogHa
     SipDialog* dialog = findDialog(handle,
                                    FALSE, // if established, match early dialog
                                    TRUE); // if early, match established dialog
-    if(dialog && !dialog->isEarlyDialog())
+    if (dialog && !dialog->isEarlyDialog())
     {
         dialog->getHandle(establishedDialogHandle);
         foundDialog = TRUE;
@@ -409,9 +409,10 @@ UtlBoolean SipDialogMgr::isLastLocalTransaction(const SipMessage& message,
     return(matchesTransaction);
 }
 
-UtlBoolean SipDialogMgr::isNewRemoteTransaction(const SipMessage& message)
+enum SipDialogMgr::transactionSequence
+    SipDialogMgr::isNewRemoteTransaction(const SipMessage& message)
 {
-    UtlBoolean matchesTransaction = FALSE;
+    enum transactionSequence ordering;
     UtlString handle;
     message.getDialogHandle(handle);
 
@@ -426,16 +427,24 @@ UtlBoolean SipDialogMgr::isNewRemoteTransaction(const SipMessage& message)
                                    TRUE, // if established, match early dialog
                                    TRUE); // if early, match established dialog
 
-    if(dialog && 
-       dialog->isTransactionRemotelyInitiated(callId, fromTag, toTag) &&
-       dialog->isNextRemoteCseq(message))
+    if (dialog && 
+        dialog->isTransactionRemotelyInitiated(callId, fromTag, toTag))
     {
-        matchesTransaction = TRUE;
+       int messageCSeq;
+       message.getCSeqField(&messageCSeq, NULL);
+       ordering =
+          dialog->getLastRemoteCseq() < messageCSeq ?
+          IN_ORDER :
+          OUT_OF_ORDER;
+    }
+    else
+    {
+       ordering = NO_DIALOG;
     }
 
     unlock();
     
-    return(matchesTransaction);
+    return ordering;
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -457,10 +466,10 @@ SipDialog* SipDialogMgr::findDialog(const UtlString& dailogHandle,
 }
 
 SipDialog* SipDialogMgr::findDialog(UtlString& callId,
-                                  UtlString& localTag,
-                                  UtlString& remoteTag,
-                                  UtlBoolean ifHandleEstablishedFindEarlyDialog,
-                                  UtlBoolean ifHandleEarlyFindEstablishedDialog)
+                                    UtlString& localTag,
+                                    UtlString& remoteTag,
+                                    UtlBoolean ifHandleEstablishedFindEarlyDialog,
+                                    UtlBoolean ifHandleEarlyFindEstablishedDialog)
 {
     SipDialog* dialog = NULL;
     UtlHashBagIterator iterator(mDialogs, &callId);
@@ -496,7 +505,7 @@ SipDialog* SipDialogMgr::findDialog(UtlString& callId,
         while((dialog = (SipDialog*) iterator()))
         {
             // Check for match on the early dialog for the handle
-            if(dialog->wasEarlyDialogFor(callId, localTag, remoteTag))
+            if (dialog->wasEarlyDialogFor(callId, localTag, remoteTag))
             {
                 break;
             }

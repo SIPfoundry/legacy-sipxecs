@@ -54,10 +54,8 @@ public:
 
     enum SubscriptionState
     {
-        SUBSCRIPTION_UNKNOWN,
         SUBSCRIPTION_INITIATED, // Early dialog
         SUBSCRIPTION_SETUP,     // Established dialog
-        SUBSCRIPTION_FAILED,    // Failed dialog setup or refresh
         SUBSCRIPTION_TERMINATED // Ended dialog
     };
 
@@ -127,8 +125,8 @@ public:
                                /**< The request-URI for the SUBSCRIBE.
                                 *   The request-URI as it arrives at the
                                 *   notifier will (conventionally) be used
-                                *   to derive the identity ("user@hostport") as
-                                *   the resourceId to subscribe to.
+                                *   (without parameters) as the
+                                *   resourceId to subscribe to.
                                 */
                                const char* eventHeaderValue,
                                //< value of the Event header
@@ -220,6 +218,15 @@ private:
                                long expiration, // epoch seconds
                                const SipMessage* subscribeResponse);
 
+    //! Method version of callback function for Refresh Manager.
+    void refreshCallback(SipRefreshManager::RefreshRequestState newState,
+                         const char* earlyDialogHandle,
+                         const char* dialogHandle,
+                         int responseCode,
+                         const char* responseText,
+                         long expiration, // epoch seconds
+                         const SipMessage* subscribeResponse);
+
     //! Handle incoming notify request
     void handleNotifyRequest(const SipMessage& notifyRequest);
 
@@ -252,7 +259,7 @@ private:
     SipRefreshManager* mpRefreshMgr;
     UtlHashMap mSubscriptions; // state info. for each subscription
     UtlHashMap mEventTypes; // SIP event types that we want NOTIFY requests for
-    OsMutex mSubcribeClientMutex;
+    OsMutex mSubscribeClientMutex;
     int mCallIdCount;
     int mTagCount;
 };

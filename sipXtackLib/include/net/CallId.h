@@ -58,7 +58,7 @@ public:
                           *   crypto-random string, especially the tag
                           *   from the other end of a dialog.
                           *   Don't bother using an internally-generated
-                          *   string, which doesn't add any entroy,
+                          *   string, which doesn't add any entropy,
                           *   use "" instead.
                           */
                          /// output UtlString

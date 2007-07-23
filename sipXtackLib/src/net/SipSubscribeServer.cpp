@@ -80,7 +80,7 @@ SipSubscribeServer* SipSubscribeServer::buildBasicServer(SipUserAgent& userAgent
                                                            *subscriptionMgr,
                                                            *eventHandler);
 
-    if(eventType && *eventType)
+    if (eventType && *eventType)
     {
         // Enable the server to accept the given SIP event package
         newServer->enableEventType(eventType, 
@@ -108,13 +108,6 @@ SipSubscribeServer::SipSubscribeServer(SipUserAgent& defaultUserAgent,
 }
 
 
-// Copy constructor NOT IMPLEMENTED
-SipSubscribeServer::SipSubscribeServer(const SipSubscribeServer& rSipSubscribeServer)
-: mSubscribeServerMutex(OsMutex::Q_FIFO)
-{
-}
-
-
 // Destructor
 SipSubscribeServer::~SipSubscribeServer()
 {
@@ -123,8 +116,8 @@ SipSubscribeServer::~SipSubscribeServer()
     *   they are owned by whoever constructed this server.
     */
 
-    // Iterate through and delete all the event data
-    // TODO:
+   // Iterate through and delete all the event data
+   mEventDefinitions.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -145,7 +138,8 @@ void SipSubscribeServer::contentChangeCallback(void* applicationData,
                                                const char* eventType,
                                                UtlBoolean isDefaultContent)
 {
-    SipSubscribeServer* subServer = (SipSubscribeServer*)applicationData;
+    SipSubscribeServer* subServer =
+       (SipSubscribeServer*) applicationData;
     subServer->notifySubscribers(resourceId, 
                                  eventTypeKey,
                                  eventType,
@@ -165,10 +159,11 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
 
     lockForRead();
     SubscribeServerEventData* eventData = 
-        (SubscribeServerEventData*) mEventDefinitions.find(&eventName);
+       dynamic_cast <SubscribeServerEventData*>
+           (mEventDefinitions.find(&eventName));
 
-    // Get the event specific info to find subscriptions interested in
-    // this content
+    // Get the event-specific info to find subscriptions interested in
+    // this content.
     if (eventData)
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -191,7 +186,7 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
               resourceId, numSubscriptions);
 
         // Set up and send a NOTIFY for each subscription interested in
-        // this resourcesId and eventTypeKey
+        // this resourcesId and eventTypeKey.
         for (int notifyIndex = 0; 
              notifyArray != NULL && 
                 notifyIndex < numSubscriptions && 
@@ -228,13 +223,12 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
             }
         }
 
-        // Free the NOTIFY requests and accept header field values
+        // Free the NOTIFY requests and accept header field values.
         eventData->mpEventSpecificSubscriptionMgr->
            freeNotifies(numSubscriptions, 
                         acceptHeaderValuesArray,
                         notifyArray);
     }
-
     // event type not enabled
     else
     {
@@ -245,30 +239,34 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
 
     unlockForRead();
 
-    return(notifiedSubscribers);
+    return (notifiedSubscribers);
 }
 
 UtlBoolean SipSubscribeServer::enableEventType(const char* eventTypeToken,
-                                             SipUserAgent* userAgent,
-                                             SipPublishContentMgr* contentMgr,
-                                             SipSubscribeServerEventHandler* eventHandler,
-                                             SipSubscriptionMgr* subscriptionMgr)
+                                               SipUserAgent* userAgent,
+                                               SipPublishContentMgr* contentMgr,
+                                               SipSubscribeServerEventHandler* eventHandler,
+                                               SipSubscriptionMgr* subscriptionMgr)
 {
     UtlBoolean addedEvent = FALSE;
     UtlString eventName(eventTypeToken ? eventTypeToken : "");
     lockForWrite();
     // Only add the event support if it does not already exist;
     SubscribeServerEventData* eventData = 
-        (SubscribeServerEventData*) mEventDefinitions.find(&eventName);
-    if(!eventData)
+       dynamic_cast <SubscribeServerEventData*> (mEventDefinitions.find(&eventName));
+    if (!eventData)
     {
         addedEvent = TRUE;
         eventData = new SubscribeServerEventData();
-        *((UtlString*)eventData) = eventName;
-        eventData->mpEventSpecificUserAgent = userAgent ? userAgent : mpDefaultUserAgent;
-        eventData->mpEventSpecificContentMgr = contentMgr ? contentMgr : mpDefaultContentMgr;
-        eventData->mpEventSpecificHandler = eventHandler ? eventHandler : mpDefaultEventHandler;
-        eventData->mpEventSpecificSubscriptionMgr = subscriptionMgr ? subscriptionMgr : mpDefaultSubscriptionMgr;
+        static_cast <UtlString&> (*eventData) = eventName;
+        eventData->mpEventSpecificUserAgent =
+           userAgent ? userAgent : mpDefaultUserAgent;
+        eventData->mpEventSpecificContentMgr =
+           contentMgr ? contentMgr : mpDefaultContentMgr;
+        eventData->mpEventSpecificHandler =
+           eventHandler ? eventHandler : mpDefaultEventHandler;
+        eventData->mpEventSpecificSubscriptionMgr =
+           subscriptionMgr ? subscriptionMgr : mpDefaultSubscriptionMgr;
         mEventDefinitions.insert(eventData);
 
         // Register an interest in SUBSCRIBE requests and NOTIFY responses
@@ -293,9 +291,11 @@ UtlBoolean SipSubscribeServer::enableEventType(const char* eventTypeToken,
                                                                 NULL);
 
         // Register the callback for changes that occur in the
-        // publish content manager
-        eventData->mpEventSpecificContentMgr->setContentChangeObserver(eventName,
-            this, contentChangeCallback);
+        // publish content manager.
+        eventData->mpEventSpecificContentMgr->
+           setContentChangeObserver(eventName,
+                                    this,
+                                    contentChangeCallback);
     }
 
     unlockForWrite();
@@ -304,18 +304,18 @@ UtlBoolean SipSubscribeServer::enableEventType(const char* eventTypeToken,
 }
 
 UtlBoolean SipSubscribeServer::disableEventType(const char* eventTypeToken,
-                                             SipUserAgent*& userAgent,
-                                             SipPublishContentMgr*& contentMgr,
-                                             SipSubscribeServerEventHandler*& eventHandler,
-                                             SipSubscriptionMgr*& subscriptionMgr)
+                                                SipUserAgent*& userAgent,
+                                                SipPublishContentMgr*& contentMgr,
+                                                SipSubscribeServerEventHandler*& eventHandler,
+                                                SipSubscriptionMgr*& subscriptionMgr)
 {
     UtlBoolean removedEvent = FALSE;
     UtlString eventName(eventTypeToken ? eventTypeToken : "");
     lockForWrite();
-    // Only add the event support if it does not already exist;
+    // Only remove the event support if it already exists;
     SubscribeServerEventData* eventData = 
-        (SubscribeServerEventData*) mEventDefinitions.remove(&eventName);
-    if(eventData)
+       dynamic_cast <SubscribeServerEventData*> (mEventDefinitions.remove(&eventName));
+    if (eventData)
     {
         removedEvent = TRUE;
         userAgent = eventData->mpEventSpecificUserAgent == mpDefaultUserAgent ? 
@@ -354,8 +354,8 @@ UtlBoolean SipSubscribeServer::handleMessage(OsMsg &eventMessage)
     int msgSubType = eventMessage.getMsgSubType();
 
     // Timer fired
-    if(msgType == OsMsg::OS_EVENT &&
-       msgSubType == OsEventMsg::NOTIFY)
+    if (msgType == OsMsg::OS_EVENT &&
+        msgSubType == OsEventMsg::NOTIFY)
     {
         OsTimer* timer = 0;
         UtlString* subscribeDialogHandle = NULL;
@@ -363,7 +363,7 @@ UtlBoolean SipSubscribeServer::handleMessage(OsMsg &eventMessage)
         ((OsEventMsg&)eventMessage).getUserData((int&)subscribeDialogHandle);
         ((OsEventMsg&)eventMessage).getEventData((int&)timer);
 
-        if(subscribeDialogHandle)
+        if (subscribeDialogHandle)
         {
             // Check if the subscription really expired and send 
             // the final NOTIFY if it did.
@@ -378,29 +378,29 @@ UtlBoolean SipSubscribeServer::handleMessage(OsMsg &eventMessage)
     }
 
     // SIP message
-    else if(msgType == OsMsg::PHONE_APP &&
-       msgSubType == SipMessage::NET_SIP_MESSAGE)
+    else if (msgType == OsMsg::PHONE_APP &&
+             msgSubType == SipMessage::NET_SIP_MESSAGE)
     {
         const SipMessage* sipMessage = ((SipMessageEvent&)eventMessage).getMessage();
 
         UtlString method;
-        if(sipMessage)
+        if (sipMessage)
         {
             sipMessage->getCSeqField(NULL, &method);
         }
 
         // SUBSCRIBE requests
-        if(sipMessage &&
-           !sipMessage->isResponse() && 
-           method.compareTo(SIP_SUBSCRIBE_METHOD) == 0)
+        if (sipMessage &&
+            !sipMessage->isResponse() && 
+            method.compareTo(SIP_SUBSCRIBE_METHOD) == 0)
         {
             handleSubscribe(*sipMessage);
         }
 
         // NOTIFY responses
-        else if(sipMessage &&
-                sipMessage->isResponse() && 
-                method.compareTo(SIP_NOTIFY_METHOD) == 0)
+        else if (sipMessage &&
+                 sipMessage->isResponse() && 
+                 method.compareTo(SIP_NOTIFY_METHOD) == 0)
         {
             handleNotifyResponse(*sipMessage);
         }  
@@ -419,8 +419,8 @@ SipSubscribeServer::getEventHandler(const UtlString& eventType)
     SipSubscribeServerEventHandler* eventHandler = NULL;
     lockForRead();
     SubscribeServerEventData* eventData = 
-        (SubscribeServerEventData*) mEventDefinitions.find(&eventType);
-    if(eventData)
+       dynamic_cast <SubscribeServerEventData*> (mEventDefinitions.find(&eventType));
+    if (eventData)
     {
         eventHandler = eventData->mpEventSpecificHandler;
     }
@@ -440,8 +440,8 @@ SipSubscribeServer::getPublishMgr(const UtlString& eventType)
     SipPublishContentMgr* contentMgr = NULL;
     lockForRead();
     SubscribeServerEventData* eventData = 
-        (SubscribeServerEventData*) mEventDefinitions.find(&eventType);
-    if(eventData)
+       dynamic_cast <SubscribeServerEventData*> (mEventDefinitions.find(&eventType));
+    if (eventData)
     {
         contentMgr = eventData->mpEventSpecificContentMgr;
     }
@@ -460,8 +460,8 @@ SipSubscriptionMgr* SipSubscribeServer::getSubscriptionMgr(const UtlString& even
     SipSubscriptionMgr* subscribeMgr = NULL;
     lockForRead();
     SubscribeServerEventData* eventData = 
-        (SubscribeServerEventData*) mEventDefinitions.find(&eventType);
-    if(eventData)
+       dynamic_cast <SubscribeServerEventData*> (mEventDefinitions.find(&eventType));
+    if (eventData)
     {
         subscribeMgr = eventData->mpEventSpecificSubscriptionMgr;
     }
@@ -482,7 +482,7 @@ UtlBoolean SipSubscribeServer::isEventTypeEnabled(const UtlString& eventType)
     lockForRead();
     // Only add the event support if it does not already exist;
     SubscribeServerEventData* eventData = 
-        (SubscribeServerEventData*) mEventDefinitions.find(&eventType);
+       dynamic_cast <SubscribeServerEventData*> (mEventDefinitions.find(&eventType));
     unlockForRead();
 
     return(eventData != NULL);
@@ -502,11 +502,11 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
     lockForRead();
 
     // Get the event specific handler and information
-    SubscribeServerEventData* eventPackageInfo = (SubscribeServerEventData*)
-        mEventDefinitions.find(&eventName);
+    SubscribeServerEventData* eventPackageInfo = 
+       dynamic_cast <SubscribeServerEventData*> (mEventDefinitions.find(&eventName));
 
     // We handle this event type
-    if(eventPackageInfo)
+    if (eventPackageInfo)
     {
         handledSubscribe = TRUE;
         UtlString resourceId;
@@ -523,13 +523,13 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
         SipMessage subscribeResponse;
 
         // Check if authenticated (or if it needs to be authenticated)
-        if(handler->isAuthenticated(subscribeRequest,
+        if (handler->isAuthenticated(subscribeRequest,
                                      resourceId,
                                      eventTypeKey,
                                      subscribeResponse))
         {
             // Check if authorized (or if authorization is required)
-            if(handler->isAuthorized(subscribeRequest,
+            if (handler->isAuthorized(subscribeRequest,
                                      resourceId,
                                      eventTypeKey,
                                      subscribeResponse))
@@ -540,14 +540,15 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                 UtlString subscribeDialogHandle;
                 UtlBoolean isNewDialog;
                 UtlBoolean isExpiredSubscription;
-                eventPackageInfo->mpEventSpecificSubscriptionMgr->updateDialogInfo(
-                                                            subscribeRequest,
-                                                            resourceId, 
-                                                            eventTypeKey, 
-                                                            subscribeDialogHandle, 
-                                                            isNewDialog, 
-                                                            isExpiredSubscription,
-                                                            subscribeResponse);
+                eventPackageInfo->mpEventSpecificSubscriptionMgr->
+                   updateDialogInfo(
+                      subscribeRequest,
+                      resourceId, 
+                      eventTypeKey, 
+                      subscribeDialogHandle, 
+                      isNewDialog, 
+                      isExpiredSubscription,
+                      subscribeResponse);
 
                 // Send the response ASAP to minimize resend handling of request
                  eventPackageInfo->mpEventSpecificUserAgent->send(subscribeResponse);
@@ -627,57 +628,52 @@ UtlBoolean SipSubscribeServer::handleNotifyResponse(const SipMessage& notifyResp
     UtlBoolean handledNotifyResponse = FALSE;
     int responseCode = notifyResponse.getResponseStatusCode();
 
-    // Ignore provisional responses or success cases
-    // Also consider a 500 response as a success case, as it can
-    // result from out-of-order processing at the subscriber.
-    if(responseCode >= SIP_3XX_CLASS_CODE &&
-       responseCode != SIP_SERVER_INTERNAL_ERROR_CODE)
+    // If it is an error response and has no Retry-After header,
+    // terminate the subscription.
+    if (responseCode >= SIP_3XX_CLASS_CODE &&
+        notifyResponse.getHeaderValue(0, SIP_RETRY_AFTER_FIELD) == NULL)
     {
-        UtlString dialogHandle;
-        notifyResponse.getDialogHandle(dialogHandle);
+       UtlString dialogHandle;
+       notifyResponse.getDialogHandleReverse(dialogHandle);
 
-        // Not modifying the SubscribeServerEventData, just reading it
-        lockForRead();
+       // Not modifying the SubscribeServerEventData, just reading it
+       lockForRead();
 
-        // Get the event specific handler and information
-        SubscribeServerEventData* eventPackageInfo = NULL;
-        UtlHashMapIterator iterator(mEventDefinitions);
+       // Get the event specific handler and information
+       SubscribeServerEventData* eventPackageInfo = NULL;
+       UtlHashMapIterator iterator(mEventDefinitions);
         
-        while((eventPackageInfo = (SubscribeServerEventData*) iterator()))
-        {
-            // End this subscription as we got an error response from
-            // the NOTIFY request.
-            // Returns TRUE if the SipSubscriptionMgr has this dialog
-            handledNotifyResponse = 
-                eventPackageInfo->mpEventSpecificSubscriptionMgr->endSubscription(
-                                                                    dialogHandle);
-            if(handledNotifyResponse)
-            {
-                break;
-            }
-        }
+       while ((eventPackageInfo =
+               dynamic_cast <SubscribeServerEventData*> (iterator())))
+       {
+          // End this subscription because we got an error response from
+          // the NOTIFY request.
+          // Returns TRUE if the SipSubscriptionMgr has this dialog.
+          handledNotifyResponse = 
+             eventPackageInfo->
+             mpEventSpecificSubscriptionMgr->
+             endSubscription(dialogHandle);
+          if (handledNotifyResponse)
+          {
+             break;
+          }
+       }
 
-        unlockForRead();
+       unlockForRead();
 
-        // Should not happen, first of all we should never get a
-        // response which does not correspond to a request sent from 
-        // the SipUserAgent.  Secondly, we should not get a response to
-        // and event type that we do not support
-        if(!handledNotifyResponse)
-        {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
-                "SipSubscribeServer::handleNotifyResponse NOTIFY response with no dialog. Handle: %s",
-                 dialogHandle.data());
-        }
+       if (!handledNotifyResponse)
+       {
+          // Should not happen, first of all we should never get a
+          // response which does not correspond to a request sent from 
+          // the SipUserAgent.  Secondly, we should not get a response to
+          // and event type that we do not support
+          OsSysLog::add(FAC_SIP, PRI_ERR,
+                        "SipSubscribeServer::handleNotifyResponse NOTIFY response with no dialog. Handle: %s",
+                        dialogHandle.data());
+       }
     }
 
-    // Provisional or 2XX class responses
-    else
-    {
-        handledNotifyResponse = TRUE;
-    }
-
-    return(handledNotifyResponse);
+    return TRUE;
 }
 
 UtlBoolean SipSubscribeServer::handleExpiration(UtlString* subscribeDialogHandle,

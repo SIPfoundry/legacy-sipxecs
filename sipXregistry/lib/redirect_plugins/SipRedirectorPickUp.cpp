@@ -698,13 +698,13 @@ SipRedirectorPickUp::lookUpDialog(
             encoder.encode(callId.data(), tag);
             tag.remove(8);
             // Assemble the URI.
-            subscribe.buildSipUrl(&fromUri,
-                                  address.data(),
-                                  port,
-                                  NULL, // protocol
-                                  NULL, // user
-                                  NULL, // userLabel,
-                                  tag.data());
+            SipMessage::buildSipUrl(&fromUri,
+                                    address.data(),
+                                    port,
+                                    NULL, // protocol
+                                    NULL, // user
+                                    NULL, // userLabel,
+                                    tag.data());
          }
           
          // Set the standard request headers.

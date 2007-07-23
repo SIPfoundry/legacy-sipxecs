@@ -231,19 +231,10 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             stateKey->append(eventTypeKey);
             stateKey->mpState = state;
 
-            // Set the contact to the same request URI that came in
-            UtlString contact;
-            subscribeRequest.getRequestUri(&contact);
-            
-            // Add the angle brackets for contact
-            Url url(contact);
-            url.includeAngleBrackets();
-            contact = url.toString();
-            
             subscribeResponse.setResponseData(subscribeCopy, 
-                                            SIP_ACCEPTED_CODE,
-                                            SIP_ACCEPTED_TEXT, 
-                                            contact);
+                                              SIP_ACCEPTED_CODE,
+                                              SIP_ACCEPTED_TEXT, 
+                                              NULL);
             subscribeResponse.setExpiresField(expiration);
             subscribeCopy->getDialogHandle(subscribeDialogHandle);
 
@@ -255,8 +246,9 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
 	       UtlString requestContact;
 	       subscribeRequest.getContactField(0, requestContact);
 	       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-			     "SipSubscriptionMgr::updateDialogInfo insert early-dialog subscription for key '%s', contact '%s', mExpirationDate %ld",
-			     stateKey->data(), requestContact.data(), state->mExpirationDate);
+			     "SipSubscriptionMgr::updateDialogInfo insert early-dialog subscription for dialog handle '%s', key '%s', contact '%s', mExpirationDate %ld",
+			     state->data(), stateKey->data(),
+                             requestContact.data(), state->mExpirationDate);
             }
 
             // Not safe to touch these after we unlock
@@ -282,7 +274,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         }
     }
 
-    // The dialog for this message should already exist
+    // Not an early dialog handle -- The dialog for this message should already exist
     else
     {
         // Get and validate the expires period
@@ -342,76 +334,13 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 subscribeDialogHandle = dialogHandle;
             }
 
-            // No state, basically assume this is a new subscription
+            // No state, but SUBSCRIBE had a to-tag.
             else
             {
-                SipMessage* subscribeCopy = new SipMessage(subscribeRequest);
-
-                // Create the dialog
-                mDialogMgr.createDialog(*subscribeCopy, FALSE, dialogHandle);
-                isNew = TRUE;
-
-                // Create a subscription state
-                state = new SubscriptionServerState();
-                *((UtlString*)state) = dialogHandle;
-                state->mEventTypeKey = eventTypeKey;
-                state->mpLastSubscribeRequest = subscribeCopy;
-                state->mResourceId = resourceId;
-                subscribeCopy->getAcceptField(state->mAcceptHeaderValue);
-
-                long now = OsDateTime::getSecsSinceEpoch();
-                state->mExpirationDate = now + expiration;
-                // TODO: currently the SipSubsribeServer does not handle timeout
-                // events to send notifications that the subscription has ended.
-                // So we do not set a timer at the end of the subscription
-                state->mpExpirationTimer = NULL;
-
-                // Create the index by resourceId and eventTypeKey key
-                SubscriptionServerStateIndex* stateKey = new SubscriptionServerStateIndex;
-                *((UtlString*)stateKey) = resourceId;
-                stateKey->append(eventTypeKey);
-                stateKey->mpState = state;
-                mSubscriptionStatesByDialogHandle.insert(state);
-                mSubscriptionStateResourceIndex.insert(stateKey);
-                if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-	        {
-		   UtlString requestContact;
-		   subscribeRequest.getContactField(0, requestContact);
-		   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-				 "SipSubscriptionMgr::updateDialogInfo insert subscription for key '%s', contact '%s', mExpirationDate %ld",
-				 stateKey->data(), requestContact.data(), state->mExpirationDate);
-                }
-                   
-                // Not safe to touch these after we unlock
-                stateKey = NULL;
-                state = NULL;
-                subscribeCopy = NULL;
-
-                // Set the contact to the same request URI that came in
-                UtlString contact;
-                subscribeRequest.getRequestUri(&contact);
- 
-                // Add the angle brackets for contact
-                Url url(contact);
-                url.includeAngleBrackets();
-                contact = url.toString();
-
-                subscribeResponse.setResponseData(&subscribeRequest, 
-                                                SIP_ACCEPTED_CODE,
-                                                SIP_ACCEPTED_TEXT, 
-                                                contact);
-                subscribeResponse.setExpiresField(expiration);
-                subscriptionSucceeded = TRUE;
-                // Unsubscribe
-                if(expiration == 0)
-                {
-                    isSubscriptionExpired = TRUE;
-                }
-                else
-                {
-                    isSubscriptionExpired = FALSE;
-                }
-                subscribeDialogHandle = dialogHandle;
+               // Unknown subscription.
+               subscribeResponse.setResponseData(&subscribeRequest, 
+                                                 SIP_BAD_SUBSCRIPTION_CODE,
+                                                 SIP_BAD_SUBSCRIPTION_TEXT);
             }
             unlock();
         }
@@ -616,7 +545,7 @@ UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle)
     lock();
     SubscriptionServerState* state = (SubscriptionServerState*)
         mSubscriptionStatesByDialogHandle.find(&dialogHandle);
-    if(state)
+    if (state)
     {
         SubscriptionServerStateIndex* stateIndex = NULL;
         UtlString contentKey(state->mResourceId);
@@ -633,9 +562,9 @@ UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle)
 		   UtlString requestContact;
 		   state->mpLastSubscribeRequest->getContactField(0, requestContact);
 		   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-				 "SipSubscriptionMgr::endSubscription delete subscription for key '%s', contact '%s', mExpirationDate %ld",
-				 stateIndex->data(), requestContact.data(),
-				 state->mExpirationDate);
+				 "SipSubscriptionMgr::endSubscription delete subscription for dialog handle '%s', key '%s', contact '%s', mExpirationDate %ld",
+				 state->data(), stateIndex->data(),
+                                 requestContact.data(), state->mExpirationDate);
                 }
 
                 delete state;
@@ -646,14 +575,21 @@ UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle)
             }
         }
 
-        // Could not find the state index that cooresponded to the state
-        // SHould not happen, there should always be one of each
-        if(!subscriptionFound)
+        // Could not find the state index that corresponds to the state
+        // Should not happen, there should always be one of each
+        if (!subscriptionFound)
         {
             OsSysLog::add(FAC_SIP, PRI_ERR,
-                "SipSubscriptionMgr::endSubscription could not find SubscriptionServerStateIndex for state with dialog: %s",
-                dialogHandle.data());
+                "SipSubscriptionMgr::endSubscription Could not find subscription in mSubscriptionStateResourceIndex for content key '%s', dialog handle '%s'",
+                          contentKey.data(),
+                          dialogHandle.data());
         }
+    }
+    else
+    {
+       OsSysLog::add(FAC_SIP, PRI_ERR,
+                     "SipSubscriptionMgr::endSubscription Could not find subscription in mSubscriptionStatesByDialogHandle for dialog handle '%s'",
+                     dialogHandle.data());
     }
 
     unlock();
@@ -681,7 +617,8 @@ void SipSubscriptionMgr::removeOldSubscriptions(long oldEpochTimeSeconds)
 		   stateIndex->mpState->mpLastSubscribeRequest->
 		      getContactField(0, requestContact);
 		   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-				 "SipSubscriptionMgr::removeOldSubscriptions delete subscription for key '%s', contact '%s', mExpirationDate %ld",
+				 "SipSubscriptionMgr::removeOldSubscriptions delete subscription for dialog handle '%s', key '%s', contact '%s', mExpirationDate %ld",
+                                 stateIndex->mpState->data(),
 				 stateIndex->data(), requestContact.data(),
 				 stateIndex->mpState->mExpirationDate);
                 }

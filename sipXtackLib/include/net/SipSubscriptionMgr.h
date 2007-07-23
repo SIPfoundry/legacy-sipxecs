@@ -70,7 +70,10 @@ public:
                                         UtlBoolean& isNew,
                                         /// TRUE if the subscription is not ongoing (out)
                                         UtlBoolean& isExpired,
-                                        /// response for the SUBSCRIBE (out)
+                                        /** response for the SUBSCRIBE (out)
+                                         *  Any errors will be logged into
+                                         *  subscribeResponse.
+                                         */
                                         SipMessage& subscribeResponse);
 
     //! Set the subscription dialog information and cseq for the next NOTIFY request

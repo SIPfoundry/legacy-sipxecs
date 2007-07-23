@@ -1737,8 +1737,8 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                                          // Format the Call-Id so it looks like
                                          // a header line in a SIP message,
                                          // so log processors see it.
-                                         "SipTransaction::handleChildIncoming: "
-                                         "response %d for \r\nCall-Id: %s\r",
+                                         "SipTransaction::handleChildIncoming "
+                                         "response %d for Call-Id '%s'",
                                          bestResponseCode, callId.data());
                         }
 
@@ -2001,8 +2001,8 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                                          // Format the Call-Id so it looks like
                                          // a header line in a SIP message,
                                          // so log processors see it.
-                                         "SipTransaction::handleChildTimeoutEvent: "
-                                         "response %d for \r\nCall-Id: %s\r",
+                                         "SipTransaction::handleChildTimeoutEvent "
+                                         "response %d for Call-Id '%s'",
                                          bestResponseCode, callId.data());
                         }
 

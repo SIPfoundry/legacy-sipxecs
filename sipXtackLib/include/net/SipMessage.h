@@ -180,6 +180,8 @@ class SipUserAgent;
 
 #define SIP_BAD_TRANSACTION_CODE 481
 #define SIP_BAD_TRANSACTION_TEXT "Transaction Does Not Exist"
+#define SIP_BAD_SUBSCRIPTION_CODE 481
+#define SIP_BAD_SUBSCRIPTION_TEXT "Subscription Does Not Exist"
 
 #define SIP_LOOP_DETECTED_CODE 482
 #define SIP_LOOP_DETECTED_TEXT "Loop Detected"
@@ -206,6 +208,8 @@ class SipUserAgent;
 
 #define SIP_SERVER_INTERNAL_ERROR_CODE 500
 #define SIP_SERVER_INTERNAL_ERROR_TEXT "Internal Server Error"
+#define SIP_OUT_OF_ORDER_CODE 500
+#define SIP_OUT_OF_ORDER_TEXT "Out Of Order"
 
 #define SIP_UNIMPLEMENTED_METHOD_CODE 501
 #define SIP_UNIMPLEMENTED_METHOD_TEXT "Not Implemented"
@@ -339,7 +343,9 @@ public:
 
     //! @name SIP URL manipulators
     //@{
-    static void buildSipUrl(UtlString* url, const char* address,
+    //! Generate a SIP name-addr from the specified components.
+    static void buildSipUrl(UtlString* url,
+                            const char* address,
                             int port = PORT_NONE,
                             const char* protocol = NULL,
                             const char* user = NULL,
@@ -490,17 +496,17 @@ public:
                         const char* contact,
                         const char* routeField);
 
-    void setSubscribeData( const char* uri,
-                        const char* fromField,
-                        const char* toField,
-                        const char* callId,
-                        int cseq,
-                        const char* eventField,
-                        const char* acceptField,
-                        const char* id,
-                        const char* contact,
-                        const char* routeField,
-                        int expiresInSeconds);
+    void setSubscribeData(const char* uri,
+                          const char* fromField,
+                          const char* toField,
+                          const char* callId,
+                          int cseq,
+                          const char* eventField,
+                          const char* acceptField,
+                          const char* id,
+                          const char* contact,
+                          const char* routeField,
+                          int expiresInSeconds);
 
     void setEnrollmentData(const char* uri,
                            const char* fromField,
@@ -701,6 +707,8 @@ public:
 
     void setBadTransactionData(const SipMessage* inviteRequest);
 
+    void setBadSubscriptionData(const SipMessage* inviteRequest);
+
     void setLoopDetectedData(const SipMessage* inviteRequest);
 
     void setInviteBusyData(const SipMessage* inviteRequest);
@@ -821,6 +829,8 @@ public:
 
     void setToFieldTag(int tagValue);
 
+    void setFromFieldTag(const char* tagValue);
+
     void setExpiresField(int expiresInSeconds);
 
     void setMinExpiresField(int minimumExpiresInSeconds);
@@ -894,6 +904,7 @@ public:
     void getCallIdField(UtlString* callId) const;
 
     void getDialogHandle(UtlString& dialogHandle) const;
+    void getDialogHandleReverse(UtlString& dialogHandle) const;
 
     UtlBoolean getCSeqField(int* sequenceNum, UtlString* sequenceMethod) const;
 

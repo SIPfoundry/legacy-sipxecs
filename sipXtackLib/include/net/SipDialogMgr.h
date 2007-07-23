@@ -41,6 +41,14 @@ class SipDialogMgr
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+   //! Describes the CSeq of a request relative to the current CSeq in the dialog.
+   enum transactionSequence
+   {
+      NO_DIALOG = 0,            ///< No matching dialog found.
+      OUT_OF_ORDER,             ///< CSeq <= last CSeq seen
+      IN_ORDER                  ///< CSeq > last CSeq seen
+   };
+
 /* ============================ CREATORS ================================== */
 
     //! Default Dialog constructor
@@ -132,11 +140,10 @@ public:
     UtlBoolean isLastLocalTransaction(const SipMessage& message, 
                                       const char* dialogHandle = NULL);
 
-    //! Check if the message is part of a new remote transaction
-    /*! The cseq of the message is greater than the last known cseq
-     *  of the remote side of the dialog
+    /** Check if the message is part of a known dialog, with a
+     *  in order.
      */
-    UtlBoolean isNewRemoteTransaction(const SipMessage& sipMessage);
+    enum transactionSequence isNewRemoteTransaction(const SipMessage& sipMessage);
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

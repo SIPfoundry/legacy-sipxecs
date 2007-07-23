@@ -148,8 +148,6 @@ void ContactSet::subscriptionEventCallback(
 
    switch (newState)
    {
-   case SipSubscribeClient::SUBSCRIPTION_UNKNOWN:
-      break;
    case SipSubscribeClient::SUBSCRIPTION_INITIATED:
       break;
    case SipSubscribeClient::SUBSCRIPTION_SETUP:
@@ -185,7 +183,6 @@ void ContactSet::subscriptionEventCallback(
       }
    }
    break;
-   case SipSubscribeClient::SUBSCRIPTION_FAILED:
    case SipSubscribeClient::SUBSCRIPTION_TERMINATED:
    {
       // Remove this ContactSet from mNotifyMap for the subscription.

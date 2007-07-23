@@ -319,7 +319,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 
     UtlString hostIpAddress(sipIpAddress.data());
 
-    //Timers
+    // Timers
     if ( sipFirstResendTimeout <= 0)
     {
         mFirstResendTimeoutMs = SIP_DEFAULT_RTT;
@@ -652,33 +652,53 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       message.setDateField();
    }
 
-   UtlString method;
-   if(isResponse)
+   // Add a Contact header if one is not provided.
+   // The SipUserAgent knows its default Contact URI.
+   if (!message.getHeaderValue(0, SIP_CONTACT_FIELD))
    {
-      int num = 0;
-      message.getCSeqField(&num , &method);
-
-      // All none failure responses need a contact
-      UtlString recordRouteField;
-      UtlString contactField;
-      if(message.getResponseStatusCode() < SIP_MULTI_CHOICE_CODE &&
-         ! message.getContactUri(0, &contactField) &&
-         ( method.compareTo(SIP_REGISTER_METHOD, UtlString::ignoreCase) != 0))
+      // Build a contact name-addr.
+      int port;
+      const char* protocol;
+      if (mUdpPort != PORT_NONE && mUdpPort == mTcpPort)
       {
-         // Build a contact uri- sipIpAddress.data(),
-         // mUdpPort == SIP_PORT ? PORT_NONE : mUdpPort
-         UtlString contactUri;
-         SipMessage::buildSipUrl(&contactUri,
-                                 message.getLocalIp().data(),
-                                 mUdpPort == SIP_PORT ? PORT_NONE : mUdpPort,
-                                 NULL, // Unspecified transport protocol
-                                 defaultSipUser.data());
-         message.setContactField(contactUri.data());
-         contactUri.remove(0);
+         // Listening on both TCP and UDP.
+         port = mUdpPort;
+         protocol = NULL;
       }
-
+      else if (mUdpPort != PORT_NONE)
+      {
+         // Listening on UDP.
+         port = mUdpPort;
+         protocol = "udp";
+      }
+      else if (mTcpPort != PORT_NONE)
+      {
+         // Listening on TCP.
+         port = mTcpPort;
+         protocol = "tcp";
+      }
+      else
+      {
+         // Unknown.
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "SipUserAgent::send neither TCP nor UDP in use -- can't construct Contact");
+         port = SIP_PORT;
+         protocol = NULL;
+      }
+         
+      UtlString contactUri;
+      SipMessage::buildSipUrl(&contactUri,
+                              !mConfigPublicAddress.isNull() ?
+                              mConfigPublicAddress.data() :
+                              sipIpAddress.data(),
+                              port,
+                              protocol,
+                              defaultSipUser.data());
+      message.setContactField(contactUri.data());
    }
-   else
+
+   UtlString method;
+   if (!isResponse)
    {
       message.getRequestMethod(&method);
 
@@ -2092,7 +2112,7 @@ void SipUserAgent::queueMessageToInterestedObservers(SipMessageEvent& event,
                // Cheat a little and set the observer data to be passed back
                ((SipMessage*) message)->setResponseListenerData(observerData);
 
-               // Put the message in the observers queue
+               // Put the message in the observer's queue
                int numMsgs = observerQueue->numMsgs();
                int maxMsgs = observerQueue->maxMsgs();
                if (numMsgs < maxMsgs)

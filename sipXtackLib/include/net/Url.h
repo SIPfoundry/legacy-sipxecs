@@ -155,8 +155,8 @@ public:
 
    /// Backward compatibilty constructor for (confusing) UtlBoolean isAddrSpec parameter.
    Url(const char* urlString = NULL, ///< string to parse URL from
-       UtlBoolean isAddrSpec = FALSE /**< - TRUE if this is an addrspec (a Request URI)
-                                      *   - FALSE if this is a URL from a header field */
+       UtlBoolean isAddrSpec = FALSE /**< - TRUE if this is an addrspec (a Request-URI)
+                                      *   - FALSE if this is a name-addr (URL from a header field) */
        );
    ///< @DEPRECATED because the use of UtlBoolean is confusing - use the three argument form.
 

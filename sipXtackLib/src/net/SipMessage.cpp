@@ -208,8 +208,8 @@ void SipMessage::replaceShortFieldNames()
 
 /* ============================ ACCESSORS ================================= */
 void SipMessage::setSipRequestFirstHeaderLine(const char* method,
-                                   const char* uri,
-                                   const char* protocolVersion)
+                                              const char* uri,
+                                              const char* protocolVersion)
 {
    //fix for bug : 1667 - 12/18/2001
    Url tempRequestUri(uri, TRUE);
@@ -574,10 +574,10 @@ UtlBoolean SipMessage::hasSdpBody(const char* derPkcs12,
 }
 
 void SipMessage::setRequestData(const char* method, const char* uri,
-                     const char* fromField, const char* toField,
-                     const char* callId,
-                     int sequenceNumber,
-                            const char* contactUrl)
+                                const char* fromField, const char* toField,
+                                const char* callId,
+                                int sequenceNumber,
+                                const char* contactUrl)
 {
    // Create the top header line
    setSipRequestFirstHeaderLine(method, uri, SIP_PROTOCOL_VERSION);
@@ -594,10 +594,10 @@ void SipMessage::setRequestData(const char* method, const char* uri,
    // Add the CSeq field
    setCSeqField(sequenceNumber, method);
 
-    if(contactUrl && *contactUrl)
-    {
-        setContactField(contactUrl);
-    }
+   if(contactUrl && *contactUrl)
+   {
+      setContactField(contactUrl);
+   }
 }
 
 void SipMessage::setResponseData(int statusCode, const char* statusText,
@@ -663,7 +663,14 @@ void SipMessage::setBadTransactionData(const SipMessage* inviteRequest)
 {
    setLocalIp(inviteRequest->getLocalIp());
    setResponseData(inviteRequest, SIP_BAD_TRANSACTION_CODE,
-        SIP_BAD_TRANSACTION_TEXT);
+                   SIP_BAD_TRANSACTION_TEXT);
+}
+
+void SipMessage::setBadSubscriptionData(const SipMessage* inviteRequest)
+{
+   setLocalIp(inviteRequest->getLocalIp());
+   setResponseData(inviteRequest, SIP_BAD_SUBSCRIPTION_CODE,
+                   SIP_BAD_SUBSCRIPTION_TEXT);
 }
 
 void SipMessage::setLoopDetectedData(const SipMessage* inviteRequest)
@@ -1125,16 +1132,16 @@ void SipMessage::setNotifyData(const char* uri,
 }
 
 void SipMessage::setSubscribeData(const char* uri,
-                                const char* fromField,
-                                const char* toField,
-                                const char* callId,
-                                int cseq,
-                                const char* eventField,
-                                const char* acceptField,
-                                const char* id,
-                                const char* contact,
-                                const char* routeField,
-                                int expiresInSeconds)
+                                  const char* fromField,
+                                  const char* toField,
+                                  const char* callId,
+                                  int cseq,
+                                  const char* eventField,
+                                  const char* acceptField,
+                                  const char* id,
+                                  const char* contact,
+                                  const char* routeField,
+                                  int expiresInSeconds)
 {
    setRequestData(SIP_SUBSCRIBE_METHOD, uri,
                   fromField, toField,
@@ -2217,8 +2224,10 @@ void SipMessage::buildSipUrl(UtlString* url, const char* address, int port,
    if(userLabel && strlen(userLabel))
    {
       url->append(userLabel);
-      url->append("<");
    }
+
+   // Always use <...>, since we are generating name-addr format.
+   url->append("<");
 
    // If the SIP url type label is not already in the address
    int sipLabelIndex = tmpAddress.index(SIP_URL_TYPE);
@@ -2257,10 +2266,8 @@ void SipMessage::buildSipUrl(UtlString* url, const char* address, int port,
       url->append(";transport=");
       url->append(protocol);
    }
-   if(userLabel && strlen(userLabel))
-   {
-      url->append(">");
-   }
+
+   url->append(">");
 
    if(tag && strlen(tag))
    {
@@ -2657,6 +2664,16 @@ void SipMessage::setToFieldTag(int tagValue)
     char tagString[MAXIMUM_INTEGER_STRING_LENGTH];
     sprintf(tagString, "%d", tagValue);
     setToFieldTag(tagString);
+}
+
+void SipMessage::setFromFieldTag(const char* tagValue)
+{
+   UtlString fromField;
+   getFromField(&fromField);
+   //osPrintf("From field before: \"%s\"\n", fromField.data());
+   setUriTag(&fromField, tagValue);
+   //osPrintf("From field after: \"%s\"\n", fromField.data());
+   setRawFromField(fromField.data());
 }
 
 void SipMessage::setUriTag(UtlString* uri, const char* tagValue)
@@ -3146,6 +3163,29 @@ void SipMessage::getDialogHandle(UtlString& dialogHandle) const
     UtlString toTag;
     messageToUrl.getFieldParameter("tag", toTag);
     dialogHandle.append(toTag);
+}
+
+void SipMessage::getDialogHandleReverse(UtlString& dialogHandle) const
+{
+    getCallIdField(&dialogHandle);
+
+    // Separator
+    dialogHandle.append(',');
+
+    Url messageToUrl;
+    getToUrl(messageToUrl);
+    UtlString toTag;
+    messageToUrl.getFieldParameter("tag", toTag);
+    dialogHandle.append(toTag);
+
+    // Separator
+    dialogHandle.append(',');
+
+    Url messageFromUrl;
+    getFromUrl(messageFromUrl);
+    UtlString fromTag;
+    messageFromUrl.getFieldParameter("tag", fromTag);
+    dialogHandle.append(fromTag);
 }
 
 UtlBoolean SipMessage::getCSeqField(int* sequenceNum, UtlString* sequenceMethod) const

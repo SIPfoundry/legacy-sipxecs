@@ -39,14 +39,14 @@ class SipMessage;
 
 
 //! Top level class for accepting and processing SUBSCRIBE requests
-/*! This implements a generic RFC 3265 SUBSCRIBE server or sometimes
- *  called a NOTIFIER.  This class receives SUBSCRIBE requests,
- *  retrieves the SIP Event content from the SipPublisherContentMgr
- *  generates a NOTIFY request with the retrieved Event content and send 
+/*! This implements a generic RFC 3265 SUBSCRIBE server also
+ *  called a notifier.  This class receives SUBSCRIBE requests,
+ *  retrieves the SIP event content from the SipPublisherContentMgr,
+ *  generates a NOTIFY request with the retrieved event content, and sends
  *  the NOFITY using the SipUserAgent.  The SipSubscribeServer is
- *  designed so that it can handle several different event types or
+ *  designed so that it can handle several different event types and
  *  so that you can have multiple instances of the SipSubscribeServer
- *  each handling different event type.  However you can not have an
+ *  each handling different event types.  However you can not have an
  *  event type that is handled by more than one SipSubScribeServer.
  *
  *  \par Event Specific Handling and Processing
@@ -67,15 +67,16 @@ class SipMessage;
  *  by the application.
  *
  *  \par
- *  Content is stored in a SipPublishContentMgr, indexed by 'resourceId'.
- *  Conventionally, the resourceId is a SIP identity (i.e., "user@hostport").
- *  When a SUBSCRIBE is received, it creates a subscription for the content
- *  of the resourceId which is the identity derived from the request-URI of
- *  the incoming SUBSCRIBE.
+ *  Content is stored in a SipPublishContentMgr, indexed by
+ *  'resourceId'.  Conventionally, the resourceId is a SIP URI (i.e.,
+ *  "sip:user@hostport") stripped of any parameters.  When a SUBSCRIBE
+ *  is received, it creates a subscription for the content of the
+ *  resourceId which is derived from the request-URI of the incoming
+ *  SUBSCRIBE.
  *
  *  \par Subscription State
  *  The SipSubscriptionMgr is used by SipSubscribeServer to maintain
- *  the subscription state (SUBSCRIBE dialog state not Event state
+ *  the subscription state (SUBSCRIBE dialog state, not event state
  *  content).
  *
  *  \par Overall Data Flow
@@ -83,21 +84,21 @@ class SipMessage;
  *  1) Respond to incoming SUBSCRIBE requests and send the cooresponding
  *     NOTIFY request.
  *  2) Generate NOTIFY requests when the event state changes for a resource
- *     that has an on-expired subscription.
+ *     that has an non-expired subscription.
  *  3) Generate NOTIFY requests to subscriptions when they expire.
- *  4) Some notification error responses should cause the subscription to expire
+ *  4) Some notification error responses should terminate the subscription
  *
  *  When enabling a SIP event type via the enableEventType method, 
  *  the SipSubscribeServer registers with
  *  the SipUserAgent to receive SUBSCRIBE requests and NOTIFY responses 
- *  for the event type which are processed by the handleMessage method.
+ *  for the event type, which are processed by the handleMessage method.
  *  Applications that publish event state use the SipPublishContentMgr
  *  to update resource specific or default event states.  The SipSubscribeServer
  *  is notified by the SipPublishContentMgr (via callback) that the
  *  content has changed and sends a NOTIFY to those subscribed to the
  *  resourceId for the event type key.  The SipSubscribeServer uses
- *  timers to keep track of when event subscription expire.  When a timer
- *  fires, a message gets queued on the SipSubscribeServer which is that
+ *  timers to keep track of when event subscriptions expire.  When a timer
+ *  fires, a message gets queued on the SipSubscribeServer which is
  *  passed to handleMessage.
  */
 class SipSubscribeServer : public OsServerTask
@@ -131,10 +132,10 @@ public:
      *  needs to be sent as the event state content has changed.
      */
     static void contentChangeCallback(void* applicationData,
-                                       const char* resourceId,
-                                       const char* eventTypeKey,
-                                       const char* eventType,
-                                       UtlBoolean isDefaultContent);
+                                      const char* resourceId,
+                                      const char* eventTypeKey,
+                                      const char* eventType,
+                                      UtlBoolean isDefaultContent);
 
     //! Send a NOTIFY to all subscribers to resource and event state
     UtlBoolean notifySubscribers(const char* resourceId, 
@@ -144,10 +145,10 @@ public:
 
     //! Tell subscribe server to support given event type
     UtlBoolean enableEventType(const char* eventType,
-                                 SipUserAgent* userAgent = NULL,
-                                 SipPublishContentMgr* contentMgr = NULL,
-                                 SipSubscribeServerEventHandler* eventPlugin = NULL,
-                                 SipSubscriptionMgr* subscriptionMgr = NULL);
+                               SipUserAgent* userAgent = NULL,
+                               SipPublishContentMgr* contentMgr = NULL,
+                               SipSubscribeServerEventHandler* eventPlugin = NULL,
+                               SipSubscriptionMgr* subscriptionMgr = NULL);
 
     //! Tell subscribe server to stop supporting given event type
     UtlBoolean disableEventType(const char* eventType,
@@ -194,7 +195,6 @@ public:
     SipSubscriptionMgr* getSubscriptionMgr(const UtlString& eventType);
 
 /* ============================ INQUIRY =================================== */
-
 
     //! Inquire if the given event type is enabled in the server
     UtlBoolean isEventTypeEnabled(const UtlString& eventType);
