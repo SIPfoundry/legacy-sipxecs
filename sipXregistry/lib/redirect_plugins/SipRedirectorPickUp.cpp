@@ -698,7 +698,7 @@ SipRedirectorPickUp::lookUpDialog(
             encoder.encode(callId.data(), tag);
             tag.remove(8);
             // Assemble the URI.
-            SipMessage::buildSipUrl(&fromUri,
+            SipMessage::buildSipUri(&fromUri,
                                     address.data(),
                                     port,
                                     NULL, // protocol

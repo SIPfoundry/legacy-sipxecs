@@ -1710,7 +1710,7 @@ UtlBoolean SipConnection::doHangUp(const char* dialString,
 
             //sipUserAgent->getDirectoryServer(0, &dirAddress,
             //        &dirPort, &dirProtocol);
-            //SipMessage::buildSipUrl(&directoryServerUri,
+            //SipMessage::buildSipUri(&directoryServerUri,
             //    dirAddress.data(), dirPort, dirProtocol.data());
             //}
             lastLocalSequenceNumber++;
@@ -1771,7 +1771,7 @@ void SipConnection::buildFromToAddresses(const char* dialString,
 
     // Build a From address
     sipUserAgent->getFromAddress(&sipAddress, &sipPort, &sipProtocol);
-    SipMessage::buildSipUrl(&fromAddress, sipAddress.data(),
+    SipMessage::buildSipUri(&fromAddress, sipAddress.data(),
         sipPort, sipProtocol.data(), callerId, callerDisplayName,
         mFromTag.data());
 
@@ -1809,7 +1809,7 @@ void SipConnection::buildFromToAddresses(const char* dialString,
             toUrl.setUrlParameter("transport", toProtocol.data());
         }
     }
-    //SipMessage::buildSipUrl(&goodToAddress, toAddress.data(),
+    //SipMessage::buildSipUri(&goodToAddress, toAddress.data(),
     //              toPort, toProtocol.data(), toUser.data(),
     //              toUserLabel.data());
     toUrl.toString(goodToAddress);
@@ -4544,7 +4544,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 
             //    sipUserAgent->getDirectoryServer(0, &dirAddress,
             //              &dirPort, &dirProtocol);
-            //    SipMessage::buildSipUrl(&directoryServerUri,
+            //    SipMessage::buildSipUri(&directoryServerUri,
             //        dirAddress.data(), dirPort, dirProtocol.data());
             //}
             lastLocalSequenceNumber++;

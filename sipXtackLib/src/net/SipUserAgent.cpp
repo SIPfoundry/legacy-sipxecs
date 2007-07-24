@@ -342,7 +342,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 
     if(portIsValid(mUdpPort))
     {
-        SipMessage::buildSipUrl(&mContactAddress,
+        SipMessage::buildSipUri(&mContactAddress,
                 hostIpAddress.data(),
                 (mUdpPort == SIP_PORT) ? PORT_NONE : mUdpPort,
                 (mUdpPort == mTcpPort) ? "" : SIP_TRANSPORT_UDP,
@@ -351,7 +351,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 
     if(portIsValid(mTcpPort) && mTcpPort != mUdpPort)
     {
-        SipMessage::buildSipUrl(&mContactAddress, hostIpAddress.data(),
+        SipMessage::buildSipUri(&mContactAddress, hostIpAddress.data(),
                 (mTcpPort == SIP_PORT) ? PORT_NONE : mUdpPort,
                 SIP_TRANSPORT_TCP, defaultSipUser.data());
     }
@@ -687,7 +687,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       }
          
       UtlString contactUri;
-      SipMessage::buildSipUrl(&contactUri,
+      SipMessage::buildSipUri(&contactUri,
                               !mConfigPublicAddress.isNull() ?
                               mConfigPublicAddress.data() :
                               sipIpAddress.data(),
@@ -953,7 +953,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
 
             // Build a contact uri - sipIpAddress.data(), mUdpPort == SIP_PORT ? 0 : mUdpPort
             UtlString contactUri;
-            SipMessage::buildSipUrl(&contactUri,
+            SipMessage::buildSipUri(&contactUri,
                                     sipIpAddress.data(),
                                     mUdpPort == SIP_PORT ? PORT_NONE : mUdpPort,
                                     NULL, // Unspecified transport protocol

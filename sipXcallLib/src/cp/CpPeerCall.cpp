@@ -155,7 +155,7 @@ CpCall(callManager, callMediaInterface, callIndex, callId,
     //    sipUserAgent->getFromAddress(&myServerAddress,
     //        &myServerPort, &myServerProtocol);
     //}
-    //SipMessage::buildSipUrl(&mLocalAddress, myServerAddress.data(), 
+    //SipMessage::buildSipUri(&mLocalAddress, myServerAddress.data(), 
     //    myServerPort, myServerProtocol.data(), extension.data());
 
     mDialMode = ADD_PARTY;

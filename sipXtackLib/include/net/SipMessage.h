@@ -344,7 +344,7 @@ public:
     //! @name SIP URL manipulators
     //@{
     //! Generate a SIP name-addr from the specified components.
-    static void buildSipUrl(UtlString* url,
+    static void buildSipUri(UtlString* url,
                             const char* address,
                             int port = PORT_NONE,
                             const char* protocol = NULL,

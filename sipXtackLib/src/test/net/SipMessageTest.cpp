@@ -1768,7 +1768,7 @@ class SipMessageTest : public CppUnit::TestCase
       {
          UtlString s;
 
-         SipMessage::buildSipUrl(&s,
+         SipMessage::buildSipUri(&s,
                                  "example.com",
                                  PORT_NONE,
                                  NULL,
@@ -1777,7 +1777,7 @@ class SipMessageTest : public CppUnit::TestCase
                                  NULL);
          ASSERT_STR_EQUAL("<sip:example.com>", s.data());
 
-         SipMessage::buildSipUrl(&s,
+         SipMessage::buildSipUri(&s,
                                  "example.com",
                                  5060,
                                  NULL,
@@ -1786,7 +1786,7 @@ class SipMessageTest : public CppUnit::TestCase
                                  NULL);
          ASSERT_STR_EQUAL("<sip:example.com:5060>", s.data());
 
-         SipMessage::buildSipUrl(&s,
+         SipMessage::buildSipUri(&s,
                                  "example.com",
                                  PORT_NONE,
                                  "tcp",
@@ -1795,7 +1795,7 @@ class SipMessageTest : public CppUnit::TestCase
                                  NULL);
          ASSERT_STR_EQUAL("<sip:example.com;transport=tcp>", s.data());
 
-         SipMessage::buildSipUrl(&s,
+         SipMessage::buildSipUri(&s,
                                  "example.com",
                                  PORT_NONE,
                                  NULL,
@@ -1804,7 +1804,7 @@ class SipMessageTest : public CppUnit::TestCase
                                  NULL);
          ASSERT_STR_EQUAL("<sip:foo@example.com>", s.data());
 
-         SipMessage::buildSipUrl(&s,
+         SipMessage::buildSipUri(&s,
                                  "example.com",
                                  PORT_NONE,
                                  NULL,
@@ -1813,7 +1813,7 @@ class SipMessageTest : public CppUnit::TestCase
                                  NULL);
          ASSERT_STR_EQUAL("Name<sip:example.com>", s.data());
 
-         SipMessage::buildSipUrl(&s,
+         SipMessage::buildSipUri(&s,
                                  "example.com",
                                  PORT_NONE,
                                  NULL,
@@ -1822,7 +1822,7 @@ class SipMessageTest : public CppUnit::TestCase
                                  "1234");
          ASSERT_STR_EQUAL("<sip:example.com>;tag=1234", s.data());
 
-         SipMessage::buildSipUrl(&s,
+         SipMessage::buildSipUri(&s,
                                  "example.com",
                                  9999,
                                  "udp",

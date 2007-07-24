@@ -114,7 +114,7 @@ SipLineMgr::handleMessage(OsMsg &eventMessage)
         UtlString toUrl;
         UtlString Label;
         sipMsg->getToAddress(&Address, &Port, &Protocol, &User, &Label);
-        SipMessage::buildSipUrl( &toUrl , Address , Port, Protocol, User , Label);
+        SipMessage::buildSipUri( &toUrl , Address , Port, Protocol, User , Label);
 
         SipLine* line = NULL;
           Url tempUrl ( toUrl );

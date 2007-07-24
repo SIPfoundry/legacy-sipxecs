@@ -716,7 +716,7 @@ void SipMessage::setForwardResponseData(const SipMessage* request,
    //int port;
    //parseAddressFromUri(forwardAddress, &address, &port,
    // &protocol, &user, &userLabel);
-   //buildSipUrl(&contactAddress, address.data(), port,
+   //buildSipUri(&contactAddress, address.data(), port,
    // protocol.data(), user.data(), userLabel.data());
     Url contactUrl(forwardAddress);
     contactUrl.removeFieldParameters();
@@ -2212,7 +2212,7 @@ void SipMessage::incrementCSeqNumber()
     setCSeqField(seqNum, seqMethod.data());
 }
 
-void SipMessage::buildSipUrl(UtlString* url, const char* address, int port,
+void SipMessage::buildSipUri(UtlString* url, const char* address, int port,
                       const char* protocol, const char* user,
                       const char* userLabel, const char* tag)
 {
@@ -2289,7 +2289,7 @@ void SipMessage::setFromField(const char* url)
 
    parseAddressFromUri(url, &address, &port, &protocol, &user,
       &userLabel);
-   buildSipUrl(&value, address.data(), port, protocol.data(),
+   buildSipUri(&value, address.data(), port, protocol.data(),
       user.data(), userLabel.data());
 
    // If the field exists change it, if does not exist create it.
@@ -2301,7 +2301,7 @@ void SipMessage::setFromField(const char* address, int port,
                        const char* user, const char* userLabel)
 {
    UtlString url;
-   buildSipUrl(&url, address, port, protocol, user, userLabel);
+   buildSipUri(&url, address, port, protocol, user, userLabel);
 
    // If the field exists change it, if does not exist create it
    setHeaderValue(SIP_FROM_FIELD, url.data(), 0);
@@ -2325,7 +2325,7 @@ void SipMessage::setToField(const char* address, int port,
 {
    UtlString url;
 
-   buildSipUrl(&url, address, port, protocol, user, userLabel);
+   buildSipUri(&url, address, port, protocol, user, userLabel);
 
    // If the field exists change it, if does not exist create it
    setHeaderValue(SIP_TO_FIELD, url.data(), 0);
