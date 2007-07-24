@@ -60,10 +60,10 @@
     <fwd 
       divert.fwd.1.enabled="0" />
     <busy 
-      divert.busy.1.enabled="1" 
+      divert.busy.1.enabled="0" 
       divert.busy.1.contact="" />    
       <noanswer 
-      divert.noanswer.1.enabled="1" 
+      divert.noanswer.1.enabled="0" 
       divert.noanswer.1.timeout="60"
       divert.noanswer.1.contact="" />
     <dnd 

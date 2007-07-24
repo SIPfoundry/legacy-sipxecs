@@ -34,8 +34,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware,
-        DaoEventListener {
+public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext,
+        BeanFactoryAware, DaoEventListener {
     private static final String NAME_PROPERTY = "name";
 
     private static final String SERVER_PARAM = "acdServer";
@@ -64,7 +64,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         public ExtensionInUseException(String name) {
             super(ERROR, name);
         }
-    }    
+    }
 
     public List getServers() {
         return getHibernateTemplate().loadAll(AcdServer.class);
@@ -89,8 +89,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         if (acdComponent instanceof AcdQueue) {
             AcdQueue queue = (AcdQueue) acdComponent;
 
-            DaoUtils.checkDuplicates(getHibernateTemplate(), AcdQueue.class, queue, NAME_PROPERTY,
-                    new NameInUseException("queue", queue.getName()));
+            DaoUtils.checkDuplicates(getHibernateTemplate(), AcdQueue.class, queue,
+                    NAME_PROPERTY, new NameInUseException("queue", queue.getName()));
         }
 
         getHibernateTemplate().saveOrUpdate(acdComponent);
@@ -188,6 +188,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         }
         AcdAgent agent = (AcdAgent) m_beanFactory.getBean(AcdAgent.BEAN_NAME, AcdAgent.class);
         agent.setUser(user);
+        // FIXME: agents need to be saved before they are added to server's collections but one
+        // cannot save the agent without setting its server field
         server.insertAgent(agent);
         return agent;
     }
@@ -218,6 +220,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             Integer userId = (Integer) i.next();
             User user = coreContext.loadUser(userId);
             AcdAgent agent = newAgent(server, user);
+            getHibernateTemplate().save(agent);
             queue.insertAgent(agent);
         }
         getHibernateTemplate().save(server);
@@ -233,7 +236,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         AcdQueue oldQueue = line.associateQueue(newQueue);
         getHibernateTemplate().update(line);
         // TODO: maybe we need to fix cascading in hibernate
-        // cascase all does save new queue but not the old one
+        // cascade all does save new queue but not the old one
         if (oldQueue != null) {
             getHibernateTemplate().update(oldQueue);
         }
@@ -301,7 +304,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     }
 
     public void onSave(Object entity_) {
-        // not interester in save events
+        // not interested in save events
     }
 
     public String getAudioServerUrl() {
@@ -327,7 +330,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         }
         for (Iterator i = queuesToBeFixed.iterator(); i.hasNext();) {
             AcdQueue queue = (AcdQueue) i.next();
-            Setting overflowQueueUriSetting = queue.getSettings().getSetting(AcdQueue.OVERFLOW_QUEUE); 
+            Setting overflowQueueUriSetting = queue.getSettings().getSetting(
+                    AcdQueue.OVERFLOW_QUEUE);
             String overflowQueueUri = overflowQueueUriSetting.getValue();
             String name = SipUri.extractUser(overflowQueueUri);
             AcdQueue overflowQueue = (AcdQueue) name2queue.get(name);
@@ -365,7 +369,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         if (agents.isEmpty()) {
             return Collections.EMPTY_LIST;
         }
-        
+
         Collection agentIds = DataCollectionUtil.extractPrimaryKeys(agents);
         String[] params = new String[] {
             "userIds", "serverId"

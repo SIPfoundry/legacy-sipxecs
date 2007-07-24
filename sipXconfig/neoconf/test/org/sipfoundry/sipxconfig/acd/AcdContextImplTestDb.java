@@ -42,7 +42,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
 
         TestHelper.cleanInsert("ClearDb.xml");
     }
-    
+
     public void testGetUsersWithAgents() throws Exception {
         TestHelper.insertFlat("acd/same_user_on_two_servers.db.xml");
         User[] users = (User[]) m_context.getUsersWithAgents().toArray(new User[0]);
@@ -285,7 +285,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         ITable acdQueueTable = TestHelper.getConnection().createDataSet().getTable("acd_queue");
         assertEquals(2, acdQueueTable.getRowCount());
         ITable acdAgentTable = TestHelper.getConnection().createDataSet().getTable("acd_agent");
-        assertEquals(4, acdAgentTable.getRowCount());        
+        assertEquals(4, acdAgentTable.getRowCount());
 
         Set queues = m_context.loadServer(SERVER_ID).getQueues();
         assertEquals(2, queues.size());
@@ -302,7 +302,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
 
         // agents that were only on 2002 should be removed as well
         acdAgentTable = TestHelper.getConnection().createDataSet().getTable("acd_agent");
-        assertEquals(2, acdAgentTable.getRowCount());        
+        assertEquals(2, acdAgentTable.getRowCount());
     }
 
     public void testRemoveQueuesWithSharedAgents() throws Exception {
@@ -339,35 +339,49 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testAddUsersToQueue() throws Exception {
-        User testUser = new User();
-        testUser.setUserName("xxx");
-        m_coreContext.saveUser(testUser);
+        User testUser1 = new User();
+        testUser1.setUserName("testUser1");
+        m_coreContext.saveUser(testUser1);
+
+        User testUser2 = new User();
+        testUser2.setUserName("testUser2");
+        m_coreContext.saveUser(testUser2);
+
+        User testUser3 = new User();
+        testUser3.setUserName("testUser3");
+        m_coreContext.saveUser(testUser3);
+
+        List agentList = new ArrayList();
+
+        agentList.add(testUser1.getId());
+        agentList.add(testUser2.getId());
+        agentList.add(testUser3.getId());
 
         TestHelper.insertFlat("acd/queues.db.xml");
         final Serializable queueId = new Integer(2001);
 
-        m_context.addUsersToQueue(queueId, Collections.singletonList(testUser.getId()));
+        m_context.addUsersToQueue(queueId, Collections.unmodifiableCollection(agentList));
 
         ITable agentTable = TestHelper.getConnection().createDataSet().getTable("acd_agent");
-        assertEquals(1, agentTable.getRowCount());
-        assertEquals(testUser.getId(), agentTable.getValue(0, "user_id"));
+        assertEquals(3, agentTable.getRowCount());
+        assertEquals(testUser1.getId(), agentTable.getValue(0, "user_id"));
         assertEquals(SERVER_ID, agentTable.getValue(0, "acd_server_id"));
 
         ITable queues2agentsTable = TestHelper.getConnection().createDataSet().getTable(
                 "acd_queue_agent");
-        assertEquals(1, queues2agentsTable.getRowCount());
+        assertEquals(3, queues2agentsTable.getRowCount());
         assertEquals(queueId, queues2agentsTable.getValue(0, "acd_queue_id"));
 
         // caling this again should not change anything
-        m_context.addUsersToQueue(queueId, Collections.singletonList(testUser.getId()));
+        m_context.addUsersToQueue(queueId, Collections.singletonList(testUser1.getId()));
 
         agentTable = TestHelper.getConnection().createDataSet().getTable("acd_agent");
-        assertEquals(1, agentTable.getRowCount());
-        assertEquals(testUser.getId(), agentTable.getValue(0, "user_id"));
+        assertEquals(3, agentTable.getRowCount());
+        assertEquals(testUser1.getId(), agentTable.getValue(0, "user_id"));
 
         queues2agentsTable = TestHelper.getConnection().createDataSet().getTable(
                 "acd_queue_agent");
-        assertEquals(1, queues2agentsTable.getRowCount());
+        assertEquals(3, queues2agentsTable.getRowCount());
         assertEquals(queueId, queues2agentsTable.getValue(0, "acd_queue_id"));
 
     }
@@ -465,26 +479,26 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(0, dataSet.getTable("acd_queue_agent").getRowCount());
         assertEquals(0, dataSet.getTable("acd_line_queue").getRowCount());
     }
-    
+
     public void testGetQueuesForUsers() throws Exception {
         TestHelper.cleanInsertFlat("acd/queues_and_agents.db.xml");
         List<User> agents = new ArrayList();
         agents.add(m_coreContext.loadUser(1001));
         agents.add(m_coreContext.loadUser(1003));
         AcdServer server = m_context.loadServer(1001);
-        
+
         Collection<AcdQueue> queues = m_context.getQueuesForUsers(server, agents);
         assertEquals(2, queues.size());
         Iterator<AcdQueue> iqueues = queues.iterator();
         assertEquals("q1", iqueues.next().getName());
         assertEquals("q2", iqueues.next().getName());
     }
-    
+
     public void testGetQueuesForEmptyUsers() throws Exception {
         // just need 1 acd server
         TestHelper.cleanInsertFlat("acd/queues.db.xml");
         AcdServer server = m_context.loadServer(1001);
         Collection empty = m_context.getQueuesForUsers(server, new ArrayList());
         assertTrue(empty.isEmpty());
-    }    
+    }
 }
