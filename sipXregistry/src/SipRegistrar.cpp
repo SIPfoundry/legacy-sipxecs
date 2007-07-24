@@ -184,6 +184,8 @@ void SipRegistrar::startupPhase()
       createReplicationThreads();
 
       // Begin the RegistrarInitialSync thread and then wait for it.
+      // The RegistrarInitialSync thread performs steps (1) to (4) of
+      // section 5.7.1 of sipXregistry/doc/SyncDesign.*.
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRegistrar::startupPhase starting initialSyncThread"
                     );
@@ -201,6 +203,15 @@ void SipRegistrar::startupPhase()
                     "SipRegistrar::startupPhase no replication configured"
                     );
    }
+
+   // Reset the DbUpdateNumber so that the upper half is the epoch time.
+   // Step (5) in section 5.7.1 of sipXregistry/doc/SyncDesign.*.
+   // We perform this even if there are no peer registrars to ensure that
+   // update numbers are monotonic even if HA is enabled and then disabled.
+   getRegistrarServer().resetDbUpdateNumberEpoch();
+
+   // Step (6) is not performed explicitly.  Instead, we allow the normal
+   // operation of the RegistrarTest thread to do that processing.
 }
 
 /// Launch all Operational Phase threads.

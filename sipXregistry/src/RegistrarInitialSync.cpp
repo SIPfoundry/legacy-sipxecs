@@ -35,27 +35,33 @@ RegistrarInitialSync::RegistrarInitialSync(SipRegistrar& registrar)
 int RegistrarInitialSync::run(void* pArg)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarInitialSync started");
+   
+   // This function performs steps (1) through (4) in section 5.7.1 of
+   // sipXregistry/doc/SyncDesign.*.
 
    // get the max update number for local updates from the local database
+   // Step (1)(bullet 1).
    getRegistrarServer().restoreDbUpdateNumber();
 
    // get the received update numbers for each peer from the local database
+   // Step (1)(bullet 2).
    restorePeerUpdateNumbers();
 
    // having done that, we can begin accepting pull requests from peers
+   // Step (2).
    SyncRpcPullUpdates::registerSelf(mRegistrar);
 
    // Get from peers any of our own updates that we have lost
+   // Step (3)(1).
    pullLocalUpdatesFromPeers();
    
    // Get from peers any peer updates that we missed or lost while down
+   // Step (3)(2).
    pullPeerUpdatesFromPeers();
 
    // Get any updates for unreachable peers from reachable ones
+   // Step (4).
    recoverUnReachablePeers();
-
-   // Reset the DbUpdateNumber so that the upper half is the epoch time
-   getRegistrarServer().resetDbUpdateNumberEpoch();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarInitialSync complete");
    

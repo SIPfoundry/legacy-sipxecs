@@ -1353,16 +1353,37 @@ void SipRegistrarServer::resetDbUpdateNumberEpoch()
    newEpoch = timeNow;
    newEpoch <<= 32;
 
-   { // lock before changing the epoch update number
-      OsLock lock(sLockMutex);
+   // Check that the first update number for the new epoch is greater than
+   // the currently reported update number.  It always will be, absent
+   // severe clock skew, but if it is not, the system will behave worse
+   // if we set the update number downward.
+   Int64 current = getDbUpdateNumber();
+   if (newEpoch >= current)
+   {
+      { // lock before changing the epoch update number
+         OsLock lock(sLockMutex);
             
-      setDbUpdateNumber(newEpoch);
-   } // release lock before logging
+         setDbUpdateNumber(newEpoch);
+      } // release lock before logging
    
-   OsSysLog::add(FAC_SIP, PRI_INFO,
-                 "SipRegistrarServer::resetDbUpdateNumberEpoch to %" FORMAT_INTLL "x",
-                 newEpoch
-                 );
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "SipRegistrarServer::resetDbUpdateNumberEpoch to %" FORMAT_INTLL "x",
+                    newEpoch
+         );
+   }
+   else if (newEpoch + 15 * 60 /* 15 minutes */ < current)
+   {
+      // Warn the user that there may be problems -- the update mechanism will
+      // work OK, but it's likely that there are future-dated registrations
+      // in the database, and they will take a long time to time out.
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "SipRegistrarServer::resetDbUpdateNumberEpoch "
+                    "the current epoch is %" FORMAT_INTLL "x, "
+                    "but the last update was %" FORMAT_INTLL "x, "
+                    "which is %" FORMAT_INTLL "d seconds in the future.  "
+                    "Obsolete registrations could persist until that time.",
+                    newEpoch, current, (current - newEpoch) >> 32);
+   }
 }
 
 /// Recover the DbUpdateNumber from the local database
