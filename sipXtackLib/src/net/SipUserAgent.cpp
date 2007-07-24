@@ -340,20 +340,53 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     mDefaultExpiresSeconds = 180; // mTransactionStateTimeoutMs / 1000;
     mDefaultSerialExpiresSeconds = 20;
 
-    if(portIsValid(mUdpPort))
+    // Construct the default Contact header value.
     {
-        SipMessage::buildSipUri(&mContactAddress,
-                hostIpAddress.data(),
-                (mUdpPort == SIP_PORT) ? PORT_NONE : mUdpPort,
-                (mUdpPort == mTcpPort) ? "" : SIP_TRANSPORT_UDP,
-                defaultSipUser.data());
-    }
-
-    if(portIsValid(mTcpPort) && mTcpPort != mUdpPort)
-    {
-        SipMessage::buildSipUri(&mContactAddress, hostIpAddress.data(),
-                (mTcpPort == SIP_PORT) ? PORT_NONE : mUdpPort,
-                SIP_TRANSPORT_TCP, defaultSipUser.data());
+       int port;
+       const char* protocol;
+       if (portIsValid(mUdpPort) && mUdpPort == mTcpPort)
+       {
+          // Listening on both TCP and UDP on the same port.
+          port = mUdpPort;
+          protocol = NULL;
+       }
+       else if (portIsValid(mUdpPort))
+       {
+          // Listening on UDP.
+          port = mUdpPort;
+          protocol = "udp";
+       }
+       else if (portIsValid(mTcpPort))
+       {
+          // Listening on TCP.
+          port = mTcpPort;
+          protocol = "tcp";
+       }
+#ifdef SIP_TLS
+       else if (portIsValid(mTlsPort))
+       {
+          // Listening on TLS
+          port = mTlsPort;
+          protocol = "tls";
+       }
+#endif // SIP_TLS
+       else
+       {
+          // Unknown.
+          OsSysLog::add(FAC_SIP, PRI_ERR,
+                        "SipUserAgent::send neither TCP, UDP, nor TLS in use -- can't construct Contact");
+          // Make a guess, it might work.
+          port = PORT_NONE;
+          protocol = NULL;
+       }
+         
+       SipMessage::buildSipUri(&mContactAddress,
+                               !mConfigPublicAddress.isNull() ?
+                               mConfigPublicAddress.data() :
+                               sipIpAddress.data(),
+                               port,
+                               protocol,
+                               defaultSipUser.data());
     }
 
     // Initialize the transaction id seed
@@ -656,45 +689,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
    // The SipUserAgent knows its default Contact URI.
    if (!message.getHeaderValue(0, SIP_CONTACT_FIELD))
    {
-      // Build a contact name-addr.
-      int port;
-      const char* protocol;
-      if (mUdpPort != PORT_NONE && mUdpPort == mTcpPort)
-      {
-         // Listening on both TCP and UDP.
-         port = mUdpPort;
-         protocol = NULL;
-      }
-      else if (mUdpPort != PORT_NONE)
-      {
-         // Listening on UDP.
-         port = mUdpPort;
-         protocol = "udp";
-      }
-      else if (mTcpPort != PORT_NONE)
-      {
-         // Listening on TCP.
-         port = mTcpPort;
-         protocol = "tcp";
-      }
-      else
-      {
-         // Unknown.
-         OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "SipUserAgent::send neither TCP nor UDP in use -- can't construct Contact");
-         port = SIP_PORT;
-         protocol = NULL;
-      }
-         
-      UtlString contactUri;
-      SipMessage::buildSipUri(&contactUri,
-                              !mConfigPublicAddress.isNull() ?
-                              mConfigPublicAddress.data() :
-                              sipIpAddress.data(),
-                              port,
-                              protocol,
-                              defaultSipUser.data());
-      message.setContactField(contactUri.data());
+      message.setContactField(mContactAddress.data());
    }
 
    UtlString method;
@@ -938,34 +933,11 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
             }
          }
 
-         // There seems to be a move to making contact mandatory in INVITE
-         // If this is an invite make sure there is a contact
-         UtlString contactField;
-         if(   (   method.compareTo(SIP_INVITE_METHOD) == 0
-                || method.compareTo(SIP_REFER_METHOD) == 0
-                || method.compareTo(SIP_SUBSCRIBE_METHOD) == 0
-                )
-            && ! message.getContactUri(0, &contactField)
-            )
-         {
-            OsSysLog::add(FAC_SIP, PRI_INFO,"SipUserAgent::send added Contact to '%s'",
-                          method.data());
-
-            // Build a contact uri - sipIpAddress.data(), mUdpPort == SIP_PORT ? 0 : mUdpPort
-            UtlString contactUri;
-            SipMessage::buildSipUri(&contactUri,
-                                    sipIpAddress.data(),
-                                    mUdpPort == SIP_PORT ? PORT_NONE : mUdpPort,
-                                    NULL, // Unspecified transport protocol
-                                    defaultSipUser.data());
-
-            message.setContactField(contactUri.data());
-            contactUri.remove(0);
-         }
+         // If the caller provided no Contact, it will have been added above.
       }
 
-      // If this is the top most parent and it is a client transaction
-      //  There is no server transaction, so cancel all of the children
+      // If this is the top-most parent and it is a client transaction
+      // There is no server transaction, so cancel all of the children
       if(   !isResponse
          && (method.compareTo(SIP_CANCEL_METHOD) == 0)
          && transaction->getTopMostParent() == NULL
