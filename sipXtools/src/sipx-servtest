@@ -499,7 +499,7 @@ sub ProxyForwardingTest
         unless $Child{"$server:$port"};
 
     # Send Options to sip:{this server} to test the proxy
-    &SendOptions($server, $port, "sip:$UasAddr:$UasPort");
+    &SendOptions($server, $port, "sip:$UasAddr:$UasPort;transport=tcp");
 }
 
 
@@ -525,7 +525,7 @@ sub AuthProxyForwardingTest
         unless $Child{"$server:$port"};
 
     # Send Options to sip:{this server} to test the proxy
-    &SendOptions($server, $port, "sip:$UasAddr:$UasPort");
+    &SendOptions($server, $port, "sip:$UasAddr:$UasPort;transport=tcp");
 }
 
 sub RedirectTest
