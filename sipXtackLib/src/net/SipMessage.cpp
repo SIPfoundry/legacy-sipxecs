@@ -2216,66 +2216,28 @@ void SipMessage::buildSipUri(UtlString* url, const char* address, int port,
                       const char* protocol, const char* user,
                       const char* userLabel, const char* tag)
 {
-   char portString[MAXIMUM_INTEGER_STRING_LENGTH + 1];
-   url->remove(0);
-   UtlString tmpAddress(address);
-   tmpAddress.toUpper();
+   Url result;
 
-   if(userLabel && strlen(userLabel))
+   // Insert the elements of the URI.
+   result.setHostAddress(address);
+   result.setHostPort(port);
+   if (protocol)
    {
-      url->append(userLabel);
+      result.setUrlParameter("transport", protocol);
+   }
+   result.setUserId(user);
+   result.setDisplayName(userLabel);
+   if (tag)
+   {
+      result.setFieldParameter("tag", tag);
    }
 
-   // Always use <...>, since we are generating name-addr format.
-   url->append("<");
+   // Force <...> even if it is not necessary, to make the result
+   // more predictable.
+   result.includeAngleBrackets();
 
-   // If the SIP url type label is not already in the address
-   int sipLabelIndex = tmpAddress.index(SIP_URL_TYPE);
-   //osPrintf("Found \"%s\" in \"%s\" at index: %d\n",
-   // SIP_URL_TYPE, tmpAddress.data(),
-   //   sipLabelIndex);
-
-   if(sipLabelIndex < 0 && !tmpAddress.isNull())
-   {
-      // Use lower case for more likely interoperablity
-      UtlString sipLabel(SIP_URL_TYPE);
-      sipLabel.toLower();
-      url->append(sipLabel.data());
-   }
-   //else
-   //{
-   // osPrintf("SIP: not added index: %d\n", sipLabelIndex);
-   //}
-
-   if(!strstr(address, "@") && user && strlen(user))
-   {
-      url->append(user);
-      url->append('@');
-   }
-
-   url->append(address);
-
-   if (portIsValid(port))
-   {
-      sprintf(portString, ":%d", port);
-      url->append(portString);
-   }
-
-   if(protocol && strlen(protocol) > 0)
-   {
-      url->append(";transport=");
-      url->append(protocol);
-   }
-
-   url->append(">");
-
-   if(tag && strlen(tag))
-   {
-      url->append(";tag=");
-      url->append(tag);
-   }
-
-   tmpAddress.remove(0);
+   // Generate as a string.
+   *url = result.toString();
 }
 
 void SipMessage::setFromField(const char* url)
