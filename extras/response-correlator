@@ -6,14 +6,29 @@
 # leg (direct from the phone).  Correlate request, 1st (non-100)
 # provisional response, and final response.
 
+# Get arguments.
+# --csv means to generate output in CSV format.
+# --all means to report on all transactions, not just the ones with one Via.
+while (1) {
+    if ($ARGV[0] eq '--csv') {
+	$csv = 1;
+	shift @ARGV;
+    } elsif ($ARGV[0] eq '--all') {
+	$all_transactions = 1;
+	shift @ARGV;
+    } else {
+	last;
+    }
+}
+
 $= = 1_000_000;
 
 while (<>) {
-    if (($method, $uri) = /:INCOMING:.*---- Port:[ \d]*----\\n([A-Z0-9]+) (sip[^ ]+)/) {
+    if (($method, $uri) = /:INCOMING:.*---- Port:[ \d]*----\\n([A-Z0-9]+) ((sips?:|UNKNOWN|tel:)[^ ]*)/) {
 	# Incoming request.
-	if (!/branch=.*branch=/) {
-	    # Only one Via, so this is the original instance of the request.
-	    ($time, $branch) = m/^"...........(...............).*branch=([^\\;]*)/; #";
+	if ($all_transactions || !/branch=.*branch=/) {
+	    # Get the branch parameter of the first Via.
+	    ($time, $branch) = m/^"...........(...............).*?branch=([^\\;]*)/; #";
 	    ($date) = m/\\nDate: *([^\\]*)/i;
             ($date) = $date =~ m/(\d\d:\d\d:\d\d)/;
             # Mark the branch specially if this is a CANCEL.
@@ -47,15 +62,14 @@ while (<>) {
     } elsif (($response) = /:OUTGOING:.*----\\nSIP\/2\.0 (\d\d\d) /) {
 	# Outgoing response.
         # Exclude 100 responses, and ones with multiple Via's.
-	if ($response ne '100' && !/branch=.*branch=/) {
-	    # Only one Via, so this is the response to the original
-	    # instance of the request.
-	    ($time, $branch) = m/^"...........(...............).*branch=([^\\;]*)/;
+	if ($response ne '100' && ($all_transactions || !/branch=.*branch=/)) {
+	    # Get the branch parameter of the first Via.
+	    ($time, $branch) = m/^"...........(...............).*?branch=([^\\;]*)/; #";
 	    ($date) = m/\\nDate: *([^\\]*)/i;
             # Mark the branch specially if this is a CANCEL.
             $branch .= ' ' if /\\ncseq: *\d* *cancel/i;
 	    $sortdate{$branch} = $time unless defined($sortdate{$branch}) && $sortdate{$branch} lt $time;
-	    if (substr($response, 0, 1) eq '1') {
+            if (substr($response, 0, 1) eq '1') {
 		# Provisional response.
 		if (!(defined($provtime{$branch}) && $provtime{$branch} lt $time)) {
 		    $prov{$branch} = $response;
@@ -64,7 +78,7 @@ while (<>) {
 		}
 	    } else {
 		# Final response.
-		if (!(defined($resptime{$branch}) && $resptime{$branch} lt $time)) {
+	        if (!(defined($resptime{$branch}) && $resptime{$branch} lt $time)) {
 		    $resp{$branch} = $response;
 		    $resptime{$branch} = $time;
 		    $respdate{$branch} = $date;
@@ -74,6 +88,13 @@ while (<>) {
     }
 }
 
+if ($csv) {
+    print "\"Branch\",\"Sort time\",\"First time\",\"Request time\",",
+          "\"Request received\",\"Provisional response\",\"Provisional sent\",",
+          "\"Final response\",\"Final sent\",",
+          "\"Method\",\"Request URI\"",
+          "\n";
+}
 foreach $branch (sort { $sortdate{$a} cmp $sortdate{$b} } keys(%sortdate)) {
     my($i, $first_time);
     # @times is global so the format can see it.
@@ -82,20 +103,35 @@ foreach $branch (sort { $sortdate{$a} cmp $sortdate{$b} } keys(%sortdate)) {
 	      $reqtime{$branch},
 	      $provtime{$branch},
 	      $resptime{$branch});
+    @print_times = ();
     # Change all but the first into relative times.
     $first_time = undef;
     #print "A", join('|', @times), "\n";
     for ($i = 0; $i <= $#times; $i++) {
 	if ($times[$i]) {
 	    if (defined($first_time)) {
-		$times[$i] = &tdiff($times[$i], $first_time);
+		$print_times[$i] = &tdiff($times[$i], $first_time);
 	    } else {
 		$first_time = $times[$i];
+		$print_times[$i] = $times[$i];
 	    }
 	}
     }
     #print "B", join('|', @times), "\n";
-    write STDOUT;
+    if ($csv) {
+	$method = substr($req{$branch}, 0, 3);
+	$uri = substr($req{$branch}, 4);
+	print &quote(substr($branch, 0, 7) eq 'z9hG4bK' ? substr($branch, 7) : $branch), ',',
+	      &quote($sortdate{$branch}), ',',
+	      &quote($first_time), ',', &quote($times[0]), ',',
+	      &quote($times[1]), ',',
+	      &quote($prov{$branch}), ',', &quote($times[2]), ',',
+	      &quote($resp{$branch}), ',', &quote($times[3]), ',',
+	      &quote($method), ',', &quote($uri),
+	      "\n";
+    } else {
+	write STDOUT;
+    }
 }
 
 format STDOUT_TOP =
@@ -107,20 +143,21 @@ z9hG4bK+   sent      received      sent          sent          Req-URI sip(s):+
 format STDOUT =
 @<<<<<<<<  @<<<<<<<  @<<<<<<<  @>> @<<<<<<<  @>> @<<<<<<<  @<<<<<<<<<<<<<<<<<<<<
 { substr($branch, 0, 7) eq 'z9hG4bK' ? substr($branch, 7) : $branch,
-           $times[0],
-		     $times[1],
-			       $prov{$branch}, $times[2],
-					     $resp{$branch}, $times[3],
+           $print_times[0],
+		     $print_times[1],
+			       $prov{$branch}, $print_times[2],
+					     $resp{$branch}, $print_times[3],
 							   $req{$branch} }
 .
 
+# Calculate the difference between two times.
 sub tdiff {
     my($time, $base) = @_;
 
     return '' if $time eq '';
     return $time if $base eq '';
     {
-	my ($a, $b, $c, $times, $bases);
+	my($a, $b, $c, $times, $bases);
 
 	($a, $b, $c) = split(/:/, $time);
 	$times = 3600 * $a + 60 * $b + $c;
@@ -132,4 +169,11 @@ sub tdiff {
 	    $times < 0 ? $times . '' :
 	    '+' . $times;
     }
+}
+
+# Quote a value to appear in a CSV file.
+sub quote {
+    my($arg) = @_;
+    $arg =~ s/"/""/g; #";
+    $arg = '"' . $arg . '"';
 }
