@@ -2428,19 +2428,17 @@ void SipMessage::getToField(UtlString* field) const
 
 void SipMessage::getToUrl(Url& toUrl) const
 {
-    //UtlString toField;
-    //getToField(&toField);
     const char* toField = getHeaderValue(0, SIP_TO_FIELD);
 
+    // Parse the To field as a name-addr.
     toUrl = toField ? toField : "";
 }
 
 void SipMessage::getFromUrl(Url& fromUrl) const
 {
-    //UtlString fromField;
-    //getFromField(&fromField);
     const char* fromField = getHeaderValue(0, SIP_FROM_FIELD);
 
+    // Parse the From field as a name-addr.
     fromUrl = fromField ? fromField : "";
 }
 
@@ -2704,45 +2702,16 @@ void SipMessage::getToAddress(UtlString* address, int* port, UtlString* protocol
 
 void SipMessage::getFromUri(UtlString* uri) const
 {
-   UtlString field;
-   int labelEnd;
-
-   getFromField(&field);
-
-   unsigned int uriEnd;
-
-   uri->remove(0);
-
-   if(!field.isNull())
+   const char* value = getHeaderValue(0, SIP_FROM_FIELD);
+   if (value)
    {
-      labelEnd = field.index("<");
-      // Look for a label terminator
-      if(labelEnd >= 0)
-      {
-         // Remove the label and terminator
-         labelEnd += 1;
-         field.remove(0, labelEnd);
-
-         // Find the URI terminator
-         uriEnd = field.index(">");
-
-         // No URI terminator found, assume the whole thing
-         if(uriEnd == UTL_NOT_FOUND)
-         {
-            uri->append(field.data());
-         }
-         // Remove the terminator
-         else
-         {
-            field.remove(uriEnd);
-            uri->append(field.data());
-         }
-      }
-      // There is no label take the whole thing as the URI
-      else
-      {
-         uri->append(field.data());
-      }
+      Url value_uri(value);
+      value_uri.getUri(*uri);
+   }
+   else
+   {
+      // No From header, so clear the output string.
+      uri->remove(0);
    }
 }
 
@@ -2815,45 +2784,16 @@ void SipMessage::convertProtocolEnumToString(OsSocket::IpProtocolSocketType prot
 
 void SipMessage::getToUri(UtlString* uri) const
 {
-   UtlString field;
-   int labelEnd;
-
-   getToField(&field);
-
-   int uriEnd;
-
-   uri->remove(0);
-
-   if(!field.isNull())
+   const char* value = getHeaderValue(0, SIP_TO_FIELD);
+   if (value)
    {
-      labelEnd = field.index("<");
-      // Look for a label terminator
-      if(labelEnd >= 0)
-      {
-         // Remove the label and terminator
-         labelEnd += 1;
-         field.remove(0, labelEnd);
-
-         // Find the URI terminator
-         uriEnd = field.index(">", labelEnd);
-
-         // No URI terminator found, assume the whole thing
-         if(uriEnd < 0)
-         {
-            uri->append(field.data());
-         }
-         // Remove the terminator
-         else
-         {
-            field.remove(uriEnd);
-            uri->append(field.data());
-         }
-      }
-      // There is no label take the whole thing as the URI
-      else
-      {
-         uri->append(field.data());
-      }
+      Url value_uri(value);
+      value_uri.getUri(*uri);
+   }
+   else
+   {
+      // No To header, so clear the output string.
+      uri->remove(0);
    }
 }
 

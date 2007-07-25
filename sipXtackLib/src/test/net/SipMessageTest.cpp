@@ -16,9 +16,7 @@
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
 
-#if 0
 #include <stdio.h>
-#endif
 
 /**
  * Unittest for SipMessage
@@ -54,6 +52,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testCompactNames);
       CPPUNIT_TEST(testApplyTargetUriHeaderParams);
       CPPUNIT_TEST(testGetContactUri);
+      CPPUNIT_TEST(testGetFieldUris);
       CPPUNIT_TEST(testBuildSipUri);
       CPPUNIT_TEST_SUITE_END();
 
@@ -1761,6 +1760,122 @@ class SipMessageTest : public CppUnit::TestCase
 
             CPPUNIT_ASSERT_MESSAGE(msg, ret);
             ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].contact_uri, uri.data());
+         }
+      };
+
+   // Test:
+   // getToField, getToUri, getToUrl
+   // getFromField, getFromUri, getFromUrl
+   // getContactField, getContactUri
+   void testGetFieldUris()
+      {
+         // A single test.
+         struct test
+         {
+            // The value to be inserted into the field.
+            const char* field;
+            // The value when the field is extracted, parsed into a Url,
+            // and retrieved with Url::toString as a name-addr.
+            const char* name_addr;
+            // The value when the field is extracted, parsed into a Url,
+            // and retrieved with Url::getUri as an addr-spec.
+            const char* addr_spec;
+         };
+
+         // The tests
+         struct test tests[] =
+         {
+            { "sip:example.com",
+              "sip:example.com",
+              "sip:example.com" },
+            { "sip:100@example.com",
+              "sip:100@example.com",
+              "sip:100@example.com" },
+            { "sip:100@example.com:100",
+              "sip:100@example.com:100",
+              "sip:100@example.com:100" },
+            { "<sip:100@example.com;transport=udp>",
+              "<sip:100@example.com;transport=udp>",
+              "sip:100@example.com;transport=udp" },
+            { "<sip:100@example.com>;transport=udp",
+              "<sip:100@example.com>;transport=udp",
+              "sip:100@example.com" },
+            { "ABC<sip:100@example.com>",
+              "ABC<sip:100@example.com>",
+              "sip:100@example.com" },
+            { "\"ABC\"<sip:100@example.com>",
+              "\"ABC\"<sip:100@example.com>",
+              "sip:100@example.com" },
+            { "\"A<C\"<sip:100@example.com>",
+              "\"A<C\"<sip:100@example.com>",
+              "sip:100@example.com" },
+         };
+
+         const char* message_skeleton =
+            "REGISTER sip:pingtel.com;transport=udp SIP/2.0\r\n"
+            "%s: %s\r\n"
+            "Call-Id: 3c26700a99cf-n3b3x9avtv3l@snom320-00041324190C\r\n"
+            "Cseq: 264 REGISTER\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         char message_buffer[1000];
+         UtlString value;
+         Url uri;
+         char msg[100];
+
+         for (int i = 0; i < sizeof (tests) / sizeof (tests[0]); i++)
+         {
+            sprintf(msg, "Test %d using field value '%s'", i, tests[i].field);
+
+            // The To field tests.
+            {
+               // Create the message text.
+               sprintf(message_buffer, message_skeleton, "To", tests[i].field);
+               // Create a SipMessage.
+               SipMessage message(message_buffer);
+               // getToField
+               message.getToField(&value);
+               ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].field, value.data());
+               // getToUri
+               message.getToUri(&value);
+               ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].addr_spec, value.data());
+               // getToUrl
+               message.getToUrl(uri);
+               uri.toString(value);
+               ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].name_addr, value.data());
+            }
+
+            // The From field tests.
+            {
+               // Create the message text.
+               sprintf(message_buffer, message_skeleton, "From", tests[i].field);
+               // Create a SipMessage.
+               SipMessage message(message_buffer);
+               // getFromField
+               message.getFromField(&value);
+               ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].field, value.data());
+               // getFromUri
+               message.getFromUri(&value);
+               ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].addr_spec, value.data());
+               // getFromUrl
+               message.getFromUrl(uri);
+               uri.toString(value);
+               ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].name_addr, value.data());
+            }
+
+            // The Contact field tests.
+            {
+               // Create the message text.
+               sprintf(message_buffer, message_skeleton, "Contact", tests[i].field);
+               // Create a SipMessage.
+               SipMessage message(message_buffer);
+               // getContactField
+               message.getContactField(0, value);
+               ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].field, value.data());
+               // getContactUri
+               message.getContactUri(0, &value);
+               ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].addr_spec, value.data());
+            }
          }
       };
 

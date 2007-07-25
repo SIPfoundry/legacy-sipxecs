@@ -773,7 +773,7 @@ public:
     // that the Contact: header value has name-addr format).
     UtlBoolean getContactUri(int addressIndex, UtlString* uri) const;
 
-    // Get the Contact field in name-addr format (as the value appears in the
+    // Get the Contact field as a string (as the value appears in the
     // header).
     UtlBoolean getContactField(int addressIndex,
                               UtlString& contactField) const;
@@ -847,10 +847,13 @@ public:
 
     void getToLabel(UtlString* toLabel) const;
 
+    /// Get the From header as a character string.
     void getFromField(UtlString* fromField) const;
 
+    /// Get the From header as a string containing the URI, that is, an addr-spec.
     void getFromUri(UtlString* uri) const;
 
+    /// Get the From header as a name-addr.
     void getFromUrl(Url& url) const;
 
     void getFromAddress(UtlString* fromAddress, int* fromPort, UtlString* protocol,
@@ -888,10 +891,13 @@ public:
 
     UtlBoolean removeLastVia();
 
+    /// Get the To header as a character string.
     void getToField(UtlString* toField) const;
 
+    /// Get the To header as a string containing the URI, that is, an addr-spec.
     void getToUri(UtlString* uri) const;
 
+    /// Get the To header as a name-addr.
     void getToUrl(Url& url) const;
 
     void getToAddress(UtlString* toAddress,
