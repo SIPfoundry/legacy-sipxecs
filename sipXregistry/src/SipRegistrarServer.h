@@ -147,7 +147,8 @@ protected:
 
     /// Validate bindings, and if all are OK then apply them to the registry db
     RegisterStatus applyRegisterToDirectory(
-        const Url& toUrl,  ///< AOR from the message
+        const Url& toUrl,  /**< To header name-addr from the message,
+                            *   which contains the AOR to register to. */
         const int timeNow, ///< base time for all expiration calculations
         const SipMessage& registerMessage); ///< message containing bindings
     
@@ -166,7 +167,7 @@ protected:
     UtlBoolean handleMessage( OsMsg& eventMessage );
 
     /// Check authentication for REGISTER request
-    UtlBoolean isAuthorized(const Url& toUrl, ///< AOR from the message
+    UtlBoolean isAuthorized(const Url& toUri, ///< AOR from the message
                             const SipMessage& message, ///< REGISTER message
                             SipMessage& responseMessage /// response for challenge
                             );

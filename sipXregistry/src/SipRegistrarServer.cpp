@@ -845,15 +845,12 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 
         if ( mRegistrar.isValidDomain(reqUri) )
         {
-           // get the header 'to' field from the register
-           // message and construct a URL with it
-           // this is also called the Address of record
-           UtlString registerToStr;
-           message.getToUri( &registerToStr );
-           Url toUrl( registerToStr );
+           // Get the full To name-addr.
+           Url toUri;
+           message.getToUrl(toUri);
 
            /*
-            * Normalize the port in the Request URI
+            * Normalize the port in the To URI.
             *   This is not strictly kosher, but it solves interoperability problems.
             *   Technically, user@foo:5060 != user@foo , but many implementations
             *   insist on including the explicit port even when they should not, and
@@ -869,14 +866,14 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
             */
            int proxyPort = mRegistrar.domainProxyPort();
            if (   proxyPort != PORT_NONE
-               && toUrl.getHostPort() == proxyPort
+               && toUri.getHostPort() == proxyPort
                )
            {
-              toUrl.setHostPort(PORT_NONE);
+              toUri.setHostPort(PORT_NONE);
            }
            
            // check in credential database if authentication needed
-           if ( isAuthorized( toUrl, message, finalResponse ) )
+           if ( isAuthorized( toUri, message, finalResponse ) )
             {
                 int port;
                 int tagNum = 0;
@@ -892,7 +889,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                 int timeNow = OsDateTime::getSecsSinceEpoch();
 
                 RegisterStatus applyStatus
-                   = applyRegisterToDirectory( toUrl, timeNow, message );
+                   = applyRegisterToDirectory( toUri, timeNow, message );
 
                 switch (applyStatus)
                 {
@@ -912,10 +909,10 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                         //get all current contacts now for the response
                         ResultSet registrations;
 
-                        mRegistrar.getRegistrationDB()->getUnexpiredContacts(toUrl,
-                                                                              timeNow,
-                                                                              registrations
-                                                                              );
+                        mRegistrar.getRegistrationDB()->getUnexpiredContacts(toUri,
+                                                                             timeNow,
+                                                                             registrations
+                           );
 
                         int numRegistrations = registrations.getSize();
                         for ( int i = 0 ; i<numRegistrations; i++ )
@@ -1113,8 +1110,8 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 
 
 UtlBoolean
-SipRegistrarServer::isAuthorized (
-    const Url&  toUrl,
+SipRegistrarServer::isAuthorized(
+    const Url&  toUri,
     const SipMessage& message,
     SipMessage& responseMessage )
 {
@@ -1125,12 +1122,12 @@ SipRegistrarServer::isAuthorized (
     Url fromUrl(fromUri);
 
     UtlString identity;
-    toUrl.getIdentity(identity);
+    toUri.getIdentity(identity);
     
     if ( !mUseCredentialDB )
     {
-        OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized() "
-                      ":: No Credential DB - request is always AUTHORIZED" );
+        OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized "
+                      "No Credential DB - request is always AUTHORIZED" );
         isAuthorized = TRUE;
     }
     else
@@ -1140,9 +1137,9 @@ SipRegistrarServer::isAuthorized (
         // check if we requested authentication and this is the req with
         // authorization,validate the authorization
         OsSysLog::add( FAC_AUTH, PRI_DEBUG,
-                      "SipRegistrarServer::isAuthorized()"
-                      ": fromUri='%s', toUri='%s', realm='%s' ",
-                      fromUri.data(), toUrl.toString().data(), mRealm.data() );
+                      "SipRegistrarServer::isAuthorized "
+                      "fromUri='%s', toUri='%s', realm='%s' ",
+                      fromUri.data(), toUri.toString().data(), mRealm.data() );
 
         UtlString requestNonce, requestRealm, requestUser, uriParam;
         int requestAuthIndex = 0;
@@ -1165,7 +1162,7 @@ SipRegistrarServer::isAuthorized (
             if ( mRealm.compareTo(requestRealm) == 0 ) // case sensitive check that realm is correct
             {
                 OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                              "SipRegistrarServer::isAuthorized() Realm Matches");
+                              "SipRegistrarServer::isAuthorized Realm Matches");
 
                 // need the request URI to validate the nonce
                 UtlString reqUri;
@@ -1180,7 +1177,7 @@ SipRegistrarServer::isAuthorized (
                     Url discardUriFromDB;
 
                     // then get the credentials for this user & realm
-                    if (CredentialDB::getInstance()->getCredential( toUrl
+                    if (CredentialDB::getInstance()->getCredential( toUri
                                                                    ,requestRealm
                                                                    ,requestUser
                                                                    ,passTokenDB
@@ -1196,28 +1193,28 @@ SipRegistrarServer::isAuthorized (
                            ))
                         {
                           OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                                        "SipRegistrarServer::isAuthorized() "
+                                        "SipRegistrarServer::isAuthorized "
                                         "response auth hash matches");
                         }
                       else
                         {
                           OsSysLog::add(FAC_AUTH, PRI_ERR,
                                         "Response auth hash does not match (bad password?)"
-                                        "\n toUrl='%s' requestUser='%s'",
-                                        toUrl.toString().data(), requestUser.data());
+                                        " toUri='%s' requestUser='%s'",
+                                        toUri.toString().data(), requestUser.data());
                         }
                     }
                     else // failed to get credentials
                     {
                         OsSysLog::add(FAC_AUTH, PRI_ERR,
-                                      "Unable to get credentials for '%s'\nrealm='%s'\nuser='%s'",
+                                      "Unable to get credentials for '%s', realm='%s', user='%s'",
                                       identity.data(), mRealm.data(), requestUser.data());
                     }
                 }
                 else // nonce is not valid
                 {
                     OsSysLog::add(FAC_AUTH, PRI_INFO,
-                                  "Invalid nonce for '%s'\nnonce='%s'\ncallId='%s'\nreqUri='%s'",
+                                  "Invalid nonce for '%s', nonce='%s', callId='%s', reqUri='%s'",
                                   identity.data(), requestNonce.data(),
                                   callId.data(), reqUri.data());
                 }

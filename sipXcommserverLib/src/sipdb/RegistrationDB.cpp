@@ -371,7 +371,7 @@ OsStatus RegistrationDB::cleanAndPersist( int newerThanTime )
 }
 
 void
-RegistrationDB::insertRow (const UtlHashMap& nvPairs)
+RegistrationDB::insertRow(const UtlHashMap& nvPairs)
 {
     UtlString expStr = *((UtlString*)nvPairs.findValue(&gExpiresKey));
     int expires = (int) atoi( expStr );
@@ -400,18 +400,18 @@ RegistrationDB::insertRow (const UtlHashMap& nvPairs)
     UtlString* primary = (UtlString*) nvPairs.findValue(&gPrimaryKey);
 
     // Note: identity inferred from the uri
-    updateBinding (
-        Url(*((UtlString*)nvPairs.findValue(&gUriKey))),
-        *(contact ? contact : &nullString),
-        qvalue,
-        *(callId ? callId : &nullString),
-        cseq,
-        expires,
-        *(instanceId ? instanceId : &nullString),
-        *(gruu ? gruu : &nullString),
-        *(primary ? primary : &nullString),
-        updateNumber
-        );
+    updateBinding(
+       Url(*((UtlString*)nvPairs.findValue(&gUriKey))),
+       *(contact ? contact : &nullString),
+       qvalue,
+       *(callId ? callId : &nullString),
+       cseq,
+       expires,
+       *(instanceId ? instanceId : &nullString),
+       *(gruu ? gruu : &nullString),
+       *(primary ? primary : &nullString),
+       updateNumber
+       );
 }
 
 
