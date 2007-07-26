@@ -89,12 +89,21 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     AC_SUBST(SIPXPHONELIB, [${datadir}/sipxphone/lib])
 
     AC_ARG_ENABLE(rpmbuild, 
-      [  --enable-rpmbuild       Build an rpm],
-      enable_rpmbuild=yes )
+      AC_HELP_STRING([--enable-rpmbuild], [Build an rpm]),
+      enable_rpmbuild=yes)
 
     AC_ARG_ENABLE(buildnumber,
-                 [  --enable-buildnumber    enable build number as part of RPM name],
+                 AC_HELP_STRING([--enable-buildnumber],
+                                [Enable build number as part of RPM name]),
                  enable_buildnumber=yes)
+
+    ## --enable-slow-tests enables executing unit tests that take a long time.
+    ## "long time" should be approximately "10 seconds or longer".
+
+    AC_ARG_ENABLE(slow-tests, 
+      AC_HELP_STRING([--enable-slow-tests], 
+        [Enable execution of slow unit tests]),
+      AC_DEFINE(EXECUTE_SLOW_TESTS, 1, [Define to run "slow" unit tests.]))
 
     AC_ARG_VAR(SIPXPBX_LABEL, [Label for sipxpbx, default is 'sipxpbx'])
     test -z $SIPXPBX_LABEL && SIPXPBX_LABEL=sipxpbx
@@ -577,11 +586,3 @@ AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],
   download_file="$abs_srcdir/config/download-file"
   AC_SUBST(DOWNLOAD_FILE, $download_file)
 ])
-
-## Enable executing unit tests that take a long time.
-## "long time" should be approximately "10 seconds or longer".
-
-AC_ARG_ENABLE(slow-tests, 
-  AC_HELP_STRING([--enable-slow-tests], 
-    [Enable execution of slow unit tests.]),
-  AC_DEFINE(EXECUTE_SLOW_TESTS, 1, [Define to run "slow" unit tests.]))
