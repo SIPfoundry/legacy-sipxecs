@@ -36,28 +36,28 @@ public class RegistrationContextImpl implements RegistrationContext {
     /**
      * @see org.sipfoundry.sipxconfig.admin.commserver.RegistrationContext#getRegistrations()
      */
-    public List getRegistrations() {
+    public List<RegistrationItem> getRegistrations() {
         try {
             URL url = new URL(getUrl());
             InputStream is = url.openStream();
-            List registrations = getRegistrations(is);
+            List<RegistrationItem> registrations = getRegistrations(is);
             return registrations;
         } catch (FileNotFoundException e) {
             // we are handling this separately - server returns FileNotFound even if everything is
             // OK but we have no registrations present
             LOG.info("No registrations found on the server" + e.getMessage());
-            return Collections.EMPTY_LIST;
+            return Collections.<RegistrationItem>emptyList();
         } catch (IOException e) {
             LOG.error("Retrieving active registrations failed", e);
-            return Collections.EMPTY_LIST;
+            return Collections.<RegistrationItem>emptyList();
         } catch (SAXException e) {
             throw new RuntimeException(e);
         }
     }
         
-    List getRegistrations(InputStream is) throws IOException, SAXException {
+    List<RegistrationItem> getRegistrations(InputStream is) throws IOException, SAXException {
         Digester digester = ImdbXmlHelper.configureDigester(RegistrationItem.class);
-        return (List) digester.parse(is);
+        return (List<RegistrationItem>) digester.parse(is);
     }
 
     String getUrl() {

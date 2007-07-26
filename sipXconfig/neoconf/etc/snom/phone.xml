@@ -355,7 +355,7 @@
     </setting>
     <setting name="refer_brackets" advanced="yes">
       <type refid="on-off" />
-      <value>off</value>
+      <value>on</value>
     </setting>
     <setting name="require_prack" advanced="yes">
       <type refid="on-off" />

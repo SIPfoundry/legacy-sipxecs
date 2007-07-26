@@ -28,7 +28,7 @@ public class SettingArrayTest extends TestCase {
 
         m_settingArray = new SettingArray("kuku", 3);
         m_settingArray.addSetting(bongo);
-        
+
         m_set = new SettingSet();
         m_set.addSetting(m_settingArray);
     }
@@ -69,5 +69,14 @@ public class SettingArrayTest extends TestCase {
         m_set.acceptVisitor(dummyVisitor);
 
         assertEquals("//bongo[0]/a/b/bongo[1]/a/b/bongo[2]/a/b", names.toString());
+    }
+
+    public void testCopy() {
+        Setting copy = m_set.copy();
+        String pathA = "kuku/bongo[0]/a";
+        Setting settingA = m_set.getSetting(pathA);
+        Setting copyA = copy.getSetting(pathA);
+        assertEquals(settingA.getPath(), copyA.getPath());
+        assertNotSame(settingA, copyA);
     }
 }

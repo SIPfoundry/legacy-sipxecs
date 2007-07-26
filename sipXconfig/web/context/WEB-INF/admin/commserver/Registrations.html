@@ -5,7 +5,12 @@
   <span jwcid="@QuickHelp" value="message:quick.help"/>
   <form jwcid="linkForm@Form">
     <ul class="component-links">
-      <li jwcid="togglePrimary">Display Primary</li>
+      <li jwcid="togglePrimary@ToggleLink"
+        toggle="ognl:displayPrimary"
+        labelOn="message:hide.primary"
+        labelOff="message:show.primary">
+        Display Primary
+      </li>
     </ul>
   </form>    
   <form jwcid="@AutoRefreshForm">
@@ -13,25 +18,36 @@
       <li>
         <span jwcid="@Insert" value="message:registrationCount"/> :
         <span jwcid="@Insert"
-          value="ognl:beans.metrics.uniqueRegistrations.size()"/> </li>
+          value="ognl:metrics.uniqueRegistrations.size()"/> </li>
       <li>
         <span jwcid="@Insert" value="message:activeRegistrationCount"/> :
-        <span jwcid="@Insert" value="ognl:beans.metrics.activeRegistrationCount"/>
+        <span jwcid="@Insert" value="ognl:metrics.activeRegistrationCount"/>
         </li>
       <li>
         <span jwcid="@Insert" value="message:registrationBalance"/> :
-        <span jwcid="@Insert" value="ognl:beans.metrics.loadBalance"
-          format="ognl:beans.twoDigitDecimal"/> </li>
+        <span jwcid="@Insert" value="ognl:metrics.loadBalance"
+          format="bean:twoDigitDecimal"/> </li>
     </ul>
-    <table jwcid="tableView" id="registrations:list" class="component">
+    <table jwcid="tableView@contrib:TableView" id="registrations:list" 
+      class="component" 
+      source="ognl:metrics.uniqueRegistrations"
+      pageSize="literal:-1"
+      columns="ognl:columnNames">
       <thead>
         <tr>
-          <span jwcid="tableColumns"/>
+          <span jwcid="tableColumns@contrib:TableColumns"/>
         </tr>
       </thead>
       <tbody>
-        <span jwcid="tableRows">
-          <span jwcid="tableValues"/>
+        <span jwcid="tableRows@contrib:TableRows"
+          row="ognl:currentRow"
+          class="ognl:beans.rowClass.next"
+          volatile="true"
+          >
+          <span jwcid="tableValues@contrib:TableValues"/>
+        </span>
+        <span jwcid="expiresColumnValue@Block">
+          <span jwcid="@Insert" value="ognl:expires"/>
         </span>
       </tbody>
     </table>

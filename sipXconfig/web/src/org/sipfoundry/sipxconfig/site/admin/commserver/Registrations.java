@@ -9,69 +9,90 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import java.text.DecimalFormat;
+
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.tapestry.IRender;
-import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.apache.tapestry.contrib.table.model.ITableModelSource;
-import org.apache.tapestry.contrib.table.model.ITableRendererSource;
-import org.apache.tapestry.contrib.table.model.simple.ITableColumnEvaluator;
-import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumn;
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
-import org.apache.tapestry.valid.RenderString;
+import org.sipfoundry.sipxconfig.admin.commserver.RegistrationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.RegistrationMetrics;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 
+/**
+ * Displays active and expired registrations
+ */
 public abstract class Registrations extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "Registrations";
 
-    private static final String EXPIRES_COLUMN = "expires";
+    @InjectObject(value = "spring:registrationContext")
+    public abstract RegistrationContext getRegistrationContext();
 
-    private long m_startRenderingTime;
-    
+    @Bean
+    public abstract EvenOdd getRowClass();
+
+    @Bean(initializer = "maximumFractionDigits=2,minimumFractionDigits=2")
+    public abstract DecimalFormat getTwoDigitDecimal();
+
+    @Persist(value = "session")
+    public abstract boolean getDisplayPrimary();
+
+    public abstract RegistrationItem getCurrentRow();
+
+    public abstract long getStartTime();
+
+    public abstract void setStartTime(long startTime);
+
+    public abstract void setMetricsProperty(RegistrationMetrics registrationMetrics);
+
+    public abstract RegistrationMetrics getMetricsProperty();
+
     public void pageBeginRender(PageEvent event_) {
-        m_startRenderingTime = System.currentTimeMillis() / DateUtils.MILLIS_PER_SECOND;
-    }
-    
-    public long getStartTime() {
-        return m_startRenderingTime;
+        getMetrics();
     }
 
-    public ITableColumn getExpiresColumn() {
-        ITableColumnEvaluator eval = new ExpireTimeEvaluator();
-        ExpireTimeRendererSource rendererSource = new ExpireTimeRendererSource(
-                getMessages().getMessage("status.expired"));
-        SimpleTableColumn column = new SimpleTableColumn(EXPIRES_COLUMN,
-                getMessages().getMessage(EXPIRES_COLUMN), eval, true);
-        column.setValueRendererSource(rendererSource);
-        return column;
-    }
-
-    private static class ExpireTimeRendererSource implements ITableRendererSource {
-        private IRender m_expiredRenderer;
-
-        public ExpireTimeRendererSource(String msg) {
-            m_expiredRenderer = new RenderString(msg);
+    /**
+     * Retrieves registration metrics object. Can be called multiple times during rewind/render
+     * and it'll lazily initialize registrations metrics only the first time it is called.
+     * 
+     * Workaround for Tapestry 4.0 table model problem, in some case table model is retrieved
+     * before pageBenginRender gets called
+     * 
+     * @return properly initialized registration metrics object
+     */
+    public RegistrationMetrics getMetrics() {
+        RegistrationMetrics metrics = getMetricsProperty();
+        if (metrics != null) {
+            return metrics;
         }
 
-        public IRender getRenderer(IRequestCycle objCycle_, ITableModelSource objSource_,
-                ITableColumn objColumn, Object objRow) {
-            SimpleTableColumn objSimpleColumn = (SimpleTableColumn) objColumn;
-
-            Long expired = (Long) objSimpleColumn.getColumnValue(objRow);
-            if (expired.longValue() > 0) {
-                return new RenderString(expired.toString());
-            }
-            return m_expiredRenderer;
-        }
+        long startRenderingTime = System.currentTimeMillis() / DateUtils.MILLIS_PER_SECOND;
+        setStartTime(startRenderingTime);
+        metrics = new RegistrationMetrics();
+        metrics.setRegistrations(getRegistrationContext().getRegistrations());
+        metrics.setStartTime(startRenderingTime);
+        setMetricsProperty(metrics);
+        return metrics;
     }
 
-    private class ExpireTimeEvaluator implements ITableColumnEvaluator {
-        public Object getColumnValue(ITableColumn objColumn_, Object objRow) {
-            RegistrationItem item = (RegistrationItem) objRow;
-            long l = item.timeToExpireAsSeconds(m_startRenderingTime);
-            return new Long(l);
+    public String getColumnNames() {
+        StringBuilder columnNames = new StringBuilder("uri,contact,expires");
+        if (getDisplayPrimary()) {
+            columnNames.append(",primary");
         }
+        return columnNames.toString();
+    }
+
+    public Object getExpires() {
+        RegistrationItem item = getCurrentRow();
+        long timeToExpire = item.timeToExpireAsSeconds(getStartTime());
+        if (timeToExpire > 0) {
+            return timeToExpire;
+        }
+        return getMessages().getMessage("status.expired");
     }
 }

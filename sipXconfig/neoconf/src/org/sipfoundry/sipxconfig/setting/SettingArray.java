@@ -99,8 +99,18 @@ public class SettingArray extends AbstractSetting {
     public Setting getSetting(int index, String column) {
         return m_elements[index].get(column);
     }
-    
+
     public boolean isLeaf() {
         return false;
+    }
+
+    public SettingArray copy() {
+        SettingArray copy = (SettingArray) super.copy();
+        copy.m_elements = new SettingMap[m_elements.length];
+        for (int i = 0; i < m_elements.length; i++) {
+            SettingMap sm = m_elements[i];
+            copy.m_elements[i] = sm.copy();
+        }
+        return copy;
     }
 }
