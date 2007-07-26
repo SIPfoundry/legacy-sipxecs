@@ -149,6 +149,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/odbc/*
 %{_includedir}/persist/*
 %{_includedir}/sipdb/*
+%{_includedir}/sipXecsService/*
 %{_includedir}/testlib/*
 
 %pre
