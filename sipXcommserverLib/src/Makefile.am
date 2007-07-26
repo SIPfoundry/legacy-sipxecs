@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 include $(top_srcdir)/config/subdir.am
 
-SUBDIRS = fastdb sipdb . sipdbtest xsdvalid test sipxrestorebinary
+SUBDIRS = fastdb sipdb . sipdbtest xsdvalid test sipxrestorebinary 
 
 INCLUDES = -I$(top_srcdir)/include
 
@@ -50,7 +50,9 @@ libsipXcommserver_la_SOURCES = \
     filereader/RefreshingFileReader.cpp \
     configrpc/ConfigRPC.cpp \
     odbc/OdbcWrapper.cpp \
-    persist/SipPersistentSubscriptionMgr.cpp
+    persist/SipPersistentSubscriptionMgr.cpp \
+	 sipXecsService/SipXecsService.cpp \
+	 sipXecsService/SharedSecret.cpp
 
 $(foreach sipxScript,$(libexec_SCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in
 	$(LocalizeSipXconfig) $< > $@

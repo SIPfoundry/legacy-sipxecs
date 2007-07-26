@@ -6,6 +6,8 @@ nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 # fastdb header have to be installed because 
 # of compile dependencies in other sipX projects
 nobase_include_HEADERS =  \
+    sipXecsService/SipXecsService.h \
+    sipXecsService/SharedSecret.h \
     configrpc/ConfigRPC.h \
     sipdb/AliasDB.h \
     sipdb/AliasRow.h \

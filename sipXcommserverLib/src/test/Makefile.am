@@ -26,6 +26,11 @@ check_PROGRAMS = testsuite sandbox
 testsuite_CXXFLAGS = \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test\" \
     -DTEST_WORK_DIR=\"@abs_top_builddir@/src/test/work\" \
+	 -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+	 -DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+	 -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
+	 -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
+	 -DSIPX_DBDIR=\"@SIPX_DBDIR@\" \
     $(db_CXXFLAGS)
 
 testsuite_LDADD = \
@@ -39,9 +44,12 @@ testsuite_LDADD = \
 testsuite_SOURCES = \
     ResultSetRpcTest.cpp \
     UrlMappingTest.cpp \
+	 SipXecsServiceTest.cpp \
+	 SharedSecretTest.cpp \
     $(db_FILES)
 
 EXTRA_DIST = \
+	sharedsecret/domain-config \
 	mapdata/digits.xml \
 	mapdata/escape.xml \
 	mapdata/params.xml \
