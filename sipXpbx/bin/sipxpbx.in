@@ -353,7 +353,7 @@ check_rpmnew() {
     do
         Name=`expr match "$Rpm" "@SIPX_CONFDIR@/\([a-z]*\)\."`
         case $Name in
-            mappingrules|fallbackrules|authrules)
+            mappingrules|fallbackrules|authrules|forwardingrules)
                 # these are routinely modified by the configurator, 
                 # so it is responsible for any upgrades
                 rm -f ${Rpm}
