@@ -144,6 +144,7 @@ void sigHandler( int sig_num )
 int main(int argc, char* argv[])
 {
    int provisioningAgentPort = 8110;
+   int watchdogRpcServerPort = 8092;
    ACDServer* pAcdServer;
 
    // Register Signal handlers so we can perform graceful shutdown
@@ -190,12 +191,17 @@ int main(int argc, char* argv[])
          argString = argv[++argIndex];
          provisioningAgentPort = atoi(argString.data());
       }
+      else if (argString.compareTo("-W") == 0) {
+         argString = argv[++argIndex];
+         watchdogRpcServerPort = atoi(argString.data());
+      }
       else {
          enableConsoleOutput(true);
-         osPrintf("usage: %s [-v] [-c] [-d] [-P port]\nwhere:\n -v      Provides the software version\n"
-                  " -c      Enables console output of log and debug messages\n"
-                  " -d      Changes ACDServer DEBUG logging to run at NOTICE level\n"
-                  " -P port Specifies the provisioning interface port number\n",
+         osPrintf("usage: %s [-v] [-c] [-d] [-P port] [-W wport]\nwhere:\n -v      Provides the software version\n"
+                  " -c       Enables console output of log and debug messages\n"
+                  " -d       Changes ACDServer DEBUG logging to run at NOTICE level\n"
+                  " -P port  Specifies the provisioning interface port number\n",
+                  " -W wport Specifies the Watchdog interface port number\n",
                   argv[0]);
          return(1);
       }
@@ -203,7 +209,7 @@ int main(int argc, char* argv[])
 
 
    // Create the ACDServer and get to work.
-   pAcdServer = new ACDServer( provisioningAgentPort);
+   pAcdServer = new ACDServer(provisioningAgentPort, watchdogRpcServerPort);
 
    // Loop forever until signaled to shut down
    while (!gShutdownFlag) {

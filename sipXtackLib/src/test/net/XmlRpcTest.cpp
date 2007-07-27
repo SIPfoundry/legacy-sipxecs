@@ -132,9 +132,7 @@ public:
          }
 #endif
          status = XmlRpcMethod::OK;
-         UtlString responseText("method call \"");
-         responseText.append(UtlString((char*)userData));
-         responseText.append("\" successful");
+         UtlString responseText("method call successful");
          response.setResponse(&responseText);
          return true;
       };
@@ -325,7 +323,7 @@ public:
             "<methodResponse><!-- addExtension -->\n"
             "<params>\n"
             "<param>\n"
-            "<value><string>method call &quot;AddExtension&quot; successful</string></value>\n"
+            "<value><string>method call successful</string></value>\n"
             "</param>\n"
             "</params>\n"
             "</methodResponse>\n"
@@ -350,8 +348,8 @@ public:
          ASSERT_STR_EQUAL(faultResponse, body.data());
 
          XmlRpcResponse newResponse;
-         char* userData = "AddExtension"; 
-         dispatch.addMethod("addExtension", AddExtension::get, userData);
+
+         dispatch.addMethod("addExtension", AddExtension::get, NULL);
          result = dispatch.parseXmlRpcRequest(requestContent, method, params, newResponse);
          CPPUNIT_ASSERT(result == true);
          
@@ -366,7 +364,8 @@ public:
 
          method->getData(methodGet, user);
          XmlRpcMethod* addEx = methodGet();
-         addEx->execute(context, params, userData, newResponse, status);
+
+         addEx->execute(context, params, NULL, newResponse, status);
          dispatch.cleanUp(&params);
 
          responseBody = newResponse.getBody();
@@ -426,7 +425,7 @@ public:
             "<methodResponse><!-- addExtension -->\n"
             "<params>\n"
             "<param>\n"
-            "<value><string>method call \"AddExtension\" successful</string></value>\n"
+            "<value><string>method call successful</string></value>\n"
             "</param>\n"
             "</params>\n"
             "</methodResponse>\n"
@@ -475,7 +474,7 @@ public:
          response.getResponse(containable);
          UtlString* responseString = (UtlString *)containable;
 
-         ASSERT_STR_EQUAL("method call \"AddExtension\" successful", responseString->data());
+         ASSERT_STR_EQUAL("method call successful", responseString->data());
 
          UtlString successContent2(successResponse2);
 
@@ -623,8 +622,7 @@ public:
          XmlRpcMethodContainer* method;
          UtlSList params;
 
-         char* userData = "AddExtension"; 
-         dispatch.addMethod("addExtension", AddExtension::get, userData);
+         dispatch.addMethod("addExtension", AddExtension::get, NULL);
          bool result = dispatch.parseXmlRpcRequest(requestContent1, method, params, response1);
          CPPUNIT_ASSERT(result == false);
          dispatch.cleanUp(&params);

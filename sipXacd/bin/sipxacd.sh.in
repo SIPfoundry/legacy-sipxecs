@@ -31,7 +31,7 @@ case ${Action} in
      if [ -f "$CONFIG_DEFS" ]
      then
          source $CONFIG_DEFS
-         exec @bindir@/sipxacd -P ${ACD_SERVER_PROVISIONING_PORT} $Args
+         exec @bindir@/sipxacd -P ${ACD_SERVER_PROVISIONING_PORT} -W ${WATCHDOG_SERVER_XMLRPC_PORT} $Args
      else
          exec @bindir@/sipxacd $Args
      fi

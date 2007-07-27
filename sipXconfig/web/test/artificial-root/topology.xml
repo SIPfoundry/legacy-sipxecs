@@ -22,7 +22,7 @@
          https://host.example.org:8091/cgi-bin/replication/replication.cgi
       </replication_url>
       <agent_url>
-         https://host.example.org:8091/cgi-bin/processmonitor/process.cgi
+         https://host.example.org:8092/RPC2
       </agent_url>
    </location>   
 

@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 // APPLICATION INCLUDES
-#include "processcgi/DependencyList.h"
+#include "DependencyList.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

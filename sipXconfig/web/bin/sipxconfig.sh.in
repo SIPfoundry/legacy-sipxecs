@@ -27,6 +27,8 @@ Args=""
 : ${LogDir:=@sipxpbx.log.dir@}
 : ${TmpDir:=@sipxpbx.tmp.dir@}
 : ${RunningUser:=@sipxpbx.user@}
+: ${StorePassword:=changeit}
+
 
 TEST_WRITE_ACCESS="\
   @sipxpbx.conf.dir@/config.defs \
@@ -58,7 +60,7 @@ postgresService() {
     
     if [ -f /etc/init.d/rhdb ]
     then
-	    # Red Hat Enterprise uses the name rhdb.
+        # Red Hat Enterprise uses the name rhdb.
         echo -e rhdb
     fi
     
@@ -95,15 +97,24 @@ createAuthoritiesTruststore() {
       # password on command line is not security issue. catrust and directory has appropriate
       # permissions, password is required by keystores
       TrustStoreOpts="\
-	  -Djavax.net.ssl.trustStore=$TrustStore \
-	  -Djavax.net.ssl.trustStoreType=JKS \
-	  -Djavax.net.ssl.trustStorePassword=changeit"
+     -Djavax.net.ssl.trustStore=$TrustStore \
+     -Djavax.net.ssl.trustStoreType=JKS \
+     -Djavax.net.ssl.trustStorePassword=$StorePassword"
     else
       # make empty as extra measure to ensure doesn't come from env. var
       # this is when Java's CA database has required certs
       TrustStoreOpts=""
     fi
 }
+
+# Create a keystore and set-up the command-line options to supply it to the JVM.
+createAuthoritiesKeystore() { 
+    @bin.dir@/ssl-cert/create-ssl-keystore.sh
+    KeyStoreOpts="\
+      -Djavax.net.ssl.keyStore=$SslDir/.ssl.keystore \
+      -Djavax.net.ssl.keyStorePassword=$StorePassword"
+}
+
 
     
 # Take a list of files or directories 
@@ -174,15 +185,15 @@ onWebUi() {
     databaseVersionCheck
 
     createAuthoritiesTruststore
-    @bin.dir@/ssl-cert/create-ssl-keystore.sh
+    createAuthoritiesKeystore
     
     JavaOpts="$SIPXCONFIG_OPTS"
 
     clearIndexLocks
 
     X509Algorithm=`$JavaCmd \
-	    -classpath "$Classpath" \
-	    org.sipfoundry.sipxconfig.common.X509Selector`
+       -classpath "$Classpath" \
+       org.sipfoundry.sipxconfig.common.X509Selector`
 
     # Used in sipxconfig-jetty.xml only
     SystemProps="\
@@ -201,11 +212,12 @@ onWebUi() {
     echo $$ > ${PidFile}
     
     exec $JavaCmd \
-	    $SystemProps \
-	    $JavaOpts \
-	    $TrustStoreOpts \
-	    -classpath "$Classpath" \
-	    org.mortbay.jetty.Server @sipxpbx.conf.dir@/sipxconfig-jetty.xml
+       $SystemProps \
+       $JavaOpts \
+       $TrustStoreOpts \
+            $KeyStoreOpts \
+       -classpath "$Classpath" \
+       org.mortbay.jetty.Server @sipxpbx.conf.dir@/sipxconfig-jetty.xml
 }
 
 # Return false if postgres is 

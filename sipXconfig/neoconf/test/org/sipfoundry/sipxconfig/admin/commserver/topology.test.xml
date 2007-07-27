@@ -7,7 +7,7 @@
          https://localhost:8091/cgi-bin/replication/replication.cgi
       </replication_url>
       <agent_url>
-         https://localhost:8091/cgi-bin/processmonitor/process.cgi
+         https://localhost:8092/RPC2
       </agent_url>
       <sip_domain>h1.sipfoundry.org</sip_domain>
    </location>
@@ -17,7 +17,7 @@
          https://192.168.0.27:8091/cgi-bin/replication/replication.cgi
       </replication_url>
       <agent_url>
-         https://192.168.0.27:8091/cgi-bin/processmonitor/process.cgi
+         https://192.168.0.27:8092/RPC2
       </agent_url>
       <sip_domain>h2.sipfoundry.org</sip_domain>
    </location>  

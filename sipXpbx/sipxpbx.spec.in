@@ -22,7 +22,7 @@ Requires: chkconfig
 Requires: sipxcalllib >= 3.9
 Requires: sipxcommserverlib >= 3.9
 
-# replication, processmgr cgis 
+# replication cgi 
 Requires: httpd >= 2.0
 
 # sending email - an smtp listener must be running on localhost
@@ -113,7 +113,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-chkspace
 %attr(755,root,root) %{_sysconfdir}/cron.daily/voicemail_clean
 
-%attr(755,root,root) %{_datadir}/www/cgi-bin/processmonitor/process.cgi
 %attr(755,root,root) %{_datadir}/www/cgi-bin/voicemail/mediaserver.cgi
 %attr(755,root,root) %{_datadir}/www/cgi-bin/cbadmission/cbadmission.cgi
 %attr(755,root,root) %{_datadir}/www/cgi-bin/replication/replication.cgi
@@ -125,6 +124,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/resourcemap.xml
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/voicemail.xml.in
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cbadmission.xml.in
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxwatchdog-config.in
 
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxpark.process.xml
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxpresence.process.xml
@@ -193,6 +193,9 @@ rm -f %{_bindir}/backup-mailstore.sh
 rm -f %{_bindir}/restore-configs.sh 
 rm -f %{_bindir}/restore-mailstore.sh
 rm -f %{_bindir}/backup-configs.sh
+rm -f %{_localstatedir}/sipxdata/tmp/processAlias.dat
+rm -f %{_localstatedir}/sipxdata/tmp/locked.lck
+rm -rf %{_datadir}/www/cgi-bin/processmonitor
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
@@ -202,6 +205,18 @@ fi
 mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
 
 pkg-upgrade --previous %{previous_archive} --current %{current_archive}
+
+# On an HA Slave system the new sipxwatchdog-config.in needs to be updated to include the 
+# HA Master as an allowed peer.  (On new installations this is done by the install wizard.)
+grep "VOICEMAIL_SERVER_HOSTNAME=" %{_sysconfdir}/sipxpbx/config.defs | grep MY_FULL_HOSTNAME > /dev/null
+if [ $? != "0" ]; then
+  # This system is an HA Slave.  The HA Master's hostname must be inserted into sipxwatchdog-config.in
+  sed -i "s/SIP_WATCHDOG_XMLRPC_PEERS : \${MY_FULL_HOSTNAME}/# SIP_WATCHDOG_XMLRPC_PEERS : \${MY_FULL_HOSTNAME}/" \
+    %{_sysconfdir}/sipxpbx/sipxwatchdog-config.in
+  master_hostname=`grep VOICEMAIL_SERVER_HOSTNAME %{_sysconfdir}/sipxpbx/config.defs | cut -d"=" -f2`
+  sed -i "s/# SIP_WATCHDOG_XMLRPC_PEERS : HA_MASTER_HOSTNAME/SIP_WATCHDOG_XMLRPC_PEERS : $master_hostname/" \
+    %{_sysconfdir}/sipxpbx/sipxwatchdog-config.in
+fi
 
 # Arrange for sipX to be started every time the system starts up.
 # It starts in runlevels 3 and 5.

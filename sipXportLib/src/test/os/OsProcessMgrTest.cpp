@@ -28,7 +28,7 @@ public:
     void testManager()
     {
         OsStatus stat;
-        OsProcessMgr processManager(TEST_DIR);
+        OsProcessMgr processManager;
 
         UtlString alias = "MyPing1";
 

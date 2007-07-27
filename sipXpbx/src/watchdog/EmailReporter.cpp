@@ -12,7 +12,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsConnectionSocket.h"
-#include "processcgi/processXMLCommon.h"
+#include "processXMLCommon.h"
 #include "os/OsProcessMgr.h"
 #include "os/OsSysLog.h"
 #include "os/OsTokenizer.h"
@@ -86,7 +86,7 @@ OsStatus EmailReporter::report(UtlString &rProcessAlias,UtlString &rMessage)
 OsStatus EmailReporter::send()
 {
     OsStatus retval = OS_FAILED;
-    OsProcessMgr *processMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
+    OsProcessMgr *processMgr = OsProcessMgr::getInstance();
     int numSent = 0;
 
     OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Checking if reports need to be e-mailed");

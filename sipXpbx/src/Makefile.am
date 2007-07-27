@@ -10,7 +10,6 @@
 SUBDIRS= \
     sipxcgi \
     mailboxmgr \
-    processcgi \
     mediaservercgi \
     replicationcgi \
     cbadmissioncgi \

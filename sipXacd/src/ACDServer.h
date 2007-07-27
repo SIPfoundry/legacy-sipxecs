@@ -81,7 +81,7 @@ public:
 /* ============================ CREATORS ================================== */
 
    // Default constructor
-   ACDServer(int provisioningAgentPort);
+   ACDServer(int provisioningAgentPort, int watchdogRpcServerPort);
 
    // Destructor
    virtual ~ACDServer();
@@ -136,7 +136,7 @@ private:
    ACDAgentManager*      mpAcdAgentManager;
    ACDQueueManager*      mpAcdQueueManager;
    ACDAudioManager*      mpAcdAudioManager;
-   ACDRtRecord*      	 mpAcdRtRecord;
+   ACDRtRecord*          mpAcdRtRecord;
 #ifdef CML   
    ACDRpcServer*         mpAcdRpcServer;
 #endif
@@ -159,6 +159,7 @@ private:
 #ifdef CML   
    int                   mAcdRpcServerPort;        // Port to be used for call pickup XML-RPC server
 #endif
+   int                   mWatchdogRpcServerPort;   // Port that the Watchdog's XML-RPC server is using.
 };
 
 #endif  // _ACDServer_h_

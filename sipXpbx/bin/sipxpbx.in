@@ -155,8 +155,8 @@ process_command() {
 # Check if the process is alive
 proc_alive() # pid
 {
-	2>/dev/null kill -0 $1
-	echo $?
+   2>/dev/null kill -0 $1
+   echo $?
 }
 
 # Low-level start function.
@@ -592,8 +592,8 @@ EOF
     # should discover any sipXconfig.
     PROCS="$( ps -wwU @SIPXPBXUSER@ -o pid,tname,stat,bsdtime,comm,args |
               grep -E ' java' |
-	      grep /etc/sipxpbx |
-	      awk '{ print $1 }' )"
+              grep /etc/sipxpbx |
+	           awk '{ print $1 }' )"
     # "ps -p $PROCS" will error if $PROCS is empty.
     [ -n "$PROCS" ] &&
 	ps -wp $PROCS -o pid,tname,stat,bsdtime,comm |
@@ -680,9 +680,6 @@ do_start() {
         # Clean up IMDB and all its dependent files.
         rm -f @SIPX_TMPDIR@/imdb.*
 
-        # Remove the watchdog's temporary files.
-        rm -f @SIPX_TMPDIR@/processAlias.dat @SIPX_TMPDIR@/locked.lck
-                
         ## Check configuration
         do_check || echo "Attempting to start despite configuration problems"
 

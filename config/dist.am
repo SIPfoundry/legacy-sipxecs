@@ -66,7 +66,7 @@ $(DEST_SRC)/@PACKAGE@-$(VERSION).tar.bz2.md5: $(DEST_SRC)/@PACKAGE@-$(VERSION).t
 @PACKAGE@.spec : @PACKAGE@.spec.in
 	$(LocalizeSipXconfig) $(srcdir)/@PACKAGE@.spec.in > @PACKAGE@.spec
 
-dist-hook : $(distdir)/@PACKAGE@.spec
+dist-hook : $(distdir)/@PACKAGE@.spec clean-svn
 
 # 'rpmbuild -ta' searches root of tarball for first *.spec file to build 
 # RPM from
@@ -75,7 +75,7 @@ $(distdir)/@PACKAGE@.spec:
 
 # Alternative is to do svn export, but it's very handy to be able to 
 # create a dist tarball from a working svn checkout
-dist-hook :
+clean-svn:
 	rm -rf `find $(distdir) -type d -name .svn`
 
 # Override default tarball creation, need to support paths > 99 chars

@@ -64,6 +64,7 @@ mailboxManagerImpl.mailstoreDirectory=@sipxvxml.data.dir@/mailstore
 mailboxManagerImpl.mediaServerCgiUrl=https://${VOICEMAIL_SERVER_HOSTNAME}:${VOICEMAIL_SERVER_HTTPS_PORT}/cgi-bin/voicemail/mediaserver.cgi
 cdrManagerImpl.cdrAgentHost=${CALLRESOLVER_AGENT_ADDR}
 cdrManagerImpl.cdrAgentPort=${CALLRESOLVER_AGENT_PORT}
+sipxProcessContext.host=${MY_FULL_HOSTNAME}
 
 # ======= BEGIN NEW INSTALLATION SETTINGS =================
 

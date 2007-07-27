@@ -7,7 +7,8 @@ SUBDIRS = \
 
 LOCAL_SHELLSCRIPTS = \
 	expire-spread \
-	monitor-spread
+	monitor-spread \
+	sipxproc
 
 EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)
 
@@ -20,7 +21,6 @@ dist_bin_SCRIPTS = \
 	sipx-log-cut \
 	sipx-servtest \
 	sipxcar \
-	sipxproc \
 	sipdb-dump \
 	polycom-config
 

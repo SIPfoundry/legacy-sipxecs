@@ -24,7 +24,7 @@
 #include "os/OsProcess.h"
 #include "os/OsProcessMgr.h"
 #include "os/OsProcessIterator.h"
-#include "processcgi/DependencyList.h"
+#include "DependencyList.h"
 
 // DEFINES
 #define ACTION_START    "start"
@@ -35,7 +35,9 @@
 #define PROCESS_DIR     "process.d"
 
 typedef OsStatus (*ProcessSubDoc)(TiXmlDocument &rootdoc, TiXmlDocument &subdoc);
-     
+
+const char * const getProcessStatusString(int);
+bool canProcessStateChange(const UtlString& alias, const int state);
 OsStatus initProcessXMLLayer(UtlString &rProcessXMLPath, TiXmlDocument &rProcessXMLDoc, UtlString &rStrErrorMsg);
 OsStatus startstopProcessTree(TiXmlDocument &rProcessXMLDoc, UtlString &rProcessAlias, UtlString &rActionVerb);
 OsStatus WriteProcessXML(TiXmlDocument &doc, UtlString &buffer);
@@ -46,3 +48,4 @@ OsStatus addWatchDogSubDoc(TiXmlDocument &rWatchDogXMLDoc, TiXmlDocument &subdoc
 OsStatus addProcessDefSubDoc(TiXmlDocument &rProcessXMLDoc, TiXmlDocument &subdoc);
 
 #endif //_processXMLCommon__
+

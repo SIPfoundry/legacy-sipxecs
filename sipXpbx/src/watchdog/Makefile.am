@@ -13,20 +13,25 @@ watchdog_CXXFLAGS = \
 watchdog_SOURCES =  \
 	$(top_builddir)/config/sipxpbx-buildstamp.h \
 	$(top_builddir)/config/sipxpbx-buildstamp.cpp \
-    EmailReporter.cpp \
-    FailureReporterBase.cpp \
-    WatchDogMain.cpp \
-    MonitoredProcess.cpp \
-    WatchDog.cpp
+   EmailReporter.cpp \
+   FailureReporterBase.cpp \
+   WatchDogMain.cpp \
+   MonitoredProcess.cpp \
+	ProcMgmtRpc.cpp \
+	DependencyList.cpp \
+	processXMLCommon.cpp \
+   WatchDog.cpp
 
 watchdog_LDADD = \
-    ../processcgi/libprocesscgi.la \
     @SIPXTACK_LIBS@
 
 noinst_HEADERS = \
 	EmailReporter.h \
 	FailureReporterBase.h \
 	MonitoredProcess.h \
+	ProcMgmtRpc.h \
+	DependencyList.h \
+	processXMLCommon.h \
 	WatchDog.h
 
 EXTRA_DIST = watchdog.sh.in
@@ -34,3 +39,7 @@ EXTRA_DIST = watchdog.sh.in
 install-exec-hook :
 	$(LocalizeSipXconfig) $(srcdir)/watchdog.sh.in > watchdog.sh
 	$(INSTALL) -D -m 755 watchdog.sh $(DESTDIR)$(bindir)/watchdog.sh
+	rm -f @SIPX_TMPDIR@/processAlias.dat
+	rm -f @SIPX_TMPDIR@/locked.lck
+	rm -rf @wwwdir@/cgi-bin/processmonitor
+

@@ -244,6 +244,13 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 
+# Don't use pkg-upgrade for this file.  On HA Master systems this line will have been modified by the install wizard to
+# replace "DISTRIBUTED_HOSTNAME" with an actual hostname.  This command simply updates the line with the new agent URL.
+sed -i "s/:\${CONFIG_SERVER_HTTPS_PORT}\/cgi-bin\/processmonitor\/process.cgi/:\${WATCHDOG_SERVER_XMLRPC_PORT}\/RPC2/g" %{sipxpbxconf}/topology.xml.in 
+if [ -f %{sipxpbxconf}/topology.xml.in.rpmnew ]; then
+  rm -f %{sipxpbxconf}/topology.xml.in.rpmnew
+fi
+
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
 if [ -f %{current_archive} ]; then

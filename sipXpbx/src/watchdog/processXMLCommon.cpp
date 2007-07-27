@@ -18,11 +18,11 @@
 #endif
 
 // APPLICATION INCLUDES
+#include "processXMLCommon.h"
 #include "os/OsFS.h"
 #include "os/OsFileIteratorBase.h"
 #include "os/OsTask.h"
 #include "os/OsTokenizer.h"
-#include "processcgi/processXMLCommon.h"
 
 // DEFINES
 #define ACTION_START    "start"
@@ -78,13 +78,34 @@ loadProcessXML(UtlString &rProcessXMLPath, TiXmlDocument &doc)
     if ( doc.LoadFile(rProcessXMLFullPath.data()) )
     {
         //        doc.Print();
-	OsPath processDefsFilename(rProcessXMLFullPath);
-	OsPath subdocDir = processDefsFilename.getDirName() + OsPath::separator + PROCESS_DIR;
-	retval = findSubDocs(subdocDir, doc, &addProcessDefSubDoc);
+       OsPath processDefsFilename(rProcessXMLFullPath);
+       OsPath subdocDir = processDefsFilename.getDirName() + OsPath::separator + PROCESS_DIR;
+       retval = findSubDocs(subdocDir, doc, &addProcessDefSubDoc);
     }
 
 
     return retval;
+}
+
+const char * const 
+getProcessStatusString(int state)
+{
+    switch (state)
+    {
+    case PROCESS_STARTED:
+        return "Started";
+    case PROCESS_FAILED:
+        return "Failed";
+    case PROCESS_STOPPING:
+        return "Stopping";    
+    case PROCESS_STOPPED:
+    case PROCESS_NEVERRUN:        
+        return "Stopped";
+    case PROCESS_STARTING:
+        return "Starting";
+    default:
+        return "Unknown";
+    }
 }
 
 OsStatus
@@ -92,7 +113,7 @@ adjustProcessList(TiXmlDocument &doc)
 {
     OsStatus retval = OS_FAILED;
 
-    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
+    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance();
 
     TiXmlElement*rootElement = doc.RootElement();
     if (rootElement)
@@ -120,27 +141,12 @@ adjustProcessList(TiXmlDocument &doc)
                 sprintf(pidbuf,"%d",process.getPID());
                 TiXmlText pidText(pidbuf);
 
-                switch ( pProcessMgr->getAliasState(processAlias) )
+                pElement->SetAttribute("status",getProcessStatusString(pProcessMgr->getAliasState(processAlias)));
+                if (PROCESS_STARTED == pProcessMgr->getAliasState(processAlias))
                 {
-                case PROCESS_STARTED :
-                    pElement->SetAttribute("status","Started");
                     pidElement.InsertAfterChild(dbNode,pidText);
                     pElement->InsertAfterChild(dbNode,pidElement);
-                    break;
-                case PROCESS_STOPPING :
-                    pElement->SetAttribute("status","Stopping");
-                case PROCESS_STOPPED :
-                case PROCESS_NEVERRUN :
-                    pElement->SetAttribute("status","Stopped");
-                    break;
-                case PROCESS_STARTING :
-                    pElement->SetAttribute("status","Starting");
-                    break;
-                case PROCESS_FAILED :
-                    pElement->SetAttribute("status","Failed");
-                    break;
                 }
-
             }
         }
     }
@@ -355,7 +361,7 @@ startstopProcess(
     //set to true if both bools passed in are false
     UtlBoolean bAskToStart = FALSE;
 
-    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
+    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance();
 
     UtlBoolean bDone = FALSE;
 
@@ -701,6 +707,44 @@ OsStatus getGlobalDependentDelay(TiXmlDocument &doc)
     return retval;
 }
 
+/**
+ * Returns true if the the specified alias can be matched to a process, and that
+ * process can undergo the specified state change.  Returns false otherwise.
+ * The state must be one of: 
+ *   - USER_PROCESS_START
+ *   - USER_PROCESS_STOP
+ *   - USER_PROCESS_RESTART
+ */
+bool canProcessStateChange(const UtlString& alias, const int state)
+{
+    bool bDone = false;
+    bool bResult = false;
+    
+    for (int loop=0; !bDone && loop < processCount; loop++)
+    {
+        if (processDepList[loop].getName() == alias)
+        {
+            bDone = true;
+            switch (state)
+            {
+            case USER_PROCESS_START:
+                bResult = processDepList[loop].getCanStart();                
+                break;
+                
+            case USER_PROCESS_STOP:
+                bResult = processDepList[loop].getCanStop();                
+                break;
+                
+            case USER_PROCESS_RESTART:
+                bResult = processDepList[loop].getCanRestart();                
+                break;
+            }
+        }
+    }
+    
+    return bResult;
+}
+
 //gets the dependents who can do the specified action command
 void GetDependents(UtlString &rParentProcess, UtlString actionStr)
 {
@@ -818,9 +862,7 @@ OsStatus startstopProcessTree(TiXmlDocument &rProcessXMLDoc, UtlString &rProcess
     //number of children.
     //we can now start executing
 
-    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
-
-    pProcessMgr->lockAliasFile();
+    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance();
 
     for ( int loop2 = childDepCount-1;loop2 >=0 ; loop2-- )
     {
@@ -861,8 +903,6 @@ OsStatus startstopProcessTree(TiXmlDocument &rProcessXMLDoc, UtlString &rProcess
             }
         }
     }
-
-    pProcessMgr->unlockAliasFile();
 
     return retval;
 }
@@ -909,7 +949,7 @@ OsStatus findSubDocs(OsPath &path, TiXmlDocument &rootDoc, ProcessSubDoc addSubD
     while (status == OS_SUCCESS && subdocName.length() > 0) {
         TiXmlDocument subdoc;
         OsPath pathCopy(path);
-	// iterator doesn't appear to load full path, it's just the file name
+        // iterator doesn't appear to load full path, it's just the file name
         bool success = subdoc.LoadFile(pathCopy + OsPath::separator + subdocName);
         if (!success) {
             status = OS_FAILED;
@@ -928,7 +968,7 @@ OsStatus findSubDocs(OsPath &path, TiXmlDocument &rootDoc, ProcessSubDoc addSubD
             }
             if (status == OS_SUCCESS) 
             {
-	        status = subdocs.findNext(subdocName);
+               status = subdocs.findNext(subdocName);
             }
         }
     }

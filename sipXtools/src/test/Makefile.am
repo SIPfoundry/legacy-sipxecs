@@ -4,13 +4,10 @@ EXTRA_DIST = \
 
 TESTS = \
 	sipxcar_test.rb \
-	sipxproc_test.rb \
 	sipdb-dump_test.rb \
 	polycom_config_test.rb
 
 TESTDATA = \
-	sipxproc_empty.txt \
-	sipxproc_status_output.xml \
 	birds.tgz \
 	different.txt \
 	registration.xml \

@@ -21,14 +21,15 @@
 #include "os/OsProcess.h"
 #include "os/OsProcessIterator.h"
 #include "os/OsMutex.h"
+#include "utl/UtlHashMap.h"
+#include "utl/UtlHashMapIterator.h" 
+#include "utl/UtlInt.h"
 
 //to turn on debug string uncomment the next line
 //#define DEBUG_OUTPUT
 
 // DEFINES
 
-#define PROCESS_ALIAS_FILE        "processAlias.dat"
-#define PROCESS_ALIAS_LOCK_FILE   "locked.lck"
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -51,9 +52,15 @@
 
 // FORWARD DECLARATIONS
 
-//: This encapsulates a pid, and allows querying, killing and all the
-//: other cool things you want to do to a process.
-
+/**
+ This class is no longer available as a general mechanism for querying the state 
+ of monitoried processes, or instructing the watchdog to perform state changes on 
+ the monitoried processes.  It is now to be used by the watchdog process only.
+ 
+ \par
+ For monitoried process state queries or state change requests, use the watchdog's 
+ XMLRPC interface.
+ */
 class OsProcessMgr
 {
     friend class MonitoredProcess;
@@ -62,7 +69,7 @@ class OsProcessMgr
 public:
 
 /* ============================ CREATORS ================================== */
-   OsProcessMgr(const char* workingDirectory);
+   OsProcessMgr();
 
      //:Default constructor
 
@@ -86,75 +93,51 @@ public:
    OsStatus stopProcess(PID pid);
    //: Stop process by id
 
-   void setProcessListFilename(UtlString &rFilename);
-   //: Overrides the init file of processAlias.dat
-   //: Working directory will be prepended.
-
-   void setAliasStopped(UtlString &rAlias);
+   void setAliasStopped(const UtlString &rAlias);
     
-   OsStatus setUserRequestState(UtlString &rAlias, int userRequestedState);
-   //: Sets a state which watchdog or another program can use to determine
-   //: if a user wishes to change the state of a process.  
-   //: ProcessMgr directly does not change the state of the process.
-   //: This function is used to allow users to set a new state (as the third param)
-   //: in processAlias.dat.  It is up to an external program to read this
-   //: state via getUserRequestState and change the process state.
+   OsStatus setUserRequestState(const UtlString &rAlias, const int userRequestedState);
+   //: Sets a state which the watchdog periodically checks (handleMessage()) to 
+   //: determine if a user wishes to change the state of a process.  
+   //: OsProcessMgr directly does not effect the user requested state change.
+   //: It is up to the watchdog to read this state via getUserRequestState() 
+   //: and invoke the change accordingly.
 
 /* ============================ ACCESSORS ================================= */
    int getUserRequestState(UtlString &rAlias);
    //: Gets the state which a user set when they wish to change the state of a process.  
-   //: ProcessMgr directly does not change the state of the process.
-   //: This function is used to allow users to set a new state (as the third param)
-   //: in processAlias.dat.  It is up to an external program to read this
-   //: state and change the process state.
 
-   OsStatus getProcessByAlias(UtlString &rAlias, OsProcess &rProcess);
+   OsStatus getProcessByAlias(const UtlString &rAlias, OsProcess &rProcess);
    //: Retrieve process object given ID.
 
    OsStatus getAliasByPID(PID pid ,UtlString &rAlias);
    //: Retrieves the alias if you know the pid
    //: Returns OS_SUCCESS if found, or OS_FAILED if....failed.
 
-   static OsProcessMgr *getInstance(const char* workingDirectory);
+   static OsProcessMgr *getInstance();
    //: returns the one and only process manager
+
+   static bool getCurrentStateString(const int, UtlString&);
+   static bool getCurrentStateFromString(const UtlString&, int&);
+
+   static bool getUserRequestedStateString(const int, UtlString&);
+   static bool getUserRequestedStateFromString(const UtlString&, int&);
 
 
 /* ============================ INQUIRY =================================== */
   UtlBoolean isStarted(UtlString &rAlias);
 
-  int getAliasState(UtlString &rAlias);
+  int getAliasState(const UtlString &rAlias);
    //: Return the state of the alias
-
-  void lockAliasFile();
-  void unlockAliasFile();
-
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
-protected:
-
-    OsStatus setAliasState(UtlString &rAlias,int state);
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    void getAliasFirstValue(UtlString &rinValue);
-    //: helper func to pull the first part of the two part value
 
-    void getAliasSecondValue(UtlString &rinValue);
-    //: helper func to pull the second part of the two part value
+    OsStatus setAliasState(const UtlString &rAlias,int state);
 
     static OsProcessMgr * spManager;
     //: pointer to the one and only process manager
     
-    OsPath mProcessFilename;
-    //: Name of file which store the alias and PID
-
-    OsPath mProcessLockFilename;
-    //: Simple Lock file for cross process locking
-
-    OsPath mWorkPath;
-    //:Where files will be stored
-    //: Defaults to ProcessMgr
-
     OsPath mStdInputFilename;
     //: Where will input come from?
 
@@ -164,32 +147,26 @@ private:
     OsPath mStdErrorFilename;
     //: Where will errors be sent?
 
-    OsConfigDb *pProcessList;
-    // Internal list of alias and PID's
+    void addEntry(const UtlString &rAlias, int pid);
+    //: Add a new entry to the collection of monitored processes.
+    //: The removeEntry() method will always be called to first clear any 
+    //: existing entry.
+    //: Returns OS_SUCCESS if added ok or OS_FAILED on failure.
 
-    OsStatus addEntry(UtlString &rAlias, int pid);
-    //: Add an entry to our process file
-    //: Returns OS_SUCCESS if added ok
-    //: or OS_FAILED on failure
+    void removeEntry(const UtlString &rAlias);
+    //: Remove the entry from the collection of monitored processes.
 
-    OsStatus removeEntry(UtlString &rAlias);
-    //: Remove the entry from the file
-    //: Returns OS_SUCCESS if removed
-    //: or OS_FAILED on failure
+    /** 
+     The current PROCESS_XXX state strings indexed for all monitored processes.
+     When PROCESS_STARTED, the value is actually the PID of the started process.
+     */
+    UtlHashMap mCurrentStateMap;
 
-    OsStatus loadProcessFile();
-    //: Returns OS_SUCCESS if saved ok.
-    //: or OS_FAILED on failure
-
-    OsStatus storeProcessFile();
-    //: Returns OS_SUCCESS if saved ok.
-    //: or OS_FAILED on failure
-
-    int mAliasLockFileCount;
-
-    /** lock for synchronization */
-    OsMutex mMutex;
-
+    /** 
+     The pending user requested states indexed by the monitored process the  
+     change applies to.
+     */
+    UtlHashMap mUserRequestedStateMap;
 };
 
 /* ============================ INLINE METHODS ============================ */

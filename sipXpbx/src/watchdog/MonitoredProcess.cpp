@@ -12,7 +12,6 @@
 // APPLICATION INCLUDES
 #include "FailureReporterBase.h"
 #include "MonitoredProcess.h"
-#include "processcgi/processXMLCommon.h"
 #include "os/OsSysLog.h"
 #include "os/OsTask.h"
 
@@ -111,7 +110,7 @@ void MonitoredProcess::enableRestart(UtlBoolean bEnable)
 //a restart of the process
 void MonitoredProcess::resetStoppedState()
 {
-    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
+    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance();
 
     int processstate = pProcessMgr->getAliasState(mAliasStr);
     if (processstate == PROCESS_STOPPED)
@@ -208,9 +207,7 @@ void stateToString(int state, UtlString &rStateStr)
 
 void MonitoredProcess::ApplyUserRequestedState()
 {
-    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
-
-    pProcessMgr->lockAliasFile() ;
+    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance();
 
     int userRequestedState = pProcessMgr->getUserRequestState(mAliasStr);
     
@@ -242,9 +239,6 @@ void MonitoredProcess::ApplyUserRequestedState()
             OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"[FAILED] User could not %s process %s\n",
                           verb.data(),mAliasStr.data());
     }
-        
-    pProcessMgr->unlockAliasFile() ;
-
 }
 
 OsStatus MonitoredProcess::check()
@@ -254,10 +248,8 @@ OsStatus MonitoredProcess::check()
     char msgbuf[160];
     UtlString msgStr = mAliasStr;
 
-    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
+    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance();
 
-    pProcessMgr->lockAliasFile() ;
-    
     int processstate = pProcessMgr->getAliasState(mAliasStr);
     UtlBoolean bIsGhost = FALSE;
     UtlString currentStateStr;
@@ -457,8 +449,6 @@ OsStatus MonitoredProcess::check()
         if ( processstate != PROCESS_FAILED )
             mnMaxRestartElapsedSecs += gnCheckPeriod; //add check period time to failure time
     } //if process !stopped
-
-    pProcessMgr->unlockAliasFile() ;
 
     return retval;
 }

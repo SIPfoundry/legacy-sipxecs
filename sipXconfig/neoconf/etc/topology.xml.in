@@ -24,7 +24,7 @@
          https://${MY_FULL_HOSTNAME}:${CONFIG_SERVER_HTTPS_PORT}/cgi-bin/replication/replication.cgi
       </replication_url>
       <agent_url>
-         https://${MY_FULL_HOSTNAME}:${CONFIG_SERVER_HTTPS_PORT}/cgi-bin/processmonitor/process.cgi
+         https://${MY_FULL_HOSTNAME}:${WATCHDOG_SERVER_XMLRPC_PORT}/RPC2
       </agent_url>
    </location>   
 
@@ -35,7 +35,7 @@
          https://DISTRIBUTED_HOSTNAME:${CONFIG_SERVER_HTTPS_PORT}/cgi-bin/replication/replication.cgi
       </replication_url>
       <agent_url>
-         https://DISTRIBUTED_HOSTNAME:${CONFIG_SERVER_HTTPS_PORT}/cgi-bin/processmonitor/process.cgi
+         https://DISTRIBUTED_HOSTNAME:${WATCHDOG_SERVER_XMLRPC_PORT}/RPC2
       </agent_url>
    </location>   
    REMOVE THIS LINE TO ADD DISTRIBUTED SERVER -->

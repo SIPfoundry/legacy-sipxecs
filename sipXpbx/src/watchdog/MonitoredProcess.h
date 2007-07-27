@@ -15,7 +15,7 @@
 #include "os/OsDefs.h"
 
 // APPLICATION INCLUDES
-#include "processcgi/processXMLCommon.h"
+#include "processXMLCommon.h"
 
 // DEFINES
 #define MAX_REPORTERS 100

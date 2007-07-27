@@ -11,15 +11,19 @@
 
 // APPLICATION INCLUDES
 #include <os/OsFS.h>
+#include <os/OsProcess.h>
+#include <os/OsSocket.h>
 #include <os/OsTask.h>
 #include <os/OsSysLog.h>
-#include <os/OsProcessMgr.h>
 #include <utl/UtlString.h>
 #include <utl/UtlHashMap.h>
+#include <utl/UtlInt.h>
 #include <utl/UtlSList.h>
 #include <net/ProvisioningAgent.h>
 #include <net/ProvisioningAgentXmlRpcAdapter.h>
 #include <net/ProvisioningAttrList.h>
+#include <net/Url.h>
+#include <net/XmlRpcRequest.h>
 #include "ACDCallManager.h"
 #include "ACDLineManager.h"
 #include "ACDAgentManager.h"
@@ -62,8 +66,9 @@ extern UtlBoolean gRestartFlag;
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ACDServer::ACDServer(int provisioningAgentPort)
-: ProvisioningClass(ACD_SERVER_TAG)
+ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
+: ProvisioningClass(ACD_SERVER_TAG), 
+  mWatchdogRpcServerPort(watchdogRpcServerPort)
 {
 
    mpProvisioningAgent              = NULL;
@@ -347,7 +352,6 @@ void ACDServer::setSysLogLevel(UtlString& rLogLevel)
       }
    }
    OsSysLog::setLoggingPriority(priority);
-   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 }
 
 
@@ -863,19 +867,115 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
    // behavior of sipXconfig always setting ADMINISTRATIVE_STATE_TAG to
    // active when it has finished sending all the other config changes.
    if (gRestartFlag == true) {
-      OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
-      UtlString myName ;
-      if (pProcessMgr->getAliasByPID(OsProcess::getCurrentPID(), myName)
-           == OS_SUCCESS)
+      bool bWatchDogRestarted = false;
+
+      // Get the local host name.
+      UtlString myName;
+      OsSocket::getHostName(&myName);
+      
+      // Construct the URL to the watchdog's XMLRPC server.
+      Url targetURL;
+      targetURL.setUrlType("https");
+      targetURL.setHostAddress(myName.data());
+      targetURL.setHostPort(mWatchdogRpcServerPort);
+      targetURL.setPath("RPC2");
+
+      // Make the XMLRPC request to query this process's alias.
+      XmlRpcRequest requestGetAlias(targetURL, "ProcMgmtRpc.getAliasByPID");
+      requestGetAlias.addParam(&myName);
+      UtlInt pid(OsProcess::getCurrentPID());
+      requestGetAlias.addParam(&pid);
+      XmlRpcResponse response1;
+      if (!requestGetAlias.execute(response1)) // blocks; returns false for any fault
       {
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Set - Restart %s",
-            myName.data());
-         // Have the watchdog stop and restart me
-         pProcessMgr->setUserRequestState(myName ,USER_PROCESS_RESTART) ;
+         // The XMLRPC request failed.
+         int faultCode;
+         UtlString faultString;
+         response1.getFault(&faultCode, faultString);         
+         OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ProcMgmtRpc.getAliasByPID failed, fault %d : %s",
+                       faultCode, faultString.data());
       }
       else
       {
-         OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ACDServer::Set - This process doesn't seem to be controlled by the watchdog.  Exit, stage left.");
+         // Apparently successful, so extract the result.
+         UtlContainable* pValue = NULL;
+         if (!response1.getResponse(pValue) || !pValue)
+         {
+            OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ProcMgmtRpc.getAliasByPID response had no result.");
+         }
+         else
+         {
+            
+            UtlString* pAlias = dynamic_cast<UtlString*>(pValue);
+            if (!pAlias)
+            {
+               OsSysLog::add(LOG_FACILITY, PRI_CRIT, 
+                             "ProcMgmtRpc.getAliasByPID response result had unexpected type: %s",
+                             pValue->getContainableType());
+              }
+            else
+            {
+               if (pAlias->isNull())
+               {
+                  OsSysLog::add(LOG_FACILITY, PRI_ERR, "ProcMgmtRpc.getAliasByPID could not match the pid to an alias.");
+               }
+               else
+               {
+                  // Make the XMLRPC request to restart this process.
+                  XmlRpcRequest requestRestart(targetURL, "ProcMgmtRpc.restart");
+                  requestRestart.addParam(&myName);
+                  requestRestart.addParam(pAlias);
+                  UtlBool bBlock(false);
+                  requestRestart.addParam(&bBlock); // No, don't block for the state change.
+                  XmlRpcResponse response2;
+                  if (!requestRestart.execute(response2))
+                  {
+                     // The XMLRPC request failed.
+                     int faultCode;
+                     UtlString faultString;
+                     response2.getFault(&faultCode, faultString);         
+                     OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ProcMgmtRpc.restart failed, fault %d : %s",
+                                   faultCode, faultString.data());
+                  }
+                  else
+                  {
+                     // Apparently successful, so extract the result.
+                     pValue = NULL;
+                     if (!response2.getResponse(pValue) || !pValue)
+                     {
+                        OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ProcMgmtRpc.restart response had no result.");
+                     }
+                     else
+                     {                  
+                        UtlBool* pResult = dynamic_cast<UtlBool*>(pValue);
+                        if (!pResult)
+                        {
+                           OsSysLog::add(LOG_FACILITY, PRI_CRIT, 
+                                         "ProcMgmtRpc.restart response result had unexpected type: %s",
+                                         pValue->getContainableType());
+                        }
+                        else
+                        {
+                           if (!pResult->getValue())
+                           {
+                              OsSysLog::add(LOG_FACILITY, PRI_ERR, "ProcMgmtRpc.restart could not restart the process.");
+                           }
+                           else
+                           {
+                              OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Set - Restart %s", myName.data());
+                              bWatchDogRestarted = true;
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+      
+      if (!bWatchDogRestarted)
+      {
+         OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ACDServer::Set - This process could not be controlled by the watchdog.  Exit, stage left.");
          exit(0) ;
       }
    }

@@ -12,7 +12,8 @@ pbxconf_files = \
     ProcessDefinitions.xml \
     resourcemap.xml \
     voicemail.xml.in \
-    cbadmission.xml.in
+    cbadmission.xml.in \
+    sipxwatchdog-config.in
 
 wwwconf_files = \
     httpd.conf \

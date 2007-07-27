@@ -12,7 +12,11 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 
 import junit.framework.TestCase;
 
@@ -21,107 +25,141 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 
 public class SipxProcessContextImplTest extends TestCase {
     private SipxProcessContextImpl m_processContextImpl;
-    private Location m_location;
-    private List m_requestUrls;
+
+    private int m_numberOfCalls;
+    private List m_urlStrings;
+    private List m_methodNameStrings;
+    private List m_paramVectors;
+
+    private final static ServiceStatus[] SERVICESTATUS = new ServiceStatus[] {
+        new ServiceStatus(Process.REGISTRAR, ServiceStatus.Status.STARTING),
+        new ServiceStatus(Process.MEDIA_SERVER, ServiceStatus.Status.STARTED),
+        new ServiceStatus(Process.PRESENCE_SERVER, ServiceStatus.Status.STOPPED),
+        new ServiceStatus(Process.AUTH_PROXY, ServiceStatus.Status.FAILED),
+        new ServiceStatus(Process.ACD_SERVER, ServiceStatus.Status.UNKNOWN)
+    };
 
     protected void setUp() throws Exception {
         m_processContextImpl = new SipxProcessContextImpl() {
-            protected InputStream getStatusStream(Location location) {
-                return SipxProcessContextImplTest.class.getResourceAsStream("status.test.xml");
-            }
 
             protected InputStream getTopologyAsStream() {
                 return SipxProcessContextImplTest.class.getResourceAsStream("topology.test.xml");
             }
 
-            protected InputStream invokeHttpGetRequest(String urlString) {
-                m_requestUrls.add(urlString);
-                return null;
+            protected Object invokeXmlRpcRequest(Location location, String methodName,
+                    Vector params) {
+                m_numberOfCalls++;
+                m_urlStrings.add(location.getProcessMonitorUrl());
+                m_methodNameStrings.add(methodName);
+                m_paramVectors.add(params);
+
+                if (Command.STOP.getName() == methodName || Command.START.getName() == methodName
+                        || Command.RESTART.getName() == methodName) {
+                    return new Boolean(true);
+                } else if ("getStateAll" == methodName) {
+                    Hashtable result = new Hashtable();
+                    for (int x = 0; x < SERVICESTATUS.length; x++) {
+                        result.put(SERVICESTATUS[x].getServiceName(), SERVICESTATUS[x]
+                                .getStatus().getName());
+                    }
+                    return result;
+                }
+
+                throw new RuntimeException("Unrecognized methodName: '" + methodName + "'.");
             }
         };
 
-        m_location = m_processContextImpl.getLocations()[0];
-        m_requestUrls = new ArrayList();
+        m_methodNameStrings = new ArrayList();
+        m_urlStrings = new ArrayList();
+        m_paramVectors = new ArrayList();
     }
 
-    public void testConstructRestartUrl() {
-        String url = m_processContextImpl.constructCommandUrl(m_location,
-                SipxProcessContext.Process.REGISTRAR, SipxProcessContext.Command.RESTART);
+    public void testGetStatus() {
+        ServiceStatus[] resultServiceStatus = m_processContextImpl.getStatus(m_processContextImpl
+                .getLocations()[0]);
 
-        assertEquals(
-                "https://localhost:8091/cgi-bin/processmonitor/process.cgi?command=restart&process=SIPRegistrar",
-                url);
-    }
+        assertEquals(1, m_numberOfCalls);
 
-    public void testConstructStatusUrls() throws Exception {
-        String url = m_processContextImpl.constructStatusUrl(m_location);
-        assertEquals("https://localhost:8091/cgi-bin/processmonitor/process.cgi?command=status",
-                url);
-    }
+        // Build the set of expected Process-ServiceStatus combinations. The order is not
+        // important.
+        Set<String> expectedCombinations = new HashSet<String>();
+        for (int x = 0; x < SERVICESTATUS.length; x++) {
+            expectedCombinations.add(SERVICESTATUS[x].getServiceName()
+                    + SERVICESTATUS[x].getStatus().getName());
+        }
 
-    public void testConstructCommandUrls() throws Exception {
-        String url = m_processContextImpl.constructCommandUrl(m_location, Process.AUTH_PROXY,
-                Command.START);
-        assertEquals(
-                "https://localhost:8091/cgi-bin/processmonitor/process.cgi?command=start&process=SIPAuthProxy",
-                url);
-    }
-
-    // Test getting status. Work with persisted XML output, rather than making a live call
-    // to the server, to avoid requiring a server to be running. We override the method
-    // getStatusStream of SipxProcessContextImpl for this purpose.
-    public void testGetStatus() throws Exception {
-        ServiceStatus[] status = m_processContextImpl.getStatus(m_location);
-        assertEquals(8, status.length);
-        assertEquals("ConfigServer", status[0].getServiceName());
+        // Compare the expected Process-ServiceStatus combinations to what actually occured.
+        for (int x = 0; x < resultServiceStatus.length; x++) {
+            String value = resultServiceStatus[x].getServiceName()
+                    + resultServiceStatus[x].getStatus().getName();
+            assertTrue(expectedCombinations.remove(value));
+        }
+        assertEquals(0, expectedCombinations.size());
     }
 
     public void testManageService() {
+        Process[] processes = {
+            Process.REGISTRAR
+        };
+        Location[] locations = {
+            m_processContextImpl.getLocations()[0]
+        };
+        Command command = Command.STOP;
 
-        m_processContextImpl.manageService(m_location, Process.REGISTRAR, Command.STOP);
+        m_processContextImpl.manageService(locations[0], processes[0], command);
 
-        assertEquals(1, m_requestUrls.size());
-        assertEquals(
-                "https://localhost:8091/cgi-bin/processmonitor/process.cgi?command=stop&process=SIPRegistrar",
-                m_requestUrls.get(0));
+        checkManageServicesResults(processes, locations, command);
     }
 
     public void testManageServices() {
         Process[] processes = {
             Process.MEDIA_SERVER, Process.PRESENCE_SERVER
         };
+        Location[] locations = m_processContextImpl.getLocations();
+        Command command = Command.RESTART;
 
-        m_processContextImpl.manageServices(Arrays.asList(processes), Command.RESTART);
+        m_processContextImpl.manageServices(Arrays.asList(processes), command);
 
-        assertEquals(4, m_requestUrls.size());
-        assertEquals(
-                "https://localhost:8091/cgi-bin/processmonitor/process.cgi?command=restart&process=MediaServer",
-                m_requestUrls.get(0));
-        assertEquals(
-                "https://localhost:8091/cgi-bin/processmonitor/process.cgi?command=restart&process=PresenceServer",
-                m_requestUrls.get(1));
-        assertEquals(
-                "https://192.168.0.27:8091/cgi-bin/processmonitor/process.cgi?command=restart&process=MediaServer",
-                m_requestUrls.get(2));
-        assertEquals(
-                "https://192.168.0.27:8091/cgi-bin/processmonitor/process.cgi?command=restart&process=PresenceServer",
-                m_requestUrls.get(3));
+        checkManageServicesResults(processes, locations, command);
     }
 
     public void testManageServicesLocation() {
         Process[] processes = {
-            Process.MEDIA_SERVER, Process.PRESENCE_SERVER
+            Process.AUTH_PROXY, Process.ACD_SERVER
         };
+        Location[] locations = {
+            m_processContextImpl.getLocations()[1]
+        };
+        Command command = Command.START;
 
-        m_processContextImpl.manageServices(m_location, Arrays.asList(processes), Command.START);
+        m_processContextImpl.manageServices(locations[0], Arrays.asList(processes), command);
 
-        assertEquals(2, m_requestUrls.size());
-        assertEquals(
-                "https://localhost:8091/cgi-bin/processmonitor/process.cgi?command=start&process=MediaServer",
-                m_requestUrls.get(0));
-        assertEquals(
-                "https://localhost:8091/cgi-bin/processmonitor/process.cgi?command=start&process=PresenceServer",
-                m_requestUrls.get(1));
+        checkManageServicesResults(processes, locations, command);
+    }
 
+    private void checkManageServicesResults(final Process[] PROCESSES,
+            final Location[] LOCATIONS, final Command COMMAND) {
+        assertEquals(LOCATIONS.length * PROCESSES.length, m_numberOfCalls);
+
+        for (int x = 0; x < m_numberOfCalls; x++) {
+            assertEquals(COMMAND.getName(), m_methodNameStrings.get(x));
+        }
+
+        // Build the set of expected Process-Location combinations. The order is not important.
+        Set<String> expectedCombinations = new HashSet<String>();
+        for (int x = 0; x < PROCESSES.length; x++) {
+            for (int y = 0; y < LOCATIONS.length; y++) {
+                expectedCombinations.add(PROCESSES[x].getName()
+                        + LOCATIONS[y].getProcessMonitorUrl());
+            }
+        }
+
+        // Compare the expected Process-Location combinations to what actually occured.
+        for (int x = 0; x < m_numberOfCalls; x++) {
+            String value = ((Vector<Object>) m_paramVectors.get(x)).elementAt(0).toString()
+                    + m_urlStrings.get(x);
+            assertTrue(expectedCombinations.remove(value));
+        }
+        assertEquals(0, expectedCombinations.size());
     }
 }

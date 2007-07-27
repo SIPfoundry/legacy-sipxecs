@@ -24,6 +24,8 @@
 
   <bean id="sipxProcessContext" parent="sipxReplicationContextImpl"
     class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
+    <!-- real value injected by sipxconfig.properties -->
+    <property name="host" value="localhost" />
   </bean>
 
   <bean id="sipxReplicationContextDao"

@@ -24,12 +24,23 @@
 //
 // *** READ THIS ***
 //
-// NOTE:  If adding a facility, please:
+// NOTE: If you need a new facility, please first look for an enum value
+//       that is available for re-use.  (e.g. FAC_AVAILABLE_FOR_REUSE)
+//       If no enum valuess are available for re-use, then add a new one, 
+//       but please: 
 //        1) Insert it before the FAC_MAX_FACILITY.
 //        2) Update OsSysLogFacilties.cpp to include the
 //           string name.
 //        3) Update the !enum comments below.
-//
+//         
+//       If removing a facility, do NOT delete the enum value.
+//       Instead, please: 
+//        1) Rename the enum value to flag it as available for re-use.
+//           (e.g. FAC_AVAILABLE_FOR_REUSE)
+//        2) Update OsSysLogFacilties.cpp to change the string name
+//           to "UNUSED".
+//        3) Update the !enum comments below.
+// 
 // *** READ THIS ***
 //
 //
@@ -62,7 +73,7 @@ enum tagOsSysLogFacility
    FAC_UPGRADE,            // Update/Upgrade related
    FAC_LINE_MGR,           // SIP line manager related
    FAC_REFRESH_MGR,        // SIP refresh manager related
-   FAC_PROCESSCGI,         // Process Management CGI (process.cgi)
+   FAC_AVAILABLE_FOR_REUSE,// Available for re-use.
    FAC_STREAMING,          // Stream Media related message
    FAC_REPLICATION_CGI,    // replication cgi( replicates databases across components )
    FAC_DB,                 // Database related (sipdb)
@@ -114,7 +125,7 @@ enum tagOsSysLogFacility
   //!enumcode: FAC_PARK - Park Server related
   //!enumcode: FAC_APACHE_AUTH - Apache Authentication Module
   //!enumcode: FAC_UPGRADE - Update/Upgrade related
-  //!enumcode: FAC_PROCESSCGI - Process Management CGI (process.cgi)
+  //!enumcode: FAC_AVAILABLE_FOR_REUSE - Available for re-use. 
   //!enumcode: FAC_DB - Database related (sipdb)
   //!enumcode: FAC_REPLICATION_CGI - replication cgi (replicates databases across components)
   //!enumcode: FAC_PROCESSMGR - os processmanager related

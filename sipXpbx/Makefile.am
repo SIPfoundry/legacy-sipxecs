@@ -36,7 +36,9 @@ install-data-hook :
 	$(INSTALL) -d $(DESTDIR)@wwwdir@/doc
 	$(INSTALL) -d $(DESTDIR)@wwwdir@/conf
 
-dist-hook :
+dist-hook : rm-cgilib
+
+rm-cgilib:
 	rm -rf $(distdir)/src/cgilib $(distdir)/include/cgilib
 
 DISTCLEANFILES = \
