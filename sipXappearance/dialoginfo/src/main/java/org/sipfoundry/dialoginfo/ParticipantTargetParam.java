@@ -8,29 +8,54 @@ package org.sipfoundry.dialoginfo;
 /**
  * [Enter descriptive text here]
  * <p>
- *
+ * 
  * @author mardy
  */
 public class ParticipantTargetParam {
-  protected String pname;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String pname;
 
-  protected String pval;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String pval;
 
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public String getPname() {
+		return pname;
+	}
 
-  public String getPname() {
-    return this.pname;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param pname
+	 */
+	public void setPname(String pname) {
+		this.pname = pname;
+	}
 
-  public void setPname(String pname) {
-    this.pname = pname;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public String getPval() {
+		return pval;
+	}
 
-  public String getPval() {
-    return this.pval;
-  }
-
-  public void setPval(String pval) {
-    this.pval = pval;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param pval
+	 */
+	public void setPval(String pval) {
+		this.pval = pval;
+	}
 
 }

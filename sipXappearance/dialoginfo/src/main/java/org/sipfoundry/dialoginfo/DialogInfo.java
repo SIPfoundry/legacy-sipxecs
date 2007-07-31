@@ -10,53 +10,119 @@ import java.util.ArrayList;
 /**
  * [Enter descriptive text here]
  * <p>
- *
+ * 
  * @author mardy
  */
 public class DialogInfo {
-  protected long version;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected long version;
 
-  protected String state;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String state;
 
-  protected String entity;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String entity;
 
-  protected ArrayList<Dialog> dialogList = new ArrayList<Dialog>();
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected ArrayList<Dialog> dialogList = new ArrayList<Dialog>();
 
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param dialog
+	 */
+	public void addDialog(Dialog dialog) {
+		dialogList.add(dialog);
+	}
 
-  public void addDialog(Dialog dialog) {
-    dialogList.add(dialog);
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param dialog
+	 */
+	public void removeDialog(Dialog dialog) {
+		dialogList.remove(dialog);
+	}
 
-  public Dialog getDialog(int index) {
-    return (Dialog)dialogList.get( index );
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public Dialog getDialog(int index) {
+		return (Dialog) dialogList.get(index);
+	}
 
-  public int sizeDialogList() {
-    return dialogList.size();
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public int sizeDialogList() {
+		return dialogList.size();
+	}
 
-  public long getVersion() {
-    return this.version;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public long getVersion() {
+		return version;
+	}
 
-  public void setVersion(long version) {
-    this.version = version;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param version
+	 */
+	public void setVersion(long version) {
+		this.version = version;
+	}
 
-  public String getState() {
-    return this.state;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public DialogInfoState getState() {
+		return DialogInfoState.toEnum(state);
+	}
 
-  public void setState(String state) {
-    this.state = state;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param state
+	 */
+	public void setState(DialogInfoState state) {
+		this.state = state.toString();
+	}
 
-  public String getEntity() {
-    return this.entity;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public String getEntity() {
+		return entity;
+	}
 
-  public void setEntity(String entity) {
-    this.entity = entity;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param entity
+	 */
+	public void setEntity(String entity) {
+		this.entity = entity;
+	}
 
 }

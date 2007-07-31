@@ -8,39 +8,94 @@ package org.sipfoundry.dialoginfo;
 /**
  * [Enter descriptive text here]
  * <p>
- *
+ * 
  * @author mardy
  */
 public class State {
-  private String base;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	private String element;
 
-  protected String event;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String event;
 
-  protected long code;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected long code;
 
+	/**
+	 * JiBX private constructor.
+	 */
+	@SuppressWarnings("unused")
+	private State() {
+		this.element = "";
+	}
 
-  public String getBase() {
-    return this.base;
-  }
+	/**
+	 * Default constructor.
+	 * 
+	 * @param element
+	 */
+	public State(DialogState dialogState) {
+		this.element = dialogState.toString();
+	}
 
-  public void setBase(String base) {
-    this.base = base;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public DialogState get() {
+		return DialogState.toEnum(element);
+	}
 
-  public String getEvent() {
-    return this.event;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param element
+	 */
+	public void set(DialogState dialogState) {
+		this.element = dialogState.toString();
+	}
 
-  public void setEvent(String event) {
-    this.event = event;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public StateEvent getEvent() {
+		return StateEvent.toEnum(event);
+	}
 
-  public long getCode() {
-    return this.code;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param event
+	 */
+	public void setEvent(StateEvent event) {
+		this.event = event.toString();
+	}
 
-  public void setCode(long code) {
-    this.code = code;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public long getCode() {
+		return code;
+	}
+
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param code
+	 */
+	public void setCode(long code) {
+		this.code = code;
+	}
 
 }

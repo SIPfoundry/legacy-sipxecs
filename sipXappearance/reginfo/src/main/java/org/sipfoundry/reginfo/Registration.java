@@ -7,57 +7,122 @@ package org.sipfoundry.reginfo;
 
 import java.util.ArrayList;
 
-
 /**
  * [Enter descriptive text here]
  * <p>
- *
+ * 
  * @author mardy
  */
 public class Registration {
-  protected String aor;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String aor;
 
-  protected String id;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String id;
 
-  protected String state;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String state;
 
-  protected ArrayList<Contact> contactList = new ArrayList<Contact>();
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected ArrayList<Contact> contactList = new ArrayList<Contact>();
 
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @param contact
+	 */
+	public void addContact(Contact contact) {
+		contactList.add(contact);
+	}
 
-  public void addContact(Contact contact) {
-    contactList.add(contact);
-  }
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @param contact
+	 */
+	public void removeContact(Contact contact) {
+		contactList.remove(contact);
+	}
 
-  public Contact getContact(int index) {
-    return (Contact)contactList.get(index);
-  }
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @param index
+	 * @return
+	 */
+	public Contact getContact(int index) {
+		return (Contact) contactList.get(index);
+	}
 
-  public int sizeContactList() {
-    return contactList.size();
-  }
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @return
+	 */
+	public int sizeContactList() {
+		return contactList.size();
+	}
 
-  public String getAor() {
-    return this.aor;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @return
+	 */
+	public String getAor() {
+		return aor;
+	}
 
-  public void setAor(String aor) {
-    this.aor = aor;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @param aor
+	 */
+	public void setAor(String aor) {
+		this.aor = aor;
+	}
 
-  public String getId() {
-    return this.id;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @return
+	 */
+	public String getId() {
+		return id;
+	}
 
-  public void setId(String id) {
-    this.id = id;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @param id
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 
-  public String getState() {
-    return this.state;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @return
+	 */
+	public RegistrationState getState() {
+		return RegistrationState.toEnum(state);
+	}
 
-  public void setState(String state) {
-    this.state = state;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @param state
+	 */
+	public void setState(RegistrationState state) {
+		this.state = state.toString();
+	}
 
 }

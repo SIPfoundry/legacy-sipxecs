@@ -8,29 +8,54 @@ package org.sipfoundry.reginfo;
 /**
  * [Enter descriptive text here]
  * <p>
- *
+ * 
  * @author mardy
  */
 public class ContactDisplayName {
-  private String base;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	private String base;
 
-  protected String lang;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String lang;
 
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public String getBase() {
+		return base;
+	}
 
-  public String getBase() {
-    return this.base;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param base
+	 */
+	public void setBase(String base) {
+		this.base = base;
+	}
 
-  public void setBase(String base) {
-    this.base = base;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public String getLang() {
+		return lang;
+	}
 
-  public String getLang() {
-    return this.lang;
-  }
-
-  public void setLang(String lang) {
-    this.lang = lang;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param lang
+	 */
+	public void setLang(String lang) {
+		this.lang = lang;
+	}
 
 }

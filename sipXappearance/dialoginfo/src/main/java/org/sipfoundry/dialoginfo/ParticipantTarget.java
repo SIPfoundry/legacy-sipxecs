@@ -10,33 +10,73 @@ import java.util.ArrayList;
 /**
  * [Enter descriptive text here]
  * <p>
- *
+ * 
  * @author mardy
  */
 public class ParticipantTarget {
-  protected String uri;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String uri;
 
-  protected ArrayList<ParticipantTargetParam> paramList = new ArrayList<ParticipantTargetParam>();
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected ArrayList<ParticipantTargetParam> paramList = new ArrayList<ParticipantTargetParam>();
 
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param param
+	 */
+	public void addParam(ParticipantTargetParam param) {
+		paramList.add(param);
+	}
 
-  public void addParam(ParticipantTargetParam param) {
-    paramList.add(param);
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param param
+	 */
+	public void removeParam(ParticipantTargetParam param) {
+		paramList.remove(param);
+	}
 
-  public ParticipantTargetParam getParam(int index) {
-    return (ParticipantTargetParam)paramList.get( index );
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public ParticipantTargetParam getParam(int index) {
+		return (ParticipantTargetParam) paramList.get(index);
+	}
 
-  public int sizeParamList() {
-    return paramList.size();
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public int sizeParamList() {
+		return paramList.size();
+	}
 
-  public String getUri() {
-    return this.uri;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public String getUri() {
+		return uri;
+	}
 
-  public void setUri(String uri) {
-    this.uri = uri;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param uri
+	 */
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
 
 }

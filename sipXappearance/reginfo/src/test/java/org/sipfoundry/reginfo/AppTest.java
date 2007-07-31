@@ -52,25 +52,23 @@ public class AppTest  extends TestCase
 			// binding name as the first parameter
 			IBindingFactory bfact = BindingDirectory.getFactory(Reginfo.class);
 
-			/*
-			 * // unmarshal customer information from file IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
-			 * FileInputStream in = new FileInputStream(args[0]); DialogInfo dialogInfo = (DialogInfo)uctx.unmarshalDocument(in,
-			 * null); // you can add code here to alter the unmarshalled customer
-			 */
-
 			Reginfo reginfo = new Reginfo();
 			reginfo.setVersion(1L);
-			reginfo.setState("partial");
+			reginfo.setState(ReginfoState.PARTIAL);
 
+			Contact contact = new Contact();
+			contact.setEvent(ContactEvent.toEnum("Created"));
+			System.out.println("Contact.event: " + contact.getEvent().toString());
+			
 			// marshal object back out to file (with nice indentation, as UTF-8)
 			IMarshallingContext mctx = bfact.createMarshallingContext();
 			mctx.setIndent(0, "\r\n", ' ');
-			FileOutputStream out = new FileOutputStream("out.xml");
+			FileOutputStream out = new FileOutputStream("target/out.xml");
 			mctx.marshalDocument(reginfo, "UTF-8", null, out);
 
 			 // unmarshal reginfo from file
 			IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
-			FileInputStream in = new FileInputStream("out.xml");
+			FileInputStream in = new FileInputStream("target/out.xml");
 			Reginfo unmarshaledReginfo = (Reginfo)uctx.unmarshalDocument(in, null);
 			assertTrue(reginfo.getState().compareTo(unmarshaledReginfo.getState()) == 0);
 		} catch (FileNotFoundException e) {

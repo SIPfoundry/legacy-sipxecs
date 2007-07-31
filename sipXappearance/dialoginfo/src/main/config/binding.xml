@@ -49,15 +49,15 @@
     <value name="pval" field="pval" usage="required" style="attribute"/>
   </mapping>
   <mapping class="org.sipfoundry.dialoginfo.Nameaddr" abstract="true">
-    <value field="base" usage="required" style="text"/>
+    <value field="element" usage="required" style="text"/>
     <value name="display-name" field="displayName" usage="optional" style="attribute"/>
   </mapping>
   <mapping name="session-description" class="org.sipfoundry.dialoginfo.Sessd">
-    <value field="base" usage="required" style="text"/>
+    <value field="element" usage="required" style="text"/>
     <value name="type" field="type" usage="required" style="attribute"/>
   </mapping>
   <mapping name="state" class="org.sipfoundry.dialoginfo.State">
-    <value field="base" usage="required" style="text"/>
+    <value field="element" usage="required" style="text"/>
     <value name="event" field="event" usage="optional" style="attribute"/>
     <value name="code" field="code" usage="optional" style="attribute"/>
   </mapping>

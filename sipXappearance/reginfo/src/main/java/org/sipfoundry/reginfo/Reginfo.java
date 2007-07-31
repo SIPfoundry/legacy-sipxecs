@@ -7,41 +7,99 @@ package org.sipfoundry.reginfo;
 
 import java.util.ArrayList;
 
-
+/**
+ * [Enter descriptive text here]
+ * <p>
+ * 
+ * @author mardy
+ */
 public class Reginfo {
-  protected long version;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected long version;
 
-  protected String state;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String state;
 
-  protected ArrayList<Registration> registrationList = new ArrayList<Registration>();
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected ArrayList<Registration> registrationList = new ArrayList<Registration>();
 
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param registration
+	 */
+	public void addRegistration(Registration registration) {
+		registrationList.add(registration);
+	}
 
-  public void addRegistration(Registration registration) {
-    registrationList.add(registration);
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param registration
+	 */
+	public void removeRegistration(Registration registration) {
+		registrationList.remove(registration);
+	}
 
-  public Registration getRegistration(int index) {
-    return (Registration)registrationList.get(index);
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public Registration getRegistration(int index) {
+		return (Registration) registrationList.get(index);
+	}
 
-  public int sizeRegistrationList() {
-    return registrationList.size();
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public int sizeRegistrationList() {
+		return registrationList.size();
+	}
 
-  public long getVersion() {
-    return this.version;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public long getVersion() {
+		return version;
+	}
 
-  public void setVersion(long version) {
-    this.version = version;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param version
+	 */
+	public void setVersion(long version) {
+		this.version = version;
+	}
 
-  public String getState() {
-    return this.state;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public ReginfoState getState() {
+		return ReginfoState.toEnum(state);
+	}
 
-  public void setState(String state) {
-    this.state = state;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param state
+	 */
+	public void setState(ReginfoState state) {
+		this.state = state.toString();
+	}
 
 }

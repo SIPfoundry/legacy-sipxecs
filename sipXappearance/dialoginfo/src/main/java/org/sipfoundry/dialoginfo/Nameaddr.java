@@ -8,29 +8,63 @@ package org.sipfoundry.dialoginfo;
 /**
  * [Enter descriptive text here]
  * <p>
- *
+ * 
  * @author mardy
  */
 public class Nameaddr {
-  private String base;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	private String element;
 
-  protected String displayName;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String displayName;
 
+	/**
+	 * Default constructor
+	 * 
+	 * @param element
+	 */
+	public Nameaddr(String element) {
+		this.element = element;
+	}
 
-  public String getBase() {
-    return this.base;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public String get() {
+		return element;
+	}
 
-  public void setBase(String base) {
-    this.base = base;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param element
+	 */
+	public void set(String element) {
+		this.element = element;
+	}
 
-  public String getDisplayName() {
-    return this.displayName;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public String getDisplayName() {
+		return displayName;
+	}
 
-  public void setDisplayName(String displayName) {
-    this.displayName = displayName;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param displayName
+	 */
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
 
 }

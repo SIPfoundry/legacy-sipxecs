@@ -8,39 +8,77 @@ package org.sipfoundry.dialoginfo;
 /**
  * [Enter descriptive text here]
  * <p>
- *
+ * 
  * @author mardy
  */
 public class DialogReplaces {
-  protected String callId;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String callId;
 
-  protected String localTag;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String localTag;
 
-  protected String remoteTag;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String remoteTag;
 
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @return
+	 */
+	public String getCallId() {
+		return callId;
+	}
 
-  public String getCallId() {
-    return this.callId;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @param callId
+	 */
+	public void setCallId(String callId) {
+		this.callId = callId;
+	}
 
-  public void setCallId(String callId) {
-    this.callId = callId;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @return
+	 */
+	public String getLocalTag() {
+		return localTag;
+	}
 
-  public String getLocalTag() {
-    return this.localTag;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @param localTag
+	 */
+	public void setLocalTag(String localTag) {
+		this.localTag = localTag;
+	}
 
-  public void setLocalTag(String localTag) {
-    this.localTag = localTag;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @return
+	 */
+	public String getRemoteTag() {
+		return remoteTag;
+	}
 
-  public String getRemoteTag() {
-    return this.remoteTag;
-  }
-
-  public void setRemoteTag(String remoteTag) {
-    this.remoteTag = remoteTag;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 *
+	 * @param remoteTag
+	 */
+	public void setRemoteTag(String remoteTag) {
+		this.remoteTag = remoteTag;
+	}
 
 }

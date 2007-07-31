@@ -8,29 +8,71 @@ package org.sipfoundry.dialoginfo;
 /**
  * [Enter descriptive text here]
  * <p>
- *
+ * 
  * @author mardy
  */
 public class Sessd {
-  private String base;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	private String element;
 
-  protected String type;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String type;
 
+	/**
+	 * JiBX private constructor.
+	 */
+	@SuppressWarnings("unused")
+	private Sessd() {
+		this.element = "";
+	}
 
-  public String getBase() {
-    return this.base;
-  }
+	/**
+	 * Default constructor.
+	 * 
+	 * @param element
+	 */
+	public Sessd(String element) {
+		this.element = element;
+	}
 
-  public void setBase(String base) {
-    this.base = base;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public String get() {
+		return element;
+	}
 
-  public String getType() {
-    return this.type;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param element
+	 */
+	public void set(String element) {
+		this.element = element;
+	}
 
-  public void setType(String type) {
-    this.type = type;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param type
+	 */
+	public void setType(String type) {
+		this.type = type;
+	}
 
 }

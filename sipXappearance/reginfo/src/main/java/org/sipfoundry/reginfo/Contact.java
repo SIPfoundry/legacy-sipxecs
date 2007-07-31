@@ -7,137 +7,306 @@ package org.sipfoundry.reginfo;
 
 import java.util.ArrayList;
 
-
 /**
  * [Enter descriptive text here]
  * <p>
- *
+ * 
  * @author mardy
  */
 public class Contact {
-  protected String uri;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String uri;
 
-  protected ContactDisplayName displayName;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected ContactDisplayName displayName;
 
-  protected String state;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String state;
 
-  protected String event;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String event;
 
-  protected long durationRegistered;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected long durationRegistered;
 
-  protected long expires;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected long expires;
 
-  protected long retryAfter;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected long retryAfter;
 
-  protected String id;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String id;
 
-  protected String q;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String q;
 
-  protected String callid;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected String callid;
 
-  protected long cseq;
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected long cseq;
 
-  protected ArrayList<ContactUnknownParam> unknownParamList = new ArrayList<ContactUnknownParam>();
+	/**
+	 * [Enter descriptive text here]
+	 */
+	protected ArrayList<ContactUnknownParam> unknownParamList = new ArrayList<ContactUnknownParam>();
 
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public String getUri() {
+		return uri;
+	}
 
-  public String getUri() {
-    return this.uri;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param uri
+	 */
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
 
-  public void setUri(String uri) {
-    this.uri = uri;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public ContactDisplayName getDisplayName() {
+		return displayName;
+	}
 
-  public ContactDisplayName getDisplayName() {
-    return this.displayName;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param displayName
+	 */
+	public void setDisplayName(ContactDisplayName displayName) {
+		this.displayName = displayName;
+	}
 
-  public void setDisplayName(ContactDisplayName displayName) {
-    this.displayName = displayName;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param unknownParam
+	 */
+	public void addUnknownParam(ContactUnknownParam unknownParam) {
+		unknownParamList.add(unknownParam);
+	}
 
-  public void addUnknownParam(ContactUnknownParam unknownParam) {
-    unknownParamList.add(unknownParam);
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param unknownParam
+	 */
+	public void removeUnknownParam(ContactUnknownParam unknownParam) {
+		unknownParamList.remove(unknownParam);
+	}
 
-  public ContactUnknownParam getUnknownParam(int index) {
-    return (ContactUnknownParam)unknownParamList.get( index );
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public ContactUnknownParam getUnknownParam(int index) {
+		return (ContactUnknownParam) unknownParamList.get(index);
+	}
 
-  public int sizeUnknownParamList() {
-    return unknownParamList.size();
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public int sizeUnknownParamList() {
+		return unknownParamList.size();
+	}
 
-  public String getState() {
-    return this.state;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public ContactState getState() {
+		return ContactState.toEnum(state);
+	}
 
-  public void setState(String state) {
-    this.state = state;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param state
+	 */
+	public void setState(ContactState state) {
+		this.state = state.toString();
+	}
 
-  public String getEvent() {
-    return this.event;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public ContactEvent getEvent() {
+		return ContactEvent.toEnum(event);
+	}
 
-  public void setEvent(String event) {
-    this.event = event;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param event
+	 */
+	public void setEvent(ContactEvent event) {
+		this.event = event.toString();
+	}
 
-  public long getDurationRegistered() {
-    return this.durationRegistered;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public long getDurationRegistered() {
+		return durationRegistered;
+	}
 
-  public void setDurationRegistered(long durationRegistered) {
-    this.durationRegistered = durationRegistered;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param durationRegistered
+	 */
+	public void setDurationRegistered(long durationRegistered) {
+		this.durationRegistered = durationRegistered;
+	}
 
-  public long getExpires() {
-    return this.expires;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public long getExpires() {
+		return expires;
+	}
 
-  public void setExpires(long expires) {
-    this.expires = expires;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param expires
+	 */
+	public void setExpires(long expires) {
+		this.expires = expires;
+	}
 
-  public long getRetryAfter() {
-    return this.retryAfter;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public long getRetryAfter() {
+		return retryAfter;
+	}
 
-  public void setRetryAfter(long retryAfter) {
-    this.retryAfter = retryAfter;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param retryAfter
+	 */
+	public void setRetryAfter(long retryAfter) {
+		this.retryAfter = retryAfter;
+	}
 
-  public String getId() {
-    return this.id;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public String getId() {
+		return id;
+	}
 
-  public void setId(String id) {
-    this.id = id;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param id
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 
-  public String getQ() {
-    return this.q;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public String getQ() {
+		return q;
+	}
 
-  public void setQ(String q) {
-    this.q = q;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param q
+	 */
+	public void setQ(String q) {
+		this.q = q;
+	}
 
-  public String getCallid() {
-    return this.callid;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public String getCallid() {
+		return callid;
+	}
 
-  public void setCallid(String callid) {
-    this.callid = callid;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param callid
+	 */
+	public void setCallid(String callid) {
+		this.callid = callid;
+	}
 
-  public long getCseq() {
-    return this.cseq;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @return
+	 */
+	public long getCseq() {
+		return cseq;
+	}
 
-  public void setCseq(long cseq) {
-    this.cseq = cseq;
-  }
+	/**
+	 * [Enter descriptive text here]
+	 * 
+	 * @param cseq
+	 */
+	public void setCseq(long cseq) {
+		this.cseq = cseq;
+	}
 
 }

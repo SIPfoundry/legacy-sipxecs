@@ -57,16 +57,15 @@ public class AppTest  extends TestCase
 
 			DialogInfo dialogInfo = new DialogInfo();
 			dialogInfo.setVersion(1L);
-			dialogInfo.setState("partial");
+			dialogInfo.setState(DialogInfoState.PARTIAL);
 			dialogInfo.setEntity("sip:201@acme.com");
 
 			org.sipfoundry.dialoginfo.Dialog dialog = new org.sipfoundry.dialoginfo.Dialog();
-			dialog.setDirection("initiator");
+			dialog.setDirection(DialogDirection.INITIATOR);
 			dialog.setId("id12345678");
 			dialogInfo.addDialog(dialog);
 
-			State state = new State();
-			state.setBase("trying");
+			State state = new State(DialogState.TRYING);
 			dialog.setState(state);
 
 			Participant local = new Participant();
@@ -84,14 +83,18 @@ public class AppTest  extends TestCase
 			// marshal object back out to file (with nice indentation, as UTF-8)
 			IMarshallingContext mctx = bfact.createMarshallingContext();
 			mctx.setIndent(0, "\r\n", ' ');
-			FileOutputStream out = new FileOutputStream("out.xml");
+			FileOutputStream out = new FileOutputStream("target/out.xml");
 			mctx.marshalDocument(dialogInfo, "UTF-8", null, out);
 
 			 // unmarshal dialog-info from file
 			IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
-			FileInputStream in = new FileInputStream("out.xml");
+			FileInputStream in = new FileInputStream("target/out.xml");
 			DialogInfo unmarshaledDialogInfo = (DialogInfo)uctx.unmarshalDocument(in, null);
 			assertTrue(dialogInfo.getEntity().compareTo(unmarshaledDialogInfo.getEntity()) == 0);
+			
+			Dialog unmarshaledDialog = unmarshaledDialogInfo.getDialog(0);
+			assertTrue(unmarshaledDialog.getState().get() == DialogState.TRYING);
+			
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
