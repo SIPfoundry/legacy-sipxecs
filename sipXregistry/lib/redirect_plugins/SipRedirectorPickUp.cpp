@@ -1059,6 +1059,12 @@ SipRedirectorPickUpTask::~SipRedirectorPickUpTask()
 UtlBoolean
 SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
 {
+   // Only flag SIP messages as handled, so that OS_SHUTDOWN and anything else
+   // is passed to OsServerTask::handleMessage.
+   // Note that we only provide responses to NOTIFY requests, others are simply
+   // absorbed.
+   UtlBoolean handled = FALSE;
+
    int msgType = eventMessage.getMsgType();
 
    switch (msgType)
@@ -1069,97 +1075,103 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
       const SipMessage* message =
          ((SipMessageEvent&)eventMessage).getMessage();
 
-      // Extract the request method.
-      UtlString method;
-      message->getRequestMethod(&method);
-
-      if (method.compareTo(SIP_NOTIFY_METHOD, UtlString::ignoreCase) == 0)
+      // If it is a request, check its method.  If it is a response, absorb it.
+      if (!message->isResponse())
       {
-         // Get the Call-Id.
-         UtlString callId;
-         message->getCallIdField(&callId);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorPickUpTask::handleMessage "
-                       "Start processing NOTIFY CallID '%s'", callId.data());
+         // Extract the request method.
+         UtlString method;
+         message->getRequestMethod(&method);
 
+         if (method.compareTo(SIP_NOTIFY_METHOD, UtlString::ignoreCase) == 0)
          {
-            // This block holds SipRedirectServer::mRedirectorMutex.
-            OsLock lock(SipRedirectServer::getInstance()->mRedirectorMutex);
+            // Get the Call-Id.
+            UtlString callId;
+            message->getCallIdField(&callId);
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRedirectorPickUpTask::handleMessage "
+                          "Start processing NOTIFY CallID '%s'", callId.data());
 
-            // Look for a suspended request whose SUBSCRIBE had this Call-Id.
-            SipRedirectServerPrivateStorageIterator itor(mRedirectorNo);
-            // Fetch a pointer to each element of myContentSource into
-            // pStorage.
-            SipRedirectorPrivateStoragePickUp* pStorage;
-            while ((pStorage =
-                    dynamic_cast<SipRedirectorPrivateStoragePickUp*> (itor())))
             {
-               // Does this request have the same Call-Id?
-               if (callId.compareTo(pStorage->mSubscribeCallId) == 0)
-               {
-                  // This is the request to which this NOTIFY is a response.
-                  // Process the NOTIFY and store its information in
-                  // *pStorage.
-                  const char* body;
-                  int length;
-                  // Be careful getting the body, as any of the pointers
-                  // may be null.
-                  const HttpBody* http_body;
-                  if (!(http_body = message->getBody()))
-                  {
-                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                   "SipRedirectorPickUpTask::handleMessage "
-                                   "getBody returns NULL, ignoring");
-                  }
-                  else if (http_body->getBytes(&body, &length),
-                           !(body && length > 0))
-                  {
-                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                   "SipRedirectorPickUpTask::handleMessage "
-                                   "getBytes returns no body, ignoring");
-                  }                     
-                  else
-                  {
-                     if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-                     {
-                        // Calculate the response delay.
-                        OsTime now;
-                        OsDateTime::getCurTime(now);
-                        OsTime delta;
-                        delta = now - (pStorage->mSubscribeSendTime);
+               // This block holds SipRedirectServer::mRedirectorMutex.
+               OsLock lock(SipRedirectServer::getInstance()->mRedirectorMutex);
 
+               // Look for a suspended request whose SUBSCRIBE had this Call-Id.
+               SipRedirectServerPrivateStorageIterator itor(mRedirectorNo);
+               // Fetch a pointer to each element of myContentSource into
+               // pStorage.
+               SipRedirectorPrivateStoragePickUp* pStorage;
+               while ((pStorage =
+                       dynamic_cast<SipRedirectorPrivateStoragePickUp*> (itor())))
+               {
+                  // Does this request have the same Call-Id?
+                  if (callId.compareTo(pStorage->mSubscribeCallId) == 0)
+                  {
+                     // This is the request to which this NOTIFY is a response.
+                     // Process the NOTIFY and store its information in
+                     // *pStorage.
+                     const char* body;
+                     int length;
+                     // Be careful getting the body, as any of the pointers
+                     // may be null.
+                     const HttpBody* http_body;
+                     if (!(http_body = message->getBody()))
+                     {
                         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                       "SipRedirectorPickUpTask::handleMessage "
-                                      "NOTIFY for request %d, delay %d.%06d, "
-                                      "body '%s'",
-                                      itor.requestSeqNo(),
-                                      (int) delta.seconds(),
-                                      (int) delta.usecs(),
-                                      body);
+                                      "getBody returns NULL, ignoring");
                      }
-                     // Parse this NOTICE and store the needed
-                     // information in private storage.
-                     pStorage->processNotify(body);
-                  }
+                     else if (http_body->getBytes(&body, &length),
+                              !(body && length > 0))
+                     {
+                        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                      "SipRedirectorPickUpTask::handleMessage "
+                                      "getBytes returns no body, ignoring");
+                     }                     
+                     else
+                     {
+                        if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+                        {
+                           // Calculate the response delay.
+                           OsTime now;
+                           OsDateTime::getCurTime(now);
+                           OsTime delta;
+                           delta = now - (pStorage->mSubscribeSendTime);
 
-                  // Don't bother checking for a match with any other request.
-                  break;
+                           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                         "SipRedirectorPickUpTask::handleMessage "
+                                         "NOTIFY for request %d, delay %d.%06d, "
+                                         "body '%s'",
+                                         itor.requestSeqNo(),
+                                         (int) delta.seconds(),
+                                         (int) delta.usecs(),
+                                         body);
+                        }
+                        // Parse this NOTICE and store the needed
+                        // information in private storage.
+                        pStorage->processNotify(body);
+                     }
+
+                     // Don't bother checking for a match with any other request.
+                     break;
+                  }
                }
             }
-         }
 
-         // Return a 200 response.
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorPickUpTask::handleMessage "
-                       "Sending 200 OK response to NOTIFY");
-         SipMessage response;
-         response.setOkResponseData(message);
-         mpSipUserAgent->setServerHeader(response);
-         mpSipUserAgent->send(response);
+            // Return a 200 response.
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRedirectorPickUpTask::handleMessage "
+                          "Sending 200 OK response to NOTIFY");
+            SipMessage response;
+            response.setOkResponseData(message);
+            mpSipUserAgent->setServerHeader(response);
+            mpSipUserAgent->send(response);
+         }
       }
    }
+
+   handled = TRUE;
    break;
    }
 
-   return TRUE;
+   return handled;
 }
