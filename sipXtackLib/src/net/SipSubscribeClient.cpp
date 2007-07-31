@@ -920,6 +920,17 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
     }
     break;
 
+    case SipDialogMgr::LOOPED:
+       subscriptionResponse.setLocalIp(notifyRequest.getLocalIp());
+       subscriptionResponse.setResponseData(&notifyRequest,
+                                            SIP_LOOP_DETECTED_CODE,
+                                            SIP_LOOP_DETECTED_TEXT);
+       /** Set "Retry-After: 0" to prevent termination of the subscription.
+        *  See RFC 3265, section 3.2.2.
+        */
+       subscriptionResponse.setHeaderValue(SIP_RETRY_AFTER_FIELD, "0");
+       break;
+
     case SipDialogMgr::OUT_OF_ORDER:
        subscriptionResponse.setLocalIp(notifyRequest.getLocalIp());
        subscriptionResponse.setResponseData(&notifyRequest,

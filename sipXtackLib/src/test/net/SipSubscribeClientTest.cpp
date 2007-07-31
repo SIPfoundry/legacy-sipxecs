@@ -1270,13 +1270,14 @@ public:
                         SIP_SERVER_INTERNAL_ERROR_CODE);
        
          // Verify that there is a "Retry-After: 0" header.
-         const char* v = notifyResponse->getHeaderValue(0, SIP_RETRY_AFTER_FIELD);
+         const char* v =
+            notifyResponse->getHeaderValue(0, SIP_RETRY_AFTER_FIELD);
          CPPUNIT_ASSERT(v);
          ASSERT_STR_EQUAL("0", v);
       }
 
    // XECS-246: A duplicated NOTIFY receives a 481 response rather
-   // than a duplicate response.
+   // than a 482 Loop Detected response.
    void duplicateNotify()
       {
          UtlString mwiMimeType(CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY);
@@ -1366,13 +1367,16 @@ public:
                      NULL);
          CPPUNIT_ASSERT(!subscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
-         // Verify that response code is 500 or 200.
-         // 500 is required by RFC 3261, but 200 would be better.
-         CPPUNIT_ASSERT(notifyResponse->getResponseStatusCode() == SIP_OK_CODE ||
-                        notifyResponse->getResponseStatusCode() == SIP_OUT_OF_ORDER_CODE);
-         // Verify that the response code is the desired 200.
-         KNOWN_BUG("Subscribe Client returns 500 rather than 200", "XECS-246");
-         CPPUNIT_ASSERT(notifyResponse->getResponseStatusCode() == SIP_OK_CODE);
+         /** Verify that response code is 482, as required by RFC 3261,
+          *  section 16.3, item 4 -- See XECS-246 for discussion. */
+         CPPUNIT_ASSERT(notifyResponse->getResponseStatusCode() ==
+                        SIP_LOOP_DETECTED_CODE);
+         /** Verify that there is a "Retry-After: 0" header to prevent
+          *  terminating subscriptions. */
+         const char* v =
+            notifyResponse->getHeaderValue(0, SIP_RETRY_AFTER_FIELD);
+         CPPUNIT_ASSERT(v);
+         ASSERT_STR_EQUAL("0", v);
       }
 
    // XECS-255: Forked SUBSCRIBE.

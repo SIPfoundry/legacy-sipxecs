@@ -432,10 +432,16 @@ enum SipDialogMgr::transactionSequence
     {
        int messageCSeq;
        message.getCSeqField(&messageCSeq, NULL);
+       int lastRemoteCSeq = dialog->getLastRemoteCseq();
        ordering =
-          dialog->getLastRemoteCseq() < messageCSeq ?
-          IN_ORDER :
-          OUT_OF_ORDER;
+          messageCSeq < lastRemoteCSeq ? OUT_OF_ORDER :
+          /** If this message was an exact duplicate of a previous message
+           *  (with the same CSeq and branch parameter), it would have been
+           *  absorbed earlier in processing.  So we know the branch parameter
+           *  is different without having to remember the previous value.
+           */
+          messageCSeq == lastRemoteCSeq ? LOOPED :
+          IN_ORDER;
     }
     else
     {

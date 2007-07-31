@@ -45,8 +45,12 @@ public:
    enum transactionSequence
    {
       NO_DIALOG = 0,            ///< No matching dialog found.
-      OUT_OF_ORDER,             ///< CSeq <= last CSeq seen
-      IN_ORDER                  ///< CSeq > last CSeq seen
+      OUT_OF_ORDER,             /**< CSeq < last CSeq seen
+                                 *   Should receive 500 response. */
+      IN_ORDER,                 ///< CSeq > last CSeq seen
+      LOOPED                    /**< CSeq has been seen, but branch
+                                 *   param. differs  Should receive 482
+                                 *   response. */
    };
 
 /* ============================ CREATORS ================================== */
@@ -140,8 +144,15 @@ public:
     UtlBoolean isLastLocalTransaction(const SipMessage& message, 
                                       const char* dialogHandle = NULL);
 
-    /** Check if the message is part of a known dialog, with a
-     *  in order.
+    /** Check if the message is part of a known dialog, and if so,
+     *  how it fits in the sequence of requests from the far end of
+     *  the dialog.
+     *  Note:  This function assumes that the message is not an exact
+     *  duplicate (same CSeq and branch parameter) of a previous request,
+     *  since those are usually absorbed by an earlier stage of processing.
+     *  Hence, any message with the current CSeq is assumed to have a
+     *  different branch parameter, and thus be a looped request (possibly
+     *  due to a transport error).
      */
     enum transactionSequence isNewRemoteTransaction(const SipMessage& sipMessage);
 
