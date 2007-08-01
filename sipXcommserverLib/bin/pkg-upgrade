@@ -54,7 +54,16 @@ class Setup
     tar_file=file[1..-1]
     current_file = @system.extract_file(current, tar_file)
     previous_file = @system.extract_file(previous, tar_file)
-    patch = @system.create_patch(previous_file, current_file)
+    case file
+      when /.*\.xml.*/i        # has .xml in the name
+       patch = @system.create_patch_xml(previous_file, current_file)
+      when /.*\.properties.*/i # has .properties in the name
+       patch = @system.create_patch_config(previous_file, current_file)
+      when /.*config.*/i       # has config in the name
+       patch = @system.create_patch_config(previous_file, current_file)
+      else
+       patch = @system.create_patch_other(previous_file, current_file)
+    end
     @system.delete_file(current_file)
     @system.delete_file(previous_file)
     return patch
@@ -103,10 +112,39 @@ class SystemService
     File.delete(file + '.rpmnew')
   end
 
-  def create_patch(file1, file2)
+  def create_patch_config(file1, file2)
+    # Set the "context lines" to 0, as each line really stands alone.
+    # this prevents "chunks" of lines from conflicting where there
+    # really is no problem.  Only if the same line conflicts should this fail.
+    patch = `#{@@diff} --unified=0 #{file1} #{file2} 2>/dev/null`
+    rc = "#{$?}"
+    return rc != '2' ? patch : ''
+  end
+
+  def create_patch_xml(file1, file2)
+    # diff/patch isn't really right for XML, but it's all we've got right now
     patch = `#{@@diff} --unified #{file1} #{file2} 2>/dev/null`
     rc = "#{$?}"
     return rc != '2' ? patch : ''
+  end
+
+  def create_patch_other(file1, file2)
+    patch = `#{@@diff} --unified #{file1} #{file2} 2>/dev/null`
+    rc = "#{$?}"
+    return rc != '2' ? patch : ''
+  end
+
+  def create_patch(file1, file2)
+    case file1
+      when /.*\.xml.*/i        # has .xml in the name
+       return create_patch_xml(file1, file2)
+      when /.*\-config.*/i     # has -config in the name
+       return create_patch_config(file1, file2)
+      when /.*\.properties.*/i # has .properties in the name
+       return create_patch_config(file1, file2)
+      else
+       return create_patch_other(file1, file2)
+    end
   end
 
   def delete_file(file) 
