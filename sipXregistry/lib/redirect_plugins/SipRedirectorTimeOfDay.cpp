@@ -71,7 +71,7 @@ void
 SipRedirectorTimeOfDay::finalize()
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "%s::finalize", mLogName.data());
+                 "%s::finalize entered", mLogName.data());
 }
 
 // method to convert a hexidecimal string value to an integer

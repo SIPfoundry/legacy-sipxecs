@@ -176,6 +176,8 @@ SipRedirectorGateway::initialize(OsConfigDb& configDb,
 void
 SipRedirectorGateway::finalize()
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::finalize entered", mLogName.data());
+
    mWriterTask.requestShutdown();
    // Wait 1 second for writer to shut down.
    OsTask::delay(1000);

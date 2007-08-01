@@ -242,6 +242,8 @@ SipRedirectorJoin::initialize(OsConfigDb& configDb,
 void
 SipRedirectorJoin::finalize()
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::finalize entered", mLogName.data());
+
    // Close down the SipUserAgent.
    if (mpSipUserAgent)
    {
