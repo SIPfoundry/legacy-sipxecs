@@ -6,61 +6,61 @@
 package org.sipfoundry.dialoginfo;
 
 /**
- * [Enter descriptive text here]
+ * Class representation of the participant element.
  * <p>
  * 
- * @author mardy
+ * @author Mardy Marshall
  */
 public class Participant {
 	/**
-	 * [Enter descriptive text here]
+	 * The URI / display-name of the participant.
 	 */
-	protected Nameaddr identity;
+	protected Identity identity;
 
 	/**
-	 * [Enter descriptive text here]
+	 * The target URI.
 	 */
 	protected ParticipantTarget target;
 
 	/**
-	 * [Enter descriptive text here]
+	 * The session-description.
 	 */
-	protected Sessd sessionDescription;
+	protected SessionDescription sessionDescription;
 
 	/**
-	 * [Enter descriptive text here]
+	 * The cseq.
 	 */
 	protected long cseq;
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the identity of the participant.
 	 * 
-	 * @return
+	 * @return The participant URI / display-name.
 	 */
-	public Nameaddr getIdentity() {
+	public Identity getIdentity() {
 		return identity;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the identity of the participant.
 	 * 
 	 * @param identity
 	 */
-	public void setIdentity(Nameaddr identity) {
+	public void setIdentity(Identity identity) {
 		this.identity = identity;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the target.
 	 * 
-	 * @return
+	 * @return The target.
 	 */
 	public ParticipantTarget getTarget() {
 		return target;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the target.
 	 * 
 	 * @param target
 	 */
@@ -69,34 +69,34 @@ public class Participant {
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the session-decription.
 	 * 
-	 * @return
+	 * @return The session-description.
 	 */
-	public Sessd getSessionDescription() {
+	public SessionDescription getSessionDescription() {
 		return sessionDescription;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the session-descriptioin.
 	 * 
 	 * @param sessionDescription
 	 */
-	public void setSessionDescription(Sessd sessionDescription) {
+	public void setSessionDescription(SessionDescription sessionDescription) {
 		this.sessionDescription = sessionDescription;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the cseq.
 	 * 
-	 * @return
+	 * @return The cseq.
 	 */
 	public long getCseq() {
 		return cseq;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the cseq.
 	 * 
 	 * @param cseq
 	 */

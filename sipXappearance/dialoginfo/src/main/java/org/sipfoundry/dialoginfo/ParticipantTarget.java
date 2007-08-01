@@ -8,24 +8,24 @@ package org.sipfoundry.dialoginfo;
 import java.util.ArrayList;
 
 /**
- * [Enter descriptive text here]
+ * Class representation of the participant target.
  * <p>
  * 
- * @author mardy
+ * @author Mardy Marshall
  */
 public class ParticipantTarget {
 	/**
-	 * [Enter descriptive text here]
+	 * The URI of the target.
 	 */
 	protected String uri;
 
 	/**
-	 * [Enter descriptive text here]
+	 * List of target parameters.
 	 */
 	protected ArrayList<ParticipantTargetParam> paramList = new ArrayList<ParticipantTargetParam>();
 
 	/**
-	 * [Enter descriptive text here]
+	 * Add a parameter to the target.
 	 * 
 	 * @param param
 	 */
@@ -34,7 +34,7 @@ public class ParticipantTarget {
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Remove the specified parameter from the target.
 	 * 
 	 * @param param
 	 */
@@ -43,35 +43,35 @@ public class ParticipantTarget {
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the parameter at the specified index from the target.
 	 * 
 	 * @param index
-	 * @return
+	 * @return The requested parameter.
 	 */
 	public ParticipantTargetParam getParam(int index) {
 		return (ParticipantTargetParam) paramList.get(index);
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the number of parameters contained within the target.
 	 * 
-	 * @return
+	 * @return The number of parameters.
 	 */
 	public int sizeParamList() {
 		return paramList.size();
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the URI of the target.
 	 * 
-	 * @return
+	 * @return The URI.
 	 */
 	public String getUri() {
 		return uri;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the URI of the target.
 	 * 
 	 * @param uri
 	 */

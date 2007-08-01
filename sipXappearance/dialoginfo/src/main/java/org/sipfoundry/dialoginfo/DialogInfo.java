@@ -8,34 +8,37 @@ package org.sipfoundry.dialoginfo;
 import java.util.ArrayList;
 
 /**
- * [Enter descriptive text here]
+ * Top level class representation of the dialog-info element.
  * <p>
+ * UML class diagram:
+ * <p>
+ * <img src="doc-files/dialoginfo.jpg">
  * 
- * @author mardy
+ * @author Mardy Marshall
  */
 public class DialogInfo {
 	/**
-	 * [Enter descriptive text here]
+	 * Version number of dialog-info notification.
 	 */
 	protected long version;
 
 	/**
-	 * [Enter descriptive text here]
+	 * State of dialog-info notification, either "full" or "partial".
 	 */
 	protected String state;
 
 	/**
-	 * [Enter descriptive text here]
+	 * The URI associated with the dialog-info notification.
 	 */
 	protected String entity;
 
 	/**
-	 * [Enter descriptive text here]
+	 * List of dialogs represented by the dialog-info notification.
 	 */
 	protected ArrayList<Dialog> dialogList = new ArrayList<Dialog>();
 
 	/**
-	 * [Enter descriptive text here]
+	 * Add a Dialog instance to the notification.
 	 * 
 	 * @param dialog
 	 */
@@ -44,7 +47,7 @@ public class DialogInfo {
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Remove the specified Dialog instance from the notification.
 	 * 
 	 * @param dialog
 	 */
@@ -53,35 +56,35 @@ public class DialogInfo {
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve a Dialog instance at the specified index.
 	 * 
 	 * @param index
-	 * @return
+	 * @return Dialog instance.
 	 */
 	public Dialog getDialog(int index) {
 		return (Dialog) dialogList.get(index);
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Return the number of Dialog instances contained.
 	 * 
-	 * @return
+	 * @return Number of Dialog instances.
 	 */
 	public int sizeDialogList() {
 		return dialogList.size();
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the version number of the notification
 	 * 
-	 * @return
+	 * @return Version number.
 	 */
 	public long getVersion() {
 		return version;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the version number of the notification
 	 * 
 	 * @param version
 	 */
@@ -90,16 +93,16 @@ public class DialogInfo {
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the state of the notification
 	 * 
-	 * @return
+	 * @return DialogInfoState enumeration representing the state.
 	 */
 	public DialogInfoState getState() {
 		return DialogInfoState.toEnum(state);
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the state of the notification.
 	 * 
 	 * @param state
 	 */
@@ -108,16 +111,16 @@ public class DialogInfo {
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the URI associated with the notification.
 	 * 
-	 * @return
+	 * @return Entity URI.
 	 */
 	public String getEntity() {
 		return entity;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the URI associated with the notification.
 	 * 
 	 * @param entity
 	 */

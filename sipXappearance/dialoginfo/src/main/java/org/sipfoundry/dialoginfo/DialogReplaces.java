@@ -6,38 +6,38 @@
 package org.sipfoundry.dialoginfo;
 
 /**
- * [Enter descriptive text here]
+ * Class representation of the dialog-replaces element.
  * <p>
  * 
- * @author mardy
+ * @author Mardy Marshall
  */
 public class DialogReplaces {
 	/**
-	 * [Enter descriptive text here]
+	 * call-id of the initiating dialog.
 	 */
 	protected String callId;
 
 	/**
-	 * [Enter descriptive text here]
+	 * local-tag of the initiating dialog.
 	 */
 	protected String localTag;
 
 	/**
-	 * [Enter descriptive text here]
+	 * remote-tag of the initiating dialog.
 	 */
 	protected String remoteTag;
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the call-id.
 	 *
-	 * @return
+	 * @return The call-id.
 	 */
 	public String getCallId() {
 		return callId;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the call-id.
 	 *
 	 * @param callId
 	 */
@@ -46,16 +46,16 @@ public class DialogReplaces {
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the local-tag.
 	 *
-	 * @return
+	 * @return The local-tag.
 	 */
 	public String getLocalTag() {
 		return localTag;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the local-tag.
 	 *
 	 * @param localTag
 	 */
@@ -64,16 +64,16 @@ public class DialogReplaces {
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the remote-tag.
 	 *
-	 * @return
+	 * @return The remote-tag.
 	 */
 	public String getRemoteTag() {
 		return remoteTag;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the remote-tag.
 	 *
 	 * @param remoteTag
 	 */

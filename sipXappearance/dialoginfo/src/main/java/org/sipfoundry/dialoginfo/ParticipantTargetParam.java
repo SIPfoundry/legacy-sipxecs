@@ -6,33 +6,51 @@
 package org.sipfoundry.dialoginfo;
 
 /**
- * [Enter descriptive text here]
+ * The class representation of the participant target param.
  * <p>
  * 
- * @author mardy
+ * @author Mardy Marshall
  */
 public class ParticipantTargetParam {
 	/**
-	 * [Enter descriptive text here]
+	 * The pname attribute.
 	 */
 	protected String pname;
 
 	/**
-	 * [Enter descriptive text here]
+	 * The pval attribute.
 	 */
 	protected String pval;
 
 	/**
-	 * [Enter descriptive text here]
+	 * JiBX private constructor.
+	 */
+	@SuppressWarnings("unused")
+	private ParticipantTargetParam() {
+	}
+	
+	/**
+	 * Default constructor.
 	 * 
-	 * @return
+	 * @param pname
+	 * @param pval
+	 */
+	public ParticipantTargetParam(String pname, String pval) {
+		this.pname = pname;
+		this.pval = pval;
+	}
+
+	/**
+	 * Retrieve the pname attribute.
+	 * 
+	 * @return The pname attribute.
 	 */
 	public String getPname() {
 		return pname;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the pname attribute.
 	 * 
 	 * @param pname
 	 */
@@ -41,16 +59,16 @@ public class ParticipantTargetParam {
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the pval attribute.
 	 * 
-	 * @return
+	 * @return The pval attribute.
 	 */
 	public String getPval() {
 		return pval;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the pval attribute.
 	 * 
 	 * @param pval
 	 */

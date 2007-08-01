@@ -68,6 +68,9 @@ public class AppTest  extends TestCase
 			State state = new State(DialogState.TRYING);
 			dialog.setState(state);
 
+			dialog.addRouteSetHop("hop1");
+			dialog.addRouteSetHop("hop2");
+			
 			Participant local = new Participant();
 			dialog.setLocal(local);
 
@@ -75,9 +78,7 @@ public class AppTest  extends TestCase
 			target.setUri("sip:201@acme.com");
 			local.setTarget(target);
 
-			ParticipantTargetParam param = new ParticipantTargetParam();
-			param.setPname("x-line-id");
-			param.setPval("1");
+			ParticipantTargetParam param = new ParticipantTargetParam("x-line-id", "1");
 			target.addParam(param);
 
 			// marshal object back out to file (with nice indentation, as UTF-8)

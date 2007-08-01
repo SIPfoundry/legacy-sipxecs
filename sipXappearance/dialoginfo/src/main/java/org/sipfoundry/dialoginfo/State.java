@@ -6,24 +6,24 @@
 package org.sipfoundry.dialoginfo;
 
 /**
- * [Enter descriptive text here]
+ * The class representation of the dialog state element.
  * <p>
  * 
- * @author mardy
+ * @author Mardy Marshall
  */
 public class State {
 	/**
-	 * [Enter descriptive text here]
+	 * The state element.
 	 */
 	private String element;
 
 	/**
-	 * [Enter descriptive text here]
+	 * The event attribute.
 	 */
 	protected String event;
 
 	/**
-	 * [Enter descriptive text here]
+	 * The code attribute.
 	 */
 	protected long code;
 
@@ -32,47 +32,46 @@ public class State {
 	 */
 	@SuppressWarnings("unused")
 	private State() {
-		this.element = "";
 	}
 
 	/**
 	 * Default constructor.
 	 * 
-	 * @param element
+	 * @param dialogState
 	 */
 	public State(DialogState dialogState) {
 		this.element = dialogState.toString();
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the dialog state.
 	 * 
-	 * @return
+	 * @return The state.
 	 */
 	public DialogState get() {
 		return DialogState.toEnum(element);
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the dialog state.
 	 * 
-	 * @param element
+	 * @param dialogState
 	 */
 	public void set(DialogState dialogState) {
 		this.element = dialogState.toString();
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the event attribute.
 	 * 
-	 * @return
+	 * @return The event attribute.
 	 */
 	public StateEvent getEvent() {
 		return StateEvent.toEnum(event);
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the event attribute.
 	 * 
 	 * @param event
 	 */
@@ -81,16 +80,16 @@ public class State {
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the code attribute.
 	 * 
-	 * @return
+	 * @return The code attribute.
 	 */
 	public long getCode() {
 		return code;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the code attribute.
 	 * 
 	 * @param code
 	 */

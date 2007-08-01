@@ -6,42 +6,42 @@
 package org.sipfoundry.dialoginfo;
 
 /**
- * [Enter descriptive text here]
+ * Class representation of the nameaddr element.
  * <p>
  * 
- * @author mardy
+ * @author Mardy Marshall
  */
-public class Nameaddr {
+public class Identity {
 	/**
-	 * [Enter descriptive text here]
+	 * The URI element.
 	 */
 	private String element;
 
 	/**
-	 * [Enter descriptive text here]
+	 * The display-name attribute.
 	 */
 	protected String displayName;
 
 	/**
 	 * Default constructor
 	 * 
-	 * @param element
+	 * @param uri
 	 */
-	public Nameaddr(String element) {
-		this.element = element;
+	public Identity(String uri) {
+		this.element = uri;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the URI element.
 	 * 
-	 * @return
+	 * @return The URI.
 	 */
 	public String get() {
 		return element;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the URI element.
 	 * 
 	 * @param element
 	 */
@@ -50,16 +50,16 @@ public class Nameaddr {
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the display-name attribute.
 	 * 
-	 * @return
+	 * @return The display-name.
 	 */
 	public String getDisplayName() {
 		return displayName;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the display-name attribute.
 	 * 
 	 * @param displayName
 	 */

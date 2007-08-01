@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Enumerations for dialog state event attribute.
  * <p>
  * 
- * @author mardy
+ * @author Mardy Marshall
  */
 public enum StateEvent {
 	/**

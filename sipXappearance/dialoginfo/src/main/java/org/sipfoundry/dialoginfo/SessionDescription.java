@@ -6,19 +6,19 @@
 package org.sipfoundry.dialoginfo;
 
 /**
- * [Enter descriptive text here]
+ * The class representation of the sessd element.
  * <p>
  * 
- * @author mardy
+ * @author Mardy Marshall
  */
-public class Sessd {
+public class SessionDescription {
 	/**
-	 * [Enter descriptive text here]
+	 * The sessd element.
 	 */
 	private String element;
 
 	/**
-	 * [Enter descriptive text here]
+	 * They type attribute.
 	 */
 	protected String type;
 
@@ -26,8 +26,7 @@ public class Sessd {
 	 * JiBX private constructor.
 	 */
 	@SuppressWarnings("unused")
-	private Sessd() {
-		this.element = "";
+	private SessionDescription() {
 	}
 
 	/**
@@ -35,21 +34,21 @@ public class Sessd {
 	 * 
 	 * @param element
 	 */
-	public Sessd(String element) {
+	public SessionDescription(String element) {
 		this.element = element;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Return the sessd element.
 	 * 
-	 * @return
+	 * @return The sessd.
 	 */
 	public String get() {
 		return element;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the sessd element.
 	 * 
 	 * @param element
 	 */
@@ -58,16 +57,16 @@ public class Sessd {
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Retrieve the type attribute.
 	 * 
-	 * @return
+	 * @return The type attribute.
 	 */
 	public String getType() {
 		return type;
 	}
 
 	/**
-	 * [Enter descriptive text here]
+	 * Set the type attribute.
 	 * 
 	 * @param type
 	 */

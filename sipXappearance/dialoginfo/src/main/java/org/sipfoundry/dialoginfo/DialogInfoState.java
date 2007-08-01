@@ -9,7 +9,7 @@ package org.sipfoundry.dialoginfo;
  * Enumerations for dialog-info state attribute.
  * <p>
  * 
- * @author mardy
+ * @author Mardy Marshall
  */
 public enum DialogInfoState {
 	/**
