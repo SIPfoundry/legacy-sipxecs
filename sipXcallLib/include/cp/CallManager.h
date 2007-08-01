@@ -153,9 +153,9 @@ public:
     // target call
 
     PtStatus transfer(const char* sourceCallId, 
-                      const char* sourceAddress, 
+                      const char* sourceAddress, // name-addr
                       const char* targetCallId,
-                      const char* targetAddress,
+                      const char* targetAddress, // name-addr
                       bool        remoteHoldBeforeTransfer = true
                       ) ;
     //: Transfer an individual participant from one end point to another using 
@@ -358,8 +358,9 @@ public:
     virtual void flushCallStateLogAutoWrite();
 
     // Soon to be removed:
-        virtual OsStatus getFromField(const char* callId, const char* remoteAddress,  UtlString& fromField);
-        virtual OsStatus getToField(const char* callId, const char* remoteAddress,  UtlString& toField);
+    virtual OsStatus getFromField(const char* callId, const char* remoteAddress,  UtlString& fromField);
+    virtual OsStatus getToField(const char* callId, const char* remoteAddress,  UtlString& toField);
+    virtual OsStatus getRemoteContactField(const char* callId, const char* remoteAddress,  UtlString& remoteContactField);
 
    virtual OsStatus getCodecCPUCostCall(const char* callId, int& cost);
      //:Gets the CPU cost for an individual connection within the specified

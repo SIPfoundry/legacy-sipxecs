@@ -355,7 +355,10 @@ public:
     static void buildReplacesField(UtlString& replacesField,
                                    const char* callId,
                                    const char* fromField,
-                                   const char* toFIeld);
+                                   //< name-addr from which to extract the from-tag
+                                   const char* toField
+                                   //< name-addr from which to extract the to-tag
+       );
 
     static UtlBoolean parseParameterFromUri(const char* uri,
                                            const char* parameterName,

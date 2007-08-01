@@ -812,12 +812,16 @@ bool OrbitListener::isCallRetrievalInvite(const char* callId,
       if (urlParam.compareTo(CALL_RETRIEVE_URI_VALUE, UtlString::ignoreCase) == 0)
       {
          bRet = true;         
-         OsSysLog::add(FAC_PARK, PRI_DEBUG, "OrbitListener::isCallRetrievalInvite found 'operation' parameter");
+         OsSysLog::add(FAC_PARK, PRI_DEBUG,
+                       "OrbitListener::isCallRetrievalInvite found '%s=%s' parameter",
+                       CALL_RETRIEVE_URI_PARM, CALL_RETRIEVE_URI_VALUE);
       }
    }
    else
    {
-      OsSysLog::add(FAC_PARK, PRI_DEBUG, "OrbitListener::isCallRetrievalInvite no operation URL parameter");
+      OsSysLog::add(FAC_PARK, PRI_DEBUG,
+                    "OrbitListener::isCallRetrievalInvite no '%s' URL parameter",
+                    CALL_RETRIEVE_URI_PARM);
    }
    return bRet;
 }

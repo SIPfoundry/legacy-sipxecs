@@ -3730,9 +3730,9 @@ UtlBoolean SipMessage::buildRouteField(UtlString* routeFld) const
 }
 
 void SipMessage::buildReplacesField(UtlString& replacesField,
-                            const char* callId,
-                            const char* fromField,
-                            const char* toField)
+                                    const char* callId,
+                                    const char* fromField,
+                                    const char* toField)
 {
     replacesField = callId;
 
