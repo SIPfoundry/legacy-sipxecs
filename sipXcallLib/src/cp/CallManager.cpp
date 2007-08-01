@@ -1417,16 +1417,24 @@ PtStatus CallManager::transfer(const char* sourceCallId,
     // Construct the replaces header info
     // SIP alert: this is SIP specific and should not be in CallManager
     UtlString fromAddress;
-    getFromField(targetCallId, targetAddress, fromAddress) ;
+    getFromField(targetCallId, targetAddress, fromAddress);
 
     // Add the Replaces header info to the consultative URL
     UtlString replacesField;
     SipMessage::buildReplacesField(replacesField, targetCallId, fromAddress, 
-            targetAddress);
+                                   targetAddress);
 
-    Url transferTargetUrl(targetAddress);
+    UtlString contactAddress;
+    getRemoteContactField(targetCallId, targetAddress, contactAddress);
+
+    Url transferTargetUrl(contactAddress);
     transferTargetUrl.removeFieldParameters() ;
-    transferTargetUrl.setHeaderParameter(SIP_REPLACES_FIELD, replacesField.data());
+    transferTargetUrl.setHeaderParameter(SIP_REPLACES_FIELD,
+                                         replacesField.data());
+    // Add "?Require=replaces" so the transfer attempt is rejected if the
+    // target doesn't support INVITE-with-Replaces.
+    transferTargetUrl.setHeaderParameter(SIP_REQUIRE_FIELD,
+                                         SIP_REPLACES_EXTENSION);
     UtlString transferTargetUrlString;
     transferTargetUrl.toString(transferTargetUrlString);
 
@@ -2334,7 +2342,6 @@ OsStatus CallManager::getOutboundAddresses(int maxAddressesRequested,
     return status;
 }
 
-
 OsStatus CallManager::getToField(const char* callId,
                                  const char* address,
                                  UtlString& toField)
@@ -2361,6 +2368,34 @@ OsStatus CallManager::getToField(const char* callId,
     return(status);
 }
 
+OsStatus CallManager::getRemoteContactField(const char* callId,
+                                            const char* address,
+                                            UtlString& remoteContactField)
+{
+    SipSession session;
+    OsStatus status = getSession(callId, address, session);
+
+    if(status == OS_SUCCESS)
+    {
+        Url contactUrl;
+        session.getRemoteContact(contactUrl);
+        contactUrl.toString(remoteContactField);
+
+#ifdef TEST_PRINT_EVENT
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                      "CallManager::getRemoteContactField '%s'"
+                      , remoteContactField.data());
+#endif
+    }
+
+    else
+    {
+        remoteContactField.remove(0);
+    }
+
+    return status;
+}
+
 void CallManager::getNumTerminalConnections(const char* callId, const char* address, int& numConnections)
 {
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
@@ -2385,7 +2420,7 @@ void CallManager::getNumTerminalConnections(const char* callId, const char* addr
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getToField TIMED OUT\n");
+        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getNumTerminalConnections TIMED OUT");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == numConnectionsSet->signal(0))
         {
