@@ -36,10 +36,12 @@ noinst_HEADERS = \
 
 EXTRA_DIST = watchdog.sh.in
 
+# These commands parallel the post-install commands in sipxpbx.spec.in.
+# But: Do not "rm -rf @wwwdir@/cgi-bin/processmonitor" here, because if
+# that directory was installed by an RPM, a non-root builder may not
+# be able to remove it.  That directory's presence is harmless clutter.
 install-exec-hook :
 	$(LocalizeSipXconfig) $(srcdir)/watchdog.sh.in > watchdog.sh
 	$(INSTALL) -D -m 755 watchdog.sh $(DESTDIR)$(bindir)/watchdog.sh
 	rm -f @SIPX_TMPDIR@/processAlias.dat
 	rm -f @SIPX_TMPDIR@/locked.lck
-	rm -rf @wwwdir@/cgi-bin/processmonitor
-
