@@ -3,8 +3,11 @@
 ### SIP Trace something
 ###
 
+MyName=`basename $0`
+
 Action=LOCAL
-Prefixes=""
+Prefix="/"
+Output=""
 
 User=admin
 Password=
@@ -42,7 +45,7 @@ do
                 break
             else
                 Action=LOCAL
-                Prefixes="${Prefixes} ${2}"
+                Prefix="${2}"
                 shift # consume the switch ( for n values, consume n-1 )
             fi
             ;;
@@ -76,6 +79,24 @@ do
             fi
             ;;
 
+        -o|--output)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <file-name> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Output="${2}"
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+
+        -h|--help)
+            Action=USAGE
+            break
+            ;;
+
         ##
         ## handle an unknown switch
         ##
@@ -106,13 +127,11 @@ fi
 
 if [ -z "${Token}" -a ${Action} != USAGE ]
 then
-    echo "Must specify a token to search for." 1>&2
+    echo "Must specify a token to search for; try '${MyName} --help'." 1>&2
     exit 1;
 fi
 
-Trace=./trace_`date -u -Iminutes | perl -pe 's/://; s/\+.+$//;'`
-
-mkdir ${Trace}
+Trace=`mktemp -t -d trace.XXXXXXXX` || exit
 
 pullServer() { # server
         
@@ -126,13 +145,12 @@ pullServer() { # server
 
 grepLog() { # prefix
         
-    prefix_name=`echo $1 | tr / _`
     for c in ${Components}
     do
       echo searching $1 ${c} log
       ${dump} ${1}/var/log/sipxpbx/${c}.log${LogExtension} \
       | grep -e "${Token}" \
-      > ${Trace}/${prefix_name}.${c}.log
+      > ${Trace}/${c}.log
     done
 }
 
@@ -142,10 +160,20 @@ case ${Action} in
 
 Usage:
     
-    trace  [ {-c|--component} <component-name> ]...
+   ${MyName} <options> <token>
+
+   options:
+           [ {-c|--component} <component-name> ]...
            { { {-P|--prefix} <prefix-dir> }* | { {-s|--server} <server> } }*
-           <token>
+           [-o|--output]
+           [-h|--help]
            
+   Select all messages containing <token> from a set of sipX component log files,
+   and display them using sipviewer.
+
+   For remote use (using the '--server' option), this script uses 'ssh'.  For this
+   mode to be convenient, you should have installed your ssh public key so that login
+   to the server does not require a password.
 
 USAGE
         exit
@@ -159,10 +187,7 @@ USAGE
         ;;
 
     LOCAL)
-        for Prefix in $Prefixes
-        do
-          grepLog $Prefix
-        done
+        grepLog $Prefix
         ;;
 esac
 
@@ -177,7 +202,15 @@ done
 echo merging
 siptrace-merge  ${Trace}/*.trace.xml > ${Trace}/merged.xml
 
-sipviewer ${Trace}/merged.xml
+if [ -z "${Output}" ]
+then
+    sipviewer ${Trace}/merged.xml
+else
+    cp -v ${Trace}/merged.xml ${Output} 
+fi
+
+exit
+
 
 
 
