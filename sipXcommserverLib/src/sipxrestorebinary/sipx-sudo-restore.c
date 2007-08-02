@@ -28,6 +28,7 @@ int main(int argc, char *argv[], char *envp[])
    }
    execve_argv[argc+2] = NULL;
 
+   setuid(0);
    execve("/bin/bash", execve_argv, envp);
 
    /* Not going to get here ...*/
