@@ -55,7 +55,7 @@
   </component>
 
   <component id="tableView" type="Table">
-    <binding name="source" value="sipxProcessContext.getStatus(serviceLocation)" />
+    <binding name="source" value="serviceStatus" />
     <binding name="selections" value="selections" />
     <binding name="columns" value="literal:* serviceName,=statusColumn" />
     <binding name="usePager" value="false" />

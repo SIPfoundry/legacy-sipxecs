@@ -34,9 +34,8 @@ public class RestartReminderTestUi extends WebTestCase {
         
         clickButton("restart:save");
 
-        // should be back at the test page
-        assertLinkPresent(RestartReminder.PAGE);
-        // there will be some exceptions in the log - topology file is not found
+        // make sure that you get user error about not being able to access server
+        SiteTestHelper.assertUserError(tester);
     }
     
     public void testRestartLater() {

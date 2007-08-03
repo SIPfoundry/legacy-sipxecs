@@ -28,6 +28,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.secure.SecureXmlRpcClient;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
@@ -64,13 +65,14 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
             // The result was not an XmlRpcException, so return it.
             return result;
         } catch (XmlRpcException e) {
-            LOG.error("Error XMLRPC, fault: " + e.code + " message: " + e.getMessage());
+            LOG.error("Error XML/RPC, fault: " + e.code + " message: " + e.getMessage());
             throw new RuntimeException(e);
         } catch (MalformedURLException e) {
             LOG.error("Error URL: " + location.getProcessMonitorUrl());
             throw new RuntimeException(e);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOG.warn("XML/RPC call.", e);
+            throw new UserException(e.getMessage());
         }
     }
 

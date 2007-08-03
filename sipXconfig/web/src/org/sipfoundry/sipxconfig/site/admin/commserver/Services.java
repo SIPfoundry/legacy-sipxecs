@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import java.util.Collection;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ITableRendererSource;
 import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
@@ -18,9 +19,13 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.services.ExpressionEvaluator;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.LocalizedTableRendererSource;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class Services extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "Services";
@@ -37,23 +42,48 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
     public abstract Location getServiceLocation();
 
     public abstract void setServiceLocation(Location location);
-    
+
     public abstract ExpressionEvaluator getExpressionEvaluator();
 
+    public abstract void setServiceStatus(Object[] serviceStatus);
+
+    public abstract Object[] getServiceStatus();
+
     public void pageBeginRender(PageEvent event_) {
-        Location location = getServiceLocation();
-        if (location != null) {
+        Object[] serviceStatus = getServiceStatus();
+        if (serviceStatus != null) {
             return;
         }
-        Location[] locations = getSipxProcessContext().getLocations();
-        if (locations.length > 0) {
-            setServiceLocation(locations[0]);
+
+        Location location = getServiceLocation();
+        if (location == null) {
+            Location[] locations = getSipxProcessContext().getLocations();
+            if (locations.length > 0) {
+                location = locations[0];
+                setServiceLocation(location);
+            }
+        }
+
+        serviceStatus = retrieveServiceStatus(location);
+        setServiceStatus(serviceStatus);
+    }
+
+    public Object[] retrieveServiceStatus(Location location) {
+        if (location == null) {
+            return ArrayUtils.EMPTY_OBJECT_ARRAY;
+        }
+        try {
+            return getSipxProcessContext().getStatus(location);
+        } catch (UserException e) {
+            IValidationDelegate validator = TapestryUtils.getValidator(this);
+            validator.record(new ValidatorException(e.getMessage()));
+            return ArrayUtils.EMPTY_OBJECT_ARRAY;
         }
     }
 
-    public ITableColumn getStatusColumn() {        
-        ExpressionTableColumn column = new ExpressionTableColumn(STATUS_COLUMN,
-                getMessages().getMessage(STATUS_COLUMN), "status.name", true, getExpressionEvaluator());
+    public ITableColumn getStatusColumn() {
+        ExpressionTableColumn column = new ExpressionTableColumn(STATUS_COLUMN, getMessages()
+                .getMessage(STATUS_COLUMN), "status.name", true, getExpressionEvaluator());
         ITableRendererSource rendererSource = new LocalizedTableRendererSource(getMessages(),
                 STATUS_COLUMN);
         column.setValueRendererSource(rendererSource);
@@ -72,8 +102,14 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
     }
 
     private void manageServices(Collection services, SipxProcessContext.Command operation) {
-        if (services != null) {
+        if (services == null) {
+            return;
+        }
+        try {
             getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
+        } catch (UserException e) {
+            IValidationDelegate validator = TapestryUtils.getValidator(this);
+            validator.record(new ValidatorException(e.getMessage()));
         }
     }
 }

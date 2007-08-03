@@ -28,7 +28,7 @@ public class ServicesTestUi extends WebTestCase {
     }
     
     public void testDisplay() {
-        SiteTestHelper.assertNoException(tester);
-        SiteTestHelper.assertNoUserError(tester);
+        // there will be user error - we cannot contact the host.example.org
+        SiteTestHelper.assertUserError(tester);
     }
 }

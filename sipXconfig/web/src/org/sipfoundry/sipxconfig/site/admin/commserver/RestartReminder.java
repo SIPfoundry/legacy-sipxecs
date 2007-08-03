@@ -9,10 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
 
 public abstract class RestartReminder extends BasePage {
     public static final String PAGE = "RestartReminder";
+
+    @InjectObject(value = "spring:tapestry")
+    public abstract TapestryContext getTapestry();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
 
     public abstract void setNextPage(String nextPage);
 

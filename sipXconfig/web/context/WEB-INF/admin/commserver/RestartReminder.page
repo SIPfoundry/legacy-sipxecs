@@ -7,13 +7,13 @@
 <page-specification
 	class="org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder">
 	<description>Reminds users that sipX services need to be restarted</description>	
-	
+
 	<property name="restartLater" initial-value="false"/>	
 	<property name="nextPage"/>	
 	<property name="processes"/>
 	
 	<component id="continue" type="Submit">
-		<binding name="listener" value="listener:proceed"/>
+		<binding name="listener" value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.proceed)"/>
 		<binding name="value" value="message:continue.button"/>
 	</component>	
 	<component id="nextPage" type="Hidden">
