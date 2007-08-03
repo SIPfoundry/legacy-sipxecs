@@ -77,11 +77,14 @@ ParkedCallObject::ParkedCallObject(const UtlString& orbit,
 
 ParkedCallObject::~ParkedCallObject()
 {
+   // Terminate the audio player, if any.
    if (mpPlayer)
    {
       mpCallManager->destroyPlayer(MpPlayer::STREAM_PLAYER, mOriginalCallId,
                                    mpPlayer);
    }
+   // Stop the escape timer and stop listening for DTMF.
+   stopEscapeTimer();
 }
    
 

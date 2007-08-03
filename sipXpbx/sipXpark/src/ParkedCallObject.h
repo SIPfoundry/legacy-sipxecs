@@ -63,6 +63,8 @@ public:
                     OsMsgQ* listenerQ,
                     const OsTime& lifetime,
                     const OsTime& blindXferWait);
+   /// Destroy the ParkedCallObject.
+   // Also calls stopEscapeTimer().
    ~ParkedCallObject();
 
    // Accessor/modifier functions for these fields.
@@ -101,7 +103,7 @@ public:
 
    // Stop the time-out timer.
 
-   // The escape mechanisms are usually cancelled automatically by the
+   // The escape mechanisms are cancelled automatically by the
    // ParkedCallObject::~, and since their notifications are done via
    // messages to the OrbitListener that contain only mSeqNo, race
    // conditions are not a problem.  But when a dialog is replaced by
