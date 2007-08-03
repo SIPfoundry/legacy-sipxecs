@@ -87,7 +87,7 @@ public class CallGroupTest extends TestCase {
         assertEquals(am.getIdentity(), group.getExtension() + "@kuku");
         assertTrue(am.getContact().startsWith(group.getName() + "@kuku"));
     }
-    
+
     public void testGenerateAliasesWithFallbackDestinationAsExtension() {
         int numRings = 5;
         CallGroup group = createCallGroupWithUsers("401", "sales", numRings);
@@ -122,11 +122,10 @@ public class CallGroupTest extends TestCase {
 
     private CallGroup createCallGroupWithUsers(String extension, String name, int numUsers) {
         CallGroup group = new CallGroup();
-        group.setName("sales");
-        group.setExtension("401");
+        group.setName(name);
+        group.setExtension(extension);
 
-        final int ringsLen = 5;
-        for (int i = 0; i < ringsLen; i++) {
+        for (int i = 0; i < numUsers; i++) {
             User u = new User();
             u.setUserName("testUser" + i);
             group.insertRingForUser(u);
