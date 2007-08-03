@@ -453,7 +453,7 @@ void OsTimerTask::insertTimer(OsTimer* timer)
       if (OsTimer::compareTimes(timer->mQueuedExpiresAt, now) < 0)
       {
          OsSysLog::add(FAC_KERNEL, PRI_WARNING,
-                       "OsTimerTask::insertTimer timer to fire %" FORMAT_INTLL "d in the past, queue length = %d",
+                       "OsTimerTask::insertTimer timer to fire %" FORMAT_INTLL "d microseconds in the past, queue length = %d",
                        OsTimer::subtractTimes(now, timer->mQueuedExpiresAt),
                        getMessageQueue()->numMsgs());
       }
