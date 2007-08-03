@@ -220,7 +220,7 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
             sipRequest.addRouteUri(routeString.data());
 
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRouter fowardingrules added route type '%s' to: '%s'",
+                       "SipRouter::proxyMessage fowardingrules added route type '%s' to: '%s'",
                        routeType.data(), routeString.data());
          }
          if (authRequired)
