@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.skin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -35,6 +37,7 @@ public class SkinControl implements BeanFactoryAware {
     private static final String ASSET_LAYOUT = "layout.css";
     private static final String ASSET_IE6 = "ie6-hacks.css";
     private static final String ASSET_IE7 = "ie7-hacks.css";
+    private static final String ASSET_OPERA = "opera-hacks.css";
 
     private TapestryContext m_tapestryContext;
     // overrideable in skin
@@ -51,24 +54,28 @@ public class SkinControl implements BeanFactoryAware {
         m_assets.put(ASSET_COLORS, pkg + "/colors.css");
         m_assets.put(ASSET_IE6, pkg + "/ie6-hacks.css");
         m_assets.put(ASSET_IE7, pkg + "/ie7-hacks.css");
+        m_assets.put(ASSET_OPERA, pkg + "/opera-hacks.css");
     }
 
     public IAsset[] getStylesheetAssets(String userAgent) {
         Matcher ie = IE_REGEX.matcher(userAgent);
         boolean isIe = ie.matches();
-        IAsset[] assets = new IAsset[isIe ? 3 : 2];
-        assets[0] = getAsset(ASSET_COLORS);
-        assets[1] = getAsset(ASSET_LAYOUT);
+        List<IAsset> assets = new ArrayList<IAsset>();
+        assets.add(getAsset(ASSET_COLORS));
+        assets.add(getAsset(ASSET_LAYOUT));
         if (isIe) {
             String ver = ie.group(2);
             Float fver = Float.parseFloat(ver);
             if (fver < 7) {
-                assets[2] = getAsset(ASSET_IE6);
+                assets.add(getAsset(ASSET_IE6));
             } else {
-                assets[2] = getAsset(ASSET_IE7);
+                assets.add(getAsset(ASSET_IE7));
             }
         }
-        return assets;
+        if (userAgent.contains("Opera")) {
+            assets.add(getAsset(ASSET_OPERA));
+        }
+        return assets.toArray(new IAsset[assets.size()]);
     }
 
     private AssetFactory getAssetFactory() {
