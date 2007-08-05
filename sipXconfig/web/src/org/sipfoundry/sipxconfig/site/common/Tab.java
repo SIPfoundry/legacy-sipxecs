@@ -18,8 +18,8 @@ public abstract class Tab extends BaseComponent {
 
     @Parameter(required = true)
     public abstract boolean getIsActive();
-    
-    public String getCurrentStyle() {
-        return getIsActive() ? "tab active" : "tab";
+
+    public String getDiv() {
+        return getIsActive() ? "div" : null;
     }
 }

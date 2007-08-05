@@ -80,31 +80,27 @@ ul.htabs, ul.vtabs
 ul.vtabs li
 {
 	display:inline;
+	margin: 0;
 }
 
-div.tab 
+.shadow
 {
-	padding: .3em 1ex;
+	background: #666;
 }
 
-div.tab.active 
+li.tab
 {
-	background-color: #fff;
+	padding: .2em 1ex;
+}
+
+li.tab .active
+{	
+	position: relative;
+	padding: .2em 1ex;
 	border: 1px solid #666;
-	padding: .2em .5ex;
-}
-
-div.shadow, div.tab.active
-{
-  position: relative;
-  bottom: 2px;
-  right: 2px;
-}
-
-div.shadow
-{
-  background: #666;
-  color: inherit;
+	background-color: #fff;
+	top: -2px;
+	left: -2px;
 }
 
 #lastmodified
@@ -185,7 +181,7 @@ div.shadow
 
 #content
 {
-	clear: left;
+	clear: both;
 	padding: 10px;
 }
 
