@@ -468,10 +468,17 @@ SipRefreshMgr::unRegisterUser (
     else
     {
         SipMessage sipMsg;
+        // Get a copy of the last REGISTER sent from mRegisterList.
         if ( isDuplicateRegister(fromUrl, sipMsg) )
         {
             Url Uri = fromUrl;
-            //dont set a common expires - then you need to send * in contact field
+            // Remove the to-tag from the copy.  (It was added when
+            // that REGISTER got a response.)
+            Url toUrl;
+            sipMsg.getToUrl(toUrl);
+            toUrl.removeUrlParameter("tag");
+            sipMsg.setRawToField(toUrl.toString());
+            // Don't set a common expires - then you need to send * in contact field
             //sipMsg.setExpiresField(0);
             UtlString contactField;
             sipMsg.getContactField(0,contactField);
