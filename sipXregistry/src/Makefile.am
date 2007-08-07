@@ -35,7 +35,10 @@ libsipXregistry_la_SOURCES = \
     $(top_builddir)/config/sipxregistry-buildstamp.cpp \
     RedirectPlugin.cpp \
     RedirectResumeMsg.cpp \
+    RedirectResumeMsg.h \
     RedirectSuspend.cpp \
+    RegisterEventServer.cpp \
+    RegisterEventServer.h \
     RegistrarInitialSync.cpp \
     RegistrarInitialSync.h \
     RegistrarPeer.cpp \
@@ -47,11 +50,8 @@ libsipXregistry_la_SOURCES = \
     RegistrarTest.cpp \
     RegistrarTest.h \
     SipRedirectServer.cpp \
-    SipRegEventServer.cpp \
-    SipRegEventServer.h \
     SipRegistrar.cpp \
     SipRegistrarServer.cpp \
-    RedirectResumeMsg.h \
     SipRegistrarServer.h \
     SyncRpc.cpp \
     SyncRpc.h

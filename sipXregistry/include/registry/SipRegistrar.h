@@ -39,6 +39,7 @@ class RegistrarTest;
 class RegistrarSync;
 class RegistrarPersist;
 class RegistrarInitialSync;
+class RegisterEventServer;
 class SipRedirectServer;
 class SipRegistrarServer;
 class UtlSListIterator;
@@ -131,6 +132,10 @@ public:
     /// Get the RegistrarSync thread object
     RegistrarSync* getRegistrarSync();
 
+    /// Get the RegisterEventServer thread object
+    //  Returns NULL if the server is not active yet.
+    RegisterEventServer* getRegisterEventServer();
+
     /// Return true if replication is configured, false otherwise
     bool isReplicationConfigured();
     
@@ -195,6 +200,7 @@ private:
 
    RegistrarInitialSync* mRegistrarInitialSync;
    RegistrarSync* mRegistrarSync;
+   RegisterEventServer* mRegisterEventServer;
    RegistrarTest* mRegistrarTest;
    RegistrarPersist* mRegistrarPersist;
 
@@ -217,6 +223,10 @@ private:
    /* ============================ REPLICATION================================== */
    /// Create replication-related thread objects, but don't start them yet
    void createReplicationThreads();
+
+   /* ============================ REG EVENT SERVER ============================ */
+   /// Create and start the server that handles "reg" events.
+   void startEventServer();
 };
 
 #endif  // _SipRegistrar_h_

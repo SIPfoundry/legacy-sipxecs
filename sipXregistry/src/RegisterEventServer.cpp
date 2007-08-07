@@ -14,7 +14,7 @@
 
 // APPLICATION INCLUDES
 
-#include "SipRegEventServer.h"
+#include "RegisterEventServer.h"
 #include <os/OsSysLog.h>
 #include <utl/XmlContent.h>
 #include <sipdb/ResultSet.h>
@@ -39,8 +39,8 @@ class RegEventDefaultConstructor : public SipPublishContentMgrDefaultConstructor
   public:
 
    // Constructor
-   RegEventDefaultConstructor(// owning SipRegEventServer
-                              SipRegEventServer* mSipRegEventServer);
+   RegEventDefaultConstructor(// owning RegisterEventServer
+                              RegisterEventServer* mRegisterEventServer);
 
    // Destructor
    ~RegEventDefaultConstructor();
@@ -61,7 +61,7 @@ class RegEventDefaultConstructor : public SipPublishContentMgrDefaultConstructor
 protected:
 
    //! The owning SipRegEventserver.
-   SipRegEventServer* mpSipRegEventServer;
+   RegisterEventServer* mpRegisterEventServer;
 
    static UtlContainableType TYPE;    /** < Class type used for runtime checking */
 };
@@ -70,8 +70,8 @@ protected:
 const UtlContainableType RegEventDefaultConstructor::TYPE = "RegEventDefaultConstructor";
 
 // Constructor
-RegEventDefaultConstructor::RegEventDefaultConstructor(SipRegEventServer* parent) :
-   mpSipRegEventServer(parent)
+RegEventDefaultConstructor::RegEventDefaultConstructor(RegisterEventServer* parent) :
+   mpRegisterEventServer(parent)
 {
 }
 
@@ -96,13 +96,13 @@ void RegEventDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
    request_uri.getUserId(aor);
    aor.insert(0, "sip:");
    aor.append("@");
-   aor.append(*mpSipRegEventServer->getDomainName());
+   aor.append(*mpRegisterEventServer->getDomainName());
    Url aor_uri(aor, TRUE);
 
    // Construct the content.
    HttpBody* body;
    int version;
-   mpSipRegEventServer->generateContent(aor, aor_uri, body, version);
+   mpRegisterEventServer->generateContent(aor, aor_uri, body, version);
 
    // Install it for the resource, but do not publish it, because our
    // caller will publish it.
@@ -112,7 +112,7 @@ void RegEventDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
 // Make a copy of this object according to its real type.
 SipPublishContentMgrDefaultConstructor* RegEventDefaultConstructor::copy()
 {
-   return new RegEventDefaultConstructor(mpSipRegEventServer);
+   return new RegEventDefaultConstructor(mpRegisterEventServer);
 }
 
 // Get the ContainableType for a UtlContainable derived class.
@@ -123,10 +123,10 @@ UtlContainableType RegEventDefaultConstructor::getContainableType() const
 
 
 // Constructor
-SipRegEventServer::SipRegEventServer(const UtlString& domainName,
-                                     int tcpPort,
-                                     int udpPort,
-                                     int tlsPort) :
+RegisterEventServer::RegisterEventServer(const UtlString& domainName,
+                                         int tcpPort,
+                                         int udpPort,
+                                         int tlsPort) :
    mDomainName(domainName),
    mEventType(REG_EVENT_TYPE),
    mpRegistrationDBInstance(RegistrationDB::getInstance()),
@@ -160,7 +160,7 @@ SipRegEventServer::SipRegEventServer(const UtlString& domainName,
                     mPolicyHolder)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "SipRegEventServer:: mDomainName = '%s', tcpPort = %d, udpPort = %d, tlsPort = %d",
+                 "RegisterEventServer:: mDomainName = '%s', tcpPort = %d, udpPort = %d, tlsPort = %d",
                  mDomainName.data(), tcpPort, udpPort, tlsPort);
 
    // Construct addresses:
@@ -208,7 +208,7 @@ SipRegEventServer::SipRegEventServer(const UtlString& domainName,
             const UtlString* contactp =
                dynamic_cast <UtlString*> (rowp->findValue(&SubscriptionDB::gContactKey));
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRegEventServer:: AOR = '%s', contact = '%s', version = %d",
+                          "RegisterEventServer:: AOR = '%s', contact = '%s', version = %d",
                           urip->data(), contactp->data(), version);
          }
          if (version >= mVersion)
@@ -218,7 +218,7 @@ SipRegEventServer::SipRegEventServer(const UtlString& domainName,
       }
    }
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRegEventServer:: mVersion = %d",
+                 "RegisterEventServer:: mVersion = %d",
                  mVersion);
 
    // Initialize the SipUserAgent.
@@ -238,10 +238,10 @@ SipRegEventServer::SipRegEventServer(const UtlString& domainName,
 }
 
 // Destructor
-SipRegEventServer::~SipRegEventServer()
+RegisterEventServer::~RegisterEventServer()
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "SipRegEventServer::~ this = %p",
+                 "RegisterEventServer::~ this = %p",
                  this);
 
    // Stop the subscribe server.
@@ -259,11 +259,11 @@ SipRegEventServer::~SipRegEventServer()
 }
 
 // Generate and publish content for reg events for an AOR.
-void SipRegEventServer::generateAndPublishContent(const UtlString& aorString,
-                                                  const Url& aorUri)
+void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
+                                                    const Url& aorUri)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRegEventServer::generateAndPublishContent aorString = '%s'",
+                 "RegisterEventServer::generateAndPublishContent aorString = '%s'",
                  aorString.data());
 
    HttpBody* body;
@@ -275,13 +275,13 @@ void SipRegEventServer::generateAndPublishContent(const UtlString& aorString,
 }
 
 // Generate (but not publish) content for reg events for an AOR.
-void SipRegEventServer::generateContent(const UtlString& aorString,
-                                        const Url& aorUri,
-                                        HttpBody*& body,
-                                        int& version)
+void RegisterEventServer::generateContent(const UtlString& aorString,
+                                          const Url& aorUri,
+                                          HttpBody*& body,
+                                          int& version)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRegEventServer::generateContent aorString = '%s'",
+                 "RegisterEventServer::generateContent aorString = '%s'",
                  aorString.data());
 
    // Use an expiraton time of 0 to get all the registrations for the
@@ -295,7 +295,7 @@ void SipRegEventServer::generateContent(const UtlString& aorString,
    // Construct the body, an empty notice for the user.
    UtlString content;
    // Currently, all versions for reg event content are based on one
-   // counter in the SipRegEventServer.  Since this counter persists,
+   // counter in the RegisterEventServer.  Since this counter persists,
    // it will count up forever.  But this crude architecture will
    // be fixed before the counter overflows for any of our users.
    // (Ugh.)

@@ -7,8 +7,8 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef _SipRegEventServer_h_
-#define _SipRegEventServer_h_
+#ifndef _RegisterEventServer_h_
+#define _RegisterEventServer_h_
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -38,27 +38,27 @@
 
 
 /**
- * A SipRegEventServer contains the machinery for servicing
+ * A RegisterEventServer contains the machinery for servicing
  * subscriptions to registration events, as described in RFC 3680.
  */
 
-class SipRegEventServer
+class RegisterEventServer
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
 
    //! Construct a resource list.
-   SipRegEventServer(/** The host-part of the canonical form of the resource list
+   RegisterEventServer(/** The host-part of the canonical form of the resource list
                         *  URIs, which is the sipX domain. */
-                     const UtlString& domainName,
-                     /// The TCP port to listen on.
-                     int tcpPort,
-                     /// The UDP port to listen on.
-                     int udpPort,
-                     /// The TLS port to listen on.
-                     int tlsPort);
+                       const UtlString& domainName,
+                       /// The TCP port to listen on.
+                       int tcpPort,
+                       /// The UDP port to listen on.
+                       int udpPort,
+                       /// The TLS port to listen on.
+                       int tlsPort);
 
-   virtual ~SipRegEventServer();
+   virtual ~RegisterEventServer();
 
    //! Generate and publish content for reg events for an AOR.
    void generateAndPublishContent(/// AOR as a string
@@ -127,23 +127,23 @@ class SipRegEventServer
    SipSubscribeServer mSubscribeServer;
 
    //! Disabled copy constructor
-   SipRegEventServer(const SipRegEventServer& rSipRegEventServer);
+   RegisterEventServer(const RegisterEventServer& rRegisterEventServer);
 
    //! Disabled assignment operator
-   SipRegEventServer& operator=(const SipRegEventServer& rhs);
+   RegisterEventServer& operator=(const RegisterEventServer& rhs);
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-inline const UtlString* SipRegEventServer::getDomainName()
+inline const UtlString* RegisterEventServer::getDomainName()
 {
    return &mDomainName;
 }
 
-inline RegistrationDB* SipRegEventServer::getRegistrationDBInstance()
+inline RegistrationDB* RegisterEventServer::getRegistrationDBInstance()
 {
    return mpRegistrationDBInstance;
 }
 
-#endif  // _SipRegEventServer_h_
+#endif  // _RegisterEventServer_h_

@@ -27,12 +27,13 @@
 #include "registry/SipRegistrar.h"
 #include "registry/RegisterPlugin.h"
 #include "registry/SipRedirectServer.h"
-#include "SipRegistrarServer.h"
+#include "RegisterEventServer.h"
+#include "RegistrarInitialSync.h"
 #include "RegistrarPeer.h"
 #include "RegistrarPersist.h"
-#include "RegistrarTest.h"
 #include "RegistrarSync.h"
-#include "RegistrarInitialSync.h"
+#include "RegistrarTest.h"
+#include "SipRegistrarServer.h"
 #include "SyncRpc.h"
 
 // EXTERNAL FUNCTIONS
@@ -48,6 +49,8 @@ const int REGISTRAR_DEFAULT_SIPS_PORT = 5071;
 
 const char* RegisterPlugin::Prefix  = "SIP_REGISTRAR";
 const char* RegisterPlugin::Factory = "getRegisterPlugin";
+
+const int REGISTRAR_DEFAULT_REG_EVENT_PORT = 5075;
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -299,6 +302,7 @@ void SipRegistrar::operationalPhase()
    mSipUserAgent->start();
    startRegistrarServer();
    startRedirectServer();
+   startEventServer();
 }
 
 /// Get the XML-RPC dispatcher
@@ -323,6 +327,12 @@ RegistrarTest* SipRegistrar::getRegistrarTest()
 RegistrarSync* SipRegistrar::getRegistrarSync()
 {
    return mRegistrarSync;
+}
+
+/// Get the RegisterEventServer thread object
+RegisterEventServer* SipRegistrar::getRegisterEventServer()
+{
+   return mRegisterEventServer;
 }
 
 /// Return true if replication is configured, false otherwise
@@ -528,6 +538,14 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
           mRegistrarMsgQ = NULL;
        }
 
+       if ( mRegisterEventServer )
+       {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipRegistrar::handleMessage shutting down RegisterEventServer");
+          delete mRegisterEventServer;
+          mRegisterEventServer = NULL;
+       }
+
        OsTask::requestShutdown(); // tell OsServerTask::run to exit
        handled = TRUE;
     }
@@ -683,6 +701,21 @@ SipRegistrar::startRegistrarServer()
     mRegistrarMsgQ = mRegistrarServer->getMessageQueue();
     mRegistrarServer->initialize(mConfigDb, mSipUserAgent);
     mRegistrarServer->start();
+}
+
+void
+SipRegistrar::startEventServer()
+{
+   // Start the registration event server.
+   int port = mConfigDb->getPort("SIP_REGISTRAR_REG_EVENT_PORT");
+   if (port == PORT_DEFAULT)
+   {
+      port = REGISTRAR_DEFAULT_REG_EVENT_PORT;
+   }
+   mRegisterEventServer = new RegisterEventServer(defaultDomain(),
+                                                  port,
+                                                  port,
+                                                  PORT_NONE);
 }
 
 void

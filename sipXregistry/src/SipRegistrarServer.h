@@ -18,7 +18,6 @@
 #include "os/OsServerTask.h"
 #include "net/SipNonceDb.h"
 #include "utl/PluginHooks.h"
-#include "SipRegEventServer.h"
 
 // DEFINES
 // MACROS
@@ -129,7 +128,6 @@ protected:
     int mMinExpiresTimeint;
     bool mUseCredentialDB;
     UtlString mRealm;
-    SipRegEventServer* mpSipRegEventServer;
 
     SipNonceDb mNonceDb;
     long mNonceExpiration;

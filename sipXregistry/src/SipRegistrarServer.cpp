@@ -31,7 +31,7 @@
 #include "RegistrarSync.h"
 #include "registry/SipRegistrar.h"
 #include "SipRegistrarServer.h"
-#include "SipRegEventServer.h"
+#include "RegisterEventServer.h"
 #include "SyncRpc.h"
 #include "registry/RegisterPlugin.h"
 
@@ -56,7 +56,6 @@ const RegEx RegQValue("^(0(\\.\\d{0,3})?|1(\\.0{0,3})?)$"); // syntax for a vali
 #define MIN_EXPIRES_TIME 300
 #define HARD_MINIMUM_EXPIRATION 60
 const char DEFAULT_EXPIRATION_TIME[] = "7200";
-#define REGISTRAR_DEFAULT_REG_EVENT_PORT 5075
 
 // STRUCTS
 // TYPEDEFS
@@ -82,7 +81,6 @@ SipRegistrarServer::SipRegistrarServer(SipRegistrar& registrar) :
     mIsStarted(FALSE),
     mSipUserAgent(NULL),
     mDefaultRegistryPeriod(),
-    mpSipRegEventServer(NULL),
     mNonceExpiration(5*60)
 {
 }
@@ -167,17 +165,6 @@ SipRegistrarServer::initialize(
                                            ,RegisterPlugin::Prefix
                                            );
     mpSipRegisterPlugins->readConfig(*pOsConfigDb);
-
-    // Start the registration event server.
-    int port = pOsConfigDb->getPort("SIP_REGISTRAR_REG_EVENT_PORT");
-    if (port == PORT_DEFAULT)
-    {
-       port = REGISTRAR_DEFAULT_REG_EVENT_PORT;
-    }
-    mpSipRegEventServer = new SipRegEventServer(mRegistrar.defaultDomain(),
-                                                port,
-                                                port,
-                                                PORT_NONE);
 }
 
 int SipRegistrarServer::pullUpdates(
@@ -602,11 +589,15 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                 {
                     // Now that we have revised the bindings for
                     // toUrl, update the reg event content for it.
-                    // Use getUri to extract the AOR as a string, because
-                    // registerToStr is only the identity part.
-                    UtlString aorString;
-                    toUrl.getUri(aorString);
-                    //mpSipRegEventServer->generateAndPublishContent(aorString, toUrl);
+                    RegisterEventServer* s = mRegistrar.getRegisterEventServer();
+                    if (s)
+                    {
+                       // Use getUri to extract the AOR as a string, because
+                       // registerToStr is only the identity part.
+                       UtlString aorString;
+                       toUrl.getUri(aorString);
+                       s->generateAndPublishContent(aorString, toUrl);
+                    }
 
                     // something changed - garbage collect and persist the database
                     scheduleCleanAndPersist();
@@ -791,10 +782,14 @@ Int64 SipRegistrarServer::updateOneBinding(
       imdb->updateBinding(*reg);
 
       // Regenerate reg event information.
-      const Url* aor = reg->getUri();
-      UtlString aor_string;
-      aor->getUri(aor_string);
-      //mpSipRegEventServer->generateAndPublishContent(aor_string, *aor);
+      RegisterEventServer* s = mRegistrar.getRegisterEventServer();
+      if (s)
+      {
+         const Url* aor = reg->getUri();
+         UtlString aor_string;
+         aor->getUri(aor_string);
+         s->generateAndPublishContent(aor_string, *aor);
+      }
    }
 
    return maxUpdateNumber;
@@ -1317,14 +1312,19 @@ void SipRegistrarServer::cleanAndPersist()
    // are about to delete.  It's possible that there hasn't been a
    // notify telling that they're terminated yet, and we have to make
    // sure to generate one before the row is deleted.
-   UtlHashBag aors;
-   imdb->getAllOldBindings(timeNow, aors);
-   UtlHashBagIterator itor(aors);
-   UtlString* aor;
-   while ((aor = dynamic_cast <UtlString*> (itor())))
+   RegisterEventServer* s = mRegistrar.getRegisterEventServer();
+   if (s)
    {
-      Url aor_uri(*aor, TRUE);
-      //mpSipRegEventServer->generateAndPublishContent(*aor, aor_uri);
+      // Use getUri to extract the AOR as a string, because
+      UtlHashBag aors;
+      imdb->getAllOldBindings(timeNow, aors);
+      UtlHashBagIterator itor(aors);
+      UtlString* aor;
+      while ((aor = dynamic_cast <UtlString*> (itor())))
+      {
+         Url aor_uri(*aor, TRUE);
+         s->generateAndPublishContent(*aor, aor_uri);
+      }
    }
 
    // Critical Section here
@@ -1394,8 +1394,6 @@ void SipRegistrarServer::restoreDbUpdateNumber()
 
 SipRegistrarServer::~SipRegistrarServer()
 {
-   // Shut down and delete the registration event server.
-   delete mpSipRegEventServer;
 }
 
 void RegisterPlugin::takeAction( const SipMessage&   registerMessage  
