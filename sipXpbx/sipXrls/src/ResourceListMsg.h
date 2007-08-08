@@ -118,6 +118,7 @@ public:
    NotifyCallbackMsg(/// dialog handle of the subscription
                      const char* dialogHandle,
                      /// location and length of the NOTIFY content
+                     //  content_bytes == NULL && content_length == 0 is allowed
                      const char* content_bytes,
                      int content_length);
    //:Constructor

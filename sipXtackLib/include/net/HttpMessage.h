@@ -512,11 +512,13 @@ public:
     //! @name Message body accessors
     //@{
     //! Get the body section of the message
+    //  May return NULL if the message has no body section, which usually
+    //  comes from parsing a message with a zero-length body.
     const HttpBody* getBody() const;
 
     /**
-     * Attach the body section of the message. The body is NOT copied
-     * this message instance destructor will call delete on body
+     * Attach the body section of the message. The body is NOT copied.
+     * This message instance destructor will call delete on the body
      * pointer.
      */
     void setBody(HttpBody* newBody);

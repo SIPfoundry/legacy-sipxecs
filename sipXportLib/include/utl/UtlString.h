@@ -91,6 +91,7 @@ public:
     /**<
      * Any zero byte in the source string is ignored; all length chars of the source
      * string are copied to this object.
+     * szSource can be NULL if length == 0.
      */
 
     /// Copy the source UtlString.
@@ -370,6 +371,7 @@ public:
      */
 
     /// Append upto N bytes of the designated string to the end of this string.
+    //  szStr can be NULL if N == 0.
     UtlString& append(const char* szStr, size_t N);
 
     /// Append a single character to the end of this string.
