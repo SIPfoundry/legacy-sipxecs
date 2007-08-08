@@ -194,6 +194,7 @@
       <value>off</value>
     </setting>
     <setting name="contrast">
+      <profileName>contrast!</profileName>
       <type>
         <enum>
           <option>
@@ -249,6 +250,7 @@
       <value>8</value>
     </setting>
     <setting name="use_backlight">
+      <profileName>use_backlight!</profileName>
       <type refid="on-off" />
       <value>on</value>
     </setting>
@@ -880,7 +882,7 @@
       <type>
         <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="ntp_refresh_timer" advanced="yes">
       <type>
@@ -1121,9 +1123,13 @@
       </type>
       <value />
     </setting>
-    <setting name="pnp_config">
+    <setting name="subscribe_config" advanced="yes">
       <type refid="on-off" />
-      <value>on</value>
+      <value>off</value>
+    </setting>
+    <setting name="pnp_config" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
     </setting>
   </group>
   <group name="Audio_Settings">
@@ -1168,50 +1174,59 @@
       <value>USA</value>
     </setting>
     <setting name="vol_speaker">
+      <profileName>vol_speaker!</profileName>
       <type>
         <integer min="1" max="15" />
       </type>
       <value>7</value>
     </setting>
     <setting name="vol_handset">
+      <profileName>vol_handset!</profileName>
       <type>
         <integer min="1" max="15" />
       </type>
       <value>11</value>
     </setting>
     <setting name="vol_headset">
+      <profileName>vol_headset!</profileName>
       <type>
         <integer min="1" max="15" />
       </type>
       <value>10</value>
     </setting>
     <setting name="vol_speaker_mic">
+      <profileName>vol_speaker_mic!</profileName>
       <type>
         <integer min="1" max="8" />
       </type>
       <value>5</value>
     </setting>
     <setting name="vol_handset_mic">
+      <profileName>vol_handset_mic!</profileName>
       <type>
         <integer min="1" max="8" />
       </type>
       <value>5</value>
     </setting>
     <setting name="vol_headset_mic">
+      <profileName>vol_headset_mic!</profileName>
       <type>
         <integer min="1" max="8" />
       </type>
       <value>7</value>
     </setting>
     <setting name="mute">
+      <profileName>mute!</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="disable_speaker">
+      <profileName>disable_speaker!</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="headset_device">
+      <profileName>headset_device!</profileName>
       <type>
         <enum>
           <option>
@@ -1225,10 +1240,12 @@
       <value>none</value>
     </setting>
     <setting name="audio_device_indicator">
+      <profileName>audio_device_indicator!</profileName>
       <type refid="on-off" />
       <value>on</value>
     </setting>
     <setting name="ringer_headset_device">
+      <profileName>ringer_headset_device!</profileName>
       <type>
         <enum>
           <option>
@@ -1242,14 +1259,39 @@
       <value>speaker</value>
     </setting>
     <setting name="key_tones">
+      <profileName>key_tones!</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
-    <setting name="holding-reminder">
+    <setting name="holding_reminder">
+      <profileName>holding_reminder!</profileName>
       <type refid="on-off" />
       <value>on</value>
     </setting>
+    <setting name="alert_info_playback">
+      <profileName>alert_info_playback!</profileName>
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="call_waiting">
+      <profileName>call_waiting!</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>on</value>
+          </option>
+          <option>
+            <value>visual</value>
+          </option>
+          <option>
+            <value>off</value>
+          </option>
+        </enum>
+      </type>
+      <value>on</value>
+    </setting>
     <setting name="mwi_notification">
+      <profileName>mwi_notification!</profileName>
       <type>
         <enum>
           <option>
@@ -1266,6 +1308,7 @@
       <value>silent</value>
     </setting>
     <setting name="mwi_dialtone">
+      <profileName>mwi_dialtone!</profileName>
       <type>
         <enum>
           <option>
@@ -1327,10 +1370,12 @@
   </group>
   <group name="Key_Mapping">
     <setting name="intercom_enabled">
+      <profileName>intercom_enabled!</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="answer_after_policy" advanced="yes">
+      <profileName>answer_after_policy!</profileName>
       <type>
         <enum>
           <option>
@@ -1347,10 +1392,12 @@
       <value>always</value>
     </setting>
     <setting name="no_dnd" advanced="yes">
+      <profileName>no_dnd!</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="speaker_dialer" advanced="yes">
+      <profileName>speaker_dialer!</profileName>
       <type refid="on-off" />
       <value>on</value>
     </setting>
@@ -1358,86 +1405,89 @@
   <group name="Action_URLs">
     <setting name="action_dnd_on_url">
       <type>
-        <string/>
+        <string />
       </type>
     </setting>
     <setting name="action_dnd_off_url">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="action_redirection_on_url">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="action_redirection_off_url">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="action_incoming_url">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="action_outgoing_url">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="action_setup_url">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="action_offhook_url">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="action_onhook_url">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="action_missed_url">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="action_connected_url">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="action_disconnected_url">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
   </group>
   <group name="Privacy">
     <setting name="privacy_in">
+      <profileName>privacy_in!</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="privacy_out">
+      <profileName>privacy_out!</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="presence_timeout">
+      <profileName>presence_timeout!</profileName>
       <type>
         <integer />
       </type>
@@ -1603,16 +1653,19 @@
       <value>1</value>
     </setting>
     <setting name="keyboard_lock">
+      <profileName>keyboard_lock!</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="keyboard_lock_pw" advanced="yes">
+      <profileName>keyboard_lock_pw!</profileName>
       <type>
-        <string />
+        <string password="yes" />
       </type>
       <value />
     </setting>
     <setting name="keyboard_lock_emergency" advanced="yes">
+      <profileName>keyboard_lock_emergency!</profileName>
       <type>
         <string />
       </type>

@@ -14,6 +14,7 @@ import org.apache.tapestry.IExternalPage;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
+import org.apache.tapestry.Tapestry;
 import org.apache.tapestry.callback.ExternalCallback;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.engine.IEngineService;
@@ -86,23 +87,19 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     }
     
     private void conditionallySetLoginCallback(LoginPage login, IPage page, IRequestCycle cycle) {
-        // External pages can safely be redirected to after successful login
-        if (page instanceof IExternalPage) {
-            //
-            // If page service is calling page, you're probably logged out and user could be
-            // looking at a very different page then what gets interpretted from this callback
-            // because all session data is lost. 
-            //
-            // If your page can safely handle this, consider refactoring border component to accept a
-            // component parameter to circumvent this constraint.  Warning: this means your page 
-            // either doesn't use session variabled OR can safely recover when session is lost
-            //
-            String serviceName = cycle.getService().getName(); 
-            if (!"page".equals(serviceName)) {                
-                ICallback callback = new ExternalCallback((IExternalPage) page, cycle.getListenerParameters());
-                login.setCallback(callback);            
-            }
-        }        
+        // If page service is calling page, you're probably logged out and user could be
+        // looking at a very different page then what gets interpretted from this callback
+        // because all session data is lost. 
+        //
+        // If your page can safely handle this, consider refactoring border component to accept a
+        // component parameter to circumvent this constraint.  Warning: this means your page 
+        // either doesn't use session variabled OR can safely recover when session is lost
+        //
+        String serviceName = cycle.getService().getName(); 
+        if (Tapestry.EXTERNAL_SERVICE.equals(serviceName)) {                
+            ICallback callback = new ExternalCallback((IExternalPage) page, cycle.getListenerParameters());
+            login.setCallback(callback);            
+        }
     }
 
     public VersionInfo getVersionInfo() {
