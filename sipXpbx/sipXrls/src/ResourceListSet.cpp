@@ -352,7 +352,16 @@ void ResourceListSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
    // Get the NOTIFY content.
    const char* b;
    int l;
-   notifyRequest->getBody()->getBytes(&b, &l);
+   const HttpBody* body = notifyRequest->getBody();
+   if (body)
+   {
+      body->getBytes(&b, &l);
+   }
+   else
+   {
+      b = NULL;
+      l = 0;
+   }
 
    // Send a message to the ResourceListTask.
    NotifyCallbackMsg msg(dialogHandle, b, l);
