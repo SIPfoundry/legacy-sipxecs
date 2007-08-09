@@ -7,6 +7,12 @@ ${setting.ProfileName}: $!{setting.Value}
 #end
 #end
 #end
+# speeddial list
+#foreach ($number in $speedDial)
+#set ($i = $velocityCount - 1)
+speed${i}!: $number
+#end
+# identities
 #foreach ($line in $phone.ProfileLines)
 #set ($i = $velocityCount)
 #foreach ($group in $line.Values)
@@ -16,4 +22,12 @@ ${setting.ProfileName}${i}: $!{setting.Value}
 #end
 #end
 #end
+#end
+# address book
+#foreach ($entry in $phoneBook)
+#set ($i = $velocityCount - 1)
+tn_${i}!: $!{entry.FirstName} $!{entry.LastName}
+tu_${i}!: $!{entry.Number}
+tc_${i}!: none
+to_${i}!: active
 #end

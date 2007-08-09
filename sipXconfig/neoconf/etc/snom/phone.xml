@@ -1085,6 +1085,40 @@
       <value>101</value>
     </setting>
   </group>
+  <group name="LDAP">
+    <setting name="ldap_server">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ldap_port" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>389</value>
+    </setting>
+    <setting name="ldap_base">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ldap_username">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ldap_password">
+      <type>
+        <string password="yes"/>
+      </type>
+    </setting>
+    <setting name="ldap_max_hits" advanced="yes">
+      <type>
+        <integer min="1"/>
+      </type>
+      <value>50</value>
+    </setting>
+  </group>
   <group name="Updates_and_settings">
     <setting name="update_policy">
       <type>
