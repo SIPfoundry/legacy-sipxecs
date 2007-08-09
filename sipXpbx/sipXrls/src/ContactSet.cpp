@@ -263,7 +263,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                           "ContactSet::notifyEventCallback clearing state");
          }
 
-         // Find all the <registration> elements for this URI..
+         // Find all the <registration> elements for this URI.
          for (TiXmlNode* registration_node = 0;
               (registration_node =
                reginfo_node->IterateChildren("registration",
@@ -423,7 +423,7 @@ void ContactSet::updateSubscriptions()
          if (OsSysLog::willLog(FAC_RLS, PRI_DEBUG))
          {
             OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                          "ContactSet::updateSubscriptions contact id '%s', URI '%s'",
+                          "ContactSet::updateSubscriptions contact id '%s', Call-Id/URI '%s'",
                           (dynamic_cast <UtlString*> (contact_itor.key()))->data(),
                           contact->data());
          }
@@ -477,17 +477,19 @@ void ContactSet::updateSubscriptions()
    // callid_contacts is guarded by the tests in notifyEventCallback.
    {
       UtlHashBagIterator itor(callid_contacts);
-      UtlString* contact;
-      while ((contact = dynamic_cast <UtlString*> (itor())))
+      UtlString* callid_contact;
+      while ((callid_contact = dynamic_cast <UtlString*> (itor())))
       {
-         if (!mSubscriptionSets.find(contact))
+         if (!mSubscriptionSets.find(callid_contact))
          {
             OsSysLog::add(FAC_RLS, PRI_DEBUG,
                           "ContactSet::updateSubscriptions adding subscription for '%s' in mUri = '%s'",
-                          contact->data(), mUri.data());
+                          callid_contact->data(), mUri.data());
             // Get the contact URI into a UtlString.
-            UtlString uri(contact->data() + contact->index(';') + 1);
-            mSubscriptionSets.insertKeyAndValue(new UtlString(*contact),
+            UtlString uri(callid_contact->data() +
+                          callid_contact->index(';') +
+                          1);
+            mSubscriptionSets.insertKeyAndValue(new UtlString(*callid_contact),
                                                 new SubscriptionSet(mResource,
                                                                     uri));
          }
