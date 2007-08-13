@@ -2,9 +2,7 @@
 # Model $phone.Model.Label Maxlines $phone.Model.MaxLineCount
 #foreach ($group in $phone.Settings.Values)
 #foreach ($setting in $group.Values)
-#if($setting.Value.trim())
 ${setting.ProfileName}: $!{setting.Value}
-#end
 #end
 #end
 # speeddial list
@@ -17,9 +15,7 @@ speed${i}!: $number
 #set ($i = $velocityCount)
 #foreach ($group in $line.Values)
 #foreach ($setting in $group.Values)
-#if($setting.Value.trim())
 ${setting.ProfileName}${i}: $!{setting.Value}
-#end
 #end
 #end
 #end
