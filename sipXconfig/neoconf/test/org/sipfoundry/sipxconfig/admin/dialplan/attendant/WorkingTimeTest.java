@@ -83,14 +83,14 @@ public class WorkingTimeTest extends TestCase {
         hours.setStop(c.getTime());
 
         List<Integer> minutes = new ArrayList<Integer>();
-        hours.generalAddMinutesFromSunday(minutes, 0);
+        hours.addMinutesFromSunday(minutes, 0);
         assertEquals(2, minutes.size());
         assertEquals(63, minutes.get(0).intValue());
         assertEquals(125, minutes.get(1).intValue());
 
         hours.setDay(ScheduledDay.TUESDAY);
         minutes.clear();
-        hours.generalAddMinutesFromSunday(minutes, 0);
+        hours.addMinutesFromSunday(minutes, 0);
         assertEquals(2, minutes.size());
         assertEquals(2 * 24 * 60 + 63, minutes.get(0).intValue());
         assertEquals(2 * 24 * 60 + 125, minutes.get(1).intValue());
@@ -112,13 +112,13 @@ public class WorkingTimeTest extends TestCase {
         hours.setStop(c.getTime());
 
         List<Integer> minutes = new ArrayList<Integer>();
-        hours.generalAddMinutesFromSunday(minutes, 120);
+        hours.addMinutesFromSunday(minutes, 120);
         assertEquals(2, minutes.size());
         assertEquals(2 * 24 * 60 + 63 - 120, minutes.get(0).intValue());
         assertEquals(2 * 24 * 60 + 125 - 120, minutes.get(1).intValue());
 
         minutes.clear();
-        hours.generalAddMinutesFromSunday(minutes, -183);
+        hours.addMinutesFromSunday(minutes, -183);
         assertEquals(2, minutes.size());
         assertEquals(2 * 24 * 60 + 63 + 183, minutes.get(0).intValue());
         assertEquals(2 * 24 * 60 + 125 + 183, minutes.get(1).intValue());
@@ -140,7 +140,7 @@ public class WorkingTimeTest extends TestCase {
         hours.setStop(c.getTime());
 
         List<Integer> minutes = new ArrayList<Integer>();
-        hours.generalAddMinutesFromSunday(minutes, 180);
+        hours.addMinutesFromSunday(minutes, 180);
         assertEquals(2, minutes.size());
         assertEquals(63 + WorkingHours.MINUTES_PER_WEEK - 180, minutes.get(0).intValue());
         assertEquals(125 + WorkingHours.MINUTES_PER_WEEK - 180, minutes.get(1).intValue());
@@ -155,12 +155,12 @@ public class WorkingTimeTest extends TestCase {
         hours.setStop(c.getTime());
 
         minutes.clear();
-        hours.generalAddMinutesFromSunday(minutes, -360);
+        hours.addMinutesFromSunday(minutes, -360);
         assertEquals(2, minutes.size());
-        assertEquals(6 * 24 * 60 + 20 * 60 + 3 + 360 - WorkingHours.MINUTES_PER_WEEK, minutes.get(0)
-                .intValue());
-        assertEquals(6 * 24 * 60 + 22 * 60 + 5 + 360 - WorkingHours.MINUTES_PER_WEEK, minutes.get(1)
-                .intValue());
+        assertEquals(6 * 24 * 60 + 20 * 60 + 3 + 360 - WorkingHours.MINUTES_PER_WEEK, minutes
+                .get(0).intValue());
+        assertEquals(6 * 24 * 60 + 22 * 60 + 5 + 360 - WorkingHours.MINUTES_PER_WEEK, minutes
+                .get(1).intValue());
     }
 
     public void testGeneralAddMinutesFromSundayRollbackSplit() {
@@ -179,7 +179,7 @@ public class WorkingTimeTest extends TestCase {
         hours.setStop(c.getTime());
 
         List<Integer> minutes = new ArrayList<Integer>();
-        hours.generalAddMinutesFromSunday(minutes, 80);
+        hours.addMinutesFromSunday(minutes, 80);
         assertEquals(4, minutes.size());
         assertEquals(63 + WorkingHours.MINUTES_PER_WEEK - 80, minutes.get(0).intValue());
         assertEquals(WorkingHours.MINUTES_PER_WEEK, minutes.get(1).intValue());
@@ -196,15 +196,15 @@ public class WorkingTimeTest extends TestCase {
         hours.setStop(c.getTime());
 
         minutes.clear();
-        hours.generalAddMinutesFromSunday(minutes, -130);
+        hours.addMinutesFromSunday(minutes, -130);
         assertEquals(4, minutes.size());
         assertEquals(6 * 24 * 60 + 20 * 60 + 3 + 130, minutes.get(0).intValue());
         assertEquals(WorkingHours.MINUTES_PER_WEEK, minutes.get(1).intValue());
         assertEquals(0, minutes.get(2).intValue());
-        assertEquals(6 * 24 * 60 + 22 * 60 + 5 + 130 - WorkingHours.MINUTES_PER_WEEK, minutes.get(3)
-                .intValue());
+        assertEquals(6 * 24 * 60 + 22 * 60 + 5 + 130 - WorkingHours.MINUTES_PER_WEEK, minutes
+                .get(3).intValue());
     }
-    
+
     public void testGeneralAddMinutesFromSundayWithEveryDaySchedule() {
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         c.set(1970, Calendar.JANUARY, 1);
@@ -221,7 +221,7 @@ public class WorkingTimeTest extends TestCase {
         hours.setStop(c.getTime());
 
         List<Integer> minutes = new ArrayList<Integer>();
-        hours.generalAddMinutesFromSunday(minutes, 0);
+        hours.addMinutesFromSunday(minutes, 0);
         assertEquals(14, minutes.size());
         assertEquals(0 * 24 * 60 + 63, minutes.get(0).intValue());
         assertEquals(0 * 24 * 60 + 125, minutes.get(1).intValue());
@@ -236,9 +236,9 @@ public class WorkingTimeTest extends TestCase {
         assertEquals(5 * 24 * 60 + 63, minutes.get(10).intValue());
         assertEquals(5 * 24 * 60 + 125, minutes.get(11).intValue());
         assertEquals(6 * 24 * 60 + 63, minutes.get(12).intValue());
-        assertEquals(6 * 24 * 60 + 125, minutes.get(13).intValue());        
+        assertEquals(6 * 24 * 60 + 125, minutes.get(13).intValue());
     }
-    
+
     public void testGeneralAddMinutesFromSundayWithWeekDaysSchedule() {
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         c.set(1970, Calendar.JANUARY, 1);
@@ -255,7 +255,7 @@ public class WorkingTimeTest extends TestCase {
         hours.setStop(c.getTime());
 
         List<Integer> minutes = new ArrayList<Integer>();
-        hours.generalAddMinutesFromSunday(minutes, 0);
+        hours.addMinutesFromSunday(minutes, 0);
         assertEquals(10, minutes.size());
         assertEquals(1 * 24 * 60 + 63, minutes.get(0).intValue());
         assertEquals(1 * 24 * 60 + 125, minutes.get(1).intValue());
@@ -266,9 +266,9 @@ public class WorkingTimeTest extends TestCase {
         assertEquals(4 * 24 * 60 + 63, minutes.get(6).intValue());
         assertEquals(4 * 24 * 60 + 125, minutes.get(7).intValue());
         assertEquals(5 * 24 * 60 + 63, minutes.get(8).intValue());
-        assertEquals(5 * 24 * 60 + 125, minutes.get(9).intValue());        
+        assertEquals(5 * 24 * 60 + 125, minutes.get(9).intValue());
     }
-    
+
     public void testGeneralAddMinutesFromSundayWithWeekEndSchedule() {
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         c.set(1970, Calendar.JANUARY, 1);
@@ -285,7 +285,7 @@ public class WorkingTimeTest extends TestCase {
         hours.setStop(c.getTime());
 
         List<Integer> minutes = new ArrayList<Integer>();
-        hours.generalAddMinutesFromSunday(minutes, 0);
+        hours.addMinutesFromSunday(minutes, 0);
         assertEquals(4, minutes.size());
         assertEquals(6 * 24 * 60 + 63, minutes.get(0).intValue());
         assertEquals(6 * 24 * 60 + 125, minutes.get(1).intValue());

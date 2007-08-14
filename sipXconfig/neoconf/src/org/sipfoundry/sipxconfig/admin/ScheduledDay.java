@@ -16,7 +16,7 @@ import org.sipfoundry.sipxconfig.common.EnumUserType;
 
 public final class ScheduledDay extends Enum {
     public static final ScheduledDay WEEKEND = new ScheduledDay("Weekend", -2);
-    public static final ScheduledDay WEEKDAYS = new ScheduledDay("Week days", -1);
+    public static final ScheduledDay WEEKDAYS = new ScheduledDay("Weekdays", -1);
     public static final ScheduledDay EVERYDAY = new ScheduledDay("Every day");
     public static final ScheduledDay SUNDAY = new ScheduledDay("Sunday", Calendar.SUNDAY);
     public static final ScheduledDay MONDAY = new ScheduledDay("Monday", Calendar.MONDAY);
@@ -29,15 +29,15 @@ public final class ScheduledDay extends Enum {
     public static final ScheduledDay[] DAYS_OF_WEEK = {
         SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY,
     };
-    
+
     public static final ScheduledDay[] DAYS_OF_WEEK_PLUS_EVERYDAY = {
         EVERYDAY, SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY,
     };
-    
+
     public static final ScheduledDay[] WEEKEND_DAYS = {
         SATURDAY, SUNDAY,
     };
-    
+
     public static final ScheduledDay[] WEEK_DAYS = {
         MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY,
     };
