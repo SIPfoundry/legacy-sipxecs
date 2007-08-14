@@ -68,7 +68,7 @@ public class WorkingTime extends ScheduledAttendant {
         WorkingHours[] workingHours = getWorkingHours();
         List<Integer> validTimeList = new ArrayList<Integer>();
         for (WorkingHours wk : workingHours) {
-            wk.addMinutesFromSunday(validTimeList, timeZoneOffsetInMinutes);
+            wk.generalAddMinutesFromSunday(validTimeList, timeZoneOffsetInMinutes);
         }
         return validTimeList;
     }
@@ -224,6 +224,31 @@ public class WorkingTime extends ScheduledAttendant {
 
         int getMinutesFromMidnight(Date date) {
             return getHour(date) * MINUTES_PER_HOUR + getMinute(date);
+        }
+
+        void generalAddMinutesFromSunday(List<Integer> minutes, int timeZoneOffsetInMinutes) {
+            ScheduledDay day = getDay();
+            if (day.equals(ScheduledDay.EVERYDAY)) {
+                addMinutesFromSunday(day, ScheduledDay.DAYS_OF_WEEK, minutes,
+                        timeZoneOffsetInMinutes);
+            } else if (day.equals(ScheduledDay.WEEKDAYS)) {
+                addMinutesFromSunday(day, ScheduledDay.WEEK_DAYS, minutes,
+                        timeZoneOffsetInMinutes);
+            } else if (day.equals(ScheduledDay.WEEKEND)) {
+                addMinutesFromSunday(day, ScheduledDay.WEEKEND_DAYS, minutes,
+                        timeZoneOffsetInMinutes);
+            } else {
+                addMinutesFromSunday(minutes, timeZoneOffsetInMinutes);
+            }
+        }
+
+        void addMinutesFromSunday(ScheduledDay initialDay, ScheduledDay[] days,
+                List<Integer> minutes, int timeZoneOffsetInMinutes) {
+            for (ScheduledDay dow : days) {
+                setDay(dow);
+                addMinutesFromSunday(minutes, timeZoneOffsetInMinutes);
+            }
+            setDay(initialDay);
         }
 
         void addMinutesFromSunday(List<Integer> minutes, int timeZoneOffsetInMinutes) {

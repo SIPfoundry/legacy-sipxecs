@@ -34,7 +34,7 @@ public abstract class ScheduleWorkingHours extends BaseComponent {
 
     private IPropertySelectionModel createDayOfWeekModel() {
         EnumPropertySelectionModel dayModel = new EnumPropertySelectionModel();
-        dayModel.setOptions(ScheduledDay.DAYS_OF_WEEK);
+        dayModel.setEnumClass(ScheduledDay.class);
 
         LocalizedOptionModelDecorator decoratedModel = new LocalizedOptionModelDecorator();
         decoratedModel.setModel(dayModel);
