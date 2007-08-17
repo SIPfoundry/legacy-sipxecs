@@ -728,7 +728,7 @@
         <type>
           <boolean />
         </type>
-        <value />
+        <value>0</value>
       </setting>
     </group>
   </group>
@@ -781,6 +781,20 @@
         <value>50</value>
       </setting>
     </group>
+    <group name="8mb" unless="1.6">
+      <setting name="dir.local.volatile.8meg">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="dir.local.nonVolatile.maxSize.8meg">
+        <type>
+          <integer min="0" />
+        </type>
+        <value>100</value>
+      </setting>
+    </group>
     <group name="volatile">
       <setting name="dir.local.volatile.maxSize">
         <type>
@@ -808,7 +822,7 @@
   </group>
   <group name="log">
     <group name="level.change" advanced="yes">
-      <setting name="sip">
+      <setting name="so">
         <type>
           <enum labelKeyPrefix="log_level.label">
             <option>
@@ -833,30 +847,33 @@
         </type>
         <value>4</value>
       </setting>
-      <setting name="ib" copy-of="sip" />
-      <setting name="mb" copy-of="sip" />
-      <setting name="rtos" copy-of="sip" />
-      <setting name="curl" copy-of="sip" />
-      <setting name="log" copy-of="sip" />
-      <setting name="key" copy-of="sip" />
-      <setting name="res" copy-of="sip" />
-      <setting name="slog" copy-of="sip" />
-      <setting name="copy" copy-of="sip" />
-      <setting name="rdisk" copy-of="sip" />
-      <setting name="httpd" copy-of="sip" />
-      <setting name="cxss" copy-of="sip" />
-      <setting name="dns" copy-of="sip" />
-      <setting name="ares" copy-of="sip" />
-      <setting name="ftp" copy-of="sip" />
-      <setting name="pmt" copy-of="sip" />
-      <setting name="cdp" copy-of="sip" />
-      <setting name="cfg" copy-of="sip" />
-      <setting name="net" copy-of="sip" />
-      <setting name="pps" copy-of="sip" />
-      <setting name="ssps" copy-of="sip" />
-      <setting name="sspsc" copy-of="sip" />
-      <setting name="app1" copy-of="sip" />
-      <setting name="so" copy-of="sip" />
+      <setting name="app1" copy-of="so" />
+      <setting name="sip" copy-of="so" />
+      <setting name="sspsc" copy-of="so" />
+      <setting name="ssps" copy-of="so" />
+      <setting name="pps" copy-of="so" />
+      <setting name="net" copy-of="so" />
+      <setting name="cfg" copy-of="so" />
+      <setting name="cdp" copy-of="so" />
+      <setting name="pmt" copy-of="so" />
+      <setting name="ftp" copy-of="so" />
+      <setting name="ares" copy-of="so" />
+      <setting name="dns" copy-of="so" />
+      <setting name="cxss" copy-of="so" />
+      <setting name="httpd" copy-of="so" />
+      <setting name="rdisk" copy-of="so" />
+      <setting name="copy" copy-of="so" />
+      <setting name="slog" copy-of="so" />
+      <setting name="res" copy-of="so" />
+      <setting name="key" copy-of="so" />
+      <setting name="log" copy-of="so" />
+      <setting name="curl" copy-of="so" />
+      <setting name="rtos" copy-of="so" />
+      <setting name="mb" copy-of="so" />
+      <setting name="ib" copy-of="so" />
+      <setting name="sotet" copy-of="so" />
+      <setting name="ttrs" copy-of="so" />
+      <setting name="usb" copy-of="so" unless="1.6" />
     </group>
     <group name="render">
       <setting name="level">
@@ -979,26 +996,6 @@
           <integer min="0" max="32" />
         </type>
         <value>2</value>
-      </setting>
-    </group>
-    <group name="srtp" advanced="yes" unless="1.6">
-      <setting name="offer">
-        <type>
-          <string />
-        </type>
-        <value />
-      </setting>
-      <setting name="require">
-        <type>
-          <string />
-        </type>
-        <value />
-      </setting>
-      <setting name="lifetime">
-        <type>
-          <string />
-        </type>
-        <value />
       </setting>
     </group>
   </group>
@@ -1202,11 +1199,17 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="lcs" if="1.6">
+      <setting name="lcs">
         <type>
           <boolean />
         </type>
         <value>0</value>
+      </setting>
+      <setting name="useSendonlyHold" unless="1.6">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
       </setting>
       <setting name="sendCompactHdrs">
         <type>
@@ -1215,7 +1218,7 @@
         <value>0</value>
       </setting>
       <!-- This is obsolete in 2.0 -->
-      <setting name="WM50">
+      <setting name="WM50" if="1.6">
         <type>
           <boolean />
         </type>
@@ -1337,7 +1340,7 @@
         <type>
           <boolean />
         </type>
-        <value />
+        <value>0</value>
       </setting>
     </group>
   </group>
@@ -1367,7 +1370,7 @@
       </type>
       <value />
     </setting>
-    <setting name="maxIpAddress">
+    <setting name="maxIpAddress" if="1.6">
       <type />
       <value />
     </setting>
@@ -1407,7 +1410,9 @@
       </setting>
       <setting name="digitmap.timeOut">
         <type>
-          <integer min="1" />
+          <string>
+            <pattern>((\d+)\|?)*</pattern>
+          </string>
         </type>
         <value>3</value>
       </setting>
@@ -1521,6 +1526,11 @@
         <integer min="1024" max="65536" />
       </type>
       <value />
+    </setting>
+    <setting name="keepalive.interval" unless="1.6" advanced="yes">
+      <type>
+        <integer min="0" max="3600" />
+      </type>
     </setting>
   </group>
   <group name="attendant" unless="1.6">

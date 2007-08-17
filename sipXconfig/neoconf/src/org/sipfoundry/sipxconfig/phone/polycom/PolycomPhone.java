@@ -44,16 +44,8 @@ public class PolycomPhone extends Phone {
     static final String AUTHORIZATION_ID_PATH = "reg/auth.userId";
     static final String TEMPLATE_DIR = "polycom/mac-address.d";
 
-    private String m_tftpRoot;
-    private UploadManager m_uploadManager;
-
     public PolycomPhone() {
         setDeviceVersion(PolycomModel.VER_2_0);
-    }
-
-    // HACK: that should not be necessary but current implementation wants to scan TFTP directory
-    public void setTftpRoot(String tftpRoot) {
-        m_tftpRoot = tftpRoot;
     }
 
     public String getDefaultVersionId() {
@@ -93,21 +85,10 @@ public class PolycomPhone extends Phone {
     }
 
     @Override
-    protected void copyFiles(ProfileLocation location) {
-        // Don't copy in vendor skeleton templates if there's a firmware active as it would
-        // contain it's own copies that should match the phone's firmware version
-        if (!m_uploadManager.isActiveUploadById(m_uploadManager
-                .getSpecification("polycomFirmware"))) {
-            getProfileGenerator().copy(location, "polycom/sip.cfg", "sip.cfg");
-            getProfileGenerator().copy(location, "polycom/phone1.cfg", "phone1.cfg");
-        }
-    }
-
-    @Override
     public void generateFiles(ProfileLocation location) {
         ProfileFilter format = getProfileFilter();
 
-        ApplicationConfiguration app = new ApplicationConfiguration(this, m_tftpRoot);
+        ApplicationConfiguration app = new ApplicationConfiguration(this);
 
         getProfileGenerator().generate(location, app, format, app.getAppFilename());
 
@@ -117,8 +98,6 @@ public class PolycomPhone extends Phone {
         PhoneConfiguration phone = new PhoneConfiguration(this);
         getProfileGenerator().generate(location, phone, format, app.getPhoneFilename());
 
-        app.deleteStaleDirectories();
-
         Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
         DirectoryConfiguration dir = new DirectoryConfiguration(entries, speedDial);
@@ -127,13 +106,10 @@ public class PolycomPhone extends Phone {
 
     @Override
     public void removeProfiles(ProfileLocation location) {
-        ApplicationConfiguration app = new ApplicationConfiguration(this, m_tftpRoot);
-        // new to call this function to generate stale directories list
-        app.getDirectory();
-        // this will remove all old directories
-        app.deleteStaleDirectories();
-
+        ApplicationConfiguration app = new ApplicationConfiguration(this);
         location.removeProfile(app.getAppFilename());
+        location.removeProfile(app.getSipFilename());
+        location.removeProfile(app.getPhoneFilename());
         location.removeProfile(app.getDirectoryFilename());
     }
 
@@ -182,9 +158,5 @@ public class PolycomPhone extends Phone {
 
     public void restart() {
         sendCheckSyncToFirstLine();
-    }
-
-    public void setUploadManager(UploadManager uploadManager) {
-        m_uploadManager = uploadManager;
     }
 }

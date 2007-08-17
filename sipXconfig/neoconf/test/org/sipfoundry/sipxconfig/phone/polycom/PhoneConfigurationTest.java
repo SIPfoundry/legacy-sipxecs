@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -23,7 +24,7 @@ import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 /**
- * Tests file [MAC_ADDRESS.d]/phone.cfg
+ * Tests file phone.cfg generation
  */
 public class PhoneConfigurationTest extends XMLTestCase {
 
@@ -47,23 +48,31 @@ public class PhoneConfigurationTest extends XMLTestCase {
 
     public void testGenerateProfileVersion16() throws Exception {
         phone.setDeviceVersion(PolycomModel.VER_1_6);
-        assertExpectedProfile("expected-phone.cfg.xml");
-    }
-
-    public void testGenerateProfileVersion20() throws Exception {
-        assertExpectedProfile("expected-phone-2.0.cfg.xml");
-    }
-
-    private void assertExpectedProfile(String expected) throws Exception {
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
         m_pg.generate(m_location, cfg, null, "profile");
 
-        InputStream expectedPhoneStream = getClass().getResourceAsStream(expected);
+        InputStream expectedPhoneStream = getClass()
+                .getResourceAsStream("expected-phone.cfg.xml");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
         Reader generatedXml = m_location.getReader();
 
         Diff phoneDiff = new Diff(expectedXml, generatedXml);
         assertXMLEqual(phoneDiff, true);
+        expectedPhoneStream.close();
+    }
+
+    /**
+     * Test 2.x profile generation. It's slightly different since we are comparing generated XML
+     * line by line. XML comparison is good enough but it's harder to see what parameters are
+     * missing or wrong.
+     */
+    public void testGenerateProfileVersion20() throws Exception {
+        PhoneConfiguration cfg = new PhoneConfiguration(phone);
+        m_pg.generate(m_location, cfg, null, "profile");
+
+        InputStream expectedPhoneStream = getClass().getResourceAsStream(
+                "expected-phone-2.1.2.cfg.xml");
+        assertEquals(IOUtils.toString(expectedPhoneStream), m_location.toString());
         expectedPhoneStream.close();
     }
 }

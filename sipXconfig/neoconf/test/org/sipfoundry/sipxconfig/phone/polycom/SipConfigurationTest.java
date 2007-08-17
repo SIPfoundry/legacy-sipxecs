@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -54,11 +55,36 @@ public class SipConfigurationTest extends XMLTestCase {
     }
 
     public void testGenerateProfile20() throws Exception {
-        assertProfileEquals("expected-sip-2.0.cfg.xml");
+        initSettings();
+
+        ProfileContext cfg = new SipConfiguration(phone);
+
+        m_pg.generate(m_location, cfg, null, "profile");
+
+        InputStream expected = getClass().getResourceAsStream("expected-sip-2.1.2.cfg.xml");
+
+        assertEquals(IOUtils.toString(expected), m_location.toString());
+        expected.close();
     }
 
     private void assertProfileEquals(String expected) throws Exception {
 
+        initSettings();
+
+        ProfileContext cfg = new SipConfiguration(phone);
+
+        m_pg.generate(m_location, cfg, null, "profile");
+
+        InputStream expectedPhoneStream = getClass().getResourceAsStream(expected);
+        Reader expectedXml = new InputStreamReader(expectedPhoneStream);
+        Reader generatedXml = m_location.getReader();
+
+        Diff phoneDiff = new Diff(expectedXml, generatedXml);
+        assertXMLEqual(phoneDiff, true);
+        expectedPhoneStream.close();
+    }
+
+    private void initSettings() {
         // settings selected at random, there are too many
         // to test all. select a few.
         phone.setSettingValue("log/level.change/sip", "3");
@@ -69,25 +95,5 @@ public class SipConfigurationTest extends XMLTestCase {
         tester.getPrimaryLine().setSettingValue("call/serverMissedCall/enabled", "1");
 
         assertEquals("0", phone.getSettingValue("voIpProt.server.dhcp/available"));
-
-        ProfileContext cfg = new SipConfiguration(phone);
-
-        m_pg.generate(m_location, cfg, null, "profile");
-
-        InputStream expectedPhoneStream = getClass().getResourceAsStream(expected);
-        Reader expectedXml = new InputStreamReader(expectedPhoneStream);
-        Reader generatedXml = m_location.getReader();
-
-        // helpful debug
-        // System.out.println(new String(out.toCharArray()));
-
-        // also helpful
-        // Writer w = new FileWriter("/tmp/delme");
-        // IOUtils.write(out.toCharArray(), w);
-        // w.close();
-
-        Diff phoneDiff = new Diff(expectedXml, generatedXml);
-        assertXMLEqual(phoneDiff, true);
-        expectedPhoneStream.close();
     }
 }

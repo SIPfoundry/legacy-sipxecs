@@ -2,5 +2,5 @@
 <!-- Default SIP Configuration File-->
 <!-- Revision: 1.12  Date: 2003/06/17 15:26:10  -->
 <APPLICATION APP_FILE_PATH="${cfg.SipBinaryFilename}"
-    CONFIG_FILES="${cfg.SipFilename}, ${cfg.ManufacturorSipTemplate}, ${cfg.PhoneFilename}, ${cfg.ManufacturorPhoneTemplate}" 
+    CONFIG_FILES="${cfg.SipFilename}, ${cfg.PhoneFilename}" 
     MISC_FILES="" LOG_FILE_DIRECTORY=""/>

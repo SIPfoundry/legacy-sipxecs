@@ -22,11 +22,15 @@ import org.sipfoundry.sipxconfig.phone.Line;
  * Responsible for generating MAC_ADDRESS.d/phone.cfg
  */
 public class PhoneConfiguration extends ProfileContext {
-
+    private static final String PHONE_TEMPLATE = PolycomPhone.TEMPLATE_DIR + "/phone-%s.cfg.vm";
     private static final int TEMPLATE_DEFAULT_LINE_COUNT = 6;
 
+    public static String getPhoneTemplate(Device device) {
+        return String.format(PHONE_TEMPLATE, device.getDeviceVersion().getVersionId());
+    }
+
     public PhoneConfiguration(Device device) {
-        super(device, PolycomPhone.TEMPLATE_DIR + "/phone.cfg.vm");
+        super(device, getPhoneTemplate(device));
     }
 
     public Map<String, Object> getContext() {
@@ -45,15 +49,13 @@ public class PhoneConfiguration extends ProfileContext {
             linesSettings.add(line.getSettings());
         }
 
-        if (PolycomModel.VER_1_6.equals(phone.getDeviceVersion())) {
-            // copy in blank lines of all unused lines because 1.6 does not
-            // have manufacturor template files
-            for (int i = lines.size(); i < lineCount; i++) {
-                Line line = phone.createLine();
-                line.setPhone(phone);
-                line.setPosition(i);
-                linesSettings.add(line.getSettings());
-            }
+        // copy in blank lines of all unused lines because we do not use manufacturer template
+        // files
+        for (int i = lines.size(); i < lineCount; i++) {
+            Line line = phone.createLine();
+            line.setPhone(phone);
+            line.setPosition(i);
+            linesSettings.add(line.getSettings());
         }
 
         return linesSettings;

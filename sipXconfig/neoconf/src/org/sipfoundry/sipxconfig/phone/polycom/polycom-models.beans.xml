@@ -39,8 +39,6 @@
   </bean>
   <bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" singleton="false"
     parent="abstractPhone">
-    <property name="tftpRoot" value="${sysdir.phone}/profile/tftproot" />
-    <property name="uploadManager" ref="uploadManager" />
   </bean>
   <bean id="polycomFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
     <property name="beanId" value="zipUpload" />
