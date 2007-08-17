@@ -3782,7 +3782,7 @@
         log.level.change.pmt="4" 
         log.level.change.ftp="4" 
         log.level.change.ares="4" 
-				log.level.change.dns="4"
+        log.level.change.dns="4"
         log.level.change.cxss="4" 
         log.level.change.httpd="4" 
         log.level.change.rdisk="4" 

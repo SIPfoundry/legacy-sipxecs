@@ -289,7 +289,31 @@
 	<logging>
 		<level>
 			<change 
-         			log.level.change.sip="3" 
+              log.level.change.so="4" 
+              log.level.change.app1="4" 
+              log.level.change.sip="3" 
+              log.level.change.sspsc="4" 
+              log.level.change.ssps="4" 
+              log.level.change.pps="4" 
+              log.level.change.net="4" 
+              log.level.change.cfg="4" 
+              log.level.change.cdp="4" 
+              log.level.change.pmt="4" 
+              log.level.change.ftp="4" 
+              log.level.change.ares="4" 
+              log.level.change.dns="4"
+              log.level.change.cxss="4" 
+              log.level.change.httpd="4" 
+              log.level.change.rdisk="4" 
+              log.level.change.copy="4" 
+              log.level.change.slog="4" 
+              log.level.change.res="4" 
+              log.level.change.key="4" 
+              log.level.change.log="4" 
+              log.level.change.curl="4" 
+              log.level.change.rtos="4" 
+              log.level.change.mb="4" 
+              log.level.change.ib="4" 
 			/>
 		</level>
 		<render 

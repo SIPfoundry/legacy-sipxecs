@@ -516,9 +516,9 @@
     </setting>
     <setting name="address">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="address.overrideDHCP">
       <type>
@@ -807,40 +807,115 @@
     </setting>
   </group>
   <group name="log">
-    <group name="sip">
-      <setting name="level.change.sip">
+    <group name="level.change" advanced="yes">
+      <setting name="sip">
         <type>
-          <integer min="0" max="5" />
+          <enum labelKeyPrefix="log_level.label">
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+            <option>
+              <value>3</value>
+            </option>
+            <option>
+              <value>4</value>
+            </option>
+            <option>
+              <value>5</value>
+            </option>
+          </enum>
         </type>
         <value>4</value>
       </setting>
+      <setting name="ib" copy-of="sip" />
+      <setting name="mb" copy-of="sip" />
+      <setting name="rtos" copy-of="sip" />
+      <setting name="curl" copy-of="sip" />
+      <setting name="log" copy-of="sip" />
+      <setting name="key" copy-of="sip" />
+      <setting name="res" copy-of="sip" />
+      <setting name="slog" copy-of="sip" />
+      <setting name="copy" copy-of="sip" />
+      <setting name="rdisk" copy-of="sip" />
+      <setting name="httpd" copy-of="sip" />
+      <setting name="cxss" copy-of="sip" />
+      <setting name="dns" copy-of="sip" />
+      <setting name="ares" copy-of="sip" />
+      <setting name="ftp" copy-of="sip" />
+      <setting name="pmt" copy-of="sip" />
+      <setting name="cdp" copy-of="sip" />
+      <setting name="cfg" copy-of="sip" />
+      <setting name="net" copy-of="sip" />
+      <setting name="pps" copy-of="sip" />
+      <setting name="ssps" copy-of="sip" />
+      <setting name="sspsc" copy-of="sip" />
+      <setting name="app1" copy-of="sip" />
+      <setting name="so" copy-of="sip" />
     </group>
     <group name="render">
       <setting name="level">
         <type>
-          <integer min="0" max="6" />
+          <enum labelKeyPrefix="log_level.label">
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+            <option>
+              <value>3</value>
+            </option>
+            <option>
+              <value>4</value>
+            </option>
+            <option>
+              <value>5</value>
+            </option>
+            <option>
+              <value>6</value>
+            </option>
+          </enum>
         </type>
         <value>1</value>
       </setting>
       <setting name="type">
         <type>
-          <integer min="0" max="2" />
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+          </enum>
         </type>
         <value>2</value>
       </setting>
-      <setting name="realtime">
+      <setting name="realtime" hidden="yes">
         <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="stdout">
+      <setting name="stdout" hidden="yes">
         <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="file">
+      <setting name="file" hidden="yes">
         <type>
           <boolean />
         </type>

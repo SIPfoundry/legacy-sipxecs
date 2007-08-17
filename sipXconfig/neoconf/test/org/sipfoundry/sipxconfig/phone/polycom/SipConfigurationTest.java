@@ -61,7 +61,7 @@ public class SipConfigurationTest extends XMLTestCase {
 
         // settings selected at random, there are too many
         // to test all. select a few.
-        phone.setSettingValue("log/sip/level.change.sip", "3");
+        phone.setSettingValue("log/level.change/sip", "3");
         phone.setSettingValue("call/rejectBusyOnDnd", "0");
         phone.setSettingValue("voIpProt.SIP/local/port", "5061");
         phone.setSettingValue("call/rejectBusyOnDnd", "0");

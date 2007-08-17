@@ -306,8 +306,10 @@
 	<logging>
 		<level>
 			<change 
-#set ($group = $cfg.EndpointSettings.getSetting('log').getSetting('sip'))  			
-         			log.level.change.sip="$!{group.getSetting('level.change.sip').Value}" 
+#set ($group = $cfg.EndpointSettings.getSetting('log').getSetting('level.change'))
+#foreach($levelSetting in $group.Values)
+			    log.level.change.${levelSetting.Name}="${levelSetting.Value}"
+#end
 			/>
 		</level>
 		<render 
