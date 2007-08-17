@@ -83,7 +83,7 @@
 <!-- enumeration type is a list of options, each option has a value and may have label -->
 <!-- if not label is provided, value is used as a label -->
 <!ELEMENT enum (option+)>
-<!ATTLIST file
+<!ATTLIST enum
   labelKeyPrefix NMTOKEN #IMPLIED>
     
 <!ELEMENT option (label?,value)>
