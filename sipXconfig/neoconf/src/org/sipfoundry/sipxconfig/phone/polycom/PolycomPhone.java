@@ -27,7 +27,6 @@ import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
-import org.sipfoundry.sipxconfig.upload.UploadManager;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone

@@ -25,12 +25,12 @@ public class PhoneConfiguration extends ProfileContext {
     private static final String PHONE_TEMPLATE = PolycomPhone.TEMPLATE_DIR + "/phone-%s.cfg.vm";
     private static final int TEMPLATE_DEFAULT_LINE_COUNT = 6;
 
-    public static String getPhoneTemplate(Device device) {
-        return String.format(PHONE_TEMPLATE, device.getDeviceVersion().getVersionId());
-    }
-
     public PhoneConfiguration(Device device) {
         super(device, getPhoneTemplate(device));
+    }
+
+    public static String getPhoneTemplate(Device device) {
+        return String.format(PHONE_TEMPLATE, device.getDeviceVersion().getVersionId());
     }
 
     public Map<String, Object> getContext() {
