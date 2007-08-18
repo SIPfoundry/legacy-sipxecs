@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.IValidationDelegate;
@@ -20,6 +21,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -29,14 +31,18 @@ public abstract class EditAutoAttendant extends PageWithCallback implements
         PageBeginRenderListener {
 
     public static final String PAGE = "EditAutoAttendant";
+    
+    @InjectObject(value = "spring:vxml")
+    public abstract VxmlGenerator getVxmlGenerator();
+    
+    @InjectObject(value = "spring:dialPlanContext")
+    public abstract DialPlanContext getDialPlanContext();
 
     public abstract AutoAttendant getAttendant();
 
     public abstract void setAttendant(AutoAttendant attendant);
 
     public abstract SelectMap getSelections();
-
-    public abstract DialPlanContext getDialPlanContext();
 
     public abstract DialPad getAddMenuItemDialPad();
 

@@ -16,8 +16,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.type.FileSetting;
+import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
 public class AutoAttendant extends BeanWithGroups implements NamedObject {
     public static final Log LOG = LogFactory.getLog(AutoAttendant.class);
@@ -40,6 +43,8 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
 
     private String m_systemId;
 
+    private VxmlGenerator m_vxmlGenerator;
+    
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("sipxvxml/autoattendant.xml");
@@ -115,6 +120,14 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
     public void setName(String name) {
         m_name = name;
     }
+    
+    public VxmlGenerator getVxmlGenerator() {
+        return m_vxmlGenerator;
+    }
+
+    public void setVxmlGenerator(VxmlGenerator vxmlGenerator) {
+        m_vxmlGenerator = vxmlGenerator;
+    }
 
     /**
      * @return map of AttendantMenuItems where the dialpad keys DialPad objects representing keys
@@ -149,6 +162,28 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
         } else {
             addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
             addMenuItem(DialPad.STAR, new AttendantMenuItem(AttendantMenuAction.REPEAT_PROMPT));
+        }
+    }
+    
+    public void initialize() {
+        AudioDirectorySetter audioDirectorySetter = 
+            new AudioDirectorySetter(m_vxmlGenerator.getPromptsDirectory());
+        getSettings().acceptVisitor(audioDirectorySetter);
+    }
+    
+    private static class AudioDirectorySetter extends AbstractSettingVisitor {
+        private String m_audioDirectory;
+
+        public AudioDirectorySetter(String directory) {
+            m_audioDirectory = directory;
+        }
+
+        public void visitSetting(Setting setting) {
+            SettingType type = setting.getType();
+            if (type instanceof FileSetting) {
+                FileSetting fileType = (FileSetting) type;
+                fileType.setDirectory(m_audioDirectory);
+            }
         }
     }
 }

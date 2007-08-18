@@ -5,8 +5,6 @@
   <!--
       - P R O P E R T I E S
       -->
-  <inject property="vxmlGenerator" object="spring:vxml"/>
-  <inject property="dialPlanContext" object="spring:dialPlanContext"/>
   <inject property="tapestry" object="spring:tapestry"/>
   
   <property name="currentDialPadId" />

@@ -59,7 +59,7 @@ public class AutoAttendantTest extends XMLTestCase {
         assertTrue(afterhour.isPermanent());
     }
     
-    private AutoAttendant newAutoAttendant() {
+    private AutoAttendant createAutoAttendant() {
         return new AutoAttendant() {
             protected Setting loadSettings() {
                 return TestHelper.loadSettings("sipxvxml/autoattendant.xml");
@@ -71,7 +71,12 @@ public class AutoAttendantTest extends XMLTestCase {
     // see: http://paradise.pingtel.com/viewsvn/sipX?view=rev&rev=6846
     // test should not depend on real autoattendant.vm
     public void testActivateDefaultAttendant() throws Exception {
-        AutoAttendant aa = newAutoAttendant();
+        AutoAttendant aa = createAutoAttendant();
+        aa.setVxmlGenerator(new VxmlGenerator() {
+            public String getPromptsDirectory() {
+                return "prompts/";
+            }
+        });
         aa.setPrompt("prompt.wav");
         aa.addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
         aa.addMenuItem(DialPad.NUM_1, new AttendantMenuItem(AttendantMenuAction.DISCONNECT));

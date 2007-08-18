@@ -58,11 +58,9 @@
       </filled>
 #set( $reprompt = ${onfail.getSetting('noinputCount').TypedValue} )
 #if( $reprompt > 0 )
-#foreach($i in [1..$reprompt])
-      <noinput count="$i">
+      <noinput count="reprompt">
 	<reprompt/>
       </noinput>
-#end
 #end
 #set( $giveup = $reprompt + 1 )
       <noinput count="$giveup">
@@ -71,11 +69,9 @@
       
 #set( $reprompt = ${onfail.getSetting('nomatchCount').TypedValue} )
 #if( $reprompt > 0)
-#foreach( $i in [1..$reprompt])
-      <nomatch count="$i">
+      <nomatch count="$reprompt">
         <reprompt />
       </nomatch>
-#end
 #end   
 #set( $giveup = $reprompt + 1 )
       <nomatch count="$giveup">

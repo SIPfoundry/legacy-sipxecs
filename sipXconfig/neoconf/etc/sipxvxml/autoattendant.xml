@@ -2,6 +2,9 @@
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
 	"http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
+  <type id="upload-prompt">
+    <file variable="yes" />
+  </type>
   <group name="dtmf">
     <label>DTMF Handling</label>
     <setting name="interDigitTimeout">
@@ -76,9 +79,8 @@
     </setting>
     <setting name="transfer-prompt">
       <label>Prompt to play when transferring call after failure</label>
-      <type id="upload-music">
-        <file variable="yes" />
-      </type>
+      <type refid="upload-prompt"/>
+      <value />
     </setting>
   </group>
 </model>

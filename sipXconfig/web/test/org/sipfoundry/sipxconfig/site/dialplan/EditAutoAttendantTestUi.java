@@ -69,6 +69,9 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         assertFalse(expectedFile.exists());
         clickLink("NewAutoAttendant");
 
+        // first init all upload fields to prevent null pointer exception
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "test-prompt");
+        
         setFormElement("name", "Upload Prompt Test");
         setFormElement("description", "created by EditAutoAttendantTestUi.testUpload");
         String actualFilename = TestUtil.getTestSourceDirectory(getClass()) + "/"
