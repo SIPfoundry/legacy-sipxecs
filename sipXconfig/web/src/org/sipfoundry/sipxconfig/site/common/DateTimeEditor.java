@@ -18,6 +18,7 @@ import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Parameter;
+import org.sipfoundry.sipxconfig.admin.TimeOfDay;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 /*
@@ -37,9 +38,9 @@ public abstract class DateTimeEditor extends BaseComponent {
     @Parameter(required = true)
     public abstract String getLabel();
 
-    public abstract Date getTime();
+    public abstract TimeOfDay getTime();
 
-    public abstract void setTime(Date time);
+    public abstract void setTime(TimeOfDay time);
 
     public abstract Date getDate();
 
@@ -48,7 +49,10 @@ public abstract class DateTimeEditor extends BaseComponent {
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         Date datetime = getDatetime();
         setDate(new Date(datetime.getTime()));
-        setTime(new Date(datetime.getTime()));
+
+        Calendar calendar = Calendar.getInstance(getPage().getLocale());
+        calendar.setTime(datetime);
+        setTime(new TimeOfDay(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE)));
 
         super.renderComponent(writer, cycle);
         if (TapestryUtils.isRewinding(cycle, this) && TapestryUtils.isValid(this)) {
@@ -57,12 +61,13 @@ public abstract class DateTimeEditor extends BaseComponent {
         }
     }
 
-    public static Date toDateTime(Date date, Date time, Locale locale) {
+    public static Date toDateTime(Date date, TimeOfDay timeOfDay, Locale locale) {
         Calendar calDate = Calendar.getInstance(locale);
         calDate.setTime(date);
 
         Calendar calTime = Calendar.getInstance(locale);
-        calTime.setTime(time);
+        calTime.set(Calendar.HOUR_OF_DAY, timeOfDay.getHrs());
+        calTime.set(Calendar.MINUTE, timeOfDay.getMin());
 
         for (int field : TIME_FIELDS) {
             calDate.set(field, calTime.get(field));
