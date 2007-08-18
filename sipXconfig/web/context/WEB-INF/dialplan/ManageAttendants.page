@@ -17,34 +17,5 @@
      - B E A N S
      -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-  <!--
-      - C O M P O N E N T S
-      -->
-  <component id="tableView" type="Table">
-    <binding name="columns" value="literal:* name,description"/>
-    <binding name="source" value="dialPlanContext.autoAttendants"/>
-    <binding name="row" value="currentRow"/>
-    <binding name="selections" value="selections"/>
-  </component>
-  <component id="nameColumnValue" type="Block"/>
-  <component id="nameText" type="Insert">
-    <binding name="value" value="currentRow.name"/>
-  </component>
-  <component id="editRowLink" type="DirectLink">
-    <binding name="listener" value="listener:edit"/>
-    <binding name="parameters" value="currentRow.id"/>
-  </component>
-  <component id="addAttendantLink" type="DirectLink">
-    <binding name="listener" value="listener:add"/>
-  </component>
-  <component id="defaultAttendantGroupLink" type="DirectLink">
-    <binding name="listener" value="listener:defaultGroup"/>
-  </component>
-  <component id="deleteButton" type="Submit">
-    <binding name="listener" value="listener:deleteSelected"/>
-  </component>
-  <component id="attendantListForm" type="Form">
-    <binding name="delegate" value="bean:validator"/>
-  </component>
-  <component id="specialAttendant" type="SpecialAttendantPanel"/>
+
 </page-specification>
