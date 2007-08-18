@@ -56,7 +56,7 @@
 	  <goto nextitem="menuaction"/>
 	</if>
       </filled>
-#set( $reprompt = ${onfail.getSetting('reprompt').TypedValue} )
+#set( $reprompt = ${onfail.getSetting('noinputCount').TypedValue} )
 #if( $reprompt > 0 )
 #foreach($i in [1..$reprompt])
       <noinput count="$i">
@@ -67,7 +67,20 @@
 #set( $giveup = $reprompt + 1 )
       <noinput count="$giveup">
         <goto nextitem="giveup" />
-      </noinput>      
+      </noinput>   
+      
+#set( $reprompt = ${onfail.getSetting('nomatchCount').TypedValue} )
+#if( $reprompt > 0)
+#foreach( $i in [1..$reprompt])
+      <nomatch count="$i">
+        <reprompt />
+      </nomatch>
+#end
+#end   
+#set( $giveup = $reprompt + 1 )
+      <nomatch count="$giveup">
+        <goto nextitem="giveup" />
+      </nomatch> 
     </field>
 
     <block name="menuaction">
@@ -203,7 +216,7 @@
              2 means we did #1, and that failed!                         -->
       <if cond="failedoption == '0'">
         <prompt bargein="false">
-          <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+          <audio expr="mediaserverurl + promptsalias + '${onfail.getSetting('transfer-prompt').Value}'" />
         </prompt>
         <disconnect />
       </if>

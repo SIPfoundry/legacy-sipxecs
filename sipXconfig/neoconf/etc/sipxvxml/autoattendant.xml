@@ -33,15 +33,26 @@
     </setting>
   </group>
   <group name="onfail">
-    <setting name="reprompt">
+    <setting name="noinputCount">
       <label>Replay Count</label>
       <type>
         <integer min="0" max="10" />
       </type>
       <value>2</value>
       <description>
-        Number of times auto attendant would repeat the prompt after the initial anouncement before giving up
-        and transfering the call or disconnecting.
+        Number of times auto attendant would repeat the prompt after the initial 
+        announcement due to no input received from user before giving up
+        and transferring the call or disconnecting.
+      </description>
+    </setting>
+    <setting name="nomatchCount">
+      <label>Invalid Response Count</label>
+      <type>
+        <integer min="0" max="10" />
+      </type>
+      <value>2</value>
+      <description>
+        Number of times user can input an invalid response before transferring the call or disconnecting
       </description>
     </setting>
     <setting name="transfer">
@@ -62,6 +73,12 @@
       </type>
       <value />
       <description>Extension to be used when transfer on failure is enabled.</description>
+    </setting>
+    <setting name="transfer-prompt">
+      <label>Prompt to play when transferring call after failure</label>
+      <type id="upload-music">
+        <file variable="yes" />
+      </type>
     </setting>
   </group>
 </model>
