@@ -64,7 +64,7 @@ public class DailyBackupScheduleTest extends TestCase {
         midnightLocal.set(Calendar.SECOND, 0);
         midnightLocal.set(Calendar.MILLISECOND, 0);
         date = midnightLocal.getTime();
-        date.setTime(date.getTime() + schedule.ONCE_A_DAY);
+        date.setTime(date.getTime() + DailyBackupSchedule.ONCE_A_DAY);
         midnightLocal.setTime(date);
         // midnight local time
         String expected = localTimeFormat.format(midnightLocal.getTime());

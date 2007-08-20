@@ -7,7 +7,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.admin.forwarding;
+package org.sipfoundry.sipxconfig.common;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -15,7 +15,6 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 

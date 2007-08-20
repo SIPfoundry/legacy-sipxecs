@@ -22,23 +22,4 @@
       <ref local="forwardingContextImpl" />
     </property>
   </bean>
-
-  <bean id="checkDST" class="org.sipfoundry.sipxconfig.admin.forwarding.CheckDST"/>
-
-  <bean id="scheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
-    <!-- wait 10 seconds before starting repeated execution -->
-    <property name="delay" value="10000" />
-    <!-- run every 1 day -->
-    <property name="period" value="86400000" />
-    <property name="timerTask" ref="checkDST" />
-  </bean>
-
-  <bean id="timerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean">
-    <property name="scheduledTimerTasks">
-      <list>
-        <ref bean="scheduledTask" />
-      </list>
-    </property>
-  </bean>
-
 </beans>

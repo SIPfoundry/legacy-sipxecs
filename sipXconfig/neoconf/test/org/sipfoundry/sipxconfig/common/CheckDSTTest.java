@@ -7,7 +7,7 @@
  * 
  *
  */
-package org.sipfoundry.sipxconfig.admin.forwarding;
+package org.sipfoundry.sipxconfig.common;
 
 import java.util.Calendar;
 import java.util.Date;
