@@ -21,6 +21,7 @@ import java.util.Timer;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
+import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -83,7 +84,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         // No need to register listener, all beans that implement listener
         // interface are
         // automatically registered
-        if (event instanceof ApplicationInitializedEvent) {
+        if (event instanceof ApplicationInitializedEvent || event instanceof DSTChangeEvent) {
             resetTimer(getBackupPlan());
         }
     }

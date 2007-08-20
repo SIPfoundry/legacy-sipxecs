@@ -14,6 +14,7 @@ import java.util.TimerTask;
 
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
+import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -36,7 +37,7 @@ public class LdapImportTrigger implements ApplicationListener {
      * start timers after app is initialized
      */
     public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ApplicationInitializedEvent) {
+        if (event instanceof ApplicationInitializedEvent || event instanceof DSTChangeEvent) {
             CronSchedule schedule = m_ldapManager.getConnectionParams().getSchedule();
             onScheduleChanged(schedule);
         } else if (event instanceof ScheduleChangedEvent) {

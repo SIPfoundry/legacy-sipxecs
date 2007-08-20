@@ -78,4 +78,27 @@ public class CheckDSTTest extends TestCase {
         assertEquals(1, calendar.get(Calendar.HOUR_OF_DAY));
         assertEquals(7, calendar.get(Calendar.MINUTE));
     }
+
+    public void testFindDstChangeSameDay() {
+        TimeZone tz = TimeZone.getTimeZone("PST");
+        Calendar calendar = Calendar.getInstance(tz);
+        calendar.set(Calendar.YEAR, 2007);
+        calendar.set(Calendar.MONTH, Calendar.NOVEMBER);
+        calendar.set(Calendar.DAY_OF_MONTH, 4);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 7);
+
+        assertTrue(tz.inDaylightTime(calendar.getTime()));
+        Date dstChangeTime = m_checkDST.findDstChangeTime(tz, calendar.getTime());
+        // change in PST - November 4, 2007 at 2am
+        assertNotNull(dstChangeTime);
+        assertFalse(tz.inDaylightTime(dstChangeTime));
+
+        calendar.setTime(dstChangeTime);
+        assertEquals(2007, calendar.get(Calendar.YEAR));
+        assertEquals(Calendar.NOVEMBER, calendar.get(Calendar.MONTH));
+        assertEquals(4, calendar.get(Calendar.DAY_OF_MONTH));
+        assertEquals(1, calendar.get(Calendar.HOUR_OF_DAY));
+        assertEquals(7, calendar.get(Calendar.MINUTE));
+    }
 }

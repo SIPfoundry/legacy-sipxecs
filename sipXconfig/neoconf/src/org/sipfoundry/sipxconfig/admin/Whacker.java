@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
+import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -83,7 +84,7 @@ public class Whacker implements ApplicationListener {
     public void onApplicationEvent(ApplicationEvent event) {
         // No need to register listener, all beans that implement listener interface are
         // automatically registered
-        if (event instanceof ApplicationInitializedEvent) {
+        if (event instanceof ApplicationInitializedEvent || event instanceof DSTChangeEvent) {
             resetTimer();
         }
     }

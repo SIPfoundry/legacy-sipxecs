@@ -17,9 +17,12 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -27,7 +30,8 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * ForwardingContextImpl
  * 
  */
-public class ForwardingContextImpl extends HibernateDaoSupport implements ForwardingContext {
+public class ForwardingContextImpl extends HibernateDaoSupport implements ForwardingContext,
+        ApplicationListener {
 
     private static final String PARAM_SCHEDULE_ID = "scheduleId";
     private static final String PARAM_USER_ID = "userId";
@@ -193,5 +197,11 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         }
         getHibernateTemplate().deleteAll(schedulesWithoutRings);
         return schedulesWithRings;
+    }
+
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof DSTChangeEvent) {
+            notifyCommserver();
+        }
     }
 }

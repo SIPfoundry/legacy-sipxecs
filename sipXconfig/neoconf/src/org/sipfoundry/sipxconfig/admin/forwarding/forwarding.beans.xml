@@ -23,9 +23,7 @@
     </property>
   </bean>
 
-  <bean id="checkDST" class="org.sipfoundry.sipxconfig.admin.forwarding.CheckDST">
-    <property name="fwdContext" ref="forwardingContext"></property>
-  </bean>
+  <bean id="checkDST" class="org.sipfoundry.sipxconfig.admin.forwarding.CheckDST"/>
 
   <bean id="scheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
     <!-- wait 10 seconds before starting repeated execution -->

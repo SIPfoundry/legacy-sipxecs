@@ -15,16 +15,20 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
 /**
  * Time task that runs once a day and checks if DST will change during next 24 hours. If DST
  * change is going to happen, it schedules notification that regenerates aliases.
  */
-public class CheckDST extends TimerTask {
+public class CheckDST extends TimerTask implements ApplicationContextAware {
 
-    private ForwardingContext m_fwdContext;
+    private ApplicationContext m_applicationContext;
 
-    public void setFwdContext(ForwardingContext context) {
-        m_fwdContext = context;
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        m_applicationContext = applicationContext;
     }
 
     private void setupNotifyTask(Date dstChangeTime) {
@@ -32,7 +36,7 @@ public class CheckDST extends TimerTask {
 
         timer.schedule(new TimerTask() {
             public void run() {
-                m_fwdContext.notifyCommserver();
+                m_applicationContext.publishEvent(new DSTChangeEvent(this));
             }
         }, dstChangeTime);
     }
@@ -68,6 +72,9 @@ public class CheckDST extends TimerTask {
         while (dtsNow != tz.inDaylightTime(future)) {
             dstChangeTime = future;
             calendar.roll(Calendar.HOUR_OF_DAY, false);
+            if (calendar.get(Calendar.HOUR_OF_DAY) == 23) {
+                calendar.roll(Calendar.DAY_OF_MONTH, false);
+            }
             future = calendar.getTime();
         }
         return dstChangeTime;

@@ -55,12 +55,17 @@ public class DailyBackupScheduleTest extends TestCase {
     
     public void testGetTimerDate() {
         assertNotNull(schedule.getTimerDate());
+        schedule.setScheduledDay(ScheduledDay.EVERYDAY);
         DateFormat localTimeFormat = DateFormat.getTimeInstance(DateFormat.LONG); 
+        Date date;
         Calendar midnightLocal = Calendar.getInstance();
         midnightLocal.set(Calendar.HOUR_OF_DAY, 0);
         midnightLocal.set(Calendar.MINUTE, 0);
         midnightLocal.set(Calendar.SECOND, 0);
         midnightLocal.set(Calendar.MILLISECOND, 0);
+        date = midnightLocal.getTime();
+        date.setTime(date.getTime() + schedule.ONCE_A_DAY);
+        midnightLocal.setTime(date);
         // midnight local time
         String expected = localTimeFormat.format(midnightLocal.getTime());
         String actual = localTimeFormat.format(schedule.getTimerDate());
