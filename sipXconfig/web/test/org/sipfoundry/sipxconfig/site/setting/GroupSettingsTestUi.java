@@ -49,5 +49,20 @@ public class GroupSettingsTestUi extends WebTestCase {
         clickButton("form:ok");
         SiteTestHelper.assertNoException(getTester());
         assertLinkPresent("group:edit");
-    }    
+    }
+
+    public void testAddSchedules() {
+        seedGroup(1);
+        clickLink("UserGroups");
+        clickLinkWithText("seedGroup0");
+        assertLinkPresent("link:schedules.label");
+        clickLink("group:addSchedules");
+        assertFormElementPresent("name");
+        assertFormElementPresent("description");
+        assertLinkPresent("addPeriod");
+        assertButtonPresent("form:ok");
+        assertButtonPresent("form:apply");
+        clickButton("form:cancel");
+        SiteTestHelper.assertNoUserError(tester);
+    }
 }

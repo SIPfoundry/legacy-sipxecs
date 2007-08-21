@@ -24,7 +24,7 @@ public class ScheduleTest extends TestCase {
     private static final String COLON = ":";
 
     public void testCalculateValidTime() {
-        Schedule sch = new Schedule();
+        Schedule sch = new UserSchedule();
         WorkingHours[] hours = new WorkingHours[1];
         WorkingTime wt = new WorkingTime();
 
@@ -68,7 +68,7 @@ public class ScheduleTest extends TestCase {
     public void testCalculateValidTimeSaturdayWithTwoPeriods() {
         TimeZone default_tz = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("GMT-11"));
-        Schedule sch = new Schedule();
+        Schedule sch = new UserSchedule();
         WorkingHours[] hours = new WorkingHours[1];
         WorkingTime wt = new WorkingTime();
 
@@ -114,7 +114,7 @@ public class ScheduleTest extends TestCase {
     public void testCalculateValidTimeSundayWithTwoPeriods() {
         TimeZone default_tz = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+5"));
-        Schedule sch = new Schedule();
+        Schedule sch = new UserSchedule();
         WorkingHours[] hours = new WorkingHours[1];
         WorkingTime wt = new WorkingTime();
 

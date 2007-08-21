@@ -20,7 +20,9 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
+import org.sipfoundry.sipxconfig.common.event.UserGroupDeleteListener;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -35,6 +37,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     private static final String PARAM_SCHEDULE_ID = "scheduleId";
     private static final String PARAM_USER_ID = "userId";
+    private static final String PARAM_USER_GROUP_ID = "userGroupId";
 
     private CoreContext m_coreContext;
 
@@ -84,7 +87,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     public void removeSchedulesForUserID(Integer userId) {
-        List schedules = getSchedulesForUserId(userId);
+        List schedules = getPersonalSchedulesForUserId(userId);
         getHibernateTemplate().deleteAll(schedules);
     }
 
@@ -148,6 +151,10 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         }
     }
 
+    public UserGroupDeleteListener createUserGroupDeleteListener() {
+        return new OnUserGroupDelete();
+    }
+
     private class OnUserDelete extends UserDeleteListener {
         protected void onUserDelete(User user) {
             removeCallSequenceForUserId(user.getId());
@@ -155,7 +162,28 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         }
     }
 
-    public List<Schedule> getSchedulesForUserId(Integer userId) {
+    private class OnUserGroupDelete extends UserGroupDeleteListener {
+        protected void onUserGroupDelete(Group group) {
+            List<UserGroupSchedule> schedules = getSchedulesForUserGroupId(group.getId());
+            if (schedules != null && schedules.size() > 0) {
+                // get all rings for the schedules, set all on always
+                List<Ring> ringsToModify = new ArrayList<Ring>();
+                for (UserGroupSchedule ugSchedule : schedules) {
+                    List<Ring> rings = getRingsForScheduleId(ugSchedule.getId());
+                    for (Ring ring : rings) {
+                        // set schedule on always
+                        ring.setSchedule(null);
+                        ringsToModify.add(ring);
+                    }
+                }
+                getHibernateTemplate().saveOrUpdateAll(ringsToModify);
+                getHibernateTemplate().deleteAll(schedules);
+                notifyCommserver();
+            }
+        }
+    }
+
+    public List<Schedule> getPersonalSchedulesForUserId(Integer userId) {
         HibernateTemplate hibernate = getHibernateTemplate();
 
         return hibernate.findByNamedQueryAndNamedParam("userSchedulesForUserId", PARAM_USER_ID,
@@ -197,6 +225,27 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         }
         getHibernateTemplate().deleteAll(schedulesWithoutRings);
         return schedulesWithRings;
+    }
+
+    public List<UserGroupSchedule> getAllUserGroupSchedules() {
+        return getHibernateTemplate().findByNamedQuery("allUserGroupSchedules");
+    }
+
+    public List<Schedule> getAllAvailableSchedulesForUser(User user) {
+        List<Schedule> schedulesForUser = new ArrayList<Schedule>();
+        schedulesForUser.addAll(getPersonalSchedulesForUserId(user.getId()));
+        for (Group group : user.getGroups()) {
+            schedulesForUser.addAll(getSchedulesForUserGroupId(group.getId()));
+        }
+
+        return schedulesForUser;
+    }
+
+    public List<UserGroupSchedule> getSchedulesForUserGroupId(Integer userGroupId) {
+        HibernateTemplate hibernate = getHibernateTemplate();
+
+        return hibernate.findByNamedQueryAndNamedParam("userSchedulesForUserGroupId",
+                PARAM_USER_GROUP_ID, userGroupId);
     }
 
     public void onApplicationEvent(ApplicationEvent event) {

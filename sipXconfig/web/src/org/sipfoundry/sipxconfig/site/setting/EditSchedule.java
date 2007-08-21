@@ -20,7 +20,10 @@ import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
+import org.sipfoundry.sipxconfig.admin.forwarding.UserGroupSchedule;
+import org.sipfoundry.sipxconfig.admin.forwarding.UserSchedule;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
 public abstract class EditSchedule extends UserBasePage implements PageBeginRenderListener {
@@ -60,6 +63,10 @@ public abstract class EditSchedule extends UserBasePage implements PageBeginRend
 
     public abstract String getAction();
 
+    public abstract Group getUserGroup();
+
+    public abstract void setUserGroup(Group userGroup);
+
     public void pageBeginRender(PageEvent event) {
         if (getWorkingHours() != null) {
             return;
@@ -73,7 +80,12 @@ public abstract class EditSchedule extends UserBasePage implements PageBeginRend
             schedule = getForwardingContext().getScheduleById(getScheduleId());
             workingHoursList = schedule.getWorkingTime().getWorkingHours();
         } else {
-            schedule = new Schedule();
+            if (getUserGroup() == null) {
+                schedule = new UserSchedule();
+            } else {
+                schedule = new UserGroupSchedule();
+                schedule.setUserGroup(getUserGroup());
+            }
             schedule.setUser(getUser());
             WorkingTime workingTime = new WorkingTime();
             workingHoursList = new WorkingHours[0];

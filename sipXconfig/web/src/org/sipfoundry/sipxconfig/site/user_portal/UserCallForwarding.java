@@ -62,8 +62,7 @@ public abstract class UserCallForwarding extends UserBasePage implements PageBeg
 
     private void refreshAvailableSchedules() {
         ForwardingContext forwardingContext = getForwardingContext();
-        Integer userId = getUserId();
-        List<Schedule> schedules = forwardingContext.getSchedulesForUserId(userId);
+        List<Schedule> schedules = forwardingContext.getAllAvailableSchedulesForUser(getUser());
         setAvailableSchedules(schedules);
     }
 

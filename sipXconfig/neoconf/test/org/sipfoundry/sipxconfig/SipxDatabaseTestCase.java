@@ -29,7 +29,7 @@ public abstract class SipxDatabaseTestCase extends TestCase {
             throw e;
         }
     }
-    
+
     static void dumpSqlExceptionMessages(SQLException e) {
         for (SQLException next = e; next != null; next = next.getNextException()) {
             System.err.println(next.getMessage());
@@ -56,5 +56,5 @@ public abstract class SipxDatabaseTestCase extends TestCase {
         IDataSet set = getConnection().createDataSet();
         FlatXmlWriter writer = new FlatXmlWriter(out);
         writer.write(set);
-    }    
+    }
 }

@@ -47,7 +47,7 @@ public abstract class UserGroups extends BasePage implements PageBeginRenderList
     }
 
     public IPage editUserGroup(IRequestCycle cycle, Integer groupId) {
-        GroupSettings page = (GroupSettings) cycle.getPage(GroupSettings.PAGE);
+        GroupSettings page = (GroupSettings) cycle.getPage(UserGroupSettings.PAGE);
         User user = getCoreContext().newUser();
         page.editGroup(groupId, user, PAGE);
         return page;

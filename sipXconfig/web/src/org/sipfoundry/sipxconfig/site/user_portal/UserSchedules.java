@@ -78,7 +78,7 @@ public abstract class UserSchedules extends UserBasePage implements PageBeginRen
 
         Integer userId = getUserId();
         ForwardingContext forwardingContext = getForwardingContext();
-        List<Schedule> schedules = forwardingContext.getSchedulesForUserId(userId);
+        List<Schedule> schedules = forwardingContext.getPersonalSchedulesForUserId(userId);
         setSchedules(schedules);
     }
 }

@@ -112,6 +112,9 @@ public abstract class SettingsFieldset extends BaseComponent {
     }
 
     protected void prepareForRender(IRequestCycle cycle) {
+        if (getSettings() == null) {
+            return;
+        }
         super.prepareForRender(cycle);
         // set message source only once and save it into property so that we do not have to
         // compute it every time

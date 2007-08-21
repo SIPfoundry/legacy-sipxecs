@@ -37,12 +37,13 @@
     </list>
   </class>
 
-  <class name="Schedule" table="schedule">
+  <class name="Schedule" table="schedule" abstract="true" discriminator-value="S">
     <id name="id" column="schedule_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">schedule_seq</param>
       </generator>
     </id>
+    <discriminator column="schedule_type" type="character" />
     <property name="name" />
     <property name="description" />
     <component name="workingTime" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime">
@@ -57,11 +58,28 @@
       </array>
     </component>
     <many-to-one name="user" column="user_id" class="org.sipfoundry.sipxconfig.common.User" />
+    <many-to-one name="userGroup" column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
+
+    <subclass name="UserSchedule" discriminator-value="S"></subclass>
+
+    <subclass name="GeneralSchedule" discriminator-value="G"></subclass>
+
+    <subclass name="UserGroupSchedule" discriminator-value="U"></subclass>
+
   </class>
 
   <query name="userSchedulesForUserId">
-    <![CDATA[from Schedule schedule where schedule.user.id = :userId order by schedule.name]]>
+    <![CDATA[from UserSchedule schedule where schedule.user.id = :userId order by schedule.name]]>
   </query>
+
+  <query name="userSchedulesForUserGroupId">
+    <![CDATA[from UserGroupSchedule schedule where schedule.userGroup.id = :userGroupId order by schedule.name]]>
+  </query>
+
+  <query name="allUserGroupSchedules">
+    <![CDATA[from UserGroupSchedule schedule]]>
+  </query>
+
 
   <query name="ringsForScheduleId">
     <![CDATA[from Ring ring where ring.schedule.id = :scheduleId]]>

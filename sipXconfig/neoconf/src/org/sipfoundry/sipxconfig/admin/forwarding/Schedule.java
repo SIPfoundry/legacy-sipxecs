@@ -19,15 +19,14 @@ import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHou
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.setting.Group;
 
-public class Schedule extends BeanWithId {
+public abstract class Schedule extends BeanWithId {
     private User m_user;
     private String m_name;
     private String m_description;
     private WorkingTime m_workingTime;
-
-    public Schedule() {
-    }
+    private Group m_userGroup;
 
     public User getUser() {
         return m_user;
@@ -59,6 +58,14 @@ public class Schedule extends BeanWithId {
 
     public void setWorkingTime(WorkingTime workingTime) {
         this.m_workingTime = workingTime;
+    }
+
+    public Group getUserGroup() {
+        return m_userGroup;
+    }
+
+    public void setUserGroup(Group userGroup) {
+        m_userGroup = userGroup;
     }
 
     public String calculateValidTime() {

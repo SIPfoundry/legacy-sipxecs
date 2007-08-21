@@ -37,7 +37,7 @@ public interface ForwardingContext extends AliasProvider {
 
     public void flush();
 
-    public List<Schedule> getSchedulesForUserId(Integer userId);
+    public List<Schedule> getPersonalSchedulesForUserId(Integer userId);
 
     public void saveSchedule(Schedule schedule);
 
@@ -46,4 +46,10 @@ public interface ForwardingContext extends AliasProvider {
     public List<Schedule> deleteSchedulesById(Collection<Integer> scheduleIds);
 
     public void notifyCommserver();
+
+    public List<UserGroupSchedule> getSchedulesForUserGroupId(Integer userGroupId);
+
+    public List<UserGroupSchedule> getAllUserGroupSchedules();
+
+    public List<Schedule> getAllAvailableSchedulesForUser(User user);
 }

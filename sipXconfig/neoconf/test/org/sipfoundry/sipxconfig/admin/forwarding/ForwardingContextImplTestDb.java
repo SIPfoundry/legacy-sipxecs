@@ -32,7 +32,7 @@ import org.springframework.dao.DataAccessException;
 public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
     private ForwardingContext m_context;
     private CoreContext m_coreContext;
-    private Integer testUserId = new Integer(1000);
+    private Integer m_testUserId = new Integer(1000);
 
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
@@ -40,13 +40,14 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         m_context = (ForwardingContext) appContext.getBean(ForwardingContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         TestHelper.insertFlat("admin/forwarding/ScheduleSeed.xml");
         TestHelper.insertFlat("admin/forwarding/ScheduleHoursSeed.xml");
         TestHelper.insertFlat("admin/forwarding/RingSeed.xml");
     }
 
     public void testGetCallSequenceForUser() throws Exception {
-        User user = m_coreContext.loadUser(testUserId);
+        User user = m_coreContext.loadUser(m_testUserId);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
         assertEquals(user.getId(), callSequence.getUser().getId());
         List calls = callSequence.getRings();
@@ -64,30 +65,30 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testOnDeleteUser() throws Exception {
-        User user = m_coreContext.loadUser(testUserId);
+        User user = m_coreContext.loadUser(m_testUserId);
         ITable rings = TestHelper.getConnection().createDataSet().getTable("ring");
         assertEquals(5, rings.getRowCount());
         ITable schedules = TestHelper.getConnection().createDataSet().getTable("schedule");
-        assertEquals(3, schedules.getRowCount());
+        assertEquals(4, schedules.getRowCount());
         ITable scheduleHours = TestHelper.getConnection().createDataSet().getTable(
                 "schedule_hours");
         assertEquals(8, scheduleHours.getRowCount());
-        
+
         m_coreContext.deleteUser(user);
-        
+
         rings = TestHelper.getConnection().createDataSet().getTable("ring");
         // 3 rings should disappear from that
         assertEquals(2, rings.getRowCount());
         schedules = TestHelper.getConnection().createDataSet().getTable("schedule");
         // 2 schedules should disappear from that
-        assertEquals(1, schedules.getRowCount());
+        assertEquals(2, schedules.getRowCount());
         scheduleHours = TestHelper.getConnection().createDataSet().getTable("schedule_hours");
         // 7 schedule hours should disappear from that
         assertEquals(1, scheduleHours.getRowCount());
     }
 
     public void testSave() throws Exception {
-        User user = m_coreContext.loadUser(testUserId);
+        User user = m_coreContext.loadUser(m_testUserId);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
         List calls = callSequence.getRings();
 
@@ -117,7 +118,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testMove() throws Exception {
-        User user = m_coreContext.loadUser(testUserId);
+        User user = m_coreContext.loadUser(m_testUserId);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
         List calls = callSequence.getRings();
 
@@ -142,7 +143,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testAddRing() throws Exception {
-        User user = m_coreContext.loadUser(testUserId);
+        User user = m_coreContext.loadUser(m_testUserId);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
 
         Ring ring = callSequence.insertRing();
@@ -173,7 +174,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         // FIXME, should be 3
         assertEquals(0, authExceptions.size());
 
-        User user = m_coreContext.loadUser(testUserId);
+        User user = m_coreContext.loadUser(m_testUserId);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
         Ring ring = callSequence.insertRing();
         ring.setNumber("999999");
@@ -190,7 +191,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testClearCallSequence() throws Exception {
-        User user = m_coreContext.loadUser(testUserId);
+        User user = m_coreContext.loadUser(m_testUserId);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
 
         ITable ringTable = TestHelper.getConnection().createDataSet().getTable("ring");
@@ -204,9 +205,9 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(remainingRingCount, ringTable.getRowCount());
     }
 
-    public void testGetSchedulesForUserID() throws Exception {
-        User user = m_coreContext.loadUser(testUserId);
-        List<Schedule> schedules = m_context.getSchedulesForUserId(user.getId());
+    public void testGetPersonalSchedulesForUserID() throws Exception {
+        User user = m_coreContext.loadUser(m_testUserId);
+        List<Schedule> schedules = m_context.getPersonalSchedulesForUserId(user.getId());
 
         assertEquals(2, schedules.size());
         for (Schedule schedule : schedules) {
@@ -223,7 +224,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSaveSchedule() throws Exception {
-        User user = m_coreContext.loadUser(testUserId);
+        User user = m_coreContext.loadUser(m_testUserId);
 
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         c.set(1970, Calendar.JANUARY, 1);
@@ -242,7 +243,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
 
         wt.setWorkingHours(hours);
 
-        Schedule schedule = new Schedule();
+        Schedule schedule = new UserSchedule();
         schedule.setUser(user);
         schedule.setName("TestSchedule");
         schedule.setDescription("Test Schedule");
@@ -263,5 +264,24 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
 
         List<Schedule> schedulesWithRings = m_context.deleteSchedulesById(scheduleIds);
         assertEquals(2, schedulesWithRings.size());
+    }
+
+    public void testGetAllAvailableSchedulesForUser() throws Exception {
+        User user = m_coreContext.loadUser(m_testUserId);
+        List<Schedule> schedules = m_context.getAllAvailableSchedulesForUser(user);
+
+        assertEquals(2, schedules.size());
+        for (Schedule schedule : schedules) {
+            assertEquals(user, schedule.getUser());
+        }
+    }
+
+    public void testGetAllUserGroupSchedules() throws Exception {
+        List<UserGroupSchedule> allGroupSchedules = m_context.getAllUserGroupSchedules();
+        assertEquals(1, allGroupSchedules.size());
+        UserGroupSchedule groupSchedule = allGroupSchedules.get(0);
+        assertEquals(new Integer(103), groupSchedule.getId());
+        assertEquals("MondaySchedule", groupSchedule.getName());
+        assertEquals("Monday Schedule", groupSchedule.getDescription());
     }
 }
