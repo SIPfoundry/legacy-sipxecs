@@ -158,17 +158,28 @@ OsStatus OsTaskLinux::resume(void)
 
 // Spawn a new task and invoke its run() method.
 // Return TRUE if the spawning of the new task is successful.
-// Return FALSE if the task spawn fails or if the task has already
-// been started.
+// Return FALSE if the task spawn fails or if the task was
+// not already running.
 UtlBoolean OsTaskLinux::start(void)
 {
    OsLock lock(mDataGuard);
 
-   if (UNINITIALIZED == mState)
+   // Allow start from either UNITIALIZED or TERMINATED states
+   if (UNINITIALIZED == mState || TERMINATED == mState)
    {
       int                       linuxRes;
       char                      idString[15];
       pthread_attr_t            attributes;
+
+      /*
+        Set the mDeleteGuard initial state to Acquired.  We use try here 
+        because if it is already aquired (as it starts that way), that's just
+        fine.  This lets us restart from the TERMINATED state, which leaves
+        the mDeleteGuard released.  Thus we have to Acquire it.
+
+        --Woof!
+      */
+      mDeleteGuard.tryAcquire() ;
 
       // construct thread attribute
       linuxRes = pthread_attr_init(&attributes);
@@ -233,8 +244,8 @@ UtlBoolean OsTaskLinux::start(void)
    else
    {
       OsSysLog::add(FAC_KERNEL, PRI_WARNING,
-                    "OsTaskLinux:start '%s' attempting to start but already running",
-                    mName.data()
+                    "OsTaskLinux:start '%s' attempting to start but not in UNINITIALIZED or TERMINATED state (%d)",
+                    mName.data(), mState
                     );
    }
    return RUNNING == mState;
