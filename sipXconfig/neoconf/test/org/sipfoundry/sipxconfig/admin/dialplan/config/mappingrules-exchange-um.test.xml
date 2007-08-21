@@ -52,39 +52,36 @@
 			</permissionMatch>
 		</userMatch>
 
-
 		<userMatch>
 			<userPattern>101</userPattern>
 			<permissionMatch>
 				<transform>
 					<url>
-						&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve&gt;
+						&lt;sip:101@exchange.example.com;transport=tcp&gt;
 					</url>
 				</transform>
 			</permissionMatch>
 		</userMatch>
-
 
 		<userMatch>
 			<userPattern>2xxx</userPattern>
 			<permissionMatch>
 				<transform>
-					<url>
-						&lt;sip:{vdigits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits-escaped}&gt;
-					</url>
+				    <url>
+					&lt;sip:101@exchange.example.com;transport=tcp?Diversion=%3Ctel:{vdigits}%3E%3Breason%3Dno-answer%3Bscreen%3Dno%3Bprivacy%3Doff&gt;
+				    </url>
 				</transform>
 			</permissionMatch>
 		</userMatch>
 
-
 		<userMatch>
 			<userPattern>xxx</userPattern>
 			<permissionMatch>
-				<permission>Voicemail</permission>
+			    <permission>Voicemail</permission>
 				<transform>
-					<url>
-						&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits-escaped}&gt;;q=0.1
-					</url>
+				    <url>
+					&lt;sip:101@exchange.example.com;transport=tcp?Diversion=%3Ctel:{digits}%3E%3Breason%3Dno-answer%3Bscreen%3Dno%3Bprivacy%3Doff&gt;;q=0.1
+				    </url>
 				</transform>
 			</permissionMatch>
 		</userMatch>

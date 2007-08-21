@@ -64,6 +64,8 @@
       <property name="localExtensionLen" />
       <property name="voiceMail" /><!-- voicemail extension -->
       <property name="voiceMailPrefix" />
+      <property name="mediaServerType" />
+      <property name="mediaServerHostname" />
     </joined-subclass>
 
     <joined-subclass name="InternationalRule" table="international_dialing_rule">

@@ -16,9 +16,11 @@ import junit.framework.TestCase;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule.Operator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.springframework.beans.factory.BeanFactory;
 
 /**
  * InternalRuleTest
@@ -45,7 +47,19 @@ public class InternalRuleTest extends TestCase {
         ir.setVoiceMailPrefix("7");
         ir.setEnabled(true);
 
-        List rules = new ArrayList();
+        // configure a mock bean factory that is needed by the MediaServerFactory
+        BeanFactory beanFactory = EasyMock.createNiceMock(BeanFactory.class);
+        beanFactory.getBean("sipXMediaServer", MediaServer.class);
+        EasyMock.expectLastCall().andReturn(new SipXMediaServer());
+        EasyMock.replay(beanFactory);
+
+        MediaServerFactory mediaServerFactory = new MediaServerFactory();
+        mediaServerFactory.setBeanFactory(beanFactory);
+        ir.setMediaServerFactory(mediaServerFactory);
+        ir.setMediaServerType("sipXMediaServer");
+        ir.setMediaServerHostname("example");
+
+        List<DialingRule> rules = new ArrayList<DialingRule>();
         ir.appendToGenerationRules(rules);
 
         assertEquals(3, rules.size());
@@ -78,7 +92,8 @@ public class InternalRuleTest extends TestCase {
         aa.setName(TEST_NAME);
         aa.setDescription(TEST_DESCRIPTION);
 
-        Operator o = new MappingRule.Operator(aa, "100", ArrayUtils.EMPTY_STRING_ARRAY);
+        Operator o = new MappingRule.Operator(aa, "100", ArrayUtils.EMPTY_STRING_ARRAY,
+                new SipXMediaServer());
         assertEquals("100", StringUtils.join(o.getPatterns(), "|"));
         assertEquals(TEST_NAME, o.getName());
         assertEquals(TEST_DESCRIPTION, o.getDescription());
@@ -91,7 +106,7 @@ public class InternalRuleTest extends TestCase {
 
         Operator o = new MappingRule.Operator(aa, "100", new String[] {
             "0", "operator"
-        });
+        }, new SipXMediaServer());
         assertEquals("100|0|operator", StringUtils.join(o.getPatterns(), "|"));
         assertEquals(TEST_NAME, o.getName());
         assertEquals(TEST_DESCRIPTION, o.getDescription());
@@ -104,7 +119,7 @@ public class InternalRuleTest extends TestCase {
 
         Operator o = new MappingRule.Operator(aa, null, new String[] {
             "0", "operator"
-        });
+        }, new SipXMediaServer());
         assertEquals("0|operator", StringUtils.join(o.getPatterns(), "|"));
         assertEquals(TEST_NAME, o.getName());
         assertEquals(TEST_DESCRIPTION, o.getDescription());

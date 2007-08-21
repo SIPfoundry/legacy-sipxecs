@@ -5,10 +5,29 @@
   <!--
     - D I A L   P L A N S
   -->
+
+  <bean id="sipXMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServer" singleton="false">
+    <property name="hostname" value="{mediaserver}" />
+    <property name="serverExtension" value="101" />
+  </bean>
+
+  <bean id="exchangeUmMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer"
+    singleton="false" />
+
+  <bean id="mediaServerFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory" singleton="true">
+    <property name="beanIds">
+      <list>
+        <value>sipXMediaServer</value>
+        <value>exchangeUmMediaServer</value>
+      </list>
+    </property>
+  </bean>
+
   <bean id="defaultInternalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternalRule" abstract="true">
     <property name="name" value="Internal" />
     <property name="description" value="Default internal dialing plan" />
     <property name="enabled" value="true" />
+    <property name="mediaServerFactory" ref="mediaServerFactory" />
   </bean>
 
   <bean id="defaultAttendantRule" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule" abstract="true">

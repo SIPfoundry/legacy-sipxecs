@@ -227,6 +227,7 @@
     <antcall target="time_of_day"/>
     <antcall target="backup-configs-converge"/>
     <antcall target="schedules-per-user-group"/>
+  	<antcall target="internal-rule-media-server" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="7" -->
   </target>	
@@ -241,6 +242,10 @@
 
   <target name="schedules-per-user-group" unless="schedules-per-user-group">
     <db-patch patch="schedules-per-user-group"/>
+  </target>
+
+  <target name="internal-rule-media-server" unless="internal-rule-media-server">
+    <db-patch patch="internal-rule-media-server" />
   </target>
 
   <target name="enable-schedule" unless="enable-schedule">

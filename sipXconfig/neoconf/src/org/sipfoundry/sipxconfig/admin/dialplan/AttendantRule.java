@@ -26,6 +26,8 @@ public class AttendantRule extends DialingRule {
     private WorkingTime m_workingTimeAttendant = new WorkingTime();
     private String m_attendantAliases;
     private String m_extension;
+    
+    private MediaServer m_mediaServer = new SipXMediaServer();
 
     public void appendToGenerationRules(List<DialingRule> rules) {
         if (!isEnabled()) {
@@ -33,7 +35,7 @@ public class AttendantRule extends DialingRule {
         }
         String[] aliases = AttendantRule.getAttendantAliasesAsArray(m_attendantAliases);
         DialingRule attendantRule = new MappingRule.Operator(getName(), getDescription(),
-                getSystemName(), m_extension, aliases);
+                getSystemName(), m_extension, aliases, m_mediaServer);
         rules.add(attendantRule);
     }
     

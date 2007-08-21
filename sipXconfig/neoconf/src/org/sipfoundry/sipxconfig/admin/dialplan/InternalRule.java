@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -25,6 +26,10 @@ public class InternalRule extends DialingRule {
     private String m_voiceMailPrefix = DEFAULT_VMAIL_PREFIX;
     private int m_localExtensionLen = DEFAULT_LOCAL_EXT_LEN;
     private String m_voiceMail = DEFAULT_VOICEMAIL;
+
+    private String m_mediaServerType;
+    private MediaServerFactory m_mediaServerFactory;
+    private String m_mediaServerHostname;
 
     public String[] getPatterns() {
         return null;
@@ -64,25 +69,52 @@ public class InternalRule extends DialingRule {
         m_voiceMailPrefix = voiceMailPrefix;
     }
 
+    public String getMediaServerType() {
+        return m_mediaServerType;
+    }
+
+    public void setMediaServerType(String serverType) {
+        m_mediaServerType = serverType;
+    }
+
+    public Collection<String> getAvailableMediaServers() {
+        return m_mediaServerFactory.getBeanIds();
+    }
+
+    public String getMediaServerHostname() {
+        return m_mediaServerHostname;
+    }
+
+    public void setMediaServerHostname(String hostname) {
+        m_mediaServerHostname = hostname;
+    }
+
+    public void setMediaServerFactory(MediaServerFactory mediaServerFactory) {
+        m_mediaServerFactory = mediaServerFactory;
+    }
+
     public void appendToGenerationRules(List<DialingRule> rules) {
         if (!isEnabled()) {
             return;
         }
         boolean generateVoiceMailRules = StringUtils.isNotBlank(m_voiceMail);
         if (generateVoiceMailRules) {
-            MappingRule voicemail = new MappingRule.Voicemail(m_voiceMail);
+            MediaServer mediaServer = m_mediaServerFactory.create(m_mediaServerType);
+            mediaServer.setHostname(m_mediaServerHostname);
+            mediaServer.setServerExtension(m_voiceMail);
+            MappingRule voicemail = new MappingRule.Voicemail(m_voiceMail, mediaServer);
             voicemail.setDescription(getDescription());
             rules.add(voicemail);
-        }
-        if (StringUtils.isNotBlank(m_voiceMailPrefix)) {
-            MappingRule transfer = new MappingRule.VoicemailTransfer(m_voiceMailPrefix,
-                    m_localExtensionLen);
-            transfer.setDescription(getDescription());
-            rules.add(transfer);
-        }
-        if (generateVoiceMailRules) {
+
+            if (StringUtils.isNotBlank(m_voiceMailPrefix)) {
+                MappingRule transfer = new MappingRule.VoicemailTransfer(m_voiceMailPrefix,
+                        m_localExtensionLen, mediaServer);
+                transfer.setDescription(getDescription());
+                rules.add(transfer);
+            }
+
             // pass -1 to generate fallback rule that matches any extension
-            MappingRule fallback = new MappingRule.VoicemailFallback(-1);
+            MappingRule fallback = new MappingRule.VoicemailFallback(-1, mediaServer);
             fallback.setDescription(getDescription());
             rules.add(fallback);
         }

@@ -28,9 +28,14 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
+import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer;
+import org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServer;
 import org.sipfoundry.sipxconfig.admin.parkorbit.MohRule;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.speeddial.RlsRule;
@@ -226,21 +231,23 @@ public class MappingRulesTest extends XMLTestCase {
         control.verify();
     }
 
-    public void testInternalRules() throws Exception {
+    public void testSipXMediaServerVoicemailRule() throws Exception {
         int extension = 3;
-        List rules = new ArrayList();
+        List<DialingRule> rules = new ArrayList<DialingRule>();
         AutoAttendant aa = new AutoAttendant();
         aa.setSystemId(AutoAttendant.OPERATOR_ID);
         aa.setName("Operator");
         aa.resetToFactoryDefault();
         rules.add(new MohRule());
         rules.add(new RlsRule());
+
+        MediaServer mediaServer = new SipXMediaServer();
         rules.add(new MappingRule.Operator(aa, "100", new String[] {
             "operator", "0"
-        }));
-        rules.add(new MappingRule.Voicemail("101"));
-        rules.add(new MappingRule.VoicemailTransfer("2", extension));
-        rules.add(new MappingRule.VoicemailFallback(3));
+        }, mediaServer));
+        rules.add(new MappingRule.Voicemail("101", mediaServer));
+        rules.add(new MappingRule.VoicemailTransfer("2", extension, mediaServer));
+        rules.add(new MappingRule.VoicemailFallback(3, mediaServer));
 
         IMocksControl controlPlan = EasyMock.createStrictControl();
         DialPlanContext plan = controlPlan.createMock(DialPlanContext.class);
@@ -257,6 +264,45 @@ public class MappingRulesTest extends XMLTestCase {
 
         InputStream referenceXmlStream = MappingRulesTest.class
                 .getResourceAsStream("mappingrules.test.xml");
+
+        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
+        controlPlan.verify();
+    }
+
+    public void testExchangeUMVoicemailRule() throws Exception {
+        int extension = 3;
+        List<DialingRule> rules = new ArrayList<DialingRule>();
+        AutoAttendant aa = new AutoAttendant();
+        aa.setSystemId(AutoAttendant.OPERATOR_ID);
+        aa.setName("Operator");
+        aa.resetToFactoryDefault();
+        rules.add(new MohRule());
+        rules.add(new RlsRule());
+
+        MediaServer sipXMediaServer = new SipXMediaServer();
+        MediaServer exchangeMediaServer = new ExchangeMediaServer("exchange.example.com", "101");
+        rules.add(new MappingRule.Operator(aa, "100", new String[] {
+            "operator", "0"
+        }, sipXMediaServer));
+        rules.add(new MappingRule.Voicemail("101", exchangeMediaServer));
+        rules.add(new MappingRule.VoicemailTransfer("2", extension, exchangeMediaServer));
+        rules.add(new MappingRule.VoicemailFallback(3, exchangeMediaServer));
+
+        IMocksControl controlPlan = EasyMock.createStrictControl();
+        DialPlanContext plan = controlPlan.createMock(DialPlanContext.class);
+        plan.getGenerationRules();
+        controlPlan.andReturn(rules);
+        plan.getAttendantRules();
+        controlPlan.andReturn(Collections.EMPTY_LIST);
+        controlPlan.replay();
+
+        ConfigGenerator generator = ConfigGeneratorTest.createConfigGenerator();
+        generator.generate(plan, null);
+
+        String generatedXml = generator.getFileContent(ConfigFileType.MAPPING_RULES);
+
+        InputStream referenceXmlStream = MappingRulesTest.class
+                .getResourceAsStream("mappingrules-exchange-um.test.xml");
 
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
         controlPlan.verify();

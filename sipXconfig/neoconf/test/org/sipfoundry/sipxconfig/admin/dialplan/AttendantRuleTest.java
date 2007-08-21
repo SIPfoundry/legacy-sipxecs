@@ -33,7 +33,7 @@ public class AttendantRuleTest extends TestCase {
 
     public void testAppendToGenerationRulesDisabled() {
         AttendantRule rule = new AttendantRule();
-        List list = new ArrayList();
+        List<DialingRule> list = new ArrayList<DialingRule>();
         rule.appendToGenerationRules(list);
         // do not add anything if rule is disabled and it is disabled by default
         assertTrue(list.isEmpty());
@@ -46,7 +46,7 @@ public class AttendantRuleTest extends TestCase {
         rule.setAttendantAliases("0 operator");
         rule.setEnabled(true);
 
-        List list = new ArrayList();
+        List<DialingRule> list = new ArrayList<DialingRule>();
         rule.appendToGenerationRules(list);
         // do not add anything if rule is disabled and it is disabled by default
         assertFalse(list.isEmpty());

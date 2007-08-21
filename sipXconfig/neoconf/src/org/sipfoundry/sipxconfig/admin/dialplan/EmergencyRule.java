@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer.Operation;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.common.SipUri;
@@ -29,7 +30,7 @@ public class EmergencyRule extends DialingRule {
     private boolean m_useMediaServer;
 
     public String[] getPatterns() {
-        ArrayList patterns = new ArrayList();
+        ArrayList<String> patterns = new ArrayList<String>();
         patterns.add(SOS);
         patterns.add(m_emergencyNumber);
         if (null != m_optionalPrefix && 0 < m_optionalPrefix.length()) {
@@ -57,7 +58,9 @@ public class EmergencyRule extends DialingRule {
 
     public Transform[] getMediaServerTransforms() {
         UrlTransform transform = new UrlTransform();
-        String url = MappingRule.buildUrl(CallDigits.FIXED_DIGITS, SOS, null);
+        MediaServer mediaServer = new SipXMediaServer();
+        String url = MappingRule.buildUrl(CallDigits.FIXED_DIGITS, mediaServer,
+                Operation.SOS, null);
         transform.setUrl(url);
         return new Transform[] {
             transform
@@ -89,7 +92,7 @@ public class EmergencyRule extends DialingRule {
         }
         try {
             DialingRule rule = (DialingRule) clone();
-            rule.setGateways(Collections.EMPTY_LIST);
+            rule.setGateways(Collections.<Gateway>emptyList());
             rule.setDescription(getDescription());
             rules.add(rule);
         } catch (CloneNotSupportedException e) {

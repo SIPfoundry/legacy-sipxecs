@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
+import java.util.Collection;
+
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
@@ -17,10 +19,13 @@ import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
+import org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 
 /**
@@ -38,9 +43,12 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
 
     @InjectObject(value = "spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();
-    
+
     @InjectObject(value = "spring:permissionManager")
     public abstract PermissionManager getPermissionManager();
+
+    @InjectObject(value = "spring:mediaServerFactory")
+    public abstract MediaServerFactory getMediaServerFactory();
 
     @Persist
     public abstract Integer getRuleId();
@@ -59,6 +67,11 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
     public abstract DialingRuleType getRuleType();
 
     public abstract void setRuleType(DialingRuleType dialingType);
+
+    public IPropertySelectionModel getMediaServerTypeModel() {
+        Collection<String> allTypes = getMediaServerFactory().getBeanIds();
+        return new StringPropertySelectionModel((String[]) allTypes.toArray(new String[0]));
+    }
 
     public void pageBeginRender(PageEvent event_) {
         DialingRule rule = getRule();

@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
  * EmergencyRuleTest
@@ -68,7 +69,7 @@ public class EmergencyRuleTest extends TestCase {
     }
 
     public void testPermissions() {
-        List permissions = m_rule.getPermissions();
+        List<Permission> permissions = m_rule.getPermissions();
         assertEquals(0, permissions.size());
     }
 
@@ -76,9 +77,9 @@ public class EmergencyRuleTest extends TestCase {
         final String testDescription = "emergency rule test description";
         m_rule.setEnabled(true);
         m_rule.setDescription(testDescription);
-        List gateways = m_rule.getGateways();
+        List<Gateway> gateways = m_rule.getGateways();
         assertEquals(2, gateways.size());
-        ArrayList rules = new ArrayList();
+        ArrayList<DialingRule> rules = new ArrayList<DialingRule>();
         m_rule.appendToGenerationRules(rules);
         assertEquals(1, rules.size());
         DialingRule rule = (DialingRule) rules.get(0);
@@ -89,7 +90,7 @@ public class EmergencyRuleTest extends TestCase {
         m_rule.setUseMediaServer(true);
         gateways = m_rule.getGateways();
         assertEquals(2, gateways.size());
-        rules = new ArrayList();
+        rules = new ArrayList<DialingRule>();
         m_rule.appendToGenerationRules(rules);
         assertEquals(1, rules.size());
         rule = (DialingRule) rules.get(0);
@@ -100,7 +101,7 @@ public class EmergencyRuleTest extends TestCase {
     public void testAppendToGenerationRulesDisabled() {
         m_rule.setEnabled(false);
         m_rule.setUseMediaServer(true);
-        ArrayList rules = new ArrayList();
+        ArrayList<DialingRule> rules = new ArrayList<DialingRule>();
         m_rule.appendToGenerationRules(rules);
         assertTrue(rules.isEmpty());
     }

@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -19,6 +17,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer.Operation;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -57,8 +56,9 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
  * 
  */
 public class MappingRule extends DialingRule {
-    protected static final String PREFIX = "sip:{%s}@{mediaserver};voicexml={voicemail}";
-    protected static final String SUFFIX = "/cgi-bin/voicemail/mediaserver.cgi?action=";
+    // protected static final String PREFIX = "sip:{%s}@{mediaserver};voicexml={voicemail}";
+    protected static final String PREFIX = "sip:%s@%s";
+    protected static final String MEDIA_SERVER_STRING = "{voicemail}/cgi-bin/voicemail/mediaserver.cgi?action=";
     protected static final String VMAIL_DEPOSIT = "deposit";
     protected static final String VMAIL_RETRIEVE = "retrieve";
     protected static final String AUTOATTENDANT = "autoattendant";
@@ -113,13 +113,13 @@ public class MappingRule extends DialingRule {
 
     // specialized classes
     public static class Operator extends MappingRule {
-        public Operator(AutoAttendant attendant, String extension, String[] aliases) {
+        public Operator(AutoAttendant attendant, String extension, String[] aliases, MediaServer mediaServer) {
             this(attendant.getName(), attendant.getDescription(), attendant.getSystemName(),
-                    extension, aliases);
+                    extension, aliases, mediaServer);
         }
 
         public Operator(String name, String description, String systemName, String extension,
-                String[] aliases) {
+                String[] aliases, MediaServer mediaServer) {
             setName(name);
             setDescription(description);
 
@@ -129,21 +129,28 @@ public class MappingRule extends DialingRule {
                 setPatterns((String[]) ArrayUtils.add(aliases, 0, extension));
             }
 
-            Map params = new HashMap();
-            params.put("name", systemName);
-
-            setUrl(buildUrl(CallDigits.FIXED_DIGITS, AUTOATTENDANT, params));
+            Map<String, String> additionalParams = new HashMap<String, String>();
+            additionalParams.put("name", systemName);
+            MediaServer.Operation operation = MediaServer.Operation.Autoattendant;
+            String uriParams = mediaServer.getUriParameterStringForOperation(
+                    operation, null, additionalParams);
+            String headerParams = mediaServer.getHeaderParameterStringForOperation(
+                    operation, null, additionalParams);
+            setUrl(buildUrl('{' + CallDigits.FIXED_DIGITS.getName() + '}', mediaServer.getHostname(),
+                    uriParams, headerParams, null));
         }
     }
 
     public static class VoicemailFallback extends MappingRule {
-        public VoicemailFallback(int extensionLen) {
+        public VoicemailFallback(int extensionLen, MediaServer mediaServer) {
             DialPattern pattern = new DialPattern(StringUtils.EMPTY, extensionLen);
             setPatterns(new String[] {
                 pattern.calculatePattern()
             });
-            setUrl(buildUrl(CallDigits.FIXED_DIGITS, MappingRule.VMAIL_DEPOSIT,
-                    getMailboxParams(CallDigits.FIXED_DIGITS), ";q=0.1"));
+
+            CallDigits digits = CallDigits.FIXED_DIGITS;
+            MediaServer.Operation operation = MediaServer.Operation.VoicemailDeposit;
+            setUrl(buildUrl(digits, mediaServer, operation, "q=0.1"));
         }
 
         public List<String> getPermissionNames() {
@@ -152,69 +159,85 @@ public class MappingRule extends DialingRule {
     }
 
     public static class Voicemail extends MappingRule {
-        public Voicemail(String voiceMail) {
+        public Voicemail(String voiceMail, MediaServer mediaServer) {
             setPatterns(new String[] {
                 voiceMail
             });
-            setUrl(buildUrl(CallDigits.FIXED_DIGITS, MappingRule.VMAIL_RETRIEVE, null));
+
+            CallDigits digits = CallDigits.FIXED_DIGITS;
+            MediaServer.Operation operation = MediaServer.Operation.VoicemailRetrieve;
+            setUrl(buildUrl(digits, mediaServer, operation, null));
         }
 
     }
 
     public static class VoicemailTransfer extends MappingRule {
-        public VoicemailTransfer(String prefix, int extensionLen) {
+        public VoicemailTransfer(String prefix, int extensionLen, MediaServer mediaServer) {
             DialPattern pattern = new DialPattern(prefix, extensionLen);
             setPatterns(new String[] {
                 pattern.calculatePattern()
             });
-            setUrl(buildUrl(CallDigits.VARIABLE_DIGITS, MappingRule.VMAIL_DEPOSIT,
-                    getMailboxParams(CallDigits.VARIABLE_DIGITS)));
-        }
-    }
 
-    static String buildUrl(CallDigits digits, String action, Map<String, String> params) {
-        return buildUrl(digits, action, params, null);
+            CallDigits userDigits = CallDigits.VARIABLE_DIGITS;
+            MediaServer.Operation operation = MediaServer.Operation.VoicemailDeposit;
+            setUrl(buildUrl(userDigits, mediaServer, operation, null));
+        }
     }
 
     /**
-     * Creates URL for mediaserver
+     * Builds a URL based on the provided digits, media server, and
+     * sip parameters.
      * 
-     * @param digits - vdigits or digits
-     * @param action - autoattendant, sos, deposit or retrieve
-     * @param params - any additional mediaserver params (can be null or empty)
-     * @param sipParams - any additional SIP params (can be null or empty)
-     * @return String representign the URL
+     * @param userDigits - The digits for the relevant user (or null if none)
+     * @param mediaServer - The media server that will handle this url
+     * @param sipParams - any additional SIP params (can be null or empty string)
+     * @return String representing the URL
      */
-    static String buildUrl(CallDigits digits, String action, Map<String, String> params,
-            String sipParams) {
-        try {
-            StringBuilder url = new StringBuilder("<");
-            String suffix = URLEncoder.encode(SUFFIX, "UTF-8");
-            Formatter f = new Formatter(url);
-            f.format(PREFIX, digits.getName());
-            url.append(suffix);
-            url.append(action);
-            if (null != params) {
-                for (Map.Entry<String, String> entry : params.entrySet()) {
-                    url.append("%26"); // & - URL encoded
-                    url.append(entry.getKey());
-                    url.append("%3D"); // = - URL encoded
-                    url.append(entry.getValue());
-                }
-            }
-            url.append('>');
-            if (null != sipParams) {
-                url.append(sipParams);
-            }
-            return url.toString();
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+    static String buildUrl(CallDigits userDigits, 
+            MediaServer mediaServer, Operation operation, String sipParams) {
+        String uriParams = mediaServer.getUriParameterStringForOperation(
+                operation, userDigits, null);
+        String headerParams = mediaServer.getHeaderParameterStringForOperation(
+                operation, userDigits, null);
+        String hostname = mediaServer.getHostname();
+        String digits = mediaServer.getDigitStringForOperation(operation, userDigits);
+        return buildUrl(digits, hostname, uriParams, headerParams, sipParams);
     }
 
-    protected Map<String, String> getMailboxParams(CallDigits digits) {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("mailbox", String.format("{%s}", digits.getEscapedName()));
-        return map;
+    /**
+     * Builds a URL based on the provided digits, uri parameters, header parameters, and
+     * sip parameters.
+     * 
+     * @param digits - user digits (xxx@hostname)
+     * @param hostname - hostname for the media server
+     * @param uriParams - any uri parameters (can be null or empty string)
+     * @param headerParams - any header parameters (can be null or empty string)
+     * @param sipParams - any additional SIP params (can be null or empty string)
+     * @return String representing the URL
+     */
+    static String buildUrl(String digitString, String hostname, String uriParams, String headerParams,
+            String sipParams) {
+        StringBuilder url = new StringBuilder("<");
+        Formatter f = new Formatter(url);
+        f.format(PREFIX, digitString, hostname);
+
+        if (!StringUtils.isBlank(uriParams)) {
+            url.append(';');
+            url.append(uriParams);
+        }
+
+        if (!StringUtils.isBlank(headerParams)) {
+            url.append('?');
+            url.append(headerParams);
+        }
+
+        url.append('>');
+
+        if (null != sipParams) {
+            url.append(';');
+            url.append(sipParams);
+        }
+
+        return url.toString();
     }
 }

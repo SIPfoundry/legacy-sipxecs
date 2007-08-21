@@ -48,7 +48,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
 
     protected Object clone() throws CloneNotSupportedException {
         DialingRule clone = (DialingRule) super.clone();
-        clone.m_gateways = new ArrayList(m_gateways);
+        clone.m_gateways = new ArrayList<Gateway>(m_gateways);
         return clone;
     }
 
@@ -103,7 +103,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
     /**
      * @return list of Gateway objects representing source hosts
      */
-    public List getHosts() {
+    public List<Gateway> getHosts() {
         return null;
     }
 
@@ -113,9 +113,9 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
         return existed;
     }
 
-    public void removeGateways(Collection selectedGateways) {
-        for (Iterator i = selectedGateways.iterator(); i.hasNext();) {
-            Integer id = (Integer) i.next();
+    public void removeGateways(Collection<Integer> selectedGateways) {
+        for (Iterator<Integer> i = selectedGateways.iterator(); i.hasNext();) {
+            Integer id = i.next();
             m_gateways.remove(new BeanWithId(id));
         }
     }
