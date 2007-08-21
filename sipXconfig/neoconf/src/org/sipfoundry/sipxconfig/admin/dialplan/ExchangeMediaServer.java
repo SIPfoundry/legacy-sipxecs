@@ -14,6 +14,8 @@ import java.util.Formatter;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 public class ExchangeMediaServer extends MediaServer {
 
     private static final String NAME = "ExchangeUM";
@@ -25,9 +27,10 @@ public class ExchangeMediaServer extends MediaServer {
     public ExchangeMediaServer() {
         // create empty media server object
     }
-    
+
     /**
      * Create a new instance of ExchangeMediaServer with the specified parameters
+     * 
      * @param serverAddress - The address/hostname of the server
      * @param voicemailExtension - The extension of the server
      */
@@ -54,10 +57,9 @@ public class ExchangeMediaServer extends MediaServer {
         }
 
         if (paramString == null) {
-            return "";
-        } else {
-            return "Diversion=" + paramString;
+            return StringUtils.EMPTY;
         }
+        return "Diversion=" + paramString;
     }
 
     public String getUriParameterStringForOperation(Operation operation, CallDigits digits,

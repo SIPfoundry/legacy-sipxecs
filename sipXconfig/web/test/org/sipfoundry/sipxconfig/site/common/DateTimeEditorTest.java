@@ -9,15 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.site.common;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import org.sipfoundry.sipxconfig.admin.TimeOfDay;
-import org.sipfoundry.sipxconfig.site.common.DateTimeEditor;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.admin.TimeOfDay;
 
 public class DateTimeEditorTest extends TestCase {
 

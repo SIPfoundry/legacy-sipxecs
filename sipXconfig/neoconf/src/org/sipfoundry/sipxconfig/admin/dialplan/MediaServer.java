@@ -27,7 +27,12 @@ public abstract class MediaServer {
 
     private String m_hostname;
 
-    private String m_serverExtension;;
+    private String m_serverExtension;
+
+    /**
+     * User visible label of for this media server.
+     */
+    private String m_label;
 
     /**
      * Get the name (type) of this media server
@@ -91,17 +96,27 @@ public abstract class MediaServer {
     public void setHostname(String hostname) {
         m_hostname = hostname;
     }
-    
+
+    public String getLabel() {
+        return m_label;
+    }
+
+    public void setLabel(String label) {
+        m_label = label;
+    }
+
     /**
      * Gets the extension used to dial the server
+     * 
      * @return The String representation of the server's extension
      */
     public String getServerExtension() {
         return m_serverExtension;
     }
-    
+
     /**
      * Sets the extension used to dial the server
+     * 
      * @param serverExtension - The extension used to dial the server
      */
     public void setServerExtension(String serverExtension) {
@@ -114,13 +129,11 @@ public abstract class MediaServer {
      * 
      * @param paramString - The parameter string to encode
      * @param exclude - A list of strings to exclude from the encoding
-     * @return
      */
     protected String encodeParams(String paramString, List<String> excludes) {
-        String encodedParams = null;
-        String encodingType = "UTF-8";
         try {
-            encodedParams = URLEncoder.encode(paramString, encodingType);
+            String encodingType = "UTF-8";
+            String encodedParams = URLEncoder.encode(paramString, encodingType);
 
             if (excludes != null) {
                 for (String string : excludes) {
@@ -130,10 +143,11 @@ public abstract class MediaServer {
                     }
                 }
             }
+            return encodedParams;
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            // UTF-8 is always supported
+            throw new RuntimeException(e);
         }
 
-        return encodedParams;
     }
 }

@@ -82,7 +82,7 @@ public class EmergencyRuleTest extends TestCase {
         ArrayList<DialingRule> rules = new ArrayList<DialingRule>();
         m_rule.appendToGenerationRules(rules);
         assertEquals(1, rules.size());
-        DialingRule rule = (DialingRule) rules.get(0);
+        DialingRule rule = rules.get(0);
         assertEquals(2, rule.getGateways().size());
         assertEquals(testDescription, rule.getDescription());
 
@@ -93,7 +93,7 @@ public class EmergencyRuleTest extends TestCase {
         rules = new ArrayList<DialingRule>();
         m_rule.appendToGenerationRules(rules);
         assertEquals(1, rules.size());
-        rule = (DialingRule) rules.get(0);
+        rule = rules.get(0);
         assertTrue(rule.getGateways().isEmpty());
         assertEquals(testDescription, rule.getDescription());
     }

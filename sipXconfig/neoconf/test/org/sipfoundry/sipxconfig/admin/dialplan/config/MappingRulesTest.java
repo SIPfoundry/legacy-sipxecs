@@ -28,7 +28,6 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
-import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer;

@@ -7,12 +7,15 @@
   -->
 
   <bean id="sipXMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServer" singleton="false">
+    <property name="label" value="sipX Voice Mail" />
     <property name="hostname" value="{mediaserver}" />
     <property name="serverExtension" value="101" />
   </bean>
 
   <bean id="exchangeUmMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer"
-    singleton="false" />
+    singleton="false">
+    <property name="label" value="Exchange Voice Mail" />
+  </bean>
 
   <bean id="mediaServerFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory" singleton="true">
     <property name="beanIds">

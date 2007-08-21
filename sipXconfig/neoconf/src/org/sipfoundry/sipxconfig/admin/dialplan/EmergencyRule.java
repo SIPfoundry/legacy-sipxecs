@@ -36,7 +36,7 @@ public class EmergencyRule extends DialingRule {
         if (null != m_optionalPrefix && 0 < m_optionalPrefix.length()) {
             patterns.add(m_optionalPrefix + m_emergencyNumber);
         }
-        return (String[]) patterns.toArray(new String[patterns.size()]);
+        return patterns.toArray(new String[patterns.size()]);
     }
 
     public Transform[] getStandardTransforms() {

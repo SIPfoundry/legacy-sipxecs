@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.BeanFactory;
@@ -37,5 +39,14 @@ public class MediaServerFactory implements BeanFactoryAware {
 
     public Collection<String> getBeanIds() {
         return m_beanIds;
+    }
+
+    public Map<String, String> getBeanIdsToLabels() {
+        LinkedHashMap<String, String> result = new LinkedHashMap<String, String>();
+        for (String beanId : m_beanIds) {
+            MediaServer ms = create(beanId);
+            result.put(beanId, ms.getLabel());
+        }
+        return result;
     }
 }

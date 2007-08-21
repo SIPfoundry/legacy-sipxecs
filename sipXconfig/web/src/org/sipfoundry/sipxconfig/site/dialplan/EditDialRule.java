@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
-import java.util.Collection;
+import java.util.Map;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -20,12 +20,12 @@ import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 import org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory;
+import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 
 /**
@@ -69,8 +69,8 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
     public abstract void setRuleType(DialingRuleType dialingType);
 
     public IPropertySelectionModel getMediaServerTypeModel() {
-        Collection<String> allTypes = getMediaServerFactory().getBeanIds();
-        return new StringPropertySelectionModel((String[]) allTypes.toArray(new String[0]));
+        Map<String, String> types2Labels = getMediaServerFactory().getBeanIdsToLabels();
+        return new NamedValuesSelectionModel(types2Labels);
     }
 
     public void pageBeginRender(PageEvent event_) {
