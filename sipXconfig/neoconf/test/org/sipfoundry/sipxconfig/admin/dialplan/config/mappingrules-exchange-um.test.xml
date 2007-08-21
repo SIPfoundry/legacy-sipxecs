@@ -68,7 +68,7 @@
 			<permissionMatch>
 				<transform>
 				    <url>
-					&lt;sip:101@exchange.example.com;transport=tcp?Diversion=%3Ctel:{vdigits}%3E%3Breason%3Dno-answer%3Bscreen%3Dno%3Bprivacy%3Doff&gt;
+					&lt;sip:101@exchange.example.com;transport=tcp?Diversion=%3Csip:{vdigits}%40{host}%3E%3Breason%3Dno-answer%3Bscreen%3Dno%3Bprivacy%3Doff&gt;
 				    </url>
 				</transform>
 			</permissionMatch>
@@ -80,7 +80,7 @@
 			    <permission>Voicemail</permission>
 				<transform>
 				    <url>
-					&lt;sip:101@exchange.example.com;transport=tcp?Diversion=%3Ctel:{digits}%3E%3Breason%3Dno-answer%3Bscreen%3Dno%3Bprivacy%3Doff&gt;;q=0.1
+					&lt;sip:101@exchange.example.com;transport=tcp?Diversion=%3Csip:{digits}%40{host}%3E%3Breason%3Dno-answer%3Bscreen%3Dno%3Bprivacy%3Doff&gt;;q=0.1
 				    </url>
 				</transform>
 			</permissionMatch>

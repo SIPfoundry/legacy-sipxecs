@@ -17,7 +17,7 @@ import java.util.Map;
 public class ExchangeMediaServer extends MediaServer {
 
     private static final String NAME = "ExchangeUM";
-    private static final String HEADER_PARAM_TEMPLATE = "<tel:{%s}>;reason=no-answer;screen=no;privacy=off";
+    private static final String HEADER_PARAM_TEMPLATE = "<sip:{%s}@{host}>;reason=no-answer;screen=no;privacy=off";
 
     /**
      * Create a new instance of ExchangeMediaServer
@@ -46,7 +46,7 @@ public class ExchangeMediaServer extends MediaServer {
             Formatter paramFormatter = new Formatter(paramBuffer);
             paramFormatter.format(HEADER_PARAM_TEMPLATE, digits.getName());
             List<String> encodeExcludes = new ArrayList<String>(ENCODE_EXCLUDES);
-            encodeExcludes.add("tel:");
+            encodeExcludes.add("sip:");
             paramString = encodeParams(paramBuffer.toString(), encodeExcludes);
             break;
         default:
