@@ -11,15 +11,12 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -58,13 +55,13 @@ public class AutoAttendantTest extends XMLTestCase {
         assertFalse(afterhour.isOperator());
         assertTrue(afterhour.isPermanent());
     }
-    
+
     private AutoAttendant createAutoAttendant() {
         return new AutoAttendant() {
             protected Setting loadSettings() {
                 return TestHelper.loadSettings("sipxvxml/autoattendant.xml");
             }
-        };        
+        };
     }
 
     // TODO: fix the test after autoattendant.vm has been changed
@@ -85,23 +82,12 @@ public class AutoAttendantTest extends XMLTestCase {
 
         StringWriter actualXml = new StringWriter();
         m_vxml.generate(aa, actualXml);
-        assertVxmlEquals("expected-autoattendant.xml", actualXml.toString());
-    }
-    
-    private void assertVxmlEquals(String expectedFile, String actualXml) throws Exception {
-        Reader actualRdr = new StringReader(actualXml);
-        StringWriter actual = new StringWriter();
-        XmlUnitHelper.style(getReader("autoattendant.xsl"), actualRdr, actual, null);
 
-        Reader expectedRdr = getReader(expectedFile);
-        StringWriter expected = new StringWriter();
-        XmlUnitHelper.style(getReader("autoattendant.xsl"), expectedRdr, expected, null);
+        InputStream referenceXmlStream = AutoAttendant.class
+                .getResourceAsStream("expected-autoattendant.xml");
 
-        XMLAssert.assertXMLEqual(expected.toString(), actual.toString());
-    }
+        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(actualXml
+                .toString()));
 
-    private Reader getReader(String resource) {
-        InputStream stream = getClass().getResourceAsStream(resource);
-        return new InputStreamReader(stream);
     }
 }

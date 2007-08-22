@@ -58,7 +58,7 @@
       </filled>
 #set( $reprompt = ${onfail.getSetting('noinputCount').TypedValue} )
 #if( $reprompt > 0 )
-      <noinput count="reprompt">
+      <noinput count="$reprompt">
 	<reprompt/>
       </noinput>
 #end
