@@ -23,6 +23,7 @@
 #include "fastdb/fastdb.h"
 
 #include "xmlparser/tinyxml.h"
+#include "sipXecsService/SipXecsService.h"
 #include "sipdb/RegistrationBinding.h"
 #include "sipdb/RegistrationDB.h"
 #include "sipdb/RegistrationRow.h"
@@ -147,15 +148,14 @@ RegistrationDB::load()
 
     if ( m_pFastDB != NULL )
     {
-        UtlString fileName =
-            SIPDBManager::getInstance()->
-                getConfigDirectory() +
-                OsPath::separator + mDatabaseName + ".xml";
+        UtlString fileName = mDatabaseName + ".xml";
+        UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
+                                                  fileName.data());
 
         OsSysLog::add(FAC_DB, PRI_DEBUG, "RegistrationDB::load loading \"%s\"",
-                    fileName.data());
+                    pathName.data());
 
-        TiXmlDocument doc ( fileName );
+        TiXmlDocument doc ( pathName );
 
         // Verify that we can load the file (i.e it must exist)
         if( doc.LoadFile() )
@@ -214,7 +214,7 @@ RegistrationDB::load()
         } else
         {
             OsSysLog::add(FAC_DB, PRI_WARNING, "RegistrationDB::load failed to load \"%s\"",
-                    fileName.data());
+                    pathName.data());
         }
     } else
     {
@@ -253,10 +253,9 @@ OsStatus RegistrationDB::cleanAndPersist( int newerThanTime )
             expireCursor.removeAllSelected();
         }
 
-        UtlString fileName =
-            SIPDBManager::getInstance()->
-                getConfigDirectory() +
-                OsPath::separator + mDatabaseName + ".xml";
+        UtlString fileName = mDatabaseName + ".xml";
+        UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
+                                                  fileName.data());
 
         // Search our memory for rows
         dbCursor< RegistrationRow > cursor;
@@ -338,7 +337,7 @@ OsStatus RegistrationDB::cleanAndPersist( int newerThanTime )
             // Log that we've finished building the XML.
             time_log.addEvent("XML built");
 
-            document.SaveFile ( fileName );
+            document.SaveFile ( pathName );
 
             // Write logging
             time_log.addEvent("file written");
@@ -352,12 +351,8 @@ OsStatus RegistrationDB::cleanAndPersist( int newerThanTime )
         else
         {
             // database contains no rows so delete the file
-            UtlString fileName =
-                SIPDBManager::getInstance()->
-                    getConfigDirectory() +
-                    OsPath::separator + mDatabaseName + ".xml";
-            if ( OsFileSystem::exists ( fileName ) ) {
-                 OsFileSystem::remove( fileName );
+            if ( OsFileSystem::exists ( pathName ) ) {
+                 OsFileSystem::remove( pathName );
             }
         }
     }

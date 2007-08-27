@@ -42,7 +42,7 @@ public:
       {
          delete mFileTestContext;
          unsetenv(SipXecsService::ConfigurationDirType);
-         unsetenv(SipXecsService::ConfigurationDirType);
+         unsetenv(SipXecsService::LocalStateDirType);
          unsetenv(SipXecsService::LogDirType);
          unsetenv(SipXecsService::RunDirType);
          unsetenv(SipXecsService::TmpDirType);
@@ -61,7 +61,14 @@ public:
          setenv(SipXecsService::ConfigurationDirType, "/override/cfg", true /* overwrite */);
          
          testConfigurationPath = SipXecsService::Path(SipXecsService::ConfigurationDirType,
-                                                     "test-config");
+                                                      "test-config");
+
+         ASSERT_STR_EQUAL( "/override/cfg/test-config", testConfigurationPath.data());
+
+         setenv(SipXecsService::ConfigurationDirType, "/override/cfg/", true /* overwrite */);
+         
+         testConfigurationPath = SipXecsService::Path(SipXecsService::ConfigurationDirType,
+                                                      "test-config");
 
          ASSERT_STR_EQUAL( "/override/cfg/test-config", testConfigurationPath.data());
       }

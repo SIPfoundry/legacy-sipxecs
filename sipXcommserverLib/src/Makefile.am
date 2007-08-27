@@ -30,6 +30,7 @@ libsipXcommserver_la_LDFLAGS = \
 libsipXcommserver_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+	-DSIPX_VARDIR=\"@SIPX_VARDIR@\" \
 	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
 	-DSIPX_DBDIR=\"@SIPX_DBDIR@\" \
@@ -52,6 +53,7 @@ libsipXcommserver_la_SOURCES = \
     odbc/OdbcWrapper.cpp \
     persist/SipPersistentSubscriptionMgr.cpp \
 	 sipXecsService/SipXecsService.cpp \
+    sipXecsService/SipNonceDb.cpp \
 	 sipXecsService/SharedSecret.cpp
 
 $(foreach sipxScript,$(libexec_SCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in

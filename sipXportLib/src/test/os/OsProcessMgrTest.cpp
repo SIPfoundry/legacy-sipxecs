@@ -53,15 +53,13 @@ public:
         stat = processManager.startProcess(MyPing1, appName, params, startupDir);
         CPPUNIT_ASSERT_MESSAGE("Started first proccess", stat == OS_SUCCESS);
 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("Alias state", PROCESS_STARTED, 
-            processManager.getAliasState(MyPing1));
+        CPPUNIT_ASSERT_EQUAL((int)PROCESS_STARTED, processManager.getAliasState(MyPing1));
         
         processManager.setIORedirect(inputFile, MyPing2OutputFile, errFile);
         stat = processManager.startProcess(MyPing2, appName, params, startupDir);
         CPPUNIT_ASSERT_MESSAGE("Started 2nd proccess", stat == OS_SUCCESS);
 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("2nd alias state", PROCESS_STARTED, 
-            processManager.getAliasState(MyPing2));
+        CPPUNIT_ASSERT_EQUAL((int)PROCESS_STARTED, processManager.getAliasState(MyPing2));
         
         //std::cout << "Waiting 2 secs before killing process MyPing1...\n";
         OsTask::delay(2000);

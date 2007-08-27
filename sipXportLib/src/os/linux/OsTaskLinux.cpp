@@ -243,7 +243,10 @@ UtlBoolean OsTaskLinux::start(void)
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+      // There are various tasks that start in the constructors and then are also
+      // explicitly started; that causes this to be logged, but it's not really a
+      // problem.
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                     "OsTaskLinux:start '%s' attempting to start but not in UNINITIALIZED or TERMINATED state (%d)",
                     mName.data(), mState
                     );

@@ -29,12 +29,22 @@ class SipXecsService
   public:
 
    static DirectoryType ConfigurationDirType;
+   static DirectoryType LocalStateDirType;
    static DirectoryType LogDirType;
    static DirectoryType RunDirType;
    static DirectoryType TmpDirType;
    static DirectoryType DatabaseDirType;
 
-   static OsPath Path(DirectoryType pathType, const char* fileName);
+   /// Get a full path for a file in the specified directory type
+   static OsPath Path(DirectoryType pathType, const char* fileName = NULL);
+   /**<
+    * The returned path will concatentate the base directory type with the
+    * OsPath;:separator and the file name (if either already contains the
+    * separator where this concatenation would put it, then it is not inserted).
+    *
+    * If no filename is specified, or if it is the null string, then the
+    * name of the directory is returned with no trailing separator.
+    */
 
    /// name of the configuration common to all services in the domain.
    static OsPath domainConfigPath(); 
@@ -61,6 +71,7 @@ class SipXecsService
    
    static const char* DefaultConfigurationDir;
    static const char* DefaultLogDir;
+   static const char* DefaultLocalStateDir;
    static const char* DefaultRunDir;
    static const char* DefaultTmpDir;
    static const char* DefaultDatabaseDir;

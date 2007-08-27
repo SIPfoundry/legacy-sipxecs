@@ -174,7 +174,7 @@ id -u @SIPXPBXUSER@ > /dev/null 2>&1 \
 sipx-upgrade -p sipxcommserverlib -c
 
 %post
-sipx-upgrade -p sipxcommserverlib -u --bdir %{_bindir}  --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
+sipx-upgrade -p sipxcommserverlib -u --bdir %{_bindir}  --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}  --ldir %{_libexecdir}
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz

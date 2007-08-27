@@ -810,15 +810,8 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
        && msgSubType == OsEventMsg::NOTIFY
        )
     {
-        // Garbage collect nonces
-        //osPrintf("Garbage collecting nonces\n");
-
-        OsTime time;
-        OsDateTime::getCurTimeSinceBoot(time);
-        long now = time.seconds();
-        // Remove nonces more than 5 minutes old
-        long oldTime = now - mNonceExpiration;
-        mNonceDb.removeOldNonces(oldTime);
+       OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
+                     "unknown timer expiration" );
 
         handled = TRUE;
     }
@@ -1167,7 +1160,7 @@ SipRegistrarServer::isAuthorized(
 
                 // validate the nonce
                 if (mNonceDb.isNonceValid(requestNonce, callId, fromTag,
-                                          reqUri, mRealm, mNonceExpiration))
+                                          mRealm, mNonceExpiration))
                 {
                     Url discardUriFromDB;
 
@@ -1209,9 +1202,9 @@ SipRegistrarServer::isAuthorized(
                 else // nonce is not valid
                 {
                     OsSysLog::add(FAC_AUTH, PRI_INFO,
-                                  "Invalid nonce for '%s', nonce='%s', callId='%s', reqUri='%s'",
+                                  "Invalid nonce for '%s', nonce='%s', callId='%s'",
                                   identity.data(), requestNonce.data(),
-                                  callId.data(), reqUri.data());
+                                  callId.data());
                 }
             }
             requestAuthIndex++;
@@ -1221,13 +1214,10 @@ SipRegistrarServer::isAuthorized(
         {
            // Generate a new challenge
             UtlString newNonce;
-            UtlString challangeRequestUri;
-            message.getRequestUri(&challangeRequestUri);
             UtlString opaque;
 
             mNonceDb.createNewNonce(callId,
                                     fromTag,
-                                    challangeRequestUri,
                                     mRealm,
                                     newNonce);
 

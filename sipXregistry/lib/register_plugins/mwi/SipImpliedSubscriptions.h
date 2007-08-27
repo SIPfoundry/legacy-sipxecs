@@ -25,7 +25,7 @@
 // APPLICATION INCLUDES
 #include "os/OsBSem.h"
 #include "utl/UtlString.h"
-#include "net/SipNonceDb.h"
+#include "sipXecsService/SipNonceDb.h"
 #include "net/SipUserAgent.h"
 #include "registry/RegisterPlugin.h"
 

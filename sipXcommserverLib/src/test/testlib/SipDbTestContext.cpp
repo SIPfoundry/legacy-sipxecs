@@ -15,6 +15,7 @@
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
 #include "sipdb/SIPDBManager.h"
+#include "sipXecsService/SipXecsService.h"
 #include "sipxunit/TestUtilities.h"
 #include "testlib/FileTestContext.h"
 #include "testlib/SipDbTestContext.h"
@@ -57,8 +58,9 @@ void SipDbTestContext::setFastDbEnvironment()
    UtlString msg("failed to set environment to '");
    msg.append(mTestWorkingDir);
    msg.append("'");
-   int status = setenv("SIPX_DB_CFG_PATH", mTestWorkingDir, 1);
-   status += setenv("SIPX_DB_VAR_PATH", mTestWorkingDir, 1);
+   int status = 0;
+   status += setenv(SipXecsService::DatabaseDirType, mTestWorkingDir, 1);
+   status += setenv(SipXecsService::TmpDirType,      mTestWorkingDir, 1);
 
    CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), 0, status);
 }

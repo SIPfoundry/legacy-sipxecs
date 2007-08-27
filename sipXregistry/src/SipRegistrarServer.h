@@ -16,7 +16,7 @@
 // APPLICATION INCLUDES
 #include "os/OsLock.h"
 #include "os/OsServerTask.h"
-#include "net/SipNonceDb.h"
+#include "sipXecsService/SipNonceDb.h"
 #include "utl/PluginHooks.h"
 
 // DEFINES

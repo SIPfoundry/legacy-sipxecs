@@ -92,7 +92,6 @@ libsipXtack_la_SOURCES =  \
     net/SipMessage.cpp \
     net/SipMessageEvent.cpp \
     net/SipMessageList.cpp \
-    net/SipNonceDb.cpp \
     net/SipNotifyStateTask.cpp \
     net/SipObserverCriteria.cpp \
     net/SipPimClient.cpp \

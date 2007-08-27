@@ -18,6 +18,7 @@
 #include "os/OsSysLog.h"
 #include "os/OsTask.h"
 #include "xmlparser/tinyxml.h"
+#include "sipXecsService/SipXecsService.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/AliasDB.h"
@@ -44,9 +45,6 @@ extern char const* keyFileDir;
 
 // environment variable name for static data 
 
-static const char* DefaultVarPath = SIPX_TMPDIR;
-static const char* DefaultCfgPath = SIPX_DBDIR;
-
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -71,14 +69,10 @@ getPid()
 /* ============================ CREATORS ================================== */
 
 SIPDBManager::SIPDBManager () 
-    : m_absWorkingDirectory("")
-    , m_absConfigDirectory("")
+   : m_absWorkingDirectory(SipXecsService::Path(SipXecsService::TmpDirType,""))
+   , m_absConfigDirectory(SipXecsService::Path(SipXecsService::ConfigurationDirType,""))
 {
-    // Get the working and config file paths
-    m_absWorkingDirectory = getVarPath() ;
-    m_absConfigDirectory = getCfgPath() ;
-
-    // Override the default fastdb tmp dir if SIPX_DB_VAR_PATH was set
+    // Set the fastdb tmp dir
     setFastdbTempDir();
 }
 
@@ -333,9 +327,7 @@ SIPDBManager::openDatabase () const
                         /*, 8*1024*1024 */ );
 
     // open the fastdb proprietary persistent file
-    UtlString imdbFileName = 
-        getWorkingDirectory() + 
-        OsPath::separator + "imdb.odb";
+    UtlString imdbFileName = SipXecsService::Path(SipXecsService::TmpDirType,"imdb.odb");
 
     // test for successful return code
     if ( database->open( "imdb", imdbFileName /*, 60000 */) )
@@ -386,7 +378,7 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
     {
         // the file name used for persistent storage 
         // (using fastDB proprietary format)
-        UtlString imdbFileName = getWorkingDirectory() + OsPath::separator + "imdb.odb";
+        UtlString imdbFileName = SipXecsService::Path(SipXecsService::TmpDirType,"imdb.odb");
 
         // test for successful return code
         if ( spFastDB->open( "imdb", imdbFileName /*, 60000 */) )
@@ -656,18 +648,6 @@ SIPDBManager::updateDatabaseInfo (
 
 }
 
-const UtlString& 
-SIPDBManager::getWorkingDirectory () const
-{
-   return m_absWorkingDirectory;
-}
-
-const UtlString& 
-SIPDBManager::getConfigDirectory () const
-{
-   return m_absConfigDirectory;
-}
-
 SIPDBManager*
 SIPDBManager::getInstance()
 {
@@ -844,164 +824,16 @@ SIPDBManager::releaseAllDatabase() const
     return OS_SUCCESS;
 }
 
-/** Gets the absolute or relative path prefix for data files */
-OsPath
-SIPDBManager::getVarPath() 
-{
-   OsPath path;
-   UtlBoolean found = FALSE;
-   UtlString candidate;
-
-   // If the environment variable configured via SIPX_DB_VAR_PATH has a value,
-   // try it.
-   char* pPath = getenv(SIPX_DB_VAR_PATH);
-   if (pPath != NULL && pPath[0] != '\0')
-   {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SIPDBManager::getVarPath env variable %s set to %s"
-                    ,SIPX_DB_VAR_PATH, pPath);
-      candidate = pPath;
-
-      // If the last character is a separator, strip it.
-      if (candidate(candidate.length() -1) == OsPath::separator)
-      {
-         candidate = candidate(0, candidate.length()-1);
-      }
-      if (OsFileSystem::exists(candidate))
-      {
-         path = candidate;
-         found = TRUE;
-      }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SIPDBManager::getVarPath env variable %s has value %s but is not valid"
-                       ,SIPX_DB_VAR_PATH, pPath);
-      }
-   }
-
-   // If that doesn't work, try the DefaultVarPath.
-   if (!found)
-   {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SIPDBManager::getVarPath trying default %s"
-                    ,DefaultVarPath);
-      candidate = DefaultVarPath;
-       
-      if (OsFileSystem::exists(candidate))
-      {
-         path = candidate;
-         found = TRUE;
-      }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SIPDBManager::getVarPath default %s is not valid"
-                    ,DefaultVarPath);
-      }
-   }
-
-   // Otherwise, use the working directory.
-   if (!found)
-   {
-     OsFileSystem::getWorkingDirectory(path);
-   }
-
-   OsPath nativePath;
-   path.getNativePath(nativePath);
-
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SIPDBManager::getVarPath returning %s"
-                 ,nativePath.data());
-
-   return nativePath;
-}
-
-
-/** Gets the absolute or relative path prefix for persistent config files */
-OsPath
-SIPDBManager::getCfgPath() 
-{
-   OsPath path;
-   UtlBoolean found = FALSE;
-   UtlString candidate;
-
-   // If the environment variable configured via SIPX_DB_VAR_PATH has a value,
-   // try it.
-   char* pPath = getenv (SIPX_DB_CFG_PATH);
-   if (pPath != NULL && pPath[0] != '\0')
-   {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SIPDBManager::getCfgPath env variable '%s' set to '%s'"
-                    ,SIPX_DB_CFG_PATH, pPath);
-      candidate = pPath;
-
-      // If the last character is a separator, strip it.
-      if (candidate(candidate.length() -1) == OsPath::separator)
-      {
-         candidate = candidate(0, candidate.length()-1);
-      }
-      
-      if (OsFileSystem::exists(candidate))
-      {
-         path = candidate;
-         found = TRUE;
-      }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SIPDBManager::getCfgPath env variable %s has value %s but is not valid"
-                       ,SIPX_DB_CFG_PATH, pPath);
-      }
-   }
-
-   // If that doesn't work, try the DefaultCfgPath.
-   if (!found)
-   {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SIPDBManager::getCfgPath trying default %s"
-                    ,DefaultCfgPath);
-      candidate = DefaultCfgPath;
-
-      if (OsFileSystem::exists(candidate))
-      {
-         path = candidate;
-         found = TRUE;
-      }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SIPDBManager::getCfgPath default '%s' is not valid"
-                    ,DefaultCfgPath);
-      }
-   }
-
-   // Otherwise, use the working directory.
-   if (!found)
-   {
-     OsFileSystem::getWorkingDirectory(path);
-   }
-
-   OsPath nativePath;
-   path.getNativePath(nativePath);
-
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SIPDBManager::getCfgPath returning %s"
-                 ,nativePath.data());
-
-   return nativePath;
-}
-
-
-/// Override the default fastdb tmp dir if the env var SIPX_DB_VAR_PATH is set
+/// Override the default fastdb tmp dir
 void SIPDBManager::setFastdbTempDir()
 {
    // This method must only be called once
    assert(m_FastDbTmpDirPath.isNull());
 
-   char* pPath = getenv(SIPX_DB_VAR_PATH);
-   if (pPath != NULL && pPath[0] != '\0')
-   {
-      m_FastDbTmpDirPath = pPath;
+   // The path must end in a separator
+   m_FastDbTmpDirPath = SipXecsService::Path(SipXecsService::TmpDirType,OsPath::separator);
          
-      // The path must end in a separator
-      if (m_FastDbTmpDirPath(m_FastDbTmpDirPath.length() - 1) != OsPath::separator)
-      {
-         m_FastDbTmpDirPath.append(OsPath::separator);
-      }
-
-      // Pass the string to fastdb.  It's ugly to reference someone else's pointer
-      // directly like this, but allows us to avoid changing the fastdb code for now.
-      keyFileDir = m_FastDbTmpDirPath;
-   }         
+   // Pass the string to fastdb.  It's ugly to reference someone else's pointer
+   // directly like this, but allows us to avoid changing the fastdb code for now.
+   keyFileDir = m_FastDbTmpDirPath;
 }

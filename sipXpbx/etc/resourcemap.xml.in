@@ -18,6 +18,9 @@
    
    <component id="CommServer1">
        
+       <filemap identifier="domain-config"    
+                location="@SIPX_CONFDIR@/domain-config" /> 
+       
        <filemap identifier="registrar-config"    
                 location="@SIPX_CONFDIR@/registrar-config" /> 
        

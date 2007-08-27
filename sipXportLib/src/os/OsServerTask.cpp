@@ -38,9 +38,9 @@ OsServerTask::OsServerTask(const UtlString& name,
 
    // other than initialization, no work required
 {
-   if (OsSysLog::willLog(FAC_KERNEL, PRI_INFO))
+   if (OsSysLog::willLog(FAC_KERNEL, PRI_DEBUG))
    {
-      OsSysLog::add(FAC_KERNEL, PRI_INFO,
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                     "OsServerTask::_ '%s' queue: %p queue limit: %d",
                     mName.data(), &mIncomingQ, maxRequestQMsgs);
    }

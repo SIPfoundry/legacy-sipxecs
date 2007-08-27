@@ -19,6 +19,7 @@
 
 #include "fastdb/fastdb.h"
 #include "xmlparser/tinyxml.h"
+#include "sipXecsService/SipXecsService.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/CallerAliasRow.h"
@@ -176,15 +177,13 @@ CallerAliasDB::load()
       // a new set from persistent storage
       removeAllRows ();
 
-      UtlString fileName = 
-         SIPDBManager::getInstance()->getConfigDirectory()
-         + OsPath::separator
-         + DbName
-         + ".xml";
+      UtlString fileName = DbName + ".xml";
+      UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
+                                                fileName.data());
 
-      OsSysLog::add(FAC_DB, PRI_DEBUG, "CallerAliasDB::load loading '%s'", fileName.data());
+      OsSysLog::add(FAC_DB, PRI_DEBUG, "CallerAliasDB::load loading '%s'", pathName.data());
 
-      TiXmlDocument doc ( fileName );
+      TiXmlDocument doc ( pathName );
 
       // Verify that we can load the file (i.e it must exist)
       if( doc.LoadFile() )
@@ -241,7 +240,7 @@ CallerAliasDB::load()
       else 
       {
          OsSysLog::add(FAC_DB, PRI_WARNING, "CallerAliasDB::load failed to load '%s'",
-                       fileName.data());
+                       pathName.data());
       }
    }
    else 
@@ -255,10 +254,9 @@ CallerAliasDB::load()
 OsStatus
 CallerAliasDB::store()
 {
-   UtlString fileName = 
-      SIPDBManager::getInstance()->
-      getConfigDirectory() + 
-      OsPath::separator + DbName + ".xml";
+   UtlString fileName = DbName + ".xml";
+   UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
+                                             fileName.data());
 
    // Create an empty document
    TiXmlDocument document;
@@ -326,7 +324,7 @@ CallerAliasDB::store()
    
    // Attach the root node to the document
    document.InsertEndChild ( itemsElement );
-   document.SaveFile ( fileName );
+   document.SaveFile ( pathName );
 
    return OS_SUCCESS;
 }

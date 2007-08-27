@@ -34,18 +34,28 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-    const int PROCESS_STARTED = 1;
-    const int PROCESS_STOPPED = 2;
-    const int PROCESS_FAILED  = 3;
-    const int PROCESS_NEVERRUN = 4;
-    const int PROCESS_STOPPING = 5;
-    const int PROCESS_STARTING = 6;
+
+/// The states for any named process.
+typedef enum
+{
+   PROCESS_STARTED = 1,
+   PROCESS_STOPPED = 2,
+   PROCESS_FAILED  = 3,
+   PROCESS_NEVERRUN = 4,
+   PROCESS_STOPPING = 5,
+   PROCESS_STARTING = 6
+} ProcessState;
+///< @note This must agree with the names in OsProcessMgr::ProcessStateName.
+
 
 // User requested states
-    const int USER_PROCESS_NONE = 0;
-    const int USER_PROCESS_START = 1;
-    const int USER_PROCESS_STOP = 2;
-    const int USER_PROCESS_RESTART = 3;
+typedef enum
+{
+   USER_PROCESS_NONE = 0,
+   USER_PROCESS_START = 1,
+   USER_PROCESS_STOP = 2,
+   USER_PROCESS_RESTART = 3
+} RequestedProcessState;
 
 // STRUCTS
 // TYPEDEFS
@@ -77,44 +87,56 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
-   OsStatus startProcess(UtlString &rAlias, UtlString &rExeName, UtlString rParameters[], UtlString &startupDir,
-            OsProcessBase::OsProcessPriorityClass prio = OsProcessBase::NormalPriorityClass,
-       UtlBoolean bExeclusive = FALSE);
-   //: Start process
 
-   OsStatus setIORedirect(OsPath &rStdInputFilename, OsPath &rStdOutputFilename, OsPath &rStdErrorFilename);
-   //: Sets the standard input, output and/or stderror
-   //: Applies to all processes created from this point on
-   //: Set them to "" to provide the defaul action.
+   /// Start process.
+   OsStatus startProcess(UtlString &rAlias,
+                         UtlString &rExeName,
+                         UtlString rParameters[],
+                         UtlString &startupDir,
+                         OsProcessBase::OsProcessPriorityClass prio = OsProcessBase::NormalPriorityClass,
+                         UtlBoolean bExeclusive = FALSE
+                         );
 
+   /// Sets the standard input, output and/or stderror.
+   OsStatus setIORedirect(OsPath &rStdInputFilename,
+                          OsPath &rStdOutputFilename,
+                          OsPath &rStdErrorFilename
+                          );
+   /**< Applies to all processes created from this point on
+    *   Set them to "" to provide the default action.
+    */
+
+   /// Stop process by alias.
    OsStatus stopProcess(UtlString &rAlias);
-   //: Stop process
 
+   /// Stop process by id.
    OsStatus stopProcess(PID pid);
-   //: Stop process by id
 
    void setAliasStopped(const UtlString &rAlias);
     
    OsStatus setUserRequestState(const UtlString &rAlias, const int userRequestedState);
-   //: Sets a state which the watchdog periodically checks (handleMessage()) to 
-   //: determine if a user wishes to change the state of a process.  
-   //: OsProcessMgr directly does not effect the user requested state change.
-   //: It is up to the watchdog to read this state via getUserRequestState() 
-   //: and invoke the change accordingly.
+   /**<
+    * Sets a state which the watchdog periodically checks (handleMessage()) to 
+    * determine if a user wishes to change the state of a process.  
+    * OsProcessMgr directly does not effect the user requested state change.
+    * It is up to the watchdog to read this state via getUserRequestState() 
+    * and invoke the change accordingly.
+    */
 
 /* ============================ ACCESSORS ================================= */
+
+   /// Gets the state which a user set when they wish to change the state of a process.  
    int getUserRequestState(UtlString &rAlias);
-   //: Gets the state which a user set when they wish to change the state of a process.  
 
+   /// Retrieve process object given ID.
    OsStatus getProcessByAlias(const UtlString &rAlias, OsProcess &rProcess);
-   //: Retrieve process object given ID.
 
+   /// Retrieves the alias if you know the pid.
    OsStatus getAliasByPID(PID pid ,UtlString &rAlias);
-   //: Retrieves the alias if you know the pid
-   //: Returns OS_SUCCESS if found, or OS_FAILED if....failed.
+   ///< @return OS_SUCCESS if found, or OS_FAILED if....failed.
 
+   /// returns the one and only process manager.
    static OsProcessMgr *getInstance();
-   //: returns the one and only process manager
 
    static bool getCurrentStateString(const int, UtlString&);
    static bool getCurrentStateFromString(const UtlString&, int&);
@@ -126,47 +148,49 @@ public:
 /* ============================ INQUIRY =================================== */
   UtlBoolean isStarted(UtlString &rAlias);
 
+  /// @return the state of the alias.
   int getAliasState(const UtlString &rAlias);
-   //: Return the state of the alias
 
-
+  /// get the name for a ProcessState value.
+  static const char* ProcessStateName(int state);
+  
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
     OsStatus setAliasState(const UtlString &rAlias,int state);
 
+    /// pointer to the one and only process manager.
     static OsProcessMgr * spManager;
-    //: pointer to the one and only process manager
     
+    /// Where will input come from?
     OsPath mStdInputFilename;
-    //: Where will input come from?
 
+    /// Where will output go to?
     OsPath mStdOutputFilename;
-    //: Where will output go to?
 
+    /// Where will errors be sent?
     OsPath mStdErrorFilename;
-    //: Where will errors be sent?
 
+    /// Add a new entry to the collection of monitored processes.
     void addEntry(const UtlString &rAlias, int pid);
-    //: Add a new entry to the collection of monitored processes.
-    //: The removeEntry() method will always be called to first clear any 
-    //: existing entry.
-    //: Returns OS_SUCCESS if added ok or OS_FAILED on failure.
+    /**<
+     * The removeEntry() method will always be called to first clear any 
+     * existing entry.
+     * @return OS_SUCCESS if added ok or OS_FAILED on failure.
+     */
 
+    /// Remove the entry from the collection of monitored processes.
     void removeEntry(const UtlString &rAlias);
-    //: Remove the entry from the collection of monitored processes.
 
-    /** 
-     The current PROCESS_XXX state strings indexed for all monitored processes.
-     When PROCESS_STARTED, the value is actually the PID of the started process.
-     */
+    /// The current PROCESS_XXX state strings indexed for all monitored processes.
     UtlHashMap mCurrentStateMap;
+    ///< When PROCESS_STARTED, the value is actually the PID of the started process.
 
-    /** 
-     The pending user requested states indexed by the monitored process the  
-     change applies to.
-     */
+
+    /// The pending user requested states.
     UtlHashMap mUserRequestedStateMap;
+    ///< indexed by the monitored process the change applies to.
+
 };
 
 /* ============================ INLINE METHODS ============================ */

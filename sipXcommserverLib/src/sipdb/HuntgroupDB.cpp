@@ -19,6 +19,7 @@
 
 #include "xmlparser/tinyxml.h"
 #include "fastdb/fastdb.h"
+#include "sipXecsService/SipXecsService.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/HuntgroupRow.h"
@@ -39,10 +40,6 @@ UtlString HuntgroupDB::gIdentityKey("identity");
 HuntgroupDB::HuntgroupDB( const UtlString& name ) : 
     mDatabaseName( name )
 {
-    // get the etc directory
-    m_etcDirectory = SIPDBManager::getCfgPath() ;
-
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "HuntgroupDB::_: %s", m_etcDirectory.data());
     // Access the shared table databse
     SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();
     m_pFastDB = pSIPDBManager->getDatabase(name);
@@ -101,13 +98,14 @@ HuntgroupDB::load()
         // a new set from persistent storage
         removeAllRows ();
 
-        UtlString fileName = m_etcDirectory + 
-                OsPath::separator + mDatabaseName + ".xml";
+        UtlString fileName = mDatabaseName + ".xml";
+        UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
+                                                  fileName.data());
 
         OsSysLog::add(FAC_DB, PRI_DEBUG, "HuntgroupDB::load loading \"%s\"",
-                    fileName.data());
+                    pathName.data());
 
-        TiXmlDocument doc ( fileName );
+        TiXmlDocument doc ( pathName );
 
         // Verify that we can load the file (i.e it must exist)
         if( doc.LoadFile() )
@@ -166,7 +164,7 @@ HuntgroupDB::load()
         } else 
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING, "HuntgroupDB::load failed to load \"%s\"",
-                    fileName.data());
+                    pathName.data());
         }
     } else 
     {
@@ -185,10 +183,11 @@ HuntgroupDB::store()
 
     if ( m_pFastDB != NULL ) 
     {
-        UtlString fileName = m_etcDirectory + 
-                OsPath::separator + mDatabaseName + ".xml";
+        UtlString fileName = mDatabaseName + ".xml";
+        UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
+                                                  fileName.data());
 
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HuntgroupDB::store: %s", fileName.data());
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HuntgroupDB::store: %s", pathName.data());
         // Thread Local Storage
         m_pFastDB->attach();
 
@@ -255,14 +254,12 @@ HuntgroupDB::store()
             } while ( cursor.next() );
             // Attach the root node to the document
             document.InsertEndChild ( itemsElement );
-            document.SaveFile ( fileName );
+            document.SaveFile ( pathName );
         } else 
         {
             // database contains no rows so delete the file
-            UtlString fileName = m_etcDirectory + 
-                    OsPath::separator + mDatabaseName + ".xml";
-            if ( OsFileSystem::exists ( fileName ) ) {
-                 OsFileSystem::remove( fileName );
+            if ( OsFileSystem::exists ( pathName ) ) {
+                 OsFileSystem::remove( pathName );
             }
         }
         // Commit rows to memory - multiprocess workaround

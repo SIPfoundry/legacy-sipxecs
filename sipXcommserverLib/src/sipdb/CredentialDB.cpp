@@ -20,6 +20,7 @@
 #include "xmlparser/tinyxml.h"
 #include "fastdb/fastdb.h"
 #include "sipdb/ResultSet.h"
+#include "sipXecsService/SipXecsService.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/CredentialRow.h"
 #include "sipdb/CredentialDB.h"
@@ -108,15 +109,14 @@ CredentialDB::load()
         // a new set from persistent storage
         removeAllRows ();
 
-        UtlString fileName =
-            SIPDBManager::getInstance()->
-                getConfigDirectory() +
-                OsPath::separator + mDatabaseName + ".xml";
+        UtlString fileName = OsPath::separator + mDatabaseName + ".xml";
+        UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
+                                                  fileName.data());
 
         OsSysLog::add(FAC_DB, PRI_DEBUG, "CredentialDB::load loading \"%s\"",
-                    fileName.data());
+                    pathName.data());
 
-        TiXmlDocument doc ( fileName );
+        TiXmlDocument doc ( pathName );
 
         // Verify that we can load the file (i.e it must exist)
         if( doc.LoadFile() )
@@ -197,7 +197,7 @@ CredentialDB::load()
         } else 
         {
             OsSysLog::add(FAC_DB, PRI_WARNING, "CredentialDB::load failed to load \"%s\"",
-                    fileName.data());
+                    pathName.data());
         }
     } else 
     {
@@ -216,10 +216,9 @@ CredentialDB::store()
 
     if ( m_pFastDB != NULL ) 
     {
-        UtlString fileName =
-            SIPDBManager::getInstance()->
-                getConfigDirectory() +
-                OsPath::separator + mDatabaseName + ".xml";
+        UtlString fileName = OsPath::separator + mDatabaseName + ".xml";
+        UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
+                                                  fileName.data());
 
         // Thread Local Storage
         m_pFastDB->attach();
@@ -287,16 +286,12 @@ CredentialDB::store()
             } while ( cursor.next() );
             // Attach the root node to the document
             document.InsertEndChild ( itemsElement );
-            document.SaveFile ( fileName );
+            document.SaveFile ( pathName );
         } else
         {
             // database contains no rows so delete the file
-            UtlString fileName =
-                SIPDBManager::getInstance()->
-                    getConfigDirectory() +
-                    OsPath::separator + mDatabaseName + ".xml";
-            if ( OsFileSystem::exists ( fileName ) ) {
-                 OsFileSystem::remove( fileName );
+            if ( OsFileSystem::exists ( pathName ) ) {
+                 OsFileSystem::remove( pathName );
             }
         }
         // Commit rows to memory - multiprocess workaround

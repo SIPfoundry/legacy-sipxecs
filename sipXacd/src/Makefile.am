@@ -12,6 +12,7 @@ EXTRA_DIST = \
 sipxacd_LDADD = \
     @SIPXCALL_LIBS@ \
     @SIPXMEDIAADAPTER_LIBS@ \
+    @SIPXCOMMSERVER_LIBS@ \
     @GIPS_NEQ_OBJS@
 
 sipxacd_CXXFLAGS = \

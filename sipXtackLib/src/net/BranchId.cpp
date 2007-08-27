@@ -365,11 +365,13 @@ void BranchId::setSecret(const char* secret /**< a null terminated string used a
                                              */
                          )
 {
-   if (!smIdSecret.isNull())
+   if (!smIdSecret.isNull()
+       && smIdSecret.compareTo(secret) != 0
+       )
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      OsSysLog::add(FAC_SIP, PRI_NOTICE,
                     "BranchId::setSecret reset identifier key;"
-                    " previously generated branch ids will not be recognized."
+                    " previously generated branch ids will not be recognized as local."
                     );
       smIdSecret.remove(0);
    }

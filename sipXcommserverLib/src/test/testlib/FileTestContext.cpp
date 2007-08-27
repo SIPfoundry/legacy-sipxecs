@@ -14,6 +14,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
+#include "sipXecsService/SipXecsService.h"
 #include "sipxunit/TestUtilities.h"
 #include "testlib/FileTestContext.h"
 

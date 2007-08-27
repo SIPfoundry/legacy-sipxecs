@@ -21,6 +21,7 @@
 #include "fastdb/fastdb.h"
 #include "net/Url.h"
 
+#include "sipXecsService/SipXecsService.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/SubscriptionRow.h"
@@ -120,15 +121,14 @@ SubscriptionDB::load()
         // a new set from persistent storage
         removeAllRows ();
 
-        UtlString fileName = 
-            SIPDBManager::getInstance()->
-                getConfigDirectory() + 
-                OsPath::separator + mDatabaseName + ".xml";
+        UtlString fileName = mDatabaseName + ".xml";
+        UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
+                                                  fileName.data());
 
         OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::load loading \"%s\"",
-                    fileName.data());
+                      pathName.data());
 
-        TiXmlDocument doc ( fileName );
+        TiXmlDocument doc ( pathName );
 
         // Verify that we can load the file (i.e it must exist)
         if( doc.LoadFile() )
@@ -187,7 +187,7 @@ SubscriptionDB::load()
         } else 
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING, "SubscriptionDB::load failed to load \"%s\"",
-                    fileName.data());
+                          pathName.data());
         }
     } else 
     {
@@ -206,10 +206,9 @@ SubscriptionDB::store()
 
     if ( m_pFastDB != NULL )
     {
-        UtlString fileName = 
-            SIPDBManager::getInstance()->
-                getConfigDirectory() + 
-                OsPath::separator + mDatabaseName + ".xml";
+        UtlString fileName = mDatabaseName + ".xml";
+        UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
+                                                  fileName.data());
 
         // Thread Local Storage
         m_pFastDB->attach();
@@ -286,7 +285,7 @@ SubscriptionDB::store()
             } while ( cursor.next() );
             // Attach the root node to the document
             document.InsertEndChild ( itemsElement );
-            document.SaveFile ( fileName );
+            document.SaveFile ( pathName );
         } else 
         {
             // database contains no rows so delete the file
@@ -294,12 +293,8 @@ SubscriptionDB::store()
             // rather than deleting the file, so that when the file is missing
             // we know that's bad.  Get rid of this clause, we don't
             // need to treat this as a special case.
-            UtlString fileName = 
-                SIPDBManager::getInstance()->
-                    getConfigDirectory() + 
-                    OsPath::separator + mDatabaseName + ".xml";
-            if ( OsFileSystem::exists ( fileName ) ) {
-                 OsFileSystem::remove( fileName );
+            if ( OsFileSystem::exists ( pathName ) ) {
+                 OsFileSystem::remove( pathName );
             }
         }
         // Commit rows to memory - multiprocess workaround

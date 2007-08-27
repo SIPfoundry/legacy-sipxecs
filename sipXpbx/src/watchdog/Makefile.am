@@ -23,6 +23,7 @@ watchdog_SOURCES =  \
    WatchDog.cpp
 
 watchdog_LDADD = \
+	 @SIPXCOMMSERVER_LIBS@ \
     @SIPXTACK_LIBS@
 
 noinst_HEADERS = \

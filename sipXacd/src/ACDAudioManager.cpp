@@ -13,6 +13,7 @@
 #include <utl/UtlSList.h>
 #include <xmlparser/tinyxml.h>
 #include <net/ProvisioningAgent.h>
+#include <sipXecsService/SipXecsService.h>
 #include "ACDServer.h"
 #include "ACDAudio.h"
 #include "ACDAudioManager.h"
@@ -51,31 +52,20 @@ ACDAudioManager::ACDAudioManager(ACDServer* pAcdServer)
    mpAcdServer = pAcdServer;
 
    // Check for the existance of the ACD Audio Store directory
-   mAudioStoreDirectory  = SIPX_VARDIR;
-   mAudioStoreDirectory += OsPath::separator;
-   mAudioStoreDirectory += SIPX_ACD_DIR;
-   mAudioStoreDirectory += OsPath::separator;
-   mAudioStoreDirectory += SIPX_ACD_AUDIO_DIR;
+   UtlString acdAudioSubdir;
+   acdAudioSubdir += OsPath::separator;
+   acdAudioSubdir += SIPX_ACD_DIR;
+   acdAudioSubdir += OsPath::separator;
+   acdAudioSubdir += SIPX_ACD_AUDIO_DIR;
+
+   mAudioStoreDirectory  = SipXecsService::Path(SipXecsService::LocalStateDirType,
+                                                acdAudioSubdir.data());
 
    if (!OsFileSystem::exists(mAudioStoreDirectory)) {
-      // It does not exist, attempt to create it
-      mAudioStoreDirectory = SIPX_VARDIR;
-      if (!OsFileSystem::exists(mAudioStoreDirectory)) {
-         OsFileSystem::createDir(mAudioStoreDirectory);
-      }
-
-      mAudioStoreDirectory += OsPath::separator;
-      mAudioStoreDirectory += SIPX_ACD_DIR;
-      if (!OsFileSystem::exists(mAudioStoreDirectory)) {
-         OsFileSystem::createDir(mAudioStoreDirectory);
-      }
-
-      mAudioStoreDirectory += OsPath::separator;
-      mAudioStoreDirectory += SIPX_ACD_AUDIO_DIR;
-      if (OsFileSystem::createDir(mAudioStoreDirectory) != OS_SUCCESS) {
-         mAudioStoreDirectory = "";
+      if (OsFileSystem::createDir(mAudioStoreDirectory,TRUE /* create Parent */) != OS_SUCCESS) {
          OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAudioManager::ACDAudioManager - "
                        "failed to establish audio store directory: %s", mAudioStoreDirectory.data());
+         mAudioStoreDirectory.remove(0);
       }
    }
 }

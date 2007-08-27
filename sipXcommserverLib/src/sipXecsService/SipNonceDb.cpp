@@ -12,19 +12,20 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include <net/SipNonceDb.h>
-#include <os/OsDateTime.h>
-#include <os/OsTime.h>
-#include <os/OsSysLog.h>
-#include <net/NetMd5Codec.h>
+#include "os/OsDateTime.h"
+#include "os/OsTime.h"
+#include "os/OsSysLog.h"
+#include "os/OsConfigDb.h"
+#include "net/NetMd5Codec.h"
 #include "os/OsLock.h"
+#include "sipXecsService/SipXecsService.h"
+#include "sipXecsService/SharedSecret.h"
+#include "sipXecsService/SipNonceDb.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-
-// :TBD: replace this with a cluster-specific secret
-#define NONCE_SIGNATURE_INNER_SECRET "66287423e9e289fc9d78a3bd04475b06"
+#define HEX_TIMESTAMP_LENGTH 8
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -35,32 +36,20 @@
 // Constructor
 SipNonceDb::SipNonceDb()
 {
-   mNonceSignatureSecret = NONCE_SIGNATURE_INNER_SECRET;
-   // :TBD: append some configuration-specific value here
-}
-
-// Copy constructor
-SipNonceDb::SipNonceDb(const SipNonceDb& rSipNonceDb)
-{
+   // read the (global) domain configuration
+   OsConfigDb domainConfiguration;
+   domainConfiguration.loadFromFile(SipXecsService::domainConfigPath());
+   // get the shared secret for generating signatures
+   mpNonceSignatureSecret = new SharedSecret(domainConfiguration);
 }
 
 // Destructor
 SipNonceDb::~SipNonceDb()
 {
+   delete mpNonceSignatureSecret;
 }
 
 /* ============================ MANIPULATORS ============================== */
-
-// Assignment operator
-SipNonceDb&
-SipNonceDb::operator=(const SipNonceDb& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
-}
-
 
 // **********************************************************
 // Sip Nonce construction
@@ -76,7 +65,7 @@ SipNonceDb::operator=(const SipNonceDb& rhs)
 //
 // We accomplish this by constructing the nonce value as:
 //  <nonce>       := <signature><timestamp>
-//  <timestamp>   := (decimal seconds since the epoch)
+//  <timestamp>   := (hexadecimal seconds since the epoch)
 //  <signature>   := H(<timestamp><call-params><secret><realm>)
 //  <call-params> := <callId><fromTag>
 //  <secret>      := NONCE_SIGNATURE_INNER_SECRET
@@ -97,49 +86,42 @@ SipNonceDb::operator=(const SipNonceDb& rhs)
 // time is set by the caller requesting validation of a nonce,
 // at present to 5 minutes)
 
-void SipNonceDb::createNewNonce(const UtlString& callId, //input
-                                const UtlString& fromTag, // input
-                                const UtlString& uri, // :TBD: no longer used
-                                const UtlString& realm, // input
-                                UtlString& nonce) // output
+void SipNonceDb::createNewNonce(const UtlString& callId,  ///< input
+                                const UtlString& fromTag, ///< input
+                                const UtlString& realm,   ///< input
+                                UtlString& nonce          ///< output
+                                )
 {
-   long now = OsDateTime::getSecsSinceEpoch();
-   char dateString[20];
+   unsigned int now = OsDateTime::getSecsSinceEpoch();
+   char dateString[HEX_TIMESTAMP_LENGTH+1];
    UtlString nonceSignature;
 
    // create the timestamp, which will be in the clear
-   sprintf(dateString, "%ld", now);
-   nonce = SipNonceDb::nonceSignature(callId,fromTag,uri,realm,dateString);
+   sprintf(dateString, "%08x", now);
+   nonce = SipNonceDb::nonceSignature(callId,fromTag,realm,dateString);
    nonce.append(dateString);
 }
-
-void SipNonceDb::removeOldNonces(long oldTime)
-{
-}
-
-/* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean SipNonceDb::isNonceValid(const UtlString& nonce,
                                     const UtlString& callId,
                                     const UtlString& fromTag,
-                                    const UtlString& uri, //:TBD: no longer used
                                     const UtlString& realm,
                                     const long expiredTime)
 {
    UtlBoolean valid = FALSE;
 
-   if (nonce.length() > MD5_SIZE)
+   if (nonce.length() == (MD5_SIZE + HEX_TIMESTAMP_LENGTH))
    {
-      UtlString timestamp = nonce(MD5_SIZE,nonce.length()-MD5_SIZE);
+      UtlString timestamp = nonce(MD5_SIZE, HEX_TIMESTAMP_LENGTH);
       UtlString rcvdSignature = nonce(0,MD5_SIZE);
-      if (0 == rcvdSignature.compareTo(nonceSignature(callId, fromTag,
-                                                      uri, realm,
-                                                      timestamp)))
+      UtlString msgSignature(nonceSignature(callId, fromTag, realm, timestamp.data()));
+      if (0 == rcvdSignature.compareTo(msgSignature))
       {
          // check for expiration
-         int nonceCreated = atoi(timestamp.data());
+         char* end;
+         int nonceCreated = strtol(timestamp.data(), &end, 16 /* hex */);
          long now = OsDateTime::getSecsSinceEpoch();
 
          if ( nonceCreated+expiredTime >= now )
@@ -159,13 +141,20 @@ UtlBoolean SipNonceDb::isNonceValid(const UtlString& nonce,
          OsSysLog::add(FAC_SIP,PRI_ERR,
                        "SipNonceDB::isNonceValid nonce signature check failed"
                        );
+         OsSysLog::add(FAC_SIP,PRI_DEBUG,
+                       "SipNonceDB::isNonceValid\n"
+                       " rcvd signature '%s'\n"
+                       "  msg signature '%s'",
+                       rcvdSignature.data(), msgSignature.data()
+                       );
       }
    }
    else
    {
       OsSysLog::add(FAC_SIP,PRI_ERR,
-                    "SipNonceDb::isNonceValid invalid nonce format \"%s\"\n",
-                    nonce.data());
+                    "SipNonceDb::isNonceValid invalid nonce format \"%s\"\n"
+                    "  length %d expected %d",
+                    nonce.data(),nonce.length(),MD5_SIZE+HEX_TIMESTAMP_LENGTH);
    }
 
    return(valid);
@@ -181,28 +170,28 @@ UtlBoolean SipNonceDb::isNonceValid(const UtlString& nonce,
 
 UtlString SipNonceDb::nonceSignature(const UtlString& callId,
                                      const UtlString& fromTag,
-                                     const UtlString& uri, // :TBD: no longer used
                                      const UtlString& realm,
-                                     const UtlString& timestamp)
+                                     const char* timestamp)
 {
-   UtlString signature;
-   UtlString nonceSigningData(timestamp);
+   UtlString signatureValue;
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "nonceSignature: callId='%s' fromTag='%s' realm='%s' timestamp='%s'",
-                 callId.data(), fromTag.data(), realm.data(), timestamp.data()
+                 callId.data(), fromTag.data(), realm.data(), timestamp
                  );
     
    // create the signature value by hashing the timestamp with
    //   the callId, fromTag, the realm, and a secret
-   nonceSigningData.append(callId);
-   nonceSigningData.append(fromTag);
-   nonceSigningData.append(mNonceSignatureSecret);
-   nonceSigningData.append(realm);
+   NetMd5Codec md5;
+   md5.hash(timestamp, HEX_TIMESTAMP_LENGTH);
+   md5.hash(callId);
+   md5.hash(fromTag);
+   md5.hash(*mpNonceSignatureSecret);
+   md5.hash(realm);
 
-   NetMd5Codec::encode(nonceSigningData.data(), signature);
+   md5.appendHashValue(signatureValue);
 
-   return signature;
+   return signatureValue;
 }
 
 OsBSem*     SharedNonceDb::spLock       = new OsBSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
@@ -210,7 +199,7 @@ SipNonceDb* SharedNonceDb::spSipNonceDb = NULL;
 
 SipNonceDb* SharedNonceDb::get()
 {
-   // critical region to ensure that only one shared ssl context is created
+   // critical region to ensure that only one shared secret is created
    OsLock lock(*spLock);
 
    if (!spSipNonceDb)

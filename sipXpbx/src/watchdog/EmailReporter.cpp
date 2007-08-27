@@ -89,7 +89,7 @@ OsStatus EmailReporter::send()
     OsProcessMgr *processMgr = OsProcessMgr::getInstance();
     int numSent = 0;
 
-    OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Checking if reports need to be e-mailed");
+    OsSysLog::add(FAC_WATCHDOG,PRI_DEBUG,"EmailReporter::send Checking...");
 
     //execute the mail command for each user
     for (int loop = 0; loop < mNumContacts;loop++)
@@ -104,7 +104,8 @@ OsStatus EmailReporter::send()
             //and now let's execute it!
             if (mNumMessages)
             {
-                OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Sending mail to: %s",mContacts[loop]->data());
+                OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"EmailReporter::send to: %s",
+                              mContacts[loop]->data());
                 UtlString body;
                 UtlString sHostname;
                 OsSocket::getHostName(&sHostname) ;
@@ -153,26 +154,21 @@ OsStatus EmailReporter::send()
                     processMgr->startProcess(mailAlias,args[0],&args[1],startupDir);
                     delete [] args;
 
-                    OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Sent message to %s",mContacts[loop]->data());
                     numSent++;
                 }
-
-                OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Sending DONE.");
             }
 
 
         }
         else
         {
-            const char *msg = "ERROR: %CONTACT% and %BODY% must be in the email execute tag in the xml file.\n";
+            const char *msg = "%CONTACT% and %BODY% must be in the email execute tag in the xml file.";
             OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"%s",msg);
 #ifdef DEBUG
             osPrintf("%s",msg);
 #endif /* DEBUG */
         }
     }
-
-    OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Done EMAIL reports. %d sent",numSent);
 
     flush();
 
@@ -210,11 +206,12 @@ OsStatus EmailReporter::addContact(UtlString &rEmailAddress)
     }
     else
     {
-        const char *msg = "ERROR: Max number of contacts reached!\n";
-        OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"%s",msg);
-#ifdef DEBUG
-        osPrintf(msg);
-#endif /* DEBUG */
+        OsSysLog::add(FAC_WATCHDOG,PRI_ERR,
+                      "EmailReporter::addContact - Max number of contacts (%d) reached\n"
+                      "  dropped '%s'",
+                      MAX_CONTACTS, rEmailAddress.data()
+                      );
+
     }
 
     return retval;

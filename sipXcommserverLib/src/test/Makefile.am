@@ -46,6 +46,7 @@ testsuite_SOURCES = \
     UrlMappingTest.cpp \
 	 SipXecsServiceTest.cpp \
 	 SharedSecretTest.cpp \
+	 SipNonceDbTest.cpp \
     $(db_FILES)
 
 EXTRA_DIST = \

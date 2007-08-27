@@ -429,7 +429,7 @@ bool SipAaa::isAuthenticated(const SipMessage& sipRequest,
 
          // Ignore this credential if it is not a current valid nonce
          if (mNonceDb.isNonceValid(requestNonce, callId, fromTag,
-                                   requestUri, mRealm, nonceExpires))
+                                   mRealm, nonceExpires))
          {
             Url userUrl;
             UtlString authTypeDB;
@@ -505,8 +505,6 @@ void SipAaa::authenticationChallenge(const SipMessage& sipRequest, ///< message 
                                      )
 {
    UtlString newNonce;
-   UtlString challangeRequestUri;
-   sipRequest.getRequestUri(&challangeRequestUri);
 
    UtlString callId;
    sipRequest.getCallIdField(&callId);
@@ -518,7 +516,6 @@ void SipAaa::authenticationChallenge(const SipMessage& sipRequest, ///< message 
    
    mNonceDb.createNewNonce(callId,
                            fromTag,
-                           challangeRequestUri,
                            mRealm,
                            newNonce);
 

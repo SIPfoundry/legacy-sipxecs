@@ -20,6 +20,7 @@
 #include "utl/UtlTokenizer.h"
 #include "fastdb/fastdb.h"
 #include "sipdb/ResultSet.h"
+#include "sipXecsService/SipXecsService.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/DialByNameRow.h"
 #include "sipdb/DialByNameDB.h"

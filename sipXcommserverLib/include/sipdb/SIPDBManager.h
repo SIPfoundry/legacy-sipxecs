@@ -25,8 +25,6 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define SIPX_DB_CFG_PATH         "SIPX_DB_CFG_PATH"  
-#define SIPX_DB_VAR_PATH         "SIPX_DB_VAR_PATH"  
 
 // STRUCTS
 // TYPEDEFS
@@ -100,22 +98,6 @@ public:
 
     OsStatus getDatabaseInfo (UtlString& rDatabaseInfo ) const;
 
-    /** 
-     * Gets the location of the working files directory (var).
-     * If the SIPX_DB_VAR_PATH environment variable is defined and exists,
-     * that directory is used, otherwise, the current working directory is
-     * used. 
-     */
-    const UtlString& getWorkingDirectory () const;
-    
-    /** 
-     * Gets the location of the config files directory.
-     * If the SIPX_DB_CFG_PATH environment variable is defined and exists,
-     * that directory is used, otherwise, the current working directory is
-     * used. 
-     */
-    const UtlString& getConfigDirectory () const;
-
     /** After loading an IMDB update its checksum information */
     void updateDatabaseInfo ( const UtlString& tablename, const int& checksum ) const;
 
@@ -148,12 +130,6 @@ public:
     /** release all database tables **/
     OsStatus releaseAllDatabase() const;
 
-    /** Gets the absolute or relative path prefix for dynamic data files */
-    static OsPath getVarPath() ;
-
-    /** Gets the absolute or relative path prefix for static data files */
-    static OsPath getCfgPath() ;
-
 protected:
     /**
      * Registerd the database and pid, opens the DB if necessary
@@ -164,7 +140,7 @@ protected:
     // Protected Constructor
     SIPDBManager();
 
-    /// Override the default fastdb tmp dir if the env var SIPX_DB_VAR_PATH is set
+    /// Override the default fastdb tmp dir
     void setFastdbTempDir();
 
     // Singleton instance

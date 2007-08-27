@@ -17,7 +17,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsServerTask.h"
-#include "net/SipNonceDb.h"
+#include "sipXecsService/SipNonceDb.h"
 
 // DEFINES
 // MACROS

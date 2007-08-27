@@ -42,16 +42,22 @@ SharedSecret::SharedSecret(OsConfigDb& domainConfigDb)
          // purpose.  Rather than continue without this security-critical data, stop.
          assert(false);
       }
+      else
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                       "SharedSecret::_ loaded from '%s' length %d",
+                       domainConfigDb.getIdentityLabel(), length());
+      }
    }
    else
    {
       OsSysLog::add(FAC_KERNEL, PRI_CRIT,
-                    "SharedSecret::_ no value for '%s' found in '%s'; aborting",
+                    "SharedSecret::_ no value for '%s' found in '%s'; using fixed value",
                     SipXecsService::DomainDbKey::SHARED_SECRET, domainConfigDb.getIdentityLabel());
 
       // We assume that if the component wants a signing secret for some security-critical
       // purpose.  Rather than continue without this security-critical data, stop.
-      assert(false);
+      // @TODO assert(false);
    }
 };
 

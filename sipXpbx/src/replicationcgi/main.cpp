@@ -32,6 +32,7 @@
 #include "sipdb/ExtensionDB.h"
 #include "sipdb/AuthexceptionDB.h"
 
+#include "sipXecsService/SipXecsService.h"
 
 // DEFINES
 #define WORKING_DIR     "."
@@ -165,110 +166,6 @@ sigHandler( int sig_num )
 
     closeIMDBConnectionsFromCGI(  );
 }
-
-OsStatus
-getLogFilePath(UtlString& logFilePath)
-{
-   OsStatus result = OS_SUCCESS;
-   OsPath path;
-   UtlBoolean found = FALSE;
-   UtlString candidate;
-
-   // If the environment variable configured via SIPX_DB_VAR_PATH has a value,
-   // try it.
-   char* varpath = getenv(SIPX_DB_VAR_PATH);
-   if (varpath != NULL && varpath[0] != '\0')
-   {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "getLogFilePath env variable '%s' set to '%s'"
-                    ,SIPX_DB_CFG_PATH, varpath);
-      candidate = varpath;
-
-      // If the last character is a separator, strip it.
-      if (candidate(candidate.length() -1) == OsPath::separator)
-      {
-         candidate = candidate(0, candidate.length()-1);
-      }
-        
-      if (OsFileSystem::exists(candidate + REPLICATION_LOG_DIR))
-      {
-         path = candidate + REPLICATION_LOG_DIR;
-         found = TRUE;
-      }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "getLogFilePath env variable '%s' has value '%s' but is not valid"
-                       ,SIPX_DB_CFG_PATH, varpath);
-      }
-   }
-
-   // If that doesn't work, try the default location.
-   if (!found)
-   {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "getLogFilePath trying default '%s'"
-                    ,REPLICATION_DEFAULT_LOG_DIR);
-      candidate = REPLICATION_DEFAULT_LOG_DIR;
-
-      if (OsFileSystem::exists(candidate))
-      {
-         path = REPLICATION_DEFAULT_LOG_DIR;
-         found = TRUE;
-      }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "getLogFilePath default '%s' is not valid"
-                    ,REPLICATION_DEFAULT_LOG_DIR);
-      }
-   }
-
-   // Otherwise, use the working directory.
-   if (!found)
-   {
-      OsFileSystem::getWorkingDirectory(path);
-   }
-
-   // Now that we have the path to the logfile directory,
-   // append the name of the log file.
-   path += OsPath::separator + REPLICATION_LOG_FILENAME;
-
-   // Finally translate path to native path,
-   // this will ensure the volume is set correctly
-   OsPath nativePath;
-   path.getNativePath(nativePath);
-   logFilePath = nativePath;
-
-   return result;
-}
-
-
-void
-getWorkingDirectory( UtlString& strWorkingDir ) {
-
-   OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG, "before parsing encoded input char buffer" );
-
-    char *etcEnv = getenv (SIPX_DB_CFG_PATH);
-
-    if ( etcEnv != NULL )
-    {
-        if ( OsFileSystem::exists( (UtlString) etcEnv) )
-        {
-            strWorkingDir = (UtlString) etcEnv;
-        }
-    }
-    else // Environment Variable is not defined check for ETC_DIR1
-    {
-       if ( OsFileSystem::exists( SIPX_DBDIR ) )
-        {
-           strWorkingDir = SIPX_CONFDIR;
-        }
-        else
-        {
-           strWorkingDir = WORKING_DIR;
-        }
-    }
-}
-
-
-
 
 
 OsStatus getAttributeValue (
@@ -575,17 +472,9 @@ updateDB ( const UtlString& importFileName, const UtlString& databaseName  )
 void  loadResourceMap ( const UtlString& resourcemapFileName, UtlHashMap& rResourceMaps )
 {
    // Only parse the file if it already exists
-   UtlString strWorkingDirectory;
-   getWorkingDirectory( strWorkingDirectory );
-   /*
-   OsPath workingPath("");
-   OsFileSystem::getWorkingDirectory(workingPath);
-   */
-   UtlString fileToRead("");
-   fileToRead.append( strWorkingDirectory );
-   fileToRead.append( OsPathBase::separator );
-   fileToRead.append( resourcemapFileName ) ;
-
+   OsPath fileToRead(SipXecsService::Path(SipXecsService::ConfigurationDirType,
+                                          resourcemapFileName
+                                          ));
    if ( OsFileSystem::exists(fileToRead) )
    {
 
@@ -1138,12 +1027,10 @@ void handleInput(const UtlString& importFileName)
 int 
 main( int argc, char *argv[] )
 {
-   UtlString logFilePath;
+   OsPathBase logFilePath = SipXecsService::Path(SipXecsService::LogDirType,"");
 
    gstrError.remove(0);
    
-   if ( getLogFilePath ( logFilePath ) == OS_SUCCESS )
-   {
       // Initialize the logger.
       OsSysLog::initialize(1024, "replicationcgi" );
       OsSysLog::setOutputFile(0, logFilePath );
@@ -1258,6 +1145,6 @@ main( int argc, char *argv[] )
          OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG, "exited main() of replication.cgi");
       }
       OsSysLog::flush();
-   }
+
    return 0;
 }

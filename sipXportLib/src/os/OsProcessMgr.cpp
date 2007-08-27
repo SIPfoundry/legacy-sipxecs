@@ -62,7 +62,7 @@ OsStatus OsProcessMgr::setUserRequestState(const UtlString &rAlias, const int us
     OsStatus retval = OS_FAILED;
 
     OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                  "ENTERING setUserRequestState  %s state = %d\n",
+                  "OsProcessMgr::setUserRequestState '%s' = %d",
                   rAlias.data(),userRequestedState);
 
     switch(userRequestedState)
@@ -81,28 +81,31 @@ OsStatus OsProcessMgr::setUserRequestState(const UtlString &rAlias, const int us
             }
             else
             {
-                mUserRequestedStateMap.insertKeyAndValue(new UtlString(rAlias), new UtlInt(userRequestedState));
+                mUserRequestedStateMap.insertKeyAndValue(new UtlString(rAlias),
+                                                         new UtlInt(userRequestedState));
             }
             retval = OS_SUCCESS;
             OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                          "SUCCESS setUserRequestState  %s state = %d\n",
+                          "OsProcessMgr::setUserRequestState '%s' = %d",
                           rAlias.data(),userRequestedState);
         }
         else
         {
-            OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"setUserRequestState: Invalid alias: %s.\n", 
+            OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,
+                          "OsProcessMgr::setUserRequestState: Invalid alias: %s.", 
                           rAlias.data());
         }
         break;
 
     default:
-        OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"setUserRequestState: Invalid state: %d.\n", 
+        OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,
+                      "OsProcessMgr::setUserRequestState: Invalid state: %d.", 
                       userRequestedState);
         break;
     }
 
     OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                  "EXITING setUserRequestState  %s state = %d\n",
+                  "OsProcessMgr::setUserRequestState '%s' state = %d",
                   rAlias.data(),userRequestedState);
 
     return  retval;
@@ -129,20 +132,22 @@ OsStatus OsProcessMgr::startProcess(UtlString &rAlias,
     OsStatus retval = OS_FAILED;
     OsProcess process;
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Attempting start on  %s\n",rAlias.data());
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"OsProcessMgr::startProcess '%s'",rAlias.data());
     setAliasState(rAlias,PROCESS_STARTING);
     process.setIORedirect(mStdInputFilename,mStdOutputFilename,mStdErrorFilename);
     OsPath startDir = startupDir;
     if (process.launch(rExeName,rParameters,startDir) == OS_SUCCESS)
     {
-        OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Before addEntry for alias  %s\n",rAlias.data());
         addEntry(rAlias,process.getPID());
         retval = OS_SUCCESS;
-        OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Started OK for alias %s\n",rAlias.data());
+        OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
+                      "OsProcessMgr::startProcess '%s' started",
+                      rAlias.data());
     }
     else
     {
-       OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"Start FAILED for %s\n",rAlias.data());
+       OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"OsProcessMgr::startProcess '%s' failed",
+                     rAlias.data());
     }
     
     return retval;
@@ -161,7 +166,8 @@ OsStatus OsProcessMgr::stopProcess(UtlString &rAlias)
 
         if (state == PROCESS_STARTED)
         {
-            OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Attempting stop on  %s\n",rAlias.data());
+            OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"OsProcessMgr::stopProcess '%s'",
+                          rAlias.data());
             setAliasState(rAlias,PROCESS_STOPPING);
             retval = process.kill();
 
@@ -171,8 +177,9 @@ OsStatus OsProcessMgr::stopProcess(UtlString &rAlias)
             }
             else
             {
-                OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"Error stopping %s\n",rAlias.data());
-                fprintf(stderr,"process.kill() failed in stopProcess(Alias) \n");
+                OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,
+                              "OsProcessMgr::stopProcess '%s' failed",
+                              rAlias.data());
             }
 
         }
@@ -189,6 +196,8 @@ OsStatus OsProcessMgr::stopProcess(PID pid)
     OsProcess process;
     UtlString aliasName;
 
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"OsProcessMgr::stopProcess %d", pid);
+
     if (OsProcess::getByPID(pid,process) == OS_SUCCESS)
     {
         OsStatus findStatus = getAliasByPID(process.getPID(),aliasName);
@@ -199,7 +208,8 @@ OsStatus OsProcessMgr::stopProcess(PID pid)
 
            if (state == PROCESS_STARTED)
            {
-              OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Attempting stop on  %s\n",aliasName.data());
+              OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
+                            "OsProcessMgr::stopProcess %d %s",pid, aliasName.data());
               setAliasState(aliasName,PROCESS_STOPPING);
               retval = process.kill();
               if (retval == OS_SUCCESS)
@@ -213,15 +223,21 @@ OsStatus OsProcessMgr::stopProcess(PID pid)
               }
               else
               {
-                 OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"Error stopping %s\n",aliasName.data());
+                 OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"OsProcessMgr::stopProcess %d kill failed",
+                               pid);
               }
+           }
+           else
+           {
+              OsSysLog::add(FAC_PROCESSMGR, PRI_WARNING,"OsProcessMgr::stopProcess %d not started",
+                            pid);
            }
         }
     }
     else
     {
         OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,
-                      "Error getting process in stopProcess(pid) pid=%d\n",pid);
+                      "OsProcessMgr::stopProcess by pid %d not found",pid);
     }
 
     return retval;
@@ -252,7 +268,7 @@ OsStatus OsProcessMgr::getProcessByAlias(const UtlString &rAlias, OsProcess &rPr
 {
     OsStatus retval = OS_FAILED;
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"ENTERING getProcessByAlias(%s)", rAlias.data());
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"OsProcessMgr::getProcessByAlias(%s)", rAlias.data());
  
     UtlString* pAlias;
     UtlHashMapIterator iMap(mCurrentStateMap);
@@ -265,31 +281,34 @@ OsStatus OsProcessMgr::getProcessByAlias(const UtlString &rAlias, OsProcess &rPr
             UtlString* pState = dynamic_cast<UtlString*>(mCurrentStateMap.findValue(pAlias));
 
             int pid = atoi(pState->data());
-            OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                          "getProcessByAlias  checking if pid %d for alias %s is valid",
-                          pid, rAlias.data());
-
             if (pid > 0)
             {
                 retval = OsProcess::getByPID(pid,rProcess);
                 if (retval == OS_SUCCESS)
                 {
                    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                                 "getProcessByAlias  alias %s pid %d IS VALID",
+                                 "OsProcessMgr::getProcessByAlias '%s' pid %d",
                                  rAlias.data(),pid);
                 }
                 else
                 {
                    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                                 "getProcessByAlias  alias %s pid %d is NOT valid",
+                                 "OsProcessMgr::getProcessByAlias alias %s -> pid %d NOT valid",
                                  rAlias.data(),pid);
                 }
             }
+            else
+            {
+               OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,
+                             "OsProcessMgr::getProcessByAlias non-integer pid '%s' for alias '%s'",
+                             pState->data(), rAlias.data());
+            }            
         }
     }
 
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"EXITING getProcessByAlias(%s)", rAlias.data());
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"OsProcessMgr::getProcessByAlias(%s) returning %s",
+                  rAlias.data(), retval == OS_SUCCESS ? "SUCCESS" : "FAILURE");
 
     return retval;
 }
@@ -299,14 +318,15 @@ int OsProcessMgr::getAliasState(const UtlString &rAlias)
 {
     int state = PROCESS_FAILED;
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"ENTERING getAliasState  %s ",rAlias.data());
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"OsProcessMgr::getAliasState '%s' ",rAlias.data());
 
     // Lookup the alias is the map of monitored processes.
     if (!mCurrentStateMap.contains(&rAlias) )
     {
         // Not found.
         state = PROCESS_NEVERRUN;
-        OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"getAliasState: Invalid alias: %s.\n", 
+        OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
+                      "OsProcessMgr::getAliasState: alias '%s' not found.", 
                       rAlias.data());
     }
     else
@@ -324,12 +344,12 @@ int OsProcessMgr::getAliasState(const UtlString &rAlias)
                 // Use this opportunity to check if a valid PID is recorded.
                 OsProcess process;
                 OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                              "getAliasState  checking if alias %s has valid PID",
+                              "OsProcessMgr::getAliasState checking if alias '%s' has valid PID",
                               rAlias.data());
                 if (getProcessByAlias(rAlias, process) == OS_FAILED)
                 {
                     OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,
-                                  "getAliasState - alias %s DOES NOT HAVE a valid PID",
+                                  "OsProcessMgr::getAliasState '%s' DOES NOT HAVE a valid PID",
                                   rAlias.data());
                     state = PROCESS_STARTING;
                     setAliasState(rAlias,PROCESS_STARTING);
@@ -337,20 +357,22 @@ int OsProcessMgr::getAliasState(const UtlString &rAlias)
                 else
                 {
                    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                                 "getAliasState - alias %s HAS a valid PID",rAlias.data());
+                                 "OsProcessMgr::getAliasState '%s' HAS a valid PID",rAlias.data());
                 }
             }
             else
             {
                 // Not a recognized state string or a PID.  Flag this.
-                OsSysLog::add(FAC_PROCESSMGR, PRI_ERR, "getAliasState(%s) - Unknown state: %s",
+                OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,
+                              "OsProcessMgr::getAliasState(%s) - Unknown state: %s",
                               rAlias.data(), pState->data());
                 setAliasState(rAlias,PROCESS_FAILED);
             }
         }
     }
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"EXITING getAliasState %s",rAlias.data());
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"OsProcessMgr::getAliasState '%s' -> %s",
+                  rAlias.data(), ProcessStateName(state));
     
     return state;
 }
@@ -375,24 +397,36 @@ int OsProcessMgr::getUserRequestState(UtlString &rAlias)
 {
     int state = USER_PROCESS_NONE;
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"ENTERING getUserRequestState(%s)",rAlias.data());
-
-    // Lookup the alias is the map of monitored processes.
-    UtlInt* pState = dynamic_cast<UtlInt*>(mUserRequestedStateMap.findValue(&rAlias));
-    if (! pState)
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"OsProcessMgr::getUserRequestState '%s'",
+                  rAlias.data());
+ 
+    // Lookup the alias in the map of monitored processes.
+    if (!mCurrentStateMap.contains(&rAlias))
     {
         // Not found.
-        OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"getUserRequestState: Invalid alias: %s.\n", 
+        OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
+                      "OsProcessMgr::getUserRequestState: alias '%s' not found", 
                       rAlias.data());
     }
     else
     {
-       state = *pState;
+        // Found.  See if the process has a pending User Requested State.
+        UtlInt* pState = dynamic_cast<UtlInt*>(mUserRequestedStateMap.findValue(&rAlias));
+        if (pState)
+        {
+            state = *pState;
+        }
     }
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"EXITING getUserRequestState(%s), state: %d",
-                  rAlias.data(), state);
-
+    if ( OsSysLog::willLog(FAC_PROCESSMGR, PRI_DEBUG) )
+    {
+       UtlString returnedStateStr;
+       getUserRequestedStateString( state, returnedStateStr );
+       OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
+                     "OsProcessMgr::getUserRequestState(%s) returning: %s",
+                     rAlias.data(), returnedStateStr.data());
+    }
+    
     return state;
 }
 
@@ -416,7 +450,7 @@ OsStatus OsProcessMgr::setAliasState(const UtlString &rAlias, int newstate)
 {
     OsStatus retval = OS_FAILED;
     
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG, "ENTERING setAliasState(%s, %d)", 
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG, "OsProcessMgr::setAliasState('%s', %d)", 
         rAlias.data(), newstate);
 
     UtlString sState;
@@ -449,12 +483,15 @@ OsStatus OsProcessMgr::setAliasState(const UtlString &rAlias, int newstate)
         break;
 
     default:
-        OsSysLog::add(FAC_PROCESSMGR, PRI_ERR, "setAliasState: Invalid state %d", newstate);
+        OsSysLog::add(FAC_PROCESSMGR, PRI_ERR, "OsProcessMgr::setAliasState: Invalid state %d",
+                      newstate);
         break;
     }
 
     OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                  "EXITING setAliasState  %s state = %d\n",rAlias.data(),newstate);
+                  "OsProcessMgr::setAliasState  %s state = %s",
+                  rAlias.data(),
+                  ProcessStateName(newstate));
 
     return  retval;
 }
@@ -464,8 +501,8 @@ void OsProcessMgr::addEntry(const UtlString &rAlias, int pid)
     char buf[20];
     sprintf(buf,"%d",pid);
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Attempting addEntry(%s, %d)", 
-        rAlias.data(), pid);
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"OsProcessMgr::addEntry(%s, %d)", 
+                  rAlias.data(), pid);
 
     // Insert the new entry, clearing the old entry if one exists.
     removeEntry(rAlias);
@@ -593,6 +630,41 @@ bool OsProcessMgr::getUserRequestedStateFromString(const UtlString& str, int& st
 
     return result;
 }
+
+/// get the name for a ProcessState value.
+const char* OsProcessMgr::ProcessStateName(int state)
+{
+   // :NOTE: This must agree with the ProcessState typedef in the OsProcessMgr.h file.
+   static const char* names[] =
+   {
+      "INVALID STATE",
+      "PROCESS_STARTED",
+      "PROCESS_STOPPED",
+      "PROCESS_FAILED",
+      "PROCESS_NEVERRUN",
+      "PROCESS_STOPPING",
+      "PROCESS_STARTING"
+   };
+
+   const char* name;
+   
+   if ( state <= 0 )
+   {
+      name = names[0];
+   }
+   else if ( state > PROCESS_STARTING )
+   {
+      // @hack the state of a running process is its PID value
+      name = names[PROCESS_STARTED];
+   }
+   else
+   {
+      name = names[state];
+   }
+
+   return name;
+}
+
 
 /* ============================ FUNCTIONS ================================= */
 

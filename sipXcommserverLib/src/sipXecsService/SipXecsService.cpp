@@ -17,12 +17,14 @@
 const char* DomainConfigurationName = "domain-config";
 
 const char* SipXecsService::DefaultConfigurationDir = SIPX_CONFDIR;
-const char* SipXecsService::DefaultLogDir = SIPX_LOGDIR;
-const char* SipXecsService::DefaultRunDir = SIPX_RUNDIR;
-const char* SipXecsService::DefaultTmpDir = SIPX_TMPDIR;
-const char* SipXecsService::DefaultDatabaseDir = SIPX_DBDIR;
+const char* SipXecsService::DefaultLocalStateDir    = SIPX_VARDIR;
+const char* SipXecsService::DefaultLogDir           = SIPX_LOGDIR;
+const char* SipXecsService::DefaultRunDir           = SIPX_RUNDIR;
+const char* SipXecsService::DefaultTmpDir           = SIPX_TMPDIR;
+const char* SipXecsService::DefaultDatabaseDir      = SIPX_DBDIR;
 
 DirectoryType SipXecsService::ConfigurationDirType = "SIPX_CONFDIR";
+DirectoryType SipXecsService::LocalStateDirType    = "SIPX_VARDIR";
 DirectoryType SipXecsService::LogDirType           = "SIPX_LOGDIR";
 DirectoryType SipXecsService::RunDirType           = "SIPX_RUNDIR";
 DirectoryType SipXecsService::TmpDirType           = "SIPX_TMPDIR"; 
@@ -67,6 +69,10 @@ const char* SipXecsService::defaultDir(DirectoryType pathType)
    {
       returnDir = DefaultConfigurationDir;
    }
+   else if (LocalStateDirType == pathType)
+   {
+      returnDir = DefaultLocalStateDir;
+   }
    else if (LogDirType == pathType)
    {
       returnDir = DefaultLogDir;
@@ -96,7 +102,7 @@ const char* SipXecsService::defaultDir(DirectoryType pathType)
 
 OsPath SipXecsService::Path(DirectoryType pathType, const char* fileName) 
 {
-   OsPath filePath;
+   OsPath path;
 
    const char* dirPath;
    if ( (dirPath = getenv(pathType)) )
@@ -109,12 +115,39 @@ OsPath SipXecsService::Path(DirectoryType pathType, const char* fileName)
    {
       dirPath = defaultDir(pathType);
    }
+   path.append(dirPath);
 
-   filePath.append(dirPath);
-   filePath.append(OsPathBase::separator);
-   filePath.append(fileName);
+   const char slash = OsPath::separator(0);
+   const char lastPathChar = path(path.length()-1);
+   if (fileName && *fileName != '\000')
+   {
+      // Add the file name
+      //   make sure there is exactly one separator between the directory and the file
+      if (   slash != lastPathChar
+          && slash != fileName[0] 
+          )
+      {
+         // neither has separator - add one
+         path.append(OsPath::separator);
+      }
+      else if (   slash == lastPathChar
+               && slash == fileName[0] 
+               )
+      {
+         // both have the separator - take one off so there's only one
+         path.remove(path.length()-1);
+      }
 
-   return filePath;
+      path.append(fileName);
+   }
+   // There is no file name, so make sure the returned directory name does not
+   // end in a separator
+   else if ( slash == lastPathChar )
+   {
+      path.remove(path.length()-1);
+   } 
+
+   return path;
 }
 
 /// Open the configuration common to all services in the domain.

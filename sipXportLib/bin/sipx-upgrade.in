@@ -82,6 +82,7 @@ SipxUpgrade() {
 ##          $Rel       Release number of installed RPM
 ##
 ##          $BinDir          %{_bindir} if passed in with --bdir
+##          $LibExecDir      %{_libexecdir} if passed in with --ldir
 ##          $DataDir         %{_datadir} if passed in with --ddir
 ##          $SysConfDir      %{_sysconfdir} if passed in with --cdir
 ##          $LocalStateDir   %{_localstatedir} if passed in with --sdir
@@ -139,6 +140,21 @@ EOF
         *)
             ;;
     esac
+
+    if ! test -f ${SysConfDir}/sipxpbx/domain-config
+    then
+        cat /dev/null > ${SysConfDir}/sipxpbx/domain-config
+        # get 144 bits of randomness to initialize a shared secret
+        # the config server should really generate and replicate this
+        sharedsecret0=`openssl rand -base64 48`
+        sharedsecret1=`openssl rand -base64 48`
+        sharedsecret2=`openssl rand -base64 48`
+        sharedsecret="${sharedsecret0}${sharedsecret1}${sharedsecret2}"
+        if test "${sharedsecret}"x != ""x
+        then
+            AddConfigLine ${SysConfDir}/sipxpbx/domain-config SHARED_SECRET "${sharedsecret}"
+        fi
+    fi
 }
 
 ##########################
@@ -514,6 +530,11 @@ do
         --sdir)
             shift
             LocalStateDir=${1}
+            ;;
+
+        --ldir)
+            shift
+            LibExecDir=${1}
             ;;
 
         --oldversion)

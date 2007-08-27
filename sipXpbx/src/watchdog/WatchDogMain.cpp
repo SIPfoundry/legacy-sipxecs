@@ -22,6 +22,7 @@
 #include "os/OsConfigDb.h"
 #include "os/OsTask.h"
 #include "EmailReporter.h"
+#include "sipXecsService/SipXecsService.h"
 
 //The worker who does all the checking... based on OsServerTask
 WatchDog *pDog;
@@ -41,7 +42,6 @@ UtlBoolean gbDone = FALSE;
 MonitoredProcess *gpProcessList[1000]; //should be enough  :)
 int gnProcessCount = 0; //how many processes are we checking?
 UtlString strWatchDogFilename;
-UtlString strWatchDogPath = ".";
 UtlString gEmailExecuteStr;
 
 
@@ -112,22 +112,8 @@ OsStatus initXMLRPCsettings(int & port, UtlSList& allowedPeers)
 {
     OsStatus retval = OS_FAILED;
 
-    OsPath workingDirectory;
-    if (OsFileSystem::exists(SIPX_CONFDIR))
-    {
-        workingDirectory = SIPX_CONFDIR;
-        OsPath path(workingDirectory);
-        path.getNativePath(workingDirectory);
-    }
-    else
-    {
-        OsPath path;
-        OsFileSystem::getWorkingDirectory(path);
-        path.getNativePath(workingDirectory);
-    }
-
-    UtlString fileName =  workingDirectory +
-    OsPathBase::separator + CONFIG_SETTINGS_FILE;    
+    UtlString fileName =  SipXecsService::Path(SipXecsService::ConfigurationDirType,
+                                               CONFIG_SETTINGS_FILE);
     
     OsConfigDb configDb;    
     bool configLoaded = ( configDb.loadFromFile(fileName) == OS_SUCCESS );
@@ -148,7 +134,8 @@ OsStatus initXMLRPCsettings(int & port, UtlSList& allowedPeers)
             configDb.get("SIP_WATCHDOG_XMLRPC_PEERS", peerNames);
             if (peerNames.isNull())
             {
-                OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Error Couldn't read SIP_WATCHDOG_XMLRPC_PEERS!");
+                OsSysLog::add(FAC_WATCHDOG,PRI_ERR,
+                              "Error Couldn't read SIP_WATCHDOG_XMLRPC_PEERS!");
             }
             else
             {
@@ -220,7 +207,7 @@ OsStatus initLogfile(TiXmlDocument &doc)
                     else
                     {
                        OsSysLog::add(FAC_WATCHDOG, PRI_CRIT,
-                                     "initLogfile: Incomprehensible logging level string '%s'!\n",
+                                     "initLogfile: Incomprehensible logging level string '%s'!",
                                      pLevelStr);
 #ifdef DEBUG
                        osPrintf("initLogfile: Incomprehensible logging level string '%s'!\n", pLevelStr);
@@ -425,28 +412,33 @@ OsStatus getProcessXMLPath(TiXmlDocument &doc, UtlString &rProcessXMLPath)
             {                   // This is actually an individual row
                 TiXmlElement *nextItemsContainer = worknode->ToElement();
 
-
                 // Determine the DB to insert the items into
                 OsProcess process;
                 const char *pWorkDir = nextItemsContainer->Attribute("location");
                 if ( pWorkDir )
                 {
-
                     rProcessXMLPath = pWorkDir;
 
                     //if empty, then use watchdogs path
                     if ( rProcessXMLPath == "" )
-                        rProcessXMLPath = strWatchDogPath;
+                    {
+                       OsPath watchdogFile(strWatchDogFilename);
+                       rProcessXMLPath = watchdogFile.getDirName();
+                    }
                     retval = OS_SUCCESS;
-
                 }
             }
         }
         else
-            OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Couldn't get settings Element in getProcessXMLPath");
+        {
+            OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,
+                          "Couldn't get settings Element in getProcessXMLPath");
+        }
     }
     else
+    {
         OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Couldn't get root Element in getProcessXMLPath");
+    }
 
     return retval;
 }
@@ -594,11 +586,13 @@ int main(int argc, char* argv[])
         {
             if (0 != errno)
             {
-                OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "getpwnam(%s) failed, errno = %d.", sipxpbxuser, errno);
+                OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+                              "getpwnam(%s) failed, errno = %d.", sipxpbxuser, errno);
             }
             else
             {
-                OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "getpwnam(%s) failed, user does not exist.", sipxpbxuser);
+                OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+                              "getpwnam(%s) failed, user does not exist.", sipxpbxuser);
             }
         }
         else
@@ -606,11 +600,13 @@ int main(int argc, char* argv[])
             errno = 0;
             if (0 == setuid(pwd->pw_uid))
             {
-                OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Drop privileges with setuid() to '%s'.", sipxpbxuser);
+                OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+                              "Drop privileges with setuid() to '%s'.", sipxpbxuser);
             }
             else
             {
-                OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "setuid(%d) failed, errno = %d.", (int)pwd->pw_uid, errno);
+                OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+                              "setuid(%d) failed, errno = %d.", (int)pwd->pw_uid, errno);
             }
         }
     }
@@ -622,47 +618,19 @@ int main(int argc, char* argv[])
     //set our exit routine
     atexit(cleanup);
 
-#ifdef DEBUG
-    osPrintf("SIPxchange WatchDog - Copyright 2002 Pingtel Corp. All Rights Reserved.\n");
-#endif /* DEBUG */
-
-
     // The location of the watchdog config file might have been supplied on the command-line.
-    // Otherwise, check for the SIPX_HOME env var.  If it is set, the watchdog
-    // config file is $SIPX_HOME/watchdog/etc/WatchDog.xml.
-    // :TODO: That last file name is now incorrect.
     // Otherwise, the config file is SIPX_CONFDIR/WatchDog.xml.
     if (strWatchDogFilename.isNull())
     {
-        //first thing we check is if the path to the processdef xml file is set
-        char *pWatchDogXMLPathEnv = getenv("SIPX_HOME");
-        if ( pWatchDogXMLPathEnv )
-        {
-            strWatchDogFilename = pWatchDogXMLPathEnv; //set it to the environment variable
-            strWatchDogFilename += OsPath::separator;
-            strWatchDogFilename += "watchdog";
-            strWatchDogFilename += OsPath::separator;
-            strWatchDogFilename += "etc";
-
-            //save this path because we might need it later
-            strWatchDogPath = strWatchDogFilename;
-        }
-        else
-        {
-            strWatchDogFilename = SIPX_CONFDIR;
-        }
-
-        strWatchDogFilename += OsPath::separator;
-        strWatchDogFilename += "WatchDog.xml";
+       strWatchDogFilename = SipXecsService::Path(SipXecsService::ConfigurationDirType,
+                                                  "WatchDog.xml");
     }
 
-#ifdef DEBUG
-    osPrintf("Loading WatchDog XML from: %s\n",strWatchDogPath.data());
-#endif /* DEBUG */
+    OsSysLog::add(FAC_WATCHDOG, PRI_NOTICE,
+                  "Loading WatchDog XML: '%s'",strWatchDogFilename.data());
 
     TiXmlDocument processXMLDoc;
     TiXmlDocument watchdogXMLDoc;
-//  TiXmlDocument AuthXMLDoc;
 
     if ( loadWatchDogXML(watchdogXMLDoc, strWatchDogFilename) == OS_SUCCESS )
     {
@@ -676,10 +644,10 @@ int main(int argc, char* argv[])
                       processXMLPath.data());
 #endif /* DEBUG */
              OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
-                           "Loading WatchDog XML from: %s\n",
-                           strWatchDogPath.data());
+                           "Loading WatchDog XML from: %s",
+                           strWatchDogFilename.data());
              OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
-                           "Loading ProcessDefinitions XML from: %s\n",
+                           "Loading ProcessDefinitions XML from: %s",
                            processXMLPath.data());
 
              if ( initProcessXMLLayer(processXMLPath, processXMLDoc,
@@ -700,9 +668,10 @@ int main(int argc, char* argv[])
 
                       // Now create the "watchdog" which will
                       // monitor the process list.
-#ifdef DEBUG
-                      osPrintf("Process check occurs every %d seconds\n\n",gnCheckPeriod);
-#endif /* DEBUG */
+
+                      OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+                                    "Process check occurs every %d seconds\n",gnCheckPeriod);
+
                       UtlSList allowedPeers;
                       int port;
                       if ( OS_SUCCESS == 

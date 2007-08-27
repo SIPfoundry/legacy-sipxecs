@@ -127,7 +127,7 @@ OsStatus OsProcessLinux::kill()
     {
         int trycount = 0;
 
-        OsSysLog::add(FAC_PROCESS, PRI_INFO,"Attempting kill on  %s\n",mProcessName.data());
+        OsSysLog::add(FAC_PROCESS, PRI_INFO,"Attempting kill on  %s",mProcessName.data());
 
         while (isRunning() && trycount++ < 3)
         {
@@ -143,31 +143,17 @@ OsStatus OsProcessLinux::kill()
             OsTask::delay(1000);    
         }
 
-
         if (isRunning())
         {
-            OsSysLog::add(FAC_PROCESS, PRI_INFO,"KILL FAILED on  %s\n",mProcessName.data());
+           OsSysLog::add(FAC_PROCESS, PRI_ERR,"Kill of '%s' FAILED",mProcessName.data());
             retval = OS_FAILED;  //not good.  the thing just won't go away
         }
         else
         {
             retval = OS_SUCCESS; //hurray! it's gone
-            OsSysLog::add(FAC_PROCESS, PRI_INFO,"SUCCESSFUL KILL on  %s\n",mProcessName.data());
+            OsSysLog::add(FAC_PROCESS, PRI_NOTICE,"Killed '%s'",mProcessName.data());
         }
     }
-
-    //this is the only way "so far" that I have found for killing the parent and
-    //all the children
-    /* if (isRunning())
-    {
-    
-        char killString[80];
-        sprintf(killString,"ps -ef | grep \"%d\" | awk '{ print $2}' | xargs kill 2>&1>/dev/null",mPID);
-        system(killString);
-               
-        if (!isRunning()) 
-            retval = OS_SUCCESS;
-    }*/
 
     return retval;
 }

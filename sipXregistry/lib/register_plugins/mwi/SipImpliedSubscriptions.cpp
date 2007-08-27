@@ -422,7 +422,7 @@ void SipImpliedSubscriptions::authenticate( const SipMessage& registerMessage
          UtlString clientNonce;
          SipNonceDb* nonceDb = SharedNonceDb::get();
 
-         nonceDb->createNewNonce( callId, fromTag, fromUri, realm ,serverNonce );
+         nonceDb->createNewNonce( callId, fromTag, realm ,serverNonce );
 
          // generate a client nonce - doesn't matter what it is, really
          //   because the server doesn't validate this one;

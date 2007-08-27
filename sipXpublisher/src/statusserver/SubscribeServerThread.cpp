@@ -644,7 +644,7 @@ SubscribeServerThread::isAuthenticated (
                 message->getCallIdField(&callId);
 
                 if (mNonceDb.isNonceValid(requestNonce, callId, fromTag,
-                                          reqUri, mRealm, nonceExpires))
+                                          mRealm, nonceExpires))
                 {
                     // then get the credentials for this realm
                     if ( CredentialDB::getInstance()->
@@ -707,7 +707,6 @@ SubscribeServerThread::isAuthenticated (
             // Generate the 401 Unauthorized response to challenge for credentials
             // Use the SipNonceDB to generate a nonce
             UtlString newNonce;
-            UtlString challangeRequestUri;
             UtlString callId;
             UtlString fromTag;
 
@@ -715,21 +714,15 @@ SubscribeServerThread::isAuthenticated (
             message->getFromUrl(fromUrl);
             fromUrl.getFieldParameter("tag", fromTag);
 
-            message->getRequestUri(&challangeRequestUri);
             message->getCallIdField(&callId);
 
             mNonceDb.createNewNonce(callId,
                                     fromTag,
-                                    challangeRequestUri,
                                     mRealm,
                                     newNonce);
 
-            responseMessage->setRequestUnauthorized (
-                message,
-                "DIGEST",
-                mRealm,
-                newNonce,
-                "change4");  // opaque :TBD: eliminate?
+            responseMessage->setRequestUnauthorized(message, HTTP_DIGEST_AUTHENTICATION,
+                                                    mRealm, newNonce);
         }
     }
     return isAuthorized;
