@@ -34,7 +34,6 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     public abstract void setMailboxPreferences(MailboxPreferences preferences);
 
-    // TODO: temporary keep in in session
     @Persist
     public abstract PersonalAttendant getPersonalAttendant();
 
@@ -61,7 +60,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             mailMgr.saveMailboxPreferences(mailbox, getMailboxPreferences());
         }
 
-        // FIXME: save personal attendant
+        mailMgr.storePersonalAttendant(getPersonalAttendant());
     }
 
     public void pageBeginRender(PageEvent event) {
@@ -85,7 +84,8 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
         PersonalAttendant personalAttendant = getPersonalAttendant();
         if (personalAttendant == null) {
-            setPersonalAttendant(new PersonalAttendant());
+            PersonalAttendant pa = mailMgr.loadPersonalAttendantForUser(user);
+            setPersonalAttendant(pa);
         }
     }
 }

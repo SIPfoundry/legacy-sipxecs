@@ -11,29 +11,38 @@ package org.sipfoundry.sipxconfig.vm;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
+
 public interface MailboxManager {
 
-    public boolean isEnabled();
+    boolean isEnabled();
 
-    public List<Voicemail> getVoicemail(Mailbox mailbox, String folder);
+    List<Voicemail> getVoicemail(Mailbox mailbox, String folder);
 
-    public String getMailstoreDirectory();
+    String getMailstoreDirectory();
 
-    public Mailbox getMailbox(String userId);
+    Mailbox getMailbox(String userId);
 
-    public void deleteMailbox(String userId);
+    void deleteMailbox(String userId);
 
-    public void saveMailboxPreferences(Mailbox mailbox, MailboxPreferences preferences);
+    void saveMailboxPreferences(Mailbox mailbox, MailboxPreferences preferences);
 
-    public MailboxPreferences loadMailboxPreferences(Mailbox mailbox);
+    MailboxPreferences loadMailboxPreferences(Mailbox mailbox);
 
-    public void saveDistributionLists(Mailbox mailbox, DistributionList[] lists);
+    void saveDistributionLists(Mailbox mailbox, DistributionList[] lists);
 
-    public DistributionList[] loadDistributionLists(Mailbox mailbox);
+    DistributionList[] loadDistributionLists(Mailbox mailbox);
 
-    public void markRead(Mailbox mailbox, Voicemail voicemail);
+    void markRead(Mailbox mailbox, Voicemail voicemail);
 
-    public void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId);
+    void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId);
 
-    public void delete(Mailbox mailbox, Voicemail voicemail);
+    void delete(Mailbox mailbox, Voicemail voicemail);
+
+    PersonalAttendant loadPersonalAttendantForUser(User user);
+
+    void removePersonalAttendantForUser(User user);
+
+    void storePersonalAttendant(PersonalAttendant pa);
 }

@@ -228,6 +228,7 @@
     <antcall target="backup-configs-converge"/>
     <antcall target="schedules-per-user-group"/>
   	<antcall target="internal-rule-media-server" />
+    <antcall target="personal-attendant" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="7" -->
   </target>	
@@ -246,6 +247,10 @@
 
   <target name="internal-rule-media-server" unless="internal-rule-media-server">
     <db-patch patch="internal-rule-media-server" />
+  </target>
+
+  <target name="personal-attendant" unless="personal-attendant">
+    <db-patch patch="personal-attendant" />
   </target>
 
   <target name="enable-schedule" unless="enable-schedule">

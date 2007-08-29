@@ -2,6 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <bean id="mailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.MailboxManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
     <property name="mailboxPreferencesReader">
       <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesReader" />
     </property>
@@ -20,6 +21,15 @@
     </property>
     <property name="coreContext" ref="coreContext" />
   </bean>
-  <alias alias="mailboxManager" name="mailboxManagerImpl" />
 
+  <bean id="mailboxManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.vm.MailboxManager</value>
+    </property>
+    <property name="target">
+      <ref local="mailboxManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="mailboxManagerUserDelete" factory-bean="mailboxManagerImpl" factory-method="createUserDeleteListener" />
 </beans>

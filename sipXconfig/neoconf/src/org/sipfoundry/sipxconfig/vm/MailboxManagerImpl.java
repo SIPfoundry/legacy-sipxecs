@@ -27,10 +27,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
+import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class MailboxManagerImpl implements MailboxManager {
+public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxManager {
     private static final String MESSAGE_SUFFIX = "-00.xml";
     private static final FilenameFilter MESSAGE_FILES = new SuffixFileFilter(MESSAGE_SUFFIX);
     private static final Log LOG = LogFactory.getLog(MailboxManagerImpl.class);
@@ -229,5 +234,42 @@ public class MailboxManagerImpl implements MailboxManager {
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public PersonalAttendant loadPersonalAttendantForUser(User user) {
+        PersonalAttendant pa = findPersonalAttendant(user);
+        if (pa == null) {
+            pa = new PersonalAttendant();
+            pa.setUser(user);
+            getHibernateTemplate().save(pa);
+        }
+        return pa;
+    }
+
+    public void removePersonalAttendantForUser(User user) {
+        PersonalAttendant pa = findPersonalAttendant(user);
+        if (pa != null) {
+            getHibernateTemplate().delete(pa);
+        }
+    }
+
+    public void storePersonalAttendant(PersonalAttendant pa) {
+        getHibernateTemplate().saveOrUpdate(pa);
+    }
+
+    private PersonalAttendant findPersonalAttendant(User user) {
+        Collection pas = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "personalAttendantForUser", "user", user);
+        return (PersonalAttendant) DataAccessUtils.singleResult(pas);
+    }
+
+    public UserDeleteListener createUserDeleteListener() {
+        return new OnUserDelete();
+    }
+
+    private class OnUserDelete extends UserDeleteListener {
+        protected void onUserDelete(User user) {
+            removePersonalAttendantForUser(user);
+        }
     }
 }

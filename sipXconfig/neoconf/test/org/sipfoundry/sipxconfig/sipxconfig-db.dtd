@@ -112,7 +112,6 @@
     limited_count CDATA #IMPLIED
     configs CDATA #IMPLIED
     voicemail CDATA #IMPLIED
-    dbase CDATA #IMPLIED
 >
 
 <!ELEMENT call_group EMPTY>
@@ -122,6 +121,7 @@
     name CDATA #IMPLIED
     extension CDATA #IMPLIED
     description CDATA #IMPLIED
+    fallback_destination CDATA #IMPLIED
 >
 
 <!ELEMENT cron_schedule EMPTY>
@@ -297,6 +297,8 @@
     voice_mail CDATA #IMPLIED
     voice_mail_prefix CDATA #IMPLIED
     aa_aliases CDATA #IMPLIED
+    media_server_type CDATA #IMPLIED
+    media_server_hostname CDATA #IMPLIED
 >
 
 <!ELEMENT international_dialing_rule EMPTY>
@@ -446,6 +448,21 @@
     default_value CDATA #REQUIRED
 >
 
+<!ELEMENT personal_attendant EMPTY>
+<!ATTLIST personal_attendant
+    personal_attendant_id CDATA #REQUIRED
+    user_id CDATA #REQUIRED
+    operator CDATA #IMPLIED
+>
+
+<!ELEMENT personal_attendant_menu_item EMPTY>
+<!ATTLIST personal_attendant_menu_item
+    personal_attendant_id CDATA #REQUIRED
+    action CDATA #IMPLIED
+    parameter CDATA #IMPLIED
+    dialpad_key CDATA #REQUIRED
+>
+
 <!ELEMENT phone EMPTY>
 <!ATTLIST phone
     phone_id CDATA #REQUIRED
@@ -492,6 +509,7 @@
     ring_type CDATA #IMPLIED
     user_id CDATA #REQUIRED
     enabled CDATA #REQUIRED
+    schedule_id CDATA #IMPLIED
 >
 
 <!ELEMENT routing_exception EMPTY>
@@ -523,6 +541,25 @@
     sbc_id CDATA #REQUIRED
     subnet CDATA #REQUIRED
     index CDATA #REQUIRED
+>
+
+<!ELEMENT schedule EMPTY>
+<!ATTLIST schedule
+    schedule_id CDATA #REQUIRED
+    user_id CDATA #IMPLIED
+    name CDATA #REQUIRED
+    description CDATA #IMPLIED
+    group_id CDATA #IMPLIED
+    schedule_type CDATA #IMPLIED
+>
+
+<!ELEMENT schedule_hours EMPTY>
+<!ATTLIST schedule_hours
+    schedule_hours_id CDATA #REQUIRED
+    schedule_id CDATA #REQUIRED
+    start CDATA #IMPLIED
+    stop CDATA #IMPLIED
+    day CDATA #IMPLIED
 >
 
 <!ELEMENT service EMPTY>

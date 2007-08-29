@@ -109,4 +109,7 @@
   <table name="speeddial"/>
   <table name="speeddial_button"/>
   <table name="service"/>
+  
+  <table name="personal_attendant"/>
+  <table name="personal_attendant_menu_item"/>
 </dataset>
