@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.site.setting.EditSchedule;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
 public abstract class UserGroupSettings extends GroupSettings {
+    @SuppressWarnings("hiding")    
     public static final String PAGE = "UserGroupSettings";
 
     private static final String SCHEDULES = "Schedules";

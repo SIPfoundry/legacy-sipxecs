@@ -56,6 +56,7 @@ public class VelocityProfileGenerator extends AbstractProfileGenerator {
         for (Map.Entry<String, Object> entry : entries) {
             velocityContext.put(entry.getKey(), entry.getValue());
         }
+        velocityContext.put("dollar", "$");
 
         String template = context.getProfileTemplate();
         try {

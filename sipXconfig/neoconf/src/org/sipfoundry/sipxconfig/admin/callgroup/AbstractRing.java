@@ -127,6 +127,7 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
         return format.format(params);
     }
 
+    @SuppressWarnings("unused")
     protected void addUrlParams(StringBuilder params) {
     }
 }
