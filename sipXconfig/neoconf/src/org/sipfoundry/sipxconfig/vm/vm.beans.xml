@@ -22,6 +22,7 @@
     <property name="personalAttendantWriter">
       <bean class="org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantWriter">
         <property name="generator" ref="velocityProfileGenerator" />
+        <property name="coreContext" ref="coreContext" />
       </bean>
     </property>
     <property name="coreContext" ref="coreContext" />

@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.vm.attendant;
 
+import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
@@ -20,7 +21,7 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
-import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileFilter;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
@@ -32,18 +33,23 @@ public class PersonalAttendantWriterTest extends TestCase {
         PersonalAttendant pa = new PersonalAttendant();
         Mailbox mailbox = new Mailbox(new File("/tmp/voicemail"), "200");
 
-        ProfileGenerator profileGenerator = EasyMock.createMock(ProfileGenerator.class);
+        ProfileGenerator profileGenerator = createMock(ProfileGenerator.class);
         profileGenerator.generate(isA(FileSystemProfileLocation.class),
                 isA(PersonalAttendant.AttendantProfileContext.class), (ProfileFilter) isNull(),
                 eq("savemessage.vxml"));
         expectLastCall();
 
-        replay(profileGenerator);
+        CoreContext coreContext = createMock(CoreContext.class);
+        coreContext.getDomainName();
+        expectLastCall().andReturn("example.org");
+
+        replay(profileGenerator, coreContext);
 
         PersonalAttendantWriter personalAttendantWriter = new PersonalAttendantWriter();
         personalAttendantWriter.setGenerator(profileGenerator);
+        personalAttendantWriter.setCoreContext(coreContext);
 
         personalAttendantWriter.write(mailbox, pa);
-        verify(profileGenerator);
+        verify(profileGenerator, coreContext);
     }
 }

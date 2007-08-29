@@ -127,15 +127,24 @@ public class SipUriTest extends TestCase {
         assertFalse(SipUri.matches("1234"));
     }
 
+    public void testFix() {
+        assertEquals("sip:name@sipfoundry.org", SipUri.fix("sip:name@sipfoundry.org",
+                "example.org"));
+        assertEquals("sip:name@sipfoundry.org", SipUri.fix("name@sipfoundry.org", "example.org"));
+        assertEquals("sip:name@example.org", SipUri.fix("name", "example.org"));
+        assertEquals("", SipUri.fix("", "example.org"));
+        assertNull(SipUri.fix(null, "example.org"));
+    }
+
     public void testUrlParams() {
         Map urlParams = new TreeMap();
         urlParams.put("a-key", "aa");
         urlParams.put("b-key", null);
         urlParams.put("c-key", "cc");
-        assertEquals("<sip:name@domain.com;a-key=aa;b-key;c-key=cc>",
-		     SipUri.format("name", "domain.com", urlParams));
-        assertEquals("<sip:name@domain.com:1234;a-key=aa;b-key;c-key=cc>",
-		     SipUri.format("name", "domain.com", 1234, urlParams));
+        assertEquals("<sip:name@domain.com;a-key=aa;b-key;c-key=cc>", SipUri.format("name",
+                "domain.com", urlParams));
+        assertEquals("<sip:name@domain.com:1234;a-key=aa;b-key;c-key=cc>", SipUri.format("name",
+                "domain.com", 1234, urlParams));
     }
 
     public void testStripSipPrefix() {

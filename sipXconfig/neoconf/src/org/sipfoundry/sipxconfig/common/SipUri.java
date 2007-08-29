@@ -96,6 +96,23 @@ public final class SipUri {
         return SIP_PREFIX + result;
     }
 
+    /**
+     * Creates normailized SIP URI from the string that can represent URI or just a user part. If
+     * candidate is a user part only a domain is appended to create a normailized URI.
+     * 
+     * @param candidate SIP URI (with or without sip: prefix) or just a user part of URI
+     * @param domain DNS domain appended if candidate is not a full SIP URI
+     */
+    public static String fix(String candidate, String domain) {
+        if (StringUtils.isEmpty(candidate)) {
+            return candidate;
+        }
+        if (matches(candidate)) {
+            return normalize(candidate);
+        }
+        return format(candidate, domain, false);
+    }
+
     public static String extractUser(String uri) {
         if (uri == null) {
             return null;

@@ -9,20 +9,28 @@
  */
 package org.sipfoundry.sipxconfig.vm.attendant;
 
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 
 public class PersonalAttendantWriter {
     private ProfileGenerator m_generator;
-    
-    public void write(Mailbox mailbox,  PersonalAttendant pa) {
+
+    private CoreContext m_coreContext;
+
+    public void write(Mailbox mailbox, PersonalAttendant pa) {
         FileSystemProfileLocation location = new FileSystemProfileLocation();
         location.setParentDir(mailbox.getUserDirectory().getPath());
-        pa.generateProfile(location, m_generator);
+        String domain = m_coreContext.getDomainName();
+        pa.generateProfile(location, domain, m_generator);
     }
-    
+
     public void setGenerator(ProfileGenerator generator) {
         m_generator = generator;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 }

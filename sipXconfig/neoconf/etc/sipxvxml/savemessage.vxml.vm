@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <vxml version="2.0"
-#if($aa.user)    
+#if($user)
   base="http://localhost:8090/vm_vxml/"
 #end
   application="root.vxml">
@@ -59,7 +59,7 @@
     <var name="call_disconnected" expr="'no'" />
 
     <!-- Default "Operator" destination for transfer -->
-#if($aa.user)    
+#if($user)
     <var name="xfer_uri" expr="'${operator}'" />
 #else
     <var name="xfer_uri" expr="operatoraddr" />
@@ -112,12 +112,12 @@
       <filled>
         <if cond="playgreeting == '0'">
           <goto nextitem="xfer" />
-#if($aa.menu)
-#foreach( $dialPadEntry in ${aa.menu.menuItems.entrySet()} )
-          <elseif cond="playgreeting == '${dialPadEntry.Key.Name}'" />
-          <assign name="xfer_uri" expr="'$dialPadEntry.Value.Parameter'" />
+#if($user)
+#foreach( $item in $menu )
+          <elseif cond="playgreeting == '${item.key}'" />
+          <assign name="xfer_uri" expr="'${item.uri}'" />
           <goto nextitem="xfer" />
-#end  
+#end
 #end
           <elseif cond="playgreeting == '*'" />
           <assign name="save_message" expr="'no'" />
