@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
+import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantWriter;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -45,6 +46,7 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     private MailboxPreferencesWriter m_mailboxPreferencesWriter;
     private DistributionListsReader m_distributionListsReader;
     private DistributionListsWriter m_distributionListsWriter;
+    private PersonalAttendantWriter m_personalAttendantWriter;
     private CoreContext m_coreContext;
 
     public boolean isEnabled() {
@@ -236,6 +238,10 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         m_coreContext = coreContext;
     }
 
+    public void setPersonalAttendantWriter(PersonalAttendantWriter personalAttendantWriter) {
+        m_personalAttendantWriter = personalAttendantWriter;
+    }
+
     public PersonalAttendant loadPersonalAttendantForUser(User user) {
         PersonalAttendant pa = findPersonalAttendant(user);
         if (pa == null) {
@@ -255,6 +261,19 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
 
     public void storePersonalAttendant(PersonalAttendant pa) {
         getHibernateTemplate().saveOrUpdate(pa);
+        writePersonalAttendant(pa);
+    }
+
+    public void writeAllPersonalAttendants() {
+        List<PersonalAttendant> all = getHibernateTemplate().loadAll(PersonalAttendant.class);
+        for (PersonalAttendant pa : all) {
+            writePersonalAttendant(pa);
+        }
+    }
+
+    private void writePersonalAttendant(PersonalAttendant pa) {
+        Mailbox mailbox = getMailbox(pa.getUser().getUserName());
+        m_personalAttendantWriter.write(mailbox, pa);
     }
 
     private PersonalAttendant findPersonalAttendant(User user) {

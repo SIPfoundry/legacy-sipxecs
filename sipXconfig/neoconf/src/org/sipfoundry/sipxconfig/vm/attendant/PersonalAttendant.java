@@ -57,7 +57,7 @@ public class PersonalAttendant extends BeanWithId {
      */
     public void generateProfile(ProfileLocation location, ProfileGenerator generator) {
         AttendantProfileContext context = new AttendantProfileContext(this);
-        generator.generate(location, context, null, "savemessage.user.vxml");
+        generator.generate(location, context, null, "savemessage.vxml");
     }
 
     public static class AttendantProfileContext extends ProfileContext {

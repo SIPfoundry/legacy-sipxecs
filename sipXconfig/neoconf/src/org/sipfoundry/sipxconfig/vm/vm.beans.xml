@@ -19,6 +19,11 @@
         <property name="velocityEngine" ref="velocityEngine" />
       </bean>
     </property>
+    <property name="personalAttendantWriter">
+      <bean class="org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantWriter">
+        <property name="generator" ref="velocityProfileGenerator" />
+      </bean>
+    </property>
     <property name="coreContext" ref="coreContext" />
   </bean>
 
