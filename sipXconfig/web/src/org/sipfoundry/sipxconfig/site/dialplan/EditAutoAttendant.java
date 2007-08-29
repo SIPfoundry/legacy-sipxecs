@@ -12,7 +12,9 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.IValidationDelegate;
@@ -38,10 +40,16 @@ public abstract class EditAutoAttendant extends PageWithCallback implements
     @InjectObject(value = "spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();
 
+    @Persist(value = "client")
+    @InitialValue(value = "literal:menu")
+    public abstract String getTab();    
+    
+    @Persist
     public abstract AutoAttendant getAttendant();
 
     public abstract void setAttendant(AutoAttendant attendant);
 
+    @InitialValue(value = "new org.sipfoundry.sipxconfig.components.SelectMap()")
     public abstract SelectMap getSelections();
 
     public abstract DialPad getAddMenuItemDialPad();
