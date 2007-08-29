@@ -38,17 +38,19 @@
 	<audio expr="securemediaserverurl + aa_promptsalias + '${attendant.Prompt}'" />
       </prompt>
       <filled>
-#foreach( $dialPadKey in ${attendant.MenuItems.keySet()} )
+#if(${attendant.menu})
+#foreach( $dialPadKey in ${attendant.menu.menuItems.keySet()} )
 #if ( $velocityCount == 1 )
 	<if cond="menu=='${dialPadKey.Name}'">
 #else	
 	<elseif cond="menu=='${dialPadKey.Name}'"/>
 #end	
-#set( $menuItem = ${attendant.MenuItems.get($dialPadKey)} )
+#set( $menuItem = ${attendant.menu.menuItems.get($dialPadKey)} )
 	  <assign name="operation" expr="'${menuItem.Action.Name}'" />
 	  <assign name="extension" expr="'$menuItem.Action.vxmlParameter($menuItem.Parameter)'" />
 	  <goto nextitem="menuaction" />
-#end	  
+#end
+#end
 	<else />
 	  <!-- Here is the transfer to a given extension -->
 	  <assign name="operation" expr="'transfer_to_extension'" />

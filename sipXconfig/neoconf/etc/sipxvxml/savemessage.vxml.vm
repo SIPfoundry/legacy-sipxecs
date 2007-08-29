@@ -112,8 +112,8 @@
       <filled>
         <if cond="playgreeting == '0'">
           <goto nextitem="xfer" />
-#if($aa.user)    
-#foreach( $dialPadEntry in ${aa.MenuItems.entrySet()} )
+#if($aa.menu)
+#foreach( $dialPadEntry in ${aa.menu.menuItems.entrySet()} )
           <elseif cond="playgreeting == '${dialPadEntry.Key.Name}'" />
           <assign name="xfer_uri" expr="'$dialPadEntry.Value.Parameter'" />
           <goto nextitem="xfer" />

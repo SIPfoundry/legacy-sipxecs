@@ -32,7 +32,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         m_context = (DialPlanContext) appContext.getBean(DialPlanContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
-    
+
     public void testUpdate() throws Exception {
         TestHelper.cleanInsertFlat("admin/dialplan/seedAttendant.xml");
         AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
@@ -45,9 +45,12 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         aa.setName("test-aa");
         aa.setDescription("aa description");
         aa.setPrompt("thankyou_goodbye.wav");
-        aa.addMenuItem(DialPad.NUM_1, new AttendantMenuItem(AttendantMenuAction.GOTO_EXTENSION,
-                "1234"));
-        aa.addMenuItem(DialPad.NUM_5, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
+
+        AttendantMenu menu = new AttendantMenu();
+        menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.GOTO_EXTENSION, "1234");
+        menu.addMenuItem(DialPad.NUM_5, AttendantMenuAction.OPERATOR);
+        aa.setMenu(menu);
+
         m_context.storeAutoAttendant(aa);
 
         // attendant data
@@ -64,22 +67,22 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         ITable expectedItems = expectedRds.getTable("attendant_menu_item");
         Assertion.assertEquals(expectedItems, actualItems);
     }
-    
+
     public void testDefaultAttendantGroup() throws Exception {
         Group defaultGroup = m_context.getDefaultAutoAttendantGroup();
-        AutoAttendant aa = m_context.newAutoAttendantWithDefaultGroup();        
+        AutoAttendant aa = m_context.newAutoAttendantWithDefaultGroup();
         Group[] groups = aa.getGroups().toArray(new Group[1]);
         assertEquals(1, groups.length);
         assertEquals(defaultGroup.getPrimaryKey(), groups[0].getPrimaryKey());
     }
-    
+
     public void testSettings() throws Exception {
         AutoAttendant aa = m_context.newAutoAttendantWithDefaultGroup();
         aa.setName("test-settings");
         aa.setPrompt("thankyou_goodbye.wav");
         aa.setSettingValue("dtmf/interDigitTimeout", "4");
-        m_context.storeAutoAttendant(aa);        
-        
+        m_context.storeAutoAttendant(aa);
+
         // attendant data
         ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_value");
         ReplacementDataSet expectedRds = TestHelper
@@ -87,18 +90,17 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         ValueStorage vs = (ValueStorage) aa.getValueStorage();
         expectedRds.addReplacementObject("[value_storage_id]", vs.getId());
         ITable expected = expectedRds.getTable("setting_value");
-        Assertion.assertEquals(expected, actual);        
+        Assertion.assertEquals(expected, actual);
     }
-    
+
     public void testNewAutoAttendantWithDefaultGroup() throws Exception {
         AutoAttendant aa = m_context.newAutoAttendantWithDefaultGroup();
         Group defaultGroup = m_context.getDefaultAutoAttendantGroup();
         m_context.storeAutoAttendant(aa);
-        ITable t = TestHelper.getConnection().createDataSet().getTable(
-            "attendant_group");
+        ITable t = TestHelper.getConnection().createDataSet().getTable("attendant_group");
         assertEquals(defaultGroup.getId(), t.getValue(0, "group_id"));
     }
-    
+
     public void testDelete() throws Exception {
         TestHelper.cleanInsertFlat("admin/dialplan/seedAttendant.xml");
         AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
@@ -133,7 +135,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
             assertTrue(e.getMessage().indexOf("attendant_rule") > 0);
         }
     }
-    
+
     public void testDeleteOperatorInUse() throws Exception {
         TestHelper.cleanInsertFlat("admin/dialplan/seedOperator.xml");
         AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
@@ -151,7 +153,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
             assertTrue(true);
         }
     }
-    
+
     public void testSaveNameThatIsDuplicateAlias() throws Exception {
         TestHelper.cleanInsertFlat("admin/dialplan/seedUser.xml");
         boolean gotNameInUseException = false;
@@ -159,10 +161,9 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         aa.setName("alpha");
         try {
             m_context.storeAutoAttendant(aa);
-        }
-        catch (NameInUseException e) {
+        } catch (NameInUseException e) {
             gotNameInUseException = true;
         }
         assertTrue(gotNameInUseException);
-    }    
+    }
 }

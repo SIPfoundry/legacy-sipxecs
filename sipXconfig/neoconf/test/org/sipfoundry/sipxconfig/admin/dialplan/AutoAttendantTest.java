@@ -75,8 +75,12 @@ public class AutoAttendantTest extends XMLTestCase {
             }
         });
         aa.setPrompt("prompt.wav");
-        aa.addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
-        aa.addMenuItem(DialPad.NUM_1, new AttendantMenuItem(AttendantMenuAction.DISCONNECT));
+
+        AttendantMenu menu = new AttendantMenu();
+        menu.addMenuItem(DialPad.NUM_0, AttendantMenuAction.OPERATOR);
+        menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.DISCONNECT);
+        aa.setMenu(menu);
+
         aa.setSettingValue("onfail/transfer", "1");
         aa.setSettingValue("onfail/transfer-extension", "999");
 

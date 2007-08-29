@@ -10,11 +10,9 @@
 package org.sipfoundry.sipxconfig.vm.attendant;
 
 import java.util.Map;
-import java.util.TreeMap;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
+import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
-import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
@@ -23,7 +21,7 @@ import org.sipfoundry.sipxconfig.device.ProfileLocation;
 public class PersonalAttendant extends BeanWithId {
     private User m_user;
 
-    private Map<DialPad, AttendantMenuItem> m_menuItems;
+    private AttendantMenu m_menu;
 
     private String m_operator;
 
@@ -43,30 +41,14 @@ public class PersonalAttendant extends BeanWithId {
         m_operator = operator;
     }
 
-    public void setMenuItems(Map<DialPad, AttendantMenuItem> menuItems) {
-        m_menuItems = menuItems;
+    public void setMenu(AttendantMenu menu) {
+        m_menu = menu;
     }
 
-    public Map<DialPad, AttendantMenuItem> getMenuItems() {
-        return m_menuItems;
+    public AttendantMenu getMenu() {
+        return m_menu;
     }
 
-    public void addMenuItem(DialPad key, AttendantMenuItem menuItem) {
-        if (m_menuItems == null) {
-            m_menuItems = new TreeMap();
-        }
-
-        m_menuItems.put(key, menuItem);
-    }
-
-    public void removeMenuItem(DialPad key) {
-        if (m_menuItems == null) {
-            return;
-        }
-
-        m_menuItems.remove(key);
-    }
-    
     /**
      * Generate personal AA VXML file (from the template)
      * 

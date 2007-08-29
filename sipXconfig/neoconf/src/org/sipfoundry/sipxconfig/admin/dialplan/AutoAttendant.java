@@ -9,12 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
@@ -39,12 +35,12 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
 
     private String m_prompt;
 
-    private Map m_menuItems;
+    private AttendantMenu m_menu = new AttendantMenu();
 
     private String m_systemId;
 
     private VxmlGenerator m_vxmlGenerator;
-    
+
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("sipxvxml/autoattendant.xml");
@@ -120,7 +116,15 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
     public void setName(String name) {
         m_name = name;
     }
-    
+
+    public void setMenu(AttendantMenu menu) {
+        m_menu = menu;
+    }
+
+    public AttendantMenu getMenu() {
+        return m_menu;
+    }
+
     public VxmlGenerator getVxmlGenerator() {
         return m_vxmlGenerator;
     }
@@ -129,48 +133,17 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
         m_vxmlGenerator = vxmlGenerator;
     }
 
-    /**
-     * @return map of AttendantMenuItems where the dialpad keys DialPad objects representing keys
-     *         0-9,* and #
-     */
-    public Map getMenuItems() {
-        return m_menuItems;
-    }
-
-    public void setMenuItems(Map menuItems) {
-        m_menuItems = menuItems;
-    }
-
-    public void addMenuItem(DialPad key, AttendantMenuItem menuItem) {
-        if (m_menuItems == null) {
-            m_menuItems = new TreeMap();
-        }
-
-        m_menuItems.put(key, menuItem);
-    }
-
     public void resetToFactoryDefault() {
-        if (m_menuItems != null) {
-            m_menuItems.clear();
-        }
         setDescription(null);
-        if (isPermanent()) {
-            addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
-            addMenuItem(DialPad.NUM_9, new AttendantMenuItem(AttendantMenuAction.DIAL_BY_NAME));
-            addMenuItem(DialPad.STAR, new AttendantMenuItem(AttendantMenuAction.REPEAT_PROMPT));
-            addMenuItem(DialPad.POUND, new AttendantMenuItem(AttendantMenuAction.VOICEMAIL_LOGIN));
-        } else {
-            addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
-            addMenuItem(DialPad.STAR, new AttendantMenuItem(AttendantMenuAction.REPEAT_PROMPT));
-        }
+        m_menu.reset(isPermanent());
     }
-    
+
     public void initialize() {
-        AudioDirectorySetter audioDirectorySetter = 
-            new AudioDirectorySetter(m_vxmlGenerator.getPromptsDirectory());
+        AudioDirectorySetter audioDirectorySetter = new AudioDirectorySetter(m_vxmlGenerator
+                .getPromptsDirectory());
         getSettings().acceptVisitor(audioDirectorySetter);
     }
-    
+
     private static class AudioDirectorySetter extends AbstractSettingVisitor {
         private String m_audioDirectory;
 

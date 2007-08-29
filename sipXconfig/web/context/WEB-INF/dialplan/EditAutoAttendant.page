@@ -1,34 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendant">
-  <!--
-    - P R O P E R T I E S
-  -->
-  <inject property="tapestry" object="spring:tapestry" />
-
-  <property name="currentDialPadId" />
-  <property name="currentDialPad" />
-
-  <!--
-    - B E A N S
-  -->
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
-  <bean name="dialPadSelectionModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel">
-    <set name="enumClass" value="@org.sipfoundry.sipxconfig.common.DialPad@class" />
-  </bean>
-  <bean name="menuItemActions" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel">
-    <set name="enumClass" value="@org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction@class" />
-  </bean>
-  <bean name="localizedMenuItemActions" class="org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator">
-    <set name="model" value="bean:menuItemActions" />
-    <set name="resourcePrefix" value="literal:menuItemAction." />
-    <set name="messages" value="messages" />
-  </bean>
-  <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="dialPlanContext.autoAttendants" />
-    <set name="labelExpression" value="literal:name" />
-    <set name="valueExpression" value="literal:systemName" />
-  </bean>
-  <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render" />
-
-</page-specification>
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendant" />
