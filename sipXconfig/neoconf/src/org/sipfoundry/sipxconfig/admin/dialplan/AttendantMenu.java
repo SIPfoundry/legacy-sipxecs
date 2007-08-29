@@ -17,7 +17,7 @@ import org.sipfoundry.sipxconfig.common.DialPad;
 
 public class AttendantMenu {
 
-    private Map<DialPad, AttendantMenuItem> m_menuItems;
+    private Map<DialPad, AttendantMenuItem> m_menuItems = new TreeMap<DialPad, AttendantMenuItem>();
 
     public void setMenuItems(Map<DialPad, AttendantMenuItem> menuItems) {
         m_menuItems = menuItems;
@@ -28,10 +28,6 @@ public class AttendantMenu {
     }
 
     private void addMenuItem(DialPad key, AttendantMenuItem menuItem) {
-        if (m_menuItems == null) {
-            m_menuItems = new TreeMap();
-        }
-
         m_menuItems.put(key, menuItem);
     }
 

@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
 
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -18,6 +20,7 @@ import org.sipfoundry.sipxconfig.site.user.UserForm;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
+import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public abstract class EditMyInformation extends UserBasePage implements EditPinComponent {
 
@@ -31,21 +34,34 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     public abstract void setMailboxPreferences(MailboxPreferences preferences);
 
+    // TODO: temporary keep in in session
+    @Persist
+    public abstract PersonalAttendant getPersonalAttendant();
+
+    public abstract void setPersonalAttendant(PersonalAttendant pa);
+
+    @Persist
+    @InitialValue(value = "literal:info")
+    public abstract String getTab();
+
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
 
     public void save() {
-        if (TapestryUtils.isValid(this)) {
-            User user = getUserForEditing();
-            UserForm.updatePin(this, user, getCoreContext().getAuthorizationRealm());
-            getCoreContext().saveUser(user);
-
-            MailboxManager mailMgr = getMailboxManager();
-            if (mailMgr.isEnabled()) {
-                Mailbox mailbox = mailMgr.getMailbox(user.getUserName());
-                mailMgr.saveMailboxPreferences(mailbox, getMailboxPreferences());
-            }
+        if (!TapestryUtils.isValid(this)) {
+            return;
         }
+        User user = getUserForEditing();
+        UserForm.updatePin(this, user, getCoreContext().getAuthorizationRealm());
+        getCoreContext().saveUser(user);
+
+        MailboxManager mailMgr = getMailboxManager();
+        if (mailMgr.isEnabled()) {
+            Mailbox mailbox = mailMgr.getMailbox(user.getUserName());
+            mailMgr.saveMailboxPreferences(mailbox, getMailboxPreferences());
+        }
+
+        // FIXME: save personal attendant
     }
 
     public void pageBeginRender(PageEvent event) {
@@ -65,6 +81,11 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         if (getMailboxPreferences() == null && mailMgr.isEnabled()) {
             Mailbox mailbox = mailMgr.getMailbox(user.getUserName());
             setMailboxPreferences(mailMgr.loadMailboxPreferences(mailbox));
+        }
+
+        PersonalAttendant personalAttendant = getPersonalAttendant();
+        if (personalAttendant == null) {
+            setPersonalAttendant(new PersonalAttendant());
         }
     }
 }

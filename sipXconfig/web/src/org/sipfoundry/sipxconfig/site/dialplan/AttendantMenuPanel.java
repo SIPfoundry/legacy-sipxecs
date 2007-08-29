@@ -36,6 +36,8 @@ import org.sipfoundry.sipxconfig.components.TapestryContext;
 
 public abstract class AttendantMenuPanel extends BaseComponent {
 
+    private static final String ACTION_PREFIX = "menuItemAction.";
+
     @InjectObject(value = "spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();
 
@@ -45,8 +47,14 @@ public abstract class AttendantMenuPanel extends BaseComponent {
     @Bean
     public abstract EvenOdd getRowClass();
 
-    @Parameter
+    @Parameter(required = true)
     public abstract AttendantMenu getMenu();
+
+    /**
+     * If true - the only possible action offerred will be forward to extension
+     */
+    @Parameter(defaultValue = "ognl:false")
+    public abstract boolean getExtensionOnly();
 
     @InitialValue(value = "new org.sipfoundry.sipxconfig.components.SelectMap()")
     public abstract SelectMap getSelections();
@@ -89,7 +97,7 @@ public abstract class AttendantMenuPanel extends BaseComponent {
             EnumPropertySelectionModel model = new EnumPropertySelectionModel();
             model.setEnumClass(AttendantMenuAction.class);
             setModel(model);
-            setResourcePrefix("menuItemAction.");
+            setResourcePrefix(ACTION_PREFIX);
             setMessages(messages);
         }
     }
@@ -103,8 +111,14 @@ public abstract class AttendantMenuPanel extends BaseComponent {
         }
     }
 
+    public String getColumns() {
+        return getExtensionOnly() ? "* !dialpad,!extension" : "* !dialpad,!action,!parameter";
+    }
+
     public void addMenuItem() {
-        getMenu().addMenuItem(getAddMenuItemDialPad(), getAddMenuItemAction());
+        AttendantMenuAction action = getExtensionOnly() ? AttendantMenuAction.GOTO_EXTENSION
+                : getAddMenuItemAction();
+        getMenu().addMenuItem(getAddMenuItemDialPad(), action);
         selectNextAvailableDialpadKey();
         setAddMenuItemAction(null);
     }
@@ -129,7 +143,7 @@ public abstract class AttendantMenuPanel extends BaseComponent {
     }
 
     public String getActionName(AttendantMenuAction action) {
-        return getMessages().getMessage("menuItemAction." + action.getName());
+        return getMessages().getMessage(ACTION_PREFIX + action.getName());
     }
 
     /**

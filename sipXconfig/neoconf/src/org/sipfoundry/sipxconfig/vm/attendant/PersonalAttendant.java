@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.device.ProfileLocation;
 public class PersonalAttendant extends BeanWithId {
     private User m_user;
 
-    private AttendantMenu m_menu;
+    private AttendantMenu m_menu = new AttendantMenu();
 
     private String m_operator;
 
