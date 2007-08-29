@@ -50,6 +50,12 @@ public abstract class AttendantMenuPanel extends BaseComponent {
     @Parameter(required = true)
     public abstract AttendantMenu getMenu();
 
+    @Parameter(defaultValue = "literal:0")
+    public abstract String getMinKey();
+
+    @Parameter(defaultValue = "literal:#")
+    public abstract String getMaxKey();
+
     /**
      * If true - the only possible action offerred will be forward to extension
      */
@@ -71,8 +77,9 @@ public abstract class AttendantMenuPanel extends BaseComponent {
 
     public abstract AttendantMenuItemMapAdapter getMenuItems();
 
-    @Bean
-    public abstract DialPadSelectionModel getDialPadSelectionModel();
+    public DialPadSelectionModel getDialPadSelectionModel() {
+        return new DialPadSelectionModel(getMinKey(), getMaxKey());
+    }
 
     public IPropertySelectionModel getLocalizedMenuItemActions() {
         Messages messages = getMessages();
@@ -87,8 +94,11 @@ public abstract class AttendantMenuPanel extends BaseComponent {
     }
 
     public static class DialPadSelectionModel extends EnumPropertySelectionModel {
-        public DialPadSelectionModel() {
-            setEnumClass(DialPad.class);
+        public DialPadSelectionModel(String min, String max) {
+            DialPad minKey = DialPad.getByName(min);
+            DialPad maxKey = DialPad.getByName(max);
+            DialPad[] options = DialPad.getRange(minKey, maxKey);
+            setOptions(options);
         }
     }
 
@@ -118,16 +128,21 @@ public abstract class AttendantMenuPanel extends BaseComponent {
     public void addMenuItem() {
         AttendantMenuAction action = getExtensionOnly() ? AttendantMenuAction.GOTO_EXTENSION
                 : getAddMenuItemAction();
-        getMenu().addMenuItem(getAddMenuItemDialPad(), action);
-        selectNextAvailableDialpadKey();
-        setAddMenuItemAction(null);
+        if (action != null) {
+            getMenu().addMenuItem(getAddMenuItemDialPad(), action);
+            selectNextAvailableDialpadKey();
+            setAddMenuItemAction(null);
+        }
     }
 
     /**
      * Try to select the next likely dial pad key
      */
     private void selectNextAvailableDialpadKey() {
-        setAddMenuItemDialPad(getMenu().getNextKey());
+        DialPad minKey = DialPad.getByName(getMinKey());
+        DialPad maxKey = DialPad.getByName(getMaxKey());
+        DialPad nextKey = getMenu().getNextKey(minKey, maxKey);
+        setAddMenuItemDialPad(nextKey);
     }
 
     public void removeMenuItems() {

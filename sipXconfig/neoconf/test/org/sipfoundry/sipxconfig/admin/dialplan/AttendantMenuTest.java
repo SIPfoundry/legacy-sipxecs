@@ -32,9 +32,10 @@ public class AttendantMenuTest extends TestCase {
 
     public void testGetNextKey() {
         AttendantMenu menu = new AttendantMenu();
-        assertSame(DialPad.NUM_0, menu.getNextKey());
+        assertSame(DialPad.NUM_0, menu.getNextKey(DialPad.NUM_0, DialPad.POUND));
         menu.addMenuItem(DialPad.NUM_0, AttendantMenuAction.DIAL_BY_NAME);
         menu.addMenuItem(DialPad.NUM_2, AttendantMenuAction.DIAL_BY_NAME);
-        assertSame(DialPad.NUM_1, menu.getNextKey());
+        assertSame(DialPad.NUM_1, menu.getNextKey(DialPad.NUM_0, DialPad.POUND));
+        assertSame(DialPad.NUM_3, menu.getNextKey(DialPad.NUM_2, DialPad.POUND));
     }
 }

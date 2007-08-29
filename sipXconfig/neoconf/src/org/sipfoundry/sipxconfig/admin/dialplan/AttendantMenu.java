@@ -62,14 +62,13 @@ public class AttendantMenu {
         }
     }
 
-    public DialPad getNextKey() {
-        for (int i = 0; i < DialPad.KEYS.length; i++) {
-            DialPad key = DialPad.KEYS[i];
-            // probably not pound
+    public DialPad getNextKey(DialPad minKey, DialPad maxKey) {
+        DialPad[] range = DialPad.getRange(minKey, maxKey);
+        for (DialPad key : range) {
             if (!m_menuItems.containsKey(key)) {
-                return DialPad.KEYS[i];
+                return key;
             }
         }
-        return DialPad.POUND;
+        return maxKey;
     }
 }
