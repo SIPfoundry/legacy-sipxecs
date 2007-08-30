@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
   <!ENTITY types SYSTEM "types.xml">
@@ -194,7 +193,7 @@
       <value>off</value>
     </setting>
     <setting name="contrast">
-      <profileName>contrast!</profileName>
+      <profileName>contrast$</profileName>
       <type>
         <enum>
           <option>
@@ -250,7 +249,7 @@
       <value>8</value>
     </setting>
     <setting name="use_backlight">
-      <profileName>use_backlight!</profileName>
+      <profileName>use_backlight$</profileName>
       <type refid="on-off" />
       <value>on</value>
     </setting>
@@ -1146,59 +1145,59 @@
       <value>USA</value>
     </setting>
     <setting name="vol_speaker">
-      <profileName>vol_speaker!</profileName>
+      <profileName>vol_speaker$</profileName>
       <type>
         <integer min="1" max="15" />
       </type>
       <value>7</value>
     </setting>
     <setting name="vol_handset">
-      <profileName>vol_handset!</profileName>
+      <profileName>vol_handset$</profileName>
       <type>
         <integer min="1" max="15" />
       </type>
       <value>11</value>
     </setting>
     <setting name="vol_headset">
-      <profileName>vol_headset!</profileName>
+      <profileName>vol_headset$</profileName>
       <type>
         <integer min="1" max="15" />
       </type>
       <value>10</value>
     </setting>
     <setting name="vol_speaker_mic">
-      <profileName>vol_speaker_mic!</profileName>
+      <profileName>vol_speaker_mic$</profileName>
       <type>
         <integer min="1" max="8" />
       </type>
       <value>5</value>
     </setting>
     <setting name="vol_handset_mic">
-      <profileName>vol_handset_mic!</profileName>
+      <profileName>vol_handset_mic$</profileName>
       <type>
         <integer min="1" max="8" />
       </type>
       <value>5</value>
     </setting>
     <setting name="vol_headset_mic">
-      <profileName>vol_headset_mic!</profileName>
+      <profileName>vol_headset_mic$</profileName>
       <type>
         <integer min="1" max="8" />
       </type>
       <value>7</value>
     </setting>
     <setting name="mute">
-      <profileName>mute!</profileName>
+      <profileName>mute$</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="disable_speaker">
-      <profileName>disable_speaker!</profileName>
+      <profileName>disable_speaker$</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="headset_device">
-      <profileName>headset_device!</profileName>
+      <profileName>headset_device$</profileName>
       <type>
         <enum>
           <option>
@@ -1212,12 +1211,12 @@
       <value>none</value>
     </setting>
     <setting name="audio_device_indicator">
-      <profileName>audio_device_indicator!</profileName>
+      <profileName>audio_device_indicator$</profileName>
       <type refid="on-off" />
       <value>on</value>
     </setting>
     <setting name="ringer_headset_device">
-      <profileName>ringer_headset_device!</profileName>
+      <profileName>ringer_headset_device$</profileName>
       <type>
         <enum>
           <option>
@@ -1231,17 +1230,17 @@
       <value>speaker</value>
     </setting>
     <setting name="key_tones">
-      <profileName>key_tones!</profileName>
+      <profileName>key_tones$</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="holding_reminder">
-      <profileName>holding_reminder!</profileName>
+      <profileName>holding_reminder$</profileName>
       <type refid="on-off" />
       <value>on</value>
     </setting>
     <setting name="call_waiting">
-      <profileName>call_waiting!</profileName>
+      <profileName>call_waiting$</profileName>
       <type>
         <enum>
           <option>
@@ -1258,7 +1257,7 @@
       <value>on</value>
     </setting>
     <setting name="mwi_notification">
-      <profileName>mwi_notification!</profileName>
+      <profileName>mwi_notification$</profileName>
       <type>
         <enum>
           <option>
@@ -1275,7 +1274,7 @@
       <value>silent</value>
     </setting>
     <setting name="mwi_dialtone">
-      <profileName>mwi_dialtone!</profileName>
+      <profileName>mwi_dialtone$</profileName>
       <type>
         <enum>
           <option>
@@ -1331,19 +1330,19 @@
       <value>60</value>
     </setting>
     <setting name="alert_info_playback">
-      <profileName>alert_info_playback!</profileName>
+      <profileName>alert_info_playback$</profileName>
       <type refid="on-off" />
       <value>on</value>
     </setting>
   </group>
   <group name="Key_Mapping">
     <setting name="intercom_enabled">
-      <profileName>intercom_enabled!</profileName>
+      <profileName>intercom_enabled$</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="answer_after_policy" advanced="yes">
-      <profileName>answer_after_policy!</profileName>
+      <profileName>answer_after_policy$</profileName>
       <type>
         <enum>
           <option>
@@ -1360,12 +1359,12 @@
       <value>always</value>
     </setting>
     <setting name="no_dnd" advanced="yes">
-      <profileName>no_dnd!</profileName>
+      <profileName>no_dnd$</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="speaker_dialer" advanced="yes">
-      <profileName>speaker_dialer!</profileName>
+      <profileName>speaker_dialer$</profileName>
       <type refid="on-off" />
       <value>on</value>
     </setting>
@@ -1445,17 +1444,17 @@
   </group>
   <group name="Privacy">
     <setting name="privacy_in">
-      <profileName>privacy_in!</profileName>
+      <profileName>privacy_in$</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="privacy_out">
-      <profileName>privacy_out!</profileName>
+      <profileName>privacy_out$</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="presence_timeout">
-      <profileName>presence_timeout!</profileName>
+      <profileName>presence_timeout$</profileName>
       <type>
         <integer />
       </type>
@@ -1507,22 +1506,26 @@
   </group>
   <group name="Other">
     <setting name="dnd_mode">
+      <profileName>dnd_mode$</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="dnd_on_code" advanced="yes">
+      <profileName>dnd_on_code$</profileName>
       <type>
         <string />
       </type>
       <value />
     </setting>
     <setting name="dnd_off_code" advanced="yes">
+      <profileName>dnd_off_code$</profileName>
       <type>
         <string />
       </type>
       <value />
     </setting>
     <setting name="edit_alpha_mode">
+      <profileName>edit_alpha_mode$</profileName>
       <type>
         <enum>
           <option>
@@ -1542,6 +1545,7 @@
       <value>123</value>
     </setting>
     <setting name="preselection_nr" advanced="yes">
+      <profileName>preselection_nr$</profileName>
       <type>
         <string />
       </type>
@@ -1621,19 +1625,19 @@
       <value>1</value>
     </setting>
     <setting name="keyboard_lock">
-      <profileName>keyboard_lock!</profileName>
+      <profileName>keyboard_lock$</profileName>
       <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="keyboard_lock_pw" advanced="yes">
-      <profileName>keyboard_lock_pw!</profileName>
+      <profileName>keyboard_lock_pw$</profileName>
       <type>
         <string password="yes" />
       </type>
       <value />
     </setting>
     <setting name="keyboard_lock_emergency" advanced="yes">
-      <profileName>keyboard_lock_emergency!</profileName>
+      <profileName>keyboard_lock_emergency$</profileName>
       <type>
         <string />
       </type>
