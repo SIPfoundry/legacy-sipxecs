@@ -861,7 +861,10 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                  OsSysLog::add(FAC_HTTP, PRI_ERR, "HttpMessage::get[4] read timed out - closing");
                  httpSocket->close();
                  delete httpSocket;
-                 pConnectionMapEntry->mpSocket = NULL;
+                 if (pConnectionMapEntry)
+                 {
+                    pConnectionMapEntry->mpSocket = NULL;
+                 }
                  httpSocket = NULL;
               }
 
