@@ -10,26 +10,38 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.request.IUploadFile;
+import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.BackupBean;
 import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
+import org.sipfoundry.sipxconfig.admin.BackupPlan;
 import org.sipfoundry.sipxconfig.admin.Restore;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
 public abstract class RestorePage extends UserBasePage implements PageBeginRenderListener {
+    public static final String NO_SCRIPT_FOUND = "message.noScriptFound";
+    public static final String SUCCESS = "message.label.success";
+
     @InjectObject(value = "spring:adminContext")
     public abstract AdminContext getAdminContext();
 
@@ -48,10 +60,19 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
 
     public abstract void setCurrentFolder(Map<Type, BackupBean> folder);
 
+    public abstract IUploadFile getUploadVoicemailFile();
+
+    public abstract IUploadFile getUploadConfigurationFile();
+
     @InjectObject(value = "spring:restore")
     public abstract Restore getRestore();
 
+    @Persist
+    @InitialValue(value = "literal:restore")
+    public abstract String getTab();
+
     public void pageBeginRender(PageEvent event_) {
+
         if (getBackups() != null) {
             return;
         }
@@ -89,11 +110,87 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
 
         if (!getRestore().perform(selectedBackups)) {
             TapestryUtils.getValidator(getPage()).record(
-                    new ValidatorException(getMessages().getMessage("message.noScriptFound")));
+                    new ValidatorException(getMessages().getMessage(NO_SCRIPT_FOUND)));
             return;
         }
 
-        TapestryUtils.recordSuccess(this, getMessages().getMessage("message.label.success"));
+        TapestryUtils.recordSuccess(this, getMessages().getMessage(SUCCESS));
+    }
+
+    public void uploadAndRestoreFiles() {
+        IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+        IUploadFile configurationFile = getUploadConfigurationFile();
+        IUploadFile voicemailFile = getUploadVoicemailFile();
+
+        List<BackupBean> tmpBeans = new ArrayList<BackupBean>();
+
+        if (configurationFile != null && !StringUtils.isBlank(configurationFile.getFilePath())) {
+            if (!configurationFile.getFileName().equalsIgnoreCase(
+                    BackupPlan.CONFIGURATION_ARCHIVE)) {
+                validator.record(new ValidatorException(getMessages().getMessage(
+                        "message.wrongConfigurationFileToRestore")));
+                return;
+            } else {
+                BackupBean configBean = uploadRestoreFile(configurationFile,
+                        BackupPlan.CONFIGURATION_ARCHIVE);
+                if (configBean == null) {
+                    validator.record(new ValidatorException(getMessages().getMessage(
+                            "message.failed.uploadConfiguration")));
+                    return;
+                }
+                tmpBeans.add(configBean);
+            }
+        }
+
+        if (voicemailFile != null && !StringUtils.isBlank(voicemailFile.getFilePath())) {
+            if (!voicemailFile.getFileName().equalsIgnoreCase(BackupPlan.VOICEMAIL_ARCHIVE)) {
+                validator.record(new ValidatorException(getMessages().getMessage(
+                        "message.wrongVoicemailFileToRestore")));
+                return;
+            } else {
+                BackupBean voicemailBean = uploadRestoreFile(voicemailFile,
+                        BackupPlan.VOICEMAIL_ARCHIVE);
+                if (voicemailBean == null) {
+                    validator.record(new ValidatorException(getMessages().getMessage(
+                            "message.failed.uploadVoicemail")));
+                    return;
+                }
+                tmpBeans.add(voicemailBean);
+            }
+        }
+
+        if (tmpBeans.size() == 0) {
+            validator.record(new ValidatorException(getMessages().getMessage(
+                    "message.noFileToRestore")));
+            return;
+        }
+
+        if (!getRestore().perform(tmpBeans)) {
+            TapestryUtils.getValidator(getPage()).record(
+                    new ValidatorException(getMessages().getMessage(NO_SCRIPT_FOUND)));
+            return;
+        }
+
+        TapestryUtils.recordSuccess(this, getMessages().getMessage(SUCCESS));
+
+    }
+
+    private BackupBean uploadRestoreFile(IUploadFile uploadFile, String type) {
+        File tmpFile = null;
+        OutputStream os = null;
+        String prefix = StringUtils.substringBefore(uploadFile.getFileName(), ".");
+        String suffix = ".tar.gz";
+        try {
+            tmpFile = File.createTempFile(prefix, suffix);
+            os = new FileOutputStream(tmpFile);
+            IOUtils.copy(uploadFile.getStream(), os);
+            os.close();
+        } catch (IOException ex) {
+            return null;
+        } finally {
+            IOUtils.closeQuietly(os);
+        }
+        return new BackupBean(tmpFile, type);
     }
 
     static boolean validateSelections(List<BackupBean> list) {
@@ -108,4 +205,5 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         }
         return false;
     }
+
 }

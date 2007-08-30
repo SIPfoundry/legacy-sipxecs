@@ -1,35 +1,67 @@
 <div jwcid="@Border">
   <h2><span key="title">Restore</span></h2>
-  <span jwcid="@QuickHelp" value="message:quick.help"/>
   <span jwcid="@ErrorMsg"/>
-  <span jwcid="@If" condition="ognl:backups.empty">
-    <p id="message.noBackups">There is no backup files saved in the backup folder.</p>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'restore', 'upload'}" selectedTab="prop:tab"/>
+  <div id="settings-content">
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <span jwcid="restoreTab@Block">
+    <span jwcid="@QuickHelp" value="message:restore.quick.help"/>
+    <span jwcid="@If" condition="ognl:backups.empty">
+      <p id="message.noBackups">There is no backup files saved in the backup folder.</p>
+    </span>
+    <span jwcid="@Else">
+      <form jwcid="@Form" id="backups:form" delegate="bean:validator">
+        <fieldset>
+          <table>
+            <span jwcid="@Foreach" source="ognl:backups" value="ognl:currentFolder">
+              <tr>
+                <td colspan="2"><span jwcid="@Insert" value="ognl:currentFolderName"/>
+              </tr>
+              <tr>
+                <td jwcid="@Foreach" source="ognl:backupTypes" value="ognl:currentType" element="td">
+                  <span jwcid="@If" condition="ognl:currentFolder[currentType]">
+                    <span jwcid="defaultValue@Checkbox" value="ognl:selections.selected[currentFolder[currentType].file]"/>
+                    <span jwcid="@DownloadLink" fileName="" dirName="ognl:currentFolder[currentType].file.path" contentType="literal:tar/x-gzip">
+                      <span jwcid="@Insert" value="ognl:currentBackupName"/>
+                    </span>
+                  </span>
+                </td>
+              </tr>
+            </span>
+          </table>
+        </fieldset>
+        <ul class="component-submit">
+          <li>
+            <input jwcid="restore@Submit" id="backups:restore" listener="listener:restore" tag="selections.allSelected" value="message:button.restore"/>
+            <span jwcid="@common/Confirm" component="component:restore" prompt="message:confirm.restore"/>
+          </li>
+        </ul>
+      </form>
+    </span>
   </span>
-  <span jwcid="@Else">
-    <form jwcid="@Form" id="backups:form" delegate="bean:validator">
-      <fieldset>
+  <span jwcid="uploadTab@Block">
+    <span jwcid="@QuickHelp" value="message:upload.quick.help"/>
+      <form jwcid="upload@Form">
         <table>
-          <span jwcid="@Foreach" source="ognl:backups" value="ognl:currentFolder">
-            <tr>
-              <td colspan="2"><span jwcid="@Insert" value="ognl:currentFolderName"/>
-            </tr>
-            <tr>
-              <td jwcid="@Foreach" source="ognl:backupTypes" value="ognl:currentType" element="td">
-                <span jwcid="@If" condition="ognl:currentFolder[currentType]">
-                  <span jwcid="defaultValue@Checkbox" value="ognl:selections.selected[currentFolder[currentType].file]"/>
-                  <span jwcid="@Insert" value="ognl:currentBackupName"/>
-                </span>
-              </td>
-            </tr>
-          </span>
+          <tr jwcid="@FieldPanel"
+            field="component:configuration"
+                label="message:backup.CONFIGURATION">
+                <td jwcid="configuration@Upload"
+              file="prop:uploadConfigurationFile" />
+          </tr>
+          <tr jwcid="@FieldPanel"
+            field="component:voicemail"
+                label="message:backup.VOICEMAIL">
+                <td jwcid="voicemail@Upload"
+              file="prop:uploadVoicemailFile" />
+          </tr>
         </table>
-      </fieldset>
-      <ul class="component-submit">
-        <li>
-          <input jwcid="restore@Submit" id="backups:restore" listener="listener:restore" tag="selections.allSelected" value="message:button.restore"/>
-          <span jwcid="@common/Confirm" component="component:restore" prompt="message:confirm.restore"/>
-        </li>
-      </ul>
+        <ul class="component-submit">
+          <li>
+            <input jwcid="@Submit" value="message:button.restore" listener="listener:uploadAndRestoreFiles"/>
+          </li>
+        </ul>
     </form>
   </span>
 </div>

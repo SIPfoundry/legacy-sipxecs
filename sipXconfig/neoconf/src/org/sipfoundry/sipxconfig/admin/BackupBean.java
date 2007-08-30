@@ -55,6 +55,11 @@ public class BackupBean implements Serializable {
         m_type = Type.typeFromName(m_backupFile.getName());
     }
 
+    public BackupBean(File backupFile, String type) {
+        m_backupFile = backupFile;
+        m_type = Type.typeFromName(type);
+    }
+
     public String getPath() {
         return m_backupFile.getAbsolutePath();
     }

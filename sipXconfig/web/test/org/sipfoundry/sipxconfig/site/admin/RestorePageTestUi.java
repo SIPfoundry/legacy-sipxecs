@@ -44,12 +44,27 @@ public class RestorePageTestUi extends WebTestCase {
         buildBackupsFolders();
     }
 
+    private void buildBackupsFolders() {
+        // first backup folder;
+        buildConfigurationBackup(FIRST_BACKUP);
+        buildVoicemailBackup(FIRST_BACKUP);
+
+        // second backup folder;
+        buildConfigurationBackup(SECOND_BACKUP);
+
+        // third backup folder;
+        buildVoicemailBackup(THIRD_BACKUP);
+    }
+
     public void testRestorePage() throws Exception {
+        SiteTestHelper.assertNoException(getTester());
+        clickLinkWithText("From files");
         SiteTestHelper.assertNoException(getTester());
     }
 
     public void testRestoreTwoVoicemailBackups() throws Exception {
         SiteTestHelper.assertNoException(getTester());
+        clickLinkWithText("From files");
         checkCheckbox("defaultValue");
         checkCheckbox("defaultValue_2");
         assertButtonPresent("backups:restore");
@@ -58,6 +73,8 @@ public class RestorePageTestUi extends WebTestCase {
     }
 
     public void testRestoreThreeBackups() throws Exception {
+        SiteTestHelper.assertNoException(getTester());
+        clickLinkWithText("From files");
         SiteTestHelper.assertNoException(getTester());
         checkCheckbox("defaultValue");
         checkCheckbox("defaultValue_1");
@@ -69,23 +86,13 @@ public class RestorePageTestUi extends WebTestCase {
 
     public void testRestoreWithNoSelections() throws Exception {
         SiteTestHelper.assertNoException(getTester());
+        clickLinkWithText("From files");
+        SiteTestHelper.assertNoException(getTester());
         checkCheckbox("defaultValue");
         uncheckCheckbox("defaultValue");
         assertButtonPresent("backups:restore");
         clickButton("backups:restore");
         SiteTestHelper.assertUserError(getTester());
-    }
-
-    private void buildBackupsFolders() {
-        // first backup folder;
-        buildConfigurationBackup(FIRST_BACKUP);
-        buildVoicemailBackup(FIRST_BACKUP);
-
-        // second backup folder;
-        buildConfigurationBackup(SECOND_BACKUP);
-
-        // third backup folder;
-        buildVoicemailBackup(THIRD_BACKUP);
     }
 
     private void buildConfigurationBackup(String folder) {
@@ -115,5 +122,12 @@ public class RestorePageTestUi extends WebTestCase {
         } catch (IOException ex) {
             fail("Could not create the mailstore backup");
         }
+    }
+
+    public void testUploadPage() throws Exception {
+        SiteTestHelper.assertNoException(tester);
+        clickLinkWithText("From upload");
+        SiteTestHelper.assertNoException(tester);
+        assertSubmitButtonValue("Submit", "Restore");
     }
 }
