@@ -530,9 +530,9 @@ RegistrationDB::expireOldBindings( const Url& uri
         dbQuery query;
         query="np_identity=",identity,
            "and callid=",callid,
-          "and cseq<",cseq,
-          "and expires>=",expirationTime
-          ;
+           "and cseq<",cseq,
+           "and expires>=",expirationTime
+           ;
         if (cursor.select(query) > 0)
         {
           do

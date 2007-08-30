@@ -773,9 +773,13 @@ Int64 SipRegistrarServer::updateOneBinding(
       OsSysLog::add(FAC_SIP, PRI_WARNING,
                     "SipRegistrarServer::updateOneBinding request out of order\n"
                     "  To: '%s'\n"
+                    "  Contact: '%s'\n"
                     "  Call-Id: '%s'\n"
                     "  Cseq: %d",
-                    (*reg->getUri()).toString().data(), (*reg->getCallId()).data(), reg->getCseq());
+                    reg->getUri()->toString().data(),
+                    reg->getContact()->data(),
+                    reg->getCallId()->data(),
+                    reg->getCseq());
    }
    else // registration is newer than what we have, so store it
    {

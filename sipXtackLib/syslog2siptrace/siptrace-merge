@@ -251,7 +251,7 @@ sub insert_message_into_list {
 	    my($entry) = ${$list_ref}[$i];
 	    my($text) = ${$entry}[1];
 
-	    # Test to see if $element looks like a resent of the $i'th message in 
+	    # Test to see if $element looks like a resend of the $i'th message in 
 	    # the list.
 	    my($s1) = $text =~ m%<source>(.*)</source>%;
 	    my($d1) = $text =~ m%<destination>(.*)</destination>%;

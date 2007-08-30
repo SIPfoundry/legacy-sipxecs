@@ -444,9 +444,12 @@ int main(int argc, char * argv[])
       else if(!strncmp(argv[i], "--before=", 9))
       {
          // --before=xxx gives a time range.
-         char* t = (char*) malloc(strlen(argv[i]) - 9 + 1 + 1);
+         char* t = (char*) malloc(strlen(argv[i]) - 9 + 1 + 1 + 1);
          strcpy(t, "\"");
          strcat(t, argv[i] + 9);
+         // Append '~' to the argument, so that all timestamps of which
+         // 'timestamp' is a prefix compare as <= 'timestamp'.
+         strcat(t, "~");
          // If this is less than the current before_test_string, use it.
          if (before_test_string == NULL || strcmp(t, before_test_string) < 0)
          {

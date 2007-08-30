@@ -1843,7 +1843,7 @@ MailboxManager::validateMailbox (
 
                         if ( result == OS_SUCCESS )
                         {
-                            // we don't always resove a best extension
+                            // we don't always resolve a best extension
                             if ( resolveExtensionFlag )
                             {
                                 logContent = "resolving extension for " + mailboxUrl.toString();
