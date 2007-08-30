@@ -15,6 +15,7 @@ import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.Interval;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
@@ -71,10 +72,11 @@ public abstract class Schedule extends BeanWithId {
     public String calculateValidTime() {
         WorkingTime workingTime = getWorkingTime();
         TimeZone timeZone = TimeZone.getDefault();
-        List<Integer> validTimeList = workingTime.calculateValidTime(timeZone);
-        List<String> validTimeStr = new ArrayList<String>(validTimeList.size());
-        for (Integer time : validTimeList) {
-            validTimeStr.add(Integer.toHexString(time));
+        List<Interval> intervals = workingTime.calculateValidTime(timeZone);
+        List<String> validTimeStr = new ArrayList<String>(intervals.size());
+        for (Interval time : intervals) {
+            validTimeStr.add(Integer.toHexString(time.getStart()));
+            validTimeStr.add(Integer.toHexString(time.getStop()));
         }
         return StringUtils.join(validTimeStr, ':');
     }

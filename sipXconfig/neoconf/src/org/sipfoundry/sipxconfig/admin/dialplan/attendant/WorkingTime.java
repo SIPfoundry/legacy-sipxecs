@@ -14,6 +14,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -58,15 +59,15 @@ public class WorkingTime extends ScheduledAttendant {
         return clone;
     }
 
-    public List<Integer> calculateValidTime(TimeZone timeZone) {
+    public List<Interval> calculateValidTime(TimeZone timeZone) {
         int timeZoneOffset = timeZone.getOffset((new Date()).getTime());
         int timeZoneOffsetInMinutes = timeZoneOffset / 1000 / 60;
         return calculateValidTimes(timeZoneOffsetInMinutes);
     }
 
-    private List<Integer> calculateValidTimes(int timeZoneOffsetInMinutes) {
+    private List<Interval> calculateValidTimes(int timeZoneOffsetInMinutes) {
         WorkingHours[] workingHours = getWorkingHours();
-        List<Integer> validTimeList = new ArrayList<Integer>();
+        List<Interval> validTimeList = new ArrayList<Interval>();
         for (WorkingHours wk : workingHours) {
             wk.addMinutesFromSunday(validTimeList, timeZoneOffsetInMinutes);
         }
@@ -88,25 +89,46 @@ public class WorkingTime extends ScheduledAttendant {
     }
 
     public boolean overlappingPeriods() {
-        List<Integer> times = calculateValidTimes(0);
-        int hoursLen = times.size() / 2;
-        int[] startHours = new int[hoursLen];
-        int[] stopHours = new int[hoursLen];
-        for (int i = 0; i < hoursLen; i++) {
-            int j = 2 * i;
-            startHours[i] = times.get(j);
-            stopHours[i] = times.get(j + 1);
+        List<Interval> intervals = calculateValidTimes(0);
+        Collections.sort(intervals);
+        if (intervals.size() < 2) {
+            return false;
         }
 
-        for (int j = 0; j < hoursLen - 1; j++) {
-            for (int k = j + 1; k < hoursLen; k++) {
-                if ((startHours[j] >= startHours[k] && startHours[j] < stopHours[k])
-                        || (stopHours[j] > startHours[k] && stopHours[j] <= stopHours[k])) {
-                    return true;
-                }
+        int lastStop = intervals.get(0).getStop();
+        for (int i = 1; i < intervals.size(); i++) {
+            Interval interval = intervals.get(i);
+            if (interval.getStart() < lastStop) {
+                return true;
             }
+            lastStop = interval.getStop();
         }
         return false;
+    }
+
+    /**
+     * Represents interval (in minutes from beginning of the week).
+     */
+    public static class Interval implements Comparable<Interval> {
+        private int m_start;
+        private int m_stop;
+
+        public Interval(int start, int stop) {
+            m_start = start;
+            m_stop = stop;
+        }
+
+        public int getStart() {
+            return m_start;
+        }
+
+        public int getStop() {
+            return m_stop;
+        }
+
+        public int compareTo(Interval interval) {
+            return m_start - interval.m_start;
+        }
     }
 
     public static class WorkingHours implements Serializable {
@@ -233,7 +255,7 @@ public class WorkingTime extends ScheduledAttendant {
          * @param minutes - list of minutes that all intervals need to be added to
          * @param tzOffsetInMinutes - current time zone offset expressed in minutes
          */
-        public void addMinutesFromSunday(List<Integer> minutes, int tzOffsetInMinutes) {
+        public void addMinutesFromSunday(List<Interval> minutes, int tzOffsetInMinutes) {
             ScheduledDay day = getDay();
             if (day.equals(ScheduledDay.EVERYDAY)) {
                 addMinutesFromSunday(minutes, tzOffsetInMinutes, ScheduledDay.DAYS_OF_WEEK);
@@ -246,15 +268,15 @@ public class WorkingTime extends ScheduledAttendant {
             }
         }
 
-        private void addMinutesFromSunday(List<Integer> minutes, int tzOffsetInMinutes,
+        private void addMinutesFromSunday(List<Interval> minutes, int tzOffsetInMinutes,
                 ScheduledDay... days) {
             for (ScheduledDay dow : days) {
-                List<Integer> intervals = calculateMinutesFromSunday(dow, tzOffsetInMinutes);
+                List<Interval> intervals = calculateMinutesFromSunday(dow, tzOffsetInMinutes);
                 minutes.addAll(intervals);
             }
         }
 
-        private List<Integer> calculateMinutesFromSunday(ScheduledDay day, int tzOffsetInMinutes) {
+        private List<Interval> calculateMinutesFromSunday(ScheduledDay day, int tzOffsetInMinutes) {
             // days here are numbered from 1 to 7 with 1 being Sunday and 7 being Saturday
             int minutesFromSunday = (day.getDayOfWeek() - 1) * MINUTES_PER_DAY;
 
@@ -264,7 +286,7 @@ public class WorkingTime extends ScheduledAttendant {
             }
             minutesFromSunday -= offset;
 
-            List<Integer> intervals = new ArrayList<Integer>();
+            List<Interval> intervals = new ArrayList<Interval>();
             int start = minutesFromSunday + getMinutesFromMidnight(m_start);
             if (start < 0) {
                 start += MINUTES_PER_WEEK;
@@ -276,13 +298,10 @@ public class WorkingTime extends ScheduledAttendant {
             }
 
             if (start <= stop) {
-                intervals.add(start);
-                intervals.add(stop);
+                intervals.add(new Interval(start, stop));
             } else {
-                intervals.add(start);
-                intervals.add(MINUTES_PER_WEEK);
-                intervals.add(0);
-                intervals.add(stop);
+                intervals.add(new Interval(start, MINUTES_PER_WEEK));
+                intervals.add(new Interval(0, stop));
             }
             return intervals;
         }
