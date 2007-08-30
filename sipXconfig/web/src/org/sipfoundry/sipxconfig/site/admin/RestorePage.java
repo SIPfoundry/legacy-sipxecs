@@ -118,79 +118,60 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
     }
 
     public void uploadAndRestoreFiles() {
-        IValidationDelegate validator = TapestryUtils.getValidator(getPage());
-        IUploadFile configurationFile = getUploadConfigurationFile();
-        IUploadFile voicemailFile = getUploadVoicemailFile();
-
-        List<BackupBean> tmpBeans = new ArrayList<BackupBean>();
-
-        if (configurationFile != null && !StringUtils.isBlank(configurationFile.getFilePath())) {
-            if (!configurationFile.getFileName().equalsIgnoreCase(
-                    BackupPlan.CONFIGURATION_ARCHIVE)) {
-                validator.record(new ValidatorException(getMessages().getMessage(
-                        "message.wrongConfigurationFileToRestore")));
-                return;
-            } else {
-                BackupBean configBean = uploadRestoreFile(configurationFile,
-                        BackupPlan.CONFIGURATION_ARCHIVE);
-                if (configBean == null) {
-                    validator.record(new ValidatorException(getMessages().getMessage(
-                            "message.failed.uploadConfiguration")));
-                    return;
-                }
-                tmpBeans.add(configBean);
+        try {
+            List<BackupBean> beans = new ArrayList<BackupBean>();
+            BackupBean config;
+            config = upload(getUploadConfigurationFile(), BackupPlan.CONFIGURATION_ARCHIVE,
+                    "message.wrongConfigurationFileToRestore");
+            if (config != null) {
+                beans.add(config);
             }
-        }
-
-        if (voicemailFile != null && !StringUtils.isBlank(voicemailFile.getFilePath())) {
-            if (!voicemailFile.getFileName().equalsIgnoreCase(BackupPlan.VOICEMAIL_ARCHIVE)) {
-                validator.record(new ValidatorException(getMessages().getMessage(
-                        "message.wrongVoicemailFileToRestore")));
-                return;
-            } else {
-                BackupBean voicemailBean = uploadRestoreFile(voicemailFile,
-                        BackupPlan.VOICEMAIL_ARCHIVE);
-                if (voicemailBean == null) {
-                    validator.record(new ValidatorException(getMessages().getMessage(
-                            "message.failed.uploadVoicemail")));
-                    return;
-                }
-                tmpBeans.add(voicemailBean);
+            BackupBean voicemail = upload(getUploadVoicemailFile(), BackupPlan.VOICEMAIL_ARCHIVE,
+                    "message.wrongVoicemailFileToRestore");
+            if (voicemail != null) {
+                beans.add(config);
             }
-        }
 
-        if (tmpBeans.size() == 0) {
-            validator.record(new ValidatorException(getMessages().getMessage(
-                    "message.noFileToRestore")));
-            return;
-        }
+            if (beans.isEmpty()) {
+                throw new ValidatorException(getMessages().getMessage("message.noFileToRestore"));
+            }
 
-        if (!getRestore().perform(tmpBeans)) {
-            TapestryUtils.getValidator(getPage()).record(
-                    new ValidatorException(getMessages().getMessage(NO_SCRIPT_FOUND)));
-            return;
-        }
+            if (!getRestore().perform(beans)) {
+                throw new ValidatorException(getMessages().getMessage(NO_SCRIPT_FOUND));
+            }
 
-        TapestryUtils.recordSuccess(this, getMessages().getMessage(SUCCESS));
+            TapestryUtils.recordSuccess(this, getMessages().getMessage(SUCCESS));
+        } catch (ValidatorException e) {
+            IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+            validator.record(e);
+        }
 
     }
 
-    private BackupBean uploadRestoreFile(IUploadFile uploadFile, String type) {
-        File tmpFile = null;
+    private BackupBean upload(IUploadFile uploadFile, String name, String msgWrongFile)
+        throws ValidatorException {
+
+        if (uploadFile == null) {
+            return null;
+        }
+        if (!uploadFile.getFileName().equalsIgnoreCase(name)) {
+            String error = getMessages().getMessage(msgWrongFile);
+            throw new ValidatorException(error);
+        }
+
         OutputStream os = null;
-        String prefix = StringUtils.substringBefore(uploadFile.getFileName(), ".");
-        String suffix = ".tar.gz";
         try {
-            tmpFile = File.createTempFile(prefix, suffix);
+            String prefix = StringUtils.substringBefore(uploadFile.getFileName(), ".");
+            File tmpFile = File.createTempFile(prefix, ".tar.gz");
             os = new FileOutputStream(tmpFile);
             IOUtils.copy(uploadFile.getStream(), os);
-            os.close();
+            return new BackupBean(tmpFile, name);
         } catch (IOException ex) {
-            return null;
+            String error = getMessages().getMessage("message.failed.uploadConfiguration");
+            throw new ValidatorException(error);
         } finally {
             IOUtils.closeQuietly(os);
         }
-        return new BackupBean(tmpFile, type);
     }
 
     static boolean validateSelections(List<BackupBean> list) {

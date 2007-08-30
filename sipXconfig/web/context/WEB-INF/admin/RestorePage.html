@@ -1,8 +1,8 @@
 <div jwcid="@Border">
   <h2><span key="title">Restore</span></h2>
-  <span jwcid="@ErrorMsg"/>
   <span jwcid="@common/TabNavigation" tabNames="ognl:{'restore', 'upload'}" selectedTab="prop:tab"/>
   <div id="settings-content">
+    <span jwcid="@ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
   <span jwcid="restoreTab@Block">
@@ -43,20 +43,22 @@
   <span jwcid="uploadTab@Block">
     <span jwcid="@QuickHelp" value="message:upload.quick.help"/>
       <form jwcid="upload@Form">
-        <table>
-          <tr jwcid="@FieldPanel"
-            field="component:configuration"
-                label="message:backup.CONFIGURATION">
-                <td jwcid="configuration@Upload"
-              file="prop:uploadConfigurationFile" />
-          </tr>
-          <tr jwcid="@FieldPanel"
-            field="component:voicemail"
-                label="message:backup.VOICEMAIL">
-                <td jwcid="voicemail@Upload"
-              file="prop:uploadVoicemailFile" />
-          </tr>
-        </table>
+        <fieldset>
+          <table>
+            <tr jwcid="@FieldPanel"
+              field="component:configuration"
+                  label="message:backup.CONFIGURATION">
+                  <td jwcid="configuration@Upload"
+                file="prop:uploadConfigurationFile" />
+            </tr>
+            <tr jwcid="@FieldPanel"
+              field="component:voicemail"
+                  label="message:backup.VOICEMAIL">
+                  <td jwcid="voicemail@Upload"
+                file="prop:uploadVoicemailFile" />
+            </tr>
+          </table>
+        </fieldset>
         <ul class="component-submit">
           <li>
             <input jwcid="@Submit" value="message:button.restore" listener="listener:uploadAndRestoreFiles"/>
