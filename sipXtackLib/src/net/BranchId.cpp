@@ -356,13 +356,12 @@ unsigned int BranchId::loopDetected(const SipMessage& message)
 }
 
 /// Initialize the secret value used to sign values.
-void BranchId::setSecret(const char* secret /**< a null terminated string used as input to sign the
-                                             *   branch-id value.
-                                             *   This should be chosen such that it:
-                                             * - is hard for an attacker to guess (includes at
-                                             *   least 32 bits of cryptographicaly random data)
-                                             * - ideally, is the same in replicated proxies
-                                             */
+void BranchId::setSecret(const UtlString& secret /**< used as input to sign the branch-id value.
+                                                  * This should be chosen such that it:
+                                                  * is hard for an attacker to guess (includes at
+                                                  * least 32 bits of cryptographicaly random data)
+                                                  * ideally, is the same in replicated proxies
+                                                  */
                          )
 {
    if (!smIdSecret.isNull()

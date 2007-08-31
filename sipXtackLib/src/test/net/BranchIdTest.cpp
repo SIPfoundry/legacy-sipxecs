@@ -94,7 +94,8 @@ public:
          // of the time for one of the 45 pairs.
 #        define MIN_DIFFS 9
 
-         BranchId::setSecret("stable");
+         UtlString stableTestSecret("stable");
+         BranchId::setSecret(stableTestSecret);
          
          const char* testMsg =
             "INVITE sip:someone@example.com SIP/2.0"

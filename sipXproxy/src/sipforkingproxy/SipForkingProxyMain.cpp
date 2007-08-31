@@ -23,6 +23,8 @@
 #include <net/SipUserAgent.h>
 #include <net/NameValueTokenizer.h>
 #include <xmlparser/tinyxml.h>
+#include <sipXecsService/SipXecsService.h>
+#include <sipXecsService/SharedSecret.h>
 
 #include <SipRouter.h>
 #include <ForwardRules.h>
@@ -332,76 +334,31 @@ main(int argc, char* argv[])
     UtlString domainName;
     UtlString proxyRecordRoute;
     int maxForwards;
-    OsConfigDb configDb;
+
     UtlString ipAddress;
 
     OsSocket::getHostIp(&ipAddress);
- /*Config files which are specific to a component 
-   (e.g. mappingrules.xml is to sipregistrar) Use the 
-   following logic: 
-   1) If  directory ../etc exists: 
-       The path to the data file is as follows 
-       ../etc/<data-file-name> 
 
-   2) Else the path is assumed to be: 
-      ./<data-file-name> 
-   */
-   
-   OsPath workingDirectory;
-   if ( OsFileSystem::exists( CONFIG_ETC_DIR ) )
-   {
-      workingDirectory = CONFIG_ETC_DIR;
-      OsPath path(workingDirectory);
-      path.getNativePath(workingDirectory);
+    OsPath DomainConfigfileName = SipXecsService::domainConfigPath();
+    OsConfigDb domainConfigDb;
 
-   } 
-   else
-   {
-      OsPath path;
-      OsFileSystem::getWorkingDirectory(path);
-      path.getNativePath(workingDirectory);
-   }
-
-    UtlString ConfigfileName =  workingDirectory + 
-      OsPathBase::separator +
-      "proxy-config";
-
-    if(configDb.loadFromFile(ConfigfileName) == OS_SUCCESS)
+    if(OS_SUCCESS != domainConfigDb.loadFromFile(DomainConfigfileName))
     {      
-      osPrintf("Found config file: %s\n", ConfigfileName.data());
-    }
-    else
-    {
-        configDb.set("SIP_PROXY_UDP_PORT", "5060");
-        configDb.set("SIP_PROXY_TCP_PORT", "5060");
-        configDb.set("SIP_PROXY_TLS_PORT", "5061");
-        //configDb.set("SIP_PROXY_DOMAIN_NAME", "");
-        //configDb.set("SIP_PROXY_RECORD_ROUTE", "DISABLE");
-        configDb.set("SIP_PROXY_MAX_FORWARDS", "");
-        configDb.set("SIP_PROXY_USE_AUTH_SERVER", "");
-        configDb.set("SIP_PROXY_AUTH_SERVER", "");
-        configDb.set("SIP_PROXY_DEFAULT_EXPIRES", "");
-        configDb.set("SIP_PROXY_DEFAULT_SERIAL_EXPIRES", "");
-        configDb.set("SIP_PROXY_HOST_ALIASES", "");
-        //configDb.set("SIP_PROXY_BRANCH_TIMEOUT", "");
-        configDb.set("SIP_PROXY_STALE_TCP_TIMEOUT", ""); 
-        configDb.set(CONFIG_SETTING_LOG_DIR, "");
-        configDb.set(CONFIG_SETTING_LOG_LEVEL, "");
-        configDb.set(CONFIG_SETTING_LOG_CONSOLE, "");
-        configDb.set(CONFIG_SETTING_CALL_STATE, "DISABLE");
-        configDb.set(CONFIG_SETTING_CALL_STATE_LOG, "");
-        configDb.set(CONFIG_SETTING_CALL_STATE_DB, "DISABLE");
-        configDb.set(CONFIG_SETTING_CALL_STATE_DB_HOST, CALL_STATE_DATABASE_HOST);
-        configDb.set(CONFIG_SETTING_CALL_STATE_DB_NAME, CALL_STATE_DATABASE_NAME);
-        configDb.set(CONFIG_SETTING_CALL_STATE_DB_USER, CALL_STATE_DATABASE_USER);
-        configDb.set(CONFIG_SETTING_CALL_STATE_DB_DRIVER, CALL_STATE_DATABASE_DRIVER);             
-
-        if(configDb.storeToFile(ConfigfileName) != OS_SUCCESS)
-        {
-           osPrintf("Could not write config file: %s\n", ConfigfileName.data());
-        }
+       osPrintf("Failed to open domain config file: %s\n", DomainConfigfileName.data());
     }
 
+    OsPath ConfigfileName = SipXecsService::Path(SipXecsService::ConfigurationDirType,
+                                                 "proxy-config");
+    OsConfigDb configDb;
+
+    if(OS_SUCCESS != configDb.loadFromFile(ConfigfileName))
+    {      
+       osPrintf("Failed to open config file: %s\n", ConfigfileName.data());
+    }
+    
+    SharedSecret LoopDetectionSecret(domainConfigDb);
+    BranchId::setSecret(LoopDetectionSecret);
+    
     // Initialize the OsSysLog...
     initSysLog(&configDb);    
 
@@ -705,10 +662,8 @@ main(int argc, char* argv[])
     //OsConfigDb mapRulesDb;
    
 
-    UtlString fileName ;
-    fileName =  workingDirectory + 
-      OsPathBase::separator +
-      FORWARDING_RULES_FILENAME  ;
+    OsPath fileName = SipXecsService::Path(SipXecsService::ConfigurationDirType,
+                                           FORWARDING_RULES_FILENAME);
 
     ForwardRules forwardingRules;
 
@@ -726,34 +681,10 @@ main(int argc, char* argv[])
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_INFO, "%s not found",
+        OsSysLog::add(FAC_SIP, PRI_INFO, "forwarding rules '%s' not found",
             fileName.data());
-        osPrintf("%s not found\n",
-            fileName.data());
-        useDefaultRules = TRUE;
     }
 
-    if(useDefaultRules)
-    {
-        OsSysLog::add(FAC_SIP, PRI_INFO, "using default forwarding rules");
-        osPrintf("using default forwarding rules\n");
-
-        UtlString localDomain;
-        OsSocket::getDomainName(localDomain);
-        UtlString hostName;
-        OsSocket::getHostName(&hostName);
-        UtlString ipAddress;
-        OsSocket::getHostIp(&ipAddress);
-        UtlString fqhn(hostName);
-        fqhn.append('.');
-        fqhn.append(localDomain);
-
-        forwardingRules.buildDefaultRules(localDomain.data(),
-                                          hostName.data(),
-                                          ipAddress.data(),
-                                          fqhn,
-                                          proxyUdpPort);
-    }
 
 #ifdef TEST_PRINT
     { // scope the test stuff
