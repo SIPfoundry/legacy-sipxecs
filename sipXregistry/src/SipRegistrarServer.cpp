@@ -1347,7 +1347,8 @@ void SipRegistrarServer::resetDbUpdateNumberEpoch()
    // Check that the first update number for the new epoch is greater than
    // the currently reported update number.  It always will be, absent
    // severe clock skew, but if it is not, the system will behave worse
-   // if we set the update number downward.
+   // if we set the update number downward.  So if the new epoch is greater
+   // that what has already been used, reset the update number.
    Int64 current = getDbUpdateNumber();
    if (newEpoch >= current)
    {
@@ -1362,9 +1363,11 @@ void SipRegistrarServer::resetDbUpdateNumberEpoch()
                     newEpoch
          );
    }
-   else if (newEpoch + 15 * 60 /* 15 minutes */ < current)
+   else if (newEpoch + ((15 * 60) << 32) /* 15 minutes */ < current)
    {
-      // Warn the user that there may be problems -- the update mechanism will
+      // If the new epoch number is more then 15 minutes less than the
+      // highest update number that has already been used, 
+      // warn the user that there may be problems -- the update mechanism will
       // work OK, but it's likely that there are future-dated registrations
       // in the database, and they will take a long time to time out.
       OsSysLog::add(FAC_SIP, PRI_CRIT,
