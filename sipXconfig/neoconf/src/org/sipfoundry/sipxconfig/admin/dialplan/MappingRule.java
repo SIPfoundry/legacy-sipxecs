@@ -18,6 +18,7 @@ import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer.Operation;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -62,6 +63,7 @@ public class MappingRule extends DialingRule {
     protected static final String VMAIL_DEPOSIT = "deposit";
     protected static final String VMAIL_RETRIEVE = "retrieve";
     protected static final String AUTOATTENDANT = "autoattendant";
+    private static final String FIELD_PARAM = "q=0.1";
 
     private String[] m_patterns;
     private String m_url;
@@ -142,19 +144,21 @@ public class MappingRule extends DialingRule {
     }
 
     public static class VoicemailFallback extends MappingRule {
+        private MediaServer m_mediaServer;
+
         public VoicemailFallback(int extensionLen, MediaServer mediaServer) {
-            DialPattern pattern = new DialPattern(StringUtils.EMPTY, extensionLen);
+            m_mediaServer = mediaServer;
             setPatterns(new String[] {
-                pattern.calculatePattern()
+                "~~vm~."
             });
 
             CallDigits digits = CallDigits.FIXED_DIGITS;
             MediaServer.Operation operation = MediaServer.Operation.VoicemailDeposit;
-            setUrl(buildUrl(digits, mediaServer, operation, "q=0.1"));
+            setUrl(buildUrl(digits, mediaServer, operation, MappingRule.FIELD_PARAM));
         }
 
         public List<String> getPermissionNames() {
-            return Collections.singletonList(PermissionName.VOICEMAIL.getName());
+            return Collections.singletonList(m_mediaServer.getPermissionName().getName());
         }
     }
 
@@ -181,6 +185,25 @@ public class MappingRule extends DialingRule {
             CallDigits userDigits = CallDigits.VARIABLE_DIGITS;
             MediaServer.Operation operation = MediaServer.Operation.VoicemailDeposit;
             setUrl(buildUrl(userDigits, mediaServer, operation, null));
+        }
+    }
+    
+    public static class VoicemailRedirect extends MappingRule {
+        public VoicemailRedirect() {
+            setPatterns(new String[] {"."});
+        }
+        
+        public Transform[] getTransforms() {
+            Transform[] transforms = new Transform[1];
+            FullTransform fullTransform = new FullTransform();
+            fullTransform.setUser("~~vm~{user}");
+            fullTransform.setFieldParams(new String[] {MappingRule.FIELD_PARAM});
+            transforms[0] = fullTransform;
+            return transforms;
+        }
+        
+        public List<String> getPermissionNames() {
+            return Collections.singletonList(PermissionName.VOICEMAIL.getName());
         }
     }
 

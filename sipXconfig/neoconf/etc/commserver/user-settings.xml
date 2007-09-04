@@ -79,6 +79,16 @@
         <value>DISABLE</value>
       </setting>
     </group>
+    <group name="voicemail-server">
+      <setting name="SipXVoicemailServer">
+      	<type refid="enable-disable"/>
+      	<value>ENABLE</value>
+      </setting>
+      <setting name="ExchangeUMVoicemailServer">
+      	<type refid="enable-disable"/>
+      	<value>DISABLE</value>
+      </setting>
+    </group>
   </group>
   <group name="caller-alias">
     <setting name="external-number">
@@ -91,4 +101,5 @@
       <value>0</value>
     </setting>
   </group>
+  
 </model>

@@ -101,6 +101,11 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
         for (Setting setting : callHandlingGroup.getValues()) {
             permissions.put(setting.getName(), new SettingPermission(setting));
         }
+        
+        Setting voicemailServerGroup = userSettingsModel.getSetting(Permission.VOICEMAIL_SERVER_PERMISSION_PATH);
+        for (Setting setting : voicemailServerGroup.getValues()) {
+            permissions.put(setting.getName(), new SettingPermission(setting));
+        }
         return permissions;
     }
 

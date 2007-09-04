@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public class SipXMediaServer extends MediaServer {
 
@@ -82,4 +83,9 @@ public class SipXMediaServer extends MediaServer {
     public String getHostname() {
         return MEDIA_SERVER_HOSTNAME;
     }
+
+    public PermissionName getPermissionName() {
+        return PermissionName.SIPX_VOICEMAIL;
+    }
+   
 }

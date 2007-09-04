@@ -30,17 +30,20 @@ public class Permissions extends DataSetGenerator {
     protected void addItems(Element items) {
         String domain = getSipDomain();
         CoreContext coreContext = getCoreContext();
-        List list = coreContext.loadUsers();
-        for (Iterator i = list.iterator(); i.hasNext();) {
-            User user = (User) i.next();
+        List<User> list = coreContext.loadUsers();
+        for (Iterator<User> i = list.iterator(); i.hasNext();) {
+            User user = i.next();
             addUser(items, user, domain);
         }
     }
 
     void addUser(Element item, User user, String domain) {
         Setting permissions = user.getSettings().getSetting(Permission.CALL_PERMISSION_PATH);
+        Setting voicemailPermissions = 
+            user.getSettings().getSetting(Permission.VOICEMAIL_SERVER_PERMISSION_PATH);
         PermissionWriter writer = new PermissionWriter(user, domain, item);
         permissions.acceptVisitor(writer);
+        voicemailPermissions.acceptVisitor(writer);
     }
 
     class PermissionWriter extends AbstractSettingVisitor {

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public class ExchangeMediaServer extends MediaServer {
 
@@ -73,5 +74,9 @@ public class ExchangeMediaServer extends MediaServer {
 
     public String getDigitStringForOperation(Operation operation, CallDigits userDigits) {
         return getServerExtension();
+    }
+
+    public PermissionName getPermissionName() {
+        return PermissionName.EXCHANGE_VOICEMAIL;
     }
 }

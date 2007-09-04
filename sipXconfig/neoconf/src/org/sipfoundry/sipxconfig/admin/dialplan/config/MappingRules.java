@@ -69,6 +69,7 @@ public class MappingRules extends RulesXmlFile {
         } else {
             hostMatch = getFirstHostMatch();
         }
+        
         generateRule(rule, hostMatch);
     }
 

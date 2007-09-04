@@ -113,6 +113,10 @@ public class InternalRule extends DialingRule {
                 rules.add(transfer);
             }
 
+            MappingRule redirect = new MappingRule.VoicemailRedirect();
+            redirect.setDescription(getDescription());
+            rules.add(redirect);
+            
             // pass -1 to generate fallback rule that matches any extension
             MappingRule fallback = new MappingRule.VoicemailFallback(-1, mediaServer);
             fallback.setDescription(getDescription());

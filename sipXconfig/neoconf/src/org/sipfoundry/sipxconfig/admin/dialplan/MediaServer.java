@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.permission.PermissionName;
+
 public abstract class MediaServer {
 
     public static enum Operation {
@@ -79,6 +81,12 @@ public abstract class MediaServer {
      */
     public abstract String getDigitStringForOperation(Operation operation, CallDigits userDigits);
 
+    /**
+     * Gets the PermissionName object associated with this type of MediaServer
+     * @return A PermissionName specifying the permission that applies to this server
+     */
+    public abstract PermissionName getPermissionName();
+    
     /**
      * Gets the hostname of this server
      * 

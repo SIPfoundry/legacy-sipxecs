@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -18,6 +19,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule.Operator;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.springframework.beans.factory.BeanFactory;
@@ -62,11 +64,12 @@ public class InternalRuleTest extends TestCase {
         List<DialingRule> rules = new ArrayList<DialingRule>();
         ir.appendToGenerationRules(rules);
 
-        assertEquals(3, rules.size());
+        assertEquals(4, rules.size());
 
         MappingRule v = (MappingRule) rules.get(0);
         MappingRule vt = (MappingRule) rules.get(1);
-        MappingRule vf = (MappingRule) rules.get(2);
+        MappingRule vr = (MappingRule) rules.get(2);
+        MappingRule vf = (MappingRule) rules.get(3);
 
         assertEquals(TEST_DESCRIPTION, v.getDescription());
         assertEquals("20004", v.getPatterns()[0]);
@@ -81,8 +84,15 @@ public class InternalRuleTest extends TestCase {
         assertEquals(VOICEMAIL_TRANSFER_URL, tvt.getUrl());
 
         assertEquals(TEST_DESCRIPTION, vf.getDescription());
-        assertEquals(".", vf.getPatterns()[0]);
-        assertEquals(PermissionName.VOICEMAIL.getName(), vf.getPermissionNames().get(0));
+        assertEquals(".", vr.getPatterns()[0]);
+        assertEquals(PermissionName.VOICEMAIL.getName(), vr.getPermissionNames().get(0));
+        FullTransform tvr = (FullTransform) vr.getTransforms()[0];
+        assertEquals("~~vm~{user}", tvr.getUser());
+        assertTrue(Arrays.deepEquals(new String[]{"q=0.1"}, tvr.getFieldParams()));
+        
+        assertEquals(TEST_DESCRIPTION, vf.getDescription());
+        assertEquals("~~vm~.", vf.getPatterns()[0]);
+        assertEquals(PermissionName.SIPX_VOICEMAIL.getName(), vf.getPermissionNames().get(0));
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
         assertEquals(VOICEMAIL_FALLBACK_URL, tvf.getUrl());
     }

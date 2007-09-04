@@ -61,8 +61,9 @@ public class PermissionsTest extends XMLTestCase {
         PermissionName.LONG_DISTANCE_DIALING.setEnabled(g, false);
         PermissionName.TOLL_FREE_DIALING.setEnabled(g, false);
         PermissionName.LOCAL_DIALING.setEnabled(g, true);
+        PermissionName.SIPX_VOICEMAIL.setEnabled(g, false);
+        PermissionName.EXCHANGE_VOICEMAIL.setEnabled(g, true);
         
-
         user.addGroup(g);
         user.setUserName("goober");
 
@@ -73,5 +74,8 @@ public class PermissionsTest extends XMLTestCase {
         System.out.println(XmlUnitHelper.asString(document));
         assertXpathEvaluatesTo("sip:goober@sipx.sipfoundry.org", "/items/item/identity", domDoc);
         assertXpathEvaluatesTo("LocalDialing", "/items/item/permission", domDoc);
+        
+        assertXpathEvaluatesTo("sip:goober@sipx.sipfoundry.org", "/items/item[4]/identity", domDoc);
+        assertXpathEvaluatesTo("ExchangeUMVoicemailServer", "/items/item[4]/permission", domDoc);
     }
 }
