@@ -4,6 +4,30 @@ SIPfoundry Issue Tracker at:
         http://track.sipfoundry.org/browse?XCF
 
 
+
+Version 3.9.2
+
+** Bug
+    * [XCF-1354] - daily and weekly schedules do not account for DST
+    * [XCF-1777] - Extract time pattern from the page locale
+    * [XCF-1826] - WorkingTime: not all overlapped cases are detected
+
+** Improvement
+    * [XCF-651] - It should be possible to restore from backup using the UI
+    * [XCF-1687] - Autoattendant configuration should be more versatile and allow all the same options that can be currently be set in vxml files.
+    * [XCF-1773] - Linksys 942 line settings patch
+    * [XCF-1785] - Phone and gateway configuration files should not be browsable
+    * [XCF-1786] - day of time routing schedules: "weekend", "week day" and "every day" as entries in day list
+    * [XCF-1799] - suppress generating <base/> tag to allow accessing UI through HTTP 'reverse' proxy
+    * [XCF-1802] - Backup & Restore: It should be possible to upload backup files using the GUI
+
+** New Feature
+    * [XCF-1605] - Provide personal auto-attendant (per user) that offers options for forwarding targets
+    * [XCF-1668] - Process Management Enhancement
+    * [XCF-1787] - define forwarding schedules on a per group bases
+    * [XCF-1788] - dial plan rules for configuring Exchange as Voice Mail server
+    * [XCF-1792] - support both sipX and Exchange voicemail servers on a single system
+
 Version 3.9.1
 
 ** Bug
