@@ -129,7 +129,7 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
             BackupBean voicemail = upload(getUploadVoicemailFile(), BackupPlan.VOICEMAIL_ARCHIVE,
                     "message.wrongVoicemailFileToRestore");
             if (voicemail != null) {
-                beans.add(config);
+                beans.add(voicemail);
             }
 
             if (beans.isEmpty()) {

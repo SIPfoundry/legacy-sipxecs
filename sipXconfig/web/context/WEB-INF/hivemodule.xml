@@ -21,9 +21,9 @@
   
   
 
-  <!-- Upload Size=20MB for no particular reason. Polycom firmware was 11MB -->
+  <!-- Upload Size=1GB for uploading backups -->
   <implementation service-id="tapestry.multipart.ServletMultipartDecoder">
-    <create-instance class="org.apache.tapestry.multipart.MultipartDecoderImpl,maxSize=20480000"
+    <create-instance class="org.apache.tapestry.multipart.MultipartDecoderImpl,maxSize=1073741824"
       model="threaded" />
   </implementation>
 
