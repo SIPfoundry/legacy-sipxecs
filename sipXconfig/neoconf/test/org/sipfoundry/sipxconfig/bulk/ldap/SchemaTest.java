@@ -28,19 +28,34 @@ public class SchemaTest extends TestCase {
         assertNull(schema.getAttributes("person"));
         schema.addClassDefinition(definition);
 
-        String expectedAttributesString = "sn cn userPassword telephoneNumber seeAlso description";
+        String expected = "sn cn userPassword telephoneNumber seeAlso description";
 
         String[] attributes = schema.getAttributes("person");
 
-        String[] expected = StringUtils.split(expectedAttributesString);
-        assertTrue(Arrays.equals(attributes, expected));
+        assertEquals(expected, StringUtils.join(attributes, " "));
     }
+    
+    public void testAddClassDefinitionFullActiveDirectory() {
+        String definition = "( 2.5.6.6 NAME 'person' SUP top "
+            + "STRUCTURAL MUST (cn ) MAY (sn $ serialNumber $ telephoneNumber $ seeAlso $ userPassword $ attributeCertificateAttribute ) ) ";
+
+        Schema schema = new Schema();
+        assertNull(schema.getAttributes("person"));
+        schema.addClassDefinition(definition);
+
+        String expected = "cn sn serialNumber telephoneNumber seeAlso userPassword attributeCertificateAttribute";
+
+        String[] attributes = schema.getAttributes("person");
+
+        assertEquals(expected, StringUtils.join(attributes, " "));
+    }
+    
 
     public void testGetObjectClassesNames() {
         Schema schema = new Schema();
         assertEquals(0, schema.getObjectClassesNames().length);
         schema.addClassDefinition("( 2.5.6.6 NAME 'bongo' DESC ''");
-        schema.addClassDefinition("( 2.5.6.6 NAME 'kuku' DESC ''");
+        schema.addClassDefinition("( 2.5.6.6 NAME 'kuku'");
 
         String[] classesNames = schema.getObjectClassesNames();
 
@@ -55,6 +70,24 @@ public class SchemaTest extends TestCase {
 
         ClassDefinition cd = ClassDefinition.fromSchemaString(definition);
         assertEquals("Abstraction of a netgroup", cd.getDescription());
+        assertEquals("nisNetgroup", cd.getName());
+        assertEquals("top", cd.getSup());
+
+        String expectedMustString = "cn";
+        assertEquals(1, cd.getMust().length);
+        assertEquals(expectedMustString, StringUtils.join(cd.getMust(), " "));
+
+        String expectedMayString = "isNetgroupTriple memberNisNetgroup description";
+        assertEquals(3, cd.getMay().length);
+        assertEquals(expectedMayString, StringUtils.join(cd.getMay(), " "));
+    }
+
+    public void testFromClassDefinitionStringActiveDirectory() {
+        String definition = "( 1.3.6.1.1.1.2.8 NAME 'nisNetgroup' SUP top "
+                + "STRUCTURAL MUST cn MAY (isNetgroupTriple $ memberNisNetgroup $ description ) )";
+
+        ClassDefinition cd = ClassDefinition.fromSchemaString(definition);
+        assertNull(cd.getDescription());
         assertEquals("nisNetgroup", cd.getName());
         assertEquals("top", cd.getSup());
 
@@ -86,7 +119,7 @@ public class SchemaTest extends TestCase {
 
         schema.addClassDefinition("( 1.3 NAME 'x' DESC '' SUP top "
                 + "AUXILIARY MUST a1 MAY a2 )");
-        schema.addClassDefinition("( 1.3 NAME 'y' DESC '' SUP top "
+        schema.addClassDefinition("( 1.3 NAME 'y' SUP top "
                 + "AUXILIARY MUST a1 MAY a3 )");
         schema.addClassDefinition("( 1.3 NAME 'z' DESC '' SUP top "
                 + "AUXILIARY MUST a1 MAY a4 )");
