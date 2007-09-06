@@ -30,7 +30,7 @@ public class AttrMap extends BeanWithId {
      * name of the group that will keep all users imported from LDAP
      */
     private String m_defaultGroupName;
-    
+
     /**
      * PIN to be used for Users that do not have PIN mapped
      */
@@ -61,6 +61,11 @@ public class AttrMap extends BeanWithId {
      * Selected object classes - we will only consider attributes from this list for mapping.
      */
     private Collection<String> m_selectedObjectClasses;
+
+    /**
+     * Path to LDAP schema - usually set by call to verify
+     */
+    private String m_subschemaSubentry;
 
     /**
      * Returns non null LDAP attributes. Used to limit search results.
@@ -115,11 +120,11 @@ public class AttrMap extends BeanWithId {
     public String getObjectClass() {
         return m_objectClass;
     }
-    
+
     public void setSelectedObjectClasses(Collection<String> selectedObjectClasses) {
         m_selectedObjectClasses = selectedObjectClasses;
     }
-    
+
     public Collection<String> getSelectedObjectClasses() {
         return m_selectedObjectClasses;
     }
@@ -162,6 +167,14 @@ public class AttrMap extends BeanWithId {
 
     public void setFilter(String filter) {
         m_filter = filter;
+    }
+
+    public void setSubschemaSubentry(String subschemaSubentry) {
+        m_subschemaSubentry = subschemaSubentry;
+    }
+
+    public String getSubschemaSubentry() {
+        return m_subschemaSubentry;
     }
 
     public boolean verified() {

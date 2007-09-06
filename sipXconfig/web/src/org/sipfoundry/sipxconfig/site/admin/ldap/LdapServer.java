@@ -80,7 +80,7 @@ public abstract class LdapServer extends BasePage implements PageBeginRenderList
         ldapManager.setConnectionParams(connectionParams);
         ldapManager.setAttrMap(attrMap);
 
-        Schema schema = ldapManager.getSchema();
+        Schema schema = ldapManager.getSchema(attrMap.getSubschemaSubentry());
         setSchema(schema);
 
         setStage("objectClasses");

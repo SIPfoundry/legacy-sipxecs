@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -31,69 +33,78 @@ import org.springframework.ldap.AttributesMapper;
 /**
  * Maintains LDAP connection params, attribute maps and schedule LdapManagerImpl
  */
-public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapManager, ApplicationContextAware {
+public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapManager,
+        ApplicationContextAware {
     private static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
     private LdapTemplateFactory m_templateFactory;
     private ApplicationContext m_applicationContext;
 
     public void verify(LdapConnectionParams params, AttrMap attrMap) {
         try {
-            String searchBase = retrieveDefaultSearchBase(params);
+            String[] attrNames = new String[] {
+                "namingContexts", "subschemaSubentry"
+            };
+            Map<String, String> results = retrieveDefaultSearchBase(params, attrNames);
+
+            String searchBase = results.get(attrNames[0]);
             // it will only overwrite the search base if not set yet
             if (StringUtils.isBlank(attrMap.getSearchBase())) {
                 attrMap.setSearchBase(searchBase);
             }
+            String subschemaSubentry = results.get(attrNames[1]);
+            attrMap.setSubschemaSubentry(subschemaSubentry);
         } catch (NamingException e) {
             verifyException("Failed to read data LDAP information : ", e);
         } catch (DataAccessException e) {
             verifyException("Failed connection to LDAP server : ", e);
         }
     }
-    
+
     private void verifyException(String message, Exception e) {
         LOG.debug("Verifying LDAP connection failed.", e);
-        throw new UserException(message + e.getMessage());        
+        throw new UserException(message + e.getMessage());
     }
 
-    public Schema getSchema() {
+    public Schema getSchema(String subschemaSubentry) {
         try {
             SearchControls cons = new SearchControls();
             // only interested in the first result
             cons.setCountLimit(1);
-    
+
             SchemaMapper mapper = new SchemaMapper();
             cons.setReturningAttributes(mapper.getReturningAttributes());
-            cons.setSearchScope(SearchControls.OBJECT_SCOPE);        
-    
-            Schema schema = (Schema) m_templateFactory.getLdapTemplate().search("cn=subSchema",
-                    LdapManager.FILTER_ALL_CLASSES, cons, new SchemaMapper(), LdapManager.NULL_PROCESSOR).get(0);
-            
-            
+            cons.setSearchScope(SearchControls.OBJECT_SCOPE);
+
+            Schema schema = (Schema) m_templateFactory.getLdapTemplate().search(
+                    subschemaSubentry, LdapManager.FILTER_ALL_CLASSES, cons, new SchemaMapper(),
+                    LdapManager.NULL_PROCESSOR).get(0);
+
             return schema;
         } catch (DataIntegrityViolationException e) {
             LOG.debug("Retrieving schema failed.", e);
-            throw new UserException("Cannot retrieve schema from LDAP server: " + e.getMessage());            
+            throw new UserException("Cannot retrieve schema from LDAP server: " + e.getMessage());
         }
     }
 
     private static class SchemaMapper implements AttributesMapper {
         private Schema m_schema;
-        private boolean m_initialized;        
-        
+        private boolean m_initialized;
+
         SchemaMapper() {
             m_schema = new Schema();
         }
-        
+
         public String[] getReturningAttributes() {
-            return new String[] { 
+            return new String[] {
                 "objectClasses"
-            };            
+            };
         }
-    
+
         public Object mapFromAttributes(Attributes attributes) throws NamingException {
             // only interested in the first result
             if (!m_initialized) {
-                NamingEnumeration definitions = attributes.get(getReturningAttributes()[0]).getAll();
+                NamingEnumeration definitions = attributes.get(getReturningAttributes()[0])
+                        .getAll();
                 while (definitions.hasMoreElements()) {
                     String classDefinition = (String) definitions.nextElement();
                     m_schema.addClassDefinition(classDefinition);
@@ -110,32 +121,46 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
      * 
      * ldapsearch -x -b '' -s base '(objectclass=*)' namingContexts
      * 
+     * @param attrNames TODO
+     * 
      * @return namingContext value - can be used as the search base for user if nothing more
      *         specific is provided
      * @throws NamingException
      */
-    private String retrieveDefaultSearchBase(LdapConnectionParams params) throws NamingException {
+    private Map<String, String> retrieveDefaultSearchBase(LdapConnectionParams params,
+            String[] attrNames) throws NamingException {
         SearchControls cons = new SearchControls();
-        String[] attrs = new String[] {
-            "namingContexts"
-        };
 
-        cons.setReturningAttributes(attrs);
+        cons.setReturningAttributes(attrNames);
         cons.setSearchScope(SearchControls.OBJECT_SCOPE);
-        List<Attributes> results = m_templateFactory.getLdapTemplate(params).search("", FILTER_ALL_CLASSES, cons, 
-                new AttributesPassThru(), NULL_PROCESSOR);
+
+        List<Map<String, String>> results = m_templateFactory.getLdapTemplate(params).search("",
+                FILTER_ALL_CLASSES, cons, new AttributesToValues(attrNames), NULL_PROCESSOR);
         // only interested in the first result
         if (results.size() > 0) {
-            return (String) results.get(0).get(attrs[0]).get();
+
+            return results.get(0);
         }
-        return StringUtils.EMPTY;
+        return null;
     }
-    
-    
-    static class AttributesPassThru implements AttributesMapper {
-        public Object mapFromAttributes(Attributes attributes) throws NamingException {
-            return attributes;
-        }    
+
+    static class AttributesToValues implements AttributesMapper {
+        private String[] m_attrNames;
+
+        public AttributesToValues(String... attrNames) {
+            m_attrNames = attrNames;
+        }
+
+        public Map<String, String> mapFromAttributes(Attributes attributes)
+                throws NamingException {
+            Map<String, String> values = new HashMap<String, String>();
+            for (String attrName : m_attrNames) {
+                // only retrieves a single value for each attribute
+                Object value = attributes.get(attrName).get();
+                values.put(attrName, value.toString());
+            }
+            return values;
+        }
     }
 
     public CronSchedule getSchedule() {
@@ -155,7 +180,8 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         connectionParams.setSchedule(schedule);
         getHibernateTemplate().update(connectionParams);
 
-        m_applicationContext.publishEvent(new LdapImportTrigger.ScheduleChangedEvent(schedule, this));
+        m_applicationContext.publishEvent(new LdapImportTrigger.ScheduleChangedEvent(schedule,
+                this));
     }
 
     public AttrMap getAttrMap() {
@@ -169,7 +195,8 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     }
 
     public LdapConnectionParams getConnectionParams() {
-        List<LdapConnectionParams> connections = getHibernateTemplate().loadAll(LdapConnectionParams.class);
+        List<LdapConnectionParams> connections = getHibernateTemplate().loadAll(
+                LdapConnectionParams.class);
         if (!connections.isEmpty()) {
             return connections.get(0);
         }

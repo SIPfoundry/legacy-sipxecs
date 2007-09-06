@@ -33,7 +33,7 @@ public interface LdapManager {
      * 
      * @throws UserException if connection is not possible for some reason
      */
-    Schema getSchema();
+    Schema getSchema(String subschemaSubentry);
 
     LdapConnectionParams getConnectionParams();
 
