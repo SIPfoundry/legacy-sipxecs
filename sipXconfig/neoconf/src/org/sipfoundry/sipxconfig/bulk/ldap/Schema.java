@@ -27,12 +27,12 @@ public class Schema {
         public static final Log LOG = LogFactory.getLog(ClassDefinition.class);
 
         private static final String PARAM_SEP = " $";
-        private static final Pattern NAME_PATTERN = Pattern.compile("NAME '(\\w+)'(?:\\s*DESC\\s*'(.*)')?");
-        private static final Pattern SUP_PATTERN = Pattern.compile("SUP (\\w+) ");
-        private static final Pattern MUST_PATTERN = Pattern.compile("MUST \\(\\s*([\\w\\s$]+)\\s*\\)");
-        private static final Pattern MUST_SINGLE_PATTERN = Pattern.compile("MUST (\\w+)\\s*");
-        private static final Pattern MAY_PATTERN = Pattern.compile("MAY \\(\\s*([\\w\\s$]+)\\s*\\)");
-        private static final Pattern MAY_SINGLE_PATTERN = Pattern.compile("MAY (\\w+)\\s*");
+        private static final Pattern NAME_PATTERN = Pattern.compile("NAME '([;\\-\\w]+)'(?:\\s*DESC\\s*'(.*)')?");
+        private static final Pattern SUP_PATTERN = Pattern.compile("SUP ([;\\-\\w]+) ");
+        private static final Pattern MUST_PATTERN = Pattern.compile("MUST \\(\\s*([;\\-\\w\\s$]+)\\s*\\)");
+        private static final Pattern MUST_SINGLE_PATTERN = Pattern.compile("MUST ([;\\-\\w]+)\\s*");
+        private static final Pattern MAY_PATTERN = Pattern.compile("MAY \\(\\s*([;\\-\\w\\s$]+)\\s*\\)");
+        private static final Pattern MAY_SINGLE_PATTERN = Pattern.compile("MAY ([;\\-\\w]+)\\s*");
 
         private String m_name;
         private String m_description;

@@ -111,6 +111,21 @@ public class SchemaTest extends TestCase {
         assertEquals(1, cd.getMay().length);
         assertEquals("macAddress", cd.getMay()[0]);
     }
+
+    public void testFromClassDefinitionStringStrangeNames() {
+        String definition = "( 1.2.840.113556.1.5.209 NAME 'msWMI-RealRangeParam' "
+            + "SUP msWMI-RangeParam STRUCTURAL MUST (msWMI-Int8Default ) MAY (msWMI-Int8Max $ msWMI-Int8Min ) )";
+
+        Schema schema = new Schema();
+        assertNull(schema.getAttributes("person"));
+        schema.addClassDefinition(definition);
+
+        String expected = "msWMI-Int8Default msWMI-Int8Max msWMI-Int8Min";
+
+        String[] attributes = schema.getAttributes("msWMI-RealRangeParam");
+
+        assertEquals(expected, StringUtils.join(attributes, " "));
+    }
     
     
     public void testGetAttributesPool() throws Exception {
