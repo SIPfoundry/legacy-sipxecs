@@ -32,7 +32,6 @@ public class LazySipxReplicationContextImplTest extends TestCase {
         SipxReplicationContext replication = replicationCtrl.createMock(SipxReplicationContext.class);
         replication.replicate(mr);
         replication.generate(DataSet.ALIAS);
-        replication.generate(DataSet.AUTH_EXCEPTION);
         replication.generate(DataSet.CREDENTIAL);
         replication.generate(DataSet.EXTENSION);
         replication.generate(DataSet.PERMISSION);
@@ -40,7 +39,6 @@ public class LazySipxReplicationContextImplTest extends TestCase {
         replication.publishEvent(event);
         replication.replicate(orbits);
         replication.generate(DataSet.ALIAS);
-        replication.generate(DataSet.AUTH_EXCEPTION);
         replication.generate(DataSet.CREDENTIAL);
         replication.generate(DataSet.EXTENSION);
         replication.generate(DataSet.PERMISSION);
@@ -57,7 +55,7 @@ public class LazySipxReplicationContextImplTest extends TestCase {
         
         lazy.replicate(mr);
         for(int i = 0; i < 20; i++) {
-            lazy.generate(DataSet.AUTH_EXCEPTION);
+            lazy.generate(DataSet.ALIAS);
             lazy.generate(DataSet.PERMISSION);
             lazy.generateAll();            
         }
@@ -67,7 +65,7 @@ public class LazySipxReplicationContextImplTest extends TestCase {
         
         lazy.replicate(orbits);
         for(int i = 0; i < 20; i++) {
-            lazy.generate(DataSet.AUTH_EXCEPTION);
+            lazy.generate(DataSet.ALIAS);
             lazy.generate(DataSet.PERMISSION);
             lazy.generateAll();            
         }        

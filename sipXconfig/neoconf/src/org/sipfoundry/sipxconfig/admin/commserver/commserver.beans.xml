@@ -82,10 +82,6 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Credentials" />
   <bean id="permissionDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Permissions" />
-  <bean id="authexceptionDataSet" parent="dataSetGenerator"
-    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.AuthExceptions">
-    <property name="forwardingContext" ref="forwardingContext" />
-  </bean>
   <bean id="caller-aliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.CallerAliases">
     <property name="gatewayContext" ref="gatewayContext" />

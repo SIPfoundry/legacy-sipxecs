@@ -21,7 +21,6 @@ import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.common.event.UserGroupDeleteListener;
-import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -59,14 +58,13 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     public void notifyCommserver() {
-        // Notify commserver of ALIAS and AUTH_EXCEPTIONS
+        // Notify commserver of ALIAS
         m_replicationContext.generate(DataSet.ALIAS);
-        m_replicationContext.generate(DataSet.AUTH_EXCEPTION);
     }
 
     public void saveCallSequence(CallSequence callSequence) {
         getHibernateTemplate().update(callSequence);
-        // Notify commserver of ALIAS and AUTH_EXCEPTIONS
+        // Notify commserver of ALIAS
         notifyCommserver();
     }
 
@@ -103,20 +101,6 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
             CallSequence sequence = (CallSequence) i.next();
             aliases.addAll(sequence.generateAliases(m_coreContext.getDomainName()));
         }
-        return aliases;
-    }
-
-    public List getForwardingAuthExceptions() {
-        List aliases = new ArrayList();
-        List sequences = loadAllCallSequences();
-        for (Iterator i = sequences.iterator(); i.hasNext();) {
-            CallSequence sequence = (CallSequence) i.next();
-            User user = sequence.getUser();
-            if (user.hasPermission(PermissionName.FORWARD_CALLS_EXTERNAL)) {
-                aliases.addAll(sequence.generateAuthExceptions());
-            }
-        }
-
         return aliases;
     }
 
@@ -203,7 +187,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public void saveSchedule(Schedule schedule) {
         getHibernateTemplate().saveOrUpdate(schedule);
-        // Notify commserver of ALIAS and AUTH_EXCEPTIONS
+        // Notify commserver of ALIAS
         notifyCommserver();
     }
 

@@ -9,12 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractCallSequence;
 import org.sipfoundry.sipxconfig.common.User;
 
@@ -51,19 +49,6 @@ public class CallSequence extends AbstractCallSequence {
         String identity = m_user.getUserName() + "@" + domain;
         // pass true to never route this to voicemail
         return generateAliases(identity, domain, true);
-    }
-
-    public List generateAuthExceptions() {
-        List calls = getRings();
-        List authExceptions = new ArrayList();
-        for (Iterator i = calls.iterator(); i.hasNext();) {
-            Ring r = (Ring) i.next();
-            String number = r.getNumber();
-            if (StringUtils.isNotEmpty(number)) {
-                authExceptions.add(number);
-            }
-        }
-        return authExceptions;
     }
 
     public User getUser() {

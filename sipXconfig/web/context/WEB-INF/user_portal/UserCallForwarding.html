@@ -8,9 +8,6 @@
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <span jwcid="@QuickHelp" value="message:quick.help"/>
     <span jwcid="@ErrorMsg"/>
-    <span jwcid="@If" condition="prop:renderForwardWarning">
-      <span class="user-warning" jwcid="@Insert" value="prop:forwardWarning"/>
-    </span>      
     <form jwcid="@Form" delegate="bean:validator" listener="listener:submit">
       <ul class="component-links">      
         <li><a jwcid="addRingLink@LinkSubmit" selected="prop:action" tag="add">

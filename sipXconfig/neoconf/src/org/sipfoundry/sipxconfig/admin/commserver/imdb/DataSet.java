@@ -23,7 +23,6 @@ public class DataSet extends Enum {
     public static final DataSet ALIAS = new DataSet("alias");
     public static final DataSet CREDENTIAL = new DataSet("credential");
     public static final DataSet PERMISSION = new DataSet("permission");
-    public static final DataSet AUTH_EXCEPTION = new DataSet("authexception");
     public static final DataSet CALLER_ALIAS = new DataSet("caller-alias");
 
     public DataSet(String dataSet) {

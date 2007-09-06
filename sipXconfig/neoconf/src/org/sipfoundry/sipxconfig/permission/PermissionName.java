@@ -31,13 +31,10 @@ public enum PermissionName {
 
     INTERNATIONAL_DIALING(Type.CALL, "InternationalDialing"),
 
-    FORWARD_CALLS_EXTERNAL(Type.CALL, "ForwardCallsExternal"),
-    
     /** Voicemail */
     SIPX_VOICEMAIL(Type.VOICEMAIL_SERVER, "SipXVoicemailServer"),
     
     EXCHANGE_VOICEMAIL(Type.VOICEMAIL_SERVER, "ExchangeUMVoicemailServer");
-
 
     private Type m_type;
 

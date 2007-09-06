@@ -157,39 +157,6 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(new Integer(3), actual.getValue(0, "Position"));
     }
 
-    public void testGetForwardingAliasesAndAuthExceptions() throws Exception {
-
-        // FIXME insert real permissions
-        // TestHelper.update("admin/forwarding/permissions.xml");
-
-        // this just tests that all aliases and excpetions are processed by the context
-        // there are separate test that take care of the content testing
-        // one of the rings is disabled and should not count towards the number
-        // of generated aliases
-        int seedRings = 4;
-        Collection forwardingAliases = m_context.getAliasMappings();
-        assertEquals(seedRings, forwardingAliases.size());
-        List authExceptions = m_context.getForwardingAuthExceptions();
-
-        // FIXME, should be 3
-        assertEquals(0, authExceptions.size());
-
-        User user = m_coreContext.loadUser(m_testUserId);
-        CallSequence callSequence = m_context.getCallSequenceForUser(user);
-        Ring ring = callSequence.insertRing();
-        ring.setNumber("999999");
-
-        m_context.saveCallSequence(callSequence);
-        m_context.flush();
-
-        forwardingAliases = m_context.getAliasMappings();
-        assertEquals(seedRings + 1, forwardingAliases.size());
-        authExceptions = m_context.getForwardingAuthExceptions();
-
-        // FIXME, should be 4
-        assertEquals(0, authExceptions.size());
-    }
-
     public void testClearCallSequence() throws Exception {
         User user = m_coreContext.loadUser(m_testUserId);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);

@@ -31,8 +31,6 @@ public interface ForwardingContext extends AliasProvider {
 
     public void saveCallSequence(CallSequence callSequence);
 
-    public List getForwardingAuthExceptions();
-
     public void clear();
 
     public void flush();

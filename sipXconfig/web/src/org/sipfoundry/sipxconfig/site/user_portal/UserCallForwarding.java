@@ -122,16 +122,4 @@ public abstract class UserCallForwarding extends UserBasePage implements PageBeg
     public boolean getHasVoiceMail() {
         return getUser().hasPermission(PermissionName.VOICEMAIL);
     }
-
-    /**
-     * Users who do not have external call permission should be warned that call forwarding will
-     * not work.
-     */
-    public boolean getRenderForwardWarning() {
-        return !getUser().hasPermission(PermissionName.FORWARD_CALLS_EXTERNAL);
-    }
-
-    public String getForwardWarning() {
-        return getMessages().format("warn.external", getUser().getUserName());
-    }
 }

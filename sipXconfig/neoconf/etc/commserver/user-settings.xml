@@ -70,10 +70,6 @@
         <type refid="enable-disable" />
         <value>ENABLE</value>
       </setting>
-      <setting name="ForwardCallsExternal">
-        <type refid="enable-disable" />
-        <value>DISABLE</value>
-      </setting>
       <setting name="RecordSystemPrompts">
         <type refid="enable-disable" />
         <value>DISABLE</value>

@@ -83,28 +83,6 @@ public class CallSequenceTest extends TestCase {
         }
     }
 
-    public void testGenerateAuthExceptions() {
-        final int N = 7;
-        List rings = new ArrayList(N);
-        for (int i = 0; i < N; i++) {
-            Ring ring = new Ring("2" + i, i, Ring.Type.DELAYED, true);
-            rings.add(ring);
-        }
-        // add empty ring - should not change anything
-        rings.add(new Ring());
-
-        CallSequence sequence = new CallSequence();
-        sequence.setUser(m_user);
-        sequence.setRings(rings);
-
-        List authExceptions = sequence.generateAuthExceptions();
-        assertEquals(N, authExceptions.size());
-        for (int i = 0; i < authExceptions.size(); i++) {
-            String number = (String) authExceptions.get(i);
-            assertEquals("2" + i, number);
-        }
-    }
-
     public void testGenerateAliasesEmpty() {
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);

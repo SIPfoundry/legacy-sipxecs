@@ -227,8 +227,9 @@
     <antcall target="time_of_day"/>
     <antcall target="backup-configs-converge"/>
     <antcall target="schedules-per-user-group"/>
-  	<antcall target="internal-rule-media-server" />
+    <antcall target="internal-rule-media-server" />
     <antcall target="personal-attendant" />
+    <antcall target="callforwardexternal"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="7" -->
   </target>	
@@ -481,6 +482,10 @@
 
   <target name="callgroup-fallback-destination" unless="callgroup-fallback-destination">
     <db-patch patch="callgroup-fallback-destination"/>
+  </target>
+
+  <target name="callforwardexternal" unless="callforwardexternal">
+    <db-patch patch="callforwardexternal"/>
   </target>
 
   <!-- 
