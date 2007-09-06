@@ -9,6 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.naming.Context;
+
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
@@ -22,6 +27,12 @@ public class LdapConnectionParams extends BeanWithId {
     private int m_port;
     private String m_principal;
     private String m_secret;
+
+    /**
+     * Used set Context.REFERRAL property. Needs to be 'follow' for ActiveDirecory.
+     */
+    private String m_referral;
+
     private CronSchedule m_schedule = new CronSchedule();
 
     public String getHost() {
@@ -59,18 +70,25 @@ public class LdapConnectionParams extends BeanWithId {
     private String getUrl() {
         return String.format("ldap://%s:%d", m_host, m_port);
     }
-    
+
     public void setSchedule(CronSchedule schedule) {
         m_schedule = schedule;
     }
-    
+
     public CronSchedule getSchedule() {
         return m_schedule;
     }
-    
+
+    public void setReferral(String referral) {
+        m_referral = referral;
+    }
+
     public void applyToContext(LdapContextSource config) {
         config.setUserName(StringUtils.defaultString(m_principal, StringUtils.EMPTY));
         config.setPassword(StringUtils.defaultString(m_secret, StringUtils.EMPTY));
         config.setUrl(getUrl());
+        Map<String, String> otherParams = new HashMap<String, String>();
+        otherParams.put(Context.REFERRAL, m_referral);
+        config.setBaseEnvironmentProperties(otherParams);
     }
 }

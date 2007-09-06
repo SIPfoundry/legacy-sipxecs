@@ -152,7 +152,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         }
 
         public Map<String, String> mapFromAttributes(Attributes attributes)
-                throws NamingException {
+            throws NamingException {
             Map<String, String> values = new HashMap<String, String>();
             for (String attrName : m_attrNames) {
                 // only retrieves a single value for each attribute
