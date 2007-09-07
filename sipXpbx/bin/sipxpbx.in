@@ -573,47 +573,6 @@ EOF
     rm -f ${badNames}
     finish_check ${localhostStatus}
 
-    ## Check for orphaned sipX processes
-    start_check "for orphaned sipX processes"
-    psOutput=/tmp/psOutput.$$
-    # Use Sys V arguments for ps, as they seem to be more widely implemented
-    # than the BSD arguments.
-    # Remember to ignore the process running this script.
-    # Also ignore the stunnel process, which starts at boot time rather
-    # than sipX start time.
-    # Save the whole output from ps so we can retrieve the header.
-    # Use a custom format to force the command arguments to print.
-    # This allows us to detect the Java process running the Config Server.
-    ps -wU @SIPXPBXUSER@ -o pid,tname,stat,bsdtime,args >${psOutput}.1
-    # Find the processes whose command name starts with "sip" or "watchdog".
-    grep <${psOutput}.1 -E ' sip| watchdog' |
-    grep -v "^ *$$ " >${psOutput}.2
-    # Add the Java processes whose arguments mention "/etc/sipxpbx", which
-    # should discover any sipXconfig.
-    PROCS="$( ps -wwU @SIPXPBXUSER@ -o pid,tname,stat,bsdtime,comm,args |
-              grep -E ' java' |
-              grep /etc/sipxpbx |
-	           awk '{ print $1 }' )"
-    # "ps -p $PROCS" will error if $PROCS is empty.
-    [ -n "$PROCS" ] &&
-	ps -wp $PROCS -o pid,tname,stat,bsdtime,comm |
-	tail -n+2 >>${psOutput}.2
-    # Test if we've seen any suspicious processes.
-    [ `wc -l <${psOutput}.2` = 0 ] ; psOutputOk=$?
-    if [ ${psOutputOk} = 1 ]
-    then
-        cat <<EOF >>${steperrfile}
-There are processes owned by user '@SIPXPBXUSER@' whose names start with
-   'sip' or 'watchdog', or appear to be java executing sipXconfig.
-   They may be orphaned processes from a previous start of the sipX system.
-
-EOF
-        ( head -1 ${psOutput}.1 ; cat ${psOutput}.2 ) |
-        sed -e 's/^/   /' >>${steperrfile}
-    fi
-    rm -f ${psOutput}.1 ${psOutput}.2
-    finish_check ${psOutputOk}
-
     ## Check that /tmp has the correct permissions.
     start_check "/tmp directory"
     if [[ "`ls -ld /tmp 2>/dev/null`" =~ drwxrwxrw[xt] ]]
