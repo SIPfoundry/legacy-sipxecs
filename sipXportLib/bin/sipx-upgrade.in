@@ -46,6 +46,7 @@ SipxUpgrade() {
         ###################################################################
         sipxconfig)
             UpgradeConfigServer
+            UpgradeMailstore
             ;;
 
         ## Upgrade section of sipXvxml - add upgrade call here
@@ -298,6 +299,11 @@ AddNamespaceToProcessDefinitions () {
     fi
 }
 
+UpgradeMailstore () {
+    RemoveObsoleteVoicemailSummaryFiles
+    UpgradeMailstoreNoPrivateFolders
+}
+
 RemoveObsoleteVoicemailSummaryFiles () {
     # the summary files are no longer used, so get rid of them
     # (if the system is reverted, they will be recreated on the fly when needed)
@@ -347,22 +353,10 @@ UpgradePbx() {
         3.1.*)
             ;;
 
-        3.[2-6].*) # 3.2 thru 3.6
-            RemoveObsoleteVoicemailSummaryFiles
-            ;;
-
         *)
             ;;
     esac
 
-    # Overlaps above so start a new case so this is done as well
-    case $Version in
-        2.* | 3.[0-6].*)  # 2.0 thru 3.6 
-            UpgradeMailstoreNoPrivateFolders
-            ;;
-        *)
-           ;;
-    esac
 }
 
 
