@@ -141,7 +141,7 @@ libsipXport_la_SOURCES =  \
     os/linux/OsMutexLinux.cpp \
     os/linux/OsPathLinux.cpp \
     os/linux/OsProcessLinux.cpp \
-	 os/OsProcessIterator.cpp \
+    os/OsProcessIterator.cpp \
     os/linux/OsSharedLibMgrLinux.cpp \
     os/linux/OsTaskLinux.cpp \
     os/linux/OsUtilLinux.cpp \
