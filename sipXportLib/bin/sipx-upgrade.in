@@ -128,14 +128,9 @@ EOF
             ;;
 
         2.9* | 3.[1-7].*)
-            # Add the new columns to the subscription.xml table, if they are
-	    # not present.
-	    SUBSCRIPTION=$LocalStateDir/sipxdata/sipdb/subscription.xml
-	    if [ -f $SUBSCRIPTION ] &&
-		! grep '<component>' $SUBSCRIPTION >/dev/null ; then
-	        perl -i -pe 's%<item>%<item><component>status</component><accept>application/simple-message-summary</accept><version>0</version>%' $SUBSCRIPTION
-	        rm -f $LocalStateDir/sipxdata/tmp/imdb.*
-	    fi
+            # We do not need to add the new columns to the subscription.xml table
+	    # (as was done formerly at this location) because SubscriptionDB::insertRow
+	    # now applies the correct default values for missing columns.
             ;;
 
         *)

@@ -157,37 +157,37 @@ public:
     // ResultSet column Keys ===================================================
 
     // The identity of this registration
-    static UtlString gIdentityKey;
+    static const UtlString gIdentityKey;
 
     // The AOR of this registration
-    static UtlString gUriKey;
+    static const UtlString gUriKey;
 
     // The Call-ID of the REGISTERs that establish/maintain this registration
-    static UtlString gCallidKey;
+    static const UtlString gCallidKey;
 
     // The contact of this registration
-    static UtlString gContactKey;
+    static const UtlString gContactKey;
 
     // The q-value of this registration
-    static UtlString gQvalueKey;
+    static const UtlString gQvalueKey;
 
     // The +sip.instance value that was provided with the registration, or the null string
-    static UtlString gInstanceIdKey;
+    static const UtlString gInstanceIdKey;
 
     // The GRUU that was assigned to this registration, or the null string
-    static UtlString gGruuKey;
+    static const UtlString gGruuKey;
 
     // The contact of this registration
-    static UtlString gCseqKey;
+    static const UtlString gCseqKey;
 
     // Absolute expiration time of this registration, seconds since 1/1/1970
-    static UtlString gExpiresKey;
+    static const UtlString gExpiresKey;
 
     // The name of the Primary Registrar for this registration
-    static UtlString gPrimaryKey;
+    static const UtlString gPrimaryKey;
 
     // The DbUpdateNumber of the last modification to this entry
-    static UtlString gUpdateNumberKey;
+    static const UtlString gUpdateNumberKey;
 
     //==========================================================================
 
@@ -222,7 +222,8 @@ private:
     /// No destructor, no no no
     ~RegistrationDB();
 
-    static UtlString nullString;
+    static const UtlString nullString;
+    static const UtlString percent;
 };
 
 #endif //REGISTRATIONDB_H

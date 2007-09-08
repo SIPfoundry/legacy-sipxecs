@@ -59,6 +59,10 @@ const UtlString SubscriptionDB::gKeyKey("key");
 const UtlString SubscriptionDB::gRecordrouteKey("recordroute");
 const UtlString SubscriptionDB::gAcceptKey("accept");
 const UtlString SubscriptionDB::gVersionKey("version");
+const UtlString SubscriptionDB::sComponentStatus("status");
+const UtlString SubscriptionDB::sAcceptSimpleMessage("application/simple-message-summary");
+
+const UtlString SubscriptionDB::nullString("");
 
 /* ============================ CREATORS ================================== */
 
@@ -309,35 +313,48 @@ SubscriptionDB::store()
 UtlBoolean
 SubscriptionDB::insertRow (const UtlHashMap& nvPairs) 
 {
-    UtlString expStr = *((UtlString*)nvPairs.findValue(&gExpiresKey));
-    int expires = (int) atoi( expStr );
-    
-    UtlString cSubseqStr = *((UtlString*)nvPairs.findValue(&gSubscribecseqKey));
-    int subCseq = (int) atoi( cSubseqStr );
+    // For columns that were added in version 3.8, supply the default values
+    // if the input data does not supply one.
 
-    UtlString cNotifySeqStr = *((UtlString*)nvPairs.findValue(&gNotifycseqKey));
-    int notifyCseq = (int) atoi( cNotifySeqStr );
-    
-    UtlString cVersionStr = *((UtlString*)nvPairs.findValue(&gVersionKey));
-    int version = (int) atoi( cVersionStr );
-    
+    // For other integer values, default to 0 if the datum is missing in the input.
+
+    UtlString* cComponent = (UtlString*) nvPairs.findValue(&gComponentKey);
+    UtlString* expStr = (UtlString*) nvPairs.findValue(&gExpiresKey);
+    UtlString* cSubseqStr = (UtlString*) nvPairs.findValue(&gSubscribecseqKey);
+    UtlString* cNotifySeqStr = (UtlString*) nvPairs.findValue(&gNotifycseqKey);
+    UtlString* cVersionStr = (UtlString*) nvPairs.findValue(&gVersionKey);
+    UtlString* cAcceptStr = (UtlString*) nvPairs.findValue(&gAcceptKey);
+
+    // Get the remaining fields so that we can substitute the null string
+    // if the fetched value is 0 (the null pointer) because the field
+    // is not present in the disk file.
+    UtlString* uri = (UtlString*) nvPairs.findValue(&gUriKey);
+    UtlString* callId = (UtlString*) nvPairs.findValue(&gCallidKey);
+    UtlString* contact = (UtlString*) nvPairs.findValue(&gContactKey);
+    UtlString* eventType = (UtlString*) nvPairs.findValue(&gEventtypeKey);
+    UtlString* id = (UtlString*) nvPairs.findValue(&gIdKey);
+    UtlString* to = (UtlString*) nvPairs.findValue(&gToKey);
+    UtlString* from = (UtlString*) nvPairs.findValue(&gFromKey);
+    UtlString* key = (UtlString*) nvPairs.findValue(&gKeyKey);
+    UtlString* recordRoute = (UtlString*) nvPairs.findValue(&gRecordrouteKey);
+
     // Note: identity inferred from the uri
     return insertRow (
-        *((UtlString*)nvPairs.findValue(&gComponentKey)),
-        *((UtlString*)nvPairs.findValue(&gUriKey)),
-        *((UtlString*)nvPairs.findValue(&gCallidKey)),
-        *((UtlString*)nvPairs.findValue(&gContactKey)),
-        expires,
-        subCseq,
-        *((UtlString*)nvPairs.findValue(&gEventtypeKey)),
-        *((UtlString*)nvPairs.findValue(&gIdKey)),
-        *((UtlString*)nvPairs.findValue(&gToKey)),
-        *((UtlString*)nvPairs.findValue(&gFromKey)),
-        *((UtlString*)nvPairs.findValue(&gKeyKey)),
-        *((UtlString*)nvPairs.findValue(&gRecordrouteKey)),
-        notifyCseq,
-        *((UtlString*)nvPairs.findValue(&gAcceptKey)),
-        version);
+        cComponent ? *cComponent : sComponentStatus,
+        uri ? *uri : nullString,
+        callId ? *callId : nullString,
+        contact ? *contact : nullString,
+        expStr ? atoi(expStr->data()) : 0,
+        cSubseqStr ? atoi(cSubseqStr->data()) : 0,
+        eventType ? *eventType : nullString,
+        id ? *id : nullString,
+        to ? *to : nullString,
+        from ? *from : nullString,
+        key ? *key : nullString,
+        recordRoute ? *recordRoute : nullString,
+        cNotifySeqStr ? atoi(cNotifySeqStr->data()) : 0,
+        cAcceptStr ? *cAcceptStr : sAcceptSimpleMessage,
+        cVersionStr ? atoi(cVersionStr->data()) : 0);
 }
 
 UtlBoolean

@@ -69,19 +69,20 @@ private:
 RegistrationDB* RegistrationDB::spInstance = NULL;
 OsMutex         RegistrationDB::sLockMutex (OsMutex::Q_FIFO);
 
-UtlString RegistrationDB::gIdentityKey("identity");
-UtlString RegistrationDB::gUriKey("uri");
-UtlString RegistrationDB::gCallidKey("callid");
-UtlString RegistrationDB::gContactKey("contact");
-UtlString RegistrationDB::gQvalueKey("qvalue");
-UtlString RegistrationDB::gInstanceIdKey("instance_id");
-UtlString RegistrationDB::gGruuKey("gruu");
-UtlString RegistrationDB::gCseqKey("cseq");
-UtlString RegistrationDB::gExpiresKey("expires");
-UtlString RegistrationDB::gPrimaryKey("primary");
-UtlString RegistrationDB::gUpdateNumberKey("update_number");
+const UtlString RegistrationDB::gIdentityKey("identity");
+const UtlString RegistrationDB::gUriKey("uri");
+const UtlString RegistrationDB::gCallidKey("callid");
+const UtlString RegistrationDB::gContactKey("contact");
+const UtlString RegistrationDB::gQvalueKey("qvalue");
+const UtlString RegistrationDB::gInstanceIdKey("instance_id");
+const UtlString RegistrationDB::gGruuKey("gruu");
+const UtlString RegistrationDB::gCseqKey("cseq");
+const UtlString RegistrationDB::gExpiresKey("expires");
+const UtlString RegistrationDB::gPrimaryKey("primary");
+const UtlString RegistrationDB::gUpdateNumberKey("update_number");
 
-UtlString RegistrationDB::nullString("");
+const UtlString RegistrationDB::nullString("");
+const UtlString RegistrationDB::percent("%");
 
 /* ============================ CREATORS ================================== */
 
@@ -368,22 +369,22 @@ OsStatus RegistrationDB::cleanAndPersist( int newerThanTime )
 void
 RegistrationDB::insertRow(const UtlHashMap& nvPairs)
 {
-    UtlString expStr = *((UtlString*)nvPairs.findValue(&gExpiresKey));
-    int expires = (int) atoi( expStr );
+    // For integer values, default to 0 if the datum is missing in the input.
 
-    UtlString cseqStr = *((UtlString*)nvPairs.findValue(&gCseqKey));
-    int cseq = (int) atoi( cseqStr );
+    UtlString* expStr = (UtlString*) nvPairs.findValue(&gExpiresKey);
+    UtlString* cseqStr = (UtlString*) nvPairs.findValue(&gCseqKey);
 
-    // If the IMDB does not specify a Q-Value % will be found here
-    // (representing a null IMDB column)
-    UtlString qvalue = *((UtlString*)nvPairs.findValue(&gQvalueKey));
+    // If the IMDB does not specify a Q-Value, "%" will be found here
+    // (representing a null IMDB column).
+    UtlString* qvalue = (UtlString*) nvPairs.findValue(&gQvalueKey);
 
-    UtlString* updateNumberStr = dynamic_cast<UtlString*>(nvPairs.findValue(&gUpdateNumberKey));
+    UtlString* updateNumberStr = (UtlString*) nvPairs.findValue(&gUpdateNumberKey);
     // Note that updateNumberStr is likely to start with 0x, so we
     // need the full functionality of strtoll here, not just a
     // decimal-to-binary conversion.  But strtoll is in C99, so it
     // should be OK.
-    Int64 updateNumber = (updateNumberStr ? strtoll(updateNumberStr->data(), NULL, 0) : 0);
+    Int64 updateNumber = 
+       updateNumberStr ? strtoll(updateNumberStr->data(), NULL, 0) : 0;
 
     // Get the remaining fields so that we can substitute the null string
     // if the fetched value is 0 (the null pointer) because the field
@@ -397,14 +398,14 @@ RegistrationDB::insertRow(const UtlHashMap& nvPairs)
     // Note: identity inferred from the uri
     updateBinding(
        Url(*((UtlString*)nvPairs.findValue(&gUriKey))),
-       *(contact ? contact : &nullString),
-       qvalue,
-       *(callId ? callId : &nullString),
-       cseq,
-       expires,
-       *(instanceId ? instanceId : &nullString),
-       *(gruu ? gruu : &nullString),
-       *(primary ? primary : &nullString),
+       contact ? *contact : nullString,
+       qvalue ? *qvalue : percent,
+       callId ? *callId : nullString,
+       cseqStr ? atoi(cseqStr->data()) : 0,
+       expStr ? atoi(expStr->data()) : 0,
+       instanceId ? *instanceId : nullString,
+       gruu ? *gruu : nullString,
+       primary ? *primary : nullString,
        updateNumber
        );
 }

@@ -164,6 +164,10 @@ public:
     static const UtlString gRecordrouteKey;
     static const UtlString gAcceptKey;
     static const UtlString gVersionKey;
+    static const UtlString sComponentStatus;
+    static const UtlString sAcceptSimpleMessage;
+
+    static const UtlString nullString;
 
 protected:
     // this is implicit now

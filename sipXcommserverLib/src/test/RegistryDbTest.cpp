@@ -44,7 +44,8 @@ class RegistryDbTest : public CppUnit::TestCase
    CPPUNIT_TEST(testUpdateExistingUriNewContact);  
    CPPUNIT_TEST(testExpireAllBindings); 
    CPPUNIT_TEST(testExpireOldBindings); 
-   //CPPUNIT_TEST(testCleanAndPersist);   
+   //CPPUNIT_TEST(testCleanAndPersist);
+   CPPUNIT_TEST(testLoadMissingColumns);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -535,9 +536,21 @@ public:
          RegistrationDB* regDb = RegistrationDB::getInstance();  
          
          regDb->cleanAndPersist(timeNow - 50);
+      }                                                                  
 
+   /* Test that a file containing rows that do not contain all the
+    * columns can be loaded without crashing.
+    * This is important in upgrade scenarios, when new columns have
+    * been added to the table.
+    */
+   void testLoadMissingColumns()
+      {
+         RegistrationDbTestContext testDbContext(TEST_DATA_DIR "/regdbdata",
+                                                 TEST_WORK_DIR "/regdbdata"
+                                                 );
+
+         testDbContext.inputFile("missingColumns.xml");
       }                                                                  
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(RegistryDbTest);
-
