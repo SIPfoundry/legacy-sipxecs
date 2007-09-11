@@ -22,6 +22,8 @@
 #include "sipdb/CredentialDB.h"
 #include "AuthPlugin.h"
 #include "SipAaa.h"
+#include "sipXecsService/SipXecsService.h"
+#include "sipXecsService/SharedSecret.h"
 
 // DEFINES
 //#define TEST_PRINT 1
@@ -63,18 +65,14 @@ SipAaa::SipAaa(SipUserAgent& sipUserAgent,
 
    readConfig(configDb, defaultUri);
    
-   // Construct the secret to be used in the route recognition hash.
-   /* :TODO: make this a configured value common to the cluster.
-    * The signature should be the same after a restart or any calls
-    * that are up will have problems with mid-dialog transactions
-    * this needs a secret value inserted, but a stable one.
-    */
-   OsDateTime now;
-   OsDateTime::getCurTime(now);
-   UtlRandom randomValue(now.usecs());
-   char      randomSecret[20];
-   sprintf(randomSecret, "%d", randomValue.rand());
-   RouteState::setSecret(randomSecret);
+   // Get the secret to be used in the route recognition hash.
+   // read the domain configuration
+   OsConfigDb domainConfiguration;
+   domainConfiguration.loadFromFile(SipXecsService::domainConfigPath());
+
+   // get the shared secret for generating signatures
+   SharedSecret secret(domainConfiguration);
+   RouteState::setSecret(secret);
     
    OsMsgQ* queue = getMessageQueue();
     

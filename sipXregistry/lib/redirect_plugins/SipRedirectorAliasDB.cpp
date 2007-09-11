@@ -17,7 +17,11 @@
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/AliasDB.h"
+#include "sipdb/CredentialDB.h"
 #include "SipRedirectorAliasDB.h"
+#include "net/SipXauthIdentity.h"
+#include "sipXecsService/SipXecsService.h"
+#include "sipXecsService/SharedSecret.h"
 
 // DEFINES
 // MACROS
@@ -64,6 +68,23 @@ SipRedirectorAliasDB::finalize()
 {
 }
 
+// Read config information.
+void SipRedirectorAliasDB::readConfig(OsConfigDb& configDb)
+{
+   // read the domain configuration
+   OsConfigDb domainConfiguration;
+   domainConfiguration.loadFromFile(SipXecsService::domainConfigPath());
+
+   // get the shared secret for generating signatures
+   SharedSecret secret(domainConfiguration);
+   // Set secret for signinig SipXauthIdentity
+   SipXauthIdentity::setSecret(secret.data());
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::readConfig "
+                 "set SipXauthIdentity secret to '%s'",
+                 mLogName.data(), secret.data()
+                 );
+}
+
 RedirectPlugin::LookUpStatus
 SipRedirectorAliasDB::lookUp(
    const SipMessage& message,
@@ -90,6 +111,13 @@ SipRedirectorAliasDB::lookUp(
                     "got %d AliasDB contacts", mLogName.data(),
                     numAliasContacts);
 
+      // Check if the request identity is a real user/extension
+      UtlString realm;
+      UtlString authType;
+      bool isUserIdentity = CredentialDB::getInstance()->isUriDefined(requestUri, realm, authType);
+      SipXauthIdentity authIdentity;
+      authIdentity.setIdentity(requestIdentity);
+
       for (int i = 0; i < numAliasContacts; i++)
       {
          static UtlString contactKey("contact");
@@ -99,6 +127,13 @@ SipRedirectorAliasDB::lookUp(
          {
             UtlString contact = *((UtlString*)record.findValue(&contactKey));
             Url contactUri(contact);
+
+            // if the request identity is a real user
+            if (isUserIdentity)
+            {
+               // Encode AuthIdentity into the URI
+               authIdentity.encodeUri(contactUri, message);
+            }
 
             // Add the contact.
             addContact(response, requestString, contactUri,

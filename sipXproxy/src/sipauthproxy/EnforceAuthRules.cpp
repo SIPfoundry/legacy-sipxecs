@@ -11,18 +11,22 @@
 #include "os/OsConfigDb.h"
 #include "os/OsSysLog.h"
 #include "os/OsFS.h"
+#include "sipXecsService/SipXecsService.h"
+#include "sipXecsService/SharedSecret.h"
 
 // APPLICATION INCLUDES
 #include "EnforceAuthRules.h"
 #include "sipdb/CredentialDB.h"
 #include "sipdb/PermissionDB.h"
-#include "sipdb/AuthexceptionDB.h"
+#include "net/SipXauthIdentity.h"
 
 // DEFINES
 // CONSTANTS
 const char DEFAULT_AUTH_RULES_FILENAME[] = "authrules.xml";
 const char RULES_FILENAME_CONFIG_PARAM[] = "RULES";
 const char RULES_ENFORCED_ROUTE_PARAM[] = "auth";
+
+const char IDENTITY_VALIDITY_CONFIG_NAME[] = "IDENTITY_VALIDITY_SECONDS";
 
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -63,6 +67,32 @@ EnforceAuthRules::readConfig( OsConfigDb& configDb /**< a subhash of the individ
                  mInstanceName.data()
                  );
    OsWriteLock writeLock(mRulesLock);
+
+   // read the domain configuration
+   OsConfigDb domainConfiguration;
+   domainConfiguration.loadFromFile(SipXecsService::domainConfigPath());
+
+   // get the shared secret for generating signatures
+   SharedSecret secret(domainConfiguration);
+   
+   // Set secret for signinig SipXauthIdentity
+   SipXauthIdentity::setSecret(secret.data());
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "EnforceAuthRules[%s]::readConfig "
+                 "set SipXauthIdentity secret to '%s'",
+                 mInstanceName.data(), secret.data()
+                 );
+
+   int validitySeconds = 0;
+   if (OS_NOT_FOUND==configDb.get(IDENTITY_VALIDITY_CONFIG_NAME, validitySeconds))
+   {
+      validitySeconds = 0;
+   }
+   // Set signature validity interval for SipXauthIdentity
+   SipXauthIdentity::setSignatureValidityInterval(OsTime(validitySeconds,0));
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "EnforceAuthRules[%s]::readConfig "
+                 "set SipXauthIdentity validity interval to '%d' seconds",
+                 mInstanceName.data(), validitySeconds
+                 );
 
    if (mpAuthorizationRules)
    {
@@ -157,19 +187,42 @@ EnforceAuthRules::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to p
        || !routeState.getParameter(mInstanceName.data(), RULES_ENFORCED_ROUTE_PARAM, unused)
        )
    {
-      UtlString userid;
-      requestUri.getUserId(userid);
+      // Determine the authIdentity. Use valid identity info if found in request, otherwise
+      // use the identity of request originator
+      UtlString  authUserIdentity;
+      SipXauthIdentity sipxIdentity(request);
+      bool isValid = sipxIdentity.getIdentity(authUserIdentity);
+      if ( isValid && !authUserIdentity.isNull())
+      {
+         // found identity in request
+         OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
+                       " found valid authIdentity '%s' in request callId %s",
+                       mInstanceName.data(), authUserIdentity.data(), callId.data() 
+                       );
+         
+      }
+      else
+      {
+         // use the identity of request originator
+         authUserIdentity = id;
+      }
 
-      if ( ! AuthexceptionDB::getInstance()->isException( userid ) )
+      // Can't completely remove identity info, since it may be required
+      // furhter if the request spirals. Normalize authIdentity to only leave
+      // the most recent info in the request 
+      SipXauthIdentity::normalize(request);
+
+      if (!request.isResponse())
       {
          OsReadLock readLock(mRulesLock);
 
-         if (mpAuthorizationRules && !request.isResponse())
+         if (mpAuthorizationRules)
          {
             UtlString method;
             request.getRequestMethod(&method);
 
-            if (method.compareTo(SIP_ACK_METHOD) != 0) // don't authenticate ACK
+            // Don't authenticate ACK -- it is always allowed.
+            if (method.compareTo(SIP_ACK_METHOD) != 0)
             {
                ResultSet  requiredPermissions;
                mpAuthorizationRules->getPermissionRequired(requestUri, requiredPermissions);
@@ -179,10 +232,10 @@ EnforceAuthRules::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to p
                   OsSysLog::add(FAC_AUTH, PRI_INFO, "EnforceAuthRules[%s]::authorizeAndModify "
                                 " no permission required for call %s",
                                 mInstanceName.data(), callId.data()
-                                );
+                     );
                   result = ALLOW_REQUEST;
                }
-               else if (id.isNull())
+               else if (authUserIdentity.isNull())
                {
                   /*
                    * Some permission is required, but we cannot look up permissions without
@@ -191,15 +244,15 @@ EnforceAuthRules::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to p
                    * supply any information about what is needed, so do not set the reason.
                    */
                   OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
-                                " request not authenticated but requires some permission: %s",
+                                " request not authenticated but requires some permission. Call-Id = '%s'",
                                 mInstanceName.data(), callId.data() 
-                                );
+                     );
                }
                else
                {
                   // some permission is required and caller is authenticated, so see if they have it
                   ResultSet grantedPermissions;
-                  Url identity(id);
+                  Url identity(authUserIdentity);
                   PermissionDB::getInstance()->getPermissions(identity, grantedPermissions);
 
                   UtlString unmatchedPermissions;
@@ -207,12 +260,12 @@ EnforceAuthRules::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to p
 
                   if (isAuthorized(requiredPermissions, grantedPermissions,
                                    matchedPermission, unmatchedPermissions)
-                      )
+                     )
                   {
                      OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
                                    " id '%s' authorized by '%s'",
-                                   mInstanceName.data(), id.data(), matchedPermission.data()
-                                   );
+                                   mInstanceName.data(), authUserIdentity.data(), matchedPermission.data()
+                        );
 
                      result = ALLOW_REQUEST;
                   }
@@ -222,7 +275,7 @@ EnforceAuthRules::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to p
                                    "EnforceAuthRules[%s]::authorizeAndModify "
                                    " call '%s' requires '%s'",
                                    mInstanceName.data(), callId.data(), unmatchedPermissions.data()
-                                   );
+                        );
 
                      // since the user is at least a valid user, help them debug the configuration
                      // by telling them what permissions would allow this request.
@@ -245,11 +298,7 @@ EnforceAuthRules::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to p
       }
       else
       {
-         // requestUri was found in the authexceptions db, so let it go
-         OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
-                       " target '%s' allowed as an exception for %s",
-                       mInstanceName.data(), userid.data(), callId.data()
-                       );
+         // responses are always allowed
          result = ALLOW_REQUEST;
       }
 

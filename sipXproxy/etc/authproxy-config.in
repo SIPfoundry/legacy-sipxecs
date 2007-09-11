@@ -16,5 +16,6 @@ SIP_AUTHPROXY_CALL_STATE_DB : ${CALLRESOLVER_CALL_STATE_DB}
 
 SIP_AUTHPROXY_HOOK_LIBRARY.authrules : @SIPX_LIBDIR@/sipxauthproxy/libEnforceAuthRules.so
 SIP_AUTHPROXY.authrules.RULES        : @SIPX_CONFDIR@/authrules.xml
+SIP_AUTHPROXY.authrules.IDENTITY_VALIDITY_SECONDS : 300
 
 SIP_AUTHPROXY_HOOK_LIBRARY.fromalias : @SIPX_LIBDIR@/sipxauthproxy/libCallerAlias.so

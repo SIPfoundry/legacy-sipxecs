@@ -47,10 +47,16 @@ testsuite_SOURCES = \
     net/SipSubscribeTestSupport.cpp \
     net/SipSubscriptionMgrTest.cpp \
     net/SipProxyMessageTest.cpp \
+    net/SipXauthIdentityTest.cpp \
     net/XmlRpcTest.cpp
 
+net/SipXauthIdentityTest.cpp: net/SipXauthIdentityTest.cpp.in
+	$(srcdir)/net/refresh-hashes <$(srcdir)/net/SipXauthIdentityTest.cpp.in >$(srcdir)/net/SipXauthIdentityTest.cpp
+
 EXTRA_DIST = \
-    net/SipSrvLookupTest.named.zone
+    net/SipSrvLookupTest.named.zone \
+    net/SipXauthIdentityTest.cpp.in \
+    net/refresh-hashes
 
 # [DEBUG ASSISTANT] List a single unit test here to isolate it for
 # debugging or when developing a new unittest.  The executable
@@ -63,4 +69,4 @@ EXTRA_DIST = \
 sandbox_LDADD = $(testsuite_LDADD)
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
-	net/SipMessageTest.cpp
+	net/SipXauthIdentityTest.cpp

@@ -125,6 +125,7 @@ libsipXtack_la_SOURCES =  \
     net/StateChangeNotifier.cpp \
     net/TapiMgr.cpp \
     net/Url.cpp \
+    net/SipXauthIdentity.cpp \
     net/XmlRpcBody.cpp \
     net/XmlRpcDispatch.cpp \
     net/XmlRpcMethod.cpp \

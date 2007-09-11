@@ -11,13 +11,13 @@
 #include "cppunit/TestCase.h"
 #include "sipxunit/TestUtilities.h"
 #include "testlib/SipDbTestContext.h"
-#include "sipdb/AuthexceptionDB.h"
 #include "sipdb/PermissionDB.h"
 #include "sipdb/CredentialDB.h"
 #include "os/OsDefs.h"
 #include "os/OsConfigDb.h"
 #include "utl/PluginHooks.h"
 #include "net/SipMessage.h"
+#include "net/SipXauthIdentity.h"
 
 #include "sipauthproxy/AuthPlugin.h"
 #include "sipauthproxy/EnforceAuthRules.h"
@@ -28,10 +28,11 @@ class EnforceAuthRulesTest : public CppUnit::TestCase
 
    CPPUNIT_TEST(isAuthorized);
    CPPUNIT_TEST(testNoPermNeededOut);
+   CPPUNIT_TEST(testNoPermNeededOutAuthIdentity);
    CPPUNIT_TEST(testNoPermAck);
    CPPUNIT_TEST(testNoPermResponse);
    CPPUNIT_TEST(testForbidden);
-   CPPUNIT_TEST(testException);
+   CPPUNIT_TEST(testAuthIdentity);
    CPPUNIT_TEST(testNoChallengeAuth);
    CPPUNIT_TEST(testChallengeAuthSpiral);
 
@@ -44,6 +45,7 @@ public:
 
    void setUp()
       {
+         SipXauthIdentity::setSecret("fixed");
          RouteState::setSecret("fixed");
          TestDbContext.inputFile("authexception.xml");
          TestDbContext.inputFile("permission.xml");
@@ -52,7 +54,6 @@ public:
 
    void tearDown()
       {
-         AuthexceptionDB::getInstance()->releaseInstance();
          PermissionDB::getInstance()->releaseInstance();
          CredentialDB::getInstance()->releaseInstance();
       }
@@ -161,6 +162,84 @@ public:
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
       }
 
+
+   // Test that existance of authIdentity does not impact an out-of-dialog request
+   // when it does not require authorization/authentication
+   void testNoPermNeededOutAuthIdentity()
+      {
+         OsConfigDb configuration;
+         configuration.set("RULES", TEST_DATA_DIR "enforcerules.xml");
+
+         enforcer->readConfig(configuration);
+
+         UtlString identity; // no authenticated identity
+         Url requestUri("sip:911@emergency-gw");
+
+         // request with authidentity
+         const char* message =
+            "INVITE sip:911@emergency-gw SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:911@emergency-gw\r\n"
+            "X-Sipx-Authidentity: <sip:mightyhunter@enforce.example.com;signature=46A66059%3Ab1b86dffc2e38191cdfad0500bf9a209>\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 2 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage testMsg(message, strlen(message));
+
+         UtlSList noRemovedRoutes;
+         RouteState routeState( testMsg, noRemovedRoutes );
+
+         const char unmodifiedRejectReason[] = "unmodified";
+         UtlString rejectReason(unmodifiedRejectReason);
+         
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+                        == enforcer->authorizeAndModify(NULL,
+                                                        identity,
+                                                        requestUri,
+                                                        routeState,
+                                                        testMsg,
+                                                        rejectReason
+                                                        ));
+         ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+         UtlString routeName("example.com");
+         routeState.update(&testMsg, routeName);
+
+         UtlString recordRoute;
+         CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
+         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
+
+         // Only one Record-Route header.
+         CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
+
+         RouteState spiraledRouteState(testMsg, noRemovedRoutes);
+         
+         // Insert invalid AuthIdentity
+         testMsg.addHeaderField("X-Sipx-Authidentity", "<sip:invalid@anonymous;signature=46A66059%3Ab1b86dffc2e38191cdfad0500bf9a209>");
+
+         // now simulate a spiral with the same message
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+                        == enforcer->authorizeAndModify(NULL,
+                                                        identity,
+                                                        requestUri,
+                                                        spiraledRouteState,
+                                                        testMsg,
+                                                        rejectReason
+                                                        ));
+         ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+         spiraledRouteState.update(&testMsg, routeName);
+
+         CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
+         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
+
+         // Only one Record-Route header.
+         CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
+      }
 
    // Test that an ACK is not challenged and not RecordRouted
    void testNoPermAck()
@@ -323,9 +402,8 @@ public:
          ASSERT_STR_EQUAL("Requires NoAccess", rejectReason.data());
       }
 
-   // Test that an otherwise fobidden request is allowed when the authexceptions 
-   // say it is ok.
-   void testException()
+   // Test that permissions of authIdentity are taken into consideration
+   void testAuthIdentity()
       {
          UtlString identity("supercaster@enforce.example.com"); // has only 'fishing' permission
          Url okRequestUri("sip:user@boat");
@@ -366,6 +444,45 @@ public:
          CPPUNIT_ASSERT(okMsg.getRecordRouteField(0, &recordRoute));
          ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%210083f7f42bdf4998911a18d41fb3aa01>", recordRoute );
 
+         // now try the same request, but mightyhunter as authIdentity
+         // so this time it should NOT work
+         // Modify the identity to mightyhunter and verify that he can't call boat
+         const char* notOkMessage =
+            "INVITE sip:user@boat SIP/2.0\r\n" // 'lodge' requires 'hunting' permission
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@boat\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: exception-1\r\n"
+            "Cseq: 2 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage notOkMsg( notOkMessage, strlen(notOkMessage));
+
+         SipXauthIdentity authIdentity;
+         authIdentity.setIdentity("mightyhunter@enforce.example.com");
+         authIdentity.insert(notOkMsg);
+         rejectReason.remove(0);
+
+         // confirm that mightyhunter can't call boat
+         CPPUNIT_ASSERT(AuthPlugin::UNAUTHORIZED
+                        == enforcer->authorizeAndModify(NULL,
+                                                        identity,
+                                                        okRequestUri,
+                                                        okRouteState,
+                                                        notOkMsg,
+                                                        rejectReason
+                                                        ));
+         CPPUNIT_ASSERT(!rejectReason.compareTo("Requires fishing"));
+
+         // check that the authidentity is still present
+         SipXauthIdentity testIdentity(notOkMsg);
+         UtlString testIdentityString;
+         CPPUNIT_ASSERT(testIdentity.getIdentity(testIdentityString));
+         ASSERT_STR_EQUAL(testIdentityString,
+                          "mightyhunter@enforce.example.com");
+
          const char* noprivMessage =
             "INVITE sip:user@lodge SIP/2.0\r\n" // 'lodge' requires 'hunting' permission
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -380,6 +497,7 @@ public:
          SipMessage noprivMsg(noprivMessage, strlen(noprivMessage));
          RouteState noprivRouteState( noprivMsg, noRemovedRoutes );
          Url noprivRequestUri("sip:user@lodge");
+         rejectReason.remove(0);
 
          // confirm that supercaster cannot call lodge
          CPPUNIT_ASSERT(AuthPlugin::UNAUTHORIZED
@@ -392,7 +510,7 @@ public:
                                                         ));
          ASSERT_STR_EQUAL("Requires hunting", rejectReason.data());
 
-         // now try the same request, but to the identity that is in authexception, 
+         // now try the same request, but mightyhunter as authIdentity
          // so this time it should work
 
          const char* allowedMessage =
@@ -409,24 +527,44 @@ public:
          SipMessage allowedMsg(allowedMessage, strlen(allowedMessage));
          RouteState allowedRouteState( allowedMsg, noRemovedRoutes );
 
-         Url allowedRequestUri("allowed@lodge");
-
          rejectReason.remove(0);
+         authIdentity.insert(allowedMsg);
          
          CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
-                                                        allowedRequestUri,
+                                                        noprivRequestUri,
                                                         allowedRouteState,
                                                         allowedMsg,
                                                         rejectReason
                                                         ));
          CPPUNIT_ASSERT(rejectReason.isNull());
 
+         // check that the authidentity is still present
+         SipXauthIdentity testIdentity1(notOkMsg);
+         CPPUNIT_ASSERT(testIdentity1.getIdentity(testIdentityString));
+         ASSERT_STR_EQUAL(testIdentityString,
+                          "mightyhunter@enforce.example.com");
+
          allowedRouteState.update(&allowedMsg, routeName);
 
          CPPUNIT_ASSERT(allowedMsg.getRecordRouteField(0, &recordRoute));
          ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%2175da650843a06eee569f3c93b0f94ee5>", recordRoute );
+
+         // check that invalid authidentity can not help bypass permissions
+         rejectReason.remove(0);
+         // invalid authidentity - Call-ID does not match
+         allowedMsg.addHeaderField("X-Sipx-Authidentity", "<sip:mightyhunter@enforce.example.com;signature=46A66059%3Ab1b86dffc2e38191cdfad0500bf9a209>");
+
+         CPPUNIT_ASSERT(AuthPlugin::UNAUTHORIZED
+                        == enforcer->authorizeAndModify(NULL,
+                                                        identity,
+                                                        noprivRequestUri,
+                                                        allowedRouteState,
+                                                        allowedMsg,
+                                                        rejectReason
+                                                        ));
+         ASSERT_STR_EQUAL("Requires hunting", rejectReason.data());
 
       }
 
