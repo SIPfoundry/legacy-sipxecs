@@ -1490,7 +1490,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
           )
       {
          // Resends of final INVITE responses need to be
-         // passed through if they are 2xx class or the ACk
+         // passed through if they are 2xx class or the ACK
          // needs to be resent if it was a failure (i.e. 3xx,4xx,5xx,6xx)
          if(message->isResponse())
          {
@@ -1509,7 +1509,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                                            mSipTransactions,
                                            delayedDispatchMessage);
 
-               // Should never dispatch a resendof a 2xx
+               // Should never dispatch a resend of a 2xx
                if(delayedDispatchMessage)
                {
                   delete delayedDispatchMessage;

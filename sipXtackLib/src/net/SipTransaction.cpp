@@ -162,6 +162,18 @@ SipTransaction::SipTransaction(SipMessage* request,
 // Destructor
 SipTransaction::~SipTransaction()
 {
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::~ *******************************");
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::~ Deleting messages at:");
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::~    %p", mpRequest);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::~    %p", mpLastProvisionalResponse);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::~    %p", mpLastFinalResponse);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::~    %p", mpAck);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::~    %p", mpCancel);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::~    %p", mpCancelResponse);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::~ *******************************");
+#endif
+
     // Optimization: stop timers before doing anything else
     deleteTimers();
 
@@ -401,9 +413,9 @@ SipTransaction::addResponse(SipMessage*& response,
 }
 
 UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
-                                         SipUserAgent& userAgent,
-                                         SipTransactionList& transactionList,
-                                         enum messageRelationship relationship)
+                                          SipUserAgent& userAgent,
+                                          SipTransactionList& transactionList,
+                                          enum messageRelationship relationship)
 {
     UtlBoolean isResponse = outgoingMessage.isResponse();
     SipMessage* message = &outgoingMessage;
@@ -794,6 +806,12 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
             toAddress = toMaddr;
         }
 
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipTransaction::prepareRequestForSend UA Sending SIP REQUEST to: \"%s\" port: %d",
+                      toAddress.data(), port);
+#endif
+
         //SDUA
         UtlString sPort;
         UtlString thisMethod;
@@ -1048,6 +1066,15 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
         mTransactionState = TRANSACTION_TERMINATED;
     }
 
+#   ifdef TEST_PRINT
+    message.dumpTimeLog();
+#   endif
+
+#   ifdef TEST_PRINT
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipTransaction::doFirstSend set Scheduling & resend data");
+#   endif
+
     // Increment after the send so the logging messages are
     // acurate
 
@@ -1070,6 +1097,12 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                )
            )
         {
+#           ifdef TEST_PRINT
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::doFirstSend Scheduling UDP %s timeout in %d msec",
+                          method.data(),
+                          userAgent.getFirstResendTimeout());
+#           endif
             // Set the transaction for the timeout message to make
             // it easier to find the transaction when the timer fires.
             message.setTransaction(this);
@@ -1079,6 +1112,11 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
             SipMessageEvent* resendEvent =
                 new SipMessageEvent(new SipMessage(message),
                                 SipMessageEvent::TRANSACTION_RESEND);
+#           ifdef TEST_PRINT
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::doFirstSend timer scheduled for: %p",
+                          resendEvent->getMessage());
+#           endif
 
             // Set an event timer to resend the message
             // queue a message on this OsServerTask
@@ -1086,7 +1124,11 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
             OsTimer* timer = new OsTimer(incomingQ,
                 (int)resendEvent);
             mTimers.append(timer);
-
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::doFirstSend added timer %p to timer list.",
+                          timer);
+#endif
             // Convert from mSeconds to uSeconds
             OsTime timerTime(0,
                              resendTime);
@@ -1140,6 +1182,11 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                 OsTimer* expiresTimer = new OsTimer(incomingQ,
                         (int)expiresEvent);
                 mTimers.append(expiresTimer);
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::doFirstSend added timer %p to timer list.",
+                              expiresTimer);
+#endif
 
                 OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::doFirstSend"
                               " %p setting timeout %d",
@@ -1169,7 +1216,6 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
         delayedDispatchedMessage = NULL;
     }
 
-    //osPrintf("SipTransaction::handleResendEvent\n");
     nextTimeout = 0;
 
     // If this is not a duplicate, then there is something worng
@@ -1217,6 +1263,17 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 // Schedule the next timeout
                 // As this is a resend, we should be able to use
                 // the same copy of the SIP message for the next timeout
+#ifdef TEST_PRINT
+                if(outgoingMessage.getSipTransaction() == NULL)
+                {
+                    UtlString msgString;
+                    int msgLen;
+                    outgoingMessage.getBytes(&msgString, &msgLen);
+                    OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                  "SipTransaction::handleResendEvent reschedule of response resend with NULL transaction, message = '%s'",
+                                  msgString.data());
+                }
+#endif
 
                 // Schedule a timeout for requests which do not
                 // receive a response
@@ -1230,6 +1287,11 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                     (int)resendEvent);
 
                 mTimers.append(timer);
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::handleResendEvent added timer %p to timer list.",
+                              timer);
+#endif
 
                 // Convert from mSeconds to uSeconds
                 OsTime lapseTime(0,
@@ -1286,6 +1348,15 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
             outgoingMessage.getRequestMethod(&method);
 
             // This is a resend retrieve the address and port to send the message to.
+#ifdef TEST_PRINT
+            UtlString toAddress;
+            int port;
+            outgoingMessage.getSendAddress(&toAddress, &port);
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::handleResendEvent Resend request %s:%d",
+                          toAddress.data(), port);
+#endif
+
             SipMessage* resendMessage = NULL;
             if(method.compareTo(SIP_ACK_METHOD) == 0)
             {
@@ -1309,6 +1380,17 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 nextTimeout > 0)
             {
                 // Schedule the next timeout
+#ifdef TEST_PRINT
+                if(outgoingMessage.getSipTransaction() == NULL)
+                {
+                    UtlString msgString;
+                    int msgLen;
+                    outgoingMessage.getBytes(&msgString, &msgLen);
+                    OsSysLog::add(FAC_SIP, PRI_WARNING,
+                        "SipTransaction::handleResendEvent reschedule of request resend with NULL transaction, message = '%s'",
+                        msgString.data());
+                }
+#endif
                 // As this is a resend, we should be able to use
                 // the same copy of the SIP message for the next timeout
 
@@ -1323,6 +1405,11 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 OsTimer* timer = new OsTimer(incomingQ,
                     (int)resendEvent);
                 mTimers.append(timer);
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::handleResendEvent added timer %p to timer list.",
+                              timer);
+#endif
 
                 // Convert from mSeconds to uSeconds
                 OsTime lapseTime(0,
@@ -1339,7 +1426,12 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 //outgoingMessage = NULL;
                 //userAgent.dispatch(outgoingMessage,
                 //                   SipMessageEvent::TRANSPORT_ERROR);
-               if(!sentOk)
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::handleResendEvent sentOk: %d nextTimeout: %d",
+                              sentOk, nextTimeout);
+#endif
+                if(!sentOk)
                 {
                     if ( MESSAGE_REQUEST == relationship )
                     {
@@ -1353,6 +1445,10 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 else if ( nextTimeout < 0 )
                 {
                     mTransactionState = TRANSACTION_COMPLETE;
+#ifdef TEST_PRINT
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                  "SipTransaction::handleResendEvent failed to send request, TRANSACTION_COMPLETE");
+#endif
                 }
                 // else nextTimeout == 0, which should mean the
                 // final response was received
@@ -1392,6 +1488,11 @@ void SipTransaction::handleExpiresEvent(const SipMessage& outgoingMessage,
                                         int& nextTimeout,
                                         SipMessage*& delayedDispatchedMessage)
 {
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipTransaction::handleExpiresEvent %p", this);
+#endif
+
     if(delayedDispatchedMessage)
     {
         OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleExpiresEvent"
@@ -1528,6 +1629,11 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                                             transactionList,
                                             childSaysShouldDispatch,
                                             delayedDispatchedMessage);
+#           ifdef TEST_PRINT
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::handleChildIncoming %p parent says %d",
+                          this, shouldDispatch);
+#           endif
         }
         else // this is the topmost parent transaction
         {
@@ -1538,7 +1644,8 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
             // local application (i.e. message queue).
             if(mIsServerTransaction)
             {
-               if (   (responseCode >  SIP_TRYING_CODE) // (responseCode >= SIP_2XX_CLASS_CODE)
+               // If responseCode > 100 && <= 299
+               if (   (responseCode >  SIP_TRYING_CODE)
                    && (responseCode <  SIP_3XX_CLASS_CODE)
                    )
                {
@@ -1575,6 +1682,12 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
             }
         }
 
+#       ifdef TEST_PRINT
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipTransaction::handleChildIncoming %p check response %d",
+                      this, responseCode);
+#       endif
+
         if(responseCode < SIP_TRYING_CODE)
         {
             // What is this????
@@ -1602,7 +1715,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                 )
         {
             // If this is a server transaction for which the
-            // response must be forwarded up stream
+            // response must be forwarded upstream
             if(mIsServerTransaction)
             {
                 // Forward immediately
@@ -1610,7 +1723,11 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                 response.removeLastVia();
                 response.resetTransport();
                 response.clearDNSField();
-
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::handleChildIncoming immediately forwarding %d response",
+                              responseCode);
+#endif
                 handleOutgoing(response,
                                 userAgent,
                                 transactionList,
@@ -1636,6 +1753,12 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                && responseCode >= SIP_2XX_CLASS_CODE
                )
             {
+#               ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::handleChildIncoming %p"
+                              " should dispatch final response %d",
+                              this, __LINE__);
+#               endif
                 mDispatchedFinalResponse = TRUE;
             }
 
@@ -1660,6 +1783,12 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
             if(responseCode <= SIP_4XX_CLASS_CODE)
             {
                 // Recursion is handled by the child
+#               ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::handleChildIncoming %p"
+                              " 3XX response - should not dispatch",
+                              this);
+#               endif
 
                 // Wait until all the children have been searched
                 // before dispatching
@@ -1681,6 +1810,15 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                 // before dispatching
                 shouldDispatch = FALSE;
             }
+
+#           ifdef TEST_PRINT
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::handleChildIncoming %p"
+                          " response=%d parent=%p final=%p dispatched=%d",
+                          this, responseCode, mpParentTransaction,
+                          mpLastFinalResponse, mDispatchedFinalResponse
+               );
+#           endif
 
             // If this is the server transaction and we have not
             // yet sent back a final response check what is next
@@ -1720,6 +1858,10 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                         && recurseChildren(userAgent, transactionList) // true if something started
                         )
                 {
+#                   ifdef TEST_PRINT
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleChildIncoming %p creating children for 3XX",
+                                  this);
+#                   endif
                 }
 
                 // Not waiting for outstanding transactions to complete
@@ -1728,6 +1870,12 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                     SipMessage bestResponse;
                     if(findBestResponse(bestResponse))
                     {
+#                       ifdef TEST_PRINT
+                        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                      "SipTransaction::handleChildIncoming %p sending best response",
+                                      this);
+#                       endif
+
                         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
                         {
                            int bestResponseCode = bestResponse.getResponseStatusCode();
@@ -1769,7 +1917,12 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                                           "delayed dispatch of %d\n",
                                           this, delayedResponseCode );
 #                           endif
-
+#                           ifdef TEST_PRINT
+                            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                          "SipTransaction::handleChildIncoming %p "
+                                          "should dispatch delayed message %d",
+                                          this, __LINE__);
+#                           endif
                             mDispatchedFinalResponse = TRUE;
                         }
                     }
@@ -1785,6 +1938,11 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
             // Keep track of the fact that we dispatched a final
             // response
             mDispatchedFinalResponse = TRUE;
+#           ifdef TEST_PRINT
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::handleChildIncoming %p should dispatch final response %d",
+                          this, __LINE__);
+#           endif
 
             if(delayedDispatchedMessage)
             {
@@ -1973,7 +2131,7 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                     nextTimeout = -1;
 
                     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleChildTimeoutEvent"
-                                  " %p", this );
+                                  " %p", this);
 
                     if(startSequentialSearch(userAgent, transactionList))
                     {
@@ -2051,6 +2209,11 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                                 delayedDispatchedMessage = NULL;
                             }
                             delayedDispatchedMessage = new SipMessage(bestResponse);
+#                           ifdef TEST_PRINT
+                            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                          "SipTransaction::handleChildIncoming %p should dispatch final response %d",
+                                          this, __LINE__);
+#                           endif
                             mDispatchedFinalResponse = TRUE;
                         }
                     }
@@ -2070,6 +2233,11 @@ UtlBoolean SipTransaction::startSequentialSearch(SipUserAgent& userAgent,
     SipTransaction* childTransaction = NULL;
     UtlBoolean childStillProceeding = FALSE;
     UtlBoolean startingNewSearch = FALSE;
+
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipTransaction::startSequentialSearch %p", this);
+#endif
 
     while ((childTransaction = (SipTransaction*) iterator()))
     {
@@ -2280,6 +2448,11 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
             OsTimer* expiresTimer = new OsTimer(incomingQ, (int)expiresEvent);
                     
             mTimers.append(expiresTimer);
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::recurseDnsSrvChildren added timer %p to timer list.",
+                          expiresTimer);
+#endif
 
             OsTime expiresTime(expireSeconds, 0);
             expiresTimer->oneshotAfter(expiresTime);
@@ -2457,6 +2630,11 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
     UtlBoolean childRecursed = FALSE;
 
 #   ifdef LOG_FORKING
+#   ifdef TEST_PRINT
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipTransaction::recurseChildren %p", this);
+#   endif
+
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseChildren %p", this);
 #   endif
 
@@ -2474,6 +2652,13 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
         SipTransaction* childTransaction = NULL;
         int responseCode = mpLastFinalResponse->getResponseStatusCode();
 
+#       ifdef TEST_PRINT
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipTransaction: lastfinalsresponse & request forking enabled: %d ce: %d",
+                      userAgent.isForkingEnabled(),
+                      mChildTransactions.isEmpty()
+           );
+#       endif
         // If this is a client transaction for which we received
         // a 3XX response on which recursion makes sense,
         // decide whether or not to pursue the contacts
@@ -2768,6 +2953,10 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
     int childResponseCode;
     UtlString authField;
     UtlBoolean foundChild = FALSE;
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipTransaction::findBestResponse %p", this);
+#endif
 
     while ((childTransaction = (SipTransaction*) iterator()))
     {
@@ -2921,6 +3110,11 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
             OsSysLog::add(FAC_SIP, PRI_ERR,
                         "SipTransaction::findBestResponse invalid response:\n%s",
                         msgString.data());
+#           ifdef TEST_PRINT
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::findBestResponse invalid response: '%s'",
+                          msgString.data());
+#           endif
             }
         }
     }
@@ -3040,6 +3234,18 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                resendMessage.setResendDuration(nextTimeout);
                resendMessage.setSendProtocol(protocol);
 
+#ifdef TEST_PRINT
+                if(resendMessage.getSipTransaction() == NULL)
+                {
+                    UtlString msgString;
+                    int msgLen;
+                    resendMessage.getBytes(&msgString, &msgLen);
+                    OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                  "SipTransaction::doResend reschedule of request resend with NULL transaction, message = '%s'",
+                                  msgString.data());
+                }
+#endif
+
                // Schedule a timeout for requests which do not
                // receive a response
                SipMessageEvent* resendEvent =
@@ -3050,6 +3256,11 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                OsTimer* timer = new OsTimer(incomingQ,
                    (int)resendEvent);
                mTimers.append(timer);
+#ifdef TEST_PRINT
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipTransaction::doResend added timer %p to timer list.",
+                             timer);
+#endif
 
                // Convert from mSeconds to uSeconds
                OsTime lapseTime(0,
@@ -3105,7 +3316,6 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                                     TRUE);
     }
 
-
     // This is a message was already recieved once
     if(relationship == MESSAGE_DUPLICATE)
     {
@@ -3145,6 +3355,18 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                     mpLastFinalResponse : mpLastProvisionalResponse;
             }
 
+
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::handleIncoming duplicate REQUEST response");
+
+            if(response)
+            {
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "response protocol: %d",
+                             response->getSendProtocol());
+            }
+#endif
             if(response)
             {
                 int sendProtocol = response->getSendProtocol();
@@ -3172,6 +3394,11 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                    OsSysLog::add(FAC_SIP, PRI_CRIT, "SipTransaction::handleIncoming"
                                  " invalid response send protocol %d", sendProtocol);
                 }
+
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::handleIncoming resending response");
+#endif
             }
         }
 
@@ -3215,6 +3442,11 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                    OsSysLog::add(FAC_SIP, PRI_CRIT, "SipTransaction::handleIncoming"
                                  " invalid ACK send protocol %d", sendProtocol);
                 }
+
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::handleIncoming resent ACK");
+#endif
             }
         }
     }
@@ -3290,6 +3522,11 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                                    address,
                                    port);
                }
+#ifdef TEST_PRINT
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipTransaction::handleIncoming %p sending ACK for error response",
+                             this);
+#endif
                handleOutgoing(ack,
                               userAgent,
                               transactionList,
@@ -3315,26 +3552,26 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
 
     } // End if new final response
 
-    // Requests, provisional responses, Cancel response
+    // Requests, provisional responses, CANCEL response
     else
     {
-       SipMessage* responseCopy = new SipMessage(incomingMessage);
+        SipMessage* responseCopy = new SipMessage(incomingMessage);
         addResponse(responseCopy,
                     FALSE, // Incoming
                     relationship);
 
         if(relationship == MESSAGE_REQUEST &&
-            mIsServerTransaction)
+           mIsServerTransaction)
         {
             if(mpLastProvisionalResponse)
             {
                OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleIncoming"
-                             " new request with and existing provisional response");
+                             " new request with an existing provisional response");
             }
             else if(mpLastFinalResponse)
             {
                 OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleIncoming"
-                              " new request with and existing final response");
+                              " new request with an existing final response");
             }
             // INVITE transactions we can send trying to stop the resends
             else if(mRequestMethod.compareTo(SIP_INVITE_METHOD) == 0)
@@ -3343,6 +3580,10 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                 SipMessage trying;
                 trying.setTryingResponseData(&incomingMessage);
 
+#               ifdef TEST_PRINT
+              	OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                	      "SipTransaction::handleIncoming sending trying response");
+#               endif
                 handleOutgoing(trying,
                                userAgent,
                                transactionList,
@@ -3351,8 +3592,8 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
         }
 
         // If this transaction was marked as canceled
-        // but we could not send the cancel until we
-        // get a provisional response, we can now send
+        // but we could not send the CANCEL until we
+        // got a provisional response, we can now send
         // the CANCEL (we only send CANCEL for INVITEs).
         if(relationship == MESSAGE_PROVISIONAL &&
             !mIsServerTransaction &&
@@ -3363,7 +3604,10 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
             SipMessage cancel;
 
             cancel.setCancelData(mpRequest);
-
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::handleIncoming sending cancel after receiving first provisional response");
+#endif
             handleOutgoing(cancel,
                            userAgent,
                            transactionList,
@@ -3418,7 +3662,10 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                 cancelResponse.setResponseData(&incomingMessage,
                                     SIP_OK_CODE,
                                     SIP_OK_TEXT);
-
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::handleIncoming sending CANCEL response");
+#endif
                 handleOutgoing(cancelResponse,
                                userAgent,
                                transactionList,
@@ -3431,7 +3678,10 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                 // Send a transaction not found error
                 SipMessage cancelError;
                 cancelError.setBadTransactionData(&incomingMessage);
-
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::handleIncoming transaction not found, sending CANCEL response");
+#endif
                 handleOutgoing(cancelError,
                                userAgent,
                                transactionList,
@@ -3479,10 +3729,16 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
         }
     } // End: Requests, provisional responses, Cancel response
 
+#   ifdef TEST_PRINT
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipTransaction::handleIncoming %p asking parent shouldDispatch=%d delayed=%p",
+                  this, shouldDispatch, delayedDispatchedMessage );
+#   endif
+
 #   ifdef DISPATCH_DEBUG
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipTransaction::handleIncoming %p " 
-                  "before handleChildIncoming shouldDispatch=%d delayed=%p\n",
+                  "before handleChildIncoming shouldDispatch=%d delayed=%p",
                   this, shouldDispatch, delayedDispatchedMessage );
 #   endif
     
@@ -3497,8 +3753,14 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
 #   ifdef DISPATCH_DEBUG
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipTransaction::handleIncoming %p " 
-                  "after handleChildIncoming shouldDispatch=%d delayed=%p\n",
-                  this, shouldDispatch, delayedDispatchedMessage );
+                  "after handleChildIncoming shouldDispatch=%d delayed=%p",
+                  this, shouldDispatch, delayedDispatchedMessage);
+#   endif
+#   ifdef TEST_PRINT
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipTransaction::handleIncoming %p "
+                  "parent says shouldDispatch=%d delayed=%p",
+                  this, shouldDispatch, delayedDispatchedMessage);
 #   endif
     touch();
 
@@ -3522,6 +3784,11 @@ void SipTransaction::deleteTimers()
 
     while ((timer = (OsTimer*)iterator()))
     {
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipTransaction::deleteTimers deleting timer %p",
+                      timer);
+#endif
         removeTimer(timer);
         
         // Only delete the timer if not stopped -- the timer will be cleaned 
@@ -3580,7 +3847,10 @@ void SipTransaction::cancel(SipUserAgent& userAgent,
                 // final response it is too late
                 SipMessage cancel;
                 cancel.setCancelData(mpRequest);
-
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::cancel sending CANCEL");
+#endif
                 handleOutgoing(cancel,
                                userAgent,
                                transactionList,
@@ -4149,7 +4419,7 @@ long SipTransaction::getTimeStamp() const
 
 void SipTransaction::touch()
 {
-    // We touch the whole parent, child tree so that
+    // We touch the whole parent-child tree so that
     // none of transactions get garbage collected
     // until they are all stale.  This saves checking
     // up and down the tree during garbage collection
@@ -4182,6 +4452,13 @@ void SipTransaction::touch()
 void SipTransaction::touchBelow(int newDate)
 {
     mTimeStamp = newDate;
+
+#ifdef TEST_PRINT
+    UtlString serialized;
+    toString(serialized, FALSE);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipTransaction::touchBelow '%s'", serialized.data());
+#endif // TEST_PRINT
 
     SipTransaction* child = NULL;
     UtlSListIterator iterator(mChildTransactions);
@@ -4645,17 +4922,32 @@ SipTransaction::whatRelation(const SipMessage& message,
 
                                                 if (toTagMatches)
                                                 {
-                                                    SET_RELATIONSHIP(MESSAGE_DUPLICATE);
+#ifdef TEST_PRINT
+                                                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                                                  "DUPLICATED msg finalResponseCode - %d toTagMatches %d",
+                                                                  finalResponseCode, toTagMatches);
+#endif
+                                                    relationship = MESSAGE_DUPLICATE;
                                                 }
                                                 else
                                                 {
-                                                    SET_RELATIONSHIP(MESSAGE_NEW_FINAL);
+#ifdef TEST_PRINT
+                                                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                                                  "MESSAGE_NEW_FINAL - finalResponseCode - %d toTagMatches %d",
+                                                                  finalResponseCode, toTagMatches);
+#endif
+                                                    relationship = MESSAGE_NEW_FINAL;
                                                 }
 
                                             }
                                             else
                                             {
-                                               SET_RELATIONSHIP(MESSAGE_DUPLICATE);
+#ifdef TEST_PRINT
+                                               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                                             "DUPLICATED msg finalResponseCode - %d",
+                                                             finalResponseCode);
+#endif
+                                               relationship = MESSAGE_DUPLICATE;
                                             }
                                         }
                                         else
@@ -4680,6 +4972,11 @@ SipTransaction::whatRelation(const SipMessage& message,
 
                                     if(previousRequestMethod.compareTo(msgMethod) == 0)
                                     {
+#ifdef TEST_PRINT
+                                        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                                      "DUPLICATED msg previousRequestMethod - %s",
+                                                      previousRequestMethod.data());
+#endif
                                         SET_RELATIONSHIP(MESSAGE_DUPLICATE);
                                     }
                                     else if(msgMethod.compareTo(SIP_ACK_METHOD) == 0)

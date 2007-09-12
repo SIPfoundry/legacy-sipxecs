@@ -155,7 +155,8 @@ public:
       SSL_SOCKET = 3
    } IpProtocolSocketType;
    //: Protocol Types
-   //  Note: If you add a value to this enum, add a case in OsSocket::isFramed.
+   //  Note: If you add a value to this enum, add a case in OsSocket::isFramed
+   //  and OsSocket::isReliable.
    
 /* ============================ CREATORS ================================== */
    OsSocket();
@@ -355,6 +356,11 @@ public:
    //:Returns TRUE if the given IpProtocolSocketType is a framed message protocol
    // (that is, every read returns exactly one message), and so the Content-Length
    // header may be omitted.
+
+   static UtlBoolean isReliable(IpProtocolSocketType type);
+   //:Returns TRUE if the given IpProtocolSocketType is a relaible message protocol
+   // (that is, the transport mechanism will ensure delivery), so that "100 Trying"
+   // responses and re-sends are not needed.
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

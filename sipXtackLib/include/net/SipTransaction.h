@@ -51,7 +51,7 @@ public:
 
     /*** States of a transaction.
      * @note
-     *   See RFC 3261 for a defininition and description
+     *   See RFC 3261 for a definition and description
      *   of these transaction states and when the transitions occur.
      * @endnote
      */

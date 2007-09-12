@@ -1181,7 +1181,7 @@ UtlBoolean OsSocket::isFramed(IpProtocolSocketType type)
    {
    case TCP:
    case SSL_SOCKET:
-      // UNKNOWN and all other values return TRUE for safety.
+      // UNKNOWN and all other values return FALSE for safety.
    case UNKNOWN:
    default:
       r = FALSE;
@@ -1190,6 +1190,32 @@ UtlBoolean OsSocket::isFramed(IpProtocolSocketType type)
    case UDP:
    case MULTICAST:
       r = TRUE;
+      break;
+   }
+
+   return r;
+}
+
+//:Returns TRUE if the given IpProtocolSocketType is a relaible message protocol
+// (that is, the transport mechanism will ensure delivery), so that "100 Trying"
+// responses and re-sends are not needed.
+UtlBoolean OsSocket::isReliable(IpProtocolSocketType type)
+{
+   UtlBoolean r;
+
+   switch (type)
+   {
+   case TCP:
+   case SSL_SOCKET:
+      r = TRUE;
+      break;
+
+   case UDP:
+   case MULTICAST:
+      // UNKNOWN and all other values return FALSE for safety.
+   case UNKNOWN:
+   default:
+      r = FALSE;
       break;
    }
 
