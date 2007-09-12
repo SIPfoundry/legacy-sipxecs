@@ -150,16 +150,20 @@ foreach $file (@files) {
 		if ($_ =~ m%<branchId>([^<]*)</branchId>%) {
 		    $identifier .= $1 . $;;
 		} elsif ($_ =~ m%<method>([^<]*)</method>% ||
-			 $_ =~ m%<responseCode>([^<]*)</responseCode>%) {
+			 $_ =~ m%<responseCode>([^<]*)</responseCode>% ||
+			 $_ =~ m%<transactionId>([^<]*)</transactionId>%) {
 		    $identifier .= $1;
 		} elsif ($_ =~ m%<time>(.*)Z</time>%) {
 		    $time = $1;
 		}
 	    } until ($_ =~ m%<\/branchNode>%);
 	    # $element is the entire element, $identifier is a string of
-	    # the branchId elements and the method or responseCode.
+	    # the branchId elements, the transactionId, and the method
+	    # or responseCode.
 	    # It is a fine-grained identifier of the message, and all
 	    # duplicates of this message will have the same identifier.
+	    # (The proper assembly of $identity requires that the
+	    # XML elements appear in a canonical order.)
 
 	    # Check whether this element is to be included.
 	    next unless &select($element, $identifier, $time);

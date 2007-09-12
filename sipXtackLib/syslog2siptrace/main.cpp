@@ -274,12 +274,18 @@ void getMessageData(UtlString& content,
             }
         }
 
-        // transaction token: cseq,call-id,from-tag,to=tag
+        // transaction token: [C/A]cseq-number,call-id,from-tag,to-tag
         int cseq;
         UtlString cseqMethod;
         sipMsg.getCSeqField(&cseq, &cseqMethod);
         char numBuf[20];
-        sprintf(numBuf, "%d", cseq);
+        // Prepend to the CSeq number a "C" for the CANCEL transaction, and
+        // an "A" for the ACK transaction.
+        sprintf(numBuf, "%s%d",
+                cseqMethod.compareTo("CANCEL", UtlString::ignoreCase) == 0 ? "C" :
+                cseqMethod.compareTo("ACK", UtlString::ignoreCase) == 0 ? "A" :
+                "",
+                cseq);
         UtlString callId;
         sipMsg.getCallIdField(&callId);
         Url to;

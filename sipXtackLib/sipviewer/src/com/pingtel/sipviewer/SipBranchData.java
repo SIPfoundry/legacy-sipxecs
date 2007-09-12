@@ -55,7 +55,11 @@ public class SipBranchData
 
 
         transactionId  = xmlBranchNode.getChildText("transactionId");
-
+        int c = transactionId.charAt(0);
+        if (c == 'C' || c == 'A')
+        {
+            transactionId = transactionId.substring(1);
+        }
 
         frameId  = xmlBranchNode.getChildText("frameId");
 
@@ -63,7 +67,7 @@ public class SipBranchData
         message = xmlBranchNode.getChildText("message");
 
 
-          Element branchSet = xmlBranchNode.getChild("branchIdSet");
+        Element branchSet = xmlBranchNode.getChild("branchIdSet");
         branchIds = new Vector();
         List elementList = branchSet.getChildren("branchId");
         Element branchIdNode;
