@@ -287,91 +287,91 @@ public abstract class DHCPOption {
             switch (option.getCode()) {
                 case SUBNET_MASK:
                     SubnetMaskOption subnetMaskOption = (SubnetMaskOption) option;
-                    journalService.println("Subnet Mask: " + subnetMaskOption.toString());
+                    journalService.println("  Subnet Mask: " + subnetMaskOption.toString());
                     break;
                 case TIME_OFFSET:
                     TimeOffsetOption timeOffsetOption = (TimeOffsetOption) option;
-                    journalService.println("Time Offset: " + timeOffsetOption.toString());
+                    journalService.println("  Time Offset: " + timeOffsetOption.toString());
                     break;
                 case ROUTER:
                     RouterOption routerOption = (RouterOption) option;
-                    journalService.println("Router: " + routerOption.toString());
+                    journalService.println("  Router: " + routerOption.toString());
                     break;
                 case TIME_SERVER:
                     TimeServerOption timeServerOption = (TimeServerOption) option;
-                    journalService.println("Time Server: " + timeServerOption.toString());
+                    journalService.println("  Time Server: " + timeServerOption.toString());
                     break;
                 case NAME_SERVER:
                     NameServerOption nameServerOption = (NameServerOption) option;
-                    journalService.println("Name Server: " + nameServerOption.toString());
+                    journalService.println("  Name Server: " + nameServerOption.toString());
                     break;
                 case DOMAIN_NAME_SERVER:
                     DomainNameServerOption domainNameServerOption = (DomainNameServerOption) option;
-                    journalService.println("Domain Name Server: " + domainNameServerOption.toString());
+                    journalService.println("  DNS Server: " + domainNameServerOption.toString());
                     break;
                 case LOG_SERVER:
                     LogServerOption logServerOption = (LogServerOption) option;
-                    journalService.println("Log Server: " + logServerOption.toString());
+                    journalService.println("  Log Server: " + logServerOption.toString());
                     break;
                 case HOST_NAME:
                     HostNameOption hostNameOption = (HostNameOption) option;
-                    journalService.println("Host Name: " + hostNameOption.toString());
+                    journalService.println("  Host Name: " + hostNameOption.toString());
                     break;
                 case DOMAIN_NAME:
                     DomainNameOption domainNameOption = (DomainNameOption) option;
-                    journalService.println("Domain Name: " + domainNameOption.toString());
+                    journalService.println("  Domain Name: " + domainNameOption.toString());
                     break;
                 case NTP_SERVER:
                     NTPServerOption ntpServerOption = (NTPServerOption) option;
-                    journalService.println("NTP Server: " + ntpServerOption.toString());
+                    journalService.println("  NTP Server: " + ntpServerOption.toString());
                     break;
                 case LEASE_TIME:
                     LeaseTimeOption leaseTimeOption = (LeaseTimeOption) option;
-                    journalService.println("Lease Time: " + leaseTimeOption.toString());
+                    journalService.println("  Lease Time: " + leaseTimeOption.toString());
                     break;
                 case REQUESTED_ADDRESS:
                     RequestedAddressOption requestedAddressOption = (RequestedAddressOption) option;
-                    journalService.println("Requested IP Address: " + requestedAddressOption.toString());
+                    journalService.println("  Requested IP Address: " + requestedAddressOption.toString());
                     break;
                 case DHCP_MESSAGE_TYPE:
                     MessageTypeOption messageTypeOption = (MessageTypeOption) option;
-                    journalService.println("Message Type: " + messageTypeOption.toString());
+                    journalService.println("  Message Type: " + messageTypeOption.toString());
                     break;
                 case SERVER_IDENTIFIER:
                     ServerIdentifierOption serverIdentifierOption = (ServerIdentifierOption) option;
-                    journalService.println("Server Identifier: " + serverIdentifierOption.toString());
+                    journalService.println("  Server Identifier: " + serverIdentifierOption.toString());
                     break;
                 case PARAMETER_REQUEST:
                     ParameterRequestOption parameterRequestOption = (ParameterRequestOption) option;
-                    journalService.println("Parameter Request: " + parameterRequestOption.toString());
+                    journalService.println("  Parameter Request: " + parameterRequestOption.toString());
                     break;
                 case ERROR_MESSAGE:
                     MessageOption messageOption = (MessageOption) option;
-                    journalService.println("Message: " + messageOption.toString());
+                    journalService.println("  Message: " + messageOption.toString());
                     break;
                 case MESSAGE_SIZE:
                     MessageSizeOption messageSizeOption = (MessageSizeOption) option;
-                    journalService.println("Max Message Size: " + messageSizeOption.toString());
+                    journalService.println("  Max Message Size: " + messageSizeOption.toString());
                     break;
                 case VENDOR_IDENTIFIER:
                     VendorIdentifierOption vendorIdentifierOption = (VendorIdentifierOption) option;
-                    journalService.println("Vendor Identifier: " + vendorIdentifierOption.toString());
+                    journalService.println("  Vendor Identifier: " + vendorIdentifierOption.toString());
                     break;
                 case CLIENT_IDENTIFIER:
                     ClientIdentifierOption clientIdentifierOption = (ClientIdentifierOption) option;
-                    journalService.println("Client Identifier: " + clientIdentifierOption.toString());
+                    journalService.println("  Client Identifier: " + clientIdentifierOption.toString());
                     break;
                 case TFTP_SERVER:
                     TFTPServerOption tftpServerOption = (TFTPServerOption) option;
-                    journalService.println("TFTP Server: " + tftpServerOption.toString());
+                    journalService.println("  TFTP Server: " + tftpServerOption.toString());
                     break;
                 case SMTP_SERVER:
                     SMTPServerOption smtpServerOption = (SMTPServerOption) option;
-                    journalService.println("SMTP Server: " + smtpServerOption.toString());
+                    journalService.println("  SMTP Server: " + smtpServerOption.toString());
                     break;
                 case WWW_SERVER:
                     WWWServerOption wwwServerOption = (WWWServerOption) option;
-                    journalService.println("WWW Server: " + wwwServerOption.toString());
+                    journalService.println("  WWW Server: " + wwwServerOption.toString());
                     break;
                 default:
             }
