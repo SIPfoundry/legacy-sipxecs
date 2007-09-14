@@ -81,4 +81,9 @@
       </list>
     </property>
   </bean>
+  
+  <bean id="userGroupSettingsListener" class="org.sipfoundry.sipxconfig.common.event.PersonalAttendantSettingListener">
+    <property name="coreContext" ref="coreContext"/>
+    <property name="mailboxManager" ref="mailboxManager"/>
+  </bean>
 </beans>

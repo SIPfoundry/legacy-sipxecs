@@ -97,5 +97,10 @@
       <value>0</value>
     </setting>
   </group>
+  <group name="personal-attendant">
+    <setting name="operator">
+      <type refid="sip-uri"/>
+    </setting>
+  </group>
   
 </model>
