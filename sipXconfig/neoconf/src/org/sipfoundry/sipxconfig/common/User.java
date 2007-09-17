@@ -248,7 +248,11 @@ public class User extends BeanWithGroups implements NamedObject {
 
     @Override
     protected Setting loadSettings() {
-        return m_permissionManager.getPermissionModel();
+        if (m_permissionManager != null) {
+            return m_permissionManager.getPermissionModel();
+        } else {
+            return null;
+        }
     }
 
     public List getAliasMappings(String domainName) {

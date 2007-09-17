@@ -9,6 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.NamedObject;
@@ -151,5 +155,23 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
             Setting baseSetting = m_baseSetting.getSetting(setting.getPath());
             return new SettingValueImpl(baseSetting.getProfileName());
         }
+    }
+
+    /**
+     * Returns the group with the highest weight from the list.  Returns null if
+     * the list of groups is empty
+     * @param groups A list of groups
+     * @return The group with the highest weight
+     */
+    public static Group selectGroupWithHighestWeight(List<Group> groups) {
+        if (groups.size() == 0) {
+            return null;
+        }
+        
+        List<Group> localGroupList = new ArrayList<Group>(groups.size());
+        localGroupList.addAll(groups);
+        Collections.<Group>sort(localGroupList);
+        
+        return localGroupList.get(0);
     }
 }

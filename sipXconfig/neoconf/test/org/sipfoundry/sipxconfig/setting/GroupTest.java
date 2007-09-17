@@ -9,6 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.setting.BeanWithGroupsTest.BirdWithGroups;
@@ -101,5 +105,20 @@ public class GroupTest extends TestCase {
 
         assertEquals("0", ivoryBilled.getDefaultValue());
         assertEquals("2", ivoryBilled.getValue());
+    }
+    
+    public void testSelectGroupWithHighestWeight() {
+        Group firstGroup = new Group();
+        firstGroup.setWeight(10);
+        Group secondGroup = new Group();
+        secondGroup.setWeight(15);
+        Group thirdGroup = new Group();
+        thirdGroup.setWeight(5);
+        
+        List<Group> groups = new ArrayList<Group>();
+        Collections.<Group>addAll(groups, firstGroup, secondGroup, thirdGroup);
+        
+        Group heaviestGroup = Group.selectGroupWithHighestWeight(groups);
+        assertEquals(firstGroup, heaviestGroup);
     }
 }

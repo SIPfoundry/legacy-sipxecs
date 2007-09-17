@@ -49,11 +49,11 @@ public abstract class BeanWithGroups extends BeanWithSettings {
         model.setGroups(m_groups);
     }
 
-    public List getGroupsAsList() {
-        return new ArrayList(getGroups());
+    public List<Group> getGroupsAsList() {
+        return new ArrayList<Group>(getGroups());
     }
 
-    public void setGroupsAsList(List groups) {
+    public void setGroupsAsList(List<Group> groups) {
         getGroups().clear();
         getGroups().addAll(groups);
     }

@@ -15,38 +15,64 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public class PersonalAttendantSettingListenerTest extends TestCase {
-    public void testOnSave() {
+    
+    private static final String OPERATOR = "operator";
+    
+    private PersonalAttendantSettingListener m_out;
+    private CoreContext m_coreContextMock;
+    private MailboxManager m_mailboxManagerMock;
+    private User m_user;
+    private Group m_group;
+    private PersonalAttendant m_personalAttendant;
+    
+    public void setUp() {
         Setting userSetting = new SettingSet("user");
         Setting paSetting = new SettingSet("personal-attendant");
         userSetting.addSetting(paSetting);
-        Setting operatorSetting = new SettingImpl("operator");
-        operatorSetting.setValue("operator");
+        Setting operatorSetting = new SettingImpl(OPERATOR);
+        operatorSetting.setValue(OPERATOR);
         paSetting.addSetting(operatorSetting);
         
-        User user = new User();
-        user.setSettings(userSetting);
+        m_group = new Group();
+        m_group.setSettingValue("personal-attendant/operator", OPERATOR);
         
-        Group group = new Group();
+        m_user = new User();
+        m_user.setSettings(userSetting);
+        m_user.addGroup(m_group);
         
-        CoreContext coreContextMock = EasyMock.createStrictMock(CoreContext.class);
-        coreContextMock.getGroupMembers(group);
-        EasyMock.expectLastCall().andReturn(Collections.<User>singletonList(user));
-        EasyMock.replay(coreContextMock);
+        m_personalAttendant = new PersonalAttendant();
         
-        PersonalAttendant personalAttendant = new PersonalAttendant();
+        m_coreContextMock = EasyMock.createStrictMock(CoreContext.class);
+        m_coreContextMock.getGroupMembers(m_group);
+        EasyMock.expectLastCall().andReturn(Collections.<User>singletonList(m_user));
+        EasyMock.replay(m_coreContextMock);
         
-        MailboxManager mailboxManagerMock = EasyMock.createStrictMock(MailboxManager.class);
-        mailboxManagerMock.loadPersonalAttendantForUser(user);
-        EasyMock.expectLastCall().andReturn(personalAttendant);
-        mailboxManagerMock.storePersonalAttendant(personalAttendant);
-        EasyMock.replay(mailboxManagerMock);
+        m_mailboxManagerMock = EasyMock.createStrictMock(MailboxManager.class);
+        m_mailboxManagerMock.loadPersonalAttendantForUser(m_user);
+        EasyMock.expectLastCall().andReturn(m_personalAttendant);
+        m_mailboxManagerMock.storePersonalAttendant(m_personalAttendant);
+        EasyMock.replay(m_mailboxManagerMock);
         
-        PersonalAttendantSettingListener out = new PersonalAttendantSettingListener();
-        out.setCoreContext(coreContextMock);
-        out.setMailboxManager(mailboxManagerMock);
+        m_out = new PersonalAttendantSettingListener();
+        m_out.setCoreContext(m_coreContextMock);
+        m_out.setMailboxManager(m_mailboxManagerMock);
+    }
+    
+    public void testOnSaveGroup() {
+        m_out.onSave(m_group);
+        assertEquals(OPERATOR, m_personalAttendant.getOperator());
+    }
+    
+    public void testOnSaveUserWithSettings() {
+        m_out.onSave(m_user);
+        assertEquals(OPERATOR, m_personalAttendant.getOperator());
+    }
+    
+    public void testOnSaveUserWithoutSettings() {
+        User userWithoutSettings = new User();
+        userWithoutSettings.addGroup(m_group);
         
-        out.onSave(group);
-        
-        assertEquals("operator", personalAttendant.getOperator());
+        m_out.onSave(userWithoutSettings);
+        assertEquals(OPERATOR, m_personalAttendant.getOperator());
     }
 }
