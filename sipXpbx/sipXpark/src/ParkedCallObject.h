@@ -77,6 +77,7 @@ public:
    const char* getCurrentAddress();
    
    const char* getOriginalCallId();
+   void setOriginalCallId(const UtlString& callId);
    void setCurrentCallId(const UtlString& callId);
    const char* getCurrentCallId();
    
@@ -145,6 +146,13 @@ public:
    // Get the CALL_ESTABLISHED flag.
    bool getEstablished();
 
+    // Set the CALL_ESTABLISHED flag.
+   void setRemoteEstablished();
+
+   // Get the CALL_ESTABLISHED flag.
+   bool getRemoteEstablished();
+
+
 /* ============================ INQUIRY =================================== */
 
     virtual UtlContainableType getContainableType() const;
@@ -187,6 +195,7 @@ private:
     
     bool mbEstablished;         /**< CALL_ESTABLISHED has been seen
                                  *   for this call. */
+    bool mRemoteEstablished;   
 
     OsTime mParked;             /**< When the ParkedCallObject was created,
                                  *   which is when the call was parked.
@@ -229,6 +238,18 @@ inline bool ParkedCallObject::getEstablished()
    return mbEstablished;
 }
 
+
+// Set the CALL_ESTABLISHED flag.
+inline void ParkedCallObject::setRemoteEstablished()
+{
+   mRemoteEstablished = true;
+}
+
+// Get the CALL_ESTABLISHED flag.
+inline bool ParkedCallObject::getRemoteEstablished()
+{
+   return mRemoteEstablished;
+}
 // Return TRUE if a transfer back to parker is in progress.
 inline UtlBoolean ParkedCallObject::transferInProgress()
 {

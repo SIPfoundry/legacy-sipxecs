@@ -127,6 +127,7 @@ SipSession::SipSession(const SipSession& rSipSession)
    mSessionState = rSipSession.mSessionState;
    msLocalRequestUri = rSipSession.msLocalRequestUri;
    msRemoteRequestUri = rSipSession.msRemoteRequestUri;
+   setCallId(rSipSession.data());
 }
 
 

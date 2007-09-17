@@ -360,47 +360,58 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
         UtlDListIterator iterator(mConnections);
         while ((connection = (Connection*) iterator()))
         {
-            // Do the transfer operation on each connection in this call
-            UtlBoolean isOk = connection->originalCallTransfer(transferTargetAddress, NULL,
+            UtlString originalCallId;
+            UtlString connectionAddress;
+            connection->getCallId(&originalCallId);
+
+            // Only transfer the call when the callId of the connection matches this CpPeerCall's callId,
+            // otherwise, indicates that the the call leg has been replaced, and is in the process of dying.
+            // This check is to close the race condition that to transfer a call to a dying connection.
+
+            if (originalCallId == thisCallId)
+            {
+
+               UtlBoolean isOk = connection->originalCallTransfer(transferTargetAddress, NULL,
                                                                targetCallId.data(),
                                                                remoteHoldBeforeTransfer
                                                                );
-            if (!isOk)
-            {
-                UtlString targetCallId;
-                getTargetCallId(targetCallId);
-                UtlString remoteAddress;
-                connection->getRemoteAddress(&remoteAddress);
-                UtlString responseText;
-                connection->getResponseText(responseText);
-                postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_FAILED, CONNECTION_STATE, PtEvent::CAUSE_TRANSFER, connection->isRemoteCallee(), remoteAddress, 1, targetCallId);
+               if (!isOk)
+               {
+                   UtlString targetCallId;
+                   getTargetCallId(targetCallId);
+                   UtlString remoteAddress;
+                   connection->getRemoteAddress(&remoteAddress);
+                   UtlString responseText;
+                   connection->getResponseText(responseText);
+                   postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_FAILED, CONNECTION_STATE, PtEvent::CAUSE_TRANSFER, connection->isRemoteCallee(), remoteAddress, 1, targetCallId);
                 /** SIPXTAPI: TBD **/
 #ifdef TEST_PRINT
-                osPrintf("%s-CpPeerCall::CP_BLIND_TRANSFER posting CONNECTION_FAILED to call: %s\n",
-                    mName.data(), targetCallId.data());
+                   osPrintf("%s-CpPeerCall::CP_BLIND_TRANSFER posting CONNECTION_FAILED to call: %s\n",
+                       mName.data(), targetCallId.data());
 #endif
-            }
-            else
-            {
-                // Send a message to the target call for each transfered
-                // connection
-                UtlString originalCallId;
-                UtlString connectionAddress;
-                connection->getCallId(&originalCallId);
-                connection->getRemoteAddress(&connectionAddress);
+               }
+               else
+               {
+                   // Send a message to the target call for each transfered
+                   // connection
+                   UtlString originalCallId;
+                   UtlString connectionAddress;
+                   connection->getCallId(&originalCallId);
+                   connection->getRemoteAddress(&connectionAddress);
 #ifdef TEST_PRINT
-                osPrintf("%s-2 party transfer on connection: %s original call: %s target call: %s\n", 
-                    mName.data(), connectionAddress.data(), originalCallId.data(), targetCallId.data());
+                   osPrintf("%s-2 party transfer on connection: %s original call: %s target call: %s\n", 
+                       mName.data(), connectionAddress.data(), originalCallId.data(), targetCallId.data());
 #endif
-                CpMultiStringMessage transferConnect(CallManager::CP_TRANSFER_CONNECTION,
-                    targetCallId.data(), 
-                    transferTargetAddress.data(), 
-                    originalCallId.data(),
-                    connectionAddress.data(),
-                    NULL,
-                    metaEventId);
-                mpManager->postMessage(transferConnect);
-            }
+                   CpMultiStringMessage transferConnect(CallManager::CP_TRANSFER_CONNECTION,
+                       targetCallId.data(), 
+                       transferTargetAddress.data(), 
+                       originalCallId.data(),
+                       connectionAddress.data(),
+                       NULL,
+                       metaEventId);
+                   mpManager->postMessage(transferConnect);
+               }
+           }
         }
     }
 
@@ -1546,6 +1557,10 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
                       connCallId.data(), localAddress.data(),
                       remoteAddress.data());
 
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                      "CpPeerCall::handleGetSession callId= %s, address= %s, hasTag=%d ",
+                      callId.data(), address.data(),
+                      hasTag);
         // Compare the call-ID and the address, both with the tag parameter
         // (as the address is stored after call establishment) and without
         // (as the address is stored during call offering).

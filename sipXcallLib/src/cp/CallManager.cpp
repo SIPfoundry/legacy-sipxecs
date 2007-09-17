@@ -2141,10 +2141,12 @@ OsStatus CallManager::getSession(const char* callId,
         returnCode = OS_SUCCESS;
 
         session = *sessionPtr;
-
+        
+        UtlString tCallId;
+        session.getCallId(tCallId);
         OsSysLog::add(FAC_CP, PRI_DEBUG,
-                      "CallManager::getSession deleting session: %p",
-                      sessionPtr);
+                      "CallManager::getSession deleting session: %p and session callId = %s",
+                      sessionPtr,tCallId.data());
 
         delete sessionPtr;
         sessionPtr = NULL;

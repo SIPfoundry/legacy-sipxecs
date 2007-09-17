@@ -112,6 +112,11 @@ const char* ParkedCallObject::getOriginalCallId()
 }
 
 
+void ParkedCallObject::setOriginalCallId(const UtlString& callId)
+{
+   mOriginalCallId = callId;
+}
+
 void ParkedCallObject::setCurrentCallId(const UtlString& callId)
 {
    mCurrentCallId = callId;

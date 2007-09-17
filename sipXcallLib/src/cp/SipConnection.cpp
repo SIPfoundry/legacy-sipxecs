@@ -1560,6 +1560,22 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
                 delete mReferMessage;
                 mReferMessage = NULL;
             }
+            
+            // If we are in the middle of a transfer meta event
+            // on the target phone and target call it ends here
+            int metaEventId = 0;
+            int metaEventType = PtEvent::META_EVENT_NONE;
+            int numCalls = 0;
+            const UtlString* metaEventCallIds = NULL;
+            if(mpCall)
+            {
+               OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    "SipConnection::transfereeStatus META_CALL_TRANSFERRING end");
+               mpCall->getMetaEvent(metaEventId, metaEventType, numCalls,
+                  &metaEventCallIds);
+               if(metaEventId > 0 && metaEventType == PtEvent::META_CALL_TRANSFERRING)
+                  mpCall->stopMetaEvent();
+             } 
         }
 
         // Should be BYE Also type transfer
@@ -2451,6 +2467,13 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         // immediately do not go to offering first.
         if(doesReplaceCallLegExist)
         {
+            //  When the replaceCallLeg exist, we need to update mpCall's callId with the new one
+            //  as the SipSession for the new call leg and the call leg being replaced share the same
+            //  instance of mpCall, if callId is not being updated, the call will be linked to the dying leg.
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipConnection::processInviteRequest inviteMsg=0x%08x ", (int)inviteMsg);
+
+            mpCall->setCallId(callId.data());
             // Go immediately to answer the call
             answer();
 
@@ -2977,11 +3000,6 @@ void SipConnection::processReferRequest(const SipMessage* request)
         metaEventCallIds[0] = targetCallId.data();
         metaEventCallIds[1] = thisCallId.data();
 
-        // Mark the begining of a transfer meta event in this call
-        mpCall->startMetaEvent(metaEventId,
-            PtEvent::META_CALL_TRANSFERRING,
-            2, metaEventCallIds);
-
         // I am not sure we want the focus change to
         // be automatic.  It is here for now to make it work
         CpIntMessage yieldFocus(CallManager::CP_YIELD_FOCUS, (int)mpCall);
@@ -2993,6 +3011,14 @@ void SipConnection::processReferRequest(const SipMessage* request)
             PtEvent::META_CALL_TRANSFERRING, 2, metaEventCallIds);
         mpCall->setTargetCallId(targetCallId.data());
         mpCall->setCallType(CpCall::CP_TRANSFEREE_ORIGINAL_CALL);
+        
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        "Leaving SipConnection::processReferRequest, refer-to: %s callid: %s\n",referTo.data(), targetCallId.data());
+
+         // Mark the begining of a transfer meta event in this call
+        mpCall->startMetaEvent(metaEventId,
+           PtEvent::META_CALL_TRANSFERRING,
+           2, metaEventCallIds);
 
         // Set the OutboundLine (From Field) to match the original
         // call, so it looks like this new call comes from the same
@@ -3377,6 +3403,7 @@ void SipConnection::processAckRequest(const SipMessage* request)
         {
             inviteFromThisSide = FALSE;
             setCallerId();
+
             setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE);
             if (mTerminalConnState == PtTerminalConnection::HELD)
             {
