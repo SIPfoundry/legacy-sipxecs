@@ -261,12 +261,8 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                  dynamic_cast <ParkedCallObject *> (mCalls.findValue(&callId));
                  if (pThisCall != NULL)
                  {
-                     if(pThisCall->getRemoteEstablished())
-                     {
-                        // Set up the call state for this dialog.
-                        setUpParkedCallEstablished(callId, address, arg);
-                     }
-
+                    // Set up the call state for this dialog.
+                    setUpParkedCallEstablished(callId, address, arg);
                  }
                }
                else
