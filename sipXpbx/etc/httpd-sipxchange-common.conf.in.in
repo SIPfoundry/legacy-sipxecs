@@ -30,7 +30,7 @@ CoreDumpDirectory @SIPX_LOGDIR@
 Alias /phone/ "@SIPX_CONFIGPHONEDIR@/"
 
 <Directory "@SIPX_CONFIGPHONEDIR@/">
-    Options Indexes MultiViews
+    Options -Indexes
     AllowOverride None
     Order allow,deny
     Allow from all
