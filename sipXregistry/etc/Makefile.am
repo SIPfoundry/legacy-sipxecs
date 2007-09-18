@@ -10,6 +10,7 @@ editetc_IN = \
 
 EXTRA_DIST = \
   sipregistrar.process.xml.in \
+  registrar-config.in.map \
   $(editetc_IN) 
 
 # Install files in $(editetc_IN), or if they already exist, edit
@@ -18,7 +19,8 @@ EXTRA_DIST = \
 install-data-hook : \
 	$(foreach etcfile,$(editetc_IN),$(DESTDIR)$(sysconfdir)/sipxpbx/$(etcfile)) \
 	editetc \
-	$(DESTDIR)$(SIPX_PROCDIR)/sipregistrar.process.xml
+	$(DESTDIR)$(SIPX_PROCDIR)/sipregistrar.process.xml \
+	$(DESTDIR)$(sysconfdir)/sipxpbx/registrar-config.in.map
 
 $(foreach etcfile,$(editetc_IN),$(etcfile).tmp) : %.tmp : %
 	$(LocalizeSipXconfig) $< > $@
@@ -85,6 +87,10 @@ $(DESTDIR)$(sysconfdir)/sipxpbx/mappingrules.xml.in: mappingrules.xml.in.tmp
 		 echo ""; echo "Installing default $@"; \
 		 $(INSTALL) -D -m 644 $< $@; \
 	  fi
+
+$(DESTDIR)$(sysconfdir)/sipxpbx/registrar-config.in.map: registrar-config.in.map
+	  echo ""; echo "Installing registrar-config.in.map $@"; \
+	  $(INSTALL) -D -m 644 $< $@; 
 
 .PHONY: editetc
 editetc : $(DESTDIR)$(bindir)/registrar-config-upgrade

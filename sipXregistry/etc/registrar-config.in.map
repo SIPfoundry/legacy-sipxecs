@@ -1,0 +1,25 @@
+# A mapping of the "NEW" keys in registrar-config.in to the old ones.
+# used by configmerge to upgrade a system from the old to the new 
+# configuration keys.   Additional keys are added/removed from the 
+# registrar-config.in file delivered with the new RPM.  
+#
+# It is safe to apply the same map multiple times, although it is
+# expected that this map be reset on each upgrade.
+#
+# Upgrades that need no mapping may have the map empty, or the
+# file may be non-existant.
+#
+# The rule is:
+#  {key in new config file} : {original key from old config file}
+#
+# These values map 3.8 to 3.6.
+SIP_REDIRECT.140-MAPPING.MEDIA_SERVER : SIP_REGISTRAR_MEDIA_SERVER
+SIP_REDIRECT.140-MAPPING.VOICEMAIL_SERVER : SIP_REGISTRAR_VOICEMAIL_SERVER
+SIP_REDIRECT.150-FALLBACK.MEDIA_SERVER : SIP_REGISTRAR_MEDIA_SERVER
+SIP_REDIRECT.150-FALLBACK.VOICEMAIL_SERVER : SIP_REGISTRAR_VOICEMAIL_SERVER
+SIP_REDIRECT.180-PICKUP.GLOBAL_CALL_PICKUP_CODE : SIP_REGISTRAR_GLOBAL_CALL_PICKUP_CODE
+SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE : SIP_REGISTRAR_DIRECTED_CALL_PICKUP_CODE
+SIP_REDIRECT.180-PICKUP.CALL_RETRIEVE_CODE : SIP_REGISTRAR_CALL_RETRIEVE_CODE
+SIP_REDIRECT.180-PICKUP.CALL_PICKUP_WAIT : SIP_REGISTRAR_CALL_PICKUP_WAIT
+SIP_REDIRECT.180-PICKUP.PARK_SERVER : SIP_REGISTRAR_PARK_SERVER
+SIP_REDIRECT.999-AUTHROUTER.AUTH_PROXY : SIP_REGISTRAR_AUTH_PROXY

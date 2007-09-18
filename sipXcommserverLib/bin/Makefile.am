@@ -15,6 +15,7 @@ dist_bin_SCRIPTS = \
    ${PACKAGE}-config \
    configpp \
    pkg-upgrade \
+   configmerge \
    sipx-dns \
    get_def_addr \
    pgpatch.sh 

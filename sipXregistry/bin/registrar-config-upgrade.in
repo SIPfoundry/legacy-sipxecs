@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# For RPM upgrades, This script has been replaced by the generic 
+# configmerge script (part of sipXcommserverLib) that is executed
+# as part of the pkg-upgrade script.  See sipXcommserverLib/bin/configmerge
+#
+# It is still used as part of developer Make "upgrade" process.
+# 09-12-07 --Woof!
+
 # Update registrar-config.in to use the plugin redirector system.
 
 # Note @SIPX_CONFDIR@ does not need a following "sipxpbx".

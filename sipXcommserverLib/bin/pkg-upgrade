@@ -40,16 +40,31 @@ class Setup
   end
 
   def resolve(file)
-    patch = create_patch(file)
-    if patch != ''
-      if @system.test_patch(file, patch)
-        @system.apply_patch(file, patch)
-        return true
-      end
+    case file
+      when /.*config.*/i       # has config in the name
+        return merge(file)     # Use merge instead of patch
+      else
+       patch = create_patch(file)
+       if patch != ''
+         if @system.test_patch(file, patch)
+           @system.apply_patch(file, patch)
+           return true
+         end
+       end
+       return false
     end
-    return false
   end
 
+  def merge(file)
+    tar_file=file[1..-1]
+    previous_file = @system.extract_file(previous, tar_file)
+    current_file = @system.extract_file(current, tar_file)
+    result = @system.configmerge(previous_file, current_file, file)
+    @system.delete_file(current_file)
+    @system.delete_file(previous_file)
+    return result ;
+  end
+  
   def create_patch(file)
     tar_file=file[1..-1]
     current_file = @system.extract_file(current, tar_file)
@@ -58,9 +73,7 @@ class Setup
       when /.*\.xml.*/i        # has .xml in the name
        patch = @system.create_patch_xml(previous_file, current_file)
       when /.*\.properties.*/i # has .properties in the name
-       patch = @system.create_patch_config(previous_file, current_file)
-      when /.*config.*/i       # has config in the name
-       patch = @system.create_patch_config(previous_file, current_file)
+       patch = @system.create_patch_properties(previous_file, current_file)
       else
        patch = @system.create_patch_other(previous_file, current_file)
     end
@@ -76,6 +89,7 @@ class SystemService
   @@patch = 'patch'
   @@diff = 'diff'
   @@tar = 'tar'
+  @@merge = 'configmerge'
 
   attr_accessor :verbose
 
@@ -112,7 +126,7 @@ class SystemService
     File.delete(file + '.rpmnew')
   end
 
-  def create_patch_config(file1, file2)
+  def create_patch_properties(file1, file2)
     # Set the "context lines" to 0, as each line really stands alone.
     # this prevents "chunks" of lines from conflicting where there
     # really is no problem.  Only if the same line conflicts should this fail.
@@ -132,19 +146,6 @@ class SystemService
     patch = `#{@@diff} --unified #{file1} #{file2} 2>/dev/null`
     rc = "#{$?}"
     return rc != '2' ? patch : ''
-  end
-
-  def create_patch(file1, file2)
-    case file1
-      when /.*\.xml.*/i        # has .xml in the name
-       return create_patch_xml(file1, file2)
-      when /.*\-config.*/i     # has -config in the name
-       return create_patch_config(file1, file2)
-      when /.*\.properties.*/i # has .properties in the name
-       return create_patch_config(file1, file2)
-      else
-       return create_patch_other(file1, file2)
-    end
   end
 
   def delete_file(file) 
@@ -175,7 +176,22 @@ class SystemService
     `tar --to-stdout -xzf "#{archive}" "#{file}" > #{extract} 2>/dev/null`
     return extract
   end
-    
+
+  def configmerge(old, new, user)
+    mapfile = "#{user}.map"
+    userfile = "#{user}.preconfigmerge"
+    stat = File.stat(user) # copy perms so they can be put back on new file
+    File.rename(user, userfile)
+    `#{@@merge} #{old} #{new} #{userfile} #{mapfile} > #{user} 2>#{user}.confimergelog`
+    rc = "#{$?}"
+    if rc == '0'
+       File.chown(stat.uid, stat.gid, user) # put perms back
+    else
+       File.rename(userfile, user) # copy the orig file back
+    end
+    return rc == '0'
+  end
+
 end
 
 def usage_exit(error_code=1)

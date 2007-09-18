@@ -107,12 +107,15 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_datadir}/sipx/schema/caller-alias.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/huntgroup.xsd
 
-# The configuration directory needs to be writeable becausen
+# The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/mappingrules.xml.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/fallbackrules.xml.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/registrar-config.in
+# The configmerge mapping file is NOT user configurable and will change
+# each release.
+%attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/registrar-config.in.map
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipregistrar.process.xml
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz
@@ -139,8 +142,6 @@ sipx-upgrade -p sipxregistry -c
 
 %post
 sipx-upgrade -p sipxregistry -u --sdir %{_localstatedir} --cdir %{_sysconfdir}
-
-registrar-config-upgrade
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz

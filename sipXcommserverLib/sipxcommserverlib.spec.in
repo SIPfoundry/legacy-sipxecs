@@ -103,6 +103,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(4755,root,root) %{_bindir}/sipx-sudo-restore
 %attr(755,root,root) %{_bindir}/sipdbtest
 %attr(755,root,root) %{_bindir}/pkg-upgrade
+%attr(755,root,root) %{_bindir}/configmerge
 %attr(755,root,root) %{_bindir}/sipdbtest.sh
 %attr(755,root,root) %{_bindir}/xsdvalid
 %attr(755,root,root) %{_bindir}/sipx-validate-xml
