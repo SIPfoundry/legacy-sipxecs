@@ -16,7 +16,8 @@
   <bean id="domainManagerImpl"
     class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
-    
+    <property name="domainConfigGenerator" ref="domainConfigGenerator"/>
+
     <!--
       - CIRCULAR REFERENCE WARNING: 
       -  sipxServer->coreContext->domainMgr->sipXserver->...
@@ -42,5 +43,14 @@
     <property name="domainManager" ref="domainManager"/>
     <property name="taskName" value="initialize-domain"/>
   </bean>
+  
+  <bean id="domainConfigGenerator" class="org.sipfoundry.sipxconfig.domain.DomainConfigGenerator">
+	<property name="velocityEngine" ref="velocityEngine"/>
+	<property name="outputDir">
+	  <value>${sysdir.etc}/domain</value>
+	</property>
+  </bean>
+  
+  <bean id="domainSaveListener" factory-bean="domainManagerImpl" factory-method="createDomainSaveListener"/>
 
 </beans>

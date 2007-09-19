@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 public class Domain extends BeanWithId implements Cloneable {
     private String m_name;
     private Set<String> m_aliases;
+    private String m_sharedSecret;
 
     public Domain() {
     }
@@ -67,5 +68,13 @@ public class Domain extends BeanWithId implements Cloneable {
         if (m_aliases != null) {
             m_aliases.remove(alias);
         }
+    }
+    
+    public String getSharedSecret() {
+        return m_sharedSecret;
+    }
+    
+    public void setSharedSecret(String sharedSecret) {
+        m_sharedSecret = sharedSecret;
     }
 }

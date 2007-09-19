@@ -17,11 +17,13 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.event.EntitySaveListener;
 
 public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
     
     // do not reference m_server, see note in spring file
     private SipxServer m_server;
+    private DomainConfigGenerator m_domainConfigGenerator;
 
     public SipxServer getServer() {
         return m_server;
@@ -31,6 +33,14 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         m_server = server;
     }
 
+    public DomainConfigGenerator getDomainConfigGenerator() {
+        return m_domainConfigGenerator;
+    }
+    
+    public void setDomainConfigGenerator(DomainConfigGenerator domainConfigGenerator) {
+        m_domainConfigGenerator = domainConfigGenerator;
+    }
+    
     /**
      * @return non-null unless test environment
      */
@@ -58,8 +68,8 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     }
     
     private Domain getExistingDomain() {
-        Collection domains = getHibernateTemplate().findByNamedQuery("domain");
-        Domain domain = (Domain) DaoUtils.requireOneOrZero(domains, "named query: domain");
+        Collection<Domain> domains = getHibernateTemplate().findByNamedQuery("domain");
+        Domain domain = (Domain) DaoUtils.<Domain>requireOneOrZero(domains, "named query: domain");
         return domain;        
     }
 
@@ -68,10 +78,24 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         Domain d = getDomain();
         if (d.hasAliases()) {
             DialingRule domainRule = new DomainDialingRule(getDomain());
-            rules = Collections.singletonList(domainRule);
+            rules = Collections.<DialingRule>singletonList(domainRule);
         } else {
-            rules = Collections.EMPTY_LIST;
+            rules = Collections.<DialingRule>emptyList();
         }
         return rules;
     }  
+    
+    public EntitySaveListener<Domain> createDomainSaveListener() {
+        return new DomainSaveListener();
+    }
+    
+    private class DomainSaveListener extends EntitySaveListener<Domain> {
+        public DomainSaveListener() {
+            super(Domain.class);
+        }
+        
+        protected void onEntitySave(Domain domain) {
+            getDomainConfigGenerator().generate(getDomain());
+        }
+    }
 }

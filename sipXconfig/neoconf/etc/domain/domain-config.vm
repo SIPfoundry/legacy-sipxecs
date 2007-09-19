@@ -1,0 +1,2 @@
+SIP_DOMAIN_NAME : ${domain.Name}
+SHARED_SECRET : ${domain.SharedSecret}

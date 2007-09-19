@@ -15,9 +15,13 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -29,14 +33,20 @@ import org.sipfoundry.sipxconfig.site.dialplan.ActivateDialPlan;
 public abstract class ManageDomain extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "ManageDomain";
 
+    @InjectObject (value = "spring:tapestry")
+    public abstract TapestryContext getTapestry();
+    
+    @InjectObject (value = "spring:domainManager")
     public abstract DomainManager getDomainManager();
-
+    
+    @InitialValue (value = "prop:domainManager.domain")
     public abstract Domain getDomain();
 
     public abstract int getIndex();
 
     public abstract void setDomain(Domain domain);
 
+    @Persist (value = "session")
     public abstract List<String> getAliases();
 
     public abstract void setAliases(List<String> aliases);

@@ -48,6 +48,7 @@ public class DomainManagerTestDb extends TestCase {
     public void testSaveNewDomain() throws Exception {
         Domain d = new Domain();
         d.setName("robin");
+        d.setSharedSecret("secret");
         m_context.saveDomain(d);
         ReplacementDataSet ds = TestHelper.loadReplaceableDataSetFlat("domain/DomainUpdateExpected.xml");
         ds.addReplacementObject("[domain_id]", d.getId());
@@ -59,6 +60,7 @@ public class DomainManagerTestDb extends TestCase {
     public void testUpdateDomain() throws Exception {
         Domain domain = m_context.getDomain();
         domain.setName("robin");
+        domain.setSharedSecret("secret");
         m_context.saveDomain(domain);        
         
         ReplacementDataSet ds = TestHelper.loadReplaceableDataSetFlat("domain/DomainUpdateExpected.xml");

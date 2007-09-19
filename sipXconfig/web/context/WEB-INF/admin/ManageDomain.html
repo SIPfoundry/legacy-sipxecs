@@ -1,13 +1,18 @@
 <div jwcid="@Border" useDojo="true">
   <h2><span key="title">Domain</span></h2>
   <span jwcid="@QuickHelp" value="message:domain.description" />  
-  <span jwcid="errors"/>
-  <form jwcid="form">
+  <span jwcid="errors@ErrorMsg"/>
+  <form jwcid="form@Form" delegate="bean:validator">
     <fieldset>
       <table>
         <tbody>
-          <tr jwcid="namePanel" for="domain:name">
-            <input jwcid="name" id="domain:name" type="text"/>
+          <tr jwcid="namePanel@FieldPanel" for="domain:name"
+            field="ognl:components.name" label="message:label.name"
+            description="message:description.name">
+            <input jwcid="name@TextField" id="domain:name" type="text"
+              value="ognl:domain.name"
+              validators="spring-validators:required,validHostOrIp"
+              displayName="message:label.name"/>
           </tr>          
         </tbody>
       </table>      
@@ -16,26 +21,50 @@
       <legend><span key="label.aliasSection">Domain Aliases</span></legend>
       <p><span key="description.alias"/></p>
       <ul class="component-links">
-        <li><a jwcid="addAliasLink" href="#">
+        <li><a jwcid="addAliasLink@LinkSubmit" href="#"
+          action="listener:submit">
           <span key="add.label">Add Alias</span></a>
         </li>
       </ul>
       <table>
         <tbody>
-            <tr jwcid="aliases" element="tr">
+            <tr jwcid="aliases@For" element="tr"
+              source="ognl:aliases" index="ognl:index"
+              volatile="ognl:true">
               <td>
-                <label jwcid="aliasLabel">Alias</label>
+                <label jwcid="aliasLabel@FieldLabel"
+                  field="components.alias" 
+                  label="message:label.alias">Alias</label>
               </td>
               <td>
-                <input jwcid="alias" type="text"/>
+                <input jwcid="alias@TextField" type="text"
+                  value="ognl:alias" validators="spring-validators:required,validHostOrIp"
+                  displayName="message:label.alias"/>
               </td>
               <td>
-                <a href="#" jwcid="removeAlias"><span key="label.removeAlias">Remove Alias</span></a>
+                <a href="#" jwcid="removeAlias@DirectLink"
+                  listener="listener:removeAlias"
+                  parameters" value="ognl:index">
+                  <span key="label.removeAlias">Remove Alias</span></a>
               </td>
             </tr>
         </tbody>
       </table>
     </fieldset>
-    <ul jwcid="formActions"/>
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="sharedSecretPanel@FieldPanel" for="domain:sharedSecret"
+            field="ognl:components.sharedSecret" label="message:sharedSecret.label"
+            description="message:sharedSecret.description">
+            <input jwcid="sharedSecret@TextField" id="domain:name" 
+              type="text" value="ognl:domain.sharedSecret"
+              displayName="message:sharedSecret.label"/>
+          </tr>          
+        </tbody>
+      </table>      
+    </fieldset>
+    <ul jwcid="formActions@FormActions"
+      listener="listener:commit" successMessage="message:msg.actionSuccess"/>
 	</form>                    
 </div>

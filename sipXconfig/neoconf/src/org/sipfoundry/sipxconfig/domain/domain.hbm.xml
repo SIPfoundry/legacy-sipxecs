@@ -13,7 +13,8 @@
     <set name="aliases" cascade="all" table="domain_alias">
       <key column="domain_id"/>
       <element type="string" column="alias"/>
-    </set>    
+    </set>   
+    <property name="sharedSecret"/> 
   </class>
   
   <query name="domain">

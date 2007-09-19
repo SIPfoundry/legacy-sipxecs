@@ -2,51 +2,8 @@
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.admin.ManageDomain">
   <description>Domain</description>
-  <inject property="tapestry" object="spring:tapestry" />
-  <inject property="domainManager" object="spring:domainManager" />
-
-  <property name="domain" initial-value="domainManager.domain" />
-  <property name="aliases" persist="session" />
   <property name="index" />
 
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
-  <component id="form" type="Form">
-    <binding name="delegate" value="bean:validator" />
-  </component>
-  <component id="errors" type="ErrorMsg" />
-  <component id="namePanel" type="FieldPanel">
-    <binding name="field" value="components.name" />
-    <binding name="label" value="message:label.name" />
-    <binding name="description" value="message:description.name" />
-  </component>
-  <component id="name" type="TextField">
-    <binding name="value" value="domain.name" />
-    <binding name="validators" value="spring-validators:required,validHostOrIp" />
-    <binding name="displayName" value="message:label.name" />
-  </component>
-  <component id="addAliasLink" type="LinkSubmit">
-    <binding name="action" value="listener:submit" />
-  </component>
-  <component id="aliases" type="For">
-    <binding name="source" value="aliases" />
-    <binding name="index" value="index" />
-    <binding name="volatile" value="true" />
-  </component>
-  <component id="aliasLabel" type="FieldLabel">
-    <binding name="field" value="components.alias" />
-    <binding name="label" value="message:label.alias" />
-  </component>
-  <component id="alias" type="TextField">
-    <binding name="value" value="alias" />
-    <binding name="validators" value="spring-validators:required,validHostOrIp" />
-    <binding name="displayName" value="message:label.alias" />
-  </component>
-  <component id="removeAlias" type="DirectLink">
-    <binding name="listener" value="listener:removeAlias" />
-    <binding name="parameters" value="index" />
-  </component>
-  <component id="formActions" type="FormActions">
-    <binding name="listener" value="listener:commit" />
-    <binding name="successMessage" value="message:msg.actionSuccess" />
-  </component>
+
 </page-specification>
