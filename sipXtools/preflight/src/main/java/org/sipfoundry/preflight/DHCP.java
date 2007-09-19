@@ -39,8 +39,7 @@ public class DHCP {
         
         results = performDiscover(timeout, networkResources, journalService);
         if (results == SOCKET_BIND_FAILURE) {
-            // Discovery failed due to a bind issue, try performing an Inform
-            // request.
+            // Discovery failed due to a bind issue, try performing an Inform request.
             results = performInform(timeout, networkResources, journalService);
         }
 
@@ -92,8 +91,9 @@ public class DHCP {
         return results;
     }
 
-    private ResultCode sendDiscover(int xid, InetAddress[] assignedAddress, InetAddress[] serverAddress,
-            JournalService journalService) {
+    private ResultCode sendDiscover(int xid, InetAddress[] assignedAddress, InetAddress[] serverAddress, JournalService journalService) {
+        ResultCode results;
+        
         try {
             ciaddr = InetAddress.getByName("0.0.0.0");
             yiaddr = InetAddress.getByName("0.0.0.0");
@@ -150,12 +150,15 @@ public class DHCP {
                 if (responseReceived) {
                     if (multipleResponses) {
                         return MULTIPLE_SERVERS_FAILURE;
-                    } else if (validateOfferMessage(offerMessage, xid, serverAddress, journalService)) {
-                        assignedAddress[0] = offerMessage.getYiaddr();
-                        return NONE;
                     } else {
-                        journalService.println("  Rogue response received.");
-                        return ROGUE_RESPONSE_FAILURE;
+                        results = validateOfferMessage(offerMessage, xid, serverAddress, journalService);
+                        if (results == NONE) {
+                            assignedAddress[0] = offerMessage.getYiaddr();
+                        } else if (results == IGNORE) {
+                            journalService.println("  Read timeout: " + e.getMessage());
+                            results = TIMEOUT_FAILURE;
+                        }
+                        return results;
                     }
                 } else {
                     journalService.println("  Read timeout: " + e.getMessage());
@@ -167,11 +170,11 @@ public class DHCP {
             offerMessage.unmarshal(incoming.getData());
 
             if ((offerMessage.getOp() == BOOTREQUEST) && (offerMessage.getXid() == xid)) {
-                continue;
+                continue;  // Ignore.
             }
 
             if (offerMessage.getXid() != xid) {
-                continue;
+                continue;  // Ignore.
             }
 
             if (responseReceived) {
@@ -190,39 +193,38 @@ public class DHCP {
         }
     }
 
-    private boolean validateOfferMessage(DHCPMessage offerMessage, int xid, InetAddress[] serverAddress, JournalService journalService) {
-        if (offerMessage.getXid() != xid) {
-            journalService.println("  Rogue response.");
-            return false;
-        }
+    private ResultCode validateOfferMessage(DHCPMessage offerMessage, int xid, InetAddress[] serverAddress, JournalService journalService) {
+        ResultCode results = ROGUE_RESPONSE_FAILURE;
 
-        boolean valid = false;
-        LinkedList<DHCPOption> optionsList = offerMessage.getOptions();
-        for (DHCPOption option : optionsList) {
-            if (option.getCode() == SERVER_IDENTIFIER) {
-                ServerIdentifierOption serverIdentifierOption = (ServerIdentifierOption) option;
-                serverAddress[0] = serverIdentifierOption.getServerIdentifier();
-            } else if (option.getCode() == DHCP_MESSAGE_TYPE) {
-                MessageTypeOption.Type messageType = ((MessageTypeOption) option).getMessageType();
-                journalService.println(messageType.toString() + " responce received.");
-                if (messageType == DHCPOFFER) {
-                    DHCPOption.dumpOptions(optionsList, journalService);
-                    valid = true;
-                } else {
-                    valid = false;
+        if (offerMessage.getXid() != xid) {
+            results = IGNORE;  // Ignore other DHCP traffic.
+        } else {
+            LinkedList<DHCPOption> optionsList = offerMessage.getOptions();
+            for (DHCPOption option : optionsList) {
+                if (option.getCode() == SERVER_IDENTIFIER) {
+                    ServerIdentifierOption serverIdentifierOption = (ServerIdentifierOption) option;
+                    serverAddress[0] = serverIdentifierOption.getServerIdentifier();
+                } else if (option.getCode() == DHCP_MESSAGE_TYPE) {
+                    MessageTypeOption.Type messageType = ((MessageTypeOption) option).getMessageType();
+                    journalService.println(messageType.toString() + " responce received.");
+                    if (messageType == DHCPOFFER) {
+                        DHCPOption.dumpOptions(optionsList, journalService);
+                        results = NONE;
+                    } else {
+                        // Unrecognized response.
+                        journalService.println("  Invalid response to DHCPDISCOVER request.");
+                        results = DHCP_DISCOVER_REJECTED;
+                    }
                 }
             }
         }
 
-        if (!valid) {
-            // Unrecognized response.
-            journalService.println("  Invalid response to DHCPDISCOVER request.");
-        }
-
-        return valid;
+        return results;
     }
 
     private ResultCode sendRequest(int xid, InetAddress assignedAddress, InetAddress serverAddress, NetworkResources networkResources, JournalService journalService) {
+        ResultCode results;
+        
         try {
             ciaddr = InetAddress.getByName("0.0.0.0");
             yiaddr = assignedAddress;
@@ -283,7 +285,12 @@ public class DHCP {
                     if (multipleResponses) {
                         return MULTIPLE_SERVERS_FAILURE;
                     } else {
-                        return processAck(ackMessage, xid, networkResources, journalService);
+                        results = processAck(ackMessage, xid, networkResources, journalService);
+                        if (results == IGNORE) {
+                            journalService.println("  Read timeout: " + e.getMessage());
+                            results = TIMEOUT_FAILURE;
+                        }
+                        return results;
                     }
                 } else {
                     journalService.println("  Read timeout: " + e.getMessage());
@@ -293,10 +300,15 @@ public class DHCP {
 
             ackMessage = new DHCPMessage();
             ackMessage.unmarshal(incoming.getData());
+            
             if ((ackMessage.getOp() == BOOTREQUEST) && (ackMessage.getXid() == xid)) {
-                continue;
+                continue;  // Ignore.
             }
 
+            if (ackMessage.getXid() != xid) {
+                continue;  // Ignore.
+            }
+            
             if (responseReceived) {
                 // Multiple responses error.
                 if (multipleResponses == false) {
@@ -360,6 +372,7 @@ public class DHCP {
     private ResultCode performInform(int timeout, NetworkResources networkResources, JournalService journalService) {
         Random xidFactory = new Random();
         int xid = xidFactory.nextInt();
+        ResultCode results;
 
         try {
             // Attempt to bind to the DHCP Client port.
@@ -434,7 +447,12 @@ public class DHCP {
                     if (multipleResponses) {
                         return MULTIPLE_SERVERS_FAILURE;
                     } else {
-                        return processAck(ackMessage, xid, networkResources, journalService);
+                        results = processAck(ackMessage, xid, networkResources, journalService);
+                        if (results == IGNORE) {
+                            journalService.println("  Read timeout: " + e.getMessage());
+                            results = TIMEOUT_FAILURE;
+                        }
+                        return results;
                     }
                 } else {
                     journalService.println("  Read timeout: " + e.getMessage());
@@ -444,10 +462,15 @@ public class DHCP {
 
             ackMessage = new DHCPMessage();
             ackMessage.unmarshal(incoming.getData());
+            
             if ((ackMessage.getOp() == BOOTREQUEST) && (ackMessage.getXid() == xid)) {
-                continue;
+                continue;  // Ignore.
             }
 
+            if (ackMessage.getXid() != xid) {
+                continue;  // Ignore.
+            }
+            
             if (responseReceived) {
                 // Multiple responses error.
                 if (multipleResponses == false) {
@@ -468,8 +491,7 @@ public class DHCP {
         ResultCode results = NONE;
 
         if (ackMessage.getXid() != xid) {
-            journalService.println("  Rogue response.");
-            results = ROGUE_RESPONSE_FAILURE;
+            results = IGNORE;  // Ignore other DHCP traffic.
         }
 
         if (results == NONE) {

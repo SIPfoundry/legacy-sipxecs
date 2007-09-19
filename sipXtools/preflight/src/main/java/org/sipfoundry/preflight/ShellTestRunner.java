@@ -30,6 +30,7 @@ public class ShellTestRunner {
     private final Color green;
     private final Color blue;
     private final Color yellow;
+    private final Image nullIcon;
     private final Image idleIcon;
     private final Image passedIcon;
     private final Image failedIcon;
@@ -68,8 +69,16 @@ public class ShellTestRunner {
 
 
         // Create the test status icons.
+        nullIcon = new Image(display, 20, 20);
+        GC gc = new GC(nullIcon);
+        gc.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW));
+        gc.fillOval(2, 2, 16, 16);
+        gc.setForeground(black);
+        gc.drawOval(2, 2, 16, 16);
+        gc.dispose();
+
         idleIcon = new Image(display, 20, 20);
-        GC gc = new GC(idleIcon);
+        gc = new GC(idleIcon);
         gc.setBackground(white);
         gc.setForeground(black);
         gc.drawOval(2, 2, 16, 16);
@@ -135,35 +144,35 @@ public class ShellTestRunner {
         testTable = new TableItem[8];
 
         testTable[DHCP_TEST] = new TableItem(table, 0);
-        testTable[DHCP_TEST].setImage(0, idleIcon);
+        testTable[DHCP_TEST].setImage(0, spinnerIcon[3]);
         testTable[DHCP_TEST].setText(1, "DHCP Server Test");
 
         testTable[DNS_TEST] = new TableItem(table, 0);
-        testTable[DNS_TEST].setImage(0, idleIcon);
+        testTable[DNS_TEST].setImage(0, spinnerIcon[3]);
         testTable[DNS_TEST].setText(1, "DNS Server Test");
 
         testTable[NTP_TEST] = new TableItem(table, 0);
-        testTable[NTP_TEST].setImage(0, idleIcon);
+        testTable[NTP_TEST].setImage(0, spinnerIcon[3]);
         testTable[NTP_TEST].setText(1, "NTP Server Test");
 
         testTable[TFTP_TEST] = new TableItem(table, 0);
-        testTable[TFTP_TEST].setImage(0, idleIcon);
+        testTable[TFTP_TEST].setImage(0, spinnerIcon[3]);
         testTable[TFTP_TEST].setText(1, "TFTP Server Test");
 
         testTable[FTP_TEST] = new TableItem(table, 0);
-        testTable[FTP_TEST].setImage(0, idleIcon);
+        testTable[FTP_TEST].setImage(0, spinnerIcon[3]);
         testTable[FTP_TEST].setText(1, "FTP Server Test");
 
         testTable[HTTP_TEST] = new TableItem(table, 0);
-        testTable[HTTP_TEST].setImage(0, idleIcon);
+        testTable[HTTP_TEST].setImage(0, spinnerIcon[3]);
         testTable[HTTP_TEST].setText(1, "HTTP Server Test");
 
         testTable[SIP1_TEST] = new TableItem(table, 0);
-        testTable[SIP1_TEST].setImage(0, idleIcon);
+        testTable[SIP1_TEST].setImage(0, spinnerIcon[3]);
         testTable[SIP1_TEST].setText(1, "SIP Connectivity Test");
 
         testTable[SIP2_TEST] = new TableItem(table, 0);
-        testTable[SIP2_TEST].setImage(0, idleIcon);
+        testTable[SIP2_TEST].setImage(0, spinnerIcon[3]);
         testTable[SIP2_TEST].setText(1, "SIP Call Control Test");
 
         table.setHeaderVisible(false);
@@ -201,21 +210,21 @@ public class ShellTestRunner {
         
         update(DHCP_TEST, TestTableUpdater.RUNNING);
         testIconUpdater = new TestIconUpdater(testTable[DHCP_TEST]);
-        results = dhcp.validate(10, networkResources, journalService);
+        results = dhcp.validate(20, networkResources, journalService);
         testIconUpdater.quit();
         update(DHCP_TEST, results);
 
         if (results == NONE) {
         	update(DNS_TEST, TestTableUpdater.RUNNING);
         	testIconUpdater = new TestIconUpdater(testTable[DNS_TEST]);
-        	results = dns.validate(10, networkResources, journalService);
+        	results = dns.validate(20, networkResources, journalService);
         	testIconUpdater.quit();
         	update(DNS_TEST, results);
         
             if (networkResources.ntpServers != null) {
                 update(NTP_TEST, TestTableUpdater.RUNNING);
         		testIconUpdater = new TestIconUpdater(testTable[NTP_TEST]);
-        		results = ntp.validate(10, networkResources, journalService);
+        		results = ntp.validate(20, networkResources, journalService);
         		testIconUpdater.quit();
         		update(NTP_TEST, results);
             } else {
@@ -225,7 +234,7 @@ public class ShellTestRunner {
             if (networkResources.tftpServer != null) {
                 update(TFTP_TEST, TestTableUpdater.RUNNING);
         		testIconUpdater = new TestIconUpdater(testTable[TFTP_TEST]);
-        		results = tftp.validate(10, networkResources, journalService);
+        		results = tftp.validate(20, networkResources, journalService);
         		testIconUpdater.quit();
         		update(TFTP_TEST, results);
             } else {

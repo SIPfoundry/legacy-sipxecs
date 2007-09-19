@@ -19,25 +19,27 @@ public enum ResultCode {
     LOCAL_HOST_FAILURE(129, "Unable to determine local IP address.", TOOL), //
     TIMEOUT_FAILURE(130, "Timeout waiting for network response.", UUT), //
     TRANSMIT_FAILURE(131, "Network transmission failure.", TOOL), //
-    MULTIPLE_SERVERS_FAILURE(132, "Multiple DHCP servers detected.", UUT), //
-    ROGUE_RESPONSE_FAILURE(133, "Unrecognized response received.", UUT), //
-    DHCP_REQUEST_REJECTED(134, "DHCP REQUEST was rejected.", UUT), //
-    MISSING_CONFIG(135, "Missing mandatory DHCP configuration parameters.", UUT), //
-    UNSUPPORTED_NAPTR_REGEX(136, "DNS test does not currently support regex NAPTR records.", WARNING), //
-    SRV_TARGET_UNRESOLVED(137, "SRV target could not be resolved.", UUT), //
-    SRV_TARGET_UNREACHABLE(138, "SRV target is unreachable.", UUT), //
-    NO_SRV_RECORDS(139, "DNS Server did not report any SRV records.", WARNING), //
-    NTP_SERVERS_MISSING(140, "No NTP servers available.", WARNING), //
-    NTP_TEST_FAILURE(141, "NTP test network failure.", TOOL), //
-    NTP_SERVER_FAILURE(142, "NTP Server request failure.", UUT), //
-    TFTP_SERVER_MISSING(143, "No TFTP server available.", WARNING), //
-    TFTP_ADDRESS_MALFORMED(144, "TFTP Server address is malformed.", UUT), //
-    TFTP_TARGET_UNRESOLVED(145, "TFTP server address could not be resolved.", UUT), //
-    MULTIPLE_TFTP_TARGETS(146, "Mismatch in DNS TFTP server records.", UUT), //
-    TFTP_TARGET_UNREACHABLE(147, "TFTP server is unreachable.", UUT), //
-    TFTP_CLIENT_FAILURE(148, "TFTP client encountered unrecoverable error.", TOOL), //
-    TFTP_GET_FAILED(149, "TFTP get of test file failed.", UUT), //
-    TFTP_CONTENTS_FAILED(150, "TFTP test file did not verify.", UUT), //
+    IGNORE(132, "Other network traffic, ignore.", TOOL), //
+    MULTIPLE_SERVERS_FAILURE(133, "Multiple DHCP servers detected.", UUT), //
+    ROGUE_RESPONSE_FAILURE(134, "Unrecognized response received.", UUT), //
+    DHCP_DISCOVER_REJECTED(135, "DHCP DISCOVER was rejected.", UUT), //
+    DHCP_REQUEST_REJECTED(136, "DHCP REQUEST was rejected.", UUT), //
+    MISSING_CONFIG(137, "Missing mandatory DHCP configuration parameters.", UUT), //
+    UNSUPPORTED_NAPTR_REGEX(138, "DNS test does not currently support regex NAPTR records.", WARNING), //
+    SRV_TARGET_UNRESOLVED(139, "SRV target could not be resolved.", UUT), //
+    SRV_TARGET_UNREACHABLE(140, "SRV target is unreachable.", UUT), //
+    NO_SRV_RECORDS(141, "DNS Server did not report any SRV records.", WARNING), //
+    NTP_SERVERS_MISSING(142, "No NTP servers available.", WARNING), //
+    NTP_TEST_FAILURE(143, "NTP test network failure.", TOOL), //
+    NTP_SERVER_FAILURE(144, "NTP Server request failure.", UUT), //
+    TFTP_SERVER_MISSING(145, "No TFTP server available.", WARNING), //
+    TFTP_ADDRESS_MALFORMED(146, "TFTP Server address is malformed.", UUT), //
+    TFTP_TARGET_UNRESOLVED(147, "TFTP server address could not be resolved.", UUT), //
+    MULTIPLE_TFTP_TARGETS(148, "Mismatch in DNS TFTP server records.", UUT), //
+    TFTP_TARGET_UNREACHABLE(149, "TFTP server is unreachable.", UUT), //
+    TFTP_CLIENT_FAILURE(150, "TFTP client encountered unrecoverable error.", TOOL), //
+    TFTP_GET_FAILED(151, "TFTP get of test file failed.", UUT), //
+    TFTP_CONTENTS_FAILED(152, "TFTP test file did not verify.", UUT), //
     INVALID(255, "INVALID", TOOL); //
 
     /**
