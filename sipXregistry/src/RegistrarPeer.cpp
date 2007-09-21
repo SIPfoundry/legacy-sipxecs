@@ -1,10 +1,8 @@
-// $Id$
 //
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
-// $$
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -36,8 +34,10 @@ RegistrarPeer::RegistrarPeer( SipRegistrar*   registrar
      mReceivedFrom(-1),  // ditto
      mRegistrar(registrar)
 {
+   toLower();  // canonicalize the case of the name
+
    mUrl.setScheme(Url::HttpsUrlScheme);
-   mUrl.setHostAddress(name);
+   mUrl.setHostAddress(*this);
    mUrl.setHostPort(rpcPort);
    mUrl.setPath(rpcPath);
 }

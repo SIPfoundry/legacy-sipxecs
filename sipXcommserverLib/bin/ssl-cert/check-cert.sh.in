@@ -188,11 +188,13 @@ then
     rm -f /tmp/check-cert.$$
 
     # Check subject name if any correct answers are provided
-    cert_name=`@OPENSSL@ x509 -in "${Certificate}" -subject -nameopt RFC2253,multiline -noout | perl -ne 'use English; m/^ +commonName += / && print $POSTMATCH'`
-
+    cert_name=`@OPENSSL@ x509 -in "${Certificate}" -subject -nameopt RFC2253,multiline -noout \
+               | perl -ne 'use English; m/^ +commonName += / && print $POSTMATCH' \
+               | tr A-Z a-z
+               `
     if [ -n "${Names}" ]
     then
-        UniqueNames=`for n in ${Names}; do echo $n; done | sort -u`
+        UniqueNames=`for n in ${Names}; do echo $n | tr A-Z a-z; done | sort -u`
         Matched="NO"
         for name in ${UniqueNames}
         do 

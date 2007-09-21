@@ -69,11 +69,14 @@ case ${Action} in
      Status=$(($Status+$?))
 
      # if this system is configured for HA, check that both have valid routes
-     SyncWith=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_SYNC_WITH`
+     SyncWith=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_SYNC_WITH \
+               | tr A-Z a-z`
      if [ -n "$SyncWith" ]
      then
-         myRegDomain=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_DOMAIN_NAME`
-         myHostName=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_NAME`
+         myRegDomain=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_DOMAIN_NAME \
+                      | tr A-Z a-z`
+         myHostName=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_NAME \
+                     | tr A-Z a-z`
          if [ "$myRegDomain" = "$myHostName" ]
          then
              cat <<EOF

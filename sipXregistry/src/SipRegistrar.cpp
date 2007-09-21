@@ -600,6 +600,11 @@ void SipRegistrar::configurePeers()
 
    if (! mPrimaryName.isNull())
    {
+      mPrimaryName.toLower();
+      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRegistrar::configurePeers "
+                    "SIP_REGISTRAR_NAME : '%s'", mPrimaryName.data()
+                    );
+
       UtlString peerNames;
       mConfigDb->get("SIP_REGISTRAR_SYNC_WITH", peerNames);
 
@@ -612,7 +617,7 @@ void SipRegistrar::configurePeers()
               peerIndex++
               )
          {
-            if ( peerName != mPrimaryName )
+            if (peerName.compareTo(mPrimaryName, UtlString::ignoreCase)) // not myself
             {
                RegistrarPeer* thisPeer = new RegistrarPeer(this, peerName, mHttpPort);
                assert(thisPeer);
@@ -622,7 +627,7 @@ void SipRegistrar::configurePeers()
                {
                   peersMsg.append(", ");
                }
-               peersMsg.append(peerName);
+               peersMsg.append(thisPeer->data());
             }
          }
 
@@ -634,7 +639,7 @@ void SipRegistrar::configurePeers()
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_NOTICE,
+            OsSysLog::add(FAC_SIP, PRI_INFO,
                           "SipRegistrar::configurePeers: %s", peersMsg.data()
                           );
             mReplicationConfigured = true;
@@ -643,7 +648,7 @@ void SipRegistrar::configurePeers()
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRegistrar::configurePeers "
+      OsSysLog::add(FAC_SIP, PRI_NOTICE, "SipRegistrar::configurePeers "
                     "SIP_REGISTRAR_NAME not set - replication disabled"
                     );
    }

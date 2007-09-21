@@ -47,13 +47,13 @@ dns_a () { # ( DOMAIN )
 
 sip_resolves_to () { # ( unresolved, target )
     # returns true (0) if "unresolved" resolves to "target" (an IP address) by SIP rules
-     unresolvedName=$1
-     targetAddr=$2
+     unresolvedName=`echo $1 | tr A-Z a-z`
+     targetAddr=`echo $2 | tr A-Z a-z`
 
      # If unresolvedName is the target IP address.
      if [ "${unresolvedName}" = "${targetAddr}" ]
      then
-	 return 0
+         return 0
      fi
 
      # Look up A records.
