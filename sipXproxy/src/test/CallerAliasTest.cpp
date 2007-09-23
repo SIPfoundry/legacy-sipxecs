@@ -108,11 +108,16 @@ public:
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
          
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         UtlString method("INVITE");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+         
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == converter->authorizeAndModify(testSipAaa,
                                                          identity,
                                                          requestUri,
                                                          routeState,
+                                                         method,
+                                                         priorResult,
                                                          testMsg,
                                                          rejectReason
                                                          ));
@@ -130,13 +135,15 @@ public:
 
          // now simulate a spiral with the same message
          RouteState spiraledRouteState(testMsg, noRemovedRoutes);
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == converter->authorizeAndModify(testSipAaa,
                                                          identity,
-                                                        requestUri,
-                                                        spiraledRouteState,
-                                                        testMsg,
-                                                        rejectReason
+                                                         requestUri,
+                                                         spiraledRouteState,
+                                                         method,
+                                                         priorResult,
+                                                         testMsg,
+                                                         rejectReason
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
@@ -181,11 +188,16 @@ public:
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
          
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         UtlString method("INVITE");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == converter->authorizeAndModify(testSipAaa,
                                                          identity,
                                                          requestUri,
                                                          routeState,
+                                                         method,
+                                                         priorResult,
                                                          testMsg,
                                                          rejectReason
                                                          ));
@@ -233,11 +245,15 @@ public:
 
          RouteState ackRouteState( ackMsg, removedRoutes );
 
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         method = "ACK";
+         
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == converter->authorizeAndModify(testSipAaa,
                                                          identity,
                                                          requestUri,
                                                          ackRouteState,
+                                                         method,
+                                                         priorResult,
                                                          ackMsg,
                                                          rejectReason
                                                          ));
@@ -270,13 +286,17 @@ public:
                        reverseMessage
                        );
 
+         UtlString infoMethod("INFO");
+
          RouteState reverseRouteState( reverseMsg, removedRoutes );
 
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == converter->authorizeAndModify(testSipAaa,
                                                          identity,
                                                          requestUri,
                                                          reverseRouteState,
+                                                         infoMethod,
+                                                         priorResult,
                                                          reverseMsg,
                                                          rejectReason
                                                          ));
@@ -325,11 +345,16 @@ public:
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
          
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         UtlString method("INVITE");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+         
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == converter->authorizeAndModify(testSipAaa,
                                                          identity,
                                                          requestUri,
                                                          routeState,
+                                                         method,
+                                                         priorResult,
                                                          testMsg,
                                                          rejectReason
                                                          ));
@@ -355,7 +380,7 @@ public:
           * (it is just a caller->callee in-dialog request for this plugin)
           */
          const char* ackMessage =
-            "INVITE sip:target@example.org SIP/2.0\r\n"
+            "ACK sip:target@example.org SIP/2.0\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
             "To: sip:target@example.org;tag=4711018y5y1-1-1\r\n"
             "From: sip:505@example.edu;tag=30543f3483e1cb11ecb40866edd3295b\r\n"
@@ -377,11 +402,15 @@ public:
 
          RouteState ackRouteState( ackMsg, removedRoutes );
 
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         method = "ACK";
+
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == converter->authorizeAndModify(testSipAaa,
                                                          identity,
                                                          requestUri,
                                                          ackRouteState,
+                                                         method,
+                                                         priorResult,
                                                          ackMsg,
                                                          rejectReason
                                                          ));
@@ -416,11 +445,15 @@ public:
 
          RouteState reverseRouteState( reverseMsg, removedRoutes );
 
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         method = "INFO";
+         
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == converter->authorizeAndModify(testSipAaa,
                                                          identity,
                                                          requestUri,
                                                          reverseRouteState,
+                                                         method,
+                                                         priorResult,
                                                          reverseMsg,
                                                          rejectReason
                                                          ));
@@ -433,7 +466,6 @@ public:
          UtlString modifiedTo;
          reverseMsg.getToField(&modifiedTo);
          ASSERT_STR_EQUAL("sip:505@example.edu;tag=30543f3483e1cb11ecb40866edd3295b", modifiedTo);
-
       }
    
 private:

@@ -126,6 +126,10 @@ rm -rf $RPM_BUILD_ROOT
 # config files are generated from templates via config.defs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
 
+# The configmerge mapping file is NOT user configurable and will change
+# each release.
+%attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authproxy-config.in.map
+
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/proxy-config.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/forwardingrules.xml.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authproxy-config.in

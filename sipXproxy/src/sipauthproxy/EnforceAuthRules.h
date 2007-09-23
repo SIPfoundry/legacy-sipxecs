@@ -49,6 +49,8 @@ class EnforceAuthRules : public AuthPlugin
                                                           */
                                     const Url&  requestUri, ///< parsed target Uri
                                     RouteState& routeState, ///< the state for this request.  
+                                    const UtlString& method,///< the request method
+                                    AuthResult  priorResult,///< results from earlier plugins.
                                     SipMessage& request,    ///< see AuthPlugin regarding modifying
                                     UtlString&  reason      ///< rejection reason
                                     );
@@ -56,16 +58,16 @@ class EnforceAuthRules : public AuthPlugin
     * This plugin uses one state parameter to record that the dialog has already been
     * processed by authrules; it does not have any value.  If that parameter is present
     * in a request and routeState::isMutable returns false, then this method does not
-    * evaluate the authrules, it just returns ALLOW_REQUEST.
+    * evaluate the authrules, it just returns ALLOW.
     *
     * If the state parameter is not found, or routeState::isMutable returns true (indicating
     * that this not an in-dialog request), then the authrules are evaluated.
     *
     * - If the rules allow the request, the state parameter is set to record that
-    *   and ALLOW_REQUEST is returned.
+    *   and ALLOW is returned.
     * - If the rules do not allow the request, this method sets the reason phrase
     *   to describe what permission is needed for the request to succeed and returns
-    *   UNAUTHORIZED.
+    *   DENY.
     */
 
    /// Read (or re-read) the authorization rules.

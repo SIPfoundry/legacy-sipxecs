@@ -276,29 +276,61 @@ bool SipAaa::proxyMessage(SipMessage& sipRequest)
       bool requestIsAuthenticated = isAuthenticated(sipRequest, authUser);
 
       UtlString rejectReason;
+      AuthPlugin::AuthResult finalAuthResult;
+
+      // handle special cases that are universal
+      UtlString method;
+      sipRequest.getRequestMethod(&method); // Don't authenticate ACK -- it is always allowed.
+      if (  (method.compareTo(SIP_ACK_METHOD) != 0) 
+          || sipRequest.isResponse())  // responses are always allowed (just in case)
+      {
+         finalAuthResult = AuthPlugin::ALLOW;
+      }
+      else
+      {
+         finalAuthResult = AuthPlugin::CONTINUE; // let the plugins decide
+      }
       
+      // call each plugin
       PluginIterator authPlugins(mAuthPlugins);
       AuthPlugin* authPlugin;
-      AuthPlugin::AuthResult authResult;
-      for (authResult = AuthPlugin::ALLOW_REQUEST;
-           (   (AuthPlugin::ALLOW_REQUEST == authResult)
-            && (authPlugin = dynamic_cast<AuthPlugin*>(authPlugins.next()))
-            );
-           authResult = authPlugin->authorizeAndModify(this,
+      UtlString authPluginName;
+      AuthPlugin::AuthResult pluginResult;
+      while ((authPlugin = dynamic_cast<AuthPlugin*>(authPlugins.next(&authPluginName))))
+      {
+         pluginResult = authPlugin->authorizeAndModify(this,
                                                        authUser,
                                                        normalizedRequestUri,
                                                        routeState,
+                                                       method,
+                                                       finalAuthResult,
                                                        sipRequest,
                                                        rejectReason
-                                                       )
-           )
-      {
-         // walk the plugins until one says not to allow the request
+                                                       );
+
+         OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                       "SipAaa::proxyMessage plugin %s returned %s for %s",
+                       authPluginName.data(),
+                       AuthPlugin::AuthResultStr(finalAuthResult),
+                       callId.data()
+                       );
+
+         // the first plugin to return something other than CONTINUE wins
+         if (AuthPlugin::CONTINUE == finalAuthResult)
+         {
+            finalAuthResult = pluginResult;
+            OsSysLog::add(FAC_AUTH, PRI_INFO,
+                          "SipAaa::proxyMessage plugin %s returned %s for %s",
+                          authPluginName.data(),
+                          AuthPlugin::AuthResultStr(finalAuthResult),
+                          callId.data()
+                          );
+         }
       }
                                                      
-      switch (authResult)
+      switch (finalAuthResult)
       {
-      case AuthPlugin::UNAUTHORIZED:
+      case AuthPlugin::DENY:
       {
          // Either not authenticated or not authorized
          SipMessage authResponse;
@@ -323,7 +355,8 @@ bool SipAaa::proxyMessage(SipMessage& sipRequest)
       }
       break;
 
-      case AuthPlugin::ALLOW_REQUEST:
+      case AuthPlugin::CONTINUE: // be permissive - if nothing says DENY, then treat as ALLOW
+      case AuthPlugin::ALLOW:
       {
          // Decrement max forwards
          int maxForwards;
@@ -347,8 +380,7 @@ bool SipAaa::proxyMessage(SipMessage& sipRequest)
 
       default:
          OsSysLog::add(FAC_SIP, PRI_CRIT, "SipAaa::proxyMessage plugin returned invalid result %d",
-                       authResult);
-         assert(false);         // :TODO: take out for production
+                       finalAuthResult);
          break;
       }
    }

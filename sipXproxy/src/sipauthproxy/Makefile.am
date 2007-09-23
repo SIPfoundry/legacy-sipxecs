@@ -44,6 +44,7 @@ libauthproxy_la_SOURCES = \
    SipAaa.cpp \
 	SipAaa.h \
 	AuthPlugin.h \
+	AuthPlugin.cpp \
 	RouteState.h \
 	RouteState.cpp \
 	AuthProxyCseObserver.h \

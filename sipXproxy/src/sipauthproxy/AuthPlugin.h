@@ -31,7 +31,7 @@ class SipMessage;
 /// Record-Route based actions.
 /**
  * An AuthPlugin is an action invoked by the sipXauthproxy whenever a
- * SIP Request is passing through.   See SipAaa for the context of this call.
+ * SIP Message is passing through.   See SipAaa for the context of this call.
  *
  * This class is the abstract base from which all AuthPlugins must inherit.
  *
@@ -48,6 +48,9 @@ class SipMessage;
  * that the OsSharedLib mechanism can look it up in the dynamically loaded library
  * (looking up C++ symbols is problematic because of name mangling).
  *
+ * The decision making of the plugin is in the authorizeAndModify method.
+ *
+ * @see SipAaa
  * @see Plugin
  * @see PluginHooks
  */
@@ -64,40 +67,42 @@ class AuthPlugin : public Plugin
    /// Action to be taken by the proxy.
    typedef enum 
    {
-      ALLOW_REQUEST,   ///< proxy message as it exists (possibly modified)
-      UNAUTHORIZED     ///< request not authorized - do not proxy
+      CONTINUE, /**< this plugin neither authorizes nor forbids
+                 *   (but may have modified) this message */
+      DENY,     ///< this request is not authorized - do not proxy
+      ALLOW,    ///< this request is authorized - proxy the message (possibly modified)
    } AuthResult;
       
    /// Called by SipAaa::proxyMessage for each request to authorize and/or modify before sending.
    virtual
       AuthResult authorizeAndModify(const SipAaa* sipAaa,  ///< for access to proxy information
-                                    const UtlString& id, /**< The authenticated identity of the
-                                                          *   request originator, if any (the null
-                                                          *   string if not).
-                                                          *   This is in the form of a SIP uri
-                                                          *   identity value as used in the
-                                                          *   credentials database (user@domain)
-                                                          *   without the scheme or any parameters.
-                                                          */
+                                    const UtlString& id,   /**< The authenticated identity of the
+                                                            *   request originator, if any
+                                                            *   (the null string if not).
+                                                            *   This is in the form of a SIP uri
+                                                            *   identity value as used in the
+                                                            *   credentials database (user@domain)
+                                                            *   without the scheme or any
+                                                            *   parameters.
+                                                            */
                                     const Url&  requestUri, ///< parsed target Uri
                                     RouteState& routeState, ///< the state for this request.  
+                                    const UtlString& method,///< the request method
+                                    AuthResult  priorResult,///< results from earlier plugins.
                                     SipMessage& request,    ///< see below regarding modifying this
                                     UtlString&  reason      ///< rejection reason
                                     ) = 0;
    /**<
     * This method may do any combination of:
     *
-    * - Determine whether or not the request is authorized for
-    *   the given identity.  If not, it should return UNAUTHORIZED.
-    *   If any plugin returns UNAUTHORIZED, no further plugins
-    *   are consulted; the proxy immediately returns either:
-    *   - '403 Forbidden' if the request was authenticated
-    *      In this case, if the 'reason' parameter is not null when
-    *      returned, it's value is used as the reason text in the
-    *      first line of the response (if it is null, 'Forbidden'
-    *      is sent).
-    *   - '407 Proxy Authentication Required' if no valid user
-    *     authentication was found.
+    * - Determine whether or not the request is authorized, using 
+    *   any characteristics of the message.  For any identity, it
+    *   should use the given identity.  The result of any plugins
+    *   that have been called is passed in priorResult - if the
+    *   priorResult is not CONTINUE, then the authorization returned
+    *   by this plugin will not be used (because the earlier result
+    *   takes precedence); the plugin may use this fact to skip
+    *   any authorization processing it would otherwise perform.
     *
     * - Modify the message.
     *   This should be done with great care, as it can introduce
@@ -136,6 +141,16 @@ class AuthPlugin : public Plugin
     *   dialog forming request is authorized in a RouteState
     *   parameter so that any subsequent in-dialog requests can be
     *   authorized by just looking at the state.
+    *
+    *   If the final result of the AuthPlugin chain is DENY for any
+    *   request, the proxy responds with either:
+    *   - '403 Forbidden' if the request was authenticated
+    *      In this case, if the 'reason' parameter is not null when
+    *      returned, it's value is used as the reason text in the
+    *      first line of the response (if it is null, 'Forbidden'
+    *      is sent).
+    *   - '407 Proxy Authentication Required' if no valid user
+    *     authentication was found.
     */
 
    /// Read (or re-read) whatever configuration the plugin requires.
@@ -152,6 +167,9 @@ class AuthPlugin : public Plugin
     * examples in PluginHooks::readConfig).
     */
 
+   /// Provide a string version of an AuthResult value for logging. 
+   static const char* AuthResultStr(AuthResult result);
+   
   protected:
 
    /// constructor

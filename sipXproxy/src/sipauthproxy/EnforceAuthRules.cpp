@@ -155,26 +155,28 @@ EnforceAuthRules::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to p
                                                            */
                                      const Url&  requestUri, ///< parsed target Uri
                                      RouteState& routeState, ///< the state for this request.  
-                                     SipMessage& request,    ///< see AuthPlugin regarding modifying
+                                     const UtlString& method,///< the request method
+                                     AuthResult  priorResult,///< results from earlier plugins.
+                                     SipMessage& request,    ///< see AuthPlugin wrt modifying
                                      UtlString&  reason      ///< rejection reason
                                      )
 {
-   AuthResult result = UNAUTHORIZED;
-   
+   AuthResult result = CONTINUE;
+      
    /*
     * This plugin uses one state parameter to record that the dialog has already been
     * processed by authrules; it does not have any value.  If that parameter is present
     * in a request and routeState::isMutable returns false, then this method does not
-    * evaluate the authrules, it just returns ALLOW_REQUEST.
+    * evaluate the authrules, it just returns ALLOW.
     *
     * If the state parameter is not found, or routeState::isMutable returns true (indicating
     * that this not an in-dialog request), then the authrules are evaluated.
     *
     * - If the rules allow the request, the state parameter is set to record that
-    *   and ALLOW_REQUEST is returned.
+    *   and ALLOW is returned.
     * - If the rules do not allow the request, this method sets the reason phrase
     *   to describe what permission is needed for the request to succeed and returns
-    *   UNAUTHORIZED.
+    *   DENY.
     */
 
    UtlString unused;
@@ -183,143 +185,135 @@ EnforceAuthRules::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to p
    UtlString callId;
    request.getCallIdField(&callId);
 
-   if (   routeState.isMutable()
-       || !routeState.getParameter(mInstanceName.data(), RULES_ENFORCED_ROUTE_PARAM, unused)
-       )
+   if (priorResult == CONTINUE)
    {
-      // Determine the authIdentity. Use valid identity info if found in request, otherwise
-      // use the identity of request originator
-      UtlString  authUserIdentity;
-      SipXauthIdentity sipxIdentity(request);
-      bool isValid = sipxIdentity.getIdentity(authUserIdentity);
-      if ( isValid && !authUserIdentity.isNull())
+      if (   routeState.isMutable()
+          || !routeState.getParameter(mInstanceName.data(), RULES_ENFORCED_ROUTE_PARAM, unused)
+          )
       {
-         // found identity in request
-         OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
-                       " found valid authIdentity '%s' in request callId %s",
-                       mInstanceName.data(), authUserIdentity.data(), callId.data() 
-                       );
-         
-      }
-      else
-      {
+         // Determine the authIdentity. Use valid identity info if found in request, otherwise
          // use the identity of request originator
-         authUserIdentity = id;
-      }
+         UtlString  authUserIdentity;
+         SipXauthIdentity sipxIdentity(request);
+         bool isValid = sipxIdentity.getIdentity(authUserIdentity);
+         if ( isValid && !authUserIdentity.isNull())
+         {
+            // found identity in request
+            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
+                          " found valid authIdentity '%s' in request callId %s",
+                          mInstanceName.data(), authUserIdentity.data(), callId.data() 
+                          );
+         
+         }
+         else
+         {
+            // use the identity of request originator
+            authUserIdentity = id;
+         }
 
-      // Can't completely remove identity info, since it may be required
-      // furhter if the request spirals. Normalize authIdentity to only leave
-      // the most recent info in the request 
-      SipXauthIdentity::normalize(request);
+         // Can't completely remove identity info, since it may be required
+         // further if the request spirals. Normalize authIdentity to only leave
+         // the most recent info in the request 
+         SipXauthIdentity::normalize(request);
 
-      if (!request.isResponse())
-      {
          OsReadLock readLock(mRulesLock);
 
          if (mpAuthorizationRules)
          {
-            UtlString method;
-            request.getRequestMethod(&method);
-
-            // Don't authenticate ACK -- it is always allowed.
-            if (method.compareTo(SIP_ACK_METHOD) != 0)
-            {
-               ResultSet  requiredPermissions;
-               mpAuthorizationRules->getPermissionRequired(requestUri, requiredPermissions);
+            ResultSet  requiredPermissions;
+            mpAuthorizationRules->getPermissionRequired(requestUri, requiredPermissions);
          
-               if (requiredPermissions.isEmpty())
-               {
-                  OsSysLog::add(FAC_AUTH, PRI_INFO, "EnforceAuthRules[%s]::authorizeAndModify "
-                                " no permission required for call %s",
-                                mInstanceName.data(), callId.data()
-                     );
-                  result = ALLOW_REQUEST;
-               }
-               else if (authUserIdentity.isNull())
-               {
-                  /*
-                   * Some permission is required, but we cannot look up permissions without
-                   * an identity.  Let this request fail, which will cause a challenge.
-                   * When there is no identity, good security practice dictates that we _not_
-                   * supply any information about what is needed, so do not set the reason.
-                   */
-                  OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
-                                " request not authenticated but requires some permission. Call-Id = '%s'",
-                                mInstanceName.data(), callId.data() 
-                     );
-               }
-               else
-               {
-                  // some permission is required and caller is authenticated, so see if they have it
-                  ResultSet grantedPermissions;
-                  Url identity(authUserIdentity);
-                  PermissionDB::getInstance()->getPermissions(identity, grantedPermissions);
-
-                  UtlString unmatchedPermissions;
-                  UtlString matchedPermission;
-
-                  if (isAuthorized(requiredPermissions, grantedPermissions,
-                                   matchedPermission, unmatchedPermissions)
-                     )
-                  {
-                     OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
-                                   " id '%s' authorized by '%s'",
-                                   mInstanceName.data(), authUserIdentity.data(), matchedPermission.data()
-                        );
-
-                     result = ALLOW_REQUEST;
-                  }
-                  else
-                  {
-                     OsSysLog::add(FAC_AUTH, PRI_WARNING,
-                                   "EnforceAuthRules[%s]::authorizeAndModify "
-                                   " call '%s' requires '%s'",
-                                   mInstanceName.data(), callId.data(), unmatchedPermissions.data()
-                        );
-
-                     // since the user is at least a valid user, help them debug the configuration
-                     // by telling them what permissions would allow this request.
-                     reason.append("Requires ");
-                     reason.append(unmatchedPermissions);
-                  }
-               }
+            if (requiredPermissions.isEmpty())
+            {
+               result = ALLOW;
+               OsSysLog::add(FAC_AUTH, PRI_INFO, "EnforceAuthRules[%s]::authorizeAndModify "
+                             " no permission required for call %s",
+                             mInstanceName.data(), callId.data()
+                             );
+            }
+            else if (authUserIdentity.isNull())
+            {
+               /*
+                * Some permission is required, but we cannot look up permissions without
+                * an identity.  Let this request fail, which will cause a challenge.
+                * When there is no identity, good security practice dictates that we _not_
+                * supply any information about what is needed, so do not set the reason.
+                */
+               result = DENY;
+               OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
+                             " request not authenticated but requires some permission. Call-Id = '%s'",
+                             mInstanceName.data(), callId.data() 
+                             );
             }
             else
             {
-               // this is an ACK
-               result = ALLOW_REQUEST;
+               // some permission is required and caller is authenticated, so see if they have it
+               ResultSet grantedPermissions;
+               Url identity(authUserIdentity);
+               PermissionDB::getInstance()->getPermissions(identity, grantedPermissions);
+
+               UtlString unmatchedPermissions;
+               UtlString matchedPermission;
+
+               if (isAuthorized(requiredPermissions, grantedPermissions,
+                                matchedPermission, unmatchedPermissions)
+                   )
+               {
+                  result = ALLOW;
+                  OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
+                                " id '%s' authorized by '%s'",
+                                mInstanceName.data(), authUserIdentity.data(), matchedPermission.data()
+                                );
+               }
+               else
+               {
+                  result = DENY;
+                  OsSysLog::add(FAC_AUTH, PRI_WARNING,
+                                "EnforceAuthRules[%s]::authorizeAndModify "
+                                " call '%s' requires '%s'",
+                                mInstanceName.data(), callId.data(), unmatchedPermissions.data()
+                                );
+                  // since the user is at least a valid user, help them debug the configuration
+                  // by telling them what permissions would allow this request.
+                  reason.append("Requires ");
+                  reason.append(unmatchedPermissions);
+               }
             }
          }
          else
          {
             // no rules configured, so all requests are allowed
-            result = ALLOW_REQUEST;
+            result = CONTINUE;
+         }
+
+         if (   ALLOW == result
+             && routeState.isMutable()
+             )
+         {
+            routeState.setParameter(mInstanceName.data(),RULES_ENFORCED_ROUTE_PARAM,unused);
          }
       }
       else
       {
-         // responses are always allowed
-         result = ALLOW_REQUEST;
-      }
-
-      if (   ALLOW_REQUEST == result
-          && routeState.isMutable()
-          )
-      {
-         routeState.setParameter(mInstanceName.data(),RULES_ENFORCED_ROUTE_PARAM,unused);
+         /*
+          * There is a valid RULES_ENFORCED_ROUTE_PARAM on this request,
+          * so there is no need to check it.
+          */
+         result = ALLOW;
+         OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
+                       "valid previous authorization found for call %s",
+                       mInstanceName.data(), callId.data()
+                       );
       }
    }
    else
    {
-      /*
-       * There is a valid RULES_ENFORCED_ROUTE_PARAM on this request,
-       * so there is no need to check it.
-       */
+      // Some earlier plugin already authorized this - don't waste time figuring it out.
+      result = priorResult;
       OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
-                    "valid previous authorization found for call %s",
-                    mInstanceName.data(), callId.data()
+                    "prior authorization result %s for call %s - rules skipped",
+                    mInstanceName.data(), AuthResultStr(priorResult), callId.data()
                     );
-      result = ALLOW_REQUEST;
    }
    
    return result;

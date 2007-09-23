@@ -120,11 +120,16 @@ public:
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
          
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         UtlString method("INVITE");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+         
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         requestUri,
                                                         routeState,
+                                                        method,
+                                                        priorResult,
                                                         testMsg,
                                                         rejectReason
                                                         ));
@@ -143,11 +148,13 @@ public:
          RouteState spiraledRouteState(testMsg, noRemovedRoutes);
          
          // now simulate a spiral with the same message
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         requestUri,
                                                         spiraledRouteState,
+                                                        method,
+                                                        priorResult,
                                                         testMsg,
                                                         rejectReason
                                                         ));
@@ -196,11 +203,16 @@ public:
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
          
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         UtlString method("INVITE");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         requestUri,
                                                         routeState,
+                                                        method,
+                                                        priorResult,
                                                         testMsg,
                                                         rejectReason
                                                         ));
@@ -222,11 +234,13 @@ public:
          testMsg.addHeaderField("X-Sipx-Authidentity", "<sip:invalid@anonymous;signature=46A66059%3Ab1b86dffc2e38191cdfad0500bf9a209>");
 
          // now simulate a spiral with the same message
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         requestUri,
                                                         spiraledRouteState,
+                                                        method,
+                                                        priorResult,
                                                         testMsg,
                                                         rejectReason
                                                         ));
@@ -271,11 +285,16 @@ public:
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
          
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         UtlString method("ACK");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::ALLOW;
+
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         requestUri,
                                                         routeState,
+                                                        method,
+                                                        priorResult,
                                                         testMsg,
                                                         rejectReason
                                                         ));
@@ -288,11 +307,13 @@ public:
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(0, &recordRoute));
 
          // now simulate a spiral with the same message
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         requestUri,
                                                         routeState,
+                                                        method,
+                                                        priorResult,
                                                         testMsg,
                                                         rejectReason
                                                         ));
@@ -335,11 +356,16 @@ public:
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
          
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         UtlString method("INVITE");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::ALLOW; // SipAaa passes this for responses
+
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         requestUri,
                                                         routeState,
+                                                        method,
+                                                        priorResult,
                                                         testMsg,
                                                         rejectReason
                                                         ));
@@ -377,11 +403,16 @@ public:
 
          UtlString rejectReason;
          
-         CPPUNIT_ASSERT(AuthPlugin::UNAUTHORIZED
+         UtlString method("INVITE");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+         
+         CPPUNIT_ASSERT(AuthPlugin::DENY
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         requestUri,
                                                         routeState,
+                                                        method,
+                                                        priorResult,
                                                         testMsg,
                                                         rejectReason
                                                         ));
@@ -391,11 +422,13 @@ public:
          // so this time it should provide a reject reason
          identity = "user@example.com";
          
-         CPPUNIT_ASSERT(AuthPlugin::UNAUTHORIZED
+         CPPUNIT_ASSERT(AuthPlugin::DENY
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         requestUri,
                                                         routeState,
+                                                        method,
+                                                        priorResult,
                                                         testMsg,
                                                         rejectReason
                                                         ));
@@ -426,12 +459,17 @@ public:
          SipMessage okMsg(okMessage, strlen(okMessage));
          RouteState okRouteState( okMsg, noRemovedRoutes );
 
+         UtlString method("INVITE");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+
          // confirm that supercaster can call boat
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         okRequestUri,
                                                         okRouteState,
+                                                        method,
+                                                        priorResult,
                                                         okMsg,
                                                         rejectReason
                                                         ));
@@ -466,11 +504,13 @@ public:
          rejectReason.remove(0);
 
          // confirm that mightyhunter can't call boat
-         CPPUNIT_ASSERT(AuthPlugin::UNAUTHORIZED
+         CPPUNIT_ASSERT(AuthPlugin::DENY
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         okRequestUri,
                                                         okRouteState,
+                                                        method,
+                                                        priorResult,
                                                         notOkMsg,
                                                         rejectReason
                                                         ));
@@ -500,11 +540,13 @@ public:
          rejectReason.remove(0);
 
          // confirm that supercaster cannot call lodge
-         CPPUNIT_ASSERT(AuthPlugin::UNAUTHORIZED
+         CPPUNIT_ASSERT(AuthPlugin::DENY
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         noprivRequestUri,
                                                         noprivRouteState,
+                                                        method,
+                                                        priorResult,
                                                         noprivMsg,
                                                         rejectReason
                                                         ));
@@ -530,11 +572,13 @@ public:
          rejectReason.remove(0);
          authIdentity.insert(allowedMsg);
          
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         noprivRequestUri,
                                                         allowedRouteState,
+                                                        method,
+                                                        priorResult,
                                                         allowedMsg,
                                                         rejectReason
                                                         ));
@@ -556,11 +600,13 @@ public:
          // invalid authidentity - Call-ID does not match
          allowedMsg.addHeaderField("X-Sipx-Authidentity", "<sip:mightyhunter@enforce.example.com;signature=46A66059%3Ab1b86dffc2e38191cdfad0500bf9a209>");
 
-         CPPUNIT_ASSERT(AuthPlugin::UNAUTHORIZED
+         CPPUNIT_ASSERT(AuthPlugin::DENY
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         noprivRequestUri,
                                                         allowedRouteState,
+                                                        method,
+                                                        priorResult,
                                                         allowedMsg,
                                                         rejectReason
                                                         ));
@@ -594,12 +640,17 @@ public:
          SipMessage okMsg(okMessage, strlen(okMessage));
          RouteState okRouteState( okMsg, noRemovedRoutes );
 
+         UtlString method("INVITE");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+         
          // confirm that supercaster can call boat
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         okRequestUri,
                                                         okRouteState,
+                                                        method,
+                                                        priorResult,
                                                         okMsg,
                                                         rejectReason
                                                         ));
@@ -642,11 +693,13 @@ public:
          // confirm that a forward in-dialog message with that route is allowed
          // even though it is not authenticated.
          UtlString noIdentity;
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(NULL,
                                                         noIdentity,
                                                         indialogRequestUri,
                                                         indialogRouteState,
+                                                        method,
+                                                        priorResult,
                                                         indialogForwardMsg,
                                                         rejectReason
                                                         ));
@@ -679,12 +732,17 @@ public:
          SipMessage okMsg(okMessage, strlen(okMessage));
          RouteState okRouteState( okMsg, noRemovedRoutes );
 
+         UtlString method("INVITE");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+         
          // confirm that supercaster can call boat
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW_REQUEST
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(NULL,
                                                         identity,
                                                         okRequestUri,
                                                         okRouteState,
+                                                        method,
+                                                        priorResult,
                                                         okMsg,
                                                         rejectReason
                                                         ));
@@ -728,11 +786,13 @@ public:
          // confirm that the spiraled new dialog message with that route is
          // not allowed even though it is not authenticated.
          UtlString noIdentity;
-         CPPUNIT_ASSERT(AuthPlugin::UNAUTHORIZED
+         CPPUNIT_ASSERT(AuthPlugin::DENY
                         == enforcer->authorizeAndModify(NULL,
                                                         noIdentity,
                                                         newdialogRequestUri,
                                                         newdialogRouteState,
+                                                        method,
+                                                        priorResult,
                                                         newdialogForwardMsg,
                                                         rejectReason
                                                         ));

@@ -97,6 +97,8 @@ CallerAlias::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to proxy 
                                                       */
                                 const Url&  requestUri, ///< parsed target Uri
                                 RouteState& routeState, ///< the state for this request.  
+                                const UtlString& method,///< the request method
+                                AuthResult  priorResult,///< results from earlier plugins.
                                 SipMessage& request,    ///< see AuthPlugin regarding modifying
                                 UtlString&  reason      ///< rejection reason
                                 )
@@ -105,7 +107,9 @@ CallerAlias::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to proxy 
    UtlString callId;
    request.getCallIdField(&callId);
 
-   if (spCallerAliasDB)   //   Is there a caller alias database? (should always be true)
+   if (   (priorResult != DENY) // no point in modifying a request that won't be sent
+       && (spCallerAliasDB)     // there is a caller alias database? (should always be true)
+       )
    {
       UtlString callerFrom;
       UtlString aliasFrom;
@@ -271,7 +275,7 @@ CallerAlias::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to proxy 
       }
    }
 
-   return AuthPlugin::ALLOW_REQUEST;
+   return AuthPlugin::CONTINUE;
 }
 
 /// destructor

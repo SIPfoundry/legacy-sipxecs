@@ -59,6 +59,8 @@ class CallerAlias : public AuthPlugin
                                                           */
                                     const Url&  requestUri, ///< parsed target Uri
                                     RouteState& routeState, ///< the state for this request.  
+                                    const UtlString& method,///< the request method
+                                    AuthResult  priorResult,///< results from earlier plugins.
                                     SipMessage& request,    ///< see AuthPlugin regarding modifying
                                     UtlString&  reason      ///< rejection reason
                                     );

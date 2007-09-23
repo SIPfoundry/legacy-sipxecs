@@ -13,6 +13,7 @@ EXTRA_DIST = \
     sipproxy.process.xml.in \
     sipauthproxy.process.xml.in \
     sipxcallresolver.process.xml.in \
+    authproxy-config.in.map \
     $(cfgfiles_IN)
 
 PROCESS_XML_FILES = \
