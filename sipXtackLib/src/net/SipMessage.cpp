@@ -4067,6 +4067,10 @@ UtlBoolean SipMessage::getReplacesData(UtlString& callId,
                                       UtlString& toTag,
                                       UtlString& fromTag) const
 {
+    callId.remove(0);
+    toTag.remove(0);
+    fromTag.remove(0);
+   
     const char* replacesField = getHeaderValue(0, SIP_REPLACES_FIELD);
 
     UtlString parameter;
@@ -4114,7 +4118,23 @@ UtlBoolean SipMessage::getReplacesData(UtlString& callId,
        } while(!parameter.isNull());
     }
 
-    return (replacesField != NULL) ;
+    // return true only if all required parameters were found
+    UtlBoolean result;
+    if (!callId.isNull() && !toTag.isNull() && !fromTag.isNull())
+    {
+       result = TRUE;
+    }
+    else
+    {
+       result = FALSE;
+
+       // make sure no data is returned with a bad result
+       callId.remove(0);
+       toTag.remove(0);
+       fromTag.remove(0);
+    }
+
+    return result;
 }
 
 void SipMessage::setAllowField(const char* allowField)

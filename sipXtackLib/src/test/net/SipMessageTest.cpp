@@ -54,6 +54,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testGetContactUri);
       CPPUNIT_TEST(testGetFieldUris);
       CPPUNIT_TEST(testBuildSipUri);
+      CPPUNIT_TEST(testReplacesData);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -1823,7 +1824,7 @@ class SipMessageTest : public CppUnit::TestCase
          Url uri;
          char msg[100];
 
-         for (int i = 0; i < sizeof (tests) / sizeof (tests[0]); i++)
+         for (unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]); i++)
          {
             sprintf(msg, "Test %d using field value '%s'", i, tests[i].field);
 
@@ -1947,6 +1948,142 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("Joe Blow<sip:foo@example.com:9999;transport=udp>;tag=abcd",
                           s.data());
       };
+
+
+   void testReplacesData()
+      {
+         UtlString callId;
+         UtlString toTag;
+         UtlString fromTag;
+
+         // Check that no replaces header is found when none is there
+         callId  = "staleCallId";
+         toTag   = "staleToTag";
+         fromTag = "staleFromTag";
+
+         const char* messageNoReplaces =
+            "INVITE sip:sipx.local SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:sipx.local\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "Contact: me@127.0.0.1\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage noReplacesMsg(messageNoReplaces, strlen(messageNoReplaces));
+
+         CPPUNIT_ASSERT(!noReplacesMsg.getReplacesData(callId, toTag, fromTag));
+         CPPUNIT_ASSERT(callId.isNull());
+         CPPUNIT_ASSERT(toTag.isNull());
+         CPPUNIT_ASSERT(fromTag.isNull());
+
+         // Check that a replaces header without the required parameters is not accepted.
+         callId  = "staleCallId";
+         toTag   = "staleToTag";
+         fromTag = "staleFromTag";
+
+         const char* messageBadReplaces =
+            "INVITE sip:sipx.local SIP/2.0\r\n"
+            "Replaces: invalid-content\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:sipx.local\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "Contact: me@127.0.0.1\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         // Construct a message.
+         SipMessage badReplacesMsg(messageBadReplaces, strlen(messageBadReplaces));
+
+         // Check that no replaces header is found
+         CPPUNIT_ASSERT(!badReplacesMsg.getReplacesData(callId, toTag, fromTag));
+         CPPUNIT_ASSERT(callId.isNull());
+         CPPUNIT_ASSERT(toTag.isNull());
+         CPPUNIT_ASSERT(fromTag.isNull());
+
+         // Check that a replaces header with only some required parameters is not accepted.
+         callId  = "staleCallId";
+         toTag   = "staleToTag";
+         fromTag = "staleFromTag";
+
+         const char* messageIncompleteReplaces =
+            "INVITE sip:sipx.local SIP/2.0\r\n"
+            "Replaces: valid@callid;from-tag=xyzzy;generic=other\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:sipx.local\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "Contact: me@127.0.0.1\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         // Construct a message.
+         SipMessage incompleteReplacesMsg(messageIncompleteReplaces,
+                                          strlen(messageIncompleteReplaces));
+
+         // Check that no replaces header is found
+         CPPUNIT_ASSERT(!incompleteReplacesMsg.getReplacesData(callId, toTag, fromTag));
+         CPPUNIT_ASSERT(callId.isNull());
+         CPPUNIT_ASSERT(toTag.isNull());
+         CPPUNIT_ASSERT(fromTag.isNull());
+
+         // Check that a replaces header with all required parameters is accepted.
+         callId  = "staleCallId";
+         toTag   = "staleToTag";
+         fromTag = "staleFromTag";
+
+         const char* messageWithReplaces =
+            "INVITE sip:sipx.local SIP/2.0\r\n"
+            "Replaces: valid@callid;from-tag=xyzzy;generic=other;to-tag=foobar\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:sipx.local\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "Contact: me@127.0.0.1\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         // Construct a message.
+         SipMessage withReplacesMsg(messageWithReplaces,
+                                          strlen(messageWithReplaces));
+
+         // Check that a replaces header is found
+         CPPUNIT_ASSERT(withReplacesMsg.getReplacesData(callId, toTag, fromTag));
+         ASSERT_STR_EQUAL("valid@callid", callId.data());
+         ASSERT_STR_EQUAL("foobar", toTag.data());
+         ASSERT_STR_EQUAL("xyzzy", fromTag.data());
+
+         // Check that a valid replaces header is built and inserted
+         SipMessage buildMsg(messageNoReplaces, strlen(messageNoReplaces));
+
+         UtlString replacesField;
+         UtlString toAddress("\"SomeBody\" <somebody@somewhere;param=a?header=b>;xy=abc;tag=good");
+         UtlString fromAddress("<nobody@nowhere;param=f?header=g>;xy=def;tag=better");
+         UtlString targetCallId("target@callid");
+         
+         SipMessage::buildReplacesField(replacesField, targetCallId,
+                                        fromAddress.data(), toAddress.data());
+         buildMsg.addHeaderField(SIP_REPLACES_FIELD, replacesField.data());
+         
+         CPPUNIT_ASSERT(buildMsg.getReplacesData(callId, toTag, fromTag));
+         ASSERT_STR_EQUAL("target@callid", callId.data());
+         ASSERT_STR_EQUAL("good", toTag.data());
+         ASSERT_STR_EQUAL("better", fromTag.data());
+      }
 
 };
 
