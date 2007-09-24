@@ -8,6 +8,9 @@
         listener="listener:editGroupName"><span key="editGroup">Edit Group</span></a>
     </li>
   </ul>
+  <span jwcid="@If" condition="ognl:parentSettingName.equals('personal-attendant')">
+    <span jwcid="@QuickHelp" value="message:quick.help.personalAttendant"/>
+  </span>
   <span jwcid="@ErrorMsg"/>
   <div id="settings-nav">
     <span jwcid="settingsNavigation@setting/SettingsNavigation" bean="prop:bean"
@@ -21,6 +24,7 @@
     </span>
   </div>
   <span jwcid="@If" condition="prop:scheduleTabActive">
+    <span jwcid="@QuickHelp" value="message:quick.help.schedule"/>
     <form jwcid="userSchedules@Form" delegate="bean:validator">
       <ul class="component-links">
         <li>
@@ -44,5 +48,5 @@
       cancelListener="listener:cancel" okListener="listener:ok"
       applyListener="listener:apply" validator="bean:validator"
       requiredEnabled="literal:false"/>
-  </span>  
+  </span>
 </div>

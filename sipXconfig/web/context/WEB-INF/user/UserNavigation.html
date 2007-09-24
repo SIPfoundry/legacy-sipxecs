@@ -1,6 +1,9 @@
 <span jwcid="$content$">
   <span class="pageLabel" key="label.user">User:</span>&nbsp;
   <span jwcid="@Insert" value="ognl:bean.userName"/>
+  <span jwcid="@If" condition="ognl:activeSetting != null && activeSetting.name.equals('personal-attendant')">
+    <span jwcid="@QuickHelp" value="message:quick.help.personalAttendant"/>
+  </span>
   <div id="settings-nav">
     <span jwcid="@setting/SettingsNavigation" bean="prop:bean"
       activeSetting="prop:activeSetting"

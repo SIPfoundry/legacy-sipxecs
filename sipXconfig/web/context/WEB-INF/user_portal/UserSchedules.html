@@ -6,6 +6,7 @@
     <span key="title">User Schedules</span>
   </h2>
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
+   <span jwcid="@QuickHelp" value="message:quick.help"/>
    <span jwcid="@ErrorMsg"/>
    <form jwcid="userSchedules@Form" delegate="bean:validator">
     <ul class="component-links">
