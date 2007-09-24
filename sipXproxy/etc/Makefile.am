@@ -34,7 +34,7 @@ install-exec-hook : \
 	upgrade-auth-plugins
 
 install-data-hook : \
-	$(DESTDIR)$(sysconfdir)/sipxpbx/registrar-config.in.map \
+	$(DESTDIR)$(sysconfdir)/sipxpbx/authproxy-config.in.map \
 	$(PROCESS_XML_FILES)
 
 $(DESTDIR)$(sysconfdir)/sipxpbx/authproxy-config.in.map: authproxy-config.in.map
