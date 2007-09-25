@@ -97,6 +97,7 @@
     <page name="UserSchedules" specification-path="user_portal/UserSchedules.page"/>
     <page name="EditSchedule" specification-path="setting/EditSchedule.page"/>
     <page name="UserGroupSettings" specification-path="user/UserGroupSettings.page"/>
+	<page name="USerPhonebookPage" specification-path="user_portal/UserPhonebookPage"/>
 
     <!--
       -  C O M P O N E N T S
