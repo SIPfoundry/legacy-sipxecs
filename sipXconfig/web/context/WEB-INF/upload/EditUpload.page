@@ -28,13 +28,13 @@
   <component id="activate" type="Submit">
     <binding name="selected" value="active"/>
     <binding name="tag" value="true"/>
-    <binding name="value" value="literal:Activate"/>
+    <binding name="value" value="message:label.activate"/>
     <binding name="listener" value="components.applyOkCancel.listeners.onApply"/>
   </component>
   <component id="inactivate" type="Submit">
     <binding name="selected" value="active"/>
     <binding name="tag" value="false"/>
-    <binding name="value" value="literal:Inactivate"/>
+    <binding name="value" value="message:label.inactivate"/>
     <binding name="listener" value="components.applyOkCancel.listeners.onApply"/>
   </component>
   <component id="applyOkCancel" type="FormActions">
