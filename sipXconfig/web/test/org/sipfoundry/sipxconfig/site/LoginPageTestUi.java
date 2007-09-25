@@ -45,7 +45,7 @@ public class LoginPageTestUi extends WebTestCase {
         
         WebForm form = tester.getDialog().getForm();
         form.setParameter("userName", userId);
-        form.setParameter("password", TestPage.TEST_USER_PIN);
+        form.setParameter("loginPassword", TestPage.TEST_USER_PIN);
         clickButton("login:submit");
                 
         // we are on the home page now - no errors no login form
@@ -63,7 +63,7 @@ public class LoginPageTestUi extends WebTestCase {
         
         WebForm form = tester.getDialog().getForm();
         form.setParameter("userName", "xyz");
-        form.setParameter("password", "abc");
+        form.setParameter("loginPassword", "abc");
         clickButton("login:submit");
         
         // still on the same page

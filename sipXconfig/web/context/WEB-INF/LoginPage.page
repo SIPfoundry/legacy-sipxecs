@@ -32,7 +32,7 @@
     <binding name="field" value="components.password"/>
     <binding name="label" value="message:label.password"/>
   </component>
-  <component id="password" type="TextField">
+  <component id="loginPassword" type="TextField">
     <binding name="value" value="password"/>
     <binding name="hidden" value="true"/>
     <binding name="displayName" value="message:label.password"/>
