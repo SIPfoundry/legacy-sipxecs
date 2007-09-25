@@ -29,7 +29,7 @@
   </component>
   <component id="name" type="TextField">
     <binding name="value" value="item.name"/>
-    <binding name="displayName" value="literal:Name"/>
+    <binding name="displayName" value="message:name"/>
     <binding name="field" value="components.name"/>
     <binding name="validators" value="nameValidator"/>
   </component>
@@ -43,7 +43,7 @@
   <component id="extension" type="TextField">
     <binding name="value" value="item.extension"/>
     <binding name="validators" value="extensionValidator"/>
-    <binding name="displayName" value="literal:Extension"/>
+    <binding name="displayName" value="message:extension"/>
   </component>
   <component id="descriptionLabel" type="FieldPanel">
     <binding name="field" value="components.description"/>
