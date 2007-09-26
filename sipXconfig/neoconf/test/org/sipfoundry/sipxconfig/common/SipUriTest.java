@@ -64,11 +64,17 @@ public class SipUriTest extends TestCase {
     public void testFormatNameDomainPort() {
         String uri = SipUri.format("name", "sipfoundry.org", 33);
         assertEquals("sip:name@sipfoundry.org:33", uri);
+
+        uri = SipUri.format("name", "sipfoundry.net", 0);
+        assertEquals("sip:name@sipfoundry.net", uri);
     }
 
     public void testFormatDomainPort() {
         String uri = SipUri.format("sipfoundry.org", 34);
         assertEquals("sip:sipfoundry.org:34", uri);
+
+        uri = SipUri.format("sipfoundry.com", 0);
+        assertEquals("sip:sipfoundry.com", uri);
     }
 
     public void testFormatNameDomain() {
@@ -79,6 +85,22 @@ public class SipUriTest extends TestCase {
     public void testFormatNameDomainQuote() {
         String uri = SipUri.format("name", "sipfoundry.org", true);
         assertEquals("<sip:name@sipfoundry.org>", uri);
+    }
+
+    public void testFormatNameDomainPortNoQuote() {
+        String uri = SipUri.format("name", "sipfoundry.org", 5070, false);
+        assertEquals("sip:name@sipfoundry.org:5070", uri);
+
+        uri = SipUri.format("name", "sipfoundry.net", 0, false);
+        assertEquals("sip:name@sipfoundry.net", uri);
+    }
+
+    public void testFormatNameDomainPortQuote() {
+        String uri = SipUri.format("name", "sipfoundry.org", 5050, true);
+        assertEquals("<sip:name@sipfoundry.org:5050>", uri);
+
+        uri = SipUri.format("name", "sipfoundry.gov", 0, true);
+        assertEquals("<sip:name@sipfoundry.gov>", uri);
     }
 
     public void testExtractUser() {

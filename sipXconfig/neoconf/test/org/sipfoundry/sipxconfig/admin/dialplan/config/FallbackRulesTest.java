@@ -33,7 +33,7 @@ public class FallbackRulesTest extends XMLTestCase {
         g1.setAddress("10.1.1.14");
         FullTransform t1 = new FullTransform();
         t1.setUser("333");
-        t1.setHost(g1.getAddress());
+        t1.setHost(g1.getGatewayAddress());
         t1.setFieldParams(new String[] {
             "Q=0.97"
         });
@@ -78,7 +78,7 @@ public class FallbackRulesTest extends XMLTestCase {
         assertXpathNotExists("/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
         assertXpathEvaluatesTo("333",
                 "/mappings/hostMatch/userMatch/permissionMatch/transform/user", domDoc);
-        assertXpathEvaluatesTo(g1.getAddress(),
+        assertXpathEvaluatesTo(g1.getGatewayAddress(),
                 "/mappings/hostMatch/userMatch/permissionMatch/transform/host", domDoc);
         assertXpathEvaluatesTo("Q=0.97",
                 "/mappings/hostMatch/userMatch/permissionMatch/transform/fieldparams", domDoc);

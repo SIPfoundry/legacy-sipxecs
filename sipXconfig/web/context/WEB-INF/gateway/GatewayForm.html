@@ -1,3 +1,6 @@
+<ul class="component-links">
+  <li jwcid="@ToggleLink" toggle="prop:advanced"></li>
+</ul>
 <fieldset>
   <table>
     <tbody>
@@ -18,6 +21,27 @@
           validators="spring-validators:required,validHostOrIp"
           displayName="message:label.address"/>
       </label>
+      <span jwcid="@If" condition="prop:advanced">
+        <label jwcid="@FieldPanel" for="gateway:addressPort"
+          field="component:gatewayAddressPort"
+          label="message:label.addressPort"
+          description="message:description.addressPort">
+          <input jwcid="gatewayAddressPort@TextField" id="gateway:addressPort" maxlength="40"
+            value="prop:gateway.addressPort"
+            validators="validators:required,min=0[%label.invalidformat],max=65534[%label.invalidformat]"
+            translator="translator:number,omitZero=false"
+            displayName="message:label.addressPort"/>
+        </label>
+        <label jwcid="@FieldPanel" for="gateway:addressTransport"
+          field="component:gatewayAddressTransport"
+          label="message:label.addressTransport"
+          description="message:description.addressTransport">
+          <select jwcid="gatewayAddressTransport@PropertySelection"
+            id="gateway:addressTransport"
+            value="prop:gateway.addressTransport"
+            model="prop:addressTransportModel" />
+        </label>
+      </span>
       <span jwcid="@If" condition="prop:gateway.model.hasSerialNumber">
         <label jwcid="@FieldPanel" for="gateway:serial"
           field="component:gatewaySerial"

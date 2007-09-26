@@ -14,6 +14,9 @@
     <discriminator column="bean_id" />
     <property name="name" />
     <property name="address" />
+    <property name="addressPort" />
+    <property name="addressTransport" column="address_transport"
+      type="org.sipfoundry.sipxconfig.gateway.Gateway$UserType"/>
     <property name="prefix" />
     <property name="description" />
     <property name="serialNumber" />

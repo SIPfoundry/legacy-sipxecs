@@ -115,6 +115,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         g1.setAddress("10.1.1.1");
         m_context.storeGateway(g1);
         g1.setAddress("10.1.1.2");
+        g1.setAddressPort(5050);
         g1.setPrefix("33");
 
         GatewayCallerAliasInfo info = new GatewayCallerAliasInfo();
@@ -128,6 +129,8 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
 
         m_context.storeGateway(g1);
         assertEquals("10.1.1.2", g1.getAddress());
+        assertEquals("10.1.1.2:5050", g1.getGatewayAddress());
+        assertEquals(5050, g1.getAddressPort());
         assertEquals("33", g1.getPrefix());
         assertEquals("3211231234", g1.getCallerAliasInfo().getDefaultCallerAlias());
         assertEquals("4321", g1.getCallerAliasInfo().getAddPrefix());
@@ -145,6 +148,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         Gateway g2 = m_context.getGateway(g1.getId());
         g2.setAddress("10.1.1.2");
         m_context.storeGateway(g2);
+        assertEquals("10.1.1.2", g2.getGatewayAddress());
         assertEquals("10.1.1.2", g2.getAddress());
     }
 

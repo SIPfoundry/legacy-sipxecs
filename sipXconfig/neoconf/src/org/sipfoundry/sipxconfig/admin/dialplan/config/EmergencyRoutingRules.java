@@ -42,7 +42,7 @@ public class EmergencyRoutingRules extends XmlFile {
         Gateway defaultGateway = er.getDefaultGateway();
         if (defaultGateway != null) {
             String externalNumber = er.getExternalNumber();
-            String address = defaultGateway.getAddress();
+            String address = defaultGateway.getGatewayAddress();
             generateTransform(defaultMatch, externalNumber, address);
         }
         Collection exceptions = er.getExceptions();
@@ -79,7 +79,7 @@ public class EmergencyRoutingRules extends XmlFile {
         }
         Gateway gateway = exception.getGateway();
         if (gateway != null) {
-            String address = gateway.getAddress();
+            String address = gateway.getGatewayAddress();
             String externalNumber = exception.getExternalNumber();
             generateTransform(userMatch, externalNumber, address);
         }

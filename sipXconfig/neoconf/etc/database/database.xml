@@ -230,6 +230,7 @@
 		<antcall target="personal-attendant" />
 		<antcall target="callforwardexternal" />
 		<antcall target="domain-add-shared-secret" />
+		<antcall target="gateway-port" />
 		<!-- When freezing schema uncomment this line -->
 		<!-- sipx-version version="7" -->
 	</target>
@@ -488,6 +489,10 @@
 	<target name="domain-add-shared-secret" unless="domain-add-shared-secret">
 		<db-patch patch="domain-add-shared-secret" />
 	</target>
+
+  <target name="gateway-port" unless="gateway-port">
+    <db-patch patch="gateway-port" />
+  </target>
 
 	<!-- 
      Migration Targets Legend

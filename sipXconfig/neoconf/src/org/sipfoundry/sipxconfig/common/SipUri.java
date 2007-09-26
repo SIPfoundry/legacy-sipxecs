@@ -18,6 +18,8 @@ import org.apache.commons.lang.StringUtils;
 public final class SipUri {
     public static final String SIP_PREFIX = "sip:";
     public static final int DEFAULT_SIP_PORT = 5060;
+    // It is sometimes important to differentiate between default port and omitted port
+    public static final int OMIT_SIP_PORT = 0;
 
     private static final Pattern EXTRACT_USER_RE = Pattern.compile("\\s*<?(?:sip:)?(.+?)@.+");
     private static final Pattern EXTRACT_FULL_USER_RE = Pattern
@@ -48,13 +50,28 @@ public final class SipUri {
         return uri.toString();
     }
 
+    /**
+     * Format a SIP URI from userpart, host and port
+     * @param userName
+     * @param domainName
+     * @param port - port value of 0 means omit the port from the URI
+     * @return
+     */
     public static String format(String userName, String domainName, int port) {
-        String uri = String.format("sip:%s@%s:%d", userName, domainName, port);
+        String uri = String.format((port != OMIT_SIP_PORT) ? "sip:%s@%s:%d" : "sip:%s@%s",
+                userName, domainName, port);
         return uri;
     }
 
+    /**
+     * Format a SIP URI from host and port
+     * @param domainName
+     * @param port - port value of 0 means omit the port from the URI
+     * @return
+     */
     public static String format(String domainName, int port) {
-        String uri = String.format("sip:%s:%d", domainName, port);
+        String uri = String.format((port != OMIT_SIP_PORT) ? "sip:%s:%d" : "sip:%s",
+                domainName, port);
         return uri;
     }
 
@@ -84,8 +101,31 @@ public final class SipUri {
     }
 
     public static String format(String userName, String domain, boolean quote) {
-        String format = quote ? "<sip:%s@%s>" : "sip:%s@%s";
+        if (!quote) {
+            return format(userName, domain, OMIT_SIP_PORT);
+        }
+        String format = "<sip:%s@%s>";
         return String.format(format, userName, domain);
+    }
+
+    /**
+     * Format a SIP URI from userpart, host and port
+     * @param userName
+     * @param domainName
+     * @param port - port value of 0 means omit the port from the URI
+     * @param qoute
+     * @return
+     */
+    public static String format(String userName, String domainName, int port, boolean quote) {
+        if (!quote) {
+            return format(userName, domainName, port);
+        }
+        if (port == OMIT_SIP_PORT) {
+            return format(userName, domainName, quote);
+        }
+        String format = "<sip:%s@%s:%d>";
+        String uri = String.format(format, userName, domainName, port);
+        return uri;
     }
 
     public static String normalize(String uri) {

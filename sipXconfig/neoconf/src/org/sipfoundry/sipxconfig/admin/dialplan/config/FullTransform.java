@@ -52,7 +52,7 @@ public class FullTransform extends Transform {
         return m_fieldParams;
     }
 
-    public void setFieldParams(String[] fieldParams) {
+    public void setFieldParams(String... fieldParams) {
         m_fieldParams = fieldParams;
     }
 
@@ -60,7 +60,7 @@ public class FullTransform extends Transform {
         return m_headerParams;
     }
 
-    public void setHeaderParams(String[] headerParams) {
+    public void setHeaderParams(String... headerParams) {
         m_headerParams = headerParams;
     }
 
@@ -76,7 +76,7 @@ public class FullTransform extends Transform {
         return m_urlParams;
     }
 
-    public void setUrlParams(String[] urlParams) {
+    public void setUrlParams(String... urlParams) {
         m_urlParams = urlParams;
     }
 

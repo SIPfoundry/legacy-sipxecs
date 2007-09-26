@@ -246,6 +246,9 @@
     transform_user_extension CDATA #REQUIRED
     add_prefix CDATA #IMPLIED
     keep_digits CDATA #REQUIRED
+    address_port CDATA #IMPLIED
+    address_transport CDATA #IMPLIED
+
 >
 
 <!ELEMENT group_storage EMPTY>

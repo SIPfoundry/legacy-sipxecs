@@ -48,11 +48,11 @@ public class CallerAliasesTest extends XMLTestCase {
 
     private Object[][] GATEWAY_DATA = {
         {
-            "example.org", "7832331111", true, false, "", -1, false
+            "example.org", 0, "7832331111", true, false, "", -1, false
         }, {
-            "bongo.com", null, false, false, "", -1, false
+            "bongo.com", 5060, null, false, false, "", -1, false
         }, {
-            "kuku.net", "233", false, true, "+", 2, true
+            "kuku.net", 1025, "233", false, true, "+", 2, true
         }
     };
 
@@ -81,13 +81,14 @@ public class CallerAliasesTest extends XMLTestCase {
         for (Object[] gd : GATEWAY_DATA) {
             Gateway gateway = new Gateway();
             gateway.setAddress((String) gd[0]);
+            gateway.setAddressPort((Integer) gd[1]);
             GatewayCallerAliasInfo info = new GatewayCallerAliasInfo();
-            info.setDefaultCallerAlias((String) gd[1]);
-            info.setIgnoreUserInfo((Boolean) gd[2]);
-            info.setTransformUserExtension((Boolean) gd[3]);
-            info.setAddPrefix((String) gd[4]);
-            info.setKeepDigits((Integer) gd[5]);
-            info.setAnonymous((Boolean) gd[6]);
+            info.setDefaultCallerAlias((String) gd[2]);
+            info.setIgnoreUserInfo((Boolean) gd[3]);
+            info.setTransformUserExtension((Boolean) gd[4]);
+            info.setAddPrefix((String) gd[5]);
+            info.setKeepDigits((Integer) gd[6]);
+            info.setAnonymous((Boolean) gd[7]);
             gateway.setCallerAliasInfo(info);
             m_gateways.add(gateway);
         }

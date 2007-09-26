@@ -33,8 +33,10 @@ public class EmergencyRuleTest extends TestCase {
 
         Gateway g1 = new Gateway();
         g1.setAddress("sosgateway1.com");
+        g1.setAddressPort(4000);
         Gateway g2 = new Gateway();
         g2.setAddress("sosgateway2.com");
+        g2.setAddressPort(0);
         g2.setPrefix("4321");
         m_rule.setGateways(Arrays.asList(new Gateway[] {
             g1, g2
@@ -53,7 +55,7 @@ public class EmergencyRuleTest extends TestCase {
         Transform[] transforms = m_rule.getTransforms();
         assertEquals(2, transforms.length);
         UrlTransform emergencyTransform = (UrlTransform) transforms[0];
-        assertEquals("<sip:911@sosgateway1.com>;q=0.933", emergencyTransform.getUrl());
+        assertEquals("<sip:911@sosgateway1.com:4000>;q=0.933", emergencyTransform.getUrl());
         emergencyTransform = (UrlTransform) transforms[1];
         assertEquals("<sip:4321911@sosgateway2.com>;q=0.867", emergencyTransform.getUrl());
     }

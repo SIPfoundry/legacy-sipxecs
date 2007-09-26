@@ -29,11 +29,11 @@ public class LocalRuleTest extends TestCase {
         m_rule = new LocalRule();
         m_rule.setPstnPrefix("9");
         m_rule.setExternalLen(7);
-        
+
         Gateway g = new Gateway();
         g.setAddress("local.gateway.com");
         g.setPrefix("4321");
-        m_rule.setGateways(Collections.singletonList(g));        
+        m_rule.setGateways(Collections.singletonList(g));
     }
 
     public void testGetPatterns() {
@@ -45,11 +45,33 @@ public class LocalRuleTest extends TestCase {
 
     public void testGetTransforms() {
         Transform[] transforms = m_rule.getTransforms();
-        assertEquals(1,transforms.length);
+        assertEquals(1, transforms.length);
         FullTransform transform = (FullTransform) transforms[0];
         assertEquals("4321{vdigits}", transform.getUser());
         assertEquals("local.gateway.com", transform.getHost());
         assertEquals("transport=udp", transform.getUrlParams()[0]);
+
+        // Set to ignore the transport
+        Gateway g = m_rule.getGateways().get(0);
+        g.setAddressTransport(Gateway.AddressTransport.NONE);
+
+        transforms = m_rule.getTransforms();
+        assertEquals(1, transforms.length);
+        transform = (FullTransform) transforms[0];
+        assertEquals("4321{vdigits}", transform.getUser());
+        assertEquals("local.gateway.com", transform.getHost());
+        assertNull(transform.getUrlParams());
+
+        // Set TCP transport and custom port
+        g.setAddressTransport(Gateway.AddressTransport.TCP);
+        g.setAddressPort(5090);
+
+        transforms = m_rule.getTransforms();
+        assertEquals(1, transforms.length);
+        transform = (FullTransform) transforms[0];
+        assertEquals("4321{vdigits}", transform.getUser());
+        assertEquals("local.gateway.com:5090", transform.getHost());
+        assertEquals("transport=tcp", transform.getUrlParams()[0]);
     }
 
     public void testGetPermissionNames() {
@@ -57,10 +79,10 @@ public class LocalRuleTest extends TestCase {
         assertEquals(1, permissions.size());
         assertEquals(PermissionName.LOCAL_DIALING.getName(), permissions.get(0));
     }
-    
+
     public void testGetTranformedPatters() throws Exception {
         String[] tps = m_rule.getTransformedPatterns();
-        assertEquals(1,tps.length);
-        assertEquals("xxxxxxx",tps[0]);        
+        assertEquals(1, tps.length);
+        assertEquals("xxxxxxx", tps[0]);
     }
 }

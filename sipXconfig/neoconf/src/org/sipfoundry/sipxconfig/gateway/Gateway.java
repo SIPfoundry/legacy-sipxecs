@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.enums.Enum;
+import org.sipfoundry.sipxconfig.common.EnumUserType;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Device;
@@ -26,6 +28,10 @@ public class Gateway extends Device implements NamedObject {
     private String m_name;
 
     private String m_address;
+
+    private int m_addressPort;
+
+    private AddressTransport m_addressTransport = AddressTransport.UDP;
 
     private String m_prefix;
 
@@ -54,6 +60,37 @@ public class Gateway extends Device implements NamedObject {
     public void initializePort(FxoPort port) {
     }
 
+    public static final class AddressTransport extends Enum {
+        public static final AddressTransport NONE = new AddressTransport("none");
+        public static final AddressTransport UDP = new AddressTransport("udp");
+        public static final AddressTransport TCP = new AddressTransport("tcp");
+
+        public AddressTransport(String name) {
+            super(name);
+        }
+
+        public static AddressTransport getEnum(String type) {
+            return (AddressTransport) getEnum(AddressTransport.class, type);
+        }
+    }
+
+    /**
+     * Used for Hibernate type translation
+     */
+    public static class UserType extends EnumUserType {
+        public UserType() {
+            super(AddressTransport.class);
+        }
+    }
+
+    public AddressTransport getAddressTransport() {
+        return m_addressTransport;
+    }
+
+    public void setAddressTransport(AddressTransport addressTransport) {
+        m_addressTransport = addressTransport;
+    }
+
     public String getName() {
         return m_name;
     }
@@ -68,6 +105,14 @@ public class Gateway extends Device implements NamedObject {
 
     public void setAddress(String address) {
         m_address = address;
+    }
+
+    public int getAddressPort() {
+        return m_addressPort;
+    }
+
+    public void setAddressPort(int port) {
+        m_addressPort = port;
     }
 
     public String getDescription() {
@@ -89,7 +134,7 @@ public class Gateway extends Device implements NamedObject {
     public void setModel(GatewayModel model) {
         m_model = model;
         setModelId(m_model.getModelId());
-        setBeanId(m_model.getBeanId());        
+        setBeanId(m_model.getBeanId());
     }
 
     public GatewayModel getModel() {
@@ -112,6 +157,21 @@ public class Gateway extends Device implements NamedObject {
 
     public void setPrefix(String prefix) {
         m_prefix = prefix;
+    }
+
+    /**
+     * Used to set gateway address incorporates address and port of the gateway.
+     */
+    public String getGatewayAddress() {
+        StringBuffer addr = new StringBuffer();
+        if (m_address != null) {
+            addr.append(m_address);
+            if (m_addressPort > 0) {
+                addr.append(":");
+                addr.append(m_addressPort);
+            }
+        }
+        return addr.toString();
     }
 
     /**

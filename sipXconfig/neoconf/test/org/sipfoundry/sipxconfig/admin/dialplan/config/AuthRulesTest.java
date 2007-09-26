@@ -79,7 +79,8 @@ public class AuthRulesTest extends XMLTestCase {
         String domDoc = XmlUnitHelper.asString(document);
 
         assertXpathEvaluatesTo("test rule description", "/mappings/hostMatch/description", domDoc);
-        assertXpathEvaluatesTo(gateway.getAddress(), "/mappings/hostMatch/hostPattern", domDoc);
+        assertXpathEvaluatesTo(gateway.getGatewayAddress(), "/mappings/hostMatch/hostPattern",
+                domDoc);
         assertXpathEvaluatesTo("555", "/mappings/hostMatch/userMatch/userPattern", domDoc);
         assertXpathEvaluatesTo("666", "/mappings/hostMatch/userMatch/userPattern[2]", domDoc);
         assertXpathEvaluatesTo("777", "/mappings/hostMatch/userMatch/userPattern[3]", domDoc);
@@ -99,6 +100,7 @@ public class AuthRulesTest extends XMLTestCase {
             gateways[i] = new Gateway();
             gateways[i].setUniqueId();
             gateways[i].setAddress("10.1.2." + i);
+            gateways[i].setAddressPort(i);
             gateways[i].setPrefix(prefixBuilder.toString());
             prefixBuilder.append("2");
         }
@@ -136,7 +138,8 @@ public class AuthRulesTest extends XMLTestCase {
         prefixBuilder = new StringBuilder();
         for (int i = 0; i < gateways.length; i++) {
             String hostMatch = String.format(hostMatchFormat, i + 1);
-            assertXpathEvaluatesTo(gateways[i].getAddress(), hostMatch + "hostPattern", domDoc);
+            assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), hostMatch + "hostPattern",
+                    domDoc);
 
             String prefix = prefixBuilder.toString();
             assertXpathEvaluatesTo(prefix + "555", hostMatch + "userMatch/userPattern", domDoc);
@@ -198,7 +201,8 @@ public class AuthRulesTest extends XMLTestCase {
         String hostMatchFormat = "/mappings/hostMatch[%d]/";
         for (int i = 0; i < gateways.length; i++) {
             String hostMatch = String.format(hostMatchFormat, i + 1);
-            assertXpathEvaluatesTo(gateways[i].getAddress(), hostMatch + "hostPattern", domDoc);
+            assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), hostMatch + "hostPattern",
+                    domDoc);
             assertXpathEvaluatesTo("555", hostMatch + "userMatch/userPattern", domDoc);
             assertXpathEvaluatesTo("666", hostMatch + "userMatch/userPattern[2]", domDoc);
             assertXpathEvaluatesTo("777", hostMatch + "userMatch/userPattern[3]", domDoc);
@@ -217,6 +221,7 @@ public class AuthRulesTest extends XMLTestCase {
             gateways[i] = new Gateway();
             gateways[i].setUniqueId();
             gateways[i].setAddress("10.1.2." + i);
+            gateways[i].setAddressPort(i);
         }
         AuthRules rules = new AuthRules();
         rules.begin();
@@ -226,8 +231,8 @@ public class AuthRulesTest extends XMLTestCase {
         String domDoc = XmlUnitHelper.asString(document);
         // "no access" match at the end of the file
         for (int i = 0; i < gateways.length; i++) {
-            assertXpathEvaluatesTo(gateways[i].getAddress(), lastHostMatch + "hostPattern["
-                    + (i + 1) + "]", domDoc);
+            assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), lastHostMatch
+                    + "hostPattern[" + (i + 1) + "]", domDoc);
         }
 
         assertXpathEvaluatesTo(".", lastHostMatch + "userMatch/userPattern", domDoc);

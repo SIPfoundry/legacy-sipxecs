@@ -22,6 +22,34 @@ public class GatewayTest extends TestCase {
         assertEquals("99123", gateway.getCallPattern("123"));
     }
 
+    public void testClone() {
+        Gateway gateway = new Gateway();
+        gateway.setPrefix("99");
+        gateway.setAddress("example.com");
+        gateway.setAddressPort(5070);
+
+        try {
+            Gateway gw = (Gateway) gateway.clone();
+            assertEquals("99123", gw.getCallPattern("123"));
+            assertEquals("example.com", gw.getAddress());
+            assertEquals(5070, gw.getAddressPort());
+            assertEquals("example.com:5070", gw.getGatewayAddress());
+            assertTrue(gw.equals(gateway));
+        } catch (CloneNotSupportedException exc) {
+            fail("Should throw exception");
+        }
+    }
+
+    public void testGetGatewayAddress() {
+        Gateway gateway = new Gateway();
+        gateway.setPrefix("99");
+        gateway.setAddress("example.com");
+        assertEquals("example.com", gateway.getGatewayAddress());
+
+        gateway.setAddressPort(5070);
+        assertEquals("example.com:5070", gateway.getGatewayAddress());
+    }
+
     public void testPorts() {
         GatewayModel model = new GatewayModel();
         model.setMaxPorts(2);

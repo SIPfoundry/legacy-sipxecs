@@ -51,7 +51,7 @@ public class AuthRules extends RulesXmlFile {
     private static final String HOST_MATCH = "hostMatch";
 
     private Document m_doc;
-    private Set<Gateway> m_gateways = new HashSet<Gateway>();
+    private Set<Gateway> m_gateways;
 
     public AuthRules() {
     }
@@ -61,6 +61,9 @@ public class AuthRules extends RulesXmlFile {
         QName mappingsName = FACTORY.createQName("mappings", NAMESPACE);
         Element mappings = m_doc.addElement(mappingsName);
         addExternalRules(mappings);
+
+        // Create a new gateways set. It will be populated as part of generate call
+        m_gateways = new HashSet<Gateway>();
     }
 
     public void generate(IDialingRule rule) {
@@ -76,7 +79,7 @@ public class AuthRules extends RulesXmlFile {
             addRuleNameComment(hostMatch, rule);
             addRuleDescription(hostMatch, rule);
             Element hostPattern = hostMatch.addElement(HOST_PATTERN);
-            hostPattern.setText(gateway.getAddress());
+            hostPattern.setText(gateway.getGatewayAddress());
             m_gateways.add(gateway);
             Element userMatch = hostMatch.addElement(USER_MATCH);
             String[] patterns = rule.getTransformedPatterns(gateway);
@@ -105,7 +108,7 @@ public class AuthRules extends RulesXmlFile {
         hostMatch.addElement("description").setText(NO_ACCESS_RULE);
         for (Gateway gateway : gateways) {
             Element hostPattern = hostMatch.addElement(HOST_PATTERN);
-            hostPattern.setText(gateway.getAddress());
+            hostPattern.setText(gateway.getGatewayAddress());
         }
         Element userMatch = hostMatch.addElement(USER_MATCH);
         userMatch.addElement(USER_PATTERN).setText(".");

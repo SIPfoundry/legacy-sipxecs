@@ -90,7 +90,7 @@ public class CustomDialingRule extends DialingRule {
 
     private FullTransform getGatewayTransform(Gateway g, String pattern, ForkQueueValue q) {
         FullTransform transform = new FullTransform();
-        transform.setHost(g.getAddress());
+        transform.setHost(g.getGatewayAddress());
         transform.setUser(g.getCallPattern(pattern));
         String[] fieldParams = {
             q.getSerial()
@@ -103,7 +103,10 @@ public class CustomDialingRule extends DialingRule {
             };
             transform.setHeaderParams(headerParams);
         }
-        transform.setUrlParams(new String[] {"transport=udp"});
+        if (!g.getAddressTransport().equals(Gateway.AddressTransport.NONE)) {
+            String transport = String.format("transport=%s", g.getAddressTransport().getName());
+            transform.setUrlParams(transport);
+        }
         return transform;
     }
 

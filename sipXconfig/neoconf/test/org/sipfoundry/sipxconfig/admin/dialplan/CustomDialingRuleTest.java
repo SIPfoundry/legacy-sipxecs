@@ -32,6 +32,15 @@ public class CustomDialingRuleTest extends TestCase {
     private static final String[] GATEWAYS = {
         "10.2.3.4", "10.4.5.6"
     };
+
+    private static final int[] PORTS = {
+        0, 5090
+    };
+
+    private static final String[] GATEWAYADDRESSES = {
+        "10.2.3.4", "10.4.5.6:5090"
+    };
+
     private static final String[] PREFIXES = {
         null, "43"
     };
@@ -57,6 +66,7 @@ public class CustomDialingRuleTest extends TestCase {
             gateway.setUniqueId();
             gateway.setAddress(GATEWAYS[i]);
             gateway.setPrefix(PREFIXES[i]);
+            gateway.setAddressPort(PORTS[i]);
             m_rule.addGateway(gateway);
         }
 
@@ -81,7 +91,7 @@ public class CustomDialingRuleTest extends TestCase {
             FullTransform full = (FullTransform) transforms[i];
             assertTrue(full.getFieldParams()[0].startsWith("q="));
             assertNull(full.getHeaderParams());
-            assertEquals(GATEWAYS[i], full.getHost());
+            assertEquals(GATEWAYADDRESSES[i], full.getHost());
             assertEquals(full.getUrlParams()[0], "transport=udp");
             assertTrue(full.getUser().startsWith(StringUtils.defaultString(PREFIXES[i]) + "999"));
         }

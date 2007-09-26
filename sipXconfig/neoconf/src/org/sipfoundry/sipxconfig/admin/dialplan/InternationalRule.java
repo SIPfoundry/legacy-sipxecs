@@ -49,8 +49,12 @@ public class InternationalRule extends DialingRule {
         for (Gateway gateway : gateways) {
             FullTransform transform = new FullTransform();
             transform.setUser(gateway.getCallPattern(user));
-            transform.setHost(gateway.getAddress());
-            transform.setUrlParams(new String[] {"transport=udp"});
+            transform.setHost(gateway.getGatewayAddress());
+            if (!gateway.getAddressTransport().equals(Gateway.AddressTransport.NONE)) {
+                String transport = String.format("transport=%s", gateway.getAddressTransport()
+                        .getName());
+                transform.setUrlParams(transport);
+            }
             String[] fieldParams = new String[] {
                 q.getSerial()
             };

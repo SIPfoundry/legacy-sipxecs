@@ -48,7 +48,9 @@ public class EmergencyRule extends DialingRule {
         ForkQueueValue q = new ForkQueueValue(gateways.size());
         for (Gateway gateway : gateways) {
             String user = gateway.getCallPattern(m_emergencyNumber);
-            String url = SipUri.format(user, gateway.getAddress(), true) + ";" + q.getSerial();
+            String url = SipUri
+                    .format(user, gateway.getAddress(), gateway.getAddressPort(), true)
+                    + ";" + q.getSerial();
             UrlTransform transform = new UrlTransform();
             transform.setUrl(url);
             transforms.add(transform);
@@ -59,8 +61,8 @@ public class EmergencyRule extends DialingRule {
     public Transform[] getMediaServerTransforms() {
         UrlTransform transform = new UrlTransform();
         MediaServer mediaServer = new SipXMediaServer();
-        String url = MappingRule.buildUrl(CallDigits.FIXED_DIGITS, mediaServer,
-                Operation.SOS, null);
+        String url = MappingRule.buildUrl(CallDigits.FIXED_DIGITS, mediaServer, Operation.SOS,
+                null);
         transform.setUrl(url);
         return new Transform[] {
             transform
@@ -92,7 +94,7 @@ public class EmergencyRule extends DialingRule {
         }
         try {
             DialingRule rule = (DialingRule) clone();
-            rule.setGateways(Collections.<Gateway>emptyList());
+            rule.setGateways(Collections.<Gateway> emptyList());
             rule.setDescription(getDescription());
             rules.add(rule);
         } catch (CloneNotSupportedException e) {

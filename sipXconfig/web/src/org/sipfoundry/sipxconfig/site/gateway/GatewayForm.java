@@ -15,15 +15,21 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
+import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.translator.Translator;
 import org.apache.tapestry.form.validator.Validator;
+import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
+import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.SerialNumberTranslator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
-public abstract class GatewayForm extends BaseComponent {
+public abstract class GatewayForm extends BaseComponent implements PageBeginRenderListener {
     @Parameter(required = true)
     public abstract Gateway getGateway();
 
@@ -36,5 +42,23 @@ public abstract class GatewayForm extends BaseComponent {
 
     public Translator getSerialNumberTranslator() {
         return new SerialNumberTranslator(getGateway().getModel());
+    }
+
+    @Persist
+    public abstract boolean isAdvanced();
+
+    public abstract void setAddressTransportModel(IPropertySelectionModel model);
+
+    public abstract IPropertySelectionModel getAddressTransportModel();
+
+    public void pageBeginRender(PageEvent event) {
+        IPropertySelectionModel model = getAddressTransportModel();
+        if (model == null) {
+            EnumPropertySelectionModel rawModel = new EnumPropertySelectionModel();
+            rawModel.setEnumClass(Gateway.AddressTransport.class);
+            model = new LocalizedOptionModelDecorator(rawModel, getMessages(),
+                    "addressTransport.");
+            setAddressTransportModel(model);
+        }
     }
 }

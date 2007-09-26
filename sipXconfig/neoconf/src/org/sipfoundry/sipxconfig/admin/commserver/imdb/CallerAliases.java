@@ -33,7 +33,7 @@ public class CallerAliases extends DataSetGenerator {
         String sipDomain = getSipDomain();
 
         for (Gateway gateway : gateways) {
-            String gatewayAddr = gateway.getAddress();
+            String gatewayAddr = gateway.getGatewayAddress();
             // add default entry for the gateway
             GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
             String callerAliasUri = getGatewayCallerAliasUri(sipDomain, gatewayInfo);
