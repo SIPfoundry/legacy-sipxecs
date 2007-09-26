@@ -11,6 +11,11 @@
 // APPLICATION INCLUDES
 #include <net/NetMd5Codec.h>
 
+// #define LOG_MD5_HASH_INPUTS 
+#ifdef LOG_MD5_HASH_INPUTS
+#   include "os/OsSysLog.h"
+#endif
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -42,6 +47,9 @@ void NetMd5Codec::hash(const void*  input,
    /* The MD5Final operation is not idempotent, so this may not be called after it */
    assert(!mFinalized);
 
+#  ifdef LOG_MD5_HASH_INPUTS
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "NetMd5Codec::hash('%s', %d)", (const unsigned char*)input, length);
+#  endif
    MD5Update (&mContext, (const unsigned char*)input, length);
 }
 

@@ -18,6 +18,7 @@
 #include "os/OsEventMsg.h"
 #include "utl/UtlRandom.h"
 #include "net/SipUserAgent.h"
+#include "net/SipXauthIdentity.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/CredentialDB.h"
 #include "AuthPlugin.h"
@@ -71,8 +72,8 @@ SipAaa::SipAaa(SipUserAgent& sipUserAgent,
    domainConfiguration.loadFromFile(SipXecsService::domainConfigPath());
 
    // get the shared secret for generating signatures
-   SharedSecret secret(domainConfiguration);
-   RouteState::setSecret(secret);
+   mSharedSecret = new SharedSecret(domainConfiguration);
+   RouteState::setSecret(mSharedSecret->data());
     
    OsMsgQ* queue = getMessageQueue();
     
@@ -234,8 +235,6 @@ bool SipAaa::proxyMessage(SipMessage& sipRequest)
 {
    bool requestShouldBeProxied = true;
    
-   // TODO - [XPR-183] Check for loops here.
-
    /*
     * Check for a Proxy-Require header containing unsupported extensions
     */
@@ -259,9 +258,12 @@ bool SipAaa::proxyMessage(SipMessage& sipRequest)
 
    if (disallowedExtensions.isNull())
    {
+      // no unsupported extensions, so continue...
+      
       UtlString callId;
-      sipRequest.getCallIdField(&callId);
+      sipRequest.getCallIdField(&callId); // for logging
 
+      // fix strict routes and remove any top route headers that go to myself
       Url normalizedRequestUri;
       UtlSList removedRoutes;
       sipRequest.normalizeProxyRoutes(mpSipUserAgent,
@@ -269,19 +271,47 @@ bool SipAaa::proxyMessage(SipMessage& sipRequest)
                                       &removedRoutes        // route headers popped 
                                       );
 
-      RouteState routeState(sipRequest, removedRoutes); // use routes to construct state
+      // get any state from the record-route and route headers
+      RouteState routeState(sipRequest, removedRoutes); 
       removedRoutes.destroyAll(); // done with routes - discard them.
       
+      /*
+       * Determine the authIdentity.
+       */
       UtlString authUser;
-      bool requestIsAuthenticated = isAuthenticated(sipRequest, authUser);
+      bool requestIsAuthenticated = false;
+      
+      // Use the identity found in the SipX-Auth-Identity header if found
+      SipXauthIdentity sipxIdentity(sipRequest, SipXauthIdentity::allowUnbound); 
+      if ((requestIsAuthenticated = sipxIdentity.getIdentity(authUser)))
+      {
+         // found identity in request
+         OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::proxyMessage "
+                       " found valid sipXauthIdentity '%s' for callId %s",
+                       authUser.data(), callId.data() 
+                       );
 
-      UtlString rejectReason;
+         // Can't completely remove identity info, since it may be required
+         // further if the request spirals. Normalize authIdentity to only leave
+         // the most recent info in the request 
+         SipXauthIdentity::normalize(sipRequest);
+      }
+      else
+      {
+         // no SipX-Auth-Identity, so see if there is a Proxy-Authorization on the request
+         requestIsAuthenticated = isAuthenticated(sipRequest, authUser);
+      }
+
+      /*
+       * Determine whether or not this request is authorized.
+       */
       AuthPlugin::AuthResult finalAuthResult;
+      UtlString rejectReason;
 
       // handle special cases that are universal
       UtlString method;
       sipRequest.getRequestMethod(&method); // Don't authenticate ACK -- it is always allowed.
-      if (  (method.compareTo(SIP_ACK_METHOD) != 0) 
+      if (  (method.compareTo(SIP_ACK_METHOD) == 0) 
           || sipRequest.isResponse())  // responses are always allowed (just in case)
       {
          finalAuthResult = AuthPlugin::ALLOW;
@@ -311,7 +341,7 @@ bool SipAaa::proxyMessage(SipMessage& sipRequest)
          OsSysLog::add(FAC_AUTH, PRI_DEBUG,
                        "SipAaa::proxyMessage plugin %s returned %s for %s",
                        authPluginName.data(),
-                       AuthPlugin::AuthResultStr(finalAuthResult),
+                       AuthPlugin::AuthResultStr(pluginResult),
                        callId.data()
                        );
 
@@ -320,14 +350,15 @@ bool SipAaa::proxyMessage(SipMessage& sipRequest)
          {
             finalAuthResult = pluginResult;
             OsSysLog::add(FAC_AUTH, PRI_INFO,
-                          "SipAaa::proxyMessage plugin %s returned %s for %s",
-                          authPluginName.data(),
+                          "SipAaa::proxyMessage authorization %s by %s for %s",
                           AuthPlugin::AuthResultStr(finalAuthResult),
+                          authPluginName.data(),
                           callId.data()
                           );
          }
       }
-                                                     
+
+      // Based on the authorization decision, either proxy the request or send a response.
       switch (finalAuthResult)
       {
       case AuthPlugin::DENY:
@@ -358,6 +389,8 @@ bool SipAaa::proxyMessage(SipMessage& sipRequest)
       case AuthPlugin::CONTINUE: // be permissive - if nothing says DENY, then treat as ALLOW
       case AuthPlugin::ALLOW:
       {
+         // Request is sufficiently authorized, so proxy it.
+         
          // Decrement max forwards
          int maxForwards;
          if ( sipRequest.getMaxForwards(maxForwards) )
@@ -490,7 +523,7 @@ bool SipAaa::isAuthenticated(const SipMessage& sipRequest,
 
                if ( authenticated )
                {
-                  userUrl.toString(authUser);
+                  userUrl.getIdentity(authUser);
                   OsSysLog::add(FAC_AUTH, PRI_DEBUG,
                                 "SipAaa::isAuthenticated(): authenticated as '%s'",
                                 authUser.data());

@@ -2,11 +2,12 @@
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
-TESTS = proxytest enforcerulestest calleraliastest
+TESTS = proxytest enforcerulestest calleraliastest # transfercontroltest
 
 check_PROGRAMS = \
 	proxytest \
 	calleraliastest \
+	transfercontroltest \
 	enforcerulestest 
 # sandbox
 
@@ -56,6 +57,17 @@ calleraliastest_SOURCES = \
 	CallerAliasTest.cpp
 
 calleraliastest_LDADD = \
+	$(COMMON_LIBS) \
+	$(top_builddir)/src/sipauthproxy/libauthproxy.la
+
+transfercontroltest_CXXFLAGS = \
+	$(COMMON_CXX_FLAGS)
+
+transfercontroltest_SOURCES = \
+	$(top_srcdir)/src/sipauthproxy/TransferControl.cpp \
+	TransferControlTest.cpp
+
+transfercontroltest_LDADD = \
 	$(COMMON_LIBS) \
 	$(top_builddir)/src/sipauthproxy/libauthproxy.la
 

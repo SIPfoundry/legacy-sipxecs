@@ -10,6 +10,7 @@
 #define _PLUGINHOOKS_H_
 
 // SYSTEM INCLUDES
+#include "utl/UtlString.h"
 #include "utl/UtlSortedList.h"
 #include "utl/UtlSortedListIterator.h"
 

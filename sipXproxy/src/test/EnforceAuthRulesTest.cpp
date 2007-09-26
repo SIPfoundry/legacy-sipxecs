@@ -32,7 +32,7 @@ class EnforceAuthRulesTest : public CppUnit::TestCase
    CPPUNIT_TEST(testNoPermAck);
    CPPUNIT_TEST(testNoPermResponse);
    CPPUNIT_TEST(testForbidden);
-   CPPUNIT_TEST(testAuthIdentity);
+//   @TODO move to SipAaa tests... CPPUNIT_TEST(testAuthIdentity);
    CPPUNIT_TEST(testNoChallengeAuth);
    CPPUNIT_TEST(testChallengeAuthSpiral);
 

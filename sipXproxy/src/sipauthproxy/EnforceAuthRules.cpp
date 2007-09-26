@@ -18,7 +18,6 @@
 #include "EnforceAuthRules.h"
 #include "sipdb/CredentialDB.h"
 #include "sipdb/PermissionDB.h"
-#include "net/SipXauthIdentity.h"
 
 // DEFINES
 // CONSTANTS
@@ -27,6 +26,8 @@ const char RULES_FILENAME_CONFIG_PARAM[] = "RULES";
 const char RULES_ENFORCED_ROUTE_PARAM[] = "auth";
 
 const char IDENTITY_VALIDITY_CONFIG_NAME[] = "IDENTITY_VALIDITY_SECONDS";
+
+const unsigned int DefaultSignatureValiditySeconds = 10;
 
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -68,31 +69,26 @@ EnforceAuthRules::readConfig( OsConfigDb& configDb /**< a subhash of the individ
                  );
    OsWriteLock writeLock(mRulesLock);
 
-   // read the domain configuration
-   OsConfigDb domainConfiguration;
-   domainConfiguration.loadFromFile(SipXecsService::domainConfigPath());
-
-   // get the shared secret for generating signatures
-   SharedSecret secret(domainConfiguration);
-   
-   // Set secret for signinig SipXauthIdentity
-   SipXauthIdentity::setSecret(secret.data());
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "EnforceAuthRules[%s]::readConfig "
-                 "set SipXauthIdentity secret to '%s'",
-                 mInstanceName.data(), secret.data()
-                 );
-
+#if 0
    int validitySeconds = 0;
    if (OS_NOT_FOUND==configDb.get(IDENTITY_VALIDITY_CONFIG_NAME, validitySeconds))
    {
-      validitySeconds = 0;
+      validitySeconds = DefaultSignatureValiditySeconds;
+      OsSysLog::add(FAC_SIP, PRI_INFO, "EnforceAuthRules[%s]::readConfig "
+                    "no value found for %s: defauted to '%d' seconds",
+                    mInstanceName.data(), IDENTITY_VALIDITY_CONFIG_NAME, validitySeconds
+                    );
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_INFO, "EnforceAuthRules[%s]::readConfig "
+                    "set SipXauthIdentity validity interval to '%d' seconds",
+                    mInstanceName.data(), validitySeconds
+                    );
    }
    // Set signature validity interval for SipXauthIdentity
    SipXauthIdentity::setSignatureValidityInterval(OsTime(validitySeconds,0));
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "EnforceAuthRules[%s]::readConfig "
-                 "set SipXauthIdentity validity interval to '%d' seconds",
-                 mInstanceName.data(), validitySeconds
-                 );
+#endif
 
    if (mpAuthorizationRules)
    {
@@ -191,31 +187,6 @@ EnforceAuthRules::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to p
           || !routeState.getParameter(mInstanceName.data(), RULES_ENFORCED_ROUTE_PARAM, unused)
           )
       {
-         // Determine the authIdentity. Use valid identity info if found in request, otherwise
-         // use the identity of request originator
-         UtlString  authUserIdentity;
-         SipXauthIdentity sipxIdentity(request);
-         bool isValid = sipxIdentity.getIdentity(authUserIdentity);
-         if ( isValid && !authUserIdentity.isNull())
-         {
-            // found identity in request
-            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
-                          " found valid authIdentity '%s' in request callId %s",
-                          mInstanceName.data(), authUserIdentity.data(), callId.data() 
-                          );
-         
-         }
-         else
-         {
-            // use the identity of request originator
-            authUserIdentity = id;
-         }
-
-         // Can't completely remove identity info, since it may be required
-         // further if the request spirals. Normalize authIdentity to only leave
-         // the most recent info in the request 
-         SipXauthIdentity::normalize(request);
-
          OsReadLock readLock(mRulesLock);
 
          if (mpAuthorizationRules)
@@ -231,7 +202,7 @@ EnforceAuthRules::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to p
                              mInstanceName.data(), callId.data()
                              );
             }
-            else if (authUserIdentity.isNull())
+            else if (id.isNull())
             {
                /*
                 * Some permission is required, but we cannot look up permissions without
@@ -249,7 +220,7 @@ EnforceAuthRules::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to p
             {
                // some permission is required and caller is authenticated, so see if they have it
                ResultSet grantedPermissions;
-               Url identity(authUserIdentity);
+               Url identity(id);
                PermissionDB::getInstance()->getPermissions(identity, grantedPermissions);
 
                UtlString unmatchedPermissions;
@@ -262,7 +233,7 @@ EnforceAuthRules::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to p
                   result = ALLOW;
                   OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
                                 " id '%s' authorized by '%s'",
-                                mInstanceName.data(), authUserIdentity.data(), matchedPermission.data()
+                                mInstanceName.data(), id.data(), matchedPermission.data()
                                 );
                }
                else

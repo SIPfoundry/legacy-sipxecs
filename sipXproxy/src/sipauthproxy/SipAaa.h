@@ -100,6 +100,9 @@ class SipAaa : public OsServerTask
    /// @returns true iff the domain of url is a valid form of the domain name for this proxy.
    bool isLocalDomain(const Url& url ///< a url to be tested
                       ) const;
+
+   /// Get the domain shared secret for signing.
+   const SharedSecret* authSecret();
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
@@ -136,7 +139,8 @@ class SipAaa : public OsServerTask
    long          mNonceExpiration;       ///< nonce lifetime in seconds
    UtlString     mDomainName;            ///< for determining authority for addresses
    UtlString     mRouteName;             ///< for writing Record-Route headers
-
+   SharedSecret* mSharedSecret;          ///< secret value to include in authentication hashes
+   
    PluginHooks   mAuthPlugins;           ///< decision making modules from configuration 
 
    // @cond INCLUDENOCOPY

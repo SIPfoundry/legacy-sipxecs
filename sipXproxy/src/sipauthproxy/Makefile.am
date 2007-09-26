@@ -60,6 +60,7 @@ AUTHPLUGIN_COMMON_LD_FLAGS = \
 
 nobase_lib_LTLIBRARIES = \
 	sipxauthproxy/libCallerAlias.la \
+	sipxauthproxy/libTransferControl.la \
 	sipxauthproxy/libEnforceAuthRules.la
 
 sipxauthproxy_libCallerAlias_la_SOURCES = \
@@ -86,6 +87,19 @@ sipxauthproxy_libEnforceAuthRules_la_LDFLAGS = \
 	$(AUTHPLUGIN_COMMON_LD_FLAGS)
 
 sipxauthproxy_libEnforceAuthRules_la_LIBADD = \
+	@SIPXCOMMSERVER_LIBS@
+
+sipxauthproxy_libTransferControl_la_SOURCES = \
+	TransferControl.h \
+	TransferControl.cpp
+
+sipxauthproxy_libTransferControl_la_CXXFLAGS = \
+	$(AUTHPROXY_COMMON_CXX_FLAGS)
+
+sipxauthproxy_libTransferControl_la_LDFLAGS = \
+	$(AUTHPLUGIN_COMMON_LD_FLAGS)
+
+sipxauthproxy_libTransferControl_la_LIBADD = \
 	@SIPXCOMMSERVER_LIBS@
 
 
