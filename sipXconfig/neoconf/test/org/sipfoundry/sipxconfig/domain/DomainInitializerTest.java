@@ -11,8 +11,6 @@ package org.sipfoundry.sipxconfig.domain;
 
 import junit.framework.TestCase;
 
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
 
 public class DomainInitializerTest extends TestCase {
@@ -28,19 +26,35 @@ public class DomainInitializerTest extends TestCase {
         assertEquals("bluejay", m_domainInitializer.getInitialDomainName());
     }
     
-    public void testOnApplicationEvent() {
-        Domain domain = new Domain();   
-        domain.setName("sparrow");
-        IMocksControl domainManagerControl = EasyMock.createControl();
-        DomainManager domainManager = domainManagerControl.createMock(DomainManager.class);
-        domainManager.saveDomain(domain);
-        domainManagerControl.replay();
+    public void testOnInitTask() {
+        DomainManager mockDomainManager = new MockDomainManager();
         
         m_domainInitializer.setInitialDomain("sparrow");
-        m_domainInitializer.setDomainManager(domainManager);
-        InitializationTask init = new InitializationTask("initialize-domain");
-        m_domainInitializer.onApplicationEvent(init);
+        m_domainInitializer.setDomainManager(mockDomainManager);
+        InitializationTask initTask = new InitializationTask("initialize-domain");
+        m_domainInitializer.onApplicationEvent(initTask);
 
-        domainManagerControl.verify();
+        assertEquals("sparrow", mockDomainManager.getDomain().getName());
+        
+        String sharedSecret = mockDomainManager.getDomain().getSharedSecret();
+        assertEquals(18, sharedSecret.length());
+        
+        // test that on a subsequent call, after domain is originally saved, we
+        // we don't regenerate the secret
+        m_domainInitializer.onApplicationEvent(initTask);
+        assertEquals(sharedSecret, mockDomainManager.getDomain().getSharedSecret());
+    }
+    
+    private static class MockDomainManager extends DomainManagerImpl {
+        private Domain m_domain;
+        public Domain getDomain() {
+            if (m_domain == null) {
+                throw new DomainNotInitializedException();
+            }
+            return m_domain;
+        }
+        public void saveDomain(Domain domain) {
+            m_domain = domain;
+        }
     }
 }

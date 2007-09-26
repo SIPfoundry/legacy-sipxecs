@@ -12,7 +12,9 @@ package org.sipfoundry.sipxconfig.domain;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.sipfoundry.sipxconfig.common.InitTaskListener;
+import org.sipfoundry.sipxconfig.domain.DomainManager.DomainNotInitializedException;
 
 /**
  * When system first starts up, create initial domain object w/default value(s)
@@ -29,11 +31,27 @@ public class DomainInitializer extends InitTaskListener {
         m_domainManager = domainManager;
     }
 
-    @Override
+    /**
+     * Initialize the domain on the first time that sipXconfig is run.  If there
+     * is already an existing domain instance returned by the domain manager, do
+     * not re-initialize
+     */
     public void onInitTask(String task) {
-        Domain domain = new Domain();
-        domain.setName(getInitialDomainName());
-        m_domainManager.saveDomain(domain);
+        // ugly - but there is no other way to query for a domain
+        // if domain exists, will return.  if not, a new one will
+        // be initialized in the catch block
+        try {
+            Domain domain = m_domainManager.getDomain();
+            return;
+        } catch (DomainNotInitializedException e) {
+            Domain domain = new Domain();
+            domain.setName(getInitialDomainName());
+            
+            String sharedSecret = RandomStringUtils.randomAscii(18);
+            domain.setSharedSecret(sharedSecret);
+            
+            m_domainManager.saveDomain(domain);
+        }
     }
 
     String getInitialDomainName() {
