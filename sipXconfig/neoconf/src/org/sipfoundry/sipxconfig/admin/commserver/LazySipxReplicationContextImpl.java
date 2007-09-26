@@ -134,8 +134,8 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
                     DataSet ds = (DataSet) next;
                     m_target.generate(ds);
                 }
-                if (next instanceof XmlFile) {
-                    XmlFile file = (XmlFile) next;
+                if (next instanceof ConfigurationFile) {
+                    ConfigurationFile file = (ConfigurationFile) next;
                     m_target.replicate(file);
                 }
             }

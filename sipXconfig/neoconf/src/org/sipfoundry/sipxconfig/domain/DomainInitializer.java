@@ -13,6 +13,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.InitTaskListener;
 import org.sipfoundry.sipxconfig.domain.DomainManager.DomainNotInitializedException;
 
@@ -37,23 +38,22 @@ public class DomainInitializer extends InitTaskListener {
      * not re-initialize
      */
     public void onInitTask(String task) {
-        // ugly - but there is no other way to query for a domain
-        // if domain exists, will return.  if not, a new one will
-        // be initialized in the catch block
+        Domain domain = null;
         try {
-            Domain domain = m_domainManager.getDomain();
-            return;
+            domain = m_domainManager.getDomain();
         } catch (DomainNotInitializedException e) {
-            Domain domain = new Domain();
+            domain = new Domain();
             domain.setName(getInitialDomainName());
-            
+        }
+        
+        if (StringUtils.isEmpty(domain.getSharedSecret())) {
             String sharedSecret = RandomStringUtils.randomAscii(18);
             domain.setSharedSecret(sharedSecret);
-            
-            m_domainManager.saveDomain(domain);
         }
+        
+        m_domainManager.saveDomain(domain);
     }
-
+    
     String getInitialDomainName() {
         if (m_initialDomain != null) {
             return m_initialDomain;
