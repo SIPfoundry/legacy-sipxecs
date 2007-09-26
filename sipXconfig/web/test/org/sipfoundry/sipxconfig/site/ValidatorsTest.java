@@ -64,6 +64,8 @@ public class ValidatorsTest extends TestCase {
         p.validate(m_field, m_validationMessages, "www.a.com");
         p.validate(m_field, m_validationMessages, "localhost");
         p.validate(m_field, m_validationMessages, "localhost.localdomain");
+        p.validate(m_field, m_validationMessages, "si-px-33.sipfoundry.org");
+        p.validate(m_field, m_validationMessages, "sipx-3.sipfoundry.org");
 
         // sipX does not support IPv6 - but when it does...
         // p.validate(m_field, m_validationMessages, "2001:0db8:85a3:08d3:1319:8a2e:0370:7334");

@@ -9,7 +9,7 @@ update phone set model_id = 'hitachi' || model_id where bean_id = 'hitachi';
 update phone set model_id = 'acmePhoneStandard', bean_id = 'acmePhone' where bean_id = 'unmanagedPhone' or bean_id = 'acmePhone';
 update gateway set model_id = 'audiocodesTP260_' || model_id where bean_id = 'gwAudiocodesTp260';
 update gateway set model_id = 'audiocodesMP_' || model_id where bean_id = 'gwAudiocodesMediant';
-update gateway set model_id = 'genericStandard' where bean_id = 'gwGeneric';
+update gateway set model_id = 'genericGatewayStandard' where bean_id = 'gwGeneric';
 update gateway set model_id = 'sipTrunkStandard' where bean_id = 'gwSipTrunk';
 
 
