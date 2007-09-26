@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -25,6 +26,12 @@ import org.dom4j.Document;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.AttendantScheduleFile;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+
+import com.thoughtworks.xstream.io.xml.DocumentReader;
 
 public class ReplicationManagerImplTest extends TestCase {
     public ReplicationManagerImplTest() {
@@ -92,7 +99,46 @@ public class ReplicationManagerImplTest extends TestCase {
             assertEquals(data[i], Base64.decodeBase64(payload.getBytes("US-ASCII"))[i]);
         }
     }
-
+    
+    public void testReplicateFile() throws Exception {
+        final Document testDoc = XmlUnitHelper.loadDocument(getClass(), "replication.test.xml");
+        
+        // this may be slightly ugly.  overriding all methods used internally by 
+        // replicateFile in order to focus testing on that method
+        ReplicationManager out = new ReplicationManagerImpl(){
+            boolean postData(String url, byte[] xmlData) throws IOException {
+                return true;
+            }
+            Document generateXMLDataToPost(byte[] payload, String targetDataName, String dataType) {
+                assertEquals(ConfigFileType.ATTENDANT_SCHEDULE.getName(), targetDataName);
+                assertEquals("file", "file");
+                try {
+                    String testFile = new String(payload);
+                    String controlFile = testDoc.asXML();
+                    XMLAssert.assertXMLEqual(controlFile, testFile);
+                } catch (Exception e) {
+                    fail(e.getMessage());
+                }
+                return testDoc;
+            }
+        };
+        
+        Location location = new Location();
+        
+        XmlFile xmlFile = new AttendantScheduleFile(){
+            public Document getDocument() {
+                try {
+                    return XmlUnitHelper.loadDocument(getClass(), "replication.test.xml");
+                } catch (Exception e) {
+                    fail(e.getMessage());
+                    return null;
+                }
+            }
+        };
+        
+        out.replicateFile(new Location[] {location}, xmlFile);
+    }
+    
     private static class MockHttpURLConnection extends HttpURLConnection {
         public MockHttpURLConnection() throws Exception {
             super(new URL("http://test"));

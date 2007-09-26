@@ -19,6 +19,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 import org.springframework.context.ApplicationEvent;
@@ -58,7 +59,7 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         notifyWorker();
     }
 
-    public synchronized void replicate(XmlFile xmlFile) {
+    public synchronized void replicate(ConfigurationFile xmlFile) {
         m_tasks.add(xmlFile);
         notifyWorker();
     }

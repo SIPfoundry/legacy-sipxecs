@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile;
 import org.springframework.context.ApplicationEvent;
 
 public interface SipxReplicationContext {
@@ -18,7 +18,7 @@ public interface SipxReplicationContext {
 
     void generateAll();
 
-    void replicate(XmlFile xmlFile);
+    void replicate(ConfigurationFile xmlFile);
 
     String getXml(DataSet dataSet);
 

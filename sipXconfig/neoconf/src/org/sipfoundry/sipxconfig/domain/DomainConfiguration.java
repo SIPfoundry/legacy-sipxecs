@@ -10,34 +10,28 @@
 package org.sipfoundry.sipxconfig.domain;
 
 import java.io.File;
-import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile;
 
-public class DomainConfigGenerator {
-
-    private static final String OUTPUT_FILENAME = "domain-config";
+public class DomainConfiguration implements ConfigurationFile {
 
     private VelocityEngine m_velocityEngine;
-    private String m_templateLocation = "domain/domain-config.vm";
-    private String m_outputDir;
-
+    private String m_templateLocation = "commserver/domain-config.vm";
+    private String m_domainConfig;
+    
     public void generate(Domain domain) {
-        File outputFile = new File(m_outputDir, OUTPUT_FILENAME);
-        Writer writer = null;
-        try {
-            writer = new PrintWriter(outputFile);
-            generate(domain, writer);
-        } catch (Exception ioe) {
-            throw new RuntimeException(ioe);
-        } finally {
-            IOUtils.closeQuietly(writer);
-        }
+        StringWriter writer = new StringWriter();
+        generate(domain, writer);
+        m_domainConfig = writer.toString();
     }
 
     public void generate(Domain domain, Writer output) {
@@ -55,14 +49,6 @@ public class DomainConfigGenerator {
         }
     }
 
-    public String getOutputDir() {
-        return m_outputDir;
-    }
-
-    public void setOutputDir(String outputDir) {
-        m_outputDir = outputDir;
-    }
-
     public VelocityEngine getVelocityEngine() {
         return m_velocityEngine;
     }
@@ -77,5 +63,23 @@ public class DomainConfigGenerator {
 
     public void setTemplate(String template) {
         m_templateLocation = template;
+    }
+
+    public String getFileContent() {
+        return "file";
+    }
+
+    public ConfigFileType getType() {
+        return ConfigFileType.DOMAIN_CONFIG;
+    }
+
+    public void write(Writer writer) throws IOException {
+        writer.write(m_domainConfig);
+    }
+
+    public void writeToFile(File configDir, String filename) throws IOException {
+        File outputFile = new File(configDir, filename);
+        FileWriter writer = new FileWriter(outputFile);
+        writer.write(m_domainConfig);
     }
 }

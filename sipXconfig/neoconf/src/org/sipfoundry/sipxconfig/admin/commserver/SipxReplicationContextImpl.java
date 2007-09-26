@@ -29,7 +29,7 @@ import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -75,19 +75,19 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     }
 
     public void generateAll() {
-        for (Iterator i = DataSet.iterator(); i.hasNext();) {
+        for (Iterator<DataSet> i = DataSet.iterator(); i.hasNext();) {
             DataSet dataSet = (DataSet) i.next();
             generate(dataSet);
         }
     }
 
-    public void replicate(XmlFile xmlFile) {
+    public void replicate(ConfigurationFile file) {
         Serializable jobId = m_jobContext.schedule("File replication: "
-                + xmlFile.getType().getName());
+                + file.getType().getName());
         boolean success = false;
         try {
             m_jobContext.start(jobId);
-            success = m_replicationManager.replicateFile(getLocations(), xmlFile);
+            success = m_replicationManager.replicateFile(getLocations(), file);
         } finally {
             if (success) {
                 m_jobContext.success(jobId);
@@ -128,7 +128,7 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
         try {
             InputStream stream = getTopologyAsStream();
             Digester digester = new LocationDigester();
-            Collection locations = (Collection) digester.parse(stream);
+            Collection<Location> locations = (Collection) digester.parse(stream);
             m_locations = (Location[]) locations.toArray(new Location[locations.size()]);
         } catch (FileNotFoundException e) {
             // When running in a test environment, the topology file will not be found

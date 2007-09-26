@@ -25,7 +25,7 @@ import org.dom4j.io.XMLWriter;
 /**
  * ConfigFile
  */
-public abstract class XmlFile {
+public abstract class XmlFile implements ConfigurationFile {
     protected static final DocumentFactory FACTORY = DocumentFactory.getInstance();
 
     public abstract Document getDocument();

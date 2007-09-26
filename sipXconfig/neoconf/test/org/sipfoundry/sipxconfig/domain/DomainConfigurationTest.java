@@ -19,33 +19,45 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 
-public class DomainConfigGeneratorTest extends TestCase {
+public class DomainConfigurationTest extends TestCase {
     
     private Domain m_domain;
-    private DomainConfigGenerator m_out;
+    private DomainConfiguration m_out;
+    private String m_referenceConfig;
     
-    public void setUp() {
+    public void setUp() throws Exception {
         m_domain = new Domain();
         m_domain.setName("domain.example.com");
         m_domain.setSharedSecret("mySecret");
         
-        m_out = new DomainConfigGenerator();
+        m_out = new DomainConfiguration();
         m_out.setVelocityEngine(TestHelper.getVelocityEngine());
+        
+        Reader referenceConfigReader = new InputStreamReader(
+                DomainConfigurationTest.class.getResourceAsStream("expected-domain-config"));
+        m_referenceConfig = IOUtils.toString(referenceConfigReader);
     }
     
     public void testGenerateDomainConfigWithWriter() throws Exception {
-        Reader referenceConfigReader = new InputStreamReader(
-                DomainConfigGeneratorTest.class.getResourceAsStream("expected-domain-config"));
-        
-        
         StringWriter actualConfigWriter = new StringWriter();
         m_out.generate(m_domain, actualConfigWriter);
         
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
         
-        String referenceConfig = IOUtils.toString(referenceConfigReader);
         String actualConfig = IOUtils.toString(actualConfigReader);
         
-        assertEquals(referenceConfig, actualConfig);
+        assertEquals(m_referenceConfig, actualConfig);
+    }
+    
+    public void testWrite() throws Exception {
+        StringWriter actualConfigWriter = new StringWriter();
+        m_out.generate(m_domain);
+        m_out.write(actualConfigWriter);
+        
+        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
+        
+        String actualConfig = IOUtils.toString(actualConfigReader);
+        
+        assertEquals(m_referenceConfig, actualConfig);
     }
 }

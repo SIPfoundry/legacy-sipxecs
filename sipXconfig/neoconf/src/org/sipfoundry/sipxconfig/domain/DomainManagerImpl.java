@@ -13,17 +13,18 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.common.event.EntitySaveListener;
 
 public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
     
     // do not reference m_server, see note in spring file
     private SipxServer m_server;
-    private DomainConfigGenerator m_domainConfigGenerator;
+    private DomainConfiguration m_domainConfiguration;
+    private SipxReplicationContext m_replicationContext;
 
     public SipxServer getServer() {
         return m_server;
@@ -33,13 +34,17 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         m_server = server;
     }
 
-    public DomainConfigGenerator getDomainConfigGenerator() {
-        return m_domainConfigGenerator;
+    public DomainConfiguration getDomainConfiguration() {
+        return m_domainConfiguration;
     }
     
-    public void setDomainConfigGenerator(DomainConfigGenerator domainConfigGenerator) {
-        m_domainConfigGenerator = domainConfigGenerator;
+    public void setDomainConfiguration(DomainConfiguration domainConfiguration) {
+        m_domainConfiguration = domainConfiguration;
     }
+    
+    public void setReplicationContext(SipxReplicationContext context) {
+        m_replicationContext = context;
+    }  
     
     /**
      * @return non-null unless test environment
@@ -65,6 +70,10 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         getServer().setDomainName(domain.getName());
         getServer().setRegistrarDomainAliases(domain.getAliases());
         getServer().applySettings();
+        
+        // replicate domain config
+        m_domainConfiguration.generate(domain);
+        m_replicationContext.replicate(m_domainConfiguration);
     }
     
     private Domain getExistingDomain() {
@@ -83,19 +92,5 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
             rules = Collections.<DialingRule>emptyList();
         }
         return rules;
-    }  
-    
-    public EntitySaveListener<Domain> createDomainSaveListener() {
-        return new DomainSaveListener();
-    }
-    
-    private class DomainSaveListener extends EntitySaveListener<Domain> {
-        public DomainSaveListener() {
-            super(Domain.class);
-        }
-        
-        protected void onEntitySave(Domain domain) {
-            getDomainConfigGenerator().generate(getDomain());
-        }
     }
 }

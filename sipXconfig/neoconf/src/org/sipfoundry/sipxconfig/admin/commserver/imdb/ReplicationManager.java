@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile;
 
 /**
  * Interface to replication.cgi
@@ -33,5 +33,5 @@ public interface ReplicationManager {
      * 
      * @return true if the replication has been successful, false otherwise
      */
-    boolean replicateFile(Location[] locations, XmlFile file);
+    boolean replicateFile(Location[] locations, ConfigurationFile file);
 }

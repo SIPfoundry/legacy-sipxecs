@@ -14,7 +14,9 @@ import java.util.Collections;
 import junit.framework.TestCase;
 
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class DomainManagerTest extends TestCase {
@@ -38,6 +40,16 @@ public class DomainManagerTest extends TestCase {
         
         // TEST DELETE EXISTING
         DomainManagerImpl mgr = new DomainManagerImpl();
+        mgr.setDomainConfiguration(new DomainConfiguration(){
+            public void generate(Domain domain) {
+                // do nothing
+            }
+        });
+        mgr.setReplicationContext(new SipxReplicationContextImpl() {
+            public void replicate(ConfigurationFile file) {
+                // do nothing
+            }
+        });
         mgr.setHibernateTemplate(db);
         mgr.setServer(server);
         mgr.saveDomain(domain);

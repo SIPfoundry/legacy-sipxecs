@@ -31,7 +31,7 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile;
 
 public class ReplicationManagerImpl implements ReplicationManager {
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
@@ -156,12 +156,16 @@ public class ReplicationManagerImpl implements ReplicationManager {
         }
     }
 
-    public boolean replicateFile(Location[] locations, XmlFile file) {
+    public boolean replicateFile(Location[] locations, ConfigurationFile file) {
         boolean success = true;
         for (int i = 0; i < locations.length; i++) {
             try {
-                Document payload = file.getDocument();
-                byte[] payloadBytes = xmlToByteArray(payload, true);
+                ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                Writer writer = new OutputStreamWriter(outStream);
+                file.write(writer);
+                writer.close();
+                byte[] payloadBytes = outStream.toByteArray();
+                
                 Document xml = generateXMLDataToPost(payloadBytes, file.getType().getName(),
                         "file");
                 byte[] data = xmlToByteArray(xml, false);
