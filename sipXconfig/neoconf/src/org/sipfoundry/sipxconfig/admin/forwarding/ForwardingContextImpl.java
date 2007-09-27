@@ -207,20 +207,16 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         List<Schedule> assignedSchedules = new ArrayList<Schedule>();
         for (Integer id : scheduleIds) {
             Schedule schedule = getScheduleById(id);
+            List deps = null;
             if (schedule instanceof GeneralSchedule) {
-                List dialingRules = getDialingRulesForScheduleId(id);
-                if (dialingRules == null || dialingRules.size() == 0) {
-                    unassignedSchedules.add(schedule);
-                } else {
-                    assignedSchedules.add(schedule);
-                }
+                deps = getDialingRulesForScheduleId(id);
             } else {
-                List rings = getRingsForScheduleId(id);
-                if (rings == null || rings.size() == 0) {
-                    unassignedSchedules.add(schedule);
-                } else {
-                    assignedSchedules.add(schedule);
-                }
+                deps = getRingsForScheduleId(id);
+            }
+            if (deps == null || deps.isEmpty()) {
+                unassignedSchedules.add(schedule);
+            } else {
+                assignedSchedules.add(schedule);
             }
         }
         getHibernateTemplate().deleteAll(unassignedSchedules);
@@ -228,7 +224,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     public List<UserGroupSchedule> getAllUserGroupSchedules() {
-        return getHibernateTemplate().findByNamedQuery("allUserGroupSchedules");
+        return getHibernateTemplate().loadAll(UserGroupSchedule.class);
     }
 
     public List<Schedule> getAllAvailableSchedulesForUser(User user) {
@@ -249,7 +245,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     public List<GeneralSchedule> getAllGeneralSchedules() {
-        return getHibernateTemplate().findByNamedQuery("allGeneralSchedules");
+        return getHibernateTemplate().loadAll(GeneralSchedule.class);
     }
 
     public void onApplicationEvent(ApplicationEvent event) {
