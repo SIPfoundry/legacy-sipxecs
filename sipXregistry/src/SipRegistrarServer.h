@@ -85,9 +85,8 @@ public:
 
     /// Apply registry updates for a single registrar (local or peer) to the database
     Int64 applyUpdatesToDirectory(
-       int timeNow,                         ///< current epoch time
        const UtlSList& updates,             ///< list of updates to apply
-       UtlString*      errorMsg = NULL);    ///< fill in the error message on failure
+       UtlString*      errorMsg = NULL);    ///< fill in the error message on failure (may be NULL)
     /**<
      * Return the maximum update number for that registrar after applying updates, or -1
      * if there is an error.  An empty updates list is an error.
@@ -155,9 +154,11 @@ protected:
                            RegistrarPeer* peer,
                            RegistrationDB* imdb);
     /**<
-     * 
-     * Return the max updateNumber for the registrar that is primary for this binding
-     * or -1 if there was an error.
+     * Applies update without testing CSeq -- the caller must have
+     * called RegistrationDB::isOutOfSequence and received a false
+     * return.
+     * Returns the max updateNumber for the registrar that is primary for this binding
+     * (after the update is applied).
      * Update state variables for the primary registrar.
      */
 

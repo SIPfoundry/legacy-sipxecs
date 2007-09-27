@@ -278,8 +278,7 @@ SipRegistrarServer& RegistrarInitialSync::getRegistrarServer()
 
 void RegistrarInitialSync::applyUpdatesToDirectory(UtlSList& bindings)
 {
-   int timeNow = OsDateTime::getSecsSinceEpoch();
-   getRegistrarServer().applyUpdatesToDirectory(timeNow, bindings);
+   getRegistrarServer().applyUpdatesToDirectory(bindings);
 }
 
 

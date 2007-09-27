@@ -640,82 +640,146 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
 
 Int64
 SipRegistrarServer::applyUpdatesToDirectory(
-   int timeNow,                   ///< current epoch time
    const UtlSList& updates,       ///< list of updates to apply
    UtlString* errorMsg)           ///< fill in the error message on failure
 {
    // Critical Section here
    OsLock lock(sLockMutex);
 
-   // We need an error string buffer even if the caller didn't provide one
+   // We need an error string buffer even if the caller didn't provide one.
    UtlString altErrorMsg;
    errorMsg = errorMsg ? errorMsg : &altErrorMsg;
-
-   // Loop over the updates and apply them to the DB.
-   // All updates must be for the same primary registrar.
-   UtlSListIterator updateIter(updates);
-   RegistrationBinding* reg;
+   // Pointer to the registration DB.
    RegistrationDB* imdb = mRegistrar.getRegistrationDB();
-   UtlString primary;
-   UtlString emptyPrimary;
-   const UtlString& myPrimary(mRegistrar.primaryName());
-   RegistrarPeer* peer = NULL;    // peer registrar, or NULL if it's our local registrar
-   Int64 maxUpdateNumber = 0;     // max update number for these updates
+   // Set to true if an error is found in the updates list.
+   bool error_found = false;
+   // Record the peer that is the primary for these updates.
+   RegistrarPeer* peer;
 
-   while ((reg = dynamic_cast<RegistrationBinding*>(updateIter())) &&
-          (maxUpdateNumber >= 0)) // max update number is negative if there's an error
    {
-      Int64 updateNumber = reg->getUpdateNumber();
-      if (maxUpdateNumber == 0)   // if this is the first time through the loop
+      // Loop over the updates and check that they are OK.
+      // All updates must be for the same primary registrar.
+      // They must be in-sequence relative to the registration DB.
+      UtlSListIterator updateIter(updates);
+      RegistrationBinding* reg;
+      UtlString primary;
+      UtlString emptyPrimary;
+      const UtlString myPrimary(mRegistrar.primaryName());
+
+      bool first_time = true;
+      while (!error_found &&
+             (reg = dynamic_cast <RegistrationBinding*> (updateIter())))
       {
-         if (reg->getPrimary() != NULL)
+         if (first_time)
          {
-            primary = *(reg->getPrimary());
-         }
-         if (primary != myPrimary)
-         {
-            peer = mRegistrar.getPeer(primary);
-            if (peer == NULL)
+            // If this is the first element of the list...
+            first_time = false;
+            // Get the primary registrar name (or NULL) from the first update and save it
+            // to compare with the remaining updates.
+            if (reg->getPrimary() != NULL)
             {
-               *errorMsg = "SipRegistrarServer::applyUpdatesToDirectory unknown peer ";
-               errorMsg->append(primary.data());
-               OsSysLog::add(FAC_SIP, PRI_ERR, errorMsg->data());
-               maxUpdateNumber = -1;    // indicate error
+               primary = *(reg->getPrimary());
+            }
+            // Check that the primary is known -- either this registrar, or a peer registrar.
+            if (!primary.isNull() && primary.compareTo(myPrimary) != 0)
+            {
+               peer = mRegistrar.getPeer(primary);
+               if (peer == NULL)
+               {
+                  char buf[1024];
+                  sprintf(buf,
+                          "SipRegistrarServer::applyUpdatesToDirectory update with unknown primary"
+                          " updateNumber: %0#16" FORMAT_INTLL "x, primary: '%s'",
+                          reg->getUpdateNumber(), primary.data());
+                  OsSysLog::add(FAC_SIP, PRI_ERR, "%s", buf);
+                  error_found = true;
+               }
+            }
+            else
+            {
+               // The primary is this registrar, so set 'peer' to NULL to indicate that.
+               peer = NULL;
             }
          }
-         maxUpdateNumber = updateNumber;
-      }
-      else
-      {
-         // make sure that all updates are for a single primary
-         const UtlString* nextPrimary = reg->getPrimary() ? reg->getPrimary() : &emptyPrimary;
-         if (primary != *nextPrimary)
+         else
          {
+            // If this is a later element of the list...
+            // Make sure that all updates are for a single primary.
+            const UtlString* nextPrimary = reg->getPrimary() ? reg->getPrimary() : &emptyPrimary;
+            if (primary.compareTo(*nextPrimary) != 0)
+            {
+               char buf[1024];
+               sprintf(buf,
+                       "SipRegistrarServer::applyUpdatesToDirectory updates with mixed primaries "
+                       "updateNumber: %0#16" FORMAT_INTLL "x, primary of element 0: '%s', "
+                       "primary of element %d: '%s'",
+                       reg->getUpdateNumber(), primary.data(),
+                       (int) updates.index(reg), nextPrimary->data());
+               OsSysLog::add(FAC_SIP, PRI_ERR, "%s", buf);
+               *errorMsg = buf;
+               error_found = true;
+            }
+         }
+
+         // Check callId/cseq and accept only updates that are in sequence.
+         if (imdb->isOutOfSequence(*reg->getUri(), *reg->getCallId(), reg->getCseq()))
+         {
+            // This can happen in an HA configuration when the peer didn't get the
+            // update and tries to sync an old registration.
             char buf[1024];
+            UtlString aor;
+            reg->getUri()->toString(aor);
             sprintf(buf,
-                    "SipRegistrarServer::applyUpdatesToDirectory updates with mixed primaries"
-                    " updateNumber: %0#16" FORMAT_INTLL "x, primary1: %s, primary2: %s",
-                    reg->getUpdateNumber(), primary.data(), nextPrimary->data());
-            OsSysLog::add(FAC_SIP, PRI_ERR, buf);
+                    "SipRegistrarServer::applyUpdatesToDirectory update out of order "
+                    "updateNumber: %0#16" FORMAT_INTLL "x, AOR: '%s', Call-Id: '%s', CSeq: %d",
+                    reg->getUpdateNumber(), 
+                    aor.data(), reg->getCallId()->data(), reg->getCseq());
+            OsSysLog::add(FAC_SIP, PRI_ERR, "%s", buf);
             *errorMsg = buf;
-            maxUpdateNumber = -1;    // indicate error
+            error_found = true;
          }
       }
 
-      // If there were no errors, then apply the update and update state variables
-      if (maxUpdateNumber >= 0)
+      // Check that there was at least one update in the set, as zero
+      // updates is an error.
+      if (first_time)
       {
-         maxUpdateNumber = updateOneBinding(reg, peer, imdb);
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "SipRegistrarServer::applyUpdatesToDirectory zero updates in list");
+         error_found = true;
       }
    }
 
-   // If we processed any updates and there were no errors, then garbage-collect
-   // and persist the database.
-   if (maxUpdateNumber > 0)
+   // If the updates pass the checks, apply them.
+   Int64 maxUpdateNumber;
+   if (error_found)
    {
+      // Set the return value to -1.
+      maxUpdateNumber = -1;
+   }
+   else
+   {
+      UtlSListIterator updateIter(updates);
+      RegistrationBinding* reg;
+
+      // Loop through the list of updates.
+      while ((reg = dynamic_cast <RegistrationBinding*> (updateIter())))
+      {
+         /* Apply one update.  Record the return value (the current
+          * max known update number for the registrar in question).
+          * The last return value will be the final max known update
+          * number and will be the return value of this function.
+          */
+         maxUpdateNumber = updateOneBinding(reg, peer, imdb);
+      }
+
+      // Garbage-collect and persist the database.
       scheduleCleanAndPersist();
    }
 
+   /* Return the final max known update for the peer registrar,
+    * or -1 if an error was found.
+    */
    return maxUpdateNumber;
 }
 
@@ -1363,7 +1427,7 @@ void SipRegistrarServer::resetDbUpdateNumberEpoch()
                     newEpoch
          );
    }
-   else if (newEpoch + ((15 * 60) << 32) /* 15 minutes */ < current)
+   else if (newEpoch + (((Int64) (15 * 60)) << 32) /* 15 minutes */ < current)
    {
       // If the new epoch number is more then 15 minutes less than the
       // highest update number that has already been used, 

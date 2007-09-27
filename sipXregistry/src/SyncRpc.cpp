@@ -777,10 +777,9 @@ bool SyncRpcPushUpdates::applyPushedUpdates(UtlSList&        updateMaps,
    // Apply the update to the DB
    if (status == XmlRpcMethod::OK)    // if there were no errors earlier
    {
-      int timeNow = OsDateTime::getSecsSinceEpoch();
       SipRegistrarServer& registrarServer = registrar.getRegistrarServer();
       UtlString errorMsg;
-      updateNumber = registrarServer.applyUpdatesToDirectory(timeNow, updateList, &errorMsg);
+      updateNumber = registrarServer.applyUpdatesToDirectory(updateList, &errorMsg);
       if (updateNumber > 0)
       {
          UtlLongLongInt updateNumberWrapped(updateNumber);
