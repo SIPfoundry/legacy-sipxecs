@@ -23,7 +23,17 @@ while (1) {
 
 $= = 1_000_000;
 
+$first_line = 1;
 while (<>) {
+    # If this is the first line, check its format.
+    if ($first_line) {
+	$first_line = 0;
+
+	if (!/^"20\d\d-\d\d-\d\dT\d\d:\d\d:\d\d[.\d]*Z":\d+:/) {
+	    print STDERR "Are you sure this is a sipX log file?  The first line has incorrect syntax:\n";
+	    print STDERR $_;
+	}
+    }
     if (($method, $uri) = /:INCOMING:.*---- Port:[ \d]*----\\n([A-Z0-9]+) ((sips?:|UNKNOWN|tel:)[^ ]*)/) {
 	# Incoming request.
 	if ($all_transactions || !/branch=.*branch=/) {
@@ -36,16 +46,16 @@ while (<>) {
             $sortdate = $date ne '' ? $date : $time;
 	    $sortdate{$branch} = $sortdate unless defined($sortdate{$branch}) && $sortdate{$branch} lt $sortdate;
 	    if (!(defined($reqtime{$branch}) && $reqtime{$branch} lt $time)) {
-                if ($method eq 'SUBSCRIBE') {
-		    # For SUBSCRIBE, use as method "Sxx", where "xx" is the
-		    # first two letters of the event-type.
+                if ($method eq 'SUBSCRIBE' || $method eq 'NOTIFY') {
+		    # For SUBSCRIBE or NOTIFY, use as the method "Sxx" or "Nxx",
+		    # where "xx" is the first two letters of the event-type.
 	            ($event) = m/\\nEvent: *([^\\;]*)/i;
-                    $method = 'S' . substr($event . '  ', 0, 2);
+                    $method = substr($method, 0, 1) . substr($event . '  ', 0, 2);
                 } elsif ($method eq 'REGISTER') {
 		    # For REGISTER, use the To-URI instead of the rquest-URI,
 		    # as it includes the user-part.
 		    my ($u, $v);
-		    ($u) = m/\\nTo: *([^\\]*)/i;
+		    ($u) = m/\\nTo: *(([^\\]|\\")*)/i;
 		    ($v) = $u =~ m/<(.*)>/;
 		    $uri =
 			$v ne '' ? $v :
@@ -55,8 +65,11 @@ while (<>) {
                 $uri =~ s/^sips?://i;
                 $req = substr($method, 0, 3) . ' ' . $uri;
 	        $req{$branch} = $req;
-	        $reqtime{$branch} = $time;
-                $reqdate{$branch} = $date;
+                # The request may have been seen as incoming in the log of a different process.
+		if (!(defined($reqtime{$branch}) && $reqtime{$branch} lt $time)) {
+	            $reqtime{$branch} = $time;
+                    $reqdate{$branch} = $date;
+                }
             }
 	}
     } elsif (($response) = /:OUTGOING:.*----\\nSIP\/2\.0 (\d\d\d) /) {
