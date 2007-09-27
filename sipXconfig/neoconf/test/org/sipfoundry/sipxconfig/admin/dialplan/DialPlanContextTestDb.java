@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
@@ -30,10 +31,14 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.filter.IncludeTableFilter;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.ScheduledDay;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
+import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
+import org.sipfoundry.sipxconfig.admin.forwarding.GeneralSchedule;
+import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -45,10 +50,12 @@ import org.springframework.context.ApplicationContext;
  */
 public class DialPlanContextTestDb extends SipxDatabaseTestCase {
     private DialPlanContext m_context;
+    private ForwardingContext m_fwdContext;
 
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_context = (DialPlanContext) appContext.getBean(DialPlanContext.CONTEXT_BEAN_NAME);
+        m_fwdContext = (ForwardingContext) appContext.getBean(ForwardingContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -57,13 +64,34 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
 
         DialingRule r1 = new CustomDialingRule();
         r1.setName("a1");
+
+        Schedule schedule = new GeneralSchedule();
+        schedule.setName("R1 Schedule");
+        WorkingHours[] hours = new WorkingHours[1];
+        WorkingTime wt = new WorkingTime();
+        hours[0] = new WorkingHours();
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        cal.set(2006, Calendar.DECEMBER, 31, 10, 00);
+        hours[0].setStart(cal.getTime());
+        cal.set(2006, Calendar.DECEMBER, 31, 11, 00);
+        hours[0].setStop(cal.getTime());
+        hours[0].setEnabled(true);
+        hours[0].setDay(ScheduledDay.WEDNESDAY);
+        wt.setWorkingHours(hours);
+        wt.setEnabled(true);
+        schedule.setWorkingTime(wt);
+        m_fwdContext.saveSchedule(schedule);
+        m_fwdContext.flush();
+        r1.setSchedule(schedule);
+
         CustomDialingRule r2 = new CustomDialingRule();
         r2.setName("a2");
         r2.setPermissionNames(Collections.singletonList(PermissionName.VOICEMAIL.getName()));
 
         m_context.storeRule(r1);
-        m_context.storeRule(r1);
         assertEquals(1, m_context.getRules().size());
+        assertEquals("R1 Schedule", ((CustomDialingRule) m_context.load(DialingRule.class, r1
+                .getId())).getSchedule().getName());
         m_context.storeRule(r2);
         assertEquals(2, m_context.getRules().size());
 
@@ -71,6 +99,7 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         assertEquals(r2.getPermissionNames().get(0), r.getPermissionNames().get(0));
 
         Integer id1 = r1.getId();
+
         m_context.deleteRules(Collections.singletonList(id1));
         Collection rules = m_context.getRules();
         assertTrue(rules.contains(r2));

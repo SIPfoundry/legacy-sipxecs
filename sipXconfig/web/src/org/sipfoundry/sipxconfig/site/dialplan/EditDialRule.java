@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.tapestry.IPage;
@@ -25,6 +26,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 import org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory;
+import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 
@@ -43,6 +45,9 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
 
     @InjectObject(value = "spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();
+
+    @InjectObject(value = "spring:forwardingContext")
+    public abstract ForwardingContext getForwardingContext();
 
     @InjectObject(value = "spring:permissionManager")
     public abstract PermissionManager getPermissionManager();
@@ -68,12 +73,19 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
 
     public abstract void setRuleType(DialingRuleType dialingType);
 
+    public abstract List getAvailableSchedules();
+
+    public abstract void setAvailableSchedules(List schedules);
+
     public IPropertySelectionModel getMediaServerTypeModel() {
         Map<String, String> types2Labels = getMediaServerFactory().getBeanIdsToLabels();
         return new NamedValuesSelectionModel(types2Labels);
     }
 
     public void pageBeginRender(PageEvent event_) {
+        // retrieve available schedules
+        setAvailableSchedules(getForwardingContext().getAllGeneralSchedules());
+
         DialingRule rule = getRule();
         if (null != rule) {
             // FIXME: in custom rules: rule is persitent but rule type not...

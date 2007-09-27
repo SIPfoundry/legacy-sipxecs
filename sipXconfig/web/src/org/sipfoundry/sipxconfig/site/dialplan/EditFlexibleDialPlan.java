@@ -10,17 +10,23 @@
 package org.sipfoundry.sipxconfig.site.dialplan;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
+import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
+import org.sipfoundry.sipxconfig.admin.forwarding.GeneralSchedule;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.site.setting.EditSchedule;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -30,6 +36,13 @@ public abstract class EditFlexibleDialPlan extends BasePage {
 
     @InjectObject(value = "spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();
+
+    @InjectObject(value = "spring:forwardingContext")
+    public abstract ForwardingContext getForwardingContext();
+
+    @Persist
+    @InitialValue(value = "literal:dialingRules")
+    public abstract String getTab();
 
     @Bean
     public abstract SelectMap getSelections();
@@ -46,6 +59,8 @@ public abstract class EditFlexibleDialPlan extends BasePage {
     public abstract Collection getRowsToMoveUp();
 
     public abstract Collection getRowsToMoveDown();
+
+    public abstract boolean getChanged();
 
     public IPage edit(IRequestCycle cycle, Integer ruleId) {
         DialingRule rule = getDialPlanContext().getRule(ruleId);
@@ -110,5 +125,23 @@ public abstract class EditFlexibleDialPlan extends BasePage {
 
     public Collection getAllSelected() {
         return getSelections().getAllSelected();
+    }
+
+    public List<GeneralSchedule> getGeneralSchedules() {
+        return getForwardingContext().getAllGeneralSchedules();
+    }
+
+    public IPage editSchedule(IRequestCycle cycle, Integer scheduleId) {
+        EditSchedule page = (EditSchedule) cycle.getPage(EditSchedule.PAGE);
+        page.editSchedule(scheduleId, PAGE);
+        return page;
+    }
+
+    public IPage addSchedule(IRequestCycle cycle) {
+        EditSchedule page = (EditSchedule) cycle.getPage(EditSchedule.PAGE);
+        page.setUserId(null);
+        page.setUserGroup(null);
+        page.newSchedule("general_sch", PAGE);
+        return page;
     }
 }

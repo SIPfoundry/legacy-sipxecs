@@ -19,6 +19,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
+import org.sipfoundry.sipxconfig.admin.forwarding.GeneralSchedule;
 import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.admin.forwarding.UserGroupSchedule;
 import org.sipfoundry.sipxconfig.admin.forwarding.UserSchedule;
@@ -80,11 +81,13 @@ public abstract class EditSchedule extends UserBasePage implements PageBeginRend
             schedule = getForwardingContext().getScheduleById(getScheduleId());
             workingHoursList = schedule.getWorkingTime().getWorkingHours();
         } else {
-            if (getUserGroup() == null) {
+            if (getResource().equals("usr_sch")) {
                 schedule = new UserSchedule();
-            } else {
+            } else if (getResource().equals("usrGroup_sch")) {
                 schedule = new UserGroupSchedule();
                 schedule.setUserGroup(getUserGroup());
+            } else if (getResource().equals("general_sch")) {
+                schedule = new GeneralSchedule();
             }
             schedule.setUser(getUser());
             WorkingTime workingTime = new WorkingTime();

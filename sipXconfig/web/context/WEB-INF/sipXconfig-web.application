@@ -186,4 +186,5 @@
     <component-type type="AcdQueuesStatsPanel" specification-path="acd/AcdQueuesStatsPanel.jwc"/>
     <component-type type="SchedulesTable" specification-path="setting/SchedulesTable.jwc"/>
     <component-type type="ScheduleWorkingHours" specification-path="common/ScheduleWorkingHours.jwc"/>
+	<component-type type="ScheduleSelector" specification-path="user_portal/ScheduleSelector.jwc"/>
 </application>

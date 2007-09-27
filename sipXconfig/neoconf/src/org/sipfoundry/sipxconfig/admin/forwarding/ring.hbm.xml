@@ -80,6 +80,9 @@
     <![CDATA[from UserGroupSchedule schedule]]>
   </query>
 
+  <query name="allGeneralSchedules">
+  	<![CDATA[from GeneralSchedule schedule]]>
+  </query>
 
   <query name="ringsForScheduleId">
     <![CDATA[from Ring ring where ring.schedule.id = :scheduleId]]>

@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.permission.Permission;
  */
 public class CustomDialingRule extends DialingRule {
     private static final String ROUTE_PATTERN = "route=%s";
+    private static final String VALID_TIME_PARAM = "sipx-ValidTime=%s";
 
     private List<DialPattern> m_dialPatterns = new ArrayList<DialPattern>();
     private CallPattern m_callPattern = new CallPattern();
@@ -75,6 +76,12 @@ public class CustomDialingRule extends DialingRule {
         if (gateways.isEmpty()) {
             FullTransform transform = new FullTransform();
             transform.setUser(outPattern);
+            if (getSchedule() != null) {
+                String[] fieldParams = {
+                    String.format(VALID_TIME_PARAM, getSchedule().calculateValidTime())
+                };
+                transform.setFieldParams(fieldParams);
+            }
             transforms = new Transform[] {
                 transform
             };
@@ -92,8 +99,12 @@ public class CustomDialingRule extends DialingRule {
         FullTransform transform = new FullTransform();
         transform.setHost(g.getGatewayAddress());
         transform.setUser(g.getCallPattern(pattern));
+        String validTime = "";
+        if (getSchedule() != null) {
+            validTime = String.format(VALID_TIME_PARAM, getSchedule().calculateValidTime());
+        }
         String[] fieldParams = {
-            q.getSerial()
+            q.getSerial() + ";" + validTime
         };
         transform.setFieldParams(fieldParams);
         String route = g.getRoute();

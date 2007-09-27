@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.admin.forwarding;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
@@ -69,10 +68,10 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         ITable rings = TestHelper.getConnection().createDataSet().getTable("ring");
         assertEquals(5, rings.getRowCount());
         ITable schedules = TestHelper.getConnection().createDataSet().getTable("schedule");
-        assertEquals(4, schedules.getRowCount());
+        assertEquals(5, schedules.getRowCount());
         ITable scheduleHours = TestHelper.getConnection().createDataSet().getTable(
                 "schedule_hours");
-        assertEquals(8, scheduleHours.getRowCount());
+        assertEquals(9, scheduleHours.getRowCount());
 
         m_coreContext.deleteUser(user);
 
@@ -81,10 +80,10 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(2, rings.getRowCount());
         schedules = TestHelper.getConnection().createDataSet().getTable("schedule");
         // 2 schedules should disappear from that
-        assertEquals(2, schedules.getRowCount());
+        assertEquals(3, schedules.getRowCount());
         scheduleHours = TestHelper.getConnection().createDataSet().getTable("schedule_hours");
         // 7 schedule hours should disappear from that
-        assertEquals(1, scheduleHours.getRowCount());
+        assertEquals(2, scheduleHours.getRowCount());
     }
 
     public void testSave() throws Exception {
@@ -250,5 +249,14 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(new Integer(103), groupSchedule.getId());
         assertEquals("MondaySchedule", groupSchedule.getName());
         assertEquals("Monday Schedule", groupSchedule.getDescription());
+    }
+
+    public void testGetAllGeneralSchedules() throws Exception {
+        List<GeneralSchedule> allGeneralSchedules = m_context.getAllGeneralSchedules();
+        assertEquals(1, allGeneralSchedules.size());
+        GeneralSchedule generalSchedule = allGeneralSchedules.get(0);
+        assertEquals(new Integer(104), generalSchedule.getId());
+        assertEquals("GeneralSchedule", generalSchedule.getName());
+        assertEquals("Schedule for dialing rule", generalSchedule.getDescription());
     }
 }

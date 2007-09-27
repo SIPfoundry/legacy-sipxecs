@@ -81,7 +81,7 @@ public abstract class UserGroupSettings extends GroupSettings {
         EditSchedule page = (EditSchedule) cycle.getPage(EditSchedule.PAGE);
         page.setUserId(null);
         page.setUserGroup(getSettingDao().getGroup(getGroupId()));
-        page.newSchedule("usr_sch", PAGE);
+        page.newSchedule("usrGroup_sch", PAGE);
         return page;
     }
 

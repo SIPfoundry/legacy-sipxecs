@@ -31,6 +31,8 @@
       <many-to-many class="org.sipfoundry.sipxconfig.gateway.Gateway" column="gateway_id" />
     </list>
 
+	<many-to-one name="schedule" column="schedule_id" class="org.sipfoundry.sipxconfig.admin.forwarding.Schedule" />
+
     <joined-subclass name="CustomDialingRule" table="custom_dialing_rule">
       <key column="custom_dialing_rule_id" />
       <component name="callPattern" class="CallPattern">
@@ -196,4 +198,7 @@
       	where rule.auto_attendant_id=a.auto_attendant_id]]>
   </sql-query>
 
+  <query name="dialingRulesForScheduleId">
+    <![CDATA[from DialingRule dialingRule where dialingRule.schedule.id = :scheduleId]]>
+  </query>
 </hibernate-mapping>

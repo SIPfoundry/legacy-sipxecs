@@ -180,6 +180,13 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         return hibernate.findByNamedQueryAndNamedParam("ringsForScheduleId", PARAM_SCHEDULE_ID,
                 scheduleId);
     }
+    
+    private List getDialingRulesForScheduleId(Integer scheduleId) {
+        HibernateTemplate hibernate = getHibernateTemplate();
+
+        return hibernate.findByNamedQueryAndNamedParam("dialingRulesForScheduleId", PARAM_SCHEDULE_ID,
+                scheduleId);
+    }    
 
     public Schedule getScheduleById(Integer scheduleId) {
         return (Schedule) getHibernateTemplate().load(Schedule.class, scheduleId);
@@ -196,20 +203,29 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
             // no schedules to delete => nothing to do
             return null;
         }
-        List<Schedule> schedulesWithoutRings = new ArrayList<Schedule>();
-        List<Schedule> schedulesWithRings = new ArrayList<Schedule>();
+        List<Schedule> unassignedSchedules = new ArrayList<Schedule>();
+        List<Schedule> assignedSchedules = new ArrayList<Schedule>();
         for (Integer id : scheduleIds) {
             Schedule schedule = getScheduleById(id);
-            List rings = getRingsForScheduleId(schedule.getId());
-            if (rings == null || rings.size() == 0) {
-                schedulesWithoutRings.add(schedule);
+            if (schedule instanceof GeneralSchedule) {
+                List dialingRules = getDialingRulesForScheduleId(id);
+                if (dialingRules == null || dialingRules.size() == 0) {
+                    unassignedSchedules.add(schedule);
+                } else {
+                    assignedSchedules.add(schedule);
+                } 
             } else {
-                schedulesWithRings.add(schedule);
+                List rings = getRingsForScheduleId(id);
+                if (rings == null || rings.size() == 0) {
+                    unassignedSchedules.add(schedule);
+                } else {
+                    assignedSchedules.add(schedule);
+                }                
             }
         }
-        getHibernateTemplate().deleteAll(schedulesWithoutRings);
-        return schedulesWithRings;
-    }
+        getHibernateTemplate().deleteAll(unassignedSchedules);
+        return assignedSchedules;
+    }    
 
     public List<UserGroupSchedule> getAllUserGroupSchedules() {
         return getHibernateTemplate().findByNamedQuery("allUserGroupSchedules");
@@ -230,6 +246,10 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
         return hibernate.findByNamedQueryAndNamedParam("userSchedulesForUserGroupId",
                 PARAM_USER_GROUP_ID, userGroupId);
+    }
+    
+    public List<GeneralSchedule> getAllGeneralSchedules() {
+        return getHibernateTemplate().findByNamedQuery("allGeneralSchedules");
     }
 
     public void onApplicationEvent(ApplicationEvent event) {

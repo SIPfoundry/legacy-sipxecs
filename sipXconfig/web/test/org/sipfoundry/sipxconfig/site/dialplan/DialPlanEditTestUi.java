@@ -28,29 +28,36 @@ public class DialPlanEditTestUi extends WebTestCase {
 
     private static final String[][] NAMES = {
         {
-            "kukuName", "false", "kuku description"
+            "kukuName", "false", "kuku description", "Always"
         }, {
-            "bongoName", "false", "bongoDescription"
+            "bongoName", "false", "bongoDescription", "Always"
         },
     };
 
     private static final String[][] DEFAULTS = {
         {
-            "Emergency", "Disabled", "Emergency", "Emergency dialing plan"
+            "Emergency", "Disabled", "Emergency", "Emergency dialing plan", "Always"
+        },
+        {
+            "International", "Disabled", "Long Distance", "International dialing", "Always"
+        },
+        {
+            "Local", "Disabled", "Long Distance", "Local dialing", "Always"
+        },
+        {
+            "Long Distance", "Disabled", "Long Distance", "Long distance dialing plan", "Always"
+        },
+        {
+            "Restricted", "Disabled", "Long Distance", "Restricted dialing", "Always"
+        },
+        {
+            "Toll free", "Disabled", "Long Distance", "Toll free dialing", "Always"
+        },
+        {
+            "AutoAttendant", "Enabled", "Attendant", "Default autoattendant dialing plan",
+            "Always"
         }, {
-            "International", "Disabled", "Long Distance", "International dialing"
-        }, {
-            "Local", "Disabled", "Long Distance", "Local dialing"
-        }, {
-            "Long Distance", "Disabled", "Long Distance", "Long distance dialing plan"
-        }, {
-            "Restricted", "Disabled", "Long Distance", "Restricted dialing"
-        }, {
-            "Toll free", "Disabled", "Long Distance", "Toll free dialing"
-        }, {
-            "AutoAttendant", "Enabled", "Attendant", "Default autoattendant dialing plan"
-        }, {
-            "Internal", "Enabled", "Internal", "Default internal dialing plan"
+            "Internal", "Enabled", "Internal", "Default internal dialing plan", "Always"
         },
     };
 
@@ -114,6 +121,7 @@ public class DialPlanEditTestUi extends WebTestCase {
 
             assertLinkNotPresent("pattern:delete");
             assertLinkPresent("pattern:add");
+            assertElementPresent("schedule");
 
             setFormElement("name", row[0]);
             setFormElement("description", row[2]);
@@ -128,6 +136,7 @@ public class DialPlanEditTestUi extends WebTestCase {
 
             clickButton("form:ok");
             assertTextInTable("dialplan:list", row[2]);
+            assertTextInTable("dialplan:list", row[3]);
             assertLinkPresentWithText(row[0]);
         }
     }
@@ -173,7 +182,7 @@ public class DialPlanEditTestUi extends WebTestCase {
     public void testMove() {
         clickLink("dialplan:revert");
         SiteTestHelper.assertNoException(tester);
-        clickButton("form:ok");        
+        clickButton("form:ok");
         SiteTestHelper.selectRow(tester, 0, true);
         clickButton("dialplan:move:up");
         // no changes
@@ -270,5 +279,18 @@ public class DialPlanEditTestUi extends WebTestCase {
         assertEquals(2, SiteTestHelper.getRowCount(tester, "list:gateway"));
         gatewayTable = getTester().getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(gateways[0][0], gatewayTable.getCellAsText(1, 1));
+    }
+
+    public void testAddDeleteCustomSchedule() throws Exception {
+        SiteTestHelper.assertNoException(tester);
+        clickLinkWithText("Schedules");
+        clickLinkWithText("Add Schedule");
+        setFormElement("name", "customRuleSchedule");
+        setFormElement("description", "Schedule for a custom rule");
+        clickLink("addPeriod");
+        clickButton("form:ok");
+        checkCheckbox("checkbox");
+        clickButton("schedule:delete");
+        SiteTestHelper.assertNoUserError(tester);
     }
 }

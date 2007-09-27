@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -39,6 +40,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
     private int m_position;
     private List<Gateway> m_gateways = new ArrayList<Gateway>();
     private transient PermissionManager m_permissionManager;
+    private Schedule m_schedule;
 
     public abstract String[] getPatterns();
 
@@ -82,6 +84,14 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
 
     public void setGateways(List<Gateway> gateways) {
         m_gateways = gateways;
+    }
+    
+    public Schedule getSchedule() {
+        return m_schedule;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        m_schedule = schedule;
     }
 
     public final List<Permission> getPermissions() {

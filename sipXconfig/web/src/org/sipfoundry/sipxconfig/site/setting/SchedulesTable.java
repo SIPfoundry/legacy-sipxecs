@@ -48,15 +48,14 @@ public abstract class SchedulesTable extends BaseComponent {
             return;
         }
 
-        List<Schedule> schedulesWithRings = getForwardingContext().deleteSchedulesById(ids);
-
-        if (schedulesWithRings != null && schedulesWithRings.size() > 0) {
-            List<String> scheduleWithRingsNames = new ArrayList<String>();
-            for (Schedule schedule : schedulesWithRings) {
-                scheduleWithRingsNames.add(schedule.getName());
+        List<Schedule> assignedSchedules = getForwardingContext().deleteSchedulesById(ids);
+        if (assignedSchedules != null && assignedSchedules.size() > 0) {
+            List<String> assignedSchedulesNames = new ArrayList<String>();
+            for (Schedule schedule : assignedSchedules) {
+                assignedSchedulesNames.add(schedule.getName());
             }
             String failures = getMessages().format("msg.failed.delete",
-                    StringUtils.join(scheduleWithRingsNames, ", "));
+                    StringUtils.join(assignedSchedulesNames, ", "));
             TapestryUtils.getValidator(getPage()).record(new ValidatorException(failures));
         } else {
             String msg = getMessages().format("msg.success.delete", Integer.toString(ids.size()));

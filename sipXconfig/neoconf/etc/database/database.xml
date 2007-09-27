@@ -231,6 +231,7 @@
     <antcall target="callforwardexternal" />
     <antcall target="domain-add-shared-secret" />
     <antcall target="gateway-port" />
+    <antcall target="schedules-per-dialing-rule" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="7" -->
   </target>
@@ -492,6 +493,10 @@
 
   <target name="gateway-port" unless="gateway-port">
     <db-patch patch="gateway-port" />
+  </target>
+
+  <target name="schedules-per-dialing-rule" unless="schedules-per-dialing-rule">
+    <db-patch patch="schedules-per-dialing-rule" />
   </target>
 
   <!-- 

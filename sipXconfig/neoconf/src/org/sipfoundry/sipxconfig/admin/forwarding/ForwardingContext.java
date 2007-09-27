@@ -50,4 +50,6 @@ public interface ForwardingContext extends AliasProvider {
     public List<UserGroupSchedule> getAllUserGroupSchedules();
 
     public List<Schedule> getAllAvailableSchedulesForUser(User user);
+    
+    public List<GeneralSchedule> getAllGeneralSchedules();
 }
