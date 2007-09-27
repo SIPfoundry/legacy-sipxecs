@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.dom4j.Element;
 
 /**
@@ -54,6 +55,14 @@ public class FullTransform extends Transform {
 
     public void setFieldParams(String... fieldParams) {
         m_fieldParams = fieldParams;
+    }
+
+    public void addFieldParams(String... fieldParams) {
+        if (m_fieldParams == null) {
+            setFieldParams(fieldParams);
+        } else {
+            m_fieldParams = (String[]) ArrayUtils.addAll(m_fieldParams, fieldParams);
+        }
     }
 
     public String[] getHeaderParams() {

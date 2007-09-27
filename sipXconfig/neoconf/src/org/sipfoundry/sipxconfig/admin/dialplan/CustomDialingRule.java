@@ -77,10 +77,9 @@ public class CustomDialingRule extends DialingRule {
             FullTransform transform = new FullTransform();
             transform.setUser(outPattern);
             if (getSchedule() != null) {
-                String[] fieldParams = {
-                    String.format(VALID_TIME_PARAM, getSchedule().calculateValidTime())
-                };
-                transform.setFieldParams(fieldParams);
+                String validTime = getSchedule().calculateValidTime();
+                String scheduleParam = String.format(VALID_TIME_PARAM, validTime);
+                transform.setFieldParams(scheduleParam);
             }
             transforms = new Transform[] {
                 transform
@@ -99,20 +98,15 @@ public class CustomDialingRule extends DialingRule {
         FullTransform transform = new FullTransform();
         transform.setHost(g.getGatewayAddress());
         transform.setUser(g.getCallPattern(pattern));
-        String validTime = "";
+        transform.addFieldParams(q.getSerial());
         if (getSchedule() != null) {
-            validTime = String.format(VALID_TIME_PARAM, getSchedule().calculateValidTime());
+            String validTime = getSchedule().calculateValidTime();
+            String scheduleParam = String.format(VALID_TIME_PARAM, validTime);
+            transform.addFieldParams(scheduleParam);
         }
-        String[] fieldParams = {
-            q.getSerial() + ";" + validTime
-        };
-        transform.setFieldParams(fieldParams);
         String route = g.getRoute();
         if (StringUtils.isNotBlank(route)) {
-            String[] headerParams = {
-                String.format(ROUTE_PATTERN, route)
-            };
-            transform.setHeaderParams(headerParams);
+            transform.setHeaderParams(String.format(ROUTE_PATTERN, route));
         }
         if (!g.getAddressTransport().equals(Gateway.AddressTransport.NONE)) {
             String transport = String.format("transport=%s", g.getAddressTransport().getName());

@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -36,7 +35,6 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
  * CustomDialingRuleTest
  */
 public class CustomDialingRuleTest extends TestCase {
-    private static final String VALID_TIME_PARAM = "sipx-ValidTime=%s";
     private static final int PATTERN_COUNT = 10;
     private static final String[] GATEWAYS = {
         "10.2.3.4", "10.4.5.6"
@@ -59,6 +57,7 @@ public class CustomDialingRuleTest extends TestCase {
     private Schedule m_schedule;
 
     protected void setUp() throws Exception {
+        // schedule corresponds to 1428:1464 interval
         m_schedule = new GeneralSchedule();
         m_schedule.setName("Custom schedule");
         WorkingHours[] hours = new WorkingHours[1];
@@ -73,8 +72,7 @@ public class CustomDialingRuleTest extends TestCase {
         hours[0].setDay(ScheduledDay.WEDNESDAY);
         wt.setWorkingHours(hours);
         wt.setEnabled(true);
-        m_schedule.setWorkingTime(wt);
-
+        m_schedule.setWorkingTime(wt);        
         DialPattern[] dialPatterns = new DialPattern[PATTERN_COUNT];
         for (int i = 0; i < dialPatterns.length; i++) {
             DialPattern p = new DialPattern();
@@ -98,7 +96,6 @@ public class CustomDialingRuleTest extends TestCase {
 
         m_rule.setEnabled(true);
         m_rule.setCallPattern(new CallPattern("999", CallDigits.VARIABLE_DIGITS));
-        m_rule.setSchedule(m_schedule);
     }
 
     public void testGetPatterns() {
@@ -117,7 +114,23 @@ public class CustomDialingRuleTest extends TestCase {
             assertTrue(transforms[i] instanceof FullTransform);
             FullTransform full = (FullTransform) transforms[i];
             assertTrue(full.getFieldParams()[0].startsWith("q="));
-            assertTrue(full.getFieldParams()[0].contains(getExpectedTime()));
+            assertNull(full.getHeaderParams());
+            assertEquals(GATEWAYADDRESSES[i], full.getHost());
+            assertEquals(full.getUrlParams()[0], "transport=udp");
+            assertTrue(full.getUser().startsWith(StringUtils.defaultString(PREFIXES[i]) + "999"));
+        }
+    }
+
+    public void testGetTransformsWithSchedule() {
+        m_rule.setSchedule(m_schedule);
+        Transform[] transforms = m_rule.getTransforms();
+        assertEquals(GATEWAYS.length, transforms.length);
+        for (int i = 0; i < GATEWAYS.length; i++) {
+            assertTrue(transforms[i] instanceof FullTransform);
+            FullTransform full = (FullTransform) transforms[i];
+            String[] fieldParams = full.getFieldParams();
+            assertTrue(fieldParams[0].startsWith("q="));
+            assertEquals("sipx-ValidTime=1428:1464", fieldParams[1]);
             assertNull(full.getHeaderParams());
             assertEquals(GATEWAYADDRESSES[i], full.getHost());
             assertEquals(full.getUrlParams()[0], "transport=udp");
@@ -144,6 +157,27 @@ public class CustomDialingRuleTest extends TestCase {
         rule.setDialPatterns(m_patternsList);
         rule.setEnabled(true);
         rule.setCallPattern(new CallPattern("999", CallDigits.VARIABLE_DIGITS));
+
+        String[] patterns = rule.getPatterns();
+        assertEquals(PATTERN_COUNT, patterns.length);
+        for (int i = 0; i < patterns.length; i++) {
+            String p = patterns[i];
+            assertTrue(p.startsWith("91"));
+        }
+
+        Transform[] transforms = rule.getTransforms();
+        assertEquals(1, transforms.length);
+        FullTransform tr = (FullTransform) transforms[0];
+        assertEquals("999{vdigits}", tr.getUser());
+        assertNull(tr.getFieldParams());
+        assertNull(tr.getHost());
+    }
+
+    public void testNoGatewaysWithSchedule() {
+        CustomDialingRule rule = new CustomDialingRule();
+        rule.setDialPatterns(m_patternsList);
+        rule.setEnabled(true);
+        rule.setCallPattern(new CallPattern("999", CallDigits.VARIABLE_DIGITS));
         rule.setSchedule(m_schedule);
 
         String[] patterns = rule.getPatterns();
@@ -157,7 +191,7 @@ public class CustomDialingRuleTest extends TestCase {
         assertEquals(1, transforms.length);
         FullTransform tr = (FullTransform) transforms[0];
         assertEquals("999{vdigits}", tr.getUser());
-        assertEquals(getExpectedTime(), tr.getFieldParams()[0]);
+        assertEquals("sipx-ValidTime=1428:1464", tr.getFieldParams()[0]);
         assertNull(tr.getHost());
     }
 
@@ -231,25 +265,5 @@ public class CustomDialingRuleTest extends TestCase {
         assertEquals(names.length, perms.size());
         assertTrue(perms.contains(permissions[0]));
         assertTrue(perms.contains(permissions[1]));
-    }
-
-    private String getExpectedTime() {
-        WorkingHours[] hours = m_schedule.getWorkingTime().getWorkingHours();
-
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        cal.setTime(hours[0].getStart());
-        Integer startHour = Integer.valueOf(cal.get(Calendar.HOUR_OF_DAY));
-        Integer startMinute = Integer.valueOf(cal.get(Calendar.MINUTE));
-        cal.setTime(hours[0].getStop());
-        Integer stopHour = Integer.valueOf(cal.get(Calendar.HOUR_OF_DAY));
-        Integer stopMinute = Integer.valueOf(cal.get(Calendar.MINUTE));
-
-        int offset = TimeZone.getDefault().getOffset((new Date()).getTime()) / 60000;
-        Integer minutesFromSunday = (hours[0].getDay().getDayOfWeek() - 1) * 24 * 60;
-        Integer startWithTimezone = minutesFromSunday + startHour * 60 + startMinute - offset;
-        Integer stopWithTimezone = minutesFromSunday + stopHour * 60 + stopMinute - offset;
-        String expected = Integer.toHexString(startWithTimezone) + ":"
-                + Integer.toHexString(stopWithTimezone);
-        return String.format(VALID_TIME_PARAM, expected);
     }
 }

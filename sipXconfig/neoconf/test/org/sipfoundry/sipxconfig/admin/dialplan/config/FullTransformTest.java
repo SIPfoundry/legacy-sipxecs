@@ -20,9 +20,7 @@ public class FullTransformTest extends TestCase {
         FullTransform ft = new FullTransform();
         ft.setUser("testuser");
         ft.setHost("testhost");
-        ft.setFieldParams(new String[] {
-            "fp1", "fp2"
-        });
+        ft.setFieldParams("fp1", "fp2");
         ft.setHeaderParams(new String[] {
             "hp1", "hp2"
         });
@@ -36,6 +34,23 @@ public class FullTransformTest extends TestCase {
         assertEquals("fp2", element.valueOf("fieldparams[2]"));
         assertEquals("hp1", element.valueOf("headerparams[1]"));
         assertEquals("hp2", element.valueOf("headerparams[2]"));
+    }
+
+    public void testAddFieldParams() {
+        FullTransform ft = new FullTransform();
+        ft.addFieldParams("fp1", "fp2");
+
+        String[] fp = ft.getFieldParams();
+        assertEquals(2, fp.length);
+        assertEquals("fp1", fp[0]);
+        assertEquals("fp2", fp[1]);
+
+        ft.addFieldParams("fp3");
+        fp = ft.getFieldParams();
+        assertEquals(3, fp.length);
+        assertEquals("fp1", fp[0]);
+        assertEquals("fp2", fp[1]);
+        assertEquals("fp3", fp[2]);
     }
 
     public void testAddChildrenEmpty() {
