@@ -4,9 +4,12 @@ INCLUDES = \
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
-TESTS = testsuite
+# These tests are split into multiple executables because the machinery
+# for setting up an alternative registration database can be executed
+# only once in an executable.
+TESTS = testsuite1 testsuite2
 
-check_PROGRAMS = testsuite sandbox
+check_PROGRAMS = testsuite1 testsuite2 sandbox
 
 testsuite_CXXFLAGS = @CPPUNIT_CFLAGS@ \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" \
@@ -16,8 +19,16 @@ testsuite_LDADD = \
    @SIPXCOMMSERVERTEST_LIBS@ \
    ../libsipXregistry.la
 
-testsuite_SOURCES = \
-    RegistrarPeerTest.cpp \
+testsuite1_CXXFLAGS = $(testsuite_CXXFLAGS)
+testsuite1_LDADD = $(testsuite_LDADD)
+
+testsuite1_SOURCES = \
+    RegistrarPeerTest.cpp
+
+testsuite2_CXXFLAGS = $(testsuite_CXXFLAGS)
+testsuite2_LDADD = $(testsuite_LDADD)
+
+testsuite2_SOURCES = \
     SipRegistrarServerTest.cpp
 
 EXTRA_DIST = \

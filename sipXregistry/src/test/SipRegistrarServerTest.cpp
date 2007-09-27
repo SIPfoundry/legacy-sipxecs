@@ -37,52 +37,29 @@ class SipRegistrarServerTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE_END();
 
 public:
-   SipRegistrarServerTest() :
-      mRegistrar(NULL)
-      {}
-
-   void testPullUpdates()
+   void setUp()
       {
          RegistrationDbTestContext testDbContext(TEST_DATA_DIR "/regdbdata",
                                                  TEST_WORK_DIR "/regdbdata"
                                                  );
          testDbContext.inputFile("updatesToPull.xml");
+      }
+
+   void testPullUpdates()
+      {
+         OsConfigDb configuration;
+
+         SipRegistrar registrar(&configuration);
 
          // Pull all updates with primary = R1 and updateNumber > 1.
          UtlSList updates;
-         int numUpdates = getRegistrarServer().pullUpdates(
+         int numUpdates = registrar.getRegistrarServer().pullUpdates(
             "R1",        // registrarName
             1,           // updateNumber -- pull only the updates with larger numbers
             updates);    // updates are returned in this list
 
          // Verify that the right updates got pulled.
          CPPUNIT_ASSERT_EQUAL(1, numUpdates);
-      }
-
-   // Create the registrar for testing, without starting the associated thread
-   void setUp()
-      {
-         // Create and initialize the registrar, but don't start it.
-         // For unit testing, we just need the registrar object, not the thread.
-         // This arrangement is wacky and we'll try to improve it in the future.
-         OsConfigDb configDb;        // empty configuration DB is OK
-         mRegistrar = SipRegistrar::getInstance(&configDb);
-
-         // The config was empty so replication is not configured
-         CPPUNIT_ASSERT(!mRegistrar->isReplicationConfigured());
-      }
-
-   void tearDown()
-      {
-         delete mRegistrar;
-      }
-   
-private:
-   SipRegistrar*      mRegistrar;
-
-   SipRegistrarServer& getRegistrarServer()
-      {
-         return mRegistrar->getRegistrarServer();
       }
 
 };
