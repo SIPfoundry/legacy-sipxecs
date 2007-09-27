@@ -77,6 +77,7 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    mRegistrarMsgQ(NULL),
    mRegistrarInitialSync(NULL),
    mRegistrarSync(NULL),
+   mRegisterEventServer(NULL),
    mRegistrarTest(NULL),
    mRegistrarPersist(NULL)
 {
@@ -176,8 +177,7 @@ void SipRegistrar::startupPhase()
 
    // Create and start the persist thread, before making any changes
    // to the registration DB.
-   mRegistrarPersist = new RegistrarPersist(*this);
-   mRegistrarPersist->start();
+   createAndStartPersist();
 
    if (mReplicationConfigured)
    {
@@ -215,6 +215,13 @@ void SipRegistrar::startupPhase()
 
    // Step (6) is not performed explicitly.  Instead, we allow the normal
    // operation of the RegistrarTest thread to do that processing.
+}
+
+/// Create and start the RegistrarPersist thread.
+void SipRegistrar::createAndStartPersist()
+{
+   mRegistrarPersist = new RegistrarPersist(*this);
+   mRegistrarPersist->start();
 }
 
 /// Launch all Operational Phase threads.

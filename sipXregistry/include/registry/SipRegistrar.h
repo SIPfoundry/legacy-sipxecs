@@ -51,6 +51,8 @@ class UtlSListIterator;
  */
 class SipRegistrar : public OsServerTask // should be SipServerBase ?
 {
+   friend class ApplyUpdatesTest;
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
@@ -94,6 +96,14 @@ public:
     void operationalPhase();
     /**<
      * Begins operation of the SipRegistrarServer and SipRedirectServer.
+     */
+
+    /// Create and start the RegistrarPersist thread.
+    void createAndStartPersist();
+    /**<
+     * Create the RegistrarPersist sub-task and start it.
+     * (This is a separate method so that it can be called by testing
+     * code.)
      */
 
     /// Read configuration for replication.
