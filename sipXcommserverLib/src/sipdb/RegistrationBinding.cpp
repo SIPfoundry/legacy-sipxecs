@@ -195,6 +195,7 @@ const UtlString* RegistrationBinding::getIdentity() const
 {
    return mIdentity;
 }
+
 void RegistrationBinding::setIdentity(const UtlString& identity)
 {
    if (mIdentity) 
@@ -370,30 +371,7 @@ void RegistrationBinding::setUpdateNumber(const UtlString& updateNumber)
    mUpdateNumber = strtoll(updateNumber, 0, 0);
 }
 
-
-// Hash on the AOR, call ID and cseq, which together uniquely identify a registration binding.
-// Returns the hash result.
-unsigned RegistrationBinding::hash() const
-{
-   // hash the 
-   UtlString url;
-   getUri()->toString(url);
-   unsigned int hashValue = url.hash();
-   hashValue += getCallId()->hash();
-   hashValue += static_cast<unsigned int>(getCseq());
-   return hashValue;
-}
-
 UtlContainableType RegistrationBinding::getContainableType() const
 {
    return RegistrationBinding::TYPE;
-}
-
-// Compare this object to another like-object.
-// The UtlContainable interface forces us to implement this method, but it's not
-// needed.  Include an assert to make sure that no one calls it.
-int RegistrationBinding::compareTo(UtlContainable const * compareContainable) const
-{
-   assert(false);
-   return 0;
 }

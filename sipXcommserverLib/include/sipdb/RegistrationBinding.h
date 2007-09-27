@@ -12,7 +12,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "utl/UtlContainable.h"
+#include "utl/UtlContainableAtomic.h"
 
 // DEFINES
 // MACROS
@@ -34,7 +34,7 @@ class UtlString;
  * The Registration class represents a SIP registration binding.
  * Let's treat bindings as well-defined objects rather than unstructured hash sets.
  */
-class RegistrationBinding : public UtlContainable
+class RegistrationBinding : public UtlContainableAtomic
 {
 public:
    /// Default constructor
@@ -87,13 +87,6 @@ public:
    void       setUpdateNumber(const UtlString& updateNumber);
 
 /* ========================= UtlContainable interface======================== */
-
-    /// Calculate a hash code for this object.
-    virtual unsigned hash() const;
-
-    /// Compare this object to another object. 
-    virtual int compareTo(UtlContainable const *) const;    
-
     /**
      * Get the ContainableType for the RegistrationBinding as a contained object.
      */
