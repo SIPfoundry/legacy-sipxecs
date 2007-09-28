@@ -34,13 +34,15 @@ import org.sipfoundry.sipxconfig.admin.BackupBean;
 import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.admin.BackupPlan;
 import org.sipfoundry.sipxconfig.admin.Restore;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
 public abstract class RestorePage extends UserBasePage implements PageBeginRenderListener {
-    public static final String NO_SCRIPT_FOUND = "message.noScriptFound";
-    public static final String SUCCESS = "message.label.success";
+    private static final String SUCCESS = "message.label.success";
+
+    private static final String MESSAGE = "message.";
 
     @InjectObject(value = "spring:adminContext")
     public abstract AdminContext getAdminContext();
@@ -108,9 +110,11 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
             return;
         }
 
-        if (!getRestore().perform(selectedBackups)) {
+        try {
+            getRestore().perform(selectedBackups);
+        } catch (UserException ex) {
             TapestryUtils.getValidator(getPage()).record(
-                    new ValidatorException(getMessages().getMessage(NO_SCRIPT_FOUND)));
+                    new ValidatorException(getMessages().getMessage(MESSAGE + ex.getMessage())));
             return;
         }
 
@@ -118,6 +122,7 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
     }
 
     public void uploadAndRestoreFiles() {
+        IValidationDelegate validator = TapestryUtils.getValidator(getPage());
         try {
             List<BackupBean> beans = new ArrayList<BackupBean>();
             BackupBean config;
@@ -136,20 +141,19 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
                 throw new ValidatorException(getMessages().getMessage("message.noFileToRestore"));
             }
 
-            if (!getRestore().perform(beans)) {
-                throw new ValidatorException(getMessages().getMessage(NO_SCRIPT_FOUND));
-            }
-
+            getRestore().perform(beans);
             TapestryUtils.recordSuccess(this, getMessages().getMessage(SUCCESS));
         } catch (ValidatorException e) {
-            IValidationDelegate validator = TapestryUtils.getValidator(getPage());
             validator.record(e);
+        } catch (UserException ex) {
+            validator.record(new ValidatorException(getMessages().getMessage(
+                    MESSAGE + ex.getMessage())));
         }
 
     }
 
     private BackupBean upload(IUploadFile uploadFile, String name, String msgWrongFile)
-        throws ValidatorException {
+            throws ValidatorException {
 
         if (uploadFile == null) {
             return null;

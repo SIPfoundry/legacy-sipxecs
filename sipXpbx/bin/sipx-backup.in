@@ -108,6 +108,17 @@ done
 CONFIG_BACKUP_TAR_FILE=$ARCHIVE_DIR/configuration.tar
 CONFIG_BACKUP_FILE=$CONFIG_BACKUP_TAR_FILE.gz
 VM_BACKUP_FILE=$ARCHIVE_DIR/voicemail.tar.gz
+VERSION_FILE_NAME=version
+
+# Initialize the version file
+SIPXCONFIG_VERSION=$(@SIPX_BINDIR@/sipxconfig-config --version)
+if [ $? -eq 0 ]
+then
+  echo $SIPXCONFIG_VERSION > $ARCHIVE_DIR/$VERSION_FILE_NAME
+else
+  # We couldn't get a the version, so we create an empty version file
+  touch $ARCHIVE_DIR/$VERSION_FILE_NAME
+fi
 
 # *** BEGIN Configuration ***
 if [ "$CONFIGURATION" = "yes" ]
@@ -155,7 +166,7 @@ then
 
   # Configuration files.
   echo -n "Copying configuration files... "
-  tar cC / $ExistingBackupFiles > $CONFIG_BACKUP_TAR_FILE
+  tar cC / $ExistingBackupFiles -C $ARCHIVE_DIR $VERSION_FILE_NAME > $CONFIG_BACKUP_TAR_FILE
   echo "done."
 
   # Configuration database.
@@ -187,9 +198,10 @@ then
 
   # Copy the files.
   echo -n "Copying voicemail files... "
-  tar cC / $Files | gzip --best > $VM_BACKUP_FILE
+  tar cC / $Files -C $ARCHIVE_DIR $VERSION_FILE_NAME | gzip --best > $VM_BACKUP_FILE
   echo "done."
 
 fi # *** END Voicemail ***
 
-
+#remove version file
+rm -f $ARCHIVE_DIR/$VERSION_FILE_NAME

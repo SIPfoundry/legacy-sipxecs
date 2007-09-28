@@ -17,6 +17,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.common.UserException;
 
 /**
  * Interface to command line restore utility
@@ -29,17 +30,25 @@ public class Restore {
 
     private static final String RESTORE_BINARY = "sipx-sudo-restore";
 
+    private static final String SPACE = " ";
+
+    private static final int INCOMPATIBLE_VERSIONS = 5;
+
     private String m_binDirectory;
 
-    public boolean perform(List<BackupBean> backups) {
+    public void perform(List<BackupBean> backups) {
         String[] cmdLine = getCmdLine(backups);
         try {
-            Runtime runtime = Runtime.getRuntime();
-            runtime.exec(cmdLine);
-            return true;
+            Process process = Runtime.getRuntime().exec(cmdLine);
+            int code = process.waitFor();
+            if (code == INCOMPATIBLE_VERSIONS) {
+                throw new UserException("wrongVersion");
+            }
         } catch (IOException e) {
-            LOG.error(String.format(ERROR, StringUtils.join(cmdLine, " ")));
-            return false;
+            LOG.error(String.format(ERROR, StringUtils.join(cmdLine, SPACE)));
+            throw new UserException("noScriptFound");
+        } catch (InterruptedException e) {
+            LOG.warn(String.format(ERROR, StringUtils.join(cmdLine, SPACE)));
         }
     }
 
@@ -53,6 +62,7 @@ public class Restore {
             cmds.add(backup.getPath());
         }
         cmds.add("--non-interactive");
+        cmds.add("--enforce-version");
         return cmds.toArray(new String[cmds.size()]);
     }
 

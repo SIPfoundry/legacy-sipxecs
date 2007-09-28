@@ -3,6 +3,8 @@
 OPERATION="Restore"
 source @SIPX_BINDIR@/sipx-archive-common
 
+CHECK_VERSION="no"
+
 # Look for the INTERACTIVE flag first, before processing any other command-line arguments.
 INTERACTIVE="yes"
 for arg in "$@"
@@ -40,6 +42,7 @@ usage() {
   echo "                                 to sipx-restore.log."
   echo "   -c|--configuration <archive>  Restore the specified Configuration archive."
   echo "   -v|--voicemail <archive>      Restore the specified voicemail archive."
+  echo "   -e|--enforce-version          Verify the version number."
   echo
 }
 
@@ -95,6 +98,10 @@ do
       fi
       ;;
 
+    -e|--enforce-version)
+      CHECK_VERSION="yes"
+      ;;
+
     *)
       echo "Unknown option: ${1}"
       bad_usage
@@ -114,6 +121,42 @@ fi
 if [ -n "$CONFIGURATION_PATH" ]
 then
   postgresql_running
+fi
+
+# Check the version
+if [ CHECK_VERSION="yes" ]
+then
+  # Get the current sipxconfig version
+  CURRENT_VERSION=$(@SIPX_BINDIR@/sipxconfig-config --version | awk -F'-' '{ print $1 ;}')
+
+  # If a configuration backup is specified
+  if [ -n "$CONFIGURATION_PATH" ]
+  then
+    # Extract the version file (to current directory)
+    tar --extract --file=$CONFIGURATION_PATH version
+    ARCHIVED_VERSION=$(cat version | awk -F'-' '{ print $1 ;}')
+    # Remove the version file
+    rm -f version
+    if [ "$ARCHIVED_VERSION" != "$CURRENT_VERSION" ]
+    then
+      echo "Current version ($CURRENT_VERSION) is different than the backed-up version ($ARCHIVED_VERSION)"
+      exit 5
+    fi
+  fi
+
+  # If a voicemail backup is specified
+  if [ -n "$VOICEMAIL_PATH" ]
+  then
+    tar --extract --file=$VOICEMAIL_PATH version
+    ARCHIVED_VERSION=$(cat version | awk -F'-' '{ print $1 ;}')
+    # Remove the version file
+    rm -f version
+    if [ "$ARCHIVED_VERSION" != "$CURRENT_VERSION" ]
+    then
+      echo "Current version ($CURRENT_VERSION) is different than the backed-up version ($ARCHIVED_VERSION)"
+      exit 5
+    fi
+  fi
 fi
 
 # Stop all services.  After this point, the script MUST NOT exit without
@@ -154,4 +197,3 @@ fi # *** END Voicemail ***
 
 # Start all services.
 /bin/bash -p @SIPX_CONFDIR@/../init.d/sipxpbx start
-

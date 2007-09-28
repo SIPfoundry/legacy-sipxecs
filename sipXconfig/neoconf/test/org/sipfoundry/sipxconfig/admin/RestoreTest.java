@@ -31,7 +31,7 @@ public class RestoreTest extends TestCase {
 
         String cmdLine = StringUtils.join(restore.getCmdLine(list), ' ');
         assertEquals(restore.getBinDirectory() + "/sipx-sudo-restore -c " + conf.getAbsolutePath()
-                + " --non-interactive", cmdLine);
+                + " --non-interactive --enforce-version", cmdLine);
 
         File voicemail = new File("path_to_mailstore_backup", BackupPlan.VOICEMAIL_ARCHIVE);
         BackupBean voicemailBackupBean = new BackupBean(voicemail);
@@ -40,7 +40,7 @@ public class RestoreTest extends TestCase {
         cmdLine = StringUtils.join(restore.getCmdLine(list), ' ');
         assertEquals(restore.getBinDirectory() + "/sipx-sudo-restore -c "
                 + conf.getAbsolutePath() + " -v " + voicemail.getAbsolutePath()
-                + " --non-interactive", cmdLine);
+                + " --non-interactive --enforce-version", cmdLine);
 
     }
 }
