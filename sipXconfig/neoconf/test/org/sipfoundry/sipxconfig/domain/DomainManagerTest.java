@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class DomainManagerTest extends TestCase {
-    
+
     public void testSaveDomain() {
         Domain domain = new Domain("goose");
 
@@ -30,18 +30,18 @@ public class DomainManagerTest extends TestCase {
         server.setRegistrarDomainAliases(null);
         server.applySettings();
         serverControl.replay();
-        
+
         IMocksControl dbControl = org.easymock.classextension.EasyMock.createControl();
         HibernateTemplate db = dbControl.createMock(HibernateTemplate.class);
         db.findByNamedQuery("domain");
         dbControl.andReturn(Collections.EMPTY_LIST);
-        db.saveOrUpdate(domain);        
+        db.saveOrUpdate(domain);
         dbControl.replay();
-        
+
         // TEST DELETE EXISTING
         DomainManagerImpl mgr = new DomainManagerImpl();
-        mgr.setDomainConfiguration(new DomainConfiguration(){
-            public void generate(Domain domain) {
+        mgr.setDomainConfiguration(new DomainConfiguration() {
+            public void generate(Domain d) {
                 // do nothing
             }
         });
@@ -62,13 +62,13 @@ public class DomainManagerTest extends TestCase {
         serverControl.reset();
         server.setDomainName("goose");
         server.setRegistrarDomainAliases(null);
-        server.applySettings();        
+        server.applySettings();
         serverControl.replay();
-        
+
         dbControl.reset();
-        db.saveOrUpdate(domain);        
+        db.saveOrUpdate(domain);
         dbControl.replay();
-        
+
         mgr.saveDomain(domain);
 
         dbControl.verify();

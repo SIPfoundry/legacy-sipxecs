@@ -250,9 +250,8 @@ public class User extends BeanWithGroups implements NamedObject {
     protected Setting loadSettings() {
         if (m_permissionManager != null) {
             return m_permissionManager.getPermissionModel();
-        } else {
-            return null;
         }
+        return null;
     }
 
     public List getAliasMappings(String domainName) {
@@ -314,7 +313,7 @@ public class User extends BeanWithGroups implements NamedObject {
     public void setSupervisorForGroups(Set<Group> supervisorForGroups) {
         m_supervisorForGroups = supervisorForGroups;
     }
-    
+
     public void clearSupervisorForGroups() {
         if (m_supervisorForGroups != null) {
             m_supervisorForGroups.clear();
@@ -323,7 +322,8 @@ public class User extends BeanWithGroups implements NamedObject {
 
     public void addSupervisorForGroup(Group group) {
         if (group.isNew()) {
-            throw new RuntimeException("Group needs to be saved before it can be added to the set.");
+            throw new RuntimeException(
+                    "Group needs to be saved before it can be added to the set.");
         }
         if (m_supervisorForGroups == null) {
             m_supervisorForGroups = new HashSet();

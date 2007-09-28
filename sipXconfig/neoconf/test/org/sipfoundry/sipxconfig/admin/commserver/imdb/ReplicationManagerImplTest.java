@@ -31,8 +31,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.AttendantScheduleFile;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
-import com.thoughtworks.xstream.io.xml.DocumentReader;
-
 public class ReplicationManagerImplTest extends TestCase {
     public ReplicationManagerImplTest() {
         XMLUnit.setIgnoreWhitespace(true);
@@ -40,10 +38,11 @@ public class ReplicationManagerImplTest extends TestCase {
 
     public void testPostData() throws Exception {
         Document repDoc = XmlUnitHelper.loadDocument(getClass(), "replication.xml");
-        final String data =  XmlUnitHelper.asString(repDoc);
-        
+        final String data = XmlUnitHelper.asString(repDoc);
+
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        InputStream is = new ByteArrayInputStream("replication was successful".getBytes("US-ASCII"));        
+        InputStream is = new ByteArrayInputStream("replication was successful"
+                .getBytes("US-ASCII"));
 
         IMocksControl control = EasyMock.createControl();
         final HttpURLConnection urlConnection = control.createMock(MockHttpURLConnection.class);
@@ -59,7 +58,7 @@ public class ReplicationManagerImplTest extends TestCase {
         urlConnection.getResponseMessage();
         control.andReturn("");
         urlConnection.getHeaderField("ErrorInReplication");
-        control.andReturn("");        
+        control.andReturn("");
         control.replay();
 
         ReplicationManagerImpl impl = new ReplicationManagerImpl() {
@@ -69,7 +68,7 @@ public class ReplicationManagerImplTest extends TestCase {
         };
 
         assertTrue(impl.postData("http://bongo.com/replication.cgi", data.getBytes("UTF-8")));
-                
+
         XMLAssert.assertXMLEqual(XmlUnitHelper.asString(repDoc), new String(os.toByteArray()));
         control.verify();
     }
@@ -80,7 +79,8 @@ public class ReplicationManagerImplTest extends TestCase {
             15, 7, 123, -127, 126, 0
         };
 
-        Document document = impl.generateXMLDataToPost(data, DataSet.EXTENSION.getName(), "database");
+        Document document = impl.generateXMLDataToPost(data, DataSet.EXTENSION.getName(),
+                "database");
 
         org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
 
@@ -95,20 +95,21 @@ public class ReplicationManagerImplTest extends TestCase {
 
         SimpleXpathEngine simpleXpathEngine = new SimpleXpathEngine();
         String payload = simpleXpathEngine.evaluate("/replicationdata/data/payload", domDoc);
-        for(int i = 0; i < data.length; i++) {            
+        for (int i = 0; i < data.length; i++) {
             assertEquals(data[i], Base64.decodeBase64(payload.getBytes("US-ASCII"))[i]);
         }
     }
-    
+
     public void testReplicateFile() throws Exception {
         final Document testDoc = XmlUnitHelper.loadDocument(getClass(), "replication.test.xml");
-        
-        // this may be slightly ugly.  overriding all methods used internally by 
+
+        // this may be slightly ugly. overriding all methods used internally by
         // replicateFile in order to focus testing on that method
-        ReplicationManager out = new ReplicationManagerImpl(){
+        ReplicationManager out = new ReplicationManagerImpl() {
             boolean postData(String url, byte[] xmlData) throws IOException {
                 return true;
             }
+
             Document generateXMLDataToPost(byte[] payload, String targetDataName, String dataType) {
                 assertEquals(ConfigFileType.ATTENDANT_SCHEDULE.getName(), targetDataName);
                 assertEquals("file", "file");
@@ -122,10 +123,10 @@ public class ReplicationManagerImplTest extends TestCase {
                 return testDoc;
             }
         };
-        
+
         Location location = new Location();
-        
-        XmlFile xmlFile = new AttendantScheduleFile(){
+
+        XmlFile xmlFile = new AttendantScheduleFile() {
             public Document getDocument() {
                 try {
                     return XmlUnitHelper.loadDocument(getClass(), "replication.test.xml");
@@ -135,10 +136,12 @@ public class ReplicationManagerImplTest extends TestCase {
                 }
             }
         };
-        
-        out.replicateFile(new Location[] {location}, xmlFile);
+
+        out.replicateFile(new Location[] {
+            location
+        }, xmlFile);
     }
-    
+
     private static class MockHttpURLConnection extends HttpURLConnection {
         public MockHttpURLConnection() throws Exception {
             super(new URL("http://test"));

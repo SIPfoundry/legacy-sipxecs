@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 
 public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
-    
+
     // do not reference m_server, see note in spring file
     private SipxServer m_server;
     private DomainConfiguration m_domainConfiguration;
@@ -37,15 +37,15 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     public DomainConfiguration getDomainConfiguration() {
         return m_domainConfiguration;
     }
-    
+
     public void setDomainConfiguration(DomainConfiguration domainConfiguration) {
         m_domainConfiguration = domainConfiguration;
     }
-    
+
     public void setReplicationContext(SipxReplicationContext context) {
         m_replicationContext = context;
-    }  
-    
+    }
+
     /**
      * @return non-null unless test environment
      */
@@ -57,7 +57,7 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
 
         return domain;
     }
-    
+
     public void saveDomain(Domain domain) {
         if (domain.isNew()) {
             Domain existing = getExistingDomain();
@@ -66,20 +66,19 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
             }
         }
         getHibernateTemplate().saveOrUpdate(domain);
-        
+
         getServer().setDomainName(domain.getName());
         getServer().setRegistrarDomainAliases(domain.getAliases());
         getServer().applySettings();
-        
+
         // replicate domain config
         m_domainConfiguration.generate(domain);
         m_replicationContext.replicate(m_domainConfiguration);
     }
-    
+
     private Domain getExistingDomain() {
         Collection<Domain> domains = getHibernateTemplate().findByNamedQuery("domain");
-        Domain domain = (Domain) DaoUtils.<Domain>requireOneOrZero(domains, "named query: domain");
-        return domain;        
+        return DaoUtils.<Domain> requireOneOrZero(domains, "named query: domain");
     }
 
     public List<DialingRule> getDialingRules() {
@@ -87,9 +86,9 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         Domain d = getDomain();
         if (d.hasAliases()) {
             DialingRule domainRule = new DomainDialingRule(getDomain());
-            rules = Collections.<DialingRule>singletonList(domainRule);
+            rules = Collections.<DialingRule> singletonList(domainRule);
         } else {
-            rules = Collections.<DialingRule>emptyList();
+            rules = Collections.<DialingRule> emptyList();
         }
         return rules;
     }

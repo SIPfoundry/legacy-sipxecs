@@ -76,7 +76,7 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
 
     public void generateAll() {
         for (Iterator<DataSet> i = DataSet.iterator(); i.hasNext();) {
-            DataSet dataSet = (DataSet) i.next();
+            DataSet dataSet = i.next();
             generate(dataSet);
         }
     }
@@ -111,7 +111,7 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
             return "";
         }
     }
-    
+
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
@@ -129,7 +129,7 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
             InputStream stream = getTopologyAsStream();
             Digester digester = new LocationDigester();
             Collection<Location> locations = (Collection) digester.parse(stream);
-            m_locations = (Location[]) locations.toArray(new Location[locations.size()]);
+            m_locations = locations.toArray(new Location[locations.size()]);
         } catch (FileNotFoundException e) {
             // When running in a test environment, the topology file will not be found
             // set to empty array so that we do not have to parse again
