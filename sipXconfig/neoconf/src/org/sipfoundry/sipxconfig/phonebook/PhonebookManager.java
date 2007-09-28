@@ -11,10 +11,11 @@ package org.sipfoundry.sipxconfig.phonebook;
 
 import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.common.User;
 
 
-public interface PhonebookManager  {
+public interface PhonebookManager extends DataObjectSource<Phonebook> {
     public static final String CONTEXT_BEAN_NAME = "phonebookManager";
     
     public Collection<Phonebook> getPhonebooks();
