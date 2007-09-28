@@ -57,22 +57,21 @@ public class CustomDialingRuleTest extends TestCase {
     private Schedule m_schedule;
 
     protected void setUp() throws Exception {
-        // schedule corresponds to 1428:1464 interval
         m_schedule = new GeneralSchedule();
         m_schedule.setName("Custom schedule");
         WorkingHours[] hours = new WorkingHours[1];
         WorkingTime wt = new WorkingTime();
         hours[0] = new WorkingHours();
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        cal.set(2006, Calendar.DECEMBER, 31, 10, 00);
+        cal.set(2006, Calendar.DECEMBER, 31, 10, 12);
         hours[0].setStart(cal.getTime());
-        cal.set(2006, Calendar.DECEMBER, 31, 11, 00);
+        cal.set(2006, Calendar.DECEMBER, 31, 11, 88);
         hours[0].setStop(cal.getTime());
         hours[0].setEnabled(true);
         hours[0].setDay(ScheduledDay.WEDNESDAY);
         wt.setWorkingHours(hours);
         wt.setEnabled(true);
-        m_schedule.setWorkingTime(wt);        
+        m_schedule.setWorkingTime(wt);
         DialPattern[] dialPatterns = new DialPattern[PATTERN_COUNT];
         for (int i = 0; i < dialPatterns.length; i++) {
             DialPattern p = new DialPattern();
@@ -113,7 +112,9 @@ public class CustomDialingRuleTest extends TestCase {
         for (int i = 0; i < GATEWAYS.length; i++) {
             assertTrue(transforms[i] instanceof FullTransform);
             FullTransform full = (FullTransform) transforms[i];
-            assertTrue(full.getFieldParams()[0].startsWith("q="));
+            String[] fieldParams = full.getFieldParams();
+            assertEquals(1, fieldParams.length);
+            assertTrue(fieldParams[0].startsWith("q="));
             assertNull(full.getHeaderParams());
             assertEquals(GATEWAYADDRESSES[i], full.getHost());
             assertEquals(full.getUrlParams()[0], "transport=udp");
@@ -129,8 +130,9 @@ public class CustomDialingRuleTest extends TestCase {
             assertTrue(transforms[i] instanceof FullTransform);
             FullTransform full = (FullTransform) transforms[i];
             String[] fieldParams = full.getFieldParams();
+            assertEquals(2, fieldParams.length);
             assertTrue(fieldParams[0].startsWith("q="));
-            assertEquals("sipx-ValidTime=1428:1464", fieldParams[1]);
+            assertTrue(fieldParams[1].startsWith("sipx-ValidTime="));
             assertNull(full.getHeaderParams());
             assertEquals(GATEWAYADDRESSES[i], full.getHost());
             assertEquals(full.getUrlParams()[0], "transport=udp");
@@ -191,7 +193,8 @@ public class CustomDialingRuleTest extends TestCase {
         assertEquals(1, transforms.length);
         FullTransform tr = (FullTransform) transforms[0];
         assertEquals("999{vdigits}", tr.getUser());
-        assertEquals("sipx-ValidTime=1428:1464", tr.getFieldParams()[0]);
+        String[] fieldParams = tr.getFieldParams();
+        assertTrue(fieldParams[0].startsWith("sipx-ValidTime="));
         assertNull(tr.getHost());
     }
 
