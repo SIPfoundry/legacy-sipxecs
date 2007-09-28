@@ -127,7 +127,7 @@ fi
 if [ CHECK_VERSION="yes" ]
 then
   # Get the current sipxconfig version
-  CURRENT_VERSION=$(@SIPX_BINDIR@/sipxconfig-config --version | awk -F'-' '{ print $1 ;}')
+  CURRENT_VERSION=$(@SIPX_BINDIR@/sipxpbx-config --version | awk -F'-' '{ print $1 ;}')
 
   # If a configuration backup is specified
   if [ -n "$CONFIGURATION_PATH" ]
