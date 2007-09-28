@@ -220,7 +220,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     private boolean isNameInUse(Schedule schedule) {
-        String query = "";
+        String query = null;
         Integer entityId = null;
         if (schedule instanceof UserSchedule) {
             query = "anotherUserScheduleWithTheSameName";
@@ -228,6 +228,9 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         } else if (schedule instanceof UserGroupSchedule) {
             query = "anotherUserGroupScheduleWithTheSameName";
             entityId = schedule.getUserGroup().getId();
+        }
+        if (query == null) {
+            return false;
         }
         List count = getHibernateTemplate().findByNamedQueryAndNamedParam(query, new String[] {
             ID, NAME
