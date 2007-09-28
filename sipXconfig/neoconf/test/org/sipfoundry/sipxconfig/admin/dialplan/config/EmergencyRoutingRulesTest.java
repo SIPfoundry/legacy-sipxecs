@@ -36,6 +36,7 @@ public class EmergencyRoutingRulesTest extends XMLTestCase {
 
         Gateway g2 = new Gateway();
         g2.setAddress("10.1.2.1");
+        g2.setAddressPort(9000);
         g2.setUniqueId();
         RoutingException e2 = new RoutingException("623124234, 723125344, 8354234, 422344234",
                 "911", g2);
@@ -43,6 +44,8 @@ public class EmergencyRoutingRulesTest extends XMLTestCase {
 
         Gateway g3 = new Gateway();
         g3.setAddress("xxx.yyy.com");
+        g3.setAddressPort(5060);
+        g3.setAddressTransport(Gateway.AddressTransport.TCP);
         g3.setUniqueId();
         RoutingException e3 = new RoutingException("523124234", "922", g3);
         e3.setUniqueId();
@@ -55,6 +58,7 @@ public class EmergencyRoutingRulesTest extends XMLTestCase {
         Gateway g4 = new Gateway();
         g4.setUniqueId();
         g4.setAddress("10.2.3.4");
+        g4.setAddressTransport(Gateway.AddressTransport.NONE);
         m_routing.setDefaultGateway(g4);
         m_routing.setExternalNumber("919");
     }

@@ -117,8 +117,16 @@ SosCGI::parseMappingFile(const UtlString& mapFile)
                       TiXmlNode *routeNode = groupNode->FirstChild("transform");
                       UtlString userName = ((routeNode->FirstChild("user"))->FirstChild())->Value();
                       UtlString hostName = ((routeNode->FirstChild("host"))->FirstChild())->Value();
-
-                      mSosUrl = userName + "@" + hostName;
+                      TiXmlNode *urlParamsNode = routeNode->FirstChild("urlparams");
+                      if (urlParamsNode != NULL)
+                      {
+                         UtlString urlParams = urlParamsNode->FirstChild()->Value();
+                         mSosUrl = "&lt;sip:" + userName + "@" + hostName + ";" + urlParams + "&gt;";
+                      }
+                      else
+                      {
+                         mSosUrl = userName + "@" + hostName;
+                      }
                       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                     "SosCGI - parseMappingFile:: Found the device %s and use url %s\n", mFrom.data(), mSosUrl.data());
 
@@ -135,9 +143,16 @@ SosCGI::parseMappingFile(const UtlString& mapFile)
           TiXmlNode *routeNode = defaultGroupNode->FirstChild("transform");
           UtlString userName = ((routeNode->FirstChild("user"))->FirstChild())->Value();
           UtlString hostName = ((routeNode->FirstChild("host"))->FirstChild())->Value();
-
-          
-          mSosUrl = userName + "@" + hostName;
+          TiXmlNode *urlParamsNode = routeNode->FirstChild("urlparams");
+          if (urlParamsNode != NULL)
+          {
+             UtlString urlParams = urlParamsNode->FirstChild()->Value();
+             mSosUrl = "&lt;sip:" + userName + "@" + hostName + ";" + urlParams + "&gt;";
+          }
+          else
+          {
+             mSosUrl = userName + "@" + hostName;
+          }
           OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                         "SosCGI - using default url = %s\n", mSosUrl.data());
 

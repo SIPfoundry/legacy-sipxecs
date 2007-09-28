@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.Permission;
 
@@ -37,6 +38,7 @@ public class EmergencyRuleTest extends TestCase {
         Gateway g2 = new Gateway();
         g2.setAddress("sosgateway2.com");
         g2.setAddressPort(0);
+        g2.setAddressTransport(Gateway.AddressTransport.NONE);
         g2.setPrefix("4321");
         m_rule.setGateways(Arrays.asList(new Gateway[] {
             g1, g2
@@ -54,10 +56,17 @@ public class EmergencyRuleTest extends TestCase {
     public void testGetTransforms() {
         Transform[] transforms = m_rule.getTransforms();
         assertEquals(2, transforms.length);
-        UrlTransform emergencyTransform = (UrlTransform) transforms[0];
-        assertEquals("<sip:911@sosgateway1.com:4000>;q=0.933", emergencyTransform.getUrl());
-        emergencyTransform = (UrlTransform) transforms[1];
-        assertEquals("<sip:4321911@sosgateway2.com>;q=0.867", emergencyTransform.getUrl());
+        FullTransform emergencyTransform = (FullTransform) transforms[0];
+        assertEquals("911", emergencyTransform.getUser());
+        assertEquals("sosgateway1.com:4000", emergencyTransform.getHost());
+        assertEquals("transport=udp", emergencyTransform.getUrlParams()[0]);
+        assertEquals("q=0.933", emergencyTransform.getFieldParams()[0]);
+
+        emergencyTransform = (FullTransform) transforms[1];
+        assertEquals("4321911", emergencyTransform.getUser());
+        assertEquals("sosgateway2.com", emergencyTransform.getHost());
+        assertNull(emergencyTransform.getUrlParams());
+        assertEquals("q=0.867", emergencyTransform.getFieldParams()[0]);
     }
 
     public void testCallerSensitiveForwarding() {

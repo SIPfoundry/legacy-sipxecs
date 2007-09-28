@@ -50,6 +50,19 @@ public class GatewayTest extends TestCase {
         assertEquals("example.com:5070", gateway.getGatewayAddress());
     }
 
+    public void testGetGatewayTransportUrlParams() {
+        Gateway gateway = new Gateway();
+        gateway.setPrefix("99");
+        gateway.setAddress("example.com");
+        assertEquals("transport=udp", gateway.getGatewayTransportUrlParam());
+
+        gateway.setAddressTransport(Gateway.AddressTransport.TCP);
+        assertEquals("transport=tcp", gateway.getGatewayTransportUrlParam());
+
+        gateway.setAddressTransport(Gateway.AddressTransport.NONE);
+        assertNull(gateway.getGatewayTransportUrlParam());
+    }
+
     public void testPorts() {
         GatewayModel model = new GatewayModel();
         model.setMaxPorts(2);

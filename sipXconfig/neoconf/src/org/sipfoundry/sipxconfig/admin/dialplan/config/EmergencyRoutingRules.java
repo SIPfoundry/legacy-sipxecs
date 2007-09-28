@@ -43,7 +43,9 @@ public class EmergencyRoutingRules extends XmlFile {
         if (defaultGateway != null) {
             String externalNumber = er.getExternalNumber();
             String address = defaultGateway.getGatewayAddress();
-            generateTransform(defaultMatch, externalNumber, address);
+            String transport = defaultGateway.getGatewayTransportUrlParam();
+
+            generateTransform(defaultMatch, externalNumber, address, transport);
         }
         Collection exceptions = er.getExceptions();
         for (Iterator i = exceptions.iterator(); i.hasNext();) {
@@ -62,6 +64,7 @@ public class EmergencyRoutingRules extends XmlFile {
      *      <transform>
      *          <user>911</user>
      *          <host>10.1.2.1</host>
+     *          <urlparams>transport="transport"</urlparams>
      *      </transform>
      *  </userMatch>
      * </code>
@@ -80,8 +83,9 @@ public class EmergencyRoutingRules extends XmlFile {
         Gateway gateway = exception.getGateway();
         if (gateway != null) {
             String address = gateway.getGatewayAddress();
+            String transport = gateway.getGatewayTransportUrlParam();
             String externalNumber = exception.getExternalNumber();
-            generateTransform(userMatch, externalNumber, address);
+            generateTransform(userMatch, externalNumber, address, transport);
         }
     }
 
@@ -92,6 +96,7 @@ public class EmergencyRoutingRules extends XmlFile {
      *      <transform>
      *          <user>externalNumber</user>
      *          <host>address</host>
+     *          <urlparams>transport="transport"</urlparams>
      *      </transform>
      * </code>
      * 
@@ -99,12 +104,16 @@ public class EmergencyRoutingRules extends XmlFile {
      * @param externalNumber
      * @param address
      */
-    private void generateTransform(Element userMatch, String externalNumber, String address) {
+    private void generateTransform(Element userMatch, String externalNumber, String address, String transport) {
         Element transform = userMatch.addElement("transform");
         Element user = transform.addElement("user");
         user.setText(externalNumber);
         Element host = transform.addElement("host");
         host.setText(address);
+        if (transport != null) {
+            Element urlParams = transform.addElement("urlparams");
+            urlParams.setText(transport);
+        }
     }
 
     /**

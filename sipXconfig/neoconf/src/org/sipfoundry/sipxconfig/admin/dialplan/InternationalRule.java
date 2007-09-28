@@ -50,9 +50,8 @@ public class InternationalRule extends DialingRule {
             FullTransform transform = new FullTransform();
             transform.setUser(gateway.getCallPattern(user));
             transform.setHost(gateway.getGatewayAddress());
-            if (!gateway.getAddressTransport().equals(Gateway.AddressTransport.NONE)) {
-                String transport = String.format("transport=%s", gateway.getAddressTransport()
-                        .getName());
+            String transport = gateway.getGatewayTransportUrlParam();
+            if (transport != null) {
                 transform.setUrlParams(transport);
             }
             String[] fieldParams = new String[] {

@@ -14,9 +14,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer.Operation;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
-import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
@@ -47,12 +47,17 @@ public class EmergencyRule extends DialingRule {
         List<Transform> transforms = new ArrayList<Transform>(gateways.size());
         ForkQueueValue q = new ForkQueueValue(gateways.size());
         for (Gateway gateway : gateways) {
-            String user = gateway.getCallPattern(m_emergencyNumber);
-            String url = SipUri
-                    .format(user, gateway.getAddress(), gateway.getAddressPort(), true)
-                    + ";" + q.getSerial();
-            UrlTransform transform = new UrlTransform();
-            transform.setUrl(url);
+            FullTransform transform = new FullTransform();
+            transform.setUser(gateway.getCallPattern(m_emergencyNumber));
+            transform.setHost(gateway.getGatewayAddress());
+            String transport = gateway.getGatewayTransportUrlParam();
+            if (transport != null) {
+                transform.setUrlParams(transport);
+            }
+            String[] fieldParams = new String[] {
+                q.getSerial()
+            };
+            transform.setFieldParams(fieldParams);
             transforms.add(transform);
         }
         return transforms.toArray(new Transform[transforms.size()]);

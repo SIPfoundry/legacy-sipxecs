@@ -13,6 +13,7 @@
         <transform>
             <user>9911</user>
             <host>47.1.2.22</host>
+            <urlparams>transport=udp</urlparams>
         </transform>
     </userMatch>
     <userMatch>
@@ -22,14 +23,16 @@
         <userPattern>422344234@domain.com</userPattern>
         <transform>
             <user>911</user>
-            <host>10.1.2.1</host>
+            <host>10.1.2.1:9000</host>
+            <urlparams>transport=udp</urlparams>
         </transform>
     </userMatch>
     <userMatch>
         <userPattern>523124234@domain.com</userPattern>
         <transform>
             <user>922</user>
-            <host>xxx.yyy.com</host>
+            <host>xxx.yyy.com:5060</host>
+            <urlparams>transport=tcp</urlparams>
         </transform>
     </userMatch>
 </mappings>

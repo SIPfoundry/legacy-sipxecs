@@ -175,6 +175,16 @@ public class Gateway extends Device implements NamedObject {
     }
 
     /**
+     * Used to obtain transport URL parameter for the gateway
+     */
+    public String getGatewayTransportUrlParam() {
+        if (getAddressTransport().equals(Gateway.AddressTransport.NONE)) {
+            return null;
+        }
+        return String.format("transport=%s", getAddressTransport().getName());
+    }
+
+    /**
      * Used to set header parameter route in fallback rules when generating rules for this
      * gateway.
      */

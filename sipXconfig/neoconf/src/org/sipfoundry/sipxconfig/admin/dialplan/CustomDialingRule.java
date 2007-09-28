@@ -108,8 +108,8 @@ public class CustomDialingRule extends DialingRule {
         if (StringUtils.isNotBlank(route)) {
             transform.setHeaderParams(String.format(ROUTE_PATTERN, route));
         }
-        if (!g.getAddressTransport().equals(Gateway.AddressTransport.NONE)) {
-            String transport = String.format("transport=%s", g.getAddressTransport().getName());
+        String transport = g.getGatewayTransportUrlParam();
+        if (transport != null) {
             transform.setUrlParams(transport);
         }
         return transform;
