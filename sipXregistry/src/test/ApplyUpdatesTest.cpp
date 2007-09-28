@@ -107,7 +107,8 @@ public:
          readUpdateList(TEST_DATA_DIR "/regdbdata/update5.xml", update5, timeNow);
          //dumpList(update5);
 
-         // update6 - two updates with update number 16 with the second out-of-order
+         // update6 - two updates with update number 16 which would trigger
+         // XECS-371, viz., they have the same Call-Id, CSeq, and AOR.
          UtlSList update6;
          readUpdateList(TEST_DATA_DIR "/regdbdata/update6.xml", update6, timeNow);
          //dumpList(update6);
