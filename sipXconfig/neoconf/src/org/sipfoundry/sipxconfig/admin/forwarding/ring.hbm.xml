@@ -79,4 +79,16 @@
   <query name="ringsForScheduleId">
     <![CDATA[from Ring ring where ring.schedule.id = :scheduleId]]>
   </query>
+
+  <query name="countScheduleWithSameName">
+    <![CDATA[select count (*) from Schedule sch where sch.id = :id and sch.name = :name]]>
+  </query>
+
+  <query name="anotherUserScheduleWithTheSameName">
+    <![CDATA[select count (*) from UserSchedule sch where sch.user.id = :id and sch.name = :name]]>
+  </query>
+
+  <query name="anotherUserGroupScheduleWithTheSameName">
+    <![CDATA[select count (*) from UserGroupSchedule sch where sch.userGroup.id = :id and sch.name = :name]]>
+  </query>
 </hibernate-mapping>

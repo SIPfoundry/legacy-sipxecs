@@ -19,11 +19,13 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.common.event.UserGroupDeleteListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -37,6 +39,8 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     private static final String PARAM_SCHEDULE_ID = "scheduleId";
     private static final String PARAM_USER_ID = "userId";
     private static final String PARAM_USER_GROUP_ID = "userGroupId";
+    private static final String ID = "id";
+    private static final String NAME = "name";
 
     private CoreContext m_coreContext;
 
@@ -193,9 +197,56 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     public void saveSchedule(Schedule schedule) {
+        if (schedule.isNew()) {
+            // check if new object
+            checkForDuplicateNames(schedule);
+        } else {
+            // on edit action - check if the name for this schedule was modified
+            // if the name was changed then perform duplicate name checking
+            if (isNameChanged(schedule)) {
+                checkForDuplicateNames(schedule);
+            }
+        }
         getHibernateTemplate().saveOrUpdate(schedule);
         // Notify commserver of ALIAS
         notifyCommserver();
+    }
+
+    private void checkForDuplicateNames(Schedule schedule) {
+        if (isNameInUse(schedule)) {
+            throw new UserException("A schedule with name {0} is already defined", schedule
+                    .getName());
+        }
+    }
+
+    private boolean isNameInUse(Schedule schedule) {
+        String query = "";
+        Integer entityId = null;
+        if (schedule instanceof UserSchedule) {
+            query = "anotherUserScheduleWithTheSameName";
+            entityId = schedule.getUser().getId();
+        } else if (schedule instanceof UserGroupSchedule) {
+            query = "anotherUserGroupScheduleWithTheSameName";
+            entityId = schedule.getUserGroup().getId();
+        }
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam(query, new String[] {
+            ID, NAME
+        }, new Object[] {
+            entityId, schedule.getName()
+        });
+
+        return DataAccessUtils.intResult(count) > 0;
+    }
+
+    private boolean isNameChanged(Schedule schedule) {
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "countScheduleWithSameName", new String[] {
+                    ID, NAME
+                }, new Object[] {
+                    schedule.getId(), schedule.getName()
+                });
+
+        return DataAccessUtils.intResult(count) == 0;
     }
 
     public List<Schedule> deleteSchedulesById(Collection<Integer> scheduleIds) {

@@ -89,4 +89,18 @@ public class EditScheduleTestUi extends WebTestCase {
         clickButton("form:cancel");
         SiteTestHelper.assertNoUserError(tester);
     }
+
+    public void testAddSchedulesWithSameName() throws Exception {
+        SiteTestHelper.assertNoException(tester);
+        clickLinkWithText("Add Schedule");
+        setFormElement("name", "schedule");
+        clickLink("addPeriod");
+        clickButton("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
+        clickLinkWithText("Add Schedule");
+        setFormElement("name", "schedule");
+        clickLink("addPeriod");
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(tester);
+    }
 }

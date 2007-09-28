@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataAccessException;
 
@@ -221,6 +222,30 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(user.getId(), actualSchedules.getValue(0, "user_id"));
         assertEquals("TestSchedule", actualSchedules.getValue(0, "name"));
         assertEquals("Test Schedule", actualSchedules.getValue(0, "description"));
+    }
+
+    public void testSaveDuplicateNameSchedule() throws Exception {
+        User testUser = m_coreContext.loadUser(m_testUserId);
+
+        Schedule userScheduleWithDuplicateName = new UserSchedule();
+        userScheduleWithDuplicateName.setUser(testUser);
+        userScheduleWithDuplicateName.setName("WorkingHours");
+        try {
+            m_context.saveSchedule(userScheduleWithDuplicateName);
+        } catch (UserException ex) {
+            assertTrue(true);
+        }
+
+        User user = m_coreContext.loadUser(new Integer(1001));
+        Schedule userGroupScheduleWithDuplicateName = new UserGroupSchedule();
+        userGroupScheduleWithDuplicateName.setUser(user);
+        userGroupScheduleWithDuplicateName.setUserGroup(user.getGroupsAsList().get(0));
+        userGroupScheduleWithDuplicateName.setName("MondaySchedule");
+        try {
+            m_context.saveSchedule(userGroupScheduleWithDuplicateName);
+        } catch (UserException ex) {
+            assertTrue(true);
+        }
     }
 
     public void testDeleteSchedulesById() throws Exception {
