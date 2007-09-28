@@ -153,7 +153,7 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
     }
 
     private BackupBean upload(IUploadFile uploadFile, String name, String msgWrongFile)
-            throws ValidatorException {
+        throws ValidatorException {
 
         if (uploadFile == null) {
             return null;
