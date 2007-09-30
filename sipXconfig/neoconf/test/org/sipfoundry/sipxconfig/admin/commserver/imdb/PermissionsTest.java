@@ -77,5 +77,8 @@ public class PermissionsTest extends XMLTestCase {
         
         assertXpathEvaluatesTo("sip:goober@sipx.sipfoundry.org", "/items/item[4]/identity", domDoc);
         assertXpathEvaluatesTo("ExchangeUMVoicemailServer", "/items/item[4]/permission", domDoc);
+        
+        assertXpathEvaluatesTo("sip:~~vm~goober@sipx.sipfoundry.org", "/items/item[5]/identity", domDoc);
+        assertXpathEvaluatesTo("ExchangeUMVoicemailServer", "/items/item[5]/permission", domDoc);
     }
 }

@@ -96,7 +96,7 @@
 	    </userMatch>
 
 		<userMatch>
-			<userPattern>.</userPattern>
+			<userPattern>xxx</userPattern>
 			<permissionMatch>
 			    <permission>Voicemail</permission>
 				<transform>
@@ -112,7 +112,7 @@
 			    <permission>SipXVoicemailServer</permission>
 				<transform>
 					<url>
-						&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits-escaped}&gt;;q=0.1
+						&lt;sip:{vdigits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits-escaped}&gt;;q=0.1
 					</url>
 				</transform>
 			</permissionMatch>
@@ -123,7 +123,7 @@
 			    <permission>ExchangeUMVoicemailServer</permission>
 				<transform>
 				    <url>
-					    &lt;sip:102@exchange.example.com;transport=tcp?Diversion=%3Csip:{digits}%40{host}%3E%3Breason%3Dno-answer%3Bscreen%3Dno%3Bprivacy%3Doff&gt;;q=0.1
+					    &lt;sip:102@exchange.example.com;transport=tcp?Diversion=%3Csip:{vdigits}%40{host}%3E%3Breason%3Dno-answer%3Bscreen%3Dno%3Bprivacy%3Doff&gt;;q=0.1
 				    </url>
 				</transform>
 			</permissionMatch>

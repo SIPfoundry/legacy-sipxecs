@@ -32,8 +32,8 @@ public class InternalRuleTest extends TestCase {
     private static final String URL_PARAMS = ";voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
     private static final String VOICEMAIL_URL = "<sip:{digits}@{mediaserver}" + URL_PARAMS
             + "retrieve>";
-    private static final String VOICEMAIL_FALLBACK_URL = "<sip:{digits}@{mediaserver}"
-            + URL_PARAMS + "deposit%26mailbox%3D{digits-escaped}>;q=0.1";
+    private static final String VOICEMAIL_FALLBACK_URL = "<sip:{vdigits}@{mediaserver}"
+            + URL_PARAMS + "deposit%26mailbox%3D{vdigits-escaped}>;q=0.1";
     private static final String VOICEMAIL_TRANSFER_URL = "<sip:{vdigits}@{mediaserver}"
             + URL_PARAMS + "deposit%26mailbox%3D{vdigits-escaped}>";
 
@@ -84,7 +84,7 @@ public class InternalRuleTest extends TestCase {
         assertEquals(VOICEMAIL_TRANSFER_URL, tvt.getUrl());
 
         assertEquals(TEST_DESCRIPTION, vf.getDescription());
-        assertEquals(".", vr.getPatterns()[0]);
+        assertEquals("xxxxx", vr.getPatterns()[0]);
         assertEquals(PermissionName.VOICEMAIL.getName(), vr.getPermissionNames().get(0));
         FullTransform tvr = (FullTransform) vr.getTransforms()[0];
         assertEquals("~~vm~{user}", tvr.getUser());

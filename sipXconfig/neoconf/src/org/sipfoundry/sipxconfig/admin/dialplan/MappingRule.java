@@ -152,7 +152,9 @@ public class MappingRule extends DialingRule {
                 "~~vm~."
             });
 
-            CallDigits digits = CallDigits.FIXED_DIGITS;
+            // need to use vdigits due to the voicemail redirect mapping rule being
+            // of the form ~~vm~.
+            CallDigits digits = CallDigits.VARIABLE_DIGITS;
             MediaServer.Operation operation = MediaServer.Operation.VoicemailDeposit;
             setUrl(buildUrl(digits, mediaServer, operation, MappingRule.FIELD_PARAM));
         }
@@ -189,8 +191,11 @@ public class MappingRule extends DialingRule {
     }
     
     public static class VoicemailRedirect extends MappingRule {
-        public VoicemailRedirect() {
-            setPatterns(new String[] {"."});
+        public VoicemailRedirect(int extensionLen) {
+            DialPattern pattern = new DialPattern("", extensionLen);
+            setPatterns(new String[] {
+                pattern.calculatePattern()
+            });
         }
         
         public Transform[] getTransforms() {

@@ -16,6 +16,7 @@ import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -48,6 +49,10 @@ public class Permissions extends DataSetGenerator {
 
     class PermissionWriter extends AbstractSettingVisitor {
 
+        private static final String PERMISSION_ELEMENT = "permission";
+
+        private static final String IDENTITY_ELEMENT = "identity";
+
         private User m_user;
 
         private Element m_items;
@@ -62,10 +67,29 @@ public class Permissions extends DataSetGenerator {
 
         public void visitSetting(Setting setting) {
             if (Permission.isEnabled(setting.getValue())) {
-                Element item = addItem(m_items);
-                item.addElement("identity").setText(m_user.getUri(m_domain));
-                item.addElement("permission").setText(setting.getName());
+                Element userItem = addItem(m_items);
+                userItem.addElement(IDENTITY_ELEMENT).setText(m_user.getUri(m_domain));
+                userItem.addElement(PERMISSION_ELEMENT).setText(setting.getName());
+                
+                // add special permission for voicemail redirect rule for
+                // xcf-1875
+                if (setting.getName().equals(PermissionName.EXCHANGE_VOICEMAIL.getName())
+                        || setting.getName().equals(PermissionName.SIPX_VOICEMAIL.getName())) {
+                    Element voicemailRedirectItem = addItem(m_items);
+                    
+                    voicemailRedirectItem.addElement(IDENTITY_ELEMENT).setText(generateVoicemailRedirectIdentity());
+                    voicemailRedirectItem.addElement(PERMISSION_ELEMENT).setText(setting.getName());
+                }
             }
+        }
+
+        private String generateVoicemailRedirectIdentity() {
+            StringBuffer voicemailRedirectNameBuffer = new StringBuffer("sip:~~vm~");
+            voicemailRedirectNameBuffer.append(m_user.getName());
+            voicemailRedirectNameBuffer.append('@');
+            voicemailRedirectNameBuffer.append(m_domain);
+            
+            return voicemailRedirectNameBuffer.toString();
         }
     }
 

@@ -113,7 +113,7 @@ public class InternalRule extends DialingRule {
                 rules.add(transfer);
             }
 
-            MappingRule redirect = new MappingRule.VoicemailRedirect();
+            MappingRule redirect = new MappingRule.VoicemailRedirect(m_localExtensionLen);
             redirect.setDescription(getDescription());
             rules.add(redirect);
             

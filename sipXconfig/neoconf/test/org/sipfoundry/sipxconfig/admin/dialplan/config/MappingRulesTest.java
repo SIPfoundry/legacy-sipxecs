@@ -249,7 +249,7 @@ public class MappingRulesTest extends XMLTestCase {
         rules.add(new MappingRule.Voicemail("102", exchangeMediaServer));
         rules.add(new MappingRule.VoicemailTransfer("2", extension, mediaServer));
         rules.add(new MappingRule.VoicemailTransfer("2", extension, exchangeMediaServer));
-        rules.add(new MappingRule.VoicemailRedirect());
+        rules.add(new MappingRule.VoicemailRedirect(extension));
         rules.add(new MappingRule.VoicemailFallback(3, mediaServer));
         rules.add(new MappingRule.VoicemailFallback(3, exchangeMediaServer));
 
