@@ -41,8 +41,8 @@ public class PreflightShell {
         if (iconStream != null) {
             shell.setImage(new Image(display, iconStream));
         }
-        shell.setBounds(20, 20, 647, 400);
-        shell.setMinimumSize(647, 400);
+        shell.setBounds(20, 20, 670, 400);
+        shell.setMinimumSize(670, 400);
 
         shell.setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL));
         shell.setLayout(new FormLayout());

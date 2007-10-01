@@ -21,8 +21,8 @@ public class ShellTestRunner {
     private Display display;
     private JournalService journalService;
 
-    //private final Font normalFont;
-    //private final Font boldFont;
+    // private final Font normalFont;
+    // private final Font boldFont;
     private final Color black;
     private final Color white;
     private final Color magenta;
@@ -38,26 +38,86 @@ public class ShellTestRunner {
     private final Image warningIcon;
     private final Image skippedIcon;
     private final Image[] spinnerIcon;
-    private final TableItem[] testTable;
+    private final Table testSummaryTable;
+    private final Test[] testTable;
     private boolean active;
 
     public static final int DHCP_TEST = 0;
-    public static final int DNS_TEST  = 1;
-    public static final int NTP_TEST  = 2;
+    public static final int DNS_TEST = 1;
+    public static final int NTP_TEST = 2;
     public static final int TFTP_TEST = 3;
-    public static final int FTP_TEST  = 4;
+    public static final int FTP_TEST = 4;
     public static final int HTTP_TEST = 5;
     public static final int SIP1_TEST = 6;
     public static final int SIP2_TEST = 7;
-    
+
+    public class Test {
+        private TableItem tableRow;
+        private TestIconUpdater testIconUpdater = null;
+
+        public static final int IDLE = 0;
+        public static final int RUNNING = 1;
+        public static final int SKIPPED = 2;
+        public static final int COMPLETED = 3;
+
+        public Test(String description) {
+            tableRow = new TableItem(testSummaryTable, 0);
+            tableRow.setImage(0, nullIcon);
+            tableRow.setText(1, description);
+        }
+
+        public void update(int state) {
+            if (!display.isDisposed()) {
+                if (state == RUNNING) {
+                    if (testIconUpdater == null) {
+                        testIconUpdater = new TestIconUpdater(tableRow);
+                    }
+                } else {
+                    if (testIconUpdater != null) {
+                        testIconUpdater.quit();
+                        testIconUpdater = null;
+                    }
+                }
+                display.asyncExec(new TestTableUpdater(tableRow, state, null));
+            }
+        }
+
+        public void update(int state, String message) {
+            if (!display.isDisposed()) {
+                if (state == RUNNING) {
+                    if (testIconUpdater == null) {
+                        testIconUpdater = new TestIconUpdater(tableRow);
+                    }
+                } else {
+                    if (testIconUpdater != null) {
+                        testIconUpdater.quit();
+                        testIconUpdater = null;
+                    }
+                }
+                display.asyncExec(new TestTableUpdater(tableRow, state, message));
+            }
+        }
+
+        public void update(ResultCode results) {
+            if (!display.isDisposed()) {
+                if (testIconUpdater != null) {
+                    testIconUpdater.quit();
+                    testIconUpdater = null;
+                }
+                display.asyncExec(new TestTableUpdater(tableRow, results));
+            }
+        }
+
+    }
+
     ShellTestRunner(Display display, TabFolder folder, TabItem testTab, JournalService journalService) {
         this.display = display;
         this.journalService = journalService;
 
         // Define the font set.
-        //normalFont = new Font(null, "Arial", 10, SWT.NORMAL);
-        //boldFont = new Font(null, "Arial", 10, SWT.BOLD);
-        
+        // normalFont = new Font(null, "Arial", 10, SWT.NORMAL);
+        // boldFont = new Font(null, "Arial", 10, SWT.BOLD);
+
         // Define the color set.
         black = display.getSystemColor(SWT.COLOR_BLACK);
         white = display.getSystemColor(SWT.COLOR_WHITE);
@@ -67,12 +127,11 @@ public class ShellTestRunner {
         blue = new Color(null, 0, 0, 192);
         yellow = new Color(null, 255, 210, 60);
 
-
         // Create the test status icons.
         nullIcon = new Image(display, 20, 20);
         GC gc = new GC(nullIcon);
         gc.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW));
-        gc.fillOval(2, 2, 16, 16);
+        gc.fillArc(2, 2, 16, 16, 90, 180);
         gc.setForeground(black);
         gc.drawOval(2, 2, 16, 16);
         gc.dispose();
@@ -113,7 +172,7 @@ public class ShellTestRunner {
         gc.setBackground(blue);
         gc.fillOval(2, 2, 16, 16);
         gc.dispose();
-        
+
         // Build spinner icon set.
         spinnerIcon = new Image[5];
         int angle = 68;
@@ -121,171 +180,114 @@ public class ShellTestRunner {
             spinnerIcon[x] = new Image(display, 20, 20);
             gc = new GC(spinnerIcon[x]);
             gc.setBackground(black);
-        	gc.fillArc(2, 2, 16, 16, angle, 45);
-			gc.fillArc(2, 2, 16, 16, 90 + angle, 45);
-			gc.fillArc(2, 2, 16, 16, 180 + angle, 45);
-			gc.fillArc(2, 2, 16, 16, 270 + angle, 45);
-			gc.dispose();
-			angle -= 18;
+            gc.fillArc(2, 2, 16, 16, angle, 45);
+            gc.fillArc(2, 2, 16, 16, 90 + angle, 45);
+            gc.fillArc(2, 2, 16, 16, 180 + angle, 45);
+            gc.fillArc(2, 2, 16, 16, 270 + angle, 45);
+            gc.dispose();
+            angle -= 18;
         }
-        
 
         // Set up the test summary table.
-        final Table table = new Table(folder, SWT.SINGLE | SWT.FULL_SELECTION);
-        TableColumn col1 = new TableColumn(table, SWT.CENTER);
+        testSummaryTable = new Table(folder, SWT.SINGLE | SWT.FULL_SELECTION);
+        TableColumn col1 = new TableColumn(testSummaryTable, SWT.CENTER);
         col1.setWidth(40);
-        TableColumn col2 = new TableColumn(table, SWT.LEFT);
+        TableColumn col2 = new TableColumn(testSummaryTable, SWT.LEFT);
         col2.setWidth(150);
-        TableColumn col3 = new TableColumn(table, SWT.CENTER);
-        col3.setWidth(60);
-        TableColumn col4 = new TableColumn(table, SWT.LEFT);
-        col4.setWidth(365);
+        TableColumn col3 = new TableColumn(testSummaryTable, SWT.CENTER);
+        col3.setWidth(70);
+        TableColumn col4 = new TableColumn(testSummaryTable, SWT.LEFT);
+        col4.setWidth(375);
 
-        testTable = new TableItem[8];
+        testSummaryTable.setHeaderVisible(false);
+        testSummaryTable.setLinesVisible(true);
 
-        testTable[DHCP_TEST] = new TableItem(table, 0);
-        testTable[DHCP_TEST].setImage(0, spinnerIcon[3]);
-        testTable[DHCP_TEST].setText(1, "DHCP Server Test");
+        testTable = new Test[8];
 
-        testTable[DNS_TEST] = new TableItem(table, 0);
-        testTable[DNS_TEST].setImage(0, spinnerIcon[3]);
-        testTable[DNS_TEST].setText(1, "DNS Server Test");
-
-        testTable[NTP_TEST] = new TableItem(table, 0);
-        testTable[NTP_TEST].setImage(0, spinnerIcon[3]);
-        testTable[NTP_TEST].setText(1, "NTP Server Test");
-
-        testTable[TFTP_TEST] = new TableItem(table, 0);
-        testTable[TFTP_TEST].setImage(0, spinnerIcon[3]);
-        testTable[TFTP_TEST].setText(1, "TFTP Server Test");
-
-        testTable[FTP_TEST] = new TableItem(table, 0);
-        testTable[FTP_TEST].setImage(0, spinnerIcon[3]);
-        testTable[FTP_TEST].setText(1, "FTP Server Test");
-
-        testTable[HTTP_TEST] = new TableItem(table, 0);
-        testTable[HTTP_TEST].setImage(0, spinnerIcon[3]);
-        testTable[HTTP_TEST].setText(1, "HTTP Server Test");
-
-        testTable[SIP1_TEST] = new TableItem(table, 0);
-        testTable[SIP1_TEST].setImage(0, spinnerIcon[3]);
-        testTable[SIP1_TEST].setText(1, "SIP Connectivity Test");
-
-        testTable[SIP2_TEST] = new TableItem(table, 0);
-        testTable[SIP2_TEST].setImage(0, spinnerIcon[3]);
-        testTable[SIP2_TEST].setText(1, "SIP Call Control Test");
-
-        table.setHeaderVisible(false);
-        table.setLinesVisible(true);
+        testTable[DHCP_TEST] = new Test("DHCP Server Test");
+        testTable[DNS_TEST] = new Test("DNS Server Test");
+        testTable[NTP_TEST] = new Test("NTP Server Test");
+        testTable[TFTP_TEST] = new Test("TFTP Server Test");
+        testTable[FTP_TEST] = new Test("FTP Server Test");
+        testTable[HTTP_TEST] = new Test("HTTP Server Test");
+        testTable[SIP1_TEST] = new Test("SIP Connectivity Test");
+        testTable[SIP2_TEST] = new Test("SIP Call Control Test");
 
         // table.getColumn(0).pack();
         // table.getColumn(1).pack();
 
-        testTab.setControl(table);
+        testTab.setControl(testSummaryTable);
 
         active = false;
     }
 
     public void validate() {
-        TestIconUpdater testIconUpdater;
         ResultCode results;
         NetworkResources networkResources = new NetworkResources();
 
         active = true;
-        
-        update(DHCP_TEST, TestTableUpdater.IDLE);
-        update(DNS_TEST, TestTableUpdater.IDLE);
-        update(NTP_TEST, TestTableUpdater.IDLE);
-        update(TFTP_TEST, TestTableUpdater.IDLE);
-        update(FTP_TEST, TestTableUpdater.IDLE);
-        update(HTTP_TEST, TestTableUpdater.IDLE);
-        update(SIP1_TEST, TestTableUpdater.IDLE);
-        update(SIP2_TEST, TestTableUpdater.IDLE);
-        
+
+        testTable[DHCP_TEST].update(Test.IDLE);
+        testTable[DNS_TEST].update(Test.IDLE);
+        testTable[NTP_TEST].update(Test.IDLE);
+        testTable[TFTP_TEST].update(Test.IDLE);
+        testTable[FTP_TEST].update(Test.IDLE);
+        testTable[HTTP_TEST].update(Test.IDLE);
+        testTable[SIP1_TEST].update(Test.IDLE);
+        testTable[SIP2_TEST].update(Test.IDLE);
+
         DHCP dhcp = new DHCP();
         DNS dns = new DNS();
         NTP ntp = new NTP();
         TFTP tftp = new TFTP();
 
-        
-        update(DHCP_TEST, TestTableUpdater.RUNNING);
-        testIconUpdater = new TestIconUpdater(testTable[DHCP_TEST]);
-        results = dhcp.validate(20, networkResources, journalService);
-        testIconUpdater.quit();
-        update(DHCP_TEST, results);
+        testTable[DHCP_TEST].update(Test.RUNNING);
+        results = dhcp.validate(10, networkResources, journalService);
+        testTable[DHCP_TEST].update(results);
 
         if (results == NONE) {
-        	update(DNS_TEST, TestTableUpdater.RUNNING);
-        	testIconUpdater = new TestIconUpdater(testTable[DNS_TEST]);
-        	results = dns.validate(20, networkResources, journalService);
-        	testIconUpdater.quit();
-        	update(DNS_TEST, results);
-        
+            testTable[DNS_TEST].update(Test.RUNNING);
+            results = dns.validate(10, networkResources, journalService);
+            testTable[DNS_TEST].update(results);
+
             if (networkResources.ntpServers != null) {
-                update(NTP_TEST, TestTableUpdater.RUNNING);
-        		testIconUpdater = new TestIconUpdater(testTable[NTP_TEST]);
-        		results = ntp.validate(20, networkResources, journalService);
-        		testIconUpdater.quit();
-        		update(NTP_TEST, results);
+                testTable[NTP_TEST].update(Test.RUNNING);
+                results = ntp.validate(10, networkResources, journalService);
+                testTable[NTP_TEST].update(results);
             } else {
-                update(NTP_TEST, TestTableUpdater.SKIPPED, "No NTP server discovered.");
+                testTable[NTP_TEST].update(Test.SKIPPED, "No NTP server discovered.");
             }
-            
+
             if (networkResources.tftpServer != null) {
-                update(TFTP_TEST, TestTableUpdater.RUNNING);
-        		testIconUpdater = new TestIconUpdater(testTable[TFTP_TEST]);
-        		results = tftp.validate(20, networkResources, journalService);
-        		testIconUpdater.quit();
-        		update(TFTP_TEST, results);
+                testTable[TFTP_TEST].update(Test.RUNNING);
+                results = tftp.validate(10, networkResources, journalService);
+                testTable[TFTP_TEST].update(results);
             } else {
-                update(TFTP_TEST, TestTableUpdater.SKIPPED, "No TFTP server discovered.");
+                testTable[TFTP_TEST].update(Test.SKIPPED, "No TFTP server discovered.");
             }
         } else {
-            update(DNS_TEST, TestTableUpdater.SKIPPED, "DHCP prerequisite test failed.");
-        	update(NTP_TEST, TestTableUpdater.SKIPPED, "DHCP prerequisite test failed.");
-        	update(TFTP_TEST, TestTableUpdater.SKIPPED, "DHCP prerequisite test failed.");
+            testTable[DNS_TEST].update(Test.SKIPPED, "DHCP prerequisite test failed.");
+            testTable[NTP_TEST].update(Test.SKIPPED, "DHCP prerequisite test failed.");
+            testTable[TFTP_TEST].update(Test.SKIPPED, "DHCP prerequisite test failed.");
         }
-        
-        update(FTP_TEST, TestTableUpdater.SKIPPED, "No FTP server address configured.");
-        update(HTTP_TEST, TestTableUpdater.SKIPPED, "No HTTP server address configured.");
-        update(SIP1_TEST, TestTableUpdater.SKIPPED);
-        update(SIP2_TEST, TestTableUpdater.SKIPPED);
-        
+
+        testTable[FTP_TEST].update(Test.SKIPPED, "No FTP server address configured.");
+        testTable[HTTP_TEST].update(Test.SKIPPED, "No HTTP server address configured.");
+        testTable[SIP1_TEST].update(Test.SKIPPED);
+        testTable[SIP2_TEST].update(Test.SKIPPED);
+
         active = false;
     }
 
-    private void update(int test, int state) {
-        if (!display.isDisposed()) {
-            display.asyncExec(new TestTableUpdater(testTable[test], state, null));
-        }
-    }
-    
-    private void update(int test, int state, String message) {
-        if (!display.isDisposed()) {
-            display.asyncExec(new TestTableUpdater(testTable[test], state, message));
-        }
-    }
-    
-    private void update(int test, ResultCode results) {
-        if (!display.isDisposed()) {
-            display.asyncExec(new TestTableUpdater(testTable[test], results));
-        }
-    }
-    
     public boolean isActive() {
         return active;
     }
-    
+
     private class TestTableUpdater implements Runnable {
         private TableItem test;
         private String message;
         private ResultCode results;
         private int state;
-        
-        public static final int IDLE = 0;
-        public static final int RUNNING = 1;
-        public static final int SKIPPED = 2;
-        public static final int COMPLETED = 3;
 
         TestTableUpdater(TableItem test, int state, String message) {
             this.test = test;
@@ -297,14 +299,14 @@ public class ShellTestRunner {
         TestTableUpdater(TableItem test, ResultCode results) {
             this.test = test;
             this.results = results;
-            state = COMPLETED;
+            state = Test.COMPLETED;
             message = null;
         }
 
         public void run() {
             if (!test.isDisposed()) {
                 switch (state) {
-                    case IDLE:
+                    case Test.IDLE:
                         test.setImage(0, idleIcon);
                         test.setText(2, "");
                         if (message == null) {
@@ -313,7 +315,7 @@ public class ShellTestRunner {
                             test.setText(3, message);
                         }
                         break;
-                    case RUNNING:
+                    case Test.RUNNING:
                         test.setImage(0, idleIcon);
                         test.setForeground(2, black);
                         test.setText(2, "Executing");
@@ -323,7 +325,7 @@ public class ShellTestRunner {
                             test.setText(3, message);
                         }
                         break;
-                    case SKIPPED:
+                    case Test.SKIPPED:
                         test.setImage(0, skippedIcon);
                         test.setForeground(2, blue);
                         test.setText(2, "Skipped");
@@ -333,7 +335,7 @@ public class ShellTestRunner {
                             test.setText(3, message);
                         }
                         break;
-                    case COMPLETED:
+                    case Test.COMPLETED:
                         if (results == NONE) {
                             test.setImage(0, passedIcon);
                             test.setForeground(2, green);
@@ -401,7 +403,7 @@ public class ShellTestRunner {
                 }
             }
         }
-        
+
         public void quit() {
             active = false;
         }
