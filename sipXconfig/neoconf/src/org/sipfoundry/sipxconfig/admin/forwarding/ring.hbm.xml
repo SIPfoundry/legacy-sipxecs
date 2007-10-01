@@ -81,14 +81,18 @@
   </query>
 
   <query name="countScheduleWithSameName">
-    <![CDATA[select count (*) from Schedule sch where sch.id = :id and sch.name = :name]]>
+    <![CDATA[select count (*) from Schedule sch where sch.id = :scheduleId and sch.name = :name]]>
   </query>
 
   <query name="anotherUserScheduleWithTheSameName">
-    <![CDATA[select count (*) from UserSchedule sch where sch.user.id = :id and sch.name = :name]]>
+    <![CDATA[select count (*) from UserSchedule sch where sch.user.id = :userId and sch.name = :name]]>
   </query>
 
   <query name="anotherUserGroupScheduleWithTheSameName">
-    <![CDATA[select count (*) from UserGroupSchedule sch where sch.userGroup.id = :id and sch.name = :name]]>
+    <![CDATA[select count (*) from UserGroupSchedule sch where sch.userGroup.id = :userGroupId and sch.name = :name]]>
+  </query>
+
+  <query name="anotherGeneralScheduleWithTheSameName">
+    <![CDATA[select count (*) from GeneralSchedule sch where sch.name = :name]]>
   </query>
 </hibernate-mapping>

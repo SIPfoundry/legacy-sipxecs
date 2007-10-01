@@ -39,8 +39,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     private static final String PARAM_SCHEDULE_ID = "scheduleId";
     private static final String PARAM_USER_ID = "userId";
     private static final String PARAM_USER_GROUP_ID = "userGroupId";
-    private static final String ID = "id";
-    private static final String NAME = "name";
+    private static final String PARAM_NAME = "name";
 
     private CoreContext m_coreContext;
 
@@ -220,23 +219,25 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     private boolean isNameInUse(Schedule schedule) {
-        String query = null;
-        Integer entityId = null;
+        List count = null;
         if (schedule instanceof UserSchedule) {
-            query = "anotherUserScheduleWithTheSameName";
-            entityId = schedule.getUser().getId();
+            count = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                    "anotherUserScheduleWithTheSameName", new String[] {
+                        PARAM_USER_ID, PARAM_NAME
+                    }, new Object[] {
+                        schedule.getUser().getId(), schedule.getName()
+                    });
         } else if (schedule instanceof UserGroupSchedule) {
-            query = "anotherUserGroupScheduleWithTheSameName";
-            entityId = schedule.getUserGroup().getId();
+            count = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                    "anotherUserGroupScheduleWithTheSameName", new String[] {
+                        PARAM_USER_GROUP_ID, PARAM_NAME
+                    }, new Object[] {
+                        schedule.getUserGroup().getId(), schedule.getName()
+                    });
+        } else if (schedule instanceof GeneralSchedule) {
+            count = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                    "anotherGeneralScheduleWithTheSameName", PARAM_NAME, schedule.getName());
         }
-        if (query == null) {
-            return false;
-        }
-        List count = getHibernateTemplate().findByNamedQueryAndNamedParam(query, new String[] {
-            ID, NAME
-        }, new Object[] {
-            entityId, schedule.getName()
-        });
 
         return DataAccessUtils.intResult(count) > 0;
     }
@@ -244,7 +245,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     private boolean isNameChanged(Schedule schedule) {
         List count = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 "countScheduleWithSameName", new String[] {
-                    ID, NAME
+                    PARAM_SCHEDULE_ID, PARAM_NAME
                 }, new Object[] {
                     schedule.getId(), schedule.getName()
                 });

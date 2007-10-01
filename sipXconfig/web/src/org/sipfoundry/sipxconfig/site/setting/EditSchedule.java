@@ -83,13 +83,13 @@ public abstract class EditSchedule extends UserBasePage implements PageBeginRend
         } else {
             if (getResource().equals("usr_sch")) {
                 schedule = new UserSchedule();
+                schedule.setUser(getUser());
             } else if (getResource().equals("usrGroup_sch")) {
                 schedule = new UserGroupSchedule();
                 schedule.setUserGroup(getUserGroup());
             } else if (getResource().equals("general_sch")) {
                 schedule = new GeneralSchedule();
             }
-            schedule.setUser(getUser());
             WorkingTime workingTime = new WorkingTime();
             workingHoursList = new WorkingHours[0];
             workingTime.setWorkingHours(workingHoursList);

@@ -293,4 +293,21 @@ public class DialPlanEditTestUi extends WebTestCase {
         clickButton("schedule:delete");
         SiteTestHelper.assertNoUserError(tester);
     }
+
+    public void testAddGeneralScheduleWithSameName() throws Exception {
+        SiteTestHelper.assertNoException(tester);
+        clickLinkWithText("Schedules");
+        clickLinkWithText("Add Schedule");
+        setFormElement("name", "generalSchedule");
+        setFormElement("description", "Schedule for a rule");
+        clickLink("addPeriod");
+        clickButton("form:ok");
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
+        clickLinkWithText("Add Schedule");
+        setFormElement("name", "generalSchedule");
+        clickLink("addPeriod");
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(tester);
+    }
 }
