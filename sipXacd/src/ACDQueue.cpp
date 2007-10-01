@@ -76,6 +76,7 @@ ACDQueue::ACDQueue(ACDQueueManager* pAcdQueueManager,
                    int              queueAudioInterval,
                    const char*      pCallTerminationAudio,
                    int              terminationToneDuration,
+                   int              agentsWrapupTime,
                    const char*      pAcdAgentList,
                    const char*      pAcdLineList)
 : OsServerTask("ACDQueue-%d")
@@ -102,6 +103,7 @@ ACDQueue::ACDQueue(ACDQueueManager* pAcdQueueManager,
    mQueueAudioInterval      = queueAudioInterval;
    mCallTerminationAudio    = pCallTerminationAudio;
    mTerminationToneDuration = terminationToneDuration;
+   mAgentsWrapupTime        = agentsWrapupTime;
    mAcdAgentListString      = pAcdAgentList;
    mAcdLineListString       = pAcdLineList;
 
@@ -395,6 +397,9 @@ void ACDQueue::setAttributes(ProvisioningAttrList& rRequestAttributes)
    // termination-tone-duration
    rRequestAttributes.getAttribute(QUEUE_TERMINATION_TONE_DURATION_TAG, mTerminationToneDuration);
 
+   // agents-wrap-up-time 
+   rRequestAttributes.getAttribute(QUEUE_AGENTS_WRAP_UP_TIME_TAG, mAgentsWrapupTime);
+
    // acd-agent-list
    if (rRequestAttributes.getAttribute(QUEUE_ACD_AGENT_LIST_TAG, mAcdAgentListString)) {
       buildACDAgentList();
@@ -646,6 +651,7 @@ void ACDQueue::getAttributes(ProvisioningAttrList& rRequestAttributes, Provision
        rRequestAttributes.attributePresent(QUEUE_QUEUE_AUDIO_INTERVAL_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_CALL_TERMINATION_AUDIO_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_TERMINATION_TONE_DURATION_TAG) ||
+       rRequestAttributes.attributePresent(QUEUE_AGENTS_WRAP_UP_TIME_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_ACD_AGENT_LIST_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_ACD_LINE_LIST_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_QUEUE_DEPTH_TAG)) {
@@ -737,6 +743,11 @@ void ACDQueue::getAttributes(ProvisioningAttrList& rRequestAttributes, Provision
          prResponse->setAttribute(QUEUE_TERMINATION_TONE_DURATION_TAG, mTerminationToneDuration);
       }
 
+      // agents-wrap-up-time
+      if (rRequestAttributes.attributePresent(QUEUE_AGENTS_WRAP_UP_TIME_TAG)) {
+         prResponse->setAttribute(QUEUE_AGENTS_WRAP_UP_TIME_TAG, mAgentsWrapupTime);
+      }
+
       // acd-agent-list
       if (rRequestAttributes.attributePresent(QUEUE_ACD_AGENT_LIST_TAG)) {
          prResponse->setAttribute(QUEUE_ACD_AGENT_LIST_TAG, mAcdAgentListString);
@@ -806,6 +817,9 @@ void ACDQueue::getAttributes(ProvisioningAttrList& rRequestAttributes, Provision
 
       // termination-tone-duration
       prResponse->setAttribute(QUEUE_TERMINATION_TONE_DURATION_TAG, mTerminationToneDuration);
+
+      // agents-wrap-up-time 
+      prResponse->setAttribute(QUEUE_AGENTS_WRAP_UP_TIME_TAG, mAgentsWrapupTime);
 
       // acd-agent-list
       prResponse->setAttribute(QUEUE_ACD_AGENT_LIST_TAG, mAcdAgentListString);

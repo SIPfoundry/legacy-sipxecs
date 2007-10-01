@@ -75,6 +75,7 @@ ACDQueue_RingAll::ACDQueue_RingAll(ACDQueueManager* pAcdQueueManager,
                    int              queueAudioInterval,
                    const char*      pCallTerminationAudio,
                    int              terminationToneDuration,
+                   int              agentsWrapupTime,
                    const char*      pAcdAgentList,
                    const char*      pAcdLineList)
 : ACDQueue(pAcdQueueManager,
@@ -96,6 +97,7 @@ ACDQueue_RingAll::ACDQueue_RingAll(ACDQueueManager* pAcdQueueManager,
                    queueAudioInterval,
                    pCallTerminationAudio,
                    terminationToneDuration,
+                   agentsWrapupTime,
                    pAcdAgentList,
                    pAcdLineList)
 {

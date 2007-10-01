@@ -11,6 +11,8 @@
 // APPLICATION INCLUDES
 #include <os/OsDateTime.h>
 #include <os/OsEvent.h>
+#include <os/OsTimer.h>
+#include <os/OsEventMsg.h>
 #include <utl/UtlTokenizer.h>
 #include <utl/UtlSListIterator.h>
 #include "ACDQueueManager.h"
@@ -93,10 +95,14 @@ ACDAgent::ACDAgent(ACDAgentManager* pAcdAgentManager,
    mFlagDelete         = false;
    mAgentTicker        = 0;
    mIsPseudo           = pseudoAgent;
-
+   mWrapupTime         = 0;
    mpAcdCallManager       = mpAcdAgentManager->getAcdCallManager();
    mhAcdCallManagerHandle = mpAcdAgentManager->getAcdCallManagerHandle();
 
+
+   mpWrapupTimer =
+      new OsTimer(getMessageQueue(), WRAP_UP_TIMER);  
+   mCallEstablished = false;
    // Set the agents idle time to now
    OsDateTime nowTime;
    OsDateTime::getCurTime(nowTime);
@@ -142,6 +148,8 @@ ACDAgent::ACDAgent(ACDAgentManager* pAcdAgentManager,
 
 ACDAgent::~ACDAgent()
 {
+   delete mpWrapupTimer;
+
    if (true == mIsPseudo) {
       return ;
    }
@@ -271,6 +279,14 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
                     mUriString.data());
       return 0;
    }
+   
+   // Update mWrapupTime with the wrapupTime where the call come from.
+   if (acdQueue) {
+      mWrapupTime = acdQueue->getAgentsWrapupTime();
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::connect - ACDAgent(%s) mWrapupTime = %d",
+                       mUriString.data(),mWrapupTime);
+   }
+   
 
    return mhCallHandle;
 }
@@ -404,6 +420,7 @@ void ACDAgent::setBusy(void)
 void ACDAgent::setFree(void)
 {
     mFree = true ;
+    mCallEstablished = false;
     setAvailable() ;
 }
 
@@ -1231,6 +1248,24 @@ UtlBoolean ACDAgent::handleMessage(OsMsg& rMessage)
 
       return true;
    }
+   else if (rMessage.getMsgType() == OsMsg::OS_EVENT) {
+
+      int  timerSource;
+      // Timer Event, determine which timer fired
+      ((OsEventMsg&)rMessage).getUserData(timerSource);
+      switch (timerSource) {
+         case WRAP_UP_TIMER:
+            OsSysLog::add(FAC_ACD, gACD_DEBUG,
+                 "ACDAgent::handleMessage - Agent(%s) WRAP_UP_TIMER expired", getUriString()->data());
+            handleWrapupTimeout();
+            break;
+         default:
+            // Bad message
+            OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAgent::handleMessage - Received bad message");
+            break;
+      }
+      return true;
+   }
    else {
       // Otherwise, pass the message to the base for processing.
       return false;
@@ -1387,8 +1422,47 @@ void ACDAgent::dropCallMessage(void)
       setOnHook(true) ;
    }
 
-   // Mark the agent as free
-   setFree();
+   // Only fire off the wrapup timer if the ACDAgent has just served a call.
+   if(mWrapupTime != 0 && mCallEstablished)
+   {
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::dropCallMessage Agent(%s), mWrapupTime = %d",
+                       getUriString()->data(),mWrapupTime);
+
+      mpWrapupTimer->oneshotAfter(OsTime(mWrapupTime,0));
+   }
+   else
+   {
+      // Mark the agent as free
+      setFree();
+   }
 
    mLock.release();     
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  NAME:        ACDAgent::handleWrapupTimeout
+//
+//  SYNOPSIS:    void handleWrapupTimeout(void)
+//
+//  DESCRIPTION: A wrap-up time defines a period of time that has to pass until the ACD 
+//               transferrs a new caller to an agent after a call finished. After agent
+//               complete a call, a wrap-up timer will be fired and agent's state will
+//               stay busy until the wrap-up timer timeout.
+//
+//  RETURNS:     None.
+//
+//  ERRORS:      None.
+//
+//  CAVEATS:     None.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ACDAgent::handleWrapupTimeout()
+{
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::handleWrapupTimeout  Agent(%s),wrapupTime = %d ", getUriString()->data(), mWrapupTime);
+
+   mLock.acquire();
+   setFree();
+   mLock.release();
+}
+

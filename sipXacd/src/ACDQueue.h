@@ -88,6 +88,7 @@ public:
             int              queueAudioInterval,
             const char*      pCallTerminationAudio,
             int              terminationToneDuration,
+            int              agentsWrapupTime,
             const char*      pAcdAgentList,
             const char*      pAcdLineList);
 
@@ -142,7 +143,8 @@ public:
 
    // Return the name of this queue
    virtual UtlString* getQueueName() {return &mName;};
-
+  
+   virtual int getAgentsWrapupTime() {return mAgentsWrapupTime;};
 /* ============================ INQUIRY =================================== */
 
    // Compare the this object to another like-objects.
@@ -198,6 +200,8 @@ protected:
 
    int              mUnroutedCallCount;       // The number of unrouted calls this queue is handling
    ACDCall*         mpRoutePendingAnswer;     // Pointer to ACDCall that should be routed once answered
+   
+   int              mAgentsWrapupTime;
 
    // Handle incoming IPC messages
    virtual UtlBoolean handleMessage(OsMsg& rMessage);

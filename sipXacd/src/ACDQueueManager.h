@@ -43,6 +43,7 @@
 #define QUEUE_ACD_AGENT_LIST_TAG            "acd-agent-list"
 #define QUEUE_ACD_LINE_LIST_TAG             "acd-line-list"
 #define QUEUE_QUEUE_DEPTH_TAG               "queue-depth"
+#define QUEUE_AGENTS_WRAP_UP_TIME_TAG       "agents-wrap-up-time"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -100,6 +101,7 @@ public:
                             int         queueAudioInterval,
                             const char* pCallTerminationAudio,
                             int         terminationToneDuration,
+                            int         agentsWrapupTime,
                             const char* pAcdAgentList,
                             const char* pExternalLineList);
 

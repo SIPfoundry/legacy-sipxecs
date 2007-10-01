@@ -31,6 +31,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class OsTimer;
 class UtlSList;
 class ACDCallManager;
 class ACDAgentManager;
@@ -40,6 +41,11 @@ class ACDCall;
 class ACDAgent : public UtlContainable, public LinePresenceBase, public OsServerTask {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+
+   enum eAgentTimers {
+      WRAP_UP_TIMER           = 0
+   };
+
 /* ============================ CREATORS ================================== */
 
    // Default constructor
@@ -147,6 +153,7 @@ public:
    // Get a link to its ACDCallManager. Required by call pickup.
    ACDCallManager* getAcdCallManager(void) { return mpAcdCallManager; }
 
+   void setCallEstablished(bool established) { mCallEstablished = established; }
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
    static const UtlContainableType TYPE;           // Class type used for runtime checking
@@ -175,7 +182,10 @@ private:
    int              mAgentTicker;
    bool             mIsPseudo;
    bool             mFlagDelete;
-  
+   int              mWrapupTime;
+   OsTimer*         mpWrapupTimer;
+   bool             mCallEstablished;        // Flag indicating if the ACDAgent has established call
+ 
    // Notify the queues of this agent's availability
    void notifyAvailability();
    
@@ -196,6 +206,8 @@ private:
 
    // Drop the call to the agent
    void dropCallMessage(void) ;
+   
+   void handleWrapupTimeout();
 };
 
 #endif  // _ACDAgent_h_

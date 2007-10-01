@@ -1439,6 +1439,10 @@ void ACDCall::updateStateMessage(SIPX_CALL callHandle, int event, int cause)
                // This must be an agent answering
                if (cause == CALLSTATE_CONNECTED_ACTIVE) {
                   acdAgentConnectedActiveEvent(callHandle);
+                  
+                  if(mpActiveAgent) {
+                     mpActiveAgent->setCallEstablished(true); 
+                  }
                }
                else if (cause == CALLSTATE_CONNECTED_INACTIVE) {
                   acdAgentConnectedInactiveEvent(callHandle);
