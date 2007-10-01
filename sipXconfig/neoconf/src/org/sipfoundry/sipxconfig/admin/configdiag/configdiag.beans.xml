@@ -1,0 +1,25 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="configurationDiagnosticContext" class="org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticContextImpl">
+    <property name="descriptorPath">
+      <value>${sysdir.etc}/sipxpbx/test.d</value>
+    </property>
+  </bean>
+  
+  <bean id="compositeExecutionTask" 
+    class="org.springframework.aop.framework.ProxyFactoryBean"
+    singleton="false">
+    <property name="proxyInterfaces"
+      value="org.sipfoundry.sipxconfig.admin.configdiag.CompositeExecutionTask"/>
+    <property name="interceptorNames">
+      <list>
+        <value>backgroundTaskInterceptor</value>
+      </list>
+    </property>
+    <property name="target">
+      <bean class="org.sipfoundry.sipxconfig.admin.configdiag.CompositeExecutionTaskImpl"
+        singleton="false"/> 
+    </property>
+  </bean>
+</beans>

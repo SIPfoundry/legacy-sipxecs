@@ -27,6 +27,7 @@
       classpath:/org/sipfoundry/sipxconfig/bulk/ldap/ldap.beans.xml      
       classpath:/org/sipfoundry/sipxconfig/cdr/cdr.beans.xml      
       classpath:/org/sipfoundry/sipxconfig/conference/conference.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/configdiag/configdiag.beans.xml
       classpath:/org/sipfoundry/sipxconfig/device/device.beans.xml
       classpath:/org/sipfoundry/sipxconfig/job/job.beans.xml
       classpath:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml

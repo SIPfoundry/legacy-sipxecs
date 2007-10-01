@@ -1,0 +1,19 @@
+<test name="simple">
+	<label>Simple Test</label>
+	<description>
+		Simple test descriptor.
+	</description>
+	<command>
+		<exec>ls ~/</exec>
+	</command>
+	<results>
+		<result exit="0">
+			<status>Success</status>
+			<msg>Success</msg>
+		</result>
+		<result exit="-1">
+			<status>Error</status>
+			<msg>Error</msg>
+		</result>
+	</results>
+</test>
