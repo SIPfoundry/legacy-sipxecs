@@ -31,16 +31,48 @@ public class DHCP {
     private InetAddress giaddr = null;
     private InetAddress broadcastAddress = null;
     private DatagramSocket serverSocket;
+    private static int MAX_TIMEOUT_FACTOR = 3;
 
     public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService) {
-        ResultCode results;
+        ResultCode results = NONE;
+        boolean useInform = false;
+        int timeoutFactor = 1;
 
         journalService.println("Starting DHCP server test.");
-        
-        results = performDiscover(timeout, networkResources, journalService);
-        if (results == SOCKET_BIND_FAILURE) {
-            // Discovery failed due to a bind issue, try performing an Inform request.
-            results = performInform(timeout, networkResources, journalService);
+
+        for ( ;; ) {
+            if (!useInform) {
+                results = performDiscover(timeout * timeoutFactor, networkResources, journalService);
+                if (results == SOCKET_BIND_FAILURE) {
+                    // Discovery failed due to a bind issue, try performing an Inform request.
+                    useInform = true;
+                } else if (results == TIMEOUT_FAILURE) {
+                    ++timeoutFactor;
+                    if (timeoutFactor > MAX_TIMEOUT_FACTOR) {
+                        journalService.println("Network timeout.  Giving up.");
+                        break;
+                    } else {
+                        journalService.println("Network timeout.  Retrying with timeout increased to " + timeout * timeoutFactor + " seconds.");
+                    	continue;
+                    }
+                } else {
+                    break;
+                }
+            }
+            if (useInform) {
+                results = performInform(timeout * timeoutFactor, networkResources, journalService);
+                if (results == TIMEOUT_FAILURE) {
+                    ++timeoutFactor;
+                    if (timeoutFactor > MAX_TIMEOUT_FACTOR) {
+                        journalService.println("Network timeout.  Giving up.");
+                        break;
+                    } else {
+                        journalService.println("Network timeout.  Retrying with timeout increased to " + timeout * timeoutFactor + " seconds.");
+                    }
+                } else {
+                    break;
+                }
+            }
         }
 
         return results;
@@ -62,6 +94,7 @@ public class DHCP {
             } else {
                 e.printStackTrace();
             }
+            serverSocket.close();
             return SOCKET_BIND_FAILURE;
         }
 
@@ -71,6 +104,7 @@ public class DHCP {
         results = sendDiscover(xid, assignedAddress, serverAddress, journalService);
         journalService.println("");
         if (results != NONE) {
+            serverSocket.close();
             return results;
         }
 
@@ -78,6 +112,7 @@ public class DHCP {
         results = sendRequest(xid, assignedAddress[0], serverAddress[0], networkResources, journalService);
         journalService.println("");
         if (results != NONE) {
+            serverSocket.close();
             return results;
         }
         
@@ -138,6 +173,7 @@ public class DHCP {
         }
 
         DatagramPacket incoming = new DatagramPacket(new byte[1500], 1500);
+        DHCPMessage tmpMessage = null;
         DHCPMessage offerMessage = null;
         boolean responseReceived = false;
         InetAddress firstResponseAddress = null;
@@ -166,14 +202,14 @@ public class DHCP {
                 }
             }
 
-            offerMessage = new DHCPMessage();
-            offerMessage.unmarshal(incoming.getData());
+            tmpMessage = new DHCPMessage();
+            tmpMessage.unmarshal(incoming.getData());
 
-            if ((offerMessage.getOp() == BOOTREQUEST) && (offerMessage.getXid() == xid)) {
+            if ((tmpMessage.getOp() == BOOTREQUEST) && (tmpMessage.getXid() == xid)) {
                 continue;  // Ignore.
             }
 
-            if (offerMessage.getXid() != xid) {
+            if (tmpMessage.getXid() != xid) {
                 continue;  // Ignore.
             }
 
@@ -188,6 +224,7 @@ public class DHCP {
                 }
             } else {
                 firstResponseAddress = incoming.getAddress();
+                offerMessage = tmpMessage;
                 responseReceived = true;
             }
         }
@@ -254,7 +291,7 @@ public class DHCP {
         requestMessage.addOption(new MessageTypeOption(DHCPREQUEST));
         requestMessage.addOption(new MessageSizeOption(590));
         requestMessage.addOption(new RequestedAddressOption(assignedAddress));
-        requestMessage.addOption(new ParameterRequestOption(SUBNET_MASK, ROUTER, DOMAIN_NAME, DOMAIN_NAME_SERVER, TFTP_SERVER, NTP_SERVER, TIME_OFFSET));
+        requestMessage.addOption(new ParameterRequestOption(SUBNET_MASK, ROUTER, DOMAIN_NAME, DOMAIN_NAME_SERVER, TFTP_SERVER, BOOT_FILE, NTP_SERVER, TIME_OFFSET));
         requestMessage.addOption(new LeaseTimeOption(360));
         requestMessage.addOption(new VendorIdentifierOption("Pingtel"));
         requestMessage.addOption(new ClientIdentifierOption(ETHERNET, chaddr));
@@ -272,6 +309,7 @@ public class DHCP {
         }
 
         DatagramPacket incoming = new DatagramPacket(new byte[1500], 1500);
+        DHCPMessage tmpMessage = null;
         DHCPMessage ackMessage = null;
         boolean responseReceived = false;
         InetAddress firstResponseAddress = null;
@@ -298,14 +336,14 @@ public class DHCP {
                 }
             }
 
-            ackMessage = new DHCPMessage();
-            ackMessage.unmarshal(incoming.getData());
+            tmpMessage = new DHCPMessage();
+            tmpMessage.unmarshal(incoming.getData());
             
-            if ((ackMessage.getOp() == BOOTREQUEST) && (ackMessage.getXid() == xid)) {
+            if ((tmpMessage.getOp() == BOOTREQUEST) && (tmpMessage.getXid() == xid)) {
                 continue;  // Ignore.
             }
 
-            if (ackMessage.getXid() != xid) {
+            if (tmpMessage.getXid() != xid) {
                 continue;  // Ignore.
             }
             
@@ -320,6 +358,7 @@ public class DHCP {
                 }
             } else {
                 firstResponseAddress = incoming.getAddress();
+                ackMessage = tmpMessage;
                 responseReceived = true;
             }
         }
@@ -416,7 +455,7 @@ public class DHCP {
 
         informMessage.addOption(new MessageTypeOption(DHCPINFORM));
         informMessage.addOption(new MessageSizeOption(590));
-        informMessage.addOption(new ParameterRequestOption(SUBNET_MASK, ROUTER, DOMAIN_NAME, DOMAIN_NAME_SERVER, TFTP_SERVER, NTP_SERVER, TIME_OFFSET));
+        informMessage.addOption(new ParameterRequestOption(SUBNET_MASK, ROUTER, DOMAIN_NAME, DOMAIN_NAME_SERVER, TFTP_SERVER, BOOT_FILE, NTP_SERVER, TIME_OFFSET));
         informMessage.addOption(new VendorIdentifierOption("Pingtel"));
         informMessage.addOption(new ClientIdentifierOption(ETHERNET, chaddr));
 
@@ -433,6 +472,7 @@ public class DHCP {
         }
 
         DatagramPacket incoming = new DatagramPacket(new byte[1500], 1500);
+        DHCPMessage tmpMessage = null;
         DHCPMessage ackMessage = null;
         boolean responseReceived = false;
         InetAddress firstResponseAddress = null;
@@ -460,14 +500,14 @@ public class DHCP {
                 }
             }
 
-            ackMessage = new DHCPMessage();
-            ackMessage.unmarshal(incoming.getData());
+            tmpMessage = new DHCPMessage();
+            tmpMessage.unmarshal(incoming.getData());
             
-            if ((ackMessage.getOp() == BOOTREQUEST) && (ackMessage.getXid() == xid)) {
+            if ((tmpMessage.getOp() == BOOTREQUEST) && (tmpMessage.getXid() == xid)) {
                 continue;  // Ignore.
             }
 
-            if (ackMessage.getXid() != xid) {
+            if (tmpMessage.getXid() != xid) {
                 continue;  // Ignore.
             }
             
@@ -482,6 +522,7 @@ public class DHCP {
                 }
             } else {
                 firstResponseAddress = incoming.getAddress();
+                ackMessage = tmpMessage;
                 responseReceived = true;
             }
         }
