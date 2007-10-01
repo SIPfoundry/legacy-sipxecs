@@ -40,8 +40,10 @@ public abstract class DHCPOption {
         VENDOR_IDENTIFIER(60),
         CLIENT_IDENTIFIER(61),
         TFTP_SERVER(66),
+        BOOT_FILE(67),
         SMTP_SERVER(69),
         WWW_SERVER(72),
+        OPTION_150(150),
         END_OF_OPTIONS(255),
         INVALID(-1);
 
@@ -118,10 +120,14 @@ public abstract class DHCPOption {
                     return CLIENT_IDENTIFIER;
                 case 66:
                     return TFTP_SERVER;
+                case 67:
+                    return BOOT_FILE;
                 case 69:
                     return SMTP_SERVER;
                 case 72:
                     return WWW_SERVER;
+                case 150:
+                    return OPTION_150;
                 case 255:
                     return END_OF_OPTIONS;
                 default:
@@ -258,6 +264,11 @@ public abstract class DHCPOption {
                     tftpServerOption.unmarshal(dataStream);
                     optionsList.add(tftpServerOption);
                     break;
+                case BOOT_FILE:
+                    BootFileOption bootFileOption = new BootFileOption();
+                    bootFileOption.unmarshal(dataStream);
+                    optionsList.add(bootFileOption);
+                    break;
                 case SMTP_SERVER:
                     SMTPServerOption smtpServerOption = new SMTPServerOption();
                     smtpServerOption.unmarshal(dataStream);
@@ -267,6 +278,11 @@ public abstract class DHCPOption {
                     WWWServerOption wwwServerOption = new WWWServerOption();
                     wwwServerOption.unmarshal(dataStream);
                     optionsList.add(wwwServerOption);
+                    break;
+                case OPTION_150:
+                    Option150Option option150Option = new Option150Option();
+                    option150Option.unmarshal(dataStream);
+                    optionsList.add(option150Option);
                     break;
                 case END_OF_OPTIONS:
                     return optionsList;
@@ -365,6 +381,10 @@ public abstract class DHCPOption {
                     TFTPServerOption tftpServerOption = (TFTPServerOption) option;
                     journalService.println("  TFTP Server: " + tftpServerOption.toString());
                     break;
+                case BOOT_FILE:
+                    BootFileOption bootFileOption = (BootFileOption) option;
+                    journalService.println("  Boot File: " + bootFileOption.toString());
+                    break;
                 case SMTP_SERVER:
                     SMTPServerOption smtpServerOption = (SMTPServerOption) option;
                     journalService.println("  SMTP Server: " + smtpServerOption.toString());
@@ -372,6 +392,10 @@ public abstract class DHCPOption {
                 case WWW_SERVER:
                     WWWServerOption wwwServerOption = (WWWServerOption) option;
                     journalService.println("  WWW Server: " + wwwServerOption.toString());
+                    break;
+                case OPTION_150:
+                    Option150Option option150Option = (Option150Option) option;
+                    journalService.println("  Option 150 Server: " + option150Option.toString());
                     break;
                 default:
             }
