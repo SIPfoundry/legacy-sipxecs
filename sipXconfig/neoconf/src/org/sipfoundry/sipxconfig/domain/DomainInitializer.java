@@ -11,16 +11,18 @@ package org.sipfoundry.sipxconfig.domain;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Date;
+import java.util.Random;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.InitTaskListener;
-import org.sipfoundry.sipxconfig.domain.DomainManager.DomainNotInitializedException;
 
 /**
  * When system first starts up, create initial domain object w/default value(s)
  */
 public class DomainInitializer extends InitTaskListener {
+    private static final int SECRET_SIZE = 18;
     private DomainManager m_domainManager;
     private String m_initialDomain;
 
@@ -39,16 +41,19 @@ public class DomainInitializer extends InitTaskListener {
      */
     public void onInitTask(String task) {
         Domain domain = null;
-        try {
-            domain = m_domainManager.getDomain();
-        } catch (DomainNotInitializedException e) {
+        if (!m_domainManager.isDomainInitialized()) {
             domain = new Domain();
             domain.setName(getInitialDomainName());
+        } else {   
+            domain = m_domainManager.getDomain();
         }
-        
+
         if (StringUtils.isEmpty(domain.getSharedSecret())) {
-            String sharedSecret = RandomStringUtils.randomAscii(18);
-            domain.setSharedSecret(sharedSecret);
+            Random random = new Random(new Date().getTime());
+            byte[] secretBytes = new byte[SECRET_SIZE];
+            random.nextBytes(secretBytes);
+            String base64Secret = new String(new Base64().encode(secretBytes));
+            domain.setSharedSecret(base64Secret);
         }
         
         m_domainManager.saveDomain(domain);

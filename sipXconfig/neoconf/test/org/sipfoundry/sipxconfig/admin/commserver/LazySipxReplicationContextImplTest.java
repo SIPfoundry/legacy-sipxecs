@@ -18,15 +18,21 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainConfiguration;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.context.ApplicationEvent;
 
 public class LazySipxReplicationContextImplTest extends TestCase {
 
     public void testGenerateAll() throws Exception {
+        int lazyIterations = 20;
         XmlFile mr = new MappingRules();
         XmlFile orbits = new Orbits();
         
         ApplicationEvent event = new DialPlanActivatedEvent(this);
+       
+        LazySipxReplicationContextImpl lazy = new LazySipxReplicationContextImpl();
         
         IMocksControl replicationCtrl = EasyMock.createControl();
         SipxReplicationContext replication = replicationCtrl.createMock(SipxReplicationContext.class);
@@ -45,8 +51,6 @@ public class LazySipxReplicationContextImplTest extends TestCase {
         replication.generate(DataSet.CALLER_ALIAS);
         replicationCtrl.replay();
         
-        LazySipxReplicationContextImpl lazy = new LazySipxReplicationContextImpl();
-        
         int interval = 50;
         lazy.setSleepInterval(interval);
         lazy.setTarget(replication);
@@ -54,7 +58,7 @@ public class LazySipxReplicationContextImplTest extends TestCase {
         lazy.init();
         
         lazy.replicate(mr);
-        for(int i = 0; i < 20; i++) {
+        for(int i = 0; i < lazyIterations; i++) {
             lazy.generate(DataSet.ALIAS);
             lazy.generate(DataSet.PERMISSION);
             lazy.generateAll();            
@@ -64,7 +68,7 @@ public class LazySipxReplicationContextImplTest extends TestCase {
         Thread.sleep(400);
         
         lazy.replicate(orbits);
-        for(int i = 0; i < 20; i++) {
+        for(int i = 0; i < lazyIterations; i++) {
             lazy.generate(DataSet.ALIAS);
             lazy.generate(DataSet.PERMISSION);
             lazy.generateAll();            

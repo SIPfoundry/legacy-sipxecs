@@ -9,8 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.domain;
 
+import java.io.IOException;
+
 import junit.framework.TestCase;
 
+import org.apache.commons.codec.binary.Base64;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
 
 public class DomainInitializerTest extends TestCase {
@@ -26,7 +29,7 @@ public class DomainInitializerTest extends TestCase {
         assertEquals("bluejay", m_domainInitializer.getInitialDomainName());
     }
     
-    public void testOnInitTask() {
+    public void testOnInitTask() throws IOException {
         DomainManager mockDomainManager = new MockDomainManager();
         
         m_domainInitializer.setInitialDomain("sparrow");
@@ -37,7 +40,8 @@ public class DomainInitializerTest extends TestCase {
         assertEquals("sparrow", mockDomainManager.getDomain().getName());
         
         String sharedSecret = mockDomainManager.getDomain().getSharedSecret();
-        assertEquals(18, sharedSecret.length());
+        byte[] secretBytes = new Base64().decode(sharedSecret.getBytes());
+        assertEquals(18, secretBytes.length);
         
         // test that on a subsequent call, after domain is originally saved, we
         // we don't regenerate the secret
@@ -55,6 +59,9 @@ public class DomainInitializerTest extends TestCase {
         }
         public void saveDomain(Domain domain) {
             m_domain = domain;
+        }
+        public boolean isDomainInitialized() {
+            return m_domain != null;
         }
     }
 }

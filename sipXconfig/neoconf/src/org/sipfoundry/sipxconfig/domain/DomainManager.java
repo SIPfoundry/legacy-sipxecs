@@ -18,6 +18,10 @@ public interface DomainManager extends DialingRuleProvider {
     
     public Domain getDomain();
     
+    public DomainConfiguration createDomainConfiguration();
+    
+    public boolean isDomainInitialized();
+    
     public void saveDomain(Domain domain);
 
     public static class DomainNotInitializedException extends RuntimeException {

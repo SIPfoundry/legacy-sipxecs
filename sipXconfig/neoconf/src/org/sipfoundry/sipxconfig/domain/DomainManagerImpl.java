@@ -92,4 +92,21 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         }
         return rules;
     }
+
+    /** 
+     * Return true if the domain is initialized.  This provides a workaround
+     * for the fact that getDomain throws a RuntimeException if the domain is 
+     * not initialized when that method is called
+     */
+    public boolean isDomainInitialized() {
+        if (getExistingDomain() == null) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    public DomainConfiguration createDomainConfiguration() {
+        return m_domainConfiguration;
+    }
 }

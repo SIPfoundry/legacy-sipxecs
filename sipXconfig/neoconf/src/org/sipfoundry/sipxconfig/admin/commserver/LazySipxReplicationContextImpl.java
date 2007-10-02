@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.context.ApplicationEvent;
 
 public class LazySipxReplicationContextImpl implements SipxReplicationContext {
@@ -37,6 +38,8 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     private SipxReplicationContext m_target;
 
     private int m_sleepInterval = DEFAULT_SLEEP_INTERVAL;
+    
+    private DomainManager m_domainManager;
 
     /**
      * Do not initialized worker here - properties must be set first
@@ -58,8 +61,8 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         notifyWorker();
     }
 
-    public synchronized void replicate(ConfigurationFile xmlFile) {
-        m_tasks.add(xmlFile);
+    public synchronized void replicate(ConfigurationFile configurationFile) {
+        m_tasks.add(configurationFile);
         notifyWorker();
     }
 
@@ -111,6 +114,10 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
 
     public void setSleepInterval(int sleepInterval) {
         m_sleepInterval = sleepInterval;
+    }
+    
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 
     /**

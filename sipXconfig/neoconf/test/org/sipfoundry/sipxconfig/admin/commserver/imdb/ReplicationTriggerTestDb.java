@@ -14,6 +14,7 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
@@ -128,7 +129,15 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
         m_trigger.setParkOrbitContext(m_parkOrbitsContext);
         m_trigger.setSpeedDialManager(m_speedDialManager);
         m_trigger.setReplicateOnStartup(true);
-        expectOneCallToGenerateAll();
+        
+        m_replicationContext.generateAll();
+        m_replicationContext.replicate(EasyMock.isA(ConfigurationFile.class));
+        m_replicationContextCtrl.replay();
+        m_parkOrbitsContext.activateParkOrbits();
+        m_parkOrbitsContextCtrl.replay();
+        m_speedDialManager.activateResourceList();
+        m_speedDialManagerControl.replay();
+        
         m_trigger.onApplicationEvent(new ApplicationInitializedEvent(new Object()));
     }
 

@@ -21,7 +21,7 @@
       <legend><span key="label.aliasSection">Domain Aliases</span></legend>
       <p><span key="description.alias"/></p>
       <ul class="component-links">
-        <li><a jwcid="addAliasLink@LinkSubmit" href="#"
+        <li><a jwcid="addAliasLink@LinkSubmit"
           action="listener:submit">
           <span key="add.label">Add Alias</span></a>
         </li>
@@ -33,7 +33,7 @@
               volatile="ognl:true">
               <td>
                 <label jwcid="aliasLabel@FieldLabel"
-                  field="components.alias" 
+                  field="component:alias" 
                   label="message:label.alias">Alias</label>
               </td>
               <td>
@@ -44,26 +44,12 @@
               <td>
                 <a href="#" jwcid="removeAlias@DirectLink"
                   listener="listener:removeAlias"
-                  parameters" value="ognl:index">
+                  parameters="ognl:index">
                   <span key="label.removeAlias">Remove Alias</span></a>
               </td>
             </tr>
         </tbody>
       </table>
-    </fieldset>
-    <fieldset>
-      <table>
-        <tbody>
-          <tr jwcid="sharedSecretPanel@FieldPanel" for="domain:sharedSecret"
-            field="ognl:components.sharedSecret" label="message:sharedSecret.label"
-            description="message:sharedSecret.description">
-            <input jwcid="sharedSecret@TextField" id="domain:name" 
-              type="text" value="ognl:domain.sharedSecret"
-              displayName="message:sharedSecret.label"
-              disabled="ognl:true"/>
-          </tr>          
-        </tbody>
-      </table>      
     </fieldset>
     <ul jwcid="formActions@FormActions"
       listener="listener:commit" successMessage="message:msg.actionSuccess"/>
