@@ -3,7 +3,25 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
+Version 3.9.3
 
+** Bug
+    * [XCF-1678] - Firefox Pwd Mgr mangles PIN on User Identification page
+    * [XCF-1861] - Duplicate schedule names are accepted
+    * [XCF-1874] - Dialplan activation AuthRules do not reflect gateway changes
+
+** Improvement
+    * [XCF-1364] - LDAP not compatible with Win 2003 Active Directory
+    * [XCF-1804] - Backup & Restore: Warn if admin attempts to restore backup from older version
+    * [XCF-1834] - configure voicemail operator extension on a per user group basis
+    * [XCF-1853] - Some pages should add a Quick Help box
+    * [XCF-1860] - Allow specification of custom port and/or transport when creating/modifying gateways
+
+** New Feature
+    * [XCF-1790] - add generic configuration test page to diagnostics menu
+    * [XCF-1806] - Extend Scheduling to the System Dialing Plan
+    * [XCF-1835] - generate and replicate domain-config file
+    * [XCF-1840] - end user phonebook
 
 Version 3.9.2
 
