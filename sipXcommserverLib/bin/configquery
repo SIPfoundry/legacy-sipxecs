@@ -1,0 +1,68 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributo r Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreeme nt.
+# Licensed to the User under the LGPL license.
+
+# configquery - output the value of a single configuration item
+#   from a given configuration file
+#
+# Input 2 args:
+#  the config file from which to find the item
+#  the name of the item
+#
+# Output:
+#  STDOUT the 'value' of the item (nothing if not found)
+#
+# Returns:
+#  0 on success (item found)
+#255 on failure (item not found)
+# 
+
+sub parse()
+{
+   my ($line) = @_ ;
+   my $key, $value, $seperator ;
+
+   # Key can be alphanumeric, with ".", "_", and "-"
+   # seperator can be ":" or "="
+   # Try "key : value", or "key = value",  ala Pingtel config files
+   ($key, $seperator, $value) = $line =~ /^([\.\-[:word:]]+)(\s*[:=]\s*)(\S*.*)$/ ;
+   if (length($key) == 0)
+   {
+      $seperator = "" ;
+      # Try key{whitespace}value, ala mediaserver config file
+      ($key, $value) = $line =~ /^(\S+)(.*)$/ ;
+   }
+   $value = "" unless length($value) ; # "" instead of undef
+   return ($key, $value, $seperator)
+}
+
+$debug = 0 ; # Output interesting things to STDERR
+
+# takes 2 args:
+# config file, item name
+$file = shift @ARGV;
+$name = shift @ARGV;
+
+
+# Walk thru config file
+open CONFIG, $file || die "Cannot open $file" ;
+while(<CONFIG>)
+{
+   chomp ;
+   print STDERR "$_\n" if $debug ;
+   if (/^\s*$/ || /^#/)
+   {
+      # skip blank lines
+      # skip comments
+      next ;
+   }
+   ($key, $value) = &parse($_) ;
+   if ($name eq $key)
+   {
+      print STDOUT "$value\n" ;
+      exit 0 ;
+   }
+}
+exit 255 ;
