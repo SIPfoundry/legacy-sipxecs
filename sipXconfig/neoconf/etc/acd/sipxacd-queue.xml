@@ -17,7 +17,7 @@
       <type />
       <value />
     </setting>
-	<setting name="overflow-entry">
+    <setting name="overflow-entry">
       <type>
         <string required="no" />
       </type>
@@ -146,6 +146,12 @@
         <string />
       </type>
       <value />
+    </setting>
+    <setting name="agents-wrap-up-time">
+      <type>
+        <integer min="1" required="yes" />
+      </type>
+      <value>15</value>
     </setting>
   </group>
 </model>
