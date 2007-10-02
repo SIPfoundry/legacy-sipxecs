@@ -249,6 +249,37 @@ UpgradeProxy() {
             ;;
         2.8* | 2.9* | 3.0*)
             ;;
+        3.6.*)
+            # SIP_PROXY_CALL_STATE_DB and SIP_AUTHPROXY_CALL_STATE_DB
+            # should be set to CALLRESOLVER_CALL_STATE_DB. from config.defs
+            f=${SysConfDir}/sipxpbx/authproxy-config.in
+            CsDB=`${BinDir}/configquery $f SIP_AUTHPROXY_CALL_STATE_DB`
+            if ! echo $CsDB | grep -q '${CALLRESOLVER_CALL_STATE_DB}';
+            then
+               if ! echo $CsDB | egrep -q -i 'DISABLE|ENABLE';
+               then
+                  $CsDB = 'ENABLE'
+               fi
+               # Replace SIP_AUTHPROXY_CALL_STATE_DB
+               cp $f $f.OLD
+               sed '/^SIP_AUTHPROXY_CALL_STATE_DB/ c\
+SIP_AUTHPROXY_CALL_STATE_DB : ${CALLRESOLVER_CALL_STATE_DB}
+' $f.OLD > $f
+               # Replace SIP_PROXY_CALL_STATE_DB
+               f=${SysConfDir}/sipxpbx/proxy-config.in
+               cp $f $f.OLD
+               sed '/^SIP_PROXY_CALL_STATE_DB/ c\
+SIP_PROXY_CALL_STATE_DB : ${CALLRESOLVER_CALL_STATE_DB}
+' $f.OLD > $f
+               # Replace CALLRESOLVER_CALL_STATE_DB with original value
+               f=${SysConfDir}/sipxpbx/config.defs
+               cp $f $f.OLD
+               # First delete any old value (it may not be there)
+               sed '/^CALLRESOLVER_CALL_STATE_DB/ d' $f.OLD > $f
+               #  append the new line.
+               echo "CALLRESOLVER_CALL_STATE_DB=${CsDB}" >> $f
+            fi
+            ;;
 
         *)
             ;;
@@ -313,7 +344,7 @@ UpgradeMailstoreNoPrivateFolders () {
     then
         true # Already done.  No need to do it again
     else
-         @bindir@/sipx-upgrade-3.6-mailstore > $f
+         ${BinDir}/sipx-upgrade-3.6-mailstore > $f
     fi
 }
 
@@ -359,7 +390,6 @@ UpgradePbx() {
 ## Upgrade the ConfigServer
 ##########################
 UpgradeConfigServer() {
-    MergeRpmConfigFile "${SysConfDir}/sipxpbx/sipxconfig.properties.in"
     case $Version in
        2.* | 3.*)
            ;;

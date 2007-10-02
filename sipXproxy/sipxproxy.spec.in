@@ -20,6 +20,7 @@ BuildRoot: %{_tmppath}/%name-%version-root
 # should match sipXlib.m4:SIPX_UPGRADEDIR
 %define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
 %define this_archive %{name}-%{version}-%{release}.tgz
+%define this_archive_cdr %{name}-cdr-%{version}-%{release}.tgz
 %define sipxpbxvarlib %{_var}/lib/sipxpbx
 
 %description
@@ -95,9 +96,15 @@ make DESTDIR=$RPM_BUILD_ROOT install
 
 %define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
 mkdir -p %{upgrade_archive_root}
+# Make a 'current' tar file of etc for upgrade 
 tar --directory ${RPM_BUILD_ROOT} \
     -czf %{upgrade_archive_root}/%{this_archive} \
     etc
+# Do it again for cdr (same contents, different name)
+tar --directory ${RPM_BUILD_ROOT} \
+    -czf %{upgrade_archive_root}/%{this_archive_cdr} \
+    etc
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -142,6 +149,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipauthproxy.process.xml
 
 %{upgrade_archive_dir}/%{this_archive}
+# Where does this come from?
 %{upgrade_archive_dir}/%{name}-previous.tgz
 
 %files devel
@@ -164,6 +172,8 @@ mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
 pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
 %files cdr
+%defattr(644,root,root,755)
+
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/callresolver-config.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxcallresolver.process.xml
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr/*
@@ -172,6 +182,10 @@ pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 %attr(755,root,root) %{sipxpbxvarlib}/sipxcallresolver-2.0.0.gem
 %attr(755,root,root) %{_bindir}/sipxcallresolver.sh
 
+%{upgrade_archive_dir}/%{this_archive_cdr}
+# Where does this come from in the main package?
+#%{upgrade_archive_dir}/%{name}-cdr-previous.tgz
+
 %post cdr
 
 gem install --no-rdoc --local %{sipxpbxvarlib}/sipxcallresolver-*.gem >/dev/null 2>&1
@@ -179,13 +193,12 @@ if [ -f %{_sysconfdir}/cron.daily/callresolver_run ]; then
   rm -f %{_sysconfdir}/cron.daily/callresolver_run
 fi
 
-%define this_archive %{name}-%{version}-%{release}.tgz
-%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
-%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
+%define current_archive %{upgrade_archive_dir}/%{name}-cdr-current.tgz
+%define previous_archive %{upgrade_archive_dir}/%{name}-cdr-previous.tgz
 if [ -f %{current_archive} ]; then
   mv %{current_archive} %{previous_archive}
 fi
-mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
+mv %{upgrade_archive_dir}/%{this_archive_cdr} %{current_archive}
 
 pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 

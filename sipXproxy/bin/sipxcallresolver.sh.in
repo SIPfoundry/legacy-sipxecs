@@ -288,12 +288,12 @@ configCheck() {
    if ! expr match "$proxyConfig" '.*=\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
       cat <<ERROR
 
-Error: proxy is not configured to log call state events to a database.
+Warning: proxy is not configured to log call state events to a database.
 Add the line:
 
    CALLRESOLVER_CALL_STATE_DB : ENABLE
    
-to @SIPX_CONFDIR@/config.defs
+to @SIPX_CONFDIR@/config.defs if Call Details are desired.
 
 ERROR
       Status=1

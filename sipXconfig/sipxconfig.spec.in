@@ -241,8 +241,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/mailbox/*
 
 %pre
+sipx-upgrade -p sipxconfig -c
 
 %post
+sipx-upgrade -p sipxconfig -u --bdir %{_bindir} --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
 
 # Don't use pkg-upgrade for this file.  On HA Master systems this line will have been modified by the install wizard to
 # replace "DISTRIBUTED_HOSTNAME" with an actual hostname.  This command simply updates the line with the new agent URL.
