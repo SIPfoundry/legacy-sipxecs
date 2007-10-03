@@ -126,13 +126,11 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         try {
             List<BackupBean> beans = new ArrayList<BackupBean>();
             BackupBean config;
-            config = upload(getUploadConfigurationFile(), BackupPlan.CONFIGURATION_ARCHIVE,
-                    "message.wrongConfigurationFileToRestore");
+            config = upload(getUploadConfigurationFile(), BackupPlan.CONFIGURATION_ARCHIVE);
             if (config != null) {
                 beans.add(config);
             }
-            BackupBean voicemail = upload(getUploadVoicemailFile(), BackupPlan.VOICEMAIL_ARCHIVE,
-                    "message.wrongVoicemailFileToRestore");
+            BackupBean voicemail = upload(getUploadVoicemailFile(), BackupPlan.VOICEMAIL_ARCHIVE);
             if (voicemail != null) {
                 beans.add(voicemail);
             }
@@ -152,21 +150,23 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
 
     }
 
-    private BackupBean upload(IUploadFile uploadFile, String name, String msgWrongFile)
+    private BackupBean upload(IUploadFile uploadFile, String name)
         throws ValidatorException {
+
+        String fileType = ".tar.gz";
 
         if (uploadFile == null) {
             return null;
         }
-        if (!uploadFile.getFileName().equalsIgnoreCase(name)) {
-            String error = getMessages().getMessage(msgWrongFile);
+        if (!uploadFile.getFileName().endsWith(fileType)) {
+            String error = getMessages().getMessage("message.wrongFileToRestore");
             throw new ValidatorException(error);
         }
 
         OutputStream os = null;
         try {
             String prefix = StringUtils.substringBefore(uploadFile.getFileName(), ".");
-            File tmpFile = File.createTempFile(prefix, ".tar.gz");
+            File tmpFile = File.createTempFile(prefix, fileType);
             os = new FileOutputStream(tmpFile);
             IOUtils.copy(uploadFile.getStream(), os);
             return new BackupBean(tmpFile, name);
