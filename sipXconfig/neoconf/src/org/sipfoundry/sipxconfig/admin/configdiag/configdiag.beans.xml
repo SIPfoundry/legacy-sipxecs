@@ -3,7 +3,7 @@
 <beans>
   <bean id="configurationDiagnosticContext" class="org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticContextImpl">
     <property name="descriptorPath">
-      <value>${sysdir.etc}/sipxpbx/test.d</value>
+      <value>${sysdir.etc}/test.d</value>
     </property>
   </bean>
   
