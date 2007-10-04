@@ -48,7 +48,7 @@ public class PhonebookResource extends Resource {
     
     @Override
     public Representation getRepresentation(Variant variant) {
-        return new PhonebookCsv(m_phonebookManager.getRows(m_phonebook));
+        return new PhonebookCsv(m_phonebookManager.getEntries(m_phonebook));
     }
     
     static final class PhonebookCsv extends OutputRepresentation {

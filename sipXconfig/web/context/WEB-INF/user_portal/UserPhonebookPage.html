@@ -2,14 +2,16 @@
   <h2><span key="title">User Phonebook</span></h2>
   <form jwcid="@Form">
     <fieldset>
-      <span jwcid="@FieldPanel" for=userPhonebook:query"
-        field="component:query"
-        label="message:label.query"
-        description="message:description.query">
-        <input jwcid="query@TextField" id="userPhonebook:query"
-          displayName="message:label.query"
-          value="ognl:query"/>
-      </span>
+      <table>
+        <tr jwcid="@FieldPanel" for="userPhonebook:query"
+          field="component:query"
+          label="message:label.query"
+          description="message:description.query">
+          <td jwcid="query@TextField" id="userPhonebook:query"
+            displayName="message:label.query"
+            value="ognl:query"/>
+        </tr>
+      </table>
     </fieldset>
     <ul class="component-submit">
       <li>

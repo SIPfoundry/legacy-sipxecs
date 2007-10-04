@@ -32,9 +32,11 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     public String getExternalUsersDirectory();
     
-    public Collection<PhonebookEntry> getRows(Collection<Phonebook> phonebook);
+    public Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebook);
 
-    public Collection<PhonebookEntry> getRows(Phonebook phonebook);
+    public Collection<PhonebookEntry> getEntries(Phonebook phonebook);
+    
+    public Collection<PhonebookEntry> search(Collection<Phonebook> phonebooks, String searchTerm);
     
     public void reset();
 }

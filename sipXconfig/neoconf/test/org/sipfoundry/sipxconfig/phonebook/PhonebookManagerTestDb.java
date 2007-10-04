@@ -64,7 +64,7 @@ public class PhonebookManagerTestDb extends TestHelper.TestCaseDb {
         TestHelper.insertFlat("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
         User yellowthroat = m_coreContext.loadUser(1001);
         Collection<Phonebook> books = m_context.getPhonebooksByUser(yellowthroat);
-        Iterator<PhonebookEntry> entries = m_context.getRows(books).iterator();
+        Iterator<PhonebookEntry> entries = m_context.getEntries(books).iterator();
         assertEquals("canadian", entries.next().getNumber());
         assertEquals("mallard", entries.next().getNumber());
         assertEquals("pintail", entries.next().getNumber());
