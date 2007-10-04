@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.collections.Closure;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -55,7 +53,6 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     private static final String NAME = "name";
     private static final String FIELD_ID = "id";
     private static final String FIELD_CONTENT = "content";
-    private static final Log LOG = LogFactory.getLog(PhonebookManagerImpl.class);
 
     private String m_externalUsersDirectory;
     private CoreContext m_coreContext;
@@ -179,11 +176,12 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     /**
-     * Search the specified phonebooks for all entries that match the given query string.  Both
-     * the first and last name of each entry are searched using a prefix search (R, Rob, and Robert
-     * all match the first name "Robert").  Additionally, for all entries that coorespond to User 
-     * objects, the aliases of that user object will be searched. 
-     * @param queryString The string to search for.  Can not be null  
+     * Search the specified phonebooks for all entries that match the given query string. Both the
+     * first and last name of each entry are searched using a prefix search (R, Rob, and Robert
+     * all match the first name "Robert"). Additionally, for all entries that coorespond to User
+     * objects, the aliases of that user object will be searched.
+     * 
+     * @param queryString The string to search for. Can not be null
      */
     public Collection<PhonebookEntry> search(Collection<Phonebook> phonebooks, String queryString) {
         RAMDirectory index = new RAMDirectory();
@@ -231,7 +229,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     /*
      * @param queryString A case-insensitive query string
      */
-    private List<Document> doSearch(Searcher searcher, String queryString) throws IOException, ParseException {
+    private List<Document> doSearch(Searcher searcher, String queryString) throws IOException,
+            ParseException {
         Term searchTerm = new Term(FIELD_CONTENT, queryString.toLowerCase());
         Query query = new PrefixQuery(searchTerm);
         Hits hits = searcher.search(query);

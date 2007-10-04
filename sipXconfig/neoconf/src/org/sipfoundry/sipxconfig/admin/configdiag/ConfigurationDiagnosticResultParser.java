@@ -30,9 +30,8 @@ public class ConfigurationDiagnosticResultParser implements Serializable {
     public ConfigurationDiagnosticResult parseResult(int exitStatus) {
         if (m_ruleMap != null && m_ruleMap.containsKey(exitStatus)) {
             return m_ruleMap.get(exitStatus);
-        } else {
-            return ConfigurationDiagnosticResult.UNKNOWN_RESULT;
         }
+        return ConfigurationDiagnosticResult.UNKNOWN_RESULT;
     }
 
     public void parseResult(int exitStatus, ConfigurationDiagnosticResult result) {

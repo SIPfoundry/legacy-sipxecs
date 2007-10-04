@@ -18,9 +18,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
-import org.sipfoundry.sipxconfig.domain.Domain;
-import org.sipfoundry.sipxconfig.domain.DomainConfiguration;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.context.ApplicationEvent;
 
 public class LazySipxReplicationContextImplTest extends TestCase {

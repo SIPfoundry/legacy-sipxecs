@@ -85,6 +85,7 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
      */
     private void expectOneCallToGenerateAll() {
         m_replicationContext.generateAll();
+        m_replicationContext.replicate(EasyMock.isA(ConfigurationFile.class));
         m_replicationContextCtrl.replay();
         m_parkOrbitsContext.activateParkOrbits();
         m_parkOrbitsContextCtrl.replay();
@@ -129,15 +130,7 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
         m_trigger.setParkOrbitContext(m_parkOrbitsContext);
         m_trigger.setSpeedDialManager(m_speedDialManager);
         m_trigger.setReplicateOnStartup(true);
-        
-        m_replicationContext.generateAll();
-        m_replicationContext.replicate(EasyMock.isA(ConfigurationFile.class));
-        m_replicationContextCtrl.replay();
-        m_parkOrbitsContext.activateParkOrbits();
-        m_parkOrbitsContextCtrl.replay();
-        m_speedDialManager.activateResourceList();
-        m_speedDialManagerControl.replay();
-        
+        expectOneCallToGenerateAll();
         m_trigger.onApplicationEvent(new ApplicationInitializedEvent(new Object()));
     }
 
@@ -151,5 +144,4 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
         expectNoCalls();
         m_trigger.onApplicationEvent(new ApplicationInitializedEvent(new Object()));
     }
-
 }

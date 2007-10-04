@@ -53,6 +53,9 @@ public final class TapestryUtils {
      */
     public static final String VALIDATOR = "validator";
 
+    // Makes checkstyle happy
+    private static final String DEPRECATION = "deprecation";
+
     /**
      * restrict construction
      */
@@ -257,11 +260,13 @@ public final class TapestryUtils {
         return defaultMessage;
     }
 
+    @SuppressWarnings(DEPRECATION)
     public static String getSettingLabel(IComponent component, Setting setting) {
         return getModelMessage(component, setting.getMessageSource(), setting.getLabelKey(),
                 setting.getLabel());
     }
 
+    @SuppressWarnings(DEPRECATION)
     public static String getSettingDescription(IComponent component, Setting setting) {
         return getModelMessage(component, setting.getMessageSource(),
                 setting.getDescriptionKey(), setting.getDescription());

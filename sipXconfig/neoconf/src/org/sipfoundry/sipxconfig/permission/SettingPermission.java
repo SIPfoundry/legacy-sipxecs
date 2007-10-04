@@ -23,6 +23,7 @@ public class SettingPermission extends Permission {
 
     private String m_descriptionKey;
 
+    @SuppressWarnings("deprecation")
     public SettingPermission(Setting setting) {
         m_name = setting.getName();
         setLabel(setting.getLabel());
