@@ -74,7 +74,8 @@ SipAaa::SipAaa(SipUserAgent& sipUserAgent,
    // get the shared secret for generating signatures
    mSharedSecret = new SharedSecret(domainConfiguration);
    RouteState::setSecret(mSharedSecret->data());
-    
+   SipXauthIdentity::setSecret(mSharedSecret->data());
+
    OsMsgQ* queue = getMessageQueue();
     
    // Register to get incoming requests
