@@ -7,6 +7,8 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
+// Some ENUM test numbers can be found at http://www.enum-test.at/index_en.html
+
 // SYSTEM INCLUDES
 #include <string.h>
 #include <sys/types.h>
@@ -141,18 +143,18 @@ void SipRedirectorENUM::readConfig(OsConfigDb& configDb)
                  "%s::readConfig "
                  "mPrefixPlus is %d", mLogName.data(), mPrefixPlus);
 
-   if (configDb.get("E164_PREFIX", mDialPrefix) != OS_SUCCESS ||
+   if (configDb.get("ADD_PREFIX", mE164Prefix) != OS_SUCCESS ||
        mE164Prefix.isNull())
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
                     "%s::readConfig "
-                    "E.164 prefix is empty", mLogName.data());
+                    "E.164 added prefix is empty", mLogName.data());
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
                     "%s::readConfig "
-                    "E.164 prefix is '%s'",
+                    "E.164 added prefix is '%s'",
                     mLogName.data(), mE164Prefix.data());
    }
 }
@@ -202,7 +204,7 @@ SipRedirectorENUM::lookUp(
       user += prefix_length;
       // Check the syntax of the remainder of the user.
       i = strspn(user, "0123456789");
-      if (user[i] == '\0')
+      if (i >= 1 && user[i] == '\0')
       {
          status = true;
       }
