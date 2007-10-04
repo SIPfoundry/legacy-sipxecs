@@ -9,9 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import java.text.MessageFormat;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.Formatter;
 import java.util.List;
 
 import org.hibernate.cfg.Configuration;
@@ -27,7 +26,7 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
             + "<!DOCTYPE hibernate-mapping PUBLIC \"-//Hibernate/Hibernate Mapping DTD 3.0//EN\" "
             + "   \"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd\">";
     public static final String MAPPING_PATTERN = "<hibernate-mapping default-lazy=\"false\">"
-            + "<subclass name=\"{0}\" extends=\"{1}\" discriminator-value=\"{2}\"/>"
+            + "<subclass name=\"%s\" extends=\"%s\" discriminator-value=\"%s\"/>"
             + "</hibernate-mapping>";
 
     private ListableBeanFactory m_beanFactory;
@@ -36,11 +35,10 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
      * Collection of bean IDs that representing superclasses of the hierarchy. All beans of the
      * same type as bean ID will be automatically mapped to the same hibernate table.
      */
-    private List m_baseClassBeanIds = Collections.EMPTY_LIST;
+    private List<String> m_baseClassBeanIds = Collections.EMPTY_LIST;
 
     protected void postProcessConfiguration(Configuration config) {
-        for (Iterator i = m_baseClassBeanIds.iterator(); i.hasNext();) {
-            String baseClassBeanID = (String) i.next();
+        for (String baseClassBeanID : m_baseClassBeanIds) {
             bindSubclasses(config, baseClassBeanID);
         }
     }
@@ -54,8 +52,7 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
      */
     protected void bindSubclasses(Configuration config, Class baseClass) {
         String[] beanDefinitionNames = m_beanFactory.getBeanNamesForType(baseClass);
-        for (int i = 0; i < beanDefinitionNames.length; i++) {
-            String beanId = beanDefinitionNames[i];
+        for (String beanId : beanDefinitionNames) {
             Class subClass = m_beanFactory.getType(beanId);
             if (subClass == baseClass) {
                 continue; // skip baseclass which is already mapped
@@ -75,16 +72,7 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
      */
     protected void bindSubclasses(Configuration config, String baseClassBeanId) {
         Class baseClass = m_beanFactory.getType(baseClassBeanId);
-        String[] beanDefinitionNames = m_beanFactory.getBeanNamesForType(baseClass);
-        for (int i = 0; i < beanDefinitionNames.length; i++) {
-            String beanId = beanDefinitionNames[i];
-            if (beanId.equals(baseClassBeanId)) {
-                continue; // skip base class bean needs to be already mapped
-            }
-            Class subClass = m_beanFactory.getType(beanId);
-            String mapping = xmlMapping(baseClass, subClass, beanId);
-            config.addXML(mapping);
-        }
+        bindSubclasses(config, baseClass);
     }
 
     /**
@@ -96,10 +84,10 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
      * @return xml string that can be parsed by hibernate to add new mapping
      */
     String xmlMapping(Class baseClass, Class subClass, String discriminator) {
-        String mapping = MessageFormat.format(MAPPING_PATTERN, new Object[] {
-            subClass.getName(), baseClass.getName(), discriminator
-        });
-        return HEADER + mapping;
+        StringBuilder mapping = new StringBuilder(HEADER);
+        Formatter formatter = new Formatter(mapping);
+        formatter.format(MAPPING_PATTERN, subClass.getName(), baseClass.getName(), discriminator);
+        return mapping.toString();
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
@@ -110,7 +98,7 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
         m_beanFactory = (ListableBeanFactory) beanFactory;
     }
 
-    public void setBaseClassBeanIds(List baseClassBeanIds) {
+    public void setBaseClassBeanIds(List<String> baseClassBeanIds) {
         m_baseClassBeanIds = baseClassBeanIds;
     }
 }

@@ -68,7 +68,7 @@ public class DynamicSessionFactoryBeanTest extends TestCase {
                 
         DynamicSessionFactoryBean bean = new DynamicSessionFactoryBean();
         bean.setBeanFactory(factory);
-        bean.bindSubclasses(config, "gwGeneric");
+        bean.bindSubclasses(config, Gateway.class);
         
         controlFactory.verify();
         config.verify();
