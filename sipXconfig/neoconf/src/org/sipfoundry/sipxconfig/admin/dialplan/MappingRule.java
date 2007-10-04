@@ -18,10 +18,8 @@ import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer.Operation;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
-import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * MappingRule
@@ -146,7 +144,7 @@ public class MappingRule extends DialingRule {
     public static class VoicemailFallback extends MappingRule {
         private MediaServer m_mediaServer;
 
-        public VoicemailFallback(int extensionLen, MediaServer mediaServer) {
+        public VoicemailFallback(MediaServer mediaServer) {
             m_mediaServer = mediaServer;
             setPatterns(new String[] {
                 "~~vm~."
@@ -190,28 +188,6 @@ public class MappingRule extends DialingRule {
         }
     }
     
-    public static class VoicemailRedirect extends MappingRule {
-        public VoicemailRedirect(int extensionLen) {
-            DialPattern pattern = new DialPattern("", extensionLen);
-            setPatterns(new String[] {
-                pattern.calculatePattern()
-            });
-        }
-        
-        public Transform[] getTransforms() {
-            Transform[] transforms = new Transform[1];
-            FullTransform fullTransform = new FullTransform();
-            fullTransform.setUser("~~vm~{user}");
-            fullTransform.setFieldParams(new String[] {MappingRule.FIELD_PARAM});
-            transforms[0] = fullTransform;
-            return transforms;
-        }
-        
-        public List<String> getPermissionNames() {
-            return Collections.singletonList(PermissionName.VOICEMAIL.getName());
-        }
-    }
-
     /**
      * Builds a URL based on the provided digits, media server, and
      * sip parameters.

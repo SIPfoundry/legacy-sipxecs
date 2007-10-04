@@ -64,12 +64,11 @@ public class InternalRuleTest extends TestCase {
         List<DialingRule> rules = new ArrayList<DialingRule>();
         ir.appendToGenerationRules(rules);
 
-        assertEquals(4, rules.size());
+        assertEquals(3, rules.size());
 
         MappingRule v = (MappingRule) rules.get(0);
         MappingRule vt = (MappingRule) rules.get(1);
-        MappingRule vr = (MappingRule) rules.get(2);
-        MappingRule vf = (MappingRule) rules.get(3);
+        MappingRule vf = (MappingRule) rules.get(2);
 
         assertEquals(TEST_DESCRIPTION, v.getDescription());
         assertEquals("20004", v.getPatterns()[0]);
@@ -83,13 +82,6 @@ public class InternalRuleTest extends TestCase {
         UrlTransform tvt = (UrlTransform) vt.getTransforms()[0];
         assertEquals(VOICEMAIL_TRANSFER_URL, tvt.getUrl());
 
-        assertEquals(TEST_DESCRIPTION, vf.getDescription());
-        assertEquals("xxxxx", vr.getPatterns()[0]);
-        assertEquals(PermissionName.VOICEMAIL.getName(), vr.getPermissionNames().get(0));
-        FullTransform tvr = (FullTransform) vr.getTransforms()[0];
-        assertEquals("~~vm~{user}", tvr.getUser());
-        assertTrue(Arrays.deepEquals(new String[]{"q=0.1"}, tvr.getFieldParams()));
-        
         assertEquals(TEST_DESCRIPTION, vf.getDescription());
         assertEquals("~~vm~.", vf.getPatterns()[0]);
         assertEquals(PermissionName.SIPX_VOICEMAIL.getName(), vf.getPermissionNames().get(0));

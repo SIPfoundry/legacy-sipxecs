@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
+import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
@@ -32,11 +33,11 @@ import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 
 public abstract class GatewaysPanel extends BaseComponent {
 
-    public abstract Collection getRowsToDelete();
+    public abstract Collection<Integer> getRowsToDelete();
 
-    public abstract Collection getRowsToMoveUp();
+    public abstract Collection<Integer> getRowsToMoveUp();
 
-    public abstract Collection getRowsToMoveDown();
+    public abstract Collection<Integer> getRowsToMoveDown();
 
     public abstract DialingRule getRule();
 
@@ -65,7 +66,7 @@ public abstract class GatewaysPanel extends BaseComponent {
 
     public IPropertySelectionModel getActionModel() {
         GatewayContext context = getGatewayContext();
-        Collection actions = new ArrayList();
+        Collection<OptionAdapter> actions = new ArrayList<OptionAdapter>();
         DialingRule rule = getRule();
 
         Collection<Gateway> gateways;
@@ -165,7 +166,7 @@ public abstract class GatewaysPanel extends BaseComponent {
 
     private boolean onFormSubmit() {
         DialingRule rule = getRule();
-        Collection selectedGateways = getRowsToDelete();
+        Collection<Integer> selectedGateways = getRowsToDelete();
         if (null != selectedGateways) {
             rule.removeGateways(selectedGateways);
             return true;

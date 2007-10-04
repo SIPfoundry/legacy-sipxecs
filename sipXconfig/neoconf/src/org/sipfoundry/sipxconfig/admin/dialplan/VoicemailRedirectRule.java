@@ -1,0 +1,56 @@
+/*
+ * 
+ * 
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ * 
+ * $
+ */
+package org.sipfoundry.sipxconfig.admin.dialplan;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
+
+public class VoicemailRedirectRule extends DialingRule {
+    
+    public String[] getPatterns() {
+        return new String[] {"."};
+    }
+
+    /**
+     * This rule is always enabled as it is a system-generated rule
+     */
+    public boolean isEnabled() {
+        return true;
+    }
+
+    public Transform[] getTransforms() {
+        Transform[] transforms = new Transform[1];
+        FullTransform fullTransform = new FullTransform();
+        fullTransform.setUser("~~vm~{user}");
+        fullTransform.setFieldParams(new String[] {"q=0.1"});
+        transforms[0] = fullTransform;
+        return transforms;
+    }
+
+    public DialingRuleType getType() {
+        return DialingRuleType.MAPPING_RULE;
+    }
+
+    public boolean isInternal() {
+        return true;
+    }
+    
+    public List<String> getPermissionNames() {
+        return Collections.singletonList(PermissionName.VOICEMAIL.getName());
+    }
+
+    public String getDescription() {
+        return "Voicemail redirect dialing rule";
+    }
+}

@@ -180,7 +180,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     public void duplicateRules(Collection<Integer> selectedRows) {
         DialPlan dialPlan = getDialPlan();
-        List rules = dialPlan.getRules();
+        List<DialingRule> rules = dialPlan.getRules();
         Collection<DialingRule> selectedRules = DataCollectionUtil.findByPrimaryKey(rules,
                 selectedRows.toArray());
         for (DialingRule rule : selectedRules) {
@@ -194,12 +194,12 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         getHibernateTemplate().saveOrUpdate(dialPlan);
     }
 
-    public List getGenerationRules() {
+    public List<DialingRule> getGenerationRules() {
         DialPlan dialPlan = getDialPlan();
         return dialPlan.getGenerationRules();
     }
 
-    public List getAttendantRules() {
+    public List<AttendantRule> getAttendantRules() {
         DialPlan dialPlan = getDialPlan();
         return dialPlan.getAttendantRules();
     }

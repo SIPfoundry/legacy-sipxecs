@@ -145,7 +145,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
     }
 
     /**
-     * Returns the lis of gateways that can be added to this rule.
+     * Returns the list of gateways that can be added to this rule.
      * 
      * @param allGateways pool of all possible gateways
      * @return list of gateways that still can be assigned to this rule
@@ -157,7 +157,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
         return gateways;
     }
 
-    public void moveGateways(Collection ids, int step) {
+    public void moveGateways(Collection<Integer> ids, int step) {
         DataCollectionUtil.moveByPrimaryKey(m_gateways, ids.toArray(), step, false);
     }
 

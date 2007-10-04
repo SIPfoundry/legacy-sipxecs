@@ -35,6 +35,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServer;
+import org.sipfoundry.sipxconfig.admin.dialplan.VoicemailRedirectRule;
 import org.sipfoundry.sipxconfig.admin.parkorbit.MohRule;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.speeddial.RlsRule;
@@ -249,9 +250,9 @@ public class MappingRulesTest extends XMLTestCase {
         rules.add(new MappingRule.Voicemail("102", exchangeMediaServer));
         rules.add(new MappingRule.VoicemailTransfer("2", extension, mediaServer));
         rules.add(new MappingRule.VoicemailTransfer("2", extension, exchangeMediaServer));
-        rules.add(new MappingRule.VoicemailRedirect(extension));
-        rules.add(new MappingRule.VoicemailFallback(3, mediaServer));
-        rules.add(new MappingRule.VoicemailFallback(3, exchangeMediaServer));
+        rules.add(new MappingRule.VoicemailFallback(mediaServer));
+        rules.add(new MappingRule.VoicemailFallback(exchangeMediaServer));
+        rules.add(new VoicemailRedirectRule());
 
         IMocksControl controlPlan = EasyMock.createStrictControl();
         DialPlanContext plan = controlPlan.createMock(DialPlanContext.class);

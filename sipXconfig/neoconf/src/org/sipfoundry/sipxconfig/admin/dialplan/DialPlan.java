@@ -38,7 +38,7 @@ public class DialPlan extends BeanWithId {
         DataCollectionUtil.removeByPrimaryKey(m_rules, keys);
     }
 
-    public void removeRules(Collection ids) {
+    public void removeRules(Collection<Integer> ids) {
         DataCollectionUtil.removeByPrimaryKey(m_rules, ids.toArray());
     }
 
@@ -69,6 +69,10 @@ public class DialPlan extends BeanWithId {
         for (DialingRule rule : getRules()) {
             rule.appendToGenerationRules(generationRules);
         }
+        
+        VoicemailRedirectRule redirectRule = new VoicemailRedirectRule();
+        redirectRule.appendToGenerationRules(generationRules);
+        
         return generationRules;
     }
 
@@ -77,15 +81,15 @@ public class DialPlan extends BeanWithId {
      * 
      * @return list of attendant rules, empty list if no attendant rules in this plan
      */
-    public List getAttendantRules() {
-        List attendantRules = new ArrayList();
+    public List<AttendantRule> getAttendantRules() {
+        List<AttendantRule> attendantRules = new ArrayList<AttendantRule>();
         Predicate isAttendantRule = InstanceofPredicate.getInstance(AttendantRule.class);
         CollectionUtils.select(m_rules, isAttendantRule, attendantRules);
         return attendantRules;
     }
 
     /**
-     * Run thru dialing rules and set rellevant dial plans that take
+     * Run thru dialing rules and set relevant dial plans that take
      */
     public void setOperator(AutoAttendant operator) {
         DialingRule[] rules = getDialingRuleByType(m_rules, AttendantRule.class);

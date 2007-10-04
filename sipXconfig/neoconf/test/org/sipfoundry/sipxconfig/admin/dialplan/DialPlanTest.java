@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.Arrays;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -92,5 +93,14 @@ public class DialPlanTest extends TestCase {
         };
         plan.setRules(Arrays.asList(rules));
         assertEquals(2, plan.getAttendantRules().size());
+    }
+    
+    public void testGetGenerationRules() {
+        // VoicemailRedirect rule should always be present and be last in the
+        // list of rules
+        DialPlan out = new DialPlan();
+        List<DialingRule> defaultRules = out .getGenerationRules();
+        assertTrue(defaultRules.size() > 0);
+        assertTrue(defaultRules.get(defaultRules.size() - 1) instanceof VoicemailRedirectRule);
     }
 }
