@@ -9,7 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.configdiag;
 
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
+import java.text.Format;
 import java.util.Date;
 import java.util.List;
 
@@ -49,10 +50,18 @@ public abstract class ConfigurationDiagnosticPage extends BasePage implements
 
     public abstract ConfigurationDiagnostic getConfigurationTest();
 
+    public abstract Format getDateFormat();
+
+    public abstract void setDateFormat(Format format);
+
     public void pageBeginRender(PageEvent event) {
-        if (getConfigurationTests() == null) {
-            setConfigurationTests(getConfigurationDiagnosticContext().getConfigurationTests());
+        if (getConfigurationTests() != null) {
+            return;
         }
+        setConfigurationTests(getConfigurationDiagnosticContext().getConfigurationTests());
+        Format dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT,
+                getLocale());
+        setDateFormat(dateFormat);
     }
 
     public IPage displayDetail(ConfigurationDiagnostic diagnostic) {
@@ -75,8 +84,7 @@ public abstract class ConfigurationDiagnosticPage extends BasePage implements
         Date lastRunTime = configuationDiagnostic.getStartTime();
         if (lastRunTime == null) {
             return getMessages().getMessage("notRun");
-        } else {
-            return new SimpleDateFormat().format(lastRunTime);
         }
+        return getDateFormat().format(lastRunTime);
     }
 }
