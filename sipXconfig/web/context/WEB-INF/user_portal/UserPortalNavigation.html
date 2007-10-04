@@ -1,8 +1,10 @@
 <ul id="nav">
   <li>
-    <a href="#" jwcid="@PageLink" id="menu.voicemail" page="vm/ManageVoicemail">
-      <span key="menu.manageVoicemail"/>
-    </a>
+    <a><span key="menu.manageVoicemail">Voicemail</span></a>
+    <ul>
+      <li><a jwcid="@PageLink" id="menu.inbox" page="vm/ManageVoicemail"><span key="menu.inbox">Inbox</span></a></li>
+      <li><a jwcid="@PageLink" id="menu.distributionLists" page="vm/EditDistributionLists"><span key="menu.distributionLists">Distribution Lists</span></a></li>
+    </ul>
   </li>
   <li>
     <a href="#" jwcid="@PageLink" id="menu.myInformation" page="user_portal/EditMyInformation">
@@ -10,14 +12,11 @@
     </a>
   </li>
   <li>
-    <a href="#" jwcid="@PageLink" id="menu.callForwarding" page="UserCallForwarding">
-      <span key="menu.callForwarding">Call Forwarding</span>
-    </a>
-  </li>
-  <li>
-    <a href="#" jwcid="@PageLink" id="menu.schedules" page="UserSchedules">
-      <span key="menu.schedules">Schedules</span>
-    </a>
+    <a><span key="menu.callForwarding">Call Forwarding</span></a>
+    <ul>
+      <li><a jwcid="@PageLink" id="menu.callForwarding" page="UserCallForwarding"><span key="menu.callForwarding">Call Forwarding</span></a></li>
+      <li><a jwcid="@PageLink" id="menu.schedules" page="UserSchedules"><span key="menu.schedules">Schedules</span></a></li>
+    </ul>
   </li>
   <li>
     <a href="#" jwcid="@PageLink" id="menu.speedDial" page="speeddial/SpeedDialPage">
@@ -32,11 +31,6 @@
   <li jwcid="@If" element="li" condition="ognl: userSession.supervisor">
     <a href="#" jwcid="@PageLink" id="menu.acdSupervisisorConsole" page="AcdSupervisorConsole">
       <span key="menu.acdSupervisisorConsole">ACD Supervision</span>
-    </a>
-  </li>
-  <li>
-    <a href="#" jwcid="@PageLink" id="menu.distributionLists" page="vm/EditDistributionLists">
-      <span key="menu.distributionLists"/>
     </a>
   </li>
   <li>
