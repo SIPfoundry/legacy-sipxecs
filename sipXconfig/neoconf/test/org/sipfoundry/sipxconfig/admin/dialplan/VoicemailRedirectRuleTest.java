@@ -13,13 +13,13 @@ public class VoicemailRedirectRuleTest extends TestCase {
     private static final String USER_MATCH_PATTERN = ".";
     private static final String VOICEMAIL_USER = "~~vm~{user}";
     private static final Object FIELD_PARAMS = "q=0.1";
-    
+
     private VoicemailRedirectRule m_out;
-    
+
     public void setUp() {
         m_out = new VoicemailRedirectRule();
     }
-    
+
     public void testGetPatterns() {
         String[] patterns = m_out.getPatterns();
         assertEquals(1, patterns.length);
@@ -30,7 +30,7 @@ public class VoicemailRedirectRuleTest extends TestCase {
         Transform[] transforms = m_out.getTransforms();
         assertEquals(1, transforms.length);
         assertTrue(transforms[0] instanceof FullTransform);
-        FullTransform fullTransform = (FullTransform)transforms[0];
+        FullTransform fullTransform = (FullTransform) transforms[0];
         assertEquals(VOICEMAIL_USER, fullTransform.getUser());
         assertEquals(1, fullTransform.getFieldParams().length);
         assertEquals(FIELD_PARAMS, fullTransform.getFieldParams()[0]);

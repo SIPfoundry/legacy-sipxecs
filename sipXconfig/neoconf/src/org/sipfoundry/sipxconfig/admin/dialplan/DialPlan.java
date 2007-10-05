@@ -69,10 +69,10 @@ public class DialPlan extends BeanWithId {
         for (DialingRule rule : getRules()) {
             rule.appendToGenerationRules(generationRules);
         }
-        
+
         VoicemailRedirectRule redirectRule = new VoicemailRedirectRule();
         redirectRule.appendToGenerationRules(generationRules);
-        
+
         return generationRules;
     }
 

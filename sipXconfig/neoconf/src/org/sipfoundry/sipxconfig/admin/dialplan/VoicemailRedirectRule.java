@@ -17,9 +17,11 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public class VoicemailRedirectRule extends DialingRule {
-    
+
     public String[] getPatterns() {
-        return new String[] {"."};
+        return new String[] {
+            "."
+        };
     }
 
     /**
@@ -33,7 +35,7 @@ public class VoicemailRedirectRule extends DialingRule {
         Transform[] transforms = new Transform[1];
         FullTransform fullTransform = new FullTransform();
         fullTransform.setUser("~~vm~{user}");
-        fullTransform.setFieldParams(new String[] {"q=0.1"});
+        fullTransform.setFieldParams("q=0.1");
         transforms[0] = fullTransform;
         return transforms;
     }
@@ -45,7 +47,7 @@ public class VoicemailRedirectRule extends DialingRule {
     public boolean isInternal() {
         return true;
     }
-    
+
     public List<String> getPermissionNames() {
         return Collections.singletonList(PermissionName.VOICEMAIL.getName());
     }
