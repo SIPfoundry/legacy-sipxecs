@@ -17,6 +17,7 @@
 
   <bean id="mailSenderContextImpl" class="org.sipfoundry.sipxconfig.admin.mail.MailSenderContextImpl">
     <property name="mailSender" ref="mailSender" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="mailSenderContext" class="org.springframework.aop.framework.ProxyFactoryBean">

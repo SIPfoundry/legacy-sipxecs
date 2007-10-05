@@ -34,7 +34,7 @@
 
   <bean id="backupPlan" class="org.sipfoundry.sipxconfig.admin.BackupPlan">
     <property name="mailSenderContext" ref="mailSenderContext" />
-    <property name="emailFromAddress" value="backup@localhost" />
+    <property name="emailFromAddress" value="backup" />
   </bean>
 
   <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
