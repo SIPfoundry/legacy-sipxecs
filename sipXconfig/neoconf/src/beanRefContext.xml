@@ -2,8 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="servicelayer-context"
-    class="org.springframework.context.support.ClassPathXmlApplicationContext">
+  <bean id="servicelayer-context" class="org.springframework.context.support.ClassPathXmlApplicationContext">
     <constructor-arg>
       <list>
         <value>classpath:/org/sipfoundry/sipxconfig/system.beans.xml</value>
@@ -13,6 +12,7 @@
         <value>classpath:/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/dialplan/sbc/sbc.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/admin/mail/mail.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/alias/alias.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/forwarding/forwarding.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/bulk/bulk.beans.xml</value>

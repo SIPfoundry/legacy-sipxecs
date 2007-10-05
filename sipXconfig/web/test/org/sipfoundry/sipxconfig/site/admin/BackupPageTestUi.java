@@ -68,4 +68,13 @@ public class BackupPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         SiteTestHelper.assertUserError(getTester());
     }
+
+    /**
+     * Tests if the email address text field is present
+     */
+    public void testEmailAddress() {
+        SiteTestHelper.assertNoException(getTester());
+        assertElementPresent("backup:emailAddress");
+        SiteTestHelper.assertNoException(getTester());
+    }
 }

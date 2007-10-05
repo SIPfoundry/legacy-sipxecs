@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.mail.MailSenderContextImpl;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class BackupPlanTest extends TestCase {
@@ -27,6 +28,8 @@ public class BackupPlanTest extends TestCase {
 
     protected void setUp() throws Exception {
         m_backup = new BackupPlan();
+        m_backup.setApplicationContext(TestHelper.getApplicationContext());
+        m_backup.setMailSenderContext(new MailSenderContextImpl());
         m_backup.setScript("mock-backup.sh");
     }
 

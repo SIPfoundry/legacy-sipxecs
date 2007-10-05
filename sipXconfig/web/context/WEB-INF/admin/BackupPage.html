@@ -30,6 +30,14 @@
           </tr>
           <tr>
             <td>
+              <label for="backup:emailAddress"><span key="label.emailAddress"/></label>
+              <input jwcid="emailAddress@TextField" id="backup:emailAddress" value="prop:backupPlan.emailAddress" displayName="message:label.emailAddress" validators="validators:email"/>
+              <br />
+              <span key="description.emailAddress" class="settingDescription"/>
+            </td>
+          </tr>
+          <tr>
+            <td>
               <label for="backup:limit"><span key="label.limitCount">Number of backups to keep</span></label>
               <select id="backup:limit" jwcid="limitCount" />
               <br />

@@ -23,6 +23,8 @@ import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -31,13 +33,15 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * Backup provides Java interface to backup scripts
  */
 public class AdminContextImpl extends HibernateDaoSupport implements AdminContext,
-        ApplicationListener {
+        ApplicationListener, BeanFactoryAware {
 
     private String m_binDirectory;
 
     private String m_backupDirectory;
 
     private Timer m_timer;
+
+    private BeanFactory m_beanFactory;
 
     public String getBackupDirectory() {
         return m_backupDirectory;
@@ -62,7 +66,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         // create a new one if one doesn't exists, otherwise
         // risk having 2 or more in database
         if (plan == null) {
-            plan = new BackupPlan();
+            plan = (BackupPlan) m_beanFactory.getBean("backupPlan");
             storeBackupPlan(plan);
         }
         return plan;
@@ -139,4 +143,9 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         Collections.sort(backupBeans, new BackupBean.CompareFolders());
         return backupBeans;
     }
+
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = beanFactory;
+    }
+
 }

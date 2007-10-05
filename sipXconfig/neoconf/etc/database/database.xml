@@ -228,6 +228,7 @@
     <antcall target="schedules-per-user-group" />
     <antcall target="internal-rule-media-server" />
     <antcall target="personal-attendant" />
+    <antcall target="backup-email-address" />
     <antcall target="callforwardexternal" />
     <antcall target="domain-add-shared-secret" />
     <antcall target="gateway-port" />
@@ -258,6 +259,10 @@
 
   <target name="enable-schedule" unless="enable-schedule">
     <db-patch patch="enable-schedule" />
+  </target>
+
+  <target name="backup-email-address" unless="backup-email-address">
+    <db-patch patch="backup-email-address" />
   </target>
 
   <!-- BEGIN: only temporary user/developer convenience until 3.8 ships -->

@@ -20,6 +20,7 @@
       classpath:/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/parkorbit/parkorbit.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/mail/mail.beans.xml
       classpath:/org/sipfoundry/sipxconfig/alias/alias.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/forwarding/forwarding.beans.xml
       classpath:/org/sipfoundry/sipxconfig/bulk/bulk.beans.xml

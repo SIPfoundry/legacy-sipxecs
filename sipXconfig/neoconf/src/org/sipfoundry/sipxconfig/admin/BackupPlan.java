@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -26,15 +27,17 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.mail.MailSenderContext;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 /**
  * Backup various parts of the system to a fixed backup directory.
  */
-public class BackupPlan extends BeanWithId {
+public class BackupPlan extends BeanWithId implements ApplicationContextAware {
     public static final String VOICEMAIL_ARCHIVE = "voicemail.tar.gz";
     public static final String CONFIGURATION_ARCHIVE = "configuration.tar.gz";
-
     public static final FilenameFilter BACKUP_FILE_FILTER = new FilenameFilter() {
         public boolean accept(File dir, String name) {
             return name.equalsIgnoreCase(VOICEMAIL_ARCHIVE)
@@ -43,6 +46,7 @@ public class BackupPlan extends BeanWithId {
     };
 
     private static final Log LOG = LogFactory.getLog(BackupPlan.class);
+    private static final String FROM = "backup@localhost";
 
     /* ensures we do not get caught in infinite loop */
     private static final int MAX_BACKUPS_TO_DELETE = 100;
@@ -53,8 +57,12 @@ public class BackupPlan extends BeanWithId {
 
     private boolean m_voicemail = true;
     private boolean m_configs = true;
+    private ApplicationContext m_applicationContext;
     private Integer m_limitedCount;
     private Date m_backupTime;
+    private String m_emailAddress;
+
+    private MailSenderContext m_mailSenderContext;
 
     private Collection<DailyBackupSchedule> m_schedules = new ArrayList<DailyBackupSchedule>(0);
 
@@ -68,7 +76,26 @@ public class BackupPlan extends BeanWithId {
             }
             File binDir = new File(binPath);
             if (SUCCESS == perform(backupDir, binDir)) {
-                return getBackupFiles(backupDir);
+                File[] backupFiles = getBackupFiles(backupDir);
+
+                File confFile = null;
+                for (File tempFile : backupFiles) {
+                    if (tempFile.getName().equals(BackupPlan.CONFIGURATION_ARCHIVE)) {
+                        confFile = tempFile;
+                    }
+                }
+                Locale locale = Locale.getDefault();
+                String subject = m_applicationContext.getMessage("backup.subject", new Object[0],
+                        locale);
+                String body = m_applicationContext.getMessage("backup.body", new Object[0],
+                        locale);
+                File[] mailFiles = confFile == null ? new File[] {} : new File[] {
+                    confFile
+                };
+                m_mailSenderContext.sendMail(m_emailAddress, null, null, FROM, subject, body,
+                        mailFiles);
+
+                return backupFiles;
             }
         } catch (IOException e) {
             LOG.error(errorMsg, e);
@@ -158,6 +185,10 @@ public class BackupPlan extends BeanWithId {
         return (File[]) files.toArray(new File[files.size()]);
     }
 
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        m_applicationContext = applicationContext;
+    }
+
     public void addSchedule(DailyBackupSchedule dailySchedule) {
         m_schedules.add(dailySchedule);
         dailySchedule.setBackupPlan(this);
@@ -223,4 +254,21 @@ public class BackupPlan extends BeanWithId {
             BackupPlan.this.perform(m_rootBackupPath, m_binPath);
         }
     }
+
+    public String getEmailAddress() {
+        return m_emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        m_emailAddress = emailAddress;
+    }
+
+    public MailSenderContext getMailSenderContext() {
+        return m_mailSenderContext;
+    }
+
+    public void setMailSenderContext(MailSenderContext mailSenderContext) {
+        this.m_mailSenderContext = mailSenderContext;
+    }
+
 }
