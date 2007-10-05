@@ -28,21 +28,23 @@
               <label for="backup:check:voicemail"><span key="label.voicemail"/></label>
             </td>
           </tr>
-          <tr>
-            <td>
-              <label for="backup:emailAddress"><span key="label.emailAddress"/></label>
-              <input jwcid="emailAddress@TextField" id="backup:emailAddress" value="prop:backupPlan.emailAddress" displayName="message:label.emailAddress" validators="validators:email"/>
-              <br />
-              <span key="description.emailAddress" class="settingDescription"/>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <label for="backup:limit"><span key="label.limitCount">Number of backups to keep</span></label>
+          <tr jwcid="@FieldPanel" 
+            for="backup:limit"
+            label="message:label.limitCount"
+            field="component:limitCount"
+            description="message:description.limitCount">
               <select id="backup:limit" jwcid="limitCount" />
-              <br />
-              <span key="description.limitCount" class="settingDescription"/>
-            </td>
+          </tr>
+          <tr jwcid="@FieldPanel" 
+            for="backup:emailAddress"
+            label="message:label.emailAddress"
+            field="component:emailAddress"
+            description="message:description.emailAddress" >
+              <input jwcid="emailAddress@TextField"
+                id="backup:emailAddress"
+                value="prop:backupPlan.emailAddress"
+                displayName="message:label.emailAddress"
+                validators="validators:email"/>
           </tr>
         </tbody>
       </table>
