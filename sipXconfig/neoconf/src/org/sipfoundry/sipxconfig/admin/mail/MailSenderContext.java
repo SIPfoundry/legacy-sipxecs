@@ -12,6 +12,6 @@ package org.sipfoundry.sipxconfig.admin.mail;
 import java.io.File;
 
 public interface MailSenderContext {
-    public void sendMail(String to, String cc, String bcc, String from, String subject, String body);
-    public void sendMail(String to, String cc, String bcc, String from, String subject, String body, File[] files);
+    public void sendMail(String to, String from, String subject, String body);
+    public void sendMail(String to, String from, String subject, String body, File... files);
 }

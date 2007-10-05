@@ -25,6 +25,7 @@ import java.util.TimerTask;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.mail.MailSenderContext;
@@ -46,7 +47,6 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
     };
 
     private static final Log LOG = LogFactory.getLog(BackupPlan.class);
-    private static final String FROM = "backup@localhost";
 
     /* ensures we do not get caught in infinite loop */
     private static final int MAX_BACKUPS_TO_DELETE = 100;
@@ -57,10 +57,12 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
 
     private boolean m_voicemail = true;
     private boolean m_configs = true;
-    private ApplicationContext m_applicationContext;
     private Integer m_limitedCount;
     private Date m_backupTime;
     private String m_emailAddress;
+    
+    private ApplicationContext m_applicationContext;
+    private String m_emailFromAddress;
 
     private MailSenderContext m_mailSenderContext;
 
@@ -77,24 +79,7 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
             File binDir = new File(binPath);
             if (SUCCESS == perform(backupDir, binDir)) {
                 File[] backupFiles = getBackupFiles(backupDir);
-
-                File confFile = null;
-                for (File tempFile : backupFiles) {
-                    if (tempFile.getName().equals(BackupPlan.CONFIGURATION_ARCHIVE)) {
-                        confFile = tempFile;
-                    }
-                }
-                Locale locale = Locale.getDefault();
-                String subject = m_applicationContext.getMessage("backup.subject", new Object[0],
-                        locale);
-                String body = m_applicationContext.getMessage("backup.body", new Object[0],
-                        locale);
-                File[] mailFiles = confFile == null ? new File[] {} : new File[] {
-                    confFile
-                };
-                m_mailSenderContext.sendMail(m_emailAddress, null, null, FROM, subject, body,
-                        mailFiles);
-
+                sendEmail(backupFiles);
                 return backupFiles;
             }
         } catch (IOException e) {
@@ -103,6 +88,32 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
             LOG.error(errorMsg, e);
         }
         return null;
+    }
+
+    /**
+     * Sends e-mail with a copy of a configuration backup attached. Email is only sent if
+     * configuration backup was selected and if e-mail adress is configured.
+     * 
+     * @param backupFiles array of backup files
+     */
+    private void sendEmail(File[] backupFiles) {
+        if (StringUtils.isBlank(m_emailAddress)) {
+            return;
+        }
+        File confFile = null;
+        for (File f : backupFiles) {
+            if (f.getName().equals(BackupPlan.CONFIGURATION_ARCHIVE)) {
+                confFile = f;
+                break;
+            }
+        }
+        if (confFile == null) {
+            return;
+        }
+        Locale locale = Locale.getDefault();
+        String subject = m_applicationContext.getMessage("backup.subject", ArrayUtils.EMPTY_OBJECT_ARRAY, locale);
+        String body = m_applicationContext.getMessage("backup.body", ArrayUtils.EMPTY_OBJECT_ARRAY, locale);
+        m_mailSenderContext.sendMail(m_emailAddress, m_emailFromAddress, subject, body, confFile);
     }
 
     File getNextBackupDir(File rootBackupDir) {
@@ -270,5 +281,8 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
     public void setMailSenderContext(MailSenderContext mailSenderContext) {
         this.m_mailSenderContext = mailSenderContext;
     }
-
+    
+    public void setEmailFromAddress(String emailFromAddress) {
+        m_emailFromAddress = emailFromAddress;
+    }
 }
