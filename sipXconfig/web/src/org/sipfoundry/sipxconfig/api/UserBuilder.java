@@ -22,9 +22,10 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 public class UserBuilder extends SimpleBeanBuilder {
     private static final String ALIASES_PROP = org.sipfoundry.sipxconfig.common.User.ALIASES_PROP;
     private static final String GROUPS_PROP = BeanWithGroups.GROUPS_PROP;
+    private static final String PERMISSIONS_PROP = "permissions";
 
     private static final String[] IGNORE_LIST = {
-        ALIASES_PROP, GROUPS_PROP, MailboxPreferences.EMAIL_PROP
+        ALIASES_PROP, GROUPS_PROP, MailboxPreferences.EMAIL_PROP, PERMISSIONS_PROP
     };
 
     public UserBuilder() {
@@ -42,6 +43,12 @@ public class UserBuilder extends SimpleBeanBuilder {
             Collection groupNames = CollectionUtils.collect(my.getGroups(),
                     new NamedObject.ToName());
             api.setGroups((String[]) groupNames.toArray(new String[groupNames.size()]));
+        }
+        if (properties.contains(PERMISSIONS_PROP)) {
+            Collection<String> permNames = my.getUserPermissionNames();
+            if (!permNames.isEmpty()) {
+                api.setPermissions((String[]) permNames.toArray(new String[permNames.size()]));
+            }
         }
     }
 

@@ -41,7 +41,7 @@ public class Permissions extends DataSetGenerator {
     void addUser(Element item, User user, String domain) {
         Setting permissions = user.getSettings().getSetting(Permission.CALL_PERMISSION_PATH);
         Setting voicemailPermissions = 
-            user.getSettings().getSetting(Permission.VOICEMAIL_SERVER_PERMISSION_PATH);
+            user.getSettings().getSetting(Permission.VOICEMAIL_SERVER_PATH);
         PermissionWriter writer = new PermissionWriter(user, domain, item);
         permissions.acceptVisitor(writer);
         voicemailPermissions.acceptVisitor(writer);

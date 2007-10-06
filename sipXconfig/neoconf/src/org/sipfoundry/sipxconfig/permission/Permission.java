@@ -24,25 +24,37 @@ import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
  */
 public class Permission implements Comparable<Permission>, PrimaryKeySource {
     public enum Type {
-        APPLICATION("application"), CALL("call-handling"), VOICEMAIL_SERVER("voicemail-server");
+        APPLICATION(APPLICATION_NAME, APPLICATION_PATH), CALL(CALLHANDLING_NAME,
+                CALL_PERMISSION_PATH), VOICEMAIL_SERVER(VOICEMAIL_NAME, VOICEMAIL_SERVER_PATH);
 
         private String m_name;
+        private String m_path;
 
-        Type(String name) {
+        Type(String name, String path) {
             m_name = name;
+            m_path = path;
         }
 
         public String getName() {
             return m_name;
+        }
+
+        public String getPath() {
+            return m_path;
         }
     }
 
     public static final String ENABLE = "ENABLE";
     public static final String DISABLE = "DISABLE";
 
+    public static final String APPLICATION_NAME = "application";
+    public static final String CALLHANDLING_NAME = "call-handling";
+    public static final String VOICEMAIL_NAME = "voicemail-server";
+
     public static final String PATH_PREFIX = "permission/";
-    public static final String CALL_PERMISSION_PATH = PATH_PREFIX + Type.CALL.getName();
-    public static final String VOICEMAIL_SERVER_PERMISSION_PATH = PATH_PREFIX + Type.VOICEMAIL_SERVER.getName();
+    public static final String APPLICATION_PATH = PATH_PREFIX + APPLICATION_NAME;
+    public static final String CALL_PERMISSION_PATH = PATH_PREFIX + CALLHANDLING_NAME;
+    public static final String VOICEMAIL_SERVER_PATH = PATH_PREFIX + VOICEMAIL_NAME;
 
     private Type m_type = Type.CALL;
 

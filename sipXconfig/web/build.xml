@@ -356,7 +356,7 @@
     <mkdir dir="${server.bindings.src}"/>
     <wsdl2java url="${src.dir}/org/sipfoundry/sipxconfig/api/sipxconfig.wsdl" output="${server.bindings.src}"
       serverside="true" noWrapped="true">
-      <mapping namespace="urn:ConfigService" package="org.sipfoundry.sipxconfig.api"/>
+      <mapping namespace="http://www.sipfoundry.org/2007/08/21/ConfigService" package="org.sipfoundry.sipxconfig.api"/>
     </wsdl2java>
     <!-- generted impl classes are just stubbed -->
     <delete>
@@ -492,6 +492,9 @@
     <property name="ruby.include.path" value="${ruby.bindings.dir}${path.separator}${ruby.webservice-unit-test.src.dir}"/>
     <property name="webservice-unit-test-command"
       value="-I${ruby.include.path} ${ruby.flags} ${ruby.webservice-unit-test.src.dir}"/>
+    <exec executable="${ruby}" failonerror="true">
+      <arg line="${webservice-unit-test-command}/PermissionServiceTestApi.rb"/>
+    </exec>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/UserServiceTestApi.rb"/>
     </exec>

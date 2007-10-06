@@ -20,5 +20,6 @@ class SystemServiceTestApi < ApiTestCase
   def test_getDomain	    
     system_info = @system_service.systemInfo()
     assert_not_nil(system_info.domain.name)
+    assert_not_nil(system_info.domain.realm)
   end
 end

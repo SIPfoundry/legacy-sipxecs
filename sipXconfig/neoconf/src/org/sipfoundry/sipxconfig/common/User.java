@@ -271,10 +271,32 @@ public class User extends BeanWithGroups implements NamedObject {
     }
 
     /**
+     * Returns the names of all permissions assigned to the user
+     */
+    public Collection<String> getUserPermissionNames() {
+        Collection<Permission> perms = m_permissionManager.getPermissions();
+        Collection<String> names = new ArrayList<String>(perms.size());
+        for (Permission perm : perms) {
+            if (hasPermission(perm)) {
+                names.add(perm.getName());
+            }
+        }
+        return names;
+    }
+
+    /**
      * Check if a user has a specific permission
      */
     public boolean hasPermission(PermissionName permissionName) {
         Setting setting = retrieveSettingForPermission(permissionName);
+        return Permission.isEnabled(setting.getValue());
+    }
+
+    /**
+     * Check if a user has a specific permission
+     */
+    public boolean hasPermission(Permission permission) {
+        Setting setting = retrieveSettingForPermission(permission);
         return Permission.isEnabled(setting.getValue());
     }
 
@@ -289,17 +311,36 @@ public class User extends BeanWithGroups implements NamedObject {
         setting.setTypedValue(enabled);
     }
 
+    /**
+     * Set specific permission for the user
+     * 
+     * @param permission - permission to set
+     * @param enabled - true for enabled, false for disabled
+     */
+    public void setPermission(Permission permission, boolean enabled) {
+        Setting setting = retrieveSettingForPermission(permission);
+        setting.setTypedValue(enabled);
+    }
+
     public boolean isAdmin() {
         return hasPermission(PermissionName.SUPERADMIN);
     }
 
-    private Setting retrieveSettingForPermission(PermissionName permissionName) {
-        Setting setting = getSettings().getSetting(permissionName.getPath());
+    private Setting retrieveSettingForSettingPath(String path, String name) {
+        Setting setting = getSettings().getSetting(path);
         if (setting == null) {
-            throw new IllegalArgumentException("Setting " + permissionName.getName()
+            throw new IllegalArgumentException("Setting " + name
                     + " does not exist in user setting model");
         }
         return setting;
+    }
+
+    private Setting retrieveSettingForPermission(PermissionName permissionName) {
+        return retrieveSettingForSettingPath(permissionName.getPath(), permissionName.getName());
+    }
+
+    private Setting retrieveSettingForPermission(Permission permission) {
+        return retrieveSettingForSettingPath(permission.getSettingPath(), permission.getName());
     }
 
     public boolean isSupervisor() {

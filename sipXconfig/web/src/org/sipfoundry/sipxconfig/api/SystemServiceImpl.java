@@ -10,16 +10,21 @@
 package org.sipfoundry.sipxconfig.api;
 
 import java.rmi.RemoteException;
-import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 public class SystemServiceImpl implements SystemService {
     private DomainManager m_domainManager;
-    private ApiBeanBuilder m_builder = new SimpleBeanBuilder();
+    private CoreContext m_coreContext;
+    private ApiBeanBuilder m_builder = new SystemInfoBuilder();
 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
     public SystemInfo systemInfo() throws RemoteException {
@@ -28,11 +33,8 @@ public class SystemServiceImpl implements SystemService {
         Domain apiDomain = new Domain();
         ApiBeanUtil.toApiObject(m_builder, apiDomain, domain);
         info.setDomain(apiDomain);
-        Collection<String> aliases = domain.getAliases();
-        if (aliases != null) {
-            apiDomain.setAliases(aliases.toArray(new String[aliases.size()]));
-        }
-        
+        apiDomain.setRealm(m_coreContext.getAuthorizationRealm());
+
         return info;
     }
 

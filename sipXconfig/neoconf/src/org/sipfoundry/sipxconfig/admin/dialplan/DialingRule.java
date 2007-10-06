@@ -199,7 +199,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
         if (m_permissionManager == null) {
             throw new IllegalStateException("Permission manager not configured.");
         }
-        return m_permissionManager.getPermissionByName(name);
+        return m_permissionManager.getPermissionByName(Permission.Type.CALL, name);
     }
 
     public String[] getHostPatterns() {

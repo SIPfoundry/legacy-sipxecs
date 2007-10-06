@@ -16,6 +16,7 @@ import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public class TestServiceImpl implements TestService {    
@@ -25,6 +26,7 @@ public class TestServiceImpl implements TestService {
     private CoreContext m_coreContext;
     private ParkOrbitContext m_parkOrbitContext;
     private PhoneContext m_phoneContext; 
+    private PermissionManager m_permissionManager;
     
     public void setForwardingContext(ForwardingContext forwardingContext) {
         m_forwardingContext = forwardingContext;
@@ -50,6 +52,10 @@ public class TestServiceImpl implements TestService {
         m_phoneContext = phoneContext;
     }
 
+    public void setPermissionManager(PermissionManager permissionManager) {
+        m_permissionManager = permissionManager;
+    }
+
     public void resetServices(ResetServices resetServices) throws RemoteException {
         // Clear the call group context not only when requested, but also when the
         // core context is going to be cleared.  Otherwise we get database integrity
@@ -67,6 +73,9 @@ public class TestServiceImpl implements TestService {
         }
         if (Boolean.TRUE.equals(resetServices.getPhone())) {
             m_phoneContext.clear();
+        }
+        if (Boolean.TRUE.equals(resetServices.getPermission())) {
+            m_permissionManager.clear();
         }
         if (Boolean.TRUE.equals(resetServices.getUser())) {
             // kludge: XCF-1010: have to clear these too, any leftover data            

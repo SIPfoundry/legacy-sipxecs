@@ -28,5 +28,26 @@ public class SettingPermissionTest extends TestCase {
         assertEquals("Voicemail", permission.getLabel());
         assertEquals("Voicemail Permissions", permission.getDescription());
         assertFalse(permission.getDefaultValue());
+        assertEquals(Permission.Type.CALL, permission.getType());
+        assertEquals(permission.getSettingPath(), "permission/call-handling/voicemail");
+        assertEquals(permission.isBuiltIn(), false);
+
+        SettingImpl anothersetting = new SettingImpl();
+        anothersetting.setName("superadmin");
+        anothersetting.setLabel("Superadmin permission");
+        anothersetting.setDescription("This is a permission of a superadmin");
+        anothersetting.setValue("DISABLED");
+
+        SettingPermission anotherpermission = new SettingPermission(anothersetting,
+                Permission.Type.APPLICATION, true);
+
+        assertEquals("superadmin", anotherpermission.getPrimaryKey());
+        assertEquals("Superadmin permission", anotherpermission.getLabel());
+        assertEquals("This is a permission of a superadmin", anotherpermission.getDescription());
+        assertFalse(anotherpermission.getDefaultValue());
+        assertEquals(Permission.Type.APPLICATION, anotherpermission.getType());
+        assertEquals(anotherpermission.getSettingPath(), "permission/application/superadmin");
+        assertEquals(anotherpermission.isBuiltIn(), true);
+
     }
 }

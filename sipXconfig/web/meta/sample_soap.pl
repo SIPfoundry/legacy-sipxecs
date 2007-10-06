@@ -13,20 +13,26 @@ use warnings;
 
 # Where your server is installed, 
 # CHANGE ME: probably not localhost!
-my $services_url = 'https://eagle.sipfoundry.org:8443/sipxconfig/services';
+my $services_url = 'https://localhost:8443/sipxconfig/services';
 
-# be sure this matched config.defs on the server, generally it's the domain name
-# CHANGE ME: it can be anything, and probably not this!
-my $realm = 'sipfoundry.com';
-
+# CHANGE ME: Namespace may need to be changed as the SOAP service namesapce changes
+my $namespace = 'http://www.sipfoundry.org/2007/08/21/ConfigService';
 
 sub SOAP::Transport::HTTP::Client::get_basic_credentials { 
    return 'superadmin' => '1234';
 }
 
+my $system_service = SOAP::Lite
+  -> uri("$namespace")
+  -> proxy("$services_url/SystemService");
+
 my $user_service = SOAP::Lite
-  -> uri('urn:ConfigService')
+  -> uri("$namespace")
   -> proxy("$services_url/UserService");
+
+# find out what the realm is via a SOAP query
+my $realm = find_realm();
+print "obtained realm via the SOAP service: $realm\n";
 
 foreach my $i (1 .. 10) {
   my $username = "roberta-$i";
@@ -43,6 +49,20 @@ foreach my $i (1 .. 10) {
   add_group(username => $username, group => "building-1");
 }
 
+
+sub find_realm {
+    my $systemInfo = SOAP::Data->name('SystemInfo')
+      ->attr({xmlns => "$namespace"});
+
+    my $result = $system_service->call($systemInfo);
+    check_fault($result);
+
+    my $domain = $result->result();
+    foreach my $key (keys %{$domain}) {
+      print "SystemInfo ", $key, ": ", $domain->{$key} || '', "\n";
+    }
+    return $domain->{'realm'};
+}
 
 sub change_pin {
     my %params = @_;
@@ -65,7 +85,7 @@ sub find_user {
     my ($username) = $params{username};
 
     my $findUser = SOAP::Data->name('FindUser')
-      ->attr({xmlns => 'urn:ConfigService'});
+      ->attr({xmlns => "$namespace"});
 
     my $byUserName = SOAP::Data->type('string')->name('byUserName')->value($username);
     my $result = $user_service->call($findUser => SOAP::Data->name(search => \$byUserName));
@@ -92,7 +112,7 @@ sub add_user {
     my $pinData = SOAP::Data->type('string')->name(pin => $pin);
 
     my $addUser = SOAP::Data->name('AddUser')
-       ->attr({xmlns => 'urn:ConfigService'});
+       ->attr({xmlns => "$namespace"});
 
     print "adding user $username\n";
     my $result = $user_service->call($addUser => SOAP::Data->value($newUser, $pinData));
@@ -141,7 +161,7 @@ sub manage_user {
     my $search = SOAP::Data->name(search => \$byUserName);
 
     my $manageUser = SOAP::Data->name('ManageUser')
-      ->attr({xmlns => 'urn:ConfigService'});
+      ->attr({xmlns => "$namespace"});
     my $result = $user_service->call($manageUser => SOAP::Data->value($search, $action)); 
     check_fault($result);   
 }

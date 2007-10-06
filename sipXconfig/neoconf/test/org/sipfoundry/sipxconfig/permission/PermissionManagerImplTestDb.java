@@ -35,19 +35,23 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
-    public void testGetPermission() throws Exception {
-        Permission permission = m_manager.getPermission(PermissionName.VOICEMAIL.getName());
+    public void testGetCallPermission() throws Exception {
+        Permission permission = m_manager.getCallPermission(PermissionName.VOICEMAIL.getName());
         assertEquals(PermissionName.VOICEMAIL.getName(), permission.getName());
+        assertEquals(PermissionName.VOICEMAIL.getName(), permission.getLabel());
+        assertEquals(permission.isBuiltIn(), true);
+        assertEquals("permission/call-handling/Voicemail", permission.getSettingPath());
+        assertEquals("ENABLE", permission.getSetting().getDefaultValue());
 
         TestHelper.insertFlat("permission/permission.db.xml");
 
-        permission = m_manager.getPermission(1002);
+        permission = m_manager.getCallPermission(1002);
         assertNotNull(permission);
 
         assertEquals("kukuDescription", permission.getDescription());
         assertEquals("kukuLabel", permission.getLabel());
 
-        Permission permissionNull = m_manager.getPermission("nonexistent");
+        Permission permissionNull = m_manager.getCallPermission("nonexistent");
         assertNull(permissionNull);
     }
 
@@ -74,25 +78,60 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         } catch (UserException e) {
             // ok - expected dup exception
         }
-        
-        Permission permission2 = m_manager.getPermission(1002);
+
+        Permission permission2 = m_manager.getCallPermission(1002);
         permission2.setDescription("new Description");
         m_manager.addCallPermission(permission2);
         assertEquals(2, getConnection().getRowCount("permission"));
-        
+
         permission2.setLabel("new Label");
         m_manager.addCallPermission(permission2);
-        assertEquals(2, getConnection().getRowCount("permission"));        
+        assertEquals(2, getConnection().getRowCount("permission"));
+
+        permission2 = m_manager.getCallPermission(1002);
+        assertEquals(permission2.getDescription(), "new Description");
+        assertEquals(permission2.getLabel(), "new Label");
     }
 
     public void testGetCallPermissions() throws Exception {
-        Collection<Permission> permissions = m_manager.getCallPermissions();
+        Collection<Permission> permissions = m_manager.getPermissions(Permission.Type.CALL);
         int size = permissions.size();
 
+        try {
+            for (Permission p : permissions) {
+                // There should only be builtIn call permissions at this point
+                assertEquals(p.isBuiltIn(), true);
+                if (p.getName().equals(PermissionName.VOICEMAIL.getName())) {
+                    assertEquals(PermissionName.VOICEMAIL.getName(), p.getLabel());
+                    assertEquals("ENABLE", p.getSetting().getDefaultValue());
+                    assertEquals("permission/call-handling/Voicemail", p.getSettingPath());
+                    throw new Exception();
+                }
+            }
+            fail("No voicemail permission found");
+        } catch (Exception exc) {
+            // ok if superadmin permission is found
+        }
+
         TestHelper.insertFlat("permission/permission.db.xml");
-        permissions = m_manager.getCallPermissions();
+        permissions = m_manager.getPermissions(Permission.Type.CALL);
         assertEquals(size + 2, permissions.size());
 
+        try {
+            for (Permission p : permissions) {
+                if (p.getName().equals("perm_1002")) {
+                    assertEquals(p.isBuiltIn(), false);
+                    assertEquals(true, p.getLabel().equals("kukuLabel"));
+                    assertEquals(true, p.getDefaultValue());
+                    assertEquals(true, p.getDescription().equals("kukuDescription"));
+                    assertEquals(Permission.Type.CALL.getName(), p.getType().getName());
+                    throw new Exception();
+                }
+            }
+            fail("No 1002 permission found");
+        } catch (Exception exc) {
+            // ok if superadmin permission is found
+        }
     }
 
     public void testPermisionModel() throws Exception {
@@ -137,5 +176,233 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         List<Permission> loadedPermissions = loaded.getPermissions();
         assertEquals(1, loadedPermissions.size());
         assertEquals(permission, loadedPermissions.get(0));
+    }
+
+    public void testGetApplicationPermissions() throws Exception {
+
+        Collection<Permission> permissions = m_manager
+                .getPermissions(Permission.Type.APPLICATION);
+        int size = permissions.size();
+        assertEquals(permissions.isEmpty(), false);
+
+        try {
+            for (Permission p : permissions) {
+                // Application permissions are all BuiltIn
+                assertEquals(p.isBuiltIn(), true);
+                if (p.getName().equals(PermissionName.SUPERADMIN.getName())) {
+                    assertEquals(PermissionName.SUPERADMIN.getName(), p.getLabel());
+                    assertEquals("DISABLE", p.getSetting().getDefaultValue());
+                    assertEquals("permission/application/superadmin", p.getSettingPath());
+                    throw new Exception();
+                }
+            }
+            fail("No superadmin permission found");
+        } catch (Exception exc) {
+            // ok if superadmin permission is found
+        }
+        TestHelper.insertFlat("permission/permission.db.xml");
+
+        permissions = m_manager.getPermissions(Permission.Type.APPLICATION);
+        assertEquals(size, permissions.size());
+
+    }
+
+    public void testGetVMServerPermissions() throws Exception {
+
+        Collection<Permission> permissions = m_manager
+                .getPermissions(Permission.Type.VOICEMAIL_SERVER);
+        int size = permissions.size();
+        assertEquals(permissions.isEmpty(), false);
+
+        try {
+            for (Permission p : permissions) {
+                // Application permissions are all BuiltIn
+                assertEquals(p.isBuiltIn(), true);
+                if (p.getName().equals(PermissionName.EXCHANGE_VOICEMAIL.getName())) {
+                    assertEquals(PermissionName.EXCHANGE_VOICEMAIL.getName(), p.getLabel());
+                    assertEquals("DISABLE", p.getSetting().getDefaultValue());
+                    assertEquals("permission/voicemail-server/ExchangeUMVoicemailServer", p
+                            .getSettingPath());
+                    throw new Exception();
+                }
+            }
+            fail("No ExchangeUMVoicemailServer permission found");
+        } catch (Exception exc) {
+            // ok if ExchangeUMVoicemailServer permission is found
+        }
+        TestHelper.insertFlat("permission/permission.db.xml");
+
+        permissions = m_manager.getPermissions(Permission.Type.VOICEMAIL_SERVER);
+        assertEquals(size, permissions.size());
+
+    }
+
+    public void testGetAllPermissions() throws Exception {
+
+        Collection<Permission> permissions = m_manager.getPermissions();
+        int size = permissions.size();
+        assertEquals(permissions.isEmpty(), false);
+
+        try {
+            for (Permission p : permissions) {
+                // Application permissions are all BuiltIn
+                assertEquals(p.isBuiltIn(), true);
+                if (p.getName().equals(PermissionName.SUPERADMIN.getName())) {
+                    assertEquals(PermissionName.SUPERADMIN.getName(), p.getLabel());
+                    assertEquals("DISABLE", p.getSetting().getDefaultValue());
+                    assertEquals("permission/application/superadmin", p.getSettingPath());
+                    throw new Exception();
+                }
+            }
+            fail("No superadmin permission found");
+        } catch (Exception exc) {
+            // ok if superadmin permission is found
+        }
+
+        TestHelper.insertFlat("permission/permission.db.xml");
+
+        permissions = m_manager.getPermissions();
+        assertEquals(size + 2, permissions.size());
+
+        try {
+            for (Permission p : permissions) {
+                // There should only be builtIn call permissions at this point
+                assertEquals(p.isBuiltIn(), true);
+                if (p.getName().equals(PermissionName.VOICEMAIL.getName())) {
+                    assertEquals(PermissionName.VOICEMAIL.getName(), p.getLabel());
+                    assertEquals("ENABLE", p.getSetting().getDefaultValue());
+                    assertEquals("permission/call-handling/Voicemail", p.getSettingPath());
+                    throw new Exception();
+                }
+            }
+            fail("No voicemail permission found");
+        } catch (Exception exc) {
+            // ok if superadmin permission is found
+        }
+
+        try {
+            for (Permission p : permissions) {
+                if (p.getName().equals("perm_1001")) {
+                    assertEquals(p.isBuiltIn(), false);
+                    assertEquals(true, p.getLabel().equals("bongoLabel"));
+                    assertEquals(false, p.getDefaultValue());
+                    assertEquals(true, p.getDescription().equals("bongoDescription"));
+                    assertEquals(Permission.Type.CALL.getName(), p.getType().getName());
+                    throw new Exception();
+                }
+            }
+            fail("No 1001 permission found");
+        } catch (Exception exc) {
+            // ok if superadmin permission is found
+        }
+    }
+
+    public void testGetApplicationPermissionByName() throws Exception {
+
+        Permission p = m_manager.getPermissionByName(Permission.Type.APPLICATION,
+                PermissionName.SUPERADMIN.getName());
+        assertNotNull(p);
+        assertEquals(p.isBuiltIn(), true);
+        assertEquals(PermissionName.SUPERADMIN.getName(), p.getLabel());
+        assertEquals("DISABLE", p.getSetting().getDefaultValue());
+        assertEquals("permission/application/superadmin", p.getSettingPath());
+
+        TestHelper.insertFlat("permission/permission.db.xml");
+
+        p = m_manager.getPermissionByName(Permission.Type.APPLICATION, PermissionName.SUPERADMIN
+                .getName());
+        assertNotNull(p);
+        assertEquals(p.isBuiltIn(), true);
+        assertEquals(PermissionName.SUPERADMIN.getName(), p.getLabel());
+        assertEquals("DISABLE", p.getSetting().getDefaultValue());
+        assertEquals("permission/application/superadmin", p.getSettingPath());
+    }
+
+    public void testGetCallPermissionByName() throws Exception {
+
+        Permission p = m_manager.getPermissionByName(Permission.Type.CALL,
+                PermissionName.VOICEMAIL.getName());
+        assertNotNull(p);
+        assertEquals(p.isBuiltIn(), true);
+        assertEquals(PermissionName.VOICEMAIL.getName(), p.getLabel());
+        assertEquals("ENABLE", p.getSetting().getDefaultValue());
+        assertEquals("permission/call-handling/Voicemail", p.getSettingPath());
+
+        TestHelper.insertFlat("permission/permission.db.xml");
+
+        p = m_manager.getPermissionByName(Permission.Type.CALL, "perm_1001");
+        assertNotNull(p);
+        assertEquals(p.isBuiltIn(), false);
+        assertEquals(true, p.getLabel().equals("bongoLabel"));
+        assertEquals(false, p.getDefaultValue());
+        assertEquals(true, p.getDescription().equals("bongoDescription"));
+        assertEquals(Permission.Type.CALL.getName(), p.getType().getName());
+    }
+
+    public void testGetVMServerPermissionByName() throws Exception {
+
+        Permission p = m_manager.getPermissionByName(Permission.Type.VOICEMAIL_SERVER,
+                PermissionName.SIPX_VOICEMAIL.getName());
+        assertNotNull(p);
+        assertEquals(p.isBuiltIn(), true);
+        assertEquals(PermissionName.SIPX_VOICEMAIL.getName(), p.getLabel());
+        assertEquals("ENABLE", p.getSetting().getDefaultValue());
+        assertEquals("permission/voicemail-server/SipXVoicemailServer", p.getSettingPath());
+
+        TestHelper.insertFlat("permission/permission.db.xml");
+
+        p = m_manager.getPermissionByName(Permission.Type.VOICEMAIL_SERVER,
+                PermissionName.SIPX_VOICEMAIL.getName());
+        assertNotNull(p);
+        assertEquals(p.isBuiltIn(), true);
+        assertEquals(PermissionName.SIPX_VOICEMAIL.getName(), p.getLabel());
+        assertEquals("ENABLE", p.getSetting().getDefaultValue());
+        assertEquals("permission/voicemail-server/SipXVoicemailServer", p.getSettingPath());
+
+    }
+
+    public void testGetAnyPermissionByName() throws Exception {
+
+        Permission p = m_manager.getPermissionByName(PermissionName.SUPERADMIN.getName());
+        assertNotNull(p);
+        assertEquals(p.isBuiltIn(), true);
+        assertEquals(true, p.getLabel().equals(PermissionName.SUPERADMIN.getName()));
+        assertEquals("DISABLE", p.getSetting().getDefaultValue());
+        assertEquals("permission/application/superadmin", p.getSettingPath());
+
+        p = m_manager.getPermissionByName(PermissionName.VOICEMAIL.getName());
+        assertNotNull(p);
+        assertEquals(p.isBuiltIn(), true);
+        assertEquals(true, p.getLabel().equals(PermissionName.VOICEMAIL.getName()));
+        assertEquals("ENABLE", p.getSetting().getDefaultValue());
+        assertEquals("permission/call-handling/Voicemail", p.getSettingPath());
+
+        TestHelper.insertFlat("permission/permission.db.xml");
+
+        p = m_manager.getPermissionByName("perm_1001");
+        assertNotNull(p);
+        assertEquals(p.isBuiltIn(), false);
+        assertEquals(true, p.getLabel().equals("bongoLabel"));
+        assertEquals(false, p.getDefaultValue());
+        assertEquals(true, p.getDescription().equals("bongoDescription"));
+        assertEquals(Permission.Type.CALL.getName(), p.getType().getName());
+    }
+
+    public void testClear() throws Exception {
+
+        assertEquals(0, getConnection().getRowCount("permission"));
+
+        TestHelper.insertFlat("permission/permission.db.xml");
+
+        Permission permission = new Permission();
+        permission.setDescription("description");
+        permission.setLabel("abc");
+        m_manager.addCallPermission(permission);
+
+        assertEquals(3, getConnection().getRowCount("permission"));
+
+        m_manager.clear();
+
+        assertEquals(0, getConnection().getRowCount("permission"));
     }
 }

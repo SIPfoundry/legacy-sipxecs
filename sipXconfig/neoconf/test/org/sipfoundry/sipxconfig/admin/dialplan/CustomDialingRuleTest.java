@@ -244,8 +244,8 @@ public class CustomDialingRuleTest extends TestCase {
         pm.setModelFilesContext(TestHelper.getModelFilesContext());
 
         Permission[] permissions = {
-            pm.getPermissionByName(PermissionName.VOICEMAIL.getName()),
-            pm.getPermissionByName(PermissionName.LONG_DISTANCE_DIALING.getName())
+            pm.getPermissionByName(Permission.Type.CALL, PermissionName.VOICEMAIL.getName()),
+            pm.getPermissionByName(Permission.Type.CALL, PermissionName.LONG_DISTANCE_DIALING.getName())
         };
 
         String names[] = {

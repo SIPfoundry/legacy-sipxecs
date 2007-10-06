@@ -17,23 +17,31 @@ public enum PermissionName {
     SUPERADMIN(Type.APPLICATION, "superadmin"),
 
     TUI_CHANGE_PIN(Type.APPLICATION, "tui-change-pin"),
-    
+
     /** call handling */
-    VOICEMAIL(Type.CALL, "Voicemail"),
+    NINEHUNDERED_DIALING(Type.CALL, "900Dialing"),
 
-    TOLL_FREE_DIALING(Type.CALL, "TollFree"),
-
-    LONG_DISTANCE_DIALING(Type.CALL, "LongDistanceDialing"),
-
-    LOCAL_DIALING(Type.CALL, "LocalDialing"),
-
-    NO_ACCESS(Type.CALL, "NoAccess"),
+    AUTO_ATTENDANT_DIALING(Type.CALL, "AutoAttendant"),
 
     INTERNATIONAL_DIALING(Type.CALL, "InternationalDialing"),
 
+    LOCAL_DIALING(Type.CALL, "LocalDialing"),
+
+    LONG_DISTANCE_DIALING(Type.CALL, "LongDistanceDialing"),
+
+    MOBILE(Type.CALL, "Mobile"),
+
+    RECORD_SYSTEM_PROMPTS(Type.CALL, "RecordSystemPrompts"),
+
+    TOLL_FREE_DIALING(Type.CALL, "TollFree"),
+
+    VOICEMAIL(Type.CALL, "Voicemail"),
+
+    NO_ACCESS(Type.CALL, "NoAccess"),
+
     /** Voicemail */
     SIPX_VOICEMAIL(Type.VOICEMAIL_SERVER, "SipXVoicemailServer"),
-    
+
     EXCHANGE_VOICEMAIL(Type.VOICEMAIL_SERVER, "ExchangeUMVoicemailServer");
 
     private Type m_type;

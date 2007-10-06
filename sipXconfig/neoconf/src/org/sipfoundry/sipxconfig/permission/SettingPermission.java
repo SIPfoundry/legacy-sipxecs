@@ -23,8 +23,30 @@ public class SettingPermission extends Permission {
 
     private String m_descriptionKey;
 
-    @SuppressWarnings("deprecation")
+    private boolean m_builtIn;
+
     public SettingPermission(Setting setting) {
+        initSettingPermission(setting);
+    }
+
+    public SettingPermission(Setting setting, boolean builtIn) {
+        setBuiltIn(builtIn);
+        initSettingPermission(setting);
+    }
+
+    public SettingPermission(Setting setting, Type type) {
+        setType(type);
+        initSettingPermission(setting);
+    }
+
+    public SettingPermission(Setting setting, Type type, boolean builtIn) {
+        setType(type);
+        setBuiltIn(builtIn);
+        initSettingPermission(setting);
+    }
+
+    @SuppressWarnings("deprecation")
+    private void initSettingPermission(Setting setting) {
         m_name = setting.getName();
         setLabel(setting.getLabel());
         setDescription(setting.getDescription());
@@ -34,8 +56,12 @@ public class SettingPermission extends Permission {
         m_descriptionKey = setting.getDescriptionKey();
     }
 
+    public void setBuiltIn(boolean builtIn) {
+        m_builtIn = builtIn;
+    }
+
     public boolean isBuiltIn() {
-        return true;
+        return m_builtIn;
     }
 
     public Object getPrimaryKey() {

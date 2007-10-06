@@ -46,7 +46,7 @@ public abstract class EditPermission extends PageWithCallback implements PageBeg
         Object id = getPermissionId();
         if (null != id) {
             PermissionManager pm = getPermissionManager();
-            permission = pm.getPermission(id);
+            permission = pm.getCallPermission(id);
         } else {
             permission = new Permission();
         }
