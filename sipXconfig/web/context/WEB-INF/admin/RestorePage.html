@@ -8,7 +8,7 @@
   <span jwcid="restoreTab@Block">
     <span jwcid="@QuickHelp" value="message:restore.quick.help"/>
     <span jwcid="@If" condition="ognl:backups.empty">
-      <p id="message.noBackups">There is no backup files saved in the backup folder.</p>
+      <p key="message.noBackups">There is no backup files saved in the backup folder.</p>
     </span>
     <span jwcid="@Else">
       <form jwcid="@Form" id="backups:form" delegate="bean:validator">
