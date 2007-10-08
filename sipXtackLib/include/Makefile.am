@@ -120,11 +120,11 @@ nobase_include_HEADERS =  \
 
 net/version.h: .FORCE
 	@test -d net || mkdir net
-	@echo '#ifndef SIP_STACK_VERSION'       > net/version_new.h
-	@echo -n '#define SIP_STACK_VERSION "' >> net/version_new.h
-	@echo -n @VERSION@                     >> net/version_new.h
-	@echo    '"'                           >> net/version_new.h
-	@echo '#endif'                         >> net/version_new.h
+	@@ECHO@ '#ifndef SIP_STACK_VERSION'       > net/version_new.h
+	@@ECHO@ -n '#define SIP_STACK_VERSION "' >> net/version_new.h
+	@@ECHO@ -n @VERSION@                     >> net/version_new.h
+	@@ECHO@    '"'                           >> net/version_new.h
+	@@ECHO@ '#endif'                         >> net/version_new.h
 	@if test ! -r net/version.h || ! diff net/version.h net/version_new.h > /dev/null  \
 	;then \
 	   echo sipXtack version is @VERSION@ \

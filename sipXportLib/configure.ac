@@ -46,7 +46,7 @@ SFAC_FEATURE_SIP_TLS
 
 AC_MSG_CHECKING(for system type for process iterator ($host))
 case $host in 
-    *-*-hpux)
+    *-*-hpux*)
     PROCESS_ITERATOR=src/os/hpux/OsProcessIteratorHpux.cpp 
     ;;
     *-*-linux-gnu)

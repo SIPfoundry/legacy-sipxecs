@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # chkconfig: 35 90 10
 # description: This script starts up the sipXpbx processes.  

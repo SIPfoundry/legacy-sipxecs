@@ -48,6 +48,9 @@ void osPrintf(const char* format , ...)
 #  elif defined(__MACH__) /* OS X */
 #     include <sys/types.h>
    typedef int64_t __int64;
+#  elif defined(__hpux) /* HP-UX */
+#     include <sys/_inttypes.h>
+   typedef int64_t __int64;
 #  else
 #     error "Need a definition of __int64 for this platform"
 #  endif

@@ -47,13 +47,13 @@ extern "C" {
 #include <sys/types.h>
 
 // Standard C includes.
-#include <stdlib.h>
 #include <assert.h>
-#include <string.h>
+#include <ctype.h>
 #include <math.h>
 #include <stdio.h>
-#include <ctype.h>
+#include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 // Application includes.
 #include "os/OsSocket.h"

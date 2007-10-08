@@ -33,7 +33,7 @@ typedef unsigned char boolean;
 #if ULONG_MAX == MAX32U
 typedef short int16;
 typedef int   int32;
-typedef unsigned long  u_int32;
+typedef unsigned int   u_int32;
 typedef unsigned short u_int16;
 /* 16 bit machines */
 #elif ULONG_MAX == 0xFFFF
@@ -48,7 +48,7 @@ typedef int   int32;
 typedef unsigned int   u_int32;
 typedef unsigned short u_int16;
 #endif
-typedef char int8;
+typedef signed char int8;
 typedef unsigned char u_int8;
 
 #endif /* RTP_VERSION */

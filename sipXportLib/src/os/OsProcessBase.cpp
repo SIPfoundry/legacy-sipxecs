@@ -130,23 +130,25 @@ OsStatus OsProcessBase::ApplyEnv()
     UtlString nextKey;
     UtlString nextValue;
     UtlBoolean bFailed = FALSE;
-#ifndef __pingtel_on_posix__
-    UtlString fullEnv = "";
+#ifndef HAVE_SETENV
+    UtlString fullEnv;
 #endif
 
     mEnvList.getNext(searchKey,nextKey, nextValue);
     while (nextKey != "")
     {
         searchKey = nextKey;
-#ifndef HAVE_SETENV
+        int ret;
+        // Use setenv if available, or else putenv.
+#ifdef HAVE_SETENV
+        ret = setenv(nextKey.data(), nextValue.data(), 1);
+#else // HAVE_SETENV
         fullEnv = nextKey;
         fullEnv += "=";
         fullEnv += nextValue;
-
-        if (putenv((char *)fullEnv.data()) != 0)
-#else // HAVE_SETENV
-        if (setenv((char *)nextKey.data(), (char *)nextValue.data(), 1) != 0)
-#endif
+        ret = putenv((char *) fullEnv.data()); // putenv's argument is (char *), not (const char *)
+#endif // HAVE_SETENV
+        if (ret != 0)
         {
             bFailed = TRUE;
             break;

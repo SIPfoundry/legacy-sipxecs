@@ -10,6 +10,9 @@
 // SYSTEM INCLUDES
 #include <signal.h>
 
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
 
 // APPLICATION INCLUDES
 #include "sipdb/SIPDBManager.h"
@@ -433,7 +436,14 @@ main(int argc, char* argv[])
 
                 if( requestIsFromWebUI )
                 {   // this will just be a userid without the @domain part
-   		   setenv( "REMOTE_USER", mailbox.data(), 1);
+#ifdef HAVE_SETENV
+   		   setenv("REMOTE_USER", mailbox.data(), 1);
+#else // HAVE_SETENV
+                   UtlString fullEnv("REMOTE_USER");
+		   fullEnv += "=";
+		   fullEnv += mailbox.data();
+		   putenv((char *) fullEnv.data()); // putenv's argument is (char *), not (const char *)
+#endif // HAVE_SETENV
                    OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - mailbox=%s \n", mailbox.data());
                 }
  	    }
