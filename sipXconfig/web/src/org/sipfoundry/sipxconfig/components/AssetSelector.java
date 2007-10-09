@@ -13,6 +13,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +33,7 @@ import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
+import org.apache.tapestry.valid.ValidatorException;
 
 /**
  * Component that allows user to select from existing set of assets (prompts etc.) or upload a new
@@ -36,6 +41,7 @@ import org.apache.tapestry.valid.ValidationConstraint;
  */
 @ComponentClass(allowBody = false, allowInformalParameters = true)
 public abstract class AssetSelector extends BaseComponent {
+
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestry();
 
@@ -63,7 +69,7 @@ public abstract class AssetSelector extends BaseComponent {
 
     @Parameter(defaultValue = "ognl:true")
     public abstract boolean isEnabled();
-    
+
     @Parameter(defaultValue = "ognl:true")
     public abstract boolean getSubmitOnChange();
 
@@ -121,7 +127,10 @@ public abstract class AssetSelector extends BaseComponent {
             AbstractPage page = (AbstractPage) getPage();
             IValidationDelegate validator = TapestryUtils.getValidator(page);
             validateNotEmpty(validator, getErrorMsg());
-            TapestryUtils.isValid(page);
+            validateFileType(validator);
+            if (!TapestryUtils.isValid(page)) {
+                return;
+            }
             checkFileUpload();
             checkDeleteAsset();
         }
@@ -192,6 +201,39 @@ public abstract class AssetSelector extends BaseComponent {
         }
         if (StringUtils.isBlank(getAsset()) && !isUploadFileSpecified(getUploadAsset())) {
             validator.record(errorMsg, ValidationConstraint.REQUIRED);
+        }
+    }
+
+    private void validateFileType(IValidationDelegate validator) {
+        IUploadFile upload = getUploadAsset();
+        if (!isUploadFileSpecified(upload)) {
+            return;
+        }
+
+        if (getContentType().equals("audio/x-wav")) {
+            boolean isValidWavFile = false;
+            try {
+                AudioInputStream inStream = AudioSystem.getAudioInputStream(upload.getStream());
+                AudioFormat formatToCompare = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+                        8000, // sample rate
+                        16, // bits per sample
+                        1, // channels
+                        2, // frame rate
+                        8000, // frame size
+                        false); // isBigEndian)
+                if (inStream.getFormat().matches(formatToCompare)) {
+                    isValidWavFile = true;
+                }
+            } catch (Exception ex) {
+                // IO Exception or Unsupported Audio File Exception
+                // is not a valid file
+                isValidWavFile = false;
+            }
+
+            if (!isValidWavFile) {
+                String error = getMessages().format("error.badWavFormat", upload.getFileName());
+                validator.record(new ValidatorException(error));
+            }
         }
     }
 

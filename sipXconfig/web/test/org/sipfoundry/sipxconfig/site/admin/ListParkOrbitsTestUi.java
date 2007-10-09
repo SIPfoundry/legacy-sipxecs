@@ -15,6 +15,8 @@ import junit.framework.Test;
 
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ListParkOrbitsTestUi extends ListWebTestCase {
     private File m_tempFile;
@@ -26,7 +28,8 @@ public class ListParkOrbitsTestUi extends ListWebTestCase {
     public ListParkOrbitsTestUi() throws Exception {
         super("ListParkOrbits", "resetParkOrbitContext", "orbits");
         setHasDuplicate(false);
-        m_tempFile = File.createTempFile("ListParkOrbitsTestUi", null);
+        m_tempFile = new File(TestUtil.getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
     }
 
     public void setUp() {
@@ -57,7 +60,7 @@ public class ListParkOrbitsTestUi extends ListWebTestCase {
         super.setAddParams(names, values);
         getDialog().getForm().setParameter("promptUpload", m_tempFile);
     }
-    
+
     public void testParkOrbitDefaults() {
         clickLink("orbits:defaults");
         SiteTestHelper.assertNoException(tester);
@@ -68,5 +71,5 @@ public class ListParkOrbitsTestUi extends ListWebTestCase {
         clickButton("setting:cancel");
         assertTablePresent("orbits:list");
     }
-    
+
 }

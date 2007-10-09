@@ -69,21 +69,21 @@ public class SiteTestHelper {
 
         return jetty;
     }
-    
+
     static class SipxWebTestSuite extends TestSuite {
         SipxWebTestSuite(Class test) {
             super(test);
         }
-        
+
         public void addTest(Test test) {
             if (test instanceof WebTestCase) {
-                super.addTest(new DumpResponseOnFailure((WebTestCase) test));                
+                super.addTest(new DumpResponseOnFailure((WebTestCase) test));
             } else {
                 super.addTest(test);
             }
         }
     }
-    
+
     static class DumpResponseOnFailure extends TestDecorator {
         DumpResponseOnFailure(WebTestCase test) {
             super(test);
@@ -96,12 +96,11 @@ public class SiteTestHelper {
                 ((WebTestCase) getTest()).getDialog().dumpResponse();
             }
         }
-        
+
         private int totalFailures(TestResult result) {
             return result.errorCount() + result.failureCount();
         }
     }
-
 
     /**
      * Go to TestPage.html and log in. Includes hack for slow machines.
@@ -121,11 +120,11 @@ public class SiteTestHelper {
         setScriptingEnabled(false);
 
         tester.beginAt(TEST_PAGE_URL);
-        
-        // So tests can check for fixed text. tests can reset this if they wish 
+
+        // So tests can check for fixed text. tests can reset this if they wish
         // back to Locale.getDefault()
         tester.getTestContext().setLocale(Locale.ENGLISH);
-        
+
         if (login) {
             tester.clickLink("login");
         }
@@ -430,6 +429,17 @@ public class SiteTestHelper {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void initUploadFieldsWithFile(WebForm form, String filePath) {
+        File file = new File(filePath);
+        String[] parameterNames = form.getParameterNames();
+        for (int i = 0; i < parameterNames.length; i++) {
+            String paramName = parameterNames[i];
+            if (paramName.startsWith("promptUpload")) {
+                form.setParameter(paramName, file);
+            }
         }
     }
 

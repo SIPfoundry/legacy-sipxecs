@@ -89,9 +89,13 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         seedPromptFile();
         clickLink("NewAutoAttendant");
         selectOption("addMenuItemAction", "Voicemail Login");
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
+        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
         clickButton("attendant:addMenuItem");
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
+        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
         clickButton("attendant:reset");
         assertTableRowsEqual("attendant:menuItems", 1, FACTORY_DEFAULT);
     }
@@ -100,7 +104,9 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         seedPromptFile();
         clickLink("NewAutoAttendant");
         assertElementPresent("attendant:form");
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
+        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
         SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
 
         clickButton("attendant:removeMenuItems");
@@ -120,7 +126,9 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         assertElementPresent("attendant:form");
 
         selectOption("addMenuItemAction", "Auto Attendant");
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
+        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
         clickButton("attendant:addMenuItem");
         selectOption("attendantParameter", "New Attendant");
         SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
@@ -137,10 +145,14 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         SiteTestHelper.assertOptionSelected(tester, "attendantParameter", "New Attendant");
 
         selectOption("addMenuItemAction", "Deposit Voicemail");
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
+        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
         clickButton("attendant:addMenuItem");
         setFormElement("extensionParameter", "3232");
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
+        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
         clickButton("form:apply");
 
         String[][] vmDepositRow = {
@@ -174,7 +186,9 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         tester.setFormElement("name", "New Attendant");
         tester.setFormElement("description",
                 "created by EditAutoAttendantTestUi.seedAutoAttendant");
-        SiteTestHelper.initUploadFields(tester.getDialog().getForm(), "EditAutoAttendantTestUI");
+        SiteTestHelper.initUploadFieldsWithFile(tester.getDialog().getForm(), TestUtil
+                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
         tester.clickButton("form:apply");
     }
 

@@ -13,6 +13,7 @@ import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ManageAttendantsTestUi extends WebTestCase {
 
@@ -51,7 +52,9 @@ public class ManageAttendantsTestUi extends WebTestCase {
         clickLinkWithText("ManageAttendantsTestUi 1");
         assertElementPresent("attendant:menuItems");
         setFormElement("name", "Name edited");
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "ManageAttendantsTestUi");
+        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
         clickButton("form:ok");
         String[][] expectedData = {
             // Name Ext Description
@@ -86,7 +89,9 @@ public class ManageAttendantsTestUi extends WebTestCase {
             clickLink("addAttendant");
             setFormElement("name", "ManageAttendantsTestUi " + i);
             setFormElement("description", SEED_DESCRIPTION);
-            SiteTestHelper.initUploadFields(getDialog().getForm(), "ManageAttendantsTestUi");
+            SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+                    .getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                    + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
             clickButton("form:ok");
             SiteTestHelper.assertNoException(tester);
         }

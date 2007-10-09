@@ -15,6 +15,8 @@ import net.sourceforge.jwebunit.ExpectedTable;
 
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class EditAcdQueueTestUi extends ListWebTestCase {
     public static Test suite() throws Exception {
@@ -51,7 +53,10 @@ public class EditAcdQueueTestUi extends ListWebTestCase {
 
     protected void setAddParams(String[] names, String[] values) {
         super.setAddParams(names, values);
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAcdQueueTestUi");
+        // SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAcdQueueTestUi");
+        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
     }
 
     public void testDisplayEdit() throws Exception {

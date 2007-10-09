@@ -9,12 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.site.conference;
 
-
 import junit.framework.Test;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 import com.meterware.httpunit.WebForm;
 
@@ -44,13 +45,15 @@ public class ListBridgesTestUi extends ListWebTestCase {
         super.setAddParams(names, values);
         // make sure that all uploads are happy and set to something
         WebForm form = getDialog().getForm();
-        SiteTestHelper.initUploadFields(form, "ListBridgesTestUi");
+        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
     }
 
     protected Object[] getExpectedTableRow(String[] paramValues) {
         return ArrayUtils.add(paramValues, 1, "Disabled");
     }
-    
+
     public void setUp() {
         super.setUp();
     }
