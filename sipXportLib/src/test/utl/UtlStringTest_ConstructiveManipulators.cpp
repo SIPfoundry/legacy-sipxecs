@@ -40,7 +40,6 @@ class UtlStringTest_ConstructiveManipulators : public UtlStringTest
 {
     CPPUNIT_TEST_SUITE(UtlStringTest_ConstructiveManipulators);
     CPPUNIT_TEST(testConstructor_1) ;
-    CPPUNIT_TEST(testConstructor_2) ;
     CPPUNIT_TEST(testConstructor_3) ;
     CPPUNIT_TEST(testConstructor_4) ;
     CPPUNIT_TEST(testCapacity) ;
@@ -132,35 +131,6 @@ public:
     }
 
 
-     /** =====================================================================
-     *  Test case that tests the string constructor which accepts the capacity
-     *  of string as an argument
-     *  Test Data for this  test case :-
-     *      a) size of 0;
-     *      b) A large size (say 257);
-     *      c) size of 1 ;
-     *      d) a nominal size
-
-     */
-    void testConstructor_2()
-    {
-        struct CapacityConstructorVerifier
-        {
-            const char* testDescription ;
-            size_t inputCapacity ;
-            size_t minExpectedCapacity ;
-        } ;
-
-        string Message ;
-
-        const CapacityConstructorVerifier testData[] = { \
-            {"of 0", 0, 0}, \
-            {"that is large", 20040, 20040}, \
-            {"of 1", 1, 1}, \
-            {"that represents a regular string:-", 26, 26}, \
-        } ;
-        const int testCount = sizeof(testData)/sizeof(testData[0]) ;
-    } //testConstructor2()
 
      /**  =====================================================================
      *  Test the copy consturctor that accepts another UtlString object as the argument

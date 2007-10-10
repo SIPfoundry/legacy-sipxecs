@@ -50,7 +50,7 @@ testsuite_SOURCES = \
     net/SipXauthIdentityTest.cpp \
     net/XmlRpcTest.cpp
 
-net/SipXauthIdentityTest.cpp: net/SipXauthIdentityTest.cpp.in
+$(srcdir)/net/SipXauthIdentityTest.cpp: net/SipXauthIdentityTest.cpp.in
 	$(srcdir)/net/refresh-hashes <$(srcdir)/net/SipXauthIdentityTest.cpp.in >$(srcdir)/net/SipXauthIdentityTest.cpp
 
 EXTRA_DIST = \

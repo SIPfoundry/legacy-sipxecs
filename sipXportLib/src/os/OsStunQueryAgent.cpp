@@ -933,7 +933,6 @@ void OsStunQueryAgent::buildReqSimple(StunMessage *msg, bool changePort, bool ch
 void OsStunQueryAgent::sendTest(OsDatagramSocket *oDS, StunAddress4& dest, int testNum, int stunOptions) {
     /* Check if the destination is a valid one */
     assert( dest.addr != 0 );
-    assert(portIsValid(dest.port));
 
     bool changePort=false;
     bool changeIP=false;
@@ -1114,7 +1113,7 @@ NatType OsStunQueryAgent::getNatType (OsDatagramSocket *oDS1, OsDatagramSocket *
 
             if ( (!respTestI2) && respTestI ) { /* We have received a response to Test I but not Test I2 */
                 /* Check that the address to send to is valid */
-                if (  ( testI2dest.addr != 0 ) &&  ( portIsValid(testI2dest.port) ) ) {
+                if (  ( testI2dest.addr != 0 ) ) {
                     /* Send Test I2 */
 #ifdef TEST
                     cout << "Sending Test I2" << endl;
@@ -1140,7 +1139,7 @@ NatType OsStunQueryAgent::getNatType (OsDatagramSocket *oDS1, OsDatagramSocket *
             }
 
             if ( respTestI && (!respTestHairpin) ) { /* Got a response for Test I; but no response for hair pin test */
-                if (  ( testImappedAddr.addr != 0 ) &&  ( portIsValid(testImappedAddr.port) ) ) {
+                if (  ( testImappedAddr.addr != 0 ) ) {
 #ifdef TEST
                     cout << "Sending hairpin Test" << endl;
 #endif

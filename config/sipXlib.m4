@@ -1,9 +1,12 @@
 ##
 ## Libs from SipFoundry
 ##
+
 ## Common C and C++ flags for pingtel related source
 AC_DEFUN([SFAC_INIT_FLAGS],
 [
+    AC_REQUIRE([SFAC_SIPX_GLOBAL_OPTS])
+
     AC_SUBST(CPPUNIT_CFLAGS,  [])
     AC_SUBST(CPPUNIT_LDFLAGS, [])
 
@@ -11,12 +14,9 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     ##
     ## NOTES:
     ##   -D__pingtel_on_posix__   - really used for linux v.s. other
-    ##   -D_REENTRANT             - roguewave ?
+    ##   -D_REENTRANT             - 
     ##   -fmessage-length=0       - ?
     ##
-    AC_SUBST(SIPX_INCDIR, [${includedir}])
-    AC_SUBST(SIPX_LIBDIR, [${libdir}])
-    AC_SUBST(SIPX_LIBEXECDIR, [${libexecdir}])
 
     CFLAGS="-I${prefix}/include $CFLAGS"
     CXXFLAGS="-I${prefix}/include $CXXFLAGS"
@@ -28,6 +28,18 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     	SF_CXX_WARNINGS="-Wall -Wformat -Wwrite-strings -Wpointer-arith"
     	CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
     	CFLAGS="$CFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS -Wnested-externs -Wmissing-declarations -Wmissing-prototypes"
+
+      # the sfac_strict_compile flag is set by SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED
+      AC_MSG_CHECKING(how to treat compilation warnings)
+      if test x$sfac_strict_compile = xstrictmode 
+      then 
+         AC_MSG_RESULT([strict mode - treat as errors])
+         CXXFLAGS="$CXXFLAGS -Wno-strict-aliasing -fno-strict-aliasing -Werror"
+         CFLAGS="$CXXFLAGS -Wno-strict-aliasing -fno-strict-aliasing -Werror"
+      else 
+         AC_MSG_RESULT([normal mode - allow warnings])
+      fi
+
     elif test x_"${ax_cv_c_compiler_vendor}" = x_sun
     then
         SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -mt -fast -v"
@@ -44,6 +56,16 @@ AC_DEFUN([SFAC_INIT_FLAGS],
 
     ## set flag for gcc
     AM_CONDITIONAL(ISGCC, [test  x_"${GCC}" != x_])
+])
+
+# sipX-specific options that affect everything and so should be visible at the top level
+AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
+[
+    SFAC_SIPX_INSTALL_PREFIX
+
+    AC_SUBST(SIPX_INCDIR, [${includedir}])
+    AC_SUBST(SIPX_LIBDIR, [${libdir}])
+    AC_SUBST(SIPX_LIBEXECDIR, [${libexecdir}])
 
     ## NOTE: These are not expanded (e.g. contain $(prefix)) and are only
     ## fit for Makefiles. You can however write a Makefile that transforms
@@ -84,6 +106,7 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     AC_ARG_VAR(SIPXPBXUSER, [The sipX service daemon user name, default is 'sipxchange'])
     test -z $SIPXPBXUSER && SIPXPBXUSER=sipxchange
 
+    # these next three are probably not used any more
     AC_SUBST(SIPXPHONECONF, [${sysconfdir}/sipxphone])
     AC_SUBST(SIPXPHONEDATA, [${datadir}/sipxphone])
     AC_SUBST(SIPXPHONELIB, [${datadir}/sipxphone/lib])
@@ -141,6 +164,25 @@ AC_DEFUN([SFAC_CONFIGURE_OPTIONS],
 AC_DEFUN([SFAC_SIPX_INSTALL_PREFIX],[
    # set the install prefix
    AC_PREFIX_DEFAULT(${SIPX_INSTALLDIR:-/usr/local/sipx})
+])
+
+dnl If SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED is included in configure.ac,
+dnl   then the default behavior is to treat all gcc warnings as errors.
+dnl This can be temporarily disabled by using --disable-compile-strict
+dnl If used, this macro must be before SFAC_INIT_FLAGS in configure.ac
+AC_DEFUN([SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED],[
+   AC_BEFORE([$0], [SFAC_INIT_FLAGS])dnl 
+
+   AC_ARG_ENABLE([compile-strict],
+     AC_HELP_STRING([--enable-compile-strict],
+       [When enabled, treat all compiler warnings as errors - default is to disallow warnings]),
+     [if test x$enable_compile_strict = xyes 
+      then sfac_strict_compile=strictmode
+      else sfac_strict_compile=allowmode
+      fi
+     ], 
+     [sfac_strict_compile=strictmode]
+   )
 ])
 
 ## Check to see that we are using the minimum required version of automake

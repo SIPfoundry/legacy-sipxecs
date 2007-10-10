@@ -23,8 +23,6 @@ SFAC_INIT_FLAGS
 # openssl shell script for r/w certs
 AC_PATH_PROG([OPENSSL],[openssl])
 
-SFAC_INIT_FLAGS
-
 # Jar files to all of sipXconfig. 
 AC_SUBST(SIPXCONFIG_LIBDIR, [${SIPX_DATADIR}/lib])
 

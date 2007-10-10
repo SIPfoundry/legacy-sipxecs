@@ -59,29 +59,21 @@ OsStunAgentTask::~OsStunAgentTask()
     // Wait for the thread to shutdown
     waitUntilShutDown() ;
 
-    UtlVoidPtr* pValue = NULL;
-    while ((pValue = (UtlVoidPtr*) mTimerPool.first()))
-    {        
-        OsTimer* pTimer = (OsTimer*) pValue->getValue() ;
-        if (pTimer)
-        {
-            delete pTimer ;
-        }
-        mTimerPool.destroy(pValue) ;
-    }
+    // discard any timers from the pool
+    mTimerPool.destroyAll();
     
     {
        // this scope ensures that the following iterator is deleted before the mResponseMap
        //   I would have thought that it was without this, but it doesn't seem to work that way.
        UtlHashMapIterator iterator(mResponseMap);
        OsStunDatagramSocket* pKey;
+       
        while ((pKey = (OsStunDatagramSocket*)iterator()))
        {
-          pValue = (UtlVoidPtr*)iterator.value();
-          if (pValue)
+          OsTimer* pTimer = dynamic_cast<OsTimer*>(iterator.value());
+          if (pTimer)
           {
-             delete pValue->getValue();
-             delete pValue;
+             delete pTimer;
           }
           mResponseMap.removeReference(pKey);
        }
@@ -307,8 +299,7 @@ UtlBoolean OsStunAgentTask::handleStunTimerEvent(OsEventMsg& rMsg)
     if ((rc == OS_SUCCESS) && pSocket)
     {
         UtlVoidPtr key(pSocket) ;
-        UtlVoidPtr* pValue = (UtlVoidPtr*) mResponseMap.findValue(&key) ;
-        if (pValue)
+        if (mResponseMap.contains(&key))
         {
             // We were waiting for a response -- timeout failure
             signalStunOutcome(pSocket, false) ;
@@ -389,16 +380,12 @@ UtlBoolean OsStunAgentTask::sendStunDiscoveryRequest(OsStunDatagramSocket* pSock
             }
             else
             {
-                OsTime timeout(0, STUN_TIMEOUT_RESPONSE_MS * OsTime::USECS_PER_MSEC) ;
+                OsTime timeout(0, STUN_TIMEOUT_RESPONSE_MS * OsTime::USECS_PER_MSEC);
                 OsQueuedEvent* pQueuedEvent ;
-                OsTimer* pTimer ;
-
-                UtlVoidPtr* pValue = (UtlVoidPtr*) mTimerPool.last() ;
-                if (pValue)
+                OsTimer* pTimer = dynamic_cast<OsTimer*>(mTimerPool.last()) ;
+                if (pTimer)
                 {
-                    pTimer = (OsTimer*) pValue->getValue() ;
-                    mTimerPool.destroy(pValue);
-                    pQueuedEvent = (OsQueuedEvent*) pTimer->getNotifier() ;
+                    pQueuedEvent = dynamic_cast<OsQueuedEvent*>(pTimer->getNotifier());
                     if (pQueuedEvent)
                     {
                         pQueuedEvent->setUserData((int) pSocket) ;
@@ -412,7 +399,7 @@ UtlBoolean OsStunAgentTask::sendStunDiscoveryRequest(OsStunDatagramSocket* pSock
 
                 OsTime reportFailureAfter(OsTime(0, 500)) ;                
                 pTimer->oneshotAfter(timeout) ;
-                mResponseMap.insertKeyAndValue(pSocket, new UtlVoidPtr(pTimer)) ;
+                mResponseMap.insertKeyAndValue(pSocket, pTimer) ;
             }                
         }
         else
@@ -510,19 +497,18 @@ void OsStunAgentTask::removeSocket(OsStunDatagramSocket* pSocket)
       OsLock lock(mMapsLock);
 
       // Remove contents response map and null out the timer
-      UtlVoidPtr* pValue ;
-      pValue = (UtlVoidPtr*) mResponseMap.findValue(pSocket) ;
-      if ((pValue) && pValue->getValue())
+      OsTimer* pTimer ;
+      pTimer = dynamic_cast<OsTimer*>(mResponseMap.findValue(pSocket));
+      if (pTimer)
       {
-         OsTimer* pTimer = (OsTimer*) pValue->getValue() ;
          pTimer->stop() ;
          OsQueuedEvent* pEvent = (OsQueuedEvent*) pTimer->getNotifier() ;
          if (pEvent)
          {
             pEvent->setUserData(0) ; 
-            if (!mTimerPool.find(&UtlVoidPtr(pTimer)))       
+            if (!mTimerPool.find(pTimer))
             {
-               mTimerPool.insert(new UtlVoidPtr(pTimer)) ;    
+               mTimerPool.insert(pTimer);    
             }
          }
          mResponseMap.removeReference(pSocket) ;
@@ -562,22 +548,18 @@ void OsStunAgentTask::signalStunOutcome(OsStunDatagramSocket* pSocket,
     OsLock lock(mMapsLock) ;
 
     // Remove from waiting response map
-    UtlVoidPtr* pValue = (UtlVoidPtr*) mResponseMap.findValue(pSocket) ;
-    if (pValue)
+    OsTimer* pTimer = dynamic_cast<OsTimer*>(mResponseMap.findValue(pSocket));
+    if (pTimer)
     {
-        OsTimer* pTimer = (OsTimer*) pValue->getValue() ;
-        if (pTimer)
-        {
-            pTimer->stop() ;
-            OsQueuedEvent* pEvent = (OsQueuedEvent*) pTimer->getNotifier() ;
-            if (pEvent)
-            {
-                pEvent->setUserData(0) ;        
-                if (!mTimerPool.find(&UtlVoidPtr(pTimer)))       
-                {
-                    mTimerPool.insert(new UtlVoidPtr(pTimer)) ;
-                }
-            }
+       pTimer->stop() ;
+       OsQueuedEvent* pEvent = (OsQueuedEvent*) pTimer->getNotifier() ;
+       if (pEvent)
+       {
+          pEvent->setUserData(0) ;        
+          if (!mTimerPool.contains(pTimer))
+          {
+             mTimerPool.insert(pTimer) ;
+          }
        }
     }
     mResponseMap.remove(pSocket) ;

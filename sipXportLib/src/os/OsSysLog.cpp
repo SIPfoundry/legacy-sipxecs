@@ -223,7 +223,7 @@ OsStatus OsSysLog::add(const char*            taskName,
                        const char*            format,
                                               ...)
 {
-   OsStatus rc;
+   OsStatus rc = OS_SUCCESS;
 
    // Make sure we want to handle the log entry before we process
    // the variable arguments.
@@ -245,7 +245,7 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
                        const char*            format,
                                               ...)
 {
-   OsStatus rc;
+   OsStatus rc = OS_SUCCESS;
 
    if (willLog(facility, priority))
    {

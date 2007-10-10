@@ -97,27 +97,34 @@ OsStatus OsNameDb::remove(const UtlString& rKey,
    OsWriteLock          lock(mRWLock);
    OsStatus   result = OS_NOT_FOUND;
    UtlString* pDictKey;
-   UtlInt*    pDictValue;
+   UtlContainable* pDictValue;
 
-   pDictKey =
-      (UtlString*)
-      mDict.removeKeyAndValue(&rKey, (UtlContainable*&) pDictValue);
+   pDictKey = dynamic_cast<UtlString*>
+      (mDict.removeKeyAndValue(&rKey, pDictValue));
 
    // If a value was found and removed ...
    if (pDictKey != NULL)
    {
+      result =  OS_SUCCESS;
+
       // If the caller provided a pointer through which to return the
       // integer value, do so.
       if (pValue != NULL)
       {
-         *pValue = pDictValue->getValue();
+         UtlInt* intValue = dynamic_cast<UtlInt*>(pDictValue);
+         if (intValue)
+         {
+            *pValue = intValue->getValue();
+         }
+         else
+         {
+            result = OS_NOT_FOUND;
+         }
       }
 
       // Delete the key and value objects.
       delete pDictKey;
       delete pDictValue;
-
-      result =  OS_SUCCESS;
    }
 
    //  Return success or failure as appropriate.

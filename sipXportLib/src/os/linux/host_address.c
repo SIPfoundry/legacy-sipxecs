@@ -90,7 +90,7 @@ static unsigned int get_address(char * if_name)
 
 static void get_hwaddr(char * if_name, char * address, int length)
 {
-   unsigned char * hwaddr;
+   char * hwaddr;
    struct ifreq interface;
    int s = socket(AF_INET, SOCK_DGRAM, 0);
    strcpy(interface.ifr_name, if_name);

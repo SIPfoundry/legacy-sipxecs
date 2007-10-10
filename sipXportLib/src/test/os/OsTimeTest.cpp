@@ -194,7 +194,7 @@ non-default constructor";
        };
        #define N (sizeof (array) / sizeof (array[0]))
        OsTime times[N];
-       int i, j;
+       unsigned int i, j;
        char msg[1000];
 
        // Initialize the array of OsTime's.

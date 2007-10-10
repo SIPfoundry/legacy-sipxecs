@@ -161,8 +161,8 @@ private:
 
     OsMutex mMapsLock ;                     /**< Lock for Notify and Connectiviy maps */
     UtlHashMap mResponseMap;                /**< Map of outstanding refresh requests
-                                             * key is the pSocket: this memory is not owned
-                                             *     by this class, so it is not deleted.
+                                             *   key is the pSocket: this memory is not owned
+                                             *   by this class, so it is not deleted.
                                              */  
     UtlHashMap mConnectivityMap ;           /**< Map of outstanding connectivity probes */
     UtlSList mTimerPool;                    /**< List of free timers available for use */
