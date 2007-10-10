@@ -29,3 +29,11 @@ missingok
         /bin/kill -USR1 `cat /var/run/sipxpbx/httpd.pid 2>/dev/null` 2> /dev/null || true
     endscript
 }
+
+# Get rid of core files older than 10 days
+/var/log/sipxpbx/core.[0-9]* {
+   compress
+   maxage 10
+   nosharedscripts
+   rotate 0
+}
