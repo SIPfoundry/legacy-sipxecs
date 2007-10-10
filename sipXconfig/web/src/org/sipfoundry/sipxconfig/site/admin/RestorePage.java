@@ -35,11 +35,14 @@ import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.admin.BackupPlan;
 import org.sipfoundry.sipxconfig.admin.Restore;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.AssetSelector;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
 public abstract class RestorePage extends UserBasePage implements PageBeginRenderListener {
+    private static final String FILE_TYPE = ".tar.gz";
+
     private static final String SUCCESS = "message.label.success";
 
     private static final String MESSAGE = "message.";
@@ -150,23 +153,21 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
 
     }
 
-    private BackupBean upload(IUploadFile uploadFile, String name)
-        throws ValidatorException {
-
-        String fileType = ".tar.gz";
+    private BackupBean upload(IUploadFile uploadFile, String name) throws ValidatorException {
 
         if (uploadFile == null) {
             return null;
         }
-        if (!uploadFile.getFileName().endsWith(fileType)) {
+        String fileName = AssetSelector.getSystemIndependentFileName(uploadFile.getFilePath());
+        if (!fileName.endsWith(FILE_TYPE)) {
             String error = getMessages().getMessage("message.wrongFileToRestore");
             throw new ValidatorException(error);
         }
 
         OutputStream os = null;
         try {
-            String prefix = StringUtils.substringBefore(uploadFile.getFileName(), ".");
-            File tmpFile = File.createTempFile(prefix, fileType);
+            String prefix = StringUtils.substringBefore(fileName, ".");
+            File tmpFile = File.createTempFile(prefix, FILE_TYPE);
             os = new FileOutputStream(tmpFile);
             IOUtils.copy(uploadFile.getStream(), os);
             return new BackupBean(tmpFile, name);

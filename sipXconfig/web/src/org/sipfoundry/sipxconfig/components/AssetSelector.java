@@ -184,7 +184,7 @@ public abstract class AssetSelector extends BaseComponent {
      * @param filePath full name of the downloaded file in a client sytem format
      * @return base name and extension of the file
      */
-    static String getSystemIndependentFileName(String filePath) {
+    public static String getSystemIndependentFileName(String filePath) {
         if (StringUtils.isEmpty(filePath)) {
             return StringUtils.EMPTY;
         }
