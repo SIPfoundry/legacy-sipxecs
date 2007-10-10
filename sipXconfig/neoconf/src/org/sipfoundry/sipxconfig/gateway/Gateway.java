@@ -52,6 +52,11 @@ public class Gateway extends Device implements NamedObject {
         setModel(model);
     }
 
+    public Gateway(ModelSource<GatewayModel> modelSource, String modelId) {
+        setGatewayModelSource(modelSource);
+        setModelId(modelId);
+    }
+
     @Override
     public void initialize() {
     }
