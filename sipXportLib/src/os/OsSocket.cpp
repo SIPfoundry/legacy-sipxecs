@@ -842,7 +842,7 @@ void OsSocket::getDomainName(UtlString &domain_name)
     {
 #ifdef __pingtel_on_posix__
         char nameBuffer[DOMAIN_NAME_LENGTH];
-        getdomainname(nameBuffer, DOMAIN_NAME_LENGTH - 1);
+        (void)getdomainname(nameBuffer, DOMAIN_NAME_LENGTH - 1);
         m_DomainName = nameBuffer;
 #endif  //__pingtel_on_posix__
 
