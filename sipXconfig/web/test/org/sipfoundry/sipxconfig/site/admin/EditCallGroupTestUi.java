@@ -36,7 +36,7 @@ public class EditCallGroupTestUi extends WebTestCase {
         assertElementPresent("item:extension");
         assertElementPresent("item:description");
         assertElementPresent("item:enabled");
-        assertElementPresent("callgroup:fallbackDestination");
+        assertElementPresent("callgroup:voicemailFallback");
 
         assertLinkPresent("callgroup:addRing");
         assertEquals(1, SiteTestHelper.getRowCount(tester, "userring:list"));
@@ -90,7 +90,7 @@ public class EditCallGroupTestUi extends WebTestCase {
     }
 
     private void addUser() throws Exception {
-        //SiteTestHelper.clickSubmitLink(getTester(), "addRow");
+        // SiteTestHelper.clickSubmitLink(getTester(), "addRow");
         clickLink("callgroup:addRing");
 
         clickButton("user:search");

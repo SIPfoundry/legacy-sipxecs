@@ -182,6 +182,7 @@ public class CallGroupTest extends TestCase {
         CallGroup group = new CallGroup();
         group.setName(name);
         group.setExtension(extension);
+        group.setVoicemailFallback(false);
 
         for (int i = 0; i < numUsers; i++) {
             User u = new User();
@@ -199,43 +200,6 @@ public class CallGroupTest extends TestCase {
         group.setEnabled(true);
         List aliases = group.generateAliases("kiwi");
         assertEquals(0, aliases.size());
-    }
-
-    public void testGenerateAliasesLastParallel() {
-        CallGroup group = new CallGroup();
-        group.setName("sales");
-        group.setExtension("401");
-
-        final int ringsLen = 5;
-        for (int i = 0; i < ringsLen; i++) {
-            User u = new User();
-            u.setUserName("testUser" + i);
-            UserRing ring = group.insertRingForUser(u);
-            if (i == ringsLen - 1) {
-                ring.setType(AbstractRing.Type.IMMEDIATE);
-            }
-        }
-
-        List aliases = group.generateAliases("kuku");
-        // disabled group should not generate aliases
-        assertTrue(aliases.isEmpty());
-
-        group.setEnabled(true);
-        aliases = group.generateAliases("kuku");
-
-        assertEquals(ringsLen + 1, aliases.size());
-        for (int i = 0; i < ringsLen; i++) {
-            AliasMapping am = (AliasMapping) aliases.get(i);
-            assertEquals(am.getIdentity(), group.getName() + "@kuku");
-            assertTrue(am.getContact().startsWith("<sip:testUser" + i + "@kuku"));
-            // for all but last we need sipx-noroute=Voicemail in the sequence
-            assertTrue(0 < am.getContact().indexOf("sipx-noroute=Voicemail"));
-        }
-
-        // the last alias is an extension => identity
-        AliasMapping am = (AliasMapping) aliases.get(aliases.size() - 1);
-        assertEquals(am.getIdentity(), group.getExtension() + "@kuku");
-        assertTrue(am.getContact().startsWith(group.getName() + "@kuku"));
     }
 
     public void testClone() {
@@ -261,6 +225,5 @@ public class CallGroupTest extends TestCase {
             assertEquals("testUser" + i, ring.getUser().getUserName());
             assertSame(clonedGroup, ring.getCallGroup());
         }
-
     }
 }

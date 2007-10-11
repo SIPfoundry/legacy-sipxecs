@@ -28,7 +28,7 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
     private String m_extension;
     private String m_description;
     private String m_fallbackDestination;
-    private boolean m_voicemailFallback;
+    private boolean m_voicemailFallback = true;
 
     public CallGroup() {
         // bean usage only
