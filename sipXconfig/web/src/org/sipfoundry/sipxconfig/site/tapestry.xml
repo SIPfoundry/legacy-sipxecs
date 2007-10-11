@@ -118,6 +118,12 @@
       <value>Cannot contain spaces or other whitespace characters.</value>
     </property>
   </bean>
+  
+  <bean name="voicemailHostnameValidator" class="org.sipfoundry.sipxconfig.site.dialplan.VoicemailHostnameValidator">
+    <property name="message">
+      <value>Hostname must be specified for external voicemail servers.</value>
+    </property>
+  </bean>
 
 
   <!-- T R A N S L A T O R S -->

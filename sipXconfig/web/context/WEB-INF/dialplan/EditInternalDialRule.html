@@ -43,7 +43,8 @@
           description="message:description.mediaServerHostname"          
           for="dialplan:externalVoicemailServerAddress">
             <input jwcid="mediaServerHostname@TextField" id="dialplan:externalVoicemailServerAddress"
-               value="ognl:rule.mediaServerHostname"/>
+               value="ognl:rule.mediaServerHostname" 
+               validators="spring-validators:voicemailHostnameValidator,validHostOrIp"/>
         </tr>
       </tbody>
     </table>

@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public class ExchangeMediaServer extends MediaServer {
 
-    private static final String NAME = "ExchangeUM";
+    public static final String NAME = "ExchangeUM";
     private static final String HEADER_PARAM_TEMPLATE = "<sip:{%s}@{host}>;reason=no-answer;screen=no;privacy=off";
 
     /**
