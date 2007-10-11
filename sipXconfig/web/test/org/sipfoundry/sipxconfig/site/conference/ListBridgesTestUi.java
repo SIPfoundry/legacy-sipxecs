@@ -45,7 +45,7 @@ public class ListBridgesTestUi extends ListWebTestCase {
         super.setAddParams(names, values);
         // make sure that all uploads are happy and set to something
         WebForm form = getDialog().getForm();
-        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+        SiteTestHelper.initUploadFieldsWithFile(form, TestUtil
                 .getTestSourceDirectory(EditAutoAttendantTestUi.class)
                 + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
     }

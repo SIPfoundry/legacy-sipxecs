@@ -47,7 +47,7 @@ public class UserBuilder extends SimpleBeanBuilder {
         if (properties.contains(PERMISSIONS_PROP)) {
             Collection<String> permNames = my.getUserPermissionNames();
             if (!permNames.isEmpty()) {
-                api.setPermissions((String[]) permNames.toArray(new String[permNames.size()]));
+                api.setPermissions(permNames.toArray(new String[permNames.size()]));
             }
         }
     }

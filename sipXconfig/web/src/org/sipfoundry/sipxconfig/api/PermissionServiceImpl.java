@@ -69,8 +69,7 @@ public class PermissionServiceImpl implements PermissionService {
             }
         }
 
-        return (org.sipfoundry.sipxconfig.permission.Permission[]) permissions
-                .toArray(new org.sipfoundry.sipxconfig.permission.Permission[permissions.size()]);
+        return permissions.toArray(new org.sipfoundry.sipxconfig.permission.Permission[permissions.size()]);
     }
 
     public void managePermission(ManagePermission managePermission) throws RemoteException {

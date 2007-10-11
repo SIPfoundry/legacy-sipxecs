@@ -13,11 +13,9 @@ import java.util.Arrays;
 import java.util.Set;
 
 public class PermissionBuilder extends SimpleBeanBuilder {
-    private static final String ID_PROP = "id";
     private static final String BUILTIN_PROP = "builtIn";
     private static final String NAME_PROP = "name";
     private static final String TYPE_PROP = "type";
-    private static final String READ_ONLY_MSG = "Read only property ";
 
     private static final String[] CUSTOM_FIELDS = {
         ID_PROP, BUILTIN_PROP, TYPE_PROP, NAME_PROP
