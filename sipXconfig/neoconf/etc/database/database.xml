@@ -233,6 +233,7 @@
     <antcall target="domain-add-shared-secret" />
     <antcall target="gateway-port" />
     <antcall target="schedules-per-dialing-rule" />
+    <antcall target="callgroup-vmail-destination" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="7" -->
   </target>
@@ -264,32 +265,6 @@
   <target name="backup-email-address" unless="backup-email-address">
     <db-patch patch="backup-email-address" />
   </target>
-
-  <!-- BEGIN: only temporary user/developer convenience until 3.8 ships -->
-  <target name="reset-old-phonebook">
-    <sipx-sql>
-      drop table phonebook_member;
-      drop table phonebook;
-      drop sequence phonebook_seq;
-      delete from patch where name = 'phonebook'
-    </sipx-sql>
-  </target>
-  <target name="reset-speeddial">
-    <sipx-sql>
-      drop table speeddial_button;
-      drop table speeddial;
-      drop sequence speeddial_seq;
-      delete from patch where name = 'speeddial'
-    </sipx-sql>
-  </target>
-  <target name="reset-service">
-    <sipx-sql>
-      drop table service;
-      drop sequence service_seq;
-      delete from patch where name = 'service'
-    </sipx-sql>
-  </target>
-  <!-- END: only temporary user/developer convenience until 3.8 ships -->
 
   <target name="speeddial" unless="speeddial">
     <db-patch patch="speeddial" />
@@ -486,6 +461,10 @@
 
   <target name="callgroup-fallback-destination" unless="callgroup-fallback-destination">
     <db-patch patch="callgroup-fallback-destination" />
+  </target>
+
+  <target name="callgroup-vmail-destination" unless="callgroup-vmail-destination">
+    <db-patch patch="callgroup-vmail-destination" />
   </target>
 
   <target name="callforwardexternal" unless="callforwardexternal">

@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
-import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -17,6 +16,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
+import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.SipUri;
@@ -28,6 +28,7 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
     private String m_extension;
     private String m_description;
     private String m_fallbackDestination;
+    private boolean m_voicemailFallback;
 
     public CallGroup() {
         // bean usage only
@@ -88,6 +89,14 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
         m_fallbackDestination = fallbackDestination;
     }
 
+    public boolean getVoicemailFallback() {
+        return m_voicemailFallback;
+    }
+
+    public void setVoicemailFallback(boolean voicemailFallback) {
+        m_voicemailFallback = voicemailFallback;
+    }
+
     /**
      * Inserts a new ring for a specific user
      * 
@@ -123,23 +132,21 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
         }
         String myIdentity = AliasMapping.createUri(m_name, domainName);
 
-        List<AliasMapping> aliases = null;
-        if (StringUtils.isEmpty(m_fallbackDestination)) {
-            aliases = generateAliases(myIdentity, domainName, false);
-        } else {
-            ForkQueueValue forkQueueValue = new ForkQueueValue(getRings().size() + 1);
-            aliases = generateAliases(myIdentity, domainName, true, forkQueueValue);
-            String sipString;
-            if (m_fallbackDestination.contains("@")) {
-                sipString = m_fallbackDestination;
-            } else {
-                sipString = SipUri.format(StringUtils.EMPTY, m_fallbackDestination, domainName);
+        ForkQueueValue forkQueueValue = new ForkQueueValue(getRings().size() + 1);
+        List<AliasMapping> aliases = generateAliases(myIdentity, domainName, true, forkQueueValue);
+
+        if (m_voicemailFallback) {
+            AbstractRing lastRing = getLastRing();
+            if (lastRing != null) {
+                String vmailContact = lastRing.calculateContact(domainName, forkQueueValue,
+                        false, MappingRule.Voicemail.VM_PREFIX);
+                aliases.add(new AliasMapping(myIdentity, vmailContact));
             }
-            MessageFormat sipStringFormat = new MessageFormat("<{0}>;{1}");
-            Object[] sipStringValues = {
-                sipString, forkQueueValue.getSerial()
-            };
-            aliases.add(new AliasMapping(myIdentity, sipStringFormat.format(sipStringValues)));
+        } else if (StringUtils.isNotBlank(m_fallbackDestination)) {
+            String falback = SipUri.fix(m_fallbackDestination, domainName);
+            String fallbackContact = String
+                    .format("<%s>;%s", falback, forkQueueValue.getSerial());
+            aliases.add(new AliasMapping(myIdentity, fallbackContact));
         }
 
         if (StringUtils.isNotBlank(m_extension) && !m_extension.equals(m_name)) {
@@ -149,5 +156,4 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
         }
         return aliases;
     }
-
 }

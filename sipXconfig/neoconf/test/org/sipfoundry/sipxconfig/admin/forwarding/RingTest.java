@@ -33,7 +33,7 @@ public class RingTest extends TestCase {
         ring.setExpiration(45);
         ring.setType(Ring.Type.IMMEDIATE);
 
-        String contact = ring.calculateContact("sipfoundry.org", q, false);
+        String contact = ring.calculateContact("sipfoundry.org", q, false, null);
         assertEquals("<sip:555@sipfoundry.org?expires=45>;q=1.0", contact);
     }
 
@@ -75,7 +75,7 @@ public class RingTest extends TestCase {
         String expected = Integer.toHexString(startWithTimezone) + ":"
                 + Integer.toHexString(stopWithTimezone);
 
-        String contact = ring.calculateContact("sipfoundry.org", q, false);
+        String contact = ring.calculateContact("sipfoundry.org", q, false, null);
         assertEquals("<sip:444@sipfoundry.org?expires=45>;q=1.0;sipx-ValidTime=" + expected,
                 contact);
 
@@ -84,14 +84,14 @@ public class RingTest extends TestCase {
         ring2.setExpiration(25);
         ring2.setType(AbstractRing.Type.DELAYED);
         ring2.setSchedule(schedule);
-        String contact2 = ring2.calculateContact("sipfoundry.org", q, true);
+        String contact2 = ring2.calculateContact("sipfoundry.org", q, true, null);
         assertEquals(
                 "<sip:333@sipfoundry.org;sipx-noroute=Voicemail?expires=25>;q=0.95;sipx-ValidTime="
                         + expected, contact2);
 
         // with new q value - ring2 is delayed, q mustbe < 1.0
         ForkQueueValue q1 = new ForkQueueValue(3);
-        contact2 = ring2.calculateContact("sipfoundry.org", q1, false);
+        contact2 = ring2.calculateContact("sipfoundry.org", q1, false, null);
         assertEquals("<sip:333@sipfoundry.org?expires=25>;q=0.95;sipx-ValidTime=" + expected,
                 contact2);
     }
@@ -103,7 +103,7 @@ public class RingTest extends TestCase {
         ring.setExpiration(45);
         ring.setType(Ring.Type.IMMEDIATE);
 
-        String contact = ring.calculateContact("shouldnt-be-used.com", q, false);
+        String contact = ring.calculateContact("shouldnt-be-used.com", q, false, null);
         assertEquals("<sip:joe@example.com?expires=45>;q=1.0", contact);
     }
 }

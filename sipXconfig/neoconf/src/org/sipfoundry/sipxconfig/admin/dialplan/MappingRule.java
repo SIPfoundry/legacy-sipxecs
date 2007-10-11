@@ -113,7 +113,8 @@ public class MappingRule extends DialingRule {
 
     // specialized classes
     public static class Operator extends MappingRule {
-        public Operator(AutoAttendant attendant, String extension, String[] aliases, MediaServer mediaServer) {
+        public Operator(AutoAttendant attendant, String extension, String[] aliases,
+                MediaServer mediaServer) {
             this(attendant.getName(), attendant.getDescription(), attendant.getSystemName(),
                     extension, aliases, mediaServer);
         }
@@ -132,12 +133,12 @@ public class MappingRule extends DialingRule {
             Map<String, String> additionalParams = new HashMap<String, String>();
             additionalParams.put("name", systemName);
             MediaServer.Operation operation = MediaServer.Operation.Autoattendant;
-            String uriParams = mediaServer.getUriParameterStringForOperation(
-                    operation, null, additionalParams);
-            String headerParams = mediaServer.getHeaderParameterStringForOperation(
-                    operation, null, additionalParams);
-            setUrl(buildUrl('{' + CallDigits.FIXED_DIGITS.getName() + '}', mediaServer.getHostname(),
-                    uriParams, headerParams, null));
+            String uriParams = mediaServer.getUriParameterStringForOperation(operation, null,
+                    additionalParams);
+            String headerParams = mediaServer.getHeaderParameterStringForOperation(operation,
+                    null, additionalParams);
+            setUrl(buildUrl('{' + CallDigits.FIXED_DIGITS.getName() + '}', mediaServer
+                    .getHostname(), uriParams, headerParams, null));
         }
     }
 
@@ -163,6 +164,8 @@ public class MappingRule extends DialingRule {
     }
 
     public static class Voicemail extends MappingRule {
+        public static final String VM_PREFIX = "~~vm~";
+
         public Voicemail(String voiceMail, MediaServer mediaServer) {
             setPatterns(new String[] {
                 voiceMail
@@ -187,30 +190,29 @@ public class MappingRule extends DialingRule {
             setUrl(buildUrl(userDigits, mediaServer, operation, null));
         }
     }
-    
+
     /**
-     * Builds a URL based on the provided digits, media server, and
-     * sip parameters.
+     * Builds a URL based on the provided digits, media server, and sip parameters.
      * 
      * @param userDigits - The digits for the relevant user (or null if none)
      * @param mediaServer - The media server that will handle this url
      * @param sipParams - any additional SIP params (can be null or empty string)
      * @return String representing the URL
      */
-    static String buildUrl(CallDigits userDigits, 
-            MediaServer mediaServer, Operation operation, String sipParams) {
-        String uriParams = mediaServer.getUriParameterStringForOperation(
-                operation, userDigits, null);
-        String headerParams = mediaServer.getHeaderParameterStringForOperation(
-                operation, userDigits, null);
+    static String buildUrl(CallDigits userDigits, MediaServer mediaServer, Operation operation,
+            String sipParams) {
+        String uriParams = mediaServer.getUriParameterStringForOperation(operation, userDigits,
+                null);
+        String headerParams = mediaServer.getHeaderParameterStringForOperation(operation,
+                userDigits, null);
         String hostname = mediaServer.getHostname();
         String digits = mediaServer.getDigitStringForOperation(operation, userDigits);
         return buildUrl(digits, hostname, uriParams, headerParams, sipParams);
     }
 
     /**
-     * Builds a URL based on the provided digits, uri parameters, header parameters, and
-     * sip parameters.
+     * Builds a URL based on the provided digits, uri parameters, header parameters, and sip
+     * parameters.
      * 
      * @param digits - user digits (xxx@hostname)
      * @param hostname - hostname for the media server
@@ -219,8 +221,8 @@ public class MappingRule extends DialingRule {
      * @param sipParams - any additional SIP params (can be null or empty string)
      * @return String representing the URL
      */
-    static String buildUrl(String digitString, String hostname, String uriParams, String headerParams,
-            String sipParams) {
+    static String buildUrl(String digitString, String hostname, String uriParams,
+            String headerParams, String sipParams) {
         StringBuilder url = new StringBuilder("<");
         Formatter f = new Formatter(url);
         f.format(PREFIX, digitString, hostname);

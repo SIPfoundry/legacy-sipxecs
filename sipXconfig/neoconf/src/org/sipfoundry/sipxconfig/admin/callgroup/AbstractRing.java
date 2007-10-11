@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
-import java.text.MessageFormat;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
@@ -22,7 +20,7 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
     public static final String TYPE_PROP = "type";
 
     private static final int DEFAULT_EXPIRATION = 30;
-    private static final String FORMAT = "<sip:{0}{1}{4}?expires={2}>;{3}";
+    private static final String FORMAT = "<sip:%s%s%s?expires=%s>;%s";
     private static final String IGNORE_VOICEMAIL_FIELD_PARAM = ";sipx-noroute=Voicemail";
 
     private int m_expiration = DEFAULT_EXPIRATION;
@@ -103,14 +101,14 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
      * @return String representing the contact
      */
     public final String calculateContact(String domain, ForkQueueValue q,
-            boolean appendIgnoreVoicemail) {
+            boolean appendIgnoreVoicemail, String prefix) {
+
+        StringBuilder userPart = new StringBuilder(StringUtils.defaultString(prefix));
+        userPart.append(getUserPart().toString());
 
         // XCF-963 Allow forwarding to user supplied AORs
-        String domainPart;
-        String userPart = getUserPart().toString();
-        if (isAor(userPart)) {
-            domainPart = StringUtils.EMPTY;
-        } else {
+        String domainPart = StringUtils.EMPTY;
+        if (!isAor(userPart.toString())) {
             domainPart = '@' + domain;
         }
 
@@ -120,11 +118,8 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
         StringBuilder urlParams = new StringBuilder(q.getValue(m_type));
         addUrlParams(urlParams);
 
-        Object[] params = new Object[] {
-            userPart, domainPart, new Integer(m_expiration), urlParams.toString(), fieldParams,
-        };
-        MessageFormat format = new MessageFormat(FORMAT);
-        return format.format(params);
+        return String.format(FORMAT, userPart, domainPart, fieldParams, m_expiration, urlParams
+                .toString());
     }
 
     @SuppressWarnings("unused")

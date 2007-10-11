@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 public class AbstractCallSequence extends BeanWithId {
     public static final String RINGS_PROP = "rings";
 
-    private List m_rings = new ArrayList();
+    private List<AbstractRing> m_rings = new ArrayList<AbstractRing>();
 
     public AbstractCallSequence() {
         // empty default constructor
@@ -48,11 +48,8 @@ public class AbstractCallSequence extends BeanWithId {
         DataCollectionUtil.updatePositions(m_rings);
     }
 
-    protected void insertRings(Collection rings) {
-        for (Iterator iter = rings.iterator(); iter.hasNext();) {
-            AbstractRing ring = (AbstractRing) iter.next();
-            m_rings.add(ring);
-        }
+    protected void insertRings(Collection< ? extends AbstractRing> rings) {
+        m_rings.addAll(rings);
         DataCollectionUtil.updatePositions(m_rings);
     }
 
@@ -65,10 +62,7 @@ public class AbstractCallSequence extends BeanWithId {
     }
 
     public void removeRing(AbstractRing ringToRemove) {
-        Object[] keys = new Object[] {
-            ringToRemove.getId()
-        };
-        DataCollectionUtil.removeByPrimaryKey(m_rings, keys);
+        DataCollectionUtil.removeByPrimaryKey(m_rings, ringToRemove.getId());
     }
 
     protected void clearRings() {
@@ -104,6 +98,16 @@ public class AbstractCallSequence extends BeanWithId {
     }
 
     /**
+     * @return last ring in the sequence or null if sequence is empty
+     */
+    public AbstractRing getLastRing() {
+        if (m_rings.isEmpty()) {
+            return null;
+        }
+        return m_rings.get(m_rings.size() - 1);
+    }
+
+    /**
      * Generate aliases from the calling list. All aliases have the following form: identity ->
      * ring_contact
      * 
@@ -118,11 +122,11 @@ public class AbstractCallSequence extends BeanWithId {
     protected List<AliasMapping> generateAliases(String identity, String domain,
             boolean neverRouteToVoicemail, ForkQueueValue q) {
 
-        List rings = getRings();
+        List<AbstractRing> rings = getRings();
 
         List<AliasMapping> aliases = new ArrayList<AliasMapping>(rings.size());
-        for (Iterator i = rings.iterator(); i.hasNext();) {
-            AbstractRing r = (AbstractRing) i.next();
+        for (Iterator<AbstractRing> i = rings.iterator(); i.hasNext();) {
+            AbstractRing r = i.next();
             if (StringUtils.isEmpty(r.getUserPart().toString()) || !r.isEnabled()) {
                 continue;
             }
@@ -136,7 +140,7 @@ public class AbstractCallSequence extends BeanWithId {
             if (!ignoreVoiceMail) {
                 ignoreVoiceMail = Type.IMMEDIATE.equals(r.getType());
             }
-            String contact = r.calculateContact(domain, q, ignoreVoiceMail);
+            String contact = r.calculateContact(domain, q, ignoreVoiceMail, null);
             AliasMapping alias = new AliasMapping(identity, contact);
             aliases.add(alias);
         }

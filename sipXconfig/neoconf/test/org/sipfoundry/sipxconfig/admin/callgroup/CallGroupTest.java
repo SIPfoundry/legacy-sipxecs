@@ -35,9 +35,6 @@ public class CallGroupTest extends TestCase {
         CallGroup group = createCallGroupWithUsers("401", "sales", numRings);
 
         List<AliasMapping> aliases = group.generateAliases("kuku");
-        // disabled group should not generate aliases
-        assertTrue(aliases.isEmpty());
-
         group.setEnabled(true);
         aliases = group.generateAliases("kuku");
 
@@ -46,10 +43,72 @@ public class CallGroupTest extends TestCase {
             AliasMapping am = aliases.get(i);
             assertEquals(am.getIdentity(), group.getName() + "@kuku");
             assertTrue(am.getContact().startsWith("<sip:testUser" + i + "@kuku"));
-            // for all but last we need sipx-noroute=Voicemail in the sequence
-            assertEquals(i < numRings - 1, 0 < am.getContact().indexOf("sipx-noroute=Voicemail"));
+            // all of the contacts should contain sipx-noroute=Voicemail
+            assertTrue(am.getContact().contains("sipx-noroute=Voicemail"));
         }
 
+        // the last alias is an extension => identity
+        AliasMapping am = aliases.get(aliases.size() - 1);
+        assertEquals(am.getIdentity(), group.getExtension() + "@kuku");
+        assertTrue(am.getContact().startsWith(group.getName() + "@kuku"));
+    }
+
+    public void testGenerateAliasesForDisabledGroup() {
+        int numRings = 5;
+        CallGroup group = createCallGroupWithUsers("401", "sales", numRings);
+
+        List<AliasMapping> aliases = group.generateAliases("kuku");
+        // disabled group should not generate aliases
+        assertTrue(aliases.isEmpty());
+
+        // not even when fallback is enabled
+        group.setVoicemailFallback(true);
+        assertTrue(aliases.isEmpty());
+
+        group.setFallbackDestination("fallback@kuku.com");
+        assertTrue(aliases.isEmpty());
+    }
+
+    public void testGenerateAliasesWithVoicemailFallback() {
+        int numRings = 5;
+        CallGroup group = createCallGroupWithUsers("401", "sales", numRings);
+        group.setVoicemailFallback(true);
+        group.setEnabled(true);
+
+        // assumption: the aliases list is ordered from highest q value to lowest,
+        // with last element being the identity alias.
+        List<AliasMapping> aliases = group.generateAliases("kuku");
+
+        assertEquals(numRings + 2, aliases.size());
+        for (int i = 0; i < numRings; i++) {
+            AliasMapping am = aliases.get(i);
+            assertEquals(am.getIdentity(), group.getName() + "@kuku");
+            assertTrue(am.getContact().startsWith("<sip:testUser" + i + "@kuku"));
+            // all of the contacts should contain sipx-noroute=Voicemail
+            assertTrue(am.getContact().contains("sipx-noroute=Voicemail"));
+        }
+
+        // the second to last alias (lowest q value) should sent last user to voicemail
+        AliasMapping vmailMapping = aliases.get(aliases.size() - 2);
+        assertEquals(group.getName() + "@kuku", vmailMapping.getIdentity());
+        assertTrue(vmailMapping.getContact().startsWith("<sip:~~vm~testUser4@kuku"));
+
+        // the last alias is an extension => identity
+        AliasMapping am = aliases.get(aliases.size() - 1);
+        assertEquals(am.getIdentity(), group.getExtension() + "@kuku");
+        assertTrue(am.getContact().startsWith(group.getName() + "@kuku"));
+    }
+
+    public void testGenerateAliasesForEmptyGroupWithVoicemailFallback() {
+        CallGroup group = createCallGroupWithUsers("401", "sales", 0);
+        group.setVoicemailFallback(true);
+        group.setEnabled(true);
+
+        // assumption: the aliases list is ordered from highest q value to lowest,
+        // with last element being the identity alias.
+        List<AliasMapping> aliases = group.generateAliases("kuku");
+
+        assertEquals(1, aliases.size());
         // the last alias is an extension => identity
         AliasMapping am = aliases.get(aliases.size() - 1);
         assertEquals(am.getIdentity(), group.getExtension() + "@kuku");
@@ -73,7 +132,6 @@ public class CallGroupTest extends TestCase {
             assertEquals(am.getIdentity(), group.getName() + "@kuku");
             assertTrue(am.getContact().startsWith("<sip:testUser" + i + "@kuku"));
             // all of the contacts should contain sipx-noroute=Voicemail
-            // (this is different from case without default sip uri)
             assertTrue(am.getContact().contains("sipx-noroute=Voicemail"));
         }
 

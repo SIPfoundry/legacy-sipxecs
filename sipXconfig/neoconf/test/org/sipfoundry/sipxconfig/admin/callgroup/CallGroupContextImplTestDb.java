@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin.callgroup;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.dbunit.dataset.ITable;
@@ -44,6 +45,8 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         assertTrue(callGroup.isEnabled());
         assertEquals("sales", callGroup.getName());
         assertEquals("401", callGroup.getExtension());
+        assertEquals("sip:default@pingtel.com", callGroup.getFallbackDestination());
+        assertFalse(callGroup.getVoicemailFallback());
     }
 
     public void testGetCallGroups() throws Exception {
@@ -74,6 +77,7 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         group.setName("kuku");
         group.setExtension("202");
         group.setEnabled(true);
+        group.setVoicemailFallback(true);
         m_context.storeCallGroup(group);
         // table should have additional row now - 3
         ITable tableCallGroup = TestHelper.getConnection().createDataSet().getTable("call_group");
@@ -166,11 +170,16 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGenerateAliases() throws Exception {
-        Collection aliases = m_context.getAliasMappings();
+        Collection<AliasMapping> aliases = m_context.getAliasMappings();
         assertNotNull(aliases);
-        assertEquals(1, aliases.size());
+        assertEquals(2, aliases.size());
 
-        AliasMapping aliasMapping = (AliasMapping) aliases.iterator().next();
+        Iterator<AliasMapping> i = aliases.iterator();
+        AliasMapping aliasMapping = i.next();
+        assertTrue(aliasMapping.getIdentity().startsWith("sales"));
+        assertTrue(aliasMapping.getContact().startsWith("<sip:default@pingtel.com>;q="));
+
+        aliasMapping = i.next();
         assertTrue(aliasMapping.getIdentity().startsWith("401"));
         assertTrue(aliasMapping.getContact().startsWith("sales"));
     }
@@ -189,7 +198,6 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         assertTrue(userRings.isEmpty());
     }
 
-    
     public void testDeleteUser() throws Exception {
         User user = m_coreContext.loadUser(new Integer(1000));
         ITable rings = TestHelper.getConnection().createDataSet().getTable("user_ring");
@@ -200,7 +208,7 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         rings = TestHelper.getConnection().createDataSet().getTable("user_ring");
         assertEquals(0, rings.getRowCount());
     }
-    
+
     public void testDeleteUserById() throws Exception {
         User user = m_coreContext.loadUser(new Integer(1000));
         ITable rings = TestHelper.getConnection().createDataSet().getTable("user_ring");
@@ -211,7 +219,7 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         rings = TestHelper.getConnection().createDataSet().getTable("user_ring");
         assertEquals(0, rings.getRowCount());
     }
-    
+
     public void testIsAliasInUse() {
         assertTrue(m_context.isAliasInUse("sales"));
         assertTrue(m_context.isAliasInUse("401"));
@@ -223,7 +231,7 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("sales").size() == 1);
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("401").size() == 1);
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("402").size() == 1);
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("911").size() == 0);        
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("911").size() == 0);
     }
-    
+
 }

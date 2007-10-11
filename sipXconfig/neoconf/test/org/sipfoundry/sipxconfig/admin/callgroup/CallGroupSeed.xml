@@ -6,23 +6,27 @@
     <column>name</column>
     <column>extension</column>
     <column>description</column>
+    <column>fallback_destination</column>
+    <column>voicemail_fallback</column>
     <row>
       <value>1001</value>
       <value>true</value>
-      <value>sales</value>      
+      <value>sales</value>
       <value>401</value>
       <value>something, something, something</value>
       <value>sip:default@pingtel.com</value>
+      <value>false</value>
     </row>
     <row>
       <value>1002</value>
       <value>false</value>
-      <value>eng</value>      
+      <value>eng</value>
       <value>402</value>
       <value>something else</value>
-      <value>sip:default2@pingtel.com</value>
+      <value></value>
+      <value>true</value>
     </row>
-  </table>    
+  </table>
   <table name="user_ring">
     <column>user_ring_id</column>
     <column>position</column>
