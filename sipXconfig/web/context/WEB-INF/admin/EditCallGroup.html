@@ -4,7 +4,7 @@
     <br/>
     <span key="help.change"/>
   </div>
-<h2 id="callgroup:edit"><span key="title">Call group</span></h2>    
+<h2 id="callgroup:edit"><span key="title">Call group</span></h2>
 <span jwcid="@ErrorMsg"/>
 <form jwcid="form@Form" delegate="bean:validator"
   listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)">
@@ -14,17 +14,31 @@
     idConverter="prop:idConverter"/>
   <fieldset>
     <table>
-      <tr jwcid="@FieldPanel" 
-        for="callgroup:fallbackDestination" 
-        label="message:label.fallbackDestination"
-        description="message:description.falbackDestination"
-        field="component:fallbackDestination">
-        <td jwcid="fallbackDestination@TextField" 
-          id="callgroup:fallbackDestination"
-          value="prop:callGroup.fallbackDestination"
-          validators="spring-validators:validPhoneOrAor"
-          displayName="message:label.fallbackDestination"/>
+      <tr jwcid="@FieldPanel"
+        for="callgroup:voicemailFallback"
+        label="message:label.voicemailFallback"
+        description="message:description.voicemailFallback"
+        field="component:voicemailFallback">
+        <td jwcid="voicemailFallback@Checkbox"
+          id="callgroup:voicemailFallback"
+          value="prop:callGroup.voicemailFallback"
+          displayName="message:label.voicemailFallback"
+          onchange="javascript:this.form.submit();"
+        />
       </tr>
+      <span jwcid="@If" condition="ognl:!callGroup.voicemailFallback">
+        <tr jwcid="@FieldPanel"
+          for="callgroup:fallbackDestination"
+          label="message:label.fallbackDestination"
+          description="message:description.falbackDestination"
+          field="component:fallbackDestination">
+          <td jwcid="fallbackDestination@TextField"
+            id="callgroup:fallbackDestination"
+            value="prop:callGroup.fallbackDestination"
+            validators="spring-validators:validPhoneOrAor"
+            displayName="message:label.fallbackDestination"/>
+        </tr>
+      </span>
     </table>
   </fieldset>
   <ul jwcid="formActions@FormActions" callback="ognl:callback"
