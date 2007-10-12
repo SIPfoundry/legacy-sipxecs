@@ -82,52 +82,93 @@ TransferControl::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to pr
    {
       if (method.compareTo(SIP_REFER_METHOD) == 0)
       {
-         if (id.isNull())
+         UtlString targetStr;
+         if (request.getReferToField(targetStr))
          {
-            // request is not authenticated
-            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
-                          "challenging transfer in call '%s'",
-                          mInstanceName.data(), callId.data()
-                          );
-         
-            result = DENY; // we need an identity to attach to the Refer-To URI
-         }
-         else
-         {
-            // request is authenticated
-            UtlString targetStr;
-            if (request.getReferToField(targetStr))
+            Url target(targetStr);
+            if (Url::SipUrlScheme == target.getScheme())
             {
-               Url target(targetStr);
-               if (Url::SipUrlScheme == target.getScheme())
+               // check whether or not this is REFER with Replaces
+               
+               UtlString targetDialog;
+               if (target.getHeaderParameter(SIP_REPLACES_FIELD, targetDialog))
                {
+                  /*
+                   * This is a REFER with Replaces: probably either the completion
+                   * of a call pickup or a consultative transfer.
+                   * In any case, it will not create a new call - just connect something
+                   * to an existing call - so we don't need to make any new authorization
+                   * decisions.
+                   */
+                  OsSysLog::add(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
+                                "allowing REFER with Replaces in call '%s' to '%s'",
+                                mInstanceName.data(), callId.data(), targetDialog.data()
+                                );
+                  result = ALLOW;
+               }
+               else if (id.isNull())
+               {
+                  // UnAuthenticated REFER without Replaces
+                  OsSysLog::add(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
+                                "challenging transfer in call '%s'",
+                                mInstanceName.data(), callId.data()
+                                );
+                  result = DENY; // we need an identity to attach to the Refer-To URI
+               }
+               else
+               {
+                  // Authenticated REFER without Replaces 
+
                   // annotate the refer-to with the authenticated controller identity
                   SipXauthIdentity controllerIdentity;
                   controllerIdentity.setIdentity(id);
                   controllerIdentity.encodeUri(target);
                   request.setReferToField(target.toString().data());
                }
-               else
-               {
-                  OsSysLog::add(FAC_AUTH, PRI_WARNING, "TransferControl[%s]::authorizeAndModify "
-                                "unrecognized refer target '%s' for call '%s'",
-                                mInstanceName.data(), targetStr.data(), callId.data()
-                                );
-               }
             }
             else
             {
-               // REFER without a Refer-To header... incorrect, but just ignore it.
                OsSysLog::add(FAC_AUTH, PRI_WARNING, "TransferControl[%s]::authorizeAndModify "
-                             "REFER method without Refer-To in call '%s'",
-                             mInstanceName.data(), callId.data()
+                             "unrecognized refer target '%s' for call '%s'",
+                             mInstanceName.data(), targetStr.data(), callId.data()
                              );
             }
+         }
+         else
+         {
+            // REFER without a Refer-To header... incorrect, but just ignore it.
+            OsSysLog::add(FAC_AUTH, PRI_WARNING,
+                          "TransferControl[%s]::authorizeAndModify "
+                          "REFER method without Refer-To in call '%s'",
+                          mInstanceName.data(), callId.data()
+                          );
+         }
+      }
+      else if (method.compareTo(SIP_INVITE_METHOD) == 0)
+      {
+         UtlString targetCallId;
+         UtlString targetFromTag;
+         UtlString targetToTag;
+
+         if (request.getReplacesData(targetCallId, targetToTag, targetFromTag))
+         {
+            /*
+             * This is an INVITE with Replaces: probably either the completion
+             * of a call pickup or a consultative transfer.
+             * In any case, it will not create a new call - just connect something
+             * to an existing call - so we don't need to make any new authorization
+             * decisions.
+             */
+            result = ALLOW;
+         }
+         else
+         {
+            // INVITE without Replaces: is not a transfer - ignore it.
          }
       }
       else
       {
-         // this is not a transfer - ignore it.
+         // neither REFER nor INVITE, so is not a transfer - ignore it.
       }
    }
    else

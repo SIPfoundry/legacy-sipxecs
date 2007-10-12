@@ -2,7 +2,7 @@
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
-TESTS = proxytest enforcerulestest calleraliastest # transfercontroltest
+TESTS = proxytest enforcerulestest calleraliastest transfercontroltest
 
 check_PROGRAMS = \
 	proxytest \
