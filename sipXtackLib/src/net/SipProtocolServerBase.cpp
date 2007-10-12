@@ -86,7 +86,7 @@ UtlBoolean SipProtocolServerBase::send(SipMessage* message,
     }
 
     SipClient* client = createClient(hostAddress, hostPort, localIp);
-    if(client)
+    if (client)
     {
         int isBusy = client->isInUseForWrite();
         UtlString clientNames;
@@ -339,9 +339,9 @@ int SipProtocolServerBase::isOk()
     SipClient* pServer = NULL;
     UtlHashMapIterator iterator(mServers);
     UtlVoidPtr* pServerContainer = NULL;
-    UtlString* pKey = NULL;
+    UtlString* pKey;
     
-    while ((pKey = (UtlString*)iterator()))
+    while ((pKey = dynamic_cast <UtlString*> (iterator())))
     {
         pServerContainer = (UtlVoidPtr*)iterator.value();
         if (pServerContainer)
@@ -446,7 +446,8 @@ UtlBoolean SipProtocolServerBase::waitForClientToWrite(SipClient* client)
 }
 
 SipClient* SipProtocolServerBase::getClient(const char* hostAddress,
-                                  int hostPort, const char* localIp)
+                                            int hostPort,
+                                            const char* localIp)
 {
     UtlBoolean isSameHost = FALSE;
     UtlString hostAddressString(hostAddress ? hostAddress : "");

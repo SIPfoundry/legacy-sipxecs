@@ -1291,8 +1291,8 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
 
 
 UtlBoolean SipUserAgent::sendTls(SipMessage* message,
-                                                                const char* serverAddress,
-                                                                int port)
+                                 const char* serverAddress,
+                                 int port)
 {
 #ifdef SIP_TLS
    int sendSucceeded = FALSE;

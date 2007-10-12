@@ -107,6 +107,7 @@ libsipXport_la_SOURCES =  \
     os/OsRWMutex.cpp \
     os/OsServerSocket.cpp \
     os/OsServerTask.cpp \
+    os/OsServerTaskWaitable.cpp \
     os/OsSharedLibMgr.cpp \
     os/OsSocket.cpp \
     os/OsSSL.cpp \

@@ -76,7 +76,6 @@ SipTcpServer::SipTcpServer(int port,
     }
 
    mDefaultPort = SIP_PORT;
-
 }
 
 UtlBoolean SipTcpServer::startListener()

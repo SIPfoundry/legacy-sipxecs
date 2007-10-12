@@ -331,11 +331,14 @@ public:
                                     void* pObserverData = NULL);
 
     //! Send a SIP message over the net
-    /*! This method sends the SIP message via
-     * a SIP UDP or TCP client as dictated by policy and the address
-     * specified in the message.  Most applications will register a
-     * OsMsgQ via addMessageObserver() prior to calling send and so
-     * should call send with only one argument.
+
+    /*! This method sends the SIP message as dictated by policy and
+     * the address specified in the message.  This method understands
+     * SIP transactions and will resolve addresses and re-send messages
+     * as necessary.
+     * Most applications will register a OsMsgQ via
+     * addMessageObserver() prior to calling send and so should call
+     * send with only one argument.
      * \note If the application does register the message queue via
      * addMessageObserver() it should not pass the message queue as
      * an argument to send or it will receive multiple copies of the
@@ -578,6 +581,11 @@ protected:
                                     OsSocket::IpProtocolSocketType protocol,
                                     UtlString& branchId);
 
+    /** Send the message to the specified serverAddress/port using
+     *  the specified transport protocol.
+     *  These methods are "below" the level that tracks SIP transactions;
+     *  they simply send the message (or fail).
+     */
     UtlBoolean sendTls(SipMessage* message,
                        const char* serverAddress,
                        int port);

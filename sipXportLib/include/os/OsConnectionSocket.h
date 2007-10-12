@@ -38,6 +38,12 @@ public:
 
    static const unsigned int DefaultConnectionTimeoutMs;
    
+   /// Determine whether or not the values in a containable are comparable.
+   virtual UtlContainableType getContainableType() const;
+   /**<
+    * This returns a unique type for this class.
+    */
+
 /* ============================ CREATORS ================================== */
 
    /// Create a new connection
@@ -121,6 +127,8 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+   static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

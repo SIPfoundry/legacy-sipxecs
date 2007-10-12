@@ -110,8 +110,8 @@ public:
     * - Check isShuttingDown frequently enough to detect a shutdown request
     * or
     * - Override this method with something that wakes the task up and
-    *   initiates shutdown processing.  The derived method should call this
-    *   one to set the mState to SHUTTING_DOWN.
+    *   initiates shutdown processing.  The derived method should call
+    *   OsTaskBase::requestShutdown to set mState to SHUTTING_DOWN.
     *
     * @see OsServerTask::requestShutdown for an example.
     */
@@ -281,7 +281,9 @@ protected:
     * method to provide some other synchronization primitive.
     */
 
-   /// Wait until the task is shut down and the run method has exited.
+   /** Wait until the task is shut down and the run method has exited.
+    *  If the task is in RUNNING state, it first calls requestShutdown().
+    */
    virtual UtlBoolean waitUntilShutDown(int milliSecToWait = 20 * OsTime::MSECS_PER_SEC) = 0;
    /**<
     * Any subclass of OsTask should call this method in

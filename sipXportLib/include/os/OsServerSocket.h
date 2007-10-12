@@ -28,10 +28,8 @@
 // FORWARD DECLARATIONS
 
 //: Implements TCP server for accepting TCP connections
-// This class provides the implementation of the UDP datagram-based 
-// socket class which may be instantiated. 
 
-class OsServerSocket
+class OsServerSocket : public UtlContainableAtomic
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -39,7 +37,7 @@ public:
 /* ============================ CREATORS ================================== */
 
    OsServerSocket(int connectionQueueSize,
-                  int serverPort=PORT_DEFAULT,
+                  int serverPort = PORT_DEFAULT,
                   const char* szBindAddr = NULL);
 
    //:Constructor to set up TCP socket server
@@ -59,6 +57,10 @@ public:
    ~OsServerSocket();
      //:Destructor
 
+  virtual UtlContainableType getContainableType() const;
+   /**<
+    * This returns a unique type for this class.
+    */
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -88,6 +90,9 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+   static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+
    int socketDescriptor;
    int localHostPort;
    UtlString mLocalIp;
@@ -99,7 +104,6 @@ private:
 
    OsServerSocket();
      //:Disable default constructor
-
 
 };
 

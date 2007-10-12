@@ -1042,22 +1042,22 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
     if(toProtocol == OsSocket::TCP)
     {
-        sendSucceeded = userAgent.sendTcp(&message,
-                                      toAddress.data(),
-                                      port);
+       sendSucceeded = userAgent.sendTcp(&message,
+                                         toAddress.data(),
+                                         port);
     }
 
     else if(toProtocol == OsSocket::SSL_SOCKET)
     {
-            sendSucceeded = userAgent.sendTls(&message,
-                                          toAddress.data(),
-                                          port);
+       sendSucceeded = userAgent.sendTls(&message,
+                                         toAddress.data(),
+                                         port);
     }
     else
     {
-        sendSucceeded = userAgent.sendUdp(&message,
-                                          toAddress.data(),
-                                          port);
+       sendSucceeded = userAgent.sendUdp(&message,
+                                         toAddress.data(),
+                                         port);
     }
     if(   MESSAGE_REQUEST == relationship
        && !sendSucceeded

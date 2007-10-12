@@ -61,6 +61,7 @@ void OsTaskBase::requestShutdown(void)
    case RUNNING:
       mState = SHUTTING_DOWN;      
       break;
+
    case SHUTTING_DOWN:
    case TERMINATED:
       // already done - not really correct, but let it go

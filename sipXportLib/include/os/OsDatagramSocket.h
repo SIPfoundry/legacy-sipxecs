@@ -46,6 +46,11 @@ public:
    ~OsDatagramSocket();
      //:Destructor
 
+   /// Determine whether or not the values in a containable are comparable.
+   virtual UtlContainableType getContainableType() const;
+   /**<
+    * This returns a unique type for this class.
+    */
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -68,7 +73,7 @@ public:
    //! returns: the number of bytes actually written to the socket
 
    virtual int write(const char* buffer, int bufferLength,
-       const char* ipAddress, int port);
+                     const char* ipAddress, int port);
    //: Blocking write to the socket
    // Write the characters in the given buffer to the socket.
    // This method will block until all of the bytes are written.
@@ -102,6 +107,9 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+
+   static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+
    OsDatagramSocket(const OsDatagramSocket& rOsDatagramSocket);
      //:Disable copy constructor
 

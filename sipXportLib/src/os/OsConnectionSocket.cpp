@@ -45,6 +45,8 @@ const unsigned int OsConnectionSocket::DefaultConnectionTimeoutMs = 4000;
 
 // STATIC VARIABLE INITIALIZATIONS
 
+const UtlContainableType OsConnectionSocket::TYPE = "OsConnectionSocket";
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -490,6 +492,11 @@ OsSocket::IpProtocolSocketType OsConnectionSocket::getIpProtocol() const
         return(TCP);
 }
 /* ============================ INQUIRY =================================== */
+
+UtlContainableType OsConnectionSocket::getContainableType() const
+{
+   return OsConnectionSocket::TYPE;
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

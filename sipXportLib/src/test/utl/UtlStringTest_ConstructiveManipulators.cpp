@@ -71,6 +71,7 @@ class UtlStringTest_ConstructiveManipulators : public UtlStringTest
     CPPUNIT_TEST(testStringContainsNullNotAtEnd);
     CPPUNIT_TEST(testEfficientMemoryCopy);
     CPPUNIT_TEST(testSubstringAssign);
+    CPPUNIT_TEST(testNull);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -1521,6 +1522,17 @@ public:
          ASSERT_STR_EQUAL(dest.data(),"12367");
       }
 
+   // Test using NULL to represent the null string.
+   void testNull()
+      {
+         UtlString t((const char *) NULL);
+         ASSERT_STR_EQUAL_MESSAGE("Construct string from NULL",
+                                  "", t.data());
+         t.append("123");
+         t.append((const char *) NULL);
+         ASSERT_STR_EQUAL_MESSAGE("Append NULL",
+                                  "123", t.data());
+      }
    
 } ;
 

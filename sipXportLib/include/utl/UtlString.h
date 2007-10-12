@@ -81,6 +81,7 @@ public:
     UtlString();
 
     /// Constructor accepting a null terminated source string.
+    // szSource may be NULL.
     UtlString(const char* szSource /**< initial string value */ );
     /**<
      * The source string is copied to this object.
@@ -338,6 +339,7 @@ public:
     UtlString& operator+=(const char *);
 
     /// Append a null terminated string to the end of this string.
+    // szStr may be NULL.
     UtlString& append(const char* szStr);
 
     /// Append a UtlString to this string.

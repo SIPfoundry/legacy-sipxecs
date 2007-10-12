@@ -111,18 +111,17 @@ public:
     /**
      * Determine if the container is empty.
      */
-    virtual UtlBoolean isEmpty() const = 0 ;
+    virtual UtlBoolean isEmpty() const = 0;
 
     /**
-     * Determine if the container includes the designated objects.
+     * Determine if the container includes the designated object.
      */
-    virtual UtlBoolean contains(const UtlContainable *)  const = 0 ;
+    virtual UtlBoolean contains(const UtlContainable *)  const = 0;
 
     /**
      * Determine the number of elements within the container.
      */     
-    virtual size_t entries() const = 0 ;
-
+    virtual size_t entries() const = 0;
 
     /**
      * Compare the this object to another like-objects.  Results for 

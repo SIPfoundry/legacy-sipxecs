@@ -48,9 +48,9 @@
  * are encoded using the numeric entity encoding (&#x??;).
  *
  * While this is not strictly XML conformant (in that it does not explicitly deal with
- * larger-size character encodings), it is symmetric (esaping and unescaping any string
- * these routines will always produce the original string), and will interoperate correctly
- * for any 8 bit encoding.
+ * larger-size character encodings), it is symmetric (escaping and unescaping any string
+ * with these routines will always produce the original string), and will interoperate
+ * correctly for any 8 bit encoding.
  */
 
 /// Append escaped source string onto destination string

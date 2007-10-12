@@ -26,7 +26,7 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
-const UtlContainableType OrbitData::TYPE = "OrbitData" ;
+const UtlContainableType OrbitData::TYPE = "OrbitData";
 
 const int OrbitData::NO_TIMEOUT = -1;
 const int OrbitData::NO_KEYCODE = -1;

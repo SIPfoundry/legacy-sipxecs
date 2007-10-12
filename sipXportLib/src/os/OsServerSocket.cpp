@@ -51,6 +51,7 @@
 #endif
 
 // STATIC VARIABLE INITIALIZATIONS
+const UtlContainableType OsServerSocket::TYPE = "OsServerSocket";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -249,6 +250,10 @@ UtlBoolean OsServerSocket::isOk() const
     return(socketDescriptor != OS_INVALID_SOCKET_DESCRIPTOR);
 }
 
+UtlContainableType OsServerSocket::getContainableType() const
+{
+   return OsServerSocket::TYPE;
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

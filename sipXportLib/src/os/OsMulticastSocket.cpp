@@ -39,6 +39,8 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
+const UtlContainableType OsMulticastSocket::TYPE = "OsMulticastSocket";
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -243,6 +245,11 @@ OsSocket::IpProtocolSocketType OsMulticastSocket::getIpProtocol() const
         return(MULTICAST);
 }
 /* ============================ INQUIRY =================================== */
+
+UtlContainableType OsMulticastSocket::getContainableType() const
+{
+   return OsMulticastSocket::TYPE;
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

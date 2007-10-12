@@ -55,6 +55,7 @@
 #define MIN_REPORT_SECONDS 10
 
 // STATIC VARIABLE INITIALIZATIONS
+const UtlContainableType OsDatagramSocket::TYPE = "OsDatagramSocket";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -529,6 +530,11 @@ UtlBoolean OsDatagramSocket::getExternalIp(UtlString* ip, int* port)
     
 
 /* ============================ INQUIRY =================================== */
+
+UtlContainableType OsDatagramSocket::getContainableType() const
+{
+   return OsDatagramSocket::TYPE;
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

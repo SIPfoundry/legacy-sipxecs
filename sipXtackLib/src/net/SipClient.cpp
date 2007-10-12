@@ -23,6 +23,8 @@
 #include <os/OsSysLog.h>
 #include <os/OsEvent.h>
 
+#include <utl/XmlContent.h>
+
 #define SIP_DEFAULT_RTT 500
 
 #define LOG_TIME
@@ -69,7 +71,7 @@ SipClient::SipClient(OsSocket* socket) :
 {
    touch();
 
-   if(clientSocket)
+   if (clientSocket)
    {
        clientSocket->getRemoteHostName(&mRemoteHostName);
        clientSocket->getRemoteHostIp(&mRemoteSocketAddress, &mRemoteHostPort);
@@ -84,13 +86,6 @@ SipClient::SipClient(OsSocket* socket) :
                      );
    }
 
-}
-
-
-// Copy constructor
-SipClient::SipClient(const SipClient& rSipClient) 
-    : mSocketLock(OsBSem::Q_FIFO, OsBSem::FULL)
-{
 }
 
 // Destructor
@@ -520,17 +515,17 @@ UtlBoolean SipClient::send(SipMessage* message)
    UtlBoolean sendOk = FALSE;
    UtlString viaProtocol;
 
-   if(clientSocket)
+   if (clientSocket)
    {
-      if(!clientSocket->isOk())
+      if (!clientSocket->isOk())
       {
          clientSocket->reconnect();
 #ifdef TEST_SOCKET
-         if(clientSocket)
+         if (clientSocket)
          {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipClient[%s]::send reconnected with socket descriptor %d",
-                          this->mName.data(),
+                          mName.data(),
                           clientSocket->getSocketDescriptor());
          }
 #endif
@@ -542,12 +537,12 @@ UtlBoolean SipClient::send(SipMessage* message)
          eventTimes.addEvent("wait to write");
 #endif
          // Wait until the socket is ready to write
-         if(clientSocket->isReadyToWrite(mFirstResendTimeoutMs))
+         if (clientSocket->isReadyToWrite(mFirstResendTimeoutMs))
          {
 #ifdef LOG_TIME
             eventTimes.addEvent("wait to lock");
 #endif
-            //Lock to prevent multitreaded read or write
+            // Lock to prevent multitreaded read or write
             mSocketLock.acquire();
 #ifdef LOG_TIME
             eventTimes.addEvent("writing");
@@ -566,7 +561,7 @@ UtlBoolean SipClient::send(SipMessage* message)
                           timeString.data());
 #endif
 
-            if(sendOk)
+            if (sendOk)
             {
                touch();
             }
@@ -578,7 +573,7 @@ UtlBoolean SipClient::send(SipMessage* message)
       }
    }
 
-   return(sendOk);
+   return (sendOk);
 }
 
 UtlBoolean SipClient::sendTo(const SipMessage& message,
@@ -604,7 +599,8 @@ UtlBoolean SipClient::sendTo(const SipMessage& message,
           {
              //Lock to prevent multitreaded read or write
              mSocketLock.acquire();
-             bytesWritten = ((OsDatagramSocket*)clientSocket)->
+             bytesWritten =
+                (dynamic_cast <OsDatagramSocket*> (clientSocket))->
                 write(buffer.data(), bufferLen, address,
                       // PORT_NONE means use default.
                       (port == PORT_NONE) ? SIP_PORT : port
@@ -648,16 +644,6 @@ UtlBoolean SipClient::sendTo(const SipMessage& message,
     }
 
     return(sendOk);
-}
-
-// Assignment operator
-SipClient&
-SipClient::operator=(const SipClient& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
 }
 
 void SipClient::notifyWhenAvailableForWrite(OsEvent& availableEvent)
@@ -742,41 +728,39 @@ void SipClient::getClientNames(UtlString& clientNames) const
 
     // host DNS name
     sprintf(portString, "%d", mRemoteHostPort);
-    clientNames = "\tremote host: ";
+    clientNames = " remote host: ";
     clientNames.append(mRemoteHostName);
     clientNames.append(":");
     clientNames.append(portString);
 
     // host IP address
-    clientNames.append("\n\tremote IP: ");
+    clientNames.append(" remote IP: ");
     clientNames.append(mRemoteSocketAddress);
     clientNames.append(":");
     clientNames.append(portString);
 
     // via address
-    sprintf(portString, "%d", mRemoteViaPort);
-    clientNames.append("\n\tremote Via address: ");
+    clientNames.append(" remote Via address: ");
     clientNames.append(mRemoteViaAddress);
     clientNames.append(":");
-    clientNames.append(portString);
+    XmlDecimal(clientNames, mRemoteViaPort);
 
     // recieved address
-    sprintf(portString, "%d", mRemoteReceivedPort);
-    clientNames.append("\n\treceived address: ");
+    clientNames.append(" received address: ");
     clientNames.append(mReceivedAddress);
     clientNames.append(":");
-    clientNames.append(portString);
+    XmlDecimal(clientNames, mRemoteReceivedPort);
 }
 
 void SipClient::setUserAgent(SipUserAgentBase* sipUA)
 {
-        sipUserAgent = sipUA;
+   sipUserAgent = sipUA;
    //mFirstResendTimeoutMs = (sipUserAgent->getFirstResendTimeout()) * 4;
 }
 
 long SipClient::getLastTouchedTime() const
 {
-        return(touchedTime);
+   return (touchedTime);
 }
 
 void SipClient::touch()

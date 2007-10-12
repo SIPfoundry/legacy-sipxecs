@@ -154,7 +154,7 @@ public:
      // The OsTime value is relative to when the system was booted.
 
    static unsigned long getSecsSinceEpoch(void);
-     //:Current time as the number of seconds since midnight (0 hour) 01/01/70
+     //:Current time as the number of seconds since midnight GMT, 01/01/70.
 
 /* ============================ INQUIRY =================================== */
 
