@@ -8,10 +8,6 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-// Author: Daniel Petrie
-//         dgpetrie AT yahoo DOT com
-//////////////////////////////////////////////////////////////////////////////
-
 // SYSTEM INCLUDES
 
 #include <assert.h>
@@ -139,8 +135,9 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mbShutdownDone(FALSE)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipUserAgent::_ sipTcpPort = %d, sipUdpPort = %d, sipTlsPort = %d",
-                 sipTcpPort, sipUdpPort, sipTlsPort);
+                 "SipUserAgent[%s]::_ sipTcpPort = %d, sipUdpPort = %d, "
+                 "sipTlsPort = %d",
+                 getName().data(), sipTcpPort, sipUdpPort, sipTlsPort);
                  
     // Get pointer to line manager
     mpLineMgr = lineMgr;
@@ -157,7 +154,8 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     if (mTcpPort != PORT_NONE)
     {
         mSipTcpServer = new SipTcpServer(mTcpPort, this, SIP_TRANSPORT_TCP, 
-                "SipTcpServer-%d", bUseNextAvailablePort, defaultAddress);
+                                         "SipTcpServer-%d",
+                                         bUseNextAvailablePort, defaultAddress);
         mSipTcpServer->startListener();
         mTcpPort = mSipTcpServer->getServerPort() ;
     }
@@ -165,9 +163,13 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     if (mUdpPort != PORT_NONE)
     {
         mSipUdpServer = new SipUdpServer(mUdpPort, this,
-                natPingUrl, natPingFrequency, natPingMethod,
-                readBufferSize, bUseNextAvailablePort, defaultAddress );
+                                         natPingUrl, natPingFrequency, natPingMethod,
+                                         readBufferSize,
+                                         bUseNextAvailablePort,
+                                         defaultAddress);
         mSipUdpServer->startListener();
+        // Get the UDP port that was obtained (in case mUdpPort was
+        // PORT_DEFAULT).
         mUdpPort = mSipUdpServer->getServerPort() ;
     }
 
@@ -272,7 +274,8 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         }
         else
         {
-           OsSysLog::add(FAC_SIP, PRI_WARNING, "SipUserAgent::_ no IP addresses found.");
+           OsSysLog::add(FAC_SIP, PRI_WARNING,
+                         "SipUserAgent::_ no IP addresses found.");
         }
     }
     else
@@ -401,8 +404,10 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         mNatPingUrl = natPingUrl;
         mNatPingPeriod = natPingFrequency;
         mNatPingMethod = natPingMethod ? natPingMethod : "";
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "UDP Server started URL: %s frequency: %d method: %s",
-                natPingUrl, natPingFrequency, natPingMethod ? natPingMethod : "");
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipUserAgent[%s]::_ UDP Server started URL: %s frequency: %d method: %s",
+                      getName().data(),
+                      natPingUrl, natPingFrequency, natPingMethod ? natPingMethod : "");
     }
 
     // Allow the default SIP methods
@@ -697,24 +702,23 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
    {
       message.getRequestMethod(&method);
 
-      // Make sure that max-forwards is set
+      // Make sure that Max-Forwards is set.
       int maxForwards;
-      if(!message.getMaxForwards(maxForwards))
+      if (!message.getMaxForwards(maxForwards))
       {
          message.setMaxForwards(mMaxForwards);
       }
-
    }
 
    // ===========================================
 
    // Do the stuff that requires the transaction type knowledge
-   // i.e. UA verse proxy transaction
+   // i.e. UA versus proxy transaction
 
-   if(!isResponse)
+   if (!isResponse)
    {
       // This should always be true now:
-      if(message.isFirstSend())
+      if (message.isFirstSend())
       {
          // Save the transaction listener info
          if (responseListener)
@@ -745,8 +749,8 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
 
 #if 0 // TODO enable only for transaction match debugging - log is confusing otherwise
    OsSysLog::add(FAC_SIP, PRI_DEBUG
-                 ,"SipUserAgent::send searching for existing transaction"
-                 );
+                 "SipUserAgent[%s]::send searching for existing transaction",
+                 getName().data());
 #endif
    // verify that the transaction does not already exist
    SipTransaction* transaction = mSipTransactions.findTransactionFor(
@@ -755,20 +759,20 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       relationship);
 
    // Found a transaction for this message
-   if(transaction)
+   if (transaction)
    {
       isUaTransaction = transaction->isUaTransaction();
 
       // Response for which a transaction already exists
-      if(isResponse)
+      if (isResponse)
       {
-         if(isUaTransaction)
+         if (isUaTransaction)
          {
             // It seems that the polite thing to do is to add the
             // allowed methods to all final responses
             UtlString allowedMethodsSet;
-            if(message.getResponseStatusCode() >= SIP_OK_CODE &&
-               !message.getAllowField(allowedMethodsSet))
+            if (message.getResponseStatusCode() >= SIP_OK_CODE &&
+                !message.getAllowField(allowedMethodsSet))
             {
                UtlString allowedMethods;
                getAllowedMethods(&allowedMethods);
@@ -785,6 +789,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          if((method.compareTo(SIP_CANCEL_METHOD) == 0) ||
             (method.compareTo(SIP_ACK_METHOD) == 0))
          {
+            // no-op
          }
 
          // A request for which a transaction already exists
@@ -806,9 +811,9 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
    }
 
    // No existing transaction for this message
-   if(transaction == NULL)
+   if (transaction == NULL)
    {
-      if(isResponse)
+      if (isResponse)
       {
          // Should not get here except possibly on a server
          OsSysLog::add(FAC_SIP, PRI_WARNING,
@@ -822,15 +827,15 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          UtlString viaField;
          SipTransaction* parentTransaction = NULL;
          enum SipTransaction::messageRelationship parentRelationship;
-         if(message.getViaField(&viaField, 0))
+         if (message.getViaField(&viaField, 0))
          {
             isUaTransaction = FALSE;
 
             // See if there is a parent server proxy transaction
 #           if 0 // TODO enable only for transaction match debugging - log is confusing otherwise
             OsSysLog::add(FAC_SIP, PRI_DEBUG
-                          ,"SipUserAgent::send searching for parent transaction"
-                          );
+                          ,"SipUserAgent[%s]::send searching for parent transaction",
+                          getName().data());
 #           endif
             parentTransaction =
                mSipTransactions.findTransactionFor(message,
@@ -844,11 +849,11 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          transaction->markBusy();
          mSipTransactions.addTransaction(transaction);
 
-         if(!isUaTransaction &&
-            parentTransaction)
+         if (!isUaTransaction &&
+             parentTransaction)
          {
-            if(parentRelationship ==
-               SipTransaction::MESSAGE_DUPLICATE)
+            if (parentRelationship ==
+                SipTransaction::MESSAGE_DUPLICATE)
             {
                // Link the parent server transaction to the
                // child client transaction
@@ -862,19 +867,20 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
                              "part of server transaction, parent relationship: %s",
                              SipTransaction::relationshipString(parentRelationship));
 
-               if(parentTransaction)
+               if (parentTransaction)
                {
                   mSipTransactions.markAvailable(*parentTransaction);
                }
             }
          }
-         else if(!isUaTransaction)
+         else if (!isUaTransaction)
          {
             // this happens all the time in the authproxy, so log only at debug
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipUserAgent::send proxied client transaction does not have parent");
+                          "SipUserAgent[%s]::send proxied client transaction does not have parent",
+                          getName().data());
          }
-         else if(parentTransaction)
+         else if (parentTransaction)
          {
             mSipTransactions.markAvailable(*parentTransaction);
          }
@@ -883,17 +889,17 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       }
    }
 
-   if(transaction)
+   if (transaction)
    {
       // Make sure the User Agent field is set
-      if(isUaTransaction)
+      if (isUaTransaction)
       {
          setSelfHeader(message);
 
          // Make sure the accept language is set
          UtlString language;
          message.getAcceptLanguageField(&language);
-         if(language.isNull())
+         if (language.isNull())
          {
             // Beware that this value does not describe the desired media
             // sessions, but rather the preferred languages for reason
@@ -904,8 +910,8 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
             message.setAcceptLanguageField("en");
          }
 
-         // add allow field to Refer and Invite request . It is
-         // mandatory for refer method
+         // Add Allow field to REFER and INVITE requests . It is
+         // mandatory for REFER method.
          UtlString allowedMethodsSet;
          if (   ! message.getAllowField(allowedMethodsSet)
              && (   method.compareTo(SIP_REFER_METHOD) == 0
@@ -918,11 +924,11 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
             message.setAllowField(allowedMethods);
          }
 
-         // Set the supported extensions if this is not
+         // Set the Supported field if this is not
          // an ACK request and the Supported field is not already set.
-         if(   method.compareTo(SIP_ACK_METHOD) != 0
-            && !message.getHeaderValue(0, SIP_SUPPORTED_FIELD)
-            )
+         if (   method.compareTo(SIP_ACK_METHOD) != 0
+             && !message.getHeaderValue(0, SIP_SUPPORTED_FIELD)
+             )
          {
             UtlString supportedExtensions;
             getSupportedExtensions(supportedExtensions);
@@ -938,11 +944,11 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
 
       // If this is the top-most parent and it is a client transaction
       // There is no server transaction, so cancel all of the children
-      if(   !isResponse
-         && (method.compareTo(SIP_CANCEL_METHOD) == 0)
-         && transaction->getTopMostParent() == NULL
-         && !transaction->isServerTransaction()
-         )
+      if (   !isResponse
+          && (method.compareTo(SIP_CANCEL_METHOD) == 0)
+          && transaction->getTopMostParent() == NULL
+          && !transaction->isServerTransaction()
+          )
       {
          transaction->cancel(*this, mSipTransactions);
       }
@@ -959,10 +965,11 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR,"SipUserAgent::send failed to construct new transaction");
+      OsSysLog::add(FAC_SIP, PRI_ERR,
+                    "SipUserAgent::send failed to construct new transaction");
    }
 
-   return(sendSucceeded);
+   return (sendSucceeded);
 }
 
 UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
@@ -1228,26 +1235,27 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
     UtlString msgBytes;
     UtlString messageStatusString = "SipUserAgent::sendTcp ";
 
-    // Disallow an address begining with * as it gets broadcasted on NT
+    // :TODO: Note code does not agree with comment.  Which is correct?
+    // Disallow an address begining with * as it gets broadcasted on Windows NT.
     if(!strchr(serverAddress,'*') && *serverAddress)
     {
-        if (mSipTcpServer)
-        {
-            sendSucceeded = mSipTcpServer->send(message, serverAddress, port);
-        }
+       if (mSipTcpServer)
+       {
+          sendSucceeded = mSipTcpServer->send(message, serverAddress, port);
+       }
     }
-    else if(*serverAddress == '\0')
+    else if (*serverAddress == '\0')
     {
-        if (    isMessageLoggingEnabled() ||
-                OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
-        {
-            message->getBytes(&msgBytes, &len);
-            msgBytes.insert(0, "No send address\n");
-            msgBytes.append("--------------------END--------------------\n");
-            logMessage(msgBytes.data(), msgBytes.length());
-            OsSysLog::add(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
-        }
-        sendSucceeded = FALSE;
+       if (isMessageLoggingEnabled() ||
+           OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
+       {
+          message->getBytes(&msgBytes, &len);
+          msgBytes.insert(0, "No send address\n");
+          msgBytes.append("--------------------END--------------------\n");
+          logMessage(msgBytes.data(), msgBytes.length());
+          OsSysLog::add(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
+       }
+       sendSucceeded = FALSE;
     }
     else
     {
@@ -1257,12 +1265,10 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
     if(sendSucceeded)
     {
         messageStatusString.append("TCP SIP User Agent sent message:\n");
-        //osPrintf("%s", messageStatusString.data());
     }
     else
     {
         messageStatusString.append("TCP SIP User Agent failed to send message:\n");
-        //osPrintf("%s", messageStatusString.data());
         message->logTimeEvent("FAILED");
     }
 
@@ -1270,23 +1276,23 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
         || OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO)
         )
     {
-        message->getBytes(&msgBytes, &len);
-        messageStatusString.append("----Remote Host:");
-            messageStatusString.append(serverAddress);
-            messageStatusString.append("---- Port: ");
-            char buff[10];
-            sprintf(buff, "%d", !portIsValid(port) ? 5060 : port);
-            messageStatusString.append(buff);
-            messageStatusString.append("----\n");
+       message->getBytes(&msgBytes, &len);
+       messageStatusString.append("----Remote Host:");
+       messageStatusString.append(serverAddress);
+       messageStatusString.append("---- Port: ");
+       char buff[10];
+       sprintf(buff, "%d", !portIsValid(port) ? 5060 : port);
+       messageStatusString.append(buff);
+       messageStatusString.append("----\n");
 
-        msgBytes.insert(0, messageStatusString.data());
-        msgBytes.append("--------------------END--------------------\n");
+       msgBytes.insert(0, messageStatusString.data());
+       msgBytes.append("--------------------END--------------------\n");
 
-        logMessage(msgBytes.data(), msgBytes.length());
-        OsSysLog::add(FAC_SIP_OUTGOING , PRI_INFO, "%s", msgBytes.data());
+       logMessage(msgBytes.data(), msgBytes.length());
+       OsSysLog::add(FAC_SIP_OUTGOING , PRI_INFO, "%s", msgBytes.data());
     }
 
-    return(sendSucceeded);
+    return (sendSucceeded);
 }
 
 
@@ -1439,8 +1445,9 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                   // well
                   sipIpAddress = natAddress;
                   mSipPort = natPort;
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,"SipUserAgent:dispatch set new contact: %s",
-                                mContactAddress.data());
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                "SipUserAgent[%s]::dispatch set new contact: %s",
+                                getName().data(), mContactAddress.data());
                }
                mPingLock = FALSE;
             }
@@ -1466,7 +1473,8 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                // the original transaction was in the forking proxy.
                relationship = SipTransaction::MESSAGE_ACK;
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipUserAgent::dispatch received ACK without transaction");
+                             "SipUserAgent[%s]::dispatch received ACK without transaction",
+                             getName().data());
             }
             else if(method.compareTo(SIP_CANCEL_METHOD) == 0)
             {
@@ -1976,8 +1984,9 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
    eventTimes.addEvent("finish");
    UtlString timeString;
    eventTimes.getLogString(timeString);
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipUserAgent::dispatch time log: %s",
-                 timeString.data());
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipUserAgent[%s]::dispatch time log: %s",
+                 getName().data(), timeString.data());
 #endif
 }
 
@@ -2158,10 +2167,10 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
    if (getMessageQueue()->numMsgs() > 100)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipUserAgent::handleMessage "
+                    "SipUserAgent[%s]::handleMessage "
                     "msgType = %d, msgSubType = %d, queue length = %d",
-                    msgType, msgSubType, 
-                    getMessageQueue()->numMsgs());
+                    getName().data(),
+                    msgType, msgSubType, getMessageQueue()->numMsgs());
    }
 
    if(msgType == OsMsg::PHONE_APP)
@@ -2189,7 +2198,9 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
          if(sipMsg)
          {
             //messages for which the UA is consumer will end up here.
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipUserAgent::handleMessage posting message");
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipUserAgent[%s]::handleMessage posting message",
+                          getName().data());
 
             // I cannot remember what kind of message ends up here???
             if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
@@ -2246,13 +2257,14 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                   if(sipMessage->getSipTransaction() == NULL)
                   {
                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                   "SipUserAgent::handleMessage "
-                                   "resend Timeout message with NULL transaction\n");
+                                   "SipUserAgent[%s]::handleMessage "
+                                   "resend Timeout message with NULL transaction",
+                                   getName().data());
                   }
                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                "SipUserAgent::handleMessage "
-                                "resend Timeout of message for %d protocol, callId: \"%s\" \n",
-                                protocolType, callId.data());
+                                "SipUserAgent[%s]::handleMessage "
+                                "resend Timeout of message for %d protocol, callId: \"%s\"",
+                                getName().data(), protocolType, callId.data());
                }
 
                int nextTimeout = -1;
@@ -2375,13 +2387,16 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
          else if(msgEventType == SipMessageEvent::TRANSACTION_GARBAGE_COLLECTION)
          {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipUserAgent::handleMessage garbage collecting");
+                          "SipUserAgent[%s]::handleMessage garbage collecting",
+                          getName().data());
          }
 
          // Timeout for an transaction to expire
          else if(msgEventType == SipMessageEvent::TRANSACTION_EXPIRATION)
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipUserAgent::handleMessage transaction expired");
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipUserAgent[%s]::handleMessage transaction expired",
+                          getName().data());
 
             if(sipMessage)
             {
@@ -2396,8 +2411,9 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                if(sipMessage->getSipTransaction() == NULL)
                {
                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                "SipUserAgent::handleMessage "
-                                "expires Timeout message with NULL transaction"
+                                "SipUserAgent[%s]::handleMessage "
+                                "expires Timeout message with NULL transaction",
+                                getName().data()
                                 );
                }
 
@@ -2475,9 +2491,9 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                      sipMessage->getBytes(&noTxMsgString, &noTxMsgLen);
 
                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                   "SipUserAgent::handleMessage "
+                                   "SipUserAgent[%s]::handleMessage "
                                    "event timeout with no matching transaction: %s",
-                                   noTxMsgString.data());
+                                   getName().data(), noTxMsgString.data());
                   }
                }
             }
@@ -2533,44 +2549,51 @@ void SipUserAgent::garbageCollection()
 
     if(mLastCleanUpTime < then)
     {
-#      ifdef LOG_TIME
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "SipUserAgent::garbageCollection"
-                     " bootime: %ld then: %ld tcpThen: %ld"
-                     " oldTransaction: %ld oldInviteTransaction: %ld",
-                     bootime, then, tcpThen, oldTransaction,
-                     oldInviteTransaction);
-#      endif
+       #ifdef LOG_TIME
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipUserAgent[%s]::garbageCollection"
+                        " bootime: %ld then: %ld tcpThen: %ld"
+                        " oldTransaction: %ld oldInviteTransaction: %ld",
+                        getName().data(),
+                        bootime, then, tcpThen, oldTransaction,
+                        oldInviteTransaction);
+          #endif
        mSipTransactions.removeOldTransactions(oldTransaction,
                                               oldInviteTransaction);
-#      ifdef LOG_TIME
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "SipUserAgent::garbageCollection starting removeOldClients(udp)");
-#      endif
        if (mSipUdpServer)
        {
+          #ifdef LOG_TIME
+             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                           "SipUserAgent[%s]::garbageCollection starting removeOldClients(udp)",
+                           getName().data());
+          #endif
           mSipUdpServer->removeOldClients(then);
        }
        if (mSipTcpServer)
        {
-#         ifdef LOG_TIME
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                        "SipUserAgent::garbageCollection starting removeOldClients(tcp)");
-#         endif
+          #ifdef LOG_TIME
+             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                           "SipUserAgent[%s]::garbageCollection starting removeOldClients(tcp)",
+                           getName().data());
+          #endif
           mSipTcpServer->removeOldClients(tcpThen);
        }
-#if 0 // def SIP_TLS
-       if (mSipTlsServer)
-       {
+       #ifdef SIP_TLS
+          if (mSipTlsServer)
+          {
+             #ifdef LOG_TIME
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipUserAgent[%s]::garbageCollection starting removeOldClients(tls)",
+                              getName().data());
+             #endif
+             mSipTlsServer->removeOldClients(tcpThen);
+          }
+       #endif // SIP_TLS
+       #ifdef LOG_TIME
           OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                        "SipUserAgent::garbageCollection starting removeOldClients(tls)");
-          mSipTlsServer->removeOldClients(tcpThen);
-       }
-#endif
-#      ifdef LOG_TIME
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "SipUserAgent::garbageCollection done");
-#      endif
+                        "SipUserAgent[%s]::garbageCollection done",
+                        getName().data());
+       #endif
        mLastCleanUpTime = bootime;
     }
 }
@@ -2721,8 +2744,10 @@ void SipUserAgent::setMaxForwards(int maxForwards)
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,"SipUserAgent::setMaxForwards maxForwards <= 0: %d",
-            maxForwards);
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipUserAgent[%s]::setMaxForwards maxForwards <= 0: %d",
+                      getName().data(),
+                      maxForwards);
     }
 }
 
@@ -2731,8 +2756,10 @@ int SipUserAgent::getMaxForwards()
     int maxForwards;
     if(mMaxForwards <= 0)
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,"SipUserAgent::getMaxForwards maxForwards <= 0: %d",
-            mMaxForwards);
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipUserAgent[%s]::getMaxForwards maxForwards <= 0: %d",
+                      getName().data(),
+                      mMaxForwards);
 
         maxForwards = SIP_DEFAULT_MAX_FORWARDS;
     }
@@ -2808,8 +2835,8 @@ void SipUserAgent::getViaInfo(int protocol,
         if(protocol != OsSocket::UDP)
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
-                "SipUserAgent::getViaInfo unknown protocol: %d",
-                protocol);
+                          "SipUserAgent::getViaInfo unknown protocol: %d",
+                          protocol);
         }
 
         if(portIsValid(mSipPort))
@@ -2997,7 +3024,9 @@ void SipUserAgent::setHostAliases(UtlString& aliases)
 {
     UtlString aliasString;
 
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipUserAgent::setHostAliases('%s')",
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipUserAgent[%s]::setHostAliases('%s')",
+                  getName().data(),
                   aliases.data());
     
     for ( int aliasIndex = 0;
@@ -3030,6 +3059,7 @@ void SipUserAgent::setHostAliases(UtlString& aliases)
     }
 }
 
+#if 0
 void SipUserAgent::printStatus()
 
 {
@@ -3053,6 +3083,7 @@ void SipUserAgent::printStatus()
 
     osPrintf("Transactions:\n%s\n", txString.data());
 }
+#endif // 0
 
 void SipUserAgent::startMessageLog(int newMaximumLogSize)
 {
@@ -3542,9 +3573,10 @@ void SipUserAgent::lookupSRVSipAddress(UtlString protocol, UtlString& sipAddress
                     toServerTcp.getIpAddressFromServerT(sipAddress);
                     port = newPort;
                 }
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,"SipUserAgent:: found TCP server %s port %d",
-                              sipAddress.data(), newPort
-                              );
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipUserAgent[%s]::lookupSRVSipAddress found TCP server %s port %d",
+                              getName().data(),
+                              sipAddress.data(), newPort);
             }
             else if (toServerUdp.isValidServerT())
             {
@@ -3616,7 +3648,6 @@ void SipUserAgent::getContactAddresses(CONTACT_ADDRESS* pContacts[], int &numCon
 {
     mContactDb.getAll(pContacts, numContacts);
 }
-
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

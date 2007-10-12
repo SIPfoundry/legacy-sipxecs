@@ -175,7 +175,7 @@ public:
             {
                // Cross-compare the second and third segments.
                n = a2 - (a1+1);
-               if (strlen(b2+1) == n && strncmp(a1+1, b2+1, n) == 0)
+               if ((int) strlen(b2+1) == n && strncmp(a1+1, b2+1, n) == 0)
                {
                   n = strlen(a2+1);
                   result = b2 - (b1+1) == n && strncmp(a2+1, b1+1, n) == 0;
@@ -796,7 +796,7 @@ public:
          // The refresh manager should re-SUBSCRIBE
          // Wait for the next notify request and subscribe response
          int secondMessageWait = 60;
-         int resendTimeout = 0.55 * secondMessageWait;
+         int resendTimeout = (int) (0.55 * secondMessageWait);
          if(resendTimeout < 40)
          {
             resendTimeout = 40;

@@ -610,7 +610,9 @@ public:
                               599,
                               SIP_GLOBAL_BUSY_CODE,
                               699 };
-         for (int i = 0; i < sizeof (test_codes) / sizeof (test_codes[0]); i++)
+         for (unsigned int i = 0;
+              i < sizeof (test_codes) / sizeof (test_codes[0]);
+              i++)
          {
             // Send a SUBSCRIBE to ourselves
             SipMessage mwiSubscribeRequest(mwiSubscribe);
@@ -717,7 +719,9 @@ public:
 
          // Loop through this scenario for a series of response codes.
          int test_codes[] = { SIP_SERVER_INTERNAL_ERROR_CODE };
-         for (int i = 0; i < sizeof (test_codes) / sizeof (test_codes[0]); i++)
+         for (unsigned int i = 0;
+              i < sizeof (test_codes) / sizeof (test_codes[0]);
+              i++)
          {
             mwiSubscribeRequest.incrementCSeqNumber();
             CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));

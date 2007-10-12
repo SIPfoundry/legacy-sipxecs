@@ -428,10 +428,12 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
 
     outgoingMessage.getRequestMethod(&method);
 
-    if(relationship == MESSAGE_UNKNOWN)
-        relationship = whatRelation(outgoingMessage, TRUE);
+    if (relationship == MESSAGE_UNKNOWN)
+    {
+       relationship = whatRelation(outgoingMessage, TRUE);
+    }
 
-    if(relationship == MESSAGE_DUPLICATE)
+    if (relationship == MESSAGE_DUPLICATE)
     {
         // If this transaction was contructed with this message
         // it will appear as a duplicate
@@ -505,7 +507,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
     }
 
     // Do not send out CANCEL requests on DNS SRV parents.
-    // They do not actually send request and so should not
+    // They do not actually send requests and so should not
     // send CANCELs either.
     if(   !isResponse
        && !mIsDnsSrvChild
@@ -566,7 +568,6 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
                     transString.data());
             }
         }
-
 
         // Make a copy to attach to the transaction
         SipMessage* requestCopy = new SipMessage(outgoingMessage);
@@ -874,11 +875,11 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
 }
 
 UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
-                                      enum messageRelationship relationship,
-                                      SipUserAgent& userAgent,
-                                      UtlString& toAddress,
-                                      int& port,
-                                      OsSocket::IpProtocolSocketType& toProtocol)
+                                       enum messageRelationship relationship,
+                                       SipUserAgent& userAgent,
+                                       UtlString& toAddress,
+                                       int& port,
+                                       OsSocket::IpProtocolSocketType& toProtocol)
 {
     UtlBoolean sendSucceeded = FALSE;
     UtlBoolean isResponse = message.isResponse();
@@ -902,9 +903,9 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
     }
 #   endif
 
-    if(toProtocol == OsSocket::UNKNOWN)
+    if (toProtocol == OsSocket::UNKNOWN)
     {
-       if ( lastSentProtocol == OsSocket::UNKNOWN )
+       if (lastSentProtocol == OsSocket::UNKNOWN)
        {
           /*
            * :HACK: This is a problem, and a more comprehensive fix is still needed. [XSL-49]
@@ -1021,7 +1022,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
     SipMessage* transactionMessageCopy = NULL;
 
-    if(relationship == MESSAGE_REQUEST ||
+    if (relationship == MESSAGE_REQUEST ||
         relationship == MESSAGE_PROVISIONAL ||
         relationship == MESSAGE_FINAL ||
         relationship == MESSAGE_CANCEL ||

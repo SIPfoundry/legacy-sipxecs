@@ -44,7 +44,7 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testLongHostname);
     CPPUNIT_TEST(testSipParameters);
     CPPUNIT_TEST(testFieldParameterWhitespace);
-   CPPUNIT_TEST(testFullSip);
+    CPPUNIT_TEST(testFullSip);
     CPPUNIT_TEST(testQuotedName);
     CPPUNIT_TEST(testFancyNames);
     CPPUNIT_TEST(testEncoded);
@@ -576,6 +576,7 @@ public:
          const char *szUrl = "sip:tester@sipfoundry.org;foo=bar";
 
          Url url(szUrl);
+         sprintf(msg, "parameter without angle brackets %s", szUrl);
          ASSERT_STR_EQUAL_MESSAGE(msg, MISSING_PARAM, getParam("foo", url));
          ASSERT_STR_EQUAL_MESSAGE(msg, "bar", getFieldParam("foo", url));
 
@@ -596,6 +597,7 @@ public:
       {
          const char *szUrl = "somewhere.sipfoundry.org";
          Url url(szUrl);
+         sprintf(msg, "host without scheme %s", szUrl);
          ASSERT_STR_EQUAL_MESSAGE(msg, "somewhere.sipfoundry.org", getHostAddress(url));
          ASSERT_STR_EQUAL_MESSAGE(szUrl, "sip:somewhere.sipfoundry.org", toString(url));
 
@@ -613,6 +615,7 @@ public:
       {
          const char *szUrl = "somewhere.sipfoundry.org:333";
          Url url(szUrl);
+         sprintf(msg, "hostport without scheme %s", szUrl);
          ASSERT_STR_EQUAL_MESSAGE(msg, "somewhere.sipfoundry.org", getHostAddress(url));
          CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 333, url.getHostPort());        
 
@@ -679,6 +682,7 @@ public:
       {
          const char *szUrl = "[a0:32:44::99]:333";
          Url url(szUrl);
+         sprintf(msg, "IPv6 address %s", szUrl);
          ASSERT_STR_EQUAL_MESSAGE(msg, "[a0:32:44::99]", getHostAddress(url));
          CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 333, url.getHostPort());        
 

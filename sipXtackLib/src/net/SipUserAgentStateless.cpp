@@ -13,7 +13,7 @@
 
 // APPLICATION INCLUDES
 #include <net/SipUserAgentStateless.h>
-#include <net/SipClient.h>
+#include <net/SipClientUdp.h>
 #include <net/Url.h>
 #include <os/OsDatagramSocket.h>
 
@@ -28,7 +28,7 @@
 
 // Constructor
 SipUserAgentStateless::SipUserAgentStateless(int sipTcpPort, int sipUdpPort) :
-SipUserAgentBase(sipTcpPort, sipUdpPort)
+   SipUserAgentBase(sipTcpPort, sipUdpPort)
 {
    mpMessageObserver = NULL;
    UtlString localAddress;
@@ -40,8 +40,7 @@ SipUserAgentBase(sipTcpPort, sipUdpPort)
 
    OsDatagramSocket* serverSocket =
        new OsDatagramSocket(0, NULL,sipUdpPort, NULL);
-   mpUdpServer = new SipClient(serverSocket);
-   mpUdpServer->setUserAgent(this);
+   mpUdpServer = new SipClientUdp(serverSocket, NULL, this);
    mpUdpServer->start();
 }
 

@@ -1144,6 +1144,11 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
    // If externalBuffer is supplied, use that, otherwise use localBuffer.
    UtlString localBuffer;
    UtlString* allBytes = externalBuffer ? externalBuffer : &localBuffer;
+#  ifdef MSG_DEBUG
+   OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                 "HttpMessage::read %d initial residual bytes: '%s'",
+                 allBytes->length(), allBytes->data());
+#  endif
 
    int residualBytes = allBytes->length(); // passed into this read already in the buffer
    int returnMessageLength = 0;
@@ -1206,6 +1211,12 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       {
          if (residualBytes)
          {
+#           ifdef MSG_DEBUG
+            OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                          "HttpMessage::read %d residual bytes: '%.*s'",
+                          residualBytes, residualBytes, buffer);
+#           endif
+
             // set the variables as though this had been read from the socket.
             bytesRead = residualBytes;
             residualBytes = 0;
@@ -1220,6 +1231,12 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
          }
          else // we must have read bytes from the socket
          {
+#           ifdef MSG_DEBUG
+            OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                          "HttpMessage::read %d bytes read: '%.*s'",
+                          bytesRead, bytesRead, buffer);
+#           endif
+
             allBytes->append(buffer, bytesRead); // move from temporary buffer into UtlString
             
             if (mSendAddress.isNull())
@@ -1449,6 +1466,10 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
          
          // Read more of the message and continue processing it.
       }
+#     ifdef MSG_DEBUG
+      OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                    "HttpMessage::read Reached end of reading");
+#     endif /* MSG_DEBUG */
 
       //
       // We have reached one of the conditions that indicates to stop
@@ -1483,7 +1504,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                           "HttpMessage::read full msg rcvd bytes %d: header: %d content: %d",
                           bytesTotal, headerEnd, contentLength);
 
-            // There is residual bytes for the next message
+            // There are residual bytes for the next message
             if (messageLength < allBytes->length())
             {
                // Get rid of initial white space as the residual is
@@ -1558,6 +1579,18 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                     bufferSize, byteCapacity);
       returnMessageLength = 0;
    }
+
+#  ifdef MSG_DEBUG
+   UtlString b;
+   int l;
+   getBytes(&b, &l);
+   OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                 "HttpMessage::read returning %d '%s'",
+                 returnMessageLength, b.data());
+   OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                 "HttpMessage::read %d final residual bytes: '%s'",
+                 allBytes->length(), allBytes->data());
+#  endif
 
    return(returnMessageLength);
 }
@@ -2280,7 +2313,7 @@ void HttpMessage::getBytes(UtlString* bufferString, int* length, bool includeBod
 
     *bufferString = mFirstHeaderLine;
 
-    bufferString->append(END_OF_LINE_DELIMITOR);
+    bufferString->append(END_OF_LINE_DELIMITER);
 
     UtlDListIterator iterator((UtlDList&)mNameValues);
     NameValuePair* headerField;
@@ -2353,7 +2386,7 @@ void HttpMessage::getBytes(UtlString* bufferString, int* length, bool includeBod
                 {
                         bufferString->append(value);
                 }
-                bufferString->append(END_OF_LINE_DELIMITOR);
+                bufferString->append(END_OF_LINE_DELIMITER);
         }
 
         // Make sure the content length is set
@@ -2366,10 +2399,10 @@ void HttpMessage::getBytes(UtlString* bufferString, int* length, bool includeBod
         char bodyLengthString[40];
         sprintf(bodyLengthString, " %d", bodyLen);
                 bufferString->append(bodyLengthString);
-                bufferString->append(END_OF_LINE_DELIMITOR);
+                bufferString->append(END_OF_LINE_DELIMITER);
         }
 
-        bufferString->append(END_OF_LINE_DELIMITOR);
+        bufferString->append(END_OF_LINE_DELIMITER);
 
         if(body)
         {
@@ -2377,6 +2410,16 @@ void HttpMessage::getBytes(UtlString* bufferString, int* length, bool includeBod
         }
 
         *length = bufferString->length();
+}
+
+// Print message to stdout.  (To be called from GDB.)
+void HttpMessage::debugPrint() const
+{
+   UtlString buffer;
+   int length;
+
+   getBytes(&buffer, &length);
+   printf("%s", buffer.data());
 }
 
 void HttpMessage::getFirstHeaderLinePart(int partIndex, UtlString* part, char separator) const

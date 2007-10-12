@@ -8,6 +8,10 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
+// Skip all this code if SIP_TLS (TLS support for SIP) is not defined.
+// Properly, we should delete this file from the Makefile, but that would
+// take more investigation than I am willing to put in right now.
+#ifdef SIP_TLS
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -16,10 +20,8 @@
 #include <net/SipTlsServer.h>
 #include <net/SipUserAgent.h>
 #include <os/OsDateTime.h>
-#ifdef SIP_TLS
-#    include <os/OsSSLServerSocket.h>
-#    include <os/OsSSLConnectionSocket.h>
-#endif
+#include <os/OsSSLServerSocket.h>
+#include <os/OsSSLConnectionSocket.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -32,74 +34,64 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipTlsServer::SipTlsServer(int port, SipUserAgent* userAgent, UtlBoolean bUseNextAvailablePort) :
- SipTcpServer(PORT_NONE, userAgent, SIP_TRANSPORT_TLS, "SipTlsServer-%d")
+SipTlsServer::SipTlsServer(int port,
+                           SipUserAgent* userAgent,
+                           UtlBoolean bUseNextAvailablePort) :
+   SipTcpServer(PORT_NONE,
+                userAgent,
+                SIP_TRANSPORT_TLS,
+                "SipTlsServer-%d")
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipTlsServer::_ port = %d, bUseNextAvailablePort = %d",
-                  port, bUseNextAvailablePort);
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipTlsServer[%s]::_ port = %d, bUseNextAvailablePort = %d",
+                 getName().data(), port, bUseNextAvailablePort);
 
-    mServerPort = PORT_NONE ;
+   mServerPort = PORT_NONE;
    
-    OsSysLog::add(FAC_SIP,PRI_DEBUG,"SipTlsServer::~ port %d", port);
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipTlsServer[%s]::_ port %d",
+                 getName().data(), port);
 
-    if(portIsValid(port))
-    {
-#ifdef SIP_TLS
-        OsServerSocket* pServerSocket = new OsSSLServerSocket(64, port);
-#else
-        OsServerSocket* pServerSocket = new OsServerSocket(64, port);
-#endif
+   if (portIsValid(port))
+   {
+      OsServerSocket* pServerSocket = new OsSSLServerSocket(64, port);
 
-        // If the socket is busy or unbindable and the user requested using the
-        // next available port, try the next SIP_MAX_PORT_RANGE ports.
-        if (bUseNextAvailablePort && !pServerSocket->isOk())
-        {
-            for (int i=1; i<=SIP_MAX_PORT_RANGE; i++)
+      // If the socket is busy or unbindable and the user requested using the
+      // next available port, try the next SIP_MAX_PORT_RANGE ports.
+      if (bUseNextAvailablePort && !pServerSocket->isOk())
+      {
+         for (int i=1; i<=SIP_MAX_PORT_RANGE; i++)
+         {
+            delete pServerSocket ;
+            pServerSocket = new OsSSLServerSocket(64, port+i);
+            if (pServerSocket->isOk())
             {
-                delete pServerSocket ;
-#ifdef SIP_TLS
-                pServerSocket = new OsSSLServerSocket(64, port+i);
-#else
-                pServerSocket = new OsServerSocket(64, port+i);
-#endif                
-                if (pServerSocket->isOk())
-                {
-                    break ;
-                }
+               break ;
             }
-        }
+         }
+      }
 
-        if (pServerSocket->isOk())
-        {
-            mServerPort = pServerSocket->getLocalHostPort() ;
-        }
-    }
+      if (pServerSocket->isOk())
+      {
+         mServerPort = pServerSocket->getLocalHostPort() ;
+      }
+   }
 
    mDefaultPort = SIP_TLS_PORT;
-
 }
-
 
 // Destructor
 SipTlsServer::~SipTlsServer()
 {
-    waitUntilShutDown();
-
+   // The thread will be shut down by the base class destructor.
 }
 
 /* ============================ MANIPULATORS ============================== */
 
 OsSocket* SipTlsServer::buildClientSocket(int hostPort, const char* hostAddress)
 {
-    OsSocket* socket;
-#ifdef SIP_TLS
-    socket = new OsSSLConnectionSocket(hostPort, hostAddress);
-#else
-    // Create the socket in non-blocking mode so it does not block
-    // while conecting
-    socket = new OsConnectionSocket(hostPort, hostAddress, FALSE);
-#endif
+   OsSocket* socket;
+   socket = new OsSSLConnectionSocket(hostPort, hostAddress);
 
    socket->makeBlocking();
    return(socket);
@@ -107,10 +99,10 @@ OsSocket* SipTlsServer::buildClientSocket(int hostPort, const char* hostAddress)
 
 /* ============================ ACCESSORS ================================= */
 
-// The the local server port for this server
+// The local server port for this server
 int SipTlsServer::getServerPort() const 
 {
-    return mServerPort ;
+    return mServerPort;
 }
 
 /* ============================ INQUIRY =================================== */
@@ -121,3 +113,5 @@ int SipTlsServer::getServerPort() const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
+#endif // SIP_TLS

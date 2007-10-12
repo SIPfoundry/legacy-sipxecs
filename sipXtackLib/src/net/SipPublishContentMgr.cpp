@@ -176,11 +176,12 @@ void SipPublishContentMgr::publish(const char* resourceId,
     }
 
     // Add the new content
-    for(int index = 0; index < numContentTypes; index++)
+    for (int index = 0; index < numContentTypes; index++)
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
             "SipPublishContentMgr::publish eventContent[%d] = %p, key = '%s', content type = '%s', version = %d, getBytes() = %p '%s'",
-                      index, eventContent[index],
+                      index,
+                      eventContent[index],
                       key.data(),
                       eventContent[index]->data(),
                       eventVersion[index],
@@ -392,7 +393,7 @@ UtlBoolean SipPublishContentMgr::removeContentChangeObserver(const char* eventTy
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipPublishContentMgr::removeContentChangeObserver eventType '%s', callbackFunction %p",
-                  eventType, callbackFunction);
+                  eventType, &callbackFunction);
     UtlBoolean callbackRemoved = FALSE;
     UtlString eventTypeString(eventType);
     PublishCallbackContainer* callbackEntry = NULL;

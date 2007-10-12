@@ -78,6 +78,9 @@ libsipXtack_la_SOURCES =  \
     net/SdpCodec.cpp \
     net/SdpCodecFactory.cpp \
     net/SipClient.cpp \
+    net/SipClientTcp.cpp \
+    net/SipClientTls.cpp \
+    net/SipClientUdp.cpp \
     net/SipContactDb.cpp \
     net/SipConfigServerAgent.cpp \
     net/SipDialog.cpp \

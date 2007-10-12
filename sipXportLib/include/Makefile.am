@@ -70,6 +70,7 @@ nobase_include_HEADERS = \
     os/OsRWMutex.h \
     os/OsServerSocket.h \
     os/OsServerTask.h \
+    os/OsServerTaskWaitable.h \
     os/OsSharedLibMgr.h \
     os/OsSocket.h \
     os/OsSSL.h \

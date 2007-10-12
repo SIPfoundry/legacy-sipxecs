@@ -488,7 +488,7 @@ public:
          int bodyLength = strlen(content);
          HttpBody *body = new HttpBody(content, bodyLength,
                                        DIALOG_EVENT_CONTENT_TYPE);
-         int version;
+         int version = 0;
 
          int numOldContents;
          HttpBody *oldContents[2];

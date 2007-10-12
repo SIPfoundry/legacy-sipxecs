@@ -8,7 +8,6 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-
 #ifndef _SipTcpServer_h_
 #define _SipTcpServer_h_
 
@@ -18,7 +17,6 @@
 // APPLICATION INCLUDES
 #include <os/OsServerSocket.h>
 #include <net/SipProtocolServerBase.h>
-
 
 // DEFINES
 // MACROS
@@ -39,8 +37,8 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   SipTcpServer(int sipPort = SIP_PORT,
-                SipUserAgent* userAgent = NULL,
+   SipTcpServer(int sipPort,
+                SipUserAgent* userAgent,
                 const char* protocolString = SIP_TRANSPORT_TCP,
                 const char* taskName  = "SipTcpServer-%d",
                 UtlBoolean bUseNextAvailablePort = FALSE,
@@ -54,9 +52,6 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
     virtual UtlBoolean startListener();
-
-    //void addEventConsumer(OsServerTask* messageEventListener);
-    //void removeEventConsumer(OsServerTask* messageEventListener);
 
     void shutdownListener();
 
@@ -78,9 +73,11 @@ public:
     
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    OsStatus createServerSocket(const char* szBindAddr,
-                                int& port,
-                                const UtlBoolean& bUseNextAvailablePort);
+
+    // Caller must hold mClientLock.
+    void createServerSocket(const char* szBindAddr,
+                            int& port,
+                            const UtlBoolean& bUseNextAvailablePort);
                                 
     class SipServerBrokerListener : public OsServerTask
     {

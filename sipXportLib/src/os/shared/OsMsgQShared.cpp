@@ -172,8 +172,8 @@ void OsMsgQShared::show(void)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
-                           const UtlBoolean isUrgent,
-                           const UtlBoolean sendFromISR)
+                              const UtlBoolean isUrgent,
+                              const UtlBoolean sendFromISR)
 {
    OsStatus ret;
    OsMsg*   pMsg;

@@ -841,7 +841,9 @@ main(int argc, char* argv[])
 #endif
             else
             {
+#if 0
                sipUserAgent.printStatus();
+#endif
                sipUserAgent.getMessageLog(buffer);
                printf("=================>\n%s\n", buffer.data());
             }

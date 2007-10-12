@@ -1103,7 +1103,7 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
    UtlString videoFormat;
    int codecIndex;
    int destIndex;
-   int firstMimeSubTypeIndex;
+   int firstMimeSubTypeIndex = -1; // this value is not used - prevent compiler warning
    int preExistingMedia = getMediaSetCount();
    UtlString mimeType;
    UtlString seenMimeType;
@@ -1196,6 +1196,8 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
             // fact that codecs with the same mime subtype are added sequentially to the 
             // codec factory. Otherwise this won't work.
             formatArray[destIndex] |= (rtpCodecs[codecIndex])->getVideoFormat();
+            // Note that if prevMimeSubType matches mimeSubType, then firstMimeSubTypeIndex
+            // must have been given a value, also.
             (rtpCodecs[firstMimeSubTypeIndex])->setVideoFmtp(formatArray[destIndex]);
          }
          else
@@ -1343,7 +1345,7 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
    SdpCodec* codecsInCommon[MAXIMUM_MEDIA_TYPES];
    int supportedPayloadCount;
    int destIndex;
-   int firstMimeSubTypeIndex;
+   int firstMimeSubTypeIndex = -1; // this value is not used - prevent compiler warning
    SdpSrtpParameters receivedSrtpParams;
    SdpSrtpParameters receivedAudioSrtpParams;
    SdpSrtpParameters receivedVideoSrtpParams;
@@ -1516,6 +1518,8 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
                 if (prevMimeSubType.compareTo(mimeSubType) == 0)
                 {
                     formatArray[destIndex] |= (codecsInCommon[payloadIndex])->getVideoFormat();
+                    // Note that if prevMimeSubType matches mimeSubType, then firstMimeSubTypeIndex
+                    // must have been given a value, also.
                     (codecsInCommon[firstMimeSubTypeIndex])->setVideoFmtp(formatArray[destIndex]);
                 }
                 else

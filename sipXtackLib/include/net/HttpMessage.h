@@ -25,7 +25,7 @@
 // DEFINES
 #define HTTP_NAME_VALUE_DELIMITER ':'
 #define HEADER_LINE_PART_DELIMITER ' '
-#define END_OF_LINE_DELIMITOR "\r\n"
+#define END_OF_LINE_DELIMITER "\r\n"
 
 #define PASSWORD_SECRET                 "xpressa"
 
@@ -250,15 +250,17 @@ public:
                  void* optionalData = NULL,
                  OsConnectionSocket** socket = NULL) ;
 
-    //! Read HTTP message from socket.
+    //! Read HTTP message from socket into the HttpMessage object.
     /*! Convenience function to read from a socket
      * \param inSocket - socket from which to read data
      * \param bufferSize - this is the size of the chunks of data to
      *   be read off the socket.  (It is not the total size of the
      *   message to be read.)
      * \param externalBuffer - a UtlString into which the HTTP message
-     *   will be accumulated and via which it will be returned to the
-     *   caller.  If this is NULL, the message is not returned.
+     *   text will be accumulated and via which the text will be
+     *   returned to the caller (in addition to returning it as the
+     *   contents of the HttpMessage object).  If this is NULL, the
+     *   message text is not returned.
      *   If externalBuffer contains a string, it is taken as the
      *   initial part of the HTTP message, to be followed by data read
      *   from inSocket.
@@ -530,7 +532,8 @@ public:
      * \param length - the length of bytes
      */
     void getBytes(UtlString* bytes, int* length, bool includeBody = true) const;
-
+    //! Print message to stdout (for debugging).
+    void debugPrint(void) const;
 
    //! @name Authentication access methods
    //@{

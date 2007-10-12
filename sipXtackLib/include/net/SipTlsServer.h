@@ -36,11 +36,11 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   SipTlsServer(int sipPort = SIP_TLS_PORT, 
-                SipUserAgent* userAgent = NULL,
+   SipTlsServer(int sipPort, 
+                SipUserAgent* userAgent,
+                SipProtocolServerBase* pSipServer,
                 UtlBoolean bUseNextAvailablePort = FALSE);
      //:Default constructor
-
 
    virtual
    ~SipTlsServer();
@@ -50,7 +50,7 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-    int getServerPort() const ;
+    int getServerPort() const;
     //: The the local server port for this server
 
 /* ============================ INQUIRY =================================== */
@@ -60,10 +60,10 @@ protected:
 
     virtual OsSocket* buildClientSocket(int hostPort, const char* hostAddress);
 
+    int mServerPort;
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
-    int mServerPort;
 
     SipTlsServer(const SipTlsServer& rSipTlsServer);
     //: disable Copy constructor

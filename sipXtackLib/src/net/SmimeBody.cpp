@@ -240,10 +240,10 @@ UtlBoolean SmimeBody::encrypt(HttpBody* bodyToEncrypt,
         // decrypts this body, it can tell what the content is
         dataToEncrypt ="Content-Type: ";
         dataToEncrypt.append(contentType);
-        dataToEncrypt.append(END_OF_LINE_DELIMITOR);
+        dataToEncrypt.append(END_OF_LINE_DELIMITER);
         dataToEncrypt.append("Content-Transfer-Encoding: binary");
-        dataToEncrypt.append(END_OF_LINE_DELIMITOR);
-        dataToEncrypt.append(END_OF_LINE_DELIMITOR);
+        dataToEncrypt.append(END_OF_LINE_DELIMITER);
+        dataToEncrypt.append(END_OF_LINE_DELIMITER);
 
         // Append the real body content
         const char* dataPtr;

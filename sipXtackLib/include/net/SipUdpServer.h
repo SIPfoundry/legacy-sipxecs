@@ -27,8 +27,8 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class SipUserAgent;
-class OsStunDatagramSocket ;
-class OsNotification ;
+class OsStunDatagramSocket;
+class OsNotification;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -39,16 +39,15 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   SipUdpServer(int sipPort = SIP_PORT,
-       SipUserAgent* userAgent = NULL,
-       const char* natPingUrl = "",
-       int natPingFrequency = 0,
-       const char* natPingMethod = "PING",
-       int udpReadBufferSize = -1,
-       UtlBoolean bUseNextAvailablePort = FALSE,
-       const char* szBoundIp = NULL);
+   SipUdpServer(int sipPort,
+                SipUserAgent* userAgent,
+                const char* natPingUrl = "",
+                int natPingFrequency = 0,
+                const char* natPingMethod = "PING",
+                int udpReadBufferSize = -1,
+                UtlBoolean bUseNextAvailablePort = FALSE,
+                const char* szBoundIp = NULL);
      //:Default constructor
-
 
    virtual
    ~SipUdpServer();
@@ -56,9 +55,17 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
+    void shutdownListener();
+
     int run(void* pArg);
 
-    void shutdownListener();
+    // Handles an incoming message (from the message queue).
+    UtlBoolean handleMessage(OsMsg& eventMessage);
+
+    UtlBoolean sendTo(const SipMessage& message,
+                     const char* address,
+                     int port,
+                     const char* szLocalSipIp = NULL);
 
     void enableStun(const char* szStunServer, 
                     const char* szLocalIp, 
@@ -68,23 +75,15 @@ public:
       //:Enable stun lookups for UDP signaling
       // Use a NULL szStunServer to disable
 
-    UtlBoolean sendTo(const SipMessage& message,
-                     const char* address,
-                     int port,
-                     const char* szLocalSipIp = NULL);
-
 /* ============================ ACCESSORS ================================= */
 
-    void printStatus();
-
-    int getServerPort(const char* szLocalIp = NULL) ;
+    int getServerPort(const char* szLocalIp = NULL);
 
     UtlBoolean getStunAddress(UtlString* pIpAddress,
                               int* pPort,
-                              const char* szLocalIp = NULL) ;
+                              const char* szLocalIp = NULL);
 
 /* ============================ INQUIRY =================================== */
-
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -93,18 +92,47 @@ protected:
                                 const char* hostAddress,
                                 const char* localIp);
 
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-private:
+    // Caller must hold mClientLock.
+    void printStatus();
+
     UtlString mNatPingUrl;
     int mNatPingFrequencySeconds;
     UtlString mNatPingMethod;
-    UtlString mStunServer ;
-    int mStunRefreshSecs ;
-    int mStunOptions ;
-    OsStatus createServerSocket(const char* localIp,
-                                 int& localPort,
-                                 const UtlBoolean& bUseNextAvailablePort,
-                                 int udpReadBufferSize);
+    UtlString mStunServer;
+    int mStunRefreshSecs;
+    int mStunOptions;
+
+    /** Create a listening socket and record it in mServerSocketMap and
+     *  mServerPortMap.
+     *  Manipulates the server list, and so should be called only by the Sip*Server
+     *  constructors/destructors and the threads that call them.
+     */
+    // Caller must hold mClientLock.
+    void createServerSocket(const char* localIp,
+                            ///< Local address to listen on
+                            int& localPort,
+                            ///< Local port to listen on
+                            const UtlBoolean& bUseNextAvailablePort,
+                            ///< True if should search for an available port
+                            int udpReadBufferSize
+                            /**< If >0, attempt to set the kernel UDP read
+                             *   buffer size to this value. */
+       );
+
+    // Send the keepalives.
+    void sendKeepalives();
+
+    // Stored information for composing ping messages.
+    UtlString mPingCanonizedUrl;
+    UtlString mPingFrom;
+    UtlString mPingCallId;
+    int mPingCseq;
+    UtlString mPingContact;
+    UtlString mPingAddress;
+    int mPingPort;
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
 
     SipUdpServer(const SipUdpServer& rSipUdpServer);
     //: disable Copy constructor

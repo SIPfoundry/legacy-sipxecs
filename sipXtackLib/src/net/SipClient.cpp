@@ -8,18 +8,22 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-
 // SYSTEM INCLUDES
+#include <errno.h>
+#include <poll.h>
 #include <stdio.h>
+#include <unistd.h>
 
 // APPLICATION INCLUDES
 #include <net/SipMessage.h>
 #include <net/SipClient.h>
 #include <net/SipMessageEvent.h>
+#include <net/SipProtocolServerBase.h>
 #include <net/SipUserAgentBase.h>
 
 #include <os/OsDateTime.h>
 #include <os/OsDatagramSocket.h>
+#include <os/OsStatus.h>
 #include <os/OsSysLog.h>
 #include <os/OsEvent.h>
 
@@ -51,23 +55,96 @@ l: 0 \n\r
 
 // STATIC VARIABLE INITIALIZATIONS
 
+const UtlContainableType SipClient::TYPE = "SipClient";
+
+const UtlContainableType SipClientSendMsg::TYPE = "SipClientSendMsg";
+
+// Methods for SipClientSendMsg.
+
+// Constructor
+SipClientSendMsg::SipClientSendMsg(const unsigned char msgType,
+                                   const unsigned char msgSubType,
+                                   const SipMessage& message,
+                                   const char* address, int port) :
+   OsMsg(msgType, msgSubType),
+   mMessage(message),
+   mAddress(strdup(address)),
+   mPort(port)
+{
+}
+
+//:Copy constructor
+SipClientSendMsg::SipClientSendMsg(const SipClientSendMsg& rOsMsg) :
+   OsMsg(rOsMsg),
+   mMessage(rOsMsg.mMessage),
+   mAddress(strdup(rOsMsg.mAddress)),
+   mPort(rOsMsg.mPort)
+{
+}
+
+//:Destructor
+SipClientSendMsg::~SipClientSendMsg()
+{
+   free(mAddress);
+}
+
+//:Create a copy of this msg object (which may be of a derived type)
+OsMsg* SipClientSendMsg::createCopy(void) const
+{
+   return new SipClientSendMsg(*this);
+}
+
+//:Assignment operator
+SipClientSendMsg& SipClientSendMsg::operator=(const SipClientSendMsg& rhs)
+{
+   if (this != &rhs)            // handle the assignment to self case
+   {
+      OsMsg::operator=(rhs);
+      mMessage = rhs.mMessage;
+      free(mAddress);
+      mAddress = strdup(rhs.mAddress);
+      mPort = rhs.mPort;
+   }
+
+   return *this;
+}
+
+// Component accessors.
+const SipMessage* SipClientSendMsg::getMessage(void) const
+{
+   return &mMessage;
+}
+
+const char* SipClientSendMsg::getAddress(void) const
+{
+   return mAddress;
+}
+
+int SipClientSendMsg::getPort(void) const
+{
+   return mPort;
+}
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipClient::SipClient(OsSocket* socket) :
-   OsTask("SipClient-%d"),
+SipClient::SipClient(OsSocket* socket,
+                     SipProtocolServerBase* pSipServer,
+                     SipUserAgentBase* sipUA,
+                     const char* taskNameString) :
+   OsServerTaskWaitable(taskNameString),
    clientSocket(socket),
    mSocketType(socket ? socket->getIpProtocol() : OsSocket::UNKNOWN),
-   sipUserAgent(NULL),
+   sipUserAgent(sipUA),
+   mpSipServer(pSipServer),
    mRemoteViaPort(PORT_NONE),
    mRemoteReceivedPort(PORT_NONE),
    mSocketLock(OsBSem::Q_FIFO, OsBSem::FULL),
    mFirstResendTimeoutMs(SIP_DEFAULT_RTT * 4), // for first transcation time out
-   mInUseForWrite(0),
-   mWaitingList(NULL),
-   mbSharedSocket(FALSE)
+   mbSharedSocket(FALSE),
+   mWriteQueued(FALSE)
 {
    touch();
 
@@ -78,20 +155,22 @@ SipClient::SipClient(OsSocket* socket) :
 
        OsSysLog::add(FAC_SIP, PRI_INFO,
                      "SipClient[%s]::_ created %s %s socket %d: host '%s' port %d",
-                     this->mName.data(),
+                     mName.data(),
                      OsSocket::ipProtocolString(mSocketType),
                      mbSharedSocket ? "shared" : "unshared",
                      socket->getSocketDescriptor(),
                      mRemoteHostName.data(), mRemoteHostPort
                      );
    }
-
 }
 
 // Destructor
 SipClient::~SipClient()
 {
-    // Do not delete the event listers they are not subordinate
+    // Tell the associated thread to shut itself down.
+    requestShutdown();
+
+    // Do not delete the event listers, as they are not subordinate.
 
     // Free the socket
     if(clientSocket)
@@ -103,13 +182,10 @@ SipClient::~SipClient()
         if (!mbSharedSocket)
         {
            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient[%s]::~SipClient %p socket %p closing %s socket",
-                         this->mName.data(), this,
+                         mName.data(), this,
                          clientSocket, OsSocket::ipProtocolString(mSocketType));
            clientSocket->close();
         }
-
-        // Signal everybody to stop waiting for this SipClient
-        signalAllAvailableForWrite();
 
         // Wait for the task to exit so that it does not
         // reference the socket or other members after they
@@ -130,596 +206,93 @@ SipClient::~SipClient()
         // It should not get here but just in case
         waitUntilShutDown();
     }
-
-    if(mWaitingList)
-    {
-        int numEvents = mWaitingList->entries();
-        if(numEvents)
-        {
-            OsSysLog::add(FAC_SIP, PRI_WARNING, "SipClient[%s]::~SipClient has %d waiting events",
-                          this->mName.data(),
-                          numEvents);
-        }
-
-        delete mWaitingList;
-        mWaitingList = NULL;
-    }
-
-    // Do not delete the event listers they are not subordinate
 }
 
 /* ============================ MANIPULATORS ============================== */
 
-int SipClient::run(void* runArg)
+// Handles an incoming message (from the message queue).
+UtlBoolean SipClient::handleMessage(OsMsg& eventMessage)
 {
-    int bytesRead;
-    UtlString buffer;
-    SipMessage* message = NULL;
-    UtlString remoteHostName;
-    UtlString viaProtocol;
-    UtlString fromIpAddress;
-    int fromPort;
-    int numFailures = 0;
-    UtlBoolean internalShutdown = FALSE;
-    UtlBoolean readAMessage = FALSE;
-    
-    int readBufferSize = HTTP_DEFAULT_SOCKET_BUFFER_SIZE;
+   UtlBoolean messageProcessed = FALSE;
 
-    if(mSocketType == OsSocket::UDP)
-    {
-        readBufferSize = MAX_UDP_PACKET_SIZE;
-    }
+   int msgType = eventMessage.getMsgType();
+   int msgSubType = eventMessage.getMsgSubType();
 
-    while(   !isShuttingDown()
-            && !internalShutdown
-            && clientSocket
-            && clientSocket->isOk())
-    {
-        if(clientSocket)
-        {
-#ifdef LOG_TIME
-            OsTimeLog eventTimes;
-#endif
+   if(msgType == OsMsg::OS_EVENT &&
+      msgSubType == SipClientSendMsg::SIP_CLIENT_SEND)
+   {
+      // Queued SIP message to send.
 
-            message = new SipMessage();
+      // Call sendMessage method to send the SIP message (or to
+      // store its contents to be sent).
+      SipClientSendMsg* sendMsg =
+         dynamic_cast <SipClientSendMsg*> (&eventMessage);
+      sendMessage(*sendMsg->getMessage(), sendMsg->getAddress(),
+                  sendMsg->getPort());
+      messageProcessed = TRUE;
+      // sendMsg will be deleted by ::run(), as usual.
+      // Its destructor will free any storage owned by it.
+   }
 
-            // Block and wait for the socket to be ready to read
-            // clientSocket shouldn't be null
-            // in this case some sort of race with the destructor.  This should
-            // not actually ever happen.
-#ifdef TEST_SOCKET
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipClient[%s]::run preparing to waitForReadyToRead readAMessage = %d, "
-                          "buffer.length() = %d, clientSocket = %p",
-                          this->mName.data(),
-                          readAMessage, buffer.length(), clientSocket);
-#endif
-#ifdef LOG_TIME
-                eventTimes.addEvent("waiting");
-#endif
-            if (clientSocket
-                && ((  readAMessage && buffer.length() >= MINIMUM_SIP_MESSAGE_SIZE)
-                    || waitForReadyToRead()
-                    )
-                )
-            {
-#               ifdef LOG_TIME
-                eventTimes.addEvent("locking");
-#               endif
-
-                // Lock to prevent multithreaded read or write
-                mSocketLock.acquire();
-
-#               ifdef LOG_TIME
-                eventTimes.addEvent("locked");
-#               endif
-                // This second check is in case there is
-                // some sort of race with the destructor.  This should
-                // not actually ever happen.
-                if(clientSocket)
-                {
-                   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-                   {
-                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                    "SipClient[%s]::run %p socket %p host: %s "
-                                    "sock addr: %s via addr: %s rcv addr: %s "
-                                    "sock type: %s read ready %s",
-                                    this->mName.data(),
-                                    this, clientSocket,
-                                    mRemoteHostName.data(),
-                                    mRemoteSocketAddress.data(),
-                                    mRemoteViaAddress.data(),
-                                    mReceivedAddress.data(),
-                                    OsSocket::ipProtocolString(clientSocket->getIpProtocol()),
-                                    isReadyToRead() ? "READY" : "NOT READY"
-                         );
-                   }
-#                   ifdef LOG_TIME
-                    eventTimes.addEvent("reading");
-#                   endif
-                    bytesRead = message->read(clientSocket, readBufferSize, &buffer);
-
-#                   if 0 // turn on to check socket read problems
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                  "SipClient[%s]::run client %p read %d bytes",
-                                  this->mName.data(),
-                                  this, bytesRead);
-#                   endif
-
-#                   ifdef LOG_TIME
-                    eventTimes.addEvent("read");
-#                   endif
-                }
-                else
-                {
-                   OsSysLog::add(FAC_SIP, PRI_ERR,
-                                 "SipClient[%s]::run client %p socket attempt to read NULL",
-                                 this->mName.data(),
-                                 this);
-                   bytesRead = 0;
-                }
-
-                mSocketLock.release();
-
-#               ifdef LOG_TIME
-                eventTimes.addEvent("released");
-#               endif
-
-                message->replaceShortFieldNames();
-                message->getSendAddress(&fromIpAddress, &fromPort);
-            }
-            else
-            {
-                bytesRead = 0;
-
-                if(clientSocket == NULL)
-                {
-                    OsSysLog::add(FAC_SIP, PRI_ERR,
-                                  "SipClient[%s]::run client %p socket is NULL",
-                                  this->mName.data(),
-                                  this);
-                }
-            }
-
-            if(clientSocket // This second check is in case there is
-                // some sort of race with the destructor.  This should
-                // not actually ever happen.
-               && (bytesRead <= 0 || !clientSocket->isOk()))
-            {
-                numFailures++;
-                readAMessage = FALSE;
-
-                if(numFailures > 8 || !clientSocket->isOk())
-                {
-                    // The socket has gone sour close down the client
-                    remoteHostName.remove(0);
-                    clientSocket->getRemoteHostName(&remoteHostName);
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                  "SipClient[%s]::run Shutting down client: %s due to failed socket (%d)? bytes: %d isOk: %s",
-                                  this->mName.data(),
-                                  remoteHostName.data(), clientSocket->getSocketDescriptor(),
-                                  bytesRead, (clientSocket->isOk() ? "OK" : "NO")
-                                  );
-
-                    clientSocket->close();
-                    internalShutdown = TRUE;
-                }
-            }
-            else if(bytesRead > 0)
-            {
-                eventTimes.addEvent("bytesread");
-
-                numFailures = 0;
-                touch();
-
-                if(sipUserAgent)
-                {
-                    UtlString socketRemoteHost;
-                    UtlString lastAddress;
-                    UtlString lastProtocol;
-                    int lastPort;
-
-                    // Only bother processing if the logs are enabled
-                    if (   sipUserAgent->isMessageLoggingEnabled()
-                        || OsSysLog::willLog(FAC_SIP_INCOMING, PRI_INFO)
-                        )
-                    {
-                       UtlString logMessage;
-                       logMessage.append("Read SIP message:\n");
-                       logMessage.append("----Remote Host:");
-                       logMessage.append(fromIpAddress);
-                       logMessage.append("---- Port: ");
-                       char buff[10];
-                       sprintf(buff, "%d",
-                               !portIsValid(fromPort) ? 5060 : fromPort);
-                       logMessage.append(buff);
-                       logMessage.append("----\n");
-
-                       logMessage.append(buffer.data(), bytesRead);
-                       UtlString messageString;
-                       logMessage.append(messageString);
-                       logMessage.append("====================END====================\n");
-
-                       sipUserAgent->logMessage(logMessage.data(), logMessage.length());
-                       OsSysLog::add(FAC_SIP_INCOMING, PRI_INFO, "%s", logMessage.data());
-                    }
-
-                    // Set the date field if not present
-                    long epochDate;
-                    if(!message->getDateField(&epochDate))
-                    {
-                        message->setDateField();
-                    }
-
-                    message->setSendProtocol(mSocketType);
-                    message->setTransportTime(touchedTime);
-                    clientSocket->getRemoteHostIp(&socketRemoteHost);
-
-                    // Keep track of where this message came from
-                    message->setSendAddress(fromIpAddress.data(), fromPort);
-                    
-                    // Keep track of the interface on which this message was
-                    // received.               
-                    message->setLocalIp(clientSocket->getLocalIp());
-
-                    if(mReceivedAddress.isNull())
-                    {
-                        mReceivedAddress = fromIpAddress;
-                        mRemoteReceivedPort = fromPort;
-                    }
-
-                    // If this is a request
-                    if(!message->isResponse())
-                    {
-                       int receivedPort;
-                       UtlBoolean receivedSet;
-                       UtlBoolean maddrSet;
-                       UtlBoolean receivedPortSet;
-
-                       // fill in 'received' and 'rport' in top via if needed.
-                       message->setReceivedViaParams(fromIpAddress, fromPort);
-
-                       // get the addresses from the topmost via.
-                       message->getLastVia(&lastAddress, &lastPort, &lastProtocol,
-                                           &receivedPort, &receivedSet, &maddrSet,
-                                           &receivedPortSet);
-
-                        if (   (   mSocketType == OsSocket::TCP
-                                || mSocketType == OsSocket::SSL_SOCKET
-                                )
-                            && !receivedPortSet
-                            )
-                        {
-                            // we can use this socket as if it were
-                            // connected to the port specified in the
-                            // via field
-                            mRemoteReceivedPort = lastPort;
-                        }
-
-                        // Keep track of the address the other
-                        // side said they sent from.  Note, this cannot
-                        // be trusted unless this transaction is
-                        // authenticated
-                        if(mRemoteViaAddress.isNull())
-                        {
-                            mRemoteViaAddress = lastAddress;
-                            mRemoteViaPort = portIsValid(lastPort) ? lastPort : 5060;
-                        }
-                    }
-
-                    // We read a whole message whether it is a valid one or
-                    // not does not matter
-                    readAMessage = TRUE;
-
-                    // Check that we have the minimum data to define a transaction
-                    UtlString callId;
-                    UtlString fromField;
-                    UtlString toField;
-                    message->getCallIdField(&callId);
-                    message->getFromField(&fromField);
-                    message->getToField(&toField);
-
-                    if(!(   callId.isNull()
-                         || fromField.isNull()
-                         || toField.isNull()))
-                    {
-#ifdef LOG_TIME
-                       eventTimes.addEvent("dispatching");
-#endif
-                        sipUserAgent->dispatch(message);
-#ifdef LOG_TIME
-                        eventTimes.addEvent("dispatched");
-#endif
-
-                        message = NULL; // protect the dispatched message from deletion below
-                    }
-                    else
-                    {
-                       // Only bother processing if the logs are enabled
-                       if (sipUserAgent->isMessageLoggingEnabled())
-                       {
-                          UtlString msgBytes;
-                                    int msgLen;
-                                    message->getBytes(&msgBytes, &msgLen);
-                                    msgBytes.insert(0, "Received incomplete message (missing To, From or Call-Id header)\n");
-                                    msgBytes.append("++++++++++++++++++++END++++++++++++++++++++\n");
-                                    sipUserAgent->logMessage(msgBytes.data(), msgBytes.length());
-                       }
-
-                       delete message;
-                       message = NULL;
-                    }
-
-                } //if sipuseragent
-
-                // Get rid of the consumed stuff in the buffer so it
-                // contains only bytes which are part of the next message
-                buffer.remove(0, bytesRead);
-
-                if(   mSocketType == OsSocket::UDP
-                   && buffer.length()
-                   )
-                {
-                    OsSysLog::add(FAC_SIP, 
-                                  // For UDP, this is an error, but not
-                                  // for TCP or TLS.
-                                  (clientSocket->getIpProtocol() ==
-                                   OsSocket::UDP) ? PRI_ERR : PRI_DEBUG,
-                                  "SipClient[%s]::run buffer residual bytes: %d\n===>%s<===\n",
-                                  this->mName.data(),
-                                  buffer.length(), buffer.data());
-                }
-            } // if bytesRead > 0
-
-#           ifdef LOG_TIME
-            {
-               UtlString timeString;
-               eventTimes.getLogString(timeString);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient[%s]::run time log: %s",
-                             this->mName.data(),
-                             timeString.data());
-            }
-#           endif
-            if(message)
-            {
-                delete message;
-            }
-            message = NULL;
-        }
-        else
-        {
-           OsSysLog::add(FAC_SIP, PRI_ERR, "SipClient[%s]::run client %p socket is NULL yielding",
-                         this->mName.data(),
-                         this);
-           yield();  // I do not know why this yield is here
-        }
-    } // while this client is ok
-
-    return(0);
+   return (messageProcessed);
 }
 
-// Test whether the socket is ready to read. (Does not block.)
-UtlBoolean SipClient::isReadyToRead()
+// Queue a message to be sent to the specified address and port.
+UtlBoolean SipClient::sendTo(const SipMessage& message,
+                             const char* address,
+                             int port)
 {
-   return clientSocket->isReadyToRead(0);
-}
-
-// Wait until the socket is ready to read (or has an error).
-UtlBoolean SipClient::waitForReadyToRead()
-{
-   return clientSocket->isReadyToRead(-1);
-}
-
-UtlBoolean SipClient::send(SipMessage* message)
-{
-   UtlBoolean sendOk = FALSE;
-   UtlString viaProtocol;
+   UtlBoolean sendOk;
 
    if (clientSocket)
    {
-      if (!clientSocket->isOk())
-      {
-         clientSocket->reconnect();
-#ifdef TEST_SOCKET
-         if (clientSocket)
-         {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipClient[%s]::send reconnected with socket descriptor %d",
-                          mName.data(),
-                          clientSocket->getSocketDescriptor());
-         }
-#endif
-      }
-      else
-      {
-#ifdef LOG_TIME
-         OsTimeLog eventTimes;
-         eventTimes.addEvent("wait to write");
-#endif
-         // Wait until the socket is ready to write
-         if (clientSocket->isReadyToWrite(mFirstResendTimeoutMs))
-         {
-#ifdef LOG_TIME
-            eventTimes.addEvent("wait to lock");
-#endif
-            // Lock to prevent multitreaded read or write
-            mSocketLock.acquire();
-#ifdef LOG_TIME
-            eventTimes.addEvent("writing");
-#endif
-            sendOk = message->write(clientSocket);
-#ifdef LOG_TIME
-            eventTimes.addEvent("releasing");
-#endif
-            mSocketLock.release();
-#ifdef LOG_TIME
-            eventTimes.addEvent("released");
-            UtlString timeString;
-            eventTimes.getLogString(timeString);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient[%s]::send time log: %s",
-                          this->mName.data(),
-                          timeString.data());
-#endif
+      // Create message to queue.
+      // If port == PORT_NONE, apply the correct default port for this
+      // transport method before assembling the SipClientSendMsg.
+      SipClientSendMsg sendMsg(OsMsg::OS_EVENT,
+                               SipClientSendMsg::SIP_CLIENT_SEND,
+                               message, address,
+                               port == PORT_NONE ? defaultPort() : port);
 
-            if (sendOk)
-            {
-               touch();
-            }
-         }
-         else
-         {
-            clientSocket->close();
-         }
-      }
+      // Post the message to the task's queue.
+      OsStatus status = postMessage(sendMsg, OsTime::NO_WAIT);
+      sendOk = status == OS_SUCCESS;
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "SipClient[%s]::sendTo called for client without socket",
+                    mName.data()
+         );
+      sendOk = FALSE;
    }
 
-   return (sendOk);
+   return sendOk;
 }
 
-UtlBoolean SipClient::sendTo(const SipMessage& message,
-                            const char* address,
-                            int port)
+// Continue sending stored message content (because the socket
+// is now writable).
+// This is the default, do-nothing, implementation, to be overridden
+// by classes that use this functionality.
+void SipClient::writeMore(void)
 {
-        UtlBoolean sendOk = FALSE;
-        UtlString viaProtocol;
-
-    if(clientSocket)
-    {
-       switch (mSocketType)
-       {
-       case OsSocket::UDP:
-       {
-          UtlString buffer;
-          int bufferLen;
-          int bytesWritten;
-
-          message.getBytes(&buffer, &bufferLen);
-          // Wait until the socket is ready to write
-          if(clientSocket->isReadyToWrite(mFirstResendTimeoutMs))
-          {
-             //Lock to prevent multitreaded read or write
-             mSocketLock.acquire();
-             bytesWritten =
-                (dynamic_cast <OsDatagramSocket*> (clientSocket))->
-                write(buffer.data(), bufferLen, address,
-                      // PORT_NONE means use default.
-                      (port == PORT_NONE) ? SIP_PORT : port
-                   );
-             mSocketLock.release();
-
-             if(bufferLen == bytesWritten)
-             {
-                sendOk = TRUE;
-                touch();
-             }
-             else
-             {
-                sendOk = FALSE;
-             }
-          }
-       }
-       break;
-
-       case OsSocket::TCP:
-       case OsSocket::SSL_SOCKET:
-          sendOk = send((SipMessage*) &message) ;
-          break;
-
-       default:
-          OsSysLog::add(FAC_SIP, PRI_CRIT,
-                        "SipClient[%s]::sendTo called for invalid socket type %d",
-                        this->mName.data(),
-                        mSocketType
-                        );
-          sendOk = FALSE;
-       }
-    }
-    else
-    {
-       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                     "SipClient[%s]::sendTo called for client without socket",
-                     this->mName.data()
-                     );
-       sendOk = FALSE;
-    }
-
-    return(sendOk);
-}
-
-void SipClient::notifyWhenAvailableForWrite(OsEvent& availableEvent)
-{
-
-    if(mWaitingList == NULL)
-    {
-        mWaitingList = new UtlSList();
-    }
-
-    UtlInt* eventNode = new UtlInt((int)&availableEvent);
-
-    mWaitingList->append(eventNode);
-}
-
-void SipClient::signalNextAvailableForWrite()
-{
-    if(mWaitingList)
-    {
-        // Remove the first event that is waiting for this transaction
-        UtlInt* eventNode = (UtlInt*) mWaitingList->get();
-
-        if(eventNode)
-        {
-            OsEvent* waitingEvent = (OsEvent*) eventNode->getValue();
-
-            if(waitingEvent)
-            {
-               // If the other side is done accessing the event
-               // and has already signalled it, then we can delete
-               // this.  Otherwise the other side must do the delete.
-               if(OS_ALREADY_SIGNALED == waitingEvent->signal(1))
-               {
-                  delete waitingEvent;
-                  waitingEvent = NULL;
-               }
-            }
-            delete eventNode;
-            eventNode = NULL;
-        }
-    }
-}
-
-void SipClient::signalAllAvailableForWrite()
-{
-    if(mWaitingList)
-    {
-        // Remove the first event that is waiting for this transaction
-        UtlInt* eventNode = NULL;
-        while((eventNode = (UtlInt*) mWaitingList->get()))
-        {
-            if(eventNode)
-            {
-                OsEvent* waitingEvent = (OsEvent*) eventNode->getValue();
-                if(waitingEvent)
-                {
-                   // If the other side is done accessing the event
-                   // and has already signalled it, then we can delete
-                   // this.  Otherwise the other side must do the delete.
-                   if(OS_ALREADY_SIGNALED == waitingEvent->signal(1))
-                   {
-                      delete waitingEvent;
-                      waitingEvent = NULL;
-                   }
-                }
-                delete eventNode;
-                eventNode = NULL;
-            }
-        }
-    }
+   assert(FALSE);
 }
 
 void SipClient::setSharedSocket(UtlBoolean bShared)
 {
-    mbSharedSocket = bShared ;
+    mbSharedSocket = bShared;
 }
+
+void SipClient::touch()
+{
+   OsTime time;
+   OsDateTime::getCurTimeSinceBoot(time);
+   touchedTime = time.seconds();
+   //OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient[%s]::touch client: %p time: %d\n",
+   //             mName.data(), this, touchedTime);
+}
+
 /* ============================ ACCESSORS ================================= */
 
 void SipClient::getClientNames(UtlString& clientNames) const
@@ -752,29 +325,9 @@ void SipClient::getClientNames(UtlString& clientNames) const
     XmlDecimal(clientNames, mRemoteReceivedPort);
 }
 
-void SipClient::setUserAgent(SipUserAgentBase* sipUA)
-{
-   sipUserAgent = sipUA;
-   //mFirstResendTimeoutMs = (sipUserAgent->getFirstResendTimeout()) * 4;
-}
-
 long SipClient::getLastTouchedTime() const
 {
    return (touchedTime);
-}
-
-void SipClient::touch()
-{
-   OsTime time;
-   OsDateTime::getCurTimeSinceBoot(time);
-   touchedTime = time.seconds();
-   //OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient[%s]::touch client: %p time: %d\n",
-   //             this->mName.data(), this, touchedTime);
-}
-
-int SipClient::isInUseForWrite(void)
-{
-    return(mInUseForWrite);
 }
 
 /* ============================ INQUIRY =================================== */
@@ -787,12 +340,12 @@ UtlBoolean SipClient::isOk()
 UtlBoolean SipClient::isConnectedTo(UtlString& hostName, int hostPort)
 {
     UtlBoolean isSame = FALSE;
-    int tempHostPort = portIsValid(hostPort) ? hostPort : SIP_PORT; // :TODO: not correct for TLS
+    int tempHostPort = portIsValid(hostPort) ? hostPort : defaultPort();
 
 #ifdef TEST_SOCKET
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipClient[%s]::isConnectedTo hostName = '%s', tempHostPort = %d, mRemoteHostName = '%s', mRemoteHostPort = %d, mRemoteSocketAddress = '%s', mReceivedAddress = '%s', mRemoteViaAddress = '%s'",
-                  this->mName.data(),
+                  mName.data(),
                   hostName.data(), tempHostPort, mRemoteHostName.data(), mRemoteHostPort, mRemoteSocketAddress.data(), mReceivedAddress.data(), mRemoteViaAddress.data());
 #endif
 
@@ -817,24 +370,11 @@ UtlBoolean SipClient::isConnectedTo(UtlString& hostName, int hostPort)
         // as this is a bad spoofing/denial of service hole
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipClient[%s]::isConnectedTo matches %s:%d but is not trusted",
-                      this->mName.data(),
+                      mName.data(),
                       mRemoteViaAddress.data(), mRemoteViaPort);
     }
 
     return(isSame);
-}
-
-void SipClient::markInUseForWrite()
-{
-    OsTime time;
-    OsDateTime::getCurTimeSinceBoot(time);
-    mInUseForWrite = time.seconds();
-}
-
-void SipClient::markAvailbleForWrite()
-{
-    mInUseForWrite = 0;
-    signalNextAvailableForWrite();
 }
 
 const UtlString& SipClient::getLocalIp()
@@ -842,8 +382,299 @@ const UtlString& SipClient::getLocalIp()
     return clientSocket->getLocalIp();
 }
 
-
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+// Thread execution code.
+int SipClient::run(void* runArg)
+{
+   // *** set up the socket if we did not inherit it
+
+   OsMsg*    pMsg = NULL;
+   OsStatus  res;
+   // Buffer to hold data read from the socket but not yet parsed
+   // into incoming SIP messages.
+   UtlString readBuffer;
+
+   // Wait structure:
+   struct pollfd fds[2];
+   // Incoming message on the message queue (to be sent on the socket).
+   fds[0].fd = mPipeReadingFd;
+   // Socket ready to write (to continue sending message).
+   // Socket ready to read (message to be received).
+
+   do
+   {
+      // The file descriptor for the socket may change, as OsSocket's
+      // can be re-opened.
+      fds[1].fd = clientSocket->getSocketDescriptor();
+
+      fds[0].events = POLLIN;
+      fds[1].events = POLLIN;
+
+      // Set wait for reading the message queue and writing the socket
+      // depending on whether there is an incompletely sent SIP message.
+      if (mWriteQueued)
+      {
+         // Wait for output on the socket to not block.
+         fds[0].events = 0;
+         fds[1].events |= POLLOUT;
+      }
+      else
+      {
+         // Wait for an incoming message to be sent.
+         fds[0].events = POLLIN;
+      }
+
+      // Wait for work to do.
+      if (!readBuffer.isNull())
+      {
+         // If there is residual data in the read buffer, pretend the socket
+         // is ready to read.
+         fds[0].revents = 0;
+         fds[1].revents = POLLIN;
+      }
+      else
+      {
+         // Otherwise, call poll() to wait.
+         int res = poll(&fds[0], sizeof (fds) / sizeof (fds[0]),
+                        -1 /* block forever */);
+         assert(res >= 0 || (res == -1 && errno == EINTR));
+      }
+
+      // Check for message queue messages before checking the socket,
+      // to make sure that we process shutdown messages promptly, even
+      // if we would be spinning trying to service the socket.
+      if ((fds[0].revents & POLLIN) != 0)
+      {
+         // Poll finished because the pipe is ready to read.
+
+         // Receive the message.
+         res = receiveMessage((OsMsg*&) pMsg, OsTime::NO_WAIT);
+         assert(res == OS_SUCCESS);
+
+         // Read 1 byte from the pipe.
+         char buffer[1];
+         assert(read(mPipeReadingFd, &buffer, 1) == 1);
+
+         if (!handleMessage(*pMsg))                  // process the message
+         {
+            OsServerTask::handleMessage(*pMsg);
+         }
+
+         if (!pMsg->getSentFromISR())
+         {
+            pMsg->releaseMsg();                         // free the message
+         }
+      }
+      else if ((fds[1].revents & POLLOUT) != 0)
+      {
+         // Poll finished because socket is ready to write.
+
+         // Call method to continue writing data.
+         writeMore();
+      }
+      else if ((fds[1].revents & POLLIN) != 0)
+      {
+         // Poll finished because socket is ready to read.
+
+         // Read message.
+         // Must allocate a new message because SipUserAgent::dispatch will
+         // take ownership of it.
+         SipMessage* msg = new SipMessage;
+         int res = msg->read(clientSocket,
+                             HTTP_DEFAULT_SOCKET_BUFFER_SIZE,
+                             &readBuffer);
+         // Use readBuffer to hold any unparsed data after the message
+         // we read.
+         // Note that if a message was successfully parsed, readBuffer
+         // still contains as its prefix the characters of that message.
+         // We save them for logging purposes below and will delete them later.
+
+         // Note that input was processed at this time.
+         touch();
+
+         if (res > 0)
+         {
+            // Message successfully read.
+
+            // Do preliminary processing of message to log it,
+            // clean up its data, and extract any needed source address.
+            preprocessMessage(*msg, readBuffer, res);
+
+            // Dispatch the message.
+            // dispatch() takes ownership of *msg.
+            sipUserAgent->dispatch(msg);
+
+            // Now that logging is done, remove the parsed bytes and
+            // remember any unparsed input for later use.
+            readBuffer.remove(0, res);
+         }
+         else
+         {
+            // Something went wrong while reading the message.
+            // (Possibly EOF on a connection-oriented socket.)
+            // If it is not framed, we need to abort the connection.
+            // :TODO: This doesn't work right for framed connection-oriented
+            // protocols (like SCTP), but OsSocket doesn't have an EOF-query
+            // method -- we need to close all connection-oriented
+            // sockets as well in case it was an EOF.
+            // Define a virtual function that returns the correct bit.
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipClient[%s]::run read returns error or EOF",
+                          mName.data());
+            if (!OsSocket::isFramed(clientSocket->getIpProtocol()))
+            {
+               clientStopSelf();
+            }
+            // Delete the data read so far, which will not have been
+            // deleted by HttpMessage::read.
+            readBuffer.remove(0);
+         }
+      }
+   }
+   while (isStarted());
+
+   return 0;        // and then exit
+}
+
+// Do preliminary processing of message to log it,
+// clean up its data, and extract any needed source address.
+void SipClient::preprocessMessage(SipMessage& msg,
+                                  const UtlString& msgText,
+                                  int msgLength)
+{
+   // Canonicalize short field names.
+   msg.replaceShortFieldNames();
+
+   // Get the send address.
+   UtlString fromIpAddress;
+   int fromPort;
+   msg.getSendAddress(&fromIpAddress, &fromPort);
+
+   // Log the message.
+   // Only bother processing if the logs are enabled
+   if (   sipUserAgent->isMessageLoggingEnabled()
+          || OsSysLog::willLog(FAC_SIP_INCOMING, PRI_INFO)
+      )
+   {
+      UtlString logMessage;
+      logMessage.append("Read SIP message:\n");
+      logMessage.append("----Remote Host:");
+      logMessage.append(fromIpAddress);
+      logMessage.append("---- Port: ");
+      XmlDecimal(logMessage,
+                 portIsValid(fromPort) ? fromPort : defaultPort());
+      logMessage.append("----\n");
+
+      logMessage.append(msgText.data(), msgLength);
+      UtlString messageString;
+      logMessage.append(messageString);
+      logMessage.append("====================END====================\n");
+
+      // Send the message to the SipUserAgent for its internal log.
+      sipUserAgent->logMessage(logMessage.data(), logMessage.length());
+      // Write the message to the syslog.
+      OsSysLog::add(FAC_SIP_INCOMING, PRI_INFO, "%s", logMessage.data());
+   }
+
+   // Set the date field if not present
+   long epochDate;
+   if (!msg.getDateField(&epochDate))
+   {
+      msg.setDateField();
+   }
+
+   // Set the protocol and time.
+   msg.setSendProtocol(mSocketType);
+   msg.setTransportTime(touchedTime);
+
+   // Keep track of where this message came from
+   msg.setSendAddress(fromIpAddress.data(), fromPort);
+                    
+   // Keep track of the interface on which this message was
+   // received.               
+   msg.setLocalIp(clientSocket->getLocalIp());
+
+   if (mReceivedAddress.isNull())
+   {
+      mReceivedAddress = fromIpAddress;
+      mRemoteReceivedPort = fromPort;
+   }
+
+   // If this is a request...
+   if (!msg.isResponse())
+   {
+      UtlString lastAddress;
+      int lastPort;
+      UtlString lastProtocol;
+      int receivedPort;
+      UtlBoolean receivedSet;
+      UtlBoolean maddrSet;
+      UtlBoolean receivedPortSet;
+
+      // Fill in 'received' and 'rport' in top Via if needed.
+      msg.setReceivedViaParams(fromIpAddress, fromPort);
+
+      // Derive information about the other end of the connection
+      // from the Via that the other end provided.
+
+      // Get the addresses from the topmost Via.
+      msg.getLastVia(&lastAddress, &lastPort, &lastProtocol,
+                     &receivedPort, &receivedSet, &maddrSet,
+                     &receivedPortSet);
+
+      // :QUERY: Should this test be clientSocket->isConnected()?
+      if (   (   mSocketType == OsSocket::TCP
+                 || mSocketType == OsSocket::SSL_SOCKET
+                )
+             && !receivedPortSet
+         )
+      {
+         // we can use this socket as if it were
+         // connected to the port specified in the
+         // via field
+         mRemoteReceivedPort = lastPort;
+      }
+
+      // Keep track of the address the other
+      // side said they sent from.  Note, this cannot
+      // be trusted unless this transaction is
+      // authenticated
+      if (mRemoteViaAddress.isNull())
+      {
+         mRemoteViaAddress = lastAddress;
+         mRemoteViaPort =
+            portIsValid(lastPort) ? lastPort : defaultPort();
+      }
+   }
+}
+
+// Test whether the socket is ready to read. (Does not block.)
+UtlBoolean SipClient::isReadyToRead()
+{
+   return clientSocket->isReadyToRead(0);
+}
+
+// Wait until the socket is ready to read (or has an error).
+UtlBoolean SipClient::waitForReadyToRead()
+{
+   return clientSocket->isReadyToRead(-1);
+}
+
+// Called by the thread to shut the SipClient down and signal its
+// owning server that it has done so.
+void SipClient::clientStopSelf()
+{
+   // Stop the run loop.
+   OsTask::requestShutdown();
+   // Signal the owning SipServer to check for dead clients.
+   if (mpSipServer)
+   {
+      OsMsg message(OsMsg::OS_EVENT,
+                    SipProtocolServerBase::SIP_SERVER_GC);
+      mpSipServer->postMessage(message);
+   }
+}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

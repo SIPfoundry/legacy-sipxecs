@@ -47,11 +47,10 @@ SipContactDb::~SipContactDb()
     UtlInt* pKey = NULL;
     while ((pKey = dynamic_cast<UtlInt*>(iterator())))
     {
-        UtlVoidPtr* pValue = NULL;
-        pValue = dynamic_cast<UtlVoidPtr*>(iterator.value());
+        UtlVoidPtr* pValue = dynamic_cast<UtlVoidPtr*>(iterator.value());
         if (pValue)
         {
-            delete pValue->getValue();
+           delete (CONTACT_ADDRESS*) pValue->getValue();
         }
     }
     mContacts.destroyAll();

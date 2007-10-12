@@ -12,10 +12,12 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <net/CallId.h>
 #include <net/SipUdpServer.h>
 #include <net/SipUserAgent.h>
 #include <net/Url.h>
 #include <os/OsDateTime.h>
+#include <os/OsEventMsg.h>
 #include <os/OsStunDatagramSocket.h>
 #include <os/HostAdapterAddress.h>
 #include <utl/UtlHashMapIterator.h>
@@ -50,206 +52,180 @@ SipUdpServer::SipUdpServer(int port,
                            int udpReadBufferSize,
                            UtlBoolean bUseNextAvailablePort,
                            const char* szBoundIp) :
-   SipProtocolServerBase(userAgent, "UDP", "SipUdpServer-%d"),
+   SipProtocolServerBase(userAgent,
+                         SIP_TRANSPORT_UDP,
+                         "SipUdpServer-%d"),
+   mNatPingUrl(natPingUrl),
+   mNatPingFrequencySeconds(natPingFrequencySeconds),
+   mNatPingMethod(natPingMethod && *natPingMethod ? natPingMethod : "PING"),
    mStunRefreshSecs(28), 
-   mStunOptions(0)  
+   mStunOptions(0)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipUdpServer::_ port = %d, bUseNextAvailablePort = %d, szBoundIp = '%s'",
-                  port, bUseNextAvailablePort, szBoundIp);
+                  "SipUdpServer[%s]::_ port = %d, bUseNextAvailablePort = %d, szBoundIp = '%s'",
+                  getName().data(), port, bUseNextAvailablePort, szBoundIp);
 
     if (szBoundIp && 0 != strcmp(szBoundIp, "0.0.0.0"))
     {
-        mDefaultIp = szBoundIp;
-        int serverSocketPort = port;
-        createServerSocket(szBoundIp, serverSocketPort, bUseNextAvailablePort, udpReadBufferSize);
+       // If an address was supplied, only open a socket on that address.
+       mDefaultIp = szBoundIp;
+       int serverSocketPort = port;
+       createServerSocket(szBoundIp, serverSocketPort, bUseNextAvailablePort,
+                          udpReadBufferSize);
     }
     else
     {
-        int numAddresses = 0;
-        const HostAdapterAddress* adapterAddresses[MAX_IP_ADDRESSES];
-        getAllLocalHostIps(adapterAddresses, numAddresses);
+       // If no address was supplied, get all local addresses and open
+       // sockets on all of them.
+       int numAddresses = 0;
+       const HostAdapterAddress* adapterAddresses[MAX_IP_ADDRESSES];
+       getAllLocalHostIps(adapterAddresses, numAddresses);
 
-        for (int i = 0; i < numAddresses; i++)
-        {
-            int serverSocketPort = port;
+       if (numAddresses >= 1)
+       {
+          // Use the first IP address in the array for the 'default IP address'.
+          mDefaultIp = adapterAddresses[0]->mAddress.data();
+       }
+       for (int i = 0; i < numAddresses; i++)
+       {
+          int serverSocketPort = port;
             
-            createServerSocket(adapterAddresses[i]->mAddress.data(),
-                               serverSocketPort,
-                               bUseNextAvailablePort,
-                               udpReadBufferSize);
-            if (0 == i)
-            {
-                // use the first IP address in the array
-                // for the 'default ip'
-                mDefaultIp = adapterAddresses[i]->mAddress.data();
-            }
-            delete adapterAddresses[i];   
-        }
+          createServerSocket(adapterAddresses[i]->mAddress.data(),
+                             serverSocketPort,
+                             bUseNextAvailablePort,
+                             udpReadBufferSize);
+          delete adapterAddresses[i];   
+       }
     }
-
-    if(natPingUrl && *natPingUrl)
-        mNatPingUrl = natPingUrl;
-    if(natPingMethod && *natPingMethod)
-        mNatPingMethod = natPingMethod;
-    else
-        mNatPingMethod = "PING";
-
-    mNatPingFrequencySeconds = natPingFrequencySeconds;
-}
-
-// Copy constructor
-SipUdpServer::SipUdpServer(const SipUdpServer& rSipUdpServer) :
-        SipProtocolServerBase(NULL, "UDP", "SipUdpServer-%d")
-{
 }
 
 // Destructor
 SipUdpServer::~SipUdpServer()
 {
-    waitUntilShutDown();
-    
-    SipClient* pServer = NULL;
-    UtlHashMapIterator iterator(mServers);
-    UtlVoidPtr* pServerContainer = NULL;
-    UtlString* pKey = NULL;
-    
-    while ((pKey = (UtlString*)iterator()))
-    {
-        pServerContainer = (UtlVoidPtr*)iterator.value();
-        if (pServerContainer)
-        {
-            pServer = (SipClient*)pServerContainer->getValue();
-            pServer->requestShutdown();
-            delete pServer;
-        }
-    }
-    mServers.destroyAll();
-
-    mServerPortMap.destroyAll();    
-
-    mServerSocketMap.destroyAll();
-    
 }
 
 /* ============================ MANIPULATORS ============================== */
 
-OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
-                                          int& port,
-                                          const UtlBoolean& bUseNextAvailablePort, 
-                                          int udpReadBufferSize)
+void SipUdpServer::createServerSocket(const char* szBindAddr,
+                                      int& port,
+                                      const UtlBoolean& bUseNextAvailablePort, 
+                                      int udpReadBufferSize)
 {
-    OsStatus rc = OS_FAILED;
-    OsStunDatagramSocket* pSocket =
-      new OsStunDatagramSocket(0, NULL, port, szBoundIp, FALSE);
+   // Create the socket.
+   OsStunDatagramSocket* pSocket =
+      new OsStunDatagramSocket(0, NULL, port, szBindAddr, FALSE);
    
-    if (pSocket)
-    {
-        // If the socket is busy or unbindable and the user requested using the
-        // next available port, try the next SIP_MAX_PORT_RANGE ports.
-        if (bUseNextAvailablePort & portIsValid(port) && pSocket && !pSocket->isOk())
-        {
-            for (int i=1; i<=SIP_MAX_PORT_RANGE; i++)
-            {
-                delete pSocket ;
-                pSocket = new OsStunDatagramSocket(0, NULL, port+i, szBoundIp, FALSE);
-                if (pSocket->isOk())
-                {
-                    break ;
-                }
-            }
-        }
-    }
-    
-    if (pSocket)
-    {     
-        port = pSocket->getLocalHostPort();
-        CONTACT_ADDRESS contact;
-        strcpy(contact.cIpAddress, szBoundIp);
-        contact.iPort = port;
-        contact.eContactType = LOCAL;
-        char szAdapterName[16];
-        memset((void*)szAdapterName, 0, sizeof(szAdapterName)); // null out the string
-        
-        getContactAdapterName(szAdapterName, contact.cIpAddress);
-
-        strcpy(contact.cInterface, szAdapterName);
-        mSipUserAgent->addContactAddress(contact);
+   // If the socket is busy or unbindable and the user requested using the
+   // next available port, try the next SIP_MAX_PORT_RANGE ports.
+   if (bUseNextAvailablePort)
+   {
+      for (int i=1; !pSocket->isOk() && i<=SIP_MAX_PORT_RANGE; i++)
+      {
+         delete pSocket;
+         pSocket = new OsStunDatagramSocket(0, NULL, port+i, szBindAddr, FALSE);
+      }
+   }
    
-        // add address and port to the maps
-        mServerSocketMap.insertKeyAndValue(new UtlString(szBoundIp),
-                                            new UtlVoidPtr((void*)pSocket));
-        port = pSocket->getLocalHostPort() ;
-        mServerPortMap.insertKeyAndValue(new UtlString(szBoundIp), new UtlInt(port));
+   // If we opened the socket.
+   if (pSocket->isOk())
+   {     
+      // Inform the SipUserAgent of the contact address.
+      if (mSipUserAgent)
+      {
+         port = pSocket->getLocalHostPort();
+         CONTACT_ADDRESS contact;
+         strcpy(contact.cIpAddress, szBindAddr);
+         contact.iPort = port;
+         contact.eContactType = LOCAL;
+         char szAdapterName[16];
+         memset((void*)szAdapterName, 0, sizeof(szAdapterName)); // null out the string
 
+         getContactAdapterName(szAdapterName, contact.cIpAddress);
 
-        int sockbufsize = 0;
-        int size = sizeof(int);
-            getsockopt(pSocket->getSocketDescriptor(),
+         strcpy(contact.cInterface, szAdapterName);
+         mSipUserAgent->addContactAddress(contact);
+      }
+
+      // add address and port to the maps
+      mServerSocketMap.insertKeyAndValue(new UtlString(szBindAddr),
+                                         new UtlVoidPtr((void*)pSocket));
+      port = pSocket->getLocalHostPort();
+      mServerPortMap.insertKeyAndValue(new UtlString(szBindAddr),
+                                       new UtlInt(port));
+
+      // Get the UDP buffer size from the kernel.
+      int sockbufsize = 0;
+      // The type of 'size' depends on the platform.
+#if defined(__pingtel_on_posix__)
+      socklen_t
+#else
+         int
+#endif
+         size = sizeof (sockbufsize);
+      getsockopt(pSocket->getSocketDescriptor(),
+                 SOL_SOCKET,
+                 SO_RCVBUF,
+                 (char*) &sockbufsize,
+                 &size);
+#ifdef LOG_SIZE
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipUdpServer[%s]::SipUdpServer UDP buffer size: %d size: %d",
+                    getName().data(), sockbufsize, size);
+#endif /* LOG_SIZE */
+
+      // If the user specified a UDP buffer size, attempt to set it.
+      if (udpReadBufferSize > 0)
+      {
+         setsockopt(pSocket->getSocketDescriptor(),
                     SOL_SOCKET,
                     SO_RCVBUF,
-                    (char*)&sockbufsize,
-        #if defined(__pingtel_on_posix__)
-                    (socklen_t*) // caste
-        #endif
+                    (char*) &udpReadBufferSize,
+                    sizeof (udpReadBufferSize));
+
+         getsockopt(pSocket->getSocketDescriptor(),
+                    SOL_SOCKET,
+                    SO_RCVBUF,
+                    (char*) &sockbufsize,
                     &size);
-        #ifdef LOG_SIZE
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipUdpServer::SipUdpServer UDP buffer size: %d size: %d\n",
-                    sockbufsize, size);
-        #endif /* LOG_SIZE */
-
-        if(udpReadBufferSize > 0)
-        {
-            setsockopt(pSocket->getSocketDescriptor(),
-            SOL_SOCKET,
-            SO_RCVBUF,
-            (char*)&udpReadBufferSize,
-            sizeof(int));
-
-            getsockopt(pSocket->getSocketDescriptor(),
-                SOL_SOCKET,
-                SO_RCVBUF,
-                (char*)&sockbufsize,
-        #if defined(__pingtel_on_posix__)
-                (socklen_t*) // caste
-        #endif
-                &size);
-        #ifdef LOG_SIZE
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipUdpServer::SipUdpServer reset UDP buffer size: %d size: %d\n",
-                        sockbufsize, size);
-        #endif /* LOG_SIZE */
-        }
-    }
-    return rc;
+#ifdef LOG_SIZE
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipUdpServer[%s]::SipUdpServer reset UDP buffer size: %d size: %d",
+                       getName().data(), sockbufsize, size);
+#endif /* LOG_SIZE */
+      }
+   }
 }
 
 int SipUdpServer::run(void* runArg)
 {
-    int cseq = 1;
-    if(mSipUserAgent)
-    {
-        UtlString contact;
-        mSipUserAgent->getContactUri(&contact);
+    mPingCseq = 1;
+    // Timer to trigger keepalive messages.
+    OsTimer pingTimer(getMessageQueue(), 0);
 
-        // Add a tag to the contact and build the from field
-        UtlString from(contact);
-        int tagRand1 = rand();
-        int tagRand2 = rand();
-        char fromTag[80];
-        sprintf(fromTag, ";tag=%d%d", tagRand1, tagRand2);
-        from.append(fromTag);
+    if (mSipUserAgent)
+    {
+        mSipUserAgent->getContactUri(&mPingContact);
+
+        // Add a tag to the contact and build the From field
+        mPingFrom = mPingContact;
+        {
+           UtlString tag;
+           CallId::getNewTag("", tag);
+
+           mPingFrom.append(";tag=");
+           mPingFrom.append(tag);
+        }
 
         UtlString rawAddress;
-        int port;
         Url pingUrl(mNatPingUrl);
 
         // Create a cannonized version of the ping URL in case
         // it does not specify "sip:", etc.
-        UtlString cannonizedPingUrl = pingUrl.toString();
+        UtlString mPingCanonizedUrl = pingUrl.toString();
 
-        // Get the address and port in the png URL so that
+        // Get the address and port in the ping URL so that
         // we can look up the DNS stuff if needed
-        port = pingUrl.getHostPort();
+        mPingPort = pingUrl.getHostPort();
         pingUrl.getHostAddress(rawAddress);
 
         // Resolve the raw address from a DNS SRV, A record
@@ -258,12 +234,11 @@ int SipUdpServer::run(void* runArg)
             SipSrvLookup::servers(rawAddress.data(),
                                   "sip",
                                   OsSocket::UDP,
-                                  port);
+                                  mPingPort);
 
         // Do a DNS SRV or A record lookup
         // If we started with an IP address, we will still get an IP
         // address in the result
-        UtlString address;
         if(dnsSrvRecords[0].isValidServerT())
         {
             // Get the highest priority address and port from the
@@ -275,14 +250,14 @@ int SipUdpServer::run(void* runArg)
             // ports and addresses every time we send a ping.  For now
             // we do one DNS SRV lookup at the begining of time and
             // stick to that result.
-            dnsSrvRecords[0].getIpAddressFromServerT(address);
-            port = dnsSrvRecords[0].getPortFromServerT();
+            dnsSrvRecords[0].getIpAddressFromServerT(mPingAddress);
+            mPingPort = dnsSrvRecords[0].getPortFromServerT();
 
             // If the ping URL or DNS SRV did not specify a port
             // bind it to the default port.
-            if (!portIsValid(port))
+            if (!portIsValid(mPingPort))
             {
-               port = SIP_PORT;
+               mPingPort = SIP_PORT;
             }
         }
 
@@ -305,11 +280,10 @@ int SipUdpServer::run(void* runArg)
 
         // Get the address to be used in the callId scoping
         int dummyPort;
-        UtlString callId;
         
         if (mSipUserAgent)
         {
-            mSipUserAgent->getViaInfo(OsSocket::UDP, callId, dummyPort);
+            mSipUserAgent->getViaInfo(OsSocket::UDP, mPingCallId, dummyPort);
         }
 
         // Make up a call Id
@@ -317,54 +291,52 @@ int SipUdpServer::run(void* runArg)
         int randNum = rand();
         char callIdPrefix[80];
         sprintf(callIdPrefix, "%ld%d-ping@", epochTime, randNum);
-        callId.insert(0,callIdPrefix);
+        mPingCallId.insert(0,callIdPrefix);
 
-        while(mNatPingFrequencySeconds > 0 &&
+        // If keepalives are configured, start the timer to trigger them.
+        if (mNatPingFrequencySeconds > 0 &&
             !mNatPingUrl.isNull() &&
             !mNatPingMethod.isNull() &&
-            !address.isNull())
+            !mPingAddress.isNull())
         {
-            // Send a no-op SIP message to the
-            // server to keep a port open through a NAT
-            // based firewall
-            SipMessage pingMessage;
-            pingMessage.setRequestData(mNatPingMethod, cannonizedPingUrl.data(),
-                from.data(), mNatPingUrl.data(), callId, cseq, contact.data());
-
-            // Get the UDP via info from the SipUserAgent
-            UtlString viaAddress;
-            int viaPort;
-            
-            if (mSipUserAgent)
-            {
-                mSipUserAgent->getViaInfo(OsSocket::UDP, viaAddress, viaPort);
-            }
-            pingMessage.addVia(viaAddress.data(), viaPort, SIP_TRANSPORT_UDP);
-
-            // Mark the via so the receiver knows we support and want the
-            // received port to be set
-            pingMessage.setLastViaTag("", "rport");
-#           ifdef TEST_PRINT            
-            osPrintf("Sending ping to %s %d, From: %s\n",
-                address.data(), port, contact.data());
-#           endif
-            
-            // Send from the same UDP port that we receive from
-            if (mSipUserAgent)
-            {
-                mSipUserAgent->sendSymmetricUdp(pingMessage, address.data(), port);
-            }
-
-            cseq++;
-
-            // Wait until it is time to send another ping
-            delay(mNatPingFrequencySeconds * 1000);
+           OsTime period(mNatPingFrequencySeconds, 0);
+           pingTimer.periodicEvery(OsTime::NO_WAIT, period);
         }
     }
+
+    // Now that we have done the special set-up work, execute messages
+    // like a normal OsServerTask.
+    OsServerTask::run(runArg);
+
+    // Turn off the timer.
+    pingTimer.stop();
 
     return(mNatPingFrequencySeconds);
 }
 
+// Handles an incoming message (from the message queue).
+UtlBoolean SipUdpServer::handleMessage(OsMsg& eventMessage)
+{
+   UtlBoolean messageProcessed = FALSE;
+
+   int msgType = eventMessage.getMsgType();
+   int msgSubType = eventMessage.getMsgSubType();
+
+   if(msgType == OsMsg::OS_EVENT &&
+             msgSubType == OsEventMsg::NOTIFY)
+   {
+      // The timer has signaled it is time to send keepalives.
+      sendKeepalives();
+      messageProcessed = TRUE;
+   }
+   else
+   {
+      // Continue with the generic processing.
+      SipProtocolServerBase::handleMessage(eventMessage);
+   }
+
+   return (messageProcessed);
+}
 
 void SipUdpServer::enableStun(const char* szStunServer,
                               const char* szLocalIp, 
@@ -411,7 +383,7 @@ void SipUdpServer::enableStun(const char* szStunServer,
         UtlVoidPtr* pSocketContainer;
         UtlString key(szIpToStun);
         
-        pSocketContainer = (UtlVoidPtr*)this->mServerSocketMap.findValue(&key);
+        pSocketContainer = (UtlVoidPtr*)mServerSocketMap.findValue(&key);
         OsStunDatagramSocket* pSocket = NULL;
         
         if (pSocketContainer)
@@ -454,19 +426,13 @@ void SipUdpServer::enableStun(const char* szStunServer,
 
 void SipUdpServer::shutdownListener()
 {
-    SipClient* pServer = NULL;
     UtlHashMapIterator iterator(mServers);
-    UtlVoidPtr* pServerContainer = NULL;
     UtlString* pKey = NULL;
     
-    while ((pKey = (UtlString*)iterator()))
+    while ((pKey = dynamic_cast <UtlString*> (iterator())))
     {
-        pServerContainer = (UtlVoidPtr*) iterator.value();
-        pServer = (SipClient*)pServerContainer->getValue();
-        if (pServer)
-        {
-            pServer->requestShutdown();
-        }
+       SipClient* pServer = dynamic_cast <SipClient*> (iterator.value());
+       pServer->requestShutdown();
     }
 }
 
@@ -477,28 +443,17 @@ UtlBoolean SipUdpServer::sendTo(const SipMessage& message,
                                const char* szLocalSipIp)
 {
     UtlBoolean sendOk;
-    UtlVoidPtr* pServerContainer = NULL;
     SipClient* pServer = NULL;
     
     if (szLocalSipIp)
     {
         UtlString localKey(szLocalSipIp);
-        pServerContainer = (UtlVoidPtr*)this->mServers.findValue(&localKey);
-        if (pServerContainer)
-        {
-            pServer = (SipClient*) pServerContainer->getValue();
-        }
+        pServer = dynamic_cast <SipClient*> (mServers.findValue(&localKey));
     }
     else
     {
         // no local sip IP specified, so, use the default one
-        UtlString defaultKey(mDefaultIp);
-       
-        pServerContainer = (UtlVoidPtr*) mServers.findValue(&defaultKey);
-        if (pServerContainer)
-        {
-            pServer = (SipClient*) pServerContainer->getValue();
-        }
+        pServer = dynamic_cast <SipClient*> (mServers.findValue(&mDefaultIp));
     }
     
     if (pServer)
@@ -509,73 +464,27 @@ UtlBoolean SipUdpServer::sendTo(const SipMessage& message,
     {
         sendOk = false;
     }
-    return(sendOk);
-}
-
-
-OsSocket* SipUdpServer::buildClientSocket(int hostPort, const char* hostAddress, const char* localIp)
-{
-    if (mSipUserAgent && mSipUserAgent->getUseRport())
-    {
-        UtlVoidPtr* pSocketContainer = NULL;
-        OsStunDatagramSocket* pSocket = NULL;
-
-        assert(localIp != NULL);
-        UtlString localKey(localIp);
-        
-        pSocketContainer = (UtlVoidPtr*)mServerSocketMap.findValue(&localKey);
-        assert(pSocketContainer);
-        
-        pSocket = (OsStunDatagramSocket*)pSocketContainer->getValue();
-        assert(pSocket);
-        
-        return pSocket ;
-    }
-    else
-    {
-        return(new OsStunDatagramSocket(hostPort, hostAddress, 0, localIp, 
-            (mStunServer.length() != 0), mStunServer.data(), mStunRefreshSecs, mStunOptions));
-    }
-}
-
-
-// Assignment operator
-SipUdpServer&
-SipUdpServer::operator=(const SipUdpServer& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
+    return (sendOk);
 }
 
 /* ============================ ACCESSORS ================================= */
 
 void SipUdpServer::printStatus()
 {
-    SipClient* pServer = NULL;
     UtlHashMapIterator iterator(mServers);
-    UtlVoidPtr* pServerContainer = NULL;
     UtlString* pKey = NULL;
     
-    while ((pKey = (UtlString*)iterator()))
+    while ((pKey = dynamic_cast <UtlString*> (iterator())))
     {
-        pServerContainer = (UtlVoidPtr*) iterator.value();
-        if (pServerContainer)
-        {
-            pServer = (SipClient*)pServerContainer->getValue();
-        }
-        if (pServer)
-        {
-            UtlString clientNames;
-            long clientTouchedTime = pServer->getLastTouchedTime();
-            UtlBoolean clientOk = pServer->isOk();
-            pServer->getClientNames(clientNames);
-            osPrintf("UDP server %p last used: %ld ok: %d names: \n%s \n",
+       SipClient* pServer = dynamic_cast <SipClient*> (iterator.value());
+       UtlString clientNames;
+       long clientTouchedTime = pServer->getLastTouchedTime();
+       UtlBoolean clientOk = pServer->isOk();
+       pServer->getClientNames(clientNames);
+       osPrintf("UDP server %p last used: %ld ok: %d names: \n%s \n",
                 this, clientTouchedTime, clientOk, clientNames.data());
 
-            SipProtocolServerBase::printStatus();
-        }
+       SipProtocolServerBase::printStatus();
     }
 }
 
@@ -598,7 +507,7 @@ int SipUdpServer::getServerPort(const char* szLocalIp)
     UtlString localIpKey(szLocalIpForPortLookup);
     
     UtlInt* pUtlPort;
-    pUtlPort = (UtlInt*)this->mServerPortMap.findValue(&localIpKey);
+    pUtlPort = dynamic_cast <UtlInt*> (mServerPortMap.findValue(&localIpKey));
     if (pUtlPort)
     {
        port = pUtlPort->getValue();
@@ -619,7 +528,7 @@ UtlBoolean SipUdpServer::getStunAddress(UtlString* pIpAddress, int* pPort,
     {
         UtlString localIpKey(szLocalIp);
        
-        pSocketContainer = (UtlVoidPtr*)this->mServerSocketMap.findValue(&localIpKey);
+        pSocketContainer = (UtlVoidPtr*)mServerSocketMap.findValue(&localIpKey);
         if (pSocketContainer)
         {
             pSocket = (OsStunDatagramSocket*)pSocketContainer->getValue();
@@ -648,6 +557,74 @@ UtlBoolean SipUdpServer::getStunAddress(UtlString* pIpAddress, int* pPort,
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+OsSocket* SipUdpServer::buildClientSocket(int hostPort,
+                                          const char* hostAddress,
+                                          const char* localIp)
+{
+   OsStunDatagramSocket* pSocket;
+
+   if (mSipUserAgent && mSipUserAgent->getUseRport())
+   {
+      // If there is a SipUserAgent and if it is set to use rport (why?),
+      // look up the server socket for this local IP.
+      assert(localIp != NULL);
+      UtlString localKey(localIp);
+      UtlVoidPtr* pSocketContainer =
+         dynamic_cast <UtlVoidPtr*> (mServerSocketMap.findValue(&localKey));
+      pSocket = (OsStunDatagramSocket*) pSocketContainer->getValue();
+      assert(pSocket);
+   }
+   else
+   {
+      // Otherwise, construct a new socket.
+      pSocket = new OsStunDatagramSocket(hostPort, hostAddress,
+                                         0, localIp, 
+                                         !mStunServer.isNull(),
+                                         mStunServer.data(),
+                                         mStunRefreshSecs,
+                                         mStunOptions);
+   }
+   return pSocket;
+}
+
+// Send the keepalives.
+void SipUdpServer::sendKeepalives()
+{
+   // Send a no-op SIP message to the
+   // server to keep a port open through a NAT
+   // based firewall
+   SipMessage pingMessage;
+   pingMessage.setRequestData(mNatPingMethod, mPingCanonizedUrl.data(),
+                              mPingFrom.data(), mNatPingUrl.data(),
+                              mPingCallId, mPingCseq, mPingContact.data());
+
+   // Get the UDP via info from the SipUserAgent
+   UtlString viaAddress;
+   int viaPort;
+            
+   if (mSipUserAgent)
+   {
+      mSipUserAgent->getViaInfo(OsSocket::UDP, viaAddress, viaPort);
+   }
+   pingMessage.addVia(viaAddress.data(), viaPort, SIP_TRANSPORT_UDP);
+
+   // Mark the via so the receiver knows we support and want the
+   // received port to be set
+   pingMessage.setLastViaTag("", "rport");
+#           ifdef TEST_PRINT            
+   osPrintf("Sending ping to %s %d, From: %s\n",
+            mPingAddress.data(), mPingPort, mPingContact.data());
+#           endif
+            
+   // Send from the same UDP port that we receive from
+   if (mSipUserAgent)
+   {
+      mSipUserAgent->sendSymmetricUdp(pingMessage, mPingAddress.data(), mPingPort);
+   }
+
+   mPingCseq++;
+}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

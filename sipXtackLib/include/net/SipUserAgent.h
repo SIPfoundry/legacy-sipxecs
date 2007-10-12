@@ -135,10 +135,10 @@ class SipLineMgr;
  *
  * Inbound messages are still sent via dispatch.  The flow is now a
  * little different due to the use of transaction objects
- * - 1) dispatch() finds a matching transaction for non transport error
+ * - 1) dispatch() finds a matching transaction for non-transport error
  *    messages.
- * - 2A) If the message is a duplicate it is dropped on the floor
- * 2B) If the message is a new request, a server transaction is
+ * - 2A) If the message is a duplicate, it is dropped on the floor
+ * - 2B) If the message is a new request, a server transaction is
  *     created
  * - 2C) If the message is a new response, for an exising client
  *     transaction, it is sent to the interested observers, with
@@ -366,6 +366,7 @@ public:
      *        TRANSPORT_ERROR type are notification of failures to
      *        send messages
      */
+    // Takes ownership of message.
     virtual void dispatch(SipMessage* message,
                           int messageType = SipMessageEvent::APPLICATION);
 

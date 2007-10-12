@@ -73,7 +73,10 @@ expand_cdname(
         int     i;
         char    *ptr;
 
-        if ((i = dn_expand(msg, msg+512, *cpp, name, MAXDNAME)) < 0)
+        if ((i = dn_expand((const u_char *) msg,
+                           (const u_char *) msg+512,
+                           (const u_char *) *cpp,
+                           name, MAXDNAME)) < 0)
                 return(NULL);
         if (name[0] == '\0' ) {
                 name[0] = '.';
@@ -140,9 +143,9 @@ parse_question(
                 free( ptr );
                 return(NULL);
         }
-        ptr->qtype = _getshort(*cpp);
+        ptr->qtype = _getshort((const u_char *) *cpp);
         *cpp += sizeof(u_short);
-        ptr->qclass = _getshort(*cpp);
+        ptr->qclass = _getshort((const u_char *) *cpp);
         *cpp += sizeof(u_short);
 
         return(ptr);
@@ -175,14 +178,14 @@ parse_rr(
                 free(ptr);
                 return(NULL);
         }
-        ptr->type = _getshort(*cpp);
+        ptr->type = _getshort((const u_char *) *cpp);
         *cpp += sizeof(u_short);
-        ptr->rclass = _getshort(*cpp);
+        ptr->rclass = _getshort((const u_char *) *cpp);
         *cpp += sizeof(u_short);
-        ptr->ttl = _getlong(*cpp);
+        ptr->ttl = _getlong((const u_char *) *cpp);
         *cpp += sizeof(u_long);
 
-        dlen = _getshort(*cpp);
+        dlen = _getshort((const u_char *) *cpp);
         ptr->dlen = dlen;
         *cpp += sizeof(u_short);
 
@@ -219,15 +222,15 @@ parse_rr(
         case T_SOA:                             /* Start of Authority */
                 rd->soa.mname = expand_cdname(cpp, msg);
                 rd->soa.rname = expand_cdname(cpp, msg);
-                rd->soa.serial = _getlong(*cpp);
+                rd->soa.serial = _getlong((const u_char *) *cpp);
                 *cpp += sizeof(u_long);
-                rd->soa.refresh = _getlong(*cpp);
+                rd->soa.refresh = _getlong((const u_char *) *cpp);
                 *cpp += sizeof(u_long);
-                rd->soa.retry = _getlong(*cpp);
+                rd->soa.retry = _getlong((const u_char *) *cpp);
                 *cpp += sizeof(u_long);
-                rd->soa.expire = _getlong(*cpp);
+                rd->soa.expire = _getlong((const u_char *) *cpp);
                 *cpp += sizeof(u_long);
-                rd->soa.minimum = _getlong(*cpp);
+                rd->soa.minimum = _getlong((const u_char *) *cpp);
                 *cpp += sizeof(u_long);
                 break;
 
@@ -279,17 +282,17 @@ parse_rr(
                 break;
 
         case T_MX:                              /* Mail Exchanger */
-                rd->mx.preference = _getshort(*cpp);
+                rd->mx.preference = _getshort((const u_char *) *cpp);
                 *cpp += sizeof(u_short);
                 rd->mx.exchange = expand_cdname(cpp, msg);
                 break;
 
         case T_SRV:                             /* Service location */
-                rd->srv.priority = _getshort(*cpp);
+                rd->srv.priority = _getshort((const u_char *) *cpp);
                 *cpp += sizeof(u_short);
-                rd->srv.weight = _getshort(*cpp);
+                rd->srv.weight = _getshort((const u_char *) *cpp);
                 *cpp += sizeof(u_short);
-                rd->srv.port = _getshort(*cpp);
+                rd->srv.port = _getshort((const u_char *) *cpp);
                 *cpp += sizeof(u_short);
                 rd->srv.target = expand_cdname(cpp, msg);
                 break;
@@ -300,9 +303,9 @@ parse_rr(
                 // all cases should be setting *cpp += dlen, not
                 // cpp += dlen.
                 char **cpp_end = cpp + dlen;
-                rd->naptr.order = _getshort(*cpp);
+                rd->naptr.order = _getshort((const u_char *) *cpp);
                 *cpp += sizeof(u_short);
-                rd->naptr.preference = _getshort(*cpp);
+                rd->naptr.preference = _getshort((const u_char *) *cpp);
                 *cpp += sizeof(u_short);
                 if (( rd->naptr.flags = expand_charstring(cpp, msg)) == NULL ) {
                         cpp = cpp_end;
@@ -362,7 +365,7 @@ parse_rr(
                          *  RFC 1183  Additional types
                          */
         case T_AFSDB:                           /* AFS Server */
-                rd->afsdb.subtype = _getshort(*cpp);
+                rd->afsdb.subtype = _getshort((const u_char *) *cpp);
                 *cpp += sizeof(u_short);
                 rd->afsdb.hostname = expand_cdname(cpp, msg);
                 break;
@@ -389,7 +392,7 @@ parse_rr(
                 break;
 
         case T_RT:                              /* Route Through */
-                rd->rt.preference = _getshort(*cpp);
+                rd->rt.preference = _getshort((const u_char *) *cpp);
                 *cpp += sizeof(u_short);
                 rd->rt.int_host = expand_cdname(cpp, msg);
                 break;
@@ -407,7 +410,7 @@ parse_rr(
 
         case T_UID:                             /* User ID */
         case T_GID:                             /* Group ID */
-                rd->number = _getlong(*cpp);
+                rd->number = _getlong((const u_char *) *cpp);
                 *cpp += sizeof(u_long);
                 break;
 
