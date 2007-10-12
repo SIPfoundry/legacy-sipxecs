@@ -13,7 +13,6 @@
         <transform>
             <user>9911</user>
             <host>47.1.2.22</host>
-            <urlparams>transport=udp</urlparams>
         </transform>
     </userMatch>
     <userMatch>
@@ -24,7 +23,6 @@
         <transform>
             <user>911</user>
             <host>10.1.2.1:9000</host>
-            <urlparams>transport=udp</urlparams>
         </transform>
     </userMatch>
     <userMatch>

@@ -10,9 +10,7 @@
 package org.sipfoundry.sipxconfig.acd;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -138,11 +136,7 @@ public class AcdLine extends AcdComponent {
         String identity = AliasMapping.createUri(extension, domainName);
 
         String server = StringUtils.defaultIfEmpty(m_acdServer.getHost(), "localhost");
-        // Always add the "transport=udp" parameter.
-        Map<String, String> transportUdpMap = new HashMap<String, String>();
-        transportUdpMap.put("transport", "udp");
-        String contact = SipUri.format(getName(), server, m_acdServer.getSipPort(),
-                                       transportUdpMap);
+        String contact = SipUri.format(getName(), server, m_acdServer.getSipPort());
 
         aliases.add(new AliasMapping(identity, contact));
     }

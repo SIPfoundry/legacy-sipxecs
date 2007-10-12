@@ -31,7 +31,7 @@ public class Gateway extends Device implements NamedObject {
 
     private int m_addressPort;
 
-    private AddressTransport m_addressTransport = AddressTransport.UDP;
+    private AddressTransport m_addressTransport = AddressTransport.NONE;
 
     private String m_prefix;
 

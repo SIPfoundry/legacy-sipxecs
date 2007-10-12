@@ -118,14 +118,14 @@ public class AcdLineTest extends TestCase {
         assertEquals(1, aliases.size());
         AliasMapping alias = (AliasMapping) aliases.get(0);
         assertEquals("555@mydomain.org", alias.getIdentity());
-        assertEquals("<sip:myline@localhost:100;transport=udp>", alias.getContact());
+        assertEquals("sip:myline@localhost:100", alias.getContact());
 
         aliases.clear();
         m_line.appendAliases(aliases);
         assertEquals(1, aliases.size());
         alias = (AliasMapping) aliases.get(0);
         assertEquals("555@mydomain.org", alias.getIdentity());
-        assertEquals("<sip:myline@somehost.domain.org:101;transport=udp>", alias.getContact());
+        assertEquals("sip:myline@somehost.domain.org:101", alias.getContact());
 
         mcs.verify();
         mc.verify();

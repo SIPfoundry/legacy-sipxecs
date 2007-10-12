@@ -54,10 +54,13 @@ public class GatewayTest extends TestCase {
         Gateway gateway = new Gateway();
         gateway.setPrefix("99");
         gateway.setAddress("example.com");
-        assertEquals("transport=udp", gateway.getGatewayTransportUrlParam());
+        assertNull(gateway.getGatewayTransportUrlParam());
 
         gateway.setAddressTransport(Gateway.AddressTransport.TCP);
         assertEquals("transport=tcp", gateway.getGatewayTransportUrlParam());
+
+        gateway.setAddressTransport(Gateway.AddressTransport.UDP);
+        assertEquals("transport=udp", gateway.getGatewayTransportUrlParam());
 
         gateway.setAddressTransport(Gateway.AddressTransport.NONE);
         assertNull(gateway.getGatewayTransportUrlParam());

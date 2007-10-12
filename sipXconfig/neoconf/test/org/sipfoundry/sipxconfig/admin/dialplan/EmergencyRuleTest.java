@@ -59,7 +59,7 @@ public class EmergencyRuleTest extends TestCase {
         FullTransform emergencyTransform = (FullTransform) transforms[0];
         assertEquals("911", emergencyTransform.getUser());
         assertEquals("sosgateway1.com:4000", emergencyTransform.getHost());
-        assertEquals("transport=udp", emergencyTransform.getUrlParams()[0]);
+        assertNull(emergencyTransform.getUrlParams());
         assertEquals("q=0.933", emergencyTransform.getFieldParams()[0]);
 
         emergencyTransform = (FullTransform) transforms[1];

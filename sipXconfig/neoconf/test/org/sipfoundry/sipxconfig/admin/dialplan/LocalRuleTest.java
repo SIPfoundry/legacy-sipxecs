@@ -49,7 +49,7 @@ public class LocalRuleTest extends TestCase {
         FullTransform transform = (FullTransform) transforms[0];
         assertEquals("4321{vdigits}", transform.getUser());
         assertEquals("local.gateway.com", transform.getHost());
-        assertEquals("transport=udp", transform.getUrlParams()[0]);
+        assertNull(transform.getUrlParams());
 
         // Set to ignore the transport
         Gateway g = m_rule.getGateways().get(0);

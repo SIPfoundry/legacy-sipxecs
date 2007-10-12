@@ -117,7 +117,7 @@ public class CustomDialingRuleTest extends TestCase {
             assertTrue(fieldParams[0].startsWith("q="));
             assertNull(full.getHeaderParams());
             assertEquals(GATEWAYADDRESSES[i], full.getHost());
-            assertEquals(full.getUrlParams()[0], "transport=udp");
+            assertNull(full.getUrlParams());
             assertTrue(full.getUser().startsWith(StringUtils.defaultString(PREFIXES[i]) + "999"));
         }
     }
@@ -135,7 +135,7 @@ public class CustomDialingRuleTest extends TestCase {
             assertTrue(fieldParams[1].startsWith("sipx-ValidTime="));
             assertNull(full.getHeaderParams());
             assertEquals(GATEWAYADDRESSES[i], full.getHost());
-            assertEquals(full.getUrlParams()[0], "transport=udp");
+            assertNull(full.getUrlParams());
             assertTrue(full.getUser().startsWith(StringUtils.defaultString(PREFIXES[i]) + "999"));
         }
     }
