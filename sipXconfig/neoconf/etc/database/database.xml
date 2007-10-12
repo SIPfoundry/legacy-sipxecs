@@ -231,6 +231,7 @@
     <antcall target="backup-email-address" />
     <antcall target="callforwardexternal" />
     <antcall target="domain-add-shared-secret" />
+    <antcall target="domain-initialize-secret" />
     <antcall target="gateway-port" />
     <antcall target="schedules-per-dialing-rule" />
     <antcall target="callgroup-vmail-destination" />
@@ -475,6 +476,13 @@
     <db-patch patch="domain-add-shared-secret" />
   </target>
 
+  <target name="domain-initialize-secret" unless="domain-initialize-secret">
+    <sipx-sql>
+    	insert into initialization_task (name) values ('initialize-domain-secret');
+	</sipx-sql>
+    <mark-patch-applied patch="domain-initialize-secret" />
+  </target>
+	
   <target name="gateway-port" unless="gateway-port">
     <db-patch patch="gateway-port" />
   </target>

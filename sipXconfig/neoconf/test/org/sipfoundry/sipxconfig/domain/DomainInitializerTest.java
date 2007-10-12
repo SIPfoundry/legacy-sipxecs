@@ -29,12 +29,23 @@ public class DomainInitializerTest extends TestCase {
         assertEquals("bluejay", m_domainInitializer.getInitialDomainName());
     }
     
-    public void testOnInitTask() throws IOException {
+    public void testOnInitTaskInitializeDomain() throws IOException {
         DomainManager mockDomainManager = new MockDomainManager();
         
         m_domainInitializer.setInitialDomain("sparrow");
         m_domainInitializer.setDomainManager(mockDomainManager);
         InitializationTask initTask = new InitializationTask("initialize-domain");
+        m_domainInitializer.onApplicationEvent(initTask);
+
+        assertEquals("sparrow", mockDomainManager.getDomain().getName());
+    }
+    
+    public void testOnInitTaskInitializeDomainSecret() throws IOException {
+        DomainManager mockDomainManager = new MockDomainManager();
+        
+        m_domainInitializer.setInitialDomain("sparrow");
+        m_domainInitializer.setDomainManager(mockDomainManager);
+        InitializationTask initTask = new InitializationTask("initialize-domain-secret");
         m_domainInitializer.onApplicationEvent(initTask);
 
         assertEquals("sparrow", mockDomainManager.getDomain().getName());

@@ -40,13 +40,20 @@ public class DomainInitializer extends InitTaskListener {
      * not re-initialize
      */
     public void onInitTask(String task) {
-        Domain domain = null;
-        if (!m_domainManager.isDomainInitialized()) {
-            domain = new Domain();
-            domain.setName(getInitialDomainName());
-        } else {   
-            domain = m_domainManager.getDomain();
+        if ("initialize-domain".equals(task)) {
+            initDomain();
+        } else if ("initialize-domain-secret".equals(task)) {
+            initDomainSecret();
         }
+    }
+    
+    private void initDomain() {
+        Domain domain = getDomain();
+        m_domainManager.saveDomain(domain);
+    }
+    
+    private void initDomainSecret() {
+        Domain domain = getDomain();
 
         if (StringUtils.isEmpty(domain.getSharedSecret())) {
             Random random = new Random(new Date().getTime());
@@ -59,6 +66,17 @@ public class DomainInitializer extends InitTaskListener {
         m_domainManager.saveDomain(domain);
     }
     
+    private Domain getDomain() {
+        Domain domain = null;
+        if (!m_domainManager.isDomainInitialized()) {
+            domain = new Domain();
+            domain.setName(getInitialDomainName());
+        } else {   
+            domain = m_domainManager.getDomain();
+        }
+        return domain;
+    }
+
     String getInitialDomainName() {
         if (m_initialDomain != null) {
             return m_initialDomain;
