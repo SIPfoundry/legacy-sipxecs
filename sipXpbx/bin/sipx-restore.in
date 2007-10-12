@@ -170,8 +170,23 @@ then
 
   # Configuration database.
   echo -n "Restoring the '$CONFIG_DATABASE_NAME' database contents..."
-  dropdb -U postgres $CONFIG_DATABASE_NAME > /dev/null
-  createdb -U postgres --encoding=UNICODE $CONFIG_DATABASE_NAME > /dev/null
+
+  # find psql path
+  PSQL_PATH=/usr/bin
+  DROPDB=$PSQL_PATH/dropdb
+  if [ -e $DROPDB ]; then
+    echo -n "We got dropdb from the default location"
+  else
+    DROPDB= $(which dropdb)
+    if [ -e $DROPDB ]; then
+      echo -n "We got dropdb from which"
+    fi
+      PSQL_PATH=$(dirname $DROPDB)
+  fi
+  CREATEDB=$PSQL_PATH/createdb
+
+  $DROPDB -U postgres $CONFIG_DATABASE_NAME > /dev/null
+  $CREATEDB -U postgres --encoding=UNICODE $CONFIG_DATABASE_NAME > /dev/null
   tar -xzvC @SIPX_BACKUPDIR@ $DB_TAR < $CONFIGURATION_PATH
   cat $PATH_DB_TAR | pg_restore -U postgres -d $CONFIG_DATABASE_NAME 2> /dev/null
   rm $PATH_DB_TAR

@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-int main(int argc, char *argv[], char *envp[])
+int main(int argc, char *argv[])
 {
    int i;
 
@@ -29,7 +29,7 @@ int main(int argc, char *argv[], char *envp[])
    execve_argv[argc+2] = NULL;
 
    setuid(0);
-   execve("/bin/bash", execve_argv, envp);
+   execve("/bin/bash", execve_argv, NULL);
 
    /* Not going to get here ...*/
    printf("ERROR\n");
