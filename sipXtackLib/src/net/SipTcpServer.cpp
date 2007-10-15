@@ -207,7 +207,7 @@ OsSocket* SipTcpServer::buildClientSocket(int hostPort,
 {
     // Create a socket in non-blocking mode while connecting
     OsConnectionSocket* socket =
-       new OsConnectionSocket(hostPort, hostAddress, FALSE, localIp);
+       new OsConnectionSocket(hostPort, hostAddress, FALSE, localIp, 0);
     socket->makeBlocking();
     return(socket);
 }

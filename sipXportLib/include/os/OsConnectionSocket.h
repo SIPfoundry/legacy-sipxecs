@@ -52,6 +52,11 @@ public:
                       UtlBoolean   makeBlocking = TRUE, 
                       const char*  localIp = NULL, ///< Defaults to INADDR_ANY
                       unsigned int timeoutInMilliseconds = DefaultConnectionTimeoutMs 
+                      /**< If non-zero, connection attempt will wait that long,
+                       *   then return, regardless of makeBlocking.
+                       *   If 0 and makeBlocking, then waits for connect or error.
+                       *   If 0 and !makeBlocking, returns immediately.
+                       */
                       );
    ///< timeoutInMilliseconds has no effect on non-blocking connects
 
