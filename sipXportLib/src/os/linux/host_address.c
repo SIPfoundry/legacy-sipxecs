@@ -17,6 +17,7 @@
 
 #ifdef __linux__ /* [ */
 
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -42,9 +43,9 @@ static void get_default(char * if_name, int length)
       {
          char line[256];
          /* read header line */
-         fgets(line, 256, routes);
+         assert(fgets(line, 256, routes) != NULL);
          /* prefetch read loop */
-         fgets(line, 256, routes);
+         assert(fgets(line, 256, routes) != NULL);
          while(!feof(routes))
          {
             unsigned int address;
@@ -53,7 +54,7 @@ static void get_default(char * if_name, int length)
             sscanf(line, query, if_name, &address);
             if(!address)
                break;
-            fgets(line, 256, routes);
+            assert(fgets(line, 256, routes) != NULL);
          }
          if(feof(routes))
             if_name[0] = 0;
