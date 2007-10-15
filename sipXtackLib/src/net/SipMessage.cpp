@@ -3466,15 +3466,19 @@ UtlBoolean SipMessage::isClientMsgStrictRouted() const
 
     if ( getRouteField( &routeField ) )
     {
-        Url routeUrl( routeField, TRUE );
-        UtlString valueIgnored;
+       Url routeUrl(routeField,Url::NameAddr);
+       UtlString valueIgnored;
 
-        // there is a route header, so see if it is loose routed or not
-        result = ! routeUrl.getUrlParameter( "lr", valueIgnored );
+       // there is a route header, so see if it is loose routed or not
+       result = (   (   Url::SipUrlScheme == routeUrl.getScheme()
+                     || Url::SipsUrlScheme == routeUrl.getScheme())
+                 && !routeUrl.getUrlParameter( "lr", valueIgnored )
+                 );
     }
     else
     {
-        result = FALSE;
+       // no route field value
+       result = FALSE;
     }
 
     return result;

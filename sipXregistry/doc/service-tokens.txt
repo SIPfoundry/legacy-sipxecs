@@ -72,4 +72,18 @@ ver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits-escaped}&gt;</url>
    The {mediaserver} and {voicemail} tokens could (should, really) be
    pre-expanded by the configuration server when it creates the file.
 
+*** id => Service Identities
+
+   There are times when a sipXecs service needs to authenticate itself
+   with an identity that will be accepted by other components.  For
+   example, when the TransferControl AuthPlugin is being used, any
+   REFER for a blind transfer must be authenticated so that the
+   identity of the transfering party can be used for authorization
+   decisions when the resulting INVITE is evaluated.  Any sipXecs
+   service that needs an identity gets one in this prefix group.
+   Allocated so far are:
+    ~~id~park  -> the park server
+    ~~id~media -> the media server
+
+
 

@@ -13,25 +13,31 @@
 #include <unistd.h>
 
 // APPLICATION INCLUDES
+#include <os/OsFS.h>
+#include <os/OsSysLog.h>
+#include <os/OsConfigDb.h>
+
+#include <net/NameValueTokenizer.h>
+#include <net/SipPublishContentMgr.h>
+#include <net/SipSubscriptionMgr.h>
+#include <net/SipSubscribeServerEventHandler.h>
+#include <net/SipSubscribeServer.h>
+#include <net/SipLine.h>
+#include <net/SipLineMgr.h>
+
 #include <mp/MpMediaTask.h>
 #include <mp/NetInTask.h>
 #ifdef INCLUDE_RTCP
 #include <rtcp/RTCManager.h>
 #endif // INCLUDE_RTCP
+
 #include <net/SipUserAgent.h>
 #include <net/SdpCodecFactory.h>
 #include <cp/CallManager.h>
 #include <mi/CpMediaInterfaceFactoryFactory.h>
 #include <cp/DialogEventPublisher.h>
 #include <ptapi/PtProvider.h>
-#include <net/NameValueTokenizer.h>
-#include <net/SipPublishContentMgr.h>
-#include <net/SipSubscribeServerEventHandler.h>
-#include <net/SipSubscribeServer.h>
-#include <net/SipSubscriptionMgr.h>
-#include <os/OsFS.h>
-#include <os/OsSysLog.h>
-#include <os/OsConfigDb.h>
+
 #include "OrbitListener.h"
 
 // DEFINES
@@ -50,6 +56,10 @@
 #define CONFIG_LOG_FILE               "sipxpark.log"
 #define CONFIG_LOG_DIR                SIPX_LOGDIR
 
+#define CONFIG_SETTING_DOMAIN         "SIP_PARK_DOMAIN_NAME"
+#define CONFIG_SETTING_AUTH_REALM     "SIP_PARK_AUTHENTICATE_REALM"
+#define CONFIG_SETTING_AUTH_ID        "SIP_PARK_AUTHENTICATE_ID"
+#define CONFIG_SETTING_AUTH_HA1       "SIP_PARK_AUTHENTICATE_HA1"
 #define CONFIG_SETTING_LOG_DIR        "SIP_PARK_LOG_DIR"
 #define CONFIG_SETTING_LOG_LEVEL      "SIP_PARK_LOG_LEVEL"
 #define CONFIG_SETTING_LOG_CONSOLE    "SIP_PARK_LOG_CONSOLE"
@@ -407,6 +417,95 @@ int main(int argc, char* argv[])
     if (configDb.get(CONFIG_SETTING_MAX_SESSIONS, MaxSessions) != OS_SUCCESS)
         MaxSessions = DEFAULT_MAX_SESSIONS;
 
+    UtlString   domain;
+    UtlString   realm;
+    UtlString   user;
+    UtlString   ha1_authenticator;
+    SipLine*    line = NULL;
+    SipLineMgr* lineMgr = NULL;
+    
+    if (   (OS_SUCCESS == configDb.get(CONFIG_SETTING_DOMAIN,     domain))
+        && (OS_SUCCESS == configDb.get(CONFIG_SETTING_AUTH_REALM, realm))
+        && (OS_SUCCESS == configDb.get(CONFIG_SETTING_AUTH_ID,    user))
+        && (OS_SUCCESS == configDb.get(CONFIG_SETTING_AUTH_HA1,   ha1_authenticator))
+        )
+    {
+       Url identity;
+
+       identity.setUserId(user);
+       identity.setHostAddress(domain);
+       
+       if ((line = new SipLine( identity // user entered url
+                               ,identity // identity url
+                               ,user     // user
+                               ,TRUE     // visible
+                               ,SipLine::LINE_STATE_PROVISIONED
+                               ,TRUE     // auto enable
+                               ,FALSE    // use call handling
+                               )))
+       {
+          if ((lineMgr = new SipLineMgr()))
+          {
+             if (lineMgr->addLine(*line))
+             {
+                if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
+                                                  ,HTTP_DIGEST_AUTHENTICATION
+                                                  )
+                    )
+                {
+                   OsSysLog::add(LOG_FACILITY, PRI_INFO,
+                                 "Added identity '%s': user='%s' realm='%s'"
+                                 ,identity.toString().data(), user.data(), realm.data()
+                                 );
+                }
+                else
+                {
+                   OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                                 "Error adding identity '%s': user='%s' realm='%s'\n"
+                                 "  escape and timeout from park may not work.",
+                                 identity.toString().data(), user.data(), realm.data()
+                                 );
+                }
+
+                lineMgr->setDefaultOutboundLine(identity);
+             }
+             else
+             {
+                OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                              "addLine failed: "
+                              "  escape and timeout from park may not work."
+                              );
+             }
+          }
+          else
+          {
+             OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                           "Constructing SipLineMgr failed:  "
+                           "  escape and timeout from park may not work."
+                           );
+          }
+       }
+       else
+       {
+          OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                        "Constructing SipLine failed:  "
+                        "  escape and timeout from park may not work."
+                        );
+       }
+    }
+    else
+    {
+       OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                     "One or more authentication parameters missing:"
+                     "\n  '%s' : '%s'\n  '%s' : '%s'\n  '%s' : '%s'\n  '%s' : '%s'\n"
+                     "  escape and timeout from park will not work.",
+                     CONFIG_SETTING_DOMAIN, domain.data(),
+                     CONFIG_SETTING_AUTH_REALM, realm.data(),
+                     CONFIG_SETTING_AUTH_ID, user.data(),
+                     CONFIG_SETTING_AUTH_HA1, ha1_authenticator.data()
+                     );
+    }
+
     // Read Park Server parameters from the config file.
     int Lifetime, BlindXferWait, ConsXferWait;
     if (configDb.get(CONFIG_SETTING_LIFETIME, Lifetime) != OS_SUCCESS)
@@ -422,7 +521,25 @@ int main(int argc, char* argv[])
     ConsXferWait = CONS_XFER_WAIT;
 
     // Bind the SIP user agent to a port and start it up
-    SipUserAgent* userAgent = new SipUserAgent(TcpPort, UdpPort);
+    SipUserAgent* userAgent = new SipUserAgent(TcpPort,
+                                               UdpPort,
+                                               TcpPort+1,
+                                               NULL, // publicAddress
+                                               user.isNull() ? NULL : user.data(), // default user
+                                               NULL, // default sip address (deprecated)
+                                               domain.isNull() ? NULL : domain.data(), // outbound proxy
+                                               NULL, // sipDirectoryServers (deprecated)
+                                               NULL, // sipRegistryServers (deprecated)
+                                               NULL, // authenticationScheme
+                                               NULL, // authenicateRealm
+                                               NULL, // authenticateDb
+                                               NULL, // authorizeUserIds (deprecated)
+                                               NULL, // authorizePasswords (deprecated)
+                                               NULL, // natPingUrl (unused)
+                                               0,    // natPingFrequency
+                                               NULL, // natPingMethod
+                                               lineMgr
+                                               );
     userAgent->start();
 
     // Read the list of codecs from the configuration file.

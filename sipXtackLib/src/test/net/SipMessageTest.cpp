@@ -55,6 +55,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testGetFieldUris);
       CPPUNIT_TEST(testBuildSipUri);
       CPPUNIT_TEST(testReplacesData);
+      CPPUNIT_TEST(testIsClientStrictRouted);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -2085,6 +2086,57 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("better", fromTag.data());
       }
 
+   void testIsClientStrictRouted()
+      {
+         const char* notStrictStr =
+            "REFER sip:200@10.1.1.43 SIP/2.0\r\n"
+            "Route: <sip:10.1.1.20:5080;lr;sipX-route=%2Afrom%7EOUZDMjgyQkYtMjJBRUE2Njg%60.400_authrules%2Aauth%7E%2198bfae59c88968ac075a04ea024ae648>\r\n"
+            "From: <sip:500@sukothai.pingtel.com>;tag=95632294\r\n"
+            "To: \"Poly One\"<sip:200@sukothai.pingtel.com>;tag=9FC282BF-22AEA668\r\n"
+            "Call-Id: 438a5a3b-f60da375-e8251a76@10.1.1.43\r\n"
+            "Cseq: 3 REFER\r\n"
+            "Contact: sip:10.1.1.20:5120\r\n"
+            "Referred-By: <sip:500@sukothai.pingtel.com>\r\n"
+            "Refer-To: <sip:201@sukothai.pingtel.com>;transport=udp\r\n"
+            "Date: Mon, 15 Oct 2007 15:30:03 GMT\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: sipX/3.9.3 (Linux)\r\n"
+            "Accept-Language: en\r\n"
+            "Allow: INVITE, ACK, CANCEL, BYE, REFER, OPTIONS, NOTIFY, SUBSCRIBE\r\n"
+            "Supported: replaces\r\n"
+            "Via: SIP/2.0/UDP 10.1.1.20:5120;branch=z9hG4bK-sipX-0007a7093deef33050d83231a89b3d79693b\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n"
+            ;
+         SipMessage notStrict(notStrictStr);
+
+         CPPUNIT_ASSERT(!notStrict.isClientMsgStrictRouted());
+
+         const char* strictStr =
+            "REFER sip:200@10.1.1.43 SIP/2.0\r\n"
+            "Route: <sip:10.1.1.20:5080;sipX-route=%2Afrom%7EOUZDMjgyQkYtMjJBRUE2Njg%60.400_authrules%2Aauth%7E%2198bfae59c88968ac075a04ea024ae648>\r\n"
+            "From: <sip:500@sukothai.pingtel.com>;tag=95632294\r\n"
+            "To: \"Poly One\"<sip:200@sukothai.pingtel.com>;tag=9FC282BF-22AEA668\r\n"
+            "Call-Id: 438a5a3b-f60da375-e8251a76@10.1.1.43\r\n"
+            "Cseq: 3 REFER\r\n"
+            "Contact: sip:10.1.1.20:5120\r\n"
+            "Referred-By: <sip:500@sukothai.pingtel.com>\r\n"
+            "Refer-To: <sip:201@sukothai.pingtel.com>;transport=udp\r\n"
+            "Date: Mon, 15 Oct 2007 15:30:03 GMT\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: sipX/3.9.3 (Linux)\r\n"
+            "Accept-Language: en\r\n"
+            "Allow: INVITE, ACK, CANCEL, BYE, REFER, OPTIONS, NOTIFY, SUBSCRIBE\r\n"
+            "Supported: replaces\r\n"
+            "Via: SIP/2.0/UDP 10.1.1.20:5120;branch=z9hG4bK-sipX-0007a7093deef33050d83231a89b3d79693b\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n"
+            ;
+         SipMessage strict(strictStr);
+
+         CPPUNIT_ASSERT(strict.isClientMsgStrictRouted());
+      }
+         
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipMessageTest);

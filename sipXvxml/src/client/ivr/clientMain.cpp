@@ -26,6 +26,24 @@ static const char *rcsid = 0 ? (char *) &rcsid :
 #endif
 
 
+
+#include "os/OsFS.h"
+
+#include "net/NameValueTokenizer.h"
+#include "net/SdpCodecFactory.h"
+#include "net/Url.h"
+#include "net/SipLine.h"
+#include "net/SipLineMgr.h"
+#include "net/SipUserAgent.h"
+
+#include <mp/MpMediaTask.h>
+#include <mp/NetInTask.h>
+#include <rtcp/RtcpConfig.h>
+#include <rtcp/RTCManager.h>
+#include <cp/CallManager.h>
+#include <mi/CpMediaInterfaceFactoryFactory.h>
+#include <ptapi/PtProvider.h>
+
 #include "VXIlog.h"
 #include "VXItrd.h"
 #include "SBclientUtils.h"
@@ -36,18 +54,6 @@ static const char *rcsid = 0 ? (char *) &rcsid :
 #include "IvrTelListener.h"
 #include "IvrUtilTask.h"
 #include "OSBprompt.h"
-
-#include <mp/MpMediaTask.h>
-#include <mp/NetInTask.h>
-#include <rtcp/RtcpConfig.h>
-#include <rtcp/RTCManager.h>
-#include <net/SipUserAgent.h>
-#include <net/SdpCodecFactory.h>
-#include <cp/CallManager.h>
-#include <mi/CpMediaInterfaceFactoryFactory.h>
-#include <ptapi/PtProvider.h>
-#include "net/NameValueTokenizer.h"
-#include "os/OsFS.h"
 
 #ifdef DMALLOC
 #include <dmalloc.h>
@@ -90,6 +96,11 @@ if ((VXIint)(_res) != 0) { \
 #define MAX_ACTIVE_CALLS  L"mediaserver.max.active.calls"
 #define SYS_LOG_LEVEL     L"mediaserver.log.level"
 #define MEDIASERVER_RTP_CODECS L"mediaserver.rtp.codecs"
+
+#define SIP_DOMAIN        L"mediaserver.domain"
+#define SIP_REALM         L"mediaserver.realm"
+#define SIP_IDENTITY      L"mediaserver.identity"
+#define SIP_AUTHENTICATOR L"mediaserver.ha1_authenticator"
 
 #define DEFAULT_CODEC_LIST_STRING "pcmu pcma telephone-event"
 
@@ -724,15 +735,148 @@ int main(int argc, char *argv[])
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "main: failed to create glbpThreadMutex  (%d) \n", (int)eTrdResult );
    }
 
+   // Read the configuration of the identity to be used if/when challenged for authentication.
+   UtlString   domain;
+   UtlString   realm;
+   UtlString   user;
+   UtlString   ha1_authenticator;
+   SipLine*    line = NULL;
+   SipLineMgr* lineMgr = NULL;
+
+   int vxiParamLen;
+   const VXIString *vxiParamStr;
+
+   vxiParamStr = (const VXIString *)VXIMapGetProperty(glbConfigArgs, SIP_DOMAIN);
+   if(vxiParamStr != NULL) 
+   {
+      vxiParamLen = VXIStringLength(vxiParamStr) + 1;
+      char paramValue[vxiParamLen];
+      wcstombs(paramValue, VXIStringCStr(vxiParamStr), vxiParamLen);
+      paramValue[vxiParamLen - 1] = '\000';
+      domain = paramValue;
+   }
+
+   vxiParamStr = (const VXIString *)VXIMapGetProperty(glbConfigArgs, SIP_REALM);
+   if(vxiParamStr != NULL) 
+   {
+      vxiParamLen = VXIStringLength(vxiParamStr) + 1;
+      char paramValue[vxiParamLen];
+      wcstombs(paramValue, VXIStringCStr(vxiParamStr), vxiParamLen);
+      paramValue[vxiParamLen - 1] = '\000';
+      realm = paramValue;
+   }
+
+   vxiParamStr = (const VXIString *)VXIMapGetProperty(glbConfigArgs, SIP_IDENTITY);
+   if(vxiParamStr != NULL) 
+   {
+      vxiParamLen = VXIStringLength(vxiParamStr) + 1;
+      char paramValue[vxiParamLen];
+      wcstombs(paramValue, VXIStringCStr(vxiParamStr), vxiParamLen);
+      paramValue[vxiParamLen - 1] = '\000';
+      user = paramValue;
+   }
+
+   vxiParamStr = (const VXIString *)VXIMapGetProperty(glbConfigArgs, SIP_AUTHENTICATOR);
+   if(vxiParamStr != NULL) 
+   {
+      vxiParamLen = VXIStringLength(vxiParamStr) + 1;
+      char paramValue[vxiParamLen];
+      wcstombs(paramValue, VXIStringCStr(vxiParamStr), vxiParamLen);
+      paramValue[vxiParamLen - 1] = '\000';
+      ha1_authenticator = paramValue;
+   }
+
+   if (   !domain.isNull()
+       && !realm.isNull()
+       && !user.isNull()
+       && !ha1_authenticator.isNull()
+       )
+   {
+      Url identity;
+
+      identity.setUserId(user);
+      identity.setHostAddress(domain);
+       
+      if ((line = new SipLine( identity // user entered url
+                              ,identity // identity url
+                              ,user     // user
+                              ,TRUE     // visible
+                              ,SipLine::LINE_STATE_PROVISIONED
+                              ,TRUE     // auto enable
+                              ,FALSE    // use call handling
+                              )))
+      {
+         if ((lineMgr = new SipLineMgr()))
+         {
+            if (lineMgr->addLine(*line))
+            {
+               if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
+                                                 ,HTTP_DIGEST_AUTHENTICATION
+                                                 )
+                   )
+               {
+                  OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_INFO,
+                                "Added identity '%s': user='%s' realm='%s'"
+                                ,identity.toString().data(), user.data(), realm.data()
+                                );
+               }
+               else
+               {
+                  OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
+                                "Error adding identity '%s': user='%s' realm='%s'\n"
+                                "  transfer functions may not work.",
+                                identity.toString().data(), user.data(), realm.data()
+                                );
+               }
+
+               lineMgr->setDefaultOutboundLine(identity);
+            }
+            else
+            {
+               OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
+                             "addLine failed: "
+                             "  transfer functions may not work."
+                             );
+            }
+         }
+         else
+         {
+            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
+                          "Constructing SipLineMgr failed:  "
+                          "  transfer functions may not work."
+                          );
+         }
+      }
+      else
+      {
+         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
+                       "Constructing SipLine failed:  "
+                       "  transfer functions may not work."
+                       );
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
+                    "One or more authentication parameters missing:"
+                    "\n  '%ls' : '%s'\n  '%ls' : '%s'\n  '%ls' : '%s'\n  '%ls' : '%s'\n"
+                    "  transfer functions will not work.",
+                    SIP_DOMAIN, domain.data(),
+                    SIP_REALM, realm.data(),
+                    SIP_IDENTITY, user.data(),
+                    SIP_AUTHENTICATOR, ha1_authenticator.data()
+                    );
+   }
+
    int port = 5100;
    SipUserAgent *userAgent =
       new SipUserAgent(port, 
                        port,
                        PORT_NONE,
                        NULL, // public IP address (nopt used in proxy)
-                       NULL, // default user (not used in proxy)
+                       user.isNull() ? NULL : user.data(), // default user
                        NULL, // default SIP address (not used in proxy)
-                       NULL, // outbound proxy
+                       domain.isNull() ? NULL : domain.data(), // outbound proxy
                        NULL, // directory server
                        NULL, // registry server
                        NULL, // auth scheme
@@ -743,7 +887,7 @@ int main(int argc, char *argv[])
                        NULL, // nat ping URL
                        0, // nat ping frequency
                        "PING", // nat ping method
-                       NULL, // line mgr
+                       lineMgr, // line mgr
                        SIP_DEFAULT_RTT, // first resend timeout
                        TRUE, // default to UA transaction
                        SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE, // socket layer read buffer size

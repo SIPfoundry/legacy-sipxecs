@@ -550,9 +550,11 @@ SipLineMgr::getLineforAuthentication(
    // Get realm and scheme (hard way but not too expensive)
    if (response != NULL)
    {
-      if (!response->getAuthenticationData(&scheme, &realm, &nonce, &opaque, &algorithm, &qop, SipMessage::PROXY))
+      if (!response->getAuthenticationData(&scheme, &realm, &nonce, &opaque,
+                                           &algorithm, &qop, SipMessage::PROXY))
       {
-         if (!response->getAuthenticationData(&scheme, &realm, &nonce, &opaque, &algorithm, &qop, SipMessage::SERVER))
+         if (!response->getAuthenticationData(&scheme, &realm, &nonce, &opaque,
+                                              &algorithm, &qop, SipMessage::SERVER))
          {
             // Report inability to get auth criteria
             UtlString callId ;
@@ -561,19 +563,29 @@ SipLineMgr::getLineforAuthentication(
 
             response->getCallIdField(&callId);
             response->getCSeqField(&sequenceNum, &method);
-            OsSysLog::add(FAC_LINE_MGR, PRI_ERR, "unable get auth data for message:\ncallid=%s\ncseq=%d\nmethod=%s",
-                  callId.data(), sequenceNum, method.data()) ;
+            OsSysLog::add(FAC_LINE_MGR, PRI_ERR,
+                          "SipLineMgr::getLineforAuthentication "
+                          "unable get auth data for message:\ncallid=%s\ncseq=%d\nmethod=%s",
+                          callId.data(), sequenceNum, method.data()) ;
          }
          else
          {
-            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SERVER auth request:scheme=%s\nrealm=%s\nnounce=%s\nopaque=%s\nalgorithm=%s\nqop=%s",
-                  scheme.data(), realm.data(), nonce.data(), opaque.data(), algorithm.data(), qop.data()) ;
+            OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                          "SipLineMgr::getLineforAuthentication "
+                          "SERVER auth request:\n"
+                          "scheme=%s\nrealm=%s\nnonce=%s\nopaque=%s\nalgorithm=%s\nqop=%s",
+                          scheme.data(), realm.data(), nonce.data(), opaque.data(),
+                          algorithm.data(), qop.data()) ;
          }
       }
       else
       {
-         OsSysLog::add(FAC_AUTH, PRI_DEBUG, "PROXY auth request:scheme=%s\nrealm=%s\nnounce=%s\nopaque=%s\nalgorithm=%s\nqop=%s",
-               scheme.data(), realm.data(), nonce.data(), opaque.data(), algorithm.data(), qop.data()) ;
+         OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                       "SipLineMgr::getLineforAuthentication "
+                       "PROXY auth request:\n"
+                       "scheme=%s\nrealm=%s\nnonce=%s\nopaque=%s\nalgorithm=%s\nqop=%s",
+                       scheme.data(), realm.data(), nonce.data(), opaque.data(),
+                       algorithm.data(), qop.data()) ;
       }
    }
 
@@ -607,15 +619,16 @@ SipLineMgr::getLineforAuthentication(
    toFromUrl.setDisplayName("");
    toFromUrl.removeAngleBrackets();
 
-
    if (fromTempList)
    {
-      line = sTempLineList.findLine(lineId.data(), realm.data(), toFromUrl, userId.data(), mOutboundLine) ;
+      line = sTempLineList.findLine(lineId.data(), realm.data(),
+                                    toFromUrl, userId.data(), mOutboundLine) ;
    }
 
    if (line == NULL)
    {
-      line = sLineList.findLine(lineId.data(), realm.data(), toFromUrl, userId.data(), mOutboundLine) ;
+      line = sLineList.findLine(lineId.data(), realm.data(),
+                                toFromUrl, userId.data(), mOutboundLine) ;
    }
 
    if (line == NULL)
@@ -628,26 +641,32 @@ SipLineMgr::getLineforAuthentication(
 
        if (fromTempList)
        {
-          line = sTempLineList.findLine(lineId.data(), realm.data(), toFromUrl, userId.data(), mOutboundLine) ;
+          line = sTempLineList.findLine(lineId.data(), realm.data(),
+                                        toFromUrl, userId.data(), mOutboundLine) ;
        }
 
        if (line == NULL)
        {
-          line = sLineList.findLine(lineId.data(), realm.data(), toFromUrl, userId.data(), mOutboundLine) ;
+          line = sLineList.findLine(lineId.data(), realm.data(),
+                                    toFromUrl, userId.data(), mOutboundLine) ;
        }
    }
 
    if (line == NULL)
    {
       // Log the failure
-      OsSysLog::add(FAC_AUTH, PRI_ERR, "line manager is unable to find auth credentials:\nuser=%s\nrealm=%s\nlineid=%s",
-            userId.data(), realm.data(), lineId.data()) ;
+      OsSysLog::add(FAC_AUTH, PRI_ERR,
+                    "SipLineMgr::getLineforAuthentication "
+                    "unable to find auth credentials:\nuser=%s\nrealm=%s\nlineid=%s",
+                    userId.data(), realm.data(), lineId.data()) ;
    }
    else
    {
       // Log the SUCCESS
-      OsSysLog::add(FAC_AUTH, PRI_INFO, "line manager found matching auth credentials:\nuser=%s\nrealm=%s\nlineid=%s",
-            userId.data(), realm.data(), lineId.data()) ;
+      OsSysLog::add(FAC_AUTH, PRI_INFO,
+                    "SipLineMgr::getLineforAuthentication "
+                    "found matching auth credentials user='%s'",
+                    line->getUser().data());
    }
 
    return line;
@@ -692,7 +711,8 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
     if(responseCode == HTTP_UNAUTHORIZED_CODE)
     {
         authorizationEntity = HttpMessage::SERVER;
-    } else if(responseCode == HTTP_PROXY_UNAUTHORIZED_CODE)
+    }
+    else if(responseCode == HTTP_PROXY_UNAUTHORIZED_CODE)
     {
         // For proxy we use the uri for the key to userId and password
         authorizationEntity = HttpMessage::PROXY;
@@ -700,9 +720,8 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
 
     // Get the digest authentication info. needed to create
     // a request with credentials
-    response->getAuthenticationData(
-        &scheme, &realm, &nonce, &opaque,
-        &algorithm, &qop, authorizationEntity);
+    response->getAuthenticationData( &scheme, &realm, &nonce, &opaque,
+                                    &algorithm, &qop, authorizationEntity);
 
     UtlBoolean alreadyTriedOnce = FALSE;
     int requestAuthIndex = 0;
@@ -717,8 +736,10 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
         alreadyTriedOnce = TRUE; //so that we never send request with basic authenticatiuon
 
         // Log error
-        OsSysLog::add(FAC_AUTH, PRI_ERR, "line manager is unable to handle basic auth:\ncallid=%s\nmethod=%s\ncseq=%d\nrealm=%s",
-            callId.data(), method.data(), sequenceNum, realm.data()) ;
+        OsSysLog::add(FAC_AUTH, PRI_ERR,
+                      "SipLineMgr::buildAuthenticatedRequest "
+                      " unable to handle basic auth:\ncallid=%s\nmethod=%s\ncseq=%d\nrealm=%s",
+                      callId.data(), method.data(), sequenceNum, realm.data()) ;
     }
     else
     {
@@ -773,7 +794,8 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
             }
             removeFromTempList(line);
         }
-    } else
+    }
+    else
     {
         line = getLineforAuthentication(request, response, FALSE);
         if(line)
@@ -789,33 +811,39 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
     {
         if ( line->getCredentials(scheme, realm, &userID, &passToken))
         {
-            OsSysLog::add(FAC_AUTH, PRI_INFO, "found auth credentials for:\nlineId:%s\ncallid=%s\nscheme=%s\nmethod=%s\ncseq=%d\nrealm=%s",
-               fromUri.data(), callId.data(), scheme.data(), method.data(), sequenceNum, realm.data()) ;
+            OsSysLog::add(FAC_AUTH, PRI_INFO,
+                          "SipLineMgr::buildAuthenticatedRequest"
+                          "found auth credentials for callid='%s': userid='%s' realm='%s'",
+                          callId.data(), userID.data(), realm.data()) ;
 
             // Construct a new request with authorization and send it
             // the Sticky DNS fields will be copied by the copy constructor
             *newAuthRequest = *request;
             // Reset the transport parameters
-#ifdef TEST_PRINT
+#           ifdef TEST_PRINT
             int transportTimeStamp = newAuthRequest->getTransportTime();
             int lastResendDuration = newAuthRequest->getResendDuration();
             int timesSent = newAuthRequest->getTimesSent();
             int transportProtocol = newAuthRequest->getSendProtocol(); //OsSocket::UNKNOWN;
             int mFirstSent = newAuthRequest->isFirstSend();
-            osPrintf( "LineMgr::BuildAuthenticated response transTime: %d resendDur: %d timesSent: %d sendProtocol: %d isFirst: %d\n",
-                      transportTimeStamp, lastResendDuration, timesSent, transportProtocol, mFirstSent);
-#endif
+            osPrintf( "SipLineMgr::buildAuthenticatedResponse "
+                     "transTime: %d resendDur: %d timesSent: %d sendProtocol: %d isFirst: %d\n",
+                     transportTimeStamp, lastResendDuration, timesSent,
+                     transportProtocol, mFirstSent);
+#           endif
             newAuthRequest->resetTransport();
 
-#ifdef TEST_PRINT
+#           ifdef TEST_PRINT
             transportTimeStamp = newAuthRequest->getTransportTime();
             lastResendDuration = newAuthRequest->getResendDuration();
             timesSent = newAuthRequest->getTimesSent();
             transportProtocol = newAuthRequest->getSendProtocol(); //OsSocket::UNKNOWN;
             mFirstSent = newAuthRequest->isFirstSend();
-            osPrintf("LineMgr::BuildAuthenticated response transTime: %d resendDur: %d timesSent: %d sendProtocol: %d isFirst: %d\n",
-                     transportTimeStamp, lastResendDuration, timesSent, transportProtocol, mFirstSent);
-#endif
+            osPrintf("SipLineMgr::buildAuthenticatedResponse "
+                     "transTime: %d resendDur: %d timesSent: %d sendProtocol: %d isFirst: %d\n",
+                     transportTimeStamp, lastResendDuration, timesSent,
+                     transportProtocol, mFirstSent);
+#           endif
 
             // Get rid of the via as another will be added.
             newAuthRequest->removeLastVia();
@@ -917,14 +945,21 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
             {
                 UtlString requestUri;
                 newAuthRequest->getRequestUri(&requestUri);
+                OsSysLog::add(FAC_AUTH, PRI_ERR,
+                              "SipLineMgr::buildAuthenticatedRequest "
+                              "adding strict route callid='%s' route='%s'",
+                              callId.data(), requestUri.data()) ;
                 newAuthRequest->addRouteUri(requestUri);
             }
             createdResponse = TRUE;
         }
         else
         {
-            OsSysLog::add(FAC_AUTH, PRI_ERR, "could not find auth credentials for:\nlineId:%s\ncallid=%s\nscheme=%s\nmethod=%s\ncseq=%d\nrealm=%s",
-               fromUri.data(), callId.data(), scheme.data(), method.data(), sequenceNum, realm.data()) ;
+            OsSysLog::add(FAC_AUTH, PRI_ERR,
+                          "SipLineMgr::buildAuthenticatedRequest "
+                          "could not find auth credentials for callid='%s'\n"
+                          "lineId:%s\nrealm=%s",
+                          callId.data(), fromUri.data(), realm.data()) ;
         }
     }
     line = NULL;
@@ -944,8 +979,10 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
 #ifdef TEST
     else
     {
-        osPrintf("Giving up on entity %d authorization, line: \"%s\"\n", authorizationEntity, fromUri.data());
-        osPrintf("authorization failed previously sent: %d\n", request->getAuthorizationField(&authField, authorizationEntity));
+        osPrintf("Giving up on entity %d authorization, line: \"%s\"\n",
+                 authorizationEntity, fromUri.data());
+        osPrintf("authorization failed previously sent: %d\n",
+                 request->getAuthorizationField(&authField, authorizationEntity));
     }
 #endif
     return( createdResponse );
