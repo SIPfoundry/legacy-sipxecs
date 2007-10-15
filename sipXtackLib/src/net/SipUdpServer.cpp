@@ -146,11 +146,11 @@ void SipUdpServer::createServerSocket(const char* szBindAddr,
          mSipUserAgent->addContactAddress(contact);
       }
 
-      // add address and port to the maps
-      mServerSocketMap.insertKeyAndValue(new UtlString(szBindAddr),
-                                         new UtlVoidPtr((void*)pSocket));
+      // Add address and port to the maps.
+      UtlString* address = new UtlString(szBindAddr);
+      mServerSocketMap.insertKeyAndValue(address, pSocket);
       port = pSocket->getLocalHostPort();
-      mServerPortMap.insertKeyAndValue(new UtlString(szBindAddr),
+      mServerPortMap.insertKeyAndValue(address,
                                        new UtlInt(port));
 
       // Get the UDP buffer size from the kernel.
@@ -380,16 +380,10 @@ void SipUdpServer::enableStun(const char* szStunServer,
     
     while (0 != strcmp(szIpToStun, ""))
     {
-        UtlVoidPtr* pSocketContainer;
         UtlString key(szIpToStun);
         
-        pSocketContainer = (UtlVoidPtr*)mServerSocketMap.findValue(&key);
-        OsStunDatagramSocket* pSocket = NULL;
-        
-        if (pSocketContainer)
-        {
-            pSocket = (OsStunDatagramSocket*)pSocketContainer->getValue();
-        }                                                                  
+        OsStunDatagramSocket* pSocket =
+           dynamic_cast <OsStunDatagramSocket*> (mServerSocketMap.findValue(&key)); 
         if (pSocket)
         {
             pSocket->enableStun(false) ;
@@ -522,33 +516,26 @@ UtlBoolean SipUdpServer::getStunAddress(UtlString* pIpAddress, int* pPort,
 {
     UtlBoolean bRet = false;
     OsStunDatagramSocket* pSocket = NULL;
-    UtlVoidPtr* pSocketContainer = NULL;
 
     if (szLocalIp)
     {
         UtlString localIpKey(szLocalIp);
        
-        pSocketContainer = (UtlVoidPtr*)mServerSocketMap.findValue(&localIpKey);
-        if (pSocketContainer)
-        {
-            pSocket = (OsStunDatagramSocket*)pSocketContainer->getValue();
-        }
+        pSocket =
+           dynamic_cast <OsStunDatagramSocket*> (mServerSocketMap.findValue(&localIpKey));
     }
     else
     {
         // just use the default Socket in our collection
         UtlString defaultIpKey(mDefaultIp);
        
-        pSocketContainer = (UtlVoidPtr*)mServerSocketMap.findValue(&defaultIpKey);
-        if (pSocketContainer != NULL )
-        {
-            pSocket = (OsStunDatagramSocket*)pSocketContainer->getValue();
-        }
+        pSocket =
+           dynamic_cast <OsStunDatagramSocket*> (mServerSocketMap.findValue(&defaultIpKey));
     }
     
     if (pSocket)
     {
-        bRet =  pSocket->getExternalIp(pIpAddress, pPort) ;
+        bRet =  pSocket->getExternalIp(pIpAddress, pPort);
     }
     return bRet;
 }
@@ -570,9 +557,9 @@ OsSocket* SipUdpServer::buildClientSocket(int hostPort,
       // look up the server socket for this local IP.
       assert(localIp != NULL);
       UtlString localKey(localIp);
-      UtlVoidPtr* pSocketContainer =
-         dynamic_cast <UtlVoidPtr*> (mServerSocketMap.findValue(&localKey));
-      pSocket = (OsStunDatagramSocket*) pSocketContainer->getValue();
+
+      pSocket =
+         dynamic_cast <OsStunDatagramSocket*> (mServerSocketMap.findValue(&localKey));
       assert(pSocket);
    }
    else

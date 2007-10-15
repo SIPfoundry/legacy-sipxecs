@@ -130,8 +130,11 @@ protected:
    // Description of the server (listening) SipClient's.
    // These variables are changed only by the Sip*Server
    // constructors/destructors and the threads that call them.
-   // Map from the local IP addresses (as UtlString's) to UtlVoidPtr's to
+   // Map from the local IP addresses (as UtlString's) to
    // OsSocket's listening on those addresses.
+   // The OsSocket's are owned by the SipServerBroker's in mServers,
+   // and the key strings are the same as those in (and owned by
+   // mServerPortMap).
    UtlHashMap mServerSocketMap;
    // Map from the local IP addresses (as UtlString's) to UtlInt's of the
    // listening port numbers.

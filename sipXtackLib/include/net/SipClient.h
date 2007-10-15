@@ -76,6 +76,10 @@ public:
    // is now writable).
    virtual void writeMore(void);
 
+   /** Set the indicator whether the socket is shared (and thus should
+    *  not be deleted).
+    */
+   // Initial value is FALSE, i.e., socket should be deleted.
    // :TODO:  This value should be made into an argument on the constructor,
    // since setting it correctly is mandatory and the value should never
    // change over the life of the client.  Also, if shared is TRUE, the

@@ -31,6 +31,8 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
+const UtlContainableType SipServerBroker::TYPE = "SipServerBroker";
+
 SipServerBroker::SipServerBroker(OsServerTask* pTask, OsServerSocket* pSocket) :
     OsTask("SipServerBroker-%d"),
     mpSocket(pSocket),

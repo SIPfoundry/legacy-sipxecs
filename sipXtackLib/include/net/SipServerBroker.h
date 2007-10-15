@@ -17,6 +17,7 @@
 #include "os/OsSocket.h"
 #include "os/OsRWMutex.h"
 #include "os/OsProtectEvent.h"
+#include "utl/UtlContainableAtomic.h"
 
 class OsNotification;
 // DEFINES
@@ -30,9 +31,7 @@ class OsConnectionSocket;
 class OsServerSocket;
 class OsSocket;
 
-
-
-class SipServerBroker : public OsTask
+class SipServerBroker : public OsTask, public UtlContainableAtomic
 {
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -44,6 +43,7 @@ public:
    SipServerBroker(OsServerTask* pTask, OsServerSocket* pSocket);
    //:Constructor - takes a server task which created this broker,
    //   and also a socket to listen on
+   // Takes ownership of *pSocket.
    
    virtual
    ~SipServerBroker();
@@ -57,6 +57,15 @@ public:
 
 
 /* ============================ INQUIRY =================================== */
+
+    virtual UtlContainableType getContainableType(void) const
+    {
+       return SipServerBroker::TYPE;
+    };
+
+    /** Class type used for runtime checking */
+    static const UtlContainableType TYPE;
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     OsServerSocket* mpSocket;

@@ -104,6 +104,8 @@ protected:
     
     int mServerPort;
     
+    // Map from the local IP addresses (as UtlString's) to SipServerBroker's
+    // that listen on them.
     UtlHashMap mServerBrokers;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

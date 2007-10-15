@@ -56,10 +56,13 @@ SipProtocolServerBase::~SipProtocolServerBase()
     * to ensure single-threaded access anyway. */
    mClientList.destroyAll();
 
+   // mServerSocketMap entries are removed rather than destroyed because
+   // the keys are owned by mServerPortMap and the values are OsSocket's
+   // owned by the SipServerBroker's in mServers.
+   mServerSocketMap.removeAll();
    // Delete all the server SipClient's.
    mServers.destroyAll();
    mServerPortMap.destroyAll();    
-   mServerSocketMap.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -122,23 +125,15 @@ UtlBoolean SipProtocolServerBase::send(SipMessage* message,
 UtlBoolean SipProtocolServerBase::startListener()
 {
     UtlHashMapIterator iter(mServerSocketMap);
-    UtlVoidPtr* pSocketContainer = NULL;
     UtlString* pKey;
     while ((pKey = dynamic_cast <UtlString*> (iter())))
     {
-        OsSocket* pSocket = NULL;
+        // Get the socket for this local address.
+        OsSocket* pSocket = dynamic_cast <OsSocket*> (iter.value());
 
-        UtlString localIp = *pKey;
-        pSocketContainer = (UtlVoidPtr*) iter.value();
-         
-        if (pSocketContainer)
-        {    
-            pSocket = (OsSocket*)pSocketContainer->getValue();
-        }
-        
-        // Look up the SipClient for localIp.
+        // Look up the SipClient for pKey.
         SipClient* pServer =
-           dynamic_cast <SipClient*> (mServers.findValue(&localIp));
+           dynamic_cast <SipClient*> (mServers.findValue(pKey));
         if (!pServer)
         {
            // No SipClient exists in mServers, so create one and insert it.
@@ -150,7 +145,7 @@ UtlBoolean SipProtocolServerBase::startListener()
               strcmp(mProtocolString, SIP_TRANSPORT_TLS) == 0 ?
               static_cast <SipClient*> (new SipClientTls(pSocket, this, mSipUserAgent)) :
               NULL;
-           this->mServers.insertKeyAndValue(new UtlString(localIp), pServer);
+           mServers.insertKeyAndValue(new UtlString(*pKey), pServer);
            pServer->start();
         }
     }
@@ -211,6 +206,10 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
             strcmp(mProtocolString, SIP_TRANSPORT_TLS) == 0 ?
             static_cast <SipClient*> (new SipClientTls(clientSocket, this, mSipUserAgent)) :
             NULL;
+         // Using special knowledge of buildClientSocket, set
+         // sharedSocket if this SipClient is reusing a server socket.
+         // :TODO: Clean this up by using an indication returned by
+         // buildClientSocket.
          if (client && mSipUserAgent->getUseRport() &&
              clientSocket->getIpProtocol() == OsSocket::UDP)
          {

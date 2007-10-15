@@ -89,24 +89,14 @@ UtlBoolean SipTcpServer::startListener()
     osPrintf("SIP Server binding to port %d\n", mServerPort);
 #   endif
 
-    // iterate over the SipServerBroker map and call start
+    // Iterate over the SipServerBroker map and call start on each element.
     UtlHashMapIterator iterator(mServerBrokers);
-    UtlVoidPtr* pBrokerContainer = NULL;
-    SipServerBroker* pBroker = NULL;
-    UtlString* pKey = NULL;
+    UtlString* pKey;
     
-    while((pKey = (UtlString*)iterator()))
+    while ((pKey = dynamic_cast <UtlString*> (iterator())))
     {
-        pBrokerContainer = (UtlVoidPtr*) iterator.value();
-        if (pBrokerContainer)
-        {
-            pBroker = (SipServerBroker*)pBrokerContainer->getValue();
-            if (pBroker)
-            {
-                pBroker->start();
-                bRet = TRUE;
-            }
-        }
+       (dynamic_cast <SipServerBroker*> (iterator.value()))->start();
+       bRet = TRUE;
     }
     return bRet;
 }
@@ -155,14 +145,15 @@ void SipTcpServer::createServerSocket(const char* szBindAddr,
             mSipUserAgent->addContactAddress(contact);
          }
 
-         // add address and port to the maps
-         mServerSocketMap.insertKeyAndValue(new UtlString(szBindAddr),
-                                            new UtlVoidPtr((void*)pSocket));
-         mServerPortMap.insertKeyAndValue(new UtlString(szBindAddr),
+         // Add address and port to the maps.
+         UtlString* address = new UtlString(szBindAddr);
+         mServerSocketMap.insertKeyAndValue(address, pSocket);
+         mServerPortMap.insertKeyAndValue(address,
                                           new UtlInt(pSocket->getLocalHostPort()));
+         // pSocket is owned by the SipServerBroker.
          mServerBrokers.insertKeyAndValue(new UtlString(szBindAddr),
-                                          new UtlVoidPtr(new SipServerBroker((OsServerTask*)mpServerBrokerListener,
-                                                                             pSocket)));                                                   
+                                          new SipServerBroker(mpServerBrokerListener,
+                                                              pSocket));
       }
    }
 }
@@ -176,26 +167,10 @@ SipTcpServer::~SipTcpServer()
         delete mpServerBrokerListener;
     }
     waitUntilShutDown();
-    {
-        SipServerBroker* pBroker = NULL;
-        UtlHashMapIterator iterator(mServerBrokers);
-        UtlVoidPtr* pBrokerContainer = NULL;
-        UtlString* pKey = NULL;
-        
-        while ((pKey = (UtlString*)iterator()))
-        {
-            pBrokerContainer = (UtlVoidPtr*)iterator.value();
-            if (pBrokerContainer)
-            {
-                pBroker = (SipServerBroker*)pBrokerContainer->getValue();
-                if (pBroker)
-                {
-                    delete pBroker;
-                }
-            }
-        }
-        mServerBrokers.destroyAll();
-    }
+
+    // This deletes the SipServerBrokers, as they are now the values
+    // of mServerBrokers.
+    mServerBrokers.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
