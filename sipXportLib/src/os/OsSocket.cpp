@@ -696,11 +696,12 @@ void OsSocket::makeNonblocking()
     unsigned long c_ONDELAY=1;
     ioctlsocket(socketDescriptor, FIONBIO, &c_ONDELAY);
 #elif defined(_VXWORKS)
+    #error Unsupported target platform.
 #elif defined(__pingtel_on_posix__)
     int flags = fcntl(socketDescriptor, F_GETFL);
     fcntl(socketDescriptor, F_SETFL,  flags | O_NDELAY);
 #else
-#    error Unsupported target platform.
+    #error Unsupported target platform.
 #endif
 }
 
@@ -711,11 +712,12 @@ void OsSocket::makeBlocking()
     unsigned long c_ONDELAY=0;
     ioctlsocket(socketDescriptor, FIONBIO, &c_ONDELAY);
 #elif defined(_VXWORKS)
+    #error Unsupported target platform.
 #elif defined(__pingtel_on_posix__)
     int flags = fcntl(socketDescriptor, F_GETFL);
-    fcntl(socketDescriptor, F_SETFL, flags&~O_NDELAY);
+    fcntl(socketDescriptor, F_SETFL, flags & ~O_NDELAY);
 #else
-#    error Unsupported target platform.
+    #error Unsupported target platform.
 #endif
 }
 

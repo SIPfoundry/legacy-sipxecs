@@ -27,7 +27,9 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-//#define TEST_PRINT
+
+//#define TEST_CLIENT_CREATION
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -164,20 +166,20 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
       client = getClient(hostAddress, hostPort, localIp);
       if(!client)
       {
-#       ifdef TEST_CLIENT_CREATION
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipProtocolServerBase[%s]::createClient('%s', %d)",
-                       getName().data(), hostAddress, hostPort);
-#       endif
+         #ifdef TEST_CLIENT_CREATION
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipProtocolServerBase[%s]::createClient('%s', %d, '%s')",
+                          getName().data(), hostAddress, hostPort, localIp);
+         #endif
 
          if(!portIsValid(hostPort))
          {
             hostPort = mDefaultPort;
-#           ifdef TEST_CLIENT_CREATION
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipProtocolServerBase[%s]::createClient port defaulting to %d",
-                          getName().data(), hostPort);
-#           endif
+            #ifdef TEST_CLIENT_CREATION
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipProtocolServerBase[%s]::createClient port defaulting to %d",
+                             getName().data(), hostPort);
+            #endif
          }
 
          OsTime time;
@@ -195,9 +197,9 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
                           (int)(afterSecs - beforeSecs));
          }
 
-#ifdef TEST
-         osPrintf("Socket OK, creating client\n");
-#endif
+         #ifdef TEST
+            osPrintf("Socket OK, creating client\n");
+         #endif
          client = 
             strcmp(mProtocolString, SIP_TRANSPORT_UDP) == 0 ?
             static_cast <SipClient*> (new SipClientUdp(clientSocket, this, mSipUserAgent)) :
@@ -215,10 +217,11 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
          {
             client->setSharedSocket(TRUE);
          }
-
-#ifdef TEST
-         osPrintf("Created client\n");
-#endif
+         #ifdef TEST_CLIENT_CREATION
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipProtocolServerBase[%s]::createClient created client %s",
+                          getName().data(), client->getName().data());
+         #endif
 
          // Start the client's thread.
          clientStarted = client->start();
@@ -264,11 +267,11 @@ SipClient* SipProtocolServerBase::getClient(const char* hostAddress,
    UtlString hostAddressString(hostAddress ? hostAddress : "");
    SipClient* client = NULL;
 
-#   ifdef TEST_CLIENT_CREATION
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipProtocolServerBase[%s]::getClient('%s', %d)",
-                 getName().data(), hostAddress, hostPort);
-#   endif
+   #ifdef TEST_CLIENT_CREATION
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipProtocolServerBase[%s]::getClient('%s', %d, '%s')",
+                    getName().data(), hostAddress, hostPort, localIp);
+   #endif
 
    UtlSListIterator iter(mClientList);
    while ((client = dynamic_cast <SipClient*> (iter())))
@@ -289,40 +292,46 @@ SipClient* SipProtocolServerBase::getClient(const char* hostAddress,
          else
          {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipProtocolServerBase[%s]::getClient('%s', %d)"
+                          "SipProtocolServerBase[%s]::getClient('%s', %d, '%s')"
                           " Client matches host/port but is not OK",
-                          getName().data(), mProtocolString.data(), hostPort);
+                          getName().data(), mProtocolString.data(), hostPort, localIp);
          }
       }
    }
 
-#   ifdef TEST_CLIENT_CREATION
-   if (!client)
-   {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipProtocolServerBase[%s]::getClient('%s', %d) NOT FOUND",
-                    getName().data(), hostAddress, hostPort);
-   }
-#   endif
+   #ifdef TEST_CLIENT_CREATION
+      if (client)
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipProtocolServerBase[%s]::getClient('%s', %d, '%s') found %s",
+                       getName().data(), hostAddress, hostPort, localIp,
+                       client->getName().data());
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipProtocolServerBase[%s]::getClient('%s', %d, '%s') not found",
+                       getName().data(), hostAddress, hostPort, localIp);
+      }
+   #endif
 
    return (client);
 }
 
 void SipProtocolServerBase::deleteClient(SipClient* sipClient)
 {
-#ifdef TEST_PRINT
-
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipProtocolServerBase[%s]::deleteClient(%p)",
-                 getName().data(), sipClient);
-#endif
+   #ifdef TEST_PRINT
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipProtocolServerBase[%s]::deleteClient(%p)",
+                    getName().data(), sipClient);
+   #endif
    
    // Remove sipClient from mClientList (if it is on the list).
    UtlContainable* ret = mClientList.removeReference(sipClient);
 
    if (ret != NULL)
    {
-#ifdef TEST_PRINT
+ #ifdef TEST_PRINT
       UtlString clientNames;
       client->getClientNames(clientNames);
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -331,15 +340,15 @@ void SipProtocolServerBase::deleteClient(SipClient* sipClient)
                     sipClient->mProtocolString.data(),
                     sipClient->getName().data(), sipClient,
                     clientNames.data());
-#endif
+ #endif
       delete sipClient;
    }
 
-#ifdef TEST_PRINT
+ #ifdef TEST_PRINT
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipProtocolServerBase[%s]::deleteClient(%p) done",
                  getName().data(), sipClient);
-#endif
+ #endif
 }
 
 void SipProtocolServerBase::removeOldClients(long oldTime)
@@ -389,13 +398,13 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
          }
          else
          {
-#           ifdef TEST_PRINT
+            #ifdef TEST_PRINT
             UtlString names;
             client->getClientNames(names);
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipProtocolServerBase[%s]::removeOldClients leaving client:\n%s",
                           getName().data(), names.data());
-#           endif
+            #endif
          }
       }
    }
