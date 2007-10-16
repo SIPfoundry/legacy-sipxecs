@@ -1,0 +1,103 @@
+<div jwcid="@Border" useDojo="true">
+<h2>
+  <span key="title">Statistics</span>
+</h2>
+<span jwcid="@ErrorMsg"/>
+<form jwcid="@Form">
+  <table>
+    <tr>
+      <td><span key="label.hosts">Hosts</span></td>
+      <td>
+        <span jwcid="@PropertySelection"
+          model="ognl:hostModel"
+          value="ognl:host"
+      onchange="literal:javascript:this.form.submit();" />
+      </td>
+    </tr>
+  </table>
+</form>
+<br/>
+<table width="100%">
+  <tr>
+    <td valign="top" align="left">
+      <div id="settings-nav">
+        <span jwcid="@common/TabControl">
+          <span jwcid="@For" source="ognl:reports" value="ognl:availableReportsIndexItem" index="ognl:reportIndex">
+            <span jwcid="@common/Tab" isActive="ognl:availableReportsIndexItem.equals(reportName)">
+              <a href="#" jwcid="@DirectLink" listener="listener:showReport"
+                parameters="ognl:{availableReportsIndexItem, host}" id="ognl:'report' + reportIndex">
+                <span jwcid="@Insert" value="ognl:availableReportsIndexItem"/>
+              </a>
+            </span>
+          </span>
+        </span>
+      </div>
+    </td>
+    <td align="left" valign="top">
+      <h3><span jwcid="@Insert" value="ognl:reportName" /></h3>
+      <span jwcid="@If" condition="ognl:summaryReport">
+        <table>
+          <tr>
+            <td valign="top">
+              <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="prop:index">
+                <span jwcid="@If" condition="ognl:evenIndex">
+                  <table>
+                    <tr>
+                      <td><b><span jwcid="@Insert" value="ognl:currentBean.targetTitle"/></b></td>
+                    </tr>
+                    <tr>
+                      <td><span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" /></td>
+                    </tr>
+                    <tr><td>&nbsp;</td></tr>
+                  </table>
+                </span>
+              </span>
+            </td>
+            <td>&nbsp;&nbsp;</td>
+            <td valign="top">
+              <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="prop:index">
+                <span jwcid="@If" condition="ognl:!evenIndex">
+                  <table>
+                    <tr>
+                      <td><b><span jwcid="@Insert" value="ognl:currentBean.targetTitle"/></b></td>
+                    </tr>
+                    <tr>
+                      <td><span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" /></td>
+                    </tr>
+                    <tr><td>&nbsp;</td></tr>
+                  </table>
+                </span>
+              </span>
+            </td>
+          </tr>
+        </table>
+      </span>
+      <span jwcid="@Else">
+        <table>
+          <tr>
+            <td>
+              <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="prop:index">
+                <table>
+                  <tr>
+                    <td><b><span jwcid="@Insert" value="ognl:currentBean.targetTitle" /></b></td>
+                  </tr>
+                  <tr>
+                    <td><span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" /></td>
+                  </tr>
+                  <tr>
+                    <td><span jwcid="@Insert" value="ognl:currentBean.htmlDetails" raw="true" /></td>
+                  </tr>
+                  <tr><td>&nbsp;</td></tr>
+                </table>
+              </span>
+            </td>
+          </tr>
+        </table>
+      </span>
+    </td>
+    <td valign="top">
+      <span jwcid="@QuickHelp" value="message:statistics.help"/>
+    </td>
+  </tr>
+</table>
+</div>

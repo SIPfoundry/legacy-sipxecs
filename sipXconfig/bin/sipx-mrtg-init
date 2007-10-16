@@ -1,0 +1,230 @@
+#!/bin/bash
+
+usage() {
+  echo
+  echo Usage: $0 parameters
+  echo
+  echo "   Configures the environment for monitoring"
+  echo
+  echo Parameters:
+  echo "   -h|--help                     Display this help text."
+  echo "   -u|--sipx-user                The user under "
+  echo "   -p|--prefix                   The prefix"
+  echo
+}
+
+if [ "`whoami`" != root ]
+then
+  echo "You must be root in order to run this script."
+  exit 4
+fi
+
+# Process the command-line arguments.
+while [ $# -ne 0 ]
+do
+  case ${1} in
+    -h|--help)
+      usage
+      exit
+      ;;
+
+    -u|--sipx-user)
+      # get the sipx-user
+      if [ -z "${2}" ]
+      then
+        echo "No argument specified for ${1}."
+        bad_usage
+      else
+        SIPX_USER="${2}"
+        shift
+      fi
+      ;;
+
+    -p|--prefix)
+      # get the prefix
+      if [ -z "${2}" ]
+      then
+        echo "No argument specified for ${1}."
+        bad_usage
+      elif [ -d "${2}" ]
+      then
+        PREFIX_PATH="${2}"
+        shift
+      else
+        echo "No such directory: ${2}."
+      fi
+      ;;
+
+    *)
+      echo "Unknown option: ${1}"
+      bad_usage
+      ;;
+    esac
+  shift # always consume one argument
+done
+
+if [ -z "$SIPX_USER" ]
+then
+  echo "No sipx-user specified. Assuming sipx user = sipxchange"
+  SIPX_USER="sipxchange"
+fi
+
+if [ -z "$PREFIX_PATH" ]
+then
+  echo "No prefix specified. Assuming prefix = /"
+fi
+
+
+#########################################
+# SNMP CONFIGURATION 
+#########################################
+if [ -d /etc/snmp ]
+then
+  cd /etc/snmp
+  if [ -f snmpd.conf ]
+  then 
+    mv snmpd.conf snmpd.conf.old
+  fi
+
+  cat > ./snmpd.conf <<EOF
+rocommunity sipxtest
+
+disk /var
+EOF
+
+  chown $SIPX_USER:$SIPX_USER /etc/snmp/snmpd.conf
+
+  chkconfig snmpd on
+  service snmpd start
+else
+  echo "Directory /etc/snmp does not exist. Please verify yout snmp instalation."
+  echo "Exiting..."
+  exit 
+fi
+
+#########################################
+# MRTG CONFIGURATION 
+#########################################
+
+if [ -d /etc/mrtg ]
+then
+  chown $SIPX_USER:$SIPX_USER /etc/mrtg/
+  cd /etc/mrtg
+  if [ -f mrtg.cfg ]
+  then 
+    mv mrtg.cfg mrtg.cfg.old
+  fi
+
+  cat > ./mrtg-t.cfg <<EOF
+EnableIPv6: no
+LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt
+workdir : $PREFIX_PATH/var/sipxdata/mrtg
+
+#
+# Server CPU Load
+#
+Target[cpuutil]:ssCpuRawUser.0&ssCpuRawUser.0:\$(snmpString)@\$(host)
+Title[cpuutil]: Server CPU Load
+MaxBytes[cpuutil]: 100
+PageTop[cpuutil]: <H1>Server CPU Load</H1>
+ShortLegend[cpuutil]: %
+YLegend[cpuutil]: CPU Utilization
+Legend1[cpuutil]: Current CPU percentage load
+LegendI[cpuutil]: Used
+LegendO[cpuutil]:
+Options[cpuutil]: growright,nopercent
+Unscaled[cpuutil]: ymwd
+
+#
+# Server CPU Percent usage
+#
+Target[machine]:ssCpuRawUser.0&ssCpuRawUser.0:\$(snmpString)@\$(host) + ssCpuRawSystem.0&ssCpuRawSystem.0:\$(snmpString)@\$(host) + ssCpuRawNice.0&ssCpuRawNice.0:\$(snmpString)@\$(host)
+Title[machine]: CPU busy percentage
+Ytics[machine]: 10
+PageTop[machine]: <h1>CPU busy percentage</h1>
+MaxBytes[machine]: 100
+YLegend[machine]: CPU busy %
+ShortLegend[machine]: &nbsp;
+LegendI[machine]: Processes
+LegendO[machine]:
+Legend1[machine]:Processes
+Options[machine]: growright,nopercent
+
+#
+# Memory Monitoring
+#
+Target[memgraph]: memAvailReal.0&memTotalReal.0:\$(snmpString)@\$(host)
+Title[memgraph]: Free Memory
+PageTop[memgraph]: <H1> Free Memory </H1>
+MaxBytes[memgraph]: 10000000000
+ShortLegend[memgraph]: B
+YLegend[memgraph]: Bytes
+LegendI[memgraph]: Free
+LegendO[memgraph]: Total
+Legend1[memgraph]: Free memory (not including swap) in bytes
+Legend2[memgraph]: Total memory
+Options[memgraph]: gauge,growright,nopercent
+kMG[memgraph]: k,M,G,T,P,X
+
+#
+# Memory Monitoring (Percent usage)
+#
+Title[mempercent]: Percentage Free Memory
+PageTop[mempercent]: <H1> Percentage Free Memory </H1>
+Target[mempercent]: (memAvailReal.0&memAvailReal.0:\$(snmpString)@\$(host)) * 100 / (memTotalReal.0&memTotalReal.0:\$(snmpString)@\$(host))
+options[mempercent]: growright,gauge,transparent,nopercent
+Unscaled[mempercent]: ymwd
+MaxBytes[mempercent]: 100
+YLegend[mempercent]: Memory %
+ShortLegend[mempercent]: Percent
+LegendI[mempercent]: Free
+LegendO[mempercent]: Free
+Legend1[mempercent]: Percentage Free Memory
+Legend2[mempercent]: Percentage Free Memory
+
+#
+# New TCP Connection Monitoring (per minute)
+#
+Target[newconns]: tcpPassiveOpens.0&tcpActiveOpens.0:\$(snmpString)@\$(host)
+Title[newconns]: Newly Created TCP Connections
+PageTop[newconns]: <H1> New TCP Connections </H1>
+MaxBytes[newconns]: 10000000000
+ShortLegend[newconns]: c/s
+YLegend[newconns]: Conns / Min
+LegendI[newconns]: In
+LegendO[newconns]: Out
+Legend1[newconns]: New inbound connections
+Legend2[newconns]: New outbound connections
+Options[newconns]: growright,nopercent,perminute
+
+
+#
+# Established TCP Connections
+#
+Target[estabcons]: tcpCurrEstab.0&tcpCurrEstab.0:\$(snmpString)@\$(host)
+Title[estabcons]: Currently Established TCP Connections
+PageTop[estabcons]: <H1> Established TCP Connections </H1>
+MaxBytes[estabcons]: 10000000000
+ShortLegend[estabcons]:
+YLegend[estabcons]: Connections
+LegendI[estabcons]: In
+LegendO[estabcons]:
+Legend1[estabcons]: Established connections
+Legend2[estabcons]:
+Options[estabcons]: growright,nopercent,gauge
+
+LogFormat: rrdtool
+PathAdd: /usr/bin
+LibAdd: /usr/lib/perl5/5.8.5/i386-linux-thread-multi
+
+EOF
+
+  chown $SIPX_USER:$SIPX_USER ./mrtg-t.cfg
+else
+  echo "Directory /etc/mrtg does not exist. Pleas verify you mrtg instalation"
+  echo "Exiting ..."
+  exit
+fi
+
+mkdir -p $PREFIX_PATH/var/sipxdata/mrtg
+chown $SIPX_USER:$SIPX_USER $PREFIX_PATH/var/sipxdata/mrtg/

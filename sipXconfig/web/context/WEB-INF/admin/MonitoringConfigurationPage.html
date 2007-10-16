@@ -1,0 +1,20 @@
+<div jwcid="@Border" restricted="false">
+  <h2>
+    <span key="title">Configuration</span>
+  </h2>
+  <form jwcid="hosts@Form">
+    <table jwcid="@Table" id="hosts:list"
+      source="prop:hosts"
+      columns="literal:* hostName"
+      row="prop:currentRow"
+      selections="bean:selections"
+      rowInfo="bean:rowInfo">
+      <span jwcid="hostNameColumnValue@Block">
+        <span jwcid="editRowLink@DirectLink"
+            listener="listener:editHostConfiguration" parameters="prop:currentRow.hostName">
+          <span jwcid="@Insert" value="prop:currentRow.hostName"/>
+        </span>
+      </span>
+    </table>
+  </form>
+</div>

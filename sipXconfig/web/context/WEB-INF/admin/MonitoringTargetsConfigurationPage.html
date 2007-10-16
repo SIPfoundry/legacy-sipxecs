@@ -1,0 +1,16 @@
+<div jwcid="@Border" restricted="false">
+  <h2>
+    <span key="title">Targets to monitor</span>
+  </h2>
+  <h3>
+    <span jwcid="@Insert" value="prop:host" />
+  </h3>
+  <span jwcid="@ErrorMsg"/>
+  <form jwcid="targets@Form" delegate="bean:validator">
+    <span jwcid="targetsTable@admin/TargetsTable"
+      targets="prop:targets"
+      callback="prop:callback"
+      selections="prop:selections"
+      host="prop:host"/> 
+  </form>
+</div>
