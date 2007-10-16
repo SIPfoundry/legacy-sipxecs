@@ -60,6 +60,17 @@ if test x$enable_agent = xyes ; then
   CHECK_RUBY_GEM([file-tail])
 fi
 
+AC_ARG_ENABLE(mrtg,
+  AC_HELP_STRING([--enable-mrtg], [Enable MRTG integration]),
+  enable_mrtg=yes,)
+AM_CONDITIONAL(MRTG, test x$enable_mrtg = xyes)
+AC_SUBST(MRTG_ENABLED, [])
+if test x$enable_mrtg == xyes ; then
+  MRTG_ENABLED="mrtg-enabled=true"
+else
+  MRTG_ENABLED="mrtg-enabled=false"
+fi
+
 AC_ARG_ENABLE(ruby-bindings,
   AC_HELP_STRING([--enable-ruby-bindings], [Build optional ruby bindings to web services]),
   enable_ruby_binding=yes,)
@@ -70,6 +81,7 @@ if test x$enable_ruby_binding == xyes ; then
   SFAC_SRCDIR_EXPAND
   AC_PATH_PROG([WSDL2RUBY], wsd2lruby.rb, $abs_srcdir/web/meta/wsdl2ruby.rb)
 fi
+
 
 AC_CONFIG_FILES([
     Makefile

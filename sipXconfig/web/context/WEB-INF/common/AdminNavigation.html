@@ -59,8 +59,10 @@
     <ul>
       <li><a jwcid="@PageLink" id="menu.registrations" page="Registrations"><span key="menu.registrations">Registrations</span></a></li>
       <li><a jwcid="@PageLink" id="menu.cdr" page="cdr/CdrPage"><span key="menu.cdr">Calls</span></a></li>
-      <li><a jwcid="@PageLink" id="menu.statistics" page="admin/StatisticsPage"><span key="menu.statistics">Statistics</span></a></li>
-      <li jwcid="@If" element="li" condition="ognl: acdContext.enabled">
+      <li jwcid="@If" element="li" condition="ognl:monitoringContext.enabled">
+        <a jwcid="@PageLink" id="menu.statistics" page="admin/StatisticsPage"><span key="menu.statistics">Statistics</span></a>
+      </li>
+      <li jwcid="@If" element="li" condition="ognl:acdContext.enabled">
         <a jwcid="@PageLink" id="menu.acdHistory" page="acd/AcdHistoryPage"><span key="menu.acdHistory">ACD Calls</span></a>
       </li>
       <li><a jwcid="@PageLink" id="menu.jobs" page="JobStatusPage"><span key="menu.jobs">Job Status</span></a></li>

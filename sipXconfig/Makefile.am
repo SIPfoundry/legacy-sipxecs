@@ -4,6 +4,7 @@ include config/project.am
 edit = $(LocalizeSipXconfig) \
     -e 's,@OPENSSL\@,@OPENSSL@,g' \
     -e 's,@CLOVER_JAR\@,@CLOVER_JAR@,g' \
+    -e 's,@MRTG_ENABLED\@,@MRTG_ENABLED@,g' \
     -e 's,@RUBY_BINDINGS_ENABLED\@,@RUBY_BINDINGS_ENABLED@,g' \
     -e 's,@RUBY\@,@RUBY@,g' \
     -e 's,@WSDL2RUBY\@,@WSDL2RUBY@,g' \

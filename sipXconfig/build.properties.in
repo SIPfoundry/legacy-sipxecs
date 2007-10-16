@@ -47,6 +47,7 @@ neoconf.etc.dir=${top.dir}/neoconf/etc
 
 openssl=@OPENSSL@
 clover.jar=@CLOVER_JAR@
+@MRTG_ENABLED@
 
 #soap api unit testing
 ruby=@RUBY@

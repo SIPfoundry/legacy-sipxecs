@@ -106,6 +106,7 @@
       <replacefilter token="@sipxpbx.backup.dir@" property="sipxpbx.backup.dir" />
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user" />
       <replacefilter token="@www.dir@" property="www.dir" />
+      <replacefilter token="@mrtg-enabled@" property="mrtg-enabled" />
     </replace>
 
     <!-- copy jars and war -->

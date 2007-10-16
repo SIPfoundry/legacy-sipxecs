@@ -140,8 +140,9 @@ public final class TestUtil {
                 }
                 dir = dir.getParentFile();
             }
-            throw new RuntimeException(String.format(
-                    "Cannot find %s in any of the parent of %s.", propName, getProjectDirectory()));
+            throw new RuntimeException(String
+                    .format("Cannot find %s in any of the parent of %s.", propName,
+                            getProjectDirectory()));
         } catch (IOException ioe) {
             throw new RuntimeException("Could not find top build directory", ioe);
         }
@@ -186,7 +187,8 @@ public final class TestUtil {
         sysProps.setProperty("phonebookManagerImpl.externalUsersDirectory", outputDirectory
                 + "/phonebook");
         sysProps.setProperty("vxml.scriptsDirectory", outputDirectory + "/vxml");
-        
+        sysProps.setProperty("monitoringContextImpl.enabled", Boolean.toString(true));
+
         File vmDir = new File(outputDirectory + "/mailstore");
         if (!vmDir.exists()) {
             if (!vmDir.mkdirs()) {

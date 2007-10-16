@@ -41,6 +41,9 @@ mappingRules.externalRulesFileName=
 # external additions to external call fallback rules
 fallbackRules.externalRulesFileName=
 
+# conditionally enable MRTG integration
+monitoringContextImpl.enabled=@mrtg-enabled@
+
 # name changes to anything starting w/sysdir need to be reflected in
 # VersionInfo class as well
 sysdir.bin=@sipxpbx.bin.dir@

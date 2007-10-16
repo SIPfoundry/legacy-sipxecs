@@ -27,6 +27,7 @@ public class MonitoringContextImplTest extends TestCase {
 
     protected void setUp() {
         m_monitoringContextImpl = new MonitoringContextImpl();
+        m_monitoringContextImpl.setEnabled(true);
         m_processContextImpl = new SipxProcessContextImpl() {
             protected InputStream getTopologyAsStream() {
                 return SipxProcessContextImplTest.class.getResourceAsStream("topology.test.xml");

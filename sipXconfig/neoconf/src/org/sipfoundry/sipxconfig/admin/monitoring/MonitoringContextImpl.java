@@ -37,6 +37,8 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
 
     private RRDToolGraphUpdater m_rrdToolGraphUpdater;
 
+    private boolean m_enabled;
+
     /**
      * set and load mrtg config file object
      */
@@ -352,10 +354,20 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
     /**
      * called by Spring framework after properties set initializes the mrtg config files
      */
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
+        if (!m_enabled) {
+            return;
+        }
         loadTemplateMrtgConfig();
         loadMrtgConfig();
         intializeConfigFiles();
     }
 
+    public boolean isEnabled() {
+        return m_enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        m_enabled = enabled;
+    }
 }

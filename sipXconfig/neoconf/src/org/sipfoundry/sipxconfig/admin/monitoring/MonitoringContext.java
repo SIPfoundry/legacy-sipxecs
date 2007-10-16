@@ -12,21 +12,23 @@ package org.sipfoundry.sipxconfig.admin.monitoring;
 import java.util.List;
 
 public interface MonitoringContext {
-    public List<String> getAvailableHosts();
+    List<String> getAvailableHosts();
 
-    public List<String> getHosts();
+    List<String> getHosts();
 
-    public String getMrtgWorkingDir();
+    String getMrtgWorkingDir();
 
-    public List<MRTGTarget> getTargetsForHost(String host);
+    List<MRTGTarget> getTargetsForHost(String host);
 
-    public List<MRTGTarget> getTargetsFromTemplate();
+    List<MRTGTarget> getTargetsFromTemplate();
 
-    public List<String> getReports(String host);
+    List<String> getReports(String host);
 
-    public MRTGTarget getMRTGTarget(String reportName, String host);
+    MRTGTarget getMRTGTarget(String reportName, String host);
 
-    public void generateConfigFiles(String host, String communityString, List<String> reportNames);
+    void generateConfigFiles(String host, String communityString, List<String> reportNames);
 
-    public boolean updateGraphs(String host);
+    boolean updateGraphs(String host);
+
+    boolean isEnabled();
 }
