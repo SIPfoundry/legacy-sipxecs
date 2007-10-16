@@ -15,6 +15,7 @@
 #ifndef _WINCE
 #include <sys/stat.h>
 #endif
+#include "os/OsSysLog.h"
 
 BEGIN_FASTDB_NAMESPACE
 
@@ -30,14 +31,14 @@ unsigned dbSystem::getCurrentTimeMsec()
 }
 
 
+char const*  keyFileDir = SIPX_TMPDIR "/";
+
 #if !defined(USE_POSIX_SEMAPHORES) || !defined(USE_POSIX_MMAP) || !USE_POSIX_MMAP
 END_FASTDB_NAMESPACE
 #include <errno.h>
 BEGIN_FASTDB_NAMESPACE
 
 #define PRINT_ERROR(func)  perror(func)
-
-char const*  keyFileDir = "/tmp/";
 
 #ifndef USE_POSIX_SEMAPHORES
 END_FASTDB_NAMESPACE
@@ -155,10 +156,16 @@ int sem_init(int& sem, char const* name, unsigned init_value)
                 delete[] path;
             }
             PRINT_ERROR("open");
+            OsSysLog::add(FAC_DB, PRI_CRIT,
+                          "Error attempting to open '%s' for writing.",
+                          path);
             return -1;
         }
         close(fd);
         key = getKeyFromFile(path);
+        OsSysLog::add(FAC_DB, PRI_DEBUG,
+                      "sem_init path = '%s', key = 0x%x",
+                      path, key);
         if (path != name) { 
             delete[] path;
         }
@@ -167,9 +174,16 @@ int sem_init(int& sem, char const* name, unsigned init_value)
             return -1;
         }
     }
+    OsSysLog::add(FAC_DB, PRI_DEBUG,
+                  "sem_init semget(0x%x, 2, IPC_CREAT|0777)",
+                  key);
     semid = semget(key, 2, IPC_CREAT|0777);
     if (semid < 0) { 
         PRINT_ERROR("semget");
+        OsSysLog::add(FAC_DB, PRI_CRIT,
+                      "sem_init semget failed - error: %s, key = 0x%x",
+                      strerror(errno),
+                      key);
         return -1;
     }
     if (semop(semid, sops, itemsof(sops)) != 0 && errno != EAGAIN) { 
@@ -491,10 +505,14 @@ dbInitializationMutex::initialize(char const* name)
             delete[] path;
         }
         PRINT_ERROR("open");
+        OsSysLog::add(FAC_DB, PRI_ERR, "Error attempting to open '%s' for writing.\n", path);
         return InitializationError;
     }
     ::close(fd);
     int key = getKeyFromFile(path);
+    OsSysLog::add(FAC_DB, PRI_DEBUG,
+                  "dbInitializationMutex::initialize path = '%s', key = 0x%x",
+                  path, key);
     if (path != name) { 
         delete[] path;
     }
@@ -503,9 +521,16 @@ dbInitializationMutex::initialize(char const* name)
         return InitializationError;
     }
     while (true) { 
+       OsSysLog::add(FAC_DB, PRI_DEBUG,
+                     "dbInitializationMutex::initialize semget(0x%x, 3, IPC_CREAT|0777)",
+                     key);
         semid = semget(key, 3, IPC_CREAT|0777);
         if (semid < 0) { 
             PRINT_ERROR("semget");
+            OsSysLog::add(FAC_DB, PRI_CRIT,
+                          "sem_init semget(3) failed - error: %s, key = 0x%x",
+                          strerror(errno),
+                          key);
             return InitializationError;
         }
         // Semaphore 0 - number of active processes

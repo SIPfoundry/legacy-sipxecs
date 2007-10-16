@@ -632,6 +632,31 @@ class dbCursor : public dbAnyCursor {
     bool isInSelection(dbReference<T>& ref) {
         return dbAnyCursor::isInSelection(ref.getOid());
     }
+
+    /**
+     * Method nextAvailable allows to iterate through the records in uniform way even when some records
+     * are removed. For example:
+     * <PRE>
+     * if (cursor.select(q) > 0) {
+     *     do {
+     *         if (x) {
+     *             cursor.remove();
+     *         } else {
+     *             cursor.update();
+     *         }
+     *     } while (cursor.nextAvaiable());
+     *  }
+     *</PRE>
+     * @return pointer to the current record
+     */    
+    T* nextAvailable() {
+        if (!removed) {
+            return next();
+        } else {
+            removed = false;
+            return get();
+        }
+    }
 };
 
 class dbParallelQueryContext { 

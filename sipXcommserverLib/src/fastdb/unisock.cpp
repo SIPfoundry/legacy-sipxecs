@@ -46,7 +46,8 @@ BEGIN_FASTDB_NAMESPACE
 const int MAX_HOST_NAME = 256;
 const int GETHOSTBYNAME_BUF_SIZE = 1024;
 
-char* unix_socket::unix_socket_dir = "/tmp/";
+char* unix_socket::unix_socket_dir = SIPX_TMPDIR;
+
 
 class unix_socket_library { 
   public: 

@@ -26,7 +26,7 @@
 
 BEGIN_FASTDB_NAMESPACE
 
-static char* typeMnem[] = {
+static const char* typeMnem[] = {
         "Boolean",
         "Int1",
         "Int2",

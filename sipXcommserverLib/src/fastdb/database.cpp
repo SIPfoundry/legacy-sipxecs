@@ -21,6 +21,7 @@
 #ifndef _WINCE
 #include <sys/stat.h>
 #endif
+#include "os/OsSysLog.h"
 
 BEGIN_FASTDB_NAMESPACE
 
@@ -1527,7 +1528,7 @@ void dbDatabase::handleError(dbErrorClass error, char const* msg, int arg)
             msg = errorMessage[error];
         }
         if (error == DatabaseOpenError) {
-            fprintf(stderr, "%s\n", msg);
+            OsSysLog::add(FAC_DB, PRI_ERR, "%s", msg);
         } else { 
             throw dbException(error, msg, arg);
         }
@@ -1536,38 +1537,38 @@ void dbDatabase::handleError(dbErrorClass error, char const* msg, int arg)
     char buf[256];
     switch (error) { 
       case QueryError:
-        fprintf(stderr, "%s in position %d\n", msg, arg);
+        OsSysLog::add(FAC_DB, PRI_ERR, "%s in position %d", msg, arg);
         return;
       case ArithmeticError:
-        fprintf(stderr, "%s\n", msg);
+        OsSysLog::add(FAC_DB, PRI_ERR, "%s", msg);
         break;
       case IndexOutOfRangeError:
-        fprintf(stderr, "Index %d is out of range\n", arg);
+        OsSysLog::add(FAC_DB, PRI_ERR, "Index %d is out of range", arg);
         break;
       case DatabaseOpenError:
-        fprintf(stderr, "%s\n", msg);
+        OsSysLog::add(FAC_DB, PRI_ERR, "%s", msg);
         return;
       case FileError:
-        fprintf(stderr, "%s: %s\n", msg, 
+        OsSysLog::add(FAC_DB, PRI_ERR, "%s: %s", msg, 
                 dbFile::errorText(arg, buf, sizeof(buf)));
         break;
       case OutOfMemoryError:
-        fprintf(stderr,"Not enough memory: failed to allocate %d bytes\n",arg);
+        OsSysLog::add(FAC_DB, PRI_ERR,"Not enough memory: failed to allocate %d bytes",arg);
         break;
       case NullReferenceError:
-        fprintf(stderr, "Null object reference is accessed\n");
+        OsSysLog::add(FAC_DB, PRI_ERR, "Null object reference is accessed");
         break;
       case Deadlock:
-        fprintf(stderr, "Deadlock is caused by upgrading shared locks to exclusive");
+        OsSysLog::add(FAC_DB, PRI_ERR, "Deadlock is caused by upgrading shared locks to exclusive");
         break;
       case LockRevoked:
-        fprintf(stderr, "Lock is revoked by some other client");
+        OsSysLog::add(FAC_DB, PRI_ERR, "Lock is revoked by some other client");
         break;  
       case InconsistentInverseReference:
-        fprintf(stderr, "%s\n", msg);
+        OsSysLog::add(FAC_DB, PRI_ERR, "%s", msg);
         return;
       case DatabaseReadOnly:
-        fprintf(stderr, "Attempt to modify readonly database");
+        OsSysLog::add(FAC_DB, PRI_ERR, "Attempt to modify readonly database");
         break;
       default:
         return;
