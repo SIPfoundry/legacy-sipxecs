@@ -7,7 +7,6 @@
 // $$
 ////////////////////////////////////////////////////////////////////////
 
-#include <assert.h>
 #include <errno.h>
 #include <string.h>
 #include <fcntl.h>
@@ -49,7 +48,7 @@ static int line_tabbed;
 
 static void flush_buffer(int fd)
 {
-   assert(write(fd, buffer, buffer_full) == buffer_full);
+   (void) write(fd, buffer, buffer_full);
    buffer_full = 0;
 }
 
