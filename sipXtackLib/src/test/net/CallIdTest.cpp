@@ -100,7 +100,8 @@ public:
          // Fields in generated call IDs must never contain this character.
          #define FIELD_SEPARATOR_CHAR "-"
 
-         unsigned int chars_consumed = -1;
+         unsigned int chars_consumed = 1000000; // value that will never be
+                                                // assigned by sscanf() '%n'
          sscanf(callId.data(),
                 "%[^" FIELD_SEPARATOR_CHAR "]" FIELD_SEPARATOR_CHAR
                 "%[^" FIELD_SEPARATOR_CHAR "]" FIELD_SEPARATOR_CHAR
