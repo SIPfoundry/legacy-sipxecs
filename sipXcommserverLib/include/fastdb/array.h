@@ -11,6 +11,8 @@
 #ifndef __ARRAY_H__
 #define __ARRAY_H__
 
+BEGIN_FASTDB_NAMESPACE
+
 /**
  * Base class for all arrays
  */
@@ -22,8 +24,8 @@ class FASTDB_DLL_ENTRY dbAnyArray {
   public:
     static void arrayAllocator(dbAnyArray* aArray, void* data, size_t length)
     {
-	aArray->len = length;
-	*(void**)(aArray+1) = data;
+        aArray->len = length;
+        *(void**)(aArray+1) = data;
     }
     /**
      * Get number of elements
@@ -35,7 +37,7 @@ class FASTDB_DLL_ENTRY dbAnyArray {
      * Get pointer to array elements. You should not update them directly.
      * @return pointer to array element
      */
-    void const* base() const { return *(void**)(this+1); }
+    void const* base() const { return *(void*const*)(this+1); }
 };    
 
 
@@ -51,57 +53,59 @@ class dbArray : public dbAnyArray {
     
     static void arrayAllocator(dbAnyArray* aArray, void* data, size_t length)
     {
-	dbArray* array = (dbArray*)aArray;
-	array->len = length;
-	if (array->allocated) { 
-	    delete[] array->data;
-	}
-	if (data != NULL || length == 0) { 
-	    array->data = (T*)data;
-	    array->allocated = 0;
-	} else { 
-	    array->data = new T[length];
-	    array->allocated = length;
-	}
+        dbArray* array = (dbArray*)aArray;
+        array->len = length;
+        if (array->allocated) { 
+            delete[] array->data;
+        }
+        if (data != NULL || length == 0) { 
+            array->data = (T*)data;
+            array->allocated = 0;
+        } else { 
+            array->data = new T[length];
+            array->allocated = length;
+        }
     }
  
-    inline void memcpy(T* dst, T const* src, int n) { 
-	while (--n >= 0) { 
-	    *dst++ = *src++;
-	}
+    inline void memcpy(T* dst, T const* src, size_t len) { 
+        int n = (int)len;
+        while (--n >= 0) { 
+            *dst++ = *src++;
+        }
     }
 
-    inline void memmove(T* dst, T const* src, int n) { 
-	if (dst < src) {
-	    while (--n >= 0) { 
-		*dst++ = *src++;
-	    }
-	} else { 
-	    dst += n;
-	    src += n;	    
-	    while (--n >= 0) { 
-		*--dst = *--src;
-	    }
-	}
+    inline void memmove(T* dst, T const* src, size_t len) { 
+        int n = (int)len;
+        if (dst < src) {
+            while (--n >= 0) { 
+                *dst++ = *src++;
+            }
+        } else { 
+            dst += n;
+            src += n;       
+            while (--n >= 0) { 
+                *--dst = *--src;
+            }
+        }
     }
  
   public:
     dbFieldDescriptor* dbDescribeComponents(dbFieldDescriptor* fd) { 
-	fd->type = fd->appType = dbField::tpArray;
-	fd->dbsSize = sizeof(dbVarying);
-	fd->alignment = 4;
-	fd->arrayAllocator = arrayAllocator;
-	return dbDescribeField(new dbFieldDescriptor("[]", 0, sizeof(T), 0),
-			       *(T*)fd); 
+        fd->type = fd->appType = dbField::tpArray;
+        fd->dbsSize = sizeof(dbVarying);
+        fd->alignment = 4;
+        fd->arrayAllocator = arrayAllocator;
+        return dbDescribeField(new dbFieldDescriptor("[]", 0, sizeof(T), 0),
+                               *(T*)fd); 
     }
 
     /**
      * Default constructor 
      */
     dbArray() { 
-	data = NULL; 
-	len = 0;
-	allocated = 0;
+        data = NULL; 
+        len = 0;
+        allocated = 0;
     }
 
     /**
@@ -109,11 +113,11 @@ class dbArray : public dbAnyArray {
      * @param size array length
      */
     dbArray(size_t size) { 
-	if (size != 0) { 
-	    data = new T[size]; 
-	}
-	len = size;
-	allocated = size;
+        if (size != 0) { 
+            data = new T[size]; 
+        }
+        len = size;
+        allocated = size;
     }
 
     /**
@@ -124,15 +128,15 @@ class dbArray : public dbAnyArray {
      * elements, otherwise elements will be copied to the created buffer
      */
     dbArray(T const* ptr, size_t size, size_t allocate = 0) { 
-	len = size;
-	allocated = allocate;
-	if (allocate != 0) { 
-	    assert(allocate >= size);
-	    data = new T[allocate];
-	    memcpy(data, ptr, size);	
-	} else { 
-	    data = (T*)ptr;
-	}
+        len = size;
+        allocated = allocate;
+        if (allocate != 0) { 
+            assert(allocate >= size);
+            data = new T[allocate];
+            memcpy(data, ptr, size);    
+        } else { 
+            data = (T*)ptr;
+        }
     }
 
     /**
@@ -140,23 +144,23 @@ class dbArray : public dbAnyArray {
      * @param arr source array
      */
     dbArray(dbArray const& arr) { 
-	allocated = arr.allocated;
-	len = arr.len;
-	if (allocated) { 
-	    data = new T[allocated];
-	    memcpy(data, arr.data, len);	
-	} else { 
-	    data = arr.data;
-	}
+        allocated = arr.allocated;
+        len = arr.len;
+        if (allocated) { 
+            data = new T[allocated];
+            memcpy(data, arr.data, len);        
+        } else { 
+            data = arr.data;
+        }
     }
 
     /**
      * Destructor
      */
     ~dbArray() { 
-	if (allocated) { 
-	    delete[] data;
-	}
+        if (allocated) { 
+            delete[] data;
+        }
     }
 
     /**
@@ -164,18 +168,18 @@ class dbArray : public dbAnyArray {
      * @return this
      */
     dbArray& operator = (dbArray const& arr) { 
-	if (this == &arr) { 
-	    return *this;
-	}
-	if (allocated) { 
-	    delete[] data;
-	}
-	if ((len = arr.len) != 0) { 
-	    data = new T[len];
-	    memcpy(data, arr.data, len);
-	}
-	allocated = len;
-	return *this;
+        if (this == &arr) { 
+            return *this;
+        }
+        if (allocated) { 
+            delete[] data;
+        }
+        if ((len = arr.len) != 0) { 
+            data = new T[len];
+            memcpy(data, arr.data, len);
+        }
+        allocated = len;
+        return *this;
     }
 
     /**
@@ -183,8 +187,8 @@ class dbArray : public dbAnyArray {
      * @return last element of the array
      */
     T const& last() {
-	assert(len > 0);
-	return data[len-1];
+        assert(len > 0);
+        return data[len-1];
     }
 
     /**
@@ -195,18 +199,18 @@ class dbArray : public dbAnyArray {
      * elements, otherwise elements will be copied to the created buffer
      */
     void assign(T const* ptr, size_t size, bool copy = true) { 
-	if (allocated) { 
-	    delete[] data;
-	}
-	len = size;
-	if (copy && size != 0) { 
-	    data = new T[size];
-	    memcpy(data, ptr, size);	
-	    allocated = size;
-	} else { 
-	    data = (T*)ptr;
-	    allocated = 0;
-	}
+        if (allocated) { 
+            delete[] data;
+        }
+        len = size;
+        if (copy && size != 0) { 
+            data = new T[size];
+            memcpy(data, ptr, size);    
+            allocated = size;
+        } else { 
+            data = (T*)ptr;
+            allocated = 0;
+        }
     }
 
     /**
@@ -215,8 +219,8 @@ class dbArray : public dbAnyArray {
      * @return element with specified index
      */
     T const& operator [](size_t index) const { 
-	assert(index < len);
-	return data[index];
+        assert(index < len);
+        return data[index];
     }
 
     /**
@@ -225,14 +229,14 @@ class dbArray : public dbAnyArray {
      * @param value stored element value
      */
     void putat(size_t index, T const& value) { 
-	assert(index < len);
-	if (!allocated) { 
-	    T* copy = new T[len];
-	    memcpy(copy, data, len);
-	    data = copy;
-	    allocated = len;
-	}
-	data[index] = value;
+        assert(index < len);
+        if (!allocated) { 
+            T* copy = new T[len];
+            memcpy(copy, data, len);
+            data = copy;
+            allocated = len;
+        }
+        data[index] = value;
     }
 
     
@@ -242,8 +246,8 @@ class dbArray : public dbAnyArray {
      * @return element with specified index
      */
     T const& getat(size_t index) const {
-	assert(index < len);
-	return data[index];
+        assert(index < len);
+        return data[index];
     }
 
     /**
@@ -253,9 +257,9 @@ class dbArray : public dbAnyArray {
         if (allocated) {
             delete[] data;
         }
-	data = NULL;
-	len = 0;
-	allocated = 0;
+        data = NULL;
+        len = 0;
+        allocated = 0;
     }
 
     /**
@@ -263,16 +267,16 @@ class dbArray : public dbAnyArray {
      * @param size new array size
      */
     void resize(size_t size) { 
-	if (size > len && size > allocated) { 
-	    T* p = new T[size];
-	    memcpy(p, data, len);
-	    if (allocated) { 
-		delete[] data;
-	    }
-	    data = p;
-	    allocated = size;
-	}
-	len = size;
+        if (size > len && size > allocated) { 
+            T* p = new T[size];
+            memcpy(p, data, len);
+            if (allocated) { 
+                delete[] data;
+            }
+            data = p;
+            allocated = size;
+        }
+        len = size;
     }
 
     /**
@@ -289,23 +293,23 @@ class dbArray : public dbAnyArray {
      * @param index insert position
      */
     void insert(T const& value, size_t index = 0) { 
-	assert(index <= len);
-	if (len >= allocated) {
-	    size_t newSize = len == 0 ? 8 : len*2;
-	    T* p = new T[newSize];
-	    memcpy(p, data, index);
-	    p[index] = value;
-	    memcpy(p+index+1, data+index, (len-index));
-	    if (allocated) { 
-		delete[] data;
-	    }
-	    data = p;
-	    allocated = newSize;
-	} else { 
-	    memmove(data+index+1, data+index, (len-index));
-	    data[index] = value;
-	}
-	len += 1;
+        assert(index <= len);
+        if (len >= allocated) {
+            size_t newSize = len == 0 ? 8 : len*2;
+            T* p = new T[newSize];
+            memcpy(p, data, index);
+            p[index] = value;
+            memcpy(p+index+1, data+index, (len-index));
+            if (allocated) { 
+                delete[] data;
+            }
+            data = p;
+            allocated = newSize;
+        } else { 
+            memmove(data+index+1, data+index, (len-index));
+            data[index] = value;
+        }
+        len += 1;
     }
     
     /** 
@@ -313,17 +317,17 @@ class dbArray : public dbAnyArray {
      * @param index position of the deleted element
      */
     void remove(size_t index) { 
-	assert(index < len);
-	len -= 1;
-	if (index != len && !allocated) { 
-	    T* p = new T[len];
-	    memcpy(p, data, index);
-	    memcpy(p+index, data+index+1, (len-index));
-	    allocated = len;
-	    data = p;
-	} else { 
-	    memmove(data+index, data+index+1, (len-index));
-	}
+        assert(index < len);
+        len -= 1;
+        if (index != len && !allocated) { 
+            T* p = new T[len];
+            memcpy(p, data, index);
+            memcpy(p+index, data+index+1, (len-index));
+            allocated = len;
+            data = p;
+        } else { 
+            memmove(data+index, data+index+1, (len-index));
+        }
     }
 
     /**
@@ -375,6 +379,7 @@ int rindex(dbArray<T> const& a, T value) {
     return i;
 }
 
+END_FASTDB_NAMESPACE
 
 #endif
 

@@ -11,6 +11,8 @@
 #ifndef __SYMTAB_H__
 #define __SYMTAB_H__
 
+BEGIN_FASTDB_NAMESPACE
+
 #ifndef CLONE_IDENTIFIERS
 #define FASTDB_CLONE_ANY_IDENTIFIER false
 #else
@@ -19,17 +21,17 @@
 
 class  FASTDB_DLL_ENTRY dbSymbolTable { 
     struct HashTableItem { 
-	HashTableItem* next;
-	char*          str;
-	unsigned       hash;
-	int            tag;
-	byte           allocated;
-	
-	~HashTableItem() { 
-	    if (allocated) { 
-		delete[] str;
-	    }
-	}
+        HashTableItem* next;
+        char*          str;
+        unsigned       hash;
+        int            tag;
+        byte           allocated;
+        
+        ~HashTableItem() { 
+            if (allocated) { 
+                delete[] str;
+            }
+        }
     };
     static HashTableItem* hashTable[];
 
@@ -39,6 +41,8 @@ class  FASTDB_DLL_ENTRY dbSymbolTable {
 
     static int add(char* &str, int tag,  bool allocate = true);
 };
+
+END_FASTDB_NAMESPACE
 
 #endif
 

@@ -11,6 +11,8 @@
 #ifndef __STDTP_H__
 #define __STDTP_H__
 
+#include "config.h"
+
 #ifdef FASTDB_DLL
 #ifdef INSIDE_FASTDB
 #define FASTDB_DLL_ENTRY __declspec(dllexport)
@@ -21,11 +23,48 @@
 #define FASTDB_DLL_ENTRY
 #endif
 
-#ifdef _WIN32
-#include <windows.h>
-#ifdef _MSC_VER
-#pragma warning(disable:4800 4355 4146 4251)
+#ifdef USE_NAMESPACES
+#define BEGIN_FASTDB_NAMESPACE namespace fastdb {
+#define END_FASTDB_NAMESPACE }
+#define USE_FASTDB_NAMESPACE using namespace fastdb;
+#else
+#define BEGIN_FASTDB_NAMESPACE
+#define END_FASTDB_NAMESPACE
+#define USE_FASTDB_NAMESPACE 
 #endif
+
+#if defined(AUTO_DETECT_PROCESS_CRASH) && !defined(RECOVERABLE_CRITICAL_SECTION)
+#define RECOVERABLE_CRITICAL_SECTION
+#endif
+
+#define GNUC_BEFORE(major,minor) (defined(__GNUC__) && (major > __GNUC__ || (major == __GNUC__ && minor > __GNUC_MINOR__)))
+
+#if defined(__MINGW32__) && !defined(_WIN32)
+#define _WIN32
+#endif
+
+#if defined(_WIN32_WCE) && !defined(_WINCE)
+#define _WINCE
+#endif
+
+#if defined(__APPLE__) && !defined(__FreeBSD__)
+// MAC OS X is Free BSD
+#define __FreeBSD__ 5
+#endif
+
+#ifdef _WIN32
+
+#ifdef USE_MFC
+#include <afx.h>
+#include <winsock2.h>
+#else
+#include <windows.h>
+#endif
+
+#ifdef _MSC_VER
+#pragma warning(disable:4800 4355 4146 4251 4996)
+#endif
+
 #else
 #ifdef _AIX
 #define INT8_IS_DEFINED
@@ -37,6 +76,23 @@
 #endif
 #endif
 
+#if defined(__VACPP_MULTI__) // IBM compiler produce a lot of stupid warnings
+#pragma report(disable, "CPPC1608")
+#pragma report(disable, "CPPC1281")
+#endif /* __VACPP_MULTI__ */
+
+
+#ifdef _WINCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+#include <stdarg.h>
+#include <tchar.h>
+#include "wince.h"
+
+#else
+
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -45,12 +101,48 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <time.h>
+#include <ctype.h>
 
-#define DEBUG_NONE  0
-#define DEBUG_CHECK 1
-#define DEBUG_TRACE 2
+#ifdef _WIN32
+#include <malloc.h>
+#endif
 
-#if FASTDB_DEBUG == DEBUG_TRACE
+#endif
+
+#ifdef PHAR_LAP
+#define PHAR_LAP 1
+#endif
+
+#ifdef __QNX__
+#define USE_POSIX_API 1
+#define POSIX_1003_1d 1
+#endif
+
+#if defined(__MINGW32__) && !defined(_WIN32)
+#define _WIN32
+#endif
+
+#if defined(__APPLE__) && !defined(__FreeBSD__)
+// MAC OS X is Free BSD
+#define __FreeBSD__ 4
+#endif
+
+#ifndef CLI_CALLBACK_CC /* CLI callbacks calling convention */
+#define CLI_CALLBACK_CC
+#endif
+
+#define DEBUG_NONE            0
+#define DEBUG_CHECK           1
+#define DEBUG_TRACE_IMPORTANT 2
+#define DEBUG_TRACE_ALL       3
+
+#if FASTDB_DEBUG >= DEBUG_TRACE_IMPORTANT
+#define TRACE_IMSG(x)  dbTrace x
+#else
+#define TRACE_IMSG(x)
+#endif
+
+#if FASTDB_DEBUG >= DEBUG_TRACE_ALL
 #define TRACE_MSG(x)  dbTrace x
 #else
 #define TRACE_MSG(x)
@@ -62,42 +154,61 @@
 
 
 #ifndef HAS_TEMPLATE_FRIENDS
-#if !defined(_MSC_VER) || _MSC_VER >= 1300
+#if (!defined(_MSC_VER) || _MSC_VER >= 1300) && !defined(NO_MEMBER_TEMPLATES)
 #define HAS_TEMPLATE_FRIENDS
 #endif
 #endif
 
-typedef void (*dbTraceFunctionPtr)(char* message);
+#ifndef __IBMCPP__
+BEGIN_FASTDB_NAMESPACE
+#endif
 
-extern dbTraceFunctionPtr dbTraceFunction;
+// User defined trace functions
+typedef void (CLI_CALLBACK_CC *dbTraceFunctionPtr)(char* message);
+
+// Pointer to trace function (default implementation just prints message to stderr)
+extern FASTDB_DLL_ENTRY dbTraceFunctionPtr dbTraceFunction;
+
 extern FASTDB_DLL_ENTRY void dbTrace(char* message, ...);
 
-
-#ifdef PHAR_LAP
-#define PHAR_LAP 1
+#if defined(_WINCE) || defined(UNICODE)
+inline wchar_t* convertStringToUnicode(wchar_t* dst, char const* src, size_t size) {
+	mbstowcs(dst, src, size);
+	return dst;
+}
+#define CNV_BUF_SIZE 256
+#define W32_STRING(s) convertStringToUnicode((wchar_t*)alloca(sizeof(wchar_t)*CNV_BUF_SIZE), s, CNV_BUF_SIZE)
+#else
+#define W32_STRING(s) s
 #endif
 
-#ifdef __QNX__
-#define USE_POSIX_API 1
-#define POSIX_1003_1d 1
-#endif
 
 // Align value 'x' to boundary 'b' which should be power of 2
 #define DOALIGN(x,b)   (((x) + (b) - 1) & ~((b) - 1))
 
-typedef signed char    int1;
-typedef unsigned char  nat1;
+typedef signed char    db_int1;
+typedef unsigned char  db_nat1;
 
-typedef signed short   int2;
-typedef unsigned short nat2;
+typedef signed short   db_int2;
+typedef unsigned short db_nat2;
 
-typedef signed int     int4;
-typedef unsigned int   nat4;
+typedef signed int     db_int4;
+typedef unsigned int   db_nat4;
 
-typedef unsigned char  byte;
+typedef unsigned char  db_byte;
+
+// This mapping is done for compatibility reasons
+typedef db_int1 int1;
+typedef db_nat1 nat1;
+typedef db_int2 int2;
+typedef db_nat2 nat2;
+typedef db_int4 int4;
+typedef db_nat4 nat4;
+
+typedef db_byte byte;
 
 #if defined(_WIN32) && !defined(__MINGW32__)
-typedef unsigned __int64 nat8;
+typedef unsigned __int64 db_nat8;
 typedef __int64          db_int8;
 #if defined(__IBMCPP__)
 #define INT8_FORMAT "%lld"
@@ -107,19 +218,28 @@ typedef __int64          db_int8;
 #define CONST64(c)  c
 #else
 #if defined(__osf__ )
-typedef unsigned long nat8;
+typedef unsigned long db_nat8;
 typedef signed   long db_int8;
 #define INT8_FORMAT "%ld"
 #define CONST64(c)  c##L
+#ifndef SIZEOF_LONG
+#define SIZEOF_LONG 8
+#endif
 #else
-typedef unsigned long long nat8;
+typedef unsigned long long db_nat8;
 typedef signed   long long db_int8;
+#if defined(__MINGW32__) && __GNUG__<3
+#define INT8_FORMAT "%I64d"
+#else
 #define INT8_FORMAT "%lld"
+#endif
 #define CONST64(c)  c##LL
 #endif
 #endif
 
-#if !defined(bool) && defined(__IBMCPP__)
+// Starting from which version IBM C++ compiler support bool type?
+//#if !defined(bool) && ((defined(__SUNPRO_CC) && __SUNPRO_CC_COMPAT < 5) || defined(__IBMCPP__))
+#if !defined(bool) && (defined(__SUNPRO_CC) && __SUNPRO_CC_COMPAT < 5)
 #define bool  char
 #define true  (1)
 #define false (0)
@@ -137,6 +257,7 @@ typedef signed   long long db_int8;
 #ifndef INT8_IS_DEFINED
 typedef db_int8 int8;
 #endif
+typedef db_nat8 nat8;
 
 typedef float  real4;
 typedef double real8; 
@@ -174,37 +295,77 @@ typedef int descriptor_t;
 
 #define itemsof(array) (sizeof(array)/sizeof*(array))
 
+// Enable or disable trace at runtime
+extern FASTDB_DLL_ENTRY bool dbTraceEnable;
 
 extern FASTDB_DLL_ENTRY byte* dbMalloc(size_t size);
 extern FASTDB_DLL_ENTRY void  dbFree(void* ptr);
 
-#if defined(USE_SYSV_SHARED_MEMORY) && !defined(DISKLESS_CONFIGURATION)
-#define DISKLESS_CONFIGURATION 1
+#if defined(FUZZY_CHECKPOINT) && !defined(NO_MMAP)
+#define NO_MMAP 1
 #endif
 
+#if !defined(USE_POSIX_MMAP) && defined(DISKLESS_CONFIGURATION)
+// To enable sharing of database in diskless configuration we have to use
+// shmap instead of mmap, which anonymous region is private to process.
+#define USE_POSIX_MMAP 0
+#endif
+
+#if defined(USE_POSIX_MMAP) && !USE_POSIX_MMAP
+// allocate space for the database using Sys-V shmat
+#define USE_SYSV_SHARED_MEMORY 1
+#if !defined(NO_MMAP) && !defined(DISKLESS_CONFIGURATION)
+#define NO_MMAP 1
+#endif
+#endif
 
 #if !defined(_WIN32)
 #define NO_STRICMP  1
 #define NO_STRICOLL 1
 #endif
 
-#if defined(IGNORE_CASE) && defined(NO_STRICMP) 
-#include <ctype.h>
+
+#if defined(_WINCE) && defined(USE_LOCALE_SETTINGS)
+#undef USE_LOCALE_SETTINGS
+#endif
+
+#if defined(IGNORE_CASE) && defined(NO_STRICMP)
 inline int stricmp(const char* p, const char* q)
 {
     while (toupper(*(unsigned char*)p) == toupper(*(unsigned char*)q)) { 
-    if (*p == '\0') { 
-        return 0;
-    }
-    p += 1;
-    q += 1;
+        if (*p == '\0') { 
+            return 0;
+        }
+        p += 1;
+        q += 1;
     }
     return toupper(*(unsigned char*)p) - toupper(*(unsigned char*)q);
+}
+#else
+#ifdef _WIN32
+#define stricoll(x,y) _stricoll(x,y)
+#endif
+#endif
+
+#ifndef STRINCMP_DEFINED
+inline int strincmp(const char* p, const char* q, size_t n)
+{
+    while (n > 0) { 
+        int diff = toupper(*(unsigned char*)p) - toupper(*(unsigned char*)q);
+        if (diff != 0) { 
+            return diff;
+        } else if (*p == '\0') { 
+            return 0;
+        }
+        p += 1;
+        q += 1;
+        n -= 1; 
+    }
+    return 0;
 }
 #endif
 
 #if defined(IGNORE_CASE) && defined(USE_LOCALE_SETTINGS) && defined(NO_STRICOLL) 
-#include <ctype.h>
 inline int stricoll(const char* p, const char* q)
 {
     char   p_buf[256];
@@ -239,6 +400,10 @@ inline int stricoll(const char* p, const char* q)
     }
     return diff;
 }
+#endif
+
+#ifndef __IBMCPP__
+END_FASTDB_NAMESPACE
 #endif
 
 #endif

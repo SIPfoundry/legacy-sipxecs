@@ -14,6 +14,8 @@
 #include "sync.h"
 #include "symtab.h"
 
+BEGIN_FASTDB_NAMESPACE
+
 const size_t hashTableSize = 1009;
 dbSymbolTable::HashTableItem* dbSymbolTable::hashTable[hashTableSize];
 
@@ -21,18 +23,15 @@ dbSymbolTable dbSymbolTable::instance;
 
 dbSymbolTable::~dbSymbolTable() { 
     for (int i = hashTableSize; --i >= 0;) { 
-	HashTableItem *ip, *next;
-	for (ip = hashTable[i]; ip != NULL; ip = next) {
-	    next = ip->next;
-	    delete ip;
-	}
+        HashTableItem *ip, *next;
+        for (ip = hashTable[i]; ip != NULL; ip = next) {
+            next = ip->next;
+            delete ip;
+        }
     }
 }
-
 #ifdef IGNORE_CASE
-#define STRING_COMPARE(x, y) strcasecmp(x, y)
-#else
-#define STRING_COMPARE(x, y) strcmp(x, y)
+#define strcmp(x,y) stricmp(x,y)
 #endif
 
 int dbSymbolTable::add(char* &str, int tag, bool allocate) {
@@ -45,23 +44,26 @@ int dbSymbolTable::add(char* &str, int tag, bool allocate) {
 #ifdef IGNORE_CASE
         b = tolower(b);
 #endif
-	hash = hash*31 + b;
+        hash = hash*31 + b;
     }
     int index = hash % hashTableSize;
     HashTableItem *ip;
     for (ip = hashTable[index]; ip != NULL; ip = ip->next) { 
-	if (ip->hash == hash && STRING_COMPARE(ip->str, str) == 0) { 
-	    str = ip->str;
-	    return ip->tag;
-	}
+        if (ip->hash == hash && strcmp(ip->str, str) == 0) { 
+            str = ip->str;
+            if (tag > ip->tag) { 
+                ip->tag = tag;
+            }
+            return ip->tag;
+        }
     }
     ip = new HashTableItem;
     ip->allocated = false;
     if (allocate) { 
-	char* dupstr = new char[strlen(str) + 1];
-	strcpy(dupstr, str);
-	str = dupstr;
-	ip->allocated = true;
+        char* dupstr = new char[strlen(str) + 1];
+        strcpy(dupstr, str);
+        str = dupstr;
+        ip->allocated = true;
     }
     ip->str = str;
     ip->hash = hash;
@@ -71,4 +73,4 @@ int dbSymbolTable::add(char* &str, int tag, bool allocate) {
     return tag;
 }
 
-
+END_FASTDB_NAMESPACE

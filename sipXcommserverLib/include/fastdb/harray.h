@@ -11,6 +11,8 @@
 #ifndef __HARRAY_H__
 #define __HARRAY_H__
 
+BEGIN_FASTDB_NAMESPACE
+
 #include "fastdb.h"
 
 const size_t dbHArrayPageSize = dbPageSize / sizeof(oid_t);
@@ -26,7 +28,7 @@ class dbHArray : public dbAnyReference {
 
     void create(dbDatabase* db) { 
         db->beginTransaction(dbDatabase::dbExclusiveLock);
-        oid = db->allocateObject(dbHArrayPageMarker);
+        oid = db->allocateObject(dbPageObjectMarker);
         memset(db->get(oid), 0, dbPageSize);
     }
 
@@ -53,7 +55,7 @@ class dbHArray : public dbAnyReference {
         oid_t* page = (oid_t*)db->get(oid);
         oid_t pageOid = page[i / (dbHArrayPageSize*leafPageSize)];
         if (pageOid == 0) { 
-            pageOid = db->allocateObject(dbHArrayPageMarker);
+            pageOid = db->allocateObject(dbPageObjectMarker);
             page = (oid_t*)db->put(oid);
             page[i / (dbHArrayPageSize*leafPageSize)] = pageOid;
             page = (oid_t*)db->get(pageOid);
@@ -64,7 +66,7 @@ class dbHArray : public dbAnyReference {
         oid_t leafPageOid = page[i / leafPageSize % dbHArrayPageSize];
         T* leaf;
         if (leafPageOid == 0) { 
-            leafPageOid = db->allocateObject(dbHArrayPageMarker);
+            leafPageOid = db->allocateObject(dbPageObjectMarker);
             page = (oid_t*)db->put(pageOid);
             page[i / leafPageSize % dbHArrayPageSize] = leafPageOid;
             leaf = (T*)db->get(leafPageOid);
@@ -84,7 +86,7 @@ class dbAnyHArray : public dbAnyReference {
   public:
     void create(dbDatabase* db) { 
         db->beginTransaction(dbDatabase::dbExclusiveLock);
-        oid = db->allocateObject(dbHArrayPageMarker);
+        oid = db->allocateObject(dbPageObjectMarker);
         memset(db->get(oid), 0, dbPageSize);
     }
 
@@ -110,7 +112,7 @@ class dbAnyHArray : public dbAnyReference {
         oid_t* page = (oid_t*)db->get(oid);
         oid_t pageOid = page[i / (dbHArrayPageSize*leafPageSize)];
         if (pageOid == 0) { 
-            pageOid = db->allocateObject(dbHArrayPageMarker);
+            pageOid = db->allocateObject(dbPageObjectMarker);
             page = (oid_t*)db->put(oid);
             page[i / (dbHArrayPageSize*leafPageSize)] = pageOid;
             page = (oid_t*)db->get(pageOid);
@@ -121,7 +123,7 @@ class dbAnyHArray : public dbAnyReference {
         oid_t leafPageOid = page[i / leafPageSize % dbHArrayPageSize];
         byte* leaf;
         if (leafPageOid == 0) { 
-            leafPageOid = db->allocateObject(dbHArrayPageMarker);
+            leafPageOid = db->allocateObject(dbPageObjectMarker);
             page = (oid_t*)db->put(pageOid);
             page[i / leafPageSize % dbHArrayPageSize] = leafPageOid;
             leaf = db->get(leafPageOid);
@@ -172,10 +174,12 @@ class dbBitmap : public dbHArray<int4> {
         if (value) { 
             mask |= 1 << (i & 31);
         } else { 
-            mask &= !(1 << (i & 31));
+            mask &= ~(1 << (i & 31));
         }
     }
 };        
+
+END_FASTDB_NAMESPACE
  
 #endif
 

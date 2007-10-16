@@ -13,13 +13,16 @@
 
 #include "sockio.h"
 
+BEGIN_FASTDB_NAMESPACE
+
+
 //
-// Abstract socket interface
+// Socket use for CLI level replication
 //
 class FASTDB_DLL_ENTRY replication_socket_t : public socket_t {
   public:
     virtual int       read(void* buf, size_t min_size, size_t max_size, time_t timeout);
-    virtual bool      write(void const* buf, size_t size);
+    virtual bool      write(void const* buf, size_t size, time_t timeout);
 
     virtual bool      is_ok();
     virtual void      get_error_text(char* buf, size_t buf_size);
@@ -57,6 +60,8 @@ class FASTDB_DLL_ENTRY replication_socket_t : public socket_t {
     int          n_sockets;
     bool         succeed;
 };
+
+END_FASTDB_NAMESPACE
 
 #endif
 

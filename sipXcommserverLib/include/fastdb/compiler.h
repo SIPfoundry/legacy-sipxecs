@@ -12,6 +12,11 @@
 #define __COMPILER_H__
 
 #include <setjmp.h>
+#ifdef USE_REGEX
+#include <regex.h>
+#endif
+
+BEGIN_FASTDB_NAMESPACE
 
 #if defined(__osf__) || defined(__FreeBSD__)
 #define longjmp(b,s) _longjmp(b,s) // do not restore signal context
@@ -25,7 +30,7 @@ dbvmLastCode
 };
 
 #define IS_CONSTANT(c) \
-(unsigned(c) - dbvmLoadVarBool <= (unsigned)dbvmLoadVarStdString - dbvmLoadVarBool)
+    (unsigned(c) - dbvmLoadVarBool <= (unsigned)dbvmLoadRectangleConstant - dbvmLoadVarBool)
 
 enum nodeType { 
     tpInteger,
@@ -33,6 +38,7 @@ enum nodeType {
     tpReal,
     tpString,
     tpReference,
+    tpRectangle,
     tpArray,
     tpRawBinary, 
     tpFreeVar,  // index of EXISTS clause 
@@ -71,11 +77,13 @@ enum tokens {
     tkn_escape,
     tkn_exists,
     tkn_like,
+    tkn_limit,
     tkn_in,
     tkn_length,
     tkn_lower,
     tkn_upper,
     tkn_abs,
+    tkn_area,
     tkn_is,
     tkn_integer,
     tkn_real,
@@ -92,6 +100,7 @@ enum tokens {
     tkn_start,
     tkn_from,
     tkn_order,
+    tkn_overlaps,
     tkn_by,
     tkn_asc,
     tkn_desc, 
@@ -102,6 +111,7 @@ enum tokens {
     tkn_table,
     tkn_error,
     tkn_all, 
+    tkn_match,
     tkn_last_token
 };    
 
@@ -114,6 +124,25 @@ struct dbStrLiteral {
 class dbUserFunction;
 class dbExprNodeSegment;
 
+class FASTDB_DLL_ENTRY dbExprNodeAllocator { 
+  private:
+    friend class dbExprNodeSegment;
+    dbExprNode*        freeNodeList;
+    dbExprNodeSegment* segmentList;
+    dbMutex            mutex;
+    
+  public:  
+    dbMutex&    getMutex() {
+        return mutex;
+    }
+    dbExprNode* allocate();
+    void        deallocate(dbExprNode* node);
+    void        reset();
+
+    ~dbExprNodeAllocator();
+    static dbExprNodeAllocator instance;
+};
+
 class FASTDB_DLL_ENTRY dbExprNode { 
     friend class dbExprNodeSegment;
   public:
@@ -124,104 +153,114 @@ class FASTDB_DLL_ENTRY dbExprNode {
     static const nat1  nodeTypes[];
     static const nat1  nodeOperands[];
     static const nat1  commutativeOperator[];
-    static dbExprNode* freeNodeList;
-    static dbMutex&    mutex;
 
-    static dbExprNodeSegment* segmentList;
-
-    union { 
-        dbExprNode*  operand[3];
-        dbExprNode*  next;
-    oid_t        oid;
-    db_int8      ivalue;
-    real8        fvalue;
-    dbStrLiteral svalue;
-    void const*  var;
-
-    struct { 
+    struct ref_operands { 
         dbExprNode*         base;  // the same as operand[0]
         dbFieldDescriptor*  field;
-    } ref;
+    };
 
-    struct { 
+    struct func_operands { 
         dbExprNode*         arg[3]; 
         void*               fptr;
-    } func;
+    };
+
+#ifdef USE_REGEX
+    struct regex_operands { 
+        dbExprNode*         opd;  
+        regex_t             re;
+    };
+#endif
+
+    union { 
+        dbExprNode*    operand[3];
+        dbExprNode*    next;
+        oid_t          oid;
+        db_int8        ivalue;
+        real8          fvalue;
+        rectangle      rvalue;
+        dbStrLiteral   svalue;
+        void const*    var;
+        ref_operands   ref;
+        func_operands  func;
+#ifdef USE_REGEX
+        regex_operands regex;
+#endif
     };
 
     dbExprNode(dbExprNode* node);
 
     dbExprNode(int cop, dbExprNode* left = NULL, dbExprNode* right = NULL, 
-           dbExprNode* right2 = NULL)
+               dbExprNode* right2 = NULL)
     {
-    this->cop = cop;
-    type = nodeTypes[cop];
-    operand[0] = left;
-    operand[1] = right;
-    operand[2] = right2;
+        this->cop = cop;
+        type = nodeTypes[cop];
+        operand[0] = left;
+        operand[1] = right;
+        operand[2] = right2;
     }
     dbExprNode(int cop, dbExprNode* expr1, dbExprNode* expr2, int offs) { 
-    this->cop = cop;
-    this->offs = (nat2)offs;
-    type = nodeTypes[cop];
-    operand[0] = expr1;
-    operand[1] = expr2;
+        this->cop = cop;
+        this->offs = (nat2)offs;
+        type = nodeTypes[cop];
+        operand[0] = expr1;
+        operand[1] = expr2;
     }
     dbExprNode(int cop, dbExprNode* expr, int offs) { 
-    this->cop = cop;
-    this->offs = (nat2)offs;
-    type = nodeTypes[cop];
-    operand[0] = expr;
+        this->cop = cop;
+        this->offs = (nat2)offs;
+        type = nodeTypes[cop];
+        operand[0] = expr;
     }
     dbExprNode(int cop, dbFieldDescriptor* field, dbExprNode* base = NULL) 
     {
-    this->cop = cop;
-    this->offs = (nat2)field->dbsOffs;
-    type = nodeTypes[cop];
-    ref.field = field;
-    ref.base = base;
+        this->cop = cop;
+        this->offs = (nat2)field->dbsOffs;
+        type = nodeTypes[cop];
+        ref.field = field;
+        ref.base = base;
     }
     dbExprNode(int cop, db_int8 ivalue) { 
-    this->cop = cop;
-    this->ivalue = ivalue;
-    type = tpInteger;
+        this->cop = cop;
+        this->ivalue = ivalue;
+        type = tpInteger;
     }
     dbExprNode(int cop, real8 fvalue) { 
-    this->cop = cop;
-    this->fvalue = fvalue;
-    type = tpReal;
+        this->cop = cop;
+        this->fvalue = fvalue;
+        type = tpReal;
+    }
+    dbExprNode(int cop, rectangle rvalue) {
+        this->cop = cop;
+        this->rvalue = rvalue;
+        type = tpRectangle;
     }
     dbExprNode(int cop, dbStrLiteral& svalue) { 
-    this->cop = cop;
-    this->svalue = svalue;
-    type = tpString;
+        this->cop = cop;
+        this->svalue = svalue;
+        type = tpString;
     }
     dbExprNode(int cop, void const* var) { 
-    this->cop = cop;
-    this->var = var;
-    type = nodeTypes[cop];
+        this->cop = cop;
+        this->var = var;
+        type = nodeTypes[cop];
     }
     dbExprNode(int cop, void* fptr, dbExprNode* expr1, dbExprNode* expr2 = NULL, dbExprNode* expr3 = NULL) { 
-    this->cop = cop;
-    func.arg[0] = expr1;
-    func.arg[1] = expr2;
-    func.arg[2] = expr3;
-    func.fptr = fptr;
-    type = nodeTypes[cop];
+        this->cop = cop;
+        func.arg[0] = expr1;
+        func.arg[1] = expr2;
+        func.arg[2] = expr3;
+        func.fptr = fptr;
+        type = nodeTypes[cop];
     }
     ~dbExprNode();
 
-    void* operator new(size_t size EXTRA_DEBUG_NEW_PARAMS);
+    void* operator new(size_t size EXTRA_DEBUG_NEW_PARAMS) { 
+        return dbExprNodeAllocator::instance.allocate();
+    }
 
     void operator delete(void* ptr EXTRA_DEBUG_NEW_PARAMS) { 
-    if (ptr != NULL) { 
-        dbExprNode* node = (dbExprNode*)ptr;
-        node->next = freeNodeList;
-        freeNodeList = node;
+        dbExprNodeAllocator::instance.deallocate((dbExprNode*)ptr);
     }
-    }
-
-    static void cleanup();
 };
 
 
@@ -248,6 +287,10 @@ class dbOrderByNode {
     dbTableDescriptor* table;
     dbExprNode*        expr;
     bool               ascent;  // true for ascent order, false for descent 
+    
+    ~dbOrderByNode() { 
+        delete expr;
+    }
 };
 
 class dbFollowByNode { 
@@ -261,8 +304,8 @@ class FASTDB_DLL_ENTRY dbCompiler {
     friend class dbQueryElement;
   public:
     enum { 
-    maxStrLen    = 4096,
-    maxFreeVars  = 4
+        maxStrLen    = 4096,
+        maxFreeVars  = 4
     };
 
     dbTableDescriptor* table;
@@ -271,7 +314,7 @@ class FASTDB_DLL_ENTRY dbCompiler {
     int                firstPos;
     int                offsetWithinStatement;
     int                bvalue;
-    db_int8               ivalue;
+    db_int8            ivalue;
     real8              fvalue;
     dbStrLiteral       svalue;
     bool               hasToken;
@@ -286,7 +329,7 @@ class FASTDB_DLL_ENTRY dbCompiler {
     jmp_buf            abortCompilation;
     static bool        initialized;
 
-    int         compare(dbExprNode* expr, dbExprNode* list);
+    void        compare(dbExprNode* expr, dbExprNode* list);
 
     int         scan();
     void        ungetToken(int tkn) {
@@ -301,14 +344,19 @@ class FASTDB_DLL_ENTRY dbCompiler {
     dbExprNode* multiplication();    
     dbExprNode* power();
     dbExprNode* term();
+    dbExprNode* buildList();
     dbExprNode* userDefinedOperator();
     dbExprNode* field(dbExprNode* expr, dbTableDescriptor* refTable,
-              dbFieldDescriptor* fd);
+                      dbFieldDescriptor* fd);
 
     bool        compile(dbTableDescriptor* table, dbQuery& query);
     dbExprNode* compileExpression(dbTableDescriptor* table,  char const* expr, int startPos);
     void        compileOrderByPart(dbQuery& query);
+    void        compileLimitPart(dbQuery& query);
     void        compileStartFollowPart(dbQuery& query);
+
+    void        deleteNode(dbExprNode* node);
+    dbExprNode* rectangleConstant(dbExprNode* head);     
 
     dbCompiler();
 };
@@ -319,6 +367,7 @@ class dbDatabaseThreadContext : public dbL2List {
     int writeAccess;
     int concurrentId;
     int mutatorCSLocked;
+    int isMutator;
 
     dbL2List cursors; 
     
@@ -333,29 +382,31 @@ class dbDatabaseThreadContext : public dbL2List {
     jmp_buf  unwind;
     
     dbDatabaseThreadContext() { 
-    concurrentId = 0;
-    readAccess = false;
-    writeAccess = false;
+        concurrentId = 0;
+        readAccess = false;
+        writeAccess = false;
         mutatorCSLocked = false;
-    interactive = false;
-    catched = false;
-    commitDelayed = false;
-    removeContext = false;
-    currPid = dbProcessId::getCurrent();
+        isMutator = false;
+        interactive = false;
+        catched = false;
+        commitDelayed = false;
+        removeContext = false;
+        currPid = dbProcessId::getCurrent();
     }
 };
 
 union dbSynthesizedAttribute { 
-    byte*   base;
-    int     bvalue;
-    db_int8 ivalue;
-    real8   fvalue;
-    void*   raw;
-    oid_t   oid;
+    byte*     base;
+    int       bvalue;
+    db_int8   ivalue;
+    real8     fvalue;
+    rectangle rvalue;
+    void*     raw;
+    oid_t     oid;
 
     struct { 
-    char* base;
-    int   size;
+        char* base;
+        int   size;
     } array;
 };
 
@@ -369,25 +420,25 @@ struct FASTDB_DLL_ENTRY dbInheritedAttribute {
     dbStringValue* tempStrings;
     size_t         paramBase;
     enum { 
-    internalStrBufSize = 8*1024 
+        internalStrBufSize = 8*1024 
     };
     size_t         strBufPos;
     char           strBuf[internalStrBufSize];
     
     struct { 
-    int     index;
-    jmp_buf unwind;
+        int     index;
+        jmp_buf unwind;
     } exists_iterator[dbCompiler::maxFreeVars];
 
     void removeTemporaries();
 
     dbInheritedAttribute() { 
-    tempStrings = NULL;
-    strBufPos = 0;
+        tempStrings = NULL;
+        strBufPos = 0;
     }
 
     ~dbInheritedAttribute() { 
-    removeTemporaries(); 
+        removeTemporaries(); 
     }
 };
 
@@ -396,34 +447,60 @@ struct dbStringValue {
     char           str[1];
 
     static char* create(size_t size, dbInheritedAttribute& attr) { 
-    if (attr.strBufPos + size > sizeof(attr.strBuf)) { 
-        dbStringValue* sv = 
-        (dbStringValue*)new char[offsetof(dbStringValue, str) + size];
-        sv->next = attr.tempStrings;
-        attr.tempStrings = sv;
-        return sv->str;
-    } else { 
-        char* p = attr.strBuf + attr.strBufPos;
-        attr.strBufPos += size;
-        return p;
-    }
+        if (attr.strBufPos + size > sizeof(attr.strBuf)) { 
+            dbStringValue* sv = 
+                (dbStringValue*)new char[offsetof(dbStringValue, str) + size];
+            sv->next = attr.tempStrings;
+            attr.tempStrings = sv;
+            return sv->str;
+        } else { 
+            char* p = attr.strBuf + attr.strBufPos;
+            attr.strBufPos += size;
+            return p;
+        }
     }
 
     static char* create(char const* s, dbInheritedAttribute& attr) {
-    size_t len = strlen(s) + 1;
-    char*  buf;
-    if (attr.strBufPos + len > sizeof(attr.strBuf)) { 
-        dbStringValue* sv = 
-        (dbStringValue*)new char[offsetof(dbStringValue,str)+len];
-        sv->next = attr.tempStrings;
-        attr.tempStrings = sv;
-        buf = sv->str;
-    } else { 
-        buf = attr.strBuf + attr.strBufPos;
-        attr.strBufPos += len;
-    }
-    return strcpy(buf, s);
+        size_t len = strlen(s) + 1;
+        char*  buf;
+        if (attr.strBufPos + len > sizeof(attr.strBuf)) { 
+            dbStringValue* sv = 
+                (dbStringValue*)new char[offsetof(dbStringValue,str)+len];
+            sv->next = attr.tempStrings;
+            attr.tempStrings = sv;
+            buf = sv->str;
+        } else { 
+            buf = attr.strBuf + attr.strBufPos;
+            attr.strBufPos += len;
+        }
+        return strcpy(buf, s);
     }
 };
+
+inline char* findWildcard(char* pattern, char* escape = NULL) 
+{
+    if (escape == NULL) { 
+        while (*pattern != dbMatchAnyOneChar &&
+               *pattern != dbMatchAnySubstring)
+        {
+            if (*pattern++ == '\0') { 
+                return NULL;
+            }
+        }
+    } else { 
+        char esc = *escape;
+        while (*pattern != dbMatchAnyOneChar &&
+               *pattern != dbMatchAnySubstring &&
+               *pattern != esc)
+        {
+            if (*pattern++ == '\0') { 
+                return NULL;
+            }
+        }
+    }
+    return pattern;
+}
+        
+END_FASTDB_NAMESPACE
     
 #endif

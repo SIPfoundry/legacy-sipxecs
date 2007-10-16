@@ -11,6 +11,8 @@
 #ifndef __CURSOR_H__
 #define __CURSOR_H__
 
+BEGIN_FASTDB_NAMESPACE
+
 class dbOrderByNode;
 
 class FASTDB_DLL_ENTRY dbSelection { 
@@ -18,16 +20,16 @@ class FASTDB_DLL_ENTRY dbSelection {
     enum { quantum = 1024 };
     class segment { 
       public:
-	segment* prev;
-	segment* next;
-	size_t   nRows;
-	oid_t    rows[quantum];
+        segment* prev;
+        segment* next;
+        size_t   nRows;
+        oid_t    rows[quantum];
 
-	segment(segment* after) { 
-	    prev = after;
-	    next = NULL;
-	    nRows = 0;
-	}	
+        segment(segment* after) { 
+            prev = after;
+            next = NULL;
+            nRows = 0;
+        }       
     };
     segment*  first;
     segment*  last;
@@ -48,14 +50,15 @@ class FASTDB_DLL_ENTRY dbSelection {
     }
    
     void sort(dbDatabase* db, dbOrderByNode* order);
-    static int compare(dbRecord* a, dbRecord* b, dbOrderByNode* order);
+    static int compare(oid_t a, oid_t b, dbOrderByNode* order);
 
-    void toArray(oid_t* oids);
+    void toArray(oid_t* oids) const;
+    void truncate(size_t from, size_t length);
 
     dbSelection() { 
-	nRows = 0;
-	pos = 0;
-	first = curr = last = NULL;
+        nRows = 0;
+        pos = 0;
+        first = curr = last = NULL;
     }
     void reverse();
     void reset();
@@ -74,16 +77,18 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
     friend class dbDatabase;
     friend class dbHashTable;
     friend class dbTtreeNode;
+    friend class dbRtreePage;
     friend class dbSubSql;
     friend class dbStatement;
     friend class dbServer;
     friend class dbCLI;
+    friend class JniResultSet;
   public:
     /**
      * Get number of selected records
      * @return number of selected records
      */
-    int getNumberOfRecords() { return selection.nRows; }
+    int getNumberOfRecords() const { return (int)selection.nRows; }
 
     /**
      * Remove current record
@@ -94,13 +99,21 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
      * Checks whether selection is empty
      * @return true if there is no current record
      */
-    bool isEmpty() { return currId == 0; }
+    bool isEmpty() const { return currId == 0; }
+
+    /**
+     * Check whether this cursor can be used for update
+     * @return true if it is update cursor
+     */
+    bool isUpdateCursor() const { 
+        return type == dbCursorForUpdate;
+    }
 
     /**
      * Checks whether limit for number of selected reacord is reached
      * @return true if limit is reached
      */
-    bool isLimitReached() { return selection.nRows >= limit; }
+    bool isLimitReached() const { return selection.nRows >= limit || selection.nRows >= stmtLimitLen; }
 
     /**
      * Extract OIDs of selected recrods in array
@@ -109,7 +122,7 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
      *  If <code>arr</code> is null, then new array is created by  new oid_t[] and returned by this method
      * @return if <code>arr</code> is not null, then <code>arr</code>, otherwise array created by this method
      */
-    oid_t* toArrayOfOid(oid_t* arr); 
+    oid_t* toArrayOfOid(oid_t* arr) const; 
 
     /**
      * Execute query.
@@ -122,15 +135,15 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
      * @return number of selected records
      */
     int select(dbQuery& query, dbCursorType aType, void* paramStruct = NULL) {
-	type = aType;
-	reset();
-	paramBase = paramStruct;
-	db->select(this, query);
-	paramBase = NULL;
-	if (gotoFirst() && prefetch) { 
-	    fetch();
-	}
-	return selection.nRows;
+        type = aType;
+        reset();
+        paramBase = paramStruct;
+        db->select(this, query);
+        paramBase = NULL;
+        if (gotoFirst() && prefetch) { 
+            fetch();
+        }
+        return (int)selection.nRows;
     } 
     
     /**
@@ -140,7 +153,7 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
      * @return number of selected records
      */    
     int select(dbQuery& query, void* paramStruct = NULL) { 
-	return select(query, defaultType, paramStruct);
+        return select(query, defaultType, paramStruct);
     }
      
     /**
@@ -151,8 +164,8 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
      * @return number of selected records
      */
     int select(char const* condition, dbCursorType aType, void* paramStruct = NULL) { 
-	dbQuery query(condition);
-	return select(query, aType, paramStruct);
+        dbQuery query(condition);
+        return select(query, aType, paramStruct);
     } 
 
     /**
@@ -162,7 +175,7 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
      * @return number of selected records
      */    
     int select(char const* condition, void* paramStruct = NULL) { 
-	return select(condition, defaultType, paramStruct);
+        return select(condition, defaultType, paramStruct);
     }
 
     /**
@@ -171,13 +184,13 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
      * @return number of selected records
      */    
     int select(dbCursorType aType) { 
-	type = aType;
-	reset();
-	db->select(this); 
-	if (gotoFirst() && prefetch) { 
-	    fetch();
-	}
-	return selection.nRows;
+        type = aType;
+        reset();
+        db->select(this); 
+        if (gotoFirst() && prefetch) { 
+            fetch();
+        }
+        return (int)selection.nRows;
     } 
 
     /**
@@ -185,7 +198,7 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
      * @return number of selected records
      */    
     int select() {
-	return select(defaultType);
+        return select(defaultType);
     }
 
     /**
@@ -210,19 +223,17 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
      * update method to save changes to the database
      */
     void update() { 
-	assert(type == dbCursorForUpdate && currId != 0);
-	updateInProgress = true;
-	db->update(currId, table, record);
-	updateInProgress = false;
+        assert(type == dbCursorForUpdate && currId != 0);
+        db->update(currId, table, record);
     }
 
     /**
      * Remove all records in the table
      */
     void removeAll() {
-	assert(db != NULL);
-	db->deleteTable(table);
-	reset();
+        assert(db != NULL);
+        db->deleteTable(table);
+        reset();
     }
 
     /**
@@ -248,6 +259,16 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
      */
     void setPrefetchMode(bool mode) { prefetch = mode; }
 
+
+    /**
+     * Enable or disable duplicates checking (if programmer knows that disjuncts in query do not intersect, then
+     * he can disable duplicate checking and avoid bitmap allocation
+     */
+    void enableCheckForDuplicates(bool enabled) {
+        checkForDuplicatedIsEnabled = enabled;
+    }
+        
+
     /**
      * Reset cursor
      */
@@ -257,13 +278,13 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
      * Check whether current record is the last one in the selection
      * @return true if next() method will return <code>NULL</code>
      */
-    bool isLast(); 
+    bool isLast() const; 
 
     /**
      * Check whether current record is the first one in the selection
      * @return true if prev() method will return <code>NULL</code>
      */
-    bool isFirst(); 
+    bool isFirst() const; 
 
     /**
      * Freeze cursor. This method makes it possible to save current state of cursor, close transaction to allow
@@ -305,8 +326,8 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
      * @param aTable table which records will be iterated
      */
     void setTable(dbTableDescriptor* aTable) { 
-	table = aTable;
-	db = aTable->db;
+        table = aTable;
+        db = aTable->db;
     }
 
     /**
@@ -314,7 +335,7 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
      * rec - buffer to which fields of current record will be fetched
      */
     void setRecord(void* rec) { 
-	record = (byte*)rec;
+        record = (byte*)rec;
     }
 
     /**
@@ -325,6 +346,29 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
         return record;
     }
 
+    /**
+     * Check if record with specified OID is in selection
+     * @return <code>true</code> if record with such OID was selected
+     */
+    bool isInSelection(oid_t oid);
+
+
+    /**
+     * Fetch current record.
+     * You should use this method only if prefetch mode is disabled 
+     */
+    void fetch() { 
+        assert(!(db->currIndex[currId] 
+                 & (dbInternalObjectMarker|dbFreeHandleMarker)));
+        table->columns->fetchRecordFields(record, 
+                                          (byte*)db->getRow(currId));
+    }
+
+    /**
+     * Check if there is more records in the selection
+     */
+    bool hasNext() const;
+    
   protected: 
     dbDatabase*        db;
     dbTableDescriptor* table;
@@ -341,86 +385,110 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
     int4*              bitmap; // bitmap to avoid duplicates
     size_t             bitmapSize;
     bool               eliminateDuplicates;
+    bool               checkForDuplicatedIsEnabled;
     bool               prefetch;
     bool               removed; // current record was removed
-    bool               updateInProgress;
+    bool               lastRecordWasDeleted; //last record was deleted
+
+    size_t             stmtLimitStart;
+    size_t             stmtLimitLen;
+    size_t             nSkipped;
 
     void*              paramBase;
     
     void checkForDuplicates();
+    void deallocateBitmap();
 
     bool isMarked(oid_t oid) { 
-	return bitmap != NULL && (bitmap[oid >> 5] & (1 << (oid & 31))) != 0;
+        return bitmap != NULL && (bitmap[oid >> 5] & (1 << (oid & 31))) != 0;
+    }
+
+    void setStatementLimit(dbQuery const& q) { 
+        stmtLimitStart = q.stmtLimitStartPtr != NULL ? (nat4)*q.stmtLimitStartPtr : q.stmtLimitStart;
+        stmtLimitLen = q.stmtLimitLenPtr != NULL ? (nat4)*q.stmtLimitLenPtr : q.stmtLimitLen;
+    }
+
+    void truncateSelection() { 
+        selection.truncate(stmtLimitStart, stmtLimitLen);
     }
 
     void mark(oid_t oid) { 
-	if (bitmap != NULL) { 
-	    bitmap[oid >> 5] |= 1 << (oid & 31);
-	}
+        if (bitmap != NULL) { 
+            bitmap[oid >> 5] |= 1 << (oid & 31);
+        }
     }    
 
     bool add(oid_t oid) { 
-	if (selection.nRows < limit) { 
-	    if (eliminateDuplicates) { 
-		if (bitmap[oid >> 5] & (1 << (oid & 31))) { 
-		    return true;
-		}
-		bitmap[oid >> 5] |= 1 << (oid & 31);
-	    } 
-	    selection.add(oid);
-	    return selection.nRows < limit;
-	} 
-	return false;
+        if (selection.nRows < limit && selection.nRows < stmtLimitLen) { 
+            if (nSkipped < stmtLimitStart) { 
+                nSkipped += 1;
+                return true;
+            }
+            if (eliminateDuplicates) { 
+                if (bitmap[oid >> 5] & (1 << (oid & 31))) { 
+                    return true;
+                }
+                bitmap[oid >> 5] |= 1 << (oid & 31);
+            } 
+            selection.add(oid);
+            return selection.nRows < limit;
+        } 
+        return false;
     }
+
+    byte* fetchNext();
+    byte* fetchPrev();
 
     bool gotoNext();
     bool gotoPrev(); 
     bool gotoFirst();
     bool gotoLast();
     
+    bool moveNext();
+    bool movePrev();
+
     void setCurrent(dbAnyReference const& ref);
 
-    void fetch() { 
-	assert(!(db->currIndex[currId] 
-		 & (dbInternalObjectMarker|dbFreeHandleMarker)));
-	table->columns->fetchRecordFields(record, 
-					  (byte*)db->getRow(currId));
-    }
-
     void adjustReferences(size_t base, size_t size, long shift) { 
-	if (currId != 0) { 
-	    table->columns->adjustReferences(record, base, size, shift);
-	}
+        if (currId != 0 && record != NULL) { 
+            table->columns->adjustReferences(record, base, size, shift);
+        }
     }
 
     dbAnyCursor(dbTableDescriptor& aTable, dbCursorType aType, byte* rec)
     : table(&aTable),type(aType),defaultType(aType),
       allRecords(false),currId(0),record(rec)
     {
-	db = aTable.db;
-	limit = dbDefaultSelectionLimit;
-	updateInProgress = false;
-	prefetch = true;
-	removed = false;
-	bitmap = NULL; 
-	bitmapSize = 0;
-	eliminateDuplicates = false;
-	paramBase = NULL;
+        db = aTable.db;
+        limit = dbDefaultSelectionLimit;
+        prefetch = rec != NULL;
+        removed = false;
+        bitmap = NULL; 
+        bitmapSize = 0;
+        eliminateDuplicates = false;
+        checkForDuplicatedIsEnabled = true;
+        paramBase = NULL;
+        stmtLimitLen = dbDefaultSelectionLimit;
+        stmtLimitStart = 0;
+        nSkipped = 0;
     }
   public:
     dbAnyCursor() 
     : table(NULL),type(dbCursorViewOnly),defaultType(dbCursorViewOnly),
-	  allRecords(false),currId(0),record(NULL)
+          allRecords(false),currId(0),record(NULL)
     {
-	limit = dbDefaultSelectionLimit;
-	updateInProgress = false;
-	prefetch = false;
-	removed = false;
-	bitmap = NULL;
-	bitmapSize = 0;
-	eliminateDuplicates = false;
-	db = NULL;
-	paramBase = NULL;
+        limit = dbDefaultSelectionLimit;
+        prefetch = false;
+        removed = false;
+        bitmap = NULL;
+        bitmapSize = 0;
+        eliminateDuplicates = false;
+        checkForDuplicatedIsEnabled = true;
+        db = NULL;
+        paramBase = NULL;
+        stmtLimitLen = dbDefaultSelectionLimit;
+        stmtLimitStart = 0;
+        nSkipped = 0;
     }
     ~dbAnyCursor();
 };
@@ -431,6 +499,12 @@ class FASTDB_DLL_ENTRY dbAnyCursor : public dbL2List {
  */
 template<class T>
 class dbCursor : public dbAnyCursor { 
+  private:
+    // Itis not possible to copy cursors
+    dbCursor<T> operator = (dbCursor<T> const& src) { 
+        return *this;
+    } 
+
   protected:
     T record;
     
@@ -445,17 +519,17 @@ class dbCursor : public dbAnyCursor {
     /**
      * Cursor constructor with explicit specification of database.
      * This cursor should be used for unassigned tables. 
-     * @param aDB database in which table lokkup is performed
+     * @param aDb database in which table lookup is performed
      * @param type cursor type (dbCursorViewOnly by default)
      */
     dbCursor(dbDatabase* aDb, dbCursorType type = dbCursorViewOnly)
-	: dbAnyCursor(T::dbDescriptor, type, (byte*)&record)
+        : dbAnyCursor(T::dbDescriptor, type, (byte*)&record)
     {
-	db = aDb;
-	dbTableDescriptor* theTable = db->lookupTable(table);
-	if (theTable != NULL) { 
-	    table = theTable;
-	}
+        db = aDb;
+        dbTableDescriptor* theTable = db->lookupTable(table);
+        if (theTable != NULL) { 
+            table = theTable;
+        }
     }
 
     /**
@@ -463,31 +537,23 @@ class dbCursor : public dbAnyCursor {
      * @return pointer to the current record or <code>NULL</code> if there is no current record
      */
     T* get() { 
-	return currId == 0 ? (T*)NULL : &record; 
+        return currId == 0 ? (T*)NULL : &record; 
     }
     
     /**
      * Get next record
      * @return pointer to the next record or <code>NULL</code> if there is no next record
      */     
-    T* next() { 
-	if (gotoNext()) { 
-	    fetch();
-	    return &record;
-	}
-	return NULL;
+    T* next() {
+        return (T*)fetchNext();
     }
 
     /**
      * Get previous record
      * @return pointer to the previous record or <code>NULL</code> if there is no previous record
      */     
-    T* prev() {	
-	if (gotoPrev()) { 
-	    fetch();
-	    return &record;
-	}
-	return NULL;
+    T* prev() { 
+        return (T*)fetchPrev();
     }
 
     /**
@@ -495,11 +561,11 @@ class dbCursor : public dbAnyCursor {
      * @return pointer to the first record or <code>NULL</code> if no records were selected
      */
     T* first() { 
-	if (gotoFirst()) {
-	    fetch();
-	    return &record;
-	}
-	return NULL;
+        if (gotoFirst()) {
+            fetch();
+            return &record;
+        }
+        return NULL;
     }
 
     /**
@@ -507,16 +573,16 @@ class dbCursor : public dbAnyCursor {
      * @return pointer to the last record or <code>NULL</code> if no records were selected
      */
     T* last() { 
-	if (gotoLast()) {
-	    fetch();
-	    return &record;
-	}
-	return NULL;
+        if (gotoLast()) {
+            fetch();
+            return &record;
+        }
+        return NULL;
     }    
     
     /**
      * Position cursor on the record with the specified OID
-     * @param oid object identifier of record
+     * @param ref reference to the object
      * @return poistion of the record in the selection or -1 if record with such OID is not in selection
      */
     int seek(dbReference<T> const& ref) { 
@@ -528,8 +594,8 @@ class dbCursor : public dbAnyCursor {
      * @return pointer to the current record
      */
     T* operator ->() { 
-	assert(currId != 0);
-	return &record;
+        assert(currId != 0);
+        return &record;
     }
 
     /**
@@ -538,50 +604,33 @@ class dbCursor : public dbAnyCursor {
      * @return pointer to the referenced record
      */
     T* at(dbReference<T> const& ref) { 
-	setCurrent(ref);
-	return &record;
+        setCurrent(ref);
+        return &record;
     }
     
     /**
      * Convert selection to array of reference
      * @param arr [OUT] array of refeences in which references to selected recrods will be placed
      */
-    void toArray(dbArray< dbReference<T> >& arr) { 
-	arr.resize(selection.nRows);
-	toArrayOfOid((oid_t*)arr.base());
+    void toArray(dbArray< dbReference<T> >& arr) const { 
+        arr.resize(selection.nRows);
+        toArrayOfOid((oid_t*)arr.base());
     }
 
     /**
      * Get current object idenitifer
-     * @param reference to the current record
+     * @return reference to the current record
      */
-    dbReference<T> currentId() { 
-	return dbReference<T>(currId);
+    dbReference<T> currentId() const { 
+        return dbReference<T>(currId);
     }
 
     /**
-     * Method nextAvailable allows to iterate through the records in uniform way even when some records 
-     * are removed. For example:
-     * <PRE>
-     * if (cursor.select(q) > 0) { 
-     *     do { 
-     *         if (x) { 
-     *             cursor.remove();
-     *         } else { 
-     *             cursor.update();
-     *         }
-     *     } while (cursor.nextAvaiable());
-     *  }
-     *</PRE>
-     * @return pointer to the current record
-     */     
-    T* nextAvailable() { 
-	if (!removed) { 
-	    return next(); 
-	} else { 
-	    removed = false;
-	    return get();
-	}
+     * Check if record with specified OID is in selection
+     * @return <code>true</code> if record with such OID was selected
+     */
+    bool isInSelection(dbReference<T>& ref) {
+        return dbAnyCursor::isInSelection(ref.getOid());
     }
 };
 
@@ -597,7 +646,7 @@ class dbParallelQueryContext {
     void search(int i); 
 
     dbParallelQueryContext(dbDatabase* aDb, dbTable* aTable, 
-			   dbCompiledQuery* aQuery, dbAnyCursor* aCursor)
+                           dbCompiledQuery* aQuery, dbAnyCursor* aCursor)
       : db(aDb), query(aQuery), firstRow(aTable->firstRow), table(aTable), cursor(aCursor) {}
 };
 
@@ -605,5 +654,7 @@ class dbParallelQueryContext {
 extern char* strupper(char* s);
 
 extern char* strlower(char* s);
+
+END_FASTDB_NAMESPACE
 
 #endif

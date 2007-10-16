@@ -11,9 +11,13 @@
 #ifndef __SUBSQL_H__
 #define __SUBSQL_H__
 
+BEGIN_FASTDB_NAMESPACE
+
 enum SubSqlTokens { 
-    tkn_array = tkn_last_token, 
+    tkn_alter = tkn_last_token,
+    tkn_array,
     tkn_autoincrement,
+    tkn_autocommit,
     tkn_backup,
     tkn_bool,
     tkn_commit,
@@ -34,11 +38,16 @@ enum SubSqlTokens {
     tkn_int2,
     tkn_int4,
     tkn_int8,
+    tkn_inverse,
+    tkn_memory, 
     tkn_of,
+    tkn_off,
     tkn_on,
     tkn_open,
+    tkn_profile, 
     tkn_real4, 
     tkn_real8, 
+    tkn_rectangle,
     tkn_reference,
     tkn_rollback,
     tkn_server,
@@ -48,47 +57,53 @@ enum SubSqlTokens {
     tkn_show,
     tkn_to, 
     tkn_update,
-    tkn_values
+    tkn_values,
+    tkn_version
 };
-    
+        
     
 
 class dbList { 
   public:
     enum NodeType { 
-    nInteger,
-    nBool,
-    nReal,
-    nString,
-    nTuple,
-    nAutoinc,
-    nIdentifier
+        nInteger,
+        nBool,
+        nReal,
+        nString,
+        nTuple,
+        nAutoinc,
+        nIdentifier
     };
 
     dbList* next;
     int     type;
     union { 
-    bool  bval;
-    db_int8  ival;
-    real8 fval;
-    char* sval;
-    struct { 
-        int     nComponents;
-        dbList* components;
-    } aggregate;
+        bool  bval;
+        db_int8  ival;
+        real8 fval;
+        char* sval;
+        struct { 
+            int     nComponents;
+            dbList* components;
+        } aggregate;
     };
 
     ~dbList() { 
-    if (type == nTuple) {
-        delete aggregate.components;
-    } else if (type == nString || type == nIdentifier) {
-        delete[] sval;
-    }
+        if (type == nTuple) {
+            dbList* list = aggregate.components;
+            while (list != NULL) { 
+                dbList* tail = list->next;
+                delete list;
+                list = tail;
+            }
+        } else if (type == nString || type == nIdentifier) {
+            delete[] sval;
+        }
     }
 
     dbList(int type) { 
-    this->type = type;
-    next = NULL; 
+        this->type = type;
+        next = NULL; 
     }
 };
 
@@ -96,10 +111,11 @@ class dbList {
 struct tableField { 
     char* name;
     char* refTableName;
+    char* inverseRefName;
     int   type;
     
-    tableField() { name = refTableName = NULL; }
-    ~tableField() { delete[] name; delete[] refTableName; }
+    tableField() { name = refTableName = inverseRefName = NULL; }
+    ~tableField() { delete[] name; delete[] refTableName; delete[] inverseRefName; }
 };
 
 class dbUpdateElement { 
@@ -110,11 +126,13 @@ class dbUpdateElement {
     char*              strValue;
 
     dbUpdateElement() { 
-    next = NULL;
-    strValue = NULL;
+        next = NULL;
+        strValue = NULL;
+        value = NULL;
     }
     ~dbUpdateElement() { 
-    delete[] strValue;
+        delete[] strValue;
+        delete value;
     }
 };
 
@@ -213,6 +231,7 @@ class dbTmpAllocator {
     };
     struct Chunk { 
         Chunk* next;
+        Chunk* prev; // is not used, added for alignment
     };
     Chunk* curr;
     size_t used;
@@ -239,6 +258,7 @@ class dbTmpAllocator {
 
 
     void* alloc(size_t size) { 
+        size = DOALIGN(size, 8);
         if (size > CHUNK_SIZE/2) { 
             Chunk* newChunk = (Chunk*)dbMalloc(size + sizeof(Chunk));
             if (curr != NULL) { 
@@ -252,7 +272,7 @@ class dbTmpAllocator {
             return newChunk+1;
         } else if (size <= CHUNK_SIZE - used) { 
             used += size;
-            return (char*)(curr+1) + used - size;
+            return (char*)curr + used - size;
         } else { 
             Chunk* newChunk = (Chunk*)dbMalloc(CHUNK_SIZE);
             used = sizeof(Chunk) + size;
@@ -289,6 +309,12 @@ class dbSubSql : public dbDatabase {
     dbQuery query;
     dbCompiler compiler;
 
+    int      ungetToken;
+    bool     autocommit;
+
+    bool     dotIsPartOfIdentifier;
+    char*    dateFormat;
+
     dbThread httpServerThread;
     HTTPapi* httpServer;
     bool     httpServerRunning;
@@ -297,6 +323,8 @@ class dbSubSql : public dbDatabase {
     unsigned historyCurr;
     static void thread_proc httpServerThreadProc(void* arg);
     
+    void deleteColumns(dbFieldDescriptor* columns);
+
     void httpServerLoop();
 
     void startHttpServer(char const* address);
@@ -306,6 +334,8 @@ class dbSubSql : public dbDatabase {
 
     void error(char const* msg);
     void warning(char const* msg);
+
+    void profile();
 
     int  get();
     void unget(int ch);
@@ -319,6 +349,9 @@ class dbSubSql : public dbDatabase {
     void exportDatabase(FILE* out);
     bool importDatabase(FILE* in);
    
+    void exportScheme(FILE* out);
+    void exportClass(FILE* out, char* name, dbFieldDescriptor* fieldList);
+   
     oid_t mapId(long id);
     bool importField(char* terminator, dbFieldDescriptor* fd, byte* rec, dbXmlScanner& scanner);
     bool importRecord(char* terminator, dbFieldDescriptor* fieldList, byte* rec, dbXmlScanner& scanner);
@@ -326,23 +359,23 @@ class dbSubSql : public dbDatabase {
 
     bool isValidOid(oid_t oid);
 
-    static void dumpRecord(byte* record, dbFieldDescriptor* first);
+    void dumpRecord(byte* record, dbFieldDescriptor* first);
     static int calculateRecordSize(dbList* list, int offs,
-                   dbFieldDescriptor* first);
+                                   dbFieldDescriptor* first);
     int  initializeRecordFields(dbList* node, byte* dst, int offs, 
-                      dbFieldDescriptor* first);
+                                      dbFieldDescriptor* first);
     bool insertRecord(dbList* list, dbTableDescriptor* desc);
     bool readCondition();
     int  readExpression();
     int  readValues(dbList** chain);
     bool updateFields(dbAnyCursor* cursor, dbUpdateElement* elems);
-    bool createTable();
-    int  parseType();
+    bool updateTable(bool create);
+    int  parseType(char*& refTableName, char*& inverseRefName);
     int  updateRecords(dbTableDescriptor* desc, dbList *fields, dbList *values, dbAnyCursor &cursor, byte *buf);
     dbFieldDescriptor* readFieldName();
 
   public:
-    void run(int argc, char* argv[]);
+    void run(int firstParam, int argc, char* argv[]);
     void selectionPage(WWWconnection& con);
     void queryPage(WWWconnection& con);
     void defaultPage(WWWconnection& con);
@@ -351,5 +384,7 @@ class dbSubSql : public dbDatabase {
     virtual~dbSubSql();
 };   
 
+
+END_FASTDB_NAMESPACE
 
 #endif

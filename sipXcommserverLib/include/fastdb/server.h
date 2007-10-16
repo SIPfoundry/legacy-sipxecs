@@ -13,6 +13,8 @@
 
 #include "sockio.h"
 
+BEGIN_FASTDB_NAMESPACE
+
 class dbColumnBinding { 
   public:
     dbColumnBinding*   next;
@@ -22,26 +24,27 @@ class dbColumnBinding {
     char*              ptr;
 
     int  unpackArray(char* dst, size_t offs);
-    void unpackScalar(char* dst);
+    void unpackScalar(char* dst, bool insert);
 
     dbColumnBinding(dbFieldDescriptor* field, int type) { 
-	fd = field;
-	cliType = type;
-	next = NULL;
+        fd = field;
+        cliType = type;
+        next = NULL;
     }
 };
 
 struct dbParameterBinding { 
     union { 
-	int1       i1;
-	int2       i2;
-	int4       i4;
-	db_int8    i8;
-	real4      r4;
-	real8      r8;
-	oid_t      oid;
-	bool       b;
-	char*      str;
+        int1       i1;
+        int2       i2;
+        int4       i4;
+        db_int8    i8;
+        real4      r4;
+        real8      r8;
+        oid_t      oid;
+        bool       b;
+        char*      str;
+        rectangle  rect;
     } u;
     int type;
 };
@@ -59,7 +62,7 @@ class dbQueryScanner {
     int  get();
 
     void reset(char* stmt) { 
-	p = stmt;
+        p = stmt;
     }
 };
     
@@ -81,17 +84,17 @@ class dbStatement {
     void reset();
 
     dbStatement(int stmt_id) { 
-	id = stmt_id;
-	columns = NULL;
-	params = NULL;
-	buf = NULL;
-	buf_size = 0;
-	table = NULL;
-	cursor = NULL;
+        id = stmt_id;
+        columns = NULL;
+        params = NULL;
+        buf = NULL;
+        buf_size = 0;
+        table = NULL;
+        cursor = NULL;
     }
     ~dbStatement() { 
-	reset(); 
-	delete[] buf;
+        reset(); 
+        delete[] buf;
     }
 };
 
@@ -151,18 +154,19 @@ class dbServer {
         return fetch(session, stmt, stmt->cursor->currId);
     }
     bool remove(dbSession* session, int stmt_id);
+    bool remove_current(dbSession* session, int stmt_id);
     bool update(dbSession* session, int stmt_id, char* new_data);
     bool insert(dbSession* session, int stmt_id, char* data, bool prepare);
     bool select(dbSession* session, int stmt_id, char* data, bool prepare);
     bool show_tables(dbSession* session); 
     bool describe_table(dbSession* session, char const* table);
-    bool create_table(dbSession* session, char* data);
+    bool create_table(dbSession* session, char* data, bool create);
     bool drop_table(dbSession* session, char* data);
     bool alter_index(dbSession* session, char* data);
 
     char* checkColumns(dbStatement* stmt, int n_columns, 
-		       dbTableDescriptor* desc, char* data, 
-		       int4& reponse);
+                       dbTableDescriptor* desc, char* data, 
+                       int4& reponse);
       
     dbStatement* findStatement(dbSession* stmt, int stmt_id);
 
@@ -174,10 +178,12 @@ class dbServer {
     void start();
 
     dbServer(dbDatabase* db,
-	     char const* serverURL, 
-	     int optimalNumberOfThreads = 8,  
-	     int connectionQueueLen = 64);
+             char const* serverURL, 
+             int optimalNumberOfThreads = 8,  
+             int connectionQueueLen = 64);
     ~dbServer();
 };
+
+END_FASTDB_NAMESPACE
 
 #endif

@@ -11,6 +11,8 @@
 #ifndef __CLIPROTO_H__
 #define __CLIPROTO_H__
 
+BEGIN_FASTDB_NAMESPACE
+
 enum cli_commands { 
     cli_cmd_close_session, 
     cli_cmd_prepare_and_execute,
@@ -24,6 +26,7 @@ enum cli_commands {
     cli_cmd_commit,
     cli_cmd_update,
     cli_cmd_remove,
+    cli_cmd_remove_current,
     cli_cmd_insert,
     cli_cmd_prepare_and_insert,
     cli_cmd_describe_table,
@@ -36,6 +39,7 @@ enum cli_commands {
     cli_cmd_freeze,
     cli_cmd_unfreeze,
     cli_cmd_seek,
+    cli_cmd_alter_table,
     cli_cmd_last
 };
 
@@ -48,24 +52,71 @@ static const int sizeof_type[] = {
     sizeof(cli_int8_t), 
     sizeof(cli_real4_t), 
     sizeof(cli_real8_t),
-    0, // cli_decimal
-    0, // cli_asciiz, 
-    0, // cli_pasciiz,
-    0, // cli_cstring,
-    0, // cli_array_of_oid,
-    0, // cli_array_of_bool,
-    0, // cli_array_of_int1,
-    0, // cli_array_of_int2,
-    0, // cli_array_of_int4,
-    0, // cli_array_of_int8,
-    0, // cli_array_of_real4,
-    0, // cli_array_of_real8, 
-    0, // cli_array_of_decimal, 
-    0, // cli_array_of_string,
+    sizeof(cli_real8_t), // cli_decimal
+    sizeof(char*), // cli_asciiz, 
+    sizeof(char*), // cli_pasciiz,
+    sizeof(char*), // cli_cstring,
+    sizeof(cli_array_t), // cli_array_of_oid,
+    sizeof(cli_array_t), // cli_array_of_bool,
+    sizeof(cli_array_t), // cli_array_of_int1,
+    sizeof(cli_array_t), // cli_array_of_int2,
+    sizeof(cli_array_t), // cli_array_of_int4,
+    sizeof(cli_array_t), // cli_array_of_int8,
+    sizeof(cli_array_t), // cli_array_of_real4,
+    sizeof(cli_array_t), // cli_array_of_real8, 
+    sizeof(cli_array_t), // cli_array_of_decimal, 
+    sizeof(cli_array_t), // cli_array_of_string,
     0, // cli_any,
-    0, // cli_datetime,
-    4, // cli_autoincrement,
-    0, // cli_rectangle,
+    sizeof(cli_int8_t), // cli_datetime,
+    sizeof(cli_int4_t), // cli_autoincrement,
+    sizeof(cli_rectangle_t), // cli_rectangle,
+    0  // cli_unknown
+};
+
+union cli_field_alignment {
+    struct { char n; cli_oid_t v;  }  _cli_oid_t;
+    struct { char n; cli_bool_t v;  } _cli_bool_t;
+    struct { char n; cli_int1_t v;  } _cli_int1_t;
+    struct { char n; cli_int2_t v;  } _cli_int2_t;
+    struct { char n; cli_int4_t v;  } _cli_int4_t;
+    struct { char n; cli_int8_t v;  } _cli_int8_t;
+    struct { char n; cli_real4_t v; } _cli_real4_t;
+    struct { char n; cli_real8_t v; } _cli_real8_t;
+    struct { char n; cli_array_t v; } _cli_array_t;
+    struct { char n; char*       v; } _cli_asciiz_t;
+    struct { char n; cli_rectangle_t v; } _cli_rectangle_t;
+};
+
+#define CLI_ALIGNMENT(type) \
+        (((char *)&(((union cli_field_alignment*)0)->_##type.v)) - ((char *)&(((union cli_field_alignment*)0)->_##type.n)))
+
+static const int alignof_type[] = { 
+    CLI_ALIGNMENT(cli_oid_t), 
+    CLI_ALIGNMENT(cli_bool_t), 
+    CLI_ALIGNMENT(cli_int1_t), 
+    CLI_ALIGNMENT(cli_int2_t), 
+    CLI_ALIGNMENT(cli_int4_t), 
+    CLI_ALIGNMENT(cli_int8_t), 
+    CLI_ALIGNMENT(cli_real4_t), 
+    CLI_ALIGNMENT(cli_real8_t),
+    CLI_ALIGNMENT(cli_real8_t),
+    CLI_ALIGNMENT(cli_asciiz_t),
+    CLI_ALIGNMENT(cli_asciiz_t),
+    CLI_ALIGNMENT(cli_asciiz_t),
+    CLI_ALIGNMENT(cli_array_t), // cli_array_of_oid,
+    CLI_ALIGNMENT(cli_array_t), // cli_array_of_bool,
+    CLI_ALIGNMENT(cli_array_t), // cli_array_of_int1,
+    CLI_ALIGNMENT(cli_array_t), // cli_array_of_int2,
+    CLI_ALIGNMENT(cli_array_t), // cli_array_of_int4,
+    CLI_ALIGNMENT(cli_array_t), // cli_array_of_int8,
+    CLI_ALIGNMENT(cli_array_t), // cli_array_of_real4,
+    CLI_ALIGNMENT(cli_array_t), // cli_array_of_real8, 
+    CLI_ALIGNMENT(cli_array_t), // cli_array_of_decimal, 
+    CLI_ALIGNMENT(cli_array_t), // cli_array_of_string,
+    0, // cli_any,
+    CLI_ALIGNMENT(cli_int8_t), // cli_datetime,
+    CLI_ALIGNMENT(cli_int4_t), // cli_autoincrement,
+    CLI_ALIGNMENT(cli_rectangle_t), // cli_rectangle,
     0  // cli_unknown
 };
 
@@ -82,13 +133,18 @@ static const int fd2cli_type_mapping[] = {
 };
 
 #if defined(__FreeBSD__)
+END_FASTDB_NAMESPACE
 #include <sys/param.h>
+#include <netinet/in.h>
+BEGIN_FASTDB_NAMESPACE
 #define USE_HTON_NTOH
 #elif defined(__linux__)
 //
 // At Linux inline assembly declarations of ntohl, htonl... are available
 //
+END_FASTDB_NAMESPACE
 #include <netinet/in.h>
+BEGIN_FASTDB_NAMESPACE
 #define USE_HTON_NTOH
 #else
 #if defined(_WIN32) && _M_IX86 >= 400
@@ -189,6 +245,20 @@ inline char* pack_oid(char* dst, cli_oid_t oid)
     return (sizeof(oid) == 4) ? pack4(dst, oid) : pack8(dst, (char*)&oid);
 }
 
+inline char* pack_rectangle(char* dst, cli_rectangle_t* rect)
+{
+    if (sizeof(cli_coord_t) == 4) { 
+        for (int i = 0; i < CLI_RECTANGLE_DIMENSION*2; i++) { 
+            dst = pack4(dst, (char*)&rect->boundary[i]);
+        }
+    } else { 
+        for (int i = 0; i < CLI_RECTANGLE_DIMENSION*2; i++) { 
+            dst = pack8(dst, (char*)&rect->boundary[i]);
+        }
+    }
+    return dst;
+}
+
 inline int2 unpack2(char* src) { 
     nat1* s = (nat1*)src;
     return (s[0] << 8) + s[1]; 
@@ -251,11 +321,25 @@ inline cli_oid_t unpack_oid(char* src)
 {
     cli_oid_t oid;
     if (sizeof(oid) == 4) {
-    oid = unpack4(src);
+        oid = unpack4(src);
     } else { 
-    unpack8((char*)&oid, src);
+        unpack8((char*)&oid, src);
     }
     return oid;
+}
+
+inline char* unpack_rectangle(cli_rectangle_t* rect, char* src)
+{
+    if (sizeof(cli_coord_t) == 4) { 
+        for (int i = 0; i < CLI_RECTANGLE_DIMENSION*2; i++) { 
+            src = unpack4((char*)&rect->boundary[i], src);
+        }
+    } else { 
+        for (int i = 0; i < CLI_RECTANGLE_DIMENSION*2; i++) { 
+            src = unpack8((char*)&rect->boundary[i], src);
+        }
+    }
+    return src;
 }
 
 struct cli_request { 
@@ -264,16 +348,18 @@ struct cli_request {
     int4 stmt_id;
     
     void pack() { 
-    pack4(length);
-    pack4(cmd);
-    pack4(stmt_id);
+        pack4(length);
+        pack4(cmd);
+        pack4(stmt_id);
     }
 
     void unpack() { 
-    unpack4(length);
-    unpack4(cmd);
-    unpack4(stmt_id);
+        unpack4(length);
+        unpack4(cmd);
+        unpack4(stmt_id);
     }
 };
+
+END_FASTDB_NAMESPACE
 
 #endif

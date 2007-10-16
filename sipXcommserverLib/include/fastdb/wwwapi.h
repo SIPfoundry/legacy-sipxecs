@@ -16,6 +16,8 @@
 #include "sockio.h"
 #include "database.h"
 
+BEGIN_FASTDB_NAMESPACE
+
 enum WWWencodingType { 
     TAG  = 0, // HTML tags (no conversion)
     HTML = 1, // replace ('<','>','"','&') with (&lt; &gt; &amp; &qout;)
@@ -35,8 +37,17 @@ class FASTDB_DLL_ENTRY WWWconnection {
     friend class HTTPapi;
     
   public:
-    void* userData;
+    
+    typedef void (*UserDataDestructor)(void* userData);
     typedef bool (*handler)(WWWconnection& con);
+
+    void*              userData;
+    UserDataDestructor userDataDestructor;
+
+    void setUserData(void* data, UserDataDestructor destructor = NULL) { 
+        userData = data;
+        userDataDestructor = destructor;
+    }
 
     //
     // Append string to reply buffer
@@ -48,19 +59,19 @@ class FASTDB_DLL_ENTRY WWWconnection {
     WWWconnection& append(const void *buf, int len);
     
     WWWconnection& operator << (char const* str) { 
-	return append(str);
+        return append(str);
     }
     
     void setEncoding(WWWencodingType type) { encoding = type; }
 
     WWWconnection& operator << (WWWencodingType type) { 
-	setEncoding(type);
-	return *this;
+        setEncoding(type);
+        return *this;
     }
     WWWconnection& operator << (int value) { 
-	char buf[32];
-	sprintf(buf, "%d", value);
-	return append(buf);
+        char buf[32];
+        sprintf(buf, "%d", value);
+        return append(buf);
     }
     WWWconnection& operator << (double value) {
         char buf[32];
@@ -79,7 +90,7 @@ class FASTDB_DLL_ENTRY WWWconnection {
         sprintf(buf, "%ld", (long)value);
         return append(buf);
     }
-    
+
     char* getStub() { return stub; }
 
     char* getAddress() { return address; }
@@ -107,6 +118,7 @@ class FASTDB_DLL_ENTRY WWWconnection {
     
     WWWconnection();
     ~WWWconnection();
+
   protected: 
     enum { hash_table_size = 1013 };
     socket_t*   sock;
@@ -121,10 +133,10 @@ class FASTDB_DLL_ENTRY WWWconnection {
    
 
     struct name_value_pair { 
-	name_value_pair* next;
-	char const*      name;
-	char const*      value;
-	unsigned         hash_code;
+        name_value_pair* next;
+        char const*      name;
+        char const*      value;
+        unsigned         hash_code;
     };
 
     name_value_pair* hash_table[hash_table_size];
@@ -150,11 +162,11 @@ class FASTDB_DLL_ENTRY WWWconnection {
 class FASTDB_DLL_ENTRY WWWapi { 
   public:
     struct dispatcher { 
-	char const*         page;
-	WWWconnection::handler func;
-	// filled by contracutor of WWWapi
-	unsigned            hash_code;
-	dispatcher*         collision_chain;
+        char const*         page;
+        WWWconnection::handler func;
+        // filled by contracutor of WWWapi
+        unsigned            hash_code;
+        dispatcher*         collision_chain;
     };
 
   protected:
@@ -169,13 +181,14 @@ class FASTDB_DLL_ENTRY WWWapi {
 
   public:
     WWWapi(dbDatabase& db, int n_handlers, dispatcher* dispatch_table);
+    virtual~WWWapi();
 
     //
     // Bind and listen socket
     //
     bool open(char const* socket_address = "localhost:80", 
-	      socket_t::socket_domain domain = socket_t::sock_global_domain, 
-	      int listen_queue = DEFAULT_LISTEN_QUEUE_SIZE);
+              socket_t::socket_domain domain = socket_t::sock_global_domain, 
+              int listen_queue = DEFAULT_LISTEN_QUEUE_SIZE);
 
 
     //
@@ -221,18 +234,18 @@ class FASTDB_DLL_ENTRY HTTPapi : public WWWapi {
     bool   keepConnectionAlive;
 
     bool handleRequest(WWWconnection& con, char* begin, char* end, 
-		       char* host, bool& result);
+                       char* host, bool& result);
 
   public:
     virtual bool serve(WWWconnection& con);
 
     HTTPapi(dbDatabase& db, int n_handlers, dispatcher* dispatch_table, 
-	    bool persistentConnections = false,
-	    time_t connectionHoldTimeoutSec = WAIT_FOREVER) 
+            bool persistentConnections = false,
+            time_t connectionHoldTimeoutSec = WAIT_FOREVER) 
     : WWWapi(db, n_handlers, dispatch_table) 
     {
-	keepConnectionAlive = persistentConnections;
-	connectionHoldTimeout = connectionHoldTimeoutSec;
+        keepConnectionAlive = persistentConnections;
+        connectionHoldTimeout = connectionHoldTimeoutSec;
     }
 };
 
@@ -256,12 +269,14 @@ class FASTDB_DLL_ENTRY QueueManager {
     void start();
 
     QueueManager(WWWapi& api, // WWWapi should be opened
-		 dbDatabase& db,
-		 int     nThreads = 8, 
-		 int     connectionQueueLen = 64);
+                 dbDatabase& db,
+                 int     nThreads = 8, 
+                 int     connectionQueueLen = 64);
     ~QueueManager();
 };
 
+
+END_FASTDB_NAMESPACE
 
 #endif
 

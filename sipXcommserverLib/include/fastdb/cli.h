@@ -11,7 +11,9 @@
 #ifndef __CLI_H__
 #define __CLI_H__
 
+#include "config.h"
 #include <stdlib.h>
+#include <time.h>
 
 #ifndef FASTDB_DLL_ENTRY
 #ifdef FASTDB_DLL
@@ -23,6 +25,10 @@
 #else
 #define FASTDB_DLL_ENTRY
 #endif
+#endif
+
+#ifndef CLI_CALLBACK_CC /* CLI callbacks calling convention */
+#define CLI_CALLBACK_CC 
 #endif
 
 #ifdef __cplusplus
@@ -76,12 +82,16 @@ enum cli_var_type {
     cli_array_of_real8,
     cli_array_of_decimal, 
     cli_array_of_string,
-    cli_any,      /* not supported */
-    cli_datetime, /* not supported */
-    cli_autoincrement, 
-    cli_rectangle,/* not supported */
+    cli_any,      /* use the same type for column as stored in the database */
+    cli_datetime,  /* time in seconds since 00:00:00 UTC, January 1, 1970. */
+    cli_autoincrement,  /* column of int4 type automatically assigned value during record insert */
+    cli_rectangle,
     cli_unknown
 };
+
+#ifdef __STDTP_H__
+USE_FASTDB_NAMESPACE
+#endif
 
 typedef char         cli_bool_t;
 typedef signed char  cli_int1_t;
@@ -90,28 +100,48 @@ typedef signed int   cli_int4_t;
 typedef float        cli_real4_t;
 typedef double       cli_real8_t;
     
+#ifndef RECTANGLE_COORDINATE_TYPE
+#define RECTANGLE_COORDINATE_TYPE int
+//#define RECTANGLE_COORDINATE_TYPE double
+#endif
+typedef RECTANGLE_COORDINATE_TYPE cli_coord_t;
+#define CLI_RECTANGLE_DIMENSION 2
+
+typedef struct { 
+    cli_coord_t  boundary[CLI_RECTANGLE_DIMENSION*2];
+} cli_rectangle_t;
+
+#if !defined(SIZEOF_LONG) && defined(L64) && ! defined(WIN64)
+#define SIZEOF_LONG 8
+#endif
+
 #if (defined(_WIN32) || defined(__BORLANDC__)) && !defined(__MINGW32__)
 typedef __int64      cli_int8_t;
 #else
-#if defined(__osf__ )
+#if SIZEOF_LONG == 8
 typedef signed long  cli_int8_t;
 #else
-#if defined(__GNUC__) || defined(__SUNPRO_CC)
 typedef signed long long cli_int8_t;
-#else
-#error "integer 8 byte type is not defined" 
 #endif
 #endif
+
+#ifndef CLI_TIME_T_DEFINED
+    typedef time_t cli_time_t;
 #endif
 
 #ifndef CLI_OID_DEFINED
-typedef long cli_oid_t;
+#if dbDatabaseOidBits > 32
+typedef size_t cli_oid_t;
+#else
+typedef unsigned cli_oid_t;
+#endif
 #endif
 
+// structure used to represent array field in structure extracted by cli_execute_query
 typedef struct cli_array_t { 
-    size_t size;
-    void*  data;
-    size_t allocated;
+    size_t size;      // number of elements in the array
+    void*  data;      // pointer to the array elements
+    size_t allocated; // internal field: size of allocated buffer 
 } cli_array_t;
     
 /*********************************************************************
@@ -127,8 +157,8 @@ typedef struct cli_array_t {
  *     <  0 - error code as described in cli_result_code enum
  */
 int FASTDB_DLL_ENTRY cli_open(char const* server_url, 
-                  int         max_connect_attempts,
-                  int         reconnect_timeout_sec);
+                              int         max_connect_attempts,
+                              int         reconnect_timeout_sec);
 
 enum cli_open_attributes { 
     cli_open_default    = 0x0, 
@@ -154,10 +184,10 @@ enum cli_open_attributes {
  */
 
 int FASTDB_DLL_ENTRY cli_create(char const* databaseName, 
-                char const* filePath, 
-                unsigned    transactionCommitDelay, 
-                int         openAttr, 
-                size_t      initDatabaseSize,
+                                char const* filePath, 
+                                unsigned    transactionCommitDelay, 
+                                int         openAttr, 
+                                size_t      initDatabaseSize,
                                 size_t      extensionQuantum,
                                 size_t      initIndexSize,
                                 size_t      fileSizeLimit);
@@ -231,9 +261,9 @@ int FASTDB_DLL_ENTRY cli_statement(int session, char const* stmt);
  *     result code as described in cli_result_code enum
  */
 int FASTDB_DLL_ENTRY cli_parameter(int         statement,
-                   char const* param_name, 
-                   int         var_type,
-                   void*       var_ptr);
+                                   char const* param_name, 
+                                   int         var_type,
+                                   void*       var_ptr);
 
 /*********************************************************************
  * cli_column
@@ -255,19 +285,19 @@ int FASTDB_DLL_ENTRY cli_parameter(int         statement,
  *     result code as described in cli_result_code enum
  */
 int FASTDB_DLL_ENTRY cli_column(int         statement,
-                char const* column_name, 
-                int         var_type, 
-                int*        var_len, 
-                void*       var_ptr);
+                                char const* column_name, 
+                                int         var_type, 
+                                int*        var_len, 
+                                void*       var_ptr);
 
 
-typedef void* (*cli_column_set)(int var_type, void* var_ptr, int len);
-typedef void* (*cli_column_get)(int var_type, void* var_ptr, int* len);
+typedef void* (CLI_CALLBACK_CC *cli_column_set)(int var_type, void* var_ptr, int len);
+typedef void* (CLI_CALLBACK_CC *cli_column_get)(int var_type, void* var_ptr, int* len);
 
-typedef void* (*cli_column_set_ex)(int var_type, void* var_ptr, int len, 
-                   char const* column_name, int statement, void const* data_ptr);
-typedef void* (*cli_column_get_ex)(int var_type, void* var_ptr, int* len, 
-                   char const* column_name, int statemen);
+typedef void* (CLI_CALLBACK_CC *cli_column_set_ex)(int var_type, void* var_ptr, int len, 
+                                   char const* column_name, int statement, void const* data_ptr, void* user_data);
+typedef void* (CLI_CALLBACK_CC *cli_column_get_ex)(int var_type, void* var_ptr, int* len, 
+                                   char const* column_name, int statemen, void* user_data);
 
 /*********************************************************************
  * cli_array_column
@@ -285,22 +315,24 @@ typedef void* (*cli_column_get_ex)(int var_type, void* var_ptr, int* len,
  *                   database. Given pointer to the variable, it should return 
  *                   pointer to the array elements and store length of the
  *                   array to the variable pointer by len parameter
+ *     user_data   - pointer to user specific data passed to get and set functions
  * Returns:
  *     result code as described in cli_result_code enum
  */
 int FASTDB_DLL_ENTRY cli_array_column(int            statement,
-                      char const*    column_name, 
-                      int            var_type,
-                      void*          var_ptr,
-                      cli_column_set set,
-                      cli_column_get get);
+                                      char const*    column_name, 
+                                      int            var_type,
+                                      void*          var_ptr,
+                                      cli_column_set set,
+                                      cli_column_get get);
     
 int FASTDB_DLL_ENTRY cli_array_column_ex(int               statement,
-                     char const*       column_name, 
-                     int               var_type,
-                     void*             var_ptr,
-                     cli_column_set_ex set,
-                     cli_column_get_ex get);
+                                         char const*       column_name, 
+                                         int               var_type,
+                                         void*             var_ptr,
+                                         cli_column_set_ex set,
+                                         cli_column_get_ex get, 
+                                         void*             user_data);
     
 enum { 
     cli_view_only, 
@@ -439,6 +471,18 @@ int FASTDB_DLL_ENTRY cli_update(int statement);
 int FASTDB_DLL_ENTRY cli_remove(int statement);
 
 /*********************************************************************
+ * cli_remove_current
+ *     Remove currently selected record. You have to set
+ *     for_update parameter of cli_fetch to 1 in order to be able
+ *     to remove records.
+ * Parameters:
+ *     statement   - statememt descriptor returned by cli_statement
+ * Returns:
+ *     result code as described in cli_result_code enum
+ */
+int FASTDB_DLL_ENTRY cli_remove_current(int statement);
+
+/*********************************************************************
  * cli_free
  *     Deallocate statement and all associated data
  * Parameters:
@@ -447,6 +491,16 @@ int FASTDB_DLL_ENTRY cli_remove(int statement);
  *     result code as described in cli_result_code enum
  */
 int FASTDB_DLL_ENTRY cli_free(int statement);
+
+/*********************************************************************
+ * cli_close_cursor
+ *     Close current cursor
+ * Parameters:
+ *     statement   - statememt descriptor returned by cli_statement
+ * Returns:
+ *     result code as described in cli_result_code enum
+ */
+int FASTDB_DLL_ENTRY cli_close_cursor(int statement);
 
 /*********************************************************************
  * cli_commit
@@ -482,7 +536,8 @@ int FASTDB_DLL_ENTRY cli_abort(int session);
 
 enum cli_field_flags { 
     cli_hashed           = 1, /* field should be indexed usnig hash table */
-    cli_indexed          = 2  /* field should be indexed using B-Tree */
+    cli_indexed          = 2, /* field should be indexed using B-Tree */
+    cli_autoincremented  = 16 /* field is assigned automaticall incremented value */
 };
 
 typedef struct cli_field_descriptor { 
@@ -495,7 +550,7 @@ typedef struct cli_field_descriptor {
 
 /*********************************************************************
  * cli_describe
- *     Describe fileds of specified table
+ *     Describe fields of specified table
  * Parameters:
  *     session - session descriptor as returned by cli_open
  *     table   - name of the table
@@ -506,6 +561,45 @@ typedef struct cli_field_descriptor {
  *     < 0  - result code as described in cli_result_code enum
  */
 int FASTDB_DLL_ENTRY cli_describe(int session, char const* table, cli_field_descriptor** fields);
+
+typedef struct cli_field_layout {
+    cli_field_descriptor desc;
+    int                  offs;
+    int                  size;
+} cli_field_layout;
+
+/*********************************************************************
+ * cli_describe_layout
+ *     Describe fields layout of specified table
+ * Parameters:
+ *     session - session descriptor as returned by cli_open
+ *     table   - name of the table
+ *     fields  - address of the pointer to the array of fields layout descriptors, 
+ *               this array should be later deallocated by application by cli_free_memory()
+ *     rec_size - pointer to the location to receive size of the record. This size can be used by application to allocate buffer for cli_execute_query function
+ * Returns:
+ *     >= 0 - number of fields in the table
+ *     < 0  - result code as described in cli_result_code enum
+ */
+int FASTDB_DLL_ENTRY cli_describe_layout(int session, char const* table, cli_field_layout** fields, int* rec_size);
+
+/*********************************************************************
+ * cli_get_field_size
+ *     Calculate field size
+ * Parameters:
+ *     fields  - array with fields descriptors obtained using cli_describe function
+ *     field_no - number of the field
+ */
+int FASTDB_DLL_ENTRY cli_get_field_size(cli_field_descriptor* fields, int field_no);
+
+/*********************************************************************
+ * cli_get_field_offset
+ *     Calculate offset of the field 
+ * Parameters:
+ *     fields  - array with fields descriptors obtained using cli_describe function
+ *     field_no - number of the field
+ */
+int FASTDB_DLL_ENTRY cli_get_field_offset(cli_field_descriptor* fields, int field_no);
 
 
 typedef struct cli_table_descriptor {
@@ -538,7 +632,21 @@ int FASTDB_DLL_ENTRY cli_show_tables(int session, cli_table_descriptor** tables)
  *     result code as described in cli_result_code enum
  */
 int FASTDB_DLL_ENTRY cli_create_table(int session, char const* tableName, int nFields, 
-                    cli_field_descriptor* fields);
+                                        cli_field_descriptor* fields);
+
+/*********************************************************************
+ * cli_alter_table
+ *     Change table format
+ * Parameters:
+ *     session   - session descriptor as returned by cli_open
+ *     tableName - name of existing table
+ *     nFields   - number of columns in the table
+ *     fields    - array with new table columns descriptors
+ * Returns:
+ *     result code as described in cli_result_code enum
+ */
+int FASTDB_DLL_ENTRY cli_alter_table(int session, char const* tableName, int nFields, 
+                                     cli_field_descriptor* fields);
 
 /*********************************************************************
  * cli_drop_table
@@ -575,6 +683,8 @@ int FASTDB_DLL_ENTRY cli_alter_index(int session, char const* tableName, char co
  * Parameters:
  *     session   - session descriptor as returned by cli_open
  *     handler   - error handler
+ *     context   - error handler context: pointer to the user specific data
+ *                  which will be passed to thr handler
  * Returns:
  *     previous handler
  */
@@ -591,8 +701,8 @@ enum cli_error_class {
     cli_lock_revoked,
     cli_file_limit_exeeded        
 };
-typedef void (*cli_error_handler)(int error, char const* msg, int msgarg); 
-cli_error_handler FASTDB_DLL_ENTRY cli_set_error_handler(int session, cli_error_handler new_handler);
+typedef void (CLI_CALLBACK_CC *cli_error_handler)(int error, char const* msg, int msgarg, void* context); 
+cli_error_handler FASTDB_DLL_ENTRY cli_set_error_handler(int session, cli_error_handler new_handler, void* context);
 
 /*********************************************************************
  * cli_freeze
@@ -686,7 +796,7 @@ int FASTDB_DLL_ENTRY cli_get_database_state(int session, cli_database_monitor* m
  * Parameters:
  *     func - pointer to trace function which receives trace message terminated with new line character
  */
-typedef void (*cli_trace_function_t)(char* msg);
+typedef void (CLI_CALLBACK_CC *cli_trace_function_t)(char* msg);
 void FASTDB_DLL_ENTRY cli_set_trace_function(cli_trace_function_t func);
 
 
@@ -698,6 +808,7 @@ void FASTDB_DLL_ENTRY cli_set_trace_function(cli_trace_function_t func);
  *     query   - query string with optional parameters. Parameters are specified
  *               as '%T' where T is one or two character code of parameter type using the same notation
  *               as in printf: %d or %i - int, %f - float or double, %ld - int8, %s - string, %p - oid...
+ *               Parameter of cli_rectangle_t* type has format %R, cli_time_t type - %t
  * Returns:
  *     >= 0 - statement descriptor
  *     <  0 - error code as described in cli_result_code enum
@@ -706,7 +817,7 @@ int FASTDB_DLL_ENTRY cli_prepare_query(int session, char const* query);
 
 /**
  * cli_execute_query
- *     Execute query previously prepared by cli_prepare_query
+ *     Execute query previously prepared by cli_prepare_query with varying list of parameters
  * Parameters:
  *     statement - statement descriptor returned by cli_prepare_query
  *     for_update - not zero if fetched rows will be updated 
@@ -717,6 +828,22 @@ int FASTDB_DLL_ENTRY cli_prepare_query(int session, char const* query);
  *     <  0 - error code as described in cli_result_code enum
  */
 int FASTDB_DLL_ENTRY cli_execute_query(int statement, int for_update, void* record_struct, ...);
+
+/**
+ * cli_execute_query_ex
+ *     Execute query previously prepared by cli_prepare_query with parameters passed as array
+ * Parameters:
+ *     statement - statement descriptor returned by cli_prepare_query
+ *     for_update - not zero if fetched rows will be updated 
+ *     record_struct - structure to receive selected record fields
+ *     n_params - number of parameters
+ *     param_types - types of parameters (cli_var_type)
+ *     param_values - array of pointers to parameter values
+ * Returns:
+ *     >= 0 - success, for select statements number of fetched rows is returned
+ *     <  0 - error code as described in cli_result_code enum
+ */
+int FASTDB_DLL_ENTRY cli_execute_query_ex(int statement, int for_update, void* record_struct, int n_params, int* param_types, void** param_values);
 
 /**
  * cli_insert_struct
@@ -730,6 +857,36 @@ int FASTDB_DLL_ENTRY cli_execute_query(int statement, int for_update, void* reco
  *     result code as described in cli_result_code enum
  */
 int FASTDB_DLL_ENTRY cli_insert_struct(int session, char const* table_name, void* record_struct, cli_oid_t* oid);
+
+typedef void* cli_transaction_context_t;
+/*********************************************************************
+ * cli_create_transaction_context
+ *    Create new transaction xontext which can be used in cli_join_transaction function
+ * Parameters:
+ * Returns:
+ *     created transaction context
+ */
+ cli_transaction_context_t FASTDB_DLL_ENTRY cli_create_transaction_context();
+
+/*********************************************************************
+ * cli_join_transaction
+ *    Associate current threads with specified transaction context,
+ *    It allows to share single transaction between multiple threads.
+ * Parameters:
+ *     session - session descriptor returned by cli_open
+ *     ctx     - transaction context created by cli_create_transaction_context
+ * Returns:
+ *     result code as described in cli_result_code enum
+ */
+int FASTDB_DLL_ENTRY cli_join_transaction(int session, cli_transaction_context_t ctx);
+
+/*********************************************************************
+ * cli_remove_transaction_context
+ *    Remove transaction context
+ * Parameters:
+ *     ctx  transaction context created by cli_create_transaction_context
+ */
+void FASTDB_DLL_ENTRY cli_remove_transaction_context(cli_transaction_context_t ctx);
 
 #ifdef __cplusplus
 }

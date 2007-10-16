@@ -12,23 +12,33 @@
 #define __SOCKIO_H__
 
 #include "stdtp.h"
-#include <time.h>
+
+BEGIN_FASTDB_NAMESPACE
 
 #define DEFAULT_CONNECT_MAX_ATTEMPTS 100
 #define DEFAULT_RECONNECT_TIMEOUT    1
 #define DEFAULT_LISTEN_QUEUE_SIZE    5
-#define LINGER_TIME                  10
 #define WAIT_FOREVER                 ((time_t)-1)
 
+#ifndef LINGER_TIME
+#define LINGER_TIME                  10
+#endif
 
+#ifndef SOCK_NO_DELAY 
 #ifndef REPLICATION_SUPPORT
 #define SOCK_NO_DELAY                1
-#define SOCK_SNDBUF_SIZE             1024*1024
 #else
 #define SOCK_NO_DELAY                0
+#endif
+#endif
+
+#ifndef SOCK_SNDBUF_SIZE
 #define SOCK_SNDBUF_SIZE             0
 #endif
 
+#ifndef SOCK_LINGER
+#define SOCK_LINGER                  0
+#endif
 
 
 //
@@ -37,11 +47,10 @@
 class FASTDB_DLL_ENTRY socket_t { 
   public: 
     bool              read(void* buf, size_t size) { 
-	return read(buf, size, size) == (int)size;
+        return read(buf, size, size) == (int)size;
     }
-    virtual int       read(void* buf, size_t min_size, size_t max_size, 
-			   time_t timeout = WAIT_FOREVER) = 0;
-    virtual bool      write(void const* buf, size_t size) = 0;
+    virtual int       read(void* buf, size_t min_size, size_t max_size, time_t timeout = WAIT_FOREVER) = 0;
+    virtual bool      write(void const* buf, size_t size, time_t timeout = WAIT_FOREVER) = 0;
 
     virtual bool      is_ok() = 0; 
     virtual void      get_error_text(char* buf, size_t buf_size) = 0;
@@ -77,29 +86,29 @@ class FASTDB_DLL_ENTRY socket_t {
     // Create client socket connected to local or global server socket
     //
     enum socket_domain { 
-	sock_any_domain,   // domain is chosen automatically
-	sock_local_domain, // local domain (i.e. Unix domain socket) 
-	sock_global_domain // global domain (i.e. INET sockets) 
+        sock_any_domain,   // domain is chosen automatically
+        sock_local_domain, // local domain (i.e. Unix domain socket) 
+        sock_global_domain // global domain (i.e. INET sockets) 
     };
 
     static socket_t*  connect(char const* address, 
-			      socket_domain domain = sock_any_domain, 
-			      int max_attempts = DEFAULT_CONNECT_MAX_ATTEMPTS,
-			      time_t timeout = DEFAULT_RECONNECT_TIMEOUT);
+                              socket_domain domain = sock_any_domain, 
+                              int max_attempts = DEFAULT_CONNECT_MAX_ATTEMPTS,
+                              time_t timeout = DEFAULT_RECONNECT_TIMEOUT);
     
     //
     // Create local domain socket
     //
     static socket_t*  create_local(char const* address,
-				   int listen_queue_size = 
-				       DEFAULT_LISTEN_QUEUE_SIZE);
+                                   int listen_queue_size = 
+                                       DEFAULT_LISTEN_QUEUE_SIZE);
 
     //
     // Create global domain socket 
     //
     static socket_t*  create_global(char const* address,
-				   int listen_queue_size = 
-				       DEFAULT_LISTEN_QUEUE_SIZE);
+                                   int listen_queue_size = 
+                                       DEFAULT_LISTEN_QUEUE_SIZE);
 
     virtual int get_handle() = 0;
 
@@ -109,6 +118,8 @@ class FASTDB_DLL_ENTRY socket_t {
   protected:
     enum { ss_open, ss_shutdown, ss_close } state;
 };
+
+END_FASTDB_NAMESPACE
 
 #endif
 

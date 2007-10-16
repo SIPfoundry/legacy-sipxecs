@@ -6,13 +6,14 @@
 //                          Last update: 10-Dec-98    K.A. Knizhnik  * GARRET *
 //-------------------------------------------------------------------*--------*
 // Main header file
+
 //-------------------------------------------------------------------*--------*
 
 #ifndef __FASTDB_H__
 #define __FASTDB_H__
 
-#define FASTDB_MAJOR_VERSION 2
-#define FASTDB_MINOR_VERSION 70
+#define FASTDB_MAJOR_VERSION 3
+#define FASTDB_MINOR_VERSION 39
 #define FASTDB_VERSION (FASTDB_MAJOR_VERSION*100 + FASTDB_MINOR_VERSION)
 
 #include "database.h"

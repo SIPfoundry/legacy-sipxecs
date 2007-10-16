@@ -21,7 +21,6 @@ libfastdb_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libfastdb_la_SOURCES =  \
-    cgistub.cpp \
     class.cpp \
     compiler.cpp \
     container.cpp \
@@ -32,10 +31,12 @@ libfastdb_la_SOURCES =  \
     localcli.cpp \
     query.cpp \
     repsock.cpp \
+    rtree.cpp \
     server.cpp \
+    stdtp.cpp \
+    subsql.cpp \
     symtab.cpp \
     sync.cpp \
     ttree.cpp \
     unisock.cpp \
-    w32sock.cpp \
     wwwapi.cpp

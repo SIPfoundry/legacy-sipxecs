@@ -11,6 +11,8 @@
 #ifndef __HASHTAB_H__
 #define __HASHTAB_H__
 
+BEGIN_FASTDB_NAMESPACE
+
 class FASTDB_DLL_ENTRY dbHashTableItem { 
   public:
     oid_t next;
@@ -25,19 +27,20 @@ class FASTDB_DLL_ENTRY dbHashTable {
     nat4  size;
     nat4  used;
     oid_t page;
-    
-    static unsigned strHashCode(byte* key, int keylen);
-    static unsigned hashCode(byte* key, int keylen);
+
+    static unsigned stringHashFunction(byte* key, int keylen);
     static int const keySize[];
-	
+        
   public:
+    static dbHashFunction getHashFunction(int version);
+
     static oid_t allocate(dbDatabase* db, size_t nRows = 0);
     
     static void  insert(dbDatabase* db, oid_t hashId, 
-			oid_t rowId, int type, int sizeofType, int offs, size_t nRows);
+                        oid_t rowId, int type, int sizeofType, int offs, size_t nRows);
     
     static void  remove(dbDatabase* db, oid_t hashId, 
-			oid_t rowId, int type, int sizeofType, int offs);
+                        oid_t rowId, int type, int sizeofType, int offs);
     
     static void  find(dbDatabase* db, oid_t hashId, dbSearchContext& sc);
     
@@ -45,5 +48,7 @@ class FASTDB_DLL_ENTRY dbHashTable {
 
     static void  purge(dbDatabase* db, oid_t hashId);
 };
+
+END_FASTDB_NAMESPACE
 
 #endif

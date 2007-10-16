@@ -37,14 +37,13 @@ nobase_include_HEADERS =  \
     digitmaps/UrlMapping.h \
     digitmaps/Patterns.h \
     fastdb/array.h \
-    fastdb/bugdb.h \
     fastdb/CHANGES \
     fastdb/class.h \
     fastdb/cli.h \
-    fastdb/clidb.h \
     fastdb/cliproto.h \
     fastdb/compiler.d \
     fastdb/compiler.h \
+    fastdb/config.h \
     fastdb/container.h \
     fastdb/cursor.h \
     fastdb/database.h \
@@ -55,10 +54,13 @@ nobase_include_HEADERS =  \
     fastdb/file.h \
     fastdb/harray.h \
     fastdb/hashtab.h \
+    fastdb/iqsort.h \
     fastdb/localcli.h \
     fastdb/query.h \
+    fastdb/rectangle.h \
     fastdb/reference.h \
     fastdb/repsock.h \
+    fastdb/rtree.h \
     fastdb/server.h \
     fastdb/set.h \
     fastdb/sockio.h \
@@ -66,9 +68,11 @@ nobase_include_HEADERS =  \
     fastdb/subsql.h \
     fastdb/symtab.h \
     fastdb/sync.h \
+    fastdb/sync_unix.h \
+    fastdb/sync_w32.h \
+    fastdb/timeseries.h \
     fastdb/ttree.h \
     fastdb/unisock.h \
-    fastdb/w32sock.h \
     fastdb/wwwapi.h \
     filereader/OrbitFileReader.h \
     filereader/RefreshingFileReader.h \

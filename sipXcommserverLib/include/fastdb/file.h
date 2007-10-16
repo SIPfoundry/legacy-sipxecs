@@ -13,6 +13,8 @@
 
 #include "sync.h"
 
+BEGIN_FASTDB_NAMESPACE
+
 #if defined(REPLICATION_SUPPORT)
 const int dbModMapBlockBits = 12; // 10;
 const int dbModMapBlockSize = 1 << dbModMapBlockBits;
@@ -25,25 +27,29 @@ const int dbModMapBlockSize = 1 << dbModMapBlockBits;
 
 class dbFile;
 class dbReplicatedDatabase;
+class socket_t;
 
 struct ReplicationRequest { 
     enum {
-    RR_CONNECT, 
-    RR_RECOVERY, 
-    RR_GET_STATUS, 
-    RR_STATUS, 
-    RR_UPDATE_PAGE,
-    RR_NEW_ACTIVE_NODE, 
-    RR_CLOSE, 
-    RR_READY
+        RR_CONNECT, 
+        RR_RECOVERY, 
+        RR_GET_STATUS, 
+        RR_STATUS, 
+        RR_UPDATE_PAGE,
+        RR_RECOVER_PAGE,
+        RR_NEW_ACTIVE_NODE, 
+        RR_CHANGE_ACTIVE_NODE, 
+        RR_CLOSE, 
+        RR_READY,
+        RR_COMMITTED
     };
     byte op;
     byte nodeId;
     byte status;
     int  size;
     struct { 
-    int updateCount;
-    int offs;
+        int updateCount;
+        int offs;
     } page;
 };
 
@@ -55,6 +61,9 @@ struct RecoveryRequest {
 };
 #endif
 
+#ifdef FUZZY_CHECKPOINT
+class  dbFileWriter;
+#endif
 
 class dbFile { 
   protected:
@@ -70,10 +79,10 @@ class dbFile {
     char*  sharedName;
     char*  mmapAddr;
     size_t mmapSize;
-
+    bool   readonly;
   public:
     enum { 
-    ok = 0
+        ok = 0
     };
     //
     // Create backup file
@@ -83,7 +92,7 @@ class dbFile {
     // Open database file and create file mapping object 
     //
     int    open(char const* fileName, char const* sharedName,
-        bool readonly, size_t initSize, bool replicationSupport);
+                bool readonly, size_t initSize, bool replicationSupport);
     
     void*  getAddr() const { return mmapAddr; }
     size_t getSize() const { return mmapSize; } 
@@ -98,20 +107,33 @@ class dbFile {
     static char* errorText(int code, char* buf, size_t bufSize);
 
 #if defined(NO_MMAP) || defined(REPLICATION_SUPPORT)
+
+#ifdef PROTECT_DATABASE
+    void protect(size_t pos, size_t size);
+    void unprotect(size_t pos, size_t size);
+#endif
+
     void markAsDirty(size_t pos, size_t size) { 
-    size_t page = pos >> dbModMapBlockBits;
-    size_t last = (pos + size + dbModMapBlockSize - 1) >> dbModMapBlockBits;
+        size_t page = pos >> dbModMapBlockBits;
+        size_t last = (pos + size + dbModMapBlockSize - 1) >> dbModMapBlockBits;
         assert(int(last >> 5) <= pageMapSize);
-    while (page < last) { 
-        pageMap[page >> 5] |= 1 << (page & 31);
-        page += 1;
-    }
+        while (page < last) { 
+            pageMap[page >> 5] |= 1 << (page & 31);
+            page += 1;
+        }
     }
 
   private:
     int* pageMap;
     int  pageMapSize;
     int  pageSize;
+
+#ifdef FUZZY_CHECKPOINT
+    dbFileWriter* writer;
+  public:
+    void setCheckpointBufferSize(size_t nPages);
+#endif
+
   public:
     int  updateCounter;
 
@@ -150,27 +172,36 @@ class dbFile {
 
     void doRecovery(int nodeId, int* updateCounters, int nPages);
 
+    int sendChanges(int nodeId, int* updateCounters, int nPages);
+    void completeRecovery(int nodeId);
+
     void syncToDisk();
     void startSync();
     void stopSync();
 
   public:
     void configure(dbReplicatedDatabase* db) { 
-    this->db = db;
+        this->db = db;
     }
 
-    bool updatePages(int nodeId, size_t pos, int updateCount, int size);
-    bool concurrentUpdatePages(int nodeId, size_t pos, int updateCount, int size);
+    bool updatePages(socket_t* s, size_t pos, int updateCount, int size);
+    bool concurrentUpdatePages(socket_t* s, size_t pos, int updateCount, int size);
     void recovery(int nodeId, int* updateCounters, int nPages);
 #endif
+
 
 #else
     void markAsDirty(size_t, size_t) {}
 #endif
 
+    bool write(size_t pos, void const* ptr, size_t size);
+
     dbFile();
+    ~dbFile();
 };
 
+
+END_FASTDB_NAMESPACE
 
 #endif
 

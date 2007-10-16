@@ -11,6 +11,8 @@
 #ifndef __REFERENCE_H__
 #define __REFERENCE_H__
 
+BEGIN_FASTDB_NAMESPACE
+
 /**
  * Base class for all references
  */
@@ -23,21 +25,21 @@ class FASTDB_DLL_ENTRY dbAnyReference {
 
   public: 
     dbAnyReference(oid_t oid = 0) { 
-    this->oid = oid;
+        this->oid = oid;
     }
     /**
      * Get object idetifier
      * @return object identifier of referenced object 
      */     
     oid_t getOid() const { 
-    return oid;
+        return oid;
     }
 
     /**
      * Check whether reference is null
      */
     friend bool isNull(dbAnyReference const& ref) { 
-    return ref.oid == 0; 
+        return ref.oid == 0; 
     }
     
     /**
@@ -63,7 +65,7 @@ class FASTDB_DLL_ENTRY dbNullReference {};
  */
 extern FASTDB_DLL_ENTRY dbNullReference null;
 
-#if (defined(_MSC_VER) && _MSC_VER+0 <= 1100)
+#if (defined(_MSC_VER) && (_MSC_VER+0 < 1200 || _MSC_VER >= 1310)) || defined(__MWERKS__)
 //
 // Visual C++ prior to 5.0 version (with applied Service Pack 3)
 // didn't support lazy template instantiation. As far as VC has bug
@@ -85,28 +87,28 @@ class dbReference : public dbAnyReference {
      */
     dbFieldDescriptor* dbDescribeComponents(dbFieldDescriptor* fd) { 
         fd->type = fd->appType = dbField::tpReference;
-#if defined(_MSC_VER) && _MSC_VER+0 <= 1100 
-    fd->refTable = dbGetTableDescriptor((T*)0);
+#if defined(_MSC_VER) && (_MSC_VER+0 < 1200 || _MSC_VER >= 1310) || defined(__MWERKS__)
+        fd->refTable = dbGetTableDescriptor((T*)0);
 #else
-#if defined(__GNUC__) && __GNUC_MINOR__ <= 95
-    extern dbTableDescriptor* dbGetTableDescriptor(T*);
-    fd->refTable = dbGetTableDescriptor((T*)0);
+#if GNUC_BEFORE(2,96) || defined(__VACPP_MULTI__) || defined(__IBMCPP__)
+        extern dbTableDescriptor* dbGetTableDescriptor(T*);
+        fd->refTable = dbGetTableDescriptor((T*)0);
 #else
         fd->refTable = &T::dbDescriptor;
 #endif
 #endif
-    fd->dbsSize = fd->alignment = sizeof(oid_t);
+        fd->dbsSize = fd->alignment = sizeof(oid_t);
         return NULL;
     }
 
     /**
      * Assignment operator
-     * @param assigned reference of the same type
+     * @param ref assigned reference of the same type
      * @return this reference
      */
     dbReference& operator = (dbReference const& ref) { 
-    oid = ref.oid;
-    return *this;
+        oid = ref.oid;
+        return *this;
     }
 
     /**
@@ -114,13 +116,13 @@ class dbReference : public dbAnyReference {
      * @return this reference
      */
     dbReference& operator = (dbNullReference const&) { 
-    oid = 0;
-    return *this;
+        oid = 0;
+        return *this;
     }
 
     /**
      * Unsafe assignment operator. Assign any refernce.      
-     * @param assigned reference. If it is not of the same type - result is unpredicted.
+     * @param ref assigned reference. If it is not of the same type - result is unpredicted.
      * @return this reference
      */
     dbReference<T>& unsafeAssign(dbAnyReference const& ref) {
@@ -132,28 +134,28 @@ class dbReference : public dbAnyReference {
      * Operator for comparision of two references of the same type
      */
     bool operator == (dbReference const& ref) const { 
-    return oid == ref.oid; 
+        return oid == ref.oid; 
     }
 
     /**
      * Operator for comparision of two references of the same type
      */
     bool operator != (dbReference const& ref) const { 
-    return oid != ref.oid; 
+        return oid != ref.oid; 
     }
 
     /**
      * Operator for cecking if reference is null
      */
     bool operator == (dbNullReference const&) const { 
-    return oid == 0;
+        return oid == 0;
     }
 
     /**
      * Operator for cecking if reference is not null
      */
     bool operator != (dbNullReference const&) const { 
-    return oid != 0;
+        return oid != 0;
     }
 
     /**
@@ -174,6 +176,8 @@ class dbReference : public dbAnyReference {
      */
     dbReference(oid_t oid=0) : dbAnyReference(oid) {}
 };
+
+END_FASTDB_NAMESPACE
 
 #endif
 

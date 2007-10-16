@@ -13,7 +13,7 @@
 #include "repsock.h"
 #include "sync.h"
 
-
+BEGIN_FASTDB_NAMESPACE
 
 void replication_socket_t::handleError(int socket, const char* operation, const char* error)
 {
@@ -88,12 +88,12 @@ int replication_socket_t::read(void* buf, size_t min_size, size_t max_size, time
     } 
 }
 
-bool replication_socket_t::write(void const* buf, size_t size)
+bool replication_socket_t::write(void const* buf, size_t size, time_t timeout)
 {
     succeed = false;
     for (int i = n_sockets; --i >= 0;) { 
         if (sockets[i] != NULL) { 
-            if (sockets[i]->write(buf, size)) { 
+            if (sockets[i]->write(buf, size, timeout)) { 
                 succeed = true;
             } else { 
                 char msg[64];
@@ -216,3 +216,5 @@ replication_socket_t::~replication_socket_t()
     }
     delete[] sockets;
 }
+
+END_FASTDB_NAMESPACE
