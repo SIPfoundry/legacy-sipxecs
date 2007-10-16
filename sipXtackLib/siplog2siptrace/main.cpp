@@ -8,6 +8,7 @@
 
 // Cloned from syslogviewer
 
+#include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -30,41 +31,41 @@
 void writeMessageNodesBegin(int outputFileDescriptor)
 {
     UtlString nodeBegin("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<sipTrace>\n");
-    write(outputFileDescriptor, nodeBegin.data(), nodeBegin.length());
+    assert(write(outputFileDescriptor, nodeBegin.data(), nodeBegin.length()));
 }
 
 void writeMessageNodesEnd(int outputFileDescriptor)
 {
     UtlString nodeEnd("</sipTrace>\n");
-    write(outputFileDescriptor, nodeEnd.data(), nodeEnd.length());
+    assert(write(outputFileDescriptor, nodeEnd.data(), nodeEnd.length()));
 
 }
 
 void writeBranchNodeBegin(int outputFileDescriptor)
 {
     UtlString nodeBegin("\t<branchNode>\n");
-    write(outputFileDescriptor, nodeBegin.data(), nodeBegin.length());
+    assert(write(outputFileDescriptor, nodeBegin.data(), nodeBegin.length()));
 
 }
 
 void writeBranchNodeEnd(int outputFileDescriptor)
 {
     UtlString nodeEnd("\t</branchNode>\n");
-    write(outputFileDescriptor, nodeEnd.data(), nodeEnd.length());
+    assert(write(outputFileDescriptor, nodeEnd.data(), nodeEnd.length()));
 
 }
 
 void writeBranchSetBegin(int outputFileDescriptor)
 {
     UtlString nodeBegin("\t\t<branchIdSet>\n");
-    write(outputFileDescriptor, nodeBegin.data(), nodeBegin.length());
+    assert(write(outputFileDescriptor, nodeBegin.data(), nodeBegin.length()));
 
 }
 
 void writeBranchSetEnd(int outputFileDescriptor)
 {
     UtlString nodeEnd("\t\t</branchIdSet>\n");
-    write(outputFileDescriptor, nodeEnd.data(), nodeEnd.length());
+    assert(write(outputFileDescriptor, nodeEnd.data(), nodeEnd.length()));
 
 }
 
@@ -76,7 +77,7 @@ void writeBranchId(int outputFileDescriptor,
     node.append(branchId);
     node.append("</branchId>\n");
 
-    write(outputFileDescriptor, node.data(), node.length());
+    assert(write(outputFileDescriptor, node.data(), node.length()));
 }
 
 void writeBranchNodeData(int outputFileDescriptor,
@@ -159,7 +160,7 @@ void writeBranchNodeData(int outputFileDescriptor,
     node.append(message);
     node.append("]]></message>\n");
 
-    write(outputFileDescriptor, node.data(), node.length());
+    assert(write(outputFileDescriptor, node.data(), node.length()));
 }
 
 void writeMessageXml(UtlBoolean isOutgoing,
