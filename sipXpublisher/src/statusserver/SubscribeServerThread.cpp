@@ -823,7 +823,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
 
             // note that the subscribe's csequence is used
             // as a remove filter here
-            removeRow(toUrl.toString(),
+            removeRow(to,
                       from,
                       callId,
                       subscribeCseqInt);

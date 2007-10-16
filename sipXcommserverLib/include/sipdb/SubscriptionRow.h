@@ -41,8 +41,8 @@ public:
     int4 expires; // Absolute expiration time secs since 1/1/1970
     const char* eventtype;
     const char* id; // id param from event header
-    const char* to;
-    const char* from;
+    const char* toUri;
+    const char* fromUri;
     const char* key;
     const char* recordroute;
     const char* accept;
@@ -50,8 +50,8 @@ public:
 
     TYPE_DESCRIPTOR (
       ( KEY(component, HASHED),
-        KEY(to, HASHED),
-        KEY(from, HASHED),
+        KEY(toUri, HASHED),
+        KEY(fromUri, HASHED),
         KEY(callid, HASHED),
         KEY(eventtype, HASHED),
         KEY(id, HASHED),

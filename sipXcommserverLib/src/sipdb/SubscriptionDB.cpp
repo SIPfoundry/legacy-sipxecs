@@ -52,8 +52,8 @@ const UtlString SubscriptionDB::gSubscribecseqKey("subscribecseq");
 const UtlString SubscriptionDB::gExpiresKey("expires");
 const UtlString SubscriptionDB::gEventtypeKey("eventtype");
 const UtlString SubscriptionDB::gIdKey("id");
-const UtlString SubscriptionDB::gToKey("to");
-const UtlString SubscriptionDB::gFromKey("from");
+const UtlString SubscriptionDB::gToKey("toUri");
+const UtlString SubscriptionDB::gFromKey("fromUri");
 const UtlString SubscriptionDB::gFileKey("file");
 const UtlString SubscriptionDB::gKeyKey("key");
 const UtlString SubscriptionDB::gRecordrouteKey("recordroute");
@@ -393,8 +393,8 @@ SubscriptionDB::insertRow (
 #       ifdef TEST_DEBUG
         OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::insertRow <<<<<<<<<<<< query:\n"
                       "  component='%s'\n"
-                      "  to='%s'\n"
-                      "  from='%s'\n"
+                      "  toUri='%s'\n"
+                      "  fromUri='%s'\n"
                       "  callid='%s'\n"
                       "  eventtype='%s'\n"
                       "  id='%s'",
@@ -410,11 +410,12 @@ SubscriptionDB::insertRow (
         // Query does not need to include component, because Call-Id and tags
         // are unique for all subscriptions.
         existingQuery =
-              "to=",to,
-              "and from=",from,
+              "toUri=",to,
+              "and fromUri=",from,
               "and callid=",callid,
               "and eventtype=",eventType,
               "and id=",( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data() );
+
         dbCursor< SubscriptionRow > existingCursor( dbCursorForUpdate );
         int existing = existingCursor.select( existingQuery );
         if ( existing > 0 )
@@ -476,9 +477,9 @@ SubscriptionDB::insertRow (
             row.notifycseq = notifyCseq;
             row.eventtype = eventType;
             row.id = ( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data() );
-            row.from = from;
+            row.fromUri = from;
             row.key = key;
-            row.to = to;
+            row.toUri = to;
             row.recordroute = recordRoute;
             row.accept = accept;
             row.version = version;
@@ -534,13 +535,27 @@ SubscriptionDB::removeRow (
         // same message multiple times, this would cause the just subscribed row
         // to be incorrectly removed while the status server was sending down 
         // its acknowledgement
+
+#       ifdef TEST_DEBUG
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::removeRow <<<<<<<<<<<< query:\n"
+                      "  toUri='%s'\n"
+                      "  fromUri='%s'\n"
+                      "  callid='%s'\n"
+                      "  subscribecseq='%d'",
+                      to.data(),
+                      from.data(),
+                      callid.data(),
+                      subscribeCseq
+                      );
+#       endif
+
         dbQuery query;
         // Query does not need to include component, because Call-Id and tags
         // are unique for all subscriptions.
-        query="to=",to,
-              "and from=",from,
+        query="toUri=",to,
+              "and fromUri=",from,
               "and callid=",callid,
-              "and subcribecseq <",subscribeCseq;
+              "and notifycseq <",subscribeCseq;
         if (cursor.select(query) > 0)
         {
             cursor.removeAllSelected();
@@ -576,8 +591,8 @@ SubscriptionDB::removeErrorRow (
       dbQuery query;
       // Query does not need to include component, because Call-Id and tags
       // are unique for all subscriptions.
-      query="to=",to,
-         "and from=",from,
+      query="toUri=",to,
+         "and fromUri=",from,
          "and callid=",callid;
       if (cursor.select(query) > 0)
       {
@@ -585,10 +600,10 @@ SubscriptionDB::removeErrorRow (
          UtlString errorRows;
          do
          {
-            errorRows.append("\n to '");
-            errorRows.append(cursor->to);
-            errorRows.append("' from '");
-            errorRows.append(cursor->from);
+            errorRows.append("\n toUri '");
+            errorRows.append(cursor->toUri);
+            errorRows.append("' fromUri '");
+            errorRows.append(cursor->fromUri);
             errorRows.append("' callid '");
             errorRows.append(cursor->callid);
             errorRows.append("'");
@@ -705,9 +720,9 @@ SubscriptionDB::getAllRows ( ResultSet& rResultSet ) const
                 UtlString* idValue = 
                     new UtlString ( cursor->id );
                 UtlString* toValue = 
-                    new UtlString ( cursor->to );
+                    new UtlString ( cursor->toUri );
                 UtlString* fromValue = 
-                    new UtlString ( cursor->from );
+                    new UtlString ( cursor->fromUri );
                 UtlString* keyValue = 
                     new UtlString ( cursor->key );
                 UtlString* recordrouteValue = 
@@ -798,6 +813,19 @@ SubscriptionDB::updateNotifyUnexpiredSubscription (
         // thread.
         dbCursor< SubscriptionRow > cursor(dbCursorForUpdate);
 
+#       ifdef TEST_DEBUG
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateNotifyUnexpiredSubscription <<<<<<<<<<<< query:\n"
+                      "  toUri='%s'\n"
+                      "  callid='%s'\n"
+                      "  eventtype='%s'\n"
+                      "  id='%s'",
+                      to.data(),
+                      callid.data(),
+                      eventType.data(),
+                      ( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
+                      );
+#       endif
+
         dbQuery query;
         // Query does not need to include component, because Call-Id and tags
         // are unique for all subscriptions.
@@ -805,7 +833,7 @@ SubscriptionDB::updateNotifyUnexpiredSubscription (
         // consistently and so is hard to use.  In reality, the call-id should
         // be unique.  Yet another hassle that should be fixed by indexing
         // the subscriptions by call-id, to-tag, from-tag, event, and event-id.
-        query="to=",to,
+        query="toUri=",to,
               "and callid=",callid,
               "and eventtype=",eventType,
               "and id=",(id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
@@ -818,6 +846,7 @@ SubscriptionDB::updateNotifyUnexpiredSubscription (
                 {
                     // note cursor.remove() auto updates the database
                     cursor.remove();
+                    OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateNotifyUnexpiredSubscription removing expired row.");
                 } else
                 {
                    // Update the NotifySCeq Number.
@@ -825,12 +854,14 @@ SubscriptionDB::updateNotifyUnexpiredSubscription (
                    // Update the XML internal version number.
                    cursor->version = version;
                    cursor.update();
+                   OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateNotifyUnexpiredSubscription updating notifycseq to: %d", updatedNotifyCseq);
                 }
 
                 // Next replaced with nextAvailable - better when 
                 // selective updates applied to the cursor object
             } while ( cursor.nextAvailable() );
         }
+
         // Commit rows to memory - multiprocess workaround
         m_pFastDB->detach(0);
     }
@@ -861,11 +892,26 @@ SubscriptionDB::updateSubscribeUnexpiredSubscription (
         // thread.
         dbCursor< SubscriptionRow > cursor(dbCursorForUpdate);
 
+#       ifdef TEST_DEBUG
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateSubscribeUnexpiredSubscription <<<<<<<<<<<< query:\n"
+                      "  toUri='%s'\n"
+                      "  fromUri='%s'\n"
+                      "  callid='%s'\n"
+                      "  eventtype='%s'\n"
+                      "  id='%s'",
+                      to.data(),
+                      from.data(),
+                      callid.data(),
+                      eventType.data(),
+                      ( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
+                      );
+#       endif
+
         dbQuery query;
         // Query does not need to include component, because Call-Id and tags
         // are unique for all subscriptions.
-        query="to=",to,
-              "and from=",from,
+        query="toUri=",to,
+              "and fromUri=",from,
               "and callid=",callid,
               "and eventtype=",eventType,
               "and id=",(id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
@@ -947,9 +993,9 @@ SubscriptionDB::getUnexpiredSubscriptions (
                    : cursor->id
                    ));
                 UtlString* toValue = 
-                    new UtlString ( cursor->to );
+                    new UtlString ( cursor->toUri );
                 UtlString* fromValue = 
-                    new UtlString ( cursor->from );
+                    new UtlString ( cursor->fromUri );
                 UtlString* keyValue = 
                     new UtlString ( cursor->key );
                 UtlString* recordrouteValue = 
@@ -1047,16 +1093,16 @@ void SubscriptionDB::updateToTag(
             UtlString seen_tag;
             
             // Get the tag on the URI in the "from" column.
-            Url from_uri(cursor->from, FALSE);
+            Url from_uri(cursor->fromUri, FALSE);
             r = from_uri.getFieldParameter("tag", seen_tag);
             OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateFromAndTo cursor->from = '%s', seen_tag = '%s'",
-                          cursor->from, seen_tag.data());
+                          cursor->fromUri, seen_tag.data());
 
             // If it matches...
             if (r && seen_tag.compareTo(fromtag) == 0)
             {
                // Update the row by adding the to-tag (if it doesn't have one).
-               const char* p = cursor->to;
+               const char* p = cursor->toUri;
                if (strstr(p, ";tag=") == NULL)
                {
                   char buffer[100];
@@ -1081,7 +1127,7 @@ void SubscriptionDB::updateToTag(
                   strcat(buffer, totag);
 
                   // Update the row.
-                  cursor->to = buffer;
+                  cursor->toUri = buffer;
                   cursor.update();
                }
             }
@@ -1121,14 +1167,14 @@ UtlBoolean SubscriptionDB::findFromAndTo(
             UtlString seen_tag;
             
             // Get the tag on the URI in the "from" column.
-            Url from(cursor->from, FALSE);
+            Url from(cursor->fromUri, FALSE);
             r = from.getUrlParameter("tag", seen_tag);
 
             // If it matches...
             if (r && seen_tag.compareTo(fromtag) == 0)
             {
                // Get the tag on the URI in the "to" column.
-               Url to(cursor->to, FALSE);
+               Url to(cursor->toUri, FALSE);
                r = to.getUrlParameter("tag", seen_tag);
 
                // If it matches...
@@ -1136,8 +1182,8 @@ UtlBoolean SubscriptionDB::findFromAndTo(
                {
                   // We have found a match.  Record the full URIs.
                   match_found = TRUE;
-                  from = cursor->from;
-                  to = cursor->to;
+                  from = cursor->fromUri;
+                  to = cursor->toUri;
                }
             }
          } while (!match_found && cursor.nextAvailable());
