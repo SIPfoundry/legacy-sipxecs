@@ -555,7 +555,7 @@ SubscriptionDB::removeRow (
         query="toUri=",to,
               "and fromUri=",from,
               "and callid=",callid,
-              "and notifycseq <",subscribeCseq;
+              "and subscribecseq <",subscribeCseq;
         if (cursor.select(query) > 0)
         {
             cursor.removeAllSelected();
