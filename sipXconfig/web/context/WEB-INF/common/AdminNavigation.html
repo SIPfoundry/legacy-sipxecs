@@ -59,6 +59,7 @@
     <ul>
       <li><a jwcid="@PageLink" id="menu.registrations" page="Registrations"><span key="menu.registrations">Registrations</span></a></li>
       <li><a jwcid="@PageLink" id="menu.cdr" page="cdr/CdrPage"><span key="menu.cdr">Calls</span></a></li>
+      <li><a jwcid="@PageLink" id="menu.statistics" page="admin/StatisticsPage"><span key="menu.statistics">Statistics</span></a></li>
       <li jwcid="@If" element="li" condition="ognl: acdContext.enabled">
         <a jwcid="@PageLink" id="menu.acdHistory" page="acd/AcdHistoryPage"><span key="menu.acdHistory">ACD Calls</span></a>
       </li>
@@ -66,13 +67,6 @@
       <li><a jwcid="@PageLink" id="menu.configdiag" page="ConfigurationDiagnosticPage"><span key="menu.configdiag">Configuration Tests</span></a></li> 
       <li><a jwcid="@PageLink" id="menu.services" page="Services"><span key="menu.services">Services</span></a></li>
       <li><a jwcid="@PageLink" id="menu.snapshot" page="SnapshotPage"><span key="menu.snapshot">Snapshot</span></a></li>
-    </ul>
-  </li>
-  <li>
-    <a><span key="menu.section.monitoring">Monitoring</span></a>
-    <ul>
-      <li><a jwcid="@PageLink" id="menu.monitoringConfiguration" page="admin/MonitoringConfigurationPage"><span key="menu.monitoringConfiguration">Configuration</span></a></li>
-      <li><a jwcid="@PageLink" id="menu.statistics" page="admin/StatisticsPage"><span key="menu.statistics">Statistics</span></a></li>
     </ul>
   </li>
 </ul>

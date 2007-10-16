@@ -11,21 +11,26 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import java.util.List;
 
+import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.monitoring.MRTGTarget;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
+import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
-public abstract class MonitoringTargetsConfigurationPage extends UserBasePage implements
+public abstract class MonitoringTargetsConfigurationPage extends PageWithCallback implements
         PageBeginRenderListener {
     public static final String PAGE = "admin/MonitoringTargetsConfigurationPage";
 
     @InjectObject(value = "spring:monitoringContext")
     public abstract MonitoringContext getMonitoringContext();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
 
     public abstract void setTargets(List<MRTGTarget> targets);
 

@@ -13,19 +13,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
+import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.monitoring.MRTGTarget;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringBean;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringUtil;
-import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
-public abstract class StatisticsPage extends UserBasePage implements PageBeginRenderListener {
+public abstract class StatisticsPage extends BasePage implements PageBeginRenderListener {
     public static final Object PAGE = "admin/StatisticsPage";
 
     private static final String SUMMARY_REPORT = "summary";
@@ -40,6 +44,12 @@ public abstract class StatisticsPage extends UserBasePage implements PageBeginRe
 
     @InjectObject(value = "spring:monitoringContext")
     public abstract MonitoringContext getMonitoringContext();
+
+    @InjectPage(value = MonitoringConfigurationPage.PAGE)
+    public abstract MonitoringConfigurationPage getConfigurationPage();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
 
     public abstract Object getAvailableReportsIndexItem();
 
@@ -71,6 +81,12 @@ public abstract class StatisticsPage extends UserBasePage implements PageBeginRe
     public void showReport(String reportName, String host) {
         setReportName(reportName);
         setHost(host);
+    }
+
+    public IPage configure() {
+        MonitoringConfigurationPage page = getConfigurationPage();
+        page.setReturnPage(this);
+        return page;
     }
 
     public void pageBeginRender(PageEvent event) {

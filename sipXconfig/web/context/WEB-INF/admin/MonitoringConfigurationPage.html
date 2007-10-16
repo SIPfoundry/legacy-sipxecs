@@ -2,19 +2,37 @@
   <h2>
     <span key="title">Configuration</span>
   </h2>
-  <form jwcid="hosts@Form">
-    <table jwcid="@Table" id="hosts:list"
-      source="prop:hosts"
-      columns="literal:* hostName"
-      row="prop:currentRow"
-      selections="bean:selections"
-      rowInfo="bean:rowInfo">
-      <span jwcid="hostNameColumnValue@Block">
-        <span jwcid="editRowLink@DirectLink"
-            listener="listener:editHostConfiguration" parameters="prop:currentRow.hostName">
-          <span jwcid="@Insert" value="prop:currentRow.hostName"/>
-        </span>
+  <table jwcid="@contrib:TableView"
+    id="hosts:list"
+    class="component"
+    source="prop:hosts"
+    pageSize="-1"
+    columns="!hostName">
+    <thead>
+      <tr>
+        <span jwcid="@contrib:TableColumns"/>
+      </tr>
+    </thead>
+    <tbody>
+      <span jwcid="@contrib:TableRows"
+        row="ognl:currentRow"
+        class="ognl:beans.rowClass.next"
+        volatile="true">
+        <span jwcid="tableValues@contrib:TableValues"/>
       </span>
-    </table>
+    <span jwcid="hostNameColumnValue@Block">
+      <span jwcid="editRowLink@DirectLink"
+          listener="listener:editHostConfiguration"
+          parameters="prop:currentRow.hostName">
+        <span jwcid="@Insert" value="prop:currentRow.hostName"/>
+      </span>
+    </span>
+    </tbody>
+  </table>
+  <form jwcid="hosts@Form">
+    <span jwcid="@common/FormActions"
+      includeApplyButton="ognl:false"
+      listener="listener:apply"
+      callback="ognl:callback"/>
   </form>
 </div>
