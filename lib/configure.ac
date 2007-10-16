@@ -55,6 +55,14 @@ AC_ARG_ENABLE(f7,
           ruby_dbi=yes
         ])
 
+AC_ARG_ENABLE(f8,
+        AC_HELP_STRING([--enable-f8], [Enable dependencies for Fedora 8]),
+        [
+          ruby_gems=yes
+          cgicc=yes
+          ruby_dbi=yes
+        ])
+
 AC_ARG_ENABLE(rhe4,
 	AC_HELP_STRING([--enable-rhe4], [Enable dependencies for RHE4 and Centos4]),
 	[ 

@@ -495,7 +495,7 @@ EXPAND_ONLY_PREDEF    = YES
 
 # The TAGFILES tag can be used to specify one or more tagfiles. 
 
-TAGFILES              = 
+TAGFILES              = \
           @SIPX_DOCDIR@/sipxportlib/sipxportlib.tag=@SIPX_DOCDIR@/sipxportlib/ \
           @SIPX_DOCDIR@/sipxtacklib/sipxtacklib.tag=@SIPX_DOCDIR@/sipxtacklib/ \
           @SIPX_DOCDIR@/sipxmedialib/sipxmedialib.tag=@SIPX_DOCDIR@/sipxmedialib/ \
