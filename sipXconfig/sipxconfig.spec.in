@@ -93,6 +93,18 @@ Summary: Configures/enables FTP for devices controlled by %{name}
 * turns on xinit.d/vsftpd service on
 * add a user account w/default account for polycom phones
 
+%package mrtg
+Requires: mrtg
+Requires: net-snmp-utils
+Requires: rrdtool
+Requires: rrdtool-perl
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Configures/enables MRTG monitoring for %{name} 
+
+%description mrtg
+* installs and configures sipXconfig integration for MRTG
+
 %package agent
 Requires: sipxcommserverlib
 Requires: ruby
@@ -324,6 +336,13 @@ if [ "$1" = "0" ] ; then
     service vsftpd restart
   fi
 fi
+
+%files mrtg
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/sipx-mrtg-init
+
+%post mrtg
+sipx-mrtg-init > /dev/null
 
 %files agent
 %defattr(644,root,root,755)

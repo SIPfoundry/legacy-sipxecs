@@ -5,6 +5,9 @@ sh_scripts = ${PACKAGE}-config
 bin_SCRIPTS = \
 	$(sh_scripts) \
 	$(ruby_scripts)
+	
+editscripts_IN = \
+	sipx-mrtg-init
 
 ruby_scripts = \
 	sipx-upgrade-3.6-mailstore \
@@ -16,6 +19,7 @@ TESTS = \
 	$(foreach f,$(ruby_scripts),test/$(f)_test.rb)
 
 EXTRA_DIST = \
+	$(foreach file,$(editscripts_IN),$(file).in) \
     $(sh_scripts) \
     $(ruby_scripts_src)
 
@@ -31,3 +35,11 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 	    $(top_srcdir)/config/sipX-config.in \
 	  > ${PACKAGE}-config
 	chmod +x ${PACKAGE}-config
+	
+install-exec-hook: $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file))
+
+$(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bindir)/% : %
+	$(INSTALL) -D -m 755 $< $@
+
+$(foreach file,$(editscripts_IN),$(file)) : % : %.in
+	$(LocalizeSipXconfig) $< > $@

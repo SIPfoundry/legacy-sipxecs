@@ -2,14 +2,12 @@
 
 usage() {
   echo
-  echo Usage: $0 parameters
+  echo Usage: $0
   echo
   echo "   Configures the environment for monitoring"
   echo
   echo Parameters:
   echo "   -h|--help                     Display this help text."
-  echo "   -u|--sipx-user                The user under "
-  echo "   -p|--prefix                   The prefix"
   echo
 }
 
@@ -18,6 +16,9 @@ then
   echo "You must be root in order to run this script."
   exit 4
 fi
+
+SIPX_USER=@SIPXPBXUSER@
+SIPX_VARDIR=@SIPX_VARDIR@
 
 # Process the command-line arguments.
 while [ $# -ne 0 ]
@@ -28,33 +29,6 @@ do
       exit
       ;;
 
-    -u|--sipx-user)
-      # get the sipx-user
-      if [ -z "${2}" ]
-      then
-        echo "No argument specified for ${1}."
-        bad_usage
-      else
-        SIPX_USER="${2}"
-        shift
-      fi
-      ;;
-
-    -p|--prefix)
-      # get the prefix
-      if [ -z "${2}" ]
-      then
-        echo "No argument specified for ${1}."
-        bad_usage
-      elif [ -d "${2}" ]
-      then
-        PREFIX_PATH="${2}"
-        shift
-      else
-        echo "No such directory: ${2}."
-      fi
-      ;;
-
     *)
       echo "Unknown option: ${1}"
       bad_usage
@@ -62,17 +36,6 @@ do
     esac
   shift # always consume one argument
 done
-
-if [ -z "$SIPX_USER" ]
-then
-  echo "No sipx-user specified. Assuming sipx user = sipxchange"
-  SIPX_USER="sipxchange"
-fi
-
-if [ -z "$PREFIX_PATH" ]
-then
-  echo "No prefix specified. Assuming prefix = /"
-fi
 
 
 #########################################
@@ -118,7 +81,7 @@ then
   cat > ./mrtg-t.cfg <<EOF
 EnableIPv6: no
 LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt
-workdir : $PREFIX_PATH/var/sipxdata/mrtg
+workdir : $SIPX_VARDIR/mrtg
 
 #
 # Server CPU Load
@@ -226,5 +189,5 @@ else
   exit
 fi
 
-mkdir -p $PREFIX_PATH/var/sipxdata/mrtg
-chown $SIPX_USER:$SIPX_USER $PREFIX_PATH/var/sipxdata/mrtg/
+mkdir -p $SIPX_VARDIR/mrtg
+chown $SIPX_USER:$SIPX_USER $SIPX_VARDIR/mrtg/
