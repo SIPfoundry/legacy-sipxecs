@@ -58,18 +58,18 @@ public:
      * 
      * @return the object if successful, otherwise null
      */
-    virtual UtlContainable* insert(UtlContainable* obj) = 0 ;
+    virtual UtlContainable* insert(UtlContainable* obj) = 0;
 
     /**
      * Removes the designated objects from the list and frees the object 
      * by calling delete.
      */ 
-    virtual UtlBoolean destroy(const UtlContainable*) = 0 ;    
+    virtual UtlBoolean destroy(const UtlContainable*) = 0;    
 
     /**
      * Removes all elements from the container and deletes each one.
      */
-    virtual void destroyAll() = 0 ;
+    virtual void destroyAll() = 0;
 
     /**
      * Removes the designated object by reference
@@ -82,14 +82,14 @@ public:
     /**
      * Removes all elements from the container without freeing the objects.
      */
-    virtual void removeAll() = 0 ;
+    virtual void removeAll() = 0;
 
 /* ============================ ACCESSORS ================================= */
 
     /**
      * Find the designated value within the container
      */
-    virtual UtlContainable* find(const UtlContainable*) const = 0 ;   
+    virtual UtlContainable* find(const UtlContainable*) const = 0;   
 
 
     /**
@@ -104,7 +104,7 @@ public:
      */
     virtual UtlContainableType getContainableType() const;
 
-    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
+    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */ 
 
 /* ============================ INQUIRY =================================== */
 
@@ -287,7 +287,7 @@ private:
      */
     UtlContainer& operator=(const UtlContainer& copy );
 
-} ;
+};
 
 /* ============================ INLINE METHODS ============================ */
 
