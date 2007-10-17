@@ -31,7 +31,7 @@
         <fieldPattern>message-summary.*</fieldPattern>
 
         <!--this goes to the status server-->
-        
+
         <routeTo>&lt;${STATUS_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
 
       </fieldMatch>
@@ -47,16 +47,14 @@
       </fieldMatch>
 
       <!-- All other SUBSCRIBE requests go to the SIP registry service -->
-      
-      <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
 
+      <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
 
     </methodMatch>
 
     <!-- All other requests go to the SIP registry service -->
-    
-    <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
 
+    <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
 
   </route>
 </routes>
