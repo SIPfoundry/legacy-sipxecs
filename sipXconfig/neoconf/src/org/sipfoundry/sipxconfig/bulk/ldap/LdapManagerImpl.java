@@ -62,7 +62,15 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
     private void verifyException(String message, Exception e) {
         LOG.debug("Verifying LDAP connection failed.", e);
-        throw new UserException(message + e.getMessage());
+        // for the purpose of readability, remove any nested exception
+        // info from the message, if there is any.  This is done by only
+        // taking that part of the message up to the first ';'
+        String fullMessage = e.getMessage();
+        String parsedMessage = fullMessage;
+        if (fullMessage.indexOf(';') > 0) {
+            parsedMessage = fullMessage.substring(0, fullMessage.indexOf(';'));
+        }
+        throw new UserException(message + parsedMessage);
     }
 
     public Schema getSchema(String subschemaSubentry) {
