@@ -83,6 +83,16 @@ public:
        const UtlString& from,
        const UtlString& callid );
 
+    /** Return true if a subscription with the specified identifiers exists
+     *  (and has not yet expired). */
+    UtlBoolean subscriptionExists (
+       const UtlString& component,
+       const UtlString& to,
+       const UtlString& from,
+       const UtlString& callid,
+       const int timeNow
+       );
+
     void removeRows ( const UtlString& uri );
 
     void removeAllRows ();

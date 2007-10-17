@@ -93,13 +93,14 @@ public:
 
     typedef enum subcribeStatus
     {
-        STATUS_SUCCESS = 0,
-        STATUS_LESS_THAN_MINEXPIRES ,
-        STATUS_INVALID_REQUEST,	
-        STATUS_FORBIDDEN,	
-        STATUS_NOT_FOUND,
-        STATUS_QUERY,
-        STATUS_INTERNAL_ERROR
+       STATUS_SUCCESS = 0,      // successful - 200 response
+       STATUS_LESS_THAN_MINEXPIRES, // Expires value too small - 423 response
+       STATUS_INVALID_REQUEST,	// invalid request - 400 response
+       STATUS_FORBIDDEN,	// forbidden - 403 response
+       STATUS_NOT_FOUND,        // target not found - 404 response
+       STATUS_INTERNAL_ERROR,   // internal error - 500 response
+       STATUS_BAD_SUBSCRIPTION  // renewal of non-existent subscription -
+                                // 481 response
     } SubscribeStatus;
 
 protected:
@@ -140,14 +141,15 @@ protected:
         SipMessage * responseMessage );
 
     // Process the message as a prospective database change.
-    SubscribeStatus addSubscription (const int timeNow,
-                                     const SipMessage* subscribeMessage, ///< request message
-                                     const char* domain,
-                                     const UtlString& eventType, ///< package name
-                                     const UtlString& eventId,   ///< event header id parameter (may be null)
-                                     const UtlHashMap& eventParams,
-                                     SipMessage& response        ///< to be returned
-                                     );
+    SubscribeStatus addSubscription(const int timeNow,
+                                    const SipMessage* subscribeMessage, ///< request message
+                                    const char* domain,
+                                    const UtlString& eventType, ///< package name
+                                    const UtlString& eventId,   ///< event header id parameter (may be null)
+                                    const UtlHashMap& eventParams,
+                                    UtlString& newToTag,        ///< if not null, newly generated to-tag for response
+                                    int& grantedExpiration      ///< if returns STATUS_SUCCESS, set to the granted expiration time
+       );
 
     /**
      * 

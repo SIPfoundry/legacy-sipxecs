@@ -628,6 +628,36 @@ SubscriptionDB::removeErrorRow (
    }
 }
 
+UtlBoolean
+SubscriptionDB::subscriptionExists (
+   const UtlString& component,
+   const UtlString& to,
+   const UtlString& from,        
+   const UtlString& callid,
+   const int timeNow )
+{
+   UtlBoolean ret = FALSE;
+
+   if ( m_pFastDB != NULL )
+   {
+      // Thread Local Storage
+      m_pFastDB->attach();
+
+      dbCursor< SubscriptionRow > cursor(dbCursorForUpdate);
+
+      dbQuery query;
+      // Query does not need to include component, because Call-Id and tags
+      // are unique for all subscriptions.
+      query="toUri=", to,
+         "and fromUri=", from,
+         "and callid=", callid,
+         "and expires>=", timeNow;
+      ret = cursor.select(query) > 0;
+   }
+
+   return ret;
+}
+
 void
 SubscriptionDB::removeRows (
    const UtlString& key )
