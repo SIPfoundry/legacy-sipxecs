@@ -13,9 +13,11 @@ import java.util.List;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.services.RequestGlobals;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -42,6 +44,9 @@ public abstract class LoginPage extends PageWithCallback implements PageBeginRen
     public abstract void setUserName(String userName);
 
     public abstract UserSession getUserSession();
+
+    @InjectObject(value = "service:tapestry.globals.RequestGlobals")
+    public abstract RequestGlobals getRequestGlobals();
 
     public void pageBeginRender(PageEvent event) {
 
@@ -71,8 +76,10 @@ public abstract class LoginPage extends PageWithCallback implements PageBeginRen
             return null;
         }
 
+        String remoteIp = getRequestGlobals().getRequest().getRemoteAddr();
+
         LoginContext context = getLoginContext();
-        User user = context.checkCredentials(getUserName(), password);
+        User user = context.checkAndLogCredentials(getUserName(), password, remoteIp);
         if (user == null) {
             IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
             delegate.record(getMessages().getMessage("message.loginError"),
@@ -90,11 +97,11 @@ public abstract class LoginPage extends PageWithCallback implements PageBeginRen
             setCallback(null);
             return null;
         }
-        
+
         // Ignore any callback and go to the home page. If the user was redirected to the login
         // page because the session timed out, then after logging in we will have lost all session
         // data. Trying to execute a callback under these circumstances is hazardous -- see
         // XCF-590.
-        return Home.PAGE;        
+        return Home.PAGE;
     }
 }

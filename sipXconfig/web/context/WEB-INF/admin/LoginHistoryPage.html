@@ -1,0 +1,42 @@
+<div jwcid="@Border">
+  <h2><span key="title">Login History</span></h2>
+  <span jwcid="@ErrorMsg"/>
+  <span jwcid="@QuickHelp" value="message:loginhistory.quick.help"/>
+    <form delegate="bean:validator" jwcid="history@Form">
+       <fieldset>
+          <table>
+           <tr jwcid="@FieldPanel"
+              field="component:type"
+                  label="message:logs.type">
+              <span jwcid="type@PropertySelection" model="ognl:logTypeModel" value="ognl:logType"/>
+            </tr>
+            <tr jwcid="startDate@common/DateTimeEditor" datetime="prop:startDate" label="message:logs.startDate" />
+            <tr jwcid="endDate@common/DateTimeEditor" datetime="prop:endDate" label="message:logs.endDate" />
+            <tr jwcid="@FieldPanel"
+              field="component:user"
+                  label="message:logs.user">
+              <td jwcid="user@TextField" value="prop:queryUser" displayName="message:logs.user" />
+            </tr>
+            <tr jwcid="@FieldPanel"
+              field="component:remoteip"
+                  label="message:logs.ip">
+              <td jwcid="remoteip@TextField" value="prop:queryIp" displayName="message:logs.ip" validators="spring-validators:validHostOrIp"/>
+            </tr>
+            <tr>
+              <td>
+              <ul class="component-submit">
+                <li>
+                  <input jwcid="@Submit" value="message:button.filter" listener="listener:filterLogs" />
+                </li>
+              </ul>
+              </td>
+            </tr>
+            <tr jwcid="@FieldPanel"
+              field="component:logs"
+                  label="">
+              <td jwcid="logs@TextArea" rows="30" cols="100" readonly="readonly" value="prop:loginHistory"/>
+            </tr>        
+          </table>
+        </fieldset>
+    </form>
+</div>

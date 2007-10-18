@@ -2,11 +2,12 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  
+
   <bean id="loginContext" class="org.sipfoundry.sipxconfig.login.LoginContextImpl">
     <property name="coreContext">
-      <ref bean="coreContext"/>
-    </property>    
+      <ref bean="coreContext" />
+    </property>
+    <property name="logDirectory" value="${sysdir.log}" />
   </bean>
-  
+
 </beans>

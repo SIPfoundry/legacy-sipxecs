@@ -12,10 +12,16 @@ package org.sipfoundry.sipxconfig.login;
 import org.sipfoundry.sipxconfig.common.User;
 
 public interface LoginContext {
-    
-    public User checkCredentials(String userName, String password);
-    public String getEncodedPassword(String userName, String password);
 
-    public boolean isAdmin(Integer userId);
-    public boolean isAdmin(User user);
+    User checkCredentials(String userName, String password);
+
+    User checkAndLogCredentials(String userName, String password, String remoteIp);
+
+    String getEncodedPassword(String userName, String password);
+
+    boolean isAdmin(Integer userId);
+
+    boolean isAdmin(User user);
+
+    LoginEvent[] getUserLoginLog(LogFilter filter);
 }
