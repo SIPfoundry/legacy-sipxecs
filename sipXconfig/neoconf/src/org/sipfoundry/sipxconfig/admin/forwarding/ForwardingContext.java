@@ -15,41 +15,40 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.common.User;
 
-/**
- * ForwardingContext
- */
 public interface ForwardingContext extends AliasProvider {
-    public static final String CONTEXT_BEAN_NAME = "forwardingContext";
+    static final String CONTEXT_BEAN_NAME = "forwardingContext";
 
-    public Ring getRing(Integer id);
+    Ring getRing(Integer id);
 
-    public CallSequence getCallSequenceForUser(User user);
+    CallSequence getCallSequenceForUser(User user);
 
-    public void removeCallSequenceForUserId(Integer userId);
+    void removeCallSequenceForUserId(Integer userId);
 
-    public CallSequence getCallSequenceForUserId(Integer userId);
+    CallSequence getCallSequenceForUserId(Integer userId);
 
-    public void saveCallSequence(CallSequence callSequence);
+    void saveCallSequence(CallSequence callSequence);
 
-    public void clear();
+    void flush();
 
-    public void flush();
+    List<Schedule> getPersonalSchedulesForUserId(Integer userId);
 
-    public List<Schedule> getPersonalSchedulesForUserId(Integer userId);
+    void saveSchedule(Schedule schedule);
 
-    public void saveSchedule(Schedule schedule);
+    Schedule getScheduleById(Integer scheduleId);
 
-    public Schedule getScheduleById(Integer scheduleId);
+    List<Schedule> deleteSchedulesById(Collection<Integer> scheduleIds);
 
-    public List<Schedule> deleteSchedulesById(Collection<Integer> scheduleIds);
+    void notifyCommserver();
 
-    public void notifyCommserver();
+    List<UserGroupSchedule> getSchedulesForUserGroupId(Integer userGroupId);
 
-    public List<UserGroupSchedule> getSchedulesForUserGroupId(Integer userGroupId);
+    List<UserGroupSchedule> getAllUserGroupSchedules();
 
-    public List<UserGroupSchedule> getAllUserGroupSchedules();
+    List<Schedule> getAllAvailableSchedulesForUser(User user);
 
-    public List<Schedule> getAllAvailableSchedulesForUser(User user);
-    
-    public List<GeneralSchedule> getAllGeneralSchedules();
+    List<GeneralSchedule> getAllGeneralSchedules();
+
+    void clear();
+
+    void clearSchedules();
 }

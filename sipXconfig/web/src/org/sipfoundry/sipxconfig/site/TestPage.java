@@ -139,6 +139,7 @@ public abstract class TestPage extends BasePage {
 
     public void resetCallForwarding() {
         getForwardingContext().clear();
+        getForwardingContext().clearSchedules();
     }
 
     public void resetDialPlans() {
@@ -174,6 +175,7 @@ public abstract class TestPage extends BasePage {
         // need to reset all data that could potentially have a reference
         // to users
         resetDialPlans();
+        resetCallForwarding();
         resetPhoneContext();
         resetCallGroupContext();
         getCoreContext().clear();

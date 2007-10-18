@@ -82,6 +82,7 @@ public class TestServiceImpl implements TestService {
             // from any other tests will cause contraint violations
             // on user context delete
             m_forwardingContext.clear();
+            m_forwardingContext.clearSchedules();
             m_callGroupContext.clear();
             
             org.sipfoundry.sipxconfig.common.User superadmin = m_coreContext.loadUserByUserName(adminUsername);

@@ -112,7 +112,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
      * 
      * @return list of CallSequence objects
      */
-    private List loadAllCallSequences() {
+    private List<CallSequence> loadAllCallSequences() {
         List sequences = getHibernateTemplate().find("from CallSequence cs");
         return sequences;
     }
@@ -127,15 +127,6 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public UserDeleteListener createUserDeleteListener() {
         return new OnUserDelete();
-    }
-
-    public void clear() {
-        Collection sequences = loadAllCallSequences();
-        for (Iterator i = sequences.iterator(); i.hasNext();) {
-            CallSequence sequence = (CallSequence) i.next();
-            sequence.clear();
-            saveCallSequence(sequence);
-        }
     }
 
     public UserGroupDeleteListener createUserGroupDeleteListener() {
@@ -307,5 +298,21 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         if (event instanceof DSTChangeEvent) {
             notifyCommserver();
         }
+    }
+
+    /**
+     * Only used from WEB UI test code
+     */
+    public void clear() {
+        Collection<CallSequence> sequences = loadAllCallSequences();
+        for (CallSequence sequence : sequences) {
+            sequence.clear();
+            saveCallSequence(sequence);
+        }
+    }
+
+    public void clearSchedules() {
+        Collection<Schedule> schedules = getHibernateTemplate().loadAll(Schedule.class);
+        getHibernateTemplate().deleteAll(schedules);
     }
 }
