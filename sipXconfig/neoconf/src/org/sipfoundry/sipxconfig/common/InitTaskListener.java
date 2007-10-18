@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.List;
+
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -17,20 +19,20 @@ import org.springframework.context.ApplicationListener;
  * InitTaskListener
  */
 public abstract class InitTaskListener implements ApplicationListener {
-    private String m_taskName;
+    private List<String> m_taskNames;
 
-    /**
-     * If task name is not set any task will trigger listener
-     */
-    public void setTaskName(String taskName) {
-        m_taskName = taskName;
+    public void setTaskNames(List<String> taskNames) {
+        m_taskNames = taskNames;
     }
 
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof InitializationTask) {
             InitializationTask task = (InitializationTask) event;
             String taskName = task.getTask();
-            if (m_taskName == null || taskName.equals(m_taskName)) {
+            if (m_taskNames == null) {
+                throw new IllegalStateException("Task list should not be null.");
+            }
+            if (m_taskNames.contains(taskName)) {
                 onInitTask(taskName);
             }
         }

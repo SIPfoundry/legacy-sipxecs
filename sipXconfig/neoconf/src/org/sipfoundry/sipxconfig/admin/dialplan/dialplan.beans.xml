@@ -212,5 +212,11 @@
     <property name="attendantMigrationContext">
       <ref local="attendantMigrationContext" />
     </property>
+    <property name="taskNames">
+      <list>
+        <value>dial_plan_migrate_attendant_rules</value>
+        <value>attendant_defaults</value>
+      </list>
+    </property>
   </bean>
 </beans>

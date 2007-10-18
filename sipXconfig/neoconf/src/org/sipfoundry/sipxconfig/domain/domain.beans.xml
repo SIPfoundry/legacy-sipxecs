@@ -42,7 +42,12 @@
   <bean id="domainInitializer"
     class="org.sipfoundry.sipxconfig.domain.DomainInitializer">
     <property name="domainManager" ref="domainManager"/>
-    <property name="taskName" value="initialize-domain"/>
+    <property name="taskNames">
+      <list>
+        <value>initialize-domain</value>
+        <value>initialize-domain-secret</value>
+      </list>
+    </property>
   </bean>
   
   <bean id="domainConfiguration" class="org.sipfoundry.sipxconfig.domain.DomainConfiguration"

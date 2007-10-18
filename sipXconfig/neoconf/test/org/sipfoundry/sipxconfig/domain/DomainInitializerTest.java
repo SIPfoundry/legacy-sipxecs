@@ -14,13 +14,17 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.apache.commons.codec.binary.Base64;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
+import org.springframework.context.ApplicationContext;
 
 public class DomainInitializerTest extends TestCase {
     private DomainInitializer m_domainInitializer;
     
     protected void setUp() {
-        m_domainInitializer = new DomainInitializer();
+        // getting object-under-test from spring to test that it is configured correctly
+        ApplicationContext ctx = TestHelper.getApplicationContext();
+        m_domainInitializer = (DomainInitializer)ctx.getBean("domainInitializer");
     }
 
     public void testGetLocalFQDN() {

@@ -43,6 +43,12 @@
   <bean id="acdMigrationTrigger" class="org.sipfoundry.sipxconfig.acd.AcdMigrationTrigger">
     <property name="acdContext">
       <ref local="acdContext"/>
+    </property>
+    <property name="taskNames">
+      <list>
+        <value>acd_migrate_line_extensions</value>
+        <value>acd_migrate_overflow_queues</value>
+      </list>
     </property>    
   </bean>
       
