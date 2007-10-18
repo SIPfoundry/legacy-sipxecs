@@ -4,6 +4,12 @@
   <form jwcid="form" id="rule:edit">
     <fieldset jwcid="common"/>
     <span jwcid="@RenderBody"/>
+	<span jwcid="@If" condition="ognl:!(rule instanceof org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule)">
+      <fieldset>
+        <label><span key="schedule"/></label>
+        <span jwcid="@ScheduleSelector" scheduleContainer="prop:rule" availableSchedules="ognl:availableSchedules"/>
+	  </fieldset>
+	</span>
     <span jwcid="renderGateways">
       <fieldset jwcid="gatewaysPanel" />
     </span>      

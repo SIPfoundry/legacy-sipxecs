@@ -25,7 +25,6 @@ import org.sipfoundry.sipxconfig.permission.Permission;
  */
 public class CustomDialingRule extends DialingRule {
     private static final String ROUTE_PATTERN = "route=%s";
-    private static final String VALID_TIME_PARAM = "sipx-ValidTime=%s";
 
     private List<DialPattern> m_dialPatterns = new ArrayList<DialPattern>();
     private CallPattern m_callPattern = new CallPattern();

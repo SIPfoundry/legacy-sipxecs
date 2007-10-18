@@ -10,13 +10,20 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.admin.ScheduledDay;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.admin.forwarding.GeneralSchedule;
+import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
@@ -24,10 +31,27 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
  * LongDistanceRuleTest
  */
 public class LongDistanceRuleTest extends TestCase {
-
+    private static final String VALIDTIME_PARAMS = "sipx-ValidTime=";
     private LongDistanceRule m_rule;
+    private Schedule m_schedule;
 
     protected void setUp() throws Exception {
+        m_schedule = new GeneralSchedule();
+        m_schedule.setName("Custom schedule");
+        WorkingHours[] hours = new WorkingHours[1];
+        WorkingTime wt = new WorkingTime();
+        hours[0] = new WorkingHours();
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        cal.set(2006, Calendar.DECEMBER, 31, 10, 12);
+        hours[0].setStart(cal.getTime());
+        cal.set(2006, Calendar.DECEMBER, 31, 11, 88);
+        hours[0].setStop(cal.getTime());
+        hours[0].setEnabled(true);
+        hours[0].setDay(ScheduledDay.WEDNESDAY);
+        wt.setWorkingHours(hours);
+        wt.setEnabled(true);
+        m_schedule.setWorkingTime(wt);
+
         m_rule = new LongDistanceRule();
         m_rule.setEnabled(true);
         m_rule.setLongDistancePrefix("1");
@@ -99,6 +123,20 @@ public class LongDistanceRuleTest extends TestCase {
         assertEquals("1{vdigits}", transform.getUser());
         assertEquals("longdistance.gateway.com", transform.getHost());
         assertNull(transform.getUrlParams());
+    }
+
+    public void testGetTransformsWithSchedule() {
+        m_rule.setSchedule(m_schedule);
+        DialingRule rule = getGenerationRule(m_rule);
+        Transform[] transforms = rule.getTransforms();
+        assertEquals(1, transforms.length);
+        FullTransform transform = (FullTransform) transforms[0];
+        assertEquals("1{vdigits}", transform.getUser());
+        assertEquals("longdistance.gateway.com", transform.getHost());
+        String[] fieldParams = transform.getFieldParams();
+        assertEquals(2, fieldParams.length);
+        assertTrue(fieldParams[0].startsWith("q="));
+        assertTrue(fieldParams[1].startsWith(VALIDTIME_PARAMS));
     }
 
     public void testGetPermissionNames() {

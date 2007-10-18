@@ -11,13 +11,20 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.admin.ScheduledDay;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
+import org.sipfoundry.sipxconfig.admin.forwarding.GeneralSchedule;
+import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.Permission;
 
@@ -25,9 +32,27 @@ import org.sipfoundry.sipxconfig.permission.Permission;
  * EmergencyRuleTest
  */
 public class EmergencyRuleTest extends TestCase {
+    private static final String VALIDTIME_PARAMS = "sipx-ValidTime=";
     private EmergencyRule m_rule;
+    private Schedule m_schedule;
 
     protected void setUp() throws Exception {
+        m_schedule = new GeneralSchedule();
+        m_schedule.setName("Custom schedule");
+        WorkingHours[] hours = new WorkingHours[1];
+        WorkingTime wt = new WorkingTime();
+        hours[0] = new WorkingHours();
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        cal.set(2006, Calendar.DECEMBER, 31, 10, 12);
+        hours[0].setStart(cal.getTime());
+        cal.set(2006, Calendar.DECEMBER, 31, 11, 88);
+        hours[0].setStop(cal.getTime());
+        hours[0].setEnabled(true);
+        hours[0].setDay(ScheduledDay.WEDNESDAY);
+        wt.setWorkingHours(hours);
+        wt.setEnabled(true);
+        m_schedule.setWorkingTime(wt);
+
         m_rule = new EmergencyRule();
         m_rule.setEmergencyNumber("911");
         m_rule.setOptionalPrefix("9");
@@ -38,11 +63,9 @@ public class EmergencyRuleTest extends TestCase {
         Gateway g2 = new Gateway();
         g2.setAddress("sosgateway2.com");
         g2.setAddressPort(0);
-        g2.setAddressTransport(Gateway.AddressTransport.NONE);
+        g2.setAddressTransport(Gateway.AddressTransport.TCP);
         g2.setPrefix("4321");
-        m_rule.setGateways(Arrays.asList(new Gateway[] {
-            g1, g2
-        }));
+        m_rule.setGateways(Arrays.asList(g1, g2));
     }
 
     public void testGetPatterns() {
@@ -65,8 +88,31 @@ public class EmergencyRuleTest extends TestCase {
         emergencyTransform = (FullTransform) transforms[1];
         assertEquals("4321911", emergencyTransform.getUser());
         assertEquals("sosgateway2.com", emergencyTransform.getHost());
-        assertNull(emergencyTransform.getUrlParams());
+        assertEquals("transport=tcp", emergencyTransform.getUrlParams()[0]);
         assertEquals("q=0.867", emergencyTransform.getFieldParams()[0]);
+    }
+
+    public void testGetTransformsWithSchedule() {
+        m_rule.setSchedule(m_schedule);
+        Transform[] transforms = m_rule.getTransforms();
+        assertEquals(2, transforms.length);
+        FullTransform emergencyTransform = (FullTransform) transforms[0];
+        assertEquals("911", emergencyTransform.getUser());
+        assertEquals("sosgateway1.com:4000", emergencyTransform.getHost());
+        assertNull(emergencyTransform.getUrlParams());
+        String[] fieldParams = emergencyTransform.getFieldParams();
+        assertEquals(2, fieldParams.length);
+        assertEquals("q=0.933", fieldParams[0]);
+        assertTrue(fieldParams[1].startsWith(VALIDTIME_PARAMS));
+
+        emergencyTransform = (FullTransform) transforms[1];
+        assertEquals("4321911", emergencyTransform.getUser());
+        assertEquals("sosgateway2.com", emergencyTransform.getHost());
+        fieldParams = emergencyTransform.getFieldParams();
+        assertEquals(2, fieldParams.length);
+        assertEquals("q=0.867", fieldParams[0]);
+        assertEquals("transport=tcp", emergencyTransform.getUrlParams()[0]);
+        assertTrue(fieldParams[1].startsWith(VALIDTIME_PARAMS));
     }
 
     public void testCallerSensitiveForwarding() {

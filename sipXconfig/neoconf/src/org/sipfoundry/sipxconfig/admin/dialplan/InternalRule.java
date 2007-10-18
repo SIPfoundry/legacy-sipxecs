@@ -104,17 +104,26 @@ public class InternalRule extends DialingRule {
             mediaServer.setServerExtension(m_voiceMail);
             MappingRule voicemail = new MappingRule.Voicemail(m_voiceMail, mediaServer);
             voicemail.setDescription(getDescription());
+            if (getSchedule() != null) {
+                voicemail.setSchedule(getSchedule());
+            }
             rules.add(voicemail);
 
             if (StringUtils.isNotBlank(m_voiceMailPrefix)) {
                 MappingRule transfer = new MappingRule.VoicemailTransfer(m_voiceMailPrefix,
                         m_localExtensionLen, mediaServer);
                 transfer.setDescription(getDescription());
+                if (getSchedule() != null) {
+                    transfer.setSchedule(getSchedule());
+                }
                 rules.add(transfer);
             }
 
             MappingRule fallback = new MappingRule.VoicemailFallback(mediaServer);
             fallback.setDescription(getDescription());
+            if (getSchedule() != null) {
+                fallback.setSchedule(getSchedule());
+            }
             rules.add(fallback);
         }
     }

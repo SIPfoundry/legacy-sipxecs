@@ -149,6 +149,7 @@ public class LongDistanceRule extends DialingRule {
             permNames.add(m_permissionName);
         }
         rule.setPermissionNames(permNames);
+        rule.setSchedule(getSchedule());
         return rule;
     }
 

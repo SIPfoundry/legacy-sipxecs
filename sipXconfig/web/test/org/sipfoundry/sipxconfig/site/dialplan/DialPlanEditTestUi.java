@@ -94,6 +94,10 @@ public class DialPlanEditTestUi extends WebTestCase {
             assertElementPresent("item:name");
             assertElementPresent("item:enabled");
             assertElementPresent("item:description");
+            // all rules except "Attendant" have schedule
+            if (!name.startsWith("AutoAttendant")) {
+                assertElementPresent("schedule");
+            }
             // all rules except "internal" have gateways panel
             if (!name.startsWith("Internal") && !name.startsWith("AutoAttendant")) {
                 checkGateways();

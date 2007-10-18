@@ -54,10 +54,12 @@ public class EmergencyRule extends DialingRule {
             if (transport != null) {
                 transform.setUrlParams(transport);
             }
-            String[] fieldParams = new String[] {
-                q.getSerial()
-            };
-            transform.setFieldParams(fieldParams);
+            transform.addFieldParams(q.getSerial());
+            if (getSchedule() != null) {
+                String validTime = getSchedule().calculateValidTime();
+                String scheduleParam = String.format(VALID_TIME_PARAM, validTime);
+                transform.addFieldParams(scheduleParam);
+            }
             transforms.add(transform);
         }
         return transforms.toArray(new Transform[transforms.size()]);

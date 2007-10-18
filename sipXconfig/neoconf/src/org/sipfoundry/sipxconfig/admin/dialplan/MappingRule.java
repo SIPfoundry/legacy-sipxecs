@@ -86,7 +86,13 @@ public class MappingRule extends DialingRule {
 
     public Transform[] getTransforms() {
         UrlTransform transform = new UrlTransform();
-        transform.setUrl(m_url);
+        String urlParam = m_url;
+        if (getSchedule() != null) {
+            String validTime = getSchedule().calculateValidTime();
+            String scheduleParam = String.format(VALID_TIME_PARAM, validTime);
+            urlParam += ";" + scheduleParam;
+        }
+        transform.setUrl(urlParam);
         return new Transform[] {
             transform
         };
