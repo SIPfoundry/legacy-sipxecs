@@ -28,6 +28,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.secure.SecureXmlRpcClient;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
@@ -37,12 +38,21 @@ import org.springframework.context.ApplicationListener;
 public class SipxProcessContextImpl extends SipxReplicationContextImpl implements
         BeanFactoryAware, SipxProcessContext, ApplicationListener {
 
+    private SipxProcessModel m_processModel;
     private EventsToServices m_eventsToServices = new EventsToServices();
     private String m_host;
 
     @Required
     public void setHost(String host) {
         m_host = host;
+    }
+
+    public void setProcessModel(SipxProcessModel model) {
+        m_processModel = model;
+    }
+
+    public SipxProcessModel getProcessModel() {
+        return m_processModel;
     }
 
     /**
@@ -99,10 +109,10 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
             }
 
             String name = entry.getKey();
-            Process process = Process.getEnum(name);
+            Process process = m_processModel.getProcess(name);
             if (process == null) {
                 // Ignore unknown processes
-                LOG.warn("Unknown process name" + name + "received from: "
+                LOG.warn("Unknown process name " + name + " received from: "
                         + location.getProcessMonitorUrl());
             } else {
                 serviceStatusList.add(new ServiceStatus(process, st));
@@ -153,6 +163,27 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
             // do not call if set is empty - it's harmless but it triggers topology.xml parsing
             manageServices(services, Command.RESTART);
         }
+    }
+
+    public List getRestartable() {
+        return m_processModel.getRestartable();
+    }
+
+    public Process getProcess(String name) {
+        return m_processModel.getProcess(name);
+    }
+
+    public Process getProcess(ProcessName name) {
+        return m_processModel.getProcess(name);
+    }
+
+    public Process[] getProcess(ProcessName[] names) {
+        Process[] processes = new Process[names.length];
+        for (int i = 0; i < names.length; i++) {
+            processes[i] = getProcess(names[i]);
+        }
+
+        return processes;
     }
 
     static final class EventsToServices {

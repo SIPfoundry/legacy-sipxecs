@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.util.List;
 
 import org.apache.commons.lang.enums.Enum;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 
 public class ServiceStatus implements PrimaryKeySource {

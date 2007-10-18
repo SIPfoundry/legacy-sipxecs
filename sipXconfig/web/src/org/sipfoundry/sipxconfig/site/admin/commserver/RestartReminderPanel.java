@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 
 public abstract class RestartReminderPanel extends BaseComponent {
     public static final String PAGE = "RestartReminder";
@@ -55,6 +54,7 @@ public abstract class RestartReminderPanel extends BaseComponent {
         if (processes != null) {
             return Arrays.asList(processes);
         }
-        return Process.getRestartable();
+        SipxProcessContext processContext = getSipxProcessContext();
+        return processContext.getRestartable();
     }
 }

@@ -9,59 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.enums.Enum;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 
 public interface SipxProcessContext {
-    // TODO: this should be created by reading ProcessDefinition.xml
-    public static final class Process extends Enum {
-        public static final Process REGISTRAR = new Process("SIPRegistrar");
-        public static final Process AUTH_PROXY = new Process("SIPAuthProxy");
-        public static final Process STATUS = new Process("SIPStatus");
-        public static final Process PROXY = new Process("SIPProxy");
-        public static final Process MEDIA_SERVER = new Process("MediaServer");
-        public static final Process PARK_SERVER = new Process("ParkServer");
-        public static final Process PRESENCE_SERVER = new Process("PresenceServer");
-        public static final Process CONFIG_SERVER = new Process("ConfigServer");
-        public static final Process KEEP_ALIVE = new Process("KeepAlive");
-        public static final Process CONFIG_AGENT = new Process("ConfigAgent");
-        public static final Process CALL_RESOLVER = new Process("CallResolver");
-        public static final Process ACD_SERVER = new Process("ACDServer");
-        public static final Process RL_SERVER = new Process("ResourceListServer");
-
-        private Process(String name) {
-            super(name);
-        }
-
-        public static Process getEnum(String name) {
-            return (Process) getEnum(Process.class, name);
-        }
-
-        public static List getAll() {
-            return getEnumList(Process.class);
-        }
-
-        /**
-         * This should be used to get list of all the services except KEEP_ALIVE and CONFIG_SERVER
-         * 
-         * @return list of the services that you want usually restart
-         * 
-         */
-        public static List getRestartable() {
-            Process[] noRestart = {
-                KEEP_ALIVE, CONFIG_SERVER
-            };
-            List processes = new LinkedList(getAll());
-            processes.removeAll(Arrays.asList(noRestart));
-            return Collections.unmodifiableList(processes);
-        }
-    }
-
     public static class Command extends Enum {
         public static final Command START = new Command("start");
         public static final Command STOP = new Command("stop");
@@ -107,4 +61,16 @@ public interface SipxProcessContext {
      * don't need output, which excludes the "status" command.
      */
     public void manageService(Location location, Process process, Command command);
+    
+    /**
+     * This should be used to get list of restartable Processes
+     * 
+     * @return list of the services that you usually want to restart
+     * 
+     */
+    public List getRestartable();
+    
+    public Process getProcess(String name);
+    public Process getProcess(ProcessName name);
+    public Process[] getProcess(ProcessName[] names);
 }

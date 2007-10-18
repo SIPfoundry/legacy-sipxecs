@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import java.util.List;
+import java.util.Arrays;
 
 import junit.framework.TestCase;
 
@@ -19,11 +20,12 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
+import org.sipfoundry.sipxconfig.admin.commserver.Process;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 
 public class RestartReminderPanelTest extends TestCase {
     private final static Process TEST_PROC[] = {
-        Process.AUTH_PROXY, Process.PRESENCE_SERVER
+        new Process(ProcessName.AUTH_PROXY), new Process(ProcessName.PRESENCE_SERVER)
     };
 
     private Creator m_pageMaker = new Creator();
@@ -45,11 +47,19 @@ public class RestartReminderPanelTest extends TestCase {
     }
 
     public void testGetProcessesToRestartNow() {
+        IMocksControl contextCtrl = EasyMock.createControl();
+        SipxProcessContext context = contextCtrl.createMock(SipxProcessContext.class);
+        context.getRestartable();
+        contextCtrl.andReturn(Arrays.asList(TEST_PROC));
+
+        contextCtrl.replay();
+        
         m_restartReminder.setRestartLater(false);
+        PropertyUtils.write(m_restartReminder, "sipxProcessContext", context);
 
         m_restartReminder.setProcesses(null);
         List processesToRestart = m_restartReminder.getProcessesToRestart();
-        assertEquals(Process.getRestartable().size(), processesToRestart.size());
+        assertEquals(TEST_PROC.length, processesToRestart.size());
 
         m_restartReminder.setProcesses(TEST_PROC);
         processesToRestart = m_restartReminder.getProcessesToRestart();
@@ -57,6 +67,8 @@ public class RestartReminderPanelTest extends TestCase {
         for (int i = 0; i < TEST_PROC.length; i++) {
             assertEquals(TEST_PROC[i], processesToRestart.get(i));
         }
+
+        contextCtrl.verify();
     }
 
     public void testRestartLater() throws Exception {
@@ -73,9 +85,13 @@ public class RestartReminderPanelTest extends TestCase {
     }
 
     public void testRestartNow() throws Exception {
+        Process[] p = new Process[] { new Process("DummyProcess") };
+        List l = Arrays.asList(p);
         IMocksControl contextCtrl = EasyMock.createControl();
         SipxProcessContext context = contextCtrl.createMock(SipxProcessContext.class);
-        context.manageServices(Process.getRestartable(), Command.RESTART);
+        context.getRestartable();
+        contextCtrl.andReturn(l);
+        context.manageServices(l, Command.RESTART);
         contextCtrl.replay();
 
         m_restartReminder.setRestartLater(false);

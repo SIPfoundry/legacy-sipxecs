@@ -18,8 +18,9 @@ import java.util.TimerTask;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.springframework.context.ApplicationEvent;
@@ -30,13 +31,12 @@ public class Whacker implements ApplicationListener {
     class WhackerTask extends TimerTask {
         public void run() {
             LOG.info("Restarting the media server");
-            m_processContext.manageServices(Arrays.asList(SERVICES),
-                    SipxProcessContext.Command.RESTART);
+            m_processContext.manageServices(Arrays.asList(SERVICES), SipxProcessContext.Command.RESTART);
         }
     }
 
     static final Process[] SERVICES = {
-        Process.MEDIA_SERVER
+        new Process(ProcessName.MEDIA_SERVER)
     };
     private static final Log LOG = LogFactory.getLog(Whacker.class);
 

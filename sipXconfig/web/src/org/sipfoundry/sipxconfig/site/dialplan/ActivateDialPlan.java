@@ -12,7 +12,8 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import org.apache.commons.lang.enums.Enum;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
+import org.sipfoundry.sipxconfig.admin.commserver.Process;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
@@ -47,9 +48,11 @@ public abstract class ActivateDialPlan extends PageWithCallback {
     }
 
     public Process[] getAffectedProcesses() {
-        return new Process[] {
-            Process.REGISTRAR, Process.AUTH_PROXY, Process.PROXY
+        Process[] names = new Process[] {
+            new Process(ProcessName.REGISTRAR), new Process(ProcessName.AUTH_PROXY),
+            new Process(ProcessName.PROXY)
         };
+        return names;
     }
 
     public IPropertySelectionModel getFileSelectionModel() {

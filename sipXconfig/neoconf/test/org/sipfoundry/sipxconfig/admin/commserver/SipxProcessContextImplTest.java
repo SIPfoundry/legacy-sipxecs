@@ -21,7 +21,8 @@ import java.util.Vector;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
+import org.sipfoundry.sipxconfig.admin.commserver.Process;
 
 public class SipxProcessContextImplTest extends TestCase {
     private SipxProcessContextImpl m_processContextImpl;
@@ -32,11 +33,11 @@ public class SipxProcessContextImplTest extends TestCase {
     private List m_paramVectors;
 
     private final static ServiceStatus[] SERVICESTATUS = new ServiceStatus[] {
-        new ServiceStatus(Process.REGISTRAR, ServiceStatus.Status.STARTING),
-        new ServiceStatus(Process.MEDIA_SERVER, ServiceStatus.Status.STARTED),
-        new ServiceStatus(Process.PRESENCE_SERVER, ServiceStatus.Status.STOPPED),
-        new ServiceStatus(Process.AUTH_PROXY, ServiceStatus.Status.FAILED),
-        new ServiceStatus(Process.ACD_SERVER, ServiceStatus.Status.UNKNOWN)
+        new ServiceStatus(new Process(ProcessName.REGISTRAR), ServiceStatus.Status.STARTING),
+        new ServiceStatus(new Process(ProcessName.MEDIA_SERVER), ServiceStatus.Status.STARTED),
+        new ServiceStatus(new Process(ProcessName.PRESENCE_SERVER), ServiceStatus.Status.STOPPED),
+        new ServiceStatus(new Process(ProcessName.AUTH_PROXY), ServiceStatus.Status.FAILED),
+        new ServiceStatus(new Process(ProcessName.ACD_SERVER), ServiceStatus.Status.UNKNOWN)
     };
 
     protected void setUp() throws Exception {
@@ -72,6 +73,8 @@ public class SipxProcessContextImplTest extends TestCase {
         m_methodNameStrings = new ArrayList();
         m_urlStrings = new ArrayList();
         m_paramVectors = new ArrayList();
+
+        m_processContextImpl.setProcessModel(new SimpleSipxProcessModel());
     }
 
     public void testGetStatus() {
@@ -99,7 +102,7 @@ public class SipxProcessContextImplTest extends TestCase {
 
     public void testManageService() {
         Process[] processes = {
-            Process.REGISTRAR
+            new Process(ProcessName.REGISTRAR)
         };
         Location[] locations = {
             m_processContextImpl.getLocations()[0]
@@ -113,7 +116,7 @@ public class SipxProcessContextImplTest extends TestCase {
 
     public void testManageServices() {
         Process[] processes = {
-            Process.MEDIA_SERVER, Process.PRESENCE_SERVER
+            new Process(ProcessName.MEDIA_SERVER), new Process(ProcessName.PRESENCE_SERVER)
         };
         Location[] locations = m_processContextImpl.getLocations();
         Command command = Command.RESTART;
@@ -125,7 +128,7 @@ public class SipxProcessContextImplTest extends TestCase {
 
     public void testManageServicesLocation() {
         Process[] processes = {
-            Process.AUTH_PROXY, Process.ACD_SERVER
+            new Process(ProcessName.AUTH_PROXY), new Process(ProcessName.ACD_SERVER)
         };
         Location[] locations = {
             m_processContextImpl.getLocations()[1]
