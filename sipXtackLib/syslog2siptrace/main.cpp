@@ -27,37 +27,43 @@
 void writeMessageNodesBegin(int outputFileDescriptor)
 {
     UtlString nodeBegin("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<sipTrace>\n");
-    (void) write(outputFileDescriptor, nodeBegin.data(), nodeBegin.length());
+    ssize_t dummy;
+    dummy = write(outputFileDescriptor, nodeBegin.data(), nodeBegin.length());
 }
 
 void writeMessageNodesEnd(int outputFileDescriptor)
 {
     UtlString nodeEnd("</sipTrace>\n");
-    (void) write(outputFileDescriptor, nodeEnd.data(), nodeEnd.length());
+    ssize_t dummy;
+    dummy = write(outputFileDescriptor, nodeEnd.data(), nodeEnd.length());
 }
 
 void writeBranchNodeBegin(int outputFileDescriptor)
 {
     UtlString nodeBegin("\t<branchNode>\n");
-    (void) write(outputFileDescriptor, nodeBegin.data(), nodeBegin.length());
+    ssize_t dummy;
+    dummy = write(outputFileDescriptor, nodeBegin.data(), nodeBegin.length());
 }
 
 void writeBranchNodeEnd(int outputFileDescriptor)
 {
     UtlString nodeEnd("\t</branchNode>\n");
-    (void) write(outputFileDescriptor, nodeEnd.data(), nodeEnd.length());
+    ssize_t dummy;
+    dummy = write(outputFileDescriptor, nodeEnd.data(), nodeEnd.length());
 }
 
 void writeBranchSetBegin(int outputFileDescriptor)
 {
     UtlString nodeBegin("\t\t<branchIdSet>\n");
-    (void) write(outputFileDescriptor, nodeBegin.data(), nodeBegin.length());
+    ssize_t dummy;
+    dummy = write(outputFileDescriptor, nodeBegin.data(), nodeBegin.length());
 }
 
 void writeBranchSetEnd(int outputFileDescriptor)
 {
     UtlString nodeEnd("\t\t</branchIdSet>\n");
-    (void) write(outputFileDescriptor, nodeEnd.data(), nodeEnd.length());
+    ssize_t dummy;
+    dummy = write(outputFileDescriptor, nodeEnd.data(), nodeEnd.length());
 }
 
 void writeBranchId(int outputFileDescriptor,
@@ -68,7 +74,8 @@ void writeBranchId(int outputFileDescriptor,
     node.append(branchId);
     node.append("</branchId>\n");
 
-    (void) write(outputFileDescriptor, node.data(), node.length());
+    ssize_t dummy;
+    dummy = write(outputFileDescriptor, node.data(), node.length());
 }
 
 void writeBranchNodeData(int outputFileDescriptor,
@@ -151,7 +158,8 @@ void writeBranchNodeData(int outputFileDescriptor,
     node.append(message);
     node.append("]]></message>\n");
 
-    (void) write(outputFileDescriptor, node.data(), node.length());
+    ssize_t dummy;
+    dummy = write(outputFileDescriptor, node.data(), node.length());
 }
 
 void getMessageData(UtlString& content,
