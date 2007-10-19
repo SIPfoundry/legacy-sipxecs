@@ -1436,10 +1436,8 @@ AC_DEFUN([CHECK_MSG_NOSIGNAL],
    AC_MSG_CHECKING(whether MSG_NOSIGNAL exists)
    AC_TRY_COMPILE([#include <sys/socket.h>],
    [
-   int main()
-   {
-    int f=MSG_NOSIGNAL;
-   }
+    int f;
+    f = MSG_NOSIGNAL;		// Make sure variable 'f' is "used".
    ],
     # Yes, we have it...
     AC_MSG_RESULT(yes)
