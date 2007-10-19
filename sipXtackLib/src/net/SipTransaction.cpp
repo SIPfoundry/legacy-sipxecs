@@ -424,8 +424,8 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
     UtlString method;
     int cSeq;
     UtlString seqMethod;
-    outgoingMessage.getCSeqField(&cSeq, &seqMethod);
 
+    outgoingMessage.getCSeqField(&cSeq, &seqMethod);
     outgoingMessage.getRequestMethod(&method);
 
     if (relationship == MESSAGE_UNKNOWN)
@@ -473,7 +473,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
                       toAddress.data(), port, protocolString.data());
 #       endif
         SipMessage::convertProtocolStringToEnum(protocolString.data(),
-                                        protocol);
+                                                protocol);
     }
     else
     {
@@ -580,7 +580,6 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
         // and start pursuing the first child.
         sendSucceeded = recurseDnsSrvChildren(userAgent, transactionList);
     }
-
     else
     {
         sendSucceeded = doFirstSend(*message,
@@ -918,7 +917,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
            * Forcing UDP may not always be correct, but it's the best we can do now.
            */
           toProtocol = OsSocket::UDP;
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+          OsSysLog::add(FAC_SIP, PRI_ERR,
                         "SipTransaction::doFirstSend protocol not explicitly set - using UDP"
                         );
        }
@@ -1041,14 +1040,14 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                     relationship);
     }
 
-    if(toProtocol == OsSocket::TCP)
+    if (toProtocol == OsSocket::TCP)
     {
        sendSucceeded = userAgent.sendTcp(&message,
                                          toAddress.data(),
                                          port);
     }
 
-    else if(toProtocol == OsSocket::SSL_SOCKET)
+    else if (toProtocol == OsSocket::SSL_SOCKET)
     {
        sendSucceeded = userAgent.sendTls(&message,
                                          toAddress.data(),

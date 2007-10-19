@@ -910,8 +910,8 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
             message.setAcceptLanguageField("en");
          }
 
-         // Add Allow field to REFER and INVITE requests . It is
-         // mandatory for REFER method.
+         // Add Allow header to REFER and INVITE requests. It is
+         // mandatory for the REFER method.
          UtlString allowedMethodsSet;
          if (   ! message.getAllowField(allowedMethodsSet)
              && (   method.compareTo(SIP_REFER_METHOD) == 0
@@ -1039,7 +1039,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
       sentOk = FALSE;
     }
 
-  // If we have not failed schedule a resend
+  // If we have not failed, schedule a resend.
   if(sentOk)
     {
       messageStatusString.append("UDP SIP User Agent sent message:\n");

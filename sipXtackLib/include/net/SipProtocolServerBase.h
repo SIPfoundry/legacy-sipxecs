@@ -53,7 +53,6 @@ public:
                          const char* taskName);
    //:Default constructor
 
-
    virtual
       ~SipProtocolServerBase();
    //:Destructor
