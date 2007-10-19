@@ -109,10 +109,12 @@ UtlBoolean WatchDog::handleMessage(OsMsg &rMsg)
    UtlBoolean   returnValue = TRUE;
    OsEventMsg* pEventMsg;
 
+#ifdef DEBUG
    UtlString dateString;
    OsDateTime dt;
    OsDateTime::getCurTime(dt);
    dt.getHttpTimeString(dateString);  
+#endif /* DEBUG */
 
    if (rMsg.getMsgType() == OsMsg::OS_EVENT)
    {

@@ -250,9 +250,9 @@ class OsTimer : public UtlContainable
    static const UtlContainableType TYPE;
    /**< Class type used for runtime checking */
 
-   /// type for absolute time
+   /// type for absolute time in microseconds since the epoch
    typedef Int64 Time;
-   /// type for time interval
+   /// type for time interval in microseconds
    typedef Int64 Interval;
 
    OsBSem          mBSem;      //< semaphore to lock access to members
