@@ -10,38 +10,33 @@
 package org.sipfoundry.sipxconfig.admin.localization;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
-import java.util.Vector;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.PrefixFileFilter;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.dao.support.DataAccessUtils;
 
-/*
-import org.springframework.web.context.ContextLoader;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-*/
-public class LocalizationContextImpl extends SipxHibernateDaoSupport implements LocalizationContext {
+public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
+        LocalizationContext {
 
     private static final Log LOG = LogFactory.getLog(LocalizationContextImpl.class);
+
     private static final String REGION_PREFIX = "region_";
     private static final String PROMPTS_PREFIX = "stdprompts_";
-    private static final String DEFAULT = "default";
-    private static final String LANGUAGE_CONFIG = "DefaultLanguage";
     private static final String DIALPLAN = ".dialPlan";
     private static final String DIALPLAN_TEMPLATE = "dialrules.beans.xml";
-    private static final String DIRECTORY_SEPARATOR = "/";
 
     private String m_regionDir;
     private String m_promptsDir;
@@ -54,202 +49,158 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         m_regionDir = regionDir;
     }
 
-    public String getRegionDir() {
-        return m_regionDir;
-    }
-
     public void setPromptsDir(String promptsDir) {
         m_promptsDir = promptsDir;
-    }
-
-    public String getPromptsDir() {
-        return m_promptsDir;
     }
 
     public void setBinDir(String binDir) {
         m_binDir = binDir;
     }
 
-    public String getBinDir() {
-        return m_binDir;
-    }
-
     public void setDefaultRegion(String defaultRegion) {
         m_defaultRegion = defaultRegion;
-    }
-
-    public String getDefaultRegion() {
-        return m_defaultRegion;
     }
 
     public void setDefaultLanguage(String defaultLanguage) {
         m_defaultLanguage = defaultLanguage;
     }
 
-    public String getDefaultLanguage() {
-        return m_defaultLanguage;
-    }
-
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
     }
 
-    public DialPlanContext getDialPlanContext() {
-        return m_dialPlanContext;
-    }
-
     public String getCurrentRegionId() {
-        return getIdFromString(getLocalization().getRegion());
+        return getLocalization().getRegionId();
     }
 
     public String getCurrentLanguageId() {
-        return getIdFromString(getLocalization().getLanguage());
+        return getLocalization().getLanguageId();
     }
 
     public String[] getInstalledRegions() {
-        Vector regions = getListOfDirecotries(m_regionDir, REGION_PREFIX);
-        for (int i = 0; i < regions.size(); i++) {
-            File regionDir = new File(m_regionDir + DIRECTORY_SEPARATOR + (String) regions.elementAt(i));
-            String[] files = regionDir.list();
-            boolean templatefound = false;
-            for (int j = 0; j < files.length; j++) {
-                if (files[j].contains(DIALPLAN_TEMPLATE)) {
-                    templatefound = true;
-                } 
+        String[] regions = getListOfDirectories(m_regionDir, REGION_PREFIX);
+        List<String> result = new ArrayList<String>(regions.length);
+        for (String region : regions) {
+            File regionDir = new File(m_regionDir, region);
+            String[] files = regionDir.list(new SuffixFileFilter(DIALPLAN_TEMPLATE));
+            if (files != null && files.length > 0) {
+                result.add(region);
             }
-            if (!templatefound) {
-                regions.removeElementAt(i);
-            }
-        }         
-        String[] result = new String[regions.size()];
-        regions.toArray(result);
-        return result;
+        }
+        return result.toArray(new String[result.size()]);
     }
 
     public String[] getInstalledLanguages() {
-
-        Vector  languages = getListOfDirecotries(m_promptsDir, PROMPTS_PREFIX);
-        String[] result = new String[languages.size()];
-        languages.toArray(result);
-        return result;
+        return getListOfDirectories(m_promptsDir, PROMPTS_PREFIX);
     }
 
-    private Vector getListOfDirecotries(String path, String prefix) {
-        Vector<String> vector = new Vector<String>();
-        File dir = new File(path);
-        String[] list = dir.list();
-
-        for (int i = 0; i < list.length; i++) {
-            if (list[i].contains(prefix)) {
-                vector.addElement((String) list[i]);
-            }
-        }
-        return vector;
+    private String[] getListOfDirectories(String path, String prefix) {
+        return new File(path).list(new PrefixFileFilter(prefix));
     }
 
     public Localization getLocalization() {
-        List list = getHibernateTemplate().loadAll(Localization.class);
-        if (!list.isEmpty()) {
-            return (Localization) list.get(0);
+        List l = getHibernateTemplate().loadAll(Localization.class);
+        Localization localization = (Localization) DataAccessUtils.uniqueResult(l);
+        if (localization != null) {
+            return localization;
         }
-        Localization localization = new Localization();
+        localization = new Localization();
         localization.setRegion(m_defaultRegion);
         localization.setLanguage(m_defaultLanguage);
         getHibernateTemplate().save(localization);
         return localization;
     }
 
-    private String getIdFromString(String string) {
-        String id = null;
-        if (string != null) {
-            StringTokenizer st = new StringTokenizer(string, "_");
-            while (st.hasMoreTokens()) {
-                id = st.nextToken();
-            }
-        }
-        return id;
-    }
-
+    /**
+     * Set new current region
+     * 
+     * @return postive value is success, negative if failure, 0 if there was no change
+     */
     public int updateRegion(String region) {
         Localization localization = getLocalization();
-
-        if (region.compareTo(DEFAULT) != 0) {
-            if (region.compareTo(localization.getRegion()) != 0) {
-                // The region has been changed - handle the change
-                String regionId = getIdFromString(region);
-                if (regionId != null) {
-                    String dialPlanBeanId = regionId + DIALPLAN;
-                    getDialPlanContext().resetToFactoryDefault(dialPlanBeanId);
-                    LOG.warn("resetToFactoryDefault : bean " + dialPlanBeanId);
-                    localization.setRegion(region);
-                    getHibernateTemplate().saveOrUpdate(localization);
-                    return 1;
-                } else {
-                    return -1;
-                }
-            }
+        if (localization.getRegion().equals(region)) {
+            // no change
+            return 0;
         }
-        return 0;
+
+        // The region has been changed - handle the change
+        localization.setRegion(region);
+        String regionId = localization.getRegionId();
+        if (regionId == null) {
+            return -1;
+        }
+        try {
+            String dialPlanBeanId = regionId + DIALPLAN;
+            m_dialPlanContext.resetToFactoryDefault(dialPlanBeanId);
+            LOG.warn("resetToFactoryDefault : bean " + dialPlanBeanId);
+
+            getHibernateTemplate().saveOrUpdate(localization);
+        } catch (NoSuchBeanDefinitionException e) {
+            LOG.error("Trying to set unsupported region: " + region);
+            return -1;
+        }
+
+        return 1;
     }
 
+    /**
+     * Set new current language
+     * 
+     * @return postive value is success, negative if failure, 0 if there was no change
+     */
     public int updateLanguage(String language) {
         Localization localization = getLocalization();
-
-        if (language.compareTo(DEFAULT) != 0) {
-            if (localization.getLanguage().compareTo(language) != 0) {
-                // The language has been changed - handle the change
-                try {
-                    File file = new File(m_promptsDir, LANGUAGE_CONFIG);
-                    FileWriter writer = new FileWriter(file);
-                    writer.write(language + "\n");
-                    writer.close();
-
-                    localization.setLanguage(language);
-                    getHibernateTemplate().saveOrUpdate(localization);
-                    return 1;
-                } catch (IOException e) {
-                    return -1;
-                }
-            }
+        if (localization.getLanguage().equals(language)) {
+            // no change
+            return 0;
         }
-        return 0;
+
+        // The language has been changed - handle the change
+        // TODO: add code that sets the language
+        localization.setLanguage(language);
+        getHibernateTemplate().saveOrUpdate(localization);
+        return 1;
     }
 
-    public int installLocalizationPackage(InputStream stream, String name) {
-        // First store the file in the upload directory
-        int result = 1;
-        File uploadDirectory = new File(m_regionDir + DIRECTORY_SEPARATOR + "localization_packages");
-        if (!uploadDirectory.exists()) {
-            uploadDirectory.mkdir();
-        }
+    /**
+     * Copy uploaded package and run 'sipxlocalization' to install it.
+     */
+    public void installLocalizationPackage(InputStream stream, String name) {
+        File localizationPackage = createLocalizationPackage(stream, name);
+        applyLocalizationPackage(localizationPackage);
+    }
+
+    private File createLocalizationPackage(InputStream stream, String name) {
+        File uploadDirectory = new File(m_regionDir, "localization_packages");
         File fileToApply = new File(uploadDirectory.getPath(), name);
         OutputStream os = null;
         try {
-            os = new FileOutputStream(fileToApply);
+            os = FileUtils.openOutputStream(fileToApply);
             IOUtils.copy(stream, os);
-            os.close();
-            result = 0;
         } catch (IOException ex) {
+            LOG.warn("Cannot upload file", ex);
             throw new UserException("message.upload.failed");
         } finally {
             IOUtils.closeQuietly(os);
         }
-        if (result == 0) {
-            // A localization package has been uploaded. Invoke a script that
-            // will install the package.
-            try {
-                Process p = Runtime.getRuntime().exec(
-                    m_binDir + DIRECTORY_SEPARATOR + "sipxlocalization "
-                    + uploadDirectory.getPath() + DIRECTORY_SEPARATOR + name
-                    + " " + m_promptsDir + "  " + m_regionDir);
-                result = p.waitFor();
-            } catch (InterruptedException ex1) {
-                LOG.warn("Exception1: " + ex1);
-            } catch (IOException ex2) {
-                LOG.warn("Exception2: " + ex2);
-            }
+        return fileToApply;
+    }
+
+    private void applyLocalizationPackage(File fileToApply) {
+        UserException installFailureException = new UserException("message.installError");
+        try {
+            String[] cmd = new String[] {
+                m_binDir + File.pathSeparator + "sipxlocalization", fileToApply.getPath(),
+                m_promptsDir, m_regionDir
+            };
+            Process p = Runtime.getRuntime().exec(cmd);
+            p.waitFor();
+        } catch (InterruptedException ex) {
+            LOG.error("Interrupted when waiting for sipxlocalization script.", ex);
+            throw installFailureException;
+        } catch (IOException ex) {
+            LOG.error("Problems with executing sipxlocalization script.", ex);
+            throw installFailureException;
         }
-        return result;
     }
 }
-

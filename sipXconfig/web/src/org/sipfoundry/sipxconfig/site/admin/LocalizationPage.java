@@ -9,35 +9,43 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import java.util.StringTokenizer;
-
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hivemind.Messages;
+import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
+import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.AssetSelector;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
-public abstract class LocalizationPage extends UserBasePage implements PageBeginRenderListener {
+public abstract class LocalizationPage extends BasePage implements PageBeginRenderListener {
+    public static final String PAGE = "admin/LocalizationPage";
+
     private static final String LABEL = "label.";
 
-    private static final String DEFAULT = "default";
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
 
     @InjectObject(value = "spring:localizationContext")
     public abstract LocalizationContext getLocalizationContext();
 
-    public abstract LocalizedOptionModelDecorator getRegionList();
+    public abstract IPropertySelectionModel getRegionList();
 
-    public abstract void setRegionList(LocalizedOptionModelDecorator regionList);
+    public abstract void setRegionList(IPropertySelectionModel regionList);
 
-    public abstract LocalizedOptionModelDecorator getLanguageList();
+    public abstract IPropertySelectionModel getLanguageList();
 
-    public abstract void setLanguageList(LocalizedOptionModelDecorator languageList);
+    public abstract void setLanguageList(IPropertySelectionModel languageList);
 
     public abstract String getRegion();
 
@@ -70,85 +78,91 @@ public abstract class LocalizationPage extends UserBasePage implements PageBegin
     }
 
     private void initRegions() {
-        LocalizedOptionModelDecorator optionModel = new LocalizedOptionModelDecorator();
         String[] regions = getLocalizationContext().getInstalledRegions();
-        if (regions.length == 0) {
-            // No regions found - display "default"
-            regions = new String[1];
-            regions[0] = DEFAULT;
-        }
-        optionModel.setModel(new StringPropertySelectionModel(regions));
-        optionModel.setMessages(getMessages());
-        optionModel.setResourcePrefix(LABEL);
-        setRegionList(optionModel);
+        IPropertySelectionModel model = new ModelWithDefaults(getMessages(), regions);
+        setRegionList(model);
     }
 
     private void initLanguages() {
-        LocalizedOptionModelDecorator optionModel = new LocalizedOptionModelDecorator();
         String[] languages = getLocalizationContext().getInstalledLanguages();
-        if (languages.length == 0) {
-            // No languages found - display "default"
-            languages = new String[1];
-            languages[0] = DEFAULT;
+        IPropertySelectionModel model = new ModelWithDefaults(getMessages(), languages);
+        setLanguageList(model);
+    }
+
+    private static class ModelWithDefaults extends LocalizedOptionModelDecorator {
+        public static final String DEFAULT = "default";
+
+        public ModelWithDefaults(Messages messages, String[] options) {
+            String[] opts = options;
+            if (opts.length == 0) {
+                opts = new String[] {
+                    DEFAULT
+                };
+            }
+            setModel(new StringPropertySelectionModel(opts));
+            setMessages(messages);
+            setResourcePrefix(LABEL);
         }
-        optionModel.setModel(new StringPropertySelectionModel(languages));
-        optionModel.setMessages(getMessages());
-        optionModel.setResourcePrefix(LABEL);
-        setLanguageList(optionModel);
     }
 
     public void setRegion() {
-        int exitCode = getLocalizationContext().updateRegion(getRegion());
+        String region = getRegion();
+        if (ModelWithDefaults.DEFAULT.equals(region)) {
+            return;
+        }
+        int exitCode = getLocalizationContext().updateRegion(region);
         if (exitCode > 0) {
-            TapestryUtils.recordSuccess(this, getMessages().getMessage("message.label.regionChanged"));
+            recordSuccess("message.label.regionChanged");
         } else if (exitCode < 0) {
-            getValidator().record(new ValidatorException(getMessages().getMessage("message.label.regionFailed")));
+            recordFailure("message.label.regionFailed");
         }
     }
 
     public void setLanguage() {
-        int exitCode = getLocalizationContext().updateLanguage(getLanguage());
+        String language = getLanguage();
+        if (ModelWithDefaults.DEFAULT.equals(language)) {
+            return;
+        }
+        int exitCode = getLocalizationContext().updateLanguage(language);
         if (exitCode > 0) {
-            TapestryUtils.recordSuccess(this, getMessages().getMessage("message.label.languageChanged"));
+            recordSuccess("message.label.languageChanged");
         } else if (exitCode < 0) {
-            getValidator().record(new ValidatorException(getMessages().getMessage("message.label.languageFailed")));
+            recordFailure("message.label.lanuageFailed");
         }
     }
 
     public void uploadLocalizationPackage() {
         IUploadFile uploadFile = getUploadFile();
-        if ((uploadFile == null) 
-            || (uploadFile.getFilePath() == null)
-            || (uploadFile.getFilePath().length() == 0)) {
-            getValidator().record(new ValidatorException(getMessages().getMessage("message.noLocalizationFile")));
+        if (uploadFile == null || StringUtils.isBlank(getUploadFile().getFilePath())) {
+            recordFailure("message.noLocalizationFile");
             return;
         }
         try {
-            String fileName = null;
-            String extension = null;
-            StringTokenizer st = new StringTokenizer(uploadFile.getFileName(), "\\");
-            while (st.hasMoreTokens()) {
-                fileName = st.nextToken();
-            }
-            if (fileName != null) {
-                int extensionIndex = fileName.lastIndexOf('.');
-                if (extensionIndex > 0) {
-                    extension = fileName.substring(extensionIndex);
-                }
-            }
-            if ((extension == null)
-                || ((extension.compareTo(".tar") != 0)
-                    && (extension.compareTo(".tgz") != 0))) {
-                getValidator().record(new ValidatorException(getMessages().getMessage("message.invalidPackage")));
+            String filePath = uploadFile.getFilePath();
+            String fileName = AssetSelector.getSystemIndependentFileName(filePath);
+            String extension = FilenameUtils.getExtension(fileName);
+            // FIXME: only allow "tar" or "tgz" files - not sure why (how about .tar.gz?)
+            if ("tar".equals(extension) || "tgz".equals(extension)) {
+                LocalizationContext lc = getLocalizationContext();
+                lc.installLocalizationPackage(uploadFile.getStream(), fileName);
+                recordSuccess("message.installedOk");
             } else {
-                if (getLocalizationContext().installLocalizationPackage(uploadFile.getStream(), fileName) == 0) {
-                    TapestryUtils.recordSuccess(this, getMessages().getMessage("message.installedOk"));
-                } else {
-                    getValidator().record(new ValidatorException(getMessages().getMessage("message.installError")));
-                }
+                recordFailure("message.invalidPackage");
             }
         } catch (UserException ex) {
-            getValidator().record(new ValidatorException(getMessages().getMessage(ex.getMessage())));
+            String msg = getMessages().getMessage(ex.getMessage());
+            getValidator().record(new ValidatorException(msg));
         }
+    }
+
+    private void recordSuccess(String msgKey) {
+        String msg = getMessages().getMessage(msgKey);
+        TapestryUtils.recordSuccess(this, msg);
+    }
+
+    private void recordFailure(String msgKey) {
+        String msg = getMessages().getMessage(msgKey);
+        ValidatorException validatorException = new ValidatorException(msg);
+        getValidator().record(validatorException);
     }
 }

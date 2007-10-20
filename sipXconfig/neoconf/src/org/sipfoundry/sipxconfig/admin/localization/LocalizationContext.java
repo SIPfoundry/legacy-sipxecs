@@ -12,19 +12,19 @@ package org.sipfoundry.sipxconfig.admin.localization;
 import java.io.InputStream;
 
 public interface LocalizationContext {
-    public String getCurrentRegionId();
+    String getCurrentRegionId();
 
-    public String getCurrentLanguageId();
+    String getCurrentLanguageId();
 
-    public String[] getInstalledRegions();
+    String[] getInstalledRegions();
 
-    public String[] getInstalledLanguages();
+    String[] getInstalledLanguages();
 
-    public Localization getLocalization();
+    Localization getLocalization();
 
-    public int updateRegion(String region);
+    int updateRegion(String region);
 
-    public int updateLanguage(String language);
+    int updateLanguage(String language);
 
-    public int installLocalizationPackage(InputStream stream, String name);
+    void installLocalizationPackage(InputStream stream, String name);
 }

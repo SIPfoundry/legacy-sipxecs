@@ -19,6 +19,8 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 
 public abstract class ResetDialPlan extends PageWithCallback implements PageBeginRenderListener {
 
+    public static final String PAGE = "ResetDialPlan";
+
     public abstract DialPlanContext getDialPlanContext();
 
     @InjectObject(value = "spring:localizationContext")
@@ -30,13 +32,9 @@ public abstract class ResetDialPlan extends PageWithCallback implements PageBegi
 
     public void pageBeginRender(PageEvent event) {
         if (getTemplate() == null) {
-            // Get the name of the template corresponding to the current region
-            LocalizationContext localizationContext = getLocalizationContext();
-            if (localizationContext != null) {
-                String id = localizationContext.getCurrentRegionId();
-                if (id != null) {
-                    setTemplate(id + ".dialPlan");
-                }
+            String id = getLocalizationContext().getCurrentRegionId();
+            if (id != null) {
+                setTemplate(id + ".dialPlan");
             }
         }
     }

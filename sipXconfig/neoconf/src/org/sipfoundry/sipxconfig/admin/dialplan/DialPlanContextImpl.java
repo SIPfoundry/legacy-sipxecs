@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -45,7 +47,8 @@ import org.springframework.context.ApplicationListener;
  * DialPlanContextImpl is an implementation of DialPlanContext with hibernate support.
  */
 public class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
-        DialPlanContext , ApplicationListener {
+        DialPlanContext, ApplicationListener {
+    private static final Log LOG = LogFactory.getLog(DialPlanContextImpl.class);
     private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
     private static final String ATTENDANT_GROUP_ID = "auto_attendant";
     private static final String OPERATOR_CONSTANT = "operator";
@@ -66,7 +69,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     private String m_scriptsDirectory;
 
     private String m_defaultDialPlanId;
-    
+
     private VxmlGenerator m_vxmlGenerator;
 
     /**
@@ -211,21 +214,23 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
      */
     public void resetToFactoryDefault(String dialPlanBeanName) {
         DialPlan newDialPlan = (DialPlan) m_beanFactory.getBean(dialPlanBeanName);
-        if (newDialPlan != null) {
-            // unload all rules
-            DialPlan dialPlan = getDialPlan();
-            getHibernateTemplate().delete(getEmergencyRouting());
-            getHibernateTemplate().delete(dialPlan);
-            // Flush the session to cause the delete to take immediate effect.
-            // Otherwise we can get name collisions on dialing rules when we load the
-            // default dial plan, causing a DB integrity exception, even though the
-            // collisions would go away as soon as the session was flushed.
-            getHibernateTemplate().flush();
-
-            AutoAttendant operator = getAttendant(AutoAttendant.OPERATOR_ID);
-            newDialPlan.setOperator(operator);
-            getHibernateTemplate().saveOrUpdate(newDialPlan);
+        if (newDialPlan == null) {
+            LOG.error("No dial plan defined for:" + dialPlanBeanName);
+            return;
         }
+        // unload all rules
+        DialPlan dialPlan = getDialPlan();
+        getHibernateTemplate().delete(getEmergencyRouting());
+        getHibernateTemplate().delete(dialPlan);
+        // Flush the session to cause the delete to take immediate effect.
+        // Otherwise we can get name collisions on dialing rules when we load the
+        // default dial plan, causing a DB integrity exception, even though the
+        // collisions would go away as soon as the session was flushed.
+        getHibernateTemplate().flush();
+
+        AutoAttendant operator = getAttendant(AutoAttendant.OPERATOR_ID);
+        newDialPlan.setOperator(operator);
+        getHibernateTemplate().saveOrUpdate(newDialPlan);
     }
 
     /**
@@ -399,7 +404,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public void setDefaultDialPlanId(String defaultDialPlanId) {
         m_defaultDialPlanId = defaultDialPlanId;
     }
-    
+
     public String getDefaultDialPlanId() {
         return m_defaultDialPlanId;
     }
@@ -559,7 +564,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public EntitySaveListener<Group> createGroupSaveListener() {
         return new OnGroupSave();
     }
-    
+
     private class OnGroupSave extends EntitySaveListener<Group> {
         public OnGroupSave() {
             super(Group.class);
@@ -577,7 +582,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     public void setVxmlGenerator(VxmlGenerator vxmlGenerator) {
         m_vxmlGenerator = vxmlGenerator;
-    }    
+    }
 
     public AutoAttendant createSystemAttendant(String systemId) {
         AutoAttendant aa = (AutoAttendant) m_beanFactory.getBean(systemId + "Prototype");

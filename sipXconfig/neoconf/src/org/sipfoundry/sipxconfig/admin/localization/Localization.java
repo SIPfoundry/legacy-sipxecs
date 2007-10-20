@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.localization;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 public class Localization extends BeanWithId {
@@ -16,11 +17,11 @@ public class Localization extends BeanWithId {
     private String m_region;
 
     private String m_language;
-    
+
     public String getRegion() {
         return m_region;
     }
-    
+
     public void setRegion(String region) {
         this.m_region = region;
     }
@@ -28,10 +29,24 @@ public class Localization extends BeanWithId {
     public String getLanguage() {
         return m_language;
     }
-    
+
     public void setLanguage(String language) {
         this.m_language = language;
     }
-    
-    
+
+    public String getLanguageId() {
+        return getIdFromString(m_language);
+    }
+
+    public String getRegionId() {
+        return getIdFromString(m_region);
+    }
+
+    private String getIdFromString(String string) {
+        String[] split = StringUtils.split(string, "_");
+        if (split == null || split.length == 0) {
+            return null;
+        }
+        return split[split.length - 1];
+    }
 }

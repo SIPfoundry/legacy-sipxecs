@@ -52,8 +52,8 @@ public class SipxValidationDelegate extends ValidationDelegate {
         }
     }
 
-    public void writeSuffix(IMarkupWriter writer, IRequestCycle cycle_, IFormComponent component_,
-            IValidator validator_) {
+    public void writeSuffix(IMarkupWriter writer, IRequestCycle cycle_,
+            IFormComponent component_, IValidator validator_) {
         if (isInError()) {
             writer.printRaw("&nbsp;");
             writer.begin("span");
@@ -62,25 +62,25 @@ public class SipxValidationDelegate extends ValidationDelegate {
             writer.end();
         }
     }
-    
+
     public void clear() {
         super.clear();
-        m_success = null;        
+        m_success = null;
     }
-    
+
     public void clearErrors() {
         super.clearErrors();
         m_success = null;
     }
-    
+
     public void recordSuccess(String success) {
         m_success = success;
     }
-    
+
     public String getSuccess() {
         return m_success;
     }
-    
+
     public boolean getHasSuccess() {
         return !getHasErrors() && StringUtils.isNotBlank(m_success);
     }
