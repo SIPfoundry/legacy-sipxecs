@@ -52,14 +52,14 @@
     <property name="permissionName" value="LongDistanceDialing" />
   </bean>
 
-  <bean id="de.tollFreeRule" parent="longDistanceRule" singleton="false">
+  <bean id="de.tollFreeRule" parent="de.longDistanceRule" singleton="false">
     <property name="name" value="Gratisnummern" />
     <property name="description" value="Wählen von Gratisnummern" />
     <property name="areaCodes" value="800, 130, 842, 844, 848" />
     <property name="permissionName" value="TollFree" />
   </bean>
 
-  <bean id="de.restrictedRule" parent="longDistanceRule" singleton="false">
+  <bean id="de.restrictedRule" parent="de.longDistanceRule" singleton="false">
     <!--  not sure how to treat ITSP numbers with prefix 32 -->
     <property name="name" value="Mehrwertdienste" />
     <property name="description" value="Zuschlagspflichtige Nummern" />
@@ -68,7 +68,7 @@
     <property name="permissionName" value="900Dialing" />
   </bean>
 
-  <bean id="de.infolineRule" parent="longDistanceRule" singleton="false">
+  <bean id="de.infolineRule" parent="de.longDistanceRule" singleton="false">
     <property name="name" value="Informationsdienste" />
     <property name="description" value="Telefoninformationsdienste, welche keine Vorwahl benötigen" />
     <property name="areaCodes" value="118, 116" />
@@ -76,14 +76,14 @@
     <property name="permissionName" value="900Dialing" />
   </bean>
 
-  <bean id="de.mobileRule" parent="longDistanceRule" singleton="false">
+  <bean id="de.mobileRule" parent="de.longDistanceRule" singleton="false">
     <property name="name" value="Mobiltelefone" />
     <property name="description" value="Wählen von Mobilteilnehmern" />
     <property name="areaCodes" value="15, 16, 17" />
     <property name="permissionName" value="Mobile" />
   </bean>
 
-  <bean id="de.internationalRule" parent="longDistanceRule" singleton="false">
+  <bean id="de.internationalRule" parent="de.longDistanceRule" singleton="false">
     <property name="name" value="International" />
     <property name="description" value="Wählen von internationalen Nummern" />
     <property name="longDistancePrefix" value="00" />

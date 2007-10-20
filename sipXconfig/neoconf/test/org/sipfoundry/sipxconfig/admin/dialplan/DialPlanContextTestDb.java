@@ -351,6 +351,6 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
             System.err.println(name);
         }
         assertTrue(dialPlanBeans.length > 1);
-        assertTrue(ArrayUtils.contains(dialPlanBeans, "us.dialPlan"));
+        assertTrue(ArrayUtils.contains(dialPlanBeans, "na.dialPlan"));
     }
 }

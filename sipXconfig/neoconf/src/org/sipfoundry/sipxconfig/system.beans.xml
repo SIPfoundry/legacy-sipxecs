@@ -126,6 +126,7 @@
         <value>org/sipfoundry/sipxconfig/admin/backup.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/intercom/intercom.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/admin/localization/localization.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/dialplan/autoAttendant.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/dialplan/sbc/sbc.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/bulk/ldap/ldap.hbm.xml</value>

@@ -210,29 +210,29 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
      * Loads default rules definition from bean factory file.
      */
     public void resetToFactoryDefault(String dialPlanBeanName) {
-        getHibernateTemplate().delete(getEmergencyRouting());
+        DialPlan newDialPlan = (DialPlan) m_beanFactory.getBean(dialPlanBeanName);
+        if (newDialPlan != null) {
+            // unload all rules
+            DialPlan dialPlan = getDialPlan();
+            getHibernateTemplate().delete(getEmergencyRouting());
+            getHibernateTemplate().delete(dialPlan);
+            // Flush the session to cause the delete to take immediate effect.
+            // Otherwise we can get name collisions on dialing rules when we load the
+            // default dial plan, causing a DB integrity exception, even though the
+            // collisions would go away as soon as the session was flushed.
+            getHibernateTemplate().flush();
 
-        DialPlan dialPlan = getDialPlan();
-        // unload all rules
-        getHibernateTemplate().delete(dialPlan);
-
-        // Flush the session to cause the delete to take immediate effect.
-        // Otherwise we can get name collisions on dialing rules when we load the
-        // default dial plan, causing a DB integrity exception, even though the
-        // collisions would go away as soon as the session was flushed.
-        getHibernateTemplate().flush();
-
-        dialPlan = (DialPlan) m_beanFactory.getBean(dialPlanBeanName);
-        AutoAttendant operator = getAttendant(AutoAttendant.OPERATOR_ID);
-        dialPlan.setOperator(operator);
-        getHibernateTemplate().saveOrUpdate(dialPlan);
+            AutoAttendant operator = getAttendant(AutoAttendant.OPERATOR_ID);
+            newDialPlan.setOperator(operator);
+            getHibernateTemplate().saveOrUpdate(newDialPlan);
+        }
     }
 
     /**
      * Reverts to default dial plan.
      */
     public void resetToFactoryDefault() {
-        resetToFactoryDefault("us.dialPlan");
+        resetToFactoryDefault("na.dialPlan");
     }
 
     public String[] getDialPlanBeans() {

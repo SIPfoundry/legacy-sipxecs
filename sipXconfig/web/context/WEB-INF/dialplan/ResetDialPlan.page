@@ -13,28 +13,12 @@
     - B E A N S
   -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
-  <bean name="dialPlanTemplates" class="org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator"
-    lifecycle="page">
-    <set name="model"
-      value="new org.apache.tapestry.form.StringPropertySelectionModel(dialPlanContext.dialPlanBeans)" />
-    <set name="messages" value="messages" />
-    <set name="resourcePrefix" value="literal:label."></set>
-  </bean>
 
   <!--
     - C O M P O N E N T S
   -->
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator" />
-  </component>
-  <component id="templateLabel" type="FieldPanel">
-    <binding name="field" value="components.template" />
-    <binding name="label" value="message:template.label" />
-    <binding name="description" value="message:template.description" />
-  </component>
-  <component id="template" type="PropertySelection">
-    <binding name="model" value="bean:dialPlanTemplates" />
-    <binding name="value" value="template" />
   </component>
   <component id="reset" type="Submit">
     <binding name="listener" value="listener:reset" />

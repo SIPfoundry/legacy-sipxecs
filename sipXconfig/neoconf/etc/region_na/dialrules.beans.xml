@@ -71,7 +71,7 @@
 
   <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
   <!-- this is the list of rules that admin will see after installation and after reverting to default -->
-  <bean id="us.dialPlan" parent="defaultDialPlan" singleton="false">
+  <bean id="na.dialPlan" parent="defaultDialPlan" singleton="false">
     <property name="rules">
       <list>
         <ref bean="emergencyRule" />

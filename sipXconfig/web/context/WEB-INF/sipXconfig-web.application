@@ -33,7 +33,7 @@
     <page name="BackupPage" specification-path="admin/BackupPage.page"/>
     <page name="ChangePin" specification-path="user_portal/ChangePin.page"/>
     <page name="EditAttendantDialRule" specification-path="dialplan/EditAttendantDialRule.page"/>
-	<page name="EditAutoAttendant" specification-path="dialplan/EditAutoAttendant.page"/>
+    <page name="EditAutoAttendant" specification-path="dialplan/EditAutoAttendant.page"/>
     <page name="EditCallGroup" specification-path="admin/EditCallGroup.page"/>
     <page name="EditBridge" specification-path="conference/EditBridge.page"/>
     <page name="EditConference" specification-path="conference/EditConference.page"/>
@@ -99,7 +99,8 @@
     <page name="UserSchedules" specification-path="user_portal/UserSchedules.page"/>
     <page name="EditSchedule" specification-path="setting/EditSchedule.page"/>
     <page name="UserGroupSettings" specification-path="user/UserGroupSettings.page"/>
-	<page name="USerPhonebookPage" specification-path="user_portal/UserPhonebookPage"/>
+    <page name="USerPhonebookPage" specification-path="user_portal/UserPhonebookPage"/>
+    <page name="LocalizationPage" specification-path="admin/LocalizationPage.page"/>
 
     <!--
       -  C O M P O N E N T S
@@ -117,7 +118,7 @@
     <component-type type="Border" specification-path="common/Border.jwc"/>
     <component-type type="BridgesPanel" specification-path="conference/BridgesPanel.jwc"/>
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>
-	<component-type type="CancelButton" specification-path="common/CancelButton.jwc"/>
+    <component-type type="CancelButton" specification-path="common/CancelButton.jwc"/>
     <component-type type="ConferencesPanel" specification-path="conference/ConferencesPanel.jwc"/>
     <component-type type="ConfirmPassword" specification-path="user/ConfirmPassword.jwc"/>
     <component-type type="DialRuleCommon" specification-path="dialplan/DialRuleCommon.jwc"/>
@@ -168,7 +169,7 @@
     <component-type type="UserTable" specification-path="user/UserTable.jwc"/>
     <component-type type="WorkingHoursEditor" specification-path="dialplan/WorkingHoursEditor.jwc"/>    
     <page name="AcdPresenceServer" specification-path="acd/AcdPresenceServer.page"/>
-	<page name="AcdServerPage" specification-path="acd/AcdServerPage.page"/>
+    <page name="AcdServerPage" specification-path="acd/AcdServerPage.page"/>
     <page name="AcdSupervisorConsole" specification-path="acd/AcdSupervisorConsole.page"/>
     <page name="AddAcdAgent" specification-path="acd/AddAcdAgent.page"/>
     <page name="EditAcdAgent" specification-path="acd/EditAcdAgent.page"/>

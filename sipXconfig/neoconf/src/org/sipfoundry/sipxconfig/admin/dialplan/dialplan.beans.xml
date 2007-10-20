@@ -124,7 +124,7 @@
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="settingDao" ref="settingDao" />
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
-    <property name="defaultDialPlanId" value="us.dialPlan" />
+    <property name="defaultDialPlanId" value="na.dialPlan" />
     <property name="vxmlGenerator" ref="vxml" />
   </bean>
 

@@ -1,0 +1,51 @@
+<div jwcid="@Border">
+  <h2><span key="title">Localization</span></h2>
+  <div jwcid="@QuickHelp" value="message:description" />
+  <span jwcid="@ErrorMsg" />
+  <form jwcid="languageForm@Form">
+	<fieldset>
+	  <table>
+		<tr>
+		  <td jwcid="languageLabel@FieldPanel" field="component:language" label="message:label.language" description="message:language.description" for="localization:language">
+			<input jwcid="language@PropertySelection" model="ognl:languageList" value="ognl:language" id="localization:language"/>
+		  </td>
+		</tr>
+	  </table>
+		<ul class="component-submit">
+		  <li>
+			<span jwcid="setLanguage@Submit" action="listener:setLanguage" value="message:button.setLanguage"/>
+		  </li>
+		</ul>
+	</fieldset>
+  </form>
+  <form jwcid="regionForm@Form">
+	<fieldset>
+	  <table>
+		<tr>
+		  <td jwcid="regionLabel@FieldPanel" field="component:region" label="message:label.region" description="message:region.description" for="localization:region">
+			<input jwcid="region@PropertySelection" model="ognl:regionList" value="ognl:region" id="localization:region"/>
+		  </td>
+		</tr>
+	  </table>
+		<ul class="component-submit">
+		  <li>
+			<span jwcid="setRegion@Submit" action="listener:setRegion" value="message:button.setRegion"/>
+		  </li>
+		</ul>
+	</fieldset>
+  </form>
+  <form jwcid="installForm@Form">
+	<fieldset>
+	  <table>
+		<tr jwcid="@FieldPanel" field="component:localization" label="message:label.localizationPackage">
+			<td jwcid="localization@Upload" file="prop:uploadFile" />                  
+		</tr>
+	  </table>
+		<ul class="component-submit">
+		  <li>
+			<span jwcid="install@Submit" action="listener:uploadLocalizationPackage" value="message:button.install"/>
+		</li>
+	  </ul>
+	</fieldset>
+  </form>  
+</div>

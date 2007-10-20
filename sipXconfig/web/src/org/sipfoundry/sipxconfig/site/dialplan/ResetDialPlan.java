@@ -10,16 +10,19 @@
 package org.sipfoundry.sipxconfig.site.dialplan;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 
 public abstract class ResetDialPlan extends PageWithCallback implements PageBeginRenderListener {
 
-    public static final String PAGE = "ResetDialPlan";
-
     public abstract DialPlanContext getDialPlanContext();
+
+    @InjectObject(value = "spring:localizationContext")
+    public abstract LocalizationContext getLocalizationContext();
 
     public abstract String getTemplate();
 
@@ -27,8 +30,14 @@ public abstract class ResetDialPlan extends PageWithCallback implements PageBegi
 
     public void pageBeginRender(PageEvent event) {
         if (getTemplate() == null) {
-            String defaultTemplate = getDialPlanContext().getDefaultDialPlanId();
-            setTemplate(defaultTemplate);
+            // Get the name of the template corresponding to the current region
+            LocalizationContext localizationContext = getLocalizationContext();
+            if (localizationContext != null) {
+                String id = localizationContext.getCurrentRegionId();
+                if (id != null) {
+                    setTemplate(id + ".dialPlan");
+                }
+            }
         }
     }
 
@@ -37,8 +46,12 @@ public abstract class ResetDialPlan extends PageWithCallback implements PageBegi
     }
 
     public void reset(IRequestCycle cycle) {
-        DialPlanContext manager = getDialPlanContext();
-        manager.resetToFactoryDefault(getTemplate());
+        String defaultTemplate = getTemplate();
+        if (defaultTemplate == null) {
+            getDialPlanContext().resetToFactoryDefault();
+        } else {
+            getDialPlanContext().resetToFactoryDefault(defaultTemplate);
+        }
         getCallback().performCallback(cycle);
     }
 }
