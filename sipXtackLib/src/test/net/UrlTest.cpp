@@ -573,14 +573,14 @@ public:
 
    void testNoAngleParam()
       {
-         const char *szUrl = "sip:tester@sipfoundry.org;foo=bar";
+         UtlString szUrl("sip:tester@sipfoundry.org;foo=bar");
 
          Url url(szUrl);
-         sprintf(msg, "parameter without angle brackets %s", szUrl);
+         sprintf(msg, "parameter without angle brackets %s", szUrl.data());
          ASSERT_STR_EQUAL_MESSAGE(msg, MISSING_PARAM, getParam("foo", url));
          ASSERT_STR_EQUAL_MESSAGE(msg, "bar", getFieldParam("foo", url));
 
-         Url requrl(szUrl, TRUE);
+         Url requrl(szUrl, Url::AddrSpec);
          ASSERT_STR_EQUAL_MESSAGE(msg, "bar", getParam("foo", requrl));
          ASSERT_STR_EQUAL_MESSAGE(msg, MISSING_PARAM, getFieldParam("foo", requrl));
       }
@@ -817,16 +817,16 @@ public:
         ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20>;f1=fv1",
                          toString(url));
         
-        url.setFieldParameter("f1", "fv2");
-        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20>;f1=fv1;f1=fv2",
+        url.setFieldParameter("f2", "fv2");
+        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20>;f1=fv1;f2=fv2",
                          toString(url));
         
         url.setHeaderParameter("route", "rt1");
-        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20&route=rt1>;f1=fv1;f1=fv2",
+        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20&route=rt1>;f1=fv1;f2=fv2",
                          toString(url));
         
         url.setHeaderParameter("ROUTE", "rt2,rt1");
-        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20&ROUTE=rt2%2Crt1>;f1=fv1;f1=fv2",
+        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20&ROUTE=rt2%2Crt1>;f1=fv1;f2=fv2",
                          toString(url));
         
 
@@ -852,11 +852,17 @@ public:
     // Test that removeUrlParameter is case-insensitive in parameter names.
     void testRemoveUrlParameterCase()
     {
-        Url url1("<sip:600-3@cdhcp139.pingtel.com;q=0.8>");
-        url1.removeUrlParameter("q");
+       Url url0("<sip:600-3@cdhcp139;q=0.8>");
+       url0.removeUrlParameter("q");
 
-        ASSERT_STR_EQUAL("sip:600-3@cdhcp139.pingtel.com",
-                         toString(url1));
+       ASSERT_STR_EQUAL("sip:600-3@cdhcp139",
+                        toString(url0));
+
+       Url url1("<sip:600-3@cdhcp139.pingtel.com;q=0.8>");
+       url1.removeUrlParameter("q");
+
+       ASSERT_STR_EQUAL("sip:600-3@cdhcp139.pingtel.com",
+                        toString(url1));
 
         Url url2("<sip:600-3@cdhcp139.pingtel.com;q=0.8;z=q>");
         url2.removeUrlParameter("Q");

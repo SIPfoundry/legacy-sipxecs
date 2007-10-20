@@ -11,8 +11,6 @@
 #define URLMAPPING_H
 
 // SYSTEM INCLUDES
-//#include <...>
-
 // APPLICATION INCLUDES
 #include <os/OsDefs.h>
 #include "os/OsStatus.h"
@@ -21,56 +19,6 @@
 #include "digitmaps/Patterns.h"
 
 // DEFINES
-#define XML_TAG_MAPPINGS            "mappings"
-
-#define XML_TAG_HOSTMATCH           "hostMatch"
-#define XML_TAG_HOSTPATTERN         "hostPattern"
-#define XML_ATT_FORMAT              "format"
-#define XML_SYMBOL_URL              "url"
-#define XML_SYMBOL_IPV4SUBNET       "IPv4subnet"
-#define XML_SYMBOL_DNSWILDCARD      "DnsWildcard"
-
-#define XML_TAG_USERMATCH           "userMatch"
-#define XML_TAG_USERPATTERN         "userPattern"
-
-#define XML_TAG_PERMISSIONMATCH     "permissionMatch"
-#define XML_TAG_PERMISSION          "permission"
-#define XML_ATT_AUTHTYPE            "authType"
-
-#define XML_PERMISSION_911          "emergency-dialing"
-#define XML_PERMISSION_1800         "1800-dialing"
-#define XML_PERMISSION_1900         "1900-dialing"
-#define XML_PERMISSION_1877         "1877-dialing"
-#define XML_PERMISSION_1888         "1888-dialing"
-#define XML_PERMISSION_1            "domestic-dialing"
-#define XML_PERMISSION_011          "international-dialing"
-
-#define XML_TAG_TRANSFORM           "transform"
-#define XML_TAG_URL                 "url"
-#define XML_TAG_HOST                "host"
-#define XML_TAG_USER                "user"
-#define XML_TAG_FIELDPARAMS         "fieldparams"
-#define XML_TAG_URLPARAMS           "urlparams"
-#define XML_TAG_HEADERPARAMS        "headerparams"
-
-#define XML_SYMBOL_USER             "{user}"
-#define XML_SYMBOL_USER_ESCAPED     "{user-escaped}"
-#define XML_SYMBOL_DIGITS           "{digits}"
-#define XML_SYMBOL_DIGITS_ESCAPED   "{digits-escaped}"
-#define XML_SYMBOL_HOST             "{host}"
-#define XML_SYMBOL_HEADERPARAMS     "{headerparams}"
-#define XML_SYMBOL_URLPARAMS        "{urlparams}"
-#define XML_SYMBOL_URI              "{uri}"
-#define XML_SYMBOL_LOCALHOST        "{localhost}"
-#define XML_SYMBOL_MEDIASERVER      "{mediaserver}"
-#define XML_SYMBOL_VOICEMAIL        "{voicemail}"
-#define XML_SYMBOL_VDIGITS          "{vdigits}"
-#define XML_SYMBOL_VDIGITS_ESCAPED  "{vdigits-escaped}"
-
-class TiXmlNode;
-class Url;
-class RegEx;
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -78,7 +26,33 @@ class RegEx;
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class TiXmlNode;
+class Url;
+class RegEx;
 
+/**
+ * This class interprets the rules encoded by two XML schemas (see
+ * the description elements in the schema files for the structure and
+ * contents of the files):
+ *
+ * - AuthRules: sipXcommserverLib/meta/authrules.xml
+ *   Specifies a set of rules for what permissions are required to send a
+ *   request to a particular target URI.  In this mode, the permissions
+ *   returned (see getPermissionRequired) must be checked against those
+ *   that the authorizing party has - if the authorizing party has any one
+ *   of the required permissions, then the call is allowed.  This mode is
+ *   is used in the proxy (specifically the EnforceAuthRules AuthPlugin).
+ *
+ * - MappingRules: sipXcommserverLib/meta/urlmap.xml
+ *   Specifies a set of rules for transforming a target URI into one or
+ *   more new targets.  In this mode, the permissions returned (see
+ *   getContactList) must be checked against those that the target has.
+ *   In this mode, 'capabilities' or 'attributes' would better describe
+ *   the real function of the 'permissions'; if the target has any one
+ *   of the 'permissions', then the contact set is used.  This mode is
+ *   is used in the redirect server (specifically the SipRedirectorMapping
+ *   plugin).
+ */
 class UrlMapping
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -93,27 +67,26 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
+    /// Read a mappings file into the XML DOM, providing translations for replacement tokens.
     OsStatus loadMappings(
         const UtlString& configFileName,
         const UtlString& mediaserver = "",
         const UtlString& voicemail = "",
-        const UtlString& localhost = "");
-
-    OsStatus loadMappingsString(
-        const UtlString& contents,
-        const UtlString& mediaserver = "",
-        const UtlString& voicemail = "",
-        const UtlString& localhost = "");
+        const UtlString& localhost = ""
+                          );
 
 /* ============================ ACCESSORS ================================= */
 
-    OsStatus getPermissionRequired(
-        const Url& requestUri,
-        ResultSet& rPermissions);
+    /// Evaluate a request URI using authrules semantics, and return the set of permissions.
+    OsStatus getPermissionRequired(const Url& requestUri,  ///< target to check
+                                   ResultSet& rPermissions ///< required permissions (or'ed) 
+                                   );
 
-    OsStatus getContactList(const Url& requestUri,
-        ResultSet& rRegistratons,
-        ResultSet& rPermissions);
+    /// Evaluate a request URI using mapping rules semantics, return contacts and permissions.
+    OsStatus getContactList(const Url& requestUri,   ///< target to check
+                            ResultSet& rContacts,    ///< contacts generated from first match
+                            ResultSet& rPermissions  ///< permissions that target must have
+                            );
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -130,46 +103,61 @@ protected:
     UtlString mMediaServer;
 
     OsStatus parseHostMatchContainer(const Url& requestUri,
-        ResultSet& rRegistratons,
-        UtlBoolean& doTransform,
-        ResultSet& rPermissions,
-        TiXmlNode* mappingsNode,
-        TiXmlNode* previousHostMatchNode = NULL);
+                                     ResultSet& rRegistratons,
+                                     UtlBoolean& doTransform,
+                                     ResultSet& rPermissions,
+                                     TiXmlNode* mappingsNode,
+                                     TiXmlNode* previousHostMatchNode = NULL
+                                     );
 
     OsStatus parseUserMatchContainer(const Url& requestUri,
-        ResultSet& rRegistratons,
-        UtlBoolean& doTransform,
-        ResultSet& rPermissions,
-        TiXmlNode* hostMatchNode,
-        TiXmlNode* previousUserMatchNode = NULL);
+                                     ResultSet& rRegistratons,
+                                     UtlBoolean& doTransform,
+                                     ResultSet& rPermissions,
+                                     TiXmlNode* hostMatchNode,
+                                     TiXmlNode* previousUserMatchNode = NULL
+                                     );
 
     OsStatus parsePermMatchContainer(const Url& requestUri,
-        const UtlString& vdigits,
-        ResultSet& rRegistratons,
-        UtlBoolean& doTransform,
-        ResultSet& rPermissions,
-        TiXmlNode* userMatchNode,
-        TiXmlNode* previousPermMatchNode = NULL);
+                                     const UtlString& vdigits,
+                                     ResultSet& rRegistratons,
+                                     UtlBoolean& doTransform,
+                                     ResultSet& rPermissions,
+                                     TiXmlNode* userMatchNode,
+                                     TiXmlNode* previousPermMatchNode = NULL
+                                     );
 
     OsStatus doTransform(const Url& requestUri,
-        const UtlString& vdigits,
-        ResultSet& rRegistratons,
-        TiXmlNode* permMatchNode);
+                         const UtlString& vdigits,
+                         ResultSet& rRegistratons,
+                         TiXmlNode* permMatchNode
+                         );
 
-    void replaceAll(const UtlString& originalString,
-        UtlString &modifiedString,
-        const UtlString& replaceWhat,
-        const UtlString& replaceWith);
+    /// Get the name/value pair from an element; supports two syntaxes.
+    bool getNamedAttribute(TiXmlElement* component, ///< the xml element to interpret
+                           UtlString&    name,      ///< the content name
+                           UtlString&    value      ///< the content value
+                           );
+    /**<
+     * @returns true iff a name/value pair was found.
+     * Supports two syntaxes; suppose that an attribute 'bar' exists.
+     * It may be encoded in either of two ways:
+     * @code
+     * Old Syntax:
+     *            <foo>bar=value</foo>
+     * New Syntax:
+     *            <foo name='bar'>value</foo>
+     * @endcode
+     * The New syntax is preferred because it eliminates some obnoxious parsing ambiguities.
+     */
 
-   void convertRegularExpression(const UtlString& source, UtlString& regExp);
+    void convertRegularExpression(const UtlString& source,
+                                  UtlString& regExp
+                                  );
 
-   void getVDigits(RegEx& userPattern,
-      UtlString& vdigits);
-
-    void replaceSymbols(const UtlString &string,
-      const Url& requestUri,
-      const UtlString& vdigits,
-      UtlString& modifiedString);
+    void getVDigits(RegEx& userPattern,
+                    UtlString& vdigits
+                    );
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

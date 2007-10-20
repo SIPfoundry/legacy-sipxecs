@@ -143,6 +143,28 @@
     <annotation>
       <documentation>
         The complete output SIP URL.
+        The value is subject to symbol token substitution; certain tokens in
+        the value are replaced with either configuration values or values from
+        the request URI being transformed.
+
+        Configuration tokens - the values for these are taken from system
+        configuration variables (see sipXregistry/registrar-config):
+          {localhost}        
+          {mediaserver}
+          {voicemail}
+
+        Request Uri tokens - values are taken from the request URI being transformed:
+          {user} or {digits} - the userinfo 
+          {user-escaped}     - the userinfo, with HTTP escaping
+          {digits-escaped}   - the userinfo, with HTTP escaping
+          {host}             - the host (and port, if any)
+          {headerparams}     - all headerparams
+          {urlparams}        - all urlparams
+          {uri}              - the entire uri value
+
+          {vdigits}          - the part of the userinfo that matched a variable
+                               portion of a pattern rule.
+          {vdigits-escaped}  - vdigits, with HTTP escaping
       </documentation>
     </annotation>
   </element>
@@ -151,6 +173,7 @@
     <annotation>
       <documentation>
         The user portion of the output SIP URL.
+        The value is subject to symbol token substitution (see the 'url' element).
       </documentation>
     </annotation>
   </element>
@@ -159,63 +182,94 @@
     <annotation>
       <documentation>
         The host portion of the output SIP URL.
+        The value is subject to symbol token substitution (see the 'url' element).
       </documentation>
     </annotation>
   </element>
   
-  <simpleType name='paramString'>
+  <complexType name='attributeModifier'>
     <annotation>
       <documentation>
-        A string which represents a parameter name and its value.
-        The parameter may be a URI parameter, header parameter, or
-        field parameter.  (In RFC 3261 section 25.1 terminology,
-        'uri-parameter', 'header', or 'contact-params'[='generic-param'].)
-        The string consists of a non-empty parameter name, followed by
-        '=', followed by a possibly empty parameter value.
-        The name and value are given as XML content as their underlying
-        character strings, not as escaped for their destination location
-        in the URI -- escaping is the responsibility of the URL mapping
-        processor.
-        (Of course, XML's escaping applies, as it is un-done before the
-        URL mapping processor sees the content.)
-        In addition, the value may contain URL mapping substitutions
-        of the format '{keyword}'.  These are substituted before the
-        value is escaped for insertion into the URI.  (There is no
-        escape mechanism for inserting what appears to be a URL mapping
-        substitution literally into the value.)
+        Provides a name and value for a URL attribute modifier (a urlparams, 
+        fieldparams, or headerparams element).  (In RFC 3261 section 25.1 
+        terminology, 'uri-parameter', 'header', or 'contact-params'[='generic-param'].)
+
+        There are two syntaxes supported; they are distinguished by whether 
+        or not there is a 'name' attribute on the modifier element (see below).  
+
+        In either form, the name and value are given in XML content as 
+        their underlying character strings, not using SIP escaping as they would 
+        appear in the URI -- escaping is the responsibility of the URL mapping
+        processor. (Of course, XML's escaping applies, as it is un-done before
+        the URL mapping processor sees the content.)
+
+        The value may contain URL mapping substitutions of the format '{keyword}'
+        for specific keywords. These are substituted before the value is escaped
+        for insertion into the URI.  (There is no escape mechanism for inserting
+        what appears to be a URL mapping substitution literally into the value.)
+
+        In the perferred syntax, a 'name' attribute specifies the modifier name
+        and the element content is the value.  For example:
+        <![CDATA[
+                  <urlparams name='bar'>value</urlparams>
+        ]]>
+        specifies the parameter "bar=value".
+
+        For backward compatibility, an older form is also allowed in which the 
+        modifier name and value are both provided in the element content, separated
+        by an equals sign:
+        <![CDATA[
+                  <urlparams>bar=value</urlparams>
+        ]]>
         The parameter name is separated from the parameter value by the
-        first '=' in the string.  A consequence  is that the parameter
-        name may not contain '=', although the parameter value may.
-        RFC 3261 allows URI parameter names and header parameter names
-        to contain '=' (which would have to be escaped), but there is
-        no reason to believe that that will ever be used in practice.
+        first '=' in the string.  Note that the parameter name may not
+        contain '=', although the parameter value may.  RFC 3261 allows URI
+        parameter names and header parameter names to contain '=' (which would
+        have to be escaped).  There is no reason to believe that that will ever
+        be used in practice (since it would probably break many parsers), but
+        the preferred syntax handles it more smoothly anyway.
+
+        In either form, the parameter value part may be empty.
+
+        The value is subject to symbol token substitution (see the 'url' element).
       </documentation>
     </annotation>
-    <restriction base='normalizedString'>
-      <pattern value='[^=\n\r]+=.*'/>
-    </restriction>
-  </simpleType>
-
-  <element name='fieldparams' type='dmp:paramString'>
+    <simpleContent>
+      <extension base='normalizedString'>
+        <attribute name='name' type='normalizedString' use='optional'/>
+      </extension>
+    </simpleContent>
+  </complexType>
+    
+  <element name='fieldparams' type='dmp:attributeModifier'>
     <annotation>
       <documentation>
         A field parameter to be set on the output SIP URL.
+        See documentation of attributeModifier.
+
+        The value is subject to symbol token substitution (see the 'url' element).
       </documentation>
     </annotation>
   </element>
   
-  <element name='headerparams' type='dmp:paramString'>
+  <element name='headerparams' type='dmp:attributeModifier'>
     <annotation>
       <documentation>
         A header parameter to be set on the output SIP URL.
+        See  documentation of attributeModifier.
+
+        The value is subject to symbol token substitution (see the 'url' element).
       </documentation>
     </annotation>
   </element>
   
-  <element name='urlparams' type='dmp:paramString'>
+  <element name='urlparams' type='dmp:attributeModifier'>
     <annotation>
       <documentation>
         A URL parameter to be set on the output SIP URL.
+        See documentation of attributeModifier.
+
+        The value is subject to symbol token substitution (see the 'url' element).
       </documentation>
     </annotation>
   </element>

@@ -13,15 +13,20 @@
 
 
 // APPLICATION INCLUDES
+#include <os/OsSysLog.h>
+
+#include <utl/UtlString.h>
 #include <utl/UtlRegex.h>
 #include <utl/UtlTokenizer.h>
-#include <os/OsSysLog.h>
+
 #include <net/Url.h>
 #include <net/SipMessage.h>
+
 #include <digitmaps/UrlMapping.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
+// CONSTANTS
 static UtlString cUriKey("uri");
 static UtlString cCallidKey("callid");
 static UtlString cContactKey("contact");
@@ -29,7 +34,283 @@ static UtlString cExpiresKey("expires");
 static UtlString cCseqKey("cseq");
 static UtlString cQvalueKey("qvalue");
 
-// CONSTANTS
+const char* XML_TAG_MAPPINGS             = "mappings";
+
+const char* XML_TAG_HOSTMATCH            = "hostMatch";
+const char* XML_TAG_HOSTPATTERN          = "hostPattern";
+const char* XML_ATT_FORMAT               = "format";
+const char* XML_SYMBOL_URL               = "url";
+const char* XML_SYMBOL_IPV4SUBNET        = "IPv4subnet";
+const char* XML_SYMBOL_DNSWILDCARD       = "DnsWildcard";
+
+const char* XML_TAG_USERMATCH            = "userMatch";
+const char* XML_TAG_USERPATTERN          = "userPattern";
+
+const char* XML_TAG_PERMISSIONMATCH      = "permissionMatch";
+const char* XML_TAG_PERMISSION           = "permission";
+const char* XML_ATT_AUTHTYPE             = "authType";
+
+const char* XML_PERMISSION_911           = "emergency-dialing";
+const char* XML_PERMISSION_1800          = "1800-dialing";
+const char* XML_PERMISSION_1900          = "1900-dialing";
+const char* XML_PERMISSION_1877          = "1877-dialing";
+const char* XML_PERMISSION_1888          = "1888-dialing";
+const char* XML_PERMISSION_1             = "domestic-dialing";
+const char* XML_PERMISSION_011           = "international-dialing";
+
+const char* XML_TAG_TRANSFORM            = "transform";
+const char* XML_TAG_URL                  = "url";
+const char* XML_TAG_HOST                 = "host";
+const char* XML_TAG_USER                 = "user";
+const char* XML_TAG_FIELDPARAMS          = "fieldparams";
+const char* XML_TAG_URLPARAMS            = "urlparams";
+const char* XML_TAG_HEADERPARAMS         = "headerparams";
+
+
+// Constants used in SymbolMap for parsing replacement tokens
+const char* XML_ATTRIBUTE_NAME           = "name";
+const char* EQUAL_SIGN                   = "=";
+
+const char* SIP_PARAMETER_TRANSPORT      = "transport";
+
+const char* XML_SYMBOL_USER              = "{user}";
+const char* XML_SYMBOL_USER_ESCAPED      = "{user-escaped}";
+const char* XML_SYMBOL_DIGITS            = "{digits}";
+const char* XML_SYMBOL_DIGITS_ESCAPED    = "{digits-escaped}";
+const char* XML_SYMBOL_HOST              = "{host}";
+const char* XML_SYMBOL_HEADERPARAMS      = "{headerparams}";
+const char* XML_SYMBOL_URLPARAMS         = "{urlparams}";
+const char* XML_SYMBOL_URI               = "{uri}";
+const char* XML_SYMBOL_LOCALHOST         = "{localhost}";
+const char* XML_SYMBOL_MEDIASERVER       = "{mediaserver}";
+const char* XML_SYMBOL_VOICEMAIL         = "{voicemail}";
+const char* XML_SYMBOL_VDIGITS           = "{vdigits}";
+const char* XML_SYMBOL_VDIGITS_ESCAPED   = "{vdigits-escaped}";
+
+const RegEx ComponentSymbols(
+   "{(?:user(?:-escaped)?|digits(?:-escaped)?|host|(?:header|url)?params)}"
+                             );
+/*
+ * The SymbolMap class encapsulates the replacement of all the magic tokens
+ * that may be used in transform value content.
+ */
+class SymbolMap 
+{
+private:   
+   UtlString mReplacementMediaserver;
+   UtlString mReplacementVoicemail;
+   UtlString mReplacementLocalhost;
+
+   Url       mOriginalUrl;
+
+   bool      mComponentsBuilt; ///< user and host
+   UtlString mReplacementUser;
+   UtlString mReplacementUserEscaped;
+   UtlString mReplacementHost;
+
+   bool      mUrlParamsBuilt;
+   UtlString mReplacementUrlParams;
+
+   bool      mHeaderParamsBuilt;
+   UtlString mReplacementHeaderParams;
+
+   void replaceEach(UtlString& value,
+                    const UtlString& replaceWhat,
+                    const UtlString& replaceWith)
+      {
+#        ifdef REPLACE_TEST
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "UrlMapping SymbolMap::replaceEach('%s', '%s', '%s')",
+                       value.data(), replaceWhat.data(), replaceWith.data());
+#        endif // REPLACE_TEST
+
+         UtlString modifiedString;
+         size_t lastIndex;
+         size_t index;
+         for ( index = 0, lastIndex = 0;
+               (index = value.index(replaceWhat, lastIndex, UtlString::ignoreCase)) != UTL_NOT_FOUND;
+               lastIndex = index+replaceWhat.length()
+              )
+         {
+            modifiedString.append(value, lastIndex, index-lastIndex);
+            modifiedString.append(replaceWith);
+         }
+
+         if (lastIndex < value.length())
+         {
+            modifiedString.append(value, lastIndex, UtlString::UTLSTRING_TO_END);
+         }
+
+         value = modifiedString;
+      }
+
+   void buildComponents()
+      {
+         mOriginalUrl.getUserId(mReplacementUser);
+
+         mReplacementUserEscaped = mReplacementUser;
+         HttpMessage::escape(mReplacementUserEscaped);
+
+         mOriginalUrl.getHostWithPort(mReplacementHost);
+
+         mComponentsBuilt = true;
+      }
+
+   void buildUrlParams()
+      {
+         int iEntries = 0;
+         // find out how many parameters there are...
+         mOriginalUrl.getUrlParameters(0, NULL, NULL, iEntries) ;
+         // construct a string with all url parameters
+         if (iEntries > 0)
+         {
+            UtlString pNames[iEntries];
+            UtlString pValues[iEntries];
+
+            mOriginalUrl.getUrlParameters(iEntries, pNames, pValues, iEntries) ;
+            for(int i=0; i < iEntries; i++)
+            {
+               if( i != 0)
+               {
+                  mReplacementUrlParams.append(";");
+               }
+               mReplacementUrlParams.append(pNames[i]);
+               mReplacementUrlParams.append("=");
+               mReplacementUrlParams.append(pValues[i]);
+            }
+         }
+         mUrlParamsBuilt = true;
+      }
+
+   void buildHeaderParams()
+      {
+         int iEntries = 0;
+         // find out how many parameters there are...
+         mOriginalUrl.getHeaderParameters(0, NULL, NULL, iEntries) ;
+         // construct a string with all url parameters
+         if (iEntries > 0)
+         {
+            UtlString pNames[iEntries];
+            UtlString pValues[iEntries];
+
+            mOriginalUrl.getHeaderParameters(iEntries, pNames, pValues, iEntries) ;
+            for(int i=0; i < iEntries; i++)
+            {
+               if( i != 0)
+               {
+                  mReplacementHeaderParams.append(";");
+               }
+               mReplacementHeaderParams.append(pNames[i]);
+               mReplacementHeaderParams.append("=");
+               mReplacementHeaderParams.append(pValues[i]);
+            }
+         }
+         mHeaderParamsBuilt = true;
+      }
+
+public:
+   SymbolMap(const Url& original,
+             const UtlString& mediaserver,
+             const UtlString& voicemail,
+             const UtlString& localhost
+             )
+      : mReplacementMediaserver(mediaserver)
+      , mReplacementVoicemail(voicemail)
+      , mReplacementLocalhost(localhost)
+      , mOriginalUrl(original)
+      , mComponentsBuilt(false)
+      , mUrlParamsBuilt(false)
+      , mHeaderParamsBuilt(false)
+      {
+      }
+
+   void replace(UtlString&       value,
+                const UtlString& vdigits                
+                )
+      {
+#        ifdef REPLACE_TEST
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "UrlMapping SymbolMap::replace('%s', '%s')",
+                       value.data(), vdigits.data());
+#        endif // REPLACE_TEST         
+
+         if (value.contains(XML_SYMBOL_MEDIASERVER))
+         {
+            replaceEach(value, XML_SYMBOL_MEDIASERVER, mReplacementMediaserver);
+         }
+         if (value.contains(XML_SYMBOL_VOICEMAIL))
+         {
+            replaceEach(value, XML_SYMBOL_VOICEMAIL,   mReplacementVoicemail);
+         }
+         if (value.contains(XML_SYMBOL_LOCALHOST))
+         {         
+            replaceEach(value, XML_SYMBOL_LOCALHOST,   mReplacementLocalhost);
+         }
+         if (value.contains(XML_SYMBOL_URI))
+         {
+            UtlString replacementUri;
+            mOriginalUrl.toString(replacementUri);
+            replaceEach(value, XML_SYMBOL_URI,         replacementUri);
+         }
+
+         if (value.contains(XML_SYMBOL_VDIGITS))
+         {
+            replaceEach(value, XML_SYMBOL_VDIGITS,         vdigits);
+         }
+         if (value.contains(XML_SYMBOL_VDIGITS_ESCAPED))
+         {
+            UtlString vdigitsEscaped = vdigits ;
+            HttpMessage::escape(vdigitsEscaped);
+            replaceEach(value, XML_SYMBOL_VDIGITS_ESCAPED, vdigitsEscaped);
+         }
+
+         RegEx componentSymbols(ComponentSymbols);
+         if (componentSymbols.Search(value))
+         {
+            if (!mComponentsBuilt)
+            {
+               buildComponents();
+            }
+
+            if (value.contains(XML_SYMBOL_USER))
+            {
+               replaceEach(value, XML_SYMBOL_USER,            mReplacementUser);
+            }
+            if (value.contains(XML_SYMBOL_USER_ESCAPED))
+            {
+               replaceEach(value, XML_SYMBOL_USER_ESCAPED,    mReplacementUserEscaped);
+            }
+            if (value.contains(XML_SYMBOL_DIGITS))
+            {
+               replaceEach(value, XML_SYMBOL_DIGITS,          mReplacementUser);
+            }
+            if (value.contains(XML_SYMBOL_DIGITS_ESCAPED))
+            {
+               replaceEach(value, XML_SYMBOL_DIGITS_ESCAPED,  mReplacementUserEscaped);
+            }
+            if (value.contains(XML_SYMBOL_HOST))
+            {
+               replaceEach(value, XML_SYMBOL_HOST,            mReplacementHost);
+            }
+         }
+
+         if (value.contains(XML_SYMBOL_URLPARAMS))
+         {
+            if (!mUrlParamsBuilt)
+            {
+               buildUrlParams();
+            }
+            replaceEach(value, XML_SYMBOL_URLPARAMS,          mReplacementUrlParams);
+         }
+
+         if (value.contains(XML_SYMBOL_HEADERPARAMS))
+         {
+            if (!mHeaderParamsBuilt)
+            {
+               buildHeaderParams();
+            }
+            replaceEach(value, XML_SYMBOL_HEADERPARAMS,       mReplacementHeaderParams);
+         }
+      }
+};
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -116,57 +397,6 @@ UrlMapping::loadMappings(const UtlString& configFileName,
     return currentStatus;
 }
 
-OsStatus
-UrlMapping::loadMappingsString(const UtlString& contents,
-                               const UtlString& mediaserver,
-                               const UtlString& voicemail,
-                               const UtlString& localhost)
-{
-    OsStatus currentStatus = OS_SUCCESS;
-
-    if (mDoc != NULL)
-    {
-       delete mDoc ;
-    }
-
-    if (mPatterns != NULL)
-    {
-       delete mPatterns ;
-    }
-    mPatterns = new Patterns() ;
-
-    mDoc = new TiXmlDocument();
-    if (mDoc->Parse(contents.data()))
-    {
-       OsSysLog::add(FAC_SIP, PRI_INFO, "UrlMapping::loadMappingsString - "
-                     "loaded");
-
-       currentStatus = OS_SUCCESS;
-
-       if(!voicemail.isNull())
-       {
-          mVoicemail.append(voicemail);
-       }
-       
-       if(!localhost.isNull())
-       {
-          mLocalhost.append(localhost);
-       }
-
-       if(!mediaserver.isNull())
-       {
-          mMediaServer.append(mediaserver);
-       }
-    }
-    else
-    {
-       OsSysLog::add( FAC_SIP, PRI_ERR, "UrlMapping::loadMappingsString - "
-                     "failed to load" );
-       currentStatus = OS_NOT_FOUND;
-    }
-
-    return currentStatus;
-}
 
 /* ============================ ACCESSORS ================================= */
 
@@ -182,7 +412,7 @@ UrlMapping::getPermissionRequired(const Url& requestUri,
     if (!mPrevMappingNode)
     {
         OsSysLog::add( FAC_SIP, PRI_ERR, "UrlMapping::getPermissionRequired - "
-                       "No " XML_TAG_MAPPINGS " node");
+                      "No '%s' node",  XML_TAG_MAPPINGS);
         return OS_FILE_READ_FAILED;
     }
 
@@ -196,10 +426,10 @@ UrlMapping::getPermissionRequired(const Url& requestUri,
 
     UtlBoolean doTransform = false;
 
-    ResultSet registrations;
+    ResultSet contacts;
 
     currentStatus = parseHostMatchContainer(requestUri,
-                                            registrations,
+                                            contacts,
                                             doTransform,
                                             rPermissions,
                                             mPrevMappingNode);
@@ -209,7 +439,7 @@ UrlMapping::getPermissionRequired(const Url& requestUri,
 
 OsStatus
 UrlMapping::getContactList(const Url& requestUri,
-                           ResultSet& rRegistrations,
+                           ResultSet& rContacts,
                            ResultSet& rPermissions )
 {
     OsStatus currentStatus = OS_FAILED;
@@ -220,7 +450,7 @@ UrlMapping::getContactList(const Url& requestUri,
     if (!mPrevMappingNode)
     {
         OsSysLog::add( FAC_SIP, PRI_ERR, "UrlMapping::getContactList - "
-                      "No " XML_TAG_MAPPINGS " node");
+                      "No '%s' node",  XML_TAG_MAPPINGS);
         return OS_FILE_READ_FAILED;
     }
     mPrevMappingElement = mPrevMappingNode->ToElement();
@@ -234,7 +464,7 @@ UrlMapping::getContactList(const Url& requestUri,
     UtlBoolean doTransform = true;
 
     currentStatus = parseHostMatchContainer(requestUri,
-                                            rRegistrations,
+                                            rContacts,
                                             doTransform,
                                             rPermissions,
                                             mPrevMappingNode);
@@ -244,7 +474,7 @@ UrlMapping::getContactList(const Url& requestUri,
 
 OsStatus
 UrlMapping::parseHostMatchContainer(const Url& requestUri,
-                                    ResultSet& rRegistrations,
+                                    ResultSet& rContacts,
                                     UtlBoolean& doTransform,
                                     ResultSet& rPermissions,
                                     TiXmlNode* mappingsNode,
@@ -346,7 +576,7 @@ UrlMapping::parseHostMatchContainer(const Url& requestUri,
                          {
                             mPrevHostMatchNode = hostMatchNode;
                             userMatchFound = parseUserMatchContainer(requestUri,
-                                                                     rRegistrations,
+                                                                     rContacts,
                                                                      doTransform,
                                                                      rPermissions,
                                                                      hostMatchNode);
@@ -363,7 +593,7 @@ UrlMapping::parseHostMatchContainer(const Url& requestUri,
 
 OsStatus
 UrlMapping::parseUserMatchContainer(const Url& requestUri,
-                                    ResultSet& rRegistrations,
+                                    ResultSet& rContacts,
                                     UtlBoolean& doTransform,
                                     ResultSet& rPermissions,
                                     TiXmlNode* hostMatchNode, //parent node
@@ -416,7 +646,7 @@ UrlMapping::parseUserMatchContainer(const Url& requestUri,
                             userMatchFound = true;
                             permssionMatchFound = parsePermMatchContainer(requestUri,
                                                                           vdigits,
-                                                                          rRegistrations,
+                                                                          rContacts,
                                                                           doTransform,
                                                                           rPermissions,
                                                                           userMatchNode);
@@ -434,7 +664,7 @@ UrlMapping::parseUserMatchContainer(const Url& requestUri,
 OsStatus
 UrlMapping::parsePermMatchContainer(const Url& requestUri,
                                     const UtlString& vdigits,
-                                    ResultSet& rRegistrationResultSet,
+                                    ResultSet& rContactResultSet,
                                     UtlBoolean& doTransformTag,
                                     ResultSet& rPermissions,
                                     TiXmlNode* userMatchNode,   //parent node
@@ -508,7 +738,7 @@ UrlMapping::parsePermMatchContainer(const Url& requestUri,
                 //go ahead and get the transform tag
                 doTransformStatus = doTransform(requestUri,
                                                 vdigits,
-                                                rRegistrationResultSet,
+                                                rContactResultSet,
                                                 permMatchNode);
              }
              else if(!permNodePresent || permissionFound)
@@ -524,245 +754,276 @@ UrlMapping::parsePermMatchContainer(const Url& requestUri,
 OsStatus
 UrlMapping::doTransform(const Url& requestUri,
                         const UtlString& vdigits,
-                        ResultSet& rRegistrations,
+                        ResultSet& rContacts,
                         TiXmlNode* permMatchNode)
 {
-    OsStatus currentStatus = OS_FAILED;
-    TiXmlElement* permissionMatchElement  = permMatchNode->ToElement();
-    TiXmlNode* transformNode = NULL;
+   OsStatus returnStatus = OS_FAILED;  // will remain so unless at least one transform is valid
 
-    UtlString requestUriStr;
-    UtlString tempContact;
-    TiXmlNode* urlText = NULL;
-    requestUri.toString(requestUriStr);
-    //get the user text value from it
-    for( transformNode = permissionMatchElement->FirstChild( XML_TAG_TRANSFORM);
-         transformNode;
-         transformNode = transformNode->NextSibling(XML_TAG_TRANSFORM ) )
-    {
-       currentStatus = OS_SUCCESS;
-       if(transformNode && transformNode->Type() == TiXmlNode::ELEMENT)
-       {
-          TiXmlElement* transformElement = transformNode->ToElement();
-          UtlBoolean urlTagFound = false;
-          // URL Tag
-          urlText = transformElement->FirstChild(XML_TAG_URL);
-          if(urlText)
-          {
-             TiXmlNode* transformText = urlText->FirstChild();
-             if(transformText && transformText->Type() == TiXmlNode::TEXT)
-             {
-                TiXmlText* XmlUrl = transformText->ToText();
-                if (XmlUrl)
-                {
-                   UtlString url = XmlUrl->Value();
-                   UtlString modfiedUrl;
-                   replaceSymbols( url.data(), requestUri, vdigits, modfiedUrl );
-                   tempContact.append(modfiedUrl);
-                }
-             }
-             urlTagFound = true;
-          }
+   // create the mapping for all the magic replacement tokens
+   SymbolMap symbols(requestUri, mMediaServer, mVoicemail, mLocalhost);
 
-          if(!urlTagFound)
-          {
-             Url tempContactUrl(requestUriStr);
-             UtlString transformHost;
-             UtlString transformUser;
-             //host Tag
-             urlText = transformElement->FirstChild(XML_TAG_HOST);
-             if(urlText)
-             {
-                TiXmlNode* transformText = urlText->FirstChild();
-                if(transformText && transformText->Type() == TiXmlNode::TEXT)
-                {
-                   TiXmlText* Xmlhost = transformText->ToText();
-                   if (Xmlhost)
-                   {
-                      UtlString host = Xmlhost->Value();
+   // loop over all transform elements - for each valid one, insert a contact into rContacts
+   TiXmlElement* permissionMatchElement  = permMatchNode->ToElement();
+   TiXmlNode* transformNode;
+   for (transformNode = permissionMatchElement->FirstChild(XML_TAG_TRANSFORM);
+        transformNode;
+        transformNode = transformNode->NextSibling(XML_TAG_TRANSFORM)
+        )
+   {
+      if(transformNode->Type() == TiXmlNode::ELEMENT)
+      {
+         Url transformedUrl(requestUri); // copy to modify
+       
+         /*
+          * The transformState governs what sub-elements of a transform are valid;
+          * order is significant.
+          */
+         enum {
+            NoTransformsApplied,// any subelement is valid - initial state
 
-                      UtlString modfiedHost;
-                      replaceSymbols(host.data(), requestUri,vdigits, modfiedHost);
+            // the next 5 define the order for the component modifier elements
+            UserTransformed,    // there may be only one user element
+            HostTransformed,    // there may be only one host element
+            UrlParamAdded,      // there may be multiple urlparams elements
+            HeaderParamAdded,   // there may be multiple headerparams elements
+            FieldParamAdded,    // there may be multiple fieldparams elements
 
-                      UtlString tempHost;
-                      Url temp(modfiedHost);
-                      temp.getHostAddress(tempHost);
-                      int tempPort = temp.getHostPort();
+            // if the url element is used, then none of above are allowed
+            FullUrlTransformed, // if used, the url element must be the only transform subnode
 
-                      tempContactUrl.setHostAddress(tempHost);
-                      if( tempPort != 0)
-                      {
-                         tempContactUrl.setHostPort(tempPort);
-                      }
-                      // We have changed the domain; any transport restriction in the 
-                      // original uri may now not match the capabilities of the new domain,
-                      // so remove it.  The urlParams attribute can put in a new one if needed.
-                      tempContactUrl.removeUrlParameter("transport");
-                   }
-                }
-             }
-             // User tag
-             urlText = transformElement->FirstChild(XML_TAG_USER);
-             if(urlText)
-             {
-                TiXmlNode* transformText = urlText->FirstChild();
-                if(transformText && transformText->Type() == TiXmlNode::TEXT)
-                {
-                   TiXmlText* XmlUser = transformText->ToText();
-                   if (XmlUser)
-                   {
-                      UtlString user = XmlUser->Value();
-                      UtlString modfiedUserId;
-                      replaceSymbols(user.data(), requestUri, vdigits, modfiedUserId);
-                      tempContactUrl.setUserId(modfiedUserId);
-                   }
-                }
-             }
-             // Field parameters Tag
-             UtlString name;
-             UtlString value;
-             urlText = transformElement->FirstChild(XML_TAG_FIELDPARAMS);
-             if(urlText)
-             {
-                TiXmlNode* transformText = urlText->FirstChild();
-                if(transformText && transformText->Type() == TiXmlNode::TEXT)
-                {
-                   TiXmlText* Xmlfieldparams = transformText->ToText();
-                   if (Xmlfieldparams)
-                   {
-                      UtlString fieldparams = Xmlfieldparams->Value();
-                      UtlString modFP;
-                      replaceSymbols(fieldparams.data(), requestUri, vdigits, modFP);
-                      //separate each name value pair and check for symbols to subtitute
-                      UtlTokenizer nameValuePair(modFP);
-                      UtlString token;
-                      while( nameValuePair.next(token, ";") )
-                      {
-                         UtlString temp ;
-                         token = token.strip(UtlString::both);
-                         UtlTokenizer nv(token) ;
-                         nv.next(temp, "=");
-                         name = temp ;
-                         nv.next(temp, "=");
-                         value = temp ;
+            TransformError      // error state - invalid element seen
+         } transformState = NoTransformsApplied;
+    
+         TiXmlNode*    transformSubNode = NULL;
+         while (   (transformState < TransformError)
+                && (transformSubNode = transformNode->IterateChildren(transformSubNode))
+                )
+         {
+            if(transformSubNode->Type() == TiXmlNode::ELEMENT)
+            {
+               TiXmlElement* transformSubElement = transformSubNode->ToElement();
+               UtlString elementType = transformSubElement->Value();
 
-                         tempContactUrl.includeAngleBrackets();
-                         tempContactUrl.setFieldParameter(name , value);
-                      }
-                   }
-                }
-             }
-             // Url parameters Tag
-             urlText = transformElement->FirstChild(XML_TAG_URLPARAMS);
-             if(urlText)
-             {
-                TiXmlNode* transformText = urlText->FirstChild();
-                if(transformText && transformText->Type() == TiXmlNode::TEXT)
-                {
-                   TiXmlText* XmlUrlparams = transformText->ToText();
-                   if (XmlUrlparams)
-                   {
-                      UtlString urlparams = XmlUrlparams->Value();
-                      UtlString modFP;
-                      replaceSymbols(urlparams.data(), requestUri, vdigits, modFP);
-                      //separate each name value pair and check for symbols to subtitute
-                      UtlTokenizer nameValuePair(modFP);
-                      UtlString token;
-                      while( nameValuePair.next(token, ";") )
-                      {
-                         UtlString temp ;
-                         token = token.strip(UtlString::both);
-                         UtlTokenizer nv(token) ;
-                         nv.next(temp, "=");
-                         name = temp ;
-                         nv.next(temp, "=");
-                         value = temp ;
+               if (   (NoTransformsApplied == transformState)
+                   && (elementType.compareTo(XML_TAG_URL) ==0))
+               {
+                  // url element
+                  TiXmlNode* transformText = transformSubElement->FirstChild();
+                  if(transformText && transformText->Type() == TiXmlNode::TEXT)
+                  {
+                     TiXmlText* XmlUrl = transformText->ToText();
+                     if (XmlUrl)
+                     {
+                        UtlString url = XmlUrl->Value();
+                        symbols.replace(url, vdigits);
 
-                         tempContactUrl.setUrlParameter(name , value);
-                      }
-                   }
-                }
-             }
+                        transformedUrl.fromString(url);
+                        if (Url::UnknownUrlScheme != transformedUrl.getScheme())
+                        {
+                           // the transformed url was parsed successfully, so it's probably ok
+                           transformState = FullUrlTransformed;
+                        }
+                        else
+                        {
+                           transformState = TransformError;
+                           OsSysLog::add(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
+                                         "invalid url '%s' from transform url at line %d; "
+                                         "transform not used",
+                                         url.data(), transformSubNode->Row()
+                                         );
+                        }
+                     }
+                  }
+                  else
+                  {
+                     OsSysLog::add(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
+                                   "skipped empty transform url at line %d; ",
+                                   transformSubNode->Row()
+                                   );
+                  }
+               }
+               else if (   (transformState < UserTransformed)
+                        && (elementType.compareTo(XML_TAG_USER)==0))
+               {
+                  // user element
+                  TiXmlNode* transformText = transformSubElement->FirstChild();
+                  if(transformText && transformText->Type() == TiXmlNode::TEXT)
+                  {
+                     TiXmlText* XmlUser = transformText->ToText();
+                     if (XmlUser)
+                     {
+                        UtlString transformUser = XmlUser->Value();
+                        symbols.replace(transformUser, vdigits);
+                        transformedUrl.setUserId(transformUser);
+                        transformState = UserTransformed;
+                     }
+                  }
+               }
+               else if (   (transformState < HostTransformed)
+                        && (elementType.compareTo(XML_TAG_HOST)==0))
+               {
+                  // host element
+                  TiXmlNode* transformText = transformSubElement->FirstChild();
+                  if(transformText && transformText->Type() == TiXmlNode::TEXT)
+                  {
+                     TiXmlText* XmlHost = transformText->ToText();
+                     if (XmlHost)
+                     {
+                        UtlString transformHost = XmlHost->Value();
+                        symbols.replace(transformHost, vdigits);
 
-             // Header parameters Tag
-             urlText = transformElement->FirstChild(XML_TAG_HEADERPARAMS);
-             if(urlText)
-             {
-                TiXmlNode* transformText = urlText->FirstChild();
-                if(transformText && transformText->Type() == TiXmlNode::TEXT)
-                {
-                   TiXmlText* XmlHeaderparams = transformText->ToText();
-                   if (XmlHeaderparams)
-                   {
-                      UtlString headerparams = XmlHeaderparams->Value();
-                      UtlString modHP;
-                      replaceSymbols(headerparams.data(), requestUri, vdigits, modHP);
-                      //separate each name value pair and check for symbols to subtitute
-                      UtlTokenizer nameValuePair(modHP);
-                      UtlString token;
-                      while( nameValuePair.next(token, ";") )
-                      {
-                         UtlString temp ;
-                         token = token.strip(UtlString::both);
-                         UtlTokenizer nv(token) ;
-                         nv.next(temp, "=");
-                         name = temp ;
-                         nv.next(temp, "=");
-                         value = temp ;
+                        UtlString justHost;
+                        Url parsedHostPort(transformHost);
+                        parsedHostPort.getHostAddress(justHost);
 
-                         tempContactUrl.setHeaderParameter(name , value);
-                      }
+                        transformedUrl.setHostAddress(justHost);
+                        transformedUrl.setHostPort(parsedHostPort.getHostPort());
 
-                   }
-                }
-             }
-             tempContactUrl.toString(tempContact);
-          }
+                        // We have changed the domain; any transport restriction in the 
+                        // original uri may now not match the capabilities of the new domain,
+                        // so remove it.  The urlParams attribute can put in a new one if needed.
+                        transformedUrl.removeUrlParameter(SIP_PARAMETER_TRANSPORT);
 
-          OsSysLog::add(FAC_SIP, PRI_DEBUG, "UrlMapping::doTransform "
-                        "tempContact = '%s'", tempContact.data());
+                        transformState = HostTransformed;
+                     }
+                     else
+                     {
+                        OsSysLog::add(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
+                                      "skipped empty host transform at line %d; "
+                                      "host is required in a SIP url",
+                                      transformSubNode->Row()
+                                      );
+                     }
+                  }
+               }
+               else if (   (transformState <= UrlParamAdded)
+                        && (elementType.compareTo(XML_TAG_URLPARAMS)==0))
+               {
+                  // Url parameters Tag
+                  UtlString name;
+                  UtlString value;
+                  if(getNamedAttribute(transformSubElement, name, value))
+                  {
+                     symbols.replace(value, vdigits);
+                     transformedUrl.setUrlParameter(name, value);
+                     transformState = UrlParamAdded;
+                  }
+                  else
+                  {
+                     OsSysLog::add(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
+                                   "invalid urlparams transform at line %d; "
+                                   "transform skipped",
+                                   transformSubNode->Row()
+                                   );
+                     transformState = TransformError;
+                  }
+               }
+               else if (   (transformState <= HeaderParamAdded)
+                        && (elementType.compareTo(XML_TAG_HEADERPARAMS)==0))
+               {
+                  // Header parameters Tag
+                  UtlString name;
+                  UtlString value;
+                  if(getNamedAttribute(transformSubElement, name, value))
+                  {
+                     symbols.replace(value, vdigits);
+                     transformedUrl.setHeaderParameter(name, value);
+                     transformState = HeaderParamAdded;
+                  }
+                  else
+                  {
+                     OsSysLog::add(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
+                                   "invalid headerparams transform at line %d; "
+                                   "transform skipped",
+                                   transformSubNode->Row()
+                                   );
+                     transformState = TransformError;
+                  }
+               }
+               else if (   (transformState <= FieldParamAdded)
+                        && (elementType.compareTo(XML_TAG_FIELDPARAMS)==0))
+               {
+                  // Field parameters Tag
+                  UtlString name;
+                  UtlString value;
+                  if(getNamedAttribute(transformSubElement, name, value))
+                  {
+                     symbols.replace(value, vdigits);
+                     transformedUrl.setFieldParameter(name, value);
+                     transformState = FieldParamAdded;
+                  }
+                  else
+                  {
+                     OsSysLog::add(FAC_SIP, PRI_ERR, "UrlMapping::doTransform "
+                                   "invalid fieldparams transform at line %d; "
+                                   "transform skipped",
+                                   transformSubNode->Row()
+                                   );
+                     transformState = TransformError;
+                  }
+               }
+               else
+               {
+                  OsSysLog::add(FAC_SIP, PRI_ERR,
+                                "UrlMapping::doTransform element '%s' is invalid at line %d",
+                                elementType.data(), transformSubNode->Row()
+                                );
+                  transformState = TransformError;
+               }
+            }
+            else
+            {
+               // non-element transformSubNode - ignore it
+            }
+         } // end of loop over transform sub-elements
+       
+         if (TransformError != transformState)
+         {
+            UtlHashMap contactRow;
+            UtlString* uriValue    = new UtlString ( requestUri.toString() );
+            UtlString* callidValue = new UtlString ( " " );
 
-          UtlHashMap registrationRow;
-          UtlString* uriValue =
-             new UtlString ( requestUri.toString() );
-          UtlString* callidValue =
-             new UtlString ( " " );
-          UtlString* contactValue =
-             new UtlString ( tempContact );
-          UtlInt* expiresValue =
-             new UtlInt ( 0 );
-          UtlInt* cseqValue =
-             new UtlInt ( 0 );
-          UtlString* qvalueValue =
-             new UtlString ( "1.0" );
+            UtlString* contactValue = new UtlString;
+            transformedUrl.toString(*contactValue);
 
-          // Memory Leak fixes, make shallow copies of static keys
-          UtlString* uriKey = new UtlString( cUriKey );
-          UtlString* callidKey = new UtlString( cCallidKey );
-          UtlString* contactKey = new UtlString( cContactKey );
-          UtlString* expiresKey = new UtlString( cExpiresKey );
-          UtlString* cseqKey = new UtlString( cCseqKey );
-          UtlString* qvalueKey = new UtlString( cQvalueKey );
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "UrlMapping::doTransform "
+                          "adding '%s'", contactValue->data());
 
-          registrationRow.insertKeyAndValue (
-             uriKey, uriValue);
-          registrationRow.insertKeyAndValue (
-             callidKey, callidValue);
-          registrationRow.insertKeyAndValue (
-             contactKey, contactValue);
-          registrationRow.insertKeyAndValue (
-             expiresKey, expiresValue);
-          registrationRow.insertKeyAndValue (
-             cseqKey, cseqValue);
-          registrationRow.insertKeyAndValue (
-             qvalueKey, qvalueValue);
+            UtlInt*    expiresValue = new UtlInt ( 0 );
+            UtlInt*    cseqValue    = new UtlInt ( 0 );
+            UtlString* qvalueValue = new UtlString ( "1.0" );
 
-          rRegistrations.addValue( registrationRow );
-          tempContact.remove(0);
-          urlText = NULL;
-       }
-    }
-    return currentStatus;
+            // Make shallow copies of static keys
+            UtlString* uriKey     = new UtlString( cUriKey );
+            UtlString* callidKey  = new UtlString( cCallidKey );
+            UtlString* contactKey = new UtlString( cContactKey );
+            UtlString* expiresKey = new UtlString( cExpiresKey );
+            UtlString* cseqKey    = new UtlString( cCseqKey );
+            UtlString* qvalueKey  = new UtlString( cQvalueKey );
+
+            contactRow.insertKeyAndValue (uriKey, uriValue);
+            contactRow.insertKeyAndValue (callidKey, callidValue);
+            contactRow.insertKeyAndValue (contactKey, contactValue);
+            contactRow.insertKeyAndValue (expiresKey, expiresValue);
+            contactRow.insertKeyAndValue (cseqKey, cseqValue);
+            contactRow.insertKeyAndValue (qvalueKey, qvalueValue);
+
+            rContacts.addValue( contactRow );
+
+            // we found at least one valid transform, so call this good
+            returnStatus = OS_SUCCESS;
+         }
+      }
+      else
+      {
+         // some child other than transform - should not happen, but ignore
+         OsSysLog::add(FAC_SIP, PRI_WARNING,
+                       "UrlMapping::doTransform unrecognized node when fetching transform"
+                       );
+      }
+   } // end of loop over transform elements
+    
+   return returnStatus;
 }
 
 void
@@ -910,185 +1171,54 @@ void UrlMapping::getVDigits(
     }
 }
 
-void
-UrlMapping::replaceAll(const UtlString& originalString ,
-                       UtlString &modifiedString ,
-                       const UtlString& replaceWhat,
-                       const UtlString& replaceWith)
+
+bool UrlMapping::getNamedAttribute(TiXmlElement* component,
+                                   UtlString&    name,
+                                   UtlString&    value
+                                   )
 {
-    UtlString tempString(originalString);
-    modifiedString.append(originalString);
-    unsigned int index = UTL_NOT_FOUND;
-    while ( (index = tempString.index(replaceWhat, 0, UtlString::ignoreCase) ) != UTL_NOT_FOUND)
-    {
-        modifiedString.replace(index, replaceWhat.length(), replaceWith);
-        tempString.remove(0);
-        tempString.append(modifiedString);
-    }
-}
+   bool foundNameValue = false;
 
-/*
-#define XML_SYMBOL_USER             "{user}"
-#define XML_SYMBOL_USER_ESCAPED     "{user-escaped}"
-#define XML_SYMBOL_DIGITS           "{digits}"
-#define XML_SYMBOL_DIGITS_ESCAPED   "{digits-escaped}"
-#define XML_SYMBOL_HOST             "{host}"
-#define XML_SYMBOL_HEADERPARAMS     "{headerparams}"
-#define XML_SYMBOL_URLPARAMS        "{urlparams}"
-#define XML_SYMBOL_URI              "{uri}"
-#define XML_SYMBOL_LOCALHOST        "{localhost}"
-#define XML_SYMBOL_MEDIASERVER      "{mediaserver}"
-#define XML_SYMBOL_VOICEMAIL        "{voicemail}"
-#define XML_SYMBOL_VDIGITS          "{vdigits}"
-#define XML_SYMBOL_VDIGITS_ESCAPED  "{vdigits-escaped}"
-*/
+   name.remove(0);
+   value.remove(0);
 
-void UrlMapping::replaceSymbols(const UtlString &string,
-                                const Url& requestUri,
-                                const UtlString& vdigits,
-                                UtlString& modifiedString)
-{
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "UrlMapping::replaceSymbols string = '%s'", string.data());
+   UtlString componentContent;   // get the content of the element into this
+   TiXmlNode* componentTextNode = component->FirstChild();
+   if(componentTextNode && componentTextNode->Type() == TiXmlNode::TEXT)
+   {
+      TiXmlText* componentText = componentTextNode->ToText();
+      if (componentText)
+      {
+         componentContent = componentText->Value();
+      }
+   }
 
-    UtlString tempString(string);
-    //get original uri
-    UtlString uri;
-    requestUri.toString(uri);
-    //get host port
-    UtlString host;
-    requestUri.getHostAddress(host);
-    int port = requestUri.getHostPort();
-    char buff[16];
-    sprintf(buff, "%d", port);
-    host.append(":");
-    host.append(buff);
-    //get user
-    UtlString user;
-    requestUri.getUserId(user);
-    UtlString user_escaped = user;
-    HttpMessage::escape(user_escaped) ;
-    UtlString vdigits_escaped = vdigits ;
-    HttpMessage::escape(vdigits_escaped);
+   // figure out whether this is the old or new syntax
+   const char* nameAttrValue;
+   if ((nameAttrValue = component->Attribute(XML_ATTRIBUTE_NAME)))
+   {
+      // this is the new syntax: <foo name='bar'>value</foo>
+      name.append(nameAttrValue);
+      value.append(componentContent);
+      foundNameValue = true;
+   }
+   else
+   {
+      // this is the old syntax: <foo>bar=value</foo>
+      size_t equalsOffset = componentContent.index(EQUAL_SIGN);
+      if (UTL_NOT_FOUND != equalsOffset)
+      {
+         name.append(componentContent,0,equalsOffset);
+         value.append(componentContent,equalsOffset+1,UtlString::UTLSTRING_TO_END);
+         foundNameValue = true;
+      }
+      else
+      {
+         // assume that the whole thing is a name (an attribute with no value)
+         name.append(componentContent);
+         foundNameValue = true;
+      }
+   }
 
-    // Figure how many Url parameter entries
-    int iEntries = 0 ;
-    UtlString urlparam;
-    int i = 0;
-    Url tempUrl(requestUri);
-    tempUrl.getUrlParameters(0, NULL, NULL, iEntries) ;
-    //construct a string
-    if (iEntries > 0)
-    {
-        UtlString *pNames = new UtlString[iEntries] ;
-        UtlString *pValues = new UtlString[iEntries] ;
-        tempUrl.getUrlParameters(iEntries, pNames, pValues, iEntries) ;
-        for( i=0; i < iEntries; i++)
-        {
-           if( i != 0)
-           {
-              urlparam.append(";");
-           }
-            urlparam.append(pNames[i]);
-            urlparam.append("=");
-            urlparam.append(pValues[i]);
-        }
-        delete []pValues ;
-        delete []pNames;
-    }
-
-    // get header parameters
-    // Figure how many Url parameter entries
-    iEntries = 0 ;
-    UtlString headerparam;
-    i = 0;
-    tempUrl.getHeaderParameters(0, NULL, NULL, iEntries) ;
-    //construct a string
-    if (iEntries > 0)
-    {
-        UtlString *pNames = new UtlString[iEntries] ;
-        UtlString *pValues = new UtlString[iEntries] ;
-        tempUrl.getHeaderParameters(iEntries, pNames, pValues, iEntries) ;
-        for( i=0; i < iEntries; i++)
-        {
-           if( i != 0)
-           {
-              headerparam.append(";");
-           }
-            headerparam.append(pNames[i]);
-            headerparam.append("=");
-            headerparam.append(pValues[i]);
-        }
-        delete []pValues ;
-        delete []pNames;
-    }
-
-    replaceAll( tempString, modifiedString , XML_SYMBOL_USER , user );
-    tempString.remove(0);
-    tempString.append(modifiedString);
-    modifiedString.remove(0);
-
-    replaceAll( tempString, modifiedString , XML_SYMBOL_USER_ESCAPED , 
-                user_escaped );
-    tempString.remove(0);
-    tempString.append(modifiedString);
-    modifiedString.remove(0);
-
-    replaceAll( tempString, modifiedString, XML_SYMBOL_DIGITS , user);
-    tempString.remove(0);
-    tempString.append(modifiedString);
-    modifiedString.remove(0);
-
-    replaceAll( tempString, modifiedString, XML_SYMBOL_DIGITS_ESCAPED , 
-                user_escaped);
-    tempString.remove(0);
-    tempString.append(modifiedString);
-    modifiedString.remove(0);
-
-    replaceAll( tempString, modifiedString, XML_SYMBOL_HOST , host);
-    tempString.remove(0);
-    tempString.append(modifiedString);
-    modifiedString.remove(0);
-
-    replaceAll( tempString, modifiedString, XML_SYMBOL_HEADERPARAMS , headerparam);
-    tempString.remove(0);
-    tempString.append(modifiedString);
-    modifiedString.remove(0);
-
-    replaceAll( tempString, modifiedString, XML_SYMBOL_URLPARAMS , urlparam);
-    tempString.remove(0);
-    tempString.append(modifiedString);
-    modifiedString.remove(0);
-
-    replaceAll( tempString, modifiedString, XML_SYMBOL_URI , uri);
-    tempString.remove(0);
-    tempString.append(modifiedString);
-    modifiedString.remove(0);
-
-    replaceAll( tempString, modifiedString, XML_SYMBOL_LOCALHOST , mLocalhost);
-    tempString.remove(0);
-    tempString.append(modifiedString);
-    modifiedString.remove(0);
-
-    replaceAll( tempString, modifiedString, XML_SYMBOL_VOICEMAIL , mVoicemail);
-    tempString.remove(0);
-    tempString.append(modifiedString);
-    modifiedString.remove(0);
-
-    replaceAll( tempString, modifiedString, XML_SYMBOL_VDIGITS , vdigits);
-    tempString.remove(0);
-    tempString.append(modifiedString);
-    modifiedString.remove(0);
-
-    replaceAll( tempString, modifiedString, XML_SYMBOL_VDIGITS_ESCAPED , 
-                vdigits_escaped);
-    tempString.remove(0);
-    tempString.append(modifiedString);
-    modifiedString.remove(0);
-
-    replaceAll( tempString, modifiedString, XML_SYMBOL_MEDIASERVER , mMediaServer);
-
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "UrlMapping::replaceSymbols modifiedString = '%s'",
-                  modifiedString.data());
+   return foundNameValue;
 }

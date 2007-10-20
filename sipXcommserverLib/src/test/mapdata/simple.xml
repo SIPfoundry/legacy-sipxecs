@@ -32,7 +32,6 @@
       <userPattern>THATUSER</userPattern>
       <permissionMatch>
         <transform>
-          <!-- the host transform does not seem to work -->
           <host>NewHost</host>
         </transform>
       </permissionMatch>

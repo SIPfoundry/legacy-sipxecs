@@ -3,10 +3,10 @@
   <hostMatch>
     <hostPattern>thisdomain</hostPattern>
     <userMatch>
-      <userPattern>ADDFIELDS</userPattern>
+      <userPattern>ADDFIELD</userPattern>
       <permissionMatch>
         <transform>
-          <fieldparams>NEWFIELDPARAM=FIELDVALUE</fieldparams>
+          <fieldparams name='NEWFIELDPARAM'>FIELDVALUE</fieldparams>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -14,7 +14,7 @@
       <userPattern>ADDURLPARAM</userPattern>
       <permissionMatch>
         <transform>
-          <urlparams>NEWURLPARAM=URLVALUE</urlparams>
+          <urlparams name='NEWURLPARAM'>URLVALUE</urlparams>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -22,7 +22,34 @@
       <userPattern>ADDHEADERPARAM</userPattern>
       <permissionMatch>
         <transform>
+          <headerparams name='NEWHEADERPARAM'>HEADERVALUE</headerparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>ADDTWOFIELDS</userPattern>
+      <permissionMatch>
+        <transform>
+          <fieldparams>NEWFIELDPARAM=FIELDVALUE</fieldparams>
+          <fieldparams name='NOTHERFIELD'>NOTHERVALUE</fieldparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>ADDTWOURLPARAM</userPattern>
+      <permissionMatch>
+        <transform>
+          <urlparams>NEWURLPARAM=URLVALUE</urlparams>
+          <urlparams name='NOTHERURL'>NOTHERVALUE</urlparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>ADDTWOHEADERPARAM</userPattern>
+      <permissionMatch>
+        <transform>
           <headerparams>NEWHEADERPARAM=HEADERVALUE</headerparams>
+          <headerparams name='NOTHERHEADERPARAM'>NOTHERVALUE</headerparams>
         </transform>
       </permissionMatch>
     </userMatch>

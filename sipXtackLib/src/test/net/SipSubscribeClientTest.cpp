@@ -18,6 +18,7 @@
 #include <utl/UtlString.h>
 #include <os/OsDefs.h>
 #include <os/OsDateTime.h>
+#include <os/OsSysLog.h>
 #include <net/SipDialog.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
@@ -78,8 +79,8 @@ static void subStateCallback(SipSubscribeClient::SubscriptionState newState,
                              long expiration,
                              const SipMessage* subscribeResponse)
    {
-      //printf("subStateCallback: %d\n", smNumClientSubResponsesReceived);
       smNumClientSubResponsesReceived++;
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "subStateCallback: smNumClientSubResponsesReceived=%d", smNumClientSubResponsesReceived);
       smClientExpiration = expiration;
       if(smLastClientSubResponseReceived)
       {
@@ -459,8 +460,11 @@ public:
          
          OsTask::delay(1000);   // 1 second to establish dialog and first NOTIFY to arrive
          
-         CPPUNIT_ASSERT(substateRxed + 1 == smNumClientSubResponsesReceived);
-         CPPUNIT_ASSERT(notifiesRxed + 1 == smNumClientNotifiesReceived);
+         // can depend on the ordering of the first NOTIFY and the 202 response to SUBSCRIBE
+         CPPUNIT_ASSERT(   (smNumClientSubResponsesReceived = substateRxed + 1)
+                        || (smNumClientSubResponsesReceived = substateRxed + 2)
+                        );
+         CPPUNIT_ASSERT_EQUAL(notifiesRxed + 1, smNumClientNotifiesReceived);
       }
 
 };

@@ -15,7 +15,8 @@
       <userPattern>9911</userPattern>
       <permissionMatch>
         <transform>
-          <url>sip:911@pstn-gw.example.edu</url>
+          <user>911</user>
+          <host>pstn-gw.example.edu</host>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -38,7 +39,8 @@
       <userPattern>800xxxxxxx.</userPattern>
       <permissionMatch>
         <transform>
-          <url>800{vdigits}@pstn-gw.example.edu</url>
+          <user>800{vdigits}</user>
+          <host>pstn-gw.example.edu</host>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -53,7 +55,8 @@
         <permission>Administration</permission>
         <permission>Faculty</permission>
         <transform>
-          <url>{vdigits}@pstn-gw.example.edu</url>
+          <user>{vdigits}</user>
+          <host>pstn-gw.example.edu</host>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -66,7 +69,8 @@
       <permissionMatch>
         <permission>Administration</permission>
         <transform>
-          <url>011{vdigits}@pstn-gw.example.edu</url>
+          <user>011{vdigits}</user>
+          <host>pstn-gw.example.edu</host>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -80,7 +84,7 @@
       <userPattern>.</userPattern>
       <permissionMatch>
         <transform>
-          <headerparams>route=sbc.example.edu</headerparams>
+          <headerparams name='route'>sbc.example.edu</headerparams>
         </transform>
       </permissionMatch>
     </userMatch>

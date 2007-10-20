@@ -51,7 +51,8 @@
             - {digits} can be used which substitutes the userId
             - part of the incoming request URI.
             -->
-          <url>&lt;sip:{vdigits}@sipx.example.edu</url>
+          <user>{vdigits}</user>
+          <host>sipx.example.edu</host>
         </transform>
 
       </permissionMatch>
