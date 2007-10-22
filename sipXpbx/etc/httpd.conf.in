@@ -1085,7 +1085,6 @@ BrowserMatch "^gnome-vfs" redirect-carefully
 
 # sipX configuration includes
 Include @SIPX_CONFDIR@/httpd-sipxchange-common.conf
-Include @SIPX_CONFDIR@/httpd-sipxchange-configserver.conf
 
 ######
 #
