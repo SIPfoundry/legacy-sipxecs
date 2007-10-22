@@ -10,11 +10,13 @@
     <property name="label" value="sipX Voice Mail" />
     <property name="hostname" value="{mediaserver}" />
     <property name="serverExtension" value="101" />
+    <property name="localizationContext" ref="localizationContext" />
   </bean>
 
   <bean id="exchangeUmMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer"
     singleton="false">
     <property name="label" value="Exchange Voice Mail" />
+    <property name="localizationContext" ref="localizationContext" />
   </bean>
 
   <bean id="mediaServerFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory" singleton="true">

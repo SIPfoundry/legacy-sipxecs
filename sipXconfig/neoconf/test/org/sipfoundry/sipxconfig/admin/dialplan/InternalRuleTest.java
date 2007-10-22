@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHou
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.admin.forwarding.GeneralSchedule;
 import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
+import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.springframework.beans.factory.BeanFactory;
 
@@ -41,6 +42,13 @@ public class InternalRuleTest extends TestCase {
             + URL_PARAMS + "deposit%26mailbox%3D{vdigits-escaped}>;q=0.1";
     private static final String VOICEMAIL_TRANSFER_URL = "<sip:{vdigits}@{mediaserver}"
             + URL_PARAMS + "deposit%26mailbox%3D{vdigits-escaped}>";
+
+    private static final String VOICEMAIL_URL_LANG = "<sip:{digits}@{mediaserver}" + URL_PARAMS
+            + "retrieve%26lang%3Dpl>";
+    private static final String VOICEMAIL_FALLBACK_URL_LANG = "<sip:{vdigits}@{mediaserver}"
+            + URL_PARAMS + "deposit%26mailbox%3D{vdigits-escaped}%26lang%3Dpl>;q=0.1";
+    private static final String VOICEMAIL_TRANSFER_URL_LANG = "<sip:{vdigits}@{mediaserver}"
+            + URL_PARAMS + "deposit%26mailbox%3D{vdigits-escaped}%26lang%3Dpl>";
 
     private static final String TEST_DESCRIPTION = "kuku description";
     private static final String TEST_NAME = "kuku name";
@@ -74,11 +82,16 @@ public class InternalRuleTest extends TestCase {
         ir.setVoiceMailPrefix("7");
         ir.setEnabled(true);
 
+        SipXMediaServer mediaServer = new SipXMediaServer();
+
+        LocalizationContext lc = EasyMock.createNiceMock(LocalizationContext.class);
+        mediaServer.setLocalizationContext(lc);
+
         // configure a mock bean factory that is needed by the MediaServerFactory
         BeanFactory beanFactory = EasyMock.createNiceMock(BeanFactory.class);
         beanFactory.getBean("sipXMediaServer", MediaServer.class);
-        EasyMock.expectLastCall().andReturn(new SipXMediaServer());
-        EasyMock.replay(beanFactory);
+        EasyMock.expectLastCall().andReturn(mediaServer);
+        EasyMock.replay(beanFactory, lc);
 
         MediaServerFactory mediaServerFactory = new MediaServerFactory();
         mediaServerFactory.setBeanFactory(beanFactory);
@@ -112,6 +125,8 @@ public class InternalRuleTest extends TestCase {
         assertEquals(PermissionName.SIPX_VOICEMAIL.getName(), vf.getPermissionNames().get(0));
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
         assertEquals(VOICEMAIL_FALLBACK_URL, tvf.getUrl());
+
+        EasyMock.verify(beanFactory, lc);
     }
 
     public void testAppendToGenerationRulesWithSchedule() throws Exception {
@@ -123,11 +138,16 @@ public class InternalRuleTest extends TestCase {
         ir.setVoiceMailPrefix("7");
         ir.setEnabled(true);
 
+        SipXMediaServer mediaServer = new SipXMediaServer();
+
+        LocalizationContext lc = EasyMock.createNiceMock(LocalizationContext.class);
+        mediaServer.setLocalizationContext(lc);
+
         // configure a mock bean factory that is needed by the MediaServerFactory
         BeanFactory beanFactory = EasyMock.createNiceMock(BeanFactory.class);
         beanFactory.getBean("sipXMediaServer", MediaServer.class);
-        EasyMock.expectLastCall().andReturn(new SipXMediaServer());
-        EasyMock.replay(beanFactory);
+        EasyMock.expectLastCall().andReturn(mediaServer);
+        EasyMock.replay(beanFactory, lc);
 
         MediaServerFactory mediaServerFactory = new MediaServerFactory();
         mediaServerFactory.setBeanFactory(beanFactory);
@@ -164,6 +184,65 @@ public class InternalRuleTest extends TestCase {
         assertEquals(PermissionName.SIPX_VOICEMAIL.getName(), vf.getPermissionNames().get(0));
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
         assertTrue(tvf.getUrl().startsWith(VOICEMAIL_FALLBACK_URL + ";" + VALIDTIME_PARAMS));
+
+        EasyMock.verify(beanFactory, lc);
+    }
+
+    public void testAppendToGenerationRulesLang() throws Exception {
+        InternalRule ir = new InternalRule();
+        ir.setName("kuku");
+        ir.setDescription(TEST_DESCRIPTION);
+        ir.setLocalExtensionLen(5);
+        ir.setVoiceMail("20004");
+        ir.setVoiceMailPrefix("7");
+        ir.setEnabled(true);
+
+        SipXMediaServer mediaServer = new SipXMediaServer();
+
+        LocalizationContext lc = EasyMock.createMock(LocalizationContext.class);
+        EasyMock.expect(lc.getCurrentLanguageId()).andReturn("pl").atLeastOnce();
+        mediaServer.setLocalizationContext(lc);
+
+        // configure a mock bean factory that is needed by the MediaServerFactory
+        BeanFactory beanFactory = EasyMock.createNiceMock(BeanFactory.class);
+        beanFactory.getBean("sipXMediaServer", MediaServer.class);
+        EasyMock.expectLastCall().andReturn(mediaServer);
+        EasyMock.replay(beanFactory, lc);
+
+        MediaServerFactory mediaServerFactory = new MediaServerFactory();
+        mediaServerFactory.setBeanFactory(beanFactory);
+        ir.setMediaServerFactory(mediaServerFactory);
+        ir.setMediaServerType("sipXMediaServer");
+        ir.setMediaServerHostname("example");
+
+        List rules = new ArrayList();
+        ir.appendToGenerationRules(rules);
+
+        assertEquals(3, rules.size());
+
+        MappingRule v = (MappingRule) rules.get(0);
+        MappingRule vt = (MappingRule) rules.get(1);
+        MappingRule vf = (MappingRule) rules.get(2);
+
+        assertEquals(TEST_DESCRIPTION, v.getDescription());
+        assertEquals("20004", v.getPatterns()[0]);
+        assertEquals(0, v.getPermissions().size());
+        UrlTransform tv = (UrlTransform) v.getTransforms()[0];
+        assertEquals(VOICEMAIL_URL_LANG, tv.getUrl());
+
+        assertEquals(TEST_DESCRIPTION, vt.getDescription());
+        assertEquals("7xxxxx", vt.getPatterns()[0]);
+        assertEquals(0, vt.getPermissions().size());
+        UrlTransform tvt = (UrlTransform) vt.getTransforms()[0];
+        assertEquals(VOICEMAIL_TRANSFER_URL_LANG, tvt.getUrl());
+
+        assertEquals(TEST_DESCRIPTION, vf.getDescription());
+        assertEquals("~~vm~.", vf.getPatterns()[0]);
+        assertEquals(PermissionName.SIPX_VOICEMAIL.getName(), vf.getPermissionNames().get(0));
+        UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
+        assertEquals(VOICEMAIL_FALLBACK_URL_LANG, tvf.getUrl());
+
+        EasyMock.verify(beanFactory, lc);
     }
 
     public void testOperator() {

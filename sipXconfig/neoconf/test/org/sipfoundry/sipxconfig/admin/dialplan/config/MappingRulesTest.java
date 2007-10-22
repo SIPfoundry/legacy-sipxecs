@@ -36,6 +36,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.VoicemailRedirectRule;
+import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.MohRule;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.speeddial.RlsRule;
@@ -230,7 +231,7 @@ public class MappingRulesTest extends XMLTestCase {
 
         control.verify();
     }
-    
+
     public void testVoicemailRules() throws Exception {
         int extension = 3;
         List<DialingRule> rules = new ArrayList<DialingRule>();
@@ -241,8 +242,15 @@ public class MappingRulesTest extends XMLTestCase {
         rules.add(new MohRule());
         rules.add(new RlsRule());
 
+        LocalizationContext lc = EasyMock.createNiceMock(LocalizationContext.class);
+
         MediaServer mediaServer = new SipXMediaServer();
+        mediaServer.setLocalizationContext(lc);
         MediaServer exchangeMediaServer = new ExchangeMediaServer("exchange.example.com", "102");
+        exchangeMediaServer.setLocalizationContext(lc);
+
+        EasyMock.replay(lc);
+
         rules.add(new MappingRule.Operator(aa, "100", new String[] {
             "operator", "0"
         }, mediaServer));
@@ -260,20 +268,19 @@ public class MappingRulesTest extends XMLTestCase {
         controlPlan.andReturn(rules);
         plan.getAttendantRules();
         controlPlan.andReturn(Collections.EMPTY_LIST);
-        controlPlan.replay();
+
+        EasyMock.replay(plan);
 
         ConfigGenerator generator = ConfigGeneratorTest.createConfigGenerator();
         generator.generate(plan, null);
 
         String generatedXml = generator.getFileContent(ConfigFileType.MAPPING_RULES);
 
-        System.out.println(generatedXml);
-        
         InputStream referenceXmlStream = MappingRulesTest.class
                 .getResourceAsStream("mappingrules-multiple-servers.test.xml");
 
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
-        controlPlan.verify();
+        EasyMock.verify(plan, lc);
     }
 
     public void testEquals() throws Exception {

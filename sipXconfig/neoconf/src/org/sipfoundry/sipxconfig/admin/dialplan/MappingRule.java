@@ -17,7 +17,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer.Operation;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 
@@ -138,6 +137,7 @@ public class MappingRule extends DialingRule {
 
             Map<String, String> additionalParams = new HashMap<String, String>();
             additionalParams.put("name", systemName);
+
             MediaServer.Operation operation = MediaServer.Operation.Autoattendant;
             String uriParams = mediaServer.getUriParameterStringForOperation(operation, null,
                     additionalParams);
@@ -156,12 +156,9 @@ public class MappingRule extends DialingRule {
             setPatterns(new String[] {
                 "~~vm~."
             });
-
-            // need to use vdigits due to the voicemail redirect mapping rule being
-            // of the form ~~vm~.
-            CallDigits digits = CallDigits.VARIABLE_DIGITS;
             MediaServer.Operation operation = MediaServer.Operation.VoicemailDeposit;
-            setUrl(buildUrl(digits, mediaServer, operation, MappingRule.FIELD_PARAM));
+            setUrl(mediaServer.buildUrl(CallDigits.VARIABLE_DIGITS, operation,
+                    MappingRule.FIELD_PARAM));
         }
 
         public List<String> getPermissionNames() {
@@ -176,10 +173,8 @@ public class MappingRule extends DialingRule {
             setPatterns(new String[] {
                 voiceMail
             });
-
-            CallDigits digits = CallDigits.FIXED_DIGITS;
             MediaServer.Operation operation = MediaServer.Operation.VoicemailRetrieve;
-            setUrl(buildUrl(digits, mediaServer, operation, null));
+            setUrl(mediaServer.buildUrl(CallDigits.FIXED_DIGITS, operation, null));
         }
 
     }
@@ -190,30 +185,9 @@ public class MappingRule extends DialingRule {
             setPatterns(new String[] {
                 pattern.calculatePattern()
             });
-
-            CallDigits userDigits = CallDigits.VARIABLE_DIGITS;
             MediaServer.Operation operation = MediaServer.Operation.VoicemailDeposit;
-            setUrl(buildUrl(userDigits, mediaServer, operation, null));
+            setUrl(mediaServer.buildUrl(CallDigits.VARIABLE_DIGITS, operation, null));
         }
-    }
-
-    /**
-     * Builds a URL based on the provided digits, media server, and sip parameters.
-     * 
-     * @param userDigits - The digits for the relevant user (or null if none)
-     * @param mediaServer - The media server that will handle this url
-     * @param sipParams - any additional SIP params (can be null or empty string)
-     * @return String representing the URL
-     */
-    static String buildUrl(CallDigits userDigits, MediaServer mediaServer, Operation operation,
-            String sipParams) {
-        String uriParams = mediaServer.getUriParameterStringForOperation(operation, userDigits,
-                null);
-        String headerParams = mediaServer.getHeaderParameterStringForOperation(operation,
-                userDigits, null);
-        String hostname = mediaServer.getHostname();
-        String digits = mediaServer.getDigitStringForOperation(operation, userDigits);
-        return buildUrl(digits, hostname, uriParams, headerParams, sipParams);
     }
 
     /**

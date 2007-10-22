@@ -17,16 +17,19 @@ import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.ScheduledDay;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.forwarding.GeneralSchedule;
 import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
+import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.springframework.beans.factory.BeanFactory;
 
 /**
  * EmergencyRuleTest
@@ -116,13 +119,58 @@ public class EmergencyRuleTest extends TestCase {
     }
 
     public void testCallerSensitiveForwarding() {
+        SipXMediaServer mediaServer = new SipXMediaServer();
+        LocalizationContext lc = EasyMock.createNiceMock(LocalizationContext.class);
+        mediaServer.setLocalizationContext(lc);
+
+        // configure a mock bean factory that is needed by the MediaServerFactory
+        BeanFactory beanFactory = EasyMock.createNiceMock(BeanFactory.class);
+        beanFactory.getBean("sipXMediaServer", MediaServer.class);
+        EasyMock.expectLastCall().andReturn(mediaServer);
+        EasyMock.replay(beanFactory, lc);
+
+        MediaServerFactory mediaServerFactory = new MediaServerFactory();
+        mediaServerFactory.setBeanFactory(beanFactory);
+
         m_rule.setUseMediaServer(true);
+        m_rule.setMediaServerFactory(mediaServerFactory);
+
         Transform[] transforms = m_rule.getTransforms();
         assertEquals(1, transforms.length);
         UrlTransform emergencyTransform = (UrlTransform) transforms[0];
         assertEquals(
                 "<sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dsos>",
                 emergencyTransform.getUrl());
+
+        EasyMock.verify(beanFactory, lc);
+    }
+
+    public void testCallerSensitiveForwardingLocalized() {
+        SipXMediaServer mediaServer = new SipXMediaServer();
+        LocalizationContext lc = EasyMock.createNiceMock(LocalizationContext.class);
+        EasyMock.expect(lc.getCurrentLanguageId()).andReturn("pl").atLeastOnce();
+        mediaServer.setLocalizationContext(lc);
+
+        // configure a mock bean factory that is needed by the MediaServerFactory
+        BeanFactory beanFactory = EasyMock.createNiceMock(BeanFactory.class);
+        beanFactory.getBean("sipXMediaServer", MediaServer.class);
+        EasyMock.expectLastCall().andReturn(mediaServer);
+        EasyMock.replay(beanFactory, lc);
+
+        MediaServerFactory mediaServerFactory = new MediaServerFactory();
+        mediaServerFactory.setBeanFactory(beanFactory);
+
+        m_rule.setUseMediaServer(true);
+        m_rule.setMediaServerFactory(mediaServerFactory);
+
+        Transform[] transforms = m_rule.getTransforms();
+        assertEquals(1, transforms.length);
+        UrlTransform emergencyTransform = (UrlTransform) transforms[0];
+        assertEquals(
+                "<sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dsos%26lang%3Dpl>",
+                emergencyTransform.getUrl());
+
+        EasyMock.verify(beanFactory, lc);
     }
 
     public void testPermissions() {

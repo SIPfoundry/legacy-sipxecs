@@ -14,7 +14,9 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
+import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public abstract class MediaServer {
@@ -35,6 +37,11 @@ public abstract class MediaServer {
      * User visible label of for this media server.
      */
     private String m_label;
+
+    /**
+     * Localization hint for media server
+     */
+    private LocalizationContext m_localizationContext;
 
     /**
      * Get the name (type) of this media server
@@ -83,10 +90,11 @@ public abstract class MediaServer {
 
     /**
      * Gets the PermissionName object associated with this type of MediaServer
+     * 
      * @return A PermissionName specifying the permission that applies to this server
      */
     public abstract PermissionName getPermissionName();
-    
+
     /**
      * Gets the hostname of this server
      * 
@@ -157,5 +165,35 @@ public abstract class MediaServer {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public void setLocalizationContext(LocalizationContext localizationContext) {
+        m_localizationContext = localizationContext;
+    }
+
+    /**
+     * Add language parameter if media server supports it
+     * 
+     * @param params name->value map of additional params
+     * @param locale locale indication
+     */
+    protected abstract void addLang(Map<String, String> params, String locale);
+
+    /**
+     * Builds a URL based on the provided digits, media server, and sip parameters.
+     * 
+     * @param userDigits - The digits for the relevant user (or null if none)
+     * @param sipParams - any additional SIP params (can be null or empty string)
+     * @return String representing the URL
+     */
+    public String buildUrl(CallDigits userDigits, Operation operation, String sipParams) {
+        Map<String, String> langHint = new TreeMap<String, String>();
+        String languageId = m_localizationContext.getCurrentLanguageId();
+        addLang(langHint, languageId);
+        String uriParams = getUriParameterStringForOperation(operation, userDigits, langHint);
+        String headerParams = getHeaderParameterStringForOperation(operation, userDigits, null);
+        String hostname = getHostname();
+        String digits = getDigitStringForOperation(operation, userDigits);
+        return MappingRule.buildUrl(digits, hostname, uriParams, headerParams, sipParams);
     }
 }

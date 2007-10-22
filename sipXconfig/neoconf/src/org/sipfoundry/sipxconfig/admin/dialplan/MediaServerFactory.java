@@ -18,6 +18,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 
 public class MediaServerFactory implements BeanFactoryAware {
+    /** Spring bean name that defines default (sipX) media server */
+    private static final String DEFAULT_MEDIA_SERVER = "sipXMediaServer";
 
     private BeanFactory m_beanFactory;
     private Collection<String> m_beanIds;
@@ -48,5 +50,9 @@ public class MediaServerFactory implements BeanFactoryAware {
             result.put(beanId, ms.getLabel());
         }
         return result;
+    }
+
+    public MediaServer createDefault() {
+        return create(DEFAULT_MEDIA_SERVER);
     }
 }

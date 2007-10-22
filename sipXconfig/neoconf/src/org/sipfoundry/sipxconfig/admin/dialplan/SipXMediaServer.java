@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.Formatter;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -18,12 +19,12 @@ public class SipXMediaServer extends MediaServer {
 
     private static final String NAME = "SipXMediaServer";
     private static final String MEDIA_SERVER_HOSTNAME = "{mediaserver}";
-    private static final String VOICEMAIL_DEPOSIT_PATTERN = 
+    private static final String VOICEMAIL_DEPOSIT_PATTERN =
         "{voicemail}/cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox={%s-escaped}";
-    private static final String VOICEMAIL_RETRIEVE_PATTERN = 
+    private static final String VOICEMAIL_RETRIEVE_PATTERN =
         "{voicemail}/cgi-bin/voicemail/mediaserver.cgi?action=retrieve";
-    private static final String AUTOATTENDANT_PATTERN = 
-        "{voicemail}/cgi-bin/voicemail/mediaserver.cgi?action=autoattendant&name=%s";
+    private static final String AUTOATTENDANT_PATTERN =
+        "{voicemail}/cgi-bin/voicemail/mediaserver.cgi?action=autoattendant";
     private static final String SOS_PATTERN = "{voicemail}/cgi-bin/voicemail/mediaserver.cgi?action=sos";
 
     /**
@@ -40,7 +41,8 @@ public class SipXMediaServer extends MediaServer {
 
     public String getUriParameterStringForOperation(Operation operation, CallDigits digits,
             Map<String, String> additionalParams) {
-        StringBuffer paramStringBuffer = new StringBuffer();
+        StringBuilder paramStringBuffer = new StringBuilder();
+        Formatter formatter = new Formatter(paramStringBuffer);
 
         switch (operation) {
         case Autoattendant:
@@ -48,11 +50,10 @@ public class SipXMediaServer extends MediaServer {
             if (additionalParams == null || !additionalParams.containsKey(nameKey)) {
                 throw new IllegalArgumentException("additionalParams map is missing name key");
             }
-            String name = additionalParams.get(nameKey);
-            paramStringBuffer.append(String.format(AUTOATTENDANT_PATTERN, name));
+            paramStringBuffer.append(AUTOATTENDANT_PATTERN);
             break;
         case VoicemailDeposit:
-            paramStringBuffer.append(String.format(VOICEMAIL_DEPOSIT_PATTERN, digits.getName()));
+            formatter.format(VOICEMAIL_DEPOSIT_PATTERN, digits.getName());
             break;
         case VoicemailRetrieve:
             paramStringBuffer.append(VOICEMAIL_RETRIEVE_PATTERN);
@@ -63,7 +64,11 @@ public class SipXMediaServer extends MediaServer {
         default:
             return StringUtils.EMPTY;
         }
-
+        if (null != additionalParams) {
+            for (Map.Entry<String, String> entry : additionalParams.entrySet()) {
+                formatter.format("&%s=%s", entry.getKey(), entry.getValue());
+            }
+        }
         return "voicexml=" + encodeParams(paramStringBuffer.toString(), ENCODE_EXCLUDES);
     }
 
@@ -74,10 +79,10 @@ public class SipXMediaServer extends MediaServer {
     public String getDigitStringForOperation(Operation operation, CallDigits userDigits) {
         return '{' + userDigits.getName() + '}';
     }
-    
+
     /**
-     * Override the superclass implementation to always return the String 
-     * "{mediaserver}"
+     * Override the superclass implementation to always return the String "{mediaserver}"
+     * 
      * @return The String "{mediaserver}"
      */
     public String getHostname() {
@@ -87,5 +92,10 @@ public class SipXMediaServer extends MediaServer {
     public PermissionName getPermissionName() {
         return PermissionName.SIPX_VOICEMAIL;
     }
-   
+
+    protected void addLang(Map<String, String> params, String locale) {
+        if (StringUtils.isNotBlank(locale)) {
+            params.put("lang", locale);
+        }
+    }
 }

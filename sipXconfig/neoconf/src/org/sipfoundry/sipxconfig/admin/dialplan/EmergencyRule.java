@@ -28,6 +28,7 @@ public class EmergencyRule extends DialingRule {
     private String m_emergencyNumber;
     private String m_optionalPrefix;
     private boolean m_useMediaServer;
+    private MediaServerFactory m_mediaServerFactory;
 
     public String[] getPatterns() {
         ArrayList<String> patterns = new ArrayList<String>();
@@ -67,9 +68,8 @@ public class EmergencyRule extends DialingRule {
 
     public Transform[] getMediaServerTransforms() {
         UrlTransform transform = new UrlTransform();
-        MediaServer mediaServer = new SipXMediaServer();
-        String url = MappingRule.buildUrl(CallDigits.FIXED_DIGITS, mediaServer, Operation.SOS,
-                null);
+        MediaServer mediaServer = m_mediaServerFactory.createDefault();
+        String url = mediaServer.buildUrl(CallDigits.FIXED_DIGITS, Operation.SOS, null);
         transform.setUrl(url);
         return new Transform[] {
             transform
@@ -132,5 +132,9 @@ public class EmergencyRule extends DialingRule {
 
     public void setUseMediaServer(boolean useMediaServer) {
         m_useMediaServer = useMediaServer;
+    }
+
+    public void setMediaServerFactory(MediaServerFactory mediaServerFactory) {
+        m_mediaServerFactory = mediaServerFactory;
     }
 }

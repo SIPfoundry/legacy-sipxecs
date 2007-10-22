@@ -79,4 +79,8 @@ public class ExchangeMediaServer extends MediaServer {
     public PermissionName getPermissionName() {
         return PermissionName.EXCHANGE_VOICEMAIL;
     }
+
+    protected void addLang(Map<String, String> params, String locale) {
+        // do nothing
+    }
 }
