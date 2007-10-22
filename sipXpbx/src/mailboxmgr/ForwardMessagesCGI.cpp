@@ -66,7 +66,7 @@ OsStatus
 ForwardMessagesCGI::execute(UtlString* out)
 {
         OsStatus result = OS_SUCCESS;
-        UtlString dynamicVxml (VXML_BODY_BEGIN);
+        UtlString dynamicVxml = getVXMLHeader();
 
         ValidateMailboxCGIHelper validateMailboxHelper ( m_toExtension );
 

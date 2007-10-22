@@ -16,7 +16,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
 #include "utl/UtlString.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -33,7 +33,7 @@
  * @author John P. Coffey
  * @version 1.0
  */
-class LoginCGI : public CGICommand
+class LoginCGI : public VXMLCGICommand
 {
 public:
     /**

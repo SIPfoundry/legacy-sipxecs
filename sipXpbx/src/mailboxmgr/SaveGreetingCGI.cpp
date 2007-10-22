@@ -63,7 +63,7 @@ SaveGreetingCGI::execute(UtlString* out)
     result = pMailboxManager->saveGreetingOrName(
                 m_mailbox, m_greetingType, m_data, m_datasize );
 
-        UtlString dynamicVxml (VXML_BODY_BEGIN);
+        UtlString dynamicVxml = getVXMLHeader();
 
         if( result == OS_SUCCESS )
         {

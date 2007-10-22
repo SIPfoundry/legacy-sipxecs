@@ -65,7 +65,7 @@ OsStatus
 SaveMessage::execute(UtlString* out)
 {
     OsStatus result = OS_SUCCESS;
-        UtlString dynamicVxml (VXML_BODY_BEGIN);
+    UtlString dynamicVxml = getVXMLHeader();
 
     MailboxManager* pMailboxManager =
             MailboxManager::getInstance();

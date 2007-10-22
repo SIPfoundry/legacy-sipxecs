@@ -27,6 +27,7 @@
 #include "VXIvalue.h"
 #include "SBclientUtils.h"
 #include "VXI/PromptManager.hpp"
+#include "VXI/PropertyList.hpp"
 
 #include "os/OsBSem.h"
 #include "os/OsLock.h"
@@ -653,11 +654,14 @@ VXIpromptResult OSBpromptQueue(VXIpromptInterface* vxip,
                                const VXIMap  *properties,
                                int           bargein)
 {
+   const VXIString *accept_lang = reinterpret_cast<const VXIString *>(VXIMapGetProperty(properties, PROMPT_LANGUAGE));
+                        
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
-                 "OSBpromptQueue(vxip = %p, raw_type = '%ls', raw_src = '%ls', raw_text = '%ls', properties = %p, bargein = %d",
+                 "OSBpromptQueue(vxip = %p, raw_type = '%ls', raw_src = '%ls', raw_text = '%ls', properties = %p, bargein = %d, language = '%ls'",
                  vxip, (raw_type ? raw_type : L"(null)"),
                  (raw_src ? raw_src : L"(null)"),
-                 (raw_text ? raw_text : L"(null)"), properties, bargein);
+                 (raw_text ? raw_text : L"(null)"), properties, bargein,
+                 (accept_lang != NULL ? VXIStringCStr(accept_lang) : L"(null)"));
    OSBpromptImpl *impl = ToOSBpromptImpl(vxip);
 
    const VXIbyte *binaryData = NULL;
@@ -812,6 +816,27 @@ VXIpromptResult OSBpromptQueue(VXIpromptInterface* vxip,
                audiourl = Url(str);
             }
          }
+         
+         if (accept_lang != NULL) {
+           const VXIchar *wlang = VXIStringCStr(accept_lang);
+           if ( wlang && (len = wcslen(wlang)) > 0 ) {
+             char *lang = new char[len + 1];
+             if (lang) {
+               for ( i = 0; i < len; i++ ) {
+                  lang[i] = wlang[i];
+               }
+               lang[len] = 0;
+               UtlString s(audiourl.toString());
+               s.append("?prefer-language=");
+               s.append(lang);
+               //audiourl.setHeaderParameter("prefer-language", lang);
+               audiourl = s;
+               delete[] lang;
+               lang = NULL;  
+             }
+           }
+         }
+         
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptQueue: audiourl = '%s'",
                        audiourl.toString().data());

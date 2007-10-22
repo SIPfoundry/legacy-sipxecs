@@ -280,10 +280,10 @@ PlayMessagesCGI::handleOpenVXIRequest( UtlString* out )
    // Flag to indicate if all messages have been retrieved.
    UtlBoolean endOfMessages;
 
-   UtlString dynamicVxml (VXML_BEGIN_WITH_ROOT);
-   dynamicVxml +=  mediaserverUrl + URL_SEPARATOR +
+   UtlString dynamicVxml = getVXMLHeader(
+      mediaserverUrl + URL_SEPARATOR +
       VOICEMAIL_SCRIPTS_ALIAS + URL_SEPARATOR +
-      "root.vxml\"> \n";
+      "root.vxml");
 
    // Retrieve the message block.
    if ( gmdHelper.getMessageBlock(

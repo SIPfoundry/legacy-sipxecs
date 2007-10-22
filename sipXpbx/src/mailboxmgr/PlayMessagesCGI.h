@@ -16,7 +16,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -34,7 +34,7 @@
  * @author Harippriya M Sivapatham
  * @version 1.0
  */
-class PlayMessagesCGI : public CGICommand
+class PlayMessagesCGI : public VXMLCGICommand
 {
 public:
     /**

@@ -64,9 +64,7 @@ GetAllGreetingsCGI::handleOpenVXIRequest(UtlString* out)
 {
         bool greetingsAvailable = false;
         UtlString greetingUrl;
-    UtlString dynamicVxml =  VXML_BODY_BEGIN \
-                                "<form>\n"
-                                                "<block>\n" ;
+        UtlString dynamicVxml = getVXMLHeader() + "<form>\n" + "<block>\n" ;
 
         MailboxManager* pMailboxManager = MailboxManager::getInstance();
 

@@ -18,7 +18,7 @@
 
 
 // APPLICATION INCLUDES
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 #define NO_HTML_CACHE_HEADER "Content-type: text/html\n" \
     "pragma: no-cache\n\n"

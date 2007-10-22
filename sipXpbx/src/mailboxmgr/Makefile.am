@@ -50,7 +50,8 @@ libmailboxmgr_la_SOURCES = \
 	StatusServerCGI.cpp \
 	TransferToExtnCGI.cpp \
 	UpdateMessageStatesCGI.cpp \
-	ValidateMailboxCGIHelper.cpp
+	ValidateMailboxCGIHelper.cpp \
+	VXMLCGICommand.cpp
 
 noinst_HEADERS = \
     ActiveGreetingHelper.h \
@@ -94,4 +95,5 @@ noinst_HEADERS = \
     TransferToExtnCGI.h \
     UpdateMessageStatesCGI.h \
     ValidateMailboxCGIHelper.h \
-    VXMLDefs.h
+    VXMLDefs.h \
+    VXMLCGICommand.h

@@ -376,7 +376,7 @@ main(int argc, char* argv[])
         gValues = new CgiValues(gCgi);
         OsSysLog::add(LOG_FACILITY, PRI_DEBUG,
             "Mediaserver CGI - About to process action");
-        CGICommand* cmd = NULL;
+        VXMLCGICommand* cmd = NULL;
 
         // Determine the source of the request.
         // It could either be WebUI or OpenVXI.
@@ -1163,6 +1163,11 @@ main(int argc, char* argv[])
             if ( cmd != NULL )
             {
                 UtlString outStr;
+                const char* sName = gValues->valueOf ( "lang" );
+                if ( sName ) {
+                  cmd->setLang( sName );
+                }
+                
                 if ( cmd->execute(&outStr) == OS_SUCCESS )
                 {
                     OsSysLog::add(

@@ -15,7 +15,7 @@
 
 // APPLICATION INCLUDES
 #include "net/Url.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 #define DIALBYNAME_MAX_BLOCKSIZE 9
@@ -33,7 +33,7 @@
  * @author John P. Coffey
  * @version 1.0
  */
-class DialByNameCGI : public CGICommand
+class DialByNameCGI : public VXMLCGICommand
 {
 public:
     /**

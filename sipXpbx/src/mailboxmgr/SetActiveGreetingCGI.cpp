@@ -67,7 +67,7 @@ SetActiveGreetingCGI::handleOpenVXIRequest(UtlString* out)
         // Call the method on Mailbox Manager to do the actual work.
         OsStatus result = pMailboxManager->setActiveGreeting(m_mailboxIdentity, m_greetingType );
 
-        UtlString dynamicVxml (VXML_BODY_BEGIN);
+        UtlString dynamicVxml = getVXMLHeader();
 
         if( result == OS_SUCCESS )
         {

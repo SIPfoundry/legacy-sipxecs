@@ -38,6 +38,7 @@ class PropertyList {
 public:
   static const VXIchar * const BaseURI;
   static const VXIchar * const Language;
+  static const VXIchar * const AcceptedLang;
   static const VXIchar * const AbsoluteURI;
 
   const VXIchar* GetProperty(const VXIchar * key,

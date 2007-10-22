@@ -15,7 +15,7 @@
 
 // APPLICATION INCLUDES
 #include "net/Url.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 #include "mailboxmgr/MailboxManager.h"
 
 // DEFINES
@@ -27,7 +27,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class SendByDistListCGI : public CGICommand
+class SendByDistListCGI : public VXMLCGICommand
 {
 public:
     /**

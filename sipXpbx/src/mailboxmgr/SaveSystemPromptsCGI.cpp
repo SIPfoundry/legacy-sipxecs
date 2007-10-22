@@ -61,7 +61,7 @@ SaveSystemPromptsCGI::execute(UtlString* out)
     result = pMailboxManager->saveSystemPrompts(
                 m_promptType, m_data, m_datasize );
 
-        UtlString dynamicVxml (VXML_BODY_BEGIN);
+        UtlString dynamicVxml = getVXMLHeader();
 
         if( result == OS_SUCCESS )
         {

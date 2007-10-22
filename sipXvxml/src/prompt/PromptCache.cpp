@@ -60,7 +60,7 @@ UtlString* PromptCache::lookup(Url& url, int flags)
    url.getUrlType(urlType);
    if (urlType.compareTo("file", UtlString::ignoreCase) == 0)
    {
-      url.getPath(pathName);
+      url.getPath(pathName, TRUE);
       if (pathName.index(STD_PROMPTS_DIR, UtlString::ignoreCase) == UTL_NOT_FOUND)
       {
          cacheEntry = FALSE;
@@ -190,6 +190,22 @@ OsStatus PromptCache::open()
    OsStatus status = OS_FAILED;
 
    mUrl.getPath(pathName);
+   
+   UtlString language_pref;
+      
+   //Try the localized version first if 'prefer-language' is supplied
+   if (mUrl.getHeaderParameter("prefer-language", language_pref, 0)) {
+      //Assume that original file path == 'en'
+      if (language_pref.compareTo("en", UtlString::ignoreCase) == 0) {
+         language_pref = ""; 
+      } else {
+         size_t urlExtensionDot = pathName.last('.');
+         if (urlExtensionDot != UTL_NOT_FOUND) {
+            pathName.insert(urlExtensionDot + 1, language_pref + ".");
+         }
+      }
+   }
+   
    mpFile = new OsFile(pathName);
 
    if (mpFile == NULL)
@@ -199,21 +215,39 @@ OsStatus PromptCache::open()
    if (status != OS_SUCCESS)
    {
       delete mpFile;
-
-      // If this is a standard prompt file that we could not find, substitute with error prompt.
-      unsigned int index = pathName.index(STD_PROMPTS_DIR, UtlString::ignoreCase);
-      if (index != UTL_NOT_FOUND)
-      {
-         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
-                       "PromptCache::open - Unable to open prompt file: %s, substituting with default.", pathName.data());
-
-         // Strip off old .wav file and replace with fallback .wav file
-         pathName.remove(index + strlen(STD_PROMPTS_DIR) + 1);
-         pathName.append(FALLBACK_PROMPT);
+      
+      if (language_pref.length()) {
+      
+         //Fallback to the original file path
+         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_WARNING,
+                         "PromptCache::open - Unable to open localized prompt file: %s, trying the original one.", pathName.data());
+         mUrl.getPath(pathName);
          mpFile = new OsFile(pathName);
+
+         if (mpFile == NULL)
+            return status;
+
          status = mpFile->open(OsFile::READ_ONLY);
-         if (status == OS_FAILED)
-            delete mpFile;
+      }
+      if (status != OS_SUCCESS)
+      {
+         delete mpFile;
+
+          // If this is a standard prompt file that we could not find, substitute with error prompt.
+         unsigned int index = pathName.index(STD_PROMPTS_DIR, UtlString::ignoreCase);
+         if (index != UTL_NOT_FOUND)
+         {
+            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
+                           "PromptCache::open - Unable to open prompt file: %s, substituting with default.", pathName.data());
+
+            // Strip off old .wav file and replace with fallback .wav file
+            pathName.remove(index + strlen(STD_PROMPTS_DIR) + 1);
+            pathName.append(FALLBACK_PROMPT);
+            mpFile = new OsFile(pathName);
+            status = mpFile->open(OsFile::READ_ONLY);
+            if (status == OS_FAILED)
+               delete mpFile;
+         }
       }
    }
 

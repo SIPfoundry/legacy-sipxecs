@@ -311,6 +311,14 @@ int DocumentParser::FetchDocument(const VXIchar * url,
     log.EndDiagnostic();
   }
 
+  if (url != NULL && !isDefaults) {
+    const VXIString *check_accept_lang = reinterpret_cast<const VXIString *>(VXIMapGetProperty(docProperties.GetValue(), PropertyList::AcceptedLang));
+    if (check_accept_lang != NULL) {
+      log.StartDiagnostic(0) << L"DocumentParser::FetchDocument - (" << url << L") accept-language = '" << VXIStringCStr(check_accept_lang) << L"'";
+      log.EndDiagnostic();
+    }
+  }
+                  
   // (1) Load the VXML DTD for validation.  This will override an externally
   // specified DTD if the user provides a link.
 
@@ -474,7 +482,9 @@ int DocumentParser::FetchDocument(const VXIchar * url,
       if (str == NULL) throw VXIException::OutOfMemory();
       VXIMapSetProperty(docProperties.GetValue(), PropertyList::Language,
                         reinterpret_cast<VXIValue *>(str));
-    }
+      log.StartDiagnostic(0) << L"DocumentParser::FetchDocument - new document language = '" << VXIStringCStr(str) << "'";
+      log.EndDiagnostic();
+    } 
   }
 
   log.LogDiagnostic(2, L"DocumentParser::FetchDocument - success");

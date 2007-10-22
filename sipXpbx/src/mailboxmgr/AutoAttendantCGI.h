@@ -16,7 +16,7 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "net/Url.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 #define DEFAULT_AA_NAME    "operator"
@@ -35,7 +35,7 @@
  * @author John P. Coffey
  * @version 1.0
  */
-class AutoAttendantCGI : public CGICommand
+class AutoAttendantCGI : public VXMLCGICommand
 {
 public:
     /**

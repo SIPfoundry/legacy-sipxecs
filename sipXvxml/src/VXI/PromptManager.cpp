@@ -261,6 +261,13 @@ void PromptManager::Queue(const VXMLNode & node, const VXMLElement & ref,
     // (3.3) Update language.
     if (elem.GetAttribute(ATTRIBUTE_XMLLANG, language) == true)
       AddParamValue(properties, PROMPT_LANGUAGE, language);
+    else {
+      const VXIchar * j = propertyList.GetProperty(PropertyList::Language);
+      if (j != NULL) {
+        language = j;
+        AddParamValue(properties, PROMPT_LANGUAGE, j);
+      }
+    }
 
     // (3.4) Recursively handle contents of the prompt.
     for (VXMLNodeIterator it(elem); it; ++it)

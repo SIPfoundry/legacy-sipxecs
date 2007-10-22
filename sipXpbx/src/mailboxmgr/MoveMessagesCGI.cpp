@@ -170,7 +170,7 @@ MoveMessagesCGI::handleOpenVXIRequest( UtlString* out )
     MailboxManager* pMailboxManager = MailboxManager::getInstance();
     OsStatus result = pMailboxManager->moveMessages( m_mailboxIdentity, m_fromFolder, m_toFolder, m_messageIds, m_maintainstatus );
 
-    UtlString dynamicVxml (VXML_BODY_BEGIN);
+    UtlString dynamicVxml = getVXMLHeader();
 
     if ( result == OS_SUCCESS )
     {

@@ -122,7 +122,7 @@ RecycleDeletedMsgsCGI::handleOpenVXIRequest( UtlString* out )
 
         OsStatus result = pMailboxManager->recycleDeletedMessages( m_mailboxIdentity, m_messageids );
 
-        UtlString dynamicVxml (VXML_BODY_BEGIN);
+        UtlString dynamicVxml = getVXMLHeader();
         if( result == OS_SUCCESS )
         {
                 dynamicVxml += VXML_SUCCESS_SNIPPET;

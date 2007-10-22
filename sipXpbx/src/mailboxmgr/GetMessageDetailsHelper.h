@@ -20,7 +20,7 @@
 #include "utl/UtlString.h"
 #include "utl/UtlDList.h"
 
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 
 // DEFINES
@@ -39,7 +39,7 @@ class UtlHashMap;
  * @author Harippriya M Sivapatham
  * @version 1.0
  */
-class GetMessageDetailsHelper : public CGICommand
+class GetMessageDetailsHelper : public VXMLCGICommand
 {
   public:
    /**

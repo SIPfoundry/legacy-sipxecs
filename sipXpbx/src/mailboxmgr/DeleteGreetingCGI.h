@@ -14,7 +14,7 @@
 //#include <...>
 
 // APPLICATION INCLUDES
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -36,7 +36,7 @@
  *  @author Harippriya M Sivapatham
  *  @version 1.0
  */
-class DeleteGreetingCGI : public CGICommand
+class DeleteGreetingCGI : public VXMLCGICommand
 {
 public:
     /**

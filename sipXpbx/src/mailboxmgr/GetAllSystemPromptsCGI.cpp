@@ -55,7 +55,7 @@ OsStatus
 GetAllSystemPromptsCGI::handleOpenVXIRequest(UtlString* out)
 {
     OsStatus result = OS_SUCCESS ;
-        UtlString dynamicVxml (VXML_BODY_BEGIN);
+    UtlString dynamicVxml = getVXMLHeader();
 
     // Get the VXML for playing all the available prompts for the given prompt type.
     UtlString vxmlSnippet;

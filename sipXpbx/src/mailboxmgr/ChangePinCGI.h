@@ -16,7 +16,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
 #include "utl/UtlString.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -27,7 +27,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class ChangePinCGI : public CGICommand
+class ChangePinCGI : public VXMLCGICommand
 {
 public:
     /**

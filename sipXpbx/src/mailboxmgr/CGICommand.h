@@ -34,6 +34,7 @@ class UtlString;
  */
 class CGICommand
 {
+
 public:
     /** Ctor */
     CGICommand () {};

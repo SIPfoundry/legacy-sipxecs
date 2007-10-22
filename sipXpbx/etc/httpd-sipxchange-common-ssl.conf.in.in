@@ -56,6 +56,34 @@ SetEnvIf User-Agent ".*Mozilla*" \\
 
     CustomLog @SIPX_LOGDIR@/httpd_access_log \\
               "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+
+    ######
+    #
+    # Special rules for fetching localized files based upon either one of :
+    #
+    # 1) Accept-Language: tag-subtag -> prefer-language = tag-subtag
+    # 2) /language/rfc1766:tag-subtag/url.extension -> url, prefer-language =
+    tag-subtag
+    # 3) url?prefer-language=tag-subtag -> url, prefer-language = tag-subtag
+
+    AddLanguage en .en
+    AddLanguage pl-male   .pl-male
+    AddLanguage pl-female .pl-female
+
+    DefaultLanguage en
+    LanguagePriority en
+    ForceLanguagePriority Prefer Fallback
+
+    RewriteEngine on
+    RewriteLog @SIPX_LOGDIR@/httpd_rewrite_log
+    RewriteLogLevel 9
+     
+    RewriteCond  %{QUERY_STRING} ^prefer-language=(.*)$  [nc]
+    RewriteRule  ^(.*)\..+?$  $1?   [L,PT,env=prefer-language:%1]
+
+    RewriteCond  %{REQUEST_URI} ^/language/([a-zA-Z0-9\-]+)(/.*)\..+?$  [nc]
+    RewriteRule  ^ %2 [L,PT,env=prefer-language:%1]
+
 </VirtualHost>
 
 </IfDefine>

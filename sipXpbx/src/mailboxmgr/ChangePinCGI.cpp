@@ -47,7 +47,7 @@ ChangePinCGI::execute(UtlString* out)
    // Instantiate the mailbox manager
    MailboxManager* pMailboxManager = MailboxManager::getInstance();
 
-   UtlString dynamicVxml (VXML_BODY_BEGIN);
+   UtlString dynamicVxml = getVXMLHeader();
 
    // Validate the old password
    UtlString mailboxIdentity;

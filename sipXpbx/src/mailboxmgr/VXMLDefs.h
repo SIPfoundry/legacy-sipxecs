@@ -26,6 +26,9 @@
 #define VXML_BODY_BEGIN "<?xml version=\"1.0\"?>\n" \
     "<vxml version=\"2.0\">\n"
 
+#define VXML_BEGIN_WITH_LANG "<?xml version=\"1.0\"?>\n" \
+    "<vxml version=\"2.0\""
+
 #define VXML_BEGIN_WITH_ROOT "<?xml version=\"1.0\"?>\n" \
     "<vxml version=\"2.0\" application=\""
 

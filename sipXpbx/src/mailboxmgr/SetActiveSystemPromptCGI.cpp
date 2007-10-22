@@ -59,7 +59,7 @@ SetActiveSystemPromptCGI::handleOpenVXIRequest(UtlString* out)
         // Call the method on Mailbox Manager to do the actual work.
         OsStatus result = pMailboxManager->setActiveSystemPrompt( m_promptType );
 
-        UtlString dynamicVxml (VXML_BODY_BEGIN);
+        UtlString dynamicVxml = getVXMLHeader();
 
         if( result == OS_SUCCESS )
         {

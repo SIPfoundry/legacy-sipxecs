@@ -127,7 +127,7 @@ class SBinetHttpStream : public SBinetStream, public SBinetLogger {
    /*
     * Our own GET.
     */
-   UtlBoolean OsGetData(HTAnchor* anchor, SBinetURL* url);
+   UtlBoolean OsGetData(HTAnchor* anchor, SBinetURL* url, const VXIString* language_pref = NULL);
 
   int getTime(time_t *timestamp, VXIunsigned *timestampMsec);
 

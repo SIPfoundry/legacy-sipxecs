@@ -45,7 +45,7 @@ DeleteMailboxCGI::execute(UtlString* out)
                               validatedMailboxIdentity,
                               extension);
     // Construct a success result script.
-    UtlString dynamicVxml (VXML_BODY_BEGIN);
+    UtlString dynamicVxml = getVXMLHeader();
     if ( result == OS_SUCCESS )
     {
         // Mailbox exists so delete it

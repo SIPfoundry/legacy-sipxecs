@@ -115,7 +115,7 @@ LoginCGI::handleOpenVXIRequest( UtlString* out )
     MailboxManager* pMailboxManager =
         MailboxManager::getInstance();
 
-        UtlString dynamicVxml (VXML_BODY_BEGIN);
+        UtlString dynamicVxml = getVXMLHeader();
 
         // Update the m_mailbox if valid
     result = pMailboxManager->doLogin(

@@ -152,7 +152,7 @@ OsStatus
 RetrieveCGI::handleOpenVXIRequest( UtlString* out )
 {
    // contains the output of this CGI - dynamically generated vxml
-   UtlString dynamicVxml (VXML_BODY_BEGIN);
+   UtlString dynamicVxml = getVXMLHeader();
    dynamicVxml += "<form>";
 
    // Get mediaserver base URL

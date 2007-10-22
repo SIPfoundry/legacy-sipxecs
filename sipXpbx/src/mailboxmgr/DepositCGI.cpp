@@ -43,7 +43,7 @@ OsStatus
 DepositCGI::execute(UtlString* out)
 {
    // Contains the dynamically generated VXML script.
-   UtlString dynamicVxml = UtlString( VXML_BODY_BEGIN ) + "<form> ";
+   UtlString dynamicVxml = getVXMLHeader() + "<form> ";
 
    // Get the base URL of the mediaserver - "http://localhost:8090"
    MailboxManager* pMailboxManager = MailboxManager::getInstance();

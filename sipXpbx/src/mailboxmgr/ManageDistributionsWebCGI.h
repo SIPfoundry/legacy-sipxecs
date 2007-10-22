@@ -15,7 +15,7 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -27,7 +27,7 @@
 // FORWARD DECLARATIONS
 class UtlHashMap;
 
-class ManageDistributionsWebCGI : public CGICommand
+class ManageDistributionsWebCGI : public VXMLCGICommand
 {
 public:
     /**

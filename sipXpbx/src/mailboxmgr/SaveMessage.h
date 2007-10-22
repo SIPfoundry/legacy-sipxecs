@@ -15,7 +15,7 @@
 
 // APPLICATION INCLUDES
 #include "net/Url.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 #include "mailboxmgr/MailboxManager.h"
 
 // DEFINES
@@ -33,7 +33,7 @@
  * @author John P. Coffey
  * @version 1.0
  */
-class SaveMessage : public CGICommand
+class SaveMessage : public VXMLCGICommand
 {
 public:
     /**

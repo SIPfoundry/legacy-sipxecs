@@ -183,7 +183,7 @@ UpdateMessageStatesCGI::handleOpenVXIRequest( UtlString* out )
     MailboxManager* pMailboxManager = MailboxManager::getInstance();
         OsStatus result = pMailboxManager->updateMessageStates(m_mailboxIdentity, m_category, m_messageIds);
 
-        UtlString dynamicVxml (VXML_BODY_BEGIN);
+        UtlString dynamicVxml = getVXMLHeader();
 
         if( result == OS_SUCCESS )
         {

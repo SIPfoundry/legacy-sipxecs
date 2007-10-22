@@ -73,7 +73,7 @@ AutoAttendantCGI::execute(UtlString* out)
    }
    
    // Construct the dynamic VXML
-   UtlString dynamicVxml(VXML_BODY_BEGIN);
+   UtlString dynamicVxml = getVXMLHeader();
    dynamicVxml +=  "<form>\n";
    dynamicVxml += "<subdialog name=\"autoattendant\" src=\"" + mediaserverUrl + "/aa_vxml/autoattendant" + "-" + aaName + ".vxml\">\n";
    dynamicVxml += "<param name=\"from\" value=\"" + vxmlFriendlyFrom + "\"/>\n" \

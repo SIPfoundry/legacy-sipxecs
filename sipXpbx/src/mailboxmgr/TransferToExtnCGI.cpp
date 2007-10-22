@@ -65,7 +65,7 @@ TransferToExtnCGI::execute(UtlString* out)
         MailboxManager::getInstance()->getIvrPromptURL( ivrPromptUrl );
 
         // Contains the dynamically generated VXML script.
-            dynamicVxml =   VXML_BODY_BEGIN \
+            dynamicVxml =  getVXMLHeader() +
                         "<form> \n" \
                             "<transfer dest=\"" + extensionUrl.toString() /* transferUrlString */ + "\" /> \n" \
                         "</form> \n" \
@@ -73,7 +73,7 @@ TransferToExtnCGI::execute(UtlString* out)
             // Write out the dynamic VXML script to be processed by OpenVXI
     } else
     {
-            dynamicVxml =   VXML_BODY_BEGIN \
+            dynamicVxml =  getVXMLHeader() + 
                         VXML_INVALID_EXTN_SNIPPET\
                             VXML_END;
     }

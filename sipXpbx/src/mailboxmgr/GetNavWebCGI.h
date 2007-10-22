@@ -15,7 +15,7 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -32,7 +32,7 @@
  * @author John P. Coffey
  * @version 1.0
  */
-class GetNavWebCGI : public CGICommand
+class GetNavWebCGI : public VXMLCGICommand
 {
 public:
     /**

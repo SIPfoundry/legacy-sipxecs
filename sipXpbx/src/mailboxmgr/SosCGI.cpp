@@ -54,7 +54,7 @@ SosCGI::execute(UtlString* out)
     }
 
     // Construct the dynamic VXML
-    UtlString dynamicVxml(VXML_BODY_BEGIN);
+    UtlString dynamicVxml = getVXMLHeader();
     dynamicVxml += "<form id=\"emergencyservice\">\n";
     dynamicVxml += "<property name=\"interdigittimeout\" value=\"3s\" />\n";
     dynamicVxml += "<property name=\"timeout\" value=\"7s\" />\n";

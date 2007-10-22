@@ -28,6 +28,7 @@
 const VXIchar * const PropertyList::BaseURI     = L" base";
 const VXIchar * const PropertyList::Language    = L" lang";
 const VXIchar * const PropertyList::AbsoluteURI = L" absoluteURI";
+const VXIchar * const PropertyList::AcceptedLang= L"accepted-language";
 
 
 static vxistring toString(const VXIString * s)

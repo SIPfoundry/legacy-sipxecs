@@ -21,7 +21,7 @@ const VXIbyte PLATFORM_DEFAULTS_DOC[PLATFORM_DEFAULTS_DOC_SIZE] =
 "  <language id=\"*\"> <!-- All languages -->\n"
 "    <!-- implement the default handlers as defined in 11.5 -->\n"
 "\n"
-"    <property name='xml:lang'          value='en-US'/>\n"
+"    <property name='xml:fake'          value='en-US'/>\n"
 "    <property name='confidencelevel'   value='0.5'/>\n"
 "    <property name='sensitivity'       value='0.5'/>\n"
 "    <property name='speedvsaccuracy'   value='0.5'/>\n"
