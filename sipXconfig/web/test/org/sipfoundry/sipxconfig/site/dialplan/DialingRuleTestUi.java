@@ -72,7 +72,7 @@ public class DialingRuleTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
         clickLink("FlexibleDialPlan");
         SiteTestHelper.assertNoException(getTester());
-        clickLinkWithText("Internal");
+        clickLinkWithText("Voicemail");
         SiteTestHelper.assertNoException(tester);
         // it's a submit link: uses java script, does not have id
         setFormElement("name", "");

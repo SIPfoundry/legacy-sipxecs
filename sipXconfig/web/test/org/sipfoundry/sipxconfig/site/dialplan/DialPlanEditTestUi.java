@@ -57,7 +57,7 @@ public class DialPlanEditTestUi extends WebTestCase {
             "AutoAttendant", "Enabled", "Attendant", "Default autoattendant dialing plan",
             "Always"
         }, {
-            "Internal", "Enabled", "Internal", "Default internal dialing plan", "Always"
+            "Voicemail", "Enabled", "Voicemail", "Default voicemail dialing plan", "Always"
         },
     };
 
@@ -99,7 +99,7 @@ public class DialPlanEditTestUi extends WebTestCase {
                 assertElementPresent("schedule");
             }
             // all rules except "internal" have gateways panel
-            if (!name.startsWith("Internal") && !name.startsWith("AutoAttendant")) {
+            if (!name.startsWith("Voicemail") && !name.startsWith("AutoAttendant")) {
                 checkGateways();
             }
             setFormElement("name", "");

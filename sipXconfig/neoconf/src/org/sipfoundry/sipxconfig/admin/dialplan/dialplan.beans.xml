@@ -7,7 +7,7 @@
   -->
 
   <bean id="sipXMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServer" singleton="false">
-    <property name="label" value="sipX Voice Mail" />
+    <property name="label" value="Internal Voicemail Server" />
     <property name="hostname" value="{mediaserver}" />
     <property name="serverExtension" value="101" />
     <property name="localizationContext" ref="localizationContext" />
@@ -15,7 +15,7 @@
 
   <bean id="exchangeUmMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer"
     singleton="false">
-    <property name="label" value="Exchange Voice Mail" />
+    <property name="label" value="Exchange Voicemail Server" />
     <property name="localizationContext" ref="localizationContext" />
   </bean>
 
@@ -29,8 +29,8 @@
   </bean>
 
   <bean id="defaultInternalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternalRule" abstract="true">
-    <property name="name" value="Internal" />
-    <property name="description" value="Default internal dialing plan" />
+    <property name="name" value="Voicemail" />
+    <property name="description" value="Default voicemail dialing plan" />
     <property name="enabled" value="true" />
     <property name="mediaServerFactory" ref="mediaServerFactory" />
     <property name="mediaServerType" value="sipXMediaServer" />
