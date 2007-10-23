@@ -95,9 +95,12 @@ Summary: Configures/enables FTP for devices controlled by %{name}
 
 %package mrtg
 Requires: mrtg
-Requires: net-snmp-utils
+Requires: net-snmp
 Requires: rrdtool
+%if %{_vendor} == redhat
+Requires: net-snmp-utils
 Requires: rrdtool-perl
+%endif
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Configures/enables MRTG monitoring for %{name} 
