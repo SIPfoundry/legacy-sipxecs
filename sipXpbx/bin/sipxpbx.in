@@ -61,7 +61,7 @@ then
       rc_status -v
   }
 
-  HTTP_DAEMON_START="start-stop-daemon --start --chuid root --exec @APACHE2_HTTPD@ --"
+  HTTP_DAEMON_START="@APACHE2_HTTPD@"
 
 elif [ -f /etc/debian_version ]
 then
