@@ -138,6 +138,11 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
         if (m_voicemailFallback) {
             AbstractRing lastRing = getLastRing();
             if (lastRing != null) {
+                if (AbstractRing.Type.IMMEDIATE == lastRing.getType()) {
+                    // the last ring is a parallel ring
+                    // decrement q so that VM contact has lower q than the last contact
+                    forkQueueValue.getSerial();
+                }
                 String vmailContact = lastRing.calculateContact(domainName, forkQueueValue,
                         false, MappingRule.Voicemail.VM_PREFIX);
                 aliases.add(new AliasMapping(myIdentity, vmailContact));

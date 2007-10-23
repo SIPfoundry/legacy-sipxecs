@@ -17,6 +17,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
@@ -73,9 +74,9 @@ public abstract class UserCallForwarding extends UserBasePage implements PageBeg
      * valid ids and their call sequence field is set to null.
      */
     private List<Ring> createDetachedRingList(CallSequence callSequence) {
-        List<Ring> rings = callSequence.getRings();
+        List<AbstractRing> rings = callSequence.getRings();
         List<Ring> list = new ArrayList<Ring>();
-        for (Iterator<Ring> i = rings.iterator(); i.hasNext();) {
+        for (Iterator<AbstractRing> i = rings.iterator(); i.hasNext();) {
             BeanWithId ring = i.next();
             Ring dup = (Ring) ring.duplicate();
             dup.setCallSequence(null);

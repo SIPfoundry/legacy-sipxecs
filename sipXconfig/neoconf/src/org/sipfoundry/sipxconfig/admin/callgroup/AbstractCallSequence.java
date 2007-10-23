@@ -89,11 +89,11 @@ public class AbstractCallSequence extends BeanWithId {
      * Return the list of rings. Don't alter the list directly, always call a method on this
      * interface (or a derived class) to change the rings list.
      */
-    public List getRings() {
+    public List<AbstractRing> getRings() {
         return m_rings;
     }
 
-    public void setRings(List rings) {
+    public void setRings(List<AbstractRing> rings) {
         m_rings = rings;
     }
 
