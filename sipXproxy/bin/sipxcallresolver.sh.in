@@ -8,6 +8,7 @@ Action=RUN
 Status=1
 Args=""
 
+ . @SIPX_LIBEXECDIR@/sipx-utils.sh
 
 # Declare script variables in a manner that unit test
 # (or end user I suppose) can override
@@ -305,8 +306,8 @@ ERROR
    if [ ${Action} = CONFIGTEST ]; then
       resolveOk=1
 
-      resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_PURGE`
-      if ! expr match "$resolveConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
+      resolveConfig=`sipx_config_value  @SIPX_CONFDIR@/callresolver-config.in SIP_CALLRESOLVER_PURGE`
+      if ! test "${resolveConfig}" = "ENABLE"; then
       cat <<ERROR
 
 Warning: callresolver is not configured for purging old records.
