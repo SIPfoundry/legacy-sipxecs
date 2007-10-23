@@ -341,7 +341,7 @@ public:
     UtlBoolean getUrlParameter(const char* name,  ///< the parameter name to get
                                UtlString& value,  ///< the value of the named parameter
                                int index = 0 
-                               );
+                               ) const;
     /**<
      * Gets the index occurrence of the named parameter (the same parameter name may
      * occur multiple times in a URL).
@@ -353,16 +353,16 @@ public:
                                                  *   get (starting at 0 for the first one). */
                                UtlString& name,  ///< the parameter name at urlIndex
                                UtlString& value  ///< the value of the parameter at urlIndex
-                               );
+                               ) const;
     /**< @return TRUE if the indicated parameter exists. */
 
     /// Set the named URL parameter to the given value
-    /*! Adds the parameter if it does not exist, sets the value if
-     * it does exist.
-     * \param name - the parameter name
-     * \param value - the value of the parameter
+    void setUrlParameter(const char* name, ///< the parameter name
+                         const char* value ///< the value of the parameter
+                         );
+    /**< Adds the parameter if it does not exist, sets the value if
+     *   it does exist.
      */
-    void setUrlParameter(const char* name, const char* value);
 
     /// Removes all of the URL parameters
     void removeUrlParameters();
@@ -371,44 +371,43 @@ public:
     void removeUrlParameter(const char* name);
 
     /// Gets all of the URL parameters and values
-    /*! \param iMaxReturn (in) - the maximum number of items to return
-     * \param pNames (out) - Pointer to a preallocated array of 
-     *        UtlStrings.  If a null is specified, the function will
-     *        return false and the iActualReturn will contain the actual
-     *        number of parameters.
-     * \param pValues (out) - Pointer to a preallocated array of 
-     *        UtlStrings.  If a null is specified, the function will
-     *        return false and the \a iActualReturn will contain the actual
-     *        number of parameters.
-     * \param iActualReturn (out) - The actual number of items returned
-     * \returns TRUE if values are returned otherwise FALSE   
-     */
-    UtlBoolean getUrlParameters(int iMaxReturn, 
-                               UtlString *pNames, 
-                               UtlString *pValues, 
-                               int& iActualReturn);
+    UtlBoolean getUrlParameters(int iMaxReturn,     ///< the maximum number of items to return
+                                UtlString *pNames,  /**< Pointer to a preallocated array of 
+                                                     *   UtlStrings.  If a null is specified,
+                                                     *   the function will false and the
+                                                     *   iActualReturn will contain the actual
+                                                     *   number of parameters. */ 
+                                UtlString *pValues, /**< Pointer to a preallocated array of 
+                                                     *   UtlStrings.  If a null is specified,
+                                                     *   the function will return false and
+                                                     *   the iActualReturn will contain the
+                                                     *   actual number of parameters. */
+                                int& iActualReturn  ///< The actual number of items returned
+                                ) const;
+    /**< @returns TRUE if values are returned otherwise FALSE */
 
     /// Get the named header parameter value
-    /*! \param name - the parameter name to get
-     * \param value - the value of the named parameter
-     * \param index - gets the \a index occurance of the named parameter 
-     *        (the same parameter name may occur multiple times in the URL).
-     * \return TRUE if the indicated parameter exists
-     */
-    UtlBoolean getHeaderParameter(const char* name, 
-                                 UtlString& value, 
-                                 int index = 0);
+    UtlBoolean getHeaderParameter(const char* name, ///< the parameter name to get
+                                  UtlString& value, ///< the value of the named parameter
+                                  int index = 0     /**< gets the index occurance of the named
+                                                     *   parameter (the same parameter name
+                                                     *   may occur multiple times in the URL). */
+                                  ) const;
+    ///< @returns TRUE if the indicated parameter exists
 
     /// Get the name and value of the header parameter at the indicated index
-    /*! \param headerIndex - the index indicting which header parameter to 
-     *          get (starting at 0 for the first one).
-     * \param name - the parameter name at headerIndex
-     * \param value - the value of the parameter at headerIndex
-     * \return TRUE if the indicated parameter exists
+    /*! \param headerIndex - 
+     * \param name - 
+     * \param value - 
+     * \
      */
-    UtlBoolean getHeaderParameter(int headerIndex, 
-                                 UtlString& headerName, 
-                                 UtlString& headerValue);
+    UtlBoolean getHeaderParameter(int headerIndex,      /**< the index indicating which header
+                                                         *   parameter to get (starting at 0
+                                                         *   for the first one). */
+                                  UtlString& headerName, ///< parameter name at headerIndex
+                                  UtlString& headerValue ///< value of parameter at headerIndex
+                                  ) const;
+    ///< @returns TRUE if the indicated parameter exists
 
     /// Set the named header parameter to the given value
     void setHeaderParameter(const char* name,  ///< the parameter name
@@ -431,52 +430,49 @@ public:
     void removeHeaderParameter(const char* name);
 
     ///Gets all of the Header parameters
-    /*! \param iMaxReturn (in) - the maximum number of items to return
-     * \param pNames (out) - Pointer to a preallocated collection of 
-     *        UtlStrings.  If a null is specified, the function will
-     *        return false and the iActualReturn will contain the actual
-     *        number of parameters.
-     * \param pValues (out) - Pointer to a preallocated collection of 
-     *        UtlStrings.  If a null is specified, the function will
-     *        return false and the iActualReturn will contain the actual
-     *        number of parameters.
-     * \param iActualReturn (out) - The actual number of items returned
-     * \return TRUE if values are returned otherwise FALSE
-     */
-    UtlBoolean getHeaderParameters(int iMaxReturn, UtlString *pNames, UtlString *pValues, int& iActualReturn);
-
+    UtlBoolean getHeaderParameters(int iMaxReturn,    ///< the maximum number of items to return
+                                   UtlString *pNames, /**< Pointer to a preallocated collection of 
+                                                       *   UtlStrings.  If a null is specified,
+                                                       *   the function will return false and
+                                                       *   the iActualReturn will contain the
+                                                       *   actual number of parameters. */
+                                   UtlString *pValues,/**< Pointer to a preallocated collection of 
+                                                       *   UtlStrings.  If a null is specified,
+                                                       *   the function will return false and
+                                                       *   the iActualReturn will contain the
+                                                       *   actual number of parameters.*/
+                                   int& iActualReturn ///< The actual number of items returned
+                                   ) const;
+    ///< @returns TRUE if values are returned otherwise FALSE
 
     /// Get the named field parameter value
-    /*! \param name - the parameter name to get
-     * \param value - the value of the named parameter
-     * \param index - gets the \a index occurance of the named parameter 
-     *        (the same parameter name may occur multiple times in the URL).
-     * \return TRUE if the indicated parameter exists
+    /*! \param name - 
+     * \param value - 
+     * \param index - 
+     * \
      */
-    UtlBoolean getFieldParameter(const char* name, 
-                                UtlString& value, 
-                                int index = 0) const;
+    UtlBoolean getFieldParameter(const char* name, ///< the parameter name to get
+                                 UtlString& value, ///< the value of the named parameter
+                                 int index = 0     ///< gets the index occurance of the named
+                                                   /**< parameter (the same parameter name may
+                                                      occur multiple times in the URL). */
+                                 ) const;
+    ///< @returns TRUE if the indicated parameter exists
 
     /// Get the name and value of the field parameter at the indicated
-    //! index
-    /*! \param fieldIndex - the index indicting which field parameter to 
-     *          get (starting at 0 for the first one).
-     * \param name - the parameter name at fieldIndex
-     * \param value - the value of the parameter at fieldIndex
-     * \return TRUE if the indicated parameter exists
-     */
-    UtlBoolean getFieldParameter(int fieldIndex, 
-                                UtlString& name, 
-                                UtlString& value);
+    UtlBoolean getFieldParameter(int fieldIndex, /**< the index indicting which field parameter to 
+                                                  * get (starting at 0 for the first one). */
+                                 UtlString& name, ///< the parameter name at fieldIndex
+                                 UtlString& value ///< the value of the parameter at fieldIndex
+                                 ) const;
+    ///< @returns TRUE if the indicated parameter exists
 
     /// Set the named field parameter to the given value
-    /*! Adds the parameter if it does not exist, sets the value if
-     * it does exist.
-     * \param name - the parameter name
-     * \param value - the value of the parameter
-     */
-    void setFieldParameter(const char* name, 
-                           const char* value);
+    void setFieldParameter(const char* name, ///< the parameter name
+                           const char* value ///< the value of the parameter
+                           );
+     /**< Adds the parameter if it does not exist, sets the value if
+      *   it does exist. */
 
     /// Removes all of the field parameters
     void removeFieldParameters();
@@ -485,22 +481,25 @@ public:
     void removeFieldParameter(const char* name);
 
     /// Gets all of the Header parameters
-    /*! \param iMaxReturn (in) - the maximum number of items to return
-     *        UtlStrings.  If a null is specified, the function will
-     *        return false and the iActualReturn will contain the actual
-     *        number of parameters.
-     * \param pValues (out) - Pointer to a preallocated collection of 
-     *        UtlStrings.  If a null is specified, the function will
-     *        return false and the iActualReturn will contain the actual
-     *        number of parameters.
-     * \param iActualReturn (out) - The actual number of items returned
-     * \return TRUE if values are returned otherwise FALSE
-     */
-    UtlBoolean getFieldParameters(int iMaxReturn, 
-                                 UtlString *pNames, 
-                                 UtlString *pValues, 
-                                 int& iActualReturn);
-
+    UtlBoolean getFieldParameters(int iMaxReturn,    /**< the maximum number of items to return
+                                                      *   UtlStrings.  If a null is specified,
+                                                      *   the function will return false and
+                                                      *   the iActualReturn will contain the
+                                                      *   actual number of parameters. */
+                                  UtlString *pNames, /**< Pointer to a preallocated collection of 
+                                                      *   UtlStrings.  If a null is specified, the
+                                                      *   function will return false and the
+                                                      *   iActualReturn will contain the actual
+                                                      *   number of parameters.*/
+                                  UtlString *pValues, /**< Pointer to a preallocated collection of 
+                                                       *   UtlStrings.  If a null is specified,
+                                                       *   the function will return false and
+                                                       *   the iActualReturn will contain the
+                                                       *   actual number of parameters.*/
+                                  int& iActualReturn ///< The actual number of items returned
+                                  ) const;
+    ///< @returns TRUE if values are returned otherwise FALSE
+    
     /// Forces the presence of angle brackets (i.e. <>) in the URL 
     //! when serialized
     void includeAngleBrackets();
@@ -616,17 +615,18 @@ private:
    int mHostPort;
    UtlString mPath;
 
-   UtlString mRawUrlParameters;
-   bool      parseUrlParameters();//< lazy parser for url parameters
-   UtlDList* mpUrlParameters;
+   bool              parseUrlParameters() const;//< lazy parser for url parameters
+   mutable UtlString mRawUrlParameters;
+   mutable UtlDList* mpUrlParameters;
 
-   UtlString mRawHeaderOrQueryParameters;
-   bool      parseHeaderOrQueryParameters();//< lazy parser for header or query parameters
-   UtlDList* mpHeaderOrQueryParameters;
+   bool              parseHeaderOrQueryParameters() const;//< lazy parser for header or query parameters
+   mutable UtlString mRawHeaderOrQueryParameters;
+   mutable UtlDList* mpHeaderOrQueryParameters;
 
-   UtlString mRawFieldParameters;
-   bool      parseFieldParameters(); //< lazy parser for field parameters
-   UtlDList* mpFieldParameters;
+   bool              parseFieldParameters() const; //< lazy parser for field parameters
+   mutable UtlString mRawFieldParameters;
+   mutable UtlDList* mpFieldParameters;
+
 
    UtlBoolean mAngleBracketsIncluded;
 };

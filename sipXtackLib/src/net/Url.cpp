@@ -558,7 +558,7 @@ void Url::setHostPort(int port)
     mHostPort = port;
 }
 
-UtlBoolean Url::getUrlParameter(const char* name, UtlString& value, int index)
+UtlBoolean Url::getUrlParameter(const char* name, UtlString& value, int index) const
 {
     int foundIndex = 0;
     UtlBoolean found = FALSE;
@@ -588,7 +588,7 @@ UtlBoolean Url::getUrlParameter(const char* name, UtlString& value, int index)
     return(found);
 }
 
-UtlBoolean Url::getUrlParameter(int urlIndex, UtlString& name, UtlString& value)
+UtlBoolean Url::getUrlParameter(int urlIndex, UtlString& name, UtlString& value) const
 {
     NameValuePairInsensitive* url = NULL;
 
@@ -609,7 +609,8 @@ UtlBoolean Url::getUrlParameter(int urlIndex, UtlString& name, UtlString& value)
     return(NULL != url);
 }
 
-UtlBoolean Url::getUrlParameters(int iMaxReturn, UtlString* pNames, UtlString *pValues, int& iActualReturn)
+UtlBoolean Url::getUrlParameters(int iMaxReturn, UtlString* pNames,
+                                 UtlString *pValues, int& iActualReturn) const
 {
     if(! (mpUrlParameters || parseUrlParameters()))
     {
@@ -662,7 +663,7 @@ void Url::setUrlParameter(const char* name, const char* value)
     
 }
 
-UtlBoolean Url::getHeaderParameter(const char* name, UtlString& value, int index)
+UtlBoolean Url::getHeaderParameter(const char* name, UtlString& value, int index) const
 {
     int foundIndex = 0;
     UtlBoolean found = FALSE;
@@ -692,7 +693,8 @@ UtlBoolean Url::getHeaderParameter(const char* name, UtlString& value, int index
     return(found);
 }
 
-UtlBoolean Url::getHeaderParameters(int iMaxReturn, UtlString* pNames, UtlString *pValues, int& iActualReturn)
+UtlBoolean Url::getHeaderParameters(int iMaxReturn, UtlString* pNames,
+                                    UtlString *pValues, int& iActualReturn) const
 {
     if(!(mpHeaderOrQueryParameters || parseHeaderOrQueryParameters()))
     {
@@ -905,7 +907,7 @@ void Url::setHeaderParameter(const char* name, const char* value)
    }
 }
 
-UtlBoolean Url::getHeaderParameter(int headerIndex, UtlString& name, UtlString& value)
+UtlBoolean Url::getHeaderParameter(int headerIndex, UtlString& name, UtlString& value) const
 {
     NameValuePairInsensitive* header = NULL;
 
@@ -982,7 +984,7 @@ UtlBoolean Url::getFieldParameter(const char* name, UtlString& value, int index)
     return(found);
 }
 
-UtlBoolean Url::getFieldParameter(int fieldIndex, UtlString& name, UtlString& value)
+UtlBoolean Url::getFieldParameter(int fieldIndex, UtlString& name, UtlString& value) const
 {
     NameValuePairInsensitive* field = NULL;
 
@@ -1003,7 +1005,8 @@ UtlBoolean Url::getFieldParameter(int fieldIndex, UtlString& name, UtlString& va
     return(NULL != field);
 }
 
-UtlBoolean Url::getFieldParameters(int iMaxReturn, UtlString* pNames, UtlString *pValues, int& iActualReturn)
+UtlBoolean Url::getFieldParameters(int iMaxReturn, UtlString* pNames,
+                                   UtlString *pValues, int& iActualReturn) const
 {
     if(!(mpFieldParameters || parseFieldParameters()))
     {
@@ -1687,7 +1690,7 @@ const char* Url::schemeName( Url::Scheme scheme ) const
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-bool Url::parseUrlParameters() 
+bool Url::parseUrlParameters() const
 {
    if (!mpUrlParameters && !mRawUrlParameters.isNull())
    {
@@ -1702,7 +1705,7 @@ bool Url::parseUrlParameters()
    return mpUrlParameters != NULL;
 }
 
-bool Url::parseHeaderOrQueryParameters() 
+bool Url::parseHeaderOrQueryParameters() const
 {
    if (!mpHeaderOrQueryParameters && !mRawHeaderOrQueryParameters.isNull())
    {
@@ -1717,7 +1720,7 @@ bool Url::parseHeaderOrQueryParameters()
    return mpHeaderOrQueryParameters != NULL;
 }
 
-bool Url::parseFieldParameters() 
+bool Url::parseFieldParameters() const
 {
    if (!mpFieldParameters && !mRawFieldParameters.isNull())
    {
