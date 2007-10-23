@@ -16,6 +16,8 @@ Source: %name-%version.tar.gz
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
+@RPMBUILD_DEBUG_PACKAGE_SPEC@
+
 %description
 This project provides an RFC 3261, 3263 complient SIP stack. This
 stack is built upon a modest foot print HTTP stack. Both the SIP and
@@ -45,8 +47,6 @@ class. This project depends upon the sipXportLib OS abstraction layer.
 
 This package contains the neccessary header files and static libraries
 helpful to build projects from the sipX library
-
-@RPMBUILD_DEBUG_PACKAGE_SPEC@
 
 %prep
 %setup -q

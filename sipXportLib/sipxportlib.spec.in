@@ -18,6 +18,8 @@ Url: http://www.pingtel.com
 Requires: openssl >= 0.9.7a
 Requires: pcre >= 4.5
 
+@RPMBUILD_DEBUG_PACKAGE_SPEC@
+
 Source: %name-%version.tar.gz
 
 Prefix: %_prefix
@@ -69,8 +71,6 @@ encapsulate functions and operations for:
 
 This package contains the neccessary header files and static libraries
 helpful to build projects from the sipX library
-
-@RPMBUILD_DEBUG_PACKAGE_SPEC@
 
 %prep
 %setup -q

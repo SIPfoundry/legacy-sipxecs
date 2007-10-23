@@ -17,6 +17,8 @@ Requires: sipxpbx >= 3.9
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
+@RPMBUILD_DEBUG_PACKAGE_SPEC@
+
 %description
 TBD
 
@@ -29,8 +31,6 @@ Summary: Header files for %name
 
 %description devel
 Developer support for sipXacd.
-
-@RPMBUILD_DEBUG_PACKAGE_SPEC@
 
 %prep
 %setup -q

@@ -17,6 +17,8 @@ Requires: sipxmedialib >= 3.9
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
+@RPMBUILD_DEBUG_PACKAGE_SPEC@
+
 %description
 The call processing subsystem provides the core to all sipX end points
 or user agents (e.g. sipXphone and sipXvxml. The sipXcallLib library
@@ -58,8 +60,6 @@ contains technologies related to call processing:
 
 This package contains the neccessary header files and static libraries
 helpful to build projects from the sipX library
-
-@RPMBUILD_DEBUG_PACKAGE_SPEC@
 
 %prep
 %setup -q

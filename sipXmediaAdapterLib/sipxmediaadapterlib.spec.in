@@ -21,6 +21,8 @@ Source: %name-%version.tar.gz
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
+@RPMBUILD_DEBUG_PACKAGE_SPEC@
+
 %description
  This library provides a set of adapters for using a media subsystem. Three
 adapters currently have been implemented. They are for Pintel media processing,
@@ -47,8 +49,6 @@ adapters currently have been implemented. They are for Pintel media processing,
 GIPS VoiceEngine, and GIPS ConferenceEngine. The applications must select an
 appropriate library during the link time in order to use the right media
 subsystem.
-
-@RPMBUILD_DEBUG_PACKAGE_SPEC@
 
 %prep
 %setup -q
