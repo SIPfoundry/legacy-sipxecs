@@ -96,51 +96,64 @@ SipRedirectorAliasDB::lookUp(
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage)
 {
-   UtlString requestIdentity;
-   requestUri.getIdentity(requestIdentity);
-
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s'",
-                 mLogName.data(), requestIdentity.data());
-
-   ResultSet aliases;
-   AliasDB::getInstance()->getContacts(requestUri, aliases);
-   int numAliasContacts = aliases.getSize();
-   if (numAliasContacts > 0)
+   // If url param sipx-userforward = false, do not redirect to its aliases
+   UtlString disableForwarding;
+   requestUri.getUrlParameter("sipx-userforward", disableForwarding);
+   if (disableForwarding.compareTo("false", UtlString::ignoreCase) == 0)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp "
-                    "got %d AliasDB contacts", mLogName.data(),
-                    numAliasContacts);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp user forwarding disabled by parameter",
+                    mLogName.data());
+   }
+   else
+   {
+      UtlString requestIdentity;
+      requestUri.getIdentity(requestIdentity);
 
-      // Check if the request identity is a real user/extension
-      UtlString realm;
-      UtlString authType;
-      bool isUserIdentity = CredentialDB::getInstance()->isUriDefined(requestUri, realm, authType);
-      SipXauthIdentity authIdentity;
-      authIdentity.setIdentity(requestIdentity);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s'",
+                    mLogName.data(), requestIdentity.data());
 
-      for (int i = 0; i < numAliasContacts; i++)
+
+      ResultSet aliases;
+      AliasDB::getInstance()->getContacts(requestUri, aliases);
+      int numAliasContacts = aliases.getSize();
+      if (numAliasContacts > 0)
       {
-         static UtlString contactKey("contact");
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp "
+                       "got %d AliasDB contacts", mLogName.data(),
+                       numAliasContacts);
 
-         UtlHashMap record;
-         if (aliases.getIndex(i, record))
+         // Check if the request identity is a real user/extension
+         UtlString realm;
+         UtlString authType;
+         bool isUserIdentity =
+            CredentialDB::getInstance()->isUriDefined(requestUri, realm, authType);
+         SipXauthIdentity authIdentity;
+         authIdentity.setIdentity(requestIdentity);
+
+         for (int i = 0; i < numAliasContacts; i++)
          {
-            UtlString contact = *((UtlString*)record.findValue(&contactKey));
-            Url contactUri(contact);
+            static UtlString contactKey("contact");
 
-            // if the request identity is a real user
-            if (isUserIdentity)
+            UtlHashMap record;
+            if (aliases.getIndex(i, record))
             {
-               // Encode AuthIdentity into the URI
-               authIdentity.encodeUri(contactUri, message);
-            }
+               UtlString contact = *((UtlString*)record.findValue(&contactKey));
+               Url contactUri(contact);
 
-            // Add the contact.
-            addContact(response, requestString, contactUri,
-                       mLogName.data());
+               // if the request identity is a real user
+               if (isUserIdentity)
+               {
+                  // Encode AuthIdentity into the URI
+                  authIdentity.encodeUri(contactUri, message);
+               }
+
+               // Add the contact.
+               addContact(response, requestString, contactUri,
+                          mLogName.data());
+            }
          }
       }
-   }
 
-   return RedirectPlugin::LOOKUP_SUCCESS;
+      return RedirectPlugin::LOOKUP_SUCCESS;
+   }
 }
