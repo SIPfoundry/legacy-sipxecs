@@ -35,7 +35,7 @@ public class SimpleSipxProcessModelTest extends TestCase {
         assertEquals(0 < m_processModel.getAll().size(), true);
         assertEquals(m_processModel.getAll().size(), ProcessName.getAll().size());
 
-        List<ProcessName> l = (List<ProcessName>) ProcessName.getAll();
+        List<ProcessName> l = ProcessName.getAll();
         assertNotNull(l);
         assertEquals(l.size(), m_processModel.getAll().size());
         for (ProcessName name : l) {

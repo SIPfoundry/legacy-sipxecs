@@ -45,7 +45,7 @@ public class UserRing extends AbstractRing {
      * @return true if this is the first ring
      */
     public boolean isFirst() {
-        AbstractRing ring = (AbstractRing) getCallGroup().getRings().get(0);
+        AbstractRing ring = getCallGroup().getRings().get(0);
         return ring == this;
     }
 }
