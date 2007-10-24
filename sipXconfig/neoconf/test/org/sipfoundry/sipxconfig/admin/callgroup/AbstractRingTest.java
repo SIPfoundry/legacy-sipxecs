@@ -34,8 +34,8 @@ public class AbstractRingTest extends TestCase {
 
         // with new q value - ring2 is delayed, q mustbe < 1.0
         ForkQueueValue q1 = new ForkQueueValue(3);
-        contact2 = ring2.calculateContact("sipfoundry.org", q1, false, true, null);
-        assertEquals("<sip:333@sipfoundry.org?expires=25>;q=0.95", contact2);
+        contact2 = ring2.calculateContact("sipfoundry.org", q1, false, false, null);
+        assertEquals("<sip:333@sipfoundry.org;sipx-userforward=false?expires=25>;q=0.95", contact2);
     }
 
     public void testCalculateContactWithPrefix() {

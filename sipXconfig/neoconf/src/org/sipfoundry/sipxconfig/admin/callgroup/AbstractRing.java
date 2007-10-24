@@ -21,8 +21,8 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
 
     private static final int DEFAULT_EXPIRATION = 30;
     private static final String FORMAT = "<sip:%s%s%s?expires=%s>;%s";
-    private static final String IGNORE_VOICEMAIL_FIELD_PARAM = ";sipx-noroute=Voicemail";
-    private static final String DISABLE_USERFORWARD_FIELD_PARAM = ";sipx-userforward=false";
+    private static final String IGNORE_VOICEMAIL_FIELD_PARAM = "sipx-noroute=Voicemail";
+    private static final String DISABLE_USERFORWARD_FIELD_PARAM = "sipx-userforward=false";
     private static final String PARAM_DELIMITER = ";";
 
     private int m_expiration = DEFAULT_EXPIRATION;
@@ -116,11 +116,13 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
 
         StringBuilder fieldParams = new StringBuilder();
         if (!userforward) {
-            fieldParams.append(DISABLE_USERFORWARD_FIELD_PARAM);
             fieldParams.append(PARAM_DELIMITER);
+            fieldParams.append(DISABLE_USERFORWARD_FIELD_PARAM);
         }
-        fieldParams.append(appendIgnoreVoicemail ? IGNORE_VOICEMAIL_FIELD_PARAM
-                : StringUtils.EMPTY);
+        if (appendIgnoreVoicemail) {
+            fieldParams.append(PARAM_DELIMITER);
+            fieldParams.append(IGNORE_VOICEMAIL_FIELD_PARAM);
+        }
 
         StringBuilder urlParams = new StringBuilder(q.getValue(m_type));
         addUrlParams(urlParams);
