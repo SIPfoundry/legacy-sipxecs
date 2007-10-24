@@ -36,7 +36,7 @@
  *   z9hG4bK-sipX-0000f9b367e05e4caf080a850f722bd5d10d
  *
  * - With a loop detect key (a forked request):
- *   z9hG4bK-sipX-0000f9b367e05e4caf080a850f722bd5d10d$cffa2937819b53a8b7cee52b0fcba1f7
+ *   z9hG4bK-sipX-0000f9b367e05e4caf080a850f722bd5d10d%cffa2937819b53a8b7cee52b0fcba1f7
  *
  * **************************************************************** */
 

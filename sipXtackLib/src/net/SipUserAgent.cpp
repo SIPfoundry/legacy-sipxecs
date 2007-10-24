@@ -1093,6 +1093,12 @@ UtlBoolean SipUserAgent::sendSymmetricUdp(const SipMessage& message,
                                              serverAddress,
                                              port);
 
+    // :TODO: Relocate all the OUTGOING log messages into the SipClient*'s that
+    // actually send the messages, so that the log messages record when/if
+    // the message is sent, rather than when it is queued.
+    // This will also consolidate the 6(?) different places where OUTGOING
+    // messages are logged.
+
     // Don't bother processing unless the logs are enabled
     if (    isMessageLoggingEnabled() ||
             OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))

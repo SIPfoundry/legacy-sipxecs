@@ -57,7 +57,7 @@ class RouteStateTest;
  * route set for the dialog is established by the Record-Route header(s) in
  * the request/response messages that create the dialog.  Subsequent
  * messages in the dialog carry those values in Route headers, but they
- * cannot be changed.  To determine wheter state can be changes, call
+ * cannot be changed.  To determine whether state can be changed, call
  * isMutable.
  *
  * @Note  The SIP protocol allows a proxy to modify the Record-Route headers in the
