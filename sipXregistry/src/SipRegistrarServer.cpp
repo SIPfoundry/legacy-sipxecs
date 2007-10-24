@@ -1429,7 +1429,7 @@ void SipRegistrarServer::resetDbUpdateNumberEpoch()
    }
    else if (newEpoch + (((Int64) (15 * 60)) << 32) /* 15 minutes */ < current)
    {
-      // If the new epoch number is more then 15 minutes less than the
+      // If the new epoch number is more than 15 minutes less than the
       // highest update number that has already been used, 
       // warn the user that there may be problems -- the update mechanism will
       // work OK, but it's likely that there are future-dated registrations
