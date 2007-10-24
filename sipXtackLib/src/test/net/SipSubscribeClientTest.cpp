@@ -1574,3 +1574,470 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipSubscribeClientTest4);
+
+// Repeat the tests in SipSubscribeClientTest3, but force TCP transport.
+class SipSubscribeClientTest5 : public CppUnit::TestCase
+{
+   CPPUNIT_TEST_SUITE(SipSubscribeClientTest5);
+#ifdef EXECUTE_SLOW_TESTS
+   CPPUNIT_TEST(subscribeMwiClientTest);
+#endif // EXECUTE_SLOW_TESTS
+   CPPUNIT_TEST(contactTest);
+   CPPUNIT_TEST_SUITE_END();
+
+public:
+
+   UtlBoolean removeMessage(OsMsgQ& messageQueue,
+                            int waitMilliSeconds,
+                            const SipMessage*& message)
+      {
+         UtlBoolean gotMessage = FALSE;
+         message = NULL;
+         OsTime messageTimeout(0, waitMilliSeconds * 1000);
+         OsMsg* osMessage = NULL;
+         messageQueue.receive(osMessage, messageTimeout);
+         if(osMessage)
+         {
+            int msgType = osMessage->getMsgType();
+            int msgSubType = osMessage->getMsgSubType();
+            int messageType = ((SipMessageEvent*)osMessage)->getMessageStatus();
+            if(msgType == OsMsg::PHONE_APP &&
+               msgSubType == SipMessage::NET_SIP_MESSAGE &&
+               messageType == SipMessageEvent::APPLICATION)
+            {
+               message = ((SipMessageEvent*)osMessage)->getMessage();
+               gotMessage = TRUE;
+
+#ifdef TEST_PRINT
+               if(message)
+               {
+                  UtlString messageBytes;
+                  int len;
+                  message->getBytes(&messageBytes, &len);
+                  printf("%s", messageBytes.data());
+               }
+               else
+               {
+                  printf("removeMessage: messageBytes: <null>\n");
+               }
+#endif
+            }
+         }
+         return(gotMessage);
+      }
+
+   // Variables used by setUp/tearDown and the tests.
+
+   UtlString hostIp;
+   SipUserAgent* userAgentp;
+   UtlString notifier_addr_spec;
+   UtlString notifier_name_addr;
+   UtlString notifier_contact_name_addr;
+   UtlString resource_id;
+   UtlString subscriber_addr_spec;
+   UtlString subscriber_name_addr;
+   UtlString subscriber_contact_name_addr;
+   UtlString eventTypeKey;
+   UtlString eventType;
+   SipDialogMgr* clientDialogMgrp;
+   SipRefreshManager* refreshMgrp;
+   SipSubscribeClient* subClientp;
+   SipSubscribeServer* subServerp;
+   SipSubscriptionMgr* subMgrp;
+   OsMsgQ subIncomingServerMsgQueue;
+   OsMsgQ subIncomingClientMsgQueue;
+   OsMsgQ notIncomingServerMsgQueue;
+   OsMsgQ notIncomingClientMsgQueue;
+
+   void setUp()
+      {
+         hostIp = "127.0.0.1";
+         eventTypeKey = SIP_EVENT_MESSAGE_SUMMARY;
+         eventType = eventTypeKey;
+
+         // defaultSipAddress is set to force the SipUserAgent to open
+         // ports on that interface.
+         // publicAddress is set to force the SipUserAgent to report
+         // that as its address.
+         userAgentp = new SipUserAgent(PORT_DEFAULT, PORT_NONE, PORT_NONE,
+                                       hostIp, NULL, hostIp);
+         userAgentp->start();
+
+         // Construct the URI of the notifier.
+         // Also construct the name-addr version of the URI, which may be
+         // different if it has a "transport" parameter.
+         // And the resource-id to use, which is the AOR with any
+         // parameters stripped off.
+         {
+            char buffer[100];
+            sprintf(buffer, "sip:222@%s:%d", hostIp.data(),
+                    userAgentp->getTcpPort());
+            resource_id = buffer;
+
+            // Specify TCP transport, because that's all the UA listens to.
+            // Using an address with a transport parameter also exercises
+            // SipDialog to ensure it handles contact addresses with parameters.
+            strcat(buffer, ";transport=tcp");
+            notifier_addr_spec = buffer;
+
+            Url notifier_uri(buffer, TRUE);
+            notifier_uri.toString(notifier_name_addr);
+            notifier_uri.setUserId(NULL);
+            notifier_uri.toString(notifier_contact_name_addr);
+         }
+
+         // Construct the URI of the subscriber.
+         // Also construct the name-addr version of the URI, which may be
+         // different if it has a "transport" parameter.
+         {
+            char buffer[100];
+            sprintf(buffer, "sip:111@%s:%d", hostIp.data(),
+                    userAgentp->getTcpPort());
+
+            // Specify TCP transport, because that's all the UA listens to.
+            // Using an address with a transport parameter also exercises
+            // SipDialog to ensure it handles contact addresses with parameters.
+            strcat(buffer, ";transport=tcp");
+            subscriber_addr_spec = buffer;
+
+            Url subscriber_uri(buffer, TRUE);
+            subscriber_uri.toString(subscriber_name_addr);
+            subscriber_uri.setUserId(NULL);
+            subscriber_uri.toString(subscriber_contact_name_addr);
+         }
+
+         // Set up the subscribe client
+         clientDialogMgrp = new SipDialogMgr;
+         refreshMgrp = new SipRefreshManager(*userAgentp, *clientDialogMgrp);
+         refreshMgrp->start();
+         subClientp = new SipSubscribeClient(*userAgentp, *clientDialogMgrp, *refreshMgrp);
+         subClientp->start();
+
+         // Set up the subscribe server
+         subServerp = SipSubscribeServer::buildBasicServer(*userAgentp,
+                                                           eventType);
+         subMgrp = subServerp->getSubscriptionMgr(eventType);
+         subMgrp->getDialogMgr();
+         subServerp->getPublishMgr(eventType);
+
+         subServerp->start();
+         // Enable the handler for the MWI server
+         subServerp->enableEventType(eventType, userAgentp);
+
+         // Create a SUBSCRIBE observer
+         // Register an interest in SUBSCRIBE requests 
+         // for this event type
+         userAgentp->addMessageObserver(subIncomingServerMsgQueue,
+                                        SIP_SUBSCRIBE_METHOD,
+                                        TRUE, // requests
+                                        FALSE, // no reponses
+                                        TRUE, // incoming
+                                        FALSE, // no outgoing
+                                        eventType,
+                                        NULL,
+                                        NULL);
+
+         userAgentp->addMessageObserver(subIncomingClientMsgQueue,
+                                        SIP_SUBSCRIBE_METHOD,
+                                        FALSE, // no requests
+                                        TRUE, // reponses
+                                        TRUE, // incoming
+                                        FALSE, // no outgoing
+                                        eventType,
+                                        NULL,
+                                        NULL);
+
+         // Create a NOTIFY observer
+         // Register an interest in NOTIFY requests 
+         // for this event type
+         userAgentp->addMessageObserver(notIncomingServerMsgQueue,
+                                        SIP_NOTIFY_METHOD,
+                                        TRUE, // requests
+                                        FALSE, // no reponses
+                                        TRUE, // incoming
+                                        FALSE, // no outgoing
+                                        eventType,
+                                        NULL,
+                                        NULL);
+
+         userAgentp->addMessageObserver(notIncomingClientMsgQueue,
+                                        SIP_NOTIFY_METHOD,
+                                        FALSE, // no requests
+                                        TRUE, // reponses
+                                        TRUE, // incoming
+                                        FALSE, // no outgoing
+                                        eventType,
+                                        NULL,
+                                        NULL);
+      }
+
+   void tearDown()
+      {
+         // Unregister the queues so we stop receiving messages on them
+         userAgentp->removeMessageObserver(subIncomingServerMsgQueue);
+         userAgentp->removeMessageObserver(subIncomingClientMsgQueue);
+         userAgentp->removeMessageObserver(notIncomingServerMsgQueue);
+         userAgentp->removeMessageObserver(notIncomingClientMsgQueue);
+
+         OsTask::delay(1000);   // 1 second to let other threads clean up
+
+         subClientp->requestShutdown();
+         refreshMgrp->requestShutdown();
+         subServerp->requestShutdown();
+         userAgentp->shutdown(TRUE);
+
+         OsTask::delay(1000);   // 1 second to let other threads clean up
+
+         delete subMgrp;
+         delete subServerp;
+         delete subClientp;
+         delete refreshMgrp;
+         delete clientDialogMgrp;
+         delete userAgentp;
+      }
+
+   void subscribeMwiClientTest()
+      {
+         smClientExpiration = -1;
+         smNumClientNotifiesReceived = 0;
+         smLastClientNotifyReceived = NULL;
+         smNumClientSubResponsesReceived = 0;
+         smLastClientSubResponseReceived = NULL;
+
+         // Get the Content Manager.
+         SipPublishContentMgr* contentMgrp = subServerp->getPublishMgr(eventType);
+
+         // Should not be any pre-existing content
+         HttpBody* preexistingBodyPtr;
+         UtlBoolean isDefaultContent;
+         int version;
+         CPPUNIT_ASSERT(!contentMgrp->getContent(resource_id,
+                                                 eventTypeKey, 
+                                                 eventType, 
+                                                 NULL, 
+                                                 preexistingBodyPtr, 
+                                                 version,
+                                                 isDefaultContent));
+         int numDefaultContent = -1;
+         int numDefaultConstructor = -1;
+         int numResourceSpecificContent = -1;
+         int numCallbacksRegistered = -1;
+         contentMgrp->getStats(numDefaultContent,
+                               numDefaultConstructor,
+                               numResourceSpecificContent,
+                               numCallbacksRegistered);
+         CPPUNIT_ASSERT(numDefaultContent == 0);
+         CPPUNIT_ASSERT(numDefaultConstructor == 0);
+         CPPUNIT_ASSERT(numResourceSpecificContent == 0);
+         CPPUNIT_ASSERT(numCallbacksRegistered == 1);
+
+         // Set up a subscription.
+         UtlString earlyDialogHandle;
+         CPPUNIT_ASSERT(subClientp->addSubscription(notifier_addr_spec,
+                                                    eventType,
+                                                    NULL,
+                                                    subscriber_name_addr.data(),
+                                                    notifier_name_addr.data(),
+                                                    NULL, // Let SipUserAgent choose Contact
+                                                    60, // seconds expiration
+                                                    this,
+                                                    subStateCallback,
+                                                    notifyCallback,
+                                                    earlyDialogHandle));
+
+         contentMgrp->getStats(numDefaultContent,
+                               numDefaultConstructor,
+                               numResourceSpecificContent,
+                               numCallbacksRegistered);
+         CPPUNIT_ASSERT(numDefaultContent == 0);
+         CPPUNIT_ASSERT(numDefaultConstructor == 0);
+         CPPUNIT_ASSERT(numResourceSpecificContent == 0);
+         CPPUNIT_ASSERT(numCallbacksRegistered == 1);
+
+         // See if a subscribe was sent and received
+         const SipMessage* serverSideSubRequest = NULL;
+         CPPUNIT_ASSERT(removeMessage(subIncomingServerMsgQueue,
+                                      5000, // milliseconds
+                                      serverSideSubRequest));
+         CPPUNIT_ASSERT(serverSideSubRequest); // Sub request got to server
+
+         // Check the Contact in the subscribe request.
+         ASSERT_STR_EQUAL(subscriber_contact_name_addr,
+                          serverSideSubRequest->
+                              getHeaderValue(0, SIP_CONTACT_FIELD));
+
+         const SipMessage* clientSideSubResponse = NULL;
+         CPPUNIT_ASSERT(removeMessage(subIncomingClientMsgQueue,
+                                      5000, // milliseconds
+                                      clientSideSubResponse));
+         CPPUNIT_ASSERT(clientSideSubResponse);
+
+         // Check the Contact in the subscribe response.
+         ASSERT_STR_EQUAL(notifier_contact_name_addr,
+                          clientSideSubResponse->
+                              getHeaderValue(0, SIP_CONTACT_FIELD));
+
+         int waitIterations = 0;
+         while(smLastClientNotifyReceived == NULL ||
+               smLastClientSubResponseReceived == NULL)
+         {
+            OsTask::delay(100);
+            waitIterations++;
+            if(waitIterations >= 100)
+            {
+               break;
+            }
+         }
+
+         CPPUNIT_ASSERT(smLastClientSubResponseReceived);
+         CPPUNIT_ASSERT(smLastClientNotifyReceived);
+         SipMessage* firstSubResponse = smLastClientSubResponseReceived;
+         smLastClientSubResponseReceived = NULL;
+         int firstSubCseq;
+         firstSubResponse->getCSeqField(&firstSubCseq, NULL);
+         SipMessage* firstNotifyRequest = smLastClientNotifyReceived;
+         smLastClientNotifyReceived = NULL;
+         int firstNotifyCseq;
+         firstNotifyRequest->getCSeqField(&firstNotifyCseq, NULL);
+         CPPUNIT_ASSERT(firstSubCseq == 1);
+         CPPUNIT_ASSERT(firstNotifyCseq == 0);
+
+         // The refresh manager should re-SUBSCRIBE
+         // Wait for the next notify request and subscribe response
+         int secondMessageWait = 60;
+         int resendTimeout = 0.55 * secondMessageWait;
+         if(resendTimeout < 40)
+         {
+            resendTimeout = 40;
+         }
+         for(int i = 0; i < secondMessageWait - 1; i++)
+         {
+            if(i == resendTimeout - 1)
+            {
+               printf("v");
+            }
+            else
+            {
+               printf("=");
+            }
+         }
+         printf("v\n");
+         SipMessage* secondSubResponse = NULL;
+         SipMessage* secondNotifyRequest = NULL;
+
+         while(secondNotifyRequest == NULL ||
+               secondSubResponse == NULL)
+         {
+            OsTask::delay(1000);
+            if(smLastClientSubResponseReceived)
+            {
+               secondSubResponse = smLastClientSubResponseReceived;
+               smLastClientSubResponseReceived = NULL;
+            }
+            if(smLastClientNotifyReceived)
+            {
+               secondNotifyRequest = smLastClientNotifyReceived;
+               smLastClientNotifyReceived = NULL;
+            }
+            printf(".");
+            fflush(stdout);
+            waitIterations++;
+            if(waitIterations >= secondMessageWait)
+            {
+               printf("!");
+               break;
+            }
+         }
+         printf("\n");
+
+         CPPUNIT_ASSERT(removeMessage(subIncomingServerMsgQueue,
+                                      5000, // milliseconds
+                                      serverSideSubRequest));
+         CPPUNIT_ASSERT(serverSideSubRequest); // Sub request got to server
+
+         CPPUNIT_ASSERT(removeMessage(subIncomingClientMsgQueue,
+                                      5000, // milliseconds
+                                      clientSideSubResponse));
+         CPPUNIT_ASSERT(clientSideSubResponse); // Sub response got to client
+
+         CPPUNIT_ASSERT(secondNotifyRequest);
+         CPPUNIT_ASSERT(secondSubResponse);
+         int secondSubCseq = -1;
+         int secondNotifyCseq = -1;
+         smLastClientSubResponseReceived = NULL;
+         secondSubResponse->getCSeqField(&secondSubCseq, NULL);
+         smLastClientNotifyReceived = NULL;
+         secondNotifyRequest->getCSeqField(&secondNotifyCseq, NULL);
+         CPPUNIT_ASSERT(firstSubCseq < secondSubCseq);
+         CPPUNIT_ASSERT(firstNotifyCseq < secondNotifyCseq);
+      }
+
+   // Test that the Contact headers on SUBSCRIBE and NOTIFY requests
+   // and responses are what is expected.
+   // This tests XECS-297, XECS-298, and XECS-299.
+   void contactTest()
+      {
+         // Set up a subscription.
+         UtlString earlyDialogHandle;
+         CPPUNIT_ASSERT(subClientp->addSubscription(notifier_addr_spec,
+                                                    eventType,
+                                                    NULL,
+                                                    subscriber_name_addr.data(),
+                                                    notifier_name_addr.data(),
+                                                    NULL, // Let SipUserAgent choose Contact
+                                                    60, // seconds expiration
+                                                    this,
+                                                    subStateCallback,
+                                                    notifyCallback,
+                                                    earlyDialogHandle));
+
+         // See if a subscribe was sent and received
+         const SipMessage* serverSideSubRequest = NULL;
+         CPPUNIT_ASSERT(removeMessage(subIncomingServerMsgQueue,
+                                      5000, // milliseconds
+                                      serverSideSubRequest));
+         CPPUNIT_ASSERT(serverSideSubRequest); // Sub request got to server
+
+         // Check the Contact in the subscribe request.
+         ASSERT_STR_EQUAL(subscriber_contact_name_addr,
+                          serverSideSubRequest->
+                              getHeaderValue(0, SIP_CONTACT_FIELD));
+
+         const SipMessage* clientSideSubResponse = NULL;
+         CPPUNIT_ASSERT(removeMessage(subIncomingClientMsgQueue,
+                                      5000, // milliseconds
+                                      clientSideSubResponse));
+         CPPUNIT_ASSERT(clientSideSubResponse);
+
+         // Check the Contact in the subscribe response.
+         ASSERT_STR_EQUAL(notifier_contact_name_addr,
+                          clientSideSubResponse->
+                              getHeaderValue(0, SIP_CONTACT_FIELD));
+
+         // See if a notify was sent and received
+         const SipMessage* clientSideNotRequest = NULL;
+         CPPUNIT_ASSERT(removeMessage(notIncomingClientMsgQueue,
+                                      5000, // milliseconds
+                                      clientSideNotRequest));
+         CPPUNIT_ASSERT(clientSideNotRequest); // NOTIFY request got to client
+
+         // Check the Contact in the NOTIFY request.
+         ASSERT_STR_EQUAL(notifier_contact_name_addr,
+                          clientSideNotRequest->
+                              getHeaderValue(0, SIP_CONTACT_FIELD));
+
+         const SipMessage* serverSideNotResponse = NULL;
+         CPPUNIT_ASSERT(removeMessage(notIncomingServerMsgQueue,
+                                      5000, // milliseconds
+                                      serverSideNotResponse));
+         CPPUNIT_ASSERT(serverSideNotResponse);
+
+         // Check the Contact in the NOTIFY response.
+         ASSERT_STR_EQUAL(subscriber_contact_name_addr,
+                          serverSideNotResponse->
+                              getHeaderValue(0, SIP_CONTACT_FIELD));
+      }
+
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(SipSubscribeClientTest5);
