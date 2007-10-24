@@ -9,6 +9,9 @@
 # that it accepts).  This is done because applying --before/--after at
 # the syslog2siptrace stage is much faster when the logs are large.
 
+# Failed subcommands will cause this script to exit.
+set -e
+
 # Separate the options from the files.
 SYSLOG2SIPTRACE_OPTIONS=
 SIPTRACE_MERGE_OPTIONS=
