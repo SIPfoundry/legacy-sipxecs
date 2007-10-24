@@ -120,7 +120,7 @@ public class AbstractCallSequence extends BeanWithId {
      * @return list of AliasMapping objects
      */
     protected List<AliasMapping> generateAliases(String identity, String domain,
-            boolean neverRouteToVoicemail, ForkQueueValue q) {
+            boolean neverRouteToVoicemail, boolean userForward, ForkQueueValue q) {
 
         List<AbstractRing> rings = getRings();
 
@@ -140,7 +140,7 @@ public class AbstractCallSequence extends BeanWithId {
             if (!ignoreVoiceMail) {
                 ignoreVoiceMail = Type.IMMEDIATE.equals(r.getType());
             }
-            String contact = r.calculateContact(domain, q, ignoreVoiceMail, null);
+            String contact = r.calculateContact(domain, q, ignoreVoiceMail, userForward, null);
             AliasMapping alias = new AliasMapping(identity, contact);
             aliases.add(alias);
         }
@@ -160,7 +160,7 @@ public class AbstractCallSequence extends BeanWithId {
     protected List<AliasMapping> generateAliases(String identity, String domain,
             boolean neverRouteToVoicemail) {
         ForkQueueValue forkQueueValue = new ForkQueueValue(getRings().size());
-        return generateAliases(identity, domain, neverRouteToVoicemail, forkQueueValue);
+        return generateAliases(identity, domain, neverRouteToVoicemail, true, forkQueueValue);
     }
 
     /**

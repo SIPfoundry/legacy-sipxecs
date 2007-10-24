@@ -29,6 +29,7 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
     private String m_description;
     private String m_fallbackDestination;
     private boolean m_voicemailFallback = true;
+    private boolean m_userForward = true;
 
     public CallGroup() {
         // bean usage only
@@ -97,6 +98,14 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
         m_voicemailFallback = voicemailFallback;
     }
 
+    public boolean getUserForward() {
+        return m_userForward;
+    }
+
+    public void setUserForward(boolean userForward) {
+        m_userForward = userForward;
+    }
+
     /**
      * Inserts a new ring for a specific user
      * 
@@ -133,7 +142,8 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
         String myIdentity = AliasMapping.createUri(m_name, domainName);
 
         ForkQueueValue forkQueueValue = new ForkQueueValue(getRings().size() + 1);
-        List<AliasMapping> aliases = generateAliases(myIdentity, domainName, true, forkQueueValue);
+        List<AliasMapping> aliases = generateAliases(myIdentity, domainName, true, m_userForward,
+                forkQueueValue);
 
         if (m_voicemailFallback) {
             AbstractRing lastRing = getLastRing();
@@ -144,7 +154,7 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
                     forkQueueValue.getSerial();
                 }
                 String vmailContact = lastRing.calculateContact(domainName, forkQueueValue,
-                        false, MappingRule.Voicemail.VM_PREFIX);
+                        false, m_userForward, MappingRule.Voicemail.VM_PREFIX);
                 aliases.add(new AliasMapping(myIdentity, vmailContact));
             }
         } else if (StringUtils.isNotBlank(m_fallbackDestination)) {

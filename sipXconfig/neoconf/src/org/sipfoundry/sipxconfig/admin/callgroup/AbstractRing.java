@@ -22,6 +22,8 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
     private static final int DEFAULT_EXPIRATION = 30;
     private static final String FORMAT = "<sip:%s%s%s?expires=%s>;%s";
     private static final String IGNORE_VOICEMAIL_FIELD_PARAM = ";sipx-noroute=Voicemail";
+    private static final String DISABLE_USERFORWARD_FIELD_PARAM = ";sipx-userforward=false";
+    private static final String PARAM_DELIMITER = ";";
 
     private int m_expiration = DEFAULT_EXPIRATION;
     private Type m_type = Type.DELAYED;
@@ -101,7 +103,7 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
      * @return String representing the contact
      */
     public final String calculateContact(String domain, ForkQueueValue q,
-            boolean appendIgnoreVoicemail, String prefix) {
+            boolean appendIgnoreVoicemail, boolean userforward, String prefix) {
 
         StringBuilder userPart = new StringBuilder(StringUtils.defaultString(prefix));
         userPart.append(getUserPart().toString());
@@ -112,14 +114,19 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
             domainPart = '@' + domain;
         }
 
-        String fieldParams = appendIgnoreVoicemail ? IGNORE_VOICEMAIL_FIELD_PARAM
-                : StringUtils.EMPTY;
+        StringBuilder fieldParams = new StringBuilder();
+        if (!userforward) {
+            fieldParams.append(DISABLE_USERFORWARD_FIELD_PARAM);
+            fieldParams.append(PARAM_DELIMITER);
+        }
+        fieldParams.append(appendIgnoreVoicemail ? IGNORE_VOICEMAIL_FIELD_PARAM
+                : StringUtils.EMPTY);
 
         StringBuilder urlParams = new StringBuilder(q.getValue(m_type));
         addUrlParams(urlParams);
 
-        return String.format(FORMAT, userPart, domainPart, fieldParams, m_expiration, urlParams
-                .toString());
+        return String.format(FORMAT, userPart, domainPart, fieldParams.toString(), m_expiration,
+                urlParams.toString());
     }
 
     @SuppressWarnings("unused")

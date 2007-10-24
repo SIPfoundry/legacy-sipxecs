@@ -22,19 +22,19 @@ public class AbstractRingTest extends TestCase {
         ring.setExpiration(45);
         ring.setType(AbstractRing.Type.IMMEDIATE);
 
-        String contact = ring.calculateContact("sipfoundry.org", q, false, null);
+        String contact = ring.calculateContact("sipfoundry.org", q, false, true, null);
         assertEquals("<sip:444@sipfoundry.org?expires=45>;q=1.0", contact);
 
         AbstractRing ring2 = new RingMock("333");
         ring2.setExpiration(25);
         ring2.setType(AbstractRing.Type.DELAYED);
-        String contact2 = ring2.calculateContact("sipfoundry.org", q, true, null);
+        String contact2 = ring2.calculateContact("sipfoundry.org", q, true, true, null);
         assertEquals("<sip:333@sipfoundry.org;sipx-noroute=Voicemail?expires=25>;q=0.95",
                 contact2);
 
         // with new q value - ring2 is delayed, q mustbe < 1.0
         ForkQueueValue q1 = new ForkQueueValue(3);
-        contact2 = ring2.calculateContact("sipfoundry.org", q1, false, null);
+        contact2 = ring2.calculateContact("sipfoundry.org", q1, false, true, null);
         assertEquals("<sip:333@sipfoundry.org?expires=25>;q=0.95", contact2);
     }
 
@@ -45,13 +45,13 @@ public class AbstractRingTest extends TestCase {
         ring.setExpiration(45);
         ring.setType(AbstractRing.Type.IMMEDIATE);
 
-        String contact = ring.calculateContact("sipfoundry.org", q, false, "~~vm~");
+        String contact = ring.calculateContact("sipfoundry.org", q, false, true, "~~vm~");
         assertEquals("<sip:~~vm~444@sipfoundry.org?expires=45>;q=1.0", contact);
 
         AbstractRing ring2 = new RingMock("333");
         ring2.setExpiration(25);
         ring2.setType(AbstractRing.Type.DELAYED);
-        String contact2 = ring2.calculateContact("sipfoundry.org", q, true, "~~vm~");
+        String contact2 = ring2.calculateContact("sipfoundry.org", q, true, true, "~~vm~");
         assertEquals("<sip:~~vm~333@sipfoundry.org;sipx-noroute=Voicemail?expires=25>;q=0.95",
                 contact2);
     }

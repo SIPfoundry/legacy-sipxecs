@@ -38,7 +38,18 @@
             validators="spring-validators:validPhoneOrAor"
             displayName="message:label.fallbackDestination"/>
         </tr>
-      </span>
+	    </span>
+      <tr jwcid="@FieldPanel"
+        for="callgroup:userForward"
+        label="message:label.userForward"
+        description="message:description.userForward"
+        field="component:userForward">
+        <td jwcid="userForward@Checkbox"
+          id="callgroup:userForward"
+          value="prop:callGroup.userForward"
+          displayName="message:label.userForward"
+        />
+      </tr>
     </table>
   </fieldset>
   <ul jwcid="formActions@FormActions" callback="ognl:callback"

@@ -68,6 +68,9 @@ public class CallGroupTest extends TestCase {
 
         group.setFallbackDestination("fallback@kuku.com");
         assertTrue(aliases.isEmpty());
+
+        group.setUserForward(true);
+        assertTrue(aliases.isEmpty());
     }
 
     public void testGenerateAliasesWithVoicemailFallback() {
@@ -151,6 +154,27 @@ public class CallGroupTest extends TestCase {
         AliasMapping am = aliases.get(aliases.size() - 1);
         assertEquals(am.getIdentity(), group.getExtension() + "@kuku");
         assertTrue(am.getContact().startsWith(group.getName() + "@kuku"));
+    }
+
+    public void testGenerateAliasesWithUserForwardDisabled() {
+        int numRings = 5;
+        CallGroup group = createCallGroupWithUsers("401", "sales", numRings);
+        group.setUserForward(false);
+        group.setEnabled(true);
+
+        // assumption: the aliases list is ordered from highest q value to lowest,
+        // with last element being the identity alias.
+        List<AliasMapping> aliases = group.generateAliases("kuku");
+
+        assertEquals(numRings + 1, aliases.size());
+        for (int i = 0; i < numRings; i++) {
+            AliasMapping am = aliases.get(i);
+            assertEquals(am.getIdentity(), group.getName() + "@kuku");
+            assertTrue(am.getContact().startsWith("<sip:testUser" + i + "@kuku"));
+            // all of the contacts should contain sipx-noroute=Voicemail
+            assertTrue(am.getContact().contains("sipx-userforward=false"));
+        }
+
     }
 
     public void testGenerateAliasesForEmptyGroupWithVoicemailFallback() {

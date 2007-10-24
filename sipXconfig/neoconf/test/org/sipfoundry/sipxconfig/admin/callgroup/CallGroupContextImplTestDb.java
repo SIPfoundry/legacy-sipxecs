@@ -47,6 +47,7 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("401", callGroup.getExtension());
         assertEquals("sip:default@pingtel.com", callGroup.getFallbackDestination());
         assertFalse(callGroup.getVoicemailFallback());
+        assertFalse(callGroup.getUserForward());
     }
 
     public void testGetCallGroups() throws Exception {

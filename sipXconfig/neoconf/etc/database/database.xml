@@ -236,6 +236,7 @@
     <antcall target="schedules-per-dialing-rule" />
     <antcall target="callgroup-vmail-destination" />
     <antcall target="localization" />
+    <antcall target="callgroup-userforward" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="7" -->
   </target>
@@ -467,6 +468,10 @@
 
   <target name="callgroup-vmail-destination" unless="callgroup-vmail-destination">
     <db-patch patch="callgroup-vmail-destination" />
+  </target>
+
+  <target name="callgroup-userforward" unless="callgroup-userforward">
+    <db-patch patch="callgroup-userforward" />
   </target>
 
   <target name="callforwardexternal" unless="callforwardexternal">
