@@ -8,6 +8,7 @@
     <column>description</column>
     <column>fallback_destination</column>
     <column>voicemail_fallback</column>
+    <column>user_forward</column>
     <row>
       <value>1001</value>
       <value>true</value>
@@ -15,6 +16,7 @@
       <value>401</value>
       <value>something, something, something</value>
       <value>sip:default@pingtel.com</value>
+      <value>false</value>
       <value>false</value>
     </row>
     <row>
@@ -24,6 +26,7 @@
       <value>402</value>
       <value>something else</value>
       <value></value>
+      <value>true</value>
       <value>true</value>
     </row>
   </table>
