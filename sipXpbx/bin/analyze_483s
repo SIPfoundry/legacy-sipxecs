@@ -11,30 +11,23 @@ if ($#ARGV != 0) {
 
 $input_file = $ARGV[0];
 
-$minimum_vias = 15;
-
-# Find all the 483 responses.
+# Find all the 482 and 483 responses.
 
 open(IN, $input_file) ||
-    die "Error opening file '$iput_file' for reading: $!\n";
+    die "Error opening file '$input_file' for reading: $!\n";
 
 while (<IN>) {
-    # Select 483 responses.
-    next unless m!:INCOMING:.*-\\nSIP/2\.0  *483 !i;
+    # Select 482 and 483 responses.
+    next unless m!:INCOMING:.*-\\nSIP/2\.0 +48[23] !i;
 
     # Extract the headers.
     s/\\r\\n\\r\\n.*$//;
-
-    # Count the Via's.
-    @vias = m/\\r\\nVia *:/ig;
-    $vias = $#vias + 1;
-    next unless $vias >= $minimum_vias;
 
     # Get the Call-Id and CSeq values.
     ($call_id) = m/\\r\\nCall-Id *: *([^ \\]+)/i;
     ($cseq) = m/\\r\\nCSeq *: *(\d+) /i;
 
-    # Record that this transaction failed on a 483.
+    # Record that this transaction failed.
     $transaction = "$call_id,$cseq";
     $failed{$transaction} = 1;
 }
@@ -42,10 +35,10 @@ while (<IN>) {
 close IN;
 
 # Find all the request-URIs associated with the transactions that had
-# 483 responses.
+# 482/483 responses.
 
 open(IN, $input_file) ||
-    die "Error opening file '$iput_file' for reading the second time " .
+    die "Error opening file '$input_file' for reading the second time " .
         "(should never happen): $!\n";
 
 while (<IN>) {
@@ -59,7 +52,7 @@ while (<IN>) {
     ($call_id) = m/\\r\\nCall-Id *: *([^ \\]+)/i;
     ($cseq) = m/\\r\\nCSeq *: *(\d+) /i;
 
-    # If we've seen a 483 for this transaction
+    # If we've seen a 482/483 for this transaction
     $transaction = "$call_id,$cseq";
     if (exists($failed{$transaction})) {
 	# Create a hash for the request-URIs of this transaction if we
@@ -97,9 +90,9 @@ foreach $transaction (keys %failed) {
 }
 
 # Print the problematic request-URIs in descending order of the number
-# of 483 responses attributed to them.
+# of 482/483 responses attributed to them.
 
-print "The most common request-URIs in requests that failed with 483 Too Many Hops:\n";
+print "The most common request-URIs in requests that failed with 482/483:\n";
 print "\n";
 print "Count\tRequest-URI\tSample transaction\n";
 foreach $uri (sort
