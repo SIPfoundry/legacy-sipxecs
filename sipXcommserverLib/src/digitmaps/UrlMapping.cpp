@@ -544,21 +544,22 @@ UrlMapping::parseHostMatchContainer(const Url& requestUri,
                          
                          // format='url' matches host and port of a URL
                          if (fmt.compareTo(XML_SYMBOL_URL, 
-                             UtlString::ignoreCase) == 0)
+                                           UtlString::ignoreCase) == 0)
                          {
                             Url xmlUrl(pattern.data());
                             UtlString xmlHost;
                             xmlUrl.getHostAddress(xmlHost);
                             int xmlPort = xmlUrl.getHostPort();
 
-                            hostMatchFound = (xmlHost.compareTo(
-                               testHost, UtlString::ignoreCase) == 0)
-                               && (xmlPort == SIP_PORT || xmlPort == testPort) ;
+                            hostMatchFound =
+                               xmlHost.compareTo(testHost,
+                                                 UtlString::ignoreCase) == 0
+                               && (xmlPort == SIP_PORT || xmlPort == testPort);
                          }
                          // format='IPv4subnet' matches IP address if it is
                          // within the subnet specified in CIDR format
                          else if (fmt.compareTo(XML_SYMBOL_IPV4SUBNET, 
-                                  UtlString::ignoreCase) == 0)
+                                                UtlString::ignoreCase) == 0)
                          {
                             hostMatchFound =
                                mPatterns->IPv4subnet(testHost, pattern);
@@ -566,7 +567,7 @@ UrlMapping::parseHostMatchContainer(const Url& requestUri,
                          // format='DnsWildcard' matches FQDN
                          // if it ends with the correct domain
                          else if (fmt.compareTo(XML_SYMBOL_DNSWILDCARD, 
-                                  UtlString::ignoreCase) == 0)
+                                                UtlString::ignoreCase) == 0)
                          {
                             hostMatchFound =
                                mPatterns->DnsWildcard(testHost, pattern);
