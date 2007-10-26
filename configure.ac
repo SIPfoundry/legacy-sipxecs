@@ -33,6 +33,7 @@ then
   AC_CONFIG_SUBDIRS(sipXconfig)
   AC_CONFIG_SUBDIRS(sipXacd)
   AC_CONFIG_SUBDIRS(sipXpbx)
+  AC_CONFIG_SUBDIRS(sipXecs)
 fi
 
 AC_ARG_ENABLE(tools,

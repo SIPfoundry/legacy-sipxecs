@@ -1,0 +1,69 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: sipXecs Enterprise Communications Server 
+License: L-GPL
+Group: Telcommunications
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org
+
+%define sipxconfiglib %{_datadir}/sipxpbx/lib
+
+Requires: sipxproxy
+Requires: sipxregistry
+Requires: sipxconfig
+Requires: sipxpublisher
+Requires: sipxvxml
+Requires: sipxacd
+Requires: sipxproxy-cdr
+Requires: sipxconfig-ftp
+Requires: sipxconfig-tftp
+Requires: sipxconfig-report
+Requires: sipxconfig-agent
+Requires: sipxconfig-mrtg
+Requires: sipxtools
+
+Source: %name-%version.tar.gz
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+sipXecs is an IP PBX with integrated voice mail, ACD, multiple auto attendents, and web-based system configuration and management tool.
+
+%package devel
+Requires: %name
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Internal documentation for %name 
+Requires: sipxproxy-devel >= 3.9
+Requires: sipxregistry-devel >= 3.9
+Requires: sipxpublisher-devel >= 3.9
+Requires: sipxvxml-devel >= 3.9
+Requires: sipxacd-devel >= 3.9
+
+%description devel
+Internal class documentation for the pbx classes
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+%post
+
+%preun
