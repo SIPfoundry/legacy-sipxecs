@@ -23,6 +23,11 @@
       <span key="menu.speedDial">Speed Dial</span>
     </a>
   </li>
+  <li>
+    <a href="#" jwcid="@PageLink" id="menu.userCdr" page="user_portal/UserCdrPage">
+      <span key="menu.userCdr">Call Detail Records</span>
+    </a>
+  </li>
   <li jwcid="@If" element="li" condition="ognl: presenceServer.enabled">
     <a href="#" jwcid="@PageLink" id="menu.managePresence" page="ManagePresence">
       <span key="menu.managePresence">Presence</span>

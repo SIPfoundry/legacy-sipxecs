@@ -33,7 +33,7 @@ import org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalStats;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SqlInterval;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.site.cdr.CdrPage;
+import org.sipfoundry.sipxconfig.site.cdr.CdrHistory;
 import org.sipfoundry.sipxconfig.site.common.DefaultTableValueRendererSource;
 
 
@@ -78,11 +78,11 @@ public abstract class AcdHistoryPage extends BasePage implements PageBeginRender
         }
         
         if (getEndTime() == null) {
-            setEndTime(CdrPage.getDefaultEndTime());
+            setEndTime(CdrHistory.getDefaultEndTime());
         }
 
         if (getStartTime() == null) {
-            Date startTime = CdrPage.getDefaultStartTime(getEndTime());
+            Date startTime = CdrHistory.getDefaultStartTime(getEndTime());
             setStartTime(startTime);
         }
     }

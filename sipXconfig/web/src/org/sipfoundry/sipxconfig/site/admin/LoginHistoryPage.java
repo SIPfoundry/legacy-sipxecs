@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.login.LogFilter;
 import org.sipfoundry.sipxconfig.login.LoginEvent;
-import org.sipfoundry.sipxconfig.site.cdr.CdrPage;
+import org.sipfoundry.sipxconfig.site.cdr.CdrHistory;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
 public abstract class LoginHistoryPage extends UserBasePage implements PageBeginRenderListener {
@@ -66,11 +66,11 @@ public abstract class LoginHistoryPage extends UserBasePage implements PageBegin
         }
 
         if (getEndDate() == null) {
-            setEndDate(CdrPage.getDefaultEndTime());
+            setEndDate(CdrHistory.getDefaultEndTime());
         }
 
         if (getStartDate() == null) {
-            Date startTime = CdrPage.getDefaultStartTime(getEndDate());
+            Date startTime = CdrHistory.getDefaultStartTime(getEndDate());
             setStartDate(startTime);
         }
 

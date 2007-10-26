@@ -14,6 +14,8 @@ import java.io.Writer;
 import java.util.Date;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.common.User;
+
 public interface CdrManager {
     final String CONTEXT_BEAN_NAME = "cdrManager";
 
@@ -25,8 +27,8 @@ public interface CdrManager {
      * @param search specification - enumeration representing columns and string to search for
      * @return list of CDR objects
      */
-    List<Cdr> getCdrs(Date from, Date to, CdrSearch search);
-    List<Cdr> getCdrs(Date from, Date to, CdrSearch search, int limit, int offset);
+    List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user);
+    List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user, int limit, int offset);
         
     
     /**
@@ -35,7 +37,7 @@ public interface CdrManager {
      * @param search specification - enumeration representing columns and string to search for
      * @return number of CDRs that fullfil passed criteria 
      */
-    int getCdrCount(Date from, Date to, CdrSearch search);
+    int getCdrCount(Date from, Date to, CdrSearch search, User user);
     
     /**
      * Dumps CDRs in comma separated values format.
@@ -45,7 +47,7 @@ public interface CdrManager {
      * @param to date of the last CDR retrieved, pass null for latest
      * @param search specification - enumeration representing columns and string to search for
      */
-    void dumpCdrs(Writer writer, Date from, Date to, CdrSearch search) throws IOException;
+    void dumpCdrs(Writer writer, Date from, Date to, CdrSearch search, User user) throws IOException;
     
     
     /**

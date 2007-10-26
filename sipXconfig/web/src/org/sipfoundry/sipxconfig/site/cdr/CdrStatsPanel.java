@@ -22,6 +22,7 @@ import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.web.WebResponse;
 import org.sipfoundry.sipxconfig.cdr.CdrManager;
 import org.sipfoundry.sipxconfig.cdr.CdrSearch;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
@@ -39,6 +40,9 @@ public abstract class CdrStatsPanel extends BaseComponent {
 
     @Parameter
     public abstract Date getEndTime();
+    
+    @Parameter
+    public abstract User getUser();
 
     @Parameter
     public abstract CdrSearch getCdrSearch();
@@ -48,13 +52,15 @@ public abstract class CdrStatsPanel extends BaseComponent {
         tableModel.setFrom(getStartTime());
         tableModel.setTo(getEndTime());
         tableModel.setCdrSearch(getCdrSearch());
+        tableModel.setUser(getUser());
         return tableModel;
     }
 
     public void export() {
         try {
             PrintWriter writer = TapestryUtils.getCsvExportWriter(getResponse(), "cdrs.csv");
-            getCdrManager().dumpCdrs(writer, getStartTime(), getEndTime(), getCdrSearch());
+            getCdrManager().dumpCdrs(writer, getStartTime(), getEndTime(), 
+                    getCdrSearch(), getUser());
             writer.close();
         } catch (IOException e) {
             LOG.error("Error during CDR export", e);

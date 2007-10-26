@@ -39,14 +39,14 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
     public void _testGetCdrs() {
         ApplicationContext app = TestHelper.getApplicationContext();
         CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
-        List<Cdr> cdrs = cdrManager.getCdrs(null, null, new CdrSearch());
+        List<Cdr> cdrs = cdrManager.getCdrs(null, null, new CdrSearch(), null);
         assertTrue(cdrs.size() > 0);
     }
 
     public void _testGetCdrsCount() {
         ApplicationContext app = TestHelper.getApplicationContext();
         CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
-        int size = cdrManager.getCdrCount(null, null, new CdrSearch());
+        int size = cdrManager.getCdrCount(null, null, new CdrSearch(), null);
         assertTrue(size > 0);
     }
 
@@ -54,14 +54,14 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         ApplicationContext app = TestHelper.getApplicationContext();
         CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
         OutputStreamWriter writer = new OutputStreamWriter(System.err);
-        cdrManager.dumpCdrs(writer, null, null, new CdrSearch());
+        cdrManager.dumpCdrs(writer, null, null, new CdrSearch(), null);
     }
 
     public void _testGetCsv() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
         CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
         Writer writer = new OutputStreamWriter(System.err);
-        cdrManager.dumpCdrs(writer, null, null, new CdrSearch());
+        cdrManager.dumpCdrs(writer, null, null, new CdrSearch(), null);
         writer.flush();
     }
 
@@ -71,7 +71,7 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         CdrSearch cdrSearch = new CdrSearch();
         cdrSearch.setMode(Mode.ANY);
         cdrSearch.setTerm("154");
-        List<Cdr> cdrs = cdrManager.getCdrs(null, null, cdrSearch);
+        List<Cdr> cdrs = cdrManager.getCdrs(null, null, cdrSearch, null);
         assertTrue(cdrs.size() > 0);
     }
 

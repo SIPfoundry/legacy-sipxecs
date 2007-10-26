@@ -32,6 +32,7 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -61,16 +62,17 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
      */
     private TimeZone m_tz = DateUtils.UTC_TIME_ZONE;
 
-    public List<Cdr> getCdrs(Date from, Date to) {
-        return getCdrs(from, to, new CdrSearch());
+    public List<Cdr> getCdrs(Date from, Date to, User user) {
+        return getCdrs(from, to, new CdrSearch(), user);
     }
 
-    public List<Cdr> getCdrs(Date from, Date to, CdrSearch search) {
-        return getCdrs(from, to, search, 0, 0);
+    public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user) {
+        return getCdrs(from, to, search, user, 0, 0);
     }
 
-    public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, int limit, int offset) {
-        CdrsStatementCreator psc = new SelectAll(from, to, search, m_tz, limit, offset);
+    public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user, int limit,
+            int offset) {
+        CdrsStatementCreator psc = new SelectAll(from, to, search, user, m_tz, limit, offset);
         CdrsResultReader resultReader = new CdrsResultReader(m_tz);
         getJdbcTemplate().query(psc, resultReader);
         return resultReader.getResults();
@@ -86,8 +88,9 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
      * If we had direct access to that connection we could try calling "setChunkedStreamingMode"
      * on it.
      */
-    public void dumpCdrs(Writer writer, Date from, Date to, CdrSearch search) throws IOException {
-        CdrsStatementCreator psc = new SelectAll(from, to, search, m_tz, m_csvLimit, 0);
+    public void dumpCdrs(Writer writer, Date from, Date to, CdrSearch search, User user)
+        throws IOException {
+        CdrsStatementCreator psc = new SelectAll(from, to, search, user, m_tz, m_csvLimit, 0);
         CdrsCsvWriter resultReader = new CdrsCsvWriter(writer, m_tz);
         try {
             getJdbcTemplate().query(psc, resultReader);
@@ -100,8 +103,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         }
     }
 
-    public int getCdrCount(Date from, Date to, CdrSearch search) {
-        CdrsStatementCreator psc = new SelectCount(from, to, search, m_tz);
+    public int getCdrCount(Date from, Date to, CdrSearch search, User user) {
+        CdrsStatementCreator psc = new SelectCount(from, to, search, user, m_tz);
         RowMapper rowMapper = new SingleColumnRowMapper(Integer.class);
         List results = getJdbcTemplate().query(psc, rowMapper);
         return (Integer) DataAccessUtils.requiredUniqueResult(results);
@@ -156,15 +159,17 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         private Timestamp m_from;
         private Timestamp m_to;
         private CdrSearch m_search;
+        private CdrSearch m_forUser;
         private int m_limit;
         private int m_offset;
         private Calendar m_calendar;
 
-        public CdrsStatementCreator(Date from, Date to, CdrSearch search, TimeZone tz) {
-            this(from, to, search, tz, 0, 0);
+        public CdrsStatementCreator(Date from, Date to, CdrSearch search, User user, TimeZone tz) {
+            this(from, to, search, user, tz, 0, 0);
         }
 
-        public CdrsStatementCreator(Date from, Date to, CdrSearch search, TimeZone tz, int limit, int offset) {
+        public CdrsStatementCreator(Date from, Date to, CdrSearch search, User user, TimeZone tz,
+                int limit, int offset) {
             m_calendar = Calendar.getInstance(tz);
             long fromMillis = from != null ? from.getTime() : 0;
             m_from = new Timestamp(fromMillis);
@@ -173,12 +178,20 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
             m_search = search;
             m_limit = limit;
             m_offset = offset;
+            if (user != null) {
+                m_forUser = new CdrSearch();
+                m_forUser.setMode(CdrSearch.Mode.ANY);
+                m_forUser.setTerm(user.getUserName());
+            }
         }
 
         public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
             StringBuilder sql = new StringBuilder(getSelectSql());
             sql.append(FROM);
             m_search.appendGetSql(sql);
+            if (m_forUser != null) {
+                m_forUser.appendGetSql(sql);
+            }
             appendOrderBySql(sql);
             if (m_limit > 0) {
                 sql.append(LIMIT);
@@ -201,12 +214,13 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     }
 
     static class SelectAll extends CdrsStatementCreator {
-        public SelectAll(Date from, Date to, CdrSearch search, TimeZone tz, int limit, int offset) {
-            super(from, to, search, tz, limit, offset);
+        public SelectAll(Date from, Date to, CdrSearch search, User user, TimeZone tz, int limit,
+                int offset) {
+            super(from, to, search, user, tz, limit, offset);
         }
 
-        public SelectAll(Date from, Date to, CdrSearch search, TimeZone tz) {
-            super(from, to, search, tz);
+        public SelectAll(Date from, Date to, CdrSearch search, User user, TimeZone tz) {
+            super(from, to, search, user, tz);
         }
 
         @Override
@@ -217,8 +231,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
 
     static class SelectCount extends CdrsStatementCreator {
 
-        public SelectCount(Date from, Date to, CdrSearch search, TimeZone tz) {
-            super(from, to, search, tz);
+        public SelectCount(Date from, Date to, CdrSearch search, User user, TimeZone tz) {
+            super(from, to, search, user, tz);
         }
 
         @Override
@@ -233,8 +247,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     }
 
     /**
-     * Spring 2.0.4 introduced ResultSetExtractor interface, may be more of a fit
-     * for what this class is trying to acheive 
+     * Spring 2.0.4 introduced ResultSetExtractor interface, may be more of a fit for what this
+     * class is trying to acheive
      */
     static class CdrsResultReader implements RowCallbackHandler {
         private List<Cdr> m_cdrs = new ArrayList<Cdr>();
@@ -268,7 +282,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     static class ColumnInfo {
         /** List of fields that will be exported to CDR */
         static final String[] FIELDS = {
-            CALLEE_AOR, CALLER_AOR, START_TIME, CONNECT_TIME, END_TIME, FAILURE_STATUS, TERMINATION,
+            CALLEE_AOR, CALLER_AOR, START_TIME, CONNECT_TIME, END_TIME, FAILURE_STATUS,
+            TERMINATION,
         };
         static final boolean[] TIME_FIELDS = {
             false, false, true, true, true, false, false

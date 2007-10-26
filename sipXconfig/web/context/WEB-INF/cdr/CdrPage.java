@@ -11,9 +11,10 @@ package org.sipfoundry.sipxconfig.site.cdr;
 
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.html.BasePage;
 
-public abstract class CdrPage extends BasePage {
+public abstract class CdrPage extends BasePage implements PageBeginRenderListener {
     @Persist
     @InitialValue(value = "literal:active")
     public abstract String getTab();    
