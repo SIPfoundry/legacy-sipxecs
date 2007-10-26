@@ -903,6 +903,12 @@ OsStatus startstopProcessTree(TiXmlDocument &rProcessXMLDoc, UtlString &rProcess
                 if ( retval != OS_SUCCESS )
                 {
                     //failed verify but it's still running so we need to kill it
+                    // Log why we are killing this process at NOTICE level,
+                    // because OsProcess::kill will log at NOTICE level.
+                    OsSysLog::add(FAC_PROCESSMGR, PRI_NOTICE,
+                                  "Process %s was started successfully, "
+                                  "but VerifyProcess fails.  Killing process...",
+                                  childDepList[loop2].data());
                     OsProcess process;
                     pProcessMgr->getProcessByAlias(childDepList[loop2],process);
                     process.kill();
