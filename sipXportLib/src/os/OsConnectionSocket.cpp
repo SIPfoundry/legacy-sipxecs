@@ -415,8 +415,9 @@ int OsConnectionSocket::read(char* buffer, int bufferLength)
           msgBuf = strerror(error);
 
           OsSysLog::add(FAC_KERNEL, PRI_INFO,
-                        "OsConnectionSocket::read[2] EOF on %d (%s)",
-                        socketDescriptor, msgBuf
+                        "OsConnectionSocket::read[2] error or EOF on fd %d, "
+                        "errno = %d %s",
+                        socketDescriptor, error, msgBuf
                         );
           close();
        }
@@ -448,8 +449,9 @@ int OsConnectionSocket::read(char* buffer,
           msgBuf = strerror(error);
 
           OsSysLog::add(FAC_KERNEL, PRI_INFO,
-                        "OsConnectionSocket::read[4] EOF on %d (%s)",
-                        socketDescriptor, msgBuf
+                        "OsConnectionSocket::read[4] error or EOF on fd %d, "
+                        "errno = %d %s",
+                        socketDescriptor, error, msgBuf
                         );
           close();
        }
@@ -476,8 +478,9 @@ int OsConnectionSocket::read(char* buffer,
           msgBuf = strerror(error);
 
           OsSysLog::add(FAC_KERNEL, PRI_INFO,
-                        "OsConnectionSocket::read[3] EOF on %d (%s)",
-                        socketDescriptor, msgBuf
+                        "OsConnectionSocket::read[3] error or EOF on fd %d, "
+                        "errno = %d %s",
+                        socketDescriptor, error, msgBuf
                         );
           close();
        }

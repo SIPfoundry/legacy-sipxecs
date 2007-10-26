@@ -30,6 +30,12 @@
 #include <utl/XmlContent.h>
 
 #define SIP_DEFAULT_RTT 500
+// The time in milliseconds that we allow poll() to wait.
+// This must be short, as the run() loop must wake up periodically to check
+// if the client's thread is being shut down.
+// And the SipUserAgent, when garbage collecting idle clients, waits for
+// the clients to finish shutting down.
+#define POLL_TIMEOUT 100
 
 #define LOG_TIME
 
@@ -387,8 +393,6 @@ const UtlString& SipClient::getLocalIp()
 // Thread execution code.
 int SipClient::run(void* runArg)
 {
-   // *** set up the socket if we did not inherit it
-
    OsMsg*    pMsg = NULL;
    OsStatus  res;
    // Buffer to hold data read from the socket but not yet parsed
@@ -437,7 +441,7 @@ int SipClient::run(void* runArg)
       {
          // Otherwise, call poll() to wait.
          int res = poll(&fds[0], sizeof (fds) / sizeof (fds[0]),
-                        -1 /* block forever */);
+                        POLL_TIMEOUT);
          assert(res >= 0 || (res == -1 && errno == EINTR));
       }
 
@@ -520,8 +524,9 @@ int SipClient::run(void* runArg)
             // sockets as well in case it was an EOF.
             // Define a virtual function that returns the correct bit.
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipClient[%s]::run read returns error or EOF",
-                          mName.data());
+                          "SipClient[%s]::run SipMessage::read returns %d (error or EOF), "
+                          "readBuffer = '%.1000s'",
+                          mName.data(), res, readBuffer.data());
             if (!OsSocket::isFramed(clientSocket->getIpProtocol()))
             {
                clientStopSelf();
@@ -672,7 +677,11 @@ void SipClient::clientStopSelf()
    {
       OsMsg message(OsMsg::OS_EVENT,
                     SipProtocolServerBase::SIP_SERVER_GC);
-      mpSipServer->postMessage(message);
+      // If the SipServer's queue is full, don't wait, since
+      // that can cause deadlocks.  The SipServer will eventually
+      // garbage-collect terminated clients spontaneously.
+      mpSipServer->postMessage(message,
+                               OsTime::NO_WAIT);
    }
 }
 

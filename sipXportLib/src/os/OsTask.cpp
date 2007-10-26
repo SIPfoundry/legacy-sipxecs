@@ -48,25 +48,37 @@ int OsTaskBase::taskCount = 0;
 // requested.
 void OsTaskBase::requestShutdown(void)
 {
-   OsLock lock(mDataGuard);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskBase::requestShutdown '%s' %s", mName.data(),
-                 TaskStateName(mState));
+   TaskState before, after;
 
-   switch (mState)
    {
-   case UNINITIALIZED:
-      mState = TERMINATED;      
-      break;
+      OsLock lock(mDataGuard);
 
-   case RUNNING:
-      mState = SHUTTING_DOWN;      
-      break;
+      // Record the current task state.
+      before = mState;
 
-   case SHUTTING_DOWN:
-   case TERMINATED:
-      // already done - not really correct, but let it go
-      break;
+      switch (mState)
+      {
+      case UNINITIALIZED:
+         mState = TERMINATED;      
+         break;
+
+      case RUNNING:
+         mState = SHUTTING_DOWN;      
+         break;
+
+      case SHUTTING_DOWN:
+      case TERMINATED:
+         // already done - not really correct, but let it go
+         break;
+      }
+
+      // Record the new task state.
+      after = mState;
    }
+
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                 "OsTaskBase::requestShutdown on task '%s', transition %s -> %s",
+                 mName.data(), TaskStateName(before), TaskStateName(after));
 }
 
 // Set the userData for the task.
