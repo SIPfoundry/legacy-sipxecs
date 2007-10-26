@@ -10,7 +10,6 @@ SFAC_SRCDIR_EXPAND
 AC_ARG_ENABLE(suse10_2,
         AC_HELP_STRING([--enable-suse10_2], [Enable dependencies for openSUSE 10.2]),
         [
-          w3c_libwww=yes
           cgicc=yes
           ruby_dbi=yes
         ])
