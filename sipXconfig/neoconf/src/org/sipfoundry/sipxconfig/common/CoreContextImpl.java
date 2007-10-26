@@ -541,4 +541,11 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
             super(ERROR, permission.getName(), StringUtils.join(invalidExtensions, ", "));
         }
     }
+
+    public User getSpecialUser(SpecialUser su) {
+        User newUser = newUser();
+        newUser.setUserName(su.getId());
+        newUser.setSipPassword(su.getSipPassword());
+        return newUser;
+    }
 }

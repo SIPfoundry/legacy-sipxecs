@@ -84,7 +84,7 @@ public abstract class XmlUnitHelper {
      * 
      * @param doc
      */
-    static void dumpXml(Document doc) {
+    public static void dumpXml(Document doc) {
         System.err.println(asString(doc));
     }
 

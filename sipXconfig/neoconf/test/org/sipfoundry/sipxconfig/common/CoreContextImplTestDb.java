@@ -501,4 +501,13 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
             assertFalse(e.getMessage().contains("3"));
         }
     }
+
+    public void testGetSpecialUsers() {
+        User user = m_core.getSpecialUser(SpecialUser.MEDIA_SERVER);
+        assertEquals("~~id~media", user.getName());
+        assertNotNull(user.getSipPassword());
+        user = m_core.getSpecialUser(SpecialUser.PARK_SERVER);
+        assertEquals("~~id~park", user.getName());
+        assertNotNull(user.getSipPassword());
+    }
 }

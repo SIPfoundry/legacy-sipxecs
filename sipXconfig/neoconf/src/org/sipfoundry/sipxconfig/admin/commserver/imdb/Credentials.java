@@ -9,11 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class Credentials extends DataSetGenerator {
@@ -25,15 +25,21 @@ public class Credentials extends DataSetGenerator {
         String domainName = getSipDomain();
         CoreContext coreContext = getCoreContext();
         String realm = coreContext.getAuthorizationRealm();
-        List list = coreContext.loadUsers();
-        for (Iterator i = list.iterator(); i.hasNext();) {
-            User user = (User) i.next();
-            Element item = addItem(items);
-            addUser(item, user, domainName, realm);
+        List<User> list = coreContext.loadUsers();
+        for (User user : list) {
+            addUser(items, user, domainName, realm);
         }
+        addSpecialUser(items, SpecialUser.MEDIA_SERVER, domainName, realm);
+        addSpecialUser(items, SpecialUser.PARK_SERVER, domainName, realm);
     }
 
-    protected void addUser(Element item, User user, String domainName, String realm) {
+    private void addSpecialUser(Element items, SpecialUser su, String domainName, String realm) {
+        User user = getCoreContext().getSpecialUser(su);
+        addUser(items, user, domainName, realm);
+    }
+
+    protected void addUser(Element items, User user, String domainName, String realm) {
+        Element item = addItem(items);
         item.addElement("uri").setText(user.getUri(domainName));
         item.addElement("realm").setText(realm);
         item.addElement("userid").setText(user.getUserName());

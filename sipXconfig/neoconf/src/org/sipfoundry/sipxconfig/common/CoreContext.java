@@ -22,33 +22,36 @@ import org.sipfoundry.sipxconfig.setting.Group;
  */
 public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner {
 
-    public static final String USER_GROUP_RESOURCE_ID = "user";
-    public static final String CONTEXT_BEAN_NAME = "coreContext";
+    static final String USER_GROUP_RESOURCE_ID = "user";
+    static final String CONTEXT_BEAN_NAME = "coreContext";
 
     /**
      * Instantiates a user complete w/setting model
      */
-    public User newUser();
+    User newUser();
+
+    /** Instantiates special user that represents sipx service */
+    User getSpecialUser(SpecialUser su);
 
     /**
      * @return true if username has changed, false if it's an update to existing user without
      *         username change
      */
-    public boolean saveUser(User user);
+    boolean saveUser(User user);
 
-    public void deleteUser(User user);
+    void deleteUser(User user);
 
-    public void deleteUsers(Collection<Integer> usersIds);
+    void deleteUsers(Collection<Integer> usersIds);
 
-    public void deleteUsersByUserName(Collection<String> usersName);
+    void deleteUsersByUserName(Collection<String> usersName);
 
-    public User loadUser(Integer id);
+    User loadUser(Integer id);
 
-    public List<User> loadUsers();
+    List<User> loadUsers();
 
-    public int getUsersCount();
+    int getUsersCount();
 
-    public int getUsersInGroupCount(Integer groupId);
+    int getUsersInGroupCount(Integer groupId);
 
     /**
      * Return the number of users who are both in the group and found by search. Search matches
@@ -60,18 +63,18 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
      * @param searchString string to search with, or null to not search
      * @return number of users
      */
-    public int getUsersInGroupWithSearchCount(Integer groupId, String searchString);
+    int getUsersInGroupWithSearchCount(Integer groupId, String searchString);
 
-    public List<User> loadUsersByPage(String search, Integer groupId, int page, int pageSize,
+    List<User> loadUsersByPage(String search, Integer groupId, int page, int pageSize,
             String orderBy, boolean orderAscending);
 
-    public List<User> loadUserByTemplateUser(User template);
+    List<User> loadUserByTemplateUser(User template);
 
-    public User loadUserByUserName(String userName);
+    User loadUserByUserName(String userName);
 
-    public User loadUserByAlias(String userName);
+    User loadUserByAlias(String userName);
 
-    public User loadUserByUserNameOrAlias(String userNameOrAlias);
+    User loadUserByUserNameOrAlias(String userNameOrAlias);
 
     /**
      * Check whether the user has a username or alias that collides with an existing username or
@@ -84,15 +87,15 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
      * @param user user to test
      * @return name that collides
      */
-    public String checkForDuplicateNameOrAlias(User user);
+    String checkForDuplicateNameOrAlias(User user);
 
-    public String getAuthorizationRealm();
+    String getAuthorizationRealm();
 
-    public String getDomainName();
+    String getDomainName();
 
-    public void clear();
+    void clear();
 
-    public List getGroups();
+    List getGroups();
 
     /**
      * Retrieves user group by name.
@@ -102,32 +105,32 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
      *        is returned if group with a phoneGroupName is not found
      * @return user group or null if group not found and createIfNotFound is false
      */
-    public Group getGroupByName(String userGroupName, boolean createIfNotFound);
+    Group getGroupByName(String userGroupName, boolean createIfNotFound);
 
-    public Collection<User> getGroupMembers(Group group);
+    Collection<User> getGroupMembers(Group group);
 
-    public Collection<String> getGroupMembersNames(Group group);
+    Collection<String> getGroupMembersNames(Group group);
 
     /**
      * Called to create a superadmin user with an empty password, to recover from a situation
      * where there are no admin users in the DB
      */
-    public void createAdminGroupAndInitialUserTask();
+    void createAdminGroupAndInitialUserTask();
 
     /**
      * Called by the bootstrap page to create the superadmin user, giving it the specified pin
      * 
      * @param pin
      */
-    public void createAdminGroupAndInitialUser(String pin);
+    void createAdminGroupAndInitialUser(String pin);
 
-    public void addToGroup(Integer groupId, Collection<Integer> ids);
+    void addToGroup(Integer groupId, Collection<Integer> ids);
 
-    public void removeFromGroup(Integer groupId, Collection<Integer> ids);
+    void removeFromGroup(Integer groupId, Collection<Integer> ids);
 
-    public List<User> getGroupSupervisors(Group group);
+    List<User> getGroupSupervisors(Group group);
 
-    public List<User> getUsersThatISupervise(User uservisor);
+    List<User> getUsersThatISupervise(User uservisor);
 
-    public void checkForValidExtensions(Collection<String> aliases, PermissionName permission);
+    void checkForValidExtensions(Collection<String> aliases, PermissionName permission);
 }
