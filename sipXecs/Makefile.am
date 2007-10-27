@@ -1,6 +1,6 @@
 include config/project.am
 
-RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)
+RPMS = $(DEFAULT_RPMS)
 
 EXTRA_DIST = \
 	BUILDSTAMP \
