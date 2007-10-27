@@ -19,7 +19,6 @@
 #include "utl/UtlRegex.h"
 #include "net/Url.h"
 #include "net/NameValueTokenizer.h"
-#include "net/NameValuePair.h"
 #include "net/NameValuePairInsensitive.h"
 #include "net/SipMessage.h"
 #include "net/HttpRequestContext.h"
@@ -302,7 +301,7 @@ Url::operator=(const Url& rhs)
          
          UtlDListIterator paramIterator(*rhs.mpUrlParameters);
          NameValuePairInsensitive* rhsParam;
-         while ((rhsParam = (NameValuePairInsensitive*) paramIterator()))
+         while ((rhsParam = dynamic_cast<NameValuePairInsensitive*>(paramIterator())))
          {
             mpUrlParameters->append(new NameValuePairInsensitive(*rhsParam));
          }
@@ -318,7 +317,7 @@ Url::operator=(const Url& rhs)
          
          UtlDListIterator paramIterator(*rhs.mpHeaderOrQueryParameters);
          NameValuePairInsensitive* rhsParam;
-         while ((rhsParam = (NameValuePairInsensitive*) paramIterator()))
+         while ((rhsParam = dynamic_cast<NameValuePairInsensitive*>(paramIterator())))
          {
             mpHeaderOrQueryParameters->append(new NameValuePairInsensitive(*rhsParam));
          }
@@ -334,7 +333,7 @@ Url::operator=(const Url& rhs)
          
          UtlDListIterator paramIterator(*rhs.mpFieldParameters);
          NameValuePairInsensitive* rhsParam;
-         while ((rhsParam = (NameValuePairInsensitive*) paramIterator()))
+         while ((rhsParam = dynamic_cast<NameValuePairInsensitive*>(paramIterator())))
          {
             mpFieldParameters->append(new NameValuePairInsensitive(*rhsParam));
          }         
@@ -511,7 +510,7 @@ UtlBoolean Url::getPath(UtlString& path, UtlBoolean getStyle)
             UtlString headerParamValue ;
             UtlBoolean firstHeader = TRUE;
 
-            while ((headerParam = (NameValuePairInsensitive*) headerParamIterator()))
+            while ((headerParam = dynamic_cast<NameValuePairInsensitive*>(headerParamIterator())))
             {
                 // Add separator for first header parameter
                 if(firstHeader)
@@ -570,7 +569,7 @@ UtlBoolean Url::getUrlParameter(const char* name, UtlString& value, int index) c
 
         UtlString paramName;
 
-        while ((urlParam = (NameValuePairInsensitive*) urlParamIterator()))
+        while (!found && (urlParam = dynamic_cast<NameValuePairInsensitive*>(urlParamIterator())))
         {
             paramName = *urlParam;
             if(paramName.compareTo(name, UtlString::ignoreCase) == 0)
@@ -579,9 +578,11 @@ UtlBoolean Url::getUrlParameter(const char* name, UtlString& value, int index) c
                 {
                     found = TRUE;
                     value = urlParam->getValue();
-                    break;
                 }
-                foundIndex++;
+                else
+                {
+                   foundIndex++;
+                }
             }
         }
     }
@@ -675,7 +676,7 @@ UtlBoolean Url::getHeaderParameter(const char* name, UtlString& value, int index
 
         UtlString paramName;
 
-        while ((headerParam = (NameValuePairInsensitive*) headerParamIterator()))
+        while (!found && (headerParam = dynamic_cast<NameValuePairInsensitive*>(headerParamIterator())))
         {
             paramName = *headerParam;
             if(paramName.compareTo(name, UtlString::ignoreCase) == 0)
@@ -684,9 +685,11 @@ UtlBoolean Url::getHeaderParameter(const char* name, UtlString& value, int index
                 {
                     found = TRUE;
                     value = headerParam->getValue();
-                    break;
                 }
-                foundIndex++;
+                else
+                {
+                   foundIndex++;
+                }
             }
         }
     }
@@ -743,12 +746,11 @@ void Url::removeUrlParameter(const char* name)
     {
         NameValuePairInsensitive nv(name ? name : "", NULL);
 
-        UtlDListIterator iterator(*mpUrlParameters);
-
         UtlContainable* matchingParam;
-        while((matchingParam = iterator.findNext(&nv)))
+        while((matchingParam = mpUrlParameters->find(&nv)))
         {
-           mpUrlParameters->destroy(matchingParam);
+           mpUrlParameters->removeReference(matchingParam);
+           delete matchingParam;
         }
     }
 }
@@ -830,7 +832,7 @@ void Url::getUri(UtlString& urlString) const
         NameValuePairInsensitive* urlParam = NULL;
         UtlString urlParamValue;
 
-        while ((urlParam = (NameValuePairInsensitive*) urlParamIterator()))
+        while ((urlParam = dynamic_cast<NameValuePairInsensitive*>(urlParamIterator())))
         {
             urlString.append(";", 1);
             urlString.append(*urlParam);
@@ -966,7 +968,7 @@ UtlBoolean Url::getFieldParameter(const char* name, UtlString& value, int index)
 
         UtlString paramName;
 
-        while ((fieldParam = (NameValuePairInsensitive*) fieldParamIterator()))
+        while (!found && (fieldParam = dynamic_cast<NameValuePairInsensitive*>(fieldParamIterator())))
         {
             paramName = *fieldParam;
             if(paramName.compareTo(name, UtlString::ignoreCase) == 0)
@@ -975,9 +977,11 @@ UtlBoolean Url::getFieldParameter(const char* name, UtlString& value, int index)
                 {
                     found = TRUE;
                     value = fieldParam->getValue();
-                    break;
                 }
-                foundIndex++;
+                else
+                {
+                   foundIndex++;
+                }
             }
         }
     }
@@ -1077,12 +1081,11 @@ void Url::removeFieldParameter(const char* name)
     {
         NameValuePairInsensitive nv(name ? name : "", NULL);
 
-        UtlDListIterator iterator(*mpFieldParameters);
-
         UtlContainable* matchingParam;
-        while((matchingParam=iterator.findNext(&nv)))
+        while((matchingParam=mpFieldParameters->find(&nv)))
         {
-           mpFieldParameters->destroy(matchingParam);
+           mpFieldParameters->removeReference(matchingParam);
+           delete matchingParam;
         }
     }
 }
@@ -1165,7 +1168,7 @@ void Url::toString(UtlString& urlString) const
       NameValuePairInsensitive* fieldParam = NULL;
       UtlString fieldParamValue;
 
-      while ((fieldParam = (NameValuePairInsensitive*) fieldParamIterator()))
+      while ((fieldParam = dynamic_cast<NameValuePairInsensitive*>(fieldParamIterator())))
       {
          urlString.append(";", 1);
          urlString.append(*fieldParam);
