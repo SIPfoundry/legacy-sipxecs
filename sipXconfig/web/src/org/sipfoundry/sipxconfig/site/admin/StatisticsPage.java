@@ -30,9 +30,9 @@ import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringUtil;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 public abstract class StatisticsPage extends BasePage implements PageBeginRenderListener {
-    public static final Object PAGE = "admin/StatisticsPage";
+    public static final String PAGE = "admin/StatisticsPage";
 
-    private static final String SUMMARY_REPORT = "summary";
+    private static final String SUMMARY_REPORT = "target.summary";
 
     private static final String DAILY = "daily";
 
@@ -42,11 +42,16 @@ public abstract class StatisticsPage extends BasePage implements PageBeginRender
 
     private static final String YEARLY = "yearly";
 
+    private static final String LABEL = "label.";
+
     @InjectObject(value = "spring:monitoringContext")
     public abstract MonitoringContext getMonitoringContext();
 
     @InjectPage(value = MonitoringConfigurationPage.PAGE)
     public abstract MonitoringConfigurationPage getConfigurationPage();
+
+    @InjectPage(value = MonitoringTargetsConfigurationPage.PAGE)
+    public abstract MonitoringTargetsConfigurationPage getTargetsConfigurationPage();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -66,6 +71,7 @@ public abstract class StatisticsPage extends BasePage implements PageBeginRender
 
     public abstract void setHost(String host);
 
+    @Persist
     public abstract String getHost();
 
     public abstract IPropertySelectionModel getHostModel();
@@ -83,7 +89,13 @@ public abstract class StatisticsPage extends BasePage implements PageBeginRender
         setHost(host);
     }
 
-    public IPage configure() {
+    public IPage configureTargets(String host) {
+        MonitoringTargetsConfigurationPage page = getTargetsConfigurationPage();
+        page.editTargets(host, PAGE);
+        return page;
+    }
+
+    public IPage configureHosts() {
         MonitoringConfigurationPage page = getConfigurationPage();
         page.setReturnPage(this);
         return page;
@@ -96,6 +108,9 @@ public abstract class StatisticsPage extends BasePage implements PageBeginRender
             StringPropertySelectionModel model = new StringPropertySelectionModel(hosts
                     .toArray(new String[hosts.size()]));
             setHostModel(model);
+            if (!hosts.contains(getHost()) && getHostModel().getOptionCount() > 0) {
+                setHost(getHostModel().getLabel(0));
+            }
         }
 
         if (getHost() == null && getHostModel().getOptionCount() > 0) {
@@ -104,7 +119,7 @@ public abstract class StatisticsPage extends BasePage implements PageBeginRender
 
         String report = getReportName();
         if (report == null || !getMonitoringContext().getReports(getHost()).contains(report)) {
-            setReportName(getMessages().getMessage(SUMMARY_REPORT));
+            setReportName(SUMMARY_REPORT);
         }
     }
 
@@ -114,12 +129,8 @@ public abstract class StatisticsPage extends BasePage implements PageBeginRender
 
         // return reports for the given host and append 'summary' report
         List<String> reportNames = getMonitoringContext().getReports(getHost());
-        List<String> reportsWithSummary = new ArrayList<String>();
-        reportsWithSummary.add(getMessages().getMessage(SUMMARY_REPORT));
-        for (String reportName : reportNames) {
-            reportsWithSummary.add(reportName);
-        }
-        return reportsWithSummary;
+        reportNames.add(0, SUMMARY_REPORT);
+        return reportNames;
     }
 
     public List<MonitoringBean> getReportBeans() {
@@ -127,7 +138,7 @@ public abstract class StatisticsPage extends BasePage implements PageBeginRender
         List<MonitoringBean> monitoringBeans = new ArrayList<MonitoringBean>();
         String mrtgWorkingDir = getMonitoringContext().getMrtgWorkingDir();
         // add all images for summary report
-        if (getReportName().equalsIgnoreCase(getMessages().getMessage(SUMMARY_REPORT))) {
+        if (getReportName().equalsIgnoreCase(SUMMARY_REPORT)) {
             for (MRTGTarget target : targets) {
                 monitoringBeans.add(getMonitoringBean(target.getTitle(), target,
                         MonitoringUtil.DAY_SUMMARY_EXTENSION, mrtgWorkingDir));
@@ -136,13 +147,13 @@ public abstract class StatisticsPage extends BasePage implements PageBeginRender
             // add detailed statistics for report
             MRTGTarget target = getMonitoringContext().getMRTGTarget(getReportName(), getHost());
 
-            monitoringBeans.add(getMonitoringBean(getMessages().getMessage(DAILY), target,
+            monitoringBeans.add(getMonitoringBean(DAILY, target,
                     MonitoringUtil.DAY_EXTENSION, mrtgWorkingDir));
-            monitoringBeans.add(getMonitoringBean(getMessages().getMessage(WEEKLY), target,
+            monitoringBeans.add(getMonitoringBean(WEEKLY, target,
                     MonitoringUtil.WEEK_EXTENSION, mrtgWorkingDir));
-            monitoringBeans.add(getMonitoringBean(getMessages().getMessage(MONTHLY), target,
+            monitoringBeans.add(getMonitoringBean(MONTHLY, target,
                     MonitoringUtil.MONTH_EXTENSION, mrtgWorkingDir));
-            monitoringBeans.add(getMonitoringBean(getMessages().getMessage(YEARLY), target,
+            monitoringBeans.add(getMonitoringBean(YEARLY, target,
                     MonitoringUtil.YEAR_EXTENSION, mrtgWorkingDir));
 
         }
@@ -162,11 +173,24 @@ public abstract class StatisticsPage extends BasePage implements PageBeginRender
     }
 
     private String getHtmlDetails(MRTGTarget target, String extension, String mrtgWorkingDir) {
-        return MonitoringUtil.getHtmlDetailsForGraph(target, extension, mrtgWorkingDir);
+        String htmlDetails = MonitoringUtil.getHtmlDetailsForGraph(target, extension,
+                mrtgWorkingDir);
+        htmlDetails = htmlDetails.replace("Average", i18nGraphsDetails("average")).replace("Max",
+                i18nGraphsDetails("max")).replace("Current", i18nGraphsDetails("current"))
+                .replace("Used", i18nGraphsDetails("used")).replace("Processes",
+                        i18nGraphsDetails("processes"))
+                .replace("Free", i18nGraphsDetails("free")).replace("Total",
+                        i18nGraphsDetails("total")).replace("In", i18nGraphsDetails("in"))
+                .replace("Out", i18nGraphsDetails("out"));
+        return htmlDetails;
+    }
+
+    private String i18nGraphsDetails(String label) {
+        return getMessages().getMessage(LABEL + label);
     }
 
     public boolean isSummaryReport() {
-        return (getReportName().equals(getMessages().getMessage(SUMMARY_REPORT)));
+        return (getReportName().equals(SUMMARY_REPORT));
     }
 
     public boolean isEvenIndex() {

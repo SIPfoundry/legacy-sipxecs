@@ -28,7 +28,7 @@
   </component>
 
   <component id="viewTargetLabel" type="Insert">
-    <binding name="value" value="currentRow.title" />
+    <binding name="value" value="ognl:messages.getMessage(currentRow.title)" />
   </component>
 
 </component-specification>

@@ -98,6 +98,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
      * Returns a list with the hosts that are already monitorized (configured in mrtg.cfg)
      */
     public List<String> getHosts() {
+        loadMrtgConfig();
         return m_mrtgConfig.getHosts();
     }
 

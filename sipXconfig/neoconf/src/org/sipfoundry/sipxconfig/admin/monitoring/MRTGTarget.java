@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.monitoring;
 
-import java.util.StringTokenizer;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -166,9 +164,9 @@ public class MRTGTarget implements PrimaryKeySource {
     }
 
     public void setOptions(String options) {
-        StringTokenizer st = new StringTokenizer(options, ",");
-        while (st.hasMoreTokens()) {
-            String option = st.nextToken().trim();
+        String[] targetOptions = StringUtils.split(options, ",");
+        for (String option : targetOptions) {
+            option = StringUtils.trim(option);
             if (option.equalsIgnoreCase("gauge")) {
                 m_gauge = true;
             } else if (option.equalsIgnoreCase("growright")) {

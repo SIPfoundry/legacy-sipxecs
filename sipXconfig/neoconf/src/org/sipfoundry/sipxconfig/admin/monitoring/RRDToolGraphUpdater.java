@@ -211,7 +211,7 @@ public class RRDToolGraphUpdater {
             commandVector.add(StringUtils.EMPTY + DETAILED_GRAPH_X_SIZE);
             commandVector.add(DASH + H_LETTER);
             commandVector.add(StringUtils.EMPTY + DETAILED_GRAPH_Y_SIZE);
-            if (!target.getLegend1().equals(StringUtils.EMPTY)) {
+            if (StringUtils.isNotEmpty(target.getLegend1())) {
                 commandVector.add(DEF_IN + dataFileName + DS0_AVERAGE);
                 commandVector.add(AREA_IN + AREA_COLOR + MonitoringUtil.COLON
                         + target.getLegend1());
@@ -219,7 +219,7 @@ public class RRDToolGraphUpdater {
                 commandVector.add(PRINT_MAX + target.getLegendI() + LF);
                 commandVector.add(PRINT_LAST + target.getLegendI() + LF);
             }
-            if (!target.getLegend2().equals(StringUtils.EMPTY)) {
+            if (StringUtils.isNotEmpty(target.getLegend2())) {
                 commandVector.add(DEF_OUT + dataFileName + DS1_AVERAGE);
                 commandVector.add(LINE2_OUT + LINE_COLOR + MonitoringUtil.COLON
                         + target.getLegend2());
@@ -232,12 +232,12 @@ public class RRDToolGraphUpdater {
             commandVector.add(StringUtils.EMPTY + SUMMARY_GRAPH_X_SIZE);
             commandVector.add(DASH + H_LETTER);
             commandVector.add(StringUtils.EMPTY + SUMMARY_GRAPH_Y_SIZE);
-            if (!target.getLegendI().equals(StringUtils.EMPTY)) {
+            if (StringUtils.isNotEmpty(target.getLegendI())) {
                 commandVector.add(DEF_IN + dataFileName + DS0_AVERAGE);
                 commandVector.add(AREA_IN + AREA_COLOR + MonitoringUtil.COLON
                         + target.getLegendI());
             }
-            if (!target.getLegendO().equals(StringUtils.EMPTY)) {
+            if (StringUtils.isNotEmpty(target.getLegendO())) {
                 commandVector.add(DEF_OUT + dataFileName + DS1_AVERAGE);
                 commandVector.add(LINE2_OUT + LINE_COLOR + MonitoringUtil.COLON
                         + target.getLegendO());

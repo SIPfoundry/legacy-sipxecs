@@ -16,6 +16,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.monitoring.MRTGTarget;
@@ -40,6 +41,7 @@ public abstract class TargetsTable extends BaseComponent {
 
     public abstract void setHost(String host);
 
+    @InitialValue(value = "literal:sipxecs")
     public abstract String getSnmpCommunityString();
 
     public abstract void setSnmpCommunityString(String snmpCommunityString);
@@ -54,13 +56,11 @@ public abstract class TargetsTable extends BaseComponent {
             String snmpCommunityString = expression.substring(expression
                     .lastIndexOf(MonitoringUtil.COLON) + 1, expression.lastIndexOf("@"));
             setSnmpCommunityString(snmpCommunityString);
-        } else {
-            setSnmpCommunityString(StringUtils.EMPTY);
         }
     }
 
     public void commit() {
-        if (getSnmpCommunityString() == null || getSnmpCommunityString().length() == 0) {
+        if (StringUtils.isEmpty(getSnmpCommunityString())) {
             TapestryUtils.getValidator(getPage()).record(
                     new ValidatorException(getMessages().getMessage(FAILURES)));
             return;
