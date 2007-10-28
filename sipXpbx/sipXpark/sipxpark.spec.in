@@ -16,11 +16,6 @@ Requires: sipxcalllib >= 2.9.0
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
-# debuginfo packages are built by default on SUSE.
-%if %{_vendor} == redhat
-@RPMBUILD_DEBUG_PACKAGE_SPEC@
-%endif
-
 %description
 TBD
 

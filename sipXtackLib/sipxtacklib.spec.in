@@ -16,11 +16,6 @@ Source: %name-%version.tar.gz
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
-# debuginfo packages are built by default on SUSE.
-%if %{_vendor} == redhat
-@RPMBUILD_DEBUG_PACKAGE_SPEC@
-%endif
-
 %description
 This project provides an RFC 3261, 3263 complient SIP stack. This
 stack is built upon a modest foot print HTTP stack. Both the SIP and

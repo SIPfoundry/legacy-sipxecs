@@ -18,11 +18,6 @@ Url: http://www.pingtel.com
 Requires: openssl >= 0.9.7a
 Requires: pcre >= 4.5
 
-# debuginfo packages are built by default on SUSE.
-%if %{_vendor} == redhat
-@RPMBUILD_DEBUG_PACKAGE_SPEC@
-%endif
-
 Source: %name-%version.tar.gz
 
 Prefix: %_prefix

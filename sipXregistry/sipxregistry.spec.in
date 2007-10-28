@@ -17,11 +17,6 @@ Requires: sipxpbx >= 3.9
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
-# debuginfo packages are built by default on SUSE.
-%if %{_vendor} == redhat
-@RPMBUILD_DEBUG_PACKAGE_SPEC@
-%endif
-
 # should match sipXlib.m4:SIPX_UPGRADEDIR
 %define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
 %define this_archive %{name}-%{version}-%{release}.tgz
