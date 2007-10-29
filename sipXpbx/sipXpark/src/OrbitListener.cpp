@@ -238,7 +238,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                                    originalCallId->data());
 
                      // See if the originalCallId is one of our calls.
-                        ParkedCallObject* pCall =
+                     ParkedCallObject* pCall =
                         dynamic_cast <ParkedCallObject *> (mCalls.findValue(originalCallId));
                      if (pCall == NULL)
                      {
@@ -1140,9 +1140,9 @@ void OrbitListener::setUpParkedCallEstablished(const UtlString& callId,
                        timeout, keycode, capacity);
          if (pThisCall->playAudio() == OS_SUCCESS)
          {
-             OsSysLog::add(FAC_PARK, PRI_DEBUG,
+            OsSysLog::add(FAC_PARK, PRI_DEBUG,
                           "OrbitListener::setUpParkedCallEstablished "
-                           "playAudio successfully callId= %s",callId.data());
+                          "playAudio successfully callId= %s",callId.data());
 
             pThisCall->startEscapeTimer(parker, timeout, keycode);
          }

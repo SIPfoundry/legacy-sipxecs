@@ -2465,7 +2465,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 #endif
         // If we are replacing a call let answer the call
         // immediately do not go to offering first.
-        if(doesReplaceCallLegExist)
+        if (doesReplaceCallLegExist)
         {
             //  When the replaceCallLeg exist, we need to update mpCall's callId with the new one
             //  as the SipSession for the new call leg and the call leg being replaced share the same
