@@ -54,6 +54,7 @@ class SipXecsService
    {
      public:
       static const char* SIP_DOMAIN_NAME; ///< the name of the SIP domain for this sipXecs
+      static const char* SIP_REALM;       ///< the realm value used to authenticate
       static const char* SHARED_SECRET;   ///< shared secret for generating authentication hashes
    };
 

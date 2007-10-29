@@ -51,12 +51,6 @@ VXITMP                                  Environment     @SIPX_TMPDIR@
 # Base client configuration #
 #############################
 
-### Identity configuration
-mediaserver.domain                      VXIString       ${SIPXCHANGE_DOMAIN_NAME}
-mediaserver.realm                       VXIString       ${SIPXCHANGE_REALM}
-mediaserver.identity                    VXIString       ~~id~media
-mediaserver.ha1_authenticator           VXIString       
-
 ### Number of active calls
 ### This parameter sets the number of maximum active calls allowed for media server. 
 mediaserver.max.active.calls            VXIInteger      300

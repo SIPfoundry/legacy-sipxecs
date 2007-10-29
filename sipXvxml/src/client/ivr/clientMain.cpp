@@ -36,6 +36,9 @@ static const char *rcsid = 0 ? (char *) &rcsid :
 #include "net/SipLineMgr.h"
 #include "net/SipUserAgent.h"
 
+#include "sipXecsService/SipXecsService.h"
+#include "sipdb/CredentialDB.h"
+
 #include <mp/MpMediaTask.h>
 #include <mp/NetInTask.h>
 #include <rtcp/RtcpConfig.h>
@@ -54,6 +57,14 @@ static const char *rcsid = 0 ? (char *) &rcsid :
 #include "IvrTelListener.h"
 #include "IvrUtilTask.h"
 #include "OSBprompt.h"
+
+#ifndef SIPX_VERSION
+#  include "sipxvxml-buildstamp.h"
+#  define SIPX_VERSION SipXvxmlVersion
+#  define SIPX_BUILD   SipXvxmlBuildStamp
+#else
+#  define SIPX_BUILD   ""
+#endif
 
 #ifdef DMALLOC
 #include <dmalloc.h>
@@ -97,15 +108,12 @@ if ((VXIint)(_res) != 0) { \
 #define SYS_LOG_LEVEL     L"mediaserver.log.level"
 #define MEDIASERVER_RTP_CODECS L"mediaserver.rtp.codecs"
 
-#define SIP_DOMAIN        L"mediaserver.domain"
-#define SIP_REALM         L"mediaserver.realm"
-#define SIP_IDENTITY      L"mediaserver.identity"
-#define SIP_AUTHENTICATOR L"mediaserver.ha1_authenticator"
-
 #define DEFAULT_CODEC_LIST_STRING "pcmu pcma telephone-event"
 
 #define DEFAULT_MAX_ACTIVE_CALLS 100
 #define DEFAULT_MAX_LISTENERS 200
+
+const char* MEDIASERVER_ID_TOKEN = "~~id~media"; // see sipXregistry/doc/service-tokens.txt
 
 //#define STACK_DEBUG 1
 
@@ -707,6 +715,9 @@ int main(int argc, char *argv[])
    }
 
    OsSysLog::initSysLog(FAC_MEDIASERVER_VXI, "mediaserver", fileName.data(), loglevel);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_INFO, ">>>>>>>>>>>>>>>> Starting - version %s build %s",
+                 SIPX_VERSION, SIPX_BUILD
+                 );
 
    if(pathName != EMPTY_STRING) 
    {
@@ -736,137 +747,132 @@ int main(int argc, char *argv[])
    }
 
    // Read the configuration of the identity to be used if/when challenged for authentication.
-   UtlString   domain;
-   UtlString   realm;
-   UtlString   user;
-   UtlString   ha1_authenticator;
    SipLine*    line = NULL;
    SipLineMgr* lineMgr = NULL;
 
-   int vxiParamLen;
-   const VXIString *vxiParamStr;
-
-   vxiParamStr = (const VXIString *)VXIMapGetProperty(glbConfigArgs, SIP_DOMAIN);
-   if(vxiParamStr != NULL) 
+   UtlString   domain;
+   UtlString   realm;
+   UtlString   user;
+   
+   OsConfigDb  domainConfiguration;
+   OsPath      domainConfigPath = SipXecsService::domainConfigPath();
+   
+   if (OS_SUCCESS == domainConfiguration.loadFromFile(domainConfigPath.data()))
    {
-      vxiParamLen = VXIStringLength(vxiParamStr) + 1;
-      char paramValue[vxiParamLen];
-      wcstombs(paramValue, VXIStringCStr(vxiParamStr), vxiParamLen);
-      paramValue[vxiParamLen - 1] = '\000';
-      domain = paramValue;
-   }
-
-   vxiParamStr = (const VXIString *)VXIMapGetProperty(glbConfigArgs, SIP_REALM);
-   if(vxiParamStr != NULL) 
-   {
-      vxiParamLen = VXIStringLength(vxiParamStr) + 1;
-      char paramValue[vxiParamLen];
-      wcstombs(paramValue, VXIStringCStr(vxiParamStr), vxiParamLen);
-      paramValue[vxiParamLen - 1] = '\000';
-      realm = paramValue;
-   }
-
-   vxiParamStr = (const VXIString *)VXIMapGetProperty(glbConfigArgs, SIP_IDENTITY);
-   if(vxiParamStr != NULL) 
-   {
-      vxiParamLen = VXIStringLength(vxiParamStr) + 1;
-      char paramValue[vxiParamLen];
-      wcstombs(paramValue, VXIStringCStr(vxiParamStr), vxiParamLen);
-      paramValue[vxiParamLen - 1] = '\000';
-      user = paramValue;
-   }
-
-   vxiParamStr = (const VXIString *)VXIMapGetProperty(glbConfigArgs, SIP_AUTHENTICATOR);
-   if(vxiParamStr != NULL) 
-   {
-      vxiParamLen = VXIStringLength(vxiParamStr) + 1;
-      char paramValue[vxiParamLen];
-      wcstombs(paramValue, VXIStringCStr(vxiParamStr), vxiParamLen);
-      paramValue[vxiParamLen - 1] = '\000';
-      ha1_authenticator = paramValue;
-   }
-
-   if (   !domain.isNull()
-       && !realm.isNull()
-       && !user.isNull()
-       && !ha1_authenticator.isNull()
-       )
-   {
-      Url identity;
-
-      identity.setUserId(user);
-      identity.setHostAddress(domain);
-       
-      if ((line = new SipLine( identity // user entered url
-                              ,identity // identity url
-                              ,user     // user
-                              ,TRUE     // visible
-                              ,SipLine::LINE_STATE_PROVISIONED
-                              ,TRUE     // auto enable
-                              ,FALSE    // use call handling
-                              )))
+      domainConfiguration.get(SipXecsService::DomainDbKey::SIP_DOMAIN_NAME, domain);
+      domainConfiguration.get(SipXecsService::DomainDbKey::SIP_REALM, realm);
+      
+      if (!domain.isNull() && !realm.isNull())
       {
-         if ((lineMgr = new SipLineMgr()))
+         CredentialDB* credentialDb;
+         if ((credentialDb = CredentialDB::getInstance()))
          {
-            if (lineMgr->addLine(*line))
+            Url identity;
+
+            identity.setUserId(MEDIASERVER_ID_TOKEN);
+            identity.setHostAddress(domain);
+            UtlString user;
+            UtlString ha1_authenticator;
+            UtlString authtype;
+         
+            if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
             {
-               if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
-                                                 ,HTTP_DIGEST_AUTHENTICATION
-                                                 )
-                   )
+               if ((line = new SipLine( identity // user entered url
+                                       ,identity // identity url
+                                       ,user     // user
+                                       ,TRUE     // visible
+                                       ,SipLine::LINE_STATE_PROVISIONED
+                                       ,TRUE     // auto enable
+                                       ,FALSE    // use call handling
+                                       )))
                {
-                  OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_INFO,
-                                "Added identity '%s': user='%s' realm='%s'"
-                                ,identity.toString().data(), user.data(), realm.data()
-                                );
+                  if ((lineMgr = new SipLineMgr()))
+                  {
+                     if (lineMgr->addLine(*line))
+                     {
+                        if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
+                                                          ,HTTP_DIGEST_AUTHENTICATION
+                                                          )
+                            )
+                        {
+                           OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_INFO,
+                                         "Added identity '%s': user='%s' realm='%s'"
+                                         ,identity.toString().data(), user.data(), realm.data()
+                                         );
+                        }
+                        else
+                        {
+                           OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
+                                         "Error adding identity '%s': user='%s' realm='%s'\n"
+                                         "  transfer functions may not work.",
+                                         identity.toString().data(), user.data(), realm.data()
+                                         );
+                        }
+
+                        lineMgr->setDefaultOutboundLine(identity);
+                     }
+                     else
+                     {
+                        OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
+                                      "addLine failed: "
+                                      "  transfer functions may not work."
+                                      );
+                     }
+                  }
+                  else
+                  {
+                     OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
+                                   "Constructing SipLineMgr failed:  "
+                                   "  transfer functions may not work."
+                                   );
+                  }
                }
                else
                {
                   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
-                                "Error adding identity '%s': user='%s' realm='%s'\n"
-                                "  transfer functions may not work.",
-                                identity.toString().data(), user.data(), realm.data()
+                                "Constructing SipLine failed:  "
+                                "  transfer functions may not work."
                                 );
                }
-
-               lineMgr->setDefaultOutboundLine(identity);
             }
             else
             {
                OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
-                             "addLine failed: "
-                             "  transfer functions may not work."
+                             "No credential found for '%s@%s' in realm '%s'"
+                             "; transfer functions will not work",
+                             MEDIASERVER_ID_TOKEN, domain.data(), realm.data()
                              );
             }
+
+            credentialDb->releaseInstance();
          }
          else
          {
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
-                          "Constructing SipLineMgr failed:  "
-                          "  transfer functions may not work."
+                          "Failed to open credentials database; transfer functions will not work"
                           );
          }
       }
       else
       {
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
-                       "Constructing SipLine failed:  "
-                       "  transfer functions may not work."
+                       "Domain or Realm not configured:"
+                       "\n  '%s' : '%s'\n  '%s' : '%s'"
+                       "  transfer functions will not work.",
+                       SipXecsService::DomainDbKey::SIP_DOMAIN_NAME, domain.data(),
+                       SipXecsService::DomainDbKey::SIP_REALM, realm.data()
                        );
       }
    }
    else
    {
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
-                    "One or more authentication parameters missing:"
-                    "\n  '%ls' : '%s'\n  '%ls' : '%s'\n  '%ls' : '%s'\n  '%ls' : '%s'\n"
-                    "  transfer functions will not work.",
-                    SIP_DOMAIN, domain.data(),
-                    SIP_REALM, realm.data(),
-                    SIP_IDENTITY, user.data(),
-                    SIP_AUTHENTICATOR, ha1_authenticator.data()
+                    "main: failed to load domain configuration from '%s'",
+                    domainConfigPath.data()
                     );
    }
+
+
 
    int port = 5100;
    SipUserAgent *userAgent =

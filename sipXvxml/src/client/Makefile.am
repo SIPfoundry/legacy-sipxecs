@@ -1,6 +1,7 @@
 AM_CFLAGS = -DCOMPANY_DOMAIN=L\"pingtel.com\"
 
 AM_CXXFLAGS = -DCOMPANY_DOMAIN=L\"pingtel.com\" \
+	-I$(top_builddir)/config \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\"
 
 noinst_LTLIBRARIES = libOSBclient.la
@@ -40,6 +41,7 @@ sipXvxml_LDADD = \
 	@LIBWWW_LIBS@ \
 	@XERCES_LIBS@ \
 	@SIPXMEDIAADAPTER_LIBS@ \
+	@SIPXCOMMSERVER_LIBS@ \
 	@GIPS_NEQ_OBJS@
 
 noinst_HEADERS = \

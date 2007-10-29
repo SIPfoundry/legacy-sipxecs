@@ -38,16 +38,18 @@
 #include <cp/DialogEventPublisher.h>
 #include <ptapi/PtProvider.h>
 
+#include "sipdb/CredentialDB.h"
+#include "sipXecsService/SipXecsService.h"
+
 #include "OrbitListener.h"
 
 // DEFINES
 #ifndef SIPX_VERSION
 #  include "sipxpbx-buildstamp.h"
-#  define SIPXCHANGE_VERSION          SipXpbxVersion
-#  define SIPXCHANGE_VERSION_COMMENT  SipXpbxBuildStamp
+#  define SIPX_VERSION SipXpbxVersion
+#  define SIPX_BUILD   SipXpbxBuildStamp
 #else
-#  define SIPXCHANGE_VERSION          SIPX_VERSION
-#  define SIPXCHANGE_VERSION_COMMENT  ""
+#  define SIPX_BUILD   ""
 #endif
 
 #define CONFIG_SETTINGS_FILE          "sipxpark-config"
@@ -70,6 +72,8 @@
 #define CONFIG_SETTING_MAX_SESSIONS   "SIP_PARK_MAX_SESSIONS"
 #define CONFIG_SETTING_LIFETIME       "SIP_PARK_LIFETIME"
 #define CONFIG_SETTING_BLIND_WAIT     "SIP_PARK_BLIND_XFER_WAIT"
+
+const char* PARK_SERVER_ID_TOKEN = "~~id~park"; // see sipXregistry/doc/service-tokens.txt
 
 #define LOG_FACILITY                  FAC_ACD
 
@@ -196,7 +200,9 @@ void initSysLog(OsConfigDb* pConfig)
    };
 
    OsSysLog::initialize(0, "sipxpark");
-
+   OsSysLog::add(FAC_SIP, PRI_INFO, ">>>>>>>>>>>>>>>> Starting - version %s build %s",
+                 SIPX_VERSION, SIPX_BUILD
+                 );
 
    //
    // Get/Apply Log Filename
@@ -263,7 +269,8 @@ void initSysLog(OsConfigDb* pConfig)
       {
          priority = lkupTable[i].ePriority;
          osPrintf("%s : %s\n", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity);
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity);
+         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s",
+                       CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity);
          break;
       }
    }
@@ -367,7 +374,7 @@ int main(int argc, char* argv[])
         NameValueTokenizer::frontBackTrim(&argString, "\t ");
         if(argString.compareTo("-v") == 0)
         {
-            osPrintf("Version: %s (%s)\n", SIPXCHANGE_VERSION, SIPXCHANGE_VERSION_COMMENT);
+            osPrintf("Version: %s (%s)\n", SIPX_VERSION, SIPX_BUILD);
             return(1);
         } else
         {
@@ -420,89 +427,126 @@ int main(int argc, char* argv[])
     UtlString   domain;
     UtlString   realm;
     UtlString   user;
-    UtlString   ha1_authenticator;
+
     SipLine*    line = NULL;
     SipLineMgr* lineMgr = NULL;
     
-    if (   (OS_SUCCESS == configDb.get(CONFIG_SETTING_DOMAIN,     domain))
-        && (OS_SUCCESS == configDb.get(CONFIG_SETTING_AUTH_REALM, realm))
-        && (OS_SUCCESS == configDb.get(CONFIG_SETTING_AUTH_ID,    user))
-        && (OS_SUCCESS == configDb.get(CONFIG_SETTING_AUTH_HA1,   ha1_authenticator))
-        )
+    OsConfigDb  domainConfiguration;
+    OsPath      domainConfigPath = SipXecsService::domainConfigPath();
+   
+    if (OS_SUCCESS == domainConfiguration.loadFromFile(domainConfigPath.data()))
     {
-       Url identity;
-
-       identity.setUserId(user);
-       identity.setHostAddress(domain);
-       
-       if ((line = new SipLine( identity // user entered url
-                               ,identity // identity url
-                               ,user     // user
-                               ,TRUE     // visible
-                               ,SipLine::LINE_STATE_PROVISIONED
-                               ,TRUE     // auto enable
-                               ,FALSE    // use call handling
-                               )))
+       domainConfiguration.get(SipXecsService::DomainDbKey::SIP_DOMAIN_NAME, domain);
+       domainConfiguration.get(SipXecsService::DomainDbKey::SIP_REALM, realm);
+      
+       if (!domain.isNull() && !realm.isNull())
        {
-          if ((lineMgr = new SipLineMgr()))
+          CredentialDB* credentialDb;
+          if ((credentialDb = CredentialDB::getInstance()))
           {
-             if (lineMgr->addLine(*line))
+             Url identity;
+
+             identity.setUserId(PARK_SERVER_ID_TOKEN);
+             identity.setHostAddress(domain);
+
+             UtlString ha1_authenticator;
+             UtlString authtype;
+         
+             if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
              {
-                if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
-                                                  ,HTTP_DIGEST_AUTHENTICATION
-                                                  )
-                    )
+                if ((line = new SipLine( identity // user entered url
+                                        ,identity // identity url
+                                        ,user     // user
+                                        ,TRUE     // visible
+                                        ,SipLine::LINE_STATE_PROVISIONED
+                                        ,TRUE     // auto enable
+                                        ,FALSE    // use call handling
+                                        )))
                 {
-                   OsSysLog::add(LOG_FACILITY, PRI_INFO,
-                                 "Added identity '%s': user='%s' realm='%s'"
-                                 ,identity.toString().data(), user.data(), realm.data()
-                                 );
+                   if ((lineMgr = new SipLineMgr()))
+                   {
+                      if (lineMgr->addLine(*line))
+                      {
+                         if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
+                                                           ,HTTP_DIGEST_AUTHENTICATION
+                                                           )
+                             )
+                         {
+                            OsSysLog::add(LOG_FACILITY, PRI_INFO,
+                                          "Added identity '%s': user='%s' realm='%s'"
+                                          ,identity.toString().data(), user.data(), realm.data()
+                                          );
+                         }
+                         else
+                         {
+                            OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                                          "Error adding identity '%s': user='%s' realm='%s'\n"
+                                          "  escape and timeout from park may not work.",
+                                          identity.toString().data(), user.data(), realm.data()
+                                          );
+                         }
+
+                         lineMgr->setDefaultOutboundLine(identity);
+                      }
+                      else
+                      {
+                         OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                                       "addLine failed: "
+                                       "  escape and timeout from park may not work."
+                                       );
+                      }
+                   }
+                   else
+                   {
+                      OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                                    "Constructing SipLineMgr failed:  "
+                                    "  escape and timeout from park may not work."
+                                    );
+                   }
                 }
                 else
                 {
                    OsSysLog::add(LOG_FACILITY, PRI_ERR,
-                                 "Error adding identity '%s': user='%s' realm='%s'\n"
-                                 "  escape and timeout from park may not work.",
-                                 identity.toString().data(), user.data(), realm.data()
+                                 "Constructing SipLine failed:  "
+                                 "  escape and timeout from park may not work."
                                  );
                 }
-
-                lineMgr->setDefaultOutboundLine(identity);
              }
              else
              {
                 OsSysLog::add(LOG_FACILITY, PRI_ERR,
-                              "addLine failed: "
-                              "  escape and timeout from park may not work."
+                              "No credential found for '%s@%s' in realm '%s'"
+                              "; transfer functions will not work",
+                              PARK_SERVER_ID_TOKEN, domain.data(), realm.data()
                               );
              }
+
+             credentialDb->releaseInstance();
           }
           else
           {
              OsSysLog::add(LOG_FACILITY, PRI_ERR,
-                           "Constructing SipLineMgr failed:  "
-                           "  escape and timeout from park may not work."
+                           "Failed to open credentials database"
+                           "; transfer functions will not work"
                            );
           }
        }
        else
        {
           OsSysLog::add(LOG_FACILITY, PRI_ERR,
-                        "Constructing SipLine failed:  "
-                        "  escape and timeout from park may not work."
+                        "Domain or Realm not configured:"
+                        "\n  '%s' : '%s'\n  '%s' : '%s'"
+                        "  transfer functions will not work.",
+                        SipXecsService::DomainDbKey::SIP_DOMAIN_NAME, domain.data(),
+                        SipXecsService::DomainDbKey::SIP_REALM, realm.data()
                         );
        }
     }
     else
     {
        OsSysLog::add(LOG_FACILITY, PRI_ERR,
-                     "One or more authentication parameters missing:"
-                     "\n  '%s' : '%s'\n  '%s' : '%s'\n  '%s' : '%s'\n  '%s' : '%s'\n"
-                     "  escape and timeout from park will not work.",
-                     CONFIG_SETTING_DOMAIN, domain.data(),
-                     CONFIG_SETTING_AUTH_REALM, realm.data(),
-                     CONFIG_SETTING_AUTH_ID, user.data(),
-                     CONFIG_SETTING_AUTH_HA1, ha1_authenticator.data()
+                     "main: failed to load domain configuration from '%s'",
+                     domainConfigPath.data()
                      );
     }
 
@@ -540,6 +584,7 @@ int main(int argc, char* argv[])
                                                NULL, // natPingMethod
                                                lineMgr
                                                );
+    userAgent->setUserAgentHeaderProperty("sipX/park");
     userAgent->start();
 
     // Read the list of codecs from the configuration file.

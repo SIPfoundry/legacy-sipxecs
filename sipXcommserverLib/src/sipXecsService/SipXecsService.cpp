@@ -32,6 +32,7 @@ DirectoryType SipXecsService::DatabaseDirType      = "SIPX_DBDIR";
 
 // lookup keys for the domain configuration
 const char* SipXecsService::DomainDbKey::SIP_DOMAIN_NAME = "SIP_DOMAIN_NAME";
+const char* SipXecsService::DomainDbKey::SIP_REALM       = "SIP_REALM";
 const char* SipXecsService::DomainDbKey::SHARED_SECRET   = "SHARED_SECRET";
 
 // TYPEDEFS
