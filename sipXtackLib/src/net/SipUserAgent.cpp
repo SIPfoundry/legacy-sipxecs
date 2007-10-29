@@ -1188,48 +1188,48 @@ UtlBoolean SipUserAgent::sendStatelessResponse(SipMessage& rresponse)
 }
 
 UtlBoolean SipUserAgent::sendStatelessRequest(SipMessage& request,
-                           UtlString& address,
-                           int port,
-                           OsSocket::IpProtocolSocketType protocol,
-                           UtlString& branchId)
+                                              UtlString& address,
+                                              int port,
+                                              OsSocket::IpProtocolSocketType protocol,
+                                              UtlString& branchId)
 {
-    // Convert the enum to a protocol string
-    UtlString viaProtocolString;
-    SipMessage::convertProtocolEnumToString(protocol,
-                                            viaProtocolString);
+   // Convert the enum to a protocol string
+   UtlString viaProtocolString;
+   SipMessage::convertProtocolEnumToString(protocol,
+                                           viaProtocolString);
 
-    // Get via info
-    UtlString viaAddress;
-    int viaPort;
-    getViaInfo(protocol,
-                         viaAddress,
-                         viaPort);
+   // Get via info
+   UtlString viaAddress;
+   int viaPort;
+   getViaInfo(protocol,
+              viaAddress,
+              viaPort);
 
-    // Add the via field data
-    request.addVia(viaAddress.data(),
-                   viaPort,
-                   viaProtocolString,
-                   branchId.data());
+   // Add the via field data
+   request.addVia(viaAddress.data(),
+                  viaPort,
+                  viaProtocolString,
+                  branchId.data());
 
 
-    // Send using the correct protocol
-    UtlBoolean sendSucceeded = FALSE;
-    if(protocol == OsSocket::UDP)
-    {
-        sendSucceeded = sendUdp(&request, address.data(), port);
-    }
-    else if(protocol == OsSocket::TCP)
-    {
-        sendSucceeded = sendTcp(&request, address.data(), port);
-    }
+   // Send using the correct protocol
+   UtlBoolean sendSucceeded = FALSE;
+   if(protocol == OsSocket::UDP)
+   {
+      sendSucceeded = sendUdp(&request, address.data(), port);
+   }
+   else if(protocol == OsSocket::TCP)
+   {
+      sendSucceeded = sendTcp(&request, address.data(), port);
+   }
 #ifdef SIP_TLS
-    else if(protocol == OsSocket::SSL_SOCKET)
-    {
-        sendSucceeded = sendTls(&request, address.data(), port);
-    }
+   else if(protocol == OsSocket::SSL_SOCKET)
+   {
+      sendSucceeded = sendTls(&request, address.data(), port);
+   }
 #endif
 
-    return(sendSucceeded);
+   return(sendSucceeded);
 }
 
 UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
@@ -3344,36 +3344,36 @@ UtlBoolean SipUserAgent::recurseOnlyOne300Contact()
 
 UtlBoolean SipUserAgent::isOk(OsSocket::IpProtocolSocketType socketType)
 {
-    UtlBoolean retval = FALSE;
-    switch(socketType)
-    {
-        case OsSocket::TCP :
-            if (mSipTcpServer)
-            {
-                retval = mSipTcpServer->isOk();
-            }
-            break;
-        case OsSocket::UDP :
-            if (mSipUdpServer)
-            {
-                retval = mSipUdpServer->isOk();
-            }
-            break;
+   UtlBoolean retval = FALSE;
+   switch(socketType)
+   {
+   case OsSocket::TCP :
+      if (mSipTcpServer)
+      {
+         retval = mSipTcpServer->isOk();
+      }
+      break;
+   case OsSocket::UDP :
+      if (mSipUdpServer)
+      {
+         retval = mSipUdpServer->isOk();
+      }
+      break;
 #ifdef SIP_TLS
-        case OsSocket::SSL_SOCKET :
-            if (mSipTlsServer)
-            {
-                retval = mSipTlsServer->isOk();
-            }
-            break;
+   case OsSocket::SSL_SOCKET :
+      if (mSipTlsServer)
+      {
+         retval = mSipTlsServer->isOk();
+      }
+      break;
 #endif
-        default :
-           OsSysLog::add(FAC_SIP, PRI_ERR, "SipUserAgent::isOK - invalid socket type %d",
-                         socketType);
-            break;
-    }
+   default :
+      OsSysLog::add(FAC_SIP, PRI_ERR, "SipUserAgent::isOK - invalid socket type %d",
+                    socketType);
+      break;
+   }
 
-    return retval;
+   return retval;
 }
 
 UtlBoolean SipUserAgent::isShutdownDone()
