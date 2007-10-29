@@ -2467,9 +2467,11 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         // immediately do not go to offering first.
         if (doesReplaceCallLegExist)
         {
-            //  When the replaceCallLeg exist, we need to update mpCall's callId with the new one
-            //  as the SipSession for the new call leg and the call leg being replaced share the same
-            //  instance of mpCall, if callId is not being updated, the call will be linked to the dying leg.
+            // When the replaceCallLeg exists, we need to update
+            // mpCall's callId with the new one as the SipSession for
+            // the new call leg and the call leg being replaced share
+            // the same instance of mpCall -- if callId is not
+            // updated, the call will be linked to the dying leg.
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipConnection::processInviteRequest inviteMsg=0x%08x ", (int)inviteMsg);
 
