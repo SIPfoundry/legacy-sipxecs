@@ -17,21 +17,6 @@
   <!--
     - C O M P O N E N T S
   -->
-  <component id="dialRuleCommon" type="DialRuleCommon">
-    <binding name="ruleId" value="ruleId" />
-    <binding name="rule" value="rule" />
-    <binding name="callback" value="callback" />
-  </component>
 
-  <component id="permissions" type="contrib:MultiplePropertySelection">
-    <binding name="selectedList" value="rule.permissions" />
-    <binding name="model" value="bean:permissionTypeModel" />
-  </component>
-  <component id="patterns" type="PatternsEditor">
-    <binding name="patterns" value="rule.dialPatterns" />
-  </component>
-  <component id="call_pattern" type="CallPatternEditor">
-    <binding name="pattern" value="rule.callPattern" />
-  </component>
 </page-specification>
 

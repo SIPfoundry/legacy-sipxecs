@@ -1,21 +1,27 @@
-<div jwcid="dialRuleCommon" availableSchedules="prop:availableSchedules">
+<div jwcid="@DialRuleCommon" availableSchedules="ognl:availableSchedules"
+  ruleId="ognl:ruleId" rule="ognl:rule" callback="ognl:callback">
+  <span jwcid="@QuickHelp" value="message:quick.help"/>
   <fieldset>
     <legend>Dialed Number</legend>
     <table>
       <tbody>
-        <span jwcid="patterns"></span>
+        <span jwcid="@PatternsEditor" 
+          patterns="ognl:rule.dialPatterns"/>
       </tbody>
     </table>
   </fieldset>
   <fieldset>
     <legend>Required Permissions</legend>
-    <span jwcid="permissions"></span>
+    <span jwcid="@contrib:MultiplePropertySelection"
+      selectedList="ognl:rule.permissions"
+      model="bean:permissionTypeModel"/>
   </fieldset>
   <fieldset>
     <legend>Resulting Call</legend>
     <table>
       <tbody>
-        <span jwcid="call_pattern"></span>
+        <span jwcid="@CallPatternEditor"
+          pattern="ognl:rule.callPattern"/>
       </tbody>
     </table>
   </fieldset>

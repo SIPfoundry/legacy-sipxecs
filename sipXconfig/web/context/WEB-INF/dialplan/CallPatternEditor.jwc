@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<component-specification class="org.apache.tapestry.BaseComponent" allow-body="no" allow-informal-parameters="no">
-  <!-- P A R A M E T E R S -->
-  <parameter name="pattern"  required="yes" >
-  </parameter>
-  <!-- P R O P E R T I E S -->
+<component-specification class="org.sipfoundry.sipxconfig.site.dialplan.CallPatternEditor" allow-body="no" allow-informal-parameters="no">
   <!-- B E A N S -->
   <bean name="digitsModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
     <set name="enumClass" value="@org.sipfoundry.sipxconfig.admin.dialplan.CallDigits@class"/>
@@ -14,17 +10,5 @@
     <set name="resourcePrefix" value="literal:digits."/>
     <set name="messages" value="messages"/>
   </bean>
-  <!-- C O M P O N E N T S -->
-  <component id="prefixLabel" type="FieldLabel">
-    <binding name="field" value="components.prefix"/>
-  </component>
-  <component id="prefix" type="TextField">
-    <binding name="value" value="pattern.prefix"/>
-    <binding name="validators" value="spring-validators:validSipUserId"/>
-    <binding name="displayName" value="message:label.prefix"/>
-  </component>
-  <component id="digits" type="PropertySelection">
-    <binding name="value" value="pattern.digits"/>
-    <binding name="model" value="bean:localizedDigitsModel"/>
-  </component>
+
 </component-specification>

@@ -14,35 +14,41 @@ import java.util.List;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.Lifecycle;
+import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
+import org.sipfoundry.sipxconfig.components.LenSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 /**
  * PatternsEditor - list of pattersn with ability to edit, remove and delete
  */
 public abstract class PatternsEditor extends BaseComponent {
+    
+    @Bean(lifecycle = Lifecycle.PAGE, initializer = "min=0,max=18")
+    public abstract LenSelectionModel getDigitsOnlyModel();
+    
     public abstract boolean getAddPattern();
-
     public abstract void setAddPattern(boolean addPattern);
 
     public abstract int getIndexToRemove();
-
     public abstract void setIndexToRemove(int index);
 
-    public abstract List getPatterns();
+    @Parameter(required = true)
+    public abstract List<DialPattern> getPatterns();
 
     public abstract int getIndex();
 
     public abstract int getSize();
-
     public abstract void setSize(int size);
 
     public boolean isLast() {
-        List patterns = getPatterns();
+        List<DialPattern> patterns = getPatterns();
         return getIndex() == patterns.size() - 1;
     }
 
-    static final void setCollectionSize(List patterns, int newSize) {
+    static final void setCollectionSize(List<DialPattern> patterns, int newSize) {
         while (newSize < patterns.size()) {
             patterns.remove(patterns.size() - 1);
         }
@@ -52,7 +58,7 @@ public abstract class PatternsEditor extends BaseComponent {
     }
 
     public void sizeChanged() {
-        List patterns = getPatterns();
+        List<DialPattern> patterns = getPatterns();
         setCollectionSize(patterns, getSize());
     }
 
@@ -60,7 +66,7 @@ public abstract class PatternsEditor extends BaseComponent {
      * Process pattern adds/deletes.
      */
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
-        List patterns = getPatterns();
+        List<DialPattern> patterns = getPatterns();
         if (TapestryUtils.isRewinding(cycle, this)) {
             // reset components before rewind
             setIndexToRemove(-1);

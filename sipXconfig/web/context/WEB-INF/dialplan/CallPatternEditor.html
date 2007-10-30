@@ -1,13 +1,20 @@
 <span jwcid="$content$">
     <tr>
         <td>
-            <label for="call:prefix"><span jwcid="prefixLabel">Prefix</span>:</label>
+            <label jwcid="@FieldLabel" for="call:prefix"
+              field="component:prefix">Prefix:</label>
         </td>
         <td>
-            <input jwcid="prefix" id="call:prefix" maxlength="40" type="text"/>
+            <input jwcid="prefix@TextField" id="call:prefix" maxlength="40" 
+              type="text"  value="ognl:pattern.prefix" 
+              validators="spring-validators:validSipUserId"
+              displayName="message:label.prefix"/>
         </td>
+        <td><span jwcid="@Insert" value="message:label.andAppend"/></td>
         <td>
-            <select jwcid="digits" id="call:digits" size="1">
+            <select jwcid="@PropertySelection" id="call:digits" size="1"
+              value="ognl:pattern.digits" 
+              model="bean:localizedDigitsModel">
                 <option value="1">No digits</option>
                 <option value="2">Fixed digits</option>
                 <option value="3">Variable digits</option>
