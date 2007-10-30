@@ -52,13 +52,13 @@ then
   cat > ./snmpd.conf <<EOF
 rocommunity sipxecs
 
-disk /var
+disk /
 EOF
 
   chown $SIPX_USER:$SIPX_USER /etc/snmp/snmpd.conf
 
   chkconfig snmpd on
-  service snmpd start
+  service snmpd restart
 else
   echo "Directory /etc/snmp does not exist. Please verify yout snmp instalation."
   echo "Exiting..."
@@ -173,6 +173,21 @@ LegendO[estabcons]:
 Legend1[estabcons]: Established connections
 Legend2[estabcons]:
 Options[estabcons]: growright,nopercent,gauge
+
+
+#
+# Disk Usage Monitoring
+#
+target[disk]: dskPercent.1&dskPercent.1:\$(snmpString)@\$(host)
+title[disk]: target.diskUsage
+pagetop[disk]: <H1> Disk usage % </H1>
+maxbytes[disk]: 100
+shortlegend[disk]: %
+ylegend[disk]: Disk Utilization %
+Legend1[disk]: Root disk
+legendi[disk]: Root disk
+options[disk]: gauge,growright,nopercent
+unscaled[disk]: ymwd
 
 LogFormat: rrdtool
 PathAdd: /usr/bin

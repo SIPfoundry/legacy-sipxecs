@@ -33,7 +33,9 @@ public class MRTGConfigTest extends TestCase {
     }
 
     public void testGetMRTGConfigTargets() {
-        assertEquals(4, m_mrtgConfig.getTargets().size());
+        assertEquals(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg", m_mrtgConfig
+                .getFilename());
+        assertEquals(5, m_mrtgConfig.getTargets().size());
         assertEquals("/mrtg", m_mrtgConfig.getWorkingDir());
         assertEquals("rrdtool", m_mrtgConfig.getLogFormat());
         assertEquals("/usr/bin", m_mrtgConfig.getPathAdd());
@@ -79,8 +81,7 @@ public class MRTGConfigTest extends TestCase {
 
         MRTGTarget tcpConnections = targets.get(3);
         assertEquals("estabcons_localhost", tcpConnections.getId());
-        assertEquals("tcpCurrEstab.0&tcpCurrEstab.0:sipxtest@localhost", tcpConnections
-                .getExpression());
+        assertEquals("tcpCurrEstab.0&tcpCurrEstab.0:sipxtest@", tcpConnections.getExpression());
         assertEquals("Currently Established TCP Connections", tcpConnections.getTitle());
         assertEquals("<H1> Established TCP Connections </H1>", tcpConnections.getPageTop());
         assertEquals(10000000000L, tcpConnections.getMaxBytes());
@@ -108,7 +109,12 @@ public class MRTGConfigTest extends TestCase {
         targets.add(m_mrtgConfig.getTargets().get(0));
         m_mrtgConfig.setTargets(targets);
         String m_mrtgConfigString = StringUtils.remove(m_mrtgConfig.toString(), eol);
-        String outputToCompare = "workdir: /mrtgLogFormat: rrdtoolPathAdd: /usr/binLibAdd: /usr/lib/perl5/5.8.5/i386-linux-thread-multi## Server CPU Load#target[cpuutil_localhost]: ssCpuRawUser.0&ssCpuRawUser.0:sipxtest@localhosttitle[cpuutil_localhost]: Server CPU Loadpagetop[cpuutil_localhost]: <H1>Server CPU Load</H1>maxbytes[cpuutil_localhost]: 100shortlegend[cpuutil_localhost]: %ylegend[cpuutil_localhost]: CPU Utilizationlegendi[cpuutil_localhost]: Usedlegend1[cpuutil_localhost]: Current CPU percentage loadunscaled[cpuutil_localhost]: ymwdoptions[cpuutil_localhost]: growright,nopercent";
+        String outputToCompare = "workdir: /mrtg"
+                + "LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt"
+                + "EnableIPv6: no"
+                + "LogFormat: rrdtool"
+                + "PathAdd: /usr/bin"
+                + "LibAdd: /usr/lib/perl5/5.8.5/i386-linux-thread-multi## Server CPU Load#target[cpuutil_localhost]: ssCpuRawUser.0&ssCpuRawUser.0:sipxtest@localhosttitle[cpuutil_localhost]: Server CPU Loadpagetop[cpuutil_localhost]: <H1>Server CPU Load</H1>maxbytes[cpuutil_localhost]: 100shortlegend[cpuutil_localhost]: %ylegend[cpuutil_localhost]: CPU Utilizationlegendi[cpuutil_localhost]: Usedlegend1[cpuutil_localhost]: Current CPU percentage loadunscaled[cpuutil_localhost]: ymwdoptions[cpuutil_localhost]: growright,nopercent";
         assertEquals(m_mrtgConfigString, outputToCompare);
     }
 
@@ -118,7 +124,11 @@ public class MRTGConfigTest extends TestCase {
         m_mrtgConfig.setTargets(targets);
         String m_mrtgConfigString = StringUtils.remove(m_mrtgConfig.toString(), System
                 .getProperty("line.separator"));
-        String outputToCompare = "workdir: /mrtgLogFormat: rrdtoolPathAdd: /usr/binLibAdd: /usr/lib/perl5/5.8.5/i386-linux-thread-multi## #maxbytes[]: 10000000000";
+        String outputToCompare = "workdir: /mrtg"
+                + "LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt"
+                + "EnableIPv6: no" + "LogFormat: rrdtool" + "PathAdd: /usr/bin"
+                + "LibAdd: /usr/lib/perl5/5.8.5/i386-linux-thread-multi"
+                + "## #maxbytes[]: 10000000000";
         assertEquals(m_mrtgConfigString, outputToCompare);
     }
 
@@ -147,7 +157,13 @@ public class MRTGConfigTest extends TestCase {
         targets.add(customTarget);
         m_mrtgConfig.setTargets(targets);
         String m_mrtgConfigString = StringUtils.remove(m_mrtgConfig.toString(), eol);
-        String outputToCompare = "workdir: /mrtgLogFormat: rrdtoolPathAdd: /usr/binLibAdd: /usr/lib/perl5/5.8.5/i386-linux-thread-multi#target-group=customGroup## customTitle#target[custom]: customExpresiontitle[custom]: customTitlepagetop[custom]: customPageTopmaxbytes[custom]: 10shortlegend[custom]: shortLegendylegend[custom]: YLegendlegendi[custom]: ILegendlegendo[custom]: OLegendlegend1[custom]: Legend1legend2[custom]: Legend2unscaled[custom]: unscaledoptions[custom]: gauge,growright,nopercent";
+        String outputToCompare = "workdir: /mrtg"
+                + "LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt"
+                + "EnableIPv6: no"
+                + "LogFormat: rrdtool"
+                + "PathAdd: /usr/bin"
+                + "LibAdd: /usr/lib/perl5/5.8.5/i386-linux-thread-multi"
+                + "#target-group=customGroup## customTitle#target[custom]: customExpresiontitle[custom]: customTitlepagetop[custom]: customPageTopmaxbytes[custom]: 10shortlegend[custom]: shortLegendylegend[custom]: YLegendlegendi[custom]: ILegendlegendo[custom]: OLegendlegend1[custom]: Legend1legend2[custom]: Legend2unscaled[custom]: unscaledoptions[custom]: gauge,growright,nopercent";
         assertEquals(m_mrtgConfigString, outputToCompare);
     }
 

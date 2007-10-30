@@ -83,7 +83,7 @@ public class MonitoringContextImplTest extends TestCase {
     }
 
     public void testGetTargetsForHost() {
-        assertEquals(3, m_monitoringContextImpl.getTargetsForHost("localhost").size());
+        assertEquals(4, m_monitoringContextImpl.getTargetsForHost("localhost").size());
         assertEquals(1, m_monitoringContextImpl.getTargetsForHost("192.168.0.27").size());
 
         List<MRTGTarget> localhostTargets = m_monitoringContextImpl
@@ -109,7 +109,7 @@ public class MonitoringContextImplTest extends TestCase {
     }
 
     public void testGetReports() {
-        assertEquals(3, m_monitoringContextImpl.getReports("localhost").size());
+        assertEquals(4, m_monitoringContextImpl.getReports("localhost").size());
         assertEquals(1, m_monitoringContextImpl.getReports("192.168.0.27").size());
 
         List<String> reports = m_monitoringContextImpl.getReports("192.168.0.27");
