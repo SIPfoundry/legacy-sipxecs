@@ -237,6 +237,7 @@
     <antcall target="callgroup-vmail-destination" />
     <antcall target="localization" />
     <antcall target="callgroup-userforward" />
+    <antcall target="gateway-port-fix" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="7" -->
   </target>
@@ -491,6 +492,10 @@
 	
   <target name="gateway-port" unless="gateway-port">
     <db-patch patch="gateway-port" />
+  </target>
+
+  <target name="gateway-port-fix" unless="gateway-port-fix">
+    <db-patch patch="gateway-port-fix" />
   </target>
 
   <target name="schedules-per-dialing-rule" unless="schedules-per-dialing-rule">
