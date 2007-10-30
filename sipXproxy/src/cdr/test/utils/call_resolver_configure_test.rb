@@ -213,6 +213,13 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     assert_equal(-1, config.max_call_len)
   end  
 
+  def test_min_cleanup_interval
+    assert_equal(300, @config.min_cleanup_interval)
+    c = Configure.new('SIP_CALLRESOLVER_MIN_CLEANUP_INTERVAL' => '500')
+    config = CallResolverConfigure.new(c)
+    assert_equal(500, config.min_cleanup_interval)
+  end
+
   def test_dirs
     assert_equal('/etc/sipxpbx', @config.confdir)
     assert_equal('/etc/sipxpbx/ssl', @config.ssldir)

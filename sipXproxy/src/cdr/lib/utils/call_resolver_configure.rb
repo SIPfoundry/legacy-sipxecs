@@ -142,6 +142,12 @@ class CallResolverConfigure
     parse_int_param(@config, 'SIP_CALLRESOLVER_MAX_CALL_LEN', 8 * 60 * 60, -1)    
   end
   
+  # number of seconds to wait between cleaning up long calls.  Default is
+  # 5 minutes.  Minimum is 1 minute
+  def min_cleanup_interval
+    parse_int_param(@config, 'SIP_CALLRESOLVER_MIN_CLEANUP_INTERVAL', 5 * 60 ,60)
+  end
+
   def stunnel_debug
     @config.fetch('SIP_CALLRESOLVER_STUNNEL_DEBUG', 5)
   end

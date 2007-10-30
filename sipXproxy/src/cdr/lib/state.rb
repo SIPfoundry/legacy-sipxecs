@@ -25,10 +25,9 @@ class State
     end
   end
   
-  def initialize(cse_queue, cdr_queue, max_call_len = -1, cdr_class = Cdr)
+  def initialize(cse_queue, cdr_queue, cdr_class = Cdr)
     @cse_queue = cse_queue
     @cdr_queue = cdr_queue
-    @max_call_len = max_call_len
     @cdr_class = cdr_class
     @failed_calls = {}
     @retired_calls = {}
@@ -102,7 +101,6 @@ class State
         @failed_calls[call_id] = FailedCdr.new(cdr, @generation)        
       end
     end    
-    retire_long_calls() if 0 == @generation % 1000
     flush_failed(100) if 0 == @generation % 200 	
   end
   
@@ -126,13 +124,13 @@ class State
   end
   
   # call to retire (turn into CDRs) really long calls
-  # the assumption is that we maybe loosing some events for some calls which permanently keeps tham in ongoing state
-  def retire_long_calls()
+  # the assumption is that we may be losing some events for some calls which permanently keeps them in 'ongoing' state
+  def retire_long_calls(max_call_len)
     return unless @last_event_time
-    return unless @max_call_len > 0
+    return unless max_call_len > 0
     @cdrs.delete_if do | call_id, cdr |
       start_time = cdr.start_time
-      if start_time && (@last_event_time - start_time > @max_call_len)
+      if start_time && (@last_event_time - start_time > max_call_len)
         cdr.force_finish
         notify(cdr)
         true                

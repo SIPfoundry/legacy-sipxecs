@@ -11,6 +11,7 @@ require 'call_direction/call_direction_plugin'
 require 'db/cse_reader'
 require 'db/cdr_writer'
 require 'soap/server'
+require 'utils/cleaner'
 require 'utils/configure'
 require 'state'
 
@@ -32,6 +33,7 @@ class CallResolver
     end
     install_signal_handler(@readers)    
     @writer = CdrWriter.new(@config.cdr_database_url, @config.purge_age_cdr, log)
+    @cleaner = Cleaner.new(@config.min_cleanup_interval, @config.max_call_len)
     @state = nil
   end
   
@@ -47,15 +49,19 @@ class CallResolver
     
     cdr_queue = Queue.new
     cse_queue = Queue.new    
-    
+
     reader_threads = @readers.collect do | reader |
       # TODO: we are passing nil as CSE start_id at them moment
       # it would be better if we stored the last read id for every CSE database
       Thread.new(reader, cse_queue) { |r, q| r.run(q, nil, start_time, end_time) }
     end
-    
+
+    cleaner_thread = Thread.new(@cleaner, cse_queue) do |cleaner, queue|
+      cleaner.run(queue)
+    end
+
     # state copies from CSE queue to CDR queue
-    @state = State.new(cse_queue, cdr_queue, @config.max_call_len)
+    @state = State.new(cse_queue, cdr_queue)
     
     Thread.new( @state ) { | state | 
       state.run
@@ -74,7 +80,11 @@ class CallResolver
     writer_thread = Thread.new( @writer, cdr_queue ) { | w, q | w.run(q) }    
     
     reader_threads.each{ |thread| thread.join }
-    
+
+    # stop running housekeeping jobs
+    @cleaner.stop
+    cleaner_thread.join
+
     # send sentinel event, it will stop plugins and state
     cse_queue.enq(nil)
     

@@ -59,7 +59,7 @@ class StateTest < Test::Unit::TestCase
     cse1 = DummyCse.new('id1')
     cse2 = DummyCse.new('id2')
     
-    state = State.new([], observer, -1, DummyCdr )
+    state = State.new([], observer, DummyCdr )
     
     state.accept(cse1)    
     assert_equal(0, observer.counter)
@@ -78,7 +78,7 @@ class StateTest < Test::Unit::TestCase
     observer = DummyQueue.new
     cse1 = DummyCse.new('id1')
     
-    state = State.new([], observer, -1, DummyCdr )
+    state = State.new([], observer, DummyCdr )
     state.accept(cse1)    
     state.accept(cse1)    
     assert_equal(1, observer.counter)
@@ -103,7 +103,7 @@ class StateTest < Test::Unit::TestCase
     cse1 = DummyCse.new('id1')
     cse2 = DummyCse.new('id2')
     
-    state = State.new([], observer, -1, DummyCdr )
+    state = State.new([], observer, DummyCdr )
     state.accept(cse1)    
     state.accept(cse1)    
     assert_equal(1, observer.counter)
@@ -160,7 +160,7 @@ class StateTest < Test::Unit::TestCase
     
     # results of calls to accept and terminated?
     MockCdr.results( true, false )
-    state = State.new([], observer, -1, MockCdr )
+    state = State.new([], observer, MockCdr )
     
     state.accept(cse1)
     assert_equal(0, observer.counter)
@@ -184,7 +184,7 @@ class StateTest < Test::Unit::TestCase
     
     # results of calls to accept and terminated?
     MockCdr.results( true, false, true, true )
-    state = State.new([], observer, -1, MockCdr )
+    state = State.new([], observer, MockCdr )
     
     state.accept(cse1)
     assert_equal(0, observer.counter)
@@ -208,7 +208,7 @@ class StateTest < Test::Unit::TestCase
     
     # results of calls to accept and terminated?
     MockCdr.results( true, false, true, true )
-    state = State.new(in_queue, out_queue, -1, MockCdr )
+    state = State.new(in_queue, out_queue, MockCdr )
     state.run
     
     # still only one - nothing flushed, and nil as the second
@@ -222,10 +222,10 @@ class StateTest < Test::Unit::TestCase
     cse2 = DummyCse.new('id2', Time.at(1100))    
     cse3 = DummyCse.new('id3', Time.at(1200))    
     in_queue = [
-      cse1, cse2, cse3, [:retire_long_calls]
+      cse1, cse2, cse3, [:retire_long_calls, 150]
     ]
     MockCdr.results( false, false, false, false, false, false )
-    state = State.new(in_queue, out_queue, 150, MockCdr )
+    state = State.new(in_queue, out_queue, MockCdr)
     state.run    
     
     # a single CDR will be recorded
@@ -235,4 +235,5 @@ class StateTest < Test::Unit::TestCase
     # and one CDR remains in the state
     assert_equal(2, state.active_cdrs.size)
   end
+
 end
