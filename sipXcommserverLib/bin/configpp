@@ -27,7 +27,7 @@ die() {
 
 # Remove any <CR>'s from the given file(s)
 extract_cr() {
-	TEMPFILE=/var/tmp/config-cr.$$
+	TEMPFILE=`mktemp -t config-cr.XXXXXX`
 	while [ $# -ne 0 ]
 	do
 		if ! tr -d \\015 < "$1" > $TEMPFILE
@@ -114,7 +114,7 @@ fi
 
 extract_cr "$PARM_DEFS" "$PARM_IN"
 
-SCRIPT=/var/tmp/config-script.$$
+SCRIPT=`mktemp -t config-script.XXXXX`
 
 cat > $SCRIPT << EOF
 #!/bin/bash
