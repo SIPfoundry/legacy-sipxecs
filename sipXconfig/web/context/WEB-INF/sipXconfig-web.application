@@ -159,9 +159,11 @@
     <component-type type="StatsTable" specification-path="common/StatsTable.jwc"/>
     <component-type type="Table" specification-path="common/Table.jwc"/>
     <component-type type="ToggleLink" specification-path="common/ToggleLink.jwc"/>
+    <component-type type="UserCallForwardingComponent" specification-path="user_portal/UserCallForwardingComponent.jwc"/>
     <component-type type="UserForm" specification-path="user/UserForm.jwc"/>
     <component-type type="UserNavigation" specification-path="user/UserNavigation.jwc"/>
     <component-type type="UserPortalNavigation" specification-path="user_portal/UserPortalNavigation.jwc"/>
+    <component-type type="UserSchedulesComponent" specification-path="user_portal/UserSchedulesComponent.jwc"/>
     <component-type type="UserRingTable" specification-path="admin/UserRingTable.jwc"/>
     <component-type type="UserSearch" specification-path="user/UserSearch.jwc"/>
     <component-type type="UserSearchResults" specification-path="user/UserSearchResults.jwc"/>

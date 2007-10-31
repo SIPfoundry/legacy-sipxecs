@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
+
 
 
 /**
@@ -50,6 +53,15 @@ public class UserSession {
 
     public Integer getUserId() {
         return m_userId;
+    }
+    
+    /**
+     * Loads a user from the specified core context
+     * @param coreContext
+     * @return The User object associated with this session
+     */
+    public User getUser(CoreContext coreContext) {
+        return coreContext.loadUser(getUserId());
     }
     
     public boolean isLoggedIn() {

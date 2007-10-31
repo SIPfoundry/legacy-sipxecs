@@ -1,0 +1,20 @@
+<div jwcid="@Border" restricted="false">
+  <h2>
+    <span key="title"/>
+  </h2>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'forwarding', 'schedules'}" selectedTab="prop:selectedTab"/>
+  <span jwcid="@ErrorMsg"/>
+  <div id="settings-content">  
+    <span jwcid="@RenderBlock" block="ognl:components.get(selectedTab + 'Tab')" />
+  </div>
+</div>
+<div jwcid="forwardingTab@Block">
+  <span jwcid="@UserCallForwardingComponent"
+    user="ognl:user"
+    userSession="ognl:userSession"/>
+</div>
+<div jwcid="schedulesTab@Block">
+  <span jwcid="@UserSchedulesComponent"
+    user="ognl:user"
+    userSession="ognl:userSession"/>
+</div>

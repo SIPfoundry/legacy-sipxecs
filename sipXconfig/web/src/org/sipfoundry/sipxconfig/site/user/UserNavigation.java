@@ -52,7 +52,6 @@ public abstract class UserNavigation extends BeanNavigation<User> {
     public IPage editCallForwarding(Integer userId) {
         UserCallForwarding page = getUserCallForwardingPage();
         page.setUserId(userId);
-        page.setRings(null);
         page.setReturnPage(ManageUsers.PAGE);
         return page;
     }

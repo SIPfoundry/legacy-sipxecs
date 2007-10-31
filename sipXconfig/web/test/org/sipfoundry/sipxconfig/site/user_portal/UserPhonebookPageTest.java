@@ -50,6 +50,7 @@ public class UserPhonebookPageTest extends TestCase {
         EasyMock.replay(m_phonebookManager);
         
         m_pageCreator = new Creator();
+        
         m_out = (UserPhonebookPage)m_pageCreator.newInstance(UserPhonebookPage.class);
         PropertyUtils.write(m_out, "coreContext", m_coreContext);
         PropertyUtils.write(m_out, "phonebookManager", m_phonebookManager);

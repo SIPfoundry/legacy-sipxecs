@@ -86,7 +86,7 @@ public abstract class SpeedDialPage extends UserBasePage {
         setValidationEnabled(true);
         if (TapestryUtils.isValid(this)) {
             onApply();
-            Collection<Phone> phones = getPhoneContext().getPhonesByUserId(getActiveUserId());
+            Collection<Phone> phones = getPhoneContext().getPhonesByUserId(getUserId());
             Collection<Integer> ids = DataCollectionUtil.extractPrimaryKeys(phones);
             getProfileManager().generateProfiles(ids, true);
         }

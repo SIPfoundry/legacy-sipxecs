@@ -1,0 +1,31 @@
+<div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
+  <span jwcid="@QuickHelp" value="message:quick.help"/>
+  <form jwcid="@Form" delegate="ognl:container.validator" listener="listener:submit">
+    <ul class="component-links">      
+      <li><a jwcid="addRingLink@LinkSubmit" selected="prop:action" tag="add">
+        <span key="add">Add Number</span></a>
+      </li>
+    </ul>
+    <fieldset>
+      <table>
+        <tbody>
+          <tr>
+            <td colspan="4">
+              <span jwcid="@InsertText" value="prop:firstCallMsg">Your extension will ring first.</span>
+            </td>
+          </tr>
+          <!-- iterate here -->            
+          <tr jwcid="@For" source="prop:rings" value="prop:ring" index="prop:index" volatile="true">
+            <span jwcid="@RingEditor" ring="prop:ring" index="prop:index" deleteListener="listener:deleteRing" availableSchedules="prop:availableSchedules"/>
+          </tr>
+          <tr jwcid="@If" condition="prop:hasVoiceMail" element="tr">
+            <td colspan="4">
+              <span key="msg.voicemail">If no-one answers your call will be forwarded to Voicemail.</span>
+            </td>
+          </tr>            
+        </tbody>
+      </table>
+    </fieldset>  
+    <ul jwcid="@FormActions" callback="ognl:container.callback" listener="listener:commit"/>
+  </form>
+</div>

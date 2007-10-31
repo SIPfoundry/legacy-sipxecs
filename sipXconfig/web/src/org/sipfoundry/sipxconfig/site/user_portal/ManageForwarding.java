@@ -10,11 +10,18 @@
 package org.sipfoundry.sipxconfig.site.user_portal;
 
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.Persist;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
-public abstract class UserCallForwarding extends UserBasePage {
-    public static final String PAGE = "UserCallForwarding";
+public abstract class ManageForwarding extends UserBasePage {
     
     @Bean
     public abstract SipxValidationDelegate getValidator();
+    
+    @Persist
+    @InitialValue("literal:forwarding")
+    public abstract String getSelectedTab();
+    public abstract void setSelectedTab(String selectedTabName);
+    
 }

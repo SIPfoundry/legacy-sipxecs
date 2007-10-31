@@ -28,7 +28,8 @@ public class EditScheduleTestUi extends WebTestCase {
         SiteTestHelper.setScriptingEnabled(true);
         clickLink("loginFirstTestUser");
         clickLink("toggleNavigation");
-        clickLink("menu.schedules");
+        clickLink("menu.callForwarding");
+        clickLink("link:schedules");
     }
 
     public void testAddDeleteSchedule() throws Exception {
