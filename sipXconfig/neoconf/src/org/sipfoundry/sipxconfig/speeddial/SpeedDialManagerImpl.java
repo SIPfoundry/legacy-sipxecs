@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.speeddial;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -92,5 +93,10 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
 
     public void setReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
+    }
+
+    public void clear() {
+        Collection c = getHibernateTemplate().loadAll(SpeedDial.class);
+        getHibernateTemplate().deleteAll(c);
     }
 }

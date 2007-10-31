@@ -19,4 +19,6 @@ public interface SpeedDialManager extends DialingRuleProvider {
     void saveSpeedDial(SpeedDial speedDial);
 
     void activateResourceList();
+    
+    void clear();
 }

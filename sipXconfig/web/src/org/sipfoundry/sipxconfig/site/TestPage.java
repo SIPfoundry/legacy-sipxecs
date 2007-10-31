@@ -53,6 +53,7 @@ import org.sipfoundry.sipxconfig.site.phone.NewPhone;
 import org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.site.upload.EditUpload;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.upload.UploadManager;
 import org.sipfoundry.sipxconfig.upload.UploadSpecification;
@@ -132,6 +133,9 @@ public abstract class TestPage extends BasePage {
 
     @InjectObject(value = "spring:sbcManager")
     public abstract SbcManager getSbcManager();
+    
+    @InjectObject(value = "spring:speedDialManager")
+    public abstract SpeedDialManager getSpeedDialManager();
 
     public void resetServiceManager() {
         getServiceManager().clear();
@@ -174,6 +178,7 @@ public abstract class TestPage extends BasePage {
     public String resetCoreContext() {
         // need to reset all data that could potentially have a reference
         // to users
+        getSpeedDialManager().clear();
         resetDialPlans();
         resetCallForwarding();
         resetPhoneContext();
