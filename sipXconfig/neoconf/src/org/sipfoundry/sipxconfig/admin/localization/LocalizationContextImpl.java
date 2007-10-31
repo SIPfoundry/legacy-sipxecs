@@ -100,14 +100,20 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
 
     public Localization getLocalization() {
         List l = getHibernateTemplate().loadAll(Localization.class);
-        Localization localization = (Localization) DataAccessUtils.uniqueResult(l);
-        if (localization != null) {
-            return localization;
+        Localization localization = (Localization) DataAccessUtils.singleResult(l);
+        if (localization == null) {
+            return getDefaultLocalization();
         }
-        localization = new Localization();
+        return localization;
+    }
+
+    /**
+     * Builds default localization to be used when there is not any localization selected in DB
+     */
+    private Localization getDefaultLocalization() {
+        Localization localization = new Localization();
         localization.setRegion(m_defaultRegion);
         localization.setLanguage(m_defaultLanguage);
-        getHibernateTemplate().save(localization);
         return localization;
     }
 

@@ -237,7 +237,9 @@
     <antcall target="callgroup-vmail-destination" />
     <antcall target="localization" />
     <antcall target="callgroup-userforward" />
+    <!-- temporary patches -->
     <antcall target="gateway-port-fix" />
+    <antcall target="localization-fix" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="7" -->
   </target>
@@ -489,7 +491,7 @@
 	</sipx-sql>
     <mark-patch-applied patch="domain-initialize-secret" />
   </target>
-	
+
   <target name="gateway-port" unless="gateway-port">
     <db-patch patch="gateway-port" />
   </target>
@@ -504,6 +506,14 @@
 
   <target name="localization" unless="localization">
     <db-patch patch="localization" />
+  </target>
+
+  <!-- do not roll in after upgrade - it's used to fix XCF-1934 only -->
+  <target name="localization-fix" unless="localization-fix">
+    <sipx-sql>
+      delete from localization where region = 'region_na';
+    </sipx-sql>
+    <mark-patch-applied patch="unmanaged-to-acme" />
   </target>
 
   <!-- 
