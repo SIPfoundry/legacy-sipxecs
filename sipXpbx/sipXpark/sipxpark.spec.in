@@ -19,6 +19,10 @@ BuildRoot: %{_tmppath}/%name-%version-root
 %description
 TBD
 
+%if %{_vendor} == suse
+%debug_package
+%endif
+
 %package devel
 Requires: %name
 Requires: sipxcalllib-devel >= 2.9.0

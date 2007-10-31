@@ -32,6 +32,10 @@ contains technologies related to call processing:
 * tao - A transport layer designed to decouple (and remote) the
   application layer from call processing.
 
+%if %{_vendor} == suse
+%debug_package
+%endif
+
 # Install header files
 %package devel
 Requires: %name

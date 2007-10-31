@@ -41,6 +41,10 @@ encapsulate functions and operations for:
   * Operating System Processes
   * Dynamic loading of shared libraries and symbols
 
+%if %{_vendor} == suse
+%debug_package
+%endif
+
 # Install header files
 %package devel
 Requires: openssl-devel >= 0.9.7a
