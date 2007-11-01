@@ -45,11 +45,11 @@ test -f ${Defaults} && . ${Defaults}
 ## localityName             Locality Name (eg, city) 
 ## organizationName         Organization Name (eg, company) 
 ## organizationalUnitName   Organization Unit Name (eg, section)     VoIP Services
-## caName                   CA Common Name (DNS name for CA)         ca.`hostname --domain` 
+## caName                   CA Common Name (The name for CA)         ca.`hostname --domain` 
 ## caEmail                  Email Contact Address for CA             root@${caName}
 ## sipDomainName            SIP domain name                          `hostname --domain` 
 ## server                   Full DNS name for the server             `hostname --fqdn`
-## server Server            Common Name (DNS name for Server)        `hostname --fqdn`
+## server Server            Common Name (name for Server)            `hostname --fqdn`
 ## serverEmail              Email Contact Address for Server         ${caEmail}
 ############################################################################################
 
@@ -207,7 +207,7 @@ EOF
 
     askfor sipDomainName "SIP domain name" `hostname --domain` 
     askfor server        "Full DNS name for the server" `hostname --fqdn` NOSTORE
-    while test ${caName} = ${server}
+    while test $"{caName}" = ${server}
       do
       echo "" 1>&2
       echo "Error: The Server name must not be the same as the CA name." 1>&2
@@ -238,7 +238,7 @@ ______________________________________________________________________
 EOF
     $openssl genrsa \
         -rand ${randomFile} \
-        -out ${caName}.key \
+        -out "${caName}.key" \
         ${CAkeyBits} \
         > /dev/null 2> /dev/null
 
@@ -246,13 +246,13 @@ EOF
         echo "${myName}:Error: Failed to generate RSA private key" 1>&2
         exit 1
     fi
-    chmod go= ${caName}.key
+    chmod go= "${caName}".key
 
     echo "______________________________________________________________________"
     echo ""
     echo "        Generating X.509 certificate signing request for CA"
 
-    cat >${caName}_csr.cfg <<EOT
+    cat >"${caName}"_csr.cfg <<EOT
 [ req ]
 default_bits                    = ${CAkeyBits}
 distinguished_name              = req_DN
@@ -269,11 +269,11 @@ emailAddress                    = ${caEmail}
 EOT
 
     $openssl req \
-        -config ${caName}_csr.cfg \
+        -config "${caName}_csr.cfg" \
         -new \
-        -key ${caName}.key \
+        -key "${caName}.key" \
         -sha1 \
-        -out ${caName}.csr \
+        -out "${caName}.csr" \
         > /dev/null
 
     if [ $? -ne 0 ]; then
@@ -288,7 +288,7 @@ EOT
     # to prevent clashes when the admin wipes out the system and starts over.
     startSerial=$((`date +%s` / 60 ))
 
-    cat >${caName}_crt.cfg <<EOT
+    cat >"${caName}_crt.cfg" <<EOT
 [ x509v3 ]
 basicConstraints = CA:true,pathlen:0
 nsComment        = "${myName} generated custom CA certificate"
@@ -297,14 +297,14 @@ EOT
 
     $openssl x509 \
         -req \
-        -signkey ${caName}.key \
+        -signkey "${caName}.key" \
         -set_serial ${startSerial} \
-        -extfile ${caName}_crt.cfg \
+        -extfile "${caName}_crt.cfg" \
         -extensions x509v3 \
         -days ${AuthorityDays} \
         -sha1 \
-        -in ${caName}.csr \
-        -out ${caName}.crt \
+        -in "${caName}.csr" \
+        -out "${caName}.crt" \
         -text \
         > /dev/null 2>&1
 
@@ -312,16 +312,16 @@ EOT
         echo "${myName}:Error: Failed to generate self-signed CA certificate" 1>&2
         exit 1
     fi
-    printf "%08x" $((${startSerial} + 1)) > ${caName}.ser
+    printf "%08x" $((${startSerial} + 1)) > "${caName}.ser"
 
     echo "______________________________________________________________________"
     echo ""
     echo -n "Verify..."
-    $openssl verify ${caName}.crt > /dev/null 2>&1
+    $openssl verify "${caName}.crt" > /dev/null 2>&1
 
     if [ $? -eq 0 ]; then
         echo "CA certificate OK" 1>&2
-        rm -f ${caName}.csr  ${caName}_csr.cfg  ${caName}_crt.cfg
+        rm -f "${caName}.csr"  "${caName}_csr.cfg"  "${caName}_crt.cfg"
     else
         echo "${myName}:Error: Failed to verify resulting X.509 certificate" 1>&2
         exit 1
@@ -408,9 +408,9 @@ EOT
 
     $openssl x509 \
         -req \
-        -CA ${caName}.crt \
-        -CAkey ${caKey:-${caName}.key} \
-        -CAserial ${caName}.ser \
+        -CA "${caName}.crt" \
+        -CAkey "${caKey:-${caName}.key}" \
+        -CAserial "${caName}.ser" \
         -extfile ${server}_crt.cfg \
         -extensions x509v3 \
         -extensions extend_cert \
@@ -427,18 +427,18 @@ EOT
     fi
 
     ## how to generate pkcs12 certs...
-    #caname="`$openssl x509 -noout -text -in ${caName}.crt |\
+    #caname="`$openssl x509 -noout -text -in "${caName}.crt" |\
     #         grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`"
     #servername="`$openssl x509 -noout -text -in $server.crt |\
     #           grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`"
     #echo "Assembling PKCS#12 package"
-    #$openssl pkcs12 -export -in $server.crt -inkey $server.key -certfile ${caName}.crt -name "$servername" -caname "$caname" -out $server.p12
+    #$openssl pkcs12 -export -in $server.crt -inkey $server.key -certfile "${caName}.crt" -name "$servername" -caname "$caname" -out $server.p12
 
     echo "______________________________________________________________________"
     echo ""
     echo -n "Verify..."
     $openssl verify \
-        -CAfile ${caName}.crt \
+        -CAfile "${caName}.crt" \
         $server.crt \
         > /dev/null
 
@@ -509,21 +509,21 @@ EOF
 
   These files have been created for your private Certificate Authority:
 
-       The root certificate of your CA:   ${caName}.crt 
+       The root certificate of your CA:   "${caName}.crt" 
 
-       You will need to make the ${caName}.crt file available to 
+       You will need to make the "${caName}.crt" file available to 
        anyone who wishes to be able to validate certificates signed 
        by your CA.
 
-             The secret key of your CA:   ${caName}.key
+             The secret key of your CA:   "${caName}.key"
 
-       You MUST keep the ${caName}.key file as secure as possible; 
+       You MUST keep the "${caName}.key" file as secure as possible; 
        it is the foundation of the security of your CA, and by extension
        anything using certificates signed by your CA.  You may move this
        do removable media; if you do, then when signing keys you must
        specify the full path to the key using the --ca-key switch.
 
-   The serial number store for your CA:   ${caName}.ser
+   The serial number store for your CA:   "${caName}.ser"
 
        This is used to ensure uniqueness when you regenerate certificates.
 
@@ -637,7 +637,7 @@ function doSignServer()
 ______________________________________________________________________
 
 
-   CA certificate:     ${caName}.crt
+   CA certificate:     "${caName}.crt"
    server certificate: $server.crt
 
   To install these certificates and the server key on this system, run the

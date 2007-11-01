@@ -87,7 +87,7 @@ fi
 
 if [ "${Action}" = "REMOTE_RECEIVE" ]
 then
-  remote_receive ${Basename}
+  remote_receive "${Basename}"
   exit
 fi
 
@@ -128,21 +128,22 @@ caName=`@OPENSSL@ x509 -in "${Basename}.crt" -issuer -nameopt RFC2253,multiline 
 
 if [ -n "${caName}" -a -f "${caName}.crt" ]
     then
-    AuthoritySwitch="--authority ${caName}.crt"
+    AuthoritySwitch="--authority"
+    AuthorityTarget=${caName}.crt
 else
     AuthoritySwitch=""
 fi
 
 if [ "${Action}" = "REMOTE_SEND" ]
 then
-  remote_send ${Basename} ${Basename}.crt ${Basename}.key ${caName}.crt
+  remote_send "${Basename}" "${Basename}.crt" "${Basename}.key" "${caName}.crt"
   exit
 fi
 
 
-echo "Checking the ${Basename} certificate"
+echo "Checking the '${Basename}' certificate"
 
-if @bindir@/ssl-cert/check-cert.sh ${AuthoritySwitch} $Basename.crt 
+if @bindir@/ssl-cert/check-cert.sh ${AuthoritySwitch} "${AuthorityTarget}" "$Basename.crt"
 then
 
     if [ ! -d @SIPX_CONFDIR@/ssl ]
@@ -162,24 +163,24 @@ then
             chmod 0700          @SIPX_CONFDIR@/ssl/authorities || exit 1
         fi
         
-        echo "Installing ${caName}.crt certificate as a trusted CA"
-        cp -v ${caName}.crt @SIPX_CONFDIR@/ssl/authorities/${caName}.crt || exit 1
-        chown @SIPXPBXUSER@ @SIPX_CONFDIR@/ssl/authorities/${caName}.crt || exit 1
-        chmod 0644          @SIPX_CONFDIR@/ssl/authorities/${caName}.crt || exit 1
+        echo "Installing '${caName}.crt' certificate as a trusted CA"
+        cp -v "${caName}.crt" "@SIPX_CONFDIR@/ssl/authorities/${caName}.crt" || exit 1
+        chown @SIPXPBXUSER@   "@SIPX_CONFDIR@/ssl/authorities/${caName}.crt" || exit 1
+        chmod 0644            "@SIPX_CONFDIR@/ssl/authorities/${caName}.crt" || exit 1
 
         # regenerate the hash symlinks for the certificate store
         @bindir@/ssl-cert/ca_rehash 
     fi
 
-    echo "Installing the ${Basename} certificate"
-    cp -v $Basename.crt @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
-    chown @SIPXPBXUSER@ @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
-    chmod 0600          @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
+    echo "Installing the '${Basename}' certificate"
+    cp -v "$Basename.crt" @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
+    chown @SIPXPBXUSER@   @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
+    chmod 0600            @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
 
-    echo "Installing the ${Basename} private key"
-    cp -v $Basename.key @SIPX_CONFDIR@/ssl/ssl.key || exit 1
-    chown @SIPXPBXUSER@ @SIPX_CONFDIR@/ssl/ssl.key || exit 1
-    chmod 0600          @SIPX_CONFDIR@/ssl/ssl.key || exit 1
+    echo "Installing the '${Basename}' private key"
+    cp -v "$Basename.key" @SIPX_CONFDIR@/ssl/ssl.key || exit 1
+    chown @SIPXPBXUSER@   @SIPX_CONFDIR@/ssl/ssl.key || exit 1
+    chmod 0600            @SIPX_CONFDIR@/ssl/ssl.key || exit 1
 
     echo "Checking the installed certificate"
     if @bindir@/ssl-cert/check-cert.sh @SIPX_CONFDIR@/ssl/ssl.crt
@@ -213,9 +214,9 @@ EOF
     then
         cat <<EOF 1>&2
 
-  You may need to obtain the root certificate for your CA (${caName}).
+  You may need to obtain the root certificate for your CA ('${caName}').
   If you get a copy of the root certificate, put it in this directory, named
-  ${caName}.crt and rerun this command.
+  '${caName}.crt' and rerun this command.
 
 EOF
     fi

@@ -83,7 +83,7 @@ fi
 if [ "${Action}" = "CHECKSUM" ]; then
   Checksum=`cat $Certificates | md5sum | awk '{print $1}'`
   if [ -f $CertificatesChecksum ]; then
-    if [ -f $TrustStore ]; then
+    if [ -f "$TrustStore" ]; then
       PreviousChecksum=`cat $CertificatesChecksum`
       if [ $Checksum == $PreviousChecksum ]; then
         echo "Creating $TrustStore was skipped, previous checksum of contents matched"
@@ -93,18 +93,18 @@ if [ "${Action}" = "CHECKSUM" ]; then
   fi
 fi
 
-rm $TrustStore 2> /dev/null
+rm "$TrustStore" 2> /dev/null
 for Certificate in $Certificates
 do
-    caname="`$openssl x509 -noout -text -in $Certificate |\
+    caname="`$openssl x509 -noout -text -in "$Certificate" |\
          grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`" || exit 1
 
     JavaBin=`@bin.dir@/sipx-config --javabin`
-    openssl x509 -in $Certificate | \
+    openssl x509 -in "$Certificate" | \
         $JavaBin/keytool -import -noprompt -alias "$caname" \
-        -keystore $TrustStore -storepass "$Password" || exit 1
-    chown @sipxpbx.user@ $TrustStore
-    chmod 600 $TrustStore
+        -keystore "$TrustStore" -storepass "$Password" || exit 1
+    chown @sipxpbx.user@ "$TrustStore"
+    chmod 600 "$TrustStore"
 done
 
 if [ "${Action}" = "CHECKSUM" ]; then

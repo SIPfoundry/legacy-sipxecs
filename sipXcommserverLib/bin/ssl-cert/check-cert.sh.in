@@ -141,33 +141,35 @@ then
     authorities=`find ${CAdir} \( -name \*.crt -o -name \*.crl -o -name \*.pem \) 2> /dev/null`
     if [ -n "${authorities}" ]
     then
-        AuthSwitches="-CApath ${CAdir}"
+        AuthSwitch="-CApath"
+        AuthTarget=${CAdir}
     fi
 fi
 
 if [ -f "${Authority}" ]
 then 
-    AuthSwitches="${AuthSwitches} -CAfile ${Authority}"
+    AuthSwitch="-CAfile"
+    AuthTarget=${Authority}
 fi
 
-if [ -z "${AuthSwitches}" ]
+if [ -z "${AuthSwitch}" ]
 then
     cat 1>&2 <<EOF
     No certificate authorities found - cannot validate certificate 
      Authorities directory: ${CAdir}
-     Authority certificate: ${Authority}
+     Authority certificate: "${Authority}"
 EOF
     ExitStatus=1
 fi
 
-if [ -r ${Certificate} ]
+if [ -r "${Certificate}" ]
 then
     
     # Validate the signatures and issuers
     #   (also checks expiration, but does not provide advance warning as below)
     cat /dev/null > /tmp/check-cert.$$
-    @OPENSSL@ verify ${AuthSwitches} -purpose sslclient \
-         ${Certificate} \
+    @OPENSSL@ verify ${AuthSwitch} "${AuthTarget}" -purpose sslclient \
+         "${Certificate}" \
          > /tmp/check-cert.$$ 2>&1
     if ! echo "${Certificate}: OK" | diff - /tmp/check-cert.$$ > /dev/null 2>&1
     then
@@ -176,8 +178,8 @@ then
         ExitStatus=1
     fi
     cat /dev/null > /tmp/check-cert.$$
-    @OPENSSL@ verify ${AuthSwitches} -purpose sslserver \
-         ${Certificate} \
+    @OPENSSL@ verify ${AuthSwitch} "${AuthTarget}" -purpose sslserver \
+         "${Certificate}" \
          > /tmp/check-cert.$$ 2>&1
     if ! echo "${Certificate}: OK" | diff - /tmp/check-cert.$$ > /dev/null 2>&1
     then
@@ -219,25 +221,30 @@ then
     if [ $? -eq 0 ] # date command support epoch format
     then
         exp=`date --date="${cert_expires}" +%s`
-        remaining=$(($exp - $now))
-
-        if [ ${remaining} -le 0 ] # cert expired
+        if [ $? -eq 0 ] # date can fail for some dates and not others in some timezones - strange
         then
-            echo "SSL certificate expired: ${cert_expires}" 1>&2
-            ExitStatus=1
+            # both dates converted to epoch seconds - compare them
+            remaining=$(($exp - $now))
 
-        elif [ ${failSeconds} -gt 0 -a ${remaining} -le ${failSeconds} ]
-        then
-            echo "SSL certificate expires in less than ${ExpireFail} days: ${cert_expires}" 1>&2
-            ExitStatus=1
-
-        elif [ ${remaining} -le ${warnSeconds} ]
-        then
-            echo "SSL certificate expires in less than ${ExpireWarn} days: ${cert_expires}" 1>&2
+            if [ ${remaining} -le 0 ] # cert expired
+            then
+                echo "SSL certificate expired: ${cert_expires}" 1>&2
+                ExitStatus=1
+            elif [ ${failSeconds} -gt 0 -a ${remaining} -le ${failSeconds} ]
+            then
+                echo "SSL certificate expires in less than ${ExpireFail} days: ${cert_expires}" 1>&2
+                ExitStatus=1
+            elif [ ${remaining} -le ${warnSeconds} ]
+            then
+                echo "SSL certificate expires in less than ${ExpireWarn} days: ${cert_expires}" 1>&2
+                ShowCert="SHOW"
+            fi
+        else
+            echo "Your 'date' command does not support %s format - cannot calculate expiration." 1>&2
+            echo "SSL certificate expires: ${cert_expires}" 1>&2
             ShowCert="SHOW"
-
         fi
-    else
+        else
         echo "Your 'date' command does not support %s format - cannot calculate expiration." 1>&2
         echo "SSL certificate expires: ${cert_expires}" 1>&2
         ShowCert="SHOW"
