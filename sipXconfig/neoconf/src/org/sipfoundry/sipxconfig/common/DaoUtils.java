@@ -180,13 +180,13 @@ public final class DaoUtils {
     /**
      * Returns array of beans loaded thru DataObjectSource
      */
-    public static Object[] loadBeansArrayByIds(DataObjectSource source, Class beanClass,
+    public static  <T> T[] loadBeansArrayByIds(DataObjectSource source, Class<T> beanClass,
             Collection ids) {
-        Object[] beans = (Object[]) Array.newInstance(beanClass, ids.size());
+        T[] beans = (T[]) Array.newInstance(beanClass, ids.size());
         Iterator idsIterator = ids.iterator();
         for (int i = 0; idsIterator.hasNext(); i++) {
             Integer id = (Integer) idsIterator.next();
-            beans[i] = source.load(beanClass, id);
+            beans[i] = (T) source.load(beanClass, id);
         }
 
         return beans;

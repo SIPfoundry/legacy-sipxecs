@@ -66,7 +66,7 @@ public abstract class AcdPresenceServer extends BaseComponent implements PageBeg
     
     public void signIn() {
         PresenceServer presenceServer = getPresenceServer();
-        User[] users = (User[]) DaoUtils.loadBeansArrayByIds(getCoreContext(), User.class, 
+        User[] users = DaoUtils.loadBeansArrayByIds(getCoreContext(), User.class, 
                 getSelections().getAllSelected());        
         for (int i = 0; i < users.length; i++) {            
             presenceServer.signIn(users[i]);
@@ -75,8 +75,8 @@ public abstract class AcdPresenceServer extends BaseComponent implements PageBeg
     
     public void signOut() {
         PresenceServer presenceServer = getPresenceServer();
-        User[] users = (User[]) DaoUtils.loadBeansArrayByIds(getCoreContext(), User.class, 
-                getSelections().getAllSelected());        
+        User[] users = DaoUtils.loadBeansArrayByIds(getCoreContext(), User.class, getSelections()
+                .getAllSelected());        
         for (int i = 0; i < users.length; i++) {            
             presenceServer.signOut(users[i]);
         }
