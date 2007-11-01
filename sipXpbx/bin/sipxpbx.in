@@ -538,8 +538,23 @@ EOF
     @SIPX_BINDIR@/check-fqdn >> ${steperrfile} 2>&1 
     finish_check $?
 
+    ## Verify that a localhost address is configured
+    start_check "localhost configured"
+    localhost_localaddr=`awk '/localhost/ { print $1}' /etc/hosts`
+    localhost_broken=0
+    if [ $? -ne 0 -o "${localhost_localaddr}" != "127.0.0.1" ]
+    then 
+        localhost_broken=1
+        echo " localhost entry in /etc/hosts may not configure 127.0.0.1" >> ${steperrfile}
+        if [ "${localhost_localaddr}" != "" ]
+        then
+            echo " address '${localhost_localaddr}' found for localhost"  >> ${steperrfile}
+        fi
+    fi
+    finish_check ${localhost_broken}
+
     ## Check to see that hosts file does not have extra names on localhost address
-    start_check "/etc/hosts file"
+    start_check "localhost name is not shared"
     localhostStatus=0
     badNames=/tmp/badnames.$$
     cat /dev/null > ${badNames}
