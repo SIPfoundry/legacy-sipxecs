@@ -13,39 +13,40 @@ import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 
-public interface UploadManager extends DataObjectSource {
-    
-    public static final String CONTEXT_BEAN_NAME = "uploadManager";
-    
-    public Upload loadUpload(Integer uploadId);
-    
-    public void saveUpload(Upload upload);
-    
-    public void deleteUpload(Upload upload);
-    
-    public Collection<Upload> getUpload();
-    
-    public Upload newUpload(UploadSpecification manufacturer);
-    
-    public boolean isActiveUploadById(UploadSpecification spec);
-    
-    public UploadSpecification getSpecification(String specId);
-    
+public interface UploadManager extends DataObjectSource<Upload> {
+
+    static final String CONTEXT_BEAN_NAME = "uploadManager";
+
+    Upload loadUpload(Integer uploadId);
+
+    void saveUpload(Upload upload);
+
+    void deleteUpload(Upload upload);
+
+    void deleteUploads(Collection<Integer> uploadIds);
+
+    Collection<Upload> getUpload();
+
+    Upload newUpload(UploadSpecification manufacturer);
+
+    boolean isActiveUploadById(UploadSpecification spec);
+
+    UploadSpecification getSpecification(String specId);
+
     /**
-     * Checks to ensure you're not deploying more than one type of upload
-     * then delegates deployment to upload object
-     * then saves the upload state is deployment was successful
+     * Checks to ensure you're not deploying more than one type of upload then delegates
+     * deployment to upload object then saves the upload state is deployment was successful
      */
-    public void deploy(Upload upload);
-    
+    void deploy(Upload upload);
+
     /**
-     * Delegates undeployment to upload object
-     * then saves the upload state is undeployment was successful
+     * Delegates undeployment to upload object then saves the upload state is undeployment was
+     * successful
      */
-    public void undeploy(Upload upload);
-    
+    void undeploy(Upload upload);
+
     /**
      * testing only
      */
-    public void clear();
+    void clear();
 }

@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.upload;
 import java.util.Collection;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.ModelSource;
@@ -19,7 +20,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
-public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, UploadManager {
+public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implements
+        BeanFactoryAware, UploadManager {
     private ListableBeanFactory m_beanFactory;
     private ModelSource<UploadSpecification> m_specificationSource;
 
@@ -42,16 +44,22 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
         upload.remove();
         deleteBeanWithSettings(upload);
     }
-    
+
+    public void deleteUploads(Collection<Integer> uploadIds) {
+        Upload[] uploads = DaoUtils.loadBeansArrayByIds(this, Upload.class, uploadIds);
+        for (Upload upload : uploads) {
+            deleteUpload(upload);
+        }
+    }
+
     public Collection<Upload> getUpload() {
         return getHibernateTemplate().findByNamedQuery("upload");
     }
-    
+
     public boolean isActiveUploadById(UploadSpecification spec) {
         return (getActiveUpload(spec).size() > 1);
     }
-        
-    
+
     public void setSpecificationSource(ModelSource<UploadSpecification> specificationSource) {
         m_specificationSource = specificationSource;
     }
@@ -59,14 +67,14 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
     public UploadSpecification getSpecification(String specId) {
         return m_specificationSource.getModel(specId);
     }
-    
+
     private List<Upload> getActiveUpload(UploadSpecification spec) {
         List<Upload> existing = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 "deployedUploadBySpecification", "spec", spec.getSpecificationId());
         return existing;
     }
-        
-    public Upload newUpload(UploadSpecification specification) {       
+
+    public Upload newUpload(UploadSpecification specification) {
         Upload upload = (Upload) m_beanFactory.getBean(specification.getBeanId());
         upload.setSpecificationId(specification.getSpecificationId());
         return upload;
@@ -76,29 +84,25 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
         getHibernateTemplate().deleteAll(getUpload());
     }
 
-    public void deploy(Upload upload) {        
+    public void deploy(Upload upload) {
         UploadSpecification spec = upload.getSpecification();
         List<Upload> existing = getActiveUpload(spec);
         // should never happen
         if (existing.size() > 1) {
-            throw new AlreadyDeployedException("There are already " + existing.size() 
-                    + " files sets of type  \"" + spec.getLabel() + "\" deployed.  You can only have "
-                    + " one set of files of this type deployed at a time");                
+            throw new AlreadyDeployedException(existing.size(), spec.getLabel());
         }
         if (existing.size() == 1) {
             Upload existingUpload = existing.get(0);
             if (!existingUpload.getId().equals(upload.getId())) {
-                throw new AlreadyDeployedException("You must undeploy \"" +  existingUpload.getName()
-                        + "\" before you can deploy these files.  You can only have one set of files of type \""
-                        + spec.getLabel() + "\" deployed at a time.");
+                throw new AlreadyDeployedException(existingUpload.getName(), spec.getLabel());
             }
         }
-        
-        // ensure upload is saved first.  Allows it to create directory identifier 
+
+        // ensure upload is saved first. Allows it to create directory identifier
         if (upload.isNew()) {
             saveUpload(upload);
         }
-        upload.deploy();        
+        upload.deploy();
         saveUpload(upload);
     }
 
@@ -108,9 +112,19 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
     }
 
     static class AlreadyDeployedException extends UserException {
-        AlreadyDeployedException(String msg) {
-            super(msg);
+        private static final String ERROR = "You can only have one set of files of type \"{1}\" deployed at a time.";
+
+        // FIXME: localize
+        AlreadyDeployedException(String name, String label) {
+            super("You must undeploy \"{0}\" before you can deploy these files. " + ERROR, name,
+                    label);
         }
+
+        AlreadyDeployedException(int size, String label) {
+            super("There are already {0} files sets of type \"{1}\" deployed. " + ERROR, size,
+                    label);
+        }
+
     }
-    
+
 }

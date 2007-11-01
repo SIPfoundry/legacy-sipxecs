@@ -1,38 +1,48 @@
-<html>
-<head>
-    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
-</head>
-<body jwcid="$content$">
-	<div jwcid="@Border">
-        <h2><span jwcid="pageLabel"/> Files</h2>
-        <span jwcid="@ErrorMsg"/>
-		<form jwcid="uploadForm">
-	        <fieldset>
-	        	<table>
-	                <tbody>
-		            <span jwcid="nameDescriptionEdit"/>
-	                </tbody>
-		        </table>
-	         </fieldset>    
-            <span jwcid="@If" condition="ognl:! upload.isNew()">
-	            <span jwcid="@If" condition="ognl:upload.deployed">
-	    	        <p><span key="warning"><strong>You cannot make changes when files are deployed.</strong></span></p>
-	             </span>
-	             <fieldset jwcid="settingsFieldset"/>
-             </span>
-             <span jwcid="applyOkCancel">
-                <span jwcid="@If" condition="ognl:! upload.isNew()">
-	                 <li>
-		                 <span jwcid="@If" condition="ognl:upload.deployed">
-		                     <input id="upload:inactivate" jwcid="inactivate"/>
-		                 </span>
-		                 <span jwcid="@If" condition="ognl:! upload.deployed">
-		                     <input id="upload:activate" jwcid="activate"/>
-		                 </span>
-	                 </li>
-                 </span>
-             </span>
-		</form>
-	</div>
-</body>
-</html>
+<div jwcid="@Border">
+  <h2><span jwcid="@Insert" value="ognl:upload.specification.label"/>Files</h2>
+  <span jwcid="@ErrorMsg"/>
+  <form jwcid="uploadForm@Form" delegate="bean:validator">
+    <fieldset>
+      <table>
+        <tbody>
+          <span jwcid="nameDescriptionEdit@ItemCommon"
+            useExtension="ognl:false"
+            useEnabled="ognl:false"
+            useFieldset="ognl:false"
+            item="ognl:upload"/>
+        </tbody>
+      </table>
+    </fieldset>
+    <span jwcid="@If" condition="ognl:! upload.isNew()">
+      <span jwcid="@If" condition="ognl:upload.deployed">
+        <p><span key="warning"><strong>You cannot make changes when files are deployed.</strong></span></p>
+      </span>
+      <fieldset jwcid="@setting/SettingsFieldset"
+        settings="ognl:upload.settings"
+        renderGroupTitle="ognl:true"
+        enabled="ognl:! upload.deployed"/>
+      </span>
+      <span jwcid="applyOkCancel@FormActions"
+        listener="listener:onSave"
+        callback="ognl:callback">
+        <span jwcid="@If" condition="ognl:! upload.isNew()">
+          <li jwcid="@If" condition="ognl:upload.deployed" element="li">
+            <input id="upload:inactivate"
+              jwcid="inactivate@Submit"
+              selected="ognl:active"
+              tag="ognl:false"
+              value="message:label.inactivate" 
+              listener="ognl:components.applyOkCancel.listeners.onApply" />
+          </li>
+          <li jwcid="@Else" element="li">
+            <input id="upload:activate"
+              jwcid="activate@Submit"
+              selected="ognl:active"
+              tag="ognl:true"
+              value="message:label.activate"
+              listener="ognl:components.applyOkCancel.listeners.onApply" />
+          </li>
+        </span>
+      </span>
+  </form>
+</div>

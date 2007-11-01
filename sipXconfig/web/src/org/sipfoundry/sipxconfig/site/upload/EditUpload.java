@@ -9,9 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.site.upload;
 
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.upload.Upload;
 import org.sipfoundry.sipxconfig.upload.UploadManager;
@@ -21,19 +25,25 @@ public abstract class EditUpload extends PageWithCallback implements PageBeginRe
 
     public static final String PAGE = "EditUpload";
 
+    @InjectObject(value = "spring:uploadManager")
+    public abstract UploadManager getUploadManager();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+
     public abstract Upload getUpload();
 
     public abstract void setUpload(Upload upload);
 
+    @Persist
     public abstract Integer getUploadId();
 
     public abstract void setUploadId(Integer id);
 
+    @Persist
     public abstract UploadSpecification getUploadSpecification();
 
     public abstract void setUploadSpecification(UploadSpecification specification);
-
-    public abstract UploadManager getUploadManager();
 
     public abstract boolean isActive();
 

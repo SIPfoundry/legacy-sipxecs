@@ -63,13 +63,13 @@ public class ManageUploadTestUi extends WebTestCase {
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:activate");
         String[][] sparseTableCellValues = getDialog().getSparseTableBySummaryOrId("upload:list");
-        assertEquals(sparseTableCellValues[1][1], "true");
+        assertEquals("Active", sparseTableCellValues[1][1]);
 
         // inactivate
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:inactivate");
         sparseTableCellValues = getDialog().getSparseTableBySummaryOrId("upload:list");
-        assertEquals(sparseTableCellValues[1][1], "false");
+        assertEquals("Inactive", sparseTableCellValues[1][1]);
     }
     
     private void seedUpload() throws Exception {
