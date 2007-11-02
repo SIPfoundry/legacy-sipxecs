@@ -412,6 +412,12 @@ int SipClient::run(void* runArg)
       // can be re-opened.
       fds[1].fd = clientSocket->getSocketDescriptor();
 
+      // Initialize the revents members.
+      // This may not be necessary (the man page is no clear), but Valgrind flags
+      // them as undefined.
+      fds[0].revents = 0;
+      fds[1].revents = 0;
+
       fds[0].events = POLLIN;
       fds[1].events = POLLIN;
 
@@ -434,7 +440,6 @@ int SipClient::run(void* runArg)
       {
          // If there is residual data in the read buffer, pretend the socket
          // is ready to read.
-         fds[0].revents = 0;
          fds[1].revents = POLLIN;
       }
       else
