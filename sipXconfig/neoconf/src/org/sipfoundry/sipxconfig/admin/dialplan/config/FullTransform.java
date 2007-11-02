@@ -33,9 +33,8 @@ public class FullTransform extends Transform {
 
         }
         addParams(transform, "urlparams", m_urlParams);
-        addParams(transform, "fieldparams", m_fieldParams);
         addParams(transform, "headerparams", m_headerParams);
-
+        addParams(transform, "fieldparams", m_fieldParams);
     }
 
     private void addParams(Element transform, String name, String[] params) {

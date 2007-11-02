@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.dom4j.DocumentFactory;
@@ -24,16 +26,30 @@ public class FullTransformTest extends TestCase {
         ft.setHeaderParams(new String[] {
             "hp1", "hp2"
         });
+        ft.setUrlParams("url1");
 
         Element element = DocumentFactory.getInstance().createElement("test");
         ft.addChildren(element);
 
+        // check the contents
         assertEquals("testhost", element.valueOf("host"));
         assertEquals("testuser", element.valueOf("user"));
         assertEquals("fp1", element.valueOf("fieldparams[1]"));
         assertEquals("fp2", element.valueOf("fieldparams[2]"));
         assertEquals("hp1", element.valueOf("headerparams[1]"));
         assertEquals("hp2", element.valueOf("headerparams[2]"));
+        assertEquals("url1", element.valueOf("urlparams[1]"));
+
+        // check the order
+        String[] expected = {
+            "user", "host", "urlparams", "headerparams", "headerparams", "fieldparams",
+            "fieldparams"
+        };
+        List<Element> actual = element.elements();
+        assertEquals(expected.length, actual.size());
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals("Comparing element " + i, expected[i], actual.get(i).getName());
+        }
     }
 
     public void testAddFieldParams() {
