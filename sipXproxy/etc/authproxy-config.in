@@ -14,8 +14,7 @@ SIP_AUTHPROXY_CALL_STATE :
 SIP_AUTHPROXY_CALL_STATE_LOG : 
 SIP_AUTHPROXY_CALL_STATE_DB : ${CALLRESOLVER_CALL_STATE_DB}
 
-#Uncomment the following line to activate the fix for XECS-401 (still experimental)
-#SIP_AUTHPROXY_HOOK_LIBRARY.200_xfer : @SIPX_LIBDIR@/sipxauthproxy/libTransferControl.so
+SIP_AUTHPROXY_HOOK_LIBRARY.200_xfer : @SIPX_LIBDIR@/sipxauthproxy/libTransferControl.so
 
 SIP_AUTHPROXY_HOOK_LIBRARY.400_authrules : @SIPX_LIBDIR@/sipxauthproxy/libEnforceAuthRules.so
 SIP_AUTHPROXY.400_authrules.RULES        : @SIPX_CONFDIR@/authrules.xml
