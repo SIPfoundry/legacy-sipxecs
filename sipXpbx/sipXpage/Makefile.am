@@ -15,6 +15,7 @@ AUDIO_DIST = \
 
 
 EXTRA_DIST = \
+   config.properties.in \
    $(AUDIO_DIST)
 
 SUBDIRS = \
