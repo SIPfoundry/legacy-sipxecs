@@ -601,6 +601,7 @@ bool OsProcessMgr::getUserRequestedStateString(const int state, UtlString& str)
 
     default:
        result = false;
+       str = "[NONE]";
        break;
     }
 
