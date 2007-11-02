@@ -7,6 +7,7 @@ SUBDIRS = . \
     bin \
     etc \
     sipXdialog \
+    sipXpage \
     sipXpark \
     sipXpresence \
     sipXrls \
@@ -26,7 +27,7 @@ EXTRA_DIST = \
     config/sipX-config.in \
     config/svn-version \
     sipXrls \
-    sipxpbx.spec
+    sipxpbx.spec 
 
 install-exec-hook :
 	$(LocalizeSipXconfig) $(srcdir)/bin/httpd-sipxchange-config.sh.in > httpd-sipxchange-config.sh

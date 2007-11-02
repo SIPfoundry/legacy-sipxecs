@@ -131,6 +131,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxpark.process.xml
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxpresence.process.xml
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxrls.process.xml
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxpage.process.xml
 
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_bindir}/httpd-sipxchange-config.sh
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/mime.types
@@ -148,12 +149,18 @@ rm -rf $RPM_BUILD_ROOT
 
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/mediaserver
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/parkserver
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/sipxpage
 
 %attr(755,root,root) %{_bindir}/sipxpark.sh
 %attr(755,root,root) %{_bindir}/sipxpark
 %attr(755,root,root) %{_bindir}/sipxpark-config
 
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxpark-config.in
+
+%attr(755,root,root) %{_bindir}/sipxpage.sh
+%attr(755,root,root) %{_bindir}/sipxpage-config
+
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxpage.properties.in
 
 %attr(755,root,root) %{_bindir}/sipxdialog.sh
 %attr(755,root,root) %{_bindir}/sipxdialog

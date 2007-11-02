@@ -44,6 +44,10 @@ SFAC_LIB_STACK
 # Conditionally use the GIPS audio libraries
 CHECK_GIPSNEQ
 
+# Java
+CHECK_JDK
+CHECK_ANT
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([doc/developer/Makefile.config])
@@ -73,6 +77,10 @@ AC_CONFIG_FILES([sipXpark/src/Makefile])
 AC_CONFIG_FILES([sipXpark/etc/Makefile])
 AC_CONFIG_FILES([sipXpark/bin/Makefile])
 AC_CONFIG_FILES([sipXpark/doc/Makefile])
+AC_CONFIG_FILES([sipXpage/Makefile])
+AC_CONFIG_FILES([sipXpage/bin/Makefile])
+AC_CONFIG_FILES([sipXpage/etc/Makefile])
+AC_CONFIG_FILES([sipXpage/src/Makefile])
 AC_CONFIG_FILES([sipXpresence/Makefile])
 AC_CONFIG_FILES([sipXpresence/src/Makefile])
 AC_CONFIG_FILES([sipXpresence/etc/Makefile])
