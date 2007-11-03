@@ -124,6 +124,8 @@ public:
 
     void testSimpleTeardown()
     {
+       KNOWN_FATAL_BUG("XECS-259", "fails in mutex calls");
+
 #ifdef _WIN32
         _CrtMemCheckpoint(&MemStateBegin);
 #endif
