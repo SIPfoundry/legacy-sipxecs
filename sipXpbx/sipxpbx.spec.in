@@ -159,6 +159,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %attr(755,root,root) %{_bindir}/sipxpage.sh
 %attr(755,root,root) %{_bindir}/sipxpage-config
+%attr(644,root,root) %{_libdir}/sipXpage/*.jar
 
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxpage.properties.in
 
