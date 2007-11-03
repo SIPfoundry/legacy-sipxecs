@@ -20,7 +20,7 @@ JAR_DIST = \
    lib/junit-3.8.1.jar \
    lib/log4j-1.2.14.jar \
    lib/nist-sdp-1.0.58.jar \
-   lib/sip-sdp-1.0.jar \
+   lib/sip-sdp-1.0.jar
 
 EXTRA_DIST = \
    config.properties.in \
