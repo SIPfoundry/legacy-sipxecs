@@ -13,10 +13,19 @@ AUDIO_DIST = \
    audio/revalie.wav \
    audio/TadaTada.wav
 
+# (src/build.xml installs these)
+JAR_DIST = \
+   lib/JainSipApi-1.2.jar \
+   lib/jain-sip-ri-1.2.92.jar \
+   lib/junit-3.8.1.jar \
+   lib/log4j-1.2.14.jar \
+   lib/nist-sdp-1.0.58.jar \
+   lib/sip-sdp-1.0.jar \
 
 EXTRA_DIST = \
    config.properties.in \
    $(AUDIO_DIST) \
+   $(JAR_DIST) \
    lib
 
 SUBDIRS = \
