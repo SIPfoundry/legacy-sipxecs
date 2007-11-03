@@ -34,7 +34,7 @@
   <component id="userTable" type="Table">
     <binding name="source" value="users"/>
     <binding name="row" value="currentUser"/>
-	  <binding name="columns" value="literal:* User:userName, status:status"/>
+	  <binding name="columns" value="literal:* user:userName, status:status"/>
   	<binding name="selections" value="selections"/>
   </component>
 
