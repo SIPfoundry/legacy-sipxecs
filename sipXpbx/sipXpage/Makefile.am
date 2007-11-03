@@ -16,7 +16,8 @@ AUDIO_DIST = \
 
 EXTRA_DIST = \
    config.properties.in \
-   $(AUDIO_DIST)
+   $(AUDIO_DIST) \
+   lib
 
 SUBDIRS = \
    . \
