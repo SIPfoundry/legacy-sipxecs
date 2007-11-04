@@ -1525,38 +1525,38 @@ AC_DEFUN([CHECK_XARGS_REPLACE],
 ])
 
 # ============ rpmbuild debugging information RPM =========================
-AC_DEFUN([CHECK_RPM_DEBUG],
-[
-   # Function to extract the value of an rpmbuild macro, as configured
-   # in the current situation.
-   [ # Protect [...] from m4
-   function rpmbuild_macro () {
-	   rpmbuild --showrc |
-	   sed -e "/^-[0-9][0-9]*[:=] $][1"$'\t'"/,/^-[0-9][0-9]*[:=]/!d" |
-	   head -n-1
-   }
-   ]
-
-   # Determine if %debug_package is needed to cause the debugging information
-   # RPM to be built by checking to see if %install contains a test on
-   # 'enable_debug_packages' -- Older rpmbuilds do not, and the .spe file
-   # must manually specify %debug_package.  Newer rpmbuilds do, and
-   # the .spec file must not specify %debug_package.
-   # Thus, you can use "@RPMBUILD_DEBUG_PACKAGE_SPEC@" in a .spec.in file to
-   # ensure that a debugging information RPM is built.
-   AC_MSG_CHECKING([for rpmbuild debugging RPM directive])
-   if rpmbuild_macro install | grep enable_debug_packages >/dev/null 2>&1 ; then
-	AC_SUBST(RPMBUILD_DEBUG_PACKAGE_SPEC,"")
-   else
-	AC_SUBST(RPMBUILD_DEBUG_PACKAGE_SPEC,"%debug_package")
-   fi
-   AC_MSG_RESULT([it is '$RPMBUILD_DEBUG_PACKAGE_SPEC'])
-
-   # Determine name of the debugging information RPM.
-   # Search in the definition of %debug_package to find this.
-   AC_MSG_CHECKING([for rpmbuild debugging RPM name])
-   # $[2] is to protect the $ from interpretation by m4.
-   RPMBUILD_DEBUG_PACKAGE_NAME=` rpmbuild_macro debug_package | grep '%package' | awk '{print $[2]}' `
-   AC_SUBST(RPMBUILD_DEBUG_PACKAGE_NAME)
-   AC_MSG_RESULT([$RPMBUILD_DEBUG_PACKAGE_NAME])
-])
+#AC_DEFUN([CHECK_RPM_DEBUG],
+#[
+#   # Function to extract the value of an rpmbuild macro, as configured
+#   # in the current situation.
+#   [ # Protect [...] from m4
+#   function rpmbuild_macro () {
+#	   rpmbuild --showrc |
+#	   sed -e "/^-[0-9][0-9]*[:=] $][1"$'\t'"/,/^-[0-9][0-9]*[:=]/!d" |
+#	   head -n-1
+#   }
+#   ]
+#
+#   # Determine if %debug_package is needed to cause the debugging information
+#   # RPM to be built by checking to see if %install contains a test on
+#   # 'enable_debug_packages' -- Older rpmbuilds do not, and the .spe file
+#   # must manually specify %debug_package.  Newer rpmbuilds do, and
+#   # the .spec file must not specify %debug_package.
+#   # Thus, you can use "@RPMBUILD_DEBUG_PACKAGE_SPEC@" in a .spec.in file to
+#   # ensure that a debugging information RPM is built.
+#   AC_MSG_CHECKING([for rpmbuild debugging RPM directive])
+#   if rpmbuild_macro install | grep enable_debug_packages >/dev/null 2>&1 ; then
+#	AC_SUBST(RPMBUILD_DEBUG_PACKAGE_SPEC,"")
+#   else
+#	AC_SUBST(RPMBUILD_DEBUG_PACKAGE_SPEC,"%debug_package")
+#   fi
+#   AC_MSG_RESULT([it is '$RPMBUILD_DEBUG_PACKAGE_SPEC'])
+#
+#   # Determine name of the debugging information RPM.
+#   # Search in the definition of %debug_package to find this.
+#   AC_MSG_CHECKING([for rpmbuild debugging RPM name])
+#   # $[2] is to protect the $ from interpretation by m4.
+#   RPMBUILD_DEBUG_PACKAGE_NAME=` rpmbuild_macro debug_package | grep '%package' | awk '{print $[2]}' `
+#   AC_SUBST(RPMBUILD_DEBUG_PACKAGE_NAME)
+#   AC_MSG_RESULT([$RPMBUILD_DEBUG_PACKAGE_NAME])
+#])
