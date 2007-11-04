@@ -81,7 +81,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   OsStatus open();
+   OsStatus open(const UtlString preferredPath, const UtlString defaultPath);
      //:Opens the data source
 
    OsStatus close();
@@ -98,9 +98,8 @@ private:
      //!param iLength - Max length to read
      //!param iLengthRead - The actual amount of data read.
 
-
-   Url     mUrl;             // File Url source
    OsFile* mpFile;           // Actual File data source
+   UtlString mFilePath;      // Actual File path
    OsMutex mCacheGuard;      // Guard closing/touch file from multiple threads
    UtlHashMap mPromptTable;  // Hash table for cached prompts
 };

@@ -67,6 +67,35 @@ case ${Action} in
      mkdir -p @SIPX_VXMLDATADIR@/voicemail/ui/adminui
      mkdir -p @SIPX_VXMLDATADIR@/voicemail/vxml
 
+     # Update the symbolic link to the voice prompt directory if required
+     DIR=@wwwdir@/doc
+     SUBDIR=stdprompts
+     LINK=$DIR/$SUBDIR
+     if [ -d $LINK ]; then
+         ls -l -d $LINK | cut -c 1 | grep d
+         if [ $? -eq 0 ]; then
+             # stdprompts is the original directory - move it to stdprompts_en
+             # and create a symbolic link to it
+             mv $LINK $LINK\_en
+             ln -s $SUBDIR\_en $LINK
+         fi
+     fi
+     FILE=$DIR/DefaultLanguage
+     if [ -e $FILE ]; then
+         DEST=$(grep $SUBDIR $FILE)
+         if [ $? -eq 0 ]; then
+             if [ -e $DIR/$DEST ]; then
+                 if [ -e $LINK ]; then
+                     rm $LINK
+                 fi
+                 ln -s $DEST $LINK
+                 if [ $? -eq 0 ]; then
+                     rm $FILE
+                 fi
+             fi
+         fi
+     fi
+
      echo $$ > @SIPX_RUNDIR@/sipXvxml.pid
      exec @bindir@/sipXvxml $Args
      ;;
