@@ -34,6 +34,12 @@ OsMutex  PermissionDB::sLockMutex (OsMutex::Q_FIFO);
 UtlString PermissionDB::gIdentityKey("identity");
 UtlString PermissionDB::gPermissionKey("permission");
 
+// The 'type' attribute of the top-level 'items' element.
+const UtlString PermissionDB::sType("permission");
+
+// The XML namespace of the top-level 'items' element.
+const UtlString PermissionDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xml/permission-00-00");
+
 /* ============================ CREATORS ================================== */
 
 PermissionDB::PermissionDB( const UtlString& name )
@@ -201,8 +207,9 @@ PermissionDB::store()
             document.Parse ("<?xml version=\"1.0\" standalone=\"yes\"?>");
 
             // Create the root node container
- 	        TiXmlElement itemsElement ( "items" );
-            itemsElement.SetAttribute( "type", mDatabaseName.data() );
+            TiXmlElement itemsElement ( "items" );
+            itemsElement.SetAttribute( "type", sType.data() );
+            itemsElement.SetAttribute( "xmlns", sXmlNamespace.data() );
 
             // metadata contains column names
             dbTableDescriptor* pTableMetaData = &PermissionRow::dbDescriptor;

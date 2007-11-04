@@ -32,9 +32,6 @@ class TiXmlNode;
 
 /**
  * This class implements the Alias database abstract class
- *
- * @author John P. Coffey
- * @version 1.0
  */
 class PermissionDB
 {
@@ -84,6 +81,12 @@ public:
 
     // utility method for dumping all rows
     void getAllRows ( ResultSet& rResultset) const;
+
+    // The 'type' attribute of the top-level 'items' element.
+    static const UtlString sType;
+
+    // The XML namespace of the top-level 'items' element.
+    static const UtlString sXmlNamespace;
 
 protected:
     // implicit loader

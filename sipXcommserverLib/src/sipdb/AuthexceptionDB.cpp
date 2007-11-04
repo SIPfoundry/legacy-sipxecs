@@ -34,6 +34,12 @@ AuthexceptionDB* AuthexceptionDB::spInstance = NULL;
 OsMutex  AuthexceptionDB::sLockMutex (OsMutex::Q_FIFO);
 UtlString AuthexceptionDB::gUserKey("user");
 
+// The 'type' attribute of the top-level 'items' element.
+const UtlString AuthexceptionDB::sType("authexception");
+
+// The XML namespace of the top-level 'items' element.
+const UtlString AuthexceptionDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xml/authexception-00-00");
+
 /* ============================ CREATORS ================================== */
 
 AuthexceptionDB::AuthexceptionDB( const UtlString& name )
@@ -203,7 +209,8 @@ AuthexceptionDB::store()
 
             // Create the root node container
             TiXmlElement itemsElement ( "items" );
-            itemsElement.SetAttribute( "type", mDatabaseName.data() );
+            itemsElement.SetAttribute( "type", sType.data() );
+            itemsElement.SetAttribute( "xmlns", sXmlNamespace.data() );
 
             // metadata contains column names
             dbTableDescriptor* pTableMetaData = &AuthexceptionRow::dbDescriptor;

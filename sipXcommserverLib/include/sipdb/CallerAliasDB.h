@@ -104,6 +104,12 @@ class CallerAliasDB
    static const UtlString DomainKey;
    static const UtlString AliasKey;
 
+   // The 'type' attribute of the top-level 'items' element.
+   static const UtlString sType;
+
+   // The XML namespace of the top-level 'items' element.
+   static const UtlString sXmlNamespace;
+
   private:
    /// No destructor, no no no
    ~CallerAliasDB();

@@ -64,6 +64,12 @@ const UtlString SubscriptionDB::sAcceptSimpleMessage("application/simple-message
 
 const UtlString SubscriptionDB::nullString("");
 
+// The 'type' attribute of the top-level 'items' element.
+const UtlString SubscriptionDB::sType("subscription");
+
+// The XML namespace of the top-level 'items' element.
+const UtlString SubscriptionDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xml/subscription-00-00");
+
 /* ============================ CREATORS ================================== */
 
 SubscriptionDB::SubscriptionDB( const UtlString& name )
@@ -236,8 +242,9 @@ SubscriptionDB::store()
             document.Parse ("<?xml version=\"1.0\" standalone=\"yes\"?>");
 
             // Create the root node container
- 	        TiXmlElement itemsElement ( "items" );
-           itemsElement.SetAttribute( "type", mDatabaseName.data() );
+            TiXmlElement itemsElement ( "items" );
+            itemsElement.SetAttribute( "type", sType.data() );
+            itemsElement.SetAttribute( "xmlns", sXmlNamespace.data() );
 
             int timeNow = OsDateTime::getSecsSinceEpoch();
             itemsElement.SetAttribute( "timestamp", timeNow );

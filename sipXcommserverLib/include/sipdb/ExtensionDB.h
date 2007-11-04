@@ -33,9 +33,6 @@ class ResultSet;
 
 /**
  * This class implements the Extension database abstract class
- *
- * @author John P. Coffey
- * @version 1.0
  */
 class ExtensionDB
 {
@@ -76,6 +73,12 @@ public:
     UtlBoolean getUri (
         const UtlString& extension,
         Url& rUri ) const;
+
+    // The 'type' attribute of the top-level 'items' element.
+    static const UtlString sType;
+
+    // The XML namespace of the top-level 'items' element.
+    static const UtlString sXmlNamespace;
 
 protected:
 

@@ -84,6 +84,12 @@ const UtlString RegistrationDB::gUpdateNumberKey("update_number");
 const UtlString RegistrationDB::nullString("");
 const UtlString RegistrationDB::percent("%");
 
+// The 'type' attribute of the top-level 'items' element.
+const UtlString RegistrationDB::sType("registration");
+
+// The XML namespace of the top-level 'items' element.
+const UtlString RegistrationDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xml/registration-00-00");
+
 /* ============================ CREATORS ================================== */
 
 /*
@@ -282,7 +288,8 @@ OsStatus RegistrationDB::cleanAndPersist( int newerThanTime )
 
             // Create the root node container
             TiXmlElement itemsElement ( "items" );
-            itemsElement.SetAttribute( "type", mDatabaseName.data() );
+            itemsElement.SetAttribute( "type", sType.data() );
+            itemsElement.SetAttribute( "xmlns", sXmlNamespace.data() );
 
             int timeNow = OsDateTime::getSecsSinceEpoch();
             itemsElement.SetAttribute( "timestamp", timeNow );

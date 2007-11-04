@@ -179,6 +179,12 @@ public:
 
     static const UtlString nullString;
 
+    // The 'type' attribute of the top-level 'items' element.
+    static const UtlString sType;
+
+    // The XML namespace of the top-level 'items' element.
+    static const UtlString sXmlNamespace;
+
 protected:
     // this is implicit now
     OsStatus load();

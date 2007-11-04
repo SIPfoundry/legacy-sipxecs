@@ -32,9 +32,6 @@ class ResultSet;
 
 /**
  * This class implements the Alias database abstract class
- *
- * @author John P. Coffey
- * @version 1.0
  */
 class AliasDB
 {
@@ -80,6 +77,12 @@ public:
     void getAliases (
         const Url& contactIdentity,
         ResultSet& rResultSet ) const;
+
+    // The 'type' attribute of the top-level 'items' element.
+    static const UtlString sType;
+
+    // The XML namespace of the top-level 'items' element.
+    static const UtlString sXmlNamespace;
 
 protected:
     // implicit loader

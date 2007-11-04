@@ -33,6 +33,12 @@ OsMutex  ExtensionDB::sLockMutex (OsMutex::Q_FIFO);
 UtlString ExtensionDB::gUriKey("uri");
 UtlString ExtensionDB::gExtensionKey("extension");
 
+// The 'type' attribute of the top-level 'items' element.
+const UtlString ExtensionDB::sType("extension");
+
+// The XML namespace of the top-level 'items' element.
+const UtlString ExtensionDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xml/extension-00-00");
+
 /* ============================ CREATORS ================================== */
 
 ExtensionDB::ExtensionDB( const UtlString& name ) : 
@@ -203,7 +209,8 @@ ExtensionDB::store()
 
             // Create the root node container
             TiXmlElement itemsElement ( "items" );
-            itemsElement.SetAttribute( "type", mDatabaseName.data() );
+            itemsElement.SetAttribute( "type", sType.data() );
+            itemsElement.SetAttribute( "xmlns", sXmlNamespace.data() );
 
             // metadata contains column names
             dbTableDescriptor* pTableMetaData = &ExtensionRow::dbDescriptor;

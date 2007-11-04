@@ -191,6 +191,12 @@ public:
 
     //==========================================================================
 
+    // The 'type' attribute of the top-level 'items' element.
+    static const UtlString sType;
+
+    // The XML namespace of the top-level 'items' element.
+    static const UtlString sXmlNamespace;
+
 protected:
     // There is only one singleton in this design
     static RegistrationDB* spInstance;

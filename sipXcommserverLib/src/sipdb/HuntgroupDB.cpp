@@ -34,6 +34,11 @@ HuntgroupDB* HuntgroupDB::spInstance = NULL;
 OsMutex  HuntgroupDB::sLockMutex (OsMutex::Q_FIFO);
 UtlString HuntgroupDB::gIdentityKey("identity");
 
+// The 'type' attribute of the top-level 'items' element.
+const UtlString HuntgroupDB::sType("huntgroup");
+
+// The XML namespace of the top-level 'items' element.
+const UtlString HuntgroupDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xml/huntgroup-00-00");
 
 /* ============================ CREATORS ================================== */
 
@@ -205,7 +210,8 @@ HuntgroupDB::store()
 
             // Create the root node container
             TiXmlElement itemsElement ( "items" );
-            itemsElement.SetAttribute( "type", mDatabaseName.data() );
+            itemsElement.SetAttribute( "type", sType.data() );
+            itemsElement.SetAttribute( "xmlns", sXmlNamespace.data() );
 
             // metadata contains column names
             dbTableDescriptor* pTableMetaData = &HuntgroupRow::dbDescriptor;

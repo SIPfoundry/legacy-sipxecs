@@ -33,8 +33,6 @@ class ResultSet;
 /**
  * This class implements the Alias database abstract class
  *
- * @author John P. Coffey
- * @version 1.0
  */
 class HuntgroupDB
 {
@@ -67,6 +65,12 @@ public:
     // Query interface to return a set of mapped full URI
     // contacts associated with the alias
     UtlBoolean isHuntGroup ( const Url& identity ) const;
+
+    // The 'type' attribute of the top-level 'items' element.
+    static const UtlString sType;
+
+    // The XML namespace of the top-level 'items' element.
+    static const UtlString sXmlNamespace;
 
 protected:
     // deserialization

@@ -56,9 +56,6 @@ public:
  * Wrapper to the fast DB singleton.  This singleton ensures
  * that there is only one named instance of fastDB running per
  * process.  This instance will have all the tables stored in it
- *
- * @author John P. Coffey
- * @version 1.0
  */
 class SIPDBManager
 {

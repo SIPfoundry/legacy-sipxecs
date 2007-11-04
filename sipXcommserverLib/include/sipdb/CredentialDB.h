@@ -132,6 +132,12 @@ class CredentialDB
        UtlString& authType
                              ) const;
 
+    // The 'type' attribute of the top-level 'items' element.
+    static const UtlString sType;
+
+    // The XML namespace of the top-level 'items' element.
+    static const UtlString sXmlNamespace;
+
   protected:
 
   private:

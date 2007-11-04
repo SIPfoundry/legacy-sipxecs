@@ -25,8 +25,6 @@
 #include "sipdb/CallerAliasRow.h"
 #include "sipdb/CallerAliasDB.h"
 
-#define CALLERALIAS_XML_NAMESPACE_URL "http://www.sipfoundry.org/sipX/schema/xml/caller-alias-00-00"
-
 REGISTER( CallerAliasRow );
 
 // STATIC INITIALIZERS
@@ -38,6 +36,12 @@ const UtlString CallerAliasDB::DomainKey("domain");
 const UtlString CallerAliasDB::AliasKey("alias");
 
 const UtlString CallerAliasDB::DbName("caller-alias");
+
+// The 'type' attribute of the top-level 'items' element.
+const UtlString CallerAliasDB::sType("caller-alias");
+
+// The XML namespace of the top-level 'items' element.
+const UtlString CallerAliasDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xml/caller-alias-00-00");
 
 /* ============================ CREATORS ================================== */
 
@@ -266,8 +270,8 @@ CallerAliasDB::store()
 
    // Create the root node container
    TiXmlElement itemsElement ( "items" );
-   itemsElement.SetAttribute( "type", DbName.data() );
-   itemsElement.SetAttribute( "xmlns", CALLERALIAS_XML_NAMESPACE_URL );
+   itemsElement.SetAttribute( "type", sType.data() );
+   itemsElement.SetAttribute( "xmlns", sXmlNamespace.data() );
 
    // Critical Section while actually opening and using the database
    {

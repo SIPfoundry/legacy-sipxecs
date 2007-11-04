@@ -48,6 +48,12 @@ UtlString CredentialDB::gPasstokenKey("passtoken");
 UtlString CredentialDB::gPintokenKey("pintoken");
 UtlString CredentialDB::gAuthtypeKey("authtype");
 
+// The 'type' attribute of the top-level 'items' element.
+const UtlString CredentialDB::sType("credential");
+
+// The XML namespace of the top-level 'items' element.
+const UtlString CredentialDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xml/credential-00-00");
+
 /* ============================ CREATORS ================================== */
 
 CredentialDB::CredentialDB ( const UtlString& name )
@@ -237,7 +243,8 @@ CredentialDB::store()
 
             // Create the root node container
             TiXmlElement itemsElement ( "items" );
-            itemsElement.SetAttribute( "type", mDatabaseName.data() );
+            itemsElement.SetAttribute( "type", sType.data() );
+            itemsElement.SetAttribute( "xmlns", sXmlNamespace.data() );
 
             // metadata contains column names
             dbTableDescriptor* pTableMetaData = &CredentialRow::dbDescriptor;

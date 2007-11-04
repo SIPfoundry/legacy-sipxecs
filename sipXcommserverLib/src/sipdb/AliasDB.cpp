@@ -25,8 +25,6 @@
 #include "sipdb/AliasRow.h"
 #include "sipdb/AliasDB.h"
 
-#define ALIAS_XML_NAMESPACE_URL "http://www.sipfoundry.org/sipX/schema/xml/alias-00-00"
-
 REGISTER( AliasRow );
 
 // STATIC INITIALIZERS
@@ -34,6 +32,12 @@ AliasDB* AliasDB::spInstance = NULL;
 OsMutex  AliasDB::sLockMutex (OsMutex::Q_FIFO);
 UtlString AliasDB::gIdentityKey("identity");
 UtlString AliasDB::gContactKey("contact");
+
+// The 'type' attribute of the top-level 'items' element.
+const UtlString AliasDB::sType("alias");
+
+// The XML namespace of the top-level 'items' element.
+const UtlString AliasDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xml/alias-00-00");
 
 /* ============================ CREATORS ================================== */
 
@@ -202,8 +206,8 @@ AliasDB::store()
 
             // Create the root node container
             TiXmlElement itemsElement ( "items" );
-            itemsElement.SetAttribute( "type", mDatabaseName.data() );
-            itemsElement.SetAttribute( "xmlns", ALIAS_XML_NAMESPACE_URL );
+            itemsElement.SetAttribute( "type", sType.data() );
+            itemsElement.SetAttribute( "xmlns", sXmlNamespace.data() );
 
             // metadata contains column names
             dbTableDescriptor* pTableMetaData = &AliasRow::dbDescriptor;

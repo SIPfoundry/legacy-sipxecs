@@ -34,9 +34,6 @@ class UtlSList;
 
 /**
  * This class implements the DialByName database abstract class
- *
- * @author John P. Coffey
- * @version 1.0
  */
 class DialByNameDB
 {
