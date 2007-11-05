@@ -86,7 +86,7 @@ MpStreamPlayer::MpStreamPlayer(OsMsgQ* pMsgQ, UtlString* pBuffer, int flags, con
    if (mpMsgQ == NULL)
    {
       syslog(FAC_STREAMING, PRI_ERR, 
-            "Null MsgQ passed to MpSteamPlayer\nbuffer=%08X\nflags=%08X\ntarget=%s",
+            "Null MsgQ passed to MpSteamPlayer\nbuffer=%p\nflags=%08X\ntarget=%s",
             mpBuffer, mFlags, mTarget.data()) ;
    }
 }

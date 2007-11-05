@@ -100,6 +100,13 @@ static unsigned long cpuSpeed(void);
 static unsigned long long getRDTSC();
 #endif /* _JITTER_PROFILE ] */
 
+// Dummy function to reference DmaMsgPool, which is not referenced if
+// _INCLUDE_AUDIO_SUPPORT is not defined.
+void DmaMsgPoolDummy()
+{
+   DmaMsgPool = DmaMsgPool;
+}
+
 int showFrameCount(int silent)
 {
    if (!silent)

@@ -58,7 +58,7 @@ MpRawAudioBuffer::MpRawAudioBuffer(const char* pFilePath)
    pAudioAbstract->minMaxSamplingRate(&minRate, &maxRate, &prefRate);
    if (prefRate != 8000) {
       OsSysLog::add(FAC_MP, PRI_ERR, "MpRawAudioBuffer::MpRawAudioBuffer(%s) Invalid sampling rate: %d",
-                    pFilePath, prefRate);
+                    pFilePath, (int) prefRate);
       return;
    }
 
@@ -80,7 +80,7 @@ MpRawAudioBuffer::MpRawAudioBuffer(const char* pFilePath)
    mpAudioBuffer = new char[mAudioBufferLength];
    if (mpAudioBuffer == NULL) {
       OsSysLog::add(FAC_MP, PRI_ERR, "MpRawAudioBuffer::MpRawAudioBuffer(%s) - Failed to allocate storage: new char[%d]",
-                    pFilePath, mAudioBufferLength);
+                    pFilePath, (int) mAudioBufferLength);
       mAudioBufferLength = 0;
       return;
    }
