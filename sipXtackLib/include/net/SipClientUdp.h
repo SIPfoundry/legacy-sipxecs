@@ -49,6 +49,8 @@ public:
                 SipUserAgentBase* sipUA);
      //:Default constructor
 
+   virtual ~SipClientUdp();
+
 /* ============================ MANIPULATORS ============================== */
 
    UtlBoolean sendInvite(char* toAddress, char* callId, int rtpPort,

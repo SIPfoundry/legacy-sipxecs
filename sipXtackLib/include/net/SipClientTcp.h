@@ -49,6 +49,8 @@ public:
                 SipUserAgentBase* sipUA);
      //:Default constructor
 
+   virtual ~SipClientTcp();
+   
 /* ============================ MANIPULATORS ============================== */
 
    // Send a message.  Executed by the thread.

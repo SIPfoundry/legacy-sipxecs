@@ -67,6 +67,12 @@ SipClientUdp::SipClientUdp(OsSocket* socket,
 {
 }
 
+SipClientUdp::~SipClientUdp()
+{
+   // Tell the associated thread to shut itself down.
+   waitUntilShutDown();
+}
+
 /* ============================ MANIPULATORS ============================== */
 
 // Send a message.  Executed by the thread.
