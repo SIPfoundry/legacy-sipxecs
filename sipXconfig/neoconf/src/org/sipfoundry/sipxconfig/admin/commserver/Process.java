@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 
@@ -36,7 +37,7 @@ public class Process extends Object {
     }
 
     public int hashCode() {
-        return new HashCodeBuilder().append(m_name).hashCode();
+        return new HashCodeBuilder().append(m_name).toHashCode();
     }
 
     public boolean equals(Object other) {
@@ -47,9 +48,10 @@ public class Process extends Object {
             return true;
         }
         Process proc = (Process) other;
-        if (m_name == null) {
-            return (proc.getName() == null);
-        }
-        return m_name.equals(proc.getName());
+        return new EqualsBuilder().append(m_name, proc.m_name).isEquals();
+    }
+
+    public String toString() {
+        return "Process: " + m_name;
     }
 }

@@ -39,7 +39,7 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
         BeanFactoryAware, SipxProcessContext, ApplicationListener {
 
     private SipxProcessModel m_processModel;
-    private EventsToServices m_eventsToServices = new EventsToServices();
+    private EventsToServices<Process> m_eventsToServices = new EventsToServices<Process>();
     private String m_host;
 
     @Required
@@ -158,14 +158,14 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
     }
 
     public void onApplicationEvent(ApplicationEvent event) {
-        Collection services = m_eventsToServices.getServices(event.getClass());
+        Collection<Process> services = m_eventsToServices.getServices(event.getClass());
         if (!services.isEmpty()) {
             // do not call if set is empty - it's harmless but it triggers topology.xml parsing
             manageServices(services, Command.RESTART);
         }
     }
 
-    public List getRestartable() {
+    public List<Process> getRestartable() {
         return m_processModel.getRestartable();
     }
 
@@ -186,8 +186,8 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
         return processes;
     }
 
-    static final class EventsToServices {
-        private Map m_map;
+    static final class EventsToServices<E> {
+        private Map<Class, Set<E>> m_map;
 
         public EventsToServices() {
             Factory setFactory = new Factory() {
@@ -198,24 +198,22 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
             m_map = MapUtils.lazyMap(new HashMap(), setFactory);
         }
 
-        public void addServices(Collection services, Class eventClass) {
-            Set serviceSet = (Set) m_map.get(eventClass);
+        public void addServices(Collection<E> services, Class eventClass) {
+            Set<E> serviceSet = m_map.get(eventClass);
             serviceSet.addAll(services);
         }
 
-        public Collection getServices(Class eventClass) {
-            Set services = new HashSet();
-            for (Iterator i = m_map.entrySet().iterator(); i.hasNext();) {
-                Map.Entry entry = (Map.Entry) i.next();
-                Class klass = (Class) entry.getKey();
-                Collection servicesForKlass = (Collection) entry.getValue();
+        public Collection<E> getServices(Class eventClass) {
+            Set<E> services = new HashSet<E>();
+            for (Map.Entry<Class, Set<E>> entry : m_map.entrySet()) {
+                Class klass = entry.getKey();
+                Collection<E> servicesForKlass = entry.getValue();
                 if (klass.isAssignableFrom(eventClass)) {
                     services.addAll(servicesForKlass);
                 }
             }
             // do that again this time removing collected services...
-            for (Iterator i = m_map.values().iterator(); i.hasNext();) {
-                Collection servicesForKlass = (Collection) i.next();
+            for (Collection<E> servicesForKlass : m_map.values()) {
                 servicesForKlass.removeAll(services);
             }
             return services;

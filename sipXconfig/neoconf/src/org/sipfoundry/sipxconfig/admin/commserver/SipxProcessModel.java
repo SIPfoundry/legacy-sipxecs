@@ -52,5 +52,5 @@ public interface SipxProcessModel {
      * @return list of the services that you want usually restart
      * 
      */
-    public List getRestartable();
+    public List<Process> getRestartable();
 }

@@ -81,7 +81,7 @@ public class SimpleSipxProcessModel implements SipxProcessModel {
      * @return list of the services that you want usually restart
      * 
      */
-    public List getRestartable() {
+    public List<Process> getRestartable() {
         Process[] noRestart = {
             new Process(ProcessName.KEEP_ALIVE), new Process(ProcessName.CONFIG_SERVER)
         };
