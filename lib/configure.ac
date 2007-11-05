@@ -40,7 +40,6 @@ AC_ARG_ENABLE(fc6,
 	AC_HELP_STRING([--enable-fc6], [Enable dependencies for Fedora Core 6]),
 	[ 
           java_sun=yes
-          ruby_gems=yes
           cgicc=yes
           ruby_dbi=yes
         ])
@@ -49,7 +48,6 @@ AC_ARG_ENABLE(f7,
         AC_HELP_STRING([--enable-f7], [Enable dependencies for Fedora 7]),
         [
           java_sun=yes
-          ruby_gems=yes
           cgicc=yes
           ruby_dbi=yes
         ])
@@ -90,6 +88,12 @@ AC_ARG_ENABLE(rhe5,
           ruby_dbi=yes
           cppunit=yes
         ])
+
+if test "x$target" = "xppc"; then
+  # FOO
+  java_ibm=yes
+  java_sun=no
+fi
 
 AC_ARG_ENABLE(soap4r,
 	AC_HELP_STRING([--enable-soap4r], [Build soap4r dependency]),
