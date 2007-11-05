@@ -3,6 +3,47 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
+Version 3.9.4
+
+
+** Bug
+    * [XCF-1783] - change true/false into localized "Active/Inactive" in the 'Device Files'  table
+    * [XCF-1836] - Failed in progress calls do not get cleared from the active call display
+    * [XCF-1839] - Hunt Group: Last call does not go to voicemail, if sequence set is 'If no response'
+    * [XCF-1851] - Backup & Restore: Not possible to upload the saved backup files
+    * [XCF-1870] - Voicemail server hostname should be a required field for non-internal voicemail servers
+    * [XCF-1875] - Voicemail mapping rules broken
+    * [XCF-1877] - exception in search for phonebooks that contain entries with empty (null) fields
+    * [XCF-1878] - user phonebook page look and feel needs improvement
+    * [XCF-1905] - There is no user explanation text on how to use the Schedules for Dial Plan in UI
+    * [XCF-1908] - Doing a Restore > Upload File from a PC with Internet Explorer 6.0 or 7.0 Fails 
+    * [XCF-1909] - Generated .../etc/sipxpbx/domain-config is incorrect
+    * [XCF-1928] - Hunt Group: Calls go directly to the voicemail when Use voicemail check box is enabled
+    * [XCF-1934] - Dial plan : Activating the dialplan hangs the config UI
+    * [XCF-1942] - Dial plans with both fieldparams and headerparams are not schema-valid and don't work
+
+** Improvement
+    * [XCF-650] - Allow backup files to be sent to an email address
+    * [XCF-1593] - check validity of imported wav files
+    * [XCF-1825] - improvements to custom rule screen
+    * [XCF-1854] - Help text for Hunt Group / Fallback destination
+    * [XCF-1868] - Internal Dial Rule should be renamed Voicemail Dial Rule
+    * [XCF-1869] - sipX Voicemail Server should be renamed Internal Voicemail Server
+    * [XCF-1882] - Extend sipXconfig SOAP interface
+    * [XCF-1910] - German dial plan template uses a wrong parent for long distance beans
+    * [XCF-1919] - Services page to allow control over new services dynamically at runtime
+
+** New Feature
+    * [XCF-1387] - configuration for ENUM plugin
+    * [XCF-1590] - Serviceability: Support server and application statistics inside sipXconfig, allow IT integration with common reporting and alarming tools
+    * [XCF-1676] - superadmin logins should be logged with timestamp (successful and unsuccessful)
+    * [XCF-1809] - Display user specific CDR records on the user portal
+    * [XCF-1871] - Extend Scheduling to the Oher Dialing Plan Rules
+
+** Task
+    * [XCF-1889] - Unable to declare Gateway objects via Spring configuration metadata
+
+
 Version 3.9.3
 
 ** Bug
