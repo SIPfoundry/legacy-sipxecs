@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
          osPrintf("usage: %s [-v] [-c] [-d] [-P port] [-W wport]\nwhere:\n -v      Provides the software version\n"
                   " -c       Enables console output of log and debug messages\n"
                   " -d       Changes ACDServer DEBUG logging to run at NOTICE level\n"
-                  " -P port  Specifies the provisioning interface port number\n",
+                  " -P port  Specifies the provisioning interface port number\n"
                   " -W wport Specifies the Watchdog interface port number\n",
                   argv[0]);
          return(1);

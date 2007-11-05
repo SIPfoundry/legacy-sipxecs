@@ -34,6 +34,10 @@ public:
 
 /* ============================ CREATORS ================================== */
 
+   virtual ~MpQueuePlayerListener()
+   {
+   }
+
 /* ============================ MANIPULATORS ============================== */
 
    virtual void queuePlayerStarted() = 0 ;

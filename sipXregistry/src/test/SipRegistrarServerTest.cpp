@@ -33,7 +33,11 @@ using namespace std;
 class SipRegistrarServerTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(SipRegistrarServerTest);
+   // Commented out to prevent semaphore leakage, which causes serious problem
+   // on the build machines.  See XECS-546.
+#if 0
    CPPUNIT_TEST(testPullUpdates);
+#endif
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -47,7 +51,6 @@ public:
 
    void testPullUpdates()
       {
-/*
          OsConfigDb configuration;
 
          SipRegistrar registrar(&configuration);
@@ -61,7 +64,6 @@ public:
 
          // Verify that the right updates got pulled.
          CPPUNIT_ASSERT_EQUAL(1, numUpdates);
-*/
       }
 
 };

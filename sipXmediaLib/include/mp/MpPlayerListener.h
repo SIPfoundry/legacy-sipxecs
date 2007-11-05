@@ -34,24 +34,28 @@ public:
 
 /* ============================ CREATORS ================================== */
 
+   virtual ~MpPlayerListener()
+   {
+   }
+
 /* ============================ MANIPULATORS ============================== */
 
-   virtual void playerRealized(MpPlayerEvent& event) = 0 ;
+   virtual void playerRealized(MpPlayerEvent& event) = 0;
      //: The player has been realized
 
-   virtual void playerPrefetched(MpPlayerEvent& event) = 0 ;
+   virtual void playerPrefetched(MpPlayerEvent& event) = 0;
      //: The player's data source has been prefetched
 
-   virtual void playerPlaying(MpPlayerEvent& event) = 0 ;
+   virtual void playerPlaying(MpPlayerEvent& event) = 0;
      //: The player has begun playing.
 
-   virtual void playerPaused(MpPlayerEvent& event) = 0 ;
+   virtual void playerPaused(MpPlayerEvent& event) = 0;
      //: The player has been paused
 
-   virtual void playerStopped(MpPlayerEvent& event) = 0 ;
+   virtual void playerStopped(MpPlayerEvent& event) = 0;
      //: The player has been stopped
 
-   virtual void playerFailed(MpPlayerEvent& event) = 0 ;
+   virtual void playerFailed(MpPlayerEvent& event) = 0;
      //: The player has failed
 
 /* ============================ ACCESSORS ================================= */

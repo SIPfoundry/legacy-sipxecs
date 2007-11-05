@@ -168,6 +168,7 @@ void MpPlayer::fireEvent(PlayerState state)
          switch (state)
          {
             case PlayerUnrealized:
+            case PlayerDestroyed:
                break ;
             case PlayerRealized:
                mListenerDb[i].pListener->playerRealized(event) ;

@@ -10,7 +10,7 @@ AUDIO_DIST = \
    audio/fluffy.wav \
    audio/notice.wav \
    audio/nowhearthis.wav \
-   audio/revalie.wav \
+   audio/reveille.wav \
    audio/TadaTada.wav
 
 # (src/build.xml installs these)
