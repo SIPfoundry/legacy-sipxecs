@@ -55,7 +55,6 @@ public class CiscoIpPhone extends CiscoPhone {
         line.setSettingValue(PASSWORD_PATH, lineInfo.getPassword());
         line.setSettingValue(REGISTRATION_PATH, lineInfo.getRegistrationServer());
         line.setSettingValue(REGISTRATION_PORT_PATH, lineInfo.getRegistrationServerPort());
-        line.setSettingValue(MESSAGES_URI_PATH, lineInfo.getVoiceMail());
     }
 
     @Override
@@ -66,7 +65,6 @@ public class CiscoIpPhone extends CiscoPhone {
         lineInfo.setPassword(line.getSettingValue(PASSWORD_PATH));
         lineInfo.setRegistrationServer(line.getSettingValue(REGISTRATION_PATH));
         lineInfo.setRegistrationServerPort(line.getSettingValue(REGISTRATION_PORT_PATH));
-        lineInfo.setVoiceMail(line.getSettingValue(MESSAGES_URI_PATH));
         return lineInfo;
     }
 
@@ -206,11 +204,6 @@ public class CiscoIpPhone extends CiscoPhone {
         @SettingEntry(path = REGISTRATION_PATH)
         public String getProxyAddress() {
             return m_line.getPhoneContext().getPhoneDefaults().getDomainName();
-        }
-
-        @SettingEntry(path = MESSAGES_URI_PATH)
-        public String getMessagesUri() {
-            return m_line.getPhoneContext().getPhoneDefaults().getVoiceMail();
         }
     }
 
