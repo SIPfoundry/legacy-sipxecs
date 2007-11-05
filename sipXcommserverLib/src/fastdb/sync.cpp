@@ -17,6 +17,10 @@
 #endif
 #include "os/OsSysLog.h"
 
+// ipcclean.pl relies on being able to generate the key using ftok(path, '0')
+#define USE_STD_FTOK 1
+
+
 BEGIN_FASTDB_NAMESPACE
 
 #ifndef _WIN32
@@ -67,7 +71,11 @@ static moduleInitializer initializer; // install SIGLARM handler
 #if defined(USE_STD_FTOK) 
 int getKeyFromFile(char const* file)
 {
-    return ftok(file, 0);
+    // Previous versions of this code used project '0' (i.e. 48)
+    // sipX cleanup relies on this (specifically ipcclean.pl)
+    // to match the imdb file with the semaphore/shared memory keys
+    // so it can clean them up.
+    return ftok(file, 48);
 }
 #else
 int getKeyFromFile(char const* path)
