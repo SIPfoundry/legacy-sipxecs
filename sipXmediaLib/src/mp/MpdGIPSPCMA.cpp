@@ -35,8 +35,8 @@ OsStatus MpdGIPSPCMA::initDecode(MpConnection* pConnection)
    mpJBState = pConnection->getJBinst();
 
    // Set the payload number for NetEq
-   NETEQ_GIPS_10MS16B_initCodepoint(mpJBState,
-                                 "PCMA", 8000, getPayloadType());
+   NETEQ_GIPS_10MS16B_initCodepoint(mpJBState, const_cast <char*> ("PCMA"),
+                                    8000, getPayloadType());
 
    return OS_SUCCESS;
 }
