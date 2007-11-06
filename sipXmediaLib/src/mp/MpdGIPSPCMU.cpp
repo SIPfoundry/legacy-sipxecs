@@ -42,8 +42,8 @@ OsStatus MpdGIPSPCMU::initDecode(MpConnection* pConnection)
    mpJBState = pConnection->getJBinst();
 
    // Set the payload number for NetEq
-   NETEQ_GIPS_10MS16B_initCodepoint(mpJBState,
-                                          "PCMU", 8000, getPayloadType());
+   NETEQ_GIPS_10MS16B_initCodepoint(mpJBState, const_cast <char*> ("PCMU"),
+                                    8000, getPayloadType());
 
    // osPrintf("MpdGIPSPCMU::initDecode: payloadType=%d\n", getPayloadType());
    return OS_SUCCESS;
