@@ -163,9 +163,13 @@ static void usage()
        "Options:\n"
        "    --version   prints the version number\n"
        "    -s|--schema <namespace> <schema-location>\n"
-       "                Specifies a namespace and the location of a local copy of the \n"
-       "                schema definition file for that namespace.\n"
+       "                Specifies a namespace and the location of a local\n"
+       "                copy of the schema definition file for that namespace.\n"
        "                (may be repeated for multiple namespaces)\n"
+       "    -S|--schema-list <file>\n"
+       "                Specifies a file containing namespace/schema-location\n"
+       "                pairs.  (One pair per line, separated by whitespace.\n"
+       "                Comments start with '#'.)\n"
 #      ifdef LISTMODE
        "    -l          Indicate the input file is a List File that has a list of xml files.\n"
        "                Default to off (Input file is an XML file).\n"
@@ -203,7 +207,6 @@ int main(int argC, char* argV[])
     char                       localeStr[64];
 
     UtlString schemaLocationPairs;
-    UtlString defaultSchema;
     
     memset(localeStr, 0, sizeof localeStr);
 
@@ -256,7 +259,78 @@ int main(int argC, char* argV[])
               return 2;
            }     
         }
-         else
+        else if (   !strncmp(argV[argInd], "-S", 2)
+                 || !strncmp(argV[argInd], "--schema-list", 14)
+                 )
+        {
+           if (argInd+1 < argC)
+           {
+              // the input is a list file
+              XERCES_STD_QUALIFIER ifstream fin;
+              fin.open(argV[++argInd]);
+
+              if (fin.fail()) {
+                 XERCES_STD_QUALIFIER cerr
+                    <<"Cannot open schema location file '"
+                    << argV[argInd] << "'"
+                    << XERCES_STD_QUALIFIER endl;
+                 return 2;
+              }
+
+              int lineNo = 0;
+              while (1)
+              {
+                 char line[1000];
+                 //initialize the array to zeros
+                 memset(line, 0, sizeof (line));
+                 #define WHITESPACE " \t\n\v\f\r"
+
+                 if (! fin.eof() ) {
+                    fin.getline (line, sizeof(line));
+                    lineNo++;
+
+                    char* first = strtok(line, WHITESPACE);
+                    // Ignore empty lines and comment lines.
+                    if (first == NULL || *first == '#')
+                       continue;
+
+                    char* second = strtok(NULL, WHITESPACE);
+
+                    char* third = strtok(NULL, WHITESPACE);
+
+                    if (!(second != NULL && third == NULL)) {
+                       XERCES_STD_QUALIFIER cerr
+                          << "Line " << lineNo
+                          << " of schema location file '" << argV[argInd]
+                          << "' does not contain two fields.\n"
+                          << XERCES_STD_QUALIFIER endl;
+                       return 2;
+                    }            
+
+                    if (!schemaLocationPairs.isNull())
+                    {
+                       schemaLocationPairs.append(" ");
+                    }
+                    schemaLocationPairs.append(first);
+                    schemaLocationPairs.append(" ");
+                    schemaLocationPairs.append(second);
+                 }
+                 else
+                    break;
+              }
+
+              fin.close();
+           }
+           else
+           {
+              XERCES_STD_QUALIFIER cerr
+                 << "Option '" << argV[argInd]
+                 << "' must be followed by <file-name>\n"
+                 << XERCES_STD_QUALIFIER endl;
+              return 2;
+           }     
+        }
+        else
         {
            XERCES_STD_QUALIFIER cerr << "Unknown option '" << argV[argInd]
                                      << "', ignoring it\n" << XERCES_STD_QUALIFIER endl;
@@ -336,7 +410,7 @@ int main(int argC, char* argV[])
 
     //
     //  Get the starting time and kick off the parse of the indicated
-    //  file. Catch any exceptions that might propogate out of it.
+    //  file. Catch any exceptions that might propagate out of it.
     //
     unsigned long duration;
 

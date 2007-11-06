@@ -3,16 +3,30 @@
 SchemaDir="@SIPX_SCHEMADIR@"
 
 ## Build the list of known namespaces by scanning the SchemaDir
-Schemas=""
+# If '-f filename' is provied, use that name.  Otherwise use a temporary file.
+if [ "$1" = '-f' ] && [ "$2" != '' ]
+then
+  SchemaFile="$2"
+else
+  SchemaFile=`mktemp`
+fi
+echo "# Created from ${SchemaDir}/*.xsd on `date`." >${SchemaFile}
 
 for xsd in ${SchemaDir}/*.xsd
 do
   ns=`perl -n -e "/targetNamespace=([\"'])(.*?)\\1/ && print \\$2" ${xsd}`
   if [ -n "${ns}" ]
   then
-      Schemas="${Schemas} -s ${ns} file://${xsd}"
+      echo  ${ns} file://${xsd} >>${SchemaFile}
   fi
 done
+
+# If '-f' is provided, print the schema file name and exit.
+if [ "$1" = '-f' ]
+then
+  echo "Schema list file is ${SchemaFile}"
+  exit 0
+fi
 
 ExitStatus=0
 ResultFile=/tmp/sipx-validate.$$
@@ -21,7 +35,7 @@ cat /dev/null > ${ResultFile}
 for xml in $*
 do
   echo "==== ${xml}:"        >> ${ResultFile}
-  @SIPX_BINDIR@/xsdvalid ${Schemas} ${xml} 2>> ${ResultFile}
+  @SIPX_BINDIR@/xsdvalid -S ${SchemaFile} ${xml} 2>> ${ResultFile}
   ExitStatus=$((${ExitStatus} + $?))
 done
 
@@ -30,6 +44,6 @@ then
     cat ${ResultFile}
 fi
 
-rm -f ${ResultFile}
+rm -f ${ResultFile} ${SchemaFile}
 
 exit ${ExitStatus}
