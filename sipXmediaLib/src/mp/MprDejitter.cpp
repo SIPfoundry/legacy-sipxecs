@@ -139,29 +139,24 @@ MpBufPtr MprDejitter::pullPacket(void)
 {
    MpBufPtr found = NULL;
    MpBufPtr cur;
-   int curSeq ;
+   int curSeq;
    int first = -1; 
-   int firstSeq ;
+   int firstSeq = 0;            // dummy value
    int i;
 
    mRtpLock.acquire();
 
    // Find smallest seq number
-   for (i=0;i<MAX_RTP_PACKETS; i++)
+   for (i=0; i<MAX_RTP_PACKETS; i++)
    {
        cur = mpPackets[i];
        if (cur != NULL) 
        {
-           curSeq = getSeqNum(mpPackets[i]) ;
-           if (first == -1)
+           curSeq = getSeqNum(mpPackets[i]);
+           if (first == -1 || curSeq < firstSeq)
            {
-               first = i ;
-               firstSeq = curSeq ;
-           }
-           else if (curSeq < firstSeq)
-           {
-               first = i ;
-               firstSeq = curSeq ;
+               first = i;
+               firstSeq = curSeq;
            }
        }
    }
