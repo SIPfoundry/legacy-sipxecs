@@ -18,7 +18,7 @@ public class IntercomRule extends DialingRule {
     private DialPattern m_dialPattern;
     private FullTransform m_transform;
 
-    public IntercomRule(boolean enabled, String prefix, String code) {
+    public IntercomRule(boolean enabled, String prefix, String code, int timeout) {
         setEnabled(enabled);
 
         m_dialPattern = new DialPattern(prefix, DialPattern.VARIABLE_DIGITS);
@@ -27,14 +27,14 @@ public class IntercomRule extends DialingRule {
         CallPattern callPattern = new CallPattern("", CallDigits.VARIABLE_DIGITS);
         String user = callPattern.calculatePattern();
         m_transform.setUser(user);
-        String headerParam = String.format("Alert-info=%s", code);
-        m_transform.setHeaderParams(new String[] {
-            headerParam
-        });
+        String alertInto = String.format("Alert-info=%s", code);
+        String callInfo = String.format("Call-Info=<sip:localhost>;answer-after=%d", timeout);
+        m_transform.setHeaderParams(alertInto, callInfo);
     }
 
     public IntercomRule(Intercom intercom) {
-        this(intercom.isEnabled(), intercom.getPrefix(), intercom.getCode());
+        this(intercom.isEnabled(), intercom.getPrefix(), intercom.getCode(), intercom
+                .getTimeoutInSeconds());
     }
 
     @Override

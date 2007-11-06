@@ -28,7 +28,7 @@ public class DialingRuleCollectorTest extends TestCase {
         final DialingRuleProvider[] drp = new DialingRuleProvider[len];
 
         // create a dummy dialing rule and put it in a list
-        DialingRule rule = new IntercomRule(true, "*666", "intercomCode");
+        DialingRule rule = new IntercomRule(true, "*666", "intercomCode", 42);
         List<DialingRule> rules = new ArrayList<DialingRule>();
         rules.add(rule);
 
@@ -63,7 +63,7 @@ public class DialingRuleCollectorTest extends TestCase {
         final DialingRuleProvider[] drp = new DialingRuleProvider[len];
 
         // create a dummy dialing rule and put it in a list
-        DialingRule rule = new IntercomRule(false, "*666", "intercomCode");
+        DialingRule rule = new IntercomRule(false, "*666", "intercomCode", 42);
         List<DialingRule> rules = new ArrayList<DialingRule>();
         rules.add(rule);
 

@@ -16,11 +16,11 @@ import junit.framework.TestCase;
 
 public class IntercomRuleTest extends TestCase {
     private IntercomRule m_rule;
-    
+
     protected void setUp() {
-        m_rule = new IntercomRule(true, "*78", "Ipek");
+        m_rule = new IntercomRule(true, "*78", "Ipek", 42);
     }
-    
+
     public void testGetPatterns() {
         String[] patterns = m_rule.getPatterns();
         assertEquals(1, patterns.length);
@@ -33,9 +33,10 @@ public class IntercomRuleTest extends TestCase {
         FullTransform transform = (FullTransform) transforms[0];
         assertEquals("{vdigits}", transform.getUser());
         String[] headerparams = transform.getHeaderParams();
-        assertEquals(1, headerparams.length);
+        assertEquals(2, headerparams.length);
         assertEquals("Alert-info=Ipek", headerparams[0]);
+        assertEquals("Call-Info=<sip:localhost>;answer-after=42", headerparams[1]);
         assertNull(transform.getHost());
         assertNull(transform.getUrlParams());
-    }    
+    }
 }
