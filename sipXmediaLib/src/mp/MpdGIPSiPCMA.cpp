@@ -44,8 +44,8 @@ OsStatus MpdGIPSiPCMA::initDecode(MpConnection* pConnection)
    }
 
    // Set the payload number for NetEq
-   NETEQ_GIPS_10MS16B_initCodepoint(mpJBState,
-                                        "EG711A", 8000, getPayloadType());
+   NETEQ_GIPS_10MS16B_initCodepoint(mpJBState, const_cast <char*> ("EG711A"),
+                                    8000, getPayloadType());
 
    //Attach the decoder to NetEq instance
    res += NETEQEG711A_GIPS_10MS16B_init(mpJBState, pDecoderState);
