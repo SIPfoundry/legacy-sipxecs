@@ -593,7 +593,6 @@ unsigned long  CSenderReport::LoadSenderStats(unsigned long *aulSenderStats)
  */
 unsigned long CSenderReport::ExtractTimestamps(unsigned long *paulTimestamps)
 {
-
     unsigned long aulCurrentNTPTime[2];
     double        dTimestamp;
 
@@ -627,7 +626,7 @@ unsigned long CSenderReport::ExtractTimestamps(unsigned long *paulTimestamps)
 
     gettimeofday(&tv, NULL);
     // Load Most Significant word with Wall time seconds
-    m_aulNTPStartTime[0] = tv.tv_sec + WALLTIMEOFFSET;
+    aulCurrentNTPTime[0] = tv.tv_sec + WALLTIMEOFFSET;
 
     // Load Least Significant word with Wall time microseconds
     dTimestamp = (double) tv.tv_usec / MILLI2MICRO;
