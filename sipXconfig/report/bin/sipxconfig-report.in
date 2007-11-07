@@ -2,7 +2,8 @@
 
 # see http://docs.rubygems.org/shelf
 #  RubyGemsUserGuide/Installing Ruby/Installing RubyGems in a User Directory
-ENV['GEM_PATH'] = '@GEM_LIB_DIR@:/usr/lib/ruby/gems/1.8'
+# Debian Etch looks in /var/lib/gems/1.8
+ENV['GEM_PATH'] = '@GEM_LIB_DIR@:/usr/lib/ruby/gems/1.8:/var/lib/gems/1.8'
 
 require 'tempfile'
 require 'optparse'
