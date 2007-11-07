@@ -11,15 +11,15 @@ require 'ostruct'
 
 load '@SIPX_CONFDIR@/report/sipxconfig-report-config'
 
-$PSQL = "/usr/bin/psql"
-if FileTest.exists?("#{PSQL}")
-  $PSQL_PATH = $PSQL.chomp("psql")
+$psql = '/usr/bin/psql'
+if FileTest.exists?($psql)
+  $psql_path = $psql.chomp('psql')
 else
-  $PSQL = `which psql`.chomp
-  $PSQL_PATH=$PSQL.chomp("psql")
+  $psql = `which psql`.chomp
+  $psql_path=$psql.chomp('psql')
 end
-CREATEDB = $PSQL_PATH+"createdb"
-DROPDB = $PSQL_PATH+"dropdb"
+CREATEDB = "#{$psql_path}createdb"
+DROPDB = "#{$psql_path}dropdb"
 
 def parse(args)
   options = OpenStruct.new
@@ -58,10 +58,10 @@ def parse(args)
     end
     
     def createdb
-      db_exists = `#{$PSQL} -U postgres -A -l | grep "^SIPXACD_HISTORY|" | wc -l`.chomp
+      db_exists = `#{$psql} -U postgres -A -l | grep "^SIPXACD_HISTORY|" | wc -l`.chomp
       if db_exists == "0"
         `#{CREATEDB} -U #{DB_USER} #{DB_NAME}`
-        `#{$PSQL} -U #{DB_USER} #{DB_NAME} < @SIPX_CONFDIR@/report/schema.sql`
+        `#{$psql} -U #{DB_USER} #{DB_NAME} < @SIPX_CONFDIR@/report/schema.sql`
       end
     end
         
