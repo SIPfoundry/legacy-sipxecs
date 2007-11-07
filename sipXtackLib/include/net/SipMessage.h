@@ -1171,9 +1171,11 @@ private:
     // Class for the singleton object that carries the field properties
     class SipMessageFieldProps
        {
-         public:
+         private:
+          friend class SipMessage;
 
           SipMessageFieldProps();
+          ~SipMessageFieldProps();
 
           UtlHashBag mShortFieldNames;
           UtlHashBag mLongFieldNames;
@@ -1188,7 +1190,7 @@ private:
        };
 
     // Singleton object to carry the field properties.
-    static SipMessageFieldProps* spSipMessageFieldProps;
+    static SipMessageFieldProps sSipMessageFieldProps;
 
 };
 

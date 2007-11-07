@@ -446,7 +446,7 @@ SipUserAgent::~SipUserAgent()
     delete mpTimer;
     mpTimer = NULL;
 
-    // Wait until this OsServerTask has stopped or handleMethod
+    // Wait until this OsServerTask has stopped or handleMessage
     // might access something we are about to delete here.
     waitUntilShutDown();
 
@@ -2246,9 +2246,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
          {
             if(sipMessage)
             {
-               // Note: only delete the timer and notifier if there
-               // is a message AND we can get a lock on the transaction.  
-               //  WARNING: you cannot touch the contents of the transaction
+               // WARNING: you cannot touch the contents of the transaction
                // attached to the message until the transaction has been
                // locked (via findTransactionFor, if no transaction is 
                // returned, it either no longer exists or we could not get
@@ -2282,14 +2280,6 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                                                       relationship);
                if(transaction)
                {
-                   if(timer)
-                   {
-                      transaction->removeTimer(timer);
-
-                      delete timer;
-                      timer = NULL;
-                   }
-
                    // If we are in shutdown mode, unlock the transaction
                    // and set it to null.  We pretend that the transaction
                    // does not exist (i.e. noop).
@@ -2387,6 +2377,9 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                // It is deleted by dispatch ?? if it is not
                // rescheduled.
             } // End if sipMessage
+
+            // The timer that sent this event will be deleted by SipTransaction::~.
+            // The attached SipMessageEvent will be deleted below.
          } // End SipMessageEvent::TRANSACTION_RESEND
 
          // Timeout for garbage collection
@@ -2406,9 +2399,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
 
             if(sipMessage)
             {
-               // Note: only delete the timer and notifier if there
-               // is a message AND we can get a lock on the transaction.  
-               //  WARNING: you cannot touch the contents of the transaction
+               // WARNING: you cannot touch the contents of the transaction
                // attached to the message until the transaction has been
                // locked (via findTransactionFor, if no transaction is 
                // returned, it either no longer exists or we could not get
@@ -2432,14 +2423,6 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                                                       relationship);
                if(transaction)
                {
-                   if(timer)
-                   {
-                      transaction->removeTimer(timer);
-
-                      delete timer;
-                      timer = NULL;
-                   }
-
                    // If we are in shutdown mode, unlock the transaction
                    // and set it to null.  We pretend that the transaction
                    // does not exist (i.e. noop).
@@ -2488,7 +2471,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                      delayedDispatchMessage = NULL;
                   }
                }
-               else // Could not find a transaction for this exired message
+               else // Could not find a transaction for this expired message
                {
                   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
                   {
@@ -2503,7 +2486,10 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                   }
                }
             }
-         }
+            
+            // The timer that sent this event will be deleted by SipTransaction::~.
+            // The attached SipMessageEvent will be deleted below.
+         } // End SipMessageEvent::TRANSACTION_EXPIRATION
 
          // Unknown timeout
          else
@@ -2512,11 +2498,10 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                           "SipUserAgent::handleMessage unknown timeout event: %d.", msgEventType);
          }
 
-         // As this is OsMsg is attached as a void* to the timeout event
-         // it must be explicitly deleted.  The attached SipMessage
-         // will get freed with it.
+         // Since the timer has fired, it is our responsibility to
+         // delete the SipMessageEvent.  The attached SipMessage will
+         // be freed with the SipMessageEvent.
          delete sipEvent;
-         sipEvent = NULL;
       } // end if sipEvent
       messageProcessed = TRUE;
    }

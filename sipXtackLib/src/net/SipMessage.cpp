@@ -35,7 +35,7 @@
 #define MAXIMUM_INTEGER_STRING_LENGTH 20
 
 // STATIC VARIABLES
-SipMessage::SipMessageFieldProps* SipMessage::spSipMessageFieldProps = NULL ;
+SipMessage::SipMessageFieldProps SipMessage::sSipMessageFieldProps;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -52,11 +52,6 @@ SipMessage::SipMessage(const char* messageBytes, int byteCount) :
 #ifdef TRACK_LIFE
    osPrintf("Created SipMessage @ address:%X\n",this);
 #endif
-
-   if (spSipMessageFieldProps == NULL)
-   {
-      spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
-   }
 }
 
 SipMessage::SipMessage(OsSocket* inSocket, int bufferSize) :
@@ -123,12 +118,8 @@ UtlBoolean SipMessage::getShortName(const char* longFieldName,
 
    shortFieldName->remove(0);
 
-   if (spSipMessageFieldProps == NULL)
-   {
-      spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
-   }
-
-   NameValuePair* shortNV = (NameValuePair*) spSipMessageFieldProps->mLongFieldNames.find(&longNV);
+   NameValuePair* shortNV =
+      dynamic_cast <NameValuePair*> (sSipMessageFieldProps.mLongFieldNames.find(&longNV));
    if(shortNV)
    {
       shortFieldName->append(shortNV->getValue());
@@ -149,13 +140,8 @@ UtlBoolean SipMessage::getLongName(const char* shortFieldName,
     {
         UtlString shortNV(shortFieldName);
 
-        if (spSipMessageFieldProps == NULL)
-        {
-           spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
-        }
-
        NameValuePair* longNV =
-          (NameValuePair*) spSipMessageFieldProps->mShortFieldNames.find(&shortNV);
+          dynamic_cast <NameValuePair*> (sSipMessageFieldProps.mShortFieldNames.find(&shortNV));
        if(longNV)
        {
           *longFieldName = longNV->getValue();
@@ -176,11 +162,6 @@ void SipMessage::replaceShortFieldNames()
    UtlString longName;
    size_t position;
    
-   if (spSipMessageFieldProps == NULL)
-   {
-      spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
-   }
-
    for ( position= 0;
          (nvPair = dynamic_cast<NameValuePair*>(mNameValues.at(position)));
          position++
@@ -2019,7 +2000,7 @@ void SipMessage::addViaField(const char* viaField, UtlBoolean afterOtherVias)
 
         //remove whole line
         NameValuePair* nv = NULL;
-        while(nv = (NameValuePair*) iterator())
+        while(nv = dynamic_cast <NameValuePair*> (iterator()))
         {
             osPrintf("\tName: %s\n", nv->data());
         }
@@ -2059,7 +2040,7 @@ void SipMessage::setLastViaTag(const char* tagValue,
     UtlBoolean bFoundTag = FALSE;
     UtlString value;
 
-   while ((nvPair = (NameValuePair*) iterator()))
+    while ((nvPair = dynamic_cast <NameValuePair*> (iterator())))
    {
         value.remove(0);
 
@@ -2839,7 +2820,7 @@ UtlBoolean SipMessage::removeLastVia()
    NameValuePair viaHeaderField(SIP_VIA_FIELD);
 
    //remove whole line
-   NameValuePair* nv = (NameValuePair*) mNameValues.find(&viaHeaderField);
+   NameValuePair* nv = dynamic_cast <NameValuePair*> (mNameValues.find(&viaHeaderField));
    if(nv)
    {
         mHeaderCacheClean = FALSE;
@@ -4566,12 +4547,7 @@ UtlBoolean SipMessage::isUrlHeaderAllowed(const char* headerFieldName)
     UtlString name(headerFieldName);
     name.toUpper();
 
-    if (spSipMessageFieldProps == NULL)
-    {
-      spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
-    }
-
-    return (!spSipMessageFieldProps->mDisallowedUrlHeaders.contains(&name));
+    return (!sSipMessageFieldProps.mDisallowedUrlHeaders.contains(&name));
 }
 
 UtlBoolean SipMessage::isUrlHeaderUnique(const char* headerFieldName)
@@ -4579,12 +4555,7 @@ UtlBoolean SipMessage::isUrlHeaderUnique(const char* headerFieldName)
     UtlString name(headerFieldName);
     name.toUpper();
     
-    if (spSipMessageFieldProps == NULL)
-    {
-       spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
-    }
-
-    return (spSipMessageFieldProps->mUniqueUrlHeaders.contains(&name));
+    return (sSipMessageFieldProps.mUniqueUrlHeaders.contains(&name));
 }
 
 //SDUA
@@ -4871,6 +4842,17 @@ SipMessage::SipMessageFieldProps::SipMessageFieldProps()
    initUniqueUrlHeaders();
 }
 
+
+SipMessage::SipMessageFieldProps::~SipMessageFieldProps()
+{
+   // free the various value mappings
+   mLongFieldNames.destroyAll();
+   mShortFieldNames.destroyAll();
+   mDisallowedUrlHeaders.destroyAll();
+   mUniqueUrlHeaders.destroyAll();
+}
+
+
 void SipMessage::SipMessageFieldProps::initNames()
 {
    // Load the table to translate long header names to short names.
@@ -4894,7 +4876,7 @@ void SipMessage::SipMessageFieldProps::initNames()
 
    UtlHashBagIterator iterator(mLongFieldNames);
    NameValuePair* nvPair;
-   while ((nvPair = (NameValuePair*) iterator()))
+   while ((nvPair = dynamic_cast <NameValuePair*> (iterator())))
    {
       mShortFieldNames.insert(new NameValuePair(nvPair->getValue(),
                                                  nvPair->data()));

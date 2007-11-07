@@ -522,6 +522,10 @@ int SipClient::run(void* runArg)
          {
             // Something went wrong while reading the message.
             // (Possibly EOF on a connection-oriented socket.)
+
+            // Delete the SipMessage allocated above, which is no longer needed.
+            delete msg;
+
             // If it is not framed, we need to abort the connection.
             // :TODO: This doesn't work right for framed connection-oriented
             // protocols (like SCTP), but OsSocket doesn't have an EOF-query

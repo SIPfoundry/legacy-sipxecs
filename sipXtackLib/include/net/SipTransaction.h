@@ -137,7 +137,7 @@ public:
 
     void removeTimer(OsTimer* timer);
 
-    void stopTimers() ;
+    void stopTimers();
     void deleteTimers();
 
 /* ============================ Deprecated ============================== */

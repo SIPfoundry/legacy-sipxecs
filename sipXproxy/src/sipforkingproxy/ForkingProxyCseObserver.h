@@ -62,7 +62,7 @@ private:
    CallStateEventWriter*      mpWriter;
    
    int                        mSequenceNumber;
-   OsTimer*                   mFlushTimer;
+   OsTimer                    mFlushTimer;
    
    /// no copy constructor or assignment operator
    ForkingProxyCseObserver(const ForkingProxyCseObserver& rForkingProxyCseObserver);

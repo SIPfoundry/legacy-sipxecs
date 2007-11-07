@@ -139,7 +139,7 @@ class OsTimer : public UtlContainable
 
    /** Construct a timer that signals by calling
     *  @code
-    *  pQueue->doSendEventMsg(OsEventMsg::NOTIFY, (int) this)
+    *  pQueue->send(new OsEventMsg(OsEventMsg::NOTIFY, (int) this, userData)
     *  @endcode
     */
    OsTimer(OsMsgQ* pQueue,      ///< Queue to send OsEventMsg::NOTIFY message

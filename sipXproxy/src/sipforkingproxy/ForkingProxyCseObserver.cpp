@@ -40,7 +40,8 @@ ForkingProxyCseObserver::ForkingProxyCseObserver(SipUserAgent&         sipUserAg
    mpSipUserAgent(&sipUserAgent),
    mpBuilder(NULL),
    mpWriter(pWriter),
-   mSequenceNumber(0)
+   mSequenceNumber(0),
+   mFlushTimer(getMessageQueue(), 0)
 {
    OsTime timeNow;
    OsDateTime::getCurTime(timeNow);
@@ -89,16 +90,11 @@ ForkingProxyCseObserver::ForkingProxyCseObserver(SipUserAgent&         sipUserAg
       }
    }
 
-   // get my inbound OsMsg queue
-   OsMsgQ* myTaskQueue = getMessageQueue();
-
-   // set up periodic timer to flush log file
-   OsQueuedEvent* pEvent = new OsQueuedEvent(*myTaskQueue, 0);
-   mFlushTimer = new OsTimer(*pEvent) ;
-   mFlushTimer->periodicEvery(OsTime(), OsTime(ForkingProxyCallStateFlushInterval, 0)) ;
+   // Set up periodic timer to flush the log file.
+   mFlushTimer.periodicEvery(OsTime(), OsTime(ForkingProxyCallStateFlushInterval, 0));
 
    // Register to get incoming requests
-   sipUserAgent.addMessageObserver(*myTaskQueue,
+   sipUserAgent.addMessageObserver(*getMessageQueue(),
                                    SIP_INVITE_METHOD, // just INVITEs
                                    TRUE, // Requests,
                                    TRUE, //Responses,
@@ -113,6 +109,8 @@ ForkingProxyCseObserver::ForkingProxyCseObserver(SipUserAgent&         sipUserAg
 // Destructor
 ForkingProxyCseObserver::~ForkingProxyCseObserver()
 {
+   mFlushTimer.stop();
+
    if (mpBuilder)
    {
       delete mpBuilder;

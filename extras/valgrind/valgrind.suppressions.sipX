@@ -1,4 +1,24 @@
 {
+   openssl/cond
+   Memcheck:Cond
+   obj:/lib/libssl*
+}
+{
+   openssl/uninit
+   Memcheck:Value4
+   obj:/lib/libssl*
+}
+{
+   crypto/cond
+   Memcheck:Cond
+   obj:/lib/libcrypto*
+}
+{
+   crypto/all
+   Memcheck:Value4
+   obj:/lib/libcrypto*
+}
+{
 	pthread_initialize_minimal/uninit
 	Memcheck:Cond
 	fun:strstr
@@ -223,4 +243,41 @@
 	fun:memset
 	fun:BUF_MEM_grow_clean
 	fun:ssl3_get_message
+}
+
+#################################################################
+# This next entry suppresses leak reports for the blocks used to track contents in UtlContainers.
+# The UtlLink and UtlPair objects are never returned to the heap; instead they are maintained
+# in a pool for reuse.  This saves the overhead of what would be very frequent calls to the 
+# heap for the same very small objects, and should reduce the chances of heap fragmentation.
+#
+{
+   UtlContainer/UtlPair
+   Memcheck:Leak
+   fun:_vgrZU_libstdcZpZpZa__Znaj
+   fun:_ZN7UtlPair8allocateEjP8UtlChainS1_
+   fun:_ZN12UtlChainPool3getEv
+   fun:_ZN7UtlPair3getEv
+}
+{
+   UtlContainer/UtlLink
+   Memcheck:Leak
+   fun:_vgrZU_libstdcZpZpZa__Znaj
+   fun:_ZN7UtlLink8allocateEjP8UtlChainS1_
+   fun:_ZN12UtlChainPool3getEv
+   fun:_ZN7UtlLink3getEv
+}
+{
+   sipXcommserverLib/Statics
+   Memcheck:Leak
+   fun:*
+   fun:_Z41__static_initialization_and_destruction_0ii
+   obj:/inst-sdl/xecs-294/lib/libsipXcommserver.so.2.0.0
+}
+{
+   sipXportLib/Statics
+   Memcheck:Leak
+   fun:*
+   fun:_Z41__static_initialization_and_destruction_0ii
+   obj:/inst-sdl/xecs-294/lib/libsipXport.so.2.0.0
 }

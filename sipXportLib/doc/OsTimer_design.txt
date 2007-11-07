@@ -99,7 +99,7 @@ mOutstandingMessages is a count of the number of messages that have been sent
 by the application methods (or will soon be sent by them) and have not yet
 been processed by the timer task.  If mOutstandingMessages is zero, there are
 no messages in transit between the application methods and the timer task's
-message processing routine.
+message processing routine.  Therefore mApplicationState == mTaskState.
 
 - mDeleting (A)
 

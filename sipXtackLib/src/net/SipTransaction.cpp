@@ -285,7 +285,7 @@ SipTransaction::operator=(const SipTransaction& rhs)
 
 enum SipTransaction::messageRelationship
 SipTransaction::addResponse(SipMessage*& response,
-                            UtlBoolean isOutGoing,  // intravert/extravert
+                            UtlBoolean isOutGoing,  // introvert/extrovert
                             enum messageRelationship relationship) // casual/serious
 {
     if(relationship == MESSAGE_UNKNOWN)
@@ -328,8 +328,9 @@ SipTransaction::addResponse(SipMessage*& response,
         }
         mpLastProvisionalResponse = response;
         if(mTransactionState < TRANSACTION_PROCEEDING)
-            mTransactionState = TRANSACTION_PROCEEDING;
-
+        {
+           mTransactionState = TRANSACTION_PROCEEDING;
+        }
         // If check if there is early media
         // We need this state member as there may be multiple
         // provisional responses and we cannot rely upon the fact
@@ -351,7 +352,9 @@ SipTransaction::addResponse(SipMessage*& response,
         }
         mpLastFinalResponse = response;
         if(mTransactionState < TRANSACTION_COMPLETE)
-            mTransactionState = TRANSACTION_COMPLETE;
+        {
+           mTransactionState = TRANSACTION_COMPLETE;
+        }
         break;
 
     case MESSAGE_ACK:
@@ -1111,7 +1114,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
             // Keep separate copy for the timer
             SipMessageEvent* resendEvent =
                 new SipMessageEvent(new SipMessage(message),
-                                SipMessageEvent::TRANSACTION_RESEND);
+                                    SipMessageEvent::TRANSACTION_RESEND);
 #           ifdef TEST_PRINT
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipTransaction::doFirstSend timer scheduled for: %p",
@@ -1121,8 +1124,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
             // Set an event timer to resend the message
             // queue a message on this OsServerTask
             OsMsgQ* incomingQ = userAgent.getMessageQueue();
-            OsTimer* timer = new OsTimer(incomingQ,
-                (int)resendEvent);
+            OsTimer* timer = new OsTimer(incomingQ, (int) resendEvent);
             mTimers.append(timer);
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -1179,8 +1181,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                     new SipMessageEvent(new SipMessage(message),
                                 SipMessageEvent::TRANSACTION_EXPIRATION);
 
-                OsTimer* expiresTimer = new OsTimer(incomingQ,
-                        (int)expiresEvent);
+                OsTimer* expiresTimer = new OsTimer(incomingQ, (int) expiresEvent);
                 mTimers.append(expiresTimer);
 #ifdef TEST_PRINT
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -1282,10 +1283,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                                     SipMessageEvent::TRANSACTION_RESEND);
 
                 OsMsgQ* incomingQ = userAgent.getMessageQueue();
-
-                OsTimer* timer = new OsTimer(incomingQ,
-                    (int)resendEvent);
-
+                OsTimer* timer = new OsTimer(incomingQ, (int)resendEvent);
                 mTimers.append(timer);
 #ifdef TEST_PRINT
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -1401,9 +1399,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                                     SipMessageEvent::TRANSACTION_RESEND);
 
                 OsMsgQ* incomingQ = userAgent.getMessageQueue();
-
-                OsTimer* timer = new OsTimer(incomingQ,
-                    (int)resendEvent);
+                OsTimer* timer = new OsTimer(incomingQ, (int) resendEvent);
                 mTimers.append(timer);
 #ifdef TEST_PRINT
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -2445,8 +2441,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                                     SipMessageEvent::TRANSACTION_EXPIRATION);
 
             OsMsgQ* incomingQ = userAgent.getMessageQueue();
-            OsTimer* expiresTimer = new OsTimer(incomingQ, (int)expiresEvent);
-                    
+            OsTimer* expiresTimer = new OsTimer(incomingQ, (int) expiresEvent);
             mTimers.append(expiresTimer);
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -2797,8 +2792,7 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
                loopDetectedResponse->clearDNSField();
                
                // Change the redirect response we have into the loop detected response
-               delete mpLastFinalResponse;
-               mpLastFinalResponse = loopDetectedResponse;
+               addResponse(loopDetectedResponse, FALSE /* incoming */, MESSAGE_FINAL );
                
                childRecursed = FALSE;
             }
@@ -3253,8 +3247,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                                     SipMessageEvent::TRANSACTION_RESEND);
 
                OsMsgQ* incomingQ = userAgent.getMessageQueue();
-               OsTimer* timer = new OsTimer(incomingQ,
-                   (int)resendEvent);
+               OsTimer* timer = new OsTimer(incomingQ, (int) resendEvent);
                mTimers.append(timer);
 #ifdef TEST_PRINT
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -3769,38 +3762,34 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
 
 void SipTransaction::removeTimer(OsTimer* timer)
 {
-    OsTimer* pt = dynamic_cast<OsTimer*>(mTimers.find(timer));
-
-    if(pt)
-    {
-       mTimers.remove(pt);
-    }
+   mTimers.removeReference(timer);
 }
 
 void SipTransaction::deleteTimers()
 {
-    UtlSListIterator iterator(mTimers);
     OsTimer* timer = NULL;
 
-    while ((timer = (OsTimer*)iterator()))
+    while ((timer = dynamic_cast<OsTimer*>(mTimers.get() /* pop one timer */)))
     {
-#ifdef TEST_PRINT
+#       ifdef TEST_PRINT
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipTransaction::deleteTimers deleting timer %p",
                       timer);
-#endif
-        removeTimer(timer);
+#       endif
         
-        // Only delete the timer if not stopped -- the timer will be cleaned 
-        // up in handle message.  Delete it opens up a race (the timer could
-        // be queued up on the SipUserAgent already).
-        if (timer->getState() != OsTimer::STOPPED)
+        // If the timer has not fired, we must delete the dependent
+        // SipMessageEvent.
+        // If the timer has fired, the consequent OsEventMsg is on the
+        // queue of the SipUserAgent, and SipUserAgent::handleMessage will
+        // delete the dependent SipMessageEvent.
+        if (timer->stop(FALSE /* do not block */) == OS_SUCCESS)
         {
-            timer->stop();
-            SipMessageEvent* pMsgEvent = (SipMessageEvent*) timer->getUserData() ;
+            SipMessageEvent* pMsgEvent = (SipMessageEvent*) timer->getUserData();
             delete pMsgEvent;
-            delete timer;
         }
+
+        // We always delete the timer.
+        delete timer;
     }
 }
 

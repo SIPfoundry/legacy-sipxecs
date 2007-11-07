@@ -50,6 +50,7 @@ public:
    OsEventMsg(const unsigned char subType, const OsQueuedEvent& rEvent,
               const int eventData, const OsTime& rTimestamp);
      //:Constructor
+     // userData is rEvent.getUserData(...).
 
    OsEventMsg(unsigned char subType,
               int eventData,
