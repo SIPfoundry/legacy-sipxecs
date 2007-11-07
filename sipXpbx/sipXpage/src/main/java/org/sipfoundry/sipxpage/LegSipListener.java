@@ -118,7 +118,7 @@ public class LegSipListener implements SipListener
 
    void printInMessage(Message message)
    {
-      LOG.info(String.format("LegSipListener Recieved: <<<<<<<<<%n%s", message.toString())) ;
+      LOG.info(String.format("LegSipListener Received: <<<<<<<<<%n%s", message.toString())) ;
    }
 
    void triggerLegEvent(LegEvent legEvent)
@@ -340,6 +340,10 @@ public class LegSipListener implements SipListener
 
       // create Request URI
       SipURI requestURI = toAddress;
+      
+      // Add the sipx-noroute=VoiceMail and sipx-userforward=false parameters
+      requestURI.setParameter("sipx-noroute", "VoiceMail") ;
+      requestURI.setParameter("sipx-userforward", "false") ;
 
       // Create ViaHeaders
 
@@ -576,7 +580,7 @@ public class LegSipListener implements SipListener
          }
       } catch (Exception e)
       {
-         LOG.warn(e) ;
+         LOG.warn("LegSipListener::processRequest", e) ;
       }
       
       sendServerResponse(serverTransactionId, response);
@@ -599,7 +603,7 @@ public class LegSipListener implements SipListener
             }
          } catch (Exception e)
          {
-            LOG.warn(e) ;
+            LOG.warn("LegSipListener::sendServerResponse", e) ;
          }
       }
    }
@@ -650,7 +654,7 @@ public class LegSipListener implements SipListener
                   dialog.sendAck(request);
                } catch (SipException e)
                {
-                  LOG.warn(e) ;
+                  LOG.warn("LegSipListener::processResponse", e) ;
                }
             }
             else

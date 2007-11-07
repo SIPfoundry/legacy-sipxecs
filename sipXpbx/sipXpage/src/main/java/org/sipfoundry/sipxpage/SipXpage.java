@@ -206,8 +206,21 @@ public class SipXpage implements LegListener
 
       pageGroup = user2Group.get(user) ;
       LOG.info("SipXpage::page user="+user) ;
-      
-      if (pageGroup != null && pageGroup.isBusy() == true ||   
+
+      if (pageGroup == null)
+      {
+         LOG.info("Page group "+user+" not provisioned.") ;
+         try
+         {
+            event.getLeg().destroyLeg() ;
+         } catch (Exception e)
+         {
+            LOG.error("SipXpage::page", e) ;
+         }
+         return ;
+      }
+
+      if (pageGroup.isBusy() == true ||   
           pageGroup.page(leg, sdpAddress, alertInfoKey) == false)
       {
          // Already have an inbound call for that page group.  Return busy here response.
@@ -216,7 +229,7 @@ public class SipXpage implements LegListener
             event.getLeg().destroyLeg() ;
          } catch (Exception e)
          {
-            LOG.error(e) ;
+            LOG.error("SipXpage::page", e) ;
          }
       }
    }

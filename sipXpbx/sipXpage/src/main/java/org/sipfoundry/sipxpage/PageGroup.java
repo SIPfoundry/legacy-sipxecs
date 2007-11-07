@@ -178,7 +178,7 @@ public class PageGroup implements LegListener
             outbound.destroyLeg() ;
          } catch (Exception e)
          {
-            LOG.error(e) ;
+            LOG.error("PageGroup::end outbound", e) ;
          }
       }
       outbounds.removeAllElements() ;
@@ -195,7 +195,7 @@ public class PageGroup implements LegListener
          } catch (Exception e)
          {
             
-            LOG.error(e) ;
+            LOG.error("PageGroup::end inbound", e) ;
          }
          inbound = null ;
       }
@@ -228,7 +228,7 @@ public class PageGroup implements LegListener
          oLeg.createLeg(toAddress, "Page from "+fromName, sdp, alertInfoKey);
 
       } catch (Exception e) {
-         LOG.warn(String.format("Problem calling %s", destination), e) ;
+         LOG.warn(String.format("PageGroup::placeCall Problem calling %s", destination), e) ;
          try
          {
             oLeg.destroyLeg() ;

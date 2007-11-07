@@ -298,7 +298,7 @@ public class RtpFork implements Runnable
          LOG.debug("RtpFork::getLocalAudioRtp EOF on ulawStream") ;
             
       } catch (IOException e) {
-         LOG.error(e) ;
+         LOG.error("RtpFork::getLocalAudioRtp", e) ;
       }
       
       // When an error occurs or EOF is reached, close the stream
