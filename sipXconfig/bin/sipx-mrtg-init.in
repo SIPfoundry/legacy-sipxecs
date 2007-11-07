@@ -57,8 +57,18 @@ EOF
 
   chown $SIPX_USER:$SIPX_USER /etc/snmp/snmpd.conf
 
-  chkconfig snmpd on
-  service snmpd restart
+
+    if [ -f /sbin/chkconfig ]
+    then
+      # RedHat / Fedora
+      chkconfig snmpd on
+      # Stop it first and suppress output to prevent unnecessary errors
+      service snmpd stop > /dev/null
+      service snmpd start
+    else
+      # SUSE (SUSE adds snmpd to the runlevel automatically upon installation)
+      /etc/init.d/snmpd restart
+    fi
 else
   echo "Directory /etc/snmp does not exist. Please verify yout snmp instalation."
   echo "Exiting..."
