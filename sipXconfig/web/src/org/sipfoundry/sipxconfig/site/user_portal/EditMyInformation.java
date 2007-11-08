@@ -13,8 +13,12 @@ import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.site.admin.ModelWithDefaults;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
 import org.sipfoundry.sipxconfig.site.user.UserForm;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
@@ -33,18 +37,23 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public abstract MailboxPreferences getMailboxPreferences();
 
     public abstract void setMailboxPreferences(MailboxPreferences preferences);
+    
+    public abstract IPropertySelectionModel getLanguageList();
+    public abstract void setLanguageList(IPropertySelectionModel languageList);
 
     @Persist
     public abstract PersonalAttendant getPersonalAttendant();
-
     public abstract void setPersonalAttendant(PersonalAttendant pa);
-
+    
     @Persist
     @InitialValue(value = "literal:info")
     public abstract String getTab();
 
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
+    
+    @InjectObject(value = "spring:localizationContext")
+    public abstract LocalizationContext getLocalizationContext();
 
     public void save() {
         if (!TapestryUtils.isValid(this)) {
@@ -65,6 +74,10 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
+        
+        if (getLanguageList() == null) {
+            initLanguageList();
+        }
 
         User user = getUserForEditing();
         if (user == null) {
@@ -87,5 +100,22 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             PersonalAttendant pa = mailMgr.loadPersonalAttendantForUser(user);
             setPersonalAttendant(pa);
         }
+    }
+    
+    private void initLanguageList() {
+        String[] languages = getLocalizationContext().getInstalledLanguages();
+        IPropertySelectionModel model = new ModelWithDefaults(getMessages(), languages);
+        setLanguageList(model);
+    }
+    
+    private void recordSuccess(String msgKey) {
+        String msg = getMessages().getMessage(msgKey);
+        TapestryUtils.recordSuccess(this, msg);
+    }
+
+    private void recordFailure(String msgKey) {
+        String msg = getMessages().getMessage(msgKey);
+        ValidatorException validatorException = new ValidatorException(msg);
+        getValidator().record(validatorException);
     }
 }

@@ -42,6 +42,9 @@ public abstract class UserNavigation extends BeanNavigation<User> {
 
     @InjectPage(value = UserSettings.PAGE)
     public abstract UserSettings getUserSettingsPage();
+    
+    @InjectPage(value = EditPersonalAttendant.PAGE)
+    public abstract EditPersonalAttendant getEditPersonalAttendantPage();
 
     @InjectPage(value = SupervisorPermission.PAGE)
     public abstract SupervisorPermission getSupervisorPermissionPage();
@@ -76,6 +79,13 @@ public abstract class UserNavigation extends BeanNavigation<User> {
         return page;
     }
 
+    public IPage editPersonalAttendant(Integer userId) {
+        EditPersonalAttendant page = getEditPersonalAttendantPage();
+        page.setUserId(userId);
+        page.setReturnPage(ManageUsers.PAGE);
+        return page;
+    }
+    
     public IPage editSettings(Integer beanId, String path) {
         UserSettings page = getUserSettingsPage();
         page.setUserId(beanId);
@@ -120,6 +130,10 @@ public abstract class UserNavigation extends BeanNavigation<User> {
     public boolean isSupervisorTabActive() {
         return SupervisorPermission.PAGE.equals(getPage().getPageName());
     }
+    
+    public boolean isPersonalAttendantTabActive() {
+        return EditPersonalAttendant.PAGE.equals(getPage().getPageName());
+    }
 
     public Collection<Setting> getNavigationGroups() {
         Setting settings = getBean().getSettings();
@@ -143,6 +157,8 @@ public abstract class UserNavigation extends BeanNavigation<User> {
      * - group 2
      * </code>
      * 
+     * Additionally, the personal-attendant group is hidden as this tab is implemented
+     * as its own page
      */
     public static Collection<Setting> getUserNavigationGroups(Setting settings) {
         Collection<Setting> result = new ArrayList<Setting>();
@@ -153,6 +169,9 @@ public abstract class UserNavigation extends BeanNavigation<User> {
             }
             if (group.getName().equals("permission")) {
                 result.addAll(group.getValues());
+            } else if (group.getName().equals("personal-attendant")) {
+                // skip this group
+                continue;
             } else {
                 result.add(group);
             }

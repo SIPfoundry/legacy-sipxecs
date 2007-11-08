@@ -28,6 +28,27 @@
    <span jwcid="@QuickHelp" value="message:quick.help"/>
   <fieldset>
     <table>
+      <tr jwcid="@FieldPanel"
+        for="personalAttendant:overrideLanguage"
+        label="message:label.overrideLanguage"
+        description="message:description.overrideLanguage"
+        field="component:overrideLanguage">
+        <td jwcid="overrideLanguage@Checkbox"
+          id="personalAttendant:overrideLanguage"
+          value="ognl:personalAttendant.overrideLanguage"
+          displayName="message:label.overrideLanguage"/>
+      </tr>
+      <tr>
+        <td jwcid="@FieldPanel" field="component:language"
+          for="personalAttendant:language"
+          label="message:label.language"
+          description="message:description.language">
+          <input jwcid="language@PropertySelection" 
+            model="ognl:languageList"
+            value="ognl:personalAttendant.language"
+            id="personalAttendant:language" />
+        </td>
+      </tr>
       <tr jwcid="@FieldPanel" 
         for="personalAttendant:operator" 
         label="message:label.operator"

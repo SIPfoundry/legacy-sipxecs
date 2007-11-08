@@ -6,7 +6,7 @@
   </span>
   <div id="settings-nav">
     <span jwcid="@setting/SettingsNavigation" bean="prop:bean"
-      activeSetting="prop:activeSetting"
+      activeSetting="prop:activeSetting" groupsToHide="literal:personal-attendant"
       editSettingsListener="listener:editSettings">
       <span jwcid="@common/Tab" isActive="prop:identificationTabActive">
         <a jwcid="editUserLink@DirectLink" listener="listener:editUser"
@@ -42,6 +42,12 @@
         <a id="groupSupervisorLink" jwcid="supervisorPermissionLink@DirectLink"
           listener="listener:editSupervisorPermission" parameters="prop:bean.id">
           <span key="link.supervisor">Group Supervisor</span>
+        </a>
+      </span>
+      <span jwcid="@common/Tab" isActive="prop:personalAttendantTabActive">
+        <a id="personalAttendantLink" jwcid="personalAttendantLink@DirectLink"
+          listener="listener:editPersonalAttendant" parameters="prop:bean.id">
+          <span key="link.attendant">Personal Attendant</span>
         </a>
       </span>
     </span>

@@ -9,6 +9,8 @@
         <param name="sequence">personal_attendant_seq</param>
       </generator>
     </id>
+    <property name="overrideLanguage" />
+    <property name="language" />
     <property name="operator" />
     <many-to-one name="user" column="user_id" not-null="true" class="org.sipfoundry.sipxconfig.common.User" />
     <component name="menu" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu">

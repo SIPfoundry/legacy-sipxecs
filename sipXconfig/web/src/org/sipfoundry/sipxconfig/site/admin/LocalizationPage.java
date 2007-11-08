@@ -11,27 +11,22 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hivemind.Messages;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.AssetSelector;
-import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class LocalizationPage extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/LocalizationPage";
-
-    private static final String LABEL = "label.";
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -87,22 +82,6 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         String[] languages = getLocalizationContext().getInstalledLanguages();
         IPropertySelectionModel model = new ModelWithDefaults(getMessages(), languages);
         setLanguageList(model);
-    }
-
-    private static class ModelWithDefaults extends LocalizedOptionModelDecorator {
-        public static final String DEFAULT = "default";
-
-        public ModelWithDefaults(Messages messages, String[] options) {
-            String[] opts = options;
-            if (opts.length == 0) {
-                opts = new String[] {
-                    DEFAULT
-                };
-            }
-            setModel(new StringPropertySelectionModel(opts));
-            setMessages(messages);
-            setResourcePrefix(LABEL);
-        }
     }
 
     public void setRegion() {

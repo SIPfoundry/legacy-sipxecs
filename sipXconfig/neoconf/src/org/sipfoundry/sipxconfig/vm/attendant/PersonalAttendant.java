@@ -31,6 +31,10 @@ public class PersonalAttendant extends BeanWithId {
 
     private String m_operator;
 
+    private String m_language;
+
+    private boolean m_overrideLanguage;
+
     public User getUser() {
         return m_user;
     }
@@ -39,6 +43,22 @@ public class PersonalAttendant extends BeanWithId {
         m_user = user;
     }
 
+    public boolean getOverrideLanguage() {
+        return m_overrideLanguage;
+    }
+    
+    public void setOverrideLanguage(boolean overrideLanguage) {
+        m_overrideLanguage = overrideLanguage;
+    }
+    
+    public String getLanguage() {
+        return m_language;
+    }
+    
+    public void setLanguage(String language) {
+        m_language = language;
+    }
+    
     public String getOperator() {
         return m_operator;
     }
@@ -88,7 +108,6 @@ public class PersonalAttendant extends BeanWithId {
 
     public static class AttendantProfileContext extends ProfileContext {
         private PersonalAttendant m_aa;
-
         private String m_domain;
 
         public AttendantProfileContext(PersonalAttendant aa, String domain) {
@@ -101,6 +120,8 @@ public class PersonalAttendant extends BeanWithId {
             Map<String, Object> context = super.getContext();
             context.put("user", m_aa.getUser() != null);
             context.put("menu", createMenu());
+            context.put("overrideLanguage", m_aa.getOverrideLanguage());
+            context.put("language", m_aa.getLanguage());
             context.put("operator", SipUri.fix(m_aa.getOperator(), m_domain));
             return context;
         }

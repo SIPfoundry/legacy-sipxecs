@@ -1,11 +1,7 @@
 <?xml version="1.0"?>
 <vxml version="2.0"
-#if($user)
   base="http://localhost:8090/vm_vxml/"
-#if($overrideLanguage)
-  xml:lang="${language}"
-#end
-#end
+  xml:lang="en_US"
   application="root.vxml">
   <!--
     Deposit Voicemail
@@ -62,11 +58,7 @@
     <var name="call_disconnected" expr="'no'" />
 
     <!-- Default "Operator" destination for transfer -->
-#if($user)
-    <var name="xfer_uri" expr="'${operator}'" />
-#else
-    <var name="xfer_uri" expr="operatoraddr" />
-#end
+    <var name="xfer_uri" expr="'sip:123@example.org'" />
 
     <!-- Default audio on transfer -->
     <var name="xfer_audio" expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
@@ -115,13 +107,12 @@
       <filled>
         <if cond="playgreeting == '0'">
           <goto nextitem="xfer" />
-#if($user)
-#foreach( $item in $menu )
-          <elseif cond="playgreeting == '${item.key}'" />
-          <assign name="xfer_uri" expr="'${item.uri}'" />
+          <elseif cond="playgreeting == '1'" />
+          <assign name="xfer_uri" expr="'sip:201@example.org'" />
           <goto nextitem="xfer" />
-#end
-#end
+          <elseif cond="playgreeting == '2'" />
+          <assign name="xfer_uri" expr="'sip:202@example.com'" />
+          <goto nextitem="xfer" />
           <elseif cond="playgreeting == '*'" />
           <assign name="save_message" expr="'no'" />
           <if cond="called_by == 'sendmessage'">
@@ -162,13 +153,13 @@
     <!-- Record the voicemail message -->
     <record name="vm" cond="alreadyrecorded=='0'" beep="true" finalsilence="8000ms" dtmfterm="true">
       <filled>
-        <assign name="duration" expr="vm${dollar}.duration" />
-        <assign name="size" expr="vm${dollar}.size" />
-        <assign name="timestamp" expr="vm${dollar}.timestamp" />
-        <assign name="termchar" expr="vm${dollar}.termchar" />
-        <if cond="vm${dollar}.termchar=='0'">
+        <assign name="duration" expr="vm$.duration" />
+        <assign name="size" expr="vm$.size" />
+        <assign name="timestamp" expr="vm$.timestamp" />
+        <assign name="termchar" expr="vm$.termchar" />
+        <if cond="vm$.termchar=='0'">
           <goto nextitem="xfer" />
-          <elseif cond="vm${dollar}.termchar=='*'" />
+          <elseif cond="vm$.termchar=='*'" />
           <if cond="called_by == 'sendmessage'">
             <prompt bargein="false">
               <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
@@ -282,7 +273,7 @@
       <filled>
         <assign name="save_message" expr="'no'" />
         <if cond="recording.result == 'success'">
-          <if cond="vm${dollar}.termchar=='*' || confirm == '*'">
+          <if cond="vm$.termchar=='*' || confirm == '*'">
             <if cond="called_by == 'sendmessage'">
               <prompt>
                 <audio expr="mediaserverurl + promptsalias + 'msg_sent.wav'" />
@@ -485,7 +476,7 @@
         <assign name="action" expr="'savemessage'" />
         <assign name="save_message" expr="'no'" />
         <if cond="sendbydistlist.result == 'success'">
-          <if cond="vm${dollar}.termchar=='*' || confirm == '*'">
+          <if cond="vm$.termchar=='*' || confirm == '*'">
             <if cond="called_by == 'sendmessage'">
               <prompt>
                 <audio expr="mediaserverurl + promptsalias + 'msg_sent.wav'" />
@@ -576,12 +567,12 @@
     </field>
 
     <catch event="telephone.disconnect.hangup">
-      <if cond="vm${dollar}.size > 0">
+      <if cond="vm$.size > 0">
         <if cond="save_message == 'yes'">
-          <assign name="duration" expr="vm${dollar}.duration" />
-          <assign name="size" expr="vm${dollar}.size" />
-          <assign name="timestamp" expr="vm${dollar}.timestamp" />
-          <assign name="termchar" expr="vm${dollar}.termchar" />
+          <assign name="duration" expr="vm$.duration" />
+          <assign name="size" expr="vm$.size" />
+          <assign name="timestamp" expr="vm$.timestamp" />
+          <assign name="termchar" expr="vm$.termchar" />
           <assign name="call_disconnected" expr="'yes'" />
           <assign name="confirm" expr="'1'" />
           <goto nextitem="recording" />

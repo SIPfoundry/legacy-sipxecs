@@ -53,6 +53,26 @@ public class PersonalAttendantTest extends TestCase {
         assertEquals(IOUtils.toString(expected), m_location.toString());
         expected.close();
     }
+    
+    public void testGenerateUserProfileWithOverrideLanguage() throws Exception {
+        PersonalAttendant personalAttendant = new PersonalAttendant();
+        personalAttendant.setUser(new User());
+        personalAttendant.setOperator("123");
+        personalAttendant.setOverrideLanguage(true);
+        personalAttendant.setLanguage("en_US");
+
+        AttendantMenu menu = new AttendantMenu();
+        menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.GOTO_EXTENSION, "201");
+        menu.addMenuItem(DialPad.NUM_2, AttendantMenuAction.GOTO_EXTENSION, "sip:202@example.com");
+        personalAttendant.setMenu(menu);
+
+        personalAttendant.generateProfile(m_location, "example.org", m_profileGenerator);
+
+        InputStream expected = getClass().getResourceAsStream("savemessage.user.overridelanguage.vxml");
+
+        assertEquals(IOUtils.toString(expected), m_location.toString());
+        expected.close();
+    }
 
     public void testGenerateGenericProfile() throws Exception {
         PersonalAttendant personalAttendant = new PersonalAttendant();

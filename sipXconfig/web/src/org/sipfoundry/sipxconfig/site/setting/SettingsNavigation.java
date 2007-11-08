@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IRequestCycle;
@@ -58,6 +60,9 @@ public abstract class SettingsNavigation extends BeanNavigation {
      */
     @Parameter()
     public abstract Collection<Setting> getSource();
+    
+    @Parameter()
+    public abstract String getGroupsToHide();
 
     /**
      * @return null when not navigating settings, e.g. page1, page2, ...
@@ -87,6 +92,14 @@ public abstract class SettingsNavigation extends BeanNavigation {
             }
         }
         
+        if (getGroupsToHide() != null) {
+            List<String> groupsToHide = Arrays.asList(getGroupsToHide().split(","));
+            for (Setting setting : s) {
+                if (groupsToHide.contains(setting.getName())) {
+                    s.remove(setting);
+                }
+            }
+        }
         return s; 
     }
     

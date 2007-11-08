@@ -1,0 +1,35 @@
+<div jwcid="@Border">
+  <span jwcid="@UserNavigation" bean="ognl:user"/>
+  <form jwcid="@Form" validator="bean:validator">
+    <fieldset jwcid="@setting/SettingsFieldset"
+      settings="prop:parentSetting"/>
+    <fieldset>
+      <table>
+        <tr>
+          <td jwcid="@FieldPanel" field="component:language"
+            for="personalAttendant:language"
+            label="message:label.language"
+            description="message:description.language">
+            <input jwcid="language@PropertySelection" 
+              model="ognl:languageList"
+              value="ognl:personalAttendant.language"
+              id="personalAttendant:language" />
+          </td>
+        </tr>
+        <tr jwcid="@FieldPanel" field="component:overrideLanguage"
+          for="personalAttendant:overrideLanguage"
+          label="message:label.overrideLanguage"
+          description="message:description.overrideLanguage"
+          >
+          <td jwcid="overrideLanguage@Checkbox"
+            id="personalAttendant:overrideLanguage"
+            value="ognl:personalAttendant.overrideLanguage"
+            displayName="message:label.overrideLanguage"/>
+        </tr>
+      </table>
+    </fieldset>
+    <ul jwcid="@FormActions" callback="prop:callback" listener="listener:commit"/>
+  </form>
+</div> 
+
+
