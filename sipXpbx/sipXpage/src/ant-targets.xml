@@ -25,7 +25,6 @@
     -  regression.classes   = Patterset of explicit junit tests for full regression test
     -->
   <property file="${top.build.dir}/config.properties"/>
-  <property name="src.dir" value="." />
   <property name="classes.dir" value="${build.dir}/classes" />
   <property name="dist.dir" value="${build.dir}/dist" />
   <property name="api.dir" value="${dist.dir}/api" />
@@ -113,10 +112,10 @@
         debug="${debug}"
         deprecation="${deprecation}"
         optimize="${optimize}"
-        includes="**/*.java"
+        includes="src/main/**/*.java"
         source="1.5"
         target="1.5"
-        excludes="test/**"/>
+        excludes="src/test/**"/>
   </target>
 
 
@@ -174,7 +173,7 @@
        debug="${debug}"
        deprecation="on"
        optimize="${optimize}"
-       includes="test/**">
+       includes="src/test/**/*.java">
       <classpath>
         <pathelement path="${classes.dir}"/>
       </classpath>
