@@ -233,26 +233,4 @@ public class DNS {
         return results;
     }
 
-    public static final void main(String[] args) throws UnknownHostException {
-        ResultCode results;
-        DNS test = new DNS();
-        class ConsoleJournalService implements JournalService {
-            public void println(String message) {
-                System.out.println(message);
-            }
-        }
-        NetworkResources networkResources = new NetworkResources();
-        networkResources.domainNameServers = new LinkedList<InetAddress>();
-        networkResources.domainNameServers.add(InetAddress.getByName("192.168.0.1"));
-        // networkResources.domainNameServers.add(InetAddress.getByName("pingtel.com"));
-        networkResources.domainName = "pingtel.com";
-        JournalService journalService = new ConsoleJournalService();
-        results = test.validate(5, networkResources, journalService);
-        if (results == NONE) {
-            journalService.println("Passed");
-        } else {
-            journalService.println("Failed: " + results.toString());
-        }
-    }
-
 }

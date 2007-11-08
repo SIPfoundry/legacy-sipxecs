@@ -12,5 +12,8 @@ package org.sipfoundry.preflight;
  * @author Mardy Marshall
  */
 public interface JournalService {
+    public void enable();
+    public void disable();
+    public void print(String message);
     public void println(String message);
 }

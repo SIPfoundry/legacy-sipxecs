@@ -22,7 +22,7 @@ public class NetworkResources {
     public String sipDomainName;
     public InetAddress subnetMask;
     public LinkedList<InetAddress> routers;
-    public String tftpServer;
+    public String configServer;
     public LinkedList<InetAddress> domainNameServers;
     public LinkedList<InetAddress> ntpServers;
     public int timeOffset;

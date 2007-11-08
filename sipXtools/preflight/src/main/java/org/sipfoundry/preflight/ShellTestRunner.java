@@ -240,6 +240,8 @@ public class ShellTestRunner {
         DNS dns = new DNS();
         NTP ntp = new NTP();
         TFTP tftp = new TFTP();
+        FTP ftp = new FTP();
+        HTTP http = new HTTP();
 
         testTable[DHCP_TEST].update(Test.RUNNING);
         results = dhcp.validate(10, networkResources, journalService);
@@ -258,21 +260,31 @@ public class ShellTestRunner {
                 testTable[NTP_TEST].update(Test.SKIPPED, "No NTP server discovered.");
             }
 
-            if (networkResources.tftpServer != null) {
+            if (networkResources.configServer != null) {
                 testTable[TFTP_TEST].update(Test.RUNNING);
                 results = tftp.validate(10, networkResources, journalService);
                 testTable[TFTP_TEST].update(results);
+                
+                testTable[FTP_TEST].update(Test.RUNNING);
+                results = ftp.validate(10, networkResources, journalService);
+                testTable[FTP_TEST].update(results);
+                
+                testTable[HTTP_TEST].update(Test.RUNNING);
+                results = http.validate(10, networkResources, journalService);
+                testTable[HTTP_TEST].update(results);
             } else {
                 testTable[TFTP_TEST].update(Test.SKIPPED, "No TFTP server discovered.");
+                testTable[FTP_TEST].update(Test.SKIPPED, "No FTP server discovered.");
+                testTable[HTTP_TEST].update(Test.SKIPPED, "No HTTP server discovered.");
             }
         } else {
             testTable[DNS_TEST].update(Test.SKIPPED, "DHCP prerequisite test failed.");
             testTable[NTP_TEST].update(Test.SKIPPED, "DHCP prerequisite test failed.");
             testTable[TFTP_TEST].update(Test.SKIPPED, "DHCP prerequisite test failed.");
+            testTable[FTP_TEST].update(Test.SKIPPED, "DHCP prerequisite test failed.");
+            testTable[HTTP_TEST].update(Test.SKIPPED, "DHCP prerequisite test failed.");
         }
 
-        testTable[FTP_TEST].update(Test.SKIPPED, "No FTP server address configured.");
-        testTable[HTTP_TEST].update(Test.SKIPPED, "No HTTP server address configured.");
         testTable[SIP1_TEST].update(Test.SKIPPED);
         testTable[SIP2_TEST].update(Test.SKIPPED);
 

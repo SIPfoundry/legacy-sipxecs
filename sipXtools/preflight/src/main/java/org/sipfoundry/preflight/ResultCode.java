@@ -28,18 +28,32 @@ public enum ResultCode {
     UNSUPPORTED_NAPTR_REGEX(138, "DNS test does not currently support regex NAPTR records.", WARNING), //
     SRV_TARGET_UNRESOLVED(139, "SRV target could not be resolved.", UUT), //
     SRV_TARGET_UNREACHABLE(140, "SRV target is unreachable.", UUT), //
-    NO_SRV_RECORDS(141, "DNS Server did not report any SRV records.", WARNING), //
-    NTP_SERVERS_MISSING(142, "No NTP servers available.", WARNING), //
-    NTP_TEST_FAILURE(143, "NTP test network failure.", TOOL), //
-    NTP_SERVER_FAILURE(144, "NTP Server request failure.", UUT), //
-    TFTP_SERVER_MISSING(145, "No TFTP server available.", WARNING), //
-    TFTP_ADDRESS_MALFORMED(146, "TFTP Server address is malformed.", UUT), //
-    TFTP_TARGET_UNRESOLVED(147, "TFTP server address could not be resolved.", UUT), //
-    MULTIPLE_TFTP_TARGETS(148, "Mismatch in DNS TFTP server records.", UUT), //
-    TFTP_TARGET_UNREACHABLE(149, "TFTP server is unreachable.", UUT), //
-    TFTP_CLIENT_FAILURE(150, "TFTP client encountered unrecoverable error.", TOOL), //
-    TFTP_GET_FAILED(151, "TFTP get of test file failed.", UUT), //
-    TFTP_CONTENTS_FAILED(152, "TFTP test file did not verify.", UUT), //
+    SIP_DOMAIN_UNRESOLVED(141, "Unable to resolve SIP domain.", UUT), //
+    SIP_DOMAIN_UNREACHABLE(142, "SIP domain is unreachable.", UUT), //
+    NO_SRV_RECORDS(143, "DNS Server did not report any SRV records.", WARNING), //
+    NTP_SERVERS_MISSING(144, "No NTP servers available.", WARNING), //
+    NTP_TEST_FAILURE(145, "NTP test network failure.", TOOL), //
+    NTP_SERVER_FAILURE(146, "NTP Server request failure.", UUT), //
+    CONFIG_SERVER_MISSING(147, "No TFTP server available.", WARNING), //
+    TFTP_ADDRESS_MALFORMED(148, "TFTP Server address is malformed.", UUT), //
+    TFTP_TARGET_UNRESOLVED(149, "TFTP server address could not be resolved.", UUT), //
+    MULTIPLE_CONFIG_TARGETS(150, "Mismatch in DNS configuration server records.", UUT), //
+    TFTP_TARGET_UNREACHABLE(151, "TFTP server is unreachable.", UUT), //
+    TFTP_CLIENT_FAILURE(152, "TFTP client encountered unrecoverable error.", TOOL), //
+    TFTP_GET_FAILED(153, "TFTP get of test file failed.", UUT), //
+    TFTP_CONTENTS_FAILED(154, "TFTP test file did not verify.", UUT), //
+    FTP_ADDRESS_MALFORMED(155, "FTP Server address is malformed.", UUT), //
+    FTP_TARGET_UNRESOLVED(156, "FTP server address could not be resolved.", UUT), //
+    FTP_TARGET_UNREACHABLE(157, "FTP server is unreachable.", UUT), //
+    FTP_CLIENT_FAILURE(158, "FTP client encountered unrecoverable error.", TOOL), //
+    FTP_GET_FAILED(159, "FTP get of test file failed.", UUT), //
+    FTP_CONTENTS_FAILED(160, "FTP test file did not verify.", UUT), //
+    HTTP_URL_MALFORMED(161, "HTTP URL is malformed.", UUT), //
+    HTTP_TARGET_UNRESOLVED(162, "HTTP server address could not be resolved.", UUT), //
+    HTTP_TARGET_UNREACHABLE(163, "HTTP server is unreachable.", UUT), //
+    HTTP_CLIENT_FAILURE(164, "HTTP client encountered unrecoverable error.", TOOL), //
+    HTTP_GET_FAILED(165, "HTTP get of test file failed.", UUT), //
+    HTTP_CONTENTS_FAILED(166, "HTTP test file did not verify.", UUT), //
     INVALID(255, "INVALID", TOOL); //
 
     /**

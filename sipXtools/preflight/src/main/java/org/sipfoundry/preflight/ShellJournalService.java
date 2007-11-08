@@ -15,9 +15,10 @@ import org.eclipse.swt.widgets.*;
  * @author Mardy Marshall
  */
 class ShellJournalService extends Thread implements JournalService {
-    Display display;
-    List list;
-    LinkedBlockingQueue<String> messageQueue;
+    private boolean isEnabled = true;
+    private final Display display;
+    private final List list;
+    private final LinkedBlockingQueue<String> messageQueue;
     private volatile String message;
 
     public ShellJournalService(Display display, List list) {
@@ -28,11 +29,30 @@ class ShellJournalService extends Thread implements JournalService {
         super.setDaemon(true);
         start();
     }
+    
+    public void enable() {
+        isEnabled = true;
+    }
+    
+    public void disable() {
+        isEnabled = false;
+    }
+    
+    public void print(String message) {
+        if (isEnabled) {
+            try {
+                messageQueue.put(message);
+            } catch (InterruptedException e) {
+            }
+        }
+    }
 
     public void println(String message) {
-        try {
-            messageQueue.put(message);
-        } catch (InterruptedException e) {
+        if (isEnabled) {
+            try {
+                messageQueue.put(message);
+            } catch (InterruptedException e) {
+            }
         }
     }
 

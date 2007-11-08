@@ -5,11 +5,9 @@
  */
 package org.sipfoundry.preflight;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.io.*;
+import java.net.*;
+
 import org.apache.commons.net.tftp.*;
 import org.xbill.DNS.*;
 
@@ -34,9 +32,9 @@ public class TFTP {
                 "decrypt_key"
         };
 
-        if (networkResources.tftpServer == null) {
+        if (networkResources.configServer == null) {
             journalService.println("No TFTP server provided, skipping test.");
-            return TFTP_SERVER_MISSING;
+            return CONFIG_SERVER_MISSING;
         }
         
         journalService.println("Starting TFTP server test.");
@@ -56,11 +54,11 @@ public class TFTP {
 
         for (InetAddress dnsServer : networkResources.domainNameServers) {
             journalService.println("Looking up TFTP server address via DNS server: " + dnsServer.getCanonicalHostName());
-            String targetMessage = new String("  TFTP server address \"" + networkResources.tftpServer + "\"");
+            String targetMessage = new String("  TFTP server address \"" + networkResources.configServer + "\"");
             resolver.setAddress(dnsServer);
             Lookup aLookup = null;
             try {
-                aLookup = new Lookup(networkResources.tftpServer, Type.A);
+                aLookup = new Lookup(networkResources.configServer, Type.A);
             } catch (TextParseException e) {
                 journalService.println("  is malformed.\n");
                 journalService.println(targetMessage);
@@ -80,7 +78,7 @@ public class TFTP {
                             // Check that multiple lookups result in same address.
                             if (!tftpServerAddress.equals(targetAddress)) {
                                 journalService.println("  TFTP server address does not match prior lookup.");
-                                results = MULTIPLE_TFTP_TARGETS;
+                                results = MULTIPLE_CONFIG_TARGETS;
                             }
                         }
                     } else {
@@ -112,7 +110,7 @@ public class TFTP {
             }
         }
         
-        if ((tftpServerAddress == null) || (results == MULTIPLE_TFTP_TARGETS)) {
+        if ((tftpServerAddress == null) || (results == MULTIPLE_CONFIG_TARGETS)) {
             journalService.println("Cannot recover from previous errors, aborting TFTP test.");
             return results;
         }
@@ -154,6 +152,7 @@ public class TFTP {
             tftp.close();
         }
 
+        journalService.println("");
         return results;
     }
 

@@ -93,8 +93,8 @@ public class DHCP {
                 journalService.println("Socket Bind Exception: " + e.getMessage());
             } else {
                 e.printStackTrace();
+                serverSocket.close();
             }
-            serverSocket.close();
             return SOCKET_BIND_FAILURE;
         }
 
@@ -570,7 +570,7 @@ public class DHCP {
                             journalService.println("  Missing NTP SERVER option from DHCPACK.");
                         }
 
-                        if (networkResources.tftpServer == null) {
+                        if (networkResources.configServer == null) {
                             journalService.println("  Missing TFTP SERVER option from DHCPACK.");
                         }
                     } else {

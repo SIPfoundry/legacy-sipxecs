@@ -482,7 +482,7 @@ public abstract class DHCPOption {
                     break;
                 case TFTP_SERVER:
                     TFTPServerOption tftpServerOption = (TFTPServerOption) option;
-                    networkResources.tftpServer = tftpServerOption.getServerName();
+                    networkResources.configServer = tftpServerOption.getServerName();
                     break;
                 case SMTP_SERVER:
                     // SMTPServerOption smtpServerOption =
