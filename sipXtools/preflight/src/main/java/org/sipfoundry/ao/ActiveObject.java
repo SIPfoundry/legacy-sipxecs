@@ -52,6 +52,8 @@ public class ActiveObject {
 	protected HashMap<String, TimerTickMethod> timerTickMethods;
 	protected Object thisActiveObject;
 	protected Object groupMemberID;
+	//protected ActiveObjectGroup<? extends ActiveObjectGroup> activeObjectGroup;
+	protected ActiveObjectGroup activeObjectGroup;
 
 	public ActiveObject() {
 		this("ActiveObject");
@@ -89,6 +91,7 @@ public class ActiveObject {
 		object.timerTickMethods = timerTickMethods;
 		object.thisActiveObject = activeObject;
 		object.groupMemberID = null;
+		object.activeObjectGroup = null;
 
 		Method startupMethod;
 		if ((startupMethod = startupMethods.get(object.getClass())) != null) {
@@ -125,6 +128,14 @@ public class ActiveObject {
 
 	public Object getID() {
 		return groupMemberID;
+	}
+	
+	public void setActiveObjectGroup(ActiveObjectGroup activeObjectGroup) {
+		this.activeObjectGroup = activeObjectGroup;
+	}
+	
+	public ActiveObjectGroup getActiveObjectGroup() {
+		return activeObjectGroup;
 	}
 	
 	private static void getMethodAttributes(ActiveObject object,
@@ -172,6 +183,12 @@ public class ActiveObject {
 									methodAttribute.synchronous = true;
 								} else {
 									methodAttribute.synchronous = false;
+								}
+								
+								if (implementationMethod.isAnnotationPresent(Shutdown.class)) {
+									methodAttribute.terminate = true;
+								} else {
+									methodAttribute.terminate = false;
 								}
 								
 								methodAttributes.put(interfaceMethod, methodAttribute);

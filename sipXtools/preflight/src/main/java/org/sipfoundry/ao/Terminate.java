@@ -5,13 +5,8 @@
  */
 package org.sipfoundry.ao;
 
-/**
- * [Enter descriptive text here]
- * <p>
- *
- * @author Mardy Marshall
- */
-public interface ActiveObjectGroup {
-	public void deleteInstance(ActiveObject object);
+import java.lang.annotation.*;
 
-}
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Terminate { }

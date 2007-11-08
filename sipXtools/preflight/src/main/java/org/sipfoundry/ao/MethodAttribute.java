@@ -13,4 +13,5 @@ public class MethodAttribute {
 	protected int priority;
 	protected boolean blocking;
 	protected boolean synchronous;
+	protected boolean terminate;
 }

@@ -45,6 +45,7 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 		protected Object[] args;
 		protected boolean highPriority;
 		protected boolean blocking;
+		protected boolean terminate;
 		protected SynchronousQueue<Object> results = null;
 		
 	}
@@ -83,10 +84,9 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 		
 	}
 
-	public synchronized void destroy() {
+	public synchronized void terminate() {
 		// if (logger.getLevel() == Level.DEBUG)
-		// logger.debug("ActiveObject: " + groupName + "(" + id + ")
-		// destroyed");
+		// logger.debug("ActiveObject: " + groupName + "(" + id + ") terminated");
 
 		// If there is an associated executor, jolt it.
 		if (state == State.ACTIVE) {
@@ -98,7 +98,7 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 
 	}
 
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+	public synchronized Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		Invocation invocation;
 		int priority;
 		Object results = null;
@@ -124,12 +124,24 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 					state = State.EXCEPTION;
 					System.err.println("Synchronous Invocation Exception!");
 				}
+				
+				if (AOMethod.terminate) {
+				    terminate();
+				}
 			} else {
 				priority = AOMethod.priority;
 
 				if (AOMethod.blocking) {
 					invocation.blocking = true;
 					invocation.results = new SynchronousQueue<Object>();
+				} else {
+				    invocation.blocking = false;
+				}
+				
+				if (AOMethod.blocking) {
+				    invocation.terminate = true;
+				} else {
+				    invocation.terminate = false;
 				}
 				
 				if (invocationQueue.push(invocation, priority) == false) {
@@ -168,8 +180,7 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 			lock.lock();
 			try {
 				if ((invocation = invocationQueue.pop()) == null) {
-					// The FIFO has been drained, update the state and release
-					// the executor.
+					// The FIFO has been drained, update the state and release the executor.
 					executor = null;
 					state = State.IDLE;
 					continue;
@@ -185,6 +196,10 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 					} else {
 						invocation.results.put(0);
 					}
+				}
+				
+				if (invocation.terminate) {
+				    terminate();
 				}
 			} catch (Exception e) {
 				// Shutting down.
