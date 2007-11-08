@@ -9,6 +9,7 @@
    <site name="jetty launcher" url="http://jettylauncher.sourceforge.net/updates" web="false" selected="true" local="false"/>
    <site name="The Eclipse Project update site" url="http://update.eclipse.org/updates/3.2" web="false" selected="false" local="false"/>
    <site name="Callisto Discovery Site" url="http://download.eclipse.org/callisto/releases" web="false" selected="true" local="false"/>
-   <site name="Subclipse update site" url="http://subclipse.tigris.org/update_1.0.x" web="false" selected="false" local="false"/>
+   <site name="Subclipse 1.0.x (Eclipse 3.0/3.1)" url="http://subclipse.tigris.org/update_1.0.x" web="false" selected="false" local="false"/>
+   <site name="Subclipse 1.2.x (Eclipse 3.2+)" url="http://subclipse.tigris.org/update_1.2.x" web="false" selected="false" local="false"/>   
    <site name="EMF/SDO/XSD Secondary Update Site" url="http://download.eclipse.org/tools/emf/updates/" web="false" selected="false" local="false"/>
 </bookmarks>
