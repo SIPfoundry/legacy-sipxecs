@@ -166,6 +166,14 @@ SipRedirectorENUM::initialize(OsConfigDb& configDb,
                                int redirectorNo,
                                const UtlString& localDomainHost)
 {
+   // Save the local domain for use in generating a spiraling route
+   // header.
+   mLocalDomainRoute = "<sip:";
+   mLocalDomainRoute += localDomainHost;
+   mLocalDomainRoute += ";lr>";
+
+   // Remove this redirector from consideration if no base domain was
+   // specified.
    return mBaseDomain.isNull() ? OS_FAILED : OS_SUCCESS;
 }
 
@@ -357,9 +365,19 @@ SipRedirectorENUM::lookUp(
                      contact.getHostAddress(h);
                      if (contact.getScheme() != Url::UnknownUrlScheme && !h.isNull())
                      {
+                        // Prepend mLocalDomainRoute to the Route header of the contact URI.
+                        UtlString route;
+                        contact.getHeaderParameter(SIP_ROUTE_FIELD, route);
+                        if (!route.isNull())
+                        {
+                           route.prepend(",");
+                        }
+                        route.prepend(mLocalDomainRoute.data());
+                        contact.setHeaderParameter(SIP_ROUTE_FIELD, route.data());
+
+                        // Return the modified contact.
                         RedirectPlugin::addContact(response, requestString,
                                                    contact, mLogName.data());
-
                      }
                      else
                      {

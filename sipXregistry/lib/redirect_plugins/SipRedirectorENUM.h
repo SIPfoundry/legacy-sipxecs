@@ -7,8 +7,8 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef SIPREDIRECTORREGDB_H
-#define SIPREDIRECTORREGDB_H
+#ifndef SIPREDIRECTORENUM_H
+#define SIPREDIRECTORENUM_H
 
 // SYSTEM INCLUDES
 //#include <...>
@@ -79,6 +79,9 @@ class SipRedirectorENUM : public RedirectPlugin
    UtlString mE164Prefix;
    // Base domain for DNS lookup.
    UtlString mBaseDomain;
+   // The Route header parameter value to use to spiral generated
+   // contacts to the proxy.  E.g., "<sip:example.com;lr>".
+   UtlString mLocalDomainRoute;
 };
 
-#endif // SIPREDIRECTORREGDB_H
+#endif // SIPREDIRECTORENUM_H

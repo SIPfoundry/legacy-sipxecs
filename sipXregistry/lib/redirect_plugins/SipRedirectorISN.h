@@ -7,8 +7,8 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef SIPREDIRECTORREGDB_H
-#define SIPREDIRECTORREGDB_H
+#ifndef SIPREDIRECTORISN_H
+#define SIPREDIRECTORISN_H
 
 // SYSTEM INCLUDES
 //#include <...>
@@ -71,6 +71,9 @@ class SipRedirectorISN : public RedirectPlugin
    
    UtlString mPrefix;
    UtlString mBaseDomain;
+   // The Route header parameter value to use to spiral generated
+   // contacts to the proxy.  E.g., "<sip:example.com;lr>".
+   UtlString mLocalDomainRoute;
 };
 
-#endif // SIPREDIRECTORREGDB_H
+#endif // SIPREDIRECTORISN_H
