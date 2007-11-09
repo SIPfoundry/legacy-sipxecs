@@ -7,8 +7,8 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef SIPREDIRECTORPICKUP_H
-#define SIPREDIRECTORPICKUP_H
+#ifndef SIPREDIRECTORJOIN_H
+#define SIPREDIRECTORJOIN_H
 
 // SYSTEM INCLUDES
 //#include <sys/time.h>
@@ -260,4 +260,4 @@ class SipRedirectorPrivateStorageJoin : public SipRedirectorPrivateStorage
    UtlString mTargetDialogLocalIdentity;
 };
 
-#endif // SIPREDIRECTORPICKUP_H
+#endif // SIPREDIRECTORJOIN_H

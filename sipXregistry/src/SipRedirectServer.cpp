@@ -213,7 +213,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
     *   can use sip:user@domain:mProxyNormalPort, so this normalization
     *   cannot interfere with valid addresses.)
     *
-    * For the strict rules, set the configuraiton parameter
+    * For the strict rules, set the configuration parameter
     *   SIP_REGISTRAR_PROXY_PORT : PORT_NONE
     */
    if (   mProxyNormalPort != PORT_NONE
