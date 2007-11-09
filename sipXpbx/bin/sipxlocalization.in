@@ -1,0 +1,53 @@
+#!/bin/bash
+#
+
+# Check the localization package file and specified directories
+rc=1
+if [ $# -eq 3 ]; then
+    FILE=$1
+    VOICE_PROMPT_DIR=$2
+    REGION_DIR=$3
+    if [ -e $FILE ]; then
+        tar tvf $FILE --exclude=stdprompts_* --exclude=region_* --exclude=sipxpbx > /dev/null
+        rc=$?
+        if [ $rc -eq 0 ]; then
+            rc=1
+            if [ -d $VOICE_PROMPT_DIR ]; then
+                if [ -d $VOICE_PROMPT_DIR/stdprompts ]; then
+                    if [ -d $REGION_DIR ]; then
+                        rc=0
+                    fi
+                fi
+            fi
+        fi
+    fi
+fi
+if [ $rc -ne 0 ]; then
+    echo Usage: sipxlocalization [localization package tar file] [voice prompt directory] [region file directory]
+    echo E.g. : sipxlocalization LocalizationPackage_cs.tgz /usr/share/www/doc /etc/sipxpbx
+    exit $rc
+fi
+
+# Extract files from the localization package
+tar tvf $FILE region_* | grep region_ > /dev/null
+if [ $? -eq 0 ]; then
+    # The file contains region specific files - extract them
+    tar xvf $FILE --directory=$REGION_DIR region_* > /dev/null
+fi
+tar tvf $FILE stdprompts_* | grep stdprompts_ > /dev/null
+if [ $? -eq 0 ]; then
+    # The file contains voice prompts - extract them
+    tar xvf $FILE --directory=$VOICE_PROMPT_DIR stdprompts_* > /dev/null
+fi
+tar tvf $FILE sipxpbx | grep sipxpbx > /dev/null
+if [ $? -eq 0 ]; then
+    # The file contains UI property files - extract them
+    tar xvf $FILE --directory=$REGION_DIR/.. sipxpbx/* > /dev/null
+fi
+
+# Delete the localization package file
+rm $FILE
+
+# Return success
+exit 0
+

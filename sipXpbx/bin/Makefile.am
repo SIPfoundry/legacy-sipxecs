@@ -23,7 +23,8 @@ SCRIPT_TEMPLATES = \
 	keepalive.sh.in \
 	sipx-snapshot.in \
 	sipx-backup.in \
-	sipx-restore.in
+	sipx-restore.in \
+	sipxlocalization.in
 
 EXTRA_DIST = \
 	sipxpbx.in \

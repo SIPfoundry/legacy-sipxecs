@@ -110,6 +110,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipx-backup
 %attr(755,root,root) %{_bindir}/sipx-restore
 %attr(755,root,root) %{_bindir}/sipx-archive-common
+%attr(755,root,root) %{_bindir}/sipxlocalization
 
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxpbx
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-chkspace
@@ -141,6 +142,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %config(noreplace) %attr(644,root,root) %{_sysconfdir}/logrotate.d/sipxchange
 
+%dir %attr(775,@SIPXPBXUSER@,root) %{_datadir}/www/doc
 %config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/index.html
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_datadir}/www/doc/aa_vxml
 %config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/stdprompts
