@@ -124,7 +124,7 @@ SipClientSendMsg& SipClientSendMsg::operator=(const SipClientSendMsg& rhs)
 
 /// Return the SipMessage component, and NULL the SipMessage component,
 /// so the SipClientSendMsg no longer owns it.
-SipMessage* SipClientSendMsg::detachMessage()
+SipMessage* SipClientSendMsg::detachMessage(void)
 {
    SipMessage* ret = mpMessage;
    mpMessage = NULL;
