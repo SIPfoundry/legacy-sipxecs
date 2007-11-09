@@ -44,8 +44,8 @@ AC_ARG_ENABLE(fc6,
           ruby_dbi=yes
         ])
 
-AC_ARG_ENABLE(f7,
-        AC_HELP_STRING([--enable-f7], [Enable dependencies for Fedora 7]),
+AC_ARG_ENABLE(fc7,
+        AC_HELP_STRING([--enable-fc7], [Enable dependencies for Fedora Core 7]),
         [
           java_sun=yes
           cgicc=yes
