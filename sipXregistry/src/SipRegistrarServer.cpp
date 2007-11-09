@@ -148,6 +148,15 @@ SipRegistrarServer::initialize(
     pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_SCHEME", authenticateScheme);
     mUseCredentialDB = (authenticateScheme.compareTo("NONE" , UtlString::ignoreCase) != 0);
 
+    UtlString hostAliases;
+    pOsConfigDb->get("SIP_REGISTRAR_DOMAIN_ALIASES", hostAliases);
+    if(!hostAliases.isNull())
+    {
+        OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_REGISTRAR_DOMAIN_ALIASES : %s",
+                      hostAliases.data());
+        mSipUserAgent->setHostAliases(hostAliases);    
+    }
+
     /*
      * Unused Authentication Directives
      *
@@ -926,6 +935,23 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                )
            {
               toUri.setHostPort(PORT_NONE);
+           }
+
+           /*
+            * This is to support registration where the To URI uses a domain alias.
+            * Replace domain part of the ToURI with the default domain
+            */
+           if (mSipUserAgent->isMyHostAlias(toUri))
+           {
+              if (OsSysLog::willLog(FAC_SIP, PRI_INFO))
+              {
+                 UtlString alias;
+                 toUri.getHostWithPort(alias);
+                 OsSysLog::add( FAC_SIP, PRI_INFO, "SipRegistrarServer::handleMessage() "
+                               "Allowing use of domain alias; To domain '%s' -> '%s'",
+                               alias.data(), mRegistrar.defaultDomain());
+              }
+              toUri.setHostAddress(mRegistrar.defaultDomain() ); 
            }
            
            // check in credential database if authentication needed
