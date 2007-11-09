@@ -253,14 +253,15 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle)
 
     //and update the RIFF length
     unsigned long rifflength = htolel(length-8);
-    write(handle, (char*)&rifflength,sizeof(rifflength));
+    ssize_t dummy;
+    dummy = write(handle, (char*)&rifflength,sizeof(rifflength));
 
     //now seek to the data length
     lseek(handle,40,SEEK_SET);
     
     //this should be the length of just the data
     unsigned long datalength = htolel(length-44);
-    write(handle, (char*)&datalength,sizeof(datalength));
+    dummy = write(handle, (char*)&datalength,sizeof(datalength));
 
     return retCode;
 }
