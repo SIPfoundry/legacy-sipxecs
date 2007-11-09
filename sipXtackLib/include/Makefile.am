@@ -48,6 +48,7 @@ nobase_include_HEADERS =  \
     net/SipClientTcp.h \
     net/SipClientTls.h \
     net/SipClientUdp.h \
+    net/SipClientWriteBuffer.h \
     net/SipContactDb.h \
     net/SipDialog.h \
     net/SipDialogEvent.h \
