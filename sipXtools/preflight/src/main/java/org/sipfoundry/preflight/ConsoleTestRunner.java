@@ -258,17 +258,17 @@ public class ConsoleTestRunner {
                     for (Device device : devices) {
                         journalService.println("    <device>");
                         journalService.print(  "        <hardware-address>");
-                        journalService.print(  "            " + device.getHardwareAddress());
-                        journalService.println("        </hardware-address>");
+                        journalService.print(              device.getHardwareAddress());
+                        journalService.println(        "</hardware-address>");
                         journalService.print(  "        <network-address>");
-                        journalService.print(  "            " + device.getNetworkAddress());
-                        journalService.println("        </network-address>");
+                        journalService.print(              device.getNetworkAddress().getHostAddress());
+                        journalService.println(        "</network-address>");
                         journalService.print(  "        <vendor>");
-                        journalService.print(  "            " + device.getVendor());
-                        journalService.println("        </vendor>");
+                        journalService.print(              device.getVendor());
+                        journalService.println(        "</vendor>");
                         journalService.print(  "        <user-agent>");
-                        journalService.print(  "            " + device.getUserAgentInfo());
-                        journalService.println("        </user-agent>");
+                        journalService.print(              device.getUserAgentInfo());
+                        journalService.println(        "</user-agent>");
                         journalService.println("    </device>");
                     }
                     journalService.println("</devices>");

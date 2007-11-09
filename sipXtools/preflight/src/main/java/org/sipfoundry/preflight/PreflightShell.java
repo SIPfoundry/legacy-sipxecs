@@ -202,10 +202,10 @@ public class PreflightShell {
                         String userAgentInfo = device.getUserAgentInfo();
                         String output = device.getHardwareAddress() +
                                 ", " +
-                                device.getNetworkAddress() +
+                                device.getNetworkAddress().getHostAddress() +
                                 ", " +
                                 device.getVendor();
-                        if (userAgentInfo != null) {
+                        if (userAgentInfo.compareTo("") != 0) {
                                 output += ", " + userAgentInfo;
                         }
                         discoveryJournalService.println(output);

@@ -8,7 +8,6 @@ import javax.sip.message.*;
 import org.sipfoundry.ao.ActiveObjectGroupImpl;
 
 import java.util.*;
-import java.net.*;
 import java.text.*;
 
 /**
