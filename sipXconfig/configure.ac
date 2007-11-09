@@ -42,7 +42,7 @@ CHECK_RUBY([1.8.2])
 CHECK_RUBY_MODULE([soap/wsdlDriver])
 CHECK_GEM([0.8.11])
 CHECK_RAKE([0.7])
-CHECK_RPM_DEBUG
+# CHECK_RPM_DEBUG
 
 AC_ARG_ENABLE(reports,
   AC_HELP_STRING([--enable-reports], [Build optional call distribution reporting cron]),

@@ -28,7 +28,7 @@ AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 # Checks for typedefs, structures, and compiler characteristics.
 # Check the nature of va_list.
 CHECK_VA_LIST
-CHECK_RPM_DEBUG
+# CHECK_RPM_DEBUG
 
 # Checks for library functions.
 
