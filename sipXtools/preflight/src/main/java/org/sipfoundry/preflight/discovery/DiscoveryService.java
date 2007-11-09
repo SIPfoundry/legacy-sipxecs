@@ -43,7 +43,8 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
     }
     
     private final UAVendor[] UAVendorList = {
-            new UAVendor("Aastra Telecom", "00:10:BC"),
+            new UAVendor("Aastra", "00:08:5D"),
+            new UAVendor("Aastra", "00:10:BC"),
             new UAVendor("Grandstream", "00:0B:82"),
             new UAVendor("LG-Nortel", "00:40:5A"),
             new UAVendor("LG-Nortel", "00:1A:7E"),
@@ -75,7 +76,6 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
         try {
             // Create SipStack object
             sipStack = sipFactory.createSipStack(properties);
-            System.out.println("createSipStack " + sipStack);
         } catch (PeerUnavailableException e) {
             // could not find gov.nist.jain.protocol.ip.sip.SipStackImpl in the classpath.
             e.printStackTrace();
