@@ -4,6 +4,15 @@ include $(top_srcdir)/config/subdir.am
 
 audio_path=@SIPX_PAGEMUSICDIR@
 
+AUDIO_DIST = \
+   audio/attention.wav \
+   audio/fanfare.wav \
+   audio/fluffy.wav \
+   audio/notice.wav \
+   audio/nowhearthis.wav \
+   audio/reveille.wav \
+   audio/TadaTada.wav
+
 EXTRA_DIST = \
    config.properties.in \
    lib \
@@ -24,7 +33,7 @@ config.properties : config.properties.in Makefile
 
 
 install-data-hook :
-	@for f in $(AUDIO_DIST); \
+	@for f in $(AUDIO_DIST) ; \
 	do \
 	   target=`basename $$f` ; \
 	   if [ -f $(DESTDIR)$(audio_path)/$$target ]; \
