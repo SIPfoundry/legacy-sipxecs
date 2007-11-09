@@ -5,7 +5,12 @@
  */
 package org.sipfoundry.preflight;
 
+import java.net.*;
+import java.util.LinkedList;
+
 import org.apache.commons.cli.*;
+
+import org.sipfoundry.preflight.discovery.*;
 
 import static org.sipfoundry.preflight.ResultCode.*;
 
@@ -72,6 +77,10 @@ public class ConsoleTestRunner {
                                        .withArgName("server")
                                        .create();
         
+        Option discover = OptionBuilder.withLongOpt("discover")
+                                       .withDescription("Attempt to discover SIP devices on the attached subnet.")
+                                       .create();
+        
         Option help = OptionBuilder.withLongOpt("help")
                                    .withDescription("Display preflight usage documentation.")
                                    .create();
@@ -83,16 +92,22 @@ public class ConsoleTestRunner {
         options.addOption(ftpTest);
         options.addOption(httpTest);
         options.addOption(verbose);
+        options.addOption(discover);
         options.addOption(help);
+
+        // Check that there is at least 1 argument.
+        if (args.length < 1) {
+            printHelp(options);
+            System.exit(0);
+        }
         
-            
         try {
             // parse the command line arguments
             CommandLine line = parser.parse(options, args);
 
             if(line.hasOption("help")) {
                 String helpText = 
-                "usage: preflight [-v, --verbose] [--dhcp-test] [--dns-test=<realm>] [--ntp-test]" +
+                "usage: preflight [-v, --verbose] [--dhcp-test] [--dns-test=<realm>] [--ntp-test]\n" +
                 "                 [--tftp-test=<server>] [--ftp-test=<server] [--http-test <server>]" +
                 "\n" +
                 "Invoke preflight with one or more of the following test switches.  Each test will\n" +
@@ -145,7 +160,10 @@ public class ConsoleTestRunner {
                 "                       163: HTTP server is unreachable.\n" +
                 "                       164: HTTP client encountered unrecoverable error.\n" +
                 "                       165: HTTP get of test file failed.\n" +
-                "                       166: HTTP test file did not verify.\n";
+                "                       166: HTTP test file did not verify.\n" +
+                "\n" +
+                "--discover           Attempt to discover SIP devices on the attached subnet.\n" +
+                "\n";
                 System.out.println(helpText);
                 System.exit(0);
             }
@@ -212,6 +230,52 @@ public class ConsoleTestRunner {
                     System.exit(results.toInt());
                 }
             }
+            
+            if (line.hasOption("discover")) {
+                InetAddress inetAddress;
+                String localHostAddress = "0.0.0.0";
+
+                try {
+                    // Get local IP Address
+                    inetAddress = InetAddress.getLocalHost();
+                    localHostAddress = inetAddress.getHostAddress();
+                } catch (UnknownHostException e) {
+                    System.err.println(LOCAL_HOST_FAILURE.toString());
+                    System.exit(LOCAL_HOST_FAILURE.toInt());
+                }
+
+                DiscoveryService ds = new DiscoveryService(localHostAddress, 5050);
+                LinkedList<Device> devices = ds.discover(localHostAddress, "255.255.255.0");
+                
+                journalService.enable();
+                
+                if (devices == null) {
+                    journalService.println("No devices found.");
+                } else {
+                    // Dump out the list of discovered devices.
+                    journalService.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
+                    journalService.println("<devices xmlns='http://www.sipfoundry.org/sipX/schema/xml/devices-00-00'>");
+                    for (Device device : devices) {
+                        journalService.println("    <device>");
+                        journalService.print(  "        <hardware-address>");
+                        journalService.print(  "            " + device.getHardwareAddress());
+                        journalService.println("        </hardware-address>");
+                        journalService.print(  "        <network-address>");
+                        journalService.print(  "            " + device.getNetworkAddress());
+                        journalService.println("        </network-address>");
+                        journalService.print(  "        <vendor>");
+                        journalService.print(  "            " + device.getVendor());
+                        journalService.println("        </vendor>");
+                        journalService.print(  "        <user-agent>");
+                        journalService.print(  "            " + device.getUserAgentInfo());
+                        journalService.println("        </user-agent>");
+                        journalService.println("    </device>");
+                    }
+                    journalService.println("</devices>");
+                }
+                
+                System.exit(0);
+            }
         } catch(ParseException exp) {
             System.out.println(exp.getMessage());
             printHelp(options);
@@ -227,36 +291,6 @@ public class ConsoleTestRunner {
             + "program will terminate, returning an exit code specifying the error "
             + "condition.  The supported test switches are:";
         formatter.printHelp("preflight", header, options, "", true);
-    }
-
-    public static final void main(String[] args) {
-        
-        class ConsoleJournalService implements JournalService {
-            private boolean isEnabled = true;
-            
-            public void enable() {
-                isEnabled = true;
-            }
-            
-            public void disable() {
-                isEnabled = false;
-            }
-            
-            public void print(String message) {
-                if (isEnabled) {
-                    System.out.print(message);
-                }
-            }
-            
-            public void println(String message) {
-                if (isEnabled) {
-                    System.out.println(message);
-                }
-            }
-        }
-        
-        ConsoleTestRunner test = new ConsoleTestRunner(new ConsoleJournalService());
-        test.validate(args);
     }
 
 }

@@ -266,21 +266,4 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
 
     }
 
-    public static void main(String args[]) {
-        InetAddress inetAddress;
-        String localHostAddress = "0.0.0.0";
-
-        try {
-            // Get local IP Address
-            inetAddress = InetAddress.getLocalHost();
-            localHostAddress = inetAddress.getHostAddress();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            System.exit(0);
-        }
-
-        DiscoveryService ds = new DiscoveryService(localHostAddress, 5060);
-        LinkedList<Device> devices = ds.discover(localHostAddress, "255.255.255.0");
-    }
-
 }

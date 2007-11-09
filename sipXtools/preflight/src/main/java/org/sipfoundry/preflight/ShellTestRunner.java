@@ -211,7 +211,7 @@ public class ShellTestRunner {
         testTable[FTP_TEST] = new Test("FTP Server Test");
         testTable[HTTP_TEST] = new Test("HTTP Server Test");
         testTable[SIP1_TEST] = new Test("SIP Connectivity Test");
-        testTable[SIP2_TEST] = new Test("SIP Call Control Test");
+        testTable[SIP2_TEST] = new Test("SIP Credentials Test");
 
         // table.getColumn(0).pack();
         // table.getColumn(1).pack();

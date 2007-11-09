@@ -18,7 +18,7 @@ public class ArpTable {
     
     public static String lookup(String ipAddress) {
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            System.load("C:/ArpTable.dll");
+            // System.loadLibrary("ArpTable.dll");
             return windowsLookup(ipAddress);
         } else {
             return linuxLookup(ipAddress);

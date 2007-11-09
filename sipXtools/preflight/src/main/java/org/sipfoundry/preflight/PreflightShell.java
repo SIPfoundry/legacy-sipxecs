@@ -6,12 +6,18 @@
 package org.sipfoundry.preflight;
 
 import java.io.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.LinkedList;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.graphics.*;
+
+import org.sipfoundry.preflight.discovery.*;
+import org.sipfoundry.preflight.discovery.Device;
 
 /**
  * [Enter descriptive text here]
@@ -175,9 +181,37 @@ public class PreflightShell {
         		                    }
         		                });
         		            }
-        		            discoveryJournalService.println("Discovery timeout.\n");
         		        }
         		    }.start();
+        		    
+                    InetAddress inetAddress;
+                    String localHostAddress = "0.0.0.0";
+
+                    try {
+                        // Get local IP Address
+                        inetAddress = InetAddress.getLocalHost();
+                        localHostAddress = inetAddress.getHostAddress();
+                    } catch (UnknownHostException e1) {
+                        // Ignore.
+                    }
+
+                    DiscoveryService ds = new DiscoveryService(localHostAddress, 5050);
+                    LinkedList<Device> devices = ds.discover(localHostAddress, "255.255.255.0");
+
+                    for (Device device : devices) {
+                        String userAgentInfo = device.getUserAgentInfo();
+                        String output = device.getHardwareAddress() +
+                                ", " +
+                                device.getNetworkAddress() +
+                                ", " +
+                                device.getVendor();
+                        if (userAgentInfo != null) {
+                                output += ", " + userAgentInfo;
+                        }
+                        discoveryJournalService.println(output);
+                    }
+                    
+        	        discoveryProgressBarMax = discoveryProgressBar.getMinimum();
         		}
 
             }
@@ -200,7 +234,38 @@ public class PreflightShell {
     }
 
     public static void main(String[] args) {
-        PreflightShell userInterface = new PreflightShell();
-        userInterface.go(args);
+        class ConsoleJournalService implements JournalService {
+            private boolean isEnabled = true;
+            
+            public void enable() {
+                isEnabled = true;
+            }
+            
+            public void disable() {
+                isEnabled = false;
+            }
+            
+            public void print(String message) {
+                if (isEnabled) {
+                    System.out.print(message);
+                }
+            }
+            
+            public void println(String message) {
+                if (isEnabled) {
+                    System.out.println(message);
+                }
+            }
+        }
+
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            String path = System.getProperty("ArpTable.dll.path", "");
+            System.loadLibrary(path + "ArpTable");
+            PreflightShell userInterface = new PreflightShell();
+        	userInterface.go(args);
+        } else {
+            ConsoleTestRunner userInterface = new ConsoleTestRunner(new ConsoleJournalService());
+            userInterface.validate(args);
+        }
     }
 }
