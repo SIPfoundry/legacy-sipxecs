@@ -73,7 +73,7 @@ SipClientSendMsg::SipClientSendMsg(const unsigned char msgType,
                                    const SipMessage& message,
                                    const char* address, int port) :
    OsMsg(msgType, msgSubType),
-   mMessage(message),
+   mpMessage(new SipMessage(message)),
    mAddress(strdup(address)),
    mPort(port)
 {
@@ -82,7 +82,7 @@ SipClientSendMsg::SipClientSendMsg(const unsigned char msgType,
 //:Copy constructor
 SipClientSendMsg::SipClientSendMsg(const SipClientSendMsg& rOsMsg) :
    OsMsg(rOsMsg),
-   mMessage(rOsMsg.mMessage),
+   mpMessage(new SipMessage(*rOsMsg.mpMessage)),
    mAddress(strdup(rOsMsg.mAddress)),
    mPort(rOsMsg.mPort)
 {
@@ -92,6 +92,13 @@ SipClientSendMsg::SipClientSendMsg(const SipClientSendMsg& rOsMsg) :
 SipClientSendMsg::~SipClientSendMsg()
 {
    free(mAddress);
+
+   // mpMessage may have been nulled by detachMessage, so we have to
+   // test it before deleting it.
+   if (mpMessage)
+   {
+      delete mpMessage;
+   }
 }
 
 //:Create a copy of this msg object (which may be of a derived type)
@@ -106,7 +113,7 @@ SipClientSendMsg& SipClientSendMsg::operator=(const SipClientSendMsg& rhs)
    if (this != &rhs)            // handle the assignment to self case
    {
       OsMsg::operator=(rhs);
-      mMessage = rhs.mMessage;
+      mpMessage = new SipMessage(*rhs.mpMessage);
       free(mAddress);
       mAddress = strdup(rhs.mAddress);
       mPort = rhs.mPort;
@@ -115,10 +122,19 @@ SipClientSendMsg& SipClientSendMsg::operator=(const SipClientSendMsg& rhs)
    return *this;
 }
 
+/// Return the SipMessage component, and NULL the SipMessage component,
+/// so the SipClientSendMsg no longer owns it.
+SipMessage* SipClientSendMsg::detachMessage()
+{
+   SipMessage* ret = mpMessage;
+   mpMessage = NULL;
+   return ret;
+}
+
 // Component accessors.
 const SipMessage* SipClientSendMsg::getMessage(void) const
 {
-   return &mMessage;
+   return mpMessage;
 }
 
 const char* SipClientSendMsg::getAddress(void) const
@@ -143,7 +159,7 @@ SipClient::SipClient(OsSocket* socket,
    OsServerTaskWaitable(taskNameString),
    clientSocket(socket),
    mSocketType(socket ? socket->getIpProtocol() : OsSocket::UNKNOWN),
-   sipUserAgent(sipUA),
+   mpSipUserAgent(sipUA),
    mpSipServer(pSipServer),
    mRemoteViaPort(PORT_NONE),
    mRemoteReceivedPort(PORT_NONE),
@@ -413,26 +429,21 @@ int SipClient::run(void* runArg)
       fds[1].fd = clientSocket->getSocketDescriptor();
 
       // Initialize the revents members.
-      // This may not be necessary (the man page is no clear), but Valgrind flags
-      // them as undefined.
+      // This may not be necessary (the man page is not clear), but
+      // Valgrind flags 'fds[*].revents' as undefined if they aren't
+      // initialized.
       fds[0].revents = 0;
       fds[1].revents = 0;
 
       fds[0].events = POLLIN;
       fds[1].events = POLLIN;
 
-      // Set wait for reading the message queue and writing the socket
-      // depending on whether there is an incompletely sent SIP message.
+      // Set wait for writing the socket if there is queued messages to
+      // send.
       if (mWriteQueued)
       {
          // Wait for output on the socket to not block.
-         fds[0].events = 0;
          fds[1].events |= POLLOUT;
-      }
-      else
-      {
-         // Wait for an incoming message to be sent.
-         fds[0].events = POLLIN;
       }
 
       // Wait for work to do.
@@ -512,7 +523,7 @@ int SipClient::run(void* runArg)
 
             // Dispatch the message.
             // dispatch() takes ownership of *msg.
-            sipUserAgent->dispatch(msg);
+            mpSipUserAgent->dispatch(msg);
 
             // Now that logging is done, remove the parsed bytes and
             // remember any unparsed input for later use.
@@ -526,7 +537,7 @@ int SipClient::run(void* runArg)
             // Delete the SipMessage allocated above, which is no longer needed.
             delete msg;
 
-            // If it is not framed, we need to abort the connection.
+            // If the socket is not framed, we need to abort the connection.
             // :TODO: This doesn't work right for framed connection-oriented
             // protocols (like SCTP), but OsSocket doesn't have an EOF-query
             // method -- we need to close all connection-oriented
@@ -567,7 +578,7 @@ void SipClient::preprocessMessage(SipMessage& msg,
 
    // Log the message.
    // Only bother processing if the logs are enabled
-   if (   sipUserAgent->isMessageLoggingEnabled()
+   if (   mpSipUserAgent->isMessageLoggingEnabled()
           || OsSysLog::willLog(FAC_SIP_INCOMING, PRI_INFO)
       )
    {
@@ -586,7 +597,7 @@ void SipClient::preprocessMessage(SipMessage& msg,
       logMessage.append("====================END====================\n");
 
       // Send the message to the SipUserAgent for its internal log.
-      sipUserAgent->logMessage(logMessage.data(), logMessage.length());
+      mpSipUserAgent->logMessage(logMessage.data(), logMessage.length());
       // Write the message to the syslog.
       OsSysLog::add(FAC_SIP_INCOMING, PRI_INFO, "%s", logMessage.data());
    }

@@ -103,8 +103,8 @@ void SipClientUdp::sendMessage(const SipMessage& message,
       // error indication.
       // Must make a new copy of the message because our caller
       // owns 'message'.
-      sipUserAgent->dispatch(new SipMessage(message),
-                             SipMessageEvent::TRANSPORT_ERROR);
+      mpSipUserAgent->dispatch(new SipMessage(message),
+                               SipMessageEvent::TRANSPORT_ERROR);
    }
 
    return;

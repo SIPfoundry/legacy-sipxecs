@@ -366,7 +366,7 @@ public:
      *        TRANSPORT_ERROR type are notification of failures to
      *        send messages
      */
-    // Takes ownership of message.
+    // Takes ownership of '*message'.
     virtual void dispatch(SipMessage* message,
                           int messageType = SipMessageEvent::APPLICATION);
 

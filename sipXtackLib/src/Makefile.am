@@ -81,6 +81,7 @@ libsipXtack_la_SOURCES =  \
     net/SipClientTcp.cpp \
     net/SipClientTls.cpp \
     net/SipClientUdp.cpp \
+    net/SipClientWriteBuffer.cpp \
     net/SipContactDb.cpp \
     net/SipConfigServerAgent.cpp \
     net/SipDialog.cpp \

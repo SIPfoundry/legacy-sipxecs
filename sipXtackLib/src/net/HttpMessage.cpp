@@ -47,6 +47,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const UtlContainableType HttpMessage::TYPE = "HttpMessage";
 const unsigned int HTTP_READ_TIMEOUT_MSECS = 30000;
 const unsigned int HTTP_MIN_DELAY_MSECS = 20;
 const int MAX_UDP_MESSAGE = 65536;
@@ -173,6 +174,11 @@ HttpMessage::~HttpMessage()
             body = 0;
     }
 }
+
+UtlContainableType HttpMessage::getContainableType(void) const
+{
+   return HttpMessage::TYPE;
+};
 
 /* ============================ MANIPULATORS ============================== */
 

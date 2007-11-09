@@ -173,7 +173,7 @@ typedef UtlBoolean (*GetDataCallbackProc)(char* pData,
  * optional and may not be present.  The accessors for the body
  * (single or multipart) is getBody() and setBody()
  */
-class HttpMessage
+class HttpMessage : public UtlContainableAtomic
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -203,6 +203,14 @@ public:
         //! Destructor
         virtual
         ~HttpMessage();
+
+    /**
+     * Get the ContainableType for a UtlContainable-derived class.
+     */
+    virtual UtlContainableType getContainableType() const;
+
+    /** Class type used for runtime checking */
+    static const UtlContainableType TYPE;
 
 /* ============================ MANIPULATORS ============================== */
 

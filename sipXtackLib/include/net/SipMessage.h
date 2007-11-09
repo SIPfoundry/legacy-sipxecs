@@ -329,6 +329,14 @@ public:
     ~SipMessage();
     //:Destructor
 
+    /**
+     * Get the ContainableType for a UtlContainable-derived class.
+     */
+    virtual UtlContainableType getContainableType() const;
+
+    /** Class type used for runtime checking */
+    static const UtlContainableType TYPE;
+
 /* ============================ MANIPULATORS ============================== */
 
     static UtlBoolean getShortName( const char* longFieldName,

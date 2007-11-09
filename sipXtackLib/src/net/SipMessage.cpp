@@ -32,6 +32,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const UtlContainableType SipMessage::TYPE = "SipMessage";
 #define MAXIMUM_INTEGER_STRING_LENGTH 20
 
 // STATIC VARIABLES
@@ -107,6 +108,10 @@ SipMessage::operator=(const SipMessage& rSipMessage)
    return *this;
 }
 
+UtlContainableType SipMessage::getContainableType(void) const
+{
+   return SipMessage::TYPE;
+};
 
 /* ============================ MANIPULATORS ============================== */
 

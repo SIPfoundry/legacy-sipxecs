@@ -1403,7 +1403,6 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
       message->getBytes(&msgBytes, &len);
    }
 
-
    if(messageType == SipMessageEvent::APPLICATION)
    {
       message->logTimeEvent("DISPATCHING");
@@ -1981,10 +1980,10 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
    eventTimes.addEvent("GC");
 #endif
 
-   // All garbage collection should now be done in the
-   // context of the SipUserAgent to prevent hickups in
-   // the reading of SipMessages off the sockets.
-   //garbageCollection();
+   // All garbage collection is now be done in the context of the
+   // SipUserAgent (rather than here, which is executed by SipClient
+   // threads) to prevent hiccups in the reading of SipMessages off
+   // the sockets.
 
 #ifdef LOG_TIME
    eventTimes.addEvent("finish");
@@ -2021,8 +2020,8 @@ void SipUserAgent::queueMessageToObservers(SipMessage* message,
    // send it to those with no method descrimination as well
    queueMessageToInterestedObservers(event, "");
 
-   // Do not delete the message it gets deleted with the event
-   message = NULL;
+   // Do not explicitly delete 'message', as it gets deleted when 'event'
+   // is deleted at the end of this scope.
 }
 
 void SipUserAgent::queueMessageToInterestedObservers(SipMessageEvent& event,
@@ -2100,17 +2099,16 @@ void SipUserAgent::queueMessageToInterestedObservers(SipMessageEvent& event,
                ((SipMessage*) message)->setResponseListenerData(observerData);
 
                // Put the message in the observer's queue
-               int numMsgs = observerQueue->numMsgs();
-               int maxMsgs = observerQueue->maxMsgs();
-               if (numMsgs < maxMsgs)
+               OsStatus r = observerQueue->send(event, OsTime::NO_WAIT);
+               if (r != OS_SUCCESS)
                {
-                  observerQueue->send(event);
-               }
-               else
-               {
+                  int numMsgs = observerQueue->numMsgs();
+                  int maxMsgs = observerQueue->maxMsgs();
                   OsSysLog::add(FAC_SIP, PRI_CRIT,
-                                "SipUserAgent::queueMessageToInterestedObservers - queue full (numMsgs=%d)",
-                                maxMsgs);
+                                "SipUserAgent::queueMessageToInterestedObservers "
+                                "send failed with status %d "
+                                "(numMsgs = %d, maxMsgs = %d)",
+                                r, numMsgs, maxMsgs);
                   OsSysLog::add(FAC_SIP, PRI_CRIT,
                                 "SipUserAgent::queueMessageToInterestedObservers queue name '%s'",
                                 observerQueue->getName()->data());

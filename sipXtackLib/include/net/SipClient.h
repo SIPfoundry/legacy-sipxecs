@@ -143,7 +143,7 @@ protected:
 
     OsSocket* clientSocket;
     OsSocket::IpProtocolSocketType mSocketType;
-    SipUserAgentBase* sipUserAgent;
+    SipUserAgentBase* mpSipUserAgent;
     SipProtocolServerBase* mpSipServer;
     UtlString mRemoteHostName;
     UtlString mRemoteViaAddress;
@@ -193,6 +193,7 @@ public:
    SipClientSendMsg(const unsigned char msgType, const unsigned char msgSubType,
                     const SipMessage& message, const char* address, int port);
      //:Constructor
+     // Copies 'message'.
 
    SipClientSendMsg(const SipClientSendMsg& rOsMsg);
      //:Copy constructor
@@ -206,14 +207,18 @@ public:
    SipClientSendMsg& operator=(const SipClientSendMsg& rhs);
      //:Assignment operator
 
+   /// Return the SipMessage component, and NULL the SipMessage component,
+   /// so the SipClientSendMsg no longer owns it.
+   SipMessage* detachMessage();
+
    // Component accessors.
-   const SipMessage* getMessage(void) const;
-   const char* getAddress(void) const;
-   int getPort(void) const;
+   const SipMessage* getMessage() const;
+   const char* getAddress() const;
+   int getPort() const;
    
 protected:
    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
-   SipMessage mMessage;
+   SipMessage* mpMessage;
    char* mAddress;
    int mPort;
 };
