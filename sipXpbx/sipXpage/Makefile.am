@@ -6,8 +6,6 @@ audio_path=@SIPX_PAGEMUSICDIR@
 
 EXTRA_DIST = \
    config.properties.in \
-   $(AUDIO_DIST) \
-   $(JAR_DIST) \
    lib \
    src \
    audio
