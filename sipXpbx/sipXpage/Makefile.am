@@ -4,29 +4,13 @@ include $(top_srcdir)/config/subdir.am
 
 audio_path=@SIPX_PAGEMUSICDIR@
 
-AUDIO_DIST = \
-   audio/attention.wav \
-   audio/fanfare.wav \
-   audio/fluffy.wav \
-   audio/notice.wav \
-   audio/nowhearthis.wav \
-   audio/reveille.wav \
-   audio/TadaTada.wav
-
-# (src/build.xml installs these)
-JAR_DIST = \
-   lib/JainSipApi-1.2.jar \
-   lib/jain-sip-ri-1.2.92.jar \
-   lib/junit-3.8.1.jar \
-   lib/log4j-1.2.14.jar \
-   lib/nist-sdp-1.0.58.jar \
-   lib/sip-sdp-1.0.jar
-
 EXTRA_DIST = \
    config.properties.in \
    $(AUDIO_DIST) \
    $(JAR_DIST) \
-   lib
+   lib \
+   src \
+   audio
 
 SUBDIRS = \
    . \
