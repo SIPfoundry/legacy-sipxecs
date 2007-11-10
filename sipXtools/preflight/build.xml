@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="preflight" default="launcher" basedir="." xmlns:cpptasks="antlib:org.sf.net.antcontrib.cpptasks">
+
+  <patternset id="test.classes" excludes="**"/>
+  <property name="top.build.dir" value="${basedir}/.."/>
+  <property name="build.dir" value="${top.build.dir}/preflight"/>
+  <property name="one-jar.dist.dir" value="${build.dir}/dist"/>
+  <property name="compiler" value="${cc}"/>
+  <import file="ant-targets.xml"/>
+
+  <property name="preflight.lib.dir" value="${lib.dir}/preflight"/>
+
+  <taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask" classpath="${one-jar.jar}" onerror="report"/>
+  <taskdef resource="cpptasks.tasks" classpath="${cpptasks.jar}"/>
+  <typedef resource="cpptasks.types" classpath="${cpptasks.jar}"/>
+
+  <path id="base.path" >
+    <pathelement location="${dnsjava.jar}"/>
+    <pathelement location="${CommonsCli.jar}"/>
+    <pathelement location="${CommonsNet.jar}"/>
+    <pathelement location="${JainSipApi.jar}"/>
+    <pathelement location="${JainSipRi.jar}"/>
+    <pathelement location="${swt.jar}"/>
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="create jar file" >
+    <one-jar destfile="${build.dir}/dist/preflight.jar" manifest="${src.dir}/preflight.mf" >
+      <main>
+        <fileset dir="${classes.dir}" >
+          <include name="**/*.class" />
+        </fileset>
+      </main>
+      <lib>
+        <fileset file="${dnsjava.jar}" />
+        <fileset file="${CommonsCli.jar}" />
+        <fileset file="${CommonsNet.jar}" />
+        <fileset file="${JainSipApi.jar}" />
+        <fileset file="${JainSipRi.jar}" />
+        <fileset file="${swt.jar}" />
+        <fileset file="${log4j.jar}" />
+      </lib>
+      <binlib>
+        <fileset dir="${src.dir}/lib" >
+          <include name="*.dll" />
+        </fileset>
+      </binlib>
+    </one-jar>
+  </target>
+
+  <!-- L A U N C H E R -->
+  <target name="launcher" depends="jar" description="create native command line launcher" >
+    <cc outfile="${build.dir}/dist/preflight">
+      <fileset dir="${src.dir}/src/main/native/posix" includes="*.c"/>
+      <defineset>
+        <define name="JAVA" value='"${java}"'/>
+        <define name="SIPX_LIBDIR" value='"${preflight.lib.dir}"'/>
+      </defineset>
+    </cc>
+  </target>
+
+  <!-- I N S T A L L -->
+  <target name="install">
+    <!-- BINARIES/LIB/SCRIPTS -->
+    <mkdir dir="${dest.dir}${preflight.lib.dir}"/>
+    <copy file="${build.dir}/dist/preflight.jar" todir="${dest.dir}${preflight.lib.dir}"/>
+
+    <copy file="${build.dir}/dist/preflight" tofile="${dest.dir}${bin.dir}/preflight"/>
+    <chmod file="${dest.dir}${bin.dir}/preflight" perm="ugo+x" />
+    
+  </target>
+
+  <target name="uninstall">
+    <delete file="${dest.dir}${bin.dir}/preflight"/>
+    <delete file="${dest.dir}${preflight.lib.dir}/preflight.jar"/>
+  </target>
+
+</project>

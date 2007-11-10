@@ -19,6 +19,10 @@ AC_CONFIG_SRCDIR([src/sipxcar])
 SFAC_INIT_FLAGS
 CHECK_GENERATE_MANPAGES
 
+# Java
+CHECK_JDK
+CHECK_ANT
+
 # Mysterious requirement to have a DOC var
 AM_CONDITIONAL(DOC, test true = false)
 
@@ -27,6 +31,7 @@ AC_CONFIG_FILES([
   src/Makefile 
   src/test/Makefile 
   src/man/Makefile 
+  preflight/Makefile
 ])
 
 AC_OUTPUT

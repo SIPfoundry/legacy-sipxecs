@@ -677,6 +677,21 @@ do_start() {
             fi
         fi
 
+        # Ensure that the preflight launcher is owned by
+        # root and that the UID permission bit is set.
+        if test -e @bindir@/preflight
+        then
+            is_file_owned_by_username @bindir@/preflight "root"
+            if [ $? != 0 ]
+            then
+                chown root @bindir@/preflight
+            fi
+            if test ! -x @bindir@/preflight -o ! -u @bindir@/preflight
+            then
+                chmod 4755 @bindir@/preflight
+            fi
+        fi
+
         # Ensure that sipx-sudo-restore is owned by root and
         # that the UID permission bit is set.
         if test -e @bindir@/sipx-sudo-restore

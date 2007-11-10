@@ -1,0 +1,30 @@
+
+# G E N E R A L
+version=@VERSION@
+top.dir=@abs_top_srcdir@
+src.dir=@abs_srcdir@
+java=@JAVA@
+java.home=@JAVA_HOME@
+optimize=@JAVAC_OPTIMIZED@
+deprecation=false
+debug=@JAVAC_DEBUG@
+bin.dir=@bindir@
+lib.dir=@libdir@
+prefix.dir=@prefix@
+conf.dir=@SIPX_CONFDIR@
+
+# comma-separated combination of 'lines' 'source' and 'var' only valid
+# when debug is on
+debuglevel=lines
+
+# U T I L
+dnsjava.jar=${src.dir}/lib/dnsjava-2.0.5.jar
+CommonsCli.jar=${src.dir}/lib/commons-cli-1.1.jar
+CommonsNet.jar=${src.dir}/lib/commons-net-1.4.1.jar
+JainSipApi.jar=${src.dir}/lib/jain-sip-api-1.2.jar
+JainSipRi.jar=${src.dir}/lib/jain-sip-ri-1.2.92.jar
+swt.jar=${src.dir}/lib/swt-win32-3.3.jar
+junit.jar=${src.dir}/lib/junit-4.3.1.jar
+log4j.jar=${src.dir}/lib/log4j-1.2.14.jar
+one-jar.jar=${src.dir}/lib/one-jar-ant-task-0.96.jar
+cpptasks.jar=${src.dir}/lib/cpptasks-1.0b4.jar
