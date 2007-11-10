@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticContext
 public abstract class ConfigurationDiagnosticPage extends BasePage implements
         PageBeginRenderListener {
     public static final String PAGE = "ConfigurationDiagnosticPage";
+    public static final String SESSION = "session";
 
     @InjectObject(value = "spring:configurationDiagnosticContext")
     public abstract ConfigurationDiagnosticContext getConfigurationDiagnosticContext();
@@ -43,15 +44,14 @@ public abstract class ConfigurationDiagnosticPage extends BasePage implements
     @Bean
     public abstract EvenOdd getRowClass();
 
-    @Persist(value = "session")
+    @Persist(value = SESSION)
     public abstract List<ConfigurationDiagnostic> getConfigurationTests();
-
     public abstract void setConfigurationTests(List<ConfigurationDiagnostic> configurationTests);
 
     public abstract ConfigurationDiagnostic getConfigurationTest();
 
+    @Persist(value = SESSION)
     public abstract Format getDateFormat();
-
     public abstract void setDateFormat(Format format);
 
     public void pageBeginRender(PageEvent event) {
