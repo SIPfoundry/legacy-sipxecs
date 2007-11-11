@@ -1,0 +1,52 @@
+
+ENTRY: lib\charsets.jar
+warning wpt0015: Old File does not exist
+
+
+ENTRY: bin\eula.dll
+warning wpt0015: Old File does not exist
+
+
+ENTRY: LICENSE.rtf
+warning wpt0015: Old File does not exist
+
+
+ENTRY: LICENSE_de.rtf
+warning wpt0015: Old File does not exist
+
+
+ENTRY: LICENSE_es.rtf
+warning wpt0015: Old File does not exist
+
+
+ENTRY: LICENSE_fr.rtf
+warning wpt0015: Old File does not exist
+
+
+ENTRY: LICENSE_it.rtf
+warning wpt0015: Old File does not exist
+
+
+ENTRY: LICENSE_ja.rtf
+warning wpt0015: Old File does not exist
+
+
+ENTRY: LICENSE_ko.rtf
+warning wpt0015: Old File does not exist
+
+
+ENTRY: LICENSE_sv.rtf
+warning wpt0015: Old File does not exist
+
+
+ENTRY: LICENSE_zh_CN.rtf
+warning wpt0015: Old File does not exist
+
+
+ENTRY: LICENSE_zh_TW.rtf
+warning wpt0015: Old File does not exist
+
+
+ENTRY: lib\ext\localedata.jar
+warning wpt0015: Old File does not exist
+
