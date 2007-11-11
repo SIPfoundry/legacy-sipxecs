@@ -14,6 +14,13 @@ AC_ARG_ENABLE(suse10_2,
           ruby_dbi=yes
         ])
 
+AC_ARG_ENABLE(suse10_3,
+        AC_HELP_STRING([--enable-suse10_3], [Enable dependencies for openSUSE 10.3]),
+        [
+          cgicc=yes
+          ruby_dbi=yes
+        ])
+
 AC_ARG_ENABLE(fc4,
 	AC_HELP_STRING([--enable-fc4], [Enable dependencies for Fedora Core 4]),
 	[ 
