@@ -8,13 +8,9 @@
   <property name="build.dir" value="${top.build.dir}/preflight"/>
   <property name="one-jar.dist.dir" value="${build.dir}/dist"/>
   <property name="compiler" value="${cc}"/>
-  <import file="ant-targets.xml"/>
-
   <property name="preflight.lib.dir" value="${lib.dir}/preflight"/>
 
-  <taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask" classpath="${one-jar.jar}" onerror="report"/>
-  <taskdef resource="cpptasks.tasks" classpath="${cpptasks.jar}"/>
-  <typedef resource="cpptasks.types" classpath="${cpptasks.jar}"/>
+  <import file="ant-targets.xml"/>
 
   <path id="base.path" >
     <pathelement location="${dnsjava.jar}"/>
@@ -30,6 +26,7 @@
 
   <!-- J A R -->
   <target name="jar" depends="compile" description="create jar file" >
+    <taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask" classpath="${one-jar.jar}" onerror="report"/>
     <one-jar destfile="${build.dir}/dist/preflight.jar" manifest="${src.dir}/preflight.mf" >
       <main>
         <fileset dir="${classes.dir}" >
@@ -50,11 +47,28 @@
           <include name="*.dll" />
         </fileset>
       </binlib>
+      <fileset dir="${src.dir}">
+        <include name="icons/**"/>
+      </fileset>
     </one-jar>
   </target>
 
   <!-- L A U N C H E R -->
-  <target name="launcher" depends="jar" description="create native command line launcher" >
+  <target name="launcher" depends="windows-launcher, posix-launcher" description="create native launchers" />
+
+  <target name="windows-launcher" depends="jar" description="create native windows launcher" >
+    <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j.jar}:${xstream.jar}" />
+    <copy file="${src.dir}/Preflight.xml.in" tofile="${build.dir}/dist/Preflight.xml"/>
+    <replace file="${build.dir}/dist/Preflight.xml">
+      <replacefilter token="@src.dir@" value="${src.dir}"/>
+      <replacefilter token="@build.dir@" value="${build.dir}"/>
+    </replace>
+    <launch4j configFile="${build.dir}/dist/Preflight.xml" />
+  </target>
+
+  <target name="posix-launcher" depends="jar" description="create native *nix command line launcher" >
+    <taskdef resource="cpptasks.tasks" classpath="${cpptasks.jar}"/>
+    <typedef resource="cpptasks.types" classpath="${cpptasks.jar}"/>
     <cc outfile="${build.dir}/dist/preflight">
       <fileset dir="${src.dir}/src/main/native/posix" includes="*.c"/>
       <defineset>

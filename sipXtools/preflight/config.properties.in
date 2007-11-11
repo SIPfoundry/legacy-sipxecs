@@ -28,3 +28,6 @@ junit.jar=${src.dir}/lib/junit-4.3.1.jar
 log4j.jar=${src.dir}/lib/log4j-1.2.14.jar
 one-jar.jar=${src.dir}/lib/one-jar-ant-task-0.96.jar
 cpptasks.jar=${src.dir}/lib/cpptasks-1.0b4.jar
+launch4j.jar=${src.dir}/lib/launch4j/launch4j-3.0.0-pre2.jar
+xstream.jar=${src.dir}/lib/launch4j/xstream-1.2.2.jar
+nsisant.jar=${src.dir}/lib/nsisant-1.2.jar
