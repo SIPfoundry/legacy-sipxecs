@@ -8,6 +8,8 @@ EXTRA_DIST = \
   ant-targets.xml \
   build.xml \
   preflight.mf \
+  Preflight.xml.in \
+  Preflight.nsi.in \
   icons \
   src \
   lib
