@@ -236,6 +236,7 @@ bool BranchId::parse(const UtlString& branchValue,   ///< input
    else
    {
       // no match, so this does not look like one of our branch id values
+      uniqueCounter = 0 ;
       uniqueValue.remove(0);
       loopDetectKey.remove(0);
    }
@@ -268,22 +269,24 @@ void BranchId::generateFullValue()
       unsigned int existingCounter;
       UtlString    existingUniquePart;
       UtlString    oldLoopKey;
-      parse(*this, existingCounter, existingUniquePart, oldLoopKey);
-      
-      // rebuild the parent string with the existing unique part and the new key
-      remove(0);
-      append(SIPX_MAGIC_COOKIE);
-      char hexCounter[5];
-      sprintf(hexCounter, "%04x", existingCounter);
-      append(hexCounter);
-      append(existingUniquePart);
-      if (!mLoopDetectionKey.isNull())
+      if (parse(*this, existingCounter, existingUniquePart, oldLoopKey))
       {
-         append(SIPX_LOOP_KEY_SEPARATOR);
-         append(mLoopDetectionKey);
-      }
       
-      mParentStringValid = true;
+         // rebuild the parent string with the existing unique part and the new key
+         remove(0);
+         append(SIPX_MAGIC_COOKIE);
+         char hexCounter[5];
+         sprintf(hexCounter, "%04x", existingCounter);
+         append(hexCounter);
+         append(existingUniquePart);
+         if (!mLoopDetectionKey.isNull())
+         {
+            append(SIPX_LOOP_KEY_SEPARATOR);
+            append(mLoopDetectionKey);
+         }
+      
+         mParentStringValid = true;
+      }
    }
 }
 
