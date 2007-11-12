@@ -1207,13 +1207,14 @@ void ACDQueue::overflowCall(ACDCall* pCallRef)
       OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::overflowCall - ACDCall(%d) entering overflowCall routine in the overflow queue %s",pCallRef->getCallHandle(), mOverflowQueue.data() ? mOverflowQueue.data() : NULL);
 
       // The queue is configured as a FIFO, so overflow the oldest call and add this one
+      // Send the call to the configured overflow queue or overflow entry
 
-      // Send the call to the configured overflow queue
+      // Remove the oldest call from the list for overflow
+      pOverflowCall = dynamic_cast<ACDCall*>(mUnroutedCallList.get());
+
       ACDQueue* pOverflowQueue;
       pOverflowQueue = mpAcdQueueManager->getAcdQueueReference(mOverflowQueue);
       if (pOverflowQueue != NULL) {
-         // Now we can remove the oldest call from the list for overflow
-         pOverflowCall = dynamic_cast<ACDCall*>(mUnroutedCallList.get());
                
          pOverflowQueue->addCall(pOverflowCall);
 
@@ -1228,7 +1229,7 @@ void ACDQueue::overflowCall(ACDCall* pCallRef)
       }
       else if (mOverflowEntry != NULL) {
          // Could not find the overflow queue, but there is overflowEntry defined, so transfer the call
-         transferOverflowCall(pCallRef);
+         transferOverflowCall(pOverflowCall);
       }
       else {
          // Could not find the overflow queue, drop the call
@@ -1236,7 +1237,7 @@ void ACDQueue::overflowCall(ACDCall* pCallRef)
          OsSysLog::add(FAC_ACD, PRI_ERR, "ACDQueue::overflowCall - could not find the overflow queue so drop ACDCall(%d)", pCallRef->getCallHandle());
       }
       
-      // Now we add this call to the unrounted list
+      // Now we add this call to the unrouted list
       unroute(pCallRef, false);
    }
    else {
