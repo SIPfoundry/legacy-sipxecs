@@ -8,6 +8,6 @@
   <customProcName>true</customProcName>
   <icon>@src.dir@/icons/preflight.ico</icon>
   <jre>
-    <path>jre</path>
+    <path>java-sun-windows</path>
   </jre>
 </launch4jConfig>

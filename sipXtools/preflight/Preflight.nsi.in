@@ -7,7 +7,7 @@ Name "Preflight"
 SetCompressor /SOLID lzma
 
 ; The file to write
-OutFile "@build.dir@/dist/PreflightInstaller.exe"
+OutFile "@build.dir@/dist/preflight_installer.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\Preflight
@@ -40,7 +40,7 @@ Section "Preflight (required)"
   ; Put file there
   File "@build.dir@/dist/Preflight.exe"
   File "@build.dir@/dist/preflight.jar"
-  File /r "@src.dir@/lib/jre"
+  File /r "@lib.src@/java-sun-windows"
   
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\Pingtel_Preflight "Install_Dir" "$INSTDIR"

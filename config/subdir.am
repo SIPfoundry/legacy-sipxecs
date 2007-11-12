@@ -68,6 +68,7 @@ LocalizeSipXconfig = sed \
 		  -e 's,@NAMED_PROGRAM\@,@NAMED_PROGRAM@,g' \
 		  -e 's,@SELINUX_GETENFORCE\@,@SELINUX_GETENFORCE@,g' \
 		  -e 's,@LIBWWW_RPM\@,@LIBWWW_RPM@,g' \
+		  -e 's,@LIBSRC\@,@LIBSRC@,g' \
 		  -e 's,@RPMBUILD_DEBUG_PACKAGE_SPEC\@,@RPMBUILD_DEBUG_PACKAGE_SPEC@,g'
 
 # install sipx watchdog support

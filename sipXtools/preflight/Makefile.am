@@ -4,6 +4,7 @@ include $(top_srcdir)/config/subdir.am
 include ant-targets.am
 
 EXTRA_DIST = \
+  README \
   config.properties.in \
   ant-targets.xml \
   build.xml \
