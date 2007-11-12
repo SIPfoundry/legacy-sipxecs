@@ -24,6 +24,8 @@ Requires: sipxtacklib >= 3.9
 Requires: unixODBC >= 2.2
 Requires: ruby
 Requires: patch
+# bind-utils required for dig
+Requires: bind-utils
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
