@@ -1,0 +1,63 @@
+<div jwcid="@Border" useDojo="true">
+  <h2>
+    <span key="title">Paging Groups</span>
+  </h2>
+  <span jwcid="@ErrorMsg" />
+  <span jwcid="@QuickHelp" value="message:quick.help" />
+  <form jwcid="pagingGroups@Form" id="pagingGroupsForm" delegate="bean:validator">
+    <ul class="component-links">
+      <li>
+        <a jwcid="@DirectLink"  listener="listener:addPagingGroup" id="link.addPagingGroup">
+          <span key="add">Add Group</span>
+        </a>
+      </li>
+    </ul>
+    <span jwcid="@If" condition="ognl:(groups.size() > 0)">
+      <fieldset>
+  	    <table>
+		  <tr jwcid="@FieldPanel" for="prefix"
+        	  field="component:prefix"
+        	  label="message:label.prefix">
+            <input jwcid="prefix@TextField" id="prefix"
+              value="prop:prefix"
+              displayName="message:label.prefix"/>
+            <input jwcid="save@Submit" id="pagingGroups:save"
+              listener="listener:savePagingPrefix"
+          	  value="message:button.save" />
+		  </tr>
+  	    </table>
+      </fieldset>
+    </span>
+	<table jwcid="@Table" id="pagingGroups:list"
+        columns="* pageGroupNumber,!enabled,!description"
+        source="prop:groups"
+        row="prop:currentRow"
+        selections="bean:selections">
+      <tr jwcid="pageGroupNumberColumnValue@Block">
+        <td jwcid="editRowLink@DirectLink"
+          listener="listener:editPagingGroup"
+          parameters="ognl:currentRow.id">
+          <span jwcid="@Insert" value="prop:currentRow.pageGroupNumber"/>
+      	</td>
+      </tr>
+      <tr jwcid="enabledColumnValue@Block">
+        <td jwcid="@common/EnabledColumn" value="prop:currentRow.enabled"/>
+      </tr>
+      <tr jwcid="typeColumnValue@Block">
+        <td jwcid="@Insert" value="prop:currentRow.description"/>
+      </tr>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="delete@Submit" id="pagingGroups:delete" 
+          listener="listener:delete"
+          selected="prop:selectedRows"
+          tag="prop:allSelected"
+          value="message:button.delete" />
+        <span jwcid="@common/Confirm"
+          component="component:delete"
+          prompt="message:confirm.delete"/>
+      </li>
+    </ul>
+  </form>
+</div>

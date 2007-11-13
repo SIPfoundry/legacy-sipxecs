@@ -23,13 +23,14 @@
     <ul>
       <li jwcid="@If" element="li" condition="ognl:acdContext.enabled">
         <a jwcid="@PageLink" id="menu.acd" page="ListAcdServers"><span key="menu.acd">ACD</span></a>
-	</li>
-	<!-- does not used "presenceServer.enabled" because AcdPresenceServer page requires ACD to be available as well -->
+      </li>
+      <!-- does not used "presenceServer.enabled" because AcdPresenceServer page requires ACD to be available as well -->
       <li jwcid="@If" element="li" condition="ognl: acdContext.enabled">
         <a jwcid="@PageLink" id="menu.acdPresence" page="AcdPresenceServer"><span key="menu.acdPresence">ACD Presence</span></a>
       </li>
       <li><a jwcid="@PageLink" id="menu.attendants" page="ManageAttendants"><span key="menu.attendants">Auto Attendants</span></a></li>
       <li><a jwcid="@PageLink" id="menu.intercom" page="Intercom"><span key="menu.intercom">Intercom</span></a></li>
+      <li><a jwcid="@PageLink" id="menu.pagingGroups" page="admin/PagingGroupsPage"><span key="menu.pagingGroups">Paging Groups</span></a></li>
       <li><a jwcid="@PageLink" id="menu.huntGroups" page="ListCallGroups"><span key="menu.huntGroups">Hunt Groups</span></a></li>
       <li><a jwcid="@PageLink" id="menu.callPark" page="ListParkOrbits"><span key="menu.callPark">Call Park</span></a></li>
       <li><a jwcid="@PageLink" id="menu.musicOnHold" page="MusicOnHold"><span key="menu.musicOnHold">Music on Hold</span></a></li>

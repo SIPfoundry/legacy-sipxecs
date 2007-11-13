@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--
+    - P A G I N G   C O N T E X T
+  -->
+
+  <bean id="pagingContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingContextImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="coreContext" ref="coreContextImpl" />
+    <property name="etcDirectory" value="${sysdir.etc}" />
+  </bean>
+  
+  <bean id="pagingContextUserDelete" factory-bean="pagingContextImpl" factory-method="createUserDeleteListener" />
+
+  <bean id="pagingContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
+        depends-on="pagingContextUserDelete">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.paging.PagingContext" />
+    <property name="target">
+      <ref local="pagingContextImpl" />
+    </property>
+  </bean>
+</beans>

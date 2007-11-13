@@ -33,6 +33,8 @@ public final class DialingRuleType extends Enum {
             AttendantRule.class);
     public static final DialingRuleType INTERCOM = new DialingRuleType("Intercom",
             IntercomRule.class);
+    public static final DialingRuleType PAGING = new DialingRuleType("Paging",
+            PagingRule.class);
 
     private Class< ? extends DialingRule> m_klass;
 

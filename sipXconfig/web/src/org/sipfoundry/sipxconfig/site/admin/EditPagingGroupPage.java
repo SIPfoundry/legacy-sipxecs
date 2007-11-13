@@ -1,0 +1,118 @@
+/*
+ * 
+ * 
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ * 
+ * $
+ */
+package org.sipfoundry.sipxconfig.site.admin;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.paging.PagingContext;
+import org.sipfoundry.sipxconfig.paging.PagingGroup;
+import org.sipfoundry.sipxconfig.site.user.SelectUsers;
+import org.sipfoundry.sipxconfig.site.user.SelectUsersCallback;
+import org.sipfoundry.sipxconfig.site.user.UserTable;
+import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
+
+public abstract class EditPagingGroupPage extends UserBasePage implements PageBeginRenderListener {
+    public static final String PAGE = "admin/EditPagingGroupPage";
+
+    @InjectObject(value = "spring:coreContext")
+    public abstract CoreContext getCoreContext();
+
+    @InjectObject(value = "spring:pagingContext")
+    public abstract PagingContext getPagingContext();
+
+    @Persist(value = "client")
+    public abstract Integer getGroupId();
+
+    public abstract void setGroupId(Integer groupId);
+
+    @Persist
+    public abstract PagingGroup getGroup();
+
+    public abstract void setGroup(PagingGroup group);
+
+    public abstract Collection getAddedUsers();
+
+    public abstract void setAddedUsers(Collection addedUsers);
+
+    public void addPagingGroup(String returnPage) {
+        setGroup(null);
+        setReturnPage(returnPage);
+    }
+
+    public void editPagingGroup(Integer groupId, String returnPage) {
+        setGroupId(groupId);
+        setGroup(getPagingContext().getPagingGroupById(groupId));
+        setReturnPage(returnPage);
+    }
+
+    public void pageBeginRender(PageEvent event_) {
+
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
+
+        if (getGroup() == null && getGroupId() == null) {
+            setGroup(new PagingGroup());
+        }
+
+        PagingGroup group = getGroup();
+
+        String sound = group.getSound();
+        if (sound == null) {
+            sound = "notice.wav";
+            group.setSound(sound);
+        }
+
+        if (getAddedUsers() != null && getAddedUsers().size() > 0) {
+            group.getUsers().addAll(getUsersBySelectedIds(getAddedUsers()));
+        }
+        setGroup(group);
+    }
+
+    public IPage add(IRequestCycle cycle) {
+        SelectUsers editUsers = (SelectUsers) cycle.getPage(SelectUsers.PAGE);
+        SelectUsersCallback callback = new SelectUsersCallback(this.getPage());
+        callback.setIdsPropertyName("addedUsers");
+        editUsers.setCallback(callback);
+        return editUsers;
+    }
+
+    public void delete() {
+        UserTable usersTable = (UserTable) getComponent("extensionsTable");
+        Collection selectedIdsToDelete = usersTable.getSelections().getAllSelected();
+        getGroup().getUsers().removeAll(getUsersBySelectedIds(selectedIdsToDelete));
+    }
+
+    private List<User> getUsersBySelectedIds(Collection selectedIds) {
+        List<User> users = new ArrayList<User>();
+        for (Object obj : selectedIds) {
+            users.add(getCoreContext().loadUser((Integer) obj));
+        }
+        return users;
+    }
+
+    public void commit() {
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
+        getPagingContext().savePagingGroup(getGroup());
+    }
+}

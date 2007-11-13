@@ -112,4 +112,8 @@
   
   <table name="personal_attendant"/>
   <table name="personal_attendant_menu_item"/>
+  
+  <!-- paging group -->
+  <table name="paging_group"/>
+  <table name="user_paging_group"/>  
 </dataset>

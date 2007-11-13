@@ -30,6 +30,7 @@
       classpath:/org/sipfoundry/sipxconfig/job/job.beans.xml
       classpath:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml
       classpath:/org/sipfoundry/sipxconfig/login/login.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/paging/paging.beans.xml
       classpath:/org/sipfoundry/sipxconfig/permission/permission.beans.xml
       classpath:/org/sipfoundry/sipxconfig/phone/phone.beans.xml
       classpath:/org/sipfoundry/sipxconfig/security/security.beans.xml

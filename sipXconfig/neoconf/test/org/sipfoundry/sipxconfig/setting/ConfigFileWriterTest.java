@@ -53,7 +53,7 @@ public class ConfigFileWriterTest extends TestCase {
         IOUtils.closeQuietly(configStream);
     }
 
-    public void testWrite() throws Exception {
+    public void testWriteAndReset() throws Exception {
         // change existing property
         m_properties.setProperty("Libya", "100");
         // add a new one
@@ -68,5 +68,9 @@ public class ConfigFileWriterTest extends TestCase {
         String diff = StringUtils.difference(m_originalContent, newContent);        
         assertTrue(diff.startsWith(" 100"));
         assertTrue(newContent.endsWith(TestUtil.cleanEndOfLines("Kenya : 55\n")));
+        
+        writer.reset();
+        String emptyContent = FileUtils.readFileToString(m_destinationFile, "8859_1");
+        assertTrue(StringUtils.isEmpty(emptyContent));
     }
 }

@@ -143,6 +143,7 @@
         <value>org/sipfoundry/sipxconfig/acd/acd.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/service/service.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/vm/attendant/personalAttendant.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/paging/paging.hbm.xml</value>
       </list>
     </property>
     <property name="baseClassBeanIds">

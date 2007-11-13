@@ -39,6 +39,7 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.job.JobContext;
+import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -136,6 +137,9 @@ public abstract class TestPage extends BasePage {
     
     @InjectObject(value = "spring:speedDialManager")
     public abstract SpeedDialManager getSpeedDialManager();
+    
+    @InjectObject(value = "spring:pagingContext")
+    public abstract PagingContext getPagingContext();
 
     public void resetServiceManager() {
         getServiceManager().clear();
@@ -179,6 +183,7 @@ public abstract class TestPage extends BasePage {
         // need to reset all data that could potentially have a reference
         // to users
         getSpeedDialManager().clear();
+        getPagingContext().clear();
         resetDialPlans();
         resetCallForwarding();
         resetPhoneContext();

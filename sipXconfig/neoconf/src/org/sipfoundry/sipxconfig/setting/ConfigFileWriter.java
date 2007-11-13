@@ -46,7 +46,7 @@ public class ConfigFileWriter {
         }
     }
 
-    void store(Properties properties) throws IOException {
+    public void store(Properties properties) throws IOException {
         StringWriter buffer = new StringWriter();
         PrintWriter writer = new PrintWriter(buffer);
         Set remainingProps = writeConfigured(m_file, properties, writer);
@@ -55,6 +55,10 @@ public class ConfigFileWriter {
         FileUtils.writeStringToFile(m_file, generatedProps, ENCODING);
     }
 
+    public void reset() throws IOException {
+        FileUtils.writeStringToFile(m_file, StringUtils.EMPTY, ENCODING);
+    }    
+    
     /**
      * Writes properties and thei values to the write trying to preserve the existing properties,
      * the order and formatting of the template file

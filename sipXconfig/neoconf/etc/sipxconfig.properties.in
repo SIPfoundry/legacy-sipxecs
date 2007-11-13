@@ -21,6 +21,7 @@ vxml.promptsDirectory=@sipxvxml.data.dir@/prompts
 vxml.scriptsDirectory=@www.dir@/doc/aa_vxml
 dialPlanContextImpl.scriptsDirectory=@www.dir@/doc/aa_vxml
 orbitsGenerator.audioDirectory=@sipxpark.audio.dir@
+pagingContextImpl.audioDirectory=@sipxpage.audio.dir@
 conferenceBridge.host=${MY_FULL_HOSTNAME}
 conferenceBridge.admissionServer=${MEDIA_SERVER_SIP_SRV_OR_HOSTPORT}
 conferenceConference.admissionScriptServer=${MEDIA_SERVER_ADDR}:${MEDIA_SERVER_HTTPS_PORT}
