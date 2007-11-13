@@ -21,8 +21,14 @@ Requires: sipxpbx >= 3.9
 
 Requires: @LIBWWW_RPM@ >= 5.4.0
 
+%if %{_vendor} == redhat
 # Httpd is needed to serve VXML applications and execute supporting CGIs.
 Requires: httpd >= 2.0
+%endif
+
+%if %{_vendor} == suse
+Requires: apache2-prefork
+%endif
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root

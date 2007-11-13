@@ -36,6 +36,7 @@ Requires: ruby-gems
 %endif
 %if %{_vendor} == suse
 Requires: rubygems
+Requires: apache2-prefork
 %endif
 
 # known incompatabilities w/gcj, unclear how to enforce. can be issue
@@ -46,8 +47,10 @@ Requires: java-1.5.0-ibm >= 1.5
 Requires: java >= 1.5
 %endif
 
+%if %{_vendor} == redhat
 # only used to serve phone profiles under http devices
 Requires: httpd >= 2.0
+%endif
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
