@@ -8,6 +8,8 @@ Action=RUN
 
 : ${ServiceDir:=/etc/init.d}
 : ${Chown:=chown}
+: ${SubstituteUser:=su}
+: ${Psql:=psql}
 
 # This function determines the correct service name for Postgres.
 postgresService() {
@@ -15,16 +17,22 @@ postgresService() {
     if test -n "$POSTGRES_SERVICE"
     then
         echo -e "$POSTGRES_SERVICE"
-    fi
-    
-    if [ -f /etc/init.d/rhdb ]
+
+    elif [ -f /etc/init.d/rhdb ]
     then
-	    # Red Hat Enterprise uses the name rhdb.
+        # Red Hat Enterprise / Fedora / CentOS use the name rhdb
         echo -e rhdb
+
+    elif [ -f /etc/init.d/postgresql-* ]
+    then
+        # Debian uses a service name appended with the version number
+        # E.g. postgresql-7.4 or postgresql-8.2
+        echo -e `ls /etc/init.d/postgresql-* | sed -e 's/\/etc\/init.d\///'`
+
+    else
+        # SUSE and others use the name postgresql
+        echo -e postgresql
     fi
-    
-    # Most other distributions use the name postgresql.
-    echo -e postgresql
 }
 
 # Configure postgres to accept TCP connections for communication
@@ -34,19 +42,29 @@ postgresSetup() {
   # Set up the server.
   Service=`postgresService`
 
-  # May not by running, so eat up error (ENG-314)
-  ${ServiceDir}/${Service} stop 2>&1 1> /dev/null
+  # May not by running, so test first
+  if ! ${ServiceDir}/${Service} status | egrep "stopped|unused" > /dev/null
+  then 
+      ${ServiceDir}/${Service} stop 2>&1 1> /dev/null
+  fi
 
   # Custom
   if test -z $PGDATA
+  # $PGDATA is set as an env variable for user postgres, but not for root
   then
-      # Debian/Gentoo
       if test -d /var/lib/postgresql/data
       then
+          # Gentoo
           PGDATA=/var/lib/postgresql/data
-      else
-          # Redhat
+      elif test -d /var/lib/pgsql/data
+      then
+          # Redhat, Fedora, CentOS & SUSE
           PGDATA=/var/lib/pgsql/data
+      else
+          # Debian Etch
+          # Set PGDATA to the configuration directory. On Debian the database is already
+          # initialized and there is no initdb command
+          PGDATA=`ls -d /etc/postgresql/*.*/main`
       fi
   fi
 
@@ -54,7 +72,20 @@ postgresSetup() {
   # distros so unless we put a "if distro=rh"  we need to init here
   if [ ! -f $PGDATA/PG_VERSION ] || [ ! -d $PGDATA/base ]
   then
-      $SubstituteUser - postgres -c "initdb --pgdata=$PGDATA"
+      if [ -f /usr/bin/initdb ]
+      # Most distributions use a separate command "initdb" to initialize the db
+      # Fedora 8 uses "service postgresql initdb"
+      # Debian Etch initializes the DB during installation
+      then
+          if ${Psql} --version | grep '7.4' > /dev/null
+          then
+              $SubstituteUser - postgres -c "initdb --pgdata=$PGDATA" > /dev/null
+          else
+              $SubstituteUser - postgres -c "initdb --pgdata=$PGDATA --auth=trust" > /dev/null
+          fi
+      else
+          ${ServiceDir}/$Service initdb > /dev/null
+      fi
   fi
 
   # Create backup file (possibly) requiring update
@@ -65,7 +96,7 @@ postgresSetup() {
 
   # Will allow this script to add user.  Needs to be listed before
   # other permission or it will not take effect.
-  if ! grep '^local *all *all *trust\b*$' $PGDATA/pg_hba.conf >/dev/null
+  if ! grep '^local *all *all *trust\b' $PGDATA/pg_hba.conf >/dev/null
   then
      echo "local all all trust" > $PGDATA/pg_hba.conf.tmp
      cat $PGDATA/pg_hba.conf >> $PGDATA/pg_hba.conf.tmp
@@ -74,9 +105,9 @@ postgresSetup() {
 
   # Will allow jdbc to connect.  Needs to be listed before
   # other permission or it will not take effect.
-  if ! grep '^host *all *all *127.0.0.1 *255.255.255.255 *trust\b*$' $PGDATA/pg_hba.conf >/dev/null
+  if ! grep '^host *all *all *127.0.0.1\/32 *trust\b' $PGDATA/pg_hba.conf >/dev/null
   then
-     echo "host all all 127.0.0.1 255.255.255.255 trust" > $PGDATA/pg_hba.conf.tmp
+     echo "host all all 127.0.0.1/32 trust" > $PGDATA/pg_hba.conf.tmp
      cat $PGDATA/pg_hba.conf >> $PGDATA/pg_hba.conf.tmp
      mv $PGDATA/pg_hba.conf.tmp $PGDATA/pg_hba.conf
   fi
@@ -104,14 +135,11 @@ setPostgresRunlevels() {
         # We have to specify the runlevels because the default set of
         # runlevels for Postgres is empty.
         /sbin/chkconfig --level 35 $Service on
-    else
-        # The user will have to do it manually.
-        echo chkconfig does not exist.
-        echo You need to create /etc/rc?.d/{S85,K15}$Service
-        echo to start postgres for runlevels 3 and 5.
+    elif test ! -f "/sbin/insserv" && test ! -f "/etc/debian_version"; then
+        # On SUSE and Debian postgres is put into runlevel automatically
+        echo "Check whether $Service starts automatically after reboot."
     fi
 }
-
 
 while [ $# -ne 0 ]
 do

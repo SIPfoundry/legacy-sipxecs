@@ -57,16 +57,22 @@ postgresService() {
     if test -n "$POSTGRES_SERVICE"
     then
         echo -e "$POSTGRES_SERVICE"
-    fi
-    
-    if [ -f /etc/init.d/rhdb ]
+
+    elif [ -f /etc/init.d/rhdb ]
     then
-        # Red Hat Enterprise uses the name rhdb.
+        # Red Hat Enterprise / Fedora / CentOS use the name rhdb
         echo -e rhdb
+
+    elif [ -f /etc/init.d/postgresql-* ]
+    then
+        # Debian uses a service name appended with the version number
+        # E.g. postgresql-7.4 or postgresql-8.2
+        echo -e `ls /etc/init.d/postgresql-* | sed -e 's/\/etc\/init.d\///'`
+
+    else
+        # SUSE and others use the name postgresql
+        echo -e postgresql
     fi
-    
-    # Most other distributions use the name postgresql.
-    echo -e postgresql
 }
 
 # Search/replace variables used in config.defs into config files
@@ -196,15 +202,26 @@ ERROR
    fi
    # Check postgres configuration
    Service=`postgresService`
-   if test -z "$PGDATA"; then
-      # Debian/Gentoo
-      if test -d /var/lib/postgresql/data; then
-         PGDATA=/var/lib/postgresql/data
+
+   if test -z $PGDATA
+   # $PGDATA is set as an env variable for user postgres, but not for root
+   then
+       if test -d /var/lib/postgresql/data
+       then
+          # Gentoo
+          PGDATA=/var/lib/postgresql/data
+      elif test -d /var/lib/pgsql/data
+      then
+          # Redhat, Fedora, CentOS & SUSE
+          PGDATA=/var/lib/pgsql/data
       else
-         # Redhat
-         PGDATA=/var/lib/pgsql/data
+          # Debian Etch
+          # Set PGDATA to the configuration directory. On Debian the database is already
+          # initialized and there is no initdb command
+          PGDATA=`ls -d /etc/postgresql/*.*/main`
       fi
-   fi          
+   fi
+       
    # Check for conf file
    if [ -f $PGDATA/pg_hba.conf ]; then
       if ! grep '^local *all *all *trust.*' $PGDATA/pg_hba.conf >/dev/null; then
@@ -447,6 +464,7 @@ onSetup() {
     then
        @bindir@/pgpatch.sh
        databaseCommand create
+       # echo 'CDR database created'
     fi
 }
 
