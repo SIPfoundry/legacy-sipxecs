@@ -68,7 +68,7 @@ case ${Action} in
          Status=1
      fi
 
-     myIp=`@SIPX_BINDIR@/get_def_addr`
+     myIp=`. ${CONFIG_DEFS}; echo ${MY_IP_ADDR}`
      if ! sip_resolves_to ${myDomain} ${myIp}
      then
          echo "    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to my IP address: ${myIp}" 1>&2
