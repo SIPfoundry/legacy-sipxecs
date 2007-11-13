@@ -6,6 +6,7 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import org.sipfoundry.ao.ActiveObjectGroupImpl;
+import org.sipfoundry.preflight.JournalService;
 
 import java.util.*;
 import java.text.*;
@@ -30,6 +31,7 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
     private ArrayList<ViaHeader> viaHeaders;
     private MaxForwardsHeader maxForwards;
     private final String localHostTransport = "udp";
+    private final JournalService journalService;
     private LinkedList<Device> devices;
     
     private class UAVendor {
@@ -45,6 +47,9 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
     private final UAVendor[] UAVendorList = {
             new UAVendor("Aastra", "00:08:5D"),
             new UAVendor("Aastra", "00:10:BC"),
+            new UAVendor("AudioCodes", "00:90:8F"),
+            new UAVendor("ClearOne", "00:90:79"),
+            new UAVendor("Gentner", "00:06:24"),
             new UAVendor("Grandstream", "00:0B:82"),
             new UAVendor("LG-Nortel", "00:40:5A"),
             new UAVendor("LG-Nortel", "00:1A:7E"),
@@ -56,9 +61,15 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
     };
 
     public DiscoveryService(String localHostAddress, int localHostPort) {
+        this(localHostAddress, localHostPort, null);
+    }
+    
+    public DiscoveryService(String localHostAddress, int localHostPort, JournalService journalService) {
         super("PreflightDiscovery", Thread.NORM_PRIORITY, 10, 60);
 
         this.localHostAddress = localHostAddress;
+        this.journalService = journalService;
+        
         sipFactory = SipFactory.getInstance();
         sipFactory.setPathName("gov.nist");
 
@@ -227,6 +238,16 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
             }
             if (vendor != null) {
                 devices.add(new Device(hardwareAddress, networkAddress, vendor, userAgentInfo));
+                
+                if (journalService != null) {
+                    String output = hardwareAddress +
+                    ", " + networkAddress +
+                    ", " + vendor;
+                    if (userAgentInfo.compareTo("") != 0) {
+                        output += ", " + userAgentInfo;
+                    }
+                    journalService.println(output);
+                }
             }
         }
     }
@@ -242,7 +263,6 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
         addr[3] = 1;
         for (int x = 0; x < 254; x++) {
             try {
-                //InetAddress target = InetAddress.getByAddress(addr);
                 String target = String.format("%d.%d.%d.%d", addr[0], addr[1], addr[2], addr[3]++);
                 if (target.compareTo(localHostAddress) == 0) {
                     // Skip ourself.

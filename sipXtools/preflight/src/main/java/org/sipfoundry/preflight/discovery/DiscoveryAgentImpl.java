@@ -34,19 +34,14 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
     @Startup
     public void discover() {
         try {
-            // if (targetAddress.isReachable(10 * 1000)) {
-            if (true) {
-                ClientTransaction clientTransaction;
+            ClientTransaction clientTransaction;
 
-                Request request = discoveryService.createOptionsRequest(targetAddress, 5060);
-                // Create the client transaction.
-                clientTransaction = sipProvider.getNewClientTransaction(request);
-                clientTransaction.setApplicationData(this);
-                // send the request out.
-                clientTransaction.sendRequest();
-            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
+            Request request = discoveryService.createOptionsRequest(targetAddress, 5060);
+            // Create the client transaction.
+            clientTransaction = sipProvider.getNewClientTransaction(request);
+            clientTransaction.setApplicationData(this);
+            // send the request out.
+            clientTransaction.sendRequest();
         } catch (TransactionUnavailableException e) {
             e.printStackTrace();
         } catch (SipException e) {

@@ -18,8 +18,14 @@ public class ArpTable {
     
     public static String lookup(String ipAddress) {
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            // System.loadLibrary("ArpTable.dll");
-            return windowsLookup(ipAddress);
+            String macAddress =  windowsLookup(ipAddress);
+            if ((macAddress == null)
+             || (macAddress.compareTo("") == 0)
+             || (macAddress.compareTo("00:00:00:00:00:00") == 0)) {
+                return null;
+            } else {
+                return macAddress.toUpperCase();
+            }
         } else {
             return linuxLookup(ipAddress);
         }

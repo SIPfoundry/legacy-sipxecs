@@ -6,18 +6,12 @@
 package org.sipfoundry.preflight;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.LinkedList;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.graphics.*;
-
-import org.sipfoundry.preflight.discovery.*;
-import org.sipfoundry.preflight.discovery.Device;
 
 /**
  * [Enter descriptive text here]
@@ -34,8 +28,7 @@ public class PreflightShell {
     private ShellJournalService shellJournalService;
     private ShellJournalService discoveryJournalService;
     private ShellTestRunner shellTestRunner;
-    private ProgressBar discoveryProgressBar;
-    private int discoveryProgressBarMax;
+    private ShellDiscoveryRunner shellDiscoveryRunner;
 
     public void go(String[] args) {
         FormData formData;
@@ -117,6 +110,17 @@ public class PreflightShell {
         // Set up the Test Summary test runner.
         shellTestRunner = new ShellTestRunner(display, folder, testTab, shellJournalService);
         
+        Composite discoveryComposite = new Composite(folder, SWT.NONE);
+        discoveryComposite.setLayout(new GridLayout());
+
+        list = new List(discoveryComposite, SWT.BORDER | SWT.V_SCROLL);
+        list.setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL));
+        discoveryJournalService = new ShellJournalService(display, list);
+        discoveryTab.setControl(discoveryComposite);
+        
+        // Set up the Device Discovery runner.
+        shellDiscoveryRunner = new ShellDiscoveryRunner(display, discoveryJournalService);
+
         runButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 if (!shellTestRunner.isActive()) {
@@ -138,85 +142,22 @@ public class PreflightShell {
         
         discoveryButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                if (discoveryTab == null) {
-                	discoveryTab = new TabItem(folder, SWT.NONE);
-        		    discoveryTab.setText("Device Discovery");
-        		    
-        		    Composite discoveryComposite = new Composite(folder, SWT.NONE);
-        		    discoveryComposite.setLayout(new GridLayout());
-        		    
-        		    List list = new List(discoveryComposite, SWT.BORDER | SWT.V_SCROLL);
-        			list.setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL));
-        			discoveryJournalService = new ShellJournalService(display, list);
-        			
-        	        discoveryProgressBar = new ProgressBar(discoveryComposite, SWT.SMOOTH);
-        	        discoveryProgressBar.setBounds(10, 10, 300, 32);
-        	        discoveryProgressBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        	        discoveryProgressBarMax = discoveryProgressBar.getMaximum();
-        	        discoveryProgressBar.setSelection(discoveryProgressBarMax);
-        	        
-        			discoveryTab.setControl(discoveryComposite);
-
-                }
-        		folder.setSelection(discoveryTab);
-        		shell.setDefaultButton(discoveryButton);
-        		
-        		// Test the progress bar.
-        		if (discoveryProgressBar.getSelection() == discoveryProgressBarMax) {
-        		    discoveryJournalService.println("Starting device discovery...");
-        		    new Thread() {
-        		        public void run() {
-        		            for (final int[] i = new int[1]; i[0] <= discoveryProgressBarMax; i[0]++) {
-        		                try {
-        		                    Thread.sleep(200);
-        		                } catch (Throwable th) {
-        		                }
-        		                if (display.isDisposed())
-        		                    return;
-        		                display.asyncExec(new Runnable() {
-        		                    public void run() {
-        		                        if (!discoveryProgressBar.isDisposed()) {
-        		                            discoveryProgressBar.setSelection(i[0]);
-        		                        }
-        		                    }
-        		                });
-        		            }
-        		        }
-        		    }.start();
-        		    
-                    InetAddress inetAddress;
-                    String localHostAddress = "0.0.0.0";
-
-                    try {
-                        // Get local IP Address
-                        inetAddress = InetAddress.getLocalHost();
-                        localHostAddress = inetAddress.getHostAddress();
-                    } catch (UnknownHostException e1) {
-                        // Ignore.
+                if (!shellDiscoveryRunner.isActive()) {
+                    TabItem[] selections = folder.getSelection();
+                    if (selections[0] != discoveryTab) {
+                        folder.setSelection(discoveryTab);
                     }
-
-                    DiscoveryService ds = new DiscoveryService(localHostAddress, 5050);
-                    LinkedList<Device> devices = ds.discover(localHostAddress, "255.255.255.0");
-
-                    for (Device device : devices) {
-                        String userAgentInfo = device.getUserAgentInfo();
-                        String output = device.getHardwareAddress() +
-                                ", " +
-                                device.getNetworkAddress().getHostAddress() +
-                                ", " +
-                                device.getVendor();
-                        if (userAgentInfo.compareTo("") != 0) {
-                                output += ", " + userAgentInfo;
-                        }
-                        discoveryJournalService.println(output);
-                    }
+                    shell.setDefaultButton(discoveryButton);
                     
-        	        discoveryProgressBarMax = discoveryProgressBar.getMinimum();
-        		}
-
+                    new Thread() {
+                        public void run() {
+                            shellDiscoveryRunner.discover();
+                        }
+                    }.start();
+                }
             }
         });
-        
+
         quitButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 shell.close();
