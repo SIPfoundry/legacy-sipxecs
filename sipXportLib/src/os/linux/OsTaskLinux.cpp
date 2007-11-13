@@ -363,6 +363,7 @@ UtlBoolean OsTaskLinux::waitUntilShutDown(int milliSecToWait)
       requestShutdown();  // ask the task to shut itself down
       yield();            // yield the CPU so the target task can terminate
       mDataGuard.acquire(); // get the lock back and fall through to waiting
+      /* fall through to next case */
 
    case SHUTTING_DOWN:
       // wait only as much time as the caller allowed

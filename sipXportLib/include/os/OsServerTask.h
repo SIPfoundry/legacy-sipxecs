@@ -94,7 +94,7 @@ public:
    ///< Send a message to the task requesting that it shut down. 
    virtual void requestShutdown(void);
    /**<
-    * Calls OsTask::requestShutdown() and then post an OS_SHUTDOWN message 
+    * Calls OsTask::requestShutdown() and then posts an OS_SHUTDOWN message 
     * to the incoming message queue to unblock the task.  This is called
     * automatically from the destructor when another task is attempting to
     * delete the task - it need not be called explicitly before invoking
