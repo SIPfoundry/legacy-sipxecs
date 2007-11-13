@@ -1,4 +1,4 @@
-  /****************License************************************************
+/****************License************************************************
  *
  * Copyright 2000-2001.  SpeechWorks International, Inc.    
  *
@@ -579,7 +579,7 @@ void VXI::InstallDocument(JumpDoc & e)
 
   try {
     exe->documentName = L"";
-    exe->gm.LoadGrammars(documentRoot, exe->documentName, exe->properties);
+    exe->gm.LoadGrammars(documentRoot, exe->documentName, exe->properties);    
   }
   catch (const VXIException::InterpreterEvent & e) {
     DoEvent(documentRoot, e);
@@ -743,7 +743,7 @@ void VXI::DoOuterJump(const VXMLElement & elem,
   VXIMapHolder documentFetchProps;
 
   AttemptDocumentLoad(uri, fetchobj, document, documentFetchProps);
-
+  
   VXMLElement documentRoot = document.GetRoot();
 
   documentDialog = FindDialog(documentRoot, fragment);
@@ -939,15 +939,16 @@ void VXI::AttemptDocumentLoad(const vxistring & uri,
                               VXMLDocument & doc,
                               VXIMapHolder & docProperties,
                               bool isDefaults)
-{
+{	
+   const VXIchar *lang = NULL;
+    
   // (1) Create map to store document properties.
   if (docProperties.GetValue() == NULL) 
     throw VXIException::OutOfMemory();
 
-
   // (2) Fetch the document hinting current language as accepted language
   if (exe) {
-    const VXIchar *lang = exe->properties.GetProperty(PropertyList::Language);
+    lang = exe->properties.GetProperty(PropertyList::Language);
     if (lang != NULL) {
       VXIString *accept_lang = VXIStringCreate(lang);
       if (accept_lang == NULL) throw VXIException::OutOfMemory();
@@ -958,6 +959,18 @@ void VXI::AttemptDocumentLoad(const vxistring & uri,
   }
   int result = parser->FetchDocument(uri.c_str(), uriProperties, inet,
                                      *log, doc, docProperties, isDefaults);
+  
+  if (lang != NULL)
+  {
+      // If the document doesn't have a language property, use that of the execution context
+      const VXIValue * value = VXIMapGetProperty(docProperties.GetValue(), PropertyList::Language);
+      if (value == NULL)
+      {
+          VXIMapSetProperty(docProperties.GetValue(), PropertyList::Language, 
+                  reinterpret_cast<VXIValue *>(VXIStringCreate(lang)));
+      }
+  }
+  
 
   // (3) Handle error conditions.
   switch (result) {

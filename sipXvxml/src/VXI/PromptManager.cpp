@@ -219,8 +219,7 @@ void PromptManager::Queue(const VXMLNode & node, const VXMLElement & ref,
     if (type == NODE_FIELD || type == NODE_MENU) break;
     item = item.GetParent();
   }
-
-
+   
   // (2) Get properties.
   VXIMapHolder properties;
   if (properties.GetValue() == NULL) throw VXIException::OutOfMemory();
@@ -259,13 +258,24 @@ void PromptManager::Queue(const VXMLNode & node, const VXMLElement & ref,
     }
 
     // (3.3) Update language.
-    if (elem.GetAttribute(ATTRIBUTE_XMLLANG, language) == true)
-      AddParamValue(properties, PROMPT_LANGUAGE, language);
-    else {
-      const VXIchar * j = propertyList.GetProperty(PropertyList::Language);
-      if (j != NULL) {
-        language = j;
-        AddParamValue(properties, PROMPT_LANGUAGE, j);
+    const VXIchar * j = propertyList.GetProperty(PropertyList::Language);
+    if (j != NULL) 
+    {
+      language = j;
+      AddParamValue(properties, PROMPT_LANGUAGE, j);
+    }
+    else
+    {
+      // Search upwards starting with element for a language vxml tag
+      VXMLElement check = item ;
+      while (check != 0)
+      {    	
+        if (check.GetAttribute(ATTRIBUTE_XMLLANG, language) == true)
+        {
+          AddParamValue(properties, PROMPT_LANGUAGE, language);
+          break ;
+        }
+    	check = check.GetParent() ;
       }
     }
 
@@ -277,14 +287,37 @@ void PromptManager::Queue(const VXMLNode & node, const VXMLElement & ref,
 
   // (4) Otherwise, this is simple content or an audio / tts element.
   else
+  {      
+    const VXIchar * j = propertyList.GetProperty(PropertyList::Language);
+    if (j != NULL) 
+    {
+      language = j;
+      AddParamValue(properties, PROMPT_LANGUAGE, j);
+	}
+	else
+	{
+	  // Search upwards starting with element for a language vxml tag
+	  VXMLElement check = item ;
+	  while (check != 0)
+	  {    	
+	    if (check.GetAttribute(ATTRIBUTE_XMLLANG, language) == true)
+	    {
+          AddParamValue(properties, PROMPT_LANGUAGE, language);
+          break ;
+        }
+        check = check.GetParent() ;
+      }
+    }	  
+	  
     ProcessSegments(node, item, propertyList, translator,
                     bargein, properties, sofar, isSSML);
+  }
 
   // (5) Add a new segment.
   if (!sofar.empty()) {
     if (!isSSML) AddSegment(SEGMENT_TEXT, sofar, properties, bargein);
     else {
-      // Retrieve language from properties, if not specified on <prompt>
+      // Retrieve language from properties, if not specified on <prompt>        
       if (language.empty()) {
         const VXIchar * j = propertyList.GetProperty(PropertyList::Language);
         if (j != NULL) {

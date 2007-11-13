@@ -53,7 +53,6 @@ UtlString* PromptCache::lookup(Url& url, int flags)
    size_t index;
    UtlBoolean cacheEntry;
    UtlContainable* pKey = NULL;
-   UtlContainable* pCachedKey;
    UtlString* pBuffer = NULL;
    UtlString* pCachedBuffer;
 
@@ -62,10 +61,8 @@ UtlString* PromptCache::lookup(Url& url, int flags)
    {
       UtlString preferredLanguage;
       
-      // The path from the URL does not contain a language ID. Use the
-      // specified path as the default path and insert the language ID
-      // from the "prefer-language" parameter (if provided) to get the
-      // preferred path      
+      // Pull out the preferred Language from the URL.  This is a hint
+      // to what language is desired.
       url.getHeaderParameter("prefer-language", preferredLanguage, 0) ;
       url.removeHeaderParameter("prefer-language") ;
        
@@ -90,14 +87,17 @@ UtlString* PromptCache::lookup(Url& url, int flags)
          }
          else
          {
+            // Update the preferred path to include the language preference
             if (preferredLanguage.length())
-            {
+            {                               
                 preferredPath = urlPath;
                 preferredPath.insert(index, "_" + preferredLanguage);
             }
          }
          
-         // First try to find the preferred and then the default prompt
+         // Lookup the path in the prompt table using the preferred path.
+         // If another path is found for the preferred -- that data will
+         // be cached under the preferred name.
          if (preferredPath.length())
          {
             usedPath = preferredPath;
@@ -111,16 +111,18 @@ UtlString* PromptCache::lookup(Url& url, int flags)
       }
 
       if (pKey == NULL)
-      {
+      {     
+         // Log the cache-miss
          if (cacheEntry == TRUE)
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                           "PromptCache::lookup - Did not find key: %s in prompt cache", usedPath.data());
          else
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
-                          "PromptCache::lookup - Buffering non-cached prompt: %s", usedPath.data());
+                          "PromptCache::lookup - Buffering non-cached prompt: %s", defaultPath.data());
 
-         mpFile = NULL;
-
+         // Attempt to open either the preferred or default path.  
+         // usedPath going forward represents the valid/found path.
+         mpFile = NULL;         
          status = open(preferredPath, defaultPath);
          if (status == OS_SUCCESS)
          {
@@ -132,13 +134,12 @@ UtlString* PromptCache::lookup(Url& url, int flags)
                           "PromptCache::lookup - Unable to open prompt file: preferred=%s, default=%s",
                           preferredPath.data() ? preferredPath.data() : "NULL",
                           defaultPath.data()? defaultPath.data() : "NULL");
-            if (index == UTL_NOT_FOUND)
-            {
-               return pBuffer;
-            }
+                        
+            // If asked for a standard prompt, return null (don't play file).
+            if (preferredPath.isNull())
+                return pBuffer;
             
-            // This is a standard prompt, try to substitute the requested file
-            // name with the error prompt
+            // Try to substitute the requested file name with the error prompt
             defaultPath.remove(index + 1);
             defaultPath.append(FALLBACK_PROMPT);
             status = open("", defaultPath);
@@ -146,7 +147,7 @@ UtlString* PromptCache::lookup(Url& url, int flags)
             {                
                return pBuffer;
             }
-            usedPath = defaultPath;
+            usedPath = mFilePath;
          }
          status = getLength(length);
          if (status != OS_SUCCESS)
@@ -168,17 +169,32 @@ UtlString* PromptCache::lookup(Url& url, int flags)
 
          if (cacheEntry == TRUE)
          {
-            // Now add the prompt to the table
-            pCachedKey = new UtlString(usedPath);
+            UtlString *pKeyPath ;
+            // Now add the prompt to the table -- store under preferred key 
+            // name if available.  This will result in less misses at the expense
+            // of memory consumption.
+            if (preferredPath.length())
+                pKeyPath = new UtlString(preferredPath);
+            else
+                pKeyPath = new UtlString(usedPath);
             pCachedBuffer = new UtlString(szSource, readLength);
             delete[] szSource;
-            pKey = mPromptTable.insertKeyAndValue(pCachedKey, pCachedBuffer);
+            
+            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
+                          "PromptCache::lookup - Inserting key %s:%s (len=%d)",                             
+                          pKeyPath->data(),
+                          usedPath.data(),
+                          readLength);
+            
+            pKey = mPromptTable.insertKeyAndValue(pKeyPath, pCachedBuffer);
             if (pKey == NULL)
             {
-               delete pCachedKey;
-               delete pCachedBuffer;
                OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
-                             "PromptCache::lookup - Insertion of key: %s failed!!", usedPath.data());
+                             "PromptCache::lookup - Insertion of key: %s:%s failed!!",                             
+                             pKeyPath->data(),
+                             usedPath.data());
+               delete pKeyPath;
+               delete pCachedBuffer;               
                return pBuffer;
             }
             else
@@ -263,7 +279,7 @@ OsStatus PromptCache::open(const UtlString preferredPath, const UtlString defaul
    // Next try to open the prompt file from the default path (i.e., from the
    // stdprompts directory (that matches the default language) or from the URL
    // specified location if this is not a standard prompt
-   if (status != OS_SUCCESS)
+   if (status != OS_SUCCESS && defaultPath.length())
    {      
       mpFile = new OsFile(defaultPath);
       status = mpFile->open(OsFile::READ_ONLY);
@@ -278,7 +294,7 @@ OsStatus PromptCache::open(const UtlString preferredPath, const UtlString defaul
    }
    // Finally, if this is a standard prompt, try to open the prompt file from
    // the English path (which is always included in the build).
-   if (status != OS_SUCCESS)
+   if (status != OS_SUCCESS && defaultPath.length())
    {
       size_t index = defaultPath.index(STD_PROMPTS_DIR, UtlString::ignoreCase);
       if (index != UTL_NOT_FOUND)

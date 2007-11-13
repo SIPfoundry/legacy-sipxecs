@@ -663,7 +663,7 @@ VXIpromptResult OSBpromptQueue(VXIpromptInterface* vxip,
                  (raw_text ? raw_text : L"(null)"), properties, bargein,
                  (accept_lang != NULL ? VXIStringCStr(accept_lang) : L"(null)"));
    OSBpromptImpl *impl = ToOSBpromptImpl(vxip);
-
+   
    const VXIbyte *binaryData = NULL;
    VXIulong binarySizeBytes = 0;
    vxistring type, src, text;
@@ -829,7 +829,6 @@ VXIpromptResult OSBpromptQueue(VXIpromptInterface* vxip,
                UtlString s(audiourl.toString());
                s.append("?prefer-language=");
                s.append(lang);
-               //audiourl.setHeaderParameter("prefer-language", lang);
                audiourl = s;
                delete[] lang;
                lang = NULL;  
@@ -932,7 +931,27 @@ VXIpromptResult OSBpromptQueue(VXIpromptInterface* vxip,
 
          // Add the array of prompts to the player's playlist
          for ( int i = 0; i < count; i++ )
-         {
+         {           
+           if (accept_lang != NULL) {
+             int len ;
+             const VXIchar *wlang = VXIStringCStr(accept_lang);
+             if ( wlang && (len = wcslen(wlang)) > 0 ) {
+               char *lang = new char[len + 1];
+               if (lang) {
+                 int j ;
+                 for ( j = 0; j < len; j++ ) {
+                    lang[j] = wlang[j];
+                 }
+                 lang[len] = 0;
+                 UtlString s(prompts[i].toString());
+                 s.append("?prefer-language=");
+                 s.append(lang);
+                 prompts[i] = s;
+                 delete[] lang;
+               }
+             }
+           }             
+             
             audioBuf = gPromptCache.lookup(prompts[i]);
             if (audioBuf != NULL)
             {
