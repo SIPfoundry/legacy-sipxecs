@@ -1086,6 +1086,13 @@ BrowserMatch "^gnome-vfs" redirect-carefully
 # sipX configuration includes
 Include @SIPX_CONFDIR@/httpd-sipxchange-common.conf
 
+################################################################
+#### New configuration sections should be added as files that
+#### match the pattern below, so that we start modularizing this
+################################################################
+
+Include @SIPX_CONFDIR@/httpd.conf.d/*.conf
+
 ######
 #
 # Special rules for fetching localized files based upon either one of :

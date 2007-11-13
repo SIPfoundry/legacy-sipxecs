@@ -34,7 +34,11 @@ endif
 install-exec-hook :
 
 install-data-hook : $(RPM_INSTALL) \
+	$(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d \
 	$(foreach file,$(pbxconf_files) $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file))
+
+$(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d:
+	$(INSTALL) -d -m 755 $@
 
 $(foreach file,$(pbxconf_files) $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)$(sysconfdir)/sipxpbx/% : %
 	@if [ -f $@ ]; \
