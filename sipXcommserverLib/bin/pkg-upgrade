@@ -182,7 +182,7 @@ class SystemService
     userfile = "#{user}.preconfigmerge"
     stat = File.stat(user) # copy perms so they can be put back on new file
     File.rename(user, userfile)
-    `#{@@merge} #{old} #{new} #{userfile} #{mapfile} > #{user} 2>#{user}.confimergelog`
+    `#{@@merge} #{old} #{new} #{userfile} #{mapfile} > #{user} 2>#{user}.configmergelog`
     rc = "#{$?}"
     if rc == '0'
        File.chown(stat.uid, stat.gid, user) # put perms back
