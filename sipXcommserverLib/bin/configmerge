@@ -29,7 +29,7 @@
 # If the Key/value pair is found, and the user config value and the old RPM
 # value are the same, (meaning the user has not changed the default value), 
 # then the new Key/value pair is output (in case the default value has 
-# changed).  Otherwise the value from the user is output.  
+# changed).  Otherwise the value from the user config file is output.  
 # 
 # Also, if a key in the new RPM file has an entry in the mapping file, then 
 # the mapped "old" name for that key is used in the lookup process in the 
