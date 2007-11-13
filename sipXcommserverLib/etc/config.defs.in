@@ -31,6 +31,11 @@ MY_FULL_HOSTNAME=`hostname -f`
 MY_HOSTNAME=`hostname -s`
 MY_IP_ADDR=`@bindir@/get_def_addr`
 
+##### In High Availability configurations, the names of the primary
+##### and secondary servers.  Otherwise empty.
+MASTER_HOSTNAME=
+DISTRIBUTED_HOSTNAME=
+
 ##### IP <-> PSTN Gateway addresses -- IP addresses (recommended) or host names #####
 GW_DEFAULT_ADDR=
 GW_800_DIALING_ADDR=${GW_DEFAULT_ADDR}
