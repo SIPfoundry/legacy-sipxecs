@@ -169,12 +169,16 @@ for openname in sipx sipxpbx; do
 done
 
 # if there is no daemon user, create it
+# Red Hat's useradd command adds the group automatically,
+# but SUSE does not
 id -u @SIPXPBXUSER@ > /dev/null 2>&1 \
-|| /usr/sbin/useradd \
+|| /usr/sbin/groupadd @SIPXPBXUSER@; \
+   /usr/sbin/useradd \
    -c "sipX service daemon" \
    -d %{_sysconfdir}/sipxpbx \
    -s /bin/bash \
-   @SIPXPBXUSER@
+   -g @SIPXPBXUSER@ \
+   @SIPXPBXUSER@ > /dev/null 2>&1
 
 # record the old version
 sipx-upgrade -p sipxcommserverlib -c
