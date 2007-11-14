@@ -1,0 +1,49 @@
+<test name="ftp">
+  <label>FTP Test</label>
+  <description>
+    Verify that the specified FTP server is functioning properly.
+  </description>
+  <command>
+    <exec>preflight</exec>
+    <arg>--ftp-test</arg>
+    <arg>${hostname}</arg>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="128">
+      <status>Error</status>
+      <msg>Network access failure.</msg>
+    </result>
+    <result exit="130">
+      <status>Error</status>
+      <msg>Timeout waiting for network response.</msg>
+    </result>
+    <result exit="155">
+      <status>Error</status>
+      <msg>FTP Server address is malformed.</msg>
+    </result>
+    <result exit="156">
+      <status>Error</status>
+      <msg>FTP server address could not be resolved.</msg>
+    </result>
+    <result exit="157">
+      <status>Error</status>
+      <msg>FTP server is unreachable.</msg>
+    </result>
+    <result exit="158">
+      <status>Error</status>
+      <msg>FTP client encountered unrecoverable error.</msg>
+    </result>
+    <result exit="159">
+      <status>Error</status>
+      <msg>FTP get of test file failed.</msg>
+    </result>
+    <result exit="160">
+      <status>Error</status>
+      <msg>FTP test file did not verify.</msg>
+    </result>
+  </results>
+</test>

@@ -5,6 +5,29 @@
     <property name="descriptorPath">
       <value>${sysdir.etc}/test.d</value>
     </property>
+    <property name="externalCommandContext" ref="commandContext"/>
+  </bean>
+  
+  <bean id="commandContext" class="org.sipfoundry.sipxconfig.admin.configdiag.DefaultExternalCommandContext">
+    <property name="binDirectory">
+      <value>${sysdir.bin}</value>
+    </property>
+    <property name="argumentResolverMap">
+      <map>
+        <entry>
+          <key>
+            <value>domain</value>
+          </key>
+          <value>${phoneDefaults.authorizationRealm}</value>
+        </entry>
+        <entry>
+          <key>
+            <value>hostname</value>
+          </key>
+          <value>phoneDefaults.fullyQualifiedDomainName</value>
+        </entry>
+      </map>    
+    </property>
   </bean>
   
   <bean id="compositeExecutionTask" 

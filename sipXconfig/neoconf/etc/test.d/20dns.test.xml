@@ -1,0 +1,38 @@
+<test name="dns">
+  <label>DNS Test</label>
+  <description>
+    Verify that the DNS server(s) supplied by the DHCP server can
+    properly resolve the sip domain
+  </description>
+  <command>
+    <exec>preflight</exec>
+    <arg>--dns-test</arg>
+    <arg>${domain}</arg>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="128">
+      <status>Error</status>
+      <msg>Network access failure.</msg>
+    </result>
+    <result exit="130">
+      <status>Error</status>
+      <msg>Timeout waiting for network response.</msg>
+    </result>
+    <result exit="139">
+      <status>Error</status>
+      <msg>SRV target could not be resolved.</msg>
+    </result>
+    <result exit="141">
+      <status>Error</status>
+      <msg>Unable to resolve SIP domain.</msg>
+    </result>
+    <result exit="142">
+      <status>Error</status>
+      <msg>SIP domain is unreachable.</msg>
+    </result>
+  </results>
+</test>

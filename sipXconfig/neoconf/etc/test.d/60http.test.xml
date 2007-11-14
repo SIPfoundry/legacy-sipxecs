@@ -1,0 +1,49 @@
+<test name="http">
+  <label>HTTP Test</label>
+  <description>
+    Verify that the specified HTTP server is functioning properly.
+  </description>
+  <command>
+    <exec>preflight</exec>
+    <arg>--http-test</arg>
+    <arg>${hostname}</arg>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="128">
+      <status>Error</status>
+      <msg>Network access failure.</msg>
+    </result>
+    <result exit="130">
+      <status>Error</status>
+      <msg>Timeout waiting for network response.</msg>
+    </result>
+    <result exit="161">
+      <status>Error</status>
+      <msg>HTTP URL is malformed.</msg>
+    </result>
+    <result exit="162">
+      <status>Error</status>
+      <msg>HTTP server address could not be resolved.</msg>
+    </result>
+    <result exit="163">
+      <status>Error</status>
+      <msg>HTTP server is unreachable.</msg>
+    </result>
+    <result exit="164">
+      <status>Error</status>
+      <msg>HTTP client encountered unrecoverable error.</msg>
+    </result>
+    <result exit="165">
+      <status>Error</status>
+      <msg>HTTP get of test file failed.</msg>
+    </result>
+    <result exit="166">
+      <status>Error</status>
+      <msg>HTTP test file did not verify.</msg>
+    </result>
+  </results>
+</test>

@@ -28,6 +28,8 @@ public class ConfigurationDiagnosticContextImpl implements ConfigurationDiagnost
 
     private String m_descriptorPath;
 
+    private ExternalCommandContext m_externalCommandContext;
+
     public List<ConfigurationDiagnostic> getConfigurationTests() {
         List<ConfigurationDiagnostic> configurationTests = new ArrayList<ConfigurationDiagnostic>();
 
@@ -50,6 +52,7 @@ public class ConfigurationDiagnosticContextImpl implements ConfigurationDiagnost
         for (File file : descriptorFiles) {
             LOG.debug("Found descriptor file " + file.getName());
             ConfigurationDiagnostic diag = new ConfigurationDiagnostic();
+            diag.setCommandContext(m_externalCommandContext);
             try {
                 diag.loadFromXml(new FileInputStream(file));
                 configurationTests.add(diag);
@@ -63,5 +66,9 @@ public class ConfigurationDiagnosticContextImpl implements ConfigurationDiagnost
 
     public void setDescriptorPath(String path) {
         m_descriptorPath = path;
+    }
+    
+    public void setExternalCommandContext(ExternalCommandContext externalCommandContext) {
+        m_externalCommandContext = externalCommandContext;
     }
 }

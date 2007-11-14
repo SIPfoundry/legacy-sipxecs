@@ -29,8 +29,9 @@ public class ConfigurationDiagnosticPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         int diagCount = SiteTestHelper.getRowCount(tester, "configdiag:list");
         
-        // expect header row plus 2 rows with tests
-        assertEquals(3, diagCount);
+        // expect header row plus 1 row per test
+        // this assert needs to be changed as tests are added or removed
+        assertEquals(7, diagCount);
         
     }
 }

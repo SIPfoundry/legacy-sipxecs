@@ -32,6 +32,7 @@ public class ConfigurationDiagnostic implements ExecutionTask, Serializable {
     private ConfigurationDiagnosticResultParser m_resultParser;
     private Date m_startTime;
     private Date m_endTime;
+    private ExternalCommandContext m_commandContext;
 
     public ConfigurationDiagnostic() {
         m_result = ConfigurationDiagnosticResult.UNKNOWN_RESULT;
@@ -56,6 +57,9 @@ public class ConfigurationDiagnostic implements ExecutionTask, Serializable {
         digester.addBeanPropertySetter(RESULT_PATH + "/status", "statusAsString");
         digester.addBeanPropertySetter(RESULT_PATH + "/msg", "message");
         digester.parse(xmlStream);
+        
+        // set the context here... would be cleaner to set it in the digester code above
+        m_command.setContext(m_commandContext);
     }
 
     public String getName() {
@@ -92,6 +96,10 @@ public class ConfigurationDiagnostic implements ExecutionTask, Serializable {
 
     public void setCommand(ExternalCommand command) {
         m_command = command;
+    }
+    
+    public void setCommandContext(ExternalCommandContext commandContext) {
+        m_commandContext = commandContext;
     }
 
     public void setResultParser(ConfigurationDiagnosticResultParser parser) {

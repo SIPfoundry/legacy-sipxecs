@@ -87,6 +87,7 @@
         <!-- goes into tftp root, see below -->
         <exclude name="ciscoIp/syncinfo.xml" />
         <exclude name="ciscoAta/sipx7912.logo" />
+	<exclude name="preflight/00D01EFFFFFE" />
       </fileset>
     </copy>
 
@@ -169,7 +170,7 @@
 
     <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoIp/syncinfo.xml" />
     <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoAta/sipx7912.logo" />
-
+    <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/preflight/00D01EFFFFFE" />
   </target>
 
   <!-- D E F A U L T -->

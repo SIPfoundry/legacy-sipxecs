@@ -9,8 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.configdiag;
 
-public interface ExternalExecutionTaskContext {
-    public ConfigurationDiagnosticResultParser getResultParser();
+public interface ExternalCommandContext {
 
-    public ExternalCommand getCommand();
+    public String getBinDirectory();
+    public String resolveArgumentString(String key);
+
 }
