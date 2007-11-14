@@ -54,6 +54,9 @@ public class SipFoundryLayout extends Layout
     */
    public static Level mapSipFoundry2log4j(String level)
    {
+      if (level == null)
+         return Level.DEBUG ;
+
       if (level.equalsIgnoreCase("DEBUG"))
          return Level.DEBUG ;
       if (level.equalsIgnoreCase("INFO"))
@@ -66,7 +69,9 @@ public class SipFoundryLayout extends Layout
          return Level.ERROR ;
       if (level.equalsIgnoreCase("ERROR"))
          return Level.ERROR ;
-      return Level.toLevel(level) ;
+
+      Level l = Level.toLevel(level) ;
+      return l == null ? Level.DEBUG : l ;
    }
    
    /**
