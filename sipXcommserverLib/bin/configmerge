@@ -40,20 +40,20 @@
 sub parse()
 {
    my ($line) = @_ ;
-   my $key, $value, $seperator ;
+   my $key, $value, $separator ;
 
    # Key can be alphanumeric, with ".", "_", and "-"
-   # seperator can be ":" or "="
+   # separator can be ":" or "="
    # Try "key : value", or "key = value",  ala Pingtel config files
-   ($key, $seperator, $value) = $line =~ /^([\.\-[:word:]]+)(\s*[:=]\s*)(\S*.*)$/ ;
+   ($key, $separator, $value) = $line =~ /^([\.\-[:word:]]+)(\s*[:=]\s*)(\S*.*)$/ ;
    if (length($key) == 0)
    {
-      $seperator = "" ;
+      $separator = "" ;
       # Try key{whitespace}value, ala mediaserver config file
       ($key, $value) = $line =~ /^(\S+)(.*)$/ ;
    }
    $value = "" unless length($value) ; # "" instead of undef
-   return ($key, $value, $seperator)
+   return ($key, $value, $separator)
 }
 
 if ($debug)
@@ -152,7 +152,7 @@ while(<NRPM>)
       print "$_\n" ;
       next ;
    }
-   ($key, $new, $seperator) = &parse($_) ;
+   ($key, $new, $separator) = &parse($_) ;
    print STDERR "  ($key):($new)\n" if $debug == 2 ;
 
    $old = $OLD{$key} ;
@@ -182,6 +182,6 @@ while(<NRPM>)
    }
    print STDERR "$where ($key):($value)\n" if $debug == 2 ;
 
-   print "${key}${seperator}${value}\n" ;
+   print "${key}${separator}${value}\n" ;
 }
 print STDERR "New RPM:----------------\n" if $debug ;
