@@ -55,6 +55,7 @@
 #define CALL_STATE_LOG_FILE_DEFAULT SIPX_LOGDIR "/sipproxy_callstate.log"
 
 // Configuration names pulled from config-file
+#define CONFIG_SETTING_BIND_IP        "SIP_PROXY_BIND_IP"
 #define CONFIG_SETTING_LOG_LEVEL      "SIP_PROXY_LOG_LEVEL"
 #define CONFIG_SETTING_LOG_CONSOLE    "SIP_PROXY_LOG_CONSOLE"
 #define CONFIG_SETTING_LOG_DIR        "SIP_PROXY_LOG_DIR"
@@ -331,6 +332,7 @@ main(int argc, char* argv[])
     int proxyTcpPort;
     int proxyUdpPort;
     int proxyTlsPort;
+    UtlString bindIp;
     UtlString domainName;
     UtlString proxyRecordRoute;
     int maxForwards;
@@ -373,6 +375,15 @@ main(int argc, char* argv[])
     }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_DOMAIN_NAME : %s", domainName.data());
     osPrintf("SIP_PROXY_DOMAIN_NAME : %s\n", domainName.data());
+
+    configDb.get(CONFIG_SETTING_BIND_IP, bindIp);
+    if ((bindIp.isNull()) || !OsSocket::isIp4Address(bindIp))
+    {
+       bindIp = "0.0.0.0";
+    }
+    OsSysLog::add(FAC_SIP, PRI_INFO, "%s: %s", CONFIG_SETTING_BIND_IP, 
+          bindIp.data());
+    osPrintf("%s: %s", CONFIG_SETTING_BIND_IP, bindIp.data());    
 
     proxyUdpPort = configDb.getPort("SIP_PROXY_UDP_PORT") ;
     if (!portIsValid(proxyUdpPort))
@@ -730,7 +741,7 @@ main(int argc, char* argv[])
         proxyTlsPort,
         NULL, // public IP address (nopt used in proxy)
         NULL, // default user (not used in proxy)
-        NULL, // default SIP address (not used in proxy)
+        bindIp,
         (authEnabled && !authServer.isNull()) ? authServer.data() : NULL,
         NULL, // directory server
         NULL, // registry server

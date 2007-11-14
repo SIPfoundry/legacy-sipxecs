@@ -35,7 +35,7 @@
 #endif
 
 // DEFINES
-
+#define CONFIG_SETTING_BIND_IP            "SIP_AUTHPROXY_BIND_IP"
 #define CONFIG_SETTING_CALL_STATE         "SIP_AUTHPROXY_CALL_STATE"
 #define CONFIG_SETTING_CALL_STATE_LOG     "SIP_AUTHPROXY_CALL_STATE_LOG"
 #define CALL_STATE_LOG_FILE_DEFAULT SIPX_LOGDIR "/sipauthproxy_callstate.log"
@@ -368,6 +368,7 @@ main( int argc, char* argv[] )
     int proxyTcpPort;
     int proxyUdpPort;
     int proxyTlsPort;
+    UtlString bindIp;
     UtlString routeName;
     OsConfigDb configDb;
     UtlString ipAddress;
@@ -404,6 +405,15 @@ main( int argc, char* argv[] )
     }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_TLS_PORT : %d", proxyTlsPort);
 
+    configDb.get(CONFIG_SETTING_BIND_IP, bindIp);
+    if ((bindIp.isNull()) || !OsSocket::isIp4Address(bindIp))
+    {
+       bindIp = "0.0.0.0";
+    }
+    OsSysLog::add(FAC_SIP, PRI_INFO, "%s: %s", CONFIG_SETTING_BIND_IP, 
+          bindIp.data());
+    osPrintf("%s: %s", CONFIG_SETTING_BIND_IP, bindIp.data());    
+        
     UtlString hostAliases;
     configDb.get("SIP_AUTHPROXY_HOST_ALIASES", hostAliases);
     if(hostAliases.isNull())
@@ -598,7 +608,7 @@ main( int argc, char* argv[] )
         proxyTlsPort,
         NULL, // public IP address (nopt used in proxy)
         NULL, // default user (not used in proxy)
-        NULL, // default SIP address (not used in proxy)
+        bindIp,
         NULL, // outbound proxy
         NULL, // directory server
         NULL, // registry server
