@@ -43,18 +43,16 @@ Requires: %name >= %version
 Requires: ruby
 Requires: ruby-dbi
 
-%if %{_vendor} == redhat
-%ifarch ppc ppc64
+# old sipx built package, get it removed
+Obsoletes: ruby-gems
+
 Requires: rubygems
-%else
-Requires: ruby-gems
-%endif
+%if %{_vendor} == redhat
 Requires: ruby-libs
 Requires: ruby-postgres >= 0.7.1
 %endif
 
 %if %{_vendor} == suse
-Requires: rubygems
 Requires: rubygem-ruby-postgres >= 0.7.1
 %endif
 

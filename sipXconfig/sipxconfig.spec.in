@@ -27,22 +27,24 @@ Requires: sipxcommserverlib >= 3.9
 Requires: sipxpbx >= 3.9
 Requires: postgresql-server
 Requires: ruby
-%if %{_vendor} == redhat
-%ifarch ppc ppc64
+# old sipx built package, get it removed
+Obsoletes: ruby-gems
 Requires: rubygems
-%else
-Requires: ruby-gems
-%endif
-%endif
+
 %if %{_vendor} == suse
-Requires: rubygems
 Requires: apache2-prefork
 %endif
 
 # known incompatabilities w/gcj, unclear how to enforce. can be issue
 # when gcj gets to 1.5, until them sun and ibm jvms ok
 %ifarch ppc ppc64
-Requires: java-1.5.0-ibm >= 1.5
+Requires: java-ibm >= 1.5
+
+# required. this handle certs when using ibm's jvm
+# note anaconda in fc6ppc doesn't seem to know to pull this in
+# could be the bizarre versioning (i.e. lack of it)
+Requires: java-ibm-unrestricted
+
 %else
 Requires: java >= 1.5
 %endif
@@ -114,16 +116,9 @@ Summary: Configures/enables MRTG monitoring for %{name}
 %package agent
 Requires: sipxcommserverlib
 Requires: ruby
-%if %{_vendor} == redhat
-%ifarch ppc ppc64
+# old sipx built package, get it removed
+Obsoletes: ruby-gems
 Requires: rubygems
-%else
-Requires: ruby-gems
-%endif
-%endif
-%if %{_vendor} == suse
-Requires: rubygems
-%endif
 
 %if %{_vendor} == redhat
 # irb is for file-tail gem
@@ -146,16 +141,13 @@ Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Aggregates data from sipxconfig-agent into a database for reporting tools
 
-%if %{_vendor} == redhat
-%ifarch ppc ppc64
+# old sipx built package, get it removed
+Obsoletes: ruby-gems
 Requires: rubygems
-%else
-Requires: ruby-gems
-%endif
+%if %{_vendor} == redhat
 Requires: ruby-postgres
 %endif
 %if %{_vendor} == suse
-Requires: rubygems
 Requires: rubygem-ruby-postgres
 %endif
 

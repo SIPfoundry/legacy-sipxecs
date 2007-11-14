@@ -1,28 +1,20 @@
-XERCES_C_LIBSRC=$(LIBSRC)/xerces-c
+# Mostly for centos 5 support
+XERCES_C_RPM_URL = $(FC6_EXTRAS_URL)/6/$(RPM_TARGET_ARCH)
 
+XERCES_C_LIBSRC=$(LIBSRC)/xerces-c
 VER = 2.7.0
-REL = 3
+REL = 6
 
 RPMS = \
-	$(DEST_RPM)/xerces-c-$(VER)-$(REL).@RPM_TARGET_ARCH@.rpm \
-	$(DEST_RPM)/xerces-c-devel-$(VER)-$(REL).@RPM_TARGET_ARCH@.rpm
+	xerces-c-$(VER)-$(REL).fc6.$(RPM_TARGET_ARCH).rpm \
+	xerces-c-devel-$(VER)-$(REL).fc6.$(RPM_TARGET_ARCH).rpm
 
-VER_UNDERSCORE = $(subst .,_,$(VER))
-SRC = $(XERCES_C_LIBSRC)/xerces-c-src_$(VER_UNDERSCORE).tar.gz
+all : $(foreach RPM,$(RPMS),$(DEST_RPM)/$(RPM))
 
-all : $(RPMS)
+# simply download, no need to patch/recompile
+$(XERCES_C_LIBSRC)/% :
+	$(DOWNLOAD_FILE) $@ $(XERCES_C_RPM_URL)/$*
 
-$(SRC) :
-	$(DOWNLOAD_FILE) $@ $(XERCES_C_URL)/`basename $@`
-
-# Patch the spec file, rpmbuild complains when building it
-.PHONY: build-rpms
-build-rpms : $(SRC)
-	cp $(SRC) @RPMBUILD_TOPDIR@/SOURCES
-	tar -xzf $(SRC) -O xerces-c-src_$(VER_UNDERSCORE)/xerces-c.spec > xerces-c.spec.orig
-	patch -p0 xerces-c.spec.orig < $(srcdir)/xerces-c-sipx.patch \
-	    -o @RPMBUILD_TOPDIR@/SPECS/xerces-c.spec
-	rpmbuild -ba @RPMBUILD_TOPDIR@/SPECS/xerces-c.spec
-
-$(RPMS) : build-rpms
-	cp @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/`basename $@` $@
+# simply download, no need to patch/recompile
+$(DEST_RPM)/% : $(XERCES_C_LIBSRC)/%
+	cp $< $@
