@@ -3416,12 +3416,14 @@ CpCall::handleWillingness CpPeerCall::willHandleMessage(const OsMsg& eventMessag
                         // match of the Call-Id in the Replaces header
                         UtlString toTag;
                         UtlString fromTag;
-                        sipMsg->getReplacesData(callId, toTag, fromTag);
-                        UtlBoolean replacesMatchesThisCallId = 
-                            hasCallId(callId.data());
-                        if(replacesMatchesThisCallId)
+                        if (sipMsg->getReplacesData(callId, toTag, fromTag))
                         {
-                            takeTheMessage = CP_MAY_HANDLE;
+                            UtlBoolean replacesMatchesThisCallId = 
+                                hasCallId(callId.data());
+                            if(replacesMatchesThisCallId)
+                            {
+                                takeTheMessage = CP_MAY_HANDLE;
+                            }
                         }
                     }
                 }
