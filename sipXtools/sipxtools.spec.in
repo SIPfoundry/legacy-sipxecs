@@ -37,6 +37,5 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}
-%attr(4755,root,root) %{_bindir}/preflight*
 %attr(644,root,root) %{_libdir}/preflight/*.jar
 %{_mandir}/man1

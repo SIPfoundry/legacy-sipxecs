@@ -58,7 +58,6 @@
   <!-- L A U N C H E R S -->
   <target name="launcher" depends="jar" description="create native launchers">
     <antcall target="posix-launcher"/>
-    <antcall target="test-for-windows-prerequisites"/>
     <antcall target="windows-launcher"/>
     <antcall target="jre-missing"/>
     <antcall target="nsis-missing"/>
@@ -77,7 +76,8 @@
   </target>
 
   <!-- Build Windows Installer if Windows JRE and NSIS are installed -->
-  <target name="windows-launcher" if="has.windows.prerequisites" depends="jar" description="create native windows launcher and installer" >
+  <target name="windows-launcher" if="has.windows.prerequisites" depends="jar, test-for-windows-prerequisites"
+          description="create native windows launcher and installer" >
     <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j.jar}:${xstream.jar}" />
     <copy file="${src.dir}/Preflight.xml.in" tofile="${build.dir}/dist/Preflight.xml"/>
     <replace file="${build.dir}/dist/Preflight.xml">
@@ -99,7 +99,6 @@
   <!-- I N S T A L L -->
   <target name="install">
     <antcall target="posix-install"/>
-    <antcall target="test-for-windows-prerequisites"/>
     <antcall target="windows-install"/>
   </target>
 
@@ -111,7 +110,7 @@
     <chmod file="${dest.dir}${bin.dir}/preflight" perm="ugo+x" />
   </target>
     
-  <target name="windows-install" if="has.windows.prerequisites">
+  <target name="windows-install" if="has.windows.prerequisites" depends="test-for-windows-prerequisites">
     <!-- Windows Installer -->
     <copy file="${build.dir}/dist/preflight_installer.exe" todir="${dest.dir}${bin.dir}"/>
     <chmod file="${dest.dir}${bin.dir}/preflight_installer.exe" perm="ugo+x" />
@@ -147,7 +146,7 @@
     </condition>
   </target>
 
-  <target name="jre-missing" unless="has.jre">
+  <target name="jre-missing" unless="has.jre" depends="test-for-jre">
     <echo>
       Creation of Windows installer was skipped due to missing
       Windows Java Runtime.  See project README document for more
@@ -155,7 +154,7 @@
     </echo>
   </target>
 
-  <target name="nsis-missing" unless="has.nsis">
+  <target name="nsis-missing" unless="has.nsis" depends="test-for-nsis">
     <echo>
       Creation of Windows installer was skipped due to missing
       NSIS (Nullsoft Scriptable Install System) package.  See
