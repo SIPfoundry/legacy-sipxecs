@@ -54,8 +54,9 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsSSLServerSocket::OsSSLServerSocket(int connectionQueueSize, int serverPort)
-   : OsServerSocket(connectionQueueSize,serverPort)
+OsSSLServerSocket::OsSSLServerSocket(int connectionQueueSize, int serverPort,
+      const char* szBindAddr)
+   : OsServerSocket(connectionQueueSize,serverPort,szBindAddr)
 {
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSSLServerSocket::_ %p", this );
 }

@@ -42,9 +42,10 @@ public:
    OsSSLServerSocket(int connectionQueueSize, /**< The maximum number of outstanding connection
                                                *   requests which are allowed before subsequent
                                                *   requests are turned away.*/ 
-                     int serverPort=PORT_DEFAULT /**< The port on which the server will listen to
-                                                  *   accept connection requests.
-                                                  *   PORT_DEFAULT means let OS pick port. */
+                     int serverPort=PORT_DEFAULT, /**< The port on which the server will listen to
+                                                   *   accept connection requests.
+                                                   *   PORT_DEFAULT means let OS pick port. */
+                     const char* szBindAddr=NULL /**< Default bind-to address */
                      );
    /**
     * Sets the socket connection queue and starts listening on the
