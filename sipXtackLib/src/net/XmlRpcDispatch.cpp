@@ -94,7 +94,8 @@ const char* XmlRpcDispatch::DEFAULT_URL_PATH = "/RPC2";
 // Constructor
 XmlRpcDispatch::XmlRpcDispatch(int httpServerPort,
                                bool isSecureServer,
-                               const char* uriPath)
+                               const char* uriPath,
+                               const char* bindIp)
    : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
     UtlString osBaseUriDirectory ;
@@ -109,11 +110,11 @@ XmlRpcDispatch::XmlRpcDispatch(int httpServerPort,
    OsServerSocket* pServerSocket = NULL;
    if (isSecureServer)
    {
-      pServerSocket = new OsSSLServerSocket(50, httpServerPort);
+      pServerSocket = new OsSSLServerSocket(50, httpServerPort, bindIp);
    }
    else
    {
-      pServerSocket = new OsServerSocket(50, httpServerPort);
+      pServerSocket = new OsServerSocket(50, httpServerPort, bindIp);
    }
       
    mpHttpServer = new HttpServer(pServerSocket,

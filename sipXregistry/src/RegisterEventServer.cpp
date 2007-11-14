@@ -126,7 +126,8 @@ UtlContainableType RegEventDefaultConstructor::getContainableType() const
 RegisterEventServer::RegisterEventServer(const UtlString& domainName,
                                          int tcpPort,
                                          int udpPort,
-                                         int tlsPort) :
+                                         int tlsPort,
+                                         const UtlString& bindIp) :
    mDomainName(domainName),
    mEventType(REG_EVENT_TYPE),
    mpRegistrationDBInstance(RegistrationDB::getInstance()),
@@ -136,7 +137,7 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
       tlsPort, // sipTlsPort
       NULL, // publicAddress
       NULL, // defaultUser
-      NULL, // defaultSipAddress
+      bindIp,
       NULL, // sipProxyServers
       NULL, // sipDirectoryServers
       NULL, // sipRegistryServers

@@ -108,7 +108,7 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    if (mProxyNormalPort == PORT_DEFAULT)
    {
       mProxyNormalPort = SIP_PORT;
-   }
+   }  
     
    // Domain Name
    mConfigDb->get("SIP_REGISTRAR_DOMAIN_NAME", mDefaultDomain);
@@ -145,6 +145,12 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
       addValidDomain(hostAlias,port);
       aliasIndex++;
    }
+   
+   mConfigDb->get("SIP_REGISTRAR_BIND_IP", mBindIp);
+   if ((mBindIp.isNull()) || !OsSocket::isIp4Address(mBindIp))
+   {
+	  mBindIp = "0.0.0.0";
+   }   
 }
 
 int SipRegistrar::run(void* pArg)
@@ -251,13 +257,13 @@ void SipRegistrar::operationalPhase()
    {
       tlsPort = REGISTRAR_DEFAULT_SIPS_PORT;
    }
-
+   
    mSipUserAgent = new SipUserAgent(tcpPort,
                                     udpPort,
                                     tlsPort,
                                     NULL,   // public IP address (not used)
                                     NULL,   // default user (not used)
-                                    NULL,   // default SIP address (not used)
+                                    mBindIp,
                                     NULL,   // outbound proxy
                                     NULL,   // directory server
                                     NULL,   // registry server
@@ -678,7 +684,7 @@ void SipRegistrar::startRpcServer()
    if (mReplicationConfigured)
    {
       // Initialize mHttpServer and mXmlRpcDispatch
-      mXmlRpcDispatch = new XmlRpcDispatch(mHttpPort, true /* use https */);
+      mXmlRpcDispatch = new XmlRpcDispatch(mHttpPort, true /* use https */, mBindIp);
       mHttpServer = mXmlRpcDispatch->getHttpServer();
    }
 }
@@ -724,10 +730,12 @@ SipRegistrar::startEventServer()
    {
       port = REGISTRAR_DEFAULT_REG_EVENT_PORT;
    }
+      
    mRegisterEventServer = new RegisterEventServer(defaultDomain(),
                                                   port,
                                                   port,
-                                                  PORT_NONE);
+                                                  PORT_NONE,
+                                                  mBindIp);
 }
 
 void

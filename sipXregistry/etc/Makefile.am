@@ -29,6 +29,15 @@ $(DESTDIR)$(sysconfdir)/sipxpbx/registrar-config.in: registrar-config.in.tmp
 	if [ -f $@ ]; \
 	then \
 	  echo "    Using existing $@"; \
+	  echo -n "        Checking bind ip ..."; \
+	  if grep 'SIP_REGISTRAR_BIND_IP' $@ > /dev/null 2>&1 ; \
+	  then \
+	    echo " ok" ; \
+	  else \
+	  	 echo " adding bind ip"; \
+	  	 echo "SIP_REGISTRAR_BIND_IP : \$${MY_IP_ADDR}" \
+	  	 >> $@ ; \
+	  fi; \
 	  echo -n "        Checking mwi ..."; \
 	  if grep 'SIP_REGISTRAR_HOOK_LIBRARY.MWI' $@ > /dev/null 2>&1 ; \
 	  then \

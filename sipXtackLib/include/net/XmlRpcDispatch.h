@@ -86,7 +86,8 @@ public:
    /// Create a dispatch object.
    XmlRpcDispatch(int httpServerPort,           ///< port number for HttpServer
                   bool isSecureServer,          ///< option for HTTP or HTTPS
-                  const char* uriPath = DEFAULT_URL_PATH          ///< uri path
+                  const char* uriPath = DEFAULT_URL_PATH,         ///< uri path
+                  const char* bindIp = NULL     /// Default bind IP
                   );
 
    /// Destructor.

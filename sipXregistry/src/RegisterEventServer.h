@@ -56,7 +56,9 @@ class RegisterEventServer
                        /// The UDP port to listen on.
                        int udpPort,
                        /// The TLS port to listen on.
-                       int tlsPort);
+                       int tlsPort,
+                       // Local IP address to bind on
+                       const UtlString& bindIp);
 
    virtual ~RegisterEventServer();
 

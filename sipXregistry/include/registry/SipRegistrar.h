@@ -221,6 +221,7 @@ private:
    // A port number, which if found on an AOR to register,
    // will be removed, or PORT_NONE
    int mProxyNormalPort;
+   UtlString mBindIp;    /// Local Ip address to bind on
     
    /* ============================ REGISTRAR =================================== */
    void startRegistrarServer();
