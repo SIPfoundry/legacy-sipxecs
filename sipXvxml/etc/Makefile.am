@@ -11,5 +11,8 @@ install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipXvxml.process.xml
 		echo ""; echo "Installing default $(sysconfdir)/sipxpbx/mediaserver-config.in"; \
 		$(INSTALL) -D -m 644 mediaserver-config.in $(DESTDIR)$(sysconfdir)/sipxpbx/mediaserver-config.in; \
 	else \
-		echo ""; echo "Using existing $(sysconfdir)/sipxpbx/mediaserver-config.in "; \
-	fi;
+        diff mediaserver-config.in $(DESTDIR)$(sysconfdir)/sipxpbx/mediaserver-config.in > /dev/null 2>&1 \
+        || (  echo "Using existing - Installing as $(DESTDIR)$(sysconfdir)/sipxpbx/mediaserver-config.in.NEW" \
+            ; $(INSTALL) -D -m 644 mediaserver-config.in $(DESTDIR)$(sysconfdir)/sipxpbx/mediaserver-config.in.NEW; \
+            ); \
+    fi	

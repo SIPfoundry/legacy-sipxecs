@@ -58,6 +58,11 @@ mediaserver.max.active.calls            VXIInteger      300
 ### Define what CODECs are available to the user agents.
 mediaserver.rtp.codecs                  VXIString       EG711U EG711A pcmu pcma telephone-event
 
+### Port / IP configuration
+mediaserver.udp.port                    VXIInteger      5100
+mediaserver.tcp.port                    VXIInteger      5100
+mediaserver.bindip                      VXIString       ${MY_IP_ADDR}
+
 ### Logging
 client.log.dir                          VXIString       \$(VXILOG)
 client.log.filename                     VXIString       \$(VXILOG)/vxmlengine.log

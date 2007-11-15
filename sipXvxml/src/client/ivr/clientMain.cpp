@@ -101,17 +101,23 @@ if ((VXIint)(_res) != 0) { \
 #define DEFAULT_MAX_CALLS             -1 /* loop forever */
 
 /* Configuration file parameters */
-#define BASE_CLIENT_VXML_URL          L"client.vxmlURL"
-#define MEDIASERVER_LOG   "mediaserver.log"
+#define BASE_CLIENT_VXML_URL      L"client.vxmlURL"
+#define MEDIASERVER_LOG            "mediaserver.log"
 #define LOG_DIR                   L"client.log.dir"
-#define MAX_ACTIVE_CALLS  L"mediaserver.max.active.calls"
-#define SYS_LOG_LEVEL     L"mediaserver.log.level"
-#define MEDIASERVER_RTP_CODECS L"mediaserver.rtp.codecs"
+#define MAX_ACTIVE_CALLS          L"mediaserver.max.active.calls"
+#define SYS_LOG_LEVEL             L"mediaserver.log.level"
+#define MEDIASERVER_RTP_CODECS    L"mediaserver.rtp.codecs"
+#define MEDIASERVER_UDP_PORT      L"mediaserver.udp.port"
+#define MEDIASERVER_TCP_PORT      L"mediaserver.tcp.port"
+#define MEDIASERVER_BIND_IP       L"mediaserver.bindip"
 
 #define DEFAULT_CODEC_LIST_STRING "pcmu pcma telephone-event"
 
-#define DEFAULT_MAX_ACTIVE_CALLS 100
-#define DEFAULT_MAX_LISTENERS 200
+#define DEFAULT_MAX_ACTIVE_CALLS        100
+#define DEFAULT_MAX_LISTENERS           200
+#define DEFAULT_MEDIASERVER_UDP_PORT    5100
+#define DEFAULT_MEDIASERVER_TCP_PORT    5100
+#define DEFAULT_MEDIASERVER_BIND_IP     "0.0.0.0"
 
 const char* MEDIASERVER_ID_TOKEN = "~~id~media"; // see sipXregistry/doc/service-tokens.txt
 
@@ -871,17 +877,58 @@ int main(int argc, char *argv[])
                     domainConfigPath.data()
                     );
    }
+   
+   // Determine UDP Port
+   int udpPort = PORT_NONE ;
+   const VXIInteger* portValue = 
+         (const VXIInteger*) VXIMapGetProperty(glbConfigArgs, 
+         MEDIASERVER_UDP_PORT);
+   if (portValue != NULL)
+   {
+      udpPort = VXIIntegerValue(portValue);
+   }
+   if (!portIsValid(udpPort))
+      udpPort = DEFAULT_MEDIASERVER_UDP_PORT ;
+   
+   // Determine TCP Port
+   int tcpPort = PORT_NONE ;
+   portValue = (const VXIInteger*) VXIMapGetProperty(glbConfigArgs, 
+         MEDIASERVER_TCP_PORT);
+   if (portValue != NULL)
+   {
+      tcpPort = VXIIntegerValue(portValue);
+   }
+   if (!portIsValid(tcpPort))
+      tcpPort = DEFAULT_MEDIASERVER_TCP_PORT ;
 
-
-
-   int port = 5100;
+   // Determine bind-Ip
+   UtlString bindIp ;
+   const VXIString *wcBindIp =
+         (const VXIString *)VXIMapGetProperty(glbConfigArgs, 
+         MEDIASERVER_BIND_IP);   
+   if(wcBindIp != NULL) 
+   {
+      int len = VXIStringLength(wcBindIp);
+      char* temp  = new char [len + 1];
+      wcstombs(temp, VXIStringCStr(wcBindIp), len);
+      temp[len] = 0;
+      bindIp = temp ;
+      delete temp ;
+   }
+   if (!OsSocket::isIp4Address(bindIp))
+         bindIp = DEFAULT_MEDIASERVER_BIND_IP ;
+   
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_INFO,
+         "Requesting bind on %s (udpPort=%d, tcpPort=%d)",
+         bindIp.data(), udpPort, tcpPort) ;
+      
    SipUserAgent *userAgent =
-      new SipUserAgent(port, 
-                       port,
+      new SipUserAgent(tcpPort, 
+                       udpPort,
                        PORT_NONE,
-                       NULL, // public IP address (nopt used in proxy)
+                       NULL, // public IP address (not used in proxy)
                        user.isNull() ? NULL : user.data(), // default user
-                       NULL, // default SIP address (not used in proxy)
+                       bindIp,
                        domain.isNull() ? NULL : domain.data(), // outbound proxy
                        NULL, // directory server
                        NULL, // registry server
@@ -906,9 +953,16 @@ int main(int argc, char *argv[])
    userAgent->setUserAgentHeaderProperty("sipX/vxml");
 
    userAgent->start();
-
+   
    UtlString localAddress;
-   OsSocket::getHostIp(&localAddress);
+   int localPort;
+   userAgent->getLocalAddress(&localAddress, &localPort) ;
+   
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_INFO,
+         "UserAgent bound on %s:%d", bindIp.data(), localPort) ;
+
+   if (localAddress.isNull())
+      OsSocket::getHostIp(&localAddress);
 
    // Read the list of codecs from the configuration file.
    SdpCodecFactory codecFactory;
