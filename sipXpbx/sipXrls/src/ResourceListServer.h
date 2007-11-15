@@ -67,6 +67,8 @@ class ResourceListServer : public UtlContainableAtomic
                       int udpPort,
                       /// The TLS port to listen on.
                       int tlsPort,
+                      /// IP address to bind on.
+                      const UtlString& bindIp,
                       /// The file describing the resource lists.
                       UtlString* resourceListFile,
                       /// The refresh interval.

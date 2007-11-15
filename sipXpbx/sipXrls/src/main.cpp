@@ -46,6 +46,7 @@
 #define CONFIG_SETTING_LOG_CONSOLE    "SIP_RLS_LOG_CONSOLE"
 #define CONFIG_SETTING_UDP_PORT       "SIP_RLS_UDP_PORT"
 #define CONFIG_SETTING_TCP_PORT       "SIP_RLS_TCP_PORT"
+#define CONFIG_SETTING_BIND_IP        "SIP_RLS_BIND_IP"
 #define CONFIG_SETTING_RLS_FILE       "SIP_RLS_FILE_NAME"
 #define CONFIG_SETTING_DOMAIN_NAME    "SIP_RLS_DOMAIN_NAME"
 #define CONFIG_SETTING_STARTUP_WAIT   "SIP_RLS_STARTUP_WAIT"
@@ -56,6 +57,7 @@
 
 #define RLS_DEFAULT_UDP_PORT          5130       // Default UDP port
 #define RLS_DEFAULT_TCP_PORT          5130       // Default TCP port
+#define RLS_DEFAULT_BIND_IP           "0.0.0.0"  // Default bind ip; all interfaces
 #define RLS_DEFAULT_STARTUP_WAIT      (2 * 60)   // Default wait upon startup (in sec.)
 #define RLS_DEFAULT_REFRESH_INTERVAL  (24 * 60 * 60) // Default subscription refresh interval.
 #define RLS_DEFAULT_RESUBSCRIBE_INTERVAL (60 * 60) // Default subscription resubscribe interval.
@@ -358,6 +360,11 @@ int main(int argc, char* argv[])
       tcpPort = RLS_DEFAULT_TCP_PORT;
    }
 
+    UtlString bindIp;
+    if (configDb.get(CONFIG_SETTING_BIND_IP, bindIp) != OS_SUCCESS ||
+            !OsSocket::isIp4Address(bindIp))
+        bindIp = RLS_DEFAULT_BIND_IP;
+
    UtlString resourceListFile;
    if ((configDb.get(CONFIG_SETTING_RLS_FILE, resourceListFile) !=
         OS_SUCCESS) ||
@@ -407,7 +414,7 @@ int main(int argc, char* argv[])
    // (Use tcpPort as the TLS port, too.)
    ResourceListServer rls(domainName,
                           DIALOG_EVENT_TYPE, DIALOG_EVENT_CONTENT_TYPE,
-                          tcpPort, udpPort, tcpPort,
+                          tcpPort, udpPort, tcpPort, bindIp,
                           &resourceListFile,
                           refreshInterval, resubscribeInterval,
                           250, 20, 20, 20, 20);

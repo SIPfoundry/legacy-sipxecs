@@ -39,6 +39,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
                                        int tcpPort,
                                        int udpPort,
                                        int tlsPort,
+                                       const UtlString& bindIp,
                                        UtlString* resourceListFile,
                                        int refreshInterval,
                                        int resubscribeInterval,
@@ -63,7 +64,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
       tcpPort, // sipTlsPort
       NULL, // publicAddress
       NULL, // defaultUser
-      NULL, // defaultSipAddress
+      bindIp, // defaultSipAddress
       NULL, // sipProxyServers
       NULL, // sipDirectoryServers
       NULL, // sipRegistryServers
@@ -88,7 +89,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
       PORT_DEFAULT, // sipTlsPort
       NULL, // publicAddress
       NULL, // defaultUser
-      NULL, // defaultSipAddress
+      bindIp, // defaultSipAddress
       NULL, // sipProxyServers
       NULL, // sipDirectoryServers
       NULL, // sipRegistryServers
