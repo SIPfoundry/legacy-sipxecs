@@ -122,8 +122,20 @@ public class NewUserTestUi extends WebTestCase {
         setFormElement("aliases", "aa bb cc");
         checkCheckbox("stay");        
         clickButton("form:ok");
-        assertElementPresent("user:success");
+        assertElementPresent("user:success");  
+        
+        // Make sure all the correct fields are empty
+        assertFormElementEmpty("lastName");
+        assertFormElementEmpty("firstName");        
+        assertFormElementEmpty("emailAddress");
+        assertCheckboxNotSelected("attachVoicemailToEmail");
+        assertFormElementEmpty("alternateEmailAddress");
+        assertCheckboxNotSelected("attachVoicemailToAlternateEmail");
+        assertFormElementEmpty("password");
+        assertFormElementEmpty("confirmPassword");
+        assertFormElementEmpty("groups");
         assertFormElementEmpty("aliases");
+        
         setFormElement("userId", "y");
         setFormElement("password", "1234");
         setFormElement("confirmPassword", "1234");

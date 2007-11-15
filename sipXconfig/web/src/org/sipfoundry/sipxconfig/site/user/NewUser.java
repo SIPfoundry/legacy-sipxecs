@@ -103,8 +103,16 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
                 // otherwise keep form values as is theory that creating users in bulk will want
                 // all the same settings by default
                 setUser(null);
-                // XCF-1523
-                getMailboxPreferences().setEmailAddress(null);
+                
+                MailboxPreferences mailboxPrefs = getMailboxPreferences();
+                // Clear the email addresses
+                mailboxPrefs.setEmailAddress(null); // XCF-1523
+                mailboxPrefs.setAlternateEmailAddress(null);
+                
+                // Reset (clear) the voicemail checkboxes
+                mailboxPrefs.setAttachVoicemailToEmail(false);
+                mailboxPrefs.setAttachVoicemailToAlternateEmail(false);
+                
                 cycle.activate(PAGE);
             } else if (m_delegate != null) {
                 m_delegate.performCallback(cycle);
