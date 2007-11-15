@@ -42,6 +42,9 @@
 // The minimum and maximum call join wait time allowed (floating-point).
 #define MIN_WAIT_TIME            0.001
 #define MAX_WAIT_TIME            100.0
+// The parameter setting which IP address/interface to bind on
+#define CONFIG_SETTING_BIND_IP \
+   "SIP_REGISTRAR_BIND_IP"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -194,6 +197,11 @@ SipRedirectorJoin::initialize(OsConfigDb& configDb,
       // Get and save our domain name.
       mDomain = localDomainHost;
 
+      UtlString bindIp;
+      if (configDb.get(CONFIG_SETTING_BIND_IP, bindIp) != OS_SUCCESS ||
+            !OsSocket::isIp4Address(bindIp))
+         bindIp = "0.0.0.0";
+      
       // Create a SIP user agent to generate SUBSCRIBEs and receive NOTIFYs,
       // and save a pointer to it.
       // Having a separate user agent ensures that the NOTIFYs are not
@@ -206,7 +214,7 @@ SipRedirectorJoin::initialize(OsConfigDb& configDb,
          PORT_DEFAULT, // sipTlsPort
          NULL, // publicAddress
          NULL, // defaultUser
-         NULL, // defaultSipAddress
+         bindIp, // defaultSipAddress
          NULL, // sipProxyServers
          NULL, // sipDirectoryServers
          NULL, // sipRegistryServers
