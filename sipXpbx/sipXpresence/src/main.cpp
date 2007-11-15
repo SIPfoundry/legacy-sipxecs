@@ -43,11 +43,13 @@
 #define CONFIG_SETTING_DOMAIN_NAME    "SIP_PRESENCE_DOMAIN_NAME"
 #define CONFIG_SETTING_UDP_PORT       "SIP_PRESENCE_UDP_PORT"
 #define CONFIG_SETTING_TCP_PORT       "SIP_PRESENCE_TCP_PORT"
+#define CONFIG_SETTING_BIND_IP        "SIP_PRESENCE_BIND_IP"
 
 #define LOG_FACILITY                  FAC_ACD
 
 #define PRESENCE_DEFAULT_UDP_PORT              5130       // Default UDP port
 #define PRESENCE_DEFAULT_TCP_PORT              5130       // Default TCP port
+#define PRESENCE_DEFAULT_BIND_IP               "0.0.0.0"  // Default bind ip; all interfaces
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -331,9 +333,17 @@ int main(int argc, char* argv[])
    {
       TcpPort = PRESENCE_DEFAULT_TCP_PORT;
    }
-   
+
+   UtlString bindIp;
+   if (configDb.get(CONFIG_SETTING_BIND_IP, bindIp) != OS_SUCCESS ||
+         !OsSocket::isIp4Address(bindIp))
+   {
+      bindIp = PRESENCE_DEFAULT_BIND_IP;
+   }
+
    // Bind the SIP user agent to a port and start it up
-   SipUserAgent* userAgent = new SipUserAgent(TcpPort, UdpPort);
+   SipUserAgent* userAgent = new SipUserAgent(TcpPort, UdpPort, PORT_NONE,
+         NULL, NULL, bindIp );
    userAgent->start();
 
    UtlString domainName;

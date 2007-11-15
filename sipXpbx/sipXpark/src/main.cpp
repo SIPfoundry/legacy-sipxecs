@@ -67,6 +67,7 @@
 #define CONFIG_SETTING_LOG_CONSOLE    "SIP_PARK_LOG_CONSOLE"
 #define CONFIG_SETTING_UDP_PORT       "SIP_PARK_UDP_PORT"
 #define CONFIG_SETTING_TCP_PORT       "SIP_PARK_TCP_PORT"
+#define CONFIG_SETTING_BIND_IP        "SIP_PARK_BIND_IP"
 #define CONFIG_SETTING_RTP_PORT       "SIP_PARK_RTP_PORT"
 #define CONFIG_SETTING_CODECS         "SIP_PARK_CODEC_LIST"
 #define CONFIG_SETTING_MAX_SESSIONS   "SIP_PARK_MAX_SESSIONS"
@@ -80,6 +81,7 @@ const char* PARK_SERVER_ID_TOKEN = "~~id~park"; // see sipXregistry/doc/service-
 #define PARK_DEFAULT_UDP_PORT         5120       // Default UDP port
 #define PARK_DEFAULT_TCP_PORT         5120       // Default TCP port
 #define DEFAULT_RTP_PORT              8000       // Starting RTP port
+#define PARK_DEFAULT_BIND_IP          "0.0.0.0"  // Default bind ip; all interfaces
 
 #define DEFAULT_CODEC_LIST            "pcmu pcma telephone-event"
 
@@ -420,6 +422,11 @@ int main(int argc, char* argv[])
     if (configDb.get(CONFIG_SETTING_RTP_PORT, RtpBase) != OS_SUCCESS)
         RtpBase = DEFAULT_RTP_PORT;
 
+    UtlString bindIp;
+    if (configDb.get(CONFIG_SETTING_BIND_IP, bindIp) != OS_SUCCESS ||
+            !OsSocket::isIp4Address(bindIp))
+        bindIp = PARK_DEFAULT_BIND_IP;
+
     int MaxSessions;
     if (configDb.get(CONFIG_SETTING_MAX_SESSIONS, MaxSessions) != OS_SUCCESS)
         MaxSessions = DEFAULT_MAX_SESSIONS;
@@ -570,7 +577,7 @@ int main(int argc, char* argv[])
                                                TcpPort+1,
                                                NULL, // publicAddress
                                                user.isNull() ? NULL : user.data(), // default user
-                                               NULL, // default sip address (deprecated)
+                                               bindIp,
                                                domain.isNull() ? NULL : domain.data(), // outbound proxy
                                                NULL, // sipDirectoryServers (deprecated)
                                                NULL, // sipRegistryServers (deprecated)
@@ -603,7 +610,11 @@ int main(int argc, char* argv[])
 
     // Instantiate the call processing subsystem
     UtlString localAddress;
-    OsSocket::getHostIp(&localAddress);
+    int localPort ;
+    userAgent->getLocalAddress(&localAddress, &localPort) ;
+    if (localAddress.isNull()) 
+        OsSocket::getHostIp(&localAddress);
+
     // Construct an address to be used in outgoing requests (primarily
     // INVITEs stimulated by REFERs).
     UtlString outgoingAddress;
