@@ -76,6 +76,7 @@ public:
 
     static HttpServer* initHttpServer(
         int httpServerPort,
+        const UtlString& bindIp,
         const UtlBoolean& isSecureServer,
         const UtlString& authRealm,
         OsConfigDb* pUserPasswordDigestDb,

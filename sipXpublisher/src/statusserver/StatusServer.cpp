@@ -241,6 +241,7 @@ StatusServer::startStatusServer (
     int tcpPort   = PORT_NONE;
     int udpPort   = PORT_NONE;
     int tlsPort   = PORT_NONE;
+    UtlString bindIp;
     UtlString defaultMaxExpiresTime;
     UtlString defaultMinExpiresTime;
 
@@ -273,6 +274,7 @@ StatusServer::startStatusServer (
         sConfigDb.set("SIP_STATUS_TCP_PORT", "5110");
         sConfigDb.set("SIP_STATUS_UDP_PORT", "5110");
         sConfigDb.set("SIP_STATUS_TLS_PORT", "5111");
+        sConfigDb.set("SIP_STATUS_BIND_IP", "0.0.0.0");
         sConfigDb.set(CONFIG_SETTING_LOG_CONSOLE, "");
         sConfigDb.set(CONFIG_SETTING_LOG_DIR, "");
         sConfigDb.set(CONFIG_SETTING_LOG_LEVEL, "");
@@ -320,6 +322,14 @@ StatusServer::startStatusServer (
     }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_TLS_PORT : %d", tlsPort);
     
+    // SIP_STATUS_BIND_IP
+    sConfigDb.get("SIP_STATUS_BIND_IP", bindIp) ;
+    if ((bindIp.isNull()) || !OsSocket::isIp4Address(bindIp))
+    {
+       bindIp = "0.0.0.0";
+    }
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_BIND_IP : %s", bindIp.data());
+        
     // Get the HTTP server authentication database
     UtlString separatedList;
     OsConfigDb* pUserPasswordDigestDb = new OsConfigDb();
@@ -474,6 +484,7 @@ StatusServer::startStatusServer (
     HttpServer* httpServer = 
         initHttpServer(
             webServerPort,
+            bindIp,
             isSecureServer,
             authRealm,
             pUserPasswordDigestDb,
@@ -487,7 +498,7 @@ StatusServer::startStatusServer (
             tlsPort,
             NULL,   // public IP address (nopt used in proxy)
             NULL,   // default user (not used in proxy)
-            NULL,   // default SIP address (not used in proxy)
+            bindIp,
             NULL,   // outbound proxy
             NULL,   // directory server
             NULL,   // registry server
@@ -642,6 +653,7 @@ StatusServer::sendToSubscribeServerThread(OsMsg& eventMessage)
 HttpServer* 
 StatusServer::initHttpServer (
     int httpServerPort,
+    const UtlString& bindIp,
     const UtlBoolean& isSecureServer,
     const UtlString& authRealm,
     OsConfigDb* pUserPasswordDigestDb,
@@ -672,15 +684,15 @@ StatusServer::initHttpServer (
     if( portIsValid(httpServerPort) )
     {
         OsSysLog::add(FAC_SIP, PRI_INFO,
-                      "Starting Embedded Web Server on port %d...",
-                      httpServerPort);
+                      "Starting Embedded Web Server on %s:%d...",
+                      bindIp.data(), httpServerPort);
 
         OsServerSocket *pServerSocket = NULL;  
 
         if ( isSecureServer )
         {
 #ifdef HAVE_SSL
-            pServerSocket = new OsSSLServerSocket(50, httpServerPort);
+            pServerSocket = new OsSSLServerSocket(50, httpServerPort, bindIp);
             httpServer = new HttpServer(
                 pServerSocket, 
                 pUserPasswordDigestDb,
@@ -699,7 +711,7 @@ StatusServer::initHttpServer (
         }
 	else
         {
-            pServerSocket = new OsServerSocket(50, httpServerPort);
+            pServerSocket = new OsServerSocket(50, httpServerPort, bindIp);
             httpServer = new HttpServer(
                 pServerSocket, 
                 pUserPasswordDigestDb,
