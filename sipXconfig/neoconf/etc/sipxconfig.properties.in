@@ -15,7 +15,7 @@ polycom.defaultVersionId=1.6
 # imdb/sipdb location for https access
 registrationContext.server=${MY_FULL_HOSTNAME}
 registrationContext.port=${CONFIG_SERVER_HTTPS_PORT}
-coreContextImpl.authorizationRealm=${SIPXCHANGE_REALM}
+domainManagerImpl.authorizationRealm=${SIPXCHANGE_REALM}
 adminContextImpl.backupDirectory=@sipxpbx.backup.dir@
 vxml.promptsDirectory=@sipxvxml.data.dir@/prompts
 vxml.scriptsDirectory=@www.dir@/doc/aa_vxml

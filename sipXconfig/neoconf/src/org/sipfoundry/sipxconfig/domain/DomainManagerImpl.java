@@ -25,6 +25,7 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     private SipxServer m_server;
     private DomainConfiguration m_domainConfiguration;
     private SipxReplicationContext m_replicationContext;
+    private String m_authorizationRealm;
 
     public SipxServer getServer() {
         return m_server;
@@ -72,7 +73,7 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         getServer().applySettings();
 
         // replicate domain config
-        m_domainConfiguration.generate(domain);
+        m_domainConfiguration.generate(domain, m_authorizationRealm);
         m_replicationContext.replicate(m_domainConfiguration);
     }
 
@@ -93,20 +94,28 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         return rules;
     }
 
-    /** 
-     * Return true if the domain is initialized.  This provides a workaround
-     * for the fact that getDomain throws a RuntimeException if the domain is 
-     * not initialized when that method is called
+    /**
+     * Return true if the domain is initialized. This provides a workaround for the fact that
+     * getDomain throws a RuntimeException if the domain is not initialized when that method is
+     * called
      */
     public boolean isDomainInitialized() {
         if (getExistingDomain() == null) {
             return false;
         }
-        
+
         return true;
     }
 
     public DomainConfiguration createDomainConfiguration() {
         return m_domainConfiguration;
+    }
+
+    public String getAuthorizationRealm() {
+        return m_authorizationRealm;
+    }
+
+    public void setAuthorizationRealm(String authorizationRealm) {
+        m_authorizationRealm = authorizationRealm;
     }
 }

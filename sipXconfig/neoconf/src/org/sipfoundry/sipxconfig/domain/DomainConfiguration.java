@@ -27,18 +27,19 @@ public class DomainConfiguration implements ConfigurationFile {
     private VelocityEngine m_velocityEngine;
     private String m_templateLocation = "commserver/domain-config.vm";
     private String m_domainConfig;
-    
-    public void generate(Domain domain) {
+
+    public void generate(Domain domain, String realm) {
         StringWriter writer = new StringWriter();
-        generate(domain, writer);
+        generate(domain, realm, writer);
         m_domainConfig = writer.toString();
     }
 
-    public void generate(Domain domain, Writer output) {
+    public void generate(Domain domain, String realm, Writer output) {
         try {
             VelocityContext context = new VelocityContext();
             context.put("domain", domain);
-            getVelocityEngine().mergeTemplate(getTemplate(), context, output);
+            context.put("realm", realm);
+            m_velocityEngine.mergeTemplate(getTemplate(), context, output);
             output.flush();
         } catch (ResourceNotFoundException e) {
             throw new RuntimeException(e);
@@ -47,10 +48,6 @@ public class DomainConfiguration implements ConfigurationFile {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public VelocityEngine getVelocityEngine() {
-        return m_velocityEngine;
     }
 
     public void setVelocityEngine(VelocityEngine velocityEngine) {

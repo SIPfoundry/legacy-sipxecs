@@ -20,44 +20,44 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 
 public class DomainConfigurationTest extends TestCase {
-    
+
     private Domain m_domain;
     private DomainConfiguration m_out;
     private String m_referenceConfig;
-    
+
     public void setUp() throws Exception {
         m_domain = new Domain();
         m_domain.setName("domain.example.com");
         m_domain.setSharedSecret("mySecret");
-        
+
         m_out = new DomainConfiguration();
         m_out.setVelocityEngine(TestHelper.getVelocityEngine());
-        
-        Reader referenceConfigReader = new InputStreamReader(
-                DomainConfigurationTest.class.getResourceAsStream("expected-domain-config"));
+
+        Reader referenceConfigReader = new InputStreamReader(DomainConfigurationTest.class
+                .getResourceAsStream("expected-domain-config"));
         m_referenceConfig = IOUtils.toString(referenceConfigReader);
     }
-    
+
     public void testGenerateDomainConfigWithWriter() throws Exception {
         StringWriter actualConfigWriter = new StringWriter();
-        m_out.generate(m_domain, actualConfigWriter);
-        
+        m_out.generate(m_domain, "realm.example.com", actualConfigWriter);
+
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
-        
+
         String actualConfig = IOUtils.toString(actualConfigReader);
-        
+
         assertEquals(m_referenceConfig, actualConfig);
     }
-    
+
     public void testWrite() throws Exception {
         StringWriter actualConfigWriter = new StringWriter();
-        m_out.generate(m_domain);
+        m_out.generate(m_domain, "realm.example.com");
         m_out.write(actualConfigWriter);
-        
+
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
-        
+
         String actualConfig = IOUtils.toString(actualConfigReader);
-        
+
         assertEquals(m_referenceConfig, actualConfig);
     }
 }

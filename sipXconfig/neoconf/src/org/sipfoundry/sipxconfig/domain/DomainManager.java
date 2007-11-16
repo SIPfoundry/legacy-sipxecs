@@ -11,20 +11,21 @@ package org.sipfoundry.sipxconfig.domain;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 
-
 public interface DomainManager extends DialingRuleProvider {
-    
-    public static final String CONTEXT_BEAN_NAME = "domainManager";
-    
-    public Domain getDomain();
-    
-    public DomainConfiguration createDomainConfiguration();
-    
-    public boolean isDomainInitialized();
-    
-    public void saveDomain(Domain domain);
 
-    public static class DomainNotInitializedException extends RuntimeException {
+    static final String CONTEXT_BEAN_NAME = "domainManager";
+
+    Domain getDomain();
+
+    String getAuthorizationRealm();
+
+    DomainConfiguration createDomainConfiguration();
+
+    boolean isDomainInitialized();
+
+    void saveDomain(Domain domain);
+
+    static class DomainNotInitializedException extends RuntimeException {
         DomainNotInitializedException() {
             super("System was not initialized properly");
         }

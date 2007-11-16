@@ -46,7 +46,6 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     private static final String QUERY_USER = "from User";
     private static final String QUERY_PARAM_GROUP_ID = "groupId";
 
-    private String m_authorizationRealm;
     private DomainManager m_domainManager;
     private SettingDao m_settingDao;
     private DaoEventPublisher m_daoEventPublisher;
@@ -64,11 +63,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
 
     public String getAuthorizationRealm() {
-        return m_authorizationRealm;
-    }
-
-    public void setAuthorizationRealm(String authorizationRealm) {
-        m_authorizationRealm = authorizationRealm;
+        return m_domainManager.getAuthorizationRealm();
     }
 
     public void setMaxUserCount(int maxUserCount) {

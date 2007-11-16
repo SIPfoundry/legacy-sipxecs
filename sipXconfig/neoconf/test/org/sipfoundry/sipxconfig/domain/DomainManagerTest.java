@@ -41,7 +41,7 @@ public class DomainManagerTest extends TestCase {
         // TEST DELETE EXISTING
         DomainManagerImpl mgr = new DomainManagerImpl();
         mgr.setDomainConfiguration(new DomainConfiguration() {
-            public void generate(Domain d) {
+            public void generate(Domain d, String realm) {
                 // do nothing
             }
         });

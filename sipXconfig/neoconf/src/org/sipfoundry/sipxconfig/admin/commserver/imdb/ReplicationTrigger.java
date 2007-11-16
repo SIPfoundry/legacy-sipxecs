@@ -84,7 +84,7 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             // so that it is handled by generateAll in replicationContext
             Domain domain = m_domainManager.getDomain();
             DomainConfiguration domainConfig = m_domainManager.createDomainConfiguration();
-            domainConfig.generate(domain);
+            domainConfig.generate(domain, m_domainManager.getAuthorizationRealm());
             m_replicationContext.replicate(domainConfig);
         }
     }

@@ -176,7 +176,7 @@ public final class TestUtil {
                 "jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST");
         sysProps.setProperty("acdHistoricalStatsImpl.enabled", Boolean.toString(true));
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
-        sysProps.setProperty("coreContextImpl.authorizationRealm", realm);
+        sysProps.setProperty("domainManagerImpl.authorizationRealm", realm);
         sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory
                 + "/parkserver/music");
         sysProps.setProperty("replicationTrigger.replicateOnStartup", Boolean.toString(false));

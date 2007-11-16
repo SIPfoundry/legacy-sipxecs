@@ -1,2 +1,3 @@
 SIP_DOMAIN_NAME : domain.example.com
+SIP_REALM : realm.example.com
 SHARED_SECRET : mySecret
