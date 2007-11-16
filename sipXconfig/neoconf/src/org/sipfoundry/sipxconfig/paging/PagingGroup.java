@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.paging;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -84,9 +83,7 @@ public class PagingGroup extends BeanWithId {
 
     public String formatUrls(String domain) {
         List<String> users = new ArrayList<String>();
-        Iterator<User> it = m_users.iterator();
-        while (it.hasNext()) {
-            User user = (User) it.next();
+        for (User user : m_users) {
             users.add(user.getUserName() + "@" + domain);
         }
         return StringUtils.join(users.toArray(), ',');

@@ -12,11 +12,11 @@ package org.sipfoundry.sipxconfig.admin.monitoring;
 import java.io.InputStream;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImplTest;
 import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import junit.framework.TestCase;
 
 public class MonitoringContextImplTest extends TestCase {
     private MonitoringContextImpl m_monitoringContextImpl;
@@ -126,8 +126,8 @@ public class MonitoringContextImplTest extends TestCase {
                 "192.168.0.27").getTitle());
     }
 
-    public void testUpdateGraphs(String host) {
-        // a complex test will be to add the .rrd file and to check if the .pngs were created
+    // TODO: a complex test will be to add the .rrd file and to check if the .pngs were created
+    public void _testUpdateGraphs() {
         assertFalse(m_monitoringContextImpl.updateGraphs("localhost"));
     }
 }

@@ -14,7 +14,6 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -106,16 +105,5 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         String[] languages = getLocalizationContext().getInstalledLanguages();
         IPropertySelectionModel model = new ModelWithDefaults(getMessages(), languages);
         setLanguageList(model);
-    }
-    
-    private void recordSuccess(String msgKey) {
-        String msg = getMessages().getMessage(msgKey);
-        TapestryUtils.recordSuccess(this, msg);
-    }
-
-    private void recordFailure(String msgKey) {
-        String msg = getMessages().getMessage(msgKey);
-        ValidatorException validatorException = new ValidatorException(msg);
-        getValidator().record(validatorException);
     }
 }
