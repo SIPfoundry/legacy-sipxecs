@@ -81,6 +81,9 @@ rescue LoadError
   postgres_dir = sad.chomp('-gnu')
   $:.unshift(postgres_dir)
   require 'postgres'
+rescue LoadError
+# On SUSE the driver is called ruby-postgres
+  require 'ruby-postgres'
 end
 
 load_postgres_driver
