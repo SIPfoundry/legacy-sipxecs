@@ -226,8 +226,9 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
          // Start the client's thread.
          clientStarted = client->start();
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipProtocolServerBase[%s]::createClient client: %p '%s':%d",
-                       getName().data(), client, hostAddress, hostPort);
+                       "SipProtocolServerBase[%s]::createClient client: %s(%p) '%s':%d",
+                       getName().data(), client->getName().data(),
+                       client, hostAddress, hostPort);
          if (!clientStarted)
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
@@ -383,8 +384,9 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
             UtlString clientNames;
             client->getClientNames(clientNames);
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipProtocolServerBase[%s]::removeOldClients Removing old client %p: %s",
-                          getName().data(), client, clientNames.data());
+                          "SipProtocolServerBase[%s]::removeOldClients Removing old client %s(%p): %s",
+                          getName().data(), client->getName().data(),
+                          client, clientNames.data());
 
             mClientList.removeReference(client);
             // Record the client in the array so it can be deleted

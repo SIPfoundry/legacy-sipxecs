@@ -189,6 +189,10 @@ SipClient::SipClient(OsSocket* socket,
 // Destructor
 SipClient::~SipClient()
 {
+    OsSysLog::add(FAC_SIP, PRI_INFO,
+                  "SipClient[%s]::~ called",
+                  mName.data());
+
     // Tell the associated thread to shut itself down.
     requestShutdown();
 
@@ -279,6 +283,12 @@ UtlBoolean SipClient::sendTo(const SipMessage& message,
       // Post the message to the task's queue.
       OsStatus status = postMessage(sendMsg, OsTime::NO_WAIT);
       sendOk = status == OS_SUCCESS;
+      if (!sendOk)
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "SipClient[%s]::sendTo attempt to post message failed",
+                       mName.data());
+      }
    }
    else
    {
@@ -356,7 +366,7 @@ long SipClient::getLastTouchedTime() const
 
 UtlBoolean SipClient::isOk()
 {
-        return(clientSocket->isOk() && !isShuttingDown());
+   return clientSocket->isOk() && isNotShut();
 }
 
 UtlBoolean SipClient::isConnectedTo(UtlString& hostName, int hostPort)
@@ -690,6 +700,10 @@ UtlBoolean SipClient::waitForReadyToRead()
 // owning server that it has done so.
 void SipClient::clientStopSelf()
 {
+   OsSysLog::add(FAC_SIP, PRI_INFO,
+                 "SipClient[%s]::clientStopSelf called",
+                 mName.data());
+
    // Stop the run loop.
    OsTask::requestShutdown();
    // Signal the owning SipServer to check for dead clients.

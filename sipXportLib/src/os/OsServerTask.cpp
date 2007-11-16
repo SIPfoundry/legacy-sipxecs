@@ -103,10 +103,15 @@ OsStatus OsServerTask::postMessage(const OsMsg& rMsg, const OsTime& rTimeout,
 // to the incoming message queue to unblock the task.
 void OsServerTask::requestShutdown(void)
 {
-   OsMsg msg(OsMsg::OS_SHUTDOWN, 0);
+   // Don't need to initiate shutdown if the task is already shutting down
+   // or already shut down.
+   if (isNotShut())
+   {
+      OsMsg msg(OsMsg::OS_SHUTDOWN, 0);
 
-   OsTask::requestShutdown(); // causes isShuttingDown to return TRUE
-   postMessage(msg); // wake up the task run loop
+      OsTask::requestShutdown(); // causes isShuttingDown to return TRUE
+      postMessage(msg); // wake up the task run loop
+   }
 }
 
 /* ============================ ACCESSORS ================================= */

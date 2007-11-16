@@ -246,6 +246,11 @@ public:
    /// Return TRUE if the task has been started (and has not been shut down).
    virtual UtlBoolean isStarted(void);
 
+   /** Return TRUE if the task is uninitialized or running (that is,
+    *  not shutting down or shut down).
+    */
+   virtual UtlBoolean isNotShut(void);
+
    /// Check if the task is suspended.
    virtual UtlBoolean isSuspended(void) = 0;
    /**<         

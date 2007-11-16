@@ -161,6 +161,10 @@ void SipTcpServer::createServerSocket(const char* szBindAddr,
 // Destructor
 SipTcpServer::~SipTcpServer()
 {
+    OsSysLog::add(FAC_SIP, PRI_INFO,
+                  "SipClientTcp[%s]::~ called",
+                  mName.data());
+
     if (mpServerBrokerListener)
     {
         mpServerBrokerListener->requestShutdown();
