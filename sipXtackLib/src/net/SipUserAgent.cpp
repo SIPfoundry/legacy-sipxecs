@@ -3473,15 +3473,6 @@ UtlBoolean SipUserAgent::resendWithAuthorization(SipMessage* response,
         UtlString method;
         response->getCSeqField(&sequenceNum, &method);
 
-    // The transaction sends the ACK for error cases now
-        //if(method.compareTo(SIP_INVITE_METHOD , UtlString::ignoreCase) == 0)
-        //{
-                // Need to send an ACK to finish transaction
-        //      SipMessage ackMessage;
-        //      ackMessage.setAckData(response, request);
-        //      send(ackMessage);
-        //}
-
         SipMessage* authorizedRequest = new SipMessage();
 
         if ( mpLineMgr && mpLineMgr->buildAuthenticatedRequest(response, request,authorizedRequest))
@@ -3491,16 +3482,11 @@ UtlBoolean SipUserAgent::resendWithAuthorization(SipMessage* response,
            // to notify it of the CSeq change for the response
            *messageType = SipMessageEvent::AUTHENTICATION_RETRY;
         }
-#       ifdef TEST
         else
         {
-           osPrintf("Giving up on entity %d authorization, userId: \"%s\"\n",
-                    authorizationEntity, dbUserId.data());
-           osPrintf("authorization failed previously sent: %d\n",
-                    request->getAuthorizationField(&authField, authorizationEntity));
+           // error was logged in SipLineMgr
         }
-#       endif
-
+        
     delete authorizedRequest;
 
     return(requestResent);

@@ -723,17 +723,15 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
     response->getAuthenticationData( &scheme, &realm, &nonce, &opaque,
                                     &algorithm, &qop, authorizationEntity);
 
+    // Set to true when we determine that we should not send an auth. challenge.
     UtlBoolean alreadyTriedOnce = FALSE;
-    int requestAuthIndex = 0;
-    UtlString requestUser;
-    UtlString requestRealm;
 
     // if scheme is basic , we dont support it anymore and we
     //should not sent request again because the password has been
     //converterd to digest already and the BASIC authentication will fail anyway
     if(scheme.compareTo(HTTP_BASIC_AUTHENTICATION, UtlString::ignoreCase) == 0)
     {
-        alreadyTriedOnce = TRUE; //so that we never send request with basic authenticatiuon
+        alreadyTriedOnce = TRUE; //so that we never send request with basic authentication
 
         // Log error
         OsSysLog::add(FAC_AUTH, PRI_ERR,
@@ -744,17 +742,27 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
     else
     {
         // Check to see if we already tried to send the credentials
-        while(request->getDigestAuthorizationData(
-                &requestUser, &requestRealm,
-                NULL, NULL, NULL, NULL,
-                authorizationEntity, requestAuthIndex) )
+        int requestAuthIndex = 0;
+        UtlString requestUser;
+        UtlString requestRealm;
+        while (! alreadyTriedOnce
+               && request->getDigestAuthorizationData(&requestUser, &requestRealm,
+                                                      NULL, NULL, NULL, NULL,
+                                                      authorizationEntity, requestAuthIndex))
         {
-            if(realm.compareTo(requestRealm) == 0)
+            if (realm.compareTo(requestRealm) == 0)
             {
                 alreadyTriedOnce = TRUE;
-                break;
+                OsSysLog::add(FAC_AUTH, PRI_ERR,
+                              "SipLineMgr::buildAuthenticatedRequest "
+                              "authentication has been sent but it was not accepted: "
+                              "callid='%s', realm='%s', user='%s'",
+                              callId.data(), realm.data(), requestUser.data()) ;
             }
-            requestAuthIndex++;
+            else
+            {
+               requestAuthIndex++;
+            }
         }
     }
     // Find the line that sent the request that was challenged
@@ -788,10 +796,7 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
         line = getLineforAuthentication(request, response, FALSE, TRUE);
         if(line)
         {
-            if(line->getCredentials(scheme, realm, &userID, &passToken))
-            {
-            credentialFound = TRUE;
-            }
+            credentialFound = line->getCredentials(scheme, realm, &userID, &passToken);
             removeFromTempList(line);
         }
     }
@@ -800,16 +805,13 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
         line = getLineforAuthentication(request, response, FALSE);
         if(line)
         {
-            if(line->getCredentials(scheme, realm, &userID, &passToken))
-            {
-                credentialFound = TRUE;
-            }
+            credentialFound = line->getCredentials(scheme, realm, &userID, &passToken);
         }
     }
 
-    if( !alreadyTriedOnce && credentialFound )
+    if( !alreadyTriedOnce)
     {
-        if ( line->getCredentials(scheme, realm, &userID, &passToken))
+        if ( credentialFound )
         {
             OsSysLog::add(FAC_AUTH, PRI_INFO,
                           "SipLineMgr::buildAuthenticatedRequest"
