@@ -37,5 +37,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}
-%attr(644,root,root) %{_libdir}/preflight/*.jar
+%attr(644,root,root) %{_libdir}/preflight
+%attr(644,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/preflight/preflight_installer.exe
 %{_mandir}/man1

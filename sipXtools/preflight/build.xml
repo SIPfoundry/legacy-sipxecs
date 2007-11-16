@@ -112,13 +112,14 @@
     
   <target name="windows-install" if="has.windows.prerequisites" depends="test-for-windows-prerequisites">
     <!-- Windows Installer -->
-    <copy file="${build.dir}/dist/preflight_installer.exe" todir="${dest.dir}${bin.dir}"/>
-    <chmod file="${dest.dir}${bin.dir}/preflight_installer.exe" perm="ugo+x" />
+    <copy file="${build.dir}/dist/preflight_installer.exe" todir="${dest.dir}${conf.dir}/preflight"/>
+    <chmod file="${dest.dir}${conf.dir}/preflight/preflight_installer.exe" perm="ugo+x" />
   </target>
 
   <target name="uninstall">
-    <delete file="${dest.dir}${bin.dir}/preflight*"/>
+    <delete file="${dest.dir}${bin.dir}/preflight"/>
     <delete file="${dest.dir}${preflight.lib.dir}/preflight.jar"/>
+    <delete file="${dest.dir}${conf.dir}/preflight/preflight_installer.exe"/>
   </target>
 
   <target name="test-for-windows-prerequisites" depends="test-for-jre, test-for-nsis">
