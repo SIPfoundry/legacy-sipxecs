@@ -99,6 +99,7 @@
   <!-- I N S T A L L -->
   <target name="install">
     <antcall target="posix-install"/>
+    <mkdir dir="${dest.dir}${conf.dir}/preflight"/>
     <antcall target="windows-install"/>
   </target>
 
