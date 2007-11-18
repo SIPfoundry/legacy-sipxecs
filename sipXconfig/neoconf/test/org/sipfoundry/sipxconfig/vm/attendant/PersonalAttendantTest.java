@@ -59,7 +59,7 @@ public class PersonalAttendantTest extends TestCase {
         personalAttendant.setUser(new User());
         personalAttendant.setOperator("123");
         personalAttendant.setOverrideLanguage(true);
-        personalAttendant.setLanguage("en_US");
+        personalAttendant.setLanguage("en");
 
         AttendantMenu menu = new AttendantMenu();
         menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.GOTO_EXTENSION, "201");

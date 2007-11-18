@@ -79,7 +79,7 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
     }
 
     private void initLanguages() {
-        String[] languages = getLocalizationContext().getInstalledLanguages();
+        String[] languages = getLocalizationContext().getInstalledLanguageDirectories();
         IPropertySelectionModel model = new ModelWithDefaults(getMessages(), languages);
         setLanguageList(model);
     }

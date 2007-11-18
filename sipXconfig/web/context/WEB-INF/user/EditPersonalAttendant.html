@@ -5,18 +5,7 @@
       settings="prop:parentSetting"/>
     <fieldset>
       <table>
-        <tr>
-          <td jwcid="@FieldPanel" field="component:language"
-            for="personalAttendant:language"
-            label="message:label.language"
-            description="message:description.language">
-            <input jwcid="language@PropertySelection" 
-              model="ognl:languageList"
-              value="ognl:personalAttendant.language"
-              id="personalAttendant:language" />
-          </td>
-        </tr>
-        <tr jwcid="@FieldPanel" field="component:overrideLanguage"
+      <tr jwcid="@FieldPanel" field="component:overrideLanguage"
           for="personalAttendant:overrideLanguage"
           label="message:label.overrideLanguage"
           description="message:description.overrideLanguage"
@@ -25,6 +14,17 @@
             id="personalAttendant:overrideLanguage"
             value="ognl:personalAttendant.overrideLanguage"
             displayName="message:label.overrideLanguage"/>
+        </tr>
+        <tr>
+          <td jwcid="@FieldPanel" field="component:language"
+            for="personalAttendant:language"
+            label="message:label.language"
+            description="message:description.language">
+            <input jwcid="language@PropertySelection" 
+              model="bean:languageSelectionModel"
+              value="ognl:personalAttendant.language"
+              id="personalAttendant:language" />
+          </td>
         </tr>
       </table>
     </fieldset>

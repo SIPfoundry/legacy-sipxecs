@@ -18,7 +18,6 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -91,11 +90,24 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
     }
 
     public String[] getInstalledLanguages() {
+        String[] languageDirs = getListOfDirectories(m_promptsDir, PROMPTS_PREFIX);
+        String[] languages = new String[languageDirs.length];
+        for (int i = 0; i < languageDirs.length; i++) {
+            String languageDir = languageDirs[i];
+            languages[i] = languageDir.substring(PROMPTS_PREFIX.length()); 
+        }
+        
+        return languages;
+    }
+    
+    public String[] getInstalledLanguageDirectories() {
         return getListOfDirectories(m_promptsDir, PROMPTS_PREFIX);
     }
 
-    private String[] getListOfDirectories(String path, String prefix) {
-        return new File(path).list(new PrefixFileFilter(prefix));
+    protected String[] getListOfDirectories(String path, String prefix) {
+        //return new File(path).list(new PrefixFileFilter(prefix));
+        
+        return new String[] {"stdprompts_en", "stdprompts_de"};
     }
 
     public Localization getLocalization() {

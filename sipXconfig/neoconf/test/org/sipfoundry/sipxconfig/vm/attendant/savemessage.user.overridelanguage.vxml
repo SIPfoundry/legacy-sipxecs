@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <vxml version="2.0"
   base="http://localhost:8090/vm_vxml/"
-  xml:lang="en_US"
+  xml:lang="en"
   application="root.vxml">
   <!--
     Deposit Voicemail
