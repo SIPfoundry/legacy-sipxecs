@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
+import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -47,6 +48,9 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
 
     @InjectObject(value = "spring:searchManager")
     public abstract SearchManager getSearchManager();
+
+    @InjectObject(value = "spring:phoneProfileManager")
+    public abstract ProfileManager getPhoneProfileManager();
 
     @Persist
     public abstract Integer getGroupId();

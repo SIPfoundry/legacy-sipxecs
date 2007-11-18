@@ -47,7 +47,7 @@
     <property name="sleepInterval" value="5000" />
   </bean>
 
-  <bean id="eagerProfileManager" class="org.sipfoundry.sipxconfig.phone.ProfileManagerImpl">
+  <bean id="eagerPhoneProfileManager" class="org.sipfoundry.sipxconfig.phone.PhoneProfileManagerImpl">
     <property name="phoneContext">
       <ref local="phoneContext" />
     </property>
@@ -57,9 +57,9 @@
     <property name="jobContext" ref="jobContext" />
   </bean>
 
-  <bean id="profileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl" init-method="init">
+  <bean id="phoneProfileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl" init-method="init">
     <property name="target">
-      <ref local="eagerProfileManager" />
+      <ref local="eagerPhoneProfileManager" />
     </property>
     <property name="sleepInterval" value="5000" />
   </bean>

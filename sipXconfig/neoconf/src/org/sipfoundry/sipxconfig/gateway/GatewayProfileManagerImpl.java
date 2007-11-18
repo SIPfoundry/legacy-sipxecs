@@ -9,51 +9,24 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
+import org.sipfoundry.sipxconfig.device.AbstractProfileManager;
+import org.sipfoundry.sipxconfig.device.Device;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.device.ProfileLocation;
-import org.sipfoundry.sipxconfig.device.ProfileManager;
-import org.sipfoundry.sipxconfig.job.JobContext;
-
-public class GatewayProfileManagerImpl implements ProfileManager {
-    private static final Log LOG = LogFactory.getLog(GatewayProfileManagerImpl.class);
+public class GatewayProfileManagerImpl extends AbstractProfileManager {
 
     private GatewayContext m_gatewayContext;
-
-    private JobContext m_jobContext;
-
-    public void generateProfile(Integer gatewayId, boolean restart) {
-        Gateway g = m_gatewayContext.getGateway(gatewayId);
-        Serializable jobId = m_jobContext.schedule("Projection for gateway " + g.getName());
-        try {
-            m_jobContext.start(jobId);
-            ProfileLocation location = g.getModel().getDefaultProfileLocation();
-            g.generateProfiles(location);
-            m_jobContext.success(jobId);
-        } catch (RuntimeException e) {
-            m_jobContext.failure(jobId, null, e);
-            // do not throw error, job queue will stop running.
-            // error gets logged to job error table and sipxconfig.log
-            LOG.error(e);
-        }
-    }
-
-    public void generateProfiles(Collection<Integer> gateways, boolean restart) {
-        for (Iterator i = gateways.iterator(); i.hasNext();) {
-            Integer id = (Integer) i.next();
-            generateProfile(id, true);
-        }
-    }
 
     public void setGatewayContext(GatewayContext gatewayContext) {
         m_gatewayContext = gatewayContext;
     }
 
-    public void setJobContext(JobContext jobContext) {
-        m_jobContext = jobContext;
+    @Override
+    protected Device loadDevice(Integer id) {
+        return m_gatewayContext.getGateway(id);
+    }
+
+    @Override
+    protected void restartDevice(Integer id) {
+        // TODO: need a way to restart gateways
     }
 }

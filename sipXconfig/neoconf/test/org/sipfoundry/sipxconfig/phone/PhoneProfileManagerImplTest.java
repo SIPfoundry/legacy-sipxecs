@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.RestartManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
-public class ProfileManagerImplTest extends TestCase {
+public class PhoneProfileManagerImplTest extends TestCase {
 
     public void testNewPhone() {
         new TestPhone();
@@ -34,11 +34,11 @@ public class ProfileManagerImplTest extends TestCase {
 
         IMocksControl jobContextCtrl = EasyMock.createStrictControl();
         JobContext jobContext = jobContextCtrl.createMock(JobContext.class);
-        jobContext.schedule("Projection for phone 110000000000");
+        jobContext.schedule("Projection for: 110000000000");
         jobContextCtrl.andReturn(jobId);
         jobContext.start(jobId);
         jobContext.success(jobId);
-        jobContext.schedule("Projection for phone 120000000000");
+        jobContext.schedule("Projection for: 120000000000");
         jobContextCtrl.andReturn(jobId);
         jobContext.start(jobId);
         jobContext.success(jobId);
@@ -76,7 +76,7 @@ public class ProfileManagerImplTest extends TestCase {
         restartManager.restart(ids[1]);
         restartManagerCtrl.replay();
 
-        ProfileManagerImpl pm = new ProfileManagerImpl();
+        PhoneProfileManagerImpl pm = new PhoneProfileManagerImpl();
         pm.setJobContext(jobContext);
         pm.setPhoneContext(phoneContext);
         pm.setRestartManager(restartManager);
@@ -95,7 +95,7 @@ public class ProfileManagerImplTest extends TestCase {
 
         IMocksControl jobContextCtrl = EasyMock.createStrictControl();
         JobContext jobContext = jobContextCtrl.createMock(JobContext.class);
-        jobContext.schedule("Projection for phone 110000000000");
+        jobContext.schedule("Projection for: 110000000000");
         jobContextCtrl.andReturn(jobId);
         jobContext.start(jobId);
         jobContext.success(jobId);
@@ -125,7 +125,7 @@ public class ProfileManagerImplTest extends TestCase {
         restartManager.restart(phoneId);
         restartManagerCtrl.replay();
 
-        ProfileManagerImpl pm = new ProfileManagerImpl();
+        PhoneProfileManagerImpl pm = new PhoneProfileManagerImpl();
         pm.setJobContext(jobContext);
         pm.setPhoneContext(phoneContext);
         pm.setRestartManager(restartManager);
@@ -144,7 +144,7 @@ public class ProfileManagerImplTest extends TestCase {
 
         IMocksControl jobContextCtrl = EasyMock.createStrictControl();
         JobContext jobContext = jobContextCtrl.createMock(JobContext.class);
-        jobContext.schedule("Projection for phone 110000000000");
+        jobContext.schedule("Projection for: 110000000000");
         jobContextCtrl.andReturn(jobId);
         jobContext.start(jobId);
         jobContext.success(jobId);
@@ -173,7 +173,7 @@ public class ProfileManagerImplTest extends TestCase {
         RestartManager restartManager = restartManagerCtrl.createMock(RestartManager.class);
         restartManagerCtrl.replay();
 
-        ProfileManagerImpl pm = new ProfileManagerImpl();
+        PhoneProfileManagerImpl pm = new PhoneProfileManagerImpl();
         pm.setJobContext(jobContext);
         pm.setPhoneContext(phoneContext);
         pm.setRestartManager(restartManager);

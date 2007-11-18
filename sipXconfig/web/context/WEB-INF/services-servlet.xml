@@ -27,7 +27,7 @@
     <property name="phoneContext" ref="phoneContext" />
     <property name="phoneBuilder" ref="phoneBuilder" />
     <property name="settingDao" ref="settingDao" />
-    <property name="profileManager" ref="profileManager" />
+    <property name="profileManager" ref="phoneProfileManager" />
     <property name="restartManager" ref="restartManager" />
   </bean>
 

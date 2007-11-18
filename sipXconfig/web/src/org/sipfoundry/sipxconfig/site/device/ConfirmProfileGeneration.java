@@ -13,13 +13,12 @@ import java.util.Collection;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.InitialValue;
-import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 
 public abstract class ConfirmProfileGeneration extends BaseComponent {
-    @InjectObject(value = "spring:profileManager")
+    @Parameter(required = true)
     public abstract ProfileManager getProfileManager();
 
     @Parameter(required = true)

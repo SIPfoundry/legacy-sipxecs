@@ -22,6 +22,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -49,6 +50,9 @@ public abstract class EditPhone extends PageWithCallback implements PageBeginRen
 
     @InjectObject(value = "spring:settingDao")
     public abstract SettingDao getSettingDao();
+
+    @InjectObject(value = "spring:phoneProfileManager")
+    public abstract ProfileManager getPhoneProfileManager();
 
     public abstract String getActiveTab();
 

@@ -17,7 +17,9 @@
       </ul>
     </div>
     <div jwcid="@If" condition="ognl:generateProfileIds != null">
-    	<span jwcid="@device/ConfirmProfileGeneration" deviceIds="prop:generateProfileIds"/>
+      <span jwcid="@device/ConfirmProfileGeneration"
+        profileManager="prop:phoneProfileManager"
+        deviceIds="prop:generateProfileIds"/>
     </div>
     <div jwcid="@Else">
       <span jwcid="@GroupCloud" groups="ognl:phoneContext.groups"/>

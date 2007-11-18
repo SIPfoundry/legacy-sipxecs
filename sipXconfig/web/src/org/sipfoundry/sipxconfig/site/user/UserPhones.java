@@ -16,6 +16,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
@@ -25,6 +26,9 @@ public abstract class UserPhones extends UserBasePage {
 
     @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();
+
+    @InjectObject(value = "spring:phoneProfileManager")
+    public abstract ProfileManager getPhoneProfileManager();
 
     @Bean
     public abstract SelectMap getSelections();

@@ -32,7 +32,7 @@ public abstract class SpeedDialPage extends UserBasePage {
     @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();
 
-    @InjectObject(value = "spring:profileManager")
+    @InjectObject(value = "spring:phoneProfileManager")
     public abstract ProfileManager getProfileManager();
 
     @Persist
