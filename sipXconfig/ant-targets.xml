@@ -194,6 +194,11 @@
         <pathelement location="${junit.jar}"/>
       </classpath>
     </sipx-javac>
+    <copy todir="${test.classes.dir}">
+      <fileset dir="${test.src.dir}">
+        <exclude name="**/*.java"/>
+      </fileset>
+    </copy>
   </target>
 
   <!-- C H E C K S T Y L E -->

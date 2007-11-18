@@ -173,4 +173,11 @@
   <bean id="skin" class="org.sipfoundry.sipxconfig.site.skin.SkinControl">
     <property name="tapestryContext" ref="tapestry" />
   </bean>
+  
+  <!--  Message source beans -->
+  <bean id="jarMessageSourceContext" class="org.sipfoundry.sipxconfig.site.common.DefaultJarMessagesSourceContext">
+    <property name="localizationPackageRoot">
+      <value>${sysdir.etc}/sipxconfig-languages</value>
+    </property>
+  </bean>
 </beans>
