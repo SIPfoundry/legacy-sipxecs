@@ -564,7 +564,7 @@
     <sipx-sql>
       delete from localization where region = 'region_na';
     </sipx-sql>
-    <mark-patch-applied patch="unmanaged-to-acme" />
+    <mark-patch-applied patch="localization-fix" />
   </target>
 
   <!-- 
