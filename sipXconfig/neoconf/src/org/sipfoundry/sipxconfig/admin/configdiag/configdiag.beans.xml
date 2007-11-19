@@ -24,7 +24,7 @@
           <key>
             <value>hostname</value>
           </key>
-          <value>phoneDefaults.fullyQualifiedDomainName</value>
+          <value>${phoneDefaults.fullyQualifiedDomainName}</value>
         </entry>
       </map>    
     </property>
