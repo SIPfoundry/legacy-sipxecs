@@ -1,5 +1,5 @@
 AC_PREREQ(2.57)
-AC_INIT(sipX, 3.9.5, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipX, 3.9.6, sipx-dev@list.sipfoundry.org)
 
 AC_CONFIG_AUX_DIR(config)
 
