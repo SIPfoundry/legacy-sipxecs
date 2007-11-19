@@ -28,7 +28,7 @@ JavaHome=""
 
 # All sipx programs require 1.4 or above, if this does not become
 # true, I suggest parameter-izing this
-JavaVersions="1\.[456]"
+JavaVersions="1\.[4567]"
 
 # List of all sipx projects
 Projects="\
@@ -132,8 +132,8 @@ then
     if [ -z $JavaCommand ]
     then
         cat >&2 <<NOJAVA
-Cannot locate Java VM on you machine. Please either install the Java
- or set JAVA_HOME environment variable to where you've installed java
+Cannot locate the Java VM on you machine or wrong version of Java installed. Please either install Java
+ or set the JAVA_HOME environment variable to where you've installed it.
 
 NOJAVA
 
@@ -151,8 +151,8 @@ then
     if [ -z $JavaCommand ]
     then
         cat >&2 <<NOJAVAHOME
-Cannot locate Java VM on you machine. Please either install the Java
- or set JAVA_HOME environment variable to where you've installed java
+Cannot locate the Java VM on you machine or wrong version of Java installed. Please either install Java
+ or set the JAVA_HOME environment variable to where you've installed it.
 
 NOJAVAHOME
 
