@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -118,9 +119,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
     }
 
     protected String[] getListOfDirectories(String path, String prefix) {
-        //return new File(path).list(new PrefixFileFilter(prefix));
-        
-        return new String[] {"stdprompts_en", "stdprompts_de"};
+        return new File(path).list(new PrefixFileFilter(prefix));
     }
 
     public Localization getLocalization() {
