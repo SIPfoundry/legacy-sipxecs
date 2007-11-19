@@ -41,9 +41,9 @@ public class ConfigurationDiagnosticResultParser implements Serializable {
             result.setStatus(localresult.getStatus());
             result.setMessage(localresult.getMessage());
         } else {
-            result.setExitStatus(-1);
+            result.setExitStatus(exitStatus);
             result.setStatus(Status.Unknown);
-            result.setMessage("");
+            result.setMessage("Unknown exit code: " + exitStatus);
         }
     }
 }

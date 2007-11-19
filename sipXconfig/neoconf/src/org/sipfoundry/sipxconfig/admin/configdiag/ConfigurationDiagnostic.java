@@ -122,7 +122,8 @@ public class ConfigurationDiagnostic implements ExecutionTask, Serializable {
         m_startTime = new Date();
         m_endTime = null;
         m_result = ConfigurationDiagnosticResult.INPROGRESS_RESULT;
-        m_result = m_resultParser.parseResult(m_command.execute());
+        int result = m_command.execute();
+        m_result = m_resultParser.parseResult(result);
         m_endTime = new Date();
     }
 }
