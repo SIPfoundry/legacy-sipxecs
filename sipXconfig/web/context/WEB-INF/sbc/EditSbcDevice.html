@@ -1,0 +1,33 @@
+<div jwcid="@Border">
+  <span jwcid="@If" condition="ognl:!sbcDevice.isNew()">
+    <div id="settings-nav">
+      <span jwcid="@setting/SettingsNavigation" bean="ognl:sbcDevice"
+        editSettingsListener="listener:editSettings" activeSetting="ognl:currentSettingSet">
+        <span jwcid="@For" source="ognl:tabNames" value="ognl:currentTab">
+          <span jwcid="@common/Tab" isActive="ognl:currentTab.equals(activeTab)">
+            <a jwcid="@DirectLink" id="ognl:'tab:' + currentTab" listener="listener:editNonSettings" parameters="ognl:currentTab">
+              <span jwcid="@Insert" value="ognl:messages.getMessage('tab.' + currentTab)"/>
+            </a>
+          </span>
+        </span>
+      </span>
+    </div>
+    <div jwcid="@common/ProfilePreview" device="ognl:sbcDevice"/>
+  </span>
+  <div jwcid="@OptionalElement" id="settings-content" element="ognl:sbcDevice.isNew()?'':'div'">
+    <form jwcid="@Form" delegate="bean:validator" id="sbc">
+      <span jwcid="@Hidden" value="ognl:activeTab"/>
+      <div jwcid="configBlock@Block">
+        <fieldset jwcid="@sbc/SbcDeviceForm" sbcDevice="ognl:sbcDevice" />
+      </div>
+      <div jwcid="settingsBlock@Block">
+          <fieldset jwcid="@setting/SettingsFieldset" settings="ognl:currentSettingSet"/>
+      </div>
+      <span jwcid="@ErrorMsg"/>
+      <span jwcid="@RenderBlock" block="ognl:components.get(activeTab + 'Block')"/>
+      <ul jwcid="@FormActions"
+        listener="listener:save"
+        callback="ognl:callback"/>
+    </form>
+  </div>
+</div>

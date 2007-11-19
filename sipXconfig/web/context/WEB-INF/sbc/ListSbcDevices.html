@@ -1,0 +1,73 @@
+<div jwcid="@Border">
+  <h2><span key="title">Sbcs</span></h2>
+  <div class="help">
+    <b><span key="label.quickLinks">Quick Links</span></b>
+    <ul>
+      <li>
+        <a jwcid="@PageLink" page="EditFlexibleDialPlan">
+          <span key="link.dialPlans">Dial Plans</span>
+        </a>
+      </li>
+      <li>
+        <a jwcid="@PageLink" page="JobStatusPage">
+          <span key="link.jobStatus">Job Status</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div jwcid="@QuickHelp" value="message:help.sbcConfig">this is what SBCs are for...</div>
+  <span jwcid="@ErrorMsg"/>
+  <div jwcid="@If" condition="ognl:generateProfileIds != null">
+    <span jwcid="@device/ConfirmProfileGeneration"
+      profileManager="prop:sbcProfileManager"
+      deviceIds="prop:generateProfileIds"/>
+  </div>
+  <div jwcid="@Else">
+    <form jwcid="@Form" delegate="bean:validator" listener="listener:formSubmit" id="list:sbc:form">
+      <ul class="component-links">
+        <li>
+          <span jwcid="@PropertySelection"
+            value="ognl:sbcDescriptor"
+            model="ognl:sbcDescriptorSelectionModel"
+            onchange="literal:javascript:this.form.submit();"/>
+        </li>
+      </ul>
+      <table jwcid="@common/Table" id="list:sbc"
+        source="ognl:sbcDeviceManager.sbcDevices"
+        columns="* name,address,model,description"
+        selections="bean:selections"
+        row="ognl:sbc">
+        <span jwcid="nameColumnValue@Block">
+          <a jwcid="@DirectLink"
+            listener="listener:editSbc"
+            parameters="ognl:sbc.id">
+              <span jwcid="@Insert" value="ognl:sbc.name"/>
+          </a>
+        </span>
+        <span jwcid="modelColumnValue@Block">
+          <span jwcid="@Insert" value="ognl:sbc.model.label"/>
+        </span>
+      </table>
+      <ul class="component-submit">
+        <li>
+          <input jwcid="propagate@Submit" id="list:sbc:propagate"
+            selected="ognl:sbcsToPropagate"
+            tag="ognl:allSelected"
+            value="message:button.propagate"/>
+        </li>
+        <li>
+          <input jwcid="propagateAll@Submit" id="list:sbc:propagateAll"
+            value="message:button.propagateAll"
+            listener="listener:propagateAll"/>
+        </li>
+        <li>
+          <input jwcid="delete@Submit" id="list:sbc:delete"
+            selected="ognl:sbcsToDelete"
+            tag="ognl:allSelected"
+            value="message:button.delete"/>
+          <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+        </li>
+      </ul>
+    </form>
+  </div>
+</div>
