@@ -123,6 +123,8 @@ postgresSetup() {
   ${Chown} postgres:postgres $PGDATA/postmaster.opts.default
 
   ${ServiceDir}/$Service start
+  # Wait 3 seconds to allow slow systems to start the db server
+  sleep 3
 }
 
 # Have postgres start automatically with system reboot
