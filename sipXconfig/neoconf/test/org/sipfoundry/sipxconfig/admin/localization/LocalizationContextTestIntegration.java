@@ -20,14 +20,14 @@ public class LocalizationContextTestIntegration extends IntegrationTestCase {
     }
 
     public void testUpdateLanguage() throws Exception {
-        assertEquals(1, m_localizationContext.updateLanguage("pl"));
+        assertEquals(1, m_localizationContext.updateLanguage("stdprompts_pl"));
         flush();
         assertEquals(1, getConnection().getRowCount("localization", "where language = 'pl'"));
     }
 
     public void testDefaults() {
         assertEquals("na", m_localizationContext.getCurrentRegionId());
-        assertEquals("en", m_localizationContext.getCurrentLanguageId());
+        assertEquals("en", m_localizationContext.getCurrentLanguage());
     }
 
     public void setLocalizationContext(LocalizationContext localizationContext) {

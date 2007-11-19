@@ -14,7 +14,9 @@ import java.io.InputStream;
 public interface LocalizationContext {
     public String getCurrentRegionId();
 
-    public String getCurrentLanguageId();
+    public String getCurrentLanguage();
+
+    public String getCurrentLanguageDir();
 
     public String[] getInstalledRegions();
 
@@ -26,7 +28,7 @@ public interface LocalizationContext {
 
     public int updateRegion(String region);
 
-    public int updateLanguage(String language);
+    public int updateLanguage(String languageDirectory);
 
     public void installLocalizationPackage(InputStream stream, String name);
 }

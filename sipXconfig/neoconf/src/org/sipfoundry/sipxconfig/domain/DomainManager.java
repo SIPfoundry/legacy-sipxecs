@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.domain;
 
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 
 public interface DomainManager extends DialingRuleProvider {
@@ -24,6 +25,10 @@ public interface DomainManager extends DialingRuleProvider {
     boolean isDomainInitialized();
 
     void saveDomain(Domain domain);
+
+    void replicateDomainConfig();
+    
+    void replicateDomainConfig(SipxReplicationContext context);
 
     static class DomainNotInitializedException extends RuntimeException {
         DomainNotInitializedException() {

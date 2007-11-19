@@ -67,7 +67,7 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         }
 
         if (getLanguage() == null) {
-            String defaultLanguage = getLocalizationContext().getLocalization().getLanguage();
+            String defaultLanguage = getLocalizationContext().getCurrentLanguageDir();
             setLanguage(defaultLanguage);
         }
     }
@@ -98,11 +98,11 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
     }
 
     public void setLanguage() {
-        String language = getLanguage();
-        if (ModelWithDefaults.DEFAULT.equals(language)) {
+        String languageDir = getLanguage();
+        if (ModelWithDefaults.DEFAULT.equals(languageDir)) {
             return;
         }
-        int exitCode = getLocalizationContext().updateLanguage(language);
+        int exitCode = getLocalizationContext().updateLanguage(languageDir);
         if (exitCode > 0) {
             recordSuccess("message.label.languageChanged");
         } else if (exitCode < 0) {
@@ -124,6 +124,9 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
             if ("tar".equals(extension) || "tgz".equals(extension)) {
                 LocalizationContext lc = getLocalizationContext();
                 lc.installLocalizationPackage(uploadFile.getStream(), fileName);
+                // Update the list of available regions/langauges and report success
+                initRegions();
+                initLanguages();
                 recordSuccess("message.installedOk");
             } else {
                 recordFailure("message.invalidPackage");

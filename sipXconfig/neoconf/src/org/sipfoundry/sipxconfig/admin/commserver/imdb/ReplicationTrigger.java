@@ -16,8 +16,6 @@ import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.domain.Domain;
-import org.sipfoundry.sipxconfig.domain.DomainConfiguration;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
@@ -82,10 +80,7 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             
             // replicate domain config on startup.  this should be refactored
             // so that it is handled by generateAll in replicationContext
-            Domain domain = m_domainManager.getDomain();
-            DomainConfiguration domainConfig = m_domainManager.createDomainConfiguration();
-            domainConfig.generate(domain, m_domainManager.getAuthorizationRealm());
-            m_replicationContext.replicate(domainConfig);
+            m_domainManager.replicateDomainConfig(m_replicationContext);
         }
     }
 

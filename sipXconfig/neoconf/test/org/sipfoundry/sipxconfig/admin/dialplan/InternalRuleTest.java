@@ -200,7 +200,7 @@ public class InternalRuleTest extends TestCase {
         SipXMediaServer mediaServer = new SipXMediaServer();
 
         LocalizationContext lc = EasyMock.createMock(LocalizationContext.class);
-        EasyMock.expect(lc.getCurrentLanguageId()).andReturn("pl").atLeastOnce();
+        EasyMock.expect(lc.getCurrentLanguage()).andReturn("pl").atLeastOnce();
         mediaServer.setLocalizationContext(lc);
 
         // configure a mock bean factory that is needed by the MediaServerFactory

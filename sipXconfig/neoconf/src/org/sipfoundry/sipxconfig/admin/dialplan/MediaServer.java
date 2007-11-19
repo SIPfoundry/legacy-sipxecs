@@ -188,8 +188,8 @@ public abstract class MediaServer {
      */
     public String buildUrl(CallDigits userDigits, Operation operation, String sipParams) {
         Map<String, String> langHint = new TreeMap<String, String>();
-        String languageId = m_localizationContext.getCurrentLanguageId();
-        addLang(langHint, languageId);
+        String language = m_localizationContext.getCurrentLanguage();
+        addLang(langHint, language);
         String uriParams = getUriParameterStringForOperation(operation, userDigits, langHint);
         String headerParams = getHeaderParameterStringForOperation(operation, userDigits, null);
         String hostname = getHostname();

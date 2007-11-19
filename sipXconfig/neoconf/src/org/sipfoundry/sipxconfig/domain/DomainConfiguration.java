@@ -28,17 +28,18 @@ public class DomainConfiguration implements ConfigurationFile {
     private String m_templateLocation = "commserver/domain-config.vm";
     private String m_domainConfig;
 
-    public void generate(Domain domain, String realm) {
+    public void generate(Domain domain, String realm, String language) {
         StringWriter writer = new StringWriter();
-        generate(domain, realm, writer);
+        generate(domain, realm, language, writer);
         m_domainConfig = writer.toString();
     }
 
-    public void generate(Domain domain, String realm, Writer output) {
+    public void generate(Domain domain, String realm, String language, Writer output) {
         try {
             VelocityContext context = new VelocityContext();
             context.put("domain", domain);
             context.put("realm", realm);
+            context.put("language", language);
             m_velocityEngine.mergeTemplate(getTemplate(), context, output);
             output.flush();
         } catch (ResourceNotFoundException e) {

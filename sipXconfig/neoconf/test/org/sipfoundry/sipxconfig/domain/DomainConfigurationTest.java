@@ -22,6 +22,8 @@ import org.sipfoundry.sipxconfig.TestHelper;
 public class DomainConfigurationTest extends TestCase {
 
     private Domain m_domain;
+    private String m_language;
+    private String m_realm;
     private DomainConfiguration m_out;
     private String m_referenceConfig;
 
@@ -29,6 +31,8 @@ public class DomainConfigurationTest extends TestCase {
         m_domain = new Domain();
         m_domain.setName("domain.example.com");
         m_domain.setSharedSecret("mySecret");
+        m_language = "en";
+        m_realm = "realm.example.com";
 
         m_out = new DomainConfiguration();
         m_out.setVelocityEngine(TestHelper.getVelocityEngine());
@@ -40,7 +44,7 @@ public class DomainConfigurationTest extends TestCase {
 
     public void testGenerateDomainConfigWithWriter() throws Exception {
         StringWriter actualConfigWriter = new StringWriter();
-        m_out.generate(m_domain, "realm.example.com", actualConfigWriter);
+        m_out.generate(m_domain, m_realm, m_language, actualConfigWriter);
 
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
 
@@ -51,7 +55,7 @@ public class DomainConfigurationTest extends TestCase {
 
     public void testWrite() throws Exception {
         StringWriter actualConfigWriter = new StringWriter();
-        m_out.generate(m_domain, "realm.example.com");
+        m_out.generate(m_domain, m_realm, m_language);
         m_out.write(actualConfigWriter);
 
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());

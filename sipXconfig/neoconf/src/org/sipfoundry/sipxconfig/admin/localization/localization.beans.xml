@@ -11,8 +11,9 @@
     <property name="promptsDir" value="${sysdir.doc}"/>
     <property name="binDir" value="${sysdir.bin}"/>
     <property name="defaultRegion" value="region_na" />
-    <property name="defaultLanguage" value="stdprompts_en" />
+    <property name="defaultLanguage" value="en" />
     <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="localizationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

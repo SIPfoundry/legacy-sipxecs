@@ -177,7 +177,7 @@
   <!--  Message source beans -->
   <bean id="jarMessageSourceContext" class="org.sipfoundry.sipxconfig.site.common.DefaultJarMessagesSourceContext">
     <property name="localizationPackageRoot">
-      <value>${sysdir.etc}/sipxconfig-languages</value>
+      <value>${sysdir.etc}</value>
     </property>
   </bean>
 </beans>

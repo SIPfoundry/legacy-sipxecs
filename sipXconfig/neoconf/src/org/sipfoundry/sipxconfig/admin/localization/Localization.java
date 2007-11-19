@@ -23,7 +23,7 @@ public class Localization extends BeanWithId {
     }
 
     public void setRegion(String region) {
-        this.m_region = region;
+        m_region = region;
     }
 
     public String getLanguage() {
@@ -31,18 +31,14 @@ public class Localization extends BeanWithId {
     }
 
     public void setLanguage(String language) {
-        this.m_language = language;
-    }
-
-    public String getLanguageId() {
-        return getIdFromString(m_language);
+        m_language = language;
     }
 
     public String getRegionId() {
         return getIdFromString(m_region);
     }
 
-    private String getIdFromString(String string) {
+    public static String getIdFromString(String string) {
         String[] split = StringUtils.split(string, "_");
         if (split == null || split.length == 0) {
             return null;

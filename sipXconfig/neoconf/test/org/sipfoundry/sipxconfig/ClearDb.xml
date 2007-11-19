@@ -96,9 +96,11 @@
   <table name="domain">
     <column>domain_id</column>
     <column>name</column>
+    <column>shared_secret</column>
     <row>
       <value>1000</value>
       <value>example.org</value>
+      <value>shared-secret</value>
     </row>
   </table>
   <table name="domain_alias"/>

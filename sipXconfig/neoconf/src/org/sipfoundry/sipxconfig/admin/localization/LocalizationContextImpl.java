@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.dao.support.DataAccessUtils;
 
@@ -43,6 +44,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
     private String m_defaultRegion;
     private String m_defaultLanguage;
     private DialPlanContext m_dialPlanContext;
+    private DomainManager m_domainManager;
 
     public void setRegionDir(String regionDir) {
         m_regionDir = regionDir;
@@ -62,18 +64,29 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
 
     public void setDefaultLanguage(String defaultLanguage) {
         m_defaultLanguage = defaultLanguage;
+        // Calling getLocalization() populates the localization table
+        // when empty
+        getLocalization();
     }
 
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
     }
 
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
+    }
+
     public String getCurrentRegionId() {
         return getLocalization().getRegionId();
     }
 
-    public String getCurrentLanguageId() {
-        return getLocalization().getLanguageId();
+    public String getCurrentLanguage() {
+        return getLocalization().getLanguage();
+    }
+
+    public String getCurrentLanguageDir() {
+        return PROMPTS_PREFIX + getLocalization().getLanguage();
     }
 
     public String[] getInstalledRegions() {
@@ -114,25 +127,20 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
         List l = getHibernateTemplate().loadAll(Localization.class);
         Localization localization = (Localization) DataAccessUtils.singleResult(l);
         if (localization == null) {
-            return getDefaultLocalization();
+            // The localization table is empty - create a new localization using
+            // default values and update the table
+            localization = new Localization();
+            localization.setRegion(m_defaultRegion);
+            localization.setLanguage(m_defaultLanguage);
+            getHibernateTemplate().saveOrUpdate(localization);
         }
-        return localization;
-    }
-
-    /**
-     * Builds default localization to be used when there is not any localization selected in DB
-     */
-    private Localization getDefaultLocalization() {
-        Localization localization = new Localization();
-        localization.setRegion(m_defaultRegion);
-        localization.setLanguage(m_defaultLanguage);
         return localization;
     }
 
     /**
      * Set new current region
      * 
-     * @return postive value is success, negative if failure, 0 if there was no change
+     * @return positive value is success, negative if failure, 0 if there was no change
      */
     public int updateRegion(String region) {
         Localization localization = getLocalization();
@@ -150,8 +158,6 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
         try {
             String dialPlanBeanId = regionId + DIALPLAN;
             m_dialPlanContext.resetToFactoryDefault(dialPlanBeanId);
-            LOG.warn("resetToFactoryDefault : bean " + dialPlanBeanId);
-
             getHibernateTemplate().saveOrUpdate(localization);
         } catch (NoSuchBeanDefinitionException e) {
             LOG.error("Trying to set unsupported region: " + region);
@@ -164,19 +170,22 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
     /**
      * Set new current language
      * 
-     * @return postive value is success, negative if failure, 0 if there was no change
+     * @return positive value is success, negative if failure, 0 if there was no change
      */
-    public int updateLanguage(String language) {
+    public int updateLanguage(String languageDirectory) {
+        String language = Localization.getIdFromString(languageDirectory);
+        if (language == null) {
+            return -1;
+        }
         Localization localization = getLocalization();
         if (localization.getLanguage().equals(language)) {
             // no change
             return 0;
         }
-
         // The language has been changed - handle the change
-        // TODO: add code that sets the language
         localization.setLanguage(language);
         getHibernateTemplate().saveOrUpdate(localization);
+        m_domainManager.replicateDomainConfig();
         return 1;
     }
 
@@ -208,7 +217,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
         UserException installFailureException = new UserException("message.installError");
         try {
             String[] cmd = new String[] {
-                m_binDir + File.pathSeparator + "sipxlocalization", fileToApply.getPath(),
+                m_binDir + File.separator + "sipxlocalization", fileToApply.getPath(),
                 m_promptsDir, m_regionDir
             };
             Process p = Runtime.getRuntime().exec(cmd);

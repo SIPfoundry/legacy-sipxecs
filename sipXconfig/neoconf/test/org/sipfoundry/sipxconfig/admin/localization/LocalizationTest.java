@@ -17,11 +17,11 @@ public class LocalizationTest extends TestCase {
         super.setUp();
     }
 
-    public void testGetLanguageId() {
+    public void testGetLanguage() {
         Localization localization = new Localization();
-        assertNull(localization.getLanguageId());
-        localization.setLanguage("stdprompts_pl");
-        assertEquals("pl", localization.getLanguageId());
+        assertNull(localization.getLanguage());
+        localization.setLanguage("pl");
+        assertEquals("pl", localization.getLanguage());
 
     }
 

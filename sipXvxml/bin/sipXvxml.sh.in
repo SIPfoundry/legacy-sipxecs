@@ -80,18 +80,17 @@ case ${Action} in
              ln -s $SUBDIR\_en $LINK
          fi
      fi
-     FILE=$DIR/DefaultLanguage
-     if [ -e $FILE ]; then
-         DEST=$(grep $SUBDIR $FILE)
-         if [ $? -eq 0 ]; then
+     SLINK=$(ls -l -d $DIR/stdprompts);LEN=${#SLINK};: $((LEN-=13));SLINK=${SLINK:LEN}
+     CUR_LANG=$(echo $SLINK | cut -d _ -f 2)
+     DEF_LANG=$(@bindir@/configquery @SIPX_CONFDIR@/domain-config DEFAULT_LANGUAGE)
+     if [ ${#DEF_LANG} -ne 0 ]; then
+         if [ $DEF_LANG != $CUR_LANG ]; then
+             DEST=$SUBDIR\_$DEF_LANG
              if [ -e $DIR/$DEST ]; then
                  if [ -e $LINK ]; then
                      rm $LINK
                  fi
                  ln -s $DEST $LINK
-                 if [ $? -eq 0 ]; then
-                     rm $FILE
-                 fi
              fi
          fi
      fi
