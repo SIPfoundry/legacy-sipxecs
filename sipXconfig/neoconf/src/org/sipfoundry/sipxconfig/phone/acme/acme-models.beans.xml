@@ -2,11 +2,22 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
+  <!-- Link to this file will be displayed in UI -->
+  <bean name="acmeNtp" class="org.sipfoundry.sipxconfig.device.Resource">
+    <constructor-arg value="NTP Configuration" />
+    <constructor-arg value="/etc/ntp.conf" />
+  </bean>
+
   <bean id="acmePhoneStandard" class="org.sipfoundry.sipxconfig.phone.PhoneModel" parent="abstractPhoneModel">
     <property name="beanId" value="acmePhone" />
     <property name="label" value="Acme" />
     <property name="maxLineCount" value="3" />
     <property name="profileTemplate" value="acmePhone/config.vm" />
+    <property name="resources">
+      <list>
+        <ref bean="acmeNtp" />
+      </list>
+    </property>
   </bean>
 
   <bean id="acmePhone" class="org.sipfoundry.sipxconfig.phone.acme.AcmePhone" singleton="false"

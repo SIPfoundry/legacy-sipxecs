@@ -47,6 +47,11 @@ public abstract class DeviceDescriptor {
 
     private String m_profileTemplate;
 
+    /**
+     * Downloadable files or utilities - used by UI
+     */
+    private Resource[] m_resources;
+
     public DeviceDescriptor() {
     }
 
@@ -194,5 +199,13 @@ public abstract class DeviceDescriptor {
 
     public String getProfileTemplate() {
         return m_profileTemplate;
+    }
+
+    public Resource[] getResources() {
+        return m_resources;
+    }
+
+    public void setResources(Resource[] resources) {
+        m_resources = resources;
     }
 }

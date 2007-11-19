@@ -13,6 +13,7 @@
       </span>
     </div>
     <div jwcid="@common/ProfilePreview" device="ognl:sbcDevice"/>
+    <div jwcid="@common/DeviceResources" deviceDescriptor="ognl:sbcDevice.model" />
   </span>
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:sbcDevice.isNew()?'':'div'">
     <form jwcid="@Form" delegate="bean:validator" id="sbc">

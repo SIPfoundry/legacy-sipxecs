@@ -14,6 +14,7 @@
       </span>
     </div>
     <div jwcid="@common/ProfilePreview" device="prop:gateway"/>
+    <div jwcid="@common/DeviceResources" deviceDescriptor="prop:gateway.model" />
   </span>
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:gateway.isNew()?'':'div'">
     <form jwcid="@Form" delegate="bean:validator" id="gateway">

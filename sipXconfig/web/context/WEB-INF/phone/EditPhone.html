@@ -23,6 +23,7 @@
     </div>
     <div jwcid="@Else">
       <span jwcid="@GroupCloud" groups="ognl:phoneContext.groups"/>
+      <div jwcid="@common/DeviceResources" deviceDescriptor="ognl:phone.model" />
       <form jwcid="@Form" delegate="bean:validator">
         <span jwcid="@EditPhoneForm" phone="prop:phone" validator="bean:validator"/>
         <span jwcid="@FormActions" callback="ognl:callback"
