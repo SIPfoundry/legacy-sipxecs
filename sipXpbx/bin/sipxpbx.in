@@ -498,6 +498,24 @@ EOF
     fi
     finish_check $ssl_status
 
+    start_check "Firewall configuration"
+    if test -e /proc/net/ip_tables_names; then
+        cat <<EOF >> ${steperrfile}
+    The iptables firewall is running. Turn it off before starting sipXecs.
+    (Fedora: service iptables stop - SuSE: Use YaST)
+EOF
+        # if this has not been done, then lots of other stuff is going to fail
+        # in non-obvious ways.  Usually, this failure means that this is the first
+        # reboot after sipxpbx was activated, and the setup wizard has not been
+        # run yet.  Rather than let things go and appear to be partly working,
+        # just bail out now.
+        finish_check 1 # force error
+        cat ${steperrfile} 1>&2
+        exit 1
+    else
+        finish_check 0
+    fi
+
     initialize_databases
 
     ## Regenerate httpd configuration files from their .in's.
