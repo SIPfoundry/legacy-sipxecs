@@ -49,6 +49,7 @@ monitoringContextImpl.enabled=@mrtg-enabled@
 # VersionInfo class as well
 sysdir.bin=@sipxpbx.bin.dir@
 sysdir.etc=@sipxpbx.conf.dir@
+sysdir.var=@sipxpbx.var.dir@
 sysdir.log=@sipxpbx.log.dir@
 sysdir.share=@sipxpbx.data.dir@
 sysdir.phone=@sipxconfig.phone.dir@

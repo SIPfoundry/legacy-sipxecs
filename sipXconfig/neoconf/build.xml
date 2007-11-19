@@ -98,6 +98,7 @@
       <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
       <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir" />
       <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir" />
+      <replacefilter token="@sipxpbx.var.dir@" property="sipxpbx.var.dir" />
       <replacefilter token="@sipxconfig.upload.dir@" property="sipxconfig.upload.dir" />
       <replacefilter token="@sipxconfig.phonebook.dir@" property="sipxconfig.phonebook.dir" />
       <replacefilter token="@sipxconfig.phone.dir@" property="sipxconfig.phone.dir" />
