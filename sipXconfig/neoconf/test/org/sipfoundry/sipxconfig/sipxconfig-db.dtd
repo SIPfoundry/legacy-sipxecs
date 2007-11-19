@@ -112,6 +112,7 @@
     limited_count CDATA #IMPLIED
     configs CDATA #IMPLIED
     voicemail CDATA #IMPLIED
+    email_address CDATA #IMPLIED
 >
 
 <!ELEMENT call_group EMPTY>
@@ -122,6 +123,8 @@
     extension CDATA #IMPLIED
     description CDATA #IMPLIED
     fallback_destination CDATA #IMPLIED
+    voicemail_fallback CDATA #REQUIRED
+    user_forward CDATA #REQUIRED
 >
 
 <!ELEMENT cron_schedule EMPTY>
@@ -164,6 +167,7 @@
 <!ELEMENT dial_plan EMPTY>
 <!ATTLIST dial_plan
     dial_plan_id CDATA #REQUIRED
+    type CDATA #IMPLIED
 >
 
 <!ELEMENT dialing_rule EMPTY>
@@ -174,6 +178,7 @@
     enabled CDATA #IMPLIED
     position CDATA #IMPLIED
     dial_plan_id CDATA #IMPLIED
+    schedule_id CDATA #IMPLIED
 >
 
 <!ELEMENT dialing_rule_gateway EMPTY>
@@ -187,6 +192,7 @@
 <!ATTLIST domain
     domain_id CDATA #REQUIRED
     name CDATA #REQUIRED
+    shared_secret CDATA #IMPLIED
 >
 
 <!ELEMENT domain_alias EMPTY>
@@ -247,8 +253,7 @@
     add_prefix CDATA #IMPLIED
     keep_digits CDATA #REQUIRED
     address_port CDATA #IMPLIED
-    address_transport CDATA #IMPLIED
-
+    address_transport CDATA #REQUIRED
 >
 
 <!ELEMENT group_storage EMPTY>
@@ -376,6 +381,13 @@
     pstn_prefix CDATA #IMPLIED
 >
 
+<!ELEMENT localization EMPTY>
+<!ATTLIST localization
+    localization_id CDATA #REQUIRED
+    region CDATA #IMPLIED
+    language CDATA #IMPLIED
+>
+
 <!ELEMENT long_distance_dialing_rule EMPTY>
 <!ATTLIST long_distance_dialing_rule
     international_dialing_rule_id CDATA #REQUIRED
@@ -456,6 +468,8 @@
     personal_attendant_id CDATA #REQUIRED
     user_id CDATA #REQUIRED
     operator CDATA #IMPLIED
+    language CDATA #IMPLIED
+    override_language CDATA #IMPLIED
 >
 
 <!ELEMENT personal_attendant_menu_item EMPTY>
@@ -530,6 +544,19 @@
     enabled CDATA #IMPLIED
     address CDATA #IMPLIED
     sbc_type CDATA #REQUIRED
+>
+
+<!ELEMENT sbc_device EMPTY>
+<!ATTLIST sbc_device
+    sbc_device_id CDATA #REQUIRED
+    bean_id CDATA #REQUIRED
+    name CDATA #IMPLIED
+    address CDATA #IMPLIED
+    description CDATA #IMPLIED
+    serial_number CDATA #IMPLIED
+    value_storage_id CDATA #IMPLIED
+    model_id CDATA #REQUIRED
+    device_version_id CDATA #IMPLIED
 >
 
 <!ELEMENT sbc_route_domain EMPTY>

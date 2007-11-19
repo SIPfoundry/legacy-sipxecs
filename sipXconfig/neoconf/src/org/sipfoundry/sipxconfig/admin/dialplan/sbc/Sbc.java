@@ -18,6 +18,8 @@ public abstract class Sbc extends BeanWithId {
 
     private SbcRoutes m_routes;
 
+    private SbcDevice m_sbcDevice;
+
     public String getAddress() {
         return m_address;
     }
@@ -40,5 +42,13 @@ public abstract class Sbc extends BeanWithId {
 
     public void setRoutes(SbcRoutes routes) {
         m_routes = routes;
+    }
+
+    public SbcDevice getSbcDevice() {
+        return m_sbcDevice;
+    }
+
+    public void setSbcDevice(SbcDevice sbcDevice) {
+        m_sbcDevice = sbcDevice;
     }
 }

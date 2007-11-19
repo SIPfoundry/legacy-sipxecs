@@ -53,6 +53,7 @@ public class ProfileContext {
         HashMap<String, Object> context = new HashMap<String, Object>();
         context.put("phone", m_device);
         context.put("gateway", m_device);
+        context.put("sbc", m_device);
         context.put("cfg", this);
         return context;
     }

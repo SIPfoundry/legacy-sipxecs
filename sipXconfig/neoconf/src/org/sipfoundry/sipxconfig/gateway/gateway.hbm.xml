@@ -13,7 +13,7 @@
     </id>
     <discriminator column="bean_id" />
     <property name="name" />
-    <property name="address" />
+    <property name="address" ></property>
     <property name="addressPort" />
     <property name="addressTransport" column="address_transport"
       type="org.sipfoundry.sipxconfig.gateway.Gateway$UserType"/>

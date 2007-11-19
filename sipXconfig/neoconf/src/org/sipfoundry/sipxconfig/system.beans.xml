@@ -149,6 +149,7 @@
     <property name="baseClassBeanIds">
       <list>
         <value>gwGeneric</value>
+        <value>sbcGeneric</value>
         <value>abstractPhone</value>
         <value>upload</value>
         <value>abstractService</value>

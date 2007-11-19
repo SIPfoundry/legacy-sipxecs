@@ -12,18 +12,18 @@
   -
   -      Example:
   
-  <target name="xxx" unless="xxx">
-  <db-patch patch="xxx"/>
-  </target>
+      <target name="xxx" unless="xxx">
+          <db-patch patch="xxx"/>
+      </target>
   
   -
   -   3. add a reference to your patch in the ant target for the last version
   - 
   -      Example:
   -
-  <target name="versionN" ... >
-  ...
-  <antcall target="xxx"/>  
+      <target name="versionN" ... >
+      ...
+      <antcall target="xxx"/>  
   
   
   -
@@ -50,19 +50,19 @@
   -
   - 2. By altering the dependency you will be telling ant to always reset and always apply your patch
   
-  
-  <target name="reset-xxx" if="xxx">
-  <sipx-sql>
-  drop table aaa_bbb;
-  drop sequence aaa_bbb_seq;
-  delete from patch where name = 'xxx
-  </sipx-sql>
-  </target>
-  
-  <target name="xxx" depends="reset-xxx">
-  <db-patch patch="xxx"/>
-  </target>
-  
+
+      <target name="reset-xxx" if="xxx">
+          <sipx-sql>
+              drop table aaa_bbb;
+              drop sequence aaa_bbb_seq;
+              delete from patch where name = 'xxx
+          </sipx-sql>
+      </target>
+
+      <target name="xxx" depends="reset-xxx">
+          <db-patch patch="xxx"/>
+      </target>
+
   -
   -  TO TEST AND USE YOUR PATCH
   -
@@ -256,6 +256,7 @@
     <antcall target="localization" />
     <antcall target="callgroup-userforward" />
     <antcall target="paging-group" />
+    <antcall target="sbc-device" />
     <!-- temporary patches -->
     <antcall target="gateway-port-fix" />
     <antcall target="localization-fix" />
@@ -513,6 +514,10 @@
 
   <target name="callgroup-userforward" unless="callgroup-userforward">
     <db-patch patch="callgroup-userforward" />
+  </target>
+
+  <target name="sbc-device" unless="sbc-device">
+    <db-patch patch="sbc-device" />
   </target>
 
   <target name="callforwardexternal" unless="callforwardexternal">

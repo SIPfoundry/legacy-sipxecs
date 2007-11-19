@@ -51,7 +51,9 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {
     }
 
     protected void saveBeanWithSettings(BeanWithSettings bean) {
-        bean.setValueStorage(clearUnsavedValueStorage(bean.getValueStorage()));
+        Storage origStorage = bean.getValueStorage();
+        Storage cleanStorage = clearUnsavedValueStorage(origStorage);
+        bean.setValueStorage(cleanStorage);
         getHibernateTemplate().saveOrUpdate(bean);
     }
 
@@ -141,6 +143,12 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {
         // HACK: this is to fix XCF-1732, it should not be needed but FLASH_AUTO strategy does not
         // work here
         template.flush();
+    }
+
+    protected void removeAll(Class<T> klass) {
+        HibernateTemplate template = getHibernateTemplate();
+        List entities = template.loadAll(klass);
+        template.deleteAll(entities);
     }
 
     protected Storage clearUnsavedValueStorage(Storage storage) {
