@@ -11,8 +11,10 @@ debug=@JAVAC_DEBUG@
 bin.dir=@bindir@
 lib.dir=@libdir@
 prefix.dir=@prefix@
-conf.dir=@SIPX_CONFDIR@
 lib.src=@LIBSRC@
+
+# S I P X P B X
+sipx.data.dir=@SIPX_DATADIR@
 
 # comma-separated combination of 'lines' 'source' and 'var' only valid
 # when debug is on
