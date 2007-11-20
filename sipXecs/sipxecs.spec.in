@@ -2,6 +2,9 @@ Name: @PACKAGE@
 Version: @VERSION@
 Release: %{buildno}
 
+# do not build a debuginfo package
+%define debug_package %{nil}
+
 Summary: sipXecs Enterprise Communications Server 
 License: L-GPL
 Group: Telcommunications
