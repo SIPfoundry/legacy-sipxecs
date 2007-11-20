@@ -8,6 +8,7 @@
   <inject property="presenceServer" object="spring:presenceServer" />
   <inject property="acdContext" object="spring:acdContext" />
   <inject property="monitoringContext" object="spring:monitoringContext" />
+  <inject property="coreContext" object="spring:coreContext" />
 
   <component id="ieHackScript" type="Script">
     <binding name="script" value="literal:AdminNavigation.script" />

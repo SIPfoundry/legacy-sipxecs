@@ -14,6 +14,7 @@
     <property name="aliasManager">
       <ref bean="aliasManager"/>
     </property>
+    <property name="debug" value="false" />
     <property name="domainManager" ref="domainManager"/>
   </bean>
   <!--

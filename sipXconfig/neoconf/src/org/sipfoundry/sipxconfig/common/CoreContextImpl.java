@@ -51,6 +51,8 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     private DaoEventPublisher m_daoEventPublisher;
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
+    private boolean m_debug;
+    
     /** limit number of users */
     private int m_maxUserCount = -1;
 
@@ -62,6 +64,14 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         return (User) m_beanFactory.getBean(User.class.getName());
     }
 
+    public boolean getDebug() {
+        return m_debug;
+    }
+        
+    public void setDebug(boolean debug) {
+        m_debug = debug;
+    }
+    
     public String getAuthorizationRealm() {
         return m_domainManager.getAuthorizationRealm();
     }

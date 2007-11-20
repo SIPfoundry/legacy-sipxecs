@@ -110,6 +110,7 @@
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user" />
       <replacefilter token="@www.dir@" property="www.dir" />
       <replacefilter token="@mrtg-enabled@" property="mrtg-enabled" />
+      <replacefilter token="@debug@" property="debug" />
     </replace>
 
     <!-- copy jars and war -->

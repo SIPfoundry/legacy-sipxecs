@@ -89,6 +89,12 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
      */
     String checkForDuplicateNameOrAlias(User user);
 
+    /**
+     * Determines whether or not the application is running in debug mode.
+     * @return true if we are running a DEBUG build; false if not.
+     */
+    boolean getDebug();
+    
     String getAuthorizationRealm();
 
     String getDomainName();

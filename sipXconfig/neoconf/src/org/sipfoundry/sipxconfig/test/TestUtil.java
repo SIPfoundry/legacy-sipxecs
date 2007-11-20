@@ -189,7 +189,8 @@ public final class TestUtil {
                 + "/phonebook");
         sysProps.setProperty("vxml.scriptsDirectory", outputDirectory + "/vxml");
         sysProps.setProperty("monitoringContextImpl.enabled", Boolean.toString(true));
-
+        sysProps.setProperty("coreContextImpl.debug", "on");
+        
         File vmDir = new File(outputDirectory + "/mailstore");
         if (!vmDir.exists()) {
             if (!vmDir.mkdirs()) {
