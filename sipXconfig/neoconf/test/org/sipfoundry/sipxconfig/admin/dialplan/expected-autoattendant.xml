@@ -203,7 +203,7 @@
              2 means we did #1, and that failed!                         -->
       <if cond="failedoption == '0'">
         <prompt bargein="false">
-          <audio expr="mediaserverurl + promptsalias + '${onfail.getSetting('transfer-prompt').Value}'" />
+          <audio expr="securemediaserverurl + promptsalias + '${onfail.getSetting('transfer-prompt').Value}'" />
         </prompt>
         <disconnect />
       </if>
