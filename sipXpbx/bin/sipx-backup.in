@@ -123,7 +123,7 @@ fi
 # *** BEGIN Configuration ***
 if [ "$CONFIGURATION" = "yes" ]
 then
-
+  
   ConfigBackupFiles="\
     @SIPX_CONFDIR@/config.defs \
     @SIPX_CONFDIR@/WatchDog.xml \
@@ -136,6 +136,10 @@ then
     @SIPX_DBDIR@/*.xml \
     @SIPX_CONFDIR@/*.in \
     @SIPX_CONFDIR@/ssl/authorities/* \
+    @SIPX_CONFIGPHONEDIR@/acd/audio/* \
+    @SIPX_PARKMUSICDIR@/* \
+    @SIPX_VXMLDATADIR@/prompts/* \
+    @SIPX_PAGEMUSICDIR@/* \
     "
 
   postgresql_running
@@ -183,14 +187,23 @@ fi # *** END Configuration ***
 if [ "$VOICEMAIL" = "yes" ]
 then
   MAILSTORE=@SIPX_VXMLDATADIR@
-  Files="$MAILSTORE/messageid.txt $MAILSTORE/organizationprefs.xml $MAILSTORE/mailstore"
-
-  # List what will be backed up.
+  Files="$MAILSTORE/messageid.txt $MAILSTORE/organizationprefs.xml"
+  Dirs="$MAILSTORE/mailstore"
+ 
+  # Decide/List what will be backed up.
   echo "Will backup the following:"
-  for File in $Files
-  do
-    echo "  $File"
+  for Dir in $Dirs; do
+    echo "  $Dir"
   done
+  for File in $Files; do
+    if [ -f $File ]; then
+      echo "  $File"
+      ExistingFiles="$ExistingFiles $File"
+    else
+      echo "  Missing $File"
+    fi
+  done
+
   confirm_action
 
   # Delete the old backup file if it exists.
@@ -198,7 +211,7 @@ then
 
   # Copy the files.
   echo -n "Copying voicemail files... "
-  tar cC / $Files -C $ARCHIVE_DIR $VERSION_FILE_NAME | gzip --best > $VM_BACKUP_FILE
+  tar cC / $ExistingFiles $Dirs -C $ARCHIVE_DIR $VERSION_FILE_NAME | gzip --best > $VM_BACKUP_FILE
   echo "done."
 
 fi # *** END Voicemail ***
