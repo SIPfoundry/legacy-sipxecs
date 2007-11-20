@@ -9,12 +9,17 @@
 # Get arguments.
 # --csv means to generate output in CSV format.
 # --all means to report on all transactions, not just the ones with one Via.
+# --ignore-date means to ignore the Date: header inserted by the UAC (in case
+#       it is incorrect).
 while (1) {
     if ($ARGV[0] eq '--csv') {
 	$csv = 1;
 	shift @ARGV;
     } elsif ($ARGV[0] eq '--all') {
 	$all_transactions = 1;
+	shift @ARGV;
+    } elsif ($ARGV[0] eq '--ignore-date') {
+	$ignore_date = 1;
 	shift @ARGV;
     } else {
 	last;
@@ -31,7 +36,7 @@ while (<>) {
 
 	if (!/^"20\d\d-\d\d-\d\dT\d\d:\d\d:\d\d[.\d]*Z":\d+:/) {
 	    print STDERR "Are you sure this is a sipX log file?  The first line has incorrect syntax:\n";
-	    print STDERR $_;
+	    print STDERR "\t", $_;
 	}
     }
     if (($method, $uri) = /:INCOMING:.*---- Port:[ \d]*----\\n([A-Z0-9]+) ((sips?:|UNKNOWN|tel:)[^ ]*)/) {
@@ -39,8 +44,12 @@ while (<>) {
 	if ($all_transactions || !/branch=.*branch=/) {
 	    # Get the branch parameter of the first Via.
 	    ($time, $branch) = m/^"...........(...............).*?branch=([^\\;]*)/; #";
-	    ($date) = m/\\nDate: *([^\\]*)/i;
-            ($date) = $date =~ m/(\d\d:\d\d:\d\d)/;
+	    if (!$ignore_date) {
+		($date) = m/\\nDate: *([^\\]*)/i;
+		($date) = $date =~ m/(\d\d:\d\d:\d\d)/;
+	    } else {
+		$date = '';
+	    }
             # Mark the branch specially if this is a CANCEL.
             $branch .= ' ' if /\\ncseq: *\d* *cancel/i;
             $sortdate = $date ne '' ? $date : $time;
