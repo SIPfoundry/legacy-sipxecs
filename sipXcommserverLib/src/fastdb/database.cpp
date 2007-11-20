@@ -1767,6 +1767,10 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
                     "Failed to start database initialization");
         return false;
     }
+    OsSysLog::add(FAC_DB, PRI_INFO, "initMutex.initialize returns %s\n", 
+        status == dbInitializationMutex::NotYetInitialized ?
+            "dbInitializationMutex::NotYetInitialized" : "dbInitializationMutex::AlreadyInitialized");
+
     sprintf(name, "%s.dm", dbName);
     if (!shm.open(name)) { 
         handleError(DatabaseOpenError, "Failed to open database monitor");
