@@ -7,37 +7,41 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.domain;
+package org.sipfoundry.sipxconfig.admin;
 
 import org.apache.commons.codec.binary.Base64;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.common.InitializationTask;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 
-public class DomainInitializerTestIntegration extends IntegrationTestCase {
-    private DomainInitializer m_domainInitializer;
-    
+// FIXME: it only test domain manager initialization for now
+public class FirstRunTaskTestIntegration extends IntegrationTestCase {
+    private FirstRunTask m_firstRunTask;
+
     private DomainManager m_domainManager;
-    
-    public void setDomainInitializer(DomainInitializer domainInitializer) {
-        m_domainInitializer = domainInitializer;
-    }    
-    
+
+    public void setFirstRun(FirstRunTask firstRunTask) {
+        m_firstRunTask = firstRunTask;
+    }
+
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
 
     public void testOnInitTaskInitializeDomain() throws Exception {
-        loadDataSetXml("domain/NoDomainSeed.xml");        
-        InitializationTask initTask = new InitializationTask("initialize-domain");
-        m_domainInitializer.onApplicationEvent(initTask);
+        loadDataSetXml("domain/NoDomainSeed.xml");
+        // InitializationTask initTask = new InitializationTask("first-run");
+        // m_firstRunTask.onApplicationEvent(initTask);
+        m_domainManager.initialize();
 
         assertEquals("example.org", m_domainManager.getDomain().getName());
     }
 
     public void testOnInitTaskInitializeDomainSecret() throws Exception {
-        loadDataSet("domain/missing-domain-secret.db.xml");        
-        InitializationTask initTask = new InitializationTask("initialize-domain-secret");
-        m_domainInitializer.onApplicationEvent(initTask);
+        loadDataSet("domain/missing-domain-secret.db.xml");
+        // InitializationTask initTask = new InitializationTask("first-run");
+        // m_firstRunTask.onApplicationEvent(initTask);
+        m_domainManager.initialize();
 
         Domain domain = m_domainManager.getDomain();
         assertEquals("example.org", domain.getName());
@@ -49,7 +53,8 @@ public class DomainInitializerTestIntegration extends IntegrationTestCase {
 
         // test that on a subsequent call, after domain is originally saved, we
         // we don't regenerate the secret
-        m_domainInitializer.onApplicationEvent(initTask);
+        // m_firstRunTask.onApplicationEvent(initTask);
+        m_domainManager.initialize();
         assertEquals(sharedSecret, m_domainManager.getDomain().getSharedSecret());
     }
 }

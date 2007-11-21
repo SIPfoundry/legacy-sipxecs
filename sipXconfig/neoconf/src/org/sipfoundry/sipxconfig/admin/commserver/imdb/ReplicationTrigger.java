@@ -16,7 +16,6 @@ import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.springframework.context.ApplicationEvent;
@@ -31,8 +30,6 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     private SpeedDialManager m_speedDialManager;
     
-    private DomainManager m_domainManager;
-
     private boolean m_replicateOnStartup = true;
 
     public void setReplicationContext(SipxReplicationContext replicationContext) {
@@ -47,10 +44,6 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
         m_speedDialManager = speedDialManager;
     }
     
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
-    }
-
     public boolean isReplicateOnStartup() {
         return m_replicateOnStartup;
     }
@@ -77,10 +70,6 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             m_replicationContext.generateAll();
             m_parkOrbitContext.activateParkOrbits();
             m_speedDialManager.activateResourceList();
-            
-            // replicate domain config on startup.  this should be refactored
-            // so that it is handled by generateAll in replicationContext
-            m_domainManager.replicateDomainConfig();
         }
     }
 

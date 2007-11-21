@@ -68,7 +68,7 @@ public interface SipxProcessContext {
      * @return list of the services that you usually want to restart
      * 
      */
-    public List getRestartable();
+    public List<Process> getRestartable();
     
     public Process getProcess(String name);
     public Process getProcess(ProcessName name);

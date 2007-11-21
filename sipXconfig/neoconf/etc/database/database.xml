@@ -249,7 +249,6 @@
     <antcall target="backup-email-address" />
     <antcall target="callforwardexternal" />
     <antcall target="domain-add-shared-secret" />
-    <antcall target="domain-initialize-secret" />
     <antcall target="gateway-port" />
     <antcall target="schedules-per-dialing-rule" />
     <antcall target="callgroup-vmail-destination" />
@@ -257,6 +256,7 @@
     <antcall target="callgroup-userforward" />
     <antcall target="paging-group" />
     <antcall target="sbc-device" />
+    <antcall target="first-run-task"/>
     <!-- temporary patches -->
     <antcall target="gateway-port-fix" />
     <antcall target="localization-fix" />
@@ -455,6 +455,13 @@
     </sipx-sql>
   </target>
 
+  <target name="first-run" depends="upgrade"
+    description="Make sipXconfig behave as it was just installed or upgraded.">
+    <sipx-sql>
+      insert into initialization_task (name) values ('first-run');
+    </sipx-sql>
+  </target>
+
   <target name="polycom-2.0"
     description="Migrate all polycom phones to generate 2.0 profiles">
     <property name="polycom-from-id" value="1.6" />
@@ -529,13 +536,14 @@
     <db-patch patch="domain-add-shared-secret" />
   </target>
 
-  <target name="domain-initialize-secret"
-    unless="domain-initialize-secret">
+  <target name="first-run-task" unless="first-run-task">
+    <!-- first-run task supersedes older domain initialization tasks -->
     <sipx-sql>
-      insert into initialization_task (name) values
-      ('initialize-domain-secret');
+      delete from initialization_task where name = 'initialize-domain';
+      delete from initialization_task where name = 'initialize-domain-secret';
+      insert into initialization_task (name) values ('first-run');
     </sipx-sql>
-    <mark-patch-applied patch="domain-initialize-secret" />
+    <mark-patch-applied patch="first-run-task" />
   </target>
 
   <target name="gateway-port" unless="gateway-port">

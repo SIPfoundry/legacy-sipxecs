@@ -25,7 +25,8 @@ public class MediaServerFactory implements BeanFactoryAware {
     private Collection<String> m_beanIds;
 
     public MediaServer create(String id) {
-        MediaServer server = (MediaServer) m_beanFactory.getBean(id, MediaServer.class);
+        String mediaServerBeanId = StringUtils.defaultIfEmpty(id, DEFAULT_MEDIA_SERVER);
+        MediaServer server = (MediaServer) m_beanFactory.getBean(mediaServerBeanId, MediaServer.class);
         server.setHostname(StringUtils.EMPTY);
         server.setServerExtension(StringUtils.EMPTY);
         return server;
