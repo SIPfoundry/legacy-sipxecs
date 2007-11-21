@@ -3,8 +3,7 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
-  <bean id="domainManager" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
+  <bean id="domainManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.domain.DomainManager</value>
     </property>
@@ -13,11 +12,13 @@
     </property>
   </bean>
 
-  <bean id="domainManagerImpl"
-    class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory"/>
-    <property name="domainConfiguration" ref="domainConfiguration"/>
-    <property name="replicationContext" ref="sipxReplicationContext"/>
+  <bean id="domainManagerImpl" class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="domainConfiguration" ref="domainConfiguration" />
+    <property name="replicationContext" ref="sipxReplicationContext" />
+
+    <!-- initialize for tests only: the real value gets set by sipxconfig.properties.in -->
+    <property name="initialDomain" value="example.org" />
 
     <!--
       - CIRCULAR REFERENCE WARNING: 
@@ -32,16 +33,15 @@
       - I do not think domain manager should reference sipxServer because
       - if other systems are integrated other than sipx, domain manager would
       - need to maintain list to all.
-      -->
-    
-    <lookup-method name="getServer" bean="sipxServer"/>
+    -->
+
+    <lookup-method name="getServer" bean="sipxServer" />
     <!-- property name="server" ref="sipxServer"/ -->
-    
+
   </bean>
-  
-  <bean id="domainInitializer"
-    class="org.sipfoundry.sipxconfig.domain.DomainInitializer">
-    <property name="domainManager" ref="domainManager"/>
+
+  <bean id="domainInitializer" class="org.sipfoundry.sipxconfig.domain.DomainInitializer">
+    <property name="domainManager" ref="domainManager" />
     <property name="taskNames">
       <list>
         <value>initialize-domain</value>
@@ -49,9 +49,8 @@
       </list>
     </property>
   </bean>
-  
-  <bean id="domainConfiguration" class="org.sipfoundry.sipxconfig.domain.DomainConfiguration"
-    singleton="false">
-	<property name="velocityEngine" ref="velocityEngine"/>
+
+  <bean id="domainConfiguration" class="org.sipfoundry.sipxconfig.domain.DomainConfiguration" singleton="false">
+    <property name="velocityEngine" ref="velocityEngine" />
   </bean>
 </beans>

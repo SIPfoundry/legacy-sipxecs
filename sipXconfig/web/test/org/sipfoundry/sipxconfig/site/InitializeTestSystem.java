@@ -22,21 +22,14 @@ public class InitializeTestSystem implements ApplicationListener {
     private DomainInitializer m_domainInitializer;
     private ReplicationManagerImpl m_replicationManagerImpl;
 
-    public DomainInitializer getDomainInitializer() {
-        return m_domainInitializer;
+    public void onApplicationEvent(ApplicationEvent event) {
+        m_domainInitializer.onInitTask(null);
+        
+        m_replicationManagerImpl.setEnabled(false);
     }
 
     public void setDomainInitializer(DomainInitializer domainInitializer) {
         m_domainInitializer = domainInitializer;
-    }
-
-    public void onApplicationEvent(ApplicationEvent event) {
-        // decided to pick a ficticious name rather than allowing default hostname to be used
-        // this should simplify unit tests by letting them validate against exact values.
-        m_domainInitializer.setInitialDomain("example.org");
-        m_domainInitializer.onInitTask(null);
-        
-        m_replicationManagerImpl.setEnabled(false);
     }
 
     public void setReplicationManagerImpl(ReplicationManagerImpl replicationManagerImpl) {

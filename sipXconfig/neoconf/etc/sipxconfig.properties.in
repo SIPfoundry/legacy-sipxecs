@@ -16,6 +16,7 @@ polycom.defaultVersionId=1.6
 registrationContext.server=${MY_FULL_HOSTNAME}
 registrationContext.port=${CONFIG_SERVER_HTTPS_PORT}
 domainManagerImpl.authorizationRealm=${SIPXCHANGE_REALM}
+domainManagerImpl.initialDomain=${SIPXCHANGE_DOMAIN_NAME}
 adminContextImpl.backupDirectory=@sipxpbx.backup.dir@
 vxml.promptsDirectory=@sipxvxml.data.dir@/prompts
 vxml.scriptsDirectory=@www.dir@/doc/aa_vxml
@@ -27,7 +28,6 @@ conferenceBridge.admissionServer=${MEDIA_SERVER_SIP_SRV_OR_HOSTPORT}
 conferenceConference.admissionScriptServer=${MEDIA_SERVER_ADDR}:${MEDIA_SERVER_HTTPS_PORT}
 upload.uploadRootDirectory=@sipxconfig.upload.dir@
 upload.destinationDirectory=@sipxconfig.phone.dir@/profile/tftproot
-domainInitializer.initialDomain=${SIPXCHANGE_DOMAIN_NAME}
 phonebookManagerImpl.externalUsersDirectory=@sipxconfig.phonebook.dir@
 
 # The following directives can be used to provide external sources

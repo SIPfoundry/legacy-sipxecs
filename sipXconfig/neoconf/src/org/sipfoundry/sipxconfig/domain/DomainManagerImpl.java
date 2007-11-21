@@ -17,7 +17,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.localization.Localization;
-import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.springframework.dao.support.DataAccessUtils;
 
@@ -28,12 +27,19 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     private DomainConfiguration m_domainConfiguration;
     private SipxReplicationContext m_replicationContext;
     private String m_authorizationRealm;
+    private String m_initialDomain;
 
+    /**
+     * Implemented by Spring AOP
+     */
     public SipxServer getServer() {
         return m_server;
     }
 
-    public void setServer(SipxServer server) {
+    /**
+     * For testing only.
+     */
+    void setServer(SipxServer server) {
         m_server = server;
     }
 
@@ -70,35 +76,42 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         }
         getHibernateTemplate().saveOrUpdate(domain);
 
-        getServer().setDomainName(domain.getName());
-        getServer().setRegistrarDomainAliases(domain.getAliases());
-        getServer().applySettings();
+        updateServer(domain);
 
-        // TBD - fix DomainManagerTest to work with the implementation of
-        // replicateDomainConfig - for now, do not call the function when
-        // running the test
-        if (domain.getName().equals("goose")) {
-            return;
-        }
         replicateDomainConfig();
+    }
+
+    /**
+     * Sets newly updated Domain parameters on the SIPX server. This is probably not the best
+     * idea. Ideally sipx server should get those parameters from domain manager whenever it needs
+     * that. Sadly SipxServer is responsible for generating some configuration files that still
+     * needs those info and we need to kick it to make sure everything gets updated.
+     * 
+     * @param domain domain that have been changed
+     */
+    private void updateServer(Domain domain) {
+        SipxServer sipxServer = getServer();
+        sipxServer.setDomainName(domain.getName());
+        sipxServer.setRegistrarDomainAliases(domain.getAliases());
+        sipxServer.applySettings();
     }
 
     public void replicateDomainConfig() {
         replicateDomainConfig(m_replicationContext);
     }
-    
-    /** 
+
+    /**
      * Allows the caller to specify a replication context to use
      */
     public void replicateDomainConfig(SipxReplicationContext context) {
         m_domainConfiguration.generate(getExistingDomain(), m_authorizationRealm,
-                                       getExistingLocalization().getLanguage());
+                getExistingLocalization().getLanguage());
         context.replicate(m_domainConfiguration);
     }
 
-    private Domain getExistingDomain() {
+    protected Domain getExistingDomain() {
         Collection<Domain> domains = getHibernateTemplate().findByNamedQuery("domain");
-        return DaoUtils.<Domain> requireOneOrZero(domains, "named query: domain");
+        return (Domain) DataAccessUtils.singleResult(domains);
     }
 
     private Localization getExistingLocalization() {
@@ -119,16 +132,23 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     }
 
     /**
-     * Return true if the domain is initialized. This provides a workaround for the fact that
-     * getDomain throws a RuntimeException if the domain is not initialized when that method is
-     * called
+     * Initialize the firs and single domain supported by sipX at the moment. If domain does not
+     * exist a new domain will be created and initialized with a 'm_initialDomain' name. If domain
+     * does exist we make sure it has secret initialed - new secret is created if the secret is
+     * empty.
+     * 
+     * It is save to call this function many times. Only the first call should result in actually
+     * saving and replicating the domain
      */
-    public boolean isDomainInitialized() {
-        if (getExistingDomain() == null) {
-            return false;
+    public void initialize() {
+        Domain domain = getExistingDomain();
+        if (domain == null) {
+            domain = new Domain();
+            domain.setName(m_initialDomain);
         }
-
-        return true;
+        if (domain.initSecret()) {
+            saveDomain(domain);
+        }
     }
 
     public DomainConfiguration createDomainConfiguration() {
@@ -141,5 +161,9 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
 
     public void setAuthorizationRealm(String authorizationRealm) {
         m_authorizationRealm = authorizationRealm;
+    }
+
+    public void setInitialDomain(String initialDomain) {
+        m_initialDomain = initialDomain;
     }
 }

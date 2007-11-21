@@ -13,7 +13,7 @@ import junit.framework.TestCase;
 
 public class DomainTest extends TestCase {
     private Domain m_domain;
-    
+
     protected void setUp() {
         m_domain = new Domain("example.org");
     }
@@ -36,5 +36,14 @@ public class DomainTest extends TestCase {
         m_domain.addAlias("greebe");
         m_domain.removeAlias("greebe");
         assertEquals(0, m_domain.getAliases().size());
+    }
+
+    public void testInitSecret() {
+        Domain domain = new Domain();
+        assertTrue(domain.initSecret());
+        String secret = domain.getSharedSecret();
+        assertEquals(24, secret.length());
+        assertFalse(domain.initSecret());
+        assertEquals(secret, domain.getSharedSecret());
     }
 }

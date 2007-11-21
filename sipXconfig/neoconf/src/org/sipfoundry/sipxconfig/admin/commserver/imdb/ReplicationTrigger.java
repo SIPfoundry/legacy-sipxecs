@@ -80,7 +80,7 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             
             // replicate domain config on startup.  this should be refactored
             // so that it is handled by generateAll in replicationContext
-            m_domainManager.replicateDomainConfig(m_replicationContext);
+            m_domainManager.replicateDomainConfig();
         }
     }
 

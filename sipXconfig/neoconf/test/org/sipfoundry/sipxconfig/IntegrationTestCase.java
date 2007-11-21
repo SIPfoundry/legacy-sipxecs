@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
+import org.dbunit.dataset.IDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -61,13 +62,19 @@ public abstract class IntegrationTestCase extends
     protected void loadDataSet(String resource) {
         IDatabaseConnection connection = getConnection();
         try {
-            DatabaseOperation.CLEAN_INSERT.execute(connection, TestHelper
-                    .loadDataSetFlat(resource));
+            IDataSet dataSet = TestHelper.loadDataSetFlat(resource);
+            DatabaseOperation.CLEAN_INSERT.execute(connection, dataSet);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected void loadDataSetXml(String resource) throws Exception {
+        IDatabaseConnection connection = getConnection();
+        IDataSet dataSet = TestHelper.loadDataSet(resource);
+        DatabaseOperation.CLEAN_INSERT.execute(connection, dataSet);
     }
 
     protected IDatabaseConnection getConnection() {
