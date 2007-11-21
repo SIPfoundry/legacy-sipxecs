@@ -9,31 +9,67 @@ package org.sipfoundry.sipxconfig.admin;
 
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.common.InitTaskListener;
+import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 
-public class FirstRunTask extends InitTaskListener {
+public class FirstRunTask implements ApplicationListener {
     private static final Log LOG = LogFactory.getLog(FirstRunTask.class);
 
+    private AdminContext m_adminContext;
     private DomainManager m_domainManager;
-
     private DialPlanContext m_dialPlanContext;
-
     private SipxProcessContext m_processContext;
+    private String m_taskName;
 
-    public void onInitTask(String task) {
+    public void runTask() {
         LOG.info("Executing first run tasks...");
         m_domainManager.initialize();
         m_domainManager.replicateDomainConfig();
         m_dialPlanContext.activateDialPlan();
         List restartable = m_processContext.getRestartable();
         m_processContext.restartOnEvent(restartable, DialPlanActivatedEvent.class);
+    }
+
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (!(event instanceof ApplicationInitializedEvent)) {
+            // only interested in init events
+            return;
+        }
+        if (m_adminContext.inUpgradePhase()) {
+            // only process this task during normal phase
+            return;
+        }
+        if (checkForTask()) {
+            runTask();
+            removeTask();
+        }
+
+    }
+
+    private void removeTask() {
+        m_adminContext.deleteInitializationTask(m_taskName);
+    }
+
+    private boolean checkForTask() {
+        String[] tasks = m_adminContext.getInitializationTasks();
+        return ArrayUtils.contains(tasks, m_taskName);
+    }
+
+    public void setTaskName(String taskName) {
+        m_taskName = taskName;
+    }
+
+    public void setAdminContext(AdminContext adminContext) {
+        m_adminContext = adminContext;
     }
 
     @Required

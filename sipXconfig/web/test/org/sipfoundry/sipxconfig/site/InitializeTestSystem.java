@@ -9,8 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
-import org.sipfoundry.sipxconfig.admin.FirstRunTask;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -19,20 +19,20 @@ import org.springframework.context.ApplicationListener;
  * required, system data.
  */
 public class InitializeTestSystem implements ApplicationListener {
-    private FirstRunTask m_firstRunTask;
     private ReplicationManagerImpl m_replicationManagerImpl;
+    private DomainManager m_domainManager;
 
     public void onApplicationEvent(ApplicationEvent event) {
-        m_firstRunTask.onInitTask(null);
-
         m_replicationManagerImpl.setEnabled(false);
-    }
+        m_domainManager.initialize();
 
-    public void setFirstRun(FirstRunTask firstRunTask) {
-        m_firstRunTask = firstRunTask;
     }
 
     public void setReplicationManagerImpl(ReplicationManagerImpl replicationManagerImpl) {
         m_replicationManagerImpl = replicationManagerImpl;
+    }
+    
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 }

@@ -7,7 +7,7 @@
   </bean>
 
   <bean id="initializeTestSystem" class="org.sipfoundry.sipxconfig.site.InitializeTestSystem">
-    <property name="firstRun" ref="firstRun" />
+    <property name="domainManager" ref="domainManager" />
     <property name="replicationManagerImpl" ref="replicationManagerImpl" />
   </bean>
 </beans>

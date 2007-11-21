@@ -21,24 +21,27 @@ import org.springframework.context.ApplicationContextAware;
 public class DataInitializer implements SystemTaskEntryPoint, ApplicationContextAware {
     private AdminContext m_adminContext;
     private ApplicationContext m_app;
-    
+
     public void runSystemTask(String[] args) {
         String[] tasks = m_adminContext.getInitializationTasks();
-        for (int i = 0; i < tasks.length; i++) {
-            initializeData(tasks[i]);
+        for (String task : tasks) {
+            initializeData(task);
         }
-        
-        // unclear exactly why we'd need to ever call exit.  If you find out why,
+
+        // unclear exactly why we'd need to ever call exit. If you find out why,
         // replace this comment w/reason
         if (args.length >= 2 || !"noexit".equals(args[1])) {
             System.exit(0);
         }
     }
-    
+
     void initializeData(String task) {
         InitializationTask event = new InitializationTask(task);
         m_app.publishEvent(event);
-        m_adminContext.deleteInitializationTask(task);        
+        if (!task.equals("first-run")) {
+            // HACK: do not delete first-run task
+            m_adminContext.deleteInitializationTask(task);
+        }
     }
 
     public void setApplicationContext(ApplicationContext applicationContext) {

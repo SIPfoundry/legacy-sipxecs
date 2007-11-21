@@ -44,13 +44,10 @@
   </bean>
 
   <bean id="firstRun" class="org.sipfoundry.sipxconfig.admin.FirstRunTask">
+    <property name="adminContext" ref="adminContext" />
     <property name="domainManager" ref="domainManager" />
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="processContext" ref="sipxProcessContext" />
-    <property name="taskNames">
-      <list>
-        <value>first-run</value>
-      </list>
-    </property>
+    <property name="taskName" value="first-run" />
   </bean>
 </beans>

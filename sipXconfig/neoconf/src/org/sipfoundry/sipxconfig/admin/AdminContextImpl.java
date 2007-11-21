@@ -148,4 +148,9 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         m_beanFactory = beanFactory;
     }
 
+    public boolean inUpgradePhase() {
+        // HACK: need to find a better way of finding out if this is upgrade or normal (tapestry)
+        // for now we are assuming that "tapestry" bean is not available during upgrade run
+        return !m_beanFactory.containsBean("tapestry");
+    }
 }

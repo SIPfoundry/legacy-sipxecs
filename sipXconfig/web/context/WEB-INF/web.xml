@@ -10,7 +10,8 @@
   <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>
-      classpath:/org/sipfoundry/sipxconfig/system.beans.xml classpath:/org/sipfoundry/sipxconfig/admin/admin.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/system.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/admin.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/dialplan/sbc/sbc.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/localization/localization.beans.xml

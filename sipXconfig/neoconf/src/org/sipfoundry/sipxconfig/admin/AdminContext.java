@@ -31,4 +31,9 @@ public interface AdminContext {
     public String[] getInitializationTasks();
 
     public List<Map<BackupBean.Type, BackupBean>> getBackups();
+
+    /**
+     * @return true if this is an upgrade/data init run, and *not* a real sipXconfig run
+     */
+    public boolean inUpgradePhase();
 }
