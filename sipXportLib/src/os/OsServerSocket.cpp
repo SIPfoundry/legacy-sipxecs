@@ -11,6 +11,7 @@
 
 // SYSTEM INCLUDES
 #include <stdio.h>
+#include <poll.h>
 
 #if defined(_WIN32)
 #   include <winsock.h>
@@ -218,6 +219,55 @@ OsConnectionSocket* OsServerSocket::accept()
    
    return(connectSock);
 }
+
+OsConnectionSocket* OsServerSocket::accept(long waitMilliseconds)
+{
+    OsConnectionSocket* pRC = NULL ;
+    int error=0;
+    struct pollfd pset[1];
+    
+    // Wait for some data to be available
+    pset[0].fd      = socketDescriptor;
+    pset[0].events  = POLLIN;
+    pset[0].revents = 0;
+    int pollResult  = poll(pset, 1, waitMilliseconds); // returns # of events
+    if (1 == pollResult)
+    {
+        if (pset[0].revents & POLLERR)
+        {
+            // Socket is perhaps dead?
+            error = OsSocketGetERRNO();
+        }
+        else if (pset[0].revents & POLLIN)
+        {
+            // Data is available; invoke accept
+            error = 0;
+            pRC = accept();
+            if (pRC == NULL)
+                error = OsSocketGetERRNO() ;
+        }
+    }
+    else if (0 == pollResult)
+    {
+        // Timed out waiting for connection
+        error = ETIMEDOUT;
+    }
+    else
+    {
+        // Some other error -- socket dead?
+        error = OsSocketGetERRNO();
+    }    
+    
+    if (pRC == NULL)
+    {
+        OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsServerSocket: accept(%d, %ld ms) error: %d=%s",
+                        socketDescriptor, waitMilliseconds, error, strerror(error));
+    }
+
+    return pRC ;
+}
+
+
 
 void OsServerSocket::close()
 {

@@ -16,20 +16,56 @@
 #include <os/OsDatagramSocket.h>
 #include <os/OsConnectionSocket.h>
 #include <os/OsServerSocket.h>
+#include <os/OsTask.h>
 #include <string.h>
 
 class SocketsTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(SocketsTest);
+    CPPUNIT_TEST(testAcceptTimeout);
     CPPUNIT_TEST(testWriteMsg);
     CPPUNIT_TEST(testWriteAndAcceptMsg);
     CPPUNIT_TEST_SUITE_END();
 
 
 public:
+	
+    /**
+     * Test accept with various timeouts
+     */
+    void testAcceptTimeout()
+    {
+    	OsTime before;
+    	OsTime after;
+    	
+        OsServerSocket* server = new OsServerSocket(50, 8021);
+        
+        OsDateTime::getCurTime(before);
+        OsSocket* serverClient = server->accept(50);
+        OsTask::delay(16) ; // Wait a bit to deal for poor time resolution
+        OsDateTime::getCurTime(after);
+        CPPUNIT_ASSERT_MESSAGE("socket server accept returned unexpected data", 
+                               serverClient == NULL);
+        CPPUNIT_ASSERT_MESSAGE("socket server accept returned before timeout", 
+        					   (after.cvtToMsecs() - before.cvtToMsecs()) >= 50);
+                       
+        OsDateTime::getCurTime(before);
+        serverClient = server->accept(500);
+        OsTask::delay(16) ; // Wait a bit to deal for poor time resolution        
+        OsDateTime::getCurTime(after);
+        CPPUNIT_ASSERT_MESSAGE("socket server accept returned unexpected data", 
+                               serverClient == NULL);
+        CPPUNIT_ASSERT_MESSAGE("socket server accept returned before timeout", 
+        					   (after.cvtToMsecs() - before.cvtToMsecs()) >= 500);        
+        server->close();
+        delete server;
+    }	
 
     /**
      * Open datagram socket and send a few bytes.
+     * 
+     * NOTE: This can/will fail if /etc/hosts defines localhost as ::1 (as 
+     *       opposed to 127.0.0.1).
      */
     void testWriteMsg()
     {
@@ -45,16 +81,26 @@ public:
 
     /**
      * Start a client and server and send 2 messages over TCP thru them
+     * 
+     * NOTE: This can/will fail if /etc/hosts defines localhost as ::1 (as 
+     *       opposed to 127.0.0.1).
      */
     void testWriteAndAcceptMsg()
     {
+    	// Create/Verify Sockets
         OsServerSocket* server = new OsServerSocket(50, 8021);
-        OsSocket* client = new OsConnectionSocket(8021, "localhost");
-        OsSocket* serverClient = server->accept();
-
+        CPPUNIT_ASSERT_MESSAGE("server socket failure", 
+                               server->isOk());
+        
+        OsSocket* client = new OsConnectionSocket(8021, "localhost");        
+        CPPUNIT_ASSERT_MESSAGE("client socket failure", 
+                               client->isOk());
+                
+        OsSocket* serverClient = server->accept(1000);
         CPPUNIT_ASSERT_MESSAGE("socket server failed to accept connection", 
                                serverClient != NULL);
 
+        // Begin read/write test
         const char* msg = "hello\n";
         int len = strlen(msg) + 1; // +1 for NULL
         int bytesWritten = client->write(msg, len);

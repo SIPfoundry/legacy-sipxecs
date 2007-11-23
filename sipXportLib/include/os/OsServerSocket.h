@@ -69,6 +69,14 @@ public:
    // Blocks and waits for the next TCP connection request.
    //!returns: Returns a socket connected to the client requesting the
    //!returns: connection.  If an error occurs returns NULL.
+   
+   virtual OsConnectionSocket* accept(long waitMilliseconds);
+   //:Blocking accept of next connection with a timeout
+   // Blocks and waits for the next TCP connection request until timeout
+   // period.
+   //!returns: Returns a socket connected to the client requesting the
+   //!returns: connection.  If an error occurs returns NULL.
+   
 
    void close();
    //: Close down the server
