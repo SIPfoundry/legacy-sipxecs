@@ -232,7 +232,8 @@ private:
     SipMessage* mReferMessage;
     UtlBoolean inviteFromThisSide;
     UtlString mLastRequestMethod;
-    UtlString mRemoteContact; //last contact frield from the other side
+    UtlString mRemoteContact; // last contact field from other side / name-addr
+    UtlString mRemoteContactUri; //last contact field from the other side / addr-spec
     Url mFromUrl; // SIP address for the local side
     Url mToUrl;  //  SIP address for the remote side
     UtlString mRemoteUriStr;  //  SIP uri string for the remote side

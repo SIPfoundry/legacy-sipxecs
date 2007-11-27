@@ -544,7 +544,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
                                const char* originalCallConnection,
                                UtlBoolean requestQueuedCall,
                                const void* pDisplay,
-							   const char* originalCallId)
+                               const char* originalCallId)
 {
     UtlBoolean dialOk = FALSE;
     SipMessage sipInvite;
@@ -1195,7 +1195,7 @@ UtlBoolean SipConnection::hold()
         // Build an INVITE with the RTP address in the SDP of 0.0.0.0
         SipMessage holdMessage;
         holdMessage.setReinviteData(inviteMsg,
-            mRemoteContact,
+            mRemoteContactUri,
             mLocalContact.data(),
             inviteFromThisSide,
             mRouteField,
@@ -1290,7 +1290,7 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
 #endif
         SipMessage offHoldMessage;
         offHoldMessage.setReinviteData(inviteMsg,
-            mRemoteContact,
+            mRemoteContactUri,
             mLocalContact.data(),
             inviteFromThisSide,
             mRouteField,
@@ -1438,7 +1438,7 @@ void SipConnection::doBlindRefer()
         lastLocalSequenceNumber,
         mRouteField.data(),
         mLocalContact.data(),
-        mRemoteContact.data(),
+        mRemoteContactUri.data(),
         mTargetCallConnectionAddress.data(),
         // The following keeps the target call id on the
         // transfer target the same as the consultative call
@@ -1679,7 +1679,7 @@ UtlBoolean SipConnection::doHangUp(const char* dialString,
                 osPrintf("doHangup BYE route: %s\n", mRouteField.data());
 #endif
                 sipRequest.setByeData(inviteMsg,
-                    mRemoteContact,
+                    mRemoteContactUri,
                     inviteFromThisSide,
                     lastLocalSequenceNumber,
                     mRouteField.data(),
@@ -1733,10 +1733,10 @@ UtlBoolean SipConnection::doHangUp(const char* dialString,
 
 #ifdef TEST_PRINT
             osPrintf("setup call BYE route: %s remote contact: %s\n",
-                mRouteField.data(), mRemoteContact.data());
+                mRouteField.data(), mRemoteContactUri.data());
 #endif
             sipRequest.setByeData(inviteMsg,
-                mRemoteContact,
+                mRemoteContactUri,
                 inviteFromThisSide,
                 lastLocalSequenceNumber,
                 mRouteField.data(),
@@ -1829,7 +1829,6 @@ void SipConnection::buildFromToAddresses(const char* dialString,
     //              toPort, toProtocol.data(), toUser.data(),
     //              toUserLabel.data());
     toUrl.toString(goodToAddress);
-
 }
 
 UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
@@ -2436,15 +2435,18 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         {
             setState(CONNECTION_OFFERING, CONNECTION_LOCAL, cause);
             fireSipXEvent(CALLSTATE_OFFERING, CALLSTATE_OFFERING_ACTIVE) ;
-
         }
 
         // Always get the remote contact as it may can change over time
         UtlString contactInResponse;
-        if (request->getContactUri(0 , &contactInResponse))
+        if (request->getContactEntry(0 , &contactInResponse))
         {
-            mRemoteContact.remove(0);
-            mRemoteContact.append(contactInResponse);
+            Url temp(contactInResponse) ;
+            temp.removeHeaderParameters() ;
+            temp.removeFieldParameters() ;
+            temp.includeAngleBrackets() ;
+            temp.toString(mRemoteContact) ;
+            temp.getUri(mRemoteContactUri) ;
         }
 
         // Get the route for subsequent requests
@@ -2532,10 +2534,14 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 
         // Always get the remote contact as it may can change over time
         UtlString contactInResponse;
-        if (request->getContactUri(0 , &contactInResponse))
+        if (request->getContactEntry(0 , &contactInResponse))
         {
-            mRemoteContact.remove(0);
-            mRemoteContact.append(contactInResponse);
+            Url temp(contactInResponse) ;
+            temp.removeHeaderParameters() ;
+            temp.removeFieldParameters() ;
+            temp.includeAngleBrackets() ;
+            temp.toString(mRemoteContact) ;
+            temp.getUri(mRemoteContactUri) ;
         }
 
         // The route set is set only on the initial dialog transaction
@@ -2786,10 +2792,14 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 
         // Always get the remote contact as it may can change over time
         UtlString contactInResponse;
-        if (request->getContactUri(0 , &contactInResponse))
+        if (request->getContactEntry(0 , &contactInResponse))
         {
-            mRemoteContact.remove(0);
-            mRemoteContact.append(contactInResponse);
+            Url temp(contactInResponse) ;
+            temp.removeHeaderParameters() ;
+            temp.removeFieldParameters() ;
+            temp.includeAngleBrackets() ;
+            temp.toString(mRemoteContact) ;
+            temp.getUri(mRemoteContactUri) ;
         }
 
         // Get the route for subsequent requests
@@ -3029,7 +3039,7 @@ void SipConnection::processReferRequest(const SipMessage* request)
         // Clear all non-URL parameters
         requestToUrl.removeHeaderParameters();
         requestToUrl.removeFieldParameters();
-	mpCallManager->setOutboundLineForCall(targetCallId, 
+        mpCallManager->setOutboundLineForCall(targetCallId, 
            requestToUrl.toString()) ;
 
         // Send a message to the target call to create the
@@ -3424,7 +3434,7 @@ void SipConnection::processAckRequest(const SipMessage* request)
             {
                 lastLocalSequenceNumber++;
                 SipMessage optionsRequest;
-                optionsRequest.setOptionsData(inviteMsg, mRemoteContact, inviteFromThisSide,
+                optionsRequest.setOptionsData(inviteMsg, mRemoteContactUri, inviteFromThisSide,
                     lastLocalSequenceNumber, mRouteField.data(), mLocalContact);
                 send(optionsRequest);
             }
@@ -4278,10 +4288,14 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 
         // Always get the remote contact as it may can change over time
         UtlString contactInResponse;
-        if (response->getContactUri(0 , &contactInResponse))
+        if (response->getContactEntry(0 , &contactInResponse))
         {
-            mRemoteContact.remove(0);
-            mRemoteContact.append(contactInResponse);
+            Url temp(contactInResponse) ;
+            temp.removeHeaderParameters() ;
+            temp.removeFieldParameters() ;
+            temp.includeAngleBrackets() ;
+            temp.toString(mRemoteContact) ;
+            temp.getUri(mRemoteContactUri) ;
         }
 
         // Get the route for subsequent requests
@@ -4293,7 +4307,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
         // Send a BYE
         SipMessage sipByeRequest;
         lastLocalSequenceNumber++;
-        sipByeRequest.setByeData(inviteMsg, mRemoteContact, TRUE,
+        sipByeRequest.setByeData(inviteMsg, mRemoteContactUri, TRUE,
             lastLocalSequenceNumber, mRouteField.data(), NULL,
             mLocalContact.data());
 
@@ -4318,10 +4332,14 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 
         //save the contact field in the response to send further reinvites
         UtlString contactInResponse;
-        if (response->getContactUri(0 , &contactInResponse))
+        if (response->getContactEntry(0 , &contactInResponse))
         {
-            mRemoteContact.remove(0);
-            mRemoteContact.append(contactInResponse);
+            Url temp(contactInResponse) ;
+            temp.removeHeaderParameters() ;
+            temp.removeFieldParameters() ;
+            temp.includeAngleBrackets() ;
+            temp.toString(mRemoteContact) ;
+            temp.getUri(mRemoteContactUri) ;
         }
 
         // Get the route for subsequent requests only if this is
@@ -4581,7 +4599,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
             osPrintf("no SDP BYE route: %s\n", mRouteField.data());
 #endif
             sipByeRequest.setByeData(inviteMsg,
-                mRemoteContact,
+                mRemoteContactUri,
                 inviteFromThisSide,
                 lastLocalSequenceNumber,
                 //directoryServerUri.data(),
@@ -4619,7 +4637,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                 lastLocalSequenceNumber++;
                 SipMessage optionsRequest;
                 optionsRequest.setOptionsData(inviteMsg,
-                    mRemoteContact,
+                    mRemoteContactUri,
                     inviteFromThisSide,
                     lastLocalSequenceNumber,
                     mRouteField.data(), mLocalContact);
@@ -5427,7 +5445,7 @@ UtlBoolean SipConnection::willHandleMessage(OsMsg& eventMessage) const
             SipMessage toFromReversed;
 
             toFromReversed.setByeData(inviteMsg,
-                mRemoteContact,
+                mRemoteContactUri,
                 FALSE, 1, "", NULL, mLocalContact.data());
             if(toFromReversed.isSameSession(sipMsg))
             {
