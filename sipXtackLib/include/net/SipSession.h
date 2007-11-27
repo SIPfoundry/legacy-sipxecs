@@ -101,6 +101,8 @@ public:
    void setRemoteRequestUri(UtlString& requestUri);
 
    int getSessionState() { return mSessionState;};
+   
+   void toString(UtlString& output) const;
 
 /* ============================ INQUIRY =================================== */
 

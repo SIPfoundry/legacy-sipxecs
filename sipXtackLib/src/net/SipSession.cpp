@@ -70,8 +70,7 @@ SipSession::SipSession(const SipMessage* initialMessage,
            }
            else
            {
-               mLocalContact = uri;
-               
+               mLocalContact = uri;               
            }
        }
 
@@ -350,6 +349,61 @@ int SipSession::getNextFromCseq()
 {
     mLastFromCseq++;
     return(mLastFromCseq);
+}
+
+void SipSession::toString(UtlString& output) const
+{
+    UtlString temp ;
+    char cTemp[64] ;
+    
+    output.append("SipSession {");
+    
+    output.append("\n  mLocalUrl="); 
+    mLocalUrl.toString(temp); 
+    output.append(temp);
+    
+    output.append("\n  mRemoteUrl="); 
+    mRemoteUrl.toString(temp);
+    output.append(temp);
+    
+    output.append("\n  mLocalContact="); 
+    mLocalContact.toString(temp);
+    output.append(temp);
+    
+    output.append("\n  mRemoteContact="); 
+    mRemoteContact.toString(temp); 
+    output.append(temp);
+    
+    output.append("\n  mInitialMethod="); 
+    output.append(mInitialMethod);
+    
+    output.append("\n  msLocalRequestUri="); 
+    output.append(msLocalRequestUri);
+    
+    output.append("\n  msRemoteRequestUri=");
+    output.append(msRemoteRequestUri);
+    
+    output.append("\n  mInitialLocalCseq="); 
+    sprintf(cTemp, "%d", mInitialLocalCseq); 
+    output.append(cTemp);
+    
+    output.append("\n  mInitialRemoteCseq="); 
+    sprintf(cTemp, "%d", mInitialRemoteCseq); 
+    output.append(cTemp);
+    
+    output.append("\n  mLastFromCseq="); 
+    sprintf(cTemp, "%d", mLastFromCseq); 
+    output.append(cTemp);
+    
+    output.append("\n  mLastToCseq="); 
+    sprintf(cTemp, "%d", mLastToCseq); 
+    output.append(cTemp);
+    
+    output.append("\n  mSessionState="); 
+    sprintf(cTemp, "%d", mSessionState); 
+    output.append(cTemp);
+    
+    output.append("}\n");
 }
 
 /* ============================ INQUIRY =================================== */
