@@ -46,12 +46,20 @@
   <element name='dependentdelay'>
     <annotation>
       <documentation>
-        Controls how long to pause before starting a process
+        Controls how long to pause before starting processes with dependency on this process
       </documentation>
     </annotation>
     <complexType>
       <attribute name="wait" type="integer"/>
     </complexType>
+  </element>
+
+  <element name='dependency' type="string">
+    <annotation>
+      <documentation>
+        Defines dependency of this process on another process
+      </documentation>
+    </annotation>
   </element>
 
   <element name='group'>
@@ -89,6 +97,7 @@
         <element ref='h:start'          minOccurs='1' maxOccurs='1' />
         <element ref='h:stop'           minOccurs='1' maxOccurs='1' />
         <element ref='h:restart'        minOccurs='1' maxOccurs='1' />
+        <element ref='h:dependency'     minOccurs='0' maxOccurs='unbounded' />
       </sequence>
       <attribute name="name" type="string">
         <annotation>
