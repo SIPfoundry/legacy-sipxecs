@@ -28,7 +28,6 @@ public class BackupPlanTest extends TestCase {
 
     protected void setUp() throws Exception {
         m_backup = new BackupPlan();
-        m_backup.setApplicationContext(TestHelper.getApplicationContext());
         m_backup.setMailSenderContext(new MailSenderContextImpl());
         m_backup.setScript("mock-backup.sh");
     }

@@ -12,20 +12,20 @@ package org.sipfoundry.sipxconfig.acd;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 
-public class AcdLineTest extends TestCase {
+public class AcdLineTest extends BeanWithSettingsTestCase {
 
     private AcdLine m_line;
 
     protected void setUp() throws Exception {
-        m_line = (AcdLine) TestHelper.getApplicationContext().getBean("acdLine");
+        super.setUp();
+        m_line = new AcdLine();
+        initializeBeanWithSettings(m_line);
     }
 
     public void testGetSettingsModel() throws Exception {

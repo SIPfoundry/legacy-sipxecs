@@ -12,19 +12,19 @@ package org.sipfoundry.sipxconfig.acd;
 import java.util.Collections;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class AcdQueueTest extends TestCase {
+public class AcdQueueTest extends BeanWithSettingsTestCase {
     private AcdQueue m_queue;
 
     protected void setUp() throws Exception {
-        m_queue = (AcdQueue) TestHelper.getApplicationContext().getBean("acdQueue");
+        super.setUp();
+        m_queue = new AcdQueue();
+        initializeBeanWithSettings(m_queue);
     }
 
     public void testGetSettingsModel() throws Exception {
@@ -88,8 +88,8 @@ public class AcdQueueTest extends TestCase {
         m_queue.setName("testqueue");
         m_queue.setDescription("queue description");
 
-        AcdQueue overflowQueue = (AcdQueue) TestHelper.getApplicationContext()
-                .getBean("acdQueue");
+        AcdQueue overflowQueue = new AcdQueue();
+        initializeBeanWithSettings(overflowQueue);
         overflowQueue.setAcdServer(server);
         overflowQueue.setCoreContext(coreContext);
         overflowQueue.setName("overflow");

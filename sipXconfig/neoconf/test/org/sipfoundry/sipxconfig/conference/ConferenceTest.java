@@ -11,17 +11,16 @@ package org.sipfoundry.sipxconfig.conference;
 
 import java.util.List;
 
-import junit.framework.TestCase;
-
-import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 
-public class ConferenceTest extends TestCase {
+public class ConferenceTest extends BeanWithSettingsTestCase {
     private Conference m_conf;
 
     protected void setUp() throws Exception {
-        m_conf = (Conference) TestHelper.getApplicationContext().getBean("conferenceConference",
-                Conference.class);
+        super.setUp();
+        m_conf = new Conference();
+        initializeBeanWithSettings(m_conf);
     }
 
     public void testGenerateAccessCodes() {

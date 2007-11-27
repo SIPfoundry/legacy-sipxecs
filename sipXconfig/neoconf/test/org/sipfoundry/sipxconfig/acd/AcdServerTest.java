@@ -11,21 +11,22 @@ package org.sipfoundry.sipxconfig.acd;
 
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Server;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class AcdServerTest extends TestCase {
+public class AcdServerTest extends BeanWithSettingsTestCase {
 
     private AcdServer m_server;
 
     protected void setUp() throws Exception {
-        m_server = (AcdServer) TestHelper.getApplicationContext().getBean("acdServer");
+        super.setUp();
+        m_server = new AcdServer();
+        m_server.setHost("localhost");
+        m_server.setPort(8110);
+        initializeBeanWithSettings(m_server);
     }
 
     public void testGetSettingsModel() throws Exception {

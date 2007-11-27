@@ -9,26 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import junit.framework.TestCase;
+import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
 
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.springframework.context.ApplicationContext;
-
-public class ConferenceBeanTest extends TestCase {
-    private ApplicationContext m_applicationContext;
-
-    protected void setUp() throws Exception {
-        m_applicationContext = TestHelper.getApplicationContext();
-    }
+public class ConferenceBeanTest extends BeanWithSettingsTestCase {
 
     public void testConference() throws Exception {
-        Conference conference = (Conference) m_applicationContext.getBean(Conference.BEAN_NAME,
-                Conference.class);
+        Conference conference = new Conference();
+        initializeBeanWithSettings(conference);
         assertNotNull(conference.getSettings());
     }
 
     public void testBridge() throws Exception {
-        Bridge bridge = (Bridge) m_applicationContext.getBean(Bridge.BEAN_NAME, Bridge.class);
+        Bridge bridge = new Bridge();
+        initializeBeanWithSettings(bridge);
         assertNotNull(bridge.getSettings());
     }
 }

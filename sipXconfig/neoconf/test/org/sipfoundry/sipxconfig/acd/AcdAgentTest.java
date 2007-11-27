@@ -11,20 +11,19 @@ package org.sipfoundry.sipxconfig.acd;
 
 import java.util.Collections;
 
-import junit.framework.TestCase;
-
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class AcdAgentTest extends TestCase {
+public class AcdAgentTest extends BeanWithSettingsTestCase {
 
     private AcdAgent m_agent;
         
     protected void setUp() throws Exception {
-        m_agent = (AcdAgent) TestHelper.getApplicationContext().getBean("acdAgent");
+        super.setUp();
+        m_agent = new AcdAgent();
+        initializeBeanWithSettings(m_agent);
     }
 
     public void testCalculateUri() {

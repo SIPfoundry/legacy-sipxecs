@@ -16,12 +16,11 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.test.TestUtil;
-import org.springframework.context.ApplicationContext;
 
-public class AdminContextImplTest extends TestCase {
+public class AdminContextImplTestIntegration extends IntegrationTestCase {
     private static final String FIRST_BACKUP = "200706101100";
 
     private static final String SECOND_BACKUP = "200706101101";
@@ -32,7 +31,7 @@ public class AdminContextImplTest extends TestCase {
 
     private AdminContext m_adminContext;
 
-    protected void setUp() {
+    public void testGetBackups() throws Exception {
         // first backup folder;
         buildConfigurationBackup(FIRST_BACKUP);
         buildVoicemailBackup(FIRST_BACKUP);
@@ -42,11 +41,7 @@ public class AdminContextImplTest extends TestCase {
 
         // third backup folder;
         buildVoicemailBackup(THIRD_BACKUP);
-    }
 
-    public void testGetBackups() throws Exception {
-        ApplicationContext appContext = TestHelper.getApplicationContext();
-        m_adminContext = (AdminContext) appContext.getBean(AdminContext.CONTEXT_BEAN_NAME);
         List<Map<Type, BackupBean>> backups = m_adminContext.getBackups();
 
         for (Map<Type, BackupBean> map : backups) {
@@ -66,6 +61,10 @@ public class AdminContextImplTest extends TestCase {
         assertEquals(1, third.size());
         assertFalse(third.containsKey(Type.CONFIGURATION));
         assertTrue(third.containsKey(Type.VOICEMAIL));
+    }
+
+    public void setAdminContext(AdminContext adminContext) {
+        m_adminContext = adminContext;
     }
 
     private void buildConfigurationBackup(String folder) {

@@ -9,15 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import junit.framework.TestCase;
-
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 
-public class BridgeTest extends TestCase {
+public class BridgeTest extends BeanWithSettingsTestCase {
 
     public void testInsertConference() {
         Conference c = new Conference();
@@ -61,7 +59,8 @@ public class BridgeTest extends TestCase {
         defaultsCtrl.andReturn("xyz.org");
         defaultsCtrl.replay();
 
-        Bridge bridge = (Bridge) TestHelper.getApplicationContext().getBean(Bridge.BEAN_NAME);
+        Bridge bridge = new Bridge();
+        initializeBeanWithSettings(bridge);
         bridge.setAudioDirectory(audioDir);
 
         bridge.setSystemDefaults(defaults);

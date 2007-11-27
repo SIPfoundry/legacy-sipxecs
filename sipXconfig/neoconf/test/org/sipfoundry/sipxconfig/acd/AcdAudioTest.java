@@ -9,16 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.acd;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 
-import junit.framework.TestCase;
-
-public class AcdAudioTest extends TestCase {
+public class AcdAudioTest extends BeanWithSettingsTestCase {
     
     private AcdAudio m_audio;
 
     protected void setUp() throws Exception {
-        m_audio = (AcdAudio) TestHelper.getApplicationContext().getBean("acdAudio");
+        super.setUp();
+        m_audio = new AcdAudio();
+        initializeBeanWithSettings(m_audio);
     }
 
     public void testSetAudioFileName() {
