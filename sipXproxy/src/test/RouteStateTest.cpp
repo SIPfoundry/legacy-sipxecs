@@ -14,7 +14,7 @@
 #include "os/OsSysLog.h"
 
 #include "utl/UtlSList.h"
-#include "sipauthproxy/RouteState.h"
+#include "sipXproxy/RouteState.h"
 
 // CONSTANTS
 static const char Value1[] = "value1";
@@ -38,6 +38,7 @@ class RouteStateTest : public CppUnit::TestCase
    CPPUNIT_TEST(testNameValidity);
    CPPUNIT_TEST(testTokenEncodeDecode);
    CPPUNIT_TEST(testRoutedRequestState);
+   CPPUNIT_TEST(testAppendToExistingRecordRoute);
    CPPUNIT_TEST(testSpiraledState);
    CPPUNIT_TEST(testNewDialogState);
    CPPUNIT_TEST(testAppendedState);
@@ -73,9 +74,11 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage mutableSipMessage(mutableMessage, strlen(mutableMessage));
-         RouteState mutableRouteState(mutableSipMessage, removedHeaders);
+         UtlString myRouteName("myhost.example.com");
+         RouteState mutableRouteState(mutableSipMessage, removedHeaders, myRouteName);
 
          CPPUNIT_ASSERT(mutableRouteState.isMutable());
+         CPPUNIT_ASSERT(!mutableRouteState.isFound());
 
          // test that an in-dialog request (has a To tag) is not mutable
          const char* indialogMessage =
@@ -90,9 +93,10 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage indialogSipMessage(indialogMessage, strlen(indialogMessage));
-         RouteState indialogRouteState(indialogSipMessage, removedHeaders);
+         RouteState indialogRouteState(indialogSipMessage, removedHeaders, myRouteName);
 
          CPPUNIT_ASSERT(!indialogRouteState.isMutable());
+         CPPUNIT_ASSERT(!indialogRouteState.isFound());
 
          // test that an ACK is not mutable
          const char* ackMessage =
@@ -107,9 +111,10 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage ackSipMessage(ackMessage, strlen(indialogMessage));
-         RouteState ackRouteState(ackSipMessage, removedHeaders);
+         RouteState ackRouteState(ackSipMessage, removedHeaders, myRouteName);
 
          CPPUNIT_ASSERT(!ackRouteState.isMutable());
+         CPPUNIT_ASSERT(!ackRouteState.isFound());
 
          // test that a response is not mutable
          const char* responseMessage =
@@ -124,9 +129,10 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage responseSipMessage(responseMessage, strlen(responseMessage));
-         RouteState responseRouteState(responseSipMessage, removedHeaders);
+         RouteState responseRouteState(responseSipMessage, removedHeaders, myRouteName);
 
          CPPUNIT_ASSERT(!responseRouteState.isMutable());
+         CPPUNIT_ASSERT(!responseRouteState.isFound());
 
       }
 
@@ -147,7 +153,8 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage mutableSipMessage(mutableMessage, strlen(mutableMessage));
-         RouteState mutableRouteState(mutableSipMessage, removedHeaders);
+         UtlString myRouteName("myhost.example.com");
+         RouteState mutableRouteState(mutableSipMessage, removedHeaders, myRouteName);
 
          // Check that no parameter is returned when non has been set
          UtlString value;
@@ -240,7 +247,8 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage unMutableSipMessage(unMutableMessage, strlen(unMutableMessage));
-         RouteState unMutableRouteState(unMutableSipMessage, removedHeaders);
+         UtlString myRouteName("myhost.example.com");
+         RouteState unMutableRouteState(unMutableSipMessage, removedHeaders, myRouteName );
 
          // Check that no parameter is returned when non has been set
          UtlString value;
@@ -328,7 +336,8 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage mutableSipMessage(mutableMessage, strlen(mutableMessage));
-         RouteState mutableRouteState(mutableSipMessage, removedHeaders);
+         UtlString myRouteName("myhost.example.com");
+         RouteState mutableRouteState(mutableSipMessage, removedHeaders, myRouteName);
 
          // Check that no parameter is returned when non has been set
          UtlString value;
@@ -362,7 +371,8 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage mutableSipMessage(mutableMessage, strlen(mutableMessage));
-         RouteState mutableRouteState(mutableSipMessage, removedHeaders);
+         UtlString myRouteName("myhost.example.com");
+         RouteState mutableRouteState(mutableSipMessage, removedHeaders, myRouteName);
 
          const char* indialogMessage =
             "INVITE sip:user@somewhere.com SIP/2.0\r\n"
@@ -376,7 +386,7 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage indialogSipMessage(indialogMessage, strlen(indialogMessage));
-         RouteState indialogRouteState(indialogSipMessage, removedHeaders);
+         RouteState indialogRouteState(indialogSipMessage, removedHeaders, myRouteName);
          
          UtlString signedToken;
          UtlString writeValue;
@@ -418,7 +428,8 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage nostateSipMessage(nostateMessage, strlen(nostateMessage));
-         RouteState nostateRouteState(nostateSipMessage, removedHeaders);
+         UtlString myRouteName("myhost.example.com");
+         RouteState nostateRouteState(nostateSipMessage, removedHeaders, myRouteName);
 
          CPPUNIT_ASSERT(nostateRouteState.isMutable());
          CPPUNIT_ASSERT(nostateRouteState.mValues.isEmpty()); // cheat - look inside
@@ -444,7 +455,7 @@ public:
             "<sip:myhost.example.com;lr;sipX-route=plugin*param1~dmFsdWUx.plugin2*~dmFsdWUy!6cedf2bb36711d2e69b3012ab3d1e16d>";
          removedHeaders.insert(new UtlString(routedStateValue));
 
-         RouteState routedState(routedSipMessage, removedHeaders);
+         RouteState routedState(routedSipMessage, removedHeaders, myRouteName);
 
          UtlString readValue;
 
@@ -460,6 +471,53 @@ public:
          removedHeaders.destroyAll();
       }
 
+   void testAppendToExistingRecordRoute()
+      {
+         UtlSList removedRoutes;
+
+         const char* message =
+            "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@somewhere.com\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Record-Route: <sip:myhost.example.com;lr>\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage sipMessage(message, strlen(message));
+
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState(sipMessage, removedRoutes, myRouteName);
+
+         CPPUNIT_ASSERT(routeState.isMutable());
+         CPPUNIT_ASSERT(!routeState.isFound());
+         
+         CPPUNIT_ASSERT_EQUAL((size_t)0, routeState.mRecordRouteIndex);
+
+         routeState.setParameter("plugin","param1","dummyvalue");
+         
+         SipMessage outputSipMessage(sipMessage);
+
+         routeState.update(&outputSipMessage);
+         UtlString recordRoute, tempString, urlParmName;
+         CPPUNIT_ASSERT( outputSipMessage.getRecordRouteUri(0, &recordRoute) );
+         Url recordRouteUrl(recordRoute);
+         recordRouteUrl.getUrlType( tempString );
+         ASSERT_STR_EQUAL("sip", tempString.data());
+         recordRouteUrl.getHostWithPort( tempString );
+         ASSERT_STR_EQUAL("myhost.example.com", tempString.data());
+         CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 0, urlParmName, tempString ) );
+         ASSERT_STR_EQUAL("lr", urlParmName.data());
+         CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 1, urlParmName, tempString ) );
+         ASSERT_STR_EQUAL("sipX-route", urlParmName.data());
+
+         CPPUNIT_ASSERT( !outputSipMessage.getRecordRouteUri(1, &recordRoute) );
+
+         removedRoutes.destroyAll();
+      }
 
    void testSpiraledState()
       {
@@ -482,11 +540,13 @@ public:
             "\r\n";
          SipMessage spiraledSipMessage(spiraledMessage, strlen(spiraledMessage));
 
-         RouteState spiraledState(spiraledSipMessage, removedRoutes);
+         UtlString myRouteName("myhost.example.com");
+         RouteState spiraledState(spiraledSipMessage, removedRoutes, myRouteName);
 
          UtlString readValue;
 
          CPPUNIT_ASSERT(spiraledState.isMutable());
+         CPPUNIT_ASSERT(spiraledState.isFound());
 
          CPPUNIT_ASSERT(spiraledState.getParameter("plugin","param1",readValue));
          ASSERT_STR_EQUAL(Value1, readValue.data());
@@ -519,11 +579,13 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage inputSipMessage(inputMessage, strlen(inputMessage));
-         RouteState routeState(inputSipMessage, removedRoutes);
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState(inputSipMessage, removedRoutes, myRouteName);
 
          removedRoutes.destroyAll();
 
          CPPUNIT_ASSERT(routeState.isMutable());
+         CPPUNIT_ASSERT(!routeState.isFound());
          CPPUNIT_ASSERT(routeState.mValues.isEmpty()); // cheat - look inside
 
 //         const char* routedStateValue =
@@ -534,8 +596,7 @@ public:
          
          SipMessage outputSipMessage(inputMessage);
 
-         UtlString myRouteName("myhost.example.com");
-         routeState.update(&outputSipMessage, myRouteName);
+         routeState.update(&outputSipMessage);
 
          UtlString outputMessage;
          int ignoreLength;
@@ -574,17 +635,17 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage recordRoutedSipMessage(recordRoutedMessage, strlen(recordRoutedMessage));
-
-         RouteState state(recordRoutedSipMessage, removedRoutes);
+         UtlString myRouteName("myhost.example.com");
+         RouteState state(recordRoutedSipMessage, removedRoutes, myRouteName);
 
          UtlString writeValue("write");
 
          CPPUNIT_ASSERT(state.isMutable());
+         CPPUNIT_ASSERT(!state.isFound());
 
          state.setParameter("plugin","param1",writeValue);
 
-         UtlString myRouteName("myhost.example.com");
-         state.update(&recordRoutedSipMessage, myRouteName);
+         state.update(&recordRoutedSipMessage);
 
          UtlString outputMessage;
          int ignoreLength;

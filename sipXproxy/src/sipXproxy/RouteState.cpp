@@ -105,11 +105,14 @@ const RegEx RouteParameterName::ParameterNamePattern("^[a-z0-9_-]*$", PCRE_CASEL
 
 /// Decode the route state for a received message.
 RouteState::RouteState(const SipMessage& message,      ///< normalized incoming request
-                       const UtlSList&   removedRoutes ///< routes removed by normalizeProxyRoutes
+                       const UtlSList&   removedRoutes,///< routes removed by normalizeProxyRoutes
+                       const UtlString   routeHostPort  ///< hostport value to use when adding Record-Route
                        ) :
+   mRouteHostPort(routeHostPort),
    mMayBeMutable(false),
    mRecordRouteIndex(UTL_NOT_FOUND),
-   mModified(false)
+   mModified(false),
+   mFoundRouteState(false)
 {
    message.getCallIdField(&mCallId);
 
@@ -117,10 +120,10 @@ RouteState::RouteState(const SipMessage& message,      ///< normalized incoming 
    message.getFromUrl(fromUrl);
    fromUrl.getFieldParameter("tag", mFromTag);
 
-   bool foundRouteState = false;
+   mFoundRouteState = false;
    UtlSListIterator routes(removedRoutes);
    UtlString* route;
-   while (!foundRouteState && (route = dynamic_cast<UtlString*>(routes())))
+   while (!mFoundRouteState && (route = dynamic_cast<UtlString*>(routes())))
    {
       if (route->contains(UrlParameterName)) // quick test before doing a full url parse
       {
@@ -132,24 +135,24 @@ RouteState::RouteState(const SipMessage& message,      ///< normalized incoming 
              * Got some value for the parameter we expect;
              * parse it and check the signature - if this returns true, we've got it.
              */
-            foundRouteState = decode(routeStateValue); 
+             mFoundRouteState = decode(routeStateValue); 
          }
       }
    }
 
-   if (!foundRouteState) // not found in a Route header?
+   if (!mFoundRouteState) // not found in a Route header?
    {
       // No state found in the removed Route headers, so look in the Record-Routes
       UtlString recordRoute;
 
       for (int rrNum = 0;
-           !foundRouteState && message.getRecordRouteUri(rrNum, &recordRoute);
+           !mFoundRouteState && message.getRecordRouteUri(rrNum, &recordRoute);
            rrNum++
            )
       {
+         Url recordRouteUrl(recordRoute);
          if (recordRoute.contains(UrlParameterName)) // quick test before doing a full url parse
          {
-            Url recordRouteUrl(recordRoute);
             UtlString routeStateValue;
             if (recordRouteUrl.getUrlParameter(UrlParameterName, routeStateValue))
             {
@@ -157,11 +160,20 @@ RouteState::RouteState(const SipMessage& message,      ///< normalized incoming 
                 * Got some value for the parameter we expect;
                 * parse it and check the signature - if this returns true, we've got it.
                 */
-               foundRouteState = decode(routeStateValue); 
-               if (foundRouteState)
+                mFoundRouteState = decode(routeStateValue); 
+               if (mFoundRouteState)
                {
                   mRecordRouteIndex = rrNum; // save this for when we need to update it
                }
+            }
+         }
+         else
+         {
+            UtlString recordRouteHostAndPort;
+            recordRouteUrl.getHostWithPort( recordRouteHostAndPort );
+            if( recordRouteHostAndPort.compareTo( mRouteHostPort ) == 0 )
+            {
+               mRecordRouteIndex = rrNum; // save this for when we need to update it
             }
          }
       }
@@ -169,7 +181,7 @@ RouteState::RouteState(const SipMessage& message,      ///< normalized incoming 
       if (!message.isResponse()) // is this a request?
       {
          // this is a request
-         if (foundRouteState) // could only have been found in a Record-Route
+         if (mFoundRouteState) // could only have been found in a Record-Route
          {
             // this is a spiraled dialog-forming request that already has state in it.
             mMayBeMutable = true;
@@ -566,7 +578,7 @@ void RouteState::unsetParameter(const char* pluginInstance,
 }
 
 /// Add or update the state in the Record-Route header.
-void RouteState::update(SipMessage* request, const UtlString routeAddress)
+void RouteState::update(SipMessage* request )
 {
    /*
     * This has no effect other than logging an error if isMutable would return false.
@@ -575,7 +587,7 @@ void RouteState::update(SipMessage* request, const UtlString routeAddress)
    {
       if (mModified)
       {
-         Url route(routeAddress);
+         Url route(mRouteHostPort);
          route.setUrlParameter("lr",NULL);
 
          UtlString newRouteStateToken;

@@ -38,7 +38,7 @@ Restart just the sipXconfig web interface
     
 Combine with CLI scheduling to restart the proxy and 11 PM.   
 
- $ echo "sipxproc -r SIPProxy" | at 23:00
+ $ echo "sipxproc -r SIPXProxy" | at 23:00
  
 HINTS
 -----

@@ -56,6 +56,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testBuildSipUri);
       CPPUNIT_TEST(testReplacesData);
       CPPUNIT_TEST(testIsClientStrictRouted);
+      CPPUNIT_TEST(testRecordRoutesAccepted);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -1950,7 +1951,6 @@ class SipMessageTest : public CppUnit::TestCase
                           s.data());
       };
 
-
    void testReplacesData()
       {
          UtlString callId;
@@ -2137,6 +2137,236 @@ class SipMessageTest : public CppUnit::TestCase
          CPPUNIT_ASSERT(strict.isClientMsgStrictRouted());
       }
          
+   void testRecordRoutesAccepted()
+      {
+      const char* inviteMessage =
+          "INVITE sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:sipx.local\r\n"
+          "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 INVITE\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: me@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+      SipMessage inviteSipMsg(inviteMessage, strlen(inviteMessage));
+      CPPUNIT_ASSERT( inviteSipMsg.isRecordRouteAccepted() == TRUE );
+      
+      const char* ackMessage =
+          "ACK sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:sipx.local\r\n"
+          "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 ACK\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: me@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+      SipMessage ackSipMsg(ackMessage, strlen(ackMessage));
+      CPPUNIT_ASSERT( ackSipMsg.isRecordRouteAccepted() == TRUE );
+      
+      const char* byeMessage =
+          "BYE sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:sipx.local\r\n"
+          "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 BYE\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: me@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+      SipMessage byeSipMsg(byeMessage, strlen(byeMessage));
+      CPPUNIT_ASSERT( byeSipMsg.isRecordRouteAccepted() == TRUE );
+      
+      const char* cancelMessage =
+          "CANCEL sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:sipx.local\r\n"
+          "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 CANCEL\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: me@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+      SipMessage cancelSipMsg(cancelMessage, strlen(cancelMessage));
+      CPPUNIT_ASSERT( cancelSipMsg.isRecordRouteAccepted() == TRUE );
+      
+      const char* optionsMessage =
+          "OPTIONS sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:sipx.local\r\n"
+          "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 OPTIONS\r\n"
+          "Max-Forwards: 20\r\n"
+          "Supported: replaces\r\n"
+          "Contact: me@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+      SipMessage optionsSipMsg(optionsMessage, strlen(optionsMessage));
+      CPPUNIT_ASSERT( optionsSipMsg.isRecordRouteAccepted() == TRUE );
+      
+      const char* registerMessage =
+          "REGISTER sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "From: <sip:test@sipx.local>;tag=94b99ae0-2f816f01-13c4-be5-50f2a8d5-be5\r\n"
+          "To: <sip:test@sipx.local>\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 REGISTER\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: test@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+      SipMessage registerSipMsg(registerMessage, strlen(registerMessage));
+      CPPUNIT_ASSERT( registerSipMsg.isRecordRouteAccepted() == FALSE );
+      
+      const char* infoMessage =
+          "INFO sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:sipx.local\r\n"
+          "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 INFO\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: me@127.0.0.1\r\n"
+          "Supported: timer\r\n"
+          "Content-Type: application/dtmf-relay\r\n"
+          "Content-Length: 26\r\n"
+          "\r\n"
+          "Signal= 1\r\n"
+          "Duration= 160\r\n"
+          "\r\n";
+
+      SipMessage infoSipMsg(infoMessage, strlen(infoMessage));
+      CPPUNIT_ASSERT( infoSipMsg.isRecordRouteAccepted() == TRUE );
+      
+      const char* prackMessage =
+          "PRACK sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:sipx.local\r\n"
+          "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 PRACK\r\n"
+          "Max-Forwards: 20\r\n"
+          "RAck: 1 2 INVITE\r\n"
+          "Contact: me@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+      SipMessage prackSipMsg(prackMessage, strlen(prackMessage));
+      CPPUNIT_ASSERT( prackSipMsg.isRecordRouteAccepted() == TRUE );
+      
+      const char* subscribeMessage =
+          "SUBSCRIBE sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:sipx.local\r\n"
+          "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 SUBSCRIBE\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: me@127.0.0.1\r\n"
+          "Expires: 3600\r\n"
+          "Event: message-summary\r\n"
+          "Max-Forwards: 20\r\n"
+          "Supported: replaces\r\n"
+          "Accept: application/simple-message-summary\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+      SipMessage subscribeSipMsg(subscribeMessage, strlen(subscribeMessage));
+      CPPUNIT_ASSERT( subscribeSipMsg.isRecordRouteAccepted() == TRUE );
+      
+      const char* notifyMessage =
+          "NOTIFY sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:sipx.local\r\n"
+          "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 NOTIFY\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: me@127.0.0.1\r\n"
+          "Event: message-summary\r\n"
+          "Content-Type: application/simple-message-summary\r\n"
+          "Content-Length: 50\r\n"
+          "\r\n"
+          "Messages-Waiting: no\r\n"
+          "Voice-Message: 0/0 (0/0)\r\n"
+          "\r\n";
+      
+      SipMessage notifySipMsg(notifyMessage, strlen(notifyMessage));
+      CPPUNIT_ASSERT( notifySipMsg.isRecordRouteAccepted() == TRUE );
+      
+      const char* updateMessage =
+          "UPDATE sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:sipx.local\r\n"
+          "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 UPDATE\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: me@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+      SipMessage updateSipMsg(updateMessage, strlen(updateMessage));
+      CPPUNIT_ASSERT( updateSipMsg.isRecordRouteAccepted() == TRUE );
+      
+      const char* messageMessage =
+          "MESSAGE sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:sipx.local\r\n"
+          "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 MESSAGE\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: me@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+      SipMessage messageSipMsg(messageMessage, strlen(messageMessage));
+      CPPUNIT_ASSERT( messageSipMsg.isRecordRouteAccepted() == FALSE );
+      
+      const char* referMessage =
+          "REFER sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:sipx.local\r\n"
+          "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 REFER\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: me@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+      SipMessage referSipMsg(referMessage, strlen(referMessage));
+      CPPUNIT_ASSERT( referSipMsg.isRecordRouteAccepted() == TRUE );
+      
+      const char* publishMessage =
+          "PUBLISH sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:sipx.local\r\n"
+          "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 PUBLISH\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: me@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+      SipMessage publishSipMsg(publishMessage, strlen(publishMessage));
+      CPPUNIT_ASSERT( publishSipMsg.isRecordRouteAccepted() == FALSE );
+      
+      }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipMessageTest);

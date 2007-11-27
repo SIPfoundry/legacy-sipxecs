@@ -3,7 +3,7 @@
 use English;
 
 # Set default log file.
-$Log= $ARGV[0] || '/var/log/sipxpbx/sipproxy.log.1';
+$Log= $ARGV[0] || '/var/log/sipxpbx/sipXproxy.log.1';
 
 # Recipients for the report.
 $Recipients='interop-config@pingtel.com';

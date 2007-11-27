@@ -186,7 +186,9 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
          OsDateTime::getCurTimeSinceBoot(time);
          long beforeSecs = time.seconds();
 
-         OsSocket* clientSocket = buildClientSocket(hostPort, hostAddress, localIp);
+         bool isClientSocketReused;
+         OsSocket* clientSocket =
+            buildClientSocket(hostPort, hostAddress, localIp, isClientSocketReused);
 
          OsDateTime::getCurTimeSinceBoot(time);
          long afterSecs = time.seconds();
@@ -208,12 +210,7 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
             strcmp(mProtocolString, SIP_TRANSPORT_TLS) == 0 ?
             static_cast <SipClient*> (new SipClientTls(clientSocket, this, mSipUserAgent)) :
             NULL;
-         // Using special knowledge of buildClientSocket, set
-         // sharedSocket if this SipClient is reusing a server socket.
-         // :TODO: Clean this up by using an indication returned by
-         // buildClientSocket.
-         if (client && mSipUserAgent->getUseRport() &&
-             clientSocket->getIpProtocol() == OsSocket::UDP)
+         if (client && isClientSocketReused)
          {
             client->setSharedSocket(TRUE);
          }

@@ -3,22 +3,19 @@ include $(top_srcdir)/config/subdir.am
 SUBDIRS = database
 
 cfgfiles_IN = \
-    authproxy-config.in \
-    authrules.xml.in \
-    callresolver-config.in \
-    proxy-config.in \
-    forwardingrules.xml.in
+	authrules.xml.in \
+	callresolver-config.in \
+	sipXproxy-config.in \
+	forwardingrules.xml.in
 
 EXTRA_DIST = \
-    sipproxy.process.xml.in \
-    sipauthproxy.process.xml.in \
-    sipxcallresolver.process.xml.in \
-    authproxy-config.in.map \
-    $(cfgfiles_IN)
+	sipXproxy.process.xml.in \
+	sipxcallresolver.process.xml.in \
+	sipXproxy-config.in.map \
+	$(cfgfiles_IN)
 
 PROCESS_XML_FILES = \
-	$(DESTDIR)$(SIPX_PROCDIR)/sipproxy.process.xml \
-	$(DESTDIR)$(SIPX_PROCDIR)/sipauthproxy.process.xml
+	$(DESTDIR)$(SIPX_PROCDIR)/sipXproxy.process.xml
 
 if ENABLE_CDR
 PROCESS_XML_FILES += \
@@ -31,14 +28,15 @@ install-exec-hook : \
 	upgrade-add-domain \
 	upgrade-auth-rules \
 	upgrade-forwarding-rules \
-	upgrade-auth-plugins
+	upgrade-auth-plugins \
+	upgrade-to-merged-proxy
 
 install-data-hook : \
-	$(DESTDIR)$(sysconfdir)/sipxpbx/authproxy-config.in.map \
+	$(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config.in.map \
 	$(PROCESS_XML_FILES)
 
-$(DESTDIR)$(sysconfdir)/sipxpbx/authproxy-config.in.map: authproxy-config.in.map
-	  echo ""; echo "Installing authproxy-config.in.map $@"; \
+$(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config.in.map: sipXproxy-config.in.map
+	  echo ""; echo "Installing sipXproxy-config.in.map $@"; \
 	  $(INSTALL) -D -m 644 $< $@; 
 
 $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)/$(sysconfdir)/sipxpbx/% : %.local
@@ -72,23 +70,23 @@ upgrade-forwarding-rules:
 
 .PHONY: upgrade-auth-plugins
 upgrade-auth-plugins :
-	@echo -n "        Checking for authproxy plugins..."
-	@if ! grep libEnforceAuthRules.so $(DESTDIR)$(sysconfdir)/sipxpbx/authproxy-config.in > /dev/null 2>&1 ; \
+	@echo -n "        Checking for auth plugins..."
+	@if ! grep libEnforceAuthRules.so $(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config.in > /dev/null 2>&1 ; \
 	then \
 		echo -n " 'authrules' added"; \
 		( echo "" \
-		; echo "SIP_AUTHPROXY_HOOK_LIBRARY.authrules : $(libdir)/sipxauthproxy/libEnforceAuthRules.so" \
-		; echo "SIP_AUTHPROXY.authrules.RULES        : $(sysconfdir)/sipxpbx/authrules.xml" \
-		) >> $(DESTDIR)$(sysconfdir)/sipxpbx/authproxy-config.in; \
+		; echo "SIPX_PROXY_HOOK_LIBRARY.authrules : $(libdir)/authplugins/libEnforceAuthRules.so" \
+		; echo "SIPX_PROXY.authrules.RULES        : $(sysconfdir)/sipxpbx/authrules.xml" \
+		) >> $(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config.in; \
 	else \
 		echo -n " 'authrules' ok"; \
 	fi; \
-	if ! grep libCallerAlias.so $(DESTDIR)$(sysconfdir)/sipxpbx/authproxy-config.in > /dev/null 2>&1 ; \
+	if ! grep libCallerAlias.so $(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config.in > /dev/null 2>&1 ; \
 	then \
 		echo -n " 'fromalias' added"; \
 		( echo "" \
-		; echo "SIP_AUTHPROXY_HOOK_LIBRARY.fromalias : $(libdir)/sipxauthproxy/libCallerAlias.so" \
-		) >> $(DESTDIR)$(sysconfdir)/sipxpbx/authproxy-config.in; \
+		; echo "SIPX_PROXY_HOOK_LIBRARY.fromalias : $(libdir)/authplugins/libCallerAlias.so" \
+		) >> $(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config.in; \
 	else \
 		echo -n " 'fromalias' ok"; \
 	fi
@@ -98,13 +96,25 @@ upgrade-auth-plugins :
 .PHONY: upgrade-add-domain
 upgrade-add-domain :
 	@echo -n "        Checking for domain configuration..."
-	@if ! grep -e '^SIP_AUTHPROXY_DOMAIN_NAME\>' $(DESTDIR)$(sysconfdir)/sipxpbx/authproxy-config.in > /dev/null 2>&1 ; \
+	@if ! grep -e '^SIPX_PROXY_DOMAIN_NAME\>' $(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config.in > /dev/null 2>&1 ; \
 	then \
 		echo " adding "; \
 		( echo "" \
-		; echo 'SIP_AUTHPROXY_DOMAIN_NAME : $${SIPXCHANGE_DOMAIN_NAME}' \
-		) >> $(DESTDIR)$(sysconfdir)/sipxpbx/authproxy-config.in; \
+		; echo 'SIPX_PROXY_DOMAIN_NAME : $${SIPXCHANGE_DOMAIN_NAME}' \
+		) >> $(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config.in; \
 	else \
 		echo " ok"; \
 	fi
+
+.PHONY: upgrade-to-merged-proxy
+upgrade-to-merged-proxy :
+	@echo -n "        Checking for deprecated forking and auth proxy leftovers  => "
+	@if [ -f $(DESTDIR)$(sysconfdir)/sipxpbx/proxy-config.in ] && [ -f $(DESTDIR)$(sysconfdir)/sipxpbx/authproxy-config.in ]; \
+	then \
+		$(DESTDIR)$(bindir)/upgrade2mergedproxy --preserve --cleancfgin --cleanlogs --cleanproc --cdir $(DESTDIR)$(sysconfdir)/sipxpbx --ldir $(DESTDIR)$(localstatedir)/log/sipxpbx; \
+		echo "  [CLEANED]";\
+	else \
+		echo "  [NOT FOUND]";\
+	fi;
+
 

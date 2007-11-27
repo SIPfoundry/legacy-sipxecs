@@ -15,7 +15,7 @@
 #include "sipdb/CallerAliasDB.h"
 
 #include "RouteState.h"
-#include "SipAaa.h"
+#include "SipRouter.h"
 #include "CallerAlias.h"
 
 // DEFINES
@@ -86,7 +86,7 @@ CallerAlias::readConfig( OsConfigDb& configDb /**< a subhash of the individual c
 }
 
 AuthPlugin::AuthResult
-CallerAlias::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to proxy information
+CallerAlias::authorizeAndModify(const SipRouter* sipRouter,  ///< for access to proxy information
                                 const UtlString& id, /**< The authenticated identity of the
                                                       *   request originator, if any (the null
                                                       *   string if not).
@@ -109,7 +109,7 @@ CallerAlias::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to proxy 
 
    if (   (priorResult != DENY) // no point in modifying a request that won't be sent
        && (spCallerAliasDB)     // there is a caller alias database? (should always be true)
-       )
+       )   
    {
       UtlString callerFrom;
       UtlString aliasFrom;
@@ -170,7 +170,7 @@ CallerAlias::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to proxy 
              * Determine whether the identity is one for which this proxy
              * is authoritative; if not, we will not use wildcard matches.
              */
-            bool identityIsLocal = sipAaa->isLocalDomain(fromUrl);
+            bool identityIsLocal = sipRouter->isLocalDomain(fromUrl);
             
             // now we have callerIdentity set; use for looking up each contact.
             OsSysLog::add(FAC_SIP, PRI_DEBUG,

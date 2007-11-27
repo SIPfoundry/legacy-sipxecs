@@ -58,7 +58,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-    virtual OsSocket* buildClientSocket(int hostPort, const char* hostAddress);
+    virtual OsSocket* buildClientSocket(int hostPort, const char* hostAddress, const char* localIp, bool& existingSocketReused);
 
     int mServerPort;
 

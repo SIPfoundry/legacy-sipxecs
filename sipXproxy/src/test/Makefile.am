@@ -1,4 +1,4 @@
-#INCLUDES = -I$(top_srcdir)/src/cse -I$(top_srcdir)/src/sipauthproxy -I$(top_srcdir)/src/sipforkingproxy
+#INCLUDES = -I$(top_srcdir)/src/cse -I$(top_srcdir)/src/sipXproxy
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
@@ -32,44 +32,46 @@ proxytest_SOURCES = \
    RouteStateTest.cpp \
    SipRouterTest.cpp 
 
+proxytest_LDFLAGS = \
+    -rdynamic
+
 proxytest_LDADD = \
 	$(COMMON_LIBS) \
 	$(top_builddir)/src//cse/libcse.la \
-	$(top_builddir)/src/sipforkingproxy/libforkingproxy.la \
-	$(top_builddir)/src/sipauthproxy/libauthproxy.la
+	$(top_builddir)/src/sipXproxy/libsipXproxy.la 
 
 enforcerulestest_CXXFLAGS = \
 	$(COMMON_CXX_FLAGS)
 
 enforcerulestest_SOURCES = \
-	$(top_srcdir)/src/sipauthproxy/EnforceAuthRules.cpp \
+	$(top_srcdir)/src/sipXproxy/EnforceAuthRules.cpp \
 	EnforceAuthRulesTest.cpp
 
 enforcerulestest_LDADD = \
 	$(COMMON_LIBS) \
-	$(top_builddir)/src/sipauthproxy/libauthproxy.la
+	$(top_builddir)/src/sipXproxy/libsipXproxy.la
 
 calleraliastest_CXXFLAGS = \
 	$(COMMON_CXX_FLAGS)
 
 calleraliastest_SOURCES = \
-	$(top_srcdir)/src/sipauthproxy/CallerAlias.cpp \
+	$(top_srcdir)/src/sipXproxy/CallerAlias.cpp \
 	CallerAliasTest.cpp
 
 calleraliastest_LDADD = \
 	$(COMMON_LIBS) \
-	$(top_builddir)/src/sipauthproxy/libauthproxy.la
+	$(top_builddir)/src/sipXproxy/libsipXproxy.la
 
 transfercontroltest_CXXFLAGS = \
 	$(COMMON_CXX_FLAGS)
 
 transfercontroltest_SOURCES = \
-	$(top_srcdir)/src/sipauthproxy/TransferControl.cpp \
+	$(top_srcdir)/src/sipXproxy/TransferControl.cpp \
 	TransferControlTest.cpp
 
 transfercontroltest_LDADD = \
 	$(COMMON_LIBS) \
-	$(top_builddir)/src/sipauthproxy/libauthproxy.la
+	$(top_builddir)/src/sipXproxy/libsipXproxy.la
 
 EXTRA_DATA = \
 	authexception.xml \

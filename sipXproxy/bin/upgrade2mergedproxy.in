@@ -1,0 +1,206 @@
+#!/usr/bin/perl
+use Getopt::Long;
+
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+sub GenerateMergedConfigurationInputFile();
+sub CleanUpLogFiles();
+sub RenameDeprecatedConfigInputFiles();
+sub DeleteDeprecatedConfigInputFiles();
+sub CleanUpConfigurationFiles();
+sub CleanUpProcessDescrptors();
+
+my $usage="Usage: $0 [--cleanproc] [--cleanlogs] [--preserve] [--cdir <sipx conf dir>] [--ldir <sipx log dir] [--help] 
+        
+       Example: $0 --cdir /etc/sipxpbx --sdir /var/log/sipxpbx
+
+       Description:  This script handles the upgrade from a sipXecs
+                     release that has a forking and auth proxy
+                     to one that has a merged process called sipXproxy 
+                     which replaces them.  It essentially merges the content
+                     of proxy-config.in and authproxy-config.in into sipXproxy-config.in
+                     while collapsing redundant parameters and preserving user 
+                     modifications.   
+
+       --cdir:           Sipx configuration directory where the configuration input
+                         files can be found.  If not specified, '/etc/sipxpbx' is used
+
+       --ldir:           SipX log directory.  If not specified, '/var/log/sipxpbx' is used
+       
+       --preserve:       If present, a copy of the forking and auth proxy configuration
+                         input files that were utilized to form the merged configuration
+                         input file is maid and carry the '.deprecated' extension.
+
+       --cleancfgin:     If present, the forking and  auth proxy configuration
+                         input files that were utilized to form the merged configuration
+                         input file are deleted.
+
+       --cleanproc:      Option to specify that process descriptor files 
+                         associated with forking and auth proxies should be deleted.
+                         Files deleted by that option are: 
+                          <sipx conf dir>/process.d/sipproxy.process.xml                    
+                          <sipx conf dir>/process.d/sipauthproxy.process.xml                    
+       
+       --cleanlogs:      Option to specify that log files files associated with forking 
+                         and auth proxies found in <sipx log dir>/sipxpbx/  be deleted.
+                         
+       --help:           This page
+
+     Note: when merging forking and auth proxy configuration
+           input files, if a given setting is found in both
+           files (e.g. the logging level) the forking proxy 
+           setting takes precedence.\n";
+
+$forkCfgFileName="proxy-config.in";
+$authCfgFileName="authproxy-config.in";
+$mergedCfgFileName="sipXproxy-config.in";
+
+GetOptions( 'help|h' => \$help,
+            'cdir=s' => \$cdir,
+            'ldir=s' => \$ldir,
+            'preserve' => \$preserve,
+            'cleanproc' => \$cleanProc,
+            'cleanlogs' => \$cleanLogs,
+            "cleancfgin" => \$cleanCfgIn,
+            )
+    || exit -1;
+
+if ( $help )
+{
+    print $usage;
+    exit 0;
+}
+
+if( ! $cdir )
+{
+    $cdir="/etc/sipxpbx";
+}
+ 
+if( ! $ldir ) 
+{
+    $ldir="/var/log/sipxpbx";
+}
+
+if( ! -f "$cdir/$forkCfgFileName" )
+{
+    print STDERR "$0: failed to open $cdir/$forkCfgFileName\n";
+    exit 1;
+}
+
+if( ! -f "$cdir/$authCfgFileName" )
+{
+    print STDERR "$0: failed to open $cdir/$authCfgFileName\n";
+    exit 1;
+}
+
+GenerateMergedConfigurationInputFile();
+CleanUpConfigurationFiles();
+if( $cleanLogs )
+{
+    CleanUpLogFiles();
+}
+if( $preserve ) 
+{
+    PreserveDeprecatedConfigInputFiles();
+}
+
+if( $cleanCfgIn )
+{
+    CleanUpConfigurationInputFiles();
+}
+    
+if( $cleanProc ) 
+{
+    CleanUpProcessDescrptors();
+}
+exit 0;
+
+######################## subroutines ########################
+
+sub GenerateMergedConfigurationInputFile()
+{
+    $forkCfgFile = `cat $cdir/$forkCfgFileName`;
+    $authCfgFile = `cat $cdir/$authCfgFileName`;
+    
+    # remove all the fork proxy configuration parameters that 
+    # are not carried forward into the new configuration input 
+    # files.
+    $forkCfgFile =~ s/^\s*SIP_PROXY_AUTH_SERVER.+\n//gm; 
+    $forkCfgFile =~ s/^\s*SIP_PROXY_USE_AUTH_SERVER.+\n//gm; 
+    
+    # substitute the 'SIP_PROXY' prefix of forking proxy
+    # configuration file with the new 'SIPX_PROXY' prefix
+    $forkCfgFile =~ s/^\s*SIP_PROXY/SIPX_PROXY/gm;
+    
+    # remove all the auth proxy configuration parameters that 
+    # are not carried forward into the new configuration input
+    # files or already exist in fork proxy config file.
+    $authCfgFile =~ s/^\s*SIP_AUTHPROXY_HOST_ALIASES.+\n//gm; 
+    $authCfgFile =~ s/^\s*SIP_AUTHPROXY_LOG_CONSOLE.+\n//gm; 
+    $authCfgFile =~ s/^\s*SIP_AUTHPROXY_LOG_DIR.+\n//gm; 
+    $authCfgFile =~ s/^\s*SIP_AUTHPROXY_LOG_LEVEL.+\n//gm; 
+    $authCfgFile =~ s/^\s*SIP_AUTHPROXY_STALE_TCP_TIMEOUT.+\n//gm; 
+    $authCfgFile =~ s/^\s*SIP_AUTHPROXY_TLS_PORT.+\n//gm; 
+    $authCfgFile =~ s/^\s*SIP_AUTHPROXY_TCP_PORT.+\n//gm; 
+    $authCfgFile =~ s/^\s*SIP_AUTHPROXY_UDP_PORT.+\n//gm; 
+    $authCfgFile =~ s/^\s*SIP_AUTHPROXY_CALL_STATE.+\n//gm; 
+    $authCfgFile =~ s/^\s*SIP_AUTHPROXY_CALL_STATE_LOG.+\n//gm; 
+    $authCfgFile =~ s/^\s*SIP_AUTHPROXY_CALL_STATE_DB.+\n//gm; 
+    
+    #adjust auth proxy configuration elements that are changing values
+    $authCfgFile =~ s/\${MY_IP_ADDR}:\${AUTH_PROXY_SERVER_SIP_PORT}/\${MY_IP_ADDR}:\${PROXY_SERVER_SIP_PORT}/gm;
+    $authCfgFile =~ s/\/sipxauthproxy/\/authplugins/gm;
+    
+    # substitute the 'SIP_AUTHPROXY' prefix of auth proxy
+    # configuration file with the new 'SIPX_PROXY' prefix
+    $authCfgFile =~ s/^\s*SIP_AUTHPROXY/SIPX_PROXY/gm;
+    
+    # adjust keys that have changed names 
+    $authCfgFile =~ s/^\s*_ROUTE_NAME/_HOSTPORT/gm;  
+     
+    #generate combined configuration file
+    `echo '$forkCfgFile$authCfgFile' > $cdir/$mergedCfgFileName`; 
+    return 0;
+}
+
+sub CleanUpLogFiles()
+{
+    `rm -f $ldir/sipauthproxy.*`;
+    `rm -f $ldir/sipproxy.*`;
+    return 0;
+}
+
+sub PreserveDeprecatedConfigInputFiles()
+{
+    `cp -f $cdir/$forkCfgFileName      $cdir/$forkCfgFileName.deprecated`;
+    `cp -f $cdir/$authCfgFileName      $cdir/$authCfgFileName.deprecated`;
+    return 0;
+}
+
+sub CleanUpConfigurationInputFiles()
+{
+    `rm -f $cdir/$forkCfgFileName`;
+    `rm -f $cdir/$authCfgFileName`;
+    return 0;
+}
+    
+sub CleanUpConfigurationFiles()
+{
+    `rm -f $cdir/authproxy-config`;
+    `rm -f $cdir/proxy-config`;
+    return 0;
+}
+
+sub CleanUpProcessDescrptors()
+{
+    `rm -f $cdir/process.d/sipproxy.process.xml`;
+    `rm -f $cdir/process.d/sipauthproxy.process.xml`;
+    return 0;
+}
+
+exit 0;
+
+ 

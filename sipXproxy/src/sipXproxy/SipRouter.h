@@ -7,8 +7,8 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef _SipAaa_h_
-#define _SipAaa_h_
+#ifndef _SipRouter_h_
+#define _SipRouter_h_
 
 // SYSTEM INCLUDES
 
@@ -18,18 +18,6 @@
 #include <sipXecsService/SipNonceDb.h>
 #include <utl/PluginHooks.h>
 #include "AuthPlugin.h"
-
-// DEFINES
-#define CONFIG_LOG_FILE       "sipauthproxy.log"
-#define CONFIG_LOG_DIR        SIPX_LOGDIR
-#define CONFIG_ETC_DIR        SIPX_CONFDIR
-#define CONFIG_SETTINGS_FILE  "authproxy-config"
-
-// Configuration names pulled from config-file
-#define CONFIG_SETTING_LOG_LEVEL      "SIP_AUTHPROXY_LOG_LEVEL"
-#define CONFIG_SETTING_LOG_CONSOLE    "SIP_AUTHPROXY_LOG_CONSOLE"
-#define CONFIG_SETTING_LOG_DIR        "SIP_AUTHPROXY_LOG_DIR"
-#define LOG_FACILITY                  FAC_SIP
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -42,8 +30,10 @@ class SipUserAgent;
 class OsConfigDb;
 class SipMessage;
 class RouteState;
+class ForwardRules;
 
-/// SipAaa implements the main message handling for the authorization proxy. 
+/// SipRouter implements the main message handling responsible for the forking
+/// authorization and forwarding of SIP messages.
 /**
  * The SipUserAgent sends a SipMessageEvent to the OsTask queue for this object;
  * for each such message:
@@ -78,17 +68,18 @@ class RouteState;
  * @todo
  * XPR-183 - Check for loops
  */
-class SipAaa : public OsServerTask
+class SipRouter : public OsServerTask
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
 
    /// Default constructor
-   SipAaa(SipUserAgent& sipUserAgent,
-          OsConfigDb&   configDb
+   SipRouter(SipUserAgent& sipUserAgent, 
+             ForwardRules& forwardingRules,
+             OsConfigDb&   configDb
           );
 
-   virtual ~SipAaa();
+   virtual ~SipRouter();
    //:Destructor
 
    virtual UtlBoolean handleMessage(OsMsg& rMsg);
@@ -100,7 +91,7 @@ class SipAaa : public OsServerTask
    /// @returns true iff the domain of url is a valid form of the domain name for this proxy.
    bool isLocalDomain(const Url& url ///< a url to be tested
                       ) const;
-
+   
    /// Get the domain shared secret for signing.
    const SharedSecret* authSecret();
    
@@ -109,7 +100,7 @@ class SipAaa : public OsServerTask
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
-   friend class SipAaaTest;
+   friend class SipRouterTest;
 
    /// Extract configuration parameters from the configuration file.
    void readConfig(OsConfigDb& configDb,  /// database to read for parameters
@@ -125,6 +116,12 @@ class SipAaa : public OsServerTask
     * user in mRealm.
     * @returns true iff valid authentication is found (and sets authUser).
     */
+
+   /// Verifies if the proxy supports all the extensions listed in the Proxy-Require
+   /// header of an incoming request.
+   bool areAllExtensionsSupported( const SipMessage& sipRequest,   ///< request to be evluated
+                                   UtlString& disallowedExtensions ///< unsupported extensions
+                                   ) const;
    
    /// Create an authentication challenge.
    void authenticationChallenge(const SipMessage& sipRequest,///< message to be challenged. 
@@ -133,27 +130,27 @@ class SipAaa : public OsServerTask
    
 
    SipUserAgent* mpSipUserAgent;         ///< SIP stack interface
-   bool          mAuthenticationEnabled; ///< based on SIP_AUTHPROXY_AUTHENTICATE_ALGORITHM
+   bool          mAuthenticationEnabled; ///< based on SIPX_PROXY_AUTHENTICATE_ALGORITHM
    UtlString     mRealm;                 ///< realm for challenges - common to replicatants
    SipNonceDb    mNonceDb;               ///< generator for nonce values
    long          mNonceExpiration;       ///< nonce lifetime in seconds
    UtlString     mDomainName;            ///< for determining authority for addresses
-   UtlString     mRouteName;             ///< for writing Record-Route headers
+   UtlString     mRouteHostPort;         ///< for writing Record-Route headers
    SharedSecret* mSharedSecret;          ///< secret value to include in authentication hashes
-   
+   ForwardRules* mpForwardingRules;      ///< Holds to forwarding rules instructions
    PluginHooks   mAuthPlugins;           ///< decision making modules from configuration 
 
    // @cond INCLUDENOCOPY
 
    // There is no copy constructor.
-   SipAaa(const SipAaa& rSipAaa);
+   SipRouter(const SipRouter& rsipRouter);
 
    // There is no assignment operator.
-   SipAaa& operator=(const SipAaa& rhs);
+   SipRouter& operator=(const SipRouter& rhs);
 
    // @endcond     
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-#endif  // _SipAaa_h_
+#endif  // _SipRouter_h_

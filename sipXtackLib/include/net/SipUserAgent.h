@@ -226,6 +226,8 @@ public:
      *        that will never actually send a 2xx response, so the
      *        checks might cause errors that the application should
      *        never generate.
+     * \param forceSymmetricSignaling - impose that the same local 
+     *        IP:Port be used for sending and receiving SIP signaling
      */
     SipUserAgent(int sipTcpPort = SIP_PORT,
                 int sipUdpPort = SIP_PORT,
@@ -250,7 +252,8 @@ public:
                 int readBufferSize = -1,
                 int queueSize = OsServerTask::DEF_MAX_MSGS,
                 UtlBoolean bUseNextAvailablePort = FALSE,
-                UtlBoolean doUaMessageChecks = TRUE
+                UtlBoolean doUaMessageChecks = TRUE,
+                UtlBoolean forceSymmetricSignaling = FALSE
                  );
 
     //! Destructor
@@ -536,6 +539,8 @@ public:
     UtlBoolean recurseOnlyOne300Contact();
 
     UtlBoolean isOk(OsSocket::IpProtocolSocketType socketType);
+    
+    UtlBoolean isSymmetricSignalingImposed();
 
     //! Find out if SipUserAgent has finished shutting down.
     /*! Useful when using the non-blocking form of \ref shutdown.
@@ -696,6 +701,7 @@ private:
      * the application should never generate.
      */
     UtlBoolean mDoUaMessageChecks;
+    UtlBoolean mbForceSymmetricSignaling;
 
     void garbageCollection();
 

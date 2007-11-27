@@ -34,10 +34,10 @@ NONE
   
 EXAMPLE
 -------  
-$ sipx-stats < sipproxy.log sipproxy.log.1 > proxy_stats.txt
+$ sipx-stats < sipXproxy.log sipXproxy.log.1 > proxy_stats.txt
 
-$ zcat sipproxy.log.2.gz \
-  | cat sipproxy.log sipproxy.log.1 - \
+$ zcat sipXproxy.log.2.gz \
+  | cat sipXproxy.log sipXproxy.log.1 - \
   | sipx-stats > proxy_stats.txt
 
 BUGS

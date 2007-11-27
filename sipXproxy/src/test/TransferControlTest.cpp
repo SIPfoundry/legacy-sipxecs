@@ -12,7 +12,7 @@
 #include "sipxunit/TestUtilities.h"
 #include "utl/PluginHooks.h"
 #include "net/SipMessage.h"
-#include "sipauthproxy/TransferControl.h"
+#include "sipXproxy/TransferControl.h"
 
 class TransferControlTest : public CppUnit::TestCase
 {
@@ -33,11 +33,11 @@ public:
 
 
    /* ****************************************************************
-    * Note: all tests pass NULL for the SipAaa* sipAaa parameter.
+    * Note: all tests pass NULL for the SipRouter* sipRouter parameter.
     *       Since the TransferControl plugin does not use that
     *       parameter, this should not cause any problem.
     *       Should that change, see CallerAliasTest for how to set
-    *       up a SipAaa instance for a test.
+    *       up a SipRouter instance for a test.
     * **************************************************************** */
 
    // Test that an in-dialog request without a replaces header is not affected
@@ -60,7 +60,8 @@ public:
          SipMessage testMsg(message, strlen(message));
 
          UtlSList noRemovedRoutes;
-         RouteState routeState( testMsg, noRemovedRoutes );
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
@@ -102,7 +103,8 @@ public:
          SipMessage testMsg(message, strlen(message));
 
          UtlSList noRemovedRoutes;
-         RouteState routeState( testMsg, noRemovedRoutes );
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
@@ -146,7 +148,8 @@ public:
          SipMessage testMsg(message, strlen(message));
 
          UtlSList noRemovedRoutes;
-         RouteState routeState( testMsg, noRemovedRoutes );
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
@@ -188,7 +191,8 @@ public:
          SipMessage testMsg(message, strlen(message));
 
          UtlSList noRemovedRoutes;
-         RouteState routeState( testMsg, noRemovedRoutes );
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
@@ -231,7 +235,8 @@ public:
          SipMessage testMsg(message, strlen(message));
 
          UtlSList noRemovedRoutes;
-         RouteState routeState( testMsg, noRemovedRoutes );
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
@@ -274,7 +279,8 @@ public:
          SipMessage testMsg(message, strlen(message));
 
          UtlSList noRemovedRoutes;
-         RouteState routeState( testMsg, noRemovedRoutes );
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
@@ -310,8 +316,6 @@ public:
          transferIdentityUrl.getIdentity(transferIdentity);
          ASSERT_STR_EQUAL("controller@domain", transferIdentity.data());
       }
-
-
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TransferControlTest);

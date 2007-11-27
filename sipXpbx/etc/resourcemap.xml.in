@@ -24,11 +24,8 @@
        <filemap identifier="registrar-config"    
                 location="@SIPX_CONFDIR@/registrar-config" /> 
        
-       <filemap identifier="proxy-config"        
-                location="@SIPX_CONFDIR@/proxy-config" />
-       
-       <filemap identifier="authproxy-config"    
-                location="@SIPX_CONFDIR@/authproxy-config" />
+       <filemap identifier="sipXproxy-config"        
+                location="@SIPX_CONFDIR@/sipXproxy-config" />
        
        <filemap identifier="authrules.xml"       
                 location="@SIPX_CONFDIR@/authrules.xml.in" />

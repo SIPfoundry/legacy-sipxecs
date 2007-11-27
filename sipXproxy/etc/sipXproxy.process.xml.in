@@ -2,14 +2,14 @@
 <watchdog-process enable="true" xmlns="http://www.sipfoundry.org/sipX/schema/xml/watchdogprocess-00-01">
   <process_definitions>
     <group name="CommServer" >
-        <process name="SIPProxy">
+        <process name="SIPXProxy">
             <dependentdelay wait="1" />
             <stdout file="/dev/null" />
             <stderr file="/dev/null" />
             <stdin  file="" />
 
             <start control="true">
-                <execute command="@bindir@/sipproxy.sh"
+                <execute command="@bindir@/sipXproxy.sh"
                          parameters=""
                          defaultdir="@SIPX_LOGDIR@" />
             </start>
@@ -26,7 +26,7 @@
   </process_definitions>
   <watchdog>
    <monitor>
-      <monitor-process name="SIPProxy"
+      <monitor-process name="SIPXProxy"
          restart="enable" max_restarts="3" report="enable" max_reports="3">
          <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>
       </monitor-process>

@@ -246,18 +246,18 @@ ERROR
 # This can be a scenario for logging failures.
 proxyCheck() {
    ok=0
-   echo -n "Checking for running sipproxy..."
-   procs=`ps -C sipproxy`
-   if expr match "$procs" '.*sipproxy.*' >/dev/null; then
-      # At least one sipproxy is running, check for another one
-      if expr match "$procs" '.*sipproxy.*sipproxy.*' >/dev/null; then
+   echo -n "Checking for running sipXproxy..."
+   procs=`ps -C sipXproxy`
+   if expr match "$procs" '.*sipXproxy.*' >/dev/null; then
+      # At least one sipXproxy is running, check for another one
+      if expr match "$procs" '.*sipXproxy.*sipXproxy.*' >/dev/null; then
          cat <<ERROR
  failed.         
-Found at least two sipproxy processes. 
+Found at least two sipXproxy processes. 
 This is a potential cause of CSE logging failures!
 
 ERROR
-         ps -C sipproxy
+         ps -C sipXproxy
          echo
          ok=1
       else
@@ -267,26 +267,6 @@ ERROR
       echo " not running (ok)"   
    fi
 
-   echo -n "Checking for running sipauthproxy..."
-   procs=`ps -C sipauthproxy`
-   if expr match "$procs" '.*sipauthproxy.*' >/dev/null; then
-      # At least one sipauthproxy is running, check for another one
-      if expr match "$procs" '.*sipauthproxy.*sipauthproxy.*' >/dev/null; then
-         cat <<ERROR
- failed.
-Found at least two sipauthproxy processes.
-This is a potential cause of CSE logging failures!
-         
-ERROR
-         ps -C sipauthproxy
-         echo
-         ok=1
-      else
-         echo " ok"
-      fi
-   else
-      echo " not running (ok)"
-   fi
    return $ok
 }
 

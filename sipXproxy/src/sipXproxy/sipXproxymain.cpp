@@ -6,8 +6,7 @@
 // 
 // $$
 //////////////////////////////////////////////////////////////////////////////
-
-// System includes
+// SYSTEM INCLUDES
 #include <stdio.h>
 #include <signal.h>
 #if defined(_WIN32)
@@ -15,7 +14,9 @@
 #elif defined(__pingtel_on_posix__)
 #include <unistd.h>
 #endif
+#include <iostream>
 
+// APPLICATION INCLUDES
 #include <os/OsFS.h>
 #include <os/OsConfigDb.h>
 #include <os/OsSocket.h>
@@ -25,11 +26,11 @@
 #include <xmlparser/tinyxml.h>
 #include <sipXecsService/SipXecsService.h>
 #include <sipXecsService/SharedSecret.h>
-
+#include <sipdb/SIPDBManager.h>
 #include <SipRouter.h>
 #include <ForwardRules.h>
 
-#include <ForkingProxyCseObserver.h>
+#include <SipXProxyCseObserver.h>
 
 #ifndef SIPX_VERSION
 #  include "sipxproxy-buildstamp.h"
@@ -43,35 +44,44 @@
 //#define BOUNDS_CHECKER
 
 #ifdef BOUNDS_CHECKER
-	#include "D:\Program Files\Compuware\BoundsChecker\ERptApi\apilib.h"
-	#pragma comment(lib, "D:\\Program Files\\Compuware\\BoundsChecker\\ERptApi\\nmapi.lib")
+    #include "D:\Program Files\Compuware\BoundsChecker\ERptApi\apilib.h"
+    #pragma comment(lib, "D:\\Program Files\\Compuware\\BoundsChecker\\ERptApi\\nmapi.lib")
 #endif
 
+// DEFINES
+
+#define CONFIG_SETTING_CALL_STATE         "SIPX_PROXY_CALL_STATE"
+#define CONFIG_SETTING_CALL_STATE_LOG     "SIPX_PROXY_CALL_STATE_LOG"
+#define CALL_STATE_LOG_FILE_DEFAULT SIPX_LOGDIR "/sipxproxy_callstate.log"
 #define CONFIG_ETC_DIR SIPX_CONFDIR
 #define FORWARDING_RULES_FILENAME "forwardingrules.xml"
-#define SIP_PROXY_LOG "sipproxy.log"
+#define SIPX_PROXY_LOG_FILE "sipXproxy.log"
 #define CONFIG_LOG_DIR SIPX_LOGDIR
 #define LOG_FACILITY   FAC_SIP
-#define CALL_STATE_LOG_FILE_DEFAULT SIPX_LOGDIR "/sipproxy_callstate.log"
 
 // Configuration names pulled from config-file
 #define CONFIG_SETTING_BIND_IP        "SIP_PROXY_BIND_IP"
-#define CONFIG_SETTING_LOG_LEVEL      "SIP_PROXY_LOG_LEVEL"
-#define CONFIG_SETTING_LOG_CONSOLE    "SIP_PROXY_LOG_CONSOLE"
-#define CONFIG_SETTING_LOG_DIR        "SIP_PROXY_LOG_DIR"
-#define CONFIG_SETTING_CALL_STATE     "SIP_PROXY_CALL_STATE"
-#define CONFIG_SETTING_CALL_STATE_LOG "SIP_PROXY_CALL_STATE_LOG"
+#define CONFIG_SETTINGS_FILE          "sipXproxy-config"
+#define CONFIG_SETTING_LOG_LEVEL      "SIPX_PROXY_LOG_LEVEL"
+#define CONFIG_SETTING_LOG_CONSOLE    "SIPX_PROXY_LOG_CONSOLE"
+#define CONFIG_SETTING_LOG_DIR        "SIPX_PROXY_LOG_DIR"
+#define CONFIG_SETTING_CALL_STATE     "SIPX_PROXY_CALL_STATE"
+#define CONFIG_SETTING_CALL_STATE_LOG "SIPX_PROXY_CALL_STATE_LOG"
 
+// MACROS
+// EXTERNAL FUNCTIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
 static const char* CONFIG_SETTING_CALL_STATE_DB =
-   "SIP_PROXY_CALL_STATE_DB";
+   "SIPX_PROXY_CALL_STATE_DB";
 static const char* CONFIG_SETTING_CALL_STATE_DB_HOST =
-   "SIP_PROXY_CALL_STATE_DB_HOST";
+   "SIPX_PROXY_CALL_STATE_DB_HOST";
 static const char* CONFIG_SETTING_CALL_STATE_DB_NAME =
-   "SIP_PROXY_CALL_STATE_DB_NAME";   
+   "SIPX_PROXY_CALL_STATE_DB_NAME";   
 static const char* CONFIG_SETTING_CALL_STATE_DB_USER =
-   "SIP_PROXY_CALL_STATE_DB_USER";   
+   "SIPX_PROXY_CALL_STATE_DB_USER";   
 static const char* CONFIG_SETTING_CALL_STATE_DB_DRIVER =
-   "SIP_PROXY_CALL_STATE_DB_DRIVER";   
+   "SIPX_PROXY_CALL_STATE_DB_DRIVER";   
 static const char* CALL_STATE_DATABASE_HOST =
    "localhost";   
 static const char* CALL_STATE_DATABASE_NAME =
@@ -88,8 +98,13 @@ static const char* CALL_STATE_DATABASE_DRIVER =
     APPEND_STRING.append(TO_HOST); \
     APPEND_STRING.append("</routeTo>\n\t</route>\n");
 
+// STRUCTS
 // TYPEDEFS
 typedef void (*sighandler_t)(int);
+
+#ifndef _WIN32
+using namespace std ;
+#endif
 
 // FUNCTIONS
 extern "C" {
@@ -97,17 +112,47 @@ extern "C" {
     sighandler_t pt_signal( int sig_num, sighandler_t handler );
 }
 
-// GLOBALS
-UtlBoolean gShutdownFlag = FALSE;
+// FORWARD DECLARATIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
+// STATIC VARIABLE INITIALIZATIONS
+// GLOBAL VARIABLE INITIALIZATIONS
+UtlBoolean     gShutdownFlag = FALSE;
+UtlBoolean     gClosingIMDB  = FALSE;
+OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
+
+/* ============================ FUNCTIONS ================================= */
+
+/**
+ * Description:
+ * closes any open connections to the IMDB safely using a mutex lock
+ */
+void
+closeIMDBConnections ()
+{
+    // Critical Section here
+    OsLock lock( *gpLockMutex );
+
+    // now deregister this process's database references from the IMDB
+    // and also ensure that we do not cause this code recursively
+    // specifically SIGABRT or SIGSEGV could cause problems here
+    if ( !gClosingIMDB )
+    {
+        gClosingIMDB = TRUE;
+        // if deleting this causes another problem in this process
+        // the gClosingIMDB flag above will protect us
+        delete SIPDBManager::getInstance();
+    }
+}
 
 /**
  * Description:
  * This is a replacement for signal() which registers a signal handler but sets
- * a flag causing system calls ( namely read() or getchar() ) not to bail out 
- * upon recepit of that signal. We need this behavior, so we must call 
+ * a flag causing system calls ( namely read() or getchar() ) not to bail out
+ * upon receipt of that signal. We need this behavior, so we must call
  * sigaction() manually.
  */
-sighandler_t 
+sighandler_t
 pt_signal( int sig_num, sighandler_t handler)
 {
 #if defined(__pingtel_on_posix__)
@@ -149,6 +194,9 @@ sigHandler( int sig_num )
     }
     OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: closing IMDB connections" );
     OsSysLog::flush();
+
+    // Finally close the IMDB connections
+    closeIMDBConnections();
 }
 
 // Initialize the OsSysLog
@@ -157,15 +205,15 @@ void initSysLog(OsConfigDb* pConfig)
    UtlString logLevel;               // Controls Log Verbosity
    UtlString consoleLogging;         // Enable console logging by default?
    UtlString fileTarget;             // Path to store log file.
-   UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not 
+   UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
-   struct tagPrioriotyLookupTable
+   struct tagPriorityLookupTable
    {
       const char*      pIdentity;
       OsSysLogPriority ePriority;
    };
 
-   struct tagPrioriotyLookupTable lkupTable[] =
+   struct tagPriorityLookupTable lkupTable[] =
    {
       { "DEBUG",   PRI_DEBUG},
       { "INFO",    PRI_INFO},
@@ -176,14 +224,14 @@ void initSysLog(OsConfigDb* pConfig)
       { "ALERT",   PRI_ALERT},
       { "EMERG",   PRI_EMERG},
    };
-   OsSysLog::initialize(0, "SipProxy");
+   OsSysLog::initialize(0, "SipXProxy");
 
 
    //
    // Get/Apply Log Filename
    //
    fileTarget.remove(0) ;
-   if ((pConfig->get(CONFIG_SETTING_LOG_DIR, fileTarget) != OS_SUCCESS) || 
+   if ((pConfig->get(CONFIG_SETTING_LOG_DIR, fileTarget) != OS_SUCCESS) ||
       fileTarget.isNull() || !OsFileSystem::exists(fileTarget))
    {
       bSpecifiedDirError = !fileTarget.isNull() ;
@@ -210,9 +258,7 @@ void initSysLog(OsConfigDb* pConfig)
          OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
       }
 
-      fileTarget = workingDirectory + 
-         OsPathBase::separator +
-         SIP_PROXY_LOG;         
+      fileTarget = workingDirectory + OsPathBase::separator + SIPX_PROXY_LOG_FILE;
    }
    else
    {
@@ -220,9 +266,9 @@ void initSysLog(OsConfigDb* pConfig)
       osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
 
-      fileTarget = fileTarget + 
+      fileTarget = fileTarget +
          OsPathBase::separator +
-         SIP_PROXY_LOG;
+         SIPX_PROXY_LOG_FILE;
    }
    OsSysLog::setOutputFile(0, fileTarget) ;
 
@@ -237,50 +283,50 @@ void initSysLog(OsConfigDb* pConfig)
    }
    logLevel.toUpper();
    OsSysLogPriority priority = PRI_ERR;
-   int iEntries = sizeof(lkupTable)/sizeof(struct tagPrioriotyLookupTable);
+   int iEntries = sizeof(lkupTable)/sizeof(struct tagPriorityLookupTable);
    for (int i=0; i<iEntries; i++)
    {
       if (logLevel == lkupTable[i].pIdentity)
       {
          priority = lkupTable[i].ePriority;
          osPrintf("%s : %s\n", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity) ;
-         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity) ;
+         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s",
+                       CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity) ;
          break;
       }
    }
    OsSysLog::setLoggingPriority(priority);
-   // disable extra logging of every message after parsing
    OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 
    //
    // Get/Apply console logging
    //
-   if ((pConfig->get(CONFIG_SETTING_LOG_CONSOLE, consoleLogging) == 
+   UtlBoolean bConsoleLoggingEnabled = false ;
+   if ((pConfig->get(CONFIG_SETTING_LOG_CONSOLE, consoleLogging) ==
          OS_SUCCESS))
    {
       consoleLogging.toUpper();
       if (consoleLogging == "ENABLE")
       {
-         OsSysLog::enableConsoleOutput(true);        
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_CONSOLE, "ENABLE") ;
-         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, "ENABLE") ;
+         OsSysLog::enableConsoleOutput(true);
+         bConsoleLoggingEnabled = true ;
       }
-      else
-      {
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_CONSOLE, "DISABLE") ;
-         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, "DISABLE") ;
-      }
-   }   
+   }
+
+   osPrintf("%s : %s\n", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
+   OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s",
+                 CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
 
    if (bSpecifiedDirError)
    {
-      OsSysLog::add(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
+      OsSysLog::add(FAC_LOG, PRI_CRIT,
+                    "Cannot access %s directory; please check configuration.",
+                    CONFIG_SETTING_LOG_DIR);
    }
 }
 
-/** The main entry point to the proxy */
 int
-main(int argc, char* argv[])
+main( int argc, char* argv[] )
 {
     // Register Signal handlers to close IMDB
     pt_signal(SIGINT,   sigHandler);    // Trap Ctrl-C on NT
@@ -289,57 +335,55 @@ main(int argc, char* argv[])
     pt_signal(SIGFPE,   sigHandler);    // Floading Point Exception
     pt_signal(SIGSEGV,  sigHandler);    // Address access violations signal 11 
     pt_signal(SIGTERM,  sigHandler);    // Trap kill -15 on UNIX
-#if defined(__pingtel_on_posix__)
+#   if defined(__pingtel_on_posix__)
     pt_signal(SIGHUP,   sigHandler);    // Hangup
     pt_signal(SIGQUIT,  sigHandler); 
-    pt_signal(SIGPIPE,  SIG_IGN);    
+    pt_signal(SIGPIPE,  SIG_IGN);    // Handle TCP Failure
     pt_signal(SIGBUS,   sigHandler); 
     pt_signal(SIGSYS,   sigHandler); 
     pt_signal(SIGXCPU,  sigHandler); 
     pt_signal(SIGXFSZ,  sigHandler);
     pt_signal(SIGUSR1,  sigHandler); 
     pt_signal(SIGUSR2,  sigHandler); 
-#endif
+#   endif
 
-    UtlString argString;
-    UtlBoolean interactiveSet = false;
-
-    for(int argIndex = 1; argIndex < argc; argIndex++)
-    {
-        osPrintf("arg[%d]: %s\n", argIndex, argv[argIndex]);
-        argString = argv[argIndex];
-        NameValueTokenizer::frontBackTrim(&argString, "\t ");
-        if(argString.compareTo("-v") == 0)
-        {
-            osPrintf("Version: %s %s\n", SIPX_VERSION, SIPX_BUILD);
-            return(1);
-        }
-        else if( argString.compareTo("-i") == 0)
-        {
-           interactiveSet = true;
-           osPrintf("Entering Interactive Mode\n");
-        }
-         else
-         {
+   UtlBoolean interactiveSet = false;
+   UtlString argString;
+   for(int argIndex = 1; argIndex < argc; argIndex++)
+   {
+       osPrintf("arg[%d]: %s\n", argIndex, argv[argIndex]);
+       argString = argv[argIndex];
+       NameValueTokenizer::frontBackTrim(&argString, "\t ");
+       if(argString.compareTo("-v") == 0)
+       {
+           osPrintf("Version: %s %s\n", SIPX_VERSION, SIPX_BUILD);
+           return(1);
+       } else if( argString.compareTo("-i") == 0)
+       {
+          interactiveSet = true;
+          osPrintf("Entering Interactive Mode\n");
+       } else
+       {
             osPrintf("usage: %s [-v] [-i]\nwhere:\n -v provides the software version\n"
                " -i starts the server in an interactive mode\n",
-            argv[0]);
-            return(1);
-         }
-    }
-   
+               argv[0]);
+           return(1);
+       }
+   }
 
     int proxyTcpPort;
     int proxyUdpPort;
     int proxyTlsPort;
     UtlString bindIp;
+    int maxForwards;    
     UtlString domainName;
     UtlString proxyRecordRoute;
-    int maxForwards;
-
+    UtlString routeName;
+    UtlString authScheme;    
     UtlString ipAddress;
 
     OsSocket::getHostIp(&ipAddress);
+
 
     OsPath DomainConfigfileName = SipXecsService::domainConfigPath();
     OsConfigDb domainConfigDb;
@@ -350,7 +394,7 @@ main(int argc, char* argv[])
     }
 
     OsPath ConfigfileName = SipXecsService::Path(SipXecsService::ConfigurationDirType,
-                                                 "proxy-config");
+                                                 CONFIG_SETTINGS_FILE);
     OsConfigDb configDb;
 
     if(OS_SUCCESS != configDb.loadFromFile(ConfigfileName))
@@ -362,20 +406,16 @@ main(int argc, char* argv[])
     BranchId::setSecret(LoopDetectionSecret);
     
     // Initialize the OsSysLog...
-    initSysLog(&configDb);    
+    initSysLog(&configDb);
 
-    OsSysLog::add(FAC_SIP, PRI_INFO, ">>>>>>>>>>>>>>>> Starting - version %s build %s",
-                  SIPX_VERSION, SIPX_BUILD
-                  );
-
-    configDb.get("SIP_PROXY_DOMAIN_NAME", domainName);
+    configDb.get("SIPX_PROXY_DOMAIN_NAME", domainName);
     if(domainName.isNull())
     {
         domainName = ipAddress;
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_DOMAIN_NAME : %s", domainName.data());
-    osPrintf("SIP_PROXY_DOMAIN_NAME : %s\n", domainName.data());
-
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_DOMAIN_NAME : %s", domainName.data());
+    osPrintf("SIPX_PROXY_DOMAIN_NAME : %s\n", domainName.data());
+    
     configDb.get(CONFIG_SETTING_BIND_IP, bindIp);
     if ((bindIp.isNull()) || !OsSocket::isIp4Address(bindIp))
     {
@@ -385,152 +425,81 @@ main(int argc, char* argv[])
           bindIp.data());
     osPrintf("%s: %s", CONFIG_SETTING_BIND_IP, bindIp.data());    
 
-    proxyUdpPort = configDb.getPort("SIP_PROXY_UDP_PORT") ;
+    proxyUdpPort = configDb.getPort("SIPX_PROXY_UDP_PORT");
     if (!portIsValid(proxyUdpPort))
     {
        proxyUdpPort = 5060;
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_UDP_PORT : %d", proxyUdpPort);
-    proxyTcpPort = configDb.getPort("SIP_PROXY_TCP_PORT") ;
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_UDP_PORT : %d", proxyUdpPort);
+    proxyTcpPort = configDb.getPort("SIPX_PROXY_TCP_PORT") ;
     if (!portIsValid(proxyTcpPort))
     {
        proxyTcpPort = 5060;
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_TCP_PORT : %d", proxyTcpPort);
-    proxyTlsPort = configDb.getPort("SIP_PROXY_TLS_PORT") ;
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_TCP_PORT : %d", proxyTcpPort);
+    proxyTlsPort = configDb.getPort("SIPX_PROXY_TLS_PORT") ;
     if (!portIsValid(proxyTlsPort))
     {
        proxyTlsPort = 5061;
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_TLS_PORT : %d", proxyTlsPort);
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_TLS_PORT : %d", proxyTlsPort);
 
-    configDb.get("SIP_PROXY_RECORD_ROUTE", proxyRecordRoute);
-    UtlBoolean recordRouteEnabled = FALSE;
-    proxyRecordRoute.toLower();
-    if(proxyRecordRoute.compareTo("enable") == 0)
-    {
-        recordRouteEnabled = TRUE;
-        OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_RECORD_ROUTE : ENABLE");
-        osPrintf("SIP_PROXY_RECORD_ROUTE : ENABLE\n");
-    }    
-
-    configDb.get("SIP_PROXY_MAX_FORWARDS", maxForwards);
+    configDb.get("SIPX_PROXY_MAX_FORWARDS", maxForwards);
     if(maxForwards <= 0) maxForwards = SIP_DEFAULT_MAX_FORWARDS;
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_MAX_FORWARDS : %d", maxForwards);
-    osPrintf("SIP_PROXY_MAX_FORWARDS : %d\n", maxForwards);
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_MAX_FORWARDS : %d", maxForwards);
+    osPrintf("SIPX_PROXY_MAX_FORWARDS : %d\n", maxForwards);
 
     int branchTimeout = -1;
-    configDb.get("SIP_PROXY_BRANCH_TIMEOUT", branchTimeout);
+    configDb.get("SIPX_PROXY_BRANCH_TIMEOUT", branchTimeout);
     if(branchTimeout < 4)
     {
         branchTimeout = 24;
     }
 
-    UtlBoolean authEnabled = TRUE;
-    UtlString authServerEnabled;
-    configDb.get("SIP_PROXY_USE_AUTH_SERVER", authServerEnabled);
-    authServerEnabled.toLower();
-    if(authServerEnabled.compareTo("disable") == 0)
-    {
-        authEnabled = FALSE;
-    }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_USE_AUTH_SERVER : %s", authEnabled ? "ENABLE" : "DISABLE");
-    osPrintf("SIP_PROXY_USE_AUTH_SERVER : %s\n", authEnabled ? "ENABLE" : "DISABLE");
-
-    UtlString authServer;
-    configDb.get("SIP_PROXY_AUTH_SERVER", authServer);
-    if(authEnabled &&
-       authServer.isNull())
-    {
-        authServer = ipAddress;
-        authServer.append(":5080");
-    }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_AUTH_SERVER : %s", authServer.data());
-    osPrintf("SIP_PROXY_AUTH_SERVER : %s\n", authServer.data());
-
     int defaultExpires;
     int defaultSerialExpires;
-    configDb.get("SIP_PROXY_DEFAULT_EXPIRES", defaultExpires);
-    configDb.get("SIP_PROXY_DEFAULT_SERIAL_EXPIRES", defaultSerialExpires);
+    configDb.get("SIPX_PROXY_DEFAULT_EXPIRES", defaultExpires);
+    configDb.get("SIPX_PROXY_DEFAULT_SERIAL_EXPIRES", defaultSerialExpires);
     if(defaultExpires <= 0 ||
        defaultExpires > 180) defaultExpires = 180;
     if(defaultSerialExpires <= 0 ||
        defaultSerialExpires >= defaultExpires) defaultSerialExpires = 20;
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_DEFAULT_EXPIRES : %d", defaultExpires);
-    osPrintf("SIP_PROXY_DEFAULT_EXPIRES : %d\n", defaultExpires);
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_DEFAULT_SERIAL_EXPIRES : %d", defaultSerialExpires);
-    osPrintf("SIP_PROXY_DEFAULT_SERIAL_EXPIRES : %d\n", defaultSerialExpires);
-
-    // Set the maximum amount of time that TCP connections can
-    // stay around when they are not used.
-    int      staleTcpTimeout = 3600;
-    UtlString staleTcpTimeoutStr;
-
-    // Check for missing parameter or empty value
-    configDb.get("SIP_PROXY_STALE_TCP_TIMEOUT", staleTcpTimeoutStr);
-    if (staleTcpTimeoutStr.isNull())
-    {
-        staleTcpTimeout = 3600;
-    }
-    else
-    {
-        // get the parameter value as an integer
-        configDb.get("SIP_PROXY_STALE_TCP_TIMEOUT", staleTcpTimeout);
-    }
-
-    if(staleTcpTimeout <= 0) staleTcpTimeout = -1;
-    else if(staleTcpTimeout < 180) staleTcpTimeout = 180;
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_STALE_TCP_TIMEOUT : %d",
-                  staleTcpTimeout);
-    osPrintf("SIP_PROXY_STALE_TCP_TIMEOUT : %d\n", staleTcpTimeout);
-
-    int maxNumSrvRecords = -1;
-    configDb.get("SIP_PROXY_DNSSRV_MAX_DESTS", maxNumSrvRecords);
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_DNSSRV_MAX_DESTS : %d",
-              maxNumSrvRecords);
-    // If explicitly set to a valid number
-    if(maxNumSrvRecords > 0)
-    {
-        osPrintf("SIP_PROXY_DNSSRV_MAX_DESTS : %d\n", maxNumSrvRecords);
-    }
-    else
-    {
-        maxNumSrvRecords = 4;
-    }
-
-    int dnsSrvTimeout = -1; //seconds
-    configDb.get("SIP_PROXY_DNSSRV_TIMEOUT", dnsSrvTimeout);
-        OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_DNSSRV_TIMEOUT : %d",
-                  dnsSrvTimeout);
-    // If explicitly set to a valid number
-    if(dnsSrvTimeout > 0)
-    {
-        osPrintf("SIP_PROXY_DNSSRV_TIMEOUT : %d\n", dnsSrvTimeout);
-    }
-    else
-    {
-        dnsSrvTimeout = 4;
-    }
-
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_DEFAULT_EXPIRES : %d", defaultExpires);
+    osPrintf("SIPX_PROXY_DEFAULT_EXPIRES : %d\n", defaultExpires);
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_DEFAULT_SERIAL_EXPIRES : %d", defaultSerialExpires);
+    osPrintf("SIPX_PROXY_DEFAULT_SERIAL_EXPIRES : %d\n", defaultSerialExpires);
+      
     UtlString hostAliases;
-    configDb.get("SIP_PROXY_HOST_ALIASES", hostAliases);
+    configDb.get("SIPX_PROXY_HOST_ALIASES", hostAliases);
     if(hostAliases.isNull())
     {
-        hostAliases = ipAddress;
-        char portBuf[20];
-        sprintf(portBuf, ":%d", proxyUdpPort);
-        hostAliases.append(portBuf);
+       hostAliases = ipAddress;
+       char portBuf[20];
+       sprintf(portBuf, ":%d", proxyUdpPort);
+       hostAliases.append(portBuf);
+
+       if(!routeName.isNull())
+       {
+          hostAliases.append(" ");
+          hostAliases.append(routeName);
+          char portBuf[20];
+          sprintf(portBuf, ":%d", proxyUdpPort);
+          hostAliases.append(portBuf);
+       }
+       OsSysLog::add(FAC_SIP, PRI_NOTICE,
+                     "SIPX_PROXY_HOST_ALIASES not configured"
+                     " using implied value: %s",
+                     hostAliases.data());
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_HOST_ALIASES : %s",
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_HOST_ALIASES : %s",
                   hostAliases.data());
-    osPrintf("SIP_PROXY_HOST_ALIASES : %s\n", hostAliases.data());
 
     UtlString enableCallStateObserverSetting;
     configDb.get(CONFIG_SETTING_CALL_STATE, enableCallStateObserverSetting);
 
     bool enableCallStateLogObserver;
     if (   (enableCallStateObserverSetting.isNull())
-        || (0== enableCallStateObserverSetting.compareTo("disable", UtlString::ignoreCase))
+        || ((0 == enableCallStateObserverSetting.compareTo("disable", UtlString::ignoreCase)))
         )
     {
        enableCallStateLogObserver = false;
@@ -542,7 +511,7 @@ main(int argc, char* argv[])
     else
     {
        enableCallStateLogObserver = false;
-       OsSysLog::add(FAC_SIP, PRI_ERR, "SipForkingProxyMain invalid configuration value for "
+       OsSysLog::add(FAC_SIP, PRI_ERR, "SipXproxymain:: invalid configuration value for "
                      CONFIG_SETTING_CALL_STATE " '%s' - should be 'enable' or 'disable'",
                      enableCallStateObserverSetting.data()
                      );
@@ -551,6 +520,7 @@ main(int argc, char* argv[])
                   enableCallStateLogObserver ? "ENABLE" : "DISABLE" );
 
     UtlString callStateLogFileName;
+
     if (enableCallStateLogObserver)
     {
        configDb.get(CONFIG_SETTING_CALL_STATE_LOG, callStateLogFileName);
@@ -580,9 +550,9 @@ main(int argc, char* argv[])
     else
     {
        enableCallStateDbObserver = false;
-       OsSysLog::add(FAC_SIP, PRI_ERR, "SipForkingProxyMain:: invalid configuration value for "
-                     "%s '%s' - should be 'enable' or 'disable'", CONFIG_SETTING_CALL_STATE_DB,
-                     enableCallStateDbObserverSetting.data()
+       OsSysLog::add(FAC_SIP, PRI_ERR, "SipAuthProxyMain:: invalid configuration value for %s "
+                     " '%s' - should be 'enable' or 'disable'",
+                     CONFIG_SETTING_CALL_STATE_DB, enableCallStateDbObserverSetting.data()
                      );
     }
     OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_CALL_STATE_DB,
@@ -631,9 +601,61 @@ main(int argc, char* argv[])
     if (enableCallStateLogObserver && enableCallStateDbObserver)
     {
        enableCallStateLogObserver = false;
-       OsSysLog::add(FAC_SIP, PRI_WARNING, "SipForkingProxyMain:: both XML and database call state "
+       OsSysLog::add(FAC_SIP, PRI_WARNING, "SipXproxymain:: both XML and database call state "
                      "logging was enabled - turning off XML log, only use database logging");       
-    }    
+    }
+
+    // Set the maximum amount of time that TCP connections can
+    // stay around when they are not used.
+    int      staleTcpTimeout = 3600;
+    UtlString staleTcpTimeoutStr;
+
+    // Check for missing parameter or empty value
+    configDb.get("SIPX_PROXY_STALE_TCP_TIMEOUT", staleTcpTimeoutStr);
+    if (staleTcpTimeoutStr.isNull())
+    {
+        staleTcpTimeout = 3600;
+    }
+    else
+    {
+        // get the parameter value as an integer
+        configDb.get("SIPX_PROXY_STALE_TCP_TIMEOUT", staleTcpTimeout);
+    }
+
+    if(staleTcpTimeout <= 0) staleTcpTimeout = -1;
+    else if(staleTcpTimeout < 180) staleTcpTimeout = 180;
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_STALE_TCP_TIMEOUT : %d",
+                  staleTcpTimeout);
+    osPrintf("SIPX_PROXY_STALE_TCP_TIMEOUT : %d\n", staleTcpTimeout);
+
+    int maxNumSrvRecords = -1;
+    configDb.get("SIPX_PROXY_DNSSRV_MAX_DESTS", maxNumSrvRecords);
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_DNSSRV_MAX_DESTS : %d",
+              maxNumSrvRecords);
+    // If explicitly set to a valid number
+    if(maxNumSrvRecords > 0)
+    {
+        osPrintf("SIPX_PROXY_DNSSRV_MAX_DESTS : %d\n", maxNumSrvRecords);
+    }
+    else
+    {
+        maxNumSrvRecords = 4;
+    }
+
+    int dnsSrvTimeout = -1; //seconds
+    configDb.get("SIPX_PROXY_DNSSRV_TIMEOUT", dnsSrvTimeout);
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_DNSSRV_TIMEOUT : %d",
+              dnsSrvTimeout);
+    // If explicitly set to a valid number
+    if(dnsSrvTimeout > 0)
+    {
+        osPrintf("SIPX_PROXY_DNSSRV_TIMEOUT : %d\n", dnsSrvTimeout);
+    }
+    else
+    {
+        dnsSrvTimeout = 4;
+    }
+    
     // This is an obnoxious special option to work around a 
     // problem with Sonus gateways.  The Sonus proxy or  redirect
     // server gives a list of possible gateways to recurse in a
@@ -642,14 +664,14 @@ main(int argc, char* argv[])
     // When this option is enabled we recurse only the one with the
     // highest Q value.
     UtlString recurseOnlyOne300String;
-    configDb.get("SIP_PROXY_SPECIAL_300", recurseOnlyOne300String);
+    configDb.get("SIPX_PROXY_SPECIAL_300", recurseOnlyOne300String);
     recurseOnlyOne300String.toLower();
     UtlBoolean recurseOnlyOne300 = FALSE;
     if(recurseOnlyOne300String.compareTo("enable") == 0) 
     {
         recurseOnlyOne300 = TRUE;
-        OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_SPECIAL_300 : ENABLE");
-        osPrintf("SIP_PROXY_SPECIAL_300 : ENABLE\n");
+        OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_SPECIAL_300 : ENABLE");
+        osPrintf("SIPX_PROXY_SPECIAL_300 : ENABLE\n");
     }
 
     // Get the mapped and local domains
@@ -672,9 +694,9 @@ main(int argc, char* argv[])
     // file
     //OsConfigDb mapRulesDb;
    
-
+    
     OsPath fileName = SipXecsService::Path(SipXecsService::ConfigurationDirType,
-                                           FORWARDING_RULES_FILENAME);
+                                            FORWARDING_RULES_FILENAME);
 
     ForwardRules forwardingRules;
 
@@ -695,8 +717,7 @@ main(int argc, char* argv[])
         OsSysLog::add(FAC_SIP, PRI_INFO, "forwarding rules '%s' not found",
             fileName.data());
     }
-
-
+ 
 #ifdef TEST_PRINT
     { // scope the test stuff
         SipMessage foo;
@@ -734,19 +755,21 @@ main(int argc, char* argv[])
                     routeStatus);
     }
 #endif // TEST_PRINT
+    
 
     // Start the sip stack
-    SipUserAgent sipUserAgent(proxyTcpPort, 
+    SipUserAgent sipUserAgent(
+        proxyTcpPort,
         proxyUdpPort,
         proxyTlsPort,
-        NULL, // public IP address (nopt used in proxy)
+        NULL, // public IP address (not used in proxy)
         NULL, // default user (not used in proxy)
         bindIp,
-        (authEnabled && !authServer.isNull()) ? authServer.data() : NULL,
+        NULL, // outbound proxy
         NULL, // directory server
         NULL, // registry server
         NULL, // auth scheme
-        NULL, //auth realm
+        NULL, // auth realm
         NULL, // auth DB
         NULL, // auth user IDs
         NULL, // auth passwords
@@ -757,34 +780,29 @@ main(int argc, char* argv[])
         SIP_DEFAULT_RTT, // first resend timeout
         TRUE, // default to UA transaction
         SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE, // socket layer read buffer size
-        SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE // OsServerTask message queue size
-        );
+        SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE, // OsServerTask message queue size
+        FALSE, // Use Next Available Port
+        TRUE,  // Perform message checks 
+        // :TODO:
+        // Next arg is set to FALSE temporarily because TRUE causes some malfunctions
+        // in SipClientUdp.  In the long run, we want to use symmetric signaling.
+        FALSE ); // Do not symmetric signaling
     sipUserAgent.setIsUserAgent(FALSE);
-    sipUserAgent.setUserAgentHeaderProperty("sipX/forkingproxy");
-    sipUserAgent.setMaxForwards(maxForwards);
     sipUserAgent.setDnsSrvTimeout(dnsSrvTimeout);
     sipUserAgent.setMaxSrvRecords(maxNumSrvRecords);
-
+    sipUserAgent.setUserAgentHeaderProperty("sipX/sipXproxy");
+    sipUserAgent.setMaxForwards(maxForwards);
     sipUserAgent.setDefaultExpiresSeconds(defaultExpires);
     sipUserAgent.setDefaultSerialExpiresSeconds(defaultSerialExpires);
     sipUserAgent.setMaxTcpSocketIdleTime(staleTcpTimeout);
     sipUserAgent.setHostAliases(hostAliases);
     sipUserAgent.setRecurseOnlyOne300Contact(recurseOnlyOne300);
-    sipUserAgent.start();
-
+    
     UtlString buffer;
 
-    // Create and start a router to route stuff either
-    // to a local server or on out to the real world
-    SipRouter router(sipUserAgent, 
-                    forwardingRules,
-                    authEnabled, 
-                    authServer.data(), 
-                    recordRouteEnabled);
-    router.start();
-
-    ForkingProxyCseObserver* cseObserver = NULL;
-    CallStateEventWriter* pEventWriter = NULL;
+    // Create the CSE observer, either writing to file or database
+    SipXProxyCseObserver* cseObserver = NULL;
+    CallStateEventWriter* pEventWriter = NULL;    
     if (enableCallStateLogObserver)
     {
        // Set up the call state event log file
@@ -811,58 +829,78 @@ main(int argc, char* argv[])
        domainName.append(portString);
        
        // and start the observer
-       cseObserver = new ForkingProxyCseObserver(sipUserAgent, domainName, pEventWriter);
+       cseObserver = new SipXProxyCseObserver(sipUserAgent, domainName, pEventWriter);
        cseObserver->start();
     }
     else
     {
       // Only log error if any event logging was enabled
       if (enableCallStateLogObserver || enableCallStateDbObserver)
-      {
+      {      
          OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "SipForkingProxyMain:: EventWriter could not be allocated"
-                      );
+                       "SipAuthProxyMain:: EventWriter could not be allocated"
+                       );
          enableCallStateLogObserver = false;
          enableCallStateDbObserver = false;
       }
-    }   
-    
+    }
+
+    // Create a router to route stuff either
+    // to a local server or on out to the real world
+    SipRouter router(sipUserAgent, 
+                    forwardingRules,
+                    configDb);
+
+    // Start the router running
+    router.start();
+
     // Do not exit, let the proxy do its stuff
     while( !gShutdownFlag )
     {
-      if( interactiveSet)
-      {
-         int charCode = getchar();
+        if( interactiveSet)
+        {
+            int charCode = getchar();
 
-         if(charCode != '\n' && charCode != '\r')
-         {
-            if( charCode == 'e')
+            if(charCode != '\n' && charCode != '\r')
             {
-               OsSysLog::enableConsoleOutput(TRUE);
-            }
-            else if( charCode == 'd')
-            {
-               OsSysLog::enableConsoleOutput(FALSE);
-            }
+                if( charCode == 'e')
+                {
+                    OsSysLog::enableConsoleOutput(TRUE);
+                }
 #ifdef BOUNDS_CHECKER
-            else if( charCode == 'b')
-            {
-              NMMemPopup( );
-            }
-#endif
-            else
-            {
+                else if( charCode == 'b')
+                {
+                  NMMemPopup( );
+                }
+#endif                
+                else if( charCode == 'd')
+                {
+                    OsSysLog::enableConsoleOutput(FALSE);
+                }
+                else
+                {
 #if 0
-               sipUserAgent.printStatus();
+                    sipUserAgent.printStatus();
 #endif
-               sipUserAgent.getMessageLog(buffer);
-               printf("=================>\n%s\n", buffer.data());
+                    sipUserAgent.getMessageLog(buffer);
+                    printf("=================>\n%s\n", buffer.data());
+                }
             }
-         }
-      }
-      else
-         OsTask::delay(2000);
+        }
+        else
+        {
+            OsTask::delay(2000);
+        }
     }
+ 
+    // This is a server task so gracefully shutdown the
+    // router task using the waitForShutdown method, this
+    // will implicitly request a shutdown for us if one is
+    // not already in progress
+    router.requestShutdown();
+
+    // now deregister this process's database references from the IMDB
+    closeIMDBConnections();
 
     // flush and close the call state event log
     if (enableCallStateLogObserver || enableCallStateDbObserver)
@@ -880,5 +918,5 @@ main(int argc, char* argv[])
     // Flush the log file
     OsSysLog::flush();
 
-    return(1);
+    return 1;
 }

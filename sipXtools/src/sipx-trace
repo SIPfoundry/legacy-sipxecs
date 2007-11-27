@@ -12,7 +12,7 @@ Output=""
 User=admin
 Password=
 
-DefaultComponents="sipproxy sipauthproxy sipregistrar"
+DefaultComponents="sipXproxy sipregistrar"
 Components=""
 
 dump=cat

@@ -11,7 +11,7 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include "AuthProxyCseObserver.h"
+#include "SipXProxyCseObserver.h"
 #include <net/SipUserAgent.h>
 #include <os/OsDateTime.h>
 #include "os/OsEventMsg.h"
@@ -23,7 +23,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-const int AuthProxyCallStateFlushInterval = 20; /* seconds */
+const int SipXProxyCallStateFlushInterval = 20; /* seconds */
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -32,23 +32,20 @@ const int AuthProxyCallStateFlushInterval = 20; /* seconds */
 /* ============================ CREATORS ================================== */
 
 // Constructor
-AuthProxyCseObserver::AuthProxyCseObserver(SipUserAgent&         sipUserAgent,
+SipXProxyCseObserver::SipXProxyCseObserver(SipUserAgent&         sipUserAgent,
                                            const UtlString&      dnsName,
                                            CallStateEventWriter* pWriter
                                            ) :
-   OsServerTask("AuthProxyCseObserver-%d", NULL, 2000),
+   OsServerTask("SipXProxyCseObserver-%d", NULL, 2000),
    mpSipUserAgent(&sipUserAgent),
    mpBuilder(NULL),
    mpWriter(pWriter),
    mSequenceNumber(0),
-   mFlushTimer(mTimerEvent),
-   mTimerEvent(*getMessageQueue(), 0)
+   mFlushTimer(getMessageQueue(), 0)
 {
    OsTime timeNow;
    OsDateTime::getCurTime(timeNow);
-   
    UtlString event;
-   // Define AuthProxyCseObserver as string constant
    
    if (mpWriter)
    {
@@ -66,13 +63,13 @@ AuthProxyCseObserver::AuthProxyCseObserver(SipUserAgent&         sipUserAgent,
          if (pWriter->openLog())
          {
             mpBuilder->observerEvent(mSequenceNumber, timeNow, CallStateEventBuilder::ObserverReset,
-                                     "AuthProxyCseObserver");      
+                                     "SipXProxyCseObserver");      
             mpBuilder->finishElement(event);      
 
             if (!mpWriter->writeLog(event.data()))
             {      
                OsSysLog::add(FAC_SIP, PRI_ERR,
-                             "AuthProxyCseObserver initial event log write failed - disabling writer");
+                             "SipXProxyCseObserver initial event log write failed - disabling writer");
                mpWriter = NULL;                 
             }
             else
@@ -83,7 +80,7 @@ AuthProxyCseObserver::AuthProxyCseObserver(SipUserAgent&         sipUserAgent,
          else
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
-                          "AuthProxyCseObserver initial event log write failed - disabling writer");
+                          "SipXProxyCseObserver initial event log write failed - disabling writer");
             mpWriter = NULL;
             
             // Set correct state even if nothing is written
@@ -94,7 +91,7 @@ AuthProxyCseObserver::AuthProxyCseObserver(SipUserAgent&         sipUserAgent,
    }
 
    // set up periodic timer to flush log file
-   mFlushTimer.periodicEvery(OsTime(), OsTime(AuthProxyCallStateFlushInterval, 0)) ;
+   mFlushTimer.periodicEvery(OsTime(), OsTime(SipXProxyCallStateFlushInterval, 0)) ;
 
   // Register to get incoming requests
    sipUserAgent.addMessageObserver(*getMessageQueue(),
@@ -130,7 +127,7 @@ AuthProxyCseObserver::AuthProxyCseObserver(SipUserAgent&         sipUserAgent,
 }
 
 // Destructor
-AuthProxyCseObserver::~AuthProxyCseObserver()
+SipXProxyCseObserver::~SipXProxyCseObserver()
 {
    mFlushTimer.stop();
    
@@ -148,7 +145,7 @@ AuthProxyCseObserver::~AuthProxyCseObserver()
 
 /* ============================ MANIPULATORS ============================== */
 
-UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
+UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
 {
    int msgType = eventMessage.getMsgType();
    switch (msgType)
@@ -172,7 +169,7 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
       if(SipMessageEvent::TRANSPORT_ERROR == ((SipMessageEvent&)eventMessage).getMessageStatus())
       {
          OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "AuthProxyCseObserver::handleMessage transport error");
+                       "SipXProxyCseObserver::handleMessage transport error");
       }
       else if((sipMsg = (SipMessage*)((SipMessageEvent&)eventMessage).getMessage()))
       {
@@ -180,22 +177,36 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
          int       rspStatus = 0;
          UtlString rspText;
          UtlString contact;
-
+         UtlString toTag;
+         
          enum 
             {
                UnInteresting,
+               aCallRequest,
                aCallSetup,
                aCallFailure,
                aCallEnd,
                aCallTransfer
             } thisMsgIs = UnInteresting;
          
+         Url toUrl;
+         sipMsg->getToUrl(toUrl);
+         // explicitly, an INVITE Request
+         toUrl.getFieldParameter("tag", toTag);
+
          if (!sipMsg->isResponse())
          {
             // sipMsg is a Request
             sipMsg->getRequestMethod(&method);
 
-            if (0==method.compareTo(SIP_REFER_METHOD, UtlString::ignoreCase))
+            if (0==method.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase))
+            {
+               if (toTag.isNull())
+               {
+                  thisMsgIs = aCallRequest;
+               }
+            }
+            else if (0==method.compareTo(SIP_REFER_METHOD, UtlString::ignoreCase))
             {
                thisMsgIs = aCallTransfer;
                sipMsg->getContactEntry(0, &contact);               
@@ -216,15 +227,22 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
             {
                if (0==method.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase))
                {
-                  // this is an INVITE response - might be either a Failure or a Setup
+                  // Responses to INVITES are handled differently based on whether
+                  // or not the INVITE is dialog-forming.  If dialog-forming,
+                  // any final response above 400 is considered a failure for CDR
+                  // purposes.  If not dialog-forming, then any final response above 400
+                  // except 401 Unauthorized, 407 Proxy Authentication Required and 
+                  // 408 Request Timeout
 
                   rspStatus = sipMsg->getResponseStatusCode();
                   if (   (rspStatus >= SIP_4XX_CLASS_CODE) // any failure
-                      // except for these three
-                      && ! (   (rspStatus == HTTP_UNAUTHORIZED_CODE)
+                      // except for these three on non-dialog-froming INVITES
+                      && ( toTag.isNull() ||
+                         ! (   (rspStatus == HTTP_UNAUTHORIZED_CODE)
                             || (rspStatus == HTTP_PROXY_UNAUTHORIZED_CODE)
                             || (rspStatus == SIP_REQUEST_TIMEOUT_CODE)
                             )
+                          )
                       )
                   {
                      // a final failure - this is a CallFailure
@@ -246,15 +264,16 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR, "AuthProxyCseObserver - no Cseq in response");
+               OsSysLog::add(FAC_SIP, PRI_ERR, "SipXProxyCseObserver - no Cseq in response");
             }
          }
 
 #        ifdef LOG_DEBUG
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "AuthProxyCseObserver message is %s",
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipXProxyCseObserver message is %s",
                        (  thisMsgIs == UnInteresting ? "UnInteresting"
                         : thisMsgIs == aCallEnd      ? "a Call End"
                         : thisMsgIs == aCallFailure  ? "a Call Failure"
+                        : thisMsgIs == aCallRequest  ? "a call Request"      
                         : thisMsgIs == aCallSetup    ? "a Call Setup"
                         : thisMsgIs == aCallTransfer ? "a Call Transfer"
                         : "BROKEN"
@@ -306,6 +325,10 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
             {
                switch (thisMsgIs)
                {
+               case aCallRequest:
+                  mpBuilder->callRequestEvent(mSequenceNumber, timeNow, contact);
+                  break;
+                  
                case aCallSetup:
                   mpBuilder->callSetupEvent(mSequenceNumber, timeNow, contact);
                   break;
@@ -325,7 +348,7 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
    
                default:
                   // shouldn't be possible to get here
-                  OsSysLog::add(FAC_SIP, PRI_ERR, "AuthProxyCseObserver invalid thisMsgIs");
+                  OsSysLog::add(FAC_SIP, PRI_ERR, "SipXProxyCseObserver invalid thisMsgIs");
                   break;
                }
    
@@ -349,20 +372,20 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR, "AuthProxyCseObserver - no CallStateEventBuilder!");               
+               OsSysLog::add(FAC_SIP, PRI_ERR, "SipXProxyCseObserver - no CallStateEventBuilder!");               
             }
          }
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "AuthProxyCseObserver getMessage returned NULL");
+         OsSysLog::add(FAC_SIP, PRI_ERR, "SipXProxyCseObserver getMessage returned NULL");
       }
    }
    break;
    
    default:
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "AuthProxyCseObserver invalid message type %d", msgType );
+      OsSysLog::add(FAC_SIP, PRI_ERR, "SipXProxyCseObserver invalid message type %d", msgType );
    }
    } // end switch (msgType)
    

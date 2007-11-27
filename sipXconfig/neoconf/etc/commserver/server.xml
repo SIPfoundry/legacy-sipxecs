@@ -55,15 +55,15 @@
       <type />
       <value />
     </setting>
-    <setting name="SIP_PROXY_DEFAULT_SERIAL_EXPIRES" advanced="yes">
-      <profileName>proxy-config.in</profileName>
+    <setting name="SIPX_PROXY_DEFAULT_SERIAL_EXPIRES" advanced="yes">
+      <profileName>sipXproxy-config.in</profileName>
       <type>
         <integer />
       </type>
       <value>20</value>
     </setting>
-    <setting name="SIP_PROXY_DEFAULT_EXPIRES" advanced="yes">
-      <profileName>proxy-config.in</profileName>
+    <setting name="SIPX_PROXY_DEFAULT_EXPIRES" advanced="yes">
+      <profileName>sipXproxy-config.in</profileName>
       <type>
         <integer />
       </type>
@@ -196,13 +196,8 @@
     </setting>
   </group>
   <group name="Logging">
-    <setting name="SIP_AUTHPROXY_LOG_LEVEL">
-      <profileName>authproxy-config.in</profileName>
-      <type refid="loglevel" />
-      <value>NOTICE</value>
-    </setting>
-    <setting name="SIP_PROXY_LOG_LEVEL">
-      <profileName>proxy-config.in</profileName>
+    <setting name="SIPX_PROXY_LOG_LEVEL">
+      <profileName>sipXproxy-config.in</profileName>
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

@@ -135,29 +135,17 @@ Call State Event Database Design Specification
           Either XML or database option must be set for logging. If both 
           are set only the database option will take effect.
 
-        Configuration parameters in authproxy-config.in are: 
+        Configuration parameters in sipXproxy-config.in are: 
   
-        - SIP_AUTHPROXY_CALL_STATE_DB : DISABLE/ENABLE
+        - SIPX_PROXY_CALL_STATE_DB : DISABLE/ENABLE
 
             ENABLE will direct CSE logging to PostgreSQL database "SIPXCDR".
             (default: DISABLE)
 
-        - SIP_AUTHPROXY_CALL_STATE_DB_HOST : [hostname]
+        - SIPX_PROXY_CALL_STATE_DB_HOST : [hostname]
 
             If not specified will default to "localhost", can be used in the 
             future to have CSE database located on another server.
-
-        Configuration parameters in proxy-config.in are: 
-  
-        - SIP_PROXY_CALL_STATE_DB : DISABLE/ENABLE
-
-            ENABLE will direct CSE logging to PostgreSQL database "SIPXCDR".
-            (default: DISABLE)
-
-        - SIP_PROXY_CALL_STATE_DB_HOST : [hostname]
-
-            If not specified will default to "localhost", can be used in the
-            future to have CSE database located on  another server.
 
 
     5. Implement call state database logging for Forking/Auth proxy

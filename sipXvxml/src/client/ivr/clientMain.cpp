@@ -10,7 +10,6 @@
 static const char *rcsid = 0 ? (char *) &rcsid :
 "";
 
-
 // System includes
 #include <iostream>
 #include <stdio.h>
@@ -24,8 +23,6 @@ static const char *rcsid = 0 ? (char *) &rcsid :
 #include <unistd.h>
 #include "os/linux/OsUtilLinux.h"
 #endif
-
-
 
 #include "os/OsFS.h"
 

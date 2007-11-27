@@ -161,7 +161,7 @@ void SipTcpServer::createServerSocket(const char* szBindAddr,
 // Destructor
 SipTcpServer::~SipTcpServer()
 {
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipClientTcp[%s]::~ called",
                   mName.data());
 
@@ -207,12 +207,14 @@ void SipTcpServer::shutdownListener()
 
 OsSocket* SipTcpServer::buildClientSocket(int hostPort,
                                           const char* hostAddress,
-                                          const char* localIp)
+                                          const char* localIp,
+                                          bool& existingSocketReused)
 {
     // Create a socket in non-blocking mode while connecting
     OsConnectionSocket* socket =
        new OsConnectionSocket(hostPort, hostAddress, FALSE, localIp, 0);
     socket->makeBlocking();
+    existingSocketReused = false;
     return(socket);
 }
 

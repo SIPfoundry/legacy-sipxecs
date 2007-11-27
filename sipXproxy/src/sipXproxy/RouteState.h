@@ -71,7 +71,7 @@ class RouteStateTest;
  *
  * To access the state in a message, construct a RouteState object, passing
  * the message and any Route headers removed by SipMessage::normalizeProxyRoutes to
- * the constructor.  SipAaa::proxyMessage uses the update method to put the updated
+ * the constructor.  SipRouter::proxyMessage uses the update method to put the updated
  * state back into the message.
  *
  * @Note  A dialog-forming request that passes through the same sipXauthproxy more than
@@ -95,7 +95,16 @@ class RouteState
 
    /// Decode the route state for a received message.
    RouteState(const SipMessage& message,      ///< normalized incoming message
-              const UtlSList&   removedRoutes ///< removed routes returned by normalizeProxyRoutes
+              const UtlSList&   removedRoutes,///< removed routes returned by normalizeProxyRoutes
+              const UtlString   routeName     /**< The SIP address to use in the added route.
+                                                *  It may include only:
+                                                *  - scheme (optional, defaults to 'sip'),
+                                                *  - host (required, may be name or address),
+                                                *  - port (optional, defaults to unspecified)
+                                                *  These values need not match those received in a
+                                                *  spiraled request; if they do not, the new values
+                                                *  are used.
+                                                */
               );
    /**<
     * This method must be called after the received request has
@@ -157,6 +166,15 @@ class RouteState
       return mMayBeMutable;
    }
    
+   bool isFound()
+   {
+   /**<
+    * @returns true if the route set contains RouteState information, 
+    * otherwise returns false.
+    */
+      return mFoundRouteState;
+   }
+   
    /// Stores the value of a parameter in the route state.
    void setParameter(const char*       pluginInstance,
                      const char*       parameterName,  
@@ -179,17 +197,7 @@ class RouteState
     */
 
    /// Add or update the state in the Record-Route header.
-   void update(SipMessage* request,         ///< message to add state too, if state was modified
-               const UtlString routeAddress /**<
-                                             * The SIP address to use in the added route.
-                                             * It may include only:
-                                             * - scheme (optional, defaults to 'sip'),
-                                             * - host (required, may be name or address),
-                                             * - port (optional, defaults to unspecified)
-                                             * These values need not match those received in a
-                                             * spiraled request; if they do not, the new values
-                                             * are used.
-                                             */
+   void update(SipMessage* request         ///< message to add state too, if state was modified
                );
    /**<
     * This has no effect other than logging an error if isMutable would return false.
@@ -232,23 +240,31 @@ class RouteState
   private:
    static const char* UrlParameterName;
    
+   UtlString  mRouteHostPort; /**< hostport value to use when adding Record-Route headers
+                              */
    bool       mMayBeMutable; /**<
-                              * true iff all of the following:
-                              * - There was no 'to' tag on the request
+                              * true iff
+                              * - There was no 'to' tag on the request, and
                               * - Any state in the request was in a Route header
                               *   (not a Record-Route header).
                               */
    size_t     mRecordRouteIndex; /**<
                                   * Used only if mMayBeMutable == true
                                   * This is the index of the Record-Route header that
-                                  * contains the state for this dialog, so that we know
-                                  * which one to update.
+                                  * contains a route matching the mRouteHostPort.  That
+                                  * Record-Route header may or may not contain
+                                  * Route State parameters.
                                   */
    bool       mModified; /**<
                           * Used only if mMayBeMutable == true
                           * Tracks whether or not any changes have been made to the state,
                           * so that we know whether or not to rewrite it in the update method.
                           */
+   
+   bool       mFoundRouteState; /**<
+                                 * Indicates if a RouteState has been found in the route set supplied
+                                 * at construction time.
+                                 */
    
    UtlSortedList mValues; ///< contains NameValuePair objects
 

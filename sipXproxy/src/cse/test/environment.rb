@@ -104,51 +104,45 @@ def createCredentials
   fileObj.close
 end
 
-# Start proxy and authproxy, clear any old logs
+# Start proxy, clear any old logs
 
 def startServices
   logs = $prefix + "/var/log/sipxpbx/*";
-  proxyStartup = $prefix + "/bin/sipproxy &"
-  authproxyStartup = $prefix + "/bin/sipauthproxy&"
+  proxyStartup = $prefix + "/bin/sipXproxy &"
   
   puts "Removing logs..." if $verbose
 
   system("sudo rm -rf #{logs}")
 
-  puts "Starting services..." if $verbose
+  puts "Starting proxy service..." if $verbose
 
   fork do exec(proxyStartup) end
-  fork do exec(authproxyStartup) end
 
-  # Give them time to start up
+  # Give it time to start up
   sleep 1
 
-  # Do a funky way of retrieving PID forp roxy and authproxy,
+  # Do a funky way of retrieving PID for sipXproxy,
   # later stop them by killing them. This is necessary because
   # there seems to be no way to programmatically retrieve
   # a process id of an external process. A 'spawn' function
   # that returns the PID of an external process is promised
   # for Ruby 1.9.
 
-  shellReturn = `ps -C sipproxy | cut -d ' ' -f 1`
+  shellReturn = `ps -C sipXproxy | cut -d ' ' -f 1`
   proxyPidString = shellReturn.strip
-  shellReturn = `ps -C sipauthproxy | cut -d ' ' -f 1`
-  authproxyPidString = shellReturn.strip
 
   $proxyPid = proxyPidString.to_i
-  $authproxyPid = authproxyPidString.to_i
 
-  puts "Running processes #{$proxyPid}, #{$authproxyPid}" \
+  puts "Running processes #{$proxyPid}" \
     if $verbose
-  $proxyPid != 0 && $authproxyPid !=0
+  $proxyPid != 0
 end
 
 def stopServices
-  puts "Stopping services (#{$proxyPid} #{$authproxyPid})" \
+  puts "Stopping services (#{$proxyPid})" \
     if $verbose
 
   Process.kill(3, $proxyPid)
-  Process.kill(3, $authproxyPid)
   
   # Give them time to shut down
   sleep 1
@@ -158,18 +152,14 @@ def checkForZombieProxies
   puts "Checking for zombie proxies" if $verbose
 
   proxyPidString = ''
-  authproxyPidString = ''
 
-  shellReturn = `ps -C sipproxy | cut -d ' ' -f 1`
+  shellReturn = `ps -C sipXproxy | cut -d ' ' -f 1`
   proxyPidString = shellReturn.strip
-  shellReturn = `ps -C sipauthproxy | cut -d ' ' -f 1`
-  authproxyPidString = shellReturn.strip
 
   proxyPid = proxyPidString.to_i
-  authproxyPid = authproxyPidString.to_i
 
-  puts "Leftover processes #{proxyPid} #{authproxyPid}" \
+  puts "Leftover process #{proxyPid}" \
     if $verbose
 
-  proxyPid == 0 && authproxyPid == 0
+  proxyPid == 0
 end

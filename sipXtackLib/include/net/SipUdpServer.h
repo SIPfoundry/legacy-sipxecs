@@ -90,7 +90,8 @@ protected:
 
     OsSocket* buildClientSocket(int hostPort,
                                 const char* hostAddress,
-                                const char* localIp);
+                                const char* localIp,
+                                bool& existingSocketReused);
 
     // Caller must hold mClientLock.
     void printStatus();

@@ -7,6 +7,7 @@ INCLUDES = \
 # These tests are split into multiple executables because the machinery
 # for setting up an alternative registration database can be executed
 # only once in an executable.
+#TESTS = testsuite1 testsuite2 testsuite3
 TESTS = 
 
 check_PROGRAMS = testsuite1 testsuite2 testsuite3 sandbox

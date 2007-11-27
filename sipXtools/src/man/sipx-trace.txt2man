@@ -25,8 +25,8 @@ DESCRIPTION
 OPTIONS
 -------
 --component specifies one or more components (if more than one, quote and separate
-            with spaces as: -c "sipproxy sipregistrar").  May be repeated to add more.
-            If unspecified, defaults to "sipproxy sipregistrar sipauthproxy", which
+            with spaces as: -c "sipXproxy sipregistrar").  May be repeated to add more.
+            If unspecified, defaults to "sipXproxy sipregistrar", which
             is usually enough to figure out where messages went and why.
 
 --prefix    File prefix if specified in the configure script.

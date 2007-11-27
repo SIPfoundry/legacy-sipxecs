@@ -189,7 +189,7 @@ SipClient::SipClient(OsSocket* socket,
 // Destructor
 SipClient::~SipClient()
 {
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipClient[%s]::~ called",
                   mName.data());
 
@@ -446,7 +446,12 @@ int SipClient::run(void* runArg)
       fds[1].revents = 0;
 
       fds[0].events = POLLIN;
-      fds[1].events = POLLIN;
+      // Read the socket only if the socket is not shared.
+      // If it is shared, the ancestral SipClient will read it.
+      // If multiple threads attempt to read the socket, poll() may
+      // succeed but another may read the data, leaving us to block on
+      // read.
+      fds[1].events = mbSharedSocket ? 0 : POLLIN;
 
       // Set wait for writing the socket if there is queued messages to
       // send.
@@ -700,7 +705,7 @@ UtlBoolean SipClient::waitForReadyToRead()
 // owning server that it has done so.
 void SipClient::clientStopSelf()
 {
-   OsSysLog::add(FAC_SIP, PRI_INFO,
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipClient[%s]::clientStopSelf called",
                  mName.data());
 

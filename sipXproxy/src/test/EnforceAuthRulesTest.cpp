@@ -19,8 +19,8 @@
 #include "net/SipMessage.h"
 #include "net/SipXauthIdentity.h"
 
-#include "sipauthproxy/AuthPlugin.h"
-#include "sipauthproxy/EnforceAuthRules.h"
+#include "sipXproxy/AuthPlugin.h"
+#include "sipXproxy/EnforceAuthRules.h"
 
 class EnforceAuthRulesTest : public CppUnit::TestCase
 {
@@ -59,11 +59,11 @@ public:
       }
 
    /* ****************************************************************
-    * Note: all tests pass NULL for the SipAaa* sipAaa parameter.
+    * Note: all tests pass NULL for the SipRouter* sipRouter parameter.
     *       Since the EnforceAuthRules plugin does not use that
     *       parameter, this should not cause any problem.
     *       Should that change, see CallerAliasTest for how to set
-    *       up a SipAaa instance for a test.
+    *       up a SipRouter instance for a test.
     * **************************************************************** */
 
    void isAuthorized()
@@ -115,7 +115,8 @@ public:
          SipMessage testMsg(message, strlen(message));
 
          UtlSList noRemovedRoutes;
-         RouteState routeState( testMsg, noRemovedRoutes );
+         UtlString routeName("example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, routeName );
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
@@ -135,8 +136,7 @@ public:
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
-         UtlString routeName("example.com");
-         routeState.update(&testMsg, routeName);
+         routeState.update(&testMsg);
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
@@ -145,7 +145,7 @@ public:
          // Only one Record-Route header.
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
 
-         RouteState spiraledRouteState(testMsg, noRemovedRoutes);
+         RouteState spiraledRouteState(testMsg, noRemovedRoutes, routeName);
          
          // now simulate a spiral with the same message
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
@@ -160,7 +160,7 @@ public:
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
-         spiraledRouteState.update(&testMsg, routeName);
+         spiraledRouteState.update(&testMsg);
 
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
          ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
@@ -198,7 +198,8 @@ public:
          SipMessage testMsg(message, strlen(message));
 
          UtlSList noRemovedRoutes;
-         RouteState routeState( testMsg, noRemovedRoutes );
+         UtlString routeName("example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, routeName );
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
@@ -218,8 +219,7 @@ public:
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
-         UtlString routeName("example.com");
-         routeState.update(&testMsg, routeName);
+         routeState.update(&testMsg);
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
@@ -228,7 +228,7 @@ public:
          // Only one Record-Route header.
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
 
-         RouteState spiraledRouteState(testMsg, noRemovedRoutes);
+         RouteState spiraledRouteState(testMsg, noRemovedRoutes, routeName);
          
          // Insert invalid AuthIdentity
          testMsg.addHeaderField("X-Sipx-Authidentity", "<sip:invalid@anonymous;signature=46A66059%3Ab1b86dffc2e38191cdfad0500bf9a209>");
@@ -246,7 +246,7 @@ public:
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
-         spiraledRouteState.update(&testMsg, routeName);
+         spiraledRouteState.update(&testMsg);
 
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
          ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
@@ -280,7 +280,8 @@ public:
          SipMessage testMsg(message, strlen(message));
 
          UtlSList noRemovedRoutes;
-         RouteState routeState( testMsg, noRemovedRoutes );
+         UtlString routeName("example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, routeName );
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
@@ -300,8 +301,7 @@ public:
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
-         UtlString routeName("example.com");
-         routeState.update(&testMsg, routeName);
+         routeState.update(&testMsg);
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(0, &recordRoute));
@@ -319,7 +319,7 @@ public:
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
-         routeState.update(&testMsg, routeName);
+         routeState.update(&testMsg);
 
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(0, &recordRoute));
       }
@@ -351,13 +351,14 @@ public:
          SipMessage testMsg(message, strlen(message));
 
          UtlSList noRemovedRoutes;
-         RouteState routeState( testMsg, noRemovedRoutes );
+         UtlString routeName("example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, routeName );
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("INVITE");
-         AuthPlugin::AuthResult priorResult = AuthPlugin::ALLOW; // SipAaa passes this for responses
+         AuthPlugin::AuthResult priorResult = AuthPlugin::ALLOW; // SipRouter passes this for responses
 
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(NULL,
@@ -399,7 +400,8 @@ public:
          Url requestUri("sip:somewhere@forbidden");
 
          UtlSList noRemovedRoutes;
-         RouteState routeState( testMsg, noRemovedRoutes );
+         UtlString routeName("example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, routeName );
 
          UtlString rejectReason;
          
@@ -457,7 +459,8 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage okMsg(okMessage, strlen(okMessage));
-         RouteState okRouteState( okMsg, noRemovedRoutes );
+         UtlString routeName("example.com");
+         RouteState okRouteState( okMsg, noRemovedRoutes, routeName );
 
          UtlString method("INVITE");
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
@@ -475,8 +478,7 @@ public:
                                                         ));
          CPPUNIT_ASSERT(rejectReason.isNull());
 
-         UtlString routeName("example.com");
-         okRouteState.update(&okMsg, routeName);
+         okRouteState.update(&okMsg);
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(okMsg.getRecordRouteField(0, &recordRoute));
@@ -535,7 +537,7 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage noprivMsg(noprivMessage, strlen(noprivMessage));
-         RouteState noprivRouteState( noprivMsg, noRemovedRoutes );
+         RouteState noprivRouteState( noprivMsg, noRemovedRoutes, routeName );
          Url noprivRequestUri("sip:user@lodge");
          rejectReason.remove(0);
 
@@ -567,7 +569,7 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage allowedMsg(allowedMessage, strlen(allowedMessage));
-         RouteState allowedRouteState( allowedMsg, noRemovedRoutes );
+         RouteState allowedRouteState( allowedMsg, noRemovedRoutes, routeName );
 
          rejectReason.remove(0);
          authIdentity.insert(allowedMsg);
@@ -590,7 +592,7 @@ public:
          ASSERT_STR_EQUAL(testIdentityString,
                           "mightyhunter@enforce.example.com");
 
-         allowedRouteState.update(&allowedMsg, routeName);
+         allowedRouteState.update(&allowedMsg);
 
          CPPUNIT_ASSERT(allowedMsg.getRecordRouteField(0, &recordRoute));
          ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%2175da650843a06eee569f3c93b0f94ee5>", recordRoute );
@@ -638,7 +640,8 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage okMsg(okMessage, strlen(okMessage));
-         RouteState okRouteState( okMsg, noRemovedRoutes );
+         UtlString routeName("example.com");
+         RouteState okRouteState( okMsg, noRemovedRoutes, routeName );
 
          UtlString method("INVITE");
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
@@ -656,8 +659,7 @@ public:
                                                         ));
          CPPUNIT_ASSERT(rejectReason.isNull());
 
-         UtlString routeName("example.com");
-         okRouteState.update(&okMsg, routeName);
+         okRouteState.update(&okMsg);
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(okMsg.getRecordRouteField(0, &recordRoute));
@@ -687,7 +689,7 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage indialogForwardMsg(indialogForwardMessage, strlen(indialogForwardMessage));
-         RouteState indialogRouteState( indialogForwardMsg, approvedRouteList );
+         RouteState indialogRouteState( indialogForwardMsg, approvedRouteList, routeName );
          Url indialogRequestUri("sip:user@boat");
 
          // confirm that a forward in-dialog message with that route is allowed
@@ -730,7 +732,8 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage okMsg(okMessage, strlen(okMessage));
-         RouteState okRouteState( okMsg, noRemovedRoutes );
+         UtlString routeName("example.com");
+         RouteState okRouteState( okMsg, noRemovedRoutes, routeName );
 
          UtlString method("INVITE");
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
@@ -748,8 +751,7 @@ public:
                                                         ));
          CPPUNIT_ASSERT(rejectReason.isNull());
 
-         UtlString routeName("example.com");
-         okRouteState.update(&okMsg, routeName);
+         okRouteState.update(&okMsg);
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(okMsg.getRecordRouteField(0, &recordRoute));
@@ -777,7 +779,7 @@ public:
             "\r\n";
          SipMessage newdialogForwardMsg(newdialogForwardMessage, strlen(newdialogForwardMessage));
          UtlSList noApprovedRouteList; // empty
-         RouteState newdialogRouteState( newdialogForwardMsg, noApprovedRouteList );
+         RouteState newdialogRouteState( newdialogForwardMsg, noApprovedRouteList, routeName );
          Url newdialogRequestUri("sip:user@lodge");
 
          // verify that it is still mutable (has no To tag or signed Route header)

@@ -1148,6 +1148,12 @@ public:
 
     UtlBoolean isRequireExtensionSet(const char* extension) const;
 
+    //! Indicates whether or not the SIP message can accept a 
+    //! Record-route header.  Applications wishing to add a 
+    //! Record-route header to a SIP message should call this 
+    //! method first to see if the SIP method allows it.
+    UtlBoolean isRecordRouteAccepted( void ) const; 
+    
     //! Is this a header parameter we want to allow users or apps. to
     //  pass through in the URL
     static UtlBoolean isUrlHeaderAllowed(const char*);

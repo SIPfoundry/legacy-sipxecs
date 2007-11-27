@@ -100,7 +100,7 @@ protected:
     friend class SipServerBrokerListener;
     SipServerBrokerListener* mpServerBrokerListener;
     
-    virtual OsSocket* buildClientSocket(int hostPort, const char* hostAddress, const char* localIp);
+    virtual OsSocket* buildClientSocket(int hostPort, const char* hostAddress, const char* localIp, bool& existingSocketReused);
     
     int mServerPort;
     

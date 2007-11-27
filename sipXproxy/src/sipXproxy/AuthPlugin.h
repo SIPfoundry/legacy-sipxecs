@@ -19,7 +19,7 @@
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class SipAaa;
+class SipRouter;
 class OsConfigDb;
 class SipMessage;
 
@@ -30,15 +30,15 @@ class SipMessage;
 
 /// Record-Route based actions.
 /**
- * An AuthPlugin is an action invoked by the sipXauthproxy whenever a
- * SIP Message is passing through.   See SipAaa for the context of this call.
+ * An AuthPlugin is an action invoked by the sipXproxy whenever a
+ * SIP Message is passing through.   See SipRouter for the context of this call.
  *
  * This class is the abstract base from which all AuthPlugins must inherit.
  *
- * To configure a AuthPlugin into the sipauthproxy, the authproxy-config
+ * To configure a AuthPlugin into the sipXproxy, the sipXproxy-config
  * file should have a directive configuring the plugin library:
  * @code
- * SIP_AUTHPROXY_HOOK_LIBRARY.[instance] : [path to libexampleauthplugin.so]
+ * SIPX_PROXY_HOOK_LIBRARY.[instance] : [path to libexampleauthplugin.so]
  * @endcode
  * Where [instance] is replaced by a unique plugin name, and the value
  * points to the libary that provides the plugin code.
@@ -50,7 +50,7 @@ class SipMessage;
  *
  * The decision making of the plugin is in the authorizeAndModify method.
  *
- * @see SipAaa
+ * @see SipRouter
  * @see Plugin
  * @see PluginHooks
  */
@@ -58,7 +58,7 @@ class AuthPlugin : public Plugin
 {
   public:
 
-   static const char* Prefix;  ///< the configuration file prefix = "SIP_AUTHPROXY"
+   static const char* Prefix;  ///< the configuration file prefix = "SIPX_PROXY"
    static const char* Factory; ///< the factory routine name = "getAuthPlugin"
 
    /// destructor
@@ -73,9 +73,9 @@ class AuthPlugin : public Plugin
       ALLOW,    ///< this request is authorized - proxy the message (possibly modified)
    } AuthResult;
       
-   /// Called by SipAaa::proxyMessage for each request to authorize and/or modify before sending.
+   /// Called by SipRouter::proxyMessage for each request to authorize and/or modify before sending.
    virtual
-      AuthResult authorizeAndModify(const SipAaa* sipAaa,  ///< for access to proxy information
+      AuthResult authorizeAndModify(const SipRouter* sipRouter,  ///< for access to proxy information
                                     const UtlString& id,   /**< The authenticated identity of the
                                                             *   request originator, if any
                                                             *   (the null string if not).
@@ -134,8 +134,8 @@ class AuthPlugin : public Plugin
     *   An AuthPlugin MUST NOT call RouteState::update (it is
     *   called by the authproxy after all plugins have completed).
     *
-    *   The sipAaa pointer provides access to information in the calling
-    *   authproxy; the most useful of these is probably SipAaa::isLocalDomain.
+    *   The SipRouter pointer provides access to information in the calling
+    *   sipXproxy; the most useful of these is probably SipRouter::isLocalDomain.
     *
     *   authorizeAndModify should usually record the fact that a
     *   dialog forming request is authorized in a RouteState

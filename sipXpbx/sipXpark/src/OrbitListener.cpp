@@ -1142,8 +1142,8 @@ void OrbitListener::setUpParkedCallEstablished(const UtlString& callId,
          {
             OsSysLog::add(FAC_PARK, PRI_DEBUG,
                           "OrbitListener::setUpParkedCallEstablished "
-                          "playAudio successfully callId= %s",callId.data());
-
+                          "playAudio successfully callId= %s",
+                          callId.data());
             pThisCall->startEscapeTimer(parker, timeout, keycode);
          }
       }

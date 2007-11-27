@@ -19,7 +19,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define CONFIG_SETTING_AUTH_PROXY "AUTH_PROXY"
+#define CONFIG_SETTING_SIPX_PROXY "SIPX_PROXY"
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -47,7 +47,7 @@ SipRedirectorAuthRouter::~SipRedirectorAuthRouter()
 void SipRedirectorAuthRouter::readConfig(OsConfigDb& configDb)
 {
    UtlString authProxyConfig;
-   if (   (OS_SUCCESS == configDb.get(CONFIG_SETTING_AUTH_PROXY, authProxyConfig) )
+   if (   (OS_SUCCESS == configDb.get(CONFIG_SETTING_SIPX_PROXY, authProxyConfig) )
        && ! authProxyConfig.isNull()
        )
    {
@@ -112,8 +112,8 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
    
    // Do the cheap global tests first
    //   Is there an authorization proxy route?
-   //   Is the request method INVITE? (This operates only on initial invites)
-   //   Does the response have any Contacts? (if not, there's nothing to do)
+   //   Is the request method INVITE? (This operates only on INVITEs)
+   //   Does the response have any Contacts? (If not, there's nothing to do.)
    if (!mAuthUrl.isNull())
    {
       int contacts = response.getCountHeaderFields(SIP_CONTACT_FIELD);
@@ -121,11 +121,6 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
           && (contacts)
           )
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "%s::lookUp checking for To tag",
-                       mLogName.data()
-                       );
-         
          /*
           * Loop through each contact in the response,
           *   checking to see if the contact includes a route set
@@ -143,35 +138,37 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
                           mLogName.data(), contactNumber, contact.data()
                           );
 
-            // is there a route header parameter in the contact?
+            // Prepend sipXproxy route to Route header parameter 
+            // to ensure that sipXproxy sees the INVITE resulting 
+            // from 302 Moved Temporarily recursion.  Please refer to 
+            // SipRedirectorAuthRouter.h for more details.
+            UtlString checkedRoute(mAuthUrl);
+
             UtlString routeValue;
-            if (contactUri.getHeaderParameter(SIP_ROUTE_FIELD, routeValue))
+            if ( contactUri.getHeaderParameter(SIP_ROUTE_FIELD, routeValue))
             {
-               // there is a route in the contact
-               // prepend the authproxy route to ensure it is checked
-               UtlString checkedRoute(mAuthUrl);
+               // there is already a Route header parameterin the contact; append it to the 
+               // sipXproxy route.
                checkedRoute.append(SIP_MULTIFIELD_SEPARATOR);
-
                checkedRoute.append(routeValue);
-
-               contactUri.setHeaderParameter(SIP_ROUTE_FIELD, checkedRoute);
-
-               // and put the modified contact back into the message
-               UtlString modifiedContact;
-               contactUri.toString(modifiedContact);
-               response.setContactField(modifiedContact, contactNumber);
-
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "%s::lookUp modified:\n"
-                             "   '%s'\n"
-                             "in '%s'\n"
-                             "to '%s'\n"
-                             "in '%s'\n",
-                             mLogName.data(),
-                             routeValue.data(), contact.data(),
-                             checkedRoute.data(), modifiedContact.data()
-                             );
             }
+            contactUri.setHeaderParameter(SIP_ROUTE_FIELD, checkedRoute);
+
+            // and put the modified contact back into the message
+            UtlString modifiedContact;
+            contactUri.toString(modifiedContact);
+            response.setContactField(modifiedContact, contactNumber);
+
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "%s::lookUp modified:\n"
+                          "   '%s'\n"
+                          "in '%s'\n"
+                          "to '%s'\n"
+                          "in '%s'\n",
+                          mLogName.data(),
+                          routeValue.data(), contact.data(),
+                          checkedRoute.data(), modifiedContact.data()
+                          );
          } // loop over all contacts
       }
       else

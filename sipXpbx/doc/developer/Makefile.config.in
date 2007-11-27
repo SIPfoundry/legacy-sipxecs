@@ -150,7 +150,7 @@ install-sipXvxml-no-setuid:
 # binaries link to.
 check-libraries:
 	sipXpbx/doc/developer/check-libraries \
-	    @bindir@/{sipXvxml,sipauthproxy,sipdbtest,sipproxy,sipregistrar,sipstatus,watchdog} \
+	    @bindir@/{sipXvxml,sipdbtest,sipXproxy,sipregistrar,sipstatus,watchdog} \
 	    @APACHE2_HTTPD@ \
 	    @APACHE2_MOD@/{libmod_cplusplus.so,libmod_sipxauth.so}
 
@@ -160,7 +160,7 @@ LEVEL=DEBUG
 log-debug:
 	cd @SIPX_CONFDIR@ ; \
 	for FILE in \
-	    authproxy-config.in mediaserver-config.in proxy-config.in \
+	    mediaserver-config.in sipXproxy-config.in \
 	    registrar-config.in sipxdialog-config.in sipxpark-config.in \
 	    sipxpresence-config.in status-config.in voicemail.xml.in ; \
 	do \

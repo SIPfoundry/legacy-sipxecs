@@ -4547,6 +4547,37 @@ UtlBoolean SipMessage::isRequireExtensionSet(const char* extension) const
     return(alreadySet);
 }
 
+UtlBoolean SipMessage::isRecordRouteAccepted( void ) const
+{ 
+   UtlBoolean isRecordRoutable;
+   
+   if( isResponse() )
+   {
+      isRecordRoutable = FALSE;
+   }
+   else
+   {
+      // We are dealing with a request, check if it can
+      // accept a Record-Route header.  If the request
+      // is not REGISTER, MESSAGE or PUBLISH, the request
+      // is assumed to accept Record-Route headers.
+      UtlString method;
+      getRequestMethod(&method);
+
+      if (method.compareTo(SIP_MESSAGE_METHOD)  == 0 ||
+          method.compareTo(SIP_REGISTER_METHOD) == 0 ||
+          method.compareTo(SIP_PUBLISH_METHOD)  == 0 )
+      {
+         isRecordRoutable = FALSE;        
+      }
+      else
+      {
+         isRecordRoutable = TRUE;
+      }
+   }
+   return isRecordRoutable;
+}
+
 UtlBoolean SipMessage::isUrlHeaderAllowed(const char* headerFieldName)
 {
     UtlString name(headerFieldName);

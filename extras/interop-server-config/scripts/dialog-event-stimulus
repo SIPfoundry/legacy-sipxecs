@@ -83,7 +83,7 @@ print "Q $registration->{'AOR'}\n"; ###
 # Read the proxy log to see if the UAs have been involved in calls.
 
 # Set default log file.
-$ProxyLog = '/var/log/sipxpbx/sipproxy.log';
+$ProxyLog = '/var/log/sipxpbx/sipXproxy.log';
 
 if (open(PROXY_LOG, "<$ProxyLog"))
 {

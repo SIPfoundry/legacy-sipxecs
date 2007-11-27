@@ -5,8 +5,8 @@
 // 
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef _AuthProxyCseObserver_h_
-#define _AuthProxyCseObserver_h_
+#ifndef _SipXProxyCseObserver_h_
+#define _SipXProxyCseObserver_h_
 
 // SYSTEM INCLUDES
 #include "utl/UtlString.h"
@@ -31,21 +31,21 @@
 class SipUserAgent;
 
 /// Observe and record Call State Events in the Forking Proxy
-class AuthProxyCseObserver : public OsServerTask
+class SipXProxyCseObserver : public OsServerTask
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
 
-   AuthProxyCseObserver(SipUserAgent&            sipUserAgent,
+   SipXProxyCseObserver(SipUserAgent&            sipUserAgent,
                            const UtlString&      dnsName,
                            CallStateEventWriter* pEventWriter
                            );
      //:Default constructor
 
    virtual
-   ~AuthProxyCseObserver();
+   ~SipXProxyCseObserver();
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
@@ -62,13 +62,12 @@ private:
    CallStateEventWriter*     mpWriter;        // Event writer
    int                       mSequenceNumber;
    OsTimer                   mFlushTimer;
-   OsQueuedEvent             mTimerEvent;
    
    /// no copy constructor or assignment operator
-   AuthProxyCseObserver(const AuthProxyCseObserver& rAuthProxyCseObserver);
-   AuthProxyCseObserver operator=(const AuthProxyCseObserver& rAuthProxyCseObserver);
+   SipXProxyCseObserver(const SipXProxyCseObserver& rSipXProxyCseObserver);
+   SipXProxyCseObserver operator=(const SipXProxyCseObserver& rSipXProxyCseObserver);
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-#endif  // _AuthProxyCseObserver_h_
+#endif  // _SipXProxyCseObserver_h_

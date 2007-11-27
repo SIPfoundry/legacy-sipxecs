@@ -88,8 +88,8 @@ create index call_state_events_event_time on call_state_events (event_time);
 
 /*
  * The observer_state_events table holds events relating to the event observer
- * state, for example, that the observer has restarted.  The forking proxy
- * and auth proxy are event observers.
+ * state, for example, that the observer has restarted.  The sipXproxy
+ * is an event observer.
  *
  * Status codes:
  *   101 - Observer Reset

@@ -22,7 +22,7 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& name);
 
 /// Enforces the rules specified by authrules.xml
 /**
- * This is an AuthRules plugin called by SipAaa.
+ * This is an AuthRules plugin called by SipRouter.
  * It's job is to make exceptions for transfers that might otherwise
  * be prevented by the other authorization rules.
  */
@@ -35,7 +35,7 @@ class TransferControl : public AuthPlugin
 
    /// Called for any request - enforces the restrictions specified by authrules.
    virtual
-      AuthResult authorizeAndModify(const SipAaa* sipAaa,  ///< for access to proxy information
+      AuthResult authorizeAndModify(const SipRouter* sipRouter,  ///< for access to proxy information
                                     const UtlString& id, /**< The authenticated identity of the
                                                           *   request originator, if any (the null
                                                           *   string if not).

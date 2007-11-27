@@ -123,6 +123,11 @@ void SipClientWriteBuffer::insertMessage(SipMessage* message)
    {
       // If so, abort all unsent messages and terminate this client (so
       // as to clear any state of the socket).
+      OsSysLog::add(FAC_SIP, PRI_ERR,
+                    "SipClientWriteBuffer[%s]::insertMessage "
+                    "mWriteBuffer has %d entries, exceeding the limit of %d",
+                    getName().data(), (int) mWriteBuffer.entries(),
+                    (int) getMessageQueue()->maxMsgs());
       emptyBuffer();
       clientStopSelf();
    }

@@ -44,9 +44,9 @@ NONE
 EXAMPLE
 -------  
    
-        sipx-log-cut -i sipproxy.log -s '2004-12-08 17:45:30' -e '2004-12-08T18:12:52'
+        sipx-log-cut -i sipXproxy.log -s '2004-12-08 17:45:30' -e '2004-12-08T18:12:52'
 
-        sipx-log-cut -s '17:45:30' -i sipproxy.log -t > extract_after_dinner
+        sipx-log-cut -s '17:45:30' -i sipXproxy.log -t > extract_after_dinner
 
 SEE ALSO
 --------

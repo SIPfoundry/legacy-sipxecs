@@ -88,12 +88,13 @@ SipTlsServer::~SipTlsServer()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsSocket* SipTlsServer::buildClientSocket(int hostPort, const char* hostAddress)
+OsSocket* SipTlsServer::buildClientSocket(int hostPort, const char* hostAddress, const char* localIp, bool& existingSocketReused)
 {
    OsSocket* socket;
    socket = new OsSSLConnectionSocket(hostPort, hostAddress);
 
    socket->makeBlocking();
+   existingSocketReused = false;
    return(socket);
 }
 

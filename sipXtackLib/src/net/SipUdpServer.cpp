@@ -547,11 +547,14 @@ UtlBoolean SipUdpServer::getStunAddress(UtlString* pIpAddress, int* pPort,
 
 OsSocket* SipUdpServer::buildClientSocket(int hostPort,
                                           const char* hostAddress,
-                                          const char* localIp)
+                                          const char* localIp,
+                                          bool& existingSocketReused)
 {
    OsStunDatagramSocket* pSocket;
 
-   if (mSipUserAgent && mSipUserAgent->getUseRport())
+   if (mSipUserAgent &&
+       (mSipUserAgent->getUseRport() ||
+        mSipUserAgent->isSymmetricSignalingImposed()))
    {
       // If there is a SipUserAgent and if it is set to use rport (why?),
       // look up the server socket for this local IP.
@@ -561,6 +564,8 @@ OsSocket* SipUdpServer::buildClientSocket(int hostPort,
       pSocket =
          dynamic_cast <OsStunDatagramSocket*> (mServerSocketMap.findValue(&localKey));
       assert(pSocket);
+
+      existingSocketReused = true;
    }
    else
    {
@@ -571,6 +576,8 @@ OsSocket* SipUdpServer::buildClientSocket(int hostPort,
                                          mStunServer.data(),
                                          mStunRefreshSecs,
                                          mStunOptions);
+
+      existingSocketReused = false;
    }
    return pSocket;
 }

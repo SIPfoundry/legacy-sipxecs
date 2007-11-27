@@ -55,7 +55,7 @@ TransferControl::readConfig( OsConfigDb& configDb /**< a subhash of the individu
 }
 
 AuthPlugin::AuthResult
-TransferControl::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to proxy information
+TransferControl::authorizeAndModify(const SipRouter* sipRouter,  ///< for access to proxy information
                                     const UtlString& id, /**< The authenticated identity of the
                                                           *   request originator, if any (the null
                                                           *   string if not).

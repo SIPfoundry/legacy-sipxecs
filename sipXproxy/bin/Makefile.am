@@ -7,8 +7,8 @@ bin_SCRIPTS = \
 	${PACKAGE}-config
 
 editscripts_IN = \
-    sipauthproxy.sh \
-    sipproxy.sh \
+    sipXproxy.sh \
+    upgrade2mergedproxy \
     sipxha-distrib.sh \
     sipxcallresolver.sh
 

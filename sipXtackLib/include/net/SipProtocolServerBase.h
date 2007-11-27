@@ -117,7 +117,8 @@ protected:
    //  Must be non-blocking.
    virtual OsSocket* buildClientSocket(int hostPort,
                                        const char* hostAddress,
-                                       const char* localIp) = 0;
+                                       const char* localIp,
+                                       bool& existingSocketReused) = 0;
 
    UtlString mProtocolString;
    UtlString mDefaultIp;

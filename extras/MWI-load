@@ -12,7 +12,7 @@ TEMP1=$( mktemp )
 
 # We have to suppress the normal stderr of sipx-log-cut to prevent
 # a report every time this script is run.
-sipx-log-cut -i /var/log/sipxpbx/sipproxy.log -s "$START_TIMESTAMP" -t 2>/dev/null |
+sipx-log-cut -i /var/log/sipxpbx/sipXproxy.log -s "$START_TIMESTAMP" -t 2>/dev/null |
 grep -i ':INCOMING:.*\\nSUBSCRIBE .*\\nEvent: *message-summary' |
 cut -c 2-17 |
 sort |

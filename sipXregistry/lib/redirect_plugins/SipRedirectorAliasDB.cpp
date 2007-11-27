@@ -112,7 +112,6 @@ SipRedirectorAliasDB::lookUp(
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s'",
                     mLogName.data(), requestIdentity.data());
 
-
       ResultSet aliases;
       AliasDB::getInstance()->getContacts(requestUri, aliases);
       int numAliasContacts = aliases.getSize();
@@ -153,7 +152,7 @@ SipRedirectorAliasDB::lookUp(
             }
          }
       }
-
-      return RedirectPlugin::LOOKUP_SUCCESS;
    }
+
+   return RedirectPlugin::LOOKUP_SUCCESS;
 }

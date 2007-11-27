@@ -513,7 +513,7 @@ for command in \
     "df" \
     "ls -ld /tmp" \
     "cat /etc/issue" \
-    "@SIPX_BINDIR@/analyze_483s @SIPX_LOGDIR@/sipproxy.log"
+    "@SIPX_BINDIR@/analyze_483s @SIPX_LOGDIR@/sipXproxy.log"
 do
   echo "" >> ${SystemConfig}
   echo ======== $command >> ${SystemConfig}

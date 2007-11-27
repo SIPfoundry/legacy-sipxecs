@@ -2,7 +2,7 @@ Name:     @PACKAGE@
 Version:  @VERSION@
 Release:  %{buildno}
 
-Summary:  SIP Proxy Servers
+Summary:  SIP Proxy Server
 License:  Pingtel Commercial License
 Group:    Productivity/Telephony/SIP/Servers
 Vendor:   Pingtel Corp.
@@ -24,15 +24,12 @@ BuildRoot: %{_tmppath}/%name-%version-root
 %define sipxpbxvarlib %{_var}/lib/sipxpbx
 
 %description
-Two RFC 3261 compliant SIP proxies:
- * sipForkingProxy
- * sipAuthProxy
-These proxies are used in the sipXpbx project. However they may be used
-independently from the PBX as stand-alone SIP proxies. They may be used
-separately or together. The sipXregistry may also be used with the forking
-proxy. Though it is not necessary. The forking proxy provides service level
-routing as well as parallel and serial forking. The auth proxy provides AAA
-services.
+RFC 3261 compliant SIP proxy called sipXproxy:
+The sipXproxy is used in the sipXpbx project. However it may be used
+independently from the PBX as a stand-alone SIP proxy. The sipXregistry 
+may also be used with the sipXproxy though it is not necessary. The 
+sipXproxy provides service level routing, parallel and serial forking
+and AAA services.
 
 %if %{_vendor} == suse || %{fedora} >= 8
 %debug_package
@@ -113,25 +110,24 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 
 %doc CONTRIBUTORS ChangeLog %name.configlog
-%attr(755,root,root) %{_bindir}/sipproxy.sh
-%attr(755,root,root) %{_bindir}/sipproxy
-%attr(755,root,root) %{_bindir}/sipauthproxy.sh
-%attr(755,root,root) %{_bindir}/sipauthproxy
+%attr(755,root,root) %{_bindir}/sipXproxy.sh
+%attr(755,root,root) %{_bindir}/upgrade2mergedproxy
+%attr(755,root,root) %{_bindir}/sipXproxy
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_bindir}/sipxha-distrib.sh
 %attr(755,root,root) %{_datadir}/sipx/schema/forwardingrules.xsd
 
-%attr(755,root,root) %{_libdir}/sipxauthproxy/libEnforceAuthRules.la
-%attr(755,root,root) %{_libdir}/sipxauthproxy/libEnforceAuthRules.a
-%attr(755,root,root) %{_libdir}/sipxauthproxy/libEnforceAuthRules.so*
+%attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.la
+%attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.a
+%attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.so*
 
-%attr(755,root,root) %{_libdir}/sipxauthproxy/libCallerAlias.la
-%attr(755,root,root) %{_libdir}/sipxauthproxy/libCallerAlias.a
-%attr(755,root,root) %{_libdir}/sipxauthproxy/libCallerAlias.so*
+%attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.la
+%attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.a
+%attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.so*
 
-%attr(755,root,root) %{_libdir}/sipxauthproxy/libTransferControl.la
-%attr(755,root,root) %{_libdir}/sipxauthproxy/libTransferControl.a
-%attr(755,root,root) %{_libdir}/sipxauthproxy/libTransferControl.so*
+%attr(755,root,root) %{_libdir}/authplugins/libTransferControl.la
+%attr(755,root,root) %{_libdir}/authplugins/libTransferControl.a
+%attr(755,root,root) %{_libdir}/authplugins/libTransferControl.so*
 
 # The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
@@ -139,14 +135,12 @@ rm -rf $RPM_BUILD_ROOT
 
 # The configmerge mapping file is NOT user configurable and will change
 # each release.
-%attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authproxy-config.in.map
+%attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipXproxy-config.in.map
 
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/proxy-config.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipXproxy-config.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/forwardingrules.xml.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authproxy-config.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authrules.xml.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipproxy.process.xml
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipauthproxy.process.xml
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipXproxy.process.xml
 
 %{upgrade_archive_dir}/%{this_archive}
 # Where does this come from?

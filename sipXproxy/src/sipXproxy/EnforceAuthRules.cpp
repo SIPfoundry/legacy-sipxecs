@@ -88,7 +88,7 @@ EnforceAuthRules::readConfig( OsConfigDb& configDb /**< a subhash of the individ
    }
    // Set signature validity interval for SipXauthIdentity
    SipXauthIdentity::setSignatureValidityInterval(OsTime(validitySeconds,0));
-#endif
+#endif // 0
 
    if (mpAuthorizationRules)
    {
@@ -140,7 +140,7 @@ EnforceAuthRules::readConfig( OsConfigDb& configDb /**< a subhash of the individ
 }
 
 AuthPlugin::AuthResult
-EnforceAuthRules::authorizeAndModify(const SipAaa* sipAaa,  ///< for access to proxy information
+EnforceAuthRules::authorizeAndModify(const SipRouter* sipRouter,  ///< for access to proxy information
                                      const UtlString& id, /**< The authenticated identity of the
                                                            *   request originator, if any (the null
                                                            *   string if not).

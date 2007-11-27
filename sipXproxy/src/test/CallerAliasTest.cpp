@@ -18,9 +18,10 @@
 #include "net/SipUserAgent.h"
 #include "sipdb/CallerAliasDB.h"
 
-#include "sipauthproxy/SipAaa.h"
-#include "sipauthproxy/AuthPlugin.h"
-#include "sipauthproxy/CallerAlias.h"
+#include "sipXproxy/ForwardRules.h"
+#include "sipXproxy/SipRouter.h"
+#include "sipXproxy/AuthPlugin.h"
+#include "sipXproxy/CallerAlias.h"
 
 class CallerAliasTest : public CppUnit::TestCase
 {
@@ -39,13 +40,16 @@ public:
    static CallerAlias*     converter;
    static SipDbTestContext TestDbContext;
    static SipUserAgent     testUserAgent;
-   static SipAaa*          testSipAaa;
+   static SipRouter*       testSipRouter;
    
    void setUp()
       {
          TestDbContext.inputFile("caller-alias.xml");
 
          RouteState::setSecret("fixed"); // force invariant signatures
+
+         UtlString rulesFile(TEST_DATA_DIR "rulesdata/routing.xml");
+         mForwardingRules.loadMappings( rulesFile, "Mediaserver", "Voicemail", "localhost" );
       }
 
    void tearDown()
@@ -73,12 +77,12 @@ public:
          testUserAgent.setHostAliases(hostAliases);
 
          OsConfigDb configDb;
-         configDb.set("SIP_AUTHPROXY_AUTHENTICATE_ALGORITHM", "MD5");
-         configDb.set("SIP_AUTHPROXY_DOMAIN_NAME", "example.edu");
-         configDb.set("SIP_AUTHPROXY_AUTHENTICATE_REALM", "example.edu");
-         configDb.set("SIP_AUTHPROXY_ROUTE_NAME", "sipx.example.edu");
+         configDb.set("SIPX_PROXY_AUTHENTICATE_ALGORITHM", "MD5");
+         configDb.set("SIPX_PROXY_DOMAIN_NAME", "example.edu");
+         configDb.set("SIPX_PROXY_AUTHENTICATE_REALM", "example.edu");
+         configDb.set("SIPX_PROXY_HOSTPORT", "sipx.example.edu");
 
-         testSipAaa = new SipAaa(testUserAgent, configDb);
+         testSipRouter = new SipRouter(testUserAgent, mForwardingRules, configDb);
       }
 
    // 
@@ -103,7 +107,8 @@ public:
          SipMessage testMsg(message, strlen(message));
 
          UtlSList noRemovedRoutes;
-         RouteState routeState( testMsg, noRemovedRoutes );
+         UtlString routeName("example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, routeName );
  
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
@@ -112,7 +117,7 @@ public:
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipAaa,
+                        == converter->authorizeAndModify(testSipRouter,
                                                          identity,
                                                          requestUri,
                                                          routeState,
@@ -123,8 +128,7 @@ public:
                                                          ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
-         UtlString routeName("example.com");
-         routeState.update(&testMsg, routeName);
+         routeState.update(&testMsg);
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
@@ -134,9 +138,9 @@ public:
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
 
          // now simulate a spiral with the same message
-         RouteState spiraledRouteState(testMsg, noRemovedRoutes);
+         RouteState spiraledRouteState(testMsg, noRemovedRoutes, routeName);
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipAaa,
+                        == converter->authorizeAndModify(testSipRouter,
                                                          identity,
                                                          requestUri,
                                                          spiraledRouteState,
@@ -147,7 +151,7 @@ public:
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
-         spiraledRouteState.update(&testMsg, routeName);
+         spiraledRouteState.update(&testMsg);
 
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
          ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21cd701fdee3c04a4e1bb9567cf6ef1d06>", recordRoute );
@@ -183,7 +187,8 @@ public:
                        );
          
          UtlSList noRemovedRoutes;
-         RouteState routeState( testMsg, noRemovedRoutes );
+         UtlString routeName("sipx.example.edu");
+         RouteState routeState( testMsg, noRemovedRoutes, routeName );
  
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
@@ -192,7 +197,7 @@ public:
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
 
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipAaa,
+                        == converter->authorizeAndModify(testSipRouter,
                                                          identity,
                                                          requestUri,
                                                          routeState,
@@ -211,8 +216,7 @@ public:
          testMsg.getToField(&unmodifiedTo);
          ASSERT_STR_EQUAL("sip:target@example.org", unmodifiedTo);
          
-         UtlString routeName("sipx.example.edu");
-         routeState.update(&testMsg, routeName);
+         routeState.update(&testMsg);
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
@@ -243,12 +247,12 @@ public:
                        ackMessage
                        );
 
-         RouteState ackRouteState( ackMsg, removedRoutes );
+         RouteState ackRouteState( ackMsg, removedRoutes, routeName );
 
          method = "ACK";
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipAaa,
+                        == converter->authorizeAndModify(testSipRouter,
                                                          identity,
                                                          requestUri,
                                                          ackRouteState,
@@ -288,10 +292,10 @@ public:
 
          UtlString infoMethod("INFO");
 
-         RouteState reverseRouteState( reverseMsg, removedRoutes );
+         RouteState reverseRouteState( reverseMsg, removedRoutes, routeName );
 
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipAaa,
+                        == converter->authorizeAndModify(testSipRouter,
                                                          identity,
                                                          requestUri,
                                                          reverseRouteState,
@@ -340,7 +344,8 @@ public:
                        );
          
          UtlSList noRemovedRoutes;
-         RouteState routeState( testMsg, noRemovedRoutes );
+         UtlString routeName("sipx.example.edu");
+         RouteState routeState( testMsg, noRemovedRoutes, routeName );
  
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
@@ -349,7 +354,7 @@ public:
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipAaa,
+                        == converter->authorizeAndModify(testSipRouter,
                                                          identity,
                                                          requestUri,
                                                          routeState,
@@ -368,8 +373,7 @@ public:
          testMsg.getToField(&unmodifiedTo);
          ASSERT_STR_EQUAL("sip:target@example.edu", unmodifiedTo);
          
-         UtlString routeName("sipx.example.edu");
-         routeState.update(&testMsg, routeName);
+         routeState.update(&testMsg);
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
@@ -400,12 +404,12 @@ public:
                        ackMessage
                        );
 
-         RouteState ackRouteState( ackMsg, removedRoutes );
+         RouteState ackRouteState( ackMsg, removedRoutes, routeName );
 
          method = "ACK";
 
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipAaa,
+                        == converter->authorizeAndModify(testSipRouter,
                                                          identity,
                                                          requestUri,
                                                          ackRouteState,
@@ -443,12 +447,12 @@ public:
                        reverseMessage
                        );
 
-         RouteState reverseRouteState( reverseMsg, removedRoutes );
+         RouteState reverseRouteState( reverseMsg, removedRoutes, routeName );
 
          method = "INFO";
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipAaa,
+                        == converter->authorizeAndModify(testSipRouter,
                                                          identity,
                                                          requestUri,
                                                          reverseRouteState,
@@ -469,6 +473,7 @@ public:
       }
    
 private:
+   ForwardRules  mForwardingRules;
 
 };
 
@@ -500,4 +505,4 @@ SipUserAgent     CallerAliasTest::testUserAgent(
    SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE, // socket layer read buffer size
    SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE // OsServerTask message queue size
                                                 );
-SipAaa* CallerAliasTest::testSipAaa;
+SipRouter* CallerAliasTest::testSipRouter;

@@ -116,7 +116,8 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                            int readBufferSize,
                            int queueSize,
                            UtlBoolean bUseNextAvailablePort,
-                           UtlBoolean doUaMessageChecks
+                           UtlBoolean doUaMessageChecks,
+                           UtlBoolean bForceSymmetricSignaling
                            ) 
         : SipUserAgentBase(sipTcpPort, sipUdpPort, sipTlsPort, queueSize)
         , mSipTcpServer(NULL)
@@ -131,6 +132,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mbUseRport(FALSE)
         , mbIncludePlatformInUserAgentName(TRUE)
         , mDoUaMessageChecks(doUaMessageChecks)
+        , mbForceSymmetricSignaling(bForceSymmetricSignaling)
         , mbShuttingDown(FALSE)
         , mbShutdownDone(FALSE)
 {
@@ -3357,6 +3359,11 @@ UtlBoolean SipUserAgent::isOk(OsSocket::IpProtocolSocketType socketType)
    }
 
    return retval;
+}
+
+UtlBoolean SipUserAgent::isSymmetricSignalingImposed()
+{
+    return mbForceSymmetricSignaling;
 }
 
 UtlBoolean SipUserAgent::isShutdownDone()

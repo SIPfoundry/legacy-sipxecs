@@ -12,7 +12,7 @@ SFAC_SIPX_INSTALL_PREFIX
 AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 
-AC_CONFIG_SRCDIR([src/sipauthproxy/sipauthproxymain.cpp])
+AC_CONFIG_SRCDIR([src/sipXproxy/sipXproxymain.cpp])
 AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
 
@@ -64,8 +64,7 @@ AM_CONDITIONAL(ENABLE_CSE_TESTS, test x$enable_cse_tests = xyes)
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([bin/Makefile])
-AC_CONFIG_FILES([src/sipforkingproxy/Makefile])
-AC_CONFIG_FILES([src/sipauthproxy/Makefile])
+AC_CONFIG_FILES([src/sipXproxy/Makefile])
 AC_CONFIG_FILES([src/cse/Makefile])
 AC_CONFIG_FILES([src/test/Makefile])
 AC_CONFIG_FILES([doc/Makefile])

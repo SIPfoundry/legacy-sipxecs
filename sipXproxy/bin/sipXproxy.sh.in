@@ -28,10 +28,11 @@ done
 CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 CONFIG_FILES="\
-  @SIPX_CONFDIR@/proxy-config \
+  @SIPX_CONFDIR@/sipXproxy-config \
   @SIPX_CONFDIR@/forwardingrules.xml \
+  @SIPX_CONFDIR@/authrules.xml \
   "
-
+  
 # If the "config.defs" file exists and the <name>.in file exists for a
 # configuration file, then run the config preprocessor to generate the
 # fully resolved configuration file.
@@ -47,21 +48,23 @@ fi
 
 case ${Action} in
    RUN)
-     echo $$ > @SIPX_RUNDIR@/sipproxy.pid
-     exec @bindir@/sipproxy $Args
+     echo $$ > @SIPX_RUNDIR@/sipXproxy.pid
+     exec @bindir@/sipXproxy $Args
      ;;
 
    CONFIGTEST)
-     # check validity of xml routing rules
+     # check validity of xml routing rules, authorization rules and domain
      @bindir@/sipx-validate-xml @SIPX_CONFDIR@/forwardingrules.xml
-     Status=$?
-
+     status1=$?
+     @bindir@/sipx-validate-xml @SIPX_CONFDIR@/authrules.xml
+     status2=$?
      myDomain=`. ${CONFIG_DEFS}; echo ${SIPXCHANGE_DOMAIN_NAME} | tr A-Z a-z`
-     status=$? 
-     Status=$((${Status}+${status}))
+     status3=$?
+      
+     Status=$((${status1}+${status2}+${status3}))
 
      # Check that the log file is writable.
-     logfile="@SIPX_LOGDIR@/sipproxy.log"
+     logfile="@SIPX_LOGDIR@/sipXproxy.log"
      if [ -e $logfile -a ! -w $logfile ]
      then
          echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
@@ -80,3 +83,4 @@ esac
 
 exit $Status
 
+     
