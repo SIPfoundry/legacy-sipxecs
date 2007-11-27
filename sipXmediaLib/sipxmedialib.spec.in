@@ -22,7 +22,7 @@ sipXphone and sipXvxml projects. For example, the library contains
 audio bridges, audio splitters, echo supression, tone generation
 (e.g. DTMF), streaming support, RTCP, G711 codecs, etc.
 
-%if %{_vendor} == suse
+%if %{_vendor} == suse || %{fedora} >= 8
 %debug_package
 %endif
 

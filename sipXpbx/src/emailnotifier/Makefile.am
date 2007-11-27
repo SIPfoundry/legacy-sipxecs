@@ -1,7 +1,7 @@
 
 INCLUDES = -I$(top_srcdir)/include/
 
-#bin_PROGRAMS = emailnotifier
+bin_PROGRAMS = emailnotifier
 
 emailnotifier_SOURCES = \
 	main.cpp \

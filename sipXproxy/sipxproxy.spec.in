@@ -34,7 +34,7 @@ proxy. Though it is not necessary. The forking proxy provides service level
 routing as well as parallel and serial forking. The auth proxy provides AAA
 services.
 
-%if %{_vendor} == suse
+%if %{_vendor} == suse || %{fedora} >= 8
 %debug_package
 %endif
 

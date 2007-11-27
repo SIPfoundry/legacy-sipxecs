@@ -41,7 +41,7 @@ BuildRoot: %{_tmppath}/%name-%version-root
 Voice XML processing engine.
 With scripts to implement the voicemail and auto-attendant functions of a PBX.
 
-%if %{_vendor} == suse
+%if %{_vendor} == suse || %{fedora} >= 8
 %debug_package
 %endif
 

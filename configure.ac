@@ -8,8 +8,6 @@ m4_include([config/sipXlib.m4])
 
 SFAC_SIPX_GLOBAL_OPTS
 
-AM_INIT_AUTOMAKE(foreign)
-
 SFAC_SRCDIR_EXPAND
 
 AC_CONFIG_SUBDIRS(sipXportLib)

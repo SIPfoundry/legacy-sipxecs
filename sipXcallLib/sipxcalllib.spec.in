@@ -32,7 +32,7 @@ contains technologies related to call processing:
 * tao - A transport layer designed to decouple (and remote) the
   application layer from call processing.
 
-%if %{_vendor} == suse
+%if %{_vendor} == suse || %{fedora} >= 8
 %debug_package
 %endif
 

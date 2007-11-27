@@ -20,7 +20,7 @@ BuildRoot: %{_tmppath}/%name-%version-root
 %description
 TBD
 
-%if %{_vendor} == suse
+%if %{_vendor} == suse || %{fedora} >= 8
 %debug_package
 %endif
 

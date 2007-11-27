@@ -4,7 +4,7 @@
 # mediaservercgi    - Media server CGI interface
 # replicationcgi    - Accepts information about new users/permissions/
 #                     credentials from config server
-# emailnotifier     - Sends email about voicemails
+# emailnotifier     - Sends email about voicemails -- DISABLED
 # watchdog          - Starts/Stops and automatically restarts sipx processes
 # mod_sipxauth      - Apache2 mod for sipX application authentication
 SUBDIRS= \
@@ -14,6 +14,5 @@ SUBDIRS= \
     replicationcgi \
     cbadmissioncgi \
     watchdog \
-    emailnotifier \
     wwwcontent \
     test 
