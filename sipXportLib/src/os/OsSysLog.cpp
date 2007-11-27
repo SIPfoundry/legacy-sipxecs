@@ -26,6 +26,7 @@
 #include "os/OsServerTask.h"
 #include "os/OsDateTime.h"
 #include "os/OsSocket.h"
+#include "os/OsProcess.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -260,6 +261,10 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
       {
          taskName = pBase->getName() ;
          pBase->id(taskId) ;
+      }
+      else
+      {
+         mysprintf(taskName, "pid-%d", OsProcess::getCurrentPID()) ;
       }
          
       rc = vadd(taskName.data(), taskId, facility, priority, format, ap);
