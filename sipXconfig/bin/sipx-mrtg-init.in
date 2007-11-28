@@ -7,6 +7,8 @@ usage() {
   echo "   Configures the environment for monitoring"
   echo
   echo Parameters:
+  echo "   -e|--enable                   Enable Monitoring Context."
+  echo "   -d|--disable                  Disable Monitoring Context."
   echo "   -h|--help                     Display this help text."
   echo
 }
@@ -19,6 +21,13 @@ fi
 
 SIPX_USER=@SIPXPBXUSER@
 SIPX_VARDIR=@SIPX_VARDIR@
+SIPX_CONFDIR=@SIPX_CONFDIR@
+SIPXCONFIG_PROPERTIES_IN=$SIPX_CONFDIR/sipxconfig.properties.in
+
+
+ENABLE_MONITORING="false"
+DISABLE_MONITORING="false"
+
 
 # Process the command-line arguments.
 while [ $# -ne 0 ]
@@ -29,6 +38,22 @@ do
       exit
       ;;
 
+    -e|--enable)
+      if test $DISABLE_MONITORING = "true"; then
+        bad_usage
+      else
+        ENABLE_MONITORING="true"
+      fi
+      ;;
+
+    -d|--disable)
+      if test $ENABLE_MONITORING = "true"; then
+        bad_usage
+      else
+        DISABLE_MONITORING="true"
+      fi
+      ;;
+
     *)
       echo "Unknown option: ${1}"
       bad_usage
@@ -36,6 +61,17 @@ do
     esac
   shift # always consume one argument
 done
+
+
+if test $ENABLE_MONITORING = "true"; then
+  sed 's/\(^monitoringContextImpl.enabled=\)false/\1true/' -i.org $SIPXCONFIG_PROPERTIES_IN
+fi
+
+if test $DISABLE_MONITORING = "true"; then
+  sed 's/\(^monitoringContextImpl.enabled=\)true/\1false/' -i.org $SIPXCONFIG_PROPERTIES_IN
+  exit 0
+fi
+
 
 
 #########################################

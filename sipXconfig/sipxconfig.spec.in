@@ -348,7 +348,10 @@ fi
 %attr(755,root,root) %{_bindir}/sipx-mrtg-init
 
 %post mrtg
-sipx-mrtg-init > /dev/null
+sipx-mrtg-init -e > /dev/null
+
+%preun mrtg
+sipx-mrtg-init -d > /dev/null
 
 %files agent
 %defattr(644,root,root,755)
