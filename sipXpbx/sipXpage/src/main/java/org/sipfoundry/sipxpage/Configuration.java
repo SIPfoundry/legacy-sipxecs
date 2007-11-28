@@ -24,6 +24,7 @@ public class Configuration
    }
 
    String logLevel ;          // The desired logging level in SipFoundry format (not log4j!)
+   String traceLevel ;         // The NIST SIP stack trace level (optional)
    String logFile ;           // The file to log into
    String ipAddress ;		   // The IP address (dotted quad string)
    int udpSipPort ;           // The SIP Listen port for UDP
@@ -121,10 +122,17 @@ public class Configuration
       { 
          logLevel = props.getProperty(prop="log.level") ;
          logFile = props.getProperty(prop="log.file") ;
+         
          ipAddress = props.getProperty(prop="sip.address") ;
          udpSipPort = Integer.parseInt(props.getProperty(prop="sip.udpPort")) ;
          tcpSipPort = Integer.parseInt(props.getProperty(prop="sip.tcpPort")) ;
          tlsSipPort = Integer.parseInt(props.getProperty(prop="sip.tlsPort")) ;
+         traceLevel = props.getProperty(prop="sip.trace") ;
+         if (traceLevel == null)
+         {
+            traceLevel = "NONE" ;
+         }
+
          startingRtpPort = Integer.parseInt(props.getProperty(prop="rtp.port"));
       
          pageGroups = new Vector<PageGroupConfig>() ;

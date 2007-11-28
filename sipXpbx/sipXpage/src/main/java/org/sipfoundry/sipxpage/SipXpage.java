@@ -77,10 +77,10 @@ public class SipXpage implements LegListener
       
       properties.setProperty("javax.sip.STACK_NAME", "sipXpage");
 
-      properties.setProperty("gov.nist.javax.sip.DEBUG_LOG",
-            "nistdebug.txt");
-      properties.setProperty("gov.nist.javax.sip.SERVER_LOG",
-            "nistlog.txt");
+ //     properties.setProperty("gov.nist.javax.sip.DEBUG_LOG",
+ //           "sipxpage_debug.log");
+ //     properties.setProperty("gov.nist.javax.sip.SERVER_LOG",
+ //           "sipxpage_server.log");
 
       // Drop the client connection after we are done with the transaction.
       properties.setProperty("gov.nist.javax.sip.CACHE_CLIENT_CONNECTIONS",
@@ -88,7 +88,7 @@ public class SipXpage implements LegListener
       // Set to 0 (or NONE) in your production code for max speed.
       // You need 16 (or TRACE) for logging traces. 32 (or DEBUG) for debug + traces.
       // Your code will limp at 32 but it is best for debugging.
-      properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", "NONE");
+      properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", config.traceLevel);
 
       try {
          // Create SipStack object
@@ -124,25 +124,28 @@ public class SipXpage implements LegListener
       // Create the Page Groups
       int rtpPort = config.startingRtpPort ;
       String pageGroupDescription = "unknown" ;
+      String user = "unknown" ;
       try
       {
          for (PageGroupConfig pc : config.pageGroups)
          {
+            user = pc.user ;
             pageGroupDescription = pc.description ;
             PageGroup p ;
+            LOG.debug(String.format("Page Group %s (%s)", user, pageGroupDescription)) ;
             p = new PageGroup(legSipListener, udpListeningPoint.getIPAddress(), rtpPort) ;
             if (pc.beep == null)
             {
-               throw new Exception("beep for Page Group "+pageGroupDescription+" is missing.") ;
+               throw new Exception("beep for Page Group "+user+" is missing.") ;
             }
             LOG.debug(String.format("Page Group %s adding beep %s",
-                  pageGroupDescription, pc.beep)) ;
+                  user, pc.beep)) ;
             p.setBeep(pc.beep) ;
-            user2Group.put(pc.user, p) ;
+            user2Group.put(user, p) ;
             for (String dest : pc.urls.split(","))
             {
                LOG.debug(String.format("Page Group %s adding destination %s",
-                     pageGroupDescription, dest)) ;
+                     user, dest)) ;
                p.addDestination(dest) ;
             }
             pageGroups.add(p) ;
@@ -151,7 +154,8 @@ public class SipXpage implements LegListener
          
       } catch (Exception e)
       {
-         LOG.fatal(String.format("Cannot create PageGroup %s", pageGroupDescription), e) ;
+         LOG.fatal(String.format("Cannot create PageGroup  %s (%s)", 
+               user, pageGroupDescription), e) ;
          e.printStackTrace() ;
          System.exit(1);
       }
