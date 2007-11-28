@@ -31,7 +31,7 @@ may also be used with the sipXproxy though it is not necessary. The
 sipXproxy provides service level routing, parallel and serial forking
 and AAA services.
 
-%if %{_vendor} == suse || %{!?fedora:0}%{?fedora} >= 8
+%if %{_vendor} == suse
 %debug_package
 %endif
 

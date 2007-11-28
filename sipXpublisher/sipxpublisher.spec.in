@@ -26,7 +26,7 @@ A modular server for handling SIP event subscriptions; event package types
 can be added through a dynamically linked library interface, configured through 
 a simple XML plugin configuration file. 
 
-%if %{_vendor} == suse || %{!?fedora:0}%{?fedora} >= 8
+%if %{_vendor} == suse
 %debug_package
 %endif
 

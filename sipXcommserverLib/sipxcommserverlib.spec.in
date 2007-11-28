@@ -39,7 +39,7 @@ BuildRoot: %{_tmppath}/%name-%version-root
 sipX family servers. It is not intended to be useful as a standalone
 project.
 
-%if %{_vendor} == suse || %{!?fedora:0}%{?fedora} >= 8
+%if %{_vendor} == suse
 %debug_package
 %endif
 

@@ -28,7 +28,7 @@ GIPS VoiceEngine, and GIPS ConferenceEngine. The applications must select an
 appropriate library during the link time in order to use the right media
 subsystem.
 
-%if %{_vendor} == suse || %{!?fedora:0}%{?fedora} >= 8
+%if %{_vendor} == suse
 %debug_package
 %endif
 
