@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.configdiag;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +48,15 @@ public class ExternalCommand implements Serializable {
             commandBuffer.append(arg);
         }
         try {
+            LOG.debug("Starting external command output for command '" + commandBuffer.toString() + "':");
             Process process = Runtime.getRuntime().exec(commandBuffer.toString());
+            BufferedReader streamReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line = streamReader.readLine();
+            while (line != null) {
+                LOG.debug(line);
+                line = streamReader.readLine();
+            }
+            
             int exitStatus = process.waitFor();
             LOG.debug("Exit code for command '" + commandBuffer.toString() 
                     + "' was '" + exitStatus + "'");

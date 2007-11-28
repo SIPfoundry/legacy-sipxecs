@@ -6,6 +6,7 @@
   </description>
   <command>
     <exec>preflight</exec>
+    <arg>-v</arg>
     <arg>--ntp-test</arg>
   </command>
   <results>

@@ -6,8 +6,9 @@
   <!-- additional actions to be displayed on the left side of refresh button -->
   <parameter name="actionBlock" required="no"/>
 
+  <parameter name="interval" default-value="30" />
+
   <!-- P R O P E R T I E S -->
-  <property name="interval" initial-value="30" persist="session" />
   <property name="auto" initial-value="true" persist="session" />
   
   <!-- B E A N S  -->

@@ -5,6 +5,7 @@
   </description>
   <command>
     <exec>preflight</exec>
+    <arg>-v</arg>
     <arg>--tftp-test</arg>
     <arg>${hostname}</arg>
   </command>

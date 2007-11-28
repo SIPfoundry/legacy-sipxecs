@@ -1,6 +1,7 @@
 <div jwcid="@Border" useDojo="ognl:true">
   <h2><span key="title">Configuration Test Page</span></h2>
-  <form jwcid="@AutoRefreshForm" actionBlock="component:actions">
+  <form jwcid="@AutoRefreshForm" actionBlock="component:actions"
+    interval="5">
     <table jwcid="@contrib:TableView" id="configdiag:list" class="component"
       source="prop:configurationTests"
       pageSize="-1"

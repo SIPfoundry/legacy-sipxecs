@@ -6,6 +6,7 @@
   </description>
   <command>
     <exec>preflight</exec>
+    <arg>-v</arg>
     <arg>--dhcp-test</arg>
   </command>
   <results>
