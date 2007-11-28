@@ -112,6 +112,8 @@
 
 /** System administration permissions */
 #define RECORD_SYSTEM_PROMPTS_PERMISSION    "RecordSystemPrompts"
+#define ATTENDANTDIRECTORY_PERMISSION       "AutoAttendant"
+#define VOICEMAIL_PERMISSION                "Voicemail"
 
 
 /** Types of system prompts */

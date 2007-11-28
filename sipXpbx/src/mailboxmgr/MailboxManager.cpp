@@ -1766,14 +1766,15 @@ MailboxManager::validateMailbox (
 
                     if ( permissions.getSize() > 0 )
                     {
-                        // Ensure user has 'Voicemail' permissions before proceeding
+                        // Ensure user has 'Voicemail'  or AutoAttendant permissions before proceeding
                         for ( int i=0; i<permissions.getSize(); i++ )
                         {
                             UtlHashMap record;
                             permissions.getIndex( i, record );
                             UtlString permission = *((UtlString*)record.findValue(&permissionKey));
 
-                            if ( permission.compareTo( "Voicemail", UtlString::ignoreCase ) == 0 )
+                            if ( permission.compareTo( "Voicemail", UtlString::ignoreCase ) == 0 ||
+                                 permission.compareTo( "AutoAttendant",  UtlString::ignoreCase ) == 0)
                             {
                                 // fixup to prevent infinite loop where the
                                 // uri does not have a permission set
@@ -1783,7 +1784,7 @@ MailboxManager::validateMailbox (
                                 // as we found a good set of permissions,
                                 validated = TRUE;
                                 OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                                              "MailboxManager::validateMailbox: found voicemail permission");
+                                              "MailboxManager::validateMailbox: found voicemail  or AutoAttendant permission");
                                 break;
                             }
                         }

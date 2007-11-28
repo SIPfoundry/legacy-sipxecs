@@ -159,6 +159,14 @@ LoginCGI::handleOpenVXIRequest( UtlString* out )
         if( bHasRecordSystemPromptsPermission )
             strRecordEnabled = "yes" ;
 
+        // Check if this user has permission to access voicemail options
+        UtlBoolean bHasVoicemailPermission = PermissionDB::getInstance()->
+                        hasPermission( mailboxUrl, VOICEMAIL_PERMISSION );
+        UtlString strVoicemailEnabled = "no" ;
+        if( bHasVoicemailPermission ) {
+            strVoicemailEnabled = "yes" ;
+        }
+
                 dynamicVxml += "<form>\n<block>\n";
                 dynamicVxml += "<var name=\"result\" expr=\"'success'\"/>\n";
 
@@ -170,7 +178,8 @@ LoginCGI::handleOpenVXIRequest( UtlString* out )
                                                         "<var name=\"saved\" expr=\"" + rSavedCount + "\"/>\n"\
                                                         "<var name=\"mailboxid\" expr=\"'" + m_mailboxIdentity + "'\"/>\n" \
                                                         "<var name=\"extension\" expr=\"'" + m_extension + "'\"/>\n" \
-                            "<var name=\"isRecordSystemPromptsEnabled\" expr=\"'" + strRecordEnabled + "'\"/>\n" ;
+                            "<var name=\"isRecordSystemPromptsEnabled\" expr=\"'" + strRecordEnabled + "'\"/>\n" \
+                            "<var name=\"isVoicemailEnabled\" expr=\"'" + strVoicemailEnabled + "'\"/>\n" ;
 
         } else
                 {
@@ -179,9 +188,10 @@ LoginCGI::handleOpenVXIRequest( UtlString* out )
                                                         "<var name=\"saved\" expr=\"0\"/>"\
                                                         "<var name=\"mailboxid\" expr=\"'" + m_mailboxIdentity + "'\"/>\n" \
                                                         "<var name=\"extension\" expr=\"'" + m_extension + "'\"/>\n" \
-                            "<var name=\"isRecordSystemPromptsEnabled\" expr=\"'" + strRecordEnabled + "'\"/>\n" ;
+                            "<var name=\"isRecordSystemPromptsEnabled\" expr=\"'" + strRecordEnabled + "'\"/>\n" \
+                            "<var name=\"isVoicemailEnabled\" expr=\"'" + strVoicemailEnabled + "'\"/>\n" ;
                 }
-                dynamicVxml +=  "<return namelist=\"result unheard total saved mailboxid extension isRecordSystemPromptsEnabled\"/>\n"\
+                dynamicVxml +=  "<return namelist=\"result unheard total saved mailboxid extension isRecordSystemPromptsEnabled isVoicemailEnabled\"/>\n"\
                                                 "</block>\n</form>\n";
         }
         else

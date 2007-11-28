@@ -15,7 +15,8 @@
         <var name="from" />
         <var name="mediaserverurl" />
         <var name="securemediaserverurl" />
-    
+
+
         <!-- Action attribute is required by the CGI -->
         <var name="action" expr="'login'"/>
 
@@ -98,7 +99,14 @@
                 <if cond="login.result == 'success'">
                     <assign name="mailbox" expr="login.mailboxid" />
 		    <assign name="extn" expr="extension"/>
-                    <goto nextitem="playstatus"/>
+                    <assign name="isVoicemailEnabled" expr="login.isVoicemailEnabled" />
+                    <if cond="isVoicemailEnabled == 'yes'">
+                        <goto nextitem="playstatus"/>
+                    <else/>
+                        <!-- This routine is only entered when user's AttendantDirectory permission
+                        is enabled but Voicemail is not to allow user to record name for                                                          autoattendant dial-by-name  --> 
+                        <goto nextitem="recordname"/> 
+                    </if>
                 <elseif cond="login_attempts == '2'"/>
                     <!-- Extension and pin do not match. Only 3 attempts allowed. -->
                     <prompt bargein="false">
@@ -194,6 +202,20 @@
             <param name="securemediaserverurl" expr="securemediaserverurl" />
             <param name="isRecordSystemPromptsEnabled" expr="login.isRecordSystemPromptsEnabled" />
         </subdialog>
+
+         <!-- Proceed to the recordname menu -->
+         <subdialog name="recordname" cond="login.result == 'success'" method="get" src="recordgreeting.vxml">
+            <param name="mailbox" expr="mailbox" />
+            <param name="mediaserverurl" expr="mediaserverurl" />
+            <param name="securemediaserverurl" expr="securemediaserverurl" />
+            <param name="greetingtype" expr="'name'"/>
+            <filled>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'"/>
+                </prompt>
+                <disconnect/>
+            </filled>
+         </subdialog>
 
     </form>
 </vxml>

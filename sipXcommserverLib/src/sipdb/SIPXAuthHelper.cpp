@@ -166,9 +166,10 @@ SIPXAuthHelper::isAuthorizedUser (
                         permissions.getIndex( i, record );
                         UtlString permission = *((UtlString*)record.findValue(&permissionKey));
 
-                        // AutoAttendant permission is never used here, it is only
-                        // used in creating the dialbyname database
-                        if ( permission.compareTo( "Voicemail", UtlString::ignoreCase )==0  )
+                        // AutoAttendant permission is used  here to allow user record name for dialbyname if its
+                        // Voicemail permission is not enabled.
+                        if ( permission.compareTo( "Voicemail", UtlString::ignoreCase )==0 || 
+                             permission.compareTo( "AutoAttendant", UtlString::ignoreCase )==0 )
                         {
                             permissionFound = TRUE;
 
