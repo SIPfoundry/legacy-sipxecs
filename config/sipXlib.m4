@@ -595,8 +595,8 @@ AC_DEFUN([SFAC_DIST_DIR],
     AC_SUBST(RPMBUILD_TOPDIR)
     RPM_TARGET_ARCH="\$(shell rpm --eval '%{_target_cpu}')"
     AC_SUBST(RPM_TARGET_ARCH)
-    # shamelessly avoiding dollar signs w/sed because of m4 wackiness
-    RPMBUILD_DEBUG_PACKAGE_NAME="\$(shell rpm --eval '%debug_package' | grep '^%package' | sed 's/%package //')"
+    # shamelessly avoiding dollar signs w/sed because of m4 escape wackiness
+    RPMBUILD_DEBUG_PACKAGE_NAME="\$(shell rpm --eval '%debug_package' | grep '^%package' | sed -e 's/%package//' -e 's/ //g')"
     AC_SUBST(RPMBUILD_DEBUG_PACKAGE_NAME)
   fi
 
