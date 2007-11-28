@@ -41,7 +41,7 @@ encapsulate functions and operations for:
   * Operating System Processes
   * Dynamic loading of shared libraries and symbols
 
-%if %{_vendor} == suse || %{fedora} >= 8
+%if %{_vendor} == suse || %{!?fedora:0}%{?fedora} >= 8
 %debug_package
 %endif
 

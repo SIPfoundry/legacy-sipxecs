@@ -54,7 +54,7 @@ The sipXpbx project is a comprehansive small/medium scale Enterprise SIP PBX. It
  * Media Server sipXvxml with auto-attendant and voice mail applications,
  * PBX and phone configuration support from sipXconfig.
 
-%if %{_vendor} == suse || %{fedora} >= 8
+%if %{_vendor} == suse || %{!?fedora:0}%{?fedora} >= 8
 %debug_package
 %endif
 
