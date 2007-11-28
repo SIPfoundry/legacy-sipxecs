@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.bulk.UserPreview;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.ldap.CollectingNameClassPairCallbackHandler;
 import org.springframework.ldap.LdapTemplate;
 import org.springframework.ldap.NameClassPairCallbackHandler;
@@ -128,6 +129,8 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         } catch (SearchLimitExceededException normal) {
             // See http://forum.springframework.org/archive/index.php/t-27836.html
             LOG.debug("Normal overflow, requesting to preview more records then exist");
+        } catch (DataAccessException e) {
+            throw new UserException("LDAP search failed : " + e.getCause().getMessage());
         }
     }
 
