@@ -102,6 +102,18 @@ public class UserTest extends TestCase {
         assertEquals(newHash, user.getSipPasswordHash("realm.sipfoundry.org"));
     }
 
+    public void testGetAliasesStringSorted() {
+        User user = new User();
+        user.setUserName("username");
+
+        Set aliases = new LinkedHashSet(); // use LinkedHashSet for stable ordering
+        aliases.add("mambo");
+        aliases.add("tango");
+        aliases.add("django");
+        user.setAliases(aliases);
+        assertEquals("django mambo tango", user.getAliasesString());
+    }
+
     public void testGetAliases() {
         User user = new User();
         user.setUserName("username");

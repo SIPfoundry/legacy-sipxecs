@@ -69,7 +69,7 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("Lennon", user2.getLastName());
         assertEquals("abcdef", user2.getSipPassword());
         assertEquals(32, user2.getPintoken().length());
-        assertEquals("jlennon, 121212", user2.getAliasesString());
+        assertEquals("121212 jlennon,", user2.getAliasesString());
 
         coreContextCtrl.verify();
     }

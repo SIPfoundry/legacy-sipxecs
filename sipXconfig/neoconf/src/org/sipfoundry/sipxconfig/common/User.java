@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.common;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -229,7 +230,8 @@ public class User extends BeanWithGroups implements NamedObject {
 
     /** Return the aliases as a space-delimited string */
     public String getAliasesString() {
-        Set aliases = getAliases();
+        List<String> aliases = new ArrayList<String>(getAliases());
+        Collections.sort(aliases);
         return StringUtils.join(aliases.iterator(), " ");
     }
 
