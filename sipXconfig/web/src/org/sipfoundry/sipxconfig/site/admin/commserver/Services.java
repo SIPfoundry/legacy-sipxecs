@@ -12,9 +12,6 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 import java.util.Collection;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.apache.tapestry.contrib.table.model.ITableRendererSource;
-import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
@@ -24,12 +21,10 @@ import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.components.LocalizedTableRendererSource;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class Services extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "Services";
-    private static final String STATUS_COLUMN = "status";
 
     public abstract SipxProcessContext getSipxProcessContext();
 
@@ -79,15 +74,6 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
             validator.record(new ValidatorException(e.getMessage()));
             return ArrayUtils.EMPTY_OBJECT_ARRAY;
         }
-    }
-
-    public ITableColumn getStatusColumn() {
-        ExpressionTableColumn column = new ExpressionTableColumn(STATUS_COLUMN, getMessages()
-                .getMessage(STATUS_COLUMN), "status.name", true, getExpressionEvaluator());
-        ITableRendererSource rendererSource = new LocalizedTableRendererSource(getMessages(),
-                STATUS_COLUMN);
-        column.setValueRendererSource(rendererSource);
-        return column;
     }
 
     public void formSubmit() {

@@ -12,8 +12,8 @@
   <inject property="sipxProcessContext" object="spring:sipxProcessContext" />
   <inject property="expressionEvaluator" object="service:tapestry.ognl.ExpressionEvaluator" />
 
-  <property name="selections"
-    initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()" />
+  <property name="currentRow" />
+  <property name="selections" initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()" />
   <property name="servicesToStart" />
   <property name="servicesToStop" />
   <property name="servicesToRestart" />
@@ -22,14 +22,12 @@
   <!--
     - B E A N S
   -->
-  <bean name="locationModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel"
-    lifecycle="request">
+  <bean name="locationModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="request">
     <set name="array" value="sipxProcessContext.locations" />
     <set name="labelExpression" value="literal:id" />
   </bean>
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
-  <bean name="serverStatusConverter"
-    class="org.sipfoundry.sipxconfig.site.admin.commserver.ServerStatusSqueezeAdapter" />
+  <bean name="serverStatusConverter" class="org.sipfoundry.sipxconfig.site.admin.commserver.ServerStatusSqueezeAdapter" />
 
   <!--
     - C O M P O N E N T S
@@ -57,9 +55,15 @@
   <component id="tableView" type="Table">
     <binding name="source" value="serviceStatus" />
     <binding name="selections" value="selections" />
-    <binding name="columns" value="literal:* serviceName,=statusColumn" />
+    <binding name="columns" value="literal:* serviceName,status" />
     <binding name="usePager" value="false" />
     <binding name="converter" value="bean:serverStatusConverter" />
+    <binding name="row" value="currentRow" />
+  </component>
+
+  <!-- Column 2: status -->
+  <component id="viewStatusLabel" type="Insert">
+    <binding name="value" value="ognl:messages.getMessage('status.' + currentRow.status.name)" />
   </component>
 
   <component id="startButton" type="Submit">
