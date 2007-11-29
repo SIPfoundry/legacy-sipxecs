@@ -20,6 +20,7 @@
         	  label="message:label.prefix">
             <input jwcid="prefix@TextField" id="prefix"
               value="prop:prefix"
+              validators="spring-validators:required,noWhitespace,validFieldSize"
               displayName="message:label.prefix"/>
             <input jwcid="save@Submit" id="pagingGroups:save"
               listener="listener:savePagingPrefix"

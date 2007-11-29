@@ -8,14 +8,14 @@
         <tbody>
           <span jwcid="@If" condition="ognl:(pagingContext.pagingPrefix.length())==0">
             <tr jwcid="@FieldPanel" for="prefix" field="component:prefix" label="message:label.prefix">
-              <input jwcid="prefix@TextField" id="prefix" value="prop:group.prefix" validators="spring-validators:required,noWhitespace" displayName="message:label.prefix"/>
+              <input jwcid="prefix@TextField" id="prefix" value="prop:group.prefix" validators="spring-validators:required,noWhitespace,validFieldSize" displayName="message:label.prefix"/>
             </tr>
           </span>
           <tr jwcid="@FieldPanel" for="enableGroup" field="component:enableGroup" label="message:label.enableGroup">
             <span jwcid="enableGroup@Checkbox" id="enableGroup" value="prop:group.enabled"/>
           </tr>
           <tr jwcid="@FieldPanel" for="number" field="component:number" label="message:label.number">
-            <span jwcid="number@TextField" id="number" value="prop:group.pageGroupNumber" translator="translator:integer" validators="spring-validators:required,min=1" displayName="message:label.number"/>
+            <span jwcid="number@TextField" id="number" value="prop:group.pageGroupNumber" translator="translator:integer" validators="spring-validators:required,min=1,max=99" displayName="message:label.number"/>
           </tr>
           <tr jwcid="@FieldPanel" for="description" field="component:description" label="message:label.description">
             <span jwcid="description@TextArea" id="description" value="prop:group.description" cols="45" rows="5" />
