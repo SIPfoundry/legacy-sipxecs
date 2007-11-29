@@ -383,7 +383,15 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
                    connection->getRemoteAddress(&remoteAddress);
                    UtlString responseText;
                    connection->getResponseText(responseText);
-                   postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_FAILED, CONNECTION_STATE, PtEvent::CAUSE_TRANSFER, connection->isRemoteCallee(), remoteAddress, 1, targetCallId);
+                   postTaoListenerMessage(connection->getResponseCode(), 
+                                          responseText,
+                                          PtEvent::CONNECTION_FAILED,
+                                          CONNECTION_STATE,
+                                          PtEvent::CAUSE_TRANSFER,
+                                          connection->isRemoteCallee(),
+                                          remoteAddress, 
+                                          1, 
+                                          targetCallId);
                 /** SIPXTAPI: TBD **/
 #ifdef TEST_PRINT
                    osPrintf("%s-CpPeerCall::CP_BLIND_TRANSFER posting CONNECTION_FAILED to call: %s\n",
@@ -1126,18 +1134,22 @@ UtlBoolean CpPeerCall::handleUnholdTermConnection(OsMsg* pEventMessage)
             connection->offHold();
             UtlString remoteAddress;
             connection->getRemoteAddress(&remoteAddress);
+            UtlString connCallId;
+            connection->getCallId(&connCallId);
             if (mLocalTermConnectionState != PtTerminalConnection::TALKING &&
                 mLocalTermConnectionState != PtTerminalConnection::IDLE)
             {
                 UtlString responseText;
                 connection->getResponseText(responseText);
                 postTaoListenerMessage(connection->getResponseCode(), 
-                    responseText, 
-                    PtEvent::TERMINAL_CONNECTION_TALKING, 
-                    TERMINAL_CONNECTION_STATE, 
-                    PtEvent::CAUSE_UNHOLD, 
-                    connection->isRemoteCallee(), 
-                    remoteAddress);
+                                       responseText, 
+                                       PtEvent::TERMINAL_CONNECTION_TALKING, 
+                                       TERMINAL_CONNECTION_STATE, 
+                                       PtEvent::CAUSE_UNHOLD, 
+                                       connection->isRemoteCallee(), 
+                                       remoteAddress,
+                                       0,
+                                       connCallId);
 
                 if (mLocalHeld)
                 {
@@ -2113,8 +2125,18 @@ UtlBoolean CpPeerCall::handleUnholdAllTermConnections(OsMsg* pEventMessage)
 
             connection->getResponseText(responseText);      
             connection->getRemoteAddress(&remoteAddress);
-
-            postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_TALKING, TERMINAL_CONNECTION_STATE, PtEvent::CAUSE_UNHOLD, connection->isRemoteCallee(), remoteAddress);
+            UtlString connCallId;
+            connection->getCallId(&connCallId);
+            
+            postTaoListenerMessage(connection->getResponseCode(), 
+                                   responseText, 
+                                   PtEvent::TERMINAL_CONNECTION_TALKING, 
+                                   TERMINAL_CONNECTION_STATE, 
+                                   PtEvent::CAUSE_UNHOLD, 
+                                   connection->isRemoteCallee(), 
+                                   remoteAddress,
+                                   0,
+                                   connCallId);
 
             connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
         }
@@ -2663,7 +2685,7 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
                                  const char* newCallId,
                                  CONTACT_ID contactId,
                                  const void* pDisplay,
-								 const char* originalCallId)
+                                 const char* originalCallId)
 {
     SipConnection* connection = NULL;
 
@@ -2714,7 +2736,7 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
         originalCallConnectionAddress, 
         FALSE,
         pDisplay,
-		originalCallId); 
+        originalCallId); 
 
     addToneListenersToConnection(connection) ;
 
@@ -2784,11 +2806,23 @@ void CpPeerCall::inFocus(int talking)
         {
             setCallState(responseCode, responseText, PtCall::ACTIVE, PtEvent::CAUSE_NEW_CALL);
         }
-        postTaoListenerMessage(responseCode, responseText, PtEvent::CONNECTION_INITIATED, CONNECTION_STATE, PtEvent::CAUSE_NEW_CALL, remoteIsCallee, remoteAddress);
+        postTaoListenerMessage(responseCode, 
+                               responseText, 
+                               PtEvent::CONNECTION_INITIATED, 
+                               CONNECTION_STATE, 
+                               PtEvent::CAUSE_NEW_CALL, 
+                               remoteIsCallee, 
+                               remoteAddress);
 
         if (mLocalTermConnectionState == PtTerminalConnection::IDLE)
         {
-            postTaoListenerMessage(responseCode, responseText, PtEvent::TERMINAL_CONNECTION_CREATED, TERMINAL_CONNECTION_STATE, PtEvent::CAUSE_NEW_CALL, remoteIsCallee, remoteAddress);
+            postTaoListenerMessage(responseCode, 
+                                   responseText, 
+                                   PtEvent::TERMINAL_CONNECTION_CREATED, 
+                                   TERMINAL_CONNECTION_STATE, 
+                                   PtEvent::CAUSE_NEW_CALL,
+                                   remoteIsCallee,
+                                   remoteAddress);
 
             int metaEventId = 0;
             int metaEventType = PtEvent::META_EVENT_NONE;
@@ -2811,7 +2845,16 @@ void CpPeerCall::inFocus(int talking)
             {
                 UtlString responseText;
                 connection->getResponseText(responseText);
-                postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_TALKING, TERMINAL_CONNECTION_STATE, PtEvent::CAUSE_UNHOLD, remoteIsCallee, remoteAddress);
+                UtlString connCallId;
+                connection->getCallId(&connCallId);                
+                postTaoListenerMessage(connection->getResponseCode(), 
+                                       responseText, PtEvent::TERMINAL_CONNECTION_TALKING, 
+                                       TERMINAL_CONNECTION_STATE, 
+                                       PtEvent::CAUSE_UNHOLD, 
+                                       remoteIsCallee, 
+                                       remoteAddress,
+                                       0,
+                                       connCallId);
             }
         }
     }
@@ -2855,9 +2898,18 @@ void CpPeerCall::outOfFocus()
     #endif
             connection->getRemoteAddress(&remoteAddress);
             connection->getResponseText(responseText);
+                        
 
             // Notify listeners that the local connection is out of focus
-            postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_HELD, TERMINAL_CONNECTION_STATE, PtEvent::CAUSE_NORMAL, remoteIsCallee, remoteAddress);
+            postTaoListenerMessage(connection->getResponseCode(), 
+                                   responseText, 
+                                   PtEvent::TERMINAL_CONNECTION_HELD, 
+                                   TERMINAL_CONNECTION_STATE, 
+                                   PtEvent::CAUSE_NORMAL, 
+                                   remoteIsCallee, 
+                                   remoteAddress,
+                                   0,
+                                   connectionCallId);
         }
 
         if (connection->isHeld())
@@ -3058,6 +3110,9 @@ void CpPeerCall::dropDeadConnections()
     UtlDListIterator iterator(mConnections);
     while ((connection = (Connection*) iterator()))
     {
+        UtlString connCallId;
+        connection->getCallId(&connCallId);        
+        
         // 1. Look for newly disconnected/failed connections and fire off events
         // and mark for deletion.
 
@@ -3086,7 +3141,16 @@ void CpPeerCall::dropDeadConnections()
                 {
                     UtlString responseText;
                     connection->getResponseText(responseText);
-                    postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_DISCONNECTED, CONNECTION_STATE);
+                    postTaoListenerMessage(connection->getResponseCode(), 
+                                           responseText, 
+                                           PtEvent::CONNECTION_DISCONNECTED, 
+                                           CONNECTION_STATE,
+                                           PtEvent::CAUSE_NORMAL, // cause
+                                           1,                     // remoteIsCallee
+                                           "",                    // remoteAddress
+                                           0,                     // isRemote
+                                           connCallId);                                           
+                                           
 
                     // do not fire the taip event if it is a ghost connection
                     CpGhostConnection* pGhost = NULL;
@@ -3096,14 +3160,41 @@ void CpPeerCall::dropDeadConnections()
                         connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
                     }
 
-                    postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_DROPPED, TERMINAL_CONNECTION_STATE);
+                    postTaoListenerMessage(connection->getResponseCode(), 
+                                           responseText, 
+                                           PtEvent::TERMINAL_CONNECTION_DROPPED,
+                                           TERMINAL_CONNECTION_STATE,
+                                           PtEvent::CAUSE_NORMAL, // cause
+                                           1,                     // remoteIsCallee
+                                           "",                    // remoteAddress
+                                           0,                     // isRemote
+                                           connCallId);                                                                                      
+                                           
                 }
                 else if (localState ==  Connection::CONNECTION_FAILED)
                 {
                     UtlString responseText;
                     connection->getResponseText(responseText);
-                    postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_FAILED, CONNECTION_STATE);               
-                    postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_DROPPED, TERMINAL_CONNECTION_STATE);
+                    postTaoListenerMessage(connection->getResponseCode(), 
+                                           responseText, 
+                                           PtEvent::CONNECTION_FAILED, 
+                                           CONNECTION_STATE,
+                                           PtEvent::CAUSE_NORMAL, // cause
+                                           1,                     // remoteIsCallee
+                                           "",                    // remoteAddress
+                                           0,                     // isRemote
+                                           connCallId);                                           
+                                           
+                    postTaoListenerMessage(connection->getResponseCode(), 
+                                           responseText,
+                                           PtEvent::TERMINAL_CONNECTION_DROPPED, 
+                                           TERMINAL_CONNECTION_STATE,
+                                           PtEvent::CAUSE_NORMAL, // cause
+                                           1,                     // remoteIsCallee
+                                           "",                    // remoteAddress
+                                           0,                     // isRemote
+                                           connCallId);                                           
+                                           
 
                     CpGhostConnection* pGhost = NULL;
                     pGhost = dynamic_cast<CpGhostConnection*>(connection);

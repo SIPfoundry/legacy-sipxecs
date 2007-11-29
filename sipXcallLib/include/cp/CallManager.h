@@ -415,13 +415,6 @@ protected:
 
         void addTaoListenerToCall(CpCall* pCall);
 
-#if 0 // TO_BE_REMOVED
-        void postTaoListenerMessage(int eventId,
-                                    int type,
-                                    int cause,
-                                    CpMultiStringMessage* pEventMessage);
-#endif
-
         OsStatus addThisListener(OsServerTask* pListener,
                                  char* callId,
                                  int mask);
