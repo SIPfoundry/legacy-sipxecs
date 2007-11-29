@@ -160,13 +160,13 @@ int sem_init(int& sem, char const* name, unsigned init_value)
         }
         fd = open(path, O_WRONLY|O_CREAT, 0777);
         if (fd < 0) {
+            OsSysLog::add(FAC_DB, PRI_CRIT,
+                          "Error attempting to open '%s' for writing.",
+                          path);
             if (path != name) { 
                 delete[] path;
             }
             PRINT_ERROR("open");
-            OsSysLog::add(FAC_DB, PRI_CRIT,
-                          "Error attempting to open '%s' for writing.",
-                          path);
             return -1;
         }
         close(fd);
@@ -259,7 +259,7 @@ bool dbSemaphore::wait(unsigned msec)
                   "dbSemaphore::wait begin sem=%0x msec=%d", s, msec);
     wait_status ws = wait_semaphore(s, msec, sops, itemsof(sops));
     OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbSemaphore::wait end sem=%0x msec=%d", s, msec);
+                  "dbSemaphore::wait end sem=%0x msec=%d ws=%d", s, msec, ws);
     assert(ws != wait_error);
     return ws == wait_ok;
 }
@@ -268,7 +268,7 @@ void dbSemaphore::signal(unsigned inc)
 {
     if (inc != 0) { 
     OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbSemaphore::signal sem=%0x", s);
+                  "dbSemaphore::signal sem=%0x inc=%d", s, inc);
         struct sembuf sops[1];
         sops[0].sem_num = 0;
         sops[0].sem_op  = inc;
@@ -352,6 +352,8 @@ static union semun u;
 
 void dbSemaphore::reset() 
 {
+    OsSysLog::add(FAC_DB, PRI_DEBUG,
+                  "dbSemaphore::reset sem=%0x", s);
     u.val = 0;
     int rc = semctl(s, 0, SETVAL, u);
     assert(rc >= 0);
@@ -359,12 +361,16 @@ void dbSemaphore::reset()
 
 bool dbSemaphore::open(char const* name, unsigned init_value)
 {
+    OsSysLog::add(FAC_DB, PRI_DEBUG,
+                  "dbSemaphore::open sem=%0x", s);
     return sem_init(s, name, init_value) == 0;
 }
 
 void dbSemaphore::close() {}
 
 void dbSemaphore::erase() {
+    OsSysLog::add(FAC_DB, PRI_DEBUG,
+                  "dbSemaphore::erase sem=%0x", s);
     semctl(s, 0, IPC_RMID, &u);
 }
 
@@ -374,9 +380,9 @@ bool dbEvent::wait(unsigned msec)
     OsSysLog::add(FAC_DB, PRI_DEBUG,
                   "dbEvent::wait begin sem=%0x msec=%d", e, msec);
     wait_status ws = wait_semaphore(e, msec, sops, itemsof(sops));
-    assert(ws != wait_error);
     OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbEvent::wait end sem=%0x msec=%d", e, msec);
+                  "dbEvent::wait end sem=%0x msec=%d ws=%d", e, msec, ws);
+    assert(ws != wait_error);
     return ws == wait_ok;
 }
 
@@ -479,7 +485,7 @@ void dbGlobalCriticalSection::enter()
                   "dbGlobalCriticalSection::enter begin sem=%0x", semid);
     while ((rc = semop(semid, sops, 1)) < 0 && errno == EINTR);
     OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbGlobalCriticalSection::enter end sem=%0x", semid);
+                  "dbGlobalCriticalSection::enter end sem=%0x rc=%d", semid, rc);
     assert(rc == 0);
 #if GLOBAL_CS_DEBUG
     owner = pthread_self();
@@ -491,9 +497,9 @@ void dbGlobalCriticalSection::leave()
 #if GLOBAL_CS_DEBUG
     owner = 0;
 #endif
+    static struct sembuf sops[] = {{0, 1, SEM_UNDO}};
     OsSysLog::add(FAC_DB, PRI_DEBUG,
                   "dbGlobalCriticalSection::leave sem=%0x", semid);
-    static struct sembuf sops[] = {{0, 1, SEM_UNDO}};
     int rc = semop(semid, sops, 1);
     assert(rc == 0);
 }
@@ -531,11 +537,11 @@ dbInitializationMutex::initialize(char const* name)
     }
     int fd = open(path, O_WRONLY|O_CREAT, 0777);
     if (fd < 0) {
+        OsSysLog::add(FAC_DB, PRI_ERR, "Error attempting to open '%s' for writing.\n", path);
         if (path != name) { 
             delete[] path;
         }
         PRINT_ERROR("open");
-        OsSysLog::add(FAC_DB, PRI_ERR, "Error attempting to open '%s' for writing.\n", path);
         return InitializationError;
     }
     ::close(fd);
