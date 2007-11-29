@@ -72,7 +72,9 @@ const RegEx SipXBranchRecognizer(
 /// constructor for a client transaction in a User Agent Client
 BranchId::BranchId(const SipMessage& message)
 {
-   unsigned int uniqueCounter = smCounter++;
+   unsigned int uniqueCounter = smCounter;
+   smCounter++;
+   smCounter &= 0xFFFF;
    generateUniquePart(message, uniqueCounter, *this);
    mParentStringValid = true;   
 }
@@ -90,7 +92,9 @@ BranchId::BranchId(BranchId&         parentId, ///< the branchid of the server t
                    const SipMessage& message   ///< the new message
                    )
 {
-   unsigned int uniqueCounter = smCounter++;
+   unsigned int uniqueCounter = smCounter;
+   smCounter++;
+   smCounter &= 0xFFFF;
    generateUniquePart(message, uniqueCounter, *this);
 
    parentId.generateFullValue();
@@ -276,7 +280,7 @@ void BranchId::generateFullValue()
          remove(0);
          append(SIPX_MAGIC_COOKIE);
          char hexCounter[5];
-         sprintf(hexCounter, "%04x", existingCounter);
+         sprintf(hexCounter, "%04x", existingCounter & 0xFFFF);
          append(hexCounter);
          append(existingUniquePart);
          if (!mLoopDetectionKey.isNull())
@@ -401,7 +405,7 @@ void BranchId::generateUniquePart(const SipMessage& message,
    branchSignature.hash(smIdSecret);
 
    char hexCounter[5];
-   sprintf(hexCounter, "%04x", uniqueCounter);
+   sprintf(hexCounter, "%04x", uniqueCounter & 0xFFFF);
    uniqueValue.append(hexCounter);
    
    branchSignature.hash(&uniqueCounter, sizeof(uniqueCounter));
