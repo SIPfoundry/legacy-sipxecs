@@ -5,10 +5,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
-import org.springframework.context.ApplicationContext;
 
 public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
     
@@ -26,7 +22,7 @@ public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
             if ("caller-alias".equals(set.getName())) {
                 continue;
             }
-            DataSetGenerator gen = (DataSetGenerator) m_dataSetGeneratorMap.get(set.getName());
+            DataSetGenerator gen = m_dataSetGeneratorMap.get(set.getName());
             assertNotNull(set.getName(), gen);
             assertNotNull(set.getName(), gen.getCoreContext());
         }
@@ -39,10 +35,6 @@ public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
     public void setCredentialDataSet(Credentials credentials) {
         m_dataSetGeneratorMap.put(DataSet.CREDENTIAL.getName(), credentials);
     }
-    
-    /*public void setCallerAliasDataSet(CallerAliases callerAliases) {
-        m_DataSetGeneratorMap.put(DataSet.CALLER_ALIAS.getName(), callerAliases);
-    }*/
     
     public void setAliasDataSet(Aliases aliases) {
         m_dataSetGeneratorMap.put(DataSet.ALIAS.getName(), aliases);

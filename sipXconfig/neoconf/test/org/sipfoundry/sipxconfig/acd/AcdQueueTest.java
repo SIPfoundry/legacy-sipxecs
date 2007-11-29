@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 

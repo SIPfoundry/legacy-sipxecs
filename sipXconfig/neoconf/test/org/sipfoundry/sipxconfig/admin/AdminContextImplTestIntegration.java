@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.test.TestUtil;
