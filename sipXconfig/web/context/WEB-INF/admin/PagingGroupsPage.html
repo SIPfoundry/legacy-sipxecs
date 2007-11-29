@@ -30,7 +30,7 @@
       </fieldset>
     </span>
 	<table jwcid="@Table" id="pagingGroups:list"
-        columns="* pageGroupNumber,!enabled,!description"
+        columns="* pageGroupNumber,enabled,!userCount,description"
         source="prop:groups"
         row="prop:currentRow"
         selections="bean:selections">
@@ -44,8 +44,8 @@
       <tr jwcid="enabledColumnValue@Block">
         <td jwcid="@common/EnabledColumn" value="prop:currentRow.enabled"/>
       </tr>
-      <tr jwcid="typeColumnValue@Block">
-        <td jwcid="@Insert" value="prop:currentRow.description"/>
+      <tr jwcid="userCountColumnValue@Block">
+        <td jwcid="@Insert" value="ognl:currentRow.users.size()"/>
       </tr>
     </table>
     <ul class="component-submit">
