@@ -311,7 +311,8 @@ configtest() { # process-name  process-wd  process-command
                 status=$?
         elif [ $iam = root ]
         then
-            test "is_file_executable_by_username $proc_cmd @SIPXPBXUSER@" && $proc_cmd --configtest
+            su @SIPXPBXUSER@ -c \
+              "test \"is_file_executable_by_username $proc_cmd @SIPXPBXUSER@\" && $proc_cmd --configtest"
             echo $? > @SIPX_RUNDIR@/$proc_name.result
             status=`cat @SIPX_RUNDIR@/$proc_name.result`
             rm -f @SIPX_RUNDIR@/$proc_name.result
