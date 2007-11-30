@@ -406,7 +406,7 @@ AC_DEFUN([CHECK_COREAUDIO],
 [
    AC_MSG_CHECKING([for CoreAudio])
 
-   if test "`uname`" == "Darwin"; then
+   if test "`uname`" = "Darwin"; then
         AC_SUBST(CA_LIBS,"-framework CoreAudio -framework AudioToolbox")
 	AC_MSG_RESULT([yes])
    else
@@ -1217,7 +1217,7 @@ AC_DEFUN([CHECK_RUBY],
 [
   AC_PATH_PROG([RUBY], ruby)
 
-  if test "x$RUBY" == "x" ; then
+  if test "x$RUBY" = "x" ; then
     AC_MSG_ERROR([ruby is required])
   fi
   
@@ -1240,7 +1240,7 @@ AC_DEFUN([CHECK_GEM],
   AC_PATH_PROG([GEM], gem)
 
   minGemVersion=[$1]
-  if test "x$GEM" == "x" ; then
+  if test "x$GEM" = "x" ; then
     AC_MSG_RESULT([* to install ruby gems follow your distro instructions, ])
     AC_MSG_RESULT([* locate the rpm on pbone or run the following commands: ])
 cat 1>&2 <<GEMS_HOWTO
@@ -1268,7 +1268,7 @@ AC_DEFUN([CHECK_RAKE],
 [
   AC_PATH_PROG([RAKE], rake)
 
-  if test "x$RAKE" == "x" ; then
+  if test "x$RAKE" = "x" ; then
     AC_MSG_ERROR([rake is required.  type 'gem install rake --no-rdoc'])
   fi
   
@@ -1469,7 +1469,7 @@ AC_DEFUN([REQUIRE_RPM],
 AC_DEFUN([CHECK_CRON],
 [
   AC_MSG_CHECKING([cron.d])
-  if test x$CRON_D == x ; then
+  if test x$CRON_D = x ; then
     CRON_D=/etc/cron.d
   fi
   if ! test -d $CRON_D; then
@@ -1484,19 +1484,19 @@ AC_DEFUN([CHECK_GENERATE_MANPAGES],
 [
   AC_MSG_CHECKING([asciidoc])
   AC_PATH_PROG([ASCIIDOC], asciidoc)
-  if test x$ASCIIDOC == x; then
+  if test x$ASCIIDOC = x; then
     AC_MSG_WARN([asciidoc not found, cannot generate man pages])
     missing_dependency=yes
   fi
     
   AC_PATH_PROG([XSLTPROC], xsltproc)
-  if test x$XSLTPROC == x; then
+  if test x$XSLTPROC = x; then
     AC_MSG_WARN([xsltproc not found, cannot generate man pages])
     missing_dependency=yes
   fi
 
   AC_ARG_VAR(DOCBOOK_2_MAN_XSL, [XSL Stylesheet to convert docbook to man page. (hint: docbook-style-xsl package)])
-  if test x$DOCBOOK_2_MAN_XSL == x; then
+  if test x$DOCBOOK_2_MAN_XSL = x; then
     DOCBOOK_2_MAN_XSL=/usr/share/sgml/docbook/xsl-stylesheets/manpages/docbook.xsl
   fi
 

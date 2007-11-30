@@ -31,8 +31,7 @@ version_Age=0
 
 
 libtestpluginA_la_LIBADD = \
-	-ldl \
-	-lrt  \
+	@RT_LIBS@  \
 	-lpthread  \
 	-lstdc++
 

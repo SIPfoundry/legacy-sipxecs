@@ -95,7 +95,12 @@ private:
 #elif defined(__hpux)
 #  include "os/hpux/OsProcessIteratorHpux.h"
    typedef class OsProcessIteratorHpux OsProcessIterator;
+#elif defined(__FreeBSD__)
+#  include "os/freebsd/OsProcessIteratorFreeBSD.h"
+   typedef class OsProcessIteratorFreeBSD OsProcessIterator;
 #elif defined(__pingtel_on_posix__)
+   // XXX This implementation is very Linux specific, __pingtel_on_posix__
+   // is too generic a check.  It should check for some linux define instead.
 #  include "os/linux/OsProcessIteratorLinux.h"
    typedef class OsProcessIteratorLinux OsProcessIterator;
 #else

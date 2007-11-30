@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 
 # Unit tests for sipx-upgrade
 MyDir=`dirname $0`

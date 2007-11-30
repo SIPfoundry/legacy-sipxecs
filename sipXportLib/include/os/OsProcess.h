@@ -66,6 +66,7 @@ public:
     friend class OsProcessIteratorVxw;
     friend class OsProcessIteratorLinux;
     friend class OsProcessIteratorHpux;
+    friend class OsProcessIteratorFreeBSD;
     friend class OsProcessMgr;
 
     enum OsProcessPriorityClass {

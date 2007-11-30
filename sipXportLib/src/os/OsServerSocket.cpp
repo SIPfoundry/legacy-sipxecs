@@ -145,7 +145,8 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
    {
       error = OsSocketGetERRNO();
       OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                    "OsServerSocket:  bind to port %d failed with error: %d = 0x%x",
+                    "OsServerSocket:  bind to port %s:%d failed with error: %d = 0x%x",
+                    inet_ntoa(localAddr.sin_addr),
                     ((PORT_DEFAULT == serverPort) ? 0 : serverPort), error, error);
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
       goto EXIT;

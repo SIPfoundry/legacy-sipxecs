@@ -22,6 +22,7 @@ nobase_include_HEADERS = \
     os/linux/OsPathLinux.h \
     os/linux/OsProcessIteratorLinux.h \
     os/hpux/OsProcessIteratorHpux.h \
+    os/freebsd/OsProcessIteratorFreeBSD.h \
     os/linux/OsProcessLinux.h \
     os/linux/OsSharedLibMgrLinux.h \
     os/linux/OsTaskLinux.h \

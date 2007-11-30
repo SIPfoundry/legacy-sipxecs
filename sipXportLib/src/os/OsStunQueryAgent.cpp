@@ -842,7 +842,7 @@ int OsStunQueryAgent::randomInt ()
         tick |= lowtick;
 #elif defined(__GNUC__) && ( defined(__i686__) || defined(__i386__) )
 asm("rdtsc" : "=A" (tick));
-#elif defined (__SUNPRO_CC) || defined( __sparc__ )
+#elif defined (__SUNPRO_CC) || (defined( __sparc__ ) && !defined(__FreeBSD__))
         tick = gethrtime();
 #elif defined(__pingtel_on_posix__)
         tick = getpid();

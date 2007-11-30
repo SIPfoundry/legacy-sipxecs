@@ -21,6 +21,7 @@ AC_PROG_LIBTOOL
 AC_LTDL_SHLIBEXT
 
 # Checks for programs.
+AC_PATH_PROG([BASH], [bash])
 AC_PROG_CXX
 AX_COMPILER_VENDOR
 AC_PROG_CC
@@ -29,6 +30,7 @@ CHECK_MSG_NOSIGNAL
 
 # Checks for libraries.
 CHECK_LIBRT
+AC_SEARCH_LIBS([dlopen], [dl])
 
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
@@ -46,6 +48,10 @@ SFAC_FEATURE_SIP_TLS
 
 AC_MSG_CHECKING(for system type for process iterator ($host))
 case $host in 
+    *-*-freebsd*)
+    PROCESS_ITERATOR=src/os/freebsd/OsProcessIteratorFreeBSD.cpp
+    LIBS="$(LIBS) -lkvm"
+    ;;
     *-*-hpux*)
     PROCESS_ITERATOR=src/os/hpux/OsProcessIteratorHpux.cpp 
     ;;

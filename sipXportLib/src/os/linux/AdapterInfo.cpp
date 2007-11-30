@@ -9,10 +9,10 @@
 // SYSTEM INCLUDES
 #include <arpa/inet.h>
 #include <errno.h>
+#include <sys/socket.h>
 #include <net/if.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
-#include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -62,7 +62,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
       else
       {
          rc = TRUE;
-#ifndef __MACH__
+#if !defined(__MACH__) && !defined(__FreeBSD__)
          // Get the number of returned addresses from ifc_len.
          numAddresses = ifconf_structure.ifc_len / sizeof (struct ifreq);
          int j = 0;

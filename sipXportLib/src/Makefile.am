@@ -26,7 +26,6 @@ libsipXport_la_LIBADD = \
 	@PCRE_LIBS@ \
 	@SSL_LIBS@ \
 	@RT_LIBS@ \
-	-ldl \
 	-lpthread  \
 	-lstdc++
 
@@ -175,6 +174,7 @@ EXTRA_DIST= \
     os/Wnt/OsUtilWnt.cpp \
     os/Wnt/WindowsAdapterInfo.cpp \
     os/linux/OsProcessIteratorLinux.cpp \
-	 os/hpux/OsProcessIteratorHpux.cpp 
+    os/hpux/OsProcessIteratorHpux.cpp \
+    os/freebsd/OsProcessIteratorFreeBSD.cpp
 
 DISTCLEANFILES = Makefile.in

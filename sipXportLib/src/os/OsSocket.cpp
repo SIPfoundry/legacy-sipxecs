@@ -152,7 +152,7 @@ int OsSocket::write(const char* buffer, int bufferLength)
 
    int flags = 0;
 
-#if defined(__linux__) || defined(sun)
+#if defined(__linux__) || defined(sun) || defined(__FreeBSD__)
    // We do not want send to throw signals if there is a
    // problem with the socket as this results in the process
    // getting aborted. We just want it to return an error.
@@ -221,7 +221,7 @@ int OsSocket::read(char* buffer, int bufferLength)
 
    int flags = 0;
 
-#if defined(__linux__) || defined(sun)
+#if defined(__linux__) || defined(sun) || defined(__FreeBSD__)
    // We do not want send to throw signals if there is a
    // problem with the socket as this results in the process
    // getting aborted. We just want it to return an error.
@@ -277,7 +277,7 @@ int OsSocket::read(char* buffer, int bufferLength,
 
    int flags = 0;
 
-#if defined(__linux__) || defined(sun)
+#if defined(__linux__) || defined(sun) || defined(__FreeBSD__)
    // We do not want send to throw signals if there is a
    // problem with the socket as this results in the process
    // getting aborted. We just want it to return an error.

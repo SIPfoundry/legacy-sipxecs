@@ -431,6 +431,8 @@ int OsUtil::getPlatformType(void)
    platform = PLATFORM_SOLARIS;
 #elif defined(__hpux) /* ] [ */
    platform = PLATFORM_HPUX;
+#elif defined(__FreeBSD__) /* ] [ */
+   platform = PLATFORM_FREEBSD;
 #else /* ] [ */
 #error Unexpected Platform/CPU type
 #endif /* ] ]*/
