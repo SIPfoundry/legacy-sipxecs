@@ -4,7 +4,10 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createStrictMock;
 import static org.easymock.classextension.EasyMock.replay;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -14,68 +17,152 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.vm.DistributionList;
+import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
+import org.sipfoundry.sipxconfig.vm.Voicemail;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public class PersonalAttendantSettingListenerTest extends TestCase {
 
-    private static final String OPERATOR = "operator";
+    private static final String USER_CONSTANT = "user";
+    private static final String PERSONAL_ATTENDANT_SETTING = "personal-attendant";
+    private static final String OPERATOR_SETTING = "operator";
+    private static final String GROUP_OPERATOR = "group-operator";
 
     private PersonalAttendantSettingListener m_out;
     private CoreContext m_coreContextMock;
     private MailboxManager m_mailboxManagerMock;
-    private User m_user;
+    private User m_firstUser;
+    private User m_secondUser;
     private Group m_group;
-    private PersonalAttendant m_personalAttendant;
+    private Setting m_firstUserSetting;
+    private Setting m_secondUserSetting;
 
     public void setUp() {
-        Setting userSetting = new SettingSet("user");
-        Setting paSetting = new SettingSet("personal-attendant");
-        userSetting.addSetting(paSetting);
-        Setting operatorSetting = new SettingImpl(OPERATOR);
-        operatorSetting.setValue(OPERATOR);
-        paSetting.addSetting(operatorSetting);
-
         m_group = new Group();
-        m_group.setSettingValue("personal-attendant/operator", OPERATOR);
+        
+        m_firstUserSetting = new SettingSet(USER_CONSTANT);
+        Setting firstUserPaSetting = new SettingSet(PERSONAL_ATTENDANT_SETTING);
+        m_firstUserSetting.addSetting(firstUserPaSetting);
+        Setting firstUserOperatorSetting = new SettingImpl(OPERATOR_SETTING);
+        firstUserPaSetting.addSetting(firstUserOperatorSetting);
 
-        m_user = new User();
-        m_user.setSettings(userSetting);
-        m_user.addGroup(m_group);
-
-        m_personalAttendant = new PersonalAttendant();
+        m_firstUser = new User();
+        m_firstUser.setUniqueId();
+        m_firstUser.setName("firstUser");
+        m_firstUser.setSettings(m_firstUserSetting);
+        
+        m_secondUserSetting = new SettingSet(USER_CONSTANT);
+        Setting secondUserPaSetting = new SettingSet(PERSONAL_ATTENDANT_SETTING);
+        m_secondUserSetting.addSetting(secondUserPaSetting);
+        Setting secondUserOperatorSetting = new SettingImpl(OPERATOR_SETTING);
+        secondUserPaSetting.addSetting(secondUserOperatorSetting);
+        
+        m_secondUser = new User();
+        m_secondUser.setUniqueId();
+        m_secondUser.setName("secondUser");
+        m_secondUser.setSettings(m_secondUserSetting);
 
         m_coreContextMock = createStrictMock(CoreContext.class);
         m_coreContextMock.getGroupMembers(m_group);
-        expectLastCall().andReturn(Collections.<User> singletonList(m_user));
+        expectLastCall().andReturn(Arrays.asList(new User[] {m_firstUser, m_secondUser}));
         replay(m_coreContextMock);
 
-        m_mailboxManagerMock = createStrictMock(MailboxManager.class);
-        m_mailboxManagerMock.loadPersonalAttendantForUser(m_user);
-        expectLastCall().andReturn(m_personalAttendant);
-        m_mailboxManagerMock.storePersonalAttendant(m_personalAttendant);
-        replay(m_mailboxManagerMock);
+        m_mailboxManagerMock = new MockMailboxManager();
 
+        PersonalAttendant firstUserAttendant = new PersonalAttendant();
+        firstUserAttendant.setUser(m_firstUser);
+        m_mailboxManagerMock.storePersonalAttendant(firstUserAttendant);
+        
+        PersonalAttendant secondUserAttendant = new PersonalAttendant();
+        secondUserAttendant.setUser(m_secondUser);
+        m_mailboxManagerMock.storePersonalAttendant(secondUserAttendant);
+        
         m_out = new PersonalAttendantSettingListener();
         m_out.setCoreContext(m_coreContextMock);
         m_out.setMailboxManager(m_mailboxManagerMock);
     }
 
     public void testOnSaveGroup() {
+        m_firstUser.addGroup(m_group);
+        m_secondUser.addGroup(m_group);
+        
+        m_group.setSettingValue("personal-attendant/operator", GROUP_OPERATOR);
         m_out.onSave(m_group);
-        assertEquals(OPERATOR, m_personalAttendant.getOperator());
+        
+        assertEquals(GROUP_OPERATOR, m_mailboxManagerMock.loadPersonalAttendantForUser(m_firstUser).getOperator());
     }
 
-    public void testOnSaveUserWithSettings() {
-        m_out.onSave(m_user);
-        assertEquals(OPERATOR, m_personalAttendant.getOperator());
+    public void testOnSaveUserWithOverrideOperators() {
+        m_firstUser.addGroup(m_group);
+        m_firstUser.getSettings().getSetting("personal-attendant/operator").setValue("firstUserOperator");
+        
+        m_secondUser.addGroup(m_group);
+        m_secondUser.getSettings().getSetting("personal-attendant/operator").setValue("secondUserOperator");
+        
+        m_out.onSave(m_firstUser);
+        m_out.onSave(m_secondUser);
+        assertEquals("firstUserOperator", m_mailboxManagerMock.loadPersonalAttendantForUser(m_firstUser).getOperator());
+        assertEquals("secondUserOperator", m_mailboxManagerMock.loadPersonalAttendantForUser(m_secondUser).getOperator());
     }
+    
+    public void testOnSaveUserWithNoGroup() {
+        m_firstUser.getSettings().getSetting("personal-attendant/operator").setValue("firstUserOperator");
+        
+        m_out.onSave(m_firstUser);
+        assertEquals("firstUserOperator", m_mailboxManagerMock.loadPersonalAttendantForUser(m_firstUser).getOperator());
+    }
+    
+    private static class MockMailboxManager implements MailboxManager {
 
-    public void testOnSaveUserWithoutSettings() {
-        User userWithoutSettings = new User();
-        userWithoutSettings.addGroup(m_group);
+        private Map<User, PersonalAttendant> m_attendantMap;
 
-        m_out.onSave(userWithoutSettings);
-        assertEquals(OPERATOR, m_personalAttendant.getOperator());
+        public MockMailboxManager() {
+            m_attendantMap = new HashMap<User, PersonalAttendant>();
+        }
+        
+        public void delete(Mailbox mailbox, Voicemail voicemail) {}
+        public void deleteMailbox(String userId) {}
+
+        public Mailbox getMailbox(String userId) {
+            return null;
+        }
+
+        public String getMailstoreDirectory() {
+            return null;
+        }
+
+        public List<Voicemail> getVoicemail(Mailbox mailbox, String folder) {
+            return null;
+        }
+
+        public boolean isEnabled() {
+            return false;
+        }
+
+        public DistributionList[] loadDistributionLists(Mailbox mailbox) {
+            return null;
+        }
+
+        public MailboxPreferences loadMailboxPreferences(Mailbox mailbox) {
+            return null;
+        }
+
+        public void markRead(Mailbox mailbox, Voicemail voicemail) {}
+        public void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId) {}
+        public void removePersonalAttendantForUser(User user) {}
+        public void saveDistributionLists(Mailbox mailbox, DistributionList[] lists) {}
+        public void saveMailboxPreferences(Mailbox mailbox, MailboxPreferences preferences) {}
+        
+        /* The methods below this comment are the only ones relevant for this test */
+        public PersonalAttendant loadPersonalAttendantForUser(User user) {
+            return m_attendantMap.get(user);
+        }
+        
+        public void storePersonalAttendant(PersonalAttendant pa) {
+            m_attendantMap.put(pa.getUser(), pa);
+        }
     }
 }

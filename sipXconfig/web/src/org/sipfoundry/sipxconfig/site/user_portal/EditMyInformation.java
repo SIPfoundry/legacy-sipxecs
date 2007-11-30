@@ -17,6 +17,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.admin.ModelWithDefaults;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
 import org.sipfoundry.sipxconfig.site.user.UserForm;
@@ -26,7 +27,9 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public abstract class EditMyInformation extends UserBasePage implements EditPinComponent {
-
+    private static final String OPERATOR_SETTING = 
+        "personal-attendant" + Setting.PATH_DELIM + "operator";
+    
     public abstract String getPin();
 
     public abstract User getUserForEditing();
@@ -62,6 +65,10 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         UserForm.updatePin(this, user, getCoreContext().getAuthorizationRealm());
         getCoreContext().saveUser(user);
 
+        savePersonalAttendant(user);
+    }
+
+    private void savePersonalAttendant(User user) {
         MailboxManager mailMgr = getMailboxManager();
         if (mailMgr.isEnabled()) {
             Mailbox mailbox = mailMgr.getMailbox(user.getUserName());
@@ -69,6 +76,9 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         }
 
         mailMgr.storePersonalAttendant(getPersonalAttendant());
+        
+        user.getSettings().getSetting(OPERATOR_SETTING).setValue(getPersonalAttendant().getOperator());
+        getCoreContext().saveUser(user);
     }
 
     public void pageBeginRender(PageEvent event) {

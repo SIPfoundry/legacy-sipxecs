@@ -57,12 +57,17 @@ public class PersonalAttendantSettingListener implements DaoEventListener {
      * @param user
      */
     private void onSaveUser(User user) {
-        List<Group> groupsForUser = user.getGroupsAsList();
-        Group group = Group.selectGroupWithHighestWeight(groupsForUser);
-        if (group != null) {
-            SettingValue operatorSetting = group.getSettingValue(new SettingImpl(OPERATOR_SETTING));
-            if (operatorSetting != null) {
-                updatePersonalAttendantForUser(user, operatorSetting.getValue());
+        if (user.getSettings() != null) {
+            Setting operatorSetting = user.getSettings().getSetting(OPERATOR_SETTING);
+            updatePersonalAttendantForUser(user, operatorSetting.getValue());
+        } else {
+            List<Group> groupsForUser = user.getGroupsAsList();
+            Group group = Group.selectGroupWithHighestWeight(groupsForUser);
+            if (group != null) {
+                SettingValue operatorSetting = group.getSettingValue(new SettingImpl(OPERATOR_SETTING));
+                if (operatorSetting != null) {
+                    updatePersonalAttendantForUser(user, operatorSetting.getValue());
+                }
             }
         }
     }

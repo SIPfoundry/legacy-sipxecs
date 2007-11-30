@@ -37,10 +37,11 @@ public class UserTestDb extends SipxDatabaseTestCase {
         ApplicationContext app = TestHelper.getApplicationContext();
         m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
+        
+        TestHelper.cleanInsert("ClearDb.xml");
     }
 
     public void testLoadUser() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
 
         User user = m_core.loadUser(userId);
@@ -49,7 +50,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSave() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         User user = new User();
         user.setUserName("userid");
         user.setFirstName("FirstName");
@@ -101,7 +101,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
 
     public void testUserGroups() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         User user = m_core.loadUser(new Integer(1001));
         Set groups = user.getGroups();
@@ -109,7 +108,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
 
     public void testUserSettings() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         User user = m_core.loadUser(new Integer(1001));
         Setting settings = user.getSettings();
@@ -117,7 +115,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGroupMembers() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         Group group = m_settingDao.getGroup(new Integer(1001));
         Collection users = m_core.getGroupMembers(group);
@@ -128,7 +125,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGroupMembersNames() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         Group group = m_settingDao.getGroup(new Integer(1001));
         Collection<String> users = m_core.getGroupMembersNames(group);
@@ -139,7 +135,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDeleteUserGroups() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         m_settingDao.deleteGroups(Collections.singletonList(new Integer(1001)));
         // link table references removed
@@ -148,7 +143,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSupervisorSave() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
         TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         Group group = m_settingDao.getGroup(1001);
@@ -168,7 +162,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
 
     // see: http://track.sipfoundry.org/browse/XCF-1099
     public void testSuperviseMyself() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
         TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         Group group = m_settingDao.getGroup(1001);
@@ -186,7 +179,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
     
 
     public void testSupervisorSaveNewGroup() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
         User user = m_core.loadUser(1000);
         Group group = new Group();
@@ -203,7 +195,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
 
     public void testUserSaveNewGroup() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
         User user = m_core.loadUser(1000);
         Group group = new Group();
@@ -216,7 +207,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
 
     public void testDeleteGroupUpdateSupervisor() throws Exception {
         try {
-            TestHelper.cleanInsert("ClearDb.xml");
             TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");
             m_settingDao.deleteGroups(Collections.singletonList(1001));
             assertEquals(0, TestHelper.getConnection().getRowCount("supervisor"));
@@ -227,7 +217,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
 
     public void testIsSupervisor() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");        
         User supervisor = m_core.loadUser(1001);
         assertTrue(supervisor.isSupervisor());
@@ -239,7 +228,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
     
     public void testUpdateSuperviser() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");        
         User supervisor = m_core.loadUser(1001);
         
