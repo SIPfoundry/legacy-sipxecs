@@ -38,7 +38,8 @@ public:
    SipClientWriteBuffer(OsSocket* socket,
                         SipProtocolServerBase* pSipServer,
                         SipUserAgentBase* sipUA,
-                        const char* taskNameString);
+                        const char* taskNameString,
+                        UtlBoolean bIsSharedSocket);
      //:Default constructor
 
    virtual ~SipClientWriteBuffer();

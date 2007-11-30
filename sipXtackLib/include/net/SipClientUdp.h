@@ -46,7 +46,8 @@ public:
 
    SipClientUdp(OsSocket* socket,
                 SipProtocolServerBase* pSipServer,
-                SipUserAgentBase* sipUA);
+                SipUserAgentBase* sipUA,
+                UtlBoolean bIsSharedSocket = FALSE);
      //:Default constructor
 
    virtual ~SipClientUdp();

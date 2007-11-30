@@ -31,8 +31,9 @@ const UtlContainableType SipClientWriteBuffer::TYPE = "SipClientWriteBuffer";
 SipClientWriteBuffer::SipClientWriteBuffer(OsSocket* socket,
                                            SipProtocolServerBase* pSipServer,
                                            SipUserAgentBase* sipUA,
-                                           const char* taskNameString) :
-   SipClient(socket, pSipServer, sipUA, taskNameString)
+                                           const char* taskNameString,
+                                           UtlBoolean bIsSharedSocket) :
+   SipClient(socket, pSipServer, sipUA, taskNameString, bIsSharedSocket)
 {
    mWriteQueued = FALSE;
 

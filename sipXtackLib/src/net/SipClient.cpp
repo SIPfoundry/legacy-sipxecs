@@ -155,7 +155,8 @@ int SipClientSendMsg::getPort(void) const
 SipClient::SipClient(OsSocket* socket,
                      SipProtocolServerBase* pSipServer,
                      SipUserAgentBase* sipUA,
-                     const char* taskNameString) :
+                     const char* taskNameString,
+                     UtlBoolean bIsSharedSocket ) :
    OsServerTaskWaitable(taskNameString),
    clientSocket(socket),
    mSocketType(socket ? socket->getIpProtocol() : OsSocket::UNKNOWN),
@@ -165,7 +166,7 @@ SipClient::SipClient(OsSocket* socket,
    mRemoteReceivedPort(PORT_NONE),
    mSocketLock(OsBSem::Q_FIFO, OsBSem::FULL),
    mFirstResendTimeoutMs(SIP_DEFAULT_RTT * 4), // for first transcation time out
-   mbSharedSocket(FALSE),
+   mbSharedSocket(bIsSharedSocket),
    mWriteQueued(FALSE)
 {
    touch();
@@ -311,9 +312,9 @@ void SipClient::writeMore(void)
    assert(FALSE);
 }
 
-void SipClient::setSharedSocket(UtlBoolean bShared)
+UtlBoolean SipClient::isSharedSocket( void ) const
 {
-    mbSharedSocket = bShared;
+    return mbSharedSocket;
 }
 
 void SipClient::touch()
@@ -369,44 +370,67 @@ UtlBoolean SipClient::isOk()
    return clientSocket->isOk() && isNotShut();
 }
 
-UtlBoolean SipClient::isConnectedTo(UtlString& hostName, int hostPort)
+UtlBoolean SipClient::isAcceptableForDestination( const UtlString& hostName, int hostPort, const UtlString& localIp )
 {
-    UtlBoolean isSame = FALSE;
-    int tempHostPort = portIsValid(hostPort) ? hostPort : defaultPort();
+   UtlBoolean isAcceptable = FALSE;
 
+   // Only accept it if the local IP is correct.
+   if (0 == strcmp(getLocalIp(), localIp))
+   {
+      if( isSharedSocket() )
+      {
+         // A shared socket implies that it is not connected to any specific far-end host and
+         // therefore can be used to send to any destination.
+         isAcceptable = TRUE;
+      }
+      else
+      {
+         int tempHostPort = portIsValid(hostPort) ? hostPort : defaultPort();
+   
 #ifdef TEST_SOCKET
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipClient[%s]::isConnectedTo hostName = '%s', tempHostPort = %d, mRemoteHostName = '%s', mRemoteHostPort = %d, mRemoteSocketAddress = '%s', mReceivedAddress = '%s', mRemoteViaAddress = '%s'",
-                  mName.data(),
-                  hostName.data(), tempHostPort, mRemoteHostName.data(), mRemoteHostPort, mRemoteSocketAddress.data(), mReceivedAddress.data(), mRemoteViaAddress.data());
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipClient[%s]::isAcceptableForDestination hostName = '%s', tempHostPort = %d, mRemoteHostName = '%s', mRemoteHostPort = %d, mRemoteSocketAddress = '%s', mReceivedAddress = '%s', mRemoteViaAddress = '%s'",
+                       mName.data(),
+                       hostName.data(), tempHostPort, mRemoteHostName.data(), mRemoteHostPort, mRemoteSocketAddress.data(), mReceivedAddress.data(), mRemoteViaAddress.data());
 #endif
+   
+         // If the ports match and the host is the same as either the
+         // original name that the socket was constructed with or the
+         // name it was resolved to (usually an IP address).
+         if (   mRemoteHostPort == tempHostPort
+             && (   hostName.compareTo(mRemoteHostName, UtlString::ignoreCase) == 0
+                 || hostName.compareTo(mRemoteSocketAddress, UtlString::ignoreCase) == 0))
+         {
+             isAcceptable = TRUE;
+         }
+         else if (   mRemoteReceivedPort == tempHostPort
+                  && hostName.compareTo(mReceivedAddress, UtlString::ignoreCase) == 0)
+         {
+             isAcceptable = TRUE;
+         }
+         else if (   mRemoteViaPort == tempHostPort
+                  && hostName.compareTo(mRemoteViaAddress, UtlString::ignoreCase) == 0)
+         {
+             // Cannot trust what the other side said was their IP address
+             // as this is a bad spoofing/denial of service hole
+             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                           "SipClient[%s]::isAcceptableForDestination matches %s:%d but is not trusted",
+                           mName.data(),
+                           mRemoteViaAddress.data(), mRemoteViaPort);
+         }
+      }
+   }
 
-    // If the ports match and the host is the same as either the
-    // original name that the socket was constructed with or the
-    // name it was resolved to (usually an IP address).
-    if (   mRemoteHostPort == tempHostPort
-        && (   hostName.compareTo(mRemoteHostName, UtlString::ignoreCase) == 0
-            || hostName.compareTo(mRemoteSocketAddress, UtlString::ignoreCase) == 0))
-    {
-        isSame = TRUE;
-    }
-    else if (   mRemoteReceivedPort == tempHostPort
-             && hostName.compareTo(mReceivedAddress, UtlString::ignoreCase) == 0)
-    {
-        isSame = TRUE;
-    }
-    else if (   mRemoteViaPort == tempHostPort
-             && hostName.compareTo(mRemoteViaAddress, UtlString::ignoreCase) == 0)
-    {
-        // Cannot trust what the other side said was their IP address
-        // as this is a bad spoofing/denial of service hole
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipClient[%s]::isConnectedTo matches %s:%d but is not trusted",
-                      mName.data(),
-                      mRemoteViaAddress.data(), mRemoteViaPort);
-    }
-
-    return(isSame);
+   // Make sure client is okay before declaring it acceptable
+   if( isAcceptable && !isOk() )
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipClient[%s]::isAcceptableForDestination('%s', %d, '%s')"
+                    " Client matches host/port but is not OK",
+                    mName.data(), hostName.data(), hostPort, localIp.data());
+      isAcceptable = FALSE;
+   }
+   return(isAcceptable);
 }
 
 const UtlString& SipClient::getLocalIp()

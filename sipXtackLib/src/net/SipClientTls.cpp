@@ -62,8 +62,9 @@ const int sDefaultPort = SIP_TLS_PORT;
 // Constructor
 SipClientTls::SipClientTls(OsSocket* socket,
                            SipProtocolServerBase* pSipServer,
-                           SipUserAgentBase* sipUA) :
-   SipClient(socket, pSipServer, sipUA, "SipClientTls-%d")
+                           SipUserAgentBase* sipUA,
+                           UtlBoolean bIsSharedSocket) :
+   SipClient(socket, pSipServer, sipUA, "SipClientTls-%d", bIsSharedSocket)
 {
 }
 

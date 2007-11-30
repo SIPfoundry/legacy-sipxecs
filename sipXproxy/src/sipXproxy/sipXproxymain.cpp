@@ -783,10 +783,7 @@ main( int argc, char* argv[] )
         SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE, // OsServerTask message queue size
         FALSE, // Use Next Available Port
         TRUE,  // Perform message checks 
-        // :TODO:
-        // Next arg is set to FALSE temporarily because TRUE causes some malfunctions
-        // in SipClientUdp.  In the long run, we want to use symmetric signaling.
-        FALSE ); // Do not symmetric signaling
+        TRUE); // Use symmetric signaling
     sipUserAgent.setIsUserAgent(FALSE);
     sipUserAgent.setDnsSrvTimeout(dnsSrvTimeout);
     sipUserAgent.setMaxSrvRecords(maxNumSrvRecords);

@@ -204,16 +204,12 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
          #endif
          client = 
             strcmp(mProtocolString, SIP_TRANSPORT_UDP) == 0 ?
-            static_cast <SipClient*> (new SipClientUdp(clientSocket, this, mSipUserAgent)) :
+            static_cast <SipClient*> (new SipClientUdp(clientSocket, this, mSipUserAgent, isClientSocketReused)):
             strcmp(mProtocolString, SIP_TRANSPORT_TCP) == 0 ?
-            static_cast <SipClient*> (new SipClientTcp(clientSocket, this, mSipUserAgent)) :
+            static_cast <SipClient*> (new SipClientTcp(clientSocket, this, mSipUserAgent, isClientSocketReused)):
             strcmp(mProtocolString, SIP_TRANSPORT_TLS) == 0 ?
-            static_cast <SipClient*> (new SipClientTls(clientSocket, this, mSipUserAgent)) :
+            static_cast <SipClient*> (new SipClientTls(clientSocket, this, mSipUserAgent, isClientSocketReused)):
             NULL;
-         if (client && isClientSocketReused)
-         {
-            client->setSharedSocket(TRUE);
-         }
          #ifdef TEST_CLIENT_CREATION
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipProtocolServerBase[%s]::createClient created client %s",
@@ -261,7 +257,6 @@ SipClient* SipProtocolServerBase::getClient(const char* hostAddress,
                                             int hostPort,
                                             const char* localIp)
 {
-   UtlBoolean isSameHost = FALSE;
    UtlString hostAddressString(hostAddress ? hostAddress : "");
    SipClient* client = NULL;
 
@@ -275,25 +270,9 @@ SipClient* SipProtocolServerBase::getClient(const char* hostAddress,
    while ((client = dynamic_cast <SipClient*> (iter())))
    {
       // Are these the same host?
-      isSameHost = client->isConnectedTo(hostAddressString, hostPort);
-      if (isSameHost)
+      if( client->isAcceptableForDestination(hostAddressString, hostPort, localIp) )
       {
-         // Is the client OK?
-         if (client->isOk())
-         {
-            // But only accept it if the local IP is correct, too.
-            if (0 == strcmp(client->getLocalIp(), localIp))
-            {
-               break;
-            }
-         }
-         else
-         {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipProtocolServerBase[%s]::getClient('%s', %d, '%s')"
-                          " Client matches host/port but is not OK",
-                          getName().data(), mProtocolString.data(), hostPort, localIp);
-         }
+         break;
       }
    }
 

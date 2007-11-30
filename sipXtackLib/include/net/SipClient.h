@@ -47,7 +47,8 @@ public:
    SipClient(OsSocket* socket,
              SipProtocolServerBase* pSipServer,
              SipUserAgentBase* sipUA,
-             const char* taskNameString);
+             const char* taskNameString,
+             UtlBoolean bIsSharedSocket);
      //:Default constructor
 
    virtual ~SipClient();
@@ -76,16 +77,7 @@ public:
    // is now writable).
    virtual void writeMore(void);
 
-   /** Set the indicator whether the socket is shared (and thus should
-    *  not be deleted).
-    */
-   // Initial value is FALSE, i.e., socket should be deleted.
-   // :TODO:  This value should be made into an argument on the constructor,
-   // since setting it correctly is mandatory and the value should never
-   // change over the life of the client.  Also, if shared is TRUE, the
-   // client should not read on the socket, since a server is already
-   // reading on the socket.
-   void setSharedSocket(UtlBoolean bShared);
+   UtlBoolean isSharedSocket( void ) const;
 
    UtlBoolean sendInvite(char* toAddress, char* callId, int rtpPort,
                          int numCodecs, int rtpCodecs[],
@@ -105,7 +97,9 @@ public:
 
     UtlBoolean isOk(void);
 
-    UtlBoolean isConnectedTo(UtlString& hostName, int hostPort);
+   // Used to identify if the socket associated with SIP Client is bound to the specified
+   // local IP and suitable for sending to the supplied destination host and port.
+    UtlBoolean isAcceptableForDestination( const UtlString& hostName, int hostPort, const UtlString& localIp );
 
     const UtlString& getLocalIp(void);
 

@@ -62,8 +62,9 @@ const int sDefaultPort = SIP_PORT;
 // Constructor
 SipClientUdp::SipClientUdp(OsSocket* socket,
                            SipProtocolServerBase* pSipServer,
-                           SipUserAgentBase* sipUA) :
-   SipClient(socket, pSipServer, sipUA, "SipClientUdp-%d")
+                           SipUserAgentBase* sipUA,
+                           UtlBoolean bIsSharedSocket) :
+   SipClient(socket, pSipServer, sipUA, "SipClientUdp-%d", bIsSharedSocket)
 {
 }
 
