@@ -46,6 +46,7 @@
     <property name="name" value="Emergency" />
     <property name="description" value="Emergency dialing plan" />
     <property name="enabled" value="false" />
+    <property name="mediaServerFactory" ref="mediaServerFactory" />
   </bean>
 
   <bean id="defaultLongDistanceRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule"
