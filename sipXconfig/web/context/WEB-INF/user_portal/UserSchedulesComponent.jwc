@@ -3,14 +3,4 @@
 <component-specification class="org.sipfoundry.sipxconfig.site.user_portal.UserSchedulesComponent">
   <!-- P R O P E R T I E S -->
   <property name="schedules" />
-
-  <!-- C O M P O N E N T S -->
-  <component id="schedulesTable" type="SchedulesTable">
-    <binding name="schedules" value="schedules"/>
-    <binding name="viewSchedulesListener" value="listener:editSchedulesGroup"/>
-    <binding name="changed" value="changed" />
-  </component>
-  <component id="addSchedule" type="DirectLink">
-    <binding name="listener" value="listener:addSchedule"/>
-  </component>
 </component-specification>

@@ -29,7 +29,8 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.site.UserSession;
 
-public abstract class UserCallForwardingComponent extends BaseComponent implements PageBeginRenderListener {
+public abstract class UserCallForwardingComponent extends BaseComponent implements
+        PageBeginRenderListener {
     private static final String ACTION_ADD = "add";
 
     @InjectObject(value = "spring:forwardingContext")
@@ -52,11 +53,21 @@ public abstract class UserCallForwardingComponent extends BaseComponent implemen
 
     @Parameter(required = true)
     public abstract User getUser();
-    
+
     @Parameter(required = true)
     public abstract UserSession getUserSession();
 
+    @Persist(value = "client")
+    public abstract Integer getCurrentUserId();
+
+    public abstract void setCurrentUserId(Integer userId);
+
     public void pageBeginRender(PageEvent event) {
+        if (getCurrentUserId() == null) {
+            setRings(null);
+        }
+        setCurrentUserId(getUser().getId());
+
         if (getRings() != null) {
             refreshAvailableSchedules();
             return;
@@ -69,8 +80,7 @@ public abstract class UserCallForwardingComponent extends BaseComponent implemen
 
     private void refreshAvailableSchedules() {
         ForwardingContext forwardingContext = getForwardingContext();
-        List<Schedule> schedules = forwardingContext
-                .getAllAvailableSchedulesForUser(getUser());
+        List<Schedule> schedules = forwardingContext.getAllAvailableSchedulesForUser(getUser());
         setAvailableSchedules(schedules);
     }
 
