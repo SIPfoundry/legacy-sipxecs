@@ -178,6 +178,10 @@ public abstract class TestPage extends BasePage {
     public void resetConferenceBridgeContext() {
         getConferenceBridgeContext().clear();
     }
+    
+    public void resetPersonalAttendants() {
+        getMailboxManager().clearPersonalAttendants();
+    }
 
     public String resetCoreContext() {
         // need to reset all data that could potentially have a reference
@@ -188,6 +192,7 @@ public abstract class TestPage extends BasePage {
         resetCallForwarding();
         resetPhoneContext();
         resetCallGroupContext();
+        resetPersonalAttendants();
         getCoreContext().clear();
         getApplicationLifecycle().logout();
         // force rendering any new page after logout or infamous "invalid session" after

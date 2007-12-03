@@ -264,6 +264,11 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         writePersonalAttendant(pa);
     }
 
+    public void clearPersonalAttendants() {
+        List<PersonalAttendant> allPersonalAttendants = getHibernateTemplate().loadAll(PersonalAttendant.class);
+        getHibernateTemplate().deleteAll(allPersonalAttendants);
+    }
+    
     public void writeAllPersonalAttendants() {
         List<PersonalAttendant> all = getHibernateTemplate().loadAll(PersonalAttendant.class);
         for (PersonalAttendant pa : all) {

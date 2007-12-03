@@ -164,5 +164,9 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
         public void storePersonalAttendant(PersonalAttendant pa) {
             m_attendantMap.put(pa.getUser(), pa);
         }
+
+        public void clearPersonalAttendants() {
+            m_attendantMap = new HashMap<User, PersonalAttendant>();
+        }
     }
 }
