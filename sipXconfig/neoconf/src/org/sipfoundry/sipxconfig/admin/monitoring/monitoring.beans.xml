@@ -23,6 +23,7 @@
     <property name="mrtgRrdConfig">
       <ref bean="mrtgRrdConfig" />
     </property>
+    <property name="communitySnmp" value="sipxecs" />
   </bean>
 
   <bean id="mrtgTemplateConfig" class="org.sipfoundry.sipxconfig.admin.monitoring.MRTGConfig">

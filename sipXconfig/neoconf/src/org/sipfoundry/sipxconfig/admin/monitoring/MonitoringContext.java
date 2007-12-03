@@ -26,7 +26,7 @@ public interface MonitoringContext {
 
     MRTGTarget getMRTGTarget(String reportName, String host);
 
-    void generateConfigFiles(String host, String communityString, List<String> reportNames);
+    void generateConfigFiles(String host, List<String> reportNames);
 
     boolean updateGraphs(String host);
 

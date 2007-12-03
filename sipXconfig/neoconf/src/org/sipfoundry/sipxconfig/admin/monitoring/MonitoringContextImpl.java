@@ -39,6 +39,8 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
 
     private boolean m_enabled;
 
+    private String m_communitySnmp;
+
     /**
      * set and load mrtg config file object
      */
@@ -194,13 +196,23 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
     }
 
     /**
+     * use this one until sipXconfig will be able to configure SNMP agent, see XCF-1952
+     * 
+     * @param host
+     * @param selectedTargetNames
+     */
+    public void generateConfigFiles(String host, List<String> selectedTargetNames) {
+        generateConfigFiles(host, m_communitySnmp, selectedTargetNames);
+    }
+
+    /**
      * writes the mrtg.cfg file with the selected targets for the provided host and snmp community
      * string Basically overwrites the mrtg.cfg file with the targets already configured at that
      * time plus new targets based on the provided host, community string and targets name
      * 
      * The mrtg targets will be generated with ids like: templateTargetId_host.
      */
-    public void generateConfigFiles(String host, String communityString,
+    private void generateConfigFiles(String host, String communityString,
             List<String> selectedTargetNames) {
 
         String hostTemplate = "$(host)";
@@ -370,5 +382,9 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
 
     public void setEnabled(boolean enabled) {
         m_enabled = enabled;
+    }
+
+    public void setCommunitySnmp(String communitySnmp) {
+        m_communitySnmp = communitySnmp;
     }
 }

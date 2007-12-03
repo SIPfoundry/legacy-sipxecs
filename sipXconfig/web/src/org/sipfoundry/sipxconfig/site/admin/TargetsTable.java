@@ -13,20 +13,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.monitoring.MRTGTarget;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringUtil;
 import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class TargetsTable extends BaseComponent {
-    private static final String FAILURES = "error.snmpCommunityString";
+    // private static final String FAILURES = "error.snmpCommunityString";
 
     @InjectObject(value = "spring:monitoringContext")
     public abstract MonitoringContext getMonitoringContext();
@@ -60,19 +57,12 @@ public abstract class TargetsTable extends BaseComponent {
     }
 
     public void commit() {
-        if (StringUtils.isEmpty(getSnmpCommunityString())) {
-            TapestryUtils.getValidator(getPage()).record(
-                    new ValidatorException(getMessages().getMessage(FAILURES)));
-            return;
-        }
-
         List<String> selectedTargetNames = new ArrayList<String>();
         Collection selections = getSelections().getAllSelected();
         for (Object selection : selections) {
             selectedTargetNames.add(selection.toString());
         }
 
-        getMonitoringContext().generateConfigFiles(getHost(), getSnmpCommunityString(),
-                selectedTargetNames);
+        getMonitoringContext().generateConfigFiles(getHost(), selectedTargetNames);
     }
 }
