@@ -1,12 +1,25 @@
 <div jwcid="@Border" useDojo="ognl:true">
   <h2><span key="title">Configuration Test Page</span></h2>
+  <div class="help">
+    <b><span key="label.quickLinks">Quick Links</span></b>
+    <ul>
+      <li>
+        <span jwcid="downloadLink@DownloadLink"
+          id="downloadLink"
+          fileName="ognl:configurationDiagnosticContext.preflightInstaller.name"
+          dirName="ognl:configurationDiagnosticContext.preflightInstaller.parent"
+          contentType="literal:application/octet-stream">
+          <span key="preflight.text"/>
+        </span>
+      </li>
+    </ul>
+  </div>
   <form jwcid="@AutoRefreshForm" actionBlock="component:actions"
     interval="5">
     <table jwcid="@contrib:TableView" id="configdiag:list" class="component"
       source="prop:configurationTests"
       pageSize="-1"
       columns="* label, lastRunTime, status">
-      
       <thead>
         <tr>
           <span jwcid="@contrib:TableColumns"/>
@@ -30,9 +43,7 @@
           <span jwcid="@Insert" value="prop:lastRunTime"/>
         </span>
       </tbody>
-    
     </table>
-    
     <ul jwcid="actions@Block">
       <li>
         <input id="configdiag:runAllTests" jwcid="runAllTests@tacos:AjaxSubmit"
@@ -42,5 +53,4 @@
       </li>
     </ul>
   </form>
-
 </div> 

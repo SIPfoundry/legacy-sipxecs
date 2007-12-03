@@ -9,8 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.configdiag;
 
+import java.io.File;
 import java.util.List;
 
 public interface ConfigurationDiagnosticContext {
     public List<ConfigurationDiagnostic> getConfigurationTests();
+
+    public File getPreflightInstaller();
 }

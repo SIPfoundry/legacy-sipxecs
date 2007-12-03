@@ -24,14 +24,19 @@ public class ConfigurationDiagnosticPageTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
         clickLink("ConfigurationDiagnosticPage");
     }
-    
+
     public void testConfigDiagsLoaded() throws Exception {
         SiteTestHelper.assertNoException(tester);
         int diagCount = SiteTestHelper.getRowCount(tester, "configdiag:list");
-        
+
         // expect header row plus 1 row per test
         // this assert needs to be changed as tests are added or removed
         assertEquals(7, diagCount);
-        
+
+    }
+
+    public void testDownloadLinkPresent() throws Exception {
+        SiteTestHelper.assertNoException(tester);
+        assertLinkPresent("downloadLink");
     }
 }

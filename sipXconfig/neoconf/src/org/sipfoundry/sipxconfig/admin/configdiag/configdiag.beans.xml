@@ -6,6 +6,7 @@
       <value>${sysdir.etc}/test.d</value>
     </property>
     <property name="externalCommandContext" ref="commandContext"/>
+    <property name="preflightInstallerLocation" value="${sysdir.share}/preflight/preflight_installer.exe"/>
   </bean>
   
   <bean id="commandContext" class="org.sipfoundry.sipxconfig.admin.configdiag.DefaultExternalCommandContext">

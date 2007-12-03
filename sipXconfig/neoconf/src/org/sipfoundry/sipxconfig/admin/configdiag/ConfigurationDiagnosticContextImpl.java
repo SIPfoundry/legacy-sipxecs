@@ -21,12 +21,15 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Required;
 
 public class ConfigurationDiagnosticContextImpl implements ConfigurationDiagnosticContext {
 
     private static final Log LOG = LogFactory.getLog(ConfigurationDiagnosticContextImpl.class);
 
     private String m_descriptorPath;
+
+    private String m_preflightInstallerLocation;
 
     private ExternalCommandContext m_externalCommandContext;
 
@@ -41,7 +44,6 @@ public class ConfigurationDiagnosticContextImpl implements ConfigurationDiagnost
                         return name.endsWith(".test.xml");
                     }
                 })));
-
 
         Collections.<File> sort(descriptorFiles, new Comparator<File>() {
             public int compare(File o1, File o2) {
@@ -67,8 +69,17 @@ public class ConfigurationDiagnosticContextImpl implements ConfigurationDiagnost
     public void setDescriptorPath(String path) {
         m_descriptorPath = path;
     }
-    
+
     public void setExternalCommandContext(ExternalCommandContext externalCommandContext) {
         m_externalCommandContext = externalCommandContext;
+    }
+
+    @Required
+    public void setPreflightInstallerLocation(String preflightInstallerLocation) {
+        m_preflightInstallerLocation = preflightInstallerLocation;
+    }
+
+    public File getPreflightInstaller() {
+        return new File(m_preflightInstallerLocation);
     }
 }

@@ -46,12 +46,14 @@ public abstract class ConfigurationDiagnosticPage extends BasePage implements
 
     @Persist(value = SESSION)
     public abstract List<ConfigurationDiagnostic> getConfigurationTests();
+
     public abstract void setConfigurationTests(List<ConfigurationDiagnostic> configurationTests);
 
     public abstract ConfigurationDiagnostic getConfigurationTest();
 
     @Persist(value = SESSION)
     public abstract Format getDateFormat();
+
     public abstract void setDateFormat(Format format);
 
     public void pageBeginRender(PageEvent event) {
