@@ -59,6 +59,13 @@ public class StatisticsPageTestUi extends WebTestCase {
         assertLinkPresent("report5");
         assertLinkPresent("report6");
 
+        assertLinkPresent("image0");
+        assertLinkPresent("image1");
+        assertLinkPresent("image2");
+        assertLinkPresent("image3");
+        assertLinkPresent("image4");
+        assertLinkPresent("image5");
+
         // test empty community string
         clickLink("link.configureTargets");
 
@@ -76,6 +83,11 @@ public class StatisticsPageTestUi extends WebTestCase {
         assertLinkPresent("report3");
         assertLinkPresent("report4");
 
+        assertLinkPresent("image0");
+        assertLinkPresent("image1");
+        assertLinkPresent("image2");
+        assertLinkPresent("image3");
+
         // remove all targets to monitor
         selectOption("PropertySelection", "host.example.org");
         SiteTestHelper.submitNoButton(tester);
@@ -87,6 +99,5 @@ public class StatisticsPageTestUi extends WebTestCase {
         clickButton("form:ok");
 
         SiteTestHelper.assertNoUserError(tester);
-        SiteTestHelper.assertNoException(tester);
     }
 }

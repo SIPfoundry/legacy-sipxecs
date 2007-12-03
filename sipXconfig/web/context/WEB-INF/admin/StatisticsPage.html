@@ -5,18 +5,18 @@
   <span jwcid="@ErrorMsg"/>
   <span jwcid="@If" condition="ognl:(hostModel.optionCount > 0)">
     <form jwcid="@Form">
-	  <fieldset>
-	    <label><span key="label.hosts">Hosts</span></label>
+      <fieldset>
+        <label><span key="label.hosts">Hosts</span></label>
         <span jwcid="@PropertySelection"
           model="ognl:hostModel"
           value="ognl:host"
           onchange="literal:javascript:this.form.submit();" />
-	  </fieldset>
+      </fieldset>
     </form>
     <br/>
     <div id="settings-nav">
-	  <span jwcid="@common/TabControl">
-	    <span jwcid="@For" source="ognl:reports" value="ognl:availableReportsIndexItem" index="ognl:reportIndex">
+      <span jwcid="@common/TabControl">
+        <span jwcid="@For" source="ognl:reports" value="ognl:availableReportsIndexItem" index="ognl:reportIndex">
           <span jwcid="@common/Tab" isActive="ognl:availableReportsIndexItem.equals(reportName)">
             <a href="#" jwcid="@DirectLink" listener="listener:showReport"
                 parameters="ognl:{availableReportsIndexItem, host}" id="ognl:'report' + reportIndex">
@@ -27,22 +27,26 @@
       </span>
     </div>
     <div id="settings-content">
-  	  <div class="help"><b><span key="label.quickLinks">Quick Links</span></b>
-	    <ul>
-	      <li><a jwcid="@DirectLink" id="link.configureTargets" listener="listener:configureTargets" parameters="ognl:{host}"><span jwcid="@Insert" value="ognl:messages.format('link.configureTargets', host)">Configuration</span></a></li>
-		  <li><a jwcid="@DirectLink" id="link.configureHosts" listener="listener:configureHosts"><span key="link.configureHosts">Configuration</span></a></li>
-		</ul>
-  	  </div>
-  	  <span jwcid="@QuickHelp" value="message:statistics.help"/>
+      <div class="help"><b><span key="label.quickLinks">Quick Links</span></b>
+        <ul>
+          <li><a jwcid="@DirectLink" id="link.configureTargets" listener="listener:configureTargets" parameters="ognl:{host}"><span jwcid="@Insert" value="ognl:messages.format('link.configureTargets', host)">Configuration</span></a></li>
+          <li><a jwcid="@DirectLink" id="link.configureHosts" listener="listener:configureHosts"><span key="link.configureHosts">Configuration</span></a></li>
+        </ul>
+      </div>
+      <span jwcid="@QuickHelp" value="message:statistics.help"/>
       <h3><span jwcid="@Insert" value="ognl:messages.getMessage(reportName)" /></h3>
       <span jwcid="@If" condition="ognl:summaryReport">
         <table>
-          <tr><td align="left" valign="top">
-			<fieldset>
+          <tr>
+          <td align="left" valign="top">
+            <fieldset>
               <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="prop:index">
                 <span jwcid="@If" condition="ognl:evenIndex">
-				  <b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)"/></b><br/>
-				  <span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" /><br/><br/>
+                  <b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)"/></b><br/>
+                  <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:{currentBean.targetTitle, host}" id="ognl:'image' + index">
+                    <span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" />
+                  </a>
+                  <br/><br/>
                 </span>
               </span>
             </fieldset>
@@ -51,16 +55,20 @@
             <fieldset>
               <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="prop:index">
                 <span jwcid="@If" condition="ognl:!evenIndex">
-				  <b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)"/></b><br/>
-				  <span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" /><br/><br/>
+                  <b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)"/></b><br/>
+                  <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:{currentBean.targetTitle, host}" id="ognl:'image' + index">
+                    <span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" />
+                  </a>
+                  <br/><br/>
                 </span>
               </span>
             </fieldset>
-          <td></tr>
+          <td>
+          </tr>
         </table>
       </span>
       <span jwcid="@Else">
-		<fieldset>
+        <fieldset>
           <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="prop:index">
             <b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)" /></b><br/>
             <span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" /><br/>
@@ -68,16 +76,16 @@
           </span>
         </fieldset>
       </span>
-	</div>
+    </div>
   </span>
   <span jwcid="@Else">
     <span key="statisticsDisabled" class="user-error" raw="true"/>
     <div id="settings-content">
-  	  <div class="help"><b><span key="label.quickLinks">Quick Links</span></b>
-	    <ul>
-	      <li><a jwcid="@DirectLink" id="link.configureHosts" listener="listener:configureHosts"><span key="link.configureHosts">Configuration</span></a></li>
-	    </ul>
-  	  </div>
-  	</div>
+      <div class="help"><b><span key="label.quickLinks">Quick Links</span></b>
+        <ul>
+          <li><a jwcid="@DirectLink" id="link.configureHosts" listener="listener:configureHosts"><span key="link.configureHosts">Configuration</span></a></li>
+        </ul>
+      </div>
+    </div>
   </span>
 </div>
