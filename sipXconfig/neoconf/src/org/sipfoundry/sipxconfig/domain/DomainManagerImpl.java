@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
@@ -28,6 +29,7 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     private SipxReplicationContext m_replicationContext;
     private String m_authorizationRealm;
     private String m_initialDomain;
+    private String m_initialAlias;
 
     /**
      * Implemented by Spring AOP
@@ -145,6 +147,9 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         if (domain == null) {
             domain = new Domain();
             domain.setName(m_initialDomain);
+            if (StringUtils.isNotBlank(m_initialAlias)) {
+                domain.addAlias(m_initialAlias);
+            }
         }
         if (domain.initSecret()) {
             saveDomain(domain);
@@ -165,5 +170,9 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
 
     public void setInitialDomain(String initialDomain) {
         m_initialDomain = initialDomain;
+    }
+
+    public void setInitialAlias(String initialAlias) {
+        m_initialAlias = initialAlias;
     }
 }

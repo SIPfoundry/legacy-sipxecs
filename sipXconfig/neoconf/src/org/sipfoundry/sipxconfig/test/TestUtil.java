@@ -177,6 +177,7 @@ public final class TestUtil {
         sysProps.setProperty("acdHistoricalStatsImpl.enabled", Boolean.toString(true));
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
         sysProps.setProperty("domainManagerImpl.authorizationRealm", realm);
+        sysProps.setProperty("domainManagerImpl.initialAlias", "alias.example.org");
         sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory
                 + "/parkserver/music");
         sysProps.setProperty("replicationTrigger.replicateOnStartup", Boolean.toString(false));

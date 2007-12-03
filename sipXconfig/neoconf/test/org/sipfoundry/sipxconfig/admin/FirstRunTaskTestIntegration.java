@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import java.util.Set;
+
 import org.apache.commons.codec.binary.Base64;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -35,6 +37,9 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         m_domainManager.initialize();
 
         assertEquals("example.org", m_domainManager.getDomain().getName());
+        Set<String> aliases = m_domainManager.getDomain().getAliases();
+        assertEquals(1, aliases.size());
+        assertTrue(aliases.contains("alias.example.org"));
     }
 
     public void testOnInitTaskInitializeDomainSecret() throws Exception {
