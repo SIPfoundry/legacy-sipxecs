@@ -77,10 +77,10 @@ public class SipXpage implements LegListener
       
       properties.setProperty("javax.sip.STACK_NAME", "sipXpage");
 
- //     properties.setProperty("gov.nist.javax.sip.DEBUG_LOG",
- //           "sipxpage_debug.log");
- //     properties.setProperty("gov.nist.javax.sip.SERVER_LOG",
- //           "sipxpage_server.log");
+      properties.setProperty("gov.nist.javax.sip.DEBUG_LOG",
+            "sipxpage_debug.log");
+      properties.setProperty("gov.nist.javax.sip.SERVER_LOG",
+            "sipxpage_server.log");
 
       // Drop the client connection after we are done with the transaction.
       properties.setProperty("gov.nist.javax.sip.CACHE_CLIENT_CONNECTIONS",

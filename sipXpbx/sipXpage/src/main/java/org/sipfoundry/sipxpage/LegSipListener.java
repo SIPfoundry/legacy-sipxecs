@@ -159,7 +159,7 @@ public class LegSipListener implements SipListener
     * @param uri The destination of the call
     * @return The callId of the created call
     */
-   public String placeCall(Leg leg, SipURI toAddress, String displayName, SessionDescription sdp, String alertInfoKey) throws Exception
+   public String placeCall(Leg leg, SipURI toAddress, String displayName, SessionDescription sdp, String alertInfoKey) throws Throwable
    {
       // TODO Lookup the toAddress in the registration database, so as to only
       // send to the registered phones.
@@ -256,7 +256,7 @@ public class LegSipListener implements SipListener
       }      
    }
 
-   public void acceptCall(Leg leg) throws Exception
+   public void acceptCall(Leg leg) throws Throwable
    {
       LOG.info(String.format("LegSipListener::acceptCall Leg %s", leg.toString())) ;
 
@@ -325,7 +325,7 @@ public class LegSipListener implements SipListener
     * @return The INVITE request
     * @throws Exception
     */
-   Request buildInviteRequest(Leg leg, String fromDisplayName, SipURI toAddress, String alertInfoKey) throws Exception
+   Request buildInviteRequest(Leg leg, String fromDisplayName, SipURI toAddress, String alertInfoKey) throws Throwable
    {
       // create From Header
       SipURI fromURI = addressFactory.createSipURI("pager", fromSipAddress);
@@ -413,7 +413,7 @@ public class LegSipListener implements SipListener
     * @return The Session Description
     * @throws Exception
     */
-   public SessionDescription buildSdp(InetSocketAddress localRtpAddress, boolean sendOnly) throws Exception
+   public SessionDescription buildSdp(InetSocketAddress localRtpAddress, boolean sendOnly) throws Throwable
    {
       String localHost = "0.0.0.0" ;
       int localPort = 0 ;
@@ -450,7 +450,7 @@ public class LegSipListener implements SipListener
       return sdp ;
    }
 
-   Response processInvite(Request request, ServerTransaction serverTransactionId) throws Exception
+   Response processInvite(Request request, ServerTransaction serverTransactionId) throws Throwable
    {
       Dialog dialog = null ;
       
@@ -578,12 +578,16 @@ public class LegSipListener implements SipListener
          {
             response = messageFactory.createResponse(Response.BAD_REQUEST,request) ;
          }
-      } catch (Exception e)
+      } catch (Throwable t)
       {
-         LOG.warn("LegSipListener::processRequest", e) ;
+         LOG.fatal("LegSipListener::processRequest", t) ;
+         System.exit(1) ;
       }
       
-      sendServerResponse(serverTransactionId, response);
+      if (response != null)
+      {
+         sendServerResponse(serverTransactionId, response);
+      }
    }
 
    public void sendServerResponse(ServerTransaction transactionId, Response response)
@@ -601,9 +605,9 @@ public class LegSipListener implements SipListener
             {
                sipProvider.sendResponse(response) ;
             }
-         } catch (Exception e)
+         } catch (Throwable t)
          {
-            LOG.warn("LegSipListener::sendServerResponse", e) ;
+            LOG.warn("LegSipListener::sendServerResponse", t) ;
          }
       }
    }

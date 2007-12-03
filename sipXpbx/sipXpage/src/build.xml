@@ -37,6 +37,7 @@
   <target name="install">
 
     <!-- BINARIES/LIB/SCRIPTS -->
+    <delete dir="${dest.dir}${sipxpage.lib.dir}"/>
     <mkdir dir="${dest.dir}${sipxpage.lib.dir}"/>
     <copy file="${build.dir}/dist/sipXpage.jar" todir="${dest.dir}${sipxpage.lib.dir}"/>
     <copy todir="${dest.dir}${sipxpage.lib.dir}">

@@ -148,9 +148,9 @@ public class PageGroup implements LegListener
                }
             }
             return true ;
-         } catch (Exception e)
+         } catch (Throwable t)
          {
-            LOG.warn("PageGroup::page", e) ;
+            LOG.warn("PageGroup::page", t) ;
             end() ;
          }
       }
@@ -227,8 +227,8 @@ public class PageGroup implements LegListener
            
          oLeg.createLeg(toAddress, "Page from "+fromName, sdp, alertInfoKey);
 
-      } catch (Exception e) {
-         LOG.warn(String.format("PageGroup::placeCall Problem calling %s", destination), e) ;
+      } catch (Throwable t) {
+         LOG.warn(String.format("PageGroup::placeCall Problem calling %s", destination), t) ;
          try
          {
             oLeg.destroyLeg() ;

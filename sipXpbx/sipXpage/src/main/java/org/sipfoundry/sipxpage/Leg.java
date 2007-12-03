@@ -66,7 +66,7 @@ public abstract class Leg implements LegListener
     * @param rtpPort
     * @throws Exception
     */
-   public void acceptCall(int rtpPort) throws Exception
+   public void acceptCall(int rtpPort) throws Throwable
    {
       setRtpPort(rtpPort) ;
       if (legSipListener != null)

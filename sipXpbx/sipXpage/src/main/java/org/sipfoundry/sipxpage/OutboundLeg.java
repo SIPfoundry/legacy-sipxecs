@@ -20,7 +20,7 @@ public class OutboundLeg extends Leg implements LegListener
       myId = "to nowhere" ;
    }
    
-   public void createLeg(SipURI toAddress, String displayName, SessionDescription sdp, String alertInfoKey) throws Exception
+   public void createLeg(SipURI toAddress, String displayName, SessionDescription sdp, String alertInfoKey) throws Throwable
    {
       this.toAddress = toAddress ;
       myId = "to "+ toAddress.toString() ;
