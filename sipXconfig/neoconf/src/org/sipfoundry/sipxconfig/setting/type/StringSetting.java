@@ -18,6 +18,8 @@ public class StringSetting extends AbstractSettingType {
 
     private int m_maxLen = DEFAULT_MAX_LEN;
 
+    private int m_minLen;
+
     private String m_pattern;
 
     private boolean m_password;
@@ -28,6 +30,14 @@ public class StringSetting extends AbstractSettingType {
 
     public void setMaxLen(int maxLen) {
         m_maxLen = maxLen;
+    }
+
+    public int getMinLen() {
+        return m_minLen;
+    }
+
+    public void setMinLen(int minLen) {
+        m_minLen = minLen;
     }
 
     public String getPattern() {

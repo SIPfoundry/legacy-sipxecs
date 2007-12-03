@@ -123,6 +123,7 @@ public class SettingTypesTest extends TestCase {
         type = stringSetting.getType();
         assertTrue(type instanceof StringSetting);
         strType = (StringSetting) type;
+        assertEquals(3, strType.getMinLen());
         assertEquals(15, strType.getMaxLen());
         assertEquals("kuku", strType.getPattern());
         assertTrue(strType.isRequired());

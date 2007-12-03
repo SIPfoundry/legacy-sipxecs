@@ -24,6 +24,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.validator.Max;
 import org.apache.tapestry.form.validator.MaxLength;
 import org.apache.tapestry.form.validator.Min;
+import org.apache.tapestry.form.validator.MinLength;
 import org.apache.tapestry.form.validator.Pattern;
 import org.apache.tapestry.form.validator.Required;
 import org.apache.tapestry.form.validator.Validator;
@@ -129,6 +130,12 @@ public abstract class SettingEditor extends BaseComponent {
             MaxLength maxLen = new MaxLength();
             maxLen.setMaxLength(stringType.getMaxLen());
             validators.add(maxLen);
+            int minLen = stringType.getMinLen();
+            if (minLen > 0) {
+                MinLength minLenValid = new MinLength();
+                minLenValid.setMinLength(minLen);
+                validators.add(minLenValid);
+            }
             String patternString = stringType.getPattern();
             if (StringUtils.isNotEmpty(patternString)) {
                 Pattern pattern = new Pattern();

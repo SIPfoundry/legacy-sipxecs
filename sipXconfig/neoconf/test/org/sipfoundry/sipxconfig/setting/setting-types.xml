@@ -50,7 +50,7 @@
       <label>Setting Label</label>
       <profileName>Setting Profile Name</profileName>
       <type>
-        <string maxLen="15" password="yes" required="yes">
+        <string minLen="3" maxLen="15" password="yes" required="yes">
           <pattern>kuku</pattern>
         </string>
       </type>

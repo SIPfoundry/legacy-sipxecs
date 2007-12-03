@@ -53,6 +53,7 @@
 <!ELEMENT string (pattern?)>
 <!ATTLIST string
     required %flag; "no"
+    minLen NMTOKEN #IMPLIED
     maxLen NMTOKEN #IMPLIED
     password %flag; "no">
 

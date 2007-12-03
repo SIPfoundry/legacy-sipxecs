@@ -17,6 +17,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.validator.Max;
 import org.apache.tapestry.form.validator.MaxLength;
 import org.apache.tapestry.form.validator.Min;
+import org.apache.tapestry.form.validator.MinLength;
 import org.apache.tapestry.form.validator.Pattern;
 import org.apache.tapestry.form.validator.Required;
 import org.apache.tapestry.test.Creator;
@@ -52,6 +53,10 @@ public class SettingEditorTest extends TestCase {
         assertEquals(2, validators.size());
         assertTrue(validators.get(0) instanceof Required);
         assertTrue(validators.get(1) instanceof MaxLength);
+        
+        type.setMinLen(3);
+        validators = SettingEditor.validatorListForType(type, true);
+        assertTrue(validators.get(2) instanceof MinLength);
     }
 
     public void testValidatorForStringRequiredDisabled() {
