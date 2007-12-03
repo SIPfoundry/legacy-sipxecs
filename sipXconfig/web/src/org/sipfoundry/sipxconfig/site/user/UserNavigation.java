@@ -52,6 +52,9 @@ public abstract class UserNavigation extends BeanNavigation<User> {
     @InjectPage(value = UserPhones.PAGE)
     public abstract UserPhones getUserPhonesPage();
 
+    @InjectPage(value = UserRegistrations.PAGE)
+    public abstract UserRegistrations getUserRegistrationsPage();
+
     public IPage editCallForwarding(Integer userId) {
         UserCallForwarding page = getUserCallForwardingPage();
         page.setUserId(userId);
@@ -107,6 +110,13 @@ public abstract class UserNavigation extends BeanNavigation<User> {
         return page;
     }
 
+    public IPage viewUserRegistrations(Integer userId) {
+        UserRegistrations page = getUserRegistrationsPage();
+        page.setUserId(userId);
+        page.setReturnPage(ManageUsers.PAGE);
+        return page;
+    }
+
     public boolean isIdentificationTabActive() {
         return EditUser.PAGE.equals(getPage().getPageName());
     }
@@ -133,6 +143,10 @@ public abstract class UserNavigation extends BeanNavigation<User> {
     
     public boolean isPersonalAttendantTabActive() {
         return EditPersonalAttendant.PAGE.equals(getPage().getPageName());
+    }
+
+    public boolean isRegistrationsTabActive() {
+        return UserRegistrations.PAGE.equals(getPage().getPageName());
     }
 
     public Collection<Setting> getNavigationGroups() {

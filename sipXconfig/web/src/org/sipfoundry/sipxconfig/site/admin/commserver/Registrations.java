@@ -21,7 +21,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.RegistrationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.RegistrationMetrics;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 
 /**
  * Displays active and expired registrations
@@ -40,12 +39,6 @@ public abstract class Registrations extends BasePage implements PageBeginRenderL
 
     @Persist(value = "session")
     public abstract boolean getDisplayPrimary();
-
-    public abstract RegistrationItem getCurrentRow();
-
-    public abstract long getStartTime();
-
-    public abstract void setStartTime(long startTime);
 
     public abstract void setMetricsProperty(RegistrationMetrics registrationMetrics);
 
@@ -69,9 +62,7 @@ public abstract class Registrations extends BasePage implements PageBeginRenderL
         if (metrics != null) {
             return metrics;
         }
-
         long startRenderingTime = System.currentTimeMillis() / DateUtils.MILLIS_PER_SECOND;
-        setStartTime(startRenderingTime);
         metrics = new RegistrationMetrics();
         metrics.setRegistrations(getRegistrationContext().getRegistrations());
         metrics.setStartTime(startRenderingTime);
@@ -79,20 +70,5 @@ public abstract class Registrations extends BasePage implements PageBeginRenderL
         return metrics;
     }
 
-    public String getColumnNames() {
-        StringBuilder columnNames = new StringBuilder("uri,contact,expires");
-        if (getDisplayPrimary()) {
-            columnNames.append(",primary");
-        }
-        return columnNames.toString();
-    }
 
-    public Object getExpires() {
-        RegistrationItem item = getCurrentRow();
-        long timeToExpire = item.timeToExpireAsSeconds(getStartTime());
-        if (timeToExpire > 0) {
-            return timeToExpire;
-        }
-        return getMessages().getMessage("status.expired");
-    }
 }

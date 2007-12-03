@@ -16,6 +16,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
+import org.sipfoundry.sipxconfig.common.User;
 
 public class RegistrationContextImplTest extends TestCase {
 
@@ -35,6 +36,19 @@ public class RegistrationContextImplTest extends TestCase {
             assertTrue(ri.getUri().startsWith("300" + i));
             assertTrue(ri.getContact().indexOf("Doe") > 0);
         }
+    }
+
+    public void testGetRegistrationsByUser() throws Exception {
+        InputStream is = getClass().getResourceAsStream("registration.test.xml");
+        List<RegistrationItem> registrations = m_builder.getRegistrations(is);
+        User user = new User();
+        user.setUserName("3000");
+        registrations = m_builder.getRegistrationsByUser(registrations, user);
+        assertEquals(1, registrations.size());
+        RegistrationItem ri = (RegistrationItem) registrations.get(0);
+        assertEquals(2000, ri.getExpires());
+        assertTrue(ri.getUri().startsWith("3000"));
+        assertTrue(ri.getContact().indexOf("Doe") > 0);
     }
 
     public void testGetRegistrationsEmpty() throws Exception {

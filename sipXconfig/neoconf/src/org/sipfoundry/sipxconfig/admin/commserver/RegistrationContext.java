@@ -12,9 +12,11 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
+import org.sipfoundry.sipxconfig.common.User;
 
 public interface RegistrationContext {
 
     public abstract List<RegistrationItem> getRegistrations();
 
+    public abstract List<RegistrationItem> getRegistrationsByUser(User user);
 }

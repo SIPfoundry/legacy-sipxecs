@@ -50,6 +50,12 @@
           <span key="link.attendant">Personal Attendant</span>
         </a>
       </span>
+      <span jwcid="@common/Tab" isActive="prop:registrationsTabActive">
+        <a id="userRegistrationsLink" jwcid="userRegistrationsLink@DirectLink"
+          listener="listener:viewUserRegistrations" parameters="prop:bean.id">
+          <span key="link.registrations">Registrations</span>
+        </a>
+      </span>
     </span>
   </div>
   <span jwcid="@RenderBody"/>

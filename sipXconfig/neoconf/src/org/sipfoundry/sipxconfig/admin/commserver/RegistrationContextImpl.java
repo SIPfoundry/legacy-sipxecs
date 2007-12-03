@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,6 +23,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbXmlHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
+import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.common.User;
+
 import org.xml.sax.SAXException;
 
 public class RegistrationContextImpl implements RegistrationContext {
@@ -54,10 +58,24 @@ public class RegistrationContextImpl implements RegistrationContext {
             throw new RuntimeException(e);
         }
     }
-        
+
+    public List<RegistrationItem> getRegistrationsByUser(User user) {
+        return getRegistrationsByUser(getRegistrations(), user);
+    }
+
     List<RegistrationItem> getRegistrations(InputStream is) throws IOException, SAXException {
         Digester digester = ImdbXmlHelper.configureDigester(RegistrationItem.class);
         return (List<RegistrationItem>) digester.parse(is);
+    }
+
+    List<RegistrationItem> getRegistrationsByUser(List<RegistrationItem> registrations, User user) {
+        List<RegistrationItem> result = new ArrayList<RegistrationItem>();
+        for (RegistrationItem registration : registrations) {
+            if (SipUri.extractUser(registration.getUri()).equals(user.getUserName())) {
+                result.add(registration);
+            }
+        }
+        return result;
     }
 
     String getUrl() {
