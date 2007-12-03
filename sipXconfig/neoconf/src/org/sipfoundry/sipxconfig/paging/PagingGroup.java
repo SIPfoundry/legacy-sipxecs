@@ -95,7 +95,7 @@ public class PagingGroup extends BeanWithId {
     }
 
     public String formatDescription() {
-        return m_description;
+        return StringUtils.defaultString(m_description);
     }
 
     public String formatPageGroupNumber() {

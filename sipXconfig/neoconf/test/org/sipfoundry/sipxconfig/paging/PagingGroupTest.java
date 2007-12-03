@@ -30,6 +30,7 @@ public class PagingGroupTest extends TestCase {
 
     public void testFormatDescription() {
         PagingGroup group3 = new PagingGroup();
+        assertEquals("", group3.formatDescription());
         group3.setDescription("description");
         assertEquals("description", group3.formatDescription());
     }
