@@ -545,7 +545,7 @@
     </setting>
     <setting name='phone_password' unless="lip6804">
       <type>
-        <string maxLen="10" password="yes" />
+        <string minLen='4' maxLen='4' password="yes" />
       </type>
     </setting>
     <setting name='lock_outgoing_call'>
