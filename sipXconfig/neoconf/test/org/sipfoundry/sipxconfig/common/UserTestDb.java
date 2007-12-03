@@ -37,8 +37,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
         ApplicationContext app = TestHelper.getApplicationContext();
         m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
-        
-        TestHelper.cleanInsert("ClearDb.xml");
     }
 
     public void testLoadUser() throws Exception {
@@ -89,6 +87,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
 
     public void testUpdateAliases() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
         assertEquals(1, getConnection().getRowCount("user_alias", "where user_id = 1000"));
 
