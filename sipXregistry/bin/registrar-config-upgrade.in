@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 
 # For RPM upgrades, This script has been replaced by the generic 
 # configmerge script (part of sipXcommserverLib) that is executed

@@ -16,6 +16,7 @@ AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
 
 # Checks for programs.
+AC_PATH_PROG([BASH], [bash])
 AC_PROG_CXX
 AX_COMPILER_VENDOR
 AC_PROG_CC
