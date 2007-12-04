@@ -1,0 +1,3 @@
+#!/bin/bash -p
+
+@bindir@/sipxcallresolver.sh --setup

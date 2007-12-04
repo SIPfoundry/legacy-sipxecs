@@ -427,29 +427,18 @@ finish_check() {
     echo ""
 }
 
-initialize_databases () {
-    ##
-    ## The installation process cannot create the postgres databases
-    ##   because (apparently) the network must be initialized first.
-    ## Since we have to have root privs for some of the setup operations,
-    ##   they must be done explicitly here rather than in the wrapper scripts
-    ##   (which are run as user @SIPXPBXUSER@)
+module_setup () {
+    ## The installation process cannot take care of everything
+    ##   because things like the network must be initialized first.
+    ## Scripts should assume they have root privs, therefore care
+    ## should be taken not to start processes that might create log
+    ## files w/incorrect ownership
 
-    # check to see if we need to do the initial database setup for sipxconfig
-    if test -x @bindir@/sipxconfig.sh
-    then
-        @bindir@/sipxconfig.sh --setup
-    fi
-    # and the cdr database setup for the proxies and call resolver
-    if test -x @bindir@/sipxcallresolver.sh
-    then
-        /bin/bash -p @bindir@/sipxcallresolver.sh --setup
-    fi
-    # and the report database setup for acd call history (not real-time stats)
-    if test -x @bindir@/sipxconfig-report
-    then
-        @bindir@/sipxconfig-report --createdb
-    fi
+    ## sorting alphabetically to provide a reliable order, 
+    ## no sophisticated dependency order is required at this time
+    for f in `ls -1 @SIPX_SETUPDIR@/* | sort`; do
+	$f
+    done
 }
 
 ## High-level configtest function
@@ -517,7 +506,7 @@ EOF
         finish_check 0
     fi
 
-    initialize_databases
+    module_setup
 
     ## Regenerate httpd configuration files from their .in's.
     @bindir@/httpd-sipxchange-config.sh

@@ -54,6 +54,7 @@ LocalizeSipXconfig = sed \
 		  -e 's,@SIPX_INCDIR\@,@SIPX_INCDIR@,g' \
 		  -e 's,@SIPX_LIBDIR\@,@SIPX_LIBDIR@,g' \
 		  -e 's,@SIPX_PROCDIR\@,@SIPX_PROCDIR@,g' \
+		  -e 's,@SIPX_SETUPDIR\@,@SIPX_SETUPDIR@,g' \
 		  -e 's,@SIPX_LIBEXECDIR\@,@SIPX_LIBEXECDIR@,g' \
 		  -e 's,@SIPX_VARDIR\@,@SIPX_VARDIR@,g' \
 		  -e 's,@SIPX_SCHEMADIR\@,@SIPX_SCHEMADIR@,g' \

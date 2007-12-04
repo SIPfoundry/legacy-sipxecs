@@ -5,8 +5,14 @@ GEM_LIB_DIR=$(libdir)/ruby/gems/1.8
 edit = $(LocalizeSipXconfig) \
 	-e 's,@GEM_LIB_DIR\@,$(GEM_LIB_DIR),g'
 
+# NOTE: using automake variable naming magic
+setupbindir = @SIPX_SETUPDIR@
+
+setupbin_SCRIPTS = \
+	sipxconfig-report-setup
+
 bin_SCRIPTS = \
 	sipxconfig-report
 
-sipxconfig-report : sipxconfig-report.in
-	$(edit) $(srcdir)/sipxconfig-report.in > sipxconfig-report
+sipxconfig-% : sipxconfig-%.in
+	$(edit) $< > $@

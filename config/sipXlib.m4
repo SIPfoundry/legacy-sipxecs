@@ -86,6 +86,7 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
     AC_SUBST(SIPX_DOCDIR,  [${datadir}/doc/sipx])
     AC_SUBST(SIPX_VARDIR,  [${localstatedir}/sipxdata])
     AC_SUBST(SIPX_PROCDIR, [${sysconfdir}/sipxpbx/process.d])
+    AC_SUBST(SIPX_SETUPDIR, [${sysconfdir}/sipxpbx/setup.d])
     AC_SUBST(SIPX_VARLIB,  [${localstatedir}/lib/sipxpbx])
 
     # temporary - see http://track.sipfoundry.org/browse/XPB-33

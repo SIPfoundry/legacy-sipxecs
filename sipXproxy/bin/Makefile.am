@@ -6,6 +6,11 @@ SIPX_SYSCONFDIR=$(sysconfdir)
 bin_SCRIPTS = \
 	${PACKAGE}-config
 
+setupbindir = @SIPX_SETUPDIR@
+setupbin_SCRIPTS = \
+    sipxcallresolver-setup
+setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)
+
 editscripts_IN = \
     sipXproxy.sh \
     upgrade2mergedproxy \
@@ -14,6 +19,7 @@ editscripts_IN = \
 
 EXTRA_DIST = \
    $(foreach file,$(editscripts_IN),$(file).in) \
+   $(setupbin_IN) \
    $(bin_SCRIPTS)
 
 $(top_builddir)/BUILDSTAMP:
@@ -35,3 +41,7 @@ $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bind
 $(foreach file,$(editscripts_IN),$(file)) : % : %.in
 	$(LocalizeSipXconfig) -e 's,@GEM_LIB_DIR\@,$(GEM_LIB_DIR),g' \
                         -e 's,@SIPX_SYSCONFDIR\@,$(SIPX_SYSCONFDIR),g' $< > $@
+
+$(setupbin_SCRIPTS) : $(setupbin_IN)
+	${LocalizeSipXconfig} $(srcdir)/$(notdir $@).in > $@
+
