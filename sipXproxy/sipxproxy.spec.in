@@ -167,11 +167,11 @@ pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
 %files cdr
 %defattr(644,root,root,755)
+%attr(755,root,root) %{_sysconfdir}/sipxpbx/setup.d/sipxcallresolver-setup
 
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/callresolver-config.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxcallresolver.process.xml
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/setup.d/sipxcallresolver-setup
 
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr
 %attr(755,root,root) %{sipxpbxvarlib}/sipxcallresolver-2.0.0.gem

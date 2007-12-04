@@ -206,6 +206,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/sipxconfig.sh
+%attr(755,root,root) %{sipxpbxconf}/setup.d/sipxconfig-setup
 %attr(755,root,root) %{_bindir}/sipxconfig-config
 %attr(755,root,root) %{_bindir}/sipx-upgrade-3.6-mailstore
 %attr(755,root,root) %{_bindir}/sipx-upgrade-3.6-mailstore-report
@@ -249,7 +250,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/lg-nortel/*
 %config(noreplace) %{sipxpbxconf}/linksysPhone/*
 %config(noreplace) %{sipxpbxconf}/process.d/sipxconfig.process.xml
-%config(noreplace) %{sipxpbxconf}/setup.d/sipxconfig-setup
 %config(noreplace) %{sipxpbxconf}/polycom/*
 %config(noreplace) %{sipxpbxconf}/snom/*
 %config(noreplace) %{sipxpbxconf}/mitel/*
@@ -378,6 +378,7 @@ fi
 
 %files report
 %defattr(644,root,root,755)
+%attr(755,root,root) %{sipxpbxconf}/setup.d/sipxconfig-report-setup
 %{sipxpbxvarlib}/sipXconfig-report-*.gem
 %config(noreplace) /etc/cron.d/sipxconfig-report-crontab
 
@@ -386,7 +387,6 @@ fi
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
 %config(noreplace) %{sipxpbxconf}/report/sipxconfig-report-config
 %config(noreplace) %{sipxpbxconf}/report/schema.sql
-%config(noreplace) %{sipxpbxconf}/setup.d/sipxconfig-report-setup
 
 %post report
 gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-report-*.gem >/dev/null
