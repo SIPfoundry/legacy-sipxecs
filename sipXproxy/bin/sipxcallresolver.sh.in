@@ -440,9 +440,9 @@ onSetup() {
     removeOldCronEntry
     fixFileAccess ${DbPatchLog}
     fixFileAccess ${CallResolverLog}
+    @bindir@/pgpatch.sh
     if ! databaseCheck Silent
     then
-       @bindir@/pgpatch.sh
        databaseCommand create
        # echo 'CDR database created'
     fi
