@@ -18,7 +18,7 @@ CoreDumpDirectory @SIPX_LOGDIR@
     Satisfy any
 </Directory>
 
-<Directory "@SIPX_DATADIR@/mediaserver/data/prompts">
+<Directory "@SIPX_DATADIR@/mediaserver/data/prompts/">
     Options Indexes FollowSymLinks MultiViews
     Order Deny,Allow
     Deny from all

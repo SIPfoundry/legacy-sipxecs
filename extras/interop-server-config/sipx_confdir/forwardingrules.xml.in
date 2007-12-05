@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<routes xmlns='http://www.sipfoundry.org/sipX/schema/xml/forwardingrules-00-00'>
 
-  <route mappingType="mydomain">
+<routes xmlns="http://www.sipfoundry.org/sipX/schema/xml/forwardingrules-00-00">
+
+  <route mappingType="local">
+    
     <description>
       Matches the SIPXCHANGE_DOMAIN_NAME (and all aliases for it).
       Routes SUBSCRIBE for message waiting indication to the status server.
+      Routes SUBSCRIBE for "reg" events to the reg event server.
       All other requests go to the SIP registry/redirect service.
     </description>
 
+    
     <routeFrom>${SIPXCHANGE_DOMAIN_NAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
+    
     <routeFrom>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</routeFrom>
+    
     <routeFrom>${MY_FULL_HOSTNAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
+    
     <routeFrom>${MY_HOSTNAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
+    
     <routeFrom>${INTEROP_ALIAS_UDP}:${PROXY_SERVER_SIP_PORT}</routeFrom>
     <routeFrom>${INTEROP_ALIAS_TCP}:${PROXY_SERVER_SIP_PORT}</routeFrom>
 
@@ -34,37 +42,11 @@
         <routeTo>&lt;${REGISTRAR_REG_EVENT_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
       </fieldMatch>
 
-      <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT}&gt;</routeTo>
+      <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
 
     </methodMatch>
-    <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT}&gt;</routeTo>
+    <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
 
   </route>
-
-<!-- show some examples 
-  <route mappingType="enterprise">
-    <description>
-      All other requests to an internal IPv4 address or to a SIP domain
-      within Pingtel are routed through the
-      authorization proxy for permission checking.
-    </description>
-    <routeFrom type="IPv4">10.*</routeFrom>
-    <routeFrom type="DNSpattern">*.pingtel.com</routeFrom>
-
-    <routeTo>${PROXY_SERVER_SIP_SRV_OR_HOSTPORT}</routeTo>
-  </route>
-
-  <route mappingType="external">
-    <description>
-      All other requests targetted directly to a domain name or non-local
-      IP address are routed through the authorization proxy for permission
-      checking, and then to the session border controller to be passed 
-      outside.
-    </description>
-    <routeFrom type="DNSpattern">*</routeFrom>
-    <routeTo>${PROXY_SERVER_SIP_SRV_OR_HOSTPORT},sbc.pingtel.com</routeTo>
-  </route>
--->
 
 </routes>
-

@@ -18,8 +18,8 @@ sipx_dbdir
 
 The current number assignments are as follows.  "gg" is the group
 number, from 00 to 99.  (index.html claims only 10..99 as groups, but
-we may need the single-digit groups as well.)  "n" means 1 through
-9, to shorten the table.
+we may need the single-digit groups as well.)  "n" is used here to mean
+1 through 9, to shorten the table.
 
 0n	(that is, 01 through 09) Forwarding prefixes for other PBXs
 	("city codes")
@@ -57,6 +57,36 @@ we may need the single-digit groups as well.)  "n" means 1 through
 
 *701ggxy	Send out-of-dialog REFER to 1ggx with Refer-To 1ggy
 
+*71gg	Paging call to all phones registered to 1ggn.
+
 *78xxxx	Call pick-up
 
 *79xxxx	Call join
+
+Special properties of phones within each group:
+
+1gg0	Not used
+
+1gg1	Has voicemail and MWI.
+
+1gg2	Has voicemail and MWI.
+	Included in resource list ~~rl~gg.
+
+1gg3	Target of forking tests 5ggx and 6ggx.
+
+1gg4	Target of forking tests 5ggx and 6ggx.
+
+1gg5	Target of forking tests 5ggx and 6ggx.
+
+1gg6	Target of forking tests 5ggx and 6ggx.
+	Included in resource list ~~rl~gg.
+
+1gg7	(Not implemented: Generating GRUU suppressed.)
+	Can authenticate in 4ggn test.
+
+1gg8	(Not implemented: Generating GRUU suppressed.)
+	Can authenticate in 4ggn test.
+
+1gg9	(Not implemented: Generating GRUU suppressed.)
+	Can authenticate in 4ggn test.
+	Included in resource list ~~rl~gg.

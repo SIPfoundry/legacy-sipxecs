@@ -58,6 +58,11 @@ mediaserver.max.active.calls            VXIInteger      50
 ### Define what CODECs are available to the user agents.
 mediaserver.rtp.codecs                  VXIString       pcmu pcma telephone-event
 
+### Port / IP configuration
+mediaserver.udp.port                    VXIInteger      5100
+mediaserver.tcp.port                    VXIInteger      5100
+mediaserver.bindip                      VXIString       ${MY_IP_ADDR}
+
 ### Logging
 client.log.dir                          VXIString       \$(VXILOG)
 client.log.filename                     VXIString       \$(VXILOG)/vxmlengine.log
@@ -76,6 +81,12 @@ client.inet.userAgent                   VXIString       sipXvxml/1.0
 client.inet.acceptCookies               VXIInteger      1
 # client.prompt.baseUrl                   VXIString       http://localhost:${MEDIA_SERVER_HTTP_PORT}/stdprompts/
 client.prompt.baseUrl                   VXIString       file://@HTTP_ROOTDIR@/stdprompts/
+
+### Controls HTAnchor patch
+### n is an integer equal or greater then zero.
+### Zero disables the patch, otherwise n controls how many times the  number if active 
+### instances of SBinetHttpStream class has to drop t zero before the HTAnchor cache is cleaned
+#inet.htAnchorPeriod                     VXIInteger     n
 
 ### JavaScript
 client.jsi.runtimeSizeBytes             VXIInteger      16384000

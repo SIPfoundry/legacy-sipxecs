@@ -34,6 +34,11 @@ MY_FULL_HOSTNAME=`hostname -f`
 MY_HOSTNAME=`hostname -s`
 MY_IP_ADDR=`@SIPX_BINDIR@/get_def_addr`
 
+##### In High Availability configurations, the names of the primary
+##### and secondary servers.  Otherwise empty.
+MASTER_HOSTNAME=
+DISTRIBUTED_HOSTNAME=
+
 ##### IP <-> PSTN Gateway addresses -- IP addresses (recommended) or host names #####
 GW_DEFAULT_ADDR=
 GW_800_DIALING_ADDR=${GW_DEFAULT_ADDR}
@@ -114,6 +119,12 @@ RLS_ADDR=${MY_IP_ADDR}
 RLS_SIP_PORT=5140
 RLS_SIP_SECURE_PORT=5141
 RLS_SIP_SRV_OR_HOSTPORT=${RLS_ADDR}:${RLS_SIP_PORT}
+
+PAGE_LOG_DIR=@SIPX_LOGDIR@
+PAGE_SERVER_ADDR=${MY_IP_ADDR}
+PAGE_SERVER_SIP_PORT=5160
+PAGE_SERVER_SIP_SECURE_PORT=5161
+PAGE_SERVER_SIP_SRV_OR_HOSTPORT=${PAGE_SERVER_ADDR}:${PAGE_SERVER_SIP_PORT}
 
 ##### Media server customizations ######
 # Length of extensions for use in the media server

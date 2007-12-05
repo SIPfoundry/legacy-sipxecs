@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'>
 
+<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00">
   <!-- Mapping rule to implement the TCP and UDP SRV aliases. -->
   <hostMatch>
     <hostPattern>${INTEROP_ALIAS_UDP}</hostPattern>
@@ -56,35 +56,48 @@
 
     <!-- 'operator', '0', or extension 100 goes to AutoAttendant -->
     <userMatch>
+      <!--AutoAttendant-->
+      <description>Default autoattendant dialing plan</description>
       <userPattern>operator</userPattern>
       <userPattern>100</userPattern>
       <userPattern>0</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant&gt;</url>
+          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant%26name%3Daa_8&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
 
     <!-- extension 101 is used to retrieve voicemail messages -->
     <userMatch>
+      <description>Default internal dialing plan</description>
       <userPattern>101</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve&gt;</url>
+          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve%26lang%3Den&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
 
-    <!-- Voice Mail Fallback
-      - add a voicemail fallback for any user with the Voicemail permission.
-      -->
     <userMatch>
+      <description>Default internal dialing plan</description>
+      <userPattern>~~vm~.</userPattern>
+      <permissionMatch>
+        <permission>SipXVoicemailServer</permission>
+        <transform>
+          <url>&lt;sip:{vdigits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits-escaped}%26lang%3Den&gt;;q=0.1</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <description>Voicemail redirect dialing rule</description>
       <userPattern>1xxx</userPattern>
       <permissionMatch>
         <permission>Voicemail</permission>
         <transform>
-          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits}&gt;;q=0.1</url>
+          <user>~~vm~{user}</user>
+          <fieldparams>q=0.1</fieldparams>
         </transform>
       </permissionMatch>
     </userMatch>
