@@ -1,7 +1,9 @@
 ## Velocity macros
-## emit 'setting value' pair
+## emit 'setting value' pair - skipping _ignored_ settings
 #macro(emit_setting $s)
+#if($s.ProfileName != '$ignore$')
 ${s.ProfileName} $!{s.Value}
+#end
 #end
 ## emit setting line for every setting in the group
 #macro(emit_group $g)
@@ -31,6 +33,12 @@ line${line_id}_${setting.ProfileName} $!{setting.Value}
 #end
 
 #end
+#end
+#set($dial = $phone.Settings.getSetting('DIAL'))
+#if($dial.getSetting('emergency_number').Value)
+[ROUTE]
+add sip 0 $!dial.getSetting('emergency_number').Value 0 null null null $!dial.getSetting('emergency_address').Value
+
 #end
 #emit_groups_by_name(['DSP', 'FWRD', 'DIAL', 'CALL', 'SNMP', 'SYSTEM'])
 #set($lowercase = "$phone.SerialNumber")

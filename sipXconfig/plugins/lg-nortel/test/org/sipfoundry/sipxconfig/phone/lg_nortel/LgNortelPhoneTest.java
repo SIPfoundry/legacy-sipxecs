@@ -109,6 +109,29 @@ public class LgNortelPhoneTest extends TestCase {
         assertEquals(expected, location.toString());
     }
 
+    public void testGenerateProfileWithRouting() throws Exception {
+        PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
+        lgNortelModel.setProfileTemplate("lg-nortel/mac.cfg.vm");
+        lgNortelModel.setMaxLineCount(4); // we are testing 2 lines
+        LgNortelPhone phone = new LgNortelPhone();
+        phone.setModel(lgNortelModel);
+
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+
+        supplyTestData(phone);
+        // test E911 forwarding
+        phone.setSettingValue("DIAL/emergency_number", "911");
+        phone.setSettingValue("DIAL/emergency_address", "e911.example.org");
+
+        phone.getProfileTypes()[0].generate(phone, location);
+        InputStream expectedProfile = getClass().getResourceAsStream("mac_e911.cfg");
+        assertNotNull(expectedProfile);
+        String expected = IOUtils.toString(expectedProfile);
+        expectedProfile.close();
+
+        assertEquals(expected, location.toString());
+    }
+
     public void testGenerateLgNortel6804() throws Exception {
         PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
         lgNortelModel.setProfileTemplate("lg-nortel/mac.cfg.vm");

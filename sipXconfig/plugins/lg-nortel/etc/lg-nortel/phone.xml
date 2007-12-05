@@ -149,7 +149,9 @@
     <integer required="yes" min="0" max="4094" />
   </type>
   <group name='LAN'>
-    <setting name='tos'><value>b8</value></setting>
+    <setting name='tos'>
+      <value>b8</value>
+    </setting>
     <setting name='pc_802_priority'>
       <type refid="priority-802" />
       <value>3</value>
@@ -168,18 +170,18 @@
     </setting>
   </group>
   <group name='VOIP'>
-    <setting name='outbound_proxy_server'></setting>
+    <setting name='outbound_proxy_server' />
     <setting name='outbound_proxy_port' advanced="yes">
       <type refid="restricted-port-number" />
       <value>5060</value>
     </setting>
-    <setting name='backup_proxy_server' advanced="yes"></setting>
+    <setting name='backup_proxy_server' advanced="yes" />
     <setting name='backup_proxy_port' advanced="yes">
       <type refid="restricted-port-number" />
       <value>5060</value>
     </setting>
-    <setting name='SIP_service_domain' advanced="yes"></setting>
-    <setting name="moh_url" advanced="yes"></setting>
+    <setting name='SIP_service_domain' advanced="yes" />
+    <setting name="moh_url" advanced="yes" />
     <setting name='rtp_port' advanced="yes">
       <type>
         <integer required="yes" min="16300" max="32700" />
@@ -203,7 +205,7 @@
       <value>5060</value>
     </setting>
     <setting name='message_url' advanced="yes">
-      <value></value>
+      <value />
     </setting>
     <setting name='preferred_codec'>
       <!--TODO: preferred codec list, g729/g723/pcmu/pcma (default: priority 1, g.729) -->
@@ -234,7 +236,7 @@
       <value>4000</value>
     </setting>
     <setting name='stun_server'>
-      <value></value>
+      <value />
     </setting>
     <setting name='max_line_num' hidden="yes">
       <type>
@@ -404,6 +406,12 @@
       </type>
       <value>6</value>
     </setting>
+    <setting name='emergency_number'>
+      <profileName>$ignore$</profileName>
+    </setting>
+    <setting name='emergency_address'>
+      <profileName>$ignore$</profileName>
+    </setting>
   </group>
   <!-- 
     <group name='PROG' hidden="yes">
@@ -473,7 +481,7 @@
       <type refid="ena-dis" />
       <value>disable</value>
     </setting>
-    <setting name='acd_primary_line' advanced="yes"></setting>
+    <setting name='acd_primary_line' advanced="yes" />
     <setting name='acd_unavail_completed' advanced="yes">
       <type refid="ena-dis" />
       <value>enable</value>
@@ -492,7 +500,7 @@
       <type refid="ena-dis" />
       <value>disable</value>
     </setting>
-    <setting name='call_direct_number'></setting>
+    <setting name='call_direct_number' />
     <setting name='call_direct_timer'>
       <type>
         <integer min="0" max="10" />
@@ -506,7 +514,7 @@
       <value>off</value>
     </setting>
     <setting name='snmp_manager_address'>
-      <value></value>
+      <value />
     </setting>
     <setting name='snmp_read_community'>
       <type>
@@ -638,11 +646,11 @@
       <value>0</value>
     </setting>
     <setting name="cfg_download" hidden="yes">
-      <type refid="ena-dis"></type>
+      <type refid="ena-dis" />
       <value>enable</value>
     </setting>
     <setting name="sw_download" advanced="yes">
-      <type refid="ena-dis"></type>
+      <type refid="ena-dis" />
       <value>enable</value>
     </setting>
     <setting name='dhcp_get_tftp'>
@@ -650,7 +658,7 @@
       <value>enable</value>
     </setting>
     <setting name='https_url' advanced="yes">
-      <value></value>
+      <value />
     </setting>
     <setting name='dhcp_get_http' advanced="yes">
       <type refid="ena-dis" />
@@ -719,9 +727,9 @@
     </setting>
     <setting name='decrypt_key'>
       <type>
-        <string maxLen="64"></string>
+        <string maxLen="64" />
       </type>
-      <value></value>
+      <value />
     </setting>
   </group>
   <group name='NETTIME'>
