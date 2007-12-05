@@ -134,10 +134,10 @@ public abstract class TestPage extends BasePage {
 
     @InjectObject(value = "spring:sbcManager")
     public abstract SbcManager getSbcManager();
-    
+
     @InjectObject(value = "spring:speedDialManager")
     public abstract SpeedDialManager getSpeedDialManager();
-    
+
     @InjectObject(value = "spring:pagingContext")
     public abstract PagingContext getPagingContext();
 
@@ -178,7 +178,7 @@ public abstract class TestPage extends BasePage {
     public void resetConferenceBridgeContext() {
         getConferenceBridgeContext().clear();
     }
-    
+
     public void resetPersonalAttendants() {
         getMailboxManager().clearPersonalAttendants();
     }
@@ -186,13 +186,13 @@ public abstract class TestPage extends BasePage {
     public String resetCoreContext() {
         // need to reset all data that could potentially have a reference
         // to users
+        resetPersonalAttendants();
         getSpeedDialManager().clear();
         getPagingContext().clear();
         resetDialPlans();
         resetCallForwarding();
         resetPhoneContext();
         resetCallGroupContext();
-        resetPersonalAttendants();
         getCoreContext().clear();
         getApplicationLifecycle().logout();
         // force rendering any new page after logout or infamous "invalid session" after
@@ -307,6 +307,7 @@ public abstract class TestPage extends BasePage {
     }
 
     public void deleteAllUsers() {
+        resetPersonalAttendants();
         List users = getCoreContext().loadUsers();
         for (Iterator iter = users.iterator(); iter.hasNext();) {
             User user = (User) iter.next();

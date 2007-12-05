@@ -31,6 +31,7 @@ public class ManageVoicemailTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.home(getTester());
     }
     
     private void gotoManageVoicemail() {
