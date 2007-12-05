@@ -274,6 +274,7 @@ cat > $Work.copy-files <<EOF
 /etc/resolv.conf
 /etc/hosts
 /etc/crontab
+/var/log/yum.log
 EOF
 
 # Add the requested log files
