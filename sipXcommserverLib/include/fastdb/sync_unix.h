@@ -20,12 +20,14 @@
 #include <assert.h>
 #include <errno.h>
 
+extern char const* keyFileDir; // default value: "/tmp/" 
+
 #if !defined(USE_POSIX_SEMAPHORES) || !defined(USE_POSIX_MMAP) || !USE_POSIX_MMAP
 #include <sys/ipc.h> 
-extern char const* keyFileDir; // default value: "/tmp/" 
 #endif
 
 #if defined(USE_POSIX_SEMAPHORES)
+#include <sys/ipc.h> 
 #include <semaphore.h>  // For POSIX style semaphores
 #else
 #include <sys/sem.h>    // For SysV style semaphores
@@ -408,18 +410,23 @@ class dbInitializationMutex {
     };
     initializationStatus initialize(char const* name) { 
         initializationStatus status;
-        char* tmp = NULL;
-        if (*name != '/') { 
-            tmp = new char[strlen(name)+2];
-            strcpy(tmp+1, name);
-            *tmp = '/';
-            name = tmp;
+        char *tmp = new char[strlen(name) + 32 + 1];
+        if (name[0] != '/')
+        {
+           // Want to have the full path, but sem_open doesn't allow
+           // slashes in the name.  Use ftok of the path to get close 
+           // enough.
+           sprintf(tmp, "%0xd-%s", ftok(keyFileDir, 0), name);
+        }
+        else
+        {
+           strcpy(tmp, name);
         }
         while (true) {
-            sem = sem_open(name, 0);
+            sem = sem_open(tmp, 0);
             if (sem == SEM_FAILED) { 
                 if (errno == ENOENT) {
-                    sem = sem_open(name, O_CREAT|O_EXCL, 0777, 0);
+                    sem = sem_open(tmp, O_CREAT|O_EXCL, 0777, 0);
                     if (sem != SEM_FAILED) { 
                         status = NotYetInitialized;
                         break;
@@ -432,7 +439,7 @@ class dbInitializationMutex {
                     break;
                 }
             } else { 
-                status = (sem_wait(sem) == 0 && sem_post(sem) == 0) 
+                status = (sem_wait(sem) == 0) 
                     ? AlreadyInitialized : InitializationError;
                 break;
             }
@@ -458,8 +465,14 @@ class dbSemaphore {
     sem_t* sem;
   public:
     void wait() { 
-        int rc = sem_wait(sem);
-        assert(rc == 0);
+        for(;;)
+        {
+            int rc = sem_wait(sem);
+            if (rc != 0 && errno == EINTR)
+               continue;
+            assert(rc == 0);
+            break;
+        }
     }
 
     bool wait(unsigned msec) { 
@@ -469,21 +482,32 @@ class dbSemaphore {
         clock_gettime(CLOCK_REALTIME, &cur_tv);
         abs_ts.tv_sec = cur_tv.tv_sec + (msec + cur_tv.tv_usec / 1000) / 1000000; 
         abs_ts.tv_nsec = (msec + cur_tv.tv_usec / 1000) % 1000000 * 1000;
-        int rc = sem_timedwait(sem, &abs_ts);
-        if (rc < 0) { 
-            assert(errno == ETIMEDOUT);
-            return false;
+        for(;;)
+        {
+            int rc = sem_timedwait(sem, &abs_ts);
+            if (rc < 0) { 
+                if (errno == EINTR)
+                   continue ;
+                assert(errno == ETIMEDOUT);
+                return false;
+            }
         }
         return true;
 #else 
-        int rc = sem_wait(sem);
-        assert(rc == 0);
-        return true;
+        for(;;)
+        {
+            int rc = sem_wait(sem);
+            if (rc != 0 && errno == EINTR)
+               continue;
+            assert(rc == 0);
+            return true;
+        }
 #endif  
     }
 
     void signal(unsigned inc = 1) {
-        while (--inc > 0) { 
+        // For every non-zero inc, post to the sem once
+        while (inc-- != 0) { 
             sem_post(sem);
         }
     }
@@ -491,14 +515,19 @@ class dbSemaphore {
         while (sem_trywait(sem) == 0);
     }    
     bool open(char const* name, unsigned initValue = 0) {
-        char* tmp = NULL;
-        if (*name != '/') { 
-            tmp = new char[strlen(name)+2];
-            strcpy(tmp+1, name);
-            *tmp = '/';
-            name = tmp;
+        char *tmp = new char[strlen(name) + 32 + 1];
+        if (name[0] != '/')
+        {
+           // Want to have the full path, but sem_open doesn't allow
+           // slashes in the name.  Use ftok of the path to get close 
+           // enough.
+           sprintf(tmp, "%0xd-%s", ftok(keyFileDir, 0), name);
         }
-        sem = sem_open(name, O_CREAT, 0777, initValue);
+        else
+        {
+           strcpy(tmp, name);
+        }
+        sem = sem_open(tmp, O_CREAT, 0777, initValue);
         delete[] tmp;
         return sem != NULL; 
     }
@@ -603,17 +632,31 @@ class dbSharedObject {
         fd = -1;
     }
 
-    bool open(char* fileName) { 
+    int open(char* fileName) { 
+        bool created = false ;
         delete[] name;
-        name = new char[strlen(fileName) + 1];
-        strcpy(name, fileName);
-        fd = ::open(fileName, O_RDWR|O_CREAT, 0777);
-        if (fd < 0) { 
-            return false;
+        name = new char[strlen(fileName) + strlen(keyFileDir) + 1];
+        if (fileName[0] != '/')
+        {
+           sprintf(name, "%s%s", keyFileDir, fileName);
         }
-        if (ftruncate(fd, sizeof(T)) < 0) {
-            ::close(fd);
-            return false;
+        else
+        {
+           strcpy(name, fileName);
+        }
+        // See if it already exists ;
+        fd = ::open(name, O_RDWR);
+        if (fd < 0) { 
+            // Nope, see if we can create it
+            fd = ::open(name, O_RDWR | O_CREAT, 0777);
+            if (fd < 0) 
+               return -1;
+
+            created = true ;
+            if (ftruncate(fd, sizeof(T)) < 0) {
+                ::close(fd);
+                return -1;
+            }
         }
         ptr = (T*)mmap(NULL,
                        DOALIGN(sizeof(T), 4096),
@@ -624,9 +667,9 @@ class dbSharedObject {
         if (ptr == MAP_FAILED) { 
             ptr = NULL;
             ::close(fd);
-            return false;
+            return -1;
         }
-        return true;
+        return created ? 1 : 0 ;
     }
 
     T* get() { return ptr; }
@@ -652,7 +695,6 @@ class dbSharedObject {
 #else // USE_POSIX_MMAP
 
 // Non POSIX, internal implementations of SharedMemory and SharedObject
-extern char const* keyFileDir; // default value: "/tmp/" 
 class dbSharedMemory { 
   protected:
     char*  ptr;
@@ -670,8 +712,8 @@ class dbSharedMemory {
 template<class T>
 class dbSharedObject : public dbSharedMemory { 
   public:
-    bool open(char* name) { 
-        return dbSharedMemory::open(name, sizeof(T));
+    int open(char* name) { 
+        return dbSharedMemory::open(name, sizeof(T)) ? 0 : -1 ;
     }
     T* get() { return (T*)ptr; }
 };
@@ -791,8 +833,14 @@ class dbGlobalCriticalSection {
 
   public:
     void enter() { 
-        int rc = sem_wait(sem);
-        assert(rc == 0);
+        for(;;)
+        {
+            int rc = sem_wait(sem);
+            if (rc != 0 && errno == EINTR)
+               continue;
+            assert(rc == 0);
+            break;
+        }
     }
     void leave() { 
         int rc = sem_post(sem);

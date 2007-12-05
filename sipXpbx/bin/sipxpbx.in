@@ -752,6 +752,7 @@ do_start() {
 
         # Remove the semaphores/memory segments associated with the imdb files
         @bindir@/ipcclean.pl --remove @SIPX_TMPDIR@/imdb.*
+        rm -f /dev/shm/sem.*-imdb.*
 
         # Clean up IMDB and all its dependent files.
         rm -f @SIPX_TMPDIR@/imdb.*

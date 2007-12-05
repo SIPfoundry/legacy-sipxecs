@@ -1771,11 +1771,23 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
         status == dbInitializationMutex::NotYetInitialized ?
             "dbInitializationMutex::NotYetInitialized" : "dbInitializationMutex::AlreadyInitialized");
 
+    // Holding initMutex here
     sprintf(name, "%s.dm", dbName);
-    if (!shm.open(name)) { 
+    int shmRes = shm.open(name) ;
+    if (shmRes < 0) { 
         handleError(DatabaseOpenError, "Failed to open database monitor");
         cleanup(status, 0);
         return false;
+    }
+    // If the shared memory segment was created, it needs to be initialized
+    if (shmRes == 1)
+    {
+        status = dbInitializationMutex::NotYetInitialized ;
+    }
+    if (status == dbInitializationMutex::AlreadyInitialized)
+    { 
+       // Safe to clear initMutex now
+       initMutex.done() ;
     }
     monitor = shm.get();
     sprintf(name, "%s.ws", dbName);
@@ -6271,10 +6283,21 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
         return false;
     }
     sprintf(name, "%s.dm", dbName);
-    if (!shm.open(name)) { 
+    int shmRes = shm.open(name) ;
+    if (shmRes < 0) { 
         handleError(DatabaseOpenError, "Failed to open database monitor");
         cleanup(status, 0);
         return false;
+    }
+    // If the shared memory segment was created, it needs to be initialized
+    if (shmRes == 1)
+    {
+        status = dbInitializationMutex::NotYetInitialized ;
+    }
+    if (status == dbInitializationMutex::AlreadyInitialized)
+    { 
+       // Safe to clear initMutex now
+       initMutex.done() ;
     }
     monitor = shm.get();
     sprintf(name, "%s.ws", dbName);
