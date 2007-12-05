@@ -1,4 +1,5 @@
 ## Process this file with automake to produce Makefile.in
+include $(top_srcdir)/config/subdir.am
 
 INCLUDES = -I$(top_srcdir)/include 
 
@@ -12,4 +13,8 @@ bin_SCRIPTS = merge-logs siptrace-merge
 
 EXTRA_DIST = \
     merge-logs \
-    siptrace-merge
+    siptrace-merge \
+    merge-logs.in
+
+merge-logs: $(srcdir)/merge-logs.in
+	$(LocalizeSipXconfig) $(srcdir)/merge-logs.in > merge-logs

@@ -22,6 +22,7 @@ AC_PROG_LIBTOOL
 # Checks for programs.
 AC_PROG_CXX 	 
 AX_COMPILER_VENDOR
+AC_PATH_PROG([BASH], [bash])
 AC_PATH_PROG([PERL],[perl]) 	 
 AC_PATH_PROG([OPENSSL],[openssl])
 
@@ -50,6 +51,12 @@ then
   AC_SUBST(SIPXTEST_DATABASE, SIPXDB-TEST)
 fi
 AM_CONDITIONAL(ENABLE_ODBC_TESTS, test x$enable_odbc_tests = xyes)
+
+AC_ARG_WITH([postgresql_user],
+  AC_HELP_STRING([--with-postgresql_user=username],
+    [The PostgreSQL user, default is postgres]),
+  [POSTGRESQL_USER=${withval}],[POSTGRESQL_USER=postgres])
+AC_SUBST([POSTGRESQL_USER])
 
 AC_CONFIG_FILES([
   Makefile 

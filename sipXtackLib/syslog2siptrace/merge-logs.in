@@ -1,4 +1,4 @@
-#! /bin/bash
+#!@BASH@
 
 # Merge a set of syslog files.  The syslogs are turned into siptraces,
 # which are then fed to siptrace-merge to be combined into one siptrace

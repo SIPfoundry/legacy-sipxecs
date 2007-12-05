@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 ##
 ##  gen-ssl-keys.sh - generate SSL key and certificate files.
 ##
@@ -53,7 +53,7 @@ test -f ${Defaults} && . ${Defaults}
 ## serverEmail              Email Contact Address for Server         ${caEmail}
 ############################################################################################
 
-function showUsage()
+showUsage()
 {
     cat <<USAGE
 
@@ -93,7 +93,7 @@ USAGE
 ### Prompts for a value for variable, 
 ###    the default is the current value if variable is set, and the default argument if not
 ###    the answer is stored in the $Defaults file unless NOSTORE is passed.as the fourth arg.
-function askfor () # variable, prompt, default, storeflag
+askfor () # variable, prompt, default, storeflag
 {
     local var="$1"
     local prompt="$2"
@@ -128,7 +128,7 @@ EOF
     fi
 }
 
-function seedRand()
+seedRand()
 {
     # ensures that randomFile has been set up and has new bits in it
     if [ ! -f "${randomFile}" ]
@@ -171,7 +171,7 @@ function seedRand()
 ################################################################
 
 ## Get the certificate values for where the subject is.
-function getLocality()
+getLocality()
 {
     askfor countryName            "Country Name (2 letter code)" ""
     askfor stateOrProvinceName    "State or Province Name (full name)" ""
@@ -181,7 +181,7 @@ function getLocality()
 }
 
 # Get the CA name and email address
-function getCAInfo()
+getCAInfo()
 {
     cat <<EOF
 
@@ -196,7 +196,7 @@ EOF
 
 # Get the server-specific information
 # - ensures that server name is not the same as ca name, which is not allowed by validation
-function getServerInfo()
+getServerInfo()
 {
     cat <<EOF
 
@@ -226,7 +226,7 @@ EOF
 ################################################################
 
 ## Generate a self-signed CA certificate
-function genCA()
+genCA()
 {
     cat <<EOF
 
@@ -329,7 +329,7 @@ EOT
 }
 
 ## Generate a Certificate Signing Request
-function genServerCSR()
+genServerCSR()
 {
     echo ""
     echo "Generating server certificate request [$server]"
@@ -391,7 +391,7 @@ EOT
 }
 
 ## Sign a server certificate
-function signServerCertificate()
+signServerCertificate()
 {
     echo "______________________________________________________________________"
     echo ""
@@ -458,7 +458,7 @@ EOT
 ################################################################
 
 #### Do the one-step self-signed CA and a certificate from it.
-function doAll() 
+doAll() 
 {
     cat <<EOF
 
@@ -489,7 +489,7 @@ EOF
 ################################################################
 #### Create a CA
 ################################################################
-function doNewCA() 
+doNewCA() 
 {
     cat <<EOF
 
@@ -537,7 +537,7 @@ EOF
 ################################################################
 #### CSR
 ################################################################
-function doCSR() 
+doCSR() 
 {
     cat <<EOF
 
@@ -574,7 +574,7 @@ EOF
 }
 
 ## Extract information from a CSR and present it for approval 
-function checkCSR()
+checkCSR()
 {
     server=`@OPENSSL@ req -in "${csrFile}" -subject -nameopt RFC2253,multiline -noout | perl -ne 'use English; m/^\s+commonName\s+=\s+/ && print $POSTMATCH'`
 
@@ -619,7 +619,7 @@ EOF
 ################################################################
 #### Use a CSR to create a Certificate
 ################################################################
-function doSignServer() 
+doSignServer() 
 {
     if [ -z "${csrFile}" ]
     then

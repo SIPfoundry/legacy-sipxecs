@@ -6,7 +6,9 @@ INCLUDES = -I$(top_srcdir)/include
 
 LOCAL_SHELLSCRIPTS = \
    config-defs \
-   sipx-validate-xml
+   sipx-validate-xml \
+   configpp \
+   pgpatch.sh
 
 bin_SCRIPTS = \
   $(LOCAL_SHELLSCRIPTS)

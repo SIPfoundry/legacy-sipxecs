@@ -7,9 +7,9 @@ SUBDIRS = testlib
 if ENABLE_ODBC_TESTS
 db_FILES = \
   OdbcWrapperTest.cpp
-db_CXXFLAGS = -DTESTDATABASE=\"$(SIPXTEST_DATABASE)\"
+db_CXXFLAGS = -DTESTDATABASE=\"$(SIPXTEST_DATABASE)\" -DPOSTGRESQL_USER=\"@POSTGRESQL_USER@\"
 db_deps = db_setup
-PG_USER = postgres
+PG_USER = @POSTGRESQL_USER@
 SCHEMA_FILE = $(top_srcdir)/../sipXproxy/etc/database/schema.sql
 else
 db_FILES = 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Get the address of the interface through which our default gateway is reached.
 # This is very likely to be the correct IP to bind to most of the time.
@@ -11,11 +11,20 @@
 #127.0.0.0       0.0.0.0         255.0.0.0       U     0      0        0 lo
 #0.0.0.0         10.1.1.1        0.0.0.0         UG    0      0        0 eth0
 
-if test $(uname -s) = HP-UX; then
+if [ `uname -s` = HP-UX ] ; then
    IFACE=`/usr/bin/netstat -nr | grep default | awk '{print $5}'`
    /usr/sbin/ifconfig $IFACE | grep "inet " | head -n 1 | awk '{ print $2 }'
+elif [ `uname -s` = FreeBSD ] ; then
+  # 'netstat -nr' prints out something that looks like this.
+  #Routing tables
+  #
+  #Internet:
+  #Destination        Gateway            Flags    Refs      Use  Netif Expire
+  #default            192.168.1.2        UGS         0  7840565    re0
+  #127.0.0.1          127.0.0.1          UH          0  1312935    lo0
+  IFACE=`netstat -nr | awk '/^default/ {print $6}'`
+  ifconfig $IFACE | grep "inet " | head -n 1 | awk '{print $2}'
 else
    IFACE=`/sbin/route -n | grep '^0\\.0\\.0\\.0' | cut -c 73-`
    /sbin/ifconfig $IFACE | grep "inet addr" | head -n 1 | cut -d: -f 2 | awk '{ print $1 }'
 fi
-

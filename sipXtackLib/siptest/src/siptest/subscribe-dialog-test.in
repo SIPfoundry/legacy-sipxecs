@@ -1,4 +1,4 @@
-#! /bin/bash
+#!@BASH@
 
 # Program configuration.
 SIPTEST=siptest

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 #
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
@@ -6,7 +6,12 @@
 
 Action=RUN
 
-: ${ServiceDir:=/etc/init.d}
+if [ `uname -s` = FreeBSD ]
+then
+    : ${ServiceDir:=@PREFIX@/etc/rc.d}
+else
+    : ${ServiceDir:=/etc/init.d}
+fi
 : ${Chown:=chown}
 : ${SubstituteUser:=su}
 : ${Psql:=psql}
@@ -18,9 +23,9 @@ postgresService() {
     then
         echo -e "$POSTGRES_SERVICE"
 
-    elif [ -f /etc/init.d/rhdb ]
+    elif [ -f ${ServiceDir}/rhdb ]
     then
-        # Red Hat Enterprise / Fedora / CentOS use the name rhdb
+        # Red Hat Enterprise / CentOS use the name rhdb
         echo -e rhdb
 
     elif [ -f /etc/init.d/postgresql-* ]
@@ -30,7 +35,7 @@ postgresService() {
         echo -e `ls /etc/init.d/postgresql-* | sed -e 's/\/etc\/init.d\///'`
 
     else
-        # SUSE and others use the name postgresql
+        # SUSE, Fedora, FreeBSD and others use the name postgresql
         echo -e postgresql
     fi
 }
@@ -52,7 +57,10 @@ postgresSetup() {
   if test -z $PGDATA
   # $PGDATA is set as an env variable for user postgres, but not for root
   then
-      if test -d /var/lib/postgresql/data
+      if [ `uname -s` = FreeBSD ]
+      then
+          PGDATA=~@POSTGRESQL_USER@/data
+      elif test -d /var/lib/postgresql/data
       then
           # Gentoo
           PGDATA=/var/lib/postgresql/data
@@ -79,9 +87,9 @@ postgresSetup() {
       then
           if ${Psql} --version | grep '7.4' > /dev/null
           then
-              $SubstituteUser - postgres -c "initdb --pgdata=$PGDATA" > /dev/null
+              $SubstituteUser - @POSTGRESQL_USER@ -c "initdb --pgdata=$PGDATA" > /dev/null
           else
-              $SubstituteUser - postgres -c "initdb --pgdata=$PGDATA --auth=trust" > /dev/null
+              $SubstituteUser - @POSTGRESQL_USER@ -c "initdb --pgdata=$PGDATA --auth=trust" > /dev/null
           fi
       else
           ${ServiceDir}/$Service initdb > /dev/null
@@ -115,12 +123,12 @@ postgresSetup() {
   # Open up TCP/IP connections
   sed -i-sipx.bak -e 's/\#tcpip_socket\s=\sfalse/tcpip_socket = true/g' \
           $PGDATA/postgresql.conf
-  ${Chown} postgres:postgres $PGDATA/postgresql.conf
+  ${Chown} @POSTGRESQL_USER@:@POSTGRESQL_USER@ $PGDATA/postgresql.conf
 
   # Postmaster to allow connections
   echo "-i" > $PGDATA/postmaster.opts.default
   chmod 664 $PGDATA/postmaster.opts.default
-  ${Chown} postgres:postgres $PGDATA/postmaster.opts.default
+  ${Chown} @POSTGRESQL_USER@:@POSTGRESQL_USER@ $PGDATA/postmaster.opts.default
 
   ${ServiceDir}/$Service start
   # Wait 3 seconds to allow slow systems to start the db server

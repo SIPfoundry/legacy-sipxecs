@@ -81,6 +81,8 @@
 #  define PLATFORM_UA_PARAM " (Solaris)"
 #elif defined(__hpux)
 #  define PLATFORM_UA_PARAM " (HP-UX)"
+#elif defined(__FreeBSD__)
+#  define PLATFORM_UA_PARAM " (FreeBSD)"
 #endif
 #endif /* PLATFORM_UA_PARAM */
 

@@ -1,4 +1,5 @@
 ## Process this file with automake to produce Makefile.in
+include $(top_srcdir)/config/subdir.am
 
 INCLUDES = \
 	-I$(top_srcdir)/include \
@@ -27,4 +28,8 @@ siptest_SOURCES =  \
     SipSendCommand.cpp
 
 EXTRA_DIST = \
-    $(bin_SCRIPTS)
+    $(bin_SCRIPTS) \
+    subscribe-dialog-test.in
+
+subscribe-dialog-test: $(srcdir)/subscribe-dialog-test.in
+	$(LocalizeSipXconfig) $(srcdir)/subscribe-dialog-test.in > subscribe-dialog-test

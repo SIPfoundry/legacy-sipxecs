@@ -52,7 +52,7 @@ public:
          
          CPPUNIT_ASSERT((handle=odbcConnect(DATABASE_NAME,
                                             "localhost",
-                                            "postgres",
+                                            POSTGRESQL_USER,
                                             "{PostgreSQL}"))!=NULL);
          if (handle)
          {                                                     
@@ -139,7 +139,7 @@ public:
        
          CPPUNIT_ASSERT((handle=odbcConnect(DATABASE_NAME,
                                             "localhost",
-                                            "postgres",
+                                            POSTGRESQL_USER,
                                             "{PostgreSQL}"))!=NULL);
          
          if (handle)
@@ -154,7 +154,7 @@ public:
          
          CPPUNIT_ASSERT((handle=odbcConnect(DATABASE_NAME,
                                             "localhost",
-                                            "postgres",
+                                            POSTGRESQL_USER,
                                             "{PostgreSQL}"))!=NULL);
          if (handle)
          {
@@ -171,7 +171,7 @@ public:
       
          CPPUNIT_ASSERT((handle=odbcConnect(DATABASE_NAME,
                                             "localhost",
-                                            "postgres",
+                                            POSTGRESQL_USER,
                                             "{PostgreSQL}"))!=NULL);
          
          if (handle)
@@ -214,7 +214,7 @@ public:
       
          CPPUNIT_ASSERT((handle=odbcConnect(DATABASE_NAME,
                                             "localhost",
-                                            "postgres",
+                                            POSTGRESQL_USER,
                                             "{PostgreSQL}"))!=NULL);
          
          if (handle)
