@@ -17,6 +17,7 @@ AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
 
 # Checks for programs.
+AC_PATH_PROG([BASH], [bash])
 AC_PROG_CXX
 AX_COMPILER_VENDOR
 AC_PROG_CC
@@ -60,6 +61,12 @@ then
   AC_SUBST(SIPXTEST_DATABASE, SIPXDB-TEST)
 fi
 AM_CONDITIONAL(ENABLE_CSE_TESTS, test x$enable_cse_tests = xyes)
+
+AC_ARG_WITH([postgresql_user],
+  AC_HELP_STRING([--with-postgresql_user=username],
+    [The PostgreSQL user, default is postgres]),
+  [POSTGRESQL_USER=${withval}],[POSTGRESQL_USER=postgres])
+AC_SUBST([POSTGRESQL_USER])
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])

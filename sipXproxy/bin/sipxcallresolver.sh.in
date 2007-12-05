@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 #
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
@@ -21,13 +21,17 @@ Args=""
 : ${PidFile:=@SIPX_RUNDIR@/sipxcallresolver.pid}
 : ${LibDir:=@SIPX_LIBDIR@}
 : ${Psql:=psql}
-: ${ServiceDir:=/etc/init.d}
+if [ `uname -s` = FreeBSD ] ; then
+    : ${ServiceDir:=@PREFIX@/etc/rc.d}
+else
+    : ${ServiceDir:=/etc/init.d}
+fi
 : ${SubstituteUser:=su}
 : ${Chown:=chown}
 : ${LogDir:=@SIPX_LOGDIR@}
 : ${TmpDir:=@SIPX_TMPDIR@}
 : ${RunningUser:=@SIPXPBXUSER@}
-: ${PgUser:=postgres}
+: ${PgUser:=@POSTGRESQL_USER@}
 : ${PgSchema:=${ConfDir}/cdr/schema.sql}
 : ${RubyCmd:=/usr/bin/ruby}
 : ${DbVersion:=4}
@@ -58,9 +62,9 @@ postgresService() {
     then
         echo -e "$POSTGRES_SERVICE"
 
-    elif [ -f /etc/init.d/rhdb ]
+    elif [ -f ${ServiceDir}/rhdb ]
     then
-        # Red Hat Enterprise / Fedora / CentOS use the name rhdb
+        # Red Hat Enterprise / CentOS use the name rhdb
         echo -e rhdb
 
     elif [ -f /etc/init.d/postgresql-* ]
@@ -70,7 +74,7 @@ postgresService() {
         echo -e `ls /etc/init.d/postgresql-* | sed -e 's/\/etc\/init.d\///'`
 
     else
-        # SUSE and others use the name postgresql
+        # SUSE, Fedora, FreeBSD and others use the name postgresql
         echo -e postgresql
     fi
 }
@@ -177,11 +181,11 @@ HAcheck() {
 #  2. running but not setup to communicate w/java or ${Psql} command
 #  3. Database is not created
 databaseCheck() {
-   if ${Psql} -l -U postgres | grep "${Database}" >/dev/null 2>&1; then
+   if ${Psql} -l -U ${PgUser} | grep "${Database}" >/dev/null 2>&1; then
       return 0
    fi	
    #  Check if psql command works at all
-   if ${Psql} -l -U postgres >/dev/null 2>&1; then
+   if ${Psql} -l -U ${PgUser} >/dev/null 2>&1; then
       if [ "$1" != "Silent" ]; then
          cat <<ERROR
 
@@ -204,10 +208,13 @@ ERROR
    Service=`postgresService`
 
    if test -z $PGDATA
-   # $PGDATA is set as an env variable for user postgres, but not for root
+   # $PGDATA is set as an env variable for user ${PgUser}, but not for root
    then
-       if test -d /var/lib/postgresql/data
-       then
+      if [ `uname -s` = FreeBSD ]
+      then
+          PGDATA=~@POSTGRESQL_USER@/data
+      elif test -d /var/lib/postgresql/data
+      then
           # Gentoo
           PGDATA=/var/lib/postgresql/data
       elif test -d /var/lib/pgsql/data
@@ -381,7 +388,7 @@ ERROR
 # Check the database version.  If it is wrong, then exit, because it's dangerous to
 # run call resolver on top of the wrong database version.
 databaseVersionCheck() {
-   dbver=`${Psql} -c "select max(vh.version) from version_history vh;" ${Database} postgres | sed -n 's/^\s*\([0-9][0-9]*\)\s*$/\1/p'`
+   dbver=`${Psql} -c "select max(vh.version) from version_history vh;" ${Database} ${PgUser} | sed -n 's/^\s*\([0-9][0-9]*\)\s*$/\1/p'`
    if [ "$dbver" = "" ]
    then
       echo "  Error: could not get the database version."

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 #
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
@@ -107,7 +107,7 @@ generateStunnelConfig() {
 }
 
 generateStunnelStartup() {
-   echo "#!/bin/bash" > ${stunnel_initd_file}
+   echo "#!@BASH@" > ${stunnel_initd_file}
    echo "# chkconfig: 345 40 60" >> ${stunnel_initd_file}
    echo "# description: Dynamically generated startup script" >> ${stunnel_initd_file}
    echo "# processname: stunnel" >> ${stunnel_initd_file}
