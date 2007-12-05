@@ -99,16 +99,9 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     }
 
     public void replicateDomainConfig() {
-        replicateDomainConfig(m_replicationContext);
-    }
-
-    /**
-     * Allows the caller to specify a replication context to use
-     */
-    public void replicateDomainConfig(SipxReplicationContext context) {
         m_domainConfiguration.generate(getExistingDomain(), m_authorizationRealm,
                 getExistingLocalization().getLanguage());
-        context.replicate(m_domainConfiguration);
+        m_replicationContext.replicate(m_domainConfiguration);
     }
 
     protected Domain getExistingDomain() {
