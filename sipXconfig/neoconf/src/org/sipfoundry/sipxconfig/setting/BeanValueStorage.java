@@ -74,11 +74,16 @@ public class BeanValueStorage implements SettingValueHandler {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof NoValueException) {
+            Throwable cause = e.getCause();
+            if (cause instanceof NoValueException) {
                 // this is OK - it means bean does not have any value to provide
                 return null;
             }
-            throw new RuntimeException(e);
+            // unwrap RuntimeExceptions
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            }
+            throw new RuntimeException(cause);
         }
     }
 

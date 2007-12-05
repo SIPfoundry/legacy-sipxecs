@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import junit.framework.TestCase;
@@ -30,10 +31,10 @@ public class BeanValueStorageTest extends TestCase {
         Setting s = m_birds.getSetting("towhee/canyon");
         assertEquals("14 inches", m_vs.getSettingValue(s).getValue());
     }
-    
+
     public void testObstainFromGetSettingValue() {
         Setting s = m_birds.getSetting("woodpecker/ivory-billed");
-        assertNull(m_vs.getSettingValue(s));        
+        assertNull(m_vs.getSettingValue(s));
     }
 
     public void testGetSettingValuePathArray() {
@@ -42,12 +43,31 @@ public class BeanValueStorageTest extends TestCase {
         Setting s2 = m_birds.getSetting("flycatcher/willow");
         assertEquals(".25 inches", m_vs.getSettingValue(s2).getValue());
     }
-    
+
     public void testNoValue() {
         Setting s1 = m_birds.getSetting("pigeon/passenger");
         assertNull(m_vs.getSettingValue(s1));
     }
-    
+
+    public void testRuntimeException() {
+        try {
+            Setting s = m_birds.getSetting("pigeon/rock-dove");
+            m_vs.getSettingValue(s);
+            fail("Expected exception");
+        } catch (NullPointerException e) {
+            // OK
+        }
+    }
+
+    public void testException() {
+        try {
+            Setting s = m_birds.getSetting("woodpecker/red-bellied");
+            m_vs.getSettingValue(s);
+            fail("Expected exception");
+        } catch (RuntimeException e) {
+            assertTrue(e.getCause() instanceof FileNotFoundException);
+        }
+    }
 
     static class BeanValueStorageTestBean {
 
@@ -67,7 +87,17 @@ public class BeanValueStorageTest extends TestCase {
         public String getSomeValue() {
             throw new BeanValueStorage.NoValueException();
         }
-        
+
+        @SettingEntry(path = "pigeon/rock-dove")
+        public String getRuntimeException() {
+            throw new NullPointerException();
+        }
+
+        @SettingEntry(path = "woodpecker/red-bellied")
+        public String getException() throws IOException {
+            throw new FileNotFoundException();
+        }
+
         @SettingEntry(path = "woodpecker/ivory-billed")
         public String getObstainFromAnsweringByReturningNull() {
             return null;

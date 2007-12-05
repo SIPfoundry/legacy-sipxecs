@@ -64,6 +64,9 @@ public class VelocityProfileGenerator extends AbstractProfileGenerator {
             m_velocityEngine.mergeTemplate(template, m_templateEncoding, velocityContext, output);
             output.flush();
         } catch (Exception e) {
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
             throw new RuntimeException("Error using velocity template " + template, e);
         }
     }
