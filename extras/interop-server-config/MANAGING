@@ -10,20 +10,26 @@ and INTEROP_ALIAS_TCP names should have DNS SRV records like these:
 _sip._tcp.{INTEROP_ALIAS_TCP}. IN SRV	1 1 5060 {SIPXCHANGE_DOMAIN_NAME}.
 _sip._udp.{INTEROP_ALIAS_UDP}. IN SRV	1 1 5060 {SIPXCHANGE_DOMAIN_NAME}.
 
-* To update the sipX code:
+* To update the sipX code from a set of RPMs:
 
-From a machine inside Pingtel, create a directory and download the
-RPMs for the desired version.  E.g.:
+First, load the desired RPMs into a directory on the interop server.
 
-	wget --no-parent -r -nd \
-		http://falcon.pingtel.com/ecs/main/FC/6/010020/RPM
+    To load from a development build at Bluesocket, you need a two-step
+    process to get the RPMs onto interop.pingtel.com, because interop is
+    outside the firewall.
 
-Create a destination directory on interop (e.g., ~/8551) and upload
-the RPMs to it:
+    From a machine inside Bluesocket, create a directory and download the
+    RPMs for the desired version.  E.g.:
 
-	scp *.rpm interop:8551
+	    wget --no-parent -r -nd \
+		    http://falcon.pingtel.com/ecs/main/FC/6/010020/RPM
 
-On interop, stop sipX and install the new PRMs:
+    Create a destination directory on interop (e.g., ~/8551) and upload
+    the RPMs to it:
+
+	    scp *.rpm interop:8551
+
+On the interop server, stop sipX and install the new PRMs:
 
 	sudo /sbin/service sipxpbx stop
 
@@ -42,21 +48,34 @@ this:
 Rename these RPMs to have a different extension (or delete them), and
 run the rpm command again.
 
-Do not install the sipXconfig RPMs (sipxconfig, sipxconfig-agent,
-sipxconfig-ftp, sipxconfig-report, and sipxconfig-tftp), as the
-interop configuration uses special config files.  Also, do not install
-the Call Resolver (sipxproxy-cdr), as that requires Postgres to be set
-up.
+Do not install:
+
+1) the sipXconfig RPMs (sipxconfig, sipxconfig-agent, sipxconfig-ftp,
+sipxconfig-report, and sipxconfig-tftp), as the interop configuration
+uses special config files
+
+2) the Call Resolver (sipxproxy-cdr), as that requires Postgres to be
+set up.
+
+3) the sipxecs RPMs, as they are just umbrella packages that require
+all the other RPMs
 
 Once the RPMs are installed, restart sipX:
 
 	sudo /sbin/service sipxpbx start
 
-* To update the Interop sipX configuration:
+* To load or update the Interop sipX configuration:
+
+Install the perl-XML-Parser RPM to provide XML/Parser.pm.
 
 Create an updated working copy of the configuration files:
 
 	svn co -q https://sipxecs.sipfoundry.org/rep/sipXecs/main/extras/interop-server-config
+
+Edit the SIPX_USER line of ./Makefile to specify the correct user
+name, the one that is in /etc/passwd -- open-source versions usually
+use the name 'sipx' and commercial versions usually use the name
+'sipxchange'.
 
 Generate the config.defs file:
 

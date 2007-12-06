@@ -614,8 +614,8 @@ for call routing but not for registering AORs.)
 </p>
 <p>
 This server uses a
-<a href='https://scm.sipfoundry.org/rep/sipX/main/sipXpbx/doc/developer/interop.pingtel.com'>special test configuration</a> of the 
-<a href='http://www.sipfoundry.org/sipXpbx/'>sipXpbx Open Source
+<a href='https://sipxecs.sipfoundry.org/rep/sipXecs/main/extras/interop-server-config'>special test configuration</a> of the 
+<a href='http://www.sipfoundry.org/sipXpbx/'>sipXecs Open Source
 PBX Project</a>.
 (It would not make a very friendly configuration in a real PBX :-).)
 </p>
