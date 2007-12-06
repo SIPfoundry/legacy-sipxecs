@@ -94,6 +94,7 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 			-e 's!@HTTP_MODULEDIR@!$(HTTP_MODULEDIR)!g' \
 		<$< >$@"
 	chmod a+r $@
+	[[ $@ != *.cgi ]] || chmod a+x $@
 
 $(SIPX_DATADIR)/sipdb/credential.xml: $(SIPX_DATADIR)/sipdb/credential.xml.in $(SIPX_CONFDIR)/config.defs
 	sh -c \
