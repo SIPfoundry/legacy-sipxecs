@@ -2,12 +2,11 @@
   <h2>
     <span key="title"/>
   </h2>
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'info', 'menu'}" selectedTab="prop:tab"/>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'info', 'menu', 'distributionLists'}" selectedTab="prop:tab"/>
   <div id="settings-content">  
     <span jwcid="@ErrorMsg"/>  
     <form jwcid="@Form" delegate="bean:validator">
       <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
-      <ul jwcid="@FormActions" listener="listener:save" callback="prop:callback"/>
     </form>
   </div>
 </div>
@@ -23,6 +22,7 @@
       </tr>
     </table>
   </fieldset>
+  <ul jwcid="@FormActions" listener="listener:save" callback="prop:callback"/>
 </div>
 <div jwcid="menuTab@Block">
    <span jwcid="@QuickHelp" value="message:quick.help"/>
@@ -67,4 +67,14 @@
     minKey="1"
     maxKey="9"
     extensionOnly="ognl:true" />
+    <ul jwcid="@FormActions" listener="listener:save" callback="prop:callback"/>
+</div>
+
+<div jwcid="distributionListsTab@Block">
+  <div class="help">        
+    <span key="description.extensions"/>
+  </div>
+  <p><span key="description.editDistributionLists"/></p>
+  <span jwcid="@vm/DistributionListComponent"
+    user="prop:user"/>
 </div>

@@ -40,7 +40,8 @@ public class EditDistributionListTestUi extends WebTestCase {
         clickLink("resetVoicemail");
         clickLink("loginFirstTestUser");
         clickLink("toggleNavigation");
-        clickLink("menu.distributionLists");
+        clickLink("menu.myInformation");
+        clickLink("link:distributionLists");
     }
 
     public void testSetListWithValidUser() throws Exception {
