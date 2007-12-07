@@ -196,7 +196,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         {
             // Create a dialog and subscription state even if
             // the expiration is zero as we need the dialog info
-            // to route the one time NOTIFY.  The immediately
+            // to route the one-time NOTIFY.  The immediately
             // expired dialog will be garbage collected.
 
             SipMessage* subscribeCopy = new SipMessage(subscribeRequest);
