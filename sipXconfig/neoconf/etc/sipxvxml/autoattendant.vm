@@ -31,6 +31,7 @@
     <var name="dial_attempts" expr="0" />
 #set( $onfail = $attendant.Settings.getSetting('onfail'))
     <var name="failedoption" expr="${onfail.getSetting('transfer').Value}" />
+    <var name="invalidresponse" expr="${onfail.getSetting('nomatchCount').TypedValue}" />
 
     <!-- Play the autoattendant main menu -->
     <field name="menu" type="digits?minlength=1;maxlength=${dtmf.getSetting('maxDigits').Value}">
@@ -68,17 +69,6 @@
       <noinput count="$giveup">
         <goto nextitem="giveup" />
       </noinput>   
-      
-#set( $reprompt = ${onfail.getSetting('nomatchCount').TypedValue} )
-#if( $reprompt > 0)
-      <nomatch count="$reprompt">
-        <reprompt />
-      </nomatch>
-#end   
-#set( $giveup = $reprompt + 1 )
-      <nomatch count="$giveup">
-        <goto nextitem="giveup" />
-      </nomatch> 
     </field>
 
     <block name="menuaction">
@@ -197,7 +187,7 @@
     </subdialog>
 
     <block name="invalidoptions">
-      <if cond="dial_attempts == '2'">
+      <if cond="dial_attempts == invalidresponse - 1">
         <goto nextitem="giveup" />
       <else/>
         <assign name="dial_attempts" expr="dial_attempts + 1" />

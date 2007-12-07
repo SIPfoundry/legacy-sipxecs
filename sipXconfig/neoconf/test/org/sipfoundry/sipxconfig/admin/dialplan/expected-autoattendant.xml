@@ -29,6 +29,7 @@
     <var name="autoattendantprompturl" />
     <var name="dial_attempts" expr="0" />
     <var name="failedoption" expr="1" />
+    <var name="invalidresponse" expr="2" />
 
     <!-- Play the autoattendant main menu -->
     <field name="menu" type="digits?minlength=1;maxlength=10">
@@ -57,13 +58,6 @@
       <noinput count="3">
         <goto nextitem="giveup" />
       </noinput>
-
-      <nomatch count="2">
-        <reprompt />
-      </nomatch>
-      <nomatch count="3">
-        <goto nextitem="giveup" />
-      </nomatch>
     </field>
 
     <block name="menuaction">
@@ -186,7 +180,7 @@
     </subdialog>
 
     <block name="invalidoptions">
-      <if cond="dial_attempts == '2'">
+      <if cond="dial_attempts == invalidresponse - 1">
         <goto nextitem="giveup" />
         <else />
         <assign name="dial_attempts" expr="dial_attempts + 1" />
