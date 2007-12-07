@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 ###
 ### Check name and date in ssl certificate
 ###

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 
 # Resolves variables in config.defs and send them to stdout
 # with format:

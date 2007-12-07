@@ -8,20 +8,18 @@ LOCAL_SHELLSCRIPTS = \
    config-defs \
    sipx-validate-xml \
    configpp \
-   pgpatch.sh
+   pgpatch.sh \
+   sipx-dns
 
 bin_SCRIPTS = \
   $(LOCAL_SHELLSCRIPTS)
 
 dist_bin_SCRIPTS = \
    ${PACKAGE}-config \
-   configpp \
    pkg-upgrade \
    configmerge \
    configquery \
-   sipx-dns \
-   get_def_addr \
-   pgpatch.sh 
+   get_def_addr
 
 
 EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)

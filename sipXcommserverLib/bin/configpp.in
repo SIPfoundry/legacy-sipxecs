@@ -117,7 +117,7 @@ extract_cr "$PARM_DEFS" "$PARM_IN"
 SCRIPT=`mktemp -t config-script.XXXXX`
 
 cat > $SCRIPT << EOF
-#!/bin/bash
+#!@BASH@
 
 if [ -f "$PARM_OUT" ]
 then
