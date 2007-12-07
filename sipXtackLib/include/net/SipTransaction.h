@@ -289,6 +289,10 @@ protected:
                               SipTransactionList& transactionList);
     //: Starts search on any immediate DNS SRV children of the highest unpursued Q value
 
+    /// Copy unique realms from any proxy challenges in the response into realmList
+    void getChallengeRealms(const SipMessage& response, UtlSList& realmList);
+    ///< This is for use only within findBestResponse, to filter duplicate realms
+
     UtlBoolean findBestResponse(SipMessage& bestResponse);
     // Finds the best final response to return the the server transaction
 

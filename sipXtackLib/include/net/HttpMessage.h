@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -112,7 +112,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 const int HttpMessageRetries = 2;
-   
+
 // STRUCTS
 
 // FORWARD DECLARATIONS
@@ -234,7 +234,7 @@ public:
             HttpMessage& request,
             int maxWaitMilliSeconds,
             bool bPersistent=false);
-            
+
 
     //!Perform an HTTP GET on the specified URL and pass data to the
     //! specified callbackProc.
@@ -546,31 +546,44 @@ public:
    //! @name Authentication access methods
    //@{
     UtlBoolean getAuthenticationScheme(UtlString* scheme,
-                                    int authorizationEntity) const;
+                                       HttpEndpointEnum authorizationEntity
+                                       ) const;
 
     UtlBoolean getAuthenticationData(UtlString* scheme,
-                                    UtlString* realm,
-                                    UtlString* nonce,
-                                    UtlString* opaque,
-                                    UtlString* algorithm, // MD5 or MD5-sess
-                                    UtlString* qop, // may be multiple values
-                                    int authorizationEntity) const;
+                                     UtlString* realm,
+                                     UtlString* nonce,
+                                     UtlString* opaque,
+                                     UtlString* algorithm, // MD5 or MD5-sess
+                                     UtlString* qop, // may be multiple values
+                                     HttpEndpointEnum authorizationEntity,
+                                     unsigned   index = 0
+                                     ) const;
+
+
+    static bool parseAuthenticationData(const UtlString& authenticationField,
+                                        UtlString* scheme,
+                                        UtlString* realm,
+                                        UtlString* nonce,
+                                        UtlString* opaque,
+                                        UtlString* algorithm, // MD5 or MD5-sess
+                                        UtlString* qop,
+                                        UtlString* domain
+                                        );
 
     void setAuthenticationData(const char* scheme, const char* realm,
                                 const char* nonce, const char* opaque,
                                 const char* domain = NULL,
                                 enum HttpEndpointEnum authEntity = SERVER);
 
-   void addAuthenticationField(const char* authenticationField,
-                               enum HttpEndpointEnum authType);
+    void addAuthenticationField(const UtlString&      authenticationField,
+                                enum HttpEndpointEnum authType
+                                );
 
-   bool getAuthenticationField(int index,
-                               enum HttpEndpointEnum authEntity,
-                               UtlString& authenticationField) const;
+    bool getAuthenticationField(int index,
+                                enum HttpEndpointEnum authEntity,
+                                UtlString& authenticationField
+                                ) const;
 
-   void addAuthenticationField(const char * AuthorizeField,
-                                         const char * AuthorizeValue,
-                                         UtlBoolean otherAuthentications = TRUE);
     // Authorization methods
     static void buildBasicAuthorizationCookie(const char* user,
                                                 const char* password,
@@ -588,10 +601,10 @@ public:
     UtlBoolean getAuthorizationScheme(UtlString* scheme) const;
 
     UtlBoolean getAuthorizationField(UtlString* authenticationField,
-                                    int authorizationEntity) const;
+                                     HttpEndpointEnum authorizationEntity) const;
 
     void setBasicAuthorization(const char* user, const char* password,
-                                int authorizationEntity);
+                               HttpEndpointEnum authorizationEntity);
 
     UtlBoolean getBasicAuthorizationData(UtlString* encodedCookie) const;
 
@@ -612,7 +625,8 @@ public:
                                     const char* opaque,
                                     const char* qop,
                                     int nonceCount,
-                                    int authorizationEntity);
+                                    HttpEndpointEnum authorizationEntity
+                                    );
 
     UtlBoolean getDigestAuthorizationData(UtlString* user,
                                          UtlString* realm = NULL,
@@ -620,7 +634,7 @@ public:
                                          UtlString* opaque = NULL,
                                          UtlString* response = NULL,
                                          UtlString* uri = NULL,
-                                                                                 int authorizationEntity = HttpMessage::PROXY ,
+                                         HttpEndpointEnum authorizationEntity = HttpMessage::PROXY ,
                                          int index = 0) const;
 
     static void buildMd5UserPasswordDigest(const char* user,
@@ -726,7 +740,7 @@ private:
 #ifdef HTTP_TIMELOG
    OsTimeLog mTimeLog;
 #endif
- 
+
    //! Internal utility
    NameValuePair* getHeaderField(int index, const char* name = NULL) const;
 

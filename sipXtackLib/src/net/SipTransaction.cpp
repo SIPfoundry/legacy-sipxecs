@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -261,14 +261,14 @@ SipTransaction::~SipTransaction()
                 }
             }
 
-            OsSysLog::add(FAC_SIP, PRI_ERR, 
+            OsSysLog::add(FAC_SIP, PRI_ERR,
                           "SipTransaction::~ %d waiting events in list",
                           numEvents);
         }
 
         delete mWaitingList;
         mWaitingList = NULL;
-    }    
+    }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -300,7 +300,7 @@ SipTransaction::addResponse(SipMessage*& response,
         // I do not know why this should ever occur
         // Typically the transaction will first be created with a request
         if(mpRequest)
-        {            
+        {
            OsSysLog::add(FAC_SIP, PRI_WARNING,
                          "SipTransaction::addResponse"
                          " of request to existing transaction, IGNORED");
@@ -346,7 +346,7 @@ SipTransaction::addResponse(SipMessage*& response,
         break;
 
     case MESSAGE_FINAL:
-        if(mpLastFinalResponse) 
+        if(mpLastFinalResponse)
         {
             delete mpLastFinalResponse;
         }
@@ -360,7 +360,7 @@ SipTransaction::addResponse(SipMessage*& response,
     case MESSAGE_ACK:
     case MESSAGE_2XX_ACK:
         if(mpAck)
-        {            
+        {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                           "SipTransaction::addResponse ACK already exists, IGNORED");
             delete response ;
@@ -374,7 +374,7 @@ SipTransaction::addResponse(SipMessage*& response,
 
     case MESSAGE_CANCEL:
         if(mpCancel)
-        {            
+        {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                           "SipTransaction::addResponse CANCEL already exists, IGNORED");
             delete response ;
@@ -403,7 +403,7 @@ SipTransaction::addResponse(SipMessage*& response,
     case MESSAGE_UNKNOWN:
     case MESSAGE_UNRELATED:
     case MESSAGE_DUPLICATE:
-    default:        
+    default:
         OsSysLog::add(FAC_SIP, PRI_ERR,
                       "SipTransaction::addResponse message with bad relationship: %d",
                       relationship);
@@ -656,7 +656,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
                          toAddress.data(), port, protoString.data()
                          );
         }
-#      endif                      
+#      endif
     }
 
     // Look at the request and figure out how to route it.
@@ -756,7 +756,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
                           "   to %s:%d via '%s'",
                           &request, toAddress.data(), port, protocol.data()
                           );
-#           endif                      
+#           endif
         }
 
         // No proxy, no route URI, try to use URI from message
@@ -780,7 +780,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
                         "   using request URI address: %s:%d via '%s'",
                         &request, toAddress.data(), port, protocol.data()
                         );
-#         endif                      
+#         endif
         }
 
         // No proxy, route URI, or message URI, use the To field
@@ -915,7 +915,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
            * We get to here when sending an ACK to 2xx responses, and we shouldn't;
            * those really should be going through the normal routing to determine the
            * protocol using DNS SRV lookups, but there is code elsewhere that prevents
-           * that from happening. 
+           * that from happening.
            *
            * Forcing UDP may not always be correct, but it's the best we can do now.
            */
@@ -943,7 +943,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
            SipMessage::convertProtocolEnumToString(toProtocol, protocolStr);
            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                          "SipTransaction::doFirstSend %p "
-                         "Sending RESPONSE to: %s:%d via: %s", 
+                         "Sending RESPONSE to: %s:%d via: %s",
                          this, toAddress.data(), port, protocolStr.data());
         }
 #       endif
@@ -1764,7 +1764,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                     && responseCode >= SIP_2XX_CLASS_CODE
                     )
             {
-               // xmlscott: despite the comment above, 
+               // xmlscott: despite the comment above,
                //           this happens a lot and seems to not always be bad,
                //           so I'm changing the priority to get it out of the logs.
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -1868,7 +1868,8 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                     {
 #                       ifdef TEST_PRINT
                         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                      "SipTransaction::handleChildIncoming %p sending best response",
+                                      "SipTransaction::handleChildIncoming"
+                                      " %p sending best response",
                                       this);
 #                       endif
 
@@ -1909,7 +1910,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                             int delayedResponseCode =
                                delayedDispatchedMessage->getResponseStatusCode();
                             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                          "SipTransaction::handleChildIncoming %p " 
+                                          "SipTransaction::handleChildIncoming %p "
                                           "delayed dispatch of %d\n",
                                           this, delayedResponseCode );
 #                           endif
@@ -1946,7 +1947,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                 // occur.  For now log some noise and
                 // drop the delayed response, if this ever
                 // occurs
-                // xmlscott: lowered priority 
+                // xmlscott: lowered priority
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
                               "SipTransaction::handleChildIncoming"
                               " %p dropping delayed response", this);
@@ -1981,7 +1982,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                     if(parent &&
                        parent->mIsServerTransaction)
                     {
-                         OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                        "SipTransaction::handleChildIncoming "
                                        "proxy resending server transaction response %d",
                                        responseCode);
@@ -2010,7 +2011,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                     // response.
                     else
                     {
-                        OsSysLog::add(FAC_SIP, PRI_WARNING, 
+                        OsSysLog::add(FAC_SIP, PRI_WARNING,
                                       "SipTransaction::handleChildIncoming "
                                       "duplicate 2xx response received on UAC for INVITE "
                                       "with no ACK"
@@ -2043,7 +2044,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                 // for the previous 3xx, 4xx, 5xx or 6xx final response
                 else
                 {
-                    OsSysLog::add(FAC_SIP, PRI_CRIT, 
+                    OsSysLog::add(FAC_SIP, PRI_CRIT,
                                   "SipTransaction::handleChildIncoming "
                                   "duplicate final error response rcvd for INVITE with no ACK");
                 }
@@ -2082,8 +2083,6 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleChildTimeoutEvent"
                       " found top most parent: %p", this);
 #       endif
-
-        //if(mIsServerTransaction)
         {
             UtlBoolean isResponse = outgoingMessage.isResponse();
             UtlString method;
@@ -2112,13 +2111,6 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                 {
                     // Still trying
                 }
-
-                //else if(nextTimeout == 0)
-                //{
-                    // We do not dispatch proxy transactions
-                //    nextTimeout = -1;
-                //}
-
                 // This transaction is done or has given up
                 // See if we should start the next sequential search
                 else
@@ -2179,7 +2171,7 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                             {
                                userAgent.setSelfHeader(bestResponse);
                             }
-                            
+
                             handleOutgoing(bestResponse,
                                             userAgent,
                                             transactionList,
@@ -2435,9 +2427,9 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
             // Keep separate copy for the timer
             SipMessage* pRequestMessage = NULL;
             pRequestMessage = new SipMessage(*mpRequest);
-            
-            SipMessageEvent* expiresEvent = 
-                new SipMessageEvent(pRequestMessage, 
+
+            SipMessageEvent* expiresEvent =
+                new SipMessageEvent(pRequestMessage,
                                     SipMessageEvent::TRANSACTION_EXPIRATION);
 
             OsMsgQ* incomingQ = userAgent.getMessageQueue();
@@ -2697,11 +2689,11 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
                   // we have not already pursued this contact
                   if(!isUriRecursed(contactUrl))
                   {
-                     
+
                      childTransaction = new SipTransaction(mpRequest,
                                                            TRUE, // outgoing
                                                            FALSE,
-                                                           mpBranchId 
+                                                           mpBranchId
                                                            ); // proxy transaction
 
 #                   ifdef LOG_FORKING
@@ -2777,7 +2769,7 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
 
                char loopDetectedText[128];
                sprintf(loopDetectedText, SIP_LOOP_DETECTED_TEXT " with %d hops ago", loopHop);
-               
+
                SipMessage* loopDetectedResponse = new SipMessage;
                loopDetectedResponse->setDiagnosticSipFragResponse(*mpRequest,
                                                                   SIP_LOOP_DETECTED_CODE,
@@ -2790,13 +2782,13 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
 
                loopDetectedResponse->resetTransport();
                loopDetectedResponse->clearDNSField();
-               
+
                // Change the redirect response we have into the loop detected response
                addResponse(loopDetectedResponse, FALSE /* incoming */, MESSAGE_FINAL );
-               
+
                childRecursed = FALSE;
             }
-            
+
             children.destroyAll(); // release the urls for the forks
         }
 
@@ -2812,7 +2804,7 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
             {
                nextQvalue = -1.0;
             }
-            
+
             if(childTransaction->mTransactionState == TRANSACTION_LOCALLY_INIITATED)
             {
                 double qDelta = nextQvalue - childTransaction->mQvalue;
@@ -2935,6 +2927,33 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
     return(childRecursed);
 }
 
+void SipTransaction::getChallengeRealms(const SipMessage& response, UtlSList& realmList)
+{
+   // Get any the proxy authentication challenges from the new challenge
+   UtlString authField;
+   for (unsigned authIndex = 0;
+        response.getAuthenticationField(authIndex, HttpMessage::PROXY, authField);
+        authIndex++
+        )
+   {
+      UtlString challengeRealm;
+      if (   HttpMessage::parseAuthenticationData(authField,
+                                                  NULL, // scheme
+                                                  &challengeRealm,
+                                                  NULL, // nonce
+                                                  NULL, // opaque
+                                                  NULL, // algorithm
+                                                  NULL, // qop
+                                                  NULL  // domain
+                                                  )
+          && !realmList.contains(&challengeRealm)
+          )
+      {
+         realmList.insert(new UtlString(challengeRealm));
+      }
+   }
+}
+
 UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::findBestResponse %p", this);
@@ -2945,13 +2964,9 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
     SipMessage* childResponse = NULL;
     int bestResponseCode = -1;
     int childResponseCode;
-    UtlString authField;
     UtlBoolean foundChild = FALSE;
-#ifdef TEST_PRINT
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipTransaction::findBestResponse %p", this);
-#endif
 
+    UtlSList proxyRealmsSeen;
     while ((childTransaction = (SipTransaction*) iterator()))
     {
         // Check the child's decendents first
@@ -2975,26 +2990,71 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
                && (   childResponseCode == HTTP_UNAUTHORIZED_CODE
                    || childResponseCode == HTTP_PROXY_UNAUTHORIZED_CODE))
             {
-                // Aggregate Authenticate fields
+               /*
+                * Some implementations get confused if there is more than one
+                * Proxy challenge for the same realm, so filter out any extra
+                * ones.  Since ours are all generated with the same shared secret,
+                * a challenge from any sipXproxy is acceptable at any sipXproxy;
+                * it is possible that this will cause problems with multiple
+                * proxy authentication requests being forwarded from some
+                * downstream forking proxy that does not have that quality, but
+                * it's better to get something back to the UA that won't break it.
+                * We can't filter and do this only to our own realm, because at this
+                * level in the stack we have no idea what our own realm is :-(
+                */
+               getChallengeRealms(bestResponse, proxyRealmsSeen);
 
-                // Get the proxy authenticate challenges
-                int authIndex = 0;
-                while(childResponse->getAuthenticationField(authIndex,
-                    HttpMessage::PROXY, authField))
-                {
-                    bestResponse.addAuthenticationField(authField.data(),
-                                                        HttpMessage::PROXY);
-                    authIndex++;
-                }
+               // Get the proxy authenticate challenges
+               UtlString authField;
+               unsigned  authIndex;
+               for (authIndex = 0;
+                    childResponse->getAuthenticationField(authIndex, HttpMessage::PROXY,
+                                                          authField);
+                    authIndex++
+                    )
+               {
+                  UtlString challengeRealm;
+                  if (HttpMessage::parseAuthenticationData(authField,
+                                                           NULL, // scheme
+                                                           &challengeRealm,
+                                                           NULL, // nonce
+                                                           NULL, // opaque
+                                                           NULL, // algorithm
+                                                           NULL, // qop
+                                                           NULL  // domain
+                                                           )
+                      )
+                  {
+                     if (!proxyRealmsSeen.contains(&challengeRealm))
+                     {
+                        proxyRealmsSeen.insert(new UtlString(challengeRealm));
+                        bestResponse.addAuthenticationField(authField, HttpMessage::PROXY);
+                     }
+                     else
+                     {
+                        OsSysLog::add(FAC_SIP, PRI_INFO,
+                                      "SipTransaction::findBestResponse"
+                                      " removing redundant proxy challenge:\n   %s",
+                                      authField.data());
+                     }
+                  }
+                  else
+                  {
+                     OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                   "SipTransaction::findBestResponse"
+                                   " removing unparsable proxy challenge:\n   %s",
+                                   authField.data());
+                  }
+               }
 
-                // Get the UA server authenticate challenges
-                authIndex = 0;
-                while(childResponse->getAuthenticationField(authIndex,
-                    HttpMessage::SERVER, authField))
+               // Get the UA server authenticate challenges
+               for (authIndex = 0;
+                    childResponse->getAuthenticationField(authIndex,
+                                                          HttpMessage::SERVER, authField);
+                    authIndex++
+                    )
                 {
-                    bestResponse.addAuthenticationField(authField.data(),
-                                                        HttpMessage::SERVER);
-                    authIndex++;
+                    bestResponse.addAuthenticationField(authField, HttpMessage::SERVER);
                 }
             }
             // 487 is better than any other 4xx, 5xx, or 6xx if the
@@ -3051,7 +3111,7 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
             {
                 bestResponse = *(childResponse);
 
-                // Not suppose to return 503 unless we know that
+                // Not supposed to return 503 unless we know that
                 // there is absolutely no way to reach the end point
                 if(childResponseCode == SIP_SERVICE_UNAVAILABLE_CODE)
                 {
@@ -3070,6 +3130,7 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
             }
         }
     }
+    proxyRealmsSeen.destroyAll();
 
     // We have made it to the top and there are no responses
     if ( !responseFound && mpParentTransaction == NULL)
@@ -3100,15 +3161,10 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
                 int msgLen;
                 bestResponse.getBytes(&msgString, &msgLen);
 
-            // We got a bad response
-            OsSysLog::add(FAC_SIP, PRI_ERR,
-                        "SipTransaction::findBestResponse invalid response:\n%s",
-                        msgString.data());
-#           ifdef TEST_PRINT
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipTransaction::findBestResponse invalid response: '%s'",
-                          msgString.data());
-#           endif
+                // We got a bad response
+                OsSysLog::add(FAC_SIP, PRI_ERR,
+                              "SipTransaction::findBestResponse invalid response:\n%s",
+                              msgString.data());
             }
         }
     }
@@ -3376,7 +3432,7 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                 case OsSocket::TCP:
                     userAgent.sendTcp(response, sendAddress.data(), sendPort);
                     break;
-                    
+
 #               ifdef SIP_TLS
                 case OsSocket::SSL_SOCKET:
                     userAgent.sendTls(response, sendAddress.data(), sendPort);
@@ -3730,11 +3786,11 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
 
 #   ifdef DISPATCH_DEBUG
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipTransaction::handleIncoming %p " 
+                  "SipTransaction::handleIncoming %p "
                   "before handleChildIncoming shouldDispatch=%d delayed=%p",
                   this, shouldDispatch, delayedDispatchedMessage );
 #   endif
-    
+
     shouldDispatch =
         handleChildIncoming(incomingMessage,
                              userAgent,
@@ -3745,7 +3801,7 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
 
 #   ifdef DISPATCH_DEBUG
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipTransaction::handleIncoming %p " 
+                  "SipTransaction::handleIncoming %p "
                   "after handleChildIncoming shouldDispatch=%d delayed=%p",
                   this, shouldDispatch, delayedDispatchedMessage);
 #   endif
@@ -3776,7 +3832,7 @@ void SipTransaction::deleteTimers()
                       "SipTransaction::deleteTimers deleting timer %p",
                       timer);
 #       endif
-        
+
         // If the timer has not fired, we must delete the dependent
         // SipMessageEvent.
         // If the timer has fired, the consequent OsEventMsg is on the
@@ -4314,7 +4370,7 @@ void SipTransaction::signalAllAvailable()
 const char* SipTransaction::stateString(enum transactionStates state)
 {
    const char* stateStrings[NUM_TRANSACTION_STATES+1] =
-      {      
+      {
          "UNKNOWN",
          "LOCALLY_INITIATED",
          "CALLING",
@@ -4478,7 +4534,7 @@ void SipTransaction::markBusy()
 #   ifdef LOG_TRANSLOCK
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::markBusy %p", this);
 #   endif
-    
+
     if(mpParentTransaction) mpParentTransaction->markBusy();
     else
     {
@@ -4500,7 +4556,7 @@ void SipTransaction::doMarkBusy(int markData)
 #   ifdef LOG_TRANSLOCK
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::doMarkBusy(%d) %p", markData, this);
 #   endif
-    
+
     mIsBusy = markData;
 
     // Recurse through the children and mark them busy
@@ -4665,7 +4721,7 @@ SipTransaction::whatRelation(const SipMessage& message,
     }
 #   endif
     SET_RELATIONSHIP(MESSAGE_UNKNOWN);
-    
+
     UtlString msgCallId;
     message.getCallIdField(&msgCallId);
 
@@ -4702,7 +4758,7 @@ SipTransaction::whatRelation(const SipMessage& message,
                       "\tvia: '%s'\n\tbranch: '%s'",
                       viaField.data(), msgBranch.data());
 #       endif
-        
+
         bool branchPrefixSet = BranchId::isRFC3261(msgBranch);
 
         UtlBoolean toTagMatches = FALSE;
@@ -4756,7 +4812,7 @@ SipTransaction::whatRelation(const SipMessage& message,
                       toTagMatches ? "ToTagMatch" : "NoToTagMatch"
                       );
 #       endif
-        
+
         // From field tag matches
         if(fromTagMatches)
         {
@@ -5118,7 +5174,7 @@ UtlBoolean SipTransaction::isUriRecursedChildren(UtlString& uriString)
 
     while (!childHasSameUri && (childTransaction = (SipTransaction*) iterator()))
     {
-       childHasSameUri = (   childTransaction->mTransactionState > TRANSACTION_LOCALLY_INIITATED 
+       childHasSameUri = (   childTransaction->mTransactionState > TRANSACTION_LOCALLY_INIITATED
                           && (   0 == uriString.compareTo(childTransaction->mRequestUri)
                               || isUriRecursedChildren(uriString)
                               )

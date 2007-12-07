@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -346,9 +346,9 @@ void HttpMessage::parseMessage(const char* messageBytes, int byteCount)
 
 void HttpMessage::parseBody(const char* messageBytesPtr, int bodyLength)
 {
-    if (bodyLength <= 1 && 
-        messageBytesPtr && 
-        (messageBytesPtr[0] == '\n' || 
+    if (bodyLength <= 1 &&
+        messageBytesPtr &&
+        (messageBytesPtr[0] == '\n' ||
          messageBytesPtr[0] == '\r'))
     {
         // do nothing
@@ -361,7 +361,7 @@ void HttpMessage::parseBody(const char* messageBytesPtr, int bodyLength)
         contentType = getHeaderValue(0, "C");
     }
 
-    const char* contentEncodingString = 
+    const char* contentEncodingString =
             getHeaderValue(0, HTTP_CONTENT_TRANSFER_ENCODING_FIELD);
     if (contentEncodingString == NULL)
     {
@@ -492,9 +492,9 @@ int HttpMessage::get/*[3]*/(Url& httpUrl,
 
     HttpMessage request;
     UtlString uriString;
-    
+
     httpUrl.getPath(uriString, TRUE);
-    
+
     request.setRequestFirstHeaderLine(HTTP_GET_METHOD,
                                       uriString,
                                       HTTP_PROTOCOL_VERSION);
@@ -643,7 +643,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                      maxWaitMilliSeconds,
                      bPersistent ? "PERSISTENT" : "NOT PERSISTENT");
     }
-    
+
     HttpConnectionMap *pConnectionMap = NULL;
     HttpConnectionMapEntry* pConnectionMapEntry = NULL;
     UtlString uriString;
@@ -680,27 +680,27 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
     }
 
     OsConnectionSocket *httpSocket = NULL;
-    bool connected = false;    
-   
+    bool connected = false;
+
     int bytesRead = 0;
-    int bytesSent = 0;    
+    int bytesSent = 0;
     int sendTries = 0;
     // Set connection header to keep-alive, get a map entry for the URI with the asscoiated socket.
     // If there is no existing map entry, one will be created with the httpSocket set to NULL.
     if (bPersistent)
     {
         pConnectionMap = HttpConnectionMap::getHttpConnectionMap();
-                
-        request.setHeaderValue(HTTP_CONNECTION_FIELD, "Keep-Alive");         
+
+        request.setHeaderValue(HTTP_CONNECTION_FIELD, "Keep-Alive");
         pConnectionMapEntry = pConnectionMap->getPersistentConnection(httpUrl, httpSocket);
-    }            
+    }
 
     // Try to send request at least once, on persistent connections retry once if it fails.
     // Retry on persistent connections because the getPersistentConnection call may return
     // a non-NULL socket, assuming the connection is persistent when the other side is not.
     bool responseReceived = false;
     while (sendTries < HttpMessageRetries && ! responseReceived && 0 == bytesRead)
-    {        
+    {
         if (httpSocket == NULL)
         {
             int tries = 0;
@@ -762,7 +762,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
         }
         else
         {
-            connected = httpSocket->isConnected();          
+            connected = httpSocket->isConnected();
         }
 
         if (!connected)
@@ -773,40 +773,40 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
            if (pConnectionMap)
            {
                // Release lock on persistent connection
-               pConnectionMapEntry->mLock.release();             
-           }              
+               pConnectionMapEntry->mLock.release();
+           }
            return httpStatus;
         }
-      
+
         // Send the request - most of the time returns 1 for some reason, 0 indicates problem
         if (httpSocket && httpSocket->isReadyToWrite(maxWaitMilliSeconds))
         {
             bytesSent = request.write(httpSocket);
-            OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[4] sent request");      
+            OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get[4] sent request");
         }
 
-        if (bytesSent <= 0)            
+        if (bytesSent <= 0)
         {
-           OsSysLog::add(FAC_HTTP, PRI_WARNING, 
+           OsSysLog::add(FAC_HTTP, PRI_WARNING,
                          "HttpMessage::get[4] "
                          "failed sending on try %d",
-                         sendTries);      
+                         sendTries);
 
             if (pConnectionMap)
             {
                // No bytes were sent .. if this is a persistent connection and it failed on retry
                // mark it unused in the connection map. Set socket to NULL
                if (sendTries == HttpMessageRetries-1)
-               { 
+               {
                   pConnectionMapEntry->mbInUse = false;
                }
                if (httpSocket)
                {
                   // Close socket to avoid timeouts in subsequent calls
-                  OsSysLog::add(FAC_HTTP, PRI_ERR, 
+                  OsSysLog::add(FAC_HTTP, PRI_ERR,
                                 "HttpMessage::get[4] "
                                 "closing failed socket after %d tries",
-                                sendTries);      
+                                sendTries);
                   httpSocket->close();
                   delete httpSocket;
                   pConnectionMapEntry->mpSocket = NULL;
@@ -819,7 +819,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
            if (httpSocket && httpSocket->isReadyToRead(maxWaitMilliSeconds))
            {
               bytesRead = read(httpSocket); // consumes bytes until full message is read
-              OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
+              OsSysLog::add(FAC_HTTP, PRI_DEBUG,
                             "HttpMessage::get[4] read returned %d bytes",
                             bytesRead);
               if (!bytesRead)
@@ -834,13 +834,13 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                  {
                     // persistent connection
                     // No bytes were read .. if this is a persistent connection
-                    // and it failed on retry mark it unused  
+                    // and it failed on retry mark it unused
                     // in the connection map. Set socket to NULL
-                    OsSysLog::add(FAC_HTTP, PRI_ERR, 
+                    OsSysLog::add(FAC_HTTP, PRI_ERR,
                                   "HttpMessage::get[4] "
                                   "Receiving failed on persistent connection on try %d",
                                   sendTries);
-                    if (sendTries == HttpMessageRetries-1)                    
+                    if (sendTries == HttpMessageRetries-1)
                     {
                        pConnectionMapEntry->mbInUse = false;
                     }
@@ -880,14 +880,14 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
         ++sendTries;
     }
     if (pConnectionMapEntry)
-    {        
+    {
         // Release lock on persistent connection
-        pConnectionMapEntry->mLock.release(); 
+        pConnectionMapEntry->mLock.release();
     }
     if(bytesRead > 0)
     {
         httpStatus = getResponseStatusCode();
-        int authEntity = SERVER;
+        HttpEndpointEnum authEntity = SERVER;
 
         if(httpStatus == HTTP_UNAUTHORIZED_CODE)
         {
@@ -937,7 +937,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                    {
                       httpAuthSocket = new OsConnectionSocket(httpPort, httpHost);
                    }
-                   
+
                    if (httpAuthSocket)
                    {
                       connected = httpAuthSocket->isConnected();
@@ -999,7 +999,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                 {
                    delete httpAuthSocket;
                 }
-                
+
             } // end if auth. retry
 
         } // End if Basic Auth.
@@ -1204,7 +1204,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       int bytesRead = 0;
       while (   ! finished
              && (   residualBytes > 0 // there are bytes already in the buffer - no need to read
-                 || (   inSocket->isOk() 
+                 || (   inSocket->isOk()
                      && (   OsSocket::isFramed(socketType)
                          || inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)
                          )
@@ -1226,7 +1226,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
             // set the variables as though this had been read from the socket.
             bytesRead = residualBytes;
             residualBytes = 0;
-            
+
             if (mSendAddress.isNull())
             {
                // There can only be residual buffer data if this is TCP, so we know
@@ -1244,7 +1244,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
 #           endif
 
             allBytes->append(buffer, bytesRead); // move from temporary buffer into UtlString
-            
+
             if (mSendAddress.isNull())
             {
                setSendAddress(remoteHost.data(), remotePort);
@@ -1292,7 +1292,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                      {
                         contentLengthSet = TRUE;
                         contentLength = atoi(value);
-                     } 
+                     }
                   }
 
                   // Get the content type
@@ -1337,7 +1337,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                      bytesTotal = 0;
                      finished = true;
                   }
-                     
+
                   // If a content length is set adjust the capacity
                   // to minimize the number of resizing and memory
                   // shuffling operations
@@ -1381,13 +1381,13 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                                    "HttpMessage::read "
                                    "no content-length set on framed %s socket",
                                    OsSocket::ipProtocolString(socketType));
-                     // Assume that they forgot 
+                     // Assume that they forgot
                      finished = true;
                   }
                }
                else
                {
-                  // seen the end of the headers, on an unframed socket 
+                  // seen the end of the headers, on an unframed socket
                   if (contentLengthSet)
                   {
                      if (contentLength + headerEnd <= ((int) allBytes->length()))
@@ -1412,7 +1412,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
 
                      // Close the connection (having lost framing, it is no longer usable)
                      inSocket->close();
-               
+
                      // Exit the loop
                      finished = true;
                   }
@@ -1469,7 +1469,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                }
             }
          }
-         
+
          // Read more of the message and continue processing it.
       }
 #     ifdef MSG_DEBUG
@@ -1505,7 +1505,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
             // We have the entire expected length of the message.
             bodyLength = contentLength;
             messageLength = headerEnd + contentLength;
- 
+
             OsSysLog::add(FAC_HTTP, PRI_DEBUG,
                           "HttpMessage::read full msg rcvd bytes %d: header: %d content: %d",
                           bytesTotal, headerEnd, contentLength);
@@ -1571,7 +1571,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
          // All that is left is the body to deal with
          parseBody(&(allBytes->data()[headerEnd]), bodyLength);
       }
-      
+
       returnMessageLength = messageLength;
    }
    else
@@ -2284,7 +2284,7 @@ UtlBoolean HttpMessage::getAcceptField(UtlString& acceptValue) const
 {
     const char* value = getHeaderValue(0, HTTP_ACCEPT_FIELD);
     acceptValue.remove(0);
-    if(value) 
+    if(value)
     {
         acceptValue = value;
     }
@@ -2547,7 +2547,8 @@ void HttpMessage::setRequestFirstHeaderLine(const char* method,
          }
 
 UtlBoolean HttpMessage::getAuthenticationScheme(UtlString* scheme,
-                                               int authorizationEntity) const
+                                                HttpMessage::HttpEndpointEnum authorizationEntity
+                                                ) const
 {
     const char* fieldValue = NULL;
     if(authorizationEntity == SERVER)
@@ -2640,74 +2641,120 @@ void HttpMessage::setAuthenticationData(const char* scheme,
         // :TBD: should add qop
     }
 
-    //setHeaderValue(HTTP_WWW_AUTHENTICATE_FIELD, authField.data(), 0);
-    addAuthenticationField(authField.data(), authEntity);
+    addAuthenticationField(authField, authEntity);
 }
 
 UtlBoolean HttpMessage::getAuthenticationData(UtlString* scheme,
-                                             UtlString* realm,
-                                             UtlString* nonce,
-                                             UtlString* opaque,
-                                             UtlString* algorithm, // MD5 or MD5-sess
-                                             UtlString* qop, // may be multiple values
-                                             int authorizationEntity) const
+                                              UtlString* realm,
+                                              UtlString* nonce,
+                                              UtlString* opaque,
+                                              UtlString* algorithm, // MD5 or MD5-sess
+                                              UtlString* qop, // may be multiple values
+                                              HttpMessage::HttpEndpointEnum authorizationEntity,
+                                              unsigned   index
+                                              ) const
 {
     const char* fieldValue = NULL;
+    UtlBoolean foundData = FALSE;
+
     if(authorizationEntity == SERVER)
     {
-        fieldValue = getHeaderValue(0, HTTP_WWW_AUTHENTICATE_FIELD);
+        fieldValue = getHeaderValue(index, HTTP_WWW_AUTHENTICATE_FIELD);
     }
     else if(authorizationEntity == PROXY)
     {
-        fieldValue = getHeaderValue(0, HTTP_PROXY_AUTHENTICATE_FIELD);
+        fieldValue = getHeaderValue(index, HTTP_PROXY_AUTHENTICATE_FIELD);
     }
 
     if(fieldValue)
     {
-        NetAttributeTokenizer tokenizer(fieldValue);
-        UtlString name;
-        UtlString value;
-
-        if(realm) realm->remove(0);
-        if(nonce) nonce->remove(0);
-        if(opaque) opaque->remove(0);
-        if(algorithm) algorithm->remove(0);
-        if(qop) qop->remove(0);
-
-        tokenizer.getNextAttribute(*scheme, value);
-        cannonizeToken(*scheme);
-
-        // Search for tokens independent of order
-        while(tokenizer.getNextAttribute(name, value))
-        {
-            name.toLower();
-            if(   realm
-               && name.compareTo(HTTP_AUTHENTICATION_REALM_TOKEN, UtlString::ignoreCase) == 0
-               )
-            {
-                realm->append(value.data());
-            }
-            else if(nonce && name.compareTo(HTTP_AUTHENTICATION_NONCE_TOKEN, UtlString::ignoreCase) == 0)
-            {
-                nonce->append(value.data());
-            }
-            else if(opaque && name.compareTo(HTTP_AUTHENTICATION_OPAQUE_TOKEN, UtlString::ignoreCase) == 0)
-            {
-                opaque->append(value.data());
-            }
-            else if(algorithm && name.compareTo(HTTP_AUTHENTICATION_ALGORITHM_TOKEN, UtlString::ignoreCase) == 0)
-            {
-                algorithm->append(value.data());
-            }
-            else if(qop && name.compareTo(HTTP_AUTHENTICATION_QOP_TOKEN, UtlString::ignoreCase) == 0)
-            {
-                qop->append(value.data());
-            }
-        }
+       foundData = parseAuthenticationData(fieldValue,
+                                           scheme, realm, nonce, opaque, algorithm, qop,
+                                           NULL /* domain */);
     }
 
-    return(fieldValue != NULL);
+    return foundData;
 }
+
+bool HttpMessage::parseAuthenticationData(const UtlString& authenticationField,
+                                          UtlString* scheme,
+                                          UtlString* realm,
+                                          UtlString* nonce,
+                                          UtlString* opaque,
+                                          UtlString* algorithm, // MD5 or MD5-sess
+                                          UtlString* qop,
+                                          UtlString* domain
+                                          )
+{
+   NetAttributeTokenizer tokenizer(authenticationField.data());
+   UtlString name;
+   UtlString value;
+
+   if(scheme) scheme->remove(0);
+   if(realm) realm->remove(0);
+   if(nonce) nonce->remove(0);
+   if(opaque) opaque->remove(0);
+   if(algorithm) algorithm->remove(0);
+   if(qop) qop->remove(0);
+   if(domain) domain->remove(0);
+
+   if (scheme)
+   {
+      tokenizer.getNextAttribute(*scheme, value);
+      cannonizeToken(*scheme);
+   }
+   else
+   {
+      UtlString ignoredScheme;
+      tokenizer.getNextAttribute(ignoredScheme, value);
+   }
+
+   bool foundRealm = false;
+   bool foundNonce = false;
+   // Search for tokens independent of order
+   while(tokenizer.getNextAttribute(name, value))
+   {
+      if(name.compareTo(HTTP_AUTHENTICATION_REALM_TOKEN, UtlString::ignoreCase) == 0)
+      {
+         if (realm && !foundRealm)
+         {
+            realm->append(value.data());
+         }
+         foundRealm = true;
+      }
+      else if(name.compareTo(HTTP_AUTHENTICATION_NONCE_TOKEN, UtlString::ignoreCase) == 0)
+      {
+         if (nonce && !foundNonce)
+         {
+            nonce->append(value.data());
+         }
+         foundNonce = true;
+      }
+      else if(opaque
+              && name.compareTo(HTTP_AUTHENTICATION_OPAQUE_TOKEN, UtlString::ignoreCase) == 0)
+      {
+         opaque->append(value.data());
+      }
+      else if(algorithm
+              && name.compareTo(HTTP_AUTHENTICATION_ALGORITHM_TOKEN, UtlString::ignoreCase) == 0)
+      {
+         algorithm->append(value.data());
+      }
+      else if(qop
+              && name.compareTo(HTTP_AUTHENTICATION_QOP_TOKEN, UtlString::ignoreCase) == 0)
+      {
+         qop->append(value.data());
+      }
+      else if(domain
+              && name.compareTo(HTTP_AUTHENTICATION_DOMAIN_TOKEN, UtlString::ignoreCase) == 0)
+      {
+         domain->append(value.data());
+      }
+   }
+
+   return foundRealm && foundNonce;
+}
+
 
 UtlBoolean HttpMessage::getAuthorizationUser(UtlString* userId) const
 {
@@ -2754,7 +2801,8 @@ UtlBoolean HttpMessage::getAuthorizationUser(UtlString* userId) const
 }
 
 UtlBoolean HttpMessage::getAuthorizationField(UtlString* authenticationField,
-                                             int authorizationEntity) const
+                                              HttpMessage::HttpEndpointEnum authorizationEntity
+                                              ) const
 {
     const char* fieldValue = NULL;
     if(authorizationEntity == SERVER)
@@ -2777,13 +2825,13 @@ UtlBoolean HttpMessage::getAuthorizationField(UtlString* authenticationField,
 }
 
 UtlBoolean HttpMessage::getDigestAuthorizationData(UtlString* user,
-                                                  UtlString* realm,
-                                                  UtlString* nonce,
-                                                  UtlString* opaque,
-                                                  UtlString* response,
-                                                  UtlString* uri,
-                                                                                                  int authorizationEntity,
-                                                  int index) const
+                                                   UtlString* realm,
+                                                   UtlString* nonce,
+                                                   UtlString* opaque,
+                                                   UtlString* response,
+                                                   UtlString* uri,
+                                                   HttpMessage::HttpEndpointEnum authorizationEntity,
+                                                   int index) const
 {
 
    const char* value = NULL;
@@ -2791,79 +2839,86 @@ UtlBoolean HttpMessage::getDigestAuthorizationData(UtlString* user,
 
    if(!value)
    {
-                value = getHeaderValue(index, HTTP_AUTHORIZATION_FIELD);
-        }
-    if(value)
-    {
-        NetAttributeTokenizer tokenizer(value);
-        UtlString name;
-        UtlString value;
-        UtlString scheme;
+      value = getHeaderValue(index, HTTP_AUTHORIZATION_FIELD);
+   }
+   if(value)
+   {
+      NetAttributeTokenizer tokenizer(value);
+      UtlString name;
+      UtlString value;
+      UtlString scheme;
 
-        if(realm) realm->remove(0);
-        if(nonce) nonce->remove(0);
-        if(opaque) opaque->remove(0);
-        if(user) user->remove(0);
-        if(uri) uri->remove(0);
-        if(response) response->remove(0);
+      if(realm) realm->remove(0);
+      if(nonce) nonce->remove(0);
+      if(opaque) opaque->remove(0);
+      if(user) user->remove(0);
+      if(uri) uri->remove(0);
+      if(response) response->remove(0);
 
-        // If this is a digest response
-        tokenizer.getNextAttribute(scheme, value);
-        if( 0 == scheme.compareTo(HTTP_DIGEST_AUTHENTICATION,
-                                  UtlString::ignoreCase
-                                  )
-           )
-        {
-            // Search for tokens independent of order
-            while(tokenizer.getNextAttribute(name, value))
+      // If this is a digest response
+      tokenizer.getNextAttribute(scheme, value);
+      if( 0 == scheme.compareTo(HTTP_DIGEST_AUTHENTICATION,
+                                UtlString::ignoreCase
+                                )
+         )
+      {
+         // Search for tokens independent of order
+         while(tokenizer.getNextAttribute(name, value))
+         {
+            name.toUpper();
+            if(realm && name.compareTo(HTTP_AUTHENTICATION_REALM_TOKEN, UtlString::ignoreCase) == 0)
             {
-                name.toUpper();
-                if(realm && name.compareTo(HTTP_AUTHENTICATION_REALM_TOKEN, UtlString::ignoreCase) == 0)
-                {
-                    realm->append(value.data());
-                }
-                else if(nonce && name.compareTo(HTTP_AUTHENTICATION_NONCE_TOKEN, UtlString::ignoreCase) == 0)
-                {
-                    nonce->append(value.data());
-                }
-                else if(opaque && name.compareTo(HTTP_AUTHENTICATION_OPAQUE_TOKEN, UtlString::ignoreCase) == 0)
-                {
-                    opaque->append(value.data());
-                }
-                else if(user && name.compareTo(HTTP_AUTHENTICATION_USERNAME_TOKEN, UtlString::ignoreCase) == 0)
-                {
-                    user->append(value.data());
-                }
-                else if(response && name.compareTo(HTTP_AUTHENTICATION_RESPONSE_TOKEN, UtlString::ignoreCase) == 0)
-                {
-                    response->append(value.data());
-                }
-                else if(uri && name.compareTo(HTTP_AUTHENTICATION_URI_TOKEN, UtlString::ignoreCase) == 0)
-                {
-                    uri->append(value.data());
-                }
+               realm->append(value.data());
             }
-        }
+            else if(nonce && name.compareTo(HTTP_AUTHENTICATION_NONCE_TOKEN, UtlString::ignoreCase) == 0)
+            {
+               nonce->append(value.data());
+            }
+            else if(opaque && name.compareTo(HTTP_AUTHENTICATION_OPAQUE_TOKEN, UtlString::ignoreCase) == 0)
+            {
+               opaque->append(value.data());
+            }
+            else if(user && name.compareTo(HTTP_AUTHENTICATION_USERNAME_TOKEN, UtlString::ignoreCase) == 0)
+            {
+               user->append(value.data());
+            }
+            else if(response && name.compareTo(HTTP_AUTHENTICATION_RESPONSE_TOKEN, UtlString::ignoreCase) == 0)
+            {
+               response->append(value.data());
+            }
+            else if(uri && name.compareTo(HTTP_AUTHENTICATION_URI_TOKEN, UtlString::ignoreCase) == 0)
+            {
+               uri->append(value.data());
+            }
+         }
+      }
    }
    return(value != NULL);
 }
 
 
-void HttpMessage::addAuthenticationField(const char* authenticationField,
+void HttpMessage::addAuthenticationField(const UtlString& authenticationField,
                                          enum HttpEndpointEnum authEntity)
 {
-    const char* fieldName = "bad-auth-entity";
-    if(authEntity == PROXY)
+    const char* fieldName = NULL;
+    switch(authEntity)
     {
+    case PROXY:
         fieldName = HTTP_PROXY_AUTHENTICATE_FIELD;
-    }
-
-    else if(authEntity == SERVER)
-    {
+        break;
+    case SERVER:
         fieldName = HTTP_WWW_AUTHENTICATE_FIELD;
+        break;
+    default:
+       OsSysLog::add(FAC_SIP, PRI_CRIT,
+                     "HttpMessage::addAuthenticationField invalid authEntity - no field added"
+                     );
+       assert(false);
     }
-
-    addHeaderField(fieldName, authenticationField);
+    if (fieldName)
+    {
+       addHeaderField(fieldName, authenticationField);
+    }
 }
 
 bool HttpMessage::getAuthenticationField(int index,
@@ -2871,7 +2926,7 @@ bool HttpMessage::getAuthenticationField(int index,
                                          UtlString& authenticationField) const
 {
    authenticationField.remove(0);
-   
+
    const char* fieldName;
    switch( authEntity )
    {
@@ -2882,47 +2937,36 @@ bool HttpMessage::getAuthenticationField(int index,
       fieldName = HTTP_PROXY_AUTHENTICATE_FIELD;
       break;
    default:
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "HttpMessage::getAuthenticationField invalid authEntity"
+                    );
       assert(false); // invalid authEntity value
    }
-
-   const char* fieldValue = getHeaderValue(index, fieldName);
-   if (fieldValue)
+   if (fieldName)
    {
-      authenticationField.append(fieldValue);
+      const char* fieldValue = getHeaderValue(index, fieldName);
+      if (fieldValue)
+      {
+         authenticationField.append(fieldValue);
+      }
    }
-   
-   return(fieldValue != NULL);
+
+   return(!authenticationField.isNull());
 }
 
-void HttpMessage::addAuthenticationField(const char * AuthorizeField,
-                                         const char * AuthorizeValue,
-                                         UtlBoolean otherAuthentications)
-{
-  /* NameValuePair* nv = new NameValuePair(AuthorizeField, AuthorizeValue);
-    // Look for other via fields
-    int fieldIndex = nameValues.index(nv);
 
-    if(fieldIndex == UTL_NOT_FOUND || !afterOtherVias)
-    {
-        nameValues.insert(nv);
-    }
-    else
-    {
-        nameValues.insertAt(fieldIndex, nv);
-    }*/
-}
 
 void HttpMessage::setDigestAuthorizationData(const char* user,
-                                    const char* realm,
-                                    const char* nonce,
-                                    const char* uri,
-                                    const char* response,
-                                    const char* algorithm,
-                                    const char* cnonce,
-                                    const char* opaque,
-                                    const char* qop,
-                                    int nonceCount,
-                                    int authorizationEntity)
+                                             const char* realm,
+                                             const char* nonce,
+                                             const char* uri,
+                                             const char* response,
+                                             const char* algorithm,
+                                             const char* cnonce,
+                                             const char* opaque,
+                                             const char* qop,
+                                             int nonceCount,
+                                             HttpMessage::HttpEndpointEnum authorizationEntity)
 {
     UtlString schemeString;
     UtlString authField;
@@ -3331,8 +3375,10 @@ void HttpMessage::setRequestUnauthorized(const HttpMessage* request,
                           authenticationDomain);
 }
 
-void HttpMessage::setBasicAuthorization(const char* user, const char* password,
-                                        int authorizationEntity)
+void HttpMessage::setBasicAuthorization(const char* user,
+                                        const char* password,
+                                        HttpMessage::HttpEndpointEnum authorizationEntity
+                                        )
 {
     UtlString fieldValue(HTTP_BASIC_AUTHENTICATION);
     UtlString encodedToken;

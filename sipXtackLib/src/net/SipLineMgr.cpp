@@ -692,7 +692,7 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
     UtlBoolean createdResponse = FALSE;
     // Get the userId and password from the DB for the URI
     int sequenceNum;
-    int authorizationEntity = HttpMessage::SERVER;
+    HttpMessage::HttpEndpointEnum authorizationEntity = HttpMessage::SERVER;
     UtlString uri;
     UtlString method;
     UtlString nonce;
