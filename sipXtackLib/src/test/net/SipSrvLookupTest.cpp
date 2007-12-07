@@ -623,6 +623,8 @@ public:
          // If the actual results did not match the expected results,
          // print both.
          if (unexpected) {
+            failure_seen = 1;
+
             printf("\nSipSrvLookup::servers(\"%s\", \"%s\", OsSocket::%s, "
                    "%d) returns:\n",
                    tests[test_no].name, tests[test_no].service,
@@ -653,9 +655,6 @@ public:
             printf("Passed %d: %s\n", test_no, tests[test_no].name);
 #           endif
          }
-
-         // Compare the actual results with the expected results.
-         failure_seen |= (strcmp(result_string, tests[test_no].expected) != 0);
 
          // Free the results list.
          delete[] p;
