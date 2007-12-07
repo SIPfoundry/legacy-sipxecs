@@ -269,7 +269,7 @@ int SipUdpServer::run(void* runArg)
             if(!rawAddress.isNull())
             {
                 OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipUdpServer::run DNS lookup failed for ping host: %s in URI: %s",
+                    "SipUdpServer::run DNS lookup failed for ping host '%s' derived from URI '%s'",
                     rawAddress.data(), mNatPingUrl.data());
             }
             // Else no ping address, this means we are not supposed to
