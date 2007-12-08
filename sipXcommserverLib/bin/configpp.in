@@ -114,7 +114,7 @@ fi
 
 extract_cr "$PARM_DEFS" "$PARM_IN"
 
-SCRIPT=`mktemp -t config-script.XXXXX`
+SCRIPT=`mktemp -t config-script.XXXXXX`
 
 cat > $SCRIPT << EOF
 #!@BASH@

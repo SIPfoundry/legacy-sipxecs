@@ -3,12 +3,9 @@ Required Software
 
 Non-SIPfoundry software:
 
-  Apache 2 (tested with 2.0.49)
+  Apache 2
     http://httpd.apache.org/
     On RedHat Enterprise "up2date httpd httpd-devel" installs what is needed.
-
-  Mod cplusplus 1.2 (also tested w/1.3)
-    http://modcplusplus.sourceforge.net/
 
   Expat (tested w/1.95.7)
     http://www.libexpat.org/
@@ -92,35 +89,6 @@ Special Software Installation Instructions
     the cgi programs installed by sipX will either not use the right shared
     memory and fail, or take ownership of it as the wrong user and
     everything else in sipXpbx will fail.
-
-
-+++ Installing mod_cplusplus
-    This is an apache plugin that's needed to run modules written in C++.
-
-  a.) Build in the distribution directory for mod_cplusplus as follows:
-
-      ./autogen.sh --with-httpd=/usr/local/apache2
-      gmake
-      gmake install
-
-  b.) The default install does not copy the shared library file to Apache's
-      preferred modules directory nor does it install the header files so
-      you should copy it as follows:
-
-      cp src/.libs/libmod_cplusplus.so* /usr/local/apache2/modules/
-      cp include/*.h /usr/local/apache2/include
-
- *On Gentoo use:
-      ln -s /usr/include/apache2 /usr/lib/apache2/include
-      ./autogen.sh --with-httpd=/usr/lib/apache2
-      gmake
-      cp src/.libs/libmod_cplusplus.so* /usr/lib/apache2-extramodules
-      cp include/*.h /usr/include/apache2
-
-   Also on Gentoo, If this bug is still unresolved, you'll have to
-   make an edit to your httpd.conf file: 
-
-      http://track.sipfoundry.org/browse/XPB-92
 
 
 Installation

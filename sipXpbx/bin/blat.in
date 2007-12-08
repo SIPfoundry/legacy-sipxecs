@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 
 help() {
         echo "$0 [-from FROM] [-name NAME] -to TO [-subject SUBJECT] [-body BODY] FILE"

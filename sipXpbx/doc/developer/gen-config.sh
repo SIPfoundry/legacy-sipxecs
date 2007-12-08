@@ -91,7 +91,12 @@ do
     user="${userNum}@${host}"
 
     ################# Credential ################
-    token=`echo -n "${userNum}:${host}:1234" | md5sum | cut -d " " -f 1`
+    if [ `uname -s` = FreeBSD ] ; then
+      MD5SUM="/sbin/md5 -r"
+    else
+      MD5SUM=md5sum
+    fi
+    token=`echo -n "${userNum}:${host}:1234" | $MD5SUM | cut -d " " -f 1`
     cat <<EOF >> ${CfgDir}/credential.xml
   <item>
     <uri>sip:${user}</uri>

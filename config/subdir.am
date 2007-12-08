@@ -15,8 +15,11 @@ LocalizeSipXconfig = sed \
 		  -e 's,@abs_top_srcdir\@,@abs_top_srcdir@,g' \
 		  -e 's,@CONFIGURE_OPTIONS\@,@CONFIGURE_OPTIONS@,g' \
 		  -e 's,@PREFIX\@,$(prefix),g' \
+		  -e 's,@DAILYDIR\@,@DAILYDIR@,g' \
+		  -e 's,@SERVICEDIR\@,@SERVICEDIR@,g' \
 		  -e 's,@bindir\@,$(bindir),g' \
 		  -e 's,@datadir\@,$(datadir),g' \
+		  -e 's,@sysconfdir\@,$(sysconfdir),g' \
 		  -e 's,@htmldir\@,@htmldir@,g' \
 		  -e 's,@INSTALL\@,@INSTALL@,g' \
 		  -e 's,@install_sh\@,@install_sh@,g' \

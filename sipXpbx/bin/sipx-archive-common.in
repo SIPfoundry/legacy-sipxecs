@@ -35,7 +35,8 @@ bad_usage() {
 postgresql_running() {
   if [ ! -f /var/run/postmaster*.pid -a \
        ! -f /var/lib/postgresql/data/postmaster*.pid -a \
-       ! -f /var/lib/pgsql/data/postmaster*.pid ]
+       ! -f /var/lib/pgsql/data/postmaster*.pid -a \
+       ! -f ~@POSTGRESQL_USER@/data/postmaster*.pid ]
   then
     echo "PostgreSQL does not appear to be running. You must start it in order to $OPERATION."
     exit 2

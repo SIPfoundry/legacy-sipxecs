@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 
 # This script runs as root and restarts SIPxchange if the IMDB locks up.
 
@@ -12,7 +12,7 @@ FILE=@SIPX_TMPDIR@/imdb.bad
 # A new copy of this script will be started as well.
 take_action() {
         rm "$FILE"
-        /etc/init.d/watchdog restart
+        @SERVICEDIR@/watchdog restart
         exit
 }
 

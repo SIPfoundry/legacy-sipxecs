@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 
 OPERATION="Backup"
 source @SIPX_BINDIR@/sipx-archive-common
@@ -175,7 +175,7 @@ then
 
   # Configuration database.
   echo -n "Copying the '$CONFIG_DATABASE_NAME' database contents..."
-  pg_dump -U postgres -F t $CONFIG_DATABASE_NAME > $DB_TAR
+  pg_dump -U @POSTGRESQL_USER@ -F t $CONFIG_DATABASE_NAME > $DB_TAR
   tar --remove-files -rf $CONFIG_BACKUP_TAR_FILE $DB_TAR
   echo "done."
 

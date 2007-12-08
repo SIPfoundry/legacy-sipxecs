@@ -4,10 +4,7 @@ include $(top_srcdir)/config/subdir.am
 bin_SCRIPTS = \
     ${PACKAGE}-config \
     analyze_483s \
-    ipcclean.pl \
-    blat \
-    check-fqdn \
-    sipx-archive-common
+    ipcclean.pl
 
 $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP
@@ -24,7 +21,10 @@ SCRIPT_TEMPLATES = \
 	sipx-snapshot.in \
 	sipx-backup.in \
 	sipx-restore.in \
-	sipxlocalization.in
+	sipxlocalization.in \
+	blat.in \
+	check-fqdn.in \
+	sipx-archive-common.in
 
 EXTRA_DIST = \
 	sipxpbx.in \
@@ -33,33 +33,34 @@ EXTRA_DIST = \
 	$(bin_SCRIPTS) \
 	$(SCRIPT_TEMPLATES)
 
-install-exec-hook : $(DESTDIR)$(sysconfdir)/init.d/sipxpbx bin-scripts \
-                    $(DESTDIR)$(sysconfdir)/cron.daily/voicemail_clean \
-                    $(DESTDIR)$(sysconfdir)/cron.daily/sipx-chkspace
+install-exec-hook : $(DESTDIR)@SERVICEDIR@/sipxpbx bin-scripts \
+                    $(DESTDIR)@DAILYDIR@/voicemail_clean \
+                    $(DESTDIR)@DAILYDIR@/sipx-chkspace
 	rm -f $(DESTDIR)$(bindir)/backup-mailstore.sh
 	rm -f $(DESTDIR)$(bindir)/restore-configs.sh
 	rm -f $(DESTDIR)$(bindir)/restore-mailstore.sh
 	rm -f $(DESTDIR)$(bindir)/backup-configs.sh
 
 
-$(DESTDIR)$(sysconfdir)/init.d/sipxpbx: $(sysconfdir)/init.d sipxpbx
-	$(INSTALL) -D -m 755 sipxpbx $(DESTDIR)$(sysconfdir)/init.d/sipxpbx
+$(DESTDIR)@SERVICEDIR@/sipxpbx: $(DESTDIR)@SERVICEDIR@ sipxpbx
+	$(INSTALL) -D -m 755 sipxpbx $(DESTDIR)@SERVICEDIR@/sipxpbx
 
 sipxpbx: sipxpbx.in
 	$(LocalizeSipXconfig) $(srcdir)/sipxpbx.in > sipxpbx
 
-$(DESTDIR)$(sysconfdir)/cron.daily/voicemail_clean: voicemail_clean.in
+$(DESTDIR)@DAILYDIR@/voicemail_clean: voicemail_clean.in
 	$(LocalizeSipXconfig) $(srcdir)/voicemail_clean.in > voicemail_clean
-	$(INSTALL) -D -m 755 voicemail_clean $(DESTDIR)$(sysconfdir)/cron.daily/voicemail_clean
+	$(INSTALL) -D -m 755 voicemail_clean $(DESTDIR)@DAILYDIR@/voicemail_clean
 
-$(DESTDIR)$(sysconfdir)/cron.daily/sipx-chkspace: sipx-chkspace.in
+$(DESTDIR)@DAILYDIR@/sipx-chkspace: sipx-chkspace.in
 	$(LocalizeSipXconfig) $(srcdir)/sipx-chkspace.in > sipx-chkspace
-	$(INSTALL) -D -m 755 sipx-chkspace $(DESTDIR)$(sysconfdir)/cron.daily/sipx-chkspace
+	$(INSTALL) -D -m 755 sipx-chkspace $(DESTDIR)@DAILYDIR@/sipx-chkspace
 
-$(sysconfdir)/init.d:
-	$(INSTALL) -d $(DESTDIR)$(sysconfdir)/init.d 
+$(DESTDIR)@SERVICEDIR@:
+	$(INSTALL) -d $(DESTDIR)@SERVICEDIR@
 
-bin-scripts: $(sysconfdir)/init.d
+# XXX - Why do we depend on servicedir (/etc/init.d) but install in bindir?
+bin-scripts: $(DESTDIR)@SERVICEDIR@
 	for s in $(SCRIPT_TEMPLATES); \
 	do \
 		tgt=`basename $$s .in`; \

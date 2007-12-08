@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 
 OPERATION="Restore"
 source @SIPX_BINDIR@/sipx-archive-common
@@ -161,7 +161,7 @@ fi
 
 # Stop all services.  After this point, the script MUST NOT exit without
 # starting all the services back up again.
-/bin/bash -p @SIPX_CONFDIR@/../init.d/sipxpbx stop
+@BASH@ -p @SERVICEDIR@/sipxpbx stop
 
 # *** BEGIN Configuration ***
 PATH_DB_TAR=@SIPX_BACKUPDIR@/$DB_TAR
@@ -185,10 +185,10 @@ then
   fi
   CREATEDB=$PSQL_PATH/createdb
 
-  $DROPDB -U postgres $CONFIG_DATABASE_NAME > /dev/null
-  $CREATEDB -U postgres --encoding=UNICODE $CONFIG_DATABASE_NAME > /dev/null
+  $DROPDB -U @POSTGRESQL_USER@ $CONFIG_DATABASE_NAME > /dev/null
+  $CREATEDB -U @POSTGRESQL_USER@ --encoding=UNICODE $CONFIG_DATABASE_NAME > /dev/null
   tar -xzvC @SIPX_BACKUPDIR@ $DB_TAR < $CONFIGURATION_PATH
-  cat $PATH_DB_TAR | pg_restore -U postgres -d $CONFIG_DATABASE_NAME 2> /dev/null
+  cat $PATH_DB_TAR | pg_restore -U @POSTGRESQL_USER@ -d $CONFIG_DATABASE_NAME 2> /dev/null
   rm $PATH_DB_TAR
   echo "done."
 
@@ -211,4 +211,4 @@ then
 fi # *** END Voicemail ***
 
 # Start all services.
-/bin/bash -p @SIPX_CONFDIR@/../init.d/sipxpbx start
+@BASH@ -p @SERVICEDIR@/sipxpbx start

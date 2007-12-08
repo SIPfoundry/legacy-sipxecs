@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 
 #
 # Check that the hostname for this host is a well formed name such as:

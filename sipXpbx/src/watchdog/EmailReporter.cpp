@@ -8,7 +8,11 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#if defined(__FreeBSD__)
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 
 // APPLICATION INCLUDES
 #include "os/OsConnectionSocket.h"

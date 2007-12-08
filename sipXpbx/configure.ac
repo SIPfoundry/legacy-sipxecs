@@ -16,6 +16,7 @@ AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
 
 # Checks for programs.
+AC_PATH_PROG([BASH], [bash])
 AC_PROG_CXX
 AX_COMPILER_VENDOR
 AC_PROG_CC
@@ -47,6 +48,26 @@ CHECK_GIPSNEQ
 # Java
 CHECK_JDK
 CHECK_ANT
+
+AC_ARG_WITH([postgresql_user],
+  AC_HELP_STRING([--with-postgresql_user=username],
+    [The PostgreSQL user, default is postgres]),
+  [POSTGRESQL_USER=${withval}],[POSTGRESQL_USER=postgres])
+AC_SUBST([POSTGRESQL_USER])
+
+# This allows configuring where the periodic scripts get installed
+AC_ARG_WITH([dailydir],
+  AC_HELP_STRING([--with-dailydir=directory],
+    [The directory containing scripts that are run every night]),
+  [DAILYDIR=${withval}],[DAILYDIR='$(sysconfdir)/cron.daily'])
+AC_SUBST([DAILYDIR])
+
+# This allows configuring where the script that starts sipXecs gets installed
+AC_ARG_WITH([servicedir],
+  AC_HELP_STRING([--with-servicedir=directory],
+    [The directory containing scripts that start services]),
+  [SERVICEDIR=${withval}],[SERVICEDIR='$(sysconfdir)/init.d'])
+AC_SUBST([SERVICEDIR])
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([bin/Makefile])

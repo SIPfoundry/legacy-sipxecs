@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 # voicemail_clean.sh: cleans up deleted voicemail messages older than n days.
 # where a day is defined as a 24 hour period.
 # If a message has been deleted, restored, saved or moved in some other 

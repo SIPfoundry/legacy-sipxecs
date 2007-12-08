@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 #
 
 # Check the localization package file and specified directories
