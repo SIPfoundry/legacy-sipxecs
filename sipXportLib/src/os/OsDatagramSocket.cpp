@@ -75,6 +75,9 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
                   ,remoteHost != NULL ? remoteHost : "[null]", remoteHostPortNum);
 
     int                error = 0;
+#ifdef IP_MTU_DISCOVER
+    int                pmtuDiscover; 
+#endif
     struct sockaddr_in localAddr;
 
     // Verify socket layer is initialized.
@@ -112,6 +115,26 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
 
         goto EXIT;
     }
+
+    // Set Socket Options: IP_MTU_DISCOVER to DONT: Do not set dontfrag bit in
+    // IP header
+#ifdef IP_MTU_DISCOVER
+    pmtuDiscover = IP_PMTUDISC_DONT ;
+    error = setsockopt(socketDescriptor, IPPROTO_IP, IP_MTU_DISCOVER, &pmtuDiscover, sizeof(pmtuDiscover)) ;
+    if (error != 0)
+    {
+        static bool bReported = false ;
+        // Failure to set the socket option isn't a show-stopper, but should
+        // be noted (and not spammed).
+        if (!bReported)
+        {
+            bReported = true ;
+            OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                    "OsDatagramSocket::_ socket %d failed to set IP_MTU_DISCOVER (rc=%d, errno=%d)",
+                    socketDescriptor, error,  OsSocketGetERRNO());
+        }
+    }
+#endif
 
     // Bind to the socket
     memset(&localAddr, 0, sizeof(localAddr));
