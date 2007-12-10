@@ -1,6 +1,7 @@
 
 EXTRA_DIST = \
-    sipxdialog-config.in
+    sipxdialog-config.in \
+    sipxdialog-config.in.map
 
 install-data-hook :
 	@for f in $(EXTRA_DIST); \

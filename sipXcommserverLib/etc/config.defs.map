@@ -6,5 +6,8 @@
 # to suppress copying:
 #   - : {original key from old config file}
 
-# Don't rename this value, because we want to change its value as well.
-- : SIP_REDIRECT.999-AUTHROUTER.AUTH_PROXY
+# Delete the separate authproxy configuration.
+- : AUTH_PROXY_SERVER_ADDR=${MY_IP_ADDR}
+- : AUTH_PROXY_SERVER_SIP_PORT=5080
+- : AUTH_PROXY_SERVER_SIP_SECURE_PORT=5081
+- : AUTH_PROXY_SERVER_SIP_SRV_OR_HOSTPORT=${AUTH_PROXY_SERVER_ADDR}:${AUTH_PROXY_SERVER_SIP_PORT}

@@ -6,5 +6,4 @@
 # to suppress copying:
 #   - : {original key from old config file}
 
-# Don't rename this value, because we want to change its value as well.
-- : SIP_REDIRECT.999-AUTHROUTER.AUTH_PROXY
+SIP_DIALOG_MONITOR_LOG_CONSOLE : SIP_PDIALOG_MONITOR_LOG_CONSOLE

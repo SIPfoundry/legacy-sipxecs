@@ -1,18 +1,10 @@
-# A mapping of the "NEW" keys in authproxy-config.in to the old ones.
-# used by configmerge to upgrade a system from the old to the new 
-# configuration keys.   Additional keys are added/removed from the 
-# authproxy-config.in file delivered with the new RPM.  
-#
-# It is safe to apply the same map multiple times, although it is
-# expected that this map be reset on each upgrade.
-#
-# Upgrades that need no mapping may have the map empty, or the
-# file may be non-existant.
-#
-# The rule is:
-#  {key in new config file} : {original key from old config file}
-#
-# These values map 3.10 to 3.8.
+# Specify how to rename old configuration values.
+# Lines are:
+#   {key in new config file} : {original key from old config file}
+# Values in the old config file that are not known will be carried
+# into the new config file intact, unless there is a rule like this
+# to suppress copying:
+#   - : {original key from old config file}
 
 SIP_AUTHPROXY_HOOK_LIBRARY.400_authrules : SIP_AUTHPROXY_HOOK_LIBRARY.authrules
 SIP_AUTHPROXY.400_authrules.RULES        : SIP_AUTHPROXY.authrules.RULES
