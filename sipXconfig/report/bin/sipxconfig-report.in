@@ -42,6 +42,12 @@ def parse(args)
       exit
     end
 
+    opts.on_tail("--setup", "Configure postgres to allow connection and create database") do 
+      setuppg
+      createdb
+      exit
+    end
+
     opts.on_tail("--dropdb", "Drop postgres database") do 
       dropdb
       exit
@@ -62,6 +68,12 @@ def parse(args)
       if db_exists == "0"
         `#{CREATEDB} -U #{DB_USER} #{DB_NAME}`
         `#{$psql} -U #{DB_USER} #{DB_NAME} < @SIPX_CONFDIR@/report/schema.sql`
+      end
+    end
+
+    def setuppg
+      if ! system('@bindir@/pgpatch.sh')
+        raise "could not patch postgres setup"        
       end
     end
         

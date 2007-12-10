@@ -40,9 +40,21 @@ postgresService() {
     fi
 }
 
+# Make sure we are running as root during installation setup
+assertRoot() {
+    user=`whoami`
+    if [ "${user}" != "root" ]; then
+      echo "Error: Must be root to run this setup script."
+      exit 1
+    fi
+}
+
+
 # Configure postgres to accept TCP connections for communication
 # from Java
 postgresSetup() {
+
+  assertRoot
 
   # Set up the server.
   Service=`postgresService`
@@ -151,6 +163,13 @@ setPostgresRunlevels() {
     fi
 }
 
+exitIfUnnecessary() {
+  if ${Psql} -U postgres -l &>/dev/null; then
+    echo "Postgres already allows connections"
+    exit 0
+  fi
+}
+
 while [ $# -ne 0 ]
 do
     case ${1} in
@@ -164,6 +183,7 @@ done
 
 if [ ${Action} = RUN ]
 then
+  exitIfUnnecessary
   postgresSetup
   setPostgresRunlevels
 elif [ ${Action} = HELP ]
@@ -171,7 +191,7 @@ then
 cat <<USAGE
 Usage: pgpatch.sh [-h|--help]
                      
-Patches PostgresSQL cinfuguration file to initialize postgresql for communicating 
+Patches PostgresSQL configuration file to initialize postgresql for communicating 
 with sipxconfig and sipxproxy and create initial database. Will most likely need 
 root permissions.
 
