@@ -8,7 +8,8 @@ EXTRA_DIST = \
 
 install-data-hook : \
 		$(DESTDIR)$(SIPX_PROCDIR)/keepalive.process.xml \
-		$(DESTDIR)$(sysconfdir)/sipxpbx/config.defs
+		$(DESTDIR)$(sysconfdir)/sipxpbx/config.defs \
+		$(DESTDIR)$(sysconfdir)/sipxpbx/config.defs.map
 
 $(DESTDIR)$(sysconfdir)/sipxpbx/config.defs: config.defs
 	if [ -f $(DESTDIR)$(sysconfdir)/sipxpbx/config.defs ]; \
@@ -22,3 +23,6 @@ $(DESTDIR)$(sysconfdir)/sipxpbx/config.defs: config.defs
 
 config.defs : $(srcdir)/config.defs.in 
 		$(LocalizeSipXconfig) $(srcdir)/config.defs.in > config.defs;
+
+$(DESTDIR)$(sysconfdir)/sipxpbx/config.defs.map : config.defs.map
+	$(INSTALL) -D -m 644 $< $@
