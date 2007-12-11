@@ -1585,6 +1585,12 @@ class FASTDB_DLL_ENTRY dbDatabase {
      */
     void markAsAllocated(offs_t pos, int objBitSize);
 
+    void monStatus(char *func)
+    {
+       char buf[128];
+       sprintf(buf, "%s: nReaders=%d nWaitReaders=%d nWriters=%d nWaitWriters=%d", func, monitor->nReaders, monitor->nWaitReaders, monitor->nWriters, monitor->nWaitWriters);
+       wtf::log(buf, NULL);
+    }
 };
 
 

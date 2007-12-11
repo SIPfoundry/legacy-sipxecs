@@ -91,7 +91,7 @@ class wtf {
          gmtime_r(&timespec.tv_sec, &tmp);
          char timeStr[64] ;
          strftime(timeStr, sizeof(timeStr), "%T", &tmp) ;
-         snprintf(buf, sizeof(buf)-1, "%d(%s):%p %p %s:%03ld %s\n", pid, procName, tid, obj, timeStr, timespec.tv_nsec/1000, msg) ;
+         snprintf(buf, sizeof(buf)-1, "%d(%s):%p %p %s:%03ld %s\n", pid, procName, (void *)tid, obj, timeStr, timespec.tv_nsec/1000, msg) ;
          write(fd, buf, strlen(buf)) ;
          close(fd);
      }
@@ -102,6 +102,7 @@ class wtf {
         sem_getvalue(sem, &sval) ;
         return sval ;
      }
+
 };
 
 class dbMutex { 
@@ -864,7 +865,7 @@ public:
 
       pthread_mutex_lock(&mutex) ;
 
-      sprintf(buf, "sipXlock::lock begin mutex count=%d owner=%p", count, owner) ;
+      sprintf(buf, "sipXlock::lock begin mutex count=%d owner=%p", count, (void *)owner) ;
       wtf::log(buf, NULL) ;
       if (count == 0)
       {
@@ -882,7 +883,7 @@ public:
          owner = pthread_self() ;
       }
       count++ ;
-      sprintf(buf, "sipXlock::lock end count=%d owner=%p", count, owner) ;
+      sprintf(buf, "sipXlock::lock end count=%d owner=%p", count, (void *)owner) ;
       wtf::log(buf, NULL) ;
       pthread_mutex_unlock(&mutex) ;
    }
@@ -891,7 +892,7 @@ public:
       char buf[128] ;
 
       pthread_mutex_lock(&mutex) ;
-      sprintf(buf, "sipXlock::unlock count=%d owner=%p", count, owner) ;
+      sprintf(buf, "sipXlock::unlock count=%d owner=%p", count, (void *)owner) ;
       wtf::log(buf, NULL) ;
       assert(owner == pthread_self()) ;
       if (--count == 0)
