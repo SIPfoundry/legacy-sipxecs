@@ -233,6 +233,8 @@ void ResourceCached::generateBody(UtlString& rlmi,
       // Create a single HttpBody to contain the unified dialog event.
       UtlString dialog_event;
 
+      // XML declaration is optional, but Broadworks uses it.
+      dialog_event += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
       dialog_event += BEGIN_DIALOG_INFO;
       dialog_event += VERSION_EQUAL;
       dialog_event += "\"";
