@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
+import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 
 /**
  * Interaction with PresenceServer
@@ -81,13 +82,18 @@ public class PresenceServerImpl implements PresenceServer {
     }
 
     Hashtable userAction(SignIn api, String actionId, User user) {
-        Hashtable action = new Hashtable();
-        String domainName = m_coreContext.getDomainName();
-        action.put(OBJECT_CLASS_KEY, SignIn.OBJECT_CLASS_ID);
-        action.put(actionId, user.getUri(domainName));
-        Hashtable response = api.action(action);
-        checkErrorCode(response);
-        return response;
+        try {
+            Hashtable action = new Hashtable();
+            String domainName = m_coreContext.getDomainName();
+            action.put(OBJECT_CLASS_KEY, SignIn.OBJECT_CLASS_ID);
+            action.put(actionId, user.getUri(domainName));
+            Hashtable response = api.action(action);
+            checkErrorCode(response);
+            return response;
+        } catch (XmlRpcRemoteException e) {
+            LOG.error("XML/RPC related problems in presence service.", e);
+            throw new SignInException(e.getCause().getMessage());
+        }
     }
 
     static void checkErrorCode(Hashtable response) {

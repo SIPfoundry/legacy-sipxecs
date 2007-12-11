@@ -26,7 +26,12 @@ public class XmlRpcRemoteException extends RuntimeException {
         super(e.getMessage(), e.getCause());
         m_faultCode = e.code;
     }
-    
+
+    public XmlRpcRemoteException(Exception e) {
+        super(e.getMessage(), e);
+        m_faultCode = 0;
+    }
+
     public int getFaultCode() {
         return m_faultCode;
     }

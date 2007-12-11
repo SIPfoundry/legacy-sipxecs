@@ -33,7 +33,6 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
-import org.sipfoundry.sipxconfig.acd.AcdContextImpl;
 import org.sipfoundry.sipxconfig.acd.AcdQueue;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.common.NamedObject;
@@ -44,7 +43,7 @@ import org.sipfoundry.sipxconfig.common.User;
  * Provides real-time statistics on ACD calls, agent and queues.
  */
 public class AcdStatisticsImpl implements AcdStatistics {
-    private static final Log LOG = LogFactory.getLog(AcdContextImpl.class);
+    private static final Log LOG = LogFactory.getLog(AcdStatisticsImpl.class);
 
     private String m_queueUri;
 
@@ -118,7 +117,7 @@ public class AcdStatisticsImpl implements AcdStatistics {
             return Collections.EMPTY_LIST;
         }
     }
-    
+
     List getStats(Object[] rawStats, Transformer transformer, Predicate filter) {
         List stats = new ArrayList(Arrays.asList(rawStats));
         CollectionUtils.transform(stats, transformer);

@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.xmlrpc;
 
+import java.net.ConnectException;
+
 import junit.framework.TestCase;
 
 import org.apache.xmlrpc.XmlRpcClient;
@@ -60,6 +62,56 @@ public class XmlRpcClientInterceptorMockTest extends TestCase {
         } catch (XmlRpcRemoteException e) {
             assertEquals(2, e.getFaultCode());
             assertEquals("message", e.getMessage());
+        }
+
+        mcClient.verify();
+    }
+
+    public void testInterceptRuntimeException() throws Exception {
+        IMocksControl mcClient = org.easymock.classextension.EasyMock.createControl();
+        XmlRpcClient client = mcClient.createMock(XmlRpcClient.class);
+        client.execute(anyRequest());
+        mcClient.andThrow(new NullPointerException());
+        mcClient.replay();
+
+        XmlRpcClientInterceptor interceptor = new XmlRpcClientInterceptor();
+        interceptor.setServiceInterface(TestFunctions.class);
+        interceptor.setXmlRpcClient(client);
+
+        TestFunctions proxy = (TestFunctions) ProxyFactory.getProxy(TestFunctions.class,
+                interceptor);
+
+        try {
+            proxy.multiplyTest("x", 5);
+            fail("Should throw exception");
+        } catch (NullPointerException e) {
+            // ok
+        }
+
+        mcClient.verify();
+    }
+
+    public void testInterceptConnectionException() throws Exception {
+        IMocksControl mcClient = org.easymock.classextension.EasyMock.createControl();
+        XmlRpcClient client = mcClient.createMock(XmlRpcClient.class);
+        client.execute(anyRequest());
+        mcClient.andThrow(new ConnectException("test"));
+        mcClient.replay();
+
+        XmlRpcClientInterceptor interceptor = new XmlRpcClientInterceptor();
+        interceptor.setServiceInterface(TestFunctions.class);
+        interceptor.setXmlRpcClient(client);
+
+        TestFunctions proxy = (TestFunctions) ProxyFactory.getProxy(TestFunctions.class,
+                interceptor);
+
+        try {
+            proxy.multiplyTest("x", 5);
+            fail("Should throw exception");
+        } catch (XmlRpcRemoteException e) {
+            assertEquals(0, e.getFaultCode());
+            assertEquals("test", e.getMessage());
+            assertTrue(e.getCause() instanceof ConnectException);
         }
 
         mcClient.verify();

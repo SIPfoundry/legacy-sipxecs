@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
@@ -60,8 +58,8 @@ public abstract class AcdPresenceServer extends BaseComponent implements PageBeg
         return status;
     }
     
-    public IPage refresh(IRequestCycle cycle) {
-        return cycle.getPage();
+    public void refresh() {
+        // empty
     }
     
     public void signIn() {

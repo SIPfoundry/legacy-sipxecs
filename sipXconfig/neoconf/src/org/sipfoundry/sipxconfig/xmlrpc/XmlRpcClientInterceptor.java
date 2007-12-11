@@ -48,13 +48,18 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
             Object result = m_xmlRpcClient.execute(request);
             // strangely execute returns exceptions, instead of throwing them
             if (result instanceof XmlRpcException) {
-                XmlRpcException e = (XmlRpcException) result;
-                // translating to runtime exception
-                throw new XmlRpcRemoteException(e);
+                // let catch block translate it
+                throw (XmlRpcException) result;
             }
             return result;
         } catch (XmlRpcException e) {
             // in cases execute throws exception - we still need to translate
+            throw new XmlRpcRemoteException(e);
+        } catch (RuntimeException e) {
+            // do not repackage RuntimeExceptions
+            throw e;
+        } catch (Exception e) {
+            // repackage only checked exceptions
             throw new XmlRpcRemoteException(e);
         }
     }
