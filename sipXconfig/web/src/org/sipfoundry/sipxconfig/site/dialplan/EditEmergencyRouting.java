@@ -66,7 +66,6 @@ public abstract class EditEmergencyRouting extends PageWithCallback implements P
         }
         DialPlanContext manager = getDialPlanContext();
         manager.storeEmergencyRouting(getEmergencyRouting());
-        manager.applyEmergencyRouting();
     }
 
     /**
