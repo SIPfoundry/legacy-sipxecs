@@ -22,7 +22,7 @@
       </documentation>
     </annotation>
     <restriction base="normalizedString">
-      <pattern value="[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)+">
+      <pattern value="[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)*">
         <annotation>
           <documentation>dns_token(\.dns_token)+</documentation>
         </annotation>
@@ -37,7 +37,7 @@
       </documentation>
     </annotation>
     <restriction base="normalizedString">
-      <pattern value="[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)+(:[0-9]+)?">
+      <pattern value="[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)*(:[0-9]+)?">
         <annotation>
           <documentation>dns_token(\.dns_token)+(:port)?</documentation>
         </annotation>
@@ -88,7 +88,7 @@
       <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
     </annotation>
     <restriction base="normalizedString">
-      <pattern value="([a-zA-Z0-9\-_.!~*'()&#x26;=+$,;?/]|%[0-9a-fA-F][0-9a-fA-F])+@[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)+(:[0-9]+)?">
+      <pattern value="([a-zA-Z0-9\-_.!~*'()&#x26;=+$,;?/]|%[0-9a-fA-F][0-9a-fA-F])+@[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)*(:[0-9]+)?">
          <annotation>
            <documentation>@dns_name_port</documentation>
          </annotation>
