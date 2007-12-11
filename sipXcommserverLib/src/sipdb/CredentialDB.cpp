@@ -216,6 +216,7 @@ CredentialDB::load()
 OsStatus
 CredentialDB::store()
 {
+    sipXguard Guard ;
     // Critical Section here
     OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
@@ -332,6 +333,7 @@ CredentialDB::insertRow (
     const UtlString& pinToken,
     const UtlString& authType )
 {
+    sipXguard Guard ;
     UtlBoolean result = FALSE;
     UtlString identity;
     uri.getIdentity(identity);
@@ -390,6 +392,7 @@ void CredentialDB::removeRows (
     const Url& uri,
     const UtlString& realm )
 {
+    sipXguard Guard ;
     UtlString identity;
     uri.getIdentity(identity);
     if ( !identity.isNull() && (m_pFastDB != NULL))
@@ -418,6 +421,7 @@ void CredentialDB::removeRows (
 void
 CredentialDB::removeRows ( const Url& uri )
 {
+    sipXguard Guard ;
     UtlString identity;
     uri.getIdentity(identity);
 
@@ -446,6 +450,7 @@ CredentialDB::removeRows ( const Url& uri )
 void
 CredentialDB::removeAllRows ()
 {
+    sipXguard Guard ;
     if ( m_pFastDB != NULL ) 
     {
         // Thread Local Storage
@@ -470,6 +475,7 @@ CredentialDB::removeAllRows ()
 void
 CredentialDB::getAllRows( ResultSet& rResultSet ) const
 {
+    sipXguard Guard ;
     // Clear the out any previous records
     rResultSet.destroyAll();
 
@@ -527,6 +533,7 @@ CredentialDB::getCredentialByUserid (
     UtlString& passtoken,
     UtlString& authType ) const
 {
+    sipXguard Guard ;
     UtlBoolean found = FALSE;
 
     UtlString identity;
@@ -568,6 +575,7 @@ CredentialDB::getCredential (
     UtlString& passtoken,
     UtlString& authType ) const
 {
+    sipXguard Guard ;
     UtlBoolean found = FALSE;
 
     if ( !userid.isNull() && !realm.isNull() && (m_pFastDB != NULL) )
@@ -603,6 +611,7 @@ CredentialDB::getCredential (
     UtlString& passtoken,
     UtlString& authType ) const
 {
+    sipXguard Guard ;
     UtlBoolean found = FALSE;
 
     UtlString identity;
@@ -645,6 +654,7 @@ UtlBoolean CredentialDB::getUserPin (
    UtlString& authType 
                                      ) const 
 {
+   sipXguard Guard ;
    UtlBoolean found = FALSE;
 
    UtlString identity;
@@ -688,6 +698,7 @@ UtlBoolean CredentialDB::getUserPin (
    UtlString& authType 
                        ) const
 {
+   sipXguard Guard ;
    UtlBoolean found = FALSE;
 
    if ( !userid.isNull() && !realm.isNull() && (m_pFastDB != NULL) )
@@ -721,6 +732,7 @@ CredentialDB::getAllCredentials (
     const Url& uri,
     ResultSet& rResultSet ) const
 {
+    sipXguard Guard ;
     UtlString identity;
     uri.getIdentity(identity);
 
@@ -784,6 +796,7 @@ CredentialDB::isUriDefined (
     UtlString& realm,
     UtlString& authType ) const
 {
+    sipXguard Guard ;
     UtlBoolean found = FALSE;
 
     UtlString identity;

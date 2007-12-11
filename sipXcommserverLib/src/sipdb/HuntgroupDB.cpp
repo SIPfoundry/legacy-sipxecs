@@ -182,6 +182,7 @@ HuntgroupDB::load()
 OsStatus
 HuntgroupDB::store()
 {
+    sipXguard Guard ;
     // Critical Section here
     OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
@@ -290,6 +291,7 @@ HuntgroupDB::insertRow (const UtlHashMap& nvPairs)
 UtlBoolean
 HuntgroupDB::insertRow ( const Url& identity )
 {
+    sipXguard Guard ;
     UtlBoolean result = FALSE;
 
     UtlString identityStr;
@@ -325,6 +327,7 @@ HuntgroupDB::insertRow ( const Url& identity )
 UtlBoolean
 HuntgroupDB::removeRow ( const Url& identity )
 {
+    sipXguard Guard ;
     UtlBoolean removed = FALSE;
     UtlString identityStr;
     identity.getIdentity(identityStr);
@@ -352,6 +355,7 @@ HuntgroupDB::removeRow ( const Url& identity )
 void
 HuntgroupDB::removeAllRows ()
 {
+    sipXguard Guard ;
     if ( m_pFastDB != NULL)
     {
         // Thread Local Storage
@@ -371,6 +375,7 @@ HuntgroupDB::removeAllRows ()
 void
 HuntgroupDB::getAllRows(ResultSet& rResultSet) const
 {
+    sipXguard Guard ;
     // Clear the out any previous records
     rResultSet.destroyAll();
 
@@ -404,6 +409,7 @@ HuntgroupDB::getAllRows(ResultSet& rResultSet) const
 UtlBoolean
 HuntgroupDB::isHuntGroup ( const Url& identity ) const
 {
+    sipXguard Guard ;
     UtlBoolean isHuntGroup = FALSE;
 
     UtlString identityStr;

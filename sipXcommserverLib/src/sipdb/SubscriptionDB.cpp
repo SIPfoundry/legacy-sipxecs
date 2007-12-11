@@ -210,6 +210,7 @@ SubscriptionDB::load()
 OsStatus
 SubscriptionDB::store()
 {
+    sipXguard Guard ;
     // Critical Section here
     OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
@@ -382,6 +383,7 @@ SubscriptionDB::insertRow (
     const UtlString& accept,
     const int& version)
 {
+    sipXguard Guard ;
     UtlBoolean result = FALSE;
     if ( !uri.isNull() && ( m_pFastDB != NULL ) )
     {
@@ -527,6 +529,7 @@ SubscriptionDB::removeRow (
     const UtlString& callid,
     const int& subscribeCseq )
 {
+    sipXguard Guard ;
     if ( m_pFastDB != NULL )
     {
         // Thread Local Storage
@@ -588,6 +591,7 @@ SubscriptionDB::removeErrorRow (
    const UtlString& from,        
    const UtlString& callid )
 {
+   sipXguard Guard ;
    if ( m_pFastDB != NULL )
    {
       // Thread Local Storage
@@ -643,6 +647,7 @@ SubscriptionDB::subscriptionExists (
    const UtlString& callid,
    const int timeNow )
 {
+   sipXguard Guard ;
    UtlBoolean ret = FALSE;
 
    if ( m_pFastDB != NULL )
@@ -669,6 +674,7 @@ void
 SubscriptionDB::removeRows (
    const UtlString& key )
 {
+    sipXguard Guard ;
     if ( !key.isNull() && (m_pFastDB != NULL) )
     {
         // Thread Local Storage
@@ -690,6 +696,7 @@ SubscriptionDB::removeRows (
 void
 SubscriptionDB::removeAllRows ()
 {
+    sipXguard Guard ;
     if ( m_pFastDB != NULL )
     {
         // Thread Local Storage
@@ -711,6 +718,7 @@ void
 SubscriptionDB::removeExpired( const UtlString& component,
                                const int timeNow )
 {
+   sipXguard Guard ;
    if (m_pFastDB != NULL)
    {
       // Thread Local Storage
@@ -727,6 +735,7 @@ SubscriptionDB::removeExpired( const UtlString& component,
 void
 SubscriptionDB::getAllRows ( ResultSet& rResultSet ) const
 {
+    sipXguard Guard ;
     // Clear the results
     rResultSet.destroyAll();
 
@@ -839,6 +848,7 @@ SubscriptionDB::updateNotifyUnexpiredSubscription (
         int updatedNotifyCseq,
         int version ) const
 {
+    sipXguard Guard ;
     if ( m_pFastDB != NULL )
     {
         // Thread Local Storage
@@ -916,6 +926,7 @@ SubscriptionDB::updateSubscribeUnexpiredSubscription (
         const int& expires,
         const int& updatedSubscribeCseq ) const
 {
+    sipXguard Guard ;
     bool ret = FALSE;
 
     if ( m_pFastDB != NULL )
@@ -990,6 +1001,7 @@ SubscriptionDB::getUnexpiredSubscriptions (
     const int& timeNow,
     ResultSet& rResultSet )
 {
+    sipXguard Guard ;
     // Clear the results
     rResultSet.destroyAll();
 
@@ -1104,6 +1116,7 @@ void SubscriptionDB::updateToTag(
    const UtlString& totag
    ) const
 {
+   sipXguard Guard ;
    bool match_found = FALSE;
    OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateFromAndTo callid = '%s', fromtag = '%s', totag = '%s'",
                  callid.data(), fromtag.data(), totag.data());
@@ -1184,6 +1197,7 @@ UtlBoolean SubscriptionDB::findFromAndTo(
    UtlString& from,
    UtlString& to) const
 {
+   sipXguard Guard ;
    bool match_found = FALSE;
 
    if ( m_pFastDB != NULL )
@@ -1237,6 +1251,7 @@ UtlBoolean SubscriptionDB::findFromAndTo(
 int SubscriptionDB::getMaxVersion(
    const UtlString& uri) const
 {
+   sipXguard Guard ;
    int value = 0;
 
    if ( m_pFastDB != NULL )

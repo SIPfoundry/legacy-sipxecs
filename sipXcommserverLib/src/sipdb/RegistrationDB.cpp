@@ -40,6 +40,7 @@ class SmartDbAccessor
 public:
    SmartDbAccessor(dbDatabase* fastDB, int lineNo) : mFastDB(fastDB), mLineNo(lineNo)
       {
+         sipXguard::lock() ;
          if (mFastDB != NULL)
          {
             mFastDB->attach();
@@ -55,6 +56,7 @@ public:
          {
             mFastDB->detach(0);
          }
+         sipXguard::unlock() ;
       }
 
 private:
@@ -242,6 +244,7 @@ OsStatus RegistrationDB::cleanAndPersist( int newerThanTime )
 
     if ( m_pFastDB != NULL )
     {
+        sipXguard Guard ;
         SMART_DB_ACCESS;
 
         // Purge all expired field entries from the DB

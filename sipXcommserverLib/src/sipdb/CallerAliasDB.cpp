@@ -109,6 +109,7 @@ void CallerAliasDB::insertRow(
    const UtlString alias     /// returned alias
                               )
 {
+   sipXguard Guard ;
    /*
     * The identity value may be the null string; this is a wildcard entry that matches
     * any caller to the given domain.
@@ -275,6 +276,7 @@ CallerAliasDB::store()
 
    // Critical Section while actually opening and using the database
    {
+      sipXguard Guard ;
       OsLock lock( sLockMutex );
 
       if ( mpFastDB != NULL ) 
@@ -337,6 +339,8 @@ CallerAliasDB::store()
 void
 CallerAliasDB::removeAllRows ()
 {
+   sipXguard Guard ;
+
    // Thread Local Storage
    if (mpFastDB != NULL) 
    {
@@ -366,6 +370,7 @@ bool CallerAliasDB::getCallerAlias (
    UtlString& callerAlias     /// returned alias
                      ) const
 {
+   sipXguard Guard ;
    /*
     * This first looks in the database for an exact match of identity and domain;
     *   if this match is found, the resulting alias is returned in callerAlias.

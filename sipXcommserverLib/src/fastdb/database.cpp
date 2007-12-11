@@ -1790,6 +1790,8 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
        initMutex.done() ;
     }
     monitor = shm.get();
+    sipxlock = sipXGlobal::getInstance() ;
+    sipxlock->init(shm.getFd()) ;
     sprintf(name, "%s.ws", dbName);
     if (!writeSem.open(name)) { 
         handleError(DatabaseOpenError, 
@@ -2791,6 +2793,14 @@ dbTableDescriptor* dbDatabase::lookupTable(dbTableDescriptor* origDesc)
     return NULL;
 }
 
+void dbDatabase::sipXlock()
+{
+    sipxlock->lock() ;
+}
+void dbDatabase::sipXunlock()
+{
+    sipxlock->unlock() ;
+}
 
 void dbDatabase::attach() 
 {
@@ -2800,9 +2810,10 @@ void dbDatabase::attach()
             dbCriticalSection cs(threadContextListMutex);
             threadContextList.link(ctx);
         }
-        threadContext.set(ctx);
+        attach(ctx);
     }
 }
+
 
 void dbDatabase::attach(dbDatabaseThreadContext* ctx)
 {

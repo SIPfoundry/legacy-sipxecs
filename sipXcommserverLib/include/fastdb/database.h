@@ -542,7 +542,10 @@ class FASTDB_DLL_ENTRY dbDatabase {
      * @param periodSec preiod of performing backups in seconds
      */
     void scheduleBackup(char const* fileName, time_t periodSec);
-    
+   
+    void sipXlock() ;
+    void sipXunlock() ;
+ 
     /**
      * Attach current thread to the database. This method should be executed
      * for all threads except one which opened the database.
@@ -911,6 +914,7 @@ class FASTDB_DLL_ENTRY dbDatabase {
 
     dbHashFunction hashFunction;
 
+    sipXGlobal                *sipxlock ;
     dbFile                    file;
     dbSharedObject<dbMonitor> shm;
     dbGlobalCriticalSection   cs;

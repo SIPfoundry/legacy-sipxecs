@@ -182,6 +182,7 @@ ExtensionDB::load()
 OsStatus
 ExtensionDB::store()
 {
+    sipXguard Guard ;
     // Critical Section here
     OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
@@ -291,6 +292,7 @@ ExtensionDB::insertRow (
     const Url& uri,
     const UtlString& extension )
 {
+    sipXguard Guard ;
     UtlBoolean result = FALSE;
 
     UtlString identity;
@@ -341,6 +343,7 @@ ExtensionDB::insertRow (
 UtlBoolean
 ExtensionDB::removeRow ( const Url& uri )
 {
+    sipXguard Guard ;
     UtlBoolean removed = FALSE;
     UtlString identity;
     uri.getIdentity(identity);
@@ -372,6 +375,7 @@ ExtensionDB::removeRow ( const Url& uri )
 void
 ExtensionDB::removeAllRows ()
 {
+    sipXguard Guard ;
     if ( m_pFastDB != NULL )
     {
         // Thread Local Storage
@@ -395,6 +399,7 @@ ExtensionDB::removeAllRows ()
 void
 ExtensionDB::getAllRows(ResultSet& rResultSet) const
 {
+    sipXguard Guard ;
     // Clear the out any previous records
     rResultSet.destroyAll();
 
@@ -435,6 +440,7 @@ ExtensionDB::getExtension (
     const Url& uri,
     UtlString& rExtesnion ) const
 {
+    sipXguard Guard ;
     UtlBoolean found = FALSE;
 
     UtlString identity;
@@ -472,6 +478,7 @@ ExtensionDB::getUri (
     const UtlString& extension,
     Url& rUri ) const
 {
+    sipXguard Guard ;
     UtlBoolean found = FALSE;
     if ( !extension.isNull() && (m_pFastDB != NULL) )
     {

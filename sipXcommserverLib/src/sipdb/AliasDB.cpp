@@ -180,6 +180,8 @@ AliasDB::load()
 OsStatus
 AliasDB::store()
 {
+    sipXguard Guard() ;
+
     // Critical Section here
     OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
@@ -290,6 +292,8 @@ AliasDB::insertRow (
     const Url& contact,
     bool updateContact )
 {
+    sipXguard Guard ;
+
     UtlBoolean result = FALSE;
     UtlString identityStr;
     identity.getIdentity(identityStr);
@@ -353,6 +357,7 @@ AliasDB::insertRow (
 UtlBoolean
 AliasDB::removeRow ( const Url& identity )
 {
+    sipXguard Guard ;
     UtlBoolean removed = FALSE;
     UtlString identityStr;
     identity.getIdentity(identityStr);
@@ -384,6 +389,7 @@ AliasDB::removeRow ( const Url& identity )
 void
 AliasDB::removeAllRows ()
 {
+    sipXguard Guard ;
     // Thread Local Storage
     if (m_pFastDB != NULL) 
     {
@@ -407,6 +413,7 @@ AliasDB::removeAllRows ()
 void
 AliasDB::getAllRows(ResultSet& rResultSet) const
 {
+    sipXguard Guard ;
     // Clear the out any previous records
     rResultSet.destroyAll();
 
@@ -447,6 +454,7 @@ AliasDB::getContacts (
     const Url& identity,
     ResultSet& rResultSet ) const
 {
+    sipXguard Guard ;
     UtlString identityStr;
     identity.getIdentity(identityStr);
 
@@ -497,6 +505,8 @@ AliasDB::getAliases (
     const Url& contactIdentity,
     ResultSet& rResultSet ) const
 {
+    sipXguard Guard ;
+
     UtlString contactIdentityStr;
     contactIdentity.getIdentity(contactIdentityStr);
 

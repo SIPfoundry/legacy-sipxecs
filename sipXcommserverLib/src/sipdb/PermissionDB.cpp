@@ -181,6 +181,7 @@ PermissionDB::load()
 OsStatus
 PermissionDB::store()
 {
+    sipXguard Guard ;
     // Critical Section here
     OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
@@ -290,6 +291,7 @@ PermissionDB::insertRow (
     const Url& identity,
     const UtlString& permission )
 {
+    sipXguard Guard ;
     UtlBoolean result = FALSE;
 
     UtlString identityStr;
@@ -334,6 +336,7 @@ PermissionDB::insertRow (
 UtlBoolean
 PermissionDB::removeRow ( const Url& identity, const UtlString& permission )
 {
+    sipXguard Guard ;
     UtlBoolean rc = FALSE;
     UtlString identityStr;
     identity.getIdentity(identityStr);
@@ -361,6 +364,7 @@ PermissionDB::removeRow ( const Url& identity, const UtlString& permission )
 void
 PermissionDB::removeRows ( const Url& identity )
 {
+    sipXguard Guard ;
     UtlString identityStr;
     identity.getIdentity(identityStr);
 
@@ -386,6 +390,7 @@ PermissionDB::removeRows ( const Url& identity )
 void
 PermissionDB::removeAllRows ()
 {
+    sipXguard Guard ;
     if ( m_pFastDB != NULL ) 
     {
         // Thread Local Storage
@@ -404,6 +409,7 @@ PermissionDB::removeAllRows ()
 void
 PermissionDB::getAllRows(ResultSet& rResultSet) const
 {
+    sipXguard Guard ;
     // Clear the results
     rResultSet.destroyAll();
 
@@ -443,6 +449,7 @@ PermissionDB::getIdentities (
     const UtlString& permission,
     ResultSet& rResultSet ) const
 {
+    sipXguard Guard ;
     // This should erase the contents of the existing resultset
     rResultSet.destroyAll();
 
@@ -490,6 +497,7 @@ PermissionDB::getPermissions (
     const Url& identity,
     ResultSet& rResultSet ) const
 {
+    sipXguard Guard ;
     UtlString identityStr;
     identity.getIdentity(identityStr);
 
@@ -539,6 +547,7 @@ PermissionDB::hasPermission (
     const Url& identity,
     const UtlString& permission ) const
 {
+    sipXguard Guard ;
     UtlBoolean hasPermission = FALSE;
     UtlString identityStr;
     identity.getIdentity(identityStr);

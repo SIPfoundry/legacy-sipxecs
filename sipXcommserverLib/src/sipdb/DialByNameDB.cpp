@@ -203,6 +203,7 @@ DialByNameDB::insertRow ( const UtlHashMap& nvPairs ) const
 UtlBoolean
 DialByNameDB::insertRow ( const Url& contact ) const
 {
+    sipXguard Guard ;
     UtlBoolean result = FALSE;
 
     if ( m_pFastDB != NULL )
@@ -334,6 +335,7 @@ DialByNameDB::getDigitStrings (
 UtlBoolean
 DialByNameDB::removeRow ( const Url& contact )
 {
+    sipXguard Guard ;
     UtlBoolean removed = FALSE;
     UtlString identity;
     contact.getIdentity(identity);
@@ -361,6 +363,7 @@ DialByNameDB::removeRow ( const Url& contact )
 void
 DialByNameDB::removeAllRows () const
 {
+    sipXguard Guard ;
     if (m_pFastDB != NULL )
     {
         // Thread Local Storage
@@ -380,6 +383,7 @@ DialByNameDB::removeAllRows () const
 void
 DialByNameDB::getAllRows(ResultSet& rResultSet) const
 {
+    sipXguard Guard ;
     // Clear the results
     rResultSet.destroyAll();
 
@@ -436,6 +440,7 @@ DialByNameDB::getContacts (
     const UtlString& digitString,
     ResultSet& rResultSet ) const
 {
+    sipXguard Guard ;
     // This should erase the contents of the existing resultset
     rResultSet.destroyAll();
 

@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/file.h>
 #include <assert.h>
 #include <errno.h>
 
@@ -802,6 +803,7 @@ class dbSharedObject {
         }
         if (fd > 0) { 
             ::close(fd);
+            fd = -1 ;
         }
     }
     void erase() {
@@ -809,9 +811,115 @@ class dbSharedObject {
         unlink(name);   
     }  
 
+    int getFd() {
+       return fd ;
+    }
+
     ~dbSharedObject() { 
         delete[] name;
     }
+};
+
+/**
+ * Systemwide global lock 
+ *  Based on flock on the shared memory file for processes
+ *  And a mutex for threads within processes
+ * 
+ * Reentrant (lock owner thread may relock)
+ *
+*/
+class sipXGlobal {
+
+   int fd ;
+   int count ;
+   pthread_t owner ;
+   pthread_mutex_t mutex ;
+   pthread_cond_t cond ;
+
+public:
+   static sipXGlobal* getInstance() {
+      static sipXGlobal *me ;   
+      if (me == NULL)
+      {
+         me = new sipXGlobal() ;
+      }
+      return me ;
+   }
+
+private:
+   sipXGlobal() {} 
+
+public:
+   void init(int fd) {
+      this->fd = fd ;
+      count = 0 ;
+      owner = 0 ;
+      pthread_mutex_init(&mutex, NULL) ;
+      pthread_cond_init(&cond, NULL) ;
+      wtf::log("sipXlock::sipXlock", NULL) ;
+   }
+   
+   void lock() {
+      char buf[128] ;
+
+      pthread_mutex_lock(&mutex) ;
+
+      sprintf(buf, "sipXlock::lock begin mutex count=%d owner=%p", count, owner) ;
+      wtf::log(buf, NULL) ;
+      if (count == 0)
+      {
+         assert(owner == 0) ;
+         int rc = ::flock(fd, LOCK_EX) ;
+         assert(rc == 0) ;
+         owner = pthread_self() ;
+      }
+      if (owner != pthread_self())
+      {
+         while(count != 0)
+         {
+            pthread_cond_wait(&cond, &mutex) ;
+         }
+         owner = pthread_self() ;
+      }
+      count++ ;
+      sprintf(buf, "sipXlock::lock end count=%d owner=%p", count, owner) ;
+      wtf::log(buf, NULL) ;
+      pthread_mutex_unlock(&mutex) ;
+   }
+
+   void unlock() {
+      char buf[128] ;
+
+      pthread_mutex_lock(&mutex) ;
+      sprintf(buf, "sipXlock::unlock count=%d owner=%p", count, owner) ;
+      wtf::log(buf, NULL) ;
+      assert(owner == pthread_self()) ;
+      if (--count == 0)
+      {
+         int rc = ::flock(fd, LOCK_UN) ;
+         assert(rc == 0) ;
+         owner = 0 ;
+         pthread_cond_broadcast(&cond) ;
+      }
+      pthread_mutex_unlock(&mutex) ;
+   }
+   
+};
+
+class sipXguard {
+   public:
+   sipXguard() {
+      sipXGlobal::getInstance()->lock() ;
+   }
+   ~sipXguard() {
+      sipXGlobal::getInstance()->unlock() ;
+   } 
+   static void lock() {
+      sipXGlobal::getInstance()->lock() ;
+   }
+   static void unlock() {
+      sipXGlobal::getInstance()->unlock() ;
+   }
 };
 
 #else // USE_POSIX_MMAP
