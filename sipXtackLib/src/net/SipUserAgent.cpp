@@ -666,7 +666,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
                               OsMsgQ* responseListener,
                               void* responseListenerData)
 {
-   if(mbShuttingDown)
+   if (mbShuttingDown || mbShutdownDone)
    {
       return FALSE;
    }
@@ -1379,7 +1379,7 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
 
 void SipUserAgent::dispatch(SipMessage* message, int messageType)
 {
-   if(mbShuttingDown)
+   if (mbShuttingDown || mbShutdownDone)
    {
        delete message;
        return;
@@ -2284,8 +2284,8 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                {
                    // If we are in shutdown mode, unlock the transaction
                    // and set it to null.  We pretend that the transaction
-                   // does not exist (i.e. noop).
-                   if(mbShuttingDown)
+                   // does not exist (i.e. no-op).
+                   if (mbShuttingDown || mbShutdownDone)
                    {
                        mSipTransactions.markAvailable(*transaction);
                        transaction = NULL;
@@ -2427,8 +2427,8 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                {
                    // If we are in shutdown mode, unlock the transaction
                    // and set it to null.  We pretend that the transaction
-                   // does not exist (i.e. noop).
-                   if(mbShuttingDown)
+                   // does not exist (i.e. no-op).
+                   if (mbShuttingDown || mbShutdownDone)
                    {
                        mSipTransactions.markAvailable(*transaction);
                        transaction = NULL;
