@@ -608,11 +608,6 @@ protected:
                                 const char* serverAddress,
                                 int port);
 
-    //! DNS SRV lookup for to address
-    void lookupSRVSipAddress(UtlString protocol,
-                             UtlString& sipAddress,
-                             int& port);
-
     int getReliableTransportTimeout();
 
     int getFirstResendTimeout();
