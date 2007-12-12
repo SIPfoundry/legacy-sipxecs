@@ -259,6 +259,7 @@ public:
     //! Destructor
     virtual
     ~SipUserAgent();
+    // You must call ::shutdown(TRUE) before calling the destructor.
 
 /* ============================ MANIPULATORS ============================== */
 
