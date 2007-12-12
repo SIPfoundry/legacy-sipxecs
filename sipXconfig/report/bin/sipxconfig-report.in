@@ -64,7 +64,7 @@ def parse(args)
     end
     
     def createdb
-      db_exists = `#{$psql} -U postgres -A -l | grep "^SIPXACD_HISTORY|" | wc -l`.chomp
+      db_exists = `#{$psql} -U #{DB_USER} -A -l | grep "^SIPXACD_HISTORY|" | wc -l`.chomp
       if db_exists == "0"
         `#{CREATEDB} -U #{DB_USER} #{DB_NAME}`
         `#{$psql} -U #{DB_USER} #{DB_NAME} < @SIPX_CONFDIR@/report/schema.sql`

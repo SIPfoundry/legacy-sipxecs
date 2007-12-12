@@ -82,6 +82,7 @@ if test x$enable_ruby_binding == xyes ; then
   AC_PATH_PROG([WSDL2RUBY], wsd2lruby.rb, $abs_srcdir/web/meta/wsdl2ruby.rb)
 fi
 
+CHECK_POSTGRES
 
 AC_CONFIG_FILES([
     Makefile

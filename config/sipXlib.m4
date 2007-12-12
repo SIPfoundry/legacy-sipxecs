@@ -630,3 +630,13 @@ AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],
   download_file="$abs_srcdir/config/download-file"
   AC_SUBST(DOWNLOAD_FILE, $download_file)
 ])
+
+
+AC_DEFUN([CHECK_POSTGRES],
+[
+  AC_ARG_WITH([postgresql_user],
+    AC_HELP_STRING([--with-postgresql_user=username],
+      [The PostgreSQL user, default is postgres]),
+    [POSTGRESQL_USER=${withval}],[POSTGRESQL_USER=postgres])
+  AC_SUBST([POSTGRESQL_USER])
+])

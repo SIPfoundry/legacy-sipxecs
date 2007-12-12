@@ -5,13 +5,17 @@ CRON_INSTALL = install-crontab
 endif
 
 EXTRA_DIST = \
-	sipxconfig-report-crontab.in
+	sipxconfig-report-crontab.in \
+	sipxconfig-report-config.in
 
 cfgdir = $(SIPX_CONFDIR)/report
 
 cfg_DATA = \
 	schema.sql \
 	sipxconfig-report-config
+
+sipxconfig-report-config : sipxconfig-report-config.in
+	$(LocalizeSipXconfig) $< > $@
 
 install-data-hook : $(CRON_INSTALL)
 

@@ -62,11 +62,7 @@ then
 fi
 AM_CONDITIONAL(ENABLE_CSE_TESTS, test x$enable_cse_tests = xyes)
 
-AC_ARG_WITH([postgresql_user],
-  AC_HELP_STRING([--with-postgresql_user=username],
-    [The PostgreSQL user, default is postgres]),
-  [POSTGRESQL_USER=${withval}],[POSTGRESQL_USER=postgres])
-AC_SUBST([POSTGRESQL_USER])
+CHECK_POSTGRES
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])

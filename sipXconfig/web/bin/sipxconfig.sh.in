@@ -28,6 +28,7 @@ Args=""
 : ${TmpDir:=@sipxpbx.tmp.dir@}
 : ${RunningUser:=@sipxpbx.user@}
 : ${StorePassword:=changeit}
+: ${PostgresUser:=@sipxconfig.db.user@}
 
 
 TEST_WRITE_ACCESS="\
@@ -206,7 +207,7 @@ onWebUi() {
 #  2. running but not setup to communicate w/java or ${Psql} command
 #  3. Database is not created
 databaseCheck() {
-    ${Psql} --list --field-separator , --no-align --username postgres \
+    ${Psql} --list --field-separator , --no-align --username ${PostgresUser} \
     | cut --delimiter , --fields 1 \
     | grep "${Database}" > /dev/null 2>&1
 }
@@ -216,7 +217,7 @@ databaseCheck() {
 databaseVersionCheck() {
     dbver=`${Psql} --tuples-only --no-align \
            --command "select max(vh.version) from version_history vh;" \
-           ${Database} postgres`
+           ${Database} ${PostgresUser}`
     if [ $? -ne 0 -o "$dbver" = "" ]
     then
         echo "Error: could not get the database version.  Exiting now."

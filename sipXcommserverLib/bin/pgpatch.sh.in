@@ -15,6 +15,7 @@ fi
 : ${Chown:=chown}
 : ${SubstituteUser:=su}
 : ${Psql:=psql}
+: ${PostgresUser:=@POSTGRESQL_USER@}
 
 # This function determines the correct service name for Postgres.
 postgresService() {
@@ -71,7 +72,7 @@ postgresSetup() {
   then
       if [ `uname -s` = FreeBSD ]
       then
-          PGDATA=~@POSTGRESQL_USER@/data
+          PGDATA=~${PostgresUser}/data
       elif test -d /var/lib/postgresql/data
       then
           # Gentoo
@@ -99,9 +100,9 @@ postgresSetup() {
       then
           if ${Psql} --version | grep '7.4' > /dev/null
           then
-              $SubstituteUser - @POSTGRESQL_USER@ -c "initdb --pgdata=$PGDATA" > /dev/null
+              $SubstituteUser - ${PostgresUser} -c "initdb --pgdata=$PGDATA" > /dev/null
           else
-              $SubstituteUser - @POSTGRESQL_USER@ -c "initdb --pgdata=$PGDATA --auth=trust" > /dev/null
+              $SubstituteUser - ${PostgresUser} -c "initdb --pgdata=$PGDATA --auth=trust" > /dev/null
           fi
       else
           ${ServiceDir}/$Service initdb > /dev/null
@@ -135,12 +136,12 @@ postgresSetup() {
   # Open up TCP/IP connections
   sed -i-sipx.bak -e 's/\#tcpip_socket\s=\sfalse/tcpip_socket = true/g' \
           $PGDATA/postgresql.conf
-  ${Chown} @POSTGRESQL_USER@:@POSTGRESQL_USER@ $PGDATA/postgresql.conf
+  ${Chown} ${PostgresUser}:${PostgresUser} $PGDATA/postgresql.conf
 
   # Postmaster to allow connections
   echo "-i" > $PGDATA/postmaster.opts.default
   chmod 664 $PGDATA/postmaster.opts.default
-  ${Chown} @POSTGRESQL_USER@:@POSTGRESQL_USER@ $PGDATA/postmaster.opts.default
+  ${Chown} ${PostgresUser}:${PostgresUser} $PGDATA/postmaster.opts.default
 
   ${ServiceDir}/$Service start
   # Wait 3 seconds to allow slow systems to start the db server
@@ -164,7 +165,7 @@ setPostgresRunlevels() {
 }
 
 exitIfUnnecessary() {
-  if ${Psql} -U postgres -l &>/dev/null; then
+  if ${Psql} -U ${PostgresUser} -l &>/dev/null; then
     echo "Postgres already allows connections"
     exit 0
   fi

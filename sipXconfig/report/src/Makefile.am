@@ -47,7 +47,7 @@ install-gem-for-rpm : package-gem
 	$(INSTALL) -m 644 pkg/sipXconfig-report-*.gem $(DESTDIR)@SIPX_VARLIB@
 
 check :
-	builddir=`pwd`; \
+	builddir=`pwd`; DB_USER=@POSTGRESQL_USER@; \
 	cd $(srcdir) && $(rake)
 
 $(DESTDIR)$(bindir)/sipxconfig-report : bin/sipxconfig-report.in
