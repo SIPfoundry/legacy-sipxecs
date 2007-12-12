@@ -1792,6 +1792,10 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
     monitor = shm.get();
     sipxlock = sipXGlobal::getInstance() ;
     sipxlock->init(shm.getFd()) ;
+
+    // Global lock now that the shared memory is available
+    sipXguard Guard ;
+
     sprintf(name, "%s.ws", dbName);
     if (!writeSem.open(name)) { 
         handleError(DatabaseOpenError, 

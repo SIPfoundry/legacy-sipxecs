@@ -1588,7 +1588,7 @@ class FASTDB_DLL_ENTRY dbDatabase {
     void monStatus(char *func)
     {
        char buf[128];
-       sprintf(buf, "%s: nReaders=%d nWaitReaders=%d nWriters=%d nWaitWriters=%d", func, monitor->nReaders, monitor->nWaitReaders, monitor->nWriters, monitor->nWaitWriters);
+       sprintf(buf, "monStatus %s: users=%d nReaders=%d nWaitReaders=%d nWriters=%d nWaitWriters=%d", func, monitor->users, monitor->nReaders, monitor->nWaitReaders, monitor->nWriters, monitor->nWaitWriters);
        wtf::log(buf, NULL);
     }
 };
