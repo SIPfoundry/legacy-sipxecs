@@ -31,7 +31,7 @@ install-doc: @PACKAGE@
 	rm -rf $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
 	@INSTALL@ -d $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
 	find @PACKAGE@ -type f -print \
-	| xargs -I % @INSTALL@ -m u=rw,go=r % $(DESTDIR)@SIPX_DOCDIR@/%
+	| xargs --replace=% @INSTALL@ -m u=rw,go=r % $(DESTDIR)@SIPX_DOCDIR@/%
 
 clean: clean-doc
 
