@@ -665,6 +665,9 @@ SubscriptionDB::subscriptionExists (
          "and callid=", callid,
          "and expires>=", timeNow;
       ret = cursor.select(query) > 0;
+
+      // Commit rows to memory - multiprocess workaround
+      m_pFastDB->detach(0);
    }
 
    return ret;
