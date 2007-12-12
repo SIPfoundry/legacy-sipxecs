@@ -16,9 +16,8 @@ import org.apache.commons.lang.enums.Enum;
 public interface SipxProcessModel {
     public static final class ProcessName extends Enum {
         public static final ProcessName REGISTRAR = new ProcessName("SIPRegistrar");
-        public static final ProcessName AUTH_PROXY = new ProcessName("SIPAuthProxy");
         public static final ProcessName STATUS = new ProcessName("SIPStatus");
-        public static final ProcessName PROXY = new ProcessName("SIPProxy");
+        public static final ProcessName PROXY = new ProcessName("SIPXProxy");
         public static final ProcessName MEDIA_SERVER = new ProcessName("MediaServer");
         public static final ProcessName PARK_SERVER = new ProcessName("ParkServer");
         public static final ProcessName PRESENCE_SERVER = new ProcessName("PresenceServer");

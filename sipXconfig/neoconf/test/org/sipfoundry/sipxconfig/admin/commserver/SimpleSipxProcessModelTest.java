@@ -23,7 +23,7 @@ public class SimpleSipxProcessModelTest extends TestCase {
 
     private final static ProcessName[] SERVICES = new ProcessName[] {
         ProcessName.REGISTRAR, ProcessName.MEDIA_SERVER, ProcessName.PRESENCE_SERVER,
-        ProcessName.AUTH_PROXY, ProcessName.ACD_SERVER
+        ProcessName.PROXY, ProcessName.ACD_SERVER
     };
 
     protected void setUp() {

@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 
 public class RestartReminderPanelTest extends TestCase {
     private final static Process TEST_PROC[] = {
-        new Process(ProcessName.AUTH_PROXY), new Process(ProcessName.PRESENCE_SERVER)
+        new Process(ProcessName.PROXY), new Process(ProcessName.PRESENCE_SERVER)
     };
 
     private Creator m_pageMaker = new Creator();

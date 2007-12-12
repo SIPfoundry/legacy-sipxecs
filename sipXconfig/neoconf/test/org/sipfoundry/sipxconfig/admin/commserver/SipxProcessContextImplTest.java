@@ -36,7 +36,7 @@ public class SipxProcessContextImplTest extends TestCase {
         new ServiceStatus(new Process(ProcessName.REGISTRAR), ServiceStatus.Status.STARTING),
         new ServiceStatus(new Process(ProcessName.MEDIA_SERVER), ServiceStatus.Status.STARTED),
         new ServiceStatus(new Process(ProcessName.PRESENCE_SERVER), ServiceStatus.Status.STOPPED),
-        new ServiceStatus(new Process(ProcessName.AUTH_PROXY), ServiceStatus.Status.FAILED),
+        new ServiceStatus(new Process(ProcessName.PROXY), ServiceStatus.Status.FAILED),
         new ServiceStatus(new Process(ProcessName.ACD_SERVER), ServiceStatus.Status.UNKNOWN)
     };
 
@@ -128,7 +128,7 @@ public class SipxProcessContextImplTest extends TestCase {
 
     public void testManageServicesLocation() {
         Process[] processes = {
-            new Process(ProcessName.AUTH_PROXY), new Process(ProcessName.ACD_SERVER)
+            new Process(ProcessName.PROXY), new Process(ProcessName.ACD_SERVER)
         };
         Location[] locations = {
             m_processContextImpl.getLocations()[1]

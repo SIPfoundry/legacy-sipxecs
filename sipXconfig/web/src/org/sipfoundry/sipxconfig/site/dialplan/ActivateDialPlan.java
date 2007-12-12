@@ -49,8 +49,7 @@ public abstract class ActivateDialPlan extends PageWithCallback {
 
     public Process[] getAffectedProcesses() {
         Process[] names = new Process[] {
-            new Process(ProcessName.REGISTRAR), new Process(ProcessName.AUTH_PROXY),
-            new Process(ProcessName.PROXY)
+            new Process(ProcessName.REGISTRAR), new Process(ProcessName.PROXY)
         };
         return names;
     }
