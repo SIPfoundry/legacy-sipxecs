@@ -794,7 +794,6 @@ main( int argc, char* argv[] )
     sipUserAgent.setMaxTcpSocketIdleTime(staleTcpTimeout);
     sipUserAgent.setHostAliases(hostAliases);
     sipUserAgent.setRecurseOnlyOne300Contact(recurseOnlyOne300);
-    sipUserAgent.start();
     
     UtlString buffer;
 
