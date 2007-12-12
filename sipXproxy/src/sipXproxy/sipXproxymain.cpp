@@ -794,6 +794,7 @@ main( int argc, char* argv[] )
     sipUserAgent.setMaxTcpSocketIdleTime(staleTcpTimeout);
     sipUserAgent.setHostAliases(hostAliases);
     sipUserAgent.setRecurseOnlyOne300Contact(recurseOnlyOne300);
+    sipUserAgent.start();
     
     UtlString buffer;
 
@@ -895,6 +896,9 @@ main( int argc, char* argv[] )
     // will implicitly request a shutdown for us if one is
     // not already in progress
     router.requestShutdown();
+
+    // Stop the SipUserAgent.
+    sipUserAgent.shutdown();
 
     // now deregister this process's database references from the IMDB
     closeIMDBConnections();
