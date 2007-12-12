@@ -258,27 +258,30 @@ void PromptManager::Queue(const VXMLNode & node, const VXMLElement & ref,
     }
 
     // (3.3) Update language.
-    const VXIchar * j = propertyList.GetProperty(PropertyList::Language);
-    if (j != NULL) 
-    {
-      language = j;
-      AddParamValue(properties, PROMPT_LANGUAGE, j);
-    }
-    else
-    {
-      // Search upwards starting with element for a language vxml tag
-      VXMLElement check = item ;
-      while (check != 0)
-      {    	
-        if (check.GetAttribute(ATTRIBUTE_XMLLANG, language) == true)
-        {
-          AddParamValue(properties, PROMPT_LANGUAGE, language);
-          break ;
-        }
-    	check = check.GetParent() ;
+    // Search upwards starting with element for a language vxml tag
+    VXMLElement check = item ;
+    bool bFoundLang = false;
+    while (check != 0)
+    {    	
+      if (check.GetAttribute(ATTRIBUTE_XMLLANG, language) == true)
+      {
+        AddParamValue(properties, PROMPT_LANGUAGE, language);
+        bFoundLang = true;
+        break ;
       }
+      check = check.GetParent() ;
     }
-
+    
+    if (!bFoundLang)
+    {
+      const VXIchar * j = propertyList.GetProperty(PropertyList::Language);
+      if (j != NULL) 
+      {
+        language = j;
+        AddParamValue(properties, PROMPT_LANGUAGE, j);
+      }
+    }    
+    
     // (3.4) Recursively handle contents of the prompt.
     for (VXMLNodeIterator it(elem); it; ++it)
       ProcessSegments(*it, item, propertyList, translator,
@@ -288,26 +291,29 @@ void PromptManager::Queue(const VXMLNode & node, const VXMLElement & ref,
   // (4) Otherwise, this is simple content or an audio / tts element.
   else
   {      
-    const VXIchar * j = propertyList.GetProperty(PropertyList::Language);
-    if (j != NULL) 
-    {
-      language = j;
-      AddParamValue(properties, PROMPT_LANGUAGE, j);
+    // Search upwards starting with element for a language vxml tag
+	VXMLElement check = item ;
+	bool bFoundLang = false;
+	while (check != 0)
+	{    	
+	  if (check.GetAttribute(ATTRIBUTE_XMLLANG, language) == true)
+	  {
+	    AddParamValue(properties, PROMPT_LANGUAGE, language);
+	    bFoundLang = true;
+	    break ;
+	  }
+	  check = check.GetParent() ;
 	}
-	else
+	    
+	if (!bFoundLang)
 	{
-	  // Search upwards starting with element for a language vxml tag
-	  VXMLElement check = item ;
-	  while (check != 0)
-	  {    	
-	    if (check.GetAttribute(ATTRIBUTE_XMLLANG, language) == true)
-	    {
-          AddParamValue(properties, PROMPT_LANGUAGE, language);
-          break ;
-        }
-        check = check.GetParent() ;
-      }
-    }	  
+	  const VXIchar * j = propertyList.GetProperty(PropertyList::Language);
+	  if (j != NULL) 
+	  {
+	    language = j;
+	    AddParamValue(properties, PROMPT_LANGUAGE, j);
+	  }
+	}    
 	  
     ProcessSegments(node, item, propertyList, translator,
                     bargein, properties, sofar, isSSML);
