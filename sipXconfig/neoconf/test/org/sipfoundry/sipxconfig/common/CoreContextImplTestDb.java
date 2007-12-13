@@ -16,12 +16,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -503,11 +505,24 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetSpecialUsers() {
-        User user = m_core.getSpecialUser(SpecialUser.MEDIA_SERVER);
+        // first need to save the special users
+        SpecialUser mediaUser = new SpecialUser();
+        mediaUser.setType(SpecialUserType.MEDIA_SERVER);
+        String mediaUserPassword = RandomStringUtils.randomAlphanumeric(10);
+        mediaUser.setSipPassword(mediaUserPassword);
+        m_core.saveSpecialUser(mediaUser);
+        
+        SpecialUser parkUser = new SpecialUser();
+        parkUser.setType(SpecialUserType.PARK_SERVER);
+        String parkUserPassword = RandomStringUtils.randomAlphanumeric(10);
+        parkUser.setSipPassword(parkUserPassword);
+        m_core.saveSpecialUser(parkUser);
+        
+        User user = m_core.getSpecialUser(SpecialUserType.MEDIA_SERVER);
         assertEquals("~~id~media", user.getName());
-        assertNotNull(user.getSipPassword());
-        user = m_core.getSpecialUser(SpecialUser.PARK_SERVER);
+        assertEquals(mediaUserPassword, user.getSipPassword());
+        user = m_core.getSpecialUser(SpecialUserType.PARK_SERVER);
         assertEquals("~~id~park", user.getName());
-        assertNotNull(user.getSipPassword());
+        assertEquals(parkUserPassword, user.getSipPassword());
     }
 }

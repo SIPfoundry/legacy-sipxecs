@@ -259,6 +259,7 @@
     <antcall target="first-run-task"/>
     <antcall target="personal-attendant-language" />
     <antcall target="override-language-not-null"/>
+    <antcall target="special-users"/>
     <!-- temporary patches -->
     <antcall target="gateway-port-fix" />
     <antcall target="localization-fix" />
@@ -576,6 +577,10 @@
   <target name="override-language-not-null" unless="override-language-not-null">
     <db-patch patch="override-language-not-null" />
   </target> 
+    
+  <target name="special-users" unless="special-users">
+    <db-patch patch="special-users"/>    
+  </target>
 
   <!-- do not roll in after upgrade - it's used to fix XCF-1934 only -->
   <target name="localization-fix" unless="localization-fix">

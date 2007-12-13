@@ -9,22 +9,45 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import org.apache.commons.lang.RandomStringUtils;
-
-public enum SpecialUser {
-    PARK_SERVER("~~id~park"), MEDIA_SERVER("~~id~media");
-
-    private String m_id;
-    private String m_sipPassword = RandomStringUtils.randomAlphanumeric(10);
-
-    SpecialUser(String id) {
-        m_id = id;
+public class SpecialUser extends  BeanWithId {
+    
+    public enum SpecialUserType {
+        PARK_SERVER("~~id~park"), MEDIA_SERVER("~~id~media");
+        
+        private String m_credential;
+        
+        private SpecialUserType(String credential) {
+            m_credential = credential;
+        }
+        
+        public String getCredential() {
+            return m_credential;
+        }
     }
 
-    String getId() {
-        return m_id;
+    private SpecialUserType m_type;
+    private String m_sipPassword;
+    
+    public void setType(String type) {
+        m_type = SpecialUserType.valueOf(type);
+    }
+    
+    public void setType(SpecialUserType type) {
+        m_type = type;
+    }
+    
+    public String getType() {
+        return m_type.toString();
+    }
+    
+    public String getCredential() {
+        return m_type.getCredential();
     }
 
+    public void setSipPassword(String sipPassword) {
+        m_sipPassword = sipPassword;
+    }
+    
     public String getSipPassword() {
         return m_sipPassword;
     }

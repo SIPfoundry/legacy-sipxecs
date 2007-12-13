@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.SpecialUser;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class Credentials extends DataSetGenerator {
@@ -29,12 +29,14 @@ public class Credentials extends DataSetGenerator {
         for (User user : list) {
             addUser(items, user, domainName, realm);
         }
-        addSpecialUser(items, SpecialUser.MEDIA_SERVER, domainName, realm);
-        addSpecialUser(items, SpecialUser.PARK_SERVER, domainName, realm);
+        
+        for (SpecialUserType specialUserType : SpecialUserType.values()) {
+            addSpecialUser(items, specialUserType, domainName, realm);
+        }
     }
 
-    private void addSpecialUser(Element items, SpecialUser su, String domainName, String realm) {
-        User user = getCoreContext().getSpecialUser(su);
+    private void addSpecialUser(Element items, SpecialUserType specialUserType, String domainName, String realm) {
+        User user = getCoreContext().getSpecialUser(specialUserType);
         addUser(items, user, domainName, realm);
     }
 

@@ -20,8 +20,8 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
-import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 
 public class CredentialsTest extends XMLTestCase {
     private static final String SIPFOUNDRY = "sipfoundry.org";
@@ -41,9 +41,9 @@ public class CredentialsTest extends XMLTestCase {
         User user = new User();
         user.setSipPassword("test");
         user.setUserName("user");
-        coreContext.getSpecialUser(SpecialUser.MEDIA_SERVER);
+        coreContext.getSpecialUser(SpecialUserType.MEDIA_SERVER);
         control.andReturn(user);
-        coreContext.getSpecialUser(SpecialUser.PARK_SERVER);
+        coreContext.getSpecialUser(SpecialUserType.PARK_SERVER);
         control.andReturn(user);
         control.replay();
 

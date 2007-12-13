@@ -23,6 +23,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -52,7 +53,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
     private boolean m_debug;
-    
+
     /** limit number of users */
     private int m_maxUserCount = -1;
 
@@ -67,11 +68,11 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     public boolean getDebug() {
         return m_debug;
     }
-        
+
     public void setDebug(boolean debug) {
         m_debug = debug;
     }
-    
+
     public String getAuthorizationRealm() {
         return m_domainManager.getAuthorizationRealm();
     }
@@ -547,10 +548,26 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         }
     }
 
-    public User getSpecialUser(SpecialUser su) {
+    public User getSpecialUser(SpecialUserType specialUserType) {
+        List<SpecialUser> specialUsersOfType = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "specialUserByType", "specialUserType", specialUserType.toString());
+        if (specialUsersOfType.size() < 1) {
+            return null;
+        }
+        if (specialUsersOfType.size() > 1) {
+            throw new RuntimeException("Expected only 1 special user of type " + specialUsersOfType
+                    + ", found " + specialUsersOfType.size());
+        }
+        
+        SpecialUser specialUser = specialUsersOfType.iterator().next();
+
         User newUser = newUser();
-        newUser.setUserName(su.getId());
-        newUser.setSipPassword(su.getSipPassword());
+        newUser.setUserName(specialUser.getCredential());
+        newUser.setSipPassword(specialUser.getSipPassword());
         return newUser;
+    }
+
+    public void saveSpecialUser(SpecialUser specialUser) {
+        getHibernateTemplate().saveOrUpdate(specialUser);
     }
 }

@@ -35,6 +35,16 @@
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
     </set>
   </class>
+  
+  <class name="SpecialUser" table="special_user">
+    <id name="id" column="special_user_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">user_seq</param>
+      </generator>
+    </id>
+    <property name="type" column="user_type"/>
+    <property name="sipPassword" />
+  </class>
 
   <class name="ExtensionPool" table="extension_pool">
     <id name="id" column="extension_pool_id" type="int" unsaved-value="-1">
@@ -67,6 +77,10 @@
 
   <query name="userNamesGroupMembers">
     <![CDATA[select u.userName from User u join u.groups as ugroups where ugroups.id = :groupId]]>
+  </query>
+  
+  <query name="specialUserByType">
+    <![CDATA[select u from SpecialUser u where u.type = :specialUserType]]>
   </query>
 
   <query name="extensionPoolByName">

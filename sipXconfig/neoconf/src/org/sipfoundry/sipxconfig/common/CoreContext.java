@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 
@@ -31,7 +32,10 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
     User newUser();
 
     /** Instantiates special user that represents sipx service */
-    User getSpecialUser(SpecialUser su);
+    User getSpecialUser(SpecialUserType specialUserType);
+    
+    /** Saves a special user */
+    void saveSpecialUser(SpecialUser specialUser);
 
     /**
      * @return true if username has changed, false if it's an update to existing user without
