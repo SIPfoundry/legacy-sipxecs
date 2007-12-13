@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -76,6 +77,7 @@ public abstract class XmlFile implements ConfigurationFile {
      * @throws IOException
      */
     public void writeToFile(File configDir, String filename) throws IOException {
+        FileUtils.forceMkdir(configDir);
         // write content to temporary file
         File tmpFile = File.createTempFile(filename, "tmp", configDir);
         FileWriter writer = new FileWriter(tmpFile);
@@ -86,6 +88,7 @@ public abstract class XmlFile implements ConfigurationFile {
         }
 
         File configFile = new File(configDir, filename);
+
         // make a backup copy of the file if it exist
         if (configFile.exists()) {
             // FIXME: this is a naive generation of backup files - we should not have more than n

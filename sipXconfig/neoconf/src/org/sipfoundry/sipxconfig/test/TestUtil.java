@@ -188,10 +188,12 @@ public final class TestUtil {
         sysProps.setProperty("upload.destinationDirectory", outputDirectory + "/tftproot");
         sysProps.setProperty("phonebookManagerImpl.externalUsersDirectory", outputDirectory
                 + "/phonebook");
-        sysProps.setProperty("vxml.scriptsDirectory", outputDirectory + "/vxml");
+        final String vxmlDir = outputDirectory + "/vxml";
+        sysProps.setProperty("vxml.scriptsDirectory", vxmlDir);
+        sysProps.setProperty("dialPlanContextImpl.scriptsDirectory", vxmlDir);
         sysProps.setProperty("monitoringContextImpl.enabled", Boolean.toString(true));
         sysProps.setProperty("coreContextImpl.debug", "on");
-        
+
         File vmDir = new File(outputDirectory + "/mailstore");
         if (!vmDir.exists()) {
             if (!vmDir.mkdirs()) {

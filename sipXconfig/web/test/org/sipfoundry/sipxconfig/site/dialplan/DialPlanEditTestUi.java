@@ -63,8 +63,9 @@ public class DialPlanEditTestUi extends WebTestCase {
 
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.home(getTester());
+        SiteTestHelper.home(tester);
         clickLink("resetDialPlans");
+        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.setScriptingEnabled(true);
         clickLink("FlexibleDialPlan");
     }

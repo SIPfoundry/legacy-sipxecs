@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -36,9 +35,8 @@ public class ConfigGenerator {
     private FallbackRules m_fallbackRules;
     private ForwardingRules m_forwardingRules;
     private DialingRuleProvider m_dialingRuleProvider;
-    private List m_attendantScheduleFiles = new ArrayList();
-    private Map m_files = new HashMap();
-
+    private List<XmlFile> m_attendantScheduleFiles = new ArrayList<XmlFile>();
+    private Map<ConfigFileType, XmlFile> m_files = new HashMap<ConfigFileType, XmlFile>();
 
     public ConfigGenerator() {
         // this is usually overwritten by spring configuration file
@@ -47,7 +45,7 @@ public class ConfigGenerator {
         setFallbackRules(new FallbackRules());
         setForwardingRules(new ForwardingRules());
     }
-    
+
     public ForwardingRules getForwardingRules() {
         return m_forwardingRules;
     }
@@ -75,14 +73,13 @@ public class ConfigGenerator {
     public void setDialingRuleProvider(DialingRuleProvider dialingRuleProvider) {
         m_dialingRuleProvider = dialingRuleProvider;
     }
-    
+
     private void generate(EmergencyRouting er) {
         if (er == null) {
             return;
         }
-        List rules = er.asDialingRulesList();
-        for (Iterator i = rules.iterator(); i.hasNext();) {
-            IDialingRule rule = (IDialingRule) i.next();
+        List<IDialingRule> rules = er.asDialingRulesList();
+        for (IDialingRule rule : rules) {
             m_authRules.generate(rule);
         }
     }
@@ -90,9 +87,8 @@ public class ConfigGenerator {
     public void generate(DialPlanContext plan, EmergencyRouting er) {
         generateXmlFromDialingRules(plan, er);
 
-        List attendantRules = plan.getAttendantRules();
-        for (Iterator i = attendantRules.iterator(); i.hasNext();) {
-            AttendantRule ar = (AttendantRule) i.next();
+        List<AttendantRule> attendantRules = plan.getAttendantRules();
+        for (AttendantRule ar : attendantRules) {
             if (ar.isEnabled()) {
                 AttendantScheduleFile file = new AttendantScheduleFile();
                 file.generate(ar);
@@ -104,12 +100,12 @@ public class ConfigGenerator {
     /** Given the DialPlanContext and the EmergencyRouting, generate XML */
     private void generateXmlFromDialingRules(DialPlanContext plan, EmergencyRouting er) {
         // Get rules from dialing rule providers and the dial plan
-        List rules = new ArrayList();
+        List<IDialingRule> rules = new ArrayList<IDialingRule>();
         if (m_dialingRuleProvider != null) {
-            rules.addAll(m_dialingRuleProvider.getDialingRules());            
+            rules.addAll(m_dialingRuleProvider.getDialingRules());
         }
         rules.addAll(plan.getGenerationRules());
-        
+
         m_mappingRules.begin();
         m_authRules.begin();
         m_fallbackRules.begin();
@@ -117,8 +113,7 @@ public class ConfigGenerator {
 
         generate(er);
 
-        for (Iterator i = rules.iterator(); i.hasNext();) {
-            IDialingRule rule = (IDialingRule) i.next();
+        for (IDialingRule rule : rules) {
             m_mappingRules.generate(rule);
             m_authRules.generate(rule);
             m_fallbackRules.generate(rule);
@@ -127,10 +122,10 @@ public class ConfigGenerator {
 
         m_mappingRules.end();
         m_authRules.end();
-        m_fallbackRules.end();    
+        m_fallbackRules.end();
         m_forwardingRules.end();
     }
-    
+
     /**
      * Retrieves configuration file content as stream.
      * 
@@ -139,23 +134,22 @@ public class ConfigGenerator {
      * @param type type of the configuration file
      */
     public String getFileContent(ConfigFileType type) {
-        XmlFile file = (XmlFile) m_files.get(type);
+        XmlFile file = m_files.get(type);
         return file.getFileContent();
     }
 
     public void activate(SipxReplicationContext sipxReplicationContext, String scriptsDirectory) {
-        for (Iterator i = m_files.values().iterator(); i.hasNext();) {
-            XmlFile file = (XmlFile) i.next();
+        for (XmlFile file : m_files.values()) {
             sipxReplicationContext.replicate(file);
         }
         activateAttendantRules(scriptsDirectory);
     }
 
     private void activateAttendantRules(String scriptsDirectory) {
+        File vxmlDir = new File(scriptsDirectory);
         try {
-            for (Iterator i = m_attendantScheduleFiles.iterator(); i.hasNext();) {
-                XmlFile file = (XmlFile) i.next();
-                file.writeToFile(new File(scriptsDirectory), file.getFileBaseName());
+            for (XmlFile file : m_attendantScheduleFiles) {
+                file.writeToFile(vxmlDir, file.getFileBaseName());
             }
         } catch (IOException e) {
             throw new UserException("Error when generating auto attendant schedule.", e);

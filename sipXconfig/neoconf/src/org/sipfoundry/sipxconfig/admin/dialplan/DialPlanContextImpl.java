@@ -42,6 +42,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.dao.support.DataAccessUtils;
 
 /**
  * DialPlanContextImpl is an implementation of DialPlanContext with hibernate support.
@@ -78,12 +79,11 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
      * @return the single instance of dial plan
      */
     DialPlan getDialPlan() {
-        List list = getHibernateTemplate().loadAll(DialPlan.class);
-        if (!list.isEmpty()) {
-            return (DialPlan) list.get(0);
+        List dialPlans = getHibernateTemplate().loadAll(DialPlan.class);
+        DialPlan plan = (DialPlan) DataAccessUtils.singleResult(dialPlans);
+        if (plan == null) {
+            plan = resetToFactoryDefault();
         }
-        DialPlan plan = new DialPlan();
-        getHibernateTemplate().save(plan);
         return plan;
     }
 
@@ -212,32 +212,29 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
      * 
      * Loads default rules definition from bean factory file.
      */
-    public void resetToFactoryDefault(String dialPlanBeanName) {
+    public DialPlan resetToFactoryDefault(String dialPlanBeanName) {
+        removeAll(EmergencyRouting.class);
+        removeAll(DialingRule.class);
+        removeAll(DialPlan.class);
+        getHibernateTemplate().flush();
+
         DialPlan newDialPlan = (DialPlan) m_beanFactory.getBean(dialPlanBeanName);
-        if (newDialPlan == null) {
-            LOG.error("No dial plan defined for:" + dialPlanBeanName);
-            return;
-        }
-        // unload all rules
-        DialPlan dialPlan = getDialPlan();
-        getHibernateTemplate().delete(getEmergencyRouting());
-        getHibernateTemplate().delete(dialPlan);
+        AutoAttendant operator = getAttendant(AutoAttendant.OPERATOR_ID);
+        newDialPlan.setOperator(operator);
+        getHibernateTemplate().save(newDialPlan);
         // Flush the session to cause the delete to take immediate effect.
         // Otherwise we can get name collisions on dialing rules when we load the
         // default dial plan, causing a DB integrity exception, even though the
         // collisions would go away as soon as the session was flushed.
         getHibernateTemplate().flush();
-
-        AutoAttendant operator = getAttendant(AutoAttendant.OPERATOR_ID);
-        newDialPlan.setOperator(operator);
-        getHibernateTemplate().saveOrUpdate(newDialPlan);
+        return newDialPlan;
     }
 
     /**
      * Reverts to default dial plan.
      */
-    public void resetToFactoryDefault() {
-        resetToFactoryDefault("na.dialPlan");
+    public DialPlan resetToFactoryDefault() {
+        return resetToFactoryDefault(m_defaultDialPlanId);
     }
 
     public String[] getDialPlanBeans() {
@@ -335,9 +332,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
      * tests
      */
     public void clear() {
-        resetToFactoryDefault();
         List attendants = getHibernateTemplate().loadAll(AutoAttendant.class);
         getHibernateTemplate().deleteAll(attendants);
+        resetToFactoryDefault();
     }
 
     public ConfigGenerator generateDialPlan() {

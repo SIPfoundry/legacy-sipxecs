@@ -203,6 +203,7 @@
     <antcall target="tests-that-require-db">
       <param name="test-pattern" value="test-db.src"/>
     </antcall>
+    <antcall target="reset-db" />
   </target>
 
   <target name="test-integration"

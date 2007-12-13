@@ -16,7 +16,15 @@
   <table name="group_storage"/>
   <table name="setting_value"/>  
   
+  <!-- users -->
+  <table name="users"/>
+  <table name="user_alias"/>
+  <table name="user_ring"/>
+  <table name="user_group"/>
+  <table name="supervisor"/>
+
   <!-- dial plans related -->
+  <table name="schedule"/>
   <table name="dial_plan"/>
   <table name="auto_attendant"/>
   <table name="attendant_group"/>
@@ -38,13 +46,6 @@
   <table name="park_orbit"/>  
   <table name="park_orbit_group"/>
       
-  <!-- users -->
-  <table name="users"/>
-  <table name="user_alias"/>
-  <table name="user_ring"/>
-  <table name="user_group"/>
-  <table name="supervisor"/>
-    
   <!-- phone -->  
   <table name="job"/>
   <table name="phone"/>
@@ -61,7 +62,6 @@
   <table name="dialing_rule_gateway"/>
         
   <!-- forwarding -->
-  <table name="schedule"/>
   <table name="ring"/>
   <table name="schedule_hours"/>
 	

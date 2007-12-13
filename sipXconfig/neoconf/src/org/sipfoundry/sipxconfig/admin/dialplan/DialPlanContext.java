@@ -69,9 +69,9 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public List<AttendantRule> getAttendantRules();
 
-    public void resetToFactoryDefault();
+    public DialPlan resetToFactoryDefault();
 
-    public void resetToFactoryDefault(String dialPlanBeanName);
+    public DialPlan resetToFactoryDefault(String dialPlanBeanName);
 
     public String[] getDialPlanBeans();
 

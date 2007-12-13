@@ -11,45 +11,27 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.event.PageBeginRenderListener;
-import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 
-public abstract class ResetDialPlan extends PageWithCallback implements PageBeginRenderListener {
+public abstract class ResetDialPlan extends PageWithCallback {
 
     public static final String PAGE = "ResetDialPlan";
 
+    @InjectObject(value = "spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();
 
     @InjectObject(value = "spring:localizationContext")
     public abstract LocalizationContext getLocalizationContext();
-
-    public abstract String getTemplate();
-
-    public abstract void setTemplate(String template);
-
-    public void pageBeginRender(PageEvent event) {
-        if (getTemplate() == null) {
-            String id = getLocalizationContext().getCurrentRegionId();
-            if (id != null) {
-                setTemplate(id + ".dialPlan");
-            }
-        }
-    }
 
     public void cancel(IRequestCycle cycle) {
         getCallback().performCallback(cycle);
     }
 
     public void reset(IRequestCycle cycle) {
-        String defaultTemplate = getTemplate();
-        if (defaultTemplate == null) {
-            getDialPlanContext().resetToFactoryDefault();
-        } else {
-            getDialPlanContext().resetToFactoryDefault(defaultTemplate);
-        }
+        String id = getLocalizationContext().getCurrentRegionId();
+        getDialPlanContext().resetToFactoryDefault(id + ".dialPlan");
         getCallback().performCallback(cycle);
     }
 }
