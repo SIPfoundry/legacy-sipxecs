@@ -794,6 +794,8 @@ main( int argc, char* argv[] )
     sipUserAgent.setMaxTcpSocketIdleTime(staleTcpTimeout);
     sipUserAgent.setHostAliases(hostAliases);
     sipUserAgent.setRecurseOnlyOne300Contact(recurseOnlyOne300);
+    // Do not start the sipUserAgent until its message listeners are
+    // set up by the creation of the SipRouter below.
     
     UtlString buffer;
 
@@ -850,6 +852,9 @@ main( int argc, char* argv[] )
 
     // Start the router running
     router.start();
+
+    // All is in readiness... Let the proxying begin...
+    sipUserAgent.start();
 
     // Do not exit, let the proxy do its stuff
     while( !gShutdownFlag )
