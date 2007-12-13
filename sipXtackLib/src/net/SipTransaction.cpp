@@ -52,7 +52,7 @@ SipTransaction::SipTransaction(SipMessage* request,
    , mIsUaTransaction(userAgentTransaction)
    , mSendToPort(PORT_NONE)
    , mSendToProtocol(OsSocket::UNKNOWN)
-   , mpDnsSrvRecords(NULL)
+   , mpDnsDestinations(NULL)
    , mpRequest(NULL)
    , mpLastProvisionalResponse(NULL)
    , mpLastFinalResponse(NULL)
@@ -219,9 +219,9 @@ SipTransaction::~SipTransaction()
        mpCancelResponse = NULL;
     }
 
-    if(mpDnsSrvRecords)
+    if(mpDnsDestinations)
     {
-       delete[] mpDnsSrvRecords;
+       delete[] mpDnsDestinations;
     }
 
     if(mWaitingList)
@@ -943,7 +943,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
            SipMessage::convertProtocolEnumToString(toProtocol, protocolStr);
            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                          "SipTransaction::doFirstSend %p "
-                         "Sending RESPONSE to: %s:%d via: %s",
+                         "Sending RESPONSE to: '%s':%d via: '%s'",
                          this, toAddress.data(), port, protocolStr.data());
         }
 #       endif
@@ -2309,7 +2309,7 @@ UtlBoolean SipTransaction::startSequentialSearch(SipUserAgent& userAgent,
         {
             UtlBoolean recurseStartedNewSearch = FALSE;
 
-            if(mpDnsSrvRecords)
+            if(mpDnsDestinations)   // tells us DNS lookup was done, check for valid records at lower level
             {
                 recurseStartedNewSearch  = recurseDnsSrvChildren(userAgent, transactionList);
             }
@@ -2359,9 +2359,9 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
 {
     // If this is a client transaction requiring DNS SRV lookup
     // and we need to create the children to recurse
-    if(!mIsServerTransaction &&
-        !mIsDnsSrvChild &&
-        mpDnsSrvRecords == NULL &&
+    if(!mIsServerTransaction &&         // is client transaction
+        !mIsDnsSrvChild &&              // is not traversing DNS record tree
+        mpDnsDestinations == NULL &&    // the one required DNS lookup has not yet happened
         mpRequest &&  // only applicable to requests not sent
         mpLastFinalResponse == NULL && // should be no response yet
         mChildTransactions.isEmpty())
@@ -2376,10 +2376,10 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
             mTransactionState = TRANSACTION_CONFIRMED;
 
             // Do the DNS SRV lookup for the request destination
-            mpDnsSrvRecords = SipSrvLookup::servers(mSendToAddress.data(),
-                                                    "sip", // TODO - scheme should be from the request URI
-                                                    mSendToProtocol,
-                                                    mSendToPort);
+            mpDnsDestinations = SipSrvLookup::servers(mSendToAddress.data(),
+                                                      "sip", // TODO - scheme should be from the request URI
+                                                      mSendToProtocol,
+                                                      mSendToPort);
 
             // HACK:
             // Add a via to this request so when we set a timer it is
@@ -2394,7 +2394,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                        mpBranchId->data());
             }
 
-            // Set the transaction expires timeout for the DNS SRV parent
+            // Set the transaction expires timeout for the DNS parent
             int expireSeconds = mExpires;
 
             // Non-INVITE transactions timeout sooner
@@ -2444,7 +2444,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
             OsTime expiresTime(expireSeconds, 0);
             expiresTimer->oneshotAfter(expiresTime);
 
-            if(mpDnsSrvRecords)
+            if(mpDnsDestinations[0].isValidServerT())   // leave redundant check at least for now
             {
                 int numSrvRecords = 0;
                 int maxSrvRecords = userAgent.getMaxSrvRecords();
@@ -2452,7 +2452,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                 // Create child transactions for each SRV record
                 // up to the maximum
                 while(numSrvRecords < maxSrvRecords &&
-                    mpDnsSrvRecords[numSrvRecords].isValidServerT())
+                    mpDnsDestinations[numSrvRecords].isValidServerT())
                 {
                     SipTransaction* childTransaction =
                         new SipTransaction(mpRequest,
@@ -2463,14 +2463,14 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                                             : NULL )
                                            ); // same as parent
 
-                    mpDnsSrvRecords[numSrvRecords].
+                    mpDnsDestinations[numSrvRecords].
                        getIpAddressFromServerT(childTransaction->mSendToAddress);
 
                     childTransaction->mSendToPort =
-                        mpDnsSrvRecords[numSrvRecords].getPortFromServerT();
+                        mpDnsDestinations[numSrvRecords].getPortFromServerT();
 
                     childTransaction->mSendToProtocol =
-                        mpDnsSrvRecords[numSrvRecords].getProtocolFromServerT();
+                        mpDnsDestinations[numSrvRecords].getProtocolFromServerT();
 
 #                   ifdef ROUTE_DEBUG
                          {
@@ -2518,11 +2518,15 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                     numSrvRecords++;
                 }
             }
-            // We got no DNS SRV records back
+            // We got no useful DNS records back
             else
             {
-                OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::recurseDnsSrvChildren "
-                              "no DNS SRV records");
+                UtlString protoString;
+                SipMessage::convertProtocolEnumToString(mSendToProtocol, protoString);
+
+                OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::recurseDnsSrvChildren "
+                              "no valid DNS records found for sendTo sip:'%s':%d proto = '%s'", 
+                              mSendToAddress.data(), mSendToPort, protoString.data());
             }
         }
     }
@@ -2531,7 +2535,9 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
     UtlBoolean childRecursing = FALSE;
     if(!mIsServerTransaction &&
         !mIsDnsSrvChild &&
-        mpDnsSrvRecords &&
+        mpDnsDestinations &&                            // means sendto address was not NULL
+        mpDnsDestinations[0].isValidServerT() &&        // means DNS search returned at least 
+                                                        // one destination address
         mpRequest)
     {
         UtlSListIterator iterator(mChildTransactions);
@@ -4051,27 +4057,27 @@ void SipTransaction::toString(UtlString& dumpString,
     //sprintf(numBuffer, "%d", mSendToProtocol);
     //dumpString.append(numBuffer);
 
-    if(mpDnsSrvRecords)
+    if(mpDnsDestinations)
     {
         dumpString.append("\n\tmpDnsSrvRecords:\n\t\tPref\tWt\tType\tName(ip):Port");
         UtlString srvName;
         UtlString srvIp;
         char srvRecordNums[128];
-        for (int i=0; mpDnsSrvRecords[i].isValidServerT(); i++)
+        for (int i=0; mpDnsDestinations[i].isValidServerT(); i++)
         {
-            mpDnsSrvRecords[i].getHostNameFromServerT(srvName);
-            mpDnsSrvRecords[i].getIpAddressFromServerT(srvIp);
-            sprintf(srvRecordNums, "\n\t\t%d\t%d\t%d\t",
-                mpDnsSrvRecords[i].getPriorityFromServerT(),
-                mpDnsSrvRecords[i].getWeightFromServerT(),
-                mpDnsSrvRecords[i].getProtocolFromServerT());
-            dumpString.append(srvRecordNums);
-            dumpString.append(srvName);
-            dumpString.append("(");
-            dumpString.append(srvIp);
-            sprintf(srvRecordNums, "):%d",
-                mpDnsSrvRecords[i].getPortFromServerT());
-            dumpString.append(srvRecordNums);
+           mpDnsDestinations[i].getHostNameFromServerT(srvName);
+           mpDnsDestinations[i].getIpAddressFromServerT(srvIp);
+           sprintf(srvRecordNums, "\n\t\t%d\t%d\t%d\t",
+                   mpDnsDestinations[i].getPriorityFromServerT(),
+                   mpDnsDestinations[i].getWeightFromServerT(),
+                   mpDnsDestinations[i].getProtocolFromServerT());
+           dumpString.append(srvRecordNums);
+           dumpString.append(srvName);
+           dumpString.append("(");
+           dumpString.append(srvIp);
+           sprintf(srvRecordNums, "):%d",
+                   mpDnsDestinations[i].getPortFromServerT());
+           dumpString.append(srvRecordNums);
         }
     }
     else

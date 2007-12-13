@@ -350,7 +350,7 @@ private:
     int mSendToPort;
     OsSocket::IpProtocolSocketType mSendToProtocol;
 
-    server_t* mpDnsSrvRecords;
+    server_t* mpDnsDestinations;        ///< list obtained from DNS server, can contain 0 valid destinations
     SipMessage* mpRequest;
     SipMessage* mpLastProvisionalResponse;
     SipMessage* mpLastFinalResponse;
