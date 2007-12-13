@@ -925,19 +925,17 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
        // Check to see if this subscription exists.
        // Critical Section here
        OsLock mutex(mLock);
-       {
-          bool r = SubscriptionDB::getInstance()->subscriptionExists(
-             SUBSCRIPTION_COMPONENT_STATUS,
-             to, from, callId, OsDateTime::getSecsSinceEpoch());
+
+       bool exists = SubscriptionDB::getInstance()->subscriptionExists(
+          SUBSCRIPTION_COMPONENT_STATUS,
+          to, from, callId, OsDateTime::getSecsSinceEpoch());
           
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription subscriptionExists(..., '%s', '%s', '%s', %d) = %d",
-                        to.data(), from.data(),
-                        callId.data(), (int) OsDateTime::getSecsSinceEpoch(),
-                        r);
-       }
-       if (!SubscriptionDB::getInstance()->subscriptionExists(
-              SUBSCRIPTION_COMPONENT_STATUS,
-              to, from, callId, OsDateTime::getSecsSinceEpoch()))
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription subscriptionExists(..., '%s', '%s', '%s', %d) = %d",
+                     to.data(), from.data(),
+                     callId.data(), (int) OsDateTime::getSecsSinceEpoch(),
+                     exists);
+
+       if (!exists)
        {
           returnStatus = STATUS_BAD_SUBSCRIPTION;
           return returnStatus;
