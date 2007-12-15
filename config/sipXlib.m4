@@ -640,3 +640,13 @@ AC_DEFUN([CHECK_POSTGRES],
     [POSTGRESQL_USER=${withval}],[POSTGRESQL_USER=postgres])
   AC_SUBST([POSTGRESQL_USER])
 ])
+
+# This allows configuring where the script that starts sipXecs gets installed
+AC_DEFUN([CHECK_SERVICEDIR],
+[
+  AC_ARG_WITH([servicedir],
+    AC_HELP_STRING([--with-servicedir=directory],
+      [The directory containing scripts that start services]),
+    [SERVICEDIR=${withval}],[SERVICEDIR='$(sysconfdir)/init.d'])
+  AC_SUBST([SERVICEDIR])
+])

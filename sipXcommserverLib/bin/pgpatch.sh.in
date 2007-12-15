@@ -166,7 +166,7 @@ setPostgresRunlevels() {
 
 exitIfUnnecessary() {
   if ${Psql} -U ${PostgresUser} -l &>/dev/null; then
-    echo "Postgres already allows connections"
+    ## echo "Postgres already allows connections"
     exit 0
   fi
 }
