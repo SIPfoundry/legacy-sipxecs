@@ -22,6 +22,7 @@ SFAC_INIT_FLAGS
 
 # openssl shell script for r/w certs
 AC_PATH_PROG([OPENSSL],[openssl])
+AC_PATH_PROG([BASH],[bash])
 
 # Jar files to all of sipXconfig. 
 AC_SUBST(SIPXCONFIG_LIBDIR, [${SIPX_DATADIR}/lib])
@@ -65,7 +66,7 @@ AC_ARG_ENABLE(mrtg,
   enable_mrtg=yes,)
 AM_CONDITIONAL(MRTG, test x$enable_mrtg = xyes)
 AC_SUBST(MRTG_ENABLED, [])
-if test x$enable_mrtg == xyes ; then
+if test x$enable_mrtg = xyes ; then
   MRTG_ENABLED="mrtg-enabled=true"
 else
   MRTG_ENABLED="mrtg-enabled=false"
@@ -83,6 +84,7 @@ if test x$enable_ruby_binding == xyes ; then
 fi
 
 CHECK_POSTGRES
+CHECK_SERVICEDIR
 
 AC_CONFIG_FILES([
     Makefile
