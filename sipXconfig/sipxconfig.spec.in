@@ -390,7 +390,7 @@ fi
 
 %post report
 gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-report-*.gem >/dev/null
-if ( ! test -f /etc/cron.d/cron.allow ) || ( ! grep '^@SIPXPBXUSER@$' /etc/cron.d/cron.allow ); then
+if ( ! test -f /etc/cron.d/cron.allow ) || ( ! grep '^@SIPXPBXUSER@$' /etc/cron.d/cron.allow > /dev/null ); then
   echo @SIPXPBXUSER@ >> /etc/cron.d/cron.allow
 fi
 
