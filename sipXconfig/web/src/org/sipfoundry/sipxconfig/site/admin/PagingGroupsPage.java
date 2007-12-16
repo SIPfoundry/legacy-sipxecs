@@ -26,12 +26,16 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.paging.PagingGroup;
+import org.sipfoundry.sipxconfig.paging.PagingProvisioningContext;
 
 public abstract class PagingGroupsPage extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/PagingGroupsPage";
 
     @InjectObject(value = "spring:pagingContext")
     public abstract PagingContext getPagingContext();
+
+    @InjectObject(value = "spring:pagingProvisioningContext")
+    public abstract PagingProvisioningContext getPagingProvisioningContext();
 
     @Bean
     public abstract SelectMap getSelections();
@@ -102,7 +106,6 @@ public abstract class PagingGroupsPage extends BasePage implements PageBeginRend
     }
 
     public void restart() {
-        // restart sipXpage service
-        getPagingContext().restartService();
+        getPagingProvisioningContext().deploy();
     }
 }

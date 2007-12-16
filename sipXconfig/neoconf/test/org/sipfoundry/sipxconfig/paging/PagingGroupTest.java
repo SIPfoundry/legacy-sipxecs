@@ -9,9 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.paging;
 
-import org.sipfoundry.sipxconfig.common.User;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.common.User;
 
 public class PagingGroupTest extends TestCase {
     public void testFormatUrls() {
@@ -26,18 +26,5 @@ public class PagingGroupTest extends TestCase {
         PagingGroup group2 = new PagingGroup();
         group2.setSound("beep.wav");
         assertEquals("file:///audio/beep.wav", group2.formatBeep("/audio"));
-    }
-
-    public void testFormatDescription() {
-        PagingGroup group3 = new PagingGroup();
-        assertEquals("", group3.formatDescription());
-        group3.setDescription("description");
-        assertEquals("description", group3.formatDescription());
-    }
-
-    public void testFormatPageGroupNumber() {
-        PagingGroup group4 = new PagingGroup();
-        group4.setPageGroupNumber(Long.valueOf(43));
-        assertEquals("43", group4.formatPageGroupNumber());
     }
 }

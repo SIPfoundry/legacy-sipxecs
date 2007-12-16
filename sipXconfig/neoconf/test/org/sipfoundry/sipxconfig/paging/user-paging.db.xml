@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+
 <dataset>
   <users user_name="user1" pintoken="x" user_id="1001" />
   <users user_name="user2" pintoken="x" user_id="1002" />

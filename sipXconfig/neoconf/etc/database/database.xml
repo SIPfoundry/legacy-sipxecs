@@ -77,19 +77,15 @@
   <property name="sipxconfig.db.password" value="" />
   <property name="sql.dir" location="${basedir}" />
   <property name="sipxpbx.conf.dir" location="${basedir}/.." />
-  <property name="sipxconfig.db.url"
-    value="jdbc:postgresql://localhost/${sipxconfig.db.name}" />
-  <property name="dblink.sql"
-    location="/usr/share/pgsql/contrib/dblink.sql" />
+  <property name="sipxconfig.db.url" value="jdbc:postgresql://localhost/${sipxconfig.db.name}" />
+  <property name="dblink.sql" location="/usr/share/pgsql/contrib/dblink.sql" />
   <property name="log.dir" value="${basedir}" />
-  <property name="migration.log"
-    value="${log.dir}/sipxconfig-2.8-db-migration.log" />
+  <property name="migration.log" value="${log.dir}/sipxconfig-2.8-db-migration.log" />
   <property name="tmp.dir" value="${basedir}" />
 
   <target name="patches">
     <!-- ANT BUG: sql task has issues when output=absolute file path -->
-    <sipx-sql print="yes" output="${tmp.dir}/patches.properties"
-      showheaders="no">
+    <sipx-sql print="yes" output="${tmp.dir}/patches.properties" showheaders="no">
       select name || '=true' from patch; select 'version' || version ||
       '=true' from version_history;
     </sipx-sql>
@@ -108,8 +104,7 @@
     <delete file="${tmp.dir}/tasks.properties" />
   </target>
 
-  <target name="drop" depends="drop-index"
-    description="drops database!">
+  <target name="drop" depends="drop-index" description="drops database!">
     <exec executable="dropdb" outputproperty="eatme">
       <arg line="-U ${sipxconfig.db.user} ${sipxconfig.db.name}" />
     </exec>
@@ -120,8 +115,7 @@
     <sleep seconds="3" />
     <!-- sporadic template1 in use, allow dropdb to disconnect... -->
     <exec executable="createdb" failonerror="true">
-      <arg
-        line="-q -U ${sipxconfig.db.user} --encoding=UNICODE ${sipxconfig.db.name}" />
+      <arg line="-q -U ${sipxconfig.db.user} --encoding=UNICODE ${sipxconfig.db.name}" />
     </exec>
   </target>
 
@@ -131,15 +125,11 @@
   <!-- 
     - NOTE: Creating a database and apply schema. Does not run any patches or initialize task.
   -->
-  <target name="create" depends="createdb,schema"
-    description="create database with schema" />
+  <target name="create" depends="createdb,schema" description="create database with schema" />
 
-  <target name="upgrade-no-init"
-    depends="patches,version1,version2,version3,version4,version5,version6" />
+  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6" />
 
-  <target name="upgrade"
-    description="applied all patches that need to be applied, and run initialization tasks"
-    depends="upgrade-no-init,initialize" />
+  <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks" depends="upgrade-no-init,initialize" />
 
   <target name="initialize" depends="tasks" if="initialize">
     <sipx-task output="/dev/null" beanId="initializeSystemTask">
@@ -176,8 +166,7 @@
   </target>
 
   <!-- List each dependency on a separate line below to make source control merging easier -->
-  <target name="version1" description="upgrade from version 0"
-    unless="version2">
+  <target name="version1" description="upgrade from version 0" unless="version2">
     <antcall target="conference_name_uniqueness" />
     <antcall target="upload" />
     <antcall target="grandstreamV2" />
@@ -186,16 +175,14 @@
     <sipx-version version="2" />
   </target>
 
-  <target name="version2" description="upgrade from version 1"
-    unless="version3">
+  <target name="version2" description="upgrade from version 1" unless="version3">
     <antcall target="attendant_settings" />
     <antcall target="group-names-no-spaces" />
     <antcall target="attendant_defaults" />
     <sipx-version version="3" />
   </target>
 
-  <target name="version3" description="upgrade from version 2"
-    unless="version4">
+  <target name="version3" description="upgrade from version 2" unless="version4">
     <antcall target="settings-refactoring" />
     <antcall target="ldap" />
     <antcall target="supervisor" />
@@ -212,13 +199,11 @@
   </target>
 
   <!-- bumped up ver only to keep 3.6 from running incompat. 3.7 db versions -->
-  <target name="version4" description="upgrade from version 3"
-    unless="version5">
+  <target name="version4" description="upgrade from version 3" unless="version5">
     <sipx-version version="5" />
   </target>
 
-  <target name="version5" description="upgrade from version 4"
-    unless="version6">
+  <target name="version5" description="upgrade from version 4" unless="version6">
     <antcall target="afterhour" />
     <antcall target="unmanaged-to-acme" />
     <antcall target="model-refactoring" />
@@ -238,8 +223,7 @@
     <sipx-version version="6" />
   </target>
 
-  <target name="version6" description="upgrade from version 5"
-    unless="version7">
+  <target name="version6" description="upgrade from version 5" unless="version7">
     <antcall target="callgroup-fallback-destination" />
     <antcall target="time_of_day" />
     <antcall target="backup-configs-converge" />
@@ -255,8 +239,9 @@
     <antcall target="localization" />
     <antcall target="callgroup-userforward" />
     <antcall target="paging-group" />
+    <antcall target="paging-server" />
     <antcall target="sbc-device" />
-    <antcall target="first-run-task"/>
+    <antcall target="first-run-task" />
     <antcall target="personal-attendant-language" />
     <antcall target="override-language-not-null"/>
     <antcall target="special-users"/>
@@ -271,18 +256,15 @@
     <db-patch patch="time_of_day" />
   </target>
 
-  <target name="backup-configs-converge"
-    unless="backup-configs-converge">
+  <target name="backup-configs-converge" unless="backup-configs-converge">
     <db-patch patch="backup-configs-converge" />
   </target>
 
-  <target name="schedules-per-user-group"
-    unless="schedules-per-user-group">
+  <target name="schedules-per-user-group" unless="schedules-per-user-group">
     <db-patch patch="schedules-per-user-group" />
   </target>
 
-  <target name="internal-rule-media-server"
-    unless="internal-rule-media-server">
+  <target name="internal-rule-media-server" unless="internal-rule-media-server">
     <db-patch patch="internal-rule-media-server" />
   </target>
 
@@ -412,8 +394,7 @@
     <db-patch patch="attendant_settings" />
   </target>
 
-  <target name="conference_name_uniqueness"
-    unless="conference_name_uniqueness">
+  <target name="conference_name_uniqueness" unless="conference_name_uniqueness">
     <sipx-sql>
       alter table meetme_conference add constraint conference_name_key
       unique(name);
@@ -443,35 +424,29 @@
     </sipx-sql>
   </target>
 
-  <target name="migrate-2.8" depends="migrate-2.8-run,initialize"
-    description="migrate existing 2.8 PDS database, note clears all existing 3.0 data" />
+  <target name="migrate-2.8" depends="migrate-2.8-run,initialize" description="migrate existing 2.8 PDS database, note clears all existing 3.0 data" />
 
-  <target name="import-2.8" depends="import-2.8-run,migrate-2.8"
-    description="import 2.8 PDS database from backup file, note clears all existing 3.0 data" />
+  <target name="import-2.8" depends="import-2.8-run,migrate-2.8" description="import 2.8 PDS database from backup file, note clears all existing 3.0 data" />
 
-  <target name="reset-superadmin" depends="upgrade"
-    description="initialize superadmin user, administation group and resets password to blank">
+  <target name="reset-superadmin" depends="upgrade" description="initialize superadmin user, administation group and resets password to blank">
     <sipx-task beanId="resetAdministrator" />
     <sipx-sql>
       update users set pintoken = '' where user_name = 'superadmin';
     </sipx-sql>
   </target>
 
-  <target name="first-run" depends="upgrade"
-    description="Make sipXconfig behave as it was just installed or upgraded.">
+  <target name="first-run" depends="upgrade" description="Make sipXconfig behave as it was just installed or upgraded.">
     <sipx-sql>
       insert into initialization_task (name) values ('first-run');
     </sipx-sql>
   </target>
 
-  <target name="polycom-2.0"
-    description="Migrate all polycom phones to generate 2.0 profiles">
+  <target name="polycom-2.0" description="Migrate all polycom phones to generate 2.0 profiles">
     <property name="polycom-from-id" value="1.6" />
     <property name="polycom-to-id" value="2.0" />
     <antcall target="migrate-polycom" />
   </target>
-  <target name="polycom-1.6"
-    description="Migrate all polycom phones to generate 1.6 profiles">
+  <target name="polycom-1.6" description="Migrate all polycom phones to generate 1.6 profiles">
     <property name="polycom-from-id" value="2.0" />
     <property name="polycom-to-id" value="1.6" />
     <antcall target="migrate-polycom" />
@@ -482,8 +457,7 @@
       where bean_id = 'polycom';
     </sipx-sql>
     <replace file="${sipxpbx.conf.dir}/sipxconfig.properties.in">
-      <replacefilter token="polycom.defaultVersionId=${polycom-from-id}"
-        value="polycom.defaultVersionId=${polycom-to-id}" />
+      <replacefilter token="polycom.defaultVersionId=${polycom-from-id}" value="polycom.defaultVersionId=${polycom-to-id}" />
     </replace>
   </target>
 
@@ -511,13 +485,11 @@
     <db-patch patch="sbc-aux" />
   </target>
 
-  <target name="callgroup-fallback-destination"
-    unless="callgroup-fallback-destination">
+  <target name="callgroup-fallback-destination" unless="callgroup-fallback-destination">
     <db-patch patch="callgroup-fallback-destination" />
   </target>
 
-  <target name="callgroup-vmail-destination"
-    unless="callgroup-vmail-destination">
+  <target name="callgroup-vmail-destination" unless="callgroup-vmail-destination">
     <db-patch patch="callgroup-vmail-destination" />
   </target>
 
@@ -533,8 +505,7 @@
     <db-patch patch="callforwardexternal" />
   </target>
 
-  <target name="domain-add-shared-secret"
-    unless="domain-add-shared-secret">
+  <target name="domain-add-shared-secret" unless="domain-add-shared-secret">
     <db-patch patch="domain-add-shared-secret" />
   </target>
 
@@ -556,8 +527,7 @@
     <db-patch patch="gateway-port-fix" />
   </target>
 
-  <target name="schedules-per-dialing-rule"
-    unless="schedules-per-dialing-rule">
+  <target name="schedules-per-dialing-rule" unless="schedules-per-dialing-rule">
     <db-patch patch="schedules-per-dialing-rule" />
   </target>
 
@@ -565,19 +535,22 @@
     <db-patch patch="localization" />
   </target>
 
-  <target name="personal-attendant-language"
-    unless="personal-attendant-language">
+  <target name="personal-attendant-language" unless="personal-attendant-language">
     <db-patch patch="personal-attendant-language" />
   </target>
 
   <target name="paging-group" unless="paging-group">
     <db-patch patch="paging-group" />
-  </target> 
-	
+  </target>
+
+  <target name="paging-server" unless="paging-server">
+    <db-patch patch="paging-server" />
+  </target>
+
   <target name="override-language-not-null" unless="override-language-not-null">
     <db-patch patch="override-language-not-null" />
   </target> 
-    
+
   <target name="special-users" unless="special-users">
     <db-patch patch="special-users"/>    
   </target>
@@ -604,8 +577,7 @@
   -->
   <target name="migrate-2.8-setup">
     <exec executable="createlang" failonerror="true">
-      <arg
-        line="-U ${sipxconfig.db.user} plpgsql ${sipxconfig.db.name}" />
+      <arg line="-U ${sipxconfig.db.user} plpgsql ${sipxconfig.db.name}" />
     </exec>
     <condition property="dblink-present">
       <available file="${dblink.sql}" />
@@ -623,17 +595,14 @@
       <transaction src="${dblink.sql}" />
     </sipx-sql>
   </target>
-  <target name="migrate-2.8-run"
-    depends="drop,create-3.0,upgrade-no-init,migrate-2.8-setup">
+  <target name="migrate-2.8-run" depends="drop,create-3.0,upgrade-no-init,migrate-2.8-setup">
     <echo>
       see migration log file for errors or warnings about potential data
       loss:
     </echo>
     <echo>${migration.log}</echo>
-    <exec executable="psql" output="${migration.log}"
-      failonerror="true">
-      <arg
-        line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql" />
+    <exec executable="psql" output="${migration.log}" failonerror="true">
+      <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql" />
     </exec>
   </target>
 
@@ -655,8 +624,7 @@
 
     </fail>
     <exec executable="createuser" outputproperty="eatme">
-      <arg
-        line="-U ${sipxconfig.db.user} --createdb --no-adduser sipxchange" />
+      <arg line="-U ${sipxconfig.db.user} --createdb --no-adduser sipxchange" />
     </exec>
     <exec executable="dropdb" outputproperty="eatme">
       <arg line="-U ${sipxconfig.db.user} PDS" />
@@ -667,11 +635,9 @@
       <arg line="-q -U ${sipxconfig.db.user} --encoding=UNICODE PDS" />
     </exec>
     <!-- ignore error in this task, importing database can fail if going from Postgres 7 to 8 -->
-    <exec executable="/bin/sh" failonerror="false"
-      outputproperty="eatme">
+    <exec executable="/bin/sh" failonerror="false" outputproperty="eatme">
       <arg value="-c" />
-      <arg
-        value="zcat ${pds.tar.gz} | pg_restore -U ${sipxconfig.db.user} -d PDS" />
+      <arg value="zcat ${pds.tar.gz} | pg_restore -U ${sipxconfig.db.user} -d PDS" />
     </exec>
   </target>
 
@@ -725,10 +691,7 @@
 
   <!-- Run SQL on SIPXCONFIG database -->
   <presetdef name="sipx-sql">
-    <sql driver="org.postgresql.Driver" url="${sipxconfig.db.url}"
-      userid="${sipxconfig.db.user}"
-      password="${sipxconfig.db.password}"
-      classpath="${jdbc-driver.jar}" />
+    <sql driver="org.postgresql.Driver" url="${sipxconfig.db.url}" userid="${sipxconfig.db.user}" password="${sipxconfig.db.password}" classpath="${jdbc-driver.jar}" />
   </presetdef>
 
   <!-- declare schema version -->
@@ -748,11 +711,8 @@
     <attribute name="output" default="/dev/stdout" />
     <element name="task-body" optional="yes" implicit="yes" />
     <sequential>
-      <java
-        classname="org.sipfoundry.sipxconfig.common.SystemTaskRunner"
-        output="@{output}">
-        <sysproperty key="org.apache.lucene.lockdir"
-          value="${tmp.dir}/index" />
+      <java classname="org.sipfoundry.sipxconfig.common.SystemTaskRunner" output="@{output}">
+        <sysproperty key="org.apache.lucene.lockdir" value="${tmp.dir}/index" />
         <arg value="@{beanId}" />
         <task-body />
       </java>

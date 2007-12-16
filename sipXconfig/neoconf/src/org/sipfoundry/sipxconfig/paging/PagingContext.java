@@ -15,8 +15,6 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 
 public interface PagingContext extends DialingRuleProvider {
-    static final String CONTEXT_BEAN_NAME = "pagingContext";
-    
     String getPagingPrefix();
 
     List<PagingGroup> getPagingGroups();
@@ -24,12 +22,10 @@ public interface PagingContext extends DialingRuleProvider {
     PagingGroup getPagingGroupById(Integer id);
 
     void deletePagingGroupsById(Collection<Integer> groupsIds);
-    
+
     void savePagingPrefix(String prefix);
-    
+
     void savePagingGroup(PagingGroup group);
-    
+
     void clear();
-    
-    void restartService();
 }

@@ -172,7 +172,7 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
 
     public void testGetRules() throws Exception {
         TestHelper.insertFlat("admin/intercom/SampleIntercoms.xml");
-        List<DialingRule> rules = m_intercomManager.getDialingRules();
+        List< ? extends DialingRule> rules = m_intercomManager.getDialingRules();
         assertEquals(2, rules.size());
     }
 

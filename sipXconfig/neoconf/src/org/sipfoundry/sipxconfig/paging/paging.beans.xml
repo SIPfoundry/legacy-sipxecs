@@ -3,29 +3,27 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
-  <!--
-    - P A G I N G   C O N T E X T
-  -->
-
-  <bean id="pagingConfiguration" class="org.sipfoundry.sipxconfig.paging.PagingConfiguration">
-    <property name="domainManager" ref="domainManagerImpl" />
-	<property name="etcDirectory" value="${sysdir.etc}" />
+  <bean id="pagingServer" class="org.sipfoundry.sipxconfig.paging.PagingServer" singleton="false">
+    <property name="prefix" value="*77" />
   </bean>
 
   <bean id="pagingContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingContextImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="intercomManager" ref="intercomManager" />
-	<property name="processContext" ref="sipxProcessContext" />    
-    <property name="pagingConfiguration">
-      <ref local="pagingConfiguration" />
-    </property>
   </bean>
-  
+
+  <bean id="pagingProvisioningContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingProvisioningContextImpl">
+    <property name="processContext" ref="sipxProcessContext" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="replicationContext" ref="sipxReplicationContext" />
+  </bean>
+
+  <alias alias="pagingProvisioningContext" name="pagingProvisioningContextImpl" />
+
   <bean id="pagingContextUserDelete" factory-bean="pagingContextImpl" factory-method="createUserDeleteListener" />
 
   <bean id="pagingContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
-        depends-on="pagingContextUserDelete">
+    depends-on="pagingContextUserDelete">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.paging.PagingContext" />
     <property name="target">
       <ref local="pagingContextImpl" />

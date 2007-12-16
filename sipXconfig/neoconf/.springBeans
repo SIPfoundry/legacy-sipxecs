@@ -45,6 +45,7 @@
 		<config>src/org/sipfoundry/sipxconfig/acd/stats/acdstats.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/localization/localization.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/admin.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/paging/paging.beans.xml</config>
 	</configs>
 	<configSets>
 		<configSet>
@@ -93,6 +94,7 @@
 				<config>src/org/sipfoundry/sipxconfig/acd/stats/acdstats.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/admin/localization/localization.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/admin/admin.beans.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/paging/paging.beans.xml</config>
 			</configs>
 		</configSet>
 	</configSets>

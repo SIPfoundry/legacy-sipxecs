@@ -431,6 +431,21 @@
     meetme_conference_id CDATA #REQUIRED
 >
 
+<!ELEMENT paging_group EMPTY>
+<!ATTLIST paging_group
+    paging_group_id CDATA #REQUIRED
+    page_group_number CDATA #REQUIRED
+    description CDATA #IMPLIED
+    enabled CDATA #REQUIRED
+    sound CDATA #REQUIRED
+>
+
+<!ELEMENT paging_server EMPTY>
+<!ATTLIST paging_server
+    paging_server_id CDATA #REQUIRED
+    prefix CDATA #REQUIRED
+>
+
 <!ELEMENT park_orbit EMPTY>
 <!ATTLIST park_orbit
     park_orbit_id CDATA #REQUIRED
@@ -469,7 +484,7 @@
     user_id CDATA #REQUIRED
     operator CDATA #IMPLIED
     language CDATA #IMPLIED
-    override_language CDATA #IMPLIED
+    override_language CDATA #REQUIRED
 >
 
 <!ELEMENT personal_attendant_menu_item EMPTY>
@@ -653,6 +668,12 @@
 <!ATTLIST user_group
     user_id CDATA #REQUIRED
     group_id CDATA #REQUIRED
+>
+
+<!ELEMENT user_paging_group EMPTY>
+<!ATTLIST user_paging_group
+    paging_group_id CDATA #REQUIRED
+    user_id CDATA #REQUIRED
 >
 
 <!ELEMENT user_ring EMPTY>

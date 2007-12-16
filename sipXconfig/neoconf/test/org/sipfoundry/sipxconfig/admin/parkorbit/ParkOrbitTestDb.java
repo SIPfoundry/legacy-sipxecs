@@ -112,7 +112,7 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
     }
     
     public void testDialingRulesProvider() {
-        List<DialingRule> rules = m_context.getDialingRules();
+        List< ? extends DialingRule> rules = m_context.getDialingRules();
         assertEquals(1, rules.size());
         assertTrue(rules.get(0) instanceof MohRule);
     }

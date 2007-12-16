@@ -15,26 +15,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.springframework.context.ApplicationContext;
+import org.sipfoundry.sipxconfig.common.User;
 
-public class PagingContextImplTestDb extends SipxDatabaseTestCase {
+public class PagingContextImplTestIntegration extends IntegrationTestCase {
     private PagingContext m_pagingContext;
     private CoreContext m_coreContext;
-    private PagingConfiguration m_pagingConfig;
-
-    protected void setUp() throws Exception {
-        ApplicationContext appContext = TestHelper.getApplicationContext();
-        m_pagingContext = (PagingContext) appContext.getBean(PagingContext.CONTEXT_BEAN_NAME);
-        m_coreContext = (CoreContext) appContext.getBean(CoreContext.CONTEXT_BEAN_NAME);
-        m_pagingConfig = (PagingConfiguration) appContext.getBean(PagingConfiguration.CONTEXT_BEAN_NAME);
-        m_pagingConfig.setEtcDirectory(TestHelper.getTestDirectory());
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("paging/PagingGroupSeed.xml");
-        TestHelper.insertFlat("paging/UserPagingGroupSeed.xml");
+    
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
+    
+    public void setPagingContext(PagingContext pagingContext) {
+        m_pagingContext = pagingContext;
+    }
+    
+    protected void onSetUpInTransaction() throws Exception {
+        loadDataSet("paging/paging.db.xml");
+        loadDataSet("paging/user-paging.db.xml");
     }
 
     public void testGetPagingPrefix() throws Exception {
@@ -49,7 +48,6 @@ public class PagingContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("Sales", group1.getDescription());
         assertEquals(true, group1.isEnabled());
         assertEquals("TadaTada.wav", group1.getSound());
-        assertEquals("*77", group1.getPrefix());
         Set<User> users = group1.getUsers();
         assertEquals(2, users.size());
         Iterator it = users.iterator();
@@ -68,7 +66,6 @@ public class PagingContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("Engineering", group.getDescription());
         assertEquals(false, group.isEnabled());
         assertEquals("TadaTada.wav", group.getSound());
-        assertEquals("*77", group.getPrefix());
         Set<User> users = group.getUsers();
         assertEquals(1, users.size());
     }
@@ -77,8 +74,8 @@ public class PagingContextImplTestDb extends SipxDatabaseTestCase {
         List<PagingGroup> groups = m_pagingContext.getPagingGroups();
         assertEquals(3, groups.size());
         List<Integer> groupsIds = new ArrayList<Integer>();
-        groupsIds.add(new Integer(101));
-        groupsIds.add(new Integer(102));
+        groupsIds.add(101);
+        groupsIds.add(102);
         m_pagingContext.deletePagingGroupsById(groupsIds);
         groups = m_pagingContext.getPagingGroups();
 
@@ -100,10 +97,8 @@ public class PagingContextImplTestDb extends SipxDatabaseTestCase {
         group.setPageGroupNumber(new Long(114));
         group.setDescription("test");
         group.setSound("TadaTada.wav");
-        group.setPrefix("*88");
-        group.setEnabled(true);
         Set<User> users = new HashSet<User>();
-        users.add(m_coreContext.loadUser(new Integer(1003)));
+        users.add(m_coreContext.loadUser(1003));
         group.setUsers(users);
         m_pagingContext.savePagingGroup(group);
         groups = m_pagingContext.getPagingGroups();
