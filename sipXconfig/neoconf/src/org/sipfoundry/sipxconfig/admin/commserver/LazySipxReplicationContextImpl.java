@@ -18,8 +18,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 import org.springframework.context.ApplicationEvent;
 

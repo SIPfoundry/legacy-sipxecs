@@ -21,11 +21,9 @@ import org.sipfoundry.sipxconfig.admin.localization.Localization;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.springframework.dao.support.DataAccessUtils;
 
-public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
+public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements
+        DomainManager {
 
-    // do not reference m_server, see note in spring file
-    private SipxServer m_server;
-    private DomainConfiguration m_domainConfiguration;
     private SipxReplicationContext m_replicationContext;
     private String m_authorizationRealm;
     private String m_initialDomain;
@@ -34,24 +32,9 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     /**
      * Implemented by Spring AOP
      */
-    public SipxServer getServer() {
-        return m_server;
-    }
+    protected abstract SipxServer getServer();
 
-    /**
-     * For testing only.
-     */
-    void setServer(SipxServer server) {
-        m_server = server;
-    }
-
-    public DomainConfiguration getDomainConfiguration() {
-        return m_domainConfiguration;
-    }
-
-    public void setDomainConfiguration(DomainConfiguration domainConfiguration) {
-        m_domainConfiguration = domainConfiguration;
-    }
+    protected abstract DomainConfiguration createDomainConfiguration();
 
     public void setReplicationContext(SipxReplicationContext context) {
         m_replicationContext = context;
@@ -99,9 +82,10 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     }
 
     public void replicateDomainConfig() {
-        m_domainConfiguration.generate(getExistingDomain(), m_authorizationRealm,
+        DomainConfiguration domainConfiguration = createDomainConfiguration();
+        domainConfiguration.generate(getExistingDomain(), m_authorizationRealm,
                 getExistingLocalization().getLanguage());
-        m_replicationContext.replicate(m_domainConfiguration);
+        m_replicationContext.replicate(domainConfiguration);
     }
 
     protected Domain getExistingDomain() {
@@ -147,10 +131,6 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         if (domain.initSecret()) {
             saveDomain(domain);
         }
-    }
-
-    public DomainConfiguration createDomainConfiguration() {
-        return m_domainConfiguration;
     }
 
     public String getAuthorizationRealm() {

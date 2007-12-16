@@ -14,7 +14,6 @@
 
   <bean id="domainManagerImpl" class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="domainConfiguration" ref="domainConfiguration" />
     <property name="replicationContext" ref="sipxReplicationContext" />
 
     <!-- initialize for tests only: the real value gets set by sipxconfig.properties.in -->
@@ -36,11 +35,11 @@
     -->
 
     <lookup-method name="getServer" bean="sipxServer" />
-    <!-- property name="server" ref="sipxServer"/ -->
-
+    <lookup-method name="createDomainConfiguration" bean="domainConfiguration" />
   </bean>
 
   <bean id="domainConfiguration" class="org.sipfoundry.sipxconfig.domain.DomainConfiguration" singleton="false">
     <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="commserver/domain-config.vm" />
   </bean>
 </beans>

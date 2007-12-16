@@ -7,11 +7,13 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.admin.dialplan.config;
+package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 
 public interface ConfigurationFile {
 

@@ -9,8 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile;
 
 /**
  * Interface to replication.cgi

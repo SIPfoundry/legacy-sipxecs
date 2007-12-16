@@ -22,6 +22,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 
 /**
  * ConfigFile

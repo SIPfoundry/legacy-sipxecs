@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.paging;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 public class PagingServer extends BeanWithId {
-    public final static String BEAN_NAME = "pagingServer";
+    public static final String BEAN_NAME = "pagingServer";
 
     private String m_prefix;
 

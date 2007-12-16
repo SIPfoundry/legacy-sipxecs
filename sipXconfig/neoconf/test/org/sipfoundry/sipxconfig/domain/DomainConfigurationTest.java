@@ -35,22 +35,12 @@ public class DomainConfigurationTest extends TestCase {
         m_realm = "realm.example.com";
 
         m_out = new DomainConfiguration();
+        m_out.setTemplate("commserver/domain-config.vm");
         m_out.setVelocityEngine(TestHelper.getVelocityEngine());
 
         Reader referenceConfigReader = new InputStreamReader(DomainConfigurationTest.class
                 .getResourceAsStream("expected-domain-config"));
         m_referenceConfig = IOUtils.toString(referenceConfigReader);
-    }
-
-    public void testGenerateDomainConfigWithWriter() throws Exception {
-        StringWriter actualConfigWriter = new StringWriter();
-        m_out.generate(m_domain, m_realm, m_language, actualConfigWriter);
-
-        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
-
-        String actualConfig = IOUtils.toString(actualConfigReader);
-
-        assertEquals(m_referenceConfig, actualConfig);
     }
 
     public void testWrite() throws Exception {

@@ -20,8 +20,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile;
 
 public class PagingConfiguration implements ConfigurationFile {
     private static final Log LOG = LogFactory.getLog(PagingConfiguration.class);

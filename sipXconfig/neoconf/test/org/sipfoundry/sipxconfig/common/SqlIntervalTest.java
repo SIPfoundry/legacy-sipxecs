@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.common;
 import junit.framework.TestCase;
 
 import org.postgresql.util.PGInterval;
-import org.sipfoundry.sipxconfig.common.SqlInterval;
 
 public class SqlIntervalTest extends TestCase {
 

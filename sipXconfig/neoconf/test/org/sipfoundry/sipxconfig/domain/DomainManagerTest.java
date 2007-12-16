@@ -27,7 +27,7 @@ public class DomainManagerTest extends TestCase {
     public void testSaveDomain() {
         Domain domain = new Domain("goose");
 
-        SipxServer server = createMock(SipxServer.class);
+        final SipxServer server = createMock(SipxServer.class);
         server.setDomainName("goose");
         server.setRegistrarDomainAliases(null);
         server.applySettings();
@@ -43,10 +43,16 @@ public class DomainManagerTest extends TestCase {
             public void replicateDomainConfig() {
                 // do not replicate anything - it's just a test
             }
+            
+            protected DomainConfiguration createDomainConfiguration() {
+                return new DomainConfiguration();
+            }
+            
+            protected SipxServer getServer() {
+                return server;
+            }
         };
-        mgr.setDomainConfiguration(new DomainConfiguration());
         mgr.setHibernateTemplate(db);
-        mgr.setServer(server);
         mgr.saveDomain(domain);
 
         verify(server, db);

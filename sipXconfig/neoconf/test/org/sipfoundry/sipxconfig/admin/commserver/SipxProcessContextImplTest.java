@@ -22,7 +22,6 @@ import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
 
 public class SipxProcessContextImplTest extends TestCase {
     private SipxProcessContextImpl m_processContextImpl;

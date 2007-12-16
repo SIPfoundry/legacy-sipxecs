@@ -13,9 +13,8 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ProcessDefinitionsSipxProcessModelTest extends TestCase {
     private final static String CONFIG_DIR = "process.d";

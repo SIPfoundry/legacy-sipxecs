@@ -15,7 +15,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
 
 public class SimpleSipxProcessModelTest extends TestCase {
     private SimpleSipxProcessModel m_processModel = new SimpleSipxProcessModel();
