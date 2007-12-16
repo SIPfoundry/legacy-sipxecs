@@ -91,7 +91,7 @@
     </setting>
     <setting name="SIP_REDIRECT.190-ISN.PREFIX" advanced="yes">
       <profileName>registrar-config.in</profileName>
-      <type refid="feature-code"/>
+      <type refid="feature-code" />
     </setting>
   </group>
   <group name="enum">
@@ -103,11 +103,11 @@
     </setting>
     <setting name="SIP_REDIRECT.200-ENUM.DIAL_PREFIX">
       <profileName>registrar-config.in</profileName>
-      <type refid="feature-code"/>
+      <type refid="feature-code" />
     </setting>
     <setting name="SIP_REDIRECT.200-ENUM.ADD_PREFIX">
       <profileName>registrar-config.in</profileName>
-      <type refid="feature-code"/>
+      <type refid="feature-code" />
     </setting>
     <setting name="SIP_REDIRECT.200-ENUM.PREFIX_PLUS" advanced="yes">
       <profileName>registrar-config.in</profileName>
@@ -151,7 +151,7 @@
     </setting>
     <setting name="SIP_REDIRECT.180-PICKUP.CALL_RETRIEVE_CODE">
       <profileName>registrar-config.in</profileName>
-      <type refid="feature-code" required="yes"/>
+      <type refid="feature-code" required="yes" />
       <value>*4</value>
     </setting>
     <setting name="SIP_REDIRECT.180-PICKUP.CALL_PICKUP_WAIT" advanced="yes">
@@ -223,6 +223,11 @@
     </setting>
     <setting name="SIP_CALLRESOLVER_LOG_LEVEL">
       <profileName>callresolver-config.in</profileName>
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+    <setting name="log.level">
+      <profileName>sipxpage.properties.in</profileName>
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

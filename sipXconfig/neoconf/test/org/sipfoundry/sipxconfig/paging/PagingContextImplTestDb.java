@@ -24,11 +24,14 @@ import org.springframework.context.ApplicationContext;
 public class PagingContextImplTestDb extends SipxDatabaseTestCase {
     private PagingContext m_pagingContext;
     private CoreContext m_coreContext;
+    private PagingConfiguration m_pagingConfig;
 
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_pagingContext = (PagingContext) appContext.getBean(PagingContext.CONTEXT_BEAN_NAME);
         m_coreContext = (CoreContext) appContext.getBean(CoreContext.CONTEXT_BEAN_NAME);
+        m_pagingConfig = (PagingConfiguration) appContext.getBean(PagingConfiguration.CONTEXT_BEAN_NAME);
+        m_pagingConfig.setEtcDirectory(TestHelper.getTestDirectory());
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("paging/PagingGroupSeed.xml");
         TestHelper.insertFlat("paging/UserPagingGroupSeed.xml");

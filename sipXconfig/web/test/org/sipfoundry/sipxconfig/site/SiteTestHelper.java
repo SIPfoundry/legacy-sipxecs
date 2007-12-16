@@ -333,7 +333,7 @@ public class SiteTestHelper {
         sysProps.setProperty("orbitsGenerator.audioDirectory", systemDirectory
                 + "/parkserver/music");
         sysProps.setProperty("acdQueue.audioDirectory", systemDirectory + "/acd/audio");
-        sysProps.setProperty("pagingContextImpl.audioDirectory", systemDirectory + "/sipxpage/music");
+        sysProps.setProperty("pagingConfiguration.audioDirectory", systemDirectory + "/sipxpage/music");
         TestUtil.saveSysDirProperties(sysProps, args[0]);
     }
 

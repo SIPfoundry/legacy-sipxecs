@@ -17,14 +17,14 @@ public class PagingRule extends DialingRule {
     private FullTransform m_transform;
     private DialPattern m_dialPattern;
 
-    public PagingRule(String prefix) {
+    public PagingRule(String prefix, String alertInfo) {
         setEnabled(true);
         m_dialPattern = new DialPattern(prefix, DialPattern.VARIABLE_DIGITS);
         m_transform = new FullTransform();
         m_transform.setUser("{vdigits}");
         m_transform.setHost("${PAGE_SERVER_ADDR}:${PAGE_SERVER_SIP_PORT}");
         m_transform.setUrlParams(new String[] {
-            "Alert-info=alert"
+            "Alert-info=" + alertInfo
         });
     }
 

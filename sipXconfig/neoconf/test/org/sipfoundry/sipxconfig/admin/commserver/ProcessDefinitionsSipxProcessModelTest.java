@@ -44,7 +44,7 @@ public class ProcessDefinitionsSipxProcessModelTest extends TestCase {
         assertEquals(0 < model.getAll().size(), true);
 
         SimpleSipxProcessModel processModel = new SimpleSipxProcessModel();
-        assertEquals(model.getAll().size() - processModel.getAll().size(), 1);
+        assertEquals(model.getAll().size() - processModel.getAll().size(), 0);
     }
 
     public void testGetProcess() {
@@ -70,7 +70,7 @@ public class ProcessDefinitionsSipxProcessModelTest extends TestCase {
         ProcessDefinitionsSipxProcessModel model = new ProcessDefinitionsSipxProcessModel(
                 m_configDirectory);
 
-        assertEquals(model.getRestartable().size() - processModel.getRestartable().size(), 1);
+        assertEquals(model.getRestartable().size() - processModel.getRestartable().size(), 0);
         assertEquals(model.getRestartable().size() > 1, true);
 
         for (Iterator it = model.getRestartable().iterator(); it.hasNext();) {

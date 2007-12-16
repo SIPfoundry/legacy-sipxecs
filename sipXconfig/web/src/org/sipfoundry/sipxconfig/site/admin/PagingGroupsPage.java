@@ -100,4 +100,9 @@ public abstract class PagingGroupsPage extends BasePage implements PageBeginRend
     public Collection getAllSelected() {
         return getSelections().getAllSelected();
     }
+
+    public void restart() {
+        // restart sipXpage service
+        getPagingContext().restartService();
+    }
 }

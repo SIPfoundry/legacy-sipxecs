@@ -18,7 +18,7 @@ public class PagingRuleTest extends TestCase {
     private PagingRule m_rule;
     
     protected void setUp() {
-        m_rule = new PagingRule("*77");
+        m_rule = new PagingRule("*77", "alert");
     }
     
     public void testGetPatterns() {

@@ -53,6 +53,9 @@
                 
        <filemap identifier="organizationprefs.xml"
                 location="@SIPX_VXMLDATADIR@/organizationprefs.xml" />                
+
+       <filemap identifier="sipxpage.properties.in"
+        	location="@SIPX_CONFDIR@/sipxpage.properties.in" />                
                 
       <databasemap identifier="credential"      location="credential" />
       <databasemap identifier="alias"           location="alias" />

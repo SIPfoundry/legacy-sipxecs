@@ -17,8 +17,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 public interface PagingContext extends DialingRuleProvider {
     static final String CONTEXT_BEAN_NAME = "pagingContext";
     
-    String getAudioDirectory();
-      
     String getPagingPrefix();
 
     List<PagingGroup> getPagingGroups();
@@ -32,4 +30,6 @@ public interface PagingContext extends DialingRuleProvider {
     void savePagingGroup(PagingGroup group);
     
     void clear();
+    
+    void restartService();
 }

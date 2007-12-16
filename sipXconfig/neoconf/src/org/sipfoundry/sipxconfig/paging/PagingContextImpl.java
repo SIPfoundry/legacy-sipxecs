@@ -9,53 +9,49 @@
  */
 package org.sipfoundry.sipxconfig.paging;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.Process;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.PagingRule;
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.admin.intercom.IntercomManager;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
-import org.sipfoundry.sipxconfig.setting.ConfigFileWriter;
 
 public class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext {
-    private static final String DESCRIPTION_KEY_FORMAT = "page.group.%d.description";
-    private static final String BEEP_KEY_FORMAT = "page.group.%d.beep";
-    private static final String USER_KEY_FORMAT = "page.group.%d.user";
-    private static final String URLS_KEY_FORMAT = "page.group.%d.urls";
 
-    private static final Log LOG = LogFactory.getLog(PagingContextImpl.class);
+    private PagingConfiguration m_pagingConfiguration;
 
-    private CoreContext m_coreContext;
+    private SipxReplicationContext m_replicationContext;
 
-    private String m_etcDirectory;
+    private IntercomManager m_intercomManager;
 
-    private String m_audioDirectory;
+    private SipxProcessContext m_processContext;
 
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
+    public void setPagingConfiguration(PagingConfiguration pagingConfiguration) {
+        m_pagingConfiguration = pagingConfiguration;
     }
 
-    public void setEtcDirectory(String etcDirectory) {
-        m_etcDirectory = etcDirectory;
+    public void setReplicationContext(SipxReplicationContext replicationContext) {
+        m_replicationContext = replicationContext;
     }
 
-    public String getAudioDirectory() {
-        return m_audioDirectory;
+    public void setIntercomManager(IntercomManager intercomManager) {
+        m_intercomManager = intercomManager;
     }
 
-    public void setAudioDirectory(String directory) {
-        m_audioDirectory = directory;
+    public void setProcessContext(SipxProcessContext processContext) {
+        m_processContext = processContext;
     }
 
     public String getPagingPrefix() {
@@ -90,7 +86,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         getHibernateTemplate().saveOrUpdate(group);
         // flush to take effect in order to generate the page group config
         getHibernateTemplate().flush();
-        generatePageGroupConfig();
+        replicatePagingConfig();
     }
 
     public void deletePagingGroupsById(Collection<Integer> groupsIds) {
@@ -105,62 +101,44 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         getHibernateTemplate().deleteAll(groups);
         // flush to take effect in order to generate the page group config
         getHibernateTemplate().flush();
-        generatePageGroupConfig();
+        replicatePagingConfig();
     }
 
     public void clear() {
         Collection c = getHibernateTemplate().loadAll(PagingGroup.class);
         getHibernateTemplate().deleteAll(c);
     }
-    
-    public List<DialingRule> getDialingRules() {
+
+    public List< ? extends DialingRule> getDialingRules() {
         String prefix = getPagingPrefix();
-        List<DialingRule> pagingRules = new ArrayList<DialingRule>();
-        if (!StringUtils.isEmpty(prefix)) {
-            pagingRules.add(new PagingRule(prefix));
+        if (StringUtils.isEmpty(prefix)) {
+            return Collections.emptyList();
         }
-        return pagingRules;
+        String alertInfo = m_intercomManager.getIntercom().getCode();
+        if (StringUtils.isEmpty(alertInfo)) {
+            alertInfo = "alert";
+        }
+        PagingRule rule = new PagingRule(prefix, alertInfo);
+        return Arrays.asList(rule);
     }
 
-    private synchronized void generatePageGroupConfig() {
-        File configFile = new File(m_etcDirectory, "sipxpage.properties.in");
-        try {
-            ConfigFileWriter configWriter = new ConfigFileWriter(configFile);
-            configWriter.reset();
-            configWriter.store(getConfigProperties());
-        } catch (IOException ex) {
-            LOG.error("failed to write sipxpage.properties.in");
-        }
+    public void replicatePagingConfig() {
+        replicatePagingConfig(m_replicationContext);
     }
 
-    private Properties getConfigProperties() {
-        Properties configPageProperties = new Properties();
-        String sipPort = "${PAGE_SERVER_SIP_PORT}";
-        configPageProperties.setProperty("log.level", "NOTICE");
-        configPageProperties.setProperty("log.file", "${PAGE_LOG_DIR}/sipxpage.log");
-        configPageProperties.setProperty("sip.address", "${PAGE_SERVER_ADDR}");
-        configPageProperties.setProperty("sip.udpPort", sipPort);
-        configPageProperties.setProperty("sip.tcpPort", sipPort);
-        configPageProperties.setProperty("sip.tlsPort", "${PAGE_SERVER_SIP_SECURE_PORT}");
-        configPageProperties.setProperty("rtp.port", "8500");
-        int pagingGroupIndex = 1;
-        for (PagingGroup group : getPagingGroups()) {
-            if (group.isEnabled()) {
-                configPageProperties.setProperty(String.format(DESCRIPTION_KEY_FORMAT,
-                        pagingGroupIndex), group.formatDescription());
-                configPageProperties.setProperty(
-                        String.format(BEEP_KEY_FORMAT, pagingGroupIndex), group
-                                .formatBeep(m_audioDirectory));
-                configPageProperties.setProperty(
-                        String.format(USER_KEY_FORMAT, pagingGroupIndex), group
-                                .formatPageGroupNumber());
-                configPageProperties.setProperty(
-                        String.format(URLS_KEY_FORMAT, pagingGroupIndex), group
-                                .formatUrls(m_coreContext.getDomainName()));
-                pagingGroupIndex++;
-            }
-        }
-        return configPageProperties;
+    /**
+     * Allows the caller to specify a replication context to use
+     */
+    public void replicatePagingConfig(SipxReplicationContext context) {
+        m_pagingConfiguration.generate(getPagingGroups());
+        context.replicate(m_pagingConfiguration);
+    }
+
+    public void restartService() {
+        Process service = m_processContext.getProcess(ProcessName.PAGE_SERVER);
+        Collection<Process> services = new ArrayList<Process>();
+        services.add(service);
+        m_processContext.manageServices(services, SipxProcessContext.Command.RESTART);
     }
 
     public UserDeleteListener createUserDeleteListener() {
@@ -176,7 +154,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
                     getHibernateTemplate().saveOrUpdate(group);
                 }
             }
-            generatePageGroupConfig();
+            replicatePagingConfig();
         }
     }
 }
