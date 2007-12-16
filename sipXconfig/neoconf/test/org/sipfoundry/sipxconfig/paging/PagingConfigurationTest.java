@@ -9,59 +9,77 @@
  */
 package org.sipfoundry.sipxconfig.paging;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class PagingConfigurationTest extends TestCase {
-    private PagingConfiguration m_pagingGroup;
+    private PagingConfiguration m_pagingConfiguration;
+    private PagingServer m_pagingServer;
     private List<PagingGroup> m_pagingGroups;
 
     public void setUp() throws Exception {
-        m_pagingGroup = new PagingConfiguration();
+        m_pagingServer = new PagingServer();
+        m_pagingServer.setLogLevel("NOTICE");
 
-        PagingGroup group = new PagingGroup();
-        group.setEnabled(true);
-        group.setDescription("All the phones in the east side of the building");
-        group.setSound("TadaTada.wav");
-        group.setPageGroupNumber(new Long(42));
+        m_pagingConfiguration = new PagingConfiguration();
+        m_pagingConfiguration.setVelocityEngine(TestHelper.getVelocityEngine());
+        m_pagingConfiguration.setTemplate("commserver/sipxpage.properties.in.vm");
 
-        Set<User> users = new HashSet<User>();
-        User user1 = new User();
-        user1.setUserName("201");
-        users.add(user1);
-        group.setUsers(users);
+        PagingGroup g1 = new PagingGroup();
+        g1.setEnabled(true);
+        g1.setDescription("All the phones in the east side of the building");
+        g1.setSound("TadaTada.wav");
+        g1.setPageGroupNumber(42);
 
-        m_pagingGroups = new ArrayList<PagingGroup>();
-        m_pagingGroups.add(group);
+        Set<User> users = new LinkedHashSet<User>();
+        for (int i = 0; i < 3; i++) {
+            User u = new User();
+            u.setUniqueId();
+            u.setUserName(Integer.toString(200 + i));
+            users.add(u);
+        }
+        g1.setUsers(users);
+
+        PagingGroup g2 = new PagingGroup();
+        g2.setEnabled(true);
+        g2.setSound("Tada.wav");
+        g2.setPageGroupNumber(45);
+
+        Set<User> users2 = new LinkedHashSet<User>();
+        for (int i = 0; i < 2; i++) {
+            User u = new User();
+            u.setUniqueId();
+            u.setUserName(Integer.toString(200 + 2 * i));
+            users2.add(u);
+        }
+        g2.setUsers(users2);
+
+        PagingGroup g3 = new PagingGroup();
+        g3.setEnabled(false);
+
+        m_pagingGroups = Arrays.asList(g1, g2, g3);
     }
 
     public void testGenerateConfigProperties() throws Exception {
-        Map<String, String> cp = m_pagingGroup.generateConfigProperties(
-                m_pagingGroups,  "NOTICE", "media", "example.org");
-        // FIXME: expected values should be first
-        assertEquals(cp.get("log.level"), "NOTICE");
-        assertEquals(cp.get("log.file"),
-                "${PAGE_LOG_DIR}/sipxpage.log");
-        assertEquals(cp.get("sip.address"), "${PAGE_SERVER_ADDR}");
-        assertEquals(cp.get("sip.udpPort"),
-                "${PAGE_SERVER_SIP_PORT}");
-        assertEquals(cp.get("sip.tcpPort"),
-                "${PAGE_SERVER_SIP_PORT}");
-        assertEquals(cp.get("sip.tlsPort"),
-                "${PAGE_SERVER_SIP_SECURE_PORT}");
-        assertEquals(cp.get("rtp.port"), "8500");
+        m_pagingConfiguration.generate(m_pagingServer, m_pagingGroups, "media", "example.org");
 
-        assertEquals(cp.get("page.group.1.description"),
-                "All the phones in the east side of the building");
-        assertEquals(cp.get("page.group.1.beep"), "file://media/TadaTada.wav");
-        assertEquals(cp.get("page.group.1.user"), "42");
-        assertEquals(cp.get("page.group.1.urls"), "201@example.org");
+        StringWriter output = new StringWriter();
+        m_pagingConfiguration.write(output);
+
+        InputStream expectedProfile = getClass().getResourceAsStream("sipxpage.properties.in");
+        assertNotNull(expectedProfile);
+        String expected = IOUtils.toString(expectedProfile);
+
+        assertEquals(expected, output.toString());
     }
 }

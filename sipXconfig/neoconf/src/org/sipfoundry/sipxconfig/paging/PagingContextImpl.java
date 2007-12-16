@@ -22,26 +22,23 @@ import org.sipfoundry.sipxconfig.admin.intercom.IntercomManager;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.dao.support.DataAccessUtils;
 
-public class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext,
-        BeanFactoryAware {
+public abstract class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext {
 
     private IntercomManager m_intercomManager;
 
-    private BeanFactory m_beanFactory;
+    protected abstract PagingServer createPagingServer();
 
     public void setIntercomManager(IntercomManager intercomManager) {
         m_intercomManager = intercomManager;
     }
 
-    private PagingServer getPagingServer() {
+    public PagingServer getPagingServer() {
         List pagingServers = getHibernateTemplate().loadAll(PagingServer.class);
         PagingServer ps = (PagingServer) DataAccessUtils.singleResult(pagingServers);
         if (ps == null) {
-            ps = (PagingServer) m_beanFactory.getBean(PagingServer.BEAN_NAME, PagingServer.class);
+            ps = createPagingServer();
             getHibernateTemplate().save(ps);
         }
         return ps;
@@ -59,7 +56,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         return (PagingGroup) getHibernateTemplate().load(PagingGroup.class, pagingGroupId);
     }
 
-    public void savePagingPrefix(String prefix) {
+    public void setPagingPrefix(String prefix) {
         getPagingServer().setPrefix(prefix);
     }
 
@@ -102,9 +99,5 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
                 }
             }
         }
-    }
-
-    public void setBeanFactory(BeanFactory beanFactory) {
-        m_beanFactory = beanFactory;
     }
 }

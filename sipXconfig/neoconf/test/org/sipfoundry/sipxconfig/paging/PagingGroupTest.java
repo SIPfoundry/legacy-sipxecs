@@ -9,22 +9,31 @@
  */
 package org.sipfoundry.sipxconfig.paging;
 
+import java.util.LinkedHashSet;
+
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.common.User;
 
 public class PagingGroupTest extends TestCase {
     public void testFormatUrls() {
-        PagingGroup group1 = new PagingGroup();
-        User user1 = new User();
-        user1.setUserName("userTest");
-        group1.getUsers().add(user1);
-        assertEquals("userTest@test.org", group1.formatUrls("test.org"));
-    }
+        PagingGroup group = new PagingGroup();
+        group.setUsers(new LinkedHashSet<User>());
 
-    public void testFormatBeep() {
-        PagingGroup group2 = new PagingGroup();
-        group2.setSound("beep.wav");
-        assertEquals("file:///audio/beep.wav", group2.formatBeep("/audio"));
+        assertEquals("", group.formatUserList("test.org"));
+
+        User user1 = new User();
+        user1.setUniqueId();
+        user1.setUserName("abc");
+        group.getUsers().add(user1);
+        assertEquals("abc@test.org", group.formatUserList("test.org"));
+
+        User user2 = new User();
+        user2.setUniqueId();
+        user2.setUserName("cde");
+        group.getUsers().add(user2);
+
+        // order does not have to match
+        assertEquals("abc@example.org,cde@example.org", group.formatUserList("example.org"));
     }
 }

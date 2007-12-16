@@ -36,8 +36,6 @@ public class PagingGroupsPageTestUi extends WebTestCase {
     }
 
     private void editGroup() {
-        assertElementPresent("prefix");
-        assertFormElementEquals("prefix", "*77");
         assertLinkPresentWithText("1");
         clickLinkWithText("1");
         assertElementPresent("enableGroup");
@@ -53,16 +51,12 @@ public class PagingGroupsPageTestUi extends WebTestCase {
     private void createGroup() {
         assertLinkPresent("link.addPagingGroup");
         clickLink("link.addPagingGroup");
-        assertElementPresent("prefix");
-        setFormElement("prefix", "*77");
         assertElementPresent("enableGroup");
         checkCheckbox("enableGroup");
         assertElementPresent("number");
         setFormElement("number", "1");
         assertElementPresent("description");
         setFormElement("description", "test group");
-        assertElementPresent("prefix");
-        assertFormElementEquals("prefix", "*77");
         assertElementPresent("enableGroup");
         assertCheckboxSelected("enableGroup");
         assertElementPresent("number");

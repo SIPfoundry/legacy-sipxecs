@@ -6,11 +6,6 @@
     <fieldset>
       <table>
         <tbody>
-          <span jwcid="@If" condition="ognl:(pagingContext.pagingPrefix.length())==0">
-            <tr jwcid="@FieldPanel" for="prefix" field="component:prefix" label="message:label.prefix">
-              <input jwcid="prefix@TextField" id="prefix" value="prop:group.prefix" validators="spring-validators:required,noWhitespace,validFieldSize" displayName="message:label.prefix"/>
-            </tr>
-          </span>
           <tr jwcid="@FieldPanel" for="enableGroup" field="component:enableGroup" label="message:label.enableGroup">
             <span jwcid="enableGroup@Checkbox" id="enableGroup" value="prop:group.enabled"/>
           </tr>
@@ -22,7 +17,7 @@
           </tr>
           <tr>
             <td><label for="beep"><span key="label.pageBeep"/></label></td>
-            <td><span jwcid="beep@AssetSelector" asset="prop:group.sound" assetDir="ognl:pagingConfiguration.audioDirectory"
+            <td><span jwcid="beep@AssetSelector" asset="prop:group.sound" assetDir="ognl:pagingProvisioningContext.audioDirectory"
               errorMsg="message:error.select" contentType="literal:audio/x-wav" selectable="ognl:true"/>
             </td>
           </tr>

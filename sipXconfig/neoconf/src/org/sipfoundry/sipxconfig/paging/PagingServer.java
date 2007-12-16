@@ -12,9 +12,9 @@ package org.sipfoundry.sipxconfig.paging;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 public class PagingServer extends BeanWithId {
-    public static final String BEAN_NAME = "pagingServer";
-
     private String m_prefix;
+
+    private String m_logLevel;
 
     public String getPrefix() {
         return m_prefix;
@@ -22,5 +22,13 @@ public class PagingServer extends BeanWithId {
 
     public void setPrefix(String prefix) {
         m_prefix = prefix;
+    }
+
+    public String getLogLevel() {
+        return m_logLevel;
+    }
+
+    public void setLogLevel(String logLevel) {
+        m_logLevel = logLevel;
     }
 }

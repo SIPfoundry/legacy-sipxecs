@@ -22,9 +22,9 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.paging.PagingConfiguration;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.paging.PagingGroup;
+import org.sipfoundry.sipxconfig.paging.PagingProvisioningContext;
 import org.sipfoundry.sipxconfig.site.user.SelectUsers;
 import org.sipfoundry.sipxconfig.site.user.SelectUsersCallback;
 import org.sipfoundry.sipxconfig.site.user.UserTable;
@@ -39,8 +39,8 @@ public abstract class EditPagingGroupPage extends UserBasePage implements PageBe
     @InjectObject(value = "spring:pagingContext")
     public abstract PagingContext getPagingContext();
 
-    @InjectObject(value = "spring:pagingConfiguration")
-    public abstract PagingConfiguration getPagingConfiguration();
+    @InjectObject(value = "spring:pagingProvisioningContext")
+    public abstract PagingProvisioningContext getPagingProvisioningContext();
 
     @Persist(value = "client")
     public abstract Integer getGroupId();

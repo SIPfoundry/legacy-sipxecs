@@ -44,7 +44,7 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
         List<PagingGroup> groups = m_pagingContext.getPagingGroups();
         assertEquals(3, groups.size());
         PagingGroup group1 = groups.get(0);
-        assertEquals(new Long(111), group1.getPageGroupNumber());
+        assertEquals(111, group1.getPageGroupNumber());
         assertEquals("Sales", group1.getDescription());
         assertEquals(true, group1.isEnabled());
         assertEquals("TadaTada.wav", group1.getSound());
@@ -62,7 +62,7 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
 
     public void testGetPagingGroupById() throws Exception {
         PagingGroup group = m_pagingContext.getPagingGroupById(new Integer(101));
-        assertEquals(new Long(112), group.getPageGroupNumber());
+        assertEquals(112, group.getPageGroupNumber());
         assertEquals("Engineering", group.getDescription());
         assertEquals(false, group.isEnabled());
         assertEquals("TadaTada.wav", group.getSound());
@@ -85,7 +85,7 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
 
     public void testSavePagingPrefix() throws Exception {
         assertEquals("*77", m_pagingContext.getPagingPrefix());
-        m_pagingContext.savePagingPrefix("*88");
+        m_pagingContext.setPagingPrefix("*88");
         assertEquals("*88", m_pagingContext.getPagingPrefix());
     }
 
@@ -94,7 +94,7 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
         assertEquals(3, groups.size());
 
         PagingGroup group = new PagingGroup();
-        group.setPageGroupNumber(new Long(114));
+        group.setPageGroupNumber(114);
         group.setDescription("test");
         group.setSound("TadaTada.wav");
         Set<User> users = new HashSet<User>();

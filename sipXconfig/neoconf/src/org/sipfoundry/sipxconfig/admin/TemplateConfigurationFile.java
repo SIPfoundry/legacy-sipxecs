@@ -63,7 +63,9 @@ public abstract class TemplateConfigurationFile implements ConfigurationFile {
      * Overwrite to set-up Velocity context
      */
     protected VelocityContext setupContext() {
-        return new VelocityContext();
+        VelocityContext context = new VelocityContext();
+        context.put("dollar", "$");
+        return context;
     }
 
     public final String getFileContent() {

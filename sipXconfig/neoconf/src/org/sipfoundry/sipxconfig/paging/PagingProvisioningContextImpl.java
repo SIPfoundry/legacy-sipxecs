@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.annotation.Required;
 
-public class PagingProvisioningContextImpl implements PagingProvisioningContext {
+public abstract class PagingProvisioningContextImpl implements PagingProvisioningContext {
 
     private PagingContext m_pagingContext;
 
@@ -31,12 +31,15 @@ public class PagingProvisioningContextImpl implements PagingProvisioningContext 
 
     private String m_audioDirectory;
 
+    protected abstract PagingConfiguration createPagingConfiguration();
+
     private void replicatePagingConfig() {
+        PagingServer pagingServer = m_pagingContext.getPagingServer();
         List<PagingGroup> pagingGroups = m_pagingContext.getPagingGroups();
 
-        PagingConfiguration pagingConfiguration = new PagingConfiguration();
+        PagingConfiguration pagingConfiguration = createPagingConfiguration();
         String domainName = m_domainManager.getDomain().getName();
-        pagingConfiguration.generate(pagingGroups, m_audioDirectory, domainName);
+        pagingConfiguration.generate(pagingServer, pagingGroups, m_audioDirectory, domainName);
         m_replicationContext.replicate(pagingConfiguration);
         m_replicationContext.publishEvent(new PagingServerActivatedEvent(pagingConfiguration));
     }
@@ -68,6 +71,10 @@ public class PagingProvisioningContextImpl implements PagingProvisioningContext 
     @Required
     public void setAudioDirectory(String audioDirectory) {
         m_audioDirectory = audioDirectory;
+    }
+    
+    public String getAudioDirectory() {
+        return m_audioDirectory;
     }
 
     @Required

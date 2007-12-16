@@ -17,15 +17,18 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 public interface PagingContext extends DialingRuleProvider {
     String getPagingPrefix();
 
+    void setPagingPrefix(String prefix);
+
+    PagingServer getPagingServer();
+
     List<PagingGroup> getPagingGroups();
 
     PagingGroup getPagingGroupById(Integer id);
 
     void deletePagingGroupsById(Collection<Integer> groupsIds);
 
-    void savePagingPrefix(String prefix);
-
     void savePagingGroup(PagingGroup group);
 
     void clear();
+
 }

@@ -89,7 +89,7 @@ public abstract class PagingGroupsPage extends BasePage implements PageBeginRend
 
         List<PagingGroup> groups = getGroups();
         if (groups.size() > 0) {
-            getPagingContext().savePagingPrefix(prefix);
+            getPagingContext().setPagingPrefix(prefix);
         }
     }
 

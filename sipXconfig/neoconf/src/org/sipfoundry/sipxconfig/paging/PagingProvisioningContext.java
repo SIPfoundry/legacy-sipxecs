@@ -11,4 +11,6 @@ package org.sipfoundry.sipxconfig.paging;
 
 public interface PagingProvisioningContext {
     void deploy();
+
+    String getAudioDirectory();
 }
