@@ -26,5 +26,4 @@ noinst_HEADERS = \
 	VXItel.h \
 	VXItrd.h \
 	VXItypes.h \
-	VXIvalue.h \
-	wwwconf.h
+	VXIvalue.h
