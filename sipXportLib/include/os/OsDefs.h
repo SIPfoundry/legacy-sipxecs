@@ -45,6 +45,7 @@ void osPrintf(const char* format , ...)
    typedef __int64_t __int64;
 #  elif defined(__FreeBSD__)
 #     include <stdlib.h>
+   typedef __int64_t __int64;
 #  elif defined(sun)
 #     include <sys/int_types.h>
    typedef int64_t __int64;
