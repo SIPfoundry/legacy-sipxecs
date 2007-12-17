@@ -33,7 +33,7 @@ fi
 : ${RunningUser:=@SIPXPBXUSER@}
 : ${PgUser:=@POSTGRESQL_USER@}
 : ${PgSchema:=${ConfDir}/cdr/schema.sql}
-: ${RubyCmd:=/usr/bin/ruby}
+: ${RubyCmd:=@RUBY@}
 : ${DbVersion:=4}
 : ${DbPatchDir:=${ConfDir}/cdr}
 : ${DbPatchLog:=${LogDir}/sipcdrpatch.log}
