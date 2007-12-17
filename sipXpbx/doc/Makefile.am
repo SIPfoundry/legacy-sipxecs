@@ -6,5 +6,5 @@ include $(top_srcdir)/config/doxygen.am
 EXTRA_DIST = \
 	developer \
 	license \
-	Doxyfile.in \
+	Doxyfile.project.in \
 	footer.html

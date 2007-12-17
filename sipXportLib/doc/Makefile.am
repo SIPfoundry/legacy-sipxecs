@@ -5,7 +5,7 @@ images = \
 	PluginUml.png
 
 EXTRA_DIST = \
-  Doxyfile.in \
+  Doxyfile.project.in \
   footer.html \
   $(images)
 
