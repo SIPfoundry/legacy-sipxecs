@@ -32,6 +32,7 @@ EXTRA_DIST = \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
     config/svn-version \
+    config/Doxyfile.in \
     config/project.am \
     config/subdir.am \
     sipxpublisher.spec
