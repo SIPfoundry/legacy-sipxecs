@@ -54,57 +54,6 @@ BEGIN_FASTDB_NAMESPACE
 // Use pthread based implementation
 #include <pthread.h>
 
-class wtf {
-   public:
-     static void log(const char *msg, const void *obj)
-     {
-         static int fd = -1 ;
-         static int pid = -1 ;
-         static char procName[256] ;
-         static char buf[512] ;
-//         if (fd < 0)
-         {
-            const char *name = "/tmp/wtf.log";
-//            fd = ::open(name, O_WRONLY|O_CREAT|O_APPEND, 0777);
-            fd = ::open(name, O_WRONLY|O_APPEND, 0777);
-            if (fd < 0)
-               return ;
-
-            if (pid == -1)
-            {
-                pid = getpid() ;
-                char dog[256] ;
-                int pd ;
-                sprintf(dog, "/proc/%d/cmdline", pid) ;
-                pd = open(dog, O_RDONLY) ;
-                if (pd < 0 || read(pd, procName, sizeof(procName)-1) <= 0)
-                {
-                   sprintf(procName, "Unknown") ;
-                }
-                close(pd) ;
-            }
-         }
-         pthread_t tid = pthread_self() ;
-         struct timespec timespec ;
-         clock_gettime(CLOCK_REALTIME, &timespec) ;
-         struct tm tmp ;
-         gmtime_r(&timespec.tv_sec, &tmp);
-         char timeStr[64] ;
-         strftime(timeStr, sizeof(timeStr), "%T", &tmp) ;
-         snprintf(buf, sizeof(buf)-1, "%d(%s):%p %p %s:%03ld %s\n", pid, procName, (void *)tid, obj, timeStr, timespec.tv_nsec/1000, msg) ;
-         write(fd, buf, strlen(buf)) ;
-         close(fd);
-     }
-
-     static int getvalue(sem_t *sem)
-     {
-        int sval=42 ;
-        sem_getvalue(sem, &sval) ;
-        return sval ;
-     }
-
-};
-
 class dbMutex { 
     friend class dbLocalEvent;
     friend class dbLocalSemaphore;
@@ -461,7 +410,6 @@ class dbInitializationMutex {
         NotYetInitialized
     };
     initializationStatus initialize(char const* name) { 
-        wtf::log("dbInitializationMutex::initialize", NULL) ;
         initializationStatus status;
         char *tmp = new char[strlen(name) + 32 + 1];
         if (name[0] != '/')
@@ -481,7 +429,6 @@ class dbInitializationMutex {
                 if (errno == ENOENT) {
                     sem = sem_open(tmp, O_CREAT|O_EXCL, 0777, 0);
                     if (sem != SEM_FAILED) { 
-                        wtf::log("dbInitializationMutex::initialize NotYetInitialized ------------------------------------------------------", NULL) ;
                         status = NotYetInitialized;
                         break;
                     } else if (errno != EEXIST) { 
@@ -503,16 +450,13 @@ class dbInitializationMutex {
     }
 
     void done() { 
-        wtf::log("dbInitializationMutex::done", NULL) ;
         sem_post(sem);
     }
     bool close() {
-        wtf::log("dbInitializationMutex::close", NULL) ;
         sem_close(sem);
         return false;
     }
     void erase() { 
-        wtf::log("dbInitializationMutex::erase", NULL) ;
         close();
     }
 };
@@ -524,9 +468,6 @@ class dbSemaphore {
 
   public:
     void wait() { 
-        char buf[128] ;
-        sprintf(buf, "dbSemaphore(%s)::wait begin (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
         for(;;)
         {
             int rc = sem_wait(sem);
@@ -535,14 +476,9 @@ class dbSemaphore {
             assert(rc == 0);
             break;
         }
-        sprintf(buf, "dbSemaphore(%s)::wait end (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
     }
 
     bool wait(unsigned msec) { 
-        char buf[128] ;
-        sprintf(buf, "dbSemaphore(%s)::wait begin timeout (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
 #ifdef POSIX_1003_1d
         struct timespec abs_ts;
         struct timeval  cur_tv;
@@ -555,14 +491,10 @@ class dbSemaphore {
             if (rc < 0) { 
                 if (errno == EINTR)
                    continue ;
-                sprintf(buf, "dbSemaphore(%s)::wait end timedout (%d)", semName, wtf::getvalue(sem)) ;
-                wtf::log(buf, sem) ;
                 assert(errno == ETIMEDOUT);
                 return false;
             }
         }
-        sprintf(buf, "dbSemaphore(%s)::wait end timeout (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
         return true;
 #else 
         for(;;)
@@ -570,8 +502,6 @@ class dbSemaphore {
             int rc = sem_wait(sem);
             if (rc != 0 && errno == EINTR)
                continue;
-            sprintf(buf, "dbSemaphore(%s)::wait end timeout (%d)", semName, wtf::getvalue(sem)) ;
-            wtf::log(buf, sem) ;
             assert(rc == 0);
             return true;
         }
@@ -579,23 +509,13 @@ class dbSemaphore {
     }
 
     void signal(unsigned inc = 1) {
-        char buf[128] ;
-        sprintf(buf, "dbSemaphore(%s)::signal (%d) inc=%d", semName, wtf::getvalue(sem), inc) ;
-        wtf::log(buf, sem) ;
-
         // For every non-zero inc, post to the sem once
         while (inc-- != 0) { 
-            sprintf(buf, "   dbSemaphore(%s)::signal:post (%d)", semName, wtf::getvalue(sem)) ;
-            wtf::log(buf, sem) ;
             sem_post(sem);
         }
     }
     void reset() { 
-        char buf[128] ;
-        sprintf(buf, "dbSemaphore(%s)::reset begin (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
         while (sem_trywait(sem) == 0);
-        sprintf(buf, "dbSemaphore(%s)::reset end (%d)", semName, wtf::getvalue(sem)) ;
     }    
     bool open(char const* name, unsigned initValue = 0) {
         char *tmp = new char[strlen(name) + 32 + 1];
@@ -612,22 +532,13 @@ class dbSemaphore {
         }
         semName = strdup(tmp) ;
         sem = sem_open(tmp, O_CREAT, 0777, initValue);
-        char buf[128] ;
-        sprintf(buf, "dbSemaphore(%s)::open (%d) initValue=%d", semName, wtf::getvalue(sem), initValue) ;
-        wtf::log(buf, sem) ;
         delete[] tmp;
         return sem != NULL; 
     }
     void close() {
-        char buf[128] ;
-        sprintf(buf, "dbSemaphore(%s)::close", semName) ;
-        wtf::log(buf, sem) ;
         sem_close(sem);
     }
     void erase() { 
-        char buf[128] ;
-        sprintf(buf, "dbSemaphore(%s)::erase", semName) ;
-        wtf::log(buf, sem) ;
         close();
         free(semName) ;
     }
@@ -636,54 +547,25 @@ class dbSemaphore {
 class dbEvent : public dbSemaphore { 
   public:
     void wait() { 
-        char buf[128] ;
-        sprintf(buf, "dbEvent(%s)::wait begin (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
         dbSemaphore::wait();
-        sprintf(buf, "dbEvent(%s)::wait end (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
-        sprintf(buf, "dbEvent(%s)::wait post (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
         sem_post(sem);
     }
     bool wait(unsigned msec) { 
-        char buf[128] ;
-        sprintf(buf, "dbEvent(%s)::wait begin timeout (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
         if (dbSemaphore::wait(msec)) { 
-            sprintf(buf, "dbEvent(%s)::wait end timeout (%d)", semName, wtf::getvalue(sem)) ;
-            wtf::log(buf, sem) ;
-            sprintf(buf, "dbEvent(%s)::wait post (%d)", semName, wtf::getvalue(sem)) ;
-            wtf::log(buf, sem) ;
             sem_post(sem);
             return true;
         }
         return false;
     }
     void signal() {
-        char buf[128] ;
-        sprintf(buf, "dbEvent(%s)::signal begin (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
         while (sem_trywait(sem) == 0);
-        sprintf(buf, "dbEvent(%s)::signal end (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
-        sprintf(buf, "dbEvent(%s)::signal post (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
         sem_post(sem);
     }
     void reset() {
-        char buf[128] ;
-        sprintf(buf, "dbEvent(%s)::reset begin (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
         while (sem_trywait(sem) == 0);
-        sprintf(buf, "dbEvent(%s)::reset end (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
     }
     bool open(char const* name, bool signaled = false) {
-        char buf[128] ;
         bool okay =  dbSemaphore::open(name, (int)signaled);
-        sprintf(buf, "dbEvent(%s)::open (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
         return okay ;
     }
 };
@@ -819,108 +701,6 @@ class dbSharedObject {
     ~dbSharedObject() { 
         delete[] name;
     }
-};
-
-/**
- * Systemwide global lock 
- *  Based on flock on the shared memory file for processes
- *  And a mutex for threads within processes
- * 
- * Reentrant (lock owner thread may relock)
- *
-*/
-class sipXGlobal {
-
-   int fd ;
-   int count ;
-   pthread_t owner ;
-   pthread_mutex_t mutex ;
-   pthread_cond_t cond ;
-
-public:
-   static sipXGlobal* getInstance() {
-      static sipXGlobal *me ;   
-      if (me == NULL)
-      {
-         me = new sipXGlobal() ;
-      }
-      return me ;
-   }
-
-private:
-   sipXGlobal() {} 
-
-public:
-   void init(int fd) {
-      this->fd = fd ;
-      count = 0 ;
-      owner = 0 ;
-      pthread_mutex_init(&mutex, NULL) ;
-      pthread_cond_init(&cond, NULL) ;
-      wtf::log("sipXlock::sipXlock", NULL) ;
-   }
-   
-   void lock() {
-      char buf[128] ;
-
-      pthread_mutex_lock(&mutex) ;
-
-      sprintf(buf, "sipXlock::lock begin mutex count=%d owner=%p", count, (void *)owner) ;
-      wtf::log(buf, NULL) ;
-      if (count == 0)
-      {
-         assert(owner == 0) ;
-         int rc = ::flock(fd, LOCK_EX) ;
-         assert(rc == 0) ;
-         owner = pthread_self() ;
-      }
-      if (owner != pthread_self())
-      {
-         while(count != 0)
-         {
-            pthread_cond_wait(&cond, &mutex) ;
-         }
-         owner = pthread_self() ;
-      }
-      count++ ;
-      sprintf(buf, "sipXlock::lock end count=%d owner=%p", count, (void *)owner) ;
-      wtf::log(buf, NULL) ;
-      pthread_mutex_unlock(&mutex) ;
-   }
-
-   void unlock() {
-      char buf[128] ;
-
-      pthread_mutex_lock(&mutex) ;
-      sprintf(buf, "sipXlock::unlock count=%d owner=%p", count, (void *)owner) ;
-      wtf::log(buf, NULL) ;
-      assert(owner == pthread_self()) ;
-      if (--count == 0)
-      {
-         int rc = ::flock(fd, LOCK_UN) ;
-         assert(rc == 0) ;
-         owner = 0 ;
-         pthread_cond_broadcast(&cond) ;
-      }
-      pthread_mutex_unlock(&mutex) ;
-   }
-   
-};
-
-class sipXguard {
-   public:
-   sipXguard() {
-      sipXGlobal::getInstance()->lock() ;
-   }
-   ~sipXguard() {
-      sipXGlobal::getInstance()->unlock() ;
-   } 
-   static void lock() {
-      sipXGlobal::getInstance()->lock() ;
-   }
-   static void unlock() {
-      sipXGlobal::getInstance()->unlock() ;
-   }
 };
 
 #else // USE_POSIX_MMAP
@@ -1069,24 +849,16 @@ class dbGlobalCriticalSection {
     }
 
     void enter() { 
-        char buf[128] ;
-        sprintf(buf, "dbGlobalCriticalSection(%s)::enter begin (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
         for(;;)
         {
             int rc = sem_wait(sem);
             if (rc != 0 && errno == EINTR)
                continue;
-            sprintf(buf, "dbGlobalCriticalSection(%s)::enter end (%d)", semName, wtf::getvalue(sem)) ;
-            wtf::log(buf, sem) ;
             assert(rc == 0);
             break;
         }
     }
     void leave() { 
-        char buf[128] ;
-        sprintf(buf, "dbGlobalCriticalSection(%s)::leave (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
         int rc = sem_post(sem);
         assert(rc == 0);
     }
@@ -1096,23 +868,16 @@ class dbGlobalCriticalSection {
         {
            semName = strdup(name) ;
         }
-        char buf[128] ;
-        sprintf(buf, "dbGlobalCriticalSection(%s)::open (%d)", semName, wtf::getvalue(sem)) ;
-        wtf::log(buf, sem) ;
         return true;
     }
 
     bool create(char const* name, sharedsem_t* shr) {   
         sem = shr;
         semName = strdup(name) ;
-        char buf[128] ;
-        sprintf(buf, "dbGlobalCriticalSection(%s)::create", semName) ;
-        wtf::log(buf, sem) ;
         return sem_init(sem, 1, 1) == 0;
     }
 
     void close() {
-        wtf::log("dbGlobalCriticalSection::close", sem) ;
         if (semName)
         {
             free(semName) ;
@@ -1120,7 +885,6 @@ class dbGlobalCriticalSection {
         }
     }
     void erase() { 
-        wtf::log("dbGlobalCriticalSection::erase", sem) ;
         sem_destroy(sem);
         if (semName)
         {

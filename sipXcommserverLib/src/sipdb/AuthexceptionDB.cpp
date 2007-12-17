@@ -182,7 +182,6 @@ AuthexceptionDB::load()
 OsStatus
 AuthexceptionDB::store()
 {
-    sipXguard Guard() ;
     // Critical Section here
     OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
@@ -289,7 +288,6 @@ AuthexceptionDB::insertRow (const UtlHashMap& nvPairs)
 UtlBoolean
 AuthexceptionDB::insertRow ( const UtlString& rUser)
 {
-    sipXguard Guard() ;
     UtlBoolean result = FALSE;
 
     
@@ -323,7 +321,6 @@ AuthexceptionDB::insertRow ( const UtlString& rUser)
 UtlBoolean
 AuthexceptionDB::removeRow ( const UtlString& rUser  )
 {
-    sipXguard Guard() ;
     UtlBoolean removed = FALSE;
     
     if ( !rUser.isNull() && (m_pFastDB != NULL) )
@@ -349,7 +346,6 @@ AuthexceptionDB::removeRow ( const UtlString& rUser  )
 void
 AuthexceptionDB::removeAllRows ()
 {
-    sipXguard Guard() ;
     if ( m_pFastDB != NULL)
     {
         // Thread Local Storage
@@ -369,7 +365,6 @@ AuthexceptionDB::removeAllRows ()
 void
 AuthexceptionDB::getAllRows(ResultSet& rResultSet) const
 {
-    sipXguard Guard() ;
     // Clear the out any previous records
     rResultSet.destroyAll();
 
@@ -403,7 +398,6 @@ AuthexceptionDB::getAllRows(ResultSet& rResultSet) const
 UtlBoolean
 AuthexceptionDB::isException ( const UtlString& rUser ) const
 {
-    sipXguard Guard() ;
     UtlBoolean isException = FALSE;
 
     if ( !rUser.isNull() && (m_pFastDB != NULL) )

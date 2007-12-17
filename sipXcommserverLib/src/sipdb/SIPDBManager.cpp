@@ -88,7 +88,6 @@ SIPDBManager::~SIPDBManager ()
     // one of its managed databases exists
     if ( spFastDB != NULL )
     {
-        sipXguard Guard() ;
         // Thread Local Storage
         spFastDB->attach();
 
@@ -136,7 +135,6 @@ SIPDBManager::getProcessCount ( int& rProcessCount ) const
     // one of its managed databases exists
     if ( spFastDB != NULL )
     {
-        sipXguard Guard ;
         int pid = getPid();
 
         // Thread Local Storage
@@ -195,7 +193,6 @@ SIPDBManager::pingDatabase (
     // one of its managed databases exists
     if ( spFastDB != NULL )
     {
-        sipXguard Guard ;
         int pid = getPid();
         spFastDB->attach();
         // create a readonly cursor
@@ -250,7 +247,6 @@ SIPDBManager::getAllTableProcesses ( ResultSet& rResultSet ) const
 
     if ( spFastDB != NULL )
     {
-        sipXguard Guard ;
         // must do this first to ensure process/tls integrity
         spFastDB->attach();
 
@@ -300,7 +296,6 @@ SIPDBManager::getNumDatabaseProcesses ( const UtlString& tablename ) const
 
     if ( spFastDB != NULL )
     {
-        sipXguard Guard ;
         // Thread Local Storage
         spFastDB->attach();
 
@@ -337,7 +332,6 @@ SIPDBManager::openDatabase () const
     // test for successful return code
     if ( database->open( "imdb", imdbFileName /*, 60000 */) )
     {
-        sipXguard Guard ;
         // Begin TX
         database->attach();
 
@@ -389,7 +383,6 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
         // test for successful return code
         if ( spFastDB->open( "imdb", imdbFileName /*, 60000 */) )
         {
-            sipXguard Guard ;
             // Begin TX
             spFastDB->attach();
 
@@ -421,7 +414,6 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
     // potentially the spFastDB can be NULL above if the open fails
     if (spFastDB != NULL) 
     {
-        sipXguard Guard ;
         // fastDB must be both non null and also opened successfully at this stage
 
         // If the tablename/pid do not match an existing row, insert a new 
@@ -467,7 +459,6 @@ SIPDBManager::removeDatabase ( const UtlString& tablename ) const
     // one dbDatabase construction call allowed per process
     if ( spFastDB != NULL )
     {
-        sipXguard Guard ;
         int pid = getPid();
 
         spFastDB->attach();
@@ -495,7 +486,6 @@ SIPDBManager::setDatabaseChangedFlag (
 
     if ( spFastDB != NULL ) 
     {
-        sipXguard Guard ;
         spFastDB->attach();
         dbCursor< TableInfo > cursor ( dbCursorForUpdate );
         dbQuery query;
@@ -539,7 +529,6 @@ SIPDBManager::getDatabaseInfo( UtlString& rDatabaseInfo ) const
     // one of its managed databases exists
     if ( spFastDB != NULL )
     {
-        sipXguard Guard ;
         spFastDB->attach();
 
         long allocatedSize = spFastDB->getAllocatedSize();
@@ -590,7 +579,6 @@ SIPDBManager::getDatabaseChangedFlag (
 
     if ( spFastDB != NULL ) 
     {
-        sipXguard Guard ;
         spFastDB->attach();
         dbCursor< TableInfo > cursor ( dbCursorForUpdate );
         dbQuery query;
@@ -618,7 +606,6 @@ SIPDBManager::updateDatabaseInfo (
 
     if (spFastDB != NULL)
     {
-        sipXguard Guard ;
         spFastDB->attach();
         dbCursor< TableInfo > cursor ( dbCursorForUpdate );
 

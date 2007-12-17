@@ -543,9 +543,6 @@ class FASTDB_DLL_ENTRY dbDatabase {
      */
     void scheduleBackup(char const* fileName, time_t periodSec);
    
-    void sipXlock() ;
-    void sipXunlock() ;
- 
     /**
      * Attach current thread to the database. This method should be executed
      * for all threads except one which opened the database.
@@ -914,7 +911,6 @@ class FASTDB_DLL_ENTRY dbDatabase {
 
     dbHashFunction hashFunction;
 
-    sipXGlobal                *sipxlock ;
     dbFile                    file;
     dbSharedObject<dbMonitor> shm;
     dbGlobalCriticalSection   cs;
@@ -1584,13 +1580,6 @@ class FASTDB_DLL_ENTRY dbDatabase {
      * @param objBitSize object size i quantums
      */
     void markAsAllocated(offs_t pos, int objBitSize);
-
-    void monStatus(char *func)
-    {
-       char buf[128];
-       sprintf(buf, "monStatus %s: users=%d nReaders=%d nWaitReaders=%d nWriters=%d nWaitWriters=%d", func, monitor->users, monitor->nReaders, monitor->nWaitReaders, monitor->nWriters, monitor->nWaitWriters);
-       wtf::log(buf, NULL);
-    }
 };
 
 

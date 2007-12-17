@@ -1790,11 +1790,6 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
        initMutex.done() ;
     }
     monitor = shm.get();
-    sipxlock = sipXGlobal::getInstance() ;
-    sipxlock->init(shm.getFd()) ;
-
-    // Global lock now that the shared memory is available
-    sipXguard Guard ;
 
     sprintf(name, "%s.ws", dbName);
     if (!writeSem.open(name)) { 
@@ -2795,15 +2790,6 @@ dbTableDescriptor* dbDatabase::lookupTable(dbTableDescriptor* origDesc)
         }
     }
     return NULL;
-}
-
-void dbDatabase::sipXlock()
-{
-    sipxlock->lock() ;
-}
-void dbDatabase::sipXunlock()
-{
-    sipxlock->unlock() ;
 }
 
 void dbDatabase::attach() 
@@ -4992,7 +4978,6 @@ void dbDatabase::revokeLock(int clientId)
                monitor->nWriters, monitor->nReaders, monitor->exclusiveLockOwner, clientId));
     if (monitor->nWriters != 0 && monitor->exclusiveLockOwner == clientId) { 
         if (accessType != dbReadOnly && accessType != dbConcurrentRead) { 
-            monStatus("::revokeLock write") ;
             TRACE_MSG(("Revoke exclusive lock, start recovery\n"));
             checkVersion();
             recovery();
@@ -5022,7 +5007,6 @@ void dbDatabase::revokeLock(int clientId)
                     monitor->sharedLockOwner[i-1] = monitor->sharedLockOwner[i];
                 }
                 monitor->sharedLockOwner[i-1] = 0;
-                monStatus("::revokeLock read") ;
                 monitor->nReaders -= 1;
                 if (monitor->nReaders == 1 && monitor->waitForUpgrade) { 
                     assert(monitor->nWriters == 0);
@@ -5210,7 +5194,6 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
                     cs.leave();
                 } 
             } else { 
-                monStatus("::beginTransaction") ;
                 if (monitor->nWriters != 0 || monitor->nReaders != 0) { 
                     monitor->nWaitWriters += 1;
                     cs.leave();
@@ -5275,7 +5258,6 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
                 if (commitDelay != 0) { 
                     delayedCommitStopTimerEvent.signal();
                 }
-                monStatus("::beginTransaction") ;
                 while (!readSem.wait(waitLockTimeout)
                        || !(monitor->nWriters == 0 && monitor->nReaders > 0))
                 { 
@@ -5487,7 +5469,6 @@ void dbDatabase::commit(dbDatabaseThreadContext* ctx)
         // now readers will see updated data
         monitor->curr ^= 1;
     }
-    monStatus("::commit") ;
     if (monitor->nWaitReaders != 0) { 
         monitor->nReaders += monitor->nWaitReaders;
         readSem.signal(monitor->nWaitReaders);
@@ -5705,7 +5686,6 @@ void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx)
     }
     if (ctx->writeAccess) { 
         cs.enter();
-        monStatus("::endTransaction wa") ;
         ctx->isMutator = false;
         monitor->nWriters -= 1;
         monitor->exclusiveLockOwner = 0;
@@ -5726,7 +5706,6 @@ void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx)
 #ifdef AUTO_DETECT_PROCESS_CRASH
         removeLockOwner(selfId);
 #endif
-        monStatus("::endTransaction ra") ;
         monitor->nReaders -= 1;
         if (monitor->nReaders == 1 && monitor->waitForUpgrade) { 
             assert(monitor->nWriters == 0);
