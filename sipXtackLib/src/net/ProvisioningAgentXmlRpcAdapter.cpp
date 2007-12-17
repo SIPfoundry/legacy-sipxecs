@@ -79,7 +79,14 @@ ProvisioningAgentXmlRpcAdapter::ProvisioningAgentXmlRpcAdapter(const Provisionin
 
 ProvisioningAgentXmlRpcAdapter::~ProvisioningAgentXmlRpcAdapter()
 {
+   mpXmlRpcServer->removeMethod("create");
+   mpXmlRpcServer->removeMethod("delete");
+   mpXmlRpcServer->removeMethod("set");
+   mpXmlRpcServer->removeMethod("get");
+   mpXmlRpcServer->removeMethod("action");
+
    delete mpXmlRpcServer;
+   mpXmlRpcServer= NULL;
 }
 
 /* ============================ MANIPULATORS ============================== */

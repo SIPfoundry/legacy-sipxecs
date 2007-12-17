@@ -188,12 +188,18 @@ ACDServer::~ACDServer()
    // Shut down the server components
    OsSysLog::add(LOG_FACILITY, PRI_INFO, "SHUTTING DOWN ACD SERVER");
 
-   if (mpProvisioningAgent) {
-      delete mpProvisioningAgent;
+#ifdef CML 
+   if (mpAcdRpcServer) {
+       delete mpAcdRpcServer; 
    }
+#endif
    
    if (mpProvisioningAgentXmlRpcAdapter) {
       delete mpProvisioningAgentXmlRpcAdapter;
+   }
+
+   if (mpProvisioningAgent) {
+      delete mpProvisioningAgent;
    }
    
    if (mpAcdAudioManager) {
