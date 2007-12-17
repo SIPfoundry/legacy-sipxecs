@@ -21,3 +21,8 @@ spy.log
 velocity.log
 bin.eclipse
 sipXtackLib/include/tapi
+lib/cgicc/build
+lib/dist
+lib/java-sun/build
+lib/ruby-dbi/build
+sipXtackLib/src/test/net/SipXauthIdentityTest.cpp
