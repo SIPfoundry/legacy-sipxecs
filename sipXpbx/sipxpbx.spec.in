@@ -248,6 +248,20 @@ else
   insserv sipxpbx
 fi
 
+# Configure sendmail (if that is the mail daemon chosen) to never delay a
+# caller to validate the message, but also to deliver mail quickly (as users
+# may use e-mail as their primary way to access voicemail).
+if [ -f /etc/sysconfig/sendmail ]; then
+  # Save the current /etc/sysconfig/sendmail, if we haven't saved one before.
+  if [ ! -f /etc/sysconfig/sendmail.pre-sipX ]; then
+    mv /etc/sysconfig/sendmail /etc/sysconfig/sendmail.pre-sipX
+  fi
+  (
+    echo '# Configured by sipX PBX: @PACKAGE@ @VERSION@'  
+    echo 'SENDMAIL_OPTARG=-odd'
+    echo 'QUEUE=p15s'
+  ) >/etc/sysconfig/sendmail
+fi
 
 %preun
 # see http://fedoraproject.org/wiki/Packaging/ScriptletSnippets
