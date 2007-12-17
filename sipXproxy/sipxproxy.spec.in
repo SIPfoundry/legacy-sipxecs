@@ -153,6 +153,18 @@ rm -rf $RPM_BUILD_ROOT
 %pre
 sipx-upgrade -p sipxproxy -c
 
+# Call the upgrade2mergedproxy script, which will convert the forking
+# and auth proxy config files (if they exist) into a config file for
+# the new merged proxy.
+# We do this first, so there will be a sipXproxy-config.in containing
+# the old settings, properly renamed to configure the new merged
+# proxy.  RPM installation will then install the pristine
+# sipXproxy-config.in as sipXproxy-config.in.rpmnew.  pkg-upgrade will
+# call configmerge, which will integrate the old values into the new
+# format.
+%{_bindir}/upgrade2mergedproxy --preserve --cleanlogs --cleancfgin --cleanproc \
+    --cdir %{_sysconfdir}/sipxpbx --ldir %{_localstatedir}/log/sipxpbx
+
 %post
 sipx-upgrade -p sipxproxy -u --bdir %{_bindir} --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
 

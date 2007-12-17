@@ -284,12 +284,6 @@ SIP_PROXY_CALL_STATE_DB : ${CALLRESOLVER_CALL_STATE_DB}
         *)
             ;;
     esac
-
-    # In all cases, call the upgrade2mergedproxy script, which will
-    # convert the forking and auth proxy config files (if they exist)
-    # into a config file for the new merged proxy.
-    
-    ${BinDir}/upgrade2mergedproxy --preserve --cleanlogs --cleancfgin --cleanproc --cdir ${SysConfDir}/sipxpbx --ldir ${LocalStateDir}/log/sipxpbx
 }
  
 ##########################
