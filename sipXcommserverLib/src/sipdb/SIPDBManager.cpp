@@ -348,7 +348,8 @@ SIPDBManager::openDatabase () const
         }
         // End TX
         database->detach(0);
-    } else // failed to open IMDB delete datbase & return NULL
+    }  
+    else // failed to open IMDB delete datbase & return NULL
     {
         // call the destructor on the IMDB
         delete database;
@@ -400,14 +401,23 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
 
             // End TX
             spFastDB->detach(0);
-        } else // failed to open IMDB delete datbase & return NULL
+        } 
+        else // failed to open IMDB delete datbase & die
         {
             // call the destructor on the IMDB
             delete spFastDB;
 
-            // reset the global pointer to NULL so that we 
-            // always come through this code path
             spFastDB = NULL;
+
+            OsSysLog::add(FAC_DB, PRI_CRIT, 
+                "SIPDBManager::getDatabase - failed to open IMDB.") ;
+            OsSysLog::flush();
+
+            // Kill this process.  Do not call abort()!  That will
+            // be caught by the signal handler, which will come back
+            // through and try to open the database, which will fail, 
+            // which will end up here, which will....
+            exit(42) ;
         }
     }
 
