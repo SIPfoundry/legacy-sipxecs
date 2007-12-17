@@ -242,7 +242,8 @@ public:
     //  as a field in a header.
     UtlString toString() const;
 
-    /// Serialized this URL as a real URL (with no <...>, display name or field parameters)
+    //! Serialize this URL as a real URL (with no <...>, display name,
+    //  or field parameters).  This is also called 'addr-spec' in RFC 3261.
     void getUri(UtlString& Uri) const;
 
     //! Debug dump to STDOUT
