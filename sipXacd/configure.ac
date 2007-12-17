@@ -19,6 +19,7 @@ AC_PATH_PROG([BASH], [bash])
 AC_PROG_CXX
 AC_PROG_CC
 
+ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 AM_CONDITIONAL(USE_BLDNO, test x$enable_buildnumber = xyes)
 
@@ -67,6 +68,7 @@ AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
 AC_CONFIG_FILES([bin/Makefile])
+AC_CONFIG_FILES([doc/Makefile])
 
 AM_CONDITIONAL(DO_RPMBUILD, test x$enable_rpmbuild = xyes)
 

@@ -6,7 +6,8 @@ RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)
 SUBDIRS = \
 	src \
 	etc \
-	bin
+	bin \
+	$(doc_SUBDIRS)
 
 EXTRA_DIST = \
     config/sipX-config.in \
