@@ -1491,26 +1491,31 @@ void SipTransaction::handleExpiresEvent(const SipMessage& outgoingMessage,
 
     if(delayedDispatchedMessage)
     {
-        OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleExpiresEvent"
+#      ifdef TEST_PRINT
+       OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleExpiresEvent"
                       " delayedDispatchedMessage not NULL");
+#      endif
 
-        delayedDispatchedMessage = NULL;
+       delayedDispatchedMessage = NULL;
     }
 
     // Responses
     if(outgoingMessage.isResponse())
     {
+#       ifdef TEST_PRINT
         OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleExpiresEvent"
                       " %p expires event timed out on SIP response", this);
+#       endif
     }
 
     // Requests
     else
     {
+#       ifdef TEST_PRINT
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipTransaction::handleExpiresEvent %p",
                       this);
-
+#       endif
         // Do not cancel a DNS SRV child that received any response.
         // The parent client transaction may be canceled which will
         // recursively cancel the children.  However if this timeout
@@ -2092,8 +2097,10 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                && method.compareTo(SIP_ACK_METHOD) == 0
                )
             {
+#               ifdef LOG_FORKING
                 OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::handleChildTimeoutEvent"
                               " timeout of ACK");
+#               endif
             }
 
             else if(   ! isResponse
@@ -2118,8 +2125,10 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                     // We do not dispatch proxy transactions
                     nextTimeout = -1;
 
+#                   ifdef LOG_FORKING
                     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleChildTimeoutEvent"
                                   " %p", this);
+#                   endif
 
                     if(startSequentialSearch(userAgent, transactionList))
                     {
@@ -2143,6 +2152,7 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                         {
                            UtlString callId;
                            bestResponse.getCallIdField(&callId);
+#                          ifdef LOG_FORKING
                            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                          // Format the Call-Id so it looks like
                                          // a header line in a SIP message,
@@ -2150,6 +2160,7 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                                          "SipTransaction::handleChildTimeoutEvent "
                                          "response %d for Call-Id '%s'",
                                          bestResponseCode, callId.data());
+#                          endif
                         }
 
                         // There is nothing to send if this is not a server transaction
@@ -2525,7 +2536,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                 SipMessage::convertProtocolEnumToString(mSendToProtocol, protoString);
 
                 OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::recurseDnsSrvChildren "
-                              "no valid DNS records found for sendTo sip:'%s':%d proto = '%s'", 
+                              "no valid DNS records found for sendTo sip:'%s':%d proto = '%s'",
                               mSendToAddress.data(), mSendToPort, protoString.data());
             }
         }
@@ -2536,7 +2547,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
     if(!mIsServerTransaction &&
         !mIsDnsSrvChild &&
         mpDnsDestinations &&                            // means sendto address was not NULL
-        mpDnsDestinations[0].isValidServerT() &&        // means DNS search returned at least 
+        mpDnsDestinations[0].isValidServerT() &&        // means DNS search returned at least
                                                         // one destination address
         mpRequest)
     {
@@ -2962,7 +2973,9 @@ void SipTransaction::getChallengeRealms(const SipMessage& response, UtlSList& re
 
 UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
 {
+#   ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::findBestResponse %p", this);
+#   endif
 
     UtlSListIterator iterator(mChildTransactions);
     SipTransaction* childTransaction = NULL;
