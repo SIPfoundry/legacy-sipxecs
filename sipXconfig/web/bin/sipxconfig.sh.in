@@ -209,7 +209,7 @@ onWebUi() {
 databaseCheck() {
     ${Psql} --list --field-separator , --no-align --username ${PostgresUser} \
     | cut -d , -f 1 \
-    | grep "${Database}" > /dev/null 2>&1
+    | grep "${Database}"$ > /dev/null 2>&1
 }
 
 # Check the database version.  If it is wrong, then exit, because it's dangerous to
