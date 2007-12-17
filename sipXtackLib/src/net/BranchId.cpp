@@ -18,6 +18,8 @@
 #include "net/BranchId.h"
 #include "net/SipMessage.h"
 
+//#define TEST_LOG
+
 /* ****************************************************************
  * The syntax for a sipX branch id is:
  *
@@ -121,10 +123,12 @@ const char* BranchId::data()
 bool BranchId::equals(const BranchId& otherBranchId)
 {
    generateFullValue();
+#  ifdef TEST_LOG
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "BranchId::equals(BranchId '%s')\n"
                  "                          '%s'",
                  const_cast<BranchId*>(&otherBranchId)->data(), data());
+#  endif
    return 0 == compareTo(otherBranchId);
 }
 
@@ -132,10 +136,12 @@ bool BranchId::equals(const BranchId& otherBranchId)
 bool BranchId::equals(const UtlString& otherBranchId)
 {
    generateFullValue();
+#  ifdef TEST_LOG
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "BranchId::equals(UtlString '%s')\n"
                  "                           '%s'",
                  otherBranchId.data(), data());
+#  endif
    return 0 == compareTo(otherBranchId);
 }
 
