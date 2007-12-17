@@ -73,7 +73,7 @@
 -->
 <project name="database" basedir=".">
   <property name="sipxconfig.db.name" value="SIPXCONFIG" />
-  <property name="sipxconfig.db.user" value="postgres" />
+  <property name="sipxconfig.db.user" value="@sipxconfig.db.user@" />
   <property name="sipxconfig.db.password" value="" />
   <property name="sql.dir" location="${basedir}" />
   <property name="sipxpbx.conf.dir" location="${basedir}/.." />

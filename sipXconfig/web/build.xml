@@ -170,10 +170,13 @@
       <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
       <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir"/>    	
       <replacefilter token="@bin.dir@" property="bin.dir"/>
+      <replacefilter token="@service.dir@" property="service.dir"/>
       <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
       <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir"/>
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
       <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user"/>
+      <replacefilter token="@bash@" property="bash"/>
+      <replacefilter token="@prefix@" property="prefix"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/sipxconfig.sh" perm="ugo+x"/>
 
@@ -185,6 +188,7 @@
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
       <replacefilter token="@openssl@" property="openssl"/>
       <replacefilter token="@bin.dir@" property="bin.dir"/>
+      <replacefilter token="@bash@" property="bash"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh" perm="ugo+x"/>
 
@@ -197,6 +201,7 @@
       <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir"/>
       <replacefilter token="@openssl@" property="openssl"/>
       <replacefilter token="@bin.dir@" property="bin.dir"/>
+      <replacefilter token="@bash@" property="bash"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-keystore.sh" perm="ugo+x"/>
 

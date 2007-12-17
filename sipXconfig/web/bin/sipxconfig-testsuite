@@ -9,6 +9,8 @@ setUp() {
   JavaCmd="echo java"
   Configpp="echo configpp"
   SubstituteUser="echo su"
+  ServiceDir="/etc/init.d"
+  PostgresUser="postgres"
   Psql="echo psql"
   Chown="echo chown"
   TmpDir=/tmp
@@ -54,13 +56,6 @@ testDatabaseCommand() {
   assertTrue [ -f $PidFile ]
 }
 
-testPostgresService() {
-  POSTGRES_SERVICE=X
-  assertEquals "X" `postgresService`
-  unset POSTGRES_SERVICE
-  assertNotEquals "X" `postgresService`  
-}
-
 testDatabaseCheck() {
   Psql=echo
   assertTrue ! databaseCheck
@@ -68,51 +63,12 @@ testDatabaseCheck() {
   assertTrue databaseCheck
 }
 
-testPostgresSetup() {
-  ServiceDir="echo /etc/init.d"
-  PGDATA=${TmpDir}/testPostgresSetup`date +%N`
-  mkdir -p $PGDATA
-  touch $PGDATA/pg_hba.conf
-  echo "#tcpip_socket = false" > $PGDATA/postgresql.conf
-
-  Expected=`cat <<EOF
-/etc/init.d/postgresql stop
-su - postgres -c initdb --pgdata=$PGDATA
-chown postgres:postgres $PGDATA/postgresql.conf
-chown postgres:postgres $PGDATA/postmaster.opts.default
-/etc/init.d/postgresql start
-EOF
-`
-  Actual=`postgresSetup` 2> /dev/null
-
-  assertEquals "$Expected" "$Actual"
-  assertTrue [ -f $PGDATA/pg_hba.conf.sipx.bak ]
-  assertEquals "-i" `cat $PGDATA/postmaster.opts.default`
-
-  Expected=`cat <<EOF
-host all all 127.0.0.1 255.255.255.255 trust
-local all all trust
-EOF
-`
-  Actual=`cat $PGDATA/pg_hba.conf`
-  assertEquals "$Expected" "$Actual"
-
-  Expected=`cat <<EOF
-tcpip_socket = true
-EOF
-`
-  Actual=`cat $PGDATA/postgresql.conf`
-  assertEquals "$Expected" "$Actual"
-
-  # rm -r $PGDATA
-}
-
 testRunningUserCheck() {
   runningUserCheck
   
   RunningUser=bogus
   Actual=`runningUserCheck 2>&1`
-  assertEquals "Only user @sipxpbx.user@ can run this command." "$Actual"
+  assertEquals "Only user bogus can run this command." "$Actual"
 }
 
 ##------------------------------------
@@ -120,8 +76,6 @@ testRunningUserCheck() {
 ##------------------------------------
 runTest testRunConfigPp
 runTest testClasspath
-runTest testPostgresService
-runTest testPostgresSetup
 runTest testRunningUserCheck
 
 # not working because they probably we're updated, difficult to capture 

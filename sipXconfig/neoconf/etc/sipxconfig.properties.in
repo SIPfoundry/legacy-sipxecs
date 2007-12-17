@@ -46,6 +46,9 @@ fallbackRules.externalRulesFileName=
 # conditionally enable MRTG integration
 monitoringContextImpl.enabled=@mrtg-enabled@
 
+# Postgres DB user
+sipxconfig.db.user=@sipxconfig.db.user@
+
 # are we in a debug build?
 coreContextImpl.debug=@debug@
 

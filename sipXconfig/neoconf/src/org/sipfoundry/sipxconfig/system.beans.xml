@@ -43,7 +43,7 @@
       <value>jdbc:postgresql://localhost/SIPXCONFIG</value>
     </property>
     <property name="user">
-      <value>postgres</value>
+      <value>${sipxconfig.db.user}</value>
     </property>
     <!-- Determines how many connections at a time c3p0 will try to acquire when the pool
       is exhausted.  Default: 3.

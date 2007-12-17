@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@BASH@
 
 usage() {
   echo
@@ -22,6 +22,7 @@ fi
 SIPX_USER=@SIPXPBXUSER@
 SIPX_VARDIR=@SIPX_VARDIR@
 SIPX_CONFDIR=@SIPX_CONFDIR@
+SERVICE_DIR=@SERVICEDIR@
 SIPXCONFIG_PROPERTIES_IN=$SIPX_CONFDIR/sipxconfig.properties.in
 
 
@@ -103,10 +104,11 @@ EOF
       service snmpd start
     else
       # SUSE (SUSE adds snmpd to the runlevel automatically upon installation)
-      /etc/init.d/snmpd restart
+      $SERVICE_DIR/snmpd stop > /dev/null
+      $SERVICE_DIR/snmpd start
     fi
 else
-  echo "Directory /etc/snmp does not exist. Please verify yout snmp instalation."
+  echo "Directory /etc/snmp does not exist. Please verify your snmp instalation."
   echo "Exiting..."
   exit 
 fi

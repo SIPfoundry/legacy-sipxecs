@@ -4,8 +4,10 @@ top.dir=@abs_top_srcdir@
 optimize=@JAVAC_OPTIMIZED@
 debug=@JAVAC_DEBUG@
 deprecation=off
+prefix=@PREFIX@
 bin.dir=@bindir@
 lib.dir=@libdir@
+service.dir=@SERVICEDIR@
 localstate.dir=@localstatedir@
 dest.dir=
 
@@ -49,6 +51,7 @@ neoconf.etc.dir=${top.dir}/neoconf/etc
 
 openssl=@OPENSSL@
 clover.jar=@CLOVER_JAR@
+bash=@BASH@
 @MRTG_ENABLED@
 
 #soap api unit testing

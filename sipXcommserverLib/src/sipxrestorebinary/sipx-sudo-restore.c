@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
    char* execve_argv[argc+3];
 
-   execve_argv[0] = (char *)"/bin/bash";
+   execve_argv[0] = (char *)"/bin/sh";
    execve_argv[1] = (char *)"-p";
    execve_argv[2] = (char *)SIPX_BINDIR "/sipx-restore";
 
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
    execve_argv[argc+2] = NULL;
 
    setuid(0);
-   execve("/bin/bash", execve_argv, NULL);
+   execve("/bin/sh", execve_argv, NULL);
 
    /* Not going to get here ...*/
    printf("ERROR\n");

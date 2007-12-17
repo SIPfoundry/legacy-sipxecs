@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@bash@
 #
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
@@ -21,7 +21,7 @@ Args=""
 : ${DatabaseProject:=@sipxpbx.conf.dir@/database/database.xml}
 : ${LibDir:=@sipxconfig.lib.dir@}
 : ${Psql:=psql}
-: ${ServiceDir:=/etc/init.d}
+: ${ServiceDir:=@service.dir@}
 : ${SubstituteUser:=su}
 : ${Chown:=chown}
 : ${LogDir:=@sipxpbx.log.dir@}
@@ -208,7 +208,7 @@ onWebUi() {
 #  3. Database is not created
 databaseCheck() {
     ${Psql} --list --field-separator , --no-align --username ${PostgresUser} \
-    | cut --delimiter , --fields 1 \
+    | cut -d , -f 1 \
     | grep "${Database}" > /dev/null 2>&1
 }
 
@@ -251,7 +251,6 @@ EOF
 # Called as root in sipxpbx startup script to do initial setup,
 # but can be called manually and is harmless if called multiple times.
 onSetup() {
-   echo "Initializing configuration database..."
    # pgpatch is part of sipXcommserverlib and also used by sipxcallresolver.sh
    # pgpatch initializes the Postgresql database, patches the postgres configuration,
    # and configures appropriate runlevels (it runs postgresSetup and setPostgresRunlevels)
@@ -262,6 +261,7 @@ onSetup() {
    @bin.dir@/pgpatch.sh
    if ! databaseCheck
    then
+       echo "Initializing configuration database..."
        databaseCommand create
        # echo "Configuration database created"
    fi

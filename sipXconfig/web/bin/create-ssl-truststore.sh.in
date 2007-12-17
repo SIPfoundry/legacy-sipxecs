@@ -1,4 +1,4 @@
-#!/bin/bash
+#!@bash@
 ##
 ## create-ssl-truststore.sh
 ##
@@ -81,11 +81,16 @@ EOF
 fi
 
 if [ "${Action}" = "CHECKSUM" ]; then
-  Checksum=`cat $Certificates | md5sum | awk '{print $1}'`
+  if [ `uname -s` = FreeBSD ] ; then
+    MD5SUM="/sbin/md5 -r"
+  else
+    MD5SUM=md5sum
+  fi
+  Checksum=`cat $Certificates | $MD5SUM | awk '{print $1}'`
   if [ -f $CertificatesChecksum ]; then
     if [ -f "$TrustStore" ]; then
       PreviousChecksum=`cat $CertificatesChecksum`
-      if [ $Checksum == $PreviousChecksum ]; then
+      if [ x"$Checksum" = x"$PreviousChecksum" ]; then
         echo "Creating $TrustStore was skipped, previous checksum of contents matched"
         exit 0;
       fi
