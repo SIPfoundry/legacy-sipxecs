@@ -684,7 +684,7 @@ do_check() {
     ## Check to see that SSL is configured.- THIS SHOULD BE FIRST
     globaltest "ssl" "MUST_PASS" "TLS/SSL configuration"
 
-    globaltest "firewall" "MUST_PASS" "Firewall configuration"
+    globaltest "firewall" "MAY_FAIL" "Firewall configuration"
 
     module_setup
 
