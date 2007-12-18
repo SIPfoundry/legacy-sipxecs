@@ -253,6 +253,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/polycom/*
 %config(noreplace) %{sipxpbxconf}/snom/*
 %config(noreplace) %{sipxpbxconf}/mitel/*
+%config(noreplace) %{sipxpbxconf}/nortel/*
 %config(noreplace) %{sipxpbxconf}/sipxvxml/*
 %config(noreplace) %{sipxpbxconf}/sipxconference/*
 %config(noreplace) %{sipxpbxconf}/sipxpark/*
