@@ -243,9 +243,10 @@
     <antcall target="sbc-device" />
     <antcall target="first-run-task" />
     <antcall target="personal-attendant-language" />
-    <antcall target="override-language-not-null"/>
-    <antcall target="special-users"/>
+    <antcall target="override-language-not-null" />
+    <antcall target="special-users" />
     <!-- temporary patches -->
+    <antcall target="create-special-users" />
     <antcall target="gateway-port-fix" />
     <antcall target="localization-fix" />
     <!-- When freezing schema uncomment this line -->
@@ -518,7 +519,19 @@
     </sipx-sql>
     <mark-patch-applied patch="first-run-task" />
   </target>
-
+  
+  <target name="create-special-users" unless="create-special-users">
+    <!-- this is temporary:
+        - make sure that 'first-run' task is rerun to create special users
+        - no need to roll it in after freeze since only one patch needs to do that 
+    -->
+    <sipx-sql>
+      delete from initialization_task where name = 'first-run';
+      insert into initialization_task (name) values ('first-run');
+    </sipx-sql>
+    <mark-patch-applied patch="first-run-task" />
+  </target>
+  
   <target name="gateway-port" unless="gateway-port">
     <db-patch patch="gateway-port" />
   </target>

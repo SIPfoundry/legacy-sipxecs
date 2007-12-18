@@ -29,15 +29,18 @@ public class Credentials extends DataSetGenerator {
         for (User user : list) {
             addUser(items, user, domainName, realm);
         }
-        
+
         for (SpecialUserType specialUserType : SpecialUserType.values()) {
             addSpecialUser(items, specialUserType, domainName, realm);
         }
     }
 
-    private void addSpecialUser(Element items, SpecialUserType specialUserType, String domainName, String realm) {
+    private void addSpecialUser(Element items, SpecialUserType specialUserType,
+            String domainName, String realm) {
         User user = getCoreContext().getSpecialUser(specialUserType);
-        addUser(items, user, domainName, realm);
+        if (user != null) {
+            addUser(items, user, domainName, realm);
+        }
     }
 
     protected void addUser(Element items, User user, String domainName, String realm) {
