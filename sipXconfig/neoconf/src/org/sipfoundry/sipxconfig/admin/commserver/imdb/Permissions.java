@@ -9,11 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.dom4j.Element;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -30,21 +28,31 @@ public class Permissions extends DataSetGenerator {
      */
     protected void addItems(Element items) {
         String domain = getSipDomain();
-        CoreContext coreContext = getCoreContext();
-        List<User> list = coreContext.loadUsers();
-        for (Iterator<User> i = list.iterator(); i.hasNext();) {
-            User user = i.next();
+        addSpecialUser("~~id~park", items, domain);
+        addSpecialUser("~~id~media", items, domain);
+
+        List<User> users = getCoreContext().loadUsers();
+        for (User user : users) {
             addUser(items, user, domain);
         }
     }
 
     void addUser(Element item, User user, String domain) {
         Setting permissions = user.getSettings().getSetting(Permission.CALL_PERMISSION_PATH);
-        Setting voicemailPermissions = 
-            user.getSettings().getSetting(Permission.VOICEMAIL_SERVER_PATH);
+        Setting voicemailPermissions = user.getSettings().getSetting(
+                Permission.VOICEMAIL_SERVER_PATH);
         PermissionWriter writer = new PermissionWriter(user, domain, item);
         permissions.acceptVisitor(writer);
         voicemailPermissions.acceptVisitor(writer);
+    }
+
+    private void addSpecialUser(String userId, Element items, String domain) {
+        User user = getCoreContext().newUser();
+        user.setPermission(PermissionName.VOICEMAIL, false);
+        user.setPermission(PermissionName.SIPX_VOICEMAIL, false);
+        user.setPermission(PermissionName.EXCHANGE_VOICEMAIL, false);
+        user.setUserName(userId);
+        addUser(items, user, domain);
     }
 
     class PermissionWriter extends AbstractSettingVisitor {
@@ -70,15 +78,17 @@ public class Permissions extends DataSetGenerator {
                 Element userItem = addItem(m_items);
                 userItem.addElement(IDENTITY_ELEMENT).setText(m_user.getUri(m_domain));
                 userItem.addElement(PERMISSION_ELEMENT).setText(setting.getName());
-                
+
                 // add special permission for voicemail redirect rule for
                 // xcf-1875
                 if (setting.getName().equals(PermissionName.EXCHANGE_VOICEMAIL.getName())
                         || setting.getName().equals(PermissionName.SIPX_VOICEMAIL.getName())) {
                     Element voicemailRedirectItem = addItem(m_items);
-                    
-                    voicemailRedirectItem.addElement(IDENTITY_ELEMENT).setText(generateVoicemailRedirectIdentity());
-                    voicemailRedirectItem.addElement(PERMISSION_ELEMENT).setText(setting.getName());
+
+                    voicemailRedirectItem.addElement(IDENTITY_ELEMENT).setText(
+                            generateVoicemailRedirectIdentity());
+                    voicemailRedirectItem.addElement(PERMISSION_ELEMENT).setText(
+                            setting.getName());
                 }
             }
         }
@@ -88,7 +98,7 @@ public class Permissions extends DataSetGenerator {
             voicemailRedirectNameBuffer.append(m_user.getName());
             voicemailRedirectNameBuffer.append('@');
             voicemailRedirectNameBuffer.append(m_domain);
-            
+
             return voicemailRedirectNameBuffer.toString();
         }
     }

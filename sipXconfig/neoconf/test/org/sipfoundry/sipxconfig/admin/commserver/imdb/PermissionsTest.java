@@ -28,21 +28,40 @@ import org.sipfoundry.sipxconfig.setting.Group;
 public class PermissionsTest extends XMLTestCase {
 
     public void testGenerateEmpty() throws Exception {
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+
+        User testUser = new User();
+        testUser.setPermissionManager(pm);
+
         IMocksControl control = EasyMock.createControl();
         CoreContext coreContext = control.createMock(CoreContext.class);
         coreContext.getDomainName();
         control.andReturn("host.company.com");
         coreContext.loadUsers();
         control.andReturn(Collections.EMPTY_LIST);
+        coreContext.newUser();
+        control.andReturn(testUser).anyTimes();
         control.replay();
 
         Permissions permissions = new Permissions();
         permissions.setCoreContext(coreContext);
 
         Document document = permissions.generate();
+
+        System.out.println(XmlUnitHelper.asString(document));
+
         org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
         assertXpathEvaluatesTo("permission", "/items/@type", domDoc);
-        assertXpathNotExists("/items/item", domDoc);
+        assertXpathExists("/items/item", domDoc);
+        assertXpathEvaluatesTo("sip:~~id~park@host.company.com", "/items/item/identity", domDoc);
+        assertXpathEvaluatesTo("sip:~~id~park@host.company.com", "/items/item[5]/identity",
+                domDoc);
+        assertXpathEvaluatesTo("sip:~~id~media@host.company.com", "/items/item[6]/identity",
+                domDoc);
+        assertXpathEvaluatesTo("sip:~~id~media@host.company.com", "/items/item[10]/identity",
+                domDoc);
+        assertXpathNotExists("/items/item[11]", domDoc);
         control.verify();
     }
 
@@ -55,7 +74,7 @@ public class PermissionsTest extends XMLTestCase {
 
         User user = new User();
         user.setPermissionManager(pm);
-        
+
         Group g = new Group();
         PermissionName.INTERNATIONAL_DIALING.setEnabled(g, false);
         PermissionName.LONG_DISTANCE_DIALING.setEnabled(g, false);
@@ -63,7 +82,7 @@ public class PermissionsTest extends XMLTestCase {
         PermissionName.LOCAL_DIALING.setEnabled(g, true);
         PermissionName.SIPX_VOICEMAIL.setEnabled(g, false);
         PermissionName.EXCHANGE_VOICEMAIL.setEnabled(g, true);
-        
+
         user.addGroup(g);
         user.setUserName("goober");
 
@@ -71,14 +90,15 @@ public class PermissionsTest extends XMLTestCase {
         permissions.addUser(items, user, "sipx.sipfoundry.org");
 
         org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
-        System.out.println(XmlUnitHelper.asString(document));
         assertXpathEvaluatesTo("sip:goober@sipx.sipfoundry.org", "/items/item/identity", domDoc);
         assertXpathEvaluatesTo("LocalDialing", "/items/item/permission", domDoc);
-        
-        assertXpathEvaluatesTo("sip:goober@sipx.sipfoundry.org", "/items/item[4]/identity", domDoc);
+
+        assertXpathEvaluatesTo("sip:goober@sipx.sipfoundry.org", "/items/item[4]/identity",
+                domDoc);
         assertXpathEvaluatesTo("ExchangeUMVoicemailServer", "/items/item[4]/permission", domDoc);
-        
-        assertXpathEvaluatesTo("sip:~~vm~goober@sipx.sipfoundry.org", "/items/item[5]/identity", domDoc);
+
+        assertXpathEvaluatesTo("sip:~~vm~goober@sipx.sipfoundry.org", "/items/item[5]/identity",
+                domDoc);
         assertXpathEvaluatesTo("ExchangeUMVoicemailServer", "/items/item[5]/permission", domDoc);
     }
 }
