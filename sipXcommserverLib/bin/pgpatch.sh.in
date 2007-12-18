@@ -73,11 +73,11 @@ postgresSetup() {
       if [ `uname -s` = FreeBSD ]
       then
           PGDATA=~${PostgresUser}/data
-      elif test -d /var/lib/postgresql/data
+      elif test -d /var/lib/postgresql
       then
           # Gentoo
           PGDATA=/var/lib/postgresql/data
-      elif test -d /var/lib/pgsql/data
+      elif test -d /var/lib/pgsql
       then
           # Redhat, Fedora, CentOS & SUSE
           PGDATA=/var/lib/pgsql/data
@@ -93,19 +93,14 @@ postgresSetup() {
   # distros so unless we put a "if distro=rh"  we need to init here
   if [ ! -f $PGDATA/PG_VERSION ] || [ ! -d $PGDATA/base ]
   then
-      if [ -f /usr/bin/initdb ]
+      if [ -x /sbin/service ]
       # Most distributions use a separate command "initdb" to initialize the db
       # Fedora 8 uses "service postgresql initdb"
       # Debian Etch initializes the DB during installation
       then
-          if ${Psql} --version | grep '7.4' > /dev/null
-          then
-              $SubstituteUser - ${PostgresUser} -c "initdb --pgdata=$PGDATA" > /dev/null
-          else
-              $SubstituteUser - ${PostgresUser} -c "initdb --pgdata=$PGDATA --auth=trust" > /dev/null
-          fi
-      else
           ${ServiceDir}/$Service initdb > /dev/null
+      else
+          $SubstituteUser - ${PostgresUser} -c "initdb --pgdata=$PGDATA" > /dev/null
       fi
   fi
 
