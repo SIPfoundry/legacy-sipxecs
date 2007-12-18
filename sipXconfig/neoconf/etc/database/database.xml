@@ -529,7 +529,7 @@
       delete from initialization_task where name = 'first-run';
       insert into initialization_task (name) values ('first-run');
     </sipx-sql>
-    <mark-patch-applied patch="first-run-task" />
+    <mark-patch-applied patch="create-special-users" />
   </target>
   
   <target name="gateway-port" unless="gateway-port">
