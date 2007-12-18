@@ -10,8 +10,8 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
-
 import java.util.List;
+
 import junit.framework.TestCase;
 
 public class CoreContextImplTest extends TestCase {
@@ -21,6 +21,10 @@ public class CoreContextImplTest extends TestCase {
         CoreContextImpl m_core = new CoreContextImpl() {
             public int getBeansInGroupCount(Class beanClass, Integer groupId) {
                 return NUM_USERS;
+            }
+
+            public User newUser() {
+                return null;
             }
         };
         try {
@@ -50,7 +54,11 @@ public class CoreContextImplTest extends TestCase {
     }
 
     public void testCheckForDuplicateString() {
-        CoreContextImpl core = new CoreContextImpl();
+        CoreContextImpl core = new CoreContextImpl() {
+            public User newUser() {
+                return null;
+            }
+        };
         // An empty collection should have no duplicates
         List strings = new ArrayList();
         assertNull(core.checkForDuplicateString(strings));

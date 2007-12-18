@@ -4,6 +4,7 @@
   - C O R E  C O N T E X T   I M P L
   -->
   <bean id="coreContextImpl" class="org.sipfoundry.sipxconfig.common.CoreContextImpl">
+    <lookup-method name="newUser" bean="org.sipfoundry.sipxconfig.common.User"/>
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>

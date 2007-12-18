@@ -49,11 +49,10 @@ public class PermissionsTest extends XMLTestCase {
 
         Document document = permissions.generate();
 
-        System.out.println(XmlUnitHelper.asString(document));
-
         org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
         assertXpathEvaluatesTo("permission", "/items/@type", domDoc);
         assertXpathExists("/items/item", domDoc);
+        // 5 permissions per special user
         assertXpathEvaluatesTo("sip:~~id~park@host.company.com", "/items/item/identity", domDoc);
         assertXpathEvaluatesTo("sip:~~id~park@host.company.com", "/items/item[5]/identity",
                 domDoc);
@@ -61,7 +60,11 @@ public class PermissionsTest extends XMLTestCase {
                 domDoc);
         assertXpathEvaluatesTo("sip:~~id~media@host.company.com", "/items/item[10]/identity",
                 domDoc);
-        assertXpathNotExists("/items/item[11]", domDoc);
+        assertXpathEvaluatesTo("sip:~~id~acd@host.company.com", "/items/item[11]/identity",
+                domDoc);
+        assertXpathEvaluatesTo("sip:~~id~acd@host.company.com", "/items/item[15]/identity",
+                domDoc);
+        assertXpathNotExists("/items/item[16]", domDoc);
         control.verify();
     }
 

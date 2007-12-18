@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
@@ -505,24 +504,13 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetSpecialUsers() {
-        // first need to save the special users
-        SpecialUser mediaUser = new SpecialUser();
-        mediaUser.setType(SpecialUserType.MEDIA_SERVER);
-        String mediaUserPassword = RandomStringUtils.randomAlphanumeric(10);
-        mediaUser.setSipPassword(mediaUserPassword);
-        m_core.saveSpecialUser(mediaUser);
-        
-        SpecialUser parkUser = new SpecialUser();
-        parkUser.setType(SpecialUserType.PARK_SERVER);
-        String parkUserPassword = RandomStringUtils.randomAlphanumeric(10);
-        parkUser.setSipPassword(parkUserPassword);
-        m_core.saveSpecialUser(parkUser);
-        
+        m_core.initializeSpecialUsers();
+
         User user = m_core.getSpecialUser(SpecialUserType.MEDIA_SERVER);
         assertEquals("~~id~media", user.getName());
-        assertEquals(mediaUserPassword, user.getSipPassword());
+        assertTrue(user.getSipPassword().length() >= 10);
         user = m_core.getSpecialUser(SpecialUserType.PARK_SERVER);
         assertEquals("~~id~park", user.getName());
-        assertEquals(parkUserPassword, user.getSipPassword());
+        assertTrue(user.getSipPassword().length() >= 10);
     }
 }

@@ -45,6 +45,8 @@ public class CredentialsTest extends XMLTestCase {
         control.andReturn(user);
         coreContext.getSpecialUser(SpecialUserType.PARK_SERVER);
         control.andReturn(user);
+        coreContext.getSpecialUser(SpecialUserType.ACD_SERVER);
+        control.andReturn(user);
         control.replay();
 
         Credentials credentials = new Credentials();
@@ -54,14 +56,17 @@ public class CredentialsTest extends XMLTestCase {
 
         org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
         assertXpathEvaluatesTo("credential", "/items/@type", domDoc);
-        // 2 special users
+        // 3 special users
         assertXpathExists("/items/item[1]", domDoc);
         assertXpathEvaluatesTo("sip:user@host.company.com", "/items/item[1]/uri", domDoc);
 
         assertXpathExists("/items/item[2]", domDoc);
         assertXpathEvaluatesTo("sip:user@host.company.com", "/items/item[2]/uri", domDoc);
 
-        assertXpathNotExists("/items/item[3]", domDoc);
+        assertXpathExists("/items/item[3]", domDoc);
+        assertXpathEvaluatesTo("sip:user@host.company.com", "/items/item[2]/uri", domDoc);
+        
+        assertXpathNotExists("/items/item[4]", domDoc);
         control.verify();
     }
 

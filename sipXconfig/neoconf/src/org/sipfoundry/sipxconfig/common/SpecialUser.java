@@ -9,45 +9,60 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-public class SpecialUser extends  BeanWithId {
-    
+import org.apache.commons.lang.RandomStringUtils;
+
+public class SpecialUser extends BeanWithId {
+
     public enum SpecialUserType {
-        PARK_SERVER("~~id~park"), MEDIA_SERVER("~~id~media");
-        
-        private String m_credential;
-        
-        private SpecialUserType(String credential) {
-            m_credential = credential;
+        PARK_SERVER("~~id~park"), MEDIA_SERVER("~~id~media"), ACD_SERVER("~~id~acd");
+
+        private String m_userName;
+
+        private SpecialUserType(String userName) {
+            m_userName = userName;
         }
-        
-        public String getCredential() {
-            return m_credential;
+
+        public String getUserName() {
+            return m_userName;
         }
     }
 
     private SpecialUserType m_type;
     private String m_sipPassword;
-    
+
+    public SpecialUser() {
+        // required by Hibernater
+    }
+
+    /**
+     * Use when creating a first instance of special user. It generatates random credentials for
+     * special users.
+     */
+    public SpecialUser(SpecialUserType type) {
+        m_type = type;
+        m_sipPassword = RandomStringUtils.randomAlphanumeric(10);
+    }
+
     public void setType(String type) {
         m_type = SpecialUserType.valueOf(type);
     }
-    
+
     public void setType(SpecialUserType type) {
         m_type = type;
     }
-    
+
     public String getType() {
         return m_type.toString();
     }
-    
-    public String getCredential() {
-        return m_type.getCredential();
+
+    public String getUserName() {
+        return m_type.getUserName();
     }
 
     public void setSipPassword(String sipPassword) {
         m_sipPassword = sipPassword;
     }
-    
+
     public String getSipPassword() {
         return m_sipPassword;
     }

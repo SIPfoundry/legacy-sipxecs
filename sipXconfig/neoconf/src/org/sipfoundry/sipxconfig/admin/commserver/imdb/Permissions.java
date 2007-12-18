@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import java.util.List;
 
 import org.dom4j.Element;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -28,8 +29,9 @@ public class Permissions extends DataSetGenerator {
      */
     protected void addItems(Element items) {
         String domain = getSipDomain();
-        addSpecialUser("~~id~park", items, domain);
-        addSpecialUser("~~id~media", items, domain);
+        for (SpecialUserType sut : SpecialUserType.values()) {
+            addSpecialUser(sut.getUserName(), items, domain);
+        }
 
         List<User> users = getCoreContext().loadUsers();
         for (User user : users) {

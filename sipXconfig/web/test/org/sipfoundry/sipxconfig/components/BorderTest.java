@@ -20,6 +20,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycleImpl;
 import org.sipfoundry.sipxconfig.site.UserSession;
@@ -83,12 +84,12 @@ public class BorderTest extends TestCase {
             fail("unexpected expected");
         }
     }
-    
+
     private static class MockUserSession extends UserSession {
         private final boolean m_admin;
 
         MockUserSession(boolean admin) {
-            m_admin = admin;            
+            m_admin = admin;
         }
 
         public Integer getUserId() {
@@ -98,8 +99,7 @@ public class BorderTest extends TestCase {
         public boolean isAdmin() {
             return m_admin;
         }
-        
-        
+
     }
 
     private static class MockBorder extends Border {
@@ -124,11 +124,11 @@ public class BorderTest extends TestCase {
         public UserSession getUserSession() {
             return m_userSession;
         }
-        
+
         public ICallback getLoginCallback() {
             return null;
         }
-        
+
         public ApplicationLifecycle getApplicationLifecycle() {
             return new ApplicationLifecycleImpl();
         }
@@ -136,7 +136,7 @@ public class BorderTest extends TestCase {
         protected void redirectToLogin(IPage page, IRequestCycle cycle) {
             throw new PageRedirectException("LoginPage");
         }
-        
+
         public IEngineService getRestartService() {
             return null;
         }
@@ -146,6 +146,11 @@ public class BorderTest extends TestCase {
                 public int getUsersCount() {
                     return 1;
                 }
+
+                public User newUser() {
+                    return null;
+                }
+
             };
         }
 

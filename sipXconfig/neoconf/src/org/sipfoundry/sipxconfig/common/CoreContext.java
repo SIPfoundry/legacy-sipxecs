@@ -33,9 +33,11 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
 
     /** Instantiates special user that represents sipx service */
     User getSpecialUser(SpecialUserType specialUserType);
-    
-    /** Saves a special user */
-    void saveSpecialUser(SpecialUser specialUser);
+
+    /**
+     * Creates (if necessary) initialize instances of special users
+     */
+    void initializeSpecialUsers();
 
     /**
      * @return true if username has changed, false if it's an update to existing user without
@@ -95,10 +97,11 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
 
     /**
      * Determines whether or not the application is running in debug mode.
+     * 
      * @return true if we are running a DEBUG build; false if not.
      */
     boolean getDebug();
-    
+
     String getAuthorizationRealm();
 
     String getDomainName();

@@ -30,12 +30,11 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreContext,
-        DaoEventListener, BeanFactoryAware {
+public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements CoreContext,
+        DaoEventListener {
 
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
     private static final String USERNAME_PROP_NAME = "userName";
@@ -51,7 +50,6 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     private SettingDao m_settingDao;
     private DaoEventPublisher m_daoEventPublisher;
     private AliasManager m_aliasManager;
-    private BeanFactory m_beanFactory;
     private boolean m_debug;
 
     /** limit number of users */
@@ -61,9 +59,10 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         super();
     }
 
-    public User newUser() {
-        return (User) m_beanFactory.getBean(User.class.getName());
-    }
+    /**
+     * Implemented by Spring lookup-method injection
+     */
+    public abstract User newUser();
 
     public boolean getDebug() {
         return m_debug;
@@ -496,10 +495,6 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         DaoUtils.removeFromGroup(getHibernateTemplate(), groupId, User.class, ids);
     }
 
-    public void setBeanFactory(BeanFactory beanFactory) {
-        m_beanFactory = beanFactory;
-    }
-
     public List<User> getGroupSupervisors(Group group) {
         List<User> objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 "groupSupervisors", QUERY_PARAM_GROUP_ID, group.getId());
@@ -549,25 +544,27 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
 
     public User getSpecialUser(SpecialUserType specialUserType) {
-        List<SpecialUser> specialUsersOfType = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "specialUserByType", "specialUserType", specialUserType.toString());
-        if (specialUsersOfType.size() < 1) {
+        List<SpecialUser> specialUsersOfType = getHibernateTemplate()
+                .findByNamedQueryAndNamedParam("specialUserByType", "specialUserType",
+                        specialUserType.name());
+        SpecialUser specialUser = (SpecialUser) DataAccessUtils.singleResult(specialUsersOfType);
+        if (specialUser == null) {
             return null;
         }
-        if (specialUsersOfType.size() > 1) {
-            throw new RuntimeException("Expected only 1 special user of type " + specialUsersOfType
-                    + ", found " + specialUsersOfType.size());
-        }
-        
-        SpecialUser specialUser = specialUsersOfType.iterator().next();
 
         User newUser = newUser();
-        newUser.setUserName(specialUser.getCredential());
+        newUser.setUserName(specialUser.getUserName());
         newUser.setSipPassword(specialUser.getSipPassword());
         return newUser;
     }
 
-    public void saveSpecialUser(SpecialUser specialUser) {
-        getHibernateTemplate().saveOrUpdate(specialUser);
+    public void initializeSpecialUsers() {
+        for (SpecialUserType type : SpecialUserType.values()) {
+            User specialUser = getSpecialUser(type);
+            if (specialUser == null) {
+                SpecialUser newSpecialUser = new SpecialUser(type);
+                getHibernateTemplate().saveOrUpdate(newSpecialUser);
+            }
+        }
     }
 }
