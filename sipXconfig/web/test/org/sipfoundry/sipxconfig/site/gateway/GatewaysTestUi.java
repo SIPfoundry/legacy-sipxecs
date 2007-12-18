@@ -67,6 +67,37 @@ public class GatewaysTestUi extends WebTestCase {
         assertEquals("kukuDescription", gatewaysTable.getCellAsText(2, lastColumn));
     }
 
+    /**
+     * Tests that only a SIP Trunk gateway has the additional "Route" field on its Configuration tab,
+     * and no other gateway type has it.
+     */
+    public void testSipTrunkRouteField() throws Exception {
+        clickLink("ListGateways");
+
+        String[] nonRouteGateways = {"Acme 1000", "AudioCodes MP114 FXO",
+                "AudioCodes MP118 FXO", "AudioCodes Mediant 1000",
+                "AudioCodes TP260", "Unmanaged gateway"};
+
+        for (String gatewayType : nonRouteGateways) {
+            selectOption("selectGatewayModel", gatewayType);
+            assertElementNotPresent("gateway:route");
+            clickButton("form:cancel");
+        }
+
+        selectOption("selectGatewayModel", "SIP trunk");
+        assertElementPresent("gateway:route");
+        WebTester tester = getTester();
+        tester.setFormElement("gatewayName", "SipTrunkRouteTest");
+        tester.setFormElement("gatewayAddress", "1.2.3.4");
+        tester.setFormElement("gatewayRoute", "@!#!@#"); // set an invalid route address
+        tester.clickButton("form:ok");
+        SiteTestHelper.assertUserError(tester);
+        tester.setFormElement("gatewayRoute", "1.2.3.5"); // now set a valid route address
+        tester.clickButton("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
+
+    }
+
     public void testAddGatewaysDuplicateName() throws Exception {
         clickLink("ListGateways");
         selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
@@ -142,6 +173,7 @@ public class GatewaysTestUi extends WebTestCase {
         String[] row = new String[] {
             name + "Name", name + "Address", name + "Description"
         };
+
         if (null != name) {
             tester.setFormElement("gatewayName", row[0]);
             tester.setFormElement("gatewayAddress", row[1]);

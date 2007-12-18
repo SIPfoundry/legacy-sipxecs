@@ -14,6 +14,8 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public class SipTrunk extends Gateway {
     public static final String BEAN_ID = "gwSipTrunk";
 
+    private static final String ROUTE_SETTING = "trunk/route";
+
     public SipTrunk() {
     }
 
@@ -28,6 +30,10 @@ public class SipTrunk extends Gateway {
 
     @Override
     public String getRoute() {
-        return getSettingValue("trunk/route");
+        return getSettingValue(ROUTE_SETTING);
+    }
+
+    public void setRoute(String route) {
+        setSettingValue(ROUTE_SETTING, route);
     }
 }

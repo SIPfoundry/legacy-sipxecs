@@ -62,6 +62,14 @@
           validators="spring-validators:validFieldSize"
           displayName="message:label.description"/>
       </label>
+      <span jwcid="@If" condition="ognl:gateway instanceof org.sipfoundry.sipxconfig.gateway.SipTrunk">
+      <label jwcid="@FieldPanel" for="gateway:route" field="component:gatewayRoute"
+             label="message:label.route" description="message:description.route">
+            <input jwcid="gatewayRoute@TextField" id="gateway:route" maxlength="20" 
+                   value="ognl:gateway.route" displayName="message:label.route" 
+                   validators="spring-validators:validHostOrIp" />
+        </label>
+      </span>
     </tbody>
   </table>
 </fieldset>
