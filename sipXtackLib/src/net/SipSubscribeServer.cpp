@@ -219,6 +219,7 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
                   updateVersion(*notify, version);
 
                // Send the NOTIFY request
+               setContact(notify) ;
                eventData->mpEventSpecificUserAgent->send(*notify);
             }
         }
@@ -410,6 +411,34 @@ UtlBoolean SipSubscribeServer::handleMessage(OsMsg &eventMessage)
 }
 
 
+void SipSubscribeServer::setContact(SipMessage* message)
+{
+    // Pull out the from userId and make sure that is used
+    // in the contact -- otherwise, re-subscribes may request
+    // a different resource (e.g. ~~park~id instead of the
+    // the park orbit).
+    UtlString fromUserId ;
+    Url from ;    
+    if (message->isResponse())
+    {
+        message->getToUrl(from) ;
+    }
+    else
+    {
+        message->getFromUrl(from) ;
+    }    
+    
+    from.getUserId(fromUserId) ;
+    if (fromUserId.length())
+    {
+        UtlString defaultContact;
+        mpDefaultUserAgent->getContactUri(&defaultContact);
+        Url defaultContactUrl(defaultContact) ;    
+        defaultContactUrl.setUserId(fromUserId);
+        message->setContactField(defaultContactUrl.toString()) ;
+    }    
+}
+
 
 /* ============================ ACCESSORS ================================= */
 
@@ -550,7 +579,8 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                       isExpiredSubscription,
                       subscribeResponse);
 
-                // Send the response ASAP to minimize resend handling of request
+                 // Send the response ASAP to minimize resend handling of request
+                 setContact(&subscribeResponse) ;
                  eventPackageInfo->mpEventSpecificUserAgent->send(subscribeResponse);
 
                  // Build a NOTIFY
@@ -584,6 +614,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                        updateVersion(notifyRequest, version);
 
                     // Send the notify request
+                    setContact(&notifyRequest);
                     eventPackageInfo->mpEventSpecificUserAgent->send(notifyRequest);
                  }
             }
@@ -591,6 +622,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
             else
             {
                 // Send the response
+                setContact(&subscribeResponse);
                 eventPackageInfo->mpEventSpecificUserAgent->send(subscribeResponse);
             }
         }
@@ -599,6 +631,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
         else
         {
             // Send the response
+            setContact(&subscribeResponse);
             eventPackageInfo->mpEventSpecificUserAgent->send(subscribeResponse);
         }
     }
@@ -616,6 +649,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
         eventTypeNotHandled.setResponseData(&subscribeRequest,
             SIP_BAD_EVENT_CODE, SIP_BAD_EVENT_TEXT);
 
+        setContact(&eventTypeNotHandled);
         mpDefaultUserAgent->send(eventTypeNotHandled);
     }
     unlockForRead();

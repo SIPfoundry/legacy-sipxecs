@@ -159,6 +159,9 @@ public:
 
     //! Handler for SUBSCRIBE requests, NOTIFY responses and timers
     UtlBoolean handleMessage(OsMsg &eventMessage);
+    
+    //! Sets the contact header for a sip message (request or response)
+    void setContact(SipMessage* message) ;    
 
 /* ============================ ACCESSORS ================================= */
 

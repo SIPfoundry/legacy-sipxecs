@@ -645,7 +645,7 @@ public:
          // Create a NOTIFY observer
          // Register an interest in NOTIFY requests 
          // for this event type
-         userAgentp->addMessageObserver(notIncomingServerMsgQueue,
+         userAgentp->addMessageObserver(notIncomingClientMsgQueue,
                                         SIP_NOTIFY_METHOD,
                                         TRUE, // requests
                                         FALSE, // no reponses
@@ -655,7 +655,7 @@ public:
                                         NULL,
                                         NULL);
 
-         userAgentp->addMessageObserver(notIncomingClientMsgQueue,
+         userAgentp->addMessageObserver(notIncomingServerMsgQueue,
                                         SIP_NOTIFY_METHOD,
                                         FALSE, // no requests
                                         TRUE, // reponses
@@ -905,7 +905,7 @@ public:
          CPPUNIT_ASSERT(clientSideSubResponse);
 
          // Check the Contact in the subscribe response.
-         ASSERT_STR_EQUAL(notifier_contact_name_addr,
+         ASSERT_STR_EQUAL(notifier_name_addr,
                           clientSideSubResponse->
                               getHeaderValue(0, SIP_CONTACT_FIELD));
 
@@ -917,7 +917,7 @@ public:
          CPPUNIT_ASSERT(clientSideNotRequest); // NOTIFY request got to client
 
          // Check the Contact in the NOTIFY request.
-         ASSERT_STR_EQUAL(notifier_contact_name_addr,
+         ASSERT_STR_EQUAL(notifier_name_addr,
                           clientSideNotRequest->
                               getHeaderValue(0, SIP_CONTACT_FIELD));
 
@@ -928,7 +928,7 @@ public:
          CPPUNIT_ASSERT(serverSideNotResponse);
 
          // Check the Contact in the NOTIFY response.
-         ASSERT_STR_EQUAL(subscriber_contact_name_addr,
+         ASSERT_STR_EQUAL(notifier_contact_name_addr,
                           serverSideNotResponse->
                               getHeaderValue(0, SIP_CONTACT_FIELD));
       }
@@ -1750,7 +1750,7 @@ public:
          // Create a NOTIFY observer
          // Register an interest in NOTIFY requests 
          // for this event type
-         userAgentp->addMessageObserver(notIncomingServerMsgQueue,
+         userAgentp->addMessageObserver(notIncomingClientMsgQueue,
                                         SIP_NOTIFY_METHOD,
                                         TRUE, // requests
                                         FALSE, // no reponses
@@ -1760,7 +1760,7 @@ public:
                                         NULL,
                                         NULL);
 
-         userAgentp->addMessageObserver(notIncomingClientMsgQueue,
+         userAgentp->addMessageObserver(notIncomingServerMsgQueue,
                                         SIP_NOTIFY_METHOD,
                                         FALSE, // no requests
                                         TRUE, // reponses
@@ -2010,7 +2010,7 @@ public:
          CPPUNIT_ASSERT(clientSideSubResponse);
 
          // Check the Contact in the subscribe response.
-         ASSERT_STR_EQUAL(notifier_contact_name_addr,
+         ASSERT_STR_EQUAL(notifier_name_addr,
                           clientSideSubResponse->
                               getHeaderValue(0, SIP_CONTACT_FIELD));
 
@@ -2022,7 +2022,7 @@ public:
          CPPUNIT_ASSERT(clientSideNotRequest); // NOTIFY request got to client
 
          // Check the Contact in the NOTIFY request.
-         ASSERT_STR_EQUAL(notifier_contact_name_addr,
+         ASSERT_STR_EQUAL(notifier_name_addr,
                           clientSideNotRequest->
                               getHeaderValue(0, SIP_CONTACT_FIELD));
 

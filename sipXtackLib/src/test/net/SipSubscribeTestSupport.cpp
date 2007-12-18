@@ -58,7 +58,7 @@ void createTestSipUserAgent(UtlString& hostIp,
       Url aor_uri(buffer, TRUE);
       aor_uri.toString(aor_name_addr);
 
-      aor_uri.setUserId(NULL);
+      // aor_uri.setUserId(NULL);
       aor_uri.toString(aor_contact_name_addr);
    }
 
