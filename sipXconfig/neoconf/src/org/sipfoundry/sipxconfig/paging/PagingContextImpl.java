@@ -21,10 +21,15 @@ import org.sipfoundry.sipxconfig.admin.dialplan.PagingRule;
 import org.sipfoundry.sipxconfig.admin.intercom.IntercomManager;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.springframework.dao.support.DataAccessUtils;
 
 public abstract class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext {
+
+    private static final String PARAM_PAGING_GROUP_NUMBER = "pageGroupNumber";
+
+    private static final String PARAM_PAGING_GROUP_ID = "pagingGroupId";
 
     private IntercomManager m_intercomManager;
 
@@ -61,7 +66,46 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
     }
 
     public void savePagingGroup(PagingGroup group) {
+        if (group.isNew()) {
+            // check if new object
+            checkForDuplicateNames(group);
+        } else {
+            // on edit action - check if the group number for this group was modified
+            // if the group number was changed then perform duplicate group number checking
+            if (isNameChanged(group)) {
+                checkForDuplicateNames(group);
+            }
+        }
+
         getHibernateTemplate().saveOrUpdate(group);
+    }
+
+    private void checkForDuplicateNames(PagingGroup group) {
+        if (isNameInUse(group)) {
+            throw new UserException("error.duplicateGroupNumbers");
+        }
+    }
+
+    private boolean isNameInUse(PagingGroup group) {
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "anotherPagingGroupWithSameName", new String[] {
+                    PARAM_PAGING_GROUP_NUMBER
+                }, new Object[] {
+                    group.getPageGroupNumber()
+                });
+
+        return DataAccessUtils.intResult(count) > 0;
+    }
+
+    private boolean isNameChanged(PagingGroup group) {
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "countPagingGroupWithSameName", new String[] {
+                    PARAM_PAGING_GROUP_ID, PARAM_PAGING_GROUP_NUMBER
+                }, new Object[] {
+                    group.getId(), group.getPageGroupNumber()
+                });
+
+        return DataAccessUtils.intResult(count) == 0;
     }
 
     public void deletePagingGroupsById(Collection<Integer> groupsIds) {

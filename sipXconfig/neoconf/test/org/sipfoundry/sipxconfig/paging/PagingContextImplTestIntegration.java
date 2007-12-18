@@ -18,19 +18,20 @@ import java.util.Set;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 
 public class PagingContextImplTestIntegration extends IntegrationTestCase {
     private PagingContext m_pagingContext;
     private CoreContext m_coreContext;
-    
+
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
-    
+
     public void setPagingContext(PagingContext pagingContext) {
         m_pagingContext = pagingContext;
     }
-    
+
     protected void onSetUpInTransaction() throws Exception {
         loadDataSet("paging/paging.db.xml");
         loadDataSet("paging/user-paging.db.xml");
@@ -103,6 +104,16 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
         m_pagingContext.savePagingGroup(group);
         groups = m_pagingContext.getPagingGroups();
         assertEquals(4, groups.size());
+    }
+
+    public void testSaveDuplicateNumberPagingGroup() throws Exception {
+        PagingGroup groupWithDuplicateNumber = new PagingGroup();
+        groupWithDuplicateNumber.setPageGroupNumber(111);
+        try {
+            m_pagingContext.savePagingGroup(groupWithDuplicateNumber);
+        } catch (UserException ex) {
+            assertTrue(true);
+        }
     }
 
     public void testClear() throws Exception {

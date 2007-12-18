@@ -27,4 +27,12 @@
       <many-to-many column="user_id" class="org.sipfoundry.sipxconfig.common.User" />
     </set>
   </class>
+
+  <query name="countPagingGroupWithSameName">
+    <![CDATA[select count (*) from PagingGroup pg where pg.id = :pagingGroupId and pg.pageGroupNumber = :pageGroupNumber]]>
+  </query>
+
+  <query name="anotherPagingGroupWithSameName">
+    <![CDATA[select count (*) from PagingGroup pg where pg.pageGroupNumber = :pageGroupNumber]]>
+  </query>
 </hibernate-mapping>

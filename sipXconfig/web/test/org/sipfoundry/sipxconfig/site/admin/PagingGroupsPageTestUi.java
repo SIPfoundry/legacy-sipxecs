@@ -82,10 +82,31 @@ public class PagingGroupsPageTestUi extends WebTestCase {
         int rowCount = SiteTestHelper.getRowCount(getTester(), "pagingGroups:list");
         if (rowCount > 1) {
             for (int i = 1; i < rowCount; i++) {
-                SiteTestHelper.selectRow(getTester(), i-1, true);
+                SiteTestHelper.selectRow(getTester(), i - 1, true);
             }
             clickButton("pagingGroups:delete");
             assertEquals(SiteTestHelper.getRowCount(getTester(), "pagingGroups:list"), 1);
         }
+    }
+
+    public void testAddPagingGroupWithSameNumber() throws Exception {
+        SiteTestHelper.assertNoUserError(tester);
+        assertLinkPresent("link.addPagingGroup");
+        clickLink("link.addPagingGroup");
+        setFormElement("number", "1");
+        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        clickButton("form:ok");
+
+        SiteTestHelper.assertNoUserError(tester);
+        clickLink("link.addPagingGroup");
+        setFormElement("number", "1");
+        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        clickButton("form:ok");
+
+        SiteTestHelper.assertUserError(tester);
     }
 }

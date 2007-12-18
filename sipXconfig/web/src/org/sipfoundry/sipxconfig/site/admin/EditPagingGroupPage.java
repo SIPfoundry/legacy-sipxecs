@@ -19,8 +19,10 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.paging.PagingGroup;
@@ -117,6 +119,13 @@ public abstract class EditPagingGroupPage extends UserBasePage implements PageBe
         if (!TapestryUtils.isValid(this)) {
             return;
         }
-        getPagingContext().savePagingGroup(getGroup());
+
+        try {
+            getPagingContext().savePagingGroup(getGroup());
+        } catch (UserException ex) {
+            String msg = getMessages().format("error.duplicateGroupNumbers",
+                    getGroup().getPageGroupNumber());
+            getValidator().record(new ValidatorException(msg));
+        }
     }
 }
