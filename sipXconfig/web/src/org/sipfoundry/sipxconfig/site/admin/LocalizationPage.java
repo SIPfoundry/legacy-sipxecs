@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -24,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.AssetSelector;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.site.dialplan.ActivateDialPlan;
 
 public abstract class LocalizationPage extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/LocalizationPage";
@@ -84,25 +87,29 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         setLanguageList(model);
     }
 
-    public void setRegion() {
+    public IPage setRegion(IRequestCycle cycle) {
         String region = getRegion();
         if (ModelWithDefaults.DEFAULT.equals(region)) {
-            return;
+            return getPage();
         }
-        int exitCode = getLocalizationContext().updateRegion(region);
-        if (exitCode > 0) {
-            recordSuccess("message.label.regionChanged");
-        } else if (exitCode < 0) {
-            recordFailure("message.label.regionFailed");
-        }
+        
+        ConfirmUpdateRegion updatePage = (ConfirmUpdateRegion) cycle.getPage(ConfirmUpdateRegion.PAGE);
+        updatePage.setRegion(getRegion());
+        updatePage.setReturnPage(PAGE);
+        return updatePage;
     }
 
-    public void setLanguage() {
+    public void setLanguage(IRequestCycle cycle) {
         String languageDir = getLanguage();
         if (ModelWithDefaults.DEFAULT.equals(languageDir)) {
             return;
         }
         int exitCode = getLocalizationContext().updateLanguage(languageDir);
+        
+        ActivateDialPlan activateDialPlan = (ActivateDialPlan) cycle.getPage(ActivateDialPlan.PAGE);
+        activateDialPlan.setReturnPage(PAGE);
+        activateDialPlan.activate(cycle);
+        
         if (exitCode > 0) {
             recordSuccess("message.label.languageChanged");
         } else if (exitCode < 0) {

@@ -185,6 +185,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
         localization.setLanguage(language);
         getHibernateTemplate().saveOrUpdate(localization);
         m_domainManager.replicateDomainConfig();
+        
         return 1;
     }
 
