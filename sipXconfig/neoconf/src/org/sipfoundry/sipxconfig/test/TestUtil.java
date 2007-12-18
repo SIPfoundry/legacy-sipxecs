@@ -222,4 +222,13 @@ public final class TestUtil {
             throw new RuntimeException("could not store system dir properties", e);
         }
     }
+
+    public static File createTempDir(String name) throws IOException {
+        File createTempFile = File.createTempFile(name, "dir");
+        String tempDirPath = createTempFile.getPath();
+        createTempFile.delete();
+        File tempDir = new File(tempDirPath);
+        tempDir.mkdirs();
+        return tempDir;
+    }
 }

@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ZipUploadTest extends TestCase {
@@ -29,9 +28,11 @@ public class ZipUploadTest extends TestCase {
     protected void setUp() throws IOException {
         File thisDir = new File(TestUtil.getTestSourceDirectory(getClass()));
         m_zipFile = new File(thisDir, "zip-test.zip");
-        m_expandDir = new File(new File(TestHelper.getTestDirectory()), "zip-test");
+        m_expandDir = TestUtil.createTempDir("zip-test");
+    }
+
+    protected void tearDown() throws Exception {
         FileUtils.deleteDirectory(m_expandDir);
-        m_expandDir.mkdirs();
     }
 
     public void testDeployUndeploy() throws Exception {
