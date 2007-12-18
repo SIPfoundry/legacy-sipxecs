@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name='VOIP'>
+    <setting name='DEF_USER1' />
+    <setting name="SERVER_IP1_1">
+    </setting>
+    <setting name='SERVER_PORT1_1' advanced="yes">
+      <value>5060</value>
+    </setting>
+  </group>
+</model>

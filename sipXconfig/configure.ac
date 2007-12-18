@@ -103,6 +103,7 @@ AC_CONFIG_FILES([
     plugins/lg-nortel/Makefile
     plugins/linksys/Makefile
     plugins/mitel/Makefile
+    plugins/nortel/Makefile
 ])
 
 AC_OUTPUT

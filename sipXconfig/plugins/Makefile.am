@@ -3,7 +3,8 @@ SUBDIRS = \
 	hitachi \
 	lg-nortel \
 	linksys \
-	mitel
+	mitel \
+        nortel
 
 EXTRA_DIST = \
 	$(SUBDIRS) \

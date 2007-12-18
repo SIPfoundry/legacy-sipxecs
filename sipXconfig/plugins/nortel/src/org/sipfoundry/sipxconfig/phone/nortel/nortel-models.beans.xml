@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="nortelModel" abstract="true" parent="abstractPhoneModel">
+    <property name="beanId" value="nortel" />
+    <property name="label" value="Nortel-11xx" />
+    <property name="maxLineCount" value="1" />
+    <property name="profileTemplate" value="nortel/mac.cfg.vm" />
+  </bean>
+
+  <!-- models -->
+  <bean id="nortel11xx" parent="nortelModel">
+    <property name="label" value="Nortel-11xx" />
+    <property name="maxLineCount" value="1" />
+  </bean>
+
+  <!-- implementation -->
+  <bean id="nortel" class="org.sipfoundry.sipxconfig.phone.nortel.NortelPhone" singleton="false"
+    parent="abstractPhone">
+  </bean>
+
+  <bean id="nortelFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <property name="beanId" value="zipUpload" />
+    <property name="modelFilePath" value="nortel/upload.xml" />
+    <property name="label" value="Nortel 11xx" />
+  </bean>
+</beans>
