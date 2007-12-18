@@ -140,6 +140,7 @@ databaseCommand() {
         -Dlib.dir=${LibDir} \
         -Dlog.dir=${LogDir} \
         -Dtmp.dir=${TmpDir} \
+        -Dsipxconfig.db.user=${PostgresUser} \
         -f ${DatabaseProject} \
         $@`
     if [ $? != "0" ]; then

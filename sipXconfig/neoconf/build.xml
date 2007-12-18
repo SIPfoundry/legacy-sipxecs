@@ -1,6 +1,5 @@
 <project name="neoconf" default="default">
   <property name="sipxconfig.db.pds" value="SIPXCONFIG_TEST" />
-  <property name="sipxconfig.db.user" value="@sipxconfig.db.user@" />
 
   <property name="checkstyle.severity" value="error" />
 
@@ -286,6 +285,7 @@
     <subant target="unittest-reset">
       <!-- THIS PROPERTY VERY IMPORTANT -->
       <property name="sipxconfig.db.name" value="SIPXCONFIG_TEST" />
+      <property name="sipxconfig.db.user" value="${sipxconfig.db.user}"/>
       <property name="jdbc-driver.jar" value="${jdbc-driver.jar}" />
       <filelist dir="etc/database" files="database.xml" />
     </subant>

@@ -195,6 +195,7 @@ public final class TestUtil {
         sysProps.setProperty("dialPlanContextImpl.scriptsDirectory", vxmlDir);
         sysProps.setProperty("monitoringContextImpl.enabled", Boolean.toString(true));
         sysProps.setProperty("coreContextImpl.debug", "on");
+	sysProps.setProperty("sipxconfig.db.user", "postgres");
 
         File vmDir = new File(outputDirectory + "/mailstore");
         if (!vmDir.exists()) {
