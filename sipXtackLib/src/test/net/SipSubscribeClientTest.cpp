@@ -768,7 +768,7 @@ public:
          CPPUNIT_ASSERT(clientSideSubResponse);
 
          // Check the Contact in the subscribe response.
-         ASSERT_STR_EQUAL(notifier_contact_name_addr,
+         ASSERT_STR_EQUAL(notifier_name_addr,
                           clientSideSubResponse->
                               getHeaderValue(0, SIP_CONTACT_FIELD));
 
@@ -1873,7 +1873,7 @@ public:
          CPPUNIT_ASSERT(clientSideSubResponse);
 
          // Check the Contact in the subscribe response.
-         ASSERT_STR_EQUAL(notifier_contact_name_addr,
+         ASSERT_STR_EQUAL(notifier_name_addr,
                           clientSideSubResponse->
                               getHeaderValue(0, SIP_CONTACT_FIELD));
 
