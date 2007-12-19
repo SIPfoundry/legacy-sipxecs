@@ -28,7 +28,7 @@ JavaHome=""
 
 # All sipx programs require 1.4 or above, if this does not become
 # true, I suggest parameter-izing this
-JavaVersions="1\.[4567]"
+JavaVersions="1\.[456]"
 
 # List of all sipx projects
 Projects="\
