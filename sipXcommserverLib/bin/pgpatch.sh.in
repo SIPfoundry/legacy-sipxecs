@@ -89,17 +89,30 @@ postgresSetup() {
       fi
   fi
 
-  # Postgres db is initialized on startup on Redhat, but not on other
-  # distros so unless we put a "if distro=rh"  we need to init here
+  # There are situations where the postgres db is not initialized 
+  # on startup either because distro does not initialize it by default or 
+  # pgsql data directory had to be deleted because it was bad.
   if [ ! -f $PGDATA/PG_VERSION ] || [ ! -d $PGDATA/base ]
   then
       if [ -x /sbin/service ]
-      # Most distributions use a separate command "initdb" to initialize the db
-      # Fedora 8 uses "service postgresql initdb"
-      # Debian Etch initializes the DB during installation
       then
-          ${ServiceDir}/$Service initdb > /dev/null
+	  if ${ServiceDir}/$Service dummy | grep initdb &>/dev/null
+	  then
+              # Fedora 8 uses "service postgresql initdb"
+              ${ServiceDir}/$Service initdb &>/dev/null
+	  else
+              # Most distributions use a separate command "initdb" 
+              # to initialize the db which can also be called by 
+	      # starting and stopping server. Although you could call 
+	      # initdb directly there is various other housekeeping that 
+	      # the service script handles so leverage it here.
+              ${ServiceDir}/$Service start &>/dev/null
+              ${ServiceDir}/$Service stop &>/dev/null
+	  fi
       else
+          # Debian Etch initializes the DB during installation
+	  # however, if the database is corrupt or blown away, this
+	  # will reset postgres database on distros like Debian
           $SubstituteUser - ${PostgresUser} -c "initdb --pgdata=$PGDATA" > /dev/null
       fi
   fi
