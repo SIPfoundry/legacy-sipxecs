@@ -1533,6 +1533,24 @@ SIPXTAPI_API SIPX_RESULT sipxLineAddCredential(const SIPX_LINE hLine,
                                                const char* szRealm) ;
 
 /**
+ * Adds authentication credentials to the designated line appearance.  
+ * Credentials are often required by registration services to verify that the
+ * line is being used by the line appearance/address of record owner. 
+ *
+ * @param hLine Handle to a line appearance.  Line handles are obtained by
+ *        creating a line using the sipxLineAdd function or by receiving
+ *        a line event notification.
+ * @param szUserID user id used for the line appearance.
+ * @param szAuthHash the hex-string encoded value of md5(user:realm:password)
+ * @param szRealm realm for which the user and passwd are valid.
+ */ 
+SIPXTAPI_API SIPX_RESULT sipxLineAddDigestCredential(const SIPX_LINE hLine,                                                 
+                                                     const char* szUserID,
+                                                     const char* szAuthHash,
+                                                     const char* szRealm);
+
+
+/**
  * Gets the active list of line identities.
  *
  * @param hInst Instance pointer obtained by sipxInitialize.

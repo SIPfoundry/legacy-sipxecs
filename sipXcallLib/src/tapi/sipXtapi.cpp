@@ -3854,7 +3854,46 @@ SIPXTAPI_API SIPX_RESULT sipxLineAddCredential(const SIPX_LINE hLine,
     return sr ;
 }
 
+SIPXTAPI_API SIPX_RESULT sipxLineAddDigestCredential(const SIPX_LINE hLine,                                                 
+                                                     const char* szUserID,
+                                                     const char* szAuthHash,
+                                                     const char* szRealm)
+{
+   OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+                 "sipxLineAddDigestCredential hLine=%d userId=%s realm=%s",
+                 hLine, szUserID, szRealm);
+        
+   SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
+   SIPX_LINE_DATA* pData = sipxLineLookup(hLine, SIPX_LOCK_READ) ;
+   if (pData)
+   {
+      if (szUserID && szAuthHash && szRealm)
+      {
+         UtlBoolean rc = pData->pInst->pLineManager->addCredentialForLine(*pData->lineURI,
+                                                                          szRealm,
+                                                                          szUserID,
+                                                                          szAuthHash,
+                                                                          HTTP_DIGEST_AUTHENTICATION) ;
 
+         assert(rc) ;
+         if (rc)
+         {
+            sr = SIPX_RESULT_SUCCESS ;
+         }
+      }
+      else
+      {
+         sr = SIPX_RESULT_INVALID_ARGS ;
+      }
+      sipxLineReleaseLock(pData, SIPX_LOCK_READ) ;
+   }
+   else
+   {
+      sr = SIPX_RESULT_INVALID_ARGS ;
+   }
+
+   return sr ;
+}
 
 SIPXTAPI_API SIPX_RESULT sipxLineGet(const SIPX_INST hInst,
                                      SIPX_LINE lines[],
