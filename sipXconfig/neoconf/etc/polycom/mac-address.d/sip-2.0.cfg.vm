@@ -111,7 +111,11 @@
       />
       <emergency
 #set ($group = $cfg.EndpointSettings.getSetting('dialplan').getSetting('digitmap').getSetting('routing.1'))
-        dialplan.routing.emergency.1.value="$!{group.getSetting('emergency.1.value').Value}"
+#set ($index = 1)
+#foreach ($emergencyVal in $cfg.EmergencySetting)
+        dialplan.routing.emergency.${index}.value="$!{emergencyVal}"
+#set ($index = $index+1)
+#end
         dialplan.routing.emergency.1.server.1="1"
       />
     </routing>

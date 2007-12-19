@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 public class PolycomPhone extends Phone {
     public static final String BEAN_ID = "polycom";
     public static final String CALL = "call";
+    public static final String EMERGENCY = "dialplan/digitmap/routing.1/emergency.1.value";
     static final String REGISTRATION_PATH = "reg/server/1/address";
     static final String REGISTRATION_PORT_PATH = "reg/server/1/port";
     static final String CONTACT_MODE = "contact";

@@ -81,6 +81,7 @@
       />
       <emergency
         dialplan.routing.emergency.1.value="911"
+        dialplan.routing.emergency.2.value="912"
         dialplan.routing.emergency.1.server.1="1"
       />
     </routing>

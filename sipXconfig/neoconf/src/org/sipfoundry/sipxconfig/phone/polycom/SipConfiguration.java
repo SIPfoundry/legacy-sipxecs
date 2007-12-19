@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.setting.PatternSettingFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -45,5 +46,11 @@ public class SipConfiguration extends ProfileContext {
         Collection items = SettingUtil.filter(s_callSettings, call);
         context.put(PolycomPhone.CALL, items);
         return context;
+    }
+
+    public String[] getEmergencySetting() {
+        String emergencyValue = getEndpointSettings().getSetting(PolycomPhone.EMERGENCY)
+                .getValue();
+        return StringUtils.split(emergencyValue, ",");
     }
 }

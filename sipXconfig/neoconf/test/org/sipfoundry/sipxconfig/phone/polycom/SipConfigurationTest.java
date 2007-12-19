@@ -56,7 +56,8 @@ public class SipConfigurationTest extends XMLTestCase {
 
     public void testGenerateProfile20() throws Exception {
         initSettings();
-
+        phone.setSettingValue("dialplan/digitmap/routing.1/emergency.1.value", "911,912");
+        phone.setDeviceVersion(PolycomModel.VER_2_0);
         ProfileContext cfg = new SipConfiguration(phone);
 
         m_pg.generate(m_location, cfg, null, "profile");
