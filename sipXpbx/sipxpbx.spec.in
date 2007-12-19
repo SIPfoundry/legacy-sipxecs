@@ -261,6 +261,8 @@ if [ -f /etc/sysconfig/sendmail ]; then
     echo 'SENDMAIL_OPTARG=-odd'
     echo 'QUEUE=p15s'
   ) >/etc/sysconfig/sendmail
+  # Restart sendmail so the configuration takes effect.
+  /sbin/service sendmail restart >/dev/null
 fi
 
 %preun
