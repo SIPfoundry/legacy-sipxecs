@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.common.event.ScheduleDeleteListener;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.common.event.UserGroupDeleteListener;
@@ -46,6 +47,8 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     private CoreContext m_coreContext;
 
     private SipxReplicationContext m_replicationContext;
+
+    private DaoEventPublisher m_daoEventPublisher;
 
     /**
      * Looks for a call sequence associated with a given user.
@@ -127,6 +130,10 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         m_replicationContext = replicationContext;
     }
 
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
+    }
+
     public UserDeleteListener createUserDeleteListener() {
         return new OnUserDelete();
     }
@@ -170,10 +177,10 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     private class OnScheduleDelete extends ScheduleDeleteListener {
         protected void onScheduleDelete(Schedule schedule) {
             if (schedule instanceof GeneralSchedule) {
-                //get all dialing rules and set schedule to Always
+                // get all dialing rules and set schedule to Always
                 List<DialingRule> rules = getDialingRulesForScheduleId(schedule.getId());
-                if(rules != null) {
-                    for(DialingRule rule : rules) {
+                if (rules != null) {
+                    for (DialingRule rule : rules) {
                         rule.setSchedule(null);
                     }
                     getHibernateTemplate().saveOrUpdateAll(rules);
@@ -181,8 +188,8 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
             } else {
                 // get all rings and set schedule to Always
                 List<Ring> rings = getRingsForScheduleId(schedule.getId());
-                if(rings != null) {
-                    for(Ring ring : rings) {
+                if (rings != null) {
+                    for (Ring ring : rings) {
                         ring.setSchedule(null);
                     }
                     getHibernateTemplate().saveOrUpdateAll(rings);
@@ -275,29 +282,14 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         return DataAccessUtils.intResult(count) == 0;
     }
 
-    public List<Schedule> deleteSchedulesById(Collection<Integer> scheduleIds) {
-        if (scheduleIds.isEmpty()) {
-            // no schedules to delete => nothing to do
-            return null;
-        }
-        List<Schedule> unassignedSchedules = new ArrayList<Schedule>();
-        List<Schedule> assignedSchedules = new ArrayList<Schedule>();
+    public void deleteSchedulesById(Collection<Integer> scheduleIds) {
+        Collection<Schedule> schedules = new ArrayList<Schedule>(scheduleIds.size());
         for (Integer id : scheduleIds) {
             Schedule schedule = getScheduleById(id);
-            List deps = null;
-            if (schedule instanceof GeneralSchedule) {
-                deps = getDialingRulesForScheduleId(id);
-            } else {
-                deps = getRingsForScheduleId(id);
-            }
-            if (deps == null || deps.isEmpty()) {
-                unassignedSchedules.add(schedule);
-            } else {
-                assignedSchedules.add(schedule);
-            }
+            schedules.add(schedule);
+            m_daoEventPublisher.publishDelete(schedule);
         }
-        getHibernateTemplate().deleteAll(unassignedSchedules);
-        return assignedSchedules;
+        getHibernateTemplate().deleteAll(schedules);
     }
 
     public List<UserGroupSchedule> getAllUserGroupSchedules() {

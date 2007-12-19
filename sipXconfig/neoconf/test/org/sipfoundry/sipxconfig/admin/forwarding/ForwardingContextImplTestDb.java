@@ -236,7 +236,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
             assertTrue(true);
         }
     }
-    
+
     public void testSaveDuplicateNameUserGroupSchedule() throws Exception {
         User user = m_coreContext.loadUser(new Integer(1001));
         Schedule userGroupScheduleWithDuplicateName = new UserGroupSchedule();
@@ -259,15 +259,16 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
             assertTrue(true);
         }
     }
-    
 
     public void testDeleteSchedulesById() throws Exception {
+        assertEquals(5, getConnection().getRowCount("schedule"));
         List<Integer> scheduleIds = new ArrayList<Integer>();
         scheduleIds.add(new Integer(100));
         scheduleIds.add(new Integer(101));
 
-        List<Schedule> schedulesWithRings = m_context.deleteSchedulesById(scheduleIds);
-        assertEquals(2, schedulesWithRings.size());
+        m_context.deleteSchedulesById(scheduleIds);
+
+        assertEquals(3, getConnection().getRowCount("schedule"));
     }
 
     public void testGetAllAvailableSchedulesForUser() throws Exception {

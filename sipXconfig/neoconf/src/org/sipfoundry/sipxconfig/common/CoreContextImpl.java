@@ -22,7 +22,6 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
-import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
@@ -181,14 +180,6 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
             m_daoEventPublisher.publishDelete(user);
         }
         getHibernateTemplate().deleteAll(users);
-    }
-
-    public void deleteSchedules(Collection<Schedule> schedules) {
-        for(Schedule schedule : schedules) {
-            getHibernateTemplate().saveOrUpdate(schedule);
-            m_daoEventPublisher.publishDelete(schedule);
-        }
-        getHibernateTemplate().deleteAll(schedules);
     }
 
     public User loadUser(Integer id) {

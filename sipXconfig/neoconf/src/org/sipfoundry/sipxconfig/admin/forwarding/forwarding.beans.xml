@@ -11,6 +11,7 @@
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="coreContext" ref="coreContextImpl" />
     <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="daoEventPublisher" ref="daoEventPublisher" />
   </bean>
 
   <bean id="forwardingContextUserDelete" factory-bean="forwardingContextImpl" factory-method="createUserDeleteListener" />

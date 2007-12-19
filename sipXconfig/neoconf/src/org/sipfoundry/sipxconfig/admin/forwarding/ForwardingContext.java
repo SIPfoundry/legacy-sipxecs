@@ -36,7 +36,7 @@ public interface ForwardingContext extends AliasProvider {
 
     Schedule getScheduleById(Integer scheduleId);
 
-    List<Schedule> deleteSchedulesById(Collection<Integer> scheduleIds);
+    void deleteSchedulesById(Collection<Integer> scheduleIds);
 
     void notifyCommserver();
 
