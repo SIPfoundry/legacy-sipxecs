@@ -14,22 +14,21 @@ then
         -e 'while ( m/\b(\d{1,5})M?\b/g ) { $padded=sprintf( "%06d", $1 ); s/$1/$padded/; };' \
         -e 's/:/./g;' \
         -e "s/M/.${SIPX_BUILD_LABEL}/g;"
-elif test -r ${topdir}/SVN-VERSION
+elif git branch > /dev/null 2>&1
 then
-    cat ${topdir}/SVN-VERSION
-elif test -r ${topdir}/../SVN-VERSION
-then
-    cat ${topdir}/../SVN-VERSION
-elif test -r ${topdir}/../../SVN-VERSION
-then
-    cat ${topdir}/../../SVN-VERSION
-elif test -r ${topdir}/../../../SVN-VERSION
-then
-    cat ${topdir}/../../../SVN-VERSION
-elif test -r ${topdir}/../../../../SVN-VERSION
-then
-    cat ${topdir}/../../../../SVN-VERSION
+    git log \
+    | perl -n -e 'm/^\s+git-svn-id: [^@]+@(\d+)/ && do {printf("%06d",$1); exit; };' \
+    | perl -p -e "s/\$/.${SIPX_BUILD_LABEL}/g;"
 else
-    echo 0.unknown
+    dir=$topdir
+    until test -e $dir/SVN-VERSION -o "$dir" = "/" -o ! -d $dir
+    do
+        dir=`dirname $dir`
+    done
+    if test -e $dir/SVN-VERSION
+    then
+        cat ${dir}/SVN-VERSION
+    else
+        echo 0.unknown
+    fi
 fi
-
