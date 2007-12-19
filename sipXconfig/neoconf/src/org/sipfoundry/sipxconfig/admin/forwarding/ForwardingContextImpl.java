@@ -16,10 +16,12 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.ScheduleDeleteListener;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.common.event.UserGroupDeleteListener;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -133,6 +135,10 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         return new OnUserGroupDelete();
     }
 
+    public ScheduleDeleteListener createScheduleDeleteListener() {
+        return new OnScheduleDelete();
+    }
+
     private class OnUserDelete extends UserDeleteListener {
         protected void onUserDelete(User user) {
             removeCallSequenceForUserId(user.getId());
@@ -158,6 +164,31 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
                 getHibernateTemplate().deleteAll(schedules);
                 notifyCommserver();
             }
+        }
+    }
+
+    private class OnScheduleDelete extends ScheduleDeleteListener {
+        protected void onScheduleDelete(Schedule schedule) {
+            if (schedule instanceof GeneralSchedule) {
+                //get all dialing rules and set schedule to Always
+                List<DialingRule> rules = getDialingRulesForScheduleId(schedule.getId());
+                if(rules != null) {
+                    for(DialingRule rule : rules) {
+                        rule.setSchedule(null);
+                    }
+                    getHibernateTemplate().saveOrUpdateAll(rules);
+                }
+            } else {
+                // get all rings and set schedule to Always
+                List<Ring> rings = getRingsForScheduleId(schedule.getId());
+                if(rings != null) {
+                    for(Ring ring : rings) {
+                        ring.setSchedule(null);
+                    }
+                    getHibernateTemplate().saveOrUpdateAll(rings);
+                }
+            }
+            notifyCommserver();
         }
     }
 

@@ -13,13 +13,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IBinding;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
@@ -27,6 +26,9 @@ public abstract class SchedulesTable extends BaseComponent {
 
     @InjectObject(value = "spring:forwardingContext")
     public abstract ForwardingContext getForwardingContext();
+
+    @InjectObject(value = "spring:coreContext")
+    public abstract CoreContext getCoreContext();
 
     public abstract List getSchedules();
 
@@ -48,19 +50,14 @@ public abstract class SchedulesTable extends BaseComponent {
             return;
         }
 
-        List<Schedule> assignedSchedules = getForwardingContext().deleteSchedulesById(ids);
-        if (assignedSchedules != null && assignedSchedules.size() > 0) {
-            List<String> assignedSchedulesNames = new ArrayList<String>();
-            for (Schedule schedule : assignedSchedules) {
-                assignedSchedulesNames.add(schedule.getName());
-            }
-            String failures = getMessages().format("msg.failed.delete",
-                    StringUtils.join(assignedSchedulesNames, ", "));
-            TapestryUtils.getValidator(getPage()).record(new ValidatorException(failures));
-        } else {
-            String msg = getMessages().format("msg.success.delete", Integer.toString(ids.size()));
-            TapestryUtils.recordSuccess(this, msg);
+        List<Schedule> schedules = new ArrayList<Schedule>();
+        ForwardingContext forwardingContext = getForwardingContext();
+        for(Object id : ids) {
+            schedules.add(forwardingContext.getScheduleById((Integer) id));
         }
+        getCoreContext().deleteSchedules(schedules);
+        String msg = getMessages().format("msg.success.delete", Integer.toString(ids.size()));
+        TapestryUtils.recordSuccess(this, msg);
 
         markChanged();
     }

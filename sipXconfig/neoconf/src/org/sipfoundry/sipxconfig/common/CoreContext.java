@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
+import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -50,6 +51,8 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
     void deleteUsers(Collection<Integer> usersIds);
 
     void deleteUsersByUserName(Collection<String> usersName);
+
+    void deleteSchedules(Collection<Schedule> schedules);
 
     User loadUser(Integer id);
 
