@@ -99,6 +99,7 @@ Summary: Configures/enables FTP for devices controlled by %{name}
 * add a user account w/default account for polycom phones
 
 %package mrtg
+Requires: sipxconfig
 Requires: mrtg
 Requires: net-snmp
 Requires: rrdtool
