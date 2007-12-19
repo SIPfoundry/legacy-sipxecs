@@ -17,6 +17,7 @@
 #include <os/OsDateTime.h>
 #include <net/SipUserAgent.h>
 #include <net/SipDialogEvent.h>
+#include <sipdb/CredentialDB.h>
 #include <cp/CallManager.h>
 #include "ACDCallManager.h"
 #include "ACDLineManager.h"
@@ -85,11 +86,11 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
    mpAcdCallManager = mpAcdLineManager->getAcdCallManager();
    mhAcdCallManagerHandle = mpAcdLineManager->getAcdCallManagerHandle();
 
+   UtlString lineIdentity;
+   mUri.getIdentity(lineIdentity);
+
    // Create the dialog publisher
    if (mPublishLinePresence) {
-      UtlString lineIdentity;
-      
-      mUri.getIdentity(lineIdentity);
       mpDialogEventPackage = new SipDialogEvent(STATE, lineIdentity);
       
       mpDialogEventPackage->getBytes(&mDialogPDU, &mDialogPDULength);
@@ -104,6 +105,82 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
                           mpDialogEventPackage->getVersion());
    }
 
+   CredentialDB* credentialDb = mpAcdLineManager->getCredentialDb();
+   if (credentialDb)
+   {
+      UtlString user;
+      UtlString ha1_authenticator;
+      UtlString authtype;
+      UtlString realm(mpAcdLineManager->getAcdServer()->getRealm());
+
+      if (credentialDb->getCredential(mUri, realm, user, ha1_authenticator, authtype))
+      {
+         if (SIPX_RESULT_SUCCESS
+             == sipxLineAddDigestCredential(lineHandle, user, ha1_authenticator, realm))
+         {
+            OsSysLog::add(FAC_ACD, PRI_DEBUG,
+                          "ACDLine::ACDLine added credentials for "
+                          "identity '%s': user '%s'",
+                          lineIdentity.data(), user.data()
+                          );
+         }
+         else
+         {
+            OsSysLog::add(FAC_ACD, PRI_ERR,
+                          "ACDLine::ACDLine setting credentials failed:"
+                          " any blind transfer may not work."
+                          );
+         }
+      }      
+      else
+      {
+         // could not get credentials for the line identity - try for a default ACD identity
+         OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDLine::ACDLine"
+                       " no line-specific credentials found for '%s' in realm '%s'",
+                       lineIdentity.data(), realm.data()
+                       );
+
+         Url defaultAcdIdentity;
+         mpAcdLineManager->getAcdServer()->getDefaultIdentity(defaultAcdIdentity);
+  
+         if (credentialDb->getCredential(defaultAcdIdentity, realm,
+                                         user, ha1_authenticator, authtype))
+         {
+            if (SIPX_RESULT_SUCCESS
+                == sipxLineAddDigestCredential(lineHandle, user, ha1_authenticator, realm))
+            {
+               OsSysLog::add(FAC_ACD, PRI_DEBUG,
+                             "ACDLine::ACDLine added default (%s) credentials for "
+                             "identity '%s': user '%s'",
+                             defaultAcdIdentity.toString().data(),
+                             lineIdentity.data(), user.data()
+                             );
+            }
+            else
+            {
+               OsSysLog::add(FAC_ACD, PRI_ERR,
+                             "ACDLine::ACDLine setting default credentials failed:"
+                             " any blind transfer may not work."
+                             );
+            }
+         }
+         else
+         {
+            OsSysLog::add(FAC_ACD, PRI_ERR,
+                          "ACDLine::ACDLine no default (%s) credentials found in realm '%s'"
+                          "; transfer functions will not work",
+                          defaultAcdIdentity.toString().data(), realm.data()
+                          );
+         }
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_ACD, PRI_ERR,
+                    "ACDLine::ACDLine failed to open credentials database"
+                    "; transfer functions will not work");
+   }
+   
    mLineBusy = false;
    mDialogId = 0;
 }

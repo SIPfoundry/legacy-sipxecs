@@ -13,6 +13,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <utl/UtlString.h>
+#include <net/Url.h>
 #include <net/ProvisioningClass.h>
 #include <net/ProvisioningAttrList.h>
 
@@ -118,6 +119,10 @@ public:
 
    const char*        getDomain(void);
 
+   const char*        getRealm(void);
+
+   void               getDefaultIdentity(Url& id);
+
    int                getAdministrativeState(void);
    
    int                getMaxCallAllowed(void) { return mMaxAcdCallsAllowed; }
@@ -129,37 +134,45 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   ProvisioningAgent*    mpProvisioningAgent;
+   static const char* ID_TOKEN;
+   
+   ProvisioningAgent* mpProvisioningAgent;
    ProvisioningAgentXmlRpcAdapter* mpProvisioningAgentXmlRpcAdapter;
-   ACDCallManager*       mpAcdCallManager;
-   ACDLineManager*       mpAcdLineManager;
-   ACDAgentManager*      mpAcdAgentManager;
-   ACDQueueManager*      mpAcdQueueManager;
-   ACDAudioManager*      mpAcdAudioManager;
-   ACDRtRecord*          mpAcdRtRecord;
+   ACDCallManager*    mpAcdCallManager;
+   ACDLineManager*    mpAcdLineManager;
+   ACDAgentManager*   mpAcdAgentManager;
+   ACDQueueManager*   mpAcdQueueManager;
+   ACDAudioManager*   mpAcdAudioManager;
+   ACDRtRecord*       mpAcdRtRecord;
 #ifdef CML   
-   ACDRpcServer*         mpAcdRpcServer;
+   ACDRpcServer*      mpAcdRpcServer;
 #endif
 
-   UtlString             mLogDirectory;            // Log directory path.
-   UtlString             mLogFile;                 // Log filename including the path.
-   UtlString             mLogLevel;                // The logging level.
-   bool                  mLogToConsole;            // Console logging switch.
-   UtlString             mDomain;                  // The domain that this server is running in.
-   int                   mUdpPort;                 // The UDP Port used by this server.
-   int                   mTcpPort;                 // The TCP Port used by this server.
-   int                   mRtpBase;                 // The starting RTP Port used by this server.
-   int                   mTlsPort;                 // The TLS Port used by this server.
-   int                   mPresenceMonitorPort;     // The Presence Monitor Port used by this server.
-   UtlString             mPresenceServerUriString; // The Uri of the Presence Server used for TUI sign-in/out.
-   int                   mAdministrativeState;     // The desired Administrative State of this Server.
-   int                   mOperationalState;        // The actual Operational State of this Server.
-   bool                  mServerStarted;           // Flag indicating that the server is completely up.
-   int                   mMaxAcdCallsAllowed;      // The maximum number of calls allowed on a ACD.
+   UtlString          mLogDirectory;            ///< Log directory path.
+   UtlString          mLogFile;                 ///< Log filename including the path.
+   UtlString          mLogLevel;                ///< The logging level.
+   bool               mLogToConsole;            ///< Console logging switch.
+   UtlString          mDomain;                  ///< The SIP domain of this server.
+   UtlString          mRealm;                   ///< The SIP authentication realm of this server.
+   Url                mDefaultIdentity;         ///< Identity to use if the line does not have one.
+   int                mUdpPort;                 ///< The UDP Port used by this server.
+   int                mTcpPort;                 ///< The TCP Port used by this server.
+   int                mRtpBase;                 ///< The starting RTP Port used by this server.
+   int                mTlsPort;                 ///< The TLS Port used by this server.
+   int                mPresenceMonitorPort;     ///< The Presence Monitor Port used by this server.
+   UtlString          mPresenceServerUriString; /**< The Uri of the Presence Server
+                                                 *   used for TUI sign-in/out. */
+   int                mAdministrativeState;     /**< The desired Administrative State of this
+                                                 *   Server. */
+   int                mOperationalState;        ///< The actual Operational State of this Server.
+   bool               mServerStarted;           /**< Flag indicating that the server is completely
+                                                 *   up. */
+   int                mMaxAcdCallsAllowed;      ///< The maximum number of calls allowed on a ACD.
 #ifdef CML   
-   int                   mAcdRpcServerPort;        // Port to be used for call pickup XML-RPC server
+   int                mAcdRpcServerPort;        ///< Port to be used for call pickup XML-RPC server
 #endif
-   int                   mWatchdogRpcServerPort;   // Port that the Watchdog's XML-RPC server is using.
+   int                mWatchdogRpcServerPort;   /**< Port that the Watchdog's XML-RPC server
+                                                 *   is using. */
 };
 
 #endif  // _ACDServer_h_

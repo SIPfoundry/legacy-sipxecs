@@ -24,6 +24,8 @@
 #include <net/ProvisioningAttrList.h>
 #include <net/Url.h>
 #include <net/XmlRpcRequest.h>
+#include <sipXecsService/SipXecsService.h>
+
 #include "ACDCallManager.h"
 #include "ACDLineManager.h"
 #include "ACDAgentManager.h"
@@ -42,6 +44,8 @@ extern UtlBoolean gRestartFlag;
 
 // CONSTANTS
 #define MAX_CONNECTIONS    30
+
+const char* ACDServer::ID_TOKEN = "~~id~acd";
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -125,10 +129,40 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
       }
    }
    
+   OsConfigDb  domainConfiguration;
+   OsPath      domainConfigPath = SipXecsService::domainConfigPath();
+   if (OS_SUCCESS == domainConfiguration.loadFromFile(domainConfigPath.data()))
+   {
+      if (OS_SUCCESS == domainConfiguration.get(SipXecsService::DomainDbKey::SIP_REALM, mRealm))
+      {
+         OsSysLog::add(FAC_ACD, PRI_INFO, "ACDServer::ACDServer realm='%s'", mRealm.data());
+      }
+      else
+      {
+         OsSysLog::add(FAC_ACD, PRI_ERR,
+                       "ACDServer::ACDServer"
+                       " realm not configured: transfer functions will not work."
+                       );
+      }
+   }
+   else
+   {
+      OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                    "ACDServer::ACDServer failed to load domain configuration from '%s'"
+                    " realm not configured: transfer functions will not work.",
+                    domainConfigPath.data()
+                    );
+   }
+
    // If the configuration was succesfully loaded, instantiate the remainder of the components
    if (mConfigurationLoaded) {
+      mDefaultIdentity.setUserId(ID_TOKEN);
+      mDefaultIdentity.setHostAddress(mDomain);
+
       // Create the remainder of the server components
-      mpAcdCallManager  = new ACDCallManager(this, mUdpPort, mTcpPort, mTlsPort, mRtpBase, mMaxAcdCallsAllowed);
+      mpAcdCallManager  = new ACDCallManager(this, mUdpPort, mTcpPort, mTlsPort,
+                                             mRtpBase, mMaxAcdCallsAllowed,
+                                             mDefaultIdentity.toString().data());
       mpAcdLineManager  = new ACDLineManager(this);
       mpAcdAgentManager = new ACDAgentManager(this, mPresenceMonitorPort, mPresenceServerUriString);
       mpAcdQueueManager = new ACDQueueManager(this);
@@ -358,6 +392,7 @@ void ACDServer::setSysLogLevel(UtlString& rLogLevel)
       }
    }
    OsSysLog::setLoggingPriority(priority);
+   OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 }
 
 
@@ -1485,6 +1520,17 @@ const char* ACDServer::getDomain(void)
 {
    return mDomain.data();
 }
+
+const char* ACDServer::getRealm(void)
+{
+   return mRealm.data();
+}
+
+void ACDServer::getDefaultIdentity(Url& id)
+{
+   id = mDefaultIdentity;
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -25,6 +25,7 @@
 #include <os/OsReadLock.h>
 #include <os/OsWriteLock.h>
 #include <os/OsDateTime.h>
+#include <os/OsSysLog.h>
 #include <net/NetMd5Codec.h>
 
 
@@ -305,6 +306,12 @@ UtlBoolean SipLine::getCredentials(const UtlString& type /*[in]*/,
       credentialsFound = TRUE;
       credential = NULL;
    }
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipLine::getCredentials realm '%s' %s userID '%s'",
+                 realm.data(), credentialsFound ? "found" : "NOT found",
+                 (credentialsFound && userID) ? userID->data(): ""
+                 );
+
    return  credentialsFound ;
 }
 

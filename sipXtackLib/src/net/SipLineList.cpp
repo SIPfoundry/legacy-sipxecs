@@ -8,10 +8,10 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
+#include "os/OsSysLog.h"
 
 #include "net/SipLineList.h"
 
-//#define TEST_PRINT
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -293,84 +293,109 @@ SipLine* SipLineList::findLine(const char* lineId,
                                const char* realm,
                                const Url&  toFromUrl,
                                const char* userId,
-                               const Url& defaultLine)
+                               const Url&  defaultLine)
 {
    SipLine* pLineMatchingLineID  = NULL ;
    SipLine* pLineMatchingUrl     = NULL ;
    SipLine* pLineMatchingUser    = NULL ;
    SipLine* pLineMatchingDefault = NULL ;
 
-        int iteratorHandle = m_LineList.getIteratorHandle();
-        SipLine* nextLine = NULL;
-        while ((nextLine = (SipLine*) m_LineList.next(iteratorHandle))!= NULL)
-        {
+#  ifdef TEST_PRINT
+   OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
+                 "SipLineList::findLine searching for lineid '%s' realm '%s' url '%s' default '%s'",
+                 lineId, realm, toFromUrl.toString().data(), defaultLine.toString().data()
+                 );
+#  endif
+   
+   int iteratorHandle = m_LineList.getIteratorHandle();
+   SipLine* nextLine = NULL;
+   for (nextLine = (SipLine*) m_LineList.next(iteratorHandle);
+        pLineMatchingLineID == NULL && nextLine != NULL;
+        nextLine = (SipLine*) m_LineList.next(iteratorHandle)
+        )
+   {
+#     ifdef TEST_PRINT
+      Url tmpLineUrl = nextLine->getIdentity();
+      OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
+                    "SipLineList::findLine checking '%s'",
+                    tmpLineUrl.toString().data());
+#     endif
+
       // If the realm doesn't match, simply skip it
       if ((realm != NULL) && strlen(realm)
-            && (!nextLine->IsDuplicateRealm(realm)))
+          && (nextLine->IsDuplicateRealm(realm)))
       {
-         continue ;
-      }
-
-      //
-      // Priority 1: Check LineId
-      //
-      if (lineId != NULL)
-      {
-         if (nextLine->getLineId().compareTo(lineId) == 0)
+         //
+         // Priority 1: Check LineId
+         //
+         if (   lineId != NULL
+             && nextLine->getLineId().compareTo(lineId) == 0)
          {
             // We have match for the given lineId
             pLineMatchingLineID = nextLine ;
-            break ;
+            // since this is the best possible match, it will exit the loop.
+            OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
+                          "SipLineList::findLine matched line id '%s'",
+                          lineId);
          }
-      }
-
-      Url nextLineIdentity = nextLine->getIdentity();
-
-      //
-      // Priority 2: check ToFromUrl
-      //
-      if (pLineMatchingUrl == NULL)
-      {
-         if (nextLineIdentity.isUserHostPortEqual(toFromUrl))
+         else
          {
-            pLineMatchingUrl = nextLine ;
-            // Continue searching, because we may find a better match
-         }
-      }
+            Url nextLineIdentity = nextLine->getIdentity();
 
-      //
-      // Priority 3: Matches user & realm
-      //
-      UtlString user = nextLine->getUser() ;
-      if ((pLineMatchingUser == NULL) && (userId != NULL))
-      {
-         if (user.compareTo(userId) == 0)    // should be case sensitive
-         {
-            pLineMatchingUser = nextLine ;
-            // Continue searching, because we may find a better match
-         }
-      }
+            OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
+                          "SipLineList::findLine checking '%s'",
+                          nextLineIdentity.toString().data());
 
-      //
-      // Priority 4: Check for default line
-      //
-      if (nextLineIdentity.isUserHostPortEqual(defaultLine))
-      {
-         pLineMatchingDefault = nextLine ;
-         // Continue searching, because we may find a better match
+            //
+            // Priority 2: check ToFromUrl
+            //
+            if (   pLineMatchingUrl == NULL
+                && nextLineIdentity.isUserHostPortEqual(toFromUrl)
+                )
+            {
+               pLineMatchingUrl = nextLine ;
+               // Continue searching, because we may find a better match
+            }
+            else
+            {
+               //
+               // Priority 3: Matches user & realm
+               //
+               UtlString user = nextLine->getUser() ;
+               if (   pLineMatchingUser == NULL
+                   && userId != NULL
+                   && user.compareTo(userId) == 0    // should be case sensitive
+                   )
+               {
+                  pLineMatchingUser = nextLine ;
+                  // Continue searching, because we may find a better match
+               }
+               else
+               {
+                  //
+                  // Priority 4: Check for default line
+                  //
+                  if (nextLineIdentity.isUserHostPortEqual(defaultLine))
+                  {
+                     pLineMatchingDefault = nextLine ;
+                     // Continue searching, because we may find a better match
+                  }
+               }
+            }
+         }
       }
    }
    m_LineList.releaseIteratorHandle(iteratorHandle) ;
 
    // This is ugly, but needed for the desired effect
-   if (pLineMatchingLineID)
-      return pLineMatchingLineID ;
-   else if (pLineMatchingUrl)
-      return pLineMatchingUrl ;
-   else if (pLineMatchingUser)
-      return pLineMatchingUser ;
-   else if (pLineMatchingDefault)
-      return pLineMatchingDefault ;
-   else
-      return NULL ;
+   SipLine* foundLine = (  pLineMatchingLineID  ? pLineMatchingLineID
+           : pLineMatchingUrl     ? pLineMatchingUrl
+           : pLineMatchingUser    ? pLineMatchingUser
+           : pLineMatchingDefault ? pLineMatchingDefault
+           : NULL );
+   
+   OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG, "SipLineList::findLine %s",
+                 foundLine ? "found" : "NOT found");
+ 
+   return foundLine;
 }

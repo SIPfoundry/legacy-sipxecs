@@ -35,6 +35,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class CredentialDB;
 class ACDServer;
 class ACDCallManager;
 class ACDQueueManager;
@@ -99,6 +100,9 @@ public:
 
    ACDLine* getAcdLineReferenceByExtension(UtlString& rLineExtensionString);
 
+   /// Get a handle to the database where we look up line credentials.
+   CredentialDB* getCredentialDb(void);
+   
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -106,15 +110,17 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
    private:
-   OsMutex          mLock;                   // Lock used for atomic access
-   ACDServer*       mpAcdServer;             // Refernece to the parent ACDServer
-   ACDCallManager*  mpAcdCallManager;        // Reference to the associated UA
-   SIPX_INST        mhAcdCallManagerHandle;  // The sipXtapi handle for the UA
-   ACDQueueManager* mpAcdQueueManager;       // Reference to the associated UA
-   UtlHashMap       mLineHandleMap;          // Handle Map for ACDLine objects
-   UtlHashMap       mAcdLineList;            // List of ACDLine objects
-   UtlHashMap       mAcdLineNameList;        // List of ACDLine Name objects
-   UtlHashMap       mAcdLineExtensionList;   // List of ACDLine Extension objects
+   OsMutex          mLock;                   ///< Lock used for atomic access
+   ACDServer*       mpAcdServer;             ///< Refernece to the parent ACDServer
+   ACDCallManager*  mpAcdCallManager;        ///< Reference to the associated UA
+   SIPX_INST        mhAcdCallManagerHandle;  ///< The sipXtapi handle for the UA
+   ACDQueueManager* mpAcdQueueManager;       ///< Reference to the associated UA
+   UtlHashMap       mLineHandleMap;          ///< Handle Map for ACDLine objects
+   UtlHashMap       mAcdLineList;            ///< List of ACDLine objects
+   UtlHashMap       mAcdLineNameList;        ///< List of ACDLine Name objects
+   UtlHashMap       mAcdLineExtensionList;   ///< List of ACDLine Extension objects
+   CredentialDB*    mCredentialDb;           ///< Handle for database to find line credentials
+
 };
 
 #endif  // _ACDLineManager_h_

@@ -11,6 +11,7 @@ Url:      http://www.pingtel.com
 
 Source:   %name-%version.tar.gz
 
+Requires: sipxcommserverlib >= 3.9
 Requires: sipxcalllib >= 3.9
 Requires: sipxpbx >= 3.9
 
@@ -27,6 +28,7 @@ TBD
 %package devel
 Requires: %name
 Requires: sipxcalllib-devel >= 3.9
+Requires: sipxcommserverlib-devel >= 3.9
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Header files for %name 

@@ -17,6 +17,8 @@
 #include <xmlparser/tinyxml.h>
 #include <net/Url.h>
 #include <net/ProvisioningAgent.h>
+#include <sipdb/CredentialDB.h>
+
 #include "ACDServer.h"
 #include "ACDLine.h"
 #include "ACDCallManager.h"
@@ -58,6 +60,7 @@ ACDLineManager::ACDLineManager(ACDServer* pAcdServer)
    mpAcdCallManager = NULL;
    mhAcdCallManagerHandle = NULL;
    mpAcdQueueManager = NULL;
+   mCredentialDb = NULL;
 }
 
 
@@ -89,6 +92,14 @@ ACDLineManager::~ACDLineManager()
       OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLineManager::~ACDLineManager - Line(%d): removed",
                     lineHandle);
    }
+
+   mLock.acquire();
+   if (mCredentialDb)
+   {
+      mCredentialDb->releaseInstance();
+      mCredentialDb = NULL;
+   }
+   mLock.release();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -171,52 +182,64 @@ ACDLine* ACDLineManager::createACDLine(const char* pLineUriString,
                                        const char* pAcdQueue)
 
 {
-   int       sipPort;
-   UtlString lineUserId;
-   UtlString lineHostAddress;
    ACDLine*  pLineRef = NULL;
    SIPX_LINE lineHandle;
 
+   OsSysLog::add(FAC_ACD, PRI_DEBUG, "ACDLineManager::createACDLine"
+                 "LineUriString '%s' Name '%s' Extension '%s' %s mode %s Queue '%s'",
+                 pLineUriString, pName, pExtension,
+                 trunkMode ? "trunk" : "line",
+                 publishLinePresence ? "published" : "unpublished",
+                 pAcdQueue);
+
    mLock.acquire();
 
-   // Build up the line URI to also include the UA port number
-   Url lineUri(pLineUriString, TRUE);
-   lineUri.getUserId(lineUserId);
-   lineUri.getHostAddress(lineHostAddress);
-   sipPort = mpAcdCallManager->getSipPort();
-   lineUri.setHostPort(sipPort);
-
+   /*
+    * In earlier versions, the line was defined to be queue@host, and
+    * a sipXtapi alias for each line was defined as extension@domain.
+    * This caused problems with authentication challenges because
+    * the real line identities didn't match the header values.
+    *
+    * We now set the lines to be extension@domain, and don't create any
+    * alias.
+    */
+   Url lineUri(pLineUriString, Url::AddrSpec, NULL);
+   if (pExtension)
+   {
+      lineUri.setUserId(pExtension);
+   }
+   lineUri.setHostAddress(mpAcdServer->getDomain());
+   UtlString lineUriString;
+   lineUri.toString(lineUriString);
+   if (pName)
+   {
+      lineUri.setDisplayName(pName);
+   }
+   
    // Call sipXtapi to add the line presence.
-   if (sipxLineAdd(mhAcdCallManagerHandle, lineUri.toString(), &lineHandle) == SIPX_RESULT_SUCCESS) {
+   if (sipxLineAdd(mhAcdCallManagerHandle, lineUri.toString(), &lineHandle) == SIPX_RESULT_SUCCESS)
+   {
       // If successful, create a matching ACDLine object.
-      pLineRef = new ACDLine(this, lineHandle, lineUri.toString(), pName, pExtension, trunkMode, publishLinePresence, pAcdQueue);
+      pLineRef = new ACDLine(this, lineHandle, lineUri.toString(),
+                             pName, pExtension, trunkMode, publishLinePresence, pAcdQueue);
 
       // Create a mapping between the sipXtapi line handle and the ACDLine instance.
       mLineHandleMap.insertKeyAndValue(new UtlInt(lineHandle), pLineRef);
 
       // Create a mapping between the ACDLine URI and the ACDLine instance.
-      mAcdLineList.insertKeyAndValue(new UtlString(pLineUriString), pLineRef);
+      mAcdLineList.insertKeyAndValue(new UtlString(lineUriString), pLineRef);
 
       // Create a mapping between the ACDLine Name and the ACDLine instance.
       if ( pName && *pName )
+      {
          mAcdLineNameList.insertKeyAndValue(new UtlString(pName), pLineRef);
-
-      // If an extension has been defined, also register an alias with sipXtapi
-      if (pExtension != NULL) {
-         Url aliasUri;
-         aliasUri.setUserId(pExtension);
-         aliasUri.setHostAddress(mpAcdServer->getDomain());
-         sipxLineAddAlias(lineHandle, aliasUri.toString());
-
-         // Create a mapping between the ACDLine Extension and the ACDLine instance.
-         if ( *pExtension )
-            mAcdLineExtensionList.insertKeyAndValue(new UtlString(pExtension), pLineRef);
       }
 
       OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLineManager::createACDLine - Line(%d): %s added",
                     lineHandle, lineUri.toString().data());
    }
-   else {
+   else
+   {
       //Error
       OsSysLog::add(FAC_ACD, PRI_ERR, "ACDLineManager::createACDLine - Failed to create line: %s",
                     lineUri.toString().data());
@@ -1034,6 +1057,19 @@ ACDLine* ACDLineManager::getAcdLineReferenceByExtension(UtlString& rLineExtensio
    mLock.release();
 
    return pLineRef;
+}
+
+/// Get a handle to the database where we look up line credentials.
+CredentialDB* ACDLineManager::getCredentialDb(void)
+{
+   mLock.acquire();
+   if (!mCredentialDb)
+   {
+      mCredentialDb = CredentialDB::getInstance();
+   }
+   mLock.release();
+
+   return mCredentialDb;
 }
 
 /* ============================ INQUIRY =================================== */

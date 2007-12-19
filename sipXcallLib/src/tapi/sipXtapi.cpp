@@ -399,6 +399,8 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
         {
            localAddress = utlIdentity;
         }
+        Url defaultIdentity(localAddress);
+        pInst->pLineManager->setDefaultOutboundLine(defaultIdentity);
 
         OsConfigDb configDb;
         configDb.set("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", 2*maxConnections);
@@ -3860,7 +3862,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAddDigestCredential(const SIPX_LINE hLine,
                                                      const char* szRealm)
 {
    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-                 "sipxLineAddDigestCredential hLine=%d userId=%s realm=%s",
+                 "sipxLineAddDigestCredential hLine='%d' userId='%s' realm='%s'",
                  hLine, szUserID, szRealm);
         
    SIPX_RESULT sr = SIPX_RESULT_FAILURE ;

@@ -77,7 +77,8 @@ ACDCallManager::ACDCallManager(ACDServer* pAcdServer, const int udpPort,
 
    // sipXtapi failed to initialize, log the error and then throw up!
    if (rc != SIPX_RESULT_SUCCESS) {
-      OsSysLog::add(FAC_ACD, PRI_CRIT, "ACDCallManager::ACDCallManager - sipxInitialize failed with error code: %d", rc);
+      OsSysLog::add(FAC_ACD, PRI_CRIT, "ACDCallManager::ACDCallManager"
+                    " sipxInitialize failed with error code: %d", rc);
       osPrintf("ACDCallManager::ACDCallManager - sipxInitialize failed with error code: %d\n", rc);
       assert(0);
    }
