@@ -104,11 +104,14 @@ Requires: mrtg
 Requires: net-snmp
 Requires: rrdtool
 Requires: libart_lgpl
-Requires: lm_sensors
 
 %if %{_vendor} == redhat
 Requires: net-snmp-utils
 Requires: rrdtool-perl
+Requires: lm_sensors
+%endif
+%if %{_vendor} == suse
+Requires: sensors
 %endif
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
