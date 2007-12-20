@@ -35,12 +35,7 @@
 #include "sipXecsService/SipXecsService.h"
 
 // DEFINES
-#define WORKING_DIR     "."
 
-#define REPLICATION_LOG_DIR         SIPX_LOGDIR
-#define REPLICATION_LOG_FILENAME    "replicationcgi.log"
-#define REPLICATION_DEFAULT_LOG_DIR SIPX_LOGDIR
-#define LOG_FACILITY                FAC_REPLICATION_CGI
 
 #define  URI            "uri"
 #define  CONTACT        "contact"
@@ -66,6 +61,9 @@ using namespace std ;
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define     DEFAULT_LOG_LEVEL          PRI_INFO
+const char* REPLICATION_LOG_FILENAME = "replicationcgi.log";
+
 // STRUCTS
 // TYPEDEFS
 typedef void (*sighandler_t)(int);
@@ -155,13 +153,13 @@ sigHandler( int sig_num )
     OsSysLog::flush();
     if (SIGTERM == sig_num)
     {
-       OsSysLog::add( LOG_FACILITY, PRI_INFO, "sigHandler: terminate signal received.");
+       OsSysLog::add( FAC_REPLICATION_CGI, PRI_INFO, "sigHandler: terminate signal received.");
     }
     else
     {
-       OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
+       OsSysLog::add( FAC_REPLICATION_CGI, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
     }
-    OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "sigHandler: closing IMDB connections" );
+    OsSysLog::add( FAC_REPLICATION_CGI, PRI_DEBUG, "sigHandler: closing IMDB connections" );
     OsSysLog::flush();
 
     closeIMDBConnectionsFromCGI(  );
@@ -891,7 +889,8 @@ void handleInput(const char* pBuf )
                           rc = temporaryFile.rename(mappedLocation);
                           if (rc == OS_SUCCESS)
                           {
-                             // Success.
+                             OsSysLog::add(FAC_REPLICATION_CGI,PRI_INFO,
+                                           "updated file: %s", mappedLocation.data());
                           }
                           else
                           {
@@ -1027,14 +1026,15 @@ void handleInput(const UtlString& importFileName)
 int 
 main( int argc, char *argv[] )
 {
-   OsPathBase logFilePath = SipXecsService::Path(SipXecsService::LogDirType,"");
+   OsPathBase logFilePath = SipXecsService::Path(SipXecsService::LogDirType,
+                                                 REPLICATION_LOG_FILENAME);
 
    gstrError.remove(0);
    
       // Initialize the logger.
       OsSysLog::initialize(1024, "replicationcgi" );
       OsSysLog::setOutputFile(0, logFilePath );
-      OsSysLog::setLoggingPriorityForFacility(FAC_REPLICATION_CGI, PRI_DEBUG);
+      OsSysLog::setLoggingPriorityForFacility(FAC_REPLICATION_CGI, DEFAULT_LOG_LEVEL);
       OsSysLog::add(FAC_REPLICATION_CGI,PRI_INFO, "replication.cgi invoked");
       OsSysLog::flush();
 
