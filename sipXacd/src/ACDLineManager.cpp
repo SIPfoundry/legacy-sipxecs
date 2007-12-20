@@ -217,10 +217,10 @@ ACDLine* ACDLineManager::createACDLine(const char* pLineUriString,
    }
    
    // Call sipXtapi to add the line presence.
-   if (sipxLineAdd(mhAcdCallManagerHandle, lineUri.toString(), &lineHandle) == SIPX_RESULT_SUCCESS)
+   if (sipxLineAdd(mhAcdCallManagerHandle, lineUriString, &lineHandle) == SIPX_RESULT_SUCCESS)
    {
       // If successful, create a matching ACDLine object.
-      pLineRef = new ACDLine(this, lineHandle, lineUri.toString(),
+      pLineRef = new ACDLine(this, lineHandle, lineUriString,
                              pName, pExtension, trunkMode, publishLinePresence, pAcdQueue);
 
       // Create a mapping between the sipXtapi line handle and the ACDLine instance.
@@ -235,14 +235,38 @@ ACDLine* ACDLineManager::createACDLine(const char* pLineUriString,
          mAcdLineNameList.insertKeyAndValue(new UtlString(pName), pLineRef);
       }
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLineManager::createACDLine - Line(%d): %s added",
-                    lineHandle, lineUri.toString().data());
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLineManager::createACDLine"
+                    " Line(%d) '%s' added",
+                    lineHandle, lineUriString.data());
+
+      /*
+       * Construct a sipXtapi alias for the contact URI
+       */
+      Url contactUrl(pLineUriString);
+      contactUrl.setHostPort(mpAcdCallManager->getSipPort());
+
+      UtlString contactUrlString;
+      contactUrl.toString(contactUrlString);
+
+      if (contactUrlString.compareTo(lineUriString) != 0)
+      {
+         // Tell sipXtapi this contact is this line
+         sipxLineAddAlias(lineHandle, contactUrlString.data());
+
+         // Create a mapping between the ACDLine Extension and the ACDLine instance.
+         mAcdLineExtensionList.insertKeyAndValue(new UtlString(contactUrlString), pLineRef);
+
+         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLineManager::createACDLine"
+                       " Line(%d) alias '%s' added",
+                       lineHandle, contactUrlString.data());
+      }
+
    }
    else
    {
       //Error
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDLineManager::createACDLine - Failed to create line: %s",
-                    lineUri.toString().data());
+      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDLineManager::createACDLine - Failed to create line '%s'",
+                    lineUriString.data());
    }
 
    mLock.release();
