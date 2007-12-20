@@ -251,16 +251,29 @@ fi
 # Configure sendmail (if that is the mail daemon chosen) to never delay a
 # caller to validate the message, but also to deliver mail quickly (as users
 # may use e-mail as their primary way to access voicemail).
-if [ -f /etc/sysconfig/sendmail ]; then
-  # Save the current /etc/sysconfig/sendmail, if we haven't saved one before.
-  if [ ! -f /etc/sysconfig/sendmail.pre-sipX ]; then
-    mv /etc/sysconfig/sendmail /etc/sysconfig/sendmail.pre-sipX
+%define configfile /etc/sysconfig/sendmail
+if [ -f %{configfile} ]; then
+  # Save the current %{configfile}, if we haven't saved one before.
+  if [ ! -f %{configfile}.pre-sipX ]; then
+    cp %{configfile} %{configfile}.pre-sipX
   fi
+  # Extract lines (including comments) mentioning DAEMON, if any.
+  grep DAEMON <%{configfile} >%{configfile}.DAEMON
   (
-    echo '# Configured by sipX PBX: @PACKAGE@ @VERSION@'  
+    echo '# Configured by sipX PBX: @PACKAGE@ @VERSION@ %{buildno}'
+    echo '# Queue incoming messages immediately.'
     echo 'SENDMAIL_OPTARG=-odd'
+    echo '# Process queued messages quickly (usually within 15 seconds).'
     echo 'QUEUE=p15s'
-  ) >/etc/sysconfig/sendmail
+    # Copy DAEMON lines, if any.
+    if [ -s %{configfile}.DAEMON ]; then
+      # Add annotating comment that will not be passed by 'grep DAEMON' on the
+      # next upgrade.
+      echo '# sendmail daemon configuration saved from previous file contents:'
+      cat %{configfile}.DAEMON
+    fi
+  ) >%{configfile}
+  rm -f %{configfile}.DAEMON
   # Restart sendmail so the configuration takes effect.
   /sbin/service sendmail restart >/dev/null
 fi
