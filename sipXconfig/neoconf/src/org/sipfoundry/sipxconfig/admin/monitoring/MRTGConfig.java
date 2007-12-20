@@ -40,7 +40,6 @@ public class MRTGConfig {
     private static final String IPV6_TOKEN = "EnableIPv6";
     private static final String LOG_FORMAT_TOKEN = "LogFormat";
     private static final String PATH_ADD_TOKEN = "PathAdd";
-    private static final String LIB_ADD_TOKEN = "LibAdd";
     private static final String DEFAULT_LOG_FORMAT = "rrdtool";
     private static final String DEFAULT_PATH_ADD = "/usr/bin";
     private static final String DEFAULT_LIB_ADD = "/usr/lib/perl5/5.8.5/i386-linux-thread-multi";
@@ -56,7 +55,6 @@ public class MRTGConfig {
     private String m_ipv6 = StringUtils.EMPTY;
     private String m_logFormat = DEFAULT_LOG_FORMAT;
     private String m_pathAdd = DEFAULT_PATH_ADD;
-    private String m_libAdd = DEFAULT_LIB_ADD;
     private List<MRTGTarget> m_targets = new ArrayList<MRTGTarget>();
     private List<String> m_hosts = new ArrayList<String>();
     private List<String> m_mibs = new ArrayList<String>();
@@ -143,8 +141,6 @@ public class MRTGConfig {
                 setLogFormat(parseSimpleEntry(line));
             } else if (line.startsWith(PATH_ADD_TOKEN)) {
                 setPathAdd(parseSimpleEntry(line));
-            } else if (line.startsWith(LIB_ADD_TOKEN)) {
-                setLibAdd(parseSimpleEntry(line));
             } else {
                 String targetId = parseTargetId(line);
                 if (targetId != null) {
@@ -210,14 +206,6 @@ public class MRTGConfig {
 
     public List<String> getHosts() {
         return m_hosts;
-    }
-
-    public String getLibAdd() {
-        return m_libAdd;
-    }
-
-    public void setLibAdd(String libAdd) {
-        m_libAdd = libAdd;
     }
 
     public String getLogFormat() {
@@ -339,7 +327,6 @@ public class MRTGConfig {
         appendTokenValue(buf, IPV6_TOKEN, getIPV6());
         appendTokenValue(buf, LOG_FORMAT_TOKEN, getLogFormat());
         appendTokenValue(buf, PATH_ADD_TOKEN, getPathAdd());
-        appendTokenValue(buf, LIB_ADD_TOKEN, getLibAdd());
     }
 
     private void appendTokenValue(StringBuilder buffer, String token, String value) {

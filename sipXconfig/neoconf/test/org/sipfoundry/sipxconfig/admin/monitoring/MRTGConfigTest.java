@@ -39,7 +39,6 @@ public class MRTGConfigTest extends TestCase {
         assertEquals("/mrtg", m_mrtgConfig.getWorkingDir());
         assertEquals("rrdtool", m_mrtgConfig.getLogFormat());
         assertEquals("/usr/bin", m_mrtgConfig.getPathAdd());
-        assertEquals("/usr/lib/perl5/5.8.5/i386-linux-thread-multi", m_mrtgConfig.getLibAdd());
 
         List<MRTGTarget> targets = m_mrtgConfig.getTargets();
         MRTGTarget cpuutil = targets.get(0);
@@ -114,7 +113,7 @@ public class MRTGConfigTest extends TestCase {
                 + "EnableIPv6: no"
                 + "LogFormat: rrdtool"
                 + "PathAdd: /usr/bin"
-                + "LibAdd: /usr/lib/perl5/5.8.5/i386-linux-thread-multi## Server CPU Load#target[cpuutil_localhost]: ssCpuRawUser.0&ssCpuRawUser.0:sipxtest@localhosttitle[cpuutil_localhost]: Server CPU Loadpagetop[cpuutil_localhost]: <H1>Server CPU Load</H1>maxbytes[cpuutil_localhost]: 100shortlegend[cpuutil_localhost]: %ylegend[cpuutil_localhost]: CPU Utilizationlegendi[cpuutil_localhost]: Usedlegend1[cpuutil_localhost]: Current CPU percentage loadunscaled[cpuutil_localhost]: ymwdoptions[cpuutil_localhost]: growright,nopercent";
+                + "## Server CPU Load#target[cpuutil_localhost]: ssCpuRawUser.0&ssCpuRawUser.0:sipxtest@localhosttitle[cpuutil_localhost]: Server CPU Loadpagetop[cpuutil_localhost]: <H1>Server CPU Load</H1>maxbytes[cpuutil_localhost]: 100shortlegend[cpuutil_localhost]: %ylegend[cpuutil_localhost]: CPU Utilizationlegendi[cpuutil_localhost]: Usedlegend1[cpuutil_localhost]: Current CPU percentage loadunscaled[cpuutil_localhost]: ymwdoptions[cpuutil_localhost]: growright,nopercent";
         assertEquals(m_mrtgConfigString, outputToCompare);
     }
 
@@ -127,7 +126,6 @@ public class MRTGConfigTest extends TestCase {
         String outputToCompare = "workdir: /mrtg"
                 + "LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt"
                 + "EnableIPv6: no" + "LogFormat: rrdtool" + "PathAdd: /usr/bin"
-                + "LibAdd: /usr/lib/perl5/5.8.5/i386-linux-thread-multi"
                 + "## #maxbytes[]: 10000000000";
         assertEquals(m_mrtgConfigString, outputToCompare);
     }
@@ -162,7 +160,6 @@ public class MRTGConfigTest extends TestCase {
                 + "EnableIPv6: no"
                 + "LogFormat: rrdtool"
                 + "PathAdd: /usr/bin"
-                + "LibAdd: /usr/lib/perl5/5.8.5/i386-linux-thread-multi"
                 + "#target-group=customGroup## customTitle#target[custom]: customExpresiontitle[custom]: customTitlepagetop[custom]: customPageTopmaxbytes[custom]: 10shortlegend[custom]: shortLegendylegend[custom]: YLegendlegendi[custom]: ILegendlegendo[custom]: OLegendlegend1[custom]: Legend1legend2[custom]: Legend2unscaled[custom]: unscaledoptions[custom]: gauge,growright,nopercent";
         assertEquals(m_mrtgConfigString, outputToCompare);
     }

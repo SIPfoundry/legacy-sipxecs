@@ -41,7 +41,6 @@ public class MRTGTarget implements PrimaryKeySource {
     private boolean m_perMinute;
     private String m_logFormat = StringUtils.EMPTY;
     private String m_pathAdd = StringUtils.EMPTY;
-    private String m_libAdd = StringUtils.EMPTY;
 
     public String getId() {
         return m_id;
@@ -137,14 +136,6 @@ public class MRTGTarget implements PrimaryKeySource {
 
     public void setUnscaled(String unscaled) {
         m_unscaled = unscaled.trim();
-    }
-
-    public String getLibAdd() {
-        return m_libAdd;
-    }
-
-    public void setLibAdd(String libAdd) {
-        m_libAdd = libAdd;
     }
 
     public String getLogFormat() {
