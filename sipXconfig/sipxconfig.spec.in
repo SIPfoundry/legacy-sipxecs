@@ -104,12 +104,7 @@ Requires: mrtg
 Requires: net-snmp
 Requires: rrdtool
 Requires: libart_lgpl
-
-%ifnarch ppc ppc64
-# not available in fc6-ppc distro.
-# has to do w/motherboard api, maybe difficulties w/availablity
 Requires: lm_sensors
-%endif
 
 %if %{_vendor} == redhat
 Requires: net-snmp-utils
