@@ -14,6 +14,7 @@
 //#include <...>
 
 // APPLICATION INCLUDES
+#include "mailboxmgr/MailboxManager.h"
 #include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
@@ -48,9 +49,9 @@ public:
      * This does the work, lazy creates a mailbox if 
      * required and validates the identity/extension 
      */
-    virtual OsStatus execute (  UtlString* out = NULL);
+    virtual OsStatus execute (  UtlString* out = NULL );
 
-    OsStatus validate ( const UtlBoolean& checkPermissions = TRUE ) ;
+    OsStatus validate ( const MailboxPermissions requiredPermissions = MB_REQUIRE_VOICEMAIL ) ;
 
     /** Getter for the identity */
     void getMailboxIdentity( UtlString& mailboxIdentity ) const;
@@ -62,7 +63,7 @@ public:
     OsStatus validateIdentityAndGetExtension  ( 
         UtlString& rMailboxIdentity, 
         UtlString& rExtension,
-        const UtlBoolean& checkPermissions = TRUE );
+        const MailboxPermissions requiredPermissions = MB_REQUIRE_VOICEMAIL );
 
     UtlBoolean isNumeric( const UtlString& mailboxIdentity ) const ;
 

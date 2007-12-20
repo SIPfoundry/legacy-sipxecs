@@ -54,14 +54,14 @@
 
 #ifdef USE_SOAP
 #define _SOAP_MSG_NO_ARG_TEMPLATE_ \
-	"<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"%s\" SOAP-ENV:encoding=\"%s\"" \
-	" xmlns:xsi=\"%s\"" \
-	" xmlns:xsd=\"%s\">" \
-	"<SOAP-ENV:Body>"\
-	"<m:%s xmlns:m=\"%s\">"\
-	"</m:%s>" \
-	"</SOAP-ENV:Body>"\
-	"</SOAP-ENV:Envelope>"
+    "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"%s\" SOAP-ENV:encoding=\"%s\"" \
+    " xmlns:xsi=\"%s\"" \
+    " xmlns:xsd=\"%s\">" \
+    "<SOAP-ENV:Body>"\
+    "<m:%s xmlns:m=\"%s\">"\
+    "</m:%s>" \
+    "</SOAP-ENV:Body>"\
+    "</SOAP-ENV:Envelope>"
 
 #define _SOAP_MSG_TEMPLATE_ \
    "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"%s\" SOAP-ENV:encoding=\"%s\"" \
@@ -202,11 +202,11 @@ MailboxManager::createMailbox ( const UtlString& mailboxIdentity )
     if( result == OS_SUCCESS )
     {
         if ( !OsFileSystem::exists( mailboxPath ) )
-	{
-          result = OsFileSystem::createDir( mailboxPath );
-          OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                      "MailboxManager::createMailbox: createDir('%s') = %d",
-                      mailboxPath.data(), result);
+        {
+            result = OsFileSystem::createDir( mailboxPath );
+            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                    "MailboxManager::createMailbox: createDir('%s') = %d",
+                    mailboxPath.data(), result);
         }
 
         if ( result == OS_SUCCESS )
@@ -1303,7 +1303,7 @@ MailboxManager::saveMessage (
                      metaDataFile.close();
                      logContent = "Unable to write to message descriptor file : " + nameWithoutExtension + ".xml\n" ;
                      OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
-				     "MailboxManager::saveMessage: metaDataFile.write() failed, filename '%s.xml'",
+                                   "MailboxManager::saveMessage: metaDataFile.write() failed, filename '%s.xml'",
                                    nameWithoutExtension.data());
                   }
                } else
@@ -1477,7 +1477,7 @@ MailboxManager::doLogin (
     OsStatus result = validateMailbox (
         loginString,       // userid/extension with/without domain
         TRUE,              // resolve extension
-        TRUE,              // check permissions
+        MB_REQUIRE_EITHER, // check permissions
         rMailboxIdentity,  // URL of actual mailbox found
         rExtension );
 
@@ -1666,7 +1666,7 @@ OsStatus
 MailboxManager::validateMailbox (
     const UtlString& loginString,
     const UtlBoolean& resolveExtensionFlag,
-    const UtlBoolean& checkPermissions,
+    const MailboxPermissions requiredPermissions,
     UtlString& rMailboxIdentity,
     UtlString& rExtension )
 {
@@ -1674,8 +1674,8 @@ MailboxManager::validateMailbox (
     UtlString logContent;
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                  "MailboxManager::validateMailbox: loginString = '%s', resolveExtensionFlag = %d, checkPermissions = %d",
-                  loginString.data(), resolveExtensionFlag, checkPermissions);
+                  "MailboxManager::validateMailbox: loginString = '%s', resolveExtensionFlag = %d, requiredPermissions = %d",
+                  loginString.data(), resolveExtensionFlag, requiredPermissions);
 
     // Hack debugging info
     logContent = "entering with arguments " + loginString;
@@ -1754,9 +1754,10 @@ MailboxManager::validateMailbox (
                              mailboxUrl.toString().data(), realmName.data(),
                              authType.data());
                 writeToLog( "validateMailbox", "found mailboxUrl", PRI_DEBUG );
+                
                 // Flag to indicate if we found correct permission for this credential
                 UtlBoolean permissionFound = FALSE;
-                if( checkPermissions )
+                if( requiredPermissions != MB_REQUIRE_NONE )
                 {
                     writeToLog( "validateMailbox", "checking permissions", PRI_DEBUG );
                     // check for 'Voicemail' permission entry in IMDB
@@ -1765,37 +1766,57 @@ MailboxManager::validateMailbox (
                         getPermissions( mailboxUrl, permissions );
 
                     if ( permissions.getSize() > 0 )
-                    {
-                        // Ensure user has 'Voicemail'  or AutoAttendant permissions before proceeding
+                    {                        
+                        // Ensure user has proper permissions before proceeding
                         for ( int i=0; i<permissions.getSize(); i++ )
                         {
                             UtlHashMap record;
                             permissions.getIndex( i, record );
                             UtlString permission = *((UtlString*)record.findValue(&permissionKey));
-
-                            if ( permission.compareTo( "Voicemail", UtlString::ignoreCase ) == 0 ||
-                                 permission.compareTo( "AutoAttendant",  UtlString::ignoreCase ) == 0)
+                            
+                            switch (requiredPermissions)
                             {
-                                // fixup to prevent infinite loop where the
-                                // uri does not have a permission set
-                                permissionFound = TRUE;
-
-                                // Exit the for loop with or without a good status
-                                // as we found a good set of permissions,
-                                validated = TRUE;
+                            case MB_REQUIRE_VOICEMAIL:
+                                if ( permission.compareTo( "Voicemail", UtlString::ignoreCase ) == 0)
+                                {
+                                    permissionFound = TRUE;                            
+                                }
+                                break ;
+                            case MB_REQUIRE_AUTOATTENDANT:
+                                if ( permission.compareTo( "AutoAttendant", UtlString::ignoreCase ) == 0)
+                                {
+                                    permissionFound = TRUE;
+                                }                                
+                                break ;
+                            case MB_REQUIRE_EITHER:
+                                if ( permission.compareTo( "Voicemail", UtlString::ignoreCase ) == 0 ||
+                                     permission.compareTo( "AutoAttendant",  UtlString::ignoreCase ) == 0 )
+                                {
+                                    permissionFound = TRUE;
+                                }                                
+                                break ;
+                            default:
+                                assert(false);
+                            }
+                            
+                            if (permissionFound)
+                            {
                                 OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                                              "MailboxManager::validateMailbox: found voicemail  or AutoAttendant permission");
-                                break;
+                                              "MailboxManager::validateMailbox: found requested permission (%d)", 
+                                              requiredPermissions);                                
+                                validated = TRUE;
+                                break ;                                
                             }
                         }
                     }
-                } else
+                } 
+                else
                 {
                     permissionFound = TRUE;
                     validated = TRUE;
                     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                   "MailboxManager::validateMailbox: did not check permissions");
-            }
+                }
 
                 // it is possible that even though there is an uri defined
                 // for the user logging in, they may not have the persmission set
@@ -1821,7 +1842,7 @@ MailboxManager::validateMailbox (
                             m_mailstoreRoot + OsPathBase::separator +
                             MAILBOX_DIR + OsPathBase::separator +
                             mailboxId + OsPathBase::separator + 
-			    m_inboxFolder;
+                            m_inboxFolder;
                         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                       "MailboxManager::validateMailbox: inboxDirName = '%s'",
                                       inboxDirName.data());
@@ -2678,7 +2699,7 @@ MailboxManager::updateMessageStates(
 
       if (messageids == REFRESH_ALL_MSG_STATES)
       {
-	 // Refresh message states, trigger NOTIFY
+         // Refresh message states, trigger NOTIFY
          msgCount = 1;         
       } 
       else if (messageids == UPDATE_ALL_MSG_STATES)
@@ -4474,8 +4495,8 @@ MailboxManager::generateDefaultGreetings (
             // Get the extension
             validateMailbox (
                 mailboxIdentity,
-                TRUE,           // RESOLVE EXTENSION
-                FALSE,          // CHECK PERMISSIONS
+                TRUE,             // RESOLVE EXTENSION
+                MB_REQUIRE_NONE,  // CHECK PERMISSIONS
                 identity,
                 extension );
 

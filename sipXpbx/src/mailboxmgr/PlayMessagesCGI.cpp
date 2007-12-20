@@ -1346,12 +1346,11 @@ PlayMessagesCGI::validateFromUrl(const UtlString& fromStr,
    // construct the helper object for validating the from URL
    ValidateMailboxCGIHelper validateFromUrlHelper ( fromIdentity );
 
-   // check for voicemail permission only after
+   // NOTE: check for voicemail permission only after
    // confirming that the caller is an internal user
-   UtlBoolean checkPermission = FALSE;
 
    // check to see if the caller is an internal sipxchange user
-   OsStatus result = validateFromUrlHelper.validate( checkPermission );
+   OsStatus result = validateFromUrlHelper.validate( MB_REQUIRE_NONE );
    if( result == OS_SUCCESS )
    {
       // retrieve extension and mailbox identity
@@ -1363,9 +1362,8 @@ PlayMessagesCGI::validateFromUrl(const UtlString& fromStr,
       // Currently it checks the credential db to confirm that the identity
       // is valid before looking in the Permissions DB.
       ValidateMailboxCGIHelper checkPermissionHelper ( rFromMailboxIdentity );
-      checkPermission = TRUE;
       // check to see if the caller has voicemail inbox
-      OsStatus voicemailStatus = checkPermissionHelper.validate( checkPermission );
+      OsStatus voicemailStatus = checkPermissionHelper.validate( MB_REQUIRE_VOICEMAIL );
 
       if( voicemailStatus == OS_SUCCESS )
          rVoicemailEnabled = TRUE;

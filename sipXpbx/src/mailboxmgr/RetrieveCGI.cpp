@@ -169,8 +169,11 @@ RetrieveCGI::handleOpenVXIRequest( UtlString* out )
 
 
    // Check if the call or login came from known mailbox user
+   // Allow retrieve even if the user has either voicemail or autoattendant
+   // permissions.  If the user only has AA, they are prompted to record
+   // their name.
    ValidateMailboxCGIHelper validateMailboxHelper( m_from );
-   OsStatus result = validateMailboxHelper.execute( out );
+   OsStatus result = validateMailboxHelper.validate(MB_REQUIRE_EITHER);
    UtlString fromIdentity;
    if( result == OS_SUCCESS )
       validateMailboxHelper.getMailboxIdentity( fromIdentity );

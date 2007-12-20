@@ -43,7 +43,7 @@ ValidateMailboxCGIHelper::~ValidateMailboxCGIHelper()
 OsStatus
 ValidateMailboxCGIHelper::execute( UtlString* out )
 {
-   OsStatus result = validate( TRUE ) ;
+   OsStatus result = validate() ;
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "ValidateMailboxCGIHelper::execute: returns %d",
                  result);
@@ -51,7 +51,7 @@ ValidateMailboxCGIHelper::execute( UtlString* out )
 }
 
 OsStatus
-ValidateMailboxCGIHelper::validate( const UtlBoolean& checkPermissions )
+ValidateMailboxCGIHelper::validate( const MailboxPermissions requiredPermissions )
 {
     OsStatus result = OS_SUCCESS;
     // Check to see whether we have already validated the mailbox
@@ -61,10 +61,10 @@ ValidateMailboxCGIHelper::validate( const UtlBoolean& checkPermissions )
         result = validateIdentityAndGetExtension (
             m_mailboxIdentity,
             m_extension,
-            checkPermissions );
+            requiredPermissions );
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                      "ValidateMailboxCGIHelper::validate: checkPermissions = %d, returns m_mailboxIdentity = '%s', m_extension = '%s', result = %d",
-                      checkPermissions, m_mailboxIdentity.data(),
+                      "ValidateMailboxCGIHelper::validate: requiredPermissions = %d, returns m_mailboxIdentity = '%s', m_extension = '%s', result = %d",
+                      requiredPermissions, m_mailboxIdentity.data(),
                       m_extension.data(), result);
         m_isValidated = true;
     }
@@ -78,7 +78,7 @@ OsStatus
 ValidateMailboxCGIHelper::validateIdentityAndGetExtension (
     UtlString& rMailboxIdentity,
     UtlString& rExtension,
-    const UtlBoolean& checkPermissions)
+    const MailboxPermissions requiredPermissions)
 {
     OsStatus result = OS_SUCCESS;
     // look up the identity and extension from the IMDB
@@ -91,7 +91,7 @@ ValidateMailboxCGIHelper::validateIdentityAndGetExtension (
                     validateMailbox (
                         m_identityOrExtension,
                         TRUE,      // resolve extension
-                        checkPermissions,
+                        requiredPermissions,
                         m_mailboxIdentity,
                         m_extension);
         // pass internal results back
@@ -99,13 +99,13 @@ ValidateMailboxCGIHelper::validateIdentityAndGetExtension (
         rExtension = m_extension;
         m_isValidated = true;
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                      "ValidateMailboxCGIHelper::validateIdentityAndGetExtension: m_identityOrExtension = '%s', checkPermissions = %d, returns m_mailboxIdentity = '%s', m_extension = '%s', result = %d",
-                      m_identityOrExtension.data(), checkPermissions,
+                      "ValidateMailboxCGIHelper::validateIdentityAndGetExtension: m_identityOrExtension = '%s', requiredPermissions = %d, returns m_mailboxIdentity = '%s', m_extension = '%s', result = %d",
+                      m_identityOrExtension.data(), requiredPermissions,
                       m_mailboxIdentity.data(), m_extension.data(), result);
     }
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                  "ValidateMailboxCGIHelper::validateIdentityAndGetExtension: checkPermissions = %d, result = %d",
-                  checkPermissions, result);
+                  "ValidateMailboxCGIHelper::validateIdentityAndGetExtension: requiredPermissions = %d, result = %d",
+                  requiredPermissions, result);
     return result;
 }
 

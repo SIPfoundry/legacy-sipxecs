@@ -590,7 +590,7 @@ ManageDistributionsWebCGI::validateAddress(const UtlString& address) const
    MailboxManager* pMailboxManager = MailboxManager::getInstance();
    OsStatus result = pMailboxManager->validateMailbox( address,
                                                        TRUE,
-                                                       TRUE,
+                                                       MB_REQUIRE_VOICEMAIL,
                                                        mailboxIdentity,
                                                        extension );
 

@@ -178,6 +178,17 @@ public:
     UtlString mAfterHourMenu;
 };
 
+/**
+ * Mailbox Permissions used by validateMailbox
+ */
+typedef enum MailboxPermissions
+{
+    MB_REQUIRE_NONE          = 0, /**< Do not require any permissions */ 
+    MB_REQUIRE_VOICEMAIL     = 1, /**< Require voicemail only */    
+    MB_REQUIRE_AUTOATTENDANT = 2, /**< Require autoattendant only */
+    MB_REQUIRE_EITHER        = 3  /**< Require either voicemail or autoattendant */
+} MailboxPermissions ;
+
 
 /**
  * Mailbox Manager class.  This class is responsible for
@@ -298,7 +309,8 @@ public:
      * (it's actually a do while (!failed and !resolved ) loop).
      *
      * @param identityOrExtension   this is either an identity or an extension
-     * @param resolveAliasFlag      optionally resolve the best alias (preferably numeric)
+     * @param resolveExtensionFlag  optionally resolve the best alias (preferably numeric)
+     * @param requiredPermissions   verify required permissions
      * @param rMailboxIdentity      the resolved maibox identity (adfter searching the DBs)
      *                              this parameter is only returned if the resolveAliasFlag
      *                              is set to true
@@ -309,7 +321,7 @@ public:
     OsStatus validateMailbox (
         const UtlString& identityOrExtension,
         const UtlBoolean& resolveExtensionFlag,
-        const UtlBoolean& checkPermissions,
+        const MailboxPermissions requiredPermissions,
         UtlString& rMailboxIdentity,
         UtlString& rExtension ) ;
 

@@ -40,18 +40,17 @@ TransferToExtnCGI::execute(UtlString* out)
 {
     OsStatus result = OS_SUCCESS;
 
-        // Get fully qualified SIP URL for the extension
+    // Get fully qualified SIP URL for the extension
     Url extensionUrl;
-        MailboxManager* pMailboxManager = MailboxManager::getInstance();
-        pMailboxManager->getWellFormedURL( m_extension, extensionUrl );
+    MailboxManager* pMailboxManager = MailboxManager::getInstance();
+    pMailboxManager->getWellFormedURL( m_extension, extensionUrl );
 
-        // Validate the mailbox id and extension.
-        // If valid, lazy create the physical folders for the mailbox if necessary.
-    UtlBoolean checkPermissions = FALSE ;
+    // Validate the mailbox id and extension.
+    // If valid, lazy create the physical folders for the mailbox if necessary.
     ValidateMailboxCGIHelper validateMailboxHelper ( extensionUrl.toString() );
-    result = validateMailboxHelper.validate( checkPermissions );
+    result = validateMailboxHelper.validate( MB_REQUIRE_NONE );
     UtlString dynamicVxml;
-        if ( result == OS_SUCCESS )
+    if ( result == OS_SUCCESS )
     {
 /*
         UtlString transferUrlString;
@@ -73,20 +72,20 @@ TransferToExtnCGI::execute(UtlString* out)
             // Write out the dynamic VXML script to be processed by OpenVXI
     } else
     {
-            dynamicVxml =  getVXMLHeader() + 
-                        VXML_INVALID_EXTN_SNIPPET\
-                            VXML_END;
+        dynamicVxml =  getVXMLHeader() + 
+                       VXML_INVALID_EXTN_SNIPPET\
+                       VXML_END;
     }
 
-        if (out)
-        {
+    if (out)
+    {
         out->remove(0);
         UtlString responseHeaders;
         MailboxManager::getResponseHeaders(dynamicVxml.length(), responseHeaders);
 
         out->append(responseHeaders.data());
         out->append(dynamicVxml.data());
-        }
+    }
 
     return OS_SUCCESS;
 }
