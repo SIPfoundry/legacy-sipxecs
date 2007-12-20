@@ -266,6 +266,12 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
                connectReturn = 0;
                error = 0;
             }
+            else
+            {
+               OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                             "OsConnectionSocket::_ unexpected return from poll(): pollResult = %d, pset[0].revents = %d",
+                             pollResult, pset[0].revents);
+            }
          }
          else if (0 == pollResult)
          {
@@ -282,6 +288,9 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       }
 
       makeBlocking();
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                    "OsConnectionSocket::_ after poll(), error = %d",
+                    error);
    }
    else // connectReturn == 0
    {
