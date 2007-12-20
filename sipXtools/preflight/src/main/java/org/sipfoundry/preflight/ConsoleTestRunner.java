@@ -10,7 +10,7 @@ import java.util.LinkedList;
 
 import org.apache.commons.cli.*;
 
-import org.sipfoundry.preflight.discovery.*;
+import org.sipfoundry.commons.discovery.*;
 
 import static org.sipfoundry.preflight.ResultCode.*;
 
@@ -29,6 +29,7 @@ public class ConsoleTestRunner {
     
     @SuppressWarnings("static-access")
     public void validate(String[] args) {
+        InetAddress bindAddress = null;
         ResultCode results;
 		NetworkResources networkResources = new NetworkResources();
 		
@@ -81,6 +82,10 @@ public class ConsoleTestRunner {
                                        .withDescription("Attempt to discover SIP devices on the attached subnet.")
                                        .create();
         
+        Option testInterface = OptionBuilder.withLongOpt("interface")
+                                       .withDescription("IP address of the interface that the tests should run over.")
+                                       .create();
+        
         Option help = OptionBuilder.withLongOpt("help")
                                    .withDescription("Display preflight usage documentation.")
                                    .create();
@@ -93,6 +98,7 @@ public class ConsoleTestRunner {
         options.addOption(httpTest);
         options.addOption(verbose);
         options.addOption(discover);
+        options.addOption(testInterface);
         options.addOption(help);
 
         // Check that there is at least 1 argument.
@@ -162,6 +168,8 @@ public class ConsoleTestRunner {
                 "                       165: HTTP get of test file failed.\n" +
                 "                       166: HTTP test file did not verify.\n" +
                 "\n" +
+                "--interface=<address> IP address of the interface that the tests should run over.\n" +
+                "\n" +
                 "--discover           Attempt to discover SIP devices on the attached subnet.\n" +
                 "\n";
                 System.out.println(helpText);
@@ -174,9 +182,22 @@ public class ConsoleTestRunner {
                 journalService.disable();
             }
 
+            String interfaceAddress;
+            if (line.hasOption("interface")) {
+            	interfaceAddress = line.getOptionValue("interface");
+            } else {
+            	interfaceAddress = "0.0.0.0";
+            }
+            try {
+            	bindAddress = InetAddress.getByName(interfaceAddress);
+            } catch (UnknownHostException e) {
+            	System.err.println(e.getMessage());
+            	System.exit(-1);
+            }
+
             // Always run the DHCP test first, regardless of what other tests are called for.
             DHCP dhcp = new DHCP();
-            results = dhcp.validate(10, networkResources, journalService);
+            results = dhcp.validate(10, networkResources, journalService, bindAddress);
             if (results != NONE) {
                 System.err.println(results.toString());
                 System.exit(results.toInt());
@@ -185,7 +206,7 @@ public class ConsoleTestRunner {
             if (line.hasOption("dns-test")) {
                 networkResources.sipDomainName = line.getOptionValue("dns-test");
                 DNS dns = new DNS();
-                results = dns.validate(10, networkResources, journalService);
+                results = dns.validate(10, networkResources, journalService, bindAddress);
                 if (results != NONE) {
                     System.err.println(results.toString());
                     System.exit(results.toInt());
@@ -194,7 +215,7 @@ public class ConsoleTestRunner {
 
             if (line.hasOption("ntp-test")) {
                 NTP ntp = new NTP();
-                results = ntp.validate(10, networkResources, journalService);
+                results = ntp.validate(10, networkResources, journalService, bindAddress);
                 if (results != NONE) {
                     System.err.println(results.toString());
                     System.exit(results.toInt());
@@ -204,7 +225,7 @@ public class ConsoleTestRunner {
             if (line.hasOption("tftp-test")) {
                 networkResources.configServer = line.getOptionValue("tftp-test");
                 TFTP tftp = new TFTP();
-                results = tftp.validate(10, networkResources, journalService);
+                results = tftp.validate(10, networkResources, journalService, bindAddress);
                 if (results != NONE) {
                     System.err.println(results.toString());
                     System.exit(results.toInt());
@@ -214,7 +235,7 @@ public class ConsoleTestRunner {
             if (line.hasOption("ftp-test")) {
                 networkResources.configServer = line.getOptionValue("ftp-test");
                 FTP ftp = new FTP();
-                results = ftp.validate(10, networkResources, journalService);
+                results = ftp.validate(10, networkResources, journalService, bindAddress);
                 if (results != NONE) {
                     System.err.println(results.toString());
                     System.exit(results.toInt());
@@ -224,7 +245,7 @@ public class ConsoleTestRunner {
             if (line.hasOption("http-test")) {
                 networkResources.configServer = line.getOptionValue("http-test");
                 HTTP http = new HTTP();
-                results = http.validate(10, networkResources, journalService);
+                results = http.validate(10, networkResources, journalService, bindAddress);
                 if (results != NONE) {
                     System.err.println(results.toString());
                     System.exit(results.toInt());

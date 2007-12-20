@@ -5,6 +5,9 @@
  */
 package org.sipfoundry.preflight;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.widgets.*;
@@ -224,6 +227,13 @@ public class ShellTestRunner {
     public void validate() {
         ResultCode results;
         NetworkResources networkResources = new NetworkResources();
+        InetAddress bindAddress;
+		try {
+			bindAddress = InetAddress.getByName("0.0.0.0");
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			return;
+		}
 
         active = true;
 
@@ -244,17 +254,17 @@ public class ShellTestRunner {
         HTTP http = new HTTP();
 
         testTable[DHCP_TEST].update(Test.RUNNING);
-        results = dhcp.validate(10, networkResources, journalService);
+        results = dhcp.validate(10, networkResources, journalService, bindAddress);
         testTable[DHCP_TEST].update(results);
 
         if (results == NONE) {
             testTable[DNS_TEST].update(Test.RUNNING);
-            results = dns.validate(10, networkResources, journalService);
+            results = dns.validate(10, networkResources, journalService, bindAddress);
             testTable[DNS_TEST].update(results);
 
             if (networkResources.ntpServers != null) {
                 testTable[NTP_TEST].update(Test.RUNNING);
-                results = ntp.validate(10, networkResources, journalService);
+                results = ntp.validate(10, networkResources, journalService, bindAddress);
                 testTable[NTP_TEST].update(results);
             } else {
                 testTable[NTP_TEST].update(Test.SKIPPED, "No NTP server discovered.");
@@ -262,15 +272,15 @@ public class ShellTestRunner {
 
             if (networkResources.configServer != null) {
                 testTable[TFTP_TEST].update(Test.RUNNING);
-                results = tftp.validate(10, networkResources, journalService);
+                results = tftp.validate(10, networkResources, journalService, bindAddress);
                 testTable[TFTP_TEST].update(results);
                 
                 testTable[FTP_TEST].update(Test.RUNNING);
-                results = ftp.validate(10, networkResources, journalService);
+                results = ftp.validate(10, networkResources, journalService, bindAddress);
                 testTable[FTP_TEST].update(results);
                 
                 testTable[HTTP_TEST].update(Test.RUNNING);
-                results = http.validate(10, networkResources, journalService);
+                results = http.validate(10, networkResources, journalService, bindAddress);
                 testTable[HTTP_TEST].update(results);
             } else {
                 testTable[TFTP_TEST].update(Test.SKIPPED, "No TFTP server discovered.");

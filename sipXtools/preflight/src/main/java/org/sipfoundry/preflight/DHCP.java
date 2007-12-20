@@ -9,13 +9,13 @@ import java.io.IOException;
 import java.net.*;
 import java.util.*;
 
-import org.sipfoundry.preflight.dhcp.*;
+import org.sipfoundry.commons.dhcp.*;
 
+import static org.sipfoundry.commons.dhcp.DHCPOption.Code.*;
+import static org.sipfoundry.commons.dhcp.HardwareAddressType.*;
+import static org.sipfoundry.commons.dhcp.MessageType.*;
+import static org.sipfoundry.commons.dhcp.MessageTypeOption.Type.*;
 import static org.sipfoundry.preflight.ResultCode.*;
-import static org.sipfoundry.preflight.dhcp.DHCPOption.Code.*;
-import static org.sipfoundry.preflight.dhcp.HardwareAddressType.*;
-import static org.sipfoundry.preflight.dhcp.MessageType.*;
-import static org.sipfoundry.preflight.dhcp.MessageTypeOption.Type.*;
 
 /**
  * [Enter descriptive text here]
@@ -33,7 +33,7 @@ public class DHCP {
     private DatagramSocket serverSocket;
     private static int MAX_TIMEOUT_FACTOR = 3;
 
-    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService) {
+    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService, InetAddress bindAddress) {
         ResultCode results = NONE;
         boolean useInform = false;
         int timeoutFactor = 1;
@@ -42,7 +42,7 @@ public class DHCP {
 
         for ( ;; ) {
             if (!useInform) {
-                results = performDiscover(timeout * timeoutFactor, networkResources, journalService);
+                results = performDiscover(timeout * timeoutFactor, networkResources, journalService, bindAddress);
                 if (results == SOCKET_BIND_FAILURE) {
                     // Discovery failed due to a bind issue, try performing an Inform request.
                     useInform = true;
@@ -60,7 +60,7 @@ public class DHCP {
                 }
             }
             if (useInform) {
-                results = performInform(timeout * timeoutFactor, networkResources, journalService);
+                results = performInform(timeout * timeoutFactor, networkResources, journalService, bindAddress);
                 if (results == TIMEOUT_FAILURE) {
                     ++timeoutFactor;
                     if (timeoutFactor > MAX_TIMEOUT_FACTOR) {
@@ -78,7 +78,7 @@ public class DHCP {
         return results;
     }
 
-    private ResultCode performDiscover(int timeout, NetworkResources networkResources, JournalService journalService) {
+    private ResultCode performDiscover(int timeout, NetworkResources networkResources, JournalService journalService, InetAddress bindAddress) {
         ResultCode results = NONE;
         Random xidFactory = new Random();
         InetAddress[] serverAddress = new InetAddress[1];
@@ -86,7 +86,7 @@ public class DHCP {
 
         try {
             // Attempt to bind to the DHCP Server port.
-            serverSocket = new DatagramSocket(67);
+            serverSocket = new DatagramSocket(67, bindAddress);
             serverSocket.setSoTimeout(timeout * 1000);
         } catch (SocketException e) {
             if (e.getClass() == java.net.BindException.class) {
@@ -408,14 +408,14 @@ public class DHCP {
         return NONE;
     }
 
-    private ResultCode performInform(int timeout, NetworkResources networkResources, JournalService journalService) {
+    private ResultCode performInform(int timeout, NetworkResources networkResources, JournalService journalService, InetAddress bindAddress) {
         Random xidFactory = new Random();
         int xid = xidFactory.nextInt();
         ResultCode results;
 
         try {
             // Attempt to bind to the DHCP Client port.
-            serverSocket = new DatagramSocket(68);
+            serverSocket = new DatagramSocket(68, bindAddress);
             serverSocket.setSoTimeout(timeout * 1000);
         } catch (SocketException e) {
             if (e.getClass() == java.net.BindException.class) {

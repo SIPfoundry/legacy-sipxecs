@@ -20,7 +20,7 @@ import static org.sipfoundry.preflight.ResultCode.*;
  * @author Mardy Marshall
  */
 public class DNS {
-    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService) {
+    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService, InetAddress bindAddress) {
         ResultCode results = NONE;
         SimpleResolver resolver = null;
         String domainName;
@@ -31,6 +31,7 @@ public class DNS {
         
         try {
             resolver = new SimpleResolver();
+            resolver.setLocalAddress(bindAddress);
             resolver.setTimeout(timeout);
         } catch (UnknownHostException e) {
             e.printStackTrace();

@@ -9,11 +9,11 @@
 #include <iphlpapi.h>
 
 /*
- * Class:     org_sipfoundry_preflight_discovery_ArpTable
+ * Class:     org_sipfoundry_commons_discovery_ArpTable
  * Method:    windowsLookup
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_org_sipfoundry_preflight_discovery_ArpTable_windowsLookup(JNIEnv *env, jobject obj, jstring ipAddress) {
+JNIEXPORT jstring JNICALL Java_org_sipfoundry_commons_discovery_ArpTable_windowsLookup(JNIEnv *env, jobject obj, jstring ipAddress) {
     PMIB_IPNETTABLE pIPNetTable = NULL;
     ULONG ulSize  = 0; 
     PMIB_IPNETROW pIPNetRow;

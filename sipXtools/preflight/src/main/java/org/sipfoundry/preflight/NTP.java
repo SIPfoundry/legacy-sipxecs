@@ -22,9 +22,10 @@ import static org.sipfoundry.preflight.ResultCode.*;
  * @author Mardy Marshall
  */
 public class NTP {
+	private static final int bindPort = 0;
     private static final NumberFormat numberFormat = new java.text.DecimalFormat("0.00");
 
-    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService) {
+    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService, InetAddress bindAddress) {
         ResultCode results = NONE;
 
         if (networkResources.ntpServers == null) {
@@ -35,7 +36,7 @@ public class NTP {
             NTPUDPClient client = new NTPUDPClient();
             client.setDefaultTimeout(timeout * 1000);
             try {
-                client.open();
+            	client.open(bindPort, bindAddress);
 
                 for (InetAddress ntpServer : networkResources.ntpServers) {
                     journalService.println("NTP test for server: " + ntpServer.getCanonicalHostName());

@@ -20,7 +20,9 @@ import static org.sipfoundry.preflight.ResultCode.*;
  * @author Mardy Marshall
  */
 public class TFTP {
-    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService) {
+	private static final int bindPort = 0;
+	
+    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService, InetAddress bindAddress) {
         ResultCode results = NONE;
         InetAddress tftpServerAddress = null;
         String testFile = new String("00D01EFFFFFE");
@@ -127,6 +129,7 @@ public class TFTP {
         // Try to receive remote file via TFTP
         try {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
+            tftp.open(bindPort, bindAddress);
             tftp.receiveFile(testFile, org.apache.commons.net.tftp.TFTP.ASCII_MODE, output, tftpServerAddress);
             String testFileContents = output.toString();
             boolean verified = true;

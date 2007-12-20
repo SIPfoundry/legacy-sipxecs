@@ -10,8 +10,8 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 
 import org.eclipse.swt.widgets.*;
-import org.sipfoundry.preflight.discovery.Device;
-import org.sipfoundry.preflight.discovery.DiscoveryService;
+import org.sipfoundry.commons.discovery.Device;
+import org.sipfoundry.commons.discovery.DiscoveryService;
 
 /**
  * [Enter descriptive text here]

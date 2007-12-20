@@ -7,7 +7,6 @@ package org.sipfoundry.preflight;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 import org.xbill.DNS.*;
 
@@ -20,7 +19,7 @@ import static org.sipfoundry.preflight.ResultCode.*;
  * @author Mardy Marshall
  */
 public class HTTP {
-    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService) {
+    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService, InetAddress bindAddress) {
         ResultCode results = NONE;
         InetAddress httpServerAddress = null;
         String testFile = new String("00D01EFFFFFE");
@@ -176,45 +175,6 @@ public class HTTP {
 
         journalService.println("");
         return results;
-    }
-
-    public static final void main(String[] args) {
-        class ConsoleJournalService implements JournalService {
-            private boolean isEnabled = true;
-            
-            public void enable() {
-                isEnabled = true;
-            }
-            
-            public void disable() {
-                isEnabled = false;
-            }
-
-            public void print(String message) {
-                if (isEnabled) {
-                    System.out.print(message);
-                }
-            }
-            
-            public void println(String message) {
-                if (isEnabled) {
-                    System.out.println(message);
-                }
-            }
-        }
-
-        HTTP test = new HTTP();
-        NetworkResources networkResources = new NetworkResources();
-        //networkResources.configServer = "sipx-install.pingtel.com";
-        networkResources.configServer = "sipxchange.pingtel.com";
-        networkResources.domainNameServers = new LinkedList<InetAddress>();
-        try {
-            networkResources.domainNameServers.add(InetAddress.getByName("10.1.1.71"));
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-
-        test.validate(10, networkResources, new ConsoleJournalService());
     }
 
 }

@@ -21,10 +21,11 @@ import static org.sipfoundry.preflight.ResultCode.*;
  * @author Mardy Marshall
  */
 public class FTP {
+	private static final int bindPort = 0;
     private static final String ftpUser = "PlcmSpIp";
     private static final String ftpPassword = "PlcmSpIp";
 
-    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService) {
+    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService, InetAddress bindAddress) {
         ResultCode results = NONE;
         InetAddress ftpServerAddress = null;
         String testFile = new String("00D01EFFFFFE");
@@ -47,6 +48,7 @@ public class FTP {
         SimpleResolver resolver = null;
         try {
             resolver = new SimpleResolver();
+            resolver.setLocalAddress(bindAddress);
             resolver.setTimeout(timeout);
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -125,7 +127,7 @@ public class FTP {
 
         try {
             int reply;
-            ftp.connect(ftpServerAddress);
+            ftp.connect(ftpServerAddress, 21, bindAddress, bindPort);
 
             // After connection, check reply code to verify.
             reply = ftp.getReplyCode();

@@ -1,5 +1,5 @@
 This is a Visual C++ project for building a DLL which implements the native method:
-   org.sipfoundry.preflight.discovery.ArpTable.windowsLookup()
+   org.sipfoundry.commons.discovery.ArpTable.windowsLookup()
 
 The project assumes that the Java 1.5.0_12 JDK is installed at the following location:
    /Program Files/Java/jdk1.5.0_12
