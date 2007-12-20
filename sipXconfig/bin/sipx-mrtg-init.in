@@ -239,7 +239,6 @@ unscaled[disk]: ymwd
 
 LogFormat: rrdtool
 PathAdd: /usr/bin
-LibAdd: /usr/lib/perl5/5.8.5/i386-linux-thread-multi
 
 EOF
 
