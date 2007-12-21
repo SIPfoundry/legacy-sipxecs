@@ -18,6 +18,7 @@
 #include <utl/UtlHashMap.h>
 #include <utl/UtlHashMapIterator.h>
 #include <cp/CallManager.h>
+#include "sipxacd-buildstamp.h"
 #include "ACDServer.h"
 #include "ACDCall.h"
 #include "ACDLine.h"
@@ -82,7 +83,14 @@ ACDCallManager::ACDCallManager(ACDServer* pAcdServer, const int udpPort,
       osPrintf("ACDCallManager::ACDCallManager - sipxInitialize failed with error code: %d\n", rc);
       assert(0);
    }
-   
+   UtlString agentName;
+   agentName.append("sipXacd (");
+   agentName.append(SipXacdVersion);
+   agentName.append(")");
+
+   rc = sipxConfigSetUserAgentName(mAcdCallManagerHandle,
+                                   agentName.data(), true /* include platform id */);
+
    mTotalCalls = 0;
 }
 
@@ -274,7 +282,8 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
             if (TRUE == validateTransferToLine(pCallInfo)) {
                OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::%d to the ACD Line REJECTED",
                              pCallInfo->cause);
-               sipxCallReject(pCallInfo->hCall);
+               sipxCallReject(pCallInfo->hCall, SIP_BAD_REQUEST_CODE,
+                              "ACD Transfer Offer Rejected");
             }
               
             else {
@@ -282,16 +291,17 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
             pLineRef = mpAcdLineManager->getAcdLineReference(pCallInfo->hLine);
             if (pLineRef == NULL) {
                // Call arrived on an invalid line. Reject it!
-               sipxCallReject(pCallInfo->hCall);
+               sipxCallReject(pCallInfo->hCall, SIP_NOT_FOUND_CODE, "Invalid ACD Line Offered");
                osPrintf("OFFERING REJECTED - Line: %d, Call: %d\n", pCallInfo->hLine, pCallInfo->hCall);
-               OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::%d on LINE:%d INVALID LINE",
+               OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback"
+                             " - CALLSTATE_OFFERING::%d on LINE:%d INVALID LINE REJECTED",
                              pCallInfo->cause, pCallInfo->hLine);
             }
             else {
                // The line is valid.  Now see if the line will accept the call.
                if (pLineRef->isLineBusy()) {
                   // The line is busy.  Reject it!
-                  sipxCallReject(pCallInfo->hCall);
+                  sipxCallReject(pCallInfo->hCall, SIP_BUSY_CODE, "ACD Line Busy");
                   osPrintf("OFFERING REJECTED - Line: %d, Call: %d\n", pCallInfo->hLine, pCallInfo->hCall);
                   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::%d on LINE:%d BUSY",
                                 pCallInfo->cause, pCallInfo->hLine);
@@ -311,14 +321,16 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
                      }
                      else {
                         // No signed in agent reject the call
-                        sipxCallReject(pCallInfo->hCall);
+                        sipxCallReject(pCallInfo->hCall, SIP_TEMPORARILY_UNAVAILABLE_CODE,
+                                       "ACD No Agent");
                         OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::reject the call %d due to no signed in agent",
                                    pCallInfo->hCall);
                      }
                   }
                   else {
                      // We exceed the max allowed, reject the call
-                     sipxCallReject(pCallInfo->hCall);
+                     sipxCallReject(pCallInfo->hCall, SIP_TEMPORARILY_UNAVAILABLE_CODE,
+                                    "ACD Maximum Calls Exceeded");
                      OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::reject the call %d due to exceed the max calls allowed (%d)",
                                    pCallInfo->hCall, mCallHandleMap.entries());
                   }
@@ -333,7 +345,7 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
             pLineRef = mpAcdLineManager->getAcdLineReference(pCallInfo->hLine);
             if (pLineRef == NULL) {
                // Call arrived on an invalid line. Reject it!
-               sipxCallReject(pCallInfo->hCall);
+               sipxCallReject(pCallInfo->hCall, SIP_NOT_FOUND_CODE, "Invalid ACD Line Alerting");
                OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_ALERTING::%d on LINE:%d INVALID LINE",
                              pCallInfo->cause, pCallInfo->hLine);
             }
@@ -341,7 +353,7 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
                // Now create an ACDCall object to handle it.
                if (createACDCall(pLineRef, pCallInfo->hCall) != OS_SUCCESS) {
                   // The line rejected the call, drop it!
-                  sipxCallReject(pCallInfo->hCall);
+                  sipxCallReject(pCallInfo->hCall, SIP_BAD_REQUEST_CODE, "ACD Line Reject");
                   osPrintf("ALERTING REJECTED - Line: %d, Call: %d\n", pCallInfo->hLine, pCallInfo->hCall);
                }
                else {
@@ -374,12 +386,12 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
 
          case CALLSTATE_NEWCALL:
             OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::eventCallback - CALLSTATE_NEWCALL::cause %d, hCallHandle %d hAssociateCallHandle %d remAddr %s", pCallInfo->cause, pCallInfo->hCall, pCallInfo->hAssociatedCall, pCallInfo->remoteAddress);
-	    if (pCallInfo->cause == CALLSTATE_NEW_CALL_TRANSFER)
+            if (pCallInfo->cause == CALLSTATE_NEW_CALL_TRANSFER)
                updateTransferCallState(pCallInfo);
             break;
          case CALLSTATE_REMOTE_OFFERING:
             OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::eventCallback - CALLSTATE_REMOTE_OFFERING::cause %d, hCallHandle %d hAssociateCallHandle %d remAddr %s", pCallInfo->cause, pCallInfo->hCall, pCallInfo->hAssociatedCall, pCallInfo->remoteAddress);
-	    if (pCallInfo->cause == CALLSTATE_REMOTE_OFFERING_NORMAL)
+            if (pCallInfo->cause == CALLSTATE_REMOTE_OFFERING_NORMAL)
                updateTransferCallState(pCallInfo);
             break ;
 
@@ -664,7 +676,7 @@ void ACDCallManager::updateTransferCallState(SIPX_CALLSTATE_INFO* pCallInfo)
          // caller and agent connected.
          OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::updateTransferCallState - CALLSTATE_OFFERING::%d to the ACD Line REJECTED",
                        pCallInfo->cause);
-         sipxCallReject(pCallInfo->hCall);
+         sipxCallReject(pCallInfo->hCall, SIP_BAD_REQUEST_CODE, "Agent Transfer Loop Rejected");
          return ;
       }
 
