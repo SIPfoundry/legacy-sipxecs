@@ -9,12 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SipxProcess {
     private Boolean m_enabled;
     private SipxProcessContext m_sipxProcessContext;
-    private String m_processName;
+    private ProcessName m_processName;
+
+    public SipxProcess(SipxProcessContext sipxProcessContext, ProcessName processName) {
+        m_sipxProcessContext = sipxProcessContext;
+        m_processName = processName;
+    }
 
     public boolean isEnabled() {
         if (m_enabled == null) {
@@ -24,16 +31,18 @@ public class SipxProcess {
     }
 
     private boolean searchProcess() {
-        ServiceStatus [] servStatus = null;
+        boolean enabled = false;
+        String name = m_processName.getName();
+        ServiceStatus[] servStatus = null;
         for (Location location : m_sipxProcessContext.getLocations()) {
             servStatus = m_sipxProcessContext.getStatus(location);
             for (ServiceStatus status : servStatus) {
-                if (status.getServiceName().equals(m_processName)) {
-                    return true;
+                if (status.getServiceName().equals(name)) {
+                    enabled |= status.getStatus().equals(Status.STARTED);
                 }
             }
         }
-        return false;
+        return enabled;
     }
 
     @Required
@@ -42,12 +51,7 @@ public class SipxProcess {
     }
 
     @Required
-    public void setProcessName(String processName) {
+    public void setProcessName(ProcessName processName) {
         m_processName = processName;
     }
-
-    public String getProcessName() {
-        return m_processName;
-    }
-
 }
