@@ -178,6 +178,9 @@ class SipUserAgent;
 #define SIP_TOO_BRIEF_TEXT "Registration Too Brief"
 #define SIP_SUB_TOO_BRIEF_TEXT "Subscription Too Brief"
 
+#define SIP_TEMPORARILY_UNAVAILABLE_CODE 480
+#define SIP_TEMPORARILY_UNAVAILABLE_TEXT "Temporarily Unavailable"
+
 #define SIP_BAD_TRANSACTION_CODE 481
 #define SIP_BAD_TRANSACTION_TEXT "Transaction Does Not Exist"
 #define SIP_BAD_SUBSCRIPTION_CODE 481
