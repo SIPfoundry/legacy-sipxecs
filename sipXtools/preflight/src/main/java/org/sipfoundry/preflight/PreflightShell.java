@@ -62,20 +62,22 @@ public class PreflightShell {
         formData.left = new FormAttachment(0, 5);
         formData.bottom = new FormAttachment(100, -5);
         runButton.setLayoutData(formData);
-        runButton.setText("Network Test");
+        runButton.setText("Network Tests");
         shell.setDefaultButton(runButton);
 
+        /*
         final Button sipButton = new Button(shell, SWT.PUSH);
         formData = new FormData();
         formData.left = new FormAttachment(runButton, 5);
         formData.bottom = new FormAttachment(100, -5);
         sipButton.setLayoutData(formData);
-        sipButton.setText("SIP Test");
+        sipButton.setText("SIP Tests");
         sipButton.setEnabled(false);
+        */
 
         final Button discoveryButton = new Button(shell, SWT.PUSH);
         formData = new FormData();
-        formData.left = new FormAttachment(sipButton, 5);
+        formData.left = new FormAttachment(runButton, 5);
         formData.bottom = new FormAttachment(100, -5);
         discoveryButton.setLayoutData(formData);
         discoveryButton.setText("Device Discovery");
@@ -100,6 +102,8 @@ public class PreflightShell {
         testTab.setText("Test Summary");
         journalTab = new TabItem(folder,SWT.NONE);
         journalTab.setText("Test Journal");
+        discoveryTab = new TabItem(folder,SWT.NONE);
+        discoveryTab.setText("Device Discovery");
         
         // Set up the Test Journal list view and journal service.
         List list = new List(folder, SWT.BORDER | SWT.V_SCROLL);
@@ -201,6 +205,8 @@ public class PreflightShell {
 
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
             String path = System.getProperty("ArpTable.dll.path", "");
+            // Use this alternate search path when running within Eclipse.
+        	//   String path = "lib/";
             System.loadLibrary(path + "ArpTable");
             PreflightShell userInterface = new PreflightShell();
         	userInterface.go(args);
