@@ -84,6 +84,9 @@ public class ConsoleTestRunner {
         
         Option testInterface = OptionBuilder.withLongOpt("interface")
                                        .withDescription("IP address of the interface that the tests should run over.")
+                                       .withValueSeparator('=')
+                                       .hasArg()
+                                       .withArgName("address")
                                        .create();
         
         Option help = OptionBuilder.withLongOpt("help")
