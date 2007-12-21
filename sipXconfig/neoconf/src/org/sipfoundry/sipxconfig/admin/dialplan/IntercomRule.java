@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -15,8 +15,8 @@ import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
 
 public class IntercomRule extends DialingRule {
 
-    private DialPattern m_dialPattern;
-    private FullTransform m_transform;
+    private final DialPattern m_dialPattern;
+    private final FullTransform m_transform;
 
     public IntercomRule(boolean enabled, String prefix, String code, int timeout) {
         setEnabled(enabled);
@@ -58,5 +58,9 @@ public class IntercomRule extends DialingRule {
 
     public boolean isInternal() {
         return true;
+    }
+
+    public boolean isGatewayAware() {
+        return false;
     }
 }

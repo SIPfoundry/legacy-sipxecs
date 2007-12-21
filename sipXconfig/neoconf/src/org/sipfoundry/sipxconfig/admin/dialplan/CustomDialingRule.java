@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -34,6 +34,7 @@ public class CustomDialingRule extends DialingRule {
         m_dialPatterns.add(new DialPattern());
     }
 
+    @Override
     protected Object clone() throws CloneNotSupportedException {
         CustomDialingRule clone = (CustomDialingRule) super.clone();
         clone.m_permissionNames = new ArrayList(m_permissionNames);
@@ -114,6 +115,7 @@ public class CustomDialingRule extends DialingRule {
         return transform;
     }
 
+    @Override
     public DialingRuleType getType() {
         return DialingRuleType.CUSTOM;
     }
@@ -140,6 +142,10 @@ public class CustomDialingRule extends DialingRule {
      */
     public boolean isInternal() {
         return getGateways().isEmpty();
+    }
+
+    public boolean isGatewayAware() {
+        return true;
     }
 
     @Override

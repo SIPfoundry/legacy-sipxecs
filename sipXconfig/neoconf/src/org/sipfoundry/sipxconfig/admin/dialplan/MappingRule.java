@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -22,36 +22,36 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 
 /**
  * MappingRule
- * 
+ *
  * Strangely, URLs in mapping rules are partially URL encoded
- * 
+ *
  * <code>
- * 
+ *
  *    Ampersand (&) 26
  *    Forward slash/Virgule (&quot;/&quot;) 2F
- *    Colon (:) 3A 
+ *    Colon (:) 3A
  *    Semi-colon (;) 3B
  *    Equals (=) 3D
  *    Question mark (?) 3F
  *    'At' symbol (@) 40
- *   
- *  
+ *
+ *
  * </code>
- * 
+ *
  * Common prefix
- * 
+ *
  * sip:{0}@{mediaserver};play={voicemail}
- * 
+ *
  * where 0 is {digits} or {vdigits}
- * 
+ *
  * Autoattendant: /cgi-bin/voicemail/mediaserver.cgi?action=autoattendant&name={0}
- * 
+ *
  * Voice mail: /cgi-bin/voicemail/mediaserver.cgi?action=retrieve&mailbox={digits}
- * 
+ *
  * Voicemail fallback: /cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}
- * 
+ *
  * Voicemail transfer: /cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox={vdigits}
- * 
+ *
  */
 public class MappingRule extends DialingRule {
     // protected static final String PREFIX = "sip:{%s}@{mediaserver};voicexml={voicemail}";
@@ -79,10 +79,12 @@ public class MappingRule extends DialingRule {
         setEnabled(true);
     }
 
+    @Override
     public String[] getPatterns() {
         return m_patterns;
     }
 
+    @Override
     public Transform[] getTransforms() {
         UrlTransform transform = new UrlTransform();
         String urlParam = m_url;
@@ -104,6 +106,11 @@ public class MappingRule extends DialingRule {
         return true;
     }
 
+    public boolean isGatewayAware() {
+        return false;
+    }
+
+    @Override
     public DialingRuleType getType() {
         return DialingRuleType.MAPPING_RULE;
     }
@@ -149,7 +156,7 @@ public class MappingRule extends DialingRule {
     }
 
     public static class VoicemailFallback extends MappingRule {
-        private MediaServer m_mediaServer;
+        private final MediaServer m_mediaServer;
 
         public VoicemailFallback(MediaServer mediaServer) {
             m_mediaServer = mediaServer;
@@ -161,6 +168,7 @@ public class MappingRule extends DialingRule {
                     MappingRule.FIELD_PARAM));
         }
 
+        @Override
         public List<String> getPermissionNames() {
             return Collections.singletonList(m_mediaServer.getPermissionName().getName());
         }
@@ -193,7 +201,7 @@ public class MappingRule extends DialingRule {
     /**
      * Builds a URL based on the provided digits, uri parameters, header parameters, and sip
      * parameters.
-     * 
+     *
      * @param digits - user digits (xxx@hostname)
      * @param hostname - hostname for the media server
      * @param uriParams - any uri parameters (can be null or empty string)

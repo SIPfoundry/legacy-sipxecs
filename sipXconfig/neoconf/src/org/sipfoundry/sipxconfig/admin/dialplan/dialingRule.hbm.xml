@@ -172,6 +172,11 @@
     <![CDATA[select dr.id from DialingRule dr where dr.name = :value]]>
   </query>
 
+  <query name="dialingRulesByGatewayId">
+    <![CDATA[select rule from DialingRule rule, Gateway gateway
+        where gateway in elements(rule.gateways) and gateway.id = :gatewayId]]>
+  </query>
+
   <query name="internalRuleIdsWithVoiceMailExtension">
     <![CDATA[select ir.id from InternalRule ir where ir.voiceMail = :value]]>
   </query>

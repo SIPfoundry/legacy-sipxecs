@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -75,7 +75,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     /**
      * Loads dial plan, creates a new one if none exist
-     * 
+     *
      * @return the single instance of dial plan
      */
     DialPlan getDialPlan() {
@@ -122,7 +122,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     /**
      * Checks for duplicate names. Should be called before saving the rule.
-     * 
+     *
      * @param rule to be verified
      */
     private void validateRule(DialingRule rule) {
@@ -171,6 +171,37 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         return getDialPlan().getRules();
     }
 
+    /**
+     * Gets all of the dialing rules using a particular gateway.
+     *
+     * @param gatewayId The ID of the gateway.
+     * @return A List of the DialingRules for that gateway.
+     */
+    public List<DialingRule> getRulesForGateway(Integer gatewayId) {
+        return getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "dialingRulesByGatewayId", "gatewayId", gatewayId);
+    }
+
+    /**
+     * Gets all of the dialing rules that can be added to a particular gateway.
+     *
+     * @param gatewayId The ID of the gateway
+     * @return A List of the DialingRules that can be added to the gateway
+     */
+    public List<DialingRule> getAvailableRules(Integer gatewayId) {
+        Collection<DialingRule> rules = getRules();
+        List<DialingRule> usedRules = getRulesForGateway(gatewayId);
+        List<DialingRule> availableRules = new ArrayList<DialingRule>();
+
+        for (DialingRule rule : rules) {
+            if (!usedRules.contains(rule) && rule.isGatewayAware()) {
+                availableRules.add(rule);
+            }
+        }
+
+        return availableRules;
+    }
+
     public DialingRule getRule(Integer id) {
         return (DialingRule) getHibernateTemplate().load(DialingRule.class, id);
     }
@@ -209,7 +240,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     /**
      * Resets the flexible dial plan to factory defaults.
-     * 
+     *
      * Loads default rules definition from bean factory file.
      */
     public DialPlan resetToFactoryDefault(String dialPlanBeanName) {
@@ -570,6 +601,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
             super(Group.class);
         }
 
+        @Override
         protected void onEntitySave(Group group) {
             if (ATTENDANT_GROUP_ID.equals(group.getResource()) && !group.isNew()) {
                 List<AutoAttendant> attendants = getAutoAttendants();

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public class VoicemailRedirectRule extends DialingRule {
 
+    @Override
     public String[] getPatterns() {
         return new String[] {
             "."
@@ -27,10 +28,12 @@ public class VoicemailRedirectRule extends DialingRule {
     /**
      * This rule is always enabled as it is a system-generated rule
      */
+    @Override
     public boolean isEnabled() {
         return true;
     }
 
+    @Override
     public Transform[] getTransforms() {
         Transform[] transforms = new Transform[1];
         FullTransform fullTransform = new FullTransform();
@@ -40,6 +43,7 @@ public class VoicemailRedirectRule extends DialingRule {
         return transforms;
     }
 
+    @Override
     public DialingRuleType getType() {
         return DialingRuleType.MAPPING_RULE;
     }
@@ -48,10 +52,16 @@ public class VoicemailRedirectRule extends DialingRule {
         return true;
     }
 
+    public boolean isGatewayAware() {
+        return false;
+    }
+
+    @Override
     public List<String> getPermissionNames() {
         return Collections.singletonList(PermissionName.VOICEMAIL.getName());
     }
 
+    @Override
     public String getDescription() {
         return "Voicemail redirect dialing rule";
     }

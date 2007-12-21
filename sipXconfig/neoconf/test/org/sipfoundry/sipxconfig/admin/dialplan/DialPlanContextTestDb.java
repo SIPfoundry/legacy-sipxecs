@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -41,6 +41,7 @@ import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.springframework.context.ApplicationContext;
 
@@ -51,10 +52,12 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
     private static final int DEFAULT_DIAL_PLAN_SIZE = 8;
 
     private DialPlanContext m_context;
+    private GatewayContext m_gatewayContext;
     private ForwardingContext m_fwdContext;
 
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
+        m_gatewayContext = (GatewayContext) appContext.getBean(GatewayContext.CONTEXT_BEAN_NAME);
         m_context = (DialPlanContext) appContext.getBean(DialPlanContext.CONTEXT_BEAN_NAME);
         m_fwdContext = (ForwardingContext) appContext
                 .getBean(ForwardingContext.CONTEXT_BEAN_NAME);
@@ -346,6 +349,65 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         } catch (UserException e) {
             // this is expected
             assertTrue(e.getMessage().indexOf("operator") > 0);
+        }
+    }
+
+    /**
+     * Tests the getRulesForGateway() method to ensure it only returns rules
+     * that are being used with the specified gateway.
+     */
+    public void getRulesForGateway() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/dialPlanGatewayAssociations.xml");
+        Gateway gateway = m_gatewayContext.getGateway(1001);
+
+        // Get our three rules we're testing with
+        DialingRule rule0 = m_context.getRule(0);
+        DialingRule rule1 = m_context.getRule(1);
+        DialingRule rule2 = m_context.getRule(2);
+
+        // The result of getRulesForGateway() should contain only rules 0 and 1,
+        // since they contain the gateway.
+        List<DialingRule> rulesForGateway = m_context.getRulesForGateway(gateway.getId());
+        assertEquals(2, rulesForGateway.size());
+        assertTrue(rulesForGateway.contains(rule0));
+        assertTrue(rulesForGateway.contains(rule1));
+        assertFalse(rulesForGateway.contains(rule2));
+    }
+
+    /**
+     * Tests the getAvailableRules() method to ensure it only returns rules
+     * that are NOT being used with the specified gateway.
+     */
+    public void testGetAvailableRules() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/dialPlanGatewayAssociations.xml");
+        Gateway gateway = m_gatewayContext.getGateway(1001);
+
+        DialingRule rule0 = m_context.getRule(0);
+        DialingRule rule1 = m_context.getRule(1);
+        DialingRule rule2 = m_context.getRule(2);
+
+        DialingRule attendantRule = m_context.getRule(3);
+        DialingRule emergencyRule = m_context.getRule(4);
+        DialingRule internalRule = m_context.getRule(5);
+        DialingRule internationalRule = m_context.getRule(6);
+        DialingRule localRule = m_context.getRule(7);
+        DialingRule longDistanceRule = m_context.getRule(8);
+
+        DialingRule[] nonGatewayAwareRules = { attendantRule, internalRule };
+        DialingRule[] gatewayAwareRules = { rule2, emergencyRule, internationalRule,
+                localRule, longDistanceRule };
+
+        List<DialingRule> availableRules = m_context.getAvailableRules(gateway.getId());
+        assertEquals(gatewayAwareRules.length, availableRules.size());
+        assertFalse(availableRules.contains(rule0));
+        assertFalse(availableRules.contains(rule1));
+
+        for (DialingRule rule : gatewayAwareRules) {
+            assertTrue(availableRules.contains(rule));
+        }
+
+        for (DialingRule rule : nonGatewayAwareRules) {
+            assertFalse(availableRules.contains(rule));
         }
     }
 

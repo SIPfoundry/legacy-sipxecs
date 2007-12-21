@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -29,6 +29,7 @@ public class LongDistanceRule extends DialingRule {
     private int m_externalLen;
     private String m_permissionName = PermissionName.LONG_DISTANCE_DIALING.getName();
 
+    @Override
     public String[] getPatterns() {
         throw new UnsupportedOperationException("getPatterns not supported for LongDistance rule");
     }
@@ -36,10 +37,10 @@ public class LongDistanceRule extends DialingRule {
     /**
      * Calculates list of dial patterns for a specified PSTN prefix, long distance prefix and area
      * code.
-     * 
+     *
      * Each dial pattern describes the digit sequence that user dials in order to trigger this
      * rule.
-     * 
+     *
      * @param areaCode single are code for which patterns will be generated
      * @return list of dial patterns objects
      */
@@ -81,7 +82,7 @@ public class LongDistanceRule extends DialingRule {
 
     /**
      * Calculates the call pattern - the sequence of digits sent to the gateway.
-     * 
+     *
      * @param areaCode single are code for which patterns will be generated
      * @return a single call pattern
      */
@@ -97,6 +98,7 @@ public class LongDistanceRule extends DialingRule {
         return callPattern;
     }
 
+    @Override
     public Transform[] getTransforms() {
         throw new UnsupportedOperationException(
                 "getTransforms not implemented for LongDistance rule");
@@ -129,10 +131,14 @@ public class LongDistanceRule extends DialingRule {
         return false;
     }
 
+    public boolean isGatewayAware() {
+        return true;
+    }
+
     /**
      * Creates a single custom rule that will be used to generate dial and call patterns for a
      * specified areaCode
-     * 
+     *
      * @param areaCode area code inserted in dial and call patterns
      * @return newly created custom rule
      */
@@ -153,6 +159,7 @@ public class LongDistanceRule extends DialingRule {
         return rule;
     }
 
+    @Override
     public DialingRuleType getType() {
         return DialingRuleType.LONG_DISTANCE;
     }

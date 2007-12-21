@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -30,11 +30,13 @@ public class LocalRule extends DialingRule {
         // empty
     }
 
+    @Override
     public List<String> getPermissionNames() {
         List perms = Collections.singletonList(PermissionName.LOCAL_DIALING.getName());
         return perms;
     }
 
+    @Override
     public String[] getPatterns() {
         DialPattern patternFull = new DialPattern(m_pstnPrefix, m_externalLen);
         DialPattern patternShort = new DialPattern(StringUtils.EMPTY, m_externalLen);
@@ -51,6 +53,7 @@ public class LocalRule extends DialingRule {
         };
     }
 
+    @Override
     public Transform[] getTransforms() {
         CallPattern patternNormal = new CallPattern(StringUtils.EMPTY, CallDigits.VARIABLE_DIGITS);
         String user = patternNormal.calculatePattern();
@@ -74,6 +77,7 @@ public class LocalRule extends DialingRule {
         return transforms.toArray(new Transform[transforms.size()]);
     }
 
+    @Override
     public DialingRuleType getType() {
         return DialingRuleType.LOCAL;
     }
@@ -83,6 +87,10 @@ public class LocalRule extends DialingRule {
      */
     public boolean isInternal() {
         return false;
+    }
+
+    public boolean isGatewayAware() {
+        return true;
     }
 
     public int getExternalLen() {

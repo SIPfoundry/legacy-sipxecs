@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -42,11 +42,16 @@ public interface IDialingRule {
 
     public abstract boolean isInternal();
 
+    /**
+     * Whether or not the dialing rule can be used with a gateway.
+     */
+    public abstract boolean isGatewayAware();
+
     public abstract String[] getTransformedPatterns(Gateway gateway);
 
     /**
      * List of host patterns for this rule, if empty rule will be appended to default host match
-     * 
+     *
      * @return ip addresses, host names, or variables defined in config.defs
      */
     public abstract String[] getHostPatterns();

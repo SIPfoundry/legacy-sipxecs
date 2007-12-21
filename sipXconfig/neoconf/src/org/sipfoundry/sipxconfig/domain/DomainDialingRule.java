@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.domain;
@@ -20,17 +20,17 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 
 /**
  * Generate the following into the mappingrules.xml <code>
- * <hostMatch> 
- *   <hostPattern>DOMAIN ALIAS #1 HERE</hostPattern> 
+ * <hostMatch>
+ *   <hostPattern>DOMAIN ALIAS #1 HERE</hostPattern>
  *   <hostPattern>DOMAIN ALIAS #2 HERE</hostPattern>
- *   <userMatch> 
- *     <userPattern>.</userPattern> 
- *     <permissionMatch> 
- *       <transform> 
- *         <host>ACTUAL DOMAIN HERE</host> 
- *       </transform> 
- *     </permissionMatch> 
- *   </userMatch> 
+ *   <userMatch>
+ *     <userPattern>.</userPattern>
+ *     <permissionMatch>
+ *       <transform>
+ *         <host>ACTUAL DOMAIN HERE</host>
+ *       </transform>
+ *     </permissionMatch>
+ *   </userMatch>
  * </hostMatch>
  * </code>
  */
@@ -38,7 +38,7 @@ public class DomainDialingRule extends DialingRule {
     private static final String[] MATCH_ALL = new String[] {
         "."
     };
-    private Domain m_domain;
+    private final Domain m_domain;
 
     DomainDialingRule(Domain domain) {
         m_domain = domain;
@@ -53,6 +53,7 @@ public class DomainDialingRule extends DialingRule {
     @Override
     public Transform[] getTransforms() {
         Transform hostTransform = new Transform() {
+            @Override
             protected void addChildren(Element transform) {
                 Element host = transform.addElement("host");
                 host.addText(m_domain.getName());
@@ -78,6 +79,11 @@ public class DomainDialingRule extends DialingRule {
         return true;
     }
 
+    public boolean isGatewayAware() {
+        return false;
+    }
+
+    @Override
     public String[] getHostPatterns() {
         Set<String> aliases = m_domain.getAliases();
         String[] hostPatterns = aliases.toArray(new String[aliases.size()]);

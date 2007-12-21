@@ -27,7 +27,7 @@
       <div jwcid="gcaiBlock@Block">
         <fieldset jwcid="@GatewayCallerAliasInfoPanel" gcai="prop:gateway.callerAliasInfo"/>
       </div>
-      
+
       <div jwcid="dialplanBlock@Block">
         <fieldset>
           <table>
@@ -44,6 +44,9 @@
             </tbody>
           </table>
         </fieldset>
+
+        <fieldset jwcid="@dialplan/DialRulesPanel" gateway="ognl:gateway" />
+
       </div>
       
       <div jwcid="portsBlock@Block">

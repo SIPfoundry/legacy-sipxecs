@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -31,14 +31,17 @@ public class InternalRule extends DialingRule {
     private MediaServerFactory m_mediaServerFactory;
     private String m_mediaServerHostname;
 
+    @Override
     public String[] getPatterns() {
         return null;
     }
 
+    @Override
     public Transform[] getTransforms() {
         return null;
     }
 
+    @Override
     public DialingRuleType getType() {
         return DialingRuleType.INTERNAL;
     }
@@ -93,6 +96,7 @@ public class InternalRule extends DialingRule {
         m_mediaServerFactory = mediaServerFactory;
     }
 
+    @Override
     public void appendToGenerationRules(List<DialingRule> rules) {
         if (!isEnabled()) {
             return;
@@ -131,5 +135,9 @@ public class InternalRule extends DialingRule {
 
     public boolean isInternal() {
         return true;
+    }
+
+    public boolean isGatewayAware() {
+        return false;
     }
 }

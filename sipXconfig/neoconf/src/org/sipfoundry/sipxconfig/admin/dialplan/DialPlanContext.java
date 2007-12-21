@@ -57,6 +57,22 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public List<DialingRule> getRules();
 
+    /**
+     * Gets all of the dialing rules using a particular gateway.
+     *
+     * @param gatewayId The ID of the gateway.
+     * @return A List of the DialingRules for that gateway.
+     */
+    public List<DialingRule> getRulesForGateway(Integer gatewayId);
+
+    /**
+     * Gets all of the dialing rules that can be added to a particular gateway.
+     *
+     * @param gatewayId The ID of the gateway
+     * @return A List of the DialingRules that can be added to the gateway
+     */
+    public List<DialingRule> getAvailableRules(Integer gatewayId);
+
     public DialingRule getRule(Integer id);
 
     public void deleteRules(Collection<Integer> selectedRows);

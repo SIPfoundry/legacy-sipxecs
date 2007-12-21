@@ -1,10 +1,10 @@
 /*
- *
- *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * 
+ * 
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- *
+ * 
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -14,8 +14,8 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 
 public class PagingRule extends DialingRule {
 
-    private final FullTransform m_transform;
-    private final DialPattern m_dialPattern;
+    private FullTransform m_transform;
+    private DialPattern m_dialPattern;
 
     public PagingRule(String prefix, String alertInfo) {
         setEnabled(true);
@@ -54,9 +54,5 @@ public class PagingRule extends DialingRule {
 
     public boolean isInternal() {
         return true;
-    }
-
-    public boolean isGatewayAware() {
-        return false;
     }
 }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -28,6 +28,7 @@ public class InternationalRule extends DialingRule {
         // empty
     }
 
+    @Override
     public String[] getPatterns() {
         String pattern = m_internationalPrefix + "x.";
         return new String[] {
@@ -35,10 +36,12 @@ public class InternationalRule extends DialingRule {
         };
     }
 
+    @Override
     public List<String> getPermissionNames() {
         return Collections.singletonList(PermissionName.INTERNATIONAL_DIALING.getName());
     }
 
+    @Override
     public Transform[] getTransforms() {
         CallPattern patternNormal = new CallPattern(m_internationalPrefix,
                 CallDigits.VARIABLE_DIGITS);
@@ -63,6 +66,7 @@ public class InternationalRule extends DialingRule {
         return transforms.toArray(new Transform[transforms.size()]);
     }
 
+    @Override
     public DialingRuleType getType() {
         return DialingRuleType.INTERNATIONAL;
     }
@@ -72,6 +76,10 @@ public class InternationalRule extends DialingRule {
      */
     public boolean isInternal() {
         return false;
+    }
+
+    public boolean isGatewayAware() {
+        return true;
     }
 
     public String getInternationalPrefix() {

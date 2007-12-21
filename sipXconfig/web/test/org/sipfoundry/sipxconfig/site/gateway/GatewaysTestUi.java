@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.gateway;
@@ -27,6 +27,7 @@ public class GatewaysTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(GatewaysTestUi.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
@@ -157,7 +158,7 @@ public class GatewaysTestUi extends WebTestCase {
 
     /**
      * Fills and submits edit gateway form
-     * 
+     *
      * @param name response after clicking submit button
      */
     private void addGateway(String name) {
@@ -166,7 +167,7 @@ public class GatewaysTestUi extends WebTestCase {
 
     /**
      * Static version to be called from other tests
-     * 
+     *
      * @param name response after clicking submit button
      */
     public static String[] addGateway(WebTester tester, String name) {
@@ -185,7 +186,7 @@ public class GatewaysTestUi extends WebTestCase {
 
     /**
      * Adds number of test gateways to test
-     * 
+     *
      * @param counter number of gateways to add - names gateway0..gateway'count-1'
      */
     public static String[] addTestGateways(WebTester tester, int counter) {

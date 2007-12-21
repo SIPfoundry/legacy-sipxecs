@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -26,9 +26,10 @@ public class AttendantRule extends DialingRule {
     private WorkingTime m_workingTimeAttendant = new WorkingTime();
     private String m_attendantAliases;
     private String m_extension;
-    
-    private MediaServer m_mediaServer = new SipXMediaServer();
 
+    private final MediaServer m_mediaServer = new SipXMediaServer();
+
+    @Override
     public void appendToGenerationRules(List<DialingRule> rules) {
         if (!isEnabled()) {
             return;
@@ -38,12 +39,13 @@ public class AttendantRule extends DialingRule {
                 getSystemName(), m_extension, aliases, m_mediaServer);
         rules.add(attendantRule);
     }
-    
+
+    @Override
     protected Object clone() throws CloneNotSupportedException {
         AttendantRule ar =  (AttendantRule) super.clone();
         ar.m_afterHoursAttendant = (ScheduledAttendant) m_afterHoursAttendant.clone();
         ar.m_workingTimeAttendant = (WorkingTime) m_workingTimeAttendant.clone();
-        ar.m_holidayAttendant = (Holiday) m_holidayAttendant.clone();        
+        ar.m_holidayAttendant = (Holiday) m_holidayAttendant.clone();
         return ar;
     }
 
@@ -55,20 +57,27 @@ public class AttendantRule extends DialingRule {
         return SYSTEM_NAME_PREFIX + getId();
     }
 
+    @Override
     public String[] getPatterns() {
         return null;
     }
 
+    @Override
     public Transform[] getTransforms() {
         return null;
     }
 
+    @Override
     public DialingRuleType getType() {
         return DialingRuleType.ATTENDANT;
     }
 
     public boolean isInternal() {
         return true;
+    }
+
+    public boolean isGatewayAware() {
+        return false;
     }
 
     public ScheduledAttendant getAfterHoursAttendant() {
@@ -127,6 +136,6 @@ public class AttendantRule extends DialingRule {
         if (aliasesString == null) {
             return ArrayUtils.EMPTY_STRING_ARRAY;
         }
-        return StringUtils.split(aliasesString);        
+        return StringUtils.split(aliasesString);
     }
 }

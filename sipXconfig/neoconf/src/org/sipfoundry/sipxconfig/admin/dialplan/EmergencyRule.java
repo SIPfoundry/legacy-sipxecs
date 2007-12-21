@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -30,6 +30,7 @@ public class EmergencyRule extends DialingRule {
     private boolean m_useMediaServer;
     private MediaServerFactory m_mediaServerFactory;
 
+    @Override
     public String[] getPatterns() {
         ArrayList<String> patterns = new ArrayList<String>();
         patterns.add(SOS);
@@ -76,10 +77,12 @@ public class EmergencyRule extends DialingRule {
         };
     }
 
+    @Override
     public Transform[] getTransforms() {
         return m_useMediaServer ? getMediaServerTransforms() : getStandardTransforms();
     }
 
+    @Override
     public DialingRuleType getType() {
         return DialingRuleType.EMERGENCY;
     }
@@ -91,6 +94,11 @@ public class EmergencyRule extends DialingRule {
         return false;
     }
 
+    public boolean isGatewayAware() {
+        return true;
+    }
+
+    @Override
     public void appendToGenerationRules(List<DialingRule> rules) {
         if (!isEnabled()) {
             return;
