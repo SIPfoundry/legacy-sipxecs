@@ -33,20 +33,22 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
     private final String localHostTransport = "udp";
     private final JournalService journalService;
     private LinkedList<Device> devices;
-    
+
+    private final int discoveryBlockSize = 16;
+
     private class UAVendor {
         public final String name;
         public final String oui;
-        
+
         public UAVendor(String name, String oui) {
             this.name = name;
             this.oui = oui;
         }
     }
-    
+
     private final UAVendor[] UAVendorList = {
-            new UAVendor("Aastra", "00:08:5D"),
-            new UAVendor("Aastra", "00:10:BC"),
+    		new UAVendor("Aastra", "00:08:5D"),
+    		new UAVendor("Aastra", "00:10:BC"),
             new UAVendor("AudioCodes", "00:90:8F"),
             new UAVendor("ClearOne", "00:90:79"),
             new UAVendor("Gentner", "00:06:24"),
@@ -57,24 +59,23 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
             new UAVendor("MITEL", "08:00:0F"),
             new UAVendor("Pingtel Xpressa", "00:D0:1E"),
             new UAVendor("Polycom", "00:04:F2"),
-            new UAVendor("SNOM", "00:04:13"),
-    };
+            new UAVendor("SNOM", "00:04:13"), };
 
     public DiscoveryService(String localHostAddress, int localHostPort) {
         this(localHostAddress, localHostPort, null);
     }
-    
+
     public DiscoveryService(String localHostAddress, int localHostPort, JournalService journalService) {
         super("PreflightDiscovery", Thread.NORM_PRIORITY, 10, 60);
 
         this.localHostAddress = localHostAddress;
         this.journalService = journalService;
-        
+
         sipFactory = SipFactory.getInstance();
         sipFactory.setPathName("gov.nist");
 
         devices = new LinkedList<Device>();
-        
+
         Properties properties = new Properties();
         properties.setProperty("javax.sip.STACK_NAME", "Preflight");
         properties.setProperty("gov.nist.javax.sip.MAX_MESSAGE_SIZE", "1048576");
@@ -88,7 +89,8 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
             // Create SipStack object
             sipStack = sipFactory.createSipStack(properties);
         } catch (PeerUnavailableException e) {
-            // could not find gov.nist.jain.protocol.ip.sip.SipStackImpl in the classpath.
+            // could not find gov.nist.jain.protocol.ip.sip.SipStackImpl in the
+            // classpath.
             e.printStackTrace();
             System.err.println(e.getMessage());
             System.exit(0);
@@ -226,7 +228,7 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
 
         return request;
     }
-    
+
     public synchronized void addDiscovered(String networkAddress, String userAgentInfo) {
         String hardwareAddress = ArpTable.lookup(networkAddress);
         if (hardwareAddress != null) {
@@ -238,11 +240,9 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
             }
             if (vendor != null) {
                 devices.add(new Device(hardwareAddress, networkAddress, vendor, userAgentInfo));
-                
+
                 if (journalService != null) {
-                    String output = hardwareAddress +
-                    ", " + networkAddress +
-                    ", " + vendor;
+                    String output = hardwareAddress + ", " + networkAddress + ", " + vendor;
                     if (userAgentInfo.compareTo("") != 0) {
                         output += ", " + userAgentInfo;
                     }
@@ -254,35 +254,61 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
 
     public LinkedList<Device> discover(String network, String networkMask) {
         int[] addr = new int[4];
+        int[] mask = new int[4];
+        int range;
+
+        // Break up the network address and mask into sub-fields and then determine the
+        // starting address and range.
         String[] fields = network.split("[.]");
         if (fields.length == 4) {
-            for (int i = 0; i < 4 ; i++) {
+            for (int i = 0; i < 4; i++) {
                 addr[i] = Integer.parseInt(fields[i]) & 0xFF;
             }
         }
+        fields = networkMask.split("[.]");
+        if (fields.length == 4) {
+            for (int i = 0; i < 4; i++) {
+                mask[i] = Integer.parseInt(fields[i]) & 0xFF;
+            }
+        }
         addr[3] = 1;
-        for (int x = 0; x < 254; x++) {
-            try {
-                String target = String.format("%d.%d.%d.%d", addr[0], addr[1], addr[2], addr[3]++);
-                if (target.compareTo(localHostAddress) == 0) {
-                    // Skip ourself.
-                    continue;
+        range = 254; // TODO: calculate this from the given networkMask.
+
+        // Walk through the range of IP addresses, creating DiscoveryAgents for each address.
+        while (range > 0) {
+            // So as not to flood the network, only send out a small number of requests at a time.
+            int discoveryBlock = (range > discoveryBlockSize ? discoveryBlockSize : range);
+            range -= discoveryBlock;
+            for (int x = 0; x < discoveryBlock; x++) {
+                try {
+                    String target = String.format("%d.%d.%d.%d", addr[0], addr[1], addr[2], addr[3]);
+                    if (target.compareTo(localHostAddress) != 0) {
+                        // Otherwise skip ourself.
+                        newActiveObject(new DiscoveryAgentImpl(target, this), target);
+                    }
+                    // Calculate the next IP address.
+                    if (++addr[3] == 256) {
+                        addr[3] = 0;
+                        if (++addr[2] == 256) {
+                            addr[2] = 0;
+                            ++addr[1];
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                newActiveObject(new DiscoveryAgentImpl(target, this), target);
-            } catch (Exception e) {
-                e.printStackTrace();
+            }
+
+            try {
+                while (size() > 0) {
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException e) {
             }
         }
-        
-        try {
-            while (size() > 0) {
-                Thread.sleep(1000);
-            }
-        } catch (InterruptedException e) {
-        }
-        
+
         return devices;
 
     }
-
+    
 }
