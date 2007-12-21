@@ -14,6 +14,13 @@
     <property name="csvLimit" value="25000" />
   </bean>
 
+  <bean id="callResolverProcess" class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcess">
+      <property name="sipxProcessContext">
+        <ref bean="sipxProcessContext" />
+      </property>
+      <property name="processName" value="CallResolver"/>
+  </bean>
+
   <!-- We probably do not need to proxy this -->
   <alias alias="cdrManager" name="cdrManagerImpl" />
 </beans>

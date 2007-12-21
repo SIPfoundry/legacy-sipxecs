@@ -1,6 +1,12 @@
 <div jwcid="@Border" useDojo="true">
   <h2><span key="title">Call Monitoring</span></h2>
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'active', 'historic'}" selectedTab="prop:tab"/>  
+  <span jwcid="@If" condition="ognl:callResolverProcess.enabled">
+    <span jwcid="@common/TabNavigation" tabNames="ognl:{'active', 'historic'}" selectedTab="prop:tab"/>
+  </span>
+  <span jwcid="@Else">
+	<span key="page.error" class="user-error" raw="true"/>
+	<span jwcid="@common/TabNavigation" tabNames="ognl:{'historic'}" selectedTab="prop:tab"/>
+  </span>
   <div id="settings-content">
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
