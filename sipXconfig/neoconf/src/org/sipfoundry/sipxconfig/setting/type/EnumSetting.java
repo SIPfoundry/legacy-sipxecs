@@ -26,6 +26,9 @@ public class EnumSetting extends AbstractSettingType {
 
     private String m_labelKeyPrefix;
 
+    private boolean m_listenOnChange;
+    private boolean m_promptSelect;
+
     public EnumSetting() {
     }
 
@@ -39,6 +42,10 @@ public class EnumSetting extends AbstractSettingType {
 
     public Map<String, String> getEnums() {
         return Collections.unmodifiableMap(m_enums);
+    }
+
+    public void clearEnums() {
+        m_enums.clear();
     }
 
     public boolean isRequired() {
@@ -126,4 +133,21 @@ public class EnumSetting extends AbstractSettingType {
         labelKey.append(value);
         return labelKey.toString();
     }
+
+    public boolean isListenOnChange() {
+        return m_listenOnChange;
+    }
+
+    public void setListenOnChange(boolean listenOnChange) {
+        m_listenOnChange = listenOnChange;
+    }
+
+    public boolean isPromptSelect() {
+        return m_promptSelect;
+    }
+
+    public void setPromptSelect(boolean promptSelect) {
+        m_promptSelect = promptSelect;
+    }
+
 }

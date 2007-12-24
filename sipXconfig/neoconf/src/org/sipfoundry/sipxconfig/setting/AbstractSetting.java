@@ -35,6 +35,7 @@ public abstract class AbstractSetting implements Setting, NamedObject {
     private Setting m_parent;
     private boolean m_advanced;
     private boolean m_hidden;
+    private boolean m_enabled = true;
     private SettingValue m_value = NULL;
 
     private int m_index = -1;
@@ -131,6 +132,14 @@ public abstract class AbstractSetting implements Setting, NamedObject {
 
     public void setHidden(boolean hidden) {
         m_hidden = hidden;
+    }
+
+    public boolean isEnabled() {
+        return m_enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        m_enabled = enabled;
     }
 
     public int getIndex() {

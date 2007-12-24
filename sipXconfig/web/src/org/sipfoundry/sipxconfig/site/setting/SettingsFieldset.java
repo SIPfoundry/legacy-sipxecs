@@ -19,6 +19,7 @@ import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.annotations.Persist;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.setting.AbstractSetting;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingArray;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
@@ -43,6 +44,13 @@ public abstract class SettingsFieldset extends BaseComponent {
 
     @Parameter(defaultValue = "true")
     public abstract void setEnabled(boolean enabled);
+
+    public abstract boolean isEnabled();
+
+    @Parameter(defaultValue = "false")
+    public abstract void setAllowEnabledSetting(boolean allow);
+
+    public abstract boolean isAllowEnabledSetting();
 
     @Parameter(defaultValue = "true")
     public abstract void setRequiredEnabled(boolean enabled);
@@ -102,6 +110,19 @@ public abstract class SettingsFieldset extends BaseComponent {
     public boolean getRenderSetting() {
         Setting setting = getCurrentSetting();
         return showSetting(setting);
+    }
+
+    public boolean isSettingEnabled() {
+        if (isAllowEnabledSetting()) {
+            Setting setting = getCurrentSetting();
+            if (setting instanceof AbstractSetting) {
+                return ((AbstractSetting) setting).isEnabled();
+            } else {
+                return isEnabled();
+            }
+        } else {
+            return isEnabled();
+        }
     }
 
     boolean showSetting(Setting setting) {

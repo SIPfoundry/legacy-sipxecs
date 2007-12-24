@@ -77,4 +77,6 @@ public interface AcdContext extends AliasProvider {
     boolean isEnabled();
     
     Collection<AcdQueue> getQueuesForUsers(AcdServer server, Collection<User> agents);
+
+    void removeOverflowSettings(Collection overflowIds, String overflowType);
 }

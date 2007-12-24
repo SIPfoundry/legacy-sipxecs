@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.SipUri;
@@ -21,6 +22,8 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 public abstract class AcdComponent extends BeanWithSettings implements NamedObject {
     private CoreContext m_coreContext;
+
+    private CallGroupContext m_callGroupContext;
 
     private final String m_modelFileName;
 
@@ -46,6 +49,14 @@ public abstract class AcdComponent extends BeanWithSettings implements NamedObje
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public CallGroupContext getCallGroupContext() {
+        return m_callGroupContext;
+    }
+
+    public void setCallGroupContext(CallGroupContext callGroupContext) {
+        m_callGroupContext = callGroupContext;
     }
 
     boolean create(XmlRpcSettings xmlRpc) {

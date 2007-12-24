@@ -7,6 +7,7 @@
     parent="beanWithSettings">
     <property name="modelFilesContext" ref="modelFilesContext"/>
     <property name="coreContext" ref="coreContext"/>
+    <property name="callGroupContext" ref="callGroupContext"/>
   </bean>
   
   <bean id="acdServer" class="org.sipfoundry.sipxconfig.acd.AcdServer" parent="acdComponent"

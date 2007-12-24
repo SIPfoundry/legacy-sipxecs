@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
@@ -30,6 +31,11 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
 public class AcdQueue extends AcdComponent {
     public static final String BEAN_NAME = "acdQueue";
     public static final String OBJECT_CLASS = "acd-queue";
+    public static final String QUEUE_TYPE = "Queue";
+    public static final String HUNTGROUP_TYPE = "HuntGroup";
+
+    public static final String OVERFLOW_TYPE = "acd-queue/overflow-type";
+    public static final String OVERFLOW_TYPEVALUE = "acd-queue/overflow-typeValue";
 
     static final String URI = "acd-queue/uri";
     static final String QUEUE_NAME = "acd-queue/name";
@@ -38,7 +44,10 @@ public class AcdQueue extends AcdComponent {
     static final String BACKGROUND_AUDIO = "acd-queue/background-audio";
     static final String CALL_TERMINATION_AUDIO = "acd-queue/call-termination-audio";
     static final String AGENT_LIST = "acd-queue/acd-agent-list";
+    static final String OVERFLOW_DESTINATION = "acd-queue/overflow-destination";
     static final String OVERFLOW_QUEUE = "acd-queue/overflow-queue";
+
+    static final String OVERFLOW_ENTRY = "acd-queue/overflow-entry";
 
     static final String[] AUDIO_SETTINGS = {
         WELCOME_AUDIO, QUEUE_AUDIO, BACKGROUND_AUDIO, CALL_TERMINATION_AUDIO
@@ -51,6 +60,7 @@ public class AcdQueue extends AcdComponent {
     private AcdServer m_acdServer;
 
     private AcdQueue m_overflowQueue;
+
     private String m_audioDirectory;
 
     public AcdQueue() {
@@ -103,6 +113,18 @@ public class AcdQueue extends AcdComponent {
 
     public String getCallTerminationAudio() {
         return getSettingValue(CALL_TERMINATION_AUDIO);
+    }
+
+    public Setting getOverflowType() {
+        return getSettings().getSetting(OVERFLOW_TYPE);
+    }
+
+    public Setting getOverflowTypeValue() {
+        return getSettings().getSetting(OVERFLOW_TYPEVALUE);
+    }
+
+    public Setting getOverflowEntry() {
+        return getSettings().getSetting(OVERFLOW_ENTRY);
     }
 
     /**
@@ -205,15 +227,33 @@ public class AcdQueue extends AcdComponent {
 
         @SettingEntry(path = OVERFLOW_QUEUE)
         public String getOverflowQueue() {
-            String overflowQueueValue;
-            AcdQueue overflowQueue = m_queue.getOverflowQueue();
-            if (overflowQueue != null) {
-                overflowQueueValue = overflowQueue.calculateUri();
-            } else {
-                overflowQueueValue = StringUtils.EMPTY;
-            }
+            return calculateOverflowUri();
+        }
 
-            return overflowQueueValue;
+        @SettingEntry(path = OVERFLOW_DESTINATION)
+        public String getOverflowDestination() {
+            return calculateOverflowUri();
+        }
+
+        private String calculateOverflowUri() {
+            CallGroup overflowDestination = null;
+            String overflowDestinationValue = StringUtils.EMPTY;
+            AcdQueue overflowQueue = m_queue.getOverflowQueue();
+
+            if (overflowQueue == null) {
+                String typeValue = m_queue.getOverflowType().getValue();
+                if (typeValue != null && typeValue.equals(AcdQueue.HUNTGROUP_TYPE)) {
+                    Integer huntGroupId = Integer.valueOf(
+                            m_queue.getOverflowTypeValue().getValue()).intValue();
+                    overflowDestination = m_queue.getCallGroupContext()
+                            .loadCallGroup(huntGroupId);
+                    overflowDestinationValue = overflowDestination
+                            .calculateUri(m_queue.getCoreContext().getDomainName());
+                }
+            } else {
+                overflowDestinationValue = overflowQueue.calculateUri();
+            }
+            return overflowDestinationValue;
         }
     }
 

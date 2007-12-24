@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -161,6 +162,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             queue.cleanAgents();
             cleanReferencesToOverflowQueue(queue);
         }
+        removeOverflowSettings(queuesIds, AcdQueue.QUEUE_TYPE);
         // we need to save server, agents and queues - the easiest thing to do is to flush
         hibernate.flush();
     }
@@ -380,5 +382,24 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         List queues = getHibernateTemplate().findByNamedQueryAndNamedParam("queuesForUsers",
                 params, values);
         return queues;
+    }
+
+    public void removeOverflowSettings(Collection overflowIds, String overflowType) {
+        List<ValueStorage> l = getHibernateTemplate().findByNamedQuery("valueStorage");
+        for (ValueStorage storage : l) {
+            Map settings = storage.getDatabaseValues();
+
+            String type = settings == null ? null : (String) settings.get(AcdQueue.OVERFLOW_TYPE);
+            if (type != null && type.equals(overflowType)) {
+                String queueId = settings.get(AcdQueue.OVERFLOW_TYPEVALUE).toString();
+                for (Object id : overflowIds) {
+                    if (id.toString().equals(queueId)) {
+                        settings.remove(AcdQueue.OVERFLOW_TYPE);
+                        settings.remove(AcdQueue.OVERFLOW_TYPEVALUE);
+                    }
+                }
+            }
+            getHibernateTemplate().saveOrUpdate(storage);
+        }
     }
 }

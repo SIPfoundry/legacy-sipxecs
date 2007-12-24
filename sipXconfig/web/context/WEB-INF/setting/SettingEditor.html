@@ -33,6 +33,14 @@
     model="prop:enumModel"
     disabled="prop:disabled" />  
 </span>
+<span jwcid="enumListenOnChangeBlock@Block">
+  <span jwcid="enumListenOnChangeField@PropertySelection"
+    id="prop:widgetId"
+    value="prop:setting.value"
+    model="prop:enumModel"
+    disabled="prop:disabled" 
+    onchange="javascript:this.form.events.refresh();"/>  
+</span>
 <span jwcid="booleanBlock@Block">
   <span jwcid="booleanField@Checkbox"
     id="prop:widgetId"

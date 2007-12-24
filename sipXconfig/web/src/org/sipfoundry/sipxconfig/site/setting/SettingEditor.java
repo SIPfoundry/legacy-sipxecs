@@ -18,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.form.IPropertySelectionModel;
@@ -29,6 +30,7 @@ import org.apache.tapestry.form.validator.Pattern;
 import org.apache.tapestry.form.validator.Required;
 import org.apache.tapestry.form.validator.Validator;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
@@ -41,10 +43,16 @@ import org.springframework.context.MessageSource;
 
 @ComponentClass(allowBody = true, allowInformalParameters = true)
 public abstract class SettingEditor extends BaseComponent {
+
+    private static final String LISTEN_ON_CHANGE = "ListenOnChange";
+
     @Parameter(required = true)
     public abstract Setting getSetting();
 
     public abstract void setSetting(Setting setting);
+
+    @InjectObject(value = "spring:tapestry")
+    public abstract TapestryContext getTapestry();
 
     /**
      * Should be called 'enforceRequired'. If it is set to false the 'required' constraints are
@@ -85,7 +93,12 @@ public abstract class SettingEditor extends BaseComponent {
      * @return block that contains HTML for the widget used to edit setting value
      */
     public IComponent getWidgetBlock() {
-        String blockName = getSetting().getType().getName() + "Block";
+        SettingType type = getSetting().getType();
+        String typeName = type.getName();
+        if (type instanceof EnumSetting && ((EnumSetting) type).isListenOnChange()) {
+            typeName += LISTEN_ON_CHANGE;
+        }
+        String blockName = typeName + "Block";
         return getComponent(blockName);
     }
 
@@ -158,7 +171,11 @@ public abstract class SettingEditor extends BaseComponent {
      * @return IFormComponent or null if labeled component is not IFormComponent
      */
     public IFormComponent getFormComponent() {
-        String componentName = getSetting().getType().getName();
+        SettingType type = getSetting().getType();
+        String componentName = type.getName();
+        if (type instanceof EnumSetting && ((EnumSetting) type).isListenOnChange()) {
+            componentName += LISTEN_ON_CHANGE;
+        }
         IComponent component = getComponent(componentName + "Field");
         if (component instanceof IFormComponent) {
             return (IFormComponent) component;
@@ -174,10 +191,16 @@ public abstract class SettingEditor extends BaseComponent {
         }
         EnumSetting enumType = (EnumSetting) type;
         MessageSource messageSource = getMessageSource();
-        if (messageSource != null) {
-            return localizedModelForType(setting, enumType, messageSource, getPage().getLocale());
+        IPropertySelectionModel model = null;
+        model = (messageSource != null) ? localizedModelForType(setting, enumType, messageSource,
+                getPage().getLocale()) : enumModelForType(enumType);
+
+        if (enumType.isPromptSelect()) {
+            model = getTapestry().instructUserToSelect(model, getMessages());
+
         }
-        return enumModelForType(enumType);
+
+        return model;
     }
 
     /**

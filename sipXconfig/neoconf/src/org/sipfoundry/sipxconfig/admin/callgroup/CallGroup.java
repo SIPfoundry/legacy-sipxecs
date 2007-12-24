@@ -61,7 +61,9 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
     public String getExtension() {
         return m_extension;
     }
-
+    public String calculateUri(String domainName) {
+        return SipUri.format(getName(), domainName, false);
+    }
     public void setExtension(String extension) {
         m_extension = extension;
     }

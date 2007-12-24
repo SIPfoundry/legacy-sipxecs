@@ -110,4 +110,9 @@
       where auser.id in (:userIds) and a.acdServer.id = :serverId and aqueues.id = q.id order by q.name]]>
   </query>
   
+  <query name="valueStorage">
+		<![CDATA[from ValueStorage vs]]>
+  </query>
+
+
 </hibernate-mapping>

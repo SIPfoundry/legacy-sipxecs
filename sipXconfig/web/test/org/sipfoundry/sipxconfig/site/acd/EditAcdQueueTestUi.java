@@ -53,7 +53,10 @@ public class EditAcdQueueTestUi extends ListWebTestCase {
 
     protected void setAddParams(String[] names, String[] values) {
         super.setAddParams(names, values);
-        // SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAcdQueueTestUi");
+        initUploadFields();
+    }
+
+    protected void initUploadFields() {
         SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
                 .getTestSourceDirectory(EditAutoAttendantTestUi.class)
                 + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
@@ -93,7 +96,12 @@ public class EditAcdQueueTestUi extends ListWebTestCase {
         }, new String[] {
             "Q2", "description 2"
         });
-        selectOption("queueSelection", "Q1");
+        selectOption("enumListenOnChangeField", "Queue");
+
+        // re-initialize upload fields as previous set refreshes page
+        initUploadFields();
+
+        selectOption("enumField", "Q1");
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
