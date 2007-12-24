@@ -1839,9 +1839,12 @@ void CallManager::acceptConnection(const char* callId,
 
 
 
-void CallManager::rejectConnection(const char* callId, const char* address)
+void CallManager::rejectConnection(const char* callId, 
+                                   const char* address,
+                                   int errorCode,
+                                   const char* errorText)
 {
-    CpMultiStringMessage acceptMessage(CP_REJECT_CONNECTION, callId, address);
+    CpMultiStringMessage acceptMessage(CP_REJECT_CONNECTION, callId, address, errorText, NULL, NULL, errorCode);
     postMessage(acceptMessage);
 }
 

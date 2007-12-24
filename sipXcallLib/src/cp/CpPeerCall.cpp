@@ -900,12 +900,16 @@ UtlBoolean CpPeerCall::handleAcceptConnection(OsMsg* pEventMessage)
 // Handles the processing of a CallManager::CP_REJECT_CONNECTION 
 // message
 UtlBoolean CpPeerCall::handleRejectConnection(OsMsg* pEventMessage)
-{
+{	
     UtlString remoteAddress;
+    UtlString errorText;
+    int errorCode ;
     UtlBoolean connectionFound = FALSE;
 
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(remoteAddress);
-
+    ((CpMultiStringMessage*)pEventMessage)->getString3Data(errorText);
+    errorCode = ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+       
     // This is a bit of a hack/short cut.
     // Find the first remote connection which is in the OFFERING
     // state and assume that it is the connection on
@@ -938,7 +942,7 @@ UtlBoolean CpPeerCall::handleRejectConnection(OsMsg* pEventMessage)
 
             if(connectState == Connection::CONNECTION_OFFERING)
             {
-                connection->reject();
+                connection->reject(errorCode, errorText);
                 connectionFound = TRUE;
                 break;
             }
@@ -2038,7 +2042,7 @@ UtlBoolean CpPeerCall::handleOfferingExpired(OsMsg* pEventMessage)
 #ifdef TEST_PRINT
                 osPrintf("%s-CpPeerCall::CP_OFFERING_EXPIRED rejecting", mName.data());
 #endif
-                connection->reject();
+                connection->reject(SIP_BUSY_CODE, SIP_BUSY_TEXT);
             }
         }
     }
@@ -2097,7 +2101,7 @@ UtlBoolean CpPeerCall::handleRingingExpired(OsMsg* pEventMessage)
 #ifdef TEST_PRINT
             osPrintf("%s-CpPeerCall::handleRingingExpired rejecting", mName.data());
 #endif
-            connection->reject();
+            connection->reject(SIP_BUSY_CODE, SIP_BUSY_TEXT);
         }
     }
 

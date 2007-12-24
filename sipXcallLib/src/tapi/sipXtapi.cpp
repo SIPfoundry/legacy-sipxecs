@@ -693,7 +693,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallReject(const SIPX_CALL hCall,
         assert(remoteAddress.length()) ;
         if (remoteAddress.length())
         {
-            pInst->pCallManager->rejectConnection(callId.data(), remoteAddress.data()) ;
+            pInst->pCallManager->rejectConnection(callId.data(), remoteAddress.data(), errorCode, szErrorText) ;
         }
         sr = SIPX_RESULT_SUCCESS ;
     }

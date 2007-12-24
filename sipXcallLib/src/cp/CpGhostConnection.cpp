@@ -144,7 +144,7 @@ UtlBoolean CpGhostConnection::hold()
     unimplemented("CpGhostConnection::hold");
     return(FALSE);
 }
-UtlBoolean CpGhostConnection::reject()
+UtlBoolean CpGhostConnection::reject(int errorCode, const char* szErrorText)
 {
     unimplemented("CpGhostConnection::reject");
     return(FALSE);

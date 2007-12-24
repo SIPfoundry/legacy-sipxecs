@@ -89,7 +89,7 @@ public:
 
    virtual UtlBoolean hold();
 
-   virtual UtlBoolean reject();
+   virtual UtlBoolean reject(int errorCode, const char* errorText);
 
    virtual UtlBoolean redirect(const char* forwardAddress);
 

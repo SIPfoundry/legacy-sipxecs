@@ -1078,7 +1078,7 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
     return(ringingSent);
 }
 
-UtlBoolean SipConnection::reject()
+UtlBoolean SipConnection::reject(int errorCode, const char* errorText)
 {
     UtlBoolean responseSent = FALSE;
     if(inviteMsg && !inviteFromThisSide)
@@ -1106,9 +1106,17 @@ UtlBoolean SipConnection::reject()
             }
             else
             {
-                SipMessage busyMessage;
-                busyMessage.setInviteBusyData(inviteMsg);
-                responseSent = send(busyMessage);
+            	// Validate error/reject reason
+                if (errorCode <= 100 || errorCode >= 700 || 
+                        errorText == NULL || strlen(errorText) == 0)
+            	{            
+                	errorCode = SIP_BUSY_CODE ;
+                	errorText = SIP_BUSY_TEXT ;
+            	}
+            	            	
+                SipMessage rejectMessage;
+                rejectMessage.setResponseData(inviteMsg, errorCode, errorText);
+                responseSent = send(rejectMessage);
 #ifdef TEST_PRINT
                 osPrintf("SipConnection::reject - CONNECTION_FAILED, cause BUSY : 833\n");
 #endif

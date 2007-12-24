@@ -640,7 +640,7 @@ TaoStatus TaoConnectionAdaptor::connectionReject(TaoMessage& rMsg)
         UtlString address = arg[1];
 
 
-        mpCallMgrTask->rejectConnection(callId.data(), address.data());
+        mpCallMgrTask->rejectConnection(callId.data(), address.data(), SIP_BUSY_CODE, SIP_BUSY_TEXT);
 
         rMsg.setMsgSubType(TaoMessage::RESPONSE_CONNECTION);
 

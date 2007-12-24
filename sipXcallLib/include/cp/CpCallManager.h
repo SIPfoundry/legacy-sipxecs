@@ -453,11 +453,13 @@ public:
 
     //! Reject the incoming connection
     /*! Progress the connection from the OFFERING state to
-     * the FAILED state with the cause of busy. With SIP this
-     * causes a  486 Busy Here response to be sent.
+     * the FAILED state.  The errorCode/errorText indicates why the call
+     * was rejected.
      */
     virtual void rejectConnection(const char* callId,
-                                  const char* address) = 0;
+                                  const char* address,
+                                  int         errorCode,
+                                  const char* errorText) = 0;
 
     //! Redirect the incoming connection
     /*! Progress the connection from the OFFERING state to

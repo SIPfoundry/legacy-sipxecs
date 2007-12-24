@@ -190,7 +190,10 @@ public:
                                   CONTACT_TYPE contactType = AUTO,
                                   const void* hWnd = NULL);
                                   
-    virtual void rejectConnection(const char* callId, const char* address);
+    virtual void rejectConnection(const char* callId, 
+                                  const char* address,
+                                  int         errorCode = SIP_BUSY_CODE,
+                                  const char* errorText = SIP_BUSY_TEXT);                                  
     virtual PtStatus redirectConnection(const char* callId, const char* address, const char* forwardAddressUrl);
     virtual void dropConnection(const char* callId, const char* address);
     virtual void getNumConnections(const char* callId, int& numConnections);

@@ -121,7 +121,7 @@ public:
 
     virtual UtlBoolean accept(int forwardOnNoAnswerTimeOut);
 
-    virtual UtlBoolean reject();
+    virtual UtlBoolean reject(int errorCode, const char* errorText);
 
     virtual UtlBoolean redirect(const char* forwardAddress);
 
