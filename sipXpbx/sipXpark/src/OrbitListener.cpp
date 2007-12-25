@@ -138,10 +138,9 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                OsSysLog::add(FAC_PARK, PRI_DEBUG,
                              "OrbitListener::handleMessage - call '%s', invalid orbit '%s'",
                              callId.data(), orbit.data());
-               // This should be a 404 error, but there is no provision for
-               // specifying that yet.
-               mpCallManager->rejectConnection(callId.data(),
-                                               address.data());
+
+               mpCallManager->rejectConnection(callId.data(), address.data(),
+                                               SIP_NOT_FOUND_CODE, "Invalid Park Orbit");
             }
             else
             {
@@ -169,10 +168,10 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                                    "call retrieval call '%s', orbit '%s', "
                                    "rejected due to no calls to retrieve",
                                    callId.data(), orbit.data());
-                     // This should be a 404 error, but there is no provision for
-                     // specifying that yet.
-                     mpCallManager->rejectConnection(callId.data(),
-                                                     address.data());
+
+                     mpCallManager->rejectConnection(callId.data(), address.data(),
+                                                     SIP_NOT_FOUND_CODE,
+                                                     "No parked calls to retrieve");
                   }
                }
                else
@@ -186,10 +185,9 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                                    "OrbitListener::handleMessage "
                                    "not call retrieval call '%s', orbit '%s' full",
                                    callId.data(), orbit.data());
-                     // rejectConnection() produces a 486 error on a ringing
-                     // call.
-                     mpCallManager->rejectConnection(callId.data(),
-                                                     address.data());
+
+                     mpCallManager->rejectConnection(callId.data(), address.data(),
+                                                     SIP_BUSY_CODE, "Park orbit is full");
                   }
                   else
                   {
