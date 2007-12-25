@@ -161,13 +161,10 @@ then
     rr=5070
     Name[$rr]="registry/redirect"
 
-    ap=5080
-    Name[$ap]="authorization"
-
     for host in `seq 0 $HostMax`
       do
       server=${Host[$host]}
-      for service in rr ap
+      for service in rr
         do
         cat <<EOF
 
