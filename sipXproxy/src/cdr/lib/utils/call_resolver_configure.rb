@@ -141,7 +141,12 @@ class CallResolverConfigure
   def max_call_len
     parse_int_param(@config, 'SIP_CALLRESOLVER_MAX_CALL_LEN', 8 * 60 * 60, -1)    
   end
-  
+
+  # number of seconds after which filed calls will be recorded if no new leg open
+  def max_failed_wait
+    parse_int_param(@config, 'SIP_CALLRESOLVER_MAX_FAILED_WAIT', 3 * 60, -1)
+  end
+
   # number of seconds to wait between cleaning up long calls.  Default is
   # 5 minutes.  Minimum is 1 minute
   def min_cleanup_interval
@@ -220,8 +225,7 @@ class CallResolverConfigure
     
     return log
   end
-  
-  
+
   # Set the log level from the configuration.  Return the log level.
   def get_log_level_config(config)
     # Look up the config param
@@ -299,7 +303,7 @@ class CallResolverConfigure
     rescue ArgumentError
       raise ConfigException, "Configuration parameter #{param_name}, #{param_value} must be an integer"
     end
-    
+
     param_value
   end
 end

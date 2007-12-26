@@ -213,6 +213,13 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     assert_equal(-1, config.max_call_len)
   end  
 
+  def test_max_failed_wait
+    assert_equal(180, @config.max_failed_wait)
+    c = Configure.new('SIP_CALLRESOLVER_MAX_FAILED_WAIT' => '60')
+    config = CallResolverConfigure.new(c)
+    assert_equal(60, config.max_failed_wait)
+  end
+
   def test_min_cleanup_interval
     assert_equal(300, @config.min_cleanup_interval)
     c = Configure.new('SIP_CALLRESOLVER_MIN_CLEANUP_INTERVAL' => '500')

@@ -14,7 +14,7 @@ require 'utils/cleaner'
 class CleanerTest < Test::Unit::TestCase
   def test_missing
     queue = []
-    cl = Cleaner.new(0.3, 8000)
+    cl = Cleaner.new(0.3, [:retire_long_calls, 8000])
     cl_thread = Thread.new(queue) do |q|
       cl.run(q)
     end

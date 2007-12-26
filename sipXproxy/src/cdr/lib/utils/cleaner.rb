@@ -12,25 +12,19 @@ require 'utils/terminator'
 # at the moment the only even it sends it 'retire_long_calls'
 class Cleaner
   
-  def initialize(interval, max_call_len)
+  def initialize(interval, action)
     @terminator = Terminator.new(interval)
-    @max_call_len = max_call_len
+    @action = action
   end
 
   def run(queue)
-    action = [:retire_long_calls, @max_call_len]
+    action = 
     until (@terminator.wait) do
-      queue << action
+      queue << @action
     end
   end
-  
+
   def stop
     @terminator.stop
   end
-
-end	
-
-
-
-
-
+end

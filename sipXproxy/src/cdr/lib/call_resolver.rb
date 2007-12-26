@@ -33,7 +33,8 @@ class CallResolver
     end
     install_signal_handler(@readers)    
     @writer = CdrWriter.new(@config.cdr_database_url, @config.purge_age_cdr, log)
-    @cleaner = Cleaner.new(@config.min_cleanup_interval, @config.max_call_len)
+    @long_calls_cleaner = Cleaner.new(@config.min_cleanup_interval, [:retire_long_calls,  @config.max_call_len])
+    @failed_calls_cleaner = Cleaner.new(@config.min_cleanup_interval, [:flush_failed_calls,  @config.max_failed_wait])
     @state = nil
   end
   
@@ -56,7 +57,10 @@ class CallResolver
       Thread.new(reader, cse_queue) { |r, q| r.run(q, nil, start_time, end_time) }
     end
 
-    cleaner_thread = Thread.new(@cleaner, cse_queue) do |cleaner, queue|
+    long_calls_cleaner_thread = Thread.new(@long_calls_cleaner, cse_queue) do |cleaner, queue|
+      cleaner.run(queue)
+    end
+    failed_calls_cleaner_thread = Thread.new(@failed_calls_cleaner, cse_queue) do |cleaner, queue|
       cleaner.run(queue)
     end
 
@@ -82,8 +86,10 @@ class CallResolver
     reader_threads.each{ |thread| thread.join }
 
     # stop running housekeeping jobs
-    @cleaner.stop
-    cleaner_thread.join
+    @long_calls_cleaner.stop
+    @faled_calls_cleaner.stop
+    long_calls_cleaner_thread.join
+    faled_calls_cleaner_thread.join
 
     # send sentinel event, it will stop plugins and state
     cse_queue.enq(nil)

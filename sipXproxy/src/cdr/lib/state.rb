@@ -101,7 +101,6 @@ class State
         @failed_calls[call_id] = FailedCdr.new(cdr, @generation)        
       end
     end    
-    flush_failed(100) if 0 == @generation % 200 	
   end
   
   # Strictly speaking this function does not have to be called.
@@ -138,6 +137,17 @@ class State
     end    
   end
   
+  # declare calls as failed if wait time elapses since the call start and no new event arrived
+  def flush_failed_calls(max_wait_time)
+    return unless @last_event_time
+    return unless max_wait_len > 0
+    @failed_calls.delete_if do |key, value|
+      cdr = value.cdr
+      start_time = cdr.start_time
+      notify(cdr) if start_time && (@last_event_time - start_time > max_wait_time)
+    end
+  end
+
   private
   
   # if what we find in the queue is an array we assume 
