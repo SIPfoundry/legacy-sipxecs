@@ -1,6 +1,6 @@
 <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
   <span jwcid="@QuickHelp" value="message:quick.help"/>
-  <form jwcid="@Form" delegate="ognl:container.validator" listener="listener:submit">
+  <form jwcid="@Form" delegate="ognl:page.validator" listener="listener:submit">
     <ul class="component-links">      
       <li><a jwcid="addRingLink@LinkSubmit" selected="prop:action" tag="add">
         <span key="add">Add Number</span></a>
