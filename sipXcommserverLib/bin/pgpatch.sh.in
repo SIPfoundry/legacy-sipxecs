@@ -61,7 +61,8 @@ postgresSetup() {
   Service=`postgresService`
 
   # May not by running, so test first
-  if ! ${ServiceDir}/${Service} status | egrep "stopped|unused" > /dev/null
+  # FreeBSD prints: "neither postmaster nor postgres running"
+  if ! ${ServiceDir}/${Service} status | egrep "stopped|unused|neither" > /dev/null
   then 
       ${ServiceDir}/${Service} stop 2>&1 1> /dev/null
   fi
@@ -72,7 +73,7 @@ postgresSetup() {
   then
       if [ `uname -s` = FreeBSD ]
       then
-          PGDATA=~${PostgresUser}/data
+          PGDATA=@PREFIX@/${PostgresUser}/data
       elif test -d /var/lib/postgresql
       then
           # Gentoo
@@ -94,7 +95,7 @@ postgresSetup() {
   # pgsql data directory had to be deleted because it was bad.
   if [ ! -f $PGDATA/PG_VERSION ] || [ ! -d $PGDATA/base ]
   then
-      if [ -x /sbin/service ]
+      if [ -f /etc/redhat-release ] || [ -f /etc/SuSE-release ]
       then
 	  if ${ServiceDir}/$Service dummy | grep initdb &>/dev/null
 	  then
@@ -109,6 +110,10 @@ postgresSetup() {
               ${ServiceDir}/$Service start &>/dev/null
               ${ServiceDir}/$Service stop &>/dev/null
 	  fi
+      elif [ `uname -s` = FreeBSD ] ; then
+              # FreeBSD 6.2 and 7.0 use "@PREFIX@/etc/rc.d/postgresql initdb"
+              # The test using grep above fails on FreeBSD
+              ${ServiceDir}/$Service initdb &>/dev/null
       else
           # Debian Etch initializes the DB during installation
 	  # however, if the database is corrupt or blown away, this
