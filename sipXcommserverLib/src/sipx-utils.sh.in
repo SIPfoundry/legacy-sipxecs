@@ -218,10 +218,15 @@ make_root_writable_only() { # ( FILE )
                 return $?
             fi
         fi
-        if [ `get_file_ownergroup $1` != "root" ]
+        if [ `uname -s` = FreeBSD ] ; then
+           RootGroup="wheel"
+        else
+           RootGroup="root"
+        fi
+        if [ `get_file_ownergroup $1` != $RootGroup ]
         then
             # The group is not root, so fix it.
-            chown :root $1
+            chown :$RootGroup $1
             if [ 0 != $? ]
             then
                 return $?

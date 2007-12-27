@@ -42,7 +42,12 @@ EOF
 }
 
 quiet="FALSE"
-myhostname=$(hostname -f)
+if [ `uname -s` = FreeBSD ]
+then
+  myhostname=$(hostname)
+else
+  myhostname=$(hostname -f)
+fi
 
 while getopts ":qh:" opt; do
         case $opt in

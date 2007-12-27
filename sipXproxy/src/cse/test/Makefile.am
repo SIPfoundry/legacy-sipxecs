@@ -7,7 +7,7 @@ INCLUDES = -I$(top_srcdir)/include
 # Define values used in local database unit tests. This only
 # happens if configure was run with --with-dbtests.
 db_deps = db_setup
-PG_USER = postgres
+PG_USER = @POSTGRESQL_USER@
 # testsuite_SCRIPTS = cse_test.sh
 SCHEMA_FILE = $(top_srcdir)/etc/database/schema.sql
 

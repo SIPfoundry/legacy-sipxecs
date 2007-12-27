@@ -8,7 +8,8 @@ if [ "$1" = '-f' ] && [ "$2" != '' ]
 then
   SchemaFile="$2"
 else
-  SchemaFile=`mktemp`
+  # FreeBSD requires -t argument
+  SchemaFile=`mktemp -t sipx-validate.XXXXXX`
 fi
 echo "# Created from ${SchemaDir}/*.xsd on `date`." >${SchemaFile}
 

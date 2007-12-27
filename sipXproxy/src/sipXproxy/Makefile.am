@@ -4,7 +4,8 @@ SIPXPROXY_COMMON_CXX_FLAGS = \
 	-I$(top_builddir)/config \
 	-I$(top_srcdir)/src/cse \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
-	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+	-DPOSTGRESQL_USER=\"@POSTGRESQL_USER@\"
 
 bin_PROGRAMS = sipXproxy
 

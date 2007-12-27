@@ -87,7 +87,7 @@ static const char* CALL_STATE_DATABASE_HOST =
 static const char* CALL_STATE_DATABASE_NAME =
    "SIPXCDR";
 static const char* CALL_STATE_DATABASE_USER =
-   "postgres";
+   POSTGRESQL_USER;
 static const char* CALL_STATE_DATABASE_DRIVER =
    "{PostgreSQL}";
 

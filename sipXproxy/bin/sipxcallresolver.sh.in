@@ -197,7 +197,8 @@ ERROR
       fi
       return 1
    fi   
-   procs=`ps -C postmaster`
+   # FreeBSD does not support 'ps -C cmd'
+   procs=`ps -U @POSTGRESQL_USER@`
    if ! expr match "$procs" '.*postmaster.*' >/dev/null; then
       if [ "$1" != "Silent" ]; then
          echo "  Error: PostgreSQL is not running."
@@ -254,7 +255,8 @@ ERROR
 proxyCheck() {
    ok=0
    echo -n "Checking for running sipXproxy..."
-   procs=`ps -C sipXproxy`
+   # FreeBSD does not support 'ps -C cmd'
+   procs=`ps -U @SIPXPBXUSER@`
    if expr match "$procs" '.*sipXproxy.*' >/dev/null; then
       # At least one sipXproxy is running, check for another one
       if expr match "$procs" '.*sipXproxy.*sipXproxy.*' >/dev/null; then
@@ -264,7 +266,8 @@ Found at least two sipXproxy processes.
 This is a potential cause of CSE logging failures!
 
 ERROR
-         ps -C sipXproxy
+         # FreeBSD does not support 'ps -C cmd'
+         ps -U @SIPXPBXUSER@ | grep sipXproxy
          echo
          ok=1
       else
@@ -289,8 +292,7 @@ configCheck() {
    fi
  
    echo "Checking configuration..."   
-   proxyConfig=`cat @SIPX_CONFDIR@/config.defs | grep CALLRESOLVER_CALL_STATE_DB`
-   if ! expr match "$proxyConfig" '.*=\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
+   if ! cat @SIPX_CONFDIR@/config.defs | grep CALLRESOLVER_CALL_STATE_DB | grep ENABLE >/dev/null ; then
       cat <<ERROR
 
 Warning: proxy is not configured to log call state events to a database.
