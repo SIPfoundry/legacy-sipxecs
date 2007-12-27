@@ -179,6 +179,7 @@
   <!-- END AXIS -->
 
   <!-- Explicitly set session timeout to 15 minutes -->
+  <!-- This value gets adjusted in LoginPage when user/admin logs in -->
   <session-config>
     <session-timeout>15</session-timeout>
   </session-config>

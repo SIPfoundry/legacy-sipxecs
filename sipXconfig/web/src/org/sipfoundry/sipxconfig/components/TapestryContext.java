@@ -37,6 +37,8 @@ import org.sipfoundry.sipxconfig.site.skin.SkinControl;
 public class TapestryContext {
     public static final String CONTEXT_BEAN_NAME = "tapestry";
 
+    private static final int SECONDS_PER_MINUTE = 60;
+
     private HivemindContext m_hivemindContext;
 
     private SkinControl m_skinControl;
@@ -46,6 +48,16 @@ public class TapestryContext {
      * proxies.
      */
     private boolean m_renderBaseTag;
+
+    /**
+     * Session timeout for an admin session in minutes.
+     */
+    private int m_adminSessionTimeout;
+
+    /**
+     * Session timeout for a user session in minutes.
+     */
+    private int m_userSessionTimeout;
 
     public void setHivemindContext(HivemindContext hivemindContext) {
         m_hivemindContext = hivemindContext;
@@ -145,8 +157,7 @@ public class TapestryContext {
     /**
      * Join a list of names objects into a string give a delimiter.
      * 
-     * Example:
-     * <code>
+     * Example: <code>
      *  <span jwcid="@Insert" value="ognl:tapestry.joinNamed(items, ', ')"/>
      * </code>
      */
@@ -184,6 +195,25 @@ public class TapestryContext {
         return m_renderBaseTag;
     }
 
+    public void setAdminSessionTimeout(int adminSessionTimeout) {
+        m_adminSessionTimeout = adminSessionTimeout;
+    }
+
+    public void setUserSessionTimeout(int userSessionTimeout) {
+        m_userSessionTimeout = userSessionTimeout;
+    }
+
+    /**
+     * Returns desired session timeout
+     * 
+     * @param admin - true if it is an admin session
+     * @return session timeout in seconds
+     */
+    public int getMaxInactiveInterval(boolean admin) {
+        int minutes = admin ? m_adminSessionTimeout : m_userSessionTimeout;
+        return minutes * SECONDS_PER_MINUTE;
+    }
+
     /**
      * Retrieves text of the license usually provided by OEM plugin. Only works if
      * isLicenseRequired returns true.
@@ -199,5 +229,4 @@ public class TapestryContext {
             IOUtils.closeQuietly(licenseStream);
         }
     }
-
 }

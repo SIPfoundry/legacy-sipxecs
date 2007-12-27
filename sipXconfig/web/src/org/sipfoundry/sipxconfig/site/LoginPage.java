@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.site;
 
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.annotations.InjectObject;
@@ -23,6 +25,7 @@ import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.login.LoginContext;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
@@ -47,6 +50,9 @@ public abstract class LoginPage extends PageWithCallback implements PageBeginRen
 
     @InjectObject(value = "service:tapestry.globals.RequestGlobals")
     public abstract RequestGlobals getRequestGlobals();
+
+    @InjectObject(value = "spring:tapestry")
+    public abstract TapestryContext getTapestry();
 
     public void pageBeginRender(PageEvent event) {
 
@@ -88,7 +94,13 @@ public abstract class LoginPage extends PageWithCallback implements PageBeginRen
         }
 
         UserSession userSession = getUserSession();
-        userSession.login(user.getId(), context.isAdmin(user), user.isSupervisor());
+        boolean isAdmin = context.isAdmin(user);
+        userSession.login(user.getId(), isAdmin, user.isSupervisor());
+
+        // set session expire time interval
+        HttpSession session = getRequestGlobals().getRequest().getSession();
+        int sessionTimeout = getTapestry().getMaxInactiveInterval(isAdmin);
+        session.setMaxInactiveInterval(sessionTimeout);
 
         // see border component for setting callback
         ICallback callback = getCallback();

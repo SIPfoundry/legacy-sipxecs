@@ -5,7 +5,6 @@
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="loginContext" object="spring:loginContext"/>
   <inject property="userSession" type="state" object="userSession"/>
-  <inject property="tapestry" object="spring:tapestry"/>
   <property name="userName" />
   <property name="password" />
   <!-- B E A N S -->

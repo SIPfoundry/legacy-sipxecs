@@ -118,7 +118,7 @@
       <value>Cannot contain spaces or other whitespace characters.</value>
     </property>
   </bean>
-  
+
   <bean name="voicemailHostnameValidator" class="org.sipfoundry.sipxconfig.site.dialplan.VoicemailHostnameValidator">
     <property name="message">
       <value>Hostname must be specified for external voicemail servers.</value>
@@ -168,12 +168,14 @@
   <bean id="tapestry" class="org.sipfoundry.sipxconfig.components.TapestryContext">
     <property name="skinControl" ref="skin" />
     <property name="renderBaseTag" value="true" />
+    <property name="adminSessionTimeout" value="60" />
+    <property name="userSessionTimeout" value="30" />
   </bean>
   <bean id="editPageProvider" class="org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider" />
   <bean id="skin" class="org.sipfoundry.sipxconfig.site.skin.SkinControl">
     <property name="tapestryContext" ref="tapestry" />
   </bean>
-  
+
   <!--  Message source beans -->
   <bean id="jarMessageSourceContext" class="org.sipfoundry.sipxconfig.site.common.DefaultJarMessagesSourceContext">
     <property name="localizationPackageRoot">
