@@ -3,8 +3,95 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
-Version 3.9.4
+Version 3.9.6
 
+
+** Bug
+    * [XCF-1823] - Internal exception while activating dial plan
+    * [XCF-1832] - LDAP preview: display error message instead of Internal exception
+    * [XCF-1849] - ACD: Internal exception while Signing-in the ACD Agents under  ACD Presence tab
+    * [XCF-1876] - Caller Sensitive Emergency Routing not integrated with dial plan activation
+    * [XCF-1885] - Changes made to Personal Auto Attenadant when logged in as admin does not reflected in the user portal and vice versa
+    * [XCF-1888] - Internal exception when clicked on the Add Alias link under Manage Domain page
+    * [XCF-1914] - Setting for "voice mail type" may not be initialized properly during upgrade
+    * [XCF-1918] - Not possible to login to config UI after installing build 3.9.3-011006
+    * [XCF-1921] - LG devices the "Phone Password" field must be a minimum of 4 digits, it accepts 3
+    * [XCF-1931] - monitoring UI disabled by default (even after sipxconfig-mrtg RPM is installed)
+    * [XCF-1932] - Internal exception when Caller sensitive forwarding is activated
+    * [XCF-1938] - Internal exception when sorting Service by status
+    * [XCF-1949] - Fake errors are displayed when sipxchange is restarted from the console
+    * [XCF-1976] - Paging Server config needs some changes
+    * [XCF-1982] - cannot define multiple emergency dialing numbers for Polycom v2.x firmware
+    * [XCF-1985] - IP address lable for polycom phones is not seen in the config UI 
+    * [XCF-1986] - CDR historic report page causes an exception if sipxproxy-cdr is not installed
+    * [XCF-1990] - Internal Error seen when a Paging Group is added under Features>Paging Groups
+    * [XCF-1994] - Adding Call Forwarding extension to one User adds the same call forwarding extension to all the users added
+    * [XCF-2003] - Internal exception when a large number is added as Page Group number
+    * [XCF-2018] - exception when editing User (changing PIN, changing name etc.)
+    * [XCF-2030] - Gateway accept the invalid format of IP Address
+    * [XCF-2031] - Internal exception while opening the Dialplan.
+    * [XCF-2043] - e911 routing asks for 407 Proxy Authentication 
+    * [XCF-2046] - Accepts duplicate Page Group numbers.
+    * [XCF-2081] - Activating dialplan does not restart SIPXProxy process
+    * [XCF-2097] - sipxconfig db setup skipped under rare condition
+    * [XCF-2099] - ZipUploadTest fails when executed on NFS share
+
+** Improvement
+    * [XCF-1768] - GUI should display user aliases in a consistent order
+    * [XCF-1780] - check if phone or user have active registration
+    * [XCF-1844] - Intercom Feature screen help text state only Polycom is supported. Need to change for LG
+    * [XCF-1879] - user portal navigation is too wide
+    * [XCF-1903] - Improvement of the SIP Trunk GW configuration
+    * [XCF-1951] - changing region on localization resets dial plans without warning
+    * [XCF-1952] - hide SNMP community on MRTG configuration page
+    * [XCF-1953] - mrtg summary graphs should be clickable
+    * [XCF-1969] - sipx server's IP addr should be a domain alias by default
+    * [XCF-1996] - Display number of users in paging group
+    * [XCF-2049] - Unnecessary code introduced in DomainManagerImpl.java
+    * [XCF-2091] - Configure identity for the ACD server
+
+** New Feature
+    * [XCF-1833] - Remove hard coded limit of 500 users from SCS -- Licensing mechanism will deal with the user limit
+    * [XCF-1892] - Emergency Dialing needs to be added for LG-LIP Sets
+    * [XCF-1917] - Configure identities for the park and media servers
+    * [XCF-1926] - Provide link to download InGate configuration tool
+    * [XCF-1927] - Create InGate bootstrap configuration file
+    * [XCF-1958] - 'first-run' mode: generate initial configuration when sipXecs is stared for the first time
+    * [XCF-1993] - Need to add link which allows download of Windows installer for Preflight
+    * [XCF-2092] - Add default permissions for the media server identity
+    * [XCF-2093] - Configure identity and permissions for the ACD
+    * [XCF-2100] - Add support for Nortel 1120/40 sets
+
+** Task
+    * [XCF-2000] - Unit tests should not have a dependency on the database
+
+
+Version 3.9.5
+
+** Bug
+    * [XCF-1654] - add 'overload queue' column to the the queue table
+    * [XCF-1808] - Configuration files are not getting created for AudioCodes MP-FXO,AudioCodes Mediant 1000 and AudioCodes TP260 gateways in the TFTProot directory 
+    * [XCF-1900] - Internal exception while resetting the Dial Plans
+    * [XCF-1930] - Internal exception in Configuration Diagnostic Tests page
+    * [XCF-1945] - When Config Server activates dialplans, it restarts the servers multiple times
+    * [XCF-1955] - adding external line to Cisco IP phone causes exception
+    * [XCF-1964] - "/usr/bin/sipxconfig.sh --database reset-superadmin" gives error
+
+** Improvement
+    * [XCF-1947] - load localized property bundles from independently installed jar files
+    * [XCF-1965] - Intercom feature should be extended to support other phone vendors
+    * [XCF-1988] - plugin UI: add ability to display links to file resources on device configuration screen
+
+** New Feature
+    * [XCF-1810] - Add UI for paging server
+    * [XCF-1920] - installable localization package
+    * [XCF-1956] - sipXconfig UI for preflight
+    * [XCF-1957] - configure internal media server language on a per user basis
+    * [XCF-1984] - Add SIP_REALM to domain-config
+    * [XCF-1987] - SBC plugins
+
+
+Version 3.9.4
 
 ** Bug
     * [XCF-1783] - change true/false into localized "Active/Inactive" in the 'Device Files'  table
