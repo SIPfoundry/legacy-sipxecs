@@ -20,7 +20,6 @@ sipXconfig/top.build.dir
 spy.log
 velocity.log
 bin.eclipse
-sipXtackLib/include/tapi
 lib/cgicc/build
 lib/dist
 lib/java-sun/build

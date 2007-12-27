@@ -132,12 +132,8 @@ nobase_include_HEADERS =  \
     tao/TaoTerminalConnectionListener.h \
     tao/TaoTransportAgent.h \
     tao/TaoTransportTask.h \
-    tapi/SipXHandleMap.h \
-    tapi/SipXMessageObserver.h \
     tapi/SipXtapiEventDispatcher.h \
-    tapi/sipXtapi.h \
-    tapi/sipXtapiEvents.h \
-    tapi/sipXtapiInternal.h
+    tapi/SipXHandleMap.h
 
 noinst_HEADERS = \
     test/mp/MpTestConfig.h \
