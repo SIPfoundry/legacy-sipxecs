@@ -87,7 +87,6 @@ public class GatewaysTestUi extends WebTestCase {
 
         selectOption("selectGatewayModel", "SIP trunk");
         assertElementPresent("gateway:route");
-        WebTester tester = getTester();
         tester.setFormElement("gatewayName", "SipTrunkRouteTest");
         tester.setFormElement("gatewayAddress", "1.2.3.4");
         tester.setFormElement("gatewayRoute", "@!#!@#"); // set an invalid route address

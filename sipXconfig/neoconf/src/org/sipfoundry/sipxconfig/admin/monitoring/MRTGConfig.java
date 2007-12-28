@@ -42,7 +42,6 @@ public class MRTGConfig {
     private static final String PATH_ADD_TOKEN = "PathAdd";
     private static final String DEFAULT_LOG_FORMAT = "rrdtool";
     private static final String DEFAULT_PATH_ADD = "/usr/bin";
-    private static final String DEFAULT_LIB_ADD = "/usr/lib/perl5/5.8.5/i386-linux-thread-multi";
 
     private static final String COMMA = ",";
     private static final String POUND = "#";

@@ -113,16 +113,13 @@ public abstract class SettingsFieldset extends BaseComponent {
     }
 
     public boolean isSettingEnabled() {
-        if (isAllowEnabledSetting()) {
+        if (!isAllowEnabledSetting()) {
             Setting setting = getCurrentSetting();
             if (setting instanceof AbstractSetting) {
                 return ((AbstractSetting) setting).isEnabled();
-            } else {
-                return isEnabled();
             }
-        } else {
-            return isEnabled();
         }
+        return isEnabled();
     }
 
     boolean showSetting(Setting setting) {

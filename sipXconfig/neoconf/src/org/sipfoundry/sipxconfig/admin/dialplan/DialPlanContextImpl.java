@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -49,7 +47,6 @@ import org.springframework.dao.support.DataAccessUtils;
  */
 public class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
         DialPlanContext, ApplicationListener {
-    private static final Log LOG = LogFactory.getLog(DialPlanContextImpl.class);
     private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
     private static final String ATTENDANT_GROUP_ID = "auto_attendant";
     private static final String OPERATOR_CONSTANT = "operator";

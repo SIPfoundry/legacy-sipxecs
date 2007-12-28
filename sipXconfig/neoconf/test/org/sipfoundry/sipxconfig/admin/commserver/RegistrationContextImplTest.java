@@ -45,7 +45,7 @@ public class RegistrationContextImplTest extends TestCase {
         user.setUserName("3000");
         registrations = m_builder.getRegistrationsByUser(registrations, user);
         assertEquals(1, registrations.size());
-        RegistrationItem ri = (RegistrationItem) registrations.get(0);
+        RegistrationItem ri = registrations.get(0);
         assertEquals(2000, ri.getExpires());
         assertTrue(ri.getUri().startsWith("3000"));
         assertTrue(ri.getContact().indexOf("Doe") > 0);
