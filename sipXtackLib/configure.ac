@@ -21,6 +21,7 @@ AC_PATH_PROG([BASH], [bash])
 AC_PROG_CXX
 AX_COMPILER_VENDOR
 AC_PROG_CC
+CHECK_XARGS_REPLACE
 
 # Checks for libraries.
 

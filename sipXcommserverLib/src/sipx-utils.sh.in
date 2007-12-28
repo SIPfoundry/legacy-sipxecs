@@ -4,13 +4,7 @@
 ###
 
 sipx_services() {
-    # Determine whether xargs uses -I or --replace.
-    echo | 2>/dev/null xargs -I % echo 
-    if test $? -eq 0  ; then
-        ls -1 @SIPX_PROCDIR@/*.process.xml | xargs -I % basename % .process.xml
-    else
-        ls -1 @SIPX_PROCDIR@/*.process.xml | xargs --replace=% basename % .process.xml
-    fi
+    ls -1 @SIPX_PROCDIR@/*.process.xml | xargs @XARGS_REPLACE@% basename % .process.xml
 }
 
 sipx_config_value() { # ( CONFIG-FILE, DIRECTIVE )

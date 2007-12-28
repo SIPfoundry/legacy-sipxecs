@@ -1516,11 +1516,16 @@ AC_DEFUN([CHECK_XARGS_REPLACE],
 
    echo | xargs -I % echo
    if test $? -eq 0  ; then
-        AC_SUBST(XARGS_REPLACE,"-I ")
-	AC_MSG_RESULT([-I])
+      AC_SUBST(XARGS_REPLACE,"-I ")
+      AC_MSG_RESULT([-I])
    else
-        AC_SUBST(XARGS_REPLACE,"--replace=")
-	AC_MSG_RESULT([--replace])
+      echo | xargs --replace=% echo
+      if test $? -eq 0  ; then
+         AC_SUBST(XARGS_REPLACE,"--replace=")
+         AC_MSG_RESULT([--replace])
+      else
+         AC_MSG_ERROR([tried -I and --replace; neither worked])
+      fi
    fi
 ])
 

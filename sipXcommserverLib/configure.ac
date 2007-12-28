@@ -25,6 +25,7 @@ AX_COMPILER_VENDOR
 AC_PATH_PROG([BASH], [bash])
 AC_PATH_PROG([PERL],[perl]) 	 
 AC_PATH_PROG([OPENSSL],[openssl])
+CHECK_XARGS_REPLACE
 
 # Checks for libraries.
 # Checks for header files.

@@ -21,9 +21,11 @@ AC_PROG_LIBTOOL
 AC_PROG_CXX
 AX_COMPILER_VENDOR
 AC_PROG_CC
+CHECK_XARGS_REPLACE
 
 # Checks for libraries.
 CHECK_LIBRT
+AC_SEARCH_LIBS([res_init], [resolv])
 
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
