@@ -92,3 +92,14 @@ Generate the remainder of the configuration files:
 Restart sipX:
 
 	sudo /sbin/service sipxpbx restart
+
+* monitoring scripts
+
+The directory "scripts" contains some scripts that are informative to
+run every day.
+
+Note that "registration-summary" executes "regtimes" (from sipXtools),
+which requires the Perl module DateTime::Format::ISO8601.  You can
+install that by executing:
+
+	sudo cpan install DateTime::Format::ISO8601
