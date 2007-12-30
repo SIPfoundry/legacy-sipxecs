@@ -6,4 +6,6 @@
 
 # Restart once a week, at 00:00 Sunday UTC, which is
 # 19:00 Saturday EST and 20:00 Saturday EDT.
+# Note that for this sudo to work, you have to comment out
+# "Defaults requiretty" in /etc/sudoers.
 0 20 * * 6	/usr/bin/sudo /sbin/service sipxpbx restart
