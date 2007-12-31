@@ -26,6 +26,7 @@ AC_PATH_PROG([BASH], [bash])
 AC_PATH_PROG([PERL],[perl]) 	 
 AC_PATH_PROG([OPENSSL],[openssl])
 CHECK_XARGS_REPLACE
+CHECK_DATE_PARSE_ARGS
 
 # Checks for libraries.
 # Checks for header files.

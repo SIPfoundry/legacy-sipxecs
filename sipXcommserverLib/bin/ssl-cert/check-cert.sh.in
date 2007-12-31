@@ -220,7 +220,7 @@ then
     now=`date +%s`
     if [ $? -eq 0 ] # date command support epoch format
     then
-        exp=`date --date="${cert_expires}" +%s`
+        exp=`date @DATE_PARSE_ARGS@"${cert_expires}" +%s`
         if [ $? -eq 0 ] # date can fail for some dates and not others in some timezones - strange
         then
             # both dates converted to epoch seconds - compare them

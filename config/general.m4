@@ -1529,6 +1529,31 @@ AC_DEFUN([CHECK_XARGS_REPLACE],
    fi
 ])
 
+# ============ DATE_PARSE_ARGS  =========================
+AC_DEFUN([CHECK_DATE_PARSE_ARGS],
+[
+   AC_MSG_CHECKING([for date conversion command arguments])
+   # Find a method to convert a date string to an epoch number
+
+   # this method seems to work on most Linuxes
+   date --date="`date +%b\ %e\ %T\ %Y\ %Z`" +%s > /dev/null 2>&1
+   if test $? -eq 0 
+   then
+      AC_SUBST(DATE_PARSE_ARGS,"--date=")
+      AC_MSG_RESULT([--date=])
+   else
+      # this method works on FreeBSD
+      date -j -f \"%b %e %T %Y %Z\" "`date +%b\ %e\ %T\ %Y\ %Z`" +%s > /dev/null 2>&1
+      if test $? -eq 0 
+      then
+         AC_SUBST(DATE_PARSE_ARGS,"-j -f \"%b %e %T %Y %Z\" ")
+         AC_MSG_RESULT([-j -f \"%b %e %T %Y %Z\"])
+      else
+         AC_MSG_ERROR([no working method found for converting date strings])
+      fi
+   fi
+])
+
 # ============ rpmbuild debugging information RPM =========================
 #AC_DEFUN([CHECK_RPM_DEBUG],
 #[

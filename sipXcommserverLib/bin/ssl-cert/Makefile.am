@@ -18,6 +18,7 @@ localize-sipx-scripts: $(foreach sipxScript,$(SCRIPT_TEMPLATES),$(sipxScript))
 $(foreach sipxScript,$(SCRIPT_TEMPLATES),$(sipxScript)) : % : $(srcdir)/%.in
 	$(LocalizeSipXconfig) \
 		-e 's,@OPENSSL\@,@OPENSSL@,g' \
+		-e 's,@DATE_PARSE_ARGS\@,@DATE_PARSE_ARGS@,g' \
 		$< > $@
 	chmod +x $@
 
