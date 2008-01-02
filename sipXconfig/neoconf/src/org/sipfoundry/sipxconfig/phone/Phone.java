@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
@@ -34,6 +35,8 @@ public abstract class Phone extends Device {
     private List<Line> m_lines = Collections.EMPTY_LIST;
 
     private PhoneContext m_phoneContext;
+
+    private PhonebookManager m_phonebookManager;
 
     private ModelSource<PhoneModel> m_modelSource;
 
@@ -212,5 +215,13 @@ public abstract class Phone extends Device {
             return null;
         }
         return lines.get(0).getUser();
+    }
+
+    public PhonebookManager getPhonebookManager() {
+        return m_phonebookManager;
+    }
+
+    public void setPhonebookManager(PhonebookManager phonebookManager) {
+        m_phonebookManager = phonebookManager;
     }
 }

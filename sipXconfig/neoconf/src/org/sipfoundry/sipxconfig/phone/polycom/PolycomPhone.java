@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 /**
@@ -98,10 +99,13 @@ public class PolycomPhone extends Phone {
         PhoneConfiguration phone = new PhoneConfiguration(this);
         getProfileGenerator().generate(location, phone, format, app.getPhoneFilename());
 
-        Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
-        SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
-        DirectoryConfiguration dir = new DirectoryConfiguration(entries, speedDial);
-        getProfileGenerator().generate(location, dir, format, app.getDirectoryFilename());
+        PhonebookManager phonebookManager = getPhonebookManager();
+        if (phonebookManager.getPhonebookManagementEnabled()) {
+            Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
+            SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
+            DirectoryConfiguration dir = new DirectoryConfiguration(entries, speedDial);
+            getProfileGenerator().generate(location, dir, format, app.getDirectoryFilename());
+        }
     }
 
     @Override

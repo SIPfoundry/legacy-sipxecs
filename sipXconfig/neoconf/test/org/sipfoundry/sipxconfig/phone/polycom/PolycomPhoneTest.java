@@ -54,9 +54,16 @@ public class PolycomPhoneTest extends TestCase {
         assertSame(new PolycomModel().getVersions()[0], PolycomModel.VER_1_6);
     }
 
-    public void testGenerateProfiles() throws Exception {
+    /**
+     * Tests that the Polycom profiles are successfully generated, along with
+     * the phonebook when phonebook management is enabled.
+     */
+    public void testGenerateProfilesWithPhonebook() throws Exception {
         ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone);
         m_phone.generateProfiles(m_location);
+
+        File phonebook = new File(m_root, cfg.getDirectoryFilename());
+        assertTrue(phonebook.exists());
 
         // content of profiles is tested in individual base classes of ConfigurationTemplate
         File file = new File(m_root, cfg.getAppFilename());
@@ -65,6 +72,26 @@ public class PolycomPhoneTest extends TestCase {
         m_phone.removeProfiles(m_location);
         assertFalse(file.exists());
     }
+
+    /**
+     * Tets that the Polycom profiles are successfully generated, but that the
+     * phonebook is not generated when phonebook management is disabled.
+     */
+    public void testGenerateProfilesWithoutPhonebook() throws Exception {
+      m_tester = PhoneTestDriver.supplyTestData(m_phone, false);
+      ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone);
+      m_phone.generateProfiles(m_location);
+
+      File phonebook = new File(m_root, cfg.getDirectoryFilename());
+      assertFalse(phonebook.exists());
+
+      // content of profiles is tested in individual base classes of ConfigurationTemplate
+      File file = new File(m_root, cfg.getAppFilename());
+      assertTrue(file.exists());
+
+      m_phone.removeProfiles(m_location);
+      assertFalse(file.exists());
+  }
 
     public void testRestartFailureNoLine() throws Exception {
         m_phone.getLines().clear();

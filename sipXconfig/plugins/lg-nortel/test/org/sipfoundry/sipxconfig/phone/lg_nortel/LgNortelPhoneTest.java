@@ -22,6 +22,7 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -29,6 +30,8 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.RestartException;
+import org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelPhone.PhonebookProfile;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
@@ -87,6 +90,43 @@ public class LgNortelPhoneTest extends TestCase {
         } catch (RestartException re) {
             assertTrue(true);
         }
+    }
+
+    /**
+     * Tests that the phonebook profile is used when phonebook management
+     * is enabled.
+     */
+    public void testPhonebookManagementEnabled() throws Exception {
+        PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
+        Phone phone = new LgNortelPhone();
+        phone.setModel(lgNortelModel);
+        PhoneTestDriver.supplyTestData(phone, true);
+
+        // Should return two profiles - the regular profile and the phonebook
+        // profile.
+        Profile[] profileTypes = phone.getProfileTypes();
+        assertEquals(2, profileTypes.length);
+        assertTrue(profileTypes[0].getClass().equals(Profile.class));
+        assertTrue(profileTypes[1].getClass().equals(PhonebookProfile.class));
+    }
+
+    /**
+     * Tests that the phonebook profile is not used when phonebook management
+     * is disabled.
+     */
+    public void testPhonebookManagementDisabled() throws Exception {
+        PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
+        Phone phone = new LgNortelPhone();
+        phone.setModel(lgNortelModel);
+        PhoneTestDriver.supplyTestData(phone, false);
+
+        // Should only return one Profile.
+        Profile[] profileTypes = phone.getProfileTypes();
+        assertEquals(1, profileTypes.length);
+        // Make sure it's not a PhonebookProfile. We can't use instanceof to
+        // check the type, because since a PhonebookProfile is a Profile, the
+        // result would be true. So we have to compare the classes directly.
+        assertTrue(profileTypes[0].getClass().equals(Profile.class));
     }
 
     public void testGenerateTypicalProfile() throws Exception {

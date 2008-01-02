@@ -18,6 +18,14 @@ import org.sipfoundry.sipxconfig.common.User;
 public interface PhonebookManager extends DataObjectSource<Phonebook> {
     public static final String CONTEXT_BEAN_NAME = "phonebookManager";
     
+    /**
+     * Gets whether or not phonebook management is enabled.
+     *
+     * If phonebook management is disabled, no phonebook files will be generated
+     * for any phones that use a separate phonebook file.
+     */
+    public boolean getPhonebookManagementEnabled();
+
     public Collection<Phonebook> getPhonebooks();
 
     public void deletePhonebooks(Collection<Integer> ids);

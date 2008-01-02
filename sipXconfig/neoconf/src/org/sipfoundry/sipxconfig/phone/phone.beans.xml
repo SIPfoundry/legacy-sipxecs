@@ -68,6 +68,7 @@
     abstract="true">
     <property name="phoneModelSource" ref="nakedPhoneModelSource" />
     <property name="phoneContext" ref="phoneContext" />
+    <property name="phonebookManager" ref="phonebookManager" />
     <property name="profileGenerator" ref="velocityProfileGenerator" />
     <property name="sipService" ref="sip" />
   </bean>

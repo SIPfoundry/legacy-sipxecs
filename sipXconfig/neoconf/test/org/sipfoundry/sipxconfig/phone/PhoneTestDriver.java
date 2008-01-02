@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone;
@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxServerTest;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
@@ -45,29 +46,32 @@ public class PhoneTestDriver {
     private List<Line> m_lines = new ArrayList<Line>();
 
     public static PhoneTestDriver supplyTestData(Phone _phone) {
+        return supplyTestData(_phone, true);
+    }
+
+    public static PhoneTestDriver supplyTestData(Phone _phone, boolean phonebookManagementEnabled) {
         User user = new User();
         user.setUserName("juser");
         user.setFirstName("Joe");
         user.setLastName("User");
         user.setSipPassword("1234");
 
-        return new PhoneTestDriver(_phone, Collections.singletonList(user));
+        return new PhoneTestDriver(_phone, Collections.singletonList(user), phonebookManagementEnabled);
     }
 
     public static PhoneTestDriver supplyTestData(Phone _phone, List<User> users) {
-        return new PhoneTestDriver(_phone, users);
+        return new PhoneTestDriver(_phone, users, true);
     }
 
     public Line getPrimaryLine() {
         return m_lines.get(0);
     }
 
-    private PhoneTestDriver(Phone _phone, List<User> users) {
-
+    private PhoneTestDriver(Phone _phone, List<User> users, boolean phonebookManagementEnabled) {
         m_phoneContextControl = EasyMock.createNiceControl();
         m_phoneContext = m_phoneContextControl.createMock(PhoneContext.class);
-        
-        supplyVitalTestData(m_phoneContextControl, m_phoneContext, _phone);
+
+        supplyVitalTestData(m_phoneContextControl, phonebookManagementEnabled, m_phoneContext, _phone);
 
         m_phoneContextControl.replay();
 
@@ -109,10 +113,10 @@ public class PhoneTestDriver {
         ServiceManager serviceManager = EasyMock.createNiceMock(ServiceManager.class);
         EasyMock.replay(serviceManager);
         defaults.setServiceManager(serviceManager);
-        
+
         return defaults;
     }
-    
+
     private static Map<ServiceDescriptor, String> SERVICES;
     static {
         SERVICES = new HashMap<ServiceDescriptor, String>();
@@ -120,9 +124,21 @@ public class PhoneTestDriver {
         SERVICES.put(UnmanagedService.DNS, "10.4.5.1");
         SERVICES.put(UnmanagedService.SYSLOG, "10.4.5.2");
     }
-    
+
     public static void supplyVitalTestData(IMocksControl control, PhoneContext phoneContext, Phone phone) {
+        supplyVitalTestData(control, true, phoneContext, phone);
+    }
+
+    public static void supplyVitalTestData(IMocksControl control,
+            boolean phonebookManagementEnabled, PhoneContext phoneContext, Phone phone) {
         DeviceDefaults defaults = getDeviceDefaults();
+
+        IMocksControl phonebookManagerControl = EasyMock.createNiceControl();
+        PhonebookManager phonebookManager = phonebookManagerControl.createMock(PhonebookManager.class);
+        phonebookManager.getPhonebookManagementEnabled();
+        phonebookManagerControl.andReturn(phonebookManagementEnabled);
+        phonebookManagerControl.replay();
+        phone.setPhonebookManager(phonebookManager);
 
         String sysdir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
         phoneContext.getSystemDirectory();
@@ -135,7 +151,7 @@ public class PhoneTestDriver {
         mfContext.setConfigDirectory(sysdir);
         mfContext.setModelBuilder(new XmlModelBuilder(sysdir));
         phone.setModelFilesContext(mfContext);
-        
+
         IMocksControl serviceManagerControl = EasyMock.createNiceControl();
         ServiceManager serviceManager = serviceManagerControl.createMock(ServiceManager.class);
         for (Map.Entry<ServiceDescriptor, String> entry : SERVICES.entrySet()) {
@@ -145,11 +161,11 @@ public class PhoneTestDriver {
             UnmanagedService us = new UnmanagedService();
             us.setDescriptor(sd);
             us.setAddress(addr);
-            serviceManagerControl.andReturn(Collections.singletonList(us)).anyTimes();        
-        }        
-        serviceManagerControl.replay();        
+            serviceManagerControl.andReturn(Collections.singletonList(us)).anyTimes();
+        }
+        serviceManagerControl.replay();
         defaults.setServiceManager(serviceManager);
-        
+
         phone.setPhoneContext(phoneContext);
     }
 }

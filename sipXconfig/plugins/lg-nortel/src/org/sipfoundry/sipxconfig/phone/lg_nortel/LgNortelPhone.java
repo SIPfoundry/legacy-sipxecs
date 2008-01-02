@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class LgNortelPhone extends Phone {
@@ -48,10 +49,19 @@ public class LgNortelPhone extends Phone {
         addDefaultBeanSettingHandler(defaults);
     }
 
+    @Override
     public Profile[] getProfileTypes() {
-        return new Profile[] {
-            new Profile(this), new PhonebookeProfile(getPhonebookFilename())
-        };
+        Profile[] profileTypes;
+        PhonebookManager phonebookManager = getPhonebookManager();
+        if (phonebookManager.getPhonebookManagementEnabled()) {
+            profileTypes = new Profile[] {
+                new Profile(this), new PhonebookProfile(getPhonebookFilename())
+            };
+        } else {
+            profileTypes = new Profile[] {new Profile(this)};
+        }
+
+        return profileTypes;
     }
 
     public ProfileContext getPhonebook() {
@@ -98,8 +108,8 @@ public class LgNortelPhone extends Phone {
         }
     }
 
-    static class PhonebookeProfile extends Profile {
-        public PhonebookeProfile(String name) {
+    static class PhonebookProfile extends Profile {
+        public PhonebookProfile(String name) {
             super(name, "text/csv");
         }
 

@@ -54,6 +54,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     private static final String FIELD_ID = "id";
     private static final String FIELD_CONTENT = "content";
 
+    private boolean m_phonebookManagementEnabled;
     private String m_externalUsersDirectory;
     private CoreContext m_coreContext;
 
@@ -381,5 +382,13 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public void onSave(Object entity) {
+    }
+
+    public boolean getPhonebookManagementEnabled() {
+        return m_phonebookManagementEnabled;
+    }
+
+    public void setPhonebookManagementEnabled(final boolean phonebookManagementEnabled) {
+        m_phonebookManagementEnabled = phonebookManagementEnabled;
     }
 }
