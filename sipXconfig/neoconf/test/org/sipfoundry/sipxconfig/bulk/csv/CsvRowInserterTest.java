@@ -13,12 +13,11 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -29,22 +28,28 @@ import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 public class CsvRowInserterTest extends TestCase {
     public void testUserFromRow() {
         User bongo = new User();
         bongo.setUserName("bongo");
         bongo.setFirstName("Ringo");
 
-        IMocksControl coreContextCtrl = EasyMock.createControl();
-        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
-        coreContext.loadUserByUserName("bongo");
-        coreContextCtrl.andReturn(bongo);
-        coreContext.loadUserByUserName("kuku");
-        coreContextCtrl.andReturn(null);
-        coreContext.getAuthorizationRealm();
-        coreContextCtrl.andReturn("sipfoundry.org").times(2);
+        DomainManager domainManager = createMock(DomainManager.class);
+        domainManager.getAuthorizationRealm();
+        expectLastCall().andReturn("sipfoundry.org").times(2);
 
-        coreContextCtrl.replay();
+        CoreContext coreContext = createMock(CoreContext.class);
+        coreContext.loadUserByUserName("bongo");
+        expectLastCall().andReturn(bongo);
+        coreContext.loadUserByUserName("kuku");
+        expectLastCall().andReturn(null);
+
+        replay(domainManager, coreContext);
 
         String[] userRow1 = new String[] {
             "bongo", "1234", "abcdef", "", "Star", ""
@@ -56,6 +61,7 @@ public class CsvRowInserterTest extends TestCase {
 
         CsvRowInserter impl = new CsvRowInserter();
         impl.setCoreContext(coreContext);
+        impl.setDomainManager(domainManager);
 
         User user1 = impl.userFromRow(userRow1);
         assertEquals("bongo", user1.getUserName());
@@ -72,99 +78,79 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals(32, user2.getPintoken().length());
         assertEquals("121212 jlennon,", user2.getAliasesString());
 
-        coreContextCtrl.verify();
+        verify(coreContext, domainManager);
     }
 
     public void testCheckRowData() {
-        IMocksControl coreContextCtrl = EasyMock.createControl();
-        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
-        coreContext.getAuthorizationRealm();
-        coreContextCtrl.andReturn("sipfoundry.org").times(4);
+        DomainManager domainManager = createMock(DomainManager.class);
+        domainManager.getAuthorizationRealm();
+        expectLastCall().andReturn("sipfoundry.org").times(4);
 
         User superadmin = new User();
         superadmin.setUserName("superadmin");
         superadmin.setPintoken("12345678901234567890123456789012");
 
-        coreContext.loadUserByUserName("superadmin");
-        coreContextCtrl.andReturn(superadmin);
-
-        coreContext.getAuthorizationRealm();
-        coreContextCtrl.andReturn("sipfoundry.org").times(1);
-        coreContext.loadUserByUserName("superadmin");
-        coreContextCtrl.andReturn(superadmin);
-
-        coreContext.getAuthorizationRealm();
-        coreContextCtrl.andReturn("sipfoundry.org").times(1);
-        coreContext.loadUserByUserName("superadmin");
-        coreContextCtrl.andReturn(superadmin);
-
-        coreContext.getAuthorizationRealm();
-        coreContextCtrl.andReturn("sipfoundry.org").times(1);
-        coreContext.loadUserByUserName("superadmin");
-        coreContextCtrl.andReturn(superadmin);
-
-        coreContextCtrl.replay();
+        replay(domainManager);
 
         CsvRowInserter impl = new CsvRowInserter();
-        impl.setCoreContext(coreContext);
+        impl.setDomainManager(domainManager);
 
         String[] row = {
             "kuku", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
         };
-        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS , impl.checkRowData(row));
+        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(row));
         String[] rowShort = {
             "kuku", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone"
         };
-        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS, impl.checkRowData(rowShort));
+        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(rowShort));
 
         String[] rowAuthRealmMatch = {
-                "authMatch", "sipfoundry.org#12345678901234567890123456789012", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
-            };
-        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS, impl.checkRowData(rowAuthRealmMatch));
+            "authMatch", "sipfoundry.org#12345678901234567890123456789012", "", "", "", "", "",
+            "", "001122334466", "polycom300", "yellow phone", ""
+        };
+        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(rowAuthRealmMatch));
 
         String[] rowAuthRealmNotMatched = {
-                "authNotMatch", "shipfoundry.org#12345678901234567890123456789012", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
-            };
-        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_WARNING_PIN_SET_1234, impl.checkRowData(rowAuthRealmNotMatched));
+            "authNotMatch", "shipfoundry.org#12345678901234567890123456789012", "", "", "", "",
+            "", "", "001122334466", "polycom300", "yellow phone", ""
+        };
+        assertEquals(RowInserter.RowStatus.WARNING_PIN_RESET, impl
+                .checkRowData(rowAuthRealmNotMatched));
 
         String[] rowHashTooShort = {
-                "hashTooShort", "sipfoundry.org#12345678", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
-            };
-        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_WARNING_PIN_SET_1234, impl.checkRowData(rowHashTooShort));
+            "hashTooShort", "sipfoundry.org#12345678", "", "", "", "", "", "", "001122334466",
+            "polycom300", "yellow phone", ""
+        };
+        assertEquals(RowInserter.RowStatus.WARNING_PIN_RESET, impl.checkRowData(rowHashTooShort));
 
         String[] rowSuperadminhashpinsuccess = {
-                "superadmin", "sipfoundry.org#12345678901234567890123456789012", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
-            };
-        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS, impl.checkRowData(rowSuperadminhashpinsuccess));
-
-        String[] rowSuperadminhashpinfailure = {
-                "superadmin", "sipfoundry.org#99999999901234567890123456789012", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
-            };
-        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_WARNING_SUPERADMIN_PIN_CHANGED, impl.checkRowData(rowSuperadminhashpinfailure));
-
-        String[] rowSuperadminclearpinwarning = {
-                "superadmin", "1234", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
-            };
-        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_WARNING_SUPERADMIN_PIN_CHANGED, impl.checkRowData(rowSuperadminclearpinwarning));
+            "superadmin", "sipfoundry.org#12345678901234567890123456789012", "", "", "", "", "",
+            "", "001122334466", "polycom300", "yellow phone", ""
+        };
+        assertEquals(RowInserter.RowStatus.SUCCESS, impl
+                .checkRowData(rowSuperadminhashpinsuccess));
 
         superadmin.setPintoken("49b45dc98f67624e117a86ea4c9dc0da");
         String[] rowSuperadminclearpinsuccess = {
-                "superadmin", "1234", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
-            };
-        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS, impl.checkRowData(rowSuperadminclearpinsuccess));
+            "superadmin", "1234", "", "", "", "", "", "", "001122334466", "polycom300",
+            "yellow phone", ""
+        };
+        assertEquals(RowInserter.RowStatus.SUCCESS, impl
+                .checkRowData(rowSuperadminclearpinsuccess));
 
         //
         // Changes made allow either username or serialnumber to be blank, not both.
         //
         row[Index.USERNAME.getValue()] = "";
-        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS, impl.checkRowData(row));
+        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(row));
         row[Index.SERIAL_NUMBER.getValue()] = "";
-        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_FAILURE, impl.checkRowData(row));
+        assertEquals(RowInserter.RowStatus.FAILURE, impl.checkRowData(row));
         row[Index.USERNAME.getValue()] = "kuku";
-        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS, impl.checkRowData(row));
+        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(row));
 
-        coreContextCtrl.verify();
+        verify(domainManager);
     }
+
     public void testPhoneFromRowUpdate() {
         final String[] phoneRow = new String[] {
             "", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
@@ -177,23 +163,18 @@ public class CsvRowInserterTest extends TestCase {
         phone.setSerialNumber("001122334466");
         phone.setDescription("old description");
 
-        IMocksControl phoneContextCtrl = EasyMock.createControl();
-        PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
+        PhoneContext phoneContext = createMock(PhoneContext.class);
 
         phoneContext.getPhoneIdBySerialNumber("001122334466");
-        phoneContextCtrl.andReturn(phoneId);
+        expectLastCall().andReturn(phoneId);
         phoneContext.loadPhone(phoneId);
-        phoneContextCtrl.andReturn(phone);
+        expectLastCall().andReturn(phone);
 
-        phoneContextCtrl.replay();
-
-        IMocksControl phoneModelSourceControl = EasyMock.createControl();
-        ModelSource<PhoneModel> phoneModelSource = phoneModelSourceControl
-                .createMock(ModelSource.class);
+        ModelSource<PhoneModel> phoneModelSource = createMock(ModelSource.class);
         phoneModelSource.getModel("polycom300");
-        phoneModelSourceControl.andReturn(model);
+        expectLastCall().andReturn(model);
 
-        phoneModelSourceControl.replay();
+        replay(phoneContext, phoneModelSource);
 
         CsvRowInserter impl = new CsvRowInserter();
         impl.setPhoneContext(phoneContext);
@@ -204,8 +185,7 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("old description", phone1.getDescription());
         assertEquals("001122334466", phone1.getSerialNumber());
 
-        phoneContextCtrl.verify();
-        phoneModelSourceControl.verify();
+        verify(phoneContext, phoneModelSource);
     }
 
     public void testPhoneFromRowNew() {
@@ -218,23 +198,18 @@ public class CsvRowInserterTest extends TestCase {
         PhoneModel model = new TestPhoneModel();
         phone.setDescription("old description");
 
-        IMocksControl phoneContextCtrl = EasyMock.createControl();
-        PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
+        PhoneContext phoneContext = createMock(PhoneContext.class);
 
         phoneContext.getPhoneIdBySerialNumber("001122334455");
-        phoneContextCtrl.andReturn(null);
+        expectLastCall().andReturn(null);
         phoneContext.newPhone(model);
-        phoneContextCtrl.andReturn(phone);
+        expectLastCall().andReturn(phone);
 
-        phoneContextCtrl.replay();
-
-        IMocksControl phoneModelSourceControl = EasyMock.createControl();
-        ModelSource<PhoneModel> phoneModelSource = phoneModelSourceControl
-                .createMock(ModelSource.class);
+        ModelSource<PhoneModel> phoneModelSource = createMock(ModelSource.class);
         phoneModelSource.getModel(model.getModelId());
-        phoneModelSourceControl.andReturn(model);
+        expectLastCall().andReturn(model);
 
-        phoneModelSourceControl.replay();
+        replay(phoneContext, phoneModelSource);
 
         CsvRowInserter impl = new CsvRowInserter();
         impl.setPhoneContext(phoneContext);
@@ -245,8 +220,7 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("phone in John room", phone1.getDescription());
         assertEquals("001122334455", phone1.getSerialNumber());
 
-        phoneModelSourceControl.verify();
-        phoneContextCtrl.verify();
+        verify(phoneContext, phoneModelSource);
     }
 
     public void testPhoneFromRowSpaces() {
@@ -259,23 +233,18 @@ public class CsvRowInserterTest extends TestCase {
         PhoneModel model = new TestPhoneModel();
         phone.setDescription("old description");
 
-        IMocksControl phoneContextCtrl = EasyMock.createControl();
-        PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
+        PhoneContext phoneContext = createMock(PhoneContext.class);
 
         phoneContext.getPhoneIdBySerialNumber("001122334455");
-        phoneContextCtrl.andReturn(null);
+        expectLastCall().andReturn(null);
         phoneContext.newPhone(model);
-        phoneContextCtrl.andReturn(phone);
+        expectLastCall().andReturn(phone);
 
-        phoneContextCtrl.replay();
-
-        IMocksControl phoneModelSourceControl = EasyMock.createControl();
-        ModelSource<PhoneModel> phoneModelSource = phoneModelSourceControl
-                .createMock(ModelSource.class);
+        ModelSource<PhoneModel> phoneModelSource = createMock(ModelSource.class);
         phoneModelSource.getModel(model.getModelId());
-        phoneModelSourceControl.andReturn(model);
+        expectLastCall().andReturn(model);
 
-        phoneModelSourceControl.replay();
+        replay(phoneContext, phoneModelSource);
 
         CsvRowInserter impl = new CsvRowInserter();
         impl.setPhoneModelSource(phoneModelSource);
@@ -286,8 +255,7 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("phone in John room", phone1.getDescription());
         assertEquals("001122334455", phone1.getSerialNumber());
 
-        phoneModelSourceControl.verify();
-        phoneContextCtrl.verify();
+        verify(phoneContext, phoneModelSource);
     }
 
     public void testUpdateMailboxPreferences() {
@@ -296,39 +264,38 @@ public class CsvRowInserterTest extends TestCase {
         Mailbox mailbox = new Mailbox(new File("."), "kuku");
         MailboxPreferences expected = new MailboxPreferences();
 
-        IMocksControl mailboxManagerControl = EasyMock.createStrictControl();
-        MailboxManager mailboxManager = mailboxManagerControl.createMock(MailboxManager.class);
-        
+        MailboxManager mailboxManager = createMock(MailboxManager.class);
+
         mailboxManager.isEnabled();
-        mailboxManagerControl.andReturn(true);
+        expectLastCall().andReturn(true);
         mailboxManager.deleteMailbox("kuku");
         mailboxManager.getMailbox("kuku");
-        mailboxManagerControl.andReturn(mailbox);
+        expectLastCall().andReturn(mailbox);
         mailboxManager.loadMailboxPreferences(mailbox);
-        mailboxManagerControl.andReturn(expected);
+        expectLastCall().andReturn(expected);
         mailboxManager.saveMailboxPreferences(mailbox, expected);
 
         mailboxManager.isEnabled();
-        mailboxManagerControl.andReturn(true);
+        expectLastCall().andReturn(true);
         mailboxManager.getMailbox("kuku");
-        mailboxManagerControl.andReturn(mailbox);
+        expectLastCall().andReturn(mailbox);
         mailboxManager.loadMailboxPreferences(mailbox);
-        mailboxManagerControl.andReturn(expected);
+        expectLastCall().andReturn(expected);
         mailboxManager.saveMailboxPreferences(mailbox, expected);
-        
+
         mailboxManager.isEnabled();
-        mailboxManagerControl.andReturn(false);
-        mailboxManagerControl.replay();
+        expectLastCall().andReturn(false);
+        replay(mailboxManager);
 
         CsvRowInserter impl = new CsvRowInserter();
         impl.setMailboxManager(mailboxManager);
-        
+
         impl.updateMailboxPreferences(user, "jlennon@example.com", true);
 
         impl.updateMailboxPreferences(user, "jlennon@example.com", false);
 
-        impl.updateMailboxPreferences(user, "jlennon@example.com", true);        
-        mailboxManagerControl.verify();
+        impl.updateMailboxPreferences(user, "jlennon@example.com", true);
+        verify(mailboxManager);
     }
 
     public void testAddLine() {

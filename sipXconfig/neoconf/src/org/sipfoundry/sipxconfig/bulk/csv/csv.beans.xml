@@ -4,13 +4,14 @@
 <beans>
   <bean id="csvParser" class="org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl" />
 
-  <bean id="csvRowInserter" parent="rowInserter"
-    class="org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter">
+  <bean id="csvRowInserter" parent="rowInserter" class="org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter">
     <property name="coreContext" ref="coreContext" />
+    <property name="domainManager" ref="domainManager" />
     <property name="phoneContext" ref="phoneContext" />
     <property name="settingDao" ref="settingDao" />
-    <property name="phoneModelSource" ref="phoneModelSource"/>
-    <property name="mailboxManager" ref="mailboxManager"/>
+    <property name="phoneModelSource" ref="phoneModelSource" />
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="resetPin" value="1234" />
   </bean>
 
   <bean id="bulkManagerImpl" class="org.sipfoundry.sipxconfig.bulk.csv.BulkManagerImpl">
@@ -38,9 +39,8 @@
     </property>
   </bean>
 
-  <!-- used in tests only -->  
-  <bean id="bulkManagerDao" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
+  <!-- used in tests only -->
+  <bean id="bulkManagerDao" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.bulk.csv.BulkManager</value>
     </property>

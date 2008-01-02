@@ -26,8 +26,8 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 public abstract class RowInserter<T> implements Closure {
-    public enum CheckRowDataRetVal {
-        CHECK_ROW_DATA_FAILURE, CHECK_ROW_DATA_SUCCESS, CHECK_ROW_DATA_WARNING_PIN_SET_1234, CHECK_ROW_DATA_WARNING_SUPERADMIN_PIN_CHANGED
+    public enum RowStatus {
+        FAILURE, SUCCESS, WARNING_PIN_RESET;
     }
 
     public static final Log LOG = LogFactory.getLog(CsvRowInserter.class);
@@ -83,9 +83,8 @@ public abstract class RowInserter<T> implements Closure {
      * @param input - one row of imported data
      * @return if true data can be imported, if false the row will be skipped
      */
-    protected CheckRowDataRetVal checkRowData(T input) {
-        return input == null ? CheckRowDataRetVal.CHECK_ROW_DATA_FAILURE
-                : CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS;
+    protected RowStatus checkRowData(T input) {
+        return input == null ? RowStatus.FAILURE : RowStatus.SUCCESS;
     }
 
     /**
@@ -121,27 +120,24 @@ public abstract class RowInserter<T> implements Closure {
 
         protected void doInTransactionWithoutResult(TransactionStatus status_) {
             m_jobContext.start(m_id);
-            CheckRowDataRetVal returnVal = checkRowData(m_input);
-            if (returnVal == CheckRowDataRetVal.CHECK_ROW_DATA_FAILURE) {
-                String errorMessage = "Invalid data format when importing:"
+            switch (checkRowData(m_input)) {
+            case SUCCESS:
+                insertRow(m_input);
+                m_jobContext.success(m_id);
+                break;
+            case FAILURE:
+                String errorMessage = "Invalid data format when importing: "
                         + dataToString(m_input);
                 LOG.warn(errorMessage);
                 m_jobContext.failure(m_id, errorMessage, null);
-            } else if (returnVal == CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS) {
+                break;
+            case WARNING_PIN_RESET:
                 insertRow(m_input);
-                m_jobContext.success(m_id);
-            } else if (returnVal == CheckRowDataRetVal.CHECK_ROW_DATA_WARNING_PIN_SET_1234) {
-                insertRow(m_input);
-                String warnMessage = "Unable to import Voicemail PIN. PIN has been reset to 1234";
+                String warnMessage = "Unable to import Voicemail PIN: PIN has been reset.";
                 LOG.warn(warnMessage);
                 m_jobContext.warning(m_id, warnMessage);
-            } else if (returnVal == CheckRowDataRetVal.CHECK_ROW_DATA_WARNING_SUPERADMIN_PIN_CHANGED) {
-                insertRow(m_input);
-                String warnMessage = "Import has changed superadmin Voicemail PIN";
-                LOG.warn(warnMessage);
-                m_jobContext.warning(m_id, warnMessage);
+                break;
             }
-
         }
     }
 }
