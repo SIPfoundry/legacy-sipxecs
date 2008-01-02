@@ -83,6 +83,12 @@ public class JobContextImpl implements JobContext {
         }
     }
 
+    public void warning(Serializable jobId, String warningMsg) {
+        Job job = getJob(jobId);
+        if (job != null) {
+            job.warning(warningMsg);
+        }
+    }
     public synchronized int removeCompleted() {
         int counter = 0;
         for (Iterator<Job> i = m_jobs.iterator(); i.hasNext();) {

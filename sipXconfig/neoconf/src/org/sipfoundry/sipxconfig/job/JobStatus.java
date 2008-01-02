@@ -10,5 +10,5 @@
 package org.sipfoundry.sipxconfig.job;
 
 public enum JobStatus {
-    COMPLETED, FAILED, IN_PROGRESS, SCHEDULED
+    COMPLETED, FAILED, IN_PROGRESS, SCHEDULED, WARNING
 }

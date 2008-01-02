@@ -19,6 +19,8 @@ public interface JobContext {
 
     void success(Serializable jobId);
 
+    void warning(Serializable jobId, String warnMsg);
+
     void failure(Serializable jobId, String errorMsg, Throwable exception);
 
     int removeCompleted();

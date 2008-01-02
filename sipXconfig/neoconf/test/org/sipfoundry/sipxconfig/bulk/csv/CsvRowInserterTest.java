@@ -15,6 +15,7 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.ModelSource;
@@ -75,23 +76,95 @@ public class CsvRowInserterTest extends TestCase {
     }
 
     public void testCheckRowData() {
+        IMocksControl coreContextCtrl = EasyMock.createControl();
+        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
+        coreContext.getAuthorizationRealm();
+        coreContextCtrl.andReturn("sipfoundry.org").times(4);
+
+        User superadmin = new User();
+        superadmin.setUserName("superadmin");
+        superadmin.setPintoken("12345678901234567890123456789012");
+
+        coreContext.loadUserByUserName("superadmin");
+        coreContextCtrl.andReturn(superadmin);
+
+        coreContext.getAuthorizationRealm();
+        coreContextCtrl.andReturn("sipfoundry.org").times(1);
+        coreContext.loadUserByUserName("superadmin");
+        coreContextCtrl.andReturn(superadmin);
+
+        coreContext.getAuthorizationRealm();
+        coreContextCtrl.andReturn("sipfoundry.org").times(1);
+        coreContext.loadUserByUserName("superadmin");
+        coreContextCtrl.andReturn(superadmin);
+
+        coreContext.getAuthorizationRealm();
+        coreContextCtrl.andReturn("sipfoundry.org").times(1);
+        coreContext.loadUserByUserName("superadmin");
+        coreContextCtrl.andReturn(superadmin);
+
+        coreContextCtrl.replay();
+
         CsvRowInserter impl = new CsvRowInserter();
+        impl.setCoreContext(coreContext);
+
         String[] row = {
             "kuku", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
         };
-        assertTrue(impl.checkRowData(row));
+        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS , impl.checkRowData(row));
         String[] rowShort = {
             "kuku", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone"
         };
-        assertTrue(impl.checkRowData(rowShort));
-        row[Index.USERNAME.getValue()] = "";
-        assertFalse(impl.checkRowData(row));
-        row[Index.SERIAL_NUMBER.getValue()] = "";
-        assertFalse(impl.checkRowData(row));
-        row[Index.USERNAME.getValue()] = "kuku";
-        assertFalse(impl.checkRowData(row));
-    }
+        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS, impl.checkRowData(rowShort));
 
+        String[] rowAuthRealmMatch = {
+                "authMatch", "sipfoundry.org#12345678901234567890123456789012", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
+            };
+        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS, impl.checkRowData(rowAuthRealmMatch));
+
+        String[] rowAuthRealmNotMatched = {
+                "authNotMatch", "shipfoundry.org#12345678901234567890123456789012", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
+            };
+        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_WARNING_PIN_SET_1234, impl.checkRowData(rowAuthRealmNotMatched));
+
+        String[] rowHashTooShort = {
+                "hashTooShort", "sipfoundry.org#12345678", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
+            };
+        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_WARNING_PIN_SET_1234, impl.checkRowData(rowHashTooShort));
+
+        String[] rowSuperadminhashpinsuccess = {
+                "superadmin", "sipfoundry.org#12345678901234567890123456789012", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
+            };
+        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS, impl.checkRowData(rowSuperadminhashpinsuccess));
+
+        String[] rowSuperadminhashpinfailure = {
+                "superadmin", "sipfoundry.org#99999999901234567890123456789012", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
+            };
+        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_WARNING_SUPERADMIN_PIN_CHANGED, impl.checkRowData(rowSuperadminhashpinfailure));
+
+        String[] rowSuperadminclearpinwarning = {
+                "superadmin", "1234", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
+            };
+        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_WARNING_SUPERADMIN_PIN_CHANGED, impl.checkRowData(rowSuperadminclearpinwarning));
+
+        superadmin.setPintoken("49b45dc98f67624e117a86ea4c9dc0da");
+        String[] rowSuperadminclearpinsuccess = {
+                "superadmin", "1234", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
+            };
+        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS, impl.checkRowData(rowSuperadminclearpinsuccess));
+
+        //
+        // Changes made allow either username or serialnumber to be blank, not both.
+        //
+        row[Index.USERNAME.getValue()] = "";
+        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS, impl.checkRowData(row));
+        row[Index.SERIAL_NUMBER.getValue()] = "";
+        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_FAILURE, impl.checkRowData(row));
+        row[Index.USERNAME.getValue()] = "kuku";
+        assertEquals(RowInserter.CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS, impl.checkRowData(row));
+
+        coreContextCtrl.verify();
+    }
     public void testPhoneFromRowUpdate() {
         final String[] phoneRow = new String[] {
             "", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""

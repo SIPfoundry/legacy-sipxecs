@@ -11,8 +11,10 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -21,15 +23,23 @@ import org.apache.hivemind.Messages;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidationConstraint;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.bulk.csv.BulkManager;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+
 
 public abstract class BulkImport extends BasePage {
 
     public abstract IUploadFile getUploadFile();
 
     public abstract BulkManager getBulkManager();
+
+    public abstract AdminContext getAdminContext();
+
+    public abstract String getExportFile();
+
+    public abstract void setExportFile(String filePath);
 
     public void submit() {
         if (!TapestryUtils.isValid(this)) {
@@ -58,6 +68,30 @@ public abstract class BulkImport extends BasePage {
                     ValidationConstraint.CONSISTENCY);
         } finally {
             IOUtils.closeQuietly(os);
+        }
+    }
+
+    public void export() {
+        if (!TapestryUtils.isValid(this)) {
+            // do nothing on errors
+            return;
+        }
+        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
+
+        try {
+
+            File exportFile = File.createTempFile("export", ".csv");
+            exportFile.deleteOnExit();
+            Writer writer = new FileWriter(exportFile);
+            getAdminContext().performExport(writer);
+            writer.close();
+            setExportFile(exportFile.getPath());
+            validator.recordSuccess(getMessages().getMessage("msg.exportSuccess"));
+        } catch (IOException e) {
+            LogFactory.getLog(getClass()).error("Cannot create export file", e);
+            Messages messages = getMessages();
+            validator.record(messages.format("msg.exportError", e.getLocalizedMessage()),
+                    ValidationConstraint.CONSISTENCY);
         }
     }
 }

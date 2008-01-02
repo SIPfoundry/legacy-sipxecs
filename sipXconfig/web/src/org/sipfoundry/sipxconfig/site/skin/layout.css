@@ -495,3 +495,14 @@ div.auto_complete ul strong.highlight {
   margin:0;
   padding:0;
 }
+
+div.importexport
+{
+  width:60em;
+  margin:5px 0;
+  border-collapse:collapse;
+  border-width:1px;
+  border-style:solid;
+  padding:5px;
+  padding-top: 10px;
+}

@@ -13,16 +13,44 @@
 </div>
 <div jwcid="@QuickHelp" value="message:quick.help"></div>
 <span jwcid="@ErrorMsg"/>
-<form jwcid="form">
-    <fieldset id="import:form">
-	    <table>
-            <tr for="import:upload" jwcid="csvPanel"><span id="import:upload" jwcid="csv"/></tr>
-		</table>
-    </fieldset>
-    <ul class="form-actions">
-	    <li><input jwcid="import" id="import:ok" type="submit" value="Import"/></li>
-    </ul>    
-</form>
+<div class="importexport">
+	<form jwcid="form">
+		<fieldset id="import:form">
+			<table>
+				<tr for="import:upload" jwcid="csvPanel"><span id="import:upload" jwcid="csv"/></tr>
+			</table>
+		</fieldset>
+		<ul class="form-actions">
+			<li><input jwcid="import" id="import:ok" type="submit" value="Import"/></li>
+			<br /><br /><div jwcid="@Insert" raw="true" value="message:importDescription" />
+		</ul>
+	</form>
+</div>
+<br/><br/><br/>
+<div class="importexport">
+	<form jwcid="exportForm@Form">
+		<span jwcid="@If" condition="ognl:(exportFile != null)">
+			<fieldset>
+			<table>
+				<tr><td>
+					<span key="exportCompleted">Success...</span>
+				</td></tr>
+				<tr><td>
+					<span jwcid="@DownloadLink" fileName="" dirName="ognl:exportFile" contentType="literal:text/html" id="exportFile">
+							<span jwcid="@Insert" value="ognl:exportFile" />
+						</span>
+					</td></tr>
+				</table>
+			</fieldset>
+		</span>
+		<ul class="component-submit">
+		<li>
+			<input jwcid="export@Submit" id="export:now" listener="listener:export" value="message:button.exportNow" />
+			<br /><br /><div jwcid="@Insert" raw="true" value="message:exportDescription" />
+		</li>
+		</ul>
+	</form>
+</div>
 </div>
 </body>    
 </html>

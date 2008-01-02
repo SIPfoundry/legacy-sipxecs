@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
+import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,8 @@ public interface AdminContext {
     public abstract void storeBackupPlan(BackupPlan plan);
 
     public File[] performBackup(BackupPlan plan);
+
+    public void performExport(Writer writer);
 
     /**
      * After successfully sending event to application to perform a database related task, remove

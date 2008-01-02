@@ -51,4 +51,11 @@
     <property name="processContext" ref="sipxProcessContext" />
     <property name="taskName" value="first-run" />
   </bean>
+
+  <bean id="exportCsv"
+    class="org.sipfoundry.sipxconfig.admin.ExportCsv">
+    <property name="coreContext" ref="coreContext" />
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="mailboxManager" ref="mailboxManager"/>
+  </bean>
 </beans>

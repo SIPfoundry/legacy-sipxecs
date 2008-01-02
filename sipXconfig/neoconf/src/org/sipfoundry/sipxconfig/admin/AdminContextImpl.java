@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,6 +44,8 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     private BeanFactory m_beanFactory;
 
+    private ExportCsv m_exportCsv;
+
     public String getBackupDirectory() {
         return m_backupDirectory;
     }
@@ -57,6 +60,10 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     public void setBinDirectory(String binDirectory) {
         m_binDirectory = binDirectory;
+    }
+
+    public void setExportCsv(ExportCsv exportCsv) {
+        m_exportCsv = exportCsv;
     }
 
     public BackupPlan getBackupPlan() {
@@ -79,6 +86,11 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     public File[] performBackup(BackupPlan plan) {
         return plan.perform(m_backupDirectory, m_binDirectory);
+    }
+
+    public void performExport(Writer writer) {
+        m_exportCsv.exportCsv(writer);
+
     }
 
     /**

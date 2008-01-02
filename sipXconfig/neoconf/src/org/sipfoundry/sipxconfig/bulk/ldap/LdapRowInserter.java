@@ -110,10 +110,11 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         return sr.getName();
     }
 
-    protected boolean checkRowData(SearchResult sr) {
+    protected CheckRowDataRetVal checkRowData(SearchResult sr) {
         Attributes attrs = sr.getAttributes();
         String idAttrName = m_attrMap.getIdentityAttributeName();
-        return (attrs.get(idAttrName) != null);
+        return attrs.get(idAttrName) != null ? CheckRowDataRetVal.CHECK_ROW_DATA_SUCCESS
+                : CheckRowDataRetVal.CHECK_ROW_DATA_FAILURE;
     }
 
     public void setAttrMap(AttrMap attrMap) {

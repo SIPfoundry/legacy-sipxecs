@@ -55,6 +55,12 @@ public class Job extends BeanWithId implements Serializable {
         stop(JobStatus.COMPLETED);
     }
 
+    public void warning(String warningMsg) {
+        stop(JobStatus.WARNING);
+        m_errorMsg = warningMsg;
+        m_exception = null;
+    }
+
     public void failure(String errorMsg, Throwable e) {
         stop(JobStatus.FAILED);
         m_errorMsg = errorMsg;
@@ -90,7 +96,7 @@ public class Job extends BeanWithId implements Serializable {
     }
 
     public String getErrorMsg() {
-        if (!m_status.equals(JobStatus.FAILED)) {
+        if (!m_status.equals(JobStatus.FAILED) && !m_status.equals(JobStatus.WARNING)) {
             return org.apache.commons.lang.StringUtils.EMPTY;
         }
         StringBuffer error = new StringBuffer();
