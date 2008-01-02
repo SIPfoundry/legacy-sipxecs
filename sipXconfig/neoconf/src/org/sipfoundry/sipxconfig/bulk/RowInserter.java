@@ -137,6 +137,8 @@ public abstract class RowInserter<T> implements Closure {
                 LOG.warn(warnMessage);
                 m_jobContext.warning(m_id, warnMessage);
                 break;
+            default:
+                throw new IllegalArgumentException("Need to handle all status cases.");
             }
         }
     }

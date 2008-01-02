@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.bulk.csv;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -23,12 +24,12 @@ import org.apache.commons.lang.StringUtils;
 public enum Index {
     // user fields
     USERNAME("userName", 0), PIN("pin", 1), SIP_PASSWORD("sipPassword", 2), FIRST_NAME(
-            "firstName", 3), LAST_NAME("lastName", 4), ALIAS("aliasesString", 5), 
-            EMAIL("emailAddress", 6), USER_GROUP("userGroupName", 7), 
+            "firstName", 3), LAST_NAME("lastName", 4), ALIAS("aliasesString", 5), EMAIL(
+            "emailAddress", 6), USER_GROUP("userGroupName", 7),
 
     // phone fields
-    SERIAL_NUMBER("serialNumber", 8), MODEL_ID("modelId", 9), PHONE_GROUP(
-            "phoneGroupName", 10), PHONE_DESCRIPTION("description", 11);
+    SERIAL_NUMBER("serialNumber", 8), MODEL_ID("modelId", 9), PHONE_GROUP("phoneGroupName", 10), PHONE_DESCRIPTION(
+            "description", 11);
 
     private final String m_name;
     private final int m_value;
@@ -47,7 +48,7 @@ public enum Index {
     }
 
     public String get(String[] row) {
-        return (m_value < row.length  ? row[m_value] : StringUtils.EMPTY);
+        return (m_value < row.length ? row[m_value] : StringUtils.EMPTY);
     }
 
     public void set(String[] row, String value) {
@@ -87,5 +88,19 @@ public enum Index {
             names[i] = values[i].getName();
         }
         return names;
+    }
+
+    public static String[] newRow() {
+        String[] row = new String[values().length];
+        Arrays.fill(row, StringUtils.EMPTY);
+        return row;
+    }
+
+    public static String[] labels() {
+        return new String[] {
+            "User name", "Voice-mail PIN", "SIP password", "First name", "Last name",
+            "User alias", "EMail address", "User group", "Phone serial number", "Phone model",
+            "Phone group", "Phone description"
+        };
     }
 }

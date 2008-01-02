@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -88,7 +89,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         return plan.perform(m_backupDirectory, m_binDirectory);
     }
 
-    public void performExport(Writer writer) {
+    public void performExport(Writer writer) throws IOException {
         m_exportCsv.exportCsv(writer);
 
     }

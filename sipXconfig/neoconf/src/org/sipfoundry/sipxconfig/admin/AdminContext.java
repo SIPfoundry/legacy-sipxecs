@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,7 @@ public interface AdminContext {
 
     public File[] performBackup(BackupPlan plan);
 
-    public void performExport(Writer writer);
+    public void performExport(Writer writer) throws IOException;
 
     /**
      * After successfully sending event to application to perform a database related task, remove

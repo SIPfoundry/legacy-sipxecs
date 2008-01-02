@@ -43,7 +43,7 @@ public abstract class IntegrationTestCase extends
         // to load them all. However, if you do have isolated spring file, this is definitely
         // overrideable
         return new String[] {
-            "classpath:**/*.beans.xml",
+            "classpath*:**/*.beans.xml"
         };
     }
 

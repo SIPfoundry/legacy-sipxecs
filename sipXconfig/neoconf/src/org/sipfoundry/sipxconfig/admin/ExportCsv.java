@@ -12,9 +12,14 @@ package org.sipfoundry.sipxconfig.admin;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
+import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -26,19 +31,13 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public class ExportCsv {
+    private static final int DEFAULT_PAGE_SIZE = 250;
+
     private CoreContext m_coreContext;
 
     private PhoneContext m_phoneContext;
 
     private MailboxManager m_mailboxManager;
-
-    private List<String> m_usersLinkedToPhones;
-
-    private String m_realmString;
-
-    private String m_emptyString = "";
-
-    private String m_hashString = "#";
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -52,270 +51,135 @@ public class ExportCsv {
         m_mailboxManager = mailboxManager;
     }
 
-    private void exportPhoneAndUsers(CsvWriter csv) {
-
-        // Now get all of the phone/user information.
-        int phoneCount = m_phoneContext.getPhonesCount();
+    private Collection<String> exportPhoneAndUsers(CsvWriter csv, String realm)
+        throws IOException {
+        Set<String> usernames = new HashSet<String>();
+        final String[] order = new String[] {
+            "serialNumber"
+        };
         int phoneIndex = 0;
-        int pageSize;
-        while (phoneIndex != phoneCount) {
-            if ((phoneCount - phoneIndex) < 25) {
-                pageSize = phoneCount - phoneIndex;
-            } else {
-                pageSize = 25;
+        int size = 0;
+        do {
+            List<Phone> phones = m_phoneContext.loadPhonesByPage(null, phoneIndex,
+                    DEFAULT_PAGE_SIZE, order, true);
+            size = phones.size();
+            phoneIndex += size;
+            for (Phone phone : phones) {
+                usernames.addAll(exportPhone(csv, phone, realm));
             }
+        } while (size == DEFAULT_PAGE_SIZE);
+        return usernames;
+    }
 
-            List<Phone> phones = m_phoneContext.loadPhonesByPage(null, phoneIndex, pageSize,
-                                 new String[] {"serialNumber"}, true);
-            phoneIndex += pageSize;
-            for (int i = 0; i < phones.size(); i++) {
-                // Get the phone information first.
-                String phoneSerialNumber = m_emptyString;
-                String phoneModel = m_emptyString;
-                String phoneGroup = m_emptyString;
-                String phoneDescription = m_emptyString;
+    /**
+     * Exports users for a single phone
+     * 
+     * @param csv csw writere
+     * @param phone phone to be exported
+     * @param realm
+     * @return list of user IDs exported with this phone
+     */
+    private Collection<String> exportPhone(CsvWriter csv, Phone phone, String realm)
+        throws IOException {
+        String[] row = Index.newRow();
 
-                // There could be multiple users per phone.
-                String userName = m_emptyString;
-                String userPin = m_emptyString;
-                String userPinToken = m_emptyString;
-                String userSipPassword = m_emptyString;
-                String userFirstName = m_emptyString;
-                String userLastName = m_emptyString;
-                String userAlias = m_emptyString;
-                String userEmail = m_emptyString;
-                String userGroup = m_emptyString;
-
-                phoneSerialNumber = phones.get(i).getSerialNumber();
-                if (phoneSerialNumber == null) {
-                    phoneSerialNumber = m_emptyString;
-                } else {
-                    //
-                    // serialNumber is not blank.
-                    // Get the rest of the phone fields
-                    //
-                    phoneModel = phones.get(i).getModelId();
-                    if (phoneModel == null) {
-                        phoneModel = m_emptyString;
-                    }
-
-                    List<Group> groupList = phones.get(i).getGroupsAsList();
-                    if (groupList.size() != 0) {
-                        phoneGroup = groupList.get(0).getName();
-                        if (phoneGroup == null) {
-                            phoneGroup = m_emptyString;
-                        }
-                    }
-                    phoneDescription = phones.get(i).getDescription();
-                    if (phoneDescription == null) {
-                        phoneDescription = m_emptyString;
-                    }
-
-                    // Now get the user(s) for each phone.
-                    List<Line> lineList = phones.get(i).getLines();
-                    if (lineList.size() == 0) {
-                        //
-                        // No users are associated with this phone.
-                        // So write this out to the file.
-                        //
-                        String[] userPhoneStringArray = {userName, userPinToken, userSipPassword, userFirstName,
-                            userLastName, userAlias, userEmail, userGroup,
-                            phoneSerialNumber, phoneModel, phoneGroup, phoneDescription};
-                        try {
-                            csv.write(userPhoneStringArray, false);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    } else {
-                        for (int k = 0; k < lineList.size(); k++) {
-                            User user = lineList.get(k).getUser();
-                            userName = user.getUserName();
-                            if (userName == null) {
-                                userName = m_emptyString;
-                            } else {
-                                //
-                                // Add username to list that shows this user is associated with a phone.
-                                //
-                                m_usersLinkedToPhones.add(userName);
-                            }
-
-                            userPinToken = user.getPintoken();
-                            if (userPinToken == null) {
-                                userPinToken = m_emptyString;
-                            }
-                            userSipPassword = user.getSipPassword();
-                            if (userSipPassword == null) {
-                                userSipPassword = m_emptyString;
-                            }
-                            userFirstName = user.getFirstName();
-                            if (userFirstName == null) {
-                                userFirstName = m_emptyString;
-                            }
-                            userLastName = user.getLastName();
-                            if (userLastName == null) {
-                                userLastName = m_emptyString;
-                            }
-                            userAlias = user.getAliasesString();
-                            if (userAlias == null) {
-                                userAlias = m_emptyString;
-                            }
-
-                            // userEmail..
-                            if (m_mailboxManager.isEnabled()) {
-                                Mailbox mailbox = m_mailboxManager.getMailbox(userName);
-                                MailboxPreferences mboxPrefs = m_mailboxManager
-                                        .loadMailboxPreferences(mailbox);
-                                userEmail = mboxPrefs.getEmailAddress();
-                            }
-                            List<Group> userGroupList = user.getGroupsAsList();
-                            if (userGroupList.size() != 0) {
-                                userGroup = userGroupList.get(0).getName();
-                                if (userGroup == null) {
-                                    userGroup = m_emptyString;
-                                }
-                            }
-                            String tempStr = m_realmString + m_hashString + userPinToken;
-                            userPinToken = tempStr;
-
-                            // Now write phone/user out to the file.
-                            String[] userPhoneStringArray = {userName, userPinToken, userSipPassword, userFirstName,
-                                userLastName, userAlias, userEmail, userGroup, phoneSerialNumber,
-                                phoneModel, phoneGroup, phoneDescription};
-
-                            try {
-                                csv.write(userPhoneStringArray, false);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    }
-                }
-            }
+        String phoneSerialNumber = phone.getSerialNumber();
+        if (phoneSerialNumber == null) {
+            // nothing to export
+            return Collections.emptyList();
         }
+        Index.SERIAL_NUMBER.set(row, phoneSerialNumber);
+
+        Index.MODEL_ID.set(row, phone.getModelId());
+
+        List<Group> groupList = phone.getGroupsAsList();
+        if (!groupList.isEmpty()) {
+            Index.PHONE_GROUP.set(row, groupList.get(0).getName());
+        }
+        Index.PHONE_DESCRIPTION.set(row, phone.getDescription());
+
+        // Now get the user(s) for each phone.
+        List<Line> lines = phone.getLines();
+        if (lines.isEmpty()) {
+            // No users are associated with this phone
+            csv.write(row, false);
+            return Collections.emptyList();
+        }
+
+        List<String> usernames = new ArrayList<String>(lines.size());
+        for (Line line : lines) {
+            User user = line.getUser();
+            String userName = user.getUserName();
+            // Add username to list that shows this user is associated with a phone.
+            usernames.add(userName);
+
+            exportUser(csv, row, user, realm);
+        }
+        return usernames;
     }
 
-    private void exportUsersNotAttachedToPhones(CsvWriter csv) {
-        int userCount = m_coreContext.getUsersCount();
+    private void exportUser(CsvWriter csv, String[] row, User user, String realm)
+        throws IOException {
+        Index.USERNAME.set(row, user.getUserName());
+
+        Index.SIP_PASSWORD.set(row, user.getSipPassword());
+        Index.FIRST_NAME.set(row, user.getFirstName());
+        Index.LAST_NAME.set(row, user.getLastName());
+        Index.ALIAS.set(row, user.getAliasesString());
+
+        // userEmail..
+        if (m_mailboxManager.isEnabled()) {
+            Mailbox mailbox = m_mailboxManager.getMailbox(user.getUserName());
+            MailboxPreferences mboxPrefs = m_mailboxManager.loadMailboxPreferences(mailbox);
+            Index.EMAIL.set(row, mboxPrefs.getEmailAddress());
+        }
+        List<Group> userGroupList = user.getGroupsAsList();
+        if (!userGroupList.isEmpty()) {
+            Index.USER_GROUP.set(row, userGroupList.get(0).getName());
+        }
+        String userPinToken = user.getPintoken();
+        Index.PIN.set(row, formatRealmAndHash(realm, userPinToken));
+        csv.write(row, false);
+    }
+
+    private String formatRealmAndHash(String realm, String userPinToken) {
+        return String.format("%s#%s", realm, userPinToken);
+    }
+
+    private void exportUsersNotAttachedToPhones(CsvWriter csv, Collection<String> usernames,
+            String realm) throws IOException {
         int userIndex = 0;
-        int pageSize;
-
-        String userName = m_emptyString;
-        String userPinToken = m_emptyString;
-        String userSipPassword = m_emptyString;
-        String userFirstName = m_emptyString;
-        String userLastName = m_emptyString;
-        String userAlias = m_emptyString;
-        String userEmail = m_emptyString;
-        String userGroup = m_emptyString;
-
-        while (userIndex != userCount) {
-            if ((userCount - userIndex) < 25) {
-                pageSize = userCount - userIndex;
-            } else {
-                pageSize = 25;
-            }
-
-            List<User> users = m_coreContext.loadUsersByPage(null, null, userIndex, pageSize, "userName", true);
-            userIndex += pageSize;
-            for (int i = 0; i < users.size(); i++) {
-                userName = users.get(i).getUserName();
-
-                if ((userName != null) && (!m_usersLinkedToPhones.contains(userName))) {
-                    //
-                    // This user is not linked to a phone.
-                    // So write it out to the export file.
-                    //
-                    userPinToken = users.get(i).getPintoken();
-                    if (userPinToken == null) {
-                        userPinToken = m_emptyString;
-                    }
-                    userSipPassword = users.get(i).getSipPassword();
-                    if (userSipPassword == null) {
-                        userSipPassword = m_emptyString;
-                    }
-                    userFirstName = users.get(i).getFirstName();
-                    if (userFirstName == null) {
-                        userFirstName = m_emptyString;
-                    }
-                    userLastName = users.get(i).getLastName();
-                    if (userLastName == null) {
-                        userLastName = m_emptyString;
-                    }
-                    userAlias = users.get(i).getAliasesString();
-                    if (userAlias == null) {
-                        userAlias = m_emptyString;
-                    }
-
-                    // userEmail..
-                    if (m_mailboxManager.isEnabled()) {
-                        Mailbox mailbox = m_mailboxManager.getMailbox(userName);
-                        MailboxPreferences mboxPrefs = m_mailboxManager
-                                .loadMailboxPreferences(mailbox);
-                        userEmail = mboxPrefs.getEmailAddress();
-                    }
-                    List<Group> userGroupList = users.get(i).getGroupsAsList();
-                    if (userGroupList.size() != 0) {
-                        userGroup = userGroupList.get(0).getName();
-                        if (userGroup == null) {
-                            userGroup = m_emptyString;
-                        }
-                    }
-                    String tempStr = m_realmString + m_hashString + userPinToken;
-                    userPinToken = tempStr;
-
-                    // Now finally write this out to the file.
-                    String[] userPhoneStringArray = {userName, userPinToken, userSipPassword, userFirstName,
-                        userLastName, userAlias, userEmail, userGroup, m_emptyString,
-                        m_emptyString, m_emptyString, m_emptyString};
-
-                    try {
-                        csv.write(userPhoneStringArray, false);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+        int size = 0;
+        do {
+            List<User> users = m_coreContext.loadUsersByPage(null, null, userIndex,
+                    DEFAULT_PAGE_SIZE, "userName", true);
+            size = users.size();
+            userIndex += size;
+            for (User user : users) {
+                String userName = user.getUserName();
+                if (!usernames.contains(userName)) {
+                    String[] row = Index.newRow();
+                    exportUser(csv, row, user, realm);
                 }
             }
-        } // end while
+        } while (size == DEFAULT_PAGE_SIZE);
     }
 
-    public void exportCsv(Writer writer) {
-
+    public void exportCsv(Writer writer) throws IOException {
         try {
-            //
-            // Get the realmString to save with the Voice-mail PIN.
-            //
-            m_realmString = m_coreContext.getAuthorizationRealm();
-
-            //
-            // Create a list for usernames that are associated with phones.
-            // This is required so we can determine if there are any users
-            // that are not associated with phones.
-            //
-            m_usersLinkedToPhones = new ArrayList<String>();
-
-            //
             // Write the Header of the CSV file.
-            //
             CsvWriter csv = new CsvWriter(writer);
-            String[] exportHeaderStringArray = {
-                "User name", "Voice-mail PIN", "SIP password", "First name", "Last name",
-                "User alias", "EMail address", "User group", "Phone serial number", "Phone model",
-                "Phone group", "Phone description"
-            };
-            csv.write(exportHeaderStringArray, false);
+            csv.write(Index.labels(), false);
 
-            //
-            // Export Phones and associated users (if any).
-            //
-            exportPhoneAndUsers(csv);
+            // Export Phones and associated users
+            String realm = m_coreContext.getAuthorizationRealm();
+            Collection<String> usernames = exportPhoneAndUsers(csv, realm);
 
-            //
             // Export Users that are not associated with any phone.
-            //
-            exportUsersNotAttachedToPhones(csv);
+            exportUsersNotAttachedToPhones(csv, usernames, realm);
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } finally {
+            writer.flush();
         }
     }
 }
