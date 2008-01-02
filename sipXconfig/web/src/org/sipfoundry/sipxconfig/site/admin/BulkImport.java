@@ -20,6 +20,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hivemind.Messages;
+import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidationConstraint;
@@ -30,6 +32,9 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 
 public abstract class BulkImport extends BasePage {
+    @Persist
+    @InitialValue(value = "literal:import")
+    public abstract String getTab();    
 
     public abstract IUploadFile getUploadFile();
 
