@@ -2294,6 +2294,11 @@ int CallManager::getNumLines()
     return iLines;
 }
 
+SipLineMgr* CallManager::getLineManager() 
+{
+    return mpLineMgrTask ;
+}
+
 /**
 * maxAddressesRequested is the number of addresses requested if available
 * numAddressesAvailable is the actual number of addresses available.

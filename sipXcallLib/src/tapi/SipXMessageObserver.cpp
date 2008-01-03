@@ -21,8 +21,8 @@
 #include "os/OsEventMsg.h"
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-extern UtlSList*	g_pEventListeners;
-extern OsMutex*	    g_pEventListenerLock;
+extern UtlSList*    g_pEventListeners;
+extern OsMutex*        g_pEventListenerLock;
 extern SipXHandleMap* gpInfoHandleMap ;   // sipXtapiInternal.cpp
 
 
@@ -74,7 +74,7 @@ UtlBoolean SipXMessageObserver::handleMessage(OsMsg& rMsg)
         }
         case OsMsg::PHONE_APP:
         {
-	   SipMessage* pSipMessage = (SipMessage*) ((SipMessageEvent&)rMsg).getMessage() ;
+           SipMessage* pSipMessage = (SipMessage*) ((SipMessageEvent&)rMsg).getMessage() ;
            UtlString method;
     
            pSipMessage->getRequestMethod(&method);
@@ -115,33 +115,30 @@ bool SipXMessageObserver::handleIncomingInfoMessage(SipMessage* pMessage)
                 // simulate a timeout ....
                 OsTask::delay(1000);
                 // respond to whomever sent us the message
-	            SipMessage sipResponse;
-	            sipResponse.setOkResponseData(pMessage);
-                sipResponse.setResponseData(pMessage, mTestResponseCode, "timed out");	       
-	            pInst->pSipUserAgent->send(sipResponse);
+                SipMessage sipResponse;
+                sipResponse.setOkResponseData(pMessage);
+                sipResponse.setResponseData(pMessage, mTestResponseCode, "timed out");           
+                pInst->pSipUserAgent->send(sipResponse);
                 return true ;
             }
         }
         else
         {
             // respond to whomever sent us the message
-	        SipMessage sipResponse;
-	        sipResponse.setOkResponseData(pMessage);
-	        pInst->pSipUserAgent->send(sipResponse);
-	    }
-	    
+            SipMessage sipResponse;
+            sipResponse.setOkResponseData(pMessage);
+            pInst->pSipUserAgent->send(sipResponse);
+        }
+        
         // Find Line
         UtlString lineId;
         pMessage->getToUri(&lineId);
         UtlString requestUri; 
         pMessage->getRequestUri(&requestUri); 
-        SIPX_LINE hLine = sipxLineLookupHandle(lineId.data(), requestUri);
+        SIPX_LINE hLine = sipxLineLookupHandle(pInst, lineId.data(), requestUri);
         
-        //if (0 != hLine)
         if (!pMessage->isResponse())
         {
-            
-        
             // find call
             UtlString callId;
             pMessage->getCallIdField(&callId);

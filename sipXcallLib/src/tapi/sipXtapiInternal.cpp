@@ -51,7 +51,7 @@ SipXHandleMap* gpSubHandleMap = new SipXHandleMap() ;  /**< Global Map of Subscr
 
 UtlDList*  gpSessionList  = new UtlDList() ;    /**< List of sipX sessions (to be replaced 
                                                      by handle map in the future */
-OsMutex*	gpSessionLock = new OsMutex(OsMutex::Q_FIFO);
+OsMutex*    gpSessionLock = new OsMutex(OsMutex::Q_FIFO);
 static int      gSessions = 0;
 
 /*
@@ -815,25 +815,36 @@ void sipxInfoFree(SIPX_INFO_DATA* pData)
     }
 }
 
-SIPX_LINE sipxLineLookupHandle(const char* szLineURI, 
-                                const char* szRequestUri) 
+SIPX_LINE sipxLineLookupHandle(SIPX_INSTANCE_DATA* pInst,
+                               const char* szLineURI, 
+                               const char* szRequestUri) 
 { 
     SIPX_LINE hLine = 0; 
 
-    hLine = sipxLineLookupHandleByURI(szLineURI); 
+    hLine = sipxLineLookupHandleByURI(pInst, szLineURI); 
     if (!hLine) 
     { 
-        hLine = sipxLineLookupHandleByURI(szRequestUri); 
+        hLine = sipxLineLookupHandleByURI(pInst, szRequestUri); 
     } 
+    
     return hLine; 
 } 
 
-SIPX_LINE sipxLineLookupHandleByURI(const char* szURI)
+SIPX_LINE sipxLineLookupHandleByURI(SIPX_INSTANCE_DATA* pInst,
+                                    const char* szURI)
 {
+    Url urlLine(szURI) ;
+    
+    // Use the line manager to find identity if available
+    if (pInst && pInst->pLineManager)
+    {
+        SipLine* pLine = pInst->pLineManager->findLineByURL(urlLine, "unknown") ;
+        if (pLine)
+            urlLine = pLine->getIdentity() ;
+    }
+    
     gpLineHandleMap->lock() ;
-
     UtlHashMapIterator iter(*gpLineHandleMap);
-    Url                urlLine(szURI) ; 
    
     UtlInt* pIndex = NULL;
     UtlVoidPtr* pObj = NULL;
@@ -876,7 +887,7 @@ SIPX_LINE sipxLineLookupHandleByURI(const char* szURI)
             }
         }
     }
-
+    
     gpLineHandleMap->unlock() ;
 
     return hLine;
@@ -1416,11 +1427,11 @@ SIPXTAPI_API SIPX_RESULT sipxEnableAudioLogging(const SIPX_INST hInst, bool bEna
     {
         if (bEnable)
         {
-	        int irc = ptr->GIPSVE_SetTraceCallback(GIPSVETraceCallback);
+            int irc = ptr->GIPSVE_SetTraceCallback(GIPSVETraceCallback);
         }
         else
         {
-	        int irc = ptr->GIPSVE_SetTraceCallback(NULL);
+            int irc = ptr->GIPSVE_SetTraceCallback(NULL);
         }
         rc = SIPX_RESULT_SUCCESS;
     }

@@ -88,7 +88,7 @@ SipLineList::isDuplicate( const Url& lineIdentityUrl )
    }
    m_LineList.releaseIteratorHandle(iteratorHandle);
 
-        return isDuplicate;
+   return isDuplicate;
 }
 
 SipLine*
@@ -97,51 +97,36 @@ SipLineList::getLine( const Url& lineIdentityUrl )
    SipLine* nextline = NULL;
 
    int iteratorHandle = m_LineList.getIteratorHandle();
-        while(NULL != (nextline = (SipLine*) m_LineList.next(iteratorHandle)))
+   while(NULL != (nextline = (SipLine*) m_LineList.next(iteratorHandle)))
    {
-      // compare the line identities
-      Url nextLineUrl = nextline->getIdentity();
-      if (lineIdentityUrl.isUserHostPortEqual(nextLineUrl))
+      if (nextline->matchesIdentity(lineIdentityUrl))
       {
          break ;
       }
    }
-
    m_LineList.releaseIteratorHandle(iteratorHandle);
 
-        return nextline;
+   return nextline;
 }
 
 SipLine*
 SipLineList::getLine(const UtlString& lineId)
 {
-        SipLine* nextline = NULL;
+    SipLine* nextline = NULL;
 
     if ( !lineId.isNull() )
     {
-            int iteratorHandle = m_LineList.getIteratorHandle();
-            while(NULL != (nextline = (SipLine*) m_LineList.next(iteratorHandle)))
+        int iteratorHandle = m_LineList.getIteratorHandle();
+        while(NULL != (nextline = (SipLine*) m_LineList.next(iteratorHandle)))
         {
-            // compare the line identities
-            UtlString nextLineId = nextline->getLineId();
-            if (!nextLineId.isNull())
+            if (nextline->matchesLineId(lineId))
             {
-#ifdef TEST_PRINT
-                osPrintf( "SipLineList::getLine Comparing %s to %s \n",
-                          lineId.data(), nextLineId.data() );
-#endif
-                        if( lineId == nextLineId )
-                {
-#ifdef TEST_PRINT
-                    osPrintf("SipLineList::getLine TRUE\n");
-#endif
-                                break;
-                }
+                break;
             }
         }
-            m_LineList.releaseIteratorHandle(iteratorHandle);
+        m_LineList.releaseIteratorHandle(iteratorHandle);
     }
-        return nextline;
+    return nextline;
 }
 
 SipLine*
@@ -149,7 +134,7 @@ SipLineList::getLine (
     const UtlString& userId,
     int& numOfMatches )
 {
-        SipLine* nextline = NULL;
+    SipLine* nextline = NULL;
     SipLine* firstMatchedLine = NULL;
     UtlString nextUserId;
     numOfMatches = 0;
@@ -157,34 +142,20 @@ SipLineList::getLine (
     if (!userId.isNull())
     {
         int iteratorHandle = m_LineList.getIteratorHandle();
-            while(NULL != (nextline = (SipLine*) m_LineList.next(iteratorHandle)))
+        while(NULL != (nextline = (SipLine*) m_LineList.next(iteratorHandle)))
+        {
+            if (nextline->matchesUserId(userId))
             {
-            nextUserId.remove(0);
-            Url identity = nextline->getIdentity();
-            identity.getUserId( nextUserId );
-
-            if (!nextUserId.isNull())
-            {
-#ifdef TEST_PRINT
-                osPrintf( "SipLineList::getLine Comparing %s to %s \n",
-                          nextUserId.data(), userId.data() );
-#endif
-                        if( nextUserId.compareTo( userId ) == 0 )
-                        {
-#ifdef TEST_PRINT
-                    osPrintf("SipLineList::getLine TRUE\n");
-#endif
-                    if( numOfMatches == 0)
-                    {
-                        firstMatchedLine = nextline;
-                    }
-                    numOfMatches ++;
+                if( numOfMatches == 0)
+                {
+                    firstMatchedLine = nextline;
                 }
+                numOfMatches ++;
             }
-            }
+        }
         m_LineList.releaseIteratorHandle(iteratorHandle);
     }
-        return firstMatchedLine;
+    return firstMatchedLine;
 }
 
 
@@ -329,7 +300,7 @@ SipLine* SipLineList::findLine(const char* lineId,
          // Priority 1: Check LineId
          //
          if (   lineId != NULL
-             && nextLine->getLineId().compareTo(lineId) == 0)
+             && nextLine->matchesLineId(lineId))
          {
             // We have match for the given lineId
             pLineMatchingLineID = nextLine ;
@@ -340,17 +311,19 @@ SipLine* SipLineList::findLine(const char* lineId,
          }
          else
          {
-            Url nextLineIdentity = nextLine->getIdentity();
-
-            OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
-                          "SipLineList::findLine checking '%s'",
-                          nextLineIdentity.toString().data());
+            if (OsSysLog::willLog(FAC_LINE_MGR, PRI_DEBUG))
+            {
+               Url nextLineIdentity = nextLine->getIdentity();
+               OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
+                     "SipLineList::findLine checking '%s'",
+                     nextLineIdentity.toString().data());
+            }
 
             //
             // Priority 2: check ToFromUrl
             //
             if (   pLineMatchingUrl == NULL
-                && nextLineIdentity.isUserHostPortEqual(toFromUrl)
+                && nextLine->matchesIdentity(toFromUrl) 
                 )
             {
                pLineMatchingUrl = nextLine ;
@@ -361,10 +334,9 @@ SipLine* SipLineList::findLine(const char* lineId,
                //
                // Priority 3: Matches user & realm
                //
-               UtlString user = nextLine->getUser() ;
                if (   pLineMatchingUser == NULL
                    && userId != NULL
-                   && user.compareTo(userId) == 0    // should be case sensitive
+                   && nextLine->matchesUserId(userId)    // should be case sensitive
                    )
                {
                   pLineMatchingUser = nextLine ;
@@ -375,7 +347,7 @@ SipLine* SipLineList::findLine(const char* lineId,
                   //
                   // Priority 4: Check for default line
                   //
-                  if (nextLineIdentity.isUserHostPortEqual(defaultLine))
+                  if (nextLine->matchesIdentity(defaultLine)) 
                   {
                      pLineMatchingDefault = nextLine ;
                      // Continue searching, because we may find a better match

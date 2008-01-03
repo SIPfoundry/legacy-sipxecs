@@ -44,7 +44,7 @@ UtlSList*   g_pListeners = new UtlSList();
 OsMutex*    g_pListenerLock = new OsMutex(OsMutex::Q_FIFO) ;
 UtlSList*   g_pLineListeners = new UtlSList();
 OsMutex*    g_pLineListenerLock = new OsMutex(OsMutex::Q_FIFO) ;
-UtlSList*	g_pEventListeners = new UtlSList();
+UtlSList*   g_pEventListeners = new UtlSList();
 OsMutex*    g_pEventListenerLock = new OsMutex(OsMutex::Q_FIFO) ;
 UtlSList*   g_pDeadLineList = new UtlSList();
 
@@ -488,7 +488,7 @@ void sipxFireCallEvent(const void* pSrc,
 
     {   // Scope for listener/event locks
         OsLock lock(*g_pListenerLock) ;
-	    OsLock eventLock(*g_pEventListenerLock) ;
+        OsLock eventLock(*g_pEventListenerLock) ;
 
         SIPX_CALL_DATA* pCallData = NULL;
         SIPX_LINE hLine = SIPX_LINE_NULL ;
@@ -599,9 +599,9 @@ void sipxFireCallEvent(const void* pSrc,
             // Find Line
             UtlString requestUri; 
             pSession->getRemoteRequestUri(requestUri); 
-            hLine = sipxLineLookupHandle(lineId.data(), requestUri.data()) ; 
+            hLine = sipxLineLookupHandle(pInst, lineId.data(), requestUri.data()) ; 
             
-            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "sipxFireCallEvent Line id = %s, Request Uri = %s\n", lineId.data(), requestUri.data());
+            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "sipxFireCallEvent Line id = %s, hLine=%d, Request Uri = %s\n", lineId.data(), hLine, requestUri.data());
             if (0 == hLine) 
             {
                 // no line exists for the lineId
@@ -626,9 +626,9 @@ void sipxFireCallEvent(const void* pSrc,
 
 
             // Report events to subscribe listeners
-            UtlSListIterator itor(*g_pListeners) ;	
+            UtlSListIterator itor(*g_pListeners) ;    
             while ((ptr = (UtlVoidPtr*) itor()) != NULL)
-	        {        
+            {        
                 CALL_LISTENER_DATA *pData = (CALL_LISTENER_DATA*) ptr->getValue() ;        
                 if (pData->pInst->pCallManager == pSrc)
                 {
@@ -654,7 +654,7 @@ void sipxFireCallEvent(const void* pSrc,
                     callInfo.nSize = sizeof(SIPX_CALLSTATE_INFO);
                     
                     if (szRemoteAddress) {
-    		            callInfo.remoteAddress = szRemoteAddress;
+                        callInfo.remoteAddress = szRemoteAddress;
                     }
                     
                     if (minor == CALLSTATE_AUDIO_START)
@@ -704,23 +704,23 @@ SIPXTAPI_API SIPX_RESULT sipxEventListenerAdd(const SIPX_INST hInst,
         hInst, pCallbackProc, pUserData);
         
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS;
-	OsLock lock(*g_pListenerLock) ;
-	OsLock eventLock(*g_pEventListenerLock) ;
-	OsLock lock2(*g_pLineListenerLock);
+    OsLock lock(*g_pListenerLock) ;
+    OsLock eventLock(*g_pEventListenerLock) ;
+    OsLock lock2(*g_pLineListenerLock);
     
     if (hInst && pCallbackProc)
     {
-	    EVENT_LISTENER_DATA *pData = new EVENT_LISTENER_DATA;
-	    pData->pCallbackProc = pCallbackProc;
-	    pData->pUserData = pUserData;
+        EVENT_LISTENER_DATA *pData = new EVENT_LISTENER_DATA;
+        pData->pCallbackProc = pCallbackProc;
+        pData->pUserData = pUserData;
         pData->pInst = (SIPX_INSTANCE_DATA*) hInst;
     
-	    g_pEventListeners->append(new UtlVoidPtr(pData));
+        g_pEventListeners->append(new UtlVoidPtr(pData));
         
         rc = SIPX_RESULT_SUCCESS;
     }
 
-	return rc;
+    return rc;
 }
 
 SIPXTAPI_API SIPX_RESULT sipxEventListenerRemove(const SIPX_INST hInst, 
@@ -733,33 +733,33 @@ SIPXTAPI_API SIPX_RESULT sipxEventListenerRemove(const SIPX_INST hInst,
         
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
 
-	OsLock lock(*g_pListenerLock) ;
-	OsLock eventLock(*g_pEventListenerLock) ;
-	OsLock lock2(*g_pLineListenerLock);
+    OsLock lock(*g_pListenerLock) ;
+    OsLock eventLock(*g_pEventListenerLock) ;
+    OsLock lock2(*g_pLineListenerLock);
 
-	UtlVoidPtr* ptr ;
+    UtlVoidPtr* ptr ;
 
     if (hInst && pCallbackProc)
     {
-	    UtlSListIterator itor(*g_pEventListeners) ;
-	    while ((ptr = (UtlVoidPtr*) itor()) != NULL)
-	    {
-		    EVENT_LISTENER_DATA *pData = (EVENT_LISTENER_DATA*) ptr->getValue() ;
-		    if ((pData->pCallbackProc == pCallbackProc) &&
-			    (pData->pUserData == pUserData) && 
+        UtlSListIterator itor(*g_pEventListeners) ;
+        while ((ptr = (UtlVoidPtr*) itor()) != NULL)
+        {
+            EVENT_LISTENER_DATA *pData = (EVENT_LISTENER_DATA*) ptr->getValue() ;
+            if ((pData->pCallbackProc == pCallbackProc) &&
+                (pData->pUserData == pUserData) && 
                 (pData->pInst == (SIPX_INSTANCE_DATA*) hInst))
-		    {
-			    g_pEventListeners->removeReference(ptr) ;
-			    delete pData ;
-			    delete ptr ;
+            {
+                g_pEventListeners->removeReference(ptr) ;
+                delete pData ;
+                delete ptr ;
 
                 rc = SIPX_RESULT_SUCCESS ;
                 break ;
-		    }
+            }
         }
-	}
+    }
 
-	return rc ;
+    return rc ;
 }
 
 SIPXTAPI_API SIPX_RESULT sipxListenerAdd(const SIPX_INST hInst, 
@@ -807,12 +807,12 @@ SIPXTAPI_API SIPX_RESULT sipxListenerRemove(const SIPX_INST hInst,
 
     if (hInst && pCallbackProc)
     {
-	    UtlSListIterator itor(*g_pListeners) ;
-	    while ((ptr = (UtlVoidPtr*) itor()) != NULL)
-	    {
-		    CALL_LISTENER_DATA *pData = (CALL_LISTENER_DATA*) ptr->getValue() ;
-		    if ((pData->pCallbackProc == pCallbackProc) &&
-			    (pData->pUserData == pUserData) && 
+        UtlSListIterator itor(*g_pListeners) ;
+        while ((ptr = (UtlVoidPtr*) itor()) != NULL)
+        {
+            CALL_LISTENER_DATA *pData = (CALL_LISTENER_DATA*) ptr->getValue() ;
+            if ((pData->pCallbackProc == pCallbackProc) &&
+                (pData->pUserData == pUserData) && 
                 (pData->pInst == (SIPX_INSTANCE_DATA*) hInst))
             {
                             g_pListeners->removeReference(ptr) ;
@@ -837,11 +837,11 @@ void sipxDumpListeners()
 
     printf("Dumping sipXtapi Listener List:\n") ;
 
-	int count = 0 ;
-	UtlSListIterator itor(*g_pListeners) ;
-	while ((ptr = (UtlVoidPtr*) itor()) != NULL)
-	{
-		CALL_LISTENER_DATA *pData = (CALL_LISTENER_DATA*) ptr->getValue() ;
+    int count = 0 ;
+    UtlSListIterator itor(*g_pListeners) ;
+    while ((ptr = (UtlVoidPtr*) itor()) != NULL)
+    {
+        CALL_LISTENER_DATA *pData = (CALL_LISTENER_DATA*) ptr->getValue() ;
 
         printf("\tListener %02d: inst=%p proc=%p, data=%p\n",
                 count, pData->pInst, pData->pCallbackProc, pData->pUserData) ;
@@ -1027,17 +1027,17 @@ void sipxFireLineEvent(const void* pSrc,
         "sipxFireLineEvent pSrc=%p szLineIdentifier=%s major=%d",
         pSrc, szLineIdentifier, major);
 
-	OsLock lock(*g_pLineListenerLock);
+    OsLock lock(*g_pLineListenerLock);
     SIPX_LINE_DATA* pLineData = NULL;
     SIPX_LINE hLine = SIPX_LINE_NULL ;
 
-    hLine = sipxLineLookupHandleByURI(szLineIdentifier);
+    hLine = sipxLineLookupHandleByURI(findSessionByCallManager(pSrc), szLineIdentifier);
     pLineData = sipxLineLookup(hLine, SIPX_LOCK_READ) ;
     if (pLineData)
     {
         UtlVoidPtr* ptr;
         // Report events to subscribe listeners
-	    UtlSListIterator itor(*g_pLineListeners) ;	
+        UtlSListIterator itor(*g_pLineListeners) ;    
         while ((ptr = (UtlVoidPtr*) itor()) != NULL)
         {
             LINE_LISTENER_DATA *pData = (LINE_LISTENER_DATA*) ptr->getValue() ;

@@ -118,13 +118,13 @@ public:
 
    void setFirstLineAsDefaultOutBound();
 
+#ifdef DEPRECATED_SIPLINE_FEATURE   
    void setCallHandlingForLine(const Url& identity, UtlBoolean useCallHandling= TRUE);
-
    void setAutoEnableForLine(const Url& identity, UtlBoolean isAutoEnable = TRUE);
+   void setVisibilityForLine(const Url& identity, UtlBoolean Visibility = TRUE);
+#endif   
 
    void setStateForLine(const Url& identity, int state);
-
-   void setVisibilityForLine(const Url& identity, UtlBoolean Visibility = TRUE);
 
    void setUserForLine(const Url& identity, const UtlString User);
 
@@ -158,15 +158,14 @@ public:
    //        queue will be removed.  Otherwise, only observers that match
    //        both the message queue and observer data will be removed.
    //!returns TRUE if one or more observers are removed otherwise FALSE.
-
-        void notifyChangeInLineProperties(Url& identity);
+   void notifyChangeInLineProperties(Url& identity);
 
    void notifyChangeInOutboundLine(Url& identity);
 
    //
    // Serialization Manipulators
    //
-
+#ifdef DEPRECATED_SIPLINE_FEATURE   
    void storeLine( OsConfigDb* pConfigDb, UtlString strSubKey, SipLine line);
    //:Stores the specified line to the configuration database under the
    // passed key.
@@ -186,6 +185,11 @@ public:
    void purgeLines(OsConfigDb* pConfigDb) ;
    //:Removes all device and user lines from the configuration database.
    //!param: (in) pConfigDb - Configuration database to be cleared.
+#endif
+   
+   UtlBoolean addLineAlias(const Url& identity, const Url& lineAlias);
+   //:Adds an alias to an existing line.  Aliases are alternative identities
+   // that are used primarily for authentication matching.
 
 /* ============================ ACCESSORS ================================= */
 
@@ -196,11 +200,13 @@ public:
    UtlBoolean getLine(
        const UtlString& toUrl,
        const UtlString& localContact,
+       const UtlString& requestURI,
        SipLine& sipline ) const;
-    //:Get the line identified by the designated To and Local Contact URLs.
+    //:Get the line identified by the designated To, Request URI, and Local 
+    // Contact URLs.
     //
-    //!returns The line identified by the designated To and Local Contact
-    //         URLs or NULL if not found.
+    //!returns The line identified by the designated To, Request URI or Local 
+    //         Contact URLs or NULL if not found.
 
    UtlBoolean getLines(
        int maxLines /*[in]*/,
@@ -226,14 +232,14 @@ public:
         UtlString typeList[],
         UtlString passTokenList[] );
 
+#ifdef DEPRECATED_SIPLINE_FEATURE      
    UtlBoolean getCallHandlingForLine( const Url& identity ) const;
-
    UtlBoolean getEnableForLine(const Url& identity) const;
-
-   int getStateForLine(const Url& identity ) const;
-
    UtlBoolean getVisibilityForLine(const Url& identity ) const;
-
+#endif
+   
+   int getStateForLine(const Url& identity ) const;
+   
    UtlBoolean getUserForLine(const Url& identity, UtlString &User) const;
 
    UtlBoolean getUserEnteredUrlForLine( const Url& identity, UtlString &sipUrl) const;
@@ -241,7 +247,11 @@ public:
    UtlBoolean getCanonicalUrlForLine(const Url& identity, UtlString &sipUrl) const ;
 
    UtlBoolean getContactTypeForLine(const Url& identity, LINE_CONTACT_TYPE& eContactType) const ;
-
+   
+   SipLine* findLineByURL(const Url& url, const char* szType) const;
+   //: Find a line by the matching the designated Url (lineId, identity, 
+   //  userId).
+   
 /* ============================ INQUIRY =================================== */
 
    UtlBoolean isUserIdDefined( const SipMessage* request /*[in]*/) const;
@@ -272,6 +282,7 @@ protected:
 
     void addToTempList( SipLine *line );
 
+#ifdef DEPRECATED_SIPLINE_FEATURE          
     void storeCredential(
         OsConfigDb *pConfigDb,
         UtlString strSubKey,
@@ -299,7 +310,8 @@ protected:
     //        "USER_LINE.1.CREDENTIAL.1."
     //!param: (in/out) line - The line to populate the credentials into.
     //!returns TRUE if successfully loaded otherwise FALSE.
-
+#endif    
+    
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
     // MsgType categories defined for use by the system

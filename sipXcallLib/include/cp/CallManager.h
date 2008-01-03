@@ -306,6 +306,12 @@ public:
     * Gets the number of lines made available by line manager.
     */
    virtual int getNumLines();
+   
+   /**
+    * Gets the call manager's line manager.  Usage of a line manager is 
+    * optional and callers should expect a null return code.
+    */
+   virtual SipLineMgr* getLineManager() ;
 
   /**
    * maxAddressesRequested is the number of addresses requested if available
@@ -424,7 +430,6 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
     UtlString mOutboundLine;
     UtlBoolean dialing;
     UtlBoolean mOffHook;

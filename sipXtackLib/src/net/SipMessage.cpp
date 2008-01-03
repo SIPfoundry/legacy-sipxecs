@@ -624,10 +624,16 @@ void SipMessage::setTryingResponseData(const SipMessage* request)
    setResponseData(request, SIP_TRYING_CODE, SIP_TRYING_TEXT);
 }
 
-void SipMessage::setInviteRingingData(const SipMessage* inviteRequest)
+void SipMessage::setInviteRingingData(const SipMessage* inviteRequest,
+                                      const char* localContact)
 {
    setLocalIp(inviteRequest->getLocalIp());
    setResponseData(inviteRequest, SIP_RINGING_CODE, SIP_RINGING_TEXT);
+   
+   if (localContact)
+   {
+      setContactField(localContact) ;
+   }   
 }
 
 void SipMessage::setQueuedResponseData(const SipMessage* inviteRequest)
@@ -1431,7 +1437,7 @@ void SipMessage::setAckData(const SipMessage* inviteResponse,
    }
    else if ( inviteRequest)
    {
-      if( inviteRequest->getContactUri(0, &requestContact))
+      if( inviteRequest->getContactField(0, requestContact))
       {
          setContactField(requestContact);
       }

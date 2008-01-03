@@ -708,7 +708,8 @@ public:
                               const char* callId,
                               int sequenceNumber = 1);
 
-    void setInviteRingingData(const SipMessage* inviteRequest);
+    void setInviteRingingData(const SipMessage* inviteRequest,
+                              const char* localContact = NULL);
 
     void setQueuedResponseData(const SipMessage* inviteRequest);
 

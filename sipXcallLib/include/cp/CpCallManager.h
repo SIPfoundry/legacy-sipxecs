@@ -43,6 +43,7 @@ class SipDialog;
 class MpStreamPlayer;
 class MpStreamPlaylistPlayer;
 class OsEvent;
+class SipLineMgr;
 
 //! Abstract call manager
 /*! There are three major components to the call management system:
@@ -647,6 +648,13 @@ public:
     * Gets the number of lines made available by line manager.
     */
    virtual int getNumLines() = 0;
+      
+   /**
+    * Gets the call manager's line manager.  Usage of a line manager is 
+    * optional and callers should expect a null return code.
+    */
+   virtual SipLineMgr* getLineManager() = 0 ;
+   
 
   /**
    * maxAddressesRequested is the number of addresses requested if available

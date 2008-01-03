@@ -36,6 +36,7 @@
 #include <cp/CpIntMessage.h>
 #include "ptapi/PtCall.h"
 #include <net/TapiMgr.h>
+#include <net/SipLineMgr.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -495,27 +496,50 @@ void SipConnection::updateContact(Url* pContactUrl, CONTACT_TYPE eType)
 void SipConnection::buildLocalContact(Url fromUrl,
                                       UtlString& localContact) 
 {
-    UtlString contactHostPort;
-    UtlString address;
-    sipUserAgent->getContactUri(&contactHostPort);
-    Url hostPort(contactHostPort);
-    hostPort.getHostAddress(address);
-    int port = hostPort.getHostPort();
+    Url preferredContact;
+    UtlString requestURI ;
+    
+    if(!inviteFromThisSide)
+    {
+        requestURI = mRemoteUriStr ;
+    }
+    
+        
+    // Attempt to find/get the preferred contact for the line
+    SipLine line ;
+    SipLineMgr* pLineMgr = mpCallManager->getLineManager() ;
+    if (pLineMgr && 
+            pLineMgr->getLine(fromUrl.toString(), localContact, requestURI, line) && 
+            line.getPreferredContactUri(preferredContact))
+    {
+        // OsSysLog::add(FAC_CP, PRI_DEBUG, "Found line definition: %s", preferredContact.toString().data()) ;
+    }
+    else
+    {
+        UtlString contactHostPort;
+        UtlString address;
+        sipUserAgent->getContactUri(&contactHostPort);
+        preferredContact = contactHostPort ;
+        
+        Url hostPort(contactHostPort);
+        hostPort.getHostAddress(address);
+        int port = hostPort.getHostPort();
 
-    UtlString displayName;
-    UtlString userId;
-    fromUrl.getDisplayName(displayName);
-    fromUrl.getUserId(userId);
+        UtlString displayName;
+        UtlString userId;
+        fromUrl.getDisplayName(displayName);
+        fromUrl.getUserId(userId);
 
-    Url contactUrl(mLocalContact, FALSE);
-    contactUrl.setUserId(userId.data());
-    contactUrl.setDisplayName(displayName);
-    contactUrl.setHostAddress(address);
-    contactUrl.setHostPort(port);
-    contactUrl.includeAngleBrackets();
+        preferredContact = Url(mLocalContact, FALSE);
+        preferredContact.setUserId(userId.data());
+        preferredContact.setDisplayName(displayName);
+        preferredContact.setHostAddress(address);
+        preferredContact.setHostPort(port);
+        preferredContact.includeAngleBrackets();        
+    }
 
-    updateContact(&contactUrl, mContactType) ;
-    contactUrl.toString(localContact);
+    updateContact(&preferredContact, mContactType) ;
+    preferredContact.toString(localContact);
 }
 
 void SipConnection::buildLocalContact(UtlString& localContact)
@@ -1106,14 +1130,14 @@ UtlBoolean SipConnection::reject(int errorCode, const char* errorText)
             }
             else
             {
-            	// Validate error/reject reason
+                // Validate error/reject reason
                 if (errorCode <= 100 || errorCode >= 700 || 
                         errorText == NULL || strlen(errorText) == 0)
-            	{            
-                	errorCode = SIP_BUSY_CODE ;
-                	errorText = SIP_BUSY_TEXT ;
-            	}
-            	            	
+                {            
+                    errorCode = SIP_BUSY_CODE ;
+                    errorText = SIP_BUSY_TEXT ;
+                }
+                                
                 SipMessage rejectMessage;
                 rejectMessage.setResponseData(inviteMsg, errorCode, errorText);
                 responseSent = send(rejectMessage);
@@ -5243,23 +5267,10 @@ void SipConnection::setContactType(CONTACT_TYPE eType)
         mpMediaInterface->setContactType(mConnectionId, eType) ;
     }
 
-    // We only do the contact manipulation for NAT_MAPPED or RELAY
-    // contacts, otherwise let the user agent tell us what the local
-    // local contact address is.
-    UtlString localContact ;
-    if (eType == NAT_MAPPED || eType == RELAY)
-    {
-       buildLocalContact(mFromUrl, localContact);
-    }
-    else
-    {
-       int port;
-       sipUserAgent->getLocalAddress(&localContact, &port);
-       Url contactUrl(localContact);
-       contactUrl.setHostPort(port);
-       contactUrl.toString(localContact);
-    }
+    UtlString localContact;
+    buildLocalContact(mFromUrl, localContact);
     mLocalContact = localContact ;
+    
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipConnection::setContactType contact type %d contactUrl '%s'", eType, localContact.data());     
 }
 
@@ -5568,7 +5579,7 @@ void SipConnection::proceedToRinging(const SipMessage* inviteMessage,
 
     // Send back a ringing INVITE response
     SipMessage sipResponse;
-    sipResponse.setInviteRingingData(inviteMessage);
+    sipResponse.setInviteRingingData(inviteMessage, mLocalContact);
     if(tagNum >= 0)
     {
         sipResponse.setToFieldTag(tagNum);
@@ -5598,6 +5609,15 @@ UtlBoolean SipConnection::send(SipMessage& message,
         sipUserAgent->getLocalAddress(&localIp, &port);        
         message.setLocalIp(localIp);
     }
+    
+    // Catch-all: Use derived contact instead of stack-default if
+    // not already set
+    UtlString ignore;
+    if (!message.getContactField(0, ignore))
+    {
+        message.setContactField(mLocalContact) ;    
+    }
+        
     return sipUserAgent->send(message, responseListener, responseListenerData);
 }
 /* ============================ FUNCTIONS ================================= */

@@ -282,10 +282,10 @@ typedef void (*sipxCallEventCallbackFn)(const void* pSrc,
 typedef void (*sipxLineEventCallbackFn)(const void* pSrc,
                                         const char* szLineIdentifier,
                                         SIPX_LINE_EVENT_TYPE_MAJOR major,
-                                        SIPX_LINE_EVENT_TYPE_MINOR minor);	
+                                        SIPX_LINE_EVENT_TYPE_MINOR minor);    
 
 typedef void (*sipxEventCallbackFn)(const void* pSrc,
-                    			    SIPX_EVENT_CATEGORY category, 
+                                    SIPX_EVENT_CATEGORY category, 
                                     void* pInfo);
                         
 
@@ -349,8 +349,11 @@ SIPX_CONTACT_TYPE sipxCallGetLineContactType(SIPX_CALL hCall) ;
 SIPX_LINE_DATA* sipxLineLookup(const SIPX_LINE hLine, SIPX_LOCK_TYPE type);
 void sipxLineReleaseLock(SIPX_LINE_DATA* pData, SIPX_LOCK_TYPE type) ;
 void sipxLineObjectFree(const SIPX_LINE hLine) ;
-SIPX_LINE sipxLineLookupHandle(const char* szLineURI, const char* requestUri); 
-SIPX_LINE sipxLineLookupHandleByURI(const char* szURI); 
+SIPX_LINE sipxLineLookupHandle(SIPX_INSTANCE_DATA* pInst,
+                               const char* szLineURI, 
+                               const char* requestUri); 
+SIPX_LINE sipxLineLookupHandleByURI(SIPX_INSTANCE_DATA* pInst,
+                                    const char* szURI); 
 UtlBoolean validLineData(const SIPX_LINE_DATA*) ;
 
 UtlBoolean sipxRemoveCallHandleFromConf(SIPX_CONF_DATA *pConfData,

@@ -842,7 +842,7 @@ static SIPX_RESULT sipxCallCreateHelper(const SIPX_INST hInst,
                 {
                     *phCall = gpCallHandleMap->allocHandle(pData) ;
 #ifdef DUMP_CALLS                    
-		            sipxDumpCalls();
+                    sipxDumpCalls();
 #endif                    
                     assert(*phCall != 0) ;
                     sr = SIPX_RESULT_SUCCESS ;
@@ -1877,7 +1877,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSendInfo(SIPX_INFO* phInfo,
     {
         if (callId.length() != 0)
         {
-            SIPX_LINE hLine = sipxLineLookupHandleByURI(lineId.data()) ;
+            SIPX_LINE hLine = sipxLineLookupHandleByURI(pInst, lineId.data()) ;
             SIPX_INFO_DATA* pInfoData = new SIPX_INFO_DATA;
             memset((void*) pInfoData, 0, sizeof(SIPX_INFO_DATA));
             SIPX_CALL_DATA* pCall = sipxCallLookup(hCall, SIPX_LOCK_READ); 
@@ -2310,9 +2310,10 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
                             pInst = pCallData->pInst ;
 
                             // Update data structures
-                            if (mTransferFlag == TRUE) {
-                               pCallData->transferCallId = new UtlString(*pCallData->callId) ;
-  			    }
+                            if (mTransferFlag == TRUE) 
+                            {
+                                pCallData->transferCallId = new UtlString(*pCallData->callId) ;
+                            }
                             *pCallData->callId = targetCallId ;
                             pCallData->hConf = hConf ;
                             assert(hCall != SIPX_CALL_NULL);
@@ -2331,18 +2332,13 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
 
                 sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE) ;
 #ifdef DUMP_CALL                
-		OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "***************** ConfJoin1:CallDump***\nhCall %d\n****callId %s\n***ghostCallId %s\n***bRemoveInsteadOfDrop %d\n***lineId %s\n",
-
-                hCall,
-
-                pCallData->callId ? pCallData->callId->data() : NULL,
-
-                pCallData->ghostCallId ? pCallData->ghostCallId->data() : NULL, 
-
-                pCallData->bRemoveInsteadOfDrop,
-
-                pCallData->lineURI ? pCallData->lineURI->data() : NULL);
-		pCallDataTemp = pCallData;
+                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "***************** ConfJoin1:CallDump***\nhCall %d\n****callId %s\n***ghostCallId %s\n***bRemoveInsteadOfDrop %d\n***lineId %s\n",
+                        hCall,
+                        pCallData->callId ? pCallData->callId->data() : NULL,
+                        pCallData->ghostCallId ? pCallData->ghostCallId->data() : NULL, 
+                        pCallData->bRemoveInsteadOfDrop,
+                        pCallData->lineURI ? pCallData->lineURI->data() : NULL);
+               pCallDataTemp = pCallData;
 #endif        
             }
             sipxConfReleaseLock(pConfData, SIPX_LOCK_WRITE) ;
@@ -2364,7 +2360,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
             // If the call fails -- hard to recover, drop the call anyways.
             pInst->pCallManager->drop(sourceCallId) ;
 #ifdef DUMP_CALL
-		OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "***************** ConfJoin2:CallDump***\nhCall %d\n****callId %s\n***ghostCallId %s\n***bRemoveInsteadOfDrop %d\n***lineId %s\n",
+        OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "***************** ConfJoin2:CallDump***\nhCall %d\n****callId %s\n***ghostCallId %s\n***bRemoveInsteadOfDrop %d\n***lineId %s\n",
 
                 hCall,
 
@@ -3658,6 +3654,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
                 contactType = pContact->eContactType;            
             }
             sipxGetContactHostPort(pInst, (SIPX_CONTACT_TYPE)contactType, uriPreferredContact) ;
+            uriPreferredContact.setUserId(userId);
             line.setPreferredContactUri(uriPreferredContact) ;
 
             UtlBoolean bRC = pInst->pLineManager->addLine(line, false) ;
@@ -3721,8 +3718,12 @@ SIPXTAPI_API SIPX_RESULT sipxLineAddAlias(const SIPX_LINE hLine, const char* szL
             UtlString displayName;
             url.getDisplayName(displayName);
             uri.setDisplayName(displayName);
-
-            pData->pLineAliases->append(new UtlVoidPtr(new Url(uri))) ;
+                       
+            if (pData->pInst->pLineManager->addLineAlias(*pData->lineURI, url))
+            {
+                pData->pLineAliases->append(new UtlVoidPtr(new Url(uri))) ;
+                sr = SIPX_RESULT_SUCCESS ;
+            }            
             
             sipxLineReleaseLock(pData, SIPX_LOCK_WRITE) ;
 
@@ -3924,7 +3925,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineGet(const SIPX_INST hInst,
                 actual = (size_t) iActual ;
                 for (size_t i=0; i<actual; i++)
                 {
-                    lines[i] = sipxLineLookupHandleByURI(pLines[i].getIdentity().toString()) ;
+                    lines[i] = sipxLineLookupHandleByURI(NULL, pLines[i].getIdentity().toString()) ;
                 }
             }
             delete [] pLines ;            
@@ -4287,7 +4288,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigDisableStun(const SIPX_INST hInst)
 
 
 SIPXTAPI_API SIPX_RESULT sipxConfigGetVersion(char* szVersion,
-											  const size_t nBuffer)
+                                              const size_t nBuffer)
 {
     SIPX_RESULT rc = SIPX_RESULT_INSUFFICIENT_BUFFER;
     size_t nLen;
@@ -5135,14 +5136,14 @@ SIPXTAPI_API SIPX_RESULT sipxConfigUpdatePreviewWindow(const SIPX_INST hInst, co
         "sipxConfigUpdatePreviewWindow hInst=%p, hWnd=%p",
         hInst, hWnd);
         
-    #ifdef _WIN32
-        #include <windows.h>
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint((HWND)hWnd, &ps);
-		GipsVideoEngineWindows* pVideoEngine = sipxConfigGetVideoEnginePtr(hInst);
-		pVideoEngine->GIPSVideo_OnPaint(hdc);
-		EndPaint((HWND)hWnd, &ps);
-    #endif
+#ifdef _WIN32
+#include <windows.h>
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint((HWND)hWnd, &ps);
+        GipsVideoEngineWindows* pVideoEngine = sipxConfigGetVideoEnginePtr(hInst);
+        pVideoEngine->GIPSVideo_OnPaint(hdc);
+        EndPaint((HWND)hWnd, &ps);
+#endif
     return SIPX_RESULT_SUCCESS;
 }
 #endif
