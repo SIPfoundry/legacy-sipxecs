@@ -75,7 +75,13 @@ public class RtpForkTest extends TestCase implements LegListener
          SocketAddress a = new InetSocketAddress(42) ;
          r.addDestination(a) ;
          assertEquals(1, r.destinations.size()) ; // Should be one
-         r.removeDesitination(a) ;
+         r.removeDestination(a) ;
+         assertEquals(0, r.destinations.size()) ; // Should be zero
+         SocketAddress b = new InetSocketAddress(43) ;
+         r.addDestination(a) ;
+         r.addDestination(b) ;
+         assertEquals(2, r.destinations.size()) ; // Should be two
+         r.removeAllDestinations() ;
          assertEquals(0, r.destinations.size()) ; // Should be zero
       } catch (SocketException e)
       {
@@ -115,7 +121,7 @@ public class RtpForkTest extends TestCase implements LegListener
          r.send(packet) ;
          assertEquals("Sent to 0.0.0.0/0.0.0.0:42: 0%nSent to 0.0.0.0/0.0.0.0:88: 0%n", t.sent) ;
          
-         r.removeDesitination(a);
+         r.removeDestination(a);
          t.reset() ;
          r.send(packet) ;
          assertEquals("Sent to 0.0.0.0/0.0.0.0:88: 0%n", t.sent) ;
@@ -158,7 +164,7 @@ public class RtpForkTest extends TestCase implements LegListener
          assertEquals("Sent to 0.0.0.0/0.0.0.0:42: 0%nSent to 0.0.0.0/0.0.0.0:88: 0%n", t.sent) ;
          assertEquals(45L, t.seqs[0]) ;
          
-         r.removeDesitination(a);
+         r.removeDestination(a);
          t.reset() ;
          r.rtpSend(packet) ; // seq 46
          r.rtpSend(packet) ; // seq 47

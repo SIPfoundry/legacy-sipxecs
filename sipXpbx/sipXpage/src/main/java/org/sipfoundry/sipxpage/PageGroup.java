@@ -185,6 +185,7 @@ public class PageGroup implements LegListener
       
       // Stop the RTP processing.
       rtpFork.stop() ;
+      rtpFork.removeAllDestinations() ;
       
       // Hangup on the inbound call
       if (inbound != null)
@@ -265,7 +266,7 @@ public class PageGroup implements LegListener
       {
          // Now that the beep is done, remove the inbound caller to the RTP mix
          // So he does not hear himself
-         rtpFork.removeDesitination(inboundRtp) ;
+         rtpFork.removeDestination(inboundRtp) ;
       }
       else if (event.getDescription().startsWith("dialog bye"))
       {
@@ -279,13 +280,13 @@ public class PageGroup implements LegListener
          else
          {
             // Outbound call ended.  Stop sending rtp to it
-            rtpFork.removeDesitination(leg.getRemoteRtpAddress()) ;
+            rtpFork.removeDestination(leg.getRemoteRtpAddress()) ;
          }
       }
       else if (event.getDescription().equals("sdp"))
       {
          // SDP changed, keep rtpFork informed.
-         rtpFork.removeDesitination(event.getLeg().getPreviousRtpAddress()) ;
+         rtpFork.removeDestination(event.getLeg().getPreviousRtpAddress()) ;
          rtpFork.addDestination(event.getLeg().getRemoteRtpAddress()) ;
       }
 

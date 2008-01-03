@@ -194,13 +194,19 @@ public class RtpFork implements Runnable
    /**
     * @param address Remove this address from the list of destinations for the forked RTP
     */
-   public void removeDesitination(SocketAddress address)
+   public void removeDestination(SocketAddress address)
    {
       if (address != null)
       {
          LOG.debug(String.format("RtpFork::removeDestination(%s)", address)) ;
          destinations.remove(address) ;
       }
+   }
+   
+   public void removeAllDestinations()
+   {
+      LOG.debug(String.format("RtpFork::removeAllDestinations")) ;
+      destinations.clear() ;
    }
    
    public void stopLocalAudio()
