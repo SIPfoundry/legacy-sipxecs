@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<component-specification allow-body="yes" allow-informal-parameters="yes">
+<component-specification class="org.sipfoundry.sipxconfig.site.common.AutoRefreshForm">
 
   <!-- additional actions to be displayed on the left side of refresh button -->
-  <parameter name="actionBlock" required="no"/>
-
-  <parameter name="interval" default-value="30" />
+  <parameter name="actionBlock" required="no" />
 
   <!-- P R O P E R T I E S -->
   <property name="auto" initial-value="true" persist="session" />
-  
+
   <!-- B E A N S  -->
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />  
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
 
   <!-- C O M P O N E N T S -->
   <component id="intervalForm" type="tacos:AjaxForm">
@@ -27,11 +25,11 @@
   </component>
 
   <component id="interval" type="tacos:InlineEditBox">
-    <binding name="value" value="interval" />
+    <binding name="value" value="currentInterval" />
   </component>
 
   <component id="refreshForm" type="tacos:AjaxForm">
-    <binding name="delegate" value="bean:validator" />  
+    <binding name="delegate" value="bean:validator" />
   </component>
 
   <component id="refresh" type="tacos:AjaxSubmit">
@@ -40,17 +38,9 @@
     <binding name="statusElement" value="literal:refreshStatus"></binding>
   </component>
 
-  <!-- uncomment to use standard text field  
-    <component id="interval" type="TextField">
-    <binding name="value" value="interval" />
-    <binding name="translator" value="translator:number" />
-    <binding name="validators" value="validators:required,min=30,max=6000" />
-    </component>
-  -->
-
   <component id="refreshScript" type="Script">
     <binding name="script" value="literal:AutoRefreshForm.script"></binding>
-    <binding name="interval" value="interval"></binding>
+    <binding name="interval" value="currentInterval" />
     <binding name="refreshButton" value="components.refresh"></binding>
   </component>
 
