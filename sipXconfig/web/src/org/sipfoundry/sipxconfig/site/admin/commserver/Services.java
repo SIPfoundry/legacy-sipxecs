@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 import java.util.Collection;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
@@ -21,35 +23,30 @@ import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class Services extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "Services";
 
+    @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
+    public abstract ExpressionEvaluator getExpressionEvaluator();
+
+    @InjectObject(value = "spring:sipxProcessContext")
     public abstract SipxProcessContext getSipxProcessContext();
 
-    public abstract Collection getServicesToStart();
-
-    public abstract Collection getServicesToStop();
-
-    public abstract Collection getServicesToRestart();
+    @Bean
+    public abstract SelectMap getSelections();
 
     public abstract Location getServiceLocation();
 
     public abstract void setServiceLocation(Location location);
-
-    public abstract ExpressionEvaluator getExpressionEvaluator();
 
     public abstract void setServiceStatus(Object[] serviceStatus);
 
     public abstract Object[] getServiceStatus();
 
     public void pageBeginRender(PageEvent event_) {
-        Object[] serviceStatus = getServiceStatus();
-        if (serviceStatus != null) {
-            return;
-        }
-
         Location location = getServiceLocation();
         if (location == null) {
             Location[] locations = getSipxProcessContext().getLocations();
@@ -59,8 +56,11 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
             }
         }
 
-        serviceStatus = retrieveServiceStatus(location);
-        setServiceStatus(serviceStatus);
+        Object[] serviceStatus = getServiceStatus();
+        if (serviceStatus == null) {
+            serviceStatus = retrieveServiceStatus(location);
+            setServiceStatus(serviceStatus);
+        }
     }
 
     public Object[] retrieveServiceStatus(Location location) {
@@ -76,23 +76,26 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
         }
     }
 
-    public void formSubmit() {
-        // Ideally the start/stop/restart operations would be implemented in button listeners.
-        // However, Tapestry 3.0 has a bug in it such that when a component listener is
-        // triggered, data is available only for those components that precede it in the
-        // rendering order. So wait until formSubmit, at which time all data will be there.
-
-        manageServices(getServicesToStart(), SipxProcessContext.Command.START);
-        manageServices(getServicesToStop(), SipxProcessContext.Command.STOP);
-        manageServices(getServicesToRestart(), SipxProcessContext.Command.RESTART);
+    public void start() {
+        manageServices(SipxProcessContext.Command.START);
     }
 
-    private void manageServices(Collection services, SipxProcessContext.Command operation) {
+    public void stop() {
+        manageServices(SipxProcessContext.Command.STOP);
+    }
+
+    public void restart() {
+        manageServices(SipxProcessContext.Command.RESTART);
+    }
+
+    private void manageServices(SipxProcessContext.Command operation) {
+        Collection services = getSelections().getAllSelected();
         if (services == null) {
             return;
         }
         try {
             getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
+            setServiceStatus(null);
         } catch (UserException e) {
             IValidationDelegate validator = TapestryUtils.getValidator(this);
             validator.record(new ValidatorException(e.getMessage()));

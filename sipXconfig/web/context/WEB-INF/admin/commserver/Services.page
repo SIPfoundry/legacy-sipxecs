@@ -9,14 +9,7 @@
   <!--
     - P R O P E R T I E S
   -->
-  <inject property="sipxProcessContext" object="spring:sipxProcessContext" />
-  <inject property="expressionEvaluator" object="service:tapestry.ognl.ExpressionEvaluator" />
-
   <property name="currentRow" />
-  <property name="selections" initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()" />
-  <property name="servicesToStart" />
-  <property name="servicesToStop" />
-  <property name="servicesToRestart" />
   <property name="serviceLocation" />
 
   <!--
@@ -33,7 +26,6 @@
     - C O M P O N E N T S
   -->
   <component id="form" type="Form">
-    <binding name="listener" value="listener:formSubmit" />
     <binding name="delegate" value="bean:validator" />
   </component>
 
@@ -54,7 +46,7 @@
 
   <component id="tableView" type="Table">
     <binding name="source" value="serviceStatus" />
-    <binding name="selections" value="selections" />
+    <binding name="selections" value="bean:selections" />
     <binding name="columns" value="literal:* serviceName,status" />
     <binding name="usePager" value="false" />
     <binding name="converter" value="bean:serverStatusConverter" />
@@ -67,18 +59,15 @@
   </component>
 
   <component id="startButton" type="Submit">
-    <binding name="selected" value="servicesToStart" />
-    <binding name="tag" value="selections.allSelected" />
+    <binding name="action" value="listener:start" />
     <binding name="value" value="message:button.start" />
   </component>
   <component id="stopButton" type="Submit">
-    <binding name="selected" value="servicesToStop" />
-    <binding name="tag" value="selections.allSelected" />
+    <binding name="action" value="listener:stop" />
     <binding name="value" value="message:button.stop" />
   </component>
   <component id="restartButton" type="Submit">
-    <binding name="selected" value="servicesToRestart" />
-    <binding name="tag" value="selections.allSelected" />
+    <binding name="action" value="listener:restart" />
     <binding name="value" value="message:button.restart" />
   </component>
   <component id="refreshButton" type="Submit">
