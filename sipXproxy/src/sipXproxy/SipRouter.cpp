@@ -286,13 +286,31 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
          }
          else
          {
-            // the request is not spiraling but it has a RouteState indicating
-            // that this request is an in-dialog one.  There is no need to 
-            // evaluate the Forwarding Rules on such requests as the final target
-            // has already been identified.
+            // the request is not spiraling but it has a RouteState.
+            // If the RouteState is not mutable, it indicates that
+            // this request is an in-dialog one.  There is no need to
+            // evaluate the Forwarding Rules on such requests as the
+            // final target has already been identified.
+            // If the RouteState is mutable, this indicates that we are
+            // still in an early dialog.  Such a condition can occur
+            // when a UAS generates 302 Moved Temporarily in response
+            // to an INVITE that we forked.  The processing of that 302 Moved
+            // Temporarily generates an INVITE that carries a RecordRoute header
+            // with a valid RouteState.  Such requests must be authenticated
+            // and then spiraled to make sure they get forked according to the
+            // forwarding rules. In such cases, our custom spiraling header
+            // is added to make sure that that happens.
+            if( routeState.isMutable() )
+            {
+               sipRequest.setHeaderValue( SIPX_SPIRAL_HEADER, "true", 0 );
+               bRequestHasProprietarySpiralHeader = true;
+            }
+            else
+            {
+               bRequestHasProprietarySpiralHeader = false;
+            }
             bRequestShouldBeAuthorized         = true;
             bForwardingRulesShouldBeEvaluated  = false;
-            bRequestHasProprietarySpiralHeader = false;
          }
       }
       else
