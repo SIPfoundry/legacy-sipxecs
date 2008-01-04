@@ -88,13 +88,14 @@ end
 def load_postgres_driver()
   require 'postgres'
 rescue LoadError
+  require 'rubygems'
   require 'rbconfig'
   sad = Config::CONFIG['sitearchdir']
   postgres_dir = sad.chomp('-gnu')
   $:.unshift(postgres_dir)
   require 'postgres'
 rescue LoadError
-# On SUSE the driver is called ruby-postgres
+# On SUSE, FreeBSD the driver is called ruby-postgres and is a gem
   require 'ruby-postgres'
 end
 

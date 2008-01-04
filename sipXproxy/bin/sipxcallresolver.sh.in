@@ -390,7 +390,7 @@ ERROR
 # Check the database version.  If it is wrong, then exit, because it's dangerous to
 # run call resolver on top of the wrong database version.
 databaseVersionCheck() {
-   dbver=`${Psql} -c "select max(vh.version) from version_history vh;" ${Database} ${PgUser} | sed -n 's/^\s*\([0-9][0-9]*\)\s*$/\1/p'`
+   dbver=`${Psql} --no-align --tuples-only -c "select max(vh.version) from version_history vh;" ${Database} ${PgUser}`
    if [ "$dbver" = "" ]
    then
       echo "  Error: could not get the database version."
