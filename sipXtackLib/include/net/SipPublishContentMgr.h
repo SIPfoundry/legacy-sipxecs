@@ -377,13 +377,21 @@ private:
     void unlock();
 
     OsMutex mPublishMgrMutex;
-    // Indexed by strings "resourceId\001eventTypeKey".
-    UtlHashMap mContentEntries; 
-    // Indexed by strings "\001eventTypeKey".
-    UtlHashMap mDefaultContentEntries;
+
+    // The following two hash-bags contain PublishContentContainer's
+    // which index as strings:
+    // Index as strings "resourceId\001eventTypeKey".
+    UtlHashBag mContentEntries; 
+    // Index as strings "\001eventTypeKey".
+    UtlHashBag mDefaultContentEntries;
+
+    // Keys are string "eventType", values are
+    // SipPublishContentMgrDefaultConstructor's.
     UtlHashMap mDefaultContentConstructors;
-    // Indexed by strings "eventType".
-    UtlHashMap mEventContentCallbacks;
+
+    // Members are PublishCallbackContainer's, which index as strings
+    // "eventType".
+    UtlHashBag mEventContentCallbacks;
 };
 
 /**
