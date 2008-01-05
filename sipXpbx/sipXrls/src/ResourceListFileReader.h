@@ -37,7 +37,7 @@ public:
 /* ============================ CREATORS ================================== */
 
    ResourceListFileReader(/// file name to read from or ""
-                          const UtlString* resourceListFile,
+                          const UtlString& resourceListFile,
                           /// ResourceListSet to load
                           ResourceListSet* resourceListSet);
 

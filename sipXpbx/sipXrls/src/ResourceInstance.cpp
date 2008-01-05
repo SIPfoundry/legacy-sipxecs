@@ -421,6 +421,35 @@ void ResourceInstance::generateBody(UtlString& rlmi,
 
 /* ============================ INQUIRY =================================== */
 
+// Dump the object's internal state.
+void ResourceInstance::dumpState()
+{
+   // indented 12
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t            ResourceInstance %p mInstanceName = '%s', "
+                 "mSubscriptionState = '%s', mContentPresent = %d, mContent = '%s'",
+                 this, mInstanceName.data(), mSubscriptionState.data(),
+                 mContentPresent,
+                 mContentPresent ? mContent.data() : "[invalid]");
+
+   UtlHashMapIterator itor(mXmlDialogs);
+   UtlString* dialog_id;
+   while ((dialog_id = dynamic_cast <UtlString*> (itor())))
+   {
+      UtlVoidPtr* p = dynamic_cast <UtlVoidPtr*> (itor.value());
+      TiXmlElement* dialog_element =
+         static_cast <TiXmlElement*> (p->getValue());
+      UtlString s;
+      TiXmlUtlStringWriter writer(&s);
+      writer <<*dialog_element;
+      
+      OsSysLog::add(FAC_RLS, PRI_INFO,
+                    "\t              mXmlDialogs{'%s'} = '%s'",
+                    dialog_id->data(), s.data());
+   }
+}
+
 /**
  * Get the ContainableType for a UtlContainable-derived class.
  */

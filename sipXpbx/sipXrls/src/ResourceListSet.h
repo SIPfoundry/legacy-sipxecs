@@ -376,6 +376,9 @@ class ResourceListSet : public UtlContainableAtomic
     */
    int getVersion() const;
 
+   //! Dump the object's internal state.
+   void dumpState();
+
    /**
     * Get the ContainableType for a UtlContainable-derived class.
     */
@@ -415,14 +418,14 @@ class ResourceListSet : public UtlContainableAtomic
     */
    UtlSList mResourceLists;
 
-   //! Map from early dialog handles to the object that handle their events.  
+   //! Map from early dialog handles to the objects that handle their events.  
    //  The values are instances of subclasses of ResourceSubscriptionReceiver.
-   //  They keys are UtlString's owned by the value objects.
+   //  The keys are UtlString's owned by the value objects.
    UtlHashMap mSubscribeMap;
 
    //! Map from dialog handles to the objects that handle their events.
    //  The values are instances of subclasses of ResourceNotifyReceiver.
-   //  They keys are UtlString's owned by the value objects.
+   //  The keys are UtlString's owned by the value objects.
    UtlHashMap mNotifyMap;
 
    /** Map from UtlInt's containing sequence numbers to the objects they

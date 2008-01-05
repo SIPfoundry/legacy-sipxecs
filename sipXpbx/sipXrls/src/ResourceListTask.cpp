@@ -30,6 +30,7 @@
 
 // Constructor
 ResourceListTask::ResourceListTask(ResourceListServer* parent) :
+   OsServerTask("ResourceListTask-%d"),
    mResourceListServer(parent)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
@@ -122,6 +123,37 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
          notifyEventCallbackSync(pNotifyMsg->getDialogHandle(),
                                  pNotifyMsg->getContent());
    }
+   else if (rMsg.getMsgType() == OsMsg::PHONE_APP &&
+            rMsg.getMsgSubType() == SipMessage::NET_SIP_MESSAGE)
+   {
+      // An incoming SIP message.
+      const SipMessage* sipMessage = ((SipMessageEvent&) rMsg).getMessage();
+
+      // If this is a NOTIFY request
+      if (sipMessage)
+      {
+         UtlString method;
+         sipMessage->getRequestMethod(&method);
+         if (method.compareTo(SIP_MESSAGE_METHOD) == 0 &&
+             !sipMessage->isResponse())
+         {
+            // Process the request and send a response.
+            handleMessageRequest(*sipMessage);
+         }
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "ResourceListTask::handleMessage unexpected %s %s",
+                          method.data(),
+                          sipMessage->isResponse() ? "response" : "request");
+         }
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "SipSubscribeClient::handleMessage  SipMessageEvent with NULL SipMessage");
+      }
+   }
    else
    {
       OsSysLog::add(FAC_RLS, PRI_ERR,
@@ -130,6 +162,52 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
    }
 
    return TRUE;
+}
+
+// Process a MESSAGE request, which is used to trigger debugging actions.
+void ResourceListTask::handleMessageRequest(const SipMessage& msg)
+{
+   // Extract the user-part of the request-URI, which should tell us what
+   // to do.
+   UtlString user;
+   msg.getUri(NULL, NULL, NULL, &user);
+
+   // Construct the response.
+   SipMessage response;
+
+   if (user.compareTo("*dumpstate") == 0)
+   {
+      // *dumpstate means to dump the RLS state into the log.
+      debugDumpState(msg);
+      response.setOkResponseData(&msg, NULL);
+   }
+   else
+   {
+      response.setLocalIp(msg.getLocalIp());
+      response.setResponseData(&msg, SIP_NOT_FOUND_CODE, SIP_NOT_FOUND_TEXT);
+   }
+
+   // Send the response.
+   getResourceListServer()->getServerUserAgent().send(response);
+}
+
+// Dump the state of the RLS into the log.
+void ResourceListTask::debugDumpState(const SipMessage& msg)
+{
+   // Get the 'id' URI parameter off the request-URI.
+   UtlString request_string;
+   msg.getRequestUri(&request_string);
+   Url request_uri(request_string, TRUE);
+   UtlString id;
+   request_uri.getUrlParameter("id", id);
+   // 'id' is empty string if no 'id' URI parameter.
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "ResourceListTask::debugDumpState called, id = '%s':",
+                 id.data());
+   getResourceListServer()->dumpState();
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "ResourceListTask::debugDumpState finished");
 }
 
 /* ============================ ACCESSORS ================================= */

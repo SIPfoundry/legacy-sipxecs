@@ -936,6 +936,35 @@ int SipRefreshManager::dumpRefreshStates(UtlString& dumpString)
 
 /* ============================ INQUIRY =================================== */
 
+// Dump the object's internal state.
+void SipRefreshManager::dumpState()
+{
+   lock();
+
+   // indented 4
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t    SipRefreshManager %p",
+                 this);
+
+#if 0
+   UtlString oneClientDump;
+   SubscribeClientState* clientState;
+   UtlHashBagIterator iterator(mSubscriptions);
+   while ((clientState = dynamic_cast <SubscribeClientState*> (iterator())))
+   {
+      clientState->toString(oneClientDump);
+      OsSysLog::add(FAC_RLS, PRI_INFO,
+                    "\t    SubscribeClientState %p %s",
+                    clientState, oneClientDump.data());
+
+   }
+   mpRefreshMgr->dumpState();
+#endif // 0
+
+   unlock();
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 void SipRefreshManager::lock()

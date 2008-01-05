@@ -11,7 +11,7 @@
 // APPLICATION INCLUDES
 #include <os/OsMsg.h>
 #include <os/OsEventMsg.h>
-#include <utl/UtlHashMapIterator.h>
+#include <utl/UtlHashBagIterator.h>
 #include <net/SipSubscribeServer.h>
 #include <net/SipUserAgent.h>
 #include <net/SipPublishContentMgr.h>
@@ -36,21 +36,35 @@ public:
     SipPublishContentMgr* mpEventSpecificContentMgr;
     SipSubscriptionMgr* mpEventSpecificSubscriptionMgr;
 
+    //! Dump the object's internal state.
+    void dumpState();
+
 private:
     //! DISALLOWED accidental copying
     SubscribeServerEventData(const SubscribeServerEventData& rSubscribeServerEventData);
     SubscribeServerEventData& operator=(const SubscribeServerEventData& rhs);
 };
-SubscribeServerEventData::SubscribeServerEventData()
+SubscribeServerEventData::SubscribeServerEventData() :
+   mpEventSpecificHandler(NULL),
+   mpEventSpecificUserAgent(NULL),
+   mpEventSpecificContentMgr(NULL),
+   mpEventSpecificSubscriptionMgr(NULL)
 {
-    mpEventSpecificHandler = NULL;
-    mpEventSpecificUserAgent = NULL;
-    mpEventSpecificContentMgr = NULL;
-    mpEventSpecificSubscriptionMgr = NULL;
 }
 
 SubscribeServerEventData::~SubscribeServerEventData()
 {
+}
+
+// Dump the object's internal state.
+void SubscribeServerEventData::dumpState()
+{
+   // indented 4
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t    SubscribeServerEventData %p UtlString = '%s', mpEventSpecificHandler = %p, mpEventSpecificUserAgent = %p, mpEventSpecificContentMgr = %p, mpEventSpecificSubscriptionMgr = %p",
+                 this, data(), mpEventSpecificHandler, mpEventSpecificUserAgent,
+                 mpEventSpecificContentMgr, mpEventSpecificSubscriptionMgr);
 }
 
 
@@ -506,6 +520,30 @@ SipSubscriptionMgr* SipSubscribeServer::getSubscriptionMgr(const UtlString& even
 
 /* ============================ INQUIRY =================================== */
 
+// Dump the object's internal state.
+void SipSubscribeServer::dumpState()
+{
+   lockForRead();
+
+   // indented 2
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t  SipSubscribeServer %p",
+                 this);
+
+   mpDefaultContentMgr->dumpState();
+   mpDefaultSubscriptionMgr->dumpState();
+   // mpDefaultEventHandler has no internal state.
+   UtlHashBagIterator itor(mEventDefinitions);
+   SubscribeServerEventData* ed;
+   while ((ed = dynamic_cast <SubscribeServerEventData*> (itor())))
+   {
+      ed->dumpState();
+   }
+
+   unlockForRead();
+}
+
 UtlBoolean SipSubscribeServer::isEventTypeEnabled(const UtlString& eventType)
 {
     lockForRead();
@@ -675,7 +713,7 @@ UtlBoolean SipSubscribeServer::handleNotifyResponse(const SipMessage& notifyResp
 
        // Get the event specific handler and information
        SubscribeServerEventData* eventPackageInfo = NULL;
-       UtlHashMapIterator iterator(mEventDefinitions);
+       UtlHashBagIterator iterator(mEventDefinitions);
         
        while ((eventPackageInfo =
                dynamic_cast <SubscribeServerEventData*> (iterator())))
@@ -748,4 +786,3 @@ void SipSubscribeServer::unlockForWrite()
 }
 
 /* ============================ FUNCTIONS ================================= */
-

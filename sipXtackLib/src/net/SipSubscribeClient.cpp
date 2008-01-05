@@ -17,7 +17,7 @@
 #include <net/SipDialogMgr.h>
 #include <net/NetMd5Codec.h>
 #include <net/CallId.h>
-#include <utl/UtlHashMapIterator.h>
+#include <utl/UtlHashBagIterator.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -42,7 +42,7 @@ public:
     SubscribeClientState(const SubscribeClientState& rSubscribeClientState);
     SubscribeClientState& operator=(const SubscribeClientState& rhs);
 
-    // UtlString::data contains the Dialog Handle;
+    // UtlString::data contains the Dialog Handle.
     SipSubscribeClient::SubscriptionState mState;
     void* mpApplicationData;
     // Callback function for state changes, or NULL.
@@ -125,8 +125,6 @@ SipSubscribeClient::SipSubscribeClient(SipUserAgent& userAgent,
     mpUserAgent = &userAgent;
     mpDialogMgr = &dialogMgr;
     mpRefreshMgr = &refreshMgr;
-    mCallIdCount = 0;
-    mTagCount = 0;
 }
 
 // Copy constructor
@@ -374,7 +372,7 @@ void SipSubscribeClient::endAllSubscriptions()
     // to prevent additions to the mSubscription container until
     // we are all done unsubscribing.
     lock();
-    UtlHashMapIterator iterator(mSubscriptions);
+    UtlHashBagIterator iterator(mSubscriptions);
     while ((dialogKey = dynamic_cast <SubscribeClientState*> (iterator())))
     {
         clientState = removeState(*dialogKey);
@@ -456,7 +454,7 @@ int SipSubscribeClient::countSubscriptions()
     lock();
     count = mSubscriptions.entries();
     unlock();
-    return (count);
+    return count;
 }
 
 int SipSubscribeClient::dumpStates(UtlString& dumpString)
@@ -466,7 +464,7 @@ int SipSubscribeClient::dumpStates(UtlString& dumpString)
     UtlString oneClientDump;
     SubscribeClientState* clientState = NULL;
     lock();
-    UtlHashMapIterator iterator(mSubscriptions);
+    UtlHashBagIterator iterator(mSubscriptions);
     while ((clientState = dynamic_cast <SubscribeClientState*> (iterator())))
     {
         clientState->toString(oneClientDump);
@@ -476,7 +474,7 @@ int SipSubscribeClient::dumpStates(UtlString& dumpString)
     }
     unlock();
 
-    return (count);
+    return count;
 }
 
 void SipSubscribeClient::getSubscriptionStateEnumString(enum SubscriptionState stateValue, 
@@ -508,6 +506,33 @@ void SipSubscribeClient::getSubscriptionStateEnumString(enum SubscriptionState s
 }
 
 /* ============================ INQUIRY =================================== */
+
+// Dump the object's internal state.
+void SipSubscribeClient::dumpState()
+{
+   lock();
+
+   // indented 2
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t  SipSubscribeClient %p",
+                 this);
+
+   UtlString oneClientDump;
+   SubscribeClientState* clientState;
+   UtlHashBagIterator iterator(mSubscriptions);
+   while ((clientState = dynamic_cast <SubscribeClientState*> (iterator())))
+   {
+      clientState->toString(oneClientDump);
+      OsSysLog::add(FAC_RLS, PRI_INFO,
+                    "\t    SubscribeClientState %p %s",
+                    clientState, oneClientDump.data());
+
+   }
+   mpRefreshMgr->dumpState();
+
+   unlock();
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

@@ -121,7 +121,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
    // (The following statement takes the address of a temporary UtlString,
    // but that is OK because the pointer to the string is not kept
    // by the constructor we pass it to.)
-   mResourceListFileReader(&UtlString(""), &mResourceListSet)
+   mResourceListFileReader(UtlString(""), &mResourceListSet)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceListServer:: this = %p, mDomainName = '%s', mEventType = '%s', mContentType = '%s', mRefreshInterval = %d, mResubscribeInterval = %d",
@@ -182,8 +182,18 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
    // do not get NOTIFYs with incomplete information.
    mSubscribeServer.enableEventType(mEventType);
    mSubscribeServer.start();
-}
 
+   // Install a listener for MESSAGE requests into the server which queues
+   // them for consideration by mResourceListTask.  The task will be triggered
+   // to perform various debugging tasks.
+   mServerUserAgent.addMessageObserver(*(mResourceListTask.getMessageQueue()),
+                                       SIP_MESSAGE_METHOD,
+                                       TRUE, // yes requests
+                                       FALSE, // no responses
+                                       TRUE, // incoming,
+                                       FALSE // outgoing
+      );
+}
 
 // Destructor
 ResourceListServer::~ResourceListServer()
@@ -242,6 +252,18 @@ void ResourceListServer::shutdown()
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ INQUIRY =================================== */
+
+// Dump the object's internal state.
+void ResourceListServer::dumpState()
+{
+   // indented 0
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\tResourceListServer %p", this);
+   mResourceListSet.dumpState();
+   mSubscribeServer.dumpState();
+   mSubscribeClient.dumpState();
+}
 
 /**
  * Get the ContainableType for a UtlContainable-derived class.

@@ -31,12 +31,12 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-ResourceListFileReader::ResourceListFileReader(const UtlString* resourceListFile,
+ResourceListFileReader::ResourceListFileReader(const UtlString& resourceListFile,
                                                ResourceListSet* resourceListSet) :
    RefreshingFileReader(),
    mResourceListSet(resourceListSet)
 {
-   setFileName(resourceListFile);
+   setFileName(&resourceListFile);
 }
 
 // Destructor

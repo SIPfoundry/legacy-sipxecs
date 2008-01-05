@@ -141,7 +141,7 @@ public:
 
     SipRefreshMgr();   
 
-    void dumpMessageLists(UtlString& results) ;
+    void dumpMessageLists(UtlString& results);
       //:Appends the message contents of both the mRegisterList and 
       // mSubscribeList
 
@@ -149,8 +149,11 @@ public:
 
     virtual UtlBoolean handleMessage( OsMsg& eventMessage );
 
-    UtlBoolean getNatMappedAddress(UtlString* pIpAddress, int* pPort) ;
-      //: Get the nat mapped address (if available)
+    UtlBoolean getNatMappedAddress(UtlString* pIpAddress, int* pPort);
+      //: Get the NAT mapped address (if available)
+
+    //! Dump the object's internal state.
+    void dumpState();
 
 protected:
     SipLineMgr* mpLineMgr;
@@ -265,11 +268,8 @@ protected:
     //: Removes all prior request records for this response
     //: from the passed-in SipMessageList
     
-    UtlBoolean isExpiresZero(SipMessage* pRequest) ;
+    UtlBoolean isExpiresZero(SipMessage* pRequest);
       //: Is the expires field set to zero for the specified msg?
-      
-      
-      
       
     void fireSipXLineEvent(const Url& url, const UtlString& lineId, const SIPX_LINESTATE_EVENT event, const SIPX_LINESTATE_CAUSE cause);
     //: event firing method used to notify sipXtapi of line events       
@@ -310,7 +310,7 @@ protected:
     int mTcpPort;
     int mUdpPort;
     int mRestartCount;
-    UtlRandom mRandomNumGenerator ;
+    UtlRandom mRandomNumGenerator;
 };
 
 #endif // SIPREFRESHMGR_H

@@ -60,6 +60,12 @@ public:
    UtlBoolean handleMessage(OsMsg& rMsg);
      //: Method to process messages which get queued for this OsServerTask.
 
+   //! Process a MESSAGE request, which is used to trigger debugging actions.
+   void handleMessageRequest(const SipMessage& msg);
+
+   //! Dump the state of the RLS into the log.
+   void debugDumpState(const SipMessage& msg);
+
    //! Get the parent ResourceListServer.
    ResourceListServer* getResourceListServer() const;
 
@@ -81,8 +87,6 @@ private:
 
    ResourceListTask& operator=(const ResourceListTask& rResourceListTask);
    //:Assignment operator
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 };
 

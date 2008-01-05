@@ -101,8 +101,8 @@ class ContactSet : public UtlContainableAtomic,
    //! Remove dialogs in terminated state and terminated resource instances.
    void purgeTerminated();
 
-   //! Dump the contents of the ContactSet.
-   void dump();
+   //! Dump the object's internal state.
+   void dumpState();
 
    /**
     * Get the ContainableType for a UtlContainable-derived class.
@@ -143,7 +143,7 @@ class ContactSet : public UtlContainableAtomic,
    //! The set of SubscriptionSet's for each contact of this URI.
    /** This hash map is indexed by strings "call-id;URI", where:
     * call-id is the Call-Id of the registration pseudo-dialog for the
-    * contact as reported in the cseq attribute of the <contact>
+    * contact as reported in the <uri> element of the <contact>
     * element in the reg event, and
     * URI is the contact URI as reported in the <uri> element.
     * This indexing allows us to detect when a phone reboots and

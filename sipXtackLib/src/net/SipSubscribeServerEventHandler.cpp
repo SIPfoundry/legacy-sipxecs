@@ -109,7 +109,7 @@ UtlBoolean SipSubscribeServerEventHandler::isAuthenticated(const SipMessage& sub
                                                            SipMessage& subscribeResponse)
 {
     // By default no authentication required
-    return(TRUE);
+    return TRUE;
 }
 
 UtlBoolean SipSubscribeServerEventHandler::isAuthorized(const SipMessage& subscribeRequest,
@@ -118,7 +118,7 @@ UtlBoolean SipSubscribeServerEventHandler::isAuthorized(const SipMessage& subscr
                                                        SipMessage& subscribeResponse)
 {
     // By default no authorization required
-    return(TRUE);
+    return TRUE;
 }
 
 UtlBoolean SipSubscribeServerEventHandler::getNotifyContent(const UtlString& resourceId,
@@ -188,4 +188,3 @@ UtlBoolean SipSubscribeServerEventHandler::getNotifyContent(const UtlString& res
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

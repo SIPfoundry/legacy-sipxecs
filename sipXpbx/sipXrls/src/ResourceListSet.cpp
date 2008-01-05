@@ -727,6 +727,28 @@ void ResourceListSet::refreshResourceBySeqNo(int seqNo)
    }
 }
 
+// Dump the object's internal state.
+void ResourceListSet::dumpState()
+{
+   // Serialize access to the resource list set.
+   OsLock lock(mSemaphore);
+
+   // indented 2
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t  ResourceListSet %p mSuspendPublishingCount = %d",
+                 this, mSuspendPublishingCount);
+
+   UtlSListIterator i(mResourceLists);
+   ResourceList* rl;
+   while ((rl = dynamic_cast <ResourceList*> (i())))
+   {
+      rl->dumpState();
+   }
+
+   mResourceCache.dumpState();
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 // Search for a resource list with a given name (user-part).

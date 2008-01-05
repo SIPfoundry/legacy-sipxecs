@@ -107,6 +107,16 @@ void ResourceReference::generateBody(UtlString& rlmi,
 
 /* ============================ INQUIRY =================================== */
 
+// Dump the object's internal state.
+void ResourceReference::dumpState()
+{
+   // indented 6
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t      ResourceReference %p mResourceCached = %p, mDisplayName = '%s', mNameXml = '%s'",
+                 this, mResourceCached, mDisplayName.data(), mNameXml.data());
+}
+
 /**
  * Get the ContainableType for a UtlContainable-derived class.
  */

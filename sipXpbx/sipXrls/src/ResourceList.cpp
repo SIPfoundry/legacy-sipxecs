@@ -271,6 +271,28 @@ HttpBody* ResourceList::generateBody(UtlBoolean consolidated) const
    return body;
 }
 
+// Dump the object's internal state.
+void ResourceList::dumpState()
+{
+   // indented 4
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t    ResourceList %p mUserPart='%s', mResourceListName = '%s', "
+                 "mResourceListUri = '%s', mResourceListNameCons = '%s', "
+                 "mResourceListUriCons = '%s', mVersion = %d, mChangesToPublish = %d",
+                 this, mUserPart.data(), mResourceListName.data(),
+                 mResourceListUri.data(), mResourceListNameCons.data(),
+                 mResourceListUriCons.data(), mVersion,
+                 mChangesToPublish);
+
+   UtlSListIterator i(mResources);
+   ResourceReference* resource;
+   while ((resource = dynamic_cast <ResourceReference*> (i())))
+   {
+      resource->dumpState();
+   }
+}
+
 /**
  * Get the ContainableType for a UtlContainable-derived class.
  */

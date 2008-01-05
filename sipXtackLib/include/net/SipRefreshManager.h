@@ -165,6 +165,9 @@ public:
     //! Get a count of the subscriptions and registration which have been added
     int countRefreshSessions() const;
 
+    //! Dump the object's internal state.
+    void dumpState();
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     //! lock for single thread use

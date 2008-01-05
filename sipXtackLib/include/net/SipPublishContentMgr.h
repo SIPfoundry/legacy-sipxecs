@@ -355,6 +355,9 @@ public:
 /* ============================ INQUIRY =================================== */
 
 
+   //! Dump the object's internal state.
+   void dumpState();
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 

@@ -99,6 +99,9 @@ class ResourceReference : public UtlContainableAtomic
    //! Get the URI of the resource.
    const UtlString* getUri() const;
 
+   //! Dump the object's internal state.
+   void dumpState();
+
    /**
     * Get the ContainableType for a UtlContainable-derived class.
     */

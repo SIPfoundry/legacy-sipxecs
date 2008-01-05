@@ -15,6 +15,7 @@
 
 #include <utl/UtlContainableAtomic.h>
 #include <utl/UtlHashBag.h>
+#include <utl/UtlString.h>
 
 // DEFINES
 // MACROS
@@ -78,6 +79,9 @@ class ResourceCache : public UtlContainableAtomic
    //! Remove dialogs in terminated state and terminated resource instances.
    //  To be called immediately after publishing all changed resource lists.
    void purgeTerminated();
+
+   //! Dump the object's internal state.
+   void dumpState();
 
    /**
     * Get the ContainableType for a UtlContainable-derived class.

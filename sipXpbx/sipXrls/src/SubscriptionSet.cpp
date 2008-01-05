@@ -256,6 +256,23 @@ void SubscriptionSet::generateBody(UtlString& rlmi,
 
 /* ============================ INQUIRY =================================== */
 
+// Dump the object's internal state.
+void SubscriptionSet::dumpState()
+{
+   // indented 10
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t          SubscriptionSet %p mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
+                 this, mUri.data(), mSubscriptionEarlyDialogHandle.data());
+   
+   UtlSListIterator itor(mSubscriptions);
+   ResourceInstance* ri;
+   while ((ri = dynamic_cast <ResourceInstance*> (itor())))
+   {
+      ri->dumpState();
+   }
+}
+
 /**
  * Get the ContainableType for a UtlContainable-derived class.
  */

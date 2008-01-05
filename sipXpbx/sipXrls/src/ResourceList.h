@@ -82,6 +82,9 @@ class ResourceList : public UtlContainableAtomic
    //! Get the resource list consolidated URI.
    const UtlString* getResourceListUriCons();
 
+   //! Dump the object's internal state.
+   void dumpState();
+
    /**
     * Get the ContainableType for a UtlContainable-derived class.
     */

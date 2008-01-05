@@ -155,6 +155,21 @@ ResourceListServer* ResourceCache::getResourceListServer() const
 
 /* ============================ INQUIRY =================================== */
 
+// Dump the object's internal state.
+void ResourceCache::dumpState()
+{
+   // indented 4
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t    ResourceCache %p", this);
+   UtlHashBagIterator i(mResources);
+   ResourceCached* resource;
+   while ((resource = dynamic_cast <ResourceCached*> (i())))
+   {
+      resource->dumpState();
+   }
+}
+
 /**
  * Get the ContainableType for a UtlContainable-derived class.
  */

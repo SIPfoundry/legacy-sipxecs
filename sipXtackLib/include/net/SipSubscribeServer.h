@@ -16,7 +16,7 @@
 #include <os/OsDefs.h>
 #include <os/OsRWMutex.h>
 #include <utl/UtlString.h>
-#include <utl/UtlHashMap.h>
+#include <utl/UtlHashBag.h>
 #include <net/SipUserAgent.h>
 
 
@@ -202,6 +202,9 @@ public:
     //! Inquire if the given event type is enabled in the server
     UtlBoolean isEventTypeEnabled(const UtlString& eventType);
 
+   //! Dump the object's internal state.
+   void dumpState();
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -240,7 +243,9 @@ private:
     SipPublishContentMgr* mpDefaultContentMgr;
     SipSubscriptionMgr* mpDefaultSubscriptionMgr;
     SipSubscribeServerEventHandler* mpDefaultEventHandler;
-    UtlHashMap mEventDefinitions; 
+    // Members are SubscribeServerEventData's, indexed as strings
+    // containing the event type.
+    UtlHashBag mEventDefinitions; 
     OsRWMutex mSubscribeServerMutex;
 };
 

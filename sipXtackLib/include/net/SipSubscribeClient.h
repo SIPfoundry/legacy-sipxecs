@@ -15,7 +15,7 @@
 
 #include <os/OsDefs.h>
 #include <os/OsServerTask.h>
-#include <utl/UtlHashMap.h>
+#include <utl/UtlHashBag.h>
 #include <net/SipRefreshManager.h>
 
 // DEFINES
@@ -201,6 +201,9 @@ public:
     //! Get a count of the subscriptions which have been added
     int countSubscriptions();
 
+    //! Dump the object's internal state.
+    void dumpState();
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -257,11 +260,9 @@ private:
     SipUserAgent* mpUserAgent;
     SipDialogMgr* mpDialogMgr;
     SipRefreshManager* mpRefreshMgr;
-    UtlHashMap mSubscriptions; // state info. for each subscription
-    UtlHashMap mEventTypes; // SIP event types that we want NOTIFY requests for
+    UtlHashBag mSubscriptions; // state info. for each subscription
+    UtlHashBag mEventTypes; // SIP event types that we want NOTIFY requests for
     OsMutex mSubscribeClientMutex;
-    int mCallIdCount;
-    int mTagCount;
 };
 
 /* ============================ INLINE METHODS ============================ */

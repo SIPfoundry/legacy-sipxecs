@@ -37,7 +37,7 @@ SipMessageList::~SipMessageList()
 {
     while (SipMessage* pMsg = (SipMessage*) messageList.pop())
     {
-        delete pMsg ;
+        delete pMsg;
     }
 }
 
@@ -374,41 +374,41 @@ void SipMessageList::toString(UtlString& listDumpString)
 #define DBG_TBL_FORMAT_STR "%-30s %-30s %-10s %-10d %s\n"
 void SipMessageList::printDebugTable()
 {
-    SipMessage* pMsg ;
+    SipMessage* pMsg;
 
     int iteratorHandle = messageList.getIteratorHandle();
 
-    osPrintf("\nDump of SipMessageList (instance %8p)\n", this) ;
-    osPrintf("To                             CallId                         Method     CSeq       Request\n") ;
-    osPrintf("------------------------------ ------------------------------ ---------- ---------- ----------\n") ;
+    osPrintf("\nDump of SipMessageList (instance %8p)\n", this);
+    osPrintf("To                             CallId                         Method     CSeq       Request\n");
+    osPrintf("------------------------------ ------------------------------ ---------- ---------- ----------\n");
 
     while ((pMsg = (SipMessage*) messageList.next(iteratorHandle)))
         {
-        UtlString  toURI ;
-        UtlString  callId ;
-        int       iCseq ;
-        UtlString  method ;
-        UtlBoolean bIsResponse ;
+        UtlString  toURI;
+        UtlString  callId;
+        int       iCseq;
+        UtlString  method;
+        UtlBoolean bIsResponse;
 
-        pMsg->getToUri(&toURI) ;
-        pMsg->getCallIdField(&callId) ;
+        pMsg->getToUri(&toURI);
+        pMsg->getCallIdField(&callId);
         pMsg->getCSeqField(&iCseq, &method);
-        bIsResponse = pMsg->isResponse() ;
+        bIsResponse = pMsg->isResponse();
 
         // Shorten fields if necessary
         if (toURI.length() > DBG_TBL_MAX_URI)
-            toURI.remove(DBG_TBL_MAX_URI) ;
+            toURI.remove(DBG_TBL_MAX_URI);
 
         if (callId.length() > DBG_TBL_MAX_URI)
-            callId.remove(DBG_TBL_MAX_URI) ;
+            callId.remove(DBG_TBL_MAX_URI);
 
         if (method.length() > DBG_TBL_MAX_FIELD)
-            method.remove(DBG_TBL_MAX_FIELD) ;
+            method.remove(DBG_TBL_MAX_FIELD);
 
         osPrintf(DBG_TBL_FORMAT_STR, toURI.data(), callId.data(),
-                method.data(), iCseq, bIsResponse ? "FALSE" : "TRUE") ;
+                method.data(), iCseq, bIsResponse ? "FALSE" : "TRUE");
     }
-    osPrintf("\n") ;
+    osPrintf("\n");
 
     messageList.releaseIteratorHandle(iteratorHandle);
 }

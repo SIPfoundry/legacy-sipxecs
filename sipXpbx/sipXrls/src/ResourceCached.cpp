@@ -16,6 +16,7 @@
 #include "ContactSet.h"
 #include "SubscriptionSet.h"
 #include <os/OsSysLog.h>
+#include <os/OsTimer.h>
 #include <os/OsLock.h>
 #include <utl/XmlContent.h>
 #include <utl/UtlHashBagIterator.h>
@@ -320,6 +321,26 @@ void ResourceCached::purgeTerminated()
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ INQUIRY =================================== */
+
+// Dump the object's internal state.
+void ResourceCached::dumpState()
+{
+   // indented 6
+
+   OsTimer::OsTimerState state;
+   OsTimer::Time expiresAt;
+   UtlBoolean periodic;
+   OsTimer::Interval period;
+   mRefreshTimer.getFullState(state, expiresAt, periodic, period);
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t      ResourceCached %p UtlString = '%s', mSeqNo = %d, mRefreshTimer = %s/%+d/%s/%d",
+                 this, data(), mSeqNo,
+                 state == OsTimer::STARTED ? "STARTED" : "STOPPED",
+                 (int) ((expiresAt - OsTimer::now()) / 1000000),
+                 periodic ? "periodic" : "one-shot",
+                 (int) period);
+   mContactSetP->dumpState();
+}
 
 /**
  * Get the ContainableType for a UtlContainable-derived class.

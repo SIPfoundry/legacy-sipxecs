@@ -119,6 +119,9 @@ class ResourceCached : public UtlString
    //! Get the URI of the resource.
    const UtlString* getUri() const;
 
+   //! Dump the object's internal state.
+   void dumpState();
+
    /**
     * Get the ContainableType for a UtlContainable-derived class.
     */
@@ -159,7 +162,7 @@ class ResourceCached : public UtlString
    //! The timer for periodically refreshing the resource subscriptions.
    OsTimer mRefreshTimer;
 
-   //! Random number generator fir generating refresh times.
+   //! Random number generator for generating refresh times.
    static UtlRandom sRandom;
 
    //! Disabled copy constructor

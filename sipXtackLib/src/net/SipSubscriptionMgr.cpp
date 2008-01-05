@@ -37,6 +37,9 @@ public:
     SipMessage* mpLastSubscribeRequest;
     OsTimer* mpExpirationTimer;
 
+    //! Dump the object's internal state.
+    void dumpState();
+
 private:
     //! DISALLOWED accidental copying
     SubscriptionServerState(const SubscriptionServerState& rSubscriptionServerState);
@@ -50,7 +53,7 @@ public:
 
     virtual ~SubscriptionServerStateIndex();
 
-    // Parent UtlString contains the dialog handle
+    // Parent UtlString is the resourceId and eventTypeKey.
     SubscriptionServerState* mpState;
 
 
@@ -93,6 +96,18 @@ SubscriptionServerState::~SubscriptionServerState()
         delete mpExpirationTimer;
         mpExpirationTimer = NULL;
     }
+}
+
+// Dump the object's internal state.
+void SubscriptionServerState::dumpState()
+{
+   // indented 6
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t      SubscriptionServerState %p UtlString = '%s', mResourceId = '%s', mEventTypeKey = '%s', mAcceptHeaderValue = '%s', mExpirationDate = %+d",
+                 this, data(), mResourceId.data(), mEventTypeKey.data(),
+                 mAcceptHeaderValue.data(),
+                 (int) (mExpirationDate - OsDateTime::getSecsSinceEpoch()));
 }
 
 SubscriptionServerStateIndex::SubscriptionServerStateIndex()
@@ -211,7 +226,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
 
             // Create a subscription state
             state = new SubscriptionServerState();
-            *((UtlString*)state) = dialogHandle;
+            *((UtlString*) state) = dialogHandle;
             state->mEventTypeKey = eventTypeKey;
             state->mpLastSubscribeRequest = subscribeCopy;
             state->mResourceId = resourceId;
@@ -227,7 +242,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
 
             // Create the index by resourceId and eventTypeKey key
             SubscriptionServerStateIndex* stateKey = new SubscriptionServerStateIndex;
-            *((UtlString*)stateKey) = resourceId;
+            *((UtlString*) stateKey) = resourceId;
             stateKey->append(eventTypeKey);
             stateKey->mpState = state;
 
@@ -718,6 +733,27 @@ int SipSubscriptionMgr::getNextAllowedVersion(const UtlString& resourceId)
    // about version numbers.
    // :TODO: It probably ought to, though.
    return 0;
+}
+
+// Dump the object's internal state.
+void SipSubscriptionMgr::dumpState()
+{
+   lock();
+
+   // indented 4
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t    SipSubscriptionMgr %p",
+                 this);
+
+   UtlHashBagIterator itor(mSubscriptionStatesByDialogHandle);
+   SubscriptionServerState* ss;
+   while ((ss = dynamic_cast <SubscriptionServerState*> (itor())))
+   {
+      ss->dumpState();
+   }
+
+   unlock();
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

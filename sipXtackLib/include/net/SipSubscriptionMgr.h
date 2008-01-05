@@ -147,6 +147,9 @@ public:
      */
     virtual int getNextAllowedVersion(const UtlString& resourceId);
 
+    //! Dump the object's internal state.
+    void dumpState();
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -171,11 +174,14 @@ private:
     int mDefaultExpiration;
     int mMaxExpiration;
 
-    // Container for the subscription states
-    UtlHashMap mSubscriptionStatesByDialogHandle;
+    // Container for the SubscriptionServerState's, which are indexed
+    // by dialog handles.
+    UtlHashBag mSubscriptionStatesByDialogHandle;
 
     // Index to subscription states in mSubscriptionStatesByDialogHandle
     // indexed by the resourceId and eventTypeKey
+    // Members are SubscriptionServerStateIndex's, which are indexed by
+    // resourceId concatenated with eventTypeKey.
     UtlHashBag mSubscriptionStateResourceIndex;
 };
 

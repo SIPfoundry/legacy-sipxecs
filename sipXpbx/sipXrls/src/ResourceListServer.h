@@ -119,6 +119,9 @@ class ResourceListServer : public UtlContainableAtomic
                     /// The display name for consolidated event notices
                     const char* display_name);
 
+   //! Dump the object's internal state.
+   void dumpState();
+
    //! Get the event type.
    // Return value is valid as long as the ResourceListServer exists.
    const char* getEventType() const;
@@ -177,6 +180,9 @@ class ResourceListServer : public UtlContainableAtomic
 
    //! Get the maximum number of dialogs allowed for a resource instance.
    int getMaxDialogsInResInst() const;
+
+   //! Get the server user agent.
+   SipUserAgent& getServerUserAgent();
 
    /**
     * Get the ContainableType for a UtlContainable-derived class.
@@ -408,6 +414,12 @@ inline int ResourceListServer::getMaxResInstInCont() const
 inline int ResourceListServer::getMaxDialogsInResInst() const
 {
    return mMaxDialogsInResInst;
+}
+
+// Get the server user agent.
+inline SipUserAgent& ResourceListServer::getServerUserAgent()
+{
+   return mServerUserAgent;
 }
 
 #endif  // _ResourceListServer_h_

@@ -11,6 +11,7 @@
 
 // APPLICATION INCLUDES
 #include <net/SipPublishContentMgr.h>
+#include <utl/UtlHashBagIterator.h>
 #include <utl/UtlString.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlSListIterator.h>
@@ -54,6 +55,9 @@ public:
     // the HttpBody's.
     UtlSList mEventVersion;
 
+    //! Dump the object's internal state.
+    void dumpState();
+
 private:
     //! DISALLOWED accendental copying
     PublishContentContainer(const PublishContentContainer& rPublishContentContainer);
@@ -84,6 +88,32 @@ PublishContentContainer::PublishContentContainer()
 PublishContentContainer::~PublishContentContainer()
 {
 }
+
+// Dump the object's internal state.
+void PublishContentContainer::dumpState()
+{
+   // indented 8 and 10
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t        PublishContentContainer %p UtlString = '%s'",
+                 this, data());
+
+   int index = 0;
+   UtlSListIterator content_itor(mEventContent);
+   UtlSListIterator version_itor(mEventVersion);
+   HttpBody* body;
+   while ((body = dynamic_cast <HttpBody*> (content_itor())))
+   {
+      UtlInt* version = dynamic_cast <UtlInt*> (version_itor());
+      OsSysLog::add(FAC_RLS, PRI_INFO,
+                    "\t          mEventVersion[%d] = %d, "
+                    "mEventContent[%d] = '%s':'%s'",
+                    index, version->getValue(),
+                    index, body->data(), body->getBytes());
+      index++;
+   }
+}
+
 
 // Constructor
 SipPublishContentMgr::SipPublishContentMgr()
@@ -690,6 +720,29 @@ UtlBoolean SipPublishContentMgr::getPublished(const char* resourceId,
 
 /* ============================ INQUIRY =================================== */
 
+// Dump the object's internal state.
+void SipPublishContentMgr::dumpState()
+{
+   lock();
+
+   // indented 4 and 6
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t    SipPublishContentMgr %p",
+                 this);
+
+   UtlHashBagIterator itor(mContentEntries);
+   PublishContentContainer* container;
+   while ((container = dynamic_cast <PublishContentContainer*> (itor())))
+   {
+      OsSysLog::add(FAC_RLS, PRI_INFO,
+                    "\t      mContentEntries{'%s'}",
+                    container->data());
+      container->dumpState();
+   }
+
+   unlock();
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
