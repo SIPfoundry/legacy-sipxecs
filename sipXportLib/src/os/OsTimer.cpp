@@ -271,12 +271,6 @@ int OsTimer::getUserData()
    return userData;
 }
 
-unsigned OsTimer::hash() const
-{
-    return (unsigned) this;
-}
-
-
 UtlContainableType OsTimer::getContainableType() const
 {
     return OsTimer::TYPE;
@@ -289,6 +283,20 @@ OsTimer::OsTimerState OsTimer::getState(void)
 {
    OsLock lock(mBSem);
    return isStarted(mApplicationState) ? STARTED : STOPPED;
+}
+
+// Return all the state information for this OsTimer object.
+void OsTimer::getFullState(enum OsTimerState& state,
+                           Time& expiresAt,
+                           UtlBoolean& periodic,
+                           Interval& period)
+{
+   OsLock lock(mBSem);
+
+   state = isStarted(mApplicationState) ? STARTED : STOPPED;
+   expiresAt = mExpiresAt;
+   periodic = mPeriodic;
+   period = mPeriod;
 }
 
 int OsTimer::compareTo(UtlContainable const * inVal) const

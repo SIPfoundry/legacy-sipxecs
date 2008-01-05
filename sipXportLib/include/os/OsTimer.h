@@ -21,7 +21,7 @@
 #include "os/OsNotification.h"
 #include "os/OsStatus.h"
 #include "os/OsTime.h"
-#include "utl/UtlContainable.h"
+#include "utl/UtlContainableAtomic.h"
 
 
 // DEFINES
@@ -100,7 +100,7 @@
  *
  * @nosubgrouping
  */
-class OsTimer : public UtlContainable
+class OsTimer : public UtlContainableAtomic
 {
    friend class OsTimerTask;
    friend class OsTimerTest;
@@ -116,6 +116,11 @@ class OsTimer : public UtlContainable
                                   */
          STARTED                 ///< timer is running and will fire.
       };
+
+   /// type for absolute time in microseconds since the epoch
+   typedef Int64 Time;
+   /// type for time interval in microseconds
+   typedef Int64 Interval;
 
 /* ============================ CREATORS ================================== */
 
@@ -221,13 +226,6 @@ class OsTimer : public UtlContainable
    /// Get the userData value of a timer constructed with OsTimer(OsMsgQ*, int).
    virtual int getUserData();
 
-   /// Calculate a unique hash code for this object.
-   virtual unsigned hash() const;
-   /**<
-    * If the equals operator returns true for another object, then both of
-    * those objects must return the same hashcode.
-    */
-
    /// Get the ContainableType for a UtlContainable derived class.
    virtual UtlContainableType getContainableType() const;
 
@@ -244,16 +242,20 @@ class OsTimer : public UtlContainable
    /// Return the state value for this OsTimer object
    virtual OsTimerState getState(void);
 
+   /// Return all the state information for this OsTimer object.
+   virtual void getFullState(enum OsTimerState& state,
+                             Time& expiresAt,
+                             UtlBoolean& periodic,
+                             Interval& period);
+
+   /// Get the current time as a Time.
+   static Time now();
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
 
    static const UtlContainableType TYPE;
    /**< Class type used for runtime checking */
-
-   /// type for absolute time in microseconds since the epoch
-   typedef Int64 Time;
-   /// type for time interval in microseconds
-   typedef Int64 Interval;
 
    OsBSem          mBSem;      //< semaphore to lock access to members
 
@@ -291,9 +293,6 @@ class OsTimer : public UtlContainable
    /// The null value for the type Interval.
    static const Interval nullInterval;
    ///< nullInterval may not be used in arithmetic operations.
-
-   /// Get the current time as a Time.
-   static Time now();
 
    /// Start a timer.
    OsStatus startTimer(Time start,
