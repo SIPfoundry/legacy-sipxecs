@@ -12,7 +12,7 @@
 #include <os/OsDateTime.h>
 #include <os/OsTimer.h>
 #include <os/OsEventMsg.h>
-#include <utl/UtlHashMapIterator.h>
+#include <utl/UtlHashBagIterator.h>
 #include <net/SipRefreshManager.h>
 #include <net/SipUserAgent.h>
 #include <net/SipDialogMgr.h>
@@ -23,7 +23,9 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
-// Private class to contain subscription client states
+// Private class to contain subscription client state.
+// UtlString is the dialog handle of the dialog or pseudo-dialog that
+// is maintaining it.
 class RefreshDialogState : public UtlString
 {
 public:
@@ -44,6 +46,12 @@ public:
     int mFailedResponseCode;
     UtlString mFailedResponseText;
     OsTimer* mpRefreshTimer;  // Fires when it is time to resend
+
+    //! Dump the object's internal state.
+    void dumpState();
+
+    //! Convert RefreshRequestState to a printable string.
+    static const char* refreshRequestStateText(SipRefreshManager::RefreshRequestState requestState);
 
 private:
     //! DISALLOWED accendental copying
@@ -470,6 +478,60 @@ UtlBoolean SipRefreshManager::stopRefresh(const char* dialogHandle)
     return(stateFound);
 }
 
+void RefreshDialogState::dumpState()
+{
+   // indented 6
+
+   long now = OsDateTime::getSecsSinceEpoch();
+   UtlString msg_text;
+   int msg_length;
+   mpLastRequest->getBytes(&msg_text, &msg_length);
+   OsTimer::OsTimerState state;
+   OsTimer::Time expiresAt;
+   UtlBoolean periodic;
+   OsTimer::Interval period;
+   mpRefreshTimer->getFullState(state, expiresAt, periodic, period);
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t      RefreshDialogState %p mExpirationPeriodSeconds = %d, mPendingStartTime = %+d, mExpiration = %+d, mpLastRequest = '%s', mRequestState = '%s', mFailedResponseCode = %d, mFailedResponseText = '%s', mpRefreshTimer = %s/%+d/%s/%d",
+                 this,
+                 mExpirationPeriodSeconds, (int) (mPendingStartTime - now),
+                 (int) (mExpiration - now), msg_text.data(),
+                 refreshRequestStateText(mRequestState), mFailedResponseCode,
+                 mFailedResponseText.data(),
+                 state == OsTimer::STARTED ? "STARTED" : "STOPPED",
+                 (int) ((expiresAt - OsTimer::now()) / 1000000),
+                 periodic ? "periodic" : "one-shot",
+                 (int) period);
+}
+
+// Convert RefreshRequestState to a printable string.
+const char* RefreshDialogState::refreshRequestStateText(SipRefreshManager::RefreshRequestState requestState)
+{
+   const char* ret;
+
+   switch (requestState)
+   {
+   case SipRefreshManager::REFRESH_REQUEST_UNKNOWN:
+      ret = "UNKNOWN";
+      break;
+   case SipRefreshManager::REFRESH_REQUEST_PENDING:
+      ret = "PENDING";
+      break;
+   case SipRefreshManager::REFRESH_REQUEST_FAILED:
+      ret = "FAILED";
+      break;
+   case SipRefreshManager::REFRESH_REQUEST_SUCCEEDED:
+      ret = "SUCCEEDED";
+      break;
+   default:
+      ret = "invalid value";
+      break;
+   }
+
+   return ret;
+};
+
 void SipRefreshManager::stopAllRefreshes()
 {
     //  Not sure if it is safe to take the lock on this
@@ -479,7 +541,7 @@ void SipRefreshManager::stopAllRefreshes()
     // problem.
     RefreshDialogState* dialogKey = NULL;
     lock();
-    UtlHashMapIterator iterator(mRefreshes);
+    UtlHashBagIterator iterator(mRefreshes);
     while((dialogKey = (RefreshDialogState*) iterator()))
     {
         // Unsubscribe or unregister
@@ -919,7 +981,7 @@ int SipRefreshManager::dumpRefreshStates(UtlString& dumpString)
     int count = 0;
     dumpString.remove(0);
     lock();
-    UtlHashMapIterator iterator(mRefreshes);
+    UtlHashBagIterator iterator(mRefreshes);
     RefreshDialogState* state = NULL;
     UtlString oneStateDump;
 
@@ -943,24 +1005,29 @@ void SipRefreshManager::dumpState()
 
    // indented 4
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
-                 "\t    SipRefreshManager %p",
-                 this);
-
-#if 0
-   UtlString oneClientDump;
-   SubscribeClientState* clientState;
-   UtlHashBagIterator iterator(mSubscriptions);
-   while ((clientState = dynamic_cast <SubscribeClientState*> (iterator())))
+   UtlString event_string;
+   UtlHashBagIterator itor(mEventTypes);
+   UtlString* event;
+   while ((event = dynamic_cast <UtlString*> (itor())))
    {
-      clientState->toString(oneClientDump);
-      OsSysLog::add(FAC_RLS, PRI_INFO,
-                    "\t    SubscribeClientState %p %s",
-                    clientState, oneClientDump.data());
-
+      if (!event_string.isNull())
+      {
+         event_string.append(",");
+      }
+      event_string.append(*event);
    }
-   mpRefreshMgr->dumpState();
-#endif // 0
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t    SipRefreshManager %p, mEventTypes = '%s', mReceivingRegisterResponses = %d, mDefaultExpiration = %d",
+                 this, event_string.data(), mReceivingRegisterResponses,
+                 mDefaultExpiration);
+
+   UtlHashBagIterator itor2(mRefreshes);
+   RefreshDialogState* state;
+   while ((state = dynamic_cast <RefreshDialogState*> (itor2())))
+   {
+      state->dumpState();
+   }
 
    unlock();
 }

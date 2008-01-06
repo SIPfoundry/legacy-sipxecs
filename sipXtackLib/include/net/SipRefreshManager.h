@@ -14,7 +14,7 @@
 
 #include <os/OsDefs.h>
 #include <os/OsServerTask.h>
-#include <utl/UtlHashMap.h>
+#include <utl/UtlHashBag.h>
 #include <net/SipDialog.h>
 
 // DEFINES
@@ -229,8 +229,11 @@ private:
     OsMutex mRefreshMgrMutex; // used to lock this 
     SipUserAgent* mpUserAgent;
     SipDialogMgr* mpDialogMgr;
-    UtlHashMap mRefreshes; // state info. for each subscription and registration being maintained.
-    UtlHashMap mEventTypes; // SIP event types that we want SUBSCRIBE responses for
+    // RefreshDialogState for each subscription and registration being
+    // maintained, indexed by the dialog handle of the dialog or
+    // pseudo-dialog that is maintaining it.
+    UtlHashBag mRefreshes;
+    UtlHashBag mEventTypes; // SIP event types that we want SUBSCRIBE responses for
     UtlBoolean mReceivingRegisterResponses;
     int mDefaultExpiration;
 };
