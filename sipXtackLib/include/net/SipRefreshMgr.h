@@ -152,9 +152,6 @@ public:
     UtlBoolean getNatMappedAddress(UtlString* pIpAddress, int* pPort);
       //: Get the NAT mapped address (if available)
 
-    //! Dump the object's internal state.
-    void dumpState();
-
 protected:
     SipLineMgr* mpLineMgr;
     // the line manager object that uses this refresh manager

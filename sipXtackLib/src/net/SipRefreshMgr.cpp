@@ -2146,27 +2146,3 @@ SipLineMgr* const SipRefreshMgr::getLineMgr() const
 {
     return mpLineMgr;
 }
-
-// Dump the object's internal state.
-void SipRefreshMgr::dumpState()
-{
-   // indented 4
-
-   OsSysLog::add(FAC_RLS, PRI_INFO,
-                 "\t    SipRefreshMgr %p",
-                 this);
-
-#if 0
-   UtlString oneClientDump;
-   SubscribeClientState* clientState;
-   UtlHashBagIterator iterator(mSubscriptions);
-   while ((clientState = dynamic_cast <SubscribeClientState*> (iterator())))
-   {
-      clientState->toString(oneClientDump);
-      OsSysLog::add(FAC_RLS, PRI_INFO,
-                    "\t    SubscribeClientState %p %s",
-                    clientState, oneClientDump.data());
-
-   }
-#endif
-}
