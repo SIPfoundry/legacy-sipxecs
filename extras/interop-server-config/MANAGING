@@ -22,12 +22,12 @@ First, load the desired RPMs into a directory on the interop server.
     RPMs for the desired version.  E.g.:
 
 	    wget --no-parent -r -nd \
-		    http://falcon.pingtel.com/ecs/main/FC/6/010020/RPM
+		    http://falcon.pingtel.com/ecs/main/FC/6/i386/010020/RPM
 
-    Create a destination directory on interop (e.g., ~/8551) and upload
+    Create a destination directory on interop (e.g., ~/010020) and upload
     the RPMs to it:
 
-	    scp *.rpm interop:8551
+	    scp *.rpm interop:010020
 
 On the interop server, stop sipX and install the new PRMs:
 
