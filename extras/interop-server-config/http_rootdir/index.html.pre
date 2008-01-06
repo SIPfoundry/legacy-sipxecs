@@ -602,7 +602,7 @@ in all of the tests.
 (Note that the SIP domains 
 <code>@INTEROP_ALIAS_UDP@</code> and <code>@INTEROP_ALIAS_TCP@</code>
 are implemented via sipX's domain aliasing feature, so they are usable
-for call routing but not for registering AORs.)
+for call routing but are not AORs that can be registered against.)
 </p>
 
 <hr />
