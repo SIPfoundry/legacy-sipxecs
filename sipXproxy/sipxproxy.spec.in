@@ -222,8 +222,7 @@ pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
 %preun cdr
 # prevent uninstalling during an upgrade
-#   see http://www-128.ibm.com/developerworks/library/l-rpm3/
+#   see http://fedoraproject.org/wiki/Packaging/ScriptletSnippets
 if [ "$1" = "0" ] ; then
   gem uninstall sipxcallresolver >/dev/null 2>&1
-  sipxcallresolver.sh --uninstall  
 fi
