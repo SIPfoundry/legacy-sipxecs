@@ -404,8 +404,8 @@ OsConnectionSocket::operator=(const OsConnectionSocket& rhs)
 
 UtlBoolean OsConnectionSocket::reconnect()
 {
-        OsSysLog::add(FAC_KERNEL, PRI_WARNING, " reconnect NOT implemented!");
-        return(FALSE);
+   OsSysLog::add(FAC_KERNEL, PRI_WARNING, "reconnect not implemented");
+   return FALSE;
 }
 
 // Because we have overridden one read method, we
