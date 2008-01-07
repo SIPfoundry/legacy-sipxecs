@@ -15,11 +15,11 @@ import net.sourceforge.jwebunit.WebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class EditMyInformationTestUi extends WebTestCase {
-    
+
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(EditMyInformationTestUi.class);
     }
-    
+
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
@@ -27,7 +27,7 @@ public class EditMyInformationTestUi extends WebTestCase {
         clickLink("loginFirstTestUser");
         clickLink("toggleNavigation");
     }
-    
+
     /**
      * Test that the My Information page displays correctly.  The selected tab
      * when the page is first displayed should be the voicemail tab
@@ -37,15 +37,29 @@ public class EditMyInformationTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
         assertTextPresent("Active greeting");
     }
-    
+
     public void testTabNavigation() {
         clickLink("menu.myInformation");
         clickLink("link:menu");
         SiteTestHelper.assertNoUserError(tester);
         assertTextPresent("Override default AutoAttendant language");
-        
+
         clickLink("link:distributionLists");
         SiteTestHelper.assertNoUserError(tester);
         assertTextPresent("Dialpad");
+    }
+
+    public void testAutoAttendantTabDisplay() {
+        SiteTestHelper.home(getTester());
+        clickLink("loginTestUserWithAutoAttendantPermission");
+        clickLink("toggleNavigation");
+        clickLink("menu.myInformation");
+        assertLinkPresent("link:menu");
+
+        SiteTestHelper.home(getTester());
+        clickLink("loginTestUserWithoutAutoAttendantPermission");
+        clickLink("toggleNavigation");
+        clickLink("menu.myInformation");
+        assertLinkNotPresent("link:menu");
     }
 }

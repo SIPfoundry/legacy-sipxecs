@@ -9,6 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -17,6 +21,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.admin.ModelWithDefaults;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
@@ -46,7 +51,10 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     @Persist
     public abstract PersonalAttendant getPersonalAttendant();
     public abstract void setPersonalAttendant(PersonalAttendant pa);
-    
+
+    public abstract Collection<String> getAvailableTabNames();
+    public abstract void setAvailableTabNames(Collection<String> tabNames);
+
     @Persist
     @InitialValue(value = "literal:info")
     public abstract String getTab();
@@ -88,6 +96,10 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             initLanguageList();
         }
 
+        if (getAvailableTabNames() == null) {
+            initAvailableTabs();
+        }
+
         User user = getUserForEditing();
         if (user == null) {
             user = getUser();
@@ -110,10 +122,23 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             setPersonalAttendant(pa);
         }
     }
-    
+
     private void initLanguageList() {
         String[] languages = getLocalizationContext().getInstalledLanguages();
         IPropertySelectionModel model = new ModelWithDefaults(getMessages(), languages);
         setLanguageList(model);
+    }
+
+    private void initAvailableTabs() {
+        List<String> tabNames = new ArrayList<String>();
+        tabNames.add("info");
+        tabNames.add("distributionLists");
+
+        String paPermissionValue = getUser().getSettingValue("permission/application/personal-auto-attendant");
+        if (Permission.isEnabled(paPermissionValue)) {
+            tabNames.add("menu");
+        }
+
+        setAvailableTabNames(tabNames);
     }
 }

@@ -36,6 +36,10 @@
         <type refid="enable-disable" />
         <value>ENABLE</value>
       </setting>
+      <setting name="personal-auto-attendant">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
     </group>
     <group name="call-handling">
       <setting name="900Dialing">

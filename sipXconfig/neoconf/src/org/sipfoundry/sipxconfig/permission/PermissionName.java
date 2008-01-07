@@ -18,6 +18,8 @@ public enum PermissionName {
 
     TUI_CHANGE_PIN(Type.APPLICATION, "tui-change-pin"),
 
+    PERSONAL_AUTO_ATTENDANT(Type.APPLICATION, "personal-auto-attendant"),
+
     /** call handling */
     NINEHUNDERED_DIALING(Type.CALL, "900Dialing"),
 

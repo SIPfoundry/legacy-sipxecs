@@ -40,12 +40,15 @@ import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
+import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.search.IndexManager;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.admin.commserver.ReplicationData;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
 import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
@@ -84,12 +87,19 @@ public abstract class TestPage extends BasePage {
 
     public static final String TEST_PHONE_MODEL_ID = "acmePhoneStandard";
 
+    public static final String PA_PERMISSION = "permission/application/personal-auto-attendant";
+    public static final String USER_WITHOUT_PA_PERMISSION = "testUserWithoutAutoAttendantPermission";
+    public static final String USER_WITH_PA_PERMISSION = "testUserWithAutoAttendantPermission";
+
     public abstract DialPlanContext getDialPlanContext();
 
     public abstract GatewayContext getGatewayContext();
 
     @InjectObject(value = "spring:nakedGatewayModelSource")
     public abstract ModelSource<GatewayModel> getGatewayModels();
+
+    @InjectObject(value = "spring:permissionManager")
+    public abstract PermissionManager getPermissionManager();
 
     public abstract PhoneContext getPhoneContext();
 
@@ -290,6 +300,36 @@ public abstract class TestPage extends BasePage {
         // Log it in
         UserSession userSession = getUserSession();
         userSession.login(user.getId(), false, true);
+    }
+
+    public void loginTestUserWithAutoAttendantPermission() {
+        User user = getCoreContext().loadUserByUserName(USER_WITH_PA_PERMISSION);
+        if (user == null) {
+            user = new User();
+            user.setPermissionManager(getPermissionManager());
+            user.setUserName(USER_WITH_PA_PERMISSION);
+            user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
+            Setting paSetting = user.getSettings().getSetting(PA_PERMISSION);
+            paSetting.setValue(Permission.ENABLE);
+            getCoreContext().saveUser(user);
+        }
+
+        getUserSession().login(user.getId(), false, true);
+    }
+
+    public void loginTestUserWithoutAutoAttendantPermission() {
+        User user = getCoreContext().loadUserByUserName(USER_WITHOUT_PA_PERMISSION);
+        if (user == null) {
+            user = new User();
+            user.setPermissionManager(getPermissionManager());
+            user.setUserName(USER_WITHOUT_PA_PERMISSION);
+            user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
+            Setting paSetting = user.getSettings().getSetting(PA_PERMISSION);
+            paSetting.setValue(Permission.DISABLE);
+            getCoreContext().saveUser(user);
+        }
+
+        getUserSession().login(user.getId(), false, true);
     }
 
     public IPage seedFxoGateway() {
