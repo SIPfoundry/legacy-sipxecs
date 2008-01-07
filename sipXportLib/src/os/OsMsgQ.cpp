@@ -43,7 +43,9 @@ OsMsgQBase::OsMsgQBase(const UtlString& name)
    mName(name)
 {
    if (mName != "")
+   {
       OsUtil::insertKeyValue(MSGQ_PREFIX, mName, (int) this);
+   }
 }
 
 // Destructor

@@ -34,9 +34,13 @@ OsServerTask::OsServerTask(const UtlString& name,
                            const int options,
                            const int stackSize)
 :  OsTask(name, pArg, priority, options, stackSize),
-   mIncomingQ(maxRequestQMsgs, OsMsgQ::DEF_MAX_MSG_LEN, OsMsgQ::Q_PRIORITY)
-
-   // other than initialization, no work required
+   // Give the name of the task to the queue.  This makes it possible to
+   // log the name of the task that owns a queue that has filled.
+   // Note that if 'name' contains '%d', then the OsTask's name is different
+   // from 'name', so we have to fetch the real task name from the OsTask.
+   mIncomingQ(maxRequestQMsgs, OsMsgQ::DEF_MAX_MSG_LEN, OsMsgQ::Q_PRIORITY,
+              getName())
+   // Other than initialization, no work is required.
 {
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                  "OsServerTask::_ '%s' queue: %p queue limit: %d",

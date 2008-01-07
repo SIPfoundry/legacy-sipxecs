@@ -194,7 +194,7 @@ OsTaskBase::OsTaskBase(const UtlString& name,
    mpArg(pArg),
    mUserData(0)
 {
-        // If name contains %d insert the task count/index
+    // If name contains %d, insert the task count/index.
     assert(name.length() < 240);
     char nameBuffer[256];
     sprintf(nameBuffer, name.data(), taskCount++);

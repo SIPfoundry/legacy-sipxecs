@@ -135,7 +135,6 @@ OsStatus OsUtil::deleteKeyValue(const UtlString& rPrefix,
    pDict = OsNameDb::getNameDb();
    UtlString key = rPrefix + rName;
    OsStatus res = pDict->remove(key, pValue);
-   key = OsUtil::NULL_OS_STRING;
    return res;
 }
 
