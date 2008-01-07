@@ -129,7 +129,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
       // An incoming SIP message.
       const SipMessage* sipMessage = ((SipMessageEvent&) rMsg).getMessage();
 
-      // If this is a NOTIFY request
+      // If this is a MESSAGE request
       if (sipMessage)
       {
          UtlString method;
