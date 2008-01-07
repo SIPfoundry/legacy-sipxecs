@@ -493,16 +493,16 @@ void RefreshDialogState::dumpState()
    mpRefreshTimer->getFullState(state, expiresAt, periodic, period);
 
    OsSysLog::add(FAC_RLS, PRI_INFO,
-                 "\t      RefreshDialogState %p mExpirationPeriodSeconds = %d, mPendingStartTime = %+d, mExpiration = %+d, mpLastRequest = '%s', mRequestState = '%s', mFailedResponseCode = %d, mFailedResponseText = '%s', mpRefreshTimer = %s/%+d/%s/%d",
+                 "\t      RefreshDialogState %p mExpirationPeriodSeconds = %d, mPendingStartTime = %+d, mExpiration = %+d, mRequestState = '%s', mFailedResponseCode = %d, mFailedResponseText = '%s', mpRefreshTimer = %s/%+d/%s/%d, mpLastRequest = '%s'",
                  this,
                  mExpirationPeriodSeconds, (int) (mPendingStartTime - now),
-                 (int) (mExpiration - now), msg_text.data(),
+                 (int) (mExpiration - now),
                  refreshRequestStateText(mRequestState), mFailedResponseCode,
                  mFailedResponseText.data(),
                  state == OsTimer::STARTED ? "STARTED" : "STOPPED",
                  (int) ((expiresAt - OsTimer::now()) / 1000000),
                  periodic ? "periodic" : "one-shot",
-                 (int) period);
+                 (int) period, msg_text.data());
 }
 
 // Convert RefreshRequestState to a printable string.
