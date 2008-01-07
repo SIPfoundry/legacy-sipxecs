@@ -69,7 +69,9 @@ if test $ENABLE_MONITORING = "true"; then
 fi
 
 if test $DISABLE_MONITORING = "true"; then
-  sed 's/\(^monitoringContextImpl.enabled=\)true/\1false/' -i.org $SIPXCONFIG_PROPERTIES_IN
+  if test -f $SIPXCONFIG_PROPERTIES_IN; then
+    sed 's/\(^monitoringContextImpl.enabled=\)true/\1false/' -i.org $SIPXCONFIG_PROPERTIES_IN
+  fi
   exit 0
 fi
 
