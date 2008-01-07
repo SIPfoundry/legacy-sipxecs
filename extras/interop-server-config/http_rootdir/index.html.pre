@@ -200,7 +200,8 @@ assign a GRUU to the UA.
 <!--
 <p>
 The registrar returns to the UA a fictitious contact from another UA
-with a very short expiration time.  (This behavior is allowed by RFC 3261.)
+with a very short expiration time.  (This behavior is allowed by
+<a href="http://www.ietf.org/rfc/rfc3261.txt">RFC 3261</a>.)
 (This feature is not yet implemented.)
 Some UAs respond incorrectly to the short expiration time by
 immediately re-registering.
@@ -243,6 +244,7 @@ Any SIP UA can call a registered UA by calling its AOR,
 <li><a href='#ENUM'>ENUM Dialing</a></li>
 <li><a href='#JOIN'>Ad-hoc Conferencing</a></li>
 <li><a href='#SRV'>DNS SRV Record Processing</a></li>
+<li><a href='#BLF'>BLF (Busy Lamp Field) and Dialog-Event Resource Lists</a></li>
 </ol>
 
 <h3><a name='MWI'>1</a>. DTMF Generation and Message Waiting Indication (MWI)</h3>
@@ -260,7 +262,8 @@ to deposit voicemail.
 Voicemail can be retrieved by calling 101 from UAs registered as
 1<span class='group'>gg</span>1 and 1<span class='group'>gg</span>2.
 The voicemail PIN is the same as the SIP registration password for the AOR.
-The voicemail server interprets RFC 2833 DTMF packets.
+The voicemail server interprets 
+<a href="http://www.ietf.org/rfc/rfc2833.txt">RFC 2833</a> DTMF packets.
 </p>
 
 <h3><a name='xfer'>2</a>. Transfer</h3>
@@ -307,12 +310,12 @@ will be forked to <code>1<span class='group'>gg</span>3</code>,
 class='group'>gg</span>5</code>, and <code>1<span
 class='group'>gg</span>6</code> in some random order.  If not
 answered, the first extension called will receive a CANCEL when the
-next is called.  Make sure that your caller connects with the phone
+next is called.  Make sure that your caller connects with the UA
 that answers, and that all the others correctly clean up the
 canceled requests.
 Note that ringing four contacts can take quite a while, and the
-calling phone or the sipX proxy may time out the call attempt before
-all four phones ring.
+calling UA or the sipX proxy may time out the call attempt before
+all four UAs ring.
 </p>
 
 <h3><a name='pfork'>6</a>. Parallel Forking</h3>
@@ -323,7 +326,7 @@ will be simultaneously forked to <code>1<span class='group'>gg</span>3</code>,
 <code>1<span class='group'>gg</span>4</code>, <code>1<span
 class='group'>gg</span>5</code>, and <code>1<span
 class='group'>gg</span>6</code>.  When one answers, the others will
-receive a CANCEL.  Make sure that your caller connects with the phone
+receive a CANCEL.  Make sure that your caller connects with the UA
 that answers, and that all the others correctly clean up the
 canceled requests.
 </p>
@@ -346,7 +349,7 @@ class='group'>gg</span>x</code> with the same Call-Id, Cseq, and From tag
 values, but different branch ids.  The UAC should accept the first one
 and return a 482 Loop Detected response to the second.  Make sure that
 the loop detected error is sent and that the call is correctly set up
-when the called phone answers.
+when the called UA answers.
 </p>
 
 <h3><a name='hoplimit'>9</a>. Hop Limit Exceeded</h3>
@@ -603,6 +606,41 @@ in all of the tests.
 <code>@INTEROP_ALIAS_UDP@</code> and <code>@INTEROP_ALIAS_TCP@</code>
 are implemented via sipX's domain aliasing feature, so they are usable
 for call routing but are not AORs that can be registered against.)
+</p>
+
+<h3><a name='BLF'>19</a>. BLF (Busy Lamp Field) and Dialog-Event Resource Lists</h3>
+
+<p>
+Some UAs can subscribe to a resource list of dialog events to obtain
+and display BLF information.  BLF (Busy Lamp Field) is a feature of
+a UA where it displays the busy/not-busy statuses of other AORs
+(extensions).
+This server provides a resource list URI
+"sip:~~rl~<span class='group'>gg</span>@@SIPXCHANGE_DOMAIN_NAME@"
+which includes the statuses of 
+"sip:1<span class='group'>gg</span>2@@SIPXCHANGE_DOMAIN_NAME@",
+"sip:1<span class='group'>gg</span>6@@SIPXCHANGE_DOMAIN_NAME@", and
+"sip:1<span class='group'>gg</span>9@@SIPXCHANGE_DOMAIN_NAME@".
+The dialog events generated for thse resource list URIs are in full 
+<a href="http://www.ietf.org/rfc/rfc4662.txt">RFC 4662</a> format,
+including listing the status of each registered UA for each AOR
+separately.
+If your UA requires dialog events in the more restricted format
+provided by Broadworks, it should subscribe to the URI
+"sip:~~rl~<span class='group'>gg</span>c@@SIPXCHANGE_DOMAIN_NAME@".
+</p>
+
+<p>
+As a consequence of maintaining the resource lists, the server
+maintains a dialog event subscription to all UAs registered to the
+URIs
+"sip:1<span class='group'>gg</span>2@@SIPXCHANGE_DOMAIN_NAME@",
+"sip:1<span class='group'>gg</span>6@@SIPXCHANGE_DOMAIN_NAME@", and
+"sip:1<span class='group'>gg</span>9@@SIPXCHANGE_DOMAIN_NAME@".
+Beware that some UAs cannot serve more than one dialog event
+subscription.  Such UAs should not register for these AORs, and will
+not work consistently with any sipX feature that requires dialog events,
+including call pick-up.
 </p>
 
 <hr />
