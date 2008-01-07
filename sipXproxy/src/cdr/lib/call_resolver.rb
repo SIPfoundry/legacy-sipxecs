@@ -7,7 +7,6 @@
 
 require 'logger'
 
-require 'call_direction/call_direction_plugin'
 require 'db/cse_reader'
 require 'db/cdr_writer'
 require 'soap/server'
@@ -78,9 +77,6 @@ class CallResolver
       server.start      
     }
     
-    #FIXME: enable call direction plugin
-    #cdr_queue = start_plugins(cdr_queue)
-    
     writer_thread = Thread.new( @writer, cdr_queue ) { | w, q | w.run(q) }    
     
     reader_threads.each{ |thread| thread.join }
@@ -114,15 +110,5 @@ class CallResolver
     Signal.trap("USR1") do
       log.debug(@state.to_s)
     end
-  end  
-  
-  def start_plugins(raw_queue)
-    return raw_queue unless CallDirectionPlugin.call_direction?(@config)    
-    processed_queue = Queue.new
-    
-    cdp = CallDirectionPlugin.new(raw_queue, processed_queue)  
-    Thread.new(cdp) { | plugin | plugin.run }
-    
-    return processed_queue
   end  
 end
