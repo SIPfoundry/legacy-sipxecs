@@ -457,10 +457,6 @@ onSetup() {
     fi
 }
 
-onUninstall() { 
-    return
-}
-
 # Start CDR call resolver
 onStartup() { 
     # Check database version - don't run if it's wrong
@@ -485,10 +481,6 @@ do
             Action=SETUP
             ;;
             
-        -u|--uninstall)
-            Action=UNINSTALL
-            ;;
-
         -d|--database)
             Action=DATABASE
             shift
@@ -535,8 +527,6 @@ elif [ ${Action} = RUN ]; then
     onStartup
 elif [ ${Action} = SETUP ]; then
     onSetup
-elif [ ${Action} = UNINSTALL ]; then
-    onUninstall
 elif [ ${Action} = PATCH ]; then
     databasePatch
 else
@@ -562,8 +552,6 @@ Options include:
 
   --setup              Initialize postgresql for communicating with sipxconfig
                        and create initial database. Needs root permissions.
-                       
-  --uninstall          Uninstall sipxcallresolver changes and settings.
 
 Common Database commands include:
 
