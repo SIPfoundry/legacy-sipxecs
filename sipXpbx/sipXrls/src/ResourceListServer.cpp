@@ -118,9 +118,6 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
    // Do not set the resource list file name yet, so the ResourceListFileReader
    // doesn't add elements to the ResourceListSet before we have the
    // SIP tasks set up.
-   // (The following statement takes the address of a temporary UtlString,
-   // but that is OK because the pointer to the string is not kept
-   // by the constructor we pass it to.)
    mResourceListFileReader(UtlString(""), &mResourceListSet)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
