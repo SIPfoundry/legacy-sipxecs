@@ -27,8 +27,8 @@
 class ResourceListSet;
 
 
-//: Class construct an object that reads the orbits.xml file that describes
-//: the "parking orbits".
+//: Class construct an object that reads the resource-list.xml file that describes
+//: the resource lists.
 class ResourceListFileReader : public RefreshingFileReader
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */

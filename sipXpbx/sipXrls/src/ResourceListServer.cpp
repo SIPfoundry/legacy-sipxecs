@@ -121,12 +121,12 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
    mResourceListFileReader(UtlString(""), &mResourceListSet)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceListServer:: this = %p, mDomainName = '%s', mEventType = '%s', mContentType = '%s', mRefreshInterval = %d, mResubscribeInterval = %d",
+                 "ResourceListServer::_ this = %p, mDomainName = '%s', mEventType = '%s', mContentType = '%s', mRefreshInterval = %d, mResubscribeInterval = %d",
                  this, mDomainName.data(),
                  mEventType.data(), mContentType.data(),
                  mRefreshInterval, mResubscribeInterval);
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceListServer:: this = %p, mPublishingDelay = %d, mMaxRegSubscInResource = %d, mMaxContInRegSubsc = %d, mMaxResInstInCont = %d, mMaxDialogsInResInst = %d",
+                 "ResourceListServer::_ this = %p, mPublishingDelay = %d, mMaxRegSubscInResource = %d, mMaxContInRegSubsc = %d, mMaxResInstInCont = %d, mMaxDialogsInResInst = %d",
                  this,
                  publishingDelay, mMaxRegSubscInResource, mMaxContInRegSubsc,
                  mMaxResInstInCont, mMaxDialogsInResInst);
@@ -190,6 +190,9 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
                                        TRUE, // incoming,
                                        FALSE // outgoing
       );
+
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListServer::_ Initialization done.");
 }
 
 // Destructor
