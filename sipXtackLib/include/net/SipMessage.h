@@ -1068,9 +1068,9 @@ public:
     UtlBoolean getReferredByUrls(UtlString* referrerUrl = NULL,
                       UtlString* referredToUrl = NULL) const;
 
-    void setAllowField(const char* referToField);
+    void setAllowField(const char* allowField);
 
-    UtlBoolean getAllowField(UtlString& referToField) const;
+    UtlBoolean getAllowField(UtlString& allowField) const;
 
     UtlBoolean getReplacesData(UtlString& callId,
                               UtlString& toTag,

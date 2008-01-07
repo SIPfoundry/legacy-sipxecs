@@ -540,6 +540,10 @@ public:
      * \param length - the length of bytes
      */
     void getBytes(UtlString* bytes, int* length, bool includeBody = true) const;
+    //! Get a malloc'ed string containing the text of the message.
+    /*! Must be free'd by the caller.  Suitable for use in debugger.
+     */
+    char* getBytes() const;
     //! Print message to stdout (for debugging).
     void debugPrint(void) const;
 

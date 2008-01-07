@@ -2418,6 +2418,20 @@ void HttpMessage::getBytes(UtlString* bufferString, int* length, bool includeBod
         *length = bufferString->length();
 }
 
+// Get a malloc'ed string containing the text of the message.
+char* HttpMessage::getBytes() const
+{
+   UtlString buffer;
+   int length;
+
+   getBytes(&buffer, &length);
+   char* ret = (char*) malloc(length + 1);
+   assert(ret);
+   memcpy(ret, buffer.data(), length + 1);
+
+   return ret;
+}
+
 // Print message to stdout.  (To be called from GDB.)
 void HttpMessage::debugPrint() const
 {
