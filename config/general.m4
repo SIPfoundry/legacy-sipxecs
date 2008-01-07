@@ -1543,7 +1543,7 @@ AC_DEFUN([CHECK_DATE_PARSE_ARGS],
       AC_MSG_RESULT([--date=])
    else
       # this method works on FreeBSD
-      date -j -f \"%b %e %T %Y %Z\" "`date +%b\ %e\ %T\ %Y\ %Z`" +%s > /dev/null 2>&1
+      date -j -f "%b %e %T %Y %Z" "`date +%b\ %e\ %T\ %Y\ %Z`" +%s > /dev/null 2>&1
       if test $? -eq 0 
       then
          AC_SUBST(DATE_PARSE_ARGS,"-j -f \"%b %e %T %Y %Z\" ")
