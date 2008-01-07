@@ -601,13 +601,6 @@ names in place of <code>@SIPXCHANGE_DOMAIN_NAME@</code> to place calls
 in all of the tests.
 </p>
 
-<p>
-(Note that the SIP domains 
-<code>@INTEROP_ALIAS_UDP@</code> and <code>@INTEROP_ALIAS_TCP@</code>
-are implemented via sipX's domain aliasing feature, so they are usable
-for call routing but are not AORs that can be registered against.)
-</p>
-
 <h3><a name='BLF'>19</a>. BLF (Busy Lamp Field) and Dialog-Event Resource Lists</h3>
 
 <p>
