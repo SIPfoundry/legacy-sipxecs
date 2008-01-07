@@ -190,7 +190,7 @@ public:
      * This is used just like the constructor, but resets the values for an existing Url.
      * For convenience, it also @returns true iff the urlString parsed as valid.
      *
-     *     *
+     *
      * Many header field are defined to allow multiple comma-separated Url values.
      * If the values have display name components that contain commas (legal), it
      * is safest to do a complete parse of the Urls.  The nextUri parameter provides
@@ -230,7 +230,7 @@ public:
                     UtlBoolean isAddrSpec = FALSE
                     )
     {
-       return fromString(urlString, isAddrSpec ? AddrSpec : NameAddr, NULL );
+       return fromString(urlString, isAddrSpec ? AddrSpec : NameAddr, NULL);
     }
     ///< @DEPRECATED - use the form taking a UriForm for the second argument.
 
