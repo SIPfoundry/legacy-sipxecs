@@ -132,14 +132,15 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         SettingSet currentSettingSet = null;
         String currentSettingSetName = null;
         Setting settings = getGateway().getSettings();
-        // because setting path is persistant in session, guard against
-        // path not rellevant to this gateways setting set
+        // because setting path is persistent in session, guard against
+        // path not relevant to this gateway's setting set
         if (settings != null && !StringUtils.isBlank(settingPath)) {
             currentSettingSet = (SettingSet) settings.getSetting(settingPath);
             if (currentSettingSet != null) {
                 currentSettingSetName = currentSettingSet.getName();
             }
         }
+
         setCurrentSettingSet(currentSettingSet);
         setCurrentSettingSetName(currentSettingSetName);
     }
@@ -162,7 +163,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
             setGateway(null);
         }
     }
-    
+
     public IPage addPort() {
         Gateway gateway = getGateway();
         gateway.addPort(new FxoPort());
@@ -181,13 +182,14 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         editPortPage.setReturnPage(getPage());
         return editPortPage;
     }
-    
+
     public static EditGateway getEditPage(IRequestCycle cycle, Integer gatewayId,
             IPage returnPage, Integer ruleId) {
         EditGateway page = (EditGateway) cycle.getPage(PAGE);
         page.setGatewayModel(null);
         page.setGatewayId(gatewayId);
         page.setGateway(null);
+        page.setCurrentSettingSetName(null);
         page.setRuleId(ruleId);
         page.setReturnPage(returnPage);
         return page;
@@ -199,6 +201,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         page.setGatewayModel(model);
         page.setGatewayId(null);
         page.setGateway(null);
+        page.setCurrentSettingSetName(null);
         page.setRuleId(ruleId);
         page.setReturnPage(returnPage);
         return page;

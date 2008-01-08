@@ -138,6 +138,7 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
         page.setSbcDescriptor(null);
         page.setSbcDeviceId(sbcId);
         page.setSbcDevice(null);
+        page.setCurrentSettingSetName(null);
         page.setReturnPage(returnPage);
         return page;
     }
@@ -148,6 +149,7 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
         page.setSbcDescriptor(model);
         page.setSbcDeviceId(null);
         page.setSbcDevice(null);
+        page.setCurrentSettingSetName(null);
         page.setReturnPage(returnPage);
         return page;
     }
