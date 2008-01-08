@@ -2211,7 +2211,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     UtlString requestSeqMethod;
     int tagNum = -1;
 
-    setLocalAddress(request->getLocalIp().data());
+    setLocalAddress(request->getInterfaceIp().data());
     request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
 
     // Create a media connection if one does not yet exist
@@ -2219,7 +2219,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     {
         // Create a new connection in the flow graph
         mpMediaInterface->createConnection(mConnectionId,
-                                           request->getLocalIp().data(),
+                                           request->getInterfaceIp().data(),
                                            NULL /* VIDEO: WINDOW HANDLE */);
     }
 
@@ -5602,12 +5602,13 @@ UtlBoolean SipConnection::send(SipMessage& message,
                     OsMsgQ* responseListener,
                     void* responseListenerData)
 {
-    if (message.getLocalIp().length() < 1)
+    // If we don't know the proper interface, use the stack default 
+    if (message.getInterfaceIp().length() < 1)
     {
-        int port = -1;
+        int port = PORT_NONE;
         UtlString localIp;
         sipUserAgent->getLocalAddress(&localIp, &port);        
-        message.setLocalIp(localIp);
+        message.setInterfaceIpPort(localIp, port);
     }
     
     // Catch-all: Use derived contact instead of stack-default if

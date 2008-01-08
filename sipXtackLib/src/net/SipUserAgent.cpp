@@ -1409,6 +1409,38 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
 
    if(messageType == SipMessageEvent::APPLICATION)
    {
+      // Strip out maddr/transport/non-default port according to RFC 3261 section 16.4
+      if (doesMaddrMatchesUserAgent(*message))
+      {
+         UtlString uriStr ;
+         UtlString method ;
+         UtlString protocol ;
+         UtlString originalHeader ;
+
+         if (OsSysLog::willLog(FAC_SIP, PRI_NOTICE))
+         {
+             originalHeader = message->getFirstHeaderLine() ;
+         }
+         message->getRequestMethod(&method) ;
+         message->getRequestProtocol(&protocol) ;
+         message->getRequestUri(&uriStr) ;
+         Url uri(uriStr, Url::AddrSpec, NULL) ;
+         uri.removeUrlParameter("maddr") ;
+         uri.removeUrlParameter("transport") ;
+         uri.setHostPort(PORT_NONE) ;
+         message->setFirstHeaderLine(method, uri.toString(), protocol) ;
+         
+         if (OsSysLog::willLog(FAC_SIP, PRI_NOTICE))
+         {
+            OsSysLog::add(FAC_SIP, PRI_NOTICE,
+                  "SipUserAgent[%s]::dispatch updated first line header "
+                  "per RFC 3261 Section 16.4:\n%s -> %s",
+                  getName().data(),
+                  originalHeader.data(),
+                  message->getFirstHeaderLine());
+         }
+    }
+
       message->logTimeEvent("DISPATCHING");
 
       UtlBoolean isUaTransaction = mIsUaTransactionByDefault;
@@ -3561,6 +3593,77 @@ const bool SipUserAgent::addContactAddress(CONTACT_ADDRESS& contactAddress)
 void SipUserAgent::getContactAddresses(CONTACT_ADDRESS* pContacts[], int &numContacts)
 {
     mContactDb.getAll(pContacts, numContacts);
+}
+
+UtlBoolean SipUserAgent::doesMaddrMatchesUserAgent(SipMessage& message) 
+{
+   UtlBoolean bMatch = false ;
+
+   // "If the Request-URI contains a maddr parameter, the proxy MUST check
+   // to see if its value is in the set of addresses or domains the proxy
+   // is configured to be responsible for.  If the Request-URI has a maddr
+   // parameter with a value the proxy is responsible for, and the request
+   // was received using the port and transport indicated (explicitly or by
+   // default) in the Request-URI, the proxy MUST strip the maddr and any
+   // non-default port or transport parameter and continue processing as if
+   // those values had not been present in the request."
+   //
+   
+   // Must be a response
+   if (!message.isResponse())
+   {
+      UtlString uriStr ;
+      UtlString maddr ;
+      message.getRequestUri(&uriStr) ;
+      Url uri(uriStr, Url::AddrSpec, NULL) ;
+      if (uri.getUrlParameter("maddr", maddr) && !maddr.isNull())
+      {
+         // Normalize Port
+         int uriPort = uri.getHostPort() ;
+         if (uriPort == PORT_NONE)
+             uriPort = SIP_PORT ;
+         
+         // IP/Port must Match -- TODO:: Host check
+         if ((message.getInterfaceIp().compareTo(maddr) == 0) && 
+                 (uriPort == message.getInterfacePort()))
+         {
+            OsSocket::IpProtocolSocketType socketType = message.getSendProtocol() ;
+            UtlString transport ;
+
+            switch (socketType)
+            {
+            case OsSocket::UDP:
+               uri.getUrlParameter("transport", transport) ;
+               if (transport.isNull() || transport.compareTo("UDP", UtlString::ignoreCase) == 0)
+               {
+                  bMatch = TRUE ;
+               }               
+               break ;
+            case OsSocket::TCP:
+               uri.getUrlParameter("transport", transport) ;
+               if (transport.compareTo("TCP", UtlString::ignoreCase) == 0)
+               {
+                  bMatch = TRUE ;
+               }
+               break ;
+            case OsSocket::SSL_SOCKET:
+               uri.getUrlParameter("transport", transport) ;
+               // Note: checking for transport=tls for RFC 2543 support
+               if ((transport.compareTo("TLS", UtlString::ignoreCase) == 0) ||
+                     uri.getScheme() == Url::SipsUrlScheme)
+               {
+                  bMatch = TRUE ;
+               }
+               break ;
+            default:
+               // If we don't have or understand the transport -- allow it.
+               break ;
+            }
+         }
+      }
+   }
+
+   return bMatch ;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

@@ -183,7 +183,7 @@ void ResourceListTask::handleMessageRequest(const SipMessage& msg)
    }
    else
    {
-      response.setLocalIp(msg.getLocalIp());
+      response.setInterfaceIpPort(msg.getInterfaceIp(), msg.getInterfacePort());
       response.setResponseData(&msg, SIP_NOT_FOUND_CODE, SIP_NOT_FOUND_TEXT);
    }
 

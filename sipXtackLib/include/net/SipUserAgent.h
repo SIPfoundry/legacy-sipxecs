@@ -564,7 +564,7 @@ public:
     
     //! Gets all contact addresses for this user agent
     void getContactAddresses(CONTACT_ADDRESS* pContacts[], int &numContacts);
-
+    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -626,6 +626,8 @@ protected:
                                        SipMessage* request,
                                        int* messageType,
                                        int authorizationEntity);
+    
+    UtlBoolean doesMaddrMatchesUserAgent(SipMessage& message) ;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

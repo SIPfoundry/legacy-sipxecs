@@ -566,10 +566,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                                 UtlString localAddress;
                                 int port;
                                 char szAdapter[256];
-                                
-                    
-                                localAddress = sipMsg->getLocalIp();                                
-
+                                                    
+                                localAddress = sipMsg->getInterfaceIp();                                
                                 getContactAdapterName(szAdapter, localAddress.data());
 
                                 CONTACT_ADDRESS contact;

@@ -96,7 +96,7 @@ UtlBoolean SipProtocolServerBase::send(SipMessage* message,
 {
     UtlBoolean sendOk = FALSE;
 
-    UtlString localIp(message->getLocalIp());
+    UtlString localIp(message->getInterfaceIp());
     
     if (localIp.isNull())
     {

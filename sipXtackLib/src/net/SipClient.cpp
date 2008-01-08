@@ -657,7 +657,7 @@ void SipClient::preprocessMessage(SipMessage& msg,
                     
    // Keep track of the interface on which this message was
    // received.               
-   msg.setLocalIp(clientSocket->getLocalIp());
+   msg.setInterfaceIpPort(clientSocket->getLocalIp(), clientSocket->getLocalHostPort());
 
    if (mReceivedAddress.isNull())
    {

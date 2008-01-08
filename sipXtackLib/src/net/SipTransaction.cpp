@@ -799,16 +799,6 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
 
         UtlString toField;
         request.getToField(&toField);
-        Url toUrl(toField);
-        UtlString toMaddr;
-        toUrl.getUrlParameter("maddr", toMaddr);
-
-        // Trying to have a low impact on the code All of this should just use the Url object
-        if(!toMaddr.isNull())
-        {
-            toAddress = toMaddr;
-        }
-
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipTransaction::prepareRequestForSend UA Sending SIP REQUEST to: \"%s\" port: %d",

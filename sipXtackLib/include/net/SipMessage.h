@@ -977,9 +977,10 @@ public:
     //! Set the SIP-ETAG field in a response to the PUBLISH request
     void setSipETagField(const char* sipETagField);
 
-    const UtlString& getLocalIp() const;
-    
-    void setLocalIp(const UtlString& localIp);
+    const UtlString& getInterfaceIp() const;
+    int getInterfacePort() const;
+    void setInterfaceIpPort(const char* szIP, int port);
+        
 
     //@}
 
@@ -1179,7 +1180,8 @@ private:
  
     SipTransaction* mpSipTransaction;
     
-    UtlString mLocalIp;
+    UtlString mInterfaceIp;
+    int       mInterfacePort;
 
     //SDUA
     UtlString m_dnsProtocol ;

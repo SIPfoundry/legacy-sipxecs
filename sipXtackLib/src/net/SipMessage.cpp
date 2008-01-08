@@ -46,13 +46,13 @@ SipMessage::SipMessageFieldProps SipMessage::sSipMessageFieldProps;
 SipMessage::SipMessage(const char* messageBytes, int byteCount) :
    HttpMessage(messageBytes, byteCount)
 {
-   mLocalIp = "";
-   mpSipTransaction = NULL;
-   replaceShortFieldNames();
-
 #ifdef TRACK_LIFE
    osPrintf("Created SipMessage @ address:%X\n",this);
 #endif
+
+   mInterfacePort = PORT_NONE;
+   mpSipTransaction = NULL;
+   replaceShortFieldNames();
 }
 
 SipMessage::SipMessage(OsSocket* inSocket, int bufferSize) :
@@ -61,7 +61,9 @@ SipMessage::SipMessage(OsSocket* inSocket, int bufferSize) :
 #ifdef TRACK_LIFE
    osPrintf("Created SipMessage @ address:%X\n",this);
 #endif
-    mpSipTransaction = NULL;
+
+   mInterfacePort = PORT_NONE;
+   mpSipTransaction = NULL;
    replaceShortFieldNames();
 }
 
@@ -74,12 +76,12 @@ SipMessage::SipMessage(const SipMessage& rSipMessage) :
    osPrintf("Created SipMessage @ address:%X\n",this);
 #endif
    replaceShortFieldNames();
-   //SDUA
-   mLocalIp = rSipMessage.mLocalIp;
+   mInterfaceIp = rSipMessage.mInterfaceIp;
+   mInterfacePort = rSipMessage.mInterfacePort;
    m_dnsProtocol = rSipMessage.m_dnsProtocol;
    m_dnsAddress = rSipMessage.m_dnsAddress;
    m_dnsPort = rSipMessage.m_dnsPort;
-    mpSipTransaction = rSipMessage.mpSipTransaction;
+   mpSipTransaction = rSipMessage.mpSipTransaction;
 }
 
 // Destructor
@@ -97,13 +99,13 @@ SipMessage::operator=(const SipMessage& rSipMessage)
    HttpMessage::operator =((HttpMessage&)rSipMessage);
    if (this != &rSipMessage)
    {
-         replaceShortFieldNames();
-      mLocalIp = rSipMessage.mLocalIp;
-      //SDUA
+      replaceShortFieldNames();
+      mInterfaceIp = rSipMessage.mInterfaceIp;
+      mInterfacePort = rSipMessage.mInterfacePort;
       m_dnsProtocol = rSipMessage.m_dnsProtocol;
       m_dnsAddress = rSipMessage.m_dnsAddress;
       m_dnsPort = rSipMessage.m_dnsPort;
-       mpSipTransaction = rSipMessage.mpSipTransaction;
+      mpSipTransaction = rSipMessage.mpSipTransaction;
    }
    return *this;
 }
@@ -248,7 +250,7 @@ void SipMessage::setReinviteData(SipMessage* invite,
     UtlString contactUri;
     UtlString lastResponseContact;
 
-    setLocalIp(invite->getLocalIp()) ;
+    setInterfaceIpPort(invite->getInterfaceIp(), invite->getInterfacePort()) ;
 
     // Get the to, from and callId fields
     if(inviteFromThisSide)
@@ -620,14 +622,14 @@ void SipMessage::setResponseData(int statusCode, const char* statusText,
 
 void SipMessage::setTryingResponseData(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
+   setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
    setResponseData(request, SIP_TRYING_CODE, SIP_TRYING_TEXT);
 }
 
 void SipMessage::setInviteRingingData(const SipMessage* inviteRequest,
                                       const char* localContact)
 {
-   setLocalIp(inviteRequest->getLocalIp());
+   setInterfaceIpPort(inviteRequest->getInterfaceIp(), inviteRequest->getInterfacePort()) ;
    setResponseData(inviteRequest, SIP_RINGING_CODE, SIP_RINGING_TEXT);
    
    if (localContact)
@@ -638,7 +640,7 @@ void SipMessage::setInviteRingingData(const SipMessage* inviteRequest,
 
 void SipMessage::setQueuedResponseData(const SipMessage* inviteRequest)
 {
-   setLocalIp(inviteRequest->getLocalIp());
+   setInterfaceIpPort(inviteRequest->getInterfaceIp(), inviteRequest->getInterfacePort()) ;
    setResponseData(inviteRequest, SIP_QUEUED_CODE, SIP_QUEUED_TEXT);
 }
 
@@ -653,21 +655,21 @@ void SipMessage::setInviteBusyData(const char* fromField, const char* toField,
 
 void SipMessage::setBadTransactionData(const SipMessage* inviteRequest)
 {
-   setLocalIp(inviteRequest->getLocalIp());
+   setInterfaceIpPort(inviteRequest->getInterfaceIp(), inviteRequest->getInterfacePort()) ;
    setResponseData(inviteRequest, SIP_BAD_TRANSACTION_CODE,
                    SIP_BAD_TRANSACTION_TEXT);
 }
 
 void SipMessage::setBadSubscriptionData(const SipMessage* inviteRequest)
 {
-   setLocalIp(inviteRequest->getLocalIp());
+   setInterfaceIpPort(inviteRequest->getInterfaceIp(), inviteRequest->getInterfacePort()) ;
    setResponseData(inviteRequest, SIP_BAD_SUBSCRIPTION_CODE,
                    SIP_BAD_SUBSCRIPTION_TEXT);
 }
 
 void SipMessage::setLoopDetectedData(const SipMessage* inviteRequest)
 {
-   setLocalIp(inviteRequest->getLocalIp());
+   setInterfaceIpPort(inviteRequest->getInterfaceIp(), inviteRequest->getInterfacePort()) ;
    setResponseData(inviteRequest, SIP_LOOP_DETECTED_CODE,
         SIP_LOOP_DETECTED_TEXT);
    setRequestDiagBody(*inviteRequest);
@@ -681,7 +683,7 @@ void SipMessage::setInviteBusyData(const SipMessage* inviteRequest)
    int sequenceNum;
    UtlString sequenceMethod;
 
-   setLocalIp(inviteRequest->getLocalIp());
+   setInterfaceIpPort(inviteRequest->getInterfaceIp(), inviteRequest->getInterfacePort()) ;
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
    inviteRequest->getCallIdField(&callId);
@@ -696,7 +698,7 @@ void SipMessage::setInviteBusyData(const SipMessage* inviteRequest)
 void SipMessage::setForwardResponseData(const SipMessage* request,
                      const char* forwardAddress)
 {
-   setLocalIp(request->getLocalIp());
+   setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
    setResponseData(request, SIP_TEMPORARY_MOVE_CODE, SIP_TEMPORARY_MOVE_TEXT);
 
    // Add the contact field for the forward address
@@ -719,7 +721,7 @@ void SipMessage::setForwardResponseData(const SipMessage* request,
 void SipMessage::setInviteBadCodecs(const SipMessage* inviteRequest,
                                     SipUserAgent* ua)
 {
-   setLocalIp(inviteRequest->getLocalIp());
+   setInterfaceIpPort(inviteRequest->getInterfaceIp(), inviteRequest->getInterfacePort()) ;
    char warningCodeString[MAXIMUM_INTEGER_STRING_LENGTH + 1];
    UtlString warningField;
 
@@ -756,7 +758,7 @@ void SipMessage::setInviteBadCodecs(const SipMessage* inviteRequest,
 void SipMessage::setRequestBadMethod(const SipMessage* request,
                             const char* allowedMethods)
 {
-   setLocalIp(request->getLocalIp());
+   setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
    setResponseData(request, SIP_BAD_METHOD_CODE, SIP_BAD_METHOD_TEXT);
 
    // Add a methods supported field
@@ -765,7 +767,7 @@ void SipMessage::setRequestBadMethod(const SipMessage* request,
 
 void SipMessage::setRequestUnimplemented(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
+   setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
    setResponseData(request, SIP_UNIMPLEMENTED_METHOD_CODE,
         SIP_UNIMPLEMENTED_METHOD_TEXT);
 }
@@ -773,7 +775,7 @@ void SipMessage::setRequestUnimplemented(const SipMessage* request)
 void SipMessage::setRequestBadExtension(const SipMessage* request,
                             const char* disallowedExtension)
 {
-   setLocalIp(request->getLocalIp());
+   setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
    setResponseData(request, SIP_BAD_EXTENSION_CODE, SIP_BAD_EXTENSION_TEXT);
 
    // Add a methods supported field
@@ -783,7 +785,7 @@ void SipMessage::setRequestBadExtension(const SipMessage* request,
 void SipMessage::setRequestBadContentEncoding(const SipMessage* request,
                    const char* allowedEncodings)
 {
-   setLocalIp(request->getLocalIp());
+   setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
    setResponseData(request, SIP_BAD_MEDIA_CODE, SIP_BAD_MEDIA_TEXT);
 
    // Add a encodings supported field
@@ -796,25 +798,25 @@ void SipMessage::setRequestBadContentEncoding(const SipMessage* request,
 
 void SipMessage::setRequestBadAddress(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
+   setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
    setResponseData(request, SIP_BAD_ADDRESS_CODE, SIP_BAD_ADDRESS_TEXT);
 }
 
 void SipMessage::setRequestBadVersion(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
+   setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
    setResponseData(request, SIP_BAD_VERSION_CODE, SIP_BAD_VERSION_TEXT);
 }
 
 void SipMessage::setRequestBadRequest(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
+   setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
    setResponseData(request, SIP_BAD_REQUEST_CODE, SIP_BAD_REQUEST_TEXT);
 }
 
 void SipMessage::setRequestBadUrlType(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
+   setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
    setResponseData(request, SIP_UNSUPPORTED_URI_SCHEME_CODE,
                    SIP_UNSUPPORTED_URI_SCHEME_TEXT);
 }
@@ -912,7 +914,7 @@ void SipMessage::setInviteOkData(const SipMessage* inviteRequest,
    UtlString sequenceMethod;
    const SdpBody* inviteSdp = NULL;
 
-   setLocalIp(inviteRequest->getLocalIp());
+   setInterfaceIpPort(inviteRequest->getInterfaceIp(), inviteRequest->getInterfacePort()) ;
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
    inviteRequest->getCallIdField(&callId);
@@ -971,7 +973,7 @@ void SipMessage::setInviteOkData(const SipMessage* inviteRequest,
 void SipMessage::setOkResponseData(const SipMessage* request,
                                    const char* localContact)
 {
-   setLocalIp(request->getLocalIp());
+   setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
    setResponseData(request, SIP_OK_CODE, SIP_OK_TEXT, localContact);
 }
 
@@ -989,7 +991,7 @@ void SipMessage::setNotifyData(const SipMessage *subscribeRequest,
    int dummySequenceNum;
    UtlString sequenceMethod;
 
-   setLocalIp(subscribeRequest->getLocalIp());
+   setInterfaceIpPort(subscribeRequest->getInterfaceIp(), subscribeRequest->getInterfacePort()) ;
    subscribeRequest->getFromField(&fromField);
    subscribeRequest->getToField(&toField);
    subscribeRequest->getCallIdField(&callId);
@@ -1221,7 +1223,7 @@ void SipMessage::setVoicemailData(const char* fromField,
 
 void SipMessage::setRequestTerminatedResponseData(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
+   setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
    setResponseData(request, SIP_REQUEST_TERMINATED_CODE, SIP_REQUEST_TERMINATED_TEXT);
 }
 
@@ -1232,7 +1234,7 @@ void SipMessage::setRequestUnauthorized(const SipMessage* request,
                             const char* authenticationOpaque,
                             enum HttpEndpointEnum authEntity)
 {
-   setLocalIp(request->getLocalIp());
+    setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
     if(authEntity == SERVER)
     {
         setResponseData(request,
@@ -1318,7 +1320,7 @@ void SipMessage::setResponseData(const SipMessage* request,
                          const char* responseText,
                          const char* localContact)
 {
-   setLocalIp(request->getLocalIp());
+   setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
    UtlString fromField;
    UtlString toField;
    UtlString callId;
@@ -1353,7 +1355,6 @@ void SipMessage::setAckData(const SipMessage* inviteResponse,
                             const char* contact,
                             int sessionTimerExpires)
 {
-   setLocalIp(inviteResponse->getLocalIp());
    UtlString fromField;
    UtlString toField;
    UtlString uri;
@@ -1363,7 +1364,8 @@ void SipMessage::setAckData(const SipMessage* inviteResponse,
    UtlString sequenceMethod;
    UtlString requestContact;
    UtlBoolean SetDNSParameters = FALSE;
-
+   
+   setInterfaceIpPort(inviteResponse->getInterfaceIp(), inviteResponse->getInterfacePort()) ;
    inviteResponse->getFromField(&fromField);
    inviteResponse->getToField(&toField);
    responseCode = inviteResponse->getResponseStatusCode();
@@ -1468,7 +1470,7 @@ void SipMessage::setAckData(const SipMessage* inviteResponse,
 
 void SipMessage::setAckErrorData(const SipMessage* byeRequest)
 {
-   setLocalIp(byeRequest->getLocalIp());
+   setInterfaceIpPort(byeRequest->getInterfaceIp(), byeRequest->getInterfacePort()) ;
    setResponseData(byeRequest, SIP_BAD_REQUEST_CODE, SIP_BAD_REQUEST_TEXT);
 }
 
@@ -1500,8 +1502,8 @@ void SipMessage::setByeData(const SipMessage* inviteRequest,
    UtlString sequenceMethod;
    UtlString remoteContactString;
 
-   setLocalIp(inviteRequest->getLocalIp());
-
+   setInterfaceIpPort(inviteRequest->getInterfaceIp(), inviteRequest->getInterfacePort()) ;
+   
    if (remoteContact)
       remoteContactString.append(remoteContact);
 
@@ -1581,7 +1583,7 @@ void SipMessage::setReferData(const SipMessage* inviteRequest,
    int dummySequenceNum;
    UtlString sequenceMethod;
 
-   setLocalIp(inviteRequest->getLocalIp());
+   setInterfaceIpPort(inviteRequest->getInterfaceIp(), inviteRequest->getInterfacePort()) ;
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
    inviteRequest->getCallIdField(&callId);
@@ -1684,19 +1686,19 @@ void SipMessage::setReferData(const SipMessage* inviteRequest,
 
 void SipMessage::setReferOkData(const SipMessage* referRequest)
 {
-   setLocalIp(referRequest->getLocalIp());
+   setInterfaceIpPort(referRequest->getInterfaceIp(), referRequest->getInterfacePort()) ;
    setResponseData(referRequest, SIP_OK_CODE, SIP_OK_TEXT);
 }
 
 void SipMessage::setReferDeclinedData(const SipMessage* referRequest)
 {
-   setLocalIp(referRequest->getLocalIp());
+   setInterfaceIpPort(referRequest->getInterfaceIp(), referRequest->getInterfacePort()) ;
    setResponseData(referRequest, SIP_DECLINE_CODE, SIP_DECLINE_TEXT);
 }
 
 void SipMessage::setReferFailedData(const SipMessage* referRequest)
 {
-   setLocalIp(referRequest->getLocalIp());
+   setInterfaceIpPort(referRequest->getInterfaceIp(), referRequest->getInterfacePort()) ;
    setResponseData(referRequest, SIP_SERVICE_UNAVAILABLE_CODE, SIP_SERVICE_UNAVAILABLE_TEXT);
 }
 
@@ -1714,7 +1716,7 @@ void SipMessage::setOptionsData(const SipMessage* inviteRequest,
    int dummySequenceNum;
    UtlString sequenceMethod;
 
-   setLocalIp(inviteRequest->getLocalIp());
+   setInterfaceIpPort(inviteRequest->getInterfaceIp(), inviteRequest->getInterfacePort()) ;   
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
    inviteRequest->getCallIdField(&callId);
@@ -1781,7 +1783,7 @@ void SipMessage::setOptionsData(const SipMessage* inviteRequest,
 
 void SipMessage::setByeErrorData(const SipMessage* byeRequest)
 {
-   setLocalIp(byeRequest->getLocalIp());
+   setInterfaceIpPort(byeRequest->getInterfaceIp(), byeRequest->getInterfacePort()) ;
    setResponseData(byeRequest, SIP_BAD_REQUEST_CODE, SIP_BAD_REQUEST_TEXT);
 }
 
@@ -1803,7 +1805,7 @@ void SipMessage::setCancelData(const SipMessage* inviteRequest)
    int sequenceNum;
    UtlString sequenceMethod;
 
-   setLocalIp(inviteRequest->getLocalIp());
+   setInterfaceIpPort(inviteRequest->getInterfaceIp(), inviteRequest->getInterfacePort()) ;
 
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
@@ -4731,14 +4733,20 @@ void SipMessage::ParseContactFields(const SipMessage *registerResponse,
 
 }
 
-const UtlString& SipMessage::getLocalIp() const
+const UtlString& SipMessage::getInterfaceIp() const
 {
-    return mLocalIp;
+    return mInterfaceIp;
 }
 
-void SipMessage::setLocalIp(const UtlString& localIp)
+int SipMessage::getInterfacePort() const
 {
-    mLocalIp = localIp;
+    return mInterfacePort;
+}
+
+void SipMessage::setInterfaceIpPort(const char* ip, int port)
+{
+    mInterfaceIp = ip;
+    mInterfacePort = port ;
 }
 
 /// Get the name/value pairs for a Via field

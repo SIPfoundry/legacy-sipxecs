@@ -946,7 +946,8 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
     break;
 
     case SipDialogMgr::LOOPED:
-       subscriptionResponse.setLocalIp(notifyRequest.getLocalIp());
+       subscriptionResponse.setInterfaceIpPort(notifyRequest.getInterfaceIp(), 
+                                               notifyRequest.getInterfacePort());
        subscriptionResponse.setResponseData(&notifyRequest,
                                             SIP_LOOP_DETECTED_CODE,
                                             SIP_LOOP_DETECTED_TEXT);
@@ -957,7 +958,8 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
        break;
 
     case SipDialogMgr::OUT_OF_ORDER:
-       subscriptionResponse.setLocalIp(notifyRequest.getLocalIp());
+       subscriptionResponse.setInterfaceIpPort(notifyRequest.getInterfaceIp(),
+                                               notifyRequest.getInterfacePort());
        subscriptionResponse.setResponseData(&notifyRequest,
                                             SIP_OUT_OF_ORDER_CODE,
                                             SIP_OUT_OF_ORDER_TEXT);
