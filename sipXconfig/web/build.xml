@@ -320,7 +320,7 @@
     -->
   <target name="test-ui" depends="test-war" 
     description="run junit tests for web interface">
-    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" 
+    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" maxmemory="1024m"
       failureproperty="junit.failed">
       <classpath refid="test.path"/>
       <formatter type="plain"/>
