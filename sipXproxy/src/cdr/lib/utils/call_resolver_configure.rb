@@ -54,7 +54,6 @@ class CallResolverConfigure
   PURGE_AGE_CSE_DEFAULT = 7
   
   CSE_HOSTS = 'SIP_CALLRESOLVER_CSE_HOSTS'
-  CSE_HOSTS_DEFAULT = "#{LOCALHOST}:#{DatabaseUrl::DATABASE_PORT_DEFAULT}"
   
   class << self
     def from_file(confdir = DEFAULT_CONF_DIR, logdir = DEFAULT_LOG_DIR)
@@ -76,7 +75,7 @@ class CallResolverConfigure
     end
   end
   
-  attr_reader :cdr_database_url, :cse_database_urls, :cse_hosts, :log, :confdir, :logdir
+  attr_reader :cdr_database_url, :cse_database_urls, :cse_hosts, :log, :confdir, :logdir, :db_user
   
   def initialize(config, confdir = DEFAULT_CONF_DIR, logdir = DEFAULT_LOG_DIR)  
     @config = config
@@ -90,9 +89,14 @@ class CallResolverConfigure
     # Finish setting up the config.  Logging has already been set up before this,
     # so we can log messages in the methods that are called here.
     
+    @db_user = config.fetch('SIP_CALLRESOLVER_DB_USER', 'postgres')
+
+    # default values for db connection info
+    @local_db_url = DatabaseUrl.new(:username => @db_user)
+
     # :TODO: read CDR database URL params from the Call Resolver config file
     # rather than just hardwiring default values.
-    @cdr_database_url = DatabaseUrl.new
+    @cdr_database_url = DatabaseUrl.new(:username => @db_user)
     
     # These two methods must get called in this order
     @cse_hosts, @ha = get_cse_hosts_config
@@ -249,7 +253,7 @@ class CallResolverConfigure
     # each URL is 'localhost:<port>'.
     # Stunnel takes care of forwarding the local port to the database on a remote host.
     cse_hosts.collect do |cse_host|
-      DatabaseUrl.new(:port => cse_host.port)
+      DatabaseUrl.new(:port => cse_host.port, :username => @db_user)
     end
   end
   
@@ -262,7 +266,7 @@ class CallResolverConfigure
   def get_cse_hosts_config
     ha = false
     cse_hosts = []
-    cse_hosts_config = @config[CSE_HOSTS] || CSE_HOSTS_DEFAULT    
+    cse_hosts_config = @config[CSE_HOSTS] || "#{@local_db_url.host}:#{@local_db_url.port}"
     cse_hosts_config.split(',').each do |host_string|
       host, port = host_string.split(':')
       host.strip!
@@ -273,7 +277,7 @@ class CallResolverConfigure
       else
         if local
           # Supply default port for localhost
-          port = DatabaseUrl::DATABASE_PORT_DEFAULT
+          port = @local_db_url.port
         else
           raise ConfigException, "No port specified for host '#{host}'. " +
             "A port number for hosts other than  'localhost' must be specified."

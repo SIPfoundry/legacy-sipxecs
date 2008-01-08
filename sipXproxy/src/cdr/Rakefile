@@ -14,12 +14,6 @@ Rake::TestTask.new("test_units") { |t|
   t.warning = true
 }
 
-desc "Run DB tests"
-Rake::TestTask.new("test_db") { |t|
-  t.pattern = 'test/**/*_test_db.rb'
-  t.warning = true
-}
-
 require 'rubygems'
 require 'rake/gempackagetask'
 

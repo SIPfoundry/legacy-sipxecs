@@ -106,7 +106,7 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     urls = @config.get_cse_database_urls_config(cse_hosts)
     assert_equal(3, urls.size)
     urls.each_with_index do |url, i|
-      assert_equal(DatabaseUrl::DATABASE_DEFAULT, url.database)
+      assert_equal('SIPXCDR', url.database)
       assert_equal(cse_hosts[i].port, url.port)
       assert_equal('localhost', url.host)
     end
@@ -115,8 +115,8 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     urls = @config.get_cse_database_urls_config([])
     assert_equal(1, urls.size)
     url = urls[0]
-    assert_equal(DatabaseUrl::DATABASE_DEFAULT, url.database)
-    assert_equal(DatabaseUrl::DATABASE_PORT_DEFAULT, url.port)
+    assert_equal('SIPXCDR', url.database)
+    assert_equal(5432, url.port)
     assert_equal('localhost', url.host)
   end
   
@@ -125,7 +125,7 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     cse_hosts, ha = @config.get_cse_hosts_config
     
     assert_equal(1, cse_hosts.length)
-    assert_equal(DatabaseUrl::DATABASE_PORT_DEFAULT, cse_hosts[0].port)
+    assert_equal(5432, cse_hosts[0].port)
     assert(!ha)
     
     # Pass in other list, no localhost
@@ -151,7 +151,7 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     assert_equal(2, cse_hosts.length)
     assert(ha)
     assert(5433, cse_hosts[0].port)
-    assert(DatabaseUrl::DATABASE_PORT_DEFAULT, cse_hosts[1].port)
+    assert(5432, cse_hosts[1].port)
     
     # Pass in other list, localhost, no port
     hostString = 'test.example.com:5433,localhost:6666'

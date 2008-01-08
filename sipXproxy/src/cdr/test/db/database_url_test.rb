@@ -14,22 +14,21 @@ require 'db/database_url'
 
 class DatabaseUrlTest < Test::Unit::TestCase
   
+  def test_empty_contruction
+    begin
+      DatabaseUrl.new({})
+      fail "exception expected"
+    rescue ArgumentError
+    end 
+  end
+
   def test_defaults
-    url = DatabaseUrl.new()
-    
+    url = DatabaseUrl.new(:username => "anyone")    
     assert_equal('SIPXCDR', url.database)
     assert_equal(5432, url.port)
     assert_equal('localhost', url.host)
     assert_equal('postgresql', url.adapter)
-    assert_equal('postgres', url.username)    
-    
-    url = DatabaseUrl.new(:host => "sipx.example.org")
-    
-    assert_equal('SIPXCDR', url.database)
-    assert_equal(5432, url.port)
-    assert_equal('sipx.example.org', url.host)
-    assert_equal('postgresql', url.adapter)
-    assert_equal('postgres', url.username)    
+    assert_equal('anyone', url.username)    
   end
   
   def test_equality
@@ -61,7 +60,7 @@ class DatabaseUrlTest < Test::Unit::TestCase
   end
   
   def test_to_dbi
-    url = DatabaseUrl.new(:database => 'SIPXCDR', :host => 'localhost')
+    url = DatabaseUrl.new(:database => 'SIPXCDR', :host => 'localhost', :username => 'anyone')
     assert_equal("dbi:Pg:database=SIPXCDR;host=localhost;port=5432", url.to_dbi)
   end
 end
