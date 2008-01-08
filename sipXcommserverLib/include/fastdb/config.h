@@ -87,13 +87,13 @@
 
 //USE_POSIX_SEMAPHORES use POSIX sem_* sempahores instead of SysV semaphores
 //     instead of SysV semaphores and shared memory
-#define USE_POSIX_SEMAPHORES 1
+//#define USE_POSIX_SEMAPHORES 1
 
 
 //USE_POSIX_MMAP - if 1 then use Posix mmap for mapping database file and monitor, 
 //  if 0 - use SysV IPC shmem for allocating memory for database file and monitor,
 //  if not defined - use mmap for mapping database file and shmem for allocating monitor
-#define USE_POSIX_MMAP 1
+//#define USE_POSIX_MMAP 0
 
 //REPLICATION_SUPPORT - fault tolerant version of FastDB
 //#define REPLICATION_SUPPORT 1
@@ -134,7 +134,7 @@
 
 // Use recoverable critical section (operating system is able to release 
 // critical section in case of crash of the process entered this critical section)
-//#define RECOVERABLE_CRITICAL_SECTION 1
+#define RECOVERABLE_CRITICAL_SECTION 1
 
 // Do not flush chafges to the disk during transaction commit. This option will greatly increase performance
 // but can cause database corruption in case of crash

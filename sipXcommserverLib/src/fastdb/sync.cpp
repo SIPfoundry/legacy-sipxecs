@@ -255,11 +255,7 @@ static wait_status wait_semaphore(int& sem, unsigned msec,
 bool dbSemaphore::wait(unsigned msec)
 {
     static struct sembuf sops[] = {{0, -1, 0}};
-    OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbSemaphore::wait begin sem=%0x msec=%d", s, msec);
     wait_status ws = wait_semaphore(s, msec, sops, itemsof(sops));
-    OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbSemaphore::wait end sem=%0x msec=%d ws=%d", s, msec, ws);
     assert(ws != wait_error);
     return ws == wait_ok;
 }
@@ -267,8 +263,6 @@ bool dbSemaphore::wait(unsigned msec)
 void dbSemaphore::signal(unsigned inc)
 {
     if (inc != 0) { 
-    OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbSemaphore::signal sem=%0x inc=%d", s, inc);
         struct sembuf sops[1];
         sops[0].sem_num = 0;
         sops[0].sem_op  = inc;
@@ -352,8 +346,6 @@ static union semun u;
 
 void dbSemaphore::reset() 
 {
-    OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbSemaphore::reset sem=%0x", s);
     u.val = 0;
     int rc = semctl(s, 0, SETVAL, u);
     assert(rc >= 0);
@@ -361,27 +353,19 @@ void dbSemaphore::reset()
 
 bool dbSemaphore::open(char const* name, unsigned init_value)
 {
-    OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbSemaphore::open sem=%0x", s);
     return sem_init(s, name, init_value) == 0;
 }
 
 void dbSemaphore::close() {}
 
 void dbSemaphore::erase() {
-    OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbSemaphore::erase sem=%0x", s);
     semctl(s, 0, IPC_RMID, &u);
 }
 
 bool dbEvent::wait(unsigned msec)
 {
     static struct sembuf sops[] = {{0, -1, 0}, {0, 1, 0}};
-    OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbEvent::wait begin sem=%0x msec=%d", e, msec);
     wait_status ws = wait_semaphore(e, msec, sops, itemsof(sops));
-    OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbEvent::wait end sem=%0x msec=%d ws=%d", e, msec, ws);
     assert(ws != wait_error);
     return ws == wait_ok;
 }
@@ -389,8 +373,6 @@ bool dbEvent::wait(unsigned msec)
 void dbEvent::signal()
 {
     static struct sembuf sops[] = {{0, 0, IPC_NOWAIT}, {0, 1, 0}};
-    OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbEvent::signal sem=%0x", e);
     int rc = semop(e, sops, itemsof(sops));
     assert(rc == 0 || errno == EAGAIN); 
 }
@@ -398,8 +380,6 @@ void dbEvent::signal()
 void dbEvent::reset()
 {
     static struct sembuf sops[] = {{0, -1, IPC_NOWAIT}};
-    OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbEvent::reset sem=%0x", e);
     int rc = semop(e, sops, itemsof(sops));
     assert(rc == 0 || errno == EAGAIN); 
 }
@@ -481,11 +461,7 @@ void dbGlobalCriticalSection::enter()
 {
     static struct sembuf sops[] = {{0, -1, SEM_UNDO}};
     int rc;
-    OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbGlobalCriticalSection::enter begin sem=%0x", semid);
     while ((rc = semop(semid, sops, 1)) < 0 && errno == EINTR);
-    OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbGlobalCriticalSection::enter end sem=%0x rc=%d", semid, rc);
     assert(rc == 0);
 #if GLOBAL_CS_DEBUG
     owner = pthread_self();
@@ -498,8 +474,6 @@ void dbGlobalCriticalSection::leave()
     owner = 0;
 #endif
     static struct sembuf sops[] = {{0, 1, SEM_UNDO}};
-    OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbGlobalCriticalSection::leave sem=%0x", semid);
     int rc = semop(semid, sops, 1);
     assert(rc == 0);
 }
@@ -519,8 +493,6 @@ bool dbGlobalCriticalSection::create(char const* name, sharedsem_t*)
 
 void dbGlobalCriticalSection::erase()
 {
-    OsSysLog::add(FAC_DB, PRI_DEBUG,
-                  "dbGlobalCriticalSection::erase sem=%0x", semid);
     semctl(semid, 0, IPC_RMID, &u);
 }
 
@@ -557,10 +529,10 @@ dbInitializationMutex::initialize(char const* name)
         return InitializationError;
     }
     while (true) { 
+       semid = semget(key, 3, IPC_CREAT|0777);
        OsSysLog::add(FAC_DB, PRI_DEBUG,
-                     "dbInitializationMutex::initialize semget(0x%x, 3, IPC_CREAT|0777)",
-                     key);
-        semid = semget(key, 3, IPC_CREAT|0777);
+                     "dbInitializationMutex::initialize semget(0x%x, 3, IPC_CREAT|0777)=%d",
+                     key, semid);
         if (semid < 0) { 
             PRINT_ERROR("semget");
             OsSysLog::add(FAC_DB, PRI_CRIT,
@@ -591,7 +563,7 @@ dbInitializationMutex::initialize(char const* name)
                 sops[0].sem_op  = -1; /* check if semaphore was already initialized */
                 sops[0].sem_flg = SEM_UNDO|IPC_NOWAIT;
                 sops[1].sem_num = 1;
-                sops[1].sem_op  = 0; /* wait until inialization completed */
+                sops[1].sem_op  = 0; /* wait until initialization completed */
                 sops[1].sem_flg = 0;
                 sops[2].sem_num = 0;
                 sops[2].sem_op  = 2; /* increment number of active processes */

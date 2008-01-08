@@ -1771,7 +1771,6 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
         status == dbInitializationMutex::NotYetInitialized ?
             "dbInitializationMutex::NotYetInitialized" : "dbInitializationMutex::AlreadyInitialized");
 
-    // Holding initMutex here
     sprintf(name, "%s.dm", dbName);
     int shmRes = shm.open(name) ;
     if (shmRes < 0) { 
@@ -1784,11 +1783,14 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
     {
         status = dbInitializationMutex::NotYetInitialized ;
     }
+#if defined(USE_POSIX_MMAP) && USE_POSIX_MMAP
     if (status == dbInitializationMutex::AlreadyInitialized)
     { 
+       // Still Holding initMutex here in POSIX case (not so for SysV)
        // Safe to clear initMutex now
        initMutex.done() ;
     }
+#endif
     monitor = shm.get();
 
     sprintf(name, "%s.ws", dbName);
@@ -6295,11 +6297,14 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
     {
         status = dbInitializationMutex::NotYetInitialized ;
     }
+#if defined(USE_POSIX_MMAP) && USE_POSIX_MMAP
     if (status == dbInitializationMutex::AlreadyInitialized)
     { 
+       // Still Holding initMutex here in POSIX case (not so for SysV)
        // Safe to clear initMutex now
        initMutex.done() ;
     }
+#endif
     monitor = shm.get();
     sprintf(name, "%s.ws", dbName);
     if (!writeSem.open(name)) { 
