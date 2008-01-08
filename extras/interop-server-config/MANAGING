@@ -52,13 +52,16 @@ Do not install:
 
 1) the sipXconfig RPMs (sipxconfig, sipxconfig-agent, sipxconfig-ftp,
 sipxconfig-report, and sipxconfig-tftp), as the interop configuration
-uses special config files
+uses special config files,
 
 2) the Call Resolver (sipxproxy-cdr), as that requires Postgres to be
-set up.
+set up,
 
 3) the sipxecs RPMs, as they are just umbrella packages that require
-all the other RPMs
+all the other RPMs, and
+
+4) the java-NNN-sun-NNN.rpm and java-NNN-sun-fonts-NNN.rpm RPMs can
+also be omitted.
 
 Once the RPMs are installed, restart sipX:
 
