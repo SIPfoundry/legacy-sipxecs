@@ -482,6 +482,11 @@ void RefreshDialogState::dumpState()
 {
    // indented 6
 
+   UtlString requestURI;
+   mpLastRequest->getRequestUri(&requestURI);
+   UtlString eventField;
+   mpLastRequest->getEventField(&eventField);
+
    long now = OsDateTime::getSecsSinceEpoch();
    UtlString msg_text;
    int msg_length;
@@ -493,8 +498,8 @@ void RefreshDialogState::dumpState()
    mpRefreshTimer->getFullState(state, expiresAt, periodic, period);
 
    OsSysLog::add(FAC_RLS, PRI_INFO,
-                 "\t      RefreshDialogState %p mExpirationPeriodSeconds = %d, mPendingStartTime = %+d, mExpiration = %+d, mRequestState = '%s', mFailedResponseCode = %d, mFailedResponseText = '%s', mpRefreshTimer = %s/%+d/%s/%d, mpLastRequest = '%s'",
-                 this,
+                 "\t      RefreshDialogState %p request-URI = '%s', Event = '%s', mExpirationPeriodSeconds = %d, mPendingStartTime = %+d, mExpiration = %+d, mRequestState = '%s', mFailedResponseCode = %d, mFailedResponseText = '%s', mpRefreshTimer = %s/%+d/%s/%d, mpLastRequest = '%s'",
+                 this, requestURI.data(), eventField.data(),
                  mExpirationPeriodSeconds, (int) (mPendingStartTime - now),
                  (int) (mExpiration - now),
                  refreshRequestStateText(mRequestState), mFailedResponseCode,
