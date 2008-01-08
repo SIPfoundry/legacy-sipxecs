@@ -26,11 +26,23 @@ public class EditPhonebookTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
         clickLink("link:phonebookReset");
         clickLink("link:phonebook");
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditPhonebook");        
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditPhonebook");
     }
-    
+
+    public void testApplyOkOnNew() {
+        SiteTestHelper.home(getTester());
+        clickLink("link:managePhonebooks");
+        clickLink("addPhonebook");
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditPhonebook");
+        setFormElement("name", "test-phonebook");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+        clickButton("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
+    }
+
     public void testDisplay() {
-        SiteTestHelper.assertNoException(tester);        
+        SiteTestHelper.assertNoException(tester);
         assertElementPresent("phonebookForm");
     }
 
@@ -45,5 +57,5 @@ public class EditPhonebookTestUi extends WebTestCase {
         clickButton("form:apply");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertUserError(tester);
-    }    
+    }
 }

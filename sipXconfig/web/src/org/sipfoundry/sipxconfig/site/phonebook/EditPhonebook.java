@@ -61,6 +61,7 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
         }
 
         getPhonebookManager().savePhonebook(phonebook);
+        setPhonebookId(phonebook.getId());
     }
     
     public File getPhonebookFile() {
