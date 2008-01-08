@@ -48,9 +48,6 @@ public class JarMessagesSourceTest extends TestCase {
         Creator creator = new Creator();
         m_component = (ConfigurationDiagnosticPage)creator.newInstance(ConfigurationDiagnosticPage.class);
         m_mockPage = EasyMock.createNiceMock(IPage.class);
-        m_mockPage.getLocale();
-        EasyMock.expectLastCall().andReturn(Locale.GERMAN).anyTimes();
-        EasyMock.replay(m_mockPage);
         m_component.setPage(m_mockPage);
         
         ComponentSpecification specification = new ComponentSpecification();
@@ -58,9 +55,22 @@ public class JarMessagesSourceTest extends TestCase {
         PropertyUtils.write(m_component, "specification", specification);
     }
 
-    public void testGetMessagesForSupportedLanguage() {
+    public void testGetMessagesForSupportedLanguageWithoutRegion() {
+        m_mockPage.getLocale();
+        EasyMock.expectLastCall().andReturn(Locale.FRENCH).anyTimes();
+        EasyMock.replay(m_mockPage);
+        
         Messages messages = m_out.getMessages(m_component);
-        assertEquals("My Title", messages.getMessage("title"));
+        assertEquals("My French Title", messages.getMessage("title"));
+    }
+    
+    public void testGetMessagesForSupportedLanguageWithRegion() {
+        m_mockPage.getLocale();
+        EasyMock.expectLastCall().andReturn(Locale.CANADA_FRENCH).anyTimes();
+        EasyMock.replay(m_mockPage);
+        
+        Messages messages = m_out.getMessages(m_component);
+        assertEquals("My Canadian French Title", messages.getMessage("title"));
     }
     
     public void testGetMessagesForUnsupportedLanguage() {

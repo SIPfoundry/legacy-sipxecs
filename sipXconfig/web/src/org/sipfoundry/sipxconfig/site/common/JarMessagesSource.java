@@ -121,7 +121,7 @@ public class JarMessagesSource implements ComponentMessagesSource {
         File localizationPackageRootDir = new File(m_context.getLocalizationPackageRoot());
         File[] jarFiles = localizationPackageRootDir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
-                return name.matches("sipxconfig_.{2}\\.jar");
+                return name.matches("sipxconfig_[a-zA-Z]{2}(\\-[a-zA-Z0-9]{2,}){0,1}\\.jar");
             }
         });
         URL[] jarUrls = new URL[jarFiles.length];
