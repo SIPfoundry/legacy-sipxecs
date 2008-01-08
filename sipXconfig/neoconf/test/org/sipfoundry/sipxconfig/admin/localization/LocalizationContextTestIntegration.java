@@ -10,16 +10,19 @@
 package org.sipfoundry.sipxconfig.admin.localization;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 public class LocalizationContextTestIntegration extends IntegrationTestCase {
 
-    LocalizationContext m_localizationContext;
+    private LocalizationContext m_localizationContext;
+    private DomainManager m_domainManager;
 
     public void testUpdateRegion() throws Exception {
         assertEquals(-1, m_localizationContext.updateRegion("PL"));
     }
 
     public void testUpdateLanguage() throws Exception {
+        m_domainManager.initialize();
         assertEquals(1, m_localizationContext.updateLanguage("stdprompts_pl"));
         flush();
         assertEquals(1, getConnection().getRowCount("localization", "where language = 'pl'"));
@@ -32,5 +35,9 @@ public class LocalizationContextTestIntegration extends IntegrationTestCase {
 
     public void setLocalizationContext(LocalizationContext localizationContext) {
         m_localizationContext = localizationContext;
+    }
+
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 }

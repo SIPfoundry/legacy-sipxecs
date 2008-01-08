@@ -60,6 +60,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
             }
         }
         getHibernateTemplate().saveOrUpdate(domain);
+        getHibernateTemplate().flush();
 
         updateServer(domain);
 
@@ -82,8 +83,12 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     }
 
     public void replicateDomainConfig() {
+        Domain existingDomain = getExistingDomain();
+        if (existingDomain == null) {
+            throw new DomainNotInitializedException();
+        }
         DomainConfiguration domainConfiguration = createDomainConfiguration();
-        domainConfiguration.generate(getExistingDomain(), m_authorizationRealm,
+        domainConfiguration.generate(existingDomain, m_authorizationRealm,
                 getExistingLocalization().getLanguage());
         m_replicationContext.replicate(domainConfiguration);
     }

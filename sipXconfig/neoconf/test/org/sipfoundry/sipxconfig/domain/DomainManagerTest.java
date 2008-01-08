@@ -36,7 +36,7 @@ public class DomainManagerTest extends TestCase {
         db.findByNamedQuery("domain");
         expectLastCall().andReturn(Collections.EMPTY_LIST);
         db.saveOrUpdate(domain);
-
+        db.flush();
         replay(server, db);
         // TEST DELETE EXISTING
         DomainManagerImpl mgr = new DomainManagerImpl() {
@@ -66,6 +66,7 @@ public class DomainManagerTest extends TestCase {
         server.applySettings();
 
         db.saveOrUpdate(domain);
+        db.flush();        
         replay(server, db);
 
         mgr.saveDomain(domain);

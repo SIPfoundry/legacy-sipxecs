@@ -24,7 +24,7 @@ public interface DomainManager extends DialingRuleProvider {
     void saveDomain(Domain domain);
 
     void replicateDomainConfig();
-    
+
     static class DomainNotInitializedException extends RuntimeException {
         DomainNotInitializedException() {
             super("System was not initialized properly");
