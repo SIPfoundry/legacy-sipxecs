@@ -198,15 +198,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
 // Destructor
 ResourceListServer::~ResourceListServer()
 {
-   // Close down the call processing objects.
-
-   // Stop the SipSubscribeClient, so callbacks are no longer activated.
-   mSubscribeClient.endAllSubscriptions();
-   
-   // Finalize ResourceListSet, so timers stop queueing messages to
-   // ResourceList Task and there are no references to the
-   // ResourceCached's.
-   mResourceListSet.finalize();
+   // Final stage of closing down the call processing objects.
 
    // Stop the SipUserAgent's.
    mServerUserAgent.shutdown(TRUE);
@@ -218,6 +210,8 @@ ResourceListServer::~ResourceListServer()
 // Shut down the server.
 void ResourceListServer::shutdown()
 {
+   // Close down the call processing objects.
+
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceListServer::shutdown this = %p",
                  this);
@@ -226,6 +220,14 @@ void ResourceListServer::shutdown()
    // we do not send NOTIFYs to the clients showing the lists as empty.
    // Instead, we force the subscribe server to just tell the subscribers
    // that their subscriptions are terminated.
+
+   // Stop all the subscriptions so callbacks are no longer activated.
+   mSubscribeClient.endAllSubscriptions();
+
+   // Finalize ResourceListSet, so timers stop queueing messages to
+   // ResourceList Task and there are no references to the
+   // ResourceCached's.
+   mResourceListSet.finalize();
 
    // Stop the SIP subscribe client.
    mSubscribeClient.requestShutdown();
