@@ -497,6 +497,16 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
                       addressRequiresDnsSrvLookup);
 #       endif
 
+        if (toAddress.isNull())
+        {
+           UtlString bytes;
+           int length;
+           message->getBytes(&bytes, &length);
+           OsSysLog::add(FAC_SIP, PRI_ERR,
+                         "SipTransaction::handleOutgoing Unable to obtain To address.  Message is '%s'",
+                         bytes.data());
+        }
+
         if(mSendToAddress.isNull())
         {
 #          ifdef ROUTE_DEBUG

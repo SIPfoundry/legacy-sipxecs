@@ -208,7 +208,7 @@ SipClient::~SipClient()
         // cause the run method to exit.
         if (!mbSharedSocket)
         {
-           OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient[%s]::~SipClient %p socket %p closing %s socket",
+           OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient[%s]::~ %p socket %p closing %s socket",
                          mName.data(), this,
                          clientSocket, OsSocket::ipProtocolString(mSocketType));
            clientSocket->close();
