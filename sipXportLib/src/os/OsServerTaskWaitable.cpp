@@ -10,6 +10,7 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
+#include <errno.h>
 #include <poll.h>
 #include <unistd.h>
 
@@ -36,7 +37,14 @@ OsServerTaskWaitable::OsServerTaskWaitable(const UtlString& name,
 {
    // Create the pipe which is used to signal that a message is available.
    int filedes[2];
-   assert(pipe(filedes) == 0);
+   int ret = pipe(filedes);
+   if (ret != 0)
+   {
+      OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+                    "OsServerTaskWaitable::_ pipe() returned %d, errno = %d, getdtablesize() = %d",
+                    ret, errno, getdtablesize());
+      assert(FALSE);
+   }
    mPipeReadingFd = filedes[0];
    mPipeWritingFd = filedes[1];
 }
