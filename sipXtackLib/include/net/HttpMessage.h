@@ -150,7 +150,7 @@ typedef UtlBoolean (*GetDataCallbackProc)(char* pData,
  * The first header line parts can be accessed as follows:
  * - Requests:
  *    -# the request method is retreived via getRequestMethod()
- *    -# the request URI is retreive via getRequestUri()
+ *    -# the request URI is retreived via getRequestUri()
  *    -# the request protocol is retrieved via getRequestProtocol()
  * - Responses:
  *    -# the response protocol is retrieved via getResponseProtocol()
