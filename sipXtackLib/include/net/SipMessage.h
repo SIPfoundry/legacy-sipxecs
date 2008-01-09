@@ -174,6 +174,9 @@ class SipUserAgent;
 #define SIP_BAD_EXTENSION_CODE 420
 #define SIP_BAD_EXTENSION_TEXT "Extension Not Supported"
 
+#define SIP_EXTENSION_REQUIRED_CODE 421
+#define SIP_EXTENSION_REQUIRED_TEXT "Extension Required"
+
 #define SIP_TOO_BRIEF_CODE 423
 #define SIP_TOO_BRIEF_TEXT "Registration Too Brief"
 #define SIP_SUB_TOO_BRIEF_TEXT "Subscription Too Brief"
