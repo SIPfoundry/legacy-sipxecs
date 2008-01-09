@@ -6,12 +6,13 @@
 MyName=`basename $0`
 
 Action=LOCAL
-Prefix="/"
+Prefix=""
 Output=""
 
 User=admin
 Password=
 
+DefaultPrefix="/"
 DefaultComponents="sipXproxy sipregistrar"
 Components=""
 
@@ -45,7 +46,7 @@ do
                 break
             else
                 Action=LOCAL
-                Prefix="${2}"
+                Prefix="${Prefix} ${2}"
                 shift # consume the switch ( for n values, consume n-1 )
             fi
             ;;
@@ -125,6 +126,11 @@ then
     Components=${DefaultComponents}
 fi
 
+if [ -z "${Prefix}" ]
+then
+    Prefix=${DefaultPrefix}
+fi
+
 if [ -z "${Token}" -a ${Action} != USAGE ]
 then
     echo "Must specify a token to search for; try '${MyName} --help'." 1>&2
@@ -134,23 +140,28 @@ fi
 Trace=`mktemp -t -d trace.XXXXXXXX` || exit
 
 pullServer() { # server
-        
+    local system
+    system=$1
+
     for c in ${Components}
     do
-      echo searching $1 $c log
+      echo searching ${system} $c log
       ssh ${1} "${dump} /var/log/sipxpbx/${c}.log${LogExtension} | grep -e \"${Token}\"" \
-        > ${Trace}/${1}.${c}.log
+        > ${Trace}/${system}.${c}.log
     done
 }
 
 grepLog() { # prefix
-        
+    local prefix
+    prefix=$1
+
+    alias=`echo "$prefix" | tr / _`
     for c in ${Components}
     do
-      echo searching $1 ${c} log
-      ${dump} ${1}/var/log/sipxpbx/${c}.log${LogExtension} \
+      echo searching ${prefix} ${c} log
+      ${dump} ${prefix}/var/log/sipxpbx/${c}.log${LogExtension} \
       | grep -e "${Token}" \
-      > ${Trace}/${c}.log
+      > ${Trace}/${alias}.${c}.log
     done
 }
 
@@ -164,7 +175,7 @@ Usage:
 
    options:
            [ {-c|--component} <component-name> ]...
-           { { {-P|--prefix} <prefix-dir> }* | { {-s|--server} <server> } }*
+           [ { {-P|--prefix} <prefix-dir> }* | { {-s|--server} <server> }* ]
            [-o|--output]
            [-h|--help]
            
@@ -187,7 +198,10 @@ USAGE
         ;;
 
     LOCAL)
-        grepLog $Prefix
+        for prefix in ${Prefix}
+        do
+          grepLog $prefix
+        done
         ;;
 esac
 
