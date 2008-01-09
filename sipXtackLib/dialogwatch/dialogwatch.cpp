@@ -9,6 +9,7 @@
 
 // SYSTEM INCLUDES
 
+#include <unistd.h>
 #include <stdio.h>
 
 // APPLICATION INCLUDES
@@ -107,13 +108,26 @@ int main(int argc, char* argv[])
    // Seconds to set for subscription.
    int refreshTimeout = 300;
 
-   // The domain name to call myself.
-   UtlString myDomainName = "example.com";
+   // The domain name to call myself, obtained from the gethostname()
+   // system call.
+   char buffer[100];
+   memset(buffer, 0, sizeof (buffer));
+   // Do not allow gethostname to write over the last NUL in buffer[].
+   gethostname(buffer, (sizeof (buffer)) - 1);
+   UtlString myDomainName(buffer, strlen(buffer));
+   // Use "example.com" if gethostname() failed.
+   if (myDomainName.isNull())
+   {
+      myDomainName = "example.com";
+   }
 
    // Create the SIP Subscribe Client
 
    SipUserAgent* pSipUserAgent = 
       new SipUserAgent(PORT_DEFAULT, PORT_DEFAULT, PORT_NONE);
+   // Add the 'eventlist' extension, so dialogwatch can subscribe to
+   // event lists.
+   pSipUserAgent->allowExtension("eventlist");
 
    SipDialogMgr dialogManager;
 
