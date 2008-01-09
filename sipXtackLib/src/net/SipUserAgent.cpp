@@ -1428,7 +1428,8 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
          uri.removeUrlParameter("maddr") ;
          uri.removeUrlParameter("transport") ;
          uri.setHostPort(PORT_NONE) ;
-         message->setFirstHeaderLine(method, uri.toString(), protocol) ;
+         uri.getUri(uriStr) ;                         
+         message->setFirstHeaderLine(method, uriStr, protocol) ;
          
          if (OsSysLog::willLog(FAC_SIP, PRI_NOTICE))
          {
