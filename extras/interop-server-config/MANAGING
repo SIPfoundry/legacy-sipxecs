@@ -60,8 +60,8 @@ set up,
 3) the sipxecs RPMs, as they are just umbrella packages that require
 all the other RPMs, and
 
-4) the java-NNN-sun-NNN.rpm and java-NNN-sun-fonts-NNN.rpm RPMs can
-also be omitted.
+4) the java-NNN-sun-NNN.rpm, java-NNN-sun-fonts-NNN.rpm, and
+sipx*-devel-* RPMs can also be omitted.
 
 Once the RPMs are installed, restart sipX:
 
