@@ -53,7 +53,20 @@ UtlBoolean RlsSubscribePolicy::isAuthorized(const SipMessage& subscribeRequest,
                                             SipMessage& subscribeResponse)
 {
    // SUBSCRIBE is authorized if "eventlist" is supported.
-   return subscribeRequest.isInSupportedField("eventlist");
+   UtlBoolean ret = subscribeRequest.isInSupportedField("eventlist");
+
+   // If we return false, we must construct a failure response.
+   if (!ret)
+   {
+      // 421 Extension Required
+      // Require: eventlist"
+      subscribeResponse.setResponseData(&subscribeRequest,
+                                        SIP_EXTENSION_REQUIRED_CODE,
+                                        SIP_EXTENSION_REQUIRED_TEXT);
+      subscribeResponse.addRequireExtension("eventlist");
+   }
+   
+   return ret;
 }
 
 /* ============================ ACCESSORS ================================= */

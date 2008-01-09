@@ -79,6 +79,9 @@ public:
 
     //! Determine if the given SUBSCRIBE request is authenticated to subscribe
     /*! Default behavior is to not require any authentication.
+     *  Note that if isAuthenticated returns false, it must construct a suitable
+     *  failure response in subscribeResponse.  (If it returns true, it should
+     *  not modify subscribeResponse.)
      */
     virtual UtlBoolean isAuthenticated(const SipMessage& subscribeRequest,
                                        const UtlString& resourceId,
@@ -87,6 +90,9 @@ public:
 
     //! Determine if the given SUBSCRIBE request is authorized to subscribe
     /*! Default behavior is to allow any request to subscribe
+     *  Note that if isAuthorized returns false, it must construct a suitable
+     *  failure response in subscribeResponse.  (If it returns true, it should
+     *  not modify subscribeResponse.)
      */
     virtual UtlBoolean isAuthorized(const SipMessage& subscribeRequest,
                                    const UtlString& resourceId,
