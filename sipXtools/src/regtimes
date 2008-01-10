@@ -116,15 +116,15 @@ while(<>)
 
                 push @{$Registrations{$cid}}, $rawtime;
 
-                $Time{$cid.$cseq} = DateTime::Format::ISO8601->parse_datetime($rawtime);
-                $Granted{$cid.$cseq} = new DateTime::Duration( seconds => $secs );
+                $Time{$cid.','.$cseq} = DateTime::Format::ISO8601->parse_datetime($rawtime);
+                $Granted{$cid.','.$cseq} = new DateTime::Duration( seconds => $secs );
             }
             else
             {
                 # successful unregistration
                 #print STDERR "         Cseq $cseq : unregister\n";
-                $Time{$cid.$cseq} = DateTime::Format::ISO8601->parse_datetime($rawtime);
-                $Unregistered{$cid.$cseq} = 1;
+                $Time{$cid.','.$cseq} = DateTime::Format::ISO8601->parse_datetime($rawtime);
+                $Unregistered{$cid.','.$cseq} = 1;
             }
         }
     }
@@ -158,13 +158,15 @@ foreach $cid ( sort { $AOR{$a} cmp $AOR{$b} } keys %Registrations )
 
     foreach $cseqVal ( sort { $a <=> $b } @{$Cseqs{$cid}} )
     {
-        $_ = $cid.$cseqVal;
+        $_ = $cid.','.$cseqVal;
         if (defined $Time{$_})
         {
             $cseq  = $cseqVal;
             $time  = $Time{$_};
             # a successful REGISTER response
-            if (defined $previous)
+            # If there was a previous event, and it was not an unregister,
+            # determine how this event relates to it.
+            if (defined $previous && !$Unregistered{$previous})
             { 
                 $delta   = &dt($Time{$_} - $Time{$previous}); 
 
@@ -257,7 +259,8 @@ foreach $cid ( sort { $AOR{$a} cmp $AOR{$b} } keys %Registrations )
     $lastexp = $Time{$previous} + $Granted{$previous}
         if defined $Granted{$previous};
 
-    if ( defined $previous && $LastTime > $lastexp )
+    # If the last event was not a register, report when it will expire.
+    if ( defined $previous && !$Unregistered{$previous} && $LastTime > $lastexp )
     {
         &showLast if ($Summary && defined $savedLastEvent && $savedLastEvent eq 'refresh');
 
