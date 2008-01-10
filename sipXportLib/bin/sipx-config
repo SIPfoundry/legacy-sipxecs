@@ -17,14 +17,15 @@ PATH=$PATH:$MyDir
 Action=""
 
 # Standard place to find java command
-JdkExecutable='jre/bin/java'
-JreExecutable='bin/java'
 
 # Set when java is found
-JavaCommand=""
+JavaToolCommand=""
 
 # Set when JVM is found
 JavaHome=""
+
+# Executable we're looking for
+JavaTool="java"
 
 # All sipx programs require 1.4 or above, if this does not become
 # true, I suggest parameter-izing this
@@ -46,56 +47,42 @@ Projects="\
   sipxpbx"
 
 ## Test the java executable command
-testJava()
+testJavaTool()
 {
-    JavaPath=$1
+    CommandCandidate=$1
 
     # test java command
-    for CommandCandidate in $JavaPath/$JdkExecutable $JavaPath/$JreExecutable
-    do
-        if [ -x $CommandCandidate ]
-        then
-            if $CommandCandidate -version 2>&1 | grep "$JavaVersions" >/dev/null
-            then
-    	        JavaCommand=$CommandCandidate
-                return 0
-            fi
-        fi
-    done
+    if [ ! -x $CommandCandidate ]
+    then
+      return 1
+    fi
 
-    return 1
+    if [ $JavaTool == 'java' ] 
+    then
+      Ver=`$CommandCandidate -version 2>&1`
+      if ! echo $Ver | grep "$JavaVersions" >/dev/null 
+      then
+        echo "Version $Ver not compatible" >/dev/stderr
+        return 1
+      fi
+    fi
+
+    JavaToolCommand=$CommandCandidate
+    return 0
 }
 
-findJava()
+findJavaTool()
 {
     # Gentoo
-    JavaConfig=`java-config --jdk 2>/dev/null`
-    if [ -n "${JavaConfig}" ]
+    if [ -n "${SIPX_JAVA_HOME}" ]
     then
- 
-        testJava $JavaConfig
-
-    # If explict setting of location of java does not work, die
-    elif [ -n "${JAVA_HOME}" ]
-    then
-
-        testJava ${JAVA_HOME}
-
-    # otherwise try to find java
+        if testJavaTool "${SIPX_JAVA_HOME}/bin/$JavaTool"
+        then
+            testJavaTool "${SIPX_JAVA_HOME}/jre/bin/$JavaTool"
+        fi
     else
-
-        # Portions of this where copied from
-        # sipXportLib/config/general.m4. Plans to import general.m4
-        # file were scrapped because of carrying all of autoconf
-        TRY_JAVA_HOME=`ls -dr /usr/lib/jvm/java-1.* /usr/java/* 2> /dev/null | head -n 1`
-        for dir in /usr/lib/jvm/jre-ibm $TRY_JAVA_HOME /usr /usr/local/jdk /usr/local/java /usr/local/jdk1.5* /usr/local/diablo-jdk1.5.0
-        do
-            if testJava ${dir}
-            then
-                break;
-            fi
-        done
-    fi
+        testJavaTool `which $JavaTool`
+    fi    
 }
 
 ## Main program loop
@@ -106,10 +93,11 @@ do
 
         --java)
         Action=JAVA
-        ;;
-
-        --javabin)
-        Action=JAVA_BIN
+        if [ ! -z ${2} ]
+        then
+          JavaTool=${2}
+          shift
+        fi
         ;;
 
         --version)
@@ -127,9 +115,9 @@ done
 if test "$Action" = "JAVA"
 then
 
-    findJava
+    findJavaTool
 
-    if [ -z $JavaCommand ]
+    if [ -z $JavaToolCommand ]
     then
         cat >&2 <<NOJAVA
 Cannot locate the Java VM on you machine or wrong version of Java installed. Please either install Java
@@ -140,27 +128,9 @@ NOJAVA
         exit 1
     fi
 
-    echo "$JavaCommand"
+    echo "$JavaToolCommand"
     exit 0
 
-elif test "$Action" = "JAVA_BIN"
-then
-
-    findJava
-
-    if [ -z $JavaCommand ]
-    then
-        cat >&2 <<NOJAVAHOME
-Cannot locate the Java VM on you machine or wrong version of Java installed. Please either install Java
- or set the JAVA_HOME environment variable to where you've installed it.
-
-NOJAVAHOME
-
-        exit 1
-    fi
-
-    echo `dirname "$JavaCommand"`
-    exit 0
 elif test "$Action" = "VERSION"
 then
     echo "sipX version information:"
