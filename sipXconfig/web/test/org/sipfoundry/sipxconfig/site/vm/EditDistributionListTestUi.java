@@ -52,7 +52,7 @@ public class EditDistributionListTestUi extends WebTestCase {
         assertFormElementEquals("subject", "200");
     }
 
-    public void testInexistentUser() throws Exception {
+    public void testNonExistentUser() throws Exception {
         SiteTestHelper.assertNoException(tester);
         setFormElement("subject", "2000000000");
         clickButton("form:apply");
@@ -118,7 +118,7 @@ public class EditDistributionListTestUi extends WebTestCase {
 
         clickLinkWithText(NEW_USER_USERNAME[i]);
         clickLinkWithText("permission");
-        uncheckCheckbox("booleanField_8");
+        uncheckCheckbox("booleanField_9");
         clickButton("setting:ok");
     }
 
