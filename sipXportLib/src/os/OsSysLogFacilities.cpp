@@ -54,7 +54,7 @@ const char* OsSysLog::sFacilityNames[] =
    "UPGRADE",
    "LINE_MGR",
    "REFRESH_MGR",
-   "UNUSED",
+   "UNIT_TEST",
    "STREAMING",
    "REPLICATION_CGI",
    "SIPDB",

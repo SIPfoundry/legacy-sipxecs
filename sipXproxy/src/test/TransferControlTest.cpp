@@ -11,12 +11,22 @@
 #include "cppunit/TestCase.h"
 #include "sipxunit/TestUtilities.h"
 #include "utl/PluginHooks.h"
+#include "os/OsConfigDb.h"
+
 #include "net/SipMessage.h"
+#include "net/SipUserAgent.h"
+
+#include "sipXproxy/ForwardRules.h"
+#include "sipXproxy/SipRouter.h"
+
+#include "testlib/FileTestContext.h"
 #include "sipXproxy/TransferControl.h"
 
 class TransferControlTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(TransferControlTest);
+
+   CPPUNIT_TEST(testConstructor);
 
    CPPUNIT_TEST(nonInvite);
    CPPUNIT_TEST(normalInvite);
@@ -29,16 +39,51 @@ class TransferControlTest : public CppUnit::TestCase
 
 public:
 
+   static FileTestContext* TransferTestContext;
    static TransferControl* xferctl;
+   static SipUserAgent     testUserAgent;
+   static SipRouter*       testSipRouter;
+   
+   void setUp()
+      {
+         TransferTestContext = new FileTestContext(TEST_DATA_DIR "/transfer-control",
+                                                   TEST_WORK_DIR "/transfer-control");
+         TransferTestContext->inputFile("domain-config");
+         TransferTestContext->setSipxDir(SipXecsService::ConfigurationDirType);
+      }
 
+   void tearDown()
+      {
+      }
 
-   /* ****************************************************************
-    * Note: all tests pass NULL for the SipRouter* sipRouter parameter.
-    *       Since the TransferControl plugin does not use that
-    *       parameter, this should not cause any problem.
-    *       Should that change, see CallerAliasTest for how to set
-    *       up a SipRouter instance for a test.
-    * **************************************************************** */
+   void testConstructor()
+      {
+         /*
+          * This test exists to initialize the singleton plugin.
+          * Doing it as a static ran into ordering problems.
+          */
+         CPPUNIT_ASSERT((xferctl = dynamic_cast<TransferControl*>(getAuthPlugin("xfer"))));
+
+         testUserAgent.setIsUserAgent(FALSE);
+
+         //testUserAgent.setDnsSrvTimeout(1 /* seconds */);
+         //testUserAgent.setMaxSrvRecords(4);
+         testUserAgent.setUserAgentHeaderProperty("sipX/testproxy");
+
+         testUserAgent.setForking(FALSE);  // Disable forking
+
+         UtlString hostAliases("sipx.example.edu example.edu");
+         
+         testUserAgent.setHostAliases(hostAliases);
+
+         OsConfigDb configDb;
+         configDb.set("SIPX_PROXY_AUTHENTICATE_ALGORITHM", "MD5");
+         configDb.set("SIPX_PROXY_DOMAIN_NAME", "example.edu");
+         configDb.set("SIPX_PROXY_AUTHENTICATE_REALM", "example.edu");
+         configDb.set("SIPX_PROXY_HOSTPORT", "sipx.example.edu");
+
+         testSipRouter = new SipRouter(testUserAgent, mForwardingRules, configDb);
+      }
 
    // Test that an in-dialog request without a replaces header is not affected
    void nonInvite()
@@ -70,7 +115,7 @@ public:
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == xferctl->authorizeAndModify(NULL,
+                        == xferctl->authorizeAndModify(testSipRouter,
                                                        identity,
                                                        requestUri,
                                                        routeState,
@@ -113,7 +158,7 @@ public:
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == xferctl->authorizeAndModify(NULL,
+                        == xferctl->authorizeAndModify(testSipRouter,
                                                        identity,
                                                        requestUri,
                                                        routeState,
@@ -158,7 +203,7 @@ public:
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == xferctl->authorizeAndModify(NULL,
+                        == xferctl->authorizeAndModify(testSipRouter,
                                                        identity,
                                                        requestUri,
                                                        routeState,
@@ -201,7 +246,7 @@ public:
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == xferctl->authorizeAndModify(NULL,
+                        == xferctl->authorizeAndModify(testSipRouter,
                                                        identity,
                                                        requestUri,
                                                        routeState,
@@ -245,7 +290,7 @@ public:
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::DENY
-                        == xferctl->authorizeAndModify(NULL,
+                        == xferctl->authorizeAndModify(testSipRouter,
                                                        identity,
                                                        requestUri,
                                                        routeState,
@@ -289,7 +334,7 @@ public:
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == xferctl->authorizeAndModify(NULL,
+                        == xferctl->authorizeAndModify(testSipRouter,
                                                        identity,
                                                        requestUri,
                                                        routeState,
@@ -316,8 +361,14 @@ public:
          transferIdentityUrl.getIdentity(transferIdentity);
          ASSERT_STR_EQUAL("controller@domain", transferIdentity.data());
       }
+   
+private:
+   ForwardRules  mForwardingRules;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TransferControlTest);
 
-TransferControl* TransferControlTest::xferctl = dynamic_cast<TransferControl*>(getAuthPlugin("xfer"));
+TransferControl* TransferControlTest::xferctl;
+FileTestContext* TransferControlTest::TransferTestContext;
+SipUserAgent     TransferControlTest::testUserAgent;
+SipRouter*       TransferControlTest::testSipRouter;

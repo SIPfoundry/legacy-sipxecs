@@ -42,7 +42,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     theRoute;
          UtlString     mappingType;
          bool          authRequired;
-         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     rulesFile(TEST_DATA_DIR "/rulesdata/simple.xml");
             
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
@@ -70,7 +70,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     theRoute;
          UtlString     mappingType;
          bool          authRequired;
-         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     rulesFile(TEST_DATA_DIR "/rulesdata/simple.xml");
             
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
@@ -98,7 +98,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     theRoute;
          UtlString     mappingType;
          bool          authRequired;
-         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     rulesFile(TEST_DATA_DIR "/rulesdata/simple.xml");
             
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
@@ -124,7 +124,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     theRoute;
          UtlString     mappingType;
          bool          authRequired;
-         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     rulesFile(TEST_DATA_DIR "/rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
@@ -151,7 +151,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     theRoute;
          UtlString     mappingType;
          bool          authRequired;
-         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     rulesFile(TEST_DATA_DIR "/rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
@@ -178,7 +178,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     theRoute;
          UtlString     mappingType;
          bool          authRequired;
-         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     rulesFile(TEST_DATA_DIR "/rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
@@ -205,7 +205,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     theRoute;
          UtlString     mappingType;
          bool          authRequired;
-         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     rulesFile(TEST_DATA_DIR "/rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
@@ -231,7 +231,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     theRoute;
          UtlString     mappingType;
          bool          authRequired;
-         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     rulesFile(TEST_DATA_DIR "/rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
@@ -258,7 +258,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     theRoute;
          UtlString     mappingType;
          bool          authRequired;
-         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     rulesFile(TEST_DATA_DIR "/rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
@@ -299,7 +299,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     theRoute;
          UtlString     mappingType;
          bool          authRequired;
-         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+         UtlString     rulesFile(TEST_DATA_DIR "/rulesdata/simple.xml");
 
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS

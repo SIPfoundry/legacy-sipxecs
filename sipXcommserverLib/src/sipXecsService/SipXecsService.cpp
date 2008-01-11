@@ -109,7 +109,7 @@ OsPath SipXecsService::Path(DirectoryType pathType, const char* fileName)
    if ( (dirPath = getenv(pathType)) )
    {
       OsSysLog::add(FAC_KERNEL, PRI_NOTICE,
-                    "SipXecsService::Path type %s overridden by environment to '%s'",
+                    "SipXecsService::Path type '%s' overridden by environment to '%s'",
                     pathType, dirPath);
    }
    else
@@ -148,6 +148,9 @@ OsPath SipXecsService::Path(DirectoryType pathType, const char* fileName)
       path.remove(path.length()-1);
    } 
 
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                 "SipXecsService::Path('%s', '%s') returning '%s'",
+                 pathType, fileName ? fileName : "", path.data() );
    return path;
 }
 

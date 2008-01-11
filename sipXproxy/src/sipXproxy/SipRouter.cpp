@@ -111,23 +111,31 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
       UtlString algorithm;
       if (OS_SUCCESS != configDb.get("SIPX_PROXY_AUTHENTICATE_ALGORITHM", algorithm))
       {
+         OsSysLog::add(FAC_SIP, PRI_INFO,
+                       "SipRouter::readConfig "
+                       "SIPX_PROXY_AUTHENTICATE_ALGORITHM not configured: using MD5"
+                       );
          algorithm = "MD5";
       }
-      if(authScheme.compareTo("MD5", UtlString::ignoreCase) == 0)
+
+      if(algorithm.compareTo("MD5", UtlString::ignoreCase) == 0)
       {
          OsSysLog::add(FAC_SIP, PRI_INFO,
+                       "SipRouter::readConfig "
                        "SIPX_PROXY_AUTHENTICATE_ALGORITHM : %s",
                        algorithm.data());
       }
       else if (algorithm.isNull())
       {
          OsSysLog::add(FAC_SIP, PRI_INFO,
+                       "SipRouter::readConfig "
                        "SIPX_PROXY_AUTHENTICATE_ALGORITHM not set: using MD5"
                        );
       }
       else
       {
          OsSysLog::add(FAC_SIP, PRI_WARNING,
+                       "SipRouter::readConfig "
                        "Unknown authentication algorithm:\n"
                        "SIPX_PROXY_AUTHENTICATE_ALGORITHM : %s\n"
                        "   using MD5",
@@ -138,18 +146,22 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
       if(mRealm.isNull())
       {
          OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "SipRouter::readConfig "
                        "SIPX_PROXY_AUTHENTICATE_REALM not specified\n"
                        "   Phones must be configured with the correct default to authenticate."
                        );
          defaultUri.toString(mRealm);
       }
-      OsSysLog::add(FAC_SIP, PRI_NOTICE, "SIPX_PROXY_AUTHENTICATE_REALM : %s", mRealm.data());
+      OsSysLog::add(FAC_SIP, PRI_NOTICE,
+                    "SipRouter::readConfig "
+                    "SIPX_PROXY_AUTHENTICATE_REALM : %s", mRealm.data());
    }
    
    configDb.get("SIPX_PROXY_HOSTPORT", mRouteHostPort);
    if(mRouteHostPort.isNull())
    {
       OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "SipRouter::readConfig "
                     "SIPX_PROXY_HOSTPORT not specified\n"
                     "   This may cause some peers to make a non-optimal routing decision."
                     );
@@ -161,16 +173,20 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
    // properly recognized (the alias db prunes duplicates anyway)
    mpSipUserAgent->setHostAliases(mRouteHostPort);
 
-   OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_HOSTPORT : %s", mRouteHostPort.data());
+   OsSysLog::add(FAC_SIP, PRI_INFO,
+                 "SipRouter::readConfig "
+                 "SIPX_PROXY_HOSTPORT : %s", mRouteHostPort.data());
 
    configDb.get("SIPX_PROXY_DOMAIN_NAME", mDomainName);
    if (mDomainName.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SIPX_PROXY_DOMAIN_NAME not configured.");
+      OsSysLog::add(FAC_SIP, PRI_ERR, "SipRouter::readConfig "
+                    "SIPX_PROXY_DOMAIN_NAME not configured.");
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_DOMAIN_NAME : %s", mDomainName.data());
+      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRouter::readConfig "
+                    "SIPX_PROXY_DOMAIN_NAME : %s", mDomainName.data());
    }
     
    // Load and configure all authorization plugins

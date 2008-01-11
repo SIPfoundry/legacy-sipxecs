@@ -12,8 +12,8 @@ check_PROGRAMS = \
 # sandbox
 
 COMMON_CXX_FLAGS = \
-	-DTEST_DIR=\"@abs_builddir@\" \
-	-DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" \
+	-DTEST_WORK_DIR=\"@abs_builddir@\" \
+	-DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
 	-I$(top_srcdir)/src
 
@@ -78,6 +78,7 @@ EXTRA_DATA = \
 	caller-alias.xml \
 	credential.xml \
 	permission.xml \
+	transfer-control/domain-config \
    rulesdata/simple.xml \
    rulesdata/routing.xml
 

@@ -80,7 +80,7 @@ public:
          UtlString externalAlias("external.example.net:5060");
          mUserAgent->setHostAliases(externalAlias);
 
-         UtlString rulesFile(TEST_DATA_DIR "rulesdata/routing.xml");
+         UtlString rulesFile(TEST_DATA_DIR "/rulesdata/routing.xml");
          mForwardingRules.loadMappings( rulesFile, MediaServer, VoiceMail, LocalHost );
 
          OsConfigDb testConfigDb;

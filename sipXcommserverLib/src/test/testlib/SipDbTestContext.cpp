@@ -14,6 +14,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
+#include "os/OsSysLog.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipxunit/TestUtilities.h"
@@ -39,14 +40,12 @@ void SipDbTestContext::setFastDbEnvironment()
 {
    // Locate the registration DB in a test directory so that
    // we don't collide with the production DB.
-   UtlString msg("failed to set environment to '");
-   msg.append(mTestWorkingDir);
-   msg.append("'");
-   int status = 0;
-   status += setenv(SipXecsService::DatabaseDirType, mTestWorkingDir, 1);
-   status += setenv(SipXecsService::TmpDirType,      mTestWorkingDir, 1);
 
-   CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), 0, status);
+   OsSysLog::add(FAC_UNIT_TEST, PRI_DEBUG,
+                 "SipDbTestContext::setFastDbEnvironment '%s'",
+                 mTestWorkingDir.data());
+   setSipxDir(SipXecsService::DatabaseDirType);
+   setSipxDir(SipXecsService::TmpDirType);
 }
 
 /// destructor

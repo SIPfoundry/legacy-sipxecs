@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _FILETESTCONTEXT_H_
@@ -13,6 +13,8 @@
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
 #include "os/OsFS.h"
+#include "sipXecsService/SipXecsService.h"
+
 // DEFINES
 // CONSTANTS
 // TYPEDEFS
@@ -25,8 +27,8 @@
  * input sets for each test.
  *
  * A typical test that reads and writes files can declare a FileTestContext so that the input
- * files are copied from the source tree to the build tree (possibly modified along the way
- * by a TemplateConverter supplied by the test or some subclass of FileTestContext).  Typically
+ * files are copied from the source tree to the build tree, possibly modified along the way
+ * by a TemplateConverter supplied by the test or some subclass of FileTestContext.  Typically
  * the paths to the source and build tree will be provided from the build environment.
  *
  * @note
@@ -93,7 +95,12 @@ class FileTestContext
    /// Convert a file name to a full path name in the working directory
    void workingFilePath(const char* filename, UtlString& path);
 
-   /// Destructor 
+   /// Set the environment so that the SipXecsService paths are resolved to the context.
+   void setSipxDir(DirectoryType dirType,
+                   const char* subDir = NULL ///< a subdirectory of the working directory.
+                   );
+
+   /// Destructor
    virtual ~FileTestContext();
 
   protected:
@@ -111,7 +118,7 @@ class FileTestContext
 
    /// There is no assignment operator.
    FileTestContext& operator=(const FileTestContext&);
-    
+
 };
 
 #endif // _FILETESTCONTEXT_H_

@@ -14,6 +14,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
+#include "os/OsSysLog.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipxunit/TestUtilities.h"
 #include "testlib/FileTestContext.h"
@@ -30,6 +31,8 @@ FileTestContext::FileTestContext( const char* testInputDir
    : mTestInputDir(testInputDir),
      mTestWorkingDir(testWorkingDir)
 {
+   mTestInputDir.strip(UtlString::trailing,   OsPath::separator(0));
+   mTestWorkingDir.strip(UtlString::trailing, OsPath::separator(0));
    makeCleanWorkingDir();
 };
 
@@ -54,6 +57,25 @@ void FileTestContext::inputFile(const char* filename)
                                 OS_SUCCESS,
                                 OsFileSystem::copy(input, working)
                                 );
+}
+
+void FileTestContext::setSipxDir(DirectoryType dirType, const char* subDir)
+{
+   UtlString contextDir(mTestWorkingDir);
+
+   if (subDir && *subDir != '\000')
+   {
+      if (*subDir != OsPath::separator(0))
+      {
+         contextDir.append(OsPath::separator);
+      }
+      contextDir.append(subDir);
+      contextDir.strip(UtlString::trailing, OsPath::separator(0));
+   }
+   
+   OsSysLog::add(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::setSipxDir( '%s', '%s' )",
+                 dirType, contextDir.data() );
+   setenv(dirType, contextDir.data(), 1);
 }
 
 

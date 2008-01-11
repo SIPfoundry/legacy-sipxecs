@@ -47,45 +47,45 @@
 
 enum tagOsSysLogFacility
 {
-   FAC_PERF=0,             // performance related
-   FAC_KERNEL,             // kernel/os related
-   FAC_AUTH,               // authentication/security related
-   FAC_NET,                // networking related
-   FAC_RTP,                // RTP/RTCP related
-   FAC_PHONESET,           // phoneset related
-   FAC_HTTP,               // http sever related
-   FAC_SIP,                // sip related
-   FAC_CP,                 // call processing related
-   FAC_MP,                 // media processing related
-   FAC_TAO,                // TAO related
-   FAC_JNI,                // JNI Layer related
-   FAC_JAVA,               // Java related
-   FAC_LOG,                // OsSysLog related
-   FAC_WATCHDOG,           // WatchDog related
-   FAC_SIP_OUTGOING,       // Outgoing SIP messages
-   FAC_SIP_INCOMING,       // Incoming SIP messages
-   FAC_SIP_INCOMING_PARSED,// Incoming SIP messages after being parsed
-   FAC_MEDIASERVER_CGI,    // Mediaserver CGIs
-   FAC_MEDIASERVER_VXI,    // Mediaserver VXI engine
-   FAC_ACD,                // ACD related
-   FAC_PARK,               // Park Server related
-   FAC_APACHE_AUTH,        // Apache Authentication Module
-   FAC_UPGRADE,            // Update/Upgrade related
-   FAC_LINE_MGR,           // SIP line manager related
-   FAC_REFRESH_MGR,        // SIP refresh manager related
-   FAC_AVAILABLE_FOR_REUSE,// Available for re-use.
-   FAC_STREAMING,          // Stream Media related message
-   FAC_REPLICATION_CGI,    // replication cgi( replicates databases across components )
-   FAC_DB,                 // Database related (sipdb)
-   FAC_PROCESSMGR,         // OsProcessMgr
-   FAC_PROCESS,            // process related
-   FAC_SIPXTAPI,           // sipXtapi related
-   FAC_AUDIO,              // audio related
-   FAC_CONFERENCE,         // Conference bridge
-   FAC_ODBC,               // ODBC related
-   FAC_CDR,                // CDR generating related
-   FAC_RLS,                // Resource list server
-   FAC_MAX_FACILITY        // Last Facility (used to for length)
+   FAC_PERF=0,             ///< performance related
+   FAC_KERNEL,             ///< kernel/os related
+   FAC_AUTH,               ///< authentication/security related
+   FAC_NET,                ///< networking related
+   FAC_RTP,                ///< RTP/RTCP related
+   FAC_PHONESET,           ///< phoneset related
+   FAC_HTTP,               ///< http sever related
+   FAC_SIP,                ///< sip related
+   FAC_CP,                 ///< call processing related
+   FAC_MP,                 ///< media processing related
+   FAC_TAO,                ///< TAO related
+   FAC_JNI,                ///< JNI Layer related
+   FAC_JAVA,               ///< Java related
+   FAC_LOG,                ///< OsSysLog related
+   FAC_WATCHDOG,           ///< WatchDog related
+   FAC_SIP_OUTGOING,       ///< Outgoing SIP messages
+   FAC_SIP_INCOMING,       ///< Incoming SIP messages
+   FAC_SIP_INCOMING_PARSED,///< Incoming SIP messages after being parsed
+   FAC_MEDIASERVER_CGI,    ///< Mediaserver CGIs
+   FAC_MEDIASERVER_VXI,    ///< Mediaserver VXI engine
+   FAC_ACD,                ///< ACD related
+   FAC_PARK,               ///< Park Server related
+   FAC_APACHE_AUTH,        ///< Apache Authentication Module
+   FAC_UPGRADE,            ///< Update/Upgrade related
+   FAC_LINE_MGR,           ///< SIP line manager related
+   FAC_REFRESH_MGR,        ///< SIP refresh manager related
+   FAC_UNIT_TEST,          ///< Available for re-use.
+   FAC_STREAMING,          ///< Stream Media related message
+   FAC_REPLICATION_CGI,    ///< replication cgi( replicates databases across components )
+   FAC_DB,                 ///< Database related (sipdb)
+   FAC_PROCESSMGR,         ///< OsProcessMgr
+   FAC_PROCESS,            ///< process related
+   FAC_SIPXTAPI,           ///< sipXtapi related
+   FAC_AUDIO,              ///< audio related
+   FAC_CONFERENCE,         ///< Conference bridge
+   FAC_ODBC,               ///< ODBC related
+   FAC_CDR,                ///< CDR generating related
+   FAC_RLS,                ///< Resource list server
+   FAC_MAX_FACILITY        ///< Last Facility (used to for length)
 
    //
    // *** READ THIS ***
@@ -100,42 +100,6 @@ enum tagOsSysLogFacility
    //
    //
 } ;
-  //: Defines the various facilities available for platforms.
-  //
-  //
-  //!enumcode: FAC_PERF - performance related
-  //!enumcode: FAC_KERNEL - kernel/os related
-  //!enumcode: FAC_AUTH - authentication/security related
-  //!enumcode: FAC_NET - networking related
-  //!enumcode: FAC_RTP - RTP/RTCP related
-  //!enumcode: FAC_PHONESET - phoneset related
-  //!enumcode: FAC_HTTP - http sever related
-  //!enumcode: FAC_SIP - sip related
-  //!enumcode: FAC_CP - call processing related
-  //!enumcode: FAC_TAO - TAO related
-  //!enumcode: FAC_JNI - JNI Layer related
-  //!enumcode: FAC_JAVA - Java related
-  //!enumcode: FAC_LOG - OsSysLog related
-  //!enumcode: FAC_SIP_OUTGOING - Outgoing SIP messages
-  //!enumcode: FAC_SIP_INCOMING - Incoming SIP messages
-  //!enumcode: FAC_SIP_INCOMING_PARSED - Incoming SIP messages after being parsed
-  //!enumcode: FAC_MEDIASERVER_CGI - Mediaserver CGIs
-  //!enumcode: FAC_MEDIASERVER_VXI - Mediaserver VXI engine
-  //!enumcode: FAC_ACD - ACD related
-  //!enumcode: FAC_PARK - Park Server related
-  //!enumcode: FAC_APACHE_AUTH - Apache Authentication Module
-  //!enumcode: FAC_UPGRADE - Update/Upgrade related
-  //!enumcode: FAC_AVAILABLE_FOR_REUSE - Available for re-use. 
-  //!enumcode: FAC_DB - Database related (sipdb)
-  //!enumcode: FAC_REPLICATION_CGI - replication cgi (replicates databases across components)
-  //!enumcode: FAC_PROCESSMGR - os processmanager related
-  //!enumcode: FAC_PROCESS - process related
-  //!enumcode: FAC_SIPXTAPI - sipXtapi related
-  //!enumcode: FAC_AUDIO - audio related
-  //!enumcode: FAC_CONFERENCE - Conference bridge
-  //!enumcode: FAC_ODBC - ODBC related
-  //!enumcode: FAC_CDR - CDR generating related
-  //!enumcode: FAC_RLS - Resource list server
 
 // TYPEDEFS
 typedef enum tagOsSysLogFacility OsSysLogFacility ;

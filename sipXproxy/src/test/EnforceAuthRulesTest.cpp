@@ -94,7 +94,7 @@ public:
    void testNoPermNeededOut()
       {
          OsConfigDb configuration;
-         configuration.set("RULES", TEST_DATA_DIR "enforcerules.xml");
+         configuration.set("RULES", TEST_DATA_DIR "/enforcerules.xml");
 
          enforcer->readConfig(configuration);
 
@@ -175,7 +175,7 @@ public:
    void testNoPermNeededOutAuthIdentity()
       {
          OsConfigDb configuration;
-         configuration.set("RULES", TEST_DATA_DIR "enforcerules.xml");
+         configuration.set("RULES", TEST_DATA_DIR "/enforcerules.xml");
 
          enforcer->readConfig(configuration);
 
@@ -259,7 +259,7 @@ public:
    void testNoPermAck()
       {
          OsConfigDb configuration;
-         configuration.set("RULES", TEST_DATA_DIR "enforcerules.xml");
+         configuration.set("RULES", TEST_DATA_DIR "/enforcerules.xml");
 
          enforcer->readConfig(configuration);
 
@@ -329,7 +329,7 @@ public:
    void testNoPermResponse()
       {
          OsConfigDb configuration;
-         configuration.set("RULES", TEST_DATA_DIR "enforcerules.xml");
+         configuration.set("RULES", TEST_DATA_DIR "/enforcerules.xml");
 
          enforcer->readConfig(configuration);
 
@@ -831,4 +831,4 @@ private:
 CPPUNIT_TEST_SUITE_REGISTRATION(EnforceAuthRulesTest);
 
 EnforceAuthRules* EnforceAuthRulesTest::enforcer = dynamic_cast<EnforceAuthRules*>(getAuthPlugin("enforce"));
-SipDbTestContext  EnforceAuthRulesTest::TestDbContext(TEST_DATA_DIR, TEST_DIR "/enforceauthrules_context");
+SipDbTestContext  EnforceAuthRulesTest::TestDbContext(TEST_DATA_DIR, TEST_WORK_DIR "enforceauthrules_context");

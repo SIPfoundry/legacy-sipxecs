@@ -64,9 +64,6 @@ class ForwardRules;
  * AuthPlugin abstract base class for the interface and rules of operation.  This allows
  * modular extensions and changes to the authproxy operation without changing the basic
  * proxy behavior.
- *
- * @todo
- * XPR-183 - Check for loops
  */
 class SipRouter : public OsServerTask
 {

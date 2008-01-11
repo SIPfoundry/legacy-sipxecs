@@ -16,6 +16,7 @@
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class OsConfigDb;
 
 /// Reads a shared secret value from the domain configuration.
 /**

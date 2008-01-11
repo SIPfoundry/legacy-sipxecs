@@ -45,10 +45,12 @@ public:
    void setUp()
       {
          TestDbContext.inputFile("caller-alias.xml");
+         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType);
 
          RouteState::setSecret("fixed"); // force invariant signatures
 
-         UtlString rulesFile(TEST_DATA_DIR "rulesdata/routing.xml");
+         UtlString rulesFile;
+         TestDbContext.inputFilePath("rulesdata/routing.xml", rulesFile);
          mForwardingRules.loadMappings( rulesFile, "Mediaserver", "Voicemail", "localhost" );
       }
 
@@ -480,7 +482,7 @@ private:
 CPPUNIT_TEST_SUITE_REGISTRATION(CallerAliasTest);
 
 CallerAlias*     CallerAliasTest::converter;
-SipDbTestContext CallerAliasTest::TestDbContext(TEST_DATA_DIR, TEST_DIR "/calleralias_context");
+SipDbTestContext CallerAliasTest::TestDbContext(TEST_DATA_DIR, TEST_WORK_DIR "/calleralias_context");
 SipUserAgent     CallerAliasTest::testUserAgent(
    PORT_NONE,
    PORT_NONE,
