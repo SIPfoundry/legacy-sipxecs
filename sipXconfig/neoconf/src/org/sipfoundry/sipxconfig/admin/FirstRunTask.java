@@ -13,6 +13,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
@@ -30,6 +31,7 @@ public class FirstRunTask implements ApplicationListener {
     private DomainManager m_domainManager;
     private DialPlanContext m_dialPlanContext;
     private SipxProcessContext m_processContext;
+    private ConfigurationDiagnosticContext m_configurationDiagnosticContext;
     private String m_taskName;
 
     public void runTask() {
@@ -38,9 +40,10 @@ public class FirstRunTask implements ApplicationListener {
         m_domainManager.replicateDomainConfig();
         m_dialPlanContext.activateDialPlan();
         m_coreContext.initializeSpecialUsers();
-        
+
         List restartable = m_processContext.getRestartable();
         m_processContext.restartOnEvent(restartable, DialPlanActivatedEvent.class);
+        m_configurationDiagnosticContext.runTests();
     }
 
     public void onApplicationEvent(ApplicationEvent event) {
@@ -56,9 +59,8 @@ public class FirstRunTask implements ApplicationListener {
             runTask();
             removeTask();
         }
-
     }
-    
+
     private void removeTask() {
         m_adminContext.deleteInitializationTask(m_taskName);
     }
@@ -90,9 +92,15 @@ public class FirstRunTask implements ApplicationListener {
     public void setProcessContext(SipxProcessContext processContext) {
         m_processContext = processContext;
     }
-    
+
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    @Required
+    public void setConfigurationDiagnosticContext(
+            ConfigurationDiagnosticContext configurationDiagnosticContext) {
+        m_configurationDiagnosticContext = configurationDiagnosticContext;
     }
 }
