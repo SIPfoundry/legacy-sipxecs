@@ -34,7 +34,8 @@ class TransferControlTest : public CppUnit::TestCase
    CPPUNIT_TEST(ReferWithReplaces);
    CPPUNIT_TEST(UnAuthenticatedRefer);
    CPPUNIT_TEST(AuthenticatedRefer);
-
+   CPPUNIT_TEST(UnAuthenticatedForiegnRefer);
+   
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -267,7 +268,7 @@ public:
 
          const char* message =
             "REFER sip:someone@somewhere SIP/2.0\r\n"
-            "Refer-To: other@elsewhere\r\n"
+            "Refer-To: other@example.edu\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
             "To: sip:someone@somewhere\r\n"
             "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
@@ -311,7 +312,7 @@ public:
 
          const char* message =
             "REFER sip:someone@somewhere SIP/2.0\r\n"
-            "Refer-To: other@elsewhere\r\n"
+            "Refer-To: other@example.edu\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
             "To: sip:someone@somewhere\r\n"
             "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
@@ -360,6 +361,49 @@ public:
          UtlString transferIdentity;
          transferIdentityUrl.getIdentity(transferIdentity);
          ASSERT_STR_EQUAL("controller@domain", transferIdentity.data());
+      }
+
+   // Test that an unauthenticated REFER without Replaces to a foreign target is not challenged
+   void UnAuthenticatedForiegnRefer()
+      {
+         UtlString identity; // no authenticated identity
+         Url requestUri("sip:someone@somewhere");
+
+         const char* message =
+            "REFER sip:someone@somewhere SIP/2.0\r\n"
+            "Refer-To: other@elsewhere.edu\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:someone@somewhere\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage testMsg(message, strlen(message));
+
+         UtlSList noRemovedRoutes;
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
+
+         const char unmodifiedRejectReason[] = "unmodified";
+         UtlString rejectReason(unmodifiedRejectReason);
+         
+         UtlString method("REFER");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+         
+         CPPUNIT_ASSERT(AuthPlugin::ALLOW
+                        == xferctl->authorizeAndModify(testSipRouter,
+                                                       identity,
+                                                       requestUri,
+                                                       routeState,
+                                                       method,
+                                                       priorResult,
+                                                       testMsg,
+                                                       rejectReason
+                                                       ));
+         ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
       }
    
 private:

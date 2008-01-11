@@ -12,6 +12,7 @@
 #include "net/Url.h"
 #include "net/SipMessage.h"
 #include "net/SipXauthIdentity.h"
+#include "SipRouter.h"
 #include "TransferControl.h"
 
 // DEFINES
@@ -109,11 +110,26 @@ TransferControl::authorizeAndModify(const SipRouter* sipRouter,  ///< for access
                else if (id.isNull())
                {
                   // UnAuthenticated REFER without Replaces
-                  OsSysLog::add(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
-                                "challenging transfer in call '%s'",
-                                mInstanceName.data(), callId.data()
-                                );
-                  result = DENY; // we need an identity to attach to the Refer-To URI
+                  if (sipRouter->isLocalDomain(target))
+                  {
+                     OsSysLog::add(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
+                                   "challenging transfer in call '%s'",
+                                   mInstanceName.data(), callId.data()
+                                   );
+                     result = DENY; // we need an identity to attach to the Refer-To URI
+                  }
+                  else
+                  {
+                     /*
+                      * This is a transfer to a target outside our domain, so let it go
+                      * unchallenged.  See XECS-806
+                      */
+                     OsSysLog::add(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
+                                   "allowing foriegn transfer in call '%s'",
+                                   mInstanceName.data(), callId.data()
+                                   );
+                     result = ALLOW;
+                  }
                }
                else
                {
