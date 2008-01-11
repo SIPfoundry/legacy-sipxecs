@@ -9,61 +9,85 @@
  */
 package org.sipfoundry.sipxconfig.admin.configdiag;
 
-import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Serializable;
+import java.io.Reader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class ExternalCommand implements Serializable {
+public class ExternalCommand {
     private static final Log LOG = LogFactory.getLog(ExternalCommand.class);
-    
-    private String m_command;
-    private List<String> m_args;
-    private ExternalCommandContext m_context;
 
-    public ExternalCommand() {
-        m_args = new ArrayList<String>();
-    }
+    private static final Pattern PARAM_PATTERN = Pattern.compile("\\$\\{(.*)\\}");
+
+    private String m_command;
+    private List<String> m_args = new ArrayList<String>();
+    private ExternalCommandContext m_context;
+    private String m_stdout;
 
     public int execute() {
-        String absolutePath = m_command;
-        if (!m_command.startsWith("/")) {
-            absolutePath = m_context.getBinDirectory() + '/' + m_command;
+        try {
+            return rawExecute();
+        } catch (IOException e) {
+            LOG.error("Cannot execute: " + m_command, e);
+            return Integer.MIN_VALUE;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-        StringBuffer commandBuffer = new StringBuffer(absolutePath);
+    }
+
+    private int rawExecute() throws IOException, InterruptedException {
+        List<String> cmdAndArgs = prepareCommandLine();
+        String[] cmdArray = cmdAndArgs.toArray(new String[cmdAndArgs.size()]);
+        String fullCommand = StringUtils.join(cmdArray, " ");
+        Process process = Runtime.getRuntime().exec(cmdArray);
+
+        InputStream stream = process.getInputStream();
+
+        Reader streamReader = new InputStreamReader(stream);
+
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(streamReader, writer);
+        int exitStatus = process.waitFor();
+        m_stdout = writer.toString();
+
+        LOG.debug(String
+                .format("Starting external command output for command '%s':", fullCommand));
+        LOG.debug(m_stdout);
+        LOG.debug(String.format("Exit code for command '%s' was '%d'", fullCommand, exitStatus));
+
+        return exitStatus;
+    }
+
+    private List<String> prepareCommandLine() {
+        List<String> cmdAndArgs = new ArrayList<String>();
+        cmdAndArgs.add(getFullCommand());
         for (String arg : m_args) {
-            Pattern pattern = Pattern.compile("\\$\\{(.*)\\}");
-            Matcher matcher = pattern.matcher(arg.trim());
+            Matcher matcher = PARAM_PATTERN.matcher(arg.trim());
             if (matcher.matches()) {
                 String key = matcher.group(1);
                 arg = m_context.resolveArgumentString(key);
             }
-            commandBuffer.append(' ');
-            commandBuffer.append(arg);
+            cmdAndArgs.add(arg);
         }
-        try {
-            LOG.debug("Starting external command output for command '" + commandBuffer.toString() + "':");
-            Process process = Runtime.getRuntime().exec(commandBuffer.toString());
-            BufferedReader streamReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line = streamReader.readLine();
-            while (line != null) {
-                LOG.debug(line);
-                line = streamReader.readLine();
-            }
-            
-            int exitStatus = process.waitFor();
-            LOG.debug("Exit code for command '" + commandBuffer.toString() 
-                    + "' was '" + exitStatus + "'");
-            return exitStatus;
-        } catch (Exception e) {
-            return Integer.MIN_VALUE;
+        return cmdAndArgs;
+    }
+
+    private String getFullCommand() {
+        String absolutePath = m_command;
+        if (!m_command.startsWith("/")) {
+            absolutePath = m_context.getBinDirectory() + '/' + m_command;
         }
+        return absolutePath;
     }
 
     public String getCommand() {
@@ -73,16 +97,16 @@ public class ExternalCommand implements Serializable {
     public void setCommand(String command) {
         m_command = command;
     }
-    
+
     public void setContext(ExternalCommandContext context) {
         m_context = context;
     }
 
-    public List<String> getArgs() {
-        return m_args;
-    }
-
     public void addArgument(String arg) {
         m_args.add(arg);
+    }
+
+    List<String> getArgs() {
+        return m_args;
     }
 }

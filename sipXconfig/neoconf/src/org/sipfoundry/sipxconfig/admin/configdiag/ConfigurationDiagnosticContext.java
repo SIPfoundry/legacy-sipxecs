@@ -13,7 +13,9 @@ import java.io.File;
 import java.util.List;
 
 public interface ConfigurationDiagnosticContext {
-    public List<ConfigurationDiagnostic> getConfigurationTests();
+    List<ConfigurationDiagnostic> getConfigurationTests();
 
-    public File getPreflightInstaller();
+    void runTests();
+
+    File getPreflightInstaller();
 }

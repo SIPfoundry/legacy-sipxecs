@@ -18,25 +18,19 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
-import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.admin.configdiag.CompositeExecutionTask;
 import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnostic;
 import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticContext;
 
 public abstract class ConfigurationDiagnosticPage extends BasePage implements
         PageBeginRenderListener {
     public static final String PAGE = "ConfigurationDiagnosticPage";
-    public static final String SESSION = "session";
 
     @InjectObject(value = "spring:configurationDiagnosticContext")
     public abstract ConfigurationDiagnosticContext getConfigurationDiagnosticContext();
-
-    @InjectObject(value = "spring:compositeExecutionTask")
-    public abstract CompositeExecutionTask getCompositeExecutionTask();
 
     @InjectPage(value = ConfigurationDiagnosticDetailPage.PAGE)
     public abstract ConfigurationDiagnosticDetailPage getconfigurationDiagnosticDetailPage();
@@ -44,14 +38,12 @@ public abstract class ConfigurationDiagnosticPage extends BasePage implements
     @Bean
     public abstract EvenOdd getRowClass();
 
-    @Persist(value = SESSION)
     public abstract List<ConfigurationDiagnostic> getConfigurationTests();
 
     public abstract void setConfigurationTests(List<ConfigurationDiagnostic> configurationTests);
 
     public abstract ConfigurationDiagnostic getConfigurationTest();
 
-    @Persist(value = SESSION)
     public abstract Format getDateFormat();
 
     public abstract void setDateFormat(Format format);
@@ -66,19 +58,17 @@ public abstract class ConfigurationDiagnosticPage extends BasePage implements
         setDateFormat(dateFormat);
     }
 
-    public IPage displayDetail(ConfigurationDiagnostic diagnostic) {
+    public IPage displayDetail(int index) {
+        List<ConfigurationDiagnostic> tests = getConfigurationDiagnosticContext()
+                .getConfigurationTests();
+        ConfigurationDiagnostic test = tests.get(index);
         ConfigurationDiagnosticDetailPage page = getconfigurationDiagnosticDetailPage();
-        page.setConfigurationDiagnostic(diagnostic);
+        page.setConfigurationDiagnostic(test);
         return page;
     }
 
     public void runAllTests() {
-        CompositeExecutionTask task = getCompositeExecutionTask();
-        task.removeAll();
-        for (ConfigurationDiagnostic configurationTest : getConfigurationTests()) {
-            getCompositeExecutionTask().addExecutionTask(configurationTest);
-        }
-        task.execute();
+        getConfigurationDiagnosticContext().runTests();
     }
 
     public Object getLastRunTime() {

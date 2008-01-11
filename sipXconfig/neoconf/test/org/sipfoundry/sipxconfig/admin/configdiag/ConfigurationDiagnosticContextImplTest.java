@@ -27,7 +27,7 @@ public class ConfigurationDiagnosticContextImplTest extends TestCase {
         m_out.setDescriptorPath(descriptorPath);
     }
     
-    public void testGetConfigurationTests() {
+    public void testGetConfigurationTests() throws Exception {
         List<ConfigurationDiagnostic> allTests = m_out.getConfigurationTests();
         assertEquals("Expected 2 diagnostic tests", 2, allTests.size());
         
@@ -44,7 +44,7 @@ public class ConfigurationDiagnosticContextImplTest extends TestCase {
             }
         });
         
-        simpleDiag.execute();
+        simpleDiag.call();
         assertEquals("Simple diag failed on execute.", Status.Success, simpleDiag.getResult().getStatus());
     }
 }

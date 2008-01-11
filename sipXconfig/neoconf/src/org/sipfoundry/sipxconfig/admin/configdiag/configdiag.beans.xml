@@ -1,14 +1,15 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="configurationDiagnosticContext" class="org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticContextImpl">
+  <bean id="configurationDiagnosticContext"
+    class="org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticContextImpl">
     <property name="descriptorPath">
       <value>${sysdir.etc}/test.d</value>
     </property>
-    <property name="externalCommandContext" ref="commandContext"/>
-    <property name="preflightInstallerLocation" value="${sysdir.share}/preflight/preflight_installer.exe"/>
+    <property name="externalCommandContext" ref="commandContext" />
+    <property name="preflightInstallerLocation" value="${sysdir.share}/preflight/preflight_installer.exe" />
   </bean>
-  
+
   <bean id="commandContext" class="org.sipfoundry.sipxconfig.admin.configdiag.DefaultExternalCommandContext">
     <property name="binDirectory">
       <value>${sysdir.bin}</value>
@@ -27,23 +28,7 @@
           </key>
           <value>${phoneDefaults.fullyQualifiedDomainName}</value>
         </entry>
-      </map>    
-    </property>
-  </bean>
-  
-  <bean id="compositeExecutionTask" 
-    class="org.springframework.aop.framework.ProxyFactoryBean"
-    singleton="false">
-    <property name="proxyInterfaces"
-      value="org.sipfoundry.sipxconfig.admin.configdiag.CompositeExecutionTask"/>
-    <property name="interceptorNames">
-      <list>
-        <value>backgroundTaskInterceptor</value>
-      </list>
-    </property>
-    <property name="target">
-      <bean class="org.sipfoundry.sipxconfig.admin.configdiag.CompositeExecutionTaskImpl"
-        singleton="false"/> 
+      </map>
     </property>
   </bean>
 </beans>

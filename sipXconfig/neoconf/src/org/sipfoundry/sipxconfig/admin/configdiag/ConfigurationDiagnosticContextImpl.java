@@ -14,10 +14,15 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,43 +38,113 @@ public class ConfigurationDiagnosticContextImpl implements ConfigurationDiagnost
 
     private ExternalCommandContext m_externalCommandContext;
 
-    public List<ConfigurationDiagnostic> getConfigurationTests() {
-        List<ConfigurationDiagnostic> configurationTests = new ArrayList<ConfigurationDiagnostic>();
+    private List<ConfigurationDiagnostic> m_configurationTests;
 
-        File descriptorDir = new File(m_descriptorPath);
-        LOG.debug("descriptorPath: " + m_descriptorPath);
-        LinkedList<File> descriptorFiles = new LinkedList<File>(Arrays
-                .<File> asList(descriptorDir.listFiles(new FilenameFilter() {
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith(".test.xml");
-                    }
-                })));
+    private List<Future<Integer>> m_results;
 
-        Collections.<File> sort(descriptorFiles, new Comparator<File>() {
+    public synchronized List<ConfigurationDiagnostic> getConfigurationTests() {
+        if (m_configurationTests == null) {
+            m_configurationTests = loadConfigurationTests();
+        }
+        return m_configurationTests;
+    }
+
+    public synchronized void runTests() {
+        if (isInProgress(m_results)) {
+            // do not need to start new jobs if old are still running
+            return;
+        }
+        try {
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            m_results = scheduleAll(executor, getConfigurationTests());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Similar to ExecutorService.invokeAll but this method is not going to block. You can check
+     * the progress later by analysing returned futures.
+     */
+    static <T> List<Future<T>> scheduleAll(Executor executor,
+            Collection< ? extends Callable<T>> tasks) throws InterruptedException {
+        List<Future<T>> futures = new ArrayList<Future<T>>(tasks.size());
+        for (Callable<T> t : tasks) {
+            FutureTask<T> f = new FutureTask<T>(t);
+            futures.add(f);
+            executor.execute(f);
+        }
+        return futures;
+    }
+
+    /**
+     * Checks if any tests are currently in progress
+     * 
+     * @param results list of test results - can be null
+     * @return true is at least one future is not completed yet
+     */
+    static <T> boolean isInProgress(List<Future<T>> results) {
+        if (results == null) {
+            return false;
+        }
+        for (Future<T> future : results) {
+            if (!future.isDone()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Loads test descriptrors from XML test descriptor files.
+     * 
+     * @return list of test descriptors in the order tests should be run
+     */
+    private List<ConfigurationDiagnostic> loadConfigurationTests() {
+        File[] files = getDescriptorFiles(m_descriptorPath);
+        List<ConfigurationDiagnostic> tests = new ArrayList<ConfigurationDiagnostic>(files.length);
+        for (File file : files) {
+            LOG.debug("Found descriptor file: " + file);
+            try {
+                ConfigurationDiagnostic diag = new ConfigurationDiagnostic();
+                diag.loadFromXml(new FileInputStream(file), m_externalCommandContext);
+                tests.add(diag);
+            } catch (Exception ioe) {
+                LOG.error("Error loading test descriptor file: " + file, ioe);
+            }
+        }
+        return tests;
+    }
+
+    /**
+     * Finds all test descriptor files
+     * 
+     * @param directory in which descritpor files are located
+     * @return list of test descriptor files in the alphabetic order.
+     */
+    private File[] getDescriptorFiles(String descriptorPath) {
+        File descriptorDir = new File(descriptorPath);
+        LOG.debug("descriptorPath: " + descriptorPath);
+        FilenameFilter descriptorFilter = new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".test.xml");
+            }
+        };
+        File[] descriptorFiles = descriptorDir.listFiles(descriptorFilter);
+        Arrays.sort(descriptorFiles, new Comparator<File>() {
             public int compare(File o1, File o2) {
                 return o1.getName().compareTo(o2.getName());
             }
         });
-
-        for (File file : descriptorFiles) {
-            LOG.debug("Found descriptor file " + file.getName());
-            ConfigurationDiagnostic diag = new ConfigurationDiagnostic();
-            diag.setCommandContext(m_externalCommandContext);
-            try {
-                diag.loadFromXml(new FileInputStream(file));
-                configurationTests.add(diag);
-            } catch (Exception ioe) {
-                LOG.error("Error loading test descriptor file " + file.getName(), ioe);
-            }
-        }
-
-        return configurationTests;
+        return descriptorFiles;
     }
 
+    @Required
     public void setDescriptorPath(String path) {
         m_descriptorPath = path;
     }
 
+    @Required
     public void setExternalCommandContext(ExternalCommandContext externalCommandContext) {
         m_externalCommandContext = externalCommandContext;
     }

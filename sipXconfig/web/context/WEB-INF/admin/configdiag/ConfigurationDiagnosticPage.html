@@ -19,14 +19,14 @@
     <table jwcid="@contrib:TableView" id="configdiag:list" class="component"
       source="prop:configurationTests"
       pageSize="-1"
-      columns="* label, lastRunTime, status">
+      columns="!label,!lastRunTime,!status">
       <thead>
         <tr>
           <span jwcid="@contrib:TableColumns"/>
         </tr>
       </thead>
       <tbody>
-        <span jwcid="@contrib:TableRows" 
+        <span jwcid="rows@contrib:TableRows" 
           class="ognl:beans.rowClass.next"
           row="prop:configurationTest"
           volatile="ognl:true">
@@ -35,7 +35,7 @@
         <span jwcid="statusColumnValue@Block">
           <a jwcid="displayDetail@DirectLink" 
             listener="listener:displayDetail" 
-            parameters="ognl:configurationTest">
+            parameters="ognl:components.rows.tableIndex">
             <span jwcid="@Insert" value="ognl:configurationTest.result.status"/>
           </a>
         </span>
@@ -46,7 +46,7 @@
     </table>
     <ul jwcid="actions@Block">
       <li>
-        <input id="configdiag:runAllTests" jwcid="runAllTests@tacos:AjaxSubmit"
+            <input id="configdiag:runAllTests" jwcid="runAllTests@tacos:AjaxSubmit"
           updateComponents="ognl:{'refreshedContent'}"
           listener="listener:runAllTests"
           value="message:button.runAllTests"/>

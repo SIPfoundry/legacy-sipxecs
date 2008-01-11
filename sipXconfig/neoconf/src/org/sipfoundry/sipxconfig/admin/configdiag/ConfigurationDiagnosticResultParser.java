@@ -9,13 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.admin.configdiag;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticResult.Status;
-
-public class ConfigurationDiagnosticResultParser implements Serializable {
+public class ConfigurationDiagnosticResultParser {
 
     private Map<Integer, ConfigurationDiagnosticResult> m_ruleMap;
 
@@ -23,27 +20,28 @@ public class ConfigurationDiagnosticResultParser implements Serializable {
         if (m_ruleMap == null) {
             m_ruleMap = new HashMap<Integer, ConfigurationDiagnosticResult>();
         }
-
         m_ruleMap.put(result.getExitStatus(), result);
     }
 
-    public ConfigurationDiagnosticResult parseResult(int exitStatus) {
-        if (m_ruleMap != null && m_ruleMap.containsKey(exitStatus)) {
-            return m_ruleMap.get(exitStatus);
+    private ConfigurationDiagnosticResult getResult(int exitStatus) {
+        if (m_ruleMap == null) {
+            return ConfigurationDiagnosticResult.createUnknown(exitStatus);
         }
-        return ConfigurationDiagnosticResult.UNKNOWN_RESULT;
+        ConfigurationDiagnosticResult result = m_ruleMap.get(exitStatus);
+        if (result == null) {
+            return ConfigurationDiagnosticResult.createUnknown(exitStatus);
+        }
+        return result;
+    }
+
+    public ConfigurationDiagnosticResult parseResult(int exitStatus) {
+        return getResult(exitStatus);
     }
 
     public void parseResult(int exitStatus, ConfigurationDiagnosticResult result) {
-        if (m_ruleMap != null && m_ruleMap.containsKey(exitStatus)) {
-            ConfigurationDiagnosticResult localresult = m_ruleMap.get(exitStatus);
-            result.setExitStatus(localresult.getExitStatus());
-            result.setStatus(localresult.getStatus());
-            result.setMessage(localresult.getMessage());
-        } else {
-            result.setExitStatus(exitStatus);
-            result.setStatus(Status.Unknown);
-            result.setMessage("Unknown exit code: " + exitStatus);
-        }
+        ConfigurationDiagnosticResult localResult = getResult(exitStatus);
+        result.setExitStatus(localResult.getExitStatus());
+        result.setStatus(localResult.getStatus());
+        result.setMessage(localResult.getMessage());
     }
 }

@@ -11,55 +11,54 @@ package org.sipfoundry.sipxconfig.admin.configdiag;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.util.Date;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.digester.Digester;
 import org.xml.sax.SAXException;
 
-public class ConfigurationDiagnostic implements ExecutionTask, Serializable {
+public class ConfigurationDiagnostic implements Callable<Integer> {
 
-    private static final String TEST_PATH = "test";
-    private static final String RESULTS_PATH = "test/results";
-    private static final String COMMAND_PATH = "test/command";
-    private static final String RESULT_PATH = RESULTS_PATH + "/result";
-    
     private String m_name;
     private String m_label;
     private String m_description;
-    private ConfigurationDiagnosticResult m_result;
+    private ConfigurationDiagnosticResult m_result = ConfigurationDiagnosticResult.UNKNOWN_RESULT;
     private ExternalCommand m_command;
     private ConfigurationDiagnosticResultParser m_resultParser;
     private Date m_startTime;
     private Date m_endTime;
-    private ExternalCommandContext m_commandContext;
 
-    public ConfigurationDiagnostic() {
-        m_result = ConfigurationDiagnosticResult.UNKNOWN_RESULT;
+    private static class TestDescriptorDigester extends Digester {
+        private static final String TEST_PATH = "test";
+        private static final String RESULTS_PATH = "test/results";
+        private static final String COMMAND_PATH = "test/command";
+        private static final String RESULT_PATH = RESULTS_PATH + "/result";
+
+        public TestDescriptorDigester(ConfigurationDiagnostic cd) {
+            push(cd);
+            addSetProperties(TEST_PATH);
+            addBeanPropertySetter(TEST_PATH + "/label");
+            addBeanPropertySetter(TEST_PATH + "/description");
+            addObjectCreate(COMMAND_PATH, ExternalCommand.class);
+            addSetNext(COMMAND_PATH, "setCommand");
+            addBeanPropertySetter(COMMAND_PATH + "/exec", "command");
+            addCallMethod(COMMAND_PATH + "/arg", "addArgument", 0);
+            addObjectCreate(RESULTS_PATH, ConfigurationDiagnosticResultParser.class);
+            addSetNext(RESULTS_PATH, "setResultParser");
+            addObjectCreate(RESULT_PATH, ConfigurationDiagnosticResult.class);
+            addSetNext(RESULT_PATH, "addResult");
+            addSetProperties(RESULT_PATH, "exit", "exitStatus");
+            addBeanPropertySetter(RESULT_PATH + "/status", "statusAsString");
+            addBeanPropertySetter(RESULT_PATH + "/msg", "message");
+        }
     }
 
-    public void loadFromXml(InputStream xmlStream) throws IOException, SAXException {
-        Digester digester = new Digester();
-
-        digester.push(this);
-        digester.addSetProperties(TEST_PATH);
-        digester.addBeanPropertySetter(TEST_PATH + "/label");
-        digester.addBeanPropertySetter(TEST_PATH + "/description");
-        digester.addObjectCreate(COMMAND_PATH, ExternalCommand.class);
-        digester.addSetNext(COMMAND_PATH, "setCommand");
-        digester.addBeanPropertySetter(COMMAND_PATH + "/exec", "command");
-        digester.addCallMethod(COMMAND_PATH + "/arg", "addArgument", 0);
-        digester.addObjectCreate(RESULTS_PATH, ConfigurationDiagnosticResultParser.class);
-        digester.addSetNext(RESULTS_PATH, "setResultParser");
-        digester.addObjectCreate(RESULT_PATH, ConfigurationDiagnosticResult.class);
-        digester.addSetNext(RESULT_PATH, "addResult");
-        digester.addSetProperties(RESULT_PATH, "exit", "exitStatus");
-        digester.addBeanPropertySetter(RESULT_PATH + "/status", "statusAsString");
-        digester.addBeanPropertySetter(RESULT_PATH + "/msg", "message");
+    public void loadFromXml(InputStream xmlStream, ExternalCommandContext ecc)
+        throws IOException, SAXException {
+        Digester digester = new TestDescriptorDigester(this);
         digester.parse(xmlStream);
-        
         // set the context here... would be cleaner to set it in the digester code above
-        m_command.setContext(m_commandContext);
+        m_command.setContext(ecc);
     }
 
     public String getName() {
@@ -97,10 +96,6 @@ public class ConfigurationDiagnostic implements ExecutionTask, Serializable {
     public void setCommand(ExternalCommand command) {
         m_command = command;
     }
-    
-    public void setCommandContext(ExternalCommandContext commandContext) {
-        m_commandContext = commandContext;
-    }
 
     public void setResultParser(ConfigurationDiagnosticResultParser parser) {
         m_resultParser = parser;
@@ -118,12 +113,13 @@ public class ConfigurationDiagnostic implements ExecutionTask, Serializable {
         return m_endTime;
     }
 
-    public void execute() {
+    public Integer call() throws Exception {
         m_startTime = new Date();
         m_endTime = null;
         m_result = ConfigurationDiagnosticResult.INPROGRESS_RESULT;
         int result = m_command.execute();
         m_result = m_resultParser.parseResult(result);
         m_endTime = new Date();
+        return result;
     }
 }
