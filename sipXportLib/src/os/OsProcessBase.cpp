@@ -13,15 +13,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#ifdef HAVE_CONFIG_H
-#  include "config.h"
-#else
-#  ifdef _VXWORKS
-    #include <envLib.h>  //needed for putenv
-#  endif
-#endif
-
 // APPLICATION INCLUDES
+#include "os/OsDefs.h"
 #include "os/OsFS.h"
 #include "os/OsProcess.h"
 
@@ -130,24 +123,14 @@ OsStatus OsProcessBase::ApplyEnv()
     UtlString nextKey;
     UtlString nextValue;
     UtlBoolean bFailed = FALSE;
-#ifndef HAVE_SETENV
-    UtlString fullEnv;
-#endif
 
     mEnvList.getNext(searchKey,nextKey, nextValue);
     while (nextKey != "")
     {
         searchKey = nextKey;
         int ret;
-        // Use setenv if available, or else putenv.
-#ifdef HAVE_SETENV
+
         ret = setenv(nextKey.data(), nextValue.data(), 1);
-#else // HAVE_SETENV
-        fullEnv = nextKey;
-        fullEnv += "=";
-        fullEnv += nextValue;
-        ret = putenv((char *) fullEnv.data()); // putenv's argument is (char *), not (const char *)
-#endif // HAVE_SETENV
         if (ret != 0)
         {
             bFailed = TRUE;

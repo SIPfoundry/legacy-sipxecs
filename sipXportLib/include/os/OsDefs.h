@@ -13,9 +13,15 @@
 #define _OsDefs_h_
 
 // SYSTEM INCLUDES
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 #ifdef _VXWORKS
 #include "os/Vxw/OsVxwDefs.h"
+#include <envLib.h>  //needed for putenv
 #endif // _VXWORKS
+
 #ifdef __pingtel_on_posix__
 #include "os/linux/OsLinuxDefs.h"
 #endif // __pingtel_on_posix__

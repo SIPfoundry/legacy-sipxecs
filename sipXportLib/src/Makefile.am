@@ -80,6 +80,7 @@ libsipXport_la_SOURCES =  \
     os/OsDateTime.cpp \
     os/OsDirBase.cpp \
     os/OsEncryption.cpp \
+    os/OsEnvironment.cpp \
     os/OsEvent.cpp \
     os/OsEventMsg.cpp \
     os/OsExcept.cpp \
