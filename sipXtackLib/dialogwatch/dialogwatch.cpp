@@ -15,23 +15,36 @@
 // APPLICATION INCLUDES
 #include <os/OsFS.h>
 #include <os/OsSysLog.h>
-#include <utl/UtlSList.h>
-#include <utl/UtlSListIterator.h>
-#include <utl/UtlHashMap.h>
-#include <utl/UtlHashMapIterator.h>
 #include <utl/UtlHashBag.h>
 #include <utl/UtlHashBagIterator.h>
-#include <net/SipDialogEvent.h>
-#include <net/SipUserAgent.h>
+#include <utl/UtlHashMap.h>
+#include <utl/UtlHashMapIterator.h>
+#include <utl/UtlSList.h>
+#include <utl/UtlSListIterator.h>
 #include <net/NetMd5Codec.h>
-#include <net/SipMessage.h>
+#include <net/SipDialogEvent.h>
 #include <net/SipDialogMgr.h>
+#include <net/SipMessage.h>
 #include <net/SipRefreshManager.h>
+#include <net/SipRegEvent.h>
+#include <net/SipResourceList.h>
 #include <net/SipSubscribeClient.h>
-
+#include <net/SipUserAgent.h>
 
 #define OUTPUT_PREFIX "[start of body]\n"
 #define OUTPUT_SUFFIX "\n[end of body]\n"
+
+// Default event type is 'dialog'.
+static const char default_event_type[] = DIALOG_EVENT_TYPE;
+
+// The default content types to allow.
+// This list is assembled to easily support dialog events, dialog-list
+// events, and reg events.
+static const char default_content_type[] =
+   DIALOG_EVENT_CONTENT_TYPE ","
+   CONTENT_TYPE_MULTIPART_RELATED ","
+   RESOURCE_LIST_CONTENT_TYPE ","
+   REG_EVENT_CONTENT_TYPE;
 
 void subscriptionStateCallback(SipSubscribeClient::SubscriptionState newState,
                                const char* earlyDialogHandle,
@@ -88,10 +101,14 @@ int main(int argc, char* argv[])
    OsSysLog::setLoggingPriority(PRI_DEBUG);
    OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 
-   if (argc == 1 || argc == 3)
+   if (!(argc >= 2 && argc <= 4))
    {
-      fprintf(stderr, "Usage: %s target-URI [event-type content-type]\n",
-              argv[0]);
+      fprintf(stderr, "Usage: %s target-URI [event-type [content-type]]\n"
+              "\n"
+              "event-type defaults to '%s'\n"
+              "content-type defaults to '%s',\n"
+              "    which supports dialog, dialog-list, and reg events\n",
+              argv[0], default_event_type, default_content_type);
       exit(1);
    }
 
@@ -100,10 +117,10 @@ int main(int argc, char* argv[])
 
    // The event type.
    const char* event_type =
-      argc >= 4 ? argv[2] : DIALOG_EVENT_TYPE;
+      argc >= 3 ? argv[2] : default_event_type;
    // The content type.
    const char* content_type =
-      argc >= 4 ? argv[3] : DIALOG_EVENT_CONTENT_TYPE;
+      argc >= 4 ? argv[3] : default_content_type;
 
    // Seconds to set for subscription.
    int refreshTimeout = 300;
