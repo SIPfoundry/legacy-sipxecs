@@ -48,7 +48,7 @@ public:
    void setUp()
       {
          TransferTestContext = new FileTestContext(TEST_DATA_DIR "/transfer-control",
-                                                   TEST_WORK_DIR "/transfer-control");
+                                                   TEST_WORK_DIR "/transfer-control-context");
          TransferTestContext->inputFile("domain-config");
          TransferTestContext->setSipxDir(SipXecsService::ConfigurationDirType);
       }
