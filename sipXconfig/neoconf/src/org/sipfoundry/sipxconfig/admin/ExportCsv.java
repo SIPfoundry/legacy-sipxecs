@@ -79,8 +79,7 @@ public class ExportCsv {
      * @param realm
      * @return list of user IDs exported with this phone
      */
-    private Collection<String> exportPhone(CsvWriter csv, Phone phone, String realm)
-        throws IOException {
+    Collection<String> exportPhone(CsvWriter csv, Phone phone, String realm) throws IOException {
         String[] row = Index.newRow();
 
         String phoneSerialNumber = phone.getSerialNumber();
@@ -100,26 +99,28 @@ public class ExportCsv {
 
         // Now get the user(s) for each phone.
         List<Line> lines = phone.getLines();
-        if (lines.isEmpty()) {
-            // No users are associated with this phone
-            csv.write(row, false);
-            return Collections.emptyList();
-        }
-
         List<String> usernames = new ArrayList<String>(lines.size());
         for (Line line : lines) {
             User user = line.getUser();
+            if (user == null) {
+                // skip external lines
+                continue;
+            }
             String userName = user.getUserName();
             // Add username to list that shows this user is associated with a phone.
             usernames.add(userName);
 
             exportUser(csv, row, user, realm);
         }
+
+        if (usernames.isEmpty()) {
+            // no lines or external lines only - write "phone only" line
+            csv.write(row, false);
+        }
         return usernames;
     }
 
-    private void exportUser(CsvWriter csv, String[] row, User user, String realm)
-        throws IOException {
+    void exportUser(CsvWriter csv, String[] row, User user, String realm) throws IOException {
         Index.USERNAME.set(row, user.getUserName());
 
         Index.SIP_PASSWORD.set(row, user.getSipPassword());
