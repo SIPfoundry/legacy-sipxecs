@@ -44,7 +44,7 @@ module AcdStats
     attr_accessor :terminate_time
     
     def initialize(call)
-      @from = call.call_id
+      @from = call.from
       @state = call.state
       @agent_uri = call.agent_uri
       @queue_uri = call.queue_uri
