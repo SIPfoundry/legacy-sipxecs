@@ -207,7 +207,8 @@ mv %{upgrade_archive_dir}/%{this_archive_cdr} %{current_archive}
 # Do not run upgrade2mergedproxy if sipXproxy-config.in.rpmnew exists,
 # because that means that we've upgraded a configuration that already
 # had a sipXproxy-config.in.
-if [ ! -f %{configfile}.rpmnew ]; then
+if [ -f %{_sysconfdir}/sipxpbx/proxy-config.in -a \
+     ! -f %{configfile}.rpmnew ]; then
   mv %{configfile} %{configfile}.rpmnew
   %{_bindir}/upgrade2mergedproxy --preserve --cleanlogs --cleancfgin --cleanproc \
       --cdir %{_sysconfdir}/sipxpbx --ldir %{_localstatedir}/log/sipxpbx
@@ -216,12 +217,16 @@ if [ ! -f %{configfile}.rpmnew ]; then
     # the RPM's version.
     mv %{configfile}.rpmnew %{configfile}
   fi
+  # sipXproxy-config.in and sipXproxy-config.in.rpmnew are now
+  # arranged correctly for the standard pkg-upgrade process to merge
+  # them.
 fi
 
 pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
 %preun cdr
-# prevent uninstalling during an upgrade
+# Uninstall the sipxcallresolver gem, unless this RPM uninstall is part of
+# an upgrade.
 #   see http://fedoraproject.org/wiki/Packaging/ScriptletSnippets
 if [ "$1" = "0" ] ; then
   gem uninstall sipxcallresolver >/dev/null 2>&1
