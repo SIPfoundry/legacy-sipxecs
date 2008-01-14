@@ -67,6 +67,12 @@ Once the RPMs are installed, restart sipX:
 
 	sudo /sbin/service sipxpbx start
 
+To avoid having rpm complain about unknown digital signatures on the
+RPMs, install the sipX signing key:
+
+	wget --no-check-certificate https://secure2.pingtel.com/RPM-GPG-KEY-pingtel
+	sudo rpm --import RPM-GPG-KEY-pingtel
+
 * To load or update the Interop sipX configuration:
 
 Install the perl-XML-Parser RPM to provide XML/Parser.pm.
