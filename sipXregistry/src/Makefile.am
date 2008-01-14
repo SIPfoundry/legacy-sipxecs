@@ -17,7 +17,6 @@ sipregistrar_SOURCES =  \
 
 sipregistrar_LDADD = \
 	libsipXregistry.la \
-	@SIPXMEDIAADAPTER_LIBS@ \
 	@GIPS_NEQ_OBJS@
 
 sipregistrar_LDFLAGS = \

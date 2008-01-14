@@ -104,7 +104,6 @@ libRedirectorPickUp_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libRedirectorPickUp_la_LIBADD = \
-	@SIPXCALL_LIBS@ \
 	@SIPXCOMMSERVER_LIBS@
 
 libRedirectorPickUp_la_CXXFLAGS = \
@@ -191,7 +190,6 @@ libRedirectorJoin_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libRedirectorJoin_la_LIBADD = \
-	@SIPXCALL_LIBS@ \
 	@SIPXCOMMSERVER_LIBS@
 
 libRedirectorJoin_la_CXXFLAGS = \
