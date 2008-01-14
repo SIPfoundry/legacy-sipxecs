@@ -19,6 +19,7 @@
 #include "sipdb/AliasDB.h"
 #include "sipdb/CredentialDB.h"
 #include "SipRedirectorAliasDB.h"
+#include "net/NetBase64Codec.h"
 #include "net/SipXauthIdentity.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipXecsService/SharedSecret.h"
@@ -77,11 +78,14 @@ void SipRedirectorAliasDB::readConfig(OsConfigDb& configDb)
 
    // get the shared secret for generating signatures
    SharedSecret secret(domainConfiguration);
-   // Set secret for signinig SipXauthIdentity
+   // Set secret for signing SipXauthIdentity
    SipXauthIdentity::setSecret(secret.data());
+
+   UtlString base64;
+   NetBase64Codec::encode(secret, base64);
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::readConfig "
-                 "set SipXauthIdentity secret to '%s'",
-                 mLogName.data(), secret.data()
+                 "set SipXauthIdentity secret to '%s' (base64)",
+                 mLogName.data(), base64.data()
                  );
 }
 
