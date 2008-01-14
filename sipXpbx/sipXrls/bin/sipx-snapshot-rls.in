@@ -1,0 +1,26 @@
+#!/bin/sh
+###
+### Order sipXrls to write its state into its log file.
+###
+
+# Temporary file.
+Work=${TMPDIR:-/tmp}/sipx-snapshot-rls.$$
+
+# Get the SIP domain into SIPXCHANGE_DOMAIN_NAME.
+. @SIPX_CONFDIR@/config.defs
+
+# Send a MESSAGE request to ~~rl~D~dumpstate, which cause the RLS to
+# write its state.
+if sipsend.pl `hostname -f` MESSAGE "sip:~~rl~D~dumpstate@${SIPXCHANGE_DOMAIN_NAME}" >$Work &&
+   grep '^SIP/2\.0  *2' $Work >/dev/null ; then
+    # If we got a success response, exit with 0.
+    rm $Work
+    exit 0
+else
+    # If we did not get a success response, output the response and exit with 1.
+    echo "Request failed:"
+    echo
+    cat $Work
+    rm $Work
+    exit 1
+fi

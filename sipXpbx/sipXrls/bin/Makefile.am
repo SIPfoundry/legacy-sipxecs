@@ -14,7 +14,8 @@ sipxrls-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
 	chmod +x sipxrls-config
 
 editscripts_IN = \
-    sipxrls.sh
+    sipxrls.sh \
+    sipx-snapshot-rls
 
 EXTRA_DIST = \
     $(foreach file,$(editscripts_IN),$(file).in) \

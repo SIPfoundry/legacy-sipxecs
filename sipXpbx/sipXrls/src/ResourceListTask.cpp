@@ -21,6 +21,10 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+
+// See sipXregistry/doc/service-tokens.txt for assignment of this URI user-part.
+static const char dumpStateUri[] = "~~rl~D~dumpstate";
+
 // STATIC VARIABLE INITIALIZATIONS
 
 
@@ -175,9 +179,9 @@ void ResourceListTask::handleMessageRequest(const SipMessage& msg)
    // Construct the response.
    SipMessage response;
 
-   if (user.compareTo("*dumpstate") == 0)
+   if (user.compareTo(dumpStateUri) == 0)
    {
-      // *dumpstate means to dump the RLS state into the log.
+      // dumpStateUri is used to request to dump the RLS state into the log.
       debugDumpState(msg);
       response.setOkResponseData(&msg, NULL);
    }

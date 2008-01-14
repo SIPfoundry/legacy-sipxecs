@@ -60,6 +60,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %doc CONTRIBUTORS %name.configlog
 %docdir doc
+%attr(755,root,root) %{_bindir}/sipx-snapshot-rls
 %attr(755,root,root) %{_bindir}/sipxrls.sh
 %attr(755,root,root) %{_bindir}/sipxrls
 %attr(755,root,root) %{_bindir}/%name-config
