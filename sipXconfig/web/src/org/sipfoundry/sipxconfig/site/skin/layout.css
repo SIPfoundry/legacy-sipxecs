@@ -94,16 +94,6 @@ li.tab
 	padding: .2em 1ex;
 }
 
-li.tab .active
-{	
-	position: relative;
-	padding: .2em 1ex;
-	border: 1px solid #666;
-	background-color: #fff;
-	top: -2px;
-	left: -2px;
-}
-
 #lastmodified
 {
 	align:right;
