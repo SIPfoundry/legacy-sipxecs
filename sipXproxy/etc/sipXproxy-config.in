@@ -21,6 +21,9 @@ SIPX_PROXY_HOSTPORT : ${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}
 
 SIPX_PROXY_HOOK_LIBRARY.200_xfer : @SIPX_LIBDIR@/authplugins/libTransferControl.so
 
+SIPX_PROXY_HOOK_LIBRARY.210_msftxchghack : @SIPX_LIBDIR@/authplugins/libMSFT_ExchangeTransferHack.so
+SIPX_PROXY_HOOK_LIBRARY.210_msftxchghack.USERAGENT : ^RTCC/
+
 SIPX_PROXY_HOOK_LIBRARY.400_authrules : @SIPX_LIBDIR@/authplugins/libEnforceAuthRules.so
 SIPX_PROXY.400_authrules.RULES        : @SIPX_CONFDIR@/authrules.xml
 SIPX_PROXY.400_authrules.IDENTITY_VALIDITY_SECONDS : 300

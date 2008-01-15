@@ -587,6 +587,12 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
    return bRequestShouldBeProxied;
 }
 
+// Get the canonical form of our SIP domain name
+void SipRouter::getDomain(UtlString& canonicalDomain) const
+{
+   canonicalDomain = mDomainName;
+}
+
 // @returns true iff the authority in url is a valid form of the domain name for this proxy.
 bool SipRouter::isLocalDomain(const Url& url ///< a url to be tested
                            ) const

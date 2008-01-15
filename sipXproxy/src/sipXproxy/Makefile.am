@@ -63,7 +63,8 @@ AUTHPLUGIN_COMMON_LD_FLAGS = \
 nobase_lib_LTLIBRARIES = \
     authplugins/libCallerAlias.la \
     authplugins/libTransferControl.la \
-    authplugins/libEnforceAuthRules.la
+    authplugins/libEnforceAuthRules.la \
+	 authplugins/libMSFT_ExchangeTransferHack.la
 
 authplugins_libCallerAlias_la_SOURCES = \
     CallerAlias.h \
@@ -102,4 +103,17 @@ authplugins_libTransferControl_la_LDFLAGS = \
     $(AUTHPLUGIN_COMMON_LD_FLAGS)
 
 authplugins_libTransferControl_la_LIBADD = \
+    @SIPXCOMMSERVER_LIBS@
+
+authplugins_libMSFT_ExchangeTransferHack_la_SOURCES = \
+    MSFT_ExchangeTransferHack.h \
+    MSFT_ExchangeTransferHack.cpp
+
+authplugins_libMSFT_ExchangeTransferHack_la_CXXFLAGS = \
+    $(AUTHPROXY_COMMON_CXX_FLAGS)
+
+authplugins_libMSFT_ExchangeTransferHack_la_LDFLAGS = \
+    $(AUTHPLUGIN_COMMON_LD_FLAGS)
+
+authplugins_libMSFT_ExchangeTransferHack_la_LIBADD = \
     @SIPXCOMMSERVER_LIBS@

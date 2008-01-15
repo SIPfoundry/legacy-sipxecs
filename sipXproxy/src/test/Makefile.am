@@ -2,12 +2,13 @@
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
-TESTS = proxytest enforcerulestest calleraliastest transfercontroltest
+TESTS = proxytest enforcerulestest calleraliastest transfercontroltest msftxferhacktest
 
 check_PROGRAMS = \
 	proxytest \
 	calleraliastest \
 	transfercontroltest \
+	msftxferhacktest \
 	enforcerulestest 
 # sandbox
 
@@ -70,6 +71,17 @@ transfercontroltest_SOURCES = \
 	TransferControlTest.cpp
 
 transfercontroltest_LDADD = \
+	$(COMMON_LIBS) \
+	$(top_builddir)/src/sipXproxy/libsipXproxy.la
+
+msftxferhacktest_CXXFLAGS = \
+	$(COMMON_CXX_FLAGS)
+
+msftxferhacktest_SOURCES = \
+	$(top_srcdir)/src/sipXproxy/MSFT_ExchangeTransferHack.cpp \
+	MSFT_ExchangeTransferHackTest.cpp
+
+msftxferhacktest_LDADD = \
 	$(COMMON_LIBS) \
 	$(top_builddir)/src/sipXproxy/libsipXproxy.la
 

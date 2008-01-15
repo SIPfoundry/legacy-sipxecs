@@ -89,6 +89,9 @@ class SipRouter : public OsServerTask
    bool isLocalDomain(const Url& url ///< a url to be tested
                       ) const;
    
+   /// Get the canonical form of our SIP domain name.
+   void getDomain(UtlString& canonicalDomain) const;
+   
    /// Get the domain shared secret for signing.
    const SharedSecret* authSecret();
    
