@@ -1197,11 +1197,10 @@ SipRegistrarServer::isAuthorized(
     const SipMessage& message,
     SipMessage& responseMessage )
 {
-    UtlString fromUri;
     UtlBoolean isAuthorized = FALSE;
 
-    message.getFromUri(&fromUri);
-    Url fromUrl(fromUri);
+    Url fromNameAddr;
+    message.getFromUrl(fromNameAddr);
 
     UtlString identity;
     toUri.getIdentity(identity);
@@ -1220,8 +1219,9 @@ SipRegistrarServer::isAuthorized(
         // authorization,validate the authorization
         OsSysLog::add( FAC_AUTH, PRI_DEBUG,
                       "SipRegistrarServer::isAuthorized "
-                      "fromUri='%s', toUri='%s', realm='%s' ",
-                      fromUri.data(), toUri.toString().data(), mRealm.data() );
+                      "fromNameAddr='%s', toUri='%s', realm='%s' ",
+                       fromNameAddr.toString().data(), toUri.toString().data(),
+                       mRealm.data() );
 
         UtlString requestNonce, requestRealm, requestUser, uriParam;
         int requestAuthIndex = 0;
@@ -1229,7 +1229,10 @@ SipRegistrarServer::isAuthorized(
         UtlString fromTag;
 
         message.getCallIdField(&callId);
-        fromUrl.getFieldParameter("tag", fromTag);
+        fromNameAddr.getFieldParameter("tag", fromTag);
+        OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                      "SipRegistrarServer::isAuthorized fromTag = '%s'",
+                      fromTag.data());
 
         while ( ! isAuthorized
                && message.getDigestAuthorizationData(
