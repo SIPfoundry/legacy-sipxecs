@@ -159,6 +159,8 @@ foreach $cid ( sort { $AOR{$a} cmp $AOR{$b} } keys %Registrations )
     foreach $cseqVal ( sort { $a <=> $b } @{$Cseqs{$cid}} )
     {
         $_ = $cid.','.$cseqVal;
+        # Call-Id/CSeq pairs with no recorded successful response times
+        # were REGISTERs that failed, and so are ignored.
         if (defined $Time{$_})
         {
             $cseq  = $cseqVal;
@@ -192,11 +194,12 @@ foreach $cid ( sort { $AOR{$a} cmp $AOR{$b} } keys %Registrations )
                 else
                 { 
                     &showRefreshes( $refreshes-1 )
-                        if $Summary && $refreshes-1;
+                        if $Summary;
                     $saveDelta = $delta;
                     $saveCseq  = $cseq;
 
-                    &showLast;
+                    &showLast
+                        if $refreshes > 0;
 
                     $delta = &dt($Granted{$previous});
                     $event = 'expired';
@@ -254,7 +257,7 @@ foreach $cid ( sort { $AOR{$a} cmp $AOR{$b} } keys %Registrations )
         &saveLast;
     }
     &showRefreshes( $refreshes-1 )
-        if ( $Summary && $event eq 'refresh' && ($refreshes-1) );
+        if ( $Summary && $event eq 'refresh' );
 
     $lastexp = $Time{$previous} + $Granted{$previous}
         if defined $Granted{$previous};
@@ -281,7 +284,7 @@ sub showRefreshes
     my ($savedCseq) = $cseq;
 
     my ($times) = shift;
-    if ($times)
+    if ($times > 0)
     {
         $event = "$times refreshes";
         $duration = '';
