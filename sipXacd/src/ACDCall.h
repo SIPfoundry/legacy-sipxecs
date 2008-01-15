@@ -286,22 +286,19 @@ private:
    ACDAgent*        mpACDAgentPickedUpBy;        // CML: Call is being picked up by this Agent
 #endif
 
-   static const char    NA_BusyTone[];           // Busy Tone audio data and length.  See: BusyTone.h
+   static const char *  NA_BusyTone;             // Busy Tone audio data and length.  See: BusyTone.h
    static unsigned long NA_BusyToneLength;
 
-   static const char    NA_RingbackTone[];       // Rinbback Tone audio data and length.  See: RingbackTone.h
+   static const char *  NA_RingbackTone;         // Rinbback Tone audio data and length.  See: RingbackTone.h
    static unsigned long NA_RingbackToneLength;
 
-   static const char    ConfirmationTone[];      // Confirmation Tone audio data and length.  See: ConfirmationTone.h
+   static const char *  ConfirmationTone;        // Confirmation Tone audio data and length.  See: ConfirmationTone.h
    static unsigned long ConfirmationToneLength;
 
-   static const char    ConfirmationShortTone[];      // Confirmation Tone audio data and length.  See: ConfirmationShortTone.h
+   static const char *  ConfirmationShortTone;   // Confirmation Tone audio data and length.  See: ConfirmationShortTone.h
    static unsigned long ConfirmationShortToneLength;
 
-   static const char    NA_PleaseHoldPrompt[];   // Please Hold prompt audio data and length.  See: PleaseHoldPrompt.h
-   static unsigned long NA_PleaseHoldPromptLength;
-
-   ACDAgent*  mpLastAgent; 			// Last agent to which this call was routed
+   ACDAgent*  mpLastAgent;                       // Last agent to which this call was routed
 };
 
 #endif  // _ACDCall_h_

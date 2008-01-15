@@ -15,6 +15,7 @@
 #include <mp/MpAudioFileOpen.h>
 #include <mp/MpAudioWaveFileRead.h>
 #include <mp/MpRawAudioBuffer.h>
+#include <mp/MpAudioUtils.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -92,6 +93,13 @@ MpRawAudioBuffer::MpRawAudioBuffer(const char* pFilePath)
       mAudioBufferLength = 0;
       delete[] mpAudioBuffer;
    }
+#ifdef __BIG_ENDIAN__
+   // We are running on a big endian processor - raw audio 16-bit samples are
+   // in the little endian byte order - convert them to big endian.
+   unsigned short *pData = (unsigned short *)mpAudioBuffer;
+   for ( unsigned long index = 0; index < ( mAudioBufferLength / 2 ); index++, pData++ )
+      *pData = letohs(*pData);
+#endif
 }
 
 /**
