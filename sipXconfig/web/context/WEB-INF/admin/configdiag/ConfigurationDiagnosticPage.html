@@ -14,42 +14,34 @@
       </li>
     </ul>
   </div>
-  <form jwcid="@AutoRefreshForm" actionBlock="component:actions"
-    interval="5">
-    <table jwcid="@contrib:TableView" id="configdiag:list" class="component"
-      source="prop:configurationTests"
-      pageSize="-1"
-      columns="!label,!lastRunTime,!status">
+  <form jwcid="@AutoRefreshForm" actionBlock="component:actions" interval="5">
+    <table id="configdiag:list" class="component">
       <thead>
         <tr>
-          <span jwcid="@contrib:TableColumns"/>
+          <th><span key="label"/></th>
+          <th><span key="lastRunTime"/></th>
+          <th><span key="status"/></th>
         </tr>
       </thead>
       <tbody>
-        <span jwcid="rows@contrib:TableRows" 
-          class="ognl:beans.rowClass.next"
-          row="prop:configurationTest"
-          volatile="ognl:true">
-          <span jwcid="@contrib:TableValues"/>
-        </span>
-        <span jwcid="statusColumnValue@Block">
-          <a jwcid="displayDetail@DirectLink" 
-            listener="listener:displayDetail" 
-            parameters="ognl:components.rows.tableIndex">
-            <span jwcid="@Insert" value="ognl:configurationTest.result.status"/>
-          </a>
-        </span>
-        <span jwcid="lastRunTimeColumnValue@Block">
-          <span jwcid="@Insert" value="prop:lastRunTime"/>
-        </span>
+        <tr jwcid="@For"
+          source="prop:configurationTests" 
+          volatile="ognl:true"
+          value="prop:configurationTest">
+          <td jwcid="@admin/configdiag/DiagnosticDetail"
+            test="prop:configurationTest"
+            dateFormat="prop:dateFormat"
+            rowClass="ognl:rowClass.next"
+            />
+        </tr>
       </tbody>
     </table>
     <ul jwcid="actions@Block">
       <li>
-            <input id="configdiag:runAllTests" jwcid="runAllTests@tacos:AjaxSubmit"
-          updateComponents="ognl:{'refreshedContent'}"
-          listener="listener:runAllTests"
-          value="message:button.runAllTests"/>
+          <input id="configdiag:runAllTests" jwcid="runAllTests@tacos:AjaxSubmit"
+            updateComponents="ognl:{'refreshedContent'}"
+            listener="listener:runAllTests"
+            value="message:button.runAllTests"/>
       </li>
     </ul>
   </form>

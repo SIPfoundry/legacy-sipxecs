@@ -1,0 +1,16 @@
+<tr jwcid="@Any" class="prop:rowClass">
+  <td>
+    <span jwcid="@Insert" value="ognl:test.label"/>
+  </td>
+  <td>
+    <span jwcid="@Insert" value="prop:lastRunTime"/>  
+  </td>
+  <td jwcid="@Any" align="center" class="ognl:'status-' + test.result.status">
+    <span jwcid="@Insert" value="ognl:test.result.status"/>
+  </td>
+</tr>
+<tr jwcid="@If" condition="ognl:renderResult" element="tr" class="prop:rowClass">
+  <td colspan="3" class="settingDescription">
+     <span jwcid="@Insert" value="ognl:test.result.message"/>
+  </td>
+</tr>

@@ -11,13 +11,10 @@ package org.sipfoundry.sipxconfig.site.admin.configdiag;
 
 import java.text.DateFormat;
 import java.text.Format;
-import java.util.Date;
 import java.util.List;
 
-import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -31,9 +28,6 @@ public abstract class ConfigurationDiagnosticPage extends BasePage implements
 
     @InjectObject(value = "spring:configurationDiagnosticContext")
     public abstract ConfigurationDiagnosticContext getConfigurationDiagnosticContext();
-
-    @InjectPage(value = ConfigurationDiagnosticDetailPage.PAGE)
-    public abstract ConfigurationDiagnosticDetailPage getconfigurationDiagnosticDetailPage();
 
     @Bean
     public abstract EvenOdd getRowClass();
@@ -58,25 +52,7 @@ public abstract class ConfigurationDiagnosticPage extends BasePage implements
         setDateFormat(dateFormat);
     }
 
-    public IPage displayDetail(int index) {
-        List<ConfigurationDiagnostic> tests = getConfigurationDiagnosticContext()
-                .getConfigurationTests();
-        ConfigurationDiagnostic test = tests.get(index);
-        ConfigurationDiagnosticDetailPage page = getconfigurationDiagnosticDetailPage();
-        page.setConfigurationDiagnostic(test);
-        return page;
-    }
-
     public void runAllTests() {
         getConfigurationDiagnosticContext().runTests();
-    }
-
-    public Object getLastRunTime() {
-        ConfigurationDiagnostic configuationDiagnostic = getConfigurationTest();
-        Date lastRunTime = configuationDiagnostic.getStartTime();
-        if (lastRunTime == null) {
-            return getMessages().getMessage("notRun");
-        }
-        return getDateFormat().format(lastRunTime);
     }
 }

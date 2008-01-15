@@ -60,7 +60,6 @@
     <page name="Intercom" specification-path="admin/Intercom.page"/>
     <page name="JobStatusPage" specification-path="admin/JobStatusPage.page"/>    
     <page name="ConfigurationDiagnosticPage" specification-path="admin/configdiag/ConfigurationDiagnosticPage.page"/>
-    <page name="ConfigurationDiagnosticDetailPage" specification-path="admin/configdiag/ConfigurationDiagnosticDetailPage.page"/>
     <page name="LdapImport" specification-path="admin/ldap/LdapImport.page"/>        
     <page name="LdapImportPreview" specification-path="admin/ldap/LdapImportPreview.page"/>        
     <page name="LdapServer" specification-path="admin/ldap/LdapServer.page"/>        
