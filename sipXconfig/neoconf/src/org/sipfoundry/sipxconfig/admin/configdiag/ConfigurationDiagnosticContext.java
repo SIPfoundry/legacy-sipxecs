@@ -16,6 +16,8 @@ public interface ConfigurationDiagnosticContext {
     List<ConfigurationDiagnostic> getConfigurationTests();
 
     void runTests();
+    
+    boolean anyFailures();
 
     File getPreflightInstaller();
 }

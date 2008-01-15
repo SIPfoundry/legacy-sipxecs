@@ -62,6 +62,16 @@ public class ConfigurationDiagnosticContextImpl implements ConfigurationDiagnost
         }
     }
 
+    public synchronized boolean anyFailures() {
+        List<ConfigurationDiagnostic> configurationTests = getConfigurationTests();
+        for (ConfigurationDiagnostic test : configurationTests) {
+            if (test.getResult().isFailing()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Similar to ExecutorService.invokeAll but this method is not going to block. You can check
      * the progress later by analysing returned futures.

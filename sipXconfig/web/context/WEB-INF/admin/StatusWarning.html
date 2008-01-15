@@ -2,3 +2,7 @@
   <span key="prompt.explain">One of the background jobs failed. For details click:</span>
   <a jwcid="@PageLink" page="JobStatusPage"><span key="prompt.here">here</span></a>
 </div>
+<div jwcid="@If" condition="ognl:showDiagnosticFailing" element="div" class="user-error">
+  <span key="prompt.diagnosticFailure">Diagnostic tests failed. For details click:</span>
+  <a jwcid="@PageLink" page="ConfigurationDiagnosticPage"><span key="prompt.here">here</span></a>
+</div>
