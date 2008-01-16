@@ -236,7 +236,7 @@ Any SIP UA can call a registered UA by calling its AOR,
 <li><a href='#merged'>Merged INVITE</a></li>
 <li><a href='#hoplimit'>Hop Limit Exceeded</a></li>
 <li><a href='#pickup'>Call Pick-Up</a></li>
-<li><a href='#pickup'>Call Pick-Up of a Forked Call</a></li>
+<li><a href='#pickup-forked'>Call Pick-Up of a Forked Call</a></li>
 <li><a href='#park'>Call Park and Retrieve</a></li>
 <li><a href='#dialog'>Dialog Event Package</a></li>
 <li><a href='#ISN'>ISN Dialing</a></li>
@@ -245,6 +245,8 @@ Any SIP UA can call a registered UA by calling its AOR,
 <li><a href='#JOIN'>Ad-hoc Conferencing</a></li>
 <li><a href='#SRV'>DNS SRV Record Processing</a></li>
 <li><a href='#BLF'>BLF (Busy Lamp Field) and Dialog-Event Resource Lists</a></li>
+<li><a href='#two-dialog-subs'>Multiple Dialog Event Subscriptions</a></li>
+<li><a href='#BLF-status'>BLF Status Display</a></li>
 </ol>
 
 <h3><a name='MWI'>1</a>. DTMF Generation and Message Waiting Indication (MWI)</h3>
@@ -398,7 +400,14 @@ dialog event notices with usable endpoint identification.
 <h3><a name='pickup-forked'>11</a>. Call Pick-Up of a Forked Call</h3>
 
 <p>
-From one UA, call <code>6<span class='group'>gg</span>0</code>, which
+Register UAs for AORs <code>1<span class='group'>gg</span>3</code>,
+<code>1<span class='group'>gg</span>4</code>, <code>1<span
+class='group'>gg</span>5</code>, and <code>1<span
+class='group'>gg</span>6</code>.
+</p>
+
+<p>
+From another UA, call <code>6<span class='group'>gg</span>0</code>, which
 will be simultaneously forked to <code>1<span class='group'>gg</span>3</code>,
 <code>1<span class='group'>gg</span>4</code>, <code>1<span
 class='group'>gg</span>5</code>, and <code>1<span
@@ -409,20 +418,19 @@ class='group'>gg</span>6</code>.
 The call should ring on <code>1<span class='group'>gg</span>3</code>,
 <code>1<span class='group'>gg</span>4</code>, <code>1<span
 class='group'>gg</span>5</code>, and <code>1<span
-class='group'>gg</span>6</code> (or all of those which have registered
-user agents).
+class='group'>gg</span>6</code>.
 </p>
 
 <p>
-From another UA, call <code>*781<span class='group'>gg</span>3</code>.
+From yet another UA, call <code>*781<span class='group'>gg</span>3</code>.
 It should pick up the first call.
 </p>
 
 <p>
-Hang up and repeat the sequence, calling 
+Hang up and repeat the sequence, changing the second call to
 <code>*781<span class='group'>gg</span>4</code>,
 <code>*781<span class='group'>gg</span>5</code>, and
-<code>*781<span class='group'>gg</span>6</code>.
+<code>*781<span class='group'>gg</span>6</code> on successive trials.
 Each should pick up the forked call.
 </p>
 
@@ -630,10 +638,103 @@ URIs
 "sip:1<span class='group'>gg</span>2@@SIPXCHANGE_DOMAIN_NAME@",
 "sip:1<span class='group'>gg</span>6@@SIPXCHANGE_DOMAIN_NAME@", and
 "sip:1<span class='group'>gg</span>9@@SIPXCHANGE_DOMAIN_NAME@".
-Beware that some UAs cannot serve more than one dialog event
-subscription.  Such UAs should not register for these AORs, and will
+Beware that some UAs <a href='#two-dialog-subs'>cannot serve more than
+one dialog event
+subscription</a>.  Such UAs should not register for these AORs, and will
 not work consistently with any sipX feature that requires dialog events,
 including call pick-up.
+</p>
+
+<h3><a name='two-dialog-subs'>20</a>. Multiple Dialog Event Subscriptions</h3>
+
+<p>
+SIP requires that a UA can support multiple subscriptions to its
+dialog event status.  A UA can be tested to ensure that it supports
+multiple dialog event subscriptions:
+</p>
+
+<p>
+Register the UA as 
+1<span class='group'>gg</span>2,
+1<span class='group'>gg</span>6, or
+1<span class='group'>gg</span>9.
+Configure a second UA to display BLF information from 
+"sip:~~rl~<span class='group'>gg</span>@@SIPXCHANGE_DOMAIN_NAME@".
+</p>
+
+<p>
+From a third UA, call the first UA.  The first UA should ring, and the
+second UA's BLF should indicate that the first UA is ringing.
+</p>
+
+<p>
+From a fourth UA, pick up this call by calling
+<code>*781<span class='group'>gg</span>n</code>, as appropriate.
+The fourth UA will be talking to the third UA.
+Hang up this call.
+</p>
+
+<p>
+From the third UA, call the first UA again.
+Answer the call at the first UA.
+The second UA's BLF should indicate that the first UA is busy.
+</p>
+
+<h3><a name='BLF-status'>21</a>. BLF Status Display</h3>
+
+<p>
+This test shows whether a UA sends comprehensive status information,
+and whether a second UA's BLF correctly displays status information. 
+</p>
+
+<p>
+Register a first UA as 1<span class='group'>gg</span>2 
+and a second UA as 1<span class='group'>gg</span>6.
+Configure a third UA to display BLF information from 
+"sip:~~rl~<span class='group'>gg</span>@@SIPXCHANGE_DOMAIN_NAME@".
+</p>
+
+<p>
+Initially, the third UA should show the first and second UAs as idle.
+</p>
+
+<p>
+Take the first UA off-hook and start (but not finish) dialing
+1<span class='group'>gg</span>6.
+The third UA should show the first UA as in-use (state "trying")
+and the second UA as idle.
+</p>
+
+<p>
+Finish dialing on the first UA.  The second UA should ring.
+The third UA should show the first UA as in-use (state "early",
+direction "initiator") and the second UA as
+ringing (state "early", direction "recipient").
+</p>
+
+<p>
+Answer the call on the second UA.
+The third UA should show the first and second UAs as in-use (state
+"confirmed").
+</p>
+
+<p>
+At the first UA, put the call on hold.
+The third UA should show the first UA as on-hold (state "confirmed"
+with local feature
+parameter <code>+sip.rendering=no</code>), and the second UA as
+in-use.
+</p>
+
+<p>
+At the first UA, take the call off hold.
+The third UA should show the first and second UAs as in-use (state
+"confirmed").
+</p>
+
+<p>
+At the first UA, hang up the call.
+The third UA should show the first and second UAs as idle.
 </p>
 
 <hr />
