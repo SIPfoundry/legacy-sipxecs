@@ -113,6 +113,22 @@ public:
                                        UtlBoolean& isNew,
                                        UtlBoolean& isExpired,
                                        SipMessage& subscribeResponse);
+   
+   //! Insert subscription dialog info without checking for the existence of the dialog
+   /*! This method blindly inserts dialog information and should only be called from
+    *  from the SipPersistentSubscriptionMgr.  It is intended to insert subscription
+    *  information into memory from the IMDB.
+    * 
+    *  NOTE: This method is not implemented in SipPersistentSubscriptionMgr. 
+    */ 
+   virtual UtlBoolean insertDialogInfo(const SipMessage& subscribeRequest,
+                                       const UtlString& resourceId,
+                                       const UtlString& eventTypeKey,
+                                       UtlString& subscribeDialogHandle,
+                                       UtlBoolean& isNew,
+                                       UtlBoolean& isExpired,
+                                       SipMessage& subscribeResponse);
+   
 
    //! Set the subscription dialog information and cseq for the next NOTIFY request
    //  Also, update the database to show the to/from URIs as they appear in NOTIFYs.

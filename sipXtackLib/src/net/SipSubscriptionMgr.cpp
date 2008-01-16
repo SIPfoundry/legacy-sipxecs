@@ -375,6 +375,287 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
     return(subscriptionSucceeded);
 }
 
+
+UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeRequest,
+                                                const UtlString& resourceId,
+                                                const UtlString& eventTypeKey,
+                                                UtlString& subscribeDialogHandle,
+                                                UtlBoolean& isNew,
+                                                UtlBoolean& isSubscriptionExpired,
+                                                SipMessage& subscribeResponse)
+{
+    isNew = FALSE;
+    UtlBoolean subscriptionSucceeded = FALSE;
+    UtlString dialogHandle;
+    subscribeRequest.getDialogHandle(dialogHandle);
+    SubscriptionServerState* state = NULL;
+    int expiration = -1;
+    isSubscriptionExpired = TRUE;
+
+    // If this is an early dialog we need to make it an established dialog.
+    if(SipDialog::isEarlyDialog(dialogHandle))
+    {
+        UtlString establishedDialogHandle;
+        if(mDialogMgr.getEstablishedDialogHandleFor(dialogHandle, establishedDialogHandle))
+        {
+            OsSysLog::add(FAC_SIP, PRI_WARNING,
+                "Incoming early SUBSCRIBE dialog: %s matches established dialog: %s",
+                dialogHandle.data(), establishedDialogHandle.data());
+        }
+
+        // make up a To tag and set it
+        UtlString toTag;
+        CallId::getNewTag(dialogHandle.data(), toTag);
+
+        // Get and validate the expires period
+        // This potentially should be delegated to the event handler specifics
+        if(!subscribeRequest.getExpiresField(&expiration))
+        {
+            expiration = mDefaultExpiration;
+        }
+
+        else if(expiration > mMaxExpiration)
+        {
+            expiration = mMaxExpiration;
+        }
+
+        // Acceptable expiration, create a subscription and dialog
+        if(expiration >= mMinExpiration ||
+           expiration == 0 ||
+           // :WORKAROUND:  Also allow expiration == 1, to support the
+           // 1-second subscriptions the pick-up agent makes because
+           // current Snom phones do not respond to 0-second subscriptions.
+           // See XPB-399 and ENG-319.
+           expiration == 1)
+        {
+            // Create a dialog and subscription state even if
+            // the expiration is zero as we need the dialog info
+            // to route the one-time NOTIFY.  The immediately
+            // expired dialog will be garbage collected.
+
+            SipMessage* subscribeCopy = new SipMessage(subscribeRequest);
+            subscribeCopy->setToFieldTag(toTag);
+
+            // Re-get the dialog handle now that the To tag is set
+            subscribeCopy->getDialogHandle(dialogHandle);
+
+            // Create the dialog
+            mDialogMgr.createDialog(*subscribeCopy, FALSE, dialogHandle);
+            isNew = TRUE;
+
+            // Create a subscription state
+            state = new SubscriptionServerState();
+            *((UtlString*) state) = dialogHandle;
+            state->mEventTypeKey = eventTypeKey;
+            state->mpLastSubscribeRequest = subscribeCopy;
+            state->mResourceId = resourceId;
+            subscribeCopy->getAcceptField(state->mAcceptHeaderValue);
+
+            long now = OsDateTime::getSecsSinceEpoch();
+            state->mExpirationDate = now + expiration;
+
+            // TODO: currently the SipSubsribeServer does not handle timeout
+            // events to send notifications that the subscription has ended.
+            // So we do not set a timer at the end of the subscription
+            state->mpExpirationTimer = NULL;
+
+            // Create the index by resourceId and eventTypeKey key
+            SubscriptionServerStateIndex* stateKey = new SubscriptionServerStateIndex;
+            *((UtlString*) stateKey) = resourceId;
+            stateKey->append(eventTypeKey);
+            stateKey->mpState = state;
+
+            subscribeResponse.setResponseData(subscribeCopy, 
+                                              SIP_ACCEPTED_CODE,
+                                              SIP_ACCEPTED_TEXT, 
+                                              NULL);
+            subscribeResponse.setExpiresField(expiration);
+            subscribeCopy->getDialogHandle(subscribeDialogHandle);
+
+            lock();
+            mSubscriptionStatesByDialogHandle.insert(state);
+            mSubscriptionStateResourceIndex.insert(stateKey);
+            if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+            {
+               UtlString requestContact;
+               subscribeRequest.getContactField(0, requestContact);
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipSubscriptionMgr::insertDialogInfo insert early-dialog subscription for dialog handle '%s', key '%s', contact '%s', mExpirationDate %ld",
+                             state->data(), stateKey->data(),
+                             requestContact.data(), state->mExpirationDate);
+            }
+
+            // Not safe to touch these after we unlock
+            stateKey = NULL;
+            state = NULL;
+            subscribeCopy = NULL;
+            unlock();
+
+            subscriptionSucceeded = TRUE;
+
+            // One time subscribe?
+            isSubscriptionExpired = expiration == 0;
+        }
+        // Expiration too small
+        else
+        {
+            // Set expiration too small error
+            subscribeResponse.setResponseData(&subscribeRequest, 
+                                                SIP_TOO_BRIEF_CODE,
+                                                SIP_SUB_TOO_BRIEF_TEXT);
+            subscribeResponse.setMinExpiresField(mMinExpiration);
+            isSubscriptionExpired = TRUE;
+        }
+    }
+
+    // Not an early dialog handle -- The dialog for this message may already exist
+    else
+    {
+        // Get and validate the expires period
+        // This potentially should be delegated to the event handler specifics
+        if(!subscribeRequest.getExpiresField(&expiration))
+        {
+            expiration = mDefaultExpiration;
+        }
+
+        else if(expiration > mMaxExpiration)
+        {
+            expiration = mMaxExpiration;
+        }
+
+        // Acceptable expiration, create a subscription and dialog
+        if(expiration > mMinExpiration ||
+           expiration == 0)
+        {
+            // Update the dialog state
+            mDialogMgr.updateDialog(subscribeRequest, dialogHandle);
+
+            // Get the subscription state and update that
+            // TODO:  This assumes that no one reuses the same dialog
+            // to subscribe to more than one event type.  mSubscriptionStatesByDialogHandle
+            // will need to be changed to a HashBag and we will need to
+            // search through to find a matching event type
+            lock();
+            state = (SubscriptionServerState*)
+                mSubscriptionStatesByDialogHandle.find(&dialogHandle);
+            if(state)
+            {
+                long now = OsDateTime::getSecsSinceEpoch();
+                state->mExpirationDate = now + expiration;
+                if(state->mpLastSubscribeRequest)
+                {
+                    delete state->mpLastSubscribeRequest;
+                }
+                state->mpLastSubscribeRequest = new SipMessage(subscribeRequest);
+                subscribeRequest.getAcceptField(state->mAcceptHeaderValue);
+
+                // Set the contact to the same request URI that came in
+                UtlString contact;
+                subscribeRequest.getRequestUri(&contact);
+
+                // Add the angle brackets for contact
+                Url url(contact);
+                url.includeAngleBrackets();
+                contact = url.toString();
+
+                subscribeResponse.setResponseData(&subscribeRequest, 
+                                                SIP_ACCEPTED_CODE,
+                                                SIP_ACCEPTED_TEXT, 
+                                                contact);
+                subscribeResponse.setExpiresField(expiration);
+                subscriptionSucceeded = TRUE;
+                isSubscriptionExpired = FALSE;
+                subscribeDialogHandle = dialogHandle;
+            }
+
+            // No state, but SUBSCRIBE had a to-tag.
+            else
+            {
+                SipMessage* subscribeCopy = new SipMessage(subscribeRequest);
+                // Create the dialog
+                mDialogMgr.createDialog(*subscribeCopy, FALSE, dialogHandle);
+                isNew = TRUE;
+
+                // Create a subscription state
+                state = new SubscriptionServerState();
+                *((UtlString*)state) = dialogHandle;
+                state->mEventTypeKey = eventTypeKey;
+                state->mpLastSubscribeRequest = subscribeCopy;
+                state->mResourceId = resourceId;
+                subscribeCopy->getAcceptField(state->mAcceptHeaderValue);
+
+                long now = OsDateTime::getSecsSinceEpoch();
+                state->mExpirationDate = now + expiration;
+                // TODO: currently the SipSubsribeServer does not handle timeout
+                // events to send notifications that the subscription has ended.
+                // So we do not set a timer at the end of the subscription
+                state->mpExpirationTimer = NULL;
+
+                // Create the index by resourceId and eventTypeKey key
+                SubscriptionServerStateIndex* stateKey = new SubscriptionServerStateIndex;
+                *((UtlString*)stateKey) = resourceId;
+                stateKey->append(eventTypeKey);
+                stateKey->mpState = state;
+                mSubscriptionStatesByDialogHandle.insert(state);
+                mSubscriptionStateResourceIndex.insert(stateKey);
+                if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+                {
+                   UtlString requestContact;
+                   subscribeRequest.getContactField(0, requestContact);
+                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                         "SipSubscriptionMgr::insertDialogInfo insert subscription for key '%s', contact '%s', mExpirationDate %ld",
+                         stateKey->data(), requestContact.data(), state->mExpirationDate);
+                }
+
+                // Not safe to touch these after we unlock
+                stateKey = NULL;
+                state = NULL;
+                subscribeCopy = NULL;
+
+                // Set the contact to the same request URI that came in
+                UtlString contact;
+                subscribeRequest.getRequestUri(&contact);
+
+                // Add the angle brackets for contact
+                Url url(contact);
+                url.includeAngleBrackets();
+                contact = url.toString();
+
+                subscribeResponse.setResponseData(&subscribeRequest, 
+                                                  SIP_ACCEPTED_CODE,
+                                                  SIP_ACCEPTED_TEXT, 
+                                                  contact);
+                subscribeResponse.setExpiresField(expiration);
+                subscriptionSucceeded = TRUE;
+                // Unsubscribe
+                if(expiration == 0)
+                {
+                    isSubscriptionExpired = TRUE;
+                }
+                else
+                {
+                    isSubscriptionExpired = FALSE;
+                }
+                subscribeDialogHandle = dialogHandle;
+            }
+            unlock();
+        }
+
+        // Expiration too small
+        else
+        {
+            // Set expiration too small error
+            subscribeResponse.setResponseData(&subscribeRequest, 
+                                                SIP_TOO_BRIEF_CODE,
+                                                SIP_SUB_TOO_BRIEF_TEXT);
+            subscribeResponse.setMinExpiresField(mMinExpiration);
+            isSubscriptionExpired = isExpired(dialogHandle);
+        }
+    }
+
+    return(subscriptionSucceeded);
+}
+
 UtlBoolean SipSubscriptionMgr::getNotifyDialogInfo(const UtlString& subscribeDialogHandle,
                                                    SipMessage& notifyRequest)
 {
