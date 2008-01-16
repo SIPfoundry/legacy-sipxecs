@@ -90,6 +90,10 @@ SipServerBroker::~SipServerBroker()
     }
 }
 
+UtlBoolean SipServerBroker::isOk() const
+{
+    return mpSocket->isOk() ;
+}
 /************************************************************************/
 
 /* ============================ FUNCTIONS ================================= */

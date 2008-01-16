@@ -61,6 +61,8 @@ public:
 
     int getServerPort() const ;
     //: The the local server port for this server
+    
+    virtual int isOk();
 
 /* ============================ INQUIRY =================================== */
 
@@ -75,9 +77,9 @@ public:
 protected:
 
     // Caller must hold mClientLock.
-    void createServerSocket(const char* szBindAddr,
-                            int& port,
-                            const UtlBoolean& bUseNextAvailablePort);
+    UtlBoolean createServerSocket(const char* szBindAddr,
+                                  int& port,
+                                  const UtlBoolean& bUseNextAvailablePort);
                                 
     class SipServerBrokerListener : public OsServerTask
     {

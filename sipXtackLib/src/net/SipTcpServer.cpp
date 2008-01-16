@@ -101,10 +101,12 @@ UtlBoolean SipTcpServer::startListener()
     return bRet;
 }
 
-void SipTcpServer::createServerSocket(const char* szBindAddr,
-                                      int& port,
-                                      const UtlBoolean& bUseNextAvailablePort)
+UtlBoolean SipTcpServer::createServerSocket(const char* szBindAddr,
+                                            int& port,
+                                            const UtlBoolean& bUseNextAvailablePort)
 {
+   UtlBoolean bSuccess = TRUE ;
+   
    // port == PORT_NONE can be used to suppress creating sockets.
    // This is a hack, but is needed to support SipTlsServer.
    // :TODO: Clean this up.
@@ -155,7 +157,13 @@ void SipTcpServer::createServerSocket(const char* szBindAddr,
                                           new SipServerBroker(mpServerBrokerListener,
                                                               pSocket));
       }
+      else
+      {
+          bSuccess = false;
+      }
    }
+   
+   return bSuccess ;
 }
 
 // Destructor
@@ -224,6 +232,34 @@ OsSocket* SipTcpServer::buildClientSocket(int hostPort,
 int SipTcpServer::getServerPort() const 
 {
     return mServerPort;
+}
+
+int SipTcpServer::isOk()
+{
+    UtlBoolean bRet = true;
+    int count = 0 ;
+
+    UtlHashMapIterator iterator(mServerBrokers);
+    UtlString* pKey;
+    
+    while ((pKey = dynamic_cast <UtlString*> (iterator())))
+    {
+       count++;
+       SipServerBroker* pBroker = dynamic_cast<SipServerBroker*> (iterator.value());
+       if (pBroker)
+       {
+          bRet = bRet && pBroker->isOk() ;       
+       }
+       else
+       {
+          assert(false); // List ALWAYS contains brokers
+          bRet = false;
+       }
+    }
+    
+    // We are not OK if any of the brokers report problems or we don't
+    // have any brokers (e.g. unable to bind on port)
+    return bRet && (count > 0);    
 }
 
 UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMessage)

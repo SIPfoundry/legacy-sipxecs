@@ -242,6 +242,7 @@ int SipProtocolServerBase::isOk()
     
     UtlHashMapIterator iterator(mServers);
     UtlString* pKey;
+    int count = 0;
     
     // Iterate through all the SipClient's.
     while ((pKey = dynamic_cast <UtlString*> (iterator())))
@@ -249,8 +250,12 @@ int SipProtocolServerBase::isOk()
        // 'and' its status into the overall status.
        SipClient* pServer = dynamic_cast <SipClient*> (iterator.value());
        bRet = bRet && pServer->isOk();
+       count++ ;
     }
-    return bRet;
+    
+    // We are not OK if any of the SipClients report problems or we don't
+    // have a client (e.g. unable to bind on port)
+    return bRet && (count > 0);
 }
 
 SipClient* SipProtocolServerBase::getClient(const char* hostAddress,

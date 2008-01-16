@@ -153,6 +153,12 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         mSipTlsServer = new SipTlsServer(mTlsPort, this, bUseNextAvailablePort);
         mSipTlsServer->startListener();
         mTlsPort = mSipTlsServer->getServerPort() ;
+        
+        if (mTlsPort == PORT_NONE || !mSipTlsServer->isOk())
+        {
+            OsSysLog::add(FAC_NET, PRI_EMERG, "Unable to bind on tls port %d (ok=%d)",
+                    sipTlsPort, mSipTlsServer->isOk());
+        }
     }
 #endif
     if (mTcpPort != PORT_NONE)
@@ -162,6 +168,12 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                                          bUseNextAvailablePort, defaultAddress);
         mSipTcpServer->startListener();
         mTcpPort = mSipTcpServer->getServerPort() ;
+        
+        if (mTcpPort == PORT_NONE || !mSipTcpServer->isOk())
+        {
+            OsSysLog::add(FAC_NET, PRI_EMERG, "Unable to bind on tcp port %d (ok=%d)",
+                    sipTcpPort, mSipTcpServer->isOk());
+        }        
     }
 
     if (mUdpPort != PORT_NONE)
@@ -175,6 +187,12 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         // Get the UDP port that was obtained (in case mUdpPort was
         // PORT_DEFAULT).
         mUdpPort = mSipUdpServer->getServerPort() ;
+        
+        if (mUdpPort == PORT_NONE || !mSipUdpServer->isOk())
+        {
+            OsSysLog::add(FAC_NET, PRI_EMERG, "Unable to bind on udp port %d (ok=%d)",
+                    sipUdpPort, mSipUdpServer->isOk());
+        }                
     }
 
     mMaxMessageLogSize = MAXIMUM_SIP_LOG_SIZE;
