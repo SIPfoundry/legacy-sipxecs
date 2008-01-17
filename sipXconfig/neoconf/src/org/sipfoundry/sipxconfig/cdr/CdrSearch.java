@@ -35,7 +35,15 @@ public class CdrSearch {
     private boolean m_ascending = true;
 
     public void setMode(Mode mode) {
-        m_mode = mode;
+        if (mode == null) {
+            // XCF-1767 - IE lets you select disabled options, which have no value
+            // and this method gets null mode. treat it as default case, otherwise
+            // we get NPE trying to create SQL and clearly not a valid option for
+            // this object.
+            m_mode = Mode.NONE;
+        } else {
+            m_mode = mode;
+        }
     }
 
     public Mode getMode() {

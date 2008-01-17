@@ -12,7 +12,14 @@ package org.sipfoundry.sipxconfig.cdr;
 import junit.framework.TestCase;
 
 public class CdrSearchTest extends TestCase {
-
+    
+    // See XCF-1767 and code for details
+    public void testNullModeUsesDefaultMode() {
+        CdrSearch search = new CdrSearch();
+        search.setMode(null);
+        assertSame(CdrSearch.Mode.NONE, search.getMode());
+    }
+    
     public void testGetSqlEmpty() {
         CdrSearch search = new CdrSearch();
         StringBuilder sql = new StringBuilder();
