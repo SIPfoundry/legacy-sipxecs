@@ -35,6 +35,7 @@ EXTRA_DIST = \
 
 install-exec-hook : $(DESTDIR)@SERVICEDIR@/sipxpbx bin-scripts \
                     $(DESTDIR)@DAILYDIR@/voicemail_clean \
+                    $(DESTDIR)@DAILYDIR@/sipx-core-clean \
                     $(DESTDIR)@DAILYDIR@/sipx-chkspace
 	rm -f $(DESTDIR)$(bindir)/backup-mailstore.sh
 	rm -f $(DESTDIR)$(bindir)/restore-configs.sh
@@ -51,6 +52,10 @@ sipxpbx: sipxpbx.in
 $(DESTDIR)@DAILYDIR@/voicemail_clean: voicemail_clean.in
 	$(LocalizeSipXconfig) $(srcdir)/voicemail_clean.in > voicemail_clean
 	$(INSTALL) -D -m 755 voicemail_clean $(DESTDIR)@DAILYDIR@/voicemail_clean
+
+$(DESTDIR)@DAILYDIR@/sipx-core-clean: sipx-core-clean.in
+	$(LocalizeSipXconfig) $(srcdir)/sipx-core-clean.in > sipx-core-clean
+	$(INSTALL) -D -m 755 sipx-core-clean $(DESTDIR)@DAILYDIR@/sipx-core-clean
 
 $(DESTDIR)@DAILYDIR@/sipx-chkspace: sipx-chkspace.in
 	$(LocalizeSipXconfig) $(srcdir)/sipx-chkspace.in > sipx-chkspace

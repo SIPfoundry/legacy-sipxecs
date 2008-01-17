@@ -22,18 +22,11 @@ wwwconf_files = \
 
 EXTRA_DIST = \
 	$(pkgconf_DATA) \
-	$(foreach file,$(pbxconf_files) $(wwwconf_files),$(file).in) \
-	sipxchange
-
-if DO_RPMBUILD
-RPM_INSTALL=rpm-install
-else
-RPM_INSTALL=
-endif
+	$(foreach file,$(pbxconf_files) $(wwwconf_files),$(file).in)
 
 install-exec-hook :
 
-install-data-hook : $(RPM_INSTALL) \
+install-data-hook : \
 	$(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d \
 	$(foreach file,$(pbxconf_files) $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file))
 
@@ -58,18 +51,4 @@ $(foreach file,$(pbxconf_files) $(wwwconf_files),$(file)) : % : %.in
 	-e 's,@APACHE2_MOD_ACCESS\@,@APACHE2_MOD_ACCESS@,g' \
 	$< > $@
 
-.PHONY : rpm-install
-rpm-install: $(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange
-
-$(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange: sipxchange
-	@if [ -f $@ ]; \
-	then \
-		diff $< $@ > /dev/null 2>&1 \
-		|| ( echo "Using existing $@; new version copied as .NEW"; \
-			$(INSTALL) -D -m 644 $< $@.NEW \
-			); \
-	else \
-		echo "Installing default $@"; \
-		$(INSTALL) -D -m 644 $< $@; \
-	fi
 

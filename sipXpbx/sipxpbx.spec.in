@@ -121,6 +121,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxpbx
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-chkspace
 %attr(755,root,root) %{_sysconfdir}/cron.daily/voicemail_clean
+%attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-core-clean
 
 %attr(755,root,root) %{_datadir}/www/cgi-bin/voicemail/mediaserver.cgi
 %attr(755,root,root) %{_datadir}/www/cgi-bin/cbadmission/cbadmission.cgi
@@ -147,8 +148,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common-ssl.conf.in
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common.conf.in
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd.conf
-
-%config(noreplace) %attr(644,root,root) %{_sysconfdir}/logrotate.d/sipxchange
 
 %dir %attr(775,@SIPXPBXUSER@,root) %{_datadir}/www/doc
 %config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/index.html
