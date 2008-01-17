@@ -53,17 +53,6 @@ li.tab .active a:visited
 	text-decoration: none;
 }
 
-li.tab
-{
-	background-color: #ffc;
-}
-
-li.tab .active
-{
-	background-color: #ffc;
-}
-
-
 #banner
 {
 	color: #fff;
