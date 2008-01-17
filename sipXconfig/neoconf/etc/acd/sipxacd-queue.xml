@@ -178,7 +178,7 @@
     </setting>
     <setting name="agents-wrap-up-time">
       <type>
-        <integer min="1" required="yes" />
+        <integer min="0" required="yes" />
       </type>
       <value>15</value>
     </setting>
