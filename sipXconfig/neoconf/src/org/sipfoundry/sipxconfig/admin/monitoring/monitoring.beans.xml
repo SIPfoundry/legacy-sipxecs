@@ -27,20 +27,14 @@
   </bean>
 
   <bean id="mrtgTemplateConfig" class="org.sipfoundry.sipxconfig.admin.monitoring.MRTGConfig">
-    <constructor-arg type="java.lang.String">
-      <value>/etc/mrtg/mrtg-t.cfg</value>
-    </constructor-arg>
+    <property name="filename" value="/etc/mrtg/mrtg-t.cfg"/>
   </bean>
 
   <bean id="mrtgConfig" class="org.sipfoundry.sipxconfig.admin.monitoring.MRTGConfig">
-    <constructor-arg type="java.lang.String">
-      <value>/etc/mrtg/mrtg.cfg</value>
-    </constructor-arg>
+    <property name="filename" value="/etc/mrtg/mrtg.cfg"/>
   </bean>
 
   <bean id="mrtgRrdConfig" class="org.sipfoundry.sipxconfig.admin.monitoring.MRTGConfig">
-    <constructor-arg type="java.lang.String">
-      <value>/etc/mrtg/mrtg-rrd.cfg</value>
-    </constructor-arg>
+    <property name="filename" value="/etc/mrtg/mrtg-rrd.cfg"/>
   </bean>
 </beans>

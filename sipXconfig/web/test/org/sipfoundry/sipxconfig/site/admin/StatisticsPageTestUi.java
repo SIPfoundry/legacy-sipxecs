@@ -40,7 +40,6 @@ public class StatisticsPageTestUi extends WebTestCase {
         SiteTestHelper.selectRow(tester, 3, true);
         SiteTestHelper.selectRow(tester, 4, true);
         SiteTestHelper.selectRow(tester, 5, true);
-        SiteTestHelper.selectRow(tester, 6, true);
         clickButton("form:ok");
 
         SiteTestHelper.assertNoUserError(tester);
@@ -57,14 +56,12 @@ public class StatisticsPageTestUi extends WebTestCase {
         assertLinkPresent("report3");
         assertLinkPresent("report4");
         assertLinkPresent("report5");
-        assertLinkPresent("report6");
 
         assertLinkPresent("image0");
         assertLinkPresent("image1");
         assertLinkPresent("image2");
         assertLinkPresent("image3");
         assertLinkPresent("image4");
-        assertLinkPresent("image5");
 
         // test empty community string
         clickLink("link.configureTargets");
@@ -81,12 +78,10 @@ public class StatisticsPageTestUi extends WebTestCase {
         assertLinkPresent("report1");
         assertLinkPresent("report2");
         assertLinkPresent("report3");
-        assertLinkPresent("report4");
 
         assertLinkPresent("image0");
         assertLinkPresent("image1");
         assertLinkPresent("image2");
-        assertLinkPresent("image3");
 
         // remove all targets to monitor
         selectOption("PropertySelection", "host.example.org");
@@ -95,7 +90,6 @@ public class StatisticsPageTestUi extends WebTestCase {
         SiteTestHelper.selectRow(tester, 3, false);
         SiteTestHelper.selectRow(tester, 4, false);
         SiteTestHelper.selectRow(tester, 5, false);
-        SiteTestHelper.selectRow(tester, 6, false);
         clickButton("form:ok");
 
         SiteTestHelper.assertNoUserError(tester);

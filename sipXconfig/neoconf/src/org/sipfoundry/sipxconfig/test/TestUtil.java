@@ -196,6 +196,8 @@ public final class TestUtil {
         sysProps.setProperty("monitoringContextImpl.enabled", Boolean.toString(true));
         sysProps.setProperty("coreContextImpl.debug", "on");
         sysProps.setProperty("sipxconfig.db.user", "postgres");
+        sysProps.setProperty("mrtgTemplateConfig.filename", etcDirectory + "/mrtg-t.cfg");
+        sysProps.setProperty("mrtgConfig.filename", etcDirectory + "/mrtg.cfg");
 
         File vmDir = new File(outputDirectory + "/mailstore");
         if (!vmDir.exists()) {

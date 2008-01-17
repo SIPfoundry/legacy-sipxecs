@@ -58,8 +58,18 @@ public class MRTGConfig {
     private List<String> m_hosts = new ArrayList<String>();
     private List<String> m_mibs = new ArrayList<String>();
 
+    /**
+     * @deprecated - only used from spring configuration
+     */
+    public MRTGConfig() {        
+    }
+
     public MRTGConfig(String cfgFileName) {
         m_filename = cfgFileName;
+    }
+    
+    public void setFilename(String filename) {
+        m_filename = filename;
     }
 
     public String getFilename() {
