@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import java.util.Calendar;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -20,6 +22,22 @@ public class TimeOfDayTest extends TestCase {
 
     protected void setUp() throws Exception {
         m_format = new TimeOfDay.TimeOfDayFormat(Locale.US);
+    }
+
+    public void testDateConstructors() throws Exception {
+        long now = System.currentTimeMillis();
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(now);
+        TimeOfDay tod = new TimeOfDay(cal.getTime());
+        assertEquals(cal.get(Calendar.HOUR_OF_DAY), tod.getHrs());
+        assertEquals(cal.get(Calendar.MINUTE), tod.getMin());
+
+        Calendar calGmt = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        calGmt.setTimeInMillis(now);
+        TimeOfDay todGmt = new TimeOfDay(calGmt.getTime(), calGmt.getTimeZone());
+        assertEquals(calGmt.get(Calendar.HOUR_OF_DAY), todGmt.getHrs());
+        assertEquals(calGmt.get(Calendar.MINUTE), todGmt.getMin());
     }
 
     public void testFormatParseObject() throws Exception {

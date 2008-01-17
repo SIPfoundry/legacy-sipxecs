@@ -42,7 +42,7 @@ public class DailyBackupSchedule extends BeanWithId {
 
     private boolean m_enabled;
 
-    private Date m_timeOfDay = new Timestamp(0);
+    private Date m_time = new Timestamp(0);
 
     private ScheduledDay m_day = ScheduledDay.EVERYDAY;
 
@@ -81,12 +81,24 @@ public class DailyBackupSchedule extends BeanWithId {
         m_day = day;
     }
 
-    public Date getTimeOfDay() {
-        return m_timeOfDay;
+    public TimeOfDay getTimeOfDay() {
+        return new TimeOfDay(getTime(), GMT);
     }
 
-    public void setTimeOfDay(Date timeOfDay) {
-        m_timeOfDay = timeOfDay;
+    public Date getTime() {
+        return m_time;
+    }
+
+    public void setTimeOfDay(TimeOfDay timeOfDay) {
+        Calendar cal = Calendar.getInstance(GMT);
+        cal.setTimeInMillis(0); // clear date information
+        cal.set(Calendar.HOUR_OF_DAY, timeOfDay.getHrs());
+        cal.set(Calendar.MINUTE, timeOfDay.getMin());
+        setTime(cal.getTime());
+    }
+
+    public void setTime(Date timeOfDay) {
+        m_time = timeOfDay;
     }
     
     // for testing only
@@ -98,7 +110,7 @@ public class DailyBackupSchedule extends BeanWithId {
         
         // convert thru string because setting timezone just shift time and
         // we want effectively the same time.  
-        String gmtTimeOfDay = GMT_TIME_OF_DAY_FORMAT.format(getTimeOfDay());
+        String gmtTimeOfDay = GMT_TIME_OF_DAY_FORMAT.format(getTime());
         try {
             Date localTimeOfDay = LOCAL_TIME_OF_DAY_FORMAT.parse(gmtTimeOfDay);
             Calendar localCal = Calendar.getInstance();

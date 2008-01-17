@@ -77,7 +77,7 @@
   </component>
   <component id="dailyScheduledTime" type="TextField">
     <binding name="validators" value="validators:required"/>
-	<binding name="translator" value="hivemind:spring:validTime"/>
+    <binding name="translator" value="hivemind:spring:timeOfDayTranslator"/>
     <binding name="value" value="schedule.timeOfDay"/>
     <binding name="displayName" value="literal:Time Of Day"/>
   </component>

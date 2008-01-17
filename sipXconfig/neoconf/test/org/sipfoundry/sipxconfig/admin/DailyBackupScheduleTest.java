@@ -39,12 +39,12 @@ public class DailyBackupScheduleTest extends TestCase {
     
 
     public void testGetTimeOfDay() throws Exception {
-        Date midnight = schedule.getTimeOfDay();
+        Date midnight = schedule.getTime();
         String actual = DailyBackupSchedule.GMT_TIME_OF_DAY_FORMAT.format(midnight);
         String expected = simpleTimeOfDayToLocalizedGmt("00:00"); 
         assertEquals(expected, actual);
         
-        assertEquals(0, schedule.getTimeOfDay().getTime()); // midnight gmt
+        assertEquals(0, schedule.getTime().getTime()); // midnight gmt
     }
     
     public void testGetTimerPeriod() {

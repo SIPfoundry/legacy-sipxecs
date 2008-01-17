@@ -29,6 +29,30 @@ public class DialingRuleTestUi extends WebTestCase {
         clickLink("resetDialPlans");
     }
 
+    public void testScheduleTimeFormat() {
+        clickLink("FlexibleDialPlan");
+        SiteTestHelper.assertNoException(getTester());
+        SiteTestHelper.setScriptingEnabled(true);
+        clickLink("link:schedules");
+        clickLink("addSchedule");
+        setFormElement("name", "TestSchedule1");
+        clickLink("addPeriod");
+        setFormElement("from", "9:15 AM");
+        setFormElement("to", "6:15 PM");
+        clickButton("form:ok");
+
+        getTestContext().getWebClient().setHeaderField("Accept-Language", "de");
+        clickLinkWithText("TestSchedule1");
+        assertFormElementEquals("from", "09:15");
+        assertFormElementEquals("to", "18:15");
+        clickButton("form:ok");
+
+        getTestContext().getWebClient().setHeaderField("Accept-Language", "en");
+        clickLinkWithText("TestSchedule1");
+        assertFormElementEquals("from", "9:15 AM");
+        assertFormElementEquals("to", "6:15 PM");
+    }
+
     public void testAddExistingGatewayNewRule() {
         String[] gatewayNames = GatewaysTestUi.addTestGateways(getTester(), 1);
         SiteTestHelper.home(getTester());

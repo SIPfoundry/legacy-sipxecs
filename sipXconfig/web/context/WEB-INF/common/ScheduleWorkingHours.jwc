@@ -29,8 +29,8 @@
   
   <component id="from" type="TextField">
     <binding name="validators" value="validators:required"/>
-	<binding name="translator" value="hivemind:spring:validTime"/>
-    <binding name="value" value="workingHour.start"/>
+    <binding name="translator" value="hivemind:spring:timeOfDayTranslator" />
+    <binding name="value" value="workingHour.startTimeOfDay"/>
     <binding name="displayWidth" value="8"/>
     <binding name="displayName" value="message:label.from"/>
   </component>
@@ -42,8 +42,8 @@
   
   <component id="to" type="TextField">
     <binding name="validators" value="validators:required"/>
-	<binding name="translator" value="hivemind:spring:validTime"/>
-    <binding name="value" value="workingHour.stop"/>
+	<binding name="translator" value="hivemind:spring:timeOfDayTranslator" />
+    <binding name="value" value="workingHour.stopTimeOfDay"/>
     <binding name="displayWidth" value="8"/>
     <binding name="displayName" value="message:label.to"/>
   </component>

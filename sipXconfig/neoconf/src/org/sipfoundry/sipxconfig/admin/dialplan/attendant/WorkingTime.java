@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.sipfoundry.sipxconfig.admin.ScheduledDay;
+import org.sipfoundry.sipxconfig.admin.TimeOfDay;
 import org.sipfoundry.sipxconfig.common.UserException;
 
 public class WorkingTime extends ScheduledAttendant {
@@ -28,7 +29,7 @@ public class WorkingTime extends ScheduledAttendant {
 
     /**
      * Initialization is a bit tricky - days here are numbered from 0 to 6, with - 0 being Monday
-     * and 6 being Sunday. Days in getScheduleDay and in Calenar object are number from 1 to 7
+     * and 6 being Sunday. Days in getScheduleDay and in Calendar object are number from 1 to 7
      * with 1 being Sunday and 7 being Saturday.
      * 
      */
@@ -189,6 +190,10 @@ public class WorkingTime extends ScheduledAttendant {
             return m_start;
         }
 
+        public TimeOfDay getStartTimeOfDay() {
+            return new TimeOfDay(getStart(), getGmtTimeZone());
+        }
+
         /**
          * @param start UTC time
          */
@@ -196,18 +201,38 @@ public class WorkingTime extends ScheduledAttendant {
             m_start = start;
         }
 
+        public void setStartTimeOfDay(TimeOfDay startTimeOfDay) {
+            Calendar cal = Calendar.getInstance(getGmtTimeZone());
+            cal.setTimeInMillis(0); // clear date information
+            cal.set(Calendar.HOUR_OF_DAY, startTimeOfDay.getHrs());
+            cal.set(Calendar.MINUTE, startTimeOfDay.getMin());
+            setStart(cal.getTime());
+        }
+
         public Date getStop() {
             return m_stop;
+        }
+
+        public TimeOfDay getStopTimeOfDay() {
+            return new TimeOfDay(getStop(), getGmtTimeZone());
         }
 
         public void setStop(Date stop) {
             m_stop = stop;
         }
 
+        public void setStopTimeOfDay(TimeOfDay stopTimeOfDay) {
+            Calendar cal = Calendar.getInstance(getGmtTimeZone());
+            cal.setTimeInMillis(0); // clear date information
+            cal.set(Calendar.HOUR_OF_DAY, stopTimeOfDay.getHrs());
+            cal.set(Calendar.MINUTE, stopTimeOfDay.getMin());
+            setStop(cal.getTime());
+        }
+
         /**
          * Formats time as 24 hours (00:00-23:59), GMT time.
          * 
-         * @param date date to format - needs to be GMT time zon
+         * @param date date to format - needs to be GMT time zone
          * @return formatted time string
          */
         private static String formatTime(Date date) {

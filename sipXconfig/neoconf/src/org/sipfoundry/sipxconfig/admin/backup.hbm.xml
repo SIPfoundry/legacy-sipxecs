@@ -32,7 +32,7 @@
       </generator>
     </id>
     <property name="enabled" />
-    <property name="timeOfDay" />
+    <property name="time" column="time_of_day" />
     <property name="scheduledDay" type="org.sipfoundry.sipxconfig.admin.ScheduledDay$UserType" />
     <many-to-one name="backupPlan" column="backup_plan_id" class="BackupPlan" />
   </class>

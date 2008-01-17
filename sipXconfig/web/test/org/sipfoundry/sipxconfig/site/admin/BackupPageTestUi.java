@@ -9,8 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import java.util.Locale;
+
 import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.WebTester;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -76,5 +79,25 @@ public class BackupPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         assertElementPresent("backup:emailAddress");
         SiteTestHelper.assertNoException(getTester());
+    }
+
+    /**
+     * Tests that the backup time is rendered in the correct format for
+     * a browser-specified locale.
+     */
+    public void testLocaleTimeFormat() {
+        WebTester tester = getTester();
+        SiteTestHelper.assertNoException(tester);
+        setFormElement("dailyScheduledTime", "3:24 AM");
+
+        getTestContext().getWebClient().setHeaderField("Accept-Language", "de");
+        clickButton("backup:ok");
+        SiteTestHelper.assertNoException(getTester());
+        tester.assertFormElementEquals("dailyScheduledTime", "03:24");
+
+        getTestContext().getWebClient().setHeaderField("Accept-Language", "en");
+        clickButton("backup:ok");
+        SiteTestHelper.assertNoException(getTester());
+        tester.assertFormElementEquals("dailyScheduledTime", "3:24 AM");
     }
 }

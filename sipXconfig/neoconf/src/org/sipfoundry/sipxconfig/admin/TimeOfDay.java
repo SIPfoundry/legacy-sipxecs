@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.time.FastDateFormat;
 
@@ -29,6 +30,23 @@ public class TimeOfDay {
 
     public TimeOfDay() {
         // default bean constructor
+    }
+
+    /**
+     * Creates a TimeOfDay using the time information from a Date object
+     * in the system's default time zone.
+     *
+     * @param date The Date to take time information from.
+     */
+    public TimeOfDay(Date date) {
+        this(date, TimeZone.getDefault());
+    }
+
+    public TimeOfDay(Date date, TimeZone timeZone) {
+        Calendar cal = Calendar.getInstance(timeZone);
+        cal.setTime(date);
+        m_hrs = cal.get(Calendar.HOUR_OF_DAY);
+        m_min = cal.get(Calendar.MINUTE);
     }
 
     public TimeOfDay(int hrs, int min) {

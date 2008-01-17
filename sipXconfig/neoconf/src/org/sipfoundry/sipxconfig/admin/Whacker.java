@@ -108,7 +108,7 @@ public class Whacker implements ApplicationListener {
         DailyBackupSchedule sched = new DailyBackupSchedule();
         sched.setEnabled(true);
         sched.setScheduledDay(getScheduledDayEnum());
-        sched.setTimeOfDay(getTimeOfDayValue());
+        sched.setTime(getTimeOfDayValue());
         sched.setAllowStaleDate(m_allowStaleDate); // for testing only
         sched.schedule(m_timer, new WhackerTask());
         LOG.info("Whacker is scheduled: " + sched.getScheduledDay().getName() + ", "
