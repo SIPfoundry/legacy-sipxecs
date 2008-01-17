@@ -138,7 +138,7 @@ public class ManageVoicemailTestUi extends WebTestCase {
 
     
     private void login(String username, String password) {
-        assertElementPresent("login:form");
+        assertElementPresent("loginForm");
         setFormElement("userName", username);
         setFormElement("loginPassword", password);
         clickButton("login:submit");        
