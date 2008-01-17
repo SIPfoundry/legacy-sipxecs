@@ -26,6 +26,7 @@ Requires: chkconfig
 
 Requires: sipxcalllib >= 3.9
 Requires: sipxcommserverlib >= 3.9
+Requires: sipxtools >= 3.9
 
 # replication cgi 
 Requires: httpd >= 2.0

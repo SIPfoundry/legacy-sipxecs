@@ -19,6 +19,8 @@ CommentFiles=
 Tar=YES
 ToFile=
 Logs=current
+LogStart=
+LogStop=
 
 DefaultTarFile="sipx-configuration-`hostname -f`.tar.gz"
 
@@ -87,6 +89,39 @@ do
 
         -nl|--no-logs)
             Logs=none
+            ;;
+
+        --log-start)
+            if [ -z "${2}" ]
+            then
+                echo "No argument supplied for ${1}" 1>&2
+                Action=USAGE
+                break
+            elif test "${Logs}" != "current"
+            then
+                echo "Log start/stop times may only be specified with '--logs current'" 1>&2
+                Action=USAGE
+            else
+                LogStart=${2}
+                Logs=cut
+            fi
+            shift
+            ;;
+
+        --log-stop)
+            if [ -z "${2}" ]
+            then
+                echo "No argument supplied for ${1}" 1>&2
+                Action=USAGE
+                break
+            elif test "${Logs}" != "cut"
+            then
+                echo "A --log-start time must be specified to use '${2}'" 1>&2
+                Action=USAGE
+            else
+                LogStop=${2}
+            fi
+            shift
             ;;
 
         -c|--credentials)
@@ -187,6 +222,7 @@ Usage:
     sipx-snapshot [ -c  | --credentials ]
                   [ -nw | --no-www ]
                   [ -l  | --logs {current|all|none} ]
+                  [ --log-start <date-time> [ --log-stop <date-time> ]]
                   [ --core <core-file> ] ...
                   [ --file <file-name> ] ...
                   [ --comment <file-name> ] ...
@@ -229,6 +265,15 @@ Usage:
                all     - saves all logs in the sipx log directory (large!)
                none    - does not include any logs (not recommended)
 
+    The --log-start and --log-stop switches allow you to limit the log file
+    size that is included in the snapshot to the times between the start and
+    stop times.  Times MUST be specified in UCT (aka GMT) as used in the log 
+    files.  Only times in the 'current' log may be specified (not in archived
+    logs).  If the --log-stop switch is not specified, the extract is from the
+    start time to the end of the log file. 
+
+      --log-start '2004-12-08 17:45:30' --log-stop '2004-12-08 18:12:52'
+
     The --no-logs switch causes the sipX and Apache logs to be omitted
     from the snapshot; the default is to include them.  (deprecated but
     left in for backward compatibility - use '--logs none').
@@ -264,6 +309,15 @@ mkdir  $Work
 # File into which to record random system configuration information.
 SystemConfig=${Work}/SystemConfig
 
+function hasTimestamps () {
+   # looks for a timestamp like "2008-01-17T09:02:09.451460Z": on the first line
+   local log=$1
+   local sawTime
+   sawTime=`head -n 1 "${log}" \
+            | perl -ne 'm/^"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.\d{6}Z":/ && print "YES"'`
+   test "${sawTime}" = "YES"
+}
+
 # Assemble the list of files to record.
 
 # These files and directories are always recorded.
@@ -281,6 +335,31 @@ EOF
 case ${Logs} in
     none)
         :
+        ;;
+    cut)
+        cutDir=`mktemp -d @SIPX_LOGDIR@/cut.XXXXXX`
+        trap "rm -rf ${cutDir} 2>/dev/null" 0
+        cat /dev/null > ${cutDir}/extract.log
+        echo ${cutDir}/extract.log >> $Work.copy-files
+        for log in @SIPX_LOGDIR@/*.log
+        do
+          if hasTimestamps ${log}
+          then
+              echo ${cutDir}/`basename ${log}` >> $Work.copy-files
+              if test -z "${LogStop}"
+              then
+                  @SIPX_BINDIR@/sipx-log-cut -i "${log}" -s "${LogStart}" -t \
+                      > ${cutDir}/`basename ${log}` \
+                      2>> ${cutDir}/extract.log
+              else
+                  @SIPX_BINDIR@/sipx-log-cut -i "${log}" -s "${LogStart}" -e "${LogStop}" -t \
+                      > ${cutDir}/`basename ${log}` \
+                      2>> ${cutDir}/extract.log
+              fi
+          else
+              echo $log >> $Work.copy-files
+          fi    
+        done
         ;;
     current)
         for log in @SIPX_LOGDIR@/*.log
@@ -561,6 +640,16 @@ then
             -e 's|<pintoken>[^<]*</pintoken>|<pintoken>ELIDED</pintoken>|'
       rm ${file}.tmp
     done
+  fi
+
+  # If we cut out a timeslice of the logs, 
+  #   relocate them as though they were full logs in the working copy to be tarred
+  #   delete the cut copy under the original log directory
+  if [ "${Logs}" = "cut" ]
+  then
+      mv ${Work}${cutDir}/* ${Work}@SIPX_LOGDIR@
+      rmdir ${Work}${cutDir}
+      rm -rf ${cutDir}
   fi
 fi
 
