@@ -3420,6 +3420,41 @@ UtlBoolean SipUserAgent::isOk(OsSocket::IpProtocolSocketType socketType)
    return retval;
 }
 
+UtlBoolean SipUserAgent::isOk()
+{
+    UtlBoolean retval = TRUE;
+
+    if (mSipTcpServer)
+    {
+        retval = retval && mSipTcpServer->isOk() ;
+    }
+    if (mSipUdpServer && retval)
+    {
+        retval = retval && mSipUdpServer->isOk() ;
+    }
+#ifdef SIP_TLS
+    if (mSipTlsServer && retval)
+    {
+        retval = retval && mSipTlsServer->isOk() ;
+    }
+#endif
+
+    // The SipUserAgent is NOT OK if no protocol servers are available
+    // This could happen if PORT_NONE is specified for all ports
+    if (retval 
+            && (mSipTcpServer == NULL)
+            && (mSipUdpServer == NULL)
+#ifdef SIP_TLS
+            && (mSipTlsServer == NULL)
+#endif
+            )
+    {
+        retval = FALSE ;
+    }
+
+    return retval ;
+}
+
 UtlBoolean SipUserAgent::isSymmetricSignalingImposed()
 {
     return mbForceSymmetricSignaling;

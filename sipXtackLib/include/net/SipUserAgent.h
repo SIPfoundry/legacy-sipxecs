@@ -540,6 +540,9 @@ public:
     UtlBoolean recurseOnlyOne300Contact();
 
     UtlBoolean isOk(OsSocket::IpProtocolSocketType socketType);
+
+    UtlBoolean isOk() ;
+    //: Determine if the user agent is ok (all the protocol handlers are Ok)
     
     UtlBoolean isSymmetricSignalingImposed();
 

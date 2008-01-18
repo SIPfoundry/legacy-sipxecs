@@ -193,7 +193,6 @@ sigHandler( int sig_num )
        OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
     }
     OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: closing IMDB connections" );
-    OsSysLog::flush();
 
     // Finally close the IMDB connections
     closeIMDBConnections();
@@ -784,6 +783,12 @@ main( int argc, char* argv[] )
         FALSE, // Use Next Available Port
         TRUE,  // Perform message checks 
         TRUE); // Use symmetric signaling
+
+    if (!sipUserAgent.isOk())
+    {
+        OsSysLog::add(FAC_SIP, PRI_EMERG, "SipUserAgent reported a problem, setting shutdown flags...");
+        gShutdownFlag = TRUE ;
+    }
     sipUserAgent.setIsUserAgent(FALSE);
     sipUserAgent.setDnsSrvTimeout(dnsSrvTimeout);
     sipUserAgent.setMaxSrvRecords(maxNumSrvRecords);
@@ -921,6 +926,7 @@ main( int argc, char* argv[] )
     }
     
     // Flush the log file
+    OsSysLog::add(FAC_SIP, PRI_NOTICE, "Exiting") ;
     OsSysLog::flush();
 
     return 1;
