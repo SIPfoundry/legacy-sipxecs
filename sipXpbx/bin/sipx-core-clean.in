@@ -2,8 +2,8 @@
 ### -*- mode: shell-script;-*-
 # Archive core files in the sip log directory older than N days
 
-DefaultMaxDays=10
-DefaultMaxCores=20
+DefaultMaxDays=120
+DefaultMaxCores=50
 
 MaxDays=${DefaultMaxDays}
 MaxCores=${DefaultMaxCores}
