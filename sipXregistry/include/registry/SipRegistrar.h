@@ -93,9 +93,11 @@ public:
      */
     
     /// Launch all Operational Phase threads.
-    void operationalPhase();
+    UtlBoolean operationalPhase();
     /**<
      * Begins operation of the SipRegistrarServer and SipRedirectServer.
+     *
+     * Returns false on fatal error, otherwise true
      */
 
     /// Create and start the RegistrarPersist thread.

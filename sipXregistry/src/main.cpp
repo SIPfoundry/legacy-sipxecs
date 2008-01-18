@@ -388,7 +388,7 @@ main(int argc, char* argv[] )
    pServerTask = static_cast<OsServerTask*>(registrar);
 
    // Do not exit, let the services run...
-   while( !gShutdownFlag )
+   while( !gShutdownFlag && !pServerTask->isShutDown() )
    {
       OsTask::delay(1 * OsTime::MSECS_PER_SEC);
    }

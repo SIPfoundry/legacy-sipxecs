@@ -167,10 +167,13 @@ int SipRegistrar::run(void* pArg)
    
    if (!isShuttingDown())
    {
-      operationalPhase();
-
-      // from here on, everything happens in handleMessage
-      taskResult = OsServerTask::run(pArg);
+      // Exit if the operational phase fails (e.g. SipUserAgent reports
+      // problems)
+      if (operationalPhase())
+      {
+         // from here on, everything happens in handleMessage
+         taskResult = OsServerTask::run(pArg);
+      }
    }
 
    return taskResult;
@@ -231,7 +234,7 @@ void SipRegistrar::createAndStartPersist()
 }
 
 /// Launch all Operational Phase threads.
-void SipRegistrar::operationalPhase()
+UtlBoolean SipRegistrar::operationalPhase()
 {
    OsSysLog::add(FAC_SIP, PRI_INFO, "SipRegistrar entering operational phase");
 
@@ -316,6 +319,8 @@ void SipRegistrar::operationalPhase()
    startRegistrarServer();
    startRedirectServer();
    startEventServer();
+
+   return mSipUserAgent->isOk() ;
 }
 
 /// Get the XML-RPC dispatcher
