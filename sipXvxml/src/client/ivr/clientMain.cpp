@@ -944,6 +944,13 @@ int main(int argc, char *argv[])
                        SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE // OsServerTask message queue size
          );
 
+   if (!userAgent->isOk())
+   {
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_NOTICE, "SipUserAgent reporting problems; requesting shutdown");
+      gShutdownFlag = TRUE;
+      gExitStatus = EXIT_FAILURE;
+   }
+
    userAgent->allowExtension(SIP_CALL_CONTROL_EXTENSION);
    userAgent->allowExtension("sip-cc-01");
    userAgent->allowExtension(SIP_REPLACES_EXTENSION);
