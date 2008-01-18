@@ -206,7 +206,7 @@ li.tab
 	/* clear:both is important for IE guillotine bug */
 	clear:both;
     text-align:center;
-    margin: 10em 0;
+    margin: 10em 0 0 12em;
     padding: 15px;
 }
 
