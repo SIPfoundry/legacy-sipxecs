@@ -356,123 +356,146 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                 -1,                         // readBufferSize
                 OsServerTask::DEF_MAX_MSGS, // queueSize
                 bUseSequentialPorts);       // bUseNextAvailablePort
-        pInst->pSipUserAgent->allowMethod(SIP_INFO_METHOD);
-        pInst->pSipUserAgent->start();    
 
-        // Startup Line Manager  Refresh Manager
-        pInst->pLineManager->initializeRefreshMgr(pInst->pRefreshManager) ;
-        pInst->pRefreshManager->init(pInst->pSipUserAgent, pInst->pSipUserAgent->getTcpPort(), pInst->pSipUserAgent->getUdpPort()) ;
-        pInst->pRefreshManager->StartRefreshMgr();
-
-        // Create and start up a SIP SUBSCRIBE server
-        pInst->pSubscribeServer = 
-            SipSubscribeServer::buildBasicServer(*pInst->pSipUserAgent);
-        pInst->pSubscribeServer->start();
-
-        // Create and start up a SIP SUBSCRIBE client
-        SipDialogMgr* clientDialogMgr = new SipDialogMgr;
-        SipRefreshManager* clientRefreshManager = 
-            new SipRefreshManager(*pInst->pSipUserAgent,
-                                  *clientDialogMgr);
-        clientRefreshManager->start();
-        pInst->pSubscribeClient = 
-            new SipSubscribeClient(*pInst->pSipUserAgent,
-                                   *clientDialogMgr, 
-                                   *clientRefreshManager);
-        pInst->pSubscribeClient->start();
-
-        // Enable PCMU, PCMA, Tones/RFC2833 codecs
-        pInst->pCodecFactory = new SdpCodecFactory() ;
-
-        // Instantiate the call processing subsystem
-        UtlString localAddress;
-        UtlString utlIdentity(szIdentity);
-        if (!utlIdentity.contains("@"))
+        if (!pInst->pSipUserAgent->isOk())
         {
-           OsSocket::getHostIp(&localAddress);
-           char *szBuf = (char*) calloc(64 + utlIdentity.length(), 1) ;
-           sprintf(szBuf, "sip:%s@%s:%d", szIdentity, localAddress.data(), pInst->pSipUserAgent->getUdpPort()) ;
-           localAddress = szBuf ;
-           free(szBuf) ;
+            // The user agent failed to bind to the request port(s).  Return
+            // error and cleanup.
+            rc = SIPX_RESULT_OUT_OF_RESOURCES ;
+            OsSysLog::add(FAC_SIPXTAPI, PRI_NOTICE, "sipxInitialize failed; SipUserAgent reported problem") ;
+
+            delete pInst->pLock ;
+            delete pInst->pSipUserAgent ;
+            delete pInst->pRefreshManager ;
+            delete pInst->pLineManager ;
+            delete pInst ;
         }
         else
         {
-           localAddress = utlIdentity;
-        }
-        Url defaultIdentity(localAddress);
-        pInst->pLineManager->setDefaultOutboundLine(defaultIdentity);
+            pInst->pSipUserAgent->allowMethod(SIP_INFO_METHOD);
+            pInst->pSipUserAgent->start();    
 
-        OsConfigDb configDb;
-        configDb.set("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", 2*maxConnections);
+            // Startup Line Manager  Refresh Manager
+            pInst->pLineManager->initializeRefreshMgr(pInst->pRefreshManager) ;
+            pInst->pRefreshManager->init(
+                    pInst->pSipUserAgent,
+                    pInst->pSipUserAgent->getTcpPort(),
+                    pInst->pSipUserAgent->getUdpPort()) ;
+            pInst->pRefreshManager->StartRefreshMgr();
 
-        pInst->pCallManager = new CallManager(FALSE,
-                               pInst->pLineManager,
-                               TRUE, // early media in 180 ringing
-                               pInst->pCodecFactory,
-                               rtpPortStart, // rtp start
-                               rtpPortStart + (2*maxConnections), // rtp end
-                               localAddress.data(),
-                               localAddress.data(),
-                               pInst->pSipUserAgent,
-                               0, // sipSessionReinviteTimer
-                               NULL, // mgcpStackTask
-                               NULL, // defaultCallExtension
-                               Connection::RING, // availableBehavior
-                               NULL, // unconditionalForwardUrl
-                               -1, // forwardOnNoAnswerSeconds
-                               NULL, // forwardOnNoAnswerUrl
-                               Connection::BUSY, // busyBehavior
-                               NULL, // sipForwardOnBusyUrl
-                               NULL, // speedNums
-                               CallManager::SIP_CALL, // phonesetOutgoingCallProtocol
-                               4, // numDialPlanDigits
-                               CallManager::NEAR_END_HOLD, // holdType
-                               5000, // offeringDelay
-                               "",
-                               CP_MAXIMUM_RINGING_EXPIRE_SECONDS,
-                               QOS_LAYER3_LOW_DELAY_IP_TOS,
-                               maxConnections,
-                               sipXmediaFactoryFactory(&configDb));
+            // Create and start up a SIP SUBSCRIBE server
+            pInst->pSubscribeServer = 
+                SipSubscribeServer::buildBasicServer(*pInst->pSipUserAgent);
+            pInst->pSubscribeServer->start();
 
-        // Start up the call processing system
-        pInst->pCallManager->setOutboundLine(localAddress) ;
-        pInst->pCallManager->start();
+            // Create and start up a SIP SUBSCRIBE client
+            SipDialogMgr* clientDialogMgr = new SipDialogMgr;
+            SipRefreshManager* clientRefreshManager = 
+                new SipRefreshManager(*pInst->pSipUserAgent,
+                                  *clientDialogMgr);
+            clientRefreshManager->start();
+            pInst->pSubscribeClient = 
+                new SipSubscribeClient(*pInst->pSipUserAgent,
+                                   *clientDialogMgr, 
+                                   *clientRefreshManager);
+            pInst->pSubscribeClient->start();
 
-        CpMediaInterfaceFactoryImpl* pInterface = 
-                pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation() ;
+            // Enable PCMU, PCMA, Tones/RFC2833 codecs
+            pInst->pCodecFactory = new SdpCodecFactory() ;
 
-        sipxConfigSetAudioCodecPreferences(pInst, AUDIO_CODEC_BW_NORMAL);
-        sipxConfigSetVideoCodecPreferences(pInst, VIDEO_CODEC_BW_HIGH);
+            // Instantiate the call processing subsystem
+            UtlString localAddress;
+            UtlString utlIdentity(szIdentity);
+            if (!utlIdentity.contains("@"))
+            {
+               OsSocket::getHostIp(&localAddress);
+               char *szBuf = (char*) calloc(64 + utlIdentity.length(), 1) ;
+               sprintf(szBuf, "sip:%s@%s:%d", szIdentity, localAddress.data(), pInst->pSipUserAgent->getUdpPort()) ;
+               localAddress = szBuf ;
+               free(szBuf) ;
+            }
+            else
+            {
+               localAddress = utlIdentity;
+            }
+            Url defaultIdentity(localAddress);
+            pInst->pLineManager->setDefaultOutboundLine(defaultIdentity);
+
+            OsConfigDb configDb;
+            configDb.set("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", 2*maxConnections);
+
+            pInst->pCallManager = new CallManager(FALSE,
+                                   pInst->pLineManager,
+                                   TRUE, // early media in 180 ringing
+                                   pInst->pCodecFactory,
+                                   rtpPortStart, // rtp start
+                                   rtpPortStart + (2*maxConnections), // rtp end
+                                   localAddress.data(),
+                                   localAddress.data(),
+                                   pInst->pSipUserAgent,
+                                   0, // sipSessionReinviteTimer
+                                   NULL, // mgcpStackTask
+                                   NULL, // defaultCallExtension
+                                   Connection::RING, // availableBehavior
+                                   NULL, // unconditionalForwardUrl
+                                   -1, // forwardOnNoAnswerSeconds
+                                   NULL, // forwardOnNoAnswerUrl
+                                   Connection::BUSY, // busyBehavior
+                                   NULL, // sipForwardOnBusyUrl
+                                   NULL, // speedNums
+                                   CallManager::SIP_CALL, // phonesetOutgoingCallProtocol
+                                   4, // numDialPlanDigits
+                                   CallManager::NEAR_END_HOLD, // holdType
+                                   5000, // offeringDelay
+                                   "",
+                                   CP_MAXIMUM_RINGING_EXPIRE_SECONDS,
+                                   QOS_LAYER3_LOW_DELAY_IP_TOS,
+                                   maxConnections,
+                                   sipXmediaFactoryFactory(&configDb));
+
+            // Start up the call processing system
+            pInst->pCallManager->setOutboundLine(localAddress) ;
+            pInst->pCallManager->start();
+
+            CpMediaInterfaceFactoryImpl* pInterface = 
+                    pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation() ;
+
+            sipxConfigSetAudioCodecPreferences(pInst, AUDIO_CODEC_BW_NORMAL);
+            sipxConfigSetVideoCodecPreferences(pInst, VIDEO_CODEC_BW_HIGH);
 
 #ifdef _WIN32
-        initAudioDevices(pInst) ;
+            initAudioDevices(pInst) ;
 #else
-        // TBD
-        for (int i=0; i<MAX_AUDIO_DEVICES; i++)
-        {
-            pInst->inputAudioDevices[i] = NULL ;
-            pInst->outputAudioDevices[i] = NULL ;
-        }
+            // TBD
+            for (int i=0; i<MAX_AUDIO_DEVICES; i++)
+            {
+                pInst->inputAudioDevices[i] = NULL ;
+                pInst->outputAudioDevices[i] = NULL ;
+            }
 #endif
-        *phInst = pInst ;
-        gpSessionList->insert(new UtlVoidPtr(pInst)) ;
-        sipxIncSessionCount();
+            *phInst = pInst ;
+            gpSessionList->insert(new UtlVoidPtr(pInst)) ;
+            sipxIncSessionCount();
 
 
 #ifdef _WIN32
 #ifndef VOICE_ENGINE
-        Sleep(500) ;    // Need to wait for UA and MP to startup
+            Sleep(500) ;    // Need to wait for UA and MP to startup
                         // TODO: Need to synchronize startup
 #endif
 #endif
         
-        // create the message observer
-        pInst->pMessageObserver = new SipXMessageObserver(pInst);
-        pInst->pMessageObserver->start();
-        pInst->pSipUserAgent->addMessageObserver(*(pInst->pMessageObserver->getMessageQueue()), SIP_INFO_METHOD, 1, 0, 1, 0, 0, 0, (void*)pInst);        
+            // create the message observer
+            pInst->pMessageObserver = new SipXMessageObserver(pInst);
+            pInst->pMessageObserver->start();
+            pInst->pSipUserAgent->addMessageObserver(
+                    *(pInst->pMessageObserver->getMessageQueue()),
+                    SIP_INFO_METHOD,
+                    1, 0, 1, 0, 0, 0,
+                    (void*)pInst);        
 
-        rc = SIPX_RESULT_SUCCESS ;
-
+            rc = SIPX_RESULT_SUCCESS ;
+        }
     }
    
     return rc ;

@@ -98,7 +98,6 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
    mLogToConsole            = false;
    mPresenceServerUriString = "";
    mMaxAcdCallsAllowed      = MAX_CONNECTIONS;
-
 #ifdef CML   
    mAcdRpcServerPort           = -1;
 #endif
@@ -163,40 +162,48 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
       mpAcdCallManager  = new ACDCallManager(this, mUdpPort, mTcpPort, mTlsPort,
                                              mRtpBase, mMaxAcdCallsAllowed,
                                              mDefaultIdentity.toString().data());
-      mpAcdLineManager  = new ACDLineManager(this);
-      mpAcdAgentManager = new ACDAgentManager(this, mPresenceMonitorPort, mPresenceServerUriString);
-      mpAcdQueueManager = new ACDQueueManager(this);
-      mpAcdAudioManager = new ACDAudioManager(this);
+      if (mpAcdCallManager->getAcdCallManagerHandle() != SIPX_INST_NULL)
+      {
+         mpAcdLineManager  = new ACDLineManager(this);
+         mpAcdAgentManager = new ACDAgentManager(this, mPresenceMonitorPort, mPresenceServerUriString);
+         mpAcdQueueManager = new ACDQueueManager(this);
+         mpAcdAudioManager = new ACDAudioManager(this);
 
-      // Initialize the server components
-      mpAcdAudioManager->initialize();
-      mpAcdQueueManager->initialize();
-      mpAcdAgentManager->initialize();
-      mpAcdLineManager->initialize();
-      mpAcdCallManager->initialize();
+         // Initialize the server components
+         mpAcdAudioManager->initialize();
+         mpAcdQueueManager->initialize();
+         mpAcdAgentManager->initialize();
+         mpAcdLineManager->initialize();
+         mpAcdCallManager->initialize();
 
-      // If the Administrative State == ACTIVE, start the server components
-      // The order of component startup is critical.  AgentManager must
-      // be started before QueueManager, and CallManager must be last.
-      if (mAdministrativeState == ACTIVE) {
-         mpAcdAudioManager->start();
-         mpAcdAgentManager->start();
-         mpAcdLineManager->start();
-         mpAcdQueueManager->start();
-         mpAcdCallManager->start();
+         // If the Administrative State == ACTIVE, start the server components
+         // The order of component startup is critical.  AgentManager must
+         // be started before QueueManager, and CallManager must be last.
+         if (mAdministrativeState == ACTIVE) {
+            mpAcdAudioManager->start();
+            mpAcdAgentManager->start();
+            mpAcdLineManager->start();
+            mpAcdQueueManager->start();
+            mpAcdCallManager->start();
 
 #ifdef CML   
-         // If a valid ACDRpcServer port has been defined, start it
-         if (mAcdRpcServerPort != -1) {
-            mpAcdRpcServer = new ACDRpcServer(mpAcdAgentManager, mAcdRpcServerPort);
-         }         
+            // If a valid ACDRpcServer port has been defined, start it
+            if (mAcdRpcServerPort != -1) {
+               mpAcdRpcServer = new ACDRpcServer(mpAcdAgentManager, mAcdRpcServerPort);
+            }         
 #endif
          
-         // Indicate that the server is fully operational
-         mServerStarted = true;
-      }
+            // Indicate that the server is fully operational
+            mServerStarted = true;
+         }
 
-      mOperationalState = mAdministrativeState;
+         mOperationalState = mAdministrativeState;
+      }
+      else
+      {
+         OsSysLog::add(FAC_ACD, PRI_NOTICE, "AcdCallManager failed to initialize sipXtapi, requesting shutdown");
+         gShutdownFlag = true;
+      }
    }
 }
 
@@ -582,7 +589,6 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
       mpAcdAgentManager = new ACDAgentManager(this, mPresenceMonitorPort, mPresenceServerUriString);
       mpAcdQueueManager = new ACDQueueManager(this);
       mpAcdAudioManager = new ACDAudioManager(this);
-
 
       // Initialize the server components
       mpAcdAudioManager->initialize();

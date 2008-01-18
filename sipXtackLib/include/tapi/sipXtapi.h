@@ -198,7 +198,7 @@ typedef enum SIPX_RESULT
     SIPX_RESULT_INVALID_ARGS,        /**< Invalid arguments; bad handle, argument out of range, 
                                           etc.*/
     SIPX_RESULT_BAD_ADDRESS,         /**< Invalid SIP address */
-    SIPX_RESULT_OUT_OF_RESOURCES,    /**< Out of resources (hit some max limit) */
+    SIPX_RESULT_OUT_OF_RESOURCES,    /**< Out of resources (hit some max limit or resource unavailble) */
     SIPX_RESULT_INSUFFICIENT_BUFFER, /**< Buffer too short for this operation */
     SIPX_RESULT_EVAL_TIMEOUT,        /**< The evaluation version of this product has expired */
     SIPX_RESULT_BUSY,                /**< The operation failed because the system was busy */
@@ -568,6 +568,9 @@ typedef void (*fnSpkrAudioHook)(const int nSamples, short* pSamples) ;
  *        or tlsPort, try sequential ports until a successful port is 
  *        found.  If enabled, sipXtapi will try 10 sequential port 
  *        numbers after the initial port.
+ *
+ * @return SIPX_RESULT_OUT_OF_RESOURCES if unable to bind to the 
+ *         requested port configuration, otherwise SIPX_RESULT_SUCCESS.
  */
 SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                                         const int udpPort = DEFAULT_UDP_PORT,

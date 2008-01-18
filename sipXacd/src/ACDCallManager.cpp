@@ -65,9 +65,11 @@ ACDCallManager::ACDCallManager(ACDServer* pAcdServer, const int udpPort,
 {
    SIPX_RESULT rc;
 
+   mAcdCallManagerHandle = SIPX_INST_NULL;
    mpAcdLineManager = NULL; 
    mpAcdServer = pAcdServer;
    mSipPort = udpPort;
+   mTotalCalls = 0;
 
    mpAcdAudioManager = mpAcdServer->getAcdAudioManager();
 
@@ -76,22 +78,22 @@ ACDCallManager::ACDCallManager(ACDServer* pAcdServer, const int udpPort,
    rc = sipxInitialize(&mAcdCallManagerHandle, udpPort, tcpPort, tlsPort, rtpPortStart,
                        maxConnections*10, pIdentity, pBindToAddr, useSequentialPorts);
 
-   // sipXtapi failed to initialize, log the error and then throw up!
+   // sipXtapi failed to initialize, log the error 
    if (rc != SIPX_RESULT_SUCCESS) {
       OsSysLog::add(FAC_ACD, PRI_CRIT, "ACDCallManager::ACDCallManager"
                     " sipxInitialize failed with error code: %d", rc);
       osPrintf("ACDCallManager::ACDCallManager - sipxInitialize failed with error code: %d\n", rc);
-      assert(0);
    }
-   UtlString agentName;
-   agentName.append("sipXacd (");
-   agentName.append(SipXacdVersion);
-   agentName.append(")");
+   else
+   {
+      UtlString agentName;
+      agentName.append("sipXacd (");
+      agentName.append(SipXacdVersion);
+      agentName.append(")");
 
-   rc = sipxConfigSetUserAgentName(mAcdCallManagerHandle,
-                                   agentName.data(), true /* include platform id */);
-
-   mTotalCalls = 0;
+      rc = sipxConfigSetUserAgentName(mAcdCallManagerHandle,
+                                      agentName.data(), true /* include platform id */);
+   }
 }
 
 
