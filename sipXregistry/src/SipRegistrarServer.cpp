@@ -1230,9 +1230,6 @@ SipRegistrarServer::isAuthorized(
 
         message.getCallIdField(&callId);
         fromNameAddr.getFieldParameter("tag", fromTag);
-        OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                      "SipRegistrarServer::isAuthorized fromTag = '%s'",
-                      fromTag.data());
 
         while ( ! isAuthorized
                && message.getDigestAuthorizationData(
