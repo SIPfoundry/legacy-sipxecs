@@ -28,8 +28,9 @@ SCRIPT_TEMPLATES = \
 
 EXTRA_DIST = \
 	sipxpbx.in \
-        voicemail_clean.in \
-        sipx-chkspace.in \
+   sipx-core-clean.in \
+   voicemail_clean.in \
+   sipx-chkspace.in \
 	$(bin_SCRIPTS) \
 	$(SCRIPT_TEMPLATES)
 
