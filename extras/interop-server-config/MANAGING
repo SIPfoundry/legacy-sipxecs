@@ -33,7 +33,7 @@ On the interop server, stop sipX and install the new PRMs:
 
 	sudo /sbin/service sipxpbx stop
 
-	sudo rpm --upgrade -p *.rpm
+	sudo rpm --upgrade -p ~/010020/*.rpm
 
 Note that rpm will attempt to install any RPMs that have the *same*
 version as the currently installed version, as well as any that are
