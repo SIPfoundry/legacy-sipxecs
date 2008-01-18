@@ -12,6 +12,7 @@
 
 #include "ResourceListFileReader.h"
 #include "ResourceListSet.h"
+#include "main.h"
 #include <os/OsSysLog.h>
 #include <xmlparser/tinystr.h>
 #include <xmlparser/ExtractContent.h>
@@ -86,9 +87,13 @@ OsStatus ResourceListFileReader::initialize()
          lists_node->Type() == TiXmlNode::ELEMENT)
       {
          // Find all the <list> elements.
+         // Since this loop contains a delay and can run for a long time,
+         // we have to check gShutdownFlag to abort processing when
+         // a shutdown has been requested.
          for (TiXmlNode* list_node = 0;
               (list_node = lists_node->IterateChildren("list",
-                                                       list_node));
+                                                       list_node)) &&
+                 !gShutdownFlag;
             )
          {
             if (list_node->Type() == TiXmlNode::ELEMENT)
@@ -120,9 +125,13 @@ OsStatus ResourceListFileReader::initialize()
 
                   // Find all the <resource> children and add them to the
                   // ResourceList.
+                  // Since this loop contains a delay and can run for a long time,
+                  // we have to check gShutdownFlag to abort processing when
+                  // a shutdown has been requested.
                   for (TiXmlNode* resource_node = 0;
                        (resource_node = list_element->IterateChildren("resource",
-                                                                      resource_node));
+                                                                      resource_node)) &&
+                          !gShutdownFlag;
                      )
                   {
                      if (resource_node->Type() == TiXmlNode::ELEMENT)

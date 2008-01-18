@@ -23,6 +23,7 @@
 #include <net/SipDialogEvent.h>
 #include <os/OsSysLog.h>
 #include "ResourceListServer.h"
+#include "main.h"
 
 // DEFINES
 
@@ -85,7 +86,6 @@ extern "C" {
 // GLOBAL VARIABLE INITIALIZATIONS
 
 UtlBoolean    gShutdownFlag = FALSE;
-
 
 
 /* ============================ FUNCTIONS ================================= */
@@ -408,6 +408,8 @@ int main(int argc, char* argv[])
    OsSysLog::add(LOG_FACILITY, PRI_INFO,
                  "Waiting %d sec. before starting operation.",
                  startupWait);
+   // If we get the shutdown signal during this delay, the signal will
+   // terminate the wait.
    OsTask::delay(startupWait * 1000);
 
    // Initialize the ResourceListServer.
