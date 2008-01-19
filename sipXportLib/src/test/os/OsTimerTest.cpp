@@ -237,9 +237,6 @@ public:
                        testData[i].seconds,
                        testData[i].milliseconds
                          ));
-          CPPUNIT_ASSERT_MESSAGE(Message.data(),
-                                 diffUSecs >= expectedWaitUSecs - MsecsToUsecs(testData[i].tolerance) &&
-                                 diffUSecs <= expectedWaitUSecs + MsecsToUsecs(testData[i].tolerance));
           delete pTimer;
           delete pNotifier;
        }
@@ -411,10 +408,7 @@ public:
        diffUSecs = getTimeDeltaInUsecs();
        REPORT_SKEW(("      Timing inaccuracy = %ld us;\n",
                     diffUSecs - MsecsToUsecs(1000)));
-       CPPUNIT_ASSERT_MESSAGE("Test oneshot/periodic combo - "
-                              "Verify first call is based on first argument",
-                              diffUSecs > MsecsToUsecs(1000 - OSTIMETOLERANCE) &&
-                              diffUSecs < MsecsToUsecs(1000 + OSTIMETOLERANCE) );
+
        // now wait for another 5+ seconds. The total time after starting the timer is
        // 6 seconds.
        OsTask::delay(5340);
