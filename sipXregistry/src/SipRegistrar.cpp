@@ -155,25 +155,32 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
 
 int SipRegistrar::run(void* pArg)
 {
-   startRpcServer();
-
-   /*
-    * If replication is configured,
-    *   the following blocks until the state of each peer is known
-    */
-   startupPhase(); 
- 
+   UtlBoolean bFatalError = false;
    int taskResult = 0;
    
-   if (!isShuttingDown())
+   startRpcServer(bFatalError);
+   if (!bFatalError)
    {
-      // Exit if the operational phase fails (e.g. SipUserAgent reports
-      // problems)
-      if (operationalPhase())
+      /*
+       * If replication is configured,
+       *   the following blocks until the state of each peer is known
+       */
+      startupPhase(); 
+       
+      if (!isShuttingDown())
       {
-         // from here on, everything happens in handleMessage
-         taskResult = OsServerTask::run(pArg);
+         // Exit if the operational phase fails (e.g. SipUserAgent reports
+         // problems)
+         if (operationalPhase())
+         {
+            // from here on, everything happens in handleMessage
+            taskResult = OsServerTask::run(pArg);
+         }
       }
+   }
+   else
+   {
+       OsSysLog::add(FAC_SIP, PRI_EMERG, "Unable to startup Rpc server (port in use?)\n");
    }
 
    return taskResult;
@@ -319,6 +326,12 @@ UtlBoolean SipRegistrar::operationalPhase()
    startRegistrarServer();
    startRedirectServer();
    startEventServer();
+
+   if (!mSipUserAgent->isOk())
+   {
+      OsSysLog::add(FAC_SIP, PRI_EMERG,
+            "SipUserAgent reported a problem while starting up (port in use?)");
+   }
 
    return mSipUserAgent->isOk() ;
 }
@@ -681,16 +694,22 @@ const UtlString& SipRegistrar::primaryName() const
 
 
 /// Server for XML-RPC requests
-void SipRegistrar::startRpcServer()
+void SipRegistrar::startRpcServer(UtlBoolean& bFatalError)
 {
+    bFatalError = false; // disable is not a fatal error
+   
    // Begins operation of the HTTP/RPC service
    // sets mHttpServer and mXmlRpcDispatcher
-
    if (mReplicationConfigured)
    {
       // Initialize mHttpServer and mXmlRpcDispatch
       mXmlRpcDispatch = new XmlRpcDispatch(mHttpPort, true /* use https */, mBindIp);
       mHttpServer = mXmlRpcDispatch->getHttpServer();
+      if (!mHttpServer->isSocketOk())
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR, "XmlRpc HttpServer failed to initialize listening socket");
+         bFatalError = true ;
+      }
    }
 }
 

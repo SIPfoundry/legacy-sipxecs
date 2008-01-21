@@ -80,7 +80,7 @@ public:
     /**< Messages are dispatched to either the SipRegistrarServer or SipRedirectServer thread */
 
     /// Server for XML-RPC requests
-    void startRpcServer();
+    void startRpcServer(UtlBoolean& bFatalError);
     /**<
      * Begins operation of the HTTP/RPC service
      * sets mHttpServer and mXmlRpcDispatch

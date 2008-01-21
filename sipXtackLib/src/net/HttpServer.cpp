@@ -215,6 +215,18 @@ OsStatus HttpServer::getStatus()
         return httpStatus;
 }
 
+UtlBoolean HttpServer::isSocketOk() const
+{
+    UtlBoolean bOk = FALSE;
+    
+    if (mpServerSocket)
+    {
+        bOk = mpServerSocket->isOk();
+    }
+        
+    return bOk;    
+}
+
 int HttpServer::run(void* runArg)
 {
     OsConnectionSocket* requestSocket = NULL;

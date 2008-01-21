@@ -139,6 +139,9 @@ public:
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
+        
+    /// Is the server socket used by this HttpServer ok?
+    UtlBoolean isSocketOk() const ;    
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
