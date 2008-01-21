@@ -1202,7 +1202,7 @@ void ACDQueue::overflowCall(ACDCall* pCallRef)
                        pCallRef->getCallHandle());
 
    // Determine how to handle the overflow condition
-   if ( (mOverflowQueue!= NULL) && (mMaxQueueDepth != 0) && mFifoOverflow && (pOverflowCall != NULL)) {
+   if ( (mOverflowQueue!= NULL || mOverflowEntry != NULL) && (mMaxQueueDepth != 0) && mFifoOverflow && (pOverflowCall != NULL)) {
 
       OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::overflowCall - ACDCall(%d) entering overflowCall routine in the overflow queue %s",pCallRef->getCallHandle(), mOverflowQueue.data() ? mOverflowQueue.data() : NULL);
 
