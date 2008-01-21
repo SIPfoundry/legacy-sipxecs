@@ -4399,7 +4399,7 @@ MailboxManager::getMWINotifyText (
        char messageSummary[200];
           sprintf(messageSummary, messageSummaryFormat, 
                   unheard ? "yes" : "no", // messages-waiting value
-                  unheard, total
+                  unheard, total-unheard
                   );
           rNotifyText = messageSummary;
     }
