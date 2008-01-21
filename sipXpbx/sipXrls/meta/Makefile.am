@@ -1,8 +1,7 @@
 include $(top_srcdir)/config/subdir.am
 
 schemas = \
-	resource-lists.xsd \
-	xml.xsd
+	resource-lists.xsd
 
 EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)
 

@@ -190,7 +190,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_datadir}/sipx/schema/watchdogprocess.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/processdefinitions.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/resource-lists.xsd
-%attr(755,root,root) %{_datadir}/sipx/schema/xml.xsd
 
 %attr(755,root,root) %{_bindir}/sipxpresence.sh
 %attr(755,root,root) %{_bindir}/sipxpresence
