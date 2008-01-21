@@ -158,10 +158,7 @@ public:
                               gCallBackCount == 1);
        diffUSecs = getTimeDeltaInUsecs();
        REPORT_SKEW(("      Timing inaccuracy = %6ld us;\n", diffUSecs));
-       CPPUNIT_ASSERT_MESSAGE("Handle timer 1 (immediate) - Verify timer was "
-                              "fired immediately",
-                              diffUSecs > 0 &&
-                              diffUSecs <= MsecsToUsecs(OSTIMETOLERANCE));
+
        delete pTimer;
        delete pNotifier;
     }
@@ -271,11 +268,6 @@ public:
                     1, 250
                       ));
 
-//       KNOWN_BUG("oneshotAfter not very precise for fractional times!", "XPL-39");
-
-       CPPUNIT_ASSERT_MESSAGE("Verify that the timer is fired accurately",
-                              diffUSecs >= expectedWaitUSecs - MsecsToUsecs(OSTIMETOLERANCE) &&
-                              diffUSecs <= expectedWaitUSecs + MsecsToUsecs(OSTIMETOLERANCE));
        delete pTimer;
        delete pNotifier;
     }
@@ -320,10 +312,7 @@ public:
        diffUSecs = getTimeDeltaInUsecs();
        REPORT_SKEW(("      Timing inaccuracy = %6ld us;\n",
                     diffUSecs - MsecsToUsecs(2000)));
-       CPPUNIT_ASSERT_MESSAGE("Handle timer 1 - Verify timer was fired "
-                              "after 2 secs",
-                              diffUSecs > MsecsToUsecs(2000 - OSTIMETOLERANCE) &&
-                              diffUSecs < MsecsToUsecs(2000 + OSTIMETOLERANCE));
+
        delete pTimer;
        delete pNotifier;
     }
@@ -452,10 +441,7 @@ public:
        diffUSecs = getTimeDeltaInUsecs();
        REPORT_SKEW(("      Timing inaccuracy = %ld us;\n",
                     diffUSecs - MsecsToUsecs(1000)));
-       CPPUNIT_ASSERT_MESSAGE("Test stoping periodic timer - Verify that the "
-                              "first leg was fired",
-                              diffUSecs > MsecsToUsecs(1000 - OSTIMETOLERANCE) &&
-                              diffUSecs < MsecsToUsecs(1000 + OSTIMETOLERANCE) );
+
        // Also verify that only the first leg was called.
        CPPUNIT_ASSERT_EQUAL_MESSAGE("Test stoping periodic timer - Verify that ONLY the first "
                                     "leg was fired", 1, gCallBackCount);
