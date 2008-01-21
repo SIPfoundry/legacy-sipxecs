@@ -1011,6 +1011,18 @@ ACDServer* ACDAgentManager::getAcdServer(void)
 }
 /* ============================ INQUIRY =================================== */
 
+UtlBoolean ACDAgentManager::isOk(void) const
+{
+   UtlBoolean bOk = false;
+
+   if (mpLinePresenceMonitor)
+   {
+     bOk = mpLinePresenceMonitor->isOk();
+   }
+
+   return bOk;
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

@@ -103,6 +103,10 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
+   /** Determine if the ACDAgentManager is health
+     */
+   UtlBoolean isOk() const;
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 

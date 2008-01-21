@@ -161,6 +161,12 @@ public:
    OsStatus unsubscribePresence(UtlSList& list, OsEvent* e = NULL);
 
 /* ============================ INQUIRY =================================== */
+   
+   /** Check the status of the monitor.  Returns true if the monitor is
+    *  initialized successfully or false if any problems are detected 
+    *  (e.g. SipUserAgent failed a port binding).
+    */
+   UtlBoolean isOk() const;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

@@ -345,6 +345,18 @@ void LinePresenceMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
    }
 }
 
+UtlBoolean LinePresenceMonitor::isOk() const
+{
+   UtlBoolean bOk = false;
+    
+   if (mpUserAgent)
+   {
+         bOk = mpUserAgent->isOk();
+   }
+   
+   return bOk ;    
+}
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

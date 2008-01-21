@@ -195,13 +195,21 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
          
             // Indicate that the server is fully operational
             mServerStarted = true;
+
+            if (!mpAcdAgentManager->isOk())
+            {
+               OsSysLog::add(FAC_ACD, PRI_EMERG,
+                     "AcdAgentManager failed to initialize, requesting shutdown");
+               gShutdownFlag = true;
+            }
          }
 
          mOperationalState = mAdministrativeState;
       }
       else
       {
-         OsSysLog::add(FAC_ACD, PRI_NOTICE, "AcdCallManager failed to initialize sipXtapi, requesting shutdown");
+         OsSysLog::add(FAC_ACD, PRI_EMERG,
+               "AcdCallManager failed to initialize sipXtapi, requesting shutdown");
          gShutdownFlag = true;
       }
    }
