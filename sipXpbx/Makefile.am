@@ -27,7 +27,6 @@ EXTRA_DIST = \
     config/sipX-config.in \
     config/svn-version \
     config/Doxyfile.in \
-    sipXrls \
     sipxpbx.spec 
 
 install-exec-hook :
