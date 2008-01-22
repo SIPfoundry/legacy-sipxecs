@@ -38,5 +38,21 @@ sipxrls_SOURCES =  \
 	SubscriptionSet.cpp
 
 noinst_HEADERS =
+	ContactSet.h \
+	ResourceCache.h \
+	ResourceCached.h \
+	ResourceInstance.h \
+	ResourceList.h \
+	ResourceListFileReader.h \
+	ResourceListMsg.h \
+	ResourceListServer.h \
+	ResourceListSet.h \
+	ResourceListTask.h \
+	ResourceNotifyReceiver.h \
+	ResourceReference.h \
+	ResourceSubscriptionReceiver.h \
+	RlsSubscribePolicy.h \
+	SubscriptionSet.h \
+	main.h
 
 install-exec-hook :
