@@ -592,6 +592,12 @@ int main(int argc, char* argv[])
     userAgent->setUserAgentHeaderProperty("sipX/park");
     userAgent->start();
 
+    if (!userAgent->isOk())
+    {
+       OsSysLog::add(LOG_FACILITY, PRI_EMERG, "SipUserAgent failed to initialize, requesting shutdown");
+       gShutdownFlag = TRUE;
+    }
+
     // Read the list of codecs from the configuration file.
     SdpCodecFactory codecFactory;
     initCodecs(&codecFactory, &configDb);
