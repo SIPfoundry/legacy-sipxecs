@@ -42,9 +42,7 @@ class CallManagerTest : public CppUnit::TestCase
 #ifdef BROKEN_UNITTEST
     CPPUNIT_TEST(testOnOffHook);
     CPPUNIT_TEST(testPickupCall);
-#endif
     CPPUNIT_TEST(testSimpleTeardown);
-#if 0
     CPPUNIT_TEST(testUATeardown);
     CPPUNIT_TEST(testLineMgrUATeardown);
     CPPUNIT_TEST(testRefreshMgrUATeardown);
