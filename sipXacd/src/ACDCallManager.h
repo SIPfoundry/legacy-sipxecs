@@ -11,6 +11,7 @@
 #define _ACDCallManager_h_
 
 // SYSTEM INCLUDES
+
 // APPLICATION INCLUDES
 #include <os/OsMutex.h>
 #include <tapi/sipXtapi.h>
