@@ -31,7 +31,6 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelPhone.PhonebookProfile;
-import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
@@ -159,9 +158,9 @@ public class LgNortelPhoneTest extends TestCase {
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
         supplyTestData(phone);
+
         // test E911 forwarding
-        phone.setSettingValue("DIAL/emergency_number", "911");
-        phone.setSettingValue("DIAL/emergency_address", "e911.example.org");
+        PhoneTestDriver.supplyVitalEmergencyData(phone);
 
         phone.getProfileTypes()[0].generate(phone, location);
         InputStream expectedProfile = getClass().getResourceAsStream("mac_e911.cfg");

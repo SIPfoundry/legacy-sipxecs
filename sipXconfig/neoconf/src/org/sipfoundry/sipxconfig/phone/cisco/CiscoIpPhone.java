@@ -153,6 +153,16 @@ public class CiscoIpPhone extends CiscoPhone {
         public String getNtpServer() {
             return m_defaults.getNtpServer();
         }
+        
+        @SettingEntry(path = "sip/proxy_emergency")
+        public String getEmergencyHost() {
+            return m_defaults.getEmergencyAddress();
+        }
+
+        @SettingEntry(path = "sip/proxy_emergency_port")
+        public Integer getEmergencyPort() {
+            return m_defaults.getEmergencyPort();
+        }
 
         private String time(int time) {
             return String.valueOf(time / 3600) + ZEROMIN;

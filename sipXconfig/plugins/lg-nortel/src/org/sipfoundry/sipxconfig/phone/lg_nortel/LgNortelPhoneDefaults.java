@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.phone.lg_nortel;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
@@ -225,6 +226,22 @@ public class LgNortelPhoneDefaults {
         return m_defaults.getVoiceMail();
     }
     
+    @SettingEntry(path = "DIAL/emergency_number")
+    public String getEmergencyNumber() {
+        return m_defaults.getEmergencyNumber();
+    }
+    
+    @SettingEntry(path = "DIAL/emergency_address")
+    public String getEmergencyAddress() {
+        String address = m_defaults.getEmergencyAddress();
+        Integer port = m_defaults.getEmergencyPort();
+        if (StringUtils.isNotBlank(address) && port != null) {
+            address = address + ':' + port;
+        }
+        
+        return address;
+    }
+
     /**
      * Adjusts week of month value for LG phones.
      * 
