@@ -192,7 +192,10 @@ ACDCall::destroyACDCall()
    if (mpCallIdentity == NULL) {
       return ;
    }
-                 
+   
+   // Abort any routing that may still be going on              
+   routeRequestAbortEvent() ;
+
    // For safety, we will try to delete all the timers associated with the call
    // before destructing itself
    stopAudioMessage();
@@ -224,11 +227,11 @@ ACDCall::destroyACDCall()
    free(mpCallIdentity);
    mpCallIdentity = NULL ;
 
-   // Clear the Agent Candidate List
+   // Clear the Agent Candidate List 
    UtlSListIterator agentListIterator(mAgentCandidateList);
-   UtlContainable* pEntry;
-   while ((pEntry = agentListIterator()) != NULL) {
-      mAgentCandidateList.remove(pEntry);
+   ACDAgent *pAgent;
+   while ((pAgent = dynamic_cast<ACDAgent*>(agentListIterator())) != NULL) {
+      mAgentCandidateList.remove(pAgent);
    }
 }
 

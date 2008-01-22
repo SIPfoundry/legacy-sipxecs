@@ -90,6 +90,7 @@ public:
    ACDServer* getAcdServer(void) {return mpAcdServer;};
 
 /* ============================ INQUIRY =================================== */
+   bool verifyACDCallExists(ACDCall *pCallRef);
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -102,6 +103,7 @@ private:
 
    void removeCallFromMaps(ACDCall *pCallRef);
    void removeCallFromMap(ACDCall *pCallRef, UtlHashMap *pMap, char *mapName);
+   bool verifyCallInMap(ACDCall *pCallRef, UtlHashMap *pMap, char *mapName);
 
    OsStatus updateCallState(SIPX_CALLSTATE_INFO* pCallInfo);
 
@@ -120,6 +122,7 @@ private:
    UtlHashMap        mAgentCallHandleMap;   // Handle Map for Call objects
    UtlHashMap        mTransferCallHandleMap; // Handle Map for Call objects
    UtlHashMap        mDeadCallHandleMap;    // Handle Map for Dead Call objects
+   UtlHashMap        mACDCallExistsMap;     // Map for ACDCall objects
    int               mTotalCalls;           // Total number of calls received by AD server
    
 /* ============================ INLINE METHODS ============================ */

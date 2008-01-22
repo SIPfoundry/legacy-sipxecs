@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+
 // APPLICATION INCLUDES
 #include <utl/UtlTokenizer.h>
 #include <utl/UtlSListIterator.h>
@@ -896,37 +897,52 @@ UtlBoolean ACDQueue::handleMessage(OsMsg& rMessage)
          case ACDQueueMsg::ADD_CALL:
             pMessage = (ACDQueueMsg*)&rMessage;
             pCallRef = pMessage->getCallReference();
-            // Add the call to this Queue
-            addCallMessage(pCallRef);
+            if (mpAcdCallManager->verifyACDCallExists(pCallRef))
+            {
+               // Add the call to this Queue
+               addCallMessage(pCallRef);
+            }
             break;
 
          case ACDQueueMsg::REMOVE_CALL:
             pMessage = (ACDQueueMsg*)&rMessage;
             pCallRef = pMessage->getCallReference();
-            // Remove the call from this Queue
-            removeCallMessage(pCallRef);
+            if (mpAcdCallManager->verifyACDCallExists(pCallRef))
+            {
+               // Remove the call from this Queue
+               removeCallMessage(pCallRef);
+            }
             break;
 
          case ACDQueueMsg::CALL_CONNECTED:
             pMessage = (ACDQueueMsg*)&rMessage;
             pCallRef = pMessage->getCallReference();
-            // Notify the queue that the ACDCall is now connected
-            callConnectedMessage(pCallRef);
+            if (mpAcdCallManager->verifyACDCallExists(pCallRef))
+            {
+               // Notify the queue that the ACDCall is now connected
+               callConnectedMessage(pCallRef);
+            }
             break;
 
          case ACDQueueMsg::UPDATE_ROUTE_STATE:
             pMessage = (ACDQueueMsg*)&rMessage;
             pCallRef = pMessage->getCallReference();
             state    = pMessage->getCallRouteState();
-            // Update the call staus for this call
-            updateRouteStateMessage(pCallRef, state);
+            if (mpAcdCallManager->verifyACDCallExists(pCallRef))
+            {
+               // Update the call staus for this call
+               updateRouteStateMessage(pCallRef, state);
+            }
             break;
 
          case ACDQueueMsg::MAX_WAIT_TIME:
             pMessage = (ACDQueueMsg*)&rMessage;
             pCallRef = pMessage->getCallReference();
-            // Notify the queue that the ACDCall has waited long enouth
-            queueMaxWaitTimeMessage(pCallRef);
+            if (mpAcdCallManager->verifyACDCallExists(pCallRef))
+            {
+               // Notify the queue that the ACDCall has waited long enouth
+               queueMaxWaitTimeMessage(pCallRef);
+            }
             break;
 
          case ACDQueueMsg::AGENT_AVAILABLE:

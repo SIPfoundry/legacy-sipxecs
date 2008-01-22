@@ -238,6 +238,25 @@ int ACDCallManager::getSipPort(void)
 }
 
 /* ============================ INQUIRY =================================== */
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  NAME:        ACDCallManager::verifyACDCallExists
+//
+//  SYNOPSIS:    check if the ACDCall reference is valid
+//
+//  DESCRIPTION: 
+//
+//  RETURNS:     None.
+//
+//  ERRORS:      None.
+//
+//  CAVEATS:     None.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+bool ACDCallManager::verifyACDCallExists(ACDCall *pCallRef)
+{
+   return verifyCallInMap(pCallRef, &mACDCallExistsMap, "mACDCallExistsMap") ;
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
@@ -438,20 +457,22 @@ OsStatus ACDCallManager::createACDCall(ACDLine* pLineRef, SIPX_CALL hCallHandle)
       
    // Create a matching ACDCall object.
    pCallRef = new ACDCall(this, pLineRef, hCallHandle);
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::createACDCall - Call(%d), Object(%p) added",
+                 hCallHandle, pCallRef);
+
+   // Note the new ACDCalls existance
+   mACDCallExistsMap.insertKeyAndValue(new UtlInt(0), pCallRef);
+
+   // Create a mapping between the sipXtapi call handle and the ACDCall
+   mCallHandleMap.insertKeyAndValue(new UtlInt(hCallHandle), pCallRef);
 
    // Attempt to add the call to the associated line
    if (pLineRef->addCall(pCallRef)) {
       // Start the associated thread
       pCallRef->start();
 
-      // Create a mapping between the sipXtapi call handle and the ACDCall instance.
-      mCallHandleMap.insertKeyAndValue(new UtlInt(hCallHandle), pCallRef);
-
       mTotalCalls++;
       
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::createACDCall - Call(%d), Object(%p) added",
-                    hCallHandle, pCallRef);
-
       OsSysLog::add(FAC_ACD, PRI_INFO, "ACDCallManager::createACDCall - Total number of calls received since the server started = %d",
                     mTotalCalls);
 
@@ -461,7 +482,7 @@ OsStatus ACDCallManager::createACDCall(ACDLine* pLineRef, SIPX_CALL hCallHandle)
    }
    else {
       // The line rejected the call
-      delete pCallRef;
+      destroyACDCall(pCallRef) ;
 
       OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallManager::createACDCall - Call(%d), Object(%p) rejected",
                     hCallHandle, pCallRef);
@@ -561,6 +582,8 @@ OsStatus ACDCallManager::updateCallState(SIPX_CALLSTATE_INFO* pCallInfo)
             OsSysLog::add(FAC_ACD, gACD_DEBUG, 
               "ACDCallManager::updateCallState - ignoring dead hCall=%d events",
                  hCallHandle);
+            // Kill the darn thing, just to make sure it goes away
+            sipxCallDestroy(hCallHandle) ; 
          } 
       }
       status = OS_SUCCESS ;
@@ -786,6 +809,51 @@ void ACDCallManager::removeCallFromMap(ACDCall *pCallRef,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//  NAME:        ACDCallManager::verifyCallInMap
+//
+//  SYNOPSIS:    check if the ACDCall reference is in the given HashMap
+//
+//  DESCRIPTION: 
+//
+//  RETURNS:     None.
+//
+//  ERRORS:      None.
+//
+//  CAVEATS:     None.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+bool ACDCallManager::verifyCallInMap(ACDCall *pCallRef, 
+   UtlHashMap *pMap, char *mapName)
+{
+   UtlHashMapIterator mapIterator(*pMap);
+   ACDCall* pACDCall = NULL;
+   UtlInt* pTemp = NULL;
+   bool found = false ;
+  
+   while ((pTemp = (UtlInt*)mapIterator()) != NULL) {
+      pACDCall = (ACDCall*)pMap->findValue(pTemp);
+      if(pACDCall == pCallRef ) {
+         found = true ;
+         break ;
+         }
+      }
+
+   if (found) {
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+         "ACDCallManager::verifyCallInMap(%s) - found ACDCall(%p)", 
+            mapName, pCallRef);
+   }
+   else {
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+         "ACDCallManager::verifyCallInMap(%s) - did not find ACDCall(%p)", 
+            mapName, pCallRef);
+   }
+   return found ;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //  NAME:        ACDCallManager::removeCallFromMaps
 //
 //  SYNOPSIS:    delete the ACDCall reference from all HashMaps
@@ -801,6 +869,9 @@ void ACDCallManager::removeCallFromMap(ACDCall *pCallRef,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void ACDCallManager::removeCallFromMaps(ACDCall *pCallRef)
 {
+   // The ACD call no longer exists
+   removeCallFromMap(pCallRef, &mACDCallExistsMap, "mACDCallExistsMap") ;
+
    // Remove the mapping between all sipXtapi call handles that use
    // the ACDCall instance.
    removeCallFromMap(pCallRef, &mCallHandleMap, "mCallHandleMap") ;
@@ -833,23 +904,27 @@ void ACDCallManager::destroyACDCall(ACDCall* pCallRef)
    SIPX_CALL hCallHandle = pCallRef->getCallHandle();
 
    mLock.acquire();
-
-   pCallRef->destroyACDCall() ;
-
-   // Signal the ACDCall's associated task to shutdown, and wait for it do go away.
-   // Should this be called with mLock held???
-   pCallRef->waitUntilShutDown(20000);
-
-
    // Ignore events to this call handle from now on.
    // Moves still active handles into the "Dead" map
    // so it won't cast to ACDCALL, as this pointer is invalid from this point
+   // Also ACDQueue will ignore (old) messages with this call ref
    removeCallFromMaps(pCallRef) ;
+
+   mLock.release();
+
+   // Signal the ACDCall's associated task to shutdown, 
+   // and wait for it do go away.
+   pCallRef->waitUntilShutDown(20000);
+
+
+   // ACDCall's queue is stopped, no one else should be
+   // using it.  Blow it all away
+   pCallRef->destroyACDCall() ;
 
    // Now delete it
    delete pCallRef ;
 
-   mLock.release();
+
    return;
 }
 

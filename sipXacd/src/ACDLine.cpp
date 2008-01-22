@@ -255,10 +255,10 @@ bool ACDLine::addCall(ACDCall* pCallRef)
       pACDRtRec->appendCallEvent(ACDRtRecord::ENTER_QUEUE, *(pDestinationQueue->getUriString()), pCallRef);
    }
 
-   pDestinationQueue->addCall(pCallRef);
-
    OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLine::addCall - Call(%d) sent to ACDQueue: %s",
                  pCallRef->getCallHandle(), pDestinationQueue->getUriString()->data());
+
+   pDestinationQueue->addCall(pCallRef);
 
    return true;
 }
