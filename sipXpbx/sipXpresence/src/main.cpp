@@ -346,6 +346,12 @@ int main(int argc, char* argv[])
          NULL, NULL, bindIp );
    userAgent->start();
 
+   if (!userAgent->isOk())
+   {
+      OsSysLog::add(LOG_FACILITY, PRI_EMERG, "SipUserAgent failed to initialize; requesting shutdown");
+      gShutdownFlag = TRUE;
+   }
+
    UtlString domainName;
    configDb.get(CONFIG_SETTING_DOMAIN_NAME, domainName);
 
