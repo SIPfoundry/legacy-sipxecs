@@ -400,17 +400,17 @@
         dialplan.6.routing.server.1.port="8060"
       />
       <emergency
-        dialplan.1.routing.emergency.1.value=""
+        dialplan.1.routing.emergency.1.value="sos"
         dialplan.1.routing.emergency.1.server.1="1"
-        dialplan.2.routing.emergency.1.value=""
+        dialplan.2.routing.emergency.1.value="sos"
         dialplan.2.routing.emergency.1.server.1="1"
-        dialplan.3.routing.emergency.1.value=""
+        dialplan.3.routing.emergency.1.value="sos"
         dialplan.3.routing.emergency.1.server.1="1"
-        dialplan.4.routing.emergency.1.value=""
+        dialplan.4.routing.emergency.1.value="sos"
         dialplan.4.routing.emergency.1.server.1="1"
-        dialplan.5.routing.emergency.1.value=""
+        dialplan.5.routing.emergency.1.value="sos"
         dialplan.5.routing.emergency.1.server.1="1"
-        dialplan.6.routing.emergency.1.value=""
+        dialplan.6.routing.emergency.1.value="sos"
         dialplan.6.routing.emergency.1.server.1="1"
       />
     </routing>

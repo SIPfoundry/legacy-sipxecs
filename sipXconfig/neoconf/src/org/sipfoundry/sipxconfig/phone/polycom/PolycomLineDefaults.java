@@ -98,6 +98,11 @@ public class PolycomLineDefaults {
         return null;
     }
     
+    @SettingEntry(path = "line-dialplan/digitmap/routing.1/emergency.1.value")
+    public String getEmergencyNumber() {
+        return m_defaults.getEmergencyNumber();
+    }
+
     @SettingEntry(path = "line-dialplan/digitmap/routing.1/address")
     public String getEmergencyRoute() {
         return m_defaults.getEmergencyAddress();
