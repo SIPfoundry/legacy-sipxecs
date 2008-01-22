@@ -68,8 +68,10 @@ public class PhoneConfigurationTest extends XMLTestCase {
      */
     public void testGenerateProfileVersion20() throws Exception {
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
+        PhoneTestDriver.supplyVitalEmergencyData(phone);
         m_pg.generate(m_location, cfg, null, "profile");
 
+        
         InputStream expectedPhoneStream = getClass().getResourceAsStream(
                 "expected-phone-2.1.2.cfg.xml");
         assertEquals(IOUtils.toString(expectedPhoneStream), m_location.toString());

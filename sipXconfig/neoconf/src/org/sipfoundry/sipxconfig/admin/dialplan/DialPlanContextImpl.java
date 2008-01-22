@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -32,6 +33,7 @@ import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.EntitySaveListener;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -465,10 +467,42 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         }
     }
 
+    /**
+     * There can be multiple internal dialing rules and therefore multiple voicemail extensions,
+     * but pick the most likely one.
+     */
     public String getVoiceMail() {
-        return getDialPlan().getLikelyVoiceMailValue();
-    }
+        DialingRule[] rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(), InternalRule.class);
+        if (rules.length == 0) {
+            return InternalRule.DEFAULT_VOICEMAIL;
+        }
 
+        // return first, it's the most likely
+        String voicemail = ((InternalRule) rules[0]).getVoiceMail();
+        return voicemail;
+    }
+    
+    /**
+     * Get first emergency rule that has a gateway w/o a route. This is the best guess
+     * at a default emergency address. see {@link http://track.sipfoundry.org/browse/XCF-1883}
+     */
+    public EmergencyInfo getLikelyEmergencyInfo() {
+        EmergencyRule[] rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(), EmergencyRule.class);
+        for (EmergencyRule rule : rules) {
+            for (Gateway candidate : rule.getGateways()) {                
+                // by default phones cannot support sending to emergency host through
+                // a gateway that has a route in between.
+                // see http://list.sipfoundry.org/archive/sipx-dev/msg09644.html
+                if (StringUtils.isBlank(candidate.getRoute())) {
+                    return new EmergencyInfo(candidate.getAddress(), candidate.getAddressPort(), 
+                            rule.getEmergencyNumber());
+                }
+            }            
+        }
+
+        return null;        
+    }
+    
     public void removeGateways(Collection<Integer> gatewayIds) {
         List<DialingRule> rules = getRules();
         for (DialingRule rule : rules) {

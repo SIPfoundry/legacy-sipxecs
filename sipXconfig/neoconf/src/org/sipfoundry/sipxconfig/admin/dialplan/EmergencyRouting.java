@@ -21,7 +21,8 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
- * EmergencyRouting
+ * EmergencyRouting - Only used in special cases, calls are directed immediately to
+ * gateway for phones that cannot call directly. 
  */
 public class EmergencyRouting extends BeanWithId {
     private Gateway m_defaultGateway;

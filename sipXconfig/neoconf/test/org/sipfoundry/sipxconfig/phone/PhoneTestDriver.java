@@ -19,6 +19,8 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxServerTest;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyInfo;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
@@ -115,6 +117,19 @@ public class PhoneTestDriver {
         defaults.setServiceManager(serviceManager);
 
         return defaults;
+    }
+    
+    public static void supplyVitalEmergencyData(Phone phone) {
+        DeviceDefaults defaults = phone.getPhoneContext().getPhoneDefaults();        
+        IMocksControl dpControl = EasyMock.createNiceControl();
+        DialPlanContext dpContext = dpControl.createMock(DialPlanContext.class);
+        dpContext.getLikelyEmergencyInfo();
+        EmergencyInfo emergency = new EmergencyInfo("emergency.example.org", 8060, "sos") {};
+        dpControl.andReturn(emergency).anyTimes();
+        dpContext.getVoiceMail();
+        dpControl.andReturn("101").anyTimes();
+        dpControl.replay();
+        defaults.setDialPlanContext(dpContext);
     }
 
     private static Map<ServiceDescriptor, String> SERVICES;

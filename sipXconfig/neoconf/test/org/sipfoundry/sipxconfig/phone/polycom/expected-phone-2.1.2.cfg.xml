@@ -386,18 +386,18 @@
     />
     <routing>
       <server
-        dialplan.1.routing.server.1.address=""
-        dialplan.1.routing.server.1.port=""
-        dialplan.2.routing.server.1.address=""
-        dialplan.2.routing.server.1.port=""
-        dialplan.3.routing.server.1.address=""
-        dialplan.3.routing.server.1.port=""
-        dialplan.4.routing.server.1.address=""
-        dialplan.4.routing.server.1.port=""
-        dialplan.5.routing.server.1.address=""
-        dialplan.5.routing.server.1.port=""
-        dialplan.6.routing.server.1.address=""
-        dialplan.6.routing.server.1.port=""
+        dialplan.1.routing.server.1.address="emergency.example.org"
+        dialplan.1.routing.server.1.port="8060"
+        dialplan.2.routing.server.1.address="emergency.example.org"
+        dialplan.2.routing.server.1.port="8060"
+        dialplan.3.routing.server.1.address="emergency.example.org"
+        dialplan.3.routing.server.1.port="8060"
+        dialplan.4.routing.server.1.address="emergency.example.org"
+        dialplan.4.routing.server.1.port="8060"
+        dialplan.5.routing.server.1.address="emergency.example.org"
+        dialplan.5.routing.server.1.port="8060"
+        dialplan.6.routing.server.1.address="emergency.example.org"
+        dialplan.6.routing.server.1.port="8060"
       />
       <emergency
         dialplan.1.routing.emergency.1.value=""

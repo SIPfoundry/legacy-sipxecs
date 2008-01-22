@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -100,29 +101,15 @@ public class DialPlan extends BeanWithId {
             ar.setAfterHoursAttendant(sa);
         }
     }
-
-    /**
-     * There can be multiple internal dialing rules and therefore multiple voicemail extensions,
-     * but pick the most likely one.
-     */
-    public String getLikelyVoiceMailValue() {
-        DialingRule[] rules = getDialingRuleByType(m_rules, InternalRule.class);
-        if (rules.length == 0) {
-            return InternalRule.DEFAULT_VOICEMAIL;
-        }
-
-        // return first, it's the most likely
-        String voicemail = ((InternalRule) rules[0]).getVoiceMail();
-        return voicemail;
-    }
-
-    static DialingRule[] getDialingRuleByType(List<DialingRule> rulesCandidates, Class c) {
+    
+    static <T extends DialingRule> T[] getDialingRuleByType(List<DialingRule> rulesCandidates, Class c) {
         List<DialingRule> rules = new ArrayList<DialingRule>();
         for (DialingRule rule : rulesCandidates) {
             if (rule.getClass().isAssignableFrom(c)) {
                 rules.add(rule);
             }
         }
-        return rules.toArray(new DialingRule[rules.size()]);
+        
+        return (T[]) rules.toArray((T[]) Array.newInstance(c, rules.size()));
     }
 }

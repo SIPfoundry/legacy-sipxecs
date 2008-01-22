@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import junit.framework.TestCase;
@@ -17,6 +18,7 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGeneratorTest;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -58,6 +60,57 @@ public class DialPlanContextImplTest extends TestCase {
         MockDialPlanContextImpl manager = new MockDialPlanContextImpl(plan);
         manager.moveRules(Collections.singletonList(new Integer(5)), 3);
         mock.verify();
+    }
+
+    public void testLikelyVoiceMail() {
+        DialPlan plan = new DialPlan();
+        DialPlanContextImpl manager = new MockDialPlanContextImpl(plan);
+        assertEquals("101", manager.getVoiceMail());
+
+        DialingRule[] rules = new DialingRule[] {
+            new CustomDialingRule()
+        };
+        plan.setRules(Arrays.asList(rules));
+        assertEquals("101", manager.getVoiceMail());
+
+        InternalRule irule = new InternalRule();
+        irule.setVoiceMail("2000");
+        rules = new DialingRule[] {
+            new CustomDialingRule(), irule
+        };
+        plan.setRules(Arrays.asList(rules));
+        assertEquals("2000", manager.getVoiceMail());
+    }
+
+    public void testLikelyEmergencyGateway() {
+        DialPlan plan = new DialPlan();
+        DialPlanContextImpl manager = new MockDialPlanContextImpl(plan);
+        assertNull(manager.getLikelyEmergencyInfo());
+
+        EmergencyRule emergency = new EmergencyRule();
+        DialingRule[] rules = new DialingRule[] {
+                emergency
+        };
+        emergency.setEmergencyNumber("sos");
+        plan.setRules(Arrays.asList(rules));        
+        assertNull(manager.getLikelyEmergencyInfo());
+
+        Gateway gateway = new Gateway();
+        gateway.setAddress("pstn.example.org");
+        gateway.setAddressPort(9050);        
+        emergency.setGateways(Collections.singletonList(gateway));
+        EmergencyInfo info = manager.getLikelyEmergencyInfo();         
+        assertEquals("pstn.example.org", info.getAddress());
+        assertEquals((Integer) 9050, info.getPort());
+        assertEquals("sos", info.getNumber());
+        
+        Gateway gatewayWithSbc = new Gateway() {
+            public String getRoute() {
+                return "sbc.example.org";
+            }
+        };
+        rules[0].setGateways(Collections.singletonList(gatewayWithSbc));
+        assertNull(manager.getLikelyEmergencyInfo());                
     }
 
     private static class MockDialPlanContextImpl extends DialPlanContextImpl {

@@ -97,4 +97,14 @@ public class PolycomLineDefaults {
         }
         return null;
     }
+    
+    @SettingEntry(path = "line-dialplan/digitmap/routing.1/address")
+    public String getEmergencyRoute() {
+        return m_defaults.getEmergencyAddress();
+    }
+
+    @SettingEntry(path = "line-dialplan/digitmap/routing.1/port")
+    public Integer getEmergencyPort() {
+        return m_defaults.getEmergencyPort();
+    }
 }

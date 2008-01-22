@@ -14,6 +14,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyInfo;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.ConfiguredService;
@@ -164,6 +165,29 @@ public class DeviceDefaults {
         }
 
         return m_dialPlanContext.getVoiceMail();
+    }
+    
+    private EmergencyInfo getLikelyEmergencyInfo() {
+        if (m_dialPlanContext == null) {
+            return null;
+        }        
+        
+        return m_dialPlanContext.getLikelyEmergencyInfo();        
+    }
+    
+    public String getEmergencyAddress() {
+        EmergencyInfo info = getLikelyEmergencyInfo();
+        return info == null ? null : info.getAddress();
+    }
+    
+    public Integer getEmergencyPort() {
+        EmergencyInfo info = getLikelyEmergencyInfo();
+        return info == null ? null : info.getPort();
+    }
+
+    public String getEmergencyNumber() {
+        EmergencyInfo info = getLikelyEmergencyInfo();
+        return info == null ? null : info.getNumber();
     }
 
     static boolean defaultSipPort(String port) {

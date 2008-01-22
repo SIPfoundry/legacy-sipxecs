@@ -32,7 +32,7 @@ public class DialPlanTest extends TestCase {
             new CustomDialingRule()
         };
 
-        DialingRule[] actual = DialPlan.getDialingRuleByType(Arrays.asList(candidates),
+        CustomDialingRule[] actual = DialPlan.getDialingRuleByType(Arrays.asList(candidates),
                 CustomDialingRule.class);
         assertEquals(2, actual.length);
         assertSame(candidates[1], actual[0]);
@@ -64,25 +64,6 @@ public class DialPlanTest extends TestCase {
         assertEquals(1, a.getPosition());
         assertEquals(2, b.getPosition());
         assertEquals(3, d.getPosition());        
-    }
-
-    public void testLikelyVoiceMail() {
-        DialPlan plan = new DialPlan();
-        assertEquals("101", plan.getLikelyVoiceMailValue());
-
-        DialingRule[] rules = new DialingRule[] {
-            new CustomDialingRule()
-        };
-        plan.setRules(Arrays.asList(rules));
-        assertEquals("101", plan.getLikelyVoiceMailValue());
-
-        InternalRule irule = new InternalRule();
-        irule.setVoiceMail("2000");
-        rules = new DialingRule[] {
-            new CustomDialingRule(), irule
-        };
-        plan.setRules(Arrays.asList(rules));
-        assertEquals("2000", plan.getLikelyVoiceMailValue());
     }
 
     public void testGetAttendantRules() {

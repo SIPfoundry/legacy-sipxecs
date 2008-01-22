@@ -97,6 +97,8 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public String getVoiceMail();
 
+    public EmergencyInfo getLikelyEmergencyInfo();
+
     public abstract void applyEmergencyRouting();
 
     public abstract void storeEmergencyRouting(EmergencyRouting emergencyRouting);

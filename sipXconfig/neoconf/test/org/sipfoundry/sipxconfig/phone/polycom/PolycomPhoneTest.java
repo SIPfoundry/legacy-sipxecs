@@ -74,7 +74,7 @@ public class PolycomPhoneTest extends TestCase {
     }
 
     /**
-     * Tets that the Polycom profiles are successfully generated, but that the
+     * Test that the Polycom profiles are successfully generated, but that the
      * phonebook is not generated when phonebook management is disabled.
      */
     public void testGenerateProfilesWithoutPhonebook() throws Exception {
