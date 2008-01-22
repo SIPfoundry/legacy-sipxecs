@@ -37,7 +37,7 @@ sipxrls_SOURCES =  \
 	RlsSubscribePolicy.cpp \
 	SubscriptionSet.cpp
 
-noinst_HEADERS =
+noinst_HEADERS = \
 	ContactSet.h \
 	ResourceCache.h \
 	ResourceCached.h \
