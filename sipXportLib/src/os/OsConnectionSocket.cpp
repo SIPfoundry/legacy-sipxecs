@@ -179,6 +179,14 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       goto EXIT;
    }
 
+   // connect() on a blocking socket will block forever; there is no
+   // way to specify a timeout.  So if we need to block, but not forever,
+   // we must make the socket non-blocking and then do a poll() to
+   // block properly.
+   // For a non-blocking connect, of course we need to make the socket
+   // non-blocking.
+   // But for a connect that is to block forever, we leave the socket
+   // in blocking mode.
    if(   !blockingConnect
       || (blockingConnect && timeoutInMilliseconds > 0) 
       )
@@ -232,9 +240,16 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       
    int connectReturn;
 #  if defined(_WIN32) || defined(__pingtel_on_posix__)
+   // If we should block forever, this connect() will do so.
+   // For all other cases, connect() is non-blocking and will likely
+   // return EINPROGRESS.
    connectReturn = connect(socketDescriptor,
                            (const struct sockaddr*) &serverSockAddr,
                            sizeof(serverSockAddr));
+   // If connect() returned success, then return success to our caller.
+   // If we got an error and connect() was blocking, pass that to our caller.
+   // Errors (including EINPROGRESS) from a non-blocking connect() require
+   // further analysis.
    if(   connectReturn != 0
       && (   !blockingConnect
           || (blockingConnect && timeoutInMilliseconds > 0)
@@ -242,7 +257,10 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       )
    {
       error = OsSocketGetERRNO();
-      if ( EINPROGRESS == error )
+      // EINPROGRESS is special, it just means that connect() was non-blocking.
+      // If the connect is to block, but for a limited time, we must
+      // do a poll() to block for the right amount of time.
+      if ( EINPROGRESS == error && timeoutInMilliseconds > 0 )
       {
          OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ poll %d timeout %d msec",
                        socketDescriptor, timeoutInMilliseconds);
@@ -286,7 +304,19 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
             error = OsSocketGetERRNO();
          }
       }
+      else if ( EINPROGRESS == error )
+      {
+         // If control reaches here, the connect request is non-blocking.
+         // EINPROGRESS is not an error, and we should return success
+         // to our caller.
+         error = 0;
+      }
+      else
+      {
+         // Errors other than EINPROGRESS should be returned to our caller.
+      }
 
+      // In any case, all further socket operations should be blocking.
       makeBlocking();
       OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                     "OsConnectionSocket::_ after poll(), error = %d",
