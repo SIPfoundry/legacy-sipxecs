@@ -86,7 +86,7 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    mHttpPort = mConfigDb->getPort("SIP_REGISTRAR_XMLRPC_PORT");
    if (PORT_NONE == mHttpPort)
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
+      OsSysLog::add(FAC_SIP, PRI_NOTICE,
                     "SipRegistrar::SipRegistrar"
                     " SIP_REGISTRAR_XMLRPC_PORT == PORT_NONE :"
                     " peer synchronization disabled"
@@ -675,6 +675,12 @@ void SipRegistrar::configurePeers()
                           );
             mReplicationConfigured = true;
          }
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_NOTICE, "SipRegistrar::configurePeers "
+                       "SIP_REGISTRAR_SYNC_WITH not set - replication disabled"
+                       );
       }
    }
    else
