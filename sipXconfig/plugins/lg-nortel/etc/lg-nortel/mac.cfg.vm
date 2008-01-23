@@ -37,7 +37,7 @@ line${line_id}_${setting.ProfileName} $!{setting.Value}
 #set($dial = $phone.Settings.getSetting('DIAL'))
 #if($dial.getSetting('emergency_number').Value)
 [ROUTE]
-add sip 0 $!dial.getSetting('emergency_number').Value 0 null null null $!dial.getSetting('emergency_address').Value
+add sip $!dial.getSetting('emergency_address_port').Value $!dial.getSetting('emergency_number').Value 0 null null null $!dial.getSetting('emergency_address').Value
 
 #end
 #emit_groups_by_name(['DSP', 'FWRD', 'DIAL', 'CALL', 'SNMP', 'SYSTEM'])

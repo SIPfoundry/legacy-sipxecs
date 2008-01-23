@@ -412,6 +412,11 @@
     <setting name='emergency_address'>
       <profileName>$ignore$</profileName>
     </setting>
+    <setting name='emergency_address_port'>
+      <profileName>$ignore$</profileName>
+      <type refid="restricted-port-number" />
+      <value>0</value>
+    </setting>
   </group>
   <!-- 
     <group name='PROG' hidden="yes">

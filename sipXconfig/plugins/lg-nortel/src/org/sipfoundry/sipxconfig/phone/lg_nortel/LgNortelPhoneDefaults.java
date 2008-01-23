@@ -233,13 +233,12 @@ public class LgNortelPhoneDefaults {
     
     @SettingEntry(path = "DIAL/emergency_address")
     public String getEmergencyAddress() {
-        String address = m_defaults.getEmergencyAddress();
-        Integer port = m_defaults.getEmergencyPort();
-        if (StringUtils.isNotBlank(address) && port != null) {
-            address = address + ':' + port;
-        }
-        
-        return address;
+        return m_defaults.getEmergencyAddress();
+    }
+
+    @SettingEntry(path = "DIAL/emergency_address_port")
+    public Integer getEmergencyAddressPort() {
+        return m_defaults.getEmergencyPort();
     }
 
     /**
