@@ -27,8 +27,7 @@ libsipXconferenceEngine_la_LIBADD = \
 	../../interface/libmediainterface.la \
 	@SIPXPORT_LIBS@ \
 	@SSL_LIBS@ \
-	@GIPS_VE_OBJS@ \
-	-lresolv
+	@GIPS_VE_OBJS@
 
 libsipXconferenceEngine_la_SOURCES =  \
     ConferenceEngineDatagramSocket.cpp \

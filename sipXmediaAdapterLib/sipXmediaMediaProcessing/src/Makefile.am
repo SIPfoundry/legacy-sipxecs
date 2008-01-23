@@ -26,8 +26,7 @@ libsipXmediaProcessing_la_CXXFLAGS = \
 libsipXmediaProcessing_la_LIBADD = \
 	../../interface/libmediainterface.la \
 	@SIPXPORT_LIBS@ \
-	@SSL_LIBS@ \
-	-lresolv
+	@SSL_LIBS@
 	
 libsipXmediaProcessing_la_SOURCES =  \
     sipXmediaFactoryImpl.cpp \

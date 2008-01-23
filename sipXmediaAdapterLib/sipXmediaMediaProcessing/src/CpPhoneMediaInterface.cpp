@@ -29,7 +29,6 @@
 
 #if defined(_VXWORKS)
 #   include <socket.h>
-#   include <resolvLib.h>
 #   include <netinet/ip.h>
 #elif defined(__pingtel_on_posix__)
 #   include <netinet/in.h>

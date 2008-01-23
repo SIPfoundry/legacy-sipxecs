@@ -25,7 +25,7 @@ CHECK_XARGS_REPLACE
 
 # Checks for libraries.
 CHECK_LIBRT
-AC_SEARCH_LIBS([res_init], [resolv])
+###AC_SEARCH_LIBS([res_init], [resolv])
 
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
