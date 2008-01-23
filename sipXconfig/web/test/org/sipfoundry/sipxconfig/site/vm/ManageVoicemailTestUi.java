@@ -42,6 +42,13 @@ public class ManageVoicemailTestUi extends WebTestCase {
         clickLink("ManageVoicemail");                      
     }
     
+    public void testNoPermissionNotice() {
+        SiteTestHelper.home(getTester());
+        clickLink("DisableVoicemailPermission");
+        clickLink("ManageVoicemail");
+        assertElementPresent("noVoicemailPermission");
+    }
+    
     public void testDisplay() throws Exception {
         gotoManageVoicemail();
         SiteTestHelper.assertNoException(tester);        

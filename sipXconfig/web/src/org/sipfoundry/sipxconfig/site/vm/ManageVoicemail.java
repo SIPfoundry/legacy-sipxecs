@@ -42,6 +42,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
@@ -91,6 +92,10 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     
     public abstract MailboxOperation getMailboxOperation();
     public abstract void setMailboxOperation(MailboxOperation operation);
+    
+    public boolean getHasVoicemailPermission() {
+        return getUser().hasPermission(PermissionName.VOICEMAIL);
+    }
     
     public Object getRowClass() {
         return new HeardEvenOdd(this);

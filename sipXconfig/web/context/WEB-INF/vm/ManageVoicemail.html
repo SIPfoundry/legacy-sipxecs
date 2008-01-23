@@ -1,4 +1,7 @@
 <div jwcid="@Border" restricted="false">
+  <span jwcid="@If" condition="ognl:!hasVoicemailPermission">
+    <span class="user-warning" id="noVoicemailPermission" key="warning.noVoicemailPermissionNotice"/>            
+  </span>
   <h1>
     <span key="title.manageVoicemail"/> -
     <span jwcid="@Insert" value="prop:folderLabel"/> </h1>

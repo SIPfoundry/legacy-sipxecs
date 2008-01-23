@@ -42,6 +42,7 @@ import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -429,6 +430,14 @@ public abstract class TestPage extends BasePage {
         ReplicationData page = (ReplicationData) cycle.getPage(ReplicationData.PAGE);
         page.setDataSetName(setName);
         return page;
+    }
+    
+    public void loginUserWithDisabledVoicemailPermission() {
+        // reload from db, ensures spring has injected permission manager
+        User user = getCoreContext().loadUser(createTestUserIfMissing().getId());
+        user.setPermission(PermissionName.VOICEMAIL, false);
+        getCoreContext().saveUser(user);
+        getUserSession().login(user.getId(), true, true);
     }
 
     public void disableVoicemail() {
