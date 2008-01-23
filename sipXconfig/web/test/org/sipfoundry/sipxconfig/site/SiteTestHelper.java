@@ -56,8 +56,14 @@ public class SiteTestHelper {
     public static final String ROW_CHECKBOX = "checkbox";
 
     private static String s_buildDir;
+    
+    private static final String BASE_URL_RUNNING_WHEN_RUNNING_FROM_ANT = "http://localhost:9999/sipxconfig";
 
-    private static String s_baseUrl;
+    /**
+     * Very convenient when running test site from and ("ant run") and testing
+     * individual web tests from eclipse, not whole test suite.
+     */
+    private static String s_baseUrl = BASE_URL_RUNNING_WHEN_RUNNING_FROM_ANT;
 
     private static String s_artificialSystemRoot;
 
