@@ -461,7 +461,7 @@ OsStatus ACDCallManager::createACDCall(ACDLine* pLineRef, SIPX_CALL hCallHandle)
                  hCallHandle, pCallRef);
 
    // Note the new ACDCalls existance
-   mACDCallExistsMap.insertKeyAndValue(new UtlInt(0), pCallRef);
+   mACDCallExistsMap.insertKeyAndValue(new UtlInt(hCallHandle), pCallRef);
 
    // Create a mapping between the sipXtapi call handle and the ACDCall
    mCallHandleMap.insertKeyAndValue(new UtlInt(hCallHandle), pCallRef);
@@ -783,6 +783,8 @@ void ACDCallManager::updateTransferCallState(SIPX_CALLSTATE_INFO* pCallInfo)
 void ACDCallManager::removeCallFromMap(ACDCall *pCallRef, 
    UtlHashMap *pMap, char *mapName)
 {
+   mLock.acquire();
+
    UtlHashMapIterator mapIterator(*pMap);
    ACDCall* pACDCall = NULL;
    UtlInt* pTemp = NULL;
@@ -805,6 +807,7 @@ void ACDCallManager::removeCallFromMap(ACDCall *pCallRef,
          }
       }
    }
+   mLock.release();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -825,6 +828,8 @@ void ACDCallManager::removeCallFromMap(ACDCall *pCallRef,
 bool ACDCallManager::verifyCallInMap(ACDCall *pCallRef, 
    UtlHashMap *pMap, char *mapName)
 {
+   mLock.acquire();
+
    UtlHashMapIterator mapIterator(*pMap);
    ACDCall* pACDCall = NULL;
    UtlInt* pTemp = NULL;
@@ -848,6 +853,8 @@ bool ACDCallManager::verifyCallInMap(ACDCall *pCallRef,
          "ACDCallManager::verifyCallInMap(%s) - did not find ACDCall(%p)", 
             mapName, pCallRef);
    }
+   mLock.release();
+
    return found ;
 }
 
@@ -869,6 +876,8 @@ bool ACDCallManager::verifyCallInMap(ACDCall *pCallRef,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void ACDCallManager::removeCallFromMaps(ACDCall *pCallRef)
 {
+   mLock.acquire();
+
    // The ACD call no longer exists
    removeCallFromMap(pCallRef, &mACDCallExistsMap, "mACDCallExistsMap") ;
 
@@ -880,6 +889,7 @@ void ACDCallManager::removeCallFromMaps(ACDCall *pCallRef)
 
    // But not the mDeadCallHandleMap, keep that
 //   removeCallFromMap(pCallRef, &mDeadCallHandleMap, "mDeadCallHandleMap") ;
+   mLock.release();
 
 }
 
@@ -903,14 +913,11 @@ void ACDCallManager::destroyACDCall(ACDCall* pCallRef)
 {
    SIPX_CALL hCallHandle = pCallRef->getCallHandle();
 
-   mLock.acquire();
    // Ignore events to this call handle from now on.
    // Moves still active handles into the "Dead" map
    // so it won't cast to ACDCALL, as this pointer is invalid from this point
    // Also ACDQueue will ignore (old) messages with this call ref
    removeCallFromMaps(pCallRef) ;
-
-   mLock.release();
 
    // Signal the ACDCall's associated task to shutdown, 
    // and wait for it do go away.
