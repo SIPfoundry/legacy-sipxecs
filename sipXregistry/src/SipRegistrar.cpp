@@ -709,7 +709,9 @@ void SipRegistrar::startRpcServer(UtlBoolean& bFatalError)
    if (mReplicationConfigured)
    {
       // Initialize mHttpServer and mXmlRpcDispatch
-      mXmlRpcDispatch = new XmlRpcDispatch(mHttpPort, true /* use https */, mBindIp);
+      mXmlRpcDispatch = new XmlRpcDispatch(mHttpPort, true /* use https */,
+                                           XmlRpcDispatch::DEFAULT_URL_PATH,
+                                           mBindIp);
       mHttpServer = mXmlRpcDispatch->getHttpServer();
       if (!mHttpServer->isSocketOk())
       {
