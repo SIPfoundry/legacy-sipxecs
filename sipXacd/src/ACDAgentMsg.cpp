@@ -60,9 +60,10 @@ ACDAgentMsg::ACDAgentMsg(eACDAgentMsgSubTypes type, LinePresenceBase::ePresenceS
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ACDAgentMsg::ACDAgentMsg(eACDAgentMsgSubTypes type)
+ACDAgentMsg::ACDAgentMsg(eACDAgentMsgSubTypes type, bool rna)
 : OsMsg(USER_START, type)
 {   
+   mRna = rna ;
 }
 
 
@@ -92,6 +93,7 @@ ACDAgentMsg::ACDAgentMsg(const ACDAgentMsg& rACDAgentMsg)
          mPresenceState     = rACDAgentMsg.mPresenceState;
          break ;
       case DROP_CALL:
+         mRna = rACDAgentMsg.mRna;
          break ;
    }
 }

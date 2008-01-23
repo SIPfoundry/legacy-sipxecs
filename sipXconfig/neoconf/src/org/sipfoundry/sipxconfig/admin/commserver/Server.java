@@ -15,6 +15,8 @@ public interface Server {
     Setting getSettings();
     
     String getPresenceServerUri();
+
+    String getPresenceServiceUri();
     
     /**
      * Saves settings to permanent storage (config files)

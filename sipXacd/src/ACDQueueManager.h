@@ -44,6 +44,8 @@
 #define QUEUE_ACD_LINE_LIST_TAG             "acd-line-list"
 #define QUEUE_QUEUE_DEPTH_TAG               "queue-depth"
 #define QUEUE_AGENTS_WRAP_UP_TIME_TAG       "agents-wrap-up-time"
+#define QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG "agents-non-responsive-time"
+#define QUEUE_MAX_BOUNCE_COUNT_TAG          "max-bounce-count"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -102,6 +104,8 @@ public:
                             const char* pCallTerminationAudio,
                             int         terminationToneDuration,
                             int         agentsWrapupTime,
+                            int         agentsNonResponsiveTime,
+                            int         maxBounceCount,
                             const char* pAcdAgentList,
                             const char* pExternalLineList);
 

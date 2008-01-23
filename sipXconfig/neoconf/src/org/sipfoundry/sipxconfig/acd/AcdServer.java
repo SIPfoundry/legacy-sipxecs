@@ -17,10 +17,15 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang.enums.ValuedEnum;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sipfoundry.sipxconfig.admin.commserver.Server;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
+
 public class AcdServer extends AcdComponent {
+    public static final Log LOG = LogFactory.getLog(AcdServer.class);
     public static final String OBJECT_CLASS = "acd-server";
 
     public static final String BEAN_NAME = "acdServer";
@@ -32,6 +37,8 @@ public class AcdServer extends AcdComponent {
     static final String DOMAIN = "acd-server/domain";
 
     static final String PRESENCE_SERVER_URI = "acd-server/presence-server-uri";
+
+    static final String PRESENCE_SERVICE_URI = "acd-server/presence-service-uri";
 
     private static final String KEY_URI = "uri";
 
@@ -156,6 +163,11 @@ public class AcdServer extends AcdComponent {
         @SettingEntry(path = PRESENCE_SERVER_URI)
         public String getPresenceServerUri() {
             return m_server.m_sipxServer.getPresenceServerUri();
+        }
+
+        @SettingEntry(path = PRESENCE_SERVICE_URI)
+        public String getPresenceServiceUri() {
+            return m_server.m_sipxServer.getPresenceServiceUri();
         }
     }
 

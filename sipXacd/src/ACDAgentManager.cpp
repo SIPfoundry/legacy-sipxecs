@@ -47,13 +47,14 @@ extern OsSysLogPriority gACD_DEBUG;
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ACDAgentManager::ACDAgentManager(ACDServer* pAcdServer, int presenceMonitorPort, const char* pPresenceServerUriString)
+ACDAgentManager::ACDAgentManager(ACDServer* pAcdServer, int presenceMonitorPort, const char* pPresenceServerUriString, const char* pPresenceServiceUriString)
 : ProvisioningClass(ACD_AGENT_TAG), mLock(OsMutex::Q_FIFO)
 {
    mpAcdServer = pAcdServer;
    mpAcdCallManager = NULL;
    mhAcdCallManagerHandle = NULL;
    mpAcdQueueManager = NULL;
+   mPresenceServiceUrl = pPresenceServiceUriString;
 
    int bindPort = presenceMonitorPort;
    UtlString domainName;
@@ -1008,6 +1009,26 @@ ACDQueueManager* ACDAgentManager::getAcdQueueManager(void)
 ACDServer* ACDAgentManager::getAcdServer(void)
 {
    return mpAcdServer;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  NAME:        ACDAgentManager::getLinePresenceMonitor
+//
+//  SYNOPSIS:
+//
+//  DESCRIPTION:
+//
+//  RETURNS:     None.
+//
+//  ERRORS:      None.
+//
+//  CAVEATS:     None.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+LinePresenceMonitor* ACDAgentManager::getLinePresenceMonitor(void) 
+{
+   return  mpLinePresenceMonitor;
 }
 /* ============================ INQUIRY =================================== */
 

@@ -89,6 +89,8 @@ public:
             const char*      pCallTerminationAudio,
             int              terminationToneDuration,
             int              agentsWrapupTime,
+            int              agentsNonResponsiveTime,
+            int              maxBounceCount,
             const char*      pAcdAgentList,
             const char*      pAcdLineList);
 
@@ -145,6 +147,9 @@ public:
    virtual UtlString* getQueueName() {return &mName;};
   
    virtual int getAgentsWrapupTime() {return mAgentsWrapupTime;};
+   virtual int getAgentsNonResponsiveTime() {return mAgentsNonResponsiveTime;};
+   virtual int getMaxBounceCount() {return mMaxBounceCount;};
+
 /* ============================ INQUIRY =================================== */
 
    // Compare the this object to another like-objects.
@@ -201,7 +206,11 @@ protected:
    int              mUnroutedCallCount;       // The number of unrouted calls this queue is handling
    ACDCall*         mpRoutePendingAnswer;     // Pointer to ACDCall that should be routed once answered
    
-   int              mAgentsWrapupTime;
+   int              mAgentsWrapupTime;        // Time to allow an agent to idle before giving him another call after he answered one.
+
+   int              mAgentsNonResponsiveTime; // Time to allow an agent to idle before giving him another call after he RNA/Rejected one
+
+   int              mMaxBounceCount;          // Maximum number of times an agent can RNA/Reject a call before being "bounced" (automatically signed out)
 
    // Handle incoming IPC messages
    virtual UtlBoolean handleMessage(OsMsg& rMessage);

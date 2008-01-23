@@ -39,6 +39,7 @@
 #define RPC_SERVER_PORT_TAG           "rpc-server-port"
 #define PRESENCE_MONITOR_PORT_TAG     "presence-monitor-port"
 #define PRESENCE_SERVER_URI_TAG       "presence-server-uri"
+#define PRESENCE_SERVICE_URI_TAG      "presence-service-uri"
 #define ADMINISTRATIVE_STATE_TAG      "administrative-state"
 #define OPERATIONAL_STATE_TAG         "operational-state"
 #define ACTION_RESTART_TAG            "restart"
@@ -162,6 +163,8 @@ private:
    int                mPresenceMonitorPort;     ///< The Presence Monitor Port used by this server.
    UtlString          mPresenceServerUriString; /**< The Uri of the Presence Server
                                                  *   used for TUI sign-in/out. */
+   UtlString          mPresenceServiceUriString; /**< The Uri of the Presence Server
+                                                 *   used for RPC sign-in/out. */
    int                mAdministrativeState;     /**< The desired Administrative State of this
                                                  *   Server. */
    int                mOperationalState;        ///< The actual Operational State of this Server.

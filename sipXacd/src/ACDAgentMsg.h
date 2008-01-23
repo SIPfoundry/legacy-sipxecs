@@ -46,7 +46,7 @@ public:
    ACDAgentMsg(eACDAgentMsgSubTypes type, LinePresenceBase::ePresenceStateType stateType, bool state);
 
    // Constructor for DROP_CALL messages
-   ACDAgentMsg(eACDAgentMsgSubTypes type);
+   ACDAgentMsg(eACDAgentMsgSubTypes type, bool rna);
 
    // Copy constructor
    ACDAgentMsg(const ACDAgentMsg& rACDAgentMsg);
@@ -67,6 +67,9 @@ public:
    // Get the associated PresenceState
    bool getPresenceState(void) const { return mPresenceState; }
 
+   // Get the associated rna
+   bool getRna(void) const { return mRna; }
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -76,6 +79,7 @@ protected:
 private:
    LinePresenceBase::ePresenceStateType mPresenceStateType;
    bool             mPresenceState;
+   bool             mRna;
 };
 
 /* ============================ INLINE METHODS ============================ */

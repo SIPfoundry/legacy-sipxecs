@@ -174,6 +174,8 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
                                           const char* pCallTerminationAudio,
                                           int         terminationToneDuration,
                                           int         agentsWrapupTime, 
+                                          int         agentsNonResponsiveTime,
+                                          int         maxBounceCount,
                                           const char* pAcdAgentList,
                                           const char* pExternalLineList)
 {
@@ -190,7 +192,8 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
             pOverflowQueue, pOverflowEntry, answerMode, callConnectScheme,
             pWelcomeAudio, bargeIn, pQueueAudio, pBackgroundAudio,
             queueAudioInterval, pCallTerminationAudio, terminationToneDuration,
-            agentsWrapupTime, pAcdAgentList, pExternalLineList);
+            agentsWrapupTime, agentsNonResponsiveTime, maxBounceCount,
+            pAcdAgentList, pExternalLineList);
 
          break ;
 
@@ -200,7 +203,8 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
             pOverflowQueue, pOverflowEntry, answerMode, callConnectScheme,
             pWelcomeAudio, bargeIn, pQueueAudio, pBackgroundAudio,
             queueAudioInterval, pCallTerminationAudio, terminationToneDuration,
-            agentsWrapupTime, pAcdAgentList, pExternalLineList);
+            agentsWrapupTime, agentsNonResponsiveTime, maxBounceCount,
+            pAcdAgentList, pExternalLineList);
 
          break ;
 
@@ -210,7 +214,8 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
             pOverflowQueue, pOverflowEntry, answerMode, callConnectScheme,
             pWelcomeAudio, bargeIn, pQueueAudio, pBackgroundAudio,
             queueAudioInterval, pCallTerminationAudio, terminationToneDuration,
-            agentsWrapupTime, pAcdAgentList, pExternalLineList);
+            agentsWrapupTime, agentsNonResponsiveTime, maxBounceCount,
+            pAcdAgentList, pExternalLineList);
 
          break ;
 
@@ -220,7 +225,8 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
             pOverflowQueue, pOverflowEntry, answerMode, callConnectScheme,
             pWelcomeAudio, bargeIn, pQueueAudio, pBackgroundAudio,
             queueAudioInterval, pCallTerminationAudio, terminationToneDuration,
-            agentsWrapupTime, pAcdAgentList, pExternalLineList);
+            agentsWrapupTime, agentsNonResponsiveTime, maxBounceCount,
+            pAcdAgentList, pExternalLineList);
          break ;
 
       default:
@@ -334,6 +340,8 @@ ProvisioningAttrList* ACDQueueManager::Create(ProvisioningAttrList& rRequestAttr
    int                   queueAudioInterval;
    int                   terminationToneDuration;
    int                   agentsWrapupTime;
+   int                   agentsNonResponsiveTime;
+   int                   maxBounceCount;
    bool                  fifoOverflow;
    bool                  bargeIn;
 
@@ -394,6 +402,8 @@ ProvisioningAttrList* ACDQueueManager::Create(ProvisioningAttrList& rRequestAttr
       rRequestAttributes.validateAttributeType(QUEUE_CALL_TERMINATION_AUDIO_TAG,    ProvisioningAttrList::STRING);
       rRequestAttributes.validateAttributeType(QUEUE_TERMINATION_TONE_DURATION_TAG, ProvisioningAttrList::INT);
       rRequestAttributes.validateAttributeType(QUEUE_AGENTS_WRAP_UP_TIME_TAG,       ProvisioningAttrList::INT);
+      rRequestAttributes.validateAttributeType(QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG,ProvisioningAttrList::INT);
+      rRequestAttributes.validateAttributeType(QUEUE_MAX_BOUNCE_COUNT_TAG,          ProvisioningAttrList::INT);
       rRequestAttributes.validateAttributeType(QUEUE_ACD_AGENT_LIST_TAG,            ProvisioningAttrList::STRING);
       rRequestAttributes.validateAttributeType(QUEUE_ACD_LINE_LIST_TAG,             ProvisioningAttrList::STRING);
    }
@@ -497,9 +507,20 @@ ProvisioningAttrList* ACDQueueManager::Create(ProvisioningAttrList& rRequestAttr
    if (rRequestAttributes.getAttribute(QUEUE_TERMINATION_TONE_DURATION_TAG, terminationToneDuration)) {
       setPSAttribute(pInstanceNode, QUEUE_TERMINATION_TONE_DURATION_TAG, terminationToneDuration);
    }
+
    // agents-wrap-up-time (optional)
    if (rRequestAttributes.getAttribute(QUEUE_AGENTS_WRAP_UP_TIME_TAG, agentsWrapupTime)) {
       setPSAttribute(pInstanceNode, QUEUE_AGENTS_WRAP_UP_TIME_TAG, agentsWrapupTime);
+   }
+
+   // agents-non-responsive-time (optional)
+   if (rRequestAttributes.getAttribute(QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG, agentsNonResponsiveTime)) {
+      setPSAttribute(pInstanceNode, QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG, agentsNonResponsiveTime);
+   }
+
+   // max-bounces (optional)
+   if (rRequestAttributes.getAttribute(QUEUE_MAX_BOUNCE_COUNT_TAG, maxBounceCount)) {
+      setPSAttribute(pInstanceNode, QUEUE_MAX_BOUNCE_COUNT_TAG, maxBounceCount);
    }
 
    // acd-agent-list (optional)
@@ -520,7 +541,8 @@ ProvisioningAttrList* ACDQueueManager::Create(ProvisioningAttrList& rRequestAttr
                      welcomeAudio, bargeIn, queueAudio,
                      backgroundAudio, queueAudioInterval,
                      callTerminationAudio, terminationToneDuration,
-                     agentsWrapupTime, acdAgentList, acdLineList);
+                     agentsWrapupTime, agentsNonResponsiveTime, maxBounceCount,
+                     acdAgentList, acdLineList);
    }
 
    // Update the configuration file
@@ -645,6 +667,8 @@ ProvisioningAttrList* ACDQueueManager::Set(ProvisioningAttrList& rRequestAttribu
    int                   queueAudioInterval;
    int                   terminationToneDuration;
    int                   agentsWrapupTime;
+   int                   agentsNonResponsiveTime;
+   int                   maxBounceCount;
    bool                  fifoOverflow;
    bool                  bargeIn;
 
@@ -687,6 +711,9 @@ ProvisioningAttrList* ACDQueueManager::Set(ProvisioningAttrList& rRequestAttribu
       rRequestAttributes.validateAttributeType(QUEUE_QUEUE_AUDIO_INTERVAL_TAG,      ProvisioningAttrList::INT);
       rRequestAttributes.validateAttributeType(QUEUE_CALL_TERMINATION_AUDIO_TAG,    ProvisioningAttrList::STRING);
       rRequestAttributes.validateAttributeType(QUEUE_TERMINATION_TONE_DURATION_TAG, ProvisioningAttrList::INT);
+      rRequestAttributes.validateAttributeType(QUEUE_AGENTS_WRAP_UP_TIME_TAG,       ProvisioningAttrList::INT);
+      rRequestAttributes.validateAttributeType(QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG,ProvisioningAttrList::INT);
+      rRequestAttributes.validateAttributeType(QUEUE_MAX_BOUNCE_COUNT_TAG,          ProvisioningAttrList::INT);
       rRequestAttributes.validateAttributeType(QUEUE_ACD_AGENT_LIST_TAG,            ProvisioningAttrList::STRING);
       rRequestAttributes.validateAttributeType(QUEUE_ACD_LINE_LIST_TAG,             ProvisioningAttrList::STRING);
    }
@@ -820,6 +847,16 @@ ProvisioningAttrList* ACDQueueManager::Set(ProvisioningAttrList& rRequestAttribu
       setPSAttribute(pInstanceNode, QUEUE_AGENTS_WRAP_UP_TIME_TAG, agentsWrapupTime);
    }
    
+   // agents-non-responsive-time  
+   if (rRequestAttributes.getAttribute(QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG, agentsNonResponsiveTime)) {
+      setPSAttribute(pInstanceNode, QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG, agentsNonResponsiveTime);
+   }
+
+   // max-bounces (optional)
+   if (rRequestAttributes.getAttribute(QUEUE_MAX_BOUNCE_COUNT_TAG, maxBounceCount)) {
+      setPSAttribute(pInstanceNode, QUEUE_MAX_BOUNCE_COUNT_TAG, maxBounceCount);
+   }
+
    // acd-agent-list
    if (rRequestAttributes.getAttribute(QUEUE_ACD_AGENT_LIST_TAG, acdAgentList)) {
       setPSAttribute(pInstanceNode, QUEUE_ACD_AGENT_LIST_TAG, acdAgentList);
@@ -982,6 +1019,8 @@ bool ACDQueueManager::loadConfiguration(void)
    int                   queueAudioInterval;
    int                   terminationToneDuration;
    int                   agentsWrapupTime;
+   int                   agentsNonResponsiveTime;
+   int                   maxBounceCount;
    bool                  fifoOverflow;
    bool                  bargeIn;
 
@@ -1029,6 +1068,8 @@ bool ACDQueueManager::loadConfiguration(void)
       getPSAttribute(pInstanceNode, QUEUE_CALL_TERMINATION_AUDIO_TAG,    callTerminationAudio);
       getPSAttribute(pInstanceNode, QUEUE_TERMINATION_TONE_DURATION_TAG, terminationToneDuration);
       getPSAttribute(pInstanceNode, QUEUE_AGENTS_WRAP_UP_TIME_TAG,       agentsWrapupTime);
+      getPSAttribute(pInstanceNode, QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG,agentsNonResponsiveTime);
+      getPSAttribute(pInstanceNode, QUEUE_MAX_BOUNCE_COUNT_TAG          ,maxBounceCount);
       getPSAttribute(pInstanceNode, QUEUE_ACD_AGENT_LIST_TAG,            acdAgentList);
       getPSAttribute(pInstanceNode, QUEUE_ACD_LINE_LIST_TAG,             acdLineList);
 
@@ -1039,7 +1080,8 @@ bool ACDQueueManager::loadConfiguration(void)
                      welcomeAudio, bargeIn, queueAudio,
                      backgroundAudio, queueAudioInterval,
                      callTerminationAudio, terminationToneDuration,
-                     agentsWrapupTime, acdAgentList, acdLineList);
+                     agentsWrapupTime, agentsNonResponsiveTime, 
+                     maxBounceCount, acdAgentList, acdLineList);
 
       // Get the next instance.
       pInstanceNode = pInstanceNode->NextSibling();

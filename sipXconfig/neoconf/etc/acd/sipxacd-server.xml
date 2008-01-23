@@ -94,6 +94,9 @@
     <setting name="presence-server-uri" hidden="yes">
       <value />
     </setting>
+    <setting name="presence-service-uri" hidden="yes">
+      <value />
+    </setting>
     <setting name="administrative-state" hidden="yes">
       <type refid="server-status" />
       <value>3</value>

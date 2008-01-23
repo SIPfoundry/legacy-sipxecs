@@ -97,6 +97,7 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
    mLogLevel                = "DEBUG";
    mLogToConsole            = false;
    mPresenceServerUriString = "";
+   mPresenceServiceUriString = "";
    mMaxAcdCallsAllowed      = MAX_CONNECTIONS;
 #ifdef CML   
    mAcdRpcServerPort           = -1;
@@ -165,7 +166,7 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
       if (mpAcdCallManager->getAcdCallManagerHandle() != SIPX_INST_NULL)
       {
          mpAcdLineManager  = new ACDLineManager(this);
-         mpAcdAgentManager = new ACDAgentManager(this, mPresenceMonitorPort, mPresenceServerUriString);
+         mpAcdAgentManager = new ACDAgentManager(this, mPresenceMonitorPort, mPresenceServerUriString, mPresenceServiceUriString);
          mpAcdQueueManager = new ACDQueueManager(this);
          mpAcdAudioManager = new ACDAudioManager(this);
 
@@ -486,6 +487,7 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
       rRequestAttributes.validateAttributeType(LOG_LEVEL_TAG,               ProvisioningAttrList::STRING);
       rRequestAttributes.validateAttributeType(LOG_TO_CONSOLE_TAG,          ProvisioningAttrList::BOOL);
       rRequestAttributes.validateAttributeType(PRESENCE_SERVER_URI_TAG,     ProvisioningAttrList::STRING);
+      rRequestAttributes.validateAttributeType(PRESENCE_SERVICE_URI_TAG,    ProvisioningAttrList::STRING);
       rRequestAttributes.validateAttributeType(RPC_SERVER_PORT_TAG, ProvisioningAttrList::INT);
    }
    catch (UtlString error) {
@@ -555,6 +557,11 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
    rRequestAttributes.getAttribute(PRESENCE_SERVER_URI_TAG, mPresenceServerUriString);
    setPSAttribute(pInstanceNode, PRESENCE_SERVER_URI_TAG, mPresenceServerUriString);
 
+   // presence-service-uri
+   rRequestAttributes.getAttribute(PRESENCE_SERVICE_URI_TAG, mPresenceServiceUriString);
+   setPSAttribute(pInstanceNode, PRESENCE_SERVICE_URI_TAG, mPresenceServiceUriString);
+
+
 #ifdef CML   
    // rpc-server-port
    if (rRequestAttributes.getAttribute(RPC_SERVER_PORT_TAG, mAcdRpcServerPort)) {
@@ -594,7 +601,7 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
       // create the remainder of the server components
       mpAcdCallManager  = new ACDCallManager(this, mUdpPort, mTcpPort, mTlsPort, mRtpBase, mMaxAcdCallsAllowed);
       mpAcdLineManager  = new ACDLineManager(this);
-      mpAcdAgentManager = new ACDAgentManager(this, mPresenceMonitorPort, mPresenceServerUriString);
+      mpAcdAgentManager = new ACDAgentManager(this, mPresenceMonitorPort, mPresenceServerUriString, mPresenceServiceUriString);
       mpAcdQueueManager = new ACDQueueManager(this);
       mpAcdAudioManager = new ACDAudioManager(this);
 
@@ -843,6 +850,11 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
    // presence-server-uri
    if (rRequestAttributes.getAttribute(PRESENCE_SERVER_URI_TAG, mPresenceServerUriString)) {
       setPSAttribute(pInstanceNode, PRESENCE_SERVER_URI_TAG, mPresenceServerUriString);
+   }
+
+   // presence-service-uri
+   if (rRequestAttributes.getAttribute(PRESENCE_SERVICE_URI_TAG, mPresenceServiceUriString)) {
+      setPSAttribute(pInstanceNode, PRESENCE_SERVICE_URI_TAG, mPresenceServiceUriString);
    }
 
    // max-acd-calls-allowed
@@ -1141,6 +1153,11 @@ ProvisioningAttrList* ACDServer::Get(ProvisioningAttrList& rRequestAttributes)
          if (rRequestAttributes.attributePresent(PRESENCE_SERVER_URI_TAG)) {
             pResponse->setAttribute(PRESENCE_SERVER_URI_TAG, mPresenceServerUriString);
          }
+
+         // presence-service-uri
+         if (rRequestAttributes.attributePresent(PRESENCE_SERVICE_URI_TAG)) {
+            pResponse->setAttribute(PRESENCE_SERVICE_URI_TAG, mPresenceServiceUriString);
+         }
          
 #ifdef CML   
          // rpc-server-port
@@ -1206,6 +1223,8 @@ ProvisioningAttrList* ACDServer::Get(ProvisioningAttrList& rRequestAttributes)
          // presence-server-uri
          pResponse->setAttribute(PRESENCE_SERVER_URI_TAG, mPresenceServerUriString);
 
+         // presence-service-uri
+         pResponse->setAttribute(PRESENCE_SERVICE_URI_TAG, mPresenceServiceUriString);
 #ifdef CML   
          // rpc-server-port
          pResponse->setAttribute(RPC_SERVER_PORT_TAG, mAcdRpcServerPort);
@@ -1350,6 +1369,7 @@ bool ACDServer::loadConfiguration(void)
    getPSAttribute(pInstanceNode, TLS_PORT_TAG,                mTlsPort);
    getPSAttribute(pInstanceNode, PRESENCE_MONITOR_PORT_TAG,   mPresenceMonitorPort);
    getPSAttribute(pInstanceNode, PRESENCE_SERVER_URI_TAG,     mPresenceServerUriString);
+   getPSAttribute(pInstanceNode, PRESENCE_SERVICE_URI_TAG,    mPresenceServiceUriString);
 #ifdef CML   
    getPSAttribute(pInstanceNode, RPC_SERVER_PORT_TAG,         mAcdRpcServerPort);
 #endif

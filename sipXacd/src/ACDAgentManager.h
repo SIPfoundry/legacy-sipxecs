@@ -51,7 +51,7 @@ public:
 /* ============================ CREATORS ================================== */
 
    // Default constructor
-   ACDAgentManager(ACDServer* pAcdServer, int presenceMonitorPort, const char* pPresenceServerUriString);
+   ACDAgentManager(ACDServer* pAcdServer, int presenceMonitorPort, const char* pPresenceServerUriString, const char* pPresenceServiceUriString);
 
    // Destructor
    ~ACDAgentManager();
@@ -101,6 +101,9 @@ public:
 
    ACDServer* getAcdServer(void);
 
+   LinePresenceMonitor* getLinePresenceMonitor(void);
+
+   Url getPresenceServiceUrl() { return mPresenceServiceUrl; }
 /* ============================ INQUIRY =================================== */
 
    /** Determine if the ACDAgentManager is health
@@ -121,6 +124,7 @@ protected:
    ACDQueueManager*     mpAcdQueueManager;       // Reference to the associated UA
    UtlHashMap           mAcdAgentList;           // List of ACDAgent objects
    int                  mAgentIndex;             // Index used for supplying ACDAgent ID's
+   Url                  mPresenceServiceUrl;     // The URI of presence server for XML-RPC request
 };
 
 #endif  // _ACDAgentManager_h_

@@ -48,7 +48,7 @@
 HttpConnection::HttpConnection(OsConnectionSocket* requestSocket,
                                HttpServer* httpServer) :
    OsTask("HttpConnection-%d"),
-   UtlString("HttpConnection"),
+   UtlString(getName()), // That's OsTask::getName()
    mpRequestSocket(requestSocket),
    mpHttpServer(httpServer),
    mbToBeDeleted(false)
@@ -58,6 +58,15 @@ HttpConnection::HttpConnection(OsConnectionSocket* requestSocket,
 // Destructor
 HttpConnection::~HttpConnection()
 {
+    // Tell the task we want to shutdown (sets isShuttingDown())
+    requestShutdown() ;
+
+    // Wake it up by "closing" the socket (actually calls shutdown(2))
+    if (mpRequestSocket)
+    {
+        mpRequestSocket->close();
+    }
+
     // Wait until run exits before clobbering members
     waitUntilShutDown();  
     
@@ -67,7 +76,6 @@ HttpConnection::~HttpConnection()
    
     if (mpRequestSocket)
     {
-        mpRequestSocket->close();
         delete mpRequestSocket;
         mpRequestSocket = NULL;
     }  

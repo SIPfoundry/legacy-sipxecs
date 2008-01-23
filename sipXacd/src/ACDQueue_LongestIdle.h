@@ -70,6 +70,8 @@ public:
             const char*      pCallTerminationAudio,
             int              terminationToneDuration,
             int              agentsWrapupTime,
+            int              agentsNonResponsiveTime,
+            int              maxBounceCount,
             const char*      pAcdAgentList,
             const char*      pAcdLineList);
 

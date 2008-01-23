@@ -76,6 +76,8 @@ ACDQueue_Linear::ACDQueue_Linear(ACDQueueManager* pAcdQueueManager,
                    const char*      pCallTerminationAudio,
                    int              terminationToneDuration,
                    int              agentsWrapupTime,
+                   int              agentsNonResponsiveTime,
+                   int              maxBounceCount,
                    const char*      pAcdAgentList,
                    const char*      pAcdLineList)
 : ACDQueue(pAcdQueueManager,
@@ -98,6 +100,8 @@ ACDQueue_Linear::ACDQueue_Linear(ACDQueueManager* pAcdQueueManager,
                    pCallTerminationAudio,
                    terminationToneDuration,
                    agentsWrapupTime,
+                   agentsNonResponsiveTime,
+                   maxBounceCount,
                    pAcdAgentList,
                    pAcdLineList)
 {

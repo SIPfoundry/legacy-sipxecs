@@ -196,7 +196,9 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
         IMocksControl sipxServerCtrl = EasyMock.createControl();
         Server sipxServer = sipxServerCtrl.createMock(Server.class);
         sipxServer.getPresenceServerUri();
-        sipxServerCtrl.andReturn("sip:presence.com:5130");
+        sipxServerCtrl.andReturn("sip:presence.com:5130").atLeastOnce();
+        sipxServer.getPresenceServiceUri();
+        sipxServerCtrl.andReturn("sip:presence.com:8111/RPC2").atLeastOnce();
         sipxServerCtrl.replay();
 
         m_server.setSipxServer(sipxServer);
@@ -205,6 +207,8 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
         assertEquals("mydomain.org", m_server.getSettingValue("acd-server/domain"));
         assertEquals("sip:presence.com:5130", m_server
                 .getSettingValue("acd-server/presence-server-uri"));
+        assertEquals("sip:presence.com:8111/RPC2", m_server
+                .getSettingValue("acd-server/presence-service-uri"));
 
         mc.verify();
         sipxServerCtrl.verify();

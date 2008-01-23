@@ -77,7 +77,7 @@ public:
    SIPX_CALL connect(ACDCall* pCall);
 
    // Drop the ACDAgent connection
-   void drop(void);
+   void drop(bool rna=false);
 
    // Place the ACDAgent connection on-hold
    void hold(void);
@@ -154,6 +154,8 @@ public:
    ACDCallManager* getAcdCallManager(void) { return mpAcdCallManager; }
 
    void setCallEstablished(bool established) { mCallEstablished = established; }
+
+   void signOut();
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
    static const UtlContainableType TYPE;           // Class type used for runtime checking
@@ -183,8 +185,11 @@ private:
    bool             mIsPseudo;
    bool             mFlagDelete;
    int              mWrapupTime;
+   int              mNonResponsiveTime;
    OsTimer*         mpWrapupTimer;
    bool             mCallEstablished;        // Flag indicating if the ACDAgent has established call
+   int              mMaxBounceCount;         // Maximum number of unanswered calls before the agent is "bounced"
+   int              mBounceCount;            // Current count of unanswered calls
  
    // Notify the queues of this agent's availability
    void notifyAvailability();
@@ -205,7 +210,7 @@ private:
    void updateStateMessage(ePresenceStateType type, bool state, bool recordIdle = false);
 
    // Drop the call to the agent
-   void dropCallMessage(void) ;
+   void dropCallMessage(bool rna) ;
    
    void handleWrapupTimeout();
 };

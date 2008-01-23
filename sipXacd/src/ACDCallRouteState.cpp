@@ -593,7 +593,7 @@ void ACDCallRouteState_TRYING::acdAgentDisconnectedEvent(ACDCall* pAcdCallInstan
          OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_TRYING::acdAgentDisconnectedEvent - "
                        "ACDAgent(%s) has rejected/dropped connection", pAgent->getUriString()->data());
          // Now that the responsible agent has been found, instruct it to drop the call
-         pAgent->drop();
+         pAgent->drop(true);
          // And then remove it from the candidate list
          pAcdCallInstance->mAgentCandidateList.remove(pAgent);
          // And then remove it from being used again by pretending it RNAd.
@@ -690,7 +690,7 @@ void ACDCallRouteState_TRYING::failedToRouteCall(ACDCall* pAcdCallInstance, bool
    UtlSListIterator listIterator(pAcdCallInstance->mAgentCandidateList);
    ACDAgent* pAgent;
    while ((pAgent = dynamic_cast<ACDAgent*>(listIterator())) != NULL) {
-      pAgent->drop();
+      pAgent->drop(bRingNoAnswer);
       
       // Notify the managing ACDQueue, if defined, that a RingNoAnswer occurred on this Agent
       if (pAcdCallInstance->mpManagingQueue != NULL && bRingNoAnswer) {

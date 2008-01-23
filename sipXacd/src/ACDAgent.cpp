@@ -9,6 +9,9 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include <cp/LinePresenceMonitor.h> 
+#include <net/StateChangeNotifier.h>
+#include <net/XmlRpcRequest.h>
 #include <os/OsDateTime.h>
 #include <os/OsEvent.h>
 #include <os/OsTimer.h>
@@ -23,6 +26,7 @@
 #include "ACDServer.h"
 #include "ACDRtRecord.h"
 #include "ACDCallManager.h"
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -96,12 +100,14 @@ ACDAgent::ACDAgent(ACDAgentManager* pAcdAgentManager,
    mAgentTicker        = 0;
    mIsPseudo           = pseudoAgent;
    mWrapupTime         = 0;
+   mNonResponsiveTime   = 0 ;
    mpAcdCallManager       = mpAcdAgentManager->getAcdCallManager();
    mhAcdCallManagerHandle = mpAcdAgentManager->getAcdCallManagerHandle();
-
+   mBounceCount        = 0;
 
    mpWrapupTimer =
       new OsTimer(getMessageQueue(), WRAP_UP_TIMER);  
+
    mCallEstablished = false;
    // Set the agents idle time to now
    OsDateTime nowTime;
@@ -237,9 +243,9 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
       mhCallHandle = SIPX_CALL_NULL ;
       return 0;
    }
-      
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::connect - ACDAgent(%s) succeeded to create outbound call with call handle %d",
-                 mUriString.data(), mhCallHandle);
+
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::connect - ACDAgent(%s) succeeded to create outbound call with call handle %d.  mBounceCount=%d",
+                 mUriString.data(), mhCallHandle, mBounceCount);
 
    // Generate a unique call ID which is based upon the passed-in call ID and Agent ID
    // The SIPX_CURR_SERV_STATE env. variable is either set to "A", if the current server is the primary one
@@ -263,6 +269,15 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
          // of the SIP URL in To header.
          agentUrlString = "\"" + *queueName + "\" " ;
       }
+
+      // Update mWrapupTime from the queue
+      mWrapupTime = acdQueue->getAgentsWrapupTime();
+      // Update mNonResponsiveTime from the queue
+      mNonResponsiveTime = acdQueue->getAgentsNonResponsiveTime();
+      // Update mMaxBounceCount from the queue
+      mMaxBounceCount = acdQueue->getMaxBounceCount();
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::connect - ACDAgent(%s) mWrapupTime=%d mNonResponsiveTime=%d mMaxBounceCount=%d",
+                       mUriString.data(),mWrapupTime, mNonResponsiveTime, mMaxBounceCount);
    }
 
    // Add the sipx-noroute=Voicemail parameter to prevent the proxy from
@@ -280,14 +295,6 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
       return 0;
    }
    
-   // Update mWrapupTime with the wrapupTime where the call come from.
-   if (acdQueue) {
-      mWrapupTime = acdQueue->getAgentsWrapupTime();
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::connect - ACDAgent(%s) mWrapupTime = %d",
-                       mUriString.data(),mWrapupTime);
-   }
-   
-
    return mhCallHandle;
 }
 
@@ -296,7 +303,7 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
 //
 //  NAME:        ACDAgent::drop
 //
-//  SYNOPSIS:    void drop(void)
+//  SYNOPSIS:    void drop(bool rna)
 //
 //  DESCRIPTION: send a DROP message to the queue, so dropCallMessage is called in the correct context.
 //
@@ -308,7 +315,7 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ACDAgent::drop(void)
+void ACDAgent::drop(bool rna)
 {
    OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::drop Agent(%s)",
                     getUriString()->data());
@@ -323,7 +330,7 @@ void ACDAgent::drop(void)
    // removing the mapping right here, the Call will never see it.
    mpAcdCallManager->removeMapAgentCallHandleToCall(mhCallHandle);
 
-   ACDAgentMsg dropMsg(ACDAgentMsg::DROP_CALL);
+   ACDAgentMsg dropMsg(ACDAgentMsg::DROP_CALL, rna);
    postMessage(dropMsg); 
 }
 
@@ -1191,6 +1198,8 @@ void ACDAgent::setSignIn(bool agentSignIn)
       {
          // Mark agent signed in.
          mAgentLineState |= LinePresenceBase::SIGNED_IN ;
+         // reset mBounceCount
+         mBounceCount = 0 ;
       }
       else 
       {
@@ -1237,7 +1246,8 @@ UtlBoolean ACDAgent::handleMessage(OsMsg& rMessage)
 
          case ACDAgentMsg::DROP_CALL:
             // Drop the call
-            dropCallMessage();
+            pMessage = (ACDAgentMsg*)&rMessage;
+            dropCallMessage(pMessage->getRna());
             break ;
 
          default:
@@ -1378,11 +1388,14 @@ void ACDAgent::updateStateMessage(ePresenceStateType type, bool state, bool reco
 //
 //  NAME:        ACDAgent::dropCallMessage
 //
-//  SYNOPSIS:    void dropCallMessage(void)
+//  SYNOPSIS:    void dropCallMessage(bool rna)
 //
 //  DESCRIPTION: A previously created outbound call to the ACDAgent will be dropped.
 //               The ACDAgent idle time will be updated and the line presence state will
 //               be set to ON-HOOK.
+//
+//               If rna is true, this agent rejected or timed out answering
+//               the call to him.
 //
 //  RETURNS:     None.
 //
@@ -1391,7 +1404,7 @@ void ACDAgent::updateStateMessage(ePresenceStateType type, bool state, bool reco
 //  CAVEATS:     None.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void ACDAgent::dropCallMessage(void)
+void ACDAgent::dropCallMessage(bool rna)
 {
    mLock.acquire();
 
@@ -1403,8 +1416,26 @@ void ACDAgent::dropCallMessage(void)
    OsDateTime::getCurTime(nowTime);
    nowTime.cvtToTimeSinceEpoch(mIdleTimeStart);
    // Debug
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::dropCallMessage Agent(%s), idleTime (%ld)",
-                    getUriString()->data(), mIdleTimeStart.seconds());
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::dropCallMessage Agent(%s), idleTime (%ld) rna=%s",
+                    getUriString()->data(), mIdleTimeStart.seconds(),
+                    rna?"true":"false");
+
+   if (rna)
+   {
+      // update mBounceCount
+      mBounceCount++;
+
+      // If mMaxBounceCount is greater than 0 and the agent has not 
+      // answered a call in that many tries, then sign him out if possible.
+      if (mMaxBounceCount != 0 && mBounceCount>= mMaxBounceCount)
+      {
+         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::dropCallMessage ACDAgent(%s) is being signed Out. mBounceCount=%d",
+            getUriString()->data(), mBounceCount);
+
+         signOut();
+      }
+   }
+
 
    // Drop the call
    if (mhCallHandle != SIPX_CALL_NULL)
@@ -1422,22 +1453,38 @@ void ACDAgent::dropCallMessage(void)
       setOnHook(true) ;
    }
 
-   // Only fire off the wrapup timer if the ACDAgent has just served a call.
-   if(mWrapupTime != 0 && mCallEstablished)
+   int wrapUpDelay = 0 ;
+   if (mCallEstablished)
    {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::dropCallMessage Agent(%s), mWrapupTime = %d",
-                       getUriString()->data(),mWrapupTime);
+      // Delay mWrapupTime if the call was answered
+      wrapUpDelay = mWrapupTime ;
 
-      mpWrapupTimer->oneshotAfter(OsTime(mWrapupTime,0));
+      // reset mBounceCount
+      mBounceCount = 0 ;
+   }
+   else
+   {
+      // Delay mNonResponsiveTime if the call was not answered
+      wrapUpDelay = mNonResponsiveTime ;
+   }
+
+   if(wrapUpDelay != 0)
+   {
+      // Wait the for the Wrapup timer to fire before marking the agent free
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::dropCallMessage Agent(%s), wrapUpDelay=%d",
+                       getUriString()->data(),wrapUpDelay);
+
+      mpWrapupTimer->oneshotAfter(OsTime(wrapUpDelay,0));
    }
    else
    {
       // Mark the agent as free
-      setFree();
+      setFree() ;
    }
 
    mLock.release();     
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  NAME:        ACDAgent::handleWrapupTimeout
@@ -1459,10 +1506,69 @@ void ACDAgent::dropCallMessage(void)
 
 void ACDAgent::handleWrapupTimeout()
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::handleWrapupTimeout  Agent(%s),wrapupTime = %d ", getUriString()->data(), mWrapupTime);
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::handleWrapupTimeout  Agent(%s), wrapupTime = %d ", getUriString()->data(), mWrapupTime);
 
    mLock.acquire();
    setFree();
    mLock.release();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  NAME:        ACDAgent::signOut
+//
+//  SYNOPSIS:    void signOut(void)
+//
+//  DESCRIPTION: Send a sign-out request through XMLRPC to ACD presence 
+//               server.
+//
+//  RETURNS:     None.
+//
+//  ERRORS:      None.
+//
+//  CAVEATS:     None.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ACDAgent::signOut()
+{
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::signOut Agent(%s) is to be bounced out.",
+      mUriString.data());
+
+   if (mAlwaysAvailable) {
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::signOut but Agent(%s) is always available",
+         mUriString.data());
+      return ;
+   }
+
+   // Mark signed out locally (so it happens fast)
+   setSignIn(false) ;
+
+   // Build the XML_RPC request to tell the ACD presence server 
+   // to sign-out the agent. 
+   OsStatus result = OS_FAILED; 
+   UtlHashMap requstData;
+   UtlString* objectKey = new UtlString("object-class");
+   UtlString* objectValue = new UtlString("login");
+   requstData.insertKeyAndValue(objectKey, objectValue);
+   UtlString* signOutKey = new UtlString("sign-out");
+   UtlString* signOutValue = new UtlString(mUriString);
+   requstData.insertKeyAndValue(signOutKey, signOutValue);  
+   
+   Url target = mpAcdAgentManager->getPresenceServiceUrl();
+   UtlString url = target.toString();
+ 
+   XmlRpcRequest request(target,"action");
+   request.addParam(&requstData);
+   
+   XmlRpcResponse response;
+   result = request.execute(response) ? OS_SUCCESS : OS_FAILED;
+   if (result != OS_SUCCESS)
+   {
+      // Try again (could be a temp failure)
+      result = request.execute(response) ? OS_SUCCESS : OS_FAILED;
+   }
+
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::signOut PresenceServiceUrl = %s  agent(%s) signOut result is %d ", url.data(), mUriString.data(),result);
 }
 

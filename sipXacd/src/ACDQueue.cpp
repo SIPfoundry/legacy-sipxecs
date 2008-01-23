@@ -78,6 +78,8 @@ ACDQueue::ACDQueue(ACDQueueManager* pAcdQueueManager,
                    const char*      pCallTerminationAudio,
                    int              terminationToneDuration,
                    int              agentsWrapupTime,
+                   int              agentsNonResponsiveTime,
+                   int              maxBounceCount,
                    const char*      pAcdAgentList,
                    const char*      pAcdLineList)
 : OsServerTask("ACDQueue-%d")
@@ -105,6 +107,8 @@ ACDQueue::ACDQueue(ACDQueueManager* pAcdQueueManager,
    mCallTerminationAudio    = pCallTerminationAudio;
    mTerminationToneDuration = terminationToneDuration;
    mAgentsWrapupTime        = agentsWrapupTime;
+   mAgentsNonResponsiveTime = agentsNonResponsiveTime;
+   mMaxBounceCount          = maxBounceCount;
    mAcdAgentListString      = pAcdAgentList;
    mAcdLineListString       = pAcdLineList;
 
@@ -401,6 +405,12 @@ void ACDQueue::setAttributes(ProvisioningAttrList& rRequestAttributes)
    // agents-wrap-up-time 
    rRequestAttributes.getAttribute(QUEUE_AGENTS_WRAP_UP_TIME_TAG, mAgentsWrapupTime);
 
+   // agents-non-responsive-time 
+   rRequestAttributes.getAttribute(QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG, mAgentsNonResponsiveTime);
+
+   // max-bounce-count
+   rRequestAttributes.getAttribute(QUEUE_MAX_BOUNCE_COUNT_TAG, mMaxBounceCount);
+
    // acd-agent-list
    if (rRequestAttributes.getAttribute(QUEUE_ACD_AGENT_LIST_TAG, mAcdAgentListString)) {
       buildACDAgentList();
@@ -653,6 +663,7 @@ void ACDQueue::getAttributes(ProvisioningAttrList& rRequestAttributes, Provision
        rRequestAttributes.attributePresent(QUEUE_CALL_TERMINATION_AUDIO_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_TERMINATION_TONE_DURATION_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_AGENTS_WRAP_UP_TIME_TAG) ||
+       rRequestAttributes.attributePresent(QUEUE_MAX_BOUNCE_COUNT_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_ACD_AGENT_LIST_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_ACD_LINE_LIST_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_QUEUE_DEPTH_TAG)) {
@@ -749,6 +760,16 @@ void ACDQueue::getAttributes(ProvisioningAttrList& rRequestAttributes, Provision
          prResponse->setAttribute(QUEUE_AGENTS_WRAP_UP_TIME_TAG, mAgentsWrapupTime);
       }
 
+      // agents-non-responsive-time
+      if (rRequestAttributes.attributePresent(QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG)) {
+         prResponse->setAttribute(QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG, mAgentsNonResponsiveTime);
+      }
+
+      // max-bounce-count
+      if (rRequestAttributes.attributePresent(QUEUE_MAX_BOUNCE_COUNT_TAG)) {
+         prResponse->setAttribute(QUEUE_MAX_BOUNCE_COUNT_TAG, mMaxBounceCount);
+      }
+
       // acd-agent-list
       if (rRequestAttributes.attributePresent(QUEUE_ACD_AGENT_LIST_TAG)) {
          prResponse->setAttribute(QUEUE_ACD_AGENT_LIST_TAG, mAcdAgentListString);
@@ -821,6 +842,12 @@ void ACDQueue::getAttributes(ProvisioningAttrList& rRequestAttributes, Provision
 
       // agents-wrap-up-time 
       prResponse->setAttribute(QUEUE_AGENTS_WRAP_UP_TIME_TAG, mAgentsWrapupTime);
+
+      // agents-non-responsive-time 
+      prResponse->setAttribute(QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG, mAgentsNonResponsiveTime);
+
+      // max-bounce-count
+      prResponse->setAttribute(QUEUE_MAX_BOUNCE_COUNT_TAG, mMaxBounceCount);
 
       // acd-agent-list
       prResponse->setAttribute(QUEUE_ACD_AGENT_LIST_TAG, mAcdAgentListString);
