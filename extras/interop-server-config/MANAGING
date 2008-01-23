@@ -63,8 +63,11 @@ all the other RPMs, and
 4) the java-NNN-sun-NNN.rpm, java-NNN-sun-fonts-NNN.rpm, and
 sipx*-devel-* RPMs can also be omitted.
 
-Once the RPMs are installed, restart sipX:
+Once the RPMs are installed, reload the interop configuration (which
+may have been modified by the sipX install), and restart sipX:
 
+	touch interop-server-config/sipx_confdir/config.defs.in
+	sudo make -C interop-server-config install
 	sudo /sbin/service sipxpbx start
 
 To avoid having rpm complain about unknown digital signatures on the
