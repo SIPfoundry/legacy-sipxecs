@@ -62,14 +62,14 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
    // End of constructing the XML-RPC body
    mpRequestBody->append(END_PARAMS END_METHOD_CALL);
    
-   if (OsSysLog::willLog(FAC_SIP, PRI_INFO))
+   if (OsSysLog::willLog(FAC_XMLRPC, PRI_INFO))
    {
       UtlString logBody;
       int logLength;
       mpRequestBody->getBytes(&logBody, &logLength);
       UtlString urlString;
       mUrl.toString(urlString);
-      OsSysLog::add(FAC_SIP, PRI_INFO,
+      OsSysLog::add(FAC_XMLRPC, PRI_INFO,
                     "XmlRpcRequest::execute XML-RPC to '%s' request =\n%s",
                     urlString.data(),
                     logBody.data());
@@ -94,13 +94,13 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
       if (response.parseXmlRpcResponse(bodyString))
       {
          result = true;
-         OsSysLog::add(FAC_SIP, PRI_INFO,
+         OsSysLog::add(FAC_XMLRPC, PRI_INFO,
                        "XmlRpcRequest::execute XML-RPC received valid response = \n%s",
                        bodyString.data());
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         OsSysLog::add(FAC_XMLRPC, PRI_ERR,
                        "XmlRpcRequest::execute XML-RPC received fault response = \n%s",
                        bodyString.data());
       }
@@ -109,7 +109,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
    {
       response.setFault(XmlRpcResponse::ConnectionFailure, CONNECTION_FAILURE_FAULT_STRING);
 
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      OsSysLog::add(FAC_XMLRPC, PRI_ERR,
                     "XmlRpcRequest::execute http connection failed");
    }
    else // some non-2xx HTTP response 
@@ -119,7 +119,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
       httpResponse.getResponseStatusText(&statusText);
       response.setFault(XmlRpcResponse::HttpFailure, statusText.data());
 
-      OsSysLog::add(FAC_SIP, PRI_INFO,
+      OsSysLog::add(FAC_XMLRPC, PRI_INFO,
                     "XmlRpcRequest::execute http request failed; status = %d %s",
                     statusCode, statusText.data());
    }

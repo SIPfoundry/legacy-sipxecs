@@ -66,6 +66,7 @@ const char* OsSysLog::sFacilityNames[] =
    "ODBC",
    "CDR",
    "RLS",
+   "XMLRPC",
    "UNKNOWN",
 } ;
 

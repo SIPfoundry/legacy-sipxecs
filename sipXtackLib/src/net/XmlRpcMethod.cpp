@@ -24,7 +24,7 @@
 
 XmlRpcMethod* XmlRpcMethod::get()
 {
-   OsSysLog::add(FAC_SIP, PRI_CRIT, "XmlRpcMethod base class get factory called");
+   OsSysLog::add(FAC_XMLRPC, PRI_CRIT, "XmlRpcMethod base class get factory called");
    assert(0);
    return NULL;
 }

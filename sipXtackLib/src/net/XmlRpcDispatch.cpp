@@ -159,7 +159,7 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
     UtlString httpString;
 
     request.getBytes(&httpString , &len);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+    OsSysLog::add(FAC_XMLRPC, PRI_DEBUG,
                   "XmlRpcDispatch::processRequest HttpEvent = \n%s",
                   httpString.data());
 #  endif
@@ -192,7 +192,7 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
          void* userData;
          methodContainer->getData(methodGet, userData);
          XmlRpcMethod* method = methodGet();
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         OsSysLog::add(FAC_XMLRPC, PRI_DEBUG,
                        "XmlRpcDispatch::processRequest calling method '%s'",
                        methodName.data()
                        );
@@ -234,7 +234,7 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
    // Send the response back
    responseBody.getBody()->getBytes(&bodyString, &bodyLength);
 
-   OsSysLog::add(FAC_SIP, PRI_INFO,
+   OsSysLog::add(FAC_XMLRPC, PRI_INFO,
                  "XmlRpcDispatch::processRequest method '%s' response status=%s\n%s",
                  methodName.data(),
                  XmlRpcMethod::ExecutionStatusString(status),
@@ -288,7 +288,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
                                         XmlRpcResponse& response)
 {
    bool result = false;
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   OsSysLog::add(FAC_XMLRPC, PRI_DEBUG,
                  "XmlRpcDispatch::parseXmlRpcRequest requestBody = \n%s",
                  requestContent.data());
 
@@ -343,7 +343,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
                         result = parseValue(subNode, index, params);
                         if (!result)
                         {
-                           OsSysLog::add(FAC_SIP, PRI_ERR,
+                           OsSysLog::add(FAC_XMLRPC, PRI_ERR,
                                          "XmlRpcDispatch::parseXmlRpcRequest"
                                          " ill-formed XML contents in %s.",
                                           requestContent.data());
@@ -357,7 +357,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR,
+               OsSysLog::add(FAC_XMLRPC, PRI_ERR,
                              "XmlRpcDispatch::parseXmlRpcRequest no method '%s' registered",
                              methodCall.data());
                response.setMethod(methodCall);
@@ -369,7 +369,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
          {
             UtlString faultMsg(INVALID_ELEMENT_FAULT_STRING);
             faultMsg.append("methodName not found");
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            OsSysLog::add(FAC_XMLRPC, PRI_ERR,
                           "XmlRpcDispatch::parseXmlRpcRequest %s", faultMsg.data());
             response.setFault(INVALID_ELEMENT, faultMsg.data());
             result = false;
@@ -379,7 +379,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
       {
          UtlString faultMsg(INVALID_ELEMENT_FAULT_STRING);
          faultMsg.append("methodCall not found");
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         OsSysLog::add(FAC_XMLRPC, PRI_ERR,
                        "XmlRpcDispatch::parseXmlRpcRequest %s", faultMsg.data());
          response.setFault(INVALID_ELEMENT, faultMsg.data());
          result = false;
@@ -387,7 +387,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR,
+      OsSysLog::add(FAC_XMLRPC, PRI_ERR,
                     "XmlRpcDispatch::parseXmlRpcRequest"
                     " ill-formed XML contents in %s. Parsing error = %s",
                      requestContent.data(), doc.ErrorDesc());

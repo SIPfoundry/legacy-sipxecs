@@ -153,7 +153,7 @@ bool XmlRpcBody::addValue(UtlContainable* value)
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_CRIT, "XmlRpcBody::addValue unsupported type");
+      OsSysLog::add(FAC_XMLRPC, PRI_CRIT, "XmlRpcBody::addValue unsupported type");
       assert(false);
    }                     
             

@@ -85,6 +85,7 @@ enum tagOsSysLogFacility
    FAC_ODBC,               ///< ODBC related
    FAC_CDR,                ///< CDR generating related
    FAC_RLS,                ///< Resource list server
+   FAC_XMLRPC,             ///< XML RPC related
    FAC_MAX_FACILITY        ///< Last Facility (used to for length)
 
    //
