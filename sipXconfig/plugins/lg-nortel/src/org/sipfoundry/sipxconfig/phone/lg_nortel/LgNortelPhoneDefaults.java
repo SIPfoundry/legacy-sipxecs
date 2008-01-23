@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.phone.lg_nortel;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
