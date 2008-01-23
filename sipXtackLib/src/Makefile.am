@@ -47,7 +47,7 @@ libsipXtack_la_CFLAGS = \
 libsipXtack_la_LIBADD = \
 	@SIPXPORT_LIBS@ \
 	@SSL_LIBS@ \
-	-lresolv -lstdc++
+	-lstdc++
 
 libsipXtack_la_SOURCES =  \
     $(top_builddir)/config/sipxtacklib-buildstamp.h \
