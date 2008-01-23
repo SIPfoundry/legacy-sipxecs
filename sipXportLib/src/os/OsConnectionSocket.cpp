@@ -72,6 +72,15 @@ OsConnectionSocket::OsConnectionSocket(const char* szLocalIp, int connectedSocke
    mLocalIp = szLocalIp;
 }
 
+// Determine the errno value for a connect() that is non-blocking.
+#if defined(_WIN32)
+   #define NONBLOCK WSAEWOULDBLOCK
+#elif defined(_VXWORKS)
+   #define NONBLOCK EWOULDBLOCK
+#elif defined(__pingtel_on_posix__)
+   #define NONBLOCK EINPROGRESS
+#endif
+
 // Constructor
 OsConnectionSocket::OsConnectionSocket(int serverPort,
                                        const char* serverName,
@@ -240,87 +249,81 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       
    int connectReturn;
 #  if defined(_WIN32) || defined(__pingtel_on_posix__)
-   // If we should block forever, this connect() will do so.
-   // For all other cases, connect() is non-blocking and will likely
-   // return EINPROGRESS.
+   // If we should block forever, this connect() will do so.  For all
+   // other cases, the socket has been set to non-blocking and so
+   // connect() will not block. It will likely return NONBLOCK (the
+   // actual value is OS-dependent, and NONBLOCK is #define'd above).
    connectReturn = connect(socketDescriptor,
                            (const struct sockaddr*) &serverSockAddr,
                            sizeof(serverSockAddr));
    // If connect() returned success, then return success to our caller.
-   // If we got an error and connect() was blocking, pass that to our caller.
-   // Errors (including EINPROGRESS) from a non-blocking connect() require
-   // further analysis.
-   if(   connectReturn != 0
-      && (   !blockingConnect
-          || (blockingConnect && timeoutInMilliseconds > 0)
-          )
-      )
+   // Otherwise, get errno and analyze it.
+   if (connectReturn != 0)
    {
       error = OsSocketGetERRNO();
-      // EINPROGRESS is special, it just means that connect() was non-blocking.
-      // If the connect is to block, but for a limited time, we must
-      // do a poll() to block for the right amount of time.
-      if ( EINPROGRESS == error && timeoutInMilliseconds > 0 )
+
+      // A NONBLOCK from a non-blocking connect() requires further analysis.
+      // All other errors are returned to our caller.
+      if (NONBLOCK == error)
       {
-         OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ poll %d timeout %d msec",
-                       socketDescriptor, timeoutInMilliseconds);
-      
-         struct pollfd pset[1];
-         pset[0].fd      = socketDescriptor;
-         pset[0].events  = POLLOUT;
-         pset[0].revents = 0;
-         int pollResult  = poll(pset, 1, timeoutInMilliseconds); // returns # of events
-         if (1 == pollResult)
+         // If the connect is to block, but for a limited time, we must
+         // do a poll() to block for the right amount of time.
+         if (timeoutInMilliseconds > 0 )
          {
-            if (pset[0].revents & POLLERR)
+            OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ poll %d timeout %d msec",
+                          socketDescriptor, timeoutInMilliseconds);
+      
+            struct pollfd pset[1];
+            pset[0].fd      = socketDescriptor;
+            pset[0].events  = POLLOUT;
+            pset[0].revents = 0;
+            int pollResult  = poll(pset, 1, timeoutInMilliseconds); // returns # of events
+            if (1 == pollResult)
             {
-               // some error on the socket
-               connectReturn = -1;
-               error = OsSocketGetERRNO();
+               if (pset[0].revents & POLLERR)
+               {
+                  // some error on the socket
+                  error = OsSocketGetERRNO();
+               }
+               else if (pset[0].revents & POLLOUT)
+               {
+                  // the connect has completed
+                  error = 0;
+               }
+               else
+               {
+                  OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                                "OsConnectionSocket::_ unexpected return from poll(): pollResult = %d, pset[0].revents = %d",
+                                pollResult, pset[0].revents);
+                  // Need to set error to some non-0 value.
+                  error = ETIMEDOUT;
+               }
             }
-            else if (pset[0].revents & POLLOUT)
+            else if (0 == pollResult)
             {
-               // the connect has completed
-               connectReturn = 0;
-               error = 0;
+               // timeout
+               error = ETIMEDOUT;
             }
             else
             {
-               OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                             "OsConnectionSocket::_ unexpected return from poll(): pollResult = %d, pset[0].revents = %d",
-                             pollResult, pset[0].revents);
+               // pollResult < 0, some other error
+               error = OsSocketGetERRNO();
             }
-         }
-         else if (0 == pollResult)
-         {
-            // timeout
-            connectReturn = -1;
-            error = ETIMEDOUT;
+
+            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                          "OsConnectionSocket::_ after poll(), error = %d",
+                          error);
          }
          else
          {
-            // pollResult < 0, some other error
-            connectReturn = -1;
-            error = OsSocketGetERRNO();
+            // The connect request is non-blocking.  NONBLOCK is not
+            // an error, and we should return success to our caller.
+            error = 0;
          }
-      }
-      else if ( EINPROGRESS == error )
-      {
-         // If control reaches here, the connect request is non-blocking.
-         // EINPROGRESS is not an error, and we should return success
-         // to our caller.
-         error = 0;
-      }
-      else
-      {
-         // Errors other than EINPROGRESS should be returned to our caller.
       }
 
       // In any case, all further socket operations should be blocking.
       makeBlocking();
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                    "OsConnectionSocket::_ after poll(), error = %d",
-                    error);
    }
    else // connectReturn == 0
    {
@@ -328,46 +331,31 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    }
    
 #  elif defined(_VXWORKS)
+   // This code probably doesn't handle timeouts correctly.
    connectReturn = connect(socketDescriptor,
                            (struct sockaddr*) &serverSockAddr,
                            sizeof(serverSockAddr));
    error = OsSocketGetERRNO();
+   if (error == NONBLOCK &&
+       !blockingConnect)
+   {
+      error = 0;
+   }
+
 #  else
 #    error Unsupported target platform.
 #  endif
 
-#if defined(_WIN32)
-   if(error == WSAEWOULDBLOCK &&
-      !blockingConnect)
-   {
-      error = 0;
-      connectReturn = 0;
-   }
-#elif defined(_VXWORKS)
-   if(error == EWOULDBLOCK &&
-      !blockingConnect)
-   {
-      error = 0;
-      connectReturn = 0;
-   }
-#elif defined(__pingtel_on_posix__)
-   if(error == EINPROGRESS &&
-      !blockingConnect)
-   {
-      error = 0;
-      connectReturn = 0;
-   }
-#endif
-
-   if(connectReturn && error)
+   if (error != 0)
    {
       char* msgBuf;
       close();
 
       msgBuf = strerror(error);
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsConnectionSocket(%s:%d): call to connect() failed:\n"
-                    "connect call failed with error: %d %d\n%s",
-                    serverName, serverPort, error, connectReturn, msgBuf);
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsConnectionSocket(%s:%d): call to connect() failed "
+                    "with error: %d '%s'",
+                    serverName, serverPort, error, msgBuf);
+      // mIsConnected (set in OsSocket::_) remains FALSE.
    }
    else
    {
@@ -379,6 +367,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    }
         
   EXIT:
+   // mIsConnected signals success/failure to our caller.
    return;
 }
 
