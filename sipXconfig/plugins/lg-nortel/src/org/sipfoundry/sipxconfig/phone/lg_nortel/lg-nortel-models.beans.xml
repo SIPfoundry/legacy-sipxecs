@@ -7,6 +7,7 @@
     <property name="label" value="LIP-6804" />
     <property name="maxLineCount" value="4" />
     <property name="profileTemplate" value="lg-nortel/mac.cfg.vm" />
+    <property name="emergencyConfigurable" value="true"/>
   </bean>
 
   <!-- models -->

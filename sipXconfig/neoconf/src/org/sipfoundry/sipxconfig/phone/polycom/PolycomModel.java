@@ -30,5 +30,6 @@ public final class PolycomModel extends PhoneModel {
             VER_1_6, 
             VER_2_0
         });
+        setEmergencyConfigurable(true);
     }    
 }

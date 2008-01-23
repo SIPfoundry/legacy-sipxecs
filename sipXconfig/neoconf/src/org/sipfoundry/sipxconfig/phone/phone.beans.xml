@@ -12,6 +12,10 @@
   <bean id="phoneModelSource" class="org.sipfoundry.sipxconfig.device.FilteredModelSource">
     <property name="modelSource" ref="nakedPhoneModelSource" />
   </bean>
+  
+  <bean id="emergencyConfigurableModelSource" class="org.sipfoundry.sipxconfig.phone.EmergencyPhoneModelSource">
+    <property name="modelSource" ref="phoneModelSource" />
+  </bean>
 
   <bean id="phoneContextImpl" class="org.sipfoundry.sipxconfig.phone.PhoneContextImpl">
     <property name="sessionFactory" ref="sessionFactory" />

@@ -61,7 +61,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private PhonebookManager m_phonebookManager;
 
     private SpeedDialManager m_speedDialManager;
-
+    
     public PhonebookManager getPhonebookManager() {
         return m_phonebookManager;
     }

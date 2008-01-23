@@ -171,7 +171,7 @@ public class DeviceDefaults {
         if (m_dialPlanContext == null) {
             return null;
         }        
-        
+               
         return m_dialPlanContext.getLikelyEmergencyInfo();        
     }
     

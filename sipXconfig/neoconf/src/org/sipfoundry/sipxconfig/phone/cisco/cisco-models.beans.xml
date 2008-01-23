@@ -9,6 +9,7 @@
   <bean id="ciscoIpModel" abstract="true" parent="ciscoModel">
     <property name="beanId" value="ciscoIp" />
     <property name="profileTemplate" value="ciscoIp/cisco-ip.vm" />
+    <property name="emergencyConfigurable" value="true"/>
   </bean>
 
   <bean id="cisco7960" parent="ciscoIpModel">

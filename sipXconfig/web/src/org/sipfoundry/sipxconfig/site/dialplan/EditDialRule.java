@@ -28,7 +28,9 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 import org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 
 /**
  * EditDialRule
@@ -55,6 +57,9 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
     @InjectObject(value = "spring:mediaServerFactory")
     public abstract MediaServerFactory getMediaServerFactory();
 
+    @InjectObject(value = "spring:emergencyConfigurableModelSource")
+    public abstract ModelSource<PhoneModel> getEmergencyConfigurableModelSource();
+
     @Persist
     public abstract Integer getRuleId();
 
@@ -76,6 +81,16 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
     public abstract List getAvailableSchedules();
 
     public abstract void setAvailableSchedules(List schedules);
+    
+    public String getEmergencyConfigurableDeviceList() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<ul>");
+        for (PhoneModel model : getEmergencyConfigurableModelSource().getModels()) {
+            sb.append("<li>").append(model.getLabel()).append("</li>");
+        }
+        sb.append("</ul>");
+        return sb.toString();
+    }
 
     public IPropertySelectionModel getMediaServerTypeModel() {
         Map<String, String> types2Labels = getMediaServerFactory().getBeanIdsToLabels();
