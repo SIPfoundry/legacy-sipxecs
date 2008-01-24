@@ -1416,7 +1416,12 @@
         </type>
         <value>3</value>
       </setting>
-      <group name="routing.1">
+      <!-- 
+        - Recommended emergency settings are on lines so make these
+        - settings advanced use only. I decided not to remove in case 
+        - they useful for folks and if used in earlier sipx versions 
+        -->
+      <group name="routing.1" advanced="yes">
         <setting name="address">
           <type>
             <!-- dotted-decimal IP address or host name -->
