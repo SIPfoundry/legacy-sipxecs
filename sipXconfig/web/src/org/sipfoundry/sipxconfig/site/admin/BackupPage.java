@@ -16,12 +16,15 @@ import java.util.List;
 
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.BackupPlan;
 import org.sipfoundry.sipxconfig.admin.DailyBackupSchedule;
+import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
+import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class BackupPage extends BasePage implements PageBeginRenderListener {
@@ -44,6 +47,9 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
     public abstract BackupPlan getBackupPlan();
 
     public abstract void setBackupPlan(BackupPlan plan);
+    
+    public abstract IPropertySelectionModel getBackupLimitSelectionModel();
+    public abstract void setBackupLimitSelectionModel(IPropertySelectionModel model);
 
     public void pageBeginRender(PageEvent event_) {
         List urls = getBackupFiles();
@@ -61,6 +67,18 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
                 plan.addSchedule(schedule);
             }
             setBackupPlan(plan);
+        }
+        
+        ExtraOptionModelDecorator backupLimitModel = (ExtraOptionModelDecorator) getBackupLimitSelectionModel();
+        if (backupLimitModel == null) {
+            ObjectSelectionModel numbersOnly = new ObjectSelectionModel();
+            numbersOnly.setCollection(BACKUP_LIMIT_MODEL);
+            numbersOnly.setLabelExpression("toString()");
+            backupLimitModel = new ExtraOptionModelDecorator();
+            backupLimitModel.setModel(numbersOnly);
+            backupLimitModel.setExtraLabel(getMessages().getMessage("select.unlimited"));
+            backupLimitModel.setExtraOption(null);
+            setBackupLimitSelectionModel(backupLimitModel);
         }
     }
 

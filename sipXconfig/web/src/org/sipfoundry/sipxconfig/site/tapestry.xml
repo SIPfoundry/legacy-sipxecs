@@ -139,27 +139,6 @@
 
   <bean name="timeOfDayTranslator" class="org.sipfoundry.sipxconfig.components.TimeOfDayTranslator"></bean>
 
-  <!-- used in item common - most names in sipXconfig have the same limitation as user URL -->
-  <bean id="limitedBackupCountModelPart1" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <property name="collection">
-      <bean id="org.sipfoundry.sipxconfig.site.admin.BackupPage.BACKUP_LIMIT_MODEL"
-        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-    </property>
-    <property name="labelExpression">
-      <value>toString()</value>
-    </property>
-  </bean>
-  <bean name="limitedBackupCountModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
-    <property name="model">
-      <ref local="limitedBackupCountModelPart1" />
-    </property>
-    <property name="extraOption">
-      <null />
-    </property>
-    <property name="extraLabel">
-      <value>Unlimited</value>
-    </property>
-  </bean>
   <!-- prototype for a visit object -->
   <bean id="tableVariables" class="org.sipfoundry.sipxconfig.components.TableVariables" singleton="false">
     <property name="tablePageSize" value="20" />
