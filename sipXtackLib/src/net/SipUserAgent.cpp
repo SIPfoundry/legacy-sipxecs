@@ -1468,6 +1468,9 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
          mSipTransactions.findTransactionFor(*message,
                                              FALSE, // incoming
                                              relationship);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipUserAgent[%s]::dispatch transaction = %p, relationship = %d",
+                    getName().data(), transaction, relationship);
 
 #ifdef LOG_TIME
       eventTimes.addEvent("found TX");
@@ -1584,6 +1587,16 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                   delayedDispatchMessage = NULL;
                }
             }
+         }
+         // Resends of requests need to be passed to the transaction to
+         // send the response again.
+         else
+         {
+            transaction->handleIncoming(*message,
+                                        *this,
+                                        relationship,
+                                        mSipTransactions,
+                                        delayedDispatchMessage);
          }
 
          messageStatusString.append("Received duplicate message\n");
