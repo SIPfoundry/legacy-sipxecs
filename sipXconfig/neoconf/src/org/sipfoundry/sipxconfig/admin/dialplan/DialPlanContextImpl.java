@@ -489,15 +489,18 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public EmergencyInfo getLikelyEmergencyInfo() {
         EmergencyRule[] rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(), EmergencyRule.class);
         for (EmergencyRule rule : rules) {
-            for (Gateway candidate : rule.getGateways()) {                
-                // by default phones cannot support sending to emergency host through
-                // a gateway that has a route in between.
-                // see http://list.sipfoundry.org/archive/sipx-dev/msg09644.html
-                if (StringUtils.isBlank(candidate.getRoute())) {
-                    return new EmergencyInfo(candidate.getAddress(), candidate.getAddressPort(), 
-                            rule.getEmergencyNumber());
+            if (rule.isEnabled() && !rule.getUseMediaServer()) {
+                for (Gateway candidate : rule.getGateways()) {                
+                    // by default phones cannot support sending to emergency host through
+                    // a gateway that has a route in between.
+                    // see http://list.sipfoundry.org/archive/sipx-dev/msg09644.html
+                    if (StringUtils.isBlank(candidate.getRoute())) {
+                        int port = candidate.getAddressPort();
+                        return new EmergencyInfo(candidate.getAddress(), port == 0 ? null : port, 
+                                rule.getEmergencyNumber());
+                    }
                 }
-            }            
+            }
         }
 
         return null;        

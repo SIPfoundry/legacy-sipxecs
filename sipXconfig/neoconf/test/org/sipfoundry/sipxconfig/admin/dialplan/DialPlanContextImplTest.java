@@ -82,12 +82,16 @@ public class DialPlanContextImplTest extends TestCase {
         assertEquals("2000", manager.getVoiceMail());
     }
 
-    public void testLikelyEmergencyGateway() {
+    public void testNoLikelyEmergencyInfo() {
         DialPlan plan = new DialPlan();
         DialPlanContextImpl manager = new MockDialPlanContextImpl(plan);
+        
+        // no rules
         assertNull(manager.getLikelyEmergencyInfo());
 
+        // no gateway
         EmergencyRule emergency = new EmergencyRule();
+        emergency.setEnabled(true);
         DialingRule[] rules = new DialingRule[] {
                 emergency
         };
@@ -95,15 +99,23 @@ public class DialPlanContextImplTest extends TestCase {
         plan.setRules(Arrays.asList(rules));        
         assertNull(manager.getLikelyEmergencyInfo());
 
+        // caller sensitive routing
         Gateway gateway = new Gateway();
         gateway.setAddress("pstn.example.org");
         gateway.setAddressPort(9050);        
-        emergency.setGateways(Collections.singletonList(gateway));
-        EmergencyInfo info = manager.getLikelyEmergencyInfo();         
-        assertEquals("pstn.example.org", info.getAddress());
-        assertEquals((Integer) 9050, info.getPort());
-        assertEquals("sos", info.getNumber());
+        emergency.setGateways(Collections.singletonList(gateway));        
+        emergency.setUseMediaServer(true);
+        emergency.setEnabled(true);
+        assertNull(manager.getLikelyEmergencyInfo());                
         
+        // disabled rule
+        emergency.setUseMediaServer(false);
+        emergency.setEnabled(false);
+        assertNull(manager.getLikelyEmergencyInfo());                
+
+        // gateway has routing (e.g. SBC)
+        emergency.setUseMediaServer(false);
+        emergency.setEnabled(true);
         Gateway gatewayWithSbc = new Gateway() {
             public String getRoute() {
                 return "sbc.example.org";
@@ -112,7 +124,31 @@ public class DialPlanContextImplTest extends TestCase {
         rules[0].setGateways(Collections.singletonList(gatewayWithSbc));
         assertNull(manager.getLikelyEmergencyInfo());                
     }
+    
+    public void testLikelyEmergencyInfo() {
+        DialPlan plan = new DialPlan();
+        DialPlanContextImpl manager = new MockDialPlanContextImpl(plan);
 
+        EmergencyRule emergency = new EmergencyRule();
+        emergency.setEnabled(true);
+        DialingRule[] rules = new DialingRule[] {
+                emergency
+        };
+        emergency.setEmergencyNumber("sos");
+        plan.setRules(Arrays.asList(rules));
+        Gateway gateway = new Gateway();
+        gateway.setAddress("pstn.example.org");
+        emergency.setGateways(Collections.singletonList(gateway));
+        
+        EmergencyInfo info = manager.getLikelyEmergencyInfo();         
+        assertEquals("pstn.example.org", info.getAddress());
+        assertEquals("sos", info.getNumber());
+        assertNull(info.getPort());
+        
+        gateway.setAddressPort(9050);            
+        assertEquals((Integer) 9050, manager.getLikelyEmergencyInfo().getPort());
+    }
+    
     private static class MockDialPlanContextImpl extends DialPlanContextImpl {
         private DialPlan m_plan;
 
