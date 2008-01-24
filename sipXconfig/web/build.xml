@@ -143,6 +143,7 @@
       <classes dir="${classes.dir}"/>
       <classes dir="${src.dir}">
         <include name="**/*.png"/>
+        <include name="**/*.jpg"/>
         <include name="**/*.css"/>
         <include name="**/*.xml"/>
         <include name="**/*.wsdl"/>

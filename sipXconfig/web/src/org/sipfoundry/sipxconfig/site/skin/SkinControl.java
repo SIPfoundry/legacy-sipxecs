@@ -50,6 +50,7 @@ public class SkinControl implements BeanFactoryAware {
         String pkg = getClass().getPackage().getName().replace('.', '/');
         // default skin resources
         m_assets.put("logo.png", pkg + "/sipxconfig-logo.png");
+        m_assets.put("login.jpg", pkg + "/login.jpg");
         m_assets.put(ASSET_LAYOUT, pkg + "/layout.css");
         m_assets.put(ASSET_COLORS, pkg + "/colors.css");
         m_assets.put(ASSET_IE6, pkg + "/ie6-hacks.css");

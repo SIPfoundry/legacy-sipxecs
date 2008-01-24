@@ -89,6 +89,38 @@ li.tab
 	padding: .2em 1ex;
 }
 
+#login-ad {
+  float:left;
+  background: url(/sipxconfig/skin/login.jpg) no-repeat left;
+  margin-top: 80px;
+  width: 565px;
+  height: 200px;
+  border-top: thin solid #fff;
+  border-bottom: thin solid #fff;
+}
+
+#login-form {
+  width: 380px;
+  height: 200px;
+  margin-top: 92px;
+  margin-left: 565px;
+  border-top: thin solid #06c;
+  border-right: thin solid #06c;
+  border-bottom: thin solid #06c;
+}
+
+fieldset#loginForm legend {
+  font-size: 24px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bolder;
+}
+
+#login-form form {
+  width: 460px;
+  margin: 4px;
+  padding: 3px;
+}
+
 #lastmodified
 {
 	align:right;
