@@ -34,7 +34,7 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
     private final JournalService journalService;
     private LinkedList<Device> devices;
 
-    private final int discoveryBlockSize = 16;
+    private final int discoveryBlockSize = 32;
 
     private class UAVendor {
         public final String name;
@@ -277,34 +277,40 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
         // Walk through the range of IP addresses, creating DiscoveryAgents for each address.
         while (range > 0) {
             // So as not to flood the network, only send out a small number of requests at a time.
-            int discoveryBlock = (range > discoveryBlockSize ? discoveryBlockSize : range);
-            range -= discoveryBlock;
-            for (int x = 0; x < discoveryBlock; x++) {
-                try {
-                    String target = String.format("%d.%d.%d.%d", addr[0], addr[1], addr[2], addr[3]);
-                    if (target.compareTo(localHostAddress) != 0) {
-                        // Otherwise skip ourself.
-                        newActiveObject(new DiscoveryAgentImpl(target, this), target);
-                    }
-                    // Calculate the next IP address.
-                    if (++addr[3] == 256) {
-                        addr[3] = 0;
-                        if (++addr[2] == 256) {
-                            addr[2] = 0;
-                            ++addr[1];
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
             try {
-                while (size() > 0) {
-                    Thread.sleep(1000);
+                String target = String.format("%d.%d.%d.%d", addr[0], addr[1], addr[2], addr[3]);
+                if (target.compareTo(localHostAddress) != 0) {
+                    // Otherwise skip ourself.
+                    newActiveObject(new DiscoveryAgentImpl(target, this), target);
+                }
+                // Calculate the next IP address.
+                if (++addr[3] == 256) {
+                    addr[3] = 0;
+                    if (++addr[2] == 256) {
+                        addr[2] = 0;
+                        ++addr[1];
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            range -= 1;
+
+            // Wait for some of the discovery requests to finish before sending more.
+            try {
+                while (size() == discoveryBlockSize) {
+                    Thread.sleep(100);
                 }
             } catch (InterruptedException e) {
             }
+        }
+
+        // Wait for the remaining discovery requests to finish.
+        try {
+            while (size() > 0) {
+                Thread.sleep(100);
+            }
+        } catch (InterruptedException e) {
         }
 
         return devices;
