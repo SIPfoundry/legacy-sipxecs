@@ -676,6 +676,37 @@ TiXmlNode* ProvisioningClass::findPSInstance(const char* pClassName, const char*
    return pInstanceNode;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  NAME:        ProvisioningClass::deletePSAttribute
+//
+//  SYNOPSIS:    
+//
+//  DESCRIPTION: 
+//
+//  RETURNS:     None.
+//
+//  ERRORS:      None.
+//
+//  CAVEATS:     None.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool ProvisioningClass::deletePSAttribute(TiXmlNode* pClassInstance, const char* pAttribute)
+{
+    TiXmlNode*  pAttributeNode;
+
+    // Find the attribute
+    pAttributeNode = pClassInstance->FirstChild(pAttribute);
+    if (pAttributeNode == NULL) {
+       // The attribute does not exist.
+       return false;
+    }
+    else {
+        pClassInstance->RemoveChild(pAttributeNode);
+        return true ;        
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //

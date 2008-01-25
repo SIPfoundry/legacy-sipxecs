@@ -434,7 +434,7 @@ ProvisioningAttrList* ACDQueueManager::Create(ProvisioningAttrList& rRequestAttr
    if (rRequestAttributes.getAttribute(QUEUE_NAME_TAG, name)) {
       setPSAttribute(pInstanceNode, QUEUE_NAME_TAG, name);
    }
-
+ 
    // acd-scheme
    rRequestAttributes.getAttribute(QUEUE_ACD_SCHEME_TAG, acdScheme);
    setPSAttribute(pInstanceNode, QUEUE_ACD_SCHEME_TAG, acdScheme);
@@ -757,114 +757,152 @@ ProvisioningAttrList* ACDQueueManager::Set(ProvisioningAttrList& rRequestAttribu
    }
 
    // Now save the individual attribute changes
-   // name
+   
+   // name (optional)
    if (rRequestAttributes.getAttribute(QUEUE_NAME_TAG, name)) {
       setPSAttribute(pInstanceNode, QUEUE_NAME_TAG, name);
    }
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_NAME_TAG);
+   }
 
-   // acd-scheme
+   // acd-scheme (required)
    if (rRequestAttributes.getAttribute(QUEUE_ACD_SCHEME_TAG, acdScheme)) {
       setPSAttribute(pInstanceNode, QUEUE_ACD_SCHEME_TAG, acdScheme);
    }
 
-   // max-ring-delay
+   // max-ring-delay (required)
    if (rRequestAttributes.getAttribute(QUEUE_MAX_RING_DELAY_TAG, maxRingDelay)) {
       setPSAttribute(pInstanceNode, QUEUE_MAX_RING_DELAY_TAG, maxRingDelay);
    }
 
-   // max-queue-depth
+   // max-queue-depth (required)
    if (rRequestAttributes.getAttribute(QUEUE_MAX_QUEUE_DEPTH_TAG, maxQueueDepth)) {
       setPSAttribute(pInstanceNode, QUEUE_MAX_QUEUE_DEPTH_TAG, maxQueueDepth);
    }
 
-   // max-wait-time
+   // max-wait-time (required)
    if (rRequestAttributes.getAttribute(QUEUE_MAX_WAIT_TIME_TAG, maxWaitTime)) {
       setPSAttribute(pInstanceNode, QUEUE_MAX_WAIT_TIME_TAG, maxWaitTime);
    }
 
-   // fifo-overflow
+   // fifo-overflow (required)
    if (rRequestAttributes.getAttribute(QUEUE_FIFO_OVERFLOW_TAG, fifoOverflow)) {
       setPSAttribute(pInstanceNode, QUEUE_FIFO_OVERFLOW_TAG, fifoOverflow);
    }
 
-   // overflow-queue
+   // overflow-queue (optional)
    if (rRequestAttributes.getAttribute(QUEUE_OVERFLOW_QUEUE_TAG, overflowQueue)) {
       setPSAttribute(pInstanceNode, QUEUE_OVERFLOW_QUEUE_TAG, overflowQueue);
    }
-
-   // overflow-queue
-   if (rRequestAttributes.getAttribute(QUEUE_OVERFLOW_ENTRY_TAG, overflowEntry)) {
-      setPSAttribute(pInstanceNode, QUEUE_OVERFLOW_ENTRY_TAG, overflowEntry);
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_OVERFLOW_QUEUE_TAG);
    }
 
-   // answer-mode
+   // answer-mode (required)
    if (rRequestAttributes.getAttribute(QUEUE_ANSWER_MODE_TAG, answerMode)) {
       setPSAttribute(pInstanceNode, QUEUE_ANSWER_MODE_TAG, answerMode);
    }
 
-   // call-connect-scheme
+   // call-connect-scheme (required)
    if (rRequestAttributes.getAttribute(QUEUE_CALL_CONNECT_SCHEME_TAG, callConnectScheme)) {
       setPSAttribute(pInstanceNode, QUEUE_CALL_CONNECT_SCHEME_TAG, callConnectScheme);
    }
 
-   // welcome-audio
+   // welcome-audio (optional)
    if (rRequestAttributes.getAttribute(QUEUE_WELCOME_AUDIO_TAG, welcomeAudio)) {
       setPSAttribute(pInstanceNode, QUEUE_WELCOME_AUDIO_TAG, welcomeAudio);
+   }
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_WELCOME_AUDIO_TAG);
    }
 
    // barge-in (optional)
    if (rRequestAttributes.getAttribute(QUEUE_BARGE_IN_TAG, bargeIn)) {
       setPSAttribute(pInstanceNode, QUEUE_BARGE_IN_TAG, bargeIn);
    }
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_BARGE_IN_TAG);
+   }
 
-   // queue-audio
+   // queue-audio (optional)
    if (rRequestAttributes.getAttribute(QUEUE_QUEUE_AUDIO_TAG, queueAudio)) {
       setPSAttribute(pInstanceNode, QUEUE_QUEUE_AUDIO_TAG, queueAudio);
    }
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_QUEUE_AUDIO_TAG);
+   }
 
-   // background-audio
+   // background-audio (optional)
    if (rRequestAttributes.getAttribute(QUEUE_BACKGROUND_AUDIO_TAG, backgroundAudio)) {
       setPSAttribute(pInstanceNode, QUEUE_BACKGROUND_AUDIO_TAG, backgroundAudio);
    }
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_BACKGROUND_AUDIO_TAG);
+   }
 
-   // queue-audio-interval
+   // queue-audio-interval (optional)
    if (rRequestAttributes.getAttribute(QUEUE_QUEUE_AUDIO_INTERVAL_TAG, queueAudioInterval)) {
       setPSAttribute(pInstanceNode, QUEUE_QUEUE_AUDIO_INTERVAL_TAG, queueAudioInterval);
    }
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_QUEUE_AUDIO_INTERVAL_TAG);
+   }
 
-   // call-termination-audio
+   // call-termination-audio (optional)
    if (rRequestAttributes.getAttribute(QUEUE_CALL_TERMINATION_AUDIO_TAG, callTerminationAudio)) {
       setPSAttribute(pInstanceNode, QUEUE_CALL_TERMINATION_AUDIO_TAG, callTerminationAudio);
    }
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_CALL_TERMINATION_AUDIO_TAG);
+   }
 
-   // termination-tone-duration
+   // termination-tone-duration (optional)
    if (rRequestAttributes.getAttribute(QUEUE_TERMINATION_TONE_DURATION_TAG, terminationToneDuration)) {
       setPSAttribute(pInstanceNode, QUEUE_TERMINATION_TONE_DURATION_TAG, terminationToneDuration);
    }
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_TERMINATION_TONE_DURATION_TAG);
+   }
 
-   // agents-wrap-up-time  
+   // agents-wrap-up-time (optional)
    if (rRequestAttributes.getAttribute(QUEUE_AGENTS_WRAP_UP_TIME_TAG, agentsWrapupTime)) {
       setPSAttribute(pInstanceNode, QUEUE_AGENTS_WRAP_UP_TIME_TAG, agentsWrapupTime);
    }
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_AGENTS_WRAP_UP_TIME_TAG);
+   }
    
-   // agents-non-responsive-time  
+   // agents-non-responsive-time (optional)
    if (rRequestAttributes.getAttribute(QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG, agentsNonResponsiveTime)) {
       setPSAttribute(pInstanceNode, QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG, agentsNonResponsiveTime);
+   }
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG);
    }
 
    // max-bounces (optional)
    if (rRequestAttributes.getAttribute(QUEUE_MAX_BOUNCE_COUNT_TAG, maxBounceCount)) {
       setPSAttribute(pInstanceNode, QUEUE_MAX_BOUNCE_COUNT_TAG, maxBounceCount);
    }
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_MAX_BOUNCE_COUNT_TAG);
+   }
 
-   // acd-agent-list
+   // acd-agent-list (optional)
    if (rRequestAttributes.getAttribute(QUEUE_ACD_AGENT_LIST_TAG, acdAgentList)) {
       setPSAttribute(pInstanceNode, QUEUE_ACD_AGENT_LIST_TAG, acdAgentList);
    }
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_ACD_AGENT_LIST_TAG);
+   }
 
-   // external-line-list
+   // external-line-list (optional)
    if (rRequestAttributes.getAttribute(QUEUE_ACD_LINE_LIST_TAG, acdLineList)) {
       setPSAttribute(pInstanceNode, QUEUE_ACD_LINE_LIST_TAG, acdLineList);
+   }
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_ACD_LINE_LIST_TAG);
    }
 
    // Update the configuration file

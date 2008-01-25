@@ -71,6 +71,8 @@ public:
    bool       getPSAttribute(TiXmlNode* pClassInstance, const char* pAttribute, UtlString& rValue);
    bool       getPSAttribute(TiXmlNode* pClassInstance, const char* pAttribute, int& rValue);
    bool       getPSAttribute(TiXmlNode* pClassInstance, const char* pAttribute, bool& rValue);
+   
+   bool       deletePSAttribute(TiXmlNode* pClassInstance, const char* pAttribute);
 
    const UtlString* getClassName(void);
 
