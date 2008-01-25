@@ -1,6 +1,6 @@
 // 
 // 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007-2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 // 
@@ -93,37 +93,126 @@ void notifyEventCallback(const char* earlyDialogHandle,
 }
 
 
+void usage(const char* szExecutable)
+{
+    fprintf(stderr, "\nUsage: %s [-p localPort] [-e expiration] target-URI [event-type [content-type]]\n"
+            "\n"
+            "    localPort defaults to 0; select ephemeral port\n"
+            "    expiration defaults to 300 (seconds)\n"            
+            "    event-type defaults to '%s'\n"
+            "    content-type defaults to '%s',\n"
+            "        which supports dialog, dialog-list, and reg events\n",
+            szExecutable, default_event_type, default_content_type);
+}
+
+// Parse arguments
+bool parseArgs(int argc,
+               char*  argv[],
+               int*   pPort,
+               int*   pExpiration,
+               char** ppTargetURI,
+               char** ppEventType,
+               char** ppContentType)
+{
+    bool bRC = false;
+
+    enum NEXT_ARGUMENT 
+    {
+        NA_TARGET_URI,
+        NA_EVENT_TYPE,
+        NA_CONTENT_TYPE,
+        NA_DONE
+    } nextArg = NA_TARGET_URI;
+    
+    assert(pPort && pExpiration && ppTargetURI && ppEventType && ppContentType);
+    
+    *pPort = 0;
+    *pExpiration = 300;
+    *ppTargetURI = NULL;
+    *ppEventType = NULL;
+    *ppContentType = NULL;
+    
+    for (int i=1; i<argc; i++)
+    {
+        if (strcmp(argv[i], "-p") == 0)
+        {
+            if ((i+1) < argc)
+            {
+                *pPort = atoi(argv[++i]);
+            }
+            else
+            {
+                fprintf(stderr, "missing port value after -p\n");
+                break ; // Error
+            }
+        }
+        else if (strcmp(argv[i], "-e") == 0)
+        {
+            if ((i+1) < argc)
+            {
+                *pExpiration = atoi(argv[++i]);
+            }
+            else
+            {
+                fprintf(stderr, "missing expiration value after -e\n");
+                break ; // Error
+            }
+        }
+        else
+        {
+            switch (nextArg)
+            {
+            case NA_TARGET_URI:
+                *ppTargetURI = strdup(argv[i]);
+                nextArg = NA_EVENT_TYPE ;
+                bRC = true;
+                break ;
+            case NA_EVENT_TYPE:
+                *ppEventType = strdup(argv[i]);
+                nextArg = NA_CONTENT_TYPE ;
+                break ;
+            case NA_CONTENT_TYPE:
+                *ppContentType = strdup(argv[i]);
+                nextArg = NA_DONE ;
+                break ;
+            default:
+                bRC = false ;
+                fprintf(stderr, "Unexpected argument %s\n", argv[i]) ;
+                break ;
+            }
+        }
+    }
+    
+    if (*ppEventType == NULL)
+        *ppEventType = strdup(default_event_type);
+    
+    if (*ppContentType == NULL)
+        *ppContentType = strdup(default_content_type);
+
+    return bRC ;
+}
+
+
+
 int main(int argc, char* argv[])
 {
+    int port;
+    int expiration;
+    char* targetURI;
+    char* eventType;
+    char* contentType;
+        
    // Initialize logging.
    OsSysLog::initialize(0, "test");
    OsSysLog::setOutputFile(0, "log");
    OsSysLog::setLoggingPriority(PRI_DEBUG);
    OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
-
-   if (!(argc >= 2 && argc <= 4))
+   
+   if (!parseArgs(argc, argv, &port, &expiration, &targetURI, &eventType, &contentType))
    {
-      fprintf(stderr, "Usage: %s target-URI [event-type [content-type]]\n"
-              "\n"
-              "event-type defaults to '%s'\n"
-              "content-type defaults to '%s',\n"
-              "    which supports dialog, dialog-list, and reg events\n",
-              argv[0], default_event_type, default_content_type);
-      exit(1);
+       usage(argv[0]);
+       exit(1);
    }
-
-   // The URI to subscribe to.
-   UtlString resourceId = argv[1];
-
-   // The event type.
-   const char* event_type =
-      argc >= 3 ? argv[2] : default_event_type;
-   // The content type.
-   const char* content_type =
-      argc >= 4 ? argv[3] : default_content_type;
-
-   // Seconds to set for subscription.
-   int refreshTimeout = 300;
 
    // The domain name to call myself, obtained from the gethostname()
    // system call.
@@ -141,11 +230,16 @@ int main(int argc, char* argv[])
    // Create the SIP Subscribe Client
 
    SipUserAgent* pSipUserAgent = 
-      new SipUserAgent(PORT_DEFAULT, PORT_DEFAULT, PORT_NONE);
+      new SipUserAgent(port, port, PORT_NONE);
    // Add the 'eventlist' extension, so dialogwatch can subscribe to
    // event lists.
    pSipUserAgent->allowExtension("eventlist");
-
+   if (!pSipUserAgent->isOk())
+   {
+       fprintf(stderr, "Unable to bind to port %d\n", port);
+       exit(1);
+   }
+     
    SipDialogMgr dialogManager;
 
    SipRefreshManager refreshMgr(*pSipUserAgent, dialogManager);
@@ -155,23 +249,23 @@ int main(int argc, char* argv[])
                                          refreshMgr);
    sipSubscribeClient.start();  
 
-   UtlString toUri(resourceId);
+   UtlString toUri(targetURI);
    UtlString fromUri = "dialogwatch@" + myDomainName;
    UtlString earlyDialogHandle;
             
    fprintf(stderr,
-           "resourceId '%s' fromUri '%s' toUri '%s' event '%s' content-type '%s'\n",
-           resourceId.data(), fromUri.data(), toUri.data(), event_type,
-           content_type);
+           "resourceId '%s' fromUri '%s' toUri '%s' event '%s' content-type '%s' port=%d expiration=%d\n",
+           targetURI, fromUri.data(), toUri.data(), eventType, contentType, 
+           port, expiration);
 
    UtlBoolean status =
-      sipSubscribeClient.addSubscription(resourceId.data(),
-                                         event_type,
-                                         content_type,
+      sipSubscribeClient.addSubscription(targetURI,
+                                         eventType,
+                                         contentType,
                                          fromUri.data(),
                                          toUri.data(),
                                          NULL,
-                                         refreshTimeout,
+                                         expiration,
                                          (void *) NULL,
                                          subscriptionStateCallback,
                                          notifyEventCallback,
@@ -186,6 +280,7 @@ int main(int argc, char* argv[])
       fprintf(stderr, "Subscription attempt succeeded.  Handle: '%s'\n",
               earlyDialogHandle.data());
    }
+   
    while (1)
    {
       sleep(1000);
