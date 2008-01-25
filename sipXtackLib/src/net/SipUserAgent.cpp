@@ -2770,7 +2770,7 @@ void SipUserAgent::setIsUserAgent(UtlBoolean isUserAgent)
     mIsUaTransactionByDefault = isUserAgent;
 }
 
-/// Add either Server or User-Agent header, as appropriate
+/// Call either setServerHeader or setUserAgentHeader, as appropriate based on isUserAgent.
 void SipUserAgent::setSelfHeader(SipMessage& message)
 {
    if (mIsUaTransactionByDefault)
@@ -3606,6 +3606,7 @@ UtlBoolean SipUserAgent::resendWithAuthorization(SipMessage* response,
     return(requestResent);
 }
 
+/// Apply the recorded User-Agent/Server header value as a Server header.
 void SipUserAgent::setServerHeader(SipMessage& message)
 {
    UtlString existing;
@@ -3620,6 +3621,7 @@ void SipUserAgent::setServerHeader(SipMessage& message)
    }
 }
 
+// Apply the recorded User-Agent/Server header value as a User-Agent header.
 void SipUserAgent::setUserAgentHeader(SipMessage& message)
 {
    UtlString uaName;
@@ -3632,6 +3634,7 @@ void SipUserAgent::setUserAgentHeader(SipMessage& message)
    }
 }
 
+// Compose the full User-Agent/Server header value.
 void SipUserAgent::selfHeaderValue(UtlString& self)
 {
    self = defaultUserAgentName;

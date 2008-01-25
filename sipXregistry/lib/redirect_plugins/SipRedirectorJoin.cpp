@@ -233,6 +233,7 @@ SipRedirectorJoin::initialize(OsConfigDb& configDb,
          OsServerTask::DEF_MAX_MSGS, // queueSize
          FALSE // bUseNextAvailablePort
          );
+      mpSipUserAgent->setUserAgentHeaderProperty("sipX/redirectorJoin");
       mpSipUserAgent->start();
 
       // Initialize the CSeq counter to an arbitrary acceptable value.

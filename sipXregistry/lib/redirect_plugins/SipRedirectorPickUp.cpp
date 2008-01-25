@@ -334,7 +334,7 @@ SipRedirectorPickUp::initialize(OsConfigDb& configDb,
          OsServerTask::DEF_MAX_MSGS, // queueSize
          FALSE // bUseNextAvailablePort
          );
-      mpSipUserAgent->setUserAgentHeaderProperty("sipX/pickup");
+      mpSipUserAgent->setUserAgentHeaderProperty("sipX/redirectorPickup");
       mpSipUserAgent->start();
 
       // Initialize the CSeq counter to an arbitrary acceptable value.
@@ -743,7 +743,6 @@ SipRedirectorPickUp::lookUpDialog(
 	                          DIALOG_EVENT_CONTENT_TYPE);
    
          // Send the SUBSCRIBE.
-         mpSipUserAgent->setUserAgentHeader(subscribe);
          mpSipUserAgent->send(subscribe);
    
          // Allocate private storage.

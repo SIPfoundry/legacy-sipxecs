@@ -541,7 +541,7 @@ public:
 
     UtlBoolean isOk(OsSocket::IpProtocolSocketType socketType);
 
-    UtlBoolean isOk() ;
+    UtlBoolean isOk();
     //: Determine if the user agent is ok (all the protocol handlers are Ok)
     
     UtlBoolean isSymmetricSignalingImposed();
@@ -553,11 +553,17 @@ public:
      */
     UtlBoolean isShutdownDone();
 
+    /** Apply the recorded User-Agent/Server header value as a User-Agent header,
+     *  if the message does not already have one.
+     */
     void setUserAgentHeader(SipMessage& message);
 
+    /** Apply the recorded User-Agent/Server header value as a Server header.
+     *  if the message does not already have one.
+     */
     void setServerHeader(SipMessage& message);
 
-    /// Add either Server or User-Agent header, as appropriate based on isUserAgent
+    /// Call either setServerHeader or setUserAgentHeader, as appropriate based on isUserAgent.
     void setSelfHeader(SipMessage& message);
 
     SipContactDb& getContactDb() { return mContactDb; }
@@ -654,6 +660,8 @@ private:
     int mSipPort;
     UtlDList allowedSipMethods;
     UtlDList allowedSipExtensions;
+    // The specific name for this compnent, to be added to the User-Agent
+    // or Server headers.
     UtlString mUserAgentHeaderProperties;
     UtlHashBag mMyHostAliases;
     UtlHashBag mMessageObservers;
