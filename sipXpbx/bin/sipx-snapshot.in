@@ -416,17 +416,23 @@ echo -n "Snapshot:  "   >> ${SystemConfig}
 echo $0                 >> ${SystemConfig}
 echo ""                 >> ${SystemConfig}
 echo -n "Host:      "   >> ${SystemConfig}
-hostname                >> ${SystemConfig}
+hostname --fqdn         >> ${SystemConfig}
 echo ""                 >> ${SystemConfig}
 echo -n "Date:      "   >> ${SystemConfig}
 date -u                 >> ${SystemConfig}
 echo ""                 >> ${SystemConfig}
 echo -n "Version:   "   >> ${SystemConfig}
 uname -a                >> ${SystemConfig}
+if [ -f /etc/issue ]
+then
+echo ""                 >> ${SystemConfig}
+echo "Release (/etc/issue):" >> ${SystemConfig}
+cat /etc/issue          >> ${SystemConfig}
+fi
 if [ -f /etc/redhat-release ]
 then
 echo ""                 >> ${SystemConfig}
-echo "Release:"         >> ${SystemConfig}
+echo "Release (/etc/redhat-release):" >> ${SystemConfig}
 cat /etc/redhat-release >> ${SystemConfig}
 fi
 echo ""                 >> ${SystemConfig}
@@ -441,6 +447,10 @@ then
 else
     echo    "   Disabled"       >> ${SystemConfig}
 fi 
+echo ""                         >> ${SystemConfig}
+
+echo "NTP Peers:"               >> ${SystemConfig}
+/usr/sbin/ntpq -p               >> ${SystemConfig} 2>&1
 echo ""                         >> ${SystemConfig}
 
 echo "SSL Configuration:"      >> ${SystemConfig}
