@@ -116,7 +116,8 @@ find . -maxdepth 1 -type f -name core.\* -mtime +${MaxDays} -print0 \
 
 # count the MaxCores youngest cores; delete any others after that
 count=0
-ls --sort=time -1 core.* \
+ls --sort=time -1 \
+| grep '^core\.' \
 | while read corefile
 do
     count=$(( ${count} + 1 ))
