@@ -116,6 +116,10 @@ public:
 
    void clearRoutePendingAnswer(void) { mRoutePendingAnswer = false; }
 
+   void setXferPendingAnswer(void) { mXferPendingAnswer = true; }
+
+   void clearXferPendingAnswer(void) { mXferPendingAnswer = false; }
+
    void setTransferAgent(ACDAgent* pAgentRef) { mpTransferAgent = pAgentRef; }
 
    void setCallId(int callHandle);
@@ -170,6 +174,8 @@ public:
 /* ============================ INQUIRY =================================== */
 
    bool routePendingAnswer(void) { return mRoutePendingAnswer; }
+
+   bool getXferPendingAnswer(void) { return mXferPendingAnswer; }
    
    eCallState getCurrentCallState(void) { return mCallState; }
 
@@ -271,6 +277,7 @@ private:
    OsTimer*         mpQueueAudioDelayTimer;      // The timer used to time the delay between repeating queue audio
    OsTimer*         mpTerminationAudioPlayTimer; // The timer used to time the completion of the termination audio
    bool             mRoutePendingAnswer;         // Flag indicating that the call is pending route
+   bool             mXferPendingAnswer;          // Flag indicating that the call is pending a transfer
    bool             mBargeIn;                    // Flag indicating that the welcome message can be barged-in
    enum eCallTimers mPlayingAudio;               // Flag indicating that audio is being played to caller (and which audio)
    bool             mPlayingRingback;            // Flag indicating that ringback tone is being played to caller

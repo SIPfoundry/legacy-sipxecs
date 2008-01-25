@@ -1348,13 +1348,18 @@ void ACDQueue::transferOverflowCall(ACDCall* pCallRef)
                  pCallRef->getCallHandle(),mOverflowEntry.data());
 
    if (pCallRef->getCurrentCallState() != ACDCall::CONNECTED) {
-      // Mark this call to be routed once answered
-      pCallRef->setRoutePendingAnswer();
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::transferOverflowCall - ACDCall(%d) needs to be answered first",
+                 pCallRef->getCallHandle());
+      // Clear route state back to IDLE
+      pCallRef->resetRouteState();
+
+      // Mark this call to be xfered once answered
+      pCallRef->setXferPendingAnswer();
+
+      // Answer the call.
       pCallRef->answerCall(mWelcomeAudio, mBargeIn);
-      sipxCallAnswer(pCallRef->getCallHandle());
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::transferOverflowCall - ACDCall(%d) is being answered",
-         pCallRef->getCallHandle());
-      unroute(pCallRef, true);
+
+      // Will get back to here once call is connected due to XferPendingAnswer
    } else {
       // now transfer the call
       rc = sipxCallBlindTransfer(pCallRef->getCallHandle(),mOverflowEntry.data());
@@ -1413,12 +1418,21 @@ void ACDQueue::removeCallMessage(ACDCall* pCallRef)
 
 void ACDQueue::callConnectedMessage(ACDCall* pCallRef)
 {
+   // See if this call is pending a transfer
+   if (pCallRef->getXferPendingAnswer() == TRUE) {
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+         "%s::callConnectedMessage - ACDCall(%d) transfer pending",
+             mAcdSchemeString, pCallRef->getCallHandle());
+      transferOverflowCall(pCallRef) ;
+      return ;
+   }
+
    // See if this call is pending a route
    if (pCallRef->routePendingAnswer() == FALSE) {
       // Now that the call has connected, give the caller something to listen to
       pCallRef->playAudio(mQueueAudio, mQueueAudioInterval, mBackgroundAudio);
       OsSysLog::add(FAC_ACD, gACD_DEBUG, "%s::callConnectedMessage - ACDCall(%d) has already connected and playing queue audio ...",
-                    mAcdSchemeString, pCallRef->getCallHandle());
+         mAcdSchemeString, pCallRef->getCallHandle());
       return ;
    }
 

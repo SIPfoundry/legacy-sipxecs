@@ -139,6 +139,7 @@ ACDCall::ACDCall(ACDCallManager* pAcdCallManager, ACDLine* pLineRef, SIPX_CALL h
    mRingNoAnswerTime    = 0;
    mWelcomeAudioPlaying = false;
    mRnaState = FALSE;
+   mXferPendingAnswer   = false ;
 
    // Transfer flag related to transfer mode
    mFlagCTransfer = FALSE;
@@ -1527,7 +1528,12 @@ void ACDCall::acdCallConnectedEvent(int cause)
    OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::acdCallConnectedEvent - Call(%d) [%s] state %d cause %d is being connected.",
                  mhCallHandle, mpCallIdentity, getCurrentCallState(), cause);
 
-   if ((TRUE == mFlagCTransfer) && (cause == CALLSTATE_CONNECTED_INACTIVE))
+   if ((true == getXferPendingAnswer()) && (cause == CALLSTATE_CONNECTED_INACTIVE))
+   {
+      // Ignore this.  It happens during the bind xfer and we don't want
+      // to act on it.
+   }
+   else if ((TRUE == mFlagCTransfer) && (cause == CALLSTATE_CONNECTED_INACTIVE))
    {
       mCallState = CONNECTED;
       mpRouteStateMachine->acdCTransferConnectedEvent(this);

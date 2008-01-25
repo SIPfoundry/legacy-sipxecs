@@ -160,6 +160,16 @@ void ACDCallRouteState_IDLE::routeRequestEvent(ACDCall* pAcdCallInstance)
 
 void ACDCallRouteState_IDLE::acdCallConnectedEvent(ACDCall* pAcdCallInstance)
 {
+   if (pAcdCallInstance->getXferPendingAnswer() == TRUE)
+   {
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_IDLE::acdCallConnectedEvent - "
+                    "Call(%d) is answered pending transfer",
+                    pAcdCallInstance->mhCallHandle);
+      // so send the CALL_CONNECTED message to the managing queue
+      pAcdCallInstance->mpManagingQueue->callConnected(pAcdCallInstance);
+      return ;
+   }
+
    if (pAcdCallInstance->mConnectionScheme == ACDQueue::CONFERENCE) {
       if (join(pAcdCallInstance, pAcdCallInstance->mhCallHandle) != OS_SUCCESS)
       {
