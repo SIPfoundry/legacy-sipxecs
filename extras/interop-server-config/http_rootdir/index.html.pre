@@ -402,9 +402,9 @@ Any call to <code>9000</code> will return a 483 Too Many Hops.  As a
 diagnostic aid, this software returns part of the failed request in
 the body of the 483 response.  This allows you to test whether or not
 your user interface conveys the reason for the failure (and is not
-troubled by the response body).  This is being considered for
-standardization; see
-<a href='http://www.ietf.org/internet-drafts/draft-ietf-sip-hop-limit-diagnostics-03.txt'>draft-ietf-sip-hop-limit-diagnostics-03</a>.
+troubled by the response body).  For information on the motivation for
+this response construction, see
+<a href='http://svn.resiprocate.org/rep/ietf-drafts/lawrence/hopcopy/draft-ietf-sip-hop-limit-diagnostics-03.html'>Diagnostic Responses for Session Initiation Protocol Hop Limit Errors</a>.
 </p>
 
 <h3><a name='pickup'>10</a>. Call Pick-Up</h3>
