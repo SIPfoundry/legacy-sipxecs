@@ -220,11 +220,11 @@
       </permissionMatch>
     </userMatch>
 
-    <!-- Infinite Loop
-      -  Forces a Too Many Hops error to be returned.
+    <!-- Loop
+      -  Forces a Loop Detected error to be returned.
       -->
     <userMatch>
-      <userPattern>9000</userPattern>
+      <userPattern>9001</userPattern>
       <permissionMatch>
         <transform>
           <user>InfiniteLoop</user>

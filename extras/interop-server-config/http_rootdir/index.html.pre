@@ -247,6 +247,7 @@ Any SIP UA can call a registered UA by calling its AOR,
 <li><a href='#BLF'>BLF (Busy Lamp Field) and Dialog-Event Resource Lists</a></li>
 <li><a href='#two-dialog-subs'>Multiple Dialog Event Subscriptions</a></li>
 <li><a href='#BLF-status'>BLF Status Display</a></li>
+<li><a href='#loopdetected'>Proxy Loop Detection</a></li>
 </ol>
 
 <h3><a name='MWI'>1</a>. DTMF Generation and Message Waiting Indication (MWI)</h3>
@@ -791,6 +792,18 @@ This server uses a
 <a href='http://www.sipfoundry.org/sipXpbx/'>sipXecs Open Source
 PBX Project</a>.
 (It would not make a very friendly configuration in a real PBX :-).)
+</p>
+
+<h3><a name='loopdetected'>9</a>. Proxy Loop Detection</h3>
+
+<p>
+Any call to <code>9001</code> will return a 482 Loop Detected error.  As a
+diagnostic aid, this software returns part of the failed request in
+the body of the 482 response.  This allows you to test whether or not
+your user interface conveys the reason for the failure (and is not
+troubled by the response body).  For information on the motivation for
+this response construction, see
+<a href='http://svn.resiprocate.org/rep/ietf-drafts/lawrence/hopcopy/draft-ietf-sip-hop-limit-diagnostics-03.html'>Diagnostic Responses for Session Initiation Protocol Hop Limit Errors</a>.
 </p>
 
 </body>
