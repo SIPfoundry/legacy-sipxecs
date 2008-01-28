@@ -329,7 +329,7 @@ UtlContainable* UtlHashBag::find(const UtlContainable* object) const
 {
    UtlContainable* foundObject = NULL;
 
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
 
    UtlLink*  link;
    UtlChain* bucket;
@@ -348,7 +348,7 @@ UtlContainable* UtlHashBag::find(const UtlContainable* object) const
 
 size_t UtlHashBag::entries() const
 {
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
 
    return mElements;
 }
@@ -356,7 +356,7 @@ size_t UtlHashBag::entries() const
 
 UtlBoolean UtlHashBag::isEmpty() const
 {
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
 
    return mElements == 0;
 }
@@ -367,7 +367,7 @@ UtlBoolean UtlHashBag::contains(const UtlContainable* object)  const
    UtlLink*  link;
    UtlChain* bucket;
    
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
 
    return lookup(object, bucket, link);
 }

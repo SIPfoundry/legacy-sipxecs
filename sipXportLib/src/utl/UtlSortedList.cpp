@@ -73,7 +73,7 @@ UtlContainable* UtlSortedList::find(const UtlContainable* obj) const
    UtlLink*          listNode;
    UtlContainable* matchNode = NULL;
     
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
    
    listNode = findNode(head(), EXACTLY, obj);
    if (listNode != NULL)
@@ -95,7 +95,7 @@ size_t UtlSortedList::index(const UtlContainable* obj) const
    UtlLink*        listNode;
    unsigned        keyHash = obj->hash();
    
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
    
    for (listNode = head(), thisIndex = 0;
         listNode && index == UTL_NOT_FOUND;
@@ -121,7 +121,7 @@ size_t UtlSortedList::occurrencesOf(const UtlContainable* containableToMatch) co
    UtlContainable* visitNode = NULL;
    int             comparison;
 
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
    
    for (listNode = head(), comparison = 0;
         comparison <= 0 && listNode;

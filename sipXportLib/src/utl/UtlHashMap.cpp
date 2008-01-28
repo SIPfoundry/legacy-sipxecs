@@ -318,7 +318,7 @@ UtlContainable* UtlHashMap::findValue(const UtlContainable* key) const
    UtlPair* foundPair;
    UtlChain* unusedBucket;
    
-   OsLock take(const_cast<OsBSem&>(mContainerLock));   
+   OsLock take(mContainerLock);   
 
    if (lookup(key, unusedBucket, foundPair))
    {
@@ -336,7 +336,7 @@ UtlContainable* UtlHashMap::find(const UtlContainable* key) const
    UtlPair* foundPair;
    UtlChain* unusedBucket;
    
-   OsLock take(const_cast<OsBSem&>(mContainerLock));   
+   OsLock take(mContainerLock);   
 
    if (lookup(key, unusedBucket, foundPair))
    {
@@ -351,7 +351,7 @@ UtlContainable* UtlHashMap::find(const UtlContainable* key) const
 
 size_t UtlHashMap::entries() const 
 {
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
    
    return mElements; 
 }

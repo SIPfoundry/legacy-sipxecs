@@ -204,7 +204,7 @@ void UtlList::removeAll()
 // Return the first element (head) of the list.
 UtlContainable* UtlList::first() const 
 {
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
    
    UtlLink* firstNode = head();
    
@@ -215,7 +215,7 @@ UtlContainable* UtlList::first() const
 // Return the last element (tail) of the list.
 UtlContainable* UtlList::last() const 
 {
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
    
    UtlLink* lastNode = tail();
 
@@ -226,7 +226,7 @@ UtlContainable* UtlList::last() const
 // Return the element at position N.
 UtlContainable* UtlList::at(size_t N) const 
 {
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
 
    size_t n;
    UtlLink* link;
@@ -241,7 +241,7 @@ UtlContainable* UtlList::at(size_t N) const
 // Return the total number.
 size_t UtlList::entries() const
 {
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
    
    size_t count;
    UtlLink* node;
@@ -272,7 +272,7 @@ UtlBoolean UtlList::containsReference(const UtlContainable* containableToMatch) 
    UtlLink* listNode;
    UtlBoolean isMatch = FALSE;
 
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
    
    for(listNode = head(); listNode && !isMatch; listNode = listNode->next())
    {

@@ -31,7 +31,7 @@
 UtlHashMapIterator::UtlHashMapIterator(const UtlHashMap& mapSource)
    : UtlIterator(mapSource)
 {
-   OsLock container(const_cast<OsBSem&>(mapSource.mContainerLock));
+   OsLock container(mapSource.mContainerLock);
    addToContainer(&mapSource);
 
    init();

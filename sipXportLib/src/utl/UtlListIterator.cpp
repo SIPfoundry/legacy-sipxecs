@@ -40,7 +40,7 @@ UtlListIterator::UtlListIterator(const UtlList& list)
    : UtlIterator(list),
      mpCurrentNode(NULL)
 {
-   OsLock container(const_cast<OsBSem&>(list.mContainerLock));
+   OsLock container(list.mContainerLock);
    
    addToContainer(&list);
 }

@@ -157,7 +157,7 @@ UtlContainable* UtlSList::find(const UtlContainable* containableToMatch) const
 
    unsigned targetHash = containableToMatch->hash();
    
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
    
    LIST_SANITY_CHECK;
    for(listNode = head()->findNextHash(targetHash);
@@ -187,7 +187,7 @@ size_t UtlSList::occurrencesOf(const UtlContainable* containableToMatch) const
    UtlLink* listNode;
    UtlContainable* visitNode = NULL;
 
-   OsLock take(const_cast<OsBSem&>(mContainerLock));
+   OsLock take(mContainerLock);
    
    LIST_SANITY_CHECK;
    for(listNode = head(); listNode; listNode = listNode->next())
@@ -212,7 +212,7 @@ size_t UtlSList::index(const UtlContainable* containableToMatch) const
     UtlLink* listNode;
     UtlContainable* visitNode = NULL;
 
-    OsLock take(const_cast<OsBSem&>(mContainerLock));
+    OsLock take(mContainerLock);
    
     LIST_SANITY_CHECK;
     for(listNode = head(), currentIndex = 0;
