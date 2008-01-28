@@ -188,7 +188,7 @@ request, so it will normally be less than the requested time.
 <!--
 <p>
 If the UA provides a <code>+sip.instance</code> parameter and the
-extension it is registering for is not 
+extension it is registering for is not
 <code>1<span class='group'>gg</span>7</code>,
 <code>1<span class='group'>gg</span>8</code>,
 or <code>1<span class='group'>gg</span>9</code>, the registrar will
@@ -264,25 +264,11 @@ to deposit voicemail.
 Voicemail can be retrieved by calling 101 from UAs registered as
 1<span class='group'>gg</span>1 and 1<span class='group'>gg</span>2.
 The voicemail PIN is the same as the SIP registration password for the AOR.
-The voicemail server interprets 
+The voicemail server interprets
 <a href="http://www.ietf.org/rfc/rfc2833.txt">RFC 2833</a> DTMF packets.
 </p>
 
-<h3><a name='xfer'>2</a>. Transfer</h3>
-
-<p>
-A call to "<code>sip:100@@SIPXCHANGE_DOMAIN_NAME@</code>" will be answered by an
-auto-attendant - when you enter a registered extension at the prompt,
-the auto-attendant will blind-transfer your call (REFER without Replaces).
-</p>
-
-<p>
-If your user agent(s) can do consultative transfer (REFER with
-Replaces), then you should also try that through the proxy using
-another UA.
-</p>
-
-<h3><a name='407'>3</a>. Authenticated INVITE (407 Proxy Authentication Required)</h3>
+<h3><a name='407'>2</a>. Authenticated INVITE (407 Proxy Authentication Required)</h3>
 
 <p>
 A call to <code>3<span class='group'>gg</span>x</code> (for any x 1-9)
@@ -290,7 +276,7 @@ will be challenged for authentication, and when successfully
 authenticated will ring <code>1<span class='group'>gg</span>x</code>.
 </p>
 
-<h3><a name='403'>4</a>. Authenticated INVITE (403 Forbidden)</h3>
+<h3><a name='403'>3</a>. Authenticated INVITE (403 Forbidden)</h3>
 
 <p>
 A call to <code>4<span class='group'>gg</span>x</code> (for any x 1-9)
@@ -302,6 +288,61 @@ other caller will get a 403 Forbidden response.  This allows you to
 test whether or not your user interface communicates the reason for
 the call failure.
 </p>
+
+<h3><a name='xfer'>4</a>. Transfer</h3>
+
+<p>
+Most transfer operations are between endpoints in SIP, but you can
+use this system to make sure that you are doing those operations in a
+way that operates correctly through a proxy.
+</p>
+<p>
+There are some specific things to check:
+</p>
+<dl>
+<dt>
+Check whether or not your UA accepts a blind transfer.
+</dt>
+<dd>
+Whether or not your UA cannot act as the controller for a blind transfer, you
+can test whether or not it correctly handles being the transferee;
+a call to "<code>sip:100@@SIPXCHANGE_DOMAIN_NAME@</code>" will be answered by an
+auto-attendant - when you enter a registered extension at the prompt
+(your UA must use RFC 2833 to send DTMF in the RTP),
+the auto-attendant will blind-transfer your call (REFER without Replaces).
+</dd>
+<dt>
+Authenticated Blind Transfer
+</dt>
+<dd>
+If your UA initiates a blind transfer (sends REFER without Replaces) to any registered
+UA, the REFER request will be challenged by the proxy with a 407
+response.  The transfer controller UA must retry the request with
+authentication added.
+<p>
+The authenticated request will be forwarded by the proxy to the
+transferee, with a header parameter added to the Refer-To (transfer
+target) URL.  The transferee UA must correctly include the specified
+header (X-Sipx-Authidentity) in the INVITE it sends to the transfer
+target.  You can test whether or not your UA constructs this header
+correctly by transfering it
+to <code>3<span class='group'>gg</span>x</code>.  This path is
+challenged unless authenticated by the above header; if the header is
+correct, the call will be routed
+to <code>1<span class='group'>gg</span>x</code>
+(see <a href='#407'>Authenticated INVITE test</a> above).
+</p>
+</dd>
+<dt>
+Check consultative transfer
+</dt>
+<dd>
+If your user agent(s) can do consultative transfer (REFER with
+Replaces), then you should also try that through the proxy using
+another UA.  The REFER for a consultative transfer is not challenged
+for authentication.
+</dd>
+</dl>
 
 <h3><a name='sfork'>5</a>. Serial Forking</h3>
 
@@ -618,11 +659,11 @@ a UA where it displays the busy/not-busy statuses of other AORs
 (extensions).
 This server provides a resource list URI
 "sip:~~rl~<span class='group'>gg</span>@@SIPXCHANGE_DOMAIN_NAME@"
-which includes the statuses of 
+which includes the statuses of
 "sip:1<span class='group'>gg</span>2@@SIPXCHANGE_DOMAIN_NAME@",
 "sip:1<span class='group'>gg</span>6@@SIPXCHANGE_DOMAIN_NAME@", and
 "sip:1<span class='group'>gg</span>9@@SIPXCHANGE_DOMAIN_NAME@".
-The dialog events generated for thse resource list URIs are in full 
+The dialog events generated for thse resource list URIs are in full
 <a href="http://www.ietf.org/rfc/rfc4662.txt">RFC 4662</a> format,
 including listing the status of each registered UA for each AOR
 separately.
@@ -654,11 +695,11 @@ multiple dialog event subscriptions:
 </p>
 
 <p>
-Register the UA as 
+Register the UA as
 1<span class='group'>gg</span>2,
 1<span class='group'>gg</span>6, or
 1<span class='group'>gg</span>9.
-Configure a second UA to display BLF information from 
+Configure a second UA to display BLF information from
 "sip:~~rl~<span class='group'>gg</span>@@SIPXCHANGE_DOMAIN_NAME@".
 </p>
 
@@ -684,13 +725,13 @@ The second UA's BLF should indicate that the first UA is busy.
 
 <p>
 This test shows whether a UA sends comprehensive status information,
-and whether a second UA's BLF correctly displays status information. 
+and whether a second UA's BLF correctly displays status information.
 </p>
 
 <p>
-Register a first UA as 1<span class='group'>gg</span>2 
+Register a first UA as 1<span class='group'>gg</span>2
 and a second UA as 1<span class='group'>gg</span>6.
-Configure a third UA to display BLF information from 
+Configure a third UA to display BLF information from
 "sip:~~rl~<span class='group'>gg</span>@@SIPXCHANGE_DOMAIN_NAME@".
 </p>
 
@@ -746,7 +787,7 @@ The third UA should show the first and second UAs as idle.
 </p>
 <p>
 This server uses a
-<a href='https://sipxecs.sipfoundry.org/rep/sipXecs/main/extras/interop-server-config'>special test configuration</a> of the 
+<a href='https://sipxecs.sipfoundry.org/rep/sipXecs/main/extras/interop-server-config'>special test configuration</a> of the
 <a href='http://www.sipfoundry.org/sipXpbx/'>sipXecs Open Source
 PBX Project</a>.
 (It would not make a very friendly configuration in a real PBX :-).)
