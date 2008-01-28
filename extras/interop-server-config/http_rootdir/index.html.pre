@@ -227,9 +227,9 @@ Any SIP UA can call a registered UA by calling its AOR,
 
 <ol>
 <li><a href='#MWI'>DTMF Generation and Message Waiting Indication (MWI)</a></li>
-<li><a href='#xfer'>Transfer</a></li>
 <li><a href='#407'>Authenticated INVITE (407 Proxy Authentication Required)</a></li>
 <li><a href='#403'>Authenticated INVITE (403 Forbidden)</a></li>
+<li><a href='#xfer'>Transfer</a></li>
 <li><a href='#sfork'>Serial Forking</a></li>
 <li><a href='#pfork'>Parallel Forking</a></li>
 <li><a href='#long'>Long Paths / Large Messages</a></li>
