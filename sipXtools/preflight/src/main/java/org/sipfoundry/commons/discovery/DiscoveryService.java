@@ -252,10 +252,12 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
         }
     }
 
-    public LinkedList<Device> discover(String network, String networkMask) {
+    public LinkedList<Device> discover(String network, String networkMask, boolean reportProgress) {
+        int range;
+        int discoveryCount;
+    	int percentageCompleted = 0;
         int[] addr = new int[4];
         int[] mask = new int[4];
-        int range;
 
         // Break up the network address and mask into sub-fields and then determine the
         // starting address and range.
@@ -273,9 +275,10 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
         }
         addr[3] = 1;
         range = 254; // TODO: calculate this from the given networkMask.
+        discoveryCount = range;
 
         // Walk through the range of IP addresses, creating DiscoveryAgents for each address.
-        while (range > 0) {
+        while (discoveryCount > 0) {
             // So as not to flood the network, only send out a small number of requests at a time.
             try {
                 String target = String.format("%d.%d.%d.%d", addr[0], addr[1], addr[2], addr[3]);
@@ -294,11 +297,19 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            range -= 1;
+            discoveryCount -= 1;
 
             // Wait for some of the discovery requests to finish before sending more.
             try {
                 while (size() == discoveryBlockSize) {
+                	if (reportProgress) {
+                		// Calculate and report percentage of completion.
+                		int percent = ((range - discoveryCount) * 100) / range;
+                		if (percent != percentageCompleted) {
+                			percentageCompleted = percent;
+                			System.err.println(percentageCompleted);
+                		}
+                	}
                     Thread.sleep(100);
                 }
             } catch (InterruptedException e) {

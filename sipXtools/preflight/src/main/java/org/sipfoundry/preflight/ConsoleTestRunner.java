@@ -41,6 +41,9 @@ public class ConsoleTestRunner {
         Option verbose = OptionBuilder.withLongOpt("verbose")
                                       .withDescription("Enable verbose test progress output.")
                                       .create('v');
+        Option reportProgress = OptionBuilder.withLongOpt("report-progress")
+                                      .withDescription("Enable discovery progress output.")
+                                      .create();
         
         Option dhcpTest = OptionBuilder.withLongOpt("dhcp-test")
                                        .withDescription("Verify that the networks DHCP server is running and properly issuing IP addresses.")
@@ -100,6 +103,7 @@ public class ConsoleTestRunner {
         options.addOption(ftpTest);
         options.addOption(httpTest);
         options.addOption(verbose);
+        options.addOption(reportProgress);
         options.addOption(discover);
         options.addOption(testInterface);
         options.addOption(help);
@@ -269,7 +273,7 @@ public class ConsoleTestRunner {
                 }
 
                 DiscoveryService ds = new DiscoveryService(localHostAddress, 5050);
-                LinkedList<Device> devices = ds.discover(localHostAddress, "255.255.255.0");
+                LinkedList<Device> devices = ds.discover(localHostAddress, "255.255.255.0", line.hasOption("report-progress"));
                 
                 journalService.enable();
                 

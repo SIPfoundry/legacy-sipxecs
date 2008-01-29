@@ -48,7 +48,7 @@ public class ShellDiscoveryRunner {
         active = true;
         journalService.println("Starting device discovery...");
 
-        LinkedList<Device> devices = ds.discover(localHostAddress, "255.255.255.0");
+        LinkedList<Device> devices = ds.discover(localHostAddress, "255.255.255.0", false);
 
         if (devices.size() == 0) {
             journalService.println("No devices discovered.");
