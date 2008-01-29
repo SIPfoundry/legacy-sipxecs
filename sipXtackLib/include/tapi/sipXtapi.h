@@ -1583,6 +1583,18 @@ SIPXTAPI_API SIPX_RESULT sipxLineGetURI(const SIPX_LINE hLine,
                                         const size_t nBuffer,
                                         size_t& nActual) ;
 
+/**
+ * Look up a line handle given a URI
+ * 
+ * @param hInst Instance pointer obtained by sipxInitialize.
+ * @param szURI URI to map to a line definition
+ * @param hLine the line handle matching the URI or SIPX_LINE_NULL if not 
+ *        found 
+ */
+SIPXTAPI_API SIPX_RESULT sipxLookupLine(const SIPX_INST hInst,
+                                        const char* szURI,
+                                        SIPX_LINE& hLine);
+
 //@}
 /** @name Configuration Methods*/
 //@{

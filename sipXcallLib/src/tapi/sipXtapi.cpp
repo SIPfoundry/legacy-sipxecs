@@ -4015,6 +4015,31 @@ SIPXTAPI_API SIPX_RESULT sipxLineGetURI(const SIPX_LINE hLine,
     return sr ;
 }
 
+SIPXTAPI_API SIPX_RESULT sipxLookupLine(const SIPX_INST hInst,
+                                        const char* szURI,
+                                        SIPX_LINE& hLine)
+{
+    SIPX_RESULT sr = SIPX_RESULT_INVALID_ARGS ;
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;    
+    hLine = SIPX_LINE_NULL ;
+    
+    if (pInst && szURI)
+    {
+        hLine = sipxLineLookupHandleByURI(pInst, szURI) ;
+        if (hLine == SIPX_LINE_NULL)
+        {
+            sr = SIPX_RESULT_FAILURE ;
+        }
+        else
+        {
+            sr = SIPX_RESULT_SUCCESS ;
+        }
+    }
+    
+    return sr ;
+}
+
+
 
 SIPXTAPI_API SIPX_RESULT sipxConfigSetLogLevel(SIPX_LOG_LEVEL logLevel) 
 {

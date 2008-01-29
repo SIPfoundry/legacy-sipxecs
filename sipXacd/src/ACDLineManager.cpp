@@ -992,15 +992,15 @@ ACDLine* ACDLineManager::getAcdLineReference(SIPX_LINE hLineHandle)
 
 ACDLine* ACDLineManager::getAcdLineReference(UtlString& rLineUriString)
 {
-   ACDLine*  pLineRef;
-
    mLock.acquire();
-
-   pLineRef = dynamic_cast<ACDLine*>(mAcdLineList.findValue(&rLineUriString));
+   
+   SIPX_LINE hLine = SIPX_LINE_NULL ;
+   
+   sipxLookupLine(mhAcdCallManagerHandle, rLineUriString.data(), hLine) ;
 
    mLock.release();
 
-   return pLineRef;
+   return getAcdLineReference(hLine);
 }
 
 
