@@ -24,7 +24,19 @@ AC_PROG_CC
 CHECK_XARGS_REPLACE
 
 # Checks for libraries.
-AC_SEARCH_LIBS([res_init], [resolv])
+#AC_SEARCH_LIBS([res_init], [resolv])
+AC_MSG_CHECKING(for res_query)
+AC_TRY_LINK_FUNC(res_query, [NEED_RESOLV=0; AC_MSG_RESULT(yes)],
+        [NEED_RESOLV=1])
+if test $NEED_RESOLV = "1"; then
+   saved_LIBS="$LIBS"
+   LIBS="$LIBS -lresolv"
+   AC_MSG_CHECKING(for res_query in -lresolv)
+   AC_LINK_IFELSE( [AC_LANG_PROGRAM([ #include <resolv.h>],
+                                    [res_query (0, 0, 0, 0, 0);])
+                   ],
+      [AC_MSG_RESULT(yes)], [LIBS="$saved_LIBS"; AC_MSG_RESULT(no)])
+fi
 
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
