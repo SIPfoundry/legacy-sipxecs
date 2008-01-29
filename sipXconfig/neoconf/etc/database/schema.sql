@@ -15,6 +15,7 @@ create table version_history(
  * For sipXconfig v3.5-r7552, the database version is 4.
  * For sipXconfig v3.7-r7934, the database version is 5.
  * For sipXconfig v3.8-r10357, the database version is 6.
+ * For sipXconfig v3.9-r11768, the database version is 7.
  */
 insert into version_history (version, applied) values (1, now());
 insert into version_history (version, applied) values (2, now());
@@ -22,6 +23,7 @@ insert into version_history (version, applied) values (3, now());
 insert into version_history (version, applied) values (4, now());
 insert into version_history (version, applied) values (5, now());
 insert into version_history (version, applied) values (6, now());
+insert into version_history (version, applied) values (7, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -70,6 +72,7 @@ create table dialing_rule (
    enabled bool,
    position int4,
    dial_plan_id int4,
+   schedule_id int4,
    primary key (dialing_rule_id)
 );
 create table auto_attendant (
@@ -134,6 +137,8 @@ create table gateway (
    transform_user_extension boolean not null default false,
    add_prefix varchar(255),
    keep_digits integer not null default 0,
+   address_port int4 not null default 0,
+   address_transport varchar(8) not null default 'none',
    primary key (gateway_id)
 );
 create table daily_backup_schedule (
@@ -195,6 +200,9 @@ create table call_group (
    name varchar(255) unique,
    extension varchar(255),
    description varchar(255),
+   fallback_destination varchar(255),
+   voicemail_fallback boolean not null default false,
+   user_forward boolean not null default true,
    primary key (call_group_id)
 );
 create table phone_group (
@@ -220,11 +228,12 @@ create table backup_plan (
    limited_count int4,
    configs bool,
    voicemail bool,
-   dbase bool,
+   email_address varchar(255),
    primary key (backup_plan_id)
 );
 create table dial_plan (
    dial_plan_id int4 not null,
+   type character varying(255),
    primary key (dial_plan_id)
 );
 create table ring (
@@ -234,7 +243,8 @@ create table ring (
    expiration int4,
    ring_type varchar(255),
    user_id int4 not null,
-   enabled bool not null default true,   
+   enabled bool not null default true,
+   schedule_id integer,
    primary key (ring_id)
 );
 create table users (
@@ -258,6 +268,8 @@ create table internal_dialing_rule (
    voice_mail varchar(255),
    voice_mail_prefix varchar(255),
    aa_aliases varchar(255),
+   media_server_type varchar(255),
+   media_server_hostname varchar(255),
    primary key (internal_dialing_rule_id)
 );
 create table long_distance_dialing_rule (
@@ -273,12 +285,12 @@ create table long_distance_dialing_rule (
 );
 create table initialization_task (
   name varchar(255) not null primary key
-); 
+);
 create table user_group(
    user_id int4 not null,
    group_id int4 not null,
    primary key (user_id, group_id)
-);  
+);
 create table user_alias (
   user_id int4 not null,
   alias varchar(255) not null unique,
@@ -289,12 +301,12 @@ create table meetme_participant (
     enabled bool,
     value_storage_id int4,
     user_id int4 not null,
-	meetme_conference_id int4 not null,    
+	meetme_conference_id int4 not null,
     primary key (meetme_participant_id)
 );
 create table meetme_conference (
     meetme_conference_id int4 not null,
-    enabled bool,    
+    enabled bool,
     name varchar(255) not null,
     description varchar(255),
     extension varchar(255),
@@ -466,6 +478,7 @@ create table park_orbit_group (
 create table domain (
    domain_id int4 not null,   
    name varchar(255) not null,
+   shared_secret varchar(255),
    primary key (domain_id)
 );
 
@@ -606,6 +619,109 @@ create table sbc_route_subnet (
     subnet varchar(255) not null,
     index int4 not null,
     primary key (sbc_id, index)
+);
+
+-- create schedule table
+create table schedule (
+  schedule_id integer not null primary key,
+  user_id integer,
+  name varchar(255) not null,
+  description varchar(255),
+  group_id int4,
+  schedule_type char(1),
+  constraint fk_schedule_users foreign key (user_id)
+      references users,
+  constraint fk_schedule_user_groups foreign key (group_id)
+      references group_storage (group_id)
+      on update no action on delete no action
+);
+
+-- create schedule_hours table
+create table schedule_hours
+(
+  schedule_hours_id integer not null,
+  schedule_id integer not null,
+  "start" timestamp without time zone,
+  "stop" timestamp without time zone,
+  "day" varchar(255),
+  constraint pk_schedule_hours_id_schedule_id primary key (schedule_hours_id, schedule_id),
+  constraint fk_schedule_hours_schedule foreign key (schedule_id)
+      references schedule (schedule_id) match full
+      on update no action on delete no action
+);
+
+create table personal_attendant (
+   personal_attendant_id int4 not null,
+   user_id int4 not null,
+   operator varchar(255),
+   language varchar(255),
+   override_language boolean not null default false,
+   primary key (personal_attendant_id)
+);
+
+create table personal_attendant_menu_item (
+   personal_attendant_id int4 not null,
+   action varchar(255),
+   parameter varchar(255),
+   dialpad_key varchar(255) not null,
+   primary key (personal_attendant_id, dialpad_key)
+);
+
+create table localization (
+   localization_id int4 not null,
+   "region" character varying(255),
+   "language" character varying(255),
+   primary key (localization_id)
+);
+
+create table paging_group
+(
+  paging_group_id integer not null,
+  page_group_number integer not null,
+  description character varying(255),
+  enabled boolean not null default false,
+  sound character varying(255) not null,
+  constraint paging_group_pkey primary key (paging_group_id)
+);
+
+create table user_paging_group
+(
+  paging_group_id integer not null,
+  user_id integer not null,
+  constraint user_paging_group_pkey primary key (paging_group_id, user_id),
+  constraint paging_group_fk1 foreign key (paging_group_id)
+      references paging_group (paging_group_id) match simple
+      on update no action on delete no action,
+  constraint paging_group_fk2 foreign key (user_id)
+      references users (user_id) match simple
+      on update no action on delete no action
+);
+
+create table paging_server
+(
+  paging_server_id integer not null,
+  prefix character varying(255) not null,
+  constraint paging_server_pkey primary key (paging_server_id)
+);
+
+create table sbc_device (
+   sbc_device_id int4 not null,
+   bean_id varchar(255) not null,
+   name varchar(255) unique,
+   address varchar(255),
+   description varchar(255),
+   serial_number varchar(255),
+   value_storage_id int4,
+   model_id varchar(64) not null,
+   device_version_id varchar(32),
+   primary key (sbc_device_id)
+);
+
+create table special_user (
+  special_user_id int4 not null,
+  user_type varchar(255),
+  sip_password varchar(255),
+  primary key (special_user_id)
 );
 
 /*
@@ -805,6 +921,26 @@ alter table sbc_route_subnet
     foreign key (sbc_id) 
     references sbc;
 
+alter table ring
+    add constraint fk_ring_schedule_id
+    foreign key (schedule_id)
+    references schedule(schedule_id) match full;
+
+alter table personal_attendant
+    add constraint  fk_personal_atendant_users
+    foreign key (user_id)
+    references users;
+
+alter table personal_attendant_menu_item
+    add constraint fk_personal_attendant_menu_item_personal_attendant
+    foreign key (personal_attendant_id)
+    references personal_attendant;
+
+alter table dialing_rule
+    add constraint fk_dialing_rule_schedule_id
+    foreign key (schedule_id)
+    references schedule(schedule_id) match full;
+
 create sequence group_weight_seq;
 create sequence dialing_rule_seq;
 create sequence ring_seq;
@@ -831,6 +967,10 @@ create sequence acd_seq;
 create sequence service_seq;
 create sequence fxo_port_seq;
 create sequence sbc_seq;
+create sequence schedule_seq;
+create sequence personal_attendant_seq;
+create sequence localization_seq;
+create sequence paging_group_seq;
 
 -- used for native hibernate ids  
 create sequence hibernate_sequence;
@@ -844,3 +984,5 @@ insert into initialization_task (name) values ('default-phone-group');
 insert into initialization_task (name) values ('add_default_user_group');
 insert into initialization_task (name) values ('operator');
 insert into initialization_task (name) values ('afterhour');
+insert into initialization_task (name) values ('first-run');
+

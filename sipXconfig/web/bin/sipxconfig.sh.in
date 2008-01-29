@@ -47,7 +47,7 @@ TEST_WRITE_ACCESS="\
   @sipxpbx.conf.dir@/forwardingrules.xml.in"
 
 Database=SIPXCONFIG
-RequiredDatabaseVersion=6
+RequiredDatabaseVersion=7
 IndexDir=${TmpDir}/index
 
 # Search/replace variables used in config.defs into config files
