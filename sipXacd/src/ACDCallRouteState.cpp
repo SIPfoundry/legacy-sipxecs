@@ -284,6 +284,34 @@ void ACDCallRouteState_IDLE::acdAgentDisconnectedEvent(ACDCall* pAcdCallInstance
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//  NAME:        ACDCallRouteState_IDLE::acdCallTransferModeFailure
+//
+//  SYNOPSIS:    
+//
+//  DESCRIPTION: Handle the acdCallTransferModeFailure Event
+//    This can happen on overflow transfer's that aren't answered, or
+//    aren't authorized, or otherwise fail.
+//  RETURNS:     None.
+//
+//  ERRORS:      None.
+//
+//  CAVEATS:     None.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ACDCallRouteState_IDLE::acdCallTransferModeFailure(ACDCall* pAcdCallInstance)
+{
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_IDLE::acdCallTransferModeFailure, Call(%d)",
+      pAcdCallInstance->mhCallHandle);
+
+   // Drop the call...nothing further we can do
+   UtlString noAudio ;
+   pAcdCallInstance->dropCall(0, noAudio) ;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //  NAME:        ACDCallRouteState_IDLE::routeRequestAbortEvent
 //
 //  SYNOPSIS:    

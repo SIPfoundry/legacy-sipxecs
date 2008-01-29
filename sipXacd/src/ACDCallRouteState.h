@@ -128,6 +128,7 @@ public:
    virtual void acdCallConnectedEvent(ACDCall* pAcdCallInstance);
    virtual void acdCallDisconnectedEvent(ACDCall* pAcdCallInstance);
    virtual void acdAgentDisconnectedEvent(ACDCall* pAcdCallInstance, SIPX_CALL callHandle);
+   virtual void acdCallTransferModeFailure(ACDCall* pAcdCallInstance);
    virtual void routeRequestAbortEvent(ACDCall* pAcdCallInstance);
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
