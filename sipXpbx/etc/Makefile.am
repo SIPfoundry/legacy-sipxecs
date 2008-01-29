@@ -1,7 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 include $(top_srcdir)/config/subdir.am
 
-
 pkgconfdir = @SIPX_CONFDIR@
 
 pkgconf_DATA = \
@@ -22,12 +21,12 @@ wwwconf_files = \
 
 EXTRA_DIST = \
 	$(pkgconf_DATA) \
-	$(foreach file,$(pbxconf_files) $(wwwconf_files),$(file).in)
-
-install-exec-hook :
+	$(foreach file,$(pbxconf_files) $(wwwconf_files),$(file).in) \
+	logrotate.d/sipxchange.in
 
 install-data-hook : \
 	$(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d \
+	$(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange \
 	$(foreach file,$(pbxconf_files) $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file))
 
 $(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d:
@@ -51,4 +50,19 @@ $(foreach file,$(pbxconf_files) $(wwwconf_files),$(file)) : % : %.in
 	-e 's,@APACHE2_MOD_ACCESS\@,@APACHE2_MOD_ACCESS@,g' \
 	$< > $@
 
+logrotate.d/sipxchange: logrotate.d/sipxchange.in
+	test -d logrotate.d || mkdir logrotate.d
+	$(LocalizeSipXconfig) $< > $@
+
+$(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange: logrotate.d/sipxchange
+	@if [ -f $@ ]; \
+	then \
+		diff $< $@ > /dev/null 2>&1 \
+		|| ( echo "Using existing $@; new version copied as .NEW"; \
+			$(INSTALL) -D -m 644 $< $@.NEW \
+			); \
+	else \
+		echo "Installing default $@"; \
+		$(INSTALL) -D -m 644 $< $@; \
+	fi
 
