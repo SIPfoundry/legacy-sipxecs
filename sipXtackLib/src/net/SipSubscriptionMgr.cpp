@@ -706,6 +706,7 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
                  contentKey.data(), mSubscriptionStateResourceIndex.entries());
 
     lock();
+#if 0 // Enable for very detailed logging of searching for the NOTIFY info.
     if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
     {
        UtlHashBagIterator iterator(mSubscriptionStateResourceIndex);
@@ -717,6 +718,7 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
                         contentTypeIndex->data());
        }
     }
+#endif // 0
     UtlHashBagIterator iterator(mSubscriptionStateResourceIndex, &contentKey);
     int count = 0;
     int index = 0;
