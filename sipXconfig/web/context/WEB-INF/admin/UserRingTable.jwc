@@ -55,7 +55,7 @@
   <component id="expiration" type="TextField">
     <binding name="value" value="currentRow.expiration"/>
     <binding name="validators" value="spring-validators:validPhone,required"/>
-    <binding name="displayName" value="literal:Ring for"/>
+    <binding name="displayName" value="message:label.ringFor"/>
   </component>
   <component id="addRow" type="LinkSubmit">
     <binding name="selected" value="addRow"/>

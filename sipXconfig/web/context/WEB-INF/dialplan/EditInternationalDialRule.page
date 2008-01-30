@@ -17,6 +17,6 @@
   <component id="internationalPrefix" type="TextField">
     <binding name="value" value="rule.internationalPrefix" />
     <binding name="validators" value="spring-validators:validSipUserId,required" />
-    <binding name="displayName" value="literal:International calls prefix" />
+    <binding name="displayName" value="message:label.internationalCallsPrefix" />
   </component>
 </page-specification>

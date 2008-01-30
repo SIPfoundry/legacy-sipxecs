@@ -1,5 +1,5 @@
 <div jwcid="@Border">
-  <h2><span jwcid="@Insert" value="ognl:upload.specification.label"/>Files</h2>
+  <h2><span jwcid="@Insert" value="ognl:upload.specification.label"/> <span key="heading.files"/></h2>
   <span jwcid="@ErrorMsg"/>
   <form jwcid="uploadForm@Form" delegate="bean:validator">
     <fieldset>
@@ -15,7 +15,7 @@
     </fieldset>
     <span jwcid="@If" condition="ognl:! upload.isNew()">
       <span jwcid="@If" condition="ognl:upload.deployed">
-        <p><span key="warning"><strong>You cannot make changes when files are deployed.</strong></span></p>
+        <p><strong><span key="warning"/></strong></p>
       </span>
       <fieldset jwcid="@setting/SettingsFieldset"
         settings="ognl:upload.settings"

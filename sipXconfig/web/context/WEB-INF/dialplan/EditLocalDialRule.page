@@ -24,11 +24,11 @@
   <component id="pstnPrefix" type="TextField">
     <binding name="value" value="rule.pstnPrefix" />
     <binding name="validators" value="spring-validators:validSipUserId" />
-    <binding name="displayName" value="literal:PSTN prefix" />
+    <binding name="displayName" value="message:label.pstnPrefix" />
   </component>
   <component id="externalLenLabel" type="FieldLabel">
     <binding name="field" value="components.externalLen" />
-    <binding name="displayName" value="literal:External number length" />
+    <binding name="displayName" value="message:label.externalNumberLen" />
   </component>
   <component id="externalLen" type="PropertySelection">
     <binding name="value" value="rule.externalLen" />
