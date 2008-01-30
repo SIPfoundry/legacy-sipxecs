@@ -31,7 +31,7 @@
   </target>
 
   <!-- PRE CHECK -->
-  <target name="precommit" depends="clean,default,test-all,style,install"/>
+  <target name="precommit" depends="clean,style,default,test-all,install"/>
 
   <!-- C L E A N -->
   <target name="clean" 
