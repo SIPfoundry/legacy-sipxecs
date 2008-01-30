@@ -428,11 +428,11 @@ SipRedirectorPickUp::lookUp(
    else if (!mGlobalPickUpCode.isNull() &&
             userId.compareTo(ALL_CREDENTIALS_USER) == 0)
    {
-      // Process the "*allcredentials" user for global call pick-up.
+      // Process the "~~sp~allcredentials" user for global call pick-up.
       if (method.compareTo("SUBSCRIBE", UtlString::ignoreCase) == 0)
       {
          // Only the SUBSCRIBE method is acceptable for
-         // *allcredentials, to prevent "INVITE *allcredentials"
+         // ~~sp~allcredentials, to prevent "INVITE ~~sp~allcredentials@..."
          // from ringing every phone!
          ResultSet credentials;
          CredentialDB::getInstance()->getAllRows(credentials);

@@ -79,7 +79,7 @@
      Pick-Up feature.  It does two mappings:  It maps the global call
      pick-up feature code to a proper invocation of the pick-up agent,
      and it maps the special "all extensions" user name
-     ("*allcredentials") to all URIs in the credentials.xml file.
+     ("~~sp~allcredentials") to all URIs in the credentials.xml file.
 
   ++ Caller Alias Processing
      ($prefix/var/sipxdata/sipdb/caller-alias.xml)

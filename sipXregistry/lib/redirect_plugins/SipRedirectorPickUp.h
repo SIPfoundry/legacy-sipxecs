@@ -21,7 +21,7 @@
 #include "filereader/OrbitFileReader.h"
 
 // DEFINES
-#define ALL_CREDENTIALS_USER "*allcredentials"
+#define ALL_CREDENTIALS_USER "~~sp~allcredentials"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -42,8 +42,8 @@ class SipRedirectorPickUpTask;
  *    is mapped into a selected early dialog discovered by querying [extension]
  * [global call pick-up]
  *    is mapped into a selected early dialog discovered by querying the special
- *    SIP user "*allcredentials"
- * *allcredentials (ALL_CREDENTIALS_USER)
+ *    SIP user "~~sp~allcredentials"
+ * ~~sp~allcredentials (ALL_CREDENTIALS_USER)
  *    is mapped into all extensions mentioned in the credential table
  * [call retrieve][extension]
  *    is mapped into a selected confirmeddialog discovered by querying

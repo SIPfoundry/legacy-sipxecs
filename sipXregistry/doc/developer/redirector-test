@@ -321,7 +321,7 @@ sleep 5
 
 # Perform the tests.
 
-for EXTENSION in 100 200 300 400 401 500 501 600 "*allcredentials"
+for EXTENSION in 100 200 300 400 401 500 501 600 "~~sp~allcredentials"
 do 
   for METHOD in INVITE SUBSCRIBE
   do

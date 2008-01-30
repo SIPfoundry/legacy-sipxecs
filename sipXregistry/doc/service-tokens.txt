@@ -75,10 +75,11 @@ The assigned facility codes are:
    ~~sp~xxx
       Where "xxx" is a string assigned to a specific purpose.
 
-   Used for creating individual URIs for special purposes.
+   Used for creating individual URIs for various purposes.
    Currently defined URIs:
       ~~sp~allcredentials
          Forks to all users which have credentials.
+	 (Formerly, "*allcredentials" was used for this purpose.)
 
 *** vm => Voice Mailbox Deposit URI
 
