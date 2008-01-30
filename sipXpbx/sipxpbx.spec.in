@@ -124,7 +124,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-core-clean
 
 %attr(755,root,root) %{_datadir}/www/cgi-bin/voicemail/mediaserver.cgi
-%attr(755,root,root) %{_datadir}/www/cgi-bin/cbadmission/cbadmission.cgi
 %attr(755,root,root) %{_datadir}/www/cgi-bin/replication/replication.cgi
 
 # The configuration directory needs to be writeable because
@@ -133,7 +132,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/ProcessDefinitions.xml
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/resourcemap.xml
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/voicemail.xml.in
-%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cbadmission.xml.in
+
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxwatchdog-config.in
 
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxpark.process.xml
@@ -218,6 +217,7 @@ rm -f %{_bindir}/backup-configs.sh
 rm -f %{_localstatedir}/sipxdata/tmp/processAlias.dat
 rm -f %{_localstatedir}/sipxdata/tmp/locked.lck
 rm -rf %{_datadir}/www/cgi-bin/processmonitor
+rm -f %{_sysconfdir}/sipxpbx/cbadmission.xml.in
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz

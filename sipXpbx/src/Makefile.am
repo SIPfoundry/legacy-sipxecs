@@ -6,13 +6,11 @@
 #                     credentials from config server
 # emailnotifier     - Sends email about voicemails -- DISABLED
 # watchdog          - Starts/Stops and automatically restarts sipx processes
-# mod_sipxauth      - Apache2 mod for sipX application authentication
 SUBDIRS= \
     sipxcgi \
     mailboxmgr \
     mediaservercgi \
     replicationcgi \
-    cbadmissioncgi \
     watchdog \
     wwwcontent \
     test 

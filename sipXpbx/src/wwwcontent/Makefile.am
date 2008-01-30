@@ -17,7 +17,6 @@ wwwcontent = \
 	aa_vxml/autoattendant-afterhour.vxml \
 	aa_vxml/operator-schedule.xml \
 	aa_vxml/dialbyname.vxml \
-	cb_vxml/cbadmission.vxml \
 	stdprompts/0.wav \
 	stdprompts/01.wav \
 	stdprompts/02.wav \
