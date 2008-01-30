@@ -49,8 +49,20 @@ public class SkinControl implements BeanFactoryAware {
     public SkinControl() {
         String pkg = getClass().getPackage().getName().replace('.', '/');
         // default skin resources
+        m_assets.put("search.png", pkg + "/search.png");
         m_assets.put("logo.png", pkg + "/sipxconfig-logo.png");
         m_assets.put("login.jpg", pkg + "/login.jpg");
+        m_assets.put("home.png", pkg + "/home.png");
+        m_assets.put("home-hover.png", pkg + "/home-hover.png");
+        m_assets.put("logout.png", pkg + "/logout.png");
+        m_assets.put("logout-hover.png", pkg + "/logout-hover.png");
+        m_assets.put("help.png", pkg + "/help.png");
+        m_assets.put("help-hover.png", pkg + "/help-hover.png");
+        m_assets.put("banner-background.png", pkg + "/banner-background.png");
+        m_assets.put("nav-background.png", pkg + "/nav-background.png");
+        m_assets.put("left-background.png", pkg + "/left-background.png");
+        m_assets.put("setting-bullet.gif", pkg + "/setting-bullet.gif");
+        m_assets.put("setting-bullet-active.gif", pkg + "/setting-bullet-active.gif");
         m_assets.put(ASSET_LAYOUT, pkg + "/layout.css");
         m_assets.put(ASSET_COLORS, pkg + "/colors.css");
         m_assets.put(ASSET_IE6, pkg + "/ie6-hacks.css");

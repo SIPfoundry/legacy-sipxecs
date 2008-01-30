@@ -1,6 +1,6 @@
 body
 {
-	background: #FFFFCC;
+	background: #FFF;
 }
 
 a:link
@@ -44,10 +44,20 @@ legend
 	color: #f60;
 }
 
+li.tab a:link,
+li.tab a:hover,
+li.tab a:visited
+{
+	background: url(/sipxconfig/skin/setting-bullet.gif) left no-repeat;
+	padding-left: 18px;
+    color: #355563;
+}
+
 li.tab .active a:link,
 li.tab .active a:hover,
 li.tab .active a:visited
 {
+	background: url(/sipxconfig/skin/setting-bullet-active.gif) left no-repeat;
 	color: #000;
 	font-weight: 700;
 	text-decoration: none;
@@ -56,8 +66,12 @@ li.tab .active a:visited
 #banner
 {
 	color: #fff;
-	border-bottom-color: #669999;
-	background: url(/sipxconfig/skin/logo.png) no-repeat left #669999;
+	background: url(/sipxconfig/skin/banner-background.png) top left repeat-x #355563;
+}
+
+#logo {
+	background: url(/sipxconfig/skin/logo.png) no-repeat left;
+    width: 15.5em;
 }
 
 #banner-links a
@@ -73,19 +87,31 @@ li.tab .active a:visited
 
 #navigation
 {
-	background: #669999;
+	background: url(/sipxconfig/skin/nav-background.png) top left repeat-x #595959;
+	border-top-color: #84A9B5;
+	border-bottom-color: #000000;
 }
 
 #navigation li
 {
-	background: #669999;
+	background: url(/sipxconfig/skin/nav-background.png) top left repeat-x #595959;
+}
+
+#navigation li li {
+    background: #595959;
+}
+
+#navigation li li a {
+    border-bottom-color: #666666;
+    font-weight: normal;
 }
 
 #navigation a
 {
-	color: #fff;
-	background: #669999;
-	border-color: #FFFFCC;
+	font-weight: bold;
+	font-family: Verdana, Arial, sans-serif;
+	color: #FFFFFF;
+	border-color: #000000;
 }
 
 #navigation a:hover,
@@ -93,6 +119,14 @@ li.tab .active a:visited
 {
 	color: #003333;
 	background: #999999;
+}
+
+#contentContainer #leftNav {
+    background: url(/sipxconfig/skin/left-background.png) top left repeat-y #FFFFFF;
+}
+
+#content {
+    background: #FFFFFF;
 }
 
 .highlight
@@ -120,19 +154,19 @@ p.message
 
 table.component
 {
-	border-color: #ccc;
+	border-color: #1B2B31;
 	background: #fff;
 }
 
 table.component thead
 {
 	color: #fff;
-	background: #3d3d3d;
+	background: #355563;
 }
 
 table.component thead tr th
 {
-	border-color: #FFFFCC;
+	border-color: #1B2B31;
 }
 
 table.component th a
@@ -142,13 +176,13 @@ table.component th a
 
 table.component tfoot tr td
 {
-	background: #FFFFCC;
-	border-color: #FFFFCC;
+	background: #FFFFFF;
+	border-color: #1B2B31;
 }
 
 tr.even, tr.even-unheard
 {
-	background: #eee;
+	background: #D3E2E8;
 }
 
 tr.odd, tr.odd-unheard
@@ -163,8 +197,7 @@ tr.odd-unheard, tr.even-unheard
 
 div.help
 {
-	background: #fff;
-	border-color: #ccc;
+	color: #355563;
 }
 
 form.with-sections fieldset
@@ -234,4 +267,48 @@ div.auto_complete ul li.selected {
 
 div.auto_complete ul strong.highlight {
   color: #800;
+}
+
+#searchBox.inactive {
+    color: #AAA;
+}
+
+#searchBox.active {
+    color: #000;
+}
+
+#searchContainer.styled {
+    background: url(/sipxconfig/skin/search.png) no-repeat left #FFF;
+    border: 1px solid #000;
+}
+
+#searchContainer.styled input {
+	border: none !important;
+}
+
+.linkHome {
+    background: url(/sipxconfig/skin/home.png) no-repeat left;
+}
+
+.linkHelp {
+    background: url(/sipxconfig/skin/help.png) no-repeat left;
+}
+
+.linkLogout {
+    background: url(/sipxconfig/skin/logout.png) no-repeat left;
+}
+
+.linkHome:hover,
+.linkHome:active {
+    background: url(/sipxconfig/skin/home-hover.png) no-repeat left;
+}
+
+.linkHelp:hover,
+.linkHelp:active {
+    background: url(/sipxconfig/skin/help-hover.png) no-repeat left;
+}
+
+.linkLogout:hover,
+.linkLogout:hover {
+    background: url(/sipxconfig/skin/logout-hover.png) no-repeat left;
 }

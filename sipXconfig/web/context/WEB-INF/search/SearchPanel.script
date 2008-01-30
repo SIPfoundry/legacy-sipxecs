@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE script PUBLIC
+    "-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
+    "http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
+<script>
+    <input-symbol key="placeholder" required="yes" />
+    <body>
+<![CDATA[
+    function updateSearchBox(searchBox, active) {
+        if (active) {
+            if (searchBox.value == "${placeholder}") {
+                searchBox.value = "";
+            }
+
+            searchBox.className = "active";
+        } else {
+            if (searchBox.value == "") {
+                searchBox.value = "${placeholder}";
+                searchBox.className = "inactive";
+            }
+        }
+    }
+]]>
+    </body>
+    <initialization>
+<![CDATA[
+        var searchBox = document.getElementById("searchBox");
+        if (searchBox) {
+            searchBox.value = "${placeholder}";
+        }
+
+        if (navigator.userAgent.indexOf("Safari") < 0) {
+            document.getElementById("searchContainer").className = "styled";
+        }
+]]>
+    </initialization>
+</script>

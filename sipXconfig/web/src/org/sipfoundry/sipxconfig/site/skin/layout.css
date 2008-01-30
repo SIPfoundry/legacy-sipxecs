@@ -134,28 +134,35 @@ fieldset#loginForm legend {
     width: 300px;
 }
 
+#logo {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 80px;
+}
+
 #banner
 {
 	height:0;
-	border-bottom-style:solid;
-	border-bottom-width:thick;
-	padding:55px 0 20px 120px;
+	padding:55px 0 25px 120px;
 }
 
 #banner-links
 {
-	float:right;
+	text-align: right;
 	padding:0 5px 0 0;
 }
 
 #banner-links a
 {
 	text-decoration:none;
-	padding:0 5px;
+	padding:5px 5px 5px 20px;
 }
 
 #navigation
 {       
+	border-style: solid none solid none;
+	border-width: 1px;
 	float: left;
 	width: 100%;
 	margin: 0;
@@ -193,15 +200,35 @@ fieldset#loginForm legend {
 	display: block;
 	text-decoration: none;
 	padding: 5px 0;
-	border-width: 1px;
+	border-width: 0 1px 0 0;
 	border-style: solid;
+}
+
+#navigation li li a {
+    border-style: none none solid none;
+    border-width: 0 0 1px 0;
+}
+
+#contentContainer {
+    float: left;
+    position: relative;
+}
+
+#contentContainer #leftNav {
+    width: 15.5em;
+    position: absolute;
+    left: 0;
+    height: 100%;
+}
+
+#contentContainer #mainContent {
+    margin-left: 15.5em;
 }
 
 #content
 {
 	clear: both;
 	padding: 10px;
-	margin-left: 12em;
 }
 
 #settings-nav
@@ -238,7 +265,7 @@ fieldset#loginForm legend {
 	/* clear:both is important for IE guillotine bug */
 	clear:both;
     text-align:center;
-    margin: 10em 0 0 12em;
+    margin-left: 15em;
     padding: 15px;
 }
 
@@ -381,9 +408,6 @@ div.help
 	float:right;
 	width:15em;
 	margin:5px 0;
-	border-collapse:collapse;
-	border-width:1px;
-	border-style:solid;
 	padding:5px;
 }
 
@@ -395,7 +419,6 @@ div.help ul
 
 div.search 
 {
-	float: right;
 	padding:0 5px 0 0;
 	margin: 0;
 }
@@ -513,4 +536,9 @@ div.auto_complete ul li {
 div.auto_complete ul strong.highlight {
   margin:0;
   padding:0;
+}
+
+#searchContainer.styled {
+    padding: 3px 1px 3px 20px;
+    vertical-align: middle;
 }
