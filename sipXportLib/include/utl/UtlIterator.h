@@ -25,7 +25,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class UtlContainable ;
+class UtlContainable;
 class UtlContainer;
 
 /**
@@ -121,7 +121,11 @@ protected:
      * is being used or modified.  If the mpIteratorListLock in the container
      * is also held, then the mpIteratorListLock must be taken first.
      */
-    OsBSem mContainerRefLock;
+    mutable OsBSem mContainerRefLock;
+
+    /**
+     *  The container which this iterator indexes into.
+     */
     UtlContainer* mpMyContainer;
     
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

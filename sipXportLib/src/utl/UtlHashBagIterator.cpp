@@ -207,7 +207,7 @@ UtlContainable* UtlHashBagIterator::key() const
    UtlContainable* current = NULL;
 
    UtlContainer::acquireIteratorConnectionLock();
-   OsLock take(const_cast<OsBSem&>(mContainerRefLock));
+   OsLock take(mContainerRefLock);
    UtlHashBag* myHashBag = dynamic_cast<UtlHashBag*>(mpMyContainer);
    if (myHashBag)
    {

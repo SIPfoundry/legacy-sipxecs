@@ -239,6 +239,8 @@ UtlContainable* UtlHashMap::insertKeyAndValue(UtlContainable* key, UtlContainabl
 
    if (!value)
    {
+      // This const_cast is a little dangerous, as the application can obtain
+      // a non-const pointer to INTERNAL_NULL via UtlHashMap::find.
       value = const_cast<UtlContainable*>(INTERNAL_NULL);
    }
    

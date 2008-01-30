@@ -98,6 +98,7 @@ UtlContainable* UtlListIterator::operator()()
       else
       {
          // reset position so that subsequent calls will also return end of list
+         // This const_cast is safe because *mpCurrentNode is never written
          mpCurrentNode = const_cast<UtlLink*>(OFF_LIST_END);
       }
    }
@@ -162,7 +163,7 @@ UtlContainable* UtlListIterator::item() const
    UtlContainable* currentItem = NULL;
 
    UtlContainer::acquireIteratorConnectionLock();
-   OsLock take(const_cast<OsBSem&>(mContainerRefLock));
+   OsLock take(mContainerRefLock);
 
    UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
    if (myList)
@@ -192,7 +193,7 @@ UtlBoolean UtlListIterator::atLast() const
    
    UtlContainer::acquireIteratorConnectionLock();
 
-   OsLock take(const_cast<OsBSem&>(mContainerRefLock));
+   OsLock take(mContainerRefLock);
    UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
    if (myList)
    {

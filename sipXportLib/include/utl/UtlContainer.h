@@ -194,8 +194,12 @@ protected:
      *   ->remove when an element is about to be removed from the UtlContainer,
      *   ->invalidate when this UtlContainer is being deleted
      * see sIteratorConnectionLock
+     *
+     * mIteratorList must be mutable because we can create an iterator
+     * on a const UtlContainer, and that iterator must be added to
+     * mIteratorList as other references to the UtlContainer might change it.
      */
-    UtlChain mIteratorList; 
+    mutable UtlChain mIteratorList; 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

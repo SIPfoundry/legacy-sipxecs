@@ -59,7 +59,7 @@ void UtlContainer::invalidateIterators()
    // The caller is holding the sIteratorConnectionLock and mContainerLock.
        
    // Walk the list to notify the iterators.
-   for (listNode = static_cast<UtlLink*>(mIteratorList.head());
+   for (listNode = mIteratorList.head();
         listNode != NULL;
         listNode = listNode->next()
         )
@@ -135,18 +135,14 @@ void UtlContainer::addIterator(UtlIterator* newIterator) const
    // But it need not be holding newIterator->mpContainerRefLock, because
    // we do not set newIterator->mpMyContainer.
 
-   // This method is declared const because it makes no change that
-   // any other method can detect in the container, but it actually
-   // does make a change, so we have to cast away the const.
-   UtlContainer* my = const_cast<UtlContainer*>(this);
-   
-    if(newIterator)
-    {
-       // :HACK: note that we are storing a UtlIterator* in the UtlContainer* pointer
-       UtlLink* iteratorLink = UtlLink::get();
-       iteratorLink->data = (UtlContainer*)newIterator;
-       iteratorLink->UtlChain::listBefore(&my->mIteratorList, NULL);
-    }
+   if(newIterator)
+   {
+      // :HACK: note that we are storing a UtlIterator* in the UtlContainer* pointer
+      UtlLink* iteratorLink = UtlLink::get();
+      iteratorLink->data = (UtlContainer*)newIterator;
+      // Note mIteratorList is mutable.
+      iteratorLink->UtlChain::listBefore(&mIteratorList, NULL);
+   }
 }
 
 
@@ -160,16 +156,16 @@ void UtlContainer::removeIterator(UtlIterator *existingIterator) const
    // any other method can detect in the container, but it actually
    // does make a change, so we have to cast away the const.
    
-   if(existingIterator)
+   if (existingIterator)
    {
-      UtlContainer *my = (UtlContainer*)this;
       UtlLink* iteratorLink;
 
       // :HACK: note that we are storing a UtlIterator* in the UtlContainer* pointer
-      iteratorLink = UtlLink::findData(&my->mIteratorList, (UtlContainer*)existingIterator);
+      iteratorLink = UtlLink::findData(&mIteratorList, (UtlContainer*) existingIterator);
       if (iteratorLink)
       {
-         iteratorLink->detachFrom(&my->mIteratorList);
+         // Note mIteratorList is mutable.
+         iteratorLink->detachFrom(&mIteratorList);
       }
    }
 }
