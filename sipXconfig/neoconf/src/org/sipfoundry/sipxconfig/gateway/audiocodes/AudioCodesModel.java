@@ -17,6 +17,7 @@ public class AudioCodesModel extends GatewayModel {
     private boolean m_fxo;
     private boolean m_fxs;
     private boolean m_digital;
+    private String m_configDirectory;
 
     public void setFxo(boolean fxo) {
         m_fxo = fxo;
@@ -30,6 +31,10 @@ public class AudioCodesModel extends GatewayModel {
         m_digital = digital;
     }
 
+    public void setConfigDirectory(String configDirectory) {
+        m_configDirectory = configDirectory;
+    }
+
     public boolean isFxo() {
         return m_fxo;
     }
@@ -40,6 +45,10 @@ public class AudioCodesModel extends GatewayModel {
 
     public boolean isDigital() {
         return m_digital;
+    }
+
+    public String getConfigDirectory() {
+        return m_configDirectory;
     }
 
     public Set getDefinitions() {
@@ -55,4 +64,5 @@ public class AudioCodesModel extends GatewayModel {
         }
         return definitions;
     }
+
 }

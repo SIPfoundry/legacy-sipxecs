@@ -3,6 +3,11 @@
     PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
+  <type id="upload-file">
+    <file variable="yes">
+      <contentType>application/binary</contentType>
+    </file>
+  </type>
   <type id="number-plan">
     <enum>
       <option>
@@ -1960,15 +1965,17 @@
       </type>
       <value>0</value>
     </setting>
-    <group name='Telephony' hidden="yes">
+    <group name='Telephony'>
       <label>Telephony Interface Parameters</label>
-      <setting name='CallProgressTonesFilename' advanced='yes'>
-        <label>Call Progress Tones Filename</label>
+      <setting name="CallProgressTonesFilename" advanced='yes'>
+		<label>Call Progress Tones Filename</label>
+        <type refid="upload-file" />
         <value>usa_tones_12.dat</value>
         <description>Call progress tones definition filename, to be TFTP-loaded during boot</description>
       </setting>
-      <setting name='FXSLoopCharacteristicsFilename' advanced='yes'>
-        <label>FXS Loop Characteristics Filename</label>
+      <setting name="FXSLoopCharacteristicsFilename" advanced='yes'>
+		<label>FXS Loop Characteristics Filename</label>
+        <type refid="upload-file" />
         <value>MP11x-02-1-FXS_16KHZ.dat</value>
         <description>FXS loop characteristics definition filename, to be TFTP-loaded during boot</description>
       </setting>
