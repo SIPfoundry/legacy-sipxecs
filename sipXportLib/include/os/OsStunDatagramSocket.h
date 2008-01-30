@@ -266,8 +266,8 @@ protected:
      * found via STUN/ICE.
      *
      * @param address The new destination address
-     * @param port The new destination port
-     * @param priority Priority of the destination address
+     * @param iPort The new destination port
+     * @param cPriority Priority of the destination address
      */
     void setDestinationAddress(const UtlString& address, int iPort, unsigned char cPriority) ;    
 
