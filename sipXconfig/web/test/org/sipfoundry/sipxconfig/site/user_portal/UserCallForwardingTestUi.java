@@ -63,6 +63,10 @@ public class UserCallForwardingTestUi extends WebTestCase {
         clickButton("form:apply");
         assertElementPresent("user:success");
 
+        setFormElement("number", "@.%^&");
+        clickButton("form:apply");
+        assertElementPresent("user:error");
+
         setFormElement("number", "john@example.com");
         clickButton("form:apply");
         assertElementPresent("user:success");
@@ -105,6 +109,17 @@ public class UserCallForwardingTestUi extends WebTestCase {
         clickLink("link:forwarding");
         clickLink("addRingLink");
         selectOption("schedule", "schedule");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
+
+        clickLink("menu.callForwarding");
+        clickLink("link:forwarding");
+        clickLink("addRingLink");
+        setFormElement("number", "@#$%");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
+
+        setFormElement("number", "222@q.c");
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
 
