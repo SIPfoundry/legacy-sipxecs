@@ -1765,13 +1765,12 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             {
                response = new SipMessage();
 
-               response->setRequestUnimplemented(message);
                // Since we are rejecting the request because its method is
-               // not handled by this SipUserAgent, add an Allow: header
+               // not handled by this SipUserAgent, include an Allow: header
                // listing the methods we do handle.
                UtlString allowedMethods;
                getAllowedMethods(&allowedMethods);
-               response->setAllowField(allowedMethods.data());
+               response->setRequestBadMethod(message, allowedMethods);
             }
 
             // Check if the extensions are supported
