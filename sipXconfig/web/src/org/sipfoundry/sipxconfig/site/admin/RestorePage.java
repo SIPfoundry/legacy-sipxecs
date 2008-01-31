@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.admin.BackupBean;
 import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.admin.BackupPlan;
 import org.sipfoundry.sipxconfig.admin.Restore;
+import org.sipfoundry.sipxconfig.admin.WaitingListenerWrapper;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.AssetSelector;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -42,8 +43,6 @@ import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
 public abstract class RestorePage extends UserBasePage implements PageBeginRenderListener {
     private static final String FILE_TYPE = ".tar.gz";
-
-    private static final String SUCCESS = "message.label.success";
 
     private static final String MESSAGE = "message.";
 
@@ -71,6 +70,9 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
 
     @InjectObject(value = "spring:restore")
     public abstract Restore getRestore();
+
+    @InjectObject(value = "spring:waitingListenerWrapper")
+    public abstract WaitingListenerWrapper getWaitingListenerWrapper();
 
     @Persist
     @InitialValue(value = "literal:restore")
@@ -100,9 +102,9 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         return Type.values();
     }
 
-    public void restore() {
+    public String restore() {
         Collection<File> selectedFiles = getSelections().getAllSelected();
-        List<BackupBean> selectedBackups = new ArrayList<BackupBean>();
+        ArrayList<BackupBean> selectedBackups = new ArrayList<BackupBean>();
         for (File file : selectedFiles) {
             selectedBackups.add(new BackupBean(file));
         }
@@ -110,45 +112,57 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         if (!validateSelections(selectedBackups)) {
             TapestryUtils.getValidator(getPage()).record(
                     new ValidatorException(getMessages().getMessage("message.invalidSelection")));
-            return;
+            return null;
         }
-
         try {
-            getRestore().perform(selectedBackups);
+            getRestore().validate(selectedBackups);
+            //set selected backups in order to be used when Waiting page notifies the restore bean
+            getRestore().setSelectedBackups(selectedBackups);
+            /*sets the waiting listener.
+            This will be notified by waiting page when this is requested by the client (browser)
+            -after it loads the waiting page*/
+            getWaitingListenerWrapper().setWaitingListener(getRestore());
+            return WaitingPage.PAGE;
+
         } catch (UserException ex) {
             TapestryUtils.getValidator(getPage()).record(
                     new ValidatorException(getMessages().getMessage(MESSAGE + ex.getMessage())));
-            return;
+            return null;
         }
-
-        TapestryUtils.recordSuccess(this, getMessages().getMessage(SUCCESS));
     }
 
-    public void uploadAndRestoreFiles() {
+    public String uploadAndRestoreFiles() {
         IValidationDelegate validator = TapestryUtils.getValidator(getPage());
         try {
-            List<BackupBean> beans = new ArrayList<BackupBean>();
+            ArrayList<BackupBean> selectedBackups = new ArrayList<BackupBean>();
             BackupBean config;
             config = upload(getUploadConfigurationFile(), BackupPlan.CONFIGURATION_ARCHIVE);
             if (config != null) {
-                beans.add(config);
+                selectedBackups.add(config);
             }
             BackupBean voicemail = upload(getUploadVoicemailFile(), BackupPlan.VOICEMAIL_ARCHIVE);
             if (voicemail != null) {
-                beans.add(voicemail);
+                selectedBackups.add(voicemail);
             }
 
-            if (beans.isEmpty()) {
+            if (selectedBackups.isEmpty()) {
                 throw new ValidatorException(getMessages().getMessage("message.noFileToRestore"));
             }
-
-            getRestore().perform(beans);
-            TapestryUtils.recordSuccess(this, getMessages().getMessage(SUCCESS));
+            getRestore().validate(selectedBackups);
+            //set selected backups in order to be used when Waiting page notifies the restore bean
+            getRestore().setSelectedBackups(selectedBackups);
+            /*sets the waiting listener.
+            This will be notified by waiting page when this is requested by the client (browser)
+            -after it loads the waiting page*/
+            getWaitingListenerWrapper().setWaitingListener(getRestore());
+            return WaitingPage.PAGE;
         } catch (ValidatorException e) {
             validator.record(e);
+            return null;
         } catch (UserException ex) {
-            validator.record(new ValidatorException(getMessages().getMessage(
-                    MESSAGE + ex.getMessage())));
+            validator.record(
+                    new ValidatorException(getMessages().getMessage(MESSAGE + ex.getMessage())));
+            return null;
         }
 
     }
@@ -190,6 +204,16 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
             return true;
         }
         return false;
+    }
+
+    public String getLog() {
+        String content = "";
+        try {
+            content = getRestore().getRestoreLogContent();
+        } catch (UserException ex) {
+            content = getMessages().getMessage(ex.getMessage());
+        }
+        return content;
     }
 
 }

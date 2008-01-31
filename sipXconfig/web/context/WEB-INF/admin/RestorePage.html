@@ -1,6 +1,6 @@
 <div jwcid="@Border">
   <h2><span key="title">Restore</span></h2>
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'restore', 'upload'}" selectedTab="prop:tab"/>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'restore', 'upload', 'log'}" selectedTab="prop:tab"/>
   <div id="settings-content">
     <span jwcid="@ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
@@ -64,6 +64,12 @@
             <input jwcid="uploadbutton@Submit" id="backups:uploadbutton" value="message:button.restore" listener="listener:uploadAndRestoreFiles"/>
           </li>
         </ul>
+    </form>
+  </span>
+  <span jwcid="logTab@Block">
+    <span jwcid="@QuickHelp" value="message:log.quick.help"/>
+    <form jwcid="log@Form">
+      <textarea jwcid="@TextArea" rows="30" cols="75" readonly="readonly" value="ognl:log">file</textarea>
     </form>
   </span>
 </div>

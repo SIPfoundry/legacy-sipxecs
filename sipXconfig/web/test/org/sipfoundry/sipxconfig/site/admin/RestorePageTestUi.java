@@ -133,4 +133,12 @@ public class RestorePageTestUi extends WebTestCase {
         assertSubmitButtonValue("uploadbutton", "Restore");
     }
 
+    public void testShowLogPage() throws Exception {
+        SiteTestHelper.assertNoException(tester);
+        clickLink("link:log");
+        SiteTestHelper.assertNoException(tester);
+        assertElementPresent("TextArea");
+
+    }
+
 }
