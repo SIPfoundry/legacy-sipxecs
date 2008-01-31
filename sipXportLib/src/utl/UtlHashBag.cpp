@@ -342,6 +342,50 @@ UtlContainable* UtlHashBag::find(const UtlContainable* object) const
    return foundObject;
 }
 
+/**
+ * Search for the designated object by reference.
+ * @return the object if found, otherwise NULL.
+ */
+UtlContainable* UtlHashBag::findReference(const UtlContainable* object) const
+{
+   UtlContainable* found = NULL;
+   
+   if (object)
+   {
+      OsLock take(mContainerLock);
+
+      UtlLink*  link = NULL;
+      UtlChain* bucket;
+      UtlLink* check;
+   
+      // walk the buckets
+      for (size_t i = 0; link == NULL && i < numberOfBuckets(); i++)
+      {
+         bucket = &mpBucket[i];
+
+         for (link = NULL, check = static_cast<UtlLink*>(bucket->listHead());
+              (   !link                  // not found 
+               && check                  // not end of list
+                 );
+              check = check->next()
+            )
+         {
+            if (check->data == object)
+            {
+               link = check; // found it
+            }
+         }
+      }
+
+      if (link)
+      {
+         found = link->data;
+      }
+   }
+   
+   return found;
+}
+
 
 /* ============================ INQUIRY =================================== */
 

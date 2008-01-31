@@ -102,6 +102,13 @@ class UtlHashBag : public UtlContainer
     */
    virtual UtlContainable* find(const UtlContainable* object) const;
 
+   /**
+    * Search for the designated object by reference.
+    * @return the object if found, otherwise NULL.
+    * 'object' need not be a valid object pointer.
+    */
+   virtual UtlContainable* findReference(const UtlContainable* object) const;
+
 
 /* ============================ INQUIRY =================================== */
 
