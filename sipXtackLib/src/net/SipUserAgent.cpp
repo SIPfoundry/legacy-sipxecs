@@ -152,7 +152,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     {
         mSipTlsServer = new SipTlsServer(mTlsPort, this, bUseNextAvailablePort);
         mSipTlsServer->startListener();
-        mTlsPort = mSipTlsServer->getServerPort() ;
+        mTlsPort = mSipTlsServer->getServerPort();
         
         if (mTlsPort == PORT_NONE || !mSipTlsServer->isOk())
         {
@@ -167,7 +167,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                                          "SipTcpServer-%d",
                                          bUseNextAvailablePort, defaultAddress);
         mSipTcpServer->startListener();
-        mTcpPort = mSipTcpServer->getServerPort() ;
+        mTcpPort = mSipTcpServer->getServerPort();
         
         if (mTcpPort == PORT_NONE || !mSipTcpServer->isOk())
         {
@@ -186,7 +186,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         mSipUdpServer->startListener();
         // Get the UDP port that was obtained (in case mUdpPort was
         // PORT_DEFAULT).
-        mUdpPort = mSipUdpServer->getServerPort() ;
+        mUdpPort = mSipUdpServer->getServerPort();
         
         if (mUdpPort == PORT_NONE || !mSipUdpServer->isOk())
         {
@@ -312,7 +312,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     if(publicAddress && *publicAddress)
     {
         sipIpAddress.append(publicAddress);
-        mConfigPublicAddress = publicAddress ;
+        mConfigPublicAddress = publicAddress;
         
         // make a config CONTACT entry
         char szAdapter[256];
@@ -625,8 +625,8 @@ void SipUserAgent::addMessageObserver(OsMsgQ& messageQueue,
 UtlBoolean SipUserAgent::removeMessageObserver(OsMsgQ& messageQueue, void* pObserverData /*=NULL*/)
 {
     OsWriteLock lock(mObserverMutex);
-    SipObserverCriteria* pObserver = NULL ;
-    UtlBoolean bRemovedObservers = FALSE ;
+    SipObserverCriteria* pObserver = NULL;
+    UtlBoolean bRemovedObservers = FALSE;
 
     // Traverse all of the observers and remove any that match the
     // message queue/observer data.  If the pObserverData is null, all
@@ -641,7 +641,7 @@ UtlBoolean SipUserAgent::removeMessageObserver(OsMsgQ& messageQueue, void* pObse
             if ((pObserverData == NULL) ||
                     (pObserverData == pObserver->getObserverData()))
             {
-                bRemovedObservers = true ;
+                bRemovedObservers = true;
                 UtlContainable* wasRemoved = mMessageObservers.removeReference(pObserver);
 
                 if(wasRemoved)
@@ -653,7 +653,7 @@ UtlBoolean SipUserAgent::removeMessageObserver(OsMsgQ& messageQueue, void* pObse
         }
     }
 
-    return bRemovedObservers ;
+    return bRemovedObservers;
 }
 
 void SipUserAgent::allowMethod(const char* methodName, const bool bAllow)
@@ -1391,7 +1391,7 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
 
    return(sendSucceeded);
 #else
-   return FALSE ;
+   return FALSE;
 #endif
 }
 
@@ -1430,24 +1430,24 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
       // Strip out maddr/transport/non-default port according to RFC 3261 section 16.4
       if (doesMaddrMatchesUserAgent(*message))
       {
-         UtlString uriStr ;
-         UtlString method ;
-         UtlString protocol ;
-         UtlString originalHeader ;
+         UtlString uriStr;
+         UtlString method;
+         UtlString protocol;
+         UtlString originalHeader;
 
          if (OsSysLog::willLog(FAC_SIP, PRI_NOTICE))
          {
-             originalHeader = message->getFirstHeaderLine() ;
+             originalHeader = message->getFirstHeaderLine();
          }
-         message->getRequestMethod(&method) ;
-         message->getRequestProtocol(&protocol) ;
-         message->getRequestUri(&uriStr) ;
-         Url uri(uriStr, Url::AddrSpec, NULL) ;
-         uri.removeUrlParameter("maddr") ;
-         uri.removeUrlParameter("transport") ;
-         uri.setHostPort(PORT_NONE) ;
-         uri.getUri(uriStr) ;                         
-         message->setFirstHeaderLine(method, uriStr, protocol) ;
+         message->getRequestMethod(&method);
+         message->getRequestProtocol(&protocol);
+         message->getRequestUri(&uriStr);
+         Url uri(uriStr, Url::AddrSpec, NULL);
+         uri.removeUrlParameter("maddr");
+         uri.removeUrlParameter("transport");
+         uri.setHostPort(PORT_NONE);
+         uri.getUri(uriStr);                         
+         message->setFirstHeaderLine(method, uriStr, protocol);
          
          if (OsSysLog::willLog(FAC_SIP, PRI_NOTICE))
          {
@@ -2151,7 +2151,7 @@ void SipUserAgent::queueMessageToInterestedObservers(SipMessageEvent& event,
             } // else - this is a response - event filter is not applicable
 
             // Check to see if the session criteria matters
-            SipSession* pCriteriaSession = observerCriteria->getSession() ;
+            SipSession* pCriteriaSession = observerCriteria->getSession();
             bool useSessionFilter = (NULL != pCriteriaSession);
             UtlBoolean matchedSession = FALSE;
             if (useSessionFilter)
@@ -2667,17 +2667,17 @@ void SipUserAgent::garbageCollection()
 // port -- not advertised port).
 UtlBoolean SipUserAgent::setUseRport(UtlBoolean bEnable)
 {
-    UtlBoolean bOld = mbUseRport ;
+    UtlBoolean bOld = mbUseRport;
 
-    mbUseRport = bEnable ;
+    mbUseRport = bEnable;
 
-    return bOld ;
+    return bOld;
 }
 
 // Is use report set?
 UtlBoolean SipUserAgent::getUseRport() const
 {
-    return mbUseRport ;
+    return mbUseRport;
 }
 
 void SipUserAgent::setUserAgentName(const UtlString& name)
@@ -2695,31 +2695,31 @@ const UtlString& SipUserAgent::getUserAgentName() const
 // Get the manually configured public address
 UtlBoolean SipUserAgent::getConfiguredPublicAddress(UtlString* pIpAddress, int* pPort)
 {
-    UtlBoolean bSuccess = FALSE ;
+    UtlBoolean bSuccess = FALSE;
 
     if (mSipUdpServer &&
         mConfigPublicAddress.length())
     {
         if (pIpAddress)
         {
-            *pIpAddress = mConfigPublicAddress ;
+            *pIpAddress = mConfigPublicAddress;
         }
 
         if (pPort)
         {
-            *pPort = mSipUdpServer->getServerPort() ;
+            *pPort = mSipUdpServer->getServerPort();
         }
 
-        bSuccess = TRUE ;
+        bSuccess = TRUE;
     }
 
-    return bSuccess ;
+    return bSuccess;
 }
 
 // Get the local address and port
 UtlBoolean SipUserAgent::getLocalAddress(UtlString* pIpAddress, int* pPort)
 {
-    UtlBoolean bSuccess = FALSE ;
+    UtlBoolean bSuccess = FALSE;
 
     if (mSipUdpServer)
     {
@@ -2731,13 +2731,13 @@ UtlBoolean SipUserAgent::getLocalAddress(UtlString* pIpAddress, int* pPort)
           }
           else
           {
-             OsSocket::getHostIp(pIpAddress) ;
+             OsSocket::getHostIp(pIpAddress);
           }   
        }
 
        if (pPort)
        {
-          *pPort = mSipUdpServer->getServerPort() ;
+          *pPort = mSipUdpServer->getServerPort();
        }
 
        bSuccess = TRUE;
@@ -3000,11 +3000,11 @@ void SipUserAgent::setProxyServers(const char* sipProxyServers)
 {
     if (sipProxyServers)
     {
-        proxyServers = sipProxyServers ;
+        proxyServers = sipProxyServers;
     }
     else
     {
-        proxyServers.remove(0) ;
+        proxyServers.remove(0);
     }
 }
 
@@ -3248,40 +3248,40 @@ SipMessage* SipUserAgent::getRequest(const SipMessage& response)
 
 int SipUserAgent::getTcpPort() const
 {
-    int iPort = PORT_NONE ;
+    int iPort = PORT_NONE;
 
     if (mSipTcpServer)
     {
-        iPort = mSipTcpServer->getServerPort() ;
+        iPort = mSipTcpServer->getServerPort();
     }
 
-    return iPort ;
+    return iPort;
 }
 
 int SipUserAgent::getUdpPort() const
 {
-    int iPort = PORT_NONE ;
+    int iPort = PORT_NONE;
 
     if (mSipUdpServer)
     {
-        iPort = mSipUdpServer->getServerPort() ;
+        iPort = mSipUdpServer->getServerPort();
     }
 
-    return iPort ;
+    return iPort;
 }
 
 int SipUserAgent::getTlsPort() const
 {
-    int iPort = PORT_NONE ;
+    int iPort = PORT_NONE;
 
 #ifdef SIP_TLS
     if (mSipTlsServer)
     {
-        iPort = mSipTlsServer->getServerPort() ;
+        iPort = mSipTlsServer->getServerPort();
     }
 #endif
 
-    return iPort ;
+    return iPort;
 }
 
 
@@ -3439,16 +3439,16 @@ UtlBoolean SipUserAgent::isOk()
 
     if (mSipTcpServer)
     {
-        retval = retval && mSipTcpServer->isOk() ;
+        retval = retval && mSipTcpServer->isOk();
     }
     if (mSipUdpServer && retval)
     {
-        retval = retval && mSipUdpServer->isOk() ;
+        retval = retval && mSipUdpServer->isOk();
     }
 #ifdef SIP_TLS
     if (mSipTlsServer && retval)
     {
-        retval = retval && mSipTlsServer->isOk() ;
+        retval = retval && mSipTlsServer->isOk();
     }
 #endif
 
@@ -3462,10 +3462,10 @@ UtlBoolean SipUserAgent::isOk()
 #endif
             )
     {
-        retval = FALSE ;
+        retval = FALSE;
     }
 
-    return retval ;
+    return retval;
 }
 
 UtlBoolean SipUserAgent::isSymmetricSignalingImposed()
@@ -3485,7 +3485,7 @@ UtlBoolean SipUserAgent::shouldAuthenticate(SipMessage* message) const
     message->getRequestMethod(&method);
 
     //SDUA - Do not authenticate if a CANCEL or an ACK req/res from other side
-    UtlBoolean methodCompare = TRUE ;
+    UtlBoolean methodCompare = TRUE;
     if (   strcmp(method.data(), SIP_ACK_METHOD) == 0
         || strcmp(method.data(), SIP_CANCEL_METHOD) == 0
         )
@@ -3667,7 +3667,7 @@ void SipUserAgent::getContactAddresses(CONTACT_ADDRESS* pContacts[], int &numCon
 
 UtlBoolean SipUserAgent::doesMaddrMatchesUserAgent(SipMessage& message) 
 {
-   UtlBoolean bMatch = false ;
+   UtlBoolean bMatch = false;
 
    // "If the Request-URI contains a maddr parameter, the proxy MUST check
    // to see if its value is in the set of addresses or domains the proxy
@@ -3682,58 +3682,58 @@ UtlBoolean SipUserAgent::doesMaddrMatchesUserAgent(SipMessage& message)
    // Must be a response
    if (!message.isResponse())
    {
-      UtlString uriStr ;
-      UtlString maddr ;
-      message.getRequestUri(&uriStr) ;
-      Url uri(uriStr, Url::AddrSpec, NULL) ;
+      UtlString uriStr;
+      UtlString maddr;
+      message.getRequestUri(&uriStr);
+      Url uri(uriStr, Url::AddrSpec, NULL);
       if (uri.getUrlParameter("maddr", maddr) && !maddr.isNull())
       {
          // Normalize Port
-         int uriPort = uri.getHostPort() ;
+         int uriPort = uri.getHostPort();
          if (uriPort == PORT_NONE)
-             uriPort = SIP_PORT ;
+             uriPort = SIP_PORT;
          
          // IP/Port must Match -- TODO:: Host check
          if ((message.getInterfaceIp().compareTo(maddr) == 0) && 
                  (uriPort == message.getInterfacePort()))
          {
-            OsSocket::IpProtocolSocketType socketType = message.getSendProtocol() ;
-            UtlString transport ;
+            OsSocket::IpProtocolSocketType socketType = message.getSendProtocol();
+            UtlString transport;
 
             switch (socketType)
             {
             case OsSocket::UDP:
-               uri.getUrlParameter("transport", transport) ;
+               uri.getUrlParameter("transport", transport);
                if (transport.isNull() || transport.compareTo("UDP", UtlString::ignoreCase) == 0)
                {
-                  bMatch = TRUE ;
+                  bMatch = TRUE;
                }               
-               break ;
+               break;
             case OsSocket::TCP:
-               uri.getUrlParameter("transport", transport) ;
+               uri.getUrlParameter("transport", transport);
                if (transport.compareTo("TCP", UtlString::ignoreCase) == 0)
                {
-                  bMatch = TRUE ;
+                  bMatch = TRUE;
                }
-               break ;
+               break;
             case OsSocket::SSL_SOCKET:
-               uri.getUrlParameter("transport", transport) ;
+               uri.getUrlParameter("transport", transport);
                // Note: checking for transport=tls for RFC 2543 support
                if ((transport.compareTo("TLS", UtlString::ignoreCase) == 0) ||
                      uri.getScheme() == Url::SipsUrlScheme)
                {
-                  bMatch = TRUE ;
+                  bMatch = TRUE;
                }
-               break ;
+               break;
             default:
                // If we don't have or understand the transport -- allow it.
-               break ;
+               break;
             }
          }
       }
    }
 
-   return bMatch ;
+   return bMatch;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

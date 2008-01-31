@@ -88,7 +88,7 @@ class ContactSet : public UtlContainableAtomic,
    virtual void notifyEventCallback(const UtlString* dialogHandle,
                                     const UtlString* content);
 
-   //! Add to the HttpBody the current state of the resource instances.
+   //! Add to an HttpBody the current state of the resource instances.
    void generateBody(/// the RLMI XML to be appended to
                      UtlString& rlmi,
                      /// the HttpBody to which to add a part for this resource
