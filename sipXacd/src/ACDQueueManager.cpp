@@ -702,6 +702,7 @@ ProvisioningAttrList* ACDQueueManager::Set(ProvisioningAttrList& rRequestAttribu
       rRequestAttributes.validateAttributeType(QUEUE_MAX_WAIT_TIME_TAG,             ProvisioningAttrList::INT);
       rRequestAttributes.validateAttributeType(QUEUE_FIFO_OVERFLOW_TAG,             ProvisioningAttrList::BOOL);
       rRequestAttributes.validateAttributeType(QUEUE_OVERFLOW_QUEUE_TAG,            ProvisioningAttrList::STRING);
+      rRequestAttributes.validateAttributeType(QUEUE_OVERFLOW_ENTRY_TAG,            ProvisioningAttrList::STRING);
       rRequestAttributes.validateAttributeType(QUEUE_ANSWER_MODE_TAG,               ProvisioningAttrList::INT);
       rRequestAttributes.validateAttributeType(QUEUE_CALL_CONNECT_SCHEME_TAG,       ProvisioningAttrList::INT);
       rRequestAttributes.validateAttributeType(QUEUE_WELCOME_AUDIO_TAG,             ProvisioningAttrList::STRING);
@@ -798,6 +799,14 @@ ProvisioningAttrList* ACDQueueManager::Set(ProvisioningAttrList& rRequestAttribu
    else {
        deletePSAttribute(pInstanceNode, QUEUE_OVERFLOW_QUEUE_TAG);
    }
+   
+   // overflow-entry (optional)
+   if (rRequestAttributes.getAttribute(QUEUE_OVERFLOW_ENTRY_TAG, overflowEntry)) {
+      setPSAttribute(pInstanceNode, QUEUE_OVERFLOW_ENTRY_TAG, overflowEntry);
+   }
+   else {
+       deletePSAttribute(pInstanceNode, QUEUE_OVERFLOW_ENTRY_TAG);
+   }   
 
    // answer-mode (required)
    if (rRequestAttributes.getAttribute(QUEUE_ANSWER_MODE_TAG, answerMode)) {
@@ -1076,6 +1085,7 @@ bool ACDQueueManager::loadConfiguration(void)
       // Set default values
       name                    = "";
       overflowQueue           = "";
+      overflowEntry           = "";
       welcomeAudio            = "";
       bargeIn                 = FALSE;
       queueAudio              = "";
