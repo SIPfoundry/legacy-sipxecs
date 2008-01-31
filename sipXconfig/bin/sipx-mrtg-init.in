@@ -127,6 +127,11 @@ then
   then 
     mv mrtg.cfg mrtg.cfg.old
   fi
+  cat > ./mrtg.cfg <<EOF
+WorkDir: $SIPX_VARDIR/mrtg
+
+EOF
+  chown $SIPX_USER:$SIPX_USER ./mrtg.cfg
 
   cat > ./mrtg-t.cfg <<EOF
 EnableIPv6: no
