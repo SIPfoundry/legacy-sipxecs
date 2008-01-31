@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +26,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 /**
  * Interface to command line restore utility
  */
-
-public class Restore implements WaitingListener {
+public class Restore implements Serializable, WaitingListener {
     private static final Log LOG = LogFactory.getLog(Restore.class);
 
     private static final String ERROR = "Errors when executing restore script: %s";
@@ -46,7 +46,7 @@ public class Restore implements WaitingListener {
     private String m_binDirectory;
     private String m_logDirectory;
 
-    private ArrayList<BackupBean> m_selectedBackups;
+    private List<BackupBean> m_selectedBackups;
 
     public void afterResponseSent() {
         perform(m_selectedBackups);
@@ -56,6 +56,7 @@ public class Restore implements WaitingListener {
     public void perform(List<BackupBean> backups) {
         execute(backups, false);
     }
+
     public void validate(List<BackupBean> backups) {
         execute(backups, true);
     }
@@ -74,7 +75,6 @@ public class Restore implements WaitingListener {
         } catch (InterruptedException e) {
             LOG.warn(String.format(ERROR, StringUtils.join(cmdLine, SPACE)));
         }
-
     }
 
     String[] getCmdLine(List<BackupBean> backups, boolean verify) {
@@ -120,10 +120,12 @@ public class Restore implements WaitingListener {
             throw new UserException(LOG_READ_EX);
         }
     }
-    public ArrayList<BackupBean> getSelectedBackups() {
+
+    public List<BackupBean> getSelectedBackups() {
         return m_selectedBackups;
     }
-    public void setSelectedBackups(ArrayList<BackupBean> selectedBackups) {
+
+    public void setSelectedBackups(List<BackupBean> selectedBackups) {
         m_selectedBackups = selectedBackups;
     }
 

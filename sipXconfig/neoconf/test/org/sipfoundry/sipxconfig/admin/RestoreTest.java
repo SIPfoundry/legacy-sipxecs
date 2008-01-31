@@ -29,24 +29,25 @@ public class RestoreTest extends TestCase {
         List<BackupBean> list = new ArrayList<BackupBean>();
         list.add(configBackupBean);
 
-        String cmdLine = StringUtils.join(restore.getCmdLine(list,false), ' ');
-        assertEquals(restore.getBinDirectory() + "/sipx-sudo-restore -c " + conf.getAbsolutePath()
-                + " --non-interactive --enforce-version", cmdLine);
+        String cmdLine = StringUtils.join(restore.getCmdLine(list, false), ' ');
+        assertEquals(restore.getBinDirectory() + "/sipx-sudo-restore -c "
+                + conf.getAbsolutePath() + " --non-interactive --enforce-version", cmdLine);
 
-        cmdLine = StringUtils.join(restore.getCmdLine(list,true), ' ');
-        assertEquals(restore.getBinDirectory() + "/sipx-sudo-restore -c " + conf.getAbsolutePath()
-                + " --non-interactive --enforce-version --verify", cmdLine);
+        cmdLine = StringUtils.join(restore.getCmdLine(list, true), ' ');
+        assertEquals(restore.getBinDirectory() + "/sipx-sudo-restore -c "
+                + conf.getAbsolutePath() + " --non-interactive --enforce-version --verify",
+                cmdLine);
 
         File voicemail = new File("path_to_mailstore_backup", BackupPlan.VOICEMAIL_ARCHIVE);
         BackupBean voicemailBackupBean = new BackupBean(voicemail);
         list.add(voicemailBackupBean);
 
-        cmdLine = StringUtils.join(restore.getCmdLine(list,false), ' ');
+        cmdLine = StringUtils.join(restore.getCmdLine(list, false), ' ');
         assertEquals(restore.getBinDirectory() + "/sipx-sudo-restore -c "
                 + conf.getAbsolutePath() + " -v " + voicemail.getAbsolutePath()
                 + " --non-interactive --enforce-version", cmdLine);
 
-        cmdLine = StringUtils.join(restore.getCmdLine(list,true), ' ');
+        cmdLine = StringUtils.join(restore.getCmdLine(list, true), ' ');
         assertEquals(restore.getBinDirectory() + "/sipx-sudo-restore -c "
                 + conf.getAbsolutePath() + " -v " + voicemail.getAbsolutePath()
                 + " --non-interactive --enforce-version --verify", cmdLine);

@@ -8,13 +8,15 @@
  * $
  */
 package org.sipfoundry.sipxconfig.admin;
+
 /**
- * The object that implements this interface should be set in the WaitingListenerWrapper spring bean.
+ * The object that implements this interface should be set in the WaitingListenerWrapper spring
+ * bean.
  */
 public interface WaitingListener {
     /**
-     * This method is called
-     * when this is requested by the client (browser) -after it loads the waiting page
+     * This method is called when this is requested by the client (browser) -after it loads the
+     * waiting page
      */
-    public void afterResponseSent();
+    void afterResponseSent();
 }

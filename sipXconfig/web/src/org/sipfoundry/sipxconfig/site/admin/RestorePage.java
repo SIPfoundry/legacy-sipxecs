@@ -20,9 +20,11 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -34,7 +36,6 @@ import org.sipfoundry.sipxconfig.admin.BackupBean;
 import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.admin.BackupPlan;
 import org.sipfoundry.sipxconfig.admin.Restore;
-import org.sipfoundry.sipxconfig.admin.WaitingListenerWrapper;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.AssetSelector;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -71,8 +72,8 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
     @InjectObject(value = "spring:restore")
     public abstract Restore getRestore();
 
-    @InjectObject(value = "spring:waitingListenerWrapper")
-    public abstract WaitingListenerWrapper getWaitingListenerWrapper();
+    @InjectPage(value = WaitingPage.PAGE)
+    public abstract WaitingPage getWaitingPage();
 
     @Persist
     @InitialValue(value = "literal:restore")
@@ -102,9 +103,9 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         return Type.values();
     }
 
-    public String restore() {
+    public IPage restore() {
         Collection<File> selectedFiles = getSelections().getAllSelected();
-        ArrayList<BackupBean> selectedBackups = new ArrayList<BackupBean>();
+        List<BackupBean> selectedBackups = new ArrayList<BackupBean>();
         for (File file : selectedFiles) {
             selectedBackups.add(new BackupBean(file));
         }
@@ -115,15 +116,7 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
             return null;
         }
         try {
-            getRestore().validate(selectedBackups);
-            //set selected backups in order to be used when Waiting page notifies the restore bean
-            getRestore().setSelectedBackups(selectedBackups);
-            /*sets the waiting listener.
-            This will be notified by waiting page when this is requested by the client (browser)
-            -after it loads the waiting page*/
-            getWaitingListenerWrapper().setWaitingListener(getRestore());
-            return WaitingPage.PAGE;
-
+            return setupWaitingPage(selectedBackups);
         } catch (UserException ex) {
             TapestryUtils.getValidator(getPage()).record(
                     new ValidatorException(getMessages().getMessage(MESSAGE + ex.getMessage())));
@@ -131,10 +124,10 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         }
     }
 
-    public String uploadAndRestoreFiles() {
+    public IPage uploadAndRestoreFiles() {
         IValidationDelegate validator = TapestryUtils.getValidator(getPage());
         try {
-            ArrayList<BackupBean> selectedBackups = new ArrayList<BackupBean>();
+            List<BackupBean> selectedBackups = new ArrayList<BackupBean>();
             BackupBean config;
             config = upload(getUploadConfigurationFile(), BackupPlan.CONFIGURATION_ARCHIVE);
             if (config != null) {
@@ -148,23 +141,29 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
             if (selectedBackups.isEmpty()) {
                 throw new ValidatorException(getMessages().getMessage("message.noFileToRestore"));
             }
-            getRestore().validate(selectedBackups);
-            //set selected backups in order to be used when Waiting page notifies the restore bean
-            getRestore().setSelectedBackups(selectedBackups);
-            /*sets the waiting listener.
-            This will be notified by waiting page when this is requested by the client (browser)
-            -after it loads the waiting page*/
-            getWaitingListenerWrapper().setWaitingListener(getRestore());
-            return WaitingPage.PAGE;
+            return setupWaitingPage(selectedBackups);
         } catch (ValidatorException e) {
             validator.record(e);
             return null;
         } catch (UserException ex) {
-            validator.record(
-                    new ValidatorException(getMessages().getMessage(MESSAGE + ex.getMessage())));
+            validator.record(new ValidatorException(getMessages().getMessage(
+                    MESSAGE + ex.getMessage())));
             return null;
         }
 
+    }
+
+    private IPage setupWaitingPage(List<BackupBean> selectedBackups) {
+        Restore restore = getRestore();
+        restore.validate(selectedBackups);
+        // set selected backups in order to be used when Waiting page notifies the restore
+        // bean
+        restore.setSelectedBackups(selectedBackups);
+        // sets the waiting listener: it'll be notified by waiting page when this is
+        // requested by the client (browser) - after it loads the waiting page
+        WaitingPage waitingPage = getWaitingPage();
+        waitingPage.setWaitingListener(restore);
+        return waitingPage;
     }
 
     private BackupBean upload(IUploadFile uploadFile, String name) throws ValidatorException {
@@ -207,13 +206,11 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
     }
 
     public String getLog() {
-        String content = "";
         try {
-            content = getRestore().getRestoreLogContent();
+            return getRestore().getRestoreLogContent();
         } catch (UserException ex) {
-            content = getMessages().getMessage(ex.getMessage());
+            return getMessages().getMessage(ex.getMessage());
         }
-        return content;
     }
 
 }

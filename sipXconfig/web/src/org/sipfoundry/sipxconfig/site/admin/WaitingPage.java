@@ -13,11 +13,11 @@ import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEndRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.web.WebRequest;
 import org.sipfoundry.sipxconfig.admin.WaitingListener;
-import org.sipfoundry.sipxconfig.admin.WaitingListenerWrapper;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
@@ -27,8 +27,10 @@ public abstract class WaitingPage extends UserBasePage implements PageEndRenderL
     @Asset("/images/loading.gif")
     public abstract IAsset getLoadingImage();
 
-    @InjectObject(value = "spring:waitingListenerWrapper")
-    public abstract WaitingListenerWrapper getWaitingListenerWrapper();
+    @Persist
+    public abstract WaitingListener getWaitingListener();
+
+    public abstract void setWaitingListener(WaitingListener wl);
 
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestry();
@@ -40,16 +42,17 @@ public abstract class WaitingPage extends UserBasePage implements PageEndRenderL
     public abstract boolean isPageRendered();
 
     public abstract void setPageRendered(boolean pageRendered);
+
     /**
-     * This method is called immediately after the waiting page (WaitingPage.html) is loaded in the browser
-     * using Tacos mechanism
+     * This method is called immediately after the waiting page (WaitingPage.html) is loaded in
+     * the browser using Tacos mechanism
      */
     public void onLoad() {
-        WaitingListener wListener = getWaitingListenerWrapper().getWaitingListener();
-        wListener.afterResponseSent();
-        //clear
-        getWaitingListenerWrapper().setWaitingListener(null);
-
+        WaitingListener waitingListener = getWaitingListener();
+        if (waitingListener != null) {
+            waitingListener.afterResponseSent();
+            setWaitingListener(null);
+        }
     }
 
     public void pageEndRender(PageEvent e) {

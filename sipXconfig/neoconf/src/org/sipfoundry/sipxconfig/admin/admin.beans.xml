@@ -25,9 +25,6 @@
     <property name="logDirectory" value="${sysdir.log}"/>
   </bean>
 
-  <bean id="waitingListenerWrapper" class="org.sipfoundry.sipxconfig.admin.WaitingListenerWrapper">
-  </bean>
-
   <bean id="whacker" class="org.sipfoundry.sipxconfig.admin.Whacker">
     <property name="processContext" ref="sipxProcessContext" />
   </bean>
