@@ -51,6 +51,8 @@ ResourceListTask::~ResourceListTask()
 
 UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
 {
+   UtlBoolean handled = FALSE;
+
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceListTask::handleMessage message type %d subtype %d",
                  rMsg.getMsgType(), rMsg.getMsgSubType());
@@ -83,6 +85,8 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
 
          getResourceListServer()->getResourceListSet().
             refreshResourceBySeqNo(seqNo);
+
+         handled = TRUE;
          break;
       }
 
@@ -93,6 +97,8 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
                        "ResourceListTask::handleMessage PUBLISH_TIMEOUT");
 
          getResourceListServer()->getResourceListSet().publish();
+
+         handled = TRUE;
          break;
       }
 
@@ -115,6 +121,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
                                        pSubscriptionMsg->getDialogHandle(),
                                        pSubscriptionMsg->getNewState(),
                                        pSubscriptionMsg->getSubscriptionState());
+      handled = TRUE;
    }
    else if (rMsg.getMsgType() == RLS_NOTIFY_MSG)
    {
@@ -126,6 +133,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
       getResourceListServer()->getResourceListSet().
          notifyEventCallbackSync(pNotifyMsg->getDialogHandle(),
                                  pNotifyMsg->getContent());
+      handled = TRUE;
    }
    else if (rMsg.getMsgType() == OsMsg::PHONE_APP &&
             rMsg.getMsgSubType() == SipMessage::NET_SIP_MESSAGE)
@@ -143,6 +151,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
          {
             // Process the request and send a response.
             handleMessageRequest(*sipMessage);
+            handled = TRUE;
          }
          else
          {
@@ -158,6 +167,10 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
                        "SipSubscribeClient::handleMessage  SipMessageEvent with NULL SipMessage");
       }
    }
+   else if (rMsg.getMsgType() == OsMsg::OS_SHUTDOWN)
+   {
+      // Leave 'handled' false and pass on to OsServerTask::handleMessage.
+   }
    else
    {
       OsSysLog::add(FAC_RLS, PRI_ERR,
@@ -165,7 +178,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
                     rMsg.getMsgType());
    }
 
-   return TRUE;
+   return handled;
 }
 
 // Process a MESSAGE request, which is used to trigger debugging actions.
