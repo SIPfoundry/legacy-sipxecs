@@ -1,7 +1,24 @@
 #! /usr/bin/perl
 
 use CGI qw/:standard/;
-use XML::Parser;
+BEGIN
+{
+
+    $RequireMsg = <<REQUIREMENTS;
+
+    You must install the missing Perl package(s) to use this script.
+        As far as I know, these are not available as rpms.  You can install
+        them using 'cpan'.
+
+REQUIREMENTS
+
+        @modules = qw(Getopt::Long XML::Simple XML::Parser File::ReadBackwards);
+    for $pm ( @modules )
+    {
+        eval "require $pm;" || die "Failed to load $pm\n$@\n$RequireMsg\n";
+        $pm->import();
+    }
+}
 use strict;
 
 # The un-escape table for backslash escapes.
@@ -16,11 +33,7 @@ my($registration_file) = "@SIPX_DATADIR@/sipdb/registration.xml";
 
 # Read and process the registrar log files.
 my(%user_agent);
-# Read at least 24 hours of log data in chronological order.
-# sipregistrar.log.1 need not exist, but sipregistrar.log must exist,
-# as it will be generated immediately when sipX starts.
-&process_log_file("@SIPX_LOGDIR@/sipregistrar.log.1", 0);
-&process_log_file("@SIPX_LOGDIR@/sipregistrar.log", 1);
+my(%need_user_agent);
 
 my @registrations;
 if (-e $registration_file) {
@@ -31,47 +44,50 @@ if (-e $registration_file) {
 
     # Extract the information about the registrations.
     if ($tree->[0] eq 'items') {
-	my $c = $tree->[1];
-	my $i;
-	my($timestamp) = time;
-	for ($i = 1; $i < $#$c; $i += 2) {
-	    if ($c->[$i] eq 'item') {
-		my($d) = $c->[$i+1];
-		my($i);
-		# Create the hash to contain the information about this
-		# registration.
-		my($registration) = {};
-		for ($i = 1; $i < $#$d; $i += 2) {
-		    my($e) = $d->[$i];
-		    my($f) = $d->[$i+1];
-		    if ($e eq 'callid') {
-			$registration->{'callid'} = &text($f);
-		    } elsif ($e eq 'cseq') {
-			$registration->{'cseq'} = &text($f);
-		    } elsif ($e eq 'uri') {
-			$registration->{'AOR'} = &text($f);
-		    } elsif ($e eq 'contact') {
-			$registration->{'contact'} = &text($f);
-		    } elsif ($e eq 'qvalue') {
-			$registration->{'q'} = &text($f);
-		    } elsif ($e eq 'expires') {
-			$registration->{'expires'} = (&text($f) - $timestamp) . '';
-		    } elsif ($e eq 'instance_id') {
-			$registration->{'instance_id'} = &text($f);
-		    } elsif ($e eq 'gruu') {
-			$registration->{'gruu'} = &text($f);
-		    }
-		}
-		# Add to the array of registrations.
-		push(@registrations, $registration);
-	    }
-	}
+        my $c = $tree->[1];
+        my $i;
+        my($timestamp) = time;
+        for ($i = 1; $i < $#$c; $i += 2) {
+            if ($c->[$i] eq 'item') {
+                my($d) = $c->[$i+1];
+                my($i);
+                # Create the hash to contain the information about this
+                # registration.
+                my($registration) = {};
+                for ($i = 1; $i < $#$d; $i += 2) {
+                    my($e) = $d->[$i];
+                    my($f) = $d->[$i+1];
+                    if ($e eq 'callid') {
+              $registration->{'callid'} = &text($f);
+              $need_user_agent{$registration->{'callid'}}=1;
+                    } elsif ($e eq 'cseq') {
+                        $registration->{'cseq'} = &text($f);
+                    } elsif ($e eq 'uri') {
+                        $registration->{'AOR'} = &text($f);
+                    } elsif ($e eq 'contact') {
+                        $registration->{'contact'} = &text($f);
+                    } elsif ($e eq 'qvalue') {
+                        $registration->{'q'} = &text($f);
+                    } elsif ($e eq 'expires') {
+                        $registration->{'expires'} = (&text($f) - $timestamp) . '';
+                    } elsif ($e eq 'instance_id') {
+                        $registration->{'instance_id'} = &text($f);
+                    } elsif ($e eq 'gruu') {
+                        $registration->{'gruu'} = &text($f);
+                    }
+                }
+                # Add to the array of registrations.
+                push(@registrations, $registration);
+            }
+        }
     } else {
-	# Crash if the registrations file is unparsable.
-	exit 1;
+        # Crash if the registrations file is unparsable.
+        exit 1;
     }
 
 }
+
+&findUserAgentValues; # reads log backwards, until each %need_user_agent, is in %user_agent
 
 # Generate the table body in order by extension.
 my($table_body) = '';
@@ -100,7 +116,7 @@ foreach $registration (sort registration_cmp @registrations) {
                     {style => 'border-bottom-width: 1px',
                      colspan => ($registration->{'instance_id'} ? '1' : '2')
                      },
-                    ($registration->{'instance_id'} 
+                    ($registration->{'instance_id'}
                      ? [
                         &show($registration->{'instance_id'}, 1),
                         &show($registration->{'gruu'}, 1)
@@ -208,36 +224,46 @@ sub registration_cmp {
 }
 
 # Extract the user-agent info from a log file.
-sub process_log_file {
-    my($log_file, $must_exist) = @_;
+sub findUserAgentValues {
+    my @log_archives=("@SIPX_LOGDIR@/sipregistrar.log","@SIPX_LOGDIR@/sipregistrar.log.1");
     my($callid, $user_agent);
+    my(@neededIds)=keys %need_user_agent;
 
-    # Skip processing if the file does not exist and that's OK.
-    return if ! -e $log_file && !$must_exist;
+    my ($log_archive, $log);
 
-    # Read through the log file and find all the REGISTERs.
-    my($log_line) = '';
-    open(LOG, $log_file) ||
-        warn "Error opening file '$log_file' for input: $!\n";
-    while (<LOG>) {
-        next unless /:INCOMING:/;
-        next unless /----\\nREGISTER\s/i;
-        # This line passes the tests, process it.
+    while (@neededIds && ($log_archive = shift @log_archives) ne '' && -e $log_archive)
+    {
+        $log=File::ReadBackwards->new($log_archive)
+            || die "error opening '$log_archive'\n\t$?\n";
 
-        # Normalize the log line.
-        s/^.*?----\\n//;
-        s/====*END====*\\n"\n$//;                       # " fix syntax coloring
-        s/\\(.)/$unescape{$1}/eg;
-        s/\r\n/\n/g;
+        # Read through the log file and find all the REGISTERs.
+        my($log_line) = '';
+        while ( @neededIds && ! $log->eof) {
+            $_=$log->readline;
+            next unless /:INCOMING[:]/; # the [:] makes perl-mode happier
+            next unless /----\\nREGISTER\s/i;
+            # This line passes the tests, process it.
 
-        # Get the Call-Id and User-Agent headers.
-        ($callid) = /\nCall-Id:\s*(.*)\n/i;
-        ($user_agent) = /\nUser-Agent:\s*(.*)\n/i;
+            # Normalize the log line.
+            s/^.*?----\\n//;
+            s/====*END====*\\n"\n$//;                       # " fix syntax coloring
+            s/\\(.)/$unescape{$1}/eg;
+            s/\r\n/\n/g;
 
-        # Save the values.
-        $user_agent{$callid} = $user_agent if $callid && $user_agent;
+            # Get the Call-Id and User-Agent headers.
+            ($callid) = /\nCall-Id:\s*(.*)\n/i;
+            ($user_agent) = /\nUser-Agent:\s*(.*)\n/i;
+
+            if ( $callid && $need_user_agent{$callid} ) {
+                $user_agent{$callid} = $user_agent;
+
+                # remove this id from the set we are looking for
+                delete $need_user_agent{$callid};
+                @neededIds = keys %need_user_agent;
+            }
+        }
+        $log->close;
     }
-    close LOG;
 }
 
 # Turn a string into the representation we want for it in the table:
