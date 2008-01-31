@@ -361,50 +361,66 @@ UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
 
 void SipSubscribeClient::endAllSubscriptions()
 {
-    SubscribeClientState* clientState = NULL;
-    SubscribeClientState* dialogKey = NULL;
-    UtlString earlyDialogHandle;
-    // :TODO:
-    // Not sure if we can take the lock and hold it while we
-    // unsubscribe.  The refreshMgr is going to invoke call backs.
-    // If this lock blocks the same thread from taking the lock,
-    // we will have a deadlock.  Would like to take the lock once
-    // to prevent additions to the mSubscription container until
-    // we are all done unsubscribing.
+    // In order to avoid deadlocks, we first remove all entries from
+    // mSubscriptions, and then process them.
+
     lock();
-    UtlHashBagIterator iterator(mSubscriptions);
-    while ((dialogKey = dynamic_cast <SubscribeClientState*> (iterator())))
+    SubscribeClientState** clientStateList =
+       new SubscribeClientState*[2 * mSubscriptions.entries()];
+    int subscriptions = 0;
     {
-        clientState = removeState(*dialogKey);
-
-        if (clientState)
-        {
-            // If there is a state change of interest and
-            // there is a callback function
-            if (clientState->mState != SUBSCRIPTION_TERMINATED &&
-                clientState->mpStateCallback)
-            {
-                mpDialogMgr->getEarlyDialogHandleFor(*dialogKey, earlyDialogHandle);
-
-                // Indicate that the subscription was terminated
-                (clientState->mpStateCallback)(
-                   SUBSCRIPTION_TERMINATED,
-                   clientState->mState == SUBSCRIPTION_INITIATED ? earlyDialogHandle.data() : NULL,
-                   clientState->mState == SUBSCRIPTION_SETUP ? dialogKey->data() : NULL,
-                   clientState->mpApplicationData,
-                   -1, // no response code
-                   NULL, // no response text
-                   0, // expires now
-                   NULL); // no response
-            }
-
-            // Unsubscribe and stop refreshing the subscription
-            mpRefreshMgr->stopRefresh(*dialogKey);
-
-            delete clientState;
-        }
+       UtlHashBagIterator iterator(mSubscriptions);
+       SubscribeClientState* dialogKey;
+       while ((dialogKey = dynamic_cast <SubscribeClientState*> (iterator())))
+       {
+          SubscribeClientState* clientState = removeState(*dialogKey);
+          if (clientState)
+          {
+             clientStateList[subscriptions++] = clientState;
+             clientStateList[subscriptions++] = dialogKey;
+          }
+       }
     }
     unlock();
+
+    for (int i = 0; i < subscriptions; i += 2)
+    {
+       SubscribeClientState* clientState = clientStateList[i];
+       SubscribeClientState* dialogKey = clientStateList[i + 1];
+
+       lock();
+          
+       // If there is a state change of interest and
+       // there is a callback function
+       if (clientState->mState != SUBSCRIPTION_TERMINATED &&
+           clientState->mpStateCallback)
+       {
+          UtlString earlyDialogHandle;
+          mpDialogMgr->getEarlyDialogHandleFor(*dialogKey, earlyDialogHandle);
+
+          // Indicate that the subscription was terminated
+          (clientState->mpStateCallback)(
+             SUBSCRIPTION_TERMINATED,
+             clientState->mState == SUBSCRIPTION_INITIATED ? earlyDialogHandle.data() : NULL,
+             clientState->mState == SUBSCRIPTION_SETUP ? dialogKey->data() : NULL,
+             clientState->mpApplicationData,
+             -1, // no response code
+             NULL, // no response text
+             0, // expires now
+             NULL); // no response
+       }
+
+       // Unsubscribe and stop refreshing the subscription
+       mpRefreshMgr->stopRefresh(*dialogKey);
+
+       delete clientState;
+
+       unlock();
+       // Allow other threads waiting for the lock to run.
+       OsTask::yield();
+    }
+
+    delete[] clientStateList;
 }
 
 UtlBoolean SipSubscribeClient::handleMessage(OsMsg &eventMessage)
