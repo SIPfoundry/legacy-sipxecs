@@ -125,7 +125,7 @@ then
   cd /etc/mrtg
   if [ -f mrtg.cfg ]
   then 
-    cp mrtg.cfg mrtg.cfg.old
+    mv mrtg.cfg mrtg.cfg.old
   fi
 
   cat > ./mrtg-t.cfg <<EOF
