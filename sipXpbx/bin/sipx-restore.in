@@ -4,6 +4,7 @@ OPERATION="Restore"
 source @SIPX_BINDIR@/sipx-archive-common
 
 CHECK_VERSION="no"
+CHECK_ARCHIVE="no"
 
 # Look for the INTERACTIVE flag first, before processing any other command-line arguments.
 INTERACTIVE="yes"
@@ -43,6 +44,7 @@ usage() {
   echo "   -c|--configuration <archive>  Restore the specified Configuration archive."
   echo "   -v|--voicemail <archive>      Restore the specified voicemail archive."
   echo "   -e|--enforce-version          Verify the version number."
+  echo "   --verify                      Just verify the archive. Should be used with -e switch"
   echo
 }
 
@@ -102,6 +104,10 @@ do
       CHECK_VERSION="yes"
       ;;
 
+    --verify)
+      CHECK_ARCHIVE="yes"
+      ;;
+
     *)
       echo "Unknown option: ${1}"
       bad_usage
@@ -124,7 +130,7 @@ then
 fi
 
 # Check the version
-if [ CHECK_VERSION="yes" ]
+if [ $CHECK_VERSION = "yes" ]
 then
   # Get the current sipxconfig version
   CURRENT_VERSION=$(@SIPX_BINDIR@/sipxpbx-config --version | awk -F'-' '{ print $1 ;}')
@@ -157,6 +163,12 @@ then
       exit 5
     fi
   fi
+fi
+
+if [ $CHECK_ARCHIVE = "yes" ]
+then
+  echo "Archive seems to be O.K. You can proceed with restoring"
+  exit 6
 fi
 
 # Stop all services.  After this point, the script MUST NOT exit without
