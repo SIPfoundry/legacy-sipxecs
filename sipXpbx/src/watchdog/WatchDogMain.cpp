@@ -22,6 +22,7 @@
 #include "os/OsConfigDb.h"
 #include "os/OsTask.h"
 #include "EmailReporter.h"
+#include "sipdb/SIPDBManager.h"
 #include "sipXecsService/SipXecsService.h"
 
 //The worker who does all the checking... based on OsServerTask
@@ -43,7 +44,7 @@ MonitoredProcess *gpProcessList[1000]; //should be enough  :)
 int gnProcessCount = 0; //how many processes are we checking?
 UtlString strWatchDogFilename;
 UtlString gEmailExecuteStr;
-
+UtlBoolean gbPreloadedDatabases = FALSE;
 
 //retrieve the update rate from the xml file
 OsStatus getSettings(TiXmlDocument &doc, int &rCheckPeriod)
@@ -464,6 +465,21 @@ void cleanup()
     for ( int loop = 0; loop < gnProcessCount; loop++ )
         delete gpProcessList[loop];
 
+    // Release preloaded databases.
+    if (gbPreloadedDatabases)
+    {
+        OsStatus rc = SIPDBManager::getInstance()->releaseAllDatabase();
+        if (OS_SUCCESS == rc)
+        {
+            OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Released the preloaded the databases.");
+        }
+        else
+        {
+            OsSysLog::add(FAC_WATCHDOG, PRI_ERR, 
+                          "releaseAllDatabase() failed, rc = %d.", (int)rc); 
+        }
+        delete SIPDBManager::getInstance();
+    }
 
     OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Execution Completed.");
 
@@ -526,7 +542,7 @@ int main(int argc, char* argv[])
     UtlString processXMLPath = ".";
 
     UtlString argString;
-    const char * sipxpbxuser = NULL;
+    const char * sipxpbxuser = (char *)SIPXPBXUSER;
     for (int argIndex = 1; argIndex < argc; argIndex++) 
     {
         bool usageExit = false;
@@ -537,18 +553,6 @@ int main(int argc, char* argv[])
         if (argString.compareTo("-h") == 0) 
         {
             usageExit = true;
-        }
-        else if (argString.compareTo("-u") == 0)
-        {
-            if (argIndex+1 >= argc)
-            {
-                // Missing the username.
-                usageExit = true;
-            }
-            else
-            {
-                sipxpbxuser = argv[++argIndex];
-            }
         }
         else if (argString.compareTo("-f") == 0)
         {
@@ -571,14 +575,13 @@ int main(int argc, char* argv[])
             enableConsoleOutput(true);
             osPrintf("usage: %s [-h] [-u username]\n", argv[0]);
             osPrintf(" -h           Print this help and exit.\n");
-            osPrintf(" -u username  Drop privileges down to the specified user.\n");
             osPrintf(" -f filename  Use the specified watchdog config file.\n");
             return 1;
         }
     }
 
     // Drop privileges down to the specified user.
-    if (NULL != sipxpbxuser)
+    if (NULL != sipxpbxuser && 0 != strlen(sipxpbxuser))
     {
         errno = 0;
         struct passwd * pwd = getpwnam(sipxpbxuser);
@@ -602,6 +605,27 @@ int main(int argc, char* argv[])
             {
                 OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
                               "Drop privileges with setuid() to '%s'.", sipxpbxuser);
+                              
+                // Preload the databases.  This ensures that:               
+                //  1. Their reference count does not go to 0 causing an expensive load by another
+                //     process.  (Notably when the system only has apache running on it; on such a
+                //     system, the only processes accessing the database would be CGIs, and they 
+                //     are created and destroyed frequently - the database would be recreated and 
+                //     reloaded a lot if there were not a process holding the use count above 
+                //     zero.)
+                //  2. The first touch of each database is performed by a non-root process, thus 
+                //     allowing processes running as root to subsequently access the database 
+                //     without causing the known fastdb hang problem.  
+                OsStatus rc = SIPDBManager::getInstance()->preloadAllDatabase();
+                if (OS_SUCCESS == rc)
+                {
+                    // The databases must be released on exit.
+                    gbPreloadedDatabases = TRUE;
+                }
+                else
+                {
+                    fprintf(stderr, "ERROR: preloadAllDatabase() failed, rc = %d.", (int)rc); 
+                }
             }
             else
             {
@@ -610,7 +634,11 @@ int main(int argc, char* argv[])
             }
         }
     }
-
+    else
+    {
+        fprintf(stderr, "ERROR: Failed to setuid(SIPXPBXUSER), username not defined.\n");
+    }
+    
     signal(SIGABRT,sig_routine);
     signal(SIGTERM,sig_routine);
     signal(SIGINT,sig_routine);

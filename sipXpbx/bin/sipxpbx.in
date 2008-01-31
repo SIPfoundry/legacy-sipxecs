@@ -174,10 +174,7 @@ start() { # process-name
         elif [ $iam = root ]
         then
 
-            # Remove "-" because (as the above comment mentions) it wasn't
-            # doing what it is advertised as doing AND because on Gentoo
-            # it would quietly fail to even launch the processes.
-            $proc_cmd -u @SIPXPBXUSER@ < /dev/null &
+            $proc_cmd < /dev/null &
 
         else
             echo "You must be able to start as @SIPXPBXUSER@" 1>&2
@@ -819,19 +816,6 @@ do_start() {
         # so that any core files it produces will be put there.
         cd @SIPX_LOGDIR@
         start watchdog
-
-        # Wait for keepalive to prime the IMDB, as the CGIs need them
-        echo -n " Waiting for keepalive to start: "
-        for seconds in `seq 20 -1 0`
-        do
-            test -e @SIPX_RUNDIR@/keepalive.pid && break
-            [ $seconds == 0 ] && break
-            echo -n "$seconds "
-            sleep 1
-        done
-        echo
-        [ $seconds != 0 ] && echo_success || echo_failure
-        echo
 
         sleep 1
         echo -n "Starting httpd: "

@@ -17,7 +17,6 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 	chmod +x ${PACKAGE}-config
 
 SCRIPT_TEMPLATES = \
-	keepalive.sh.in \
 	sipx-snapshot.in \
 	sipx-backup.in \
 	sipx-restore.in \

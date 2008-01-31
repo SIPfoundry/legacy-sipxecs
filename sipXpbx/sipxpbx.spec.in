@@ -110,7 +110,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/check-fqdn
 %attr(755,root,root) %{_bindir}/watchdog
 %attr(755,root,root) %{_bindir}/watchdog.sh
-%attr(755,root,root) %{_bindir}/keepalive.sh
 %attr(755,root,root) %{_bindir}/sipx-snapshot
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_bindir}/sipx-backup
