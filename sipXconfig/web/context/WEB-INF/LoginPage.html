@@ -3,28 +3,32 @@
   <div id="banner">
     <div id="logo">&nbsp;</div>
   	<div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
-  </div>    
-  <span jwcid="@ErrorMsg"></span>
-  <p id="login-description"><span jwcid="@Insert" raw="true" value="message:login.description"/></p>
-  <div id="login-ad"></div>
-  <div id="login-form">
-    <form jwcid="form">
-        <fieldset id="loginForm">
-        <legend><span key="loginHeader">Login</span></legend>
-      <p><span key="prompt">Please login</span></p>
-      <table width="400" border="0">
-        <tr jwcid="panelUserName" for="j_username">
-          <input jwcid="userName" id="j_username" type="text"/>
-        </tr>        
-      <tr jwcid="panelPassword" for="j_password">
-          <input jwcid="loginPassword" type="password" id="j_password"/>
-      </tr>
-      </table>
-      </fieldset>
-        <ul class="form-actions">
-          <li><input jwcid="@Any" element="input" type="submit" value="message:button.submit" id="login:submit"/></li>
-        </ul>  
-    </form>
   </div>
+  <div id=login-content">      
+	  <div id="login-sidebar">
+	  	<div id="login-ad"/>
+	  </div>
+	  <span jwcid="@ErrorMsg"></span>
+	  <p id="login-description"><span jwcid="@Insert" raw="true" value="message:login.description"/></p>
+	  <div id="login-form">
+	    <form jwcid="form">
+	        <fieldset id="loginForm">
+	        <legend><span key="loginHeader">Login</span></legend>
+	      <p><span key="prompt">Please login</span></p>
+	      <table width="400" border="0">
+	        <tr jwcid="panelUserName" for="j_username">
+	          <input jwcid="userName" id="j_username" type="text"/>
+	        </tr>        
+	      <tr jwcid="panelPassword" for="j_password">
+	          <input jwcid="loginPassword" type="password" id="j_password"/>
+	      </tr>
+	      </table>
+	      </fieldset>
+	        <ul class="form-actions">
+	          <li><input jwcid="@Any" element="input" type="submit" value="message:button.submit" id="login:submit"/></li>
+	        </ul>  
+	    </form>
+	  </div>
+	</div>
 </body>
 </html>

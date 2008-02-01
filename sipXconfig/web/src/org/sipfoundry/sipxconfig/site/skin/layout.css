@@ -89,24 +89,39 @@ li.tab
 	padding: .2em 1ex;
 }
 
+#login-content {
+ height: 100%;
+}
+
+#login-sidebar {
+  position: absolute;
+  background: #ccc;
+  width: 563px;
+  min-height: 100%;
+  height: 100%;
+  // IE6 hack
+  //height: 800px;
+}
+
 #login-ad {
-  float:left;
+  position: absolute;
   background: url(/sipxconfig/skin/login.jpg) no-repeat left;
-  margin-top: 80px;
+  margin-top: 91px;
   width: 565px;
-  height: 200px;
+  height: 250px;
   border-top: thin solid #fff;
   border-bottom: thin solid #fff;
 }
 
 #login-form {
+  position: absolute;
   width: 380px;
-  height: 200px;
+  height: 250px;
   margin-top: 92px;
-  margin-left: 565px;
-  border-top: thin solid #06c;
-  border-right: thin solid #06c;
-  border-bottom: thin solid #06c;
+  margin-left: 564px;
+  border-top: thin solid #355563;
+  border-right: thin solid #355563;
+  border-bottom: thin solid #355563;
 }
 
 fieldset#loginForm legend {
@@ -119,7 +134,7 @@ fieldset#loginForm legend {
   width: 460px;
   margin: 4px;
   padding: 3px;
-}
+}   
 
 #lastmodified
 {
@@ -541,4 +556,9 @@ div.auto_complete ul strong.highlight {
 #searchContainer.styled {
     padding: 3px 1px 3px 20px;
     vertical-align: middle;
+}
+
+html, body {
+  height: 100%;
+  min-height: 100%;
 }
