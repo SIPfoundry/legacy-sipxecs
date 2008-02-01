@@ -19,17 +19,17 @@ import org.easymock.IMocksControl;
 
 public class LocalizedOptionModelDecoratorTest extends TestCase {
     
-    private LocalizedOptionModelDecorator m_localized;
+    private LocalizedOptionModelDecorator m_out;
     
     protected void setUp() {
         String[] options = { "a", "b", "c" };
         IPropertySelectionModel model = new StringPropertySelectionModel(options);
-        m_localized = new LocalizedOptionModelDecorator();        
-        m_localized.setModel(model);
+        m_out = new LocalizedOptionModelDecorator();        
+        m_out.setModel(model);
     }
     
     public void testReturnKeyOnNullMessagesObject() {
-        assertEquals("a", m_localized.getLabel(0));
+        assertEquals("a", m_out.getLabel(0));
     }
     
     public void testLocalization() {
@@ -43,14 +43,14 @@ public class LocalizedOptionModelDecoratorTest extends TestCase {
         messagesControl.andReturn("localized c");
         messagesControl.replay();
         
-        m_localized.setMessages(messages);
-        m_localized.setResourcePrefix("xyz.");
+        m_out.setMessages(messages);
+        m_out.setResourcePrefix("xyz.");
         
-        assertEquals("localized a", m_localized.getLabel(0));
-        assertEquals("b", m_localized.getLabel(1));
+        assertEquals("localized a", m_out.getLabel(0));
+        assertEquals("b", m_out.getLabel(1));
         
-        m_localized.setResourcePrefix(null);
-        assertEquals("localized c", m_localized.getLabel(2));        
+        m_out.setResourcePrefix(null);
+        assertEquals("localized c", m_out.getLabel(2));        
 
         messagesControl.verify();
     }

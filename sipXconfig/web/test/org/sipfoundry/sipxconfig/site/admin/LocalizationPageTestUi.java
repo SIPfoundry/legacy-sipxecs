@@ -33,6 +33,4 @@ public class LocalizationPageTestUi extends WebTestCase {
         assertFormPresent("regionForm");
         assertFormPresent("installForm");
     }
-
-    // TODO: more tests needed
 }

@@ -43,6 +43,10 @@ public class LocalizedOptionModelDecorator implements IPropertySelectionModel {
 
     public String getLabel(int index) {
         String rawLabel = m_model.getLabel(index);
+        if (m_messages == null) {
+            return rawLabel;
+        }
+
         String label = TapestryUtils.localize(m_messages, m_prefix, rawLabel);
         
         return label;

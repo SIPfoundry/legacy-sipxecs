@@ -91,7 +91,7 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         for (int i = 0; i < languages.length; i++) {
             localizedLocales[i] = getLanguageSupport().resolveLocaleName(languages[i]);
         }
-        IPropertySelectionModel model = new ModelWithDefaults(getMessages(), localizedLocales);
+        IPropertySelectionModel model = new ModelWithDefaults(null, localizedLocales);
         setLanguageList(model);
     }
 
