@@ -69,7 +69,6 @@
     <cc outfile="${build.dir}/dist/preflight">
       <fileset dir="${src.dir}/src/main/native/posix" includes="*.c"/>
       <defineset>
-        <define name="JAVA" value='"${java}"'/>
         <define name="SIPX_LIBDIR" value='"${preflight.lib.dir}"'/>
       </defineset>
     </cc>
