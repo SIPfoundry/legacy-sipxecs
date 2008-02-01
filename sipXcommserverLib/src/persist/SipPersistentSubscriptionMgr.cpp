@@ -603,6 +603,8 @@ SipPersistentSubscriptionMgrTask::~SipPersistentSubscriptionMgrTask()
 
 UtlBoolean SipPersistentSubscriptionMgrTask::handleMessage(OsMsg& rMsg)
 {
+   UtlBoolean handled = FALSE;
+
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "SipPersistentSubscriptionMgrTask::handleMessage message type %d subtype %d",
                  rMsg.getMsgType(), rMsg.getMsgSubType());
@@ -613,6 +615,11 @@ UtlBoolean SipPersistentSubscriptionMgrTask::handleMessage(OsMsg& rMsg)
       // An event notification.
       // The only event is an order to store the database to disk.
       mSubscriptionDBInstance->store();
+      handled = TRUE;
+   }
+   else if (rMsg.getMsgType() == OsMsg::OS_SHUTDOWN)
+   {
+      // Leave 'handled' false and pass on to OsServerTask::handleMessage.
    }
    else
    {
@@ -621,7 +628,7 @@ UtlBoolean SipPersistentSubscriptionMgrTask::handleMessage(OsMsg& rMsg)
                     rMsg.getMsgType());
    }
 
-   return TRUE;
+   return handled;
 }
 
 /* ============================ ACCESSORS ================================= */
