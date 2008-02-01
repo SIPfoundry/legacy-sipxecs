@@ -639,17 +639,19 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                     UtlString acceptHeaderValue;
                     int version;
                     subscribeRequest.getAcceptField(acceptHeaderValue);
-                    handler->getNotifyContent(resourceId,
-                                              eventTypeKey, 
-                                              eventType, 
-                                              *(eventPackageInfo->mpEventSpecificContentMgr),
-                                              acceptHeaderValue,
-                                              notifyRequest,
-                                              version);
-
-                    // Update the saved XML version number.
-                    eventPackageInfo->mpEventSpecificSubscriptionMgr->
-                       updateVersion(notifyRequest, version);
+                    if (handler->getNotifyContent(resourceId,
+                                                  eventTypeKey, 
+                                                  eventType, 
+                                                  *(eventPackageInfo->mpEventSpecificContentMgr),
+                                                  acceptHeaderValue,
+                                                  notifyRequest,
+                                                  version))
+                    {
+                       // Update the saved XML version number, if the content exists to
+                       // give us a version number.
+                       eventPackageInfo->mpEventSpecificSubscriptionMgr->
+                          updateVersion(notifyRequest, version);
+                    }
 
                     // Send the notify request
                     setContact(&notifyRequest);
