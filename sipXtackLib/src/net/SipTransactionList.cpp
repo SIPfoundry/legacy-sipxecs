@@ -337,6 +337,11 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
 
 void SipTransactionList::stopTransactionTimers()
 {
+#ifdef TIME_LOG
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipTransactionList::stopTransactionTimers entered");
+#endif
+
    // It is possible that there are a very large number of transactions,
    // so we don't want to hold the lock while processing all of them.
    // So we make a list of the addresses of all the SipTransactions
@@ -384,28 +389,72 @@ void SipTransactionList::stopTransactionTimers()
    // Delete list of transactions.
    delete[] transactionsToBeProcessed;
 
-   // New transactions may have been added to mTransactions during processing,
-   // but that could happen even if this method was within a single critical
-   // section (immediately after exiting the critical section).
+#ifdef TIME_LOG
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipTransactionList::stopTransactionTimers exited %d entries",
+                 numTransactions);
+#endif
 }
 
 void SipTransactionList::deleteTransactionTimers()
 {
-    lock();
+#ifdef TIME_LOG
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipTransactionList::deleteTransactionTimers entered");
+#endif
 
-    int numTransactions = mTransactions.entries();
-    if(numTransactions > 0)
-    {
-        UtlHashBagIterator iterator(mTransactions);
-        SipTransaction* transactionFound = NULL;
+   // It is possible that there are a very large number of transactions,
+   // so we don't want to hold the lock while processing all of them.
+   // So we make a list of the addresses of all the SipTransactions
+   // and then process them afterward.
 
-        while((transactionFound = (SipTransaction*) iterator()))
-        {
-            transactionFound->deleteTimers();
-        }
-    }
+   lock();
 
-    unlock();
+   int numTransactions = mTransactions.entries();
+   SipTransaction** transactionsToBeProcessed = 
+      new SipTransaction*[numTransactions];
+
+   if (numTransactions > 0)
+   {
+      UtlHashBagIterator iterator(mTransactions);
+      SipTransaction* transactionFound;
+      int count = 0;
+
+      while ((transactionFound = dynamic_cast <SipTransaction*> (iterator())))
+      {
+         transactionsToBeProcessed[count++] = transactionFound;
+      }
+   }
+
+   unlock();
+
+   // Now process each transaction in turn.
+   for (int i = 0; i < numTransactions; i++)
+   {
+      lock();
+
+      SipTransaction* transaction = transactionsToBeProcessed[i];
+      // Verify (within a critical section) that this transaction is
+      // still in mTransactions.
+      if (mTransactions.findReference(transaction))
+      {
+         transaction->deleteTimers();
+      }
+
+      unlock();
+
+      // Let any threads that are waiting for mListMutex run.
+      OsTask::yield();
+   }
+
+   // Delete list of transactions.
+   delete[] transactionsToBeProcessed;
+
+#ifdef TIME_LOG
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipTransactionList::deleteTransactionTimers exited %d entries",
+                 numTransactions);
+#endif
 }
 
 void SipTransactionList::toString(UtlString& string)
