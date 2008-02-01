@@ -37,7 +37,7 @@
   </bean>
 
   <bean id="audiocodesMediant" parent="audiocodesTP">
-    <property name="label" value="AudioCodes Mediant 1000" />
+    <property name="label" value="AudioCodes Mediant" />
     <property name="maxPorts" value="8" />
   </bean>
 
@@ -121,7 +121,7 @@
     <property name="label" value="AudioCodes MP 11x" />
   </bean>
   <bean id="audiocodesFirmwareMediant100" parent="abstractAudiocodesFirmware">
-    <property name="label" value="AudioCodes Mediant 1000" />
+    <property name="label" value="AudioCodes Mediant" />
   </bean>
   <bean id="audiocodesFirmwareTp260" parent="abstractAudiocodesFirmware">
     <property name="label" value="AudioCodes TP260" />
