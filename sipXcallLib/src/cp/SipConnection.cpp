@@ -4152,7 +4152,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
         {
             fireSipXEvent(CALLSTATE_REMOTE_ALERTING, CALLSTATE_REMOTE_ALERTING_NORMAL) ;
         }
-    }
+    }   // end ringing or early media
 
     // Start busy tone the other end is busy
     else if(responseCode == SIP_BUSY_CODE &&
@@ -4164,7 +4164,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 #endif
         setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_BUSY);
         fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_BUSY) ;
-    }
+    }   // end BUSY
 
     // Call queued
     else if(responseCode == SIP_QUEUED_CODE &&
@@ -4180,7 +4180,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
         // Should there be a queued tone?
 
         // Do not send an ACK as this is informational
-    }
+    }   // end queued
 
     // Failed invite
     else if(responseCode >= SIP_BAD_REQUEST_CODE &&
@@ -4303,7 +4303,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 
             fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_REQUEST_NOT_ACCEPTED) ;
         }
-    }
+    }   // error response
 
     // INVITE OK too late
     // The other end picked up, but this end already hungup
@@ -4350,13 +4350,12 @@ void SipConnection::processInviteResponse(const SipMessage* response)
         osPrintf("glare: received OK to hungup call, sending ACK & BYE\n");
 #endif
 
-    }
+    }   // end OK too late
 
     // INVITE OK
     // The other end picked up
     else if(responseCode == SIP_OK_CODE &&
         lastLocalSequenceNumber == sequenceNum)
-
     {
 #ifdef TEST_PRINT
         osPrintf("received INVITE OK\n");
@@ -4687,7 +4686,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
         }
         if(matchingCodecs) delete[] matchingCodecs;
         matchingCodecs = NULL;
-    }
+    }   // end 2xx
 
 
     // Redirect
@@ -4789,7 +4788,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                 fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_UNKNOWN) ;
             }
         }
-    }
+    }       // end REDIRECT
 
     else
     {
@@ -4823,7 +4822,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                 reinviteState = ACCEPT_INVITE;
             }
         }
-    }
+    }   // end ACK for not-understood response case
 
     // If we have completed a REFER based transfer
     // Send the status back to the original call & connection

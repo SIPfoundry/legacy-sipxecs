@@ -253,7 +253,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                           "SipRouter::handleMessage is not a sip message");
          }
       }
-   }
+   }    // end PHONE_APP
    return(TRUE);
 }
 
@@ -535,7 +535,7 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
                           finalAuthResult);
             break;
          }
-      }
+      }     // end should be authorized
       else
       {
          // In order to guantantee symmetric signaling, this proxy has to 
@@ -558,7 +558,7 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
             sipRequest.addRecordRouteUri(recordRoute);
          }
       }
-   }
+   }        // end all extensions are supported
    else
    {
       // The request has a Proxy-Require that we don't support; return an error

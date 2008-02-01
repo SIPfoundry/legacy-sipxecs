@@ -83,6 +83,7 @@ public:
         MESSAGE_CANCEL_RESPONSE,
         MESSAGE_ACK,              ///< An ACK for this non-2xx TX
         MESSAGE_2XX_ACK,          ///< An ACK assocated with this TX (but considered a different TX)
+        MESSAGE_2XX_ACK_PROXY,    ///< An ACK assocated with this TX (but considered a different TX), to be sent to next hop
         MESSAGE_DUPLICATE,        ///< A duplicate message for this TX
         NUM_RELATIONSHIPS         /**< used for array allocation and limit checks.
                                    * New values must be added before this one, and must also
@@ -93,7 +94,7 @@ public:
 /* ============================ CREATORS ================================== */
 
     /// Create a new transaction
-    SipTransaction(SipMessage* request = NULL,            ///< message whose state this tracks
+    SipTransaction(SipMessage* initialMsg = NULL,     ///< message whose state this tracks
                    UtlBoolean isOutgoing = TRUE,          ///< direction 
                    UtlBoolean userAgentTransaction = TRUE,///< local initiated 
                    BranchId*  parentBranch = NULL         ///< for use in loop detection
@@ -147,6 +148,8 @@ public:
     void toString(UtlString& dumpString,
                   UtlBoolean dumpMessagesAlso);
     //: Serialize the contents of this
+
+    void justDumpTransactionTree(void);
 
     void dumpTransactionTree(UtlString& dumpstring, 
                              UtlBoolean dumpMessagesAlso);

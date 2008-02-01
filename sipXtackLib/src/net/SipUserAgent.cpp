@@ -759,7 +759,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          // Should not be getting here.
          OsSysLog::add(FAC_SIP, PRI_WARNING, "SipUserAgent::send message being resent");
       }
-   }
+   }    // !isResponse
 
    // ===========================================
 
@@ -779,6 +779,15 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       message,
       TRUE, // outgoing
       relationship);
+
+   // for forwarding 2xx ACK's, we need to ignore the Invite transaction
+   SipTransaction* sav2xxAckTxValue = NULL;
+   if (relationship == SipTransaction::MESSAGE_2XX_ACK_PROXY)
+   {
+       sav2xxAckTxValue = transaction;
+       mSipTransactions.markAvailable(*transaction);
+       transaction = NULL;
+   }
 
    // Found a transaction for this message
    if (transaction)
@@ -849,6 +858,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          UtlString viaField;
          SipTransaction* parentTransaction = NULL;
          enum SipTransaction::messageRelationship parentRelationship;
+         SipTransaction* sav2xxAckParentTxValue = NULL;
          if (message.getViaField(&viaField, 0))
          {
             isUaTransaction = FALSE;
@@ -863,6 +873,15 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
                mSipTransactions.findTransactionFor(message,
                                                    FALSE, // incoming
                                                    parentRelationship);
+            // for forwarding 2xx ACK's, we need to ignore the Invite transaction
+            if (parentRelationship == SipTransaction::MESSAGE_2XX_ACK_PROXY || 
+                parentRelationship == SipTransaction::MESSAGE_2XX_ACK)
+            {
+                sav2xxAckParentTxValue = parentTransaction;
+                // during debug transaction was stuck as unavailable, solved by marking it available here
+                mSipTransactions.markAvailable(*parentTransaction);   
+                parentTransaction = NULL;
+            }
          }
 
          // Create a new transactions
@@ -897,17 +916,31 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          }
          else if (!isUaTransaction)
          {
-            // this happens all the time in the authproxy, so log only at debug
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipUserAgent[%s]::send proxied client transaction does not have parent",
-                          getName().data());
+            if (sav2xxAckParentTxValue)
+            {
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipUserAgent[%s]::send proxied client transaction %p 2xx ACK has parent %p",
+                              getName().data(), sav2xxAckTxValue, sav2xxAckParentTxValue);
+            }
+            // leave old comment but change back to warning, should only see the 2xx ACK message often
+            // old comment-> this happens all the time in the authproxy, so log only at debug
+            else
+            {
+                OsSysLog::add(FAC_SIP, PRI_WARNING,
+                              "SipUserAgent[%s]::send proxied client transaction does not have parent",
+                              getName().data());
+            }
+
          }
          else if (parentTransaction)
          {
             mSipTransactions.markAvailable(*parentTransaction);
          }
 
-         relationship = SipTransaction::MESSAGE_UNKNOWN;
+         if (sav2xxAckTxValue == NULL)  // special case 2xx relationship, don't overwrite it here
+         {
+             relationship = SipTransaction::MESSAGE_UNKNOWN;
+         }
       }
    }
 
@@ -1475,6 +1508,14 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
 #ifdef LOG_TIME
       eventTimes.addEvent("found TX");
 #endif
+      // for some 2xx ACK's, we need to ignore the Invite transaction
+      SipTransaction* sav2xxAckTxValue = NULL;
+      if (relationship == SipTransaction::MESSAGE_2XX_ACK_PROXY)
+      {
+          sav2xxAckTxValue = transaction;
+          transaction = NULL;
+      }
+
       if(transaction == NULL)
       {
          if(isResponse)
@@ -1514,7 +1555,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                }
                mPingLock = FALSE;
             }
-         }
+         }      // end no transaction found for response message
 
          // New transaction for incoming request
          else
@@ -1530,15 +1571,27 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
 
             if(method.compareTo(SIP_ACK_METHOD) == 0)
             {
-               // This may be normal - it will occur whenever the ACK is not traversing
-               // the same proxy where the transaction is completing was origniated.
-               // This happens on each call setup in the authproxy, for example, because
-               // the original transaction was in the forking proxy.
-               relationship = SipTransaction::MESSAGE_ACK;
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipUserAgent[%s]::dispatch received ACK without transaction",
-                             getName().data());
-            }
+               // Handle ACK messages without a related transaction.
+               // This now includes messages that have an "ACK PROXY" relationship with an ignored transaction.
+
+               // Only set relationship if it was really unrelated.
+                // Log warning if this happens and it's not "ACK PROXY", otherwise post debug for now
+               if (relationship != SipTransaction::MESSAGE_2XX_ACK_PROXY)   // don't overwrite this value
+               {
+                   relationship = SipTransaction::MESSAGE_ACK;
+                   OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                 "SipUserAgent[%s]::dispatch received ACK without transaction",
+                                 getName().data());
+               }
+               else
+               {
+                   // Should happen whenever the ACK is not traversing the same proxy as where the transaction was origniated.
+                   // E.g. Call setup in the authproxy, because the original transaction was in the forking proxy.
+                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                 "SipUserAgent[%s]::dispatch received 2xx ACK to forward for transaction %p",
+                                  getName().data(), sav2xxAckTxValue );
+               }
+            }   // end "unrelated" ACK
             else if(method.compareTo(SIP_CANCEL_METHOD) == 0)
             {
                relationship = SipTransaction::MESSAGE_CANCEL;
@@ -1549,7 +1602,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             {
                relationship = SipTransaction::MESSAGE_REQUEST;
             }
-         }
+         }      // end create new transaction
       }
 
 #ifdef LOG_TIME
@@ -1600,7 +1653,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
          }
 
          messageStatusString.append("Received duplicate message\n");
-      }
+      }     // end DUPLICATE message
 
       // The first time we received this message
       else if (transaction)
@@ -1689,7 +1742,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                responseQ =  request->getResponseListenerQueue();
                if (responseQ  && shouldDispatch)
                {
-                  SipMessage * msg = new SipMessage(*message);
+                  SipMessage * msg = new SipMessage(*message);      // post response to events
                   msg->setResponseListenerData(request->getResponseListenerData() );
                   SipMessageEvent eventMsg(msg);
                   eventMsg.setMessageStatus(messageType);
@@ -1701,7 +1754,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                if(responseQ  && delayedDispatchMessage)
                {
                   SipMessage* tempDelayedDispatchMessage =
-                     new SipMessage(*delayedDispatchMessage);
+                     new SipMessage(*delayedDispatchMessage);       // post response to events
 
                   tempDelayedDispatchMessage->setResponseListenerData(
                      request->getResponseListenerData()
@@ -1714,7 +1767,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                   tempDelayedDispatchMessage = NULL;
                }
             }
-         }
+         }      // end final, provisional or cancel response case
          break;
 
          case SipTransaction::MESSAGE_REQUEST:
@@ -1758,12 +1811,13 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             seqMethod.toUpper();
             message->getCallIdField(&callIdField);
 
+            // validate message, send error response if rejected
             // Check if the method is supported
             if(   isUaTransaction
                && !isMethodAllowed(method.data())
                )
             {
-               response = new SipMessage();
+               response = new SipMessage();     // error reponse - not allowed
 
                // Since we are rejecting the request because its method is
                // not handled by this SipUserAgent, include an Allow: header
@@ -1779,7 +1833,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                     && !disallowedExtensions.isNull()
                     )
             {
-               response = new SipMessage();
+               response = new SipMessage();     // error reponse - bad extension
                response->setRequestBadExtension(message,
                                                 disallowedExtensions);
             }
@@ -1791,7 +1845,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                     && !contentEncoding.isNull()
                     )
             {
-               response = new SipMessage();
+               response = new SipMessage();         // error reponse - content encoding
                response->setRequestBadContentEncoding(message,"");
             }
 
@@ -1799,7 +1853,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             else if(toAddress.isNull() || fromAddress.isNull() ||
                     uriAddress.isNull())
             {
-               response = new SipMessage();
+               response = new SipMessage();         // error reponse
                response->setDiagnosticSipFragResponse(*message,
                                                       SIP_BAD_ADDRESS_CODE, SIP_BAD_ADDRESS_TEXT,
                                                       SIP_WARN_MISC_CODE,
@@ -1813,7 +1867,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             // Check SIP version
             else if(strcmp(sipVersion.data(), SIP_PROTOCOL_VERSION) != 0)
             {
-               response = new SipMessage();
+               response = new SipMessage();         // error reponse protocol version
                response->setDiagnosticSipFragResponse(*message,
                                                       SIP_BAD_VERSION_CODE, SIP_BAD_VERSION_TEXT,
                                                       SIP_WARN_MISC_CODE,
@@ -1827,7 +1881,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             else if(callIdField.isNull() || seqNumber < 0 ||
                     strcmp(seqMethod.data(), method.data()) != 0)
             {
-               response = new SipMessage();
+               response = new SipMessage();     // error reponse
                response->setDiagnosticSipFragResponse(*message,
                                                       SIP_BAD_REQUEST_CODE, SIP_BAD_REQUEST_TEXT,
                                                       SIP_WARN_MISC_CODE,
@@ -1844,7 +1898,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             {
                if(!authorized(message))
                {
-                  response = new SipMessage();
+                  response = new SipMessage();      // error reponse - authentication
                   response->setRequestUnauthorized(message,
                                                    mAuthenticationScheme.data(),
                                                    mAuthenticationRealm.data(),
@@ -1860,7 +1914,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                     method.compareTo(SIP_OPTIONS_METHOD) == 0)
             {
                // Send an OK, the allowed field will get added to all final responces.
-               response = new SipMessage();
+               response = new SipMessage();         // Options 200 response
                response->setResponseData(message,
                                          SIP_OK_CODE,
                                          SIP_OK_TEXT);
@@ -1874,7 +1928,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             {
                if(maxForwards <= 0)
                {
-                  response = new SipMessage();
+                  response = new SipMessage();      // error response
                   response->setDiagnosticSipFragResponse(*message,
                                                          SIP_TOO_MANY_HOPS_CODE,
                                                          SIP_TOO_MANY_HOPS_TEXT,
@@ -1920,11 +1974,12 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                OsSysLog::add(FAC_SIP, PRI_ERR, "SipUserAgent::dispatch NULL message to handle");
                //osPrintf("ERROR: SipUserAgent::dispatch NULL message to handle\n");
             }
-         }
+         }      // end REQUEST case
          break;
          
          case SipTransaction::MESSAGE_ACK:
          case SipTransaction::MESSAGE_2XX_ACK:
+         case SipTransaction::MESSAGE_2XX_ACK_PROXY:
          case SipTransaction::MESSAGE_CANCEL:
          {
             int maxForwards;
@@ -1932,7 +1987,8 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             // Check the ACK max-forwards has not gone too many hopes
             if(!isResponse &&
                (relationship == SipTransaction::MESSAGE_ACK ||
-                relationship == SipTransaction::MESSAGE_2XX_ACK) &&
+                relationship == SipTransaction::MESSAGE_2XX_ACK ||
+                relationship == SipTransaction::MESSAGE_2XX_ACK_PROXY) &&
                message->getMaxForwards(maxForwards) &&
                maxForwards <= 0 )
             {
@@ -1951,7 +2007,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                                               mSipTransactions,
                                               delayedDispatchMessage);
             }
-         }
+         }      // end various ACKs
          break;
 
          case SipTransaction::MESSAGE_NEW_FINAL:
@@ -1967,7 +2023,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                responseQ =  request->getResponseListenerQueue();
                if (responseQ)
                {
-                  SipMessage * msg = new SipMessage(*message);
+                  SipMessage * msg = new SipMessage(*message);      // post in event
                   msg->setResponseListenerData(request->getResponseListenerData() );
                   SipMessageEvent eventMsg(msg);
                   eventMsg.setMessageStatus(messageType);
@@ -1976,7 +2032,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                   msg = NULL;
                }
             }
-         }
+         }      // end new final?
          break;
 
          default:
@@ -1996,7 +2052,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
       {
          mSipTransactions.markAvailable(*transaction);
       }
-   }
+   }        // end SipMessageEvent::APPLICATION
    else
    {
       shouldDispatch = TRUE;

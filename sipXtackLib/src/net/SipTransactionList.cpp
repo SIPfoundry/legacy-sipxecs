@@ -140,6 +140,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
             relationship ==  SipTransaction::MESSAGE_CANCEL_RESPONSE ||
             relationship ==  SipTransaction::MESSAGE_ACK ||
             relationship ==  SipTransaction::MESSAGE_2XX_ACK ||
+            relationship ==  SipTransaction::MESSAGE_2XX_ACK_PROXY ||
             relationship ==  SipTransaction::MESSAGE_DUPLICATE)
         {
             break;
@@ -172,7 +173,6 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
     }
 
     unlock();
-
     if(transactionFound && isBusy)
     {
 #       ifdef TIME_LOG
@@ -207,14 +207,16 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
     int len;
     message.getBytes(&bytes, &len);
     OsSysLog::add(FAC_SIP, PRI_DEBUG
-                  ,"SipTransactionList::findTransactionFor %p %s %s %s"
+                  ,"SipTransactionList::findTransactionFor %p(%p) %s %s(%p) %s"
 #                 ifdef TIME_LOG
                   "\n\tTime Log %s"
 #                 endif
                   ,&message
+                  ,messageTransaction
                   ,isOutgoing ? "OUTGOING" : "INCOMING"
                   ,transactionFound ? "FOUND" : "NOT FOUND"
-                  ,relationshipString(relationship)
+                  ,transactionFound
+                  ,SipTransaction::relationshipString(relationship)
 #                 ifdef TIME_LOG
                   ,findTimeLog.data()
 #                 endif
