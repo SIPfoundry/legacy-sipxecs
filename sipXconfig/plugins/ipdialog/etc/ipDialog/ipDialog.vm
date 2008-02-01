@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<configuration>
+<networkSettings>
+#set ($group = $cfg.EndpointSettings.getSetting('networkSettings'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+#if($setting.ProfileName == "networkSetup")
+<$!{setting.Value}>TRUE</$!{setting.Value}>
+#set ($temp = $!{setting.Value})
+#else
+#if($temp == "manual")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif(($temp == "dhcp") && ($setting.ProfileName == "qosVlanId" || $setting.ProfileName == "qosDscp"))
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end
+#end
+</networkSettings> 
+<phoneSettings>
+#set ($group = $cfg.EndpointSettings.getSetting('phoneSettings'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end        
+#end
+<timesettings>
+#set ($group = $cfg.EndpointSettings.getSetting('timesettings'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+#if($setting.ProfileName == "timeSettings")
+<$!{setting.Value}>TRUE</$!{setting.Value}>
+#set ($temp = $!{setting.Value})
+#else
+#if($temp == "manual")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif(($temp == "default") && ($setting.ProfileName == "timezone" || $setting.ProfileName == "dstAutoAdjust"))
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end	
+#end        
+#end
+#end
+</timesettings> 
+<autoconfig>
+#set ($group = $cfg.EndpointSettings.getSetting('autoconfig'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+#if($setting.ProfileName == "autoconfigOption")
+<$!{setting.Value}>TRUE</$!{setting.Value}>
+#set ($temp = $!{setting.Value})
+#else
+#if($temp == "http" || $temp == "https")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif(($temp == "tftp") && ($setting.ProfileName == "autoConfigAddress" || $setting.ProfileName == "autoConfigProfile"))
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif(($temp == "tftp") && ($setting.ProfileName == "autoConfigPath" || $setting.ProfileName == "autoConfigEveryBoot"))
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end	
+#end
+#end
+#end        
+</autoconfig> 
+<presence>
+#set ($group = $cfg.EndpointSettings.getSetting('presence'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+#if($setting.ProfileName == "presenceOption")
+<$!{setting.Value}>TRUE</$!{setting.Value}>
+#set ($pres = $!{setting.Value})
+#else
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end        
+</presence>
+</phoneSettings> 
+<sipAccounts>
+<account_L1>
+#set ($onlyOne = 1)
+#set ($block1 = 1)
+#set ($block2 = 1)
+#foreach ($line in $phone.lines)
+#foreach ($group in $line.Settings.Values)
+#foreach ($setting in $group.Values)
+#if($onlyOne == "1")
+#if($setting.ProfileName == "authname" || $setting.ProfileName == "authPassword")
+#if($setting.ProfileName == "authname" && $setting.Value.trim())
+<authname>$!{setting.Value}</authname>
+#elseif($setting.ProfileName == "authPassword" && $setting.Value.trim())
+<authPassword>$!{setting.Value}</authPassword>
+#end
+#if($setting.ProfileName == "authname")
+#set ($authnameLine1 = $!{setting.Value})
+#end
+#end
+#if($setting.ProfileName == "registrarOption")
+#set ($registrarOptionLine1 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarAddress")
+#set ($registrarAddressLine1 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarFromAddress")
+#set ($registrarFromAddressLine1 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarToAddress")
+#set ($registrarToAddressLine1 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarUsedomainName")
+#set ($registrarUsedomainNameLine1 = $!{setting.Value})
+#elseif($setting.ProfileName == "registertimer")
+#set ($registertimerLine1 = $!{setting.Value})
+#elseif($setting.ProfileName == "proxyOption")
+#set ($proxyOptionLine1 = $!{setting.Value})
+#elseif($setting.ProfileName == "proxyAddress")
+#set ($proxyAddressLine1 = $!{setting.Value})
+#elseif($setting.ProfileName == "registerThroughProxy")
+#set ($registerThroughProxyLine1 = $!{setting.Value})
+#end
+#if($setting.ProfileName == "registerThroughProxy")
+#set ($onlyOne = 0)
+#end
+#else
+#if($setting.ProfileName == "authname")
+#set ($authnameLine2 = $!{setting.Value})
+#elseif($setting.ProfileName == "authPassword")
+#set ($authPasswordLine2 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarOption")
+#set ($registrarOptionLine2 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarAddress")
+#set ($registrarAddressLine2 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarFromAddress")
+#set ($registrarFromAddressLine2 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarToAddress")
+#set ($registrarToAddressLine2 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarUsedomainName")
+#set ($registrarUsedomainNameLine2 = $!{setting.Value})
+#elseif($setting.ProfileName == "registertimer")
+#set ($registertimerLine2 = $!{setting.Value})
+#elseif($setting.ProfileName == "proxyOption")
+#set ($proxyOptionLine2 = $!{setting.Value})
+#elseif($setting.ProfileName == "proxyAddress")
+#set ($proxyAddressLine2 = $!{setting.Value})
+#elseif($setting.ProfileName == "registerThroughProxy")
+#set ($registerThroughProxyLine2 = $!{setting.Value})
+#end
+#end
+#end
+#end
+#end
+#set ($onlyOne = 1)
+<registrar>
+#if($registerThroughProxyLine1.trim() && $block1 == "1")
+#set($block1 = 0)
+#if($registrarOptionLine1 == "manual")
+<manual>TRUE</manual>
+#if($registrarAddressLine1.trim())
+<registrarAddress>$registrarAddressLine1</registrarAddress>
+#end
+#if($registrarToAddressLine1.trim())
+<registrarToAddress>$registrarToAddressLine1</registrarToAddress>
+#end
+#if($registrarFromAddressLine1.trim())
+<registrarFromAddress>$registrarFromAddressLine1</registrarFromAddress>
+#end
+<registrarUsedomainName>$registrarUsedomainNameLine1</registrarUsedomainName>
+#if($registertimerLine1.trim())
+<registertimer>$registertimerLine1</registertimer>
+#end
+</registrar>
+<sipProxy>
+#elseif($registrarOptionLine1 == "auto")
+<auto>TRUE</auto>
+#if($registrarToAddressLine1.trim())
+<registrarToAddress>$registrarToAddressLine1</registrarToAddress>
+#end
+#if($registrarFromAddressLine1.trim())
+<registrarFromAddress>$registrarFromAddressLine1</registrarFromAddress>
+#end
+<registrarUsedomainName>$registrarUsedomainNameLine1</registrarUsedomainName>
+#if($registertimerLine1.trim())
+<registertimer>$registertimerLine1</registertimer>
+#end
+</registrar>
+<sipProxy>
+#else
+<none>TRUE</none>
+</registrar>
+<sipProxy>
+#end
+#if($proxyOptionLine1 == "forwardAllThroughProxy" || $proxyOptionLine1 == "sendFirstInviteToProxy")
+#if($proxyOptionLine1 == "forwardAllThroughProxy")
+<forwardAllThroughProxy>TRUE</forwardAllThroughProxy>
+#else
+<sendFirstInviteToProxy>TRUE</sendFirstInviteToProxy>
+#end
+#if($proxyAddressLine1.trim())
+<proxyAddress>$proxyAddressLine1</proxyAddress>
+#end
+<registerThroughProxy>$registerThroughProxyLine1</registerThroughProxy>
+</sipProxy>
+#else
+<noneThroughProxy>TRUE</noneThroughProxy>
+</sipProxy>
+#end
+#else
+<none>TRUE</none>
+</registrar>
+<sipProxy>
+<noneThroughProxy>TRUE</noneThroughProxy>
+</sipProxy>
+#end
+#set ($group = $cfg.EndpointSettings.getSetting('sipAccounts'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+#if($setting.ProfileName == "incomingInvite")
+</callForwardMode>
+<callerNameSearchPrecedence>
+#set ($tempF = 0)
+#set ($tempFB = 0)
+#end
+#if($setting.ProfileName == "intercomOption")
+</callerNameSearchPrecedence>
+<intercom>
+<$!{setting.Value}>TRUE</$!{setting.Value}>
+#set ($tempI = $!{setting.Value})
+#end
+#if($setting.ProfileName == "sipPort")
+</intercom>
+#set ($tempI = 0)
+#end
+#if($setting.ProfileName == "forwardModeOption")
+<callForwardMode>
+<$!{setting.Value}>TRUE</$!{setting.Value}>
+#set ($tempF = $!{setting.Value})
+#set ($tempP = 0)
+#else
+#if($tempF != "0")
+#if($tempF == "forwardonBusy")
+#if($setting.ProfileName == "forwardonNoAnswer" && $setting.Value == "TRUE")
+#set ($tempFB = $!{setting.Value})
+#end
+#if($tempFB == "TRUE")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif($setting.ProfileName == "callForwardAddress")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#elseif($tempF == "forwardonNoAnswer" && $setting.ProfileName != "forwardonNoAnswer") 	  
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif(($tempF == "forwardAll") && !($setting.ProfileName == "forwardonNoAnswer" || $setting.ProfileName == "callForwardTimer")) 	  
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#elseif($tempI != "0")
+#if($tempI == "callInfoHeader" && $setting.ProfileName == "alertInfoSecret")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif($tempI =="alertInfoHeader" && $setting.ProfileName == "alertInfoSecret")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif($tempI == "intercomPrefix")
+#if($setting.ProfileName != "intercomOption")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#else
+#if($setting.ProfileName == "presenceServer")
+#if($pres == "publishWithSimple")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#else
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end  
+#end
+#end
+</account_L1>
+<account_L2>
+#if($authnameLine2.trim())
+<authname>$authnameLine2</authname>
+#end
+#if($authPasswordLine2.trim())
+<authPassword>$authPasswordLine2</authPassword>
+#end
+<registrar>
+#if($registerThroughProxyLine2.trim() && $block2 == "1")
+#set($block2 = 0)
+#if($registrarOptionLine2 == "manual")
+<manual>TRUE</manual>
+#if($registrarAddressLine2.trim())
+<registrarAddress>$registrarAddressLine2</registrarAddress>
+#end
+#if($registrarToAddressLine2.trim())
+<registrarToAddress>$registrarToAddressLine2</registrarToAddress>
+#end
+#if($registrarFromAddressLine2.trim())
+<registrarFromAddress>$registrarFromAddressLine2</registrarFromAddress>
+#end
+<registrarUsedomainName>$registrarUsedomainNameLine2</registrarUsedomainName>
+#if($registertimerLine2.trim())
+<registertimer>$registertimerLine2</registertimer>
+#end
+</registrar>
+<sipProxy>
+#elseif($registrarOptionLine2 == "auto")
+<auto>TRUE</auto>
+#if($registrarToAddressLine2.trim())
+<registrarToAddress>$registrarToAddressLine2</registrarToAddress>
+#end
+#if($registrarFromAddressLine2.trim())
+<registrarFromAddress>$registrarFromAddressLine2</registrarFromAddress>
+#end
+<registrarUsedomainName>$registrarUsedomainNameLine2</registrarUsedomainName>
+#if($registertimerLine2.trim())
+<registertimer>$registertimerLine2</registertimer>
+#end
+</registrar>
+<sipProxy>
+#else
+<none>TRUE</none>
+</registrar>
+<sipProxy>
+#end
+#if($proxyOptionLine2 == "forwardAllThroughProxy" || $proxyOptionLine2 == "sendFirstInviteToProxy")
+#if($proxyOptionLine2 == "forwardAllThroughProxy")
+<forwardAllThroughProxy>TRUE</forwardAllThroughProxy>
+#else
+<sendFirstInviteToProxy>TRUE</sendFirstInviteToProxy>
+#end
+#if($proxyAddressLine2.trim())
+<proxyAddress>$proxyAddressLine2</proxyAddress>
+#end
+<registerThroughProxy>$registerThroughProxyLine2</registerThroughProxy>
+</sipProxy>
+#else
+<noneThroughProxy>TRUE</noneThroughProxy>
+</sipProxy>
+#end
+#else
+<none>TRUE</none>
+</registrar>
+<sipProxy>
+<noneThroughProxy>TRUE</noneThroughProxy>
+</sipProxy>
+#end
+#set ($group = $cfg.EndpointSettings.getSetting('sipAccounts2'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+#if($setting.ProfileName == "incomingInvite")
+</callForwardMode>
+<callerNameSearchPrecedence>
+#set ($tempF = 0)
+#set ($tempFB = 0)
+#end
+#if($setting.ProfileName == "intercomOption")
+</callerNameSearchPrecedence>
+<intercom>
+<$!{setting.Value}>TRUE</$!{setting.Value}>
+#set ($tempI = $!{setting.Value})
+#end
+#if($setting.ProfileName == "sipPort")
+</intercom>
+#set ($tempI = 0)
+#end
+#if($setting.ProfileName == "forwardModeOption")
+<callForwardMode>
+<$!{setting.Value}>TRUE</$!{setting.Value}>
+#set ($tempF = $!{setting.Value})
+#set ($tempP = 0)
+#else
+#if($tempF != "0")
+#if($tempF == "forwardonBusy")
+#if($setting.ProfileName == "forwardonNoAnswer" && $setting.Value == "TRUE")
+#set ($tempFB = $!{setting.Value})
+#end
+#if($tempFB == "TRUE")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif($setting.ProfileName == "callForwardAddress")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#elseif($tempF == "forwardonNoAnswer" && $setting.ProfileName != "forwardonNoAnswer") 	  
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif(($tempF == "forwardAll") && !($setting.ProfileName == "forwardonNoAnswer" || $setting.ProfileName == "callForwardTimer")) 	  
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#elseif($tempI != "0")
+#if($tempI == "callInfoHeader" && $setting.ProfileName == "alertInfoSecret")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif($tempI =="alertInfoHeader" && $setting.ProfileName == "alertInfoSecret")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif($tempI == "intercomPrefix")
+#if($setting.ProfileName != "intercomOption")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#else
+#if($setting.ProfileName == "presenceServer")
+#if($pres == "publishWithSimple")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#else
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end  
+#end
+#end
+</account_L2>
+</sipAccounts>
+#set ($block1 = 1)
+#set ($block2 = 1)
+<upgrade>
+#set ($group = $cfg.EndpointSettings.getSetting('upgrade'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+#if($setting.ProfileName == "upgradeOption")
+<$!{setting.Value}>TRUE</$!{setting.Value}>
+#set ($temp = $!{setting.Value})
+#else
+#if($temp == "ftp" || $temp == "tftp")
+#if($setting.ProfileName == "tftpOrFtpUpgradeServer") 
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif($setting.ProfileName == "tftpOrFtpUpgradeFile")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#elseif($temp == "http" || $temp == "https")
+#if($setting.ProfileName == "httpOrHttpsUrl")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif($setting.ProfileName == "httpOrHttpsProxy")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif($setting.ProfileName == "httpOrHttpsPort")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end	
+#end
+#end 
+#end 
+</upgrade>
+</configuration>

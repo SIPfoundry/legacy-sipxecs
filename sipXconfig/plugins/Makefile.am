@@ -1,6 +1,7 @@
 SUBDIRS = \
 	clearone \
 	hitachi \
+	ipdialog \
 	lg-nortel \
 	linksys \
 	mitel \

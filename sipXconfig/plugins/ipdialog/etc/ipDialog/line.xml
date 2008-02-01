@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  &types;
+  <group name="sipAccounts">
+    <label>LINE ACCOUNTS</label>
+    <setting name="authname">
+      <label>User ID</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>User ID</description>
+    </setting>
+
+    <setting name="authPassword">
+      <label>Password</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>Password</description>
+    </setting>
+
+    <setting name="registrarOption">
+      <label>REGISTRAR</label>
+      <type>
+        <enum>
+          <option>
+            <value>manual</value>
+          </option>
+          <option>
+            <value>auto</value>
+          </option>
+          <option>
+            <value>none</value>
+          </option>
+        </enum>
+      </type>
+      <value>manual</value>
+      <description>Registrar</description>
+    </setting>
+
+    <setting name="registrarAddress">
+      <label>Registrar Address</label>
+      <type>
+        <ipaddr />
+      </type>
+      <value></value>
+      <description>SIP URI - Configure this field if manual is selected for REGISTRAR else leave it blank</description>
+    </setting>
+
+    <setting name="registrarToAddress">
+      <label>Register To</label>
+      <type>
+        <ipaddr />
+      </type>
+      <value></value>
+      <description></description>
+    </setting>
+
+    <setting name="registrarFromAddress">
+      <label>Register From</label>
+      <type>
+        <ipaddr />
+      </type>
+      <value></value>
+      <description></description>
+    </setting>
+
+    <setting name="registrarUsedomainName">
+      <label>Use Domain Name</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>Use Domain Name</description>
+    </setting>
+
+    <setting name="registertimer">
+      <label>Registrar Timer</label>
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+      <description>Expires(sec)</description>
+    </setting>
+
+    <setting name="proxyOption">
+      <label>SIP PROXY</label>
+      <type>
+        <enum>
+          <option>
+            <value>noneThroughProxy</value>
+          </option>
+          <option>
+            <value>forwardAllThroughProxy</value>
+          </option>
+          <option>
+            <value>sendFirstInviteToProxy</value>
+          </option>
+        </enum>
+      </type>
+      <value>forwardAllThroughProxy</value>
+      <description>If selection above is other than noneThroughProxy, Proxy Address must be filled.</description>
+    </setting>
+
+    <setting name="proxyAddress">
+      <label>Proxy Address</label>
+      <type>
+        <ipaddr />
+      </type>
+      <value></value>
+      <description></description>
+    </setting>
+
+    <setting name="registerThroughProxy">
+      <label>Register Through Proxy</label>
+      <type refid="on-off" />
+      <value>TRUE</value>
+      <description>Register through Proxy</description>
+    </setting>
+  </group>
+</model>

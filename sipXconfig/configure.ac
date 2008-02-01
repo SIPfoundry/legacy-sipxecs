@@ -100,6 +100,7 @@ AC_CONFIG_FILES([
     plugins/Makefile
     plugins/clearone/Makefile
     plugins/hitachi/Makefile
+    plugins/ipdialog/Makefile
     plugins/lg-nortel/Makefile
     plugins/linksys/Makefile
     plugins/mitel/Makefile
