@@ -2362,7 +2362,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                }
 
 
-               // If we cannot lock it, it does not exist (or atleast
+               // If we cannot lock it, it does not exist (or at least
                // pretend it does not exist.  The transaction will be
                // null if it has been deleted or we cannot get a lock
                // on the transaction.  
@@ -2421,12 +2421,16 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                // No transaction for this timeout
                else
                {
-                  OsSysLog::add(FAC_SIP, PRI_ERR, "SipUserAgent::handleMessage "
-                                "SIP message timeout expired with no matching transaction");
-
-                  // Somehow the transaction got deleted perhaps it timed
-                  // out and there was a log jam that prevented the handling
-                  // of the timeout ????? This should not happen.
+                  // If the user agent is shutting down, we don't intend
+                  // to service this timeout anyway.
+                  if (!(mbShuttingDown || mbShutdownDone))
+                  {
+                     // Somehow the transaction got deleted perhaps it timed
+                     // out and there was a log jam that prevented the handling
+                     // of the timeout ????? This should not happen.
+                     OsSysLog::add(FAC_SIP, PRI_ERR, "SipUserAgent::handleMessage "
+                                   "SIP message timeout expired with no matching transaction");
+                  }
                }
 
                if(transaction)
