@@ -17,9 +17,11 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -125,11 +127,16 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
     public void save() {
         SbcDevice sbcDevice = getSbcDevice();
         SbcDeviceManager sbcDeviceContext = getSbcDeviceManager();
-        sbcDeviceContext.storeSbcDevice(sbcDevice);
-        // refresh SbcDevice - it cannot be new any more
-        if (getSbcDeviceId() == null) {
-            setSbcDeviceId(sbcDevice.getId());
-            setSbcDevice(null);
+        try {
+            sbcDeviceContext.storeSbcDevice(sbcDevice);
+            // refresh SbcDevice - it cannot be new any more
+            if (getSbcDeviceId() == null) {
+                setSbcDeviceId(sbcDevice.getId());
+                setSbcDevice(null);
+            }
+        } catch (UserException ex) {
+            String msg = getMessages().format("error.duplicateSbcName", getSbcDevice().getName());
+            getValidator().record(new ValidatorException(msg));
         }
     }
 

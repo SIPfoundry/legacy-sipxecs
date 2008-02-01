@@ -52,4 +52,12 @@
     <![CDATA[select sbc.id from SbcDevice sbc]]>
   </query>
 
+  <query name="countSbcWithSameName">
+    <![CDATA[select count (*) from SbcDevice sbc where sbc.id = :sbcId and sbc.name = :sbcName]]>
+  </query>
+
+  <query name="anotherSbcWithSameName">
+    <![CDATA[select count (*) from SbcDevice sbc where sbc.name = :sbcName]]>
+  </query>
+
 </hibernate-mapping>

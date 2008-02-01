@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 
 public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
@@ -68,6 +69,26 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
         flush();
 
         assertEquals(1, countRowsInTable("sbc_device"));
+
+        newSbcDevice.setName("abc");
+        m_sdm.storeSbcDevice(newSbcDevice);
+    }
+
+    public void testSaveDuplicate() {
+        SbcDescriptor model = m_modelSource.getModel("sbcGenericModel");
+        SbcDevice newSbcDevice = m_sdm.newSbcDevice(model);
+        newSbcDevice.setName("aaa");
+        m_sdm.storeSbcDevice(newSbcDevice);
+        flush();
+
+        try {
+            newSbcDevice = m_sdm.newSbcDevice(model);
+            newSbcDevice.setName("aaa");
+            m_sdm.storeSbcDevice(newSbcDevice);
+            fail("Should not accept duplicated name.");
+        } catch (UserException e) {
+            // ok - duplicate name
+        }
     }
 
     public void setSbcDeviceManager(SbcDeviceManager sdm) {

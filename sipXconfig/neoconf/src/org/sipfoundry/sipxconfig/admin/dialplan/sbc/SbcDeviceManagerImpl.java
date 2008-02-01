@@ -13,11 +13,17 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.dao.support.DataAccessUtils;
 
 public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> implements
         SbcDeviceManager, BeanFactoryAware {
+
+    private static final String SBC_ID = "sbcId";
+
+    private static final String SBC_NAME = "sbcName";
 
     private BeanFactory m_beanFactory;
 
@@ -55,7 +61,44 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
     }
 
     public void storeSbcDevice(SbcDevice sbc) {
+        if (sbc.isNew()) {
+            checkForDuplicateNames(sbc);
+        } else {
+            // if the sbc name was changed
+            if (isNameChanged(sbc)) {
+                checkForDuplicateNames(sbc);
+            }
+        }
+
         saveBeanWithSettings(sbc);
+    }
+
+    private void checkForDuplicateNames(SbcDevice sbc) {
+        if (isNameInUse(sbc)) {
+            throw new UserException("error.duplicateSbcName");
+        }
+    }
+
+    private boolean isNameInUse(SbcDevice sbc) {
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "anotherSbcWithSameName", new String[] {
+                    SBC_NAME
+                }, new Object[] {
+                    sbc.getName()
+                });
+
+        return DataAccessUtils.intResult(count) > 0;
+    }
+
+    private boolean isNameChanged(SbcDevice sbc) {
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("countSbcWithSameName",
+                new String[] {
+                    SBC_ID, SBC_NAME
+                }, new Object[] {
+                    sbc.getId(), sbc.getName()
+                });
+
+        return DataAccessUtils.intResult(count) == 0;
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
