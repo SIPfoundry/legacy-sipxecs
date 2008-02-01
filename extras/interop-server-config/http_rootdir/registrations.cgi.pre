@@ -227,18 +227,20 @@ sub registration_cmp {
 sub findUserAgentValues {
     my @log_archives=("@SIPX_LOGDIR@/sipregistrar.log","@SIPX_LOGDIR@/sipregistrar.log.1");
     my($callid, $user_agent);
-    my(@neededIds)=keys %need_user_agent;
 
     my ($log_archive, $log);
 
-    while (@neededIds && ($log_archive = shift @log_archives) ne '' && -e $log_archive)
+    # In a scalar context, '%need_user_agent' is true if it is not empty.
+    while (%need_user_agent &&
+	   ($log_archive = shift @log_archives) ne '' &&
+	   -e $log_archive)
     {
         $log=File::ReadBackwards->new($log_archive)
             || die "error opening '$log_archive'\n\t$?\n";
 
         # Read through the log file and find all the REGISTERs.
         my($log_line) = '';
-        while ( @neededIds && ! $log->eof) {
+        while ( %need_user_agent && ! $log->eof) {
             $_=$log->readline;
             next unless /:INCOMING[:]/; # the [:] makes perl-mode happier
             next unless /----\\nREGISTER\s/i;
@@ -257,9 +259,8 @@ sub findUserAgentValues {
             if ( $callid && $need_user_agent{$callid} ) {
                 $user_agent{$callid} = $user_agent;
 
-                # remove this id from the set we are looking for
+                # Remove this id from the set we are looking for.
                 delete $need_user_agent{$callid};
-                @neededIds = keys %need_user_agent;
             }
         }
         $log->close;
