@@ -3,8 +3,62 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
-Version 3.9.6
 
+Version 3.9.7
+
+** Bug
+    * [XCF-1685] - Internet explorer gives an error while uploading the ACD audio(Welcome and queue audio)prompts for the first time  
+    * [XCF-1749] - Click OK button after clicking Apply prints error message in the Add Phonebook page. 
+    * [XCF-1767] - CDR stats: disabled "Filter by" option is selectable in IE and selecting it causes Internal Server Error
+    * [XCF-1777] - Extract time pattern from the page locale
+    * [XCF-1898] - Drop-down menus with strings that cannot be localized
+    * [XCF-1992] - Configuration Diagnostics Tests screen throws org.apache.tapestry.StaleLinkException on automatic refresh
+    * [XCF-2002] - Help text is missing in Localization screen
+    * [XCF-2008] - Internal exception while adding an existing user.
+    * [XCF-2009] - Incomplete help text in SBCs screen
+    * [XCF-2010] - Call Forwarding: Error messages are not displayed when invalid inputs are given for forward to and ring for
+    * [XCF-2059] - Editing the refresh time causes exceptions on auto refreshed screens.
+    * [XCF-2082] - Tabs defined via the settings mechanism (XML files) remain "active" along with the main tab
+    * [XCF-2085] - "Caller" column is not displaying uri of caller's number on ACD Historic Reports page.
+    * [XCF-2108] - sip.cfg and phone1.cfg need to be linked to the active version of sip.ld
+    * [XCF-2110] - Services page: no Start/Stop feedback since rev 10635
+    * [XCF-2112] - Generated domain-config is incorrect
+    * [XCF-2122] - Cannot use "Use caller sensitive forwarding" function
+    * [XCF-2146] - Internal Exception error when exporting phones with external lines
+    * [XCF-2150] - Quick link on the "Devices/SBC" page should be to "Internet Calling" and not "Dialing Plans"
+    * [XCF-2163] - LG Phones - Under sip parameters configuration parameter is named "Outbound proxy address". Should be "Proxy address"
+    * [XCF-2164] - web tests fail on system w/o mrtg installed
+    * [XCF-2165] - Many Admin E-Mails seen on new build system : ERROR: unable to open config file: /etc/mrtg/mrtg.cfg
+    * [XCF-2190] - After Restore from a previous Backup cannot access GUI, calls fail
+
+** Improvement
+    * [XCF-1570] - Voice Mail Web UI should inform a user that he or she does not have a voice mail box if he or she does not have voicemail permissions.
+    * [XCF-1778] - need easier way to add the same gateway to multiple dialing rules
+    * [XCF-1798] - WebUI for ACD overflow destination needs to be cleaned up
+    * [XCF-1803] - Backup & Restore: Progress and success message should be added for restore operation
+    * [XCF-1841] - *.page and *.jwc files not ready for localization
+    * [XCF-1867] - Add help text to Internal Dial Rule screen that explains how to use Exchange as the VM server
+    * [XCF-1883] - automatically configure direct emergency gateways for phones that support it
+    * [XCF-1940] - Need a link from the System>Import page for user to download example csv file
+    * [XCF-2050] - JAR message source does not use files with language variants in their names
+    * [XCF-2057] - add ability to disable phonebook management
+    * [XCF-2079] - Mediant 1000 should be changed to Mediant
+    * [XCF-2103] - 'personal-auto-attendant' permission support
+    * [XCF-2106] - Configuration tests should run automatically on first startup
+    * [XCF-2115] - Improve "search for java" to enhance portability
+    * [XCF-2137] - new color scheme for default sipXconfig look and feel
+    * [XCF-2138] - search box improvements
+    * [XCF-2139] - replace Home/Help/Logout link with icons
+    * [XCF-2140] - improve help/quick links look and feel
+    * [XCF-2141] - vertical navigation changes
+    * [XCF-2142] - Login page improvement
+
+** New Feature
+    * [XCF-1733] - export of current user list
+    * [XCF-1893] - Audiocodes Parameters for Globalization files needs to be exposed
+
+
+Version 3.9.6
 
 ** Bug
     * [XCF-1823] - Internal exception while activating dial plan
