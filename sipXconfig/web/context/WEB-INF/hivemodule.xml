@@ -222,22 +222,22 @@
       <construct
         class="org.sipfoundry.sipxconfig.site.skin.SkinMessagesSource">
         <set-object property="systemMessagesSource"
-          value="service:JarMessagesSource" />
+          value="service:JarMessagesSourceAdapter" />
         <set-object property="skin" value="spring:skin" />
       </construct>
     </invoke-factory>
   </service-point>
 
   <!-- JAR message bundle source -->
-  <service-point id="JarMessagesSource"
+  <service-point id="JarMessagesSourceAdapter"
     interface="org.apache.tapestry.services.ComponentMessagesSource">
     <invoke-factory>
       <construct
-        class="org.sipfoundry.sipxconfig.site.common.JarMessagesSource">
+        class="org.sipfoundry.sipxconfig.site.common.JarMessagesSourceServiceAdapter">
         <set-object property="systemMessagesSource"
           value="service:tapestry.ComponentMessagesSource" />
-        <set-object property="context"
-          value="spring:jarMessageSourceContext"/>
+        <set-object property="jarMessagesSource"
+          value="spring:jarMessagesSource" />
       </construct>
     </invoke-factory>
   </service-point>

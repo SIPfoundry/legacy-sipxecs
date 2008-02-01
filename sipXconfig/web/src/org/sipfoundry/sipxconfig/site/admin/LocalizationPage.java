@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.AssetSelector;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.site.common.LanguageSupport;
 import org.sipfoundry.sipxconfig.site.dialplan.ActivateDialPlan;
 
 public abstract class LocalizationPage extends BasePage implements PageBeginRenderListener {
@@ -36,6 +37,9 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
 
     @InjectObject(value = "spring:localizationContext")
     public abstract LocalizationContext getLocalizationContext();
+    
+    @InjectObject(value = "spring:jarMessagesSource")
+    public abstract LanguageSupport getLanguageSupport();
 
     public abstract IPropertySelectionModel getRegionList();
 
@@ -82,8 +86,12 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
     }
 
     private void initLanguages() {
-        String[] languages = getLocalizationContext().getInstalledLanguageDirectories();
-        IPropertySelectionModel model = new ModelWithDefaults(getMessages(), languages);
+        String[] languages = getLocalizationContext().getInstalledLanguages();
+        String[] localizedLocales = new String[languages.length];
+        for (int i = 0; i < languages.length; i++) {
+            localizedLocales[i] = getLanguageSupport().resolveLocaleName(languages[i]);
+        }
+        IPropertySelectionModel model = new ModelWithDefaults(getMessages(), localizedLocales);
         setLanguageList(model);
     }
 

@@ -156,6 +156,11 @@
   </bean>
 
   <!--  Message source beans -->
+  <bean id="jarMessagesSource" class="org.sipfoundry.sipxconfig.site.common.JarMessagesSource">
+    <property name="context">
+      <ref bean="jarMessageSourceContext"/>
+    </property>
+  </bean>
   <bean id="jarMessageSourceContext" class="org.sipfoundry.sipxconfig.site.common.DefaultJarMessagesSourceContext">
     <property name="localizationPackageRoot">
       <value>${sysdir.etc}</value>

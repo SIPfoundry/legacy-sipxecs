@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.admin.ModelWithDefaults;
+import org.sipfoundry.sipxconfig.site.common.LanguageSupport;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
 import org.sipfoundry.sipxconfig.site.user.UserForm;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
@@ -34,6 +35,15 @@ import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 public abstract class EditMyInformation extends UserBasePage implements EditPinComponent {
     private static final String OPERATOR_SETTING = 
         "personal-attendant" + Setting.PATH_DELIM + "operator";
+    
+    @InjectObject(value = "spring:mailboxManager")
+    public abstract MailboxManager getMailboxManager();
+    
+    @InjectObject(value = "spring:localizationContext")
+    public abstract LocalizationContext getLocalizationContext();
+    
+    @InjectObject(value = "spring:jarMessagesSource")
+    public abstract LanguageSupport getLanguageSupport();
     
     public abstract String getPin();
 
@@ -58,12 +68,6 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     @Persist
     @InitialValue(value = "literal:info")
     public abstract String getTab();
-
-    @InjectObject(value = "spring:mailboxManager")
-    public abstract MailboxManager getMailboxManager();
-    
-    @InjectObject(value = "spring:localizationContext")
-    public abstract LocalizationContext getLocalizationContext();
 
     public void save() {
         if (!TapestryUtils.isValid(this)) {
@@ -123,9 +127,13 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         }
     }
 
-    private void initLanguageList() {
+    protected void initLanguageList() {
         String[] languages = getLocalizationContext().getInstalledLanguages();
-        IPropertySelectionModel model = new ModelWithDefaults(getMessages(), languages);
+        String[] localizedLocales = new String[languages.length];
+        for (int i = 0; i < languages.length; i++) {
+            localizedLocales[i] = getLanguageSupport().resolveLocaleName(languages[i]);
+        }
+        IPropertySelectionModel model = new ModelWithDefaults(getMessages(), localizedLocales);
         setLanguageList(model);
     }
 

@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.admin.ModelWithDefaults;
+import org.sipfoundry.sipxconfig.site.common.LanguageSupport;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
@@ -39,6 +40,9 @@ public abstract class EditPersonalAttendant extends PageWithCallback implements 
     
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
+    
+    @InjectObject(value = "service:sipxconfig:JarMessageSource")
+    public abstract LanguageSupport getLanguageSupport();
     
     @Persist
     public abstract Integer getUserId();
@@ -77,9 +81,13 @@ public abstract class EditPersonalAttendant extends PageWithCallback implements 
         getCoreContext().saveUser(getUser());
     }
     
-    private void initLanguageList() {
+    protected void initLanguageList() {
         String[] languages = getLocalizationContext().getInstalledLanguages();
-        IPropertySelectionModel model = new ModelWithDefaults(getMessages(), languages);
-        setLanguageList(model);
+        String[] localizedLocales = new String[languages.length];
+        for (int i = 0; i < languages.length; i++) {
+            localizedLocales[i] = getLanguageSupport().resolveLocaleName(languages[i]);
+        }
+        IPropertySelectionModel model = new ModelWithDefaults(getMessages(), localizedLocales);
+        setLanguageList(model);    
     }
 }
