@@ -25,6 +25,11 @@ ${s.ProfileName} $!{s.Value}
 #emit_groups_by_name(['LAN']) 
 #emit_groups_by_name(['NETTIME'])
 #emit_groups_by_name(['VOIP'])
+#if($has_blf)
+broadsoft_blf enable
+blf_url $speeddial.getResourceListId(true)
+
+#end
 #foreach ($line in $phone.lines)
 #set($line_id = $velocityCount)
 #foreach ($group in $line.Settings.Values)

@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.phone.lg_nortel;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import junit.framework.TestCase;
 
@@ -92,8 +93,7 @@ public class LgNortelPhoneTest extends TestCase {
     }
 
     /**
-     * Tests that the phonebook profile is used when phonebook management
-     * is enabled.
+     * Tests that the phonebook profile is used when phonebook management is enabled.
      */
     public void testPhonebookManagementEnabled() throws Exception {
         PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
@@ -110,8 +110,7 @@ public class LgNortelPhoneTest extends TestCase {
     }
 
     /**
-     * Tests that the phonebook profile is not used when phonebook management
-     * is disabled.
+     * Tests that the phonebook profile is not used when phonebook management is disabled.
      */
     public void testPhonebookManagementDisabled() throws Exception {
         PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
@@ -258,6 +257,52 @@ public class LgNortelPhoneTest extends TestCase {
         }
 
         phoneContextControl.verify();
+    }
+
+    public void testGenerateProfileWithBlfSpeeddial() throws Exception {
+        PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
+        lgNortelModel.setProfileTemplate("lg-nortel/mac.cfg.vm");
+        lgNortelModel.setMaxLineCount(4);
+        LgNortelPhone phone = new LgNortelPhone();
+        phone.setModel(lgNortelModel);
+
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+
+        User user = new User() {
+            public Integer getId() {
+                return 115;
+            }
+        };
+        user.setUserName("juser");
+        user.setFirstName("Joe");
+        user.setLastName("User");
+        user.setSipPassword("1234");
+        PhoneTestDriver.supplyTestData(phone, Collections.singletonList(user));
+
+        Button[] buttons = new Button[] {
+            new Button("Bill User", "201"), new Button("Bob User", "202")
+        };
+
+        SpeedDial sp = new SpeedDial();
+        sp.setButtons(Arrays.asList(buttons));
+        buttons[1].setBlf(true);
+        sp.setUser(user);
+
+        IMocksControl phoneContextControl = EasyMock.createNiceControl();
+        PhoneContext phoneContext = phoneContextControl.createMock(PhoneContext.class);
+        PhoneTestDriver.supplyVitalTestData(phoneContextControl, phoneContext, phone);
+
+        phoneContext.getSpeedDial(phone);
+        phoneContextControl.andReturn(sp).anyTimes();
+        phoneContextControl.replay();
+
+        phone.getProfileTypes()[0].generate(phone, location);
+        InputStream expectedProfile = getClass().getResourceAsStream("mac_blf.cfg");
+        assertNotNull(expectedProfile);
+        String expected = IOUtils.toString(expectedProfile);
+        expectedProfile.close();
+
+        assertEquals(expected, location.toString());
     }
 
     private int find(String[] lines, String match) {

@@ -10,8 +10,8 @@
 package org.sipfoundry.sipxconfig.phone.lg_nortel;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -26,9 +26,14 @@ import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
+import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class LgNortelPhone extends Phone {
+    private static final String VOIP_EXTENSION = "VOIP/extension";
+    private static final String VOIP_NAME = "VOIP/name";
+    private static final String VOIP_TYPE = "VOIP/type";
+
     private String m_phonebookFilename = "{0}-phonebook.csv";
 
     public LgNortelPhone() {
@@ -58,7 +63,9 @@ public class LgNortelPhone extends Phone {
                 new Profile(this), new PhonebookProfile(getPhonebookFilename())
             };
         } else {
-            profileTypes = new Profile[] {new Profile(this)};
+            profileTypes = new Profile[] {
+                new Profile(this)
+            };
         }
 
         return profileTypes;
@@ -91,14 +98,33 @@ public class LgNortelPhone extends Phone {
 
         public Map<String, Object> getContext() {
             Map<String, Object> context = super.getContext();
-            Collection buttons = Collections.EMPTY_LIST;
+            Phone phone = (Phone) getDevice();
+
             if (m_speeddial != null) {
-                buttons = m_speeddial.getButtons();
+                boolean hasBlf = false;
+                Collection<Button> speeddials = new ArrayList<Button>();
+                Collection<Button> buttons = m_speeddial.getButtons();
+                for (Button button : buttons) {
+                    if (button.isBlf()) {
+                        hasBlf = true;
+                        Line line = new Line();
+                        line.setPhone(phone);
+                        phone.initializeLine(line);
+                        line.setSettingValue(VOIP_NAME, button.getLabel());
+                        line.setSettingValue(VOIP_EXTENSION, button.getNumber());
+                        line.setSettingValue(VOIP_TYPE, "dss");
+                        phone.addLine(line);
+                    } else {
+                        speeddials.add(button);
+                    }
+                }
+                context.put("has_blf", hasBlf);
+                context.put("speeddials", speeddials);
+                context.put("speeddial", m_speeddial);
             }
-            context.put("speeddials", buttons);
 
             int speeddialOffset = 0;
-            Collection lines = ((Phone) getDevice()).getLines();
+            Collection lines = phone.getLines();
             if (lines != null) {
                 speeddialOffset = lines.size();
             }
