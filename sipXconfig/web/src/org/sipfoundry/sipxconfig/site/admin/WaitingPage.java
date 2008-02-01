@@ -27,7 +27,7 @@ public abstract class WaitingPage extends UserBasePage implements PageEndRenderL
     @Asset("/images/loading.gif")
     public abstract IAsset getLoadingImage();
 
-    @Persist
+    @Persist(value = "client")
     public abstract WaitingListener getWaitingListener();
 
     public abstract void setWaitingListener(WaitingListener wl);
@@ -51,7 +51,6 @@ public abstract class WaitingPage extends UserBasePage implements PageEndRenderL
         WaitingListener waitingListener = getWaitingListener();
         if (waitingListener != null) {
             waitingListener.afterResponseSent();
-            setWaitingListener(null);
         }
     }
 

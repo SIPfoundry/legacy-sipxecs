@@ -10,8 +10,7 @@
 package org.sipfoundry.sipxconfig.admin;
 
 /**
- * The object that implements this interface should be set in the WaitingListenerWrapper spring
- * bean.
+ * The object that implements this interface should be set in the Waiting Page
  */
 public interface WaitingListener {
     /**
