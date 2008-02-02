@@ -226,6 +226,7 @@ mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
 
 pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
+# SDL TODO - use registrar configuration to test for being an HA distributed server...
 # On an HA Slave system the new sipxwatchdog-config.in needs to be updated to include the 
 # HA Master as an allowed peer.  (On new installations this is done by the install wizard.)
 grep "VOICEMAIL_SERVER_HOSTNAME=" %{_sysconfdir}/sipxpbx/config.defs | grep MY_FULL_HOSTNAME > /dev/null

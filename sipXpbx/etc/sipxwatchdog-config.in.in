@@ -1,8 +1,4 @@
 SIP_WATCHDOG_XMLRPC_PORT : ${WATCHDOG_SERVER_XMLRPC_PORT}
 
-# Used when the system is not an HA Slave.  (i.e. Not HA, or the HA Master.)
+# Add the fully qualified name of the master when configuring HA, comma separated
 SIP_WATCHDOG_XMLRPC_PEERS : ${MY_FULL_HOSTNAME}
-
-# Used when the system is a HA Slave.  Replace HA_MASTER_HOSTNAME with the actual  
-# HA Master's hostname.
-# SIP_WATCHDOG_XMLRPC_PEERS : HA_MASTER_HOSTNAME, ${MY_FULL_HOSTNAME}
