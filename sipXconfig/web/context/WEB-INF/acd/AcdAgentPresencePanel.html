@@ -1,15 +1,22 @@
-<span jwcid="$content$">
-    <span jwcid="errorMsg"/>
-    <form jwcid="form" id="server:form">
-      <table id="list.presence" jwcid="userTable">
-        <span jwcid="statusColumnValue@Block">
-          <span jwcid="statusLabel"/>
-        </span>
-      </table>
-	      <ul class="component-submit">
-	        <li><input jwcid="refresh" type="submit" id="refreshButton"/></li>
-	        <li><input jwcid="signIn" type="submit" id="signInButton"/></li>
-	        <li><input jwcid="signOut" type="submit" id="signOutButton"/></li>
-	      </ul>
-    </form>
-</span>        
+<span jwcid="errorMsg"/>
+<form jwcid="@AutoRefreshForm" actionBlock="component:actions">
+  <table id="list.presence" jwcid="userTable">
+    <span jwcid="statusColumnValue@Block">
+      <span jwcid="statusLabel"/>
+    </span>
+  </table>
+  <ul jwcid="actions@Block" class="component-submit">
+    <li>
+      <input id="signInButton" jwcid="signInButton@tacos:AjaxSubmit"
+        updateComponents="ognl:{'refreshedContent'}"
+        listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signIn)"
+        value="message:signIn"/>
+    </li>
+    <li>
+      <input id="signOutButton" jwcid="signOutButton@tacos:AjaxSubmit"
+        updateComponents="ognl:{'refreshedContent'}"
+        listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signOut)"
+        value="message:signOut"/>
+    </li>
+  </ul>
+</form>

@@ -28,12 +28,12 @@ public class AcdPresenceTestUi extends WebTestCase {
     }
     
     public void testDisplay() {
-        assertButtonPresent("signInButton");        
-        assertButtonPresent("signOutButton");        
-        assertButtonPresent("refreshButton");        
+        assertSubmitButtonPresent("signInButton");
+        assertSubmitButtonPresent("signOutButton");
+        assertSubmitButtonPresent("refresh");
     }
     
     public void testRefresh() {
-        clickButton("refreshButton");
+        submit("refresh");
     }
 }

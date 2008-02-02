@@ -1,34 +1,36 @@
-<html>
-  <head>
-    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
-  </head>
-  <body jwcid="$content$">
-    <div jwcid="@Border" restricted="false">
-      <h2>
-        <span key="title"/>
-      </h2>
-      <p><span key="text">Sign-in or sign-out to presence server. Useful for peer-to-peer clients status
-        notification or call distribution systems.</span></p>
-      <span jwcid="@ErrorMsg"/>
-      <div id="settings-content">
-        <form jwcid="form" id="presence:form">
-          <span jwcid="@If" condition="ognl:! presenceServer.enabled">
-            <p class="user-error" id="presence-disabled"><span key="error">Presence server support is not enabled on your system.</span></p>
-          </span>
-          <span jwcid="@Else">
-	          <span jwcid="@If" condition="ognl:! signedIn">
-	            <p class="message"><span key="signed.out">You are currently signed out.</span></p>
-		          <input jwcid="signIn" id="sign-in" type="submit" value="message:button.SignIn"/>
-	          </span>
-	          <span jwcid="@Else">
-	            <p><strong><span key="signed.in">You are currently signed in.</span></strong></p>
-		          <input jwcid="signOut" id="sign-out" type="submit" value="message:button.SignOut"/>
-	          </span>
-	          <input jwcid="refresh" id="refresh" type="submit" value="message:button.refresh"/>
-	          </span>
-        </form>
-      </div>
-    </div>
-  </body>
-</html>
+<div jwcid="@Border" restricted="false" useDojo="true">
+  <h2>
+    <span key="title"/>
+  </h2>
+  <p><span key="text">Sign-in or sign-out to presence server. Useful for peer-to-peer clients status
+    notification or call distribution systems.</span></p>
+  <span jwcid="@ErrorMsg"/>
+  <div id="settings-content">
+    <form jwcid="form@AutoRefreshForm" id="presence:form" actionBlock="ognl:actionBlock">
+      <span jwcid="@If" condition="ognl:! presenceServer.enabled">
+        <p class="user-error" id="presence-disabled"><span key="error">Presence server support is not enabled on your system.</span></p>
+      </span>
+      <span jwcid="@Else" id="status">
+        <span jwcid="@If" condition="ognl:! signedIn">
+          <p class="message"><span key="signed.out">You are currently signed out.</span></p>
+        </span>
+        <span jwcid="@Else">
+          <p><strong><span key="signed.in">You are currently signed in.</span></strong></p>
+        </span>
+      </span>
+      <ul jwcid="actions@Block">
+        <li>
+          <input jwcid="signInButton@tacos:AjaxSubmit" id="signInButton" value="message:button.SignIn"
+            listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signIn)"
+            updateComponents="ognl:{'refreshedContent'}"
+          />
+          <input jwcid="signOutButton@tacos:AjaxSubmit" id="signOutButton" value="message:button.SignOut"
+            listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signOut)"
+            updateComponents="ognl:{'refreshedContent'}"
+          />
+        </li>
+      </ul>
+    </form>
+  </div>
+</div>
 

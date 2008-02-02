@@ -8,16 +8,4 @@
   <inject property="tapestry" object="spring:tapestry"/>
 
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-  <component id="form" type="Form">
-    <binding name="delegate" value="bean:validator"/>
-  </component>
-  <component id="signIn" type="Submit">
-    <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signIn)"/>
-  </component>
-  <component id="signOut" type="Submit">
-    <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signOut)"/>
-  </component>
-  <component id="refresh" type="Submit">
-    <binding name="listener" value="listener:refresh"/>
-  </component>
 </page-specification>

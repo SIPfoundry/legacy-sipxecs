@@ -27,10 +27,6 @@
     <binding name="validator" value="bean:validator"/>  
   </component>
   
-  <component id="form" type="Form">
-    <binding name="delegate" value="bean:validator" />
-  </component>
-  
   <component id="userTable" type="Table">
     <binding name="source" value="users"/>
     <binding name="row" value="currentUser"/>
@@ -38,18 +34,6 @@
   	<binding name="selections" value="selections"/>
   </component>
 
-  <component id="signIn" type="Submit">
-    <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signIn)" />
-    <binding name="value" value="message:signIn"/>
-  </component>
-  <component id="signOut" type="Submit">
-    <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signOut)" />
-    <binding name="value" value="message:signOut"/>
-  </component>
-  <component id="refresh" type="Submit">
-    <binding name="listener" value="listener:refresh" />
-    <binding name="value" value="message:button.refresh"/>
-  </component>
   <component id="statusLabel" type="Insert">
     <binding name="value" value="currentUserStatus"/>
     <binding name="format" value="bean:presenceFormat"/>    
