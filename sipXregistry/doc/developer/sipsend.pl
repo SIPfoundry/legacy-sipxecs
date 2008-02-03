@@ -13,7 +13,7 @@ require 'getargs.pl';
 use Socket;
 use Digest::MD5 qw(md5_hex);
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 #') fix the perl indenting funnies caused by the above
 
@@ -180,12 +180,12 @@ $Via = "SIP/$SipVersion/TCP $MySystem:$myPort;branch=$Branch";
 
 if ( ! $From )
 {
-    $From = "Sip Send <sip:sipsend\@$MySystem>;tag=".substr(&RandHash,0,8);
+    $From = "Sip Send <sip:sipsend\@$MySystem;transport=tcp>;tag=".substr(&RandHash,0,8);
 }
 
 if ( ! $Contact )
 {
-    $Contact = "sip:sipsend\@$MySystem";
+    $Contact = "<sip:sipsend\@$MySystem:$MyPort;transport=tcp>";
 }
 
 if ( ! $CallId )

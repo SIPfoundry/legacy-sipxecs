@@ -21,7 +21,7 @@ use Net::Ping;
 ## Constants
 $CRLF = "\r\n";
 $SipVersion = '2.0';
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 ## Globals
 # %Child holds pids for each UAS, indexed by $server:$port
@@ -1151,10 +1151,10 @@ sub BuildRequest
    $P{Authorization} = $Authorization;
    $P{ProxyAuthorization} = $ProxyAuthorization;
    $P{To} = "<".$P{Target}.">";
-   $P{From} = "Sip Send <sip:$Me\@$MySystem>;tag=".substr(&RandHash,0,8);
+   $P{From} = "Sip Send <sip:$Me\@$MySystem:$myPort;transport=tcp>;tag=".substr(&RandHash,0,8);
    $P{MaxForwards} = $MaxForwards;
    $P{UserAgent} = $UserAgent;
-   $P{Contact} = "sip:$Me\@$MySystem";
+   $P{Contact} = "<sip:$Me\@$MySystem:$myPort;transport=tcp>";
    $P{CallId} = $CallId;
    $P{Cseq} = $Cseq;
 
