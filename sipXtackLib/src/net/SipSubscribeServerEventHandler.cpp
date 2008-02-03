@@ -142,7 +142,7 @@ UtlBoolean SipSubscribeServerEventHandler::getNotifyContent(const UtlString& res
                                     version,
                                     isDefaultEventContent);
 
-    // The body will be freed with the notify message.
+    // The body will be freed with the NOTIFY message.
     if(messageBody)
     {
         const char* contentTypePtr = messageBody->getContentType();

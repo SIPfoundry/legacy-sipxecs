@@ -170,14 +170,14 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
                                            routep->data(),
                                            expires - now);
 
-         // Variables to hold the output of updateDialogInfo.
+         // Variables to hold the output of insertDialogInfo.
          UtlString subscribeDialogHandle;
          UtlBoolean isNew, isSubscriptionExpired;
          SipMessage subscribeResponse;
          UtlBoolean ret =
             SipSubscriptionMgr::insertDialogInfo(subscribeRequest,
-                                                 // *urip is the request-URI for
-                                                 // status.
+                                                 // *urip is the request-URI of
+                                                 // of the SUBSCRIBE.
                                                  *urip,
                                                  *eventtypep,
                                                  subscribeDialogHandle,

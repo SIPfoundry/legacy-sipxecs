@@ -321,8 +321,10 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 mSubscriptionStatesByDialogHandle.find(&dialogHandle);
             if(state)
             {
+                // Update the expiration time.
                 long now = OsDateTime::getSecsSinceEpoch();
                 state->mExpirationDate = now + expiration;
+                // Record this SUBSCRIBE as the latest SUBSCRIBE request.
                 if(state->mpLastSubscribeRequest)
                 {
                     delete state->mpLastSubscribeRequest;
@@ -330,11 +332,11 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 state->mpLastSubscribeRequest = new SipMessage(subscribeRequest);
                 subscribeRequest.getAcceptField(state->mAcceptHeaderValue);
 
-                // Set the contact to the same request URI that came in
+                // Set our Contact to the same request URI that came in
                 UtlString contact;
                 subscribeRequest.getRequestUri(&contact);
 
-                // Add the angle brackets for contact
+                // Add the angle brackets to Contact, since it is a name-addr.
                 Url url(contact);
                 url.includeAngleBrackets();
                 contact = url.toString();
