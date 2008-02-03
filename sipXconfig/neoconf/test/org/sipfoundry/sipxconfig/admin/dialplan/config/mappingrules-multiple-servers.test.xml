@@ -29,7 +29,7 @@
       <userPattern>~~rl~.</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@${RLS_ADDR}:${RLS_SIP_PORT}&gt;</url>
+          <url>&lt;sip:{digits}@${RLS_SIP_SRV_OR_HOSTPORT}&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>

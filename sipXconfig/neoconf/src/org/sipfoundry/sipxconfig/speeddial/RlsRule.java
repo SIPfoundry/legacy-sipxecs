@@ -15,7 +15,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.InternalForwardRule;
 public class RlsRule extends InternalForwardRule {
     public RlsRule() {
         super(new DialPattern("~~rl~", DialPattern.VARIABLE_DIGITS),
-                "<sip:{digits}@${RLS_ADDR}:${RLS_SIP_PORT}>");
+                "<sip:{digits}@${RLS_SIP_SRV_OR_HOSTPORT}>");
         setName("RLS");
         setDescription("Forward resource list subscriptions to RLS");
     }
