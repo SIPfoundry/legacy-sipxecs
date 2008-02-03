@@ -617,7 +617,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                       isExpiredSubscription,
                       subscribeResponse);
 
-                 // Send the response ASAP to minimize resend handling of request
+                 // Send the response ASAP to minimize resending.
                  setContact(&subscribeResponse) ;
                  eventPackageInfo->mpEventSpecificUserAgent->send(subscribeResponse);
 

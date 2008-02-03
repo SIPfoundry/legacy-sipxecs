@@ -262,12 +262,12 @@ SubscriptionDB::store()
                 for ( dbFieldDescriptor* fd = pTableMetaData->getFirstField();
                       fd != NULL; fd = fd->nextField ) 
                 {
-                    // if the column name does not contain the 
-                    // np_prefix we must_presist it
+                    // If the column name does not contain the 
+                    // "np_" prefix, we must persist it.
                     if ( strstr( fd->name, "np_" ) == NULL )
                     {
                         // Create the a column element named after the IMDB column name
-                        TiXmlElement element (fd->name );
+                        TiXmlElement element (fd->name);
 
                         // See if the IMDB has the predefined SPECIAL_NULL_VALUE
                         UtlString textValue;

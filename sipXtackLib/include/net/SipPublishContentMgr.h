@@ -184,9 +184,12 @@ public:
      *  An application provides content (i.e. SIP event state bodies)
      *  through this interface for the given resourceId and eventTypeKey.
      *  The resourceId and eventTypeKey together compose a unique key which
-     *  identifies the provided content.  The resourceId is optained from
-     *  the PUBLISH or SUBSCRIBE request URI.  The eventTypeKey is obtained
-     *  from the SIP Event header field.
+     *  identifies the provided content.  The significance of the
+     *  resourceId and eventTypeKey is determined by the user code.
+     *  In typical usage, the resourceId is the request URI of the
+     *  PUBLISH request (to be sent) or the SUBSCRIBE request (to be
+     *  responded to), and the eventTypeKey is the SIP Event header
+     *  field.
      *  \param resourceId - a unique id for the resource, typically the
      *         identity or AOR for the event type content.  There is no
      *         semantics enforced.  This is an opaque string used as part

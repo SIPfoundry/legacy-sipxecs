@@ -63,6 +63,7 @@ class RegisterEventServer
    virtual ~RegisterEventServer();
 
    //! Generate and publish content for reg events for an AOR.
+   //  Note the content will be published under the AOR.
    void generateAndPublishContent(/// AOR as a string
                                   const UtlString& aorString,
                                   /// AOR as a Uri

@@ -74,7 +74,7 @@
     <annotation>
       <documentation>
          The Call-Id of the registration sequence (pseudo-dialog) that
-	 maintans this registration.
+	 maintains this registration.
       </documentation>
     </annotation>
     <simpleType>
