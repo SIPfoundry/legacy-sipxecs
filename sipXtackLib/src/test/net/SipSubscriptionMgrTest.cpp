@@ -158,10 +158,12 @@ Voice-Message: 0/0 (0/0)\r\n";
          CPPUNIT_ASSERT(subMgr.updateDialogInfo(mwiSubWithAuthRequest,
                                                 resourceId,
                                                 eventTypeKey,
+                                                eventType,
                                                 subscribeDialogHandle,
                                                 isNew,
                                                 isExpired,
-                                                createdSubscribeResponse));
+                                                createdSubscribeResponse,
+                                                eventHandler));
 
          // Validate the results from updateDialogInfo
          CPPUNIT_ASSERT(isNew);
@@ -255,10 +257,12 @@ Voice-Message: 0/0 (0/0)\r\n";
          CPPUNIT_ASSERT(subMgr.updateDialogInfo(mwiSubWithAuthRequest,
                                                 resourceId,
                                                 eventTypeKey,
+                                                eventType,
                                                 subscribeDialogHandle,
                                                 isNew,
                                                 isExpired,
-                                                createdSubscribeResponse));
+                                                createdSubscribeResponse,
+                                                eventHandler));
          CPPUNIT_ASSERT(dialogMgr->countDialogs() == 1);
 
          long now = OsDateTime::getSecsSinceEpoch();

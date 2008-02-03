@@ -576,29 +576,17 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
     if (eventPackageInfo)
     {
         handledSubscribe = TRUE;
-        UtlString resourceId;
-        UtlString eventTypeKey, eventType;
         SipSubscribeServerEventHandler* handler =
             eventPackageInfo->mpEventSpecificHandler;
-
-        // Get the keys used to identify the event state content
-        handler->getKeys(subscribeRequest,
-                         resourceId,
-                         eventTypeKey,
-                         eventType);
 
         SipMessage subscribeResponse;
 
         // Check if authenticated (or if it needs to be authenticated)
         if (handler->isAuthenticated(subscribeRequest,
-                                     resourceId,
-                                     eventTypeKey,
                                      subscribeResponse))
         {
             // Check if authorized (or if authorization is required)
             if (handler->isAuthorized(subscribeRequest,
-                                     resourceId,
-                                     eventTypeKey,
                                      subscribeResponse))
             {
                 // The subscription is allowed, so update the
@@ -607,15 +595,21 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                 UtlString subscribeDialogHandle;
                 UtlBoolean isNewDialog;
                 UtlBoolean isExpiredSubscription;
+                UtlString resourceId, eventTypeKey, eventType;
                 eventPackageInfo->mpEventSpecificSubscriptionMgr->
                    updateDialogInfo(
                       subscribeRequest,
                       resourceId, 
                       eventTypeKey, 
+                      eventType,
                       subscribeDialogHandle, 
                       isNewDialog, 
                       isExpiredSubscription,
-                      subscribeResponse);
+                      subscribeResponse,
+                      // The event-specific handler provides a getKeys method
+                      // which is used to determine the resource ID
+                      // and event type if this is a new subscription.
+                      *handler);
 
                  // Send the response ASAP to minimize resending.
                  setContact(&subscribeResponse) ;
@@ -675,7 +669,6 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
             eventPackageInfo->mpEventSpecificUserAgent->send(subscribeResponse);
         }
     }
-
 
     // We should not have received SUBSCRIBE requests for this event type
     // This event type has not been enabled in this SubscribeServer

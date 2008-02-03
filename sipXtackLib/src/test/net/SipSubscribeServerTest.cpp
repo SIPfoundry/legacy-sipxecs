@@ -167,12 +167,8 @@ public:
             SipMessage bogusSubscribeRequest;
             SipMessage bogusSubscribeResponse;
             CPPUNIT_ASSERT(eventHandler->isAuthenticated(bogusSubscribeRequest,
-                                                         "foo@bar.com",
-                                                         eventName,
                                                          bogusSubscribeResponse));
             CPPUNIT_ASSERT(eventHandler->isAuthorized(bogusSubscribeRequest,
-                                                      "foo@bar.com",
-                                                      eventName,
                                                       bogusSubscribeResponse));
          }
 

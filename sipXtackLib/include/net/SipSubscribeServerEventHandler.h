@@ -61,12 +61,12 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
     /** Determine what the resourceId, eventTypeKey, and eventType
-     *  should be for this SUBSCRIBE request.
+     *  should be for a SUBSCRIBE request that creates a subscription.
      *  The default behavior is to use the identify from the request URI
      *  as the resourceId and the event type token from the Event header
      *  as the eventTypeKey.  Some event packages may wish to override
      *  this (e.g. the host part of the resourceID, which will usually be an
-     *  IP addressmay make sense in some cases  to be substituted with the 
+     *  IP address, may make sense in some cases  to be substituted with the 
      *  domain name.  In some event packages, the content of the event state
      *  information will vary based upon some Event header parameters, in
      *  which cases it may make sense to include that event header parameter
@@ -84,8 +84,6 @@ public:
      *  not modify subscribeResponse.)
      */
     virtual UtlBoolean isAuthenticated(const SipMessage& subscribeRequest,
-                                       const UtlString& resourceId,
-                                       const UtlString& eventTypeKey,
                                        SipMessage& subscribeResponse);
 
     //! Determine if the given SUBSCRIBE request is authorized to subscribe
@@ -95,9 +93,7 @@ public:
      *  not modify subscribeResponse.)
      */
     virtual UtlBoolean isAuthorized(const SipMessage& subscribeRequest,
-                                   const UtlString& resourceId,
-                                   const UtlString& eventTypeKey,
-                                   SipMessage& subscribeResponse);
+                                    SipMessage& subscribeResponse);
 
     //! Fill in the event specific content for the identified resource and eventTypeKey
     /*! The default behavior is to attach the content yielded from 

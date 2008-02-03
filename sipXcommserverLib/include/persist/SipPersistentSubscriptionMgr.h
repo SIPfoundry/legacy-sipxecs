@@ -107,12 +107,14 @@ public:
 
    //! Add/Update subscription for the given SUBSCRIBE request
    virtual UtlBoolean updateDialogInfo(const SipMessage& subscribeRequest,
-                                       const UtlString& resourceId,
-                                       const UtlString& eventTypeKey,
+                                       UtlString& resourceId,
+                                       UtlString& eventTypeKey,
+                                       UtlString& eventType,
                                        UtlString& subscribeDialogHandle,
                                        UtlBoolean& isNew,
                                        UtlBoolean& isExpired,
-                                       SipMessage& subscribeResponse);
+                                       SipMessage& subscribeResponse,
+                                       SipSubscribeServerEventHandler& handler);
    
    //! Insert subscription dialog info without checking for the existence of the dialog
    /*! This method blindly inserts dialog information and should only be called from

@@ -20,6 +20,7 @@
 #include <utl/UtlHashMap.h>
 #include <utl/UtlHashBag.h>
 #include <net/SipDialogMgr.h>
+#include <net/SipSubscribeServerEventHandler.h>
 
 // DEFINES
 // MACROS
@@ -58,12 +59,19 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
     //! Add/Update subscription for the given SUBSCRIBE request
+    /** The resourceId, eventTypeKey, and eventType are set based on
+     *  the subscription.  If the subscription already existed, they
+     *  are extracted from the subscription state.  If this is a new
+     *  subscription, handler.getKeys() is called to compute them.
+     */
     virtual UtlBoolean updateDialogInfo(/// the incoming SUBSCRIBE request
                                         const SipMessage& subscribeRequest,
                                         /// the canonical URI of the resource
-                                        const UtlString& resourceId,
+                                        UtlString& resourceId,
                                         /// the event type key for the events
-                                        const UtlString& eventTypeKey,
+                                        UtlString& eventTypeKey,
+                                        /// the event type for the events
+                                        UtlString& eventType,
                                         /// the dialog handle for the subscription (out)
                                         UtlString& subscribeDialogHandle,
                                         /// TRUE if the subscription is new (out)
@@ -74,7 +82,12 @@ public:
                                          *  Any errors will be logged into
                                          *  subscribeResponse.
                                          */
-                                        SipMessage& subscribeResponse);
+                                        SipMessage& subscribeResponse,
+                                        /** Event-specific handler, which provides
+                                         *  handler.getKeys().
+                                         */
+                                        SipSubscribeServerEventHandler& handler
+       );
     
     //! Insert subscription dialog info without checking for the existence of the dialog
     /*! This method blindly inserts dialog information and should only be called from

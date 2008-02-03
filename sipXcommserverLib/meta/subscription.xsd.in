@@ -127,7 +127,7 @@
   <element name='eventtype' type='normalizedString'>
     <annotation>
       <documentation>
-        The event type from the Event header.
+        The "event type key" from the Event header.
 	This will not include event-type parameters unless they specify
 	something about the event info to be generated.  In particular,
 	the 'id' parameter will not be included.

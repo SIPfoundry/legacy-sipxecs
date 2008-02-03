@@ -104,8 +104,6 @@ UtlBoolean SipSubscribeServerEventHandler::getKeys(const SipMessage& subscribeRe
 }
 
 UtlBoolean SipSubscribeServerEventHandler::isAuthenticated(const SipMessage& subscribeRequest,
-                                                           const UtlString& resourceId,
-                                                           const UtlString& eventTypeKey,
                                                            SipMessage& subscribeResponse)
 {
     // By default no authentication required
@@ -113,8 +111,6 @@ UtlBoolean SipSubscribeServerEventHandler::isAuthenticated(const SipMessage& sub
 }
 
 UtlBoolean SipSubscribeServerEventHandler::isAuthorized(const SipMessage& subscribeRequest,
-                                                       const UtlString& resourceId,
-                                                       const UtlString& eventTypeKey,
                                                        SipMessage& subscribeResponse)
 {
     // By default no authorization required

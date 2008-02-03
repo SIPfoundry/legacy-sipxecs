@@ -158,12 +158,14 @@ SipSubscriptionMgr::operator=(const SipSubscriptionMgr& rhs)
 }
 
 UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeRequest,
-                                                const UtlString& resourceId,
-                                                const UtlString& eventTypeKey,
+                                                UtlString& resourceId,
+                                                UtlString& eventTypeKey,
+                                                UtlString& eventType,
                                                 UtlString& subscribeDialogHandle,
                                                 UtlBoolean& isNew,
                                                 UtlBoolean& isSubscriptionExpired,
-                                                SipMessage& subscribeResponse)
+                                                SipMessage& subscribeResponse,
+                                                SipSubscribeServerEventHandler& handler)
 {
     isNew = FALSE;
     UtlBoolean subscriptionSucceeded = FALSE;
@@ -209,6 +211,13 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
            // See XPB-399 and ENG-319.
            expiration == 1)
         {
+            // Call the event-specific function to determine the resource ID
+            // and event type for this SUBSCRIBE.
+            handler.getKeys(subscribeRequest,
+                            resourceId,
+                            eventTypeKey,
+                            eventType);
+
             // Create a dialog and subscription state even if
             // the expiration is zero as we need the dialog info
             // to route the one-time NOTIFY.  The immediately
@@ -349,6 +358,12 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 subscriptionSucceeded = TRUE;
                 isSubscriptionExpired = FALSE;
                 subscribeDialogHandle = dialogHandle;
+
+                // Set the resource information so our caller can generate a NOTIFY.
+                resourceId = state->mResourceId;
+                eventTypeKey = state->mEventTypeKey;
+                // Unfortuantely, we don't record the eventType separately.
+                eventType = state->mEventTypeKey;
             }
 
             // No state, but SUBSCRIBE had a to-tag.

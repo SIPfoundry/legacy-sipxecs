@@ -241,12 +241,14 @@ SipPersistentSubscriptionMgr::~SipPersistentSubscriptionMgr()
 
 UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
    const SipMessage& subscribeRequest,
-   const UtlString& resourceId,
-   const UtlString& eventTypeKey,
+   UtlString& resourceId,
+   UtlString& eventTypeKey,
+   UtlString& eventType,
    UtlString& subscribeDialogHandle,
    UtlBoolean& isNew,
    UtlBoolean& isSubscriptionExpired,
-   SipMessage& subscribeResponse)
+   SipMessage& subscribeResponse,
+   SipSubscribeServerEventHandler& handler)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr::updateDialogInfo "
@@ -259,10 +261,12 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
    ret = SipSubscriptionMgr::updateDialogInfo(subscribeRequest,
                                               resourceId,
                                               eventTypeKey,
+                                              eventType,
                                               subscribeDialogHandle,
                                               isNew,
                                               isSubscriptionExpired,
-                                              subscribeResponse);
+                                              subscribeResponse,
+                                              handler);
 
    // If that succeeded, update the IMDB.
    if (ret)
