@@ -71,8 +71,8 @@ public class JarMessagesSourceTest extends TestCase {
     
     public void testResolveLocaleNameWithLocale() {
         // test default case for locales which have no label defined
-        Locale frenchLocale = new Locale("fr");
-        assertEqualsNoCase("Français", m_out.resolveLocaleName(frenchLocale));
+        Locale frenchLocale = new Locale("pl");
+        assertEqualsNoCase("Polski", m_out.resolveLocaleName(frenchLocale));
         
         // test for locales that have a label defined in their message source
         Locale canadianFrenchLocale = new Locale("fr", "CA");
@@ -85,7 +85,7 @@ public class JarMessagesSourceTest extends TestCase {
     
     public void testResolveLocaleNameWithStrings() {
         // test default case for locales which have no label defined
-        assertEqualsNoCase("français", m_out.resolveLocaleName("fr"));
+        assertEqualsNoCase("polski", m_out.resolveLocaleName("pl"));
         
         // test for locales that have a label defined in their message source
         assertEqualsNoCase("french (canada)", m_out.resolveLocaleName("fr-CA"));
