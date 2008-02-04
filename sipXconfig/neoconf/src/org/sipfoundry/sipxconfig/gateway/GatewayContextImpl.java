@@ -29,6 +29,8 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class GatewayContextImpl extends HibernateDaoSupport implements GatewayContext,
         BeanFactoryAware {
 
+    private static final String QUERY_GATEWAY_ID_BY_SERIAL_NUMBER = "gatewayIdsWithSerialNumber";
+
     private static class DuplicateNameException extends UserException {
         private static final String ERROR = "A gateway with name \"{0}\" already exists.";
 
@@ -176,5 +178,11 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
             gateway.removePort(port);
         }
         getHibernateTemplate().saveOrUpdate(gateway);
+    }
+
+    public Integer getGatewayIdBySerialNumber(String serialNumber) {
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_GATEWAY_ID_BY_SERIAL_NUMBER, "value", serialNumber);
+        return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_GATEWAY_ID_BY_SERIAL_NUMBER);
     }
 }

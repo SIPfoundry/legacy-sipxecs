@@ -3,6 +3,12 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
+  <bean id="deviceFinder" class="org.sipfoundry.sipxconfig.phone.DeviceFinder">
+	<property name="binDirectory" value="${sysdir.bin}"/>
+	<property name="phoneContext" ref="phoneContext" />
+	<property name="gatewayContext" ref="gatewayContext" />
+  </bean>
+
   <bean id="nakedPhoneModelSource" class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
     <constructor-arg>
       <value>org.sipfoundry.sipxconfig.phone.PhoneModel</value>
@@ -85,4 +91,3 @@
   <bean id="sip" class="org.sipfoundry.sipxconfig.phone.SipServiceImpl" />
   <bean id="line" class="org.sipfoundry.sipxconfig.phone.Line" singleton="false" parent="beanWithSettings" />
 </beans>
-

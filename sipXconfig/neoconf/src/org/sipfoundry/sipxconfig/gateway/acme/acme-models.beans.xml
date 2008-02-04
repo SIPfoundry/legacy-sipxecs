@@ -8,6 +8,7 @@
     <property name="label" value="Acme 1000" />
     <property name="profileTemplate" value="acme/acme-gateway.vm" />
     <property name="modelDir" value="acme" />
+	<property name="vendor" value="acme" />
   </bean>
 
   <bean id="gwAcme" class="org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway" singleton="false" parent="gwGeneric">

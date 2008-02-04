@@ -27,7 +27,7 @@ public interface GatewayContext {
 
     void storeGateway(Gateway gateway);
 
-    void storePort(FxoPort port);    
+    void storePort(FxoPort port);
 
     void clear();
 
@@ -50,4 +50,6 @@ public interface GatewayContext {
     Gateway newGateway(GatewayModel model);
 
     void removePortsFromGateway(Integer gatewayId, Collection<Integer> portIds);
+
+    Integer getGatewayIdBySerialNumber(String serialNumber);
 }

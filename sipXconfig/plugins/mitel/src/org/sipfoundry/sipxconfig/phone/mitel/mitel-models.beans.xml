@@ -8,6 +8,7 @@
     <property name="beanId" value="mitel" />
     <property name="maxLineCount" value="1" />
     <property name="profileTemplate" value="mitel/mn.txt.vm" />
+	<property name="vendor" value="MITEL"/>
   </bean>
   <!-- implementation -->
   <bean id="mitel" class="org.sipfoundry.sipxconfig.phone.mitel.MitelPhone" singleton="false" parent="abstractPhone">

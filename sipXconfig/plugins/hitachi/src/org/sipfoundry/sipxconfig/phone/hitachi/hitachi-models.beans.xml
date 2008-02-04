@@ -13,6 +13,7 @@
         <value>loadrun.ini</value>
       </list>
     </property>
+	<property name="vendor" value="hitachi"/>
   </bean>
 
   <bean id="hitachi3000" parent="hitachiModel">

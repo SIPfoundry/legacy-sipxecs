@@ -15,6 +15,7 @@
         <value>usa_tones_12.dat</value>
       </list>
     </property>
+	<property name="vendor" value="audiocodes"/>
   </bean>
 
   <!-- Audiocodes digital gateways -->
@@ -85,6 +86,7 @@
         <value>usa_tones_12.dat</value>
       </list>
     </property>
+	<property name="vendor" value="audiocodes"/>
   </bean>
 
   <bean id="audiocodesMP112_FXS" parent="audiocodesFxs">

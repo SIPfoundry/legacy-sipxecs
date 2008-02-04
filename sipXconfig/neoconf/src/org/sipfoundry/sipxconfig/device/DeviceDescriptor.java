@@ -16,6 +16,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 public abstract class DeviceDescriptor {
+
     private String m_modelFilePath;
 
     private String m_beanId;
@@ -23,6 +24,8 @@ public abstract class DeviceDescriptor {
     private String m_label;
 
     private String m_modelId;
+
+    private String m_vendor;
 
     /**
      * Directory under 'etc/sipxpbx' directory where model files and templates are kept
@@ -207,5 +210,13 @@ public abstract class DeviceDescriptor {
 
     public void setResources(Resource[] resources) {
         m_resources = resources;
+    }
+
+    public String getVendor() {
+        return m_vendor;
+    }
+
+    public void setVendor(String vendor) {
+        m_vendor = vendor;
     }
 }

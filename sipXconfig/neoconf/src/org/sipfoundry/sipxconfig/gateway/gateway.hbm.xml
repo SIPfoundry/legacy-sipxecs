@@ -59,4 +59,8 @@
   <query name="gatewayIds">
     <![CDATA[select g.id from Gateway g]]>
   </query>
+
+  <query name="gatewayIdsWithSerialNumber">
+    <![CDATA[select g.id from Gateway g where g.serialNumber = :value]]>
+  </query>
 </hibernate-mapping>

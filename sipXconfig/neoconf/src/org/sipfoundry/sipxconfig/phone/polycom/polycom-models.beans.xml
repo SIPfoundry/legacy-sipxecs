@@ -3,7 +3,9 @@
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <bean id="polycomModel" parent="abstractPhoneModel" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel"
-    abstract="true" />
+    abstract="true" >
+	<property name="vendor" value="Polycom"/>
+  </bean>
 
   <bean id="polycom300" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 300/301" />

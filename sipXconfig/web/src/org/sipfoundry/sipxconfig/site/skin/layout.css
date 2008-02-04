@@ -556,7 +556,9 @@ div.auto_complete ul strong.highlight {
 #searchContainer.styled {
     padding: 3px 1px 3px 20px;
     vertical-align: middle;
-}
+
+.width_100_percent {
+  width:100%;
 
 html, body {
   height: 100%;

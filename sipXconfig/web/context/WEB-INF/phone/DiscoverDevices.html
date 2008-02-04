@@ -1,0 +1,61 @@
+<div jwcid="@Border" useDojo="ognl:true">
+  <h2><span key="Title">Discover Devices</span></h2>
+  <span jwcid="@ErrorMsg"/>
+  <div class="help"> 
+    <b><span key="label.quickLinks">Quick Links</span></b>
+    <ul>
+      <li><a jwcid="@PageLink" page="ManagePhones" href="#"><span key="link.phones">Phones</span></a>
+      </li>
+      <li><a jwcid="@PageLink" page="ListGateways" href="#"><span key="link.gateways">Gateways</span></a>
+      </li>
+    </ul>
+  </div>
+  <span jwcid="@If" condition="prop:discoveryExecuted" >
+    <div jwcid="@QuickHelp" value="message:help.about">quick help text...</div>
+  </span>
+  <span jwcid="@If" condition="prop:discovering" >
+    <div jwcid="@QuickHelp" value="message:help.inProgress">quick help text...</div>
+  </span>
+  <form jwcid="targets@Form" delegate="bean:validator" listener="listener:submit">
+    <span jwcid="@If" condition="prop:discoveryNotStarted" >
+      <span key="label.discoveryNotStarted">Discovery not Started</span>
+      <ul class="component-submit">
+        <li>
+          <span jwcid="notStartedDiscover@Submit" selected="prop:action" tag="discover" value="message:label.discover"/>
+        </li>
+      </ul>
+    </span>
+    <span jwcid="@Else">
+      <span jwcid="@If" condition="prop:discovering" >
+        <span key="label.discovering">Discovery in progress</span>
+        <ul class="component-submit">
+          <li>
+            <span jwcid="refresh@Submit" value="message:label.refresh"/>
+          </li>
+        </ul>
+      </span>
+      <span jwcid="@Else">
+        <span jwcid="@If" condition="prop:discoveryFailed" >
+          <span key="label.discoveryFailed">Discovery failed</span>
+          <ul class="component-submit">
+            <li>
+              <span jwcid="failDiscover@Submit" selected="prop:action" tag="discover" value="message:label.discover"/>
+            </li>
+          </ul>
+        </span>
+        <span jwcid="@Else">
+          <span jwcid="@If" condition="prop:discoveryExecuted" >
+            <ul class="component-submit">
+              <li>
+                <span jwcid="targetsTable@phone/DiscoverTable" targets="prop:targets" callback="prop:callback" selections="prop:selections"/> 
+                <span jwcid="@Submit" action="listener:save" value="message:label.save"/>
+	            <span jwcid="@Submit" selected="prop:action" tag="discover" value="message:label.rediscover"/>
+	            <span jwcid="@Submit" selected="prop:action" tag="clear" value="message:label.clear"/>
+              </li>
+            </ul>
+          </span>
+        </span>
+      </span>
+    </span>
+  </form>
+</div>
