@@ -115,3 +115,6 @@ which requires the Perl module DateTime::Format::ISO8601.  You can
 install that by executing:
 
 	sudo cpan install DateTime::Format::ISO8601
+
+On Fedora Core 6, it also requires the perl RPM to be version
+perl-5.8.8-10.el5_0.2 or later.
