@@ -12,6 +12,9 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import java.util.List;
 
 import org.dom4j.Element;
+import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
+import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.Permission;
@@ -20,10 +23,15 @@ import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class Permissions extends DataSetGenerator {
+    private CallGroupContext m_callGroupContext;
 
     /**
-     * Adds <item> <identity>user_uri</identity> <permission>permission_name</permission>
+     * Adds: <code>
+     * <item>
+     *   <identity>user_uri</identity>
+     *   <permission>permission_name</permission>
      * </item>
+     * </code>
      * 
      * to the list of items.
      */
@@ -31,6 +39,11 @@ public class Permissions extends DataSetGenerator {
         String domain = getSipDomain();
         for (SpecialUserType sut : SpecialUserType.values()) {
             addSpecialUser(sut.getUserName(), items, domain);
+        }
+
+        List<CallGroup> callGroups = m_callGroupContext.getCallGroups();
+        for (CallGroup callGroup : callGroups) {
+            addSpecialUser(callGroup.getName(), items, domain);
         }
 
         List<User> users = getCoreContext().loadUsers();
@@ -58,11 +71,6 @@ public class Permissions extends DataSetGenerator {
     }
 
     class PermissionWriter extends AbstractSettingVisitor {
-
-        private static final String PERMISSION_ELEMENT = "permission";
-
-        private static final String IDENTITY_ELEMENT = "identity";
-
         private User m_user;
 
         private Element m_items;
@@ -76,36 +84,33 @@ public class Permissions extends DataSetGenerator {
         }
 
         public void visitSetting(Setting setting) {
-            if (Permission.isEnabled(setting.getValue())) {
-                Element userItem = addItem(m_items);
-                userItem.addElement(IDENTITY_ELEMENT).setText(m_user.getUri(m_domain));
-                userItem.addElement(PERMISSION_ELEMENT).setText(setting.getName());
+            if (!Permission.isEnabled(setting.getValue())) {
+                return;
+            }
+            String name = setting.getName();
+            String uri = m_user.getUri(m_domain);
+            addPermission(uri, name);
 
-                // add special permission for voicemail redirect rule for
-                // xcf-1875
-                if (setting.getName().equals(PermissionName.EXCHANGE_VOICEMAIL.getName())
-                        || setting.getName().equals(PermissionName.SIPX_VOICEMAIL.getName())) {
-                    Element voicemailRedirectItem = addItem(m_items);
-
-                    voicemailRedirectItem.addElement(IDENTITY_ELEMENT).setText(
-                            generateVoicemailRedirectIdentity());
-                    voicemailRedirectItem.addElement(PERMISSION_ELEMENT).setText(
-                            setting.getName());
-                }
+            // add special permission for voicemail redirect rule for xcf-1875
+            if (name.equals(PermissionName.EXCHANGE_VOICEMAIL.getName())
+                    || name.equals(PermissionName.SIPX_VOICEMAIL.getName())) {
+                String vmUri = SipUri.format(null, "~~vm~" + m_user.getName(), m_domain);
+                addPermission(vmUri, name);
             }
         }
 
-        private String generateVoicemailRedirectIdentity() {
-            StringBuffer voicemailRedirectNameBuffer = new StringBuffer("sip:~~vm~");
-            voicemailRedirectNameBuffer.append(m_user.getName());
-            voicemailRedirectNameBuffer.append('@');
-            voicemailRedirectNameBuffer.append(m_domain);
-
-            return voicemailRedirectNameBuffer.toString();
+        private void addPermission(String uri, String permissionName) {
+            Element userItem = addItem(m_items);
+            userItem.addElement("identity").setText(uri);
+            userItem.addElement("permission").setText(permissionName);
         }
     }
 
     protected DataSet getType() {
         return DataSet.PERMISSION;
+    }
+
+    public void setCallGroupContext(CallGroupContext callGroupContext) {
+        m_callGroupContext = callGroupContext;
     }
 }

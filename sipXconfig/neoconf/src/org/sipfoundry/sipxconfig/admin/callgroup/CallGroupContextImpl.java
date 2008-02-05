@@ -131,7 +131,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         }
     }
 
-    public List getCallGroups() {
+    public List<CallGroup> getCallGroups() {
         return getHibernateTemplate().loadAll(CallGroup.class);
     }
 

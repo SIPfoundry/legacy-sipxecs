@@ -2,8 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="sipxServer" class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer"
-    parent="beanWithSettings">
+  <bean id="sipxServer" class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer" parent="beanWithSettings">
     <property name="configDirectory">
       <value>${sysdir.etc}</value>
     </property>
@@ -16,13 +15,14 @@
   <bean id="sipxReplicationContextImpl" abstract="true"
     class="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl">
     <property name="configDirectory" value="${sysdir.etc}" />
-    <property name="replicationManager" ref="replicationManagerImpl"/>
+    <property name="replicationManager" ref="replicationManagerImpl" />
     <property name="jobContext" ref="jobContext" />
   </bean>
-  
-  <bean id="replicationManagerImpl" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl"/>
 
-  <bean id="sipxProcessDefsProcessModel" class="org.sipfoundry.sipxconfig.admin.commserver.ProcessDefinitionsSipxProcessModel">
+  <bean id="replicationManagerImpl" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl" />
+
+  <bean id="sipxProcessDefsProcessModel"
+    class="org.sipfoundry.sipxconfig.admin.commserver.ProcessDefinitionsSipxProcessModel">
     <constructor-arg>
       <value>${sysdir.etc}/process.d</value>
     </constructor-arg>
@@ -35,8 +35,7 @@
     <property name="processModel" ref="sipxProcessDefsProcessModel" />
   </bean>
 
-  <bean id="sipxReplicationContextDao"
-    class="org.springframework.aop.framework.ProxyFactoryBean">
+  <bean id="sipxReplicationContextDao" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="interceptorNames">
       <list>
         <value>readOnlyHibernateInterceptor</value>
@@ -50,8 +49,7 @@
     </property>
   </bean>
 
-  <bean id="sipxReplicationContext"
-    class="org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl"
+  <bean id="sipxReplicationContext" class="org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl"
     init-method="init">
     <property name="target">
       <ref local="sipxReplicationContextDao"></ref>
@@ -65,8 +63,7 @@
 
 
   <!-- list of files and directory in which they are located can be changed in sipxconfig.properties -->
-  <bean id="externalAliases"
-    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases" />
+  <bean id="externalAliases" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases" />
 
   <bean id="aliasCollector" class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
     <property name="aliasProviderBeanIds">
@@ -79,8 +76,8 @@
 
   <bean id="extensionDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Extensions" />
-  <bean id="aliasDataSet" parent="dataSetGenerator"
-    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases" dependency-check="objects">
+  <bean id="aliasDataSet" parent="dataSetGenerator" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases"
+    dependency-check="objects">
     <property name="aliasProvider">
       <ref local="aliasCollector" />
     </property>
@@ -88,21 +85,20 @@
   <bean id="credentialDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Credentials" />
   <bean id="permissionDataSet" parent="dataSetGenerator"
-    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Permissions" />
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Permissions">
+    <property name="callGroupContext" ref="callGroupContext" />
+  </bean>
   <bean id="caller-aliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.CallerAliases">
     <property name="gatewayContext" ref="gatewayContext" />
     <property name="anonymousAlias" value="sip:anonymous@anonymous.invalid" />
   </bean>
 
-  <bean id="replicationTrigger"
-    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
+  <bean id="replicationTrigger" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
     <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="parkOrbitContext" ref="parkOrbitContext" />
     <property name="speedDialManager" ref="speedDialManager" />
   </bean>
 
-  <bean id="registrationContext"
-    class="org.sipfoundry.sipxconfig.admin.commserver.RegistrationContextImpl">
-  </bean>
+  <bean id="registrationContext" class="org.sipfoundry.sipxconfig.admin.commserver.RegistrationContextImpl"></bean>
 </beans>

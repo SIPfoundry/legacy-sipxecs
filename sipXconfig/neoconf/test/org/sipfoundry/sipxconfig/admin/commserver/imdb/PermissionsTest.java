@@ -9,21 +9,27 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
+import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
+import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class PermissionsTest extends XMLTestCase {
 
@@ -34,18 +40,23 @@ public class PermissionsTest extends XMLTestCase {
         User testUser = new User();
         testUser.setPermissionManager(pm);
 
-        IMocksControl control = EasyMock.createControl();
-        CoreContext coreContext = control.createMock(CoreContext.class);
+        CoreContext coreContext = createMock(CoreContext.class);
         coreContext.getDomainName();
-        control.andReturn("host.company.com");
+        expectLastCall().andReturn("host.company.com");
         coreContext.loadUsers();
-        control.andReturn(Collections.EMPTY_LIST);
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
         coreContext.newUser();
-        control.andReturn(testUser).anyTimes();
-        control.replay();
+        expectLastCall().andReturn(testUser).anyTimes();
+
+        CallGroupContext callGroupContext = createMock(CallGroupContext.class);
+        callGroupContext.getCallGroups();
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
+
+        replay(coreContext, callGroupContext);
 
         Permissions permissions = new Permissions();
         permissions.setCoreContext(coreContext);
+        permissions.setCallGroupContext(callGroupContext);
 
         Document document = permissions.generate();
 
@@ -65,7 +76,54 @@ public class PermissionsTest extends XMLTestCase {
         assertXpathEvaluatesTo("sip:~~id~acd@host.company.com", "/items/item[15]/identity",
                 domDoc);
         assertXpathNotExists("/items/item[16]", domDoc);
-        control.verify();
+
+        verify(coreContext, callGroupContext);
+    }
+
+    public void testCallGroupPerms() throws Exception {
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+
+        User testUser = new User();
+        testUser.setPermissionManager(pm);
+
+        CoreContext coreContext = createMock(CoreContext.class);
+        coreContext.getDomainName();
+        expectLastCall().andReturn("host.company.com");
+        coreContext.loadUsers();
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
+        coreContext.newUser();
+        expectLastCall().andReturn(testUser).anyTimes();
+
+        CallGroup callGroup1 = new CallGroup();
+        callGroup1.setName("sales");
+        CallGroup callGroup2 = new CallGroup();
+        callGroup2.setName("marketing");
+
+        CallGroupContext callGroupContext = createMock(CallGroupContext.class);
+        callGroupContext.getCallGroups();
+        expectLastCall().andReturn(Arrays.asList(callGroup1, callGroup2));
+
+        replay(coreContext, callGroupContext);
+
+        Permissions permissions = new Permissions();
+        permissions.setCoreContext(coreContext);
+        permissions.setCallGroupContext(callGroupContext);
+
+        Document document = permissions.generate();
+
+        org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
+
+        // 5 permissions per special user - 3 special users == 15
+        assertXpathExists("/items/item[16]", domDoc);
+        assertXpathEvaluatesTo("sip:sales@host.company.com", "/items/item[16]/identity", domDoc);
+        assertXpathEvaluatesTo("sip:sales@host.company.com", "/items/item[20]/identity", domDoc);
+        assertXpathEvaluatesTo("sip:marketing@host.company.com", "/items/item[21]/identity",
+                domDoc);
+        assertXpathEvaluatesTo("sip:marketing@host.company.com", "/items/item[25]/identity",
+                domDoc);
+
+        verify(coreContext, callGroupContext);
     }
 
     public void testAddUser() throws Exception {

@@ -22,7 +22,7 @@ public interface CallGroupContext extends AliasOwner, AliasProvider {
 
     CallGroup loadCallGroup(Integer id);
 
-    List getCallGroups();
+    List<CallGroup> getCallGroups();
 
     void storeCallGroup(CallGroup callGroup);
 
