@@ -54,6 +54,7 @@ public abstract class EditPersonalAttendant extends PageWithCallback implements 
     public abstract User getUser();
     public abstract void setUser(User user);
     
+    @Persist
     public abstract PersonalAttendant getPersonalAttendant();
     public abstract void setPersonalAttendant(PersonalAttendant personalAttendant);
     
@@ -64,14 +65,17 @@ public abstract class EditPersonalAttendant extends PageWithCallback implements 
         if (getLanguageList() == null) {
             initLanguageList();
         }
+
         if (getUser() == null) {
             User user = getCoreContext().loadUser(getUserId());
             setUser(user);
             
             Setting personalAttendantSetting = user.getSettings().getSetting("personal-attendant");
             setParentSetting(personalAttendantSetting);
-            
-            PersonalAttendant attendant = getMailboxManager().loadPersonalAttendantForUser(user);
+        }
+
+        if (getPersonalAttendant() == null || !getPersonalAttendant().getUser().equals(getUser())) {
+            PersonalAttendant attendant = getMailboxManager().loadPersonalAttendantForUser(getUser());
             setPersonalAttendant(attendant);
         }
     }

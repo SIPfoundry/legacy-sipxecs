@@ -28,8 +28,14 @@
         </tr>
       </table>
     </fieldset>
+    
+    <fieldset jwcid="@dialplan/AttendantMenuPanel" 
+      menu="ognl:personalAttendant.menu"
+      minKey="1"
+      maxKey="9"
+      extensionOnly="ognl:true" />
+
     <ul jwcid="@FormActions" callback="prop:callback" listener="listener:commit"/>
   </form>
 </div> 
-
 
