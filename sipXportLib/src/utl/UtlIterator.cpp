@@ -32,6 +32,13 @@
 
 UtlIterator::UtlIterator(const UtlContainer& container)
    : mContainerRefLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
+     // This const_cast is a cheat, because UtlIterator can be used to iterate
+     // over const UtlContainer's as well as UtlContainer's, and we leave it to
+     // the user to not use the iterator to modify the underlying container
+     // if the iterator was created with a const UtlContainer.
+     // In a perfect world, there would be UtlIteratorConst separate from
+     // UtlIterator, and UtlIteratorConst would not allow modifying the
+     // underlying UtlContainer.
      mpMyContainer(const_cast<UtlContainer*>(&container))
 {
 }
