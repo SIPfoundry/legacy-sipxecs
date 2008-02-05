@@ -41,7 +41,7 @@ public abstract class EditPersonalAttendant extends PageWithCallback implements 
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
     
-    @InjectObject(value = "service:sipxconfig:JarMessageSource")
+    @InjectObject(value = "spring:jarMessagesSource")
     public abstract LanguageSupport getLanguageSupport();
     
     @Persist
@@ -87,7 +87,7 @@ public abstract class EditPersonalAttendant extends PageWithCallback implements 
         for (int i = 0; i < languages.length; i++) {
             localizedLocales[i] = getLanguageSupport().resolveLocaleName(languages[i]);
         }
-        IPropertySelectionModel model = new ModelWithDefaults(getMessages(), localizedLocales);
+        IPropertySelectionModel model = new ModelWithDefaults(null, localizedLocales);
         setLanguageList(model);    
     }
 }
