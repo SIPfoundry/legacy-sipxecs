@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.phone.nortel;
 
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -20,6 +21,8 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
  * Nortel phone.
  */
 public class NortelPhone extends Phone {
+
+    private static final String NORTEL_FORCE_CONFIG = "nortel/11xxeSIP.cfg";
 
     public NortelPhone() {
     }
@@ -61,12 +64,19 @@ public class NortelPhone extends Phone {
         sendCheckSyncToFirstLine();
     }
 
+    protected void copyFiles(ProfileLocation location) {
+        super.copyFiles(location);
+        getProfileGenerator().copy(location, NORTEL_FORCE_CONFIG, "1120eSIP.cfg");
+        getProfileGenerator().copy(location, NORTEL_FORCE_CONFIG, "1140eSIP.cfg");
+    }
+
     public static class NortelPhoneDefaults {
 
         private static final String NETWORK_DNS_DOMAIN = "NETWORK/DNS_DOMAIN";
         private static final String VOIP_SIP_DOMAIN1 = "VOIP/SIP_DOMAIN1";
         private static final String VOIP_SERVER_IP1_1 = "VOIP/SERVER_IP1_1";
         private static final String VOIP_SERVER_PORT1_1 = "VOIP/SERVER_PORT1_1";
+        private static final String VOIP_SERVER_IP1_2 = "VOIP/SERVER_IP1_2";
         private static final String VOIP_DEF_USER1 = "VOIP/DEF_USER1";
         private static final String VM_VMAIL = "VM/VMAIL";
 
@@ -83,7 +93,7 @@ public class NortelPhone extends Phone {
             return m_defaults.getDomainName();
         }
 
-        @SettingEntry(path = VOIP_SERVER_IP1_1)
+        @SettingEntry(paths = { VOIP_SERVER_IP1_1, VOIP_SERVER_IP1_2 })
         public String getServerIp() {
             return m_defaults.getProxyServerAddr();
         }

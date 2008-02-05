@@ -4,10 +4,5 @@
 <model>
   <group name='VOIP'>
     <setting name='DEF_USER1' />
-    <setting name="SERVER_IP1_1">
-    </setting>
-    <setting name='SERVER_PORT1_1' advanced="yes">
-      <value>5060</value>
-    </setting>
   </group>
 </model>

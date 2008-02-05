@@ -160,6 +160,10 @@
   </group>
   <group name='VOIP'>
     <setting name="SIP_DOMAIN1"></setting>
+    <setting name="SERVER_IP1_1"></setting>
+    <setting name="SERVER_PORT1_1">
+      <value>5060</value>
+    </setting>
     <setting name="SIP_DOMAIN2" advanced="yes">
       <value></value>
     </setting>
