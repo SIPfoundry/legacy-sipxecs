@@ -43,7 +43,9 @@ public class Permissions extends DataSetGenerator {
 
         List<CallGroup> callGroups = m_callGroupContext.getCallGroups();
         for (CallGroup callGroup : callGroups) {
-            addSpecialUser(callGroup.getName(), items, domain);
+            if (callGroup.isEnabled()) {
+                addSpecialUser(callGroup.getName(), items, domain);
+            }
         }
 
         List<User> users = getCoreContext().loadUsers();

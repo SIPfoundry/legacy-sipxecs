@@ -83,7 +83,9 @@
     </property>
   </bean>
   <bean id="credentialDataSet" parent="dataSetGenerator"
-    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Credentials" />
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Credentials">
+    <property name="callGroupContext" ref="callGroupContext" />
+  </bean>
   <bean id="permissionDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Permissions">
     <property name="callGroupContext" ref="callGroupContext" />

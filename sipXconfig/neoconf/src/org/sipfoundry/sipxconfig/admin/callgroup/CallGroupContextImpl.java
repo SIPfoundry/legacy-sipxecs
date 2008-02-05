@@ -55,7 +55,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
     }
-    
+
     public void setAcdContext(AcdContext acdContext) {
         m_acdContext = acdContext;
     }
@@ -85,11 +85,10 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         if (ids.isEmpty()) {
             return;
         }
-        
+
         m_acdContext.removeOverflowSettings(ids, AcdQueue.HUNTGROUP_TYPE);
-        removeAll(CallGroup.class, ids);            
-        
-        
+        removeAll(CallGroup.class, ids);
+
         // activate call groups every time the call group is removed
         activateCallGroups();
     }
@@ -165,6 +164,8 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
      */
     public void activateCallGroups() {
         m_replicationContext.generate(DataSet.ALIAS);
+        m_replicationContext.generate(DataSet.PERMISSION);
+        m_replicationContext.generate(DataSet.CREDENTIAL);
     }
 
     /**
@@ -188,7 +189,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
                 QUERY_CALL_GROUP_IDS_WITH_ALIAS, VALUE, alias);
         return SipxCollectionUtils.safeSize(objs) > 0;
     }
-    
+
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         List ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_CALL_GROUP_IDS_WITH_ALIAS, VALUE, alias);
@@ -204,5 +205,17 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
             callGroup.insertRingForUser(user);
         }
         storeCallGroup(callGroup);
+    }
+
+    public void generateSipPasswords() {
+        List<CallGroup> callGroups = getCallGroups();
+        List<CallGroup> changed = new ArrayList<CallGroup>();
+        for (CallGroup callGroup : callGroups) {
+            if (callGroup.generateSipPassword()) {
+                changed.add(callGroup);
+            }
+        }
+        // no need to trigger replication - do not use storeCallGroup
+        getHibernateTemplate().saveOrUpdateAll(changed);
     }
 }

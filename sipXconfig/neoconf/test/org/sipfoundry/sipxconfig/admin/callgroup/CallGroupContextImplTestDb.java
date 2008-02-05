@@ -50,6 +50,17 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         assertFalse(callGroup.getUserForward());
     }
 
+    public void testGenerateSipPassword() throws Exception {
+        CallGroup callGroup = m_context.loadCallGroup(new Integer(1001));
+        assertNull(callGroup.getSipPassword());
+        m_context.generateSipPasswords();
+        callGroup = m_context.loadCallGroup(new Integer(1001));
+        assertTrue(callGroup.getSipPasswordHash("realm").length() > 0);
+        callGroup = m_context.loadCallGroup(new Integer(1001));
+        assertTrue(callGroup.getSipPassword().length() > 0);
+        assertTrue(callGroup.getSipPasswordHash("realm").length() > 0);
+    }
+
     public void testGetCallGroups() throws Exception {
         List callGroups = m_context.getCallGroups();
         assertEquals(2, callGroups.size());

@@ -253,6 +253,7 @@
   </target>
 
   <target name="version7" description="upgrade from version 6" unless="version8">
+    <antcall target="callgroup-credentials" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -578,6 +579,11 @@
       delete from localization where region = 'region_na';
     </sipx-sql>
     <mark-patch-applied patch="localization-fix" />
+  </target>
+
+  <!-- Version 7 patches -->
+  <target name="callgroup-credentials" unless="callgroup-credentials">
+    <db-patch patch="callgroup-credentials"/>
   </target>
 
   <!-- 

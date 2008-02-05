@@ -97,12 +97,16 @@ public class PermissionsTest extends XMLTestCase {
 
         CallGroup callGroup1 = new CallGroup();
         callGroup1.setName("sales");
+        callGroup1.setEnabled(true);
         CallGroup callGroup2 = new CallGroup();
         callGroup2.setName("marketing");
+        callGroup2.setEnabled(true);
+        CallGroup callGroup3 = new CallGroup();
+        callGroup3.setName("disabled");
 
         CallGroupContext callGroupContext = createMock(CallGroupContext.class);
         callGroupContext.getCallGroups();
-        expectLastCall().andReturn(Arrays.asList(callGroup1, callGroup2));
+        expectLastCall().andReturn(Arrays.asList(callGroup1, callGroup2, callGroup3));
 
         replay(coreContext, callGroupContext);
 

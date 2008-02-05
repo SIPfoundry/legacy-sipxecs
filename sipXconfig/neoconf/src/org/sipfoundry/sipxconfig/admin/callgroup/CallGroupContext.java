@@ -35,4 +35,6 @@ public interface CallGroupContext extends AliasOwner, AliasProvider {
     void addUsersToCallGroup(Integer callGroupId, Collection ids);
 
     void clear();
+
+    void generateSipPasswords();
 }

@@ -14,15 +14,19 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class CallGroup extends AbstractCallSequence implements NamedObject {
+    private static final int SIP_PASSWORD_LEN = 10;
+
     private boolean m_enabled;
     private String m_name;
     private String m_extension;
@@ -30,9 +34,10 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
     private String m_fallbackDestination;
     private boolean m_voicemailFallback = true;
     private boolean m_userForward = true;
+    private String m_sipPassword;
 
     public CallGroup() {
-        // bean usage only
+        generateSipPassword();
     }
 
     /**
@@ -61,9 +66,11 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
     public String getExtension() {
         return m_extension;
     }
+
     public String calculateUri(String domainName) {
         return SipUri.format(getName(), domainName, false);
     }
+
     public void setExtension(String extension) {
         m_extension = extension;
     }
@@ -106,6 +113,14 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
 
     public void setUserForward(boolean userForward) {
         m_userForward = userForward;
+    }
+
+    public String getSipPassword() {
+        return m_sipPassword;
+    }
+
+    public void setSipPassword(String sipPassword) {
+        m_sipPassword = sipPassword;
     }
 
     /**
@@ -172,5 +187,24 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
             aliases.add(extensionAlias);
         }
         return aliases;
+    }
+
+    public String getSipPasswordHash(String realm) {
+        String password = StringUtils.defaultString(m_sipPassword);
+        return Md5Encoder.digestPassword(m_name, realm, password);
+    }
+
+    /**
+     * Generates a new SIP password for the call group. If the password already exist this method
+     * does not change it.
+     * 
+     * @return true is the passwors has been generated/changed
+     */
+    public boolean generateSipPassword() {
+        if (StringUtils.isNotEmpty(m_sipPassword)) {
+            return false;
+        }
+        m_sipPassword = RandomStringUtils.randomAlphanumeric(SIP_PASSWORD_LEN);
+        return true;
     }
 }
