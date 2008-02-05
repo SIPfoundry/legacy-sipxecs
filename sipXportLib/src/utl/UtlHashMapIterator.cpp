@@ -178,7 +178,7 @@ UtlContainable* UtlHashMapIterator::value() const
    UtlContainable* currentValue = NULL;
    
    UtlContainer::acquireIteratorConnectionLock();
-   OsLock take(const_cast<OsBSem&>(mContainerRefLock));
+   OsLock take(mContainerRefLock);
    UtlHashMap* myHashMap = dynamic_cast<UtlHashMap*>(mpMyContainer);
    if (myHashMap)
    {
