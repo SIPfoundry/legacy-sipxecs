@@ -29,11 +29,3 @@ missingok
         /bin/kill -USR1 `cat @SIPX_RUNDIR@/httpd.pid 2>/dev/null` 2> /dev/null || true
     endscript
 }
-
-# Get rid of core files older than 10 days
-@SIPX_LOGDIR@/core.[0-9]* {
-   compress
-   maxage 10
-   nosharedscripts
-   rotate 0
-}
