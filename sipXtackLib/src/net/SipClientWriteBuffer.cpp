@@ -138,7 +138,11 @@ void SipClientWriteBuffer::insertMessage(SipMessage* message)
 // Executed by the thread.
 void SipClientWriteBuffer::writeMore()
 {
-   while (mWriteQueued)
+   // 'exit_loop' will be set to TRUE if an attempt to write does
+   // not write any bytes, and we will then return.
+   UtlBoolean exit_loop = FALSE;
+
+   while (mWriteQueued && !exit_loop)
    {
       if (mWritePointer >= mWriteString.length())
       {
@@ -170,18 +174,22 @@ void SipClientWriteBuffer::writeMore()
          int length = mWriteString.length() - mWritePointer;
 
          // ret is the value returned from write attempt.
-         // 0 means an error was seen.
+         // -1 means an error was seen.
          int ret;
          if (clientSocket->isOk())
          {
             // Write what we can.
             ret = clientSocket->write(mWriteString.data() + mWritePointer,
                                       length, 0L /* nonblocking */);
+            // Theoretically, ret > 0, since the socket is ready for writing,
+            // but it appears that that ret can be 0.
          }
          else
          {
             // Record the error.
-            ret = 0;
+            ret = -1;
+            // Set a special errno value, which hopefully is not a real value.
+            errno = 1000;
          }
 
          if (ret > 0)
@@ -193,14 +201,26 @@ void SipClientWriteBuffer::writeMore()
             // Update the state variables.
             mWritePointer += ret;
          }
+         else if (ret == 0)
+         {
+            // No data sent, even though (in our caller) poll()
+            // reported the socket was ready to write.
+            exit_loop = TRUE;
+         }
          else
          {
             // Error while writing.
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "SipClientWriteBuffer[%s]::writeMore "
+                          "OsSocket::write() returned %d, errno = %d",
+                          getName().data(), ret, errno);
             // Return all buffered messages with a transport error indication.
             emptyBuffer();
             // Because TCP is a connection protocol, we know that we cannot
             // send successfully any more and so should shut down this client.
             clientStopSelf();
+            // Exit the loop so handleMessage() can process the stop request.
+            exit_loop = TRUE;
          }
       }
    }
