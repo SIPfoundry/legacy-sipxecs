@@ -176,7 +176,7 @@ fi
 @BASH@ -p @SERVICEDIR@/sipxpbx stop
 
 # *** BEGIN Configuration ***
-PATH_DB_TAR=@SIPX_BACKUPDIR@/$DB_TAR
+PATH_DB_TAR=@SIPX_TMPDIR@/$DB_TAR
 if [ -n "$CONFIGURATION_PATH" ]
 then
 
@@ -199,7 +199,7 @@ then
 
   $DROPDB -U @POSTGRESQL_USER@ $CONFIG_DATABASE_NAME > /dev/null
   $CREATEDB -U @POSTGRESQL_USER@ --encoding=UNICODE $CONFIG_DATABASE_NAME > /dev/null
-  tar -xzvC @SIPX_BACKUPDIR@ $DB_TAR < $CONFIGURATION_PATH
+  tar -xzvC @SIPX_TMPDIR@ $DB_TAR < $CONFIGURATION_PATH
   cat $PATH_DB_TAR | pg_restore -U @POSTGRESQL_USER@ -d $CONFIG_DATABASE_NAME 2> /dev/null
   rm $PATH_DB_TAR
   echo "done."
