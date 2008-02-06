@@ -34,7 +34,8 @@ AC_TARGETS = \
 	ruby-gems \
 	ruby-postgres \
 	w3c-libwww \
-	xerces-c
+	xerces-c \
+	rrdtool
 
 .PHONY: $(AC_TARGETS)
 $(AC_TARGETS) : 
@@ -42,7 +43,7 @@ $(AC_TARGETS) :
 	$(MAKE) $@.bld
 
 # required on all platforms
-CUSTOM_PACKAGES = cgicc ruby-dbi $(JAVA_PKG)
+CUSTOM_PACKAGES = cgicc ruby-dbi $(JAVA_PKG) rrdtools
 
 .PHONY: fc6 fc7 fc8
 fc7 fc8 fc6 : $(CUSTOM_PACKAGES)
