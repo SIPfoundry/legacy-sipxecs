@@ -376,7 +376,7 @@ UtlBoolean SipPersistentSubscriptionMgr::getNotifyDialogInfo(
       SipDialog::parseHandle(subscribeDialogHandle.data(),
                              callId, localTag, remoteTag);
       // It's not clear why the localTag is the from-tag of the original SUBSCRIBE,
-      // but it is, and that's what we need to feed to updateFronAndTo.
+      // but it is, and that's what we need to feed to updateFromAndTo.
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipPersistentSubscriptionMgr::getNotifyDialogInfo "
                     "subscribeDialogHandle = '%s', localTag = '%s', from = '%s', to = '%s'",

@@ -473,6 +473,10 @@ SubscriptionDB::insertRow (
         }
         else
         {
+            OsSysLog::add(FAC_DB, PRI_DEBUG,
+                          "SubscriptionDB::insertRow inserting notifycseq for '%s' to: %d",
+                          callid.data(), notifyCseq);
+
             // Insert new row
             SubscriptionRow row;
             row.component = component;
@@ -894,7 +898,9 @@ SubscriptionDB::updateNotifyUnexpiredSubscription (
                    // Update the XML internal version number.
                    cursor->version = version;
                    cursor.update();
-                   OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateNotifyUnexpiredSubscription updating notifycseq to: %d", updatedNotifyCseq);
+                   OsSysLog::add(FAC_DB, PRI_DEBUG,
+                                 "SubscriptionDB::updateNotifyUnexpiredSubscription updating notifycseq for '%s' to: %d",
+                                 callid.data(), updatedNotifyCseq);
                 }
 
                 // Next replaced with nextAvailable - better when 

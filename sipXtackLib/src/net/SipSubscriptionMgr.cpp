@@ -704,6 +704,13 @@ UtlBoolean SipSubscriptionMgr::getNotifyDialogInfo(const UtlString& subscribeDia
                 expires);
         notifyRequest.setHeaderValue(SIP_SUBSCRIPTION_STATE_FIELD, buffer, 0);
     }
+    else
+    {
+       OsSysLog::add(FAC_SIP, PRI_ERR,
+                     "SipSubscriptionMgr::getNotifyDialogInfo No subscription state found for handle '%s'",
+                     subscribeDialogHandle.data());
+    }
+
     unlock();
 
     return(notifyInfoSet);
@@ -789,7 +796,7 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
                                                        // This is a SubscriptionServerStateIndex,
                                                        // whose superclass UtlString contains
                                                        // the dialog handle for the subscription.
-                                                       *(subscriptionIndex->mpState));
+                                                       static_cast <const UtlString> (*(subscriptionIndex->mpState)));
 
                 // Set the event header, if we know what it is.
                 UtlString eventHeader;

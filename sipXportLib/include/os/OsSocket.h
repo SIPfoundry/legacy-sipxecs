@@ -180,6 +180,7 @@ public:
    //!returns: The number of bytes actually written to the socket.
    //!returns: <br>Note: This does not necessarily mean that the bytes were
    //!returns: actually received on the other end.
+   //!returns: -1 is returned to indicate error, and errno is set.
 
    virtual int write(const char* buffer, int bufferLength, long waitMilliseconds);
    //:Non-blocking or limited blocking write to socket

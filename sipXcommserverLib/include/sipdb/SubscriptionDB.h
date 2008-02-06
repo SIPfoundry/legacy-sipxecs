@@ -111,6 +111,8 @@ public:
         const int& timeNow,
         ResultSet& rResultSet );
 
+    // Updates the XML version ('version') and NOTIFY cseq ('updatedNotifyCseq')
+    // in the subscription DB.
     // Does not have event and event-id parameters, because all subscriptions
     // in a dialog share the same CSeq value.
     void updateNotifyUnexpiredSubscription (

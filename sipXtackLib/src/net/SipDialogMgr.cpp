@@ -149,7 +149,7 @@ UtlBoolean SipDialogMgr::setNextLocalTransactionInfo(SipMessage& request,
                                    FALSE, // If established only want exact match dialogs
                                    TRUE); // If message is from a prior transaction
                                           // when the dialog was in an early state
-                                          // allow it to match and established
+                                          // allow it to match an established
                                           // dialog
     if(dialog)
     {
