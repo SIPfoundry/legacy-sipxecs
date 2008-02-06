@@ -14,6 +14,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImplTest;
 import org.sipfoundry.sipxconfig.test.TestUtil;
@@ -46,9 +47,6 @@ public class MonitoringContextImplTest extends TestCase {
         m_monitoringContextImpl.setMrtgTemplateConfig(m_mrtgTemplateConfig);
         try {
             m_monitoringContextImpl.afterPropertiesSet();
-        } catch (StringIndexOutOfBoundsException knownBug) {
-            // either test files are bad or assumption every id in mrtg.cfg
-            // contains an underscore it wrong
         } catch (Exception ex) {
             fail("could not initialize monitoring context");
         }
@@ -126,6 +124,29 @@ public class MonitoringContextImplTest extends TestCase {
                 .getMRTGTarget("Currently Established TCP Connections", "localhost").getTitle());
         assertEquals("Free Memory", m_monitoringContextImpl.getMRTGTarget("Free Memory",
                 "192.168.0.27").getTitle());
+    }
+
+    public void testIntializeConfigFiles() throws Exception {
+        // This exposes XCF-2189
+        m_mrtgConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/"
+                + "mrtg.cfg.test");
+        m_monitoringContextImpl.setMrtgConfig(m_mrtgConfig);
+        m_monitoringContextImpl.afterPropertiesSet();
+    }
+
+    public void testIntializeConfigFiles2() throws Exception {
+        // If a target doesn't have underscore, it's not valid, so it should be eliminated
+        InputStream mrtg_cfg = MonitoringContextImpl.class.getResourceAsStream("mrtg.cfg.test2");
+        TestHelper.copyStreamToDirectory(mrtg_cfg, TestHelper.getTestDirectory(),"mrtg.cfg.test2");
+        m_mrtgConfig = new MRTGConfig(TestHelper.getTestDirectory() + "/"
+                + "mrtg.cfg.test2");
+        m_mrtgRrdConfig = new MRTGConfig(TestHelper.getTestDirectory() + "/"
+                + "mrtg-rrd.cfg");
+        m_monitoringContextImpl.setMrtgConfig(m_mrtgConfig);
+        m_monitoringContextImpl.setMrtgRrdConfig(m_mrtgRrdConfig);
+        m_monitoringContextImpl.afterPropertiesSet();
+        // should not have any targets => no hosts
+        assertEquals(0, m_monitoringContextImpl.getHosts().size());
     }
 
     // TODO: a complex test will be to add the .rrd file and to check if the .pngs were created

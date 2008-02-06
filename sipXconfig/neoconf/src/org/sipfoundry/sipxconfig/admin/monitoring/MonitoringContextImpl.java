@@ -312,12 +312,19 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
         boolean shouldWriteConfigFile = false;
 
         for (MRTGTarget configuredTarget : m_mrtgConfig.getTargets()) {
-            if (!templateTargetIds.contains(configuredTarget.getId().substring(0,
-                    configuredTarget.getId().indexOf(MonitoringUtil.UNDERSCORE)))) {
-                // target to delete
-                shouldWriteConfigFile = true;
+            String configuredTargetId = configuredTarget.getId();
+            int indexOfUnderscore = configuredTargetId.indexOf(MonitoringUtil.UNDERSCORE);
+
+            if (indexOfUnderscore != -1) {
+                if (!templateTargetIds.contains(configuredTargetId.substring(0, indexOfUnderscore))) {
+                    // target to delete
+                    shouldWriteConfigFile = true;
+                } else {
+                    targetsToWrite.add(configuredTarget);
+                }
             } else {
-                targetsToWrite.add(configuredTarget);
+                // if the target doesn't contain underscore => target to delete
+                shouldWriteConfigFile = true;
             }
         }
 

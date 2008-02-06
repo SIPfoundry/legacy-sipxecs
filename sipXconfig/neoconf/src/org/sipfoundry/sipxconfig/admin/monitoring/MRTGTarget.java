@@ -179,12 +179,16 @@ public class MRTGTarget implements PrimaryKeySource {
     }
 
     public void setMaxBytes(String maxBytesString) {
+        // don't even try to parse it if the string is empty
+        if (StringUtils.isEmpty(maxBytesString)) {
+            return;
+        }
         try {
             long value = Long.parseLong(maxBytesString);
             if (value > 0 && value < Integer.MAX_VALUE) {
                 setMaxBytes(value);
             }
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             // ignore max bytes if not valid number.
             LOG.warn(e);
         }
@@ -201,9 +205,13 @@ public class MRTGTarget implements PrimaryKeySource {
     }
 
     public void setFactor(String factorString) {
+        if (StringUtils.isEmpty(factorString)) {
+            // don't even try to parse it if the string is empty
+            return;
+        }
         try {
             m_factor = Integer.parseInt(factorString);
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             // ignore max bytes if not valid number.
             LOG.warn(e);
         }

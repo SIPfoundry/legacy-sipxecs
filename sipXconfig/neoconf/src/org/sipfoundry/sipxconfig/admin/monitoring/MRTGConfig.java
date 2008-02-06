@@ -61,13 +61,13 @@ public class MRTGConfig {
     /**
      * @deprecated - only used from spring configuration
      */
-    public MRTGConfig() {        
+    public MRTGConfig() {
     }
 
     public MRTGConfig(String cfgFileName) {
         m_filename = cfgFileName;
     }
-    
+
     public void setFilename(String filename) {
         m_filename = filename;
     }
@@ -84,7 +84,7 @@ public class MRTGConfig {
         return StringUtils.trim(StringUtils.substringAfter(line, MonitoringUtil.COLON));
     }
 
-    private String parseSimpleEntry(String line) throws Exception {
+    private String parseSimpleEntry(String line) {
         String entry = StringUtils.trim(StringUtils.substringAfterLast(line, ":"));
         if (entry != null) {
             return entry;
@@ -130,7 +130,7 @@ public class MRTGConfig {
         }
     }
 
-    public void parseConfig() throws Exception {
+    public void parseConfig() throws IOException {
         m_targets.clear();
         m_mibs.clear();
         m_hosts.clear();
@@ -139,8 +139,10 @@ public class MRTGConfig {
         for (String line = reader.readLine(); line != null; line = reader.readLine()) {
             if (line.startsWith("#target-group") || line.startsWith("# target-group")) {
                 currentTargetGroup = StringUtils.substringAfterLast(line, "=");
-            }
-            if (line.startsWith(WORK_DIR_TOKEN)) {
+            } else if (line.trim().startsWith(POUND)) {
+                // this is a comment, ignore the contents of this line
+                continue;
+            } else if (line.startsWith(WORK_DIR_TOKEN)) {
                 setWorkingDir(parseSimpleEntry(line));
             } else if (line.startsWith(IPV6_TOKEN)) {
                 setIPV6(parseSimpleEntry(line));
@@ -355,5 +357,4 @@ public class MRTGConfig {
         }
         return true;
     }
-
 }

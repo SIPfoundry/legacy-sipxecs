@@ -95,6 +95,23 @@ public class MRTGConfigTest extends TestCase {
         assertFalse(tcpConnections.perMinute());
     }
 
+    public void testGetMRTGConfigTargets2() {
+        m_mrtgConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/"
+                + "mrtg.cfg.test");
+
+        try {
+            m_mrtgConfig.parseConfig();
+            m_mrtgConfig.setWorkingDir("/mrtg");
+        } catch (Exception ex) {
+            // could not initialize monitoring context, tests will fail
+        }
+        assertEquals(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg.test", m_mrtgConfig
+                .getFilename());
+        assertEquals(0, m_mrtgConfig.getTargets().size());
+        //MRTGTarget theTarget = m_mrtgConfig.getTargets().get(0);
+        //assertEquals("", theTarget.getId().substring(0, theTarget.getId().indexOf("_")));
+    }
+
     public void testGetMRTGConfigHosts() {
         assertEquals(2, m_mrtgConfig.getHosts().size());
         List<String> hosts = m_mrtgConfig.getHosts();

@@ -1,0 +1,4 @@
+Target[r1]: 2:public@myrouter.somplace.edu
+MaxBytes[r1]: 1250000
+Title[r1]: Traffic Analysis
+PageTop[r1]: <H1>Stats for our Ethernet</H1>
