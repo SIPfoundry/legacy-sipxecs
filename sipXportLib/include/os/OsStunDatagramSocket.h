@@ -80,8 +80,9 @@ public:
      *        to bind on.
      * @param bEnableStun Enable stun for this socket instance.
      * @param szStunServer Default stun server
-     * @param iRefreshPeriodInSecs How often to refresh the stun binding 
+     * @param iRefreshPeriodInSec How often to refresh the stun binding 
      *        (keep alive).
+     * @param iStunOptions Optional bitwise-or of STUN_CHANGE_* symbols.
      * @param pNotification Optional notification event that is signaled upon
      *        the initial successful stun response or on failure (did not 
      *        receive a stun response within (STUN_ABORT_THRESHOLD * 
@@ -192,7 +193,7 @@ public:
      * Read a STUN packet from the socket.  All non-STUN traffic will be discarded.
      *
      * @param buffer Buffer to place stun packet
-     * @param bufferLenght Lenth of buffer in bytes
+     * @param bufferLength Lenth of buffer in bytes
      * @param rTimeout How long to wait for a stun packet/response.   The
      *        STUN_TIMEOUT_RESPONSE_MS timeout is recommended.
      */

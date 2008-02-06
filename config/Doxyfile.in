@@ -553,7 +553,6 @@ DOT_PATH              =
 
 TEMPLATE_RELATIONS = YES
 MAX_DOT_GRAPH_DEPTH = 1
-DOT_GRAPH_MAX_NODES = 0
 DOT_MULTI_TARGETS = YES
 
 #---------------------------------------------------------------------------
