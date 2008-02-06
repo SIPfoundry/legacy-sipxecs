@@ -62,7 +62,7 @@ public class Credentials extends DataSetGenerator {
         }
     }
 
-    void addUser(Element items, User user, String domainName, String realm) {
+    protected void addUser(Element items, User user, String domainName, String realm) {
         String uri = user.getUri(domainName);
         String sipPasswordHash = user.getSipPasswordHash(realm);
         addCredentialsItem(items, uri, user.getUserName(), sipPasswordHash, user.getPintoken(),
