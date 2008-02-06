@@ -34,6 +34,9 @@ def parse(args)
       if ! defined? CONFIG_SERVER_AGENT_URL
         raise "Missing items 'CONFIG_SERVER_AGENT_URL' in config.defs" 
       end
+      if CONFIG_SERVER_REPORT == "DISABLED"
+        puts "sipxconfig-report DISABLED" 
+      end
       exit
     end
     
@@ -106,6 +109,10 @@ require 'report'
 require 'dbi'
 
 parse(ARGV)
+
+if CONFIG_SERVER_REPORT == "DISABLED"
+  exit 0
+end
 
 pid=File.open('@SIPX_RUNDIR@/sipxconfig-report.pid', 'w')
 pid.puts Process.pid

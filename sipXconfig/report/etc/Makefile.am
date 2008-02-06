@@ -11,13 +11,24 @@ EXTRA_DIST = \
 cfgdir = $(SIPX_CONFDIR)/report
 
 cfg_DATA = \
-	schema.sql \
-	sipxconfig-report-config
+	schema.sql
+
+install-data-hook : $(CRON_INSTALL) $(DESTDIR)@SIPX_CONFDIR@/report/sipxconfig-report-config
 
 sipxconfig-report-config : sipxconfig-report-config.in
 	$(LocalizeSipXconfig) $< > $@
 
-install-data-hook : $(CRON_INSTALL)
+$(DESTDIR)$(sysconfdir)/sipxpbx/report/sipxconfig-report-config: sipxconfig-report-config
+	@if ! test -f $@; \
+	then \
+		echo "Installing default $@"; \
+		$(INSTALL) -D -m 644 $< $@; \
+	else \
+		diff $< $@ > /dev/null 2>&1 \
+		|| (  echo "Using existing $@ - new file is $@.NEW" \
+		    ; $(INSTALL) -D -m 644 $< $@.NEW; \
+			); \
+	fi
 
 # Target is not normally run, also, you may have to add sipx user to
 # /etc/cron.d/cron.allow file
