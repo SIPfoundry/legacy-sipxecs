@@ -822,12 +822,14 @@
       <value>USA-5</value>
     </setting>
     <setting name="utc_offset">
+      <profileName>utc_offset$</profileName>
       <type>
         <string />
       </type>
       <value />
     </setting>
     <setting name="dst">
+      <profileName>dst$</profileName>
       <type>
         <string />
       </type>
