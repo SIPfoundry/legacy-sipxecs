@@ -18,6 +18,7 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -95,7 +96,9 @@ public abstract class ManageUploads extends BasePage implements PageBeginRenderL
                 getSelections().getAllSelected());
         for (int i = 0; i < uploads.length; i++) {
             if (deploy) {
-                if (!getUploadManager().isActiveUploadById(uploads[i].getSpecification())) {
+                if (getUploadManager().isActiveUploadById(uploads[i].getSpecification())) {
+                    getValidator().record(new ValidatorException(getMessages().getMessage("error.alreadyActivated")));
+                } else {
                     getUploadManager().deploy(uploads[i]);
                 }
             } else {
