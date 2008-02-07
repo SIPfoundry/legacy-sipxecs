@@ -95,7 +95,9 @@ public abstract class ManageUploads extends BasePage implements PageBeginRenderL
                 getSelections().getAllSelected());
         for (int i = 0; i < uploads.length; i++) {
             if (deploy) {
-                getUploadManager().deploy(uploads[i]);
+                if (!getUploadManager().isActiveUploadById(uploads[i].getSpecification())) {
+                    getUploadManager().deploy(uploads[i]);
+                }
             } else {
                 getUploadManager().undeploy(uploads[i]);
             }

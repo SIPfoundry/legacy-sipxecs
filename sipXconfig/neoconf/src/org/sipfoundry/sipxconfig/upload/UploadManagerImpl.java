@@ -57,7 +57,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     }
 
     public boolean isActiveUploadById(UploadSpecification spec) {
-        return (getActiveUpload(spec).size() > 1);
+        return (getActiveUpload(spec).size() > 0);
     }
 
     public void setSpecificationSource(ModelSource<UploadSpecification> specificationSource) {

@@ -72,6 +72,24 @@ public class ManageUploadTestUi extends WebTestCase {
         assertEquals("Inactive", sparseTableCellValues[1][1]);
     }
     
+    public void testActivationOfActiveDeviceFiles() throws Exception {
+        seedUpload();
+        SiteTestHelper.home(tester);
+        clickLink("link:upload");
+
+        // activate once
+        SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
+        clickButton("upload:activate");
+        String[][] sparseTableCellValues = getDialog().getSparseTableBySummaryOrId("upload:list");
+        assertEquals("Active", sparseTableCellValues[1][1]);
+        
+        // activate a second time (should cause user error but no exception)
+        SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
+        clickButton("upload:activate");
+        SiteTestHelper.assertNoException(tester);
+        //SiteTestHelper.assertUserError(tester);
+    }
+    
     private void seedUpload() throws Exception {
         clickLink("link:newUpload");
         setFormElement("name", "manage uploads seed");
