@@ -56,7 +56,7 @@ case $host in
     *-*-hpux*)
     PROCESS_ITERATOR=src/os/hpux/OsProcessIteratorHpux.cpp 
     ;;
-    *-*-linux-gnu)
+    *-*-linux*)
     PROCESS_ITERATOR=src/os/linux/OsProcessIteratorLinux.cpp 
     ;;
 esac
