@@ -4,7 +4,7 @@
 <beans>
   <bean id="ciscoModel" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel" parent="abstractPhoneModel"
     abstract="true">
-	<property name="vendor" value="cisco"/>
+	<property name="vendor" value="Cisco"/>
   </bean>
 
   <bean id="ciscoIpModel" abstract="true" parent="ciscoModel">

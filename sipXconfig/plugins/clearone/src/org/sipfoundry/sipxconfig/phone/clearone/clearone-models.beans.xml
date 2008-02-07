@@ -8,7 +8,7 @@
     <property name="label" value="ClearOne MAX IP" />
     <property name="maxLineCount" value="1" />
     <property name="profileTemplate" value="clearone/C1MAXIP.txt.vm" />
-	<property name="vendor" value="clearone"/>
+	<property name="vendor" value="ClearOne"/>
   </bean>
 
   <!-- implementation -->
