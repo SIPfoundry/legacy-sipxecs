@@ -19,7 +19,6 @@ import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.gateway.FxoPort;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingArray;
 
 class AudioCodesContext extends ProfileContext {
     public AudioCodesContext(Device device, String profileTemplate) {
@@ -30,7 +29,6 @@ class AudioCodesContext extends ProfileContext {
         Map<String, Object> context = super.getContext();
         // $$ is used as ignore value
         context.put("ignore", SettingsIron.IGNORE);
-        context.put("codecs", getCodecs());
 
         SettingsIron iron = new SettingsIron();
         getDevice().getSettings().acceptVisitor(iron);
@@ -41,20 +39,6 @@ class AudioCodesContext extends ProfileContext {
         }
         context.put("allowedIPs", getAllowedIPs());
         return context;
-    }
-
-    private String[] getCodecs() {
-        BeanWithSettings gateway = getDevice();
-        SettingArray codecs = (SettingArray) gateway.getSettings()
-                .getSetting("SIP_coders/Codecs");
-        List<String> list = new ArrayList<String>(codecs.getSize());
-        for (int i = 0; i < codecs.getSize(); i++) {
-            String codecName = (String) codecs.getSetting(i, "CoderName").getTypedValue();
-            if (StringUtils.isNotBlank(codecName) && !list.contains(codecName)) {
-                list.add(codecName);
-            }
-        }
-        return list.toArray(new String[list.size()]);
     }
 
     private String[] getAllowedIPs() {

@@ -10,6 +10,8 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingArray;
@@ -32,7 +34,19 @@ class SettingsIron implements SettingVisitor {
     }
 
     public boolean visitSettingArray(SettingArray array) {
-        // skip arrays
+        // Scan the array and add settings (non duplicate) to the flattened collection.
+        for (String settingName : array.getSettingNames()) {
+            Set<Object> values = new HashSet<Object>();
+            for (int i = 0; i < array.getSize(); i++) {
+                Object elName = array.getSetting(i, settingName).getTypedValue();
+                if (!values.contains(elName)) {
+                    // Non duplicate. Add to flattened collection.
+                    values.add(elName);
+                    m_flat.add(array.getSetting(i, settingName));
+                }
+            }
+        }
+        // returning false indicates we've processed the array.
         return false;
     }
 

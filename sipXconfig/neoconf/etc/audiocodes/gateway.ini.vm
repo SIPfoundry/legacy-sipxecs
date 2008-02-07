@@ -56,10 +56,6 @@ PSTNPREFIX=${prefix},${trunk_id},*,*,0
 #end
 
 #end
-[VoiceCodecs]
-#foreach ($codec in $codecs)
-CoderName=$codec
-#end
 ## fxs paramaters only
 #if(${gateway.Model.Fxs})
 
