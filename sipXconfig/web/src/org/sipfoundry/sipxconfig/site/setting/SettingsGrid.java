@@ -49,6 +49,10 @@ public abstract class SettingsGrid extends BaseComponent {
         return TapestryUtils.getSettingLabel(this, setting);
     }
 
+    public String getDescription() {
+        return TapestryUtils.getSettingDescription(this, getSetting());
+    }
+
     public Iterator<Integer> getIndices() {
         return new IndexIterator(getSetting().getSize());
     }

@@ -25,7 +25,8 @@
 	</group>
 	<group name="cards">
 		<label>Playing Cards</label>
-        <collection name="deck" size="4">
+        <collection name="deck" size="4" advanced="true" hidden="true">
+            <label>Collection Label</label>
             <setting name="suit">
               <type>
                 <enum>
@@ -51,6 +52,7 @@
     			<setting name="Q"/>
     			<setting name="K"/>
     		</group>
+            <description>Collection Description</description>
         </collection>
 	</group>
 </model>

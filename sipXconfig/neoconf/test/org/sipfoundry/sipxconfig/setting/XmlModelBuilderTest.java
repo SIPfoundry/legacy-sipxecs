@@ -41,6 +41,17 @@ public class XmlModelBuilderTest extends TestCase {
         assertEquals("Setting Description", setting.getDescription());
     }
 
+    @Deprecated
+    public void testCollectionPropertySettersDeprecated() throws IOException {
+        File in = TestHelper.getResourceAsFile(getClass(), "games.xml");
+        SettingSet games = m_builder.buildModel(in);
+        Setting deck = games.getSetting("cards/deck");
+        assertNotNull(deck);
+
+        assertEquals("Collection Label", deck.getLabel());
+        assertEquals("Collection Description", deck.getDescription());
+    }
+
     public void testSettingPropertySetters() throws IOException {
         File in = TestHelper.getResourceAsFile(getClass(), "simplemodel.xml");
         SettingSet root = m_builder.buildModel(in);
@@ -153,6 +164,15 @@ public class XmlModelBuilderTest extends TestCase {
         Setting giveBirth = root.getSetting("woman/giveBirth");
         assertTrue(giveBirth.isAdvanced());
         assertFalse(giveBirth.isHidden());
+    }
+
+    public void testCollectionFlags() throws Exception {
+        File in = TestHelper.getResourceAsFile(getClass(), "games.xml");
+        SettingSet games = m_builder.buildModel(in);
+        Setting deck = games.getSetting("cards/deck");
+        assertNotNull(deck);
+        assertTrue(deck.isAdvanced());
+        assertTrue(deck.isHidden());
     }
 
     public void testNullValue() throws Exception {

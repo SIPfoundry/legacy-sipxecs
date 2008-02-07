@@ -67,7 +67,8 @@ public class XmlModelBuilder implements ModelBuilder {
             return model;
 
         } catch (IOException e) {
-            throw new RuntimeException("Cannot parse model definitions file " + modelFile.getPath(), e);
+            throw new RuntimeException("Cannot parse model definitions file "
+                    + modelFile.getPath(), e);
         } finally {
             IOUtils.closeQuietly(is);
         }
@@ -110,44 +111,55 @@ public class XmlModelBuilder implements ModelBuilder {
         digester.addRuleSet(new FileSettingRule(patternPrefix + "file"));
     }
 
-    static class CollectionRuleSet extends RuleSetBase {
+    static class AbstractSettingRuleSet extends RuleSetBase {
         private String m_pattern;
+        private Class m_klass;
 
-        public CollectionRuleSet() {
-            m_pattern = "*/collection";
-        }
-
-        public void addRuleInstances(Digester digester) {
-            digester.addObjectCreate(m_pattern, SettingArray.class);
-            digester.addSetProperties(m_pattern);
-            digester.addSetNext(m_pattern, ADD_SETTING_METHOD, Setting.class.getName());
-        }
-    }
-
-    static class SettingRuleSet extends RuleSetBase {
-
-        private String m_pattern;
-
-        private Class m_class;
-
-        public SettingRuleSet(String pattern, Class c) {
+        public AbstractSettingRuleSet(String pattern, Class klass) {
             m_pattern = pattern;
-            m_class = c;
+            m_klass = klass;
         }
 
         public void addRuleInstances(Digester digester) {
-            digester.addObjectCreate(m_pattern, m_class);
+            digester.addObjectCreate(m_pattern, m_klass);
             digester.addSetProperties(m_pattern, "parent", null);
-            digester.addRule(m_pattern, new CopyOfRule());
-            digester.addRule(m_pattern + EL_VALUE, new BeanPropertyNullOnEmptyStringRule("value"));
             final String[] properties = {
                 "/description", "/profileName", EL_LABEL
             };
             for (int i = 0; i < properties.length; i++) {
                 digester.addBeanPropertySetter(m_pattern + properties[i]);
             }
-            addSettingTypes(digester, m_pattern + "/type/");
-            digester.addSetNext(m_pattern, ADD_SETTING_METHOD, ConditionalSettingImpl.class.getName());
+        }
+
+        protected String getPattern() {
+            return m_pattern;
+        }
+    }
+
+    static class CollectionRuleSet extends AbstractSettingRuleSet {
+        public CollectionRuleSet() {
+            super("*/collection", SettingArray.class);
+        }
+
+        public void addRuleInstances(Digester digester) {
+            super.addRuleInstances(digester);
+            digester.addSetNext(getPattern(), ADD_SETTING_METHOD, Setting.class.getName());
+        }
+    }
+
+    static class SettingRuleSet extends AbstractSettingRuleSet {
+        public SettingRuleSet(String pattern, Class klass) {
+            super(pattern, klass);
+        }
+
+        public void addRuleInstances(Digester digester) {
+            super.addRuleInstances(digester);
+            digester.addRule(getPattern(), new CopyOfRule());
+            digester.addRule(getPattern() + EL_VALUE, new BeanPropertyNullOnEmptyStringRule(
+                    "value"));
+            addSettingTypes(digester, getPattern() + "/type/");
+            digester.addSetNext(getPattern(), ADD_SETTING_METHOD, ConditionalSettingImpl.class
+                    .getName());
         }
     }
 
@@ -212,20 +224,23 @@ public class XmlModelBuilder implements ModelBuilder {
             if (refid != null) {
                 SettingType prototype = (SettingType) m_types.get(refid);
                 if (prototype == null) {
-                    throw new IllegalArgumentException("Setting type with id=" + refid + " not found.");
+                    throw new IllegalArgumentException("Setting type with id=" + refid
+                            + " not found.");
                 }
                 SettingType type = prototype.clone();
                 Setting setting = (Setting) getDigester().peek();
                 setting.setType(type);
-                
+
                 String required = attributes.getValue(REQUIRED);
                 if (!StringUtils.isBlank(required)) {
                     try {
                         BeanUtils.setProperty(type, REQUIRED, "yes".equals(required));
                     } catch (IllegalAccessException e) {
-                        throw new IllegalArgumentException("Could not access 'required' property on " + type);
+                        throw new IllegalArgumentException(
+                                "Could not access 'required' property on " + type);
                     } catch (InvocationTargetException e) {
-                        throw new IllegalArgumentException("Could not set 'required' property on " + type);
+                        throw new IllegalArgumentException(
+                                "Could not set 'required' property on " + type);
                     }
                 }
             }
