@@ -12,7 +12,7 @@ BUILDSTAMP:
 	test -d config || mkdir config
 	sipxBuildTime=`date -u +%Y-%m-%dT%H:%M:%S` ; \
 	sipxBuildHost=`uname -n` ; \
-	SIPX_BUILDSTAMP="$${sipxBuildTime} $${sipxBuildHost}" ; \
+	SIPX_BUILDSTAMP="$${sipxBuildTime} $${SIPX_BUILD_LABEL:-${sipxBuildHost}}" ; \
 	echo "$${SIPX_BUILDSTAMP}" > BUILDSTAMP ; \
 	${LocalizeSipXconfig} \
 		-e "s/@SIPX_VERSION\@/$(SIPX_VERSION)/" \
