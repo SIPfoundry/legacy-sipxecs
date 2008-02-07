@@ -46,6 +46,30 @@
     scope="prototype" parent="gwGeneric">
   </bean>
 
+  <!-- Audiocodes BRI gateways -->
+  <bean id="audiocodesBRI" abstract="true" parent="audiocodesGatewayModel">
+    <property name="beanId" value="gwAudiocodesBRI" />
+	<property name="digital" value="true" />
+	<property name="bri" value="true" />
+    <property name="portLabelFormat" value="%s (%s-%s)" />
+    <property name="portLabelSettings">
+      <list>
+        <value>Trunk/ProtocolType</value>
+        <value>Trunk/MinChannel</value>
+        <value>Trunk/MaxChannel</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="audiocodesMediantBRI" parent="audiocodesBRI">
+    <property name="label" value="AudioCodes Mediant BRI" />
+    <property name="maxPorts" value="4" />
+  </bean>
+
+  <bean id="gwAudiocodesBRI" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesBRIGateway"
+	scope="prototype" parent="gwGeneric">
+  </bean>
+
   <!-- audiocodes Media Pack FXO gateways -->
   <bean id="audiocodesFxo" abstract="true" parent="audiocodesGatewayModel">
     <property name="beanId" value="gwAudiocodesMediant" />

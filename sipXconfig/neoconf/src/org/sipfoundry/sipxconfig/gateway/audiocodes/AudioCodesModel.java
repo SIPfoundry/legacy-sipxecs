@@ -17,6 +17,7 @@ public class AudioCodesModel extends GatewayModel {
     private boolean m_fxo;
     private boolean m_fxs;
     private boolean m_digital;
+    private boolean m_bri;
     private String m_configDirectory;
 
     public void setFxo(boolean fxo) {
@@ -29,6 +30,10 @@ public class AudioCodesModel extends GatewayModel {
 
     public void setDigital(boolean digital) {
         m_digital = digital;
+    }
+
+    public void setBri(boolean bri) {
+        m_bri = bri;
     }
 
     public void setConfigDirectory(String configDirectory) {
@@ -47,6 +52,10 @@ public class AudioCodesModel extends GatewayModel {
         return m_digital;
     }
 
+    public boolean isBri() {
+        return m_bri;
+    }
+
     public String getConfigDirectory() {
         return m_configDirectory;
     }
@@ -61,6 +70,9 @@ public class AudioCodesModel extends GatewayModel {
         }
         if (m_digital) {
             definitions.add("digital");
+        }
+        if (m_bri) {
+            definitions.add("bri");
         }
         return definitions;
     }

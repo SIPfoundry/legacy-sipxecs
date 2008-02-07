@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.gateway.FxoPort;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 
-public class AudioCodesDigitalGatewayTest extends TestCase {
+public class AudioCodesBRIGatewayTest extends TestCase {
     private ModelFilesContext m_modelFilesContext;
     private AudioCodesGateway m_gateway;
 
@@ -28,15 +28,15 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         AudioCodesModel model = new AudioCodesModel();
         model.setBeanId("gwAudiocodes");
         model.setModelId("audiocodes");
-        model.setModelDir("audiocodes");        
+        model.setModelDir("audiocodes");
         model.setFxs(false);
         model.setFxo(false);
         model.setDigital(true);
-        model.setBri(false);
+        model.setBri(true);
         model.setMaxPorts(4);
         model.setProfileTemplate("audiocodes/gateway.ini.vm");
 
-        m_gateway = new AudioCodesDigitalGateway();
+        m_gateway = new AudioCodesBRIGateway();
         m_gateway.setModel(model);
         m_gateway.setModelFilesContext(m_modelFilesContext);
         m_gateway.setDefaults(PhoneTestDriver.getDeviceDefaults());
@@ -49,7 +49,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         }
         m_gateway.setSerialNumber("001122334455");
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
-        
+
         m_gateway.setSettingValue("SIP_general/SOURCENUMBERMAPIP2TEL","*,0,$$,$$,$$,$$,*,1,*");
         m_gateway.setSettingValue("SIP_general/REMOVECLIWHENRESTRICTED","1");
 
@@ -57,7 +57,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
 
         String actual = location.toString();
 
-        InputStream expectedProfile = getClass().getResourceAsStream("digital-gateway.ini");
+        InputStream expectedProfile = getClass().getResourceAsStream("bri-gateway.ini");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);
 
@@ -72,7 +72,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
             FxoPort trunk = new FxoPort();
             m_gateway.addPort(trunk);
             trunk.setSettingValue("Trunk/MaxChannel", Integer.toString(5 + i));
-            
+
         }
         // 18 == (5 + 0) + (5 + 1) + (5 + 2)
         assertEquals(18, m_gateway.getMaxCalls());

@@ -1,0 +1,276 @@
+<?xml version="1.0"?>
+<!DOCTYPE model
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name='Trunk'>
+    <setting name="ProtocolType">
+      <label>Protocol Type</label>
+      <type>
+        <enum>
+          <option>
+            <label>BRI EURO ISDN</label>
+
+            <value>50</value>
+          </option>
+          <option>
+            <label>BRI NI2 ISDN</label>
+            <value>51</value>
+          </option>
+          <option>
+
+            <label>BRI DMS100 ISDN</label>
+            <value>52</value>
+          </option>
+          <option>
+            <label>BRI 5ESS 10 ISDN</label>
+            <value>53</value>
+          </option>
+
+          <option>
+            <label>BRI QSIG</label>
+            <value>54</value>
+          </option>
+        </enum>
+      </type>
+      <value>10</value>
+
+    </setting>
+    <setting name="ClockMaster">
+      <label>Clock Master</label>
+      <type>
+        <enum>
+          <option>
+            <label>E1/T1 Rx</label>
+            <value>0</value>
+
+          </option>
+          <option>
+            <label>Internal TDM bus</label>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+
+    </setting>
+    <setting name="LineCode">
+      <label>Line Code</label>
+      <type>
+        <enum>
+          <option>
+            <label>B8ZS</label>
+            <value>0</value>
+
+          </option>
+          <option>
+            <label>AMI</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>HDB3</label>
+
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+      <description>Select B8ZS or AMI for T1 spans, and HDB3 or AMI for E1 spans.</description>
+    </setting>
+
+    <setting name="FramingMethod">
+      <label>Framing Method</label>
+      <type>
+        <enum>
+          <option>
+            <label>Default</label>
+            <value>0</value>
+
+          </option>
+          <option>
+            <label>E1 - Double frame</label>
+            <value>a</value>
+          </option>
+          <option>
+            <label>E1 - Multiframe with CRC4</label>
+
+            <value>c</value>
+          </option>
+          <option>
+            <label>T1 - F4</label>
+            <value>A</value>
+          </option>
+          <option>
+
+            <label>T1 - Super frame D4, F12</label>
+            <value>B</value>
+          </option>
+          <option>
+            <label>T1 - Extended super frame without CRC6</label>
+            <value>C</value>
+          </option>
+
+          <option>
+            <label>T1 - Extended super frame with CRC6</label>
+            <value>D</value>
+          </option>
+          <option>
+            <label>J1 - Japan (ESF with CRC6 and JT)</label>
+            <value>F</value>
+
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+      <description>Default for T1 is Extended super frame with CRC6; for E1 - Multiframe with CRC4</description>
+    </setting>
+    <setting name="Prefix" advanced="yes">
+      <label>Destination Number Prefix</label>
+
+      <profileName>$$</profileName>
+      <type>
+        <string required="yes" />
+      </type>
+      <value>*</value>
+      <description>
+        A number or a range of numbers that will be directed to this trunk. For example: 10[340-451]xxx
+      </description>
+
+    </setting>
+    <setting name="MinChannel" advanced="yes">
+      <label>Starting B-channel</label>
+      <profileName>$$</profileName>
+      <type>
+        <integer min="1" max="32" required="yes"/>
+      </type>
+      <value>1</value>
+
+    </setting>
+    <setting name="MaxChannel" advanced="yes">
+      <label>Ending B-channel</label>
+      <profileName>$$</profileName>
+      <type>
+        <integer min="1" max="99" required="yes"/>
+      </type>
+      <value>2</value>
+
+    </setting>
+    <setting name='ChannelSelectMode' advanced="yes">
+      <label>Channel Select Mode</label>
+      <profileName>$$</profileName>
+      <type>
+        <enum>
+          <option>
+            <label>Cyclic Ascending</label>
+
+            <value>1</value>
+          </option>
+          <option>
+            <label>Ascending</label>
+            <value>2</value>
+          </option>
+          <option>
+
+            <label>Cyclic Descending</label>
+            <value>3</value>
+          </option>
+          <option>
+            <label>Descending</label>
+            <value>4</value>
+          </option>
+
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+  </group>
+  <group name='ISDN'>
+    <setting name="TerminationSide">
+      <label>Termination Side</label>
+
+      <type>
+        <enum>
+          <option>
+            <label>User Side</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>Network Side</label>
+
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="ISDNIBehavior" advanced="yes">
+      <type>
+
+        <integer />
+      </type>
+    </setting>
+    <setting name="ISDNOutCallsBehavior" advanced="yes">
+      <type>
+        <integer />
+      </type>
+    </setting>
+    <setting name="ISDNInCallsBehavior" advanced="yes">
+
+      <type>
+        <integer />
+      </type>
+    </setting>
+    <setting name="ISDNGeneralCCBehavior" advanced="yes">
+      <type>
+        <integer />
+      </type>
+    </setting>
+
+    <setting name="NFASGroupNumber" advanced="yes">
+      <label>NFAS Group Number</label>
+      <type>
+        <integer min="0" max="4" />
+      </type>
+      <description>
+        Trunks that belong to the same NFAS group have the same number. With ISDN Non-Facility Associated Signaling you
+        can use single D-channel to control multiple PRI interfaces. Applicable only to T1 ISDN protocols.
+      </description>
+    </setting>
+
+    <setting name="ISDNNFASInterfaceID" advanced="yes">
+      <label>NFAS Interface ID</label>
+      <type>
+        <integer min="0" max="100" />
+      </type>
+    </setting>
+    <setting name="DchConfig" advanced="yes">
+      <label>D-channel Configuration</label>
+
+      <type>
+        <enum>
+          <option>
+            <label>Primary Trunk</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>Backup Trunk</label>
+
+            <value>1</value>
+          </option>
+          <option>
+            <label>NFAS Trunk</label>
+            <value>2</value>
+          </option>
+        </enum>
+
+      </type>
+    </setting>
+    <setting name="PlayRBTone2Trunk" advanced="yes"></setting>
+    <setting name="LocalISDNRBSource" advanced="yes"></setting>
+    <setting name="PIForDisconnectMsg" advanced="yes"></setting>
+    <setting name="ISDNTransferCapability" advanced="yes"></setting>
+    <setting name="ProgressIndicator2ISDN" advanced="yes"></setting>
+    <setting name="ISDNRxOverlap" advanced="yes"></setting>
+  </group>
+
+</model>

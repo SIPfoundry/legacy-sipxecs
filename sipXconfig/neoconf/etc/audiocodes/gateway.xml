@@ -1233,7 +1233,7 @@
       </setting>
     </group>
   </group>
-  <group name="digital-trunk" if="digital">
+  <group name="digital-trunk" if="digital" unless="bri">
     <label>E1/T1</label>
     <description>E1/T1 trunk parameters shared by all trunks.</description>
     <setting name="PCMLawSelect">
@@ -1252,6 +1252,121 @@
       </type>
       <value>3</value>
       <description>Usually A-Law is used for E1 spans and µ-Law for T1 and J1 spans</description>
+    </setting>
+    <setting name="LineBuildOutLoss">
+      <label>Line Build Out Loss</label>
+      <type>
+        <enum>
+          <option>
+            <label>0 dB</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>-7.5 dB</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>-15 dB</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>-22.5 dB</label>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+    <setting name="TraceLevel">
+      <label>Trace Level</label>
+      <type>
+        <enum>
+          <option>
+            <label>No trace</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>Full ISDN trace</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>Layer 3 ISDN trace</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>Only ISDN Q.931 messages trace</label>
+            <value>3</value>
+          </option>
+          <option>
+            <label>Layer 3 ISDN no duplication trace</label>
+            <value>4</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <group name="TDM" advanced="yes">
+      <setting name="TDMBusClockSource">
+        <label>TDM Bus Clock Source</label>
+        <type>
+          <enum>
+            <option>
+              <label>Generate from Local Source</label>
+              <value>1</value>
+            </option>
+            <option>
+              <label>Recover from PSTN</label>
+              <value>4</value>
+            </option>
+          </enum>
+        </type>
+        <value>4</value>
+      </setting>
+      <setting name="TDMBusLocalReference">
+        <label>TDM Bus Local Reference</label>
+        <type>
+          <integer />
+        </type>
+        <value>0</value>
+        <description>Trunk from which clock will be recovered.</description>
+      </setting>
+      <setting name="TDMBusPSTNAutoClockEnable">
+        <label>TDM Bus PSTN Auto Clock</label>
+        <type>
+          <enum>
+            <option>
+              <label>Recover clock from Local Reference Only</label>
+              <value>0</value>
+            </option>
+            <option>
+              <label>Recover clock from any synchronized trunk</label>
+              <value>1</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+        <description></description>
+      </setting>
+    </group>
+  </group>
+  <group name="bri" if="bri">
+    <label>BRI Settings</label>
+    <description>BRI parameters</description>
+    <setting name="PCMLawSelect">
+      <label>PCM Law Select</label>
+      <type>
+        <enum>
+          <option>
+            <label>A-law</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>µ-Law</label>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+      <description>Usually A-Law is used for BRI</description>
     </setting>
     <setting name="LineBuildOutLoss">
       <label>Line Build Out Loss</label>
