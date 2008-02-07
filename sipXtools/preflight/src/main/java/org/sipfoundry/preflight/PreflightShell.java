@@ -165,6 +165,7 @@ public class PreflightShell {
         quitButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 shell.close();
+                System.exit(0);
             }
         });
         
