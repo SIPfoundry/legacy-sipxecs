@@ -43,7 +43,7 @@ public class GatewaysTestUi extends WebTestCase {
         // make sure it's sorted by name
         clickLinkWithText("Name");
         int lastColumn = gatewaysTable.getColumnCount() - 1;
-        assertEquals(3, lastColumn);
+        assertEquals(4, lastColumn);
 
         selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
 
@@ -171,13 +171,13 @@ public class GatewaysTestUi extends WebTestCase {
      */
     public static String[] addGateway(WebTester tester, String name) {
         String[] row = new String[] {
-            name + "Name", name + "Address", name + "Description"
+            name + "Name", name + "Address", "Unmanaged gateway", name + "Description"
         };
 
         if (null != name) {
             tester.setFormElement("gatewayName", row[0]);
             tester.setFormElement("gatewayAddress", row[1]);
-            tester.setFormElement("gatewayDescription", row[2]);
+            tester.setFormElement("gatewayDescription", row[3]);
         }
         tester.clickButton("form:ok");
         return row;

@@ -11,7 +11,7 @@
   <property name="selections" />
   <!-- C O M P O N E N T S -->
   <component id="table" type="Table">
-    <binding name="columns" value="literal:* name,address,description" />
+    <binding name="columns" value="literal:* name,address,model,description" />
     <binding name="source" value="gatewayCollection" />
     <binding name="row" value="currentRow" />
     <binding name="selections" value="selections" />
