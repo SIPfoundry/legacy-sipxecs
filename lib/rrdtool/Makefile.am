@@ -5,6 +5,7 @@ SRC = $(LIBSRC)/rrdtool/rrdtool-$(RRDTOOL_VER).tar.gz
 SRPM = $(DEST_SRPM)/rrdtool-$(RRDTOOL_VER)-$(RRDTOOL_REL).src.rpm
 RPMS = \
 	$(DEST_RPM)/rrdtool-$(RRDTOOL_VER)-$(RRDTOOL_REL).@RPM_TARGET_ARCH@.rpm \
+	$(DEST_RPM)/rrdtool-perl-$(RRDTOOL_VER)-$(RRDTOOL_REL).@RPM_TARGET_ARCH@.rpm
 	$(DEST_RPM)/rrdtool-devel-$(RRDTOOL_VER)-$(RRDTOOL_REL).@RPM_TARGET_ARCH@.rpm
 
 all : $(SRPM) $(RPMS)
