@@ -135,6 +135,7 @@ then
   ConfigSets=" \
     @SIPX_DBDIR@/*.xml \
     @SIPX_CONFDIR@/*.in \
+    @SIPX_CONFDIR@/sipxacd.xml \
     @SIPX_CONFDIR@/ssl/authorities/* \
     @SIPX_CONFIGPHONEDIR@/acd/audio/* \
     @SIPX_PARKMUSICDIR@/* \
