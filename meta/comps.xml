@@ -9,41 +9,59 @@
   -->
 <comps>
   <group>
-   <id>sipxpbx-base</id>
+   <id>sipxecs-base</id>
    <uservisible>true</uservisible>
-   <name>Base sipXpbx</name>
-   <description>No frills, standard PBX</description>
+   <name>sipXecs PBX</name>
+   <description>Standard sipXpbx PBX</description>
    <packagelist>
-     <!-- sipxpbx-base -->
-     <packagereq type="mandatory">sipxconfig</packagereq>
-     <packagereq type="mandatory">sipxconfig-ftp</packagereq>
-     <packagereq type="mandatory">sipxconfig-tftp</packagereq>
+     <packagereq type="mandatory">sipxacd</packagereq>
      <packagereq type="mandatory">sipxproxy</packagereq>
      <packagereq type="mandatory">sipxproxy-cdr</packagereq>
      <packagereq type="mandatory">sipxpublisher</packagereq>
      <packagereq type="mandatory">sipxregistry</packagereq>
      <packagereq type="mandatory">sipxvxml</packagereq>
+     <packagereq type="mandatory">sipxtools</packagereq>
+     <packagereq type="mandatory">sipxconfig</packagereq>
+     <packagereq type="mandatory">sipxconfig-ftp</packagereq>
+     <packagereq type="mandatory">sipxconfig-tftp</packagereq>
+     <packagereq type="mandatory">sipxconfig-mrtg</packagereq>
+     <packagereq type="mandatory">sipxconfig-report</packagereq>
+     <packagereq type="mandatory">sipxconfig-agent</packagereq>
    </packagelist>
   </group>
   <group>
-   <id>sipxpbx-full</id>
+   <id>sipxecs-debug</id>
    <uservisible>true</uservisible>
-   <name>Full sipXpbx</name>
-   <description>sipXpbx plus every other possible package</description>
+   <name>sipXecs PBX plus debug</name>
+   <description>sipXpbx plus debug info</description>
    <packagelist>
-     <!-- copy of sipxpbx-base packages -->
-     <packagereq type="mandatory">sipxconfig</packagereq>
-     <packagereq type="mandatory">sipxconfig-ftp</packagereq>
-     <packagereq type="mandatory">sipxconfig-tftp</packagereq>
+     <!-- START: copy of sipxecs packages -->
+     <packagereq type="mandatory">sipxacd</packagereq>
      <packagereq type="mandatory">sipxproxy</packagereq>
      <packagereq type="mandatory">sipxproxy-cdr</packagereq>
      <packagereq type="mandatory">sipxpublisher</packagereq>
      <packagereq type="mandatory">sipxregistry</packagereq>
      <packagereq type="mandatory">sipxvxml</packagereq>
-     <!-- start: addons -->
+     <packagereq type="mandatory">sipxtools</packagereq>
+     <packagereq type="mandatory">sipxconfig</packagereq>
+     <packagereq type="mandatory">sipxconfig-ftp</packagereq>
+     <packagereq type="mandatory">sipxconfig-tftp</packagereq>
+     <packagereq type="mandatory">sipxconfig-mrtg</packagereq>
      <packagereq type="mandatory">sipxconfig-report</packagereq>
      <packagereq type="mandatory">sipxconfig-agent</packagereq>
-     <packagereq type="mandatory">sipxtools</packagereq>
+     <!-- END: copy of sipxecs packages -->
+     <packagereq type="mandatory">gdb</packagereq>
+     <packagereq type="mandatory">sipxportlib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxcalllib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxtacklib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxmedialib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxcommserverlib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxmediaadapterlib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxproxy-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxregistry-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxpublisher-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxvxml-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxacd-debuginfo</packagereq>
    </packagelist>
   </group>
 </comps>
