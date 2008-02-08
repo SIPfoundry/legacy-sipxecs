@@ -57,11 +57,11 @@ public class DeviceDiscoverTaskTest extends TestCase {
         assertEquals(3, discoveredDevices.size());
 
         DiscoveredDevice firstDevice = new DiscoveredDevice();
-        firstDevice.setMacAddress("00:0B:82:0A:20:E5");
+        firstDevice.setMacAddress("000B820A20E5");
         DiscoveredDevice secondDevice = new DiscoveredDevice();
-        secondDevice.setMacAddress("00:04:F2:00:87:42");
+        secondDevice.setMacAddress("0004F2008742");
         DiscoveredDevice thirdDevice = new DiscoveredDevice();
-        thirdDevice.setMacAddress("00:04:13:23:26:67");
+        thirdDevice.setMacAddress("000413232667");
 
         assertTrue(discoveredDevices.contains(firstDevice));
         assertTrue(discoveredDevices.contains(secondDevice));

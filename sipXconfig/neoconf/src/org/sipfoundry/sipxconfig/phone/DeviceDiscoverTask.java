@@ -64,7 +64,9 @@ public class DeviceDiscoverTask implements Runnable {
             for (Iterator i = root.elementIterator("device"); i.hasNext();) {
                 Element deviceXml = (Element) i.next();
                 DiscoveredDevice device = new DiscoveredDevice();
-                device.setMacAddress(deviceXml.element("hardware-address").getText());
+                String macAddress = deviceXml.element("hardware-address").getText();
+                macAddress = macAddress.replace(":", "");
+                device.setMacAddress(macAddress);
                 device.setIpAddress(deviceXml.element("network-address").getText());
                 device.setVendor(deviceXml.element("vendor").getText());
                 devices.add(device);

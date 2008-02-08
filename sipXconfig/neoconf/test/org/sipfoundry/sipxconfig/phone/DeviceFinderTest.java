@@ -36,7 +36,7 @@ public class DeviceFinderTest extends TestCase {
 
         //additional mock configuration and activation (replay) is done in test methods 
         m_phoneContext = EasyMock.createNiceMock(PhoneContext.class);
-        m_phoneContext.getPhoneIdBySerialNumber("00:04:13:23:26:67");
+        m_phoneContext.getPhoneIdBySerialNumber("000413232667");
         EasyMock.expectLastCall().andReturn(1).anyTimes();
         m_phoneContext.getPhoneIdBySerialNumber(EasyMock.isA(String.class));
         EasyMock.expectLastCall().andReturn(null).anyTimes();
@@ -66,17 +66,17 @@ public class DeviceFinderTest extends TestCase {
 
         DiscoveredDevice device1 = devices.get(0);
         assertEquals("192.168.1.253", device1.getIpAddress());
-        assertEquals("00:0B:82:0A:20:E5", device1.getMacAddress());
+        assertEquals("000B820A20E5", device1.getMacAddress());
         assertEquals("Grandstream", device1.getVendor());
 
         DiscoveredDevice device2 = devices.get(1);
         assertEquals("192.168.1.252", device2.getIpAddress());
-        assertEquals("00:04:F2:00:87:42", device2.getMacAddress());
+        assertEquals("0004F2008742", device2.getMacAddress());
         assertEquals("Polycom", device2.getVendor());
 
         DiscoveredDevice device3 = devices.get(2);
         assertEquals("192.168.1.254", device3.getIpAddress());
-        assertEquals("00:04:13:23:26:67", device3.getMacAddress());
+        assertEquals("000413232667", device3.getMacAddress());
         assertEquals("SNOM", device3.getVendor());
 
         assertEquals(DeviceFinder.FINISHED, m_out.getState());
@@ -101,12 +101,12 @@ public class DeviceFinderTest extends TestCase {
 
         DiscoveredDevice device1 = devices.get(0);
         assertEquals("192.168.1.253", device1.getIpAddress());
-        assertEquals("00:0B:82:0A:20:E5", device1.getMacAddress());
+        assertEquals("000B820A20E5", device1.getMacAddress());
         assertEquals("Grandstream", device1.getVendor());
 
         DiscoveredDevice device2 = devices.get(1);
         assertEquals("192.168.1.252", device2.getIpAddress());
-        assertEquals("00:04:F2:00:87:42", device2.getMacAddress());
+        assertEquals("0004F2008742", device2.getMacAddress());
         assertEquals("Polycom", device2.getVendor());
 
         assertEquals(DeviceFinder.FINISHED, m_out.getState());
