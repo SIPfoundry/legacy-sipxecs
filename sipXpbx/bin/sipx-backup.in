@@ -126,6 +126,7 @@ then
   
   ConfigBackupFiles="\
     @SIPX_CONFDIR@/config.defs \
+    @SIPX_CONFDIR@/domain-config \
     @SIPX_CONFDIR@/WatchDog.xml \
     @SIPX_CONFDIR@/security.policy \
     @SIPX_CONFDIR@/resourcemap.xml \
