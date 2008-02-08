@@ -51,5 +51,5 @@ fc7 fc8 fc6 : $(CUSTOM_PACKAGES)
 .PHONY: fc5
 fc5 : ruby-gems $(CUSTOM_PACKAGES)
 
-.PHONY: rhel5 centos5
-centos5 rhel5 : w3c-libwww xerces-c ruby-gems ruby-postgres $(CUSTOM_PACKAGES)
+.PHONY: rhel5 centos5 rhel4
+rhel5 centos5 rhel4 : w3c-libwww xerces-c ruby-gems ruby-postgres $(CUSTOM_PACKAGES)
