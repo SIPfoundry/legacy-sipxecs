@@ -21,7 +21,4 @@
     <binding name="callback" value="callback"/>
     <binding name="listener" value="listener:commit"/>
   </component>
-  <component id="editUserNavigation" type="UserNavigation">
-    <binding name="bean" value="user"/>
-  </component>
 </page-specification>

@@ -1,7 +1,7 @@
 <div jwcid="@Border">
   <span jwcid="@gateway/GatewayNavigation" gateway="prop:port.gateway" dialingRuleId="prop:ruleId"/>
   <br/><strong> <span key="label.portNav"/> :</strong> <span jwcid="@Insert" value="prop:port.label"/>
-  <div id="settings-nav">
+  <div jwcid="@common/LeftNavigation">
     <span jwcid="@setting/SettingsNavigation" bean="prop:port"
       activeSetting="prop:parentSetting"
       editSettingsListener="listener:editSettings">

@@ -1,5 +1,5 @@
 <span jwcid="$content$">
-  <div id="settings-nav">
+  <div jwcid="@common/LeftNavigation" renderCondition="ognl:renderCondition">
     <span jwcid="@common/TabControl">
       <span jwcid="@For" source="prop:tabNames" value="prop:currentTab">
         <span jwcid="@common/Tab" isActive="ognl:currentTab.equals(selectedTab)">

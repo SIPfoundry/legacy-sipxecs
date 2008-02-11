@@ -15,10 +15,7 @@
   <!--
      - C O M P O N E N T S
      -->
-  <component id="editLineNavigation" type="line/LineNavigation">
-    <binding name="bean" value="line"/>
-    <binding name="activeSetting" value="parentSetting"/>
-  </component>
+
   <component id="settingDescription" type="Insert">
     <binding name="value" value="parentSetting.description"/>
   </component>

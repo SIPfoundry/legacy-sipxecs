@@ -1,8 +1,6 @@
 <div jwcid="@Border" restricted="false" useDojo="ognl:true">
-  <span jwcid="@If" condition="ognl:userSession.admin">
-    <span jwcid="@UserNavigation" bean="prop:user"/>
-  </span>
-  <h2 jwcid="@Else" element="h2">
+  <span jwcid="@UserNavigation" bean="prop:user" renderCondition="ognl:userSession.admin" />
+  <h2 jwcid="@If" condition="ognl:!userSession.admin" element="h2">
     <span key="title">User Schedules</span>
   </h2>
   <p><span key="helpText">Registered phones are operational and ready to make and receive calls. Phones that are not

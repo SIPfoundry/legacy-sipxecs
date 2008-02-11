@@ -1,8 +1,6 @@
 <div jwcid="@Border">
-  <div jwcid="@If" condition="ognl:userSession.admin"> 
-    <span jwcid="@UserNavigation" bean="ognl:user" /> 
-  </div> 
-  <span jwcid="@Else">
+  <span jwcid="@UserNavigation" bean="ognl:user" renderCondition="ognl:userSession.admin" /> 
+  <span jwcid="@If" condition="ognl:!userSession.admin">
     <h2><span key="title">Phones</span></h2>    
   </span><span jwcid="@ErrorMsg"/>
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">

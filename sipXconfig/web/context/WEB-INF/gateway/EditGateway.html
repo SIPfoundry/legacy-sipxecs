@@ -1,6 +1,6 @@
 <div jwcid="@Border">
-  <span jwcid="@If" condition="ognl:!gateway.isNew()">
-    <div id="settings-nav">
+  
+    <div jwcid="@common/LeftNavigation" renderCondition="ognl:!gateway.isNew()">
       <span jwcid="@gateway/GatewayNavigation" gateway="prop:gateway" dialingRuleId="prop:ruleId"/>
       <span jwcid="@setting/SettingsNavigation" bean="prop:gateway" 
           editSettingsListener="listener:editSettings" activeSetting="prop:currentSettingSet">
@@ -15,7 +15,7 @@
     </div>
     <div jwcid="@common/ProfilePreview" device="prop:gateway"/>
     <div jwcid="@common/DeviceResources" deviceDescriptor="prop:gateway.model" />
-  </span>
+  
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:gateway.isNew()?'':'div'">
     <form jwcid="@Form" delegate="bean:validator" id="gateway">
       <span jwcid="@Hidden" value="prop:activeTab"/>

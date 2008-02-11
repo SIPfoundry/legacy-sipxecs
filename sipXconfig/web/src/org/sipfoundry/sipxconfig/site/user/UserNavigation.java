@@ -15,6 +15,7 @@ import java.util.Collection;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
+import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -25,6 +26,9 @@ import org.sipfoundry.sipxconfig.site.user_portal.UserSchedules;
 
 public abstract class UserNavigation extends BeanNavigation<User> {
 
+    @Parameter(required = false, defaultValue = "true")
+    public abstract void setRenderCondition(boolean renderCondition);
+    
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
 

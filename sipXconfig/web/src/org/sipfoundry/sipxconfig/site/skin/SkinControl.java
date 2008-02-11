@@ -61,6 +61,7 @@ public class SkinControl implements BeanFactoryAware {
         m_assets.put("banner-background.png", pkg + "/banner-background.png");
         m_assets.put("nav-background.png", pkg + "/nav-background.png");
         m_assets.put("left-background.png", pkg + "/left-background.png");
+        m_assets.put("leftNav-background.png", pkg + "/leftNav-background.png");
         m_assets.put("setting-bullet.gif", pkg + "/setting-bullet.gif");
         m_assets.put("setting-bullet-active.gif", pkg + "/setting-bullet-active.gif");
         m_assets.put(ASSET_LAYOUT, pkg + "/layout.css");

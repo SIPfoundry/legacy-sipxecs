@@ -9,7 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.util.Iterator;
+import java.util.Map;
+
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IExternalPage;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -17,6 +21,7 @@ import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.Tapestry;
 import org.apache.tapestry.callback.ExternalCallback;
 import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.components.Block;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.engine.ILink;
 import org.apache.tapestry.event.PageEvent;
@@ -28,6 +33,7 @@ import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.Home;
 import org.sipfoundry.sipxconfig.site.LoginPage;
 import org.sipfoundry.sipxconfig.site.UserSession;
+import org.sipfoundry.sipxconfig.site.common.LeftNavigation;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
 
 public abstract class Border extends BaseComponent implements PageValidateListener {
@@ -51,6 +57,50 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     public abstract IEngineService getRestartService();
 
+    /**
+     * Gets the {@code Block} being used as the navigation area.
+     * @return the {@code Block} that will be rendered in the navigation area.
+     */
+    public abstract Block getNavigationBlock();
+
+    /**
+     * Sets a {@code Block} component to be used as the left navigation block.
+     * @param navigationBlock The {@code Block} to render in the navigation area.
+     */
+    public abstract void setNavigationBlock(Block navigationBlock);
+    
+    @Override
+    protected void prepareForRender(IRequestCycle cycle) {
+        if (getNavigationBlock() == null) {
+            Map topLevelComponents = getPage().getComponents();
+            Block navigationBlock = searchForNavigationBlock(topLevelComponents);
+
+            if (navigationBlock == null) {
+                Iterator components = topLevelComponents.entrySet().iterator();
+                while (components.hasNext() && navigationBlock == null) {
+                    IComponent component = (IComponent) ((Map.Entry) components.next()).getValue();
+                    navigationBlock = searchForNavigationBlock(component.getComponents());
+                }
+            }
+
+            setNavigationBlock(navigationBlock);
+        }            
+    }
+    
+    private Block searchForNavigationBlock(Map components) {
+        Block navigationBlock = null;
+        Iterator componentIterator = components.entrySet().iterator();
+        while (componentIterator.hasNext() && navigationBlock == null) {
+            Map.Entry entry = (Map.Entry) componentIterator.next();
+            IComponent component = (IComponent) entry.getValue();
+            if (component instanceof LeftNavigation) {
+                navigationBlock = (LeftNavigation) component;
+            }
+        }
+        
+        return navigationBlock;
+    }
+    
     public void pageValidate(PageEvent event) {
         if (!isLoginRequired()) {
             return;

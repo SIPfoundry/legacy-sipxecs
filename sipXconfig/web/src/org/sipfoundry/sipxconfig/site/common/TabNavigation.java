@@ -30,6 +30,9 @@ public abstract class TabNavigation extends BaseComponent {
     @Parameter(required = false, defaultValue = "false")
     public abstract boolean isSubmit();
 
+    @Parameter(required = false, defaultValue = "true")
+    public abstract void setRenderCondition(boolean renderCondition);
+    
     public void activateTab(String tabName) {
         setSelectedTab(tabName);
     }

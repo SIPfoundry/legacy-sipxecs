@@ -1,6 +1,6 @@
 <div jwcid="@Border">
-  <span jwcid="@If" condition="ognl:!sbcDevice.isNew()">
-    <div id="settings-nav">
+  
+    <div jwcid="@common/LeftNavigation" renderCondition="ognl:!sbcDevice.isNew()">
       <span jwcid="@setting/SettingsNavigation" bean="ognl:sbcDevice"
         editSettingsListener="listener:editSettings" activeSetting="ognl:currentSettingSet">
         <span jwcid="@For" source="ognl:tabNames" value="ognl:currentTab">
@@ -14,7 +14,7 @@
     </div>
     <div jwcid="@common/ProfilePreview" device="ognl:sbcDevice"/>
     <div jwcid="@common/DeviceResources" deviceDescriptor="ognl:sbcDevice.model" />
-  </span>
+  
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:sbcDevice.isNew()?'':'div'">
     <form jwcid="@Form" delegate="bean:validator" id="sbc">
       <span jwcid="@Hidden" value="ognl:activeTab"/>

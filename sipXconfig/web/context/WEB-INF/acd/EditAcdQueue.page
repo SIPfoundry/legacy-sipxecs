@@ -31,10 +31,7 @@
   <component id="tabs" type="common/TabNavigation">
     <binding name="tabNames" value="{'config', 'agents', 'agentsStats', 'callsStats'}" />
     <binding name="selectedTab" value="tab" />
-  </component>
-
-  <component id="ifRenderTabs" type="If">
-    <binding name="condition" value="acdQueueId != null" />
+    <binding name="renderCondition" value="acdQueueId != null" />
   </component>
 
   <component id="form" type="Form">

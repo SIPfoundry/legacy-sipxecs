@@ -1,9 +1,7 @@
 <div jwcid="@Border" restricted="false" useDojo="true">
   <span jwcid="@QuickHelp" value="message:quick.help" /> 
-  <div jwcid="@If" condition="ognl:userSession.admin"> 
-    <span jwcid="@UserNavigation" bean="prop:user"/> 
-  </div> 
-  <span jwcid="@Else">
+  <span jwcid="@UserNavigation" bean="prop:user" renderCondition="ognl:userSession.admin" /> 
+  <span jwcid="@If" condition="ognl:!userSession.admin">
     <h2><span key="title">Speed Dial</span></h2>    
   </span>
   <span jwcid="@ErrorMsg"/>

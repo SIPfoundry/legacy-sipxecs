@@ -25,10 +25,7 @@
     <binding name="tabNames"
       value="{'config', 'queues', 'lines', 'agentsStats', 'callsStats', 'queuesStats'}" />
     <binding name="selectedTab" value="tab" />
-  </component>
-
-  <component id="ifRenderTabs" type="If">
-    <binding name="condition" value="acdServerId != null" />
+    <binding name="renderCondition" value="acdServerId != null" />
   </component>
 
   <component id="form" type="Form">

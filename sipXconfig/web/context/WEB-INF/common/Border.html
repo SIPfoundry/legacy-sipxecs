@@ -34,16 +34,19 @@ djConfig = { isDebug: false,
       </div>
     </div>
     <div id="contentContainer">
-        <div id="leftNav">&nbsp;</div>
-        <div id="mainContent">
-            <div id="content">
-              <span jwcid="@If" condition="prop:userSession.admin">
-                <span jwcid="@admin/StatusWarning"/>
-              </span>
-              <span jwcid="@RenderBody">Page content goes here.</span>
-            </div>
+        <div id="leftNav">
+            <span jwcid="@If" condition="ognl:navigationBlock">
+                <div jwcid="@RenderBlock" block="ognl:navigationBlock" />
+            </span>
+            &nbsp; <!-- to ensure this block is never empty, so it has the min width -->                
         </div>
-    </div>
+        <div id="content">            
+            <span jwcid="@If" condition="prop:userSession.admin">
+                <span jwcid="@admin/StatusWarning"/>
+            </span>       
+            <span jwcid="@RenderBody">Page content goes here.</span>
+        </div>    
+    </div>        
     <div jwcid="@common/Footer"></div>
   </body>
 </html>

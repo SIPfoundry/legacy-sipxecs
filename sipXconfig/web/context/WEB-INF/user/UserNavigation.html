@@ -1,62 +1,64 @@
 <span jwcid="$content$">
-  <span class="pageLabel" key="label.user">User:</span>&nbsp;
-  <span jwcid="@Insert" value="ognl:bean.userName"/>
-  <span jwcid="@If" condition="ognl:activeSetting != null && activeSetting.name.equals('personal-attendant')">
-    <span jwcid="@QuickHelp" value="message:quick.help.personalAttendant"/>
-  </span>
-  <div id="settings-nav">
-    <span jwcid="@setting/SettingsNavigation" bean="prop:bean"
-      activeSetting="prop:activeSetting" groupsToHide="literal:personal-attendant"
-      editSettingsListener="listener:editSettings">
-      <span jwcid="@common/Tab" isActive="prop:identificationTabActive">
-        <a jwcid="editUserLink@DirectLink" listener="listener:editUser"
-          parameters="prop:bean.id">
-          <span key="link.identification">Identification</span>
-        </a>
+  <span jwcid="@If" condition="ognl:renderCondition">
+      <span class="pageLabel" key="label.user">User:</span>&nbsp;
+      <span jwcid="@Insert" value="ognl:bean.userName"/>
+      <span jwcid="@If" condition="ognl:activeSetting != null && activeSetting.name.equals('personal-attendant')">
+        <span jwcid="@QuickHelp" value="message:quick.help.personalAttendant"/>
       </span>
-      <span jwcid="@common/Tab" isActive="prop:phonesTabActive">
-        <a jwcid="userPhonedLink@DirectLink" listener="listener:editUserPhones"
-          parameters="prop:bean.id">
-          <span key="link.phones">Phones</span>
-        </a>
-      </span>
-      <span jwcid="@common/Tab" isActive="prop:callForwardingTabActive">
-        <a jwcid="callForwardingLink@DirectLink"
-          listener="listener:editCallForwarding" parameters="prop:bean.id">
-          <span key="link.forwarding">Call Forwarding</span>
-        </a>
-      </span>
-      <span jwcid="@common/Tab" isActive="prop:userSchedulesTabActive">
-	    <a jwcid="userSchedulesLink@DirectLink"
-          listener="listener:editSchedules" parameters="prop:bean.id">
-          <span key="link.schedules">Schedules</span>
-        </a>
-      </span>
-      <span jwcid="@common/Tab" isActive="prop:speedDialTabActive">
-        <a jwcid="speedDialLink@DirectLink" listener="listener:editSpeedDial"
-          parameters="prop:bean.id">
-          <span key="link.speedDial">Speed Dial</span>
-        </a>
-      </span>
-      <span jwcid="@common/Tab" isActive="prop:supervisorTabActive">
-        <a id="groupSupervisorLink" jwcid="supervisorPermissionLink@DirectLink"
-          listener="listener:editSupervisorPermission" parameters="prop:bean.id">
-          <span key="link.supervisor">Group Supervisor</span>
-        </a>
-      </span>
-      <span jwcid="@common/Tab" isActive="prop:personalAttendantTabActive">
-        <a id="personalAttendantLink" jwcid="personalAttendantLink@DirectLink"
-          listener="listener:editPersonalAttendant" parameters="prop:bean.id">
-          <span key="link.attendant">Personal Attendant</span>
-        </a>
-      </span>
-      <span jwcid="@common/Tab" isActive="prop:registrationsTabActive">
-        <a id="userRegistrationsLink" jwcid="userRegistrationsLink@DirectLink"
-          listener="listener:viewUserRegistrations" parameters="prop:bean.id">
-          <span key="link.registrations">Registrations</span>
-        </a>
-      </span>
-    </span>
-  </div>
-  <span jwcid="@RenderBody"/>
+      <div jwcid="@common/LeftNavigation" renderCondition="ognl:renderCondition">
+        <span jwcid="@setting/SettingsNavigation" bean="prop:bean"
+          activeSetting="prop:activeSetting" groupsToHide="literal:personal-attendant"
+          editSettingsListener="listener:editSettings">
+          <span jwcid="@common/Tab" isActive="prop:identificationTabActive">
+            <a jwcid="editUserLink@DirectLink" listener="listener:editUser"
+              parameters="prop:bean.id">
+              <span key="link.identification">Identification</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="prop:phonesTabActive">
+            <a jwcid="userPhonedLink@DirectLink" listener="listener:editUserPhones"
+              parameters="prop:bean.id">
+              <span key="link.phones">Phones</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="prop:callForwardingTabActive">
+            <a jwcid="callForwardingLink@DirectLink"
+              listener="listener:editCallForwarding" parameters="prop:bean.id">
+              <span key="link.forwarding">Call Forwarding</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="prop:userSchedulesTabActive">
+            <a jwcid="userSchedulesLink@DirectLink"
+              listener="listener:editSchedules" parameters="prop:bean.id">
+              <span key="link.schedules">Schedules</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="prop:speedDialTabActive">
+            <a jwcid="speedDialLink@DirectLink" listener="listener:editSpeedDial"
+              parameters="prop:bean.id">
+              <span key="link.speedDial">Speed Dial</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="prop:supervisorTabActive">
+            <a id="groupSupervisorLink" jwcid="supervisorPermissionLink@DirectLink"
+              listener="listener:editSupervisorPermission" parameters="prop:bean.id">
+              <span key="link.supervisor">Group Supervisor</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="prop:personalAttendantTabActive">
+            <a id="personalAttendantLink" jwcid="personalAttendantLink@DirectLink"
+              listener="listener:editPersonalAttendant" parameters="prop:bean.id">
+              <span key="link.attendant">Personal Attendant</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="prop:registrationsTabActive">
+            <a id="userRegistrationsLink" jwcid="userRegistrationsLink@DirectLink"
+              listener="listener:viewUserRegistrations" parameters="prop:bean.id">
+              <span key="link.registrations">Registrations</span>
+            </a>
+          </span>
+        </span>
+      </div>
+      <span jwcid="@RenderBody"/>
+  </span>    
 </span>

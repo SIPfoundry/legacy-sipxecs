@@ -1,23 +1,23 @@
 <span jwcid="$content$">
   <span jwcid="@PhoneLabel" phone="prop:bean"/>
-  <div id="settings-nav">
-    <span jwcid="@setting/SettingsNavigation" bean="prop:bean"
-      activeSetting="prop:activeSetting"
-      editSettingsListener="listener:editSettings">
-      <span jwcid="@common/Tab" isActive="prop:identificationTabActive">
-        <a jwcid="deviceIdLink@DirectLink" listener="listener:editPhone"
-          parameters="prop:bean.id">
-          <span key="link.identification">Identification</span>
-        </a>
-      </span>
-      <span jwcid="@common/Tab" isActive="prop:linesTabActive">
-        <a jwcid="linesLink@DirectLink" listener="listener:editLines"
-          parameters="prop:bean.id">
-          <span key="link.lines">Lines</span>
-        </a>
-      </span>
-    </span>
-  </div>
+      <div jwcid="@common/LeftNavigation">
+        <span jwcid="@setting/SettingsNavigation" bean="prop:bean"
+          activeSetting="prop:activeSetting"
+          editSettingsListener="listener:editSettings">
+          <span jwcid="@common/Tab" isActive="prop:identificationTabActive">
+            <a jwcid="deviceIdLink@DirectLink" listener="listener:editPhone"
+              parameters="prop:bean.id">
+              <span key="link.identification">Identification</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="prop:linesTabActive">
+            <a jwcid="linesLink@DirectLink" listener="listener:editLines"
+              parameters="prop:bean.id">
+              <span key="link.lines">Lines</span>
+            </a>
+          </span>
+        </span>
+      </div>
   <span jwcid="@RenderBody"/>
   <div jwcid="@common/ProfilePreview" device="prop:bean"/>
 </span>

@@ -7,14 +7,14 @@
   <parameter name="loginRequired" default-value="true" required="no"/>
   <parameter name="restricted" default-value="true" required="no"/>
   <parameter name="useDojo" default-value="false" required="no"/>
-  
+    
   <inject property="applicationLifecycle" object="service:sipxconfig.ApplicationLifecycle"/>
   <inject property="userSession" type="state" object="userSession"/>
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="restartService" object="engine-service:restart"/>
   <inject property="tapestry" object="spring:tapestry"/>
   <inject property="webRequest" object="infrastructure:request"/>  
-  
+    
   <property name="baseURL" initial-value="webRequest.contextPath" />  
   <!--  use after Tacos upgrade 
   <bean name="ajaxDelegate" class="net.sf.tacos.ajax.components.AjaxShellDelegate">

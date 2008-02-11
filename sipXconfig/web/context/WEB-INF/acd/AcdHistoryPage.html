@@ -2,36 +2,37 @@
   <h2>
     <span key="title">ACD Reports</span>
   </h2>
-  <span jwcid="@If" condition="ognl:acdHistoricalStats.enabled">
-    <div id="settings-nav">
-    <span jwcid="@common/TabControl">
-      <span jwcid="@For" source="ognl:acdHistoricalStats.reports" value="ognl:availableReportsIndexItem" index="ognl:reportIndex">
-        <span jwcid="@common/Tab" isActive="ognl:availableReportsIndexItem.equals(reportName)">
-          <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:availableReportsIndexItem" id="ognl:'report' + reportIndex">
-            <span jwcid="@Insert" value="ognl:messages.getMessage('label.' + availableReportsIndexItem)"/>
-          </a>
+  
+    <div jwcid="@common/LeftNavigation" renderCondition="ognl:acdHistoricalStats.enabled">
+        <span jwcid="@common/TabControl">
+          <span jwcid="@For" source="ognl:acdHistoricalStats.reports" value="ognl:availableReportsIndexItem" index="ognl:reportIndex">
+            <span jwcid="@common/Tab" isActive="ognl:availableReportsIndexItem.equals(reportName)">
+              <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:availableReportsIndexItem" id="ognl:'report' + reportIndex">
+                <span jwcid="@Insert" value="ognl:messages.getMessage('label.' + availableReportsIndexItem)"/>
+              </a>
+            </span>
+          </span>
         </span>
-      </span>      
-    </span>
     </div>  
-    <div id="settings-content">
-      <span jwcid="@Insert" value="ognl:messages.getMessage('description.' + reportName)"/>
-      <span jwcid="@QuickHelp" value="message:acdHistory.help"/>
-      <ul class="component-links">
-        <li>
-          <a jwcid="@ExportLink" id="acdHistory:export" listener="listener:export"> 
-              <span key="link.export">Export</span>
-          </a>
-        </li>
-      </ul>        
-      <span jwcid="@cdr/CdrDates" startTime="ognl:startTime" endTime="ognl:endTime"/>
-      <table jwcid="@StatsTable" id="acd:history:list" class="component" 
-        source="ognl:rows"
-        columns="ognl:columns"
-        row="ognl:row"
-        usePager="ognl:true">
-      </table>
-    </div>
+    <span jwcid="@If" condition="ognl:acdHistoricalStats.enabled">
+        <div id="settings-content">
+          <span jwcid="@Insert" value="ognl:messages.getMessage('description.' + reportName)"/>
+          <span jwcid="@QuickHelp" value="message:acdHistory.help"/>
+          <ul class="component-links">
+            <li>
+              <a jwcid="@ExportLink" id="acdHistory:export" listener="listener:export"> 
+                  <span key="link.export">Export</span>
+              </a>
+            </li>
+          </ul>        
+          <span jwcid="@cdr/CdrDates" startTime="ognl:startTime" endTime="ognl:endTime"/>
+          <table jwcid="@StatsTable" id="acd:history:list" class="component" 
+            source="ognl:rows"
+            columns="ognl:columns"
+            row="ognl:row"
+            usePager="ognl:true">
+          </table>
+        </div>
   </span>
   <span jwcid="@Else">
     <span key="historicialStatsDisabled" class="user-error" raw="true"/>

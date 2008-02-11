@@ -1,3 +1,4 @@
+
 body
 {
 	font-family:Verdana, Arial, Helvetica, sans-serif;
@@ -225,31 +226,20 @@ fieldset#loginForm legend {
 }
 
 #contentContainer {
+	width: 100%;
     float: left;
-    position: relative;
-}
+}    
 
 #contentContainer #leftNav {
-    width: 15.5em;
-    position: absolute;
-    left: 0;
-    height: 100%;
-}
-
-#contentContainer #mainContent {
-    margin-left: 15.5em;
+	float: left;       
+	min-width: 10em;
 }
 
 #content
-{
-	clear: both;
+{	
+	width: 75%;
 	padding: 10px;
-}
-
-#settings-nav
-{
-        position: absolute;
-	left: 0;
+    float: left;	
 }
 
 #settings-nav ul
@@ -280,7 +270,6 @@ fieldset#loginForm legend {
 	/* clear:both is important for IE guillotine bug */
 	clear:both;
     text-align:center;
-    margin-left: 15em;
     padding: 15px;
 }
 

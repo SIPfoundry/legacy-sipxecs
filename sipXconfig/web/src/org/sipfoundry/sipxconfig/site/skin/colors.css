@@ -121,12 +121,8 @@ li.tab .active a:visited
 	background: #999999;
 }
 
-#contentContainer #leftNav {
-    background: url(/sipxconfig/skin/left-background.png) top left repeat-y #FFFFFF;
-}
-
-#content {
-    background: #FFFFFF;
+#contentContainer {
+    background: url(/sipxconfig/skin/leftNav-background.png) top left repeat-y #FFFFFF;
 }
 
 .highlight
@@ -312,3 +308,4 @@ div.auto_complete ul strong.highlight {
 .linkLogout:hover {
     background: url(/sipxconfig/skin/logout-hover.png) no-repeat left;
 }
+

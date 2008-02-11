@@ -15,6 +15,7 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.components.Block;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.event.PageEvent;
 import org.easymock.EasyMock;
@@ -106,13 +107,21 @@ public class BorderTest extends TestCase {
         private final boolean m_restricted;
         private final boolean m_loginRequired;
         private final UserSession m_userSession;
-
+        
         MockBorder(boolean restricted, boolean loginRequired, UserSession userSession) {
             m_restricted = restricted;
             m_loginRequired = loginRequired;
             m_userSession = userSession;
         }
 
+        public void setNavigationBlock(Block block) {
+            
+        }
+        
+        public Block getNavigationBlock() {
+            return null;
+        }
+        
         public boolean isLoginRequired() {
             return m_loginRequired;
         }
