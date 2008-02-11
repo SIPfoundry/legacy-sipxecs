@@ -72,6 +72,12 @@
       </type>
       <value>1</value>
     </setting>
+    <setting name="idleTimeout" unless="1.6">
+      <type>
+        <integer min="0" max="65536" />
+      </type>
+      <value />
+    </setting>
   </group>
   <group name="tone.dtmf">
     <setting name="level">
@@ -172,6 +178,12 @@
     </group>
   </group>
   <group name="voice">
+    <setting name="txPacketFilter" unless="1.6">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
     <group name="codecPref">
       <setting name="G711Mu">
         <type refid="codecPref" />
@@ -331,7 +343,7 @@
           <type>
             <integer min="10" />
           </type>
-          <value>500</value>
+          <value>1500</value>
         </setting>
         <setting name="jitterBufferMax">
           <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
@@ -339,7 +351,7 @@
           <type>
             <integer min="10" max="500" />
           </type>
-          <value>160</value>
+          <value>200</value>
         </setting>
       </group>
       <group name="Lin16">
@@ -631,6 +643,26 @@
       <value />
     </setting>
   </group>
+  <group name="tcpIpApp.keepalive.tcp" unless="1.6">
+    <setting name="idleTransmitInterval">
+      <type>
+        <integer />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="noResponseTrasmitInterval">
+      <type>
+        <integer />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip.tls.enable">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
   <group name="httpd">
     <setting name="enabled">
       <type>
@@ -654,12 +686,28 @@
     </group>
   </group>
   <group name="call">
-    <!-- PhoneConfiguration -->
+    <!-- PhoneConfiguration  - Filtered by excludes in SipConfiguration.java -->
     <setting name="donotdisturb.perReg">
       <type>
         <boolean />
       </type>
       <value>0</value>
+    </setting>
+    <setting name="callWaiting.ring">
+      <type>
+        <enum>
+          <option>
+            <value>beep</value>
+          </option>
+          <option>
+            <value>ring</value>
+          </option>
+          <option>
+            <value>silent</value>
+          </option>
+        </enum>
+      </type>
+      <value>beep</value>
     </setting>
     <!-- AppConfiguration until end of group -->
     <setting name="rejectBusyOnDnd">
@@ -698,12 +746,25 @@
       </type>
       <value>8</value>
     </setting>
-    <setting name="callsPerLineKey_600" if="polycom600" copy-of="callsPerLineKey">
+    <setting name="callsPerLineKey_600" if="polycom600"
+      copy-of="callsPerLineKey">
       <profileName>callsPerLineKey</profileName>
       <type>
         <integer min="1" max="24" />
       </type>
       <value>24</value>
+    </setting>
+    <setting name="dialtoneTimeout" unless="1.6">
+      <type>
+        <integer min="0" max="65536" />
+      </type>
+      <value>60</value>
+    </setting>
+    <setting name="transfer.blindPreferred" unless="1.6">
+      <type>
+        <boolean />
+      </type>
+      <value />
     </setting>
     <group name="shared">
       <setting name="disableDivert">
@@ -753,6 +814,12 @@
     </setting>
   </group>
   <group name="directory">
+    <setting name="dir.local.readonly" unless="1.6">
+      <type>
+        <boolean />
+      </type>
+      <value />
+    </setting>
     <group name="2mb">
       <setting name="dir.local.volatile.2meg">
         <type>
@@ -808,6 +875,12 @@
     <setting name="pres.reg">
       <type>
         <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="pres.idleSoftKeys">
+      <type>
+        <boolean />
       </type>
       <value />
     </setting>
@@ -874,6 +947,7 @@
       <setting name="sotet" copy-of="so" />
       <setting name="ttrs" copy-of="so" />
       <setting name="usb" copy-of="so" unless="1.6" />
+      <setting name="srtp" copy-of="so" unless="1.6" />
     </group>
     <group name="render">
       <setting name="level">
@@ -998,6 +1072,30 @@
         <value>2</value>
       </setting>
     </group>
+    <group name="srtp">
+      <setting name="offer.HMAC_SHA1_80">
+        <type>
+          <boolean />
+        </type>
+        <value />
+      </setting>
+      <setting name="offer.HMAC_SHA1_32">
+        <type>
+          <boolean />
+        </type>
+        <value />
+      </setting>
+    </group>
+  </group>
+  <group name="license">
+    <setting name="polling.time" unless="1.6">
+      <type>
+        <string>
+          <pattern>\d{2}:\d{2}</pattern>
+        </string>
+      </type>
+      <value>"02:00"</value>
+    </setting>
   </group>
   <group name="request.delay">
     <setting name="type">
@@ -1145,6 +1243,18 @@
         </type>
         <value />
       </setting>
+      <setting name="idleTimeout" unless="1.6">
+        <type>
+          <integer min="0" max="10" />
+        </type>
+        <value />
+      </setting>
+      <setting name="statusbar" unless="1.6">
+        <type>
+          <boolean />
+        </type>
+        <value />
+      </setting>
     </group>
     <group name="limits">
       <setting name="nodes">
@@ -1184,6 +1294,20 @@
     </group>
   </group>
   <group name="voIpProt.SIP">
+    <group name="serverFeatureControl">
+      <setting name="cf" unless="1.6">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="dnd" unless="1.6">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
     <group name="local">
       <setting name="port">
         <type>

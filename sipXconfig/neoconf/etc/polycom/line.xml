@@ -83,6 +83,16 @@
       <type refid="transport" />
       <value>DNSnaptr</value>
     </setting>
+    <setting name="serverFeatureControl.cf" unless="1.6">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="serverFeatureControl.dnd" unless="1.6">
+      <type>
+        <boolean />
+      </type>
+    </setting>
     <group name="server">
       <group name="1">
         <setting name="address">
@@ -222,6 +232,14 @@
           <boolean />
         </type>
         <value>0</value>
+      </setting>
+    </group>
+    <group name="missedCallTracking">
+      <setting name="enabled">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
       </setting>
     </group>
   </group>

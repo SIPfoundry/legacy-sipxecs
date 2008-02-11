@@ -27,6 +27,7 @@ public class SipConfiguration extends ProfileContext {
 
     static {
         s_callSettings.addExcludes("call/donotdisturb.*$");
+        s_callSettings.addExcludes("call/callWaiting.*$");
         s_callSettings.addExcludes("call/shared.*$");
     }
 

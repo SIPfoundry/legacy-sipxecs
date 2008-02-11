@@ -10,6 +10,7 @@
     reg.${i}.acd-login-logout="0"
     reg.${i}.acd-agent-available="0"
     reg.${i}.proxyRequire=""
+    reg.${i}.csta=""
 #end
   />
   <call>
@@ -24,6 +25,15 @@
 #end
 #end
     />
+    <missedCallTracking
+#foreach ($line in $lines)
+#set ($i = $velocityCount)
+#set ($group = $line.getSetting('call').getSetting('missedCallTracking'))
+#foreach ($setting in $cfg.getSettings($group))
+      call.missedCallTracking.${i}.${setting.ProfileName}="$!{setting.Value}"
+#end
+#end
+    />
     <serverMissedCall
 #foreach ($line in $lines)
 #set ($i = $velocityCount)
@@ -32,6 +42,10 @@
       call.serverMissedCall.${i}.${setting.ProfileName}="$!{setting.Value}"
 #end
 #end
+    />
+#set ($callWaitingRing = $cfg.EndpointSettings.getSetting('call/callWaiting.ring'))
+    <callWaiting
+      call.callWaiting.ring="$!{callWaitingRing.value}"/>
     />
   </call>
   <divert
