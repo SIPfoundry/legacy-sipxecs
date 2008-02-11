@@ -552,7 +552,53 @@ int SipClient::run(void* runArg)
          // Note that input was processed at this time.
          touch();
 
-         if (res > 0)
+         if ((res == 2 &&
+              readBuffer(0) == '\r' && readBuffer(1) == '\n') ||
+             (res == 4 &&
+              readBuffer(0) == '\r' && readBuffer(1) == '\n' &&
+              readBuffer(2) == '\r' && readBuffer(3) == '\n'))
+         {
+            // The 'message' was a keepalive (CR-LF or CR-LF-CR-LF).
+
+            // Log the message at DEBUG level.
+            // Only bother processing if the logs are enabled
+            if (   mpSipUserAgent->isMessageLoggingEnabled()
+                   || OsSysLog::willLog(FAC_SIP_INCOMING, PRI_DEBUG)
+               )
+            {
+               // Get the send address.
+               UtlString fromIpAddress;
+               int fromPort;
+               msg->getSendAddress(&fromIpAddress, &fromPort);
+
+               UtlString logMessage;
+               logMessage.append("Read keepalive message:\n");
+               logMessage.append("----Remote Host:");
+               logMessage.append(fromIpAddress);
+               logMessage.append("---- Port: ");
+               XmlDecimal(logMessage,
+                          portIsValid(fromPort) ? fromPort : defaultPort());
+               logMessage.append("----\n");
+
+               logMessage.append(readBuffer.data(), res);
+               UtlString messageString;
+               logMessage.append(messageString);
+               logMessage.append("====================END====================\n");
+
+               // Don't bother to send the message to the SipUserAgent for its internal log.
+
+               // Write the message to the syslog.
+               OsSysLog::add(FAC_SIP_INCOMING, PRI_DEBUG, "%s", logMessage.data());
+            }
+
+            // Delete the SipMessage allocated above, which is no longer needed.
+            delete msg;
+
+            // Now that logging is done, remove the parsed bytes and
+            // remember any unparsed input for later use.
+            readBuffer.remove(0, res);
+         }
+         else if (res > 0)
          {
             // Message successfully read.
 
