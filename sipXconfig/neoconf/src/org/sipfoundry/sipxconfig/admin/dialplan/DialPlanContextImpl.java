@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.EntitySaveListener;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -47,8 +48,8 @@ import org.springframework.dao.support.DataAccessUtils;
 /**
  * DialPlanContextImpl is an implementation of DialPlanContext with hibernate support.
  */
-public class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
-        DialPlanContext, ApplicationListener {
+public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implements
+        BeanFactoryAware, DialPlanContext, ApplicationListener {
     private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
     private static final String ATTENDANT_GROUP_ID = "auto_attendant";
     private static final String OPERATOR_CONSTANT = "operator";
@@ -72,9 +73,12 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     private VxmlGenerator m_vxmlGenerator;
 
+    /* delayed injection - working around circular reference */
+    public abstract GatewayContext getGatewayContext();
+
     /**
      * Loads dial plan, creates a new one if none exist
-     *
+     * 
      * @return the single instance of dial plan
      */
     DialPlan getDialPlan() {
@@ -121,7 +125,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     /**
      * Checks for duplicate names. Should be called before saving the rule.
-     *
+     * 
      * @param rule to be verified
      */
     private void validateRule(DialingRule rule) {
@@ -172,18 +176,18 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     /**
      * Gets all of the dialing rules using a particular gateway.
-     *
+     * 
      * @param gatewayId The ID of the gateway.
      * @return A List of the DialingRules for that gateway.
      */
     public List<DialingRule> getRulesForGateway(Integer gatewayId) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "dialingRulesByGatewayId", "gatewayId", gatewayId);
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("dialingRulesByGatewayId",
+                "gatewayId", gatewayId);
     }
 
     /**
      * Gets all of the dialing rules that can be added to a particular gateway.
-     *
+     * 
      * @param gatewayId The ID of the gateway
      * @return A List of the DialingRules that can be added to the gateway
      */
@@ -239,13 +243,14 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     /**
      * Resets the flexible dial plan to factory defaults.
-     *
+     * 
      * Loads default rules definition from bean factory file.
      */
     public DialPlan resetToFactoryDefault(String dialPlanBeanName) {
         removeAll(EmergencyRouting.class);
         removeAll(DialingRule.class);
         removeAll(DialPlan.class);
+        getGatewayContext().deleteVolatileGateways();
         getHibernateTemplate().flush();
 
         DialPlan newDialPlan = (DialPlan) m_beanFactory.getBean(dialPlanBeanName);
@@ -377,9 +382,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public void activateDialPlan() {
         ConfigGenerator generator = getGenerator();
         generator.activate(m_sipxReplicationContext, m_scriptsDirectory);
-        
+
         applyEmergencyRouting();
-        
+
         // notify the world we are done with activating dial plan
         m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this));
     }
@@ -472,7 +477,8 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
      * but pick the most likely one.
      */
     public String getVoiceMail() {
-        DialingRule[] rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(), InternalRule.class);
+        DialingRule[] rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(),
+                InternalRule.class);
         if (rules.length == 0) {
             return InternalRule.DEFAULT_VOICEMAIL;
         }
@@ -481,31 +487,34 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         String voicemail = ((InternalRule) rules[0]).getVoiceMail();
         return voicemail;
     }
-    
+
     /**
-     * Get first emergency rule that has a gateway w/o a route. This is the best guess
-     * at a default emergency address. see {@link http://track.sipfoundry.org/browse/XCF-1883}
+     * Get first emergency rule that has a gateway w/o a route. This is the best guess at a
+     * default emergency address. see:
+     * 
+     * @link http://track.sipfoundry.org/browse/XCF-1883
      */
     public EmergencyInfo getLikelyEmergencyInfo() {
-        EmergencyRule[] rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(), EmergencyRule.class);
+        EmergencyRule[] rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(),
+                EmergencyRule.class);
         for (EmergencyRule rule : rules) {
             if (rule.isEnabled() && !rule.getUseMediaServer()) {
-                for (Gateway candidate : rule.getGateways()) {                
+                for (Gateway candidate : rule.getGateways()) {
                     // by default phones cannot support sending to emergency host through
                     // a gateway that has a route in between.
                     // see http://list.sipfoundry.org/archive/sipx-dev/msg09644.html
                     if (StringUtils.isBlank(candidate.getRoute())) {
                         int port = candidate.getAddressPort();
-                        return new EmergencyInfo(candidate.getAddress(), port == 0 ? null : port, 
+                        return new EmergencyInfo(candidate.getAddress(), port == 0 ? null : port,
                                 rule.getEmergencyNumber());
                     }
                 }
             }
         }
 
-        return null;        
+        return null;
     }
-    
+
     public void removeGateways(Collection<Integer> gatewayIds) {
         List<DialingRule> rules = getRules();
         for (DialingRule rule : rules) {

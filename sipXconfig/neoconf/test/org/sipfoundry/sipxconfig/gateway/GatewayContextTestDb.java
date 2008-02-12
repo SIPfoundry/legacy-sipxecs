@@ -49,6 +49,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         m_genericModel = m_modelSource.getModel("genericGatewayStandard");
         m_genericSipTrunk = m_modelSource.getModel("sipTrunkStandard");
         TestHelper.cleanInsert("ClearDb.xml");
+        m_dialPlanContext.resetToFactoryDefault();
     }
 
     public void testAddGateway() {

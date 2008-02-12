@@ -109,6 +109,15 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         }
     }
 
+    public void deleteVolatileGateways() {
+        List<Gateway> gateways = getGateways();
+        for (Gateway gateway : gateways) {
+            if (gateway.getModel().isVolatile()) {
+                deleteGateway(gateway.getId());
+            }
+        }
+    }
+
     public List<Gateway> getGatewayByIds(Collection<Integer> gatewayIds) {
         List<Gateway> gateways = new ArrayList<Gateway>(gatewayIds.size());
         for (Integer id : gatewayIds) {

@@ -19,6 +19,7 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGeneratorTest;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -164,6 +165,10 @@ public class DialPlanContextImplTest extends TestCase {
 
         public EmergencyRouting getEmergencyRouting() {
             return new EmergencyRouting();
+        }
+
+        public GatewayContext getGatewayContext() {
+            return null;
         }
     }
 }

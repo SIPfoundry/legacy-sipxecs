@@ -129,6 +129,7 @@
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
     <property name="defaultDialPlanId" value="na.dialPlan" />
     <property name="vxmlGenerator" ref="vxml" />
+    <lookup-method name="getGatewayContext" bean="gatewayContext"/>
   </bean>
 
   <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

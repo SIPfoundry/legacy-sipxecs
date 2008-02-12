@@ -21,6 +21,11 @@ public class GatewayModel extends DeviceDescriptor {
 
     private String m_portLabelFormat;
 
+    /**
+     * true for gateway that should not survive dial plan reset operations
+     */
+    private boolean m_volatile;
+
     public GatewayModel() {
     }
 
@@ -54,5 +59,14 @@ public class GatewayModel extends DeviceDescriptor {
 
     public String getPortLabelFormat() {
         return m_portLabelFormat;
+    }
+
+    public boolean isVolatile() {
+        return m_volatile;
+
+    }
+
+    public void setVolatile(boolean v) {
+        m_volatile = v;
     }
 }
