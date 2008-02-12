@@ -88,13 +88,13 @@ private:
    UtlString mSignOutConfirmationAudio;
    UtlString mErrorAudio;
    
-   static const char    confirmationTone[];     // Confirmation Tone audio data
+   static const char *  confirmationTone;       // Confirmation Tone audio data
    static unsigned long confirmationToneLength; // and length.  See: ConfirmationTone.h
 
-   static const char    dialTone[];     // Busy Tone audio data
+   static const char *  dialTone;       // Busy Tone audio data
    static unsigned long dialToneLength; // and length.  See: BusyTone.h
 
-   static const char    busyTone[];     // Dial Tone audio data
+   static const char *  busyTone;       // Dial Tone audio data
    static unsigned long busyToneLength; // and length.  See: DialTone.h
 
    OsMsgQ* mpIncomingQ;
