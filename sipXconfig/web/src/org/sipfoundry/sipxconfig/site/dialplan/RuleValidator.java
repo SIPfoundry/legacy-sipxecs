@@ -14,6 +14,7 @@ import org.apache.tapestry.form.ValidationMessages;
 import org.apache.tapestry.form.validator.BaseValidator;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 public class RuleValidator extends BaseValidator {
@@ -30,6 +31,15 @@ public class RuleValidator extends BaseValidator {
             return;
         }
         if (!rule.isInternal() && rule.getGateways().size() <= 0) {
+            if (rule instanceof EmergencyRule) {
+                EmergencyRule emergencyRule = (EmergencyRule) rule;
+                
+                // emergency rules without gateways are still valid if
+                // caller sensitive forwarding is enabled
+                if (emergencyRule.getUseMediaServer()) {
+                    return;
+                }
+            }
             // rule is invalid - external rules have to have gateways
             rule.setEnabled(false);
             throw new ValidatorException(getMessage(), ValidationConstraint.CONSISTENCY);
