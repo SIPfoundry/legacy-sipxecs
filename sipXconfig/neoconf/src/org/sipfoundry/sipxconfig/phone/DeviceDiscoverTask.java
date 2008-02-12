@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.device.DiscoveredDevice;
 public class DeviceDiscoverTask implements Runnable {
 
     static final String PREFLIGHT_BINARY = "preflight";
-    
+
     private final DeviceFinder m_deviceFinder;
 
     /**
@@ -60,7 +60,7 @@ public class DeviceDiscoverTask implements Runnable {
         List<DiscoveredDevice> devices = new ArrayList<DiscoveredDevice>();
         Document document = getDiscoveredDevicesXmlDocument();
         if (document != null) {
-            Element root = getDiscoveredDevicesXmlDocument().getRootElement();
+            Element root = document.getRootElement();
             for (Iterator i = root.elementIterator("device"); i.hasNext();) {
                 Element deviceXml = (Element) i.next();
                 DiscoveredDevice device = new DiscoveredDevice();
