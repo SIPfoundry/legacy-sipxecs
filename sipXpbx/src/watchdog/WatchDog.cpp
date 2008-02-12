@@ -56,15 +56,16 @@ mpXmlRpcDispatch(NULL)
    mnProcessCount = processCount;
    
    // Take ownership of the UtlString object memory.
-   for(size_t x=0; x < allowedPeers.entries(); x++)
+   UtlContainable* peer;
+   while((peer = allowedPeers.get()))
    {
-      mAllowedPeers.insert(allowedPeers.at(x));
+      mAllowedPeers.insert(peer);
    }
    
    // Make sure the localhost is among the allowed peers.
    UtlString myName;
    OsSocket::getHostName(&myName);
-   if (NULL == mAllowedPeers.find(&myName))
+   if (!mAllowedPeers.contains(&myName))
    {
       mAllowedPeers.insert(new UtlString(myName));
    }

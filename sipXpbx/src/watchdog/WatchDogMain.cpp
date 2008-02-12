@@ -90,16 +90,31 @@ OsStatus getSettings(TiXmlDocument &doc, int &rCheckPeriod)
                         gEmailExecuteStr = pCommandStr;
 
                         retval = OS_SUCCESS;
-                    } else
-                        OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Error getting email execute setting");
-                } else
-                    OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Error getting email settings");
-            } else
-                OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Error getting health settings");
-        }else
-            OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Error getting settings node");
-    } else
-            OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Error Couldn't get root element in getSettings!");
+                    }
+                    else
+                    {
+                        OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Can not read email execute setting");
+                    }
+                }
+                else
+                {
+                    OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Can not read email settings");
+                }
+            }
+            else
+            {
+                OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Can not read health settings");
+            }
+        }
+        else
+        {
+            OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Can not read settings node");
+        }
+    }
+    else
+    {
+            OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Can not read root element in getSettings!");
+    }
 
     return retval;
 }
@@ -120,14 +135,14 @@ OsStatus initXMLRPCsettings(int & port, UtlSList& allowedPeers)
     bool configLoaded = ( configDb.loadFromFile(fileName) == OS_SUCCESS );
     if (!configLoaded)
     {
-        OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Error Couldn't open '%s'!", fileName.data());
+        OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Can not open '%s'!", fileName.data());
     }
     else
     {
         port = configDb.getPort("SIP_WATCHDOG_XMLRPC_PORT");
         if (PORT_NONE == port)
         {
-            OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Error Couldn't read SIP_WATCHDOG_XMLRPC_PORT!");
+            OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Can not read SIP_WATCHDOG_XMLRPC_PORT!");
         }
         else
         {
@@ -136,7 +151,7 @@ OsStatus initXMLRPCsettings(int & port, UtlSList& allowedPeers)
             if (peerNames.isNull())
             {
                 OsSysLog::add(FAC_WATCHDOG,PRI_ERR,
-                              "Error Couldn't read SIP_WATCHDOG_XMLRPC_PEERS!");
+                              "Can not read SIP_WATCHDOG_XMLRPC_PEERS!");
             }
             else
             {
@@ -146,13 +161,16 @@ OsStatus initXMLRPCsettings(int & port, UtlSList& allowedPeers)
                      peerIndex++)
                 {
                     // Found a port and at least one peer hostname.
-                    allowedPeers.insert(new UtlString(peerName));
+                    if (!allowedPeers.contains(&peerName))
+                    {
+                       allowedPeers.insert(new UtlString(peerName));
+                    }
                     retval = OS_SUCCESS;
                 }
                 
                 if (OS_SUCCESS != retval)
                 {
-                    OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Error No peers found.");
+                    OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"No peers found.");
                 }
             }
         }
@@ -595,7 +613,8 @@ int main(int argc, char* argv[])
             else
             {
                 OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
-                              "getpwnam(%s) failed, user does not exist.", sipxpbxuser);
+                              "WatchDogMain: getpwnam(%s) failed, user does not exist.",
+                              sipxpbxuser);
             }
         }
         else
@@ -604,7 +623,7 @@ int main(int argc, char* argv[])
             if (0 == setuid(pwd->pw_uid))
             {
                 OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
-                              "Drop privileges with setuid() to '%s'.", sipxpbxuser);
+                              "WatchDogMain: Drop privileges with setuid() to '%s'.", sipxpbxuser);
                               
                 // Preload the databases.  This ensures that:               
                 //  1. Their reference count does not go to 0 causing an expensive load by another
@@ -624,19 +643,22 @@ int main(int argc, char* argv[])
                 }
                 else
                 {
-                    fprintf(stderr, "ERROR: preloadAllDatabase() failed, rc = %d.", (int)rc); 
+                   OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+                                 "WatchDogMain preloadAllDatabase() failed, rc = %d", (int)rc); 
                 }
             }
             else
             {
-                OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
-                              "setuid(%d) failed, errno = %d.", (int)pwd->pw_uid, errno);
+               OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+                              "WatchDogMain: setuid(%d) failed, errno = %d.",
+                             (int)pwd->pw_uid, errno);
             }
         }
     }
     else
     {
-        fprintf(stderr, "ERROR: Failed to setuid(SIPXPBXUSER), username not defined.\n");
+       OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+                     "WatchDogMain: Failed to setuid(SIPXPBXUSER), username not defined.\n");
     }
     
     signal(SIGABRT,sig_routine);
