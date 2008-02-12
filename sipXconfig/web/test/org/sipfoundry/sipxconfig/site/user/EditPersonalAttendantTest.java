@@ -1,7 +1,13 @@
+/*
+ * 
+ * 
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ * 
+ * $
+ */
 package org.sipfoundry.sipxconfig.site.user;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -9,37 +15,29 @@ import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.test.Creator;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
-import org.sipfoundry.sipxconfig.site.common.LanguageSupport;
+import org.sipfoundry.sipxconfig.site.admin.LocalizedLanguageMessages;
 
 public class EditPersonalAttendantTest extends TestCase {
 
-    public void testLanguageLocalization() {
+    public void testInitLanguageList() {
         Creator creator = new Creator();
         EditPersonalAttendant out = (EditPersonalAttendant)creator.newInstance(EditPersonalAttendant.class);
 
-        LanguageSupport languageSupport = EasyMock.createStrictMock(LanguageSupport.class);
-        languageSupport.resolveLocaleName("fr");
-        EasyMock.expectLastCall().andReturn("français");
-        languageSupport.resolveLocaleName("fr-CA");
-        EasyMock.expectLastCall().andReturn("French (Canada)");
-        EasyMock.replay(languageSupport);
-        PropertyUtils.write(out, "languageSupport", languageSupport);
-        
+        LocalizedLanguageMessages localizedLanguages = org.easymock.classextension.EasyMock.createStrictMock(LocalizedLanguageMessages.class);
+        localizedLanguages.setAvailableLanguages(org.easymock.classextension.EasyMock.isA(String[].class));
+        localizedLanguages.getMessage("label.pl");
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn("Polski");
+        org.easymock.classextension.EasyMock.replay(localizedLanguages);
+        PropertyUtils.write(out, "localizedLanguageMessages", localizedLanguages);
+
         LocalizationContext localizationContext = EasyMock.createStrictMock(LocalizationContext.class);
         localizationContext.getInstalledLanguages();
-        EasyMock.expectLastCall().andReturn(new String[] {"fr", "fr-CA"});
+        EasyMock.expectLastCall().andReturn(new String[] {"pl"});
         EasyMock.replay(localizationContext);
         PropertyUtils.write(out, "localizationContext", localizationContext);
         
         out.initLanguageList();
-        
-        List<String> languages = new ArrayList<String>();
-        int numLanguages = out.getLanguageList().getOptionCount();
-        for (int i = 0; i < numLanguages; i++) {
-            languages.add(out.getLanguageList().getLabel(i));
-        }
-        
-        assertTrue(languages.contains("français"));
-        assertTrue(languages.contains("French (Canada)"));
+        assertEquals("Polski", out.getLanguageList().getLabel(0));
+        assertEquals("pl", out.getLanguageList().getOption(0));
     }
 }

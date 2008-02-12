@@ -166,4 +166,12 @@
       <value>${sysdir.etc}</value>
     </property>
   </bean>
+  <bean id="localizedLanguageMessages" class="org.sipfoundry.sipxconfig.site.admin.LocalizedLanguageMessages"
+    singleton="false">
+    <property name="languageSupport">
+      <ref bean="jarMessagesSource"/>
+    </property>  
+  </bean>
+  
+  
 </beans>

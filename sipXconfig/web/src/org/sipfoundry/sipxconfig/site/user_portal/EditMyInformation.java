@@ -23,8 +23,8 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.admin.LocalizedLanguageMessages;
 import org.sipfoundry.sipxconfig.site.admin.ModelWithDefaults;
-import org.sipfoundry.sipxconfig.site.common.LanguageSupport;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
 import org.sipfoundry.sipxconfig.site.user.UserForm;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
@@ -42,8 +42,8 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     @InjectObject(value = "spring:localizationContext")
     public abstract LocalizationContext getLocalizationContext();
     
-    @InjectObject(value = "spring:jarMessagesSource")
-    public abstract LanguageSupport getLanguageSupport();
+    @InjectObject(value = "spring:localizedLanguageMessages")
+    public abstract LocalizedLanguageMessages getLocalizedLanguageMessages();
     
     public abstract String getPin();
 
@@ -128,12 +128,10 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     }
 
     protected void initLanguageList() {
-        String[] languages = getLocalizationContext().getInstalledLanguages();
-        String[] localizedLocales = new String[languages.length];
-        for (int i = 0; i < languages.length; i++) {
-            localizedLocales[i] = getLanguageSupport().resolveLocaleName(languages[i]);
-        }
-        IPropertySelectionModel model = new ModelWithDefaults(null, localizedLocales);
+        String[] availableLanguages = getLocalizationContext().getInstalledLanguages();
+        getLocalizedLanguageMessages().setAvailableLanguages(availableLanguages);
+        IPropertySelectionModel model = new ModelWithDefaults(getLocalizedLanguageMessages(),
+                availableLanguages);
         setLanguageList(model);
     }
 

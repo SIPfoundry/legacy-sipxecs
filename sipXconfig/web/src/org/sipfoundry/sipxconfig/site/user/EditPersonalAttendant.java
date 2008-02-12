@@ -21,8 +21,8 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.admin.LocalizedLanguageMessages;
 import org.sipfoundry.sipxconfig.site.admin.ModelWithDefaults;
-import org.sipfoundry.sipxconfig.site.common.LanguageSupport;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
@@ -41,8 +41,8 @@ public abstract class EditPersonalAttendant extends PageWithCallback implements 
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
     
-    @InjectObject(value = "spring:jarMessagesSource")
-    public abstract LanguageSupport getLanguageSupport();
+    @InjectObject(value = "spring:localizedLanguageMessages")
+    public abstract LocalizedLanguageMessages getLocalizedLanguageMessages();
     
     @Persist
     public abstract Integer getUserId();
@@ -86,12 +86,10 @@ public abstract class EditPersonalAttendant extends PageWithCallback implements 
     }
     
     protected void initLanguageList() {
-        String[] languages = getLocalizationContext().getInstalledLanguages();
-        String[] localizedLocales = new String[languages.length];
-        for (int i = 0; i < languages.length; i++) {
-            localizedLocales[i] = getLanguageSupport().resolveLocaleName(languages[i]);
-        }
-        IPropertySelectionModel model = new ModelWithDefaults(null, localizedLocales);
-        setLanguageList(model);    
+        String[] availableLanguages = getLocalizationContext().getInstalledLanguages();
+        getLocalizedLanguageMessages().setAvailableLanguages(availableLanguages);
+        IPropertySelectionModel model = new ModelWithDefaults(getLocalizedLanguageMessages(),
+                availableLanguages);
+        setLanguageList(model);
     }
 }
