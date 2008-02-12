@@ -34,8 +34,14 @@ openssl="@OPENSSL@"
 caName=ca.`hostname --domain`
 
 # if there is a file of saved default answers for the questions, read them
-Defaults=SSL_DEFAULTS
-test -f ${Defaults} && . ${Defaults}
+DefaultDefaults=SSL_DEFAULTS
+Defaults=""
+
+DefaultServer=`hostname --fqdn`
+
+CurrentWorkDir=`pwd`
+WorkDir=${CurrentWorkDir}
+
 ############################################################################################
 ## The variables that can be set from Defaults:
 ## Name                     Description                             Default Value
@@ -63,7 +69,7 @@ showUsage()
 
     - A self-signed certificate for a single system:
 
-      gen-ssl-keys.sh
+      gen-ssl-keys.sh [ {-s|--server} <server-name> ]
 
     - A private key and certificate request for use
       with a public or private certificate authority:
@@ -74,14 +80,32 @@ showUsage()
       certificates for multiple systems:
 
       gen-ssl-keys.sh --new-ca
-.
+
     - a certificate for your server signed by your own authority
       certificate:
 
       gen-ssl-keys.sh --sign <csr-file>
                       [ --ca <ca-name> ]
                       [ --ca-key <keyfile> ]
-.
+
+    All of the above accept the optional arguments:
+
+         {-wd|--workdir} <working-directory> 
+
+                 Specifies a directory where all files should be stored:
+                 defaults to the current directory.  If specified, then
+                 any other file name is relative to this directory.
+
+         {-p|--parameters} <parameter-file> 
+
+                 Specifies a file from which default answers should be read:
+                 defaults to ${DefaultDefaults}
+
+         {-d|--defaults}
+
+                 Forces the default values to be used with no 
+                 interactive prompting.
+
     See @SIPX_DOCDIR@/INSTALL.ssl for details on usage.
 
     Derived from cca.sh:
@@ -120,9 +144,9 @@ askfor () # variable, prompt, default, storeflag
 
     eval "$var=\"$value\""
 
-    if test "${store}" != "NOSTORE" && ! grep -q -e "^${var}=" ${Defaults} 2> /dev/null
+    if test "${store}" != "NOSTORE" && ! grep -q -e "^${var}=" "${Defaults}" 2> /dev/null
     then
-        cat >> ${Defaults} <<EOF
+        cat >> "${Defaults}" <<EOF
 ${var}="${value}"
 EOF
     fi
@@ -206,7 +230,7 @@ Identifying information for the server:
 EOF
 
     askfor sipDomainName "SIP domain name" `hostname --domain` 
-    askfor server        "Full DNS name for the server" `hostname --fqdn` NOSTORE
+    askfor server        "Full DNS name for the server" ${Server:-${DefaultServer}} NOSTORE
     while test $"{caName}" = ${server}
       do
       echo "" 1>&2
@@ -232,6 +256,25 @@ genCA()
 
 Generating private Certificate Authority (CA)
 ______________________________________________________________________
+
+EOF
+    if test -f "${caName}".key -a -f "${caName}".crt
+    then
+        cat <<EOF
+
+  Certificate files for CA '${caName}' already exist
+    ${caName}.key 
+    ${caName}.crt
+
+  Using the existing files.
+
+  To generate new CA certificate, delete the existing files and re-execute. 
+______________________________________________________________________
+EOF
+        return 0
+    fi
+
+    cat <<EOF
 
         Generating RSA private key for CA (${CAkeyBits} bit)
 
@@ -306,6 +349,7 @@ EOT
         -in "${caName}.csr" \
         -out "${caName}.crt" \
         -text \
+        -certopt no_pubkey,no_sigdump \
         > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then
@@ -419,6 +463,7 @@ EOT
         -in ${server}.csr \
         -out ${server}.crt \
         -text \
+        -certopt no_pubkey,no_sigdump \
         > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then
@@ -723,6 +768,52 @@ do
             AutoDefault=AUTODEFAULT
             ;;
 
+        -p|--parameters)
+            ##
+            ## Set the file from which default answers should be read
+            ##
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <parameter-file> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Defaults=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -s|--server)
+            ##
+            ## Set the file from which default answers should be read
+            ##
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <server-name> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Server=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -wd|--workdir)
+            ##
+            ## Set the directory where database files and outputs should be
+            ##
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <working-directory> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                WorkDir=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+
         *)
             ##
             ## unrecognized argument
@@ -734,6 +825,18 @@ do
 
     shift # always consume 1
 done
+
+if test -z "${Defaults}"
+then
+    Defaults=${DefaultDefaults}
+fi
+
+if test "${CurrentWorkDir}" != "${WorkDir}"
+then
+    cd "${WorkDir}" > /dev/null || exit 1
+fi
+
+test -r ${Defaults} && . ${Defaults}
 
 case ${Action} in
 
