@@ -158,9 +158,9 @@
   </bean>
 
   <bean name="preInitializeSessionFactory" class="org.sipfoundry.sipxconfig.common.SpringBeanPreInitializer">
-    <property name="beanName" value="sessionFactory"/>
+    <property name="beanName" value="sessionFactory" />
   </bean>
-  
+
   <!--
     - H I B E R N A T E   S E S S I O N
   -->
@@ -226,8 +226,7 @@
     </property>
   </bean>
 
-  <bean id="daoEventPublisher" class="org.sipfoundry.sipxconfig.common.event.DaoEventPublisherImpl">
-  </bean>
+  <bean id="daoEventPublisher" class="org.sipfoundry.sipxconfig.common.event.DaoEventPublisherImpl"></bean>
 
   <bean id="onDeleteEventDispatcher" class="org.sipfoundry.sipxconfig.common.event.DaoEventDispatcher"
     factory-method="createDeleteDispatcher">
@@ -249,6 +248,11 @@
   <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
     <property name="resourceLoaderPath">
       <value>file:${sysdir.etc}</value>
+    </property>
+    <property name="velocityPropertiesMap">
+      <map>
+        <entry key="velocimacro.permissions.allow.inline.local.scope" value="true" />
+      </map>
     </property>
   </bean>
 
