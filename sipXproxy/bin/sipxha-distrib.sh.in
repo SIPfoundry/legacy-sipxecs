@@ -102,7 +102,7 @@ CAfile = @SIPX_CONFDIR@/ssl/authorities/${ca_file}
 verify = 2
 debug = ${stunnel_debug_level}
 output = @SIPX_LOGDIR@/sipstunnel.log
-[postgresql] >> ${stunnel_config_file}
+[postgresql]
 accept = ${stunnel_accept_port}
 connect = ${stunnel_forward_port}
 EOF
