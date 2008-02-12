@@ -347,7 +347,7 @@ genServerCSR()
         echo "${myName}:Error: Failed to generate RSA private key" 1>&2
         exit 1
     fi
-    chmod go= $server.key
+    chmod o=,g=r $server.key
 
     echo "______________________________________________________________________"
     echo ""

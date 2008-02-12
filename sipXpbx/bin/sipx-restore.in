@@ -209,6 +209,16 @@ then
   tar xzvC / --exclude $DB_TAR < $CONFIGURATION_PATH
   echo "done."
 
+  # Re-install the local SSL files - it's always a safe thing to do.
+  if [ -d $SIPX_CERTDB_DIR ]
+  then
+    echo -n "Re-installing local SSL files from $SIPX_CERTDB_DIR..."
+    pushd $SIPX_CERTDB_DIR > /dev/null
+    @SIPX_BINDIR@/ssl-cert/install-cert.sh 
+    popd > /dev/null
+    echo "done."
+  fi
+  
 fi # *** END Configuration ***
 
 # *** BEGIN Voicemail ***

@@ -142,6 +142,7 @@ then
     @SIPX_PARKMUSICDIR@/* \
     @SIPX_VXMLDATADIR@/prompts/* \
     @SIPX_PAGEMUSICDIR@/* \
+    $SIPX_CERTDB_DIR/* \
     "
 
   postgresql_running
