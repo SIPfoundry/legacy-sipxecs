@@ -505,13 +505,6 @@ void cleanup()
     gbDone = TRUE;
 }
 
-void clearStoppedProcesses()
-{
-    //now walk the processList and whack em
-    for ( int loop = 0; loop < gnProcessCount; loop++ )
-        gpProcessList[loop]->resetStoppedState();
-}
-
 void sig_routine(int sig)
 {
 
@@ -531,13 +524,13 @@ void sig_routine(int sig)
        break;
     case SIGTERM:
 #ifdef DEBUG
-       osPrintf("Execution TERMINATED!");
+       osPrintf("Execution TERMINATED!\n");
 #endif /* DEBUG */
        OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Execution TERMINATED!");
        break;
     case SIGKILL:
 #ifdef DEBUG
-       osPrintf("Execution KILLED!");
+       osPrintf("Execution KILLED!\n");
 #endif /* DEBUG */
        OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Execution KILLED!");
        break;
@@ -553,17 +546,15 @@ void sig_routine(int sig)
 
 int main(int argc, char* argv[])
 {
-    UtlString outBuffer;
-    UtlString commandStr;
-    UtlString strVerb = "";
-    UtlString gstrErrorMsg;
-    UtlString processXMLPath = ".";
+    // All osPrintf output should go to the console until the log file is initialized.
+    enableConsoleOutput(true);
 
     UtlString argString;
     const char * sipxpbxuser = (char *)SIPXPBXUSER;
     for (int argIndex = 1; argIndex < argc; argIndex++) 
     {
         bool usageExit = false;
+        int valueExit = 1;
 
         argString = argv[argIndex];
         NameValueTokenizer::frontBackTrim(&argString, "\t ");
@@ -571,6 +562,7 @@ int main(int argc, char* argv[])
         if (argString.compareTo("-h") == 0) 
         {
             usageExit = true;
+            valueExit = 0;
         }
         else if (argString.compareTo("-f") == 0)
         {
@@ -584,20 +576,62 @@ int main(int argc, char* argv[])
                 strWatchDogFilename = argv[++argIndex];
                 // This is OK to print directly, since it happens at startup and is
                 // triggered only by special arguments.
-                osPrintf("WatchDog XML configuration set to %s\n", strWatchDogFilename.data());
+                osPrintf("WatchDog XML configuration set to '%s'.\n", strWatchDogFilename.data());
             }
+        }
+        else
+        {
+            // Unknown argument.
+            usageExit = true;
         }
 
         if (usageExit)
         {
-            enableConsoleOutput(true);
-            osPrintf("usage: %s [-h] [-u username]\n", argv[0]);
+            osPrintf("usage: %s [-h] [-f filename]\n", argv[0]);
             osPrintf(" -h           Print this help and exit.\n");
             osPrintf(" -f filename  Use the specified watchdog config file.\n");
-            return 1;
+            return valueExit;
         }
     }
 
+    signal(SIGABRT,sig_routine);
+    signal(SIGTERM,sig_routine);
+    signal(SIGINT,sig_routine);
+
+    //set our exit routine
+    atexit(cleanup);
+    
+    // The location of the watchdog config file might have been supplied on the command-line.
+    // Otherwise, the config file is SIPX_CONFDIR/WatchDog.xml.
+    if (strWatchDogFilename.isNull())
+    {
+       strWatchDogFilename = SipXecsService::Path(SipXecsService::ConfigurationDirType,
+                                                  "WatchDog.xml");
+    }
+
+    // Load the WatchDog XML (settings) file.
+    TiXmlDocument watchdogXMLDoc;
+    OsStatus rc = loadWatchDogXML(watchdogXMLDoc, strWatchDogFilename);
+    if (OS_SUCCESS != rc)
+    {
+        osPrintf("Error: loadWatchDogXML() failed, rc = %d.\n", (int)rc);
+        return 2;
+    }
+
+    // Initialize the log file.
+    rc = initLogfile(watchdogXMLDoc);
+    if (OS_SUCCESS != rc)
+    {
+        osPrintf("Error: initLogfile() failed, rc = %d.\n", (int)rc);
+        return 3;
+    }
+
+    // Now that the log file is initialized, stop sending osPrintf to the console.
+    // All relevant log messages from this point on must use OsSysLog::add().
+    enableConsoleOutput(false);
+    OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Loaded WatchDog XML from: %s",
+                  strWatchDogFilename.data());
+    
     // Drop privileges down to the specified user.
     if (NULL != sipxpbxuser && 0 != strlen(sipxpbxuser))
     {
@@ -635,11 +669,12 @@ int main(int argc, char* argv[])
                 //  2. The first touch of each database is performed by a non-root process, thus 
                 //     allowing processes running as root to subsequently access the database 
                 //     without causing the known fastdb hang problem.  
-                OsStatus rc = SIPDBManager::getInstance()->preloadAllDatabase();
+                rc = SIPDBManager::getInstance()->preloadAllDatabase();
                 if (OS_SUCCESS == rc)
                 {
                     // The databases must be released on exit.
                     gbPreloadedDatabases = TRUE;
+                    OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Preloaded databases.");
                 }
                 else
                 {
@@ -660,115 +695,68 @@ int main(int argc, char* argv[])
        OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
                      "WatchDogMain: Failed to setuid(SIPXPBXUSER), username not defined.\n");
     }
-    
-    signal(SIGABRT,sig_routine);
-    signal(SIGTERM,sig_routine);
-    signal(SIGINT,sig_routine);
-
-    //set our exit routine
-    atexit(cleanup);
-
-    // The location of the watchdog config file might have been supplied on the command-line.
-    // Otherwise, the config file is SIPX_CONFDIR/WatchDog.xml.
-    if (strWatchDogFilename.isNull())
+        
+    // Determine the ProcessDefinitions XML file path.
+    UtlString processXMLPath;
+    rc = getProcessXMLPath(watchdogXMLDoc, processXMLPath);
+    if (OS_SUCCESS != rc)
     {
-       strWatchDogFilename = SipXecsService::Path(SipXecsService::ConfigurationDirType,
-                                                  "WatchDog.xml");
+        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "getProcessXMLPath() failed, rc = %d.", (int)rc);
+        return 4; 
     }
+    OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Using ProcessDefinitions XML from: %s", 
+                  processXMLPath.data());
 
-    OsSysLog::add(FAC_WATCHDOG, PRI_NOTICE,
-                  "Loading WatchDog XML: '%s'",strWatchDogFilename.data());
-
+    // Load the ProcessDefinitions XML file.
     TiXmlDocument processXMLDoc;
-    TiXmlDocument watchdogXMLDoc;
-
-    if ( loadWatchDogXML(watchdogXMLDoc, strWatchDogFilename) == OS_SUCCESS )
+    UtlString gstrErrorMsg;
+    rc = initProcessXMLLayer(processXMLPath, processXMLDoc, gstrErrorMsg);
+    if (OS_SUCCESS != rc)
     {
-       if ( initLogfile(watchdogXMLDoc) == OS_SUCCESS )
-       {
-          if ( getProcessXMLPath(watchdogXMLDoc, processXMLPath) ==
-              OS_SUCCESS )
-          {
-#ifdef DEBUG
-             osPrintf("Loading ProcessDefinitions XML from: %s\n",
-                      processXMLPath.data());
-#endif /* DEBUG */
-             OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
-                           "Loading WatchDog XML from: %s",
-                           strWatchDogFilename.data());
-             OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
-                           "Loading ProcessDefinitions XML from: %s",
-                           processXMLPath.data());
-
-             if ( initProcessXMLLayer(processXMLPath, processXMLDoc,
-                                      gstrErrorMsg) ==
-                 OS_SUCCESS )
-             {
-
-                if ( getSettings(watchdogXMLDoc,gnCheckPeriod) ==
-                    OS_SUCCESS )
-                {
-                   if ( createProcessList(watchdogXMLDoc, processXMLDoc,
-                                          gpProcessList, gnProcessCount) ==
-                       OS_SUCCESS )
-                   {
-                      // This will remove and processes in the
-                      // stopped state from the processAlias.dat file.
-                      clearStoppedProcesses();
-
-                      // Now create the "watchdog" which will
-                      // monitor the process list.
-
-                      OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
-                                    "Process check occurs every %d seconds\n",gnCheckPeriod);
-
-                      UtlSList allowedPeers;
-                      int port;
-                      if ( OS_SUCCESS == 
-                          initXMLRPCsettings(port, allowedPeers) )
-                      {              
-                         // The new WatchDog object takes ownership of the allowedPeers memory.
-                         pDog = new WatchDog(gnCheckPeriod, gpProcessList,
-                                             gnProcessCount, port, allowedPeers);
-                         pDog->start();
-                         doWaitLoop();
-                      }
-                   }
-                   else
-                   {
-                      // These messages are also only generated at
-                      // startup time.
-                      // :TODO: All these error messages need to be sent
-                      // to stderr.
-                      // Note that "ProcessDefinitions.xml" is fixed as
-                      // the last component of the process XML file name.
-                      // See loadProcessXML in processCommon.cpp.
-                      osPrintf("Couldn't load process list: Error in "
-                               "'%s' and/or '%s/ProcessDefinitions.xml'.\n",
-                               strWatchDogFilename.data(),
-                               processXMLPath.data());
-                   }
-                }
-                else
-                {
-                   osPrintf("Couldn't get check period from xml file!\n");
-                }
-             }
-             else
-             {
-                osPrintf("Couldn't get process xml path from xml!\n");
-             }
-          }
-       }
-       else
-       {
-          osPrintf("Couldn't init logfile!\n");
-       }
+        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "initProcessXMLLayer() failed, rc = %d, msg='%s'.",
+                      (int)rc, gstrErrorMsg.data());
+        return 5;
     }
-    else
+    
+    // Get the general Watchdog settings.
+    rc = getSettings(watchdogXMLDoc, gnCheckPeriod);
+    if (OS_SUCCESS != rc)
     {
-       osPrintf("Couldn't load watchdog XML file!\n");
+        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "getSettings() failed, rc = %d.", (int)rc);
+        return 6;
     }
-    // :TODO: This should exit success/failure as appropriate.
+    OsSysLog::add(FAC_WATCHDOG, PRI_INFO, 
+                  "Process check occurs every %d seconds.", gnCheckPeriod);
+    
+    // Create the list of processes to watch.
+    rc = createProcessList(watchdogXMLDoc, processXMLDoc, gpProcessList, gnProcessCount);
+    if (OS_SUCCESS != rc)
+    {
+        // Apparently this is a common case, so send useful information to the console too.
+        // Note that "ProcessDefinitions.xml" is fixed as the last component of the process XML 
+        // file name.  See loadProcessXML in processCommon.cpp.
+        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "createProcessList() failed, rc = %d.", (int)rc);        
+        enableConsoleOutput(true);
+        osPrintf("Couldn't load process list: Error in '%s' and/or '%s/ProcessDefinitions.xml'.\n",
+                 strWatchDogFilename.data(), processXMLPath.data());
+        return 7;
+    }
+    
+    // Get the Watchdog XML-RPC server settings.
+    UtlSList allowedPeers;
+    int port;
+    rc = initXMLRPCsettings(port, allowedPeers);
+    if (OS_SUCCESS != rc)
+    {
+        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "initXMLRPCsettings() failed, rc = %d.", (int)rc);
+        return 8;
+    }
+    
+    // Create the "watchdog" which will monitor the process list.
+    pDog = new WatchDog(gnCheckPeriod, gpProcessList, gnProcessCount, port, allowedPeers);
+    pDog->start();
+    doWaitLoop();
+
+    // Successful run.
     return 0;
 }
