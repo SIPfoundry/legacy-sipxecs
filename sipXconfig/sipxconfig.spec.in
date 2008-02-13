@@ -261,6 +261,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
 %config(noreplace) %{sipxpbxconf}/mailbox/*
 
+%define audiocodesdir %{_localstatedir}/sipxdata/audiocodes
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{audiocodesdir}
+%config(noreplace) %{audiocodesdir}/*
+
 %pre
 sipx-upgrade -p sipxconfig -c
 
