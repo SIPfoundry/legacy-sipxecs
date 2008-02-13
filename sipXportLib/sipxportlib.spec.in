@@ -120,3 +120,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/utl/*
 %{_includedir}/xmlparser/*
 %{_includedir}/sipxunit/*
+
+%post
+# Correct the group of any sipX file that has group 4294967295.
+# (Actually, it will catch any file with a group number that is
+# not in /etc/group.)
+# This is done here in sipXportLib so it completes before the
+# components that call pkg-upgrade are installed, to avoid the
+# bug in pkg-upgrade triggered by such files.
+find @SIPX_CONFDIR@ \
+	@SIPX_DBDIR@ \
+	@SIPX_LOGDIR@ \
+	@SIPX_VXMLDATADIR@ \
+	@wwwdir@/cgi-bin/replication \
+     -nogroup | 
+         xargs chgrp @SIPXPBXGROUP@

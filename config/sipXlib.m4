@@ -105,8 +105,32 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
                         WARNING: Adjust accordingly when following INSTALL instructions])
     test -z $wwwdir && wwwdir='${datadir}/www'
 
+    # Get the user to run sipX under.
     AC_ARG_VAR(SIPXPBXUSER, [The sipX service daemon user name, default is 'sipxchange'])
     test -z $SIPXPBXUSER && SIPXPBXUSER=sipxchange
+
+    # Get the group to run sipX under.
+    default_group=`grep ^$SIPXPBXUSER: /etc/passwd | cut -d: -f4`
+    if test -z "$default_group"
+    then
+        AC_MSG_ERROR([No /etc/passwd entry for SIPXPBXUSER $SIPXPBXUSER (or it has no default group)])
+    else        
+	# Try to convert the group from a number into a group name.
+ 	# The [[...]] below is due to m4's quoting, as set by automake:
+	# The outer pair are quotes, the inner pair go through to ./configure,
+	# and are seen by grep.
+	group_name=`grep '^[[^:]]*:[[^:]]*':$default_group: /etc/group | cut -d: -f1`
+	test -z "$group_name" && group_name=$default_group
+
+	AC_ARG_VAR(SIPXPBXGROUP, [The sipX service daemon group name, default is $group_name])
+	test -z $SIPXPBXGROUP && SIPXPBXGROUP=$group_name
+
+ 	# Verify that the group exists.
+	if ! grep ^$SIPXPBXGROUP: /etc/group >/dev/null
+        then
+            AC_MSG_ERROR([No /etc/group entry for SIPXPBXGROUP $SIPXPBXGROUP])
+	fi
+    fi
 
     # these next three are probably not used any more
     AC_SUBST(SIPXPHONECONF, [${sysconfdir}/sipxphone])
@@ -191,7 +215,7 @@ AC_DEFUN([SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED],[
 AC_DEFUN([SFAC_AUTOMAKE_VERSION],[
    AC_MSG_CHECKING(for automake version >= $1)
    sf_am_version=`automake --version | head -n 1 | awk '/^automake/ {print $NF}'`
-   AX_COMPARE_VERSION( [$1], [le], [$sf_am_version], AC_MSG_RESULT( $sf_am_version is ok), AC_MSG_ERROR( found $sf_am_version - you must upgrade automake ))
+   AX_COMPARE_VERSION( [$1], [le], [$sf_am_version], AC_MSG_RESULT($sf_am_version is ok), AC_MSG_ERROR(found $sf_am_version - you must upgrade automake))
 ])
 
 AC_DEFUN([SFAC_REQUIRE_LIBWWWSSL],

@@ -299,7 +299,7 @@ LoadModule cgi_module @APACHE2_MOD@/mod_cgi.so
 #  don't use Group #-1 on these systems!
 #
 User @SIPXPBXUSER@
-Group #-1
+Group @SIPXPBXGROUP@
 </IfModule>
 </IfModule>
 
