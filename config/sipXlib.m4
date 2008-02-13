@@ -110,7 +110,7 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
     test -z $SIPXPBXUSER && SIPXPBXUSER=sipxchange
 
     # Get the group to run sipX under.
-    default_group=`grep ^$SIPXPBXUSER: /etc/passwd | cut -d: -f4`
+    default_group=`grep "^$SIPXPBXUSER:" /etc/passwd | head -1 | cut -d: -f4`
     if test -z "$default_group"
     then
         AC_MSG_ERROR([No /etc/passwd entry for SIPXPBXUSER $SIPXPBXUSER (or it has no default group)])
@@ -119,14 +119,16 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
  	# The [[...]] below is due to m4's quoting, as set by automake:
 	# The outer pair are quotes, the inner pair go through to ./configure,
 	# and are seen by grep.
-	group_name=`grep '^[[^:]]*:[[^:]]*':$default_group: /etc/group | cut -d: -f1`
+	group_name=`grep "^[[^:]]*:[[^:]]*:$default_group:" /etc/group |
+		    head -1 |
+ 		    cut -d: -f1`
 	test -z "$group_name" && group_name=$default_group
 
 	AC_ARG_VAR(SIPXPBXGROUP, [The sipX service daemon group name, default is $group_name])
 	test -z $SIPXPBXGROUP && SIPXPBXGROUP=$group_name
 
  	# Verify that the group exists.
-	if ! grep ^$SIPXPBXGROUP: /etc/group >/dev/null
+	if ! grep "^$SIPXPBXGROUP:" /etc/group >/dev/null
         then
             AC_MSG_ERROR([No /etc/group entry for SIPXPBXGROUP $SIPXPBXGROUP])
 	fi
