@@ -9,10 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.bulk.csv;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.collections.Closure;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -289,10 +290,17 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
     }
 
     protected String dataToString(String[] row) {
-        if (row.length > 0 && StringUtils.isNotBlank(row[0])) {
-            return row[0];
+        List<String> ids = new ArrayList<String>();
+        Index[] fields = new Index[] {
+            Index.USERNAME, Index.SERIAL_NUMBER
+        };
+        for (Index f : fields) {
+            String val = f.get(row);
+            if (StringUtils.isNotBlank(val)) {
+                ids.add(val);
+            }
         }
-        return ArrayUtils.toString(row);
+        return StringUtils.join(ids, " ");
     }
 
     public void setSettingDao(SettingDao settingDao) {

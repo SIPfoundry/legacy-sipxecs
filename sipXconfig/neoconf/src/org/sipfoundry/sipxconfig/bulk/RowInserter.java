@@ -12,11 +12,9 @@ package org.sipfoundry.sipxconfig.bulk;
 import java.io.Serializable;
 
 import org.apache.commons.collections.Closure;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter;
-import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -46,20 +44,9 @@ public abstract class RowInserter<T> implements Closure {
 
     public final void execute(Object input) {
         T row = (T) input;
-        String[] rowArray = (String[]) input;
-        String userName = Index.USERNAME.get(rowArray);
-        String serialNo = Index.SERIAL_NUMBER.get(rowArray);
+        String jobDescription = dataToString(row);
+        final Serializable jobId = m_jobContext.schedule("Import data: " + jobDescription);
 
-        String jobDescription;
-        if (StringUtils.isNotBlank(serialNo) && StringUtils.isBlank(userName)) {
-            jobDescription = "Import Phone: " + serialNo;
-        } else if (StringUtils.isBlank(serialNo) && StringUtils.isNotBlank(userName)) {
-            jobDescription = "Import User: " + userName;
-        } else {
-            jobDescription = "Import Phone and User: " + serialNo + " " + userName;
-        }
-
-        final Serializable jobId = m_jobContext.schedule(jobDescription);
         TransactionTemplate tt = new TransactionTemplate(m_transactionManager);
         try {
             TransactionCallback callback = new JobTransaction(jobId, row);

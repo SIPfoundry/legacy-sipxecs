@@ -150,6 +150,24 @@ public class CsvRowInserterTest extends TestCase {
 
         verify(domainManager);
     }
+    
+    public void testDataToString() {
+        CsvRowInserter impl = new CsvRowInserter();
+
+        assertEquals("", impl.dataToString(new String[0]));        
+
+        String[] row = Index.newRow();
+        assertEquals("", impl.dataToString(row));
+
+        Index.USERNAME.set(row, "user");
+        assertEquals("user", impl.dataToString(row));
+
+        Index.SERIAL_NUMBER.set(row, "phone");
+        assertEquals("user phone", impl.dataToString(row));
+
+        Index.USERNAME.set(row, "");
+        assertEquals("phone", impl.dataToString(row));
+    }
 
     public void testPhoneFromRowUpdate() {
         final String[] phoneRow = new String[] {
