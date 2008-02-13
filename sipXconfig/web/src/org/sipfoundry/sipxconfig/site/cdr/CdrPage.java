@@ -9,6 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.site.cdr;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -20,6 +24,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel;
 
 public abstract class CdrPage extends BasePage implements PageBeginRenderListener {
+    private static final String ACTIVE_TAB = "active";
     private static final String HISTORIC_TAB = "historic";
 
     @Persist
@@ -35,10 +40,19 @@ public abstract class CdrPage extends BasePage implements PageBeginRenderListene
 
     public abstract void setCallResolverProcess(SipxProcess sipxProcess);
 
+    public Collection getTabNames() {
+        SipxProcess callResolverProcess = getCallResolverProcess();
+        if (callResolverProcess.isEnabled()) {
+            return Arrays.asList(ACTIVE_TAB, HISTORIC_TAB);
+        }
+        return Collections.singleton(HISTORIC_TAB);
+    }
+
     public void pageBeginRender(PageEvent event) {
         SipxProcess crp = getCallResolverProcess();
         if (crp == null) {
-            crp = new SipxProcess(getSipxProcessContext(), SipxProcessModel.ProcessName.CALL_RESOLVER);
+            crp = new SipxProcess(getSipxProcessContext(),
+                    SipxProcessModel.ProcessName.CALL_RESOLVER);
             setCallResolverProcess(crp);
         }
 
