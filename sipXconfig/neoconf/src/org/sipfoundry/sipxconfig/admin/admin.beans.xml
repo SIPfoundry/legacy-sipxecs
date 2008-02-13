@@ -50,13 +50,13 @@
     <property name="domainManager" ref="domainManager" />
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="processContext" ref="sipxProcessContext" />
-    <property name="configurationDiagnosticContext" ref="configurationDiagnosticContext" />
     <property name="taskName" value="first-run" />
   </bean>
 
-  <bean id="exportCsv" class="org.sipfoundry.sipxconfig.admin.ExportCsv">
+  <bean id="exportCsv"
+    class="org.sipfoundry.sipxconfig.admin.ExportCsv">
     <property name="coreContext" ref="coreContext" />
     <property name="phoneContext" ref="phoneContext" />
-    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="mailboxManager" ref="mailboxManager"/>
   </bean>
 </beans>

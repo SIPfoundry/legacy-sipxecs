@@ -18,10 +18,6 @@ public class ConfigurationDiagnosticResult implements Serializable {
         public static boolean hasDetails(Status status) {
             return status == Warning || status == Error || status == Fatal;
         }
-
-        public static boolean isFaling(Status status) {
-            return status == Warning || status == Error || status == Fatal;
-        }
     }
 
     public static final ConfigurationDiagnosticResult UNKNOWN_RESULT = new UnknownTestResult(
@@ -59,10 +55,6 @@ public class ConfigurationDiagnosticResult implements Serializable {
 
     public void setExitStatus(int exitStatus) {
         m_exitStatus = exitStatus;
-    }
-
-    public boolean isFailing() {
-        return Status.isFaling(getStatus());
     }
 
     static UnknownTestResult createUnknown(int exitStatus) {
