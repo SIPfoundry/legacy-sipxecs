@@ -107,31 +107,31 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
 
     # Get the user to run sipX under.
     AC_ARG_VAR(SIPXPBXUSER, [The sipX service daemon user name, default is 'sipxchange'])
-    test -z $SIPXPBXUSER && SIPXPBXUSER=sipxchange
+    test -z "$SIPXPBXUSER" && SIPXPBXUSER=sipxchange
 
     # Get the group to run sipX under.
-    default_group=`grep "^$SIPXPBXUSER:" /etc/passwd | head -1 | cut -d: -f4`
-    if test -z "$default_group"
+    AC_ARG_VAR(SIPXPBXGROUP, [The sipX service daemon group name, default is SIPXPBXUSER])
+    test -z "$SIPXPBXGROUP" && SIPXPBXGROUP=$SIPXPBXUSER
+
+    # Test the consistency of SIPXPBXUSER and SIPXPBXGROUP with the host's
+    # configuration.  Note that if they don't match, it is not an error,
+    # as these are not needed during build.  But developers building and
+    # running on the same host should be warned.
+    default_group_number=`grep "^$SIPXPBXUSER:" /etc/passwd |
+			  head -1 |
+			  cut -d: -f4`
+    if test -z "$default_group_number"
     then
-        AC_MSG_ERROR([No /etc/passwd entry for SIPXPBXUSER $SIPXPBXUSER (or it has no default group)])
-    else        
-	# Try to convert the group from a number into a group name.
- 	# The [[...]] below is due to m4's quoting, as set by automake:
-	# The outer pair are quotes, the inner pair go through to ./configure,
-	# and are seen by grep.
-	group_name=`grep "^[[^:]]*:[[^:]]*:$default_group:" /etc/group |
-		    head -1 |
- 		    cut -d: -f1`
-	test -z "$group_name" && group_name=$default_group
-
-	AC_ARG_VAR(SIPXPBXGROUP, [The sipX service daemon group name, default is $group_name])
-	test -z $SIPXPBXGROUP && SIPXPBXGROUP=$group_name
-
- 	# Verify that the group exists.
-	if ! grep "^$SIPXPBXGROUP:" /etc/group >/dev/null
-        then
-            AC_MSG_ERROR([No /etc/group entry for SIPXPBXGROUP $SIPXPBXGROUP])
-	fi
+        AC_MSG_NOTICE([No /etc/passwd entry for SIPXPBXUSER $SIPXPBXUSER (or it has empty default group)])
+    elif group_number=`grep "^$SIPXPBXGROUP:" /etc/group |
+		       head -1 |
+		       cut -d: -f3` ; \
+	 test -z "$group_number"
+    then
+        AC_MSG_NOTICE([No /etc/group entry for SIPXPBXGROUP $SIPXPBXGROUP (or it has empty group number)])
+    elif test "$default_group_number" != "$group_number"
+    then
+        AC_MSG_NOTICE([SIPXPBXGROUP $SIPXPBXGROUP is not the default group for SIPXPBXUSER $SIPXPBXUSER])
     fi
 
     # these next three are probably not used any more

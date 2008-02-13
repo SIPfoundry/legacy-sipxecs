@@ -128,10 +128,12 @@ rm -rf $RPM_BUILD_ROOT
 # This is done here in sipXportLib so it completes before the
 # components that call pkg-upgrade are installed, to avoid the
 # bug in pkg-upgrade triggered by such files.
+# Make sure to suppress error output from chgrp, as all good RPM
+# scriptlets should produce no output at all.
 find @SIPX_CONFDIR@ \
 	@SIPX_DBDIR@ \
 	@SIPX_LOGDIR@ \
 	@SIPX_VXMLDATADIR@ \
 	@wwwdir@/cgi-bin/replication \
      -nogroup | 
-         xargs chgrp @SIPXPBXGROUP@
+         xargs chgrp @SIPXPBXGROUP@ 2>/dev/null
