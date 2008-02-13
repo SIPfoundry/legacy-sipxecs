@@ -190,7 +190,7 @@ foreach $branch (sort { $sortdate{$a} cmp $sortdate{$b} } keys(%sortdate)) {
 
 format STDOUT_TOP =
 Branch     Request   Request   Provisional   Final         Method
-trimmed    sent      received      sent          sent          Req-URI sip(s):+
+(trimmed)  sent      received      sent          sent          Req-URI sip(s):+
 
 .
 
