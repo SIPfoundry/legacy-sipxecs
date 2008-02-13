@@ -35,6 +35,8 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         model.setBri(false);
         model.setMaxPorts(4);
         model.setProfileTemplate("audiocodes/gateway.ini.vm");
+        String configDirectory = TestHelper.getSysDirProperties().getProperty("audiocodesGatewayModel.configDirectory");
+        ((AudioCodesModel)model).setConfigDirectory(configDirectory);
 
         m_gateway = new AudioCodesDigitalGateway();
         m_gateway.setModel(model);

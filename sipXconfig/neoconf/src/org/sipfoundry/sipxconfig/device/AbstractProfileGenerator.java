@@ -26,13 +26,17 @@ public abstract class AbstractProfileGenerator implements ProfileGenerator {
     }
 
     public void copy(ProfileLocation location, String inputFileName, String outputFileName) {
+        copy(location, m_templateRoot, inputFileName, outputFileName);
+    }
+
+    public void copy(ProfileLocation location, String inputDirPath, String inputFileName, String outputFileName) {
         if (outputFileName == null) {
             return;
         }
         OutputStream output = location.getOutput(outputFileName);
         FileInputStream input = null;
         try {
-            File sourceFile = new File(m_templateRoot, inputFileName);
+            File sourceFile = new File(inputDirPath, inputFileName);
             input = new FileInputStream(sourceFile);
             IOUtils.copy(input, output);
         } catch (IOException e) {

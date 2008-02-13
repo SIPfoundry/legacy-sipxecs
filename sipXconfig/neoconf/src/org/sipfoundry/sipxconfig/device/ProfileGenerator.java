@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.device;
 public interface ProfileGenerator {
     void copy(ProfileLocation location, String inputFileName, String outputFileName);
 
+    void copy(ProfileLocation location, String inputDirPath, String inputFileName, String outputFileName);
+
     void generate(ProfileLocation location, ProfileContext context, ProfileFilter filter,
             String outputFileName);
 }

@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 import java.io.File;
 
 import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -19,6 +20,11 @@ import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
 public abstract class AudioCodesGateway extends Gateway {
+    private static final String CALL_PROGRESS_TONES_FILE = "Media_RTP_RTPC/Telephony/CallProgressTonesFilename";
+    private static final String FXS_LOOP_CHARACTERISTICS_FILE =
+        "Media_RTP_RTPC/Telephony/FXSLoopCharacteristicsFilename";
+    private static final String[] COPY_FILES = {CALL_PROGRESS_TONES_FILE, FXS_LOOP_CHARACTERISTICS_FILE};
+
     @Override
     public void initialize() {
         AudioCodesGatewayDefaults defaults = new AudioCodesGatewayDefaults(this, getDefaults());
@@ -48,6 +54,22 @@ public abstract class AudioCodesGateway extends Gateway {
         GatewayDirectorySetter gatewayDirectorySetter = new GatewayDirectorySetter(configDir);
         setting.acceptVisitor(gatewayDirectorySetter);
         return setting;
+    }
+
+    private void copyGatewayFiles(ProfileLocation location) {
+        String name;
+        Setting settings = getSettings();
+        String sourceDir = new File(((AudioCodesModel) getModel()).getConfigDirectory(),
+                getModel().getModelDir()).getAbsolutePath();
+        for (String file : COPY_FILES) {
+            name = settings.getSetting(file).getValue();
+            getProfileGenerator().copy(location, sourceDir, name, name);
+        }
+    }
+
+    protected void copyFiles(ProfileLocation location) {
+        super.copyFiles(location);
+        copyGatewayFiles(location);
     }
 
     private static class GatewayDirectorySetter extends AbstractSettingVisitor {

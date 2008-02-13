@@ -190,6 +190,8 @@ public final class TestUtil {
         sysProps.setProperty("upload.destinationDirectory", outputDirectory + "/tftproot");
         sysProps.setProperty("phonebookManagerImpl.externalUsersDirectory", outputDirectory
                 + "/phonebook");
+        sysProps.setProperty("audiocodesGatewayModel.configDirectory", etcDirectory);
+        sysProps.setProperty("audiocodesFxs.configDirectory", etcDirectory);
         final String vxmlDir = outputDirectory + "/vxml";
         sysProps.setProperty("vxml.scriptsDirectory", vxmlDir);
         sysProps.setProperty("dialPlanContextImpl.scriptsDirectory", vxmlDir);

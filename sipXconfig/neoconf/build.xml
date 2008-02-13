@@ -86,6 +86,8 @@
         <!-- goes into tftp root, see below -->
         <exclude name="ciscoIp/syncinfo.xml" />
         <exclude name="ciscoAta/sipx7912.logo" />
+        <exclude name="audiocodes/MP11x-02-1-FXS_16KHZ.dat" />
+        <exclude name="audiocodes/usa_tones_12.dat" />
 	<exclude name="preflight/00D01EFFFFFE" />
       </fileset>
     </copy>
@@ -178,6 +180,11 @@
     <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoIp/syncinfo.xml" />
     <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoAta/sipx7912.logo" />
     <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/preflight/00D01EFFFFFE" />
+
+	<!-- copy audiocodes gateway files -->
+    <mkdir dir="${dest.dir}${sipxpbx.var.dir}/audiocodes" />
+    <copy todir="${dest.dir}${sipxpbx.var.dir}/audiocodes" file="etc/audiocodes/MP11x-02-1-FXS_16KHZ.dat" />
+    <copy todir="${dest.dir}${sipxpbx.var.dir}/audiocodes" file="etc/audiocodes/usa_tones_12.dat" />
   </target>
 
   <!-- D E F A U L T -->
