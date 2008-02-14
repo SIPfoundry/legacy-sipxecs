@@ -131,20 +131,19 @@ UtlBoolean SipNonceDb::isNonceValid(const UtlString& nonce,
          else
          {
             OsSysLog::add(FAC_SIP,PRI_INFO,
-                          "SipNonceDB::isNonceValid expired nonce: created %d+%ld < %ld"
-                          ,nonceCreated, expiredTime, now
+                          "SipNonceDB::isNonceValid expired nonce '%s': created %d+%ld < %ld",
+                          nonce.data(), nonceCreated, expiredTime, now
                           );
          }
       }
       else
       {
          OsSysLog::add(FAC_SIP,PRI_ERR,
-                       "SipNonceDB::isNonceValid nonce signature check failed"
+                       "SipNonceDB::isNonceValid nonce signature check failed '%s'",
+                       nonce.data()
                        );
          OsSysLog::add(FAC_SIP,PRI_DEBUG,
-                       "SipNonceDB::isNonceValid\n"
-                       " rcvd signature '%s'\n"
-                       "  msg signature '%s'",
+                       "SipNonceDB::isNonceValid rcvd signature '%s' calculated signature '%s'",
                        rcvdSignature.data(), msgSignature.data()
                        );
       }
@@ -152,9 +151,9 @@ UtlBoolean SipNonceDb::isNonceValid(const UtlString& nonce,
    else
    {
       OsSysLog::add(FAC_SIP,PRI_ERR,
-                    "SipNonceDb::isNonceValid invalid nonce format \"%s\"\n"
-                    "  length %d expected %d",
-                    nonce.data(),nonce.length(),MD5_SIZE+HEX_TIMESTAMP_LENGTH);
+                    "SipNonceDb::isNonceValid invalid nonce format '%s'"
+                    " length %d expected %d",
+                    nonce.data(), nonce.length(), MD5_SIZE+HEX_TIMESTAMP_LENGTH);
    }
 
    return(valid);
@@ -176,17 +175,25 @@ UtlString SipNonceDb::nonceSignature(const UtlString& callId,
    UtlString signatureValue;
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "nonceSignature: callId='%s' fromTag='%s' realm='%s' timestamp='%s'",
-                 callId.data(), fromTag.data(), realm.data(), timestamp
+                 "SipNonceDb::nonceSignature: callId='%s' fromTag='%s' realm='%s' "
+                 "timestamp='%s' secret='%s'",
+                 callId.data(), fromTag.data(), realm.data(),
+                 timestamp, mpNonceSignatureSecret->data()
                  );
     
-   // create the signature value by hashing the timestamp with
-   //   the callId, fromTag, the realm, and a secret
+   // Create the signature value by hashing the timestamp with
+   // the callId, fromTag, the realm, and a secret.
+   // Add separator commas between non-fixed-length components to
+   // ensure, e.g., callid 'ABC' and from-tag 'DEF' does not hash the
+   // same as callid 'ABCD' and from-tag 'EF'.
    NetMd5Codec md5;
    md5.hash(timestamp, HEX_TIMESTAMP_LENGTH);
    md5.hash(callId);
+   md5.hash(",");
    md5.hash(fromTag);
+   md5.hash(",");
    md5.hash(*mpNonceSignatureSecret);
+   md5.hash(",");
    md5.hash(realm);
 
    md5.appendHashValue(signatureValue);
