@@ -10,6 +10,7 @@ UPDATE_PASSTOKENS=update-passtokens
 # Note that changing these values is not completely supported yet --
 # some of the installed files would need to be adjusted.
 SIPX_USER=sipx
+SIPX_GROUP=sipx
 SIPX_BINDIR=/usr/bin
 SIPX_CONFDIR=/etc/sipxpbx
 SIPX_DATADIR=/var/sipxdata
@@ -62,6 +63,7 @@ $(SIPX_CONFDIR)/config.defs: $(SIPX_CONFDIR)/config.defs.in
 	sh -c \
 		"sed \
 			-e 's!@SIPX_USER@!$(SIPX_USER)!g' \
+			-e 's!@SIPX_GROUP@!$(SIPX_GROUP)!g' \
 			-e 's!@SIPX_BINDIR@!$(SIPX_BINDIR)!g' \
 			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
 			-e 's!@SIPX_DATADIR@!$(SIPX_DATADIR)!g' \
@@ -83,6 +85,7 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 			-e 's!@INTEROP_ALIAS_TCP@!$$INTEROP_ALIAS_TCP!g' \
 			-e 's!@HOSTNAME@!$$MY_FULL_HOSTNAME!g' \
 			-e 's!@SIPX_USER@!$(SIPX_USER)!g' \
+			-e 's!@SIPX_GROUP@!$(SIPX_GROUP)!g' \
 			-e 's!@SIPX_BINDIR@!$(SIPX_BINDIR)!g' \
 			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
 			-e 's!@SIPX_DATADIR@!$(SIPX_DATADIR)!g' \

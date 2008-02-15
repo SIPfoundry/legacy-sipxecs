@@ -299,7 +299,7 @@ LoadModule cgi_module @HTTP_MODULEDIR@/mod_cgi.so
 #  don't use Group #-1 on these systems!
 #
 User @SIPX_USER@
-Group #-1
+Group @SIPX_GROUP@
 </IfModule>
 </IfModule>
 
