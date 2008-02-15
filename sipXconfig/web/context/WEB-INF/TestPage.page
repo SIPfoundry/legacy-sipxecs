@@ -136,7 +136,7 @@
     <binding name="parameters" value="dataSet.name"/>
   </component>
   <component id="generateLinkLabel" type="Insert">
-    <binding name="value" value="'Generate ' + dataSet.name + 's'"/>
+    <binding name="value" value="'Generate ' + dataSet.name + '.xml'"/>
   </component>
   <component id="generateFileLink" type="DirectLink">
     <binding name="listener" value="listener:showDataSet"/>
