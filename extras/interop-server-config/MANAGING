@@ -87,11 +87,14 @@ Create an updated working copy of the configuration files:
 Edit the SIPX_USER line of ./Makefile to specify the correct user
 name, the one that is in /etc/passwd -- open-source versions usually
 use the name 'sipx' and commercial versions usually use the name
-'sipxchange'.
+'sipxchange'. Edit the SIPX_GROUP line of ../Makefile to specify the
+correct group name, usually the default group of SIPX_GROUP.  In
+systems meant for production or semi-production use, SIPX_GROUP is
+usually the same as SIPX_USER.
 
 Generate the config.defs file:
 
-	cd ./interop.pingtel.com
+	cd ./interop-server-config
 	touch sipx_confdir/config.defs.in
 	sudo make /etc/sipxpbx/config.defs
 
