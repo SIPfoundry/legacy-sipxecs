@@ -14,8 +14,9 @@
 
 # Executes a series of tests by sending requests to sipregistrar and
 # recording the responses.  Tests are composed of methods and
-# extensions.  Treatment of extensions is fixed by loading the IMDB
-# and $SIPX_CONFDIR/*.xml files at the start of this script.
+# extensions.  Treatment of extensions is fixed by loading the
+# $SIPX_DBDIR/*.xml and $SIPX_CONFDIR/*.xml files at the start of this
+# script.
 
 # Each test request is logged to stdout, along with the response line
 # and Contact: headers from the responses.  Any lines in
@@ -122,8 +123,8 @@ cat >$TMPDIR/registration.xml <<EOF
     </item>
 </items>
 EOF
-# Load the IMDB.
-$SIPX_BINDIR/sipdbtest import $TMPDIR/registration.xml
+# Set up the IMDB.
+cp $TMPDIR/registration.xml $SIPX_DBDIR/registration.xml
 
 # Set up the alias database.
 cat >$TMPDIR/alias.xml <<EOF
@@ -153,8 +154,8 @@ cat >$TMPDIR/alias.xml <<EOF
     </item>
 </items>
 EOF
-# Load the IMDB.
-$SIPX_BINDIR/sipdbtest import $TMPDIR/alias.xml
+# Set up the IMDB.
+cp $TMPDIR/alias.xml $SIPX_DBDIR/alias.xml
 
 # Set up the permission database.
 cat >$TMPDIR/permission.xml <<EOF
@@ -166,8 +167,8 @@ cat >$TMPDIR/permission.xml <<EOF
     </item>
 </items>
 EOF
-# Load the IMDB.
-$SIPX_BINDIR/sipdbtest import $TMPDIR/permission.xml
+# Set up the IMDB.
+cp $TMPDIR/permission.xml $SIPX_DBDIR/permission.xml
 
 # Set up the hunt group database.
 cat >$TMPDIR/huntgroup.xml <<EOF
@@ -178,8 +179,8 @@ cat >$TMPDIR/huntgroup.xml <<EOF
   </item>
 </items>
 EOF
-# Load the IMDB.
-$SIPX_BINDIR/sipdbtest import $TMPDIR/huntgroup.xml
+# Set up the IMDB.
+cp $TMPDIR/huntgroup.xml $SIPX_DBDIR/huntgroup.xml
 
 # Set up the mapping rules.
 cat >$SIPX_CONFDIR/mappingrules.xml <<EOF
@@ -304,11 +305,13 @@ cat >$TMPDIR/credential.xml <<EOF
     </item>
 </items>
 EOF
-# Load the IMDB.
-$SIPX_BINDIR/sipdbtest import $TMPDIR/credential.xml
+# Set up the IMDB.
+cp $TMPDIR/credential.xml $SIPX_DBDIR/credential.xml
 
 # Start the registrar.
 
+# Have to pushd/popd rather than using cd with ( ... ), because we need
+# to have sipregistrar as a direct subjob of this bash.
 pushd $SIPX_LOGDIR >/dev/null
 $SIPX_BINDIR/sipregistrar >$TMPDIR/registrar &
 popd >/dev/null
