@@ -1,19 +1,20 @@
-# Mostly for FC5 support because rhe5, fc6 and suse are good
-# fc6 rpm installs on fc5 ok
-RUBY_PSQL_RPM_URL = $(FC6_EXTRAS_URL)/6/$(RPM_TARGET_ARCH)
+RUBY_AUX_RPMS_URL = http://people.redhat.com/dlutter/yum
 
-RUBY_PSQL_LIBSRC=$(LIBSRC)/ruby-postgres
+PGSQL_LIBSRC = $(LIBSRC)/ruby-postgres
+
 VER = 0.7.1
 REL = 5
+DISTRO = fc6
 
-RPM = ruby-postgres-$(VER)-$(REL).fc6.$(RPM_TARGET_ARCH).rpm
+RPM = $(DEST_RPM)/ruby-postgres-$(VER)-$(REL).@RPM_TARGET_ARCH@.rpm
+SRPM = $(PGSQL_LIBSRC)/ruby-postgres-$(VER)-$(REL).$(DISTRO).src.rpm
 
-all : $(DEST_RPM)/$(RPM)
+# Where rpmbuild will do its work.
+all : $(RPM)
 
-# simply download, no need to patch/recompile
-$(RUBY_PSQL_LIBSRC)/$(RPM) :
-	$(DOWNLOAD_FILE) $@ $(RUBY_PSQL_RPM_URL)/`basename $@`
+$(SRPM) :
+	$(DOWNLOAD_FILE) $@ $(RUBY_AUX_RPMS_URL)/SRPMS/`basename $@`
 
-# simply download, no need to patch/recompile
-$(DEST_RPM)/$(RPM) : $(RUBY_PSQL_LIBSRC)/$(RPM)
-	cp $< $@
+$(RPM) : $(SRPM)
+	rpmbuild --rebuild $(SRPM)
+	cp @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/`basename $@` $@

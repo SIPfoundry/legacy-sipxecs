@@ -1,12 +1,13 @@
-# Mostly for FC5 support because rhe5, fc6 and suse are good
-# fc6 rpm installs on fc5 ok
-RUBY_GEM_RPM_URL = $(FC6_EXTRAS_URL)/6/$(RPM_TARGET_ARCH)
+# Original source dlutter stopped making rpms available so
+# download from ourselves.  This is only needed on CentOS 4 and RHEL 4
+# distros and will disappear when lasted distro stops building them
+RUBY_GEM_RPM_URL = http://sipxecs.sipfoundry.org/pub/sipXecs/3.6/FC/5/RPM
 
 GEMS_LIBSRC=$(LIBSRC)/ruby-gems
-VER = 0.9.2
-REL = 1
+VER = 0.8.11
+REL = 2
 
-RPM = rubygems-$(VER)-$(REL).fc6.noarch.rpm
+RPM = ruby-gems-$(VER)-$(REL).noarch.rpm
 
 all : $(DEST_RPM)/$(RPM)
 
