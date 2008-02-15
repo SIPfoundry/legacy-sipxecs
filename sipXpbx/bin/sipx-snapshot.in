@@ -321,9 +321,12 @@ function hasTimestamps () {
 # Assemble the list of files to record.
 
 # These files and directories are always recorded.
+# (In @wwwdir@/doc, we only want to record VXML files, and not the directories
+# of prompts.)
 cat > $Work.copy-files <<EOF
 @SIPX_CONFDIR@
 @SIPX_DBDIR@
+` ls -1d @wwwdir@/doc/*vxml 2>/dev/null `
 /etc/host.conf
 /etc/resolv.conf
 /etc/hosts
