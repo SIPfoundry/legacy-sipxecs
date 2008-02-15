@@ -47,6 +47,12 @@
 # apply an offset to all the messages in 'file' so that a packet with time
 # t1 is merged as if it specified time t2
 #
+# --filter
+# do not be clever when building the new frameId from the input frameIds,
+# just concatenate them (with spaces between)
+# This is generally only useful with one input file, in which case the
+# output frameId is the same as the input frameId.
+#
 # (*) These values are actually patterns, not strings.  You can use any of
 # the Perl regular expression matching features.  Beware that you not only
 # have to quote the usual regexp special characters, but also '/', '$', and
@@ -106,6 +112,8 @@ while ($ARGV[0] =~ m/^-/) {
 	die "Invalid --offset time '$b'.\n"
 	    unless $b =~ m%^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?Z?$%;
 	$clock_offset{$f} = &numeric_time($b) - &numeric_time($a);
+    } elsif ($option eq '--filter') {
+	$filter = 1;
     } else {
 	die "Unparsable option: '$option'\n";
     }
@@ -170,7 +178,8 @@ foreach $file (@files) {
 
 	    # Insert the file name into the frameId.
 	    $element =~
-		s%<frameId>(.*)</frameId>%<frameId>$file_xml:$1</frameId>%;
+		s%<frameId>(.*)</frameId>%<frameId>$file_xml:$1</frameId>%
+		unless $filter;
 
 	    # Calculate the time of the message.
 	    $time_value = &numeric_time($time) + $clock_offset;
@@ -211,7 +220,7 @@ $frame_number = 0;
 foreach $key (sort keys %time_list) {
     $t = $time_list{$key};
     $frame_number++;
-    $t =~ s%<frameId>%<frameId>$frame_number %;
+    $t =~ s%<frameId>%<frameId>$frame_number % unless $filter;
     print $t;
 }
 print "</sipTrace>\n";
