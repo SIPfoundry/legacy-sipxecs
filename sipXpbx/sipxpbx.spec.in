@@ -208,6 +208,7 @@ sipx-upgrade -p sipxpbx -c
 
 %post
 sipx-upgrade -p sipxpbx -u --bdir %{_bindir}  --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
+%{_libexecdir}/sipx-disable-on-distributed sipxpage
 rm -f %{_bindir}/backup-mailstore.sh
 rm -f %{_bindir}/restore-configs.sh 
 rm -f %{_bindir}/restore-mailstore.sh
