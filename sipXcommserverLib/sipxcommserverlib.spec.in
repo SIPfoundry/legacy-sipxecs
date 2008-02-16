@@ -121,6 +121,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libsipXcommserver.la
 %attr(755,root,root) %{_libdir}/libsipXcommserver.so*
 %{_libexecdir}/sipx-utils.sh
+%{_libexecdir}/sipx-disable-on-distributed
 %attr(755,root,root) %{_datadir}/sipx/schema/xml.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/authrules.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/registration.xsd

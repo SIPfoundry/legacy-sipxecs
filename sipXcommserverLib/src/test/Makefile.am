@@ -19,7 +19,11 @@ endif
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
-TESTS = testsuite sipx_config_value_test
+TESTS = \
+	testsuite \
+	sipx_config_value_test \
+	sipx_service_utils_test \
+	sipx-disable-on-distributed_test
 
 check_PROGRAMS = testsuite sandbox
 
@@ -59,6 +63,13 @@ EXTRA_DIST = \
 	mapdata/userpat.xml \
 	mapdata/vdigits.xml \
 	regdbdata/getMaxUpdate.xml \
+	sipx_service_utils/process.d/enabled_service.process.xml \
+	sipx_service_utils/process.d/disabled_service.process.xml \
+	sipx_service_utils/process.d/invalid_service.process.xml \
+	sipx-disable-on-distributed/master/process.d/sipxconfig.process.xml \
+	sipx-disable-on-distributed/master/process.d/master_only.process.xml \
+	sipx-disable-on-distributed/distributed/process.d/sipxconfig.process.xml \
+	sipx-disable-on-distributed/distributed/process.d/master_only.process.xml \
 	sipx_config_value/testdata
 
 # [DEBUG ASSISTANT] List a single unit test to isolate a unit test for

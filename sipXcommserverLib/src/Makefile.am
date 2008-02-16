@@ -6,6 +6,7 @@ SUBDIRS = fastdb sipdb . sipdbtest xsdvalid test sipxrestorebinary
 INCLUDES = -I$(top_srcdir)/include
 
 libexec_SCRIPTS = \
+	sipx-disable-on-distributed \
 	sipx-utils.sh
 
 EXTRA_DIST = \

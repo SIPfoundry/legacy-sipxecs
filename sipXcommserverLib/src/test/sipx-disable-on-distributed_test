@@ -1,0 +1,48 @@
+#!/bin/sh
+
+fail() {
+    echo "$1" 1>&2
+    exit 1
+}
+
+. ../sipx-utils.sh || exit 1
+
+export SIPX_CONFDIR
+export TEST_LIBEXECDIR=..
+
+writabletestdata=./sipx-disable-on-distributed.writable
+
+reset_test_data() {
+
+    if [ -d ${writabletestdata} ]
+    then
+        rm -rf ${writabletestdata}/*
+    else
+        mkdir -p ${writabletestdata} 
+    fi
+    cp -a "${1}"/* ${writabletestdata} || exit 1
+}
+
+SIPX_CONFDIR=${writabletestdata}
+
+reset_test_data ${srcdir}/sipx-disable-on-distributed/master
+
+../sipx-disable-on-distributed master_only
+sipx_service_is_enabled master_only \
+|| fail "master_only not enabled on master" 
+
+reset_test_data ${srcdir}/sipx-disable-on-distributed/distributed
+
+../sipx-disable-on-distributed master_only
+sipx_service_is_enabled master_only \
+&& fail "master_only not disabled on distributed" 
+
+reset_test_data ${srcdir}/sipx-disable-on-distributed/incomplete
+
+../sipx-disable-on-distributed master_only
+sipx_service_is_enabled master_only \
+|| fail "master_only not enabled on incomplete" 
+
+rm -rf ${writabletestdata}
+
+exit 0
