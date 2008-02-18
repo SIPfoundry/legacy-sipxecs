@@ -121,9 +121,7 @@ Summary: Configures/enables MRTG monitoring for %{name}
 %package agent
 Requires: sipxcommserverlib
 Requires: ruby
-# old sipx built package, get it removed
-Obsoletes: ruby-gems
-Requires: rubygems
+Requires: ruby-gems
 
 %if %{_vendor} == redhat
 # irb is for file-tail gem
@@ -146,9 +144,7 @@ Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Aggregates data from sipxconfig-agent into a database for reporting tools
 
-# old sipx built package, get it removed
-Obsoletes: ruby-gems
-Requires: rubygems
+Requires: ruby-gems
 %if %{_vendor} == redhat
 Requires: ruby-postgres
 %endif
