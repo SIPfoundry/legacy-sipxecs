@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.InjectObject;
@@ -18,6 +19,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.VendorFilteredDeviceSelectionModel;
+import org.sipfoundry.sipxconfig.device.DiscoveredDevice;
 import org.sipfoundry.sipxconfig.device.FilteredModelSource;
 
 public abstract class DiscoverTable extends BaseComponent {
@@ -34,6 +36,10 @@ public abstract class DiscoverTable extends BaseComponent {
 
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestryContext();
+    
+    public abstract void setTargets(List<DiscoveredDevice> targets);
+
+    public abstract List<DiscoveredDevice> getTargets();
 
     public IPropertySelectionModel getDeviceSelectionModel(String vendor) {
         VendorFilteredDeviceSelectionModel model = new VendorFilteredDeviceSelectionModel();
