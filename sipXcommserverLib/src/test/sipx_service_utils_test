@@ -47,7 +47,7 @@ writabletestdata=./sipx_service_utils.writable
 
 reset_test_data() {
     test -d "${writabletestdata}" \
-        && rm -rf "${writabletestdata}/*" \
+        && rm -rf "${writabletestdata}"/* \
         || mkdir -p "${writabletestdata}" 
     cp -a "${testdatasrc}"/* "${writabletestdata}" || exit 1
 }
