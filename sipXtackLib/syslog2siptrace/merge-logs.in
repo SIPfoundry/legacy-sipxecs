@@ -15,13 +15,24 @@ set -e
 # Separate the options from the files.
 SYSLOG2SIPTRACE_OPTIONS=
 SIPTRACE_MERGE_OPTIONS=
+XML_PREFIX=
+OUTPUT=merged.xml
 while [[ "$1" = -* && "$1" != -- ]]
 do
-  # The --before and --after options are passed to syslog2siptrace
-  # rather than siptrace-merge to speed up processing.
   if [[ "$1" = --after=* ]] || [[ "$1" = --before=* ]]
   then
+    # The --before and --after options are passed to syslog2siptrace
+    # rather than siptrace-merge to speed up processing.
     SYSLOG2SIPTRACE_OPTIONS="$SYSLOG2SIPTRACE_OPTIONS $1"
+  elif [[ "$1" = --xml=* ]]
+  then
+    # The --xml option is a prefix (directory, usually) into which
+    # the generated XML files are to be placed.
+    XML_PREFIX="${1#--xml=}"
+  elif [[ "$1" = --output=* ]]
+  then
+    # The --output option specifies the output file.
+    OUTPUT="${1#--output=}"
   else
     SIPTRACE_MERGE_OPTIONS="$SIPTRACE_MERGE_OPTIONS $1"
   fi
@@ -34,10 +45,11 @@ fi
 
 # The list of XML files to merge.
 XML=
-for LOG in ${@:-*.log}
+for LOG in ${@:-sip*.log}
 do
-  syslog2siptrace $SYSLOG2SIPTRACE_OPTIONS <$LOG >${LOG%.log}.xml
-  XML="$XML ${LOG%.log}.xml"
+  F="${XML_PREFIX}${LOG%.log}.xml"
+  syslog2siptrace $SYSLOG2SIPTRACE_OPTIONS <$LOG >$F
+  XML="$XML $F"
 done
 
-siptrace-merge $SIPTRACE_MERGE_OPTIONS -- $XML >merged.xml
+siptrace-merge $SIPTRACE_MERGE_OPTIONS -- $XML >$OUTPUT
