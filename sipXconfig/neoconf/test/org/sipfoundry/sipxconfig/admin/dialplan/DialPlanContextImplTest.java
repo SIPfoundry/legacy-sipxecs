@@ -41,9 +41,11 @@ public class DialPlanContextImplTest extends TestCase {
         DialPlanContextImpl manager = new MockDialPlanContextImpl(new DialPlan());
         manager.setBeanFactory(bf);
 
-        final ConfigGenerator g1 = manager.getGenerator();
-        final ConfigGenerator g2 = manager.generateDialPlan();
-        final ConfigGenerator g3 = manager.getGenerator();
+        EmergencyRouting emergencyRouting = manager.getEmergencyRouting();
+        
+        final ConfigGenerator g1 = manager.getGenerator(emergencyRouting);
+        final ConfigGenerator g2 = manager.generateDialPlan(emergencyRouting);
+        final ConfigGenerator g3 = manager.getGenerator(emergencyRouting);
         assertNotNull(g1);
         assertNotNull(g2);
         assertNotSame(g1, g2);

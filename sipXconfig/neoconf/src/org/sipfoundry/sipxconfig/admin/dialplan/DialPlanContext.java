@@ -28,11 +28,11 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public abstract void clear();
 
-    public abstract ConfigGenerator generateDialPlan();
+    public abstract ConfigGenerator generateDialPlan(EmergencyRouting emergencyRouting);
 
     public abstract void activateDialPlan();
 
-    public abstract ConfigGenerator getGenerator();
+    public abstract ConfigGenerator getGenerator(EmergencyRouting emergencyRouting);
 
     public abstract void storeAutoAttendant(AutoAttendant attendant);
 
@@ -99,7 +99,7 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public EmergencyInfo getLikelyEmergencyInfo();
 
-    public abstract void applyEmergencyRouting();
+    public abstract void applyEmergencyRouting(EmergencyRouting emergencyRouting);
 
     public abstract void storeEmergencyRouting(EmergencyRouting emergencyRouting);
 

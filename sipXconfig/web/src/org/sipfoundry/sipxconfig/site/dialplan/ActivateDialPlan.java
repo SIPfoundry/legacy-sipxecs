@@ -37,7 +37,7 @@ public abstract class ActivateDialPlan extends PageWithCallback {
     public abstract DialPlanContext getDialPlanContext();
 
     public String getXml() {
-        ConfigGenerator generator = getDialPlanContext().getGenerator();
+        ConfigGenerator generator = getDialPlanContext().getGenerator(getDialPlanContext().getEmergencyRouting());
         ConfigFileType type = getSelected();
         return generator.getFileContent(type);
     }

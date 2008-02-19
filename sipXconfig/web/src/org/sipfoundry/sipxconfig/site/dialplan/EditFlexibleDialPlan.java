@@ -91,7 +91,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
 
     public IPage activate(IRequestCycle cycle) {
         DialPlanContext manager = getDialPlanContext();
-        manager.generateDialPlan();
+        manager.generateDialPlan(manager.getEmergencyRouting());
         ActivateDialPlan activate = (ActivateDialPlan) cycle.getPage(ActivateDialPlan.PAGE);
         activate.setReturnPage(PAGE);
         return activate;

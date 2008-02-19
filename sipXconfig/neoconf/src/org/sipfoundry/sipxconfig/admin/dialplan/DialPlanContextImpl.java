@@ -372,26 +372,27 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         resetToFactoryDefault();
     }
 
-    public ConfigGenerator generateDialPlan() {
+    public ConfigGenerator generateDialPlan(EmergencyRouting emergencyRouting) {
         ConfigGenerator generator = (ConfigGenerator) m_beanFactory.getBean(
                 ConfigGenerator.BEAN_NAME, ConfigGenerator.class);
-        generator.generate(this, getEmergencyRouting());
+        generator.generate(this, emergencyRouting);
         return generator;
     }
 
     public void activateDialPlan() {
-        ConfigGenerator generator = getGenerator();
+        EmergencyRouting emergencyRouting = getEmergencyRouting();
+        ConfigGenerator generator = getGenerator(emergencyRouting);
         generator.activate(m_sipxReplicationContext, m_scriptsDirectory);
 
-        applyEmergencyRouting();
+        applyEmergencyRouting(emergencyRouting);
 
         // notify the world we are done with activating dial plan
         m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this));
     }
 
-    public void applyEmergencyRouting() {
+    public void applyEmergencyRouting(EmergencyRouting emergencyRouting) {
         EmergencyRoutingRules rules = new EmergencyRoutingRules();
-        rules.generate(getEmergencyRouting(), m_coreContext.getDomainName());
+        rules.generate(emergencyRouting, m_coreContext.getDomainName());
         m_sipxReplicationContext.replicate(rules);
     }
 
@@ -416,8 +417,8 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         getHibernateTemplate().saveOrUpdate(re);
     }
 
-    public ConfigGenerator getGenerator() {
-        return generateDialPlan();
+    public ConfigGenerator getGenerator(EmergencyRouting emergencyRouting) {
+        return generateDialPlan(emergencyRouting);
     }
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
@@ -524,7 +525,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         EmergencyRouting emergencyRouting = getEmergencyRouting();
         emergencyRouting.removeGateways(gatewayIds);
         storeEmergencyRouting(emergencyRouting);
-        applyEmergencyRouting();
+        applyEmergencyRouting(emergencyRouting);
     }
 
     /**
