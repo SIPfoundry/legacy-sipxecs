@@ -212,6 +212,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/docroot
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/tftproot
 %config(noreplace) %{phonedir}/profile/tftproot/*
+%config(noreplace) %{phonedir}/profile/docroot/*
 
 %{sipxpbxdata}
 %dir %{_localstatedir}
