@@ -73,7 +73,7 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         }
 
         if (getLanguage() == null) {
-            String defaultLanguage = getLocalizationContext().getCurrentLanguageDir();
+            String defaultLanguage = getLocalizationContext().getCurrentLanguage();
             setLanguage(defaultLanguage);
         }
     }
