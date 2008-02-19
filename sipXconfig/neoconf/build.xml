@@ -180,6 +180,7 @@
     <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoIp/syncinfo.xml" />
     <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoAta/sipx7912.logo" />
     <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/preflight/00D01EFFFFFE" />
+    <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot" file="etc/preflight/00D01EFFFFFE" />
 
 	<!-- copy audiocodes gateway files -->
     <mkdir dir="${dest.dir}${sipxpbx.var.dir}/audiocodes" />
