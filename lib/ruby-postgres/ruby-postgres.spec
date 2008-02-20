@@ -1,7 +1,7 @@
 %define rname postgres
 %define name ruby-%{rname}
 %define version 0.7.1
-%define release 1ts
+%define release 2
 
 %define _unpackaged_files_terminate_build 0
 
@@ -45,9 +45,9 @@ rm -rf %buildroot
 %{ruby_archdir}/*.so
 
 %changelog
-* Mon Oct 11 2004 Omar Kilani <omar@tinysofa.org> 0.7.1-1ts
-- Initial tinysofa package.
-
-* Wed Jan 11 2007 Damian Krzeminski <damian@pingtel.com> 0.7.1-1ts
+* Wed Jan 11 2007 Damian Krzeminski <damian@pingtel.com> 0.7.1-2
 - Added dependency on ruby(abi) since ruby-libs package available on RHEL does no provide this by default
+
+* Mon Oct 11 2004 Omar Kilani <omar@tinysofa.org> 0.7.1-1
+- Initial tinysofa package.
 
