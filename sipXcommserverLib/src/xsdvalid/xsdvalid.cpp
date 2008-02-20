@@ -228,7 +228,9 @@ int main(int argC, char* argV[])
            XERCES_STD_QUALIFIER cerr
               << "xsdvalid version " << SipXcommserverlibVersion
               << " build " << SipXcommserverlibBuildStamp
+              << "\n  xerces-c library version " << gXercesVersionStr
               << "\n" << XERCES_STD_QUALIFIER endl;
+              
            return 0;
         }
         else if (!strcmp(argV[argInd], "-l")
