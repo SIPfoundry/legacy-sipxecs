@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IPage;
@@ -21,12 +24,16 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.admin.commserver.Process;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.AssetSelector;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.site.dialplan.ActivateDialPlan;
+import org.sipfoundry.sipxconfig.domain.DomainConfigReplicatedEvent;
 
 public abstract class LocalizationPage extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/LocalizationPage";
@@ -36,7 +43,13 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
 
     @InjectObject(value = "spring:localizationContext")
     public abstract LocalizationContext getLocalizationContext();
-    
+
+    @InjectObject(value = "spring:dialPlanContext")
+    public abstract DialPlanContext getDialPlanContext();
+
+    @InjectObject(value = "spring:sipxProcessContext")
+    public abstract SipxProcessContext getProcessContext();
+
     @InjectObject(value = "spring:localizedLanguageMessages")
     public abstract LocalizedLanguageMessages getLocalizedLanguageMessages();
 
@@ -57,7 +70,7 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
     public abstract void setLanguage(String language);
 
     public abstract IUploadFile getUploadFile();
-    
+
     public void pageBeginRender(PageEvent event_) {
         if (getRegionList() == null) {
             initRegions();
@@ -77,7 +90,7 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
             setLanguage(defaultLanguage);
         }
     }
-    
+
     protected void initLanguages() {
         String[] availableLanguages = getLocalizationContext().getInstalledLanguages();
         getLocalizedLanguageMessages().setAvailableLanguages(availableLanguages);
@@ -97,25 +110,27 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         if (ModelWithDefaults.DEFAULT.equals(region)) {
             return getPage();
         }
-        
-        ConfirmUpdateRegion updatePage = (ConfirmUpdateRegion) cycle.getPage(ConfirmUpdateRegion.PAGE);
+
+        ConfirmUpdateRegion updatePage = (ConfirmUpdateRegion) cycle
+                .getPage(ConfirmUpdateRegion.PAGE);
         updatePage.setRegion(getRegion());
         updatePage.setReturnPage(PAGE);
         return updatePage;
     }
 
     public void setLanguage(IRequestCycle cycle) {
-        String languageDir = getLanguage();
-        if (ModelWithDefaults.DEFAULT.equals(languageDir)) {
+        String language = getLanguage();
+        if (ModelWithDefaults.DEFAULT.equals(language)) {
             return;
         }
-        int exitCode = getLocalizationContext().updateLanguage(languageDir);
-        
-        ActivateDialPlan activateDialPlan = (ActivateDialPlan) cycle.getPage(ActivateDialPlan.PAGE);
-        activateDialPlan.setReturnPage(PAGE);
-        activateDialPlan.activate(cycle);
-        
+        int exitCode = getLocalizationContext().updateLanguage(language);
+
         if (exitCode > 0) {
+            getDialPlanContext().activateDialPlan();
+            List<Process> processList = Arrays.asList(new Process[] {
+                getProcessContext().getProcess(SipxProcessModel.ProcessName.MEDIA_SERVER)
+            });
+            getProcessContext().restartOnEvent(processList, DomainConfigReplicatedEvent.class);
             recordSuccess("message.label.languageChanged");
         } else if (exitCode < 0) {
             recordFailure("message.label.lanuageFailed");

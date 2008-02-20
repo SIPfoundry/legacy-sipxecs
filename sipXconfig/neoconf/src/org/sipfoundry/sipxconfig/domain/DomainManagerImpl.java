@@ -91,6 +91,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         domainConfiguration.generate(existingDomain, m_authorizationRealm,
                 getExistingLocalization().getLanguage());
         m_replicationContext.replicate(domainConfiguration);
+        m_replicationContext.publishEvent(new DomainConfigReplicatedEvent(this));
     }
 
     protected Domain getExistingDomain() {
