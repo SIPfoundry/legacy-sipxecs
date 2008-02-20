@@ -132,16 +132,16 @@ rm -rf $RPM_BUILD_ROOT
 
 # The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx
 
 # The configmerge mapping file is NOT user configurable and will change
 # each release.
-%attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipXproxy-config.in.map
+%attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipXproxy-config.in.map
 
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipXproxy-config.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/forwardingrules.xml.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authrules.xml.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipXproxy.process.xml
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipXproxy-config.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/forwardingrules.xml.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/authrules.xml.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipXproxy.process.xml
 
 %{upgrade_archive_dir}/%{this_archive}
 # Where does this come from?
@@ -170,11 +170,11 @@ pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sysconfdir}/sipxpbx/setup.d/sipxcallresolver-setup
 
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/callresolver-config.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxcallresolver.process.xml
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/callresolver-config.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxcallresolver.process.xml
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/cdr/*
 
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/cdr
 %attr(755,root,root) %{sipxpbxvarlib}/sipxcallresolver-2.0.0.gem
 %attr(755,root,root) %{_bindir}/sipxcallresolver.sh
 
@@ -213,6 +213,7 @@ if [ -f %{_sysconfdir}/sipxpbx/proxy-config.in -a \
   mv %{configfile} %{configfile}.rpmnew
   %{_bindir}/upgrade2mergedproxy --preserve --cleanlogs --cleancfgin --cleanproc \
       --cdir %{_sysconfdir}/sipxpbx --ldir %{_localstatedir}/log/sipxpbx
+  [ -f %{configfile} ] && chown @SIPXPBXUSER@:@SIPXPBXGROUP@ %{configfile}
   if [ ! -f %{configfile} ]; then
     # upgrade2mergedproxy could not create sipXproxy-config.in; use
     # the RPM's version.

@@ -126,20 +126,20 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_datadir}/sipx/schema/authrules.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/registration.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/urlmap.xsd
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/config.defs
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/config.defs
 %attr(755,root,root) %{_sysconfdir}/sipxpbx/config.defs.map
 
 # These should match sipXlib.m4 or at least sent 
 # to configure script
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/ssl
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/ssl/authorities
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_datadir}/sipxpbx
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/log/sipxpbx
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/run/sipxpbx
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/tmp
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/sipdb
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/ssl
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/ssl/authorities
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/log/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/run/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/tmp
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipdb
 
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz

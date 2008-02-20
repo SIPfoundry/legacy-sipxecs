@@ -207,10 +207,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-truststore.sh
 
 # Because of generation of data and profiles
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/docroot
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/tftproot
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{phonedir}
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{phonedir}/profile
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{phonedir}/profile/docroot
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{phonedir}/profile/tftproot
 %config(noreplace) %{phonedir}/profile/tftproot/*
 %config(noreplace) %{phonedir}/profile/docroot/*
 
@@ -257,7 +257,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/mailbox/*
 
 %define audiocodesdir %{_localstatedir}/sipxdata/audiocodes
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{audiocodesdir}
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{audiocodesdir}
 %config(noreplace) %{audiocodesdir}/*
 
 %pre

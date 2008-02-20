@@ -139,9 +139,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxrls.process.xml
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxpage.process.xml
 
-%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_bindir}/httpd-sipxchange-config.sh
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/httpd-sipxchange-config.sh
 
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd.conf.d
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd.conf.d
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/mime.types
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common-ssl.conf.in
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common.conf.in
@@ -151,31 +151,31 @@ rm -rf $RPM_BUILD_ROOT
 
 %dir %attr(775,@SIPXPBXUSER@,root) %{_datadir}/www/doc
 %config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/index.html
-%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_datadir}/www/doc/aa_vxml
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/www/doc/aa_vxml
 %config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/stdprompts
-%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_datadir}/www/doc/vm_vxml
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/www/doc/vm_vxml
 
-%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/mediaserver
-%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/parkserver
-%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/sipxpage
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/mediaserver
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/parkserver
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipxpage
 
 %attr(755,root,root) %{_bindir}/sipxpark.sh
 %attr(755,root,root) %{_bindir}/sipxpark
 %attr(755,root,root) %{_bindir}/sipxpark-config
 
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxpark-config.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxpark-config.in
 
 %attr(755,root,root) %{_bindir}/sipxpage.sh
 %attr(755,root,root) %{_bindir}/sipxpage-config
 %attr(644,root,root) %{_libdir}/sipXpage/*.jar
 
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxpage.properties.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxpage.properties.in
 
 %attr(755,root,root) %{_bindir}/sipxdialog.sh
 %attr(755,root,root) %{_bindir}/sipxdialog
 %attr(755,root,root) %{_bindir}/sipxdialog-config
 
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxdialog-config.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxdialog-config.in
 %attr(755,root,root) %{_sysconfdir}/sipxpbx/sipxdialog-config.in.map
 
 %attr(755,root,root) %{_bindir}/sipx-snapshot-rls
@@ -183,7 +183,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipxrls
 %attr(755,root,root) %{_bindir}/sipxrls-config
 
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxrls-config.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxrls-config.in
 
 %attr(755,root,root) %{_datadir}/sipx/schema/watchdog.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/watchdogprocess.xsd
@@ -194,7 +194,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipxpresence
 %attr(755,root,root) %{_bindir}/sipxpresence-config
 
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxpresence-config.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxpresence-config.in
 
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz
