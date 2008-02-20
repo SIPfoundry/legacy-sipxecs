@@ -1,5 +1,10 @@
 AC_PREREQ(2.57)
-AC_INIT(sipX, 3.9.6, sipx-dev@list.sipfoundry.org)
+
+# The second argument of AC_INIT must be a version number, but this
+# version number affects nothing, so we use a dummy value.  The
+# version numbers that matter are the arguments of AC_INIT in
+# */configure.ac.
+AC_INIT(sipX, 0.0.0, sipx-dev@list.sipfoundry.org)
 
 AC_CONFIG_AUX_DIR(config)
 
