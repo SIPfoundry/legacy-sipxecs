@@ -72,7 +72,7 @@
       <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
     </annotation>
     <restriction base="normalizedString">
-      <pattern value="([&#x3c;&#x3e;&#x22;a-zA-Z0-9.!&#x25;*_+`'~():\\/\[\]?{}\-]+)@([&#x3c;&#x3e;&#x22;a-zA-Z0-9.!&#x25;*_+`'~():\/\[\]?{}-]+)">
+      <pattern value="([&#x3c;&#x3e;&#x22;a-zA-Z0-9.!&#x25;*_+`'~():\\/\[\]?{}\-]+)@([&#x3c;&#x3e;&#x22;a-zA-Z0-9.!&#x25;*_+`'~():/\[\]?{}-]+)">
          <annotation>
            <documentation>sip_word@sip_word</documentation>
          </annotation>
