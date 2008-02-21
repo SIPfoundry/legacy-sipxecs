@@ -29,6 +29,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.ldap.AttributesMapper;
+import org.springframework.ldap.UncategorizedLdapException;
 
 /**
  * Maintains LDAP connection params, attribute maps and schedule LdapManagerImpl
@@ -54,9 +55,9 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             String subschemaSubentry = results.get(attrNames[1]);
             attrMap.setSubschemaSubentry(subschemaSubentry);
         } catch (NamingException e) {
-            verifyException("Failed to read data LDAP information : ", e);
+            verifyException("readData.failed", e);
         } catch (DataAccessException e) {
-            verifyException("Failed connection to LDAP server : ", e);
+            verifyException("connection.failed", e);
         }
     }
 
@@ -70,7 +71,9 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         if (fullMessage.indexOf(';') > 0) {
             parsedMessage = fullMessage.substring(0, fullMessage.indexOf(';'));
         }
-        throw new UserException(message + parsedMessage);
+        UserException ex = new UserException(message);
+        ex.initCause(new Throwable(parsedMessage));
+        throw ex;
     }
 
     public Schema getSchema(String subschemaSubentry) {
@@ -90,7 +93,10 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             return schema;
         } catch (DataIntegrityViolationException e) {
             LOG.debug("Retrieving schema failed.", e);
-            throw new UserException("Cannot retrieve schema from LDAP server: " + e.getMessage());
+            throw new UserException("searchSchema.violation.error");
+        } catch (UncategorizedLdapException e) {
+            LOG.debug("Retrieving schema failed. Anonymous-binding may be disabled", e);
+            throw new UserException("searchSchema.anonymousBinding.error");
         }
     }
 

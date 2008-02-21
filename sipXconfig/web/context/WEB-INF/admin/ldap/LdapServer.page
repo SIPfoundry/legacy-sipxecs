@@ -35,7 +35,7 @@
   <component id="applyConnectionParams" type="Submit">
     <binding name="value" value="message:label.continue" />
     <binding name="action"
-      value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.applyConnectionParams)" />
+      value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.applyConnectionParams, messages)" />
   </component>
 
   <!-- object class selection stage -->

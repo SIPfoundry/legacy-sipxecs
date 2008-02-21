@@ -106,15 +106,38 @@ public class TapestryContext {
         return new UserExceptionAdapter(TapestryUtils.getValidator(component), listener);
     }
 
+    /**
+     * Translates UserExceptions into localized form errors instead redirecting to an error page.
+     */
+    public IActionListener treatUserExceptionAsValidationError(IValidationDelegate validator,
+            IActionListener listener, Messages messages) {
+        return new UserExceptionAdapter(validator, listener, messages);
+    }
+
+    /**
+     * Translates UserExceptions into localized form errors instead redirecting to an error page.
+     */
+    public IActionListener treatUserExceptionAsValidationError(IComponent component,
+            IActionListener listener, Messages messages) {
+        return new UserExceptionAdapter(TapestryUtils.getValidator(component), listener, messages);
+    }
+            
     static class UserExceptionAdapter implements IActionListener {
 
         private IActionListener m_listener;
 
         private IValidationDelegate m_validator;
-
+        
+        private Messages m_messages;
+        
         UserExceptionAdapter(IValidationDelegate validator, IActionListener listener) {
+            this(validator, listener, null);
+        }
+
+        UserExceptionAdapter(IValidationDelegate validator, IActionListener listener, Messages messages) {
             m_listener = listener;
             m_validator = validator;
+            m_messages = messages;
         }
 
         public void actionTriggered(IComponent component, IRequestCycle cycle) {
@@ -150,7 +173,14 @@ public class TapestryContext {
         }
 
         private void recordUserException(UserException e) {
-            m_validator.record(new ValidatorException(e.getMessage()));
+            if (m_messages != null && e.getCause() != null) {
+                m_validator.record(new ValidatorException(m_messages.format(e.getMessage(),
+                        e.getCause().getMessage())));
+            } else if (m_messages != null) {
+                m_validator.record(new ValidatorException(m_messages.getMessage(e.getMessage())));
+            } else {
+                m_validator.record(new ValidatorException(e.getMessage()));
+            }
         }
     }
 
