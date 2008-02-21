@@ -187,7 +187,7 @@
       <type refid="yes-no" />
       <value>YES</value>
     </setting>
-    <setting name='ADMIN_PASSWORD'><value>1234</value></setting>
+    <setting name='ADMIN_PASSWORD'><value>4321</value></setting>
   </group>
   <group name='TIME'>
     <setting name='TIMEZONE_OFFSET'><value>-18000</value></setting> 
