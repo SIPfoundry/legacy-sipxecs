@@ -98,6 +98,7 @@ public class EmergencyRouting extends BeanWithId {
     private DialingRule createDialRule(Gateway gateway, String externalNumber) {
         CustomDialingRule rule = new CustomDialingRule();
         rule.setName("caller sensitive emergency routing");
+        rule.setCallPattern(new CallPattern(StringUtils.EMPTY, CallDigits.FIXED_DIGITS));
         rule.setGateways(Collections.singletonList(gateway));
         rule.setDialPatterns(Collections.singletonList(new DialPattern(externalNumber, 0)));
         return rule;

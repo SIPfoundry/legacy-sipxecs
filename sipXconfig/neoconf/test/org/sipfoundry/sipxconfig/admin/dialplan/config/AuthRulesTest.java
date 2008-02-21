@@ -21,7 +21,10 @@ import org.dom4j.Element;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.RoutingException;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
@@ -91,6 +94,46 @@ public class AuthRulesTest extends XMLTestCase {
         assertEquals(1, authRules.uniqueGateways);
 
         control.verify();
+    }
+
+    /**
+     * Tests that emergency dialing rules for caller-sensitive emergency routing
+     * have the correct external number set in the <userPattern> element of the
+     * generated auth configuration.
+     */
+    public void testGenerateEmergencyDialingRules() throws Exception {
+        Gateway gateway = new Gateway();
+        gateway.setUniqueId();
+        gateway.setAddress("10.1.2.3");
+
+        Gateway exceptionGateway = new Gateway();
+        exceptionGateway.setUniqueId();
+        exceptionGateway.setAddress("10.1.2.4");
+
+        EmergencyRouting emergencyRouting = new EmergencyRouting();
+        emergencyRouting.setDefaultGateway(gateway);
+        emergencyRouting.setExternalNumber("911");
+
+        RoutingException exception = new RoutingException("500", "999", exceptionGateway);
+        emergencyRouting.addException(exception);
+
+        List<DialingRule> emergencyRules = emergencyRouting.asDialingRulesList();
+
+        MockAuthRules authRules = new MockAuthRules();
+        authRules.begin();
+        for (DialingRule emergencyRule : emergencyRules) {
+           authRules.generate(emergencyRule);
+        }
+        authRules.end();
+
+        Document doc = authRules.getDocument();
+        String domDoc = XmlUnitHelper.asString(doc);
+
+        assertXpathEvaluatesTo(gateway.getAddress(), "/mappings/hostMatch/hostPattern", domDoc);
+        assertXpathEvaluatesTo(emergencyRouting.getExternalNumber(), "/mappings/hostMatch/userMatch/userPattern", domDoc);
+
+        assertXpathEvaluatesTo(exceptionGateway.getAddress(), "/mappings/hostMatch[2]/hostPattern", domDoc);
+        assertXpathEvaluatesTo(exception.getExternalNumber(), "/mappings/hostMatch[2]/userMatch/userPattern", domDoc);
     }
 
     public void testGenerateMultipleGateways() throws Exception {
