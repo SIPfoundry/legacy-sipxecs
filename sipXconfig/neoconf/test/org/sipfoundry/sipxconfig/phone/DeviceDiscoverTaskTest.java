@@ -57,9 +57,9 @@ public class DeviceDiscoverTaskTest extends TestCase {
         assertEquals(3, discoveredDevices.size());
 
         DiscoveredDevice firstDevice = new DiscoveredDevice();
-        firstDevice.setMacAddress("000B820A20E5");
+        firstDevice.setMacAddress("000b820a20e5");
         DiscoveredDevice secondDevice = new DiscoveredDevice();
-        secondDevice.setMacAddress("0004F2008742");
+        secondDevice.setMacAddress("0004f2008742");
         DiscoveredDevice thirdDevice = new DiscoveredDevice();
         thirdDevice.setMacAddress("000413232667");
 
@@ -67,7 +67,7 @@ public class DeviceDiscoverTaskTest extends TestCase {
         assertTrue(discoveredDevices.contains(secondDevice));
         assertTrue(discoveredDevices.contains(thirdDevice));
     }
-
+    
     private Document parseDeviceDocument() throws Exception {
         File xmlFile = new File(TestUtil.getTestSourceDirectory(getClass()),"devicesFound.xml");
         String xmlString = FileUtils.readFileToString(xmlFile);

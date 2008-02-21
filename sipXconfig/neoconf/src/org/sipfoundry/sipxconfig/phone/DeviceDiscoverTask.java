@@ -66,7 +66,7 @@ public class DeviceDiscoverTask implements Runnable {
                 DiscoveredDevice device = new DiscoveredDevice();
                 String macAddress = deviceXml.element("hardware-address").getText();
                 macAddress = macAddress.replace(":", "");
-                device.setMacAddress(macAddress);
+                device.setMacAddress(macAddress.toLowerCase());
                 device.setIpAddress(deviceXml.element("network-address").getText());
                 device.setVendor(deviceXml.element("vendor").getText());
                 devices.add(device);
