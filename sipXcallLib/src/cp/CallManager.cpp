@@ -661,12 +661,13 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 
                 call->stopMetaEvent();
 
-                mCallListMutex.acquireWrite() ;                                                
+                mCallListMutex.acquireWrite();
                 releaseCallIndex(call->getCallIndex());
-                if(infocusCall == call)
+                if (infocusCall == call)
                 {
+                    infocusCall == NULL;
                     // The infocus call is not in the mCallList -- no need to 
-                    // remove, but we should tell the call that it is not 
+                    // remove, but we should tell the call that it is no
                     // longer in focus.
                     call->outOfFocus();                    
                 }
@@ -674,7 +675,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 {
                     call = removeCall(call);
                 }
-                mCallListMutex.releaseWrite() ;
+                mCallListMutex.releaseWrite();
 
                 if(call)
                 {

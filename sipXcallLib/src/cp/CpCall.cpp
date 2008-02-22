@@ -187,16 +187,15 @@ CpCall::~CpCall()
         mpMetaEventCallIds = NULL;
     }
 
-    UtlString name = getName();
 #ifdef TEST_PRINT
+    UtlString name = getName();
     OsSysLog::add(FAC_CP, PRI_DEBUG, "%s destructed: %s\n", name.data(), mCallId.data());
     osPrintf("%s destructed: %s\n", name.data(), mCallId.data());
-#endif
     name.remove(0);
+#endif
     mCallId.remove(0);
     mOriginalCallId.remove(0);
     mTargetCallId.remove(0);
-
 }
 
 /* ============================ MANIPULATORS ============================== */
