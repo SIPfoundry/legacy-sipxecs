@@ -871,24 +871,24 @@ void SipMessage::setInviteOkData(const char* fromField,
    // Create and add the SDP body
    sdpBody = new SdpBody();
    sdpBody->setStandardHeaderFields("phone-call",
-                            NULL, //"dpetrie@pingtel.com",
-                            NULL, //"+1 781 938 5306",
-                                     rtpAddress); //originator address
+                                    NULL,
+                                    NULL,
+                                    rtpAddress); //originator address
 
    // If the INVITE SDP is present pick the best
-   if(inviteSdp)
+   if (inviteSdp)
    {
-            sdpBody->addAudioCodecs(rtpAddress, rtpAudioPort, rtcpAudioPort,
-                                    rtpVideoPort, rtcpVideoPort,
-                                    numRtpCodecs, rtpCodecs, srtpParams, inviteSdp);
+      sdpBody->addAudioCodecs(rtpAddress, rtpAudioPort, rtcpAudioPort,
+                              rtpVideoPort, rtcpVideoPort,
+                              numRtpCodecs, rtpCodecs, srtpParams,
+                              inviteSdp);
    }
 
    else
    {
       sdpBody->addAudioCodecs(rtpAddress, rtpAudioPort, rtcpAudioPort,
                               rtpVideoPort, rtcpVideoPort,
-                              numRtpCodecs, rtpCodecs,
-                              srtpParams);
+                              numRtpCodecs, rtpCodecs, srtpParams);
    }
    setBody(sdpBody);
 

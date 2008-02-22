@@ -9,6 +9,7 @@
 // SYSTEM INCLUDES
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // APPLICATION INCLUDES
 #include <os/OsLock.h>
@@ -49,6 +50,24 @@
 // STATIC VARIABLE INITIALIZATIONS
 static int     sSessionCount = 5 ;  // Session version for SDP body
 static OsMutex sSessionLock(OsMutex::Q_FIFO) ;
+
+// The a= values that represent the directionality values.
+const char* SdpBody::sdpDirectionalityStrings[4] =
+{
+   "inactive",
+   "sendonly",
+   "recvonly",
+   "sendrecv"
+};
+
+// Calcuate the "reverse" of a given directionality.
+const SdpDirectionality SdpBody::sdpDirectionalityReverse[4] =
+{
+   sdpDirectionalityInactive,
+   sdpDirectionalityRecvOnly,
+   sdpDirectionalitySendOnly,
+   sdpDirectionalitySendRecv
+};
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -626,7 +645,8 @@ UtlBoolean SdpBody::getMediaData(int mediaIndex, UtlString* mediaType,
                                  int* mediaPort, int* mediaPortPairs,
                                  UtlString* mediaTransportType,
                                  int maxPayloadTypes, int* numPayloadTypes,
-                                 int payloadTypes[]) const
+                                 int payloadTypes[],
+                                 SdpDirectionality* directionality) const
 {
    UtlBoolean fieldFound = FALSE;
    UtlSListIterator iterator(*sdpFields);
@@ -701,6 +721,43 @@ UtlBoolean SdpBody::getMediaData(int mediaIndex, UtlString* mediaType,
                                          SDP_SUBFIELD_SEPARATORS, &payloadTypeString);
       }
       *numPayloadTypes = typeCount;
+
+      // Get the directionality attribute, if any.
+      
+      // The default value is sendrecv if there is no attribute.
+      *directionality = sdpDirectionalitySendRecv;
+      NameValuePair* fieldNV;
+      bool loop = true;
+      while (loop && (fieldNV = dynamic_cast <NameValuePair*> (iterator())))
+      {
+         if (fieldNV->compareTo("m") == 0)
+         {
+            // If we get to the next m= line, stop.
+            loop = false;
+         }
+         else if (fieldNV->compareTo("a") == 0)
+         {
+            // Check to see if this a= line is a directionality attribute.
+            for (unsigned int i = 0;
+                 loop &&
+                 i < sizeof (sdpDirectionalityStrings) /
+                    sizeof (sdpDirectionalityStrings[0]);
+                 i++)
+            {
+               if (strcmp(fieldNV->getValue(),
+                          sdpDirectionalityStrings[i]) == 0)
+               {
+                  // This is a directionality attribute.
+                  // Save the code value and exit.
+                  *directionality = static_cast <SdpDirectionality> (i);
+                  loop = false;
+               }
+            }
+            // If the a= line value was not a directionality attribute,
+            // continue examining lines.
+         }
+         // All other lines are ignored in this search.
+      }
    }
 
    return(fieldFound);
@@ -1112,9 +1169,9 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
    int numAudioCodecs=0;
    int numVideoCodecs=0;
 
-   memset(formatArray, 0, sizeof(int)*MAXIMUM_MEDIA_TYPES);
+   memset(formatArray, 0, sizeof (formatArray));
 
-   // If there are not media fields we only need one global one
+   // If there are no media fields we only need one global one
    // for the SDP body
    if(!preExistingMedia)
    {
@@ -1142,7 +1199,7 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
 
    if (rtpAudioPort != 0)
    {
-        // If any security is enabled we set RTP/SAVP and add a crypto field
+      // If any security is enabled we set RTP/SAVP and add a crypto field
       if (srtpParams.securityLevel)
       {
            // Add the media record
@@ -1335,6 +1392,7 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
    UtlString mediaType;
    int mediaPort, audioPort, videoPort;
    int mediaPortPairs, audioPortPairs, videoPortPairs;
+   SdpDirectionality mediaDirectionality, audioDirectionality, videoDirectionality;
    UtlString mediaTransportType, audioTransportType, videoTransportType;
    int numPayloadTypes, numAudioPayloadTypes, numVideoPayloadTypes;
    int payloadTypes[MAXIMUM_MEDIA_TYPES];
@@ -1387,7 +1445,7 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
                                             &mediaPort, &mediaPortPairs,
                                             &mediaTransportType,
                                             MAXIMUM_MEDIA_TYPES, &numPayloadTypes,
-                                            payloadTypes);
+                                            payloadTypes, &mediaDirectionality);
 
       if(fieldFound)
       {
@@ -1405,6 +1463,7 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
                          mediaTransportType.data(),
                          numPayloadTypes,
                          payloadTypes);
+            addAttribute(sdpDirectionalityStrings[sdpDirectionalityInactive]);
          }
 
          // Copy media fields and replace the port with:
@@ -1422,6 +1481,7 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
                 numAudioPayloadTypes = numPayloadTypes;
                 memcpy(&audioPayloadTypes, &payloadTypes, sizeof(int)*MAXIMUM_MEDIA_TYPES);
                 memcpy(&receivedAudioSrtpParams, &receivedSrtpParams, sizeof(SdpSrtpParameters));
+                audioDirectionality = mediaDirectionality;
             }
             else
             {  
@@ -1431,6 +1491,7 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
                 numVideoPayloadTypes = numPayloadTypes;
                 memcpy(&videoPayloadTypes, &payloadTypes, sizeof(int)*MAXIMUM_MEDIA_TYPES);
                 memcpy(&receivedVideoSrtpParams, &receivedSrtpParams, sizeof(SdpSrtpParameters));
+                videoDirectionality = mediaDirectionality;
             }
          }
       }
@@ -1438,7 +1499,7 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
    }
 
    SdpCodecFactory codecFactory(numRtpCodecs,
-                                    rtpCodecs);
+                                rtpCodecs);
 
    supportedPayloadCount = 0;
    sdpRequest->getCodecsInCommon(numAudioPayloadTypes, numVideoPayloadTypes, 
@@ -1478,6 +1539,8 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
                     audioTransportType.data(),
                     destIndex,
                     supportedPayloadTypes);
+        addAttribute(sdpDirectionalityStrings[
+                        sdpDirectionalityReverse[audioDirectionality]]);
         if (commonAudioSrtpParams.securityLevel)
         {
             addSrtpCryptoField(commonAudioSrtpParams);
@@ -1545,6 +1608,8 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
                         videoTransportType.data(),
                         destIndex+1,
                         supportedPayloadTypes);
+            addAttribute(sdpDirectionalityStrings[
+                            sdpDirectionalityReverse[videoDirectionality]]);
             if (commonVideoSrtpParams.securityLevel)
             {
                 addSrtpCryptoField(commonAudioSrtpParams);
@@ -1577,11 +1642,13 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
                     audioTransportType.data(),
                     numAudioPayloadTypes,
                     audioPayloadTypes);
+        addAttribute(sdpDirectionalityStrings[sdpDirectionalityInactive]);
         addMediaData("video",
                     mediaPort, videoPortPairs,
                     videoTransportType.data(),
                     numVideoPayloadTypes,
                     videoPayloadTypes);
+        addAttribute(sdpDirectionalityStrings[sdpDirectionalityInactive]);
     }
 
     // Free up the codec copies
@@ -1596,12 +1663,11 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
 
     if(preExistingMedia)
     {
-    addAddressData(rtpAddress);
+       addAddressData(rtpAddress);
     }
 
-    // Copy all atribute fields verbatum
+    // Copy all atribute fields verbatim
     // someday
-
 }
 
 void SdpBody::addRtpmap(int payloadType,
@@ -1833,7 +1899,11 @@ void SdpBody::addMediaData(const char* mediaType,
    }
 
    addValue("m", value.data());
+}
 
+void SdpBody::addAttribute(const char* attribute)
+{
+   addValue("a", attribute);
 }
 
 void SdpBody::addAddressData(const char* ipAddress)

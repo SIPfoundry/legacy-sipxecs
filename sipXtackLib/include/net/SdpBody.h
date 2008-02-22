@@ -50,6 +50,19 @@ typedef struct SdpSrtpParameters
     unsigned char masterKey[SRTP_KEY_LENGTH+1];
 } SdpSrtpParameters;
 
+/** Enum values to represent SDP directionality attributes.
+ *  The values are constructed so that boolean operations on them
+ *  behave as expected, with SdpDirectionalityInactive being 0.
+ */
+typedef
+   enum
+{
+   sdpDirectionalityInactive = 0,
+   sdpDirectionalitySendOnly = 1,
+   sdpDirectionalityRecvOnly = 2,
+   sdpDirectionalitySendRecv = 3
+} SdpDirectionality;
+
 // FORWARD DECLARATIONS
 class SdpCodecFactory;
 
@@ -78,6 +91,14 @@ class SdpBody : public HttpBody
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
+
+   /// The a= values that represent the directionality values.
+   static const char* sdpDirectionalityStrings[4];   
+
+   /// Calcuate the "reverse" of a given directionality.
+   //  I.e., sdpDirectionalityReverse[sdpDirectionalitySendOnly] ==
+   //  sdpDirectionalityRecvOnly.
+   static const SdpDirectionality sdpDirectionalityReverse[4];
 
 /** 
  * @name ====================== Constructors and Destructors
@@ -241,7 +262,6 @@ class SdpBody : public HttpBody
                             const char* formatParameters
                             );
 
-
     /**
      * Set the candidate attribute per draft-ietf-mmusic-ice-04
      */
@@ -253,6 +273,9 @@ class SdpBody : public HttpBody
                                int unicastPort, 
                                const char* candidateIp, 
                                int candidatePort) ;
+
+    /// Add an attribute.
+    void addAttribute(const char* attribute);
 
 ///@}
    
@@ -286,7 +309,8 @@ class SdpBody : public HttpBody
                            UtlString* mediaTransportType,
                            int maxPayloadTypes,
                            int* numPayloadTypes,
-                           int payloadTypes[]) const;
+                           int payloadTypes[],
+                           SdpDirectionality* directionality) const;
 
    /// Read whether the media network type is IP4 or IP6.
    UtlBoolean getMediaNetworkType(int mediaIndex, ///< which media description set to read

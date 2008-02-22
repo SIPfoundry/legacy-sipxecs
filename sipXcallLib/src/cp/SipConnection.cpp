@@ -237,7 +237,7 @@ UtlBoolean SipConnection::requestShouldCreateConnection(const SipMessage* sipMsg
         // Verify that we have some RTP codecs in common
         else
         {
-            // Get the SDP and findout if there are any
+            // Get the SDP and find out if there are any
             // codecs in common
             UtlString rtpAddress;
             int rtpPort;
@@ -799,7 +799,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
 {
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_WARNING,
-        "Entering SipConnection::answer inviteMsg=0x%08x ", (int)inviteMsg);
+        "Entering SipConnection::answer inviteMsg=%p", inviteMsg);
 #endif
 
     UtlBoolean answerOk = FALSE;
