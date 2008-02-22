@@ -54,6 +54,7 @@
 const RegEx RegQValue("^(0(\\.\\d{0,3})?|1(\\.0{0,3})?)$"); // syntax for a valid q parameter value
 
 #define MIN_EXPIRES_TIME 300
+#define MAX_RETENTION_TIME 600
 #define HARD_MINIMUM_EXPIRATION 60
 const char DEFAULT_EXPIRATION_TIME[] = "7200";
 
@@ -1390,7 +1391,8 @@ void SipRegistrarServer::cleanAndPersist()
 {
    RegistrationDB* imdb = mRegistrar.getRegistrationDB();
    int timeNow = OsDateTime::getSecsSinceEpoch();
-   int oldestTimeToKeep = timeNow - mDefaultRegistryPeriod;
+   int oldestTimeToKeep = timeNow - ( mDefaultRegistryPeriod < MAX_RETENTION_TIME
+                                     ?mDefaultRegistryPeriod : MAX_RETENTION_TIME );
 
    // Send reg event notices any expired rows, including the rows we
    // are about to delete.  It's possible that there hasn't been a
