@@ -665,7 +665,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 releaseCallIndex(call->getCallIndex());
                 if (infocusCall == call)
                 {
-                    infocusCall == NULL;
+                    infocusCall = NULL;
                     // The infocus call is not in the mCallList -- no need to 
                     // remove, but we should tell the call that it is no
                     // longer in focus.
