@@ -25,6 +25,7 @@ import java.util.Vector;
 
 import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.secure.SecureXmlRpcClient;
@@ -61,12 +62,18 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
      * parameter.
      */
     protected Object invokeXmlRpcRequest(Location location, String methodName, Vector params) {
+        String url = location.getProcessMonitorUrl();
         try {
             // Add this machine's hostname as the first parameter.
             params.add(0, m_host);
 
+            if (LOG.isInfoEnabled()) {
+                String paramStr = StringUtils.join(params, ",");
+                String msg = String.format("XML/RPC %s on %s with %s", methodName, url, paramStr);
+                LOG.info(msg);
+            }
             // The execute() method may throw OR return an XmlRpcException.
-            XmlRpcClient client = new SecureXmlRpcClient(location.getProcessMonitorUrl());
+            XmlRpcClient client = new SecureXmlRpcClient(url);
             Object result = client.execute("ProcMgmtRpc." + methodName, params);
             if (result instanceof XmlRpcException) {
                 throw (XmlRpcException) result;
@@ -78,7 +85,7 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
             LOG.error("Error XML/RPC, fault: " + e.code + " message: " + e.getMessage());
             throw new RuntimeException(e);
         } catch (MalformedURLException e) {
-            LOG.error("Error URL: " + location.getProcessMonitorUrl());
+            LOG.error("Error URL: " + url);
             throw new RuntimeException(e);
         } catch (IOException e) {
             LOG.warn("XML/RPC call.", e);
