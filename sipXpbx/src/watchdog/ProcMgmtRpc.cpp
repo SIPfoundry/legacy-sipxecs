@@ -11,6 +11,8 @@
 #include "utl/UtlHashBag.h"
 #include "utl/UtlHashBagIterator.h"
 #include "utl/UtlHashMapIterator.h" 
+#include "os/OsProcessMgr.h"
+#include "os/OsSysLog.h"
 #include "net/XmlRpcDispatch.h"
 #include "net/XmlRpcMethod.h"
 #include "net/XmlRpcRequest.h"
@@ -190,12 +192,29 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
             else
             {
                WatchDog* pWatchDog = ((WatchDog *)userData);
-
                if (validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
                {
                   // Set the "user request state" of the specified process to the specified
                   // state.  If successful, then possibly also wait for the state change.
                   UtlBool method_result(false);
+
+                  UtlString requestedState;
+                  if (!OsProcessMgr::getUserRequestedStateString(request_state, requestedState))
+                  {
+                     requestedState = "<unknown>";
+                  }
+                  OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+                                "ProcMgmtRpc::setUserRequestState"
+                                " host %s requested process '%s' state '%s' %s",
+                                pCallingHostname->data(),
+                                pAlias->data(),
+                                requestedState.data(),
+                                (  pBlock->getValue()
+                                 ? "BLOCKING"
+                                 : (  (USER_PROCESS_RESTART == request_state)
+                                    ? "(always blocks)" : "NON-BLOCKING"))
+                                );
+
                   PID original_pid = pWatchDog->getPidByAlias(*pAlias);
                   if (pWatchDog->setProcessUserRequestState(*pAlias, request_state))
                   {
@@ -215,6 +234,13 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                         }
                      }
                   }
+
+                  OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG,
+                                "ProcMgmtRpc::setUserRequestState"
+                                " process '%s' %s",
+                                pAlias->data(),
+                                method_result.getValue() ? "SUCCESS" : "FAILURE"
+                                );
 
                   // Construct and set the response.
                   response.setResponse(&method_result);
@@ -407,6 +433,20 @@ bool ProcMgmtRpcMethod::executeSetUserRequestStateAll(const HttpRequestContext& 
 
          if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
          {
+
+            UtlString requestedState;
+            if (!OsProcessMgr::getUserRequestedStateString(request_state, requestedState))
+            {
+               requestedState = "<unknown>";
+            }
+            OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+                          "ProcMgmtRpc::setUserRequestStateAll"
+                          " host %s requested state '%s'",
+                          pCallingHostname->data(),
+                          requestedState.data()
+                          );
+
+
             // Set the "user request state" of the all monitored processes to the specified
             // state.   (This dynamically allocates memory.)  For those successful, also wait
             // for the state change.
@@ -489,6 +529,12 @@ bool ProcMgmtRpcGetStateAll::execute(const HttpRequestContext& requestContext,
 
          if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
          {
+            OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+                          "ProcMgmtRpc::getUserRequestStateAll"
+                          " host %s requested process states",
+                          pCallingHostname->data()
+                          );
+
             // Get the states of the monitored processes.  (This dynamically allocates memory.)
             UtlHashMap process_states;
             pWatchDog->getProcessStateAll(process_states);
@@ -779,6 +825,14 @@ bool ProcMgmtRpcGetAliasByPID::execute(const HttpRequestContext& requestContext,
             {
                // Attempt to find the alias, which will be blank is there is a failure.
                UtlString alias = pWatchDog->getAliasByPid(pPID->getValue());
+
+               OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+                             "ProcMgmtRpc::getUserRequestState"
+                             " host %s requested process state for %d (%s)",
+                             pCallingHostname->data(),
+                             pPID->getValue(), alias.data()
+                             );
+
 
                // Construct and set the response.
                response.setResponse(&alias);
