@@ -78,13 +78,6 @@ class SipRedirectorPrivateStorage;
  *
  * @see Plugin
  */
-
-/**
- * SipRedirector is a virtual class.  Instances of its subclasses are the
- * processing agents which construct and manipulate lists of contact points
- * for addresses of record.
- */
-
 class RedirectPlugin : public Plugin
 {
   public:
