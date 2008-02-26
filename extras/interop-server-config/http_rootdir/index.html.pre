@@ -109,14 +109,6 @@ functionality, you should consider attending
 thorough interoperability testing with dozens of other implementations.
 </p>
 
-<p>
-For more information and resources to help you assess and improve the
-interoperability of your SIP implementation, see the
-<a href='http://www.sipfoundry.org/interoperability.html'>
-SIPfoundry Interoperability Initiative
-</a>.
-</p>
-
 <hr />
 
 <h2>Addresses</h2>
