@@ -20,7 +20,10 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.springframework.context.ApplicationEvent;
 
-public class LazySipxReplicationContextImplTest extends TestCase {
+/**
+ * It's marked as Integration test due to time sensitivity - it is known to fail on our PPC built system
+ */
+public class LazySipxReplicationContextImplTestIntegration extends TestCase {
 
     public void testGenerateAll() throws Exception {
         int lazyIterations = 20;
@@ -71,7 +74,7 @@ public class LazySipxReplicationContextImplTest extends TestCase {
             lazy.generateAll();            
         }        
 
-        Thread.sleep(3200);
+        Thread.sleep(800);
         
         replicationCtrl.verify();
     }
