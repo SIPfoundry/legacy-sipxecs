@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 include $(top_srcdir)/config/subdir.am
 
-SUBDIRS = fastdb sipdb . sipdbtest xsdvalid test sipxrestorebinary 
+SUBDIRS = fastdb sipdb . xsdvalid test sipxrestorebinary 
 
 INCLUDES = -I$(top_srcdir)/include
 

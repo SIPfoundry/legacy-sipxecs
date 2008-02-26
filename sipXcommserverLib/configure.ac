@@ -64,7 +64,6 @@ AC_CONFIG_FILES([
   src/Makefile 
   src/sipdb/Makefile 
   src/fastdb/Makefile 
-  src/sipdbtest/Makefile
   src/xsdvalid/Makefile
   src/test/Makefile 
   src/test/testlib/Makefile 

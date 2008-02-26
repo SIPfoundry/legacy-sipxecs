@@ -105,11 +105,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/get_def_addr
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(4755,root,root) %{_bindir}/sipx-sudo-restore
-%attr(755,root,root) %{_bindir}/sipdbtest
 %attr(755,root,root) %{_bindir}/pkg-upgrade
 %attr(755,root,root) %{_bindir}/configmerge
 %attr(755,root,root) %{_bindir}/configquery
-%attr(755,root,root) %{_bindir}/sipdbtest.sh
 %attr(755,root,root) %{_bindir}/xsdvalid
 %attr(755,root,root) %{_bindir}/sipx-validate-xml
 %attr(755,root,root) %{_bindir}/sipx-dns
@@ -187,6 +185,7 @@ sipx-upgrade -p sipxcommserverlib -c
 
 %post
 sipx-upgrade -p sipxcommserverlib -u --bdir %{_bindir}  --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}  --ldir %{_libexecdir}
+rm -f %{_sysconfdir}/sipxpbx/process.d/keepalive.process.xml
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
