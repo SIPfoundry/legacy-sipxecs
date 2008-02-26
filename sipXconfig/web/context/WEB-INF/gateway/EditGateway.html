@@ -1,7 +1,6 @@
 <div jwcid="@Border">
-  
+    <span jwcid="@gateway/GatewayNavigation" gateway="prop:gateway" dialingRuleId="prop:ruleId"/>
     <div jwcid="@common/LeftNavigation" renderCondition="ognl:!gateway.isNew()">
-      <span jwcid="@gateway/GatewayNavigation" gateway="prop:gateway" dialingRuleId="prop:ruleId"/>
       <span jwcid="@setting/SettingsNavigation" bean="prop:gateway" 
           editSettingsListener="listener:editSettings" activeSetting="prop:currentSettingSet">
         <span jwcid="@For" source="prop:tabNames" value="prop:currentTab">

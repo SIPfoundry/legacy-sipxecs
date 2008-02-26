@@ -237,9 +237,9 @@ fieldset#loginForm legend {
 
 #content
 {	
-	width: 75%;
 	padding: 10px;
-    float: left;	
+    margin-left:10em;
+    position:relative;
 }
 
 #settings-nav ul
