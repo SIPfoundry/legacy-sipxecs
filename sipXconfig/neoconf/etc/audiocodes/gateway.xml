@@ -805,7 +805,7 @@
       <type>
         <boolean />
       </type>
-      <value>1</value>
+      <value>0</value>
       <description>If enabled, gateways will only accept SIP calls from IP addresses listed below.</description>
     </setting>
     <setting name="AllowedIPs" advanced="yes" unless="fxs">
