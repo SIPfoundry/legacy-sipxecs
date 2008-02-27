@@ -143,6 +143,7 @@
 
   <bean id="vxml" class="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator">
     <property name="velocityEngine" ref="velocityEngine" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="attendantSaveDefaultGroup" factory-bean="dialPlanContextImpl" factory-method="createGroupSaveListener">

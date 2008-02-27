@@ -47,7 +47,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         aa.setPrompt("thankyou_goodbye.wav");
 
         AttendantMenu menu = new AttendantMenu();
-        menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.GOTO_EXTENSION, "1234");
+        menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.TRANSFER_OUT, "1234");
         menu.addMenuItem(DialPad.NUM_5, AttendantMenuAction.OPERATOR);
         aa.setMenu(menu);
 
@@ -119,6 +119,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         VxmlGenerator vxml = new VxmlGenerator();
         vxml.setScriptsDirectory(TestHelper.getTestDirectory());
         vxml.setVelocityEngine(TestHelper.getVelocityEngine());
+        vxml.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
         vxml.generate(aa);
         assertTrue(scriptFile.exists());
         m_context.deleteAutoAttendant(aa, TestHelper.getTestDirectory());

@@ -16,7 +16,7 @@
     <attendant_menu_item
     auto_attendant_id="[auto_attendant_id]"
     dialpad_key="1"
-    action="transfer_to_extension"
+    action="transfer_out"
     parameter="1234"/>
   
     <attendant_menu_item

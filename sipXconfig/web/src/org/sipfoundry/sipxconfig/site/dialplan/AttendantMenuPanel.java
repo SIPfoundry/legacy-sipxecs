@@ -126,7 +126,7 @@ public abstract class AttendantMenuPanel extends BaseComponent {
     }
 
     public void addMenuItem() {
-        AttendantMenuAction action = getExtensionOnly() ? AttendantMenuAction.GOTO_EXTENSION
+        AttendantMenuAction action = getExtensionOnly() ? AttendantMenuAction.TRANSFER_OUT
                 : getAddMenuItemAction();
         if (action != null) {
             getMenu().addMenuItem(getAddMenuItemDialPad(), action);

@@ -48,12 +48,12 @@
 #end	
 #set( $menuItem = ${attendant.menu.menuItems.get($dialPadKey)} )
 	  <assign name="operation" expr="'${menuItem.Action.Name}'" />
-	  <assign name="extension" expr="'$menuItem.Action.vxmlParameter($menuItem.Parameter)'" />
+	  <assign name="extension" expr="'$menuItem.Action.vxmlParameter($menuItem.Parameter, $domainName)'" />
 	  <goto nextitem="menuaction" />
 #end
 #end
 	<else />
-	  <!-- Here is the transfer to a given extension -->
+	  <!-- Here is the transfer to the dialed extension -->
 	  <assign name="operation" expr="'transfer_to_extension'" />
 	  <assign name="extension" expr="menu" />
 	  <goto nextitem="menuaction"/>
@@ -90,6 +90,12 @@
 	  <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
 	</prompt>
 	<goto nextitem="transfertoextn" />
+      <elseif cond="operation == 'transfer_out'" />
+	<assign name="transferextn" expr="extension" />
+	<prompt bargein="false">
+	  <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+	</prompt>
+	<goto next="#transferform" />
       <elseif cond="operation == 'operator'" />
 	<prompt bargein="false">
 	  <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />

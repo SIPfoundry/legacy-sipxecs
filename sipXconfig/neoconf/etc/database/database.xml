@@ -254,6 +254,7 @@
 
   <target name="version7" description="upgrade from version 6" unless="version8">
     <antcall target="callgroup-credentials" />
+    <antcall target="AA-transfer-out" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -584,6 +585,14 @@
   <!-- Version 7 patches -->
   <target name="callgroup-credentials" unless="callgroup-credentials">
     <db-patch patch="callgroup-credentials"/>
+  </target>
+
+  <target name="AA-transfer-out" unless="AA-transfer-out">
+    <sipx-sql>
+      update attendant_menu_item set action = 'transfer_out' where action =
+      'transfer_to_extension';
+    </sipx-sql>
+    <mark-patch-applied patch="AA-transfer-out" />
   </target>
 
   <!-- 

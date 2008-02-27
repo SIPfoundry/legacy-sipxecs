@@ -46,7 +46,7 @@
           <assign name="extension" expr="'none'" />
           <goto nextitem="menuaction" />
           <else />
-          <!-- Here is the transfer to a given extension -->
+          <!-- Here is the transfer to the dialed extension -->
           <assign name="operation" expr="'transfer_to_extension'" />
           <assign name="extension" expr="menu" />
           <goto nextitem="menuaction" />
@@ -79,6 +79,12 @@
           <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
         </prompt>
         <goto nextitem="transfertoextn" />
+        <elseif cond="operation == 'transfer_out'" />
+        <assign name="transferextn" expr="extension" />
+        <prompt bargein="false">
+          <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+        </prompt>
+        <goto next="#transferform" />
         <elseif cond="operation == 'operator'" />
         <prompt bargein="false">
           <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />

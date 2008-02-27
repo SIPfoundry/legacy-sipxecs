@@ -20,6 +20,8 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 
+import org.sipfoundry.sipxconfig.domain.DomainManager;
+
 public class VxmlGenerator {
     
     private String m_promptsDirectory;
@@ -27,6 +29,8 @@ public class VxmlGenerator {
     private String m_scriptsDirectory;
 
     private VelocityEngine m_velocityEngine;
+
+    private DomainManager m_domainManager;
     
     private String m_template = "sipxvxml/autoattendant.vm";
 
@@ -61,6 +65,14 @@ public class VxmlGenerator {
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         m_velocityEngine = velocityEngine;
     }
+
+    public DomainManager getDomainManager() {
+        return m_domainManager;
+    }
+
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
+    }
     
     public void generate(AutoAttendant aa) {
         FileWriter out = null;
@@ -82,6 +94,7 @@ public class VxmlGenerator {
             VelocityContext context = new VelocityContext();
             context.put("attendant", aa);
             context.put("vxml", this);            
+            context.put("domainName", m_domainManager.getDomain().getName());
             getVelocityEngine().mergeTemplate(getTemplate(), context, out);
         } catch (ResourceNotFoundException e) {
             throw new RuntimeException(e);

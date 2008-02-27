@@ -42,8 +42,8 @@ public class PersonalAttendantTest extends TestCase {
         personalAttendant.setOperator("123");
 
         AttendantMenu menu = new AttendantMenu();
-        menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.GOTO_EXTENSION, "201");
-        menu.addMenuItem(DialPad.NUM_2, AttendantMenuAction.GOTO_EXTENSION, "sip:202@example.com");
+        menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.TRANSFER_OUT, "201");
+        menu.addMenuItem(DialPad.NUM_2, AttendantMenuAction.TRANSFER_OUT, "sip:202@example.com");
         personalAttendant.setMenu(menu);
 
         personalAttendant.generateProfile(m_location, "example.org", m_profileGenerator);
@@ -62,8 +62,8 @@ public class PersonalAttendantTest extends TestCase {
         personalAttendant.setLanguage("en");
 
         AttendantMenu menu = new AttendantMenu();
-        menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.GOTO_EXTENSION, "201");
-        menu.addMenuItem(DialPad.NUM_2, AttendantMenuAction.GOTO_EXTENSION, "sip:202@example.com");
+        menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.TRANSFER_OUT, "201");
+        menu.addMenuItem(DialPad.NUM_2, AttendantMenuAction.TRANSFER_OUT, "sip:202@example.com");
         personalAttendant.setMenu(menu);
 
         personalAttendant.generateProfile(m_location, "example.org", m_profileGenerator);
@@ -91,9 +91,9 @@ public class PersonalAttendantTest extends TestCase {
         pa.setOperator("123");
 
         AttendantMenu menu = new AttendantMenu();
-        menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.GOTO_EXTENSION, "201");
+        menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.TRANSFER_OUT, "201");
         menu
-                .addMenuItem(DialPad.NUM_2, AttendantMenuAction.GOTO_EXTENSION,
+                .addMenuItem(DialPad.NUM_2, AttendantMenuAction.TRANSFER_OUT,
                         "sip:202@example.com");
         pa.setMenu(menu);
 

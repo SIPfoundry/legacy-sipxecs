@@ -32,6 +32,7 @@ public class AutoAttendantTest extends XMLTestCase {
         String etc = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
         m_vxml.setScriptsDirectory(etc);
         m_vxml.setVelocityEngine(TestHelper.getVelocityEngine());
+        m_vxml.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
     }
 
     public void testGetSystemName() {
