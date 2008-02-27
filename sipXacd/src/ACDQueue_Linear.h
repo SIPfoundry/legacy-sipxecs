@@ -60,6 +60,7 @@ public:
             bool             fifoOverflow,
             const char*      pOverflowQueue,
             const char*      pOverflowEntry,
+            const char*      pOverflowType,
             int              answerMode,
             int              callConnectScheme,
             const char*      pWelcomeAudio,

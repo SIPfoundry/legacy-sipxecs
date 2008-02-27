@@ -42,6 +42,9 @@ class UtlSList;
 class OsTimer;
 
 
+#define HUNT_GROUP_TAG                      "HuntGroup"
+#define QUEUE_TAG                           "Queue"
+
 class ACDQueue : public UtlContainable, public OsServerTask {
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -77,8 +80,9 @@ public:
             int              maxQueueDepth,
             int              maxWaitTime,
             bool             fifoOverflow,
-            const char*      pOverflowQueue,
+            const char*      pOverflowDestination,
             const char*      pOverflowEntry,
+            const char*      pOverflowType,
             int              answerMode,
             int              callConnectScheme,
             const char*      pWelcomeAudio,
@@ -179,7 +183,9 @@ protected:
    int              mMaxWaitTime;
    bool             mFifoOverflow;
    UtlString        mOverflowQueue;
+   UtlString        mOverflowDestination;
    UtlString        mOverflowEntry;          
+   UtlString        mOverflowType;          
    int              mAnswerMode;
    int              mCallConnectScheme;
    UtlString        mWelcomeAudio;

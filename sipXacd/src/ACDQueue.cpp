@@ -66,8 +66,9 @@ ACDQueue::ACDQueue(ACDQueueManager* pAcdQueueManager,
                    int              maxQueueDepth,
                    int              maxWaitTime,
                    bool             fifoOverflow,
-                   const char*      pOverflowQueue,
+                   const char*      pOverflowDestination,
                    const char*      pOverflowEntry,
+                   const char*      pOverflowType,
                    int              answerMode,
                    int              callConnectScheme,
                    const char*      pWelcomeAudio,
@@ -94,8 +95,9 @@ ACDQueue::ACDQueue(ACDQueueManager* pAcdQueueManager,
    mMaxQueueDepth           = maxQueueDepth;
    mMaxWaitTime             = maxWaitTime;
    mFifoOverflow            = fifoOverflow;
-   mOverflowQueue           = pOverflowQueue;
+   mOverflowDestination     = pOverflowDestination;
    mOverflowEntry           = pOverflowEntry;
+   mOverflowType            = pOverflowType;
    mAnswerMode              = answerMode;
    mCallConnectScheme       = callConnectScheme;
    mWelcomeAudio            = pWelcomeAudio;
@@ -120,14 +122,21 @@ ACDQueue::ACDQueue(ACDQueueManager* pAcdQueueManager,
    mUnroutedCallCount       = 0;
    mpRoutePendingAnswer     = NULL;
 
-   if (mOverflowEntry!= NULL && !mOverflowEntry.contains("@")) {
-      UtlString domainName;
-      domainName =  (mpAcdQueueManager->getAcdServer())->getDomain();
+   UtlString domainName;
+   domainName =  (mpAcdQueueManager->getAcdServer())->getDomain();
+      
+   if (mOverflowType == HUNT_GROUP_TAG && mOverflowDestination != NULL) {
+      mOverflowEntry = mOverflowDestination;
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::ACDQueue[%s] - Overflow to huntgroup. Set mOverflowEntry  = %s",mUriString.data(),mOverflowEntry.data());
+   } else if (mOverflowType == QUEUE_TAG && mOverflowDestination != NULL) {
+      mOverflowQueue = mOverflowDestination;
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::ACDQueue[%s] - set mOverflowQueue  = %s",mUriString.data(),mOverflowQueue.data());
+   } else if (mOverflowEntry!= NULL && !mOverflowEntry.contains("@")) {
       mOverflowEntry.append("@");
       mOverflowEntry.append(domainName);
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::ACDQueue[%s] - mOverflowEntry  = %s",mUriString.data(),mOverflowEntry.data());
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::ACDQueue[%s] - set mOverflowEntry  = %s",mUriString.data(),mOverflowEntry.data());
    }
- 
+
    // Convert the comma delimited list of ACDAgent URI's to an SList of ACDAgent pointers
    buildACDAgentList();
 
@@ -369,11 +378,14 @@ void ACDQueue::setAttributes(ProvisioningAttrList& rRequestAttributes)
    // max-wait-time
    rRequestAttributes.getAttribute(QUEUE_MAX_WAIT_TIME_TAG, mMaxWaitTime);
 
-   // overflow-queue
-   rRequestAttributes.getAttribute(QUEUE_OVERFLOW_QUEUE_TAG, mOverflowQueue);
+   // overflow-destination
+   rRequestAttributes.getAttribute(QUEUE_OVERFLOW_DESTINATION_TAG, mOverflowDestination);
 
    // overflow-entry
    rRequestAttributes.getAttribute(QUEUE_OVERFLOW_ENTRY_TAG, mOverflowEntry);
+
+   // overflow-type
+   rRequestAttributes.getAttribute(QUEUE_OVERFLOW_TYPE_TAG, mOverflowType);
 
    // answer-mode
    rRequestAttributes.getAttribute(QUEUE_ANSWER_MODE_TAG, mAnswerMode);
@@ -652,7 +664,7 @@ void ACDQueue::getAttributes(ProvisioningAttrList& rRequestAttributes, Provision
        rRequestAttributes.attributePresent(QUEUE_MAX_QUEUE_DEPTH_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_MAX_WAIT_TIME_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_FIFO_OVERFLOW_TAG) ||
-       rRequestAttributes.attributePresent(QUEUE_OVERFLOW_QUEUE_TAG) ||
+       rRequestAttributes.attributePresent(QUEUE_OVERFLOW_DESTINATION_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_ANSWER_MODE_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_CALL_CONNECT_SCHEME_TAG) ||
        rRequestAttributes.attributePresent(QUEUE_WELCOME_AUDIO_TAG) ||
@@ -698,14 +710,19 @@ void ACDQueue::getAttributes(ProvisioningAttrList& rRequestAttributes, Provision
          prResponse->setAttribute(QUEUE_FIFO_OVERFLOW_TAG, mFifoOverflow);
       }
 
-      // overflow-queue
-      if (rRequestAttributes.attributePresent(QUEUE_OVERFLOW_QUEUE_TAG)) {
-         prResponse->setAttribute(QUEUE_OVERFLOW_QUEUE_TAG, mOverflowQueue);
+      // overflow-destination
+      if (rRequestAttributes.attributePresent(QUEUE_OVERFLOW_DESTINATION_TAG)) {
+         prResponse->setAttribute(QUEUE_OVERFLOW_DESTINATION_TAG, mOverflowDestination);
       }
 
       // overflow-entry
       if (rRequestAttributes.attributePresent(QUEUE_OVERFLOW_ENTRY_TAG)) {
-         prResponse->setAttribute(QUEUE_OVERFLOW_QUEUE_TAG, mOverflowEntry);
+         prResponse->setAttribute(QUEUE_OVERFLOW_ENTRY_TAG, mOverflowEntry);
+      }
+
+      // overflow-type
+      if (rRequestAttributes.attributePresent(QUEUE_OVERFLOW_TYPE_TAG)) {
+         prResponse->setAttribute(QUEUE_OVERFLOW_TYPE_TAG, mOverflowType);
       }
 
       // answer-mode
@@ -805,11 +822,14 @@ void ACDQueue::getAttributes(ProvisioningAttrList& rRequestAttributes, Provision
       // fifo-overflow
       prResponse->setAttribute(QUEUE_FIFO_OVERFLOW_TAG, mFifoOverflow);
 
-      // overflow-queue
-      prResponse->setAttribute(QUEUE_OVERFLOW_QUEUE_TAG, mOverflowQueue);
+      // overflow-destination
+      prResponse->setAttribute(QUEUE_OVERFLOW_DESTINATION_TAG, mOverflowDestination);
 
-      // overflow-queue
+      // overflow-entry
       prResponse->setAttribute(QUEUE_OVERFLOW_ENTRY_TAG, mOverflowEntry);
+
+      // overflow-type
+      prResponse->setAttribute(QUEUE_OVERFLOW_TYPE_TAG, mOverflowType);
 
       // answer-mode
       prResponse->setAttribute(QUEUE_ANSWER_MODE_TAG, mAnswerMode);

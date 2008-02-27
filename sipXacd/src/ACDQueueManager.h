@@ -29,8 +29,9 @@
 #define QUEUE_MAX_QUEUE_DEPTH_TAG           "max-queue-depth"
 #define QUEUE_MAX_WAIT_TIME_TAG             "max-wait-time"
 #define QUEUE_FIFO_OVERFLOW_TAG             "fifo-overflow"
-#define QUEUE_OVERFLOW_QUEUE_TAG            "overflow-queue"
+#define QUEUE_OVERFLOW_DESTINATION_TAG      "overflow-destination"
 #define QUEUE_OVERFLOW_ENTRY_TAG            "overflow-entry"
+#define QUEUE_OVERFLOW_TYPE_TAG             "overflow-type"
 #define QUEUE_ANSWER_MODE_TAG               "answer-mode"
 #define QUEUE_CALL_CONNECT_SCHEME_TAG       "call-connect-scheme"
 #define QUEUE_WELCOME_AUDIO_TAG             "welcome-audio"
@@ -94,6 +95,7 @@ public:
                             bool        fifoOverflow,
                             const char* pOverflowQueue,
                             const char* pOverflowEntry,
+                            const char* pOverflowType,
                             int         answerMode,
                             int         callConnectScheme,
                             const char* pWelcomeAudio,
