@@ -24,14 +24,14 @@
     </boolean>
   </type>
   <type id="yes-no">
-      <boolean>
-        <true>
-          <value>YES</value>
-        </true>
-        <false>
-          <value>NO</value>
-        </false>
-      </boolean>
+    <boolean>
+      <true>
+        <value>YES</value>
+      </true>
+      <false>
+        <value>NO</value>
+      </false>
+    </boolean>
   </type>
   <type id="port-number">
     <integer required="yes" min="1" max="65534" />
@@ -162,6 +162,7 @@
     <setting name="SIP_DOMAIN1"></setting>
     <setting name="SERVER_IP1_1"></setting>
     <setting name="SERVER_PORT1_1">
+      <type refid="port-number" />
       <value>5060</value>
     </setting>
     <setting name="SIP_DOMAIN2" advanced="yes">
@@ -171,87 +172,107 @@
       <value></value>
     </setting>
     <setting name='SERVER_PORT1_2' advanced="yes">
+      <type refid="port-number" />
       <value>5060</value>
     </setting>
     <setting name='SERVER_RETRIES' advanced="yes">
-    <value>3</value>
+      <type>
+        <integer required="yes" min="1" max="5" />
+      </type>
+      <value>3</value>
     </setting>
   </group>
   <group name='VM'>
-    <setting name='VMAIL'><value></value></setting>
-    <setting name='VMAIL_DELAY'><value>1000</value></setting>
+    <setting name='VMAIL'>
+      <value></value>
+    </setting>
+    <setting name='VMAIL_DELAY'>
+      <type>
+        <integer required="yes" min="0" />
+      </type>
+      <value>1000</value>
+    </setting>
   </group>
   <group name='ADMIN'>
-    <setting name='BANNER'><value></value></setting>
+    <setting name='BANNER'>
+      <value></value>
+    </setting>
     <setting name='AUTOLOGIN_ENABLE'>
       <type refid="yes-no" />
       <value>YES</value>
     </setting>
-    <setting name='ADMIN_PASSWORD'><value>4321</value></setting>
+    <setting name='ADMIN_PASSWORD'>
+      <value>4321</value>
+    </setting>
   </group>
   <group name='TIME'>
-    <setting name='TIMEZONE_OFFSET'><value>-18000</value></setting> 
+    <setting name='TIMEZONE_OFFSET'>
+      <type>
+        <integer required="yes" min="-36000" max="43200" />
+      </type>
+      <value>-18000</value>
+    </setting>
     <setting name='DST_ENABLE'>
       <type refid="yes-no" />
       <value>YES</value>
     </setting>
   </group>
-  <group name='VOICE'>   
+  <group name='VOICE'>
     <setting name='DEF_LANG'>
-       <type>
-         <enum>
-           <option>
-           <value>Czech</value>
-           </option>
-           <option>
-           <value>Dutch</value>
-           </option>
-           <option>
-           <value>English</value>
-           </option>
-           <option>
-           <value>Finnish</value>
-           </option>
-           <option>
-           <value>Francais</value>
-           </option>
-           <option>
-	   <value>Norwegian</value>
-           </option>
-           <option>
-	   <value>Polish</value>
-           </option>
-           <option>
-	   <value>Portuguese</value>
-           </option>
-           <option>
-	   <value>Russian</value>
-           </option>
-           <option>
-	   <value>Spanish</value>
-           </option>
-           <option>
-	   <value>Swedish</value>
-           </option>
-         </enum>
-       </type>
-       <value>English</value>
-    </setting>              
+      <type>
+        <enum>
+          <option>
+            <value>Czech</value>
+          </option>
+          <option>
+            <value>Dutch</value>
+          </option>
+          <option>
+            <value>English</value>
+          </option>
+          <option>
+            <value>Finnish</value>
+          </option>
+          <option>
+            <value>Francais</value>
+          </option>
+          <option>
+            <value>Norwegian</value>
+          </option>
+          <option>
+            <value>Polish</value>
+          </option>
+          <option>
+            <value>Portuguese</value>
+          </option>
+          <option>
+            <value>Russian</value>
+          </option>
+          <option>
+            <value>Spanish</value>
+          </option>
+          <option>
+            <value>Swedish</value>
+          </option>
+        </enum>
+      </type>
+      <value>English</value>
+    </setting>
     <setting name='DEF_AUDIO_QUALITY'>
-       <type>
-         <enum>
-           <option>
-           <value>High</value>
-           </option>
-           <option>
-           <value>Medium</value>
-           </option>
-           <option>
-           <value>Low</value>
-           </option>
-         </enum>
-       </type>
-       <value>High</value>
+      <type>
+        <enum>
+          <option>
+            <value>High</value>
+          </option>
+          <option>
+            <value>Medium</value>
+          </option>
+          <option>
+            <value>Low</value>
+          </option>
+        </enum>
+      </type>
+      <value>High</value>
     </setting>
     <setting name='ENABLE_BT'>
       <type refid="yes-no" />
@@ -269,248 +290,405 @@
       <type refid="yes-no" />
       <value>NO</value>
     </setting>
-  </group>  
+  </group>
   <group name='QOS'>
-    <setting name='DSCP_CONTROL'><value>-1</value></setting>
-    <setting name='DSCP_MEDIA'><value>-1</value></setting>
-    <setting name='DSCP_DATA'><value>-1</value></setting>
-    <setting name='802.1P_CONTROL'><value>-1</value></setting>
-    <setting name='802.1P_MEDIA'><value>-1</value></setting>
-    <setting name='802.1P_DATA'><value>-1</value></setting>
-  </group>  
+    <setting name='DSCP_CONTROL'>
+      <type>
+        <integer required="yes" min="-1" max="63" />
+      </type>
+      <value>40</value>
+    </setting>
+    <setting name='DSCP_MEDIA'>
+      <type>
+        <integer required="yes" min="-1" max="63" />
+      </type>
+      <value>44</value>
+    </setting>
+    <setting name='DSCP_DATA'>
+      <type>
+        <integer required="yes" min="-1" max="63" />
+      </type>
+      <value>40</value>
+    </setting>
+    <setting name='802.1P_CONTROL'>
+      <type>
+        <integer required="yes" min="-1" max="7" />
+      </type>
+      <value>6</value>
+    </setting>
+    <setting name='802.1P_MEDIA'>
+      <type>
+        <integer required="yes" min="-1" max="7" />
+      </type>
+      <value>6</value>
+    </setting>
+    <setting name='802.1P_DATA'>
+      <type>
+        <integer required="yes" min="-1" max="7" />
+      </type>
+      <value>6</value>
+    </setting>
+  </group>
   <group name='STORAGE'>
-    <setting name='MAX_INBOX_ENTRIES'><value>100</value></setting>
-    <setting name='MAX_OUTBOX_ENTRIES'><value>100</value></setting>
-    <setting name='MAX_REJECTREASONS'><value>20</value></setting>
-    <setting name='MAX_CALLSUBJECT'><value>20</value></setting>
-    <setting name='MAX_PRESENCENOTE'><value>20</value></setting>
-    <setting name='MAX_IM_ENTRIES'><value>999</value></setting>
-    <setting name='MAX_ADDR_BOOK_ENTRIES'><value>100</value></setting>
-  </group>  
+    <setting name='MAX_INBOX_ENTRIES'>
+      <type>
+        <integer required="yes" min="0" />
+      </type>
+      <value>100</value>
+    </setting>
+    <setting name='MAX_OUTBOX_ENTRIES'>
+      <type>
+        <integer required="yes" min="0" />
+      </type>
+      <value>100</value>
+    </setting>
+    <setting name='MAX_REJECTREASONS'>
+      <type>
+        <integer required="yes" min="0" />
+      </type>
+      <value>20</value>
+    </setting>
+    <setting name='MAX_CALLSUBJECT'>
+      <type>
+        <integer required="yes" min="0" />
+      </type>
+      <value>20</value>
+    </setting>
+    <setting name='MAX_PRESENCENOTE'>
+      <type>
+        <integer required="yes" min="0" />
+      </type>
+      <value>20</value>
+    </setting>
+    <setting name='MAX_IM_ENTRIES'>
+      <type>
+        <integer required="yes" min="0" />
+      </type>
+      <value>999</value>
+    </setting>
+    <setting name='MAX_ADDR_BOOK_ENTRIES'>
+      <type>
+        <integer required="yes" min="0" />
+      </type>
+      <value>100</value>
+    </setting>
+  </group>
   <group name='DEBUG'>
     <setting name='LOG_LEVEL' advanced="yes">
       <type>
         <enum>
-        <option>
-        <value>3</value>
-        </option>
-        <option>
-        <value>2</value>
-        </option>
-        <option>
-        <value>1</value>
-        </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
         </enum>
-        </type>
-       <value>1</value>
-     </setting>
-    <setting name='RECOVERY_LEVEL' advanced="yes"><value>0</value></setting>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name='RECOVERY_LEVEL' advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
   </group>
   <group name='AUTO'>
     <setting name='AUTO_UPDATE'>
       <type refid="yes-no" />
       <value>NO</value>
-     </setting>
-    <setting name='AUTO_UPDATE_TIME'><value>0</value></setting>  
+    </setting>
+    <setting name='AUTO_UPDATE_TIME'>
+      <type>
+        <integer required="yes" min="1" max="6" />
+      </type>
+      <value>1</value>
+    </setting>
   </group>
   <group name='NAT'>
     <setting name='NAT_SIGNALLING'>
       <type>
-      <enum>
-      <option>
-      <value>NONE</value>
-      </option>
-      <option>
-      <value>STUN</value>
-      </option>
-      <option>
-      <value>SIP_PING</value>
-      </option>
-      </enum>
+        <enum>
+          <option>
+            <value>NONE</value>
+          </option>
+          <option>
+            <value>STUN</value>
+          </option>
+          <option>
+            <value>SIP_PING</value>
+          </option>
+        </enum>
       </type>
       <value>NONE</value>
     </setting>
     <setting name='NAT_MEDIA'>
       <type>
-      <enum>
-      <option>
-      <value>NONE</value>
-      </option>
-      <option>
-      <value>STUN</value>
-      </option>
-      </enum>
+        <enum>
+          <option>
+            <value>NONE</value>
+          </option>
+          <option>
+            <value>STUN</value>
+          </option>
+        </enum>
       </type>
       <value>NONE</value>
     </setting>
-    <setting name='NAT_TTL'><value>120</value></setting>
-    <setting name='STUN_SERVER_IP1'><value>0.0.0.0</value></setting>
-    <setting name='STUN_SERVER_PORT1'><value>3478</value></setting>
-    <setting name='STUN_SERVER_IP2'><value>0.0.0.0</value></setting>
-    <setting name='STUN_SERVER_PORT2'><value>3478</value></setting>  
+    <setting name='NAT_TTL'>
+      <type>
+        <integer required="yes" min="0" />
+      </type>
+      <value>120</value>
+    </setting>
+    <setting name='STUN_SERVER_IP1'>
+      <value>0.0.0.0</value>
+    </setting>
+    <setting name='STUN_SERVER_PORT1'>
+      <type refid="port-number" />
+      <value>3478</value>
+    </setting>
+    <setting name='STUN_SERVER_IP2'>
+      <value>0.0.0.0</value>
+    </setting>
+    <setting name='STUN_SERVER_PORT2'>
+      <type refid="port-number" />
+      <value>3479</value>
+    </setting>
   </group>
-  <group name='VQMON'>
+  <group name='VQMON' advanced="yes">
     <setting name='VQMON_PUBLISH'>
       <type refid="yes-no" />
       <value>NO</value>
     </setting>
-    <setting name='VQMON_PUBLISH_IP'><value>0.0.0.0</value></setting>
+    <setting name='VQMON_PUBLISH_IP'>
+      <value>0.0.0.0</value>
+    </setting>
     <setting name='LISTENING_R_ENABLE'>
       <type refid="yes-no" />
       <value>NO</value>
     </setting>
-    <setting name='LISTENING_R_WARN'><value>0</value></setting>
-    <setting name='LISTENING_R_EXCE'><value>0</value></setting>
+    <setting name='LISTENING_R_WARN'>
+      <type>
+        <integer required="yes" min="1" max="100" />
+      </type>
+      <value>80</value>
+    </setting>
+    <setting name='LISTENING_R_EXCE'>
+      <type>
+        <integer required="yes" min="1" max="100" />
+      </type>
+      <value>60</value>
+    </setting>
     <setting name='PACKET_LOSS_ENABLE'>
       <type refid="yes-no" />
       <value>NO</value>
     </setting>
-    <setting name='PACKET_LOSS_WARN'><value>0</value></setting>
-    <setting name='PACKET_LOSS_EXCE'><value>0</value></setting>
+    <setting name='PACKET_LOSS_WARN'>
+      <type>
+        <integer required="yes" min="1" max="25600" />
+      </type>
+      <value>256</value>
+    </setting>
+    <setting name='PACKET_LOSS_EXCE'>
+      <type>
+        <integer required="yes" min="1" max="25600" />
+      </type>
+      <value>1280</value>
+    </setting>
     <setting name='JITTER_ENABLE'>
       <type refid="yes-no" />
       <value>NO</value>
     </setting>
-    <setting name='JITTER_WARN'><value>0</value></setting>
-    <setting name='JITTER_EXCE'><value>0</value></setting>
+    <setting name='JITTER_WARN'>
+      <type>
+        <integer required="yes" min="1" max="65536" />
+      </type>
+      <value>3276</value>
+    </setting>
+    <setting name='JITTER_EXCE'>
+      <type>
+        <integer required="yes" min="1" max="65536" />
+      </type>
+      <value>32768</value>
+    </setting>
     <setting name='DELAY_ENABLE'>
       <type refid="yes-no" />
       <value>NO</value>
     </setting>
-    <setting name='DELAY_WARN'><value>0</value></setting>
-    <setting name='DELAY_EXCE'><value>0</value></setting> 
+    <setting name='DELAY_WARN'>
+      <type>
+        <integer required="yes" min="1" max="65536" />
+      </type>
+      <value>150</value>
+    </setting>
+    <setting name='DELAY_EXCE'>
+      <type>
+        <integer required="yes" min="1" max="65536" />
+      </type>
+      <value>175</value>
+    </setting>
     <setting name='SESSION_RPT_EN'>
       <type refid="yes-no" />
       <value>NO</value>
     </setting>
-    <setting name='SESSION_RPT_INT'><value>0</value></setting>   
+    <setting name='SESSION_RPT_INT'>
+      <type>
+        <integer required="yes" min="0" />
+      </type>
+      <value>60</value>
+    </setting>
   </group>
-  <group name='TONES'>
-    <setting name='DIAL_TONE'><value>350,440;-1</value></setting>   
-    <setting name='RINGING_TONE'><value>440,480;2000,4000</value></setting>   
-    <setting name='BUSY_TONE'><value>480,620;500,500</value></setting>   
-    <setting name='FASTBUSY_TONE'><value>425;250,250</value></setting>   
-    <setting name='CONGESTION_TONE'><value>480,620;250,250</value></setting>   
+  <group name='TONES' advanced="yes">
+    <setting name='DIAL_TONE'>
+      <value>350,440;-1</value>
+    </setting>
+    <setting name='RINGING_TONE'>
+      <value>440,480;2000,4000</value>
+    </setting>
+    <setting name='BUSY_TONE'>
+      <value>480,620;500,500</value>
+    </setting>
+    <setting name='FASTBUSY_TONE'>
+      <value>425;250,250</value>
+    </setting>
+    <setting name='CONGESTION_TONE'>
+      <value>480,620;250,250</value>
+    </setting>
   </group>
   <group name='SYSTEM'>
     <setting name='AUTH_METHOD' advanced="yes">
       <type>
-      <enum>
-      <option>
-      <value>AUTH</value>
-      </option>
-      <option>
-      <value>AUTH_INT</value>
-      </option>
-      </enum>
+        <enum>
+          <option>
+            <value>AUTH</value>
+          </option>
+          <option>
+            <value>AUTH_INT</value>
+          </option>
+        </enum>
       </type>
       <value>AUTH</value>
     </setting>
     <setting name='ADDR_BOOK_MODE' advanced="yes">
       <type>
-      <enum>
-      <option>
-      <value>LOCAL</value>
-      </option>
-      <option>
-      <value>NETWORK</value>
-      </option>
-      <option>
-      <value>BOTH</value>
-      </option>
-      </enum>
+        <enum>
+          <option>
+            <value>LOCAL</value>
+          </option>
+          <option>
+            <value>NETWORK</value>
+          </option>
+          <option>
+            <value>BOTH</value>
+          </option>
+        </enum>
       </type>
       <value>LOCAL</value>
     </setting>
     <setting name='IM_MODE' advanced="yes">
       <type>
-      <enum>
-      <option>
-      <value>ENCRYPTED</value>
-      </option>
-      <option>
-      <value>TEXT</value>
-      </option>
-      <option>
-      <value>SIMPLE</value>
-      </option>
-      <option>
-      <value>DISABLED</value>
-      </option>
-      </enum>
+        <enum>
+          <option>
+            <value>ENCRYPTED</value>
+          </option>
+          <option>
+            <value>TEXT</value>
+          </option>
+          <option>
+            <value>SIMPLE</value>
+          </option>
+          <option>
+            <value>DISABLED</value>
+          </option>
+        </enum>
       </type>
       <value>DISABLED</value>
     </setting>
     <setting name='HOLD_TYPE' advanced="yes">
       <type>
-      <enum>
-      <option>
-      <value>rfc3261</value>
-      </option>
-      <option>
-      <value>rfc2543</value>
-      </option>
-      </enum>
+        <enum>
+          <option>
+            <value>rfc3261</value>
+          </option>
+          <option>
+            <value>rfc2543</value>
+          </option>
+        </enum>
       </type>
       <value>rfc3261</value>
     </setting>
     <setting name='TRANSFER_TYPE' advanced="yes">
       <type>
-      <enum>
-      <option>
-      <value>rfc3261</value>
-      </option>
-      <option>
-      <value>MCS</value>
-      </option>
-      </enum>
+        <enum>
+          <option>
+            <value>rfc3261</value>
+          </option>
+          <option>
+            <value>MCS</value>
+          </option>
+        </enum>
       </type>
       <value>rfc3261</value>
     </setting>
     <setting name='REDIRECT_TYPE' advanced="yes">
       <type>
-      <enum>
-      <option>
-      <value>rfc3261</value>
-      </option>
-      <option>
-      <value>MCS</value>
-      </option>
-      </enum>
+        <enum>
+          <option>
+            <value>rfc3261</value>
+          </option>
+          <option>
+            <value>MCS</value>
+          </option>
+        </enum>
       </type>
       <value>rfc3261</value>
     </setting>
     <setting name='DEF_DISPLAY_IM' advanced="yes">
       <type refid="yes-no" />
       <value>NO</value>
-    </setting>    
+    </setting>
     <setting name='ENABLE_3WAY_CALL' advanced="yes">
       <type refid="yes-no" />
       <value>YES</value>
-    </setting>    
+    </setting>
     <setting name='DISABLE_PRIVACY_UI' advanced="yes">
       <type refid="yes-no" />
       <value>NO</value>
-    </setting>    
+    </setting>
     <setting name='ENABLE_PRACK' advanced="yes">
       <type refid="yes-no" />
       <value>NO</value>
-    </setting>    
+    </setting>
     <setting name='AUTOLOGIN_ENABLE' advanced="yes">
       <type refid="yes-no" />
       <value>YES</value>
-    </setting>    
+    </setting>
     <setting name='IM_NOTIFY' advanced="yes">
       <type refid="yes-no" />
       <value>YES</value>
-    </setting>    
+    </setting>
     <setting name='DISABLE_OCT_ENDDIAL' advanced="yes">
       <type refid="yes-no" />
       <value>NO</value>
-    </setting>    
+    </setting>
     <setting name='FORCE_OCT_ENDDIAL' advanced="yes">
       <type refid="yes-no" />
       <value>NO</value>
-    </setting>    
-  </group>    
+    </setting>
+  </group>
 </model>
