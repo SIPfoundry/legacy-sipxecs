@@ -34,7 +34,9 @@ const int OsTaskBase::DEF_PRIO      = 128;           // default task priority
 const int OsTaskBase::DEF_STACKSIZE = 16384;         // default task stacksize
 const UtlString OsTaskBase::TASK_PREFIX("Task.");     // Task name db prefix
 const UtlString OsTaskBase::TASKID_PREFIX("TaskID."); // TaskId name db prefix
-int OsTaskBase::taskCount = 0; 
+
+OsMutex OsTaskBase::sTaskCountMutex(OsMutex::Q_FIFO);  // Mutex to protect sTaskCount
+int OsTaskBase::sTaskCount = 0;            // Sequence number of created tasks
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -195,9 +197,14 @@ OsTaskBase::OsTaskBase(const UtlString& name,
    mUserData(0)
 {
     // If name contains %d, insert the task count/index.
+    int taskNumber;
+    {
+       OsLock lock(sTaskCountMutex);
+       taskNumber = sTaskCount++;
+    }
     assert(name.length() < 240);
     char nameBuffer[256];
-    sprintf(nameBuffer, name.data(), taskCount++);
+    sprintf(nameBuffer, name.data(), taskNumber);
     mName.append(nameBuffer);
 
     OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTask::_ '%s' created %p", mName.data(), this);

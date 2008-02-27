@@ -72,15 +72,16 @@ class OsTaskBase
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   static const int DEF_OPTIONS;        // default task execution options
-   static const int DEF_PRIO;           // default task priority
-   static const int DEF_STACKSIZE;      // default task stack size
+   static const int DEF_OPTIONS;         // default task execution options
+   static const int DEF_PRIO;            // default task priority
+   static const int DEF_STACKSIZE;       // default task stack size
    static const UtlString TASK_PREFIX;   // prefix for OsTask names stored in
-                                        //  the name database
+                                         //  the name database
    static const UtlString TASKID_PREFIX; // prefix for taskID stored in the
-                                        //  name database.
+                                         //  name database.
 
-   static int taskCount;
+   static OsMutex sTaskCountMutex;       // Mutex to protect sTaskCount
+   static int sTaskCount;                // Sequence number of created tasks
 
    /// The state of the thread associated with this OsTask object.
    enum TaskState

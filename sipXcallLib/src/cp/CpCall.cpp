@@ -422,6 +422,9 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                 if(mpMediaInterface)
                 {
                     pPlayer = (MpStreamPlaylistPlayer*) ((CpMultiStringMessage&)eventMessage).getInt2Data();
+                    // Note this only deletes the media structures for the
+                    // player.  *pPlayer is not deleted, and should be
+                    // deleted by our caller.
                     mpMediaInterface->destroyPlaylistPlayer(pPlayer) ;
                 }
 

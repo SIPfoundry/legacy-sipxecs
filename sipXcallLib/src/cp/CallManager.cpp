@@ -1737,12 +1737,12 @@ void CallManager::destroyPlayer(const char* callId, MpStreamPlaylistPlayer* pPla
 
     postMessage(msg);
 
-    // Wait until the player is created by CpCall
+    // Wait until the media structures are deleted by CpCall
     if(ev->wait(0, maxEventTime) != OS_SUCCESS)
     {
         OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::destroyPlayer(MpStreamPlaylistPlayer) TIMED OUT\n");
 
-        // If the event has already been signalled, clean up
+        // If the event has already been signaled, clean up.
         if(OS_ALREADY_SIGNALED == ev->signal(0))
         {
             eventMgr->release(ev);
