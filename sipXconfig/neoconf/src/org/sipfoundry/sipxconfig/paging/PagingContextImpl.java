@@ -18,7 +18,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.PagingRule;
-import org.sipfoundry.sipxconfig.admin.intercom.IntercomManager;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -26,18 +25,14 @@ import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.springframework.dao.support.DataAccessUtils;
 
 public abstract class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext {
+    /** Default ALERT-INFO - hardcoded in Polycom phone configuration */
+    private static final String ALERT_INFO = "sipXpage";
 
     private static final String PARAM_PAGING_GROUP_NUMBER = "pageGroupNumber";
 
     private static final String PARAM_PAGING_GROUP_ID = "pagingGroupId";
 
-    private IntercomManager m_intercomManager;
-
     protected abstract PagingServer createPagingServer();
-
-    public void setIntercomManager(IntercomManager intercomManager) {
-        m_intercomManager = intercomManager;
-    }
 
     public PagingServer getPagingServer() {
         List pagingServers = getHibernateTemplate().loadAll(PagingServer.class);
@@ -121,11 +116,7 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
         if (StringUtils.isEmpty(prefix)) {
             return Collections.emptyList();
         }
-        String alertInfo = m_intercomManager.getIntercom().getCode();
-        if (StringUtils.isEmpty(alertInfo)) {
-            alertInfo = "alert";
-        }
-        PagingRule rule = new PagingRule(prefix, alertInfo);
+        PagingRule rule = new PagingRule(prefix, ALERT_INFO);
         return Arrays.asList(rule);
     }
 

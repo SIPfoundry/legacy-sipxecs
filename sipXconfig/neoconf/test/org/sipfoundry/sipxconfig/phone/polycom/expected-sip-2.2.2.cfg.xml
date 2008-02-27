@@ -34,6 +34,8 @@
       <alertInfo
         voIpProt.SIP.alertInfo.1.value=""
         voIpProt.SIP.alertInfo.1.class=""
+        voIpProt.SIP.alertInfo.2.value="sipXpage"
+        voIpProt.SIP.alertInfo.2.class="3"
       />
       <requestValidation
         voIpProt.SIP.requestValidation.1.request=""

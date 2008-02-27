@@ -746,8 +746,7 @@
       </type>
       <value>8</value>
     </setting>
-    <setting name="callsPerLineKey_600" if="polycom600"
-      copy-of="callsPerLineKey">
+    <setting name="callsPerLineKey_600" if="polycom600" copy-of="callsPerLineKey">
       <profileName>callsPerLineKey</profileName>
       <type>
         <integer min="1" max="24" />
@@ -1388,6 +1387,16 @@
           <value />
         </setting>
       </group>
+      <!-- reserved for sipXpage - call with this value of alert-info will be used for paging -->
+      <group name="2" hidden="yes">
+        <setting name="value">
+          <value>sipXpage</value>
+        </setting>
+        <setting name="class">
+          <!-- set to 3th ring-type is configured as auto-answer -->
+          <value>3</value>
+        </setting>
+      </group>
     </group>
     <group name="requestValidation">
       <group name="1">
@@ -1544,7 +1553,7 @@
         - Recommended emergency settings are on lines so make these
         - settings advanced use only. I decided not to remove in case 
         - they useful for folks and if used in earlier sipx versions 
-        -->
+      -->
       <group name="routing.1" advanced="yes">
         <setting name="address">
           <type>
