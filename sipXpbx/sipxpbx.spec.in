@@ -24,9 +24,9 @@ Requires: mod_ssl
 Requires: chkconfig
 %endif
 
-Requires: sipxcalllib >= 3.9
-Requires: sipxcommserverlib >= 3.9
-Requires: sipxtools >= 3.9
+Requires: sipxcalllib >= 3.10
+Requires: sipxcommserverlib >= 3.10
+Requires: sipxtools >= 3.10
 
 # replication cgi 
 Requires: httpd >= 2.0
@@ -64,8 +64,8 @@ Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Internal documentation for %name 
-Requires: sipxcommserverlib-devel >= 3.9
-Requires: sipxcalllib-devel >= 3.9
+Requires: sipxcommserverlib-devel >= 3.10
+Requires: sipxcalllib-devel >= 3.10
 
 %description devel
 Internal class documentation for the pbx classes

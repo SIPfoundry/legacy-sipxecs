@@ -41,11 +41,11 @@ Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Internal documentation for %name 
-Requires: sipxproxy-devel >= 3.9
-Requires: sipxregistry-devel >= 3.9
-Requires: sipxpublisher-devel >= 3.9
-Requires: sipxvxml-devel >= 3.9
-Requires: sipxacd-devel >= 3.9
+Requires: sipxproxy-devel >= 3.10
+Requires: sipxregistry-devel >= 3.10
+Requires: sipxpublisher-devel >= 3.10
+Requires: sipxvxml-devel >= 3.10
+Requires: sipxacd-devel >= 3.10
 
 %description devel
 Internal class documentation for the pbx classes

@@ -11,8 +11,8 @@ Url:      http://www.pingtel.com
 
 Source:   %name-%version.tar.gz
 
-Requires: sipxcommserverlib >= 3.9
-Requires: sipxpbx >= 3.9
+Requires: sipxcommserverlib >= 3.10
+Requires: sipxpbx >= 3.10
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -32,7 +32,7 @@ a simple XML plugin configuration file.
 
 %package devel
 Requires: %name
-Requires: sipxcommserverlib-devel >= 3.9
+Requires: sipxcommserverlib-devel >= 3.10
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Header files for %name 

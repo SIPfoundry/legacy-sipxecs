@@ -19,8 +19,8 @@ Requires: Xerces-c >= 2.6.0
 Requires: xerces-c >= 2.6.0
 Requires: rpm-libs
 %endif
-Requires: sipxportlib >= 3.9
-Requires: sipxtacklib >= 3.9
+Requires: sipxportlib >= 3.10
+Requires: sipxtacklib >= 3.10
 Requires: unixODBC >= 2.2
 Requires: ruby
 Requires: patch
@@ -52,8 +52,8 @@ Requires: Xerces-c-devel >= 2.6.0
 %if %{_vendor} == redhat
 Requires: xerces-c-devel >= 2.6.0
 %endif
-Requires: sipxportlib-devel >= 3.9
-Requires: sipxtacklib-devel >= 3.9
+Requires: sipxportlib-devel >= 3.10
+Requires: sipxtacklib-devel >= 3.10
 Requires: unixODBC-devel >= 2.2
 
 Group: Development/Libraries
