@@ -8,6 +8,7 @@ MyName=`basename $0`
 Action=LOCAL
 Prefix=""
 Output=""
+Token="("
 
 User=admin
 Password=
@@ -107,13 +108,11 @@ do
             ;;
 
         *)
-            if [ "${Token}"x = ""x ]
+            if [ "${Token}"x = "("x ]
             then
-                Token=${1}
+                Token="${Token}$1"
             else
-                echo "Too many arguments supplied: $@" 1>&2
-                Action=USAGE
-                break
+                Token="${Token}|$1"
             fi
             ;;
     esac           
@@ -131,10 +130,12 @@ then
     Prefix=${DefaultPrefix}
 fi
 
-if [ -z "${Token}" -a ${Action} != USAGE ]
+if [ "${Token}" = "(" -a ${Action} != USAGE ]
 then
-    echo "Must specify a token to search for; try '${MyName} --help'." 1>&2
+    echo "Must specify at least one token to search for; try '${MyName} --help'." 1>&2
     exit 1;
+else
+    Token="${Token})"
 fi
 
 Trace=`mktemp -t -d trace.XXXXXXXX` || exit
@@ -146,7 +147,7 @@ pullServer() { # server
     for c in ${Components}
     do
       echo searching ${system} $c log
-      ssh ${1} "${dump} /var/log/sipxpbx/${c}.log${LogExtension} | grep -e \"${Token}\"" \
+      ssh ${1} "${dump} /var/log/sipxpbx/${c}.log${LogExtension} | grep -E \"${Token}\"" \
         > ${Trace}/${system}.${c}.log
     done
 }
@@ -155,12 +156,12 @@ grepLog() { # prefix
     local prefix
     prefix=$1
 
-    alias=`echo "$prefix" | tr / _`
+    alias=`echo "$prefix" | perl -p -e 's|/|_|g; s|^\.|_|'`
     for c in ${Components}
     do
       echo searching ${prefix} ${c} log
       ${dump} ${prefix}/var/log/sipxpbx/${c}.log${LogExtension} \
-      | grep -e "${Token}" \
+      | grep -E "${Token}" \
       > ${Trace}/${alias}.${c}.log
     done
 }
@@ -171,7 +172,7 @@ case ${Action} in
 
 Usage:
     
-   ${MyName} <options> <token>
+   ${MyName} <options> <token>...
 
    options:
            [ {-c|--component} <component-name> ]...
@@ -179,8 +180,9 @@ Usage:
            [-o|--output]
            [-h|--help]
            
-   Select all messages containing <token> from a set of sipX component log files,
-   and display them using sipviewer.
+   Select all messages containing any <token> from a set of sipX component log files,
+   and display them using sipviewer.  The tokens are combined into a single 'grep -E' 
+   expression when searching the log files.
 
    For remote use (using the '--server' option), this script uses 'ssh'.  For this
    mode to be convenient, you should have installed your ssh public key so that login
