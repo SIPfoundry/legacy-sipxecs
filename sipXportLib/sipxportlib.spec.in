@@ -136,4 +136,8 @@ rm -rf $RPM_BUILD_ROOT
 	%{_localstatedir}/sipxdata/mediaserver/data \
 	%{_datadir}/www/cgi-bin/replication \
      -nogroup | 
-         xargs chgrp @SIPXPBXGROUP@ ) 2>/dev/null
+         xargs chgrp @SIPXPBXGROUP@
+  # Ensure a success exit value, as the preceding 'find' may have found
+  # no files.
+  true
+) 2>/dev/null
