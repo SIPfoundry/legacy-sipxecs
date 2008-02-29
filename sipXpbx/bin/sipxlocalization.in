@@ -1,48 +1,67 @@
 #!@BASH@
 #
 
-# Check the localization package file and specified directories
-rc=1
-if [ $# -eq 3 ]; then
-    FILE=$1
-    VOICE_PROMPT_DIR=$2
-    REGION_DIR=$3
-    if [ -e $FILE ]; then
-        tar tvf $FILE --exclude=stdprompts_* --exclude=region_* --exclude=sipxpbx > /dev/null
-        rc=$?
-        if [ $rc -eq 0 ]; then
-            rc=1
-            if [ -d $VOICE_PROMPT_DIR ]; then
-                if [ -d $VOICE_PROMPT_DIR/stdprompts ]; then
-                    if [ -d $REGION_DIR ]; then
-                        rc=0
-                    fi
-                fi
-            fi
-        fi
-    fi
+# Check that the right number of arguments have been supplied.
+# Otherwise give the usage message.
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 (localization package tar file) (voice prompt directory) (region file directory)" >&2
+    echo "E.g. : $0 LocalizationPackage_cs.tgz /usr/share/www/doc /etc/sipxpbx" >&2
+    exit 1
 fi
-if [ $rc -ne 0 ]; then
-    echo Usage: sipxlocalization [localization package tar file] [voice prompt directory] [region file directory]
-    echo E.g. : sipxlocalization LocalizationPackage_cs.tgz /usr/share/www/doc /etc/sipxpbx
-    exit $rc
+
+FILE=$1
+VOICE_PROMPT_DIR=$2
+REGION_DIR=$3
+
+# Check the localization package file and specified directories for validity.
+if ! [ -d $VOICE_PROMPT_DIR -a -w $VOICE_PROMPT_DIR ]; then
+    echo "'$VOICE_PROMPT_DIRECTORY' is not a writable directory." >&2
+    exit 1
+fi
+if ! [ -d $VOICE_PROMPT_DIR/stdprompts -a -w $VOICE_PROMPT_DIR/stdprompts ]; then
+    echo "'$VOICE_PROMPT_DIR/stdprompts' is not a writable directory." >&2
+    exit 1
+fi
+if ! [ -d $REGION_DIR -a -w $REGION_DIR ]; then
+    echo "'$REGION_DIR' is not a writable directory." >&2
+    exit 1
+fi
+if ! [ -d $REGION_DIR/.. -a -w $REGION_DIR/.. ]; then
+    echo "'$REGION_DIR/..' is not a writable directory." >&2
+    exit 1
+fi
+if ! [ -f $FILE -a -r $FILE ]; then
+    echo "'$FILE' does not exist or is not a readable file." >&2
+    exit 1
+fi
+# Check that 'tar' can read the file.
+if ! tar tf $FILE >/dev/null 2>&1 ; then
+    echo "'$FILE' is not a (possibly gzipped) tar file." >&2
+    exit 1
+fi
+# Check that 'tar' contains at least one member with an expected name.
+if ! tar tf $FILE |
+     grep -E '^(stdprompts_|region_|sipxpbx/|third_party/)' >/dev/null ; then
+    echo "'$FILE' contains no localization members.  Is it a localization file?" >&2
+    exit 1
 fi
 
 # Extract files from the localization package
-tar tvf $FILE region_* | grep region_ > /dev/null
-if [ $? -eq 0 ]; then
+if tar tf $FILE 'region_*' >/dev/null 2>&1 ; then
     # The file contains region specific files - extract them
-    tar xvf $FILE --directory=$REGION_DIR region_* > /dev/null
+    tar xf $FILE --directory=$REGION_DIR 'region_*'
 fi
-tar tvf $FILE stdprompts_* | grep stdprompts_ > /dev/null
-if [ $? -eq 0 ]; then
+if tar tf $FILE 'stdprompts_*' >/dev/null 2>&1 ; then
     # The file contains voice prompts - extract them
-    tar xvf $FILE --directory=$VOICE_PROMPT_DIR stdprompts_* > /dev/null
+    tar xf $FILE --directory=$VOICE_PROMPT_DIR 'stdprompts_*'
 fi
-tar tvf $FILE sipxpbx | grep sipxpbx > /dev/null
-if [ $? -eq 0 ]; then
+if tar tf $FILE sipxpbx >/dev/null 2>&1 ; then
     # The file contains UI property files - extract them
-    tar xvf $FILE --directory=$REGION_DIR/.. sipxpbx/* > /dev/null
+    tar xf $FILE --directory=$REGION_DIR/.. 'sipxpbx/*'
+fi
+if tar tf $FILE third_party >/dev/null 2>&1 ; then
+    # The file contains third party files for the /var directory - extract them
+    tar xf $FILE --directory=$REGION_DIR 'third_party/*'
 fi
 
 # Delete the localization package file
@@ -50,4 +69,3 @@ rm $FILE
 
 # Return success
 exit 0
-
