@@ -224,7 +224,7 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
 
    // Initialize the SipUserAgent.
    // Set the user-agent string.
-   mUserAgent.setUserAgentHeaderProperty("sipX/reg-event");
+   mUserAgent.setUserAgentHeaderProperty("sipXecs/reg-event");
    mUserAgent.start();
 
    // Arrange to generate default content for reg events.

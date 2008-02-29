@@ -94,7 +94,7 @@ SdpBody::SdpBody(const char* bodyBytes, int byteCount)
    {
       // this is the mandated order of the header fields
       addValue("v", "0" );
-      addValue("o", "sipX 5 5 IN IP4 127.0.0.1");
+      addValue("o", "sipXecs 5 5 IN IP4 127.0.0.1");
       addValue("s");
       addValue("i");
       addValue("u");
@@ -224,7 +224,7 @@ void SdpBody::setStandardHeaderFields(const char* sessionName,
 {
    OsLock lock (sSessionLock) ;
 
-   setOriginator("sipX", 5, sSessionCount++,
+   setOriginator("sipXecs", 5, sSessionCount++,
                  (originatorAddress && *originatorAddress) ?
                  originatorAddress : "127.0.0.1");
    setSessionNameField(sessionName);

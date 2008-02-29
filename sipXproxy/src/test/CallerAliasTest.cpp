@@ -68,7 +68,7 @@ public:
 
          testUserAgent.setDnsSrvTimeout(1 /* seconds */);
          testUserAgent.setMaxSrvRecords(4);
-         testUserAgent.setUserAgentHeaderProperty("sipX/authproxy");
+         testUserAgent.setUserAgentHeaderProperty("sipXecs/authproxy");
 
          testUserAgent.setForking(FALSE);  // Disable forking
 
@@ -132,7 +132,7 @@ public:
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21cd701fdee3c04a4e1bb9567cf6ef1d06>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21cd701fdee3c04a4e1bb9567cf6ef1d06>", recordRoute );
 
          // Only one Record-Route header.
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
@@ -154,7 +154,7 @@ public:
          spiraledRouteState.update(&testMsg);
 
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21cd701fdee3c04a4e1bb9567cf6ef1d06>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21cd701fdee3c04a4e1bb9567cf6ef1d06>", recordRoute );
 
          // Only one Record-Route header.
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
@@ -220,7 +220,7 @@ public:
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:sipx.example.edu;lr;sipX-route=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60.convert%2Aalias%7EIkpvaG4gRG9lIjxzaXA6am9obi5kb2VAZXhhbXBsZS5lZHU%27O3RhZz0zMDU0M2YzNDgzZTFjYjExZWNiNDA4NjZlZGQzMjk1Yg%60%60.convert%2Acaller%7Ec2lwOjMwMUBleGFtcGxlLmVkdTt0YWc9MzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21241ddd64d5ed940efc621a09b7e81bc3>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:sipx.example.edu;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60.convert%2Aalias%7EIkpvaG4gRG9lIjxzaXA6am9obi5kb2VAZXhhbXBsZS5lZHU%27O3RhZz0zMDU0M2YzNDgzZTFjYjExZWNiNDA4NjZlZGQzMjk1Yg%60%60.convert%2Acaller%7Ec2lwOjMwMUBleGFtcGxlLmVkdTt0YWc9MzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21241ddd64d5ed940efc621a09b7e81bc3>", recordRoute );
 
          /*
           * Now see if the ACK is modified when it comes through
@@ -377,7 +377,7 @@ public:
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:sipx.example.edu;lr;sipX-route=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60.convert%2Aalias%7EIkV4YW1wbGUgVW5pdmVyc2l0eSI8c2lwOjk3ODU1NTEyMDBAZXhhbXBsZS5lZHU%27O3RhZz0zMDU0M2YzNDgzZTFjYjExZWNiNDA4NjZlZGQzMjk1Yg%60%60.convert%2Acaller%7Ec2lwOjUwNUBleGFtcGxlLmVkdTt0YWc9MzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%2130f04e18ae80f33f6da51d4d3ce607a2>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:sipx.example.edu;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60.convert%2Aalias%7EIkV4YW1wbGUgVW5pdmVyc2l0eSI8c2lwOjk3ODU1NTEyMDBAZXhhbXBsZS5lZHU%27O3RhZz0zMDU0M2YzNDgzZTFjYjExZWNiNDA4NjZlZGQzMjk1Yg%60%60.convert%2Acaller%7Ec2lwOjUwNUBleGFtcGxlLmVkdTt0YWc9MzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%2130f04e18ae80f33f6da51d4d3ce607a2>", recordRoute );
 
          /*
           * Now see if the ACK is modified when it comes through

@@ -307,7 +307,7 @@ UtlBoolean SipRegistrar::operationalPhase()
 
       mSipUserAgent->allowExtension("gruu"); // should be moved to gruu processor?
 
-      mSipUserAgent->setUserAgentHeaderProperty("sipX/registry");
+      mSipUserAgent->setUserAgentHeaderProperty("sipXecs/registry");
    }
 
    if (mReplicationConfigured)

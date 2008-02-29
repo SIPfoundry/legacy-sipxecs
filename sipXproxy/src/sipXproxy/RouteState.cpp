@@ -58,7 +58,7 @@ const RegEx StateAndSignature("^" "(" NAME NV_SEP VALUE "(?:" NV_LIST_SEP NAME N
 
 const RegEx NameValue("(" NAME ")" NV_SEP "(" VALUE ")" "[" NV_LIST_SEP SIG_SEP "]" );
 
-const char* RouteState::UrlParameterName = "sipX-route";
+const char* RouteState::UrlParameterName = "sipXecs-rs";
 
 // STATIC VARIABLES
 UtlString   RouteState::mSignatureSecret;

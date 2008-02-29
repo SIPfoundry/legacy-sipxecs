@@ -74,7 +74,7 @@ public:
 
          testUserAgent.setIsUserAgent(FALSE);
 
-         testUserAgent.setUserAgentHeaderProperty("sipX/testproxy");
+         testUserAgent.setUserAgentHeaderProperty("sipXecs/testproxy");
 
          testUserAgent.setForking(FALSE);  // Disable forking
 

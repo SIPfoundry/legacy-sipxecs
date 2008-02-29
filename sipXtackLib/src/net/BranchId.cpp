@@ -21,10 +21,10 @@
 //#define TEST_LOG
 
 /* ****************************************************************
- * The syntax for a sipX branch id is:
+ * The syntax for a sipXecs branch id is:
  *
  * branchid           ::= cookie "-" uniquepart [ "%" loopdetectkey ]
- * cookie             ::= 3261cookie "-sipX-" 
+ * cookie             ::= 3261cookie "-sipXecs-" 
  * 3261cookie         ::= "z9hG4bK"
  * uniquepart         ::= smCounter signed-branch
  * signed-branch      ::= MD5(smIdSecret smCounter call-id)
@@ -35,10 +35,10 @@
  * Examples:
  *
  * - With no loop detect key (an unforked request):
- *   z9hG4bK-sipX-0000f9b367e05e4caf080a850f722bd5d10d
+ *   z9hG4bK-sipXecs-0000f9b367e05e4caf080a850f722bd5d10d
  *
  * - With a loop detect key (a forked request):
- *   z9hG4bK-sipX-0000f9b367e05e4caf080a850f722bd5d10d%cffa2937819b53a8b7cee52b0fcba1f7
+ *   z9hG4bK-sipXecs-0000f9b367e05e4caf080a850f722bd5d10d%cffa2937819b53a8b7cee52b0fcba1f7
  *
  * **************************************************************** */
 
@@ -46,13 +46,13 @@
 #define RFC3261_MAGIC_COOKIE_VALUE "z9hG4bK"
 const char* BranchId::RFC3261_MAGIC_COOKIE = RFC3261_MAGIC_COOKIE_VALUE;
 
-#ifndef SIPX_COOKIE_EXTENSION
-#  define SIPX_COOKIE_EXTENSION "-sipX-"
+#ifndef SIPXECS_COOKIE_EXTENSION
+#  define SIPXECS_COOKIE_EXTENSION "-sipXecs-"
 #endif
-const char*        SIPX_MAGIC_COOKIE        = RFC3261_MAGIC_COOKIE_VALUE SIPX_COOKIE_EXTENSION;
-const unsigned int SIPX_MAGIC_COOKIE_LENGTH = strlen(SIPX_MAGIC_COOKIE);
+const char*        SIPXECS_MAGIC_COOKIE        = RFC3261_MAGIC_COOKIE_VALUE SIPXECS_COOKIE_EXTENSION;
+const unsigned int SIPXECS_MAGIC_COOKIE_LENGTH = strlen(SIPXECS_MAGIC_COOKIE);
 
-#define SIPX_LOOP_KEY_SEPARATOR "%"
+#define SIPXECS_LOOP_KEY_SEPARATOR "%"
 
 /// The (secret) unique value used to sign the uniquepart hash.
 UtlString BranchId::smIdSecret;
@@ -63,10 +63,10 @@ unsigned int BranchId::smCounter;
 #define SEQUENCE_COUNTER_LENGTH 4 
 
 const RegEx SipXBranchRecognizer(
-   "^" RFC3261_MAGIC_COOKIE_VALUE SIPX_COOKIE_EXTENSION // the fixed cookie values
+   "^" RFC3261_MAGIC_COOKIE_VALUE SIPXECS_COOKIE_EXTENSION // the fixed cookie values
    "([0-9a-fA-F]{4})"                                   // the sequence counter
    "(" MD5_REGEX ")"                                    // the signed-branch
-   "(?:" "\\" SIPX_LOOP_KEY_SEPARATOR                   // loop key separator
+   "(?:" "\\" SIPXECS_LOOP_KEY_SEPARATOR                   // loop key separator
    "(" MD5_REGEX ")"                                    // the loopdetectkey
    ")?$"
                                  );
@@ -104,7 +104,7 @@ BranchId::BranchId(BranchId&         parentId, ///< the branchid of the server t
    mLoopDetectionKey = parentId.mLoopDetectionKey;
    if (!mLoopDetectionKey.isNull())
    {
-      append(SIPX_LOOP_KEY_SEPARATOR);
+      append(SIPXECS_LOOP_KEY_SEPARATOR);
       append(mLoopDetectionKey);
    }
    
@@ -167,7 +167,7 @@ bool BranchId::topViaIsMyBranch(const SipMessage& response)
          UtlString    loopDetectKey;
          if (parse(branch, counter, uniqueKey, loopDetectKey)) 
          {
-            // found something that looks like a sipX branch id
+            // found something that looks like a sipXecs branch id
 
             // generate the unique part I would have generated for that counter value
             UtlString generatedKey;
@@ -218,7 +218,7 @@ void BranchId::addFork(const Url& contact)
    }
 }
 
-/// Parse a sipX branch id into its component parts.
+/// Parse a sipXecs branch id into its component parts.
 bool BranchId::parse(const UtlString& branchValue,   ///< input
                      unsigned int&    uniqueCounter, ///< output sequence value
                      UtlString&       uniqueValue,   ///< output
@@ -284,14 +284,14 @@ void BranchId::generateFullValue()
       
          // rebuild the parent string with the existing unique part and the new key
          remove(0);
-         append(SIPX_MAGIC_COOKIE);
+         append(SIPXECS_MAGIC_COOKIE);
          char hexCounter[5];
          sprintf(hexCounter, "%04x", existingCounter & 0xFFFF);
          append(hexCounter);
          append(existingUniquePart);
          if (!mLoopDetectionKey.isNull())
          {
-            append(SIPX_LOOP_KEY_SEPARATOR);
+            append(SIPXECS_LOOP_KEY_SEPARATOR);
             append(mLoopDetectionKey);
          }
       
@@ -324,7 +324,7 @@ unsigned int BranchId::loopDetected(const SipMessage& message)
             UtlString    loopDetectKey;
             if (parse(branch, counter, uniqueKey, loopDetectKey)) 
             {
-               // found something that looks like a sipX branch id
+               // found something that looks like a sipXecs branch id
 
                // first compare the loop detection key (faster than recomputing the unique key)
                if (0 == mLoopDetectionKey.compareTo(loopDetectKey,UtlString::matchCase))
@@ -336,7 +336,7 @@ unsigned int BranchId::loopDetected(const SipMessage& message)
                   // extract just the md5 signature from the unique part
                   UtlString generatedSignature;
                   generatedSignature.append(generatedKey,
-                                            SIPX_MAGIC_COOKIE_LENGTH+4, UTLSTRING_TO_END);
+                                            SIPXECS_MAGIC_COOKIE_LENGTH+4, UTLSTRING_TO_END);
                   
                   // if they match, key is mine
                   if (0 == generatedSignature.compareTo(uniqueKey))
@@ -401,7 +401,7 @@ void BranchId::generateUniquePart(const SipMessage& message,
 {
    uniqueValue.remove(0);
    
-   uniqueValue.append(SIPX_MAGIC_COOKIE); // make it easy to see we did this one
+   uniqueValue.append(SIPXECS_MAGIC_COOKIE); // make it easy to see we did this one
 
    // build up the unique part of the branch id by hashing
    //  - a value unique to this call

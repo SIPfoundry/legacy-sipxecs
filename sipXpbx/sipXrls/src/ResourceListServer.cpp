@@ -156,8 +156,8 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
 
    // Initialize the SipUserAgent's.
    // Set the user-agent strings.
-   mServerUserAgent.setUserAgentHeaderProperty("sipX/rls");
-   mClientUserAgent.setUserAgentHeaderProperty("sipX/rls");
+   mServerUserAgent.setUserAgentHeaderProperty("sipXecs/rls");
+   mClientUserAgent.setUserAgentHeaderProperty("sipXecs/rls");
    // Allow the "eventlist" extension in the server.
    mServerUserAgent.allowExtension("eventlist");
    // Start them.

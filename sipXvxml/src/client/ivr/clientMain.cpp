@@ -954,7 +954,7 @@ int main(int argc, char *argv[])
    userAgent->allowExtension(SIP_CALL_CONTROL_EXTENSION);
    userAgent->allowExtension("sip-cc-01");
    userAgent->allowExtension(SIP_REPLACES_EXTENSION);
-   userAgent->setUserAgentHeaderProperty("sipX/vxml");
+   userAgent->setUserAgentHeaderProperty("sipXecs/vxml");
 
    userAgent->start();
    

@@ -65,7 +65,7 @@
 #define CONFIG_LOG_DIR SIPX_LOGDIR
 
 #ifndef  VENDOR
-# define VENDOR "sipX"
+# define VENDOR "sipXecs"
 #endif
 
 #ifndef PLATFORM_UA_PARAM

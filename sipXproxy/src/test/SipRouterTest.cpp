@@ -309,7 +309,7 @@ public:
          CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 0, urlParmName, tempString ) );
          ASSERT_STR_EQUAL("lr", urlParmName.data());
          CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 1, urlParmName, tempString ) );
-         ASSERT_STR_EQUAL("sipX-route", urlParmName.data());
+         ASSERT_STR_EQUAL("sipXecs-rs", urlParmName.data());
 
          CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, "X-SipX-Spiral" ) );
 
@@ -495,7 +495,7 @@ public:
          CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 0, urlParmName, tempString ) );
          ASSERT_STR_EQUAL("lr", urlParmName.data());
          CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 1, urlParmName, tempString ) );
-         ASSERT_STR_EQUAL("sipX-route", urlParmName.data());
+         ASSERT_STR_EQUAL("sipXecs-rs", urlParmName.data());
          
          CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, "X-SipX-Spiral" ) );
 
@@ -549,7 +549,7 @@ public:
        CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 0, urlParmName, tempString ) );
        ASSERT_STR_EQUAL("lr", urlParmName.data());
        CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 1, urlParmName, tempString ) );
-       ASSERT_STR_EQUAL("sipX-route", urlParmName.data());
+       ASSERT_STR_EQUAL("sipXecs-rs", urlParmName.data());
        
        CPPUNIT_ASSERT( testMsg.getHeaderValue( 0, "X-SipX-Spiral" ) );
 
@@ -599,7 +599,7 @@ public:
       CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 0, urlParmName, tempString ) );
       ASSERT_STR_EQUAL("lr", urlParmName.data());
       CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 1, urlParmName, tempString ) );
-      ASSERT_STR_EQUAL("sipX-route", urlParmName.data());
+      ASSERT_STR_EQUAL("sipXecs-rs", urlParmName.data());
       
       CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, "X-SipX-Spiral" ) );
 
@@ -618,7 +618,7 @@ public:
          "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
          "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
          "Cseq: 1 INVITE\r\n"
-         "Route: <sip:10.10.10.1:5060;lr;sipX-route=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21607dcb78ef2addd25638653db3070349>\r\n"
+         "Route: <sip:10.10.10.1:5060;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21607dcb78ef2addd25638653db3070349>\r\n"
          "Max-Forwards: 20\r\n"
          "Contact: caller@127.0.0.1\r\n"
          "Content-Length: 0\r\n"

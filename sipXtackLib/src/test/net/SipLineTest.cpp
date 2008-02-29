@@ -251,7 +251,7 @@ public:
         
         const char* requestTemplate = \
             "REFER sip:foo@example.com\r\n"
-            "Route: <sip:127.0.0.1:5060;lr;sipX-route=%%2Afrom%%7ERkI5Mjc4NjktNjY4QjM4NzQ%%60.400_authrules%%2Aauth%%7E%%212e6c4f0639ffe4ffbf878dc06fd5af09>\r\n"
+            "Route: <sip:127.0.0.1:5060;lr;sipXecs-rs=%%2Afrom%%7ERkI5Mjc4NjktNjY4QjM4NzQ%%60.400_authrules%%2Aauth%%7E%%212e6c4f0639ffe4ffbf878dc06fd5af09>\r\n"
             "To: \"To Name\" <sip:foo@example.com>;tag=1234\r\n"
             "From: %s\r\n"
             "Call-Id: 20c4578d-e9a84853-1f3b28b6@127.0.0.1\r\n"

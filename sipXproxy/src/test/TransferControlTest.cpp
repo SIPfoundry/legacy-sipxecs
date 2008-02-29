@@ -69,7 +69,7 @@ public:
 
          //testUserAgent.setDnsSrvTimeout(1 /* seconds */);
          //testUserAgent.setMaxSrvRecords(4);
-         testUserAgent.setUserAgentHeaderProperty("sipX/testproxy");
+         testUserAgent.setUserAgentHeaderProperty("sipXecs/testproxy");
 
          testUserAgent.setForking(FALSE);  // Disable forking
 

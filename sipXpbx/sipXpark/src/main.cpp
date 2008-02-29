@@ -589,7 +589,7 @@ int main(int argc, char* argv[])
                                                NULL, // natPingMethod
                                                lineMgr
                                                );
-    userAgent->setUserAgentHeaderProperty("sipX/park");
+    userAgent->setUserAgentHeaderProperty("sipXecs/park");
     userAgent->start();
 
     if (!userAgent->isOk())

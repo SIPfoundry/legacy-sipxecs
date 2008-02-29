@@ -791,7 +791,7 @@ main( int argc, char* argv[] )
     }
     sipUserAgent.setDnsSrvTimeout(dnsSrvTimeout);
     sipUserAgent.setMaxSrvRecords(maxNumSrvRecords);
-    sipUserAgent.setUserAgentHeaderProperty("sipX/sipXproxy");
+    sipUserAgent.setUserAgentHeaderProperty("sipXecs/sipXproxy");
     sipUserAgent.setMaxForwards(maxForwards);
     sipUserAgent.setDefaultExpiresSeconds(defaultExpires);
     sipUserAgent.setDefaultSerialExpiresSeconds(defaultSerialExpires);

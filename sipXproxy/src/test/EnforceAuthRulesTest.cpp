@@ -140,7 +140,7 @@ public:
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
 
          // Only one Record-Route header.
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
@@ -163,7 +163,7 @@ public:
          spiraledRouteState.update(&testMsg);
 
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
 
          // Only one Record-Route header.
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
@@ -223,7 +223,7 @@ public:
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
 
          // Only one Record-Route header.
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
@@ -249,7 +249,7 @@ public:
          spiraledRouteState.update(&testMsg);
 
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
 
          // Only one Record-Route header.
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
@@ -346,7 +346,7 @@ public:
             "Max-Forwards: 20\r\n"
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
-            "Record-Route: <sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>\r\n"
+            "Record-Route: <sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>\r\n"
             "\r\n";
          SipMessage testMsg(message, strlen(message));
 
@@ -374,7 +374,7 @@ public:
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
       }
 
 
@@ -482,7 +482,7 @@ public:
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(okMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%210083f7f42bdf4998911a18d41fb3aa01>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%210083f7f42bdf4998911a18d41fb3aa01>", recordRoute );
 
          // now try the same request, but mightyhunter as authIdentity
          // so this time it should NOT work
@@ -595,7 +595,7 @@ public:
          allowedRouteState.update(&allowedMsg);
 
          CPPUNIT_ASSERT(allowedMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%2175da650843a06eee569f3c93b0f94ee5>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%2175da650843a06eee569f3c93b0f94ee5>", recordRoute );
 
          // check that invalid authidentity can not help bypass permissions
          rejectReason.remove(0);
@@ -663,7 +663,7 @@ public:
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(okMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL("<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21c2ce876a02a4f62e6a4ba3069bfb75b5>",
+         ASSERT_STR_EQUAL("<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21c2ce876a02a4f62e6a4ba3069bfb75b5>",
                           recordRoute );
 
          // put that route header into a popped route list
@@ -755,7 +755,7 @@ public:
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(okMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL("<sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21c2ce876a02a4f62e6a4ba3069bfb75b5>",
+         ASSERT_STR_EQUAL("<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21c2ce876a02a4f62e6a4ba3069bfb75b5>",
                           recordRoute );
 
          /*
@@ -772,7 +772,7 @@ public:
             "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
             "Call-Id: authorized-1\r\n"
             "Cseq: 2 INFO\r\n"
-            "Record-Route: <sip:example.com;lr;sipX-route=enforce%2Aauth%7E%21c2ce876a02a4f62e6a4ba3069bfb75b5>\r\n"
+            "Record-Route: <sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21c2ce876a02a4f62e6a4ba3069bfb75b5>\r\n"
             "Max-Forwards: 19\r\n"
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"

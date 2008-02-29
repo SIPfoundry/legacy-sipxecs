@@ -452,7 +452,7 @@ public:
          removedHeaders.insert(new UtlString(nostateRoute));
 
          const char* routedStateValue =
-            "<sip:myhost.example.com;lr;sipX-route=plugin*param1~dmFsdWUx.plugin2*~dmFsdWUy!6cedf2bb36711d2e69b3012ab3d1e16d>";
+            "<sip:myhost.example.com;lr;sipXecs-rs=plugin*param1~dmFsdWUx.plugin2*~dmFsdWUy!6cedf2bb36711d2e69b3012ab3d1e16d>";
          removedHeaders.insert(new UtlString(routedStateValue));
 
          RouteState routedState(routedSipMessage, removedHeaders, myRouteName);
@@ -512,7 +512,7 @@ public:
          CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 0, urlParmName, tempString ) );
          ASSERT_STR_EQUAL("lr", urlParmName.data());
          CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 1, urlParmName, tempString ) );
-         ASSERT_STR_EQUAL("sipX-route", urlParmName.data());
+         ASSERT_STR_EQUAL("sipXecs-rs", urlParmName.data());
 
          CPPUNIT_ASSERT( !outputSipMessage.getRecordRouteUri(1, &recordRoute) );
 
@@ -533,7 +533,7 @@ public:
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
             "Cseq: 1 INVITE\r\n"
             "Record-Route: <sip:other.example.com;lr>\r\n"
-            "Record-Route: <sip:myhost.example.com;lr;sipX-route=plugin*param1~dmFsdWUx.plugin2*~dmFsdWUy!6cedf2bb36711d2e69b3012ab3d1e16d>\r\n"
+            "Record-Route: <sip:myhost.example.com;lr;sipXecs-rs=plugin*param1~dmFsdWUx.plugin2*~dmFsdWUy!6cedf2bb36711d2e69b3012ab3d1e16d>\r\n"
             "Max-Forwards: 20\r\n"
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
@@ -589,7 +589,7 @@ public:
          CPPUNIT_ASSERT(routeState.mValues.isEmpty()); // cheat - look inside
 
 //         const char* routedStateValue =
-//            "<sip:myhost.example.com;lr;sipX-route=plugin*param1~dmFsdWUx.plugin2*~dmFsdWUy!6cedf2bb36711d2e69b3012ab3d1e16d>";
+//            "<sip:myhost.example.com;lr;sipXecs-rs=plugin*param1~dmFsdWUx.plugin2*~dmFsdWUy!6cedf2bb36711d2e69b3012ab3d1e16d>";
 
          routeState.setParameter("plugin", "param1", Value1);
          routeState.setParameter("plugin2", "", Value2);
@@ -604,7 +604,7 @@ public:
 
          const char* expectedOutput =
             "INVITE sip:user@somewhere.com SIP/2.0\r\n"
-            "Record-Route: <sip:myhost.example.com;lr;sipX-route=plugin%2Aparam1%7EdmFsdWUx.plugin2%2A%7EdmFsdWUy%216cedf2bb36711d2e69b3012ab3d1e16d>\r\n"
+            "Record-Route: <sip:myhost.example.com;lr;sipXecs-rs=plugin%2Aparam1%7EdmFsdWUx.plugin2%2A%7EdmFsdWUy%216cedf2bb36711d2e69b3012ab3d1e16d>\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
             "To: sip:user@somewhere.com\r\n"
             "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
@@ -658,7 +658,7 @@ public:
             "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
             "Cseq: 1 INVITE\r\n"
-            "Record-Route: <sip:myhost.example.com;lr;sipX-route=plugin%2Aparam1%7Ed3JpdGU%60%21ede4982f328fc3611edb573f9044a45f>\r\n"
+            "Record-Route: <sip:myhost.example.com;lr;sipXecs-rs=plugin%2Aparam1%7Ed3JpdGU%60%21ede4982f328fc3611edb573f9044a45f>\r\n"
             "Record-Route: <sip:other.example.com;lr>\r\n"
             "Max-Forwards: 20\r\n"
             "Contact: caller@127.0.0.1\r\n"

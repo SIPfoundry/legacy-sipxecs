@@ -3,7 +3,7 @@ SIPX-READROUTE(1)
 
 NAME
 ----
-sipx-readroute - Prints a decoded version of the values in the sipX-route parameter.
+sipx-readroute - Prints a decoded version of the values in the sipXecs-rs parameter.
 
 SYNOPSIS
 --------

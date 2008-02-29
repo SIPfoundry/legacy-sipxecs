@@ -5,7 +5,7 @@ $Usage = <<USAGE;
  
     sipx-readroute [ -h | --help ] - 
 
-      Prints a decoded version of the values in the sipX-route parameter.
+      Prints a decoded version of the values in the sipXecs-rs parameter.
 
       The first form takes the parameter value as a command line argument;
       the second form reads stdin and pipes it to stdout with values expanded.
@@ -45,7 +45,7 @@ if ( $Help )
 sub printroute
 {
     my ($paramvalue) = shift;
-    $paramvalue =~ s/.*sipX-route=//;
+    $paramvalue =~ s/.*sipXecs-rs=//;
 
     my ($rawvalue) = uri_unescape($paramvalue);
     my ($output, $nvpair, $pname, $pvalue, $pdecoded );
@@ -69,7 +69,7 @@ if ( ! defined $token || $token eq '-' )
     while(<>)
     {
         print;
-        if ( m|\bsipX-route=([a-z0-9+/=%]+)%21[0-9a-f]{32}\b|i )
+        if ( m|\bsipXecs-rs=([a-z0-9+/=%]+)%21[0-9a-f]{32}\b|i )
         {
             &printroute($1);
         }

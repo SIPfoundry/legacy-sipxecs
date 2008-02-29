@@ -334,7 +334,7 @@ SipRedirectorPickUp::initialize(OsConfigDb& configDb,
          OsServerTask::DEF_MAX_MSGS, // queueSize
          FALSE // bUseNextAvailablePort
          );
-      mpSipUserAgent->setUserAgentHeaderProperty("sipX/redirectorPickup");
+      mpSipUserAgent->setUserAgentHeaderProperty("sipXecs/redirectorPickup");
       mpSipUserAgent->start();
 
       // Initialize the CSeq counter to an arbitrary acceptable value.

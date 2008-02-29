@@ -521,7 +521,7 @@ StatusServer::startStatusServer (
     //sipUserAgent->startMessageLog(100000);
     sipUserAgent->setDnsSrvTimeout(dnsSrvTimeout);
     sipUserAgent->setMaxSrvRecords(maxNumSrvRecords);
-    sipUserAgent->setUserAgentHeaderProperty("sipX/publisher");
+    sipUserAgent->setUserAgentHeaderProperty("sipXecs/publisher");
     
     sipUserAgent->start();
 

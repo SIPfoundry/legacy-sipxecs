@@ -241,7 +241,7 @@ public:
             ;
 
          const char *defaultOriginator = // provided automatically
-            "o=sipX 5 5 IN IP4 127.0.0.1\r\n"
+            "o=sipXecs 5 5 IN IP4 127.0.0.1\r\n"
             ;
 
          const char *expectedEmptySessionName = // not optional, so will be there but empty
@@ -265,7 +265,7 @@ public:
          newSdp.getBytes(&sdpMsg, &sdpLength);
 
          const char *expectedStdHead = 
-            "o=sipX 5 5 IN IP4 10.1.1.1\r\n"
+            "o=sipXecs 5 5 IN IP4 10.1.1.1\r\n"
             "s=my session name\r\n"
             "e=me@example.org\r\n"
             "p=+1-8005551212\r\n"
@@ -282,7 +282,7 @@ public:
          newSdp.getBytes(&sdpMsg, &sdpLength);
 
          const char *expectedPhone = 
-            "o=sipX 5 5 IN IP4 10.1.1.1\r\n"
+            "o=sipXecs 5 5 IN IP4 10.1.1.1\r\n"
             "s=my session name\r\n"
             "e=me@example.org\r\n"
             "p=+1-7819385306\r\n"
@@ -299,7 +299,7 @@ public:
          newSdp.getBytes(&sdpMsg, &sdpLength);
 
          const char *expectedEmail = 
-            "o=sipX 5 5 IN IP4 10.1.1.1\r\n"
+            "o=sipXecs 5 5 IN IP4 10.1.1.1\r\n"
             "s=my session name\r\n"
             "e=you@example.com\r\n"
             "p=+1-7819385306\r\n"
@@ -316,7 +316,7 @@ public:
          newSdp.getBytes(&sdpMsg, &sdpLength);
 
          const char *expectedName = 
-            "o=sipX 5 5 IN IP4 10.1.1.1\r\n"
+            "o=sipXecs 5 5 IN IP4 10.1.1.1\r\n"
             "s=your session name\r\n"
             "e=you@example.com\r\n"
             "p=+1-7819385306\r\n"
@@ -656,7 +656,7 @@ public:
         SdpBody testBody;
         const char* testBodyExpected = 
                 "v=0\r\n"
-                "o=sipX 5 5 IN IP4 127.0.0.1\r\n"
+                "o=sipXecs 5 5 IN IP4 127.0.0.1\r\n"
                 "s=\r\n"
                 "a=candidate:id1 0.2 userfrag password 192.168.1.102 8776 10.1.1.102 9999\r\n" 
                 "a=candidate:id2 0.3 userfrag2 password2 192.168.1.103 8777 10.1.1.103 10000\r\n" ;
@@ -693,7 +693,7 @@ public:
 
         const char* testBodyExpected = 
             "v=0\r\n"
-            "o=sipX 5 5 IN IP4 127.0.0.1\r\n"
+            "o=sipXecs 5 5 IN IP4 127.0.0.1\r\n"
             "s=foo\r\n"
             "c=IN IP4 10.1.1.30\r\n"
             "t=0 0\r\n"

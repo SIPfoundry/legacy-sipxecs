@@ -78,7 +78,7 @@ public:
          CPPUNIT_ASSERT(uniqueValue.isNull());
          CPPUNIT_ASSERT(loopDetectKey.isNull());
 
-         CPPUNIT_ASSERT(BranchId::parse("z9hG4bK-sipX-000752b10d50c0eeb623b035fe30c8f85dea",
+         CPPUNIT_ASSERT(BranchId::parse("z9hG4bK-sipXecs-000752b10d50c0eeb623b035fe30c8f85dea",
                                         counter, uniqueValue, loopDetectKey));
          CPPUNIT_ASSERT_EQUAL(7U, counter);
          ASSERT_STR_EQUAL("52b10d50c0eeb623b035fe30c8f85dea", uniqueValue.data());
@@ -241,7 +241,7 @@ public:
 
    void testBranchCopy()
       {
-         UtlString sipXbranchId("z9hG4bK-sipX-000af33a294c2143da892d81dbc8183fd7f8");
+         UtlString sipXbranchId("z9hG4bK-sipXecs-000af33a294c2143da892d81dbc8183fd7f8");
          BranchId  sipXcopied(sipXbranchId);
 
          ASSERT_STR_EQUAL(sipXbranchId.data(), sipXcopied.data());
