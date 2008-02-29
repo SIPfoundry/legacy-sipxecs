@@ -21,10 +21,12 @@ class State
     
     def initialize(cdr, generation)
       @cdr = cdr
-      @generation = generation  
+      @generation = generation
     end
   end
-  
+
+  attr_writer :log
+
   def initialize(cse_queue, cdr_queue, cdr_class = Cdr)
     @cse_queue = cse_queue
     @cdr_queue = cdr_queue
@@ -34,6 +36,7 @@ class State
     @generation = 0
     @last_event_time = nil
     @cdrs = {}
+    @log = nil
     super()
   end
   
@@ -41,7 +44,9 @@ class State
     begin
       while item = @cse_queue.shift
         if item.kind_of?(Array)
+          @log.debug("Start #{item[0]}") if @log
           housekeeping(*item)
+          @log.debug("Finished #{item[0]}") if @log
         else          
           accept(item)
         end            
@@ -49,7 +54,7 @@ class State
       flush_failed()
       @cdr_queue << nil
     rescue 
-      p($!)
+      @log.error($!) if @log
       raise
     end
   end
@@ -69,14 +74,16 @@ class State
   end
   
   def to_s
-    "Generation #{@generation}, Retired: #{@retired_calls.size}, Failed: #{@failed_calls.size}, Waiting: #{@cdrs.size}"
+    "Generation #{@generation}, Retired: #{@retired_calls.size}, Failed: #{@failed_calls.size}, Waiting: #{@cdrs.size}, CSE Queue: #{@cse_queue.length}"
   end
   
   # Analyze CSE, add CDR to queue if completed
   def accept(cse)
     @generation += 1
     @last_event_time = cse.event_time
-    
+
+    @log.debug("CSE #{cse.event_type}") if @log
+
     call_id = cse.call_id
     
     # ignore if we already notified world about this cdr
@@ -140,7 +147,7 @@ class State
   # declare calls as failed if wait time elapses since the call start and no new event arrived
   def flush_failed_calls(max_wait_time)
     return unless @last_event_time
-    return unless max_wait_len > 0
+    return unless max_wait_time > 0
     @failed_calls.delete_if do |key, value|
       cdr = value.cdr
       start_time = cdr.start_time

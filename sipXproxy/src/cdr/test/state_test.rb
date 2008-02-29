@@ -236,4 +236,18 @@ class StateTest < Test::Unit::TestCase
     assert_equal(2, state.active_cdrs.size)
   end
 
+  def test_flush_failed_calls
+    out_queue = []
+    MockCdr.results(true, false, false)
+    state = State.new([], out_queue, MockCdr)
+    state.accept(DummyCse.new('id1', Time.at(1000)))
+    state.accept(DummyCse.new('id2', Time.at(1151)))
+    assert_equal(0, out_queue.size)
+
+    state.flush_failed_calls(160)
+    assert_equal(0, out_queue.size)
+
+    state.flush_failed_calls(150)
+    assert_equal(1, out_queue.size)
+  end
 end

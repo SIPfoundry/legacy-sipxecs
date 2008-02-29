@@ -65,6 +65,7 @@ class CallResolver
 
     # state copies from CSE queue to CDR queue
     @state = State.new(cse_queue, cdr_queue)
+    @state.log = @log
     
     Thread.new( @state ) { | state | 
       state.run
@@ -83,9 +84,9 @@ class CallResolver
 
     # stop running housekeeping jobs
     @long_calls_cleaner.stop
-    @faled_calls_cleaner.stop
+    @failed_calls_cleaner.stop
     long_calls_cleaner_thread.join
-    faled_calls_cleaner_thread.join
+    failed_calls_cleaner_thread.join
 
     # send sentinel event, it will stop plugins and state
     cse_queue.enq(nil)
