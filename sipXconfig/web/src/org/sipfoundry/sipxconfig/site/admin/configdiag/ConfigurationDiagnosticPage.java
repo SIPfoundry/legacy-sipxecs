@@ -32,6 +32,8 @@ public abstract class ConfigurationDiagnosticPage extends BasePage implements
     @Bean
     public abstract EvenOdd getRowClass();
 
+    public abstract int getCurrentRowId();
+
     public abstract List<ConfigurationDiagnostic> getConfigurationTests();
 
     public abstract void setConfigurationTests(List<ConfigurationDiagnostic> configurationTests);

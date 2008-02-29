@@ -31,6 +31,9 @@ public abstract class DiagnosticDetail extends BaseComponent {
     @Parameter
     public abstract String getRowClass();
 
+    @Parameter
+    public abstract Integer getRowId();
+
     @Message(value = "notRun")
     public abstract String getNotRunMsg();
 

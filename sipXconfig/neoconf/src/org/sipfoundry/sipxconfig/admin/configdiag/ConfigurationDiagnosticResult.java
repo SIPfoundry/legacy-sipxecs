@@ -27,6 +27,7 @@ public class ConfigurationDiagnosticResult implements Serializable {
 
     private Status m_status;
     private String m_message;
+    private String m_description;
     private int m_exitStatus;
 
     public Status getStatus() {
@@ -47,6 +48,14 @@ public class ConfigurationDiagnosticResult implements Serializable {
 
     public void setMessage(String message) {
         m_message = message;
+    }
+
+    public String getDescription() {
+        return m_description;
+    }
+
+    public void setDescription(String description) {
+        m_description = description;
     }
 
     public int getExitStatus() {

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE script PUBLIC
+    "-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
+    "http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
+<script>
+    <input-symbol key="rowId" required="yes" />
+    <body>
+<![CDATA[
+
+]]>
+    </body>
+    <initialization>
+<![CDATA[
+    var testNameElement = dojo.byId("test${rowId}Name");
+    var testDescriptionElement = dojo.byId("test${rowId}Description");
+
+    if (testDescriptionElement) {
+        dojo.event.connect(testNameElement, "onmouseover", "rowMouseOver");
+        dojo.event.connect(testNameElement, "onmouseout", "rowMouseOut");
+        dojo.event.connect(testDescriptionElement, "onmouseout", "hideTestTooltip");
+        dojo.lfx.fadeOut(testDescriptionElement, 1).play();
+    }
+]]>
+    </initialization>
+</script>

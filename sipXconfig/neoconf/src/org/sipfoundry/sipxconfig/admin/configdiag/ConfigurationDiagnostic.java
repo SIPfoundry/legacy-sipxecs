@@ -22,6 +22,7 @@ public class ConfigurationDiagnostic implements Callable<Integer> {
     private String m_name;
     private String m_label;
     private String m_description;
+    private String m_longDescription;
     private ConfigurationDiagnosticResult m_result = ConfigurationDiagnosticResult.UNKNOWN_RESULT;
     private ExternalCommand m_command;
     private ConfigurationDiagnosticResultParser m_resultParser;
@@ -33,12 +34,14 @@ public class ConfigurationDiagnostic implements Callable<Integer> {
         private static final String RESULTS_PATH = "test/results";
         private static final String COMMAND_PATH = "test/command";
         private static final String RESULT_PATH = RESULTS_PATH + "/result";
+        private static final String DESCRIPTION_PATH = "/description";
 
         public TestDescriptorDigester(ConfigurationDiagnostic cd) {
             push(cd);
             addSetProperties(TEST_PATH);
             addBeanPropertySetter(TEST_PATH + "/label");
-            addBeanPropertySetter(TEST_PATH + "/description");
+            addBeanPropertySetter(TEST_PATH + DESCRIPTION_PATH);
+            addBeanPropertySetter(TEST_PATH + "/longDescription");
             addObjectCreate(COMMAND_PATH, ExternalCommand.class);
             addSetNext(COMMAND_PATH, "setCommand");
             addBeanPropertySetter(COMMAND_PATH + "/exec", "command");
@@ -50,6 +53,7 @@ public class ConfigurationDiagnostic implements Callable<Integer> {
             addSetProperties(RESULT_PATH, "exit", "exitStatus");
             addBeanPropertySetter(RESULT_PATH + "/status", "statusAsString");
             addBeanPropertySetter(RESULT_PATH + "/msg", "message");
+            addBeanPropertySetter(RESULT_PATH + DESCRIPTION_PATH);
         }
     }
 
@@ -83,6 +87,14 @@ public class ConfigurationDiagnostic implements Callable<Integer> {
 
     public void setDescription(String description) {
         m_description = description;
+    }
+
+    public String getLongDescription() {
+        return m_longDescription;
+    }
+
+    public void setLongDescription(String longDescription) {
+        m_longDescription = longDescription;
     }
 
     public ConfigurationDiagnosticResult getResult() {

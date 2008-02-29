@@ -545,11 +545,55 @@ div.auto_complete ul strong.highlight {
 #searchContainer.styled {
     padding: 3px 1px 3px 20px;
     vertical-align: middle;
+}
 
 .width_100_percent {
   width:100%;
+}
 
 html, body {
   height: 100%;
   min-height: 100%;
+}
+
+.testDescription {
+    position: absolute;
+    width: 400px;
+    border-style: solid;
+    border-width: 1px;
+    top: 0;
+    left: 0;
+    text-align: left;
+}
+
+.hidden {
+	display: none;
+}
+
+.visible {
+    display: block;
+}
+
+.testDescription .tooltipBody {
+    padding: 2px;
+}
+
+.status-Success {
+	padding-left: 20px;
+    background: transparent url('/sipxconfig/images/tick.png') left no-repeat ;
+}
+
+.status-Error {
+	padding-left: 20px;
+    background: transparent url('/sipxconfig/images/cross.png') left no-repeat ;
+}
+
+.status-Unknown {
+	padding-left: 20px;
+    background: transparent url('/sipxconfig/images/unknown.png') left no-repeat ;
+}
+
+.status-InProgress {
+   padding-left: 20px;
+   background: transparent url('/sipxconfig/images/loading.gif') left no-repeat ;
 }
