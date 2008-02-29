@@ -2,7 +2,7 @@
 <vxml version="2.0"
 #if($user)
   base="http://localhost:8090/vm_vxml/"
-#if($overrideLanguage)
+#if($overrideLanguage && $language)
   xml:lang="${language}"
 #end
 #end
