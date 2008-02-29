@@ -690,7 +690,17 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
    }
 
    UtlBoolean sendSucceeded = FALSE;
+
+   // Extract information from the message.
    UtlBoolean isResponse = message.isResponse();
+   UtlString method;
+   int cseq = 0;
+   message.getCSeqField(&cseq, &method);
+   int responseCode = 0;
+   if (isResponse)
+   {
+      responseCode = message.getResponseStatusCode();
+   }
 
    // If we are trying to do a NAT ping for the first time
    // hold off on all message sends until we have had time for
@@ -712,18 +722,29 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       message.setDateField();
    }
 
-   // Add a Contact header if one is not provided.
-   // The SipUserAgent knows its default Contact URI.
-   if (!message.getHeaderValue(0, SIP_CONTACT_FIELD))
+   // Under appropriate circumstances, add a Contact header if one is
+   // not provided.
+   // The appropriate circumstances are:
+   // - only for UA transactions (not proxy transactions)
+   // - never for requests or responses whose methods are:
+   //     CANCEL or ACK (which have special properties)
+   //     REGISTER (which uses Contact in special ways)
+   // - for responses, only for codes 101 to 299
+   if (mIsUaTransactionByDefault &&
+       !(method.compareTo(SIP_CANCEL_METHOD) == 0 ||
+         method.compareTo(SIP_ACK_METHOD) == 0 ||
+         method.compareTo(SIP_REGISTER_METHOD) == 0) &&
+       (!isResponse ||
+        (SIP_1XX_CLASS_CODE < responseCode &&
+         responseCode < SIP_3XX_CLASS_CODE)) &&
+       !message.getHeaderValue(0, SIP_CONTACT_FIELD))
    {
+      // The SipUserAgent knows its default Contact URI.
       message.setContactField(mContactAddress.data());
    }
 
-   UtlString method;
    if (!isResponse)
    {
-      message.getRequestMethod(&method);
-
       // Make sure that Max-Forwards is set.
       int maxForwards;
       if (!message.getMaxForwards(maxForwards))
@@ -731,11 +752,6 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          message.setMaxForwards(mMaxForwards);
       }
    }
-
-   // ===========================================
-
-   // Do the stuff that requires the transaction type knowledge
-   // i.e. UA versus proxy transaction
 
    if (!isResponse)
    {
@@ -1575,7 +1591,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                // This now includes messages that have an "ACK PROXY" relationship with an ignored transaction.
 
                // Only set relationship if it was really unrelated.
-                // Log warning if this happens and it's not "ACK PROXY", otherwise post debug for now
+               // Log warning if this happens and it's not "ACK PROXY", otherwise post debug for now
                if (relationship != SipTransaction::MESSAGE_2XX_ACK_PROXY)   // don't overwrite this value
                {
                    relationship = SipTransaction::MESSAGE_ACK;

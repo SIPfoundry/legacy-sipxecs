@@ -777,7 +777,7 @@ main( int argc, char* argv[] )
         "PING", // nat ping method
         NULL, // line mgr
         SIP_DEFAULT_RTT, // first resend timeout
-        TRUE, // default to UA transaction
+        FALSE, // default to proxy transaction
         SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE, // socket layer read buffer size
         SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE, // OsServerTask message queue size
         FALSE, // Use Next Available Port
@@ -789,7 +789,6 @@ main( int argc, char* argv[] )
         OsSysLog::add(FAC_SIP, PRI_EMERG, "SipUserAgent reported a problem, setting shutdown flags...");
         gShutdownFlag = TRUE ;
     }
-    sipUserAgent.setIsUserAgent(FALSE);
     sipUserAgent.setDnsSrvTimeout(dnsSrvTimeout);
     sipUserAgent.setMaxSrvRecords(maxNumSrvRecords);
     sipUserAgent.setUserAgentHeaderProperty("sipX/sipXproxy");

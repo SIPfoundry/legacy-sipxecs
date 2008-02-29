@@ -66,8 +66,6 @@ public:
           */
          CPPUNIT_ASSERT((converter = dynamic_cast<CallerAlias*>(getAuthPlugin("convert"))));
 
-         testUserAgent.setIsUserAgent(FALSE);
-
          testUserAgent.setDnsSrvTimeout(1 /* seconds */);
          testUserAgent.setMaxSrvRecords(4);
          testUserAgent.setUserAgentHeaderProperty("sipX/authproxy");
@@ -503,7 +501,7 @@ SipUserAgent     CallerAliasTest::testUserAgent(
    "PING", // nat ping method
    NULL, // line mgr
    SIP_DEFAULT_RTT, // first resend timeout
-   TRUE, // default to UA transaction
+   FALSE, // default to proxy transaction
    SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE, // socket layer read buffer size
    SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE // OsServerTask message queue size
                                                 );
