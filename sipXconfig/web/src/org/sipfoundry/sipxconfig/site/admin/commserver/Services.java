@@ -22,9 +22,12 @@ import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.domain.DomainConfigReplicatedEvent;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 public abstract class Services extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "Services";
@@ -34,6 +37,9 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
 
     @InjectObject(value = "spring:sipxProcessContext")
     public abstract SipxProcessContext getSipxProcessContext();
+    
+    @InjectObject(value = "spring:domainManager")
+    public abstract DomainManager getDomainManager();
 
     @Bean
     public abstract SelectMap getSelections();
@@ -94,8 +100,15 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
             return;
         }
         try {
-            getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
-            setServiceStatus(null);
+            // this is ugly.  we should refactor process context to handle all management
+            // commands when it receives an event.
+            if (Command.RESTART.equals(operation)) {
+                getDomainManager().replicateDomainConfig();
+                getSipxProcessContext().restartOnEvent(services, DomainConfigReplicatedEvent.class);
+            } else {
+                getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
+                setServiceStatus(null);
+            }
         } catch (UserException e) {
             IValidationDelegate validator = TapestryUtils.getValidator(this);
             validator.record(new ValidatorException(e.getMessage()));
