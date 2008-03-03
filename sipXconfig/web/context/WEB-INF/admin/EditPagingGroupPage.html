@@ -13,7 +13,7 @@
             <span jwcid="number@TextField" id="number" value="prop:group.pageGroupNumber" translator="translator:integer" validators="spring-validators:required,min=1,max=99" displayName="message:label.number"/>
           </tr>
           <tr jwcid="@FieldPanel" for="description" field="component:description" label="message:label.description">
-            <span jwcid="description@TextArea" id="description" value="prop:group.description" cols="45" rows="5" />
+            <span jwcid="description@TextArea" id="description" value="prop:group.description" cols="45" rows="5" validators="spring-validators:validFieldSize"/>
           </tr>
           <tr>
             <td><label for="beep"><span key="label.pageBeep"/></label></td>

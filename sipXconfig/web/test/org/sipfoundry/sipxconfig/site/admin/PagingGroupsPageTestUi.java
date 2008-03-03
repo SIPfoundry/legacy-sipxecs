@@ -109,4 +109,23 @@ public class PagingGroupsPageTestUi extends WebTestCase {
 
         SiteTestHelper.assertUserError(tester);
     }
+
+    public void testPagingDescriptionMax255Characters() throws Exception {
+        StringBuilder description = new StringBuilder();
+        for (int i=0; i< 256; i++) {
+            description.append("a");
+        }
+
+        SiteTestHelper.assertNoUserError(tester);
+        assertLinkPresent("link.addPagingGroup");
+        clickLink("link.addPagingGroup");
+        setFormElement("number", "2");
+        setFormElement("description", description.toString());
+        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
+                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        clickButton("form:ok");
+
+        SiteTestHelper.assertUserError(tester);
+    }
 }
