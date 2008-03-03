@@ -18,16 +18,16 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
-import org.sipfoundry.sipxconfig.device.ProfileContext;
-import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.RestartException;
+import org.sipfoundry.sipxconfig.phone.nt1535.NT1535Phone.DeviceConfigProfile;
+import org.sipfoundry.sipxconfig.phone.nt1535.NT1535Phone.SystemConfigProfile;
 
 public class NT1535PhoneTest extends TestCase {
-
 
     public void _testFactoryRegistered() {
         PhoneContext pc = (PhoneContext) TestHelper.getApplicationContext().getBean(
@@ -72,14 +72,12 @@ public class NT1535PhoneTest extends TestCase {
         phone.setModel(nortelModel);
 
         PhoneTestDriver.supplyTestData(phone);
+        phone.setProfileGenerator(TestHelper.getProfileGenerator());
 
-        ProfileContext cfg = new SystemConfigContext(phone);
+        Profile profile = new SystemConfigProfile(phone, "profile");
 
         MemoryProfileLocation location = new MemoryProfileLocation();
-        VelocityProfileGenerator pg = new VelocityProfileGenerator();
-        pg.setVelocityEngine(TestHelper.getVelocityEngine());
-
-        pg.generate(location, cfg, null, "profile");
+        profile.generate(phone, location);
 
         InputStream expected = getClass().getResourceAsStream("expected_sysconf_2890d_sip.cfg");
 
@@ -93,14 +91,12 @@ public class NT1535PhoneTest extends TestCase {
         phone.setModel(nt1535);
 
         PhoneTestDriver.supplyTestData(phone);
+        phone.setProfileGenerator(TestHelper.getProfileGenerator());
 
-        ProfileContext cfg = new DeviceConfigContext(phone);
+        Profile profile = new DeviceConfigProfile(phone, "profile");
 
         MemoryProfileLocation location = new MemoryProfileLocation();
-        VelocityProfileGenerator pg = new VelocityProfileGenerator();
-        pg.setVelocityEngine(TestHelper.getVelocityEngine());
-
-        pg.generate(location, cfg, null, "profile");
+        profile.generate(phone, location);
 
         InputStream expected = getClass().getResourceAsStream("expected_mac.cfg");
 

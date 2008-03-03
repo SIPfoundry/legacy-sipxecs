@@ -260,16 +260,16 @@
       <value>0</value>
     </setting>
   </group>
-  <group name='VERSION' hidden="yes">
-    <setting name='hw_version' hidden="yes">
+  <group name='VERSION'>
+    <setting name='hw_version'>
       <type>
-        <string />
+        <string required="yes" />
       </type>
       <value>1.0</value>
     </setting>
-    <setting name='sw_version' hidden="yes">
+    <setting name='sw_version'>
       <type>
-        <string />
+        <string required="yes" />
       </type>
       <value>0.1.90</value>
     </setting>

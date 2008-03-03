@@ -9,16 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.phone.nt1535;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
-import org.sipfoundry.sipxconfig.device.ProfileFilter;
-import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -28,32 +24,9 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
  * Nortel 1535 phone.
  */
 public class NT1535Phone extends Phone {
-
-    private static final Log LOG = LogFactory.getLog(NT1535Phone.class);
-
     private static final String SYSTEM_CONFIG_FILE = "sysconf_2890d_sip.cfg";
 
-    private static final String VERSION_HW_VERSION = "VERSION/hw_version";
-
-    private static final String VERSION_SW_VERSION = "VERSION/sw_version";
-
     public NT1535Phone() {
-    }
-
-    public String getSoftwareVersion() {
-        return getSettingValue(VERSION_SW_VERSION);
-    }
-
-    public String getHardwareVersion() {
-        return getSettingValue(VERSION_HW_VERSION);
-    }
-
-    public void setSoftwareVersion(String softwareVersion) {
-        setSettingValue(VERSION_SW_VERSION, softwareVersion);
-    }
-
-    public void setHardwareVersion(String hardwareVersion) {
-        setSettingValue(VERSION_HW_VERSION, hardwareVersion);
     }
 
     @Override
@@ -90,84 +63,60 @@ public class NT1535Phone extends Phone {
         sendCheckSyncToFirstLine();
     }
 
-    @Override
-    public void generateFiles(ProfileLocation location) {
+    static class NT1535ConfigProfile extends Profile {
+        private static final String VERSION_HW_VERSION = "VERSION/hw_version";
 
-        String hwVersion = getSettingValue(VERSION_HW_VERSION);
-        String swVersion = getSettingValue(VERSION_SW_VERSION);
+        private static final String VERSION_SW_VERSION = "VERSION/sw_version";
 
-        if (hwVersion != null && swVersion != null) {
+        public NT1535ConfigProfile(NT1535Phone phone, String name) {
+            super(formatProfileName(phone, name));
+        }
 
-            String filePath = hwVersion + "/" + swVersion + "S/";
-            LOG.debug(" NT1535Phone::generateFiles filePath = " + filePath);
-
-            DeviceConfigContext deviceConfig = new DeviceConfigContext(this);
-            getProfileGenerator().generate(location, deviceConfig, null,
-                    filePath + getDeviceFileName());
-            SystemConfigContext sip = new SystemConfigContext(this);
-            getProfileGenerator().generate(location, sip, null, filePath + SYSTEM_CONFIG_FILE);
-        } else {
-            LOG.error("HW or SW version for NT1535Phone is NOT configured!");
+        private static String formatProfileName(NT1535Phone phone, String name) {
+            String hwVersion = phone.getSettingValue(VERSION_HW_VERSION);
+            String swVersion = phone.getSettingValue(VERSION_SW_VERSION);
+            return String.format("$s/$sS/$s", hwVersion, swVersion, name);
         }
     }
 
-    @Override
-    public void removeProfiles(ProfileLocation location) {
-        super.removeProfiles(location);
-        location.removeProfile(getDeviceFileName());
-        location.removeProfile(SYSTEM_CONFIG_FILE);
-    }
-
-    static class DeviceConfigProfile extends Profile {
-        public DeviceConfigProfile(String name) {
-            super(name);
-        }
-
-        protected ProfileFilter createFilter(Device device) {
-            return null;
+    static class DeviceConfigProfile extends NT1535ConfigProfile {
+        public DeviceConfigProfile(NT1535Phone phone, String name) {
+            super(phone, name);
         }
 
         protected ProfileContext createContext(Device device) {
-            NT1535Phone phone = (NT1535Phone) device;
-            return new DeviceConfigContext(phone);
+            return new ProfileContext(device, "nt1535/mac.cfg.vm");
         }
     }
 
-    static class SystemConfigProfile extends Profile {
-        public SystemConfigProfile(String name) {
-            super(name);
-        }
-
-        protected ProfileFilter createFilter(Device device) {
-            return null;
+    static class SystemConfigProfile extends NT1535ConfigProfile {
+        public SystemConfigProfile(NT1535Phone phone, String name) {
+            super(phone, name);
         }
 
         protected ProfileContext createContext(Device device) {
-            NT1535Phone phone = (NT1535Phone) device;
-            return new SystemConfigContext(phone);
+            return new ProfileContext(device, "nt1535/sysconf_2890d_sip.cfg.vm");
         }
     }
-
-    // This method will put the list of profiles to the download link
 
     @Override
     public Profile[] getProfileTypes() {
         Profile[] profileTypes;
         profileTypes = new Profile[] {
-            new DeviceConfigProfile(getDeviceFileName()),
-            new SystemConfigProfile(SYSTEM_CONFIG_FILE)
+            new DeviceConfigProfile(this, getDeviceFileName()),
+            new SystemConfigProfile(this, SYSTEM_CONFIG_FILE)
         };
 
         return profileTypes;
     }
 
     public static class NT1535LineDefaults {
-        private static final String VOIP_LINE1_AUTHNAME = "VOIP/authname";
-        private static final String VOIP_LINE1_DISPLAYNAME = "VOIP/displayname";
-        private static final String VOIP_LINE1_NAME = "VOIP/name";
-        private static final String VOIP_LINE1_PASSWORD = "VOIP/password";
-        private static final String VOIP_LINE1_PROXY_ADDRESS = "VOIP/proxy_address";
-        private static final String VOIP_LINE1_PROXY_PORT = "VOIP/proxy_port";
+        private static final String VOIP_AUTHNAME = "VOIP/authname";
+        private static final String VOIP_DISPLAYNAME = "VOIP/display_name";
+        private static final String VOIP_NAME = "VOIP/name";
+        private static final String VOIP_PASSWORD = "VOIP/password";
+        private static final String VOIP_PROXY_ADDRESS = "VOIP/proxy_address";
+        private static final String VOIP_PROXY_PORT = "VOIP/proxy_port";
 
         private Line m_line;
         private DeviceDefaults m_defaults;
@@ -177,51 +126,56 @@ public class NT1535Phone extends Phone {
             m_defaults = defaults;
         }
 
-        @SettingEntry(paths = {
-            VOIP_LINE1_NAME, VOIP_LINE1_AUTHNAME, VOIP_LINE1_DISPLAYNAME
-        })
-        public String getUserName() {
-            String userName = null;
+        @SettingEntry(path = VOIP_DISPLAYNAME)
+        public String getDisplayName() {
             User user = m_line.getUser();
             if (user != null) {
-                userName = user.getUserName();
+                return user.getDisplayName();
             }
-            return userName;
+            return null;
         }
 
-        @SettingEntry(path = VOIP_LINE1_PASSWORD)
-        public String getSipPassword() {
-            String sipPassword = null;
+        @SettingEntry(paths = { VOIP_NAME, VOIP_AUTHNAME })
+        public String getUserName() {
             User user = m_line.getUser();
             if (user != null) {
-                sipPassword = user.getSipPassword();
+                return user.getUserName();
             }
-            return sipPassword;
+            return null;
+        }
+
+        @SettingEntry(path = VOIP_PASSWORD)
+        public String getSipPassword() {
+            User user = m_line.getUser();
+            if (user != null) {
+                return user.getSipPassword();
+            }
+            return null;
         }
 
         public static LineInfo getLineInfo(Line line) {
             LineInfo lineInfo = new LineInfo();
-            lineInfo.setUserId(line.getSettingValue(VOIP_LINE1_AUTHNAME));
-            lineInfo.setDisplayName(line.getSettingValue(VOIP_LINE1_DISPLAYNAME));
-            lineInfo.setRegistrationServer(line.getSettingValue(VOIP_LINE1_PROXY_ADDRESS));
-            lineInfo.setRegistrationServerPort(line.getSettingValue(VOIP_LINE1_PROXY_PORT));
+            lineInfo.setUserId(line.getSettingValue(VOIP_AUTHNAME));
+            lineInfo.setDisplayName(line.getSettingValue(VOIP_DISPLAYNAME));
+            lineInfo.setRegistrationServer(line.getSettingValue(VOIP_PROXY_ADDRESS));
+            lineInfo.setRegistrationServerPort(line.getSettingValue(VOIP_PROXY_PORT));
             return lineInfo;
         }
 
         public static void setLineInfo(Line line, LineInfo lineInfo) {
-            line.setSettingValue(VOIP_LINE1_NAME, lineInfo.getUserId());
-            line.setSettingValue(VOIP_LINE1_AUTHNAME, lineInfo.getUserId());
-            line.setSettingValue(VOIP_LINE1_DISPLAYNAME, lineInfo.getUserId());
-            line.setSettingValue(VOIP_LINE1_PROXY_ADDRESS, lineInfo.getRegistrationServer());
-            line.setSettingValue(VOIP_LINE1_PROXY_PORT, lineInfo.getRegistrationServerPort());
+            line.setSettingValue(VOIP_NAME, lineInfo.getUserId());
+            line.setSettingValue(VOIP_AUTHNAME, lineInfo.getUserId());
+            line.setSettingValue(VOIP_DISPLAYNAME, lineInfo.getDisplayName());
+            line.setSettingValue(VOIP_PROXY_ADDRESS, lineInfo.getRegistrationServer());
+            line.setSettingValue(VOIP_PROXY_PORT, lineInfo.getRegistrationServerPort());
         }
 
-        @SettingEntry(path = VOIP_LINE1_PROXY_ADDRESS)
+        @SettingEntry(path = VOIP_PROXY_ADDRESS)
         public String getServerIp() {
             return m_defaults.getDomainName();
         }
 
-        @SettingEntry(path = VOIP_LINE1_PROXY_PORT)
+        @SettingEntry(path = VOIP_PROXY_PORT)
         public String getProxyPort() {
             return m_defaults.getProxyServerSipPort();
         }
@@ -247,18 +201,19 @@ public class NT1535Phone extends Phone {
             return m_defaults.getDomainName();
         }
 
-        @SettingEntry(paths = {
-            VOIP_OUTBOUND_PROXY_SERVER, LAN_TFTP_SERVER_ADDRESS
-        })
-        public String getServerIp() {
-            return m_defaults.getProxyServerAddr();
+        @SettingEntry(path = VOIP_OUTBOUND_PROXY_SERVER)
+        public String getOutboundProxy() {
+            return m_defaults.getDomainName();
         }
 
-        @SettingEntry(paths = {
-            VOIP_OUTBOUND_PROXY_PORT
-        })
+        @SettingEntry(path = VOIP_OUTBOUND_PROXY_PORT)
         public String getProxyPort() {
             return m_defaults.getProxyServerSipPort();
+        }
+
+        @SettingEntry(paths = LAN_TFTP_SERVER_ADDRESS)
+        public String getTftpServer() {
+            return m_defaults.getTftpServer();
         }
 
         @SettingEntry(path = NETTIME_SNTP_SERVER_ADDRESS)
@@ -272,6 +227,5 @@ public class NT1535Phone extends Phone {
                     m_defaults.getDomainName());
             return SipUri.stripSipPrefix(mohUri);
         }
-
     }
 }
