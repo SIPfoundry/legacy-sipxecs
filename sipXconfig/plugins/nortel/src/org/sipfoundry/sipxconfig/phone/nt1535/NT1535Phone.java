@@ -75,7 +75,7 @@ public class NT1535Phone extends Phone {
         private static String formatProfileName(NT1535Phone phone, String name) {
             String hwVersion = phone.getSettingValue(VERSION_HW_VERSION);
             String swVersion = phone.getSettingValue(VERSION_SW_VERSION);
-            return String.format("$s/$sS/$s", hwVersion, swVersion, name);
+            return String.format("%s/%sS/%s", hwVersion, swVersion, name);
         }
     }
 

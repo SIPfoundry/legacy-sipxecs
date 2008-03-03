@@ -75,6 +75,7 @@ public class NT1535PhoneTest extends TestCase {
         phone.setProfileGenerator(TestHelper.getProfileGenerator());
 
         Profile profile = new SystemConfigProfile(phone, "profile");
+        assertEquals("1.0/0.1.90S/profile", profile.getName());
 
         MemoryProfileLocation location = new MemoryProfileLocation();
         profile.generate(phone, location);
@@ -94,6 +95,7 @@ public class NT1535PhoneTest extends TestCase {
         phone.setProfileGenerator(TestHelper.getProfileGenerator());
 
         Profile profile = new DeviceConfigProfile(phone, "profile");
+        assertEquals("1.0/0.1.90S/profile", profile.getName());
 
         MemoryProfileLocation location = new MemoryProfileLocation();
         profile.generate(phone, location);
