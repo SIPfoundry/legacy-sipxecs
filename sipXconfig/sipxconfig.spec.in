@@ -249,6 +249,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/snom/*
 %config(noreplace) %{sipxpbxconf}/mitel/*
 %config(noreplace) %{sipxpbxconf}/nortel/*
+%config(noreplace) %{sipxpbxconf}/nt1535/*
 %config(noreplace) %{sipxpbxconf}/sipxvxml/*
 %config(noreplace) %{sipxpbxconf}/sipxconference/*
 %config(noreplace) %{sipxpbxconf}/sipxpark/*
@@ -307,6 +308,22 @@ then
   echo -e "PlcmSpIp" | sudo passwd --stdin PlcmSpIp >/dev/null
 fi
 
+if ! id -u lvp2890 > /dev/null 2>&1
+then
+  # default user account Nortel 1535 phones use
+  /usr/sbin/adduser -d %{phonedir}/profile/tftproot \
+    -s /sbin/nologin -M lvp2890 >/dev/null
+  echo -e "28904all" | sudo passwd --stdin lvp2890 >/dev/null
+fi
+
+if ! id -u lvp2890 > /dev/null 2>&1
+then
+  # default user account Nortel 1535 phones use
+  /usr/sbin/adduser -d %{phonedir}/profile/tftproot \
+    -s /sbin/nologin -M lvp2890 >/dev/null
+  echo -e "28904all" | sudo passwd --stdin lvp2890 >/dev/null
+fi
+
 # 'install' ftpd config file
 mv %{vsftpd_conf} %{vsftpd_conf}.sipx-orig
 cat > %{vsftpd_conf} <<EOF
@@ -337,6 +354,7 @@ fi
 %preun ftp
 if [ "$1" = "0" ] ; then
   /usr/sbin/userdel PlcmSpIp
+  /usr/sbin/userdel lvp2890
   if [ -e %{vsftpd_conf}.sipx-orig ]
   then
     mv %{vsftpd_conf}.sipx-orig %{vsftpd_conf}

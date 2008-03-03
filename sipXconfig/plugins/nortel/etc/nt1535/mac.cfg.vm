@@ -1,0 +1,11 @@
+[VOIP]
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount)
+#foreach ($group in $line.Settings.Values)
+#foreach ($setting in $group.Values)
+#if($setting.Value)
+${setting.ProfileName} $!{setting.Value}
+#end
+#end
+#end
+#end

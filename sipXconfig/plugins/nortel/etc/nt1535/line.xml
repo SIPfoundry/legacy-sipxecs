@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name='VOIP'>
+    <setting name='line1_name' />
+    <setting name='line1_authname' />
+    <setting name='line1_display_name' />
+    <setting name='line1_password' />
+    <setting name='line1_type'>
+      <type>
+        <enum>
+          <option>
+            <value>private</value>
+          </option>
+          <option>
+            <value>shared</value>
+          </option>
+        </enum>
+      </type>
+      <value>private</value>
+    </setting>
+  </group>
+</model>
