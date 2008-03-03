@@ -59,16 +59,14 @@ public class NT1535Phone extends Phone {
     @Override
     public void initializeLine(Line line) {
         DeviceDefaults phoneDefaults = getPhoneContext().getPhoneDefaults();
-        NT1535PhoneDefaults defaults = new NT1535PhoneDefaults(phoneDefaults, line);
+        NT1535LineDefaults defaults = new NT1535LineDefaults(phoneDefaults, line);
         line.addDefaultBeanSettingHandler(defaults);
     }
 
     @Override
     public void initialize() {
         DeviceDefaults phoneDefaults = getPhoneContext().getPhoneDefaults();
-        Line line = new Line();
-        NT1535PhoneDefaults defaults = new NT1535PhoneDefaults(phoneDefaults, line);
-        defaults = new NT1535PhoneDefaults(phoneDefaults, line);
+        NT1535PhoneDefaults defaults = new NT1535PhoneDefaults(phoneDefaults);
         addDefaultBeanSettingHandler(defaults);
     }
 
@@ -78,14 +76,13 @@ public class NT1535Phone extends Phone {
 
     @Override
     protected LineInfo getLineInfo(Line line) {
-        LineInfo lineInfo = NT1535PhoneDefaults.getLineInfo(line);
+        LineInfo lineInfo = NT1535LineDefaults.getLineInfo(line);
         return lineInfo;
     }
 
     @Override
     protected void setLineInfo(Line line, LineInfo lineInfo) {
-
-        NT1535PhoneDefaults.setLineInfo(line, lineInfo);
+        NT1535LineDefaults.setLineInfo(line, lineInfo);
     }
 
     @Override
@@ -164,46 +161,20 @@ public class NT1535Phone extends Phone {
         return profileTypes;
     }
 
-    public static class NT1535PhoneDefaults {
-
-        private static final String VOIP_SIP_SERVICE_DOMAIN = "VOIP/sip_service_domain";
-        private static final String VOIP_OUTBOUND_PROXY_SERVER = "VOIP/outbound_proxy_server";
-        private static final String VOIP_OUTBOUND_PROXY_PORT = "VOIP/outbound_proxy_port";
-        private static final String VOIP_LINE1_PROXY_ADDRESS = "VOIP/line1_proxy_address";
-        private static final String VOIP_LINE1_PROXY_PORT = "VOIP/line1_proxy_port";
-        private static final String VOIP_LINE1_NAME = "VOIP/line1_name";
-        private static final String VOIP_LINE1_AUTHNAME = "VOIP/line1_authname";
-        private static final String VOIP_LINE1_DISPLAYNAME = "VOIP/line1_displayname";
-        private static final String VOIP_LINE1_PASSWORD = "VOIP/line1_password";
-        private static final String VOIP_MOH_URL = "VOIP/moh_url";
-        private static final String LAN_TFTP_SERVER_ADDRESS = "LAN/tftp_server_address";
-        private static final String NETTIME_SNTP_SERVER_ADDRESS = "NETTIME/sntp_server_address";
+    public static class NT1535LineDefaults {
+        private static final String VOIP_LINE1_AUTHNAME = "VOIP/authname";
+        private static final String VOIP_LINE1_DISPLAYNAME = "VOIP/displayname";
+        private static final String VOIP_LINE1_NAME = "VOIP/name";
+        private static final String VOIP_LINE1_PASSWORD = "VOIP/password";
+        private static final String VOIP_LINE1_PROXY_ADDRESS = "VOIP/proxy_address";
+        private static final String VOIP_LINE1_PROXY_PORT = "VOIP/proxy_port";
 
         private Line m_line;
         private DeviceDefaults m_defaults;
 
-        NT1535PhoneDefaults(DeviceDefaults defaults, Line line) {
+        NT1535LineDefaults(DeviceDefaults defaults, Line line) {
             m_line = line;
             m_defaults = defaults;
-        }
-
-        @SettingEntry(path = VOIP_SIP_SERVICE_DOMAIN)
-        public String getSipDomain1() {
-            return m_defaults.getDomainName();
-        }
-
-        @SettingEntry(paths = {
-            VOIP_OUTBOUND_PROXY_SERVER, VOIP_LINE1_PROXY_ADDRESS, LAN_TFTP_SERVER_ADDRESS
-        })
-        public String getServerIp() {
-            return m_defaults.getProxyServerAddr();
-        }
-
-        @SettingEntry(paths = {
-            VOIP_OUTBOUND_PROXY_PORT, VOIP_LINE1_PROXY_PORT
-        })
-        public String getProxyPort() {
-            return m_defaults.getProxyServerSipPort();
         }
 
         @SettingEntry(paths = {
@@ -228,6 +199,68 @@ public class NT1535Phone extends Phone {
             return sipPassword;
         }
 
+        public static LineInfo getLineInfo(Line line) {
+            LineInfo lineInfo = new LineInfo();
+            lineInfo.setUserId(line.getSettingValue(VOIP_LINE1_AUTHNAME));
+            lineInfo.setDisplayName(line.getSettingValue(VOIP_LINE1_DISPLAYNAME));
+            lineInfo.setRegistrationServer(line.getSettingValue(VOIP_LINE1_PROXY_ADDRESS));
+            lineInfo.setRegistrationServerPort(line.getSettingValue(VOIP_LINE1_PROXY_PORT));
+            return lineInfo;
+        }
+
+        public static void setLineInfo(Line line, LineInfo lineInfo) {
+            line.setSettingValue(VOIP_LINE1_NAME, lineInfo.getUserId());
+            line.setSettingValue(VOIP_LINE1_AUTHNAME, lineInfo.getUserId());
+            line.setSettingValue(VOIP_LINE1_DISPLAYNAME, lineInfo.getUserId());
+            line.setSettingValue(VOIP_LINE1_PROXY_ADDRESS, lineInfo.getRegistrationServer());
+            line.setSettingValue(VOIP_LINE1_PROXY_PORT, lineInfo.getRegistrationServerPort());
+        }
+
+        @SettingEntry(path = VOIP_LINE1_PROXY_ADDRESS)
+        public String getServerIp() {
+            return m_defaults.getDomainName();
+        }
+
+        @SettingEntry(path = VOIP_LINE1_PROXY_PORT)
+        public String getProxyPort() {
+            return m_defaults.getProxyServerSipPort();
+        }
+    }
+
+    public static class NT1535PhoneDefaults {
+
+        private static final String VOIP_SIP_SERVICE_DOMAIN = "VOIP/sip_service_domain";
+        private static final String VOIP_OUTBOUND_PROXY_SERVER = "VOIP/outbound_proxy_server";
+        private static final String VOIP_OUTBOUND_PROXY_PORT = "VOIP/outbound_proxy_port";
+        private static final String VOIP_MOH_URL = "VOIP/moh_url";
+        private static final String LAN_TFTP_SERVER_ADDRESS = "LAN/tftp_server_address";
+        private static final String NETTIME_SNTP_SERVER_ADDRESS = "NETTIME/sntp_server_address";
+
+        private DeviceDefaults m_defaults;
+
+        NT1535PhoneDefaults(DeviceDefaults defaults) {
+            m_defaults = defaults;
+        }
+
+        @SettingEntry(path = VOIP_SIP_SERVICE_DOMAIN)
+        public String getSipDomain1() {
+            return m_defaults.getDomainName();
+        }
+
+        @SettingEntry(paths = {
+            VOIP_OUTBOUND_PROXY_SERVER, LAN_TFTP_SERVER_ADDRESS
+        })
+        public String getServerIp() {
+            return m_defaults.getProxyServerAddr();
+        }
+
+        @SettingEntry(paths = {
+            VOIP_OUTBOUND_PROXY_PORT
+        })
+        public String getProxyPort() {
+            return m_defaults.getProxyServerSipPort();
+        }
+
         @SettingEntry(path = NETTIME_SNTP_SERVER_ADDRESS)
         public String getNtpServer() {
             return m_defaults.getNtpServer();
@@ -240,21 +273,5 @@ public class NT1535Phone extends Phone {
             return SipUri.stripSipPrefix(mohUri);
         }
 
-        public static LineInfo getLineInfo(Line line) {
-            LineInfo lineInfo = new LineInfo();
-            lineInfo.setUserId(line.getSettingValue(VOIP_LINE1_AUTHNAME));
-            lineInfo.setDisplayName(line.getSettingValue(VOIP_LINE1_DISPLAYNAME));
-            lineInfo.setRegistrationServer(line.getSettingValue(VOIP_OUTBOUND_PROXY_SERVER));
-            lineInfo.setRegistrationServerPort(line.getSettingValue(VOIP_OUTBOUND_PROXY_PORT));
-            return lineInfo;
-        }
-
-        public static void setLineInfo(Line line, LineInfo lineInfo) {
-            line.setSettingValue(VOIP_LINE1_NAME, lineInfo.getUserId());
-            line.setSettingValue(VOIP_LINE1_AUTHNAME, lineInfo.getUserId());
-            line.setSettingValue(VOIP_LINE1_DISPLAYNAME, lineInfo.getUserId());
-            line.setSettingValue(VOIP_OUTBOUND_PROXY_SERVER, lineInfo.getRegistrationServer());
-            line.setSettingValue(VOIP_OUTBOUND_PROXY_PORT, lineInfo.getRegistrationServerPort());
-        }
     }
 }

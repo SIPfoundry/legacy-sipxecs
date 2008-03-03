@@ -38,11 +38,6 @@
     <setting name='preferred_codec'>
       <value>pcmu pcma g729 amr g723 h264 h263</value>
     </setting>
-    <setting name='line1_proxy_address' />
-    <setting name='line1_proxy_port' advanced="yes">
-      <type refid="restricted-port-number" />
-      <value>5060</value>
-    </setting>
   </group>
   <group name='NETTIME'>
     <setting name='sntp_server_address'>

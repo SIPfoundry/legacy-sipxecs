@@ -71,7 +71,7 @@ public class NT1535PhoneTest extends TestCase {
         NT1535Phone phone = new NT1535Phone();
         phone.setModel(nortelModel);
 
-        PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
+        PhoneTestDriver.supplyTestData(phone);
 
         ProfileContext cfg = new SystemConfigContext(phone);
 
