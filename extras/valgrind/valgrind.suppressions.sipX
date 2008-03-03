@@ -245,6 +245,107 @@
 	fun:ssl3_get_message
 }
 
+# Suppressions of messages generated during SSL processing in sipXvxml.
+{
+	FetchDocument/undef1
+	Memcheck:Cond
+	fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
+	fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
+	fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
+	fun:_ZN11xercesc_2_79ReaderMgr12peekNextCharEv
+}
+{
+	FetchDocument/undef2
+	Memcheck:Cond
+	fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
+	fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
+	fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
+	fun:_ZN11xercesc_2_79XMLReader10skipSpacesERbb
+}
+{
+	FetchDocument/undef3
+	Memcheck:Cond
+	fun:_vgrZU_libcZdsoZa_memcpy
+	fun:ssl3_read_bytes
+	fun:ssl3_get_message
+	fun:ssl3_get_finished
+}
+{
+	FetchDocument/undef4
+	Memcheck:Value4
+	fun:_vgrZU_libcZdsoZa_memset
+	fun:BUF_MEM_grow_clean
+	fun:ssl3_get_message
+	fun:ssl3_get_finished
+}
+{
+	FetchDocument/undef5
+	Memcheck:Cond
+	obj:/lib/libpthread-2.5.so
+	fun:BIO_write
+	fun:ssl3_write_pending
+	obj:/lib/libssl.so.0.9.8b
+}
+{
+	FetchDocument/undef6
+	Memcheck:Value4
+	fun:_vgrZU_libcZdsoZa_memcpy
+	fun:ssl3_read_bytes
+	fun:ssl3_get_message
+	fun:ssl3_get_finished
+}
+{
+	FetchDocument/undef7
+	Memcheck:Param
+	write(buf)
+	obj:/lib/libpthread-2.5.so
+	fun:BIO_write
+	fun:ssl23_write_bytes
+	fun:ssl23_connect
+}
+{
+	FetchDocument/undef8
+	Memcheck:Param
+	write(buf)
+	obj:/lib/libpthread-2.5.so
+	fun:BIO_write
+	obj:/lib/libcrypto.so.0.9.8b
+	fun:BIO_ctrl
+}
+{
+	FetchDocument/undef9
+	Memcheck:Cond
+	fun:_vgrZU_libcZdsoZa_memset
+	fun:BUF_MEM_grow_clean
+	fun:ssl3_get_message
+	fun:ssl3_get_finished
+}
+{
+	FetchDocument/undef10
+	Memcheck:Param
+	write(buf)
+	obj:/lib/libpthread-2.5.so
+	fun:BIO_write
+	fun:ssl3_write_pending
+	obj:/lib/libssl.so.0.9.8b
+}
+{
+	FetchDocument/undef11
+	Memcheck:Cond
+	fun:_vgrZU_libcZdsoZa_memcpy
+	fun:ssl3_read_bytes
+	obj:/lib/libssl.so.0.9.8b
+	fun:SSL_read
+}
+{
+	FetchDocument/undef12
+	Memcheck:Value4
+	fun:_vgrZU_libcZdsoZa_memcpy
+	fun:ssl3_read_bytes
+	obj:/lib/libssl.so.0.9.8b
+	fun:SSL_read
+}
+
 #################################################################
 # This next entry suppresses leak reports for the blocks used to track contents in UtlContainers.
 # The UtlLink and UtlPair objects are never returned to the heap; instead they are maintained

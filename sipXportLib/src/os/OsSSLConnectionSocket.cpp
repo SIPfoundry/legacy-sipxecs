@@ -44,6 +44,10 @@
 #include "os/OsSysLog.h"
 #include "os/OsTask.h"
 
+#ifdef VALGRIND_MAKE_READABLE
+#include "valgrind/memcheck.h"
+#endif
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 

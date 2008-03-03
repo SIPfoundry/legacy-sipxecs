@@ -910,7 +910,7 @@ int main(int argc, char *argv[])
       wcstombs(temp, VXIStringCStr(wcBindIp), len);
       temp[len] = 0;
       bindIp = temp ;
-      delete temp ;
+      delete[] temp;
    }
    if (!OsSocket::isIp4Address(bindIp))
          bindIp = DEFAULT_MEDIASERVER_BIND_IP ;
