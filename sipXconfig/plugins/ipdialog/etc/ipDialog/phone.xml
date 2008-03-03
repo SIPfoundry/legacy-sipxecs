@@ -8,7 +8,7 @@
   <group name="networkSettings">
     <label>Network Settings</label>
     <setting name="networkSetup">
-      <label>Network Set Up</label>
+      <label>Network Setup</label>
       <type>
         <enum>
           <option>
@@ -20,7 +20,12 @@
         </enum>
       </type>
       <value>dhcp</value>
-      <description>Network Setup</description>
+      <description>
+        If dhcp is selected, the phone use DHCP to get network settings from DHCP server. If manual is selected, the
+        phone use network settings defined in fields given below. These network-settings fields have the same meaning as
+        the network settings for other network devices and operating systems &lt;br/&gt; ( &lt; networkSettings &gt; )
+        &lt;br/&gt;
+      </description>
     </setting>
 
     <setting name="ipAddress">
@@ -29,9 +34,7 @@
         <ipaddr />
       </type>
       <value></value>
-      <description>
-        IP Address - Configure this field if manual is selected for Network Setup else leave it blank
-      </description>
+      <description>( &lt; ipAddress &gt; ) &lt;br/&gt;</description>
     </setting>
 
     <setting name="netmask">
@@ -40,9 +43,7 @@
         <ipaddr />
       </type>
       <value></value>
-      <description>
-        Netmask - Configure this field if manual is selected for Network Setup else leave it blank
-      </description>
+      <description>( &lt; netmask &gt; ) &lt;br/&gt;</description>
     </setting>
 
     <setting name="gateway">
@@ -51,9 +52,7 @@
         <ipaddr />
       </type>
       <value></value>
-      <description>
-        Gateway - Configure this field if manual is selected for Network Setup else leave it blank
-      </description>
+      <description>( &lt; gateway &gt; ) &lt;br/&gt;</description>
     </setting>
 
     <setting name="domainName">
@@ -62,9 +61,7 @@
         <ipaddr />
       </type>
       <value></value>
-      <description>
-        Domain Name - Configure this field if manual is selected for Network Setup else leave it blank
-      </description>
+      <description>( &lt; domainName &gt; ) &lt;br/&gt;</description>
     </setting>
 
     <setting name="dnsServer1">
@@ -73,9 +70,7 @@
         <ipaddr />
       </type>
       <value></value>
-      <description>
-        DNS Server 1 - Configure this field if manual is selected for Network Setup else leave it blank
-      </description>
+      <description>( &lt; dnsServer1 &gt; ) &lt;br/&gt;</description>
     </setting>
 
     <setting name="dnsServer2">
@@ -84,9 +79,7 @@
         <ipaddr />
       </type>
       <value></value>
-      <description>
-        DNS Server 2 - Configure this field if manual is selected for Network Setup else leave it blank
-      </description>
+      <description>( &lt; dnsServer2 &gt; ) &lt;br/&gt;</description>
     </setting>
 
     <setting name="dnsServer3">
@@ -95,257 +88,279 @@
         <ipaddr />
       </type>
       <value></value>
-      <description>
-        DNS Server 3 - Configure this field if manual is selected for Network Setup else leave it blank
-      </description>
+      <description>( &lt; dnsServer3 &gt; ) &lt;br/&gt;</description>
     </setting>
 
-    <setting name="qosDscp">
-      <label>QOS Dscp</label>
-      <type>
-        <enum>
-          <option>
-            <value>0x00</value>
-          </option>
-          <option>
-            <value>0x01</value>
-          </option>
-          <option>
-            <value>0x02</value>
-          </option>
-          <option>
-            <value>0x03</value>
-          </option>
-          <option>
-            <value>0x04</value>
-          </option>
-          <option>
-            <value>0x05</value>
-          </option>
-          <option>
-            <value>0x06</value>
-          </option>
-          <option>
-            <value>0x07</value>
-          </option>
-          <option>
-            <value>0x08</value>
-          </option>
-          <option>
-            <value>0x09</value>
-          </option>
-          <option>
-            <value>0x0a</value>
-          </option>
-          <option>
-            <value>0x0b</value>
-          </option>
-          <option>
-            <value>0x0c</value>
-          </option>
-          <option>
-            <value>0x0d</value>
-          </option>
-          <option>
-            <value>0x0e</value>
-          </option>
-          <option>
-            <value>0x0f</value>
-          </option>
-          <option>
-            <value>0x10</value>
-          </option>
-          <option>
-            <value>0x11</value>
-          </option>
-          <option>
-            <value>0x12</value>
-          </option>
-          <option>
-            <value>0x13</value>
-          </option>
-          <option>
-            <value>0x14</value>
-          </option>
-          <option>
-            <value>0x15</value>
-          </option>
-          <option>
-            <value>0x16</value>
-          </option>
-          <option>
-            <value>0x17</value>
-          </option>
-          <option>
-            <value>0x18</value>
-          </option>
-          <option>
-            <value>0x19</value>
-          </option>
-          <option>
-            <value>0x1a</value>
-          </option>
-          <option>
-            <value>0x1b</value>
-          </option>
-          <option>
-            <value>0x1c</value>
-          </option>
-          <option>
-            <value>0x1d</value>
-          </option>
-          <option>
-            <value>0x1e</value>
-          </option>
-          <option>
-            <value>0x1f</value>
-          </option>
-          <option>
-            <value>0x20</value>
-          </option>
-          <option>
-            <value>0x21</value>
-          </option>
-          <option>
-            <value>0x22</value>
-          </option>
-          <option>
-            <value>0x23</value>
-          </option>
-          <option>
-            <value>0x24</value>
-          </option>
-          <option>
-            <value>0x25</value>
-          </option>
-          <option>
-            <value>0x26</value>
-          </option>
-          <option>
-            <value>0x27</value>
-          </option>
-          <option>
-            <value>0x28</value>
-          </option>
-          <option>
-            <value>0x29</value>
-          </option>
-          <option>
-            <value>0x2a</value>
-          </option>
-          <option>
-            <value>0x2b</value>
-          </option>
-          <option>
-            <value>0x2c</value>
-          </option>
-          <option>
-            <value>0x2d</value>
-          </option>
-          <option>
-            <value>0x2e</value>
-          </option>
-          <option>
-            <value>0x2f</value>
-          </option>
-          <option>
-            <value>0x30</value>
-          </option>
-          <option>
-            <value>0x31</value>
-          </option>
-          <option>
-            <value>0x32</value>
-          </option>
-          <option>
-            <value>0x33</value>
-          </option>
-          <option>
-            <value>0x34</value>
-          </option>
-          <option>
-            <value>0x35</value>
-          </option>
-          <option>
-            <value>0x36</value>
-          </option>
-          <option>
-            <value>0x37</value>
-          </option>
-          <option>
-            <value>0x38</value>
-          </option>
-          <option>
-            <value>0x39</value>
-          </option>
-          <option>
-            <value>0x3a</value>
-          </option>
-          <option>
-            <value>0x3b</value>
-          </option>
-          <option>
-            <value>0x3c</value>
-          </option>
-          <option>
-            <value>0x3d</value>
-          </option>
-          <option>
-            <value>0x3e</value>
-          </option>
-          <option>
-            <value>0x3f</value>
-          </option>
-        </enum>
-      </type>
-      <value>0x00</value>
-      <description>DSCP</description>
-    </setting>
+    <group name="qos">
+      <label>QOS</label>
+      <description>QOS settings are independent of the network settings</description>
+      <setting name="qosDscp">
+        <label>DSCP</label>
+        <type>
+          <enum>
+            <option>
+              <value>0x00</value>
+            </option>
+            <option>
+              <value>0x01</value>
+            </option>
+            <option>
+              <value>0x02</value>
+            </option>
+            <option>
+              <value>0x03</value>
+            </option>
+            <option>
+              <value>0x04</value>
+            </option>
+            <option>
+              <value>0x05</value>
+            </option>
+            <option>
+              <value>0x06</value>
+            </option>
+            <option>
+              <value>0x07</value>
+            </option>
+            <option>
+              <value>0x08</value>
+            </option>
+            <option>
+              <value>0x09</value>
+            </option>
+            <option>
+              <value>0x0a</value>
+            </option>
+            <option>
+              <value>0x0b</value>
+            </option>
+            <option>
+              <value>0x0c</value>
+            </option>
+            <option>
+              <value>0x0d</value>
+            </option>
+            <option>
+              <value>0x0e</value>
+            </option>
+            <option>
+              <value>0x0f</value>
+            </option>
+            <option>
+              <value>0x10</value>
+            </option>
+            <option>
+              <value>0x11</value>
+            </option>
+            <option>
+              <value>0x12</value>
+            </option>
+            <option>
+              <value>0x13</value>
+            </option>
+            <option>
+              <value>0x14</value>
+            </option>
+            <option>
+              <value>0x15</value>
+            </option>
+            <option>
+              <value>0x16</value>
+            </option>
+            <option>
+              <value>0x17</value>
+            </option>
+            <option>
+              <value>0x18</value>
+            </option>
+            <option>
+              <value>0x19</value>
+            </option>
+            <option>
+              <value>0x1a</value>
+            </option>
+            <option>
+              <value>0x1b</value>
+            </option>
+            <option>
+              <value>0x1c</value>
+            </option>
+            <option>
+              <value>0x1d</value>
+            </option>
+            <option>
+              <value>0x1e</value>
+            </option>
+            <option>
+              <value>0x1f</value>
+            </option>
+            <option>
+              <value>0x20</value>
+            </option>
+            <option>
+              <value>0x21</value>
+            </option>
+            <option>
+              <value>0x22</value>
+            </option>
+            <option>
+              <value>0x23</value>
+            </option>
+            <option>
+              <value>0x24</value>
+            </option>
+            <option>
+              <value>0x25</value>
+            </option>
+            <option>
+              <value>0x26</value>
+            </option>
+            <option>
+              <value>0x27</value>
+            </option>
+            <option>
+              <value>0x28</value>
+            </option>
+            <option>
+              <value>0x29</value>
+            </option>
+            <option>
+              <value>0x2a</value>
+            </option>
+            <option>
+              <value>0x2b</value>
+            </option>
+            <option>
+              <value>0x2c</value>
+            </option>
+            <option>
+              <value>0x2d</value>
+            </option>
+            <option>
+              <value>0x2e</value>
+            </option>
+            <option>
+              <value>0x2f</value>
+            </option>
+            <option>
+              <value>0x30</value>
+            </option>
+            <option>
+              <value>0x31</value>
+            </option>
+            <option>
+              <value>0x32</value>
+            </option>
+            <option>
+              <value>0x33</value>
+            </option>
+            <option>
+              <value>0x34</value>
+            </option>
+            <option>
+              <value>0x35</value>
+            </option>
+            <option>
+              <value>0x36</value>
+            </option>
+            <option>
+              <value>0x37</value>
+            </option>
+            <option>
+              <value>0x38</value>
+            </option>
+            <option>
+              <value>0x39</value>
+            </option>
+            <option>
+              <value>0x3a</value>
+            </option>
+            <option>
+              <value>0x3b</value>
+            </option>
+            <option>
+              <value>0x3c</value>
+            </option>
+            <option>
+              <value>0x3d</value>
+            </option>
+            <option>
+              <value>0x3e</value>
+            </option>
+            <option>
+              <value>0x3f</value>
+            </option>
+          </enum>
+        </type>
+        <value>0x00</value>
+        <description>
+          The Differentiated Services Code Point, or DSCP, tells the network how to handle the data packets transmitted
+          by the phone and what the performance requirement are with regards to, for example, delay, loss and jitter.
+          The normal settings VoIP is 0x2e &lt;br/&gt; ( &lt; qosDscp &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
 
-    <setting name="qosVlanId">
-      <label>QOS VLAN</label>
-      <type>
-        <integer min="0" max="4095" />
-      </type>
-      <value>0</value>
-      <description>VLAN-ID (0-4095)</description>
-    </setting>
+      <setting name="qosVlanId">
+        <label>VLAN-ID (0-4095)</label>
+        <type>
+          <integer min="0" max="4095" />
+        </type>
+        <value>0</value>
+        <description>
+          The VLAN-ID identifies the VLAN on which the phone resides &lt;br/&gt; ( &lt; qosVlanId &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+    </group>
+
   </group>
 
   <group name="phoneSettings">
     <label>Phone Settings</label>
-    <setting name="displayname">
+
+    <!--
+      <setting name="displayname">
       <label>Display Name</label>
       <type>
-        <string />
+      <string maxLen="22"/>
       </type>
       <value />
-      <description>Full Name</description>
-    </setting>
+      <description>Display Name ( &lt; displayname &gt; ) &lt;br/&gt; </description>
+      </setting>
+    -->
 
     <setting name="dndControl">
       <label>DND</label>
       <type refid="on-off" />
       <value>FALSE</value>
-      <description>Enable Do Not Disturb</description>
+      <description>
+        If checked, the phone switches to do-not-disturb mode &lt;br/&gt; ( &lt; dndControl &gt; ) &lt;br/&gt;
+      </description>
     </setting>
 
     <setting name="blinkLightOnIncomingCall">
       <label>Blink Light on Incoming Calls</label>
       <type refid="on-off" />
       <value>TRUE</value>
-      <description>Blink Light on Incoming Calls</description>
+      <description>
+        If checked, the LED lamp on the top of the phone starts blinking on incoming calls &lt;br/&gt; ( &lt;
+        blinkLightOnIncomingCall &gt; ) &lt;br/&gt;
+      </description>
     </setting>
 
     <setting name="intercomTimeout">
       <label>Intercom Timeout(sec)</label>
       <type>
-        <integer />
+        <integer min="0" max="65536" />
       </type>
       <value>15</value>
-      <description>Intercom Timeout(sec)</description>
+      <description>
+        Intercom timeout is the time in seconds after which an inbound intercom call disconnects. Intercom timeout is
+        disabled if this value is set to 0 &lt;br/&gt; ( &lt; intercomTimeout &gt; ) &lt;br/&gt;
+      </description>
     </setting>
-    <!--		<setting name="intercomPrefix">
+
+    <!--
+      <setting name="intercomPrefix">
       <label>Intercom Prefix</label>
       <type>
       <string />
@@ -353,35 +368,39 @@
       <value />
       <description>
       Append Intercom Prefix
-      </description>
-      </setting>-->
-
-    <!--	<setting name="appendIntercomPrefix">
+      &lt;br/&gt; </description>
+      </setting>
+      
+      <setting name="appendIntercomPrefix">
       <label>Append Intercom Prefix</label>
       <type refid="on-off" />
       <value>FALSE</value>
       <description>
       Append prefix in Intercom Call
-      </description>
+      &lt;br/&gt; </description>
       </setting>
-    -->
-    <!--	<setting name="enableAutologin">
+      
+      <setting name="enableAutologin">
       <label>Enable Auto Login</label>
       <type refid="on-off" />
       <value>TRUE</value>
       <description>
       Automatic Login
-      </description>
-      </setting>-->
+      &lt;br/&gt; </description>
+      </setting>
+    -->
 
     <setting name="imBeepAlert">
-      <label>IM Beep Alert</label>
+      <label>Enable IM Beep Alert</label>
       <type refid="on-off" />
       <value>TRUE</value>
-      <description>Enable IM Beep</description>
+      <description>
+        If checked, the phone beeps when it receives an IM &lt;br/&gt; ( &lt; imBeepAlert &gt; ) &lt;br/&gt;
+      </description>
     </setting>
 
-    <!--	<setting name="natAddress">
+    <!--
+      <setting name="natAddress">
       <label>NAT Address</label>
       <type>
       <ipaddr />
@@ -389,8 +408,9 @@
       <value />
       <description>
       NAT Address
-      </description>
-      </setting>-->
+      &lt;br/&gt; </description>
+      </setting>
+    -->
 
     <setting name="syslogServer">
       <label>Syslog Server</label>
@@ -398,30 +418,38 @@
         <ipaddr />
       </type>
       <value />
-      <description>Syslog Server</description>
+      <description>
+        IP address of a syslog server for logging of SIP messages received from and sent to the phone &lt;br/&gt; ( &lt;
+        syslogServer &gt; ) &lt;br/&gt;
+      </description>
     </setting>
 
     <setting name="enableSessionTimer">
       <label>Enable Session Timer</label>
       <type refid="on-off" />
       <value>FALSE</value>
-      <description>Enable Session Timer</description>
+      <description>
+        If checked, the phone uses a 'keepalive' mechanism in order to better detect whether a call has been
+        disconnected &lt;br/&gt; ( &lt; enableSessionTimer &gt; ) &lt;br/&gt;
+      </description>
     </setting>
 
     <setting name="sessionTimerInSec">
-      <label>Session Timer</label>
+      <label>Session Timer(sec)</label>
       <type>
-        <string />
+        <integer min="30" max="3600" />
       </type>
       <value>30</value>
-      <description>Session Timer(sec)</description>
+      <description>
+        Time after which the 'keepalive' is sent &lt;br/&gt; ( &lt; sessionTimerInSec &gt; ) &lt;br/&gt;
+      </description>
     </setting>
 
     <setting name="sessionRefresherFlag">
       <label>Enable Session Refresher Flag</label>
       <type refid="on-off" />
       <value>FALSE</value>
-      <description>Enable Session Refresher Flag</description>
+      <description>( &lt; sessionRefresherFlag &gt; ) &lt;br/&gt;</description>
     </setting>
 
     <setting name="secureAudioScheme">
@@ -440,7 +468,11 @@
         </enum>
       </type>
       <value>none</value>
-      <description>Secure Audio Scheme (SRTP)</description>
+      <description>
+        If none is selected, Secure Audio Scheme is disabled. In the best effort scheme phone tries to establish secure
+        connection, if it fails then audio is transmitted unsecurely. If SRTP Only scheme is selected then only secure
+        audio is allowed &lt;br/&gt; ( &lt; secureAudioScheme &gt; ) &lt;br/&gt;
+      </description>
     </setting>
 
     <setting name="defaultOutgoingLine">
@@ -459,10 +491,15 @@
         </enum>
       </type>
       <value>Last used line</value>
-      <description>Default Outgoing Line</description>
+      <description>
+        If Line1 or Line2 is selected, then the selected line is used as default line for making calls. If Last used
+        line is selected, then the last active line is used to make outgoing calls &lt;br/&gt; ( &lt;
+        defaultOutgoingLine &gt; ) &lt;br/&gt;
+      </description>
     </setting>
 
-    <!--		<setting name="groupPagingPrefix">
+    <!--
+      <setting name="groupPagingPrefix">
       <label>Group Paging Prefix</label>
       <type>
       <integer />
@@ -470,21 +507,25 @@
       <value></value>
       <description>
       Group Paging Prefix
-      </description>
+      &lt;br/&gt; </description>
       </setting>
     -->
+
     <setting name="hotDeskingAutoLogin">
       <label>Hot Desking Auto Login</label>
       <type refid="on-off" />
       <value>TRUE</value>
-      <description>Hot Desking Auto Login</description>
+      <description>
+        If checked, then phone logs in automatically using the User IDs that are configured for Line 1 or Line 2 or both
+        &lt;br/&gt; ( &lt; hotDeskingAutoLogin &gt; ) &lt;br/&gt;
+      </description>
     </setting>
   </group>
 
   <group name="timesettings">
     <label>Time Settings</label>
     <setting name="timeSettings">
-      <label>Time Settings</label>
+      <label>Time Servers</label>
       <type>
         <enum>
           <option>
@@ -493,32 +534,29 @@
           <option>
             <value>default</value>
           </option>
-
         </enum>
       </type>
       <value>default</value>
-      <description>Time Settings</description>
+      <description>
+        If default is selected, the default time servers which are pre-configured in the phone are used. Select manual
+        to configure the time servers manually &lt;br/&gt; ( &lt; timesettings &gt; ) &lt;br/&gt;
+      </description>
     </setting>
 
     <setting name="ntpIp">
       <label>Time Server 1</label>
       <type>
-        <string />
+        <ipaddr />
       </type>
-      <description>
-        Time Server 1 - Configure this field if manual is selected for Time Settings else leave it blank
-      </description>
+      <description>Domain name or IP address of time server 1 &lt;br/&gt; ( &lt; ntpIp &gt; ) &lt;br/&gt;</description>
     </setting>
 
     <setting name="ntpIp2">
       <label>Time Server 2</label>
       <type>
-        <string />
+        <ipaddr />
       </type>
-
-      <description>
-        Time Server 2 - Configure this field if manual is selected for Time Settings else leave it blank
-      </description>
+      <description>Domain name or IP address of time server 2 &lt;br/&gt; ( &lt; ntpIp2 &gt; ) &lt;br/&gt;</description>
     </setting>
 
     <setting name="timezone">
@@ -726,14 +764,17 @@
         </enum>
       </type>
       <value>+00:00 GMT London</value>
-      <description>Time Zone</description>
+      <description>( &lt; timezone &gt; ) &lt;br/&gt;</description>
     </setting>
 
     <setting name="dstAutoAdjust">
-      <label>DST</label>
+      <label>Enable DST</label>
       <type refid="on-off" />
       <value>FALSE</value>
-      <description>Enable DST</description>
+      <description>
+        If checked, this will enable the Daylight Saving Time for the selected timezone, if applicable &lt;br/&gt; (
+        &lt; dstAutoAdjust &gt; ) &lt;br/&gt;
+      </description>
     </setting>
 
   </group>
@@ -758,8 +799,10 @@
           </option>
         </enum>
       </type>
-      <value>none</value>
-      <description>Autoconfig</description>
+      <value>tftp</value>
+      <description>
+        Select tftp/http/https protocol for auto provisioning &lt;br/&gt; ( &lt; autoconfig &gt; ) &lt;br/&gt;
+      </description>
     </setting>
 
     <setting name="autoConfigAddress">
@@ -769,7 +812,7 @@
       </type>
       <value />
       <description>
-        Configserver Address - Configure this field if tftp or http is selected for Autoconfig else leave it blank
+        Domain name or IP address of auto provisioning server &lt;br/&gt; ( &lt; autoConfigAddress &gt; ) &lt;br/&gt;
       </description>
     </setting>
 
@@ -786,7 +829,10 @@
         </enum>
       </type>
       <value>Profile-C</value>
-      <description>Autoconfig Profile</description>
+      <description>
+        If Profile-C is selected, the phone uses the profile 'Profile-C'. If NONE is selected auto-configuration is
+        disabled &lt;br/&gt; ( &lt; autoConfigProfile &gt; ) &lt;br/&gt;
+      </description>
     </setting>
 
     <setting name="autoConfigPath" hidden="yes">
@@ -795,7 +841,7 @@
         <string />
       </type>
       <value>SipTone/config</value>
-      <description>Autoconfig Server Path</description>
+      <description>Autoconfig Server Path &lt;br/&gt;</description>
     </setting>
 
     <setting name="autoConfigHttpProxy">
@@ -805,25 +851,97 @@
       </type>
       <value />
       <description>
-        HTTP Proxy - Configure this field if http is selected for Autoconfig else leave it blank
+        Domain name or IP address of the Http proxy server &lt;br/&gt; ( &lt; autoConfigHttpProxy &gt; ) &lt;br/&gt;
       </description>
     </setting>
 
     <setting name="autoConfigHttpPort">
       <label>Autoconfig Http Port</label>
       <type>
-        <integer />
+        <integer max="65536" />
       </type>
       <value />
-      <description>HTTP Port - Configure this field if http is selected for Autoconfig else leave it blank</description>
+      <description>
+        Port number of the Http proxy server &lt;br/&gt; ( &lt; autoConfigHttpPort &gt; ) &lt;br/&gt;
+      </description>
     </setting>
 
     <setting name="autoConfigEveryBoot">
       <label>Autoconfig Every Boot</label>
       <type refid="on-off" />
       <value>TRUE</value>
-      <description>Autoconfig Every Boot</description>
+      <description>
+        If checked, the phone loads the configuration file every time it boots &lt;br/&gt; ( &lt; autoConfigEveryBoot
+        &gt; ) &lt;br/&gt;
+      </description>
     </setting>
+
+    <group name="autoconfigCert">
+      <label>Autoconfig Certificates</label>
+
+      <setting name="autocfgClientCertificate">
+        <label>Client Certificate Url</label>
+        <type>
+          <string />
+        </type>
+        <value></value>
+        <description>
+          Autoconfig Client Certificate HTTPS/HTTP Url &lt;br/&gt; ( &lt; autocfgClientCertificate &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+
+      <setting name="autocfgClientPrivateKey">
+        <label>Client Private Key Url</label>
+        <type>
+          <string />
+        </type>
+        <value></value>
+        <description>
+          Autoconfig Client Private Key HTTPS/HTTP Url &lt;br/&gt; ( &lt; autocfgClientPrivateKey &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+
+      <setting name="autocfgCACertificate">
+        <label>CA Certificate Url</label>
+        <type>
+          <string />
+        </type>
+        <value></value>
+        <description>
+          Autoconfig CA Certificate HTTPS/HTTP Url &lt;br/&gt; ( &lt; autocfgCACertificate &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+    </group>
+
+    <!--
+      <setting name="autocfgClientCertHttps">
+      <label>Autoconfig Client Cert HTTP/HTTPS Url</label>
+      <type>
+      <string />
+      </type>
+      <value></value>
+      <description>Autoconfig Client Certificte HTTP/HTTPS Url ( &lt; autocfgClientCertHttps &gt; ) &lt;br/&gt; </description>
+      </setting>
+      
+      <setting name="autocfgClientPrivkeyHttps">
+      <label>Autoconfig Client Private Key HTTP/HTTPS Url</label>
+      <type>
+      <string />
+      </type>
+      <value></value>
+      <description>Autoconfig Client Private Key HTTP/HTTPS Url ( &lt; autocfgClientPrivkeyHttps &gt; ) &lt;br/&gt; </description>
+      </setting>
+      
+      <setting name="autocfgCACertHttps">
+      <label>Autoconfig CA Cert HTTP/HTTPS Url</label>
+      <type>
+      <string />
+      </type>
+      <value></value>
+      <description>Autoconfig CA Certificate HTTP/HTTPS Url ( &lt; autocfgCACertHttps &gt; ) &lt;br/&gt; </description>
+      </setting>
+    -->
+
   </group>
 
   <group name="presence">
@@ -841,11 +959,16 @@
         </enum>
       </type>
       <value>dialogEvent</value>
-      <description>Presence</description>
+      <description>
+        If publishWithSimple is selected, the phone uses PUBLISH/SIMPLE based presence with 'presence' event. If
+        dialogEvent is selected, the phone uses dialog event based package for presence monitoring &lt;br/&gt; ( &lt;
+        presence &gt; ) &lt;br/&gt;
+      </description>
     </setting>
   </group>
 
-  <!--	<group name="intercom">
+  <!--
+    <group name="intercom">
     <label>Intercom</label>		
     <setting name="intercomOption">
     <label>Intercom Option</label>
@@ -865,7 +988,7 @@
     <value>callInfoHeader</value>
     <description>
     Intercom Options
-    </description>
+    &lt;br/&gt; </description>
     </setting>
     
     <setting name="alertInfoSecret">
@@ -876,7 +999,7 @@
     <value></value>
     <description>
     Alert-Info Secret
-    </description>
+    &lt;br/&gt; </description>
     </setting>
     
     <setting name="intercomPrefixValue">
@@ -887,7 +1010,7 @@
     <value></value>
     <description>
     Intercom Prefix Value
-    </description>
+    &lt;br/&gt; </description>
     </setting>
     
     <setting name="intercomTimeout">
@@ -898,1080 +1021,263 @@
     <value>15</value>
     <description>
     Intercom Timeout(sec)
-    </description>
+    &lt;br/&gt; </description>
     </setting>
     </group>
+    
   -->
-  <group name="sipAccounts">
-    <label>SIP Accounts Line 1</label>
-    <!--	<setting name="accountOption1" hidden="TRUE">
-      <label>Line 1 Account</label>
-      <type>
-      <enum>
-      <option>
-      <value>account_L1</value>
-      </option>
-      </enum>
-      
-      </type>
-      <value>account_L1</value>
-      <hidden>TRUE</hidden>
-      <description>
-      Line 1 Account
-      </description>
-      </setting>
-      
-      <setting name="authname">
-      <label>User ID</label>
-      <type>
-      <string />
-      </type>
-      <value ></value>
-      <description>
-      Use ID
-      </description>
-      </setting>
-      
-      <setting name="authPassword">
-      <label>Password</label>
-      <type>
-      <string />
-      </type>
-      <value ></value>
-      <description>
-      Password       
-      </description>
-      </setting>
-      
-      <setting name="proxyOption">
-      <label>
-      SIP PROXY
-      </label>
-      <type>
-      <enum>
-      <option>
-      <value>noneThroughProxy</value>
-      </option>
-      <option>
-      <value>forwardAllThroughProxy</value>
-      </option>
-      <option>
-      <value>sendFirstInviteToProxy</value>
-      </option>
-      </enum>
-      </type>
-      <value>noneThroughProxy</value>
-      <description>
-      Proxy Option
-      </description>
-      </setting>
-      
-      <setting name="proxyAddress">
-      <label>Proxy Address</label>
-      <type>
-      <ipaddr />
-      </type>
-      <value></value>
-      <description>
-      SIP PROXY - Configure this field if forward all or send first invite is selected for SIP PROXY else leave it blank
-      </description>
-      </setting>
-      
-      <setting name="registerThroughProxy">
-      <label>Register Through Proxy</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>
-      Register through Proxy
-      </description>
-      </setting>
-    -->
-    <setting name="forwardModeOption">
-      <label>CALL FORWARD</label>
+
+  <group name="memKeys">
+    <label>Memory Keys</label>
+    <setting name="mem1">
+      <label>MEM 1</label>
       <type>
         <enum>
           <option>
-            <value>forwardonBusy</value>
+            <value>1</value>
           </option>
           <option>
-            <value>forwardonNoAnswer</value>
-          </option>
-          <option>
-            <value>forwardAll</value>
-          </option>
-          <option>
-            <value>none</value>
+            <value>2</value>
           </option>
         </enum>
       </type>
-      <value>none</value>
-      <description>Forwarding Option</description>
+      <value>1</value>
     </setting>
 
-    <setting name="forwardonNoAnswer">
-      <label>Forward on no answer</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Forward on no answer</description>
-    </setting>
-
-    <setting name="callForwardAddress">
-      <label>Call Forward Address</label>
-      <type>
-        <ipaddr />
-      </type>
-      <value></value>
-      <description>Call Forwarding URI - Do not configure this field if none is selected for forward mode</description>
-    </setting>
-
-    <setting name="callForwardTimer">
-      <label>CFNA Timer</label>
+    <setting name="mem2">
+      <label>MEM 2</label>
       <type>
         <enum>
           <option>
-            <value>20</value>
+            <value>1</value>
           </option>
           <option>
-            <value>40</value>
-          </option>
-          <option>
-            <value>60</value>
+            <value>2</value>
           </option>
         </enum>
       </type>
-      <value>20</value>
-      <description>Expires(sec)</description>
+      <value>1</value>
     </setting>
 
-    <setting name="incomingInvite">
-      <label>Incoming Invite</label>
+    <setting name="mem3">
+      <label>MEM 3</label>
       <type>
         <enum>
           <option>
-            <value>PAId-From-Contact</value>
+            <value>1</value>
           </option>
           <option>
-            <value>PAId-Contact-From</value>
+            <value>2</value>
           </option>
         </enum>
       </type>
-      <value>PAId-From-Contact</value>
-      <description>Incoming Invite</description>
+      <value>1</value>
     </setting>
 
-    <setting name="okOfInvite">
-      <label>200 OK of Invite</label>
+    <setting name="mem4">
+      <label>MEM 4</label>
       <type>
         <enum>
           <option>
-            <value>PAId-Contact-To</value>
+            <value>1</value>
           </option>
           <option>
-            <value>PAId-To-Contact</value>
+            <value>2</value>
           </option>
         </enum>
       </type>
-      <value>PAId-Contact-To</value>
-      <description>200 OK of Invite</description>
+      <value>1</value>
     </setting>
 
-    <setting name="intercomOption">
-      <label>Intercom Invocation</label>
+    <setting name="mem5">
+      <label>MEM 5</label>
       <type>
         <enum>
           <option>
-            <value>callInfoHeader</value>
+            <value>1</value>
           </option>
           <option>
-            <value>alertInfoHeader</value>
-          </option>
-          <option>
-            <value>intercomPrefix</value>
+            <value>2</value>
           </option>
         </enum>
       </type>
-      <value>callInfoHeader</value>
-      <description>Intercom Invocation</description>
+      <value>1</value>
     </setting>
 
-    <setting name="intercomPrefixValue">
-      <label>Intercom Prefix Value</label>
-      <type>
-        <string />
-      </type>
-      <value></value>
-      <description>Intercom Prefix Value</description>
-    </setting>
-
-    <setting name="alertInfoSecret">
-      <label>Alert-Info Secret</label>
-      <type>
-        <string />
-      </type>
-      <value></value>
-      <description>Alert-Info Secret</description>
-    </setting>
-
-    <setting name="sipPort">
-      <label>SIP Port</label>
-      <type>
-        <integer />
-      </type>
-      <value>5060</value>
-      <description>SIP Port</description>
-    </setting>
-
-    <setting name="rtpPort">
-      <label>RTP Port</label>
-      <type>
-        <integer />
-      </type>
-      <value>5012</value>
-      <description>RTP Port</description>
-    </setting>
-
-    <setting name="tlsPort">
-      <label>TLS Port</label>
-      <type>
-        <integer />
-      </type>
-      <value>5061</value>
-      <description>SIP TLS Port</description>
-    </setting>
-
-    <setting name="callParkMethod">
-      <label>Call Park Method</label>
+    <setting name="mem6">
+      <label>MEM 6</label>
       <type>
         <enum>
           <option>
-            <value>none</value>
+            <value>1</value>
           </option>
           <option>
-            <value>prefix</value>
-          </option>
-          <option>
-            <value>incall DTMF</value>
+            <value>2</value>
           </option>
         </enum>
       </type>
-      <value>none</value>
-      <description>Call Park Method</description>
+      <value>1</value>
     </setting>
 
-    <setting name="callParkExtension">
-      <label>Call Park Extension</label>
+    <setting name="mem7">
+      <label>MEM 7</label>
       <type>
-        <string />
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
       </type>
-      <value></value>
-      <description>Call Park Extension</description>
+      <value>1</value>
     </setting>
 
-    <setting name="callRtrvPrefix">
-      <label>Call Retrieve Prefix</label>
+    <setting name="mem8">
+      <label>MEM 8</label>
       <type>
-        <string />
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
       </type>
-      <value></value>
-      <description>Call Retrieve Prefix</description>
+      <value>1</value>
     </setting>
 
-    <setting name="serverAssistCallPickup">
-      <label>Server Assisted Call PickUp</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Server Assisted Call PickUp</description>
-    </setting>
-
-    <setting name="callPickupPrefix">
-      <label>Call PickUp Prefix</label>
+    <setting name="mem9">
+      <label>MEM 9</label>
       <type>
-        <string />
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
       </type>
-      <value></value>
-      <description>Call PickUp Prefix</description>
+      <value>1</value>
     </setting>
 
-    <setting name="groupPagingPrefix">
-      <label>Group Paging Prefix</label>
+    <setting name="mem10">
+      <label>MEM 10</label>
       <type>
-        <integer />
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
       </type>
-      <value></value>
-      <description>Group Paging Prefix</description>
+      <value>1</value>
     </setting>
 
-    <setting name="presenceServer">
-      <label>Presence Server</label>
+    <setting name="mem11">
+      <label>MEM 11</label>
       <type>
-        <string />
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
       </type>
-      <value></value>
-      <description>Presence Server</description>
+      <value>1</value>
     </setting>
 
-    <setting name="voiceMailServerAddress">
-      <label>Voicemail Server</label>
+    <setting name="mem12">
+      <label>MEM 12</label>
       <type>
-        <ipaddr />
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
       </type>
-      <value></value>
-      <description>Voicemail Server</description>
+      <value>1</value>
     </setting>
 
-    <setting name="conferenceServerAddress">
-      <label>Conference Server</label>
+    <setting name="mem13">
+      <label>MEM 13</label>
       <type>
-        <ipaddr />
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
       </type>
-      <value></value>
-      <description>Conference Server</description>
+      <value>1</value>
     </setting>
 
-    <setting name="mohServer">
-      <label>MoH Server</label>
+    <setting name="mem14">
+      <label>MEM 14</label>
       <type>
-        <ipaddr />
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
       </type>
-      <value></value>
-      <description>MoH server</description>
+      <value>1</value>
     </setting>
 
-    <setting name="sipDialplan">
-      <label>DIAL Plan</label>
+    <setting name="mem15">
+      <label>MEM 15</label>
       <type>
-        <string />
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
       </type>
-      <value></value>
-      <description>Dial Plan</description>
+      <value>1</value>
     </setting>
 
-    <setting name="mwiSubscribe">
-      <label>MWI Subscribe?</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Subscribe to MWI events?</description>
-    </setting>
-
-    <setting name="mwiReqUri">
-      <label>MWI Req URI</label>
+    <setting name="mem16">
+      <label>MEM 16</label>
       <type>
-        <string />
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
       </type>
-      <value></value>
-      <description>MWI R-URI</description>
-    </setting>
-
-    <!--	<setting name="callParkExtension">
-      <label>Call Park Extension</label>
-      <type>
-      <string />
-      </type>
-      <value ></value>
+      <value>1</value>
       <description>
-      Call Park Extension
+        Select line to be used for making outgoing calls when onhook, and for sending subscription for presence or
+        dialog event
       </description>
-      </setting>-->
-
-    <setting name="enableTlsSecurity">
-      <label>Enable TLS Security</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>TLS Security</description>
-    </setting>
-
-    <!--	<setting name="dwnldDialPlan">
-      <label>Download Dial Plan</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>
-      Down Load Dial Plan
-      </description>
-      </setting>
-    -->
-    <setting name="offhookOnRefer">
-      <label>Offhook On Refer</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Offhook on Third Party Refer</description>
-    </setting>
-
-    <setting name="transmitDtmf">
-      <label>Transmit DTMF</label>
-      <type>
-        <enum>
-          <option>
-            <value>info</value>
-          </option>
-          <option>
-            <value>inband</value>
-          </option>
-          <option>
-            <value>rfc2833</value>
-          </option>
-        </enum>
-      </type>
-      <value>rfc2833</value>
-      <description>Transmit DTMF</description>
-    </setting>
-
-    <setting name="preferredCodec">
-      <label>Preferred Codec</label>
-      <type>
-        <enum>
-          <option>
-            <value>g711ulaw</value>
-          </option>
-          <option>
-            <value>g711alaw</value>
-          </option>
-          <option>
-            <value>g729</value>
-          </option>
-        </enum>
-      </type>
-      <value>g711ulaw</value>
-      <description>Preferred Codec</description>
-    </setting>
-
-    <setting name="disableCall1_2key">
-      <label>Disable Flash Key</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Disable Flash Key during the call</description>
-    </setting>
-
-    <setting name="sipAutoDial">
-      <label>Auto Dial</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Enable Auto Dial</description>
-    </setting>
-
-    <setting name="sipAutoDialUserid">
-      <label>Auto Dial User ID</label>
-      <type>
-        <ipaddr />
-      </type>
-      <value></value>
-      <description>Auto Dial User ID</description>
-    </setting>
-
-    <setting name="disableCallWaiting">
-      <label>Disable Call Waiting</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Disable Call Waiting</description>
-    </setting>
-
-    <setting name="natAddress">
-      <label>NAT Address</label>
-      <type>
-        <ipaddr />
-      </type>
-      <value />
-      <description>NAT Address</description>
-    </setting>
-
-    <setting name="disableStarCodes">
-      <label>Disable Star Codes</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Disable all Feature(*) Codes</description>
-    </setting>
-
-    <setting name="callerIdBlocking">
-      <label>Block Caller ID</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Block my Caller ID</description>
-    </setting>
-
-    <setting name="enableRoutingTone">
-      <label>Enable Routing Tone</label>
-      <type refid="on-off" />
-      <value>TRUE</value>
-      <description>Enable Routing Tone</description>
-    </setting>
-
-    <setting name="toneSet">
-      <label>Tone Set</label>
-      <type>
-        <enum>
-          <option>
-            <value>US/Canada</value>
-          </option>
-          <option>
-            <value>United Kingdom</value>
-          </option>
-          <option>
-            <value>Australia</value>
-          </option>
-        </enum>
-      </type>
-      <value>US/Canada</value>
-      <description>Tone Set</description>
-    </setting>
-
-    <setting name="useOnlyUdpSrv">
-      <label>Use only UDP SRV</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Use UDP SRV Search Only</description>
-    </setting>
-
-    <!--	<setting name="extractCallerId">
-      <label>Extract Caller ID</label>
-      <type>
-      <string />
-      </type>
-      <value >From</value>
-      <description>
-      Extract Caller ID
-      </description>
-      </setting>
-      
-    -->
-    <setting name="usePreloadedRoute">
-      <label>Use Preloaded Route</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Use Preloaded Route</description>
-    </setting>
-
-  </group>
-
-  <group name="sipAccounts2">
-    <label>SIP Accounts Line 2</label>
-    <!--	<setting name="accountOption2" hidden="on">
-      <label> </label>
-      <value>account_L2</value>
-      <description>
-      </description>
-      </setting>
-      
-      <setting name="authname">
-      <label>User ID</label>
-      <type>
-      <string />
-      </type>
-      <value ></value>
-      <description>
-      User ID
-      </description>
-      </setting>
-      
-      <setting name="authPassword">
-      <label>Password</label>
-      <type>
-      <string />
-      </type>
-      <value ></value>
-      <description>
-      Password
-      </description>
-      </setting>
-      
-      <setting name="proxyOption">
-      <label>
-      SIP PROXY
-      </label>
-      <type>
-      <enum>
-      <option>
-      <value>noneThroughProxy</value>
-      </option>
-      <option>
-      <value>forwardAllThroughProxy</value>
-      </option>
-      <option>
-      <value>sendFirstInviteToProxy</value>
-      </option>
-      </enum>
-      </type>
-      <value>noneThroughProxy</value>
-      <description>
-      Proxy Option			
-      </description>
-      </setting>
-      
-      <setting name="proxyAddress">
-      <label>Proxy Address</label>
-      <type>
-      <ipaddr />
-      </type>
-      <value></value>
-      <description>
-      SIP PROXY - Configure this field if forward all or send first invite is selected for SIP PROXY else leave it blank
-      </description>
-      </setting>
-      
-      <setting name="registerThroughProxy">
-      <label>Register Through Proxy</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>
-      Register through Proxy				
-      </description>
-      </setting>
-    -->
-    <setting name="forwardModeOption">
-      <label>CALL FORWARD</label>
-      <type>
-        <enum>
-          <option>
-            <value>forwardonBusy</value>
-          </option>
-          <option>
-            <value>forwardonNoAnswer</value>
-          </option>
-          <option>
-            <value>forwardAll</value>
-          </option>
-          <option>
-            <value>none</value>
-          </option>
-        </enum>
-      </type>
-      <value>none</value>
-      <description>Forwarding Option</description>
-    </setting>
-
-    <setting name="forwardonNoAnswer">
-      <label>Forward on no answer</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Forward on no answer</description>
-    </setting>
-
-    <setting name="callForwardAddress">
-      <label>Call Forward Address</label>
-      <type>
-        <ipaddr />
-      </type>
-      <value></value>
-      <description>Call Forwarding URI - Do not configure this field if none is selected for forward mode</description>
-    </setting>
-
-    <setting name="callForwardTimer">
-      <label>CFNA Timer</label>
-      <type>
-        <enum>
-          <option>
-            <value>20</value>
-          </option>
-          <option>
-            <value>40</value>
-          </option>
-          <option>
-            <value>60</value>
-          </option>
-        </enum>
-      </type>
-      <value>20</value>
-      <description>Expires(sec)</description>
-    </setting>
-
-    <setting name="incomingInvite">
-      <label>Incoming Invite</label>
-      <type>
-        <enum>
-          <option>
-            <value>PAId-From-Contact</value>
-          </option>
-          <option>
-            <value>PAId-Contact-From</value>
-          </option>
-        </enum>
-      </type>
-      <value>PAId-From-Contact</value>
-      <description>Incoming Invite</description>
-    </setting>
-
-    <setting name="okOfInvite">
-      <label>200 OK of Invite</label>
-      <type>
-        <enum>
-          <option>
-            <value>PAId-Contact-To</value>
-          </option>
-          <option>
-            <value>PAId-To-Contact</value>
-          </option>
-        </enum>
-      </type>
-      <value>PAId-Contact-To</value>
-      <description>200 OK of Invite</description>
-    </setting>
-
-    <setting name="intercomOption">
-      <label>Intercom Invocation</label>
-      <type>
-        <enum>
-          <option>
-            <value>callInfoHeader</value>
-          </option>
-          <option>
-            <value>alertInfoHeader</value>
-          </option>
-          <option>
-            <value>intercomPrefix</value>
-          </option>
-        </enum>
-      </type>
-      <value>callInfoHeader</value>
-      <description>Intercom Invocation</description>
-    </setting>
-
-    <setting name="intercomPrefixValue">
-      <label>Intercom Prefix Value</label>
-      <type>
-        <string />
-      </type>
-      <value></value>
-      <description>Intercom Prefix Value</description>
-    </setting>
-
-    <setting name="alertInfoSecret">
-      <label>Alert-Info Secret</label>
-      <type>
-        <string />
-      </type>
-      <value></value>
-      <description>Alert-Info Secret</description>
-    </setting>
-
-    <setting name="sipPort">
-      <label>SIP Port</label>
-      <type>
-        <integer />
-      </type>
-      <value>5062</value>
-      <description>SIP Port</description>
-    </setting>
-
-    <setting name="rtpPort">
-      <label>RTP Port</label>
-      <type>
-        <integer />
-      </type>
-      <value>5014</value>
-      <description>RTP Port</description>
-    </setting>
-
-    <setting name="tlsPort">
-      <label>TLS Port</label>
-      <type>
-        <integer />
-      </type>
-      <value>5063</value>
-      <description>SIP TLS Port</description>
-    </setting>
-
-    <setting name="callParkMethod">
-      <label>Call Park Method</label>
-      <type>
-        <enum>
-          <option>
-            <value>none</value>
-          </option>
-          <option>
-            <value>prefix</value>
-          </option>
-          <option>
-            <value>incall DTMF</value>
-          </option>
-        </enum>
-      </type>
-      <value>none</value>
-      <description>Call Park Method</description>
-    </setting>
-
-    <setting name="callParkExtension">
-      <label>Call Park Extension</label>
-      <type>
-        <string />
-      </type>
-      <value></value>
-      <description>Call Park Extension</description>
-    </setting>
-
-    <setting name="callRtrvPrefix">
-      <label>Call Retrieve Prefix</label>
-      <type>
-        <string />
-      </type>
-      <value></value>
-      <description>Call Retrieve Prefix</description>
-    </setting>
-
-    <setting name="serverAssistCallPickup">
-      <label>Server Assisted Call PickUp</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Server Assisted Call PickUp</description>
-    </setting>
-
-    <setting name="callPickupPrefix">
-      <label>Call PickUp Prefix</label>
-      <type>
-        <string />
-      </type>
-      <value></value>
-      <description>Call PickUp Prefix</description>
-    </setting>
-
-    <setting name="groupPagingPrefix">
-      <label>Group Paging Prefix</label>
-      <type>
-        <integer />
-      </type>
-      <value></value>
-      <description>Group Paging Prefix</description>
-    </setting>
-
-    <setting name="presenceServer">
-      <label>Presence Server</label>
-      <type>
-        <string />
-      </type>
-      <value></value>
-      <description>Presence Server</description>
-    </setting>
-
-    <setting name="voiceMailServerAddress">
-      <label>Voicemail Server</label>
-      <type>
-        <ipaddr />
-      </type>
-      <value></value>
-      <description>Voicemail Server</description>
-    </setting>
-
-    <setting name="conferenceServerAddress">
-      <label>Conference Server</label>
-      <type>
-        <ipaddr />
-      </type>
-      <value></value>
-      <description>Conference Server</description>
-    </setting>
-
-    <setting name="mohServer">
-      <label>MoH Server</label>
-      <type>
-        <ipaddr />
-      </type>
-      <value></value>
-      <description>MoH server</description>
-    </setting>
-
-    <setting name="sipDialplan">
-      <label>DIAL Plan</label>
-      <type>
-        <string />
-      </type>
-      <value></value>
-      <description>Dial Plan</description>
-    </setting>
-
-    <setting name="mwiSubscribe">
-      <label>MWI Subscribe?</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Subscribe to MWI events?</description>
-    </setting>
-
-    <setting name="mwiReqUri">
-      <label>MWI Req URI</label>
-      <type>
-        <string />
-      </type>
-      <value></value>
-      <description>MWI R-URI</description>
-    </setting>
-
-    <!--	<setting name="callParkExtension">
-      <label>Call Park Extension</label>
-      <type>
-      <string />
-      </type>
-      <value ></value>
-      <description>
-      Call Park Extension
-      </description>
-      </setting>-->
-
-    <setting name="enableTlsSecurity">
-      <label>Enable TLS Security</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>TLS Security</description>
-    </setting>
-
-    <!--	<setting name="dwnldDialPlan">
-      <label>Download Dial Plan</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>
-      Down Load Dial Plan
-      </description>
-      </setting>
-    -->
-    <setting name="offhookOnRefer">
-      <label>Offhook On Refer</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Offhook on Third Party Refer</description>
-    </setting>
-
-    <setting name="transmitDtmf">
-      <label>Transmit DTMF</label>
-      <type>
-        <enum>
-          <option>
-            <value>info</value>
-          </option>
-          <option>
-            <value>inband</value>
-          </option>
-          <option>
-            <value>rfc2833</value>
-          </option>
-        </enum>
-      </type>
-      <value>rfc2833</value>
-      <description>Transmit DTMF</description>
-    </setting>
-
-    <setting name="preferredCodec">
-      <label>Preferred Codec</label>
-      <type>
-        <enum>
-          <option>
-            <value>g711ulaw</value>
-          </option>
-          <option>
-            <value>g711alaw</value>
-          </option>
-          <option>
-            <value>g729</value>
-          </option>
-        </enum>
-      </type>
-      <value>g711ulaw</value>
-      <description>Preferred Codec</description>
-    </setting>
-
-    <setting name="disableCall1_2key">
-      <label>Disable Flash Key</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Disable Flash Key during the call</description>
-    </setting>
-
-    <setting name="sipAutoDial">
-      <label>Auto Dial</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Enable Auto Dial</description>
-    </setting>
-
-    <setting name="sipAutoDialUserid">
-      <label>Auto Dial User ID</label>
-      <type>
-        <ipaddr />
-      </type>
-      <value></value>
-      <description>Auto Dial User ID</description>
-    </setting>
-
-    <setting name="disableCallWaiting">
-      <label>Disable Call Waiting</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Disable Call Waiting</description>
-    </setting>
-
-    <setting name="natAddress">
-      <label>NAT Address</label>
-      <type>
-        <ipaddr />
-      </type>
-      <value />
-      <description>NAT Address</description>
-    </setting>
-
-    <setting name="disableStarCodes">
-      <label>Disable Star Codes</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Disable all Feature(*) Codes</description>
-    </setting>
-
-    <setting name="callerIdBlocking">
-      <label>Block Caller ID</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Block my Caller ID</description>
-    </setting>
-
-    <setting name="enableRoutingTone">
-      <label>Enable Routing Tone</label>
-      <type refid="on-off" />
-      <value>TRUE</value>
-      <description>Enable Routing Tone</description>
-    </setting>
-
-    <setting name="toneSet">
-      <label>Tone Set</label>
-      <type>
-        <enum>
-          <option>
-            <value>US/Canada</value>
-          </option>
-          <option>
-            <value>United Kingdom</value>
-          </option>
-          <option>
-            <value>Australia</value>
-          </option>
-        </enum>
-      </type>
-      <value>US/Canada</value>
-      <description>Tone Set</description>
-    </setting>
-
-    <setting name="useOnlyUdpSrv">
-      <label>Use only UDP SRV</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Use UDP SRV Search Only</description>
-    </setting>
-
-    <!--	<setting name="extractCallerId">
-      <label>Extract Caller ID</label>
-      <type>
-      <string />
-      </type>
-      <value >From</value>
-      <description>
-      Extract Caller ID
-      </description>
-      </setting>
-    -->
-    <setting name="usePreloadedRoute">
-      <label>Use Preloaded Route</label>
-      <type refid="on-off" />
-      <value>FALSE</value>
-      <description>Use Preloaded Route</description>
     </setting>
   </group>
 
   <group name="upgrade">
     <label>Upgrade</label>
     <setting name="upgradeOption">
-      <label>Upgrade Option</label>
+      <label>Upgrade Protocol</label>
       <type>
         <enum>
           <option>
@@ -1989,61 +1295,114 @@
         </enum>
       </type>
       <value>tftp</value>
-      <description>Upgrade Option</description>
-    </setting>
-
-    <setting name="tftpOrFtpUpgradeServer">
-      <label>Tftp or Ftp Upgrade Server</label>
-      <type>
-        <ipaddr />
-      </type>
-      <value></value>
       <description>
-        DownLoad Server - Configure this field if ftp or tftp is selected for upgrade else leave it blank
+        Select tftp/ftp/http/https protocol for firmware upgrade &lt;br/&gt; ( &lt; upgrade &gt; ) &lt;br/&gt;
       </description>
     </setting>
 
-    <setting name="tftpOrFtpUpgradeFile">
-      <label>Tftp or Ftp Upgrade File</label>
-      <type>
-        <string />
-      </type>
-      <value>st5image.bin</value>
-      <description>[PATH] File name</description>
-    </setting>
+    <group name="tftpOrFtp">
+      <label>TFTP/FTP</label>
 
-    <setting name="httpOrHttpsUrl">
-      <label>Http or Https Url</label>
-      <type>
-        <string />
-      </type>
-      <value></value>
-      <description>
-        Http/Https Url - Configure this field if http or https is selected for upgrade else leave it blank
-      </description>
-    </setting>
+      <setting name="tftpOrFtpUpgradeServer">
+        <label>Upgrade Server</label>
+        <type>
+          <ipaddr />
+        </type>
+        <value></value>
+        <description>
+          Domain name or IP address of TFTP/FTP firmware upgrade server &lt;br/&gt; ( &lt; tftpOrFtpUpgradeServer &gt; )
+          &lt;br/&gt;
+        </description>
+      </setting>
 
-    <setting name="httpOrHttpsProxy">
-      <label>Http or Https Proxy</label>
-      <type>
-        <ipaddr />
-      </type>
-      <value></value>
-      <description>
-        Http/Https Proxy - Configure this field if http or https is selected for upgrade else leave it blank
-      </description>
-    </setting>
+      <setting name="tftpOrFtpUpgradeFile">
+        <label>Upgrade File</label>
+        <type>
+          <string />
+        </type>
+        <value>st5image.bin</value>
+        <description>
+          This is the path relative to the starting download directory on the file server &lt;br/&gt; ( &lt;
+          tftpOrFtpUpgradeFile &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+    </group>
 
-    <setting name="httpOrHttpsPort">
-      <label>Http or Https Port</label>
-      <type>
-        <integer />
-      </type>
-      <value></value>
-      <description>
-        Port - Configure this field if http or https is selected for upgrade else leave it blank
-      </description>
-    </setting>
+    <group name="httpsOrHttp">
+      <label>HTTPS/HTTP</label>
+
+      <setting name="httpOrHttpsUrl">
+        <label>Upgrade Url</label>
+        <type>
+          <string />
+        </type>
+        <value></value>
+        <description>
+          Url to the HTTPS/HTTP upgrade server &lt;br/&gt; ( &lt; httpOrHttpsUrl &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+
+      <setting name="httpOrHttpsProxy">
+        <label>Proxy</label>
+        <type>
+          <ipaddr />
+        </type>
+        <value></value>
+        <description>
+          Domain name or IP address of the HTTPS/HTTP proxy server &lt;br/&gt; ( &lt; httpOrHttpsProxy &gt; )
+          &lt;br/&gt;
+        </description>
+      </setting>
+
+      <setting name="httpOrHttpsPort">
+        <label>Proxy Port</label>
+        <type>
+          <integer min="0" max="65536" />
+        </type>
+        <value></value>
+        <description>
+          Port number of the HTTPS/HTTP proxy server &lt;br/&gt; ( &lt; httpOrHttpsPort &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+    </group>
+
+    <group name="upgradeCert">
+      <label>Upgrade Certificates</label>
+
+      <setting name="upgradeClientCertUrl">
+        <label>Client Certificate Url</label>
+        <type>
+          <string />
+        </type>
+        <value></value>
+        <description>
+          Upgrade Client Certificate HTTPS/HTTP Url &lt;br/&gt; ( &lt; upgradeClientCertUrl &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+
+      <setting name="upgradeClientKeyUrl">
+        <label>Client Key Url</label>
+        <type>
+          <string />
+        </type>
+        <value></value>
+        <description>
+          Upgrade Client Key HTTPS/HTTP Url &lt;br/&gt; ( &lt; upgradeClientKeyUrl &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+
+      <setting name="upgradeCaCertUrl">
+        <label>CA Certificate Url</label>
+        <type>
+          <string />
+        </type>
+        <value></value>
+        <description>
+          Upgrade CA Certificate HTTPS/HTTP Url &lt;br/&gt; ( &lt; upgradeCaCertUrl &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+    </group>
+
   </group>
 
 </model>

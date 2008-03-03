@@ -53,6 +53,7 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
             new UAVendor("ClearOne", "00:90:79"),
             new UAVendor("Gentner", "00:06:24"),
             new UAVendor("Grandstream", "00:0B:82"),
+            new UAVendor("ipDialog", "00:04:1C"),
             new UAVendor("LG-Nortel", "00:40:5A"),
             new UAVendor("LG-Nortel", "00:1A:7E"),
             new UAVendor("Linksys", "00:0E:08"),
