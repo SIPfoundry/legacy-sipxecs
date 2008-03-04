@@ -49,6 +49,8 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public abstract void specialAutoAttendantMode(boolean enabled, AutoAttendant attendant);
 
+    public abstract void replicateAutoAttendants();
+
     public abstract void removeGateways(Collection<Integer> gatewaysIds);
 
     public void storeRule(DialingRule rule);
@@ -59,7 +61,7 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     /**
      * Gets all of the dialing rules using a particular gateway.
-     *
+     * 
      * @param gatewayId The ID of the gateway.
      * @return A List of the DialingRules for that gateway.
      */
@@ -67,7 +69,7 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     /**
      * Gets all of the dialing rules that can be added to a particular gateway.
-     *
+     * 
      * @param gatewayId The ID of the gateway
      * @return A List of the DialingRules that can be added to the gateway
      */

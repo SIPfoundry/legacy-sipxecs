@@ -362,6 +362,13 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         m_sipxReplicationContext.replicate(mode);
     }
 
+    public void replicateAutoAttendants() {
+        List<AutoAttendant> autoAttendants = getAutoAttendants();
+        for (AutoAttendant aa : autoAttendants) {
+            m_vxmlGenerator.generate(aa);
+        }
+    }
+
     /**
      * This is for testing only. TODO: need to find a better way of cleaning database between
      * tests
@@ -465,7 +472,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         }
         attendant = createSystemAttendant(attendantId);
         attendant.addGroup(getDefaultAutoAttendantGroup());
-        storeAutoAttendant(attendant);
+        getHibernateTemplate().saveOrUpdate(attendant);
         if (attendant.isOperator()) {
             DialPlan dialPlan = getDialPlan();
             dialPlan.setOperator(attendant);
@@ -491,9 +498,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     /**
      * Get first emergency rule that has a gateway w/o a route. This is the best guess at a
-     * default emergency address. see:
-     * 
-     * @link http://track.sipfoundry.org/browse/XCF-1883
+     * default emergency address. see: @link http://track.sipfoundry.org/browse/XCF-1883
      */
     public EmergencyInfo getLikelyEmergencyInfo() {
         EmergencyRule[] rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(),
