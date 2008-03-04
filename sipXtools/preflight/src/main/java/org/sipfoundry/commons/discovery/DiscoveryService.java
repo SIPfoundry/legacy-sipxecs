@@ -274,8 +274,28 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
                 mask[i] = Integer.parseInt(fields[i]) & 0xFF;
             }
         }
+        
+        // Convert the mask to CIDR format.
+        int cidr = 32;
+        for (int i = 3; i >= 0; i--) {
+        	int test = 0;
+        	for (int bitField = 1; bitField < 256; bitField <<= 1) {
+        		test = mask[i] & bitField;
+        		if (test == 0) {
+        			cidr -= 1;
+        		} else {
+        			break;
+        		}
+        	}
+        	if (test != 0) {
+        		break;
+        	}
+        }
+        
+        // Calculate range based upon the CIDR.
+        range = (int)Math.pow(2, (32 - cidr)) - 2;
+        
         addr[3] = 1;
-        range = 254; // TODO: calculate this from the given networkMask.
         discoveryCount = range;
 
         // Walk through the range of IP addresses, creating DiscoveryAgents for each address.

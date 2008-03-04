@@ -214,14 +214,17 @@ public class DHCP {
             }
 
             if (responseReceived) {
-                // Multiple responses error.
-                if (multipleResponses == false) {
-                    multipleResponses = true;
-                    journalService.println("  Multiple responses. Server: " + firstResponseAddress.getHostAddress());
-                    journalService.println("  Multiple responses. Server: " + incoming.getAddress().getHostAddress());
-                } else {
-                    journalService.println("  Multiple responses. Server: " + incoming.getAddress().getHostAddress());
-                }
+            	// Ignore response if from the same server that initially responded.
+            	if (firstResponseAddress.getHostAddress().compareTo(incoming.getAddress().getHostAddress()) != 0) {
+            		// Not the same, therefore multiple response error.
+            		if (multipleResponses == false) {
+            			multipleResponses = true;
+            			journalService.println("  Multiple responses. Server: " + firstResponseAddress.getHostAddress());
+            			journalService.println("  Multiple responses. Server: " + incoming.getAddress().getHostAddress());
+            		} else {
+            			journalService.println("  Multiple responses. Server: " + incoming.getAddress().getHostAddress());
+            		}
+            	}
             } else {
                 firstResponseAddress = incoming.getAddress();
                 offerMessage = tmpMessage;
