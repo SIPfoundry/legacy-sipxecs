@@ -128,7 +128,9 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         if (exitCode > 0) {
             getDialPlanContext().activateDialPlan();
             List<Process> processList = Arrays.asList(new Process[] {
-                getProcessContext().getProcess(SipxProcessModel.ProcessName.MEDIA_SERVER)
+                getProcessContext().getProcess(SipxProcessModel.ProcessName.MEDIA_SERVER),
+                getProcessContext().getProcess(SipxProcessModel.ProcessName.REGISTRAR),
+                getProcessContext().getProcess(SipxProcessModel.ProcessName.PROXY)
             });
             getProcessContext().restartOnEvent(processList, DomainConfigReplicatedEvent.class);
             recordSuccess("message.label.languageChanged");
