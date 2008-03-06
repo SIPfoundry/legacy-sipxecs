@@ -22,9 +22,10 @@ dist_bin_SCRIPTS = \
 	sipx-servtest \
 	sipxcar \
 	sipdb-dump \
-	polycom-config
+	polycom-config \
+	sipx_reset_cd
 
-install-exec-hook: localize_scripts
+install-exec-hook: localize_scripts sipx_reset_cd
 
 .PHONY: localize_scripts
 localize_scripts: $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(DESTDIR)@SIPX_BINDIR@/$(sipxScript))
