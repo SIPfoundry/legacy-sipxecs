@@ -1406,7 +1406,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                      // Log and discard the message
                      OsSysLog::add(FAC_HTTP, PRI_ERR,
                                    "HttpMessage::read Message has no Content-Length "
-                                   "on unframed socket type: %s\n%s",
+                                   "on unframed socket type %s: '%s'",
                                    OsSocket::ipProtocolString(socketType), allBytes->data());
                      allBytes->remove(0);
 

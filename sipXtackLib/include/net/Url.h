@@ -460,7 +460,7 @@ public:
                                  ) const;
     ///< @returns TRUE if the indicated parameter exists
 
-    /// Get the name and value of the field parameter at the indicated
+    /// Get the name and value of the field parameter at the indicated location
     UtlBoolean getFieldParameter(int fieldIndex, /**< the index indicting which field parameter to 
                                                   * get (starting at 0 for the first one). */
                                  UtlString& name, ///< the parameter name at fieldIndex
