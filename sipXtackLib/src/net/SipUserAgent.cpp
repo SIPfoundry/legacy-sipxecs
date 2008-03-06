@@ -695,7 +695,12 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
    UtlBoolean isResponse = message.isResponse();
    UtlString method;
    int cseq = 0;
-   message.getCSeqField(&cseq, &method);
+   // We can avoid extracting the method if this is a response message
+   // and this SipUserAgent is a proxy.  Otherwise will need it.
+   if (!isResponse || mIsUaTransactionByDefault)
+   {
+      message.getCSeqField(&cseq, &method);
+   }
    int responseCode = 0;
    if (isResponse)
    {
@@ -730,16 +735,17 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
    //     CANCEL or ACK (which have special properties)
    //     REGISTER (which uses Contact in special ways)
    // - for responses, only for codes 101 to 299
-   if (mIsUaTransactionByDefault &&
-       !(method.compareTo(SIP_CANCEL_METHOD) == 0 ||
-         method.compareTo(SIP_ACK_METHOD) == 0 ||
-         method.compareTo(SIP_REGISTER_METHOD) == 0) &&
-       (!isResponse ||
-        (SIP_1XX_CLASS_CODE < responseCode &&
-         responseCode < SIP_3XX_CLASS_CODE)) &&
-       !message.getHeaderValue(0, SIP_CONTACT_FIELD))
+   if (   mIsUaTransactionByDefault                             // is UA, not proxy
+          && !(   method.compareTo(SIP_CANCEL_METHOD) == 0      // is not CANCEL, ACK, or REGISTER request or response
+               || method.compareTo(SIP_ACK_METHOD) == 0
+               || method.compareTo(SIP_REGISTER_METHOD) == 0)
+       && (   !isResponse                                       // is either request or
+           || (   SIP_1XX_CLASS_CODE < responseCode             //    response from 101 to 199, or 2xx
+               && responseCode < SIP_3XX_CLASS_CODE))
+       && !message.getHeaderValue(0, SIP_CONTACT_FIELD))        // does not have a Contact header
    {
-      // The SipUserAgent knows its default Contact URI.
+      // Add a Contact header with the default Contact URI
+      // for this SipUserAgent.
       message.setContactField(mContactAddress.data());
    }
 
