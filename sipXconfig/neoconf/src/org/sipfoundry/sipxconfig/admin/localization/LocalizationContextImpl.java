@@ -9,9 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.localization;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,12 +110,12 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
         String[] languages = new String[languageDirs.length];
         for (int i = 0; i < languageDirs.length; i++) {
             String languageDir = languageDirs[i];
-            languages[i] = languageDir.substring(PROMPTS_PREFIX.length()); 
+            languages[i] = languageDir.substring(PROMPTS_PREFIX.length());
         }
-        
+
         return languages;
     }
-    
+
     public String[] getInstalledLanguageDirectories() {
         return getListOfDirectories(m_promptsDir, PROMPTS_PREFIX);
     }
@@ -185,7 +187,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
         localization.setLanguage(language);
         getHibernateTemplate().saveOrUpdate(localization);
         m_domainManager.replicateDomainConfig();
-        
+
         return 1;
     }
 
@@ -221,7 +223,18 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
                 m_promptsDir, m_regionDir
             };
             Process p = Runtime.getRuntime().exec(cmd);
+            BufferedReader scriptErrorReader = new BufferedReader(new InputStreamReader(p
+                    .getErrorStream()));
+            String errorLine = scriptErrorReader.readLine();
+            while (errorLine != null) {
+                LOG.warn("sipxlocalization: " + errorLine);
+                errorLine = scriptErrorReader.readLine();
+            }
+            
             p.waitFor();
+            if (p.exitValue() != 0) {
+                throw installFailureException;
+            }
         } catch (InterruptedException ex) {
             LOG.error("Interrupted when waiting for sipxlocalization script.", ex);
             throw installFailureException;

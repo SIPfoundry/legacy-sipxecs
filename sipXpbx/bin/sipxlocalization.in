@@ -18,10 +18,6 @@ if ! [ -d $VOICE_PROMPT_DIR -a -w $VOICE_PROMPT_DIR ]; then
     echo "'$VOICE_PROMPT_DIRECTORY' is not a writable directory." >&2
     exit 1
 fi
-if ! [ -d $VOICE_PROMPT_DIR/stdprompts -a -w $VOICE_PROMPT_DIR/stdprompts ]; then
-    echo "'$VOICE_PROMPT_DIR/stdprompts' is not a writable directory." >&2
-    exit 1
-fi
 if ! [ -d $REGION_DIR -a -w $REGION_DIR ]; then
     echo "'$REGION_DIR' is not a writable directory." >&2
     exit 1
