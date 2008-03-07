@@ -2137,3 +2137,40 @@ bool ACDQueue::checkAgentAvailable()
 
    return false;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  NAME:        ACDQueue::checkOverflowEntryAvailable
+//
+//  SYNOPSIS:
+//
+//  DESCRIPTION: This method returns true if overflowEntry or overflow to huntGroup is configured in
+//               this and the overflow queues.
+//
+//  RETURNS:     bool.
+//
+//  ERRORS:      None.
+//
+//  CAVEATS:     None.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool ACDQueue::checkOverflowEntryAvailable()
+{
+   ACDQueue* pDestinationQueue = this;
+
+   while (pDestinationQueue) {
+      if (pDestinationQueue->isOverflowEntryAvailable()){
+        return true;
+      }
+      if (pDestinationQueue->mOverflowQueue){
+         pDestinationQueue = mpAcdQueueManager->getAcdQueueReference(pDestinationQueue->mOverflowQueue);
+      }
+      else {
+         pDestinationQueue = NULL;
+      }
+   }
+
+   return false;
+}
+

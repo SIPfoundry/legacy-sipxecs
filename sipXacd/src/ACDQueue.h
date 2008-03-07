@@ -129,6 +129,8 @@ public:
 
    virtual bool checkAgentAvailable();
 
+   virtual bool checkOverflowEntryAvailable();
+
    virtual bool isOverflowEntryAvailable() { return mOverflowEntry!=NULL; };
 
 /* ============================ ACCESSORS ================================= */
