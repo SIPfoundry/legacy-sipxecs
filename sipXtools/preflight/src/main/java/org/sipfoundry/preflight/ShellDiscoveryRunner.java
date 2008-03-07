@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 
 import org.eclipse.swt.widgets.*;
+import static org.sipfoundry.preflight.ResultCode.*;
 import org.sipfoundry.commons.discovery.Device;
 import org.sipfoundry.commons.discovery.DiscoveryService;
 
@@ -45,15 +46,59 @@ public class ShellDiscoveryRunner {
     }
 
     public void discover() {
+        DHCP dhcp = new DHCP();
         active = true;
         journalService.println("Starting device discovery...");
 
-        LinkedList<Device> devices = ds.discover(localHostAddress, "255.255.255.0", false);
+        ResultCode results;
+        NetworkResources networkResources = new NetworkResources();
+        InetAddress bindAddress;
+        try {
+            bindAddress = InetAddress.getByName("0.0.0.0");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            return;
+        }
 
-        if (devices.size() == 0) {
-            journalService.println("No devices discovered.");
+        results = dhcp.validate(10, networkResources, journalService, bindAddress);
+        if (results == NONE) {
+            String networkAddress = null;
+            String networkMask = null;
+            InetAddress hostAddress = null;
+
+            try {
+                // Get local IP Address
+                hostAddress = InetAddress.getLocalHost();
+                localHostAddress = hostAddress.getHostAddress();
+            } catch (UnknownHostException e1) {
+                // Ignore.
+            }
+
+            // Calculate the network address.
+            byte[] rawMaskAddress;
+            byte[] rawHostAddress;
+            byte[] rawNetworkAddress = new byte[4];
+            rawMaskAddress = networkResources.subnetMask.getAddress();
+            rawHostAddress = hostAddress.getAddress();
+            for (int i = 3; i >= 0; i--) {
+                rawNetworkAddress[i] = (byte) (rawHostAddress[i] & rawMaskAddress[i]);
+            }
+            try {
+                networkAddress = InetAddress.getByAddress(rawNetworkAddress).getHostAddress();
+                networkMask = InetAddress.getByAddress(rawMaskAddress).getHostAddress();
+            } catch (UnknownHostException e) {
+                // Ignore.
+            }
+
+            LinkedList<Device> devices = ds.discover(networkAddress, networkMask, false);
+
+            if (devices.size() == 0) {
+                journalService.println("No devices discovered.");
+            } else {
+                journalService.println("Discovery completed.");
+            }
         } else {
-            journalService.println("Discovery completed.");
+            journalService.println("Discovery failed due to DHCP error.");
         }
 
         active = false;

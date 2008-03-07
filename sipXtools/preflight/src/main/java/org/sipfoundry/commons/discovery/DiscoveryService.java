@@ -46,21 +46,11 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
         }
     }
 
-    private final UAVendor[] UAVendorList = {
-    		new UAVendor("Aastra", "00:08:5D"),
-    		new UAVendor("Aastra", "00:10:BC"),
-            new UAVendor("AudioCodes", "00:90:8F"),
-            new UAVendor("ClearOne", "00:90:79"),
-            new UAVendor("Gentner", "00:06:24"),
-            new UAVendor("Grandstream", "00:0B:82"),
-            new UAVendor("ipDialog", "00:04:1C"),
-            new UAVendor("LG-Nortel", "00:40:5A"),
-            new UAVendor("LG-Nortel", "00:1A:7E"),
-            new UAVendor("Linksys", "00:0E:08"),
-            new UAVendor("MITEL", "08:00:0F"),
-            new UAVendor("Pingtel Xpressa", "00:D0:1E"),
-            new UAVendor("Polycom", "00:04:F2"),
-            new UAVendor("SNOM", "00:04:13"), };
+    private final UAVendor[] UAVendorList = { new UAVendor("Aastra", "00:08:5D"), new UAVendor("Aastra", "00:10:BC"),
+            new UAVendor("AudioCodes", "00:90:8F"), new UAVendor("ClearOne", "00:90:79"), new UAVendor("Gentner", "00:06:24"),
+            new UAVendor("Grandstream", "00:0B:82"), new UAVendor("ipDialog", "00:04:1C"), new UAVendor("LG-Nortel", "00:40:5A"),
+            new UAVendor("LG-Nortel", "00:1A:7E"), new UAVendor("Linksys", "00:0E:08"), new UAVendor("MITEL", "08:00:0F"),
+            new UAVendor("Pingtel Xpressa", "00:D0:1E"), new UAVendor("Polycom", "00:04:F2"), new UAVendor("SNOM", "00:04:13"), };
 
     public DiscoveryService(String localHostAddress, int localHostPort) {
         this(localHostAddress, localHostPort, null);
@@ -256,7 +246,7 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
     public LinkedList<Device> discover(String network, String networkMask, boolean reportProgress) {
         int range;
         int discoveryCount;
-    	int percentageCompleted = 0;
+        int percentageCompleted = 0;
         int[] addr = new int[4];
         int[] mask = new int[4];
 
@@ -274,27 +264,27 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
                 mask[i] = Integer.parseInt(fields[i]) & 0xFF;
             }
         }
-        
+
         // Convert the mask to CIDR format.
         int cidr = 32;
         for (int i = 3; i >= 0; i--) {
-        	int test = 0;
-        	for (int bitField = 1; bitField < 256; bitField <<= 1) {
-        		test = mask[i] & bitField;
-        		if (test == 0) {
-        			cidr -= 1;
-        		} else {
-        			break;
-        		}
-        	}
-        	if (test != 0) {
-        		break;
-        	}
+            int test = 0;
+            for (int bitField = 1; bitField < 256; bitField <<= 1) {
+                test = mask[i] & bitField;
+                if (test == 0) {
+                    cidr -= 1;
+                } else {
+                    break;
+                }
+            }
+            if (test != 0) {
+                break;
+            }
         }
-        
+
         // Calculate range based upon the CIDR.
-        range = (int)Math.pow(2, (32 - cidr)) - 2;
-        
+        range = (int) Math.pow(2, (32 - cidr)) - 2;
+
         addr[3] = 1;
         discoveryCount = range;
 
@@ -308,8 +298,8 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
                     newActiveObject(new DiscoveryAgentImpl(target, this), target);
                 }
                 // Calculate the next IP address.
-                if (++addr[3] == 256) {
-                    addr[3] = 0;
+                if (++addr[3] == 255) {
+                    addr[3] = 1;
                     if (++addr[2] == 256) {
                         addr[2] = 0;
                         ++addr[1];
@@ -323,14 +313,14 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
             // Wait for some of the discovery requests to finish before sending more.
             try {
                 while (size() == discoveryBlockSize) {
-                	if (reportProgress) {
-                		// Calculate and report percentage of completion.
-                		int percent = ((range - discoveryCount) * 100) / range;
-                		if (percent != percentageCompleted) {
-                			percentageCompleted = percent;
-                			System.err.println(percentageCompleted);
-                		}
-                	}
+                    if (reportProgress) {
+                        // Calculate and report percentage of completion.
+                        int percent = ((range - discoveryCount) * 100) / range;
+                        if (percent != percentageCompleted) {
+                            percentageCompleted = percent;
+                            System.err.println(percentageCompleted);
+                        }
+                    }
                     Thread.sleep(100);
                 }
             } catch (InterruptedException e) {
@@ -348,5 +338,5 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
         return devices;
 
     }
-    
+
 }
