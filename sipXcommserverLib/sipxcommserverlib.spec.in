@@ -159,26 +159,30 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/testlib/*
 
 %pre
-# if needed, change open source daemon user names to the Pingtel name
+# If needed, change open source daemon user name to @SIPXPBXUSER@.
+# The open source names that have been used are 'sipx' and 'sipxpbx'.
 for openname in sipx sipxpbx; do 
-  if [ "@SIPXPBXUSER@" != "${openname}" ] && id -u ${openname} > /dev/null 2>&1 
+  if [ "@SIPXPBXUSER@" != "${openname}" ] &&
+     ! id -u "@SIPXPBXUSER@" > /dev/null 2>&1 &&
+     id -u ${openname} > /dev/null 2>&1
   then
      /usr/sbin/usermod -l @SIPXPBXUSER@ ${openname}
-     /usr/sbin/groupmod -n @SIPXPBXUSER@ ${openname}
   fi
 done
 
-# if there is no daemon user, create it
+# If there is no daemon user, create it.
 # Red Hat's useradd command adds the group automatically,
-# but SUSE does not
-id -u @SIPXPBXUSER@ > /dev/null 2>&1 \
-|| /usr/sbin/groupadd @SIPXPBXUSER@; \
+# but SUSE does not.
+# The -f option means to create the group only if it does not already exist.
+/usr/sbin/groupadd -f @SIPXPBXGROUP@
+if ! id -u @SIPXPBXUSER@ > /dev/null 2>&1 ; then
    /usr/sbin/useradd \
-   -c "sipX service daemon" \
-   -d %{_sysconfdir}/sipxpbx \
-   -s /bin/bash \
-   -g @SIPXPBXUSER@ \
-   @SIPXPBXUSER@ > /dev/null 2>&1
+       -c "sipX service daemon" \
+       -d %{_sysconfdir}/sipxpbx \
+       -s /bin/bash \
+       -g @SIPXPBXGROUP@ \
+       @SIPXPBXUSER@ > /dev/null 2>&1
+fi
 
 # record the old version
 sipx-upgrade -p sipxcommserverlib -c
