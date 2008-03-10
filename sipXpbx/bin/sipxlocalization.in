@@ -22,8 +22,8 @@ if ! [ -d $REGION_DIR -a -w $REGION_DIR ]; then
     echo "'$REGION_DIR' is not a writable directory." >&2
     exit 1
 fi
-if ! [ -d $REGION_DIR/.. -a -w $REGION_DIR/.. ]; then
-    echo "'$REGION_DIR/..' is not a writable directory." >&2
+if ! [ -d $REGION_DIR/../sipxpbx -a -w $REGION_DIR/../sipxpbx ]; then
+    echo "'$REGION_DIR/../sipxpbx' is not a writable directory." >&2
     exit 1
 fi
 if ! [ -f $FILE -a -r $FILE ]; then
