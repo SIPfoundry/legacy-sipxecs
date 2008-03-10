@@ -32,7 +32,6 @@ $TopLevel=1; # is this the top level process?
 ## Defaults
 $SipPort = 5060;
 $RegistrarPort = 5070;
-$AuthProxyPort = 5080;
 $UserAgent = $DefaultUserAgent ;
 $MaxForwards = 3;
 $UseViaName = 0;
@@ -55,7 +54,6 @@ $SHORT_HELP = <<SHORT_HELP;
                  [--commserver <server>]...  
 
                  [--proxy <proxy-server>]...  
-                 [--authproxy <auth-proxy-server>]...  
                  [--redirect <redirect-server>]...  
 
                  [--aor <aor>]...  
@@ -99,14 +97,9 @@ $SHORT_HELP
 
       --commserver <server>
          Specifies a server name or address for a server in the
-         domain; this specifies that the server runs a proxy, an authproxy,
-         and a registrar, so it is equivalent to specifying:
-           --proxy server --auth-proxy server --redirect server
-         (may be specified more than once) 
-      
-      --auth-proxy <auth-proxy-server>
-         Specifies a server name or address and port for an authorization
-         proxy in the domain (if not specified, the port defaults to 5080).
+         domain; this specifies that the server runs a proxy and 
+         a registrar, so it is equivalent to specifying:
+           --proxy server --redirect server
          (may be specified more than once) 
 
       --proxy <proxy-server>
@@ -190,22 +183,13 @@ $SHORT_HELP
       port - no data is sent or expected); the test fails if there is no
       response or if an error response is received.
 
-   Auth Proxy Forwarding:
-      Sends an 'OPTIONS <tester>' request to each <auth-proxy-server> (the
-      <tester> address is a dynamic port opened by sipx-servtest for its own
-      use), and responds to it with a 200 response; this passes if both the
-      request and response are delivered by the auth proxy.  
-
-      This tests that the authproxy is routing requests correctly.
-
    Proxy Forwarding:
       Sends an 'OPTIONS <tester>' request to each <proxy-server> (the
       <tester> address is a dynamic port opened by sipx-servtest for its own
       use), and responds to it with a 200 response; this passes if both the
       request and response are delivered by the proxies.  
 
-      This tests that the proxy and the authproxy are communicating with
-      each other and routing requests correctly.
+      This tests that the proxy is communicating and routing requests correctly.
 
    Redirect: 
       Sends a 'PING <aor>' request to each <aor> at each <redirect-server>;
@@ -248,7 +232,6 @@ GetOptions(
            'domain=s'       => \$Domain,
            'commserver|c=s' => \@CommServers,
 
-           'authproxy=s'    => \@AuthProxies,
            'proxy|p=s'      => \@Proxies,
            'redirect|r=s'   => \@Redirectors,
 
@@ -299,7 +282,6 @@ $SIG{INTR} = \&Catch;
 ## Test Types
 ##
 $Connect             = 'Connect';
-$AuthProxyForwarding = 'Auth Proxy Forwarding';
 $ProxyForwarding     = 'Proxy Forwarding';
 $Redirect            = 'Redirect';
 $DomainResponse      = 'Domain Response';
@@ -313,25 +295,13 @@ sub byOrder { return defined $DependsOn{$a} && defined $DependsOn{$a}->{$b} }
 @TestList=();
 
 ## Calculate which tests we can perform with the arguments given.
-foreach ( ( @Proxies, @Redirectors, @AuthProxies, @CommServers ) )
+foreach ( ( @Proxies, @Redirectors, @CommServers ) )
 {
     $Servers{$_} = 1;
 }
 foreach ( sort keys %Servers )
 {
     push @TestList, "$Connect->$_";
-}
-
-foreach ( ( @AuthProxies, @CommServers ) )
-{
-    push @TestList, "$AuthProxyForwarding->$_";
-    $DependsOn{"$AuthProxyForwarding->$_"} = { "$Connect->$_" => 1 };
-}
-
-foreach ( ( @Proxies, @CommServers ) )
-{
-    push @TestList, "$ProxyForwarding->$_";
-    $DependsOn{"$ProxyForwarding->$_"} = { "$AuthProxyForwarding->$_" => 1 };
 }
 
 foreach $Redirector ( ( @Redirectors, @CommServers ) )
@@ -350,6 +320,12 @@ if ( $Domain )
         push @TestList, "$DomainResponse->$_";
         $DependsOn{"$DomainResponse->$_"} = { "$Connect->$_" => 1 };
     }
+}
+
+foreach ( ( @Proxies, @CommServers ) )
+{
+    push @TestList, "$ProxyForwarding->$_";
+    $DependsOn{"$ProxyForwarding->$_"} = { "$Connect->$_" => 1 };
 }
 
 foreach $Proxy ( ( @Proxies, @CommServers ) )
@@ -407,10 +383,6 @@ do
             elsif ($testtype eq $ProxyForwarding)
             {
                 &ProxyForwardingTest($target);
-            }
-            elsif ($testtype eq $AuthProxyForwarding)
-            {
-                &AuthProxyForwardingTest($target);
             }
             elsif ($testtype eq $Redirect)
             {
@@ -502,31 +474,6 @@ sub ProxyForwardingTest
     &SendOptions($server, $port, "sip:$UasAddr:$UasPort;transport=tcp");
 }
 
-
-sub AuthProxyForwardingTest
-{
-    my ($proxy) = shift;
-    my ($server, $port);
-
-    # Send SIP PING to AOR to test for 302
-    if ( $proxy =~ m/([^:]+):(\d+)/ )
-    {
-        $server = $1;
-        $port = $2;
-    }
-    else
-    {
-        $server=$proxy;
-        $port = $AuthProxyPort;
-    }
-    
-    ## Start up the UAS child process
-    ($UasPort, $UasAddr) = &StartUas($server, $port) 
-        unless $Child{"$server:$port"};
-
-    # Send Options to sip:{this server} to test the proxy
-    &SendOptions($server, $port, "sip:$UasAddr:$UasPort;transport=tcp");
-}
 
 sub RedirectTest
 {
