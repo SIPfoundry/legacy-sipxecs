@@ -47,18 +47,24 @@
 #define DQUOTE "\""
 #define LWS "\\s+"
 #define SWS "\\s*"
-#define SLASH "\\"
+// The pattern which matches a single backslash character.
+// The pattern is two backslash characters.
+// In C++, this must be written as four backslash characters.
+#define SLASH "\\\\"
 
 #define SIP_TOKEN "[a-zA-Z0-9.!%*_+`'~-]++"
 
+// The following two patterns are largely parallel.  The first does not
+// include any substring-capturing (...) to speed up matching, since
+// substring-capturing is slow.
+
 // SipTokenSequenceOrQuoted - used to validate display name values in setDisplayName
 //   does not capture any substrings - this is important to avoid recursion
-const RegEx SipTokenSequenceOrQuoted("^(?:" SIP_TOKEN "(?:" LWS SIP_TOKEN ")*" \
-                                       "|" DQUOTE "(?:[^" SLASH DQUOTE "]++"   \
-                                                   "|" SLASH DQUOTE            \
-                                                   "|" SLASH SLASH             \
-                                                  ")*"                         \
-                                           DQUOTE                              \
+const RegEx SipTokenSequenceOrQuoted("^(?:" SIP_TOKEN "(?:" LWS SIP_TOKEN ")*"
+                                       "|" DQUOTE "(?:[^" SLASH DQUOTE "]++"
+                                                   "|" SLASH "."
+                                                  ")*"
+                                           DQUOTE
                                      ")$");
 
 // DisplayName - used to parse display name from a url string
@@ -66,15 +72,17 @@ const RegEx SipTokenSequenceOrQuoted("^(?:" SIP_TOKEN "(?:" LWS SIP_TOKEN ")*" \
 //    $2 matches a quoted string but without the quotes
 //       Do Not Change This To Include The Quotes - that causes the regex
 //       processor to recurse, possibly very very deeply.  
-//       Instead, we add the quotes back in explicitly below.
-// neither includes any leading or trailing whitespace
+//       Instead, we add the quotes back in explicitly in later processing.
+// Does not include any leading or trailing whitespace
 const RegEx DisplayName( SWS "(?:(" SIP_TOKEN "(?:" LWS SIP_TOKEN ")*)"
                               "|" DQUOTE "((?:[^" SLASH DQUOTE "]++"
-                                           "|" SLASH DQUOTE
-                                           "|" SLASH SLASH
+                                           "|" SLASH "."
                                            ")*)"
                                   DQUOTE
                              ")"
+                         // This context constraint does not change what
+                         // matches are successful, but speeds up failure
+                         // cases.
                          "(?=" SWS "<)"
                         );
 

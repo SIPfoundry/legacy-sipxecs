@@ -15,6 +15,7 @@
 #include <net/Url.h>
 #include <net/HttpMessage.h>
 #include <net/NetMd5Codec.h>
+#include <net/SipMessage.h>
 #include <utl/UtlTokenizer.h>
 
 #include "os/OsTimeLog.h"
@@ -64,6 +65,7 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testHttpConstruction);
     CPPUNIT_TEST(testComplexConstruction);
     CPPUNIT_TEST(testAddAttributesToExisting);
+    CPPUNIT_TEST(testComplexDisplayName);
     CPPUNIT_TEST(testChangeValues);
     CPPUNIT_TEST(testRemoveAttributes);
     CPPUNIT_TEST(testRemoveUrlParameterCase);
@@ -788,6 +790,66 @@ public:
         url2.setFieldParameter("field", "value2");
         ASSERT_STR_EQUAL("<sip:u@host>;field=value2", toString(url2));
 
+    }
+
+    void testComplexDisplayName()
+    {
+       UtlString s;
+
+       // The case that first revealed the problem with parsing display names.
+
+       Url url("\"Massimo Vignone\" <sip:8032@192.168.3.2:5060>;expires=3600;+sip.instance=\"<00000000-0000-0000-0000-000E08DEEEC6>\"",
+               Url::NameAddr,
+               NULL);
+
+       url.getDisplayName(s);
+       ASSERT_STR_EQUAL("\"Massimo Vignone\"", s.data());
+       url.getFieldParameter(SIP_EXPIRES_FIELD, s);
+       ASSERT_STR_EQUAL("3600", s.data());
+       url.getFieldParameter("+sip.instance", s);
+       ASSERT_STR_EQUAL("<00000000-0000-0000-0000-000E08DEEEC6>", s.data());
+
+       url.setFieldParameter(SIP_EXPIRES_FIELD, "4810");
+       ASSERT_STR_EQUAL("\"Massimo Vignone\"<sip:8032@192.168.3.2:5060>;expires=4810;+sip.instance=\"<00000000-0000-0000-0000-000E08DEEEC6>\"", toString(url));
+
+       // A number of messy display names.
+       struct {
+          const char* url;
+          const char* expected;
+       } tests[] = {
+          { "\"Massimo Vignone\" <sip:8032@192.168.3.2:5060>",
+            "\"Massimo Vignone\""},
+          // Test the handling of embeded backslashes and double-quotes.
+          // Be careful of the quoting -- the characters in this URI are
+          // backslash-doublequote.
+          { "\"Massimo\\\" Vignone\" <sip:8032@192.168.3.2:5060>",
+            "\"Massimo\\\" Vignone\""},
+          { "\"Massimo\\\\ Vignone\" <sip:8032@192.168.3.2:5060>",
+            "\"Massimo\\\\ Vignone\""},
+          { "\"Massimo\\\"\\\\\\\" Vignone\" <sip:8032@192.168.3.2:5060>",
+            "\"Massimo\\\"\\\\\\\" Vignone\""},
+          { "\"Massimo Vignone\\\\\" <sip:8032@192.168.3.2:5060>",
+            "\"Massimo Vignone\\\\\""},
+          { "\"Massimo\\\" \\\"Vignone\" <sip:8032@192.168.3.2:5060>",
+            "\"Massimo\\\" \\\"Vignone\""},
+          // You can backslash-quote any ordinary character.
+          { "\"\\M\" <sip:8032@192.168.3.2:5060>",
+            "\"\\M\""},
+          { "\"\\M\\a\\s\\s\\i\\m\\o\\ \\V\\i\\g\\n\\o\\n\\e\" <sip:8032@192.168.3.2:5060>",
+            "\"\\M\\a\\s\\s\\i\\m\\o\\ \\V\\i\\g\\n\\o\\n\\e\""},
+          // Handling of Latin-1 characters in UTF-8 encoding.
+          // a+grave = U+00E0 = UTF-8 C3:A0
+          { "\"Ufficio Attivit\xC3\xA0 Grafiche\" <sip:8032@192.168.3.2:5060>",
+            "\"Ufficio Attivit\xC3\xA0 Grafiche\""},
+       };
+
+       for (unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]); i++)
+       {
+          sprintf(msg, "URI %d: %s", i, tests[i].url);
+          Url url(tests[i].url, Url::NameAddr, NULL);
+          url.getDisplayName(s);
+          ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].expected, s.data());
+       }
     }
 
     void testChangeValues()
