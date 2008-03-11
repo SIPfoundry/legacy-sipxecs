@@ -298,8 +298,8 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
                     newActiveObject(new DiscoveryAgentImpl(target, this), target);
                 }
                 // Calculate the next IP address.
-                if (++addr[3] == 255) {
-                    addr[3] = 1;
+                if (++addr[3] == 256) {
+                    addr[3] = 0;
                     if (++addr[2] == 256) {
                         addr[2] = 0;
                         ++addr[1];
