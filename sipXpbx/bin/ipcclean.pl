@@ -28,15 +28,17 @@ $project = 48 ; # ASCII '0' (imdb uses '0' for all it's projects)
 GetOptions("verbose" => \$verbose, 
            "remove" => \$remove, 
            "delete" => \$delete,
+           "checksems" => \$checksems,
            "project=i" => \$project) ;
 if (@ARGV == 0)
 {
    $usage = <<'EOT';
-Usage: [--verbose --remove --delete -project n] file [file...]
+Usage: [--verbose --remove --delete --project n --checksems] file [file...]
         -v{erbose}  verbose
         -r{remove}  remove semaphore and shared memory
         -d{delete}  delete file if semaphore and/or shared memory removed
         -p{roject}  the proj_id given to ftok(3).  The default is 48 (ASCII '0')
+        -c{hecksems}  validate the imdb semaphore states
 EOT
    die $usage ;
 }
@@ -52,6 +54,40 @@ for my $file (@ARGV)
    if (defined($semid))
    { 
       print "semid $semid matches path $file\n" if $verbose ;
+
+      if ($checksems)
+      {
+        eval
+        {
+           local $SIG{ALRM} = sub {die "alarm\n" };
+           alarm 60 ; # Try for one minute, then die
+
+           if ($file =~ /imdb\.cs$/) 
+           {
+              # critical section semaphore to be locked then unlocked
+              $lock = pack("s!s!s!", 0, -1, 0);
+              $unlock = pack("s!s!s!", 0, 1, 0);
+              semop($semid, $lock . $unlock) || die "$!" ;
+              print "checked semid $semid path $file\n" if $verbose ;
+           }
+           elsif ($file =~ /imdb\.[rwu]s$/)
+           {
+              # read/write/update semaphore should be 0
+              $check = pack("s!s!s!", 0, 0, 0);
+              semop($semid, $check) || die "$!" ;
+              print "checked semid $semid path $file\n" if $verbose ;
+           }
+           alarm 0 ;
+        } ;
+        if ($@) # eval died for some reason
+        {
+           if ($@ eq "alarm\n") 
+           {
+              die "checksems timed out on semid $semid path $file\n" ;
+           }
+           die $@ ; # died for some other reason other than alarm
+        }
+      }
 
       if ($remove)
       {
