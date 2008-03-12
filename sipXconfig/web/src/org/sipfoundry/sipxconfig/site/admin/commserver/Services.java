@@ -37,7 +37,7 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
 
     @InjectObject(value = "spring:sipxProcessContext")
     public abstract SipxProcessContext getSipxProcessContext();
-    
+
     @InjectObject(value = "spring:domainManager")
     public abstract DomainManager getDomainManager();
 
@@ -82,6 +82,13 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
         }
     }
 
+    /**
+     * Registered as form listener - forces service status update every time form is submitted
+     */
+    public void refresh() {
+        setServiceStatus(null);
+    }
+
     public void start() {
         manageServices(SipxProcessContext.Command.START);
     }
@@ -100,14 +107,13 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
             return;
         }
         try {
-            // this is ugly.  we should refactor process context to handle all management
+            // HACK: this is ugly. we should refactor process context to handle all management
             // commands when it receives an event.
             if (Command.RESTART.equals(operation)) {
                 getDomainManager().replicateDomainConfig();
                 getSipxProcessContext().restartOnEvent(services, DomainConfigReplicatedEvent.class);
             } else {
                 getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
-                setServiceStatus(null);
             }
         } catch (UserException e) {
             IValidationDelegate validator = TapestryUtils.getValidator(this);

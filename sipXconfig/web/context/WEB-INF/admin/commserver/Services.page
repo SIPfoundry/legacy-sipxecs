@@ -27,6 +27,7 @@
   -->
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator" />
+    <binding name="listener" value="listener:refresh" />
   </component>
 
   <component id="locationPanel" type="FieldPanel">
