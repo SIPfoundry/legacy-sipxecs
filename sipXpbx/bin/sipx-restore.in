@@ -183,22 +183,7 @@ then
   # Configuration database.
   echo -n "Restoring the '$CONFIG_DATABASE_NAME' database contents..."
 
-  # find psql path
-  PSQL_PATH=/usr/bin
-  DROPDB=$PSQL_PATH/dropdb
-  if [ -e $DROPDB ]; then
-    echo -n "We got dropdb from the default location"
-  else
-    DROPDB= $(which dropdb)
-    if [ -e $DROPDB ]; then
-      echo -n "We got dropdb from which"
-    fi
-      PSQL_PATH=$(dirname $DROPDB)
-  fi
-  CREATEDB=$PSQL_PATH/createdb
-
-  $DROPDB -U @POSTGRESQL_USER@ $CONFIG_DATABASE_NAME > /dev/null
-  $CREATEDB -U @POSTGRESQL_USER@ --encoding=UNICODE $CONFIG_DATABASE_NAME > /dev/null
+  @SIPX_BINDIR@/sipxconfig.sh --database drop createdb > /dev/null
   tar -xzvC @SIPX_TMPDIR@ $DB_TAR < $CONFIGURATION_PATH
   cat $PATH_DB_TAR | pg_restore -U @POSTGRESQL_USER@ -d $CONFIG_DATABASE_NAME 2> /dev/null
   rm $PATH_DB_TAR
