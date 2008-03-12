@@ -9,6 +9,8 @@ import org.sipfoundry.commons.ao.ActiveObjectGroupImpl;
 import org.sipfoundry.preflight.JournalService;
 
 import java.util.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.*;
 
 /**
@@ -285,7 +287,7 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
         // Calculate range based upon the CIDR.
         range = (int) Math.pow(2, (32 - cidr)) - 2;
 
-        addr[3] = 1;
+        ++addr[3];
         discoveryCount = range;
 
         // Walk through the range of IP addresses, creating DiscoveryAgents for each address.
