@@ -156,7 +156,7 @@ EOF
 
 disableReport() {
     perl -pi -e 's/^(CONFIG_SERVER_REPORT\s*=\s*")ENABLED"/\1DISABLED"/' \
-        @SIPX_CONFDIR@/sipxconfig-report-config
+        @SIPX_CONFDIR@/report/sipxconfig-report-config
 }
 
 setup() {
