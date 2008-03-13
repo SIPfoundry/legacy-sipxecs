@@ -1,0 +1,30 @@
+<div jwcid="@Border">
+  <h2><span key="Title">Add existing phones</span></h2>
+  <div class="help"> 
+    <b><span key="label.quickLinks">Quick Links</span></b>
+    <ul>
+      <li><a jwcid="@PageLink" page="phone/DiscoverDevices" href="#"><span key="discover">Discover devices</span></a></li>
+    </ul>
+  </div>
+  <div jwcid="@QuickHelp" value="message:help.addPhones">add phones text...</div>
+  <span jwcid="@ErrorMsg"/>
+  <form jwcid="addPhones@Form" delegate="bean:validator">
+    <ul class="component-submit">
+      <li>
+        <span jwcid="@GroupFilter" 
+          selectedGroupId="ognl:groupId" 
+          groups="ognl:phoneContext.groups"
+          queryText="ognl:queryText"
+          searchMode="ognl:searchMode" />
+      </li>
+    </ul>
+    <table jwcid="@phone/PhoneTable" selections="bean:selections" source="ognl:tableModel"/>
+    <!--ul jwcid="@phone/PhoneTableActions"
+      selections="bean:selections"
+      generateProfileIds="prop:generateProfileIds"
+      actionModel="ognl:actionModel"/-->
+    <span jwcid="select@Submit" value="message:button.select" 
+      listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.select)"/>
+    <span jwcid="cancel@Submit" value="message:button.cancel" listener="listener:cancel"/>
+  </form>
+</div>
