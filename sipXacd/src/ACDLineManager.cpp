@@ -211,10 +211,19 @@ ACDLine* ACDLineManager::createACDLine(const char* pLineUriString,
    lineUri.setHostAddress(mpAcdServer->getDomain());
    UtlString lineUriString;
    lineUri.toString(lineUriString);
+/*
+   pName is actually the Description field on the WebUI, which is free form
+   and not checked to be a valid display name and setDisplayName will abort 
+   if given a bad name.
+
+   As the outbound calls set the name to be that of the inbound caller,
+   I don't see any reason to set this.  --Woof!
+
    if (pName)
    {
       lineUri.setDisplayName(pName);
    }
+*/
    
    // Call sipXtapi to add the line presence.
    if (sipxLineAdd(mhAcdCallManagerHandle, lineUriString, &lineHandle) == SIPX_RESULT_SUCCESS)
