@@ -29,7 +29,7 @@ Args=""
 : ${RunningUser:=@sipxpbx.user@}
 : ${StorePassword:=changeit}
 : ${PostgresUser:=@sipxconfig.db.user@}
-
+: ${FirstRunFile:=@sipxpbx.conf.dir@/.first-run}
 
 TEST_WRITE_ACCESS="\
   @sipxpbx.conf.dir@/config.defs \
@@ -156,6 +156,20 @@ runningUserCheck() {
   fi
   return 0
 }
+
+
+# Creates a marker file used to determine if installation/upgrade has taken place
+firstRunSet() {
+    touch $FirstRunFile
+}
+
+# Checks if this is the first run after installation/upgrade
+firstRunCheck() {
+    if [ -f $FirstRunFile ]; then
+        databaseCommand drop-index first-run
+        rm --force $FirstRunFile
+    fi
+}
     
 # Run Web interface
 onWebUi() {
@@ -163,6 +177,8 @@ onWebUi() {
     runningUserCheck || exit 1 
 
     runConfigpp   
+
+    firstRunCheck
 
     databaseCommand upgrade
     databaseVersionCheck
@@ -311,6 +327,10 @@ do
             Action=SETUP
             ;;
 
+        --first-run)
+            Action=FIRST_RUN
+            ;;
+
         -d|--database)
             Action=DATABASE
             shift
@@ -343,6 +363,9 @@ then
 elif [ ${Action} = SETUP ]
 then
     onSetup
+elif [ ${Action} = FIRST_RUN ]
+then
+    firstRunSet
 elif [ ${Action} = HELP ]
 then
 
@@ -350,6 +373,7 @@ cat <<USAGE
 Usage: sipxconfig.sh [-d|--database commands ...]
                      [-c|--configtest]
                      [-s|--setup]
+                     [--first-run]
                      [-h|--help]
                      
 Start Web UI administration for sipXpbx and for remotely provisioned
@@ -367,6 +391,9 @@ Options include:
   --setup              Initialize postgresql for communicating with sipxconfig
                        and create initial database. Will most likely need 
                        root permissions.
+
+  --first-run          Force first-run mode - makes sipXconfig behave as if it was
+                       freshly installed or upgraded.
 
 Common Database commands include:
 
