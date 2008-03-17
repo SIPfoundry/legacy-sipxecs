@@ -3,6 +3,9 @@
 OPERATION="Restore"
 source @SIPX_BINDIR@/sipx-archive-common
 
+# HACK: allow access to Postgress tools and JVM - those paths should be determined by autoconf
+export PATH=$PATH:/usr/bin
+
 CHECK_VERSION="no"
 CHECK_ARCHIVE="no"
 
