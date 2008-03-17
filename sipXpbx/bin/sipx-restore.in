@@ -142,7 +142,7 @@ then
   if [ -n "$CONFIGURATION_PATH" ]
   then
     # Extract the version file (to current directory)
-    tar --extract --file=$CONFIGURATION_PATH version
+    tar --gzip --extract --file=$CONFIGURATION_PATH version
     ARCHIVED_VERSION=$(cat version | awk -F'-' '{ print $1 ;}')
     # Remove the version file
     rm -f version
@@ -156,7 +156,7 @@ then
   # If a voicemail backup is specified
   if [ -n "$VOICEMAIL_PATH" ]
   then
-    tar --extract --file=$VOICEMAIL_PATH version
+    tar --gzip --extract --file=$VOICEMAIL_PATH version
     ARCHIVED_VERSION=$(cat version | awk -F'-' '{ print $1 ;}')
     # Remove the version file
     rm -f version
