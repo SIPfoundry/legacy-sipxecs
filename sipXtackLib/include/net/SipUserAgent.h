@@ -695,6 +695,9 @@ private:
     UtlString mNatPingMethod;
     int mNatPingPeriod;
     UtlBoolean mPingLock;
+    /** TRUE when this SipUserAgent is functioning as a UA,
+     *  FALSE when it is functioning as a proxy.
+     */
     UtlBoolean mIsUaTransactionByDefault;
     UtlBoolean mForkingEnabled;
     int mMaxForwards;

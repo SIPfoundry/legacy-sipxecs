@@ -696,7 +696,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
    UtlString method;
    int cseq = 0;
    // We can avoid extracting the method if this is a response message
-   // and this SipUserAgent is a proxy.  Otherwise will need it.
+   // and this SipUserAgent is a proxy.  Otherwise we will need it.
    if (!isResponse || mIsUaTransactionByDefault)
    {
       message.getCSeqField(&cseq, &method);
@@ -2547,7 +2547,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
          else if(msgEventType == SipMessageEvent::TRANSACTION_EXPIRATION)
          {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipUserAgent[%s]::handleMessage transaction expired",
+                          "SipUserAgent[%s]::handleMessage transaction expiration message received",
                           getName().data());
 
             if(sipMessage)
@@ -2576,7 +2576,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                                                       relationship);
                if(transaction)
                {
-                   // If we are in shutdown mode, unlock the transaction
+                   // If we are shutting down, unlock the transaction
                    // and set it to null.  We pretend that the transaction
                    // does not exist (i.e. no-op).
                    if (mbShuttingDown || mbShutdownDone)

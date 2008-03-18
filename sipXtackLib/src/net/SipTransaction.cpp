@@ -1219,7 +1219,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 #endif
 
                 OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::doFirstSend"
-                              " %p setting timeout %d",
+                              " transaction %p setting timeout %d secs.",
                               this, expireSeconds
                               );
 
@@ -2437,7 +2437,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
             // Set the transaction expires timeout for the DNS parent
             int expireSeconds = mExpires;
 
-            // Non-INVITE transactions timeout sooner
+            // Non-INVITE transactions time out sooner
             int maxExpires = (  (this->mRequestMethod.compareTo(SIP_INVITE_METHOD) != 0)
                               ? (userAgent.getSipStateTransactionTimeout())/1000
                               : userAgent.getDefaultExpiresSeconds()
@@ -2771,6 +2771,7 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
                         }
                         else // Alphanumeric, it is an HTTP absolute date
                         {
+                           // This format is allowed in RFC 2543, though not in RFC 3261.
                            expiresSeconds =
                               OsDateTime::convertHttpDateToEpoch(expiresString.data());
                            OsTime time;

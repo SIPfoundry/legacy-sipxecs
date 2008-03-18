@@ -853,7 +853,7 @@ int server_compare(const void* a, const void* b)
     }
     // Next compare the scores derived from the weights.
     // With the new scheme for computing scores, lower score values should
-    // sort to the beginning of the list, that is, should compare less thn
+    // sort to the beginning of the list, that is, should compare less than
     // higher scores.
     // See sipXtackLib/doc/developer/scores/README for details.
     else if (s1->score < s2->score)

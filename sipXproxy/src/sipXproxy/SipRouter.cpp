@@ -391,8 +391,8 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
                bRequestShouldBeAuthorized = true;
             }
          } 
-         if( bMatchingForwardingRuleFound       == false && 
-             bRequestHasProprietarySpiralHeader == true )
+         if(    !bMatchingForwardingRuleFound
+             && bRequestHasProprietarySpiralHeader )
          {
             // No match found in forwarding rules meaning that spiraling is 
             // complete and that request will be sent towards its final destination. 

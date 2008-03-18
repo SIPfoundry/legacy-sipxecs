@@ -690,7 +690,7 @@ void SipMessage::setInviteBusyData(const SipMessage* inviteRequest)
    inviteRequest->getCSeqField(&sequenceNum, &sequenceMethod);
 
    setInviteBusyData(fromField.data(), toField.data(),
-      callId.data(), sequenceNum);
+                     callId.data(), sequenceNum);
 
    setViaFromRequest(inviteRequest);
 }

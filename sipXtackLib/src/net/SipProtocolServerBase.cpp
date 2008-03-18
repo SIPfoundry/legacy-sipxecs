@@ -194,8 +194,8 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
          long afterSecs = time.seconds();
          if(afterSecs - beforeSecs > 1)
          {
-            OsSysLog::add(FAC_SIP, PRI_WARNING, "SIP %s socket create for %s:%d took %d seconds",
-                          mProtocolString.data(), hostAddress, hostPort,
+            OsSysLog::add(FAC_SIP, PRI_WARNING, "SIP %s socket create for '%s':%d local '%s' took %d seconds",
+                          mProtocolString.data(), hostAddress, hostPort, localIp,
                           (int)(afterSecs - beforeSecs));
          }
 
@@ -219,9 +219,9 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
          // Start the client's thread.
          clientStarted = client->start();
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipProtocolServerBase[%s]::createClient client: %s(%p) '%s':%d",
+                       "SipProtocolServerBase[%s]::createClient client: %s(%p) '%s':%d local '%s'",
                        getName().data(), client->getName().data(),
-                       client, hostAddress, hostPort);
+                       client, hostAddress, hostPort, localIp);
          if (!clientStarted)
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,

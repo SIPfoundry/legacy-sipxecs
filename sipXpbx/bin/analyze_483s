@@ -94,7 +94,7 @@ foreach $transaction (keys %failed) {
 
 print "The most common request-URIs in requests that failed with 482/483:\n";
 print "\n";
-print "Count\tRequest-URI\tSample transaction\n";
+print "Count\tRequest-URI\tSample transaction (Call-Id CSeq)\n";
 foreach $uri (sort
 	      { $transactions_per_uri{$b} <=> $transactions_per_uri{$a} }
 	      keys(%transactions_per_uri)) {

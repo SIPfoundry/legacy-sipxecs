@@ -79,7 +79,7 @@ clean-svn:
 	rm -rf `find $(distdir) -type d -name .svn`
 
 # Override default tarball creation, need to support paths > 99 chars
-# change tar optoions: "chof"  to "chf", implications tarball is not
+# change tar options: "chof" to "chf", implications tarball is not
 # compatible on legacy systems.  See 'man tar' for more info
 # Other dist types will have same problem, but not orerriding yet as we do
 # support them at this time nor do I have time to check/maintain them, yet.
