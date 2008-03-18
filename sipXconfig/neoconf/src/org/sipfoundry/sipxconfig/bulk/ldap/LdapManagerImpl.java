@@ -34,8 +34,7 @@ import org.springframework.ldap.UncategorizedLdapException;
 /**
  * Maintains LDAP connection params, attribute maps and schedule LdapManagerImpl
  */
-public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapManager,
-        ApplicationContextAware {
+public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapManager, ApplicationContextAware {
     private static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
     private LdapTemplateFactory m_templateFactory;
     private ApplicationContext m_applicationContext;
@@ -49,8 +48,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
             String searchBase = results.get(attrNames[0]).trim();
             // it will only overwrite the search base if not set yet
-            if (StringUtils.isBlank(attrMap.getSearchBase()) &&
-                        StringUtils.isNotEmpty(searchBase) ) {
+            if (StringUtils.isBlank(attrMap.getSearchBase()) && StringUtils.isNotEmpty(searchBase)) {
                 attrMap.setSearchBase(searchBase);
             }
             String subschemaSubentry = results.get(attrNames[1]);
@@ -65,7 +63,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     private void verifyException(String message, Exception e) {
         LOG.debug("Verifying LDAP connection failed.", e);
         // for the purpose of readability, remove any nested exception
-        // info from the message, if there is any.  This is done by only
+        // info from the message, if there is any. This is done by only
         // taking that part of the message up to the first ';'
         String fullMessage = e.getMessage();
         String parsedMessage = fullMessage;
@@ -87,9 +85,8 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             cons.setReturningAttributes(mapper.getReturningAttributes());
             cons.setSearchScope(SearchControls.OBJECT_SCOPE);
 
-            Schema schema = (Schema) m_templateFactory.getLdapTemplate().search(
-                    subschemaSubentry, LdapManager.FILTER_ALL_CLASSES, cons, new SchemaMapper(),
-                    LdapManager.NULL_PROCESSOR).get(0);
+            Schema schema = (Schema) m_templateFactory.getLdapTemplate().search(subschemaSubentry,
+                    LdapManager.FILTER_ALL_CLASSES, cons, new SchemaMapper(), LdapManager.NULL_PROCESSOR).get(0);
 
             return schema;
         } catch (DataIntegrityViolationException e) {
@@ -118,8 +115,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         public Object mapFromAttributes(Attributes attributes) throws NamingException {
             // only interested in the first result
             if (!m_initialized) {
-                NamingEnumeration definitions = attributes.get(getReturningAttributes()[0])
-                        .getAll();
+                NamingEnumeration definitions = attributes.get(getReturningAttributes()[0]).getAll();
                 while (definitions.hasMoreElements()) {
                     String classDefinition = (String) definitions.nextElement();
                     m_schema.addClassDefinition(classDefinition);
@@ -142,15 +138,15 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
      *         specific is provided
      * @throws NamingException
      */
-    private Map<String, String> retrieveDefaultSearchBase(LdapConnectionParams params,
-            String[] attrNames) throws NamingException {
+    private Map<String, String> retrieveDefaultSearchBase(LdapConnectionParams params, String[] attrNames)
+        throws NamingException {
         SearchControls cons = new SearchControls();
 
         cons.setReturningAttributes(attrNames);
         cons.setSearchScope(SearchControls.OBJECT_SCOPE);
 
-        List<Map<String, String>> results = m_templateFactory.getLdapTemplate(params).search("",
-                FILTER_ALL_CLASSES, cons, new AttributesToValues(attrNames), NULL_PROCESSOR);
+        List<Map<String, String>> results = m_templateFactory.getLdapTemplate(params).search("", FILTER_ALL_CLASSES,
+                cons, new AttributesToValues(attrNames), NULL_PROCESSOR);
         // only interested in the first result
         if (results.size() > 0) {
 
@@ -166,8 +162,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             m_attrNames = attrNames;
         }
 
-        public Map<String, String> mapFromAttributes(Attributes attributes)
-            throws NamingException {
+        public Map<String, String> mapFromAttributes(Attributes attributes) throws NamingException {
             Map<String, String> values = new HashMap<String, String>();
             for (String attrName : m_attrNames) {
                 // only retrieves a single value for each attribute
@@ -195,8 +190,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         connectionParams.setSchedule(schedule);
         getHibernateTemplate().update(connectionParams);
 
-        m_applicationContext.publishEvent(new LdapImportTrigger.ScheduleChangedEvent(schedule,
-                this));
+        m_applicationContext.publishEvent(new LdapImportTrigger.ScheduleChangedEvent(schedule, this));
     }
 
     public AttrMap getAttrMap() {
@@ -210,13 +204,12 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     }
 
     public LdapConnectionParams getConnectionParams() {
-        List<LdapConnectionParams> connections = getHibernateTemplate().loadAll(
-                LdapConnectionParams.class);
+        List<LdapConnectionParams> connections = getHibernateTemplate().loadAll(LdapConnectionParams.class);
         if (!connections.isEmpty()) {
             return connections.get(0);
         }
-        LdapConnectionParams params = (LdapConnectionParams) m_applicationContext.getBean(
-                "ldapConnectionParams", LdapConnectionParams.class);
+        LdapConnectionParams params = (LdapConnectionParams) m_applicationContext.getBean("ldapConnectionParams",
+                LdapConnectionParams.class);
         getHibernateTemplate().save(params);
         return params;
     }
