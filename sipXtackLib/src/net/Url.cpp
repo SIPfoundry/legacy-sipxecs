@@ -189,7 +189,7 @@ const RegEx FieldParams( SWS ";([^,]+)" );
 //   is terminated by but does not require a trailing '>'
 //   $0 matches ?params
 //   $1 matches params
-const RegEx HeaderOrQueryParams( SWS "\\?([^,>]++)[,>]?" );
+const RegEx HeaderOrQueryParams( SWS "\\?([^,>]++)" );
 
 // AllDigits
 const RegEx AllDigits("^\\+?[0-9*]++$");
@@ -1309,7 +1309,9 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
       mDisplayName.remove(0);
       LOG_TIME("display   <");
       RegEx displayName(DisplayName);
-      if (displayName.SearchAt(urlString, workingOffset))
+      if (   displayName.SearchAt(urlString, workingOffset)
+          && displayName.MatchStart(0) == workingOffset
+         )
       {
          LOG_TIME("display   > ");
          switch (displayName.Matches() /* number of substrings that matched */)
@@ -1336,7 +1338,9 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
       // Are there angle brackets around the URI?
       LOG_TIME("angles   < ");
       RegEx angleBrackets(AngleBrackets);
-      if (angleBrackets.SearchAt(urlString, workingOffset))
+      if (   angleBrackets.SearchAt(urlString, workingOffset)
+          && angleBrackets.MatchStart(0) == workingOffset
+         )
       {
          LOG_TIME("angles   > ");
          // yes, there are angle brackets
@@ -1423,7 +1427,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
       // Parse the username and password
       LOG_TIME("userpass   < ");
       RegEx usernameAndPassword(UsernameAndPassword);
-      if (   (usernameAndPassword.SearchAt(urlString, workingOffset))
+      if (   usernameAndPassword.SearchAt(urlString, workingOffset)
           && usernameAndPassword.MatchStart(0) == workingOffset 
           )
       {
@@ -1576,23 +1580,37 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
       // Parse the field parameters
       if (NameAddr == uriForm) // can't have field parameters in an AddrSpec
       {
+         // If '<...>' was seen, workingOffset should be just before '>'.
          if (afterAngleBrackets != UTL_NOT_FOUND)
          {
-            workingOffset = afterAngleBrackets;
+            if ((size_t) (workingOffset+1) == afterAngleBrackets)
+            {
+               // Advance to after '>'.
+               workingOffset = afterAngleBrackets;
+            }
+            else
+            {
+               mScheme = UnknownUrlScheme;
+            }
          }
 
-         LOG_TIME("fldparm   < ");
-         RegEx fieldParameters(FieldParams);
-         if (   (fieldParameters.SearchAt(urlString, workingOffset))
-             && (fieldParameters.MatchStart(0) == workingOffset)
-             )
+         // If there was no trouble about '>', continue with parsing
+         // field parameters.
+         if (UnknownUrlScheme != mScheme)
          {
-            LOG_TIME("fldparm   > ");
-            fieldParameters.MatchString(&mRawFieldParameters, 1);
-            workingOffset = fieldParameters.AfterMatch(0);
+            LOG_TIME("fldparm   < ");
+            RegEx fieldParameters(FieldParams);
+            if (   (fieldParameters.SearchAt(urlString, workingOffset))
+                   && (fieldParameters.MatchStart(0) == workingOffset)
+               )
+            {
+               LOG_TIME("fldparm   > ");
+               fieldParameters.MatchString(&mRawFieldParameters, 1);
+               workingOffset = fieldParameters.AfterMatch(0);
             
-            // actual parsing of the parameters is in parseFieldParameters
-            // so that it only happens if someone asks for them.
+               // actual parsing of the parameters is in parseFieldParameters
+               // so that it only happens if someone asks for them.
+            }
          }
       }
 

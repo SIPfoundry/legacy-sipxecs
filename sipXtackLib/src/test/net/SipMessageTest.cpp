@@ -1200,7 +1200,7 @@ class SipMessageTest : public CppUnit::TestCase
          
          // Create a To URI containing the header.
          char to_URI[100];
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value1>", header_name);
+         sprintf(to_URI, "<sip:to@example.com?%s=value1>", header_name);
 
          // Create the SIP message.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
@@ -1231,10 +1231,11 @@ class SipMessageTest : public CppUnit::TestCase
 #endif
 
          const char* v = msg->getHeaderValue(0, header_name);
-         CPPUNIT_ASSERT_MESSAGE(header_name, strcmp(v, "value1") == 0);
+         CPPUNIT_ASSERT_MESSAGE(header_name,
+                                v != NULL && strcmp(v, "value1") == 0);
 
          // Create a second To URI containing the header.
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value2>", header_name);
+         sprintf(to_URI, "<sip:to@example.com?%s=value2>", header_name);
 
          // Update the SIP message, creating a second value for the header.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
@@ -1263,10 +1264,12 @@ class SipMessageTest : public CppUnit::TestCase
 #endif
 
          v = msg->getHeaderValue(0, header_name);
-         CPPUNIT_ASSERT_MESSAGE(header_name, strcmp(v, "value1") == 0);
+         CPPUNIT_ASSERT_MESSAGE(header_name,
+                                v != NULL && strcmp(v, "value1") == 0);
 
          v = msg->getHeaderValue(1, header_name);
-         CPPUNIT_ASSERT_MESSAGE(header_name, strcmp(v, "value2") == 0);
+         CPPUNIT_ASSERT_MESSAGE(header_name,
+                                v != NULL && strcmp(v, "value2") == 0);
 
          delete msg;
       }
@@ -1296,7 +1299,7 @@ class SipMessageTest : public CppUnit::TestCase
          
          // Create a To URI containing the header.
          char to_URI[100];
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value1>", header_name);
+         sprintf(to_URI, "<sip:to@example.com?%s=value1>", header_name);
 
          // Create the SIP message.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
@@ -1327,10 +1330,11 @@ class SipMessageTest : public CppUnit::TestCase
 #endif
 
          const char* v = msg->getHeaderValue(0, header_name);
-         CPPUNIT_ASSERT_MESSAGE(header_name, strcmp(v, "value1") == 0);
+         CPPUNIT_ASSERT_MESSAGE(header_name,
+                                v != NULL && strcmp(v, "value1") == 0);
 
          // Create a second To URI containing the header.
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value2>", header_name);
+         sprintf(to_URI, "<sip:to@example.com?%s=value2>", header_name);
 
          // Update the SIP message, creating a second value for the header.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
@@ -1359,7 +1363,8 @@ class SipMessageTest : public CppUnit::TestCase
 #endif
 
          v = msg->getHeaderValue(0, header_name);
-         CPPUNIT_ASSERT_MESSAGE(header_name, strcmp(v, "value2") == 0);
+         CPPUNIT_ASSERT_MESSAGE(header_name,
+                                v != NULL && strcmp(v, "value2") == 0);
 
          // Second value must not be present.
          v = msg->getHeaderValue(1, header_name);
@@ -1396,7 +1401,7 @@ class SipMessageTest : public CppUnit::TestCase
          
          // Create a To URI containing the header.
          char to_URI[100];
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value1>", header_name);
+         sprintf(to_URI, "<sip:to@example.com?%s=value1>", header_name);
 
          // Create the SIP message.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.

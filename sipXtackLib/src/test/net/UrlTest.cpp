@@ -539,21 +539,20 @@ public:
 
    void testSemiHeaderParam()
       {
-         const char *withAngles          = "<sip:tester@sipfoundry.org?foo=bar;bing>";
-         const char *withoutAngles        = "sip:tester@sipfoundry.org?foo=bar;bing";
+         // ';' is reserved in header params, so it is represented '%3B'.
          const char *withAnglesEscaped   = "<sip:tester@sipfoundry.org?foo=bar%3Bbing>";
          const char *withoutAnglesEscaped = "sip:tester@sipfoundry.org?foo=bar%3Bbing";
 
-         Url urlHdr(withAngles);
-         sprintf(msg, "with angle brackets %s", withAngles);
+         Url urlHdr(withAnglesEscaped);
+         sprintf(msg, "with angle brackets %s", withAnglesEscaped);
 
          ASSERT_STR_EQUAL_MESSAGE(msg, "bar;bing", getHeaderParam("foo", urlHdr));
 
          ASSERT_STR_EQUAL_MESSAGE(msg, withAnglesEscaped, toString(urlHdr));
          ASSERT_STR_EQUAL_MESSAGE(msg, withoutAnglesEscaped, getUri(urlHdr));
 
-         Url url(withoutAngles, TRUE /* parse as a request uri */ );
-         sprintf(msg, "without angle brackets %s", withoutAngles);
+         Url url(withoutAnglesEscaped, TRUE /* parse as a request uri */ );
+         sprintf(msg, "without angle brackets %s", withoutAnglesEscaped);
 
          ASSERT_STR_EQUAL_MESSAGE(msg, "bar;bing", getHeaderParam("foo", url));
 
@@ -795,6 +794,7 @@ public:
     void testComplexDisplayName()
     {
        UtlString s;
+       bool b;
 
        // The case that first revealed the problem with parsing display names.
 
@@ -846,9 +846,35 @@ public:
        for (unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]); i++)
        {
           sprintf(msg, "URI %d: %s", i, tests[i].url);
-          Url url(tests[i].url, Url::NameAddr, NULL);
+          Url url;
+          b = url.fromString(tests[i].url, Url::NameAddr, NULL);
+          CPPUNIT_ASSERT_MESSAGE(msg, b);
           url.getDisplayName(s);
           ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].expected, s.data());
+       }
+
+       // Check strings that should cause parsing to fail.
+
+       const char* fail_tests[] = {
+          "\"xxxx <sip:8032@192.168.3.2:5060>",
+          "|||<sip:8032@192.168.3.2:5060>",
+          "<|||sip:8032@192.168.3.2:5060>",
+          "<sip:|||8032@192.168.3.2:5060>",
+          "<sip:8032@192.168.3.2:5060|||;foo=bar>",
+          "<sip:8032@192.168.3.2:5060|||?foo=bar>",
+          "<sip:8032@192.168.3.2:5060;foo=bar,>",
+          "<sip:8032@192.168.3.2:5060?foo=bar,>",
+          "<sip:600-3@cdhcp139.pingtel.com&q=0.8>",
+       };
+
+       for (unsigned int i = 0;
+            i < sizeof (fail_tests) / sizeof (fail_tests[0]);
+            i++)
+       {
+          sprintf(msg, "URI %d: %s", i, fail_tests[i]);
+          Url url;
+          b = url.fromString(fail_tests[i], Url::NameAddr, NULL);
+          CPPUNIT_ASSERT_MESSAGE(msg, !b);
        }
     }
 
@@ -988,7 +1014,7 @@ public:
     // Test that removeHeaderParameter is case-insensitive in parameter names.
     void testRemoveHeaderParameterCase()
     {
-        Url url1("<sip:600-3@cdhcp139.pingtel.com&q=0.8>");
+        Url url1("<sip:600-3@cdhcp139.pingtel.com?q=0.8>");
         url1.removeHeaderParameter("q");
 
         ASSERT_STR_EQUAL("sip:600-3@cdhcp139.pingtel.com",
