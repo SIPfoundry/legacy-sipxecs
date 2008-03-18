@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.site.user.UserTable;
 
 public abstract class AddPhoneUser extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "AddPhoneUser";
+    public static final String PAGE = "phone/AddPhoneUser";
 
     public abstract Phone getPhone();
 

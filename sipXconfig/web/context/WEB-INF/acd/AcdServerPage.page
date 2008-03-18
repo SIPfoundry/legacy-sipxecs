@@ -16,7 +16,7 @@
 
   <!-- C O M P O N E N T S -->
 
-  <component id="border" type="Border">
+  <component id="border" type="common/Border">
     <binding name="useDojo"
       value="tab == 'agentsStats' || tab == 'callsStats' || tab == 'queuesStats'" />
   </component>
@@ -36,7 +36,7 @@
   <component id="linesForm" copy-of="form" />
   <component id="queuesForm" copy-of="form" />
 
-  <component id="hostPanel" type="FieldPanel">
+  <component id="hostPanel" type="common/FieldPanel">
     <binding name="field" value="components.hostField" />
     <binding name="label" value="message:label.host" />
     <binding name="description" value="message:description.host" />
@@ -48,7 +48,7 @@
     <binding name="validators" value="spring-validators:validHostOrIp,required" />
   </component>
 
-  <component id="portPanel" type="FieldPanel">
+  <component id="portPanel" type="common/FieldPanel">
     <binding name="field" value="components.portField" />
     <binding name="label" value="message:label.port" />
     <binding name="defaultValue" value="message:default.port" />
@@ -65,36 +65,36 @@
     <binding name="renderGroupTitle" value="false" />
   </component>
 
-  <component id="acdLinesPanel" type="AcdLinesPanel">
+  <component id="acdLinesPanel" type="acd/AcdLinesPanel">
     <binding name="lines" value="acdServer.lines" />
     <binding name="addListener" value="listener:addLine" />
     <binding name="selectListener" value="listener:editLine" />
     <binding name="changed" value="changed" />
   </component>
 
-  <component id="acdQueuesPanel" type="AcdQueuesPanel">
+  <component id="acdQueuesPanel" type="acd/AcdQueuesPanel">
     <binding name="queues" value="acdServer.queues" />
     <binding name="addListener" value="listener:addQueue" />
     <binding name="selectListener" value="listener:editQueue" />
     <binding name="changed" value="changed" />
   </component>
 
-  <component id="acdAgentsStatsPanel" type="AcdAgentsStatsPanel">
+  <component id="acdAgentsStatsPanel" type="acd/AcdAgentsStatsPanel">
     <binding name="acdServerId" value="acdServerId" />
     <binding name="acdStatistics" value="acdStatistics"/>
   </component>
 
-  <component id="acdCallsStatsPanel" type="AcdCallsStatsPanel">
+  <component id="acdCallsStatsPanel" type="acd/AcdCallsStatsPanel">
     <binding name="acdServerId" value="acdServerId" />
     <binding name="acdStatistics" value="acdStatistics"/>
   </component>
 
-  <component id="acdQueuesStatsPanel" type="AcdQueuesStatsPanel">
+  <component id="acdQueuesStatsPanel" type="acd/AcdQueuesStatsPanel">
     <binding name="acdServerId" value="acdServerId" />
     <binding name="acdStatistics" value="acdStatistics"/>
   </component>
 
-  <component id="formActions" type="FormActions">
+  <component id="formActions" type="common/FormActions">
     <binding name="listener" value="listener:apply" />
     <binding name="callback" value="callback" />
   </component>

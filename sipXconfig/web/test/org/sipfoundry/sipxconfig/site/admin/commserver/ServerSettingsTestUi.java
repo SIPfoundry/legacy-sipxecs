@@ -29,7 +29,7 @@ public class ServerSettingsTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(tester);
-        clickLink(ServerSettings.PAGE);
+        clickLink("ServerSettings");
     }
 
     public void testDisplay() {

@@ -12,7 +12,7 @@
   <property name="settingContext"  initial-value="hivemind:spring:settingDao"/>
   <component id="groupManagement" type="Form">
   </component>
-  <component id="tableView" type="Table">
+  <component id="tableView" type="common/Table">
     <binding name="columns" value="literal:* !name:weight, !members"/>
     <binding name="source" value="groups"/>
     <binding name="usePager" value="true"/>

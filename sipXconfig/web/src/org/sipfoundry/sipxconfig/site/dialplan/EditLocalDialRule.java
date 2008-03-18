@@ -14,5 +14,5 @@ package org.sipfoundry.sipxconfig.site.dialplan;
  * EditInternalDialRule
  */
 public abstract class EditLocalDialRule extends EditDialRule {
-    public static final String PAGE = "EditLocalDialRule";
+    public static final String PAGE = "dialplan/EditLocalDialRule";
 }

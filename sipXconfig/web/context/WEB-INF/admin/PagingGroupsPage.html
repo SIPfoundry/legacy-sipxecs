@@ -1,9 +1,9 @@
-<div jwcid="@Border" useDojo="true">
+<div jwcid="@common/Border" useDojo="true">
   <h2>
     <span key="title">Paging Groups</span>
   </h2>
-  <span jwcid="@ErrorMsg" />
-  <span jwcid="@QuickHelp" value="message:quick.help" />
+  <span jwcid="@common/ErrorMsg" />
+  <span jwcid="@common/QuickHelp" value="message:quick.help" />
   <form jwcid="pagingGroups@Form" id="pagingGroupsForm" delegate="bean:validator">
     <ul class="component-links">
       <li>
@@ -15,7 +15,7 @@
     <span jwcid="@If" condition="ognl:(groups.size() > 0)">
       <fieldset>
   	    <table>
-		  <tr jwcid="@FieldPanel" for="prefix"
+		  <tr jwcid="@common/FieldPanel" for="prefix"
         	  field="component:prefix"
         	  label="message:label.prefix">
             <input jwcid="prefix@TextField" id="prefix"
@@ -29,7 +29,7 @@
   	    </table>
       </fieldset>
     </span>
-	<table jwcid="@Table" id="pagingGroups:list"
+	<table jwcid="@common/Table" id="pagingGroups:list"
         columns="* pageGroupNumber,enabled,!userCount,description"
         source="prop:groups"
         row="prop:currentRow"

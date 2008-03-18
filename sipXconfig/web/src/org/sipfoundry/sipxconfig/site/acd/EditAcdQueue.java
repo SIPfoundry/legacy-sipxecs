@@ -30,7 +30,7 @@ import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 
 public abstract class EditAcdQueue extends PageWithCallback implements PageBeginRenderListener {
 
-    public static final String PAGE = "EditAcdQueue";
+    public static final String PAGE = "acd/EditAcdQueue";
 
     private static final String ID = "id";
 

@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 
 public abstract class ManageUsers extends BasePage {
 
-    public static final String PAGE = "ManageUsers";
+    public static final String PAGE = "user/ManageUsers";
     private static final String USER_TABLE_COMPONENT_ID = "userTable";
 
     public abstract CoreContext getCoreContext();

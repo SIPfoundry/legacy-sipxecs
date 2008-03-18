@@ -36,7 +36,7 @@ import org.sipfoundry.sipxconfig.site.gateway.port.PortSettings;
  * EditGateway
  */
 public abstract class EditGateway extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "EditGateway";
+    public static final String PAGE = "gateway/EditGateway";
 
     @InjectPage(value = PortSettings.PAGE)
     public abstract PortSettings getPortSettingsPage();

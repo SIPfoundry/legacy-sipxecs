@@ -33,7 +33,7 @@
       value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.verifyLdap)" />
   </component>
 
-  <component id="scheduleEditor" type="ScheduleEditor">
+  <component id="scheduleEditor" type="common/ScheduleEditor">
     <binding name="schedule" value="schedule" />
   </component>
   <component id="applySchedule" type="Submit">

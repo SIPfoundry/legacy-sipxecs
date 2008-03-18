@@ -35,7 +35,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
  * List all the phones/phones for management and details drill-down
  */
 public abstract class ManagePhones extends BasePage implements PageBeginRenderListener {
-    public static final String PAGE = "ManagePhones";
+    public static final String PAGE = "phone/ManagePhones";
 
     @Bean
     public abstract SelectMap getSelections();

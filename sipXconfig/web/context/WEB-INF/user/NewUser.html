@@ -3,16 +3,16 @@
     <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
 </head>
 <body jwcid="$content$">
-	<div jwcid="@Border" useDojo="true">
+	<div jwcid="@common/Border" useDojo="true">
     <div class="help">
 		<b><span key="label.quickLinks">Quick Links</span></b>
 		<ul>
 			<li><a jwcid="extensionPoolsLink" id="link:extensionPool"><span key="extensionPool">Extension Pool</span></a></li>
 		</ul>
 	</div>    
-    <span jwcid="@GroupCloud" groups="ognl:coreContext.groups"/>
+    <span jwcid="@setting/GroupCloud" groups="ognl:coreContext.groups"/>
     <h2 id="page:newuser"><span key="title">New User</span></h2>
-        <span jwcid="@ErrorMsg"/>
+        <span jwcid="@common/ErrorMsg"/>
         <div id="settings-content">
 	        <form jwcid="form">
 	            <span jwcid="userForm"/>

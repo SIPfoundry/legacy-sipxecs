@@ -1,8 +1,8 @@
-<div jwcid="@Border" useDojo="true">
+<div jwcid="@common/Border" useDojo="true">
   <span id="phone:edit"><!-- non-empty to avoid IE JS error -->
   </span>
   
-  <span jwcid="@PhoneNavigation" bean="prop:phone"/>
+  <span jwcid="@phone/PhoneNavigation" bean="prop:phone"/>
   
   <div id="settings-content">
     <div class="help">
@@ -24,11 +24,11 @@
         deviceIds="prop:generateProfileIds"/>
     </div>
     <div jwcid="@Else">
-      <span jwcid="@GroupCloud" groups="ognl:phoneContext.groups"/>
+      <span jwcid="@setting/GroupCloud" groups="ognl:phoneContext.groups"/>
       <div jwcid="@common/DeviceResources" deviceDescriptor="ognl:phone.model" />
       <form jwcid="@Form" delegate="bean:validator">
-        <span jwcid="@EditPhoneForm" phone="prop:phone" validator="bean:validator"/>
-        <span jwcid="@FormActions" callback="ognl:callback"
+        <span jwcid="@phone/EditPhoneForm" phone="prop:phone" validator="bean:validator"/>
+        <span jwcid="@common/FormActions" callback="ognl:callback"
           listener="listener:commit">
           <li>
             <input jwcid="generateProfile@Submit" id="generateProfile"

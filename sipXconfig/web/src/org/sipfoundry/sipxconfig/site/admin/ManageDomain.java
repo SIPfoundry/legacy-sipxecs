@@ -31,7 +31,7 @@ import org.sipfoundry.sipxconfig.site.dialplan.ActivateDialPlan;
  * Edit single domain and it's aliases
  */
 public abstract class ManageDomain extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "ManageDomain";
+    public static final String PAGE = "admin/ManageDomain";
 
     @InjectObject (value = "spring:tapestry")
     public abstract TapestryContext getTapestry();

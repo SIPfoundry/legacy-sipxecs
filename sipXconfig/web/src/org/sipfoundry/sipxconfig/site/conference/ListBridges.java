@@ -17,7 +17,7 @@ import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 
 public abstract class ListBridges extends BasePage {
 
-    public static final String PAGE = "ListBridges";
+    public static final String PAGE = "conference/ListBridges";
 
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 

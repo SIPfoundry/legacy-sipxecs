@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticContext
 
 public abstract class ConfigurationDiagnosticPage extends BasePage implements
         PageBeginRenderListener {
-    public static final String PAGE = "ConfigurationDiagnosticPage";
+    public static final String PAGE = "admin/configdiag/ConfigurationDiagnosticPage";
 
     @InjectObject(value = "spring:configurationDiagnosticContext")
     public abstract ConfigurationDiagnosticContext getConfigurationDiagnosticContext();

@@ -11,7 +11,7 @@
   <inject property="userSession" type="state" object="userSession"/>
   <inject property="acdStatistics" object="spring:acdStatistics" />
 
-  <component id="border" type="Border">
+  <component id="border" type="common/Border">
     <binding name="useDojo"
       value="tab == 'agentsStats' || tab == 'callsStats' || tab == 'queuesStats'" />
     <binding name="restricted" value="false"/>
@@ -23,26 +23,26 @@
     <binding name="selectedTab" value="tab" />
   </component>
 
-  <component id="acdAgentPresencePanel" type="AcdAgentPresencePanel">
+  <component id="acdAgentPresencePanel" type="acd/AcdAgentPresencePanel">
     <binding name="users" value="supervisedUsers"/>
   </component>
 
-  <component id="acdAgentsStatsPanel" type="AcdAgentsStatsPanel">
+  <component id="acdAgentsStatsPanel" type="acd/AcdAgentsStatsPanel">
     <binding name="acdServerId" value="acdServerId" />
     <binding name="acdStatistics" value="acdStatistics"/>
   </component>
 
-  <component id="acdCallsStatsPanel" type="AcdCallsStatsPanel">
+  <component id="acdCallsStatsPanel" type="acd/AcdCallsStatsPanel">
     <binding name="acdServerId" value="acdServerId" />
     <binding name="acdStatistics" value="acdStatistics"/>
   </component>
 
-  <component id="acdQueuesStatsPanel" type="AcdQueuesStatsPanel">
+  <component id="acdQueuesStatsPanel" type="acd/AcdQueuesStatsPanel">
     <binding name="acdServerId" value="acdServerId" />
     <binding name="acdStatistics" value="acdStatistics"/>
   </component>
 
-  <component id="selectServerPanel" type="AcdSelectServerPanel">
+  <component id="selectServerPanel" type="acd/AcdSelectServerPanel">
     <binding name="acdServerId" value="acdServerId" />
   </component>
 

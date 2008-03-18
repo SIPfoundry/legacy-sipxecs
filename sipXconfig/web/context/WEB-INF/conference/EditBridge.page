@@ -17,13 +17,13 @@
     <binding name="delegate" value="bean:validator"/>
     <binding name="listener" value="listener:formSubmit"/>
   </component>
-  <component id="itemCommon" type="ItemCommon">
+  <component id="itemCommon" type="common/ItemCommon">
     <binding name="item" value="bridge"/>
     <binding name="useEnabled" value="true"/>
     <binding name="useExtension" value="false"/>
     <binding name="useFieldset" value="false"/>
   </component>
-  <component id="hostPanel" type="FieldPanel">
+  <component id="hostPanel" type="common/FieldPanel">
     <binding name="field" value="components.host"/>
     <binding name="label" value="message:label.host"/>
     <binding name="description" value="message:description.host"/>
@@ -33,7 +33,7 @@
     <binding name="validators" value="spring-validators:validHostOrIp"/>
     <binding name="displayName" value="message:label.host"/>
   </component>
-  <component id="portPanel" type="FieldPanel">
+  <component id="portPanel" type="common/FieldPanel">
     <binding name="field" value="components.port"/>
     <binding name="label" value="message:label.port"/>
     <binding name="description" value="message:description.port"/>
@@ -48,13 +48,13 @@
     <binding name="settings" value="bridge.settings"/>
     <binding name="renderGroupTitle" value="false"/>
   </component>
-  <component id="conferencePanel" type="ConferencesPanel">
+  <component id="conferencePanel" type="conference/ConferencesPanel">
     <binding name="conferences" value="bridge.conferences"/>
     <binding name="addListener" value="listener:addConference"/>
     <binding name="selectListener" value="listener:editConference"/>
     <binding name="changed" value="changed"/>
   </component>
-  <component id="formActions" type="FormActions">
+  <component id="formActions" type="common/FormActions">
     <binding name="listener" value="listener:apply"/>
     <binding name="callback" value="callback"/>
   </component>

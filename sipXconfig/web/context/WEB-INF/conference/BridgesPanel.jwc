@@ -28,7 +28,7 @@
     <binding name="tag" value="selections.allSelected"/>
     <binding name="value" value="message:button.delete"/>
   </component>
-  <component id="tableView" type="Table">
+  <component id="tableView" type="common/Table">
     <binding name="columns" value="literal:* name,enabled,host,description"/>
     <binding name="source" value="bridges"/>
     <binding name="row" value="currentRow"/>

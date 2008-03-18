@@ -1,13 +1,13 @@
-    <div jwcid="@Border" restricted="false">
+    <div jwcid="@common/Border" restricted="false">
       <h2 jwcid="@If" condition="ognl:userSession.admin" element="h2">
         <span key="title">Schedule</span>
  	  </h2>
 	  <h2 jwcid="@Else" element="h2">
 		<span key="title">Schedule</span>
 	  </h2>      	
-	  <span jwcid="@ErrorMsg"></span>
+	  <span jwcid="@common/ErrorMsg"></span>
 	  <form jwcid="@Form" delegate="bean:validator" listener="listener:submit">
-	     <span jwcid="@ItemCommon" item="ognl:schedule" nameValidator="spring-validators:required,noWhitespace" useEnabled="literal:false" useExtension="literal:false"/>
+	     <span jwcid="@common/ItemCommon" item="ognl:schedule" nameValidator="spring-validators:required,noWhitespace" useEnabled="literal:false" useExtension="literal:false"/>
 		  <ul class="component-links">
 			<li>
 				<a jwcid="addPeriod@LinkSubmit" selected="prop:action" tag="add"><span key="add">Add Period</span></a>
@@ -18,11 +18,11 @@
 	          <tbody>
 	            <!-- iterate here -->
 	            <tr jwcid="@For" source="ognl:workingHours" value="ognl:workingHour" index="ognl:index" volatile="true">
-				  <span jwcid="@ScheduleWorkingHours" workingHour="ognl:workingHour" index="ognl:index" deleteListener="listener:deletePeriod"/>
+				  <span jwcid="@common/ScheduleWorkingHours" workingHour="ognl:workingHour" index="ognl:index" deleteListener="listener:deletePeriod"/>
 				</tr>
 	          </tbody>
 	        </table>
 	      </fieldset>	      
- 	    <span jwcid="@FormActions" callback="prop:callback" listener="listener:commit"/>
+	    <span jwcid="@common/FormActions" callback="prop:callback" listener="listener:commit"/>
 	  </form>	  
     </div>

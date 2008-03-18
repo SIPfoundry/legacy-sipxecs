@@ -19,7 +19,7 @@
   <component id="settingDescription" type="Insert">
     <binding name="value" value="parentSetting.description"/>
   </component>
-  <component id="settingsForm" type="SettingsForm">
+  <component id="settingsForm" type="setting/SettingsForm">
     <binding name="settings" value="parentSetting"/>
     <binding name="cancelListener" value="listener:cancel"/>
     <binding name="okListener" value="listener:ok"/>

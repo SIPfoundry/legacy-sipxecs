@@ -4,6 +4,6 @@
 <page-specification class="org.apache.tapestry.html.BasePage">
   <description>Presence Server page Status/Sign In/Sign Out</description>
 
-  <component id="presencePanel" type="AcdAgentPresencePanel"/>
+  <component id="presencePanel" type="acd/AcdAgentPresencePanel"/>
     
 </page-specification>

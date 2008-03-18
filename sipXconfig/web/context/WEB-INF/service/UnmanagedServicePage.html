@@ -1,20 +1,20 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <h2 id="server:form">
     <span key="title"/> - <span jwcid="@Insert" value="prop:serviceDescriptor.label"/>
   </h2>
-  <span jwcid="@ErrorMsg"/>
+  <span jwcid="@common/ErrorMsg"/>
   <form jwcid="@Form" delegate="bean:validator">
-    <span jwcid="@ItemCommon" item="prop:service" nameValidator="spring-validators:required" useEnabled="literal:true"
+    <span jwcid="@common/ItemCommon" item="prop:service" nameValidator="spring-validators:required" useEnabled="literal:true"
        useExtension="literal:false"/>
     <fieldset>
       <table>
         <tbody>
-          <tr jwcid="@FieldPanel" for="service:address" field="ognl:components.address" label="message:label.address" description="message:description.address">
+          <tr jwcid="@common/FieldPanel" for="service:address" field="ognl:components.address" label="message:label.address" description="message:description.address">
             <input jwcid="address@TextField" value="prop:service.address" validators="validators:required" id="service:address" maxlength="40"/>
           </tr>
         </tbody>
       </table>
     </fieldset>
-    <ul jwcid="@FormActions" listener="listener:apply" callback="prop:callback"/>
+    <ul jwcid="@common/FormActions" listener="listener:apply" callback="prop:callback"/>
   </form>
 </div>

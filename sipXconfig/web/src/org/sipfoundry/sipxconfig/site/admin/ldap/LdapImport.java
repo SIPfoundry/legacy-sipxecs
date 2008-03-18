@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class LdapImport extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "LdapImport";
+    public static final String PAGE = "admin/ldap/LdapImport";
 
     public abstract LdapImportManager getLdapImportManager();
     

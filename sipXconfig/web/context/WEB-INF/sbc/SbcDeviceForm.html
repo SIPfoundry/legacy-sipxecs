@@ -1,7 +1,7 @@
 <fieldset>
   <table>
     <tbody>
-      <label jwcid="@FieldPanel" for="sbcDevice:name"
+      <label jwcid="@common/FieldPanel" for="sbcDevice:name"
         field="component:sbcDeviceName"
         label="message:label.name">
         <input jwcid="sbcDeviceName@TextField" id="sbcDevice:name" maxlength="40"
@@ -9,7 +9,7 @@
           validators="validators:required"
           displayName="message:label.name"/>
       </label>
-      <label jwcid="@FieldPanel" for="sbcDevice:address"
+      <label jwcid="@common/FieldPanel" for="sbcDevice:address"
         field="component:sbcDeviceAddress"
         label="message:label.address"
         description="message:description.address">
@@ -19,7 +19,7 @@
           displayName="message:label.address"/>
       </label>
       <span jwcid="@If" condition="prop:sbcDevice.model.hasSerialNumber">
-        <label jwcid="@FieldPanel" for="sbcDevice:serial"
+        <label jwcid="@common/FieldPanel" for="sbcDevice:serial"
           field="component:sbcDeviceSerial"
           label="message:label.serial"
           description="message:description.serial">
@@ -30,7 +30,7 @@
             displayName="message:label.serial"/>
         </label>
       </span>
-      <label jwcid="@FieldPanel" for="sbcDevice:description"
+      <label jwcid="@common/FieldPanel" for="sbcDevice:description"
         field="component:sbcDeviceDescription"
         label="message:label.description">
         <textarea jwcid="sbcDeviceDescription@TextArea" id="sbcDevice:description" cols="60" rows="5"

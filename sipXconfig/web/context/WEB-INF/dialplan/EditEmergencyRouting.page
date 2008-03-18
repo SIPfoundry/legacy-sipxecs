@@ -22,7 +22,7 @@
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
   </component>
-  <component id="errors" type="ErrorMsg"/>
+  <component id="errors" type="common/ErrorMsg"/>
   <component id="gatewaysLink" type="PageLink">
     <binding name="page" value="literal:ListGateways"/>
   </component>
@@ -51,12 +51,12 @@
     <binding name="value" value="exceptionsMap.key"/>
     <binding name="listener" value="listener:synchronizeExceptionItem"/>
   </component>
-  <component id="exception" type="RoutingExceptionEditor">
+  <component id="exception" type="dialplan/RoutingExceptionEditor">
     <binding name="deleteListener" value="listener:deleteException"/>
     <binding name="exception" value="exceptionItem"/>
     <binding name="gateways" value="gatewayContext.gateways"/>
   </component>
-  <component id="formActions" type="FormActions">
+  <component id="formActions" type="common/FormActions">
     <binding name="callback" value="callback"/>
     <binding name="listener" value="listener:commit"/>
   </component>

@@ -1,11 +1,11 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <h2><span jwcid="@Insert" value="ognl:upload.specification.label"/> <span key="heading.files"/></h2>
-  <span jwcid="@ErrorMsg"/>
+  <span jwcid="@common/ErrorMsg"/>
   <form jwcid="uploadForm@Form" delegate="bean:validator">
     <fieldset>
       <table>
         <tbody>
-          <span jwcid="nameDescriptionEdit@ItemCommon"
+          <span jwcid="nameDescriptionEdit@common/ItemCommon"
             useExtension="ognl:false"
             useEnabled="ognl:false"
             useFieldset="ognl:false"
@@ -22,7 +22,7 @@
         renderGroupTitle="ognl:true"
         enabled="ognl:! upload.deployed"/>
       </span>
-      <span jwcid="applyOkCancel@FormActions"
+      <span jwcid="applyOkCancel@common/FormActions"
         listener="listener:onSave"
         callback="ognl:callback">
         <span jwcid="@If" condition="ognl:! upload.isNew()">

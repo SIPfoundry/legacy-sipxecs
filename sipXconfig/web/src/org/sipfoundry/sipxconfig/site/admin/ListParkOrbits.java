@@ -26,7 +26,7 @@ import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
 public abstract class ListParkOrbits extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "ListParkOrbits";
+    public static final String PAGE = "admin/ListParkOrbits";
 
     public abstract ParkOrbitContext getParkOrbitContext();
 

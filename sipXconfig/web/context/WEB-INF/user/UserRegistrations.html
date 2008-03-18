@@ -1,13 +1,13 @@
-<div jwcid="@Border" restricted="false" useDojo="ognl:true">
-  <span jwcid="@UserNavigation" bean="prop:user" renderCondition="ognl:userSession.admin" />
+<div jwcid="@common/Border" restricted="false" useDojo="ognl:true">
+  <span jwcid="@user/UserNavigation" bean="prop:user" renderCondition="ognl:userSession.admin" />
   <h2 jwcid="@If" condition="ognl:!userSession.admin" element="h2">
     <span key="title">User Schedules</span>
   </h2>
   <p><span key="helpText">Registered phones are operational and ready to make and receive calls. Phones that are not
         registered are turned off or do not have network connectivity.</span></p>
-  <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
-    <span jwcid="@ErrorMsg"/>
-    <form jwcid="@AutoRefreshForm">
+  <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
+    <span jwcid="@common/ErrorMsg"/>
+    <form jwcid="@common/AutoRefreshForm">
 	  <span jwcid="registrationsTable@setting/RegistrationsTable"  registrations="ognl:registrations"/>
     </form>
   </div>

@@ -18,7 +18,7 @@
     <binding name="listener" value="listener:login"/>
     <binding name="delegate" value="bean:validator"/>
   </component>
-  <component id="panelUserName" type="FieldPanel">
+  <component id="panelUserName" type="common/FieldPanel">
     <binding name="field" value="components.userName"/>
     <binding name="label" value="message:label.userName"/>
   </component>
@@ -27,7 +27,7 @@
     <binding name="validators" value="validators:required"/>
     <binding name="displayName" value="message:label.userName"/>
   </component>
-  <component id="panelPassword" type="FieldPanel">
+  <component id="panelPassword" type="common/FieldPanel">
     <binding name="field" value="components.password"/>
     <binding name="label" value="message:label.password"/>
   </component>

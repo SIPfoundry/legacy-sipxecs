@@ -6,7 +6,7 @@
   <!--
     - C O M P O N E N T S
   -->
-  <component id="dialRuleCommon" type="DialRuleCommon">
+  <component id="dialRuleCommon" type="dialplan/DialRuleCommon">
     <binding name="ruleId" value="ruleId" />
     <binding name="rule" value="rule" />
     <binding name="callback" value="callback" />

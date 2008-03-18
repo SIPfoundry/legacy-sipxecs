@@ -27,7 +27,7 @@
     <binding name="condition" value="!simpleSearch"/>
   </component>
   <!-- simple search -->
-  <component id="queryLabel" type="FieldPanel">
+  <component id="queryLabel" type="common/FieldPanel">
     <binding name="field" value="components.query"/>
     <binding name="label" value="message:label.query"/>
     <binding name="description" value="message:description.query"/>
@@ -37,7 +37,7 @@
     <binding name="displayName" value="message:label.query"/>
   </component>
   <!-- advanced search -->
-  <component id="firstNameLabel" type="FieldPanel">
+  <component id="firstNameLabel" type="common/FieldPanel">
     <binding name="field" value="components.firstName"/>
     <binding name="label" value="message:label.firstName"/>
   </component>
@@ -45,7 +45,7 @@
     <binding name="value" value="user.firstName"/>
     <binding name="displayNames" value="message:label.firstName"/>
   </component>
-  <component id="lastNameLabel" type="FieldPanel">
+  <component id="lastNameLabel" type="common/FieldPanel">
     <binding name="field" value="components.lastName"/>
     <binding name="label" value="message:label.lastName"/>
   </component>
@@ -53,7 +53,7 @@
     <binding name="value" value="user.lastName"/>
     <binding name="displayName" value="message:label.lastName"/>
   </component>
-  <component id="userNameOrAliasLabel" type="FieldPanel">
+  <component id="userNameOrAliasLabel" type="common/FieldPanel">
     <binding name="field" value="components.userNameOrAlias"/>
     <binding name="label" value="message:label.userNameOrAlias"/>
   </component>

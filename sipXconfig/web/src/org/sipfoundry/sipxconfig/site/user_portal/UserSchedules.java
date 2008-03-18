@@ -14,7 +14,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 public abstract class UserSchedules extends UserBasePage {
 
-    public static final String PAGE = "UserSchedules";
+    public static final String PAGE = "user_portal/UserSchedules";
 
     @Bean
     public abstract SipxValidationDelegate getValidator();

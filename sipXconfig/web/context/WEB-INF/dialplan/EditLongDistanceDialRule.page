@@ -40,13 +40,13 @@
     - C O M P O N E N T S
   -->
 
-  <component id="dialRuleCommon" type="DialRuleCommon">
+  <component id="dialRuleCommon" type="dialplan/DialRuleCommon">
     <binding name="ruleId" value="ruleId" />
     <binding name="rule" value="rule" />
     <binding name="callback" value="callback" />
   </component>
 
-  <component id="permissionTypeLabel" type="FieldPanel">
+  <component id="permissionTypeLabel" type="common/FieldPanel">
     <binding name="field" value="components.permissionType" />
     <binding name="label" value="message:label.permissionType" />
     <binding name="description" value="message:description.permissionType" />
@@ -55,7 +55,7 @@
     <binding name="model" value="bean:permissionTypeModel"></binding>
     <binding name="value" value="rule.permission"></binding>
   </component>
-  <component id="pstnPrefixLabel" type="FieldPanel">
+  <component id="pstnPrefixLabel" type="common/FieldPanel">
     <binding name="field" value="components.pstnPrefix" />
     <binding name="label" value="message:label.pstnPrefix" />
     <binding name="description" value="message:description.pstnPrefix" />
@@ -65,7 +65,7 @@
     <binding name="validators" value="spring-validators:validSipUserId" />
     <binding name="displayName" value="message:label.pstnPrefix" />
   </component>
-  <component id="pstnPrefixOptionalLabel" type="FieldPanel">
+  <component id="pstnPrefixOptionalLabel" type="common/FieldPanel">
     <binding name="field" value="components.pstnPrefixOptional" />
     <binding name="label" value="message:label.pstnPrefixOptional" />
     <binding name="description" value="message:description.pstnPrefixOptional" />
@@ -73,7 +73,7 @@
   <component id="pstnPrefixOptional" type="Checkbox">
     <binding name="value" value="rule.pstnPrefixOptional" />
   </component>
-  <component id="longDistancePrefixLabel" type="FieldPanel">
+  <component id="longDistancePrefixLabel" type="common/FieldPanel">
     <binding name="field" value="components.longDistancePrefix" />
     <binding name="label" value="message:label.longDistancePrefix" />
     <binding name="description" value="message:description.longDistancePrefix" />
@@ -83,7 +83,7 @@
     <binding name="validators" value="spring-validators:validSipUserId" />
     <binding name="displayName" value="message:label.longDistancePrefix" />
   </component>
-  <component id="longDistancePrefixOptionalLabel" type="FieldPanel">
+  <component id="longDistancePrefixOptionalLabel" type="common/FieldPanel">
     <binding name="field" value="components.longDistancePrefixOptional" />
     <binding name="label" value="message:label.longDistancePrefixOptional" />
     <binding name="description" value="message:description.longDistancePrefixOptional" />
@@ -91,7 +91,7 @@
   <component id="longDistancePrefixOptional" type="Checkbox">
     <binding name="value" value="rule.longDistancePrefixOptional" />
   </component>
-  <component id="areaCodesLabel" type="FieldPanel">
+  <component id="areaCodesLabel" type="common/FieldPanel">
     <binding name="field" value="components.areaCodes" />
     <binding name="label" value="message:label.areaCodes" />
     <binding name="description" value="message:description.areaCodes" />
@@ -101,7 +101,7 @@
     <binding name="validators" value="spring-validators:validPhoneSequence" />
     <binding name="displayName" value="message:label.areaCodes" />
   </component>
-  <component id="externalLenLabel" type="FieldPanel">
+  <component id="externalLenLabel" type="common/FieldPanel">
     <binding name="field" value="components.externalLen" />
     <binding name="label" value="message:label.externalLen" />
     <binding name="description" value="message:description.externalLen" />
@@ -111,7 +111,7 @@
     <binding name="model" value="bean:externalLenModel" />
   </component>
 
-  <component id="toggleAdvanced" type="ToggleLink">
+  <component id="toggleAdvanced" type="common/ToggleLink">
     <binding name="toggle" value="showAdvanced" />
   </component>
   <component id="renderPstnPrefixOptional" type="If">

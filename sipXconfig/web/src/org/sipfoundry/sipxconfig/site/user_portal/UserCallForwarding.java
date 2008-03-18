@@ -13,7 +13,7 @@ import org.apache.tapestry.annotations.Bean;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 public abstract class UserCallForwarding extends UserBasePage {
-    public static final String PAGE = "UserCallForwarding";
+    public static final String PAGE = "user_portal/UserCallForwarding";
     
     @Bean
     public abstract SipxValidationDelegate getValidator();

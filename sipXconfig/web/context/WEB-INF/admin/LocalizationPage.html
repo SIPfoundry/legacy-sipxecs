@@ -1,12 +1,12 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <h2><span key="title">Localization</span></h2>
-  <div jwcid="@QuickHelp" value="message:description" />
-  <span jwcid="@ErrorMsg" />
+  <div jwcid="@common/QuickHelp" value="message:description" />
+  <span jwcid="@common/ErrorMsg" />
   <form jwcid="languageForm@Form">
 	<fieldset>
 	  <table>
 		<tr>
-		  <td jwcid="languageLabel@FieldPanel" field="component:language" label="message:label.language" description="message:language.description" for="localization:language">
+		  <td jwcid="languageLabel@common/FieldPanel" field="component:language" label="message:label.language" description="message:language.description" for="localization:language">
 			<input jwcid="language@PropertySelection" model="ognl:languageList" value="ognl:language" id="localization:language"/>
 		  </td>
 		</tr>
@@ -22,7 +22,7 @@
 	<fieldset>
 	  <table>
 		<tr>
-		  <td jwcid="regionLabel@FieldPanel" field="component:region" label="message:label.region" description="message:region.description" for="localization:region">
+		  <td jwcid="regionLabel@common/FieldPanel" field="component:region" label="message:label.region" description="message:region.description" for="localization:region">
 			<input jwcid="region@PropertySelection" model="ognl:regionList" value="ognl:region" id="localization:region"/>
 		  </td>
 		</tr>
@@ -37,7 +37,7 @@
   <form jwcid="installForm@Form">
 	<fieldset>
 	  <table>
-		<tr jwcid="@FieldPanel" field="component:localization" label="message:label.localizationPackage" description="message:localizationPackage.description">
+		<tr jwcid="@common/FieldPanel" field="component:localization" label="message:label.localizationPackage" description="message:localizationPackage.description">
 			<td jwcid="localization@Upload" file="prop:uploadFile" />
 		</tr>
 	  </table>

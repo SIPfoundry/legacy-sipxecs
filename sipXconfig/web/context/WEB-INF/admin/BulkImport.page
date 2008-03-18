@@ -21,7 +21,7 @@
   <component id="import" type="Submit">
     <binding name="value" value="message:label.import"/>
   </component>
-  <component id="csvPanel" type="FieldPanel">
+  <component id="csvPanel" type="common/FieldPanel">
     <binding name="field" value="component:csv"/>
     <binding name="label" value="message:label.csv"/>
     <binding name="description" value="message:description.csv"/>

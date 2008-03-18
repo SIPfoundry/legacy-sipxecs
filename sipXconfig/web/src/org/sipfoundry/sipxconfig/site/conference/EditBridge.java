@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 
 public abstract class EditBridge extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "EditBridge";
+    public static final String PAGE = "conference/EditBridge";
 
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 

@@ -34,7 +34,7 @@
     <binding name="listener" value="listener:cancel"/>
     <binding name="value" value="message:button.cancel"/>
   </component>
-  <component id="showAdvanced" type="ToggleLink">
+  <component id="showAdvanced" type="common/ToggleLink">
     <binding name="toggle" value="showAdvanced"/>
     <binding name="labelOff" value="message:link.showXml"/>
     <binding name="labelOn" value="message:link.hideXml"/>
@@ -42,7 +42,7 @@
   <component id="renderXml" type="If">
     <binding name="condition" value="showAdvanced"/>
   </component>
-  <component id="reminder" type="RestartReminderPanel">
+  <component id="reminder" type="admin/commserver/RestartReminderPanel">
     <binding name="processes" value="affectedProcesses"/>
     <binding name="eventClass" value="@org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent@class"/>
     <binding name="reminderMsg" value="message:msg.restart"/>

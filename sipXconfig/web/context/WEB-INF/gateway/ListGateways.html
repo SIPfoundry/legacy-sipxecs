@@ -1,4 +1,4 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <h2>
     <span key="title">Gateways</span>
   </h2>
@@ -13,14 +13,14 @@
         </a>
       </li>
       <li>
-        <a jwcid="@PageLink" page="JobStatusPage" href="#">
+        <a jwcid="@PageLink" page="admin/JobStatusPage" href="#">
           <span key="link.jobStatus">Job Status</span>
         </a>
       </li>
     </ul>
   </div>
-  <div jwcid="@QuickHelp" value="message:help.gatewayConfig">gateway config help text here...</div>
-  <span jwcid="@ErrorMsg"/>
+  <div jwcid="@common/QuickHelp" value="message:help.gatewayConfig">gateway config help text here...</div>
+  <span jwcid="@common/ErrorMsg"/>
   <div jwcid="@If" condition="ognl:generateProfileIds != null">
     <span jwcid="@device/ConfirmProfileGeneration"
         profileManager="prop:gatewayProfileManager"

@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
 public abstract class PhoneGroups extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "PhoneGroups";
+    public static final String PAGE = "phone/PhoneGroups";
 
     public abstract void setGroups(List groups);
 

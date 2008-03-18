@@ -1,7 +1,7 @@
-<span jwcid="@ErrorMsg" validator="ognl:validator"/>
+<span jwcid="@common/ErrorMsg" validator="ognl:validator"/>
 <fieldset>
   <table>
-    <tr jwcid="@FieldPanel" 
+    <tr jwcid="@common/FieldPanel"
       for="phone:serialNumber" 
       label="message:label.serialNumber"
       field="component:serialNumber"
@@ -13,7 +13,7 @@
           translator="prop:serialNumberTranslator"
           displayName="message:label.serialNumber"/>
     </tr>
-    <tr jwcid="@FieldPanel"
+    <tr jwcid="@common/FieldPanel"
       for="phone:description" 
       label="message:description"
       field="component:phoneDescription">
@@ -24,7 +24,7 @@
           displayName="message:description" />
     </tr>
     <span jwcid="@If" condition="ognl:phone.model.versions.length > 0">
-      <tr jwcid="@FieldPanel"
+      <tr jwcid="@common/FieldPanel"
         for="phone:version"
         label="message:label.firmwareVersion"
         field="component:selectVersion">
@@ -35,7 +35,7 @@
           displayName="message:label.firmwareVersion"/>
       </tr>
     </span>
-      <tr jwcid="@FieldPanel"
+      <tr jwcid="@common/FieldPanel"
         for="phone:groups"
         label="message:label.groups"
         description="message:description.groups"

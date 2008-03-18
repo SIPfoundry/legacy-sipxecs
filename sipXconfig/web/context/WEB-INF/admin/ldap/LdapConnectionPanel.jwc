@@ -12,7 +12,7 @@
   <!--
       - C O M P O N E N T S
       -->
-  <component id="hostPanel" type="FieldPanel">
+  <component id="hostPanel" type="common/FieldPanel">
     <binding name="field" value="components.host"/>
     <binding name="label" value="message:label.host"/>
     <binding name="description" value="message:description.host"/>
@@ -23,7 +23,7 @@
     <binding name="displayName" value="message:label.host"/>
   </component>
 
-  <component id="portPanel" type="FieldPanel">
+  <component id="portPanel" type="common/FieldPanel">
     <binding name="field" value="components.port"/>
     <binding name="label" value="message:label.port"/>
     <binding name="description" value="message:description.port"/>
@@ -36,7 +36,7 @@
     <binding name="displayName" value="message:label.port"/>
   </component>
   
-  <component id="principalPanel" type="FieldPanel">
+  <component id="principalPanel" type="common/FieldPanel">
     <binding name="field" value="components.principal"/>
     <binding name="label" value="message:label.principal"/>
     <binding name="description" value="message:description.principal"/>
@@ -47,7 +47,7 @@
     <binding name="displayName" value="message:label.principal"/>
   </component>
 
-  <component id="secret" type="ConfirmPassword">
+  <component id="secret" type="user/ConfirmPassword">
     <binding name="password" value="lcp.secret"/>
     <binding name="passwordDisplayName" value="message:label.secret"/>
     <binding name="passwordDescription" value="message:description.secret"/>

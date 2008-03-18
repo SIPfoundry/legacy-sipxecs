@@ -15,7 +15,7 @@
   
   <inject property="tapestry" object="spring:tapestry"/>
   
-  <component id="actionSelection" type="FlexiblePropertySelection">
+  <component id="actionSelection" type="common/FlexiblePropertySelection">
     <binding name="model" value="decorateModel(actionModel)"/>
     <binding name="onchange" value="literal:javascript:this.form.submit();"/>
     <binding name="value" value="selectedAction"/>

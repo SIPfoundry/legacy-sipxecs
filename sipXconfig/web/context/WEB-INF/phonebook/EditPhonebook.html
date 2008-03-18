@@ -1,11 +1,11 @@
 <body jwcid="$content$">
-	<span jwcid="@Border" useDojo="true">
+	<span jwcid="@common/Border" useDojo="true">
 		<h1>
 			<span key="title.phonebook"/>
 		</h1>
-		<span jwcid="@ErrorMsg"/>
+		<span jwcid="@common/ErrorMsg"/>
 		<p><span key="description.phonebook" raw="true"/></p>
-		<span jwcid="@GroupCloud" groups="ognl:coreContext.groups"/>
+		<span jwcid="@setting/GroupCloud" groups="ognl:coreContext.groups"/>
 		<form jwcid="phonebookForm" id="phonebookForm">
     		<span jwcid="nameDescription"/>
 			<fieldset>

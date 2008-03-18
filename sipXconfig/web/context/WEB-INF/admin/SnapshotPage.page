@@ -14,8 +14,8 @@
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
   </component>
-  <component id="errors" type="ErrorMsg"/>
-  <component id="logsPanel" type="FieldPanel">
+  <component id="errors" type="common/ErrorMsg"/>
+  <component id="logsPanel" type="common/FieldPanel">
     <binding name="field" value="components.logsCheck"/>
     <binding name="label" value="message:label.logs"/>
     <binding name="description" value="message:description.logs"/>
@@ -23,7 +23,7 @@
   <component id="logsCheck" type="Checkbox">
     <binding name="value" value="snapshot.logs"/>
   </component>
-  <component id="wwwPanel" type="FieldPanel">
+  <component id="wwwPanel" type="common/FieldPanel">
     <binding name="field" value="components.wwwCheck"/>
     <binding name="label" value="message:label.www"/>
     <binding name="description" value="message:description.www"/>
@@ -31,7 +31,7 @@
   <component id="wwwCheck" type="Checkbox">
     <binding name="value" value="snapshot.www"/>
   </component>
-  <component id="credentialsPanel" type="FieldPanel">
+  <component id="credentialsPanel" type="common/FieldPanel">
     <binding name="field" value="components.credentialsCheck"/>
     <binding name="label" value="message:label.credentials"/>
     <binding name="description" value="message:description.credentials"/>
@@ -39,7 +39,7 @@
   <component id="credentialsCheck" type="Checkbox">
     <binding name="value" value="snapshot.credentials"/>
   </component>
-  <component id="actions" type="FormActions">
+  <component id="actions" type="common/FormActions">
     <binding name="listener" value="listener:createSnapshot"/>
     <binding name="successMessage" value="message:msg.success"/>
   </component>
@@ -47,7 +47,7 @@
     <binding name="condition" value="snapshotFile != null"/>
     <binding name="element" value="literal:p"/>
   </component>
-  <component id="snapshotLink" type="DownloadLink">
+  <component id="snapshotLink" type="common/DownloadLink">
     <binding name="fileName" value="snapshotFile.name"/>
     <binding name="dirName" value="snapshotFile.parentFile.path"/>
     <binding name="contentType" value="literal:tar/x-gzip"/>

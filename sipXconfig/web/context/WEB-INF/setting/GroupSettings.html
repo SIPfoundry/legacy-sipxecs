@@ -1,4 +1,4 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <h2>
     <span key="title">Group Settings</span>
   </h2>
@@ -13,7 +13,7 @@
       source="prop:settings.values" activeSetting="prop:parentSetting"
       editSettingsListener="listener:editGroupSettings"/>
   </div>
-  <span jwcid="settingsForm@SettingsForm" settings="prop:parentSetting"
+  <span jwcid="settingsForm@setting/SettingsForm" settings="prop:parentSetting"
     cancelListener="listener:cancel" okListener="listener:ok"
     applyListener="listener:apply" validator="bean:validator"
     requiredEnabled="literal:false"/>

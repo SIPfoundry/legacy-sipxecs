@@ -17,14 +17,14 @@
   <!--
     - C O M P O N E N T S
   -->
-  <component id="dialRuleCommon" type="DialRuleCommon">
+  <component id="dialRuleCommon" type="dialplan/DialRuleCommon">
     <binding name="ruleId" value="ruleId" />
     <binding name="rule" value="rule" />
     <binding name="callback" value="callback" />
     <binding name="renderGateways" value="false" />
   </component>
 
-  <component id="extensionPanel" type="FieldPanel">
+  <component id="extensionPanel" type="common/FieldPanel">
     <binding name="field" value="components.extension" />
     <binding name="label" value="message:label.extension" />
   </component>
@@ -33,7 +33,7 @@
     <binding name="validators" value="spring-validators:validPhone,required" />
     <binding name="displayName" value="message:label.extension" />
   </component>
-  <component id="autoAttendantAliasesPanel" type="FieldPanel">
+  <component id="autoAttendantAliasesPanel" type="common/FieldPanel">
     <binding name="field" value="components.autoAttendantAliases" />
     <binding name="label" value="message:label.autoAttendantAliases" />
     <binding name="description" value="message:description.autoAttendantAliases" />
@@ -43,7 +43,7 @@
     <binding name="validators" value="spring-validators:validUsernamePatternSequence" />
     <binding name="displayName" value="message:label.autoAttendantAliases" />
   </component>
-  <component id="afterHoursAttendantPanel" type="FieldPanel">
+  <component id="afterHoursAttendantPanel" type="common/FieldPanel">
     <binding name="field" value="components.afterHoursAttendant" />
     <binding name="label" value="message:label.afterHoursAttendant" />
     <binding name="description" value="message:description.afterHoursAttendant" />
@@ -52,7 +52,7 @@
     <binding name="value" value="rule.afterHoursAttendant.attendant" />
     <binding name="model" value="tapestry.instructUserToSelect(beans.autoAttendants, messages)" />
   </component>
-  <component id="holidayAttendantPanel" type="FieldPanel">
+  <component id="holidayAttendantPanel" type="common/FieldPanel">
     <binding name="field" value="components.holidayAttendant" />
     <binding name="label" value="message:label.holidayAttendant" />
     <binding name="description" value="message:description.holidayAttendant" />
@@ -62,13 +62,13 @@
     <binding name="model" value="tapestry.instructUserToSelect(beans.autoAttendants, messages)" />
     <binding name="onchange" value="literal:javascript:this.form.submit();" />
   </component>
-  <component id="holidayDates" type="HolidaysEditor">
+  <component id="holidayDates" type="dialplan/HolidaysEditor">
     <binding name="holiday" value="rule.holidayAttendant" />
   </component>
   <component id="renderHolidayConfig" type="If">
     <binding name="condition" value="rule.holidayAttendant.attendant != null" />
   </component>
-  <component id="workingTimeAttendantPanel" type="FieldPanel">
+  <component id="workingTimeAttendantPanel" type="common/FieldPanel">
     <binding name="field" value="components.workingTimeAttendant" />
     <binding name="label" value="message:label.workingTimeAttendant" />
     <binding name="description" value="message:description.workingTimeAttendant" />
@@ -83,7 +83,7 @@
     <binding name="value" value="workingHours" />
     <binding name="volatile" value="literal:true" />
   </component>
-  <component id="workingDay" type="WorkingHoursEditor">
+  <component id="workingDay" type="dialplan/WorkingHoursEditor">
     <binding name="workingHours" value="workingHours" />
   </component>
   <component id="renderWorkingHoursConfig" type="If">

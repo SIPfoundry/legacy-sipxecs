@@ -1,4 +1,4 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
     <span jwcid="@gateway/GatewayNavigation" gateway="prop:gateway" dialingRuleId="prop:ruleId"/>
     <div jwcid="@common/LeftNavigation" renderCondition="ognl:!gateway.isNew()">
       <span jwcid="@setting/SettingsNavigation" bean="prop:gateway" 
@@ -15,7 +15,7 @@
     <div jwcid="@common/ProfilePreview" device="prop:gateway"/>
     <div jwcid="@common/DeviceResources" deviceDescriptor="prop:gateway.model" />
   
-  <div jwcid="@OptionalElement" id="settings-content" element="ognl:gateway.isNew()?'':'div'">
+  <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:gateway.isNew()?'':'div'">
     <form jwcid="@Form" delegate="bean:validator" id="gateway">
       <span jwcid="@Hidden" value="prop:activeTab"/>
 
@@ -24,14 +24,14 @@
       </div>
 
       <div jwcid="gcaiBlock@Block">
-        <fieldset jwcid="@GatewayCallerAliasInfoPanel" gcai="prop:gateway.callerAliasInfo"/>
+        <fieldset jwcid="@gateway/GatewayCallerAliasInfoPanel" gcai="prop:gateway.callerAliasInfo"/>
       </div>
 
       <div jwcid="dialplanBlock@Block">
         <fieldset>
           <table>
             <tbody>
-              <label jwcid="@FieldPanel" for="gateway:prefix"
+              <label jwcid="@common/FieldPanel" for="gateway:prefix"
                 field="component:gatewayPrefix"
                 label="message:label.prefix"
                 description="message:description.prefix">
@@ -60,9 +60,9 @@
           <fieldset jwcid="@setting/SettingsFieldset" settings="prop:currentSettingSet"/>
       </div>
                   
-      <span jwcid="@ErrorMsg"/>
+      <span jwcid="@common/ErrorMsg"/>
       <span jwcid="@RenderBlock" block="ognl:components.get(activeTab + 'Block')"/>
-      <ul jwcid="@FormActions"
+      <ul jwcid="@common/FormActions"
         listener="listener:saveGateway"
         callback="prop:callback"/>
     </form>    

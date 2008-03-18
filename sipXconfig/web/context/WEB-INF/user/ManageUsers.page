@@ -23,13 +23,13 @@
   <component id="userManagement" type="Form">
     <binding name="delegate" value="bean:validator"/>
   </component>
-  <component id="groupFilter" type="GroupFilter">
+  <component id="groupFilter" type="setting/GroupFilter">
     <binding name="selectedGroupId" value="groupId"/>
     <binding name="groups" value="coreContext.groups"/>
     <binding name="queryText" value="queryText"/>
     <binding name="searchMode" value="searchMode"/>
   </component>
-  <component id="userTable" type="UserTable">
+  <component id="userTable" type="user/UserTable">
     <binding name="userListener" value="listener:editUser"/>
     <binding name="groupId" value="groupId"/>
     <binding name="searchString" value="queryText"/>
@@ -39,7 +39,7 @@
     <binding name="listener" value="listener:deleteUsers"/>
     <binding name="value" value="message:label.delete"/>
   </component>
-  <component id="groupActions" type="GroupActions">
+  <component id="groupActions" type="phone/GroupActions">
     <binding name="actionModel" value="actionModel"/>
     <binding name="selectedIds" value="components.userTable.selections.allSelected"/>
   </component>

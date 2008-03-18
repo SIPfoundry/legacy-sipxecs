@@ -1,17 +1,17 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <span jwcid="@common/TabNavigation" tabNames="ognl:{'import', 'export'}" selectedTab="prop:tab"/>
   <div id="settings-content">
-    <span jwcid="@ErrorMsg"/>
+    <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
   <div jwcid="importTab@Block">
     <div class="help">
       <b><span key="label.quickLinks">Quick Links</span></b>
       <ul>
-        <li><a jwcid="@PageLink" page="JobStatusPage" href="#"><span key="job.status">Job Status</span></a></li>
+        <li><a jwcid="@PageLink" page="admin/JobStatusPage" href="#"><span key="job.status">Job Status</span></a></li>
       </ul>
     </div>
-    <div jwcid="@QuickHelp" value="message:quick.help"></div>
+    <div jwcid="@common/QuickHelp" value="message:quick.help"></div>
     <form jwcid="form">
       <fieldset id="import:form">
         <table>
@@ -33,7 +33,7 @@
         </tr>
         <tr>
           <td>
-            <span jwcid="@DownloadLink" fileName="" dirName="ognl:exportFile" contentType="text/comma-separated-values" id="exportFile">
+            <span jwcid="@common/DownloadLink" fileName="" dirName="ognl:exportFile" contentType="text/comma-separated-values" id="exportFile">
               <span jwcid="@Insert" value="ognl:exportFile" />
             </span>
           </td>

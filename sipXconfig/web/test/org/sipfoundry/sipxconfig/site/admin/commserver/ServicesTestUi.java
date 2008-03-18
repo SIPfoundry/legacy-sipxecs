@@ -24,7 +24,7 @@ public class ServicesTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(tester);
         
-        clickLink(Services.PAGE);
+        clickLink("Services");
     }
     
     public void testDisplay() {

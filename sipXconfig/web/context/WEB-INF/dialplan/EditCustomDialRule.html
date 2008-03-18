@@ -1,11 +1,11 @@
-<div jwcid="@DialRuleCommon" availableSchedules="ognl:availableSchedules"
+<div jwcid="@dialplan/DialRuleCommon" availableSchedules="ognl:availableSchedules"
   ruleId="ognl:ruleId" rule="ognl:rule" callback="ognl:callback">
-  <span jwcid="@QuickHelp" value="message:quick.help"/>
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
   <fieldset>
     <legend>Dialed Number</legend>
     <table>
       <tbody>
-        <span jwcid="@PatternsEditor" 
+        <span jwcid="@dialplan/PatternsEditor"
           patterns="ognl:rule.dialPatterns"/>
       </tbody>
     </table>
@@ -20,7 +20,7 @@
     <legend>Resulting Call</legend>
     <table>
       <tbody>
-        <span jwcid="@CallPatternEditor"
+        <span jwcid="@dialplan/CallPatternEditor"
           pattern="ognl:rule.callPattern"/>
       </tbody>
     </table>

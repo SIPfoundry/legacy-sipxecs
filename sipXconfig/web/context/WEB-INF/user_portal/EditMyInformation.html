@@ -1,10 +1,10 @@
-<div jwcid="@Border" restricted="false">
+<div jwcid="@common/Border" restricted="false">
   <h2>
     <span key="title"/>
   </h2>
   <span jwcid="@common/TabNavigation" tabNames="ognl:availableTabNames" selectedTab="prop:tab"/>
   <div id="settings-content">  
-    <span jwcid="@ErrorMsg"/>  
+    <span jwcid="@common/ErrorMsg"/>
     <form jwcid="@Form" delegate="bean:validator">
       <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
     </form>
@@ -14,7 +14,7 @@
   <fieldset>
     <table>
       <span jwcid="@vm/MailboxPreferencesForm" preferences="prop:mailboxPreferences"/>
-      <tr jwcid="pin@ConfirmPassword"
+      <tr jwcid="pin@user/ConfirmPassword"
         password="prop:pin"
         passwordDisplayName="message:label.pin"
         confirmPasswordDisplayName="message:label.pin2"
@@ -22,13 +22,13 @@
       </tr>
     </table>
   </fieldset>
-  <ul jwcid="@FormActions" listener="listener:save" callback="prop:callback"/>
+  <ul jwcid="@common/FormActions" listener="listener:save" callback="prop:callback"/>
 </div>
 <div jwcid="menuTab@Block">
-   <span jwcid="@QuickHelp" value="message:quick.help"/>
+   <span jwcid="@common/QuickHelp" value="message:quick.help"/>
   <fieldset>
     <table>
-      <tr jwcid="@FieldPanel"
+      <tr jwcid="@common/FieldPanel"
         for="personalAttendant:overrideLanguage"
         label="message:label.overrideLanguage"
         description="message:description.overrideLanguage"
@@ -39,7 +39,7 @@
           displayName="message:label.overrideLanguage"/>
       </tr>
       <tr>
-        <td jwcid="@FieldPanel" field="component:language"
+        <td jwcid="@common/FieldPanel" field="component:language"
           for="personalAttendant:language"
           label="message:label.language"
           description="message:description.language">
@@ -49,7 +49,7 @@
             id="personalAttendant:language" />
         </td>
       </tr>
-      <tr jwcid="@FieldPanel" 
+      <tr jwcid="@common/FieldPanel"
         for="personalAttendant:operator" 
         label="message:label.operator"
         description="message:description.operator"
@@ -67,7 +67,7 @@
     minKey="1"
     maxKey="9"
     extensionOnly="ognl:true" />
-    <ul jwcid="@FormActions" listener="listener:save" callback="prop:callback"/>
+    <ul jwcid="@common/FormActions" listener="listener:save" callback="prop:callback"/>
 </div>
 
 <div jwcid="distributionListsTab@Block">

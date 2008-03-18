@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.upload.UploadSpecification;
 
 public abstract class EditUpload extends PageWithCallback implements PageBeginRenderListener {
 
-    public static final String PAGE = "EditUpload";
+    public static final String PAGE = "upload/EditUpload";
 
     @InjectObject(value = "spring:uploadManager")
     public abstract UploadManager getUploadManager();

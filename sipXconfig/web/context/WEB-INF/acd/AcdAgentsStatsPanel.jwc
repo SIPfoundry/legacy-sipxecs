@@ -30,14 +30,14 @@
   </bean>
 
   <!-- C O M P O N E N T S -->
-  <component id="queueFilter" type="AcdQueueSelector">
+  <component id="queueFilter" type="acd/AcdQueueSelector">
     <binding name="acdServerId" value="acdServerId" />
     <binding name="acdQueueUri" value="selectedAcdQueueUri"/>
     <binding name="queues" value="acdStatistics.getQueuesStats(acdServerId)"/>
     <binding name="show" value="showQueueSelector" />        
   </component>
 
-  <component id="tableView" type="StatsTable">
+  <component id="tableView" type="common/StatsTable">
     <binding name="source" value="acdStatistics.getAgentsStats(acdServerId, selectedAcdQueueUri)" />
     <binding name="columns" value="literal:agentUri:agentName, state, currentStateMillis" />
     <binding name="row" value="row" />

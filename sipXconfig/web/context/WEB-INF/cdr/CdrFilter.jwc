@@ -12,7 +12,7 @@
   <bean name="propertyRenderer"
     class="org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer" />
 
-  <component id="filter" type="FlexiblePropertySelection">
+  <component id="filter" type="common/FlexiblePropertySelection">
     <binding name="value" value="cdrSearch.mode" />
     <binding name="model" value="selectionModel" />
     <!-- FIXME: hardcoded 'refresh' button ID - 

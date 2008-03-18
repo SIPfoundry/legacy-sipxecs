@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 public abstract class UserSettings extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "UserSettings";
+    public static final String PAGE = "user/UserSettings";
 
     @Persist
     public abstract void setUserId(Integer userId);

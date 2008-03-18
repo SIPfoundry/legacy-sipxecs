@@ -16,7 +16,7 @@ import org.apache.tapestry.BaseComponent;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 
 public abstract class RestartReminderPanel extends BaseComponent {
-    public static final String PAGE = "RestartReminder";
+    public static final String PAGE = "admin/commserver/RestartReminder";
 
     public abstract boolean getRestartLater();
 

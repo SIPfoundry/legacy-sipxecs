@@ -26,7 +26,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionManager;
 
 public abstract class ListPermissions extends BasePage {
 
-    public static final String PAGE = "ListPermissions";
+    public static final String PAGE = "permission/ListPermissions";
 
     @InjectObject(value = "spring:permissionManager")
     public abstract PermissionManager getPermissionManager();

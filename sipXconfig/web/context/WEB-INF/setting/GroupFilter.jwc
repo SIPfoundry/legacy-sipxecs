@@ -17,7 +17,7 @@
   
   <bean name="propertyRenderer" class="org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer"/>
   
-  <component id="groupFilter" type="FlexiblePropertySelection">
+  <component id="groupFilter" type="common/FlexiblePropertySelection">
     <binding name="value" value="groupId"/>
     <binding name="model" value="selectionModel"/>
     <binding name="onchange" value="literal:javascript:this.form.submit();"/>

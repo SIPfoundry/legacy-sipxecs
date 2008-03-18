@@ -1,12 +1,12 @@
-<div jwcid="@Border" restricted="false" useDojo="true">
+<div jwcid="@common/Border" restricted="false" useDojo="true">
   <h2>
     <span key="title"/>
   </h2>
   <p><span key="text">Sign-in or sign-out to presence server. Useful for peer-to-peer clients status
     notification or call distribution systems.</span></p>
-  <span jwcid="@ErrorMsg"/>
+  <span jwcid="@common/ErrorMsg"/>
   <div id="settings-content">
-    <form jwcid="form@AutoRefreshForm" id="presence:form" actionBlock="ognl:actionBlock">
+    <form jwcid="form@common/AutoRefreshForm" id="presence:form" actionBlock="ognl:actionBlock">
       <span jwcid="@If" condition="ognl:! presenceServer.enabled">
         <p class="user-error" id="presence-disabled"><span key="error">Presence server support is not enabled on your system.</span></p>
       </span>

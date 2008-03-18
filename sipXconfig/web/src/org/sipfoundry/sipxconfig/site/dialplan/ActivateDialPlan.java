@@ -30,7 +30,7 @@ public abstract class ActivateDialPlan extends PageWithCallback {
         ConfigFileType.FORWARDING_RULES
     };
 
-    public static final String PAGE = "ActivateDialPlan";
+    public static final String PAGE = "dialplan/ActivateDialPlan";
 
     public abstract ConfigFileType getSelected();
 

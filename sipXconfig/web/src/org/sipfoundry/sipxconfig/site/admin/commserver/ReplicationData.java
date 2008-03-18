@@ -15,7 +15,7 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 
 public abstract class ReplicationData extends PageWithCallback {
 
-    public static final String PAGE = "ReplicationData";
+    public static final String PAGE = "admin/commserver/ReplicationData";
 
     public abstract SipxReplicationContext getSipxReplicationContext();
 

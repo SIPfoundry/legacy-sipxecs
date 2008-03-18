@@ -18,7 +18,7 @@
   <!--
       - C O M P O N E N T S
       -->
-  <component id="toggleSearchType" type="ToggleLink">
+  <component id="toggleSearchType" type="common/ToggleLink">
     <binding name="toggle" value="simpleSearch"/>
     <binding name="labelOff" value="message:search.simple"/>
     <binding name="labelOn" value="message:search.advanced"/>
@@ -26,11 +26,11 @@
   <component id="selectUserForm" type="Form">
     <binding name="delegate" value="bean:validator"/>
   </component>
-  <component id="searchForm" type="UserSearch">
+  <component id="searchForm" type="user/UserSearch">
     <binding name="cancelListener" value="listener:cancel"/>
     <binding name="simpleSearch" value="simpleSearch"/>
   </component>
-  <component id="searchResults" type="UserSearchResults">
+  <component id="searchResults" type="user/UserSearchResults">
     <binding name="users" value="components.searchForm.users"/>
   </component>
   <component id="select" type="Submit">
@@ -39,7 +39,7 @@
   <component id="title" type="Insert">
     <binding name="value" value="title"/>
   </component>
-  <component id="prompt" type="QuickHelp">
+  <component id="prompt" type="common/QuickHelp">
     <binding name="value" value="prompt"/>
   </component>
 </page-specification>

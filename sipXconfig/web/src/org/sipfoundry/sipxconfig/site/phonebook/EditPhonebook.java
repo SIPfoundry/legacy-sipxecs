@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public abstract class EditPhonebook extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "EditPhonebook";
+    public static final String PAGE = "phonebook/EditPhonebook";
     public abstract PhonebookManager getPhonebookManager();
     public abstract SettingDao getSettingDao();
     public abstract CoreContext getCoreContext();

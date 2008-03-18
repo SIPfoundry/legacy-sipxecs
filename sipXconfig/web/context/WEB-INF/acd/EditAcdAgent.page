@@ -28,7 +28,7 @@
     <binding name="renderGroupTitle" value="false" />
   </component>
 
-  <component id="formActions" type="FormActions">
+  <component id="formActions" type="common/FormActions">
     <binding name="listener"
       value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.apply)" />
     <binding name="callback" value="callback" />
@@ -39,7 +39,7 @@
     <binding name="value" value="acdAgent.user.userName" />
   </component>
 
-  <component id="acdQueuesPanel" type="AcdQueuesPanel">
+  <component id="acdQueuesPanel" type="acd/AcdQueuesPanel">
     <binding name="queues" value="acdAgent.queues" />
     <binding name="selectListener" value="listener:editQueue" />
     <binding name="acdAgentId" value="acdAgentId" />

@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  */
 public abstract class PhoneSettings extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "PhoneSettings";
+    public static final String PAGE = "phone/PhoneSettings";
 
     public abstract Integer getPhoneId();
 

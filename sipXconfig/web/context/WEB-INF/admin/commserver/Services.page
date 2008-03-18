@@ -30,7 +30,7 @@
     <binding name="listener" value="listener:refresh" />
   </component>
 
-  <component id="locationPanel" type="FieldPanel">
+  <component id="locationPanel" type="common/FieldPanel">
     <binding name="field" value="components.locationSelection" />
     <binding name="label" value="message:label.locations" />
     <binding name="description" value="message:description.locations" />
@@ -45,7 +45,7 @@
     <binding name="condition" value="sipxProcessContext.locations.length > 1" />
   </component>
 
-  <component id="tableView" type="Table">
+  <component id="tableView" type="common/Table">
     <binding name="source" value="serviceStatus" />
     <binding name="selections" value="bean:selections" />
     <binding name="columns" value="literal:* serviceName,status" />

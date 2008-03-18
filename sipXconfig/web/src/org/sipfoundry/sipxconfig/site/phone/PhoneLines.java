@@ -35,7 +35,7 @@ import org.sipfoundry.sipxconfig.site.line.EditLine;
  */
 public abstract class PhoneLines extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "PhoneLines";
+    public static final String PAGE = "phone/PhoneLines";
 
     @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();

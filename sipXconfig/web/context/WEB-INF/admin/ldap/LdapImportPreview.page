@@ -22,7 +22,7 @@
   <!--
     - C O M P O N E N T S
   -->
-  <component id="download" type="DownloadLink">
+  <component id="download" type="common/DownloadLink">
     <binding name="fileName" value="file.name" />
     <binding name="dirName" value="file.parent" />
     <binding name="contentType" value="literal:text/comma-separated-values" />
@@ -59,7 +59,7 @@
     <binding name="listener" value="listeners.previous" />
   </component>
 
-  <component id="firstNamePanel" type="FieldPanel">
+  <component id="firstNamePanel" type="common/FieldPanel">
     <binding name="field" value="components.firstName" />
     <binding name="label" value="message:label.firstName" />
   </component>
@@ -69,7 +69,7 @@
     <binding name="displayName" value="message:label.firstName" />    
   </component>
 
-  <component id="lastNamePanel" type="FieldPanel">
+  <component id="lastNamePanel" type="common/FieldPanel">
     <binding name="field" value="components.lastName" />
     <binding name="label" value="message:label.lastName" />
   </component>
@@ -79,7 +79,7 @@
     <binding name="displayName" value="message:label.lastName" />
   </component>
 
-  <component id="userIdPanel" type="FieldPanel">
+  <component id="userIdPanel" type="common/FieldPanel">
     <binding name="field" value="components.userId" />
     <binding name="label" value="message:label.userId" />
   </component>
@@ -89,7 +89,7 @@
     <binding name="displayName" value="message:label.userId" />
   </component>
 
-  <component id="sipPasswordPanel" type="FieldPanel">
+  <component id="sipPasswordPanel" type="common/FieldPanel">
     <binding name="field" value="components.sipPassword" />
     <binding name="label" value="message:label.sipPassword" />
   </component>
@@ -99,7 +99,7 @@
     <binding name="displayName" value="message:label.sipPassword" />
   </component>
 
-  <component id="groupsPanel" type="FieldPanel">
+  <component id="groupsPanel" type="common/FieldPanel">
     <binding name="field" value="components.groups" />
     <binding name="label" value="message:label.groups" />
   </component>
@@ -110,7 +110,7 @@
     <binding name="displayName" value="message:label.groups" />
   </component>
 
-  <component id="aliasesPanel" type="FieldPanel">
+  <component id="aliasesPanel" type="common/FieldPanel">
     <binding name="field" value="components.aliases" />
     <binding name="label" value="message:label.aliases" />
   </component>
@@ -121,7 +121,7 @@
     <binding name="displayName" value="message:label.aliases" />
   </component>
 
-  <component id="emailPanel" type="FieldPanel">
+  <component id="emailPanel" type="common/FieldPanel">
     <binding name="field" value="components.email" />
     <binding name="label" value="message:label.email" />
   </component>

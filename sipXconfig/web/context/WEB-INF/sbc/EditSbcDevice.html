@@ -1,4 +1,4 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   
     <div jwcid="@common/LeftNavigation" renderCondition="ognl:!sbcDevice.isNew()">
       <span jwcid="@setting/SettingsNavigation" bean="ognl:sbcDevice"
@@ -15,7 +15,7 @@
     <div jwcid="@common/ProfilePreview" device="ognl:sbcDevice"/>
     <div jwcid="@common/DeviceResources" deviceDescriptor="ognl:sbcDevice.model" />
   
-  <div jwcid="@OptionalElement" id="settings-content" element="ognl:sbcDevice.isNew()?'':'div'">
+  <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:sbcDevice.isNew()?'':'div'">
     <form jwcid="@Form" delegate="bean:validator" id="sbc">
       <span jwcid="@Hidden" value="ognl:activeTab"/>
       <div jwcid="configBlock@Block">
@@ -24,9 +24,9 @@
       <div jwcid="settingsBlock@Block">
           <fieldset jwcid="@setting/SettingsFieldset" settings="ognl:currentSettingSet"/>
       </div>
-      <span jwcid="@ErrorMsg"/>
+      <span jwcid="@common/ErrorMsg"/>
       <span jwcid="@RenderBlock" block="ognl:components.get(activeTab + 'Block')"/>
-      <ul jwcid="@FormActions"
+      <ul jwcid="@common/FormActions"
         listener="listener:save"
         callback="ognl:callback"/>
     </form>

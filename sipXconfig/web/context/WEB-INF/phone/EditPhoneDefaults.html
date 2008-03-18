@@ -1,5 +1,5 @@
-<div jwcid="@Border">
-  <p><span jwcid="@GroupLabel" group="prop:group"/></p>
+<div jwcid="@common/Border">
+  <p><span jwcid="@setting/GroupLabel" group="prop:group"/></p>
   <p>
     <strong><span key="label.model">Model</span>:</strong>&nbsp;
     <span jwcid="@Insert" value="prop:phone.model.label"/>
@@ -27,7 +27,7 @@
   </div>
   
   <p><span jwcid="@Insert" value="prop:editFormSettingDescription"/></p>
-  <span jwcid="@SettingsForm"
+  <span jwcid="@setting/SettingsForm"
     validator="bean:validator"
     applyListener="listener:apply"
     okListener="listener:ok"

@@ -5,7 +5,7 @@
   <div id="banner">
    	<div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
   </div>
-  <span jwcid="@ErrorMsg"/>
+  <span jwcid="@common/ErrorMsg"/>
   <div jwcid="@If" condition="prop:renderLicense">
     <form jwcid="@Form" delegate="bean:validator" focus="false">
       <fieldset>
@@ -31,7 +31,7 @@
       <fieldset id="firstuser:form">
         <legend><span key="prompt">Please choose a PIN for the "superadmin" user</span></legend>
         <table>
-          <tbody jwcid="pin@ConfirmPassword"        
+          <tbody jwcid="pin@user/ConfirmPassword"
             password="prop:pin"
             passwordDisplayName="message:label.newPin"
             confirmPasswordDisplayName="message:label.confirmNewPin"
@@ -39,7 +39,7 @@
             passwordValidator="spring-validators:validPin,required"/>
         </table>
       </fieldset>
-      <ul jwcid="@FormActions" listener="listener:commit"/>
+      <ul jwcid="@common/FormActions" listener="listener:commit"/>
     </form>
   </div>    
 </body>

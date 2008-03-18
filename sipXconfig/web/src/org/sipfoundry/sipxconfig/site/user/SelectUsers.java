@@ -15,7 +15,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 
 public abstract class SelectUsers extends BasePage {
-    public static final String PAGE = "SelectUsers";
+    public static final String PAGE = "user/SelectUsers";
 
     public abstract CoreContext getCoreContext();
 

@@ -18,7 +18,7 @@
 
   <!-- C O M P O N E N T S -->
 
-  <component id="tableView" type="Table">
+  <component id="tableView" type="common/Table">
   	<binding name="source" value="targets"/>
     <binding name="columns" value="literal:* macAddress,ipAddress,vendor,model"/>
     <binding name="usePager" value="true"/>

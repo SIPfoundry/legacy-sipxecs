@@ -3,7 +3,7 @@
 <component-specification allow-body="no" allow-informal-parameters="no">
   <parameter name="gcai" required="yes" />
 
-  <component id="defaultCallerAliasPanel" type="FieldPanel">
+  <component id="defaultCallerAliasPanel" type="common/FieldPanel">
     <binding name="field" value="components.defaultCallerAlias" />
     <binding name="label" value="message:label.defaultCallerAlias" />
     <binding name="description" value="message:description.defaultCallerAlias" />
@@ -14,7 +14,7 @@
     <binding name="displayName" value="message:label.defaultCallerAlias" />
   </component>
 
-  <component id="anonymousPanel" type="FieldPanel">
+  <component id="anonymousPanel" type="common/FieldPanel">
     <binding name="field" value="components.anonymous" />
     <binding name="label" value="message:label.anonymous" />
     <binding name="description" value="message:description.anonymous" />
@@ -24,7 +24,7 @@
     <binding name="displayName" value="message:label.anonymous" />
   </component>
 
-  <component id="ignoreUserInfoPanel" type="FieldPanel">
+  <component id="ignoreUserInfoPanel" type="common/FieldPanel">
     <binding name="field" value="components.ignoreUserInfo" />
     <binding name="label" value="message:label.ignoreUserInfo" />
     <binding name="description" value="message:description.ignoreUserInfo" />
@@ -34,7 +34,7 @@
     <binding name="displayName" value="message:label.ignoreUserInfo" />
   </component>
 
-  <component id="transformUserExtensionPanel" type="FieldPanel">
+  <component id="transformUserExtensionPanel" type="common/FieldPanel">
     <binding name="field" value="components.transformUserExtension" />
     <binding name="label" value="message:label.transformUserExtension" />
     <binding name="description" value="message:description.transformUserExtension" />
@@ -44,7 +44,7 @@
     <binding name="displayName" value="message:label.transformUserExtension" />
   </component>
 
-  <component id="addPrefixPanel" type="FieldPanel">
+  <component id="addPrefixPanel" type="common/FieldPanel">
     <binding name="field" value="components.addPrefix" />
     <binding name="label" value="message:label.addPrefix" />
     <binding name="description" value="message:description.addPrefix" />
@@ -55,7 +55,7 @@
     <binding name="displayName" value="message:label.addPrefix" />
   </component>
 
-  <component id="keepDigitsPanel" type="FieldPanel">
+  <component id="keepDigitsPanel" type="common/FieldPanel">
     <binding name="field" value="components.keepDigits" />
     <binding name="label" value="message:label.keepDigits" />
     <binding name="description" value="message:description.keepDigits" />

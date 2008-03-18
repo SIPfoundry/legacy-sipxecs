@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public abstract class SupervisorPermission extends PageWithCallback implements
         PageBeginRenderListener {
-    public static final String PAGE = "SupervisorPermission";
+    public static final String PAGE = "user/SupervisorPermission";
 
     public abstract Integer getUserId();
 

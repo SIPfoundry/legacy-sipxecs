@@ -16,6 +16,8 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class RestartReminderTestUi extends WebTestCase {
 
+    public static final String RESTART_REMINDER_LINK = "RestartReminder";
+
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(RestartReminderTestUi.class);
     }
@@ -23,7 +25,7 @@ public class RestartReminderTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(tester);
-        clickLink(RestartReminder.PAGE);
+        clickLink(RESTART_REMINDER_LINK);
     }
     
     public void testRestartNow() {
@@ -47,7 +49,7 @@ public class RestartReminderTestUi extends WebTestCase {
         clickButton("restart:save");
         
         // should be back at the test page
-        assertLinkPresent(RestartReminder.PAGE);
+        assertLinkPresent(RESTART_REMINDER_LINK);
     }
 
 }

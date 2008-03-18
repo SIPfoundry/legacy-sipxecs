@@ -16,7 +16,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 
 public abstract class RestartReminder extends BasePage {
-    public static final String PAGE = "RestartReminder";
+    public static final String PAGE = "admin/commserver/RestartReminder";
 
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestry();

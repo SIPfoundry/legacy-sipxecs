@@ -1,7 +1,7 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <h2 id="manage:attendant"><span key="title">Auto Attendants</span></h2>
-  <div jwcid="@QuickHelp" value="message:help.attendantConfig">attendant config help text here...</div>
-  <span jwcid="@ErrorMsg"/>
+  <div jwcid="@common/QuickHelp" value="message:help.attendantConfig">attendant config help text here...</div>
+  <span jwcid="@common/ErrorMsg"/>
   <ul class="component-links">
     <li>
       <a jwcid="defaultAttendantGroupLink@DirectLink" id="defaultAttendantGroup" 
@@ -17,7 +17,7 @@
     </li>        
   </ul>        
   <form jwcid="attendantListForm@Form" delegate" value="bean:validator">
-    <table jwcid="tableView@Table" id="list:attendant"
+    <table jwcid="tableView@common/Table" id="list:attendant"
       columns="literal:* name,description" source="ognl:dialPlanContext.autoAttendants"
       row="ognl:currentRow" selections="ognl:selections">
       <span jwcid="nameColumnValue@Block">
@@ -35,6 +35,6 @@
       </li>
     </ul>
     <h3><span key="section.specialAutoAttendant">Auto Attendant Mode</span></h3>
-    <span jwcid="specialAttendant@SpecialAttendantPanel"></span>
+    <span jwcid="specialAttendant@dialplan/SpecialAttendantPanel"></span>
   </form>
 </div>

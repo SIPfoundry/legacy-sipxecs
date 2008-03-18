@@ -1,14 +1,14 @@
-<div jwcid="@Border" useDojo="true">
+<div jwcid="@common/Border" useDojo="true">
   <h2>
     <span key="title">Auto Attendant</span>
   </h2>
   <span jwcid="@common/TabNavigation" tabNames="ognl:{'menu', 'options'}" selectedTab="prop:tab"/>  
   <div id="settings-content">
-    <span jwcid="@ErrorMsg" />
+    <span jwcid="@common/ErrorMsg" />
     <form jwcid="form@Form" delegate="bean:validator">
       <span id="attendant:form" />
       <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
-      <ul jwcid="formActions@FormActions" callback="ognl:callback" 
+      <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
         listener="listener:commit"/>
     </form>
   </div>
@@ -52,12 +52,12 @@
     </div>
     <fieldset>
       <table>
-        <tr jwcid="common@ItemCommon" item="ognl:attendant" 
+        <tr jwcid="common@common/ItemCommon" item="ognl:attendant"
           useEnabled="ognl:false" useFieldset="ognl:false"/>
-        <tr jwcid="attendantPromptLabel@FieldPanel"
+        <tr jwcid="attendantPromptLabel@common/FieldPanel"
           label="message:attendant.prompt" 
           field="ognl:components.attendantPromptSelector.prompt">
-          <span jwcid="attendantPromptSelector@AssetSelector" 
+          <span jwcid="attendantPromptSelector@common/AssetSelector"
             asset="ognl:attendant.prompt" assetDir="ognl:vxmlGenerator.promptsDirectory"
             errorMsg="message:error.select" contentType="literal:audio/x-wav"
             selectable="true"/>

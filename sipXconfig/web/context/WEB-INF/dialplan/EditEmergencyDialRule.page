@@ -4,14 +4,14 @@
   <!--
     - C O M P O N E N T S
   -->
-  <component id="dialRuleCommon" type="DialRuleCommon">
+  <component id="dialRuleCommon" type="dialplan/DialRuleCommon">
     <binding name="ruleId" value="ruleId" />
     <binding name="rule" value="rule" />
     <binding name="callback" value="callback" />
     <binding name="renderGateways" value="!rule.useMediaServer" />
   </component>
 
-  <component id="pstnPrefixLabel" type="FieldPanel">
+  <component id="pstnPrefixLabel" type="common/FieldPanel">
     <binding name="field" value="components.pstnPrefix" />
     <binding name="label" value="message:label.pstnPrefix" />
     <binding name="description" value="message:description.pstnPrefix" />
@@ -22,7 +22,7 @@
     <binding name="displayName" value="message:label.pstnPrefix" />
   </component>
 
-  <component id="emergencyNumberLabel" type="FieldPanel">
+  <component id="emergencyNumberLabel" type="common/FieldPanel">
     <binding name="field" value="components.emergencyNumber" />
     <binding name="label" value="message:label.number" />
     <binding name="description" value="message:label.number" />
@@ -34,7 +34,7 @@
     <binding name="displayName" value="message:label.number" />
   </component>
 
-  <component id="callerSensitiveRoutingLabel" type="FieldPanel">
+  <component id="callerSensitiveRoutingLabel" type="common/FieldPanel">
     <binding name="field" value="components.callerSensitiveRouting" />
     <binding name="label" value="message:label.callerSensitive" />
     <binding name="description" value="message:description.callerSensitive" />

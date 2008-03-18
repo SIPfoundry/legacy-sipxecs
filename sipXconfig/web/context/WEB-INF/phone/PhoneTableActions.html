@@ -25,7 +25,7 @@
     <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>      
   </li>
   <li jwcid="@If" condition="ognl:!userOnly" element="li">
-    <span jwcid="@GroupActions" 
+    <span jwcid="@phone/GroupActions"
       selectedIds="ognl:selections.allSelected" 
       actionModel="ognl:actionModel"/>
   </li>

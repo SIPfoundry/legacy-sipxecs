@@ -30,7 +30,7 @@ import org.sipfoundry.sipxconfig.site.user.SelectUsers;
 import org.sipfoundry.sipxconfig.site.user.SelectUsersCallback;
 
 public abstract class EditCallGroup extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "EditCallGroup";
+    public static final String PAGE = "admin/EditCallGroup";
 
     public abstract CallGroupContext getCallGroupContext();
 

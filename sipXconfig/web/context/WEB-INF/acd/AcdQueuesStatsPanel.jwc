@@ -23,7 +23,7 @@
   </bean>
 
   <!-- C O M P O N E N T S -->
-  <component id="tableView" type="StatsTable">
+  <component id="tableView" type="common/StatsTable">
     <binding name="source" value="acdStatistics.getQueuesStats(acdServerId)" />
     <binding name="columns"
       value="literal:queueUri:queueName, signInAgents, idleAgents, busyAgents,  

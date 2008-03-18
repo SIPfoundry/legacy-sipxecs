@@ -15,12 +15,12 @@
     <set name="enumClass" value="@org.sipfoundry.sipxconfig.site.dialplan.SpecialAttendantPanel$Mode@class"/>
   </bean>
   <bean name="radioRenderer" class="org.apache.tapestry.form.RadioPropertySelectionRenderer" lifecycle="page"/>
-  <component id="modeSelection" type="FlexiblePropertySelection">
+  <component id="modeSelection" type="common/FlexiblePropertySelection">
     <binding name="value" value="mode"/>
     <binding name="model" value="modeModel"/>
     <binding name="renderer" value="bean:radioRenderer"/>
   </component>
-  <component id="attendantSelectionPanel" type="FieldPanel">
+  <component id="attendantSelectionPanel" type="common/FieldPanel">
     <binding name="field" value="components.attendantSelection"/>
     <binding name="label" value="message:label.attendantSelection"/>
   </component>
@@ -28,7 +28,7 @@
     <binding name="value" value="autoAttendant"/>
     <binding name="model" value="tapestry.instructUserToSelect(beans.autoAttendants, messages)"/>
   </component>
-  <component id="formActions" type="FormActions">
+  <component id="formActions" type="common/FormActions">
     <binding name="listener" value="listener:onApply"/>
     <binding name="successMessage" value="message:msg.success"/>
   </component>

@@ -4,7 +4,7 @@
   <property name="groups" />
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="settingContext" object="spring:settingDao"/>
-  <component id="groupTable" type="GroupTable">
+  <component id="groupTable" type="setting/GroupTable">
     <binding name="groups" value="groups"/>
     <binding name="memberCounts" value="memberCounts"/>
     <binding name="viewGroupListener" value="listener:editUserGroup"/>

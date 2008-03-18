@@ -14,7 +14,7 @@
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
   </component>
-  <component id="bridgesPanel" type="BridgesPanel">
+  <component id="bridgesPanel" type="conference/BridgesPanel">
     <binding name="bridges" value="conferenceBridgeContext.bridges"/>
     <binding name="addListener" value="listener:add"/>
     <binding name="selectListener" value="listener:edit"/>

@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 public abstract class EditAutoAttendant extends PageWithCallback implements
         PageBeginRenderListener {
 
-    public static final String PAGE = "EditAutoAttendant";
+    public static final String PAGE = "dialplan/EditAutoAttendant";
 
     @InjectObject(value = "spring:vxml")
     public abstract VxmlGenerator getVxmlGenerator();

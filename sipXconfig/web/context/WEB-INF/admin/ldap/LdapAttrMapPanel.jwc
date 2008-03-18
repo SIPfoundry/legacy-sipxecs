@@ -13,7 +13,7 @@
   <!--
     - C O M P O N E N T S
   -->
-  <component id="searchBasePanel" type="FieldPanel">
+  <component id="searchBasePanel" type="common/FieldPanel">
     <binding name="field" value="components.searchBase" />
     <binding name="label" value="message:label.searchBase" />
     <binding name="description" value="message:description.searchBase" />
@@ -24,7 +24,7 @@
     <binding name="displayName" value="message:label.searchBase" />
   </component>
 
-  <component id="objectClassPanel" type="FieldPanel">
+  <component id="objectClassPanel" type="common/FieldPanel">
     <binding name="field" value="components.objectClass" />
     <binding name="label" value="message:label.objectClass" />
     <binding name="description" value="message:description.objectClass" />
@@ -35,7 +35,7 @@
     <binding name="displayName" value="message:label.objectClass" />
   </component>
 
-  <component id="filterPanel" type="FieldPanel">
+  <component id="filterPanel" type="common/FieldPanel">
     <binding name="field" value="components.filter" />
     <binding name="label" value="message:label.filter" />
     <binding name="description" value="message:description.filter" />
@@ -46,7 +46,7 @@
     <binding name="displayName" value="message:label.filter" />
   </component>
 
-  <component id="userNamePanel" type="FieldPanel">
+  <component id="userNamePanel" type="common/FieldPanel">
     <binding name="field" value="components.userName" />
     <binding name="label" value="message:label.userName" />
     <binding name="description" value="message:description.userName" />
@@ -57,7 +57,7 @@
     <binding name="displayName" value="message:label.userName" />
   </component>
 
-  <component id="firstNamePanel" type="FieldPanel">
+  <component id="firstNamePanel" type="common/FieldPanel">
     <binding name="field" value="components.firstName" />
     <binding name="label" value="message:label.firstName" />
   </component>
@@ -67,7 +67,7 @@
     <binding name="displayName" value="message:label.firstName" />
   </component>
 
-  <component id="lastNamePanel" type="FieldPanel">
+  <component id="lastNamePanel" type="common/FieldPanel">
     <binding name="field" value="components.lastName" />
     <binding name="label" value="message:label.lastName" />
   </component>
@@ -77,7 +77,7 @@
     <binding name="displayName" value="message:label.lastName" />
   </component>
 
-  <component id="aliasPanel" type="FieldPanel">
+  <component id="aliasPanel" type="common/FieldPanel">
     <binding name="field" value="components.alias" />
     <binding name="label" value="message:label.alias" />
     <binding name="description" value="message:description.alias" />
@@ -88,7 +88,7 @@
     <binding name="displayName" value="message:label.alias" />
   </component>
   
-  <component id="emailPanel" type="FieldPanel">
+  <component id="emailPanel" type="common/FieldPanel">
     <binding name="field" value="components.email" />
     <binding name="label" value="message:label.email" />
     <binding name="description" value="message:description.alias" />
@@ -99,7 +99,7 @@
     <binding name="displayName" value="message:label.email" />
   </component>
 
-  <component id="userGroupPanel" type="FieldPanel">
+  <component id="userGroupPanel" type="common/FieldPanel">
     <binding name="field" value="components.userGroup" />
     <binding name="label" value="message:label.userGroup" />
     <binding name="description" value="message:description.userGroup" />
@@ -110,7 +110,7 @@
     <binding name="displayName" value="message:label.userGroup" />
   </component>
 
-  <component id="pinPanel" type="FieldPanel">
+  <component id="pinPanel" type="common/FieldPanel">
     <binding name="field" value="components.pin" />
     <binding name="label" value="message:label.pin" />
   </component>
@@ -120,7 +120,7 @@
     <binding name="displayName" value="message:label.pin" />
   </component>
 
-  <component id="defaultPin" type="ConfirmPassword">
+  <component id="defaultPin" type="user/ConfirmPassword">
     <binding name="password" value="attrMap.defaultPin" />
     <binding name="passwordDisplayName" value="message:label.defaultPin" />
     <binding name="passwordDescription" value="message:description.defaultPin" />
@@ -128,7 +128,7 @@
     <binding name="passwordValidator" value="validators:maxLength=255" />
   </component>
 
-  <component id="sipPasswordPanel" type="FieldPanel">
+  <component id="sipPasswordPanel" type="common/FieldPanel">
     <binding name="field" value="components.sipPassword" />
     <binding name="label" value="message:label.sipPassword" />
     <binding name="description" value="message:description.sipPassword" />

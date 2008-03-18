@@ -16,14 +16,14 @@
   <component id="ifUseEnabled" type="If">
     <binding name="condition" value="useEnabled"/>
   </component>
-  <component id="enabledLabel" type="FieldPanel">
+  <component id="enabledLabel" type="common/FieldPanel">
     <binding name="field" value="components.enabled"/>
     <binding name="label" value="message:enabled"/>
   </component>
   <component id="enabled" type="Checkbox">
     <binding name="value" value="item.enabled"/>
   </component>
-  <component id="nameLabel" type="FieldPanel">
+  <component id="nameLabel" type="common/FieldPanel">
     <binding name="field" value="components.name"/>
     <binding name="label" value="message:name"/>
   </component>
@@ -36,7 +36,7 @@
   <component id="ifUseExtension" type="If">
     <binding name="condition" value="useExtension"/>
   </component>
-  <component id="extensionLabel" type="FieldPanel">
+  <component id="extensionLabel" type="common/FieldPanel">
     <binding name="field" value="components.extension"/>
     <binding name="label" value="message:extension"/>
   </component>
@@ -45,7 +45,7 @@
     <binding name="validators" value="extensionValidator"/>
     <binding name="displayName" value="message:extension"/>
   </component>
-  <component id="descriptionLabel" type="FieldPanel">
+  <component id="descriptionLabel" type="common/FieldPanel">
     <binding name="field" value="components.description"/>
     <binding name="label" value="message:description"/>
   </component>
@@ -53,13 +53,13 @@
     <binding name="value" value="item.description"/>
     <binding name="validators" value="validators:maxLength=255[Maximum allowed characters is 255]"/>
   </component>
-  <component id="optFieldset" type="OptionalElement">
+  <component id="optFieldset" type="common/OptionalElement">
     <binding name="element" value="useFieldset ? 'fieldset' : null"/>
   </component>
-  <component id="optTable" type="OptionalElement">
+  <component id="optTable" type="common/OptionalElement">
     <binding name="element" value="useFieldset ? 'table' : null"/>
   </component>
-  <component id="optTbody" type="OptionalElement">
+  <component id="optTbody" type="common/OptionalElement">
     <binding name="element" value="useFieldset ? 'tbody' : null"/>
   </component>
 </component-specification>

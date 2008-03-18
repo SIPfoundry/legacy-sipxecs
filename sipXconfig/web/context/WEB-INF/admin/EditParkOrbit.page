@@ -22,17 +22,17 @@
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
   </component>
-  <component id="common" type="ItemCommon">
+  <component id="common" type="common/ItemCommon">
     <binding name="item" value="parkOrbit"/>
     <binding name="useExtension" value="true"/>
     <binding name="nameValidator" value="spring-validators:validSipUserId,required"/>
     <binding name="useFieldset" value="false"/>
   </component>
-  <component id="musicLabel" type="FieldPanel">
+  <component id="musicLabel" type="common/FieldPanel">
     <binding name="field" value="components.musicOnHoldSelector.prompt"/>
     <binding name="label" value="message:label.music"/>    
   </component>
-  <component id="musicOnHoldSelector" type="AssetSelector">
+  <component id="musicOnHoldSelector" type="common/AssetSelector">
     <binding name="asset" value="parkOrbit.music"/>
     <binding name="assetDir" value="orbitsGenerator.audioDirectory"/>
     <binding name="errorMsg" value="message:error.select"/>
@@ -43,7 +43,7 @@
     <binding name="settings" value="parkOrbit.settings"/>
     <binding name="renderGroupTitle" value="false"/>
   </component>  
-  <component id="formActions" type="FormActions">
+  <component id="formActions" type="common/FormActions">
     <binding name="callback" value="callback"/>
     <binding name="listener" value="listener:commit"/>
   </component>

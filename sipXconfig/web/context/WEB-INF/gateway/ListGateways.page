@@ -28,7 +28,7 @@
   <!--
     - C O M P O N E N T S
   -->
-  <component id="gatewayTable" type="GatewayTable">
+  <component id="gatewayTable" type="gateway/GatewayTable">
     <binding name="gatewayCollection" value="gatewayContext.gateways" />
   </component>
   <component id="dialPlansLink" type="PageLink">

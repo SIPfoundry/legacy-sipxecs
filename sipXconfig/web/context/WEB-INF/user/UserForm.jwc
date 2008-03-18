@@ -24,7 +24,7 @@
   <!--
   - C O M P O N E N T S
   -->
-  <component id="firstNamePanel" type="FieldPanel">
+  <component id="firstNamePanel" type="common/FieldPanel">
     <binding name="field" value="components.firstName"/>
     <binding name="label" value="message:label.firstName"/>
   </component>
@@ -32,7 +32,7 @@
     <binding name="value" value="user.firstName"/>
     <binding name="displayName" value="message:label.firstName"/>
   </component>
-  <component id="lastNamePanel" type="FieldPanel">
+  <component id="lastNamePanel" type="common/FieldPanel">
     <binding name="field" value="components.lastName"/>
     <binding name="label" value="message:label.lastName"/>
   </component>
@@ -40,7 +40,7 @@
     <binding name="value" value="user.lastName"/>
     <binding name="displayName" value="message:label.lastName"/>
   </component>
-  <component id="userIdPanel" type="FieldPanel">
+  <component id="userIdPanel" type="common/FieldPanel">
     <binding name="field" value="components.userId"/>
     <binding name="label" value="message:label.userId"/>
     <binding name="description" value="message:description.userId"/>
@@ -53,7 +53,7 @@
   <component id="mailboxPreferences" type="vm/MailboxPreferencesForm">
     <binding name="preferences" value="mailboxPreferences"/>
   </component>
-   <component id="pin" type="ConfirmPassword">
+   <component id="pin" type="user/ConfirmPassword">
     <binding name="password" value="pin"/>
     <binding name="passwordDisplayName" value="message:label.pin"/>
     <binding name="passwordDescription" value="message:description.pin"/>
@@ -61,7 +61,7 @@
     <binding name="passwordMismatchMessage" value="message:error.pinMismatch"/>
     <binding name="passwordValidator" value="spring-validators:validPin,required"/>
   </component>
-  <component id="sipPasswordPanel" type="FieldPanel">
+  <component id="sipPasswordPanel" type="common/FieldPanel">
     <binding name="field" value="components.sipPassword"/>
     <binding name="label" value="message:label.sipPassword"/>
     <binding name="description" value="message:description.sipPassword"/>
@@ -70,7 +70,7 @@
     <binding name="value" value="user.sipPassword"/>
     <binding name="displayName" value="message:label.sipPassword"/>
   </component>
-  <component id="groupsPanel" type="FieldPanel">
+  <component id="groupsPanel" type="common/FieldPanel">
     <!-- Tacos/Tapestry Bug
       - give the right value for field, and autocomplete renders double 
       -->
@@ -78,11 +78,11 @@
     <binding name="label" value="message:label.groups"/>
     <binding name="description" value="message:description.groups"/>
   </component>
-  <component id="groups" type="GroupMultiSelect">
+  <component id="groups" type="common/GroupMultiSelect">
     <binding name="value" value="groupsString"/>
     <binding name="source" value="coreContext.groups"/>
   </component>
-  <component id="aliasesPanel" type="FieldPanel">
+  <component id="aliasesPanel" type="common/FieldPanel">
     <binding name="field" value="components.aliases"/>
     <binding name="label" value="message:label.aliases"/>
     <binding name="description" value="message:description.aliases"/>
@@ -101,7 +101,7 @@
     <binding name="condition" value="!alwaysShowSipPassword"/>
   </component>
   
-  <component id="toggleShowSipPassword" type="ToggleLink">
+  <component id="toggleShowSipPassword" type="common/ToggleLink">
     <binding name="toggle" value="showSipPassword"/>
   </component>
 </component-specification>

@@ -33,7 +33,7 @@ import org.sipfoundry.sipxconfig.site.setting.EditGroup;
  */
 public abstract class NewPhone extends PageWithCallback implements PageBeginRenderListener {
 
-    public static final String PAGE = "NewPhone";
+    public static final String PAGE = "phone/NewPhone";
 
     @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();

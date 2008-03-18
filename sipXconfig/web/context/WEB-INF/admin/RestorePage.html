@@ -1,12 +1,12 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <h2><span key="title">Restore</span></h2>
   <span jwcid="@common/TabNavigation" tabNames="ognl:{'restore', 'upload', 'log'}" selectedTab="prop:tab"/>
   <div id="settings-content">
-    <span jwcid="@ErrorMsg"/>
+    <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
   <span jwcid="restoreTab@Block">
-    <span jwcid="@QuickHelp" value="message:restore.quick.help"/>
+    <span jwcid="@common/QuickHelp" value="message:restore.quick.help"/>
     <span jwcid="@If" condition="ognl:backups.empty">
       <p><span key="message.noBackups">There is no backup files saved in the backup folder.</span></p>
     </span>
@@ -22,7 +22,7 @@
                 <td jwcid="@Foreach" source="ognl:backupTypes" value="ognl:currentType" element="td">
                   <span jwcid="@If" condition="ognl:currentFolder[currentType]">
                     <span jwcid="defaultValue@Checkbox" value="ognl:selections.selected[currentFolder[currentType].file]"/>
-                    <span jwcid="@DownloadLink" fileName="" dirName="ognl:currentFolder[currentType].file.path" contentType="literal:tar/x-gzip">
+                    <span jwcid="@common/DownloadLink" fileName="" dirName="ognl:currentFolder[currentType].file.path" contentType="literal:tar/x-gzip">
                       <span jwcid="@Insert" value="ognl:currentBackupName"/>
                     </span>
                   </span>
@@ -41,17 +41,17 @@
     </span>
   </span>
   <span jwcid="uploadTab@Block">
-    <span jwcid="@QuickHelp" value="message:upload.quick.help"/>
+    <span jwcid="@common/QuickHelp" value="message:upload.quick.help"/>
       <form jwcid="upload@Form">
         <fieldset>
           <table>
-            <tr jwcid="@FieldPanel"
+            <tr jwcid="@common/FieldPanel"
               field="component:configuration"
                   label="message:backup.CONFIGURATION">
                   <td jwcid="configuration@Upload"
                 file="prop:uploadConfigurationFile" />
             </tr>
-            <tr jwcid="@FieldPanel"
+            <tr jwcid="@common/FieldPanel"
               field="component:voicemail"
                   label="message:backup.VOICEMAIL">
                   <td jwcid="voicemail@Upload"
@@ -67,7 +67,7 @@
     </form>
   </span>
   <span jwcid="logTab@Block">
-    <span jwcid="@QuickHelp" value="message:log.quick.help"/>
+    <span jwcid="@common/QuickHelp" value="message:log.quick.help"/>
     <form jwcid="log@Form">
       <textarea jwcid="@TextArea" rows="30" cols="75" readonly="readonly" value="ognl:log">file</textarea>
     </form>

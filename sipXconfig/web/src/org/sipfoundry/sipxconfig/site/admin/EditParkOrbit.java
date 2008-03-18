@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class EditParkOrbit extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "EditParkOrbit";
+    public static final String PAGE = "admin/EditParkOrbit";
 
     public abstract ParkOrbitContext getParkOrbitContext();
 

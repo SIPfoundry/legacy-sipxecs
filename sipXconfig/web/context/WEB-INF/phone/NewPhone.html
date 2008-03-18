@@ -1,16 +1,16 @@
-<div jwcid="@Border" useDojo="true">
-  <span jwcid="@GroupCloud" groups="ognl:phoneContext.groups"/>
+<div jwcid="@common/Border" useDojo="true">
+  <span jwcid="@setting/GroupCloud" groups="ognl:phoneContext.groups"/>
   <h2><span key=title>New Phone</span></h2>
-  <span jwcid="@PhoneLabel" phone="ognl:phone" renderSerialNumber="ognl:false"/>  
+  <span jwcid="@phone/PhoneLabel" phone="ognl:phone" renderSerialNumber="ognl:false"/>
   <form jwcid="@Form" name="phone:new" delegate="bean:validator">
-    <span jwcid="@EditPhoneForm" 
+    <span jwcid="@phone/EditPhoneForm"
       phone="ognl:phone"
       validator="bean:validator"/>
     <checkbox id="phone:stay" 
       jwcid="stay@Checkbox" 
       value="ognl:stay"/>
     <label for="phone:stay"><span key="prompt.another">Another one?</span></label>
-    <span jwcid="@FormActions" 
+    <span jwcid="@common/FormActions"
       listener="listener:addPhone"
       callback="ognl:callback"
       includeApplyButton="ognl:false"/>

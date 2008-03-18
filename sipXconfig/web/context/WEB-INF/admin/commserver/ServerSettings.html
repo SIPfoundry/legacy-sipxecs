@@ -1,11 +1,11 @@
 <span jwcid="$content$">
-  <div jwcid="@Border">
+  <div jwcid="@common/Border">
     <div jwcid="@common/LeftNavigation">
       <span jwcid="@setting/SettingsNavigation" bean="prop:server"
         activeSetting="prop:parentSetting"
         editSettingsListener="listener:editSettings"/>
     </div>
-    <span jwcid="@SettingsForm" settings="prop:parentSetting"
+    <span jwcid="@setting/SettingsForm" settings="prop:parentSetting"
       cancelListener="listener:cancel" applyListener="listener:apply"
       validator="bean:validator"/>
   </div>

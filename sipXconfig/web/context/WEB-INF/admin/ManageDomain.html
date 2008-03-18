@@ -1,12 +1,12 @@
-<div jwcid="@Border" useDojo="true">
+<div jwcid="@common/Border" useDojo="true">
   <h2><span key="title">Domain</span></h2>
-  <span jwcid="@QuickHelp" value="message:domain.description" />  
-  <span jwcid="errors@ErrorMsg"/>
+  <span jwcid="@common/QuickHelp" value="message:domain.description" />
+  <span jwcid="errors@common/ErrorMsg"/>
   <form jwcid="form@Form" delegate="bean:validator">
     <fieldset>
       <table>
         <tbody>
-          <tr jwcid="namePanel@FieldPanel" for="domain:name"
+          <tr jwcid="namePanel@common/FieldPanel" for="domain:name"
             field="ognl:components.name" label="message:label.name"
             description="message:description.name">
             <input jwcid="name@TextField" id="domain:name" type="text"
@@ -51,7 +51,7 @@
         </tbody>
       </table>
     </fieldset>
-    <ul jwcid="formActions@FormActions"
+    <ul jwcid="formActions@common/FormActions"
       listener="listener:commit" successMessage="message:msg.actionSuccess"/>
 	</form>                    
 </div>

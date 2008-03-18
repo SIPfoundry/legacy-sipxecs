@@ -14,42 +14,42 @@
   <component id="phonebookForm" type="Form">
     <binding name="delegate" value="bean:validator"/>
   </component>
-  <component id="memberGroupPanel" type="FieldPanel">
+  <component id="memberGroupPanel" type="common/FieldPanel">
     <binding name="field" value="components.memberGroupsX"/>
     <binding name="label" value="message:label.memberGroups"/>
     <binding name="description" value="message:description.memberGroups"/>
   </component>
-  <component id="memberGroups" type="GroupMultiSelect">
+  <component id="memberGroups" type="common/GroupMultiSelect">
     <binding name="value" value="memberGroupsString"/>
     <binding name="source" value="userGroups"/>
   </component>
-  <component id="consumerGroupPanel" type="FieldPanel">
+  <component id="consumerGroupPanel" type="common/FieldPanel">
     <binding name="field" value="components.consumerGroupsX"/>
     <binding name="label" value="message:label.consumerGroups"/>
     <binding name="description" value="message:description.consumerGroups"/>
   </component>
-  <component id="consumerGroups" type="GroupMultiSelect">
+  <component id="consumerGroups" type="common/GroupMultiSelect">
     <binding name="value" value="consumerGroupsString"/>
     <binding name="source" value="userGroups"/>
   </component>
-  <component id="phonebookFilePanel" type="FieldPanel">
+  <component id="phonebookFilePanel" type="common/FieldPanel">
     <binding name="field" value="components.phonebookFileX"/>
     <binding name="label" value="message:label.phonebookFile"/>
     <binding name="description" value="message:description.phonebookFile"/>
   </component>
-  <component id="phonebookFile" type="AssetSelector">
+  <component id="phonebookFile" type="common/AssetSelector">
     <binding name="asset" value="phonebook.membersCsvFilename" />
     <binding name="assetDir" value="phonebookDirectory" />
     <binding name="contentType" value="literal:text/csv" />
     <binding name="selectable" value="false" />
   </component>
-  <component id="nameDescription" type="ItemCommon">
+  <component id="nameDescription" type="common/ItemCommon">
     <binding name="useExtension" value="literal:false"/>
     <binding name="useEnabled" value="literal:false"/>
     <binding name="useFieldset" value="literal:false"/>
     <binding name="item" value="phonebook"/>
   </component>
-  <component id="formActions" type="FormActions">
+  <component id="formActions" type="common/FormActions">
     <binding name="listener" value="listener:savePhonebook" />
     <binding name="callback" value="callback" />
   </component>

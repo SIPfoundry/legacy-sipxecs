@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
 public abstract class UserGroups extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "UserGroups";
+    public static final String PAGE = "user/UserGroups";
 
     public abstract void setGroups(List groups);
 

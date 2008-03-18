@@ -35,7 +35,7 @@
     <binding name="value" value="message:button.delete" />
   </component>
 
-  <component id="tableView" type="Table">
+  <component id="tableView" type="common/Table">
     <binding name="source" value="lines" />
     <binding name="columns"
       value="literal:* name:name,extension:extension,description:description" />

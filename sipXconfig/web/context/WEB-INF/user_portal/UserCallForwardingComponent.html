@@ -1,5 +1,5 @@
-<div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
-  <span jwcid="@QuickHelp" value="message:quick.help"/>
+<div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
   <form jwcid="@Form" delegate="ognl:page.validator" listener="listener:submit">
     <ul class="component-links">      
       <li><a jwcid="addRingLink@LinkSubmit" selected="prop:action" tag="add">
@@ -16,7 +16,7 @@
           </tr>
           <!-- iterate here -->            
           <tr jwcid="@For" source="prop:rings" value="prop:ring" index="prop:index" volatile="true">
-            <span jwcid="@RingEditor" ring="prop:ring" index="prop:index" deleteListener="listener:deleteRing" availableSchedules="prop:availableSchedules"/>
+            <span jwcid="@user_portal/RingEditor" ring="prop:ring" index="prop:index" deleteListener="listener:deleteRing" availableSchedules="prop:availableSchedules"/>
           </tr>
           <tr jwcid="@If" condition="prop:hasVoiceMail" element="tr">
             <td colspan="4">
@@ -26,6 +26,6 @@
         </tbody>
       </table>
     </fieldset>  
-    <ul jwcid="@FormActions" callback="ognl:container.callback" listener="listener:commit"/>
+    <ul jwcid="@common/FormActions" callback="ognl:container.callback" listener="listener:commit"/>
   </form>
 </div>

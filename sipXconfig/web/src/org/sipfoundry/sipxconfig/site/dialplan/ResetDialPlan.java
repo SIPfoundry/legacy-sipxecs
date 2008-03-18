@@ -17,7 +17,7 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 
 public abstract class ResetDialPlan extends PageWithCallback {
 
-    public static final String PAGE = "ResetDialPlan";
+    public static final String PAGE = "dialplan/ResetDialPlan";
 
     @InjectObject(value = "spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();

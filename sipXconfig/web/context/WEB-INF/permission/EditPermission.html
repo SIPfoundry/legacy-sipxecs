@@ -1,11 +1,11 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <h2><span key="title">Permission</span></h2>
-  <span jwcid="@ErrorMsg" />
+  <span jwcid="@common/ErrorMsg" />
   <form jwcid="form@Form" id="permission:form" delegate="bean:validator">
     <fieldset>
     <table>
       <tbody>
-        <tr jwcid="@FieldPanel"
+        <tr jwcid="@common/FieldPanel"
           field="component:label"
           label="message:label.label"
           description="message:description.label">
@@ -15,7 +15,7 @@
             validators="validators:required,maxLength=255"
             disabled="prop:permission.builtIn" />
         </tr>
-        <tr jwcid="@FieldPanel"
+        <tr jwcid="@common/FieldPanel"
           field="component:description"
           label="message:label.description">
           <td jwcid="description@TextArea"
@@ -25,7 +25,7 @@
             validators="validators:maxLength=255"
             disabled="prop:permission.builtIn" />          
         </tr>
-        <tr jwcid="@FieldPanel"
+        <tr jwcid="@common/FieldPanel"
           field="component:defaultValue"  
           label="message:label.defaultValue"  
           description="message:description.defaultValue">
@@ -36,6 +36,6 @@
       </tbody>
     </table>
     </fieldset>
-    <ul jwcid="formActions@FormActions" callback="prop:callback" listener="listener:commit" />
+    <ul jwcid="formActions@common/FormActions" callback="prop:callback" listener="listener:commit" />
   </form>
 </div>

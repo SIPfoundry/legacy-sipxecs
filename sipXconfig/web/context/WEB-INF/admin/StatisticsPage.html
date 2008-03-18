@@ -1,8 +1,8 @@
-<div jwcid="@Border" useDojo="true">
+<div jwcid="@common/Border" useDojo="true">
   <h2>
     <span key="title">Statistics</span>
   </h2>
-  <span jwcid="@ErrorMsg"/>
+  <span jwcid="@common/ErrorMsg"/>
   <span jwcid="@If" condition="ognl:(hostModel.optionCount > 0)">
     <form jwcid="@Form">
       <fieldset>
@@ -33,7 +33,7 @@
           <li><a jwcid="@DirectLink" id="link.configureHosts" listener="listener:configureHosts"><span key="link.configureHosts">Configuration</span></a></li>
         </ul>
       </div>
-      <span jwcid="@QuickHelp" value="message:statistics.help"/>
+      <span jwcid="@common/QuickHelp" value="message:statistics.help"/>
       <h3><span jwcid="@Insert" value="ognl:messages.getMessage(reportName)" /></h3>
       <span jwcid="@If" condition="ognl:summaryReport">
         <table>

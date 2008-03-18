@@ -48,7 +48,7 @@
     disabled="prop:disabled" />
 </span>
 <span jwcid="fileBlock@Block">
-  <span jwcid="fileField@AssetSelector"
+  <span jwcid="fileField@common/AssetSelector"
     id="prop:widgetId"
     asset="prop:setting.value"
     assetDir="ognl:setting.type.directory"
@@ -58,7 +58,7 @@
     enabled="prop:enabled" />
 </span>
 <span jwcid="@If" condition="prop:decorated">
-  <span jwcid="@FieldPanel"
+  <span jwcid="@common/FieldPanel"
     field="prop:formComponent"
     label="prop:label"
     defaultValue="prop:defaultValue"

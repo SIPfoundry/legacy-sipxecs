@@ -1,20 +1,20 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <div class="help">
     <span key="help.add"/>
     <br/>
     <span key="help.change"/>
   </div>
 <h2 id="callgroup:edit"><span key="title">Call group</span></h2>
-<span jwcid="@ErrorMsg"/>
+<span jwcid="@common/ErrorMsg"/>
 <form jwcid="form@Form" delegate="bean:validator"
   listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)">
-  <fieldset  jwcid="common@ItemCommon" item="prop:callGroup"
+  <fieldset  jwcid="common@common/ItemCommon" item="prop:callGroup"
     useExtension="ognl:true" nameValidator="spring-validators:required,validSipUserId"/>
-  <fieldset jwcid="ringTable@UserRingTable" rings="prop:callGroup.rings"
+  <fieldset jwcid="ringTable@admin/UserRingTable" rings="prop:callGroup.rings"
     idConverter="prop:idConverter"/>
   <fieldset>
     <table>
-      <tr jwcid="@FieldPanel"
+      <tr jwcid="@common/FieldPanel"
         for="callgroup:voicemailFallback"
         label="message:label.voicemailFallback"
         description="message:description.voicemailFallback"
@@ -27,7 +27,7 @@
         />
       </tr>
       <span jwcid="@If" condition="ognl:!callGroup.voicemailFallback">
-        <tr jwcid="@FieldPanel"
+        <tr jwcid="@common/FieldPanel"
           for="callgroup:fallbackDestination"
           label="message:label.fallbackDestination"
           description="message:description.falbackDestination"
@@ -39,7 +39,7 @@
             displayName="message:label.fallbackDestination"/>
         </tr>
 	    </span>
-      <tr jwcid="@FieldPanel"
+      <tr jwcid="@common/FieldPanel"
         for="callgroup:userForward"
         label="message:label.userForward"
         description="message:description.userForward"
@@ -52,7 +52,7 @@
       </tr>
     </table>
   </fieldset>
-  <ul jwcid="formActions@FormActions" callback="ognl:callback"
+  <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
     listener="listener:commit"/>
 </form>
 </div>

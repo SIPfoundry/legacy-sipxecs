@@ -26,7 +26,7 @@ import org.sipfoundry.sipxconfig.search.SearchManager;
 
 public abstract class SearchPage extends BasePage implements IExternalPage,
         PageBeginRenderListener {
-    public static final String PAGE = "SearchPage";
+    public static final String PAGE = "search/SearchPage";
 
     public abstract SearchManager getSearchManager();
 

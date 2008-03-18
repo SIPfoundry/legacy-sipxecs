@@ -1,13 +1,13 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <h2><span key="title">Permissions</span></h2>
   <div class="help">
     <b><span key="label.quickLinks">Quick Links</span></b>
     <ul>
-      <li><a href="#" jwcid="@PageLink" page="EditFlexibleDialPlan">
+      <li><a href="#" jwcid="@PageLink" page="dialplan/EditFlexibleDialPlan">
         <span key="link.dialPlans">Dial Plans</span></a></li>
     </ul>
   </div>
-  <span jwcid="@QuickHelp" value="message:quick.help" />  
+  <span jwcid="@common/QuickHelp" value="message:quick.help" />
   <ul class="component-links">  
     <li>
       <a jwcid="addLink@DirectLink" id="permissions:add" listener="listener:add">
@@ -18,7 +18,7 @@
   <form jwcid="@Form" id="permissions:form"
     delegate="bean:validator" 
     listener="listener:formSubmit">
-    <table jwcid="@Table" id="permissions:list"
+    <table jwcid="@common/Table" id="permissions:list"
       source="prop:permissionManager.callPermissions"
       columns="* label,defaultValue,description"
       class="bean:rowClass.next"

@@ -29,7 +29,7 @@ import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
 public abstract class EditSchedule extends UserBasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "EditSchedule";
+    public static final String PAGE = "setting/EditSchedule";
     private static final String ACTION_ADD = "add";
     private static final String CLIENT = "client";
 

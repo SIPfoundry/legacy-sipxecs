@@ -55,7 +55,7 @@
     <binding name="value" value="message:button.moveDown" />
   </component>
 
-  <component id="tableView" type="Table">
+  <component id="tableView" type="common/Table">
     <binding name="source" value="agents" />
     <binding name="columns"
       value="literal:* !user:user,!aliases:user.aliasesString,!description:description" />

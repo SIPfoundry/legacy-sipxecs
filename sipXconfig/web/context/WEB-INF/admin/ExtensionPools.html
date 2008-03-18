@@ -1,6 +1,6 @@
-<div jwcid="@Border" restricted="false">
+<div jwcid="@common/Border" restricted="false">
   <h2><span key="title">User Extension Pool</span></h2>
-  <span jwcid="@ErrorMsg"/>
+  <span jwcid="@common/ErrorMsg"/>
   <form jwcid="@Form" delegate="bean:validator" id="extPool:form">
     <table>
       <tr>
@@ -14,7 +14,7 @@
       </tr>
     </table>
     <table>
-      <tr jwcid="@FieldPanel" for="extPool:start" 
+      <tr jwcid="@common/FieldPanel" for="extPool:start"
         field="component:start" 
         label="message:label.start">
         <td jwcid="start@TextField" id="extPool:start"
@@ -22,7 +22,7 @@
           validators="spring-validators:validPhone,required"
           displayName="message:label.start"/>
       </tr>
-      <tr jwcid="@FieldPanel" for="extPool:end"
+      <tr jwcid="@common/FieldPanel" for="extPool:end"
         field="component:end" 
         label="message:label.end">
         <td jwcid="end@TextField" id="extPool:end"
@@ -31,6 +31,6 @@
           displayName="message:label.end"/>
       </tr>
     </table>
-    <ul jwcid="@FormActions" callback="prop:callback" listener="listener:commit"/>
+    <ul jwcid="@common/FormActions" callback="prop:callback" listener="listener:commit"/>
   </form>
 </div>

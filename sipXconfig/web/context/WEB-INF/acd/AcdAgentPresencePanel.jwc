@@ -23,11 +23,11 @@
     <set name="prefix" value="literal:presence"/>
   </bean>
   
-  <component id="errorMsg" type="ErrorMsg">
+  <component id="errorMsg" type="common/ErrorMsg">
     <binding name="validator" value="bean:validator"/>  
   </component>
   
-  <component id="userTable" type="Table">
+  <component id="userTable" type="common/Table">
     <binding name="source" value="users"/>
     <binding name="row" value="currentUser"/>
 	  <binding name="columns" value="literal:* user:userName, status:status"/>

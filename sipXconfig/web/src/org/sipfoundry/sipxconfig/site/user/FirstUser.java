@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.LoginPage;
 
 public abstract class FirstUser extends BasePage implements PageBeginRenderListener {
-    public static final String PAGE = "FirstUser";
+    public static final String PAGE = "user/FirstUser";
 
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();

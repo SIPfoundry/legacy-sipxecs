@@ -21,12 +21,12 @@
     </a>
   </li>
   <li jwcid="@If" element="li" condition="ognl: presenceServer.enabled">
-    <a href="#" jwcid="@PageLink" id="menu.managePresence" page="ManagePresence">
+    <a href="#" jwcid="@PageLink" id="menu.managePresence" page="user_portal/ManagePresence">
       <span key="menu.managePresence">Presence</span>
     </a>
   </li>
   <li jwcid="@If" element="li" condition="ognl: userSession.supervisor">
-    <a href="#" jwcid="@PageLink" id="menu.acdSupervisisorConsole" page="AcdSupervisorConsole">
+    <a href="#" jwcid="@PageLink" id="menu.acdSupervisisorConsole" page="acd/AcdSupervisorConsole">
       <span key="menu.acdSupervisisorConsole">ACD Supervision</span>
     </a>
   </li>

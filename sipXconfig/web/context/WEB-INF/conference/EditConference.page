@@ -16,7 +16,7 @@
     <binding name="delegate" value="bean:validator"/>
     <binding name="listener" value="listener:formSubmit"></binding>
   </component>
-  <component id="itemCommon" type="ItemCommon">
+  <component id="itemCommon" type="common/ItemCommon">
     <binding name="item" value="conference"/>
     <binding name="useEnabled" value="true"/>
     <binding name="useExtension" value="true"/>
@@ -25,7 +25,7 @@
     <binding name="settings" value="conference.settings"/>
     <binding name="renderGroupTitle" value="false"/>
   </component>
-  <component id="formActions" type="FormActions">
+  <component id="formActions" type="common/FormActions">
     <binding name="listener" value="listener:apply"/>
     <binding name="callback" value="callback"/>
   </component>

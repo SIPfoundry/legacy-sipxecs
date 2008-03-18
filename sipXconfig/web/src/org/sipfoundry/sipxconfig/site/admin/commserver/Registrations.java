@@ -26,7 +26,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.RegistrationMetrics;
  * Displays active and expired registrations
  */
 public abstract class Registrations extends BasePage implements PageBeginRenderListener {
-    public static final String PAGE = "Registrations";
+    public static final String PAGE = "admin/commserver/Registrations";
 
     @InjectObject(value = "spring:registrationContext")
     public abstract RegistrationContext getRegistrationContext();

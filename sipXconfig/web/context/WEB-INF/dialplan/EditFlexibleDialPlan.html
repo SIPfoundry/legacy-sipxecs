@@ -1,24 +1,24 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <h2><span key="title">Dial Plans</span></h2>
   <span jwcid="@common/TabNavigation" tabNames="ognl:{'dialingRules','schedules'}" selectedTab="prop:tab"/>
   <div id="settings-content">
-    <span jwcid="@ErrorMsg"/>
+    <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
   <span jwcid="dialingRulesTab@Block">
     <div class="help">
       <b><span key="label.quickLinks">Quick Links</span></b>
       <ul>
-        <li><a href="#" jwcid="@PageLink" page="ListGateways"><span key="link.gateways">Gateways</span></a></li>
-        <li><a href="#" jwcid="@PageLink" page="ListPermissions"><span key="link.permissions">Permissions</span></a></li>
+        <li><a href="#" jwcid="@PageLink" page="gateway/ListGateways"><span key="link.gateways">Gateways</span></a></li>
+        <li><a href="#" jwcid="@PageLink" page="permission/ListPermissions"><span key="link.permissions">Permissions</span></a></li>
       </ul>
     </div>
-    <div jwcid="@QuickHelp" value="message:quick.help"/>
+    <div jwcid="@common/QuickHelp" value="message:quick.help"/>
     <form jwcid="@Form" id="dialplan:list:form"
       delegate="bean:validator"
       listener="listener:formSubmit">
       <ul class="component-links">
-        <li><span jwcid="selectRuleType@SelectRuleType"/></li>
+        <li><span jwcid="selectRuleType@dialplan/SelectRuleType"/></li>
         <li>
           <a jwcid="activate@DirectLink" id="dialplan:activate" listener="listener:activate">
             <span key="link.activate">Activate</span>
@@ -30,7 +30,7 @@
           </a>
         </li>
       </ul>
-      <table jwcid="@Table" id="dialplan:list"
+      <table jwcid="@common/Table" id="dialplan:list"
         columns="* !name,!enabled,!type,!description,!schedule"
         source="prop:dialPlanContext.rules"
         row="prop:currentRow"
@@ -91,7 +91,7 @@
     </form>
   </span>
   <span jwcid="schedulesTab@Block">
-    <div jwcid="@QuickHelp" value="message:schedules.quick.help"/>
+    <div jwcid="@common/QuickHelp" value="message:schedules.quick.help"/>
     <form jwcid="schedules@Form" delegate="bean:validator">
       <ul class="component-links">
         <li>
@@ -100,7 +100,7 @@
           </a>
         </li>
       </ul>
-      <span jwcid="schedulesTable@SchedulesTable" schedules="ognl:generalSchedules"
+      <span jwcid="schedulesTable@setting/SchedulesTable" schedules="ognl:generalSchedules"
           viewSchedulesListener="listener:editSchedule" changed="ognl:changed" />
     </form>
   </span>

@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class ExtensionPoolsPage extends PageWithCallback {
 
-    public static final String PAGE = "ExtensionPools";
+    public static final String PAGE = "admin/ExtensionPools";
 
     @InjectObject(value = "spring:extensionPoolContext")
     public abstract ExtensionPoolContext getExtensionPoolContext();

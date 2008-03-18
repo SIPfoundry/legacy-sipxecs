@@ -1,4 +1,4 @@
-<div jwcid="@Border" restricted="false">
+<div jwcid="@common/Border" restricted="false">
   <span jwcid="@If" condition="ognl:!hasVoicemailPermission">
     <span class="user-warning" id="noVoicemailPermission" key="warning.noVoicemailPermissionNotice"/>            
   </span>
@@ -7,9 +7,9 @@
     <span jwcid="@Insert" value="prop:folderLabel"/> </h1>
   <span jwcid="@common/TabNavigation" tabNames="prop:folderIds" selectedTab="prop:folderId"/>  
   <div id="settings-content">
-    <span jwcid="@ErrorMsg"/>
+    <span jwcid="@common/ErrorMsg"/>
     <form jwcid="@Form" id="voicemail:form" delegate="bean:validator">
-      <table jwcid="@Table" id="voicemail:list" class="component" source="ognl:voicemails" selections="prop:selections"
+      <table jwcid="@common/Table" id="voicemail:list" class="component" source="ognl:voicemails" selections="prop:selections"
         columns="* !subject,!from,!timestamp,!duration,!play" converter="prop:converter" row="prop:voicemail"
         usePager="ognl:true" rowInfo="prop:rowInfo" rowClass="prop:rowClass">
         <span jwcid="subjectColumnValue@Block">
@@ -52,7 +52,7 @@
       </table>
       <ul class="component-submit">
         <li>
-          <span jwcid="@GroupActions" actionModel="prop:actionModel" selectedIds="prop:selections.allSelected"/>
+          <span jwcid="@phone/GroupActions" actionModel="prop:actionModel" selectedIds="prop:selections.allSelected"/>
         </li>
         <li jwcid="@If" condition="ognl:folderId.equals('deleted')" element="li">
           <input id="delete:voicemail" jwcid="deleteVoicemail@Submit" listener="listener:delete"

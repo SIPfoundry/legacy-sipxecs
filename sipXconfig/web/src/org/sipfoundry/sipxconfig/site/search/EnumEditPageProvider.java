@@ -39,6 +39,9 @@ import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.site.acd.EditAcdAgent;
+import org.sipfoundry.sipxconfig.site.acd.EditAcdLine;
+import org.sipfoundry.sipxconfig.site.acd.EditAcdQueue;
 import org.sipfoundry.sipxconfig.site.admin.EditCallGroup;
 import org.sipfoundry.sipxconfig.site.admin.EditParkOrbit;
 import org.sipfoundry.sipxconfig.site.conference.EditBridge;
@@ -47,6 +50,7 @@ import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendant;
 import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
 import org.sipfoundry.sipxconfig.site.phone.EditPhone;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
+import org.sipfoundry.sipxconfig.site.upload.EditUpload;
 import org.sipfoundry.sipxconfig.site.user.EditUser;
 import org.sipfoundry.sipxconfig.upload.Upload;
 
@@ -81,29 +85,29 @@ public class EnumEditPageProvider implements EditPageProvider {
         }, AutoAttendant.class, new String[] {
             EditAutoAttendant.PAGE, "autoAttendantId"
         }, InternalRule.class, new String[] {
-            "EditInternalDialRule", RULE_ID
+            "dialplan/EditInternalDialRule", RULE_ID
         }, CustomDialingRule.class, new String[] {
-            "EditCustomDialRule", RULE_ID
+            "dialplan/EditCustomDialRule", RULE_ID
         }, LocalRule.class, new String[] {
-            "EditLocalDialRule", RULE_ID
+            "dialplan/EditLocalDialRule", RULE_ID
         }, LongDistanceRule.class, new String[] {
-            "EditLongDistanceDialRule", RULE_ID
+            "dialplan/EditLongDistanceDialRule", RULE_ID
         }, EmergencyRule.class, new String[] {
-            "EditEmergencyDialRule", RULE_ID
+            "dialplan/EditEmergencyDialRule", RULE_ID
         }, InternationalRule.class, new String[] {
-            "EditInternationalDialRule", RULE_ID
+            "dialplan/EditInternationalDialRule", RULE_ID
         }, AttendantRule.class, new String[] {
-            "EditAttendantDialRule", RULE_ID
+            "dialplan/EditAttendantDialRule", RULE_ID
         }, Upload.class, new String[] {
-            "EditUpload", "uploadId"
+            EditUpload.PAGE, "uploadId"
         }, AcdServer.class, new String[] {
-            "AcdServerPage", "acdServerId"
+            "acd/AcdServerPage", "acdServerId"
         }, AcdQueue.class, new String[] {
-            "EditAcdQueue", "acdQueueId"
+            EditAcdQueue.PAGE, "acdQueueId"
         }, AcdLine.class, new String[] {
-            "EditAcdLine", "acdLineId"
+            EditAcdLine.PAGE, "acdLineId"
         }, AcdAgent.class, new String[] {
-            "EditAcdAgent", "acdAgentId"
+            EditAcdAgent.PAGE, "acdAgentId"
         }
     };
 

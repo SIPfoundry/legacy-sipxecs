@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
 public abstract class ManageAttendants extends BasePage {
 
-    public static final String PAGE = "ManageAttendants";
+    public static final String PAGE = "dialplan/ManageAttendants";
     public static final String DEFAULTS_PAGE = EditAttendantDefaults.PAGE;
 
     public abstract DialPlanContext getDialPlanContext();

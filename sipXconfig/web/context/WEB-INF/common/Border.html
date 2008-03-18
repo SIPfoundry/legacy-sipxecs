@@ -26,10 +26,10 @@ djConfig = { isDebug: false,
       </div>
       <div id="navigation">
         <span jwcid="@If" condition="prop:userSession.admin">
-          <span jwcid="@AdminNavigation">Navigation bar goes here.</span>
+          <span jwcid="@common/AdminNavigation">Navigation bar goes here.</span>
         </span>
         <span jwcid="@Else">
-          <span jwcid="@UserPortalNavigation">User portal navigation bar goes here.</span>
+          <span jwcid="@user_portal/UserPortalNavigation">User portal navigation bar goes here.</span>
         </span>
       </div>
     </div>

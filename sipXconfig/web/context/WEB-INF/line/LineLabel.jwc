@@ -13,7 +13,7 @@
   <component id="lineLabel" type="Insert">
     <binding name="value" value="line.uri"/>
   </component>
-  <component id="phoneLabel" type="PhoneLabel">
+  <component id="phoneLabel" type="phone/PhoneLabel">
     <binding name="phone" value="line.phone"/>
   </component>
 </component-specification>

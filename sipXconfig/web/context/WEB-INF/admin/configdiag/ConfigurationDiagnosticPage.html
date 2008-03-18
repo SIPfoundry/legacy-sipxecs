@@ -1,11 +1,11 @@
-<div jwcid="@Border" useDojo="ognl:true">
+<div jwcid="@common/Border" useDojo="ognl:true">
   <span jwcid="@Script" script="ConfigurationDiagnosticPage.script" />
   <h2><span key="title">Configuration Test Page</span></h2>
   <div class="help">
     <b><span key="label.quickLinks">Quick Links</span></b>
     <ul>
       <li>
-        <span jwcid="downloadLink@DownloadLink"
+        <span jwcid="downloadLink@common/DownloadLink"
           id="downloadLink"
           fileName="ognl:configurationDiagnosticContext.preflightInstaller.name"
           dirName="ognl:configurationDiagnosticContext.preflightInstaller.parent"
@@ -15,8 +15,8 @@
       </li>
     </ul>
   </div>
-  <span jwcid="@QuickHelp" value="message:preflight.quick.help"/>
-  <form jwcid="@AutoRefreshForm" actionBlock="component:actions" interval="5">
+  <span jwcid="@common/QuickHelp" value="message:preflight.quick.help"/>
+  <form jwcid="@common/AutoRefreshForm" actionBlock="component:actions" interval="5">
     <table id="configdiag:list" class="component">
       <thead>
         <tr>

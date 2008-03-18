@@ -1,15 +1,15 @@
-<div jwcid="@Border" restricted="false">
+<div jwcid="@common/Border" restricted="false">
   <span id="voicemail:edit"/>
   <h1>
     <span key="title.editVoicemail"/>
   </h1>
   <div id="settings-content">
-    <span jwcid="@ErrorMsg"/>
+    <span jwcid="@common/ErrorMsg"/>
     <form jwcid="@Form" delegate="bean:validator">
 			<fieldset>
 				<table>
 					<tbody>
-						<tr jwcid="@FieldPanel" for="vm:subject" field="component:subject" description="message:subject.description" 
+						<tr jwcid="@common/FieldPanel" for="vm:subject" field="component:subject" description="message:subject.description"
                    label="message:subject.label">
 							<td>
 								<input jwcid="subject@TextField" id="vm:subject" maxlength="40" type="text" value="prop:voicemail.subject"
@@ -19,7 +19,7 @@
 					</tbody>
 				</table>
 			</fieldset>
-      <span jwcid="@FormActions" listener="listener:save" callback="prop:callback"/>
+      <span jwcid="@common/FormActions" listener="listener:save" callback="prop:callback"/>
     </form>
   </div>
 </div>

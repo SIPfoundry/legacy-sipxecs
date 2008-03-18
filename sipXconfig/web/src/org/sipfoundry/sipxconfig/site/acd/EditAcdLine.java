@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.acd.EditAcdQueue.AcdQueueSelectionModel;
 
 public abstract class EditAcdLine extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "EditAcdLine";
+    public static final String PAGE = "acd/EditAcdLine";
 
     public abstract AcdContext getAcdContext();
 

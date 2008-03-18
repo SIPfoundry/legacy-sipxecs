@@ -32,7 +32,7 @@ import org.sipfoundry.sipxconfig.site.setting.EditSchedule;
  * List all the gateways, allow adding and deleting gateways
  */
 public abstract class EditFlexibleDialPlan extends BasePage {
-    public static final String PAGE = "EditFlexibleDialPlan";
+    public static final String PAGE = "dialplan/EditFlexibleDialPlan";
 
     @InjectObject(value = "spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();

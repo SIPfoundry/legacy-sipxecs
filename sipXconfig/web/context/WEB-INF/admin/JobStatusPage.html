@@ -1,6 +1,6 @@
-<div jwcid="@Border" useDojo="ognl:true">
+<div jwcid="@common/Border" useDojo="ognl:true">
   <h2><span key="title">Job Status</span></h2>
-  <form jwcid="@AutoRefreshForm" actionBlock="component:actions">
+  <form jwcid="@common/AutoRefreshForm" actionBlock="component:actions">
     <table jwcid="@contrib:TableView" id="jobs:list" class="component"
       source="prop:jobs" pageSize="-1"
       columns="* name,=startColumn,=stopColumn,status,error:errorMsg">

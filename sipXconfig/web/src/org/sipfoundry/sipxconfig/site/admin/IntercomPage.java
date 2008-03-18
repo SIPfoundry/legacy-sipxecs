@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public abstract class IntercomPage extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "Intercom";
+    public static final String PAGE = "admin/Intercom";
     private static final int CODE_LEN = 8;
 
     public abstract Intercom getIntercom();

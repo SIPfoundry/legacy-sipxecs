@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class ListCallGroups extends BasePage {
 
-    public static final String PAGE = "ListCallGroups";
+    public static final String PAGE = "admin/ListCallGroups";
 
     public abstract CallGroupContext getCallGroupContext();
 

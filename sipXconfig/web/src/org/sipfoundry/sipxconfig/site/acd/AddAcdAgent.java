@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.site.user.UserTable;
 
 public abstract class AddAcdAgent extends PageWithCallback {
-    public static final String PAGE = "AddAcdAgent";
+    public static final String PAGE = "acd/AddAcdAgent";
 
     public abstract AcdContext getAcdContext();
 

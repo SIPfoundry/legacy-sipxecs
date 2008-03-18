@@ -27,7 +27,7 @@
     <binding name="delegate" value="bean:validator"/>
     <binding name="listener" value="listener:submit"/>
   </component>
-  <component id="errors" type="ErrorMsg"/>
+  <component id="errors" type="common/ErrorMsg"/>
   <component id="checkConfigs" type="Checkbox">
     <binding name="value" value="backupPlan.configs"/>
   </component>
@@ -55,7 +55,7 @@
     <binding name="value" value="backupFile"/>
     <binding name="element" value="literal:li"/>
   </component>
-  <component id="link" type="DownloadLink">
+  <component id="link" type="common/DownloadLink">
     <binding name="fileName" value="backupFile.name"/>
     <binding name="dirName" value="backupFile.parentFile.path"/>
     <binding name="contentType" value="literal:tar/x-gzip"/>

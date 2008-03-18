@@ -1,23 +1,23 @@
-<div jwcid="@Border" useDojo="true">
+<div jwcid="@common/Border" useDojo="true">
   <h2><span key="title">Page Group</span></h2>
-  <span jwcid="@ErrorMsg"></span>
-  <span jwcid="@QuickHelp" value="message:quick.help"/>    
+  <span jwcid="@common/ErrorMsg"></span>
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
   <form jwcid="@Form" delegate="bean:validator">
     <fieldset>
       <table>
         <tbody>
-          <tr jwcid="@FieldPanel" for="enableGroup" field="component:enableGroup" label="message:label.enableGroup">
+          <tr jwcid="@common/FieldPanel" for="enableGroup" field="component:enableGroup" label="message:label.enableGroup">
             <span jwcid="enableGroup@Checkbox" id="enableGroup" value="prop:group.enabled"/>
           </tr>
-          <tr jwcid="@FieldPanel" for="number" field="component:number" label="message:label.number">
+          <tr jwcid="@common/FieldPanel" for="number" field="component:number" label="message:label.number">
             <span jwcid="number@TextField" id="number" value="prop:group.pageGroupNumber" translator="translator:integer" validators="spring-validators:required,min=1,max=99" displayName="message:label.number"/>
           </tr>
-          <tr jwcid="@FieldPanel" for="description" field="component:description" label="message:label.description">
+          <tr jwcid="@common/FieldPanel" for="description" field="component:description" label="message:label.description">
             <span jwcid="description@TextArea" id="description" value="prop:group.description" cols="45" rows="5" validators="spring-validators:validFieldSize"/>
           </tr>
           <tr>
             <td><label for="beep"><span key="label.pageBeep"/></label></td>
-            <td><span jwcid="beep@AssetSelector" asset="prop:group.sound" assetDir="ognl:pagingProvisioningContext.audioDirectory"
+            <td><span jwcid="beep@common/AssetSelector" asset="prop:group.sound" assetDir="ognl:pagingProvisioningContext.audioDirectory"
               errorMsg="message:error.select" contentType="literal:audio/x-wav" selectable="ognl:true"/>
             </td>
           </tr>
@@ -28,9 +28,9 @@
           <a jwcid="addExtensions@LinkSubmit" listener="listener:add"><span key="addExtension" /></a>
         </li>
       </ul>
-      <span jwcid="extensionsTable@UserSearchResults" users="ognl:group.users" />
+      <span jwcid="extensionsTable@user/UserSearchResults" users="ognl:group.users" />
       <span jwcid="@Submit" listener="listener:delete" value="message:label.delete" />
     </fieldset>
-    <ul jwcid="formActions@FormActions" listener="listener:commit" callback="prop:callback"/>
+    <ul jwcid="formActions@common/FormActions" listener="listener:commit" callback="prop:callback"/>
   </form>
 </div>

@@ -19,7 +19,7 @@
   <!--
       - C O M P O N E N T S
       -->
-  <component id="userTable" type="Table">
+  <component id="userTable" type="common/Table">
     <binding name="source" value="users"/>
     <binding name="columns" value="literal:* userName,lastName,firstName,aliases:aliasesString"/>
     <binding name="initialSortColumn" value="literal:lastName"/>

@@ -34,7 +34,7 @@ import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
 public abstract class EditPhoneDefaults extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "EditPhoneDefaults";
+    public static final String PAGE = "phone/EditPhoneDefaults";
 
     private static final int PHONE_SETTINGS = 0;
 

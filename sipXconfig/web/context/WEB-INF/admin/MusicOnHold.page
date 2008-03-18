@@ -20,7 +20,7 @@
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator" />
   </component>
-  <component id="musicOnHoldSelector" type="AssetSelector">
+  <component id="musicOnHoldSelector" type="common/AssetSelector">
     <binding name="asset" value="music" />
     <binding name="assetDir" value="orbitsGenerator.audioDirectory" />
     <binding name="errorMsg" value="message:error.select" />
@@ -28,7 +28,7 @@
     <binding name="contentType" value="literal:audio/x-wav" />
     <binding name="selectable" value="true" />
   </component>
-  <component id="formActions" type="FormActions">
+  <component id="formActions" type="common/FormActions">
     <binding name="listener" value="listener:saveValid" />
   </component>
 </page-specification>

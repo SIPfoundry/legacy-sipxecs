@@ -30,7 +30,7 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public abstract class LdapImportPreview extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "LdapImportPreview";
+    public static final String PAGE = "admin/ldap/LdapImportPreview";
 
     public abstract LdapImportManager getLdapImportManager();
 

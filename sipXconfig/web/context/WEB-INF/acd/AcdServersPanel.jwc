@@ -41,7 +41,7 @@
     <binding name="value" value="message:button.deploy" />
   </component>
 
-  <component id="tableView" type="Table">
+  <component id="tableView" type="common/Table">
     <binding name="source" value="rows" />
     <binding name="columns" value="literal:* host:host,port:port" />
     <binding name="row" value="currentRow" />

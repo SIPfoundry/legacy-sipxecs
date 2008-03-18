@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 
 public abstract class EditConference extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "EditConference";
+    public static final String PAGE = "conference/EditConference";
 
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 

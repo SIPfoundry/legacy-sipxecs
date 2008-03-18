@@ -28,7 +28,7 @@
   </component>
 
   <!-- connection params stage -->
-  <component id="ldapConnectionPanel" type="LdapConnectionPanel">
+  <component id="ldapConnectionPanel" type="admin/ldap/LdapConnectionPanel">
     <binding name="lcp" value="connectionParams" />
   </component>
 
@@ -39,7 +39,7 @@
   </component>
 
   <!-- object class selection stage -->
-  <component id="ldapObjectClassPanel" type="LdapObjectClassPanel">
+  <component id="ldapObjectClassPanel" type="admin/ldap/LdapObjectClassPanel">
     <binding name="objectClasses" value="schema.objectClassesNames" />
     <binding name="selectedObjectClasses" value="attrMap.selectedObjectClasses" />
   </component>
@@ -50,7 +50,7 @@
   </component>
 
   <!-- attribute mapping stage -->
-  <component id="ldapAttrMapPanel" type="LdapAttrMapPanel">
+  <component id="ldapAttrMapPanel" type="admin/ldap/LdapAttrMapPanel">
     <binding name="attrMap" value="attrMap" />
     <binding name="objectClassesSelectionModel" value="objectClassesSelectionModel" />
     <binding name="attributesSelectionModel" value="attributesSelectionModel" />

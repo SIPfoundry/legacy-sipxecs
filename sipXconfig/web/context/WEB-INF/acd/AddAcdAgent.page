@@ -24,11 +24,11 @@
   <component id="selectUserForm" type="Form">
     <binding name="delegate" value="bean:validator" />
   </component>
-  <component id="searchForm" type="UserSearch">
+  <component id="searchForm" type="user/UserSearch">
     <binding name="cancelListener" value="listeners.cancel" />
     <binding name="simpleSearch" value="true" />
   </component>
-  <component id="searchResults" type="UserSearchResults">
+  <component id="searchResults" type="user/UserSearchResults">
     <binding name="users" value="components.searchForm.users" />
   </component>
   <component id="select" type="Submit">

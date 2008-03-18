@@ -1,10 +1,10 @@
-<div jwcid="@Border">
-  <div jwcid="@QuickHelp" value="message:help.sbc"/>
+<div jwcid="@common/Border">
+  <div jwcid="@common/QuickHelp" value="message:help.sbc"/>
   <h2><span key="title">Internet Calling</span></h2>
-  <span jwcid="@ErrorMsg" />
+  <span jwcid="@common/ErrorMsg" />
   <form jwcid="@Form" delegate="bean:validator">
     <ul class="component-links">
-      <li jwcid="@ToggleLink" toggle="prop:advanced"></li>
+      <li jwcid="@common/ToggleLink" toggle="prop:advanced"></li>
     </ul>
     <fieldset>
       <p>
@@ -13,7 +13,7 @@
       </p>
       <table>
         <tbody>
-          <tr jwcid="@FieldPanel" for="sbc:address"
+          <tr jwcid="@common/FieldPanel" for="sbc:address"
             field="component:sbcAddress"
             label="message:label.address"
             description="message:description.address">
@@ -25,14 +25,14 @@
         </tbody>
       </table>
     </fieldset>
-    <div jwcid="@QuickHelp" value="message:help.domains"/>
+    <div jwcid="@common/QuickHelp" value="message:help.domains"/>
     <fieldset jwcid="@common/ListPanel"
       label="message:label.domains"
       addLinkLabel="message:link.addDomain"
       itemDisplayName="message:label.domain"
       validators="spring-validators:required,validDnsWildcard"
       source="prop:sbc.routes.domains"/>
-    <div jwcid="@QuickHelp" value="message:help.subnets"/>
+    <div jwcid="@common/QuickHelp" value="message:help.subnets"/>
     <fieldset jwcid="@common/ListPanel"
       label="message:label.subnets" 
       addLinkLabel="message:link.addSubnet"
@@ -42,6 +42,6 @@
     <fieldset jwcid="@If" condition="prop:advanced">
       <div jwcid="@dialplan/sbc/ListSbcs" validator="bean:validator"/>
     </fieldset>
-    <span jwcid="@FormActions" listener="listener:activate"/>
+    <span jwcid="@common/FormActions" listener="listener:activate"/>
   </form>
 </div>

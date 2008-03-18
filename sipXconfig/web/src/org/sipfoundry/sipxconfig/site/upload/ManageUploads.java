@@ -30,7 +30,7 @@ import org.sipfoundry.sipxconfig.upload.UploadSpecification;
 
 public abstract class ManageUploads extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "ManageUploads";
+    public static final String PAGE = "upload/ManageUploads";
 
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestry();

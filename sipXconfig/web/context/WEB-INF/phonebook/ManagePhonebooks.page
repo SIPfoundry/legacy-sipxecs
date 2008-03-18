@@ -9,7 +9,7 @@
   <component id="phonebookManagement" type="Form">
     <binding name="delegate" value="bean:validator"/>
   </component>
-  <component id="phonebookTable" type="Table">
+  <component id="phonebookTable" type="common/Table">
     <binding name="columns" value="literal:* name,description"/>
     <binding name="source" value="phonebookManager.phonebooks"/>
     <binding name="row" value="currentRow"/>

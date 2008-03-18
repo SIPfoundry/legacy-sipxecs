@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
 public abstract class EditLine extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "EditLine";
+    public static final String PAGE = "line/EditLine";
 
     public abstract Line getLine();
     

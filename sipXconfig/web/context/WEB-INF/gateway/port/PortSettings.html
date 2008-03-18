@@ -1,4 +1,4 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <span jwcid="@gateway/GatewayNavigation" gateway="prop:port.gateway" dialingRuleId="prop:ruleId"/>
   <br/><strong> <span key="label.portNav"/> :</strong> <span jwcid="@Insert" value="prop:port.label"/>
   <div jwcid="@common/LeftNavigation">
@@ -7,7 +7,7 @@
       editSettingsListener="listener:editSettings">
     </span>
   </div>
-  <span jwcid="@SettingsForm"
+  <span jwcid="@setting/SettingsForm"
     settings="prop:parentSetting"
     cancelListener="listener:cancel"
     okListener="listener:ok"

@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.gateway.GatewayModel;
  * List all the gateways, allow adding and deleting gateways
  */
 public abstract class ListGateways extends BasePage {
-    public static final String PAGE = "ListGateways";
+    public static final String PAGE = "gateway/ListGateways";
 
     public abstract GatewayContext getGatewayContext();
 

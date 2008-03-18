@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public abstract class AddExternalLine extends PageWithCallback implements PageBeginRenderListener {
 
-    public static final String PAGE = "AddExternalLine";
+    public static final String PAGE = "line/AddExternalLine";
 
     public abstract LineInfo getLineInfo();
 

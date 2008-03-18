@@ -33,7 +33,7 @@ import org.sipfoundry.sipxconfig.site.setting.EditGroup;
  */
 public abstract class EditPhone extends PageWithCallback implements PageBeginRenderListener {
 
-    public static final String PAGE = "EditPhone";
+    public static final String PAGE = "phone/EditPhone";
 
     public abstract Phone getPhone();
 

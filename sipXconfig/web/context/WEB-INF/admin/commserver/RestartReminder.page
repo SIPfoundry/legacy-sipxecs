@@ -22,7 +22,7 @@
 	<component id="processes" type="Hidden">
 		<binding name="value" value="processes"/>
 	</component>	
-	<component id="reminder" type="RestartReminderPanel">
+	<component id="reminder" type="admin/commserver/RestartReminderPanel">
 		<binding name="processes" value="processes"/>
 		<binding name="reminderMsg" value="message:reminder"/>
 	</component>

@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  * configuration files in /etc/sipxpbx directory
  */
 public abstract class ServerSettings extends BasePage implements PageBeginRenderListener {
-    public static final String PAGE = "ServerSettings";
+    public static final String PAGE = "admin/commserver/ServerSettings";
 
     @InjectObject(value = "spring:sipxServer")
     public abstract Server getServer();

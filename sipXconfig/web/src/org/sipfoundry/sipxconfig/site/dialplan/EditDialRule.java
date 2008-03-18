@@ -37,13 +37,13 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
  */
 public abstract class EditDialRule extends BasePage implements PageBeginRenderListener {
 
-    public static final String CUSTOM = "EditCustomDialRule";
-    public static final String INTERNAL = "EditInternalDialRule";
-    public static final String ATTENDANT = "EditAttendantDialRule";
-    public static final String LOCAL = "EditLocalDialRule";
-    public static final String LONG_DISTANCE = "EditLongDistanceDialRule";
-    public static final String EMERGENCY = "EditEmergencyDialRule";
-    public static final String INTERNATIONAL = "EditInternationalDialRule";
+    public static final String CUSTOM = "dialplan/EditCustomDialRule";
+    public static final String INTERNAL = "dialplan/EditInternalDialRule";
+    public static final String ATTENDANT = "dialplan/EditAttendantDialRule";
+    public static final String LOCAL = "dialplan/EditLocalDialRule";
+    public static final String LONG_DISTANCE = "dialplan/EditLongDistanceDialRule";
+    public static final String EMERGENCY = "dialplan/EditEmergencyDialRule";
+    public static final String INTERNATIONAL = "dialplan/EditInternationalDialRule";
 
     @InjectObject(value = "spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();

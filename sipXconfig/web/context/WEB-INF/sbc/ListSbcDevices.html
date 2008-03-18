@@ -1,4 +1,4 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <h2><span key="title">Sbcs</span></h2>
   <div class="help">
     <b><span key="label.quickLinks">Quick Links</span></b>
@@ -9,19 +9,19 @@
         </a>
       </li>
       <li>
-        <a jwcid="@PageLink" page="ListGateways">
+        <a jwcid="@PageLink" page="gateway/ListGateways">
           <span key="link.gateways">Gateways</span>
         </a>
       </li>
       <li>
-        <a jwcid="@PageLink" page="JobStatusPage">
+        <a jwcid="@PageLink" page="admin/JobStatusPage">
           <span key="link.jobStatus">Job Status</span>
         </a>
       </li>
     </ul>
   </div>
-  <div jwcid="@QuickHelp" value="message:help.sbcConfig">this is what SBCs are for...</div>
-  <span jwcid="@ErrorMsg"/>
+  <div jwcid="@common/QuickHelp" value="message:help.sbcConfig">this is what SBCs are for...</div>
+  <span jwcid="@common/ErrorMsg"/>
   <div jwcid="@If" condition="ognl:generateProfileIds != null">
     <span jwcid="@device/ConfirmProfileGeneration"
       profileManager="prop:sbcProfileManager"

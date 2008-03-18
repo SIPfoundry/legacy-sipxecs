@@ -16,7 +16,7 @@
     - Tacos/Tapestry Bug
     - give the right value for field, and autocomplete renders double 
     -->
-  <component id="supervisorForGroupsField" type="FieldPanel">
+  <component id="supervisorForGroupsField" type="common/FieldPanel">
     <binding name="field" value="components.supervisorForGroupsX"/>
     <binding name="description" value="message:description.supervisorForGroups"/>
     <binding name="label" value="message:label.supervisorForGroups"/>
@@ -28,7 +28,7 @@
     <binding name="translator" value="translator:string,empty="/>
     <binding name="listener" value="listener:buildGroupCandidates"/>
   </component>
-  <component id="formActions" type="FormActions">
+  <component id="formActions" type="common/FormActions">
     <binding name="callback" value="callback"/>
     <binding name="listener" value="listener:commit"/>
   </component>

@@ -1,14 +1,14 @@
-<div jwcid="@Border" useDojo="true">
+<div jwcid="@common/Border" useDojo="true">
   <h2><span key="title">Intercom</span></h2>
   <div class="help">
     <b><span key="label.quickLinks">Quick Links</span></b>  
     <ul>
-      <li><a jwcid="@PageLink" page="ManagePhones" href="#"><span key="link.phones">Phones</span></a></li>
-      <li><a jwcid="@PageLink" page="EditFlexibleDialPlan" href="#"><span key="link.dialPlans">Dial Plan</span></a></li>
+      <li><a jwcid="@PageLink" page="phone/ManagePhones" href="#"><span key="link.phones">Phones</span></a></li>
+      <li><a jwcid="@PageLink" page="dialplan/EditFlexibleDialPlan" href="#"><span key="link.dialPlans">Dial Plan</span></a></li>
     </ul> 
   </div> 
-  <span jwcid="@GroupCloud" groups="ognl:phoneContext.groups"/>
-  <span jwcid="@QuickHelp" value="message:quick.help"/>    
+  <span jwcid="@setting/GroupCloud" groups="ognl:phoneContext.groups"/>
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
   <span jwcid="errors"/>
   <form jwcid="form">
     <ul class="component-links">

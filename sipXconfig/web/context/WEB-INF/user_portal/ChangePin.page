@@ -31,13 +31,13 @@
     <binding name="hidden" value="true"/>
     <binding name="displayName" value="message:label.currentPin"/>
   </component>
-  <component id="newPin" type="ConfirmPassword">
+  <component id="newPin" type="user/ConfirmPassword">
     <binding name="password" value="newPin"/>
     <binding name="passwordDisplayName" value="message:label.newPin"/>
     <binding name="confirmPasswordDisplayName" value="message:label.confirmNewPin"/>
     <binding name="passwordMismatchMessage" value="message:error.pinMismatch"/>
   </component>
-  <component id="formActions" type="FormActions">
+  <component id="formActions" type="common/FormActions">
     <binding name="listener" value="listener:changePin"/>
     <binding name="successMessage" value="message:message.success"/>
   </component>

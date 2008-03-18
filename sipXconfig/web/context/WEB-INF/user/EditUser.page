@@ -13,11 +13,11 @@
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
   </component>
-  <component id="userForm" type="UserForm">
+  <component id="userForm" type="user/UserForm">
     <binding name="user" value="user"/>
     <binding name="mailboxPreferences" value="mailboxPreferences"/>
   </component>
-  <component id="formActions" type="FormActions">
+  <component id="formActions" type="common/FormActions">
     <binding name="callback" value="callback"/>
     <binding name="listener" value="listener:commit"/>
   </component>

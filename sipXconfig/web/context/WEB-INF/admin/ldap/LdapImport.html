@@ -1,13 +1,13 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <h2><span key="title">Import</span></h2>
   <div class="help"><b><span key="label.quickLinks">Quick Links</span></b>
   <ul>
-    <li><a jwcid="@PageLink" page="JobStatusPage" href="#"><span key="job.status">Job Status</span></a></li>
-    <li><a jwcid="@PageLink" page="LdapServer" href="#"><span key="ldap.server">LDAP Server</span></a></li>
+    <li><a jwcid="@PageLink" page="admin/JobStatusPage" href="#"><span key="job.status">Job Status</span></a></li>
+    <li><a jwcid="@PageLink" page="admin/ldap/LdapServer" href="#"><span key="ldap.server">LDAP Server</span></a></li>
   </ul>
   </div>
-  <div jwcid="@QuickHelp" value="message:quick.help"></div>
-  <span jwcid="@ErrorMsg" />
+  <div jwcid="@common/QuickHelp" value="message:quick.help"></div>
+  <span jwcid="@common/ErrorMsg" />
   <form jwcid="importForm">
     <ul class="form-actions">
       <li><input jwcid="verify" id="import:verify" type="submit" value="Verify" /></li>

@@ -23,7 +23,7 @@
   <!--
     - C O M P O N E N T S
   -->
-  <component id="border" type="Border">
+  <component id="border" type="common/Border">
     <binding name="useDojo"
       value="tab == 'agentsStats' || tab == 'callsStats'" />
   </component>
@@ -41,7 +41,7 @@
 
   <component id="agentsForm" copy-of="form" />  
 
-  <component id="commonFieldset" type="ItemCommon">
+  <component id="commonFieldset" type="common/ItemCommon">
     <binding name="item" value="acdQueue" />
     <binding name="useEnabled" value="false" />
     <binding name="nameValidator" value="spring-validators:validSipUserId,required" />
@@ -54,7 +54,7 @@
     <binding name="allowEnabledSetting" value="true" />
   </component>
 
-  <component id="acdAgentsPanel" type="AcdAgentsPanel">
+  <component id="acdAgentsPanel" type="acd/AcdAgentsPanel">
     <binding name="addListener"
       value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.addAgent)" />
     <binding name="selectListener" value="listeners.editAgent" />
@@ -63,21 +63,21 @@
     <binding name="changed" value="changed" />
   </component>
 
-  <component id="acdAgentsStatsPanel" type="AcdAgentsStatsPanel">
+  <component id="acdAgentsStatsPanel" type="acd/AcdAgentsStatsPanel">
     <binding name="acdServerId" value="acdServerId" />
     <binding name="acdStatistics" value="acdStatistics" />
     <binding name="acdQueueUri" value="acdQueueUri"/>
     <binding name="showQueueSelector" value="false"/>
   </component>  
 
-  <component id="acdCallsStatsPanel" type="AcdCallsStatsPanel">
+  <component id="acdCallsStatsPanel" type="acd/AcdCallsStatsPanel">
     <binding name="acdServerId" value="acdServerId" />
     <binding name="acdStatistics" value="acdStatistics" />
     <binding name="acdQueueUri" value="acdQueueUri"/>
     <binding name="showQueueSelector" value="false"/>
   </component>    
 
-  <component id="formActions" type="FormActions">
+  <component id="formActions" type="common/FormActions">
     <binding name="listener" value="listener:apply" />
     <binding name="callback" value="callback" />
   </component>

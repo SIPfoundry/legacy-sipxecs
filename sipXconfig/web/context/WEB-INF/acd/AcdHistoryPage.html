@@ -1,4 +1,4 @@
-<div jwcid="@Border" useDojo="true">
+<div jwcid="@common/Border" useDojo="true">
   <h2>
     <span key="title">ACD Reports</span>
   </h2>
@@ -17,16 +17,16 @@
     <span jwcid="@If" condition="ognl:acdHistoricalStats.enabled">
         <div id="settings-content">
           <span jwcid="@Insert" value="ognl:messages.getMessage('description.' + reportName)"/>
-          <span jwcid="@QuickHelp" value="message:acdHistory.help"/>
+          <span jwcid="@common/QuickHelp" value="message:acdHistory.help"/>
           <ul class="component-links">
             <li>
-              <a jwcid="@ExportLink" id="acdHistory:export" listener="listener:export"> 
+              <a jwcid="@common/ExportLink" id="acdHistory:export" listener="listener:export">
                   <span key="link.export">Export</span>
               </a>
             </li>
           </ul>        
           <span jwcid="@cdr/CdrDates" startTime="ognl:startTime" endTime="ognl:endTime"/>
-          <table jwcid="@StatsTable" id="acd:history:list" class="component" 
+          <table jwcid="@common/StatsTable" id="acd:history:list" class="component"
             source="ognl:rows"
             columns="ognl:columns"
             row="ognl:row"

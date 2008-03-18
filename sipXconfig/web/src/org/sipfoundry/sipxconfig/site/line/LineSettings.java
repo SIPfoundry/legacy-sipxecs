@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
  */
 public abstract class LineSettings extends BasePage implements PageBeginRenderListener {
     
-    public static final String PAGE = "LineSettings";
+    public static final String PAGE = "line/LineSettings";
 
     public abstract Integer getLineId();
     

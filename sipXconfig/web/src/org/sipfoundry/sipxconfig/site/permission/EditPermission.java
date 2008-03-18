@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 
 public abstract class EditPermission extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "EditPermission";
+    public static final String PAGE = "permission/EditPermission";
 
     @InjectObject(value = "spring:permissionManager")
     public abstract PermissionManager getPermissionManager();

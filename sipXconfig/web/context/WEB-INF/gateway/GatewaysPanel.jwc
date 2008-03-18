@@ -29,11 +29,11 @@
   <property name="rowsToMoveDown" />
   <property name="action" />
   <!-- C O M P O N E N T S -->
-  <component id="gatewayTable" type="GatewayTable">
+  <component id="gatewayTable" type="gateway/GatewayTable">
     <binding name="gatewayCollection" value="rule.gateways" />
     <binding name="ruleId" value="rule.id" />
   </component>
-  <component id="gatewayActions" type="GroupActions">
+  <component id="gatewayActions" type="phone/GroupActions">
     <binding name="actionModel" value="actionModel" />
   </component>
   <component id="delete" type="Submit">

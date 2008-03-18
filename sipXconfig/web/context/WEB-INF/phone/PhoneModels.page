@@ -29,7 +29,7 @@
   <component id="editGroup" type="DirectLink">
     <binding name="listener" value="listener:editGroup"/>
   </component>
-  <component id="groupLabel" type="GroupLabel">
+  <component id="groupLabel" type="setting/GroupLabel">
     <binding name="group" value="group"/>
   </component>
 </page-specification>

@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class AcdServerPage extends PageWithCallback implements PageBeginRenderListener {
 
-    public static final String PAGE = "AcdServerPage";
+    public static final String PAGE = "acd/AcdServerPage";
 
     public abstract AcdContext getAcdContext();
 

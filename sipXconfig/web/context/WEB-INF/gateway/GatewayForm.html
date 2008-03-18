@@ -1,10 +1,10 @@
 <ul class="component-links">
-  <li jwcid="@ToggleLink" toggle="prop:advanced"></li>
+  <li jwcid="@common/ToggleLink" toggle="prop:advanced"></li>
 </ul>
 <fieldset>
   <table>
     <tbody>
-      <label jwcid="@FieldPanel" for="gateway:name"
+      <label jwcid="@common/FieldPanel" for="gateway:name"
         field="component:gatewayName"
         label="message:label.name">
         <input jwcid="gatewayName@TextField" id="gateway:name" maxlength="40"
@@ -12,7 +12,7 @@
           validators="validators:required"
           displayName="message:label.name"/>
       </label>
-      <label jwcid="@FieldPanel" for="gateway:address"
+      <label jwcid="@common/FieldPanel" for="gateway:address"
         field="component:gatewayAddress"
         label="message:label.address"
         description="message:description.address">
@@ -22,7 +22,7 @@
           displayName="message:label.address"/>
       </label>
       <span jwcid="@If" condition="prop:advanced">
-        <label jwcid="@FieldPanel" for="gateway:addressPort"
+        <label jwcid="@common/FieldPanel" for="gateway:addressPort"
           field="component:gatewayAddressPort"
           label="message:label.addressPort"
           description="message:description.addressPort">
@@ -32,7 +32,7 @@
             translator="translator:number,omitZero=false"
             displayName="message:label.addressPort"/>
         </label>
-        <label jwcid="@FieldPanel" for="gateway:addressTransport"
+        <label jwcid="@common/FieldPanel" for="gateway:addressTransport"
           field="component:gatewayAddressTransport"
           label="message:label.addressTransport"
           description="message:description.addressTransport">
@@ -43,7 +43,7 @@
         </label>
       </span>
       <span jwcid="@If" condition="prop:gateway.model.hasSerialNumber">
-        <label jwcid="@FieldPanel" for="gateway:serial"
+        <label jwcid="@common/FieldPanel" for="gateway:serial"
           field="component:gatewaySerial"
           label="message:label.serial"
           description="message:description.serial">
@@ -54,7 +54,7 @@
             displayName="message:label.serial"/>
         </label>
       </span>
-      <label jwcid="@FieldPanel" for="gateway:description"
+      <label jwcid="@common/FieldPanel" for="gateway:description"
         field="component:gatewayDescription"
         label="message:label.description">
         <textarea jwcid="gatewayDescription@TextArea" id="gateway:description" cols="60" rows="5"
@@ -63,7 +63,7 @@
           displayName="message:label.description"/>
       </label>
       <span jwcid="@If" condition="ognl:gateway instanceof org.sipfoundry.sipxconfig.gateway.SipTrunk">
-      <label jwcid="@FieldPanel" for="gateway:route" field="component:gatewayRoute"
+      <label jwcid="@common/FieldPanel" for="gateway:route" field="component:gatewayRoute"
              label="message:label.route" description="message:description.route">
             <input jwcid="gatewayRoute@TextField" id="gateway:route" maxlength="20" 
                    value="ognl:gateway.route" displayName="message:label.route" 

@@ -1,16 +1,16 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <h2><span key="Title">Phones</span></h2>
   <div class="help"> 
     <b><span key="label.quickLinks">Quick Links</span></b>
     <ul>
-      <li><a jwcid="@PageLink" page="ManageUsers" href="#"><span key="users">Users</span></a>
+      <li><a jwcid="@PageLink" page="user/ManageUsers" href="#"><span key="users">Users</span></a>
       </li>
-      <li><a jwcid="@PageLink" page="JobStatusPage" href="#"><span key="jobStatus">Job Status</span></a>
+      <li><a jwcid="@PageLink" page="admin/JobStatusPage" href="#"><span key="jobStatus">Job Status</span></a>
       </li>
     </ul>
   </div>
-  <div jwcid="@QuickHelp" value="message:help.restart">restart help text...</div>
-  <span jwcid="@ErrorMsg"/>
+  <div jwcid="@common/QuickHelp" value="message:help.restart">restart help text...</div>
+  <span jwcid="@common/ErrorMsg"/>
   <div jwcid="@If" condition="ognl:generateProfileIds != null">
   	<span jwcid="@device/ConfirmProfileGeneration"
         profileManager="prop:phoneProfileManager"
@@ -25,7 +25,7 @@
     </ul>    
     <ul class="component-submit">
       <li>
-        <span jwcid="@GroupFilter" 
+        <span jwcid="@setting/GroupFilter"
           selectedGroupId="ognl:groupId" 
           groups="ognl:phoneContext.groups"
           queryText="ognl:queryText"

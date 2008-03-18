@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
 public abstract class PhoneModels extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "PhoneModels";
+    public static final String PAGE = "phone/PhoneModels";
 
     public abstract void setGroupId(Integer id);
 

@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public abstract class EditGroup extends PageWithCallback implements PageBeginRenderListener {
 
-    public static final String PAGE = "EditGroup";
+    public static final String PAGE = "setting/EditGroup";
 
     public abstract String getResource();
 

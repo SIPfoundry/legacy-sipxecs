@@ -1,11 +1,11 @@
-<div jwcid="@Border">
+<div jwcid="@common/Border">
   <h2><span key="title">Backup</span></h2>
   <span jwcid="ifInitialDescription">
-    <div jwcid="@QuickHelp" value="message:description" />
+    <div jwcid="@common/QuickHelp" value="message:description" />
   </span>
   <p jwcid="ifResultsPresent">
     <span key="backupCompleted">Success...</span>
-    <div jwcid="@QuickHelp" value="message:helpText" />
+    <div jwcid="@common/QuickHelp" value="message:helpText" />
     <ul>
       <li jwcid="results"><span jwcid="link"><span jwcid="linkText" /></span></li>
     </ul>
@@ -28,14 +28,14 @@
               <label for="backup:check:voicemail"><span key="label.voicemail"/></label>
             </td>
           </tr>
-          <tr jwcid="@FieldPanel" 
+          <tr jwcid="@common/FieldPanel"
             for="backup:limit"
             label="message:label.limitCount"
             field="component:limitCount"
             description="message:description.limitCount">
               <select id="backup:limit" jwcid="limitCount" />
           </tr>
-          <tr jwcid="@FieldPanel" 
+          <tr jwcid="@common/FieldPanel"
             for="backup:emailAddress"
             label="message:label.emailAddress"
             field="component:emailAddress"
@@ -52,7 +52,7 @@
     <ul class="form-actions">
       <li><input jwcid="backup" id="backup:now" type="button" name="save" value="Backup Now" /></li>
     </ul>
-    <div jwcid="@QuickHelp" value="message:msg.schedule" />
+    <div jwcid="@common/QuickHelp" value="message:msg.schedule" />
     <fieldset>
       <legend><span key="label.schedule">Schedule</span></legend>
       <span jwcid="schedules">

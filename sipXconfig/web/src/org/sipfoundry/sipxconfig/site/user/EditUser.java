@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public abstract class EditUser extends PageWithCallback implements PageBeginRenderListener {
 
-    public static final String PAGE = "EditUser";
+    public static final String PAGE = "user/EditUser";
 
     public abstract CoreContext getCoreContext();
 

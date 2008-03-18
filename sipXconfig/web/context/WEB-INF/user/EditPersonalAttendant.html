@@ -1,11 +1,11 @@
-<div jwcid="@Border">
-  <span jwcid="@UserNavigation" bean="ognl:user"/>
+<div jwcid="@common/Border">
+  <span jwcid="@user/UserNavigation" bean="ognl:user"/>
   <form jwcid="@Form" validator="bean:validator">
     <fieldset jwcid="@setting/SettingsFieldset"
       settings="prop:parentSetting"/>
     <fieldset>
       <table>
-      <tr jwcid="@FieldPanel" field="component:overrideLanguage"
+      <tr jwcid="@common/FieldPanel" field="component:overrideLanguage"
           for="personalAttendant:overrideLanguage"
           label="message:label.overrideLanguage"
           description="message:description.overrideLanguage"
@@ -16,7 +16,7 @@
             displayName="message:label.overrideLanguage"/>
         </tr>
         <tr>
-          <td jwcid="@FieldPanel" field="component:language"
+          <td jwcid="@common/FieldPanel" field="component:language"
             for="personalAttendant:language"
             label="message:label.language"
             description="message:description.language">
@@ -35,7 +35,7 @@
       maxKey="9"
       extensionOnly="ognl:true" />
 
-    <ul jwcid="@FormActions" callback="prop:callback" listener="listener:commit"/>
+    <ul jwcid="@common/FormActions" callback="prop:callback" listener="listener:commit"/>
   </form>
 </div> 
 

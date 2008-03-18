@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.site.dialplan.EditDialRule;
  * List all the gateways, allow adding and deleting gateways
  */
 public abstract class SelectGateways extends BasePage implements PageBeginRenderListener {
-    public static final String PAGE = "SelectGateways";
+    public static final String PAGE = "gateway/SelectGateways";
 
     // virtual properties
     public abstract DialPlanContext getDialPlanContext();

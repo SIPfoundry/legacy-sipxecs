@@ -30,7 +30,7 @@ import org.sipfoundry.sipxconfig.domain.DomainConfigReplicatedEvent;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 public abstract class Services extends BasePage implements PageBeginRenderListener {
-    public static final String PAGE = "Services";
+    public static final String PAGE = "admin/commserver/Services";
 
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();

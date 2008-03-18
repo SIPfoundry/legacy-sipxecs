@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class EditAcdAgent extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "EditAcdAgent";
+    public static final String PAGE = "acd/EditAcdAgent";
 
     public abstract AcdContext getAcdContext();
 

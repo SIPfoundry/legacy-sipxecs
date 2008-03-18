@@ -20,7 +20,7 @@
   <component id="nextPageHolder" type="Hidden">
     <binding name="value" value="nextPage"/>
   </component>
-  <component id="gatewayTable" type="GatewayTable">
+  <component id="gatewayTable" type="gateway/GatewayTable">
     <binding name="gatewayCollection" value="gateways"/>
     <binding name="editPageName" value="literal:EditGateway"/>
   </component>
@@ -28,7 +28,7 @@
     <binding name="selected" value="selectedRows"/>
     <binding name="tag" value="components.gatewayTable.selections.allSelected"/>
   </component>
-  <component id="cancelButton" type="CancelButton">
+  <component id="cancelButton" type="common/CancelButton">
     <binding name="returnPageName" value="nextPage"/>
   </component>
   <component id="gatewaysSelectForm" type="Form">

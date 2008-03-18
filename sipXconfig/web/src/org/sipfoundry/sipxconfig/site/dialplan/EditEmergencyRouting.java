@@ -29,7 +29,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
  */
 public abstract class EditEmergencyRouting extends PageWithCallback implements PageBeginRenderListener {
 
-    public static final String PAGE = "EditEmergencyRouting";
+    public static final String PAGE = "dialplan/EditEmergencyRouting";
 
     public abstract DialPlanContext getDialPlanContext();
 

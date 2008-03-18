@@ -29,7 +29,7 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public abstract class NewUser extends PageWithCallback implements PageBeginRenderListener {
 
-    public static final String PAGE = "NewUser";
+    public static final String PAGE = "user/NewUser";
     private static final int SIP_PASSWORD_LEN = 8;
 
     public abstract CoreContext getCoreContext();

@@ -25,11 +25,11 @@
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator" />
   </component>
-  <component id="errors" type="ErrorMsg" />
+  <component id="errors" type="common/ErrorMsg" />
   <component id="enableIntercom" type="Checkbox">
     <binding name="value" value="intercom.enabled" />
   </component>
-  <component id="groupsPanel" type="FieldPanel">
+  <component id="groupsPanel" type="common/FieldPanel">
     <!-- Tacos/Tapestry Bug
       - give the right value for field, and autocomplete renders double 
       - hence: 'null' instead of 'component:groups'
@@ -47,7 +47,7 @@
     <binding name="listener" value="listener:buildGroupCandidates" />
     <binding name="displayName" value="message:label.groups" />
   </component>
-  <component id="prefixPanel" type="FieldPanel">
+  <component id="prefixPanel" type="common/FieldPanel">
     <binding name="field" value="components.prefix" />
     <binding name="label" value="message:label.prefix" />
     <binding name="description" value="message:description.prefix" />
@@ -57,7 +57,7 @@
     <binding name="validators" value="spring-validators:validSipUserId,required" />
     <binding name="displayName" value="message:label.prefix" />
   </component>
-  <component id="timeoutPanel" type="FieldPanel">
+  <component id="timeoutPanel" type="common/FieldPanel">
     <binding name="field" value="components.timeout" />
     <binding name="label" value="message:label.timeout" />
     <binding name="description" value="message:description.timeout" />
@@ -68,7 +68,7 @@
     <binding name="validators" value="validators:required,min=0" />
     <binding name="displayName" value="message:label.timeout" />
   </component>
-  <component id="codePanel" type="FieldPanel">
+  <component id="codePanel" type="common/FieldPanel">
     <binding name="field" value="components.code" />
     <binding name="label" value="message:label.code" />
     <binding name="description" value="message:description.code" />
@@ -78,12 +78,12 @@
     <binding name="validators" value="validators:required" />
     <binding name="displayName" value="message:label.code" />
   </component>
-  <component id="formActions" type="FormActions">
+  <component id="formActions" type="common/FormActions">
     <binding name="listener" value="listener:commit" />
     <binding name="successMessage" value="message:msg.success" />
   </component>
 
-  <component id="toggleShowCode" type="ToggleLink">
+  <component id="toggleShowCode" type="common/ToggleLink">
     <binding name="toggle" value="showCode" />
   </component>
   <component id="renderCode" type="If">

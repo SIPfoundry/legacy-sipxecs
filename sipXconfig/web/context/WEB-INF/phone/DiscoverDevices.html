@@ -1,20 +1,20 @@
-<div jwcid="@Border" useDojo="ognl:true">
+<div jwcid="@common/Border" useDojo="ognl:true">
   <h2><span key="Title">Discover Devices</span></h2>
-  <span jwcid="@ErrorMsg"/>
+  <span jwcid="@common/ErrorMsg"/>
   <div class="help"> 
     <b><span key="label.quickLinks">Quick Links</span></b>
     <ul>
-      <li><a jwcid="@PageLink" page="ManagePhones" href="#"><span key="link.phones">Phones</span></a>
+      <li><a jwcid="@PageLink" page="phone/ManagePhones" href="#"><span key="link.phones">Phones</span></a>
       </li>
-      <li><a jwcid="@PageLink" page="ListGateways" href="#"><span key="link.gateways">Gateways</span></a>
+      <li><a jwcid="@PageLink" page="gateway/ListGateways" href="#"><span key="link.gateways">Gateways</span></a>
       </li>
     </ul>
   </div>
   <span jwcid="@If" condition="prop:discoveryExecuted" >
-    <div jwcid="@QuickHelp" value="message:help.about">quick help text...</div>
+    <div jwcid="@common/QuickHelp" value="message:help.about">quick help text...</div>
   </span>
   <span jwcid="@If" condition="prop:discovering" >
-    <div jwcid="@QuickHelp" value="message:help.inProgress">quick help text...</div>
+    <div jwcid="@common/QuickHelp" value="message:help.inProgress">quick help text...</div>
   </span>
   <form jwcid="targets@Form" delegate="bean:validator" listener="listener:submit">
     <span jwcid="@If" condition="prop:discoveryNotStarted" >
