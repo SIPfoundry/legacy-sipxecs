@@ -89,10 +89,7 @@ public class GatewaysTestUi extends WebTestCase {
         assertElementPresent("gateway:route");
         tester.setFormElement("gatewayName", "SipTrunkRouteTest");
         tester.setFormElement("gatewayAddress", "1.2.3.4");
-        tester.setFormElement("gatewayRoute", "@!#!@#"); // set an invalid route address
-        tester.clickButton("form:ok");
-        SiteTestHelper.assertUserError(tester);
-        tester.setFormElement("gatewayRoute", "1.2.3.5"); // now set a valid route address
+        tester.setFormElement("gatewayRoute", "1.2.3.5");
         tester.clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
 
