@@ -47,9 +47,10 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             };
             Map<String, String> results = retrieveDefaultSearchBase(params, attrNames);
 
-            String searchBase = results.get(attrNames[0]);
+            String searchBase = results.get(attrNames[0]).trim();
             // it will only overwrite the search base if not set yet
-            if (StringUtils.isBlank(attrMap.getSearchBase())) {
+            if (StringUtils.isBlank(attrMap.getSearchBase()) &&
+                        StringUtils.isNotEmpty(searchBase) ) {
                 attrMap.setSearchBase(searchBase);
             }
             String subschemaSubentry = results.get(attrNames[1]);
