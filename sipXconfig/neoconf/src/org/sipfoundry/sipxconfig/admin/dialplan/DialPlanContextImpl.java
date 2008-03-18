@@ -485,14 +485,14 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
      * but pick the most likely one.
      */
     public String getVoiceMail() {
-        DialingRule[] rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(),
+        List<InternalRule> rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(),
                 InternalRule.class);
-        if (rules.length == 0) {
+        if (rules.isEmpty()) {
             return InternalRule.DEFAULT_VOICEMAIL;
         }
 
         // return first, it's the most likely
-        String voicemail = ((InternalRule) rules[0]).getVoiceMail();
+        String voicemail = rules.get(0).getVoiceMail();
         return voicemail;
     }
 
@@ -501,7 +501,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
      * default emergency address. see: @link http://track.sipfoundry.org/browse/XCF-1883
      */
     public EmergencyInfo getLikelyEmergencyInfo() {
-        EmergencyRule[] rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(),
+        List<EmergencyRule> rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(),
                 EmergencyRule.class);
         for (EmergencyRule rule : rules) {
             if (rule.isEnabled() && !rule.getUseMediaServer()) {

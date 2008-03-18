@@ -44,11 +44,10 @@ public class JarMessagesSource implements LanguageSupport {
 
     public Messages getMessages(IComponent component) {
         Properties messageProperties = loadMessagesFromJar(component);
-        if (messageProperties != null) {
-            return new ComponentMessages(component.getPage().getLocale(), messageProperties);
-        } else {
+        if (messageProperties == null) {
             return null;
         }
+        return new ComponentMessages(component.getPage().getLocale(), messageProperties);
     }
 
     public String resolveLocaleName(String localeString) {
@@ -67,9 +66,8 @@ public class JarMessagesSource implements LanguageSupport {
         Properties languagesForLocale = loadMessagesFromJar(LANGUAGE_NAME_RESOURCE, locale);
         if (languagesForLocale == null || languagesForLocale.getProperty(LOCALE_PROPERTY) == null) {
             return locale.getDisplayName(locale);
-        } else {
-            return languagesForLocale.getProperty(LOCALE_PROPERTY);
         }
+        return languagesForLocale.getProperty(LOCALE_PROPERTY);
     }
 
     private Properties loadMessagesFromJar(Resource resource, Locale locale) {
@@ -84,8 +82,7 @@ public class JarMessagesSource implements LanguageSupport {
 
         String resourceName = resource.getName();
         String basename = resourceName.substring(0, resourceName.lastIndexOf('.'));
-        LocalizedNameGenerator localizedNameGenerator = new LocalizedNameGenerator(basename,
-                locale, ".properties");
+        LocalizedNameGenerator localizedNameGenerator = new LocalizedNameGenerator(basename, locale, ".properties");
 
         List<Resource> localizedNameList = new ArrayList<Resource>();
         while (localizedNameGenerator.more()) {
@@ -130,8 +127,6 @@ public class JarMessagesSource implements LanguageSupport {
 
     private Properties loadMessagesFromJar(IComponent component) {
         Resource specificationLocation = component.getSpecification().getSpecificationLocation();
-        String specificationName = specificationLocation.getName();
-
         return loadMessagesFromJar(specificationLocation, component.getPage().getLocale());
     }
 

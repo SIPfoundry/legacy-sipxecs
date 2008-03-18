@@ -28,7 +28,7 @@ public class AudioCodesFxsGatewayTest extends TestCase {
         model.setProfileTemplate("audiocodes/gateway.ini.vm");
         model.setModelDir("audiocodes");
         String configDirectory = TestHelper.getSysDirProperties().getProperty("audiocodesFxs.configDirectory");
-        ((AudioCodesFxsModel)model).setConfigDirectory(configDirectory);
+        model.setConfigDirectory(configDirectory);
 
         AudioCodesFxsGateway gateway = new AudioCodesFxsGateway();
         gateway.setModel(model);

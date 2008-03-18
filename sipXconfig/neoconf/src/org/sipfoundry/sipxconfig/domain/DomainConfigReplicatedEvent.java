@@ -13,7 +13,7 @@ import org.springframework.context.ApplicationEvent;
 
 public class DomainConfigReplicatedEvent extends ApplicationEvent {
 
-    public DomainConfigReplicatedEvent(Object source) {
-        super(source);
+    public DomainConfigReplicatedEvent(Object source_) {
+        super(source_);
     }
 }

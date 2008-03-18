@@ -32,11 +32,11 @@ public class DialPlanTest extends TestCase {
             new CustomDialingRule()
         };
 
-        CustomDialingRule[] actual = DialPlan.getDialingRuleByType(Arrays.asList(candidates),
+        List<CustomDialingRule> actual = DialPlan.getDialingRuleByType(Arrays.asList(candidates),
                 CustomDialingRule.class);
-        assertEquals(2, actual.length);
-        assertSame(candidates[1], actual[0]);
-        assertSame(candidates[3], actual[1]);
+        assertEquals(2, actual.size());
+        assertSame(candidates[1], actual.get(0));
+        assertSame(candidates[3], actual.get(1));
     }
     
     public void testAddRule() {        

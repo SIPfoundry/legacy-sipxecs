@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 // FIXME: it only test domain manager initialization for now
 public class FirstRunTaskTestIntegration extends IntegrationTestCase {
+    @SuppressWarnings("unused")
     private FirstRunTask m_firstRunTask;
 
     private DomainManager m_domainManager;

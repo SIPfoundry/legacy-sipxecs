@@ -39,7 +39,7 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         m_model.setMaxPorts(4);
         m_model.setProfileTemplate("audiocodes/gateway.ini.vm");
         String configDirectory = TestHelper.getSysDirProperties().getProperty("audiocodesGatewayModel.configDirectory");
-        ((AudioCodesModel)m_model).setConfigDirectory(configDirectory);
+        m_model.setConfigDirectory(configDirectory);
 
         m_gateway = new AudioCodesFxoGateway();
         m_gateway.setModel(m_model);

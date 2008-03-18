@@ -118,7 +118,7 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         return updatePage;
     }
 
-    public void setLanguage(IRequestCycle cycle) {
+    public void setLanguage() {
         String language = getLanguage();
         if (ModelWithDefaults.DEFAULT.equals(language)) {
             return;

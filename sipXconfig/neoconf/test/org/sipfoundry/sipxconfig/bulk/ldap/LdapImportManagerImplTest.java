@@ -13,6 +13,7 @@ import junit.framework.TestCase;
 
 public class LdapImportManagerImplTest extends TestCase {
 
+    @SuppressWarnings("unused")
     private LdapImportManager m_ldapImportManager;
 
     public void testInsert() {

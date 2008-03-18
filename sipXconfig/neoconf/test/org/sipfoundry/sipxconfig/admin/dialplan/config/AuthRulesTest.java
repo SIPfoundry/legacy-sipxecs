@@ -22,6 +22,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.junit.Assert;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
@@ -100,7 +101,7 @@ public class AuthRulesTest {
                 "/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
 
         // check if generate no access has been called properly
-        XMLAssert.assertEquals(1, authRules.uniqueGateways);
+        Assert.assertEquals(1, authRules.uniqueGateways);
 
         control.verify();
     }
@@ -265,7 +266,7 @@ public class AuthRulesTest {
         }
 
         // check if generate no access has been called properly
-        XMLAssert.assertEquals(GATEWAYS_LEN, authRules.uniqueGateways);
+        Assert.assertEquals(GATEWAYS_LEN, authRules.uniqueGateways);
 
         control.verify();
     }

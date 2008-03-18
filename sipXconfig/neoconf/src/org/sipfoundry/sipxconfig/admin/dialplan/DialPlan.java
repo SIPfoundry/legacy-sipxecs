@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -93,23 +92,21 @@ public class DialPlan extends BeanWithId {
      * Run thru dialing rules and set relevant dial plans that take
      */
     public void setOperator(AutoAttendant operator) {
-        DialingRule[] rules = getDialingRuleByType(m_rules, AttendantRule.class);
-        for (int i = 0; i < rules.length; i++) {
-            AttendantRule ar = (AttendantRule) rules[i];
+        List<AttendantRule> rules = getDialingRuleByType(m_rules, AttendantRule.class);
+        for (AttendantRule ar : rules) {
             ScheduledAttendant sa = new ScheduledAttendant();
             sa.setAttendant(operator);
             ar.setAfterHoursAttendant(sa);
         }
     }
-    
-    static <T extends DialingRule> T[] getDialingRuleByType(List<DialingRule> rulesCandidates, Class c) {
-        List<DialingRule> rules = new ArrayList<DialingRule>();
+
+    static <T extends DialingRule> List<T> getDialingRuleByType(List<DialingRule> rulesCandidates, Class<T> c) {
+        List<T> rules = new ArrayList<T>();
         for (DialingRule rule : rulesCandidates) {
             if (rule.getClass().isAssignableFrom(c)) {
-                rules.add(rule);
+                rules.add((T) rule);
             }
         }
-        
-        return (T[]) rules.toArray((T[]) Array.newInstance(c, rules.size()));
+        return rules;
     }
 }

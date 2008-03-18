@@ -17,22 +17,20 @@ public class JarMessagesSourceServiceAdapter implements ComponentMessagesSource 
 
     private JarMessagesSource m_jarMessagesSource;
     private ComponentMessagesSource m_systemMessagesSource;
-    
+
     public void setJarMessagesSource(JarMessagesSource jarMessagesSource) {
         m_jarMessagesSource = jarMessagesSource;
     }
-    
+
     public void setSystemMessagesSource(ComponentMessagesSource systemMessagesSource) {
         m_systemMessagesSource = systemMessagesSource;
     }
-    
+
     public Messages getMessages(IComponent component) {
         Messages messages = m_jarMessagesSource.getMessages(component);
-        
         if (messages != null) {
             return messages;
-        } else {
-            return m_systemMessagesSource.getMessages(component);
         }
+        return m_systemMessagesSource.getMessages(component);
     }
 }

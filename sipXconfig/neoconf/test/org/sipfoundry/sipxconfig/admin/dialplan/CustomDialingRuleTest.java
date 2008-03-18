@@ -9,11 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -21,7 +16,6 @@ import java.util.List;
 import java.util.TimeZone;
 
 import junit.framework.JUnit4TestAdapter;
-import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
@@ -38,6 +32,11 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * CustomDialingRuleTest
