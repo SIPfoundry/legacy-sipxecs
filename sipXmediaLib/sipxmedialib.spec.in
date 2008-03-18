@@ -11,7 +11,7 @@ Url: http://www.pingtel.com
 
 Source: %name-%version.tar.gz
 
-Requires: sipxtacklib >= 3.10
+Requires: sipxtacklib >= 3.11
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root

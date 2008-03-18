@@ -11,7 +11,7 @@ Url: http://www.sipfoundry.org/sipXtools
 
 Source: %name-%version.tar.gz
 
-Requires: sipxcommserverlib >= 3.10
+Requires: sipxcommserverlib >= 3.11
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root

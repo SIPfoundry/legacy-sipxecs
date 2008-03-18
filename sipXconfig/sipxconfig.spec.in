@@ -22,9 +22,9 @@ Url:      http://www.sipfoundry.org/
 
 Source: %name-%version.tar.gz
 
-Requires: sipxtacklib >= 3.10
-Requires: sipxcommserverlib >= 3.10
-Requires: sipxpbx >= 3.10
+Requires: sipxtacklib >= 3.11
+Requires: sipxcommserverlib >= 3.11
+Requires: sipxpbx >= 3.11
 Requires: postgresql-server
 Requires: ruby
 Requires: ruby-gems
