@@ -4,6 +4,85 @@ SIPfoundry Issue Tracker at:
         http://track.sipfoundry.org/browse?XCF
 
 
+Version 3.9.8
+
+
+** Bug
+    * [XCF-1997] - Language selection field for User->Personal Attendant needs labels
+    * [XCF-2021] - huntgroup falback destination that requires permission does not work
+    * [XCF-2095] - Connection from sipx to IBM Domino LDAP server fails
+    * [XCF-2111] - Snom timezone offset not being used (utc_offset config param needs to be set as writable)
+    * [XCF-2156] - LG-Nortel Phone Configuration file generation missing headers - PPC & i386 Builds
+    * [XCF-2160] - Nortel 11xx series IP phones do not accept the xxxxxxxxxx.cfg configuration file by default from SCS
+    * [XCF-2166] - Error messages are displayed while dropping the database.
+    * [XCF-2173] - Activating the Activated Device Files gives an Internal exception
+    * [XCF-2179] - Adding a sbc with duplicate name is giving an internal error.
+    * [XCF-2182] - "Enable History-Info Header" needs to be added to the Audiocodes Mediant Gateway settings in the sipx GUI
+    * [XCF-2186] - Error in ldap import - ClassCastException in import thread
+    * [XCF-2187] - Personal AA: Table that allows definition of keys does not show in the admin UI
+    * [XCF-2189] - If a commented target appears in the mrtg.cfg file, a HTTP ERROR: 404 appears and the GUI is unavailable
+    * [XCF-2195] - Typing wrong password in login screen misaligns ui
+    * [XCF-2199] - Exception occurs when navigating to Personal Auto-Attendant for a user in the admin portal
+    * [XCF-2200] - Direct routing of 911 emergency calls from the phone to the gateway needs to be allowed by the gateway's ACL
+    * [XCF-2201] - Configuration test issues DNS, NTP Unknown & HTTP Error with file
+    * [XCF-2205] - Message shown when a profile is sent to a phone has the forecolor same as the background color
+    * [XCF-2213] - Non-functional buttons in the config UI of FXO Gateway
+    * [XCF-2219] - There is a typo on the Discover Devices UI when the discovery is underway "In Progres ..."
+    * [XCF-2226] - Find Phone adds : into phones mac address causing them not to work
+    * [XCF-2228] - Default ADMIN password is wrong for Nortel-11xx sets
+    * [XCF-2232] - Preflight test file missing from var/sipxdata/configserver/phone/profile/docroot
+    * [XCF-2235] - Incorrect error message "Add at least one gateway before enabling the rule."
+    * [XCF-2236] - authrules.xml.in section for caller sensitive emergency routing is generated incorrectly
+    * [XCF-2239] - Localization page - Language selection is broken by code added in 11831
+    * [XCF-2240] - Localization page - Language change - Media Server restarted too fast
+    * [XCF-2241] - Region change causes internal error, destroys dial plan
+    * [XCF-2242] - Tab for Active Calls is no longer available
+    * [XCF-2243] - Device discovery takes too long when launched from GUI
+    * [XCF-2248] - Extra green bar seen and Sizing of SCS GUI  various pages is wrong
+    * [XCF-2249] - Upgrade- Internal exception occurs while restarting services after upgrade from 3.8.1-011577 to 3.9.7-011919.
+    * [XCF-2259] - Improper alignment between the configuration parameters in the edit user, phones and dial plans page
+    * [XCF-2262] - Internal Exception occured when tried to import users from MS Exchange AD without giving the user name in LDAP Server
+    * [XCF-2264] - domain-config is replicated to Distributed server only once
+    * [XCF-2265] - Discover Devices doesn't appear in GUI
+    * [XCF-2267] - Internal Exception when navigated to second page of results obtained in 'Discover Devices'
+    * [XCF-2268] - SIPx Device Discovery tool allows entry of duplicate MAC address
+    * [XCF-2275] - Internal Exception occured while resetting the dialplan
+    * [XCF-2282] - Language selected on the Localization page is not used by voice applications
+    * [XCF-2289] - Mediant BRI GUI is wrong size after adding the GatewayTested OK Build
+    * [XCF-2296] - Upgrade from 3.8.1 to 3.9 - sipxconfig in non running state after upgrade
+    * [XCF-2299] - Localization: sipXconfig needs to be manually restarted after installing a language pack. There is no help text that says so.
+    * [XCF-2310] - Paging Group: An exception has occured when Paging Description is more then 255 characters.
+    * [XCF-2312] - In the Dial Plan Rule for Auto Attendant the Default Attendant is not set as Operator as Default setting in this build
+    * [XCF-2319] - Newly added Languages are not displayed in the 'language' drop down menu  after installation of localization packages
+    * [XCF-2347] - Cannot switch location on Services page in HA setup
+    * [XCF-2350] - sipx db sometimes needs to be re-indexed after an upgrade (because all sipxconfig searches fail)
+    * [XCF-2358] - Upgrade: AA does not work as expected after upgrade from 3.8.1 to 3.10
+    * [XCF-2359] - Typo in Intercom Page
+    * [XCF-2364] - sipXconfig RPM does not require correct Java RPMs on F8
+
+** Improvement
+    * [XCF-1794] - AudioCodes MP114 FXO  gateway ini file doesnot contain  TxDTMFOption values
+    * [XCF-1975] - Add item to control the logging level of RLS
+    * [XCF-2105] - Improve configuration diagnostics test error and success printout
+    * [XCF-2147] - ACD Presence screen (for both admin and for users) should auto refresh agent status
+    * [XCF-2174] - Gateway table requires a model field which describes the type of gateway added
+    * [XCF-2196] - Variable-width sidebar layout
+    * [XCF-2253] - remove reference to Paging on the Intercom screen
+    * [XCF-2279] - Automatically enable Auto-Answer for Polycom phones
+    * [XCF-2285] - The configuation parameters for Nortel-11xx phone are non validated in the configserver.
+    * [XCF-2302] - Update the localization script to allow the installation of 3rd party localization files
+
+** New Feature
+    * [XCF-1852] - Find phone feature needs to be incoporated into sipxconfig
+    * [XCF-1893] - Audiocodes Parameters for Globalization files needs to be exposed
+    * [XCF-2026] - Add support for LG-LIP sets BLF Configuration in sipxconfig
+    * [XCF-2027] - Add support for LG-1535 Video phone to sipxconfig
+    * [XCF-2109] - support Polycom 2.2.x firmware
+    * [XCF-2136] - update sipXconfig logo
+    * [XCF-2151] - Support for SipTone V phone
+    * [XCF-2161] - Audiocodes Mediant 1000 has no choices for BRI Protocol Variants
+
+
 Version 3.9.7
 
 ** Bug
@@ -16,30 +95,29 @@ Version 3.9.7
     * [XCF-2002] - Help text is missing in Localization screen
     * [XCF-2008] - Internal exception while adding an existing user.
     * [XCF-2009] - Incomplete help text in SBCs screen
-    * [XCF-2010] - Call Forwarding: Error messages are not displayed when invalid inputs are given for forward to and ring for
     * [XCF-2059] - Editing the refresh time causes exceptions on auto refreshed screens.
     * [XCF-2082] - Tabs defined via the settings mechanism (XML files) remain "active" along with the main tab
     * [XCF-2085] - "Caller" column is not displaying uri of caller's number on ACD Historic Reports page.
-    * [XCF-2108] - sip.cfg and phone1.cfg need to be linked to the active version of sip.ld
     * [XCF-2110] - Services page: no Start/Stop feedback since rev 10635
     * [XCF-2112] - Generated domain-config is incorrect
     * [XCF-2122] - Cannot use "Use caller sensitive forwarding" function
     * [XCF-2146] - Internal Exception error when exporting phones with external lines
     * [XCF-2150] - Quick link on the "Devices/SBC" page should be to "Internet Calling" and not "Dialing Plans"
+    * [XCF-2158] - ACD: Not able to disable the "agents-wrap-up-time" parameter
     * [XCF-2163] - LG Phones - Under sip parameters configuration parameter is named "Outbound proxy address". Should be "Proxy address"
     * [XCF-2164] - web tests fail on system w/o mrtg installed
     * [XCF-2165] - Many Admin E-Mails seen on new build system : ERROR: unable to open config file: /etc/mrtg/mrtg.cfg
-    * [XCF-2190] - After Restore from a previous Backup cannot access GUI, calls fail
 
 ** Improvement
+    * [XCF-1133] - 'Send All [phone] Profiles' should have an 'Are you sure?' dialog
+    * [XCF-1502] - Make voicemail web page the home page for user portal
     * [XCF-1570] - Voice Mail Web UI should inform a user that he or she does not have a voice mail box if he or she does not have voicemail permissions.
     * [XCF-1778] - need easier way to add the same gateway to multiple dialing rules
-    * [XCF-1798] - WebUI for ACD overflow destination needs to be cleaned up
     * [XCF-1803] - Backup & Restore: Progress and success message should be added for restore operation
     * [XCF-1841] - *.page and *.jwc files not ready for localization
     * [XCF-1867] - Add help text to Internal Dial Rule screen that explains how to use Exchange as the VM server
+    * [XCF-1873] - Improvement of the LDAP Import page
     * [XCF-1883] - automatically configure direct emergency gateways for phones that support it
-    * [XCF-1940] - Need a link from the System>Import page for user to download example csv file
     * [XCF-2050] - JAR message source does not use files with language variants in their names
     * [XCF-2057] - add ability to disable phonebook management
     * [XCF-2079] - Mediant 1000 should be changed to Mediant
@@ -54,9 +132,8 @@ Version 3.9.7
     * [XCF-2142] - Login page improvement
 
 ** New Feature
+    * [XCF-1731] - FreeBSD port changes for sipxconfig
     * [XCF-1733] - export of current user list
-    * [XCF-1893] - Audiocodes Parameters for Globalization files needs to be exposed
-
 
 Version 3.9.6
 
