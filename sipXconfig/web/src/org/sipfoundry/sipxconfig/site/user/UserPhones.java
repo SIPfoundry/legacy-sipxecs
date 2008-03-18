@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.site.user;
 
 import java.util.Collection;
 
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -41,5 +43,12 @@ public abstract class UserPhones extends UserBasePage {
 
     public Collection<Phone> getPhones() {
         return getPhoneContext().getPhonesByUserId(getUserId());
+    }
+    
+    public IPage addExistingPhones(IRequestCycle cycle) {
+        AddExistingPhone page = (AddExistingPhone) cycle.getPage(AddExistingPhone.PAGE);
+        page.setUserId(getUser().getId());
+        page.setReturnPage(PAGE);
+        return page;
     }
 }
