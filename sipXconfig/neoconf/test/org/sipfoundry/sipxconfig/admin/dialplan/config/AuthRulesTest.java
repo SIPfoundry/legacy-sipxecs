@@ -14,12 +14,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.custommonkey.xmlunit.XMLTestCase;
+import junit.framework.JUnit4TestAdapter;
+
+import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.junit.Test;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
@@ -28,25 +31,31 @@ import org.sipfoundry.sipxconfig.admin.dialplan.RoutingException;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
-public class AuthRulesTest extends XMLTestCase {
+public class AuthRulesTest {
     private static final int GATEWAYS_LEN = 5;
+
+    public static junit.framework.Test suite() {
+        return new JUnit4TestAdapter(AuthRulesTest.class);
+      }
 
     public AuthRulesTest() {
         XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
     }
 
+    @Test
     public void testGetDoc() throws Exception {
         AuthRules rules = new AuthRules();
         rules.begin();
         Document doc = rules.getDocument();
 
         String xml = XmlUnitHelper.asString(doc);
-        assertXMLEqual(
+        XMLAssert.assertXMLEqual(
                 "<mappings xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00\"/>",
                 xml);
     }
 
+    @Test
     public void testGenerate() throws Exception {
         Gateway gateway = new Gateway();
         gateway.setUniqueId();
@@ -81,17 +90,17 @@ public class AuthRulesTest extends XMLTestCase {
         Document document = authRules.getDocument();
         String domDoc = XmlUnitHelper.asString(document);
 
-        assertXpathEvaluatesTo("test rule description", "/mappings/hostMatch/description", domDoc);
-        assertXpathEvaluatesTo(gateway.getGatewayAddress(), "/mappings/hostMatch/hostPattern",
+        XMLAssert.assertXpathEvaluatesTo("test rule description", "/mappings/hostMatch/description", domDoc);
+        XMLAssert.assertXpathEvaluatesTo(gateway.getGatewayAddress(), "/mappings/hostMatch/hostPattern",
                 domDoc);
-        assertXpathEvaluatesTo("555", "/mappings/hostMatch/userMatch/userPattern", domDoc);
-        assertXpathEvaluatesTo("666", "/mappings/hostMatch/userMatch/userPattern[2]", domDoc);
-        assertXpathEvaluatesTo("777", "/mappings/hostMatch/userMatch/userPattern[3]", domDoc);
-        assertXpathEvaluatesTo("Voicemail",
+        XMLAssert.assertXpathEvaluatesTo("555", "/mappings/hostMatch/userMatch/userPattern", domDoc);
+        XMLAssert.assertXpathEvaluatesTo("666", "/mappings/hostMatch/userMatch/userPattern[2]", domDoc);
+        XMLAssert.assertXpathEvaluatesTo("777", "/mappings/hostMatch/userMatch/userPattern[3]", domDoc);
+        XMLAssert.assertXpathEvaluatesTo("Voicemail",
                 "/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
 
         // check if generate no access has been called properly
-        assertEquals(1, authRules.uniqueGateways);
+        XMLAssert.assertEquals(1, authRules.uniqueGateways);
 
         control.verify();
     }
@@ -101,6 +110,7 @@ public class AuthRulesTest extends XMLTestCase {
      * have the correct external number set in the <userPattern> element of the
      * generated auth configuration.
      */
+    @Test
     public void testGenerateEmergencyDialingRules() throws Exception {
         Gateway gateway = new Gateway();
         gateway.setUniqueId();
@@ -129,13 +139,14 @@ public class AuthRulesTest extends XMLTestCase {
         Document doc = authRules.getDocument();
         String domDoc = XmlUnitHelper.asString(doc);
 
-        assertXpathEvaluatesTo(gateway.getAddress(), "/mappings/hostMatch/hostPattern", domDoc);
-        assertXpathEvaluatesTo(emergencyRouting.getExternalNumber(), "/mappings/hostMatch/userMatch/userPattern", domDoc);
+        XMLAssert.assertXpathEvaluatesTo(gateway.getAddress(), "/mappings/hostMatch/hostPattern", domDoc);
+        XMLAssert.assertXpathEvaluatesTo(emergencyRouting.getExternalNumber(), "/mappings/hostMatch/userMatch/userPattern", domDoc);
 
-        assertXpathEvaluatesTo(exceptionGateway.getAddress(), "/mappings/hostMatch[2]/hostPattern", domDoc);
-        assertXpathEvaluatesTo(exception.getExternalNumber(), "/mappings/hostMatch[2]/userMatch/userPattern", domDoc);
+        XMLAssert.assertXpathEvaluatesTo(exceptionGateway.getAddress(), "/mappings/hostMatch[2]/hostPattern", domDoc);
+        XMLAssert.assertXpathEvaluatesTo(exception.getExternalNumber(), "/mappings/hostMatch[2]/userMatch/userPattern", domDoc);
     }
 
+    @Test
     public void testGenerateMultipleGateways() throws Exception {
         Gateway[] gateways = new Gateway[GATEWAYS_LEN];
         StringBuilder prefixBuilder = new StringBuilder();
@@ -181,14 +192,14 @@ public class AuthRulesTest extends XMLTestCase {
         prefixBuilder = new StringBuilder();
         for (int i = 0; i < gateways.length; i++) {
             String hostMatch = String.format(hostMatchFormat, i + 1);
-            assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), hostMatch + "hostPattern",
+            XMLAssert.assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), hostMatch + "hostPattern",
                     domDoc);
 
             String prefix = prefixBuilder.toString();
-            assertXpathEvaluatesTo(prefix + "555", hostMatch + "userMatch/userPattern", domDoc);
-            assertXpathEvaluatesTo(prefix + "666", hostMatch + "userMatch/userPattern[2]", domDoc);
-            assertXpathEvaluatesTo(prefix + "777", hostMatch + "userMatch/userPattern[3]", domDoc);
-            assertXpathEvaluatesTo("Voicemail", hostMatch
+            XMLAssert.assertXpathEvaluatesTo(prefix + "555", hostMatch + "userMatch/userPattern", domDoc);
+            XMLAssert.assertXpathEvaluatesTo(prefix + "666", hostMatch + "userMatch/userPattern[2]", domDoc);
+            XMLAssert.assertXpathEvaluatesTo(prefix + "777", hostMatch + "userMatch/userPattern[3]", domDoc);
+            XMLAssert.assertXpathEvaluatesTo("Voicemail", hostMatch
                     + "/userMatch/permissionMatch/permission", domDoc);
             prefixBuilder.append("2");
         }
@@ -197,16 +208,17 @@ public class AuthRulesTest extends XMLTestCase {
         // "no access" match at the end of the file - just checks if paths are that
         // testGenerateNoAccessRule tests if values are correct
         for (int i = 0; i < gateways.length; i++) {
-            assertXpathExists(lastHostMatch + "hostPattern[" + (i + 1) + "]", domDoc);
+            XMLAssert.assertXpathExists(lastHostMatch + "hostPattern[" + (i + 1) + "]", domDoc);
         }
 
-        assertXpathEvaluatesTo(".", lastHostMatch + "userMatch/userPattern", domDoc);
-        assertXpathEvaluatesTo("NoAccess",
+        XMLAssert.assertXpathEvaluatesTo(".", lastHostMatch + "userMatch/userPattern", domDoc);
+        XMLAssert.assertXpathEvaluatesTo("NoAccess",
                 lastHostMatch + "userMatch/permissionMatch/permission", domDoc);
 
         control.verify();
     }
 
+    @Test
     public void testGenerateNoPermissionRequiredRule() throws Exception {
         Gateway[] gateways = new Gateway[GATEWAYS_LEN];
         for (int i = 0; i < gateways.length; i++) {
@@ -244,20 +256,21 @@ public class AuthRulesTest extends XMLTestCase {
         String hostMatchFormat = "/mappings/hostMatch[%d]/";
         for (int i = 0; i < gateways.length; i++) {
             String hostMatch = String.format(hostMatchFormat, i + 1);
-            assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), hostMatch + "hostPattern",
+            XMLAssert.assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), hostMatch + "hostPattern",
                     domDoc);
-            assertXpathEvaluatesTo("555", hostMatch + "userMatch/userPattern", domDoc);
-            assertXpathEvaluatesTo("666", hostMatch + "userMatch/userPattern[2]", domDoc);
-            assertXpathEvaluatesTo("777", hostMatch + "userMatch/userPattern[3]", domDoc);
-            assertXpathEvaluatesTo("", hostMatch + "/userMatch/permissionMatch", domDoc);
+            XMLAssert.assertXpathEvaluatesTo("555", hostMatch + "userMatch/userPattern", domDoc);
+            XMLAssert.assertXpathEvaluatesTo("666", hostMatch + "userMatch/userPattern[2]", domDoc);
+            XMLAssert.assertXpathEvaluatesTo("777", hostMatch + "userMatch/userPattern[3]", domDoc);
+            XMLAssert.assertXpathEvaluatesTo("", hostMatch + "/userMatch/permissionMatch", domDoc);
         }
 
         // check if generate no access has been called properly
-        assertEquals(GATEWAYS_LEN, authRules.uniqueGateways);
+        XMLAssert.assertEquals(GATEWAYS_LEN, authRules.uniqueGateways);
 
         control.verify();
     }
 
+    @Test
     public void testGenerateNoAccessRule() throws Exception {
         Gateway[] gateways = new Gateway[GATEWAYS_LEN];
         for (int i = 0; i < gateways.length; i++) {
@@ -274,15 +287,16 @@ public class AuthRulesTest extends XMLTestCase {
         String domDoc = XmlUnitHelper.asString(document);
         // "no access" match at the end of the file
         for (int i = 0; i < gateways.length; i++) {
-            assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), lastHostMatch
+            XMLAssert.assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), lastHostMatch
                     + "hostPattern[" + (i + 1) + "]", domDoc);
         }
 
-        assertXpathEvaluatesTo(".", lastHostMatch + "userMatch/userPattern", domDoc);
-        assertXpathEvaluatesTo("NoAccess",
+        XMLAssert.assertXpathEvaluatesTo(".", lastHostMatch + "userMatch/userPattern", domDoc);
+        XMLAssert.assertXpathEvaluatesTo("NoAccess",
                 lastHostMatch + "userMatch/permissionMatch/permission", domDoc);
     }
 
+    @Test
     public void testNamespace() {
         AuthRules rules = new AuthRules();
         rules.begin();

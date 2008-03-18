@@ -9,15 +9,23 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
+import junit.framework.JUnit4TestAdapter;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
+import org.junit.Before;
+import org.junit.Test;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.ScheduledDay;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
@@ -34,7 +42,12 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 /**
  * CustomDialingRuleTest
  */
-public class CustomDialingRuleTest extends TestCase {
+public class CustomDialingRuleTest {
+
+    public static junit.framework.Test suite() {
+        return new JUnit4TestAdapter(CustomDialingRuleTest.class);
+      }
+
     private static final int PATTERN_COUNT = 10;
     private static final String[] GATEWAYS = {
         "10.2.3.4", "10.4.5.6"
@@ -56,7 +69,8 @@ public class CustomDialingRuleTest extends TestCase {
     private List m_patternsList;
     private Schedule m_schedule;
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         m_schedule = new GeneralSchedule();
         m_schedule.setName("Custom schedule");
         WorkingHours[] hours = new WorkingHours[1];
@@ -97,6 +111,7 @@ public class CustomDialingRuleTest extends TestCase {
         m_rule.setCallPattern(new CallPattern("999", CallDigits.VARIABLE_DIGITS));
     }
 
+    @Test
     public void testGetPatterns() {
         String[] patterns = m_rule.getPatterns();
         assertEquals(PATTERN_COUNT, patterns.length);
@@ -106,6 +121,7 @@ public class CustomDialingRuleTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetTransforms() {
         Transform[] transforms = m_rule.getTransforms();
         assertEquals(GATEWAYS.length, transforms.length);
@@ -122,6 +138,7 @@ public class CustomDialingRuleTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetTransformsWithSchedule() {
         m_rule.setSchedule(m_schedule);
         Transform[] transforms = m_rule.getTransforms();
@@ -140,6 +157,7 @@ public class CustomDialingRuleTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetRouteHeader() {
         Gateway g = new Gateway() {
             public String getRoute() {
@@ -154,6 +172,7 @@ public class CustomDialingRuleTest extends TestCase {
         assertEquals("route=bongo.example.org", full.getHeaderParams()[0]);
     }
 
+    @Test
     public void testNoGateways() {
         CustomDialingRule rule = new CustomDialingRule();
         rule.setDialPatterns(m_patternsList);
@@ -175,6 +194,7 @@ public class CustomDialingRuleTest extends TestCase {
         assertNull(tr.getHost());
     }
 
+    @Test
     public void testNoGatewaysWithSchedule() {
         CustomDialingRule rule = new CustomDialingRule();
         rule.setDialPatterns(m_patternsList);
@@ -198,6 +218,7 @@ public class CustomDialingRuleTest extends TestCase {
         assertNull(tr.getHost());
     }
 
+    @Test
     public void testGetTransformedPatternsVariable() throws Exception {
         CustomDialingRule rule = new CustomDialingRule();
         rule.setDialPatterns(m_patternsList);
@@ -213,6 +234,7 @@ public class CustomDialingRuleTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetTransformedPatternsFixed() throws Exception {
         CustomDialingRule rule = new CustomDialingRule();
         rule.setDialPatterns(m_patternsList);
@@ -228,6 +250,7 @@ public class CustomDialingRuleTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetTransformedPatternsNoDigits() throws Exception {
         CustomDialingRule rule = new CustomDialingRule();
         rule.setDialPatterns(m_patternsList);
@@ -239,6 +262,7 @@ public class CustomDialingRuleTest extends TestCase {
         assertEquals("77", patterns[0]);
     }
 
+    @Test
     public void testSetPermissionNames() throws Exception {
         PermissionManagerImpl pm = new PermissionManagerImpl();
         pm.setModelFilesContext(TestHelper.getModelFilesContext());
@@ -262,7 +286,6 @@ public class CustomDialingRuleTest extends TestCase {
         }
 
         rule.setPermissionManager(pm);
-
         rule.setPermissions(Arrays.asList(permissions));
         List<Permission> perms = rule.getPermissions();
         assertEquals(names.length, perms.size());

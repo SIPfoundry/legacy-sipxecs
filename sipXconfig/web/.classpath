@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/bsf-2.4.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-beanutils-1.7.0.jar"/>
@@ -16,7 +17,6 @@
 	<classpathentry sourcepath="/LIB_SRC/httpunit/src.zip" kind="var" path="SIPX_CONFIG/lib/httpunit-1.6.2.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/oro/src.zip" kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/javassist/3.0/src.zip" kind="var" path="SIPX_CONFIG/lib/javassist-3.0.jar"/>
-	<classpathentry sourcepath="LIB_SRC/junit/src.zip" kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.14.jar"/>
 	<classpathentry sourcepath="LIB_SRC/ognl/ognl-2.6.7-dist.zip" kind="var" path="SIPX_CONFIG/lib/ognl-2.6.7.jar"/>
 	<classpathentry sourcepath="JRE_SRC" kind="var" path="SIPX_CONFIG/lib/javax.servlet.jar"/>

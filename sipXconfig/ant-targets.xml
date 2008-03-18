@@ -253,6 +253,7 @@
     <path refid="base.path"/>
     <pathelement location="${classes.dir}"/>
     <pathelement location="${test.classes.dir}"/>
+    <pathelement location="${junit.jar}"/>
   </path>
 
   <!--
