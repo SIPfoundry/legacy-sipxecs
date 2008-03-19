@@ -364,14 +364,17 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
                   sipDialog.getLocalContact(requestUrl);
                   requestUrl.getIdentity(entity);
 
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "Call dropped: %s address %s with entity %s",
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer::handleMessage Call dropped: %s address %s with entity %s",
                                 callId.data(), address.data(), entity.data());
 
                   if (entity.isNull())
                   {
-                     OsSysLog::add(FAC_SIP, PRI_WARNING, "PresenceDialInServer::handleMessage Call dropped: callId %s address %s without requestUrl", 
+                     OsSysLog::add(FAC_SIP, PRI_WARNING, "PresenceDialInServer::handleMessage Call dropped: callId %s address %s without requestUri", 
                                    callId.data(), address.data());
                   }
+
+                  // We have to drop the call from this end, also.
+                  mpCallManager->drop(callId);
                }
                else
                {
@@ -392,14 +395,13 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
             break;
       }
    }
-   else
+   else if(msgType == OsMsg::OS_EVENT && msgSubType == OsEventMsg::NOTIFY)
    {
-       if(msgType == OsMsg::OS_EVENT && msgSubType == OsEventMsg::NOTIFY)
-       {
-         CallContainer* thisCall = NULL;
-         ((OsEventMsg&)rMsg).getUserData((int&)thisCall);
-         mpCallManager->dropConnection(thisCall->mCallId, thisCall->mAddress);
-       }
+      CallContainer* thisCall = NULL;
+      ((OsEventMsg&)rMsg).getUserData((int&)thisCall);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer::handleMessage dropping call %s",
+                    thisCall->mCallId.data());
+      mpCallManager->drop(thisCall->mCallId.data());
    }
       
    return(TRUE);
