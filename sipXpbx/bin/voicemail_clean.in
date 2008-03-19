@@ -51,7 +51,4 @@ then
             echo "failed to cd to '${deleted_dir}'" 1>&2
         fi
     done
- 
-else
-    # there is no mailbox tree. assume that this is not a mediaserver and exit quietly.
 fi
