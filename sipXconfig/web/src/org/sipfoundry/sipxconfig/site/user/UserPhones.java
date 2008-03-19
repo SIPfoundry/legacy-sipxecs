@@ -12,9 +12,9 @@ package org.sipfoundry.sipxconfig.site.user;
 import java.util.Collection;
 
 import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -32,6 +32,9 @@ public abstract class UserPhones extends UserBasePage {
     @InjectObject(value = "spring:phoneProfileManager")
     public abstract ProfileManager getPhoneProfileManager();
 
+    @InjectPage(value = AddExistingPhone.PAGE)
+    public abstract AddExistingPhone getAddExistingPhonePage();
+
     @Bean
     public abstract SelectMap getSelections();
 
@@ -44,11 +47,11 @@ public abstract class UserPhones extends UserBasePage {
     public Collection<Phone> getPhones() {
         return getPhoneContext().getPhonesByUserId(getUserId());
     }
-    
-    public IPage addExistingPhones(IRequestCycle cycle) {
-        AddExistingPhone page = (AddExistingPhone) cycle.getPage(AddExistingPhone.PAGE);
+
+    public IPage addExistingPhones() {
+        AddExistingPhone page = getAddExistingPhonePage();
         page.setUserId(getUser().getId());
-        page.setReturnPage(PAGE);
+        page.setReturnPage(this);
         return page;
     }
 }

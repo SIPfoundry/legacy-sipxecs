@@ -20,20 +20,13 @@ import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
-import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
-import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
-import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.search.SearchManager;
-import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.site.phone.AddToPhoneGroupAction;
 import org.sipfoundry.sipxconfig.site.phone.PhoneTableModel;
-import org.sipfoundry.sipxconfig.site.phone.RemoveFromPhoneGroupAction;
 import org.sipfoundry.sipxconfig.site.phone.SearchPhoneTableModel;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
@@ -63,10 +56,6 @@ public abstract class AddExistingPhone extends UserBasePage {
 
     public abstract void setGroupId(Integer groupId);
 
-    public abstract IPropertySelectionModel getActionModel();
-
-    public abstract void setActionModel(IPropertySelectionModel model);
-
     @Persist
     public abstract String getQueryText();
 
@@ -83,40 +72,6 @@ public abstract class AddExistingPhone extends UserBasePage {
             return new PhoneTableModel(getPhoneContext(), getGroupId());
         }
         return new SearchPhoneTableModel(getSearchManager(), queryText, getPhoneContext());
-    }
-
-    /**
-     * called before page is drawn
-     */
-    public void pageBeginRender(PageEvent event_) {
-        initActionsModel();
-    }
-
-    private void initActionsModel() {
-        Collection<Group> groups = getPhoneContext().getGroups();
-        Collection actions = new ArrayList(groups.size());
-
-        Group removeFromGroup = null;
-        for (Group g : groups) {
-            if (g.getId().equals(getGroupId())) {
-                // do not add the "remove from" group...
-                removeFromGroup = g;
-                continue;
-            }
-            if (actions.size() == 0) {
-                actions.add(new OptGroup(getMessages().getMessage("label.addTo")));
-            }
-            actions.add(new AddToPhoneGroupAction(g, getPhoneContext()));
-        }
-
-        if (removeFromGroup != null) {
-            actions.add(new OptGroup(getMessages().getMessage("label.removeFrom")));
-            actions.add(new RemoveFromPhoneGroupAction(removeFromGroup, getPhoneContext()));
-        }
-
-        AdaptedSelectionModel model = new AdaptedSelectionModel();
-        model.setCollection(actions);
-        setActionModel(model);
     }
 
     public void select(IRequestCycle cycle) {
