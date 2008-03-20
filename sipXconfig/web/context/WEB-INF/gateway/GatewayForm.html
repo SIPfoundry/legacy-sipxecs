@@ -7,7 +7,7 @@
       <label jwcid="@common/FieldPanel" for="gateway:name"
         field="component:gatewayName"
         label="message:label.name">
-        <input jwcid="gatewayName@TextField" id="gateway:name" maxlength="40"
+        <input jwcid="gatewayName@TextField" id="gateway:name" maxlength="255"
           value="prop:gateway.name"
           validators="validators:required"
           displayName="message:label.name"/>
@@ -16,7 +16,7 @@
         field="component:gatewayAddress"
         label="message:label.address"
         description="message:description.address">
-        <input jwcid="gatewayAddress@TextField" id="gateway:address" maxlength="40"
+        <input jwcid="gatewayAddress@TextField" id="gateway:address" maxlength="255"
           value="prop:gateway.address"
           validators="spring-validators:required,validHostOrIp"
           displayName="message:label.address"/>
@@ -26,7 +26,7 @@
           field="component:gatewayAddressPort"
           label="message:label.addressPort"
           description="message:description.addressPort">
-          <input jwcid="gatewayAddressPort@TextField" id="gateway:addressPort" maxlength="40"
+          <input jwcid="gatewayAddressPort@TextField" id="gateway:addressPort" maxlength="255"
             value="prop:gateway.addressPort"
             validators="validators:required,min=0[%label.invalidformat],max=65534[%label.invalidformat]"
             translator="translator:number,omitZero=false"
@@ -47,7 +47,7 @@
           field="component:gatewaySerial"
           label="message:label.serial"
           description="message:description.serial">
-          <input jwcid="gatewaySerial@TextField" id="gateway:serial" maxlength="40"
+          <input jwcid="gatewaySerial@TextField" id="gateway:serial" maxlength="255"
             value="prop:gateway.serialNumber"
             validators="prop:serialNumberValidators"
             translator="prop:serialNumberTranslator"
@@ -65,7 +65,7 @@
       <span jwcid="@If" condition="ognl:gateway instanceof org.sipfoundry.sipxconfig.gateway.SipTrunk">
       <label jwcid="@common/FieldPanel" for="gateway:route" field="component:gatewayRoute"
              label="message:label.route" description="message:description.route">
-            <input jwcid="gatewayRoute@TextField" id="gateway:route" maxlength="20" 
+            <input jwcid="gatewayRoute@TextField" id="gateway:route" maxlength="255"
                    value="ognl:gateway.route" displayName="message:label.route" />
         </label>
       </span>
