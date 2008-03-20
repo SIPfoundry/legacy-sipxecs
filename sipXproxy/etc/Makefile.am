@@ -15,6 +15,7 @@ process_xml_files_IN = \
 	sipxcallresolver.process.xml.in
 
 EXTRA_DIST = \
+	sipXproxy-config.in.map \
 	$(process_xml_files_IN) \
 	$(cfgfiles_IN)
 
