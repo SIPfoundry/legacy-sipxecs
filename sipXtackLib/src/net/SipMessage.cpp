@@ -2893,10 +2893,13 @@ void SipMessage::getLastVia(UtlString* address,
    UtlString receivedPortString;
    UtlString maddr;
    int index;
+
+   // why are these removed twice?  one time port is set to -1, later it is set to 0?
    address->remove(0);
    *port = PORT_NONE;
    protocol->remove(0);
 
+   // Initialize caller's values as if nothing found in via
    if (port)
    {
       *port = 0;
@@ -2962,9 +2965,10 @@ void SipMessage::getLastVia(UtlString* address,
       UtlBoolean receivedPortFound =
          viaParam.getUrlParameter("rport", receivedPortString);
 
-      // The maddr takes precedence over the received-by address
+      // The maddr takes precedence over the received address
       if(address && !maddr.isNull())
       {
+          // why isn't this remove/append like receivedAddress in "elseif"?
          *address = maddr;
       }
 

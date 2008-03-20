@@ -35,6 +35,8 @@
 
 //#define LOG_FORKING
 //#define ROUTE_DEBUG
+//#define DUMP_TRANSACTIONS   
+
 //#define LOG_TRANSLOCK
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -156,6 +158,10 @@ SipTransaction::SipTransaction(SipMessage* initialMsg,
 
    touch(); // sets mTimeStamp
    mTransactionCreateTime = mTimeStamp;
+#ifdef DUMP_TRANSACTIONS 
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::constructor dumps whole TransactionTree ");
+    justDumpTransactionTree();
+#endif
 }
 
 
@@ -624,7 +630,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
 
         touch();
     }
-#if 0
+#ifdef DUMP_TRANSACTIONS 
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleOutgoing dumps whole TransactionTree %d", sendSucceeded);
     justDumpTransactionTree();
 #endif
@@ -4034,7 +4040,7 @@ void SipTransaction::linkChild(SipTransaction& newChild)
         OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::linkChild"
                       " converting server UA transaction to server proxy transaction");
     }
-#if 0
+#ifdef DUMP_TRANSACTIONS
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::linkChild dumps whole TransactionTree");
     justDumpTransactionTree();
 #endif
@@ -4849,16 +4855,16 @@ SipTransaction::whatRelation(const SipMessage& message,
         // transaction.  For convenience we consider them to be
         // the same.  CANCEL is also a different transaction
         // that we store in the same SipTransaction object.
-        if(!branchPrefixSet ||
-           (!isResponse &&
-               (msgMethod.compareTo(SIP_CANCEL_METHOD) == 0 ||
-               (msgMethod.compareTo(SIP_ACK_METHOD) == 0 &&
-                lastFinalResponseCode < SIP_3XX_CLASS_CODE &&
+        if(!branchPrefixSet ||                                  // no RFC3261 branch id
+           (!isResponse &&                                      
+               (msgMethod.compareTo(SIP_CANCEL_METHOD) == 0 ||  // or it's aCANCEL request
+               (msgMethod.compareTo(SIP_ACK_METHOD) == 0 &&     // or it's an ACK request and THIS
+                lastFinalResponseCode < SIP_3XX_CLASS_CODE &&   // transaction never got error response
                 lastFinalResponseCode >= SIP_2XX_CLASS_CODE) ||
-                (!mIsServerTransaction &&
+                (!mIsServerTransaction &&                       // or ???
                 mTransactionState == TRANSACTION_LOCALLY_INIITATED))))
         {
-            // Avoid looking at the tags as it is expensive to
+            // Must do expensive tag matching in these cases
             // parse the To and From fields into a Url object.
             mustCheckTags = TRUE;
 

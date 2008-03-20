@@ -573,7 +573,17 @@ public:
     
     //! Gets all contact addresses for this user agent
     void getContactAddresses(CONTACT_ADDRESS* pContacts[], int &numContacts);
-    
+
+    //! SPECIAL CASE ONLY - 
+    // This is used only to forward in-dialog ACKs which the proxy
+    // would otherwise have to route back to itself, causing a loop.
+    // Instead, such ACKs are sent to the redirector/locater and
+    // given a new ReqUri, then sent circling back to the proxy.
+    UtlBoolean sendStatelessAck(SipMessage& request,
+                                UtlString& address,
+                                int port,
+                                OsSocket::IpProtocolSocketType protocol);
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 

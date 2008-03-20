@@ -92,6 +92,9 @@ SipRedirectServer::initialize(OsConfigDb& configDb
    {
       mProxyNormalPort = SIP_PORT;
    }
+   mAckRouteToProxy.insert(0, "<");
+   mAckRouteToProxy.append(defaultDomain);
+   mAckRouteToProxy.append(";lr>");
    
    // Load the list of redirect processors.
    mRedirectPlugins.readConfig(configDb);
@@ -120,8 +123,9 @@ static void logResponse(UtlString& messageStr)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "----------------------------------"
-                 "Sending final response%s", messageStr.data());
+                 "Sending final response\n%s", messageStr.data());
 }
+ 
 
 /**
  * Cancel a suspended redirection.
@@ -330,98 +334,161 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
                           "%d while processing method '%s' URI '%s'",
                           status, i, method.data(), stringUri.data());
             break;
-         }
-      }
-   }
+         }  // end status switch
+      }  // end mpActive[i]
+   }  // end Redirector plug-in iterator
 
-   if (willError || !willSuspend)
+   if (willError || !willSuspend)   // redirector has done all it can
    {
-      // Send a response and terminate processing now if an error has
-      // been found or if no redirector has requested suspension.
-      if (willError)
-      {
-         // Send 403 or 500 response.
-         switch (responseCode)
-         {
-         case 403:
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRedirectServer::processRedirect "
-                          "Sending 403 response");
-            response.setResponseData(message,
-                                     SIP_FORBIDDEN_CODE,
-                                     SIP_FORBIDDEN_TEXT);
-            break;
+       int numContacts;
+       if (method.compareTo(SIP_ACK_METHOD, UtlString::ignoreCase) == 0)
+       {
+          // See if location server has returned an address to use
+          // to forward or just drop the ACK here.
+           if (!willError && ((numContacts = response.getCountHeaderFields(SIP_CONTACT_FIELD)) == 1))
+           {
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipRedirectServer::processRedirect "
+                             "Forwarding ACK for URI '%s': ",
+                             stringUri.data());
 
-         default:
-            // Ugh, responseCode should never have an unknown value.
-            // Log a message and return 500.
-            OsSysLog::add(FAC_SIP, PRI_CRIT,
-                          "SipRedirectServer::processRedirect "
-                          "Invalid responseCode %d",
-                          responseCode);
-            /* Fall through to next case. */
-         case 500:
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRedirectServer::processRedirect "
-                          "Sending 500 response");
-            response.setResponseData(message,
-                                     SIP_SERVER_INTERNAL_ERROR_CODE,
-                                     SIP_SERVER_INTERNAL_ERROR_TEXT);
-            break;
-         }
-         // Remove all Contact: headers.
-         RedirectPlugin::removeAllContacts(response);
-      }
-      else
-      {
-         // If request processing is finished, construct a response,
-         // either 302 or 404.
-         if (response.getCountHeaderFields(SIP_CONTACT_FIELD) > 0)
-         {
-            // There are contacts, so send a 302 Moved Temporarily.
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRedirectServer::processRedirect "
-                          "Contacts added, sending 302 response");
-            response.setResponseData(message,
-                                     SIP_TEMPORARY_MOVE_CODE,
-                                     SIP_TEMPORARY_MOVE_TEXT);
-         }
-         else
-         {
-            // There are no contacts, send back a 404 Not Found.
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRedirectServer::processRedirect "
-                          "No contacts added, sending 404 response");
-            response.setResponseData(message,
-                                     SIP_NOT_FOUND_CODE,
-                                     SIP_NOT_FOUND_TEXT);
-         }
-      }
+               UtlString contactUri;
+               UtlString routeEntries;
+               int maxForwards;
 
-      // Identify ourselves in the response
-      mpSipUserAgent->setUserAgentHeader(response);
+               response.getContactUri(0, &contactUri);
+ 
+               // create the message to forward - 
+               // change reqUri to located value, add route for debugging info, decrement max-forwards
+               // leave last via since we are circling back, not responding
+               SipMessage ackCopy(*message);    // "clone" original ACK
+               ackCopy.setRequestFirstHeaderLine(SIP_ACK_METHOD, contactUri, SIP_PROTOCOL_VERSION);
+               routeEntries.insert(0, mAckRouteToProxy);        // put route proxy in first position for informational purposes
+               ackCopy.setRouteField(routeEntries.data());      // into forwarded ack
+               if(!ackCopy.getMaxForwards(maxForwards))
+               {
+                   maxForwards = SIP_DEFAULT_MAX_FORWARDS;
+               }
+               maxForwards--;
+               ackCopy.setMaxForwards(maxForwards);
 
-      // Now that we've set the right code into the response, send the
-      // response.
-      UtlString finalMessageStr;
-      int finalMessageLen;
+               // get send-to address/port/protocol from top via
+               UtlString lastViaAddress;
+               int lastViaPort;
+               UtlString lastViaProtocol;
+               OsSocket::IpProtocolSocketType viaProtocol = OsSocket::UNKNOWN;
 
-      response.getBytes(&finalMessageStr, &finalMessageLen);
-      // Log the response.
-      logResponse(finalMessageStr);
-      mpSipUserAgent->send(response);
+               ackCopy.getLastVia(&lastViaAddress, &lastViaPort, &lastViaProtocol);
+               SipMessage::convertProtocolStringToEnum(lastViaProtocol.data(), viaProtocol);
 
-      // If the suspend object exists, remove it from mSuspendList
-      // and delete it.
-      if (suspendObject)
-      {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectServer::processRedirect "
-                       "Cleaning up suspense of request %d", seqNo);
-         UtlInt containableSeqNo(seqNo);
-         cancelRedirect(containableSeqNo, suspendObject);
-      }
-   }      
+
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipRedirectServer::processRedirect "
+                             "sending ACK to '%s':%d using '%s'"
+                             "location service returned '%s'",
+                             lastViaAddress.data(),
+                             lastViaPort,  
+                             lastViaProtocol.data(),
+                             contactUri.data());
+
+               // This ACK has no matching INVITE, special case
+               mpSipUserAgent->sendStatelessAck(ackCopy,            // this will add via
+                                                lastViaAddress,
+                                                lastViaPort,
+                                                viaProtocol);
+           }
+           else  // locater must return EXACTLY one value to forward
+           {
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "SipRedirectServer::processRedirect "
+                             "Cannot redirect ACK for URI '%s', dropping: "
+                             "number of contacts=%d  ",
+                             stringUri.data(), numContacts);
+           }
+       }   // end handle ACK redirection
+       else     // build and send the proper (error) response
+       {
+          // Send a response and terminate processing now if an error has
+          // been found or if no redirector has requested suspension.
+          if (willError)
+          {
+             // Send 403 or 500 response.
+             switch (responseCode)
+             {
+             case 403:
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipRedirectServer::processRedirect "
+                              "Sending 403 response");
+                response.setResponseData(message,
+                                         SIP_FORBIDDEN_CODE,
+                                         SIP_FORBIDDEN_TEXT);
+                break;
+    
+             default:
+                // Ugh, responseCode should never have an unknown value.
+                // Log a message and return 500.
+                OsSysLog::add(FAC_SIP, PRI_CRIT,
+                              "SipRedirectServer::processRedirect "
+                              "Invalid responseCode %d",
+                              responseCode);
+                /* Fall through to next case. */
+             case 500:
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipRedirectServer::processRedirect "
+                              "Sending 500 response");
+                response.setResponseData(message,
+                                         SIP_SERVER_INTERNAL_ERROR_CODE,
+                                         SIP_SERVER_INTERNAL_ERROR_TEXT);
+                break;
+             }
+             // Remove all Contact: headers.
+             RedirectPlugin::removeAllContacts(response);
+          }
+          else
+          {
+             // If request processing is finished, construct a response,
+             // either 302 or 404.
+             if (response.getCountHeaderFields(SIP_CONTACT_FIELD) > 0)
+             {
+                // There are contacts, so send a 302 Moved Temporarily.
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipRedirectServer::processRedirect "
+                              "Contacts added, sending 302 response");
+                response.setResponseData(message,
+                                         SIP_TEMPORARY_MOVE_CODE,
+                                         SIP_TEMPORARY_MOVE_TEXT);
+             }
+             else
+             {
+                // There are no contacts, send back a 404 Not Found.
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipRedirectServer::processRedirect "
+                              "No contacts added, sending 404 response");
+                response.setResponseData(message,
+                                         SIP_NOT_FOUND_CODE,
+                                         SIP_NOT_FOUND_TEXT);
+             }
+          }
+    
+          // Identify ourselves in the response
+          mpSipUserAgent->setUserAgentHeader(response);
+    
+          // Now that we've set the right code into the response, send the
+          // response.
+          mpSipUserAgent->send(response);
+       }    // end sending response to Invite
+    
+       // If the suspend object exists, remove it from mSuspendList
+       // and delete it.
+       if (suspendObject)
+       {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipRedirectServer::processRedirect "
+                        "Cleaning up suspense of request %d", seqNo);
+          UtlInt containableSeqNo(seqNo);
+          cancelRedirect(containableSeqNo, suspendObject);
+       }
+   }    // end redirector did all it could
    else
    {
       // Request is suspended.
@@ -461,21 +528,13 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
                        mNextSeqNo, method.data(), stringUri.data());
       }
 
-      if (method.compareTo(SIP_ACK_METHOD, UtlString::ignoreCase) == 0)
-      {
-         /* ACKs require no action. */ ;
-      }
-      else if (method.compareTo(SIP_CANCEL_METHOD, UtlString::ignoreCase) == 0)
+      if (method.compareTo(SIP_CANCEL_METHOD, UtlString::ignoreCase) == 0)
       {
          // For CANCEL.
          // If we have a suspended request with this Call-Id, cancel it.
          // Send a 200 response.
 
          // Cancel the suspended request.
-
-         // Get a pointer to the SIP message.
-         const SipMessage* message =
-            ((SipMessageEvent&) eventMessage).getMessage();
          UtlString cancelCallId;
          message->getCallIdField(&cancelCallId);
 
@@ -500,10 +559,6 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
                   response.setResponseData(&suspend_object->mMessage,
                                            SIP_REQUEST_TERMINATED_CODE,
                                            SIP_REQUEST_TERMINATED_TEXT);
-                  UtlString finalMessageStr;
-                  int finalMessageLen;
-                  response.getBytes(&finalMessageStr, &finalMessageLen);
-                  logResponse(finalMessageStr);
                   mpSipUserAgent->send(response);
 
                   // Cancel the redirection.
@@ -514,16 +569,23 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
                }
             }
          }
-
          // We do not need to send a 200 for the CANCEL, as the stack does that
          // for us.  (And will eat a 200 that we generate, it seems!)
       }
       else
       {
-         // For all methods other than CANCEL or ACK:
+         // For all methods other than CANCEL:
+         // Note: any ACK that gets passed up to the redirector 
+         // needs to be processed and forwarded if possible.  
+         // ACKs for the error responses sent from the redirector 
+         // are recognized by the stack and not passed to this application
+         // 
          // Call processRedirect to call the redirectors, and handle
          // their results, send a response or suspend processing of
-         // the request.
+         // the request.  
+         // For ACKs, no response is sent(or allowed).  Instead, the ACK is routed 
+         // back to the proxy with information that allows it to be sent
+         // to the correct next hop (ReqUri is replaced).
 
          // Assign mNextSeqNo as the sequence number for this request.
          // If this request needs to be suspended, processRedirect will

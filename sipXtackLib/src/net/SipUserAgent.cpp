@@ -87,6 +87,7 @@
 #endif /* PLATFORM_UA_PARAM */
 
 //#define LOG_TIME
+//# define TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -791,9 +792,9 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
 
    //mSipTransactions.lock();
 
-#if 0 // TODO enable only for transaction match debugging - log is confusing otherwise
+#ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
    OsSysLog::add(FAC_SIP, PRI_DEBUG
-                 "SipUserAgent[%s]::send searching for existing transaction",
+                 ,"SipUserAgent[%s]::send searching for existing transaction",
                  getName().data());
 #endif
    // verify that the transaction does not already exist
@@ -886,7 +887,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
             isUaTransaction = FALSE;
 
             // See if there is a parent server proxy transaction
-#           if 0 // TODO enable only for transaction match debugging - log is confusing otherwise
+#ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
             OsSysLog::add(FAC_SIP, PRI_DEBUG
                           ,"SipUserAgent[%s]::send searching for parent transaction",
                           getName().data());
@@ -1264,6 +1265,29 @@ UtlBoolean SipUserAgent::sendStatelessResponse(SipMessage& rresponse)
     return(sendSucceeded);
 }
 
+// !!!!!! SPECIAL CASE  !!!! SPECIAL CASE !!!! 
+UtlBoolean SipUserAgent::sendStatelessAck(SipMessage& ackRequest,
+                                          UtlString& address,
+                                          int port,
+                                          OsSocket::IpProtocolSocketType protocol)
+{
+    UtlBoolean sendSucceeded = FALSE;
+    UtlString method; 
+
+    ackRequest.getRequestMethod(&method);
+    if(method.compareTo(SIP_ACK_METHOD,UtlString::ignoreCase) == 0)
+    {
+        BranchId* branchId = new BranchId(ackRequest);
+        UtlString branchIdData(branchId->data());
+        sendSucceeded = sendStatelessRequest(ackRequest,            // this will add via
+                                             address,
+                                             port,
+                                             protocol,
+                                             branchIdData);
+    }
+    return sendSucceeded;
+}
+
 UtlBoolean SipUserAgent::sendStatelessRequest(SipMessage& request,
                                               UtlString& address,
                                               int port,
@@ -1519,6 +1543,11 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
 
       UtlBoolean isUaTransaction = mIsUaTransactionByDefault;
       enum SipTransaction::messageRelationship relationship;
+#ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
+            OsSysLog::add(FAC_SIP, PRI_DEBUG
+                          ,"SipUserAgent[%s]::dispatch searching for transaction",
+                          getName().data());
+#           endif
       SipTransaction* transaction =
          mSipTransactions.findTransactionFor(*message,
                                              FALSE, // incoming
@@ -2423,6 +2452,11 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                int nextTimeout = -1;
                enum SipTransaction::messageRelationship relationship;
                //mSipTransactions.lock();
+#ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
+            OsSysLog::add(FAC_SIP, PRI_DEBUG
+                          ,"SipUserAgent[%s]::handleMessage #1 searching for transaction",
+                          getName().data());
+#           endif
                SipTransaction* transaction =
                   mSipTransactions.findTransactionFor(*sipMessage,
                                                       TRUE, // timers are only set for outgoing messages I think
@@ -2570,6 +2604,11 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                int nextTimeout = -1;
                enum SipTransaction::messageRelationship relationship;
                //mSipTransactions.lock();
+#ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
+            OsSysLog::add(FAC_SIP, PRI_DEBUG
+                          ,"SipUserAgent[%s]::handleMessage #2 searching for transaction",
+                          getName().data());
+#           endif
                SipTransaction* transaction =
                   mSipTransactions.findTransactionFor(*sipMessage,
                                                       TRUE, // timers are only set for outgoing?
@@ -3308,6 +3347,11 @@ SipMessage* SipUserAgent::getRequest(const SipMessage& response)
     // If the transaction exists and can be locked it
     // is returned.
     enum SipTransaction::messageRelationship relationship;
+#ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
+            OsSysLog::add(FAC_SIP, PRI_DEBUG
+                          ,"SipUserAgent[%s]::getRequest searching for transaction",
+                          getName().data());
+#           endif
     SipTransaction* transaction =
         mSipTransactions.findTransactionFor(response,
                                              FALSE, // incoming

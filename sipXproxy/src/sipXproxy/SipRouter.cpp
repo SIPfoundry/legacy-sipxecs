@@ -285,7 +285,7 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
       
       if( !sipRequest.getHeaderValue( 0, SIPX_SPIRAL_HEADER ))
       {
-         // Our custom spiraling header was not found indicating that the request
+         // Our custom spiraling header was NOT found indicating that the request
          // is not received as a result of spiraling. It could either be a 
          // dialog-forming request or an in-dialog request sent directly by the UAC
          if( !routeState.isFound() )
@@ -305,8 +305,8 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
             // the request is not spiraling but it has a RouteState.
             // If the RouteState is not mutable, it indicates that
             // this request is an in-dialog one.  There is no need to
-            // evaluate the Forwarding Rules on such requests as the
-            // final target has already been identified.
+            // evaluate the Forwarding Rules on such requests unless the
+            // final target that has been identified is in our own domain.
             // If the RouteState is mutable, this indicates that we are
             // still in an early dialog.  Such a condition can occur
             // when a UAS generates 302 Moved Temporarily in response
@@ -320,13 +320,24 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
             {
                sipRequest.setHeaderValue( SIPX_SPIRAL_HEADER, "true", 0 );
                bRequestHasProprietarySpiralHeader = true;
+               bRequestShouldBeAuthorized         = true;
+               bForwardingRulesShouldBeEvaluated  = false;
+            }
+            else if (isLocalDomain(normalizedRequestUri))
+            {
+               // final target is in our own domain, need to check forwarding rules
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                         "SipRouter::proxyMessage domain is us");
+               bRequestHasProprietarySpiralHeader = false;
+               bRequestShouldBeAuthorized         = true;
+               bForwardingRulesShouldBeEvaluated  = true;
             }
             else
             {
                bRequestHasProprietarySpiralHeader = false;
+               bRequestShouldBeAuthorized         = true;
+               bForwardingRulesShouldBeEvaluated  = false;
             }
-            bRequestShouldBeAuthorized         = true;
-            bForwardingRulesShouldBeEvaluated  = false;
          }
       }
       else

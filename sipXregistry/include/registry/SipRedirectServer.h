@@ -107,6 +107,9 @@ class SipRedirectServer : public OsServerTask
    // A port number, which if found on an AOR to register,
    // will be removed, or PORT_NONE
    int mProxyNormalPort;
+   // The Route header address and parameter value(lr) to use to  
+   // "forward" redirected ACKs "back" to the proxy.  
+   UtlString mAckRouteToProxy;
 
    // functions
    UtlBoolean handleMessage(OsMsg& eventMessage);

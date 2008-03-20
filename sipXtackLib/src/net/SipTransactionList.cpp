@@ -27,6 +27,8 @@
 // CONSTANTS
 
 //#define TIME_LOG /* turns on timestamping of finding and garbage collecting transactions */
+//#define TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
+
 #ifdef TIME_LOG
 #  include <os/OsTimeLog.h>
 #endif
@@ -85,6 +87,8 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
                    enum SipTransaction::messageRelationship& relationship)
 {
     SipTransaction* transactionFound = NULL;
+    SipTransaction* transaction2xxFound = NULL;
+    enum SipTransaction::messageRelationship relationship2xx = SipTransaction::MESSAGE_UNKNOWN;
     UtlString callId;
     SipTransaction::buildHash(message, isOutgoing, callId);
 
@@ -132,6 +136,83 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
         }
 
         relationship = transactionFound->whatRelation(message, isOutgoing);
+
+        // Since 2xx ACK transactions always get a new Via branch, we have to 
+        // make sure there isn't another error transaction with a better match (branch included)
+        // 
+        // NOTE: Adding this code makes obvious that ACK's for 2xx responses always(??? at least on initial invite) 
+        // match more than one transaction tree, the original tx tree in the forking proxy function and the 
+        // consequent tx tree in the auth proxy function.  This is a result of the fix for XECS-414, which 
+        // allows matching a transaction for a 2xx ACK without matching branch id's.
+        // This 2xx-ACK-match-except-branch result combined with the failuer to find a complete 2xx-ACK_match-with-branch, 
+        // means we can be assured that this ACK should be sent upstream. The ACK is then treated as a new transaction
+        // and the EXISTENCE of the matching transaction is used to navigate through the code.  
+        // The CONTENTS of the matched transaction are not important except for the matching itself. 
+        // ACKs for error responses will always match ONLY one transaction, since the branch id must also match. 
+        if(relationship ==  SipTransaction::MESSAGE_2XX_ACK ||
+           relationship ==  SipTransaction::MESSAGE_2XX_ACK_PROXY )
+        {
+            if (transaction2xxFound)
+            {
+                UtlString bytes;
+                int len;
+                message.getBytes(&bytes, &len);
+                OsSysLog::add(FAC_SIP, PRI_DEBUG
+                              ,"SipTransactionList::findTransactionFor"
+                              " more than one 2xx match for message %p(%p) %s "
+                              " previous match (%p) %s"
+                              " current match (%p) %s"
+                              ,&message
+                              ,messageTransaction
+                              ,isOutgoing ? "OUTGOING" : "INCOMING"
+                              ,transaction2xxFound
+                              ,SipTransaction::relationshipString(relationship2xx)
+                              ,transactionFound
+                              ,SipTransaction::relationshipString(relationship)
+                              );
+                relationship2xx = relationship;
+                transaction2xxFound = transactionFound;
+            }
+            else 
+            {
+                relationship2xx = relationship;
+                transaction2xxFound = transactionFound;
+
+                UtlString bytes;
+                int len;
+                message.getBytes(&bytes, &len);
+                OsSysLog::add(FAC_SIP, PRI_DEBUG
+                              ,"SipTransactionList::findTransactionFor"
+                              " 2xx match for message %p(%p) %s "
+                              " current match (%p) %s"
+                              ,&message
+                              ,messageTransaction
+                              ,isOutgoing ? "OUTGOING" : "INCOMING"
+                              ,transactionFound
+                              ,SipTransaction::relationshipString(relationship)
+                              );
+            }
+            continue;
+        }
+        if(relationship ==  SipTransaction::MESSAGE_ACK )
+        {
+                UtlString bytes;
+                int len;
+                message.getBytes(&bytes, &len);
+                OsSysLog::add(FAC_SIP, PRI_DEBUG
+                              ,"SipTransactionList::findTransactionFor"
+                              " ACK match for message %p(%p) %s "
+                              " current match (%p) %s"
+                              " previous match (%p) %s"
+                              ,&message
+                              ,messageTransaction
+                              ,isOutgoing ? "OUTGOING" : "INCOMING"
+                              ,transactionFound
+                              ,SipTransaction::relationshipString(relationship)
+                              ,transaction2xxFound
+                              ,SipTransaction::relationshipString(relationship2xx)
+                              );
+        }
         if(relationship == SipTransaction::MESSAGE_REQUEST ||
             relationship ==  SipTransaction::MESSAGE_PROVISIONAL ||
             relationship ==  SipTransaction::MESSAGE_FINAL ||
@@ -139,13 +220,19 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
             relationship ==  SipTransaction::MESSAGE_CANCEL ||
             relationship ==  SipTransaction::MESSAGE_CANCEL_RESPONSE ||
             relationship ==  SipTransaction::MESSAGE_ACK ||
-            relationship ==  SipTransaction::MESSAGE_2XX_ACK ||
-            relationship ==  SipTransaction::MESSAGE_2XX_ACK_PROXY ||
             relationship ==  SipTransaction::MESSAGE_DUPLICATE)
         {
             break;
         }
     }
+
+    // 
+    if((transactionFound == NULL) && transaction2xxFound)
+    {
+        relationship = relationship2xx;
+        transactionFound = transaction2xxFound;
+    }
+
 #   ifdef TIME_LOG
     if ( transactionFound )
     {
@@ -202,7 +289,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
     findTimes.getLogString(findTimeLog);
 #   endif
 
-#if 0 // 
+#ifdef TRANSACTION_MATCH_DEBUG  
     UtlString bytes;
     int len;
     message.getBytes(&bytes, &len);

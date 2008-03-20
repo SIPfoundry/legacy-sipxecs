@@ -46,7 +46,8 @@ class SipRouterTest : public CppUnit::TestCase
    CPPUNIT_TEST(testNoAliasRouted);
    CPPUNIT_TEST(testProxySpiralingRequest);
    CPPUNIT_TEST(testProxyEndOfSpiralRequest);
-   CPPUNIT_TEST(testInDialogRequest);
+   CPPUNIT_TEST(testInDialogRequestSelf);
+   CPPUNIT_TEST(testInDialogRequestOther);
    CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -607,7 +608,7 @@ public:
       CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
     }
    
-   void testInDialogRequest()
+   void testInDialogRequestSelf()
     {
       RouteState::setSecret("GuessThat!");
 
@@ -636,6 +637,51 @@ public:
       UtlString requestUri;
       testMsg.getRequestUri(&requestUri);
       ASSERT_STR_EQUAL("sip:user@external.example.net", requestUri.data());
+
+      // verify that route has NOT been popped off.
+      UtlString topRoute, tempString, urlParmName;
+      CPPUNIT_ASSERT( testMsg.getRouteUri(0, &topRoute) );
+
+      // verify that no new Record-Route was added
+      UtlString recordRoute;
+      CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(0, &recordRoute) );
+      
+      CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, "X-SipX-Spiral" ) );
+
+      int maxForwards;
+      CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
+    }
+
+
+   void testInDialogRequestOther()
+    {
+      RouteState::setSecret("GuessThat!");
+
+      const char* message =
+         "INVITE sip:user@external.Notexample.net SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@external.Notexample.net\r\n"
+         "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Route: <sip:10.10.10.1:5060;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21607dcb78ef2addd25638653db3070349>\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      
+      CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
+
+      // UtlString proxiedMsg;
+      // int msgLen;
+      // testMsg.getBytes(&proxiedMsg, &msgLen);
+      // printf("In:\n%s\nOut:\n%s\n", message, proxiedMsg.data());
+
+      UtlString requestUri;
+      testMsg.getRequestUri(&requestUri);
+      ASSERT_STR_EQUAL("sip:user@external.Notexample.net", requestUri.data());
 
       // verify that route has been popped off.
       UtlString topRoute, tempString, urlParmName;
