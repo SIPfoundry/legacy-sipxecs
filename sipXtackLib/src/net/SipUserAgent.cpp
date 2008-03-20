@@ -22,6 +22,7 @@
 #endif
 
 #include <utl/UtlHashBagIterator.h>
+#include <utl/UtlSortedListIterator.h>
 #include <net/SipSrvLookup.h>
 #include <net/SipUserAgent.h>
 #include <net/SipSession.h>
@@ -130,6 +131,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 #endif
         , mMessageLogRMutex(OsRWMutex::Q_FIFO)
         , mMessageLogWMutex(OsRWMutex::Q_FIFO)
+        , mOutputProcessorMutex(OsRWMutex::Q_FIFO)
         , mpLineMgr(NULL)
         , mIsUaTransactionByDefault(defaultToUaTransactions)
         , mbUseRport(FALSE)
@@ -457,7 +459,8 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 // Copy constructor
 SipUserAgent::SipUserAgent(const SipUserAgent& rSipUserAgent) :
         mMessageLogRMutex(OsRWMutex::Q_FIFO),
-        mMessageLogWMutex(OsRWMutex::Q_FIFO)
+        mMessageLogWMutex(OsRWMutex::Q_FIFO),
+        mOutputProcessorMutex(OsRWMutex::Q_FIFO)
 {
 }
 
@@ -655,6 +658,41 @@ UtlBoolean SipUserAgent::removeMessageObserver(OsMsgQ& messageQueue, void* pObse
     }
 
     return bRemovedObservers;
+}
+
+void SipUserAgent::addSipOutputProcessor( SipOutputProcessor *pProcessor )
+{
+   if( pProcessor )
+   {
+      OsWriteLock lock( mOutputProcessorMutex );
+      mOutputProcessors.insert( pProcessor );
+   }
+}
+
+UtlBoolean SipUserAgent::removeSipOutputProcessor( SipOutputProcessor *pProcessorToRemove )
+{
+   UtlBoolean bRemovedProcessor = FALSE;
+   if( pProcessorToRemove )
+   {
+      OsWriteLock lock( mOutputProcessorMutex );
+      bRemovedProcessor = ( mOutputProcessors.removeReference( pProcessorToRemove ) != NULL );
+   }
+   return bRemovedProcessor;
+}
+
+void SipUserAgent::executeAllSipOutputProcessors( SipMessage& message,
+                                                  const char* address,
+                                                  int port )
+{
+   OsWriteLock lock(mOutputProcessorMutex);
+   SipOutputProcessor* pProcessor = NULL ;
+
+   // Traverse all of the processors and call their handleOutputMessage() method
+   UtlSortedListIterator iterator(mOutputProcessors);
+   while ((pProcessor = (SipOutputProcessor*) iterator()))
+   {
+      pProcessor->handleOutputMessage( message, address, port );
+   }
 }
 
 void SipUserAgent::allowMethod(const char* methodName, const bool bAllow)
@@ -1162,9 +1200,9 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
   return(sentOk);
 }
 
-UtlBoolean SipUserAgent::sendSymmetricUdp(const SipMessage& message,
-                                        const char* serverAddress,
-                                        int port)
+UtlBoolean SipUserAgent::sendSymmetricUdp(SipMessage& message,
+                                          const char* serverAddress,
+                                          int port)
 {
     assert(mSipUdpServer);
     UtlBoolean sentOk = mSipUdpServer->sendTo(message,

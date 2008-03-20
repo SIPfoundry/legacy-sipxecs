@@ -87,6 +87,12 @@ public:
     virtual void dispatch(SipMessage* message,
                               int messageType = SipMessageEvent::APPLICATION) = 0;
 
+    //! Request User Agent to notify all output processors that a new
+    //! SIP message is about to be sent.
+    virtual void executeAllSipOutputProcessors( SipMessage& message,
+                                                const char* address,
+                                                int port ) = 0;
+    
     void addConfigChangeConsumer(OsMsgQ& messageQueue);
     //: Register to find out when UA config changes (i.e. contact address)
 

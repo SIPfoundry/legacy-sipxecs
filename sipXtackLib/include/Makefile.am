@@ -68,6 +68,7 @@ nobase_include_HEADERS =  \
     net/SipMessageList.h \
     net/SipNotifyStateTask.h \
     net/SipObserverCriteria.h \
+    net/SipOutputProcessor.h \
     net/SipPimClient.h \
     net/SipPresenceEvent.h \
     net/SipProtocolServerBase.h \

@@ -61,7 +61,7 @@ public:
 
    // Queue a message to be sent to the specified address and port.
    // Returns true if message was successfully queued.
-   UtlBoolean sendTo(const SipMessage& message,
+   UtlBoolean sendTo(SipMessage& message,
                      const char* address,
                      int port);
 

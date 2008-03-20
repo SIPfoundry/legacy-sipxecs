@@ -24,7 +24,7 @@
 #include <net/SipTransactionList.h>
 #include <net/SipUdpServer.h>
 #include <os/OsQueuedEvent.h>
-
+#include <net/SipOutputProcessor.h>
 
 // DEFINES
 #define SIP_DEFAULT_RTT     500
@@ -334,6 +334,59 @@ public:
     UtlBoolean removeMessageObserver(OsMsgQ& messageQueue,
                                     void* pObserverData = NULL);
 
+    //! Adds a new SipOutputProcessor to the list of processors 
+    //! that will get notified when an outgoing SIP message is about
+    //! to be sent.  Upon successful addtion of a processor, it will
+    //! start receiving notifications from the SIP stack via its
+    //! SipOutputProcessor::handleOutputMessge() method when SIP 
+    //! messages are sent out.
+    //! Please refer to comments in SipOutputProcessor.h for information  
+    //! about threading and blocking considerations.
+    //!
+    //! \param pProcessor - Pointer to SipOutputProcessor-derived observer.
+    //!
+    //! Notes on how addSipOutputProcessor differs from addMessageObserver:
+    //!        The SIP output processor differs in many ways from the message
+    //!        observers that can be registered via addMessageObserver():
+    //!        #1- Output processor sees messages in the outgoing direction only
+    //!            just as they are about to be sent while the current 
+    //!            implementation of the 'message observer' only sees
+    //!            incoming messages.
+    //!        #2- 'message observer' only gives application access to a 
+    //!            limited subset of responses while the output processor 
+    //!            allows an application to see all responses
+    //!        #3- For the subset of responses that can be seen by an 
+    //!            application via the 'message observer', it cannot
+    //!            effectively modify them as they are already sent 
+    //!            to their destination when the application sees them.
+    //!            In contrast, the output processor allows modification
+    //!            of all messages being sent. 
+    //!        #4- 'message observers' get notified of incoming messages 
+    //!            on their message loop thread which makes processing of 
+    //!            observed messages thread-safe.  On the other hand, the
+    //!            output processor feature generates callbacks in the context     
+    //!            of the thread that is making the send() request to the
+    //!            SipUserAgent instance being monitored.  This means
+    //!            that applications processing 'output processor'  
+    //!            callbacks must provide their own thread safety mechanisms.
+    //!       #5 - When using unreliable transport (UDP), the Output processor 
+    //!            generates a notification for each retransmission of the message.
+    //!            The 'message observer' sits above the retransmission
+    //!            layer and as such will send a single notification per
+    //!            observable message.
+    //!           
+    void addSipOutputProcessor( SipOutputProcessor *pProcessor );
+    
+    //! Removes a previously added SipOutputProcessor from the list of  
+    //! processors that will get notified when an outgoing SIP message is 
+    //! about to be sent.  
+    UtlBoolean removeSipOutputProcessor( SipOutputProcessor *pProcessor );
+
+    // See comments in SipUserAgentBase.h
+    virtual void executeAllSipOutputProcessors( SipMessage& message,
+                                                const char* address,
+                                                int port );
+     
     //! Send a SIP message over the net
 
     /*! This method sends the SIP message as dictated by policy and
@@ -624,7 +677,7 @@ protected:
                        const char* serverAddress,
                        int port);
 
-    UtlBoolean sendSymmetricUdp(const SipMessage& message,
+    UtlBoolean sendSymmetricUdp(SipMessage& message,
                                 const char* serverAddress,
                                 int port);
 
@@ -675,8 +728,10 @@ private:
     UtlString mUserAgentHeaderProperties;
     UtlHashBag mMyHostAliases;
     UtlHashBag mMessageObservers;
+    UtlSortedList mOutputProcessors; 
     OsRWMutex mMessageLogRMutex;
     OsRWMutex mMessageLogWMutex;
+    OsRWMutex mOutputProcessorMutex;
     
     //times
     int mFirstResendTimeoutMs; //intialtimeout

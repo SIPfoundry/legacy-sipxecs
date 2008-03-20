@@ -62,7 +62,7 @@ public:
     // Handles an incoming message (from the message queue).
     UtlBoolean handleMessage(OsMsg& eventMessage);
 
-    UtlBoolean sendTo(const SipMessage& message,
+    UtlBoolean sendTo(SipMessage& message,
                      const char* address,
                      int port,
                      const char* szLocalSipIp = NULL);

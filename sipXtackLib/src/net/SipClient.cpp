@@ -265,7 +265,7 @@ UtlBoolean SipClient::handleMessage(OsMsg& eventMessage)
 }
 
 // Queue a message to be sent to the specified address and port.
-UtlBoolean SipClient::sendTo(const SipMessage& message,
+UtlBoolean SipClient::sendTo(SipMessage& message,
                              const char* address,
                              int port)
 {
@@ -273,6 +273,12 @@ UtlBoolean SipClient::sendTo(const SipMessage& message,
 
    if (clientSocket)
    {
+      // we are about to post a message that will cause the 
+      // SIP message to be sent, notify the user agent so 
+	  // that it can offer the message to all its registered
+	  // output processors.
+      mpSipUserAgent->executeAllSipOutputProcessors( message, address, port );      
+      
       // Create message to queue.
       // If port == PORT_NONE, apply the correct default port for this
       // transport method before assembling the SipClientSendMsg.

@@ -431,7 +431,7 @@ void SipUdpServer::shutdownListener()
 }
 
 
-UtlBoolean SipUdpServer::sendTo(const SipMessage& message,
+UtlBoolean SipUdpServer::sendTo(SipMessage& message,
                                const char* address,
                                int port,
                                const char* szLocalSipIp)

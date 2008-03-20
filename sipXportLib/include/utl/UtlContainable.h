@@ -78,7 +78,7 @@ public:
      *
      * If you use directHash as the hash method, you probably want to
      * use pointer comparison as the compareTo method:<pre>
-     * int Foo::compareTo(UtlContainable const* inVal) const
+     * int Foo::compareTo(UtlContainable const* other) const
      * {
      *    int result;
      * 
