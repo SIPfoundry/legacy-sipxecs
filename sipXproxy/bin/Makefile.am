@@ -14,7 +14,7 @@ setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)
 editscripts_IN = \
     sipXproxy.sh \
     upgrade2mergedproxy \
-    sipxha-distrib.sh \
+    sipxcallresolver-agent.sh \
     sipxcallresolver.sh
 
 EXTRA_DIST = \
@@ -39,9 +39,14 @@ $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bind
 	$(INSTALL) -D -m 755 $< $@
 
 $(foreach file,$(editscripts_IN),$(file)) : % : %.in
-	$(LocalizeSipXconfig) -e 's,@GEM_LIB_DIR\@,$(GEM_LIB_DIR),g' \
-                        -e 's,@SIPX_SYSCONFDIR\@,$(SIPX_SYSCONFDIR),g' $< > $@
+	@echo "Localizing $@ -> $<"
+	@$(LocalizeSipXconfig) \
+		-e 's,@GEM_LIB_DIR\@,$(GEM_LIB_DIR),g' \
+		-e 's,@SIPX_SYSCONFDIR\@,$(SIPX_SYSCONFDIR),g' \
+		-e 's,@STUNNEL\@,@STUNNEL@,g' \
+		$< > $@
 
 $(setupbin_SCRIPTS) : $(setupbin_IN)
-	${LocalizeSipXconfig} $(srcdir)/$(notdir $@).in > $@
+	@echo "Localizing $@ -> $<"
+	@${LocalizeSipXconfig} $(srcdir)/$(notdir $@).in > $@
 

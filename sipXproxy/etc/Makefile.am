@@ -5,39 +5,53 @@ SUBDIRS = database
 cfgfiles_IN = \
 	authrules.xml.in \
 	callresolver-config.in \
+	callresolver-agent-config.in \
 	sipXproxy-config.in \
 	forwardingrules.xml.in
 
-EXTRA_DIST = \
+process_xml_files_IN = \
 	sipXproxy.process.xml.in \
-	sipxcallresolver.process.xml.in \
-	sipXproxy-config.in.map \
+	callresolver-agent.process.xml.in \
+	sipxcallresolver.process.xml.in
+
+EXTRA_DIST = \
+	$(process_xml_files_IN) \
 	$(cfgfiles_IN)
 
-PROCESS_XML_FILES = \
-	$(DESTDIR)$(SIPX_PROCDIR)/sipXproxy.process.xml
-
-if ENABLE_CDR
-PROCESS_XML_FILES += \
-	$(DESTDIR)$(SIPX_PROCDIR)/sipxcallresolver.process.xml
-endif
+PROC_FILES = $(foreach file,$(process_xml_files_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/process.d/$(basename $(file)))
 
 CFG_FILES = $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file))
-install-exec-hook : \
+
+install-data-hook : \
 	$(CFG_FILES) \
+	$(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config.in.map \
+	$(PROC_FILES) \
 	upgrade-add-domain \
 	upgrade-auth-rules \
 	upgrade-forwarding-rules \
 	upgrade-auth-plugins \
 	upgrade-to-merged-proxy
 
-install-data-hook : \
-	$(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config.in.map \
-	$(PROCESS_XML_FILES)
-
 $(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config.in.map: sipXproxy-config.in.map
 	  echo ""; echo "Installing sipXproxy-config.in.map $@"; \
 	  $(INSTALL) -D -m 644 $< $@; 
+
+$(foreach file,$(process_xml_files_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/process.d/$(basename $(file))) : $(DESTDIR)/$(sysconfdir)/sipxpbx/process.d/% : %
+	@if ! test -f $@; \
+	then \
+		echo "Installing default $@"; \
+		$(INSTALL) -D -m 644 $< $@; \
+	else \
+		diff $< $@ > /dev/null 2>&1 \
+		|| (  echo "Using existing $@ - new file is $@.NEW" \
+		    ; $(INSTALL) -D -m 644 $< $@.NEW; \
+			); \
+	fi
+
+$(foreach file,$(process_xml_files_IN),$(basename $(file))) : % : %.in
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) \
+		$< > $@
 
 $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)/$(sysconfdir)/sipxpbx/% : %.local
 	@if ! test -f $@; \
@@ -52,7 +66,8 @@ $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DEST
 	fi
 
 $(foreach file,$(cfgfiles_IN),$(file).local) : %.local : %
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 
 .PHONY: upgrade-auth-rules
 upgrade-auth-rules:

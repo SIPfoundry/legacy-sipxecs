@@ -41,18 +41,10 @@ SFAC_LIB_COMMSERVER
 
 SFAC_FEATURE_SIP_TLS
 
-AC_ARG_ENABLE(cdr,
-  AC_HELP_STRING([--enable-cdr], [Build CDR capability, requires ruby and deve tools like gem and rake]),
-  enable_cdr=yes)
-
-if test x$enable_cdr = xyes
-then
-  CHECK_RUBY([1.8.2])
-  CHECK_RAKE([0.5.3])
-  CHECK_GEM([0.8.11])
-fi
-AM_CONDITIONAL(ENABLE_CDR, test x$enable_cdr = xyes)
-
+CHECK_STUNNEL
+CHECK_RUBY([1.8.2])
+CHECK_RAKE([0.5.3])
+CHECK_GEM([0.8.11])
 
 AC_ARG_ENABLE(cse-tests,
   AC_HELP_STRING([--enable-cse-tests], [Run unit tests that test saving CSE data to postgres db setup]),

@@ -1479,6 +1479,15 @@ AC_DEFUN([CHECK_CRON],
   AC_MSG_RESULT(yes)
 ])
 
+# ============ REQUIRED STUNNEL PKG ==============
+AC_DEFUN([CHECK_STUNNEL],
+[
+  AC_PATH_PROG([STUNNEL], [stunnel],,[/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin])
+  if test x$STUNNEL = x; then
+    AC_MSG_ERROR([not found])
+  fi
+])
+
 
 AC_DEFUN([CHECK_GENERATE_MANPAGES],
 [

@@ -37,6 +37,7 @@ and AAA services.
 
 %package cdr
 Requires: %name >= %version
+Requires: stunnel
 Requires: ruby
 Requires: ruby-dbi
 
@@ -111,7 +112,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/upgrade2mergedproxy
 %attr(755,root,root) %{_bindir}/sipXproxy
 %attr(755,root,root) %{_bindir}/%name-config
-%attr(755,root,root) %{_bindir}/sipxha-distrib.sh
 %attr(755,root,root) %{_datadir}/sipx/schema/forwardingrules.xsd
 
 %attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.la

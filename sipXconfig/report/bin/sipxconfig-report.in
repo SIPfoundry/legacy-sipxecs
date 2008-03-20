@@ -51,6 +51,11 @@ def parse(args)
       exit
     end
 
+    opts.on_tail("--disable", "Disable production of the sipxconfig-report") do 
+      disablereport
+      exit
+    end
+
     opts.on_tail("--dropdb", "Drop postgres database") do 
       dropdb
       exit
@@ -72,6 +77,10 @@ def parse(args)
         `#{CREATEDB} -U #{DB_USER} #{DB_NAME}`
         `#{$psql} -U #{DB_USER} #{DB_NAME} < @SIPX_CONFDIR@/report/schema.sql`
       end
+    end
+
+    def disablereport
+      `#perl -pi -e 's/^(CONFIG_SERVER_REPORT\s*=\s*")ENABLED"/\1DISABLED"/' @SIPX_CONFDIR@/report/sipxconfig-report-config`
     end
 
     def setuppg

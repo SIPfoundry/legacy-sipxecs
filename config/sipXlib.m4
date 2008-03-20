@@ -134,11 +134,6 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
         AC_MSG_NOTICE([SIPXPBXGROUP $SIPXPBXGROUP is not the default group for SIPXPBXUSER $SIPXPBXUSER])
     fi
 
-    # these next three are probably not used any more
-    AC_SUBST(SIPXPHONECONF, [${sysconfdir}/sipxphone])
-    AC_SUBST(SIPXPHONEDATA, [${datadir}/sipxphone])
-    AC_SUBST(SIPXPHONELIB, [${datadir}/sipxphone/lib])
-
     AC_ARG_ENABLE(rpmbuild, 
       AC_HELP_STRING([--enable-rpmbuild], [Build an rpm]),
       enable_rpmbuild=yes)

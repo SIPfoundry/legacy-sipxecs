@@ -1931,6 +1931,42 @@ def set_vsftp() :
         log_printout('vsftp Server enabled in runlevel')
 
 
+
+def Distributed_OnlyServices () :
+
+    if useHASystem and not useMasterHASystem :
+        show_progress()
+
+        xmlFiles = [ 'callresolver-agent.process.xml' ]
+
+        for i in range(len(xmlFiles)) :
+            FILE = PROCESS_D + xmlFiles[i]
+            try:
+                FileContents   = file (FILE).read().strip()
+
+            except:
+                FileContents   = ""
+
+            if FileContents != "" :
+                if FileContents.find('<watchdog-process enable=\"false\"') > 0 :
+                    newContent = FileContents.replace('<watchdog-process enable=\"false\"', '<watchdog-process enable=\"true\"', 1)
+                    file (FILE, 'w').write(newContent)
+                    log_printout(FILE)
+                    log_printout(newContent)
+
+                    # Validate the modified file
+                    cmdoutput=commands.getoutput ('sipx-validate-xml %s' % FILE) 
+                    log_printout('File %s validated:\n' % FILE + cmdoutput)
+                else :
+                    log_printout('Error: Could not find string to be replaced in file: %s' % FILE)
+            else :
+                log_printout(FILE)
+                log_printout('Error: Could not read file: %s' % FILE)
+    else :
+        log_printout('No HA or Distributed system selected - no action necessary')
+
+
+
 def Distributed_NonReplicatedServices () :
 
     if useHASystem and not useMasterHASystem :
@@ -2202,14 +2238,6 @@ def setupHACDR () :
         else :
             log_printout('Error: %s file was empty or not found; file not changed' % CDRCONFIG)
     
-    elif useHASystem and not useMasterHASystem :
-        # Configure Distributed to accept connections from Master to its CSE DB
-        show_progress()
-        log_printout ( '\n--- Configure HA Distributed CallResolver ---\n' )
-
-        cmdoutput=commands.getoutput('/usr/bin/sipxha-distrib.sh --setup ca.%s.crt' % DistributedHostName)
-        log_printout (cmdoutput)
-
     else :
         log_printout('No HA system selected - no action necessary')
 
@@ -2413,10 +2441,13 @@ try:
             setMasterServerToManageDistributed ()
 
         else :
-            progress(92, 'Turning off non-replicated services on the Distributed server' )
+            progress(92, 'Turning on services unique to a Distributed server' )
+            Distributed_OnlyServices ()
+
+            progress(93, 'Turning off non-replicated services on the Distributed server' )
             Distributed_NonReplicatedServices ()
 
-            progress(93, 'Configure routing for non-replicated services on the distributed server' )
+            progress(94, 'Configure routing for non-replicated services on the distributed server' )
             set_DistributedConfigDefs ()
 
             progress(95,"Check Installed Distributed Certificate")

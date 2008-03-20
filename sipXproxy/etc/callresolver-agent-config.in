@@ -1,0 +1,16 @@
+service = callresolver-agent
+pid     = @SIPX_RUNDIR@/callresolver-agent.pid
+setuid  = @SIPXPBXUSER@
+setgid  = @SIPXPBXUSER@
+verify  = 2
+debug   = 5
+output  = @SIPX_LOGDIR@/callresolver-agent.log
+
+[postgresql]
+accept  = 9300
+CApath  = @SIPX_CONFDIR@/ssl/authorities
+cert    = @SIPX_CONFDIR@/ssl/ssl.crt
+connect = 5432
+client  = no
+key     = @SIPX_CONFDIR@/ssl/ssl.key
+
