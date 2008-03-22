@@ -17,8 +17,8 @@
     <property name="maxLineCount" value="9" />
   </bean>
   <bean id="aastra57i" parent="aastraModel">
-    <property name="label" value="Aastra SIP IP 57i" />
-    <property name="maxLineCount" value="9" />
+  	<property name="label" value="Aastra SIP IP 57i" />
+  	<property name="maxLineCount" value="9" />
   </bean>
   <bean id="aastra560m" parent="aastraModel">
     <property name="label" value="Aastra SIP IP 560m" />

@@ -78,7 +78,7 @@
       </setting>
       <setting name="sip_nat_port">
         <type>
-	        <integer></integer>
+          <integer></integer>
         </type>
         <value>0</value>
       </setting>
@@ -95,10 +95,10 @@
         <value>0</value>
       </setting>
       <setting name="sip_nortel_nat_timer">
-	      <type>
-	        <integer min="0" max="2147483647"></integer>
-	      </type>
-	         <value>30</value>
+        <type>
+          <integer min="0" max="2147483647"></integer>
+        </type>
+        <value>30</value>
       </setting>
       <setting name="time_server_disabled">
         <type>
@@ -133,23 +133,29 @@
       <setting name="https_client_method">
         <type>
           <enum>
-            <option><label>SSL3.0</label><value>SSL3.0</value></option>
-            <option><label>TLS1.0</label><value>TLS1.0</value></option>
-	  </enum>
+            <option>
+              <label>SSL3.0</label>
+              <value>SSL3.0</value>
+            </option>
+            <option>
+              <label>TLS1.0</label>
+              <value>TLS1.0</value>
+            </option>
+          </enum>
         </type>
-	      <value>SSl3.0</value>
+        <value>SSl3.0</value>
       </setting>
       <setting name="https_redirect_http_get">
-	      <type>
-	        <boolean></boolean>
-	      </type>
-	      <value>1</value>
+        <type>
+          <boolean></boolean>
+        </type>
+        <value>1</value>
       </setting>
       <setting name="https_block_http_post_xml">
-	      <type>
-	        <boolean></boolean>
-	      </type>
-	      <value>0</value>
+        <type>
+          <boolean></boolean>
+        </type>
+        <value>0</value>
       </setting>
       <group name="tos">
         <setting name="tos_sip">
@@ -211,12 +217,12 @@
   </group>
   <group name="sip">
     <setting name="sip_screen_name">
-        <type>
-	        <string>
-	          <pattern>\d(1,20)[a-Z]*</pattern>
-	        </string>
-	      </type>
-	      <value></value>
+      <type>
+        <string>
+          <pattern>\d(1,20)[a-Z]*</pattern>
+        </string>
+      </type>
+      <value></value>
     </setting>
     <setting name="extension" />
     <setting name="sip_screen_name2">
@@ -236,102 +242,102 @@
       <value></value>
     </setting>
     <setting name="sip_display_name">
-	    <type>
-	      <string></string>
-	    </type>
-	    <value></value>
+      <type>
+        <string></string>
+      </type>
+      <value></value>
     </setting>
     <setting name="sip_auth_name">
       <type>
-	      <string></string>
-	    </type>
-	    <value></value>
+        <string></string>
+      </type>
+      <value></value>
     </setting>
     <setting name="sip_password">
-	    <type>
-	      <string></string>
-	    </type>
+      <type>
+        <string></string>
+      </type>
       <value></value>
     </setting>
     <setting name="sip_bla_number">
       <type>
-	      <integer></integer>
-	    </type>
+        <integer></integer>
+      </type>
       <value></value>
     </setting>
     <setting name="sip_mode">
       <type>
-	      <integet min="0" max="3"></integet>
-	    </type>
+        <integer min="0" max="3"></integer>
+      </type>
       <value>0</value>
     </setting>
   </group>
   <group name="sipNet">
     <setting name="sip_proxy_ip">
-	    <type>
-	      <ipaddr></ipaddr>
-	    </type>
-	    <value>0.0.0.0</value>
+      <type>
+        <ipaddr></ipaddr>
+      </type>
+      <value>0.0.0.0</value>
     </setting>
     <setting name="sip_proxy_port">
-	    <type>
-	      <integer></integer>
-	    </type>
+      <type>
+        <integer></integer>
+      </type>
       <value>0</value>
     </setting>
     <setting name="sip_backup_proxy_IP">
-	    <type>
+      <type>
         <ipaddr></ipaddr>
-	    </type>
-	    <value>0.0.0.0</value>
+      </type>
+      <value>0.0.0.0</value>
     </setting>
     <setting name="sip_backup_proxy_port">
-	    <type>
-	      <integer></integer>
-	    </type>
-	    <value>0</value>
+      <type>
+        <integer></integer>
+      </type>
+      <value>0</value>
     </setting>
     <setting name="sip_outbound_proxy">
-	    <type>
-	      <ipaddr></ipaddr>
-	    </type>
-	    <value>0.0.0.0</value>
+      <type>
+        <ipaddr></ipaddr>
+      </type>
+      <value>0.0.0.0</value>
     </setting>
     <setting name="sip_outbound_proxy_port">
-	    <type>
-	      <integer></integer>
-	    </type>
-	    <value>0</value>
+      <type>
+        <integer></integer>
+      </type>
+      <value>0</value>
     </setting>
     <setting name="sip_registrar_ip">
-	    <type>
-	      <ipaddr></ipaddr>
-	    </type>
-	    <value>0.0.0.0</value>
+      <type>
+        <ipaddr></ipaddr>
+      </type>
+      <value>0.0.0.0</value>
     </setting>
     <setting name="sip_registrar_port">
-            <type>
-	      <integer />
-            </type>
-            <value>0</value>
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
     </setting>
     <setting name="sip_backup_registar_ip">
-	    <type>
-	      <ipaddr></ipaddr>
-	    </type>
-	    <value>0.0.0.0</value>
+      <type>
+        <ipaddr></ipaddr>
+      </type>
+      <value>0.0.0.0</value>
     </setting>
     <setting name="sip_backup_registar_port">
-	    <type>
-	      <integer></integer>
-	    </type>
-	    <value>0</value>
+      <type>
+        <integer></integer>
+      </type>
+      <value>0</value>
     </setting>
     <setting name="sip_registration_period">
-	    <type>
-	      <integer min="0" max="2147483647"></integer>
-	    </type>
-	    <value>0</value>
+      <type>
+        <integer min="0" max="2147483647"></integer>
+      </type>
+      <value>0</value>
     </setting>
     <setting name="sip_centralized_conf">
       <type>
@@ -343,25 +349,25 @@
   <group name="server">
     <group name="tftp">
       <setting name="download_protocol" advanced="yes">
-	      <type refid="protocol-type"></type>
-	        <value>HTTPS</value>
+        <type refid="protocol-type"></type>
+        <value>HTTPS</value>
       </setting>
       <setting name="tftp_server" advanced="yes">
         <type>
           <ipaddr></ipaddr>
-	      </type>
-	      <value>0.0.0.0</value>
+        </type>
+        <value>0.0.0.0</value>
       </setting>
       <setting name="alternate_tftp_server" advanced="yes">
         <type>
           <ipaddr></ipaddr>
-	      </type>
-	      <value>0.0.0.0</value>
+        </type>
+        <value>0.0.0.0</value>
       </setting>
       <setting name="use_alternate_tftp" advanced="yes">
         <type>
-	        <boolean></boolean>
-	      </type>
+          <boolean></boolean>
+        </type>
         <value>0</value>
       </setting>
     </group>
@@ -374,7 +380,7 @@
       </setting>
       <setting name="ftp_username" advanced="yes">
         <type>
-	        <string></string>
+          <string></string>
         </type>
         <value></value>
       </setting>
@@ -401,29 +407,29 @@
     </group>
     <group name="auto-resync">
       <setting name="aotu_resync_mode">
-	      <type refid="resync-mode"></type>
-	        <value>0</value>
+        <type refid="resync-mode"></type>
+        <value>0</value>
       </setting>
       <setting name="auto_resync_time">
-	      <type>
-	        <string></string>
-	      </type>
-	      <value>00:00</value>
+        <type>
+          <string></string>
+        </type>
+        <value>00:00</value>
       </setting>
     </group>
     <group name="https">
-     <setting name="https_server" advanced="yes">
-       <type>
-         <ipaddr></ipaddr>
-       </type>
-       <value>0.0.0.0</value>
-     </setting>
-     <setting name="https_path" advanced="yes">
-       <type>
-         <string></string>
-       </type>
-       <value></value>
-     </setting>
+      <setting name="https_server" advanced="yes">
+        <type>
+          <ipaddr></ipaddr>
+        </type>
+        <value>0.0.0.0</value>
+      </setting>
+      <setting name="https_path" advanced="yes">
+        <type>
+          <string></string>
+        </type>
+        <value></value>
+      </setting>
     </group>
   </group>
   <group name="dialPlan">
@@ -443,19 +449,19 @@
   <group name="td">
     <setting name="time_format">
       <type>
-	<integer min="0" max="12"></integer>
+        <integer min="0" max="12"></integer>
       </type>
       <value>0</value>
     </setting>
     <setting name="date_format">
       <type>
-	      <integer min="0" max="7"></integer>
+        <integer min="0" max="7"></integer>
       </type>
       <value>0</value>
     </setting>
     <setting name="dst_config">
       <type>
-	      <integer min="0" max="3"></integer>
+        <integer min="0" max="3"></integer>
       </type>
       <value>3</value>
     </setting>
@@ -467,7 +473,7 @@
   <group name="lang">
     <setting name="language">
       <type>
-	<integer min="0" max="4"></integer>
+        <integer min="0" max="4"></integer>
       </type>
       <value>0</value>
     </setting>
@@ -491,34 +497,34 @@
   <group name="basic">
     <group name="priorityAlerting">
       <setting name="priority_alerting_enabled">
-	      <type>
-	        <boolean></boolean>
+        <type>
+          <boolean></boolean>
         </type>
-	      <value>1</value>
+        <value>1</value>
       </setting>
       <setting name="alert_auto_call_distribution">
-	      <type>
-	        <integer min="0" max="5"></integer>
-	      </type>
-	      <value>0</value>
+        <type>
+          <integer min="0" max="5"></integer>
+        </type>
+        <value>0</value>
       </setting>
       <setting name="alert_community1">
-	      <type>
-	        <integer min="0" max="5"></integer>
-	      </type>
-	      <value>0</value>
+        <type>
+          <integer min="0" max="5"></integer>
+        </type>
+        <value>0</value>
       </setting>
       <setting name="alert_community2">
-	      <type>
-	        <integer min="0" max="5"></integer>
-	      </type>
+        <type>
+          <integer min="0" max="5"></integer>
+        </type>
         <value>0</value>
       </setting>
       <setting name="alert_community3">
         <type>
           <integer min="0" max="5"></integer>
         </type>
-	      <value>0</value>
+        <value>0</value>
       </setting>
       <setting name="alert_community4">
         <type>
@@ -527,8 +533,8 @@
         <value>0</value>
       </setting>
       <setting name="alert_external">
-	      <type>
-	        <integer min="0" max="5"></integer>
+        <type>
+          <integer min="0" max="5"></integer>
         </type>
         <value>0</value>
       </setting>
@@ -595,10 +601,10 @@
     </group>
     <group name="acd">
       <setting name="acd_auto_available">
-         <type>
-           <boolean></boolean>
-         </type>
-         <value>0</value>
+        <type>
+          <boolean></boolean>
+        </type>
+        <value>0</value>
       </setting>
       <setting name="acd_auto_available_timer">
         <type>
@@ -737,19 +743,19 @@
   <group name="dir">
     <setting name="directory_disabled">
       <type>
-	      <boolean></boolean>
+        <boolean></boolean>
       </type>
       <value>0</value>
     </setting>
     <setting name="directory1">
       <type>
-	      <string></string>
+        <string></string>
       </type>
       <value></value>
     </setting>
     <setting name="directory2">
       <type>
-	      <string></string>
+        <string></string>
       </type>
       <value></value>
     </setting>
@@ -757,7 +763,7 @@
   <group name="audioTransmit">
     <setting name="headset_tx_gain">
       <type>
-	      <integer min="-10" max="10"></integer>
+        <integer min="-10" max="10"></integer>
       </type>
       <value>0</value>
     </setting>
@@ -929,7 +935,7 @@
   <group name="global">
     <setting name="sip_rtp_port">
       <type>
-	      <integer></integer>
+        <integer></integer>
       </type>
       <value>3000</value>
     </setting>
@@ -941,7 +947,7 @@
     </setting>
     <setting name="sip_out-of-band_dtmf">
       <type>
-	      <boolean></boolean>
+        <boolean></boolean>
       </type>
       <value>1</value>
     </setting>
@@ -970,54 +976,54 @@
     <group name="outgoingIntercom">
       <setting name="sip_intercom_type">
         <type>
-	  <integer min="1" max="3" />
-	</type>
-	<value>3</value>
+          <integer min="1" max="3" />
+        </type>
+        <value>3</value>
       </setting>
       <setting name="sip_intercom_prefix_code">
-	<type>
-	  <string />
-	</type>
-	<value></value>
+        <type>
+          <string />
+        </type>
+        <value></value>
       </setting>
       <setting name="sip_intercom_line">
-	<type>
-	  <integer min="1" max="9" />
-	</type>
-	<value>1</value>
+        <type>
+          <integer min="1" max="9" />
+        </type>
+        <value>1</value>
       </setting>
     </group>
     <group name="incomingIntercom">
       <setting name="sip_allow_auto_answer">
-	<type>
-	  <boolean />
-	</type>
-	<value>1</value>
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
       </setting>
       <setting name="sip_intercom_mute_mic">
-	<type>
-	  <boolean />
-	</type>
-	<value>1</value>
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
       </setting>
       <setting name="sip_play_warning_tone">
-	<type>
-	  <boolean />
-	</type>
-	<value>1</value>
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
       </setting>
       <setting name="sip_intercom_allo_barge_in">
-	<type>
-	  <boolean />
-	</type>
-	<value>1</value>
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
       </setting>
     </group>
   </group>
-  <group name="ActionURI" >
+  <group name="ActionURI">
     <setting name="action_uri_startup">
       <type>
-	<string />
+        <string />
       </type>
       <value></value>
     </setting>
@@ -1059,32 +1065,32 @@
     </setting>
     <setting name="expmodX_keyN_lable">
       <type>
-	<string />
+        <string />
       </type>
       <value></value>
     </setting>
     <setting name="expmodX_keyN_value">
       <type>
-	<integer />
+        <integer />
       </type>
       <value></value>
     </setting>
     <setting name="expmodX_keyN_line">
       <type>
-	<integer min="1" max="9" />
+        <integer min="1" max="9" />
       </type>
       <value>1</value>
     </setting>
     <group name="model1">
       <setting name="expanmod1page1left">
         <type>
-	  <string />
+          <string />
         </type>
         <value></value>
       </setting>
       <setting name="expanmod1page1right">
         <type>
-	  <sting />
+          <string />
         </type>
         <value></value>
       </setting>
@@ -1114,93 +1120,93 @@
       </setting>
       <setting name="expanmod1page3left">
         <type>
-          <sting />
+          <string />
         </type>
         <value></value>
       </setting>
     </group>
     <group name="model2">
-    <setting name="expanmod2page1left">
-      <type>
-        <string />
-      </type>
-      <value></value>
-    </setting>
-    <setting name="expanmod2page1right">
-      <type>
-        <sting />
-      </type>
-      <value></value>
-    </setting>
-    <setting name="expanmod2page2left">
-      <type>
-        <string />
-      </type>
-      <value></value>
-    </setting>
-    <setting name="expanmod2page1r2ght">
-      <type>
-        <sting />
-      </type>
-      <value></value>
-    </setting>
-    <setting name="expanmod2page3left">
-      <type>
-        <string />
-      </type>
-      <value></value>
-    </setting>
-    <setting name="expanmod2page3right">
-      <type>
-        <sting />
-      </type>
-      <value></value>
-    </setting>
+      <setting name="expanmod2page1left">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod2page1right">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod2page2left">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod2page1r2ght">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod2page3left">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod2page3right">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
     </group>
     <group name="model3">
-    <setting name="expanmod3page1left">
-      <type>
-        <string />
-      </type>
-      <value></value>
-    </setting>
-    <setting name="expanmod3page1right">
-      <type>
-        <sting />
-      </type>
-      <value></value>
-    </setting>
-    <setting name="expanmod3page2left">
-      <type>
-        <string />
-      </type>
-      <value></value>
-    </setting>
-    <setting name="expanmod3page1r2ght">
-      <type>
-        <sting />
-      </type>
-      <value></value>
-    </setting>
-    <setting name="expanmod3page3left">
-      <type>
-        <string />
-      </type>
-      <value></value>
-    </setting>
-    <setting name="expanmod3page3right">
-      <type>
-        <sting />
-      </type>
-      <value></value>
-    </setting>
+      <setting name="expanmod3page1left">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod3page1right">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod3page2left">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod3page1r2ght">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod3page3left">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod3page3right">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
     </group>
     <group name="lock">
       <setting name="softkeyN_locked">
         <type>
-	  <boolean />
-	</type>
-	<value>0</value>
+          <boolean />
+        </type>
+        <value>0</value>
       </setting>
       <setting name="topsoftkeyN_locked">
         <type>

@@ -1,3 +1,11 @@
+/*
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ *
+ */
 package org.sipfoundry.sipxconfig.phone.aastra;
 
 import org.sipfoundry.sipxconfig.common.User;
@@ -14,7 +22,6 @@ public class AastraLineDefaults {
         m_defaults = defaults;
         m_line = line;
     }
-
 
     @SettingEntry(path = AastraPhone.AUTHORIZATION_ID_PATH)
     public String getAuthorizationId() {

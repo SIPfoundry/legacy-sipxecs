@@ -1,10 +1,17 @@
+/*
+ * 
+ * 
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ *
+ */
 package org.sipfoundry.sipxconfig.phone.aastra;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
@@ -13,27 +20,22 @@ import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class AastraPhone extends Phone {
-    public static final String EMERGENCY = "dialplan/emergencyDialPlan";
-    static final String REGISTRATION_PATH = "sipNet/sipRegistrarIp";
-    static final String REGISTRATION_PORT_PATH = "sipNet/sipRegistrarPort";
-    static final String DISPLAY_NAME_PATH = "sip/sipScreenName";
-    static final String PASSWORD_PATH = "sip/sipPassword";
-    static final String USER_ID_PATH = "sip/sipUserName";
-    static final String AUTHORIZATION_ID_PATH = "sip/sipAuthName";
-    static final String MESSAGE_INDICATOR = "preferences/mwiledline";
-    static final String EXTENSION_PATH = "sip/extension";
+    static final String REGISTRATION_PATH = "sipLine/sip_lineN_registrar_ip";
+    static final String DISPLAY_NAME_PATH = "sipLine/sip_lineN_screen_name";
+    static final String PASSWORD_PATH = "sipLine/sip_lineN_password";
+    static final String USER_ID_PATH = "sipLine/sip_lineN_user_name";
+    static final String AUTHORIZATION_ID_PATH = "sipLine/sip_lineN_auth_name";
+
+    private static final String REGISTRATION_PORT_PATH = "sipLine/sip_lineN_registrar_port";
+    private static final String EXTENSION_PATH = "sip/extension";
 
     public AastraPhone() {
     }
 
     @Override
     public void initialize() {
-        AastraPhoneDefaults phoneDefaults = new AastraPhoneDefaults(getPhoneContext()
-                .getPhoneDefaults());
+        AastraPhoneDefaults phoneDefaults = new AastraPhoneDefaults(getPhoneContext().getPhoneDefaults());
         addDefaultBeanSettingHandler(phoneDefaults);
-//	AastraExpansionModelDefaults expansionModel = new AastraExpansionModelDefaults(getPhoneContext()
-//                .getPhoneDefaults());
-//        addDefaultBeanSettingHandler(expansionModel);
         AastraIntercomDefaults intercomDefaults = new AastraIntercomDefaults(this);
         addDefaultBeanSettingHandler(intercomDefaults);
 
@@ -41,18 +43,8 @@ public class AastraPhone extends Phone {
 
     @Override
     public void initializeLine(Line line) {
-        AastraLineDefaults lineDefaults = new AastraLineDefaults(getPhoneContext()
-                .getPhoneDefaults(), line);
+        AastraLineDefaults lineDefaults = new AastraLineDefaults(getPhoneContext().getPhoneDefaults(), line);
         line.addDefaultBeanSettingHandler(lineDefaults);
-    }
-
-    @Override
-    public Profile[] getProfileTypes() {
-        Profile[] profileTypes;
-        profileTypes = new Profile[] {
-	    new Profile(this)
-	};
-        return profileTypes;
     }
 
     @Override
@@ -111,7 +103,6 @@ public class AastraPhone extends Phone {
         line.setSettingValue(DISPLAY_NAME_PATH, externalLine.getDisplayName());
         line.setSettingValue(USER_ID_PATH, externalLine.getUserId());
         line.setSettingValue(PASSWORD_PATH, externalLine.getPassword());
-
         line.setSettingValue(AUTHORIZATION_ID_PATH, externalLine.getUserId());
 
         line.setSettingValue(REGISTRATION_PATH, externalLine.getRegistrationServer());
@@ -133,13 +124,7 @@ public class AastraPhone extends Phone {
         sendCheckSyncToFirstLine();
     }
 
-    public String getProfileName() {
-	return getSerialNumber() + ".cfg" ;
+    public String getProfileFilename() {
+        return getSerialNumber() + ".cfg";
     }
-
-
-//    @Override
-//    public void removeProfiles(ProfileLocation location) {
-//    }
-
 }

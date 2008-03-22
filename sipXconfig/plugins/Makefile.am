@@ -1,4 +1,5 @@
 SUBDIRS = \
+	aastra \
 	clearone \
 	hitachi \
 	ipdialog \

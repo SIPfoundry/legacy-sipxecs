@@ -228,6 +228,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/setting.dtd
 %config(noreplace) %{sipxpbxconf}/setting.xsl
 %config(noreplace) %{sipxpbxconf}/kphone/*
+%config(noreplace) %{sipxpbxconf}/aastra/*
 %config(noreplace) %{sipxpbxconf}/acme/*
 %config(noreplace) %{sipxpbxconf}/acmePhone/*
 %config(noreplace) %{sipxpbxconf}/acd/*

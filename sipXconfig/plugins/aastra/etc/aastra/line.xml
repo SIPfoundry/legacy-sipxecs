@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
   <group name="basic">
     <group name="auth">
       <setting name="sip_missed_call_summary" advanced="yes">
         <type>
-	  <boolean></boolean>
+          <boolean></boolean>
         </type>
         <value>0</value>
       </setting>
       <setting name="sublscription_period">
         <type>
-	  <integer></integer>
+          <integer></integer>
         </type>
         <value>86400</value>
       </setting>
@@ -28,7 +30,7 @@
       </setting>
       <setting name="sip_persistent_tls">
         <type>
-	  <boolean></boolean>
+          <boolean></boolean>
         </type>
         <value>0</value>
       </setting>
@@ -49,7 +51,7 @@
     </setting>
     <setting name="sip_lineN_user_name">
       <type>
-	      <string></string>
+        <string></string>
       </type>
       <value></value>
     </setting>
@@ -61,19 +63,19 @@
     </setting>
     <setting name="sip_lineN_auth_name">
       <type>
-	      <string></string>
+        <string></string>
       </type>
       <value></value>
     </setting>
     <setting name="sip_lineN_password">
       <type>
-	      <string></string>
+        <string></string>
       </type>
       <value></value>
     </setting>
     <setting name="sip_lineN_bla_number">
       <type>
-	      <integer></integer>
+        <integer></integer>
       </type>
       <value></value>
     </setting>
@@ -84,19 +86,17 @@
       <value></value>
     </setting>
     <setting name="sip_lineN_proxyIp">
-      <type>
-      </type>
+      <type></type>
       <value>0.0.0.0</value>
     </setting>
     <setting name="sip_lineN_proxy_port">
       <type>
-	      <integer></integer>
+        <integer></integer>
       </type>
       <value>0</value>
     </setting>
     <setting name="sip_lineN_outbound_proxy">
-      <type>
-      </type>
+      <type></type>
       <value>0.0.0.0</value>
     </setting>
     <setting name="sip_lineN_outbound_proxy_port">
@@ -106,8 +106,7 @@
       <value>0</value>
     </setting>
     <setting name="sip_lineN_registrar_ip">
-      <type>
-      </type>
+      <type></type>
       <value>0.0.0.0</value>
     </setting>
     <setting name="sip_lineN_registrar_port">
@@ -135,7 +134,9 @@
       <value></value>
     </setting>
     <setting name="sip_lineN_dtmf_method">
-      <type refid="line-dtmf"></type>
+      <type>
+        <integer/>
+      </type>
       <value>0</value>
     </setting>
     <setting name="sip_lineN_srtp_mode">
@@ -257,7 +258,6 @@
   </group>
   <group name="rtp">
     <setting name="sip_dtmf_method">
-      <type refid="dtmf-range"></type>
       <value>0</value>
     </setting>
     <setting name="sip_srtp_mode">
@@ -268,11 +268,11 @@
     </setting>
   </group>
   <group name="autodial">
-  <setting name="use_global_settings">
-    <type>
-      <boolean></boolean>
-    </type>
-    <value>0</value>
-  </setting>
+    <setting name="use_global_settings">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
   </group>
 </model>

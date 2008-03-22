@@ -103,7 +103,7 @@
     </option>
   </enum>
 </type>
-<type id ="exp-key-type">
+<type id="exp-key-type">
   <enum>
     <option>
       <value>none</value>

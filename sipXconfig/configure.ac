@@ -98,6 +98,7 @@ AC_CONFIG_FILES([
     report/bin/Makefile
     report/src/Makefile
     plugins/Makefile
+    plugins/aastra/Makefile
     plugins/clearone/Makefile
     plugins/hitachi/Makefile
     plugins/ipdialog/Makefile
