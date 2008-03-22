@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model>
+  <group name="basic">
+    <group name="auth">
+      <setting name="sip_missed_call_summary" advanced="yes">
+        <type>
+	  <boolean></boolean>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="sublscription_period">
+        <type>
+	  <integer></integer>
+        </type>
+        <value>86400</value>
+      </setting>
+      <setting name="line_summary_subscription">
+        <type>
+          <boolean></boolean>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="sip_transport_protocol">
+        <type>
+          <integer min="0" max="4"></integer>
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="sip_persistent_tls">
+        <type>
+	  <boolean></boolean>
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+  </group>
+  <group name="sipLine">
+    <setting name="sip_lineN_screen_name">
+      <type>
+        <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip_lineN_screen_name2">
+      <type>
+        <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip_lineN_user_name">
+      <type>
+	      <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip_sineN_display_name">
+      <type>
+        <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip_lineN_auth_name">
+      <type>
+	      <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip_lineN_password">
+      <type>
+	      <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip_lineN_bla_number">
+      <type>
+	      <integer></integer>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip_lineN_mode">
+      <type>
+        <integer></integer>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip_lineN_proxyIp">
+      <type>
+      </type>
+      <value>0.0.0.0</value>
+    </setting>
+    <setting name="sip_lineN_proxy_port">
+      <type>
+	      <integer></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_lineN_outbound_proxy">
+      <type>
+      </type>
+      <value>0.0.0.0</value>
+    </setting>
+    <setting name="sip_lineN_outbound_proxy_port">
+      <type>
+        <integer></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_lineN_registrar_ip">
+      <type>
+      </type>
+      <value>0.0.0.0</value>
+    </setting>
+    <setting name="sip_lineN_registrar_port">
+      <type>
+        <integer></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_lineN_registration_period">
+      <type>
+        <integer></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_lineN_centralized_conf">
+      <type>
+        <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip_lineN_vmail">
+      <type>
+        <integer min="0" max="99"></integer>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip_lineN_dtmf_method">
+      <type refid="line-dtmf"></type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_lineN_srtp_mode">
+      <type>
+        <integer min="-1" max="2"></integer>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="adSip">
+    <setting name="sip_explicit_mwi_subscription">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_explicit_mwi_subscription_period">
+      <type>
+        <integer min="30" max="214748364"></integer>
+      </type>
+      <value>86400</value>
+    </setting>
+    <setting name="sip_send_mac">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_send_line">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_session_timer">
+      <type>
+        <integer></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_T1_timer">
+      <type>
+        <integer></integer>
+      </type>
+      <value>500</value>
+    </setting>
+    <setting name="sip_T2_timer">
+      <type>
+        <integer></integer>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip_transaction_timer">
+      <type>
+        <integer min="4000" max="64000"></integer>
+      </type>
+      <value>4000</value>
+    </setting>
+    <setting name="sip_transport_protocol">
+      <type>
+        <integer min="0" max="4"></integer>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="sip_registration_retry_timer">
+      <type>
+        <integer min="30" max="1800"></integer>
+      </type>
+      <value>1800</value>
+    </setting>
+    <setting name="sip_registration_timeout_retry_timer">
+      <type>
+        <integer min="30" max="214748364"></integer>
+      </type>
+      <value>120</value>
+    </setting>
+    <setting name="sip_registration_renewal_timer">
+      <type>
+        <integer min="0" max="214748364"></integer>
+      </type>
+      <value>15</value>
+    </setting>
+    <setting name="sip_blf_subscription_period">
+      <type>
+        <integer min="2"></integer>
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="sip_acd_subscription_period">
+      <type>
+        <integer min="2"></integer>
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="sip_missed_call_summary_subscription">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_missed_call_summary_subscription_period">
+      <type>
+        <integer min="0" max="99999999"></integer>
+      </type>
+      <value>86400</value>
+    </setting>
+    <setting name="sip_blacklist_duration">
+      <type>
+        <integer></integer>
+      </type>
+      <value>300</value>
+    </setting>
+    <setting name="sip_whitelist">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="rtp">
+    <setting name="sip_dtmf_method">
+      <type refid="dtmf-range"></type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_srtp_mode">
+      <type>
+        <integer min="0" max="2"></integer>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="autodial">
+  <setting name="use_global_settings">
+    <type>
+      <boolean></boolean>
+    </type>
+    <value>0</value>
+  </setting>
+  </group>
+</model>

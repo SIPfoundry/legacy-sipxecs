@@ -1,0 +1,1231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+
+<model>
+  &types;
+  <group name="network">
+    <group name="basic">
+      <setting name="dhcp">
+        <type>
+          <boolean></boolean>
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="ip">
+        <type>
+          <ipaddr></ipaddr>
+        </type>
+        <value>0.0.0.0</value>
+      </setting>
+      <setting name="subnet_mask">
+        <type>
+          <ipaddr></ipaddr>
+        </type>
+        <value>255.255.255.0</value>
+      </setting>
+      <setting name="default_gateway">
+        <type>
+          <ipaddr></ipaddr>
+        </type>
+        <value>1.0.0.1</value>
+      </setting>
+      <setting name="dns1">
+        <type>
+          <ipaddr></ipaddr>
+        </type>
+        <value>0.0.0.0</value>
+      </setting>
+      <setting name="dns2">
+        <type>
+          <ipaddr></ipaddr>
+        </type>
+        <value>0.0.0.0</value>
+      </setting>
+      <setting name="ethernet_port0">
+        <type>
+          <integer min="0" max="4"></integer>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="ethernet_port1">
+        <type>
+          <integer min="0" max="4"></integer>
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="advanced">
+      <setting name="upnp_manager">
+        <type>
+          <boolean></boolean>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="upnp_gateway">
+        <type>
+          <ipaddr></ipaddr>
+        </type>
+        <value>0.0.0.0</value>
+      </setting>
+      <setting name="sip_nat_ip">
+        <type>
+          <ipaddr></ipaddr>
+        </type>
+        <value>0.0.0.0</value>
+      </setting>
+      <setting name="sip_nat_port">
+        <type>
+	        <integer></integer>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="sip_nat_rtp_port" advanced="yes">
+        <type>
+          <integer></integer>
+        </type>
+        <value>51720</value>
+      </setting>
+      <setting name="sip_nortel_nat_support">
+        <type>
+          <boolean></boolean>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="sip_nortel_nat_timer">
+	      <type>
+	        <integer min="0" max="2147483647"></integer>
+	      </type>
+	         <value>30</value>
+      </setting>
+      <setting name="time_server_disabled">
+        <type>
+          <boolean></boolean>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="time_server1">
+        <type>
+          <ipaddr></ipaddr>
+        </type>
+        <value>0.0.0.0</value>
+      </setting>
+      <setting name="time_server2">
+        <type>
+          <ipaddr></ipaddr>
+        </type>
+        <value>0.0.0.0</value>
+      </setting>
+      <setting name="time_server3">
+        <type>
+          <ipaddr></ipaddr>
+        </type>
+        <value>0.0.0.0</value>
+      </setting>
+      <setting name="time_server4">
+        <type>
+          <ipaddr></ipaddr>
+        </type>
+        <value>0.0.0.0</value>
+      </setting>
+      <setting name="https_client_method">
+        <type>
+          <enum>
+            <option><label>SSL3.0</label><value>SSL3.0</value></option>
+            <option><label>TLS1.0</label><value>TLS1.0</value></option>
+	  </enum>
+        </type>
+	      <value>SSl3.0</value>
+      </setting>
+      <setting name="https_redirect_http_get">
+	      <type>
+	        <boolean></boolean>
+	      </type>
+	      <value>1</value>
+      </setting>
+      <setting name="https_block_http_post_xml">
+	      <type>
+	        <boolean></boolean>
+	      </type>
+	      <value>0</value>
+      </setting>
+      <group name="tos">
+        <setting name="tos_sip">
+          <type>
+            <integer min="0" max="63"></integer>
+          </type>
+          <value>26</value>
+        </setting>
+        <setting name="tos_rtp">
+          <type>
+            <integer min="0" max="63"></integer>
+          </type>
+          <value>46</value>
+        </setting>
+        <setting name="tos_rtcp">
+          <type>
+            <integer min="0" max="63"></integer>
+          </type>
+        </setting>
+      </group>
+      <group name="vlan">
+        <setting name="tagging_enabled">
+          <type>
+            <boolean></boolean>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="priority_non-ip">
+          <type>
+            <integer min="0" max="5"></integer>
+          </type>
+          <value>5</value>
+        </setting>
+        <setting name="vlan_id">
+          <type>
+            <integer min="1" max="4094"></integer>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="tos_priority_map">
+          <type>
+            <integer min="0" max="63"></integer>
+          </type>
+          <value>3,5,5</value>
+        </setting>
+        <setting name="vlan_id_port_1">
+          <type>
+            <integer min="1" max="4095"></integer>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="Qos_eth_port_1_priority">
+          <type>
+            <integer min="0" max="7"></integer>
+          </type>
+        </setting>
+      </group>
+    </group>
+  </group>
+  <group name="sip">
+    <setting name="sip_screen_name">
+        <type>
+	        <string>
+	          <pattern>\d(1,20)[a-Z]*</pattern>
+	        </string>
+	      </type>
+	      <value></value>
+    </setting>
+    <setting name="extension" />
+    <setting name="sip_screen_name2">
+      <type>
+        <string required="yes">
+          <pattern>\d(1,20)[a-Z]*</pattern>
+        </string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip_user_name">
+      <type>
+        <string required="yes">
+          <pattern>\d(1,20)[a-Z]*</pattern>
+        </string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip_display_name">
+	    <type>
+	      <string></string>
+	    </type>
+	    <value></value>
+    </setting>
+    <setting name="sip_auth_name">
+      <type>
+	      <string></string>
+	    </type>
+	    <value></value>
+    </setting>
+    <setting name="sip_password">
+	    <type>
+	      <string></string>
+	    </type>
+      <value></value>
+    </setting>
+    <setting name="sip_bla_number">
+      <type>
+	      <integer></integer>
+	    </type>
+      <value></value>
+    </setting>
+    <setting name="sip_mode">
+      <type>
+	      <integet min="0" max="3"></integet>
+	    </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="sipNet">
+    <setting name="sip_proxy_ip">
+	    <type>
+	      <ipaddr></ipaddr>
+	    </type>
+	    <value>0.0.0.0</value>
+    </setting>
+    <setting name="sip_proxy_port">
+	    <type>
+	      <integer></integer>
+	    </type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_backup_proxy_IP">
+	    <type>
+        <ipaddr></ipaddr>
+	    </type>
+	    <value>0.0.0.0</value>
+    </setting>
+    <setting name="sip_backup_proxy_port">
+	    <type>
+	      <integer></integer>
+	    </type>
+	    <value>0</value>
+    </setting>
+    <setting name="sip_outbound_proxy">
+	    <type>
+	      <ipaddr></ipaddr>
+	    </type>
+	    <value>0.0.0.0</value>
+    </setting>
+    <setting name="sip_outbound_proxy_port">
+	    <type>
+	      <integer></integer>
+	    </type>
+	    <value>0</value>
+    </setting>
+    <setting name="sip_registrar_ip">
+	    <type>
+	      <ipaddr></ipaddr>
+	    </type>
+	    <value>0.0.0.0</value>
+    </setting>
+    <setting name="sip_registrar_port">
+            <type>
+	      <integer />
+            </type>
+            <value>0</value>
+    </setting>
+    <setting name="sip_backup_registar_ip">
+	    <type>
+	      <ipaddr></ipaddr>
+	    </type>
+	    <value>0.0.0.0</value>
+    </setting>
+    <setting name="sip_backup_registar_port">
+	    <type>
+	      <integer></integer>
+	    </type>
+	    <value>0</value>
+    </setting>
+    <setting name="sip_registration_period">
+	    <type>
+	      <integer min="0" max="2147483647"></integer>
+	    </type>
+	    <value>0</value>
+    </setting>
+    <setting name="sip_centralized_conf">
+      <type>
+        <string></string>
+      </type>
+      <value></value>
+    </setting>
+  </group>
+  <group name="server">
+    <group name="tftp">
+      <setting name="download_protocol" advanced="yes">
+	      <type refid="protocol-type"></type>
+	        <value>HTTPS</value>
+      </setting>
+      <setting name="tftp_server" advanced="yes">
+        <type>
+          <ipaddr></ipaddr>
+	      </type>
+	      <value>0.0.0.0</value>
+      </setting>
+      <setting name="alternate_tftp_server" advanced="yes">
+        <type>
+          <ipaddr></ipaddr>
+	      </type>
+	      <value>0.0.0.0</value>
+      </setting>
+      <setting name="use_alternate_tftp" advanced="yes">
+        <type>
+	        <boolean></boolean>
+	      </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="ftp">
+      <setting name="ftp_server" advanced="yes">
+        <type>
+          <ipaddr></ipaddr>
+        </type>
+        <value>0.0.0.0</value>
+      </setting>
+      <setting name="ftp_username" advanced="yes">
+        <type>
+	        <string></string>
+        </type>
+        <value></value>
+      </setting>
+      <setting name="ftp_password" advanced="yes">
+        <type>
+          <string password="yes"></string>
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="http">
+      <setting name="http_server" advanced="yes">
+        <type>
+          <ipaddr></ipaddr>
+        </type>
+        <value>0.0.0.0</value>
+      </setting>
+      <setting name="http_path" advanced="yes">
+        <type>
+          <string></string>
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="auto-resync">
+      <setting name="aotu_resync_mode">
+	      <type refid="resync-mode"></type>
+	        <value>0</value>
+      </setting>
+      <setting name="auto_resync_time">
+	      <type>
+	        <string></string>
+	      </type>
+	      <value>00:00</value>
+      </setting>
+    </group>
+    <group name="https">
+     <setting name="https_server" advanced="yes">
+       <type>
+         <ipaddr></ipaddr>
+       </type>
+       <value>0.0.0.0</value>
+     </setting>
+     <setting name="https_path" advanced="yes">
+       <type>
+         <string></string>
+       </type>
+       <value></value>
+     </setting>
+    </group>
+  </group>
+  <group name="dialPlan">
+    <setting name="emergency_dial_plan">
+      <type>
+        <integer></integer>
+      </type>
+      <value>911|999|112|110</value>
+    </setting>
+    <setting name="options_password_enabled">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="td">
+    <setting name="time_format">
+      <type>
+	<integer min="0" max="12"></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="date_format">
+      <type>
+	      <integer min="0" max="7"></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="dst_config">
+      <type>
+	      <integer min="0" max="3"></integer>
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="time_zone_name">
+      <type refid="time-zone"></type>
+      <value>US-Eastern</value>
+    </setting>
+  </group>
+  <group name="lang">
+    <setting name="language">
+      <type>
+	<integer min="0" max="4"></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="language1">
+      <type refid="lang-pack"></type>
+      <value></value>
+    </setting>
+    <setting name="language2">
+      <type refid="lang-pack"></type>
+      <value></value>
+    </setting>
+    <setting name="language3">
+      <type refid="lang-pack"></type>
+      <value></value>
+    </setting>
+    <setting name="language4">
+      <type refid="lang-pack"></type>
+      <value></value>
+    </setting>
+  </group>
+  <group name="basic">
+    <group name="priorityAlerting">
+      <setting name="priority_alerting_enabled">
+	      <type>
+	        <boolean></boolean>
+        </type>
+	      <value>1</value>
+      </setting>
+      <setting name="alert_auto_call_distribution">
+	      <type>
+	        <integer min="0" max="5"></integer>
+	      </type>
+	      <value>0</value>
+      </setting>
+      <setting name="alert_community1">
+	      <type>
+	        <integer min="0" max="5"></integer>
+	      </type>
+	      <value>0</value>
+      </setting>
+      <setting name="alert_community2">
+	      <type>
+	        <integer min="0" max="5"></integer>
+	      </type>
+        <value>0</value>
+      </setting>
+      <setting name="alert_community3">
+        <type>
+          <integer min="0" max="5"></integer>
+        </type>
+	      <value>0</value>
+      </setting>
+      <setting name="alert_community4">
+        <type>
+          <integer min="0" max="5"></integer>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="alert_external">
+	      <type>
+	        <integer min="0" max="5"></integer>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="alert_emergency">
+        <type>
+          <integer min="0" max="5"></integer>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="alert_group">
+        <type>
+          <integer min="0" max="5"></integer>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="alert_internal">
+        <type>
+          <integer min="0" max="5"></integer>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="alert_priority">
+        <type>
+          <integer min="0" max="5"></integer>
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="tones">
+      <setting name="ring_tone">
+        <type refid="global-tone"></type>
+        <value>1</value>
+      </setting>
+      <setting name="tone_set">
+        <type refid="country-tone"></type>
+        <value>US</value>
+      </setting>
+      <setting name="lineN_ring_tone">
+        <type>
+          <integer min="-1" max="5"></integer>
+        </type>
+        <value>-1</value>
+      </setting>
+    </group>
+    <group name="dcp">
+      <setting name="direct_call_pickup">
+        <type>
+          <boolean></boolean>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="direct_call_pickup_prefix">
+        <type>
+          <integer></integer>
+        </type>
+        <value></value>
+      </setting>
+      <setting name="play_a_ring_splash">
+        <type>
+          <boolean></boolean>
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="acd">
+      <setting name="acd_auto_available">
+         <type>
+           <boolean></boolean>
+         </type>
+         <value>0</value>
+      </setting>
+      <setting name="acd_auto_available_timer">
+        <type>
+          <integer min="0" max="60"></integer>
+        </type>
+        <value>60</value>
+      </setting>
+    </group>
+  </group>
+  <group name="preferences">
+    <setting name="sip_dial_plan">
+      <type>
+        <string></string>
+      </type>
+      <value>X+#|XX+*</value>
+    </setting>
+    <setting name="sip_digit_timeout">
+      <type>
+        <integer></integer>
+      </type>
+      <value>4</value>
+    </setting>
+    <setting name="sip_dial_plan_terminator">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="sprecode">
+      <type>
+        <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="pickupsprecode">
+      <type>
+        <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="suppress_dtmf_playback">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="display_dtmf_digits">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="call_waiting">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="call_waiting_tone">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="stutter_disabled">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="xml_beep_notification">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="xml_status_scrool_delay">
+      <type>
+        <integer min="1" max="25"></integer>
+      </type>
+      <value>5</value>
+    </setting>
+    <setting name="incoming_call_interrupts_dialing">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="goodbye_cancels_incoming_call">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="upnp_mapping_lines">
+      <type>
+        <integer min="0" max="10"></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="mwi_led_line">
+      <type>
+        <integer min="0" max="9"></integer>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="forwarding">
+    <setting name="call_forward_disabled">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="callersList">
+    <setting name="callers_list_disabled">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="services_script">
+      <type>
+        <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="callers_list_script">
+      <type>
+        <string></string>
+      </type>
+      <value></value>
+    </setting>
+  </group>
+  <group name="dir">
+    <setting name="directory_disabled">
+      <type>
+	      <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="directory1">
+      <type>
+	      <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="directory2">
+      <type>
+	      <string></string>
+      </type>
+      <value></value>
+    </setting>
+  </group>
+  <group name="audioTransmit">
+    <setting name="headset_tx_gain">
+      <type>
+	      <integer min="-10" max="10"></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="headset_sidetone_gain">
+      <type>
+        <integer min="-10" max="10"></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="handset_tx_gain">
+      <type>
+        <integer min="-10" max="10"></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="handset_sidetone_gain">
+      <type>
+        <integer min="-10" max="10"></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="handsfree_tx_gain">
+      <type>
+        <integer min="-10" max="10"></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="audio_mode">
+      <type>
+        <integer min="0" max="3"></integer>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="xml">
+    <setting name="xml_get_timeout">
+      <type>
+        <integer min="0" max="214748364"></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="xml_application_URI">
+      <type>
+        <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="xml_application_title">
+      <type>
+        <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="xml_application_post_list">
+      <type>
+        <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="xml_beep_notification">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="xml_status_scroll_delay">
+      <type>
+        <integer min="1" max="25"></integer>
+      </type>
+      <value>5</value>
+    </setting>
+  </group>
+  <group name="log">
+    <setting name="log_server_ip">
+      <type>
+        <ipaddr></ipaddr>
+      </type>
+      <value>0.0.0.0</value>
+    </setting>
+    <setting name="log_server_port">
+      <type>
+        <integer></integer>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="log_module">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>1</value>
+    </setting>
+  </group>
+  <group name="operational">
+    <setting name="sip_cancel_after_blind_transfer">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_update_callerid">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="force_web_recovery_mode_disabled">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="max_boot_count">
+      <type>
+        <integer min="0" max="32767"></integer>
+      </type>
+      <value>10</value>
+    </setting>
+    <setting name="two_call_support">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="sip_blacklist_duration">
+      <type>
+        <integer min="0" max="9999999"></integer>
+      </type>
+      <value>300</value>
+    </setting>
+    <setting name="sip_whitelist">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_symmetric_udp_signalling">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="sip_user-agent">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>1</value>
+    </setting>
+  </group>
+  <group name="blf">
+    <setting name="direct_call_pickup">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="direct_call_pickup_prefix">
+      <type>
+        <integer></integer>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="play_a_ring_splach">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="global">
+    <setting name="sip_rtp_port">
+      <type>
+	      <integer></integer>
+      </type>
+      <value>3000</value>
+    </setting>
+    <setting name="sip_use_basic_codecs">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="sip_out-of-band_dtmf">
+      <type>
+	      <boolean></boolean>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="sip_customized_codec">
+      <type>
+        <string></string>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="sip_silence_suppression">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>1</value>
+    </setting>
+  </group>
+  <group name="options" advanced="yes">
+    <setting name="admin_password">
+      <type>
+        <integer min="0" max="4294967295"></integer>
+      </type>
+      <value>22222</value>
+    </setting>
+  </group>
+  <group name="intercom">
+    <group name="outgoingIntercom">
+      <setting name="sip_intercom_type">
+        <type>
+	  <integer min="1" max="3" />
+	</type>
+	<value>3</value>
+      </setting>
+      <setting name="sip_intercom_prefix_code">
+	<type>
+	  <string />
+	</type>
+	<value></value>
+      </setting>
+      <setting name="sip_intercom_line">
+	<type>
+	  <integer min="1" max="9" />
+	</type>
+	<value>1</value>
+      </setting>
+    </group>
+    <group name="incomingIntercom">
+      <setting name="sip_allow_auto_answer">
+	<type>
+	  <boolean />
+	</type>
+	<value>1</value>
+      </setting>
+      <setting name="sip_intercom_mute_mic">
+	<type>
+	  <boolean />
+	</type>
+	<value>1</value>
+      </setting>
+      <setting name="sip_play_warning_tone">
+	<type>
+	  <boolean />
+	</type>
+	<value>1</value>
+      </setting>
+      <setting name="sip_intercom_allo_barge_in">
+	<type>
+	  <boolean />
+	</type>
+	<value>1</value>
+      </setting>
+    </group>
+  </group>
+  <group name="ActionURI" >
+    <setting name="action_uri_startup">
+      <type>
+	<string />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="action_uri_registered">
+      <type>
+        <string />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="action_uri_incoming">
+      <type>
+        <string />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="action_uri_outgoing">
+      <type>
+        <string />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="action_uri_offhook">
+      <type>
+        <string />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="action_uri_onhook">
+      <type>
+        <string />
+      </type>
+      <value></value>
+    </setting>
+  </group>
+  <group name="ExpansionModel">
+    <setting name="expmodX_keyN_type">
+      <type refid="exp-key-type" />
+      <value>none</value>
+    </setting>
+    <setting name="expmodX_keyN_lable">
+      <type>
+	<string />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="expmodX_keyN_value">
+      <type>
+	<integer />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="expmodX_keyN_line">
+      <type>
+	<integer min="1" max="9" />
+      </type>
+      <value>1</value>
+    </setting>
+    <group name="model1">
+      <setting name="expanmod1page1left">
+        <type>
+	  <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod1page1right">
+        <type>
+	  <sting />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod1page2left">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod1page2right">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod1page2left">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod1page3right">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="expanmod1page3left">
+        <type>
+          <sting />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="model2">
+    <setting name="expanmod2page1left">
+      <type>
+        <string />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="expanmod2page1right">
+      <type>
+        <sting />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="expanmod2page2left">
+      <type>
+        <string />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="expanmod2page1r2ght">
+      <type>
+        <sting />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="expanmod2page3left">
+      <type>
+        <string />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="expanmod2page3right">
+      <type>
+        <sting />
+      </type>
+      <value></value>
+    </setting>
+    </group>
+    <group name="model3">
+    <setting name="expanmod3page1left">
+      <type>
+        <string />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="expanmod3page1right">
+      <type>
+        <sting />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="expanmod3page2left">
+      <type>
+        <string />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="expanmod3page1r2ght">
+      <type>
+        <sting />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="expanmod3page3left">
+      <type>
+        <string />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="expanmod3page3right">
+      <type>
+        <sting />
+      </type>
+      <value></value>
+    </setting>
+    </group>
+    <group name="lock">
+      <setting name="softkeyN_locked">
+        <type>
+	  <boolean />
+	</type>
+	<value>0</value>
+      </setting>
+      <setting name="topsoftkeyN_locked">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="prgkeyN_locked">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="featurekeyN_locked">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="expmodX_key_N_locked">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+  </group>
+</model>
