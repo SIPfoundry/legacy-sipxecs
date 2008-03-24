@@ -18,7 +18,8 @@
 #
 
 use Getopt::Long ;
-use IPC::SysV qw(IPC_RMID) ;
+use IPC::SysV qw(IPC_RMID S_IRWXU) ;
+use IPC::Semaphore ;
 
 $verbose = 0 ;
 $remove = 0 ;
@@ -64,17 +65,20 @@ for my $file (@ARGV)
 
            if ($file =~ /imdb\.cs$/) 
            {
+              $semobj = new IPC::Semaphore($key, 2, S_IRWXU) ;
               # critical section semaphore to be locked then unlocked
-              $lock = pack("s!s!s!", 0, -1, 0);
-              $unlock = pack("s!s!s!", 0, 1, 0);
-              semop($semid, $lock . $unlock) || die "$!" ;
+              $semobj->op(0,-1,0, 0,1,0) || die "$!" ;
               print "checked semid $semid path $file\n" if $verbose ;
            }
            elsif ($file =~ /imdb\.[rwu]s$/)
            {
-              # read/write/update semaphore should be 0
-              $check = pack("s!s!s!", 0, 0, 0);
-              semop($semid, $check) || die "$!" ;
+              # read/write/update semaphore should have 0 waiters
+              # eventually
+              $semobj = new IPC::Semaphore($key, 2, S_IRWXU) ;
+              while($semobj->getncnt(0) > 0)
+              {
+                 sleep(1) ;
+              }
               print "checked semid $semid path $file\n" if $verbose ;
            }
            alarm 0 ;
