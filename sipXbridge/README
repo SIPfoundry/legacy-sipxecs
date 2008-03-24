@@ -1,0 +1,68 @@
+THIS IS AN EARLY ALPHA RELEASE. 
+
+THIS CODE IS DISTRIBUTED UNDER THE TERMS AND CONDITIONS OF THE GNU 
+LESSER PUBLIC LICENSE.  
+
+This is an ITSP (trunking) gateway. It aims to provide media and
+signaling gatewaying between SIP endpoints inside a firewall /NAT and 
+an external ITSP gateway.
+
+
+Prerequisites
+----------------
+
+copy sipxbridge.xml.example to /etc/sipxpbx/sipxbridge.xml
+
+Look at the documentation in schema/sipxbridge.xsd 
+and edit /etc/sipxpbx/sipxbridge.xml
+Set up your account information there.
+
+
+
+Start sipx and configure sipx to use sipxbridge
+----------------------------------------------
+
+- Set  up sipxbridge as an umanaged SBC and give sipx the 
+localIpAddress and port where it an expect to talk to sipxbridge
+ (see properties above) 
+
+- Set up a Trunk Gateway to use the unmanaged SBC. You should set up
+the Route field in the Trunk Gateway configuration page to point to the
+host:port address of where sipxbridge runs.
+
+- Configure a user accounts and phones as usual. 
+For direct inbound dialing, you want to set up an alias corresponding to
+the telephone number. 
+
+- Set up a long distance dial plan with prefix 9 telephone numbers directed
+towards the configured Trunk Gateway.
+
+4. Start sipxbridge using the ant target "sudo ant sipxbridge"
+
+5. Start your phone and register it with sipx. 
+
+6.  Pick up your cell phone and dial your ITSP provided for inbound
+calls. Dial 91your-cellphone-number for outbound calls.
+
+
+
+
+Warnings and disclaimers
+------------------------
+
+THIS IS AN EARLY PROTOTYPE. Expect bugs.
+
+It has only been minimally tested for single call flows.
+
+I need to test for load, concurrency, memory leaks, handling of error
+conditions, network load conditions, timeouts, race conditions etc.
+In other words, the bulk of the work remains to be done.
+
+Limitations
+----------
+
+- No media transcoding.
+- No integration with sipxconfig.
+- I have had trouble with restricted port NATS. Symmetric NATs
+  have worked well so far.
+

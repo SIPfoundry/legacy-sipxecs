@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:annotation>
+		<xs:documentation xml:lang="en">
+
+			SIPXBridge takes a configuration file which specifies where
+			it is running ( ip address and port ) and all the accounts
+			that it manages. When it starts, it registers with each
+			of the ITSP accounts specified in the nested itsp-account
+			elelements that need such registration. 
+
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:element name="sipxbridge-config" type="SipxBridgeConfig" />
+
+	<xs:complexType name="SipxBridgeConfig">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				The confiuration of the IP addresses and ports of the
+				SIPX Bridge.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="bridge-configuration"
+				type="BridgeConfiguration" minOccurs="1" maxOccurs="1" />
+			<xs:element name="itsp-account" type="ItspAccountInfo"
+				minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	
+
+	<xs:complexType name="BridgeConfiguration">
+		<xs:sequence>
+			<xs:element name="external-address" type="xs:string"
+				minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The ITSP facing address. The ITSP will send
+						signaling here.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+
+			<xs:element name="external-port" type="xs:integer"
+				minOccurs="0" maxOccurs="1" default="5080">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The ITSP facing port. The ITSP will send
+						signaling here.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="local-address" type="xs:string"
+				minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The SIPX proxy facing address. The SIPX proxy
+						will send signaling here.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="local-port" type="xs:integer"
+				minOccurs="0" maxOccurs="1" default="5090">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The SIPX proxy facing port. The SIPX proxy will
+						send signaling here.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="sipx-proxy-domain" type="xs:string"
+				minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The SIPX proxy domain ( this should be
+						configurable as a global - not a user settable
+						parameter) . For the prototype configure
+						manually.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="auto-attendant-name" type="xs:string"
+				maxOccurs="1" minOccurs="0" default="operator">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The SIPX auto attendant name.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="stun-server-address" type="xs:string"
+				maxOccurs="1" minOccurs="0" default="stun01.sipphone.com">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The stun server address used to determine the
+						global address of the birdge.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="media-gateway-url" type="xs:string"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The HTTP URL for an external media gateway ( if
+						one is configured ). XML RPC requests use this
+						URL.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="music-on-hold-support-enabled" type="xs:boolean"
+				maxOccurs="1" minOccurs="0" default="false">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not sipxbridge Music On Hold support is enabled.
+						Phones should disable their MOH support if sipxbridge support
+						for MOH is enabled.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="rtp-port-range" type="xs:string"
+				maxOccurs="1" minOccurs="0" default="25000:25500">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Range of RTP ports that belong to sipxbridge.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="log-level" maxOccurs="1" minOccurs="0"
+				default="INFO">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Log configuration. Defaults to INFO level.
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="INFO" />
+						<xs:enumeration value="WARN" />
+						<xs:enumeration value="ERROR" />
+						<xs:enumeration value="DEBUG" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="log-directory" type="xs:string" maxOccurs="1" minOccurs="0" 
+				default="/var/log/sipxpbx">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Log directory. Defaults to /var/log/sipxbpx.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="ItspAccountInfo">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				The information that is specific to a given ITSP
+				account.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="outbound-proxy" type="xs:string"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The outbound proxy address.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="outbound-transport" type="xs:string"
+				default="udp" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The outbound proxy transport.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="proxy-domain" type="xs:string"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The domain for the SIP Register Request defaults
+						to outbound proxy.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="authentication-realm" type="xs:string"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The domain for the SIP authentication realm
+						defaults to outbound-proxy.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="user-name" type="xs:string" maxOccurs="1"
+				minOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The user name attached to the account.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="password" type="xs:string" maxOccurs="1"
+				minOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The password for the account.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+
+			<xs:element name="display-name" type="xs:string"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The optional display name for this account.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+
+
+			<xs:element name="use-global-addressing" type="xs:boolean"
+				default="false" maxOccurs="1" minOccurs="0" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not to use the stun determined global
+						address.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+
+
+			<xs:element name="use-rport" type="xs:boolean" maxOccurs="1" minOccurs="0"
+				default="false">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not to use the Rport parameter.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="route-inbound-calls-to-auto-attendant"
+				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not to send inbound calls to auto
+						attendant.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="register-on-initialization"
+				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not to REGISTER on initialization.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>
