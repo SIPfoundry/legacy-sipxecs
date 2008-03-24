@@ -390,6 +390,8 @@ UpgradePbx() {
 ## Upgrade the ConfigServer
 ##########################
 UpgradeConfigServer() {
+    # regardless of the version -- force first-run stage
+    ${BinDir}/sipxconfig.sh --first-run
     case $Version in
        2.* | 3.*)
            ;;

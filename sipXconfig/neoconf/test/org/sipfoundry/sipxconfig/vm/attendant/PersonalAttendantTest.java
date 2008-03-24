@@ -54,6 +54,24 @@ public class PersonalAttendantTest extends TestCase {
         expected.close();
     }
     
+    public void testGenerateUserWithNoOperatorProfile() throws Exception {
+        PersonalAttendant personalAttendant = new PersonalAttendant();
+        personalAttendant.setUser(new User());
+        personalAttendant.setOperator(null);
+
+        AttendantMenu menu = new AttendantMenu();
+        menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.TRANSFER_OUT, "201");
+        menu.addMenuItem(DialPad.NUM_2, AttendantMenuAction.TRANSFER_OUT, "sip:202@example.com");
+        personalAttendant.setMenu(menu);
+
+        personalAttendant.generateProfile(m_location, "example.org", m_profileGenerator);
+
+        InputStream expected = getClass().getResourceAsStream("savemessage.user-no-operator.vxml");
+
+        assertEquals(IOUtils.toString(expected), m_location.toString());
+        expected.close();
+    }
+    
     public void testGenerateUserProfileWithOverrideLanguage() throws Exception {
         PersonalAttendant personalAttendant = new PersonalAttendant();
         personalAttendant.setUser(new User());
