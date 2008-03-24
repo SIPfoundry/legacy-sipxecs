@@ -2435,9 +2435,9 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                 // This via should never see the light of day
                 // (or rather the bits of the network).
                 mpRequest->addVia("127.0.0.1",
-                       9999,
-                       "UNKNOWN",
-                       mpBranchId->data());
+                                  9999,
+                                  "UNKNOWN",
+                                  mpBranchId->data());
             }
 
             // Set the transaction expires timeout for the DNS parent
@@ -2486,6 +2486,11 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                           "SipTransaction::recurseDnsSrvChildren added timer %p to timer list.",
                           expiresTimer);
 #endif
+
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::recurseDnsSrvChildren"
+                          " transaction %p setting timeout %d secs.",
+                          this, expireSeconds
+               );
 
             OsTime expiresTime(expireSeconds, 0);
             expiresTimer->oneshotAfter(expiresTime);

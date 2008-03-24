@@ -195,6 +195,8 @@ public:
                                   int         errorCode = SIP_BUSY_CODE,
                                   const char* errorText = SIP_BUSY_TEXT);                                  
     virtual PtStatus redirectConnection(const char* callId, const char* address, const char* forwardAddressUrl);
+    // Note that dropConnection() drops only one connection (call leg), not the entire call.
+    // Use drop() to drop an entire call.
     virtual void dropConnection(const char* callId, const char* address);
     virtual void getNumConnections(const char* callId, int& numConnections);
         virtual OsStatus getConnections(const char* callId, int maxConnections,

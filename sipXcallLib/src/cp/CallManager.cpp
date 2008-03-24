@@ -542,7 +542,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                                     (method.compareTo(SIP_ACK_METHOD,UtlString::ignoreCase) != 0) )
 
                                 {
-                                    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager - number of current calls (%d) is exceeded max (%d)",
+                                    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                                                  "CallManager - number of current calls (%d) >= limit (%d)",
                                                   getCallStackSize(), mMaxCalls);
                                                   
                                     SipMessage busyHereResponse;

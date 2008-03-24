@@ -186,10 +186,10 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
    mpCallManager->addTaoListener(mpDialInServer);
    mpDialInServer->start();
 
-   // Startup the call processing system
+   // Start the call processing system
    mpCallManager->start();
       
-   // Add itself to the presence dial-in server for state change notification
+   // Add self to the presence dial-in server for state change notification
    mpDialInServer->addStateChangeNotifier("Presence_Dial_In_Server", this);
 
    if (mToBePublished)

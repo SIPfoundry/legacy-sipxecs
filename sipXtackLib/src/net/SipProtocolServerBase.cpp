@@ -115,7 +115,7 @@ UtlBoolean SipProtocolServerBase::send(SipMessage* message,
           UtlString clientNames;
           client->getClientNames(clientNames);
           OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                        "SipProcolServerBase[%s]::send %p, %s",
+                        "SipProtocolServerBase[%s]::send %p, %s",
                         getName().data(), client, clientNames.data());
        }
        sendOk = client->sendTo(*message, hostAddress, hostPort);

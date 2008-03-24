@@ -128,7 +128,7 @@ sigHandler( int sig_num )
     {
        OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
     }
-    OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "sigHandler: closing IMDB connections" );
+    OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: closing IMDB connections" );
     OsSysLog::flush();
 
     closeIMDBConnections();
