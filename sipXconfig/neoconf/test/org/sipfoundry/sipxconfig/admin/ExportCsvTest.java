@@ -44,11 +44,11 @@ public class ExportCsvTest extends TestCase {
         phone.setModel(new TestPhoneModel());
         phone.setSerialNumber("665544332211");
         phone.setDescription("phone description");
-
         Collection<String> userIds = exportCsv.exportPhone(csv, phone, "example.org");
         assertEquals(0, userIds.size());
-        assertEquals(",,,,,,,,665544332211,testPhoneModel,,phone description\n", writer
-                .toString());
+        assertEquals(
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\"\n",
+                writer.toString());
     }
 
     public void testExportPhone() throws Exception {
@@ -83,7 +83,7 @@ public class ExportCsvTest extends TestCase {
         assertEquals(1, userIds.size());
         assertTrue(userIds.contains("jlennon"));
         assertEquals(
-                "jlennon,example.org#b5032ad9a3aa310dc62bf140a6d8b36e,sip_pass,John,Lennon,,,,665544332211,testPhoneModel,,phone description\n",
+                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\"\n",
                 writer.toString());
         verify(mm);
     }
@@ -110,8 +110,9 @@ public class ExportCsvTest extends TestCase {
 
         Collection<String> userIds = exportCsv.exportPhone(csv, phone, "example.org");
         assertEquals(0, userIds.size());
-        assertEquals(",,,,,,,,665544332211,testPhoneModel,,phone description\n", writer
-                .toString());
+        assertEquals(
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\"\n",
+                writer.toString());
     }
 
     public void testExportUserNoEmail() throws Exception {
@@ -136,7 +137,7 @@ public class ExportCsvTest extends TestCase {
 
         exportCsv.exportUser(csv, row, user, "example.org");
         assertEquals(
-                "jlennon,example.org#b5032ad9a3aa310dc62bf140a6d8b36e,sip_pass,John,Lennon,,,,,,,\n",
+                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
         verify(mm);
     }

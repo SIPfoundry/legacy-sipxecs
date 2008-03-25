@@ -115,7 +115,7 @@ public class ExportCsv {
 
         if (usernames.isEmpty()) {
             // no lines or external lines only - write "phone only" line
-            csv.write(row, false);
+            csv.write(row, true);
         }
         return usernames;
     }
@@ -140,7 +140,7 @@ public class ExportCsv {
         }
         String userPinToken = user.getPintoken();
         Index.PIN.set(row, formatRealmAndHash(realm, userPinToken));
-        csv.write(row, false);
+        csv.write(row, true);
     }
 
     private String formatRealmAndHash(String realm, String userPinToken) {
