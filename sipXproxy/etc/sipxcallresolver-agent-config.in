@@ -1,10 +1,10 @@
-service = callresolver-agent
-pid     = @SIPX_RUNDIR@/callresolver-agent.pid
+service = sipxcallresolver-agent
+pid     = @SIPX_RUNDIR@/sipxcallresolver-agent.pid
 setuid  = @SIPXPBXUSER@
 setgid  = @SIPXPBXUSER@
 verify  = 2
 debug   = 5
-output  = @SIPX_LOGDIR@/callresolver-agent.log
+output  = @SIPX_LOGDIR@/sipxcallresolver-agent.log
 
 [postgresql]
 accept  = 9300

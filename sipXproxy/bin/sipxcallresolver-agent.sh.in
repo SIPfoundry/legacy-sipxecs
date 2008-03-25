@@ -15,8 +15,17 @@ do
             Action=CONFIGTEST
             ;;
 
+        --help)
+            Action=USAGE
+            ;;
+
+        start|--start)
+            Action=RUN
+            ;;
+
         *)
-            Args="$Args $1"
+            echo "Unrecognized argument '$1'." >&2
+            exit 1
             ;;
     esac           
 
@@ -25,39 +34,42 @@ done
 
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
-
-CONFIG_FILES="@SIPX_CONFDIR@/callresolver-agent-config"
+CONFIG_FILE="@SIPX_CONFDIR@/sipxcallresolver-agent-config"
   
-# If the "config.defs" file exists and the <name>.in file exists for a
-# configuration file, then run the config preprocessor to generate the
-# fully resolved configuration file.
-if [ -f "$CONFIG_DEFS" ]
-then
-  for i in $CONFIG_FILES ; do
-    if [ -f "${i}.in" ]
-    then
-       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
-    fi
-  done
-fi
-
 case ${Action} in
    RUN)
      # the stunnel command creates the pid file as specified by the configuration file
-     exec @STUNNEL@ $Args @SIPX_CONFDIR@/callresolver-agent-config
+     exec @STUNNEL@ "${CONFIG_FILE}"
      ;;
 
    CONFIGTEST)
-     # check validity of xml routing rules, authorization rules and domain
      # Check that the log file is writable.
-     logfile="@SIPX_LOGDIR@/callresolver-agent.log"
+     logfile="@SIPX_LOGDIR@/sipxcallresolver-agent.log"
      if [ -e $logfile -a ! -w $logfile ]
      then
          echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
          Status=1
      fi
+     # Check that the configuration file is readable.
+     if [ ! -r "${CONFIG_FILE}" ]
+     then
+         echo "Configuration file '$CONFIG_FILE' not found or not readable." >&2
+         Status=1
+     fi
      ;;
+
+    USAGE)
+        myname=`basename $0`
+        cat <<EOF
+To test configuration:
+  ${myname} --configtest
+
+To start the service
+  ${myname} start
+or
+  ${myname}
+
+EOF
 esac
 
 exit $Status

@@ -5,13 +5,13 @@ SUBDIRS = database
 cfgfiles_IN = \
 	authrules.xml.in \
 	callresolver-config.in \
-	callresolver-agent-config.in \
+	sipxcallresolver-agent-config.in \
 	sipXproxy-config.in \
 	forwardingrules.xml.in
 
 process_xml_files_IN = \
 	sipXproxy.process.xml.in \
-	callresolver-agent.process.xml.in \
+	sipxcallresolver-agent.process.xml.in \
 	sipxcallresolver.process.xml.in
 
 EXTRA_DIST = \

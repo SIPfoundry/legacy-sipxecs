@@ -27,6 +27,7 @@ sipx_service_is_installed() {
 # sipx_service_is_enabled( service-name ) - returns 0 (success) iff service is installed and enabled
 sipx_service_is_enabled() {
     local svc=$1
+    test "${svc}" = "watchdog" && return 0 # watchdog is always enabled
     sipx_service_is_installed "${svc}" || return 1
     local svc_def=`sipx_service_definition "${svc}"`
 
