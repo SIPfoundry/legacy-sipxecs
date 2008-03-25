@@ -9,6 +9,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
+#include "testlib/SipDbTestContext.h"
 
 #include <os/OsDefs.h>
 #include <os/OsConfigDb.h>
@@ -62,6 +63,7 @@ private:
    static const char* SipRouterConfiguration;
    
 public:
+    static SipDbTestContext  TestDbContext;
 
    void setUp()
       {
@@ -710,4 +712,6 @@ const char* SipRouterTest::SipRouterConfiguration = "SIPX_PROXY_AUTHENTICATE_REA
                                                     "\r\n";
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipRouterTest);
-   
+
+SipDbTestContext  SipRouterTest::TestDbContext(TEST_DATA_DIR, TEST_WORK_DIR "siproutertest_context");
+

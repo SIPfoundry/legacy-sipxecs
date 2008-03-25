@@ -306,6 +306,7 @@ UtlBoolean SipRegistrar::operationalPhase()
       mSipUserAgent->allowMethod(SIP_CANCEL_METHOD);
 
       mSipUserAgent->allowExtension("gruu"); // should be moved to gruu processor?
+      mSipUserAgent->allowExtension("path"); 
 
       mSipUserAgent->setUserAgentHeaderProperty("sipXecs/registry");
    }

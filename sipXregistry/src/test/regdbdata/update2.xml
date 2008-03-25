@@ -11,5 +11,6 @@
     <update_number>12</update_number>   <!-- database update number -->
     <instance_id></instance_id>
     <gruu></gruu>
+    <path></path>
   </item>
 </items>

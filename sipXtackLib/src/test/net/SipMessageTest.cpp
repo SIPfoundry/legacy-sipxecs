@@ -57,6 +57,9 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testReplacesData);
       CPPUNIT_TEST(testIsClientStrictRouted);
       CPPUNIT_TEST(testRecordRoutesAccepted);
+      CPPUNIT_TEST(testPathFieldManipulations);
+      CPPUNIT_TEST(testRouteFieldManipulations);
+      CPPUNIT_TEST(test200ResponseToRequestWithPath);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -2372,6 +2375,146 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_ASSERT( publishSipMsg.isRecordRouteAccepted() == FALSE );
       
       }
+    
+   void testPathFieldManipulations()
+   {
+      // try to add a Route header when there is already one present
+      const char* rawmsg =
+         "REGISTER sip:sipx.local SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "From: <sip:test@sipx.local>;tag=94b99ae0-2f816f01-13c4-be5-50f2a8d5-be5\r\n"
+         "To: <sip:test@sipx.local>\r\n"
+         "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 REGISTER\r\n"
+         "Path: <sip:anothermiddleproxy.com>, <sip:middleproxy.com>\r\n"
+         "Path: <sip:outboundproxy.com>\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: test@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      SipMessage sipmsg(rawmsg, strlen(rawmsg));
+      sipmsg.addPathUri("sip:homeproxy.com");
+      sipmsg.addLastPathUri("sip:last.com");
+      CPPUNIT_ASSERT_EQUAL(3, sipmsg.getCountHeaderFields("Path"));
+      
+      UtlString tmpString;
+      CPPUNIT_ASSERT(sipmsg.getPathUri(0, &tmpString)==TRUE);
+      ASSERT_STR_EQUAL("<sip:homeproxy.com>", tmpString.data() );
+ 
+      CPPUNIT_ASSERT(sipmsg.getPathUri(1, &tmpString)==TRUE);
+      ASSERT_STR_EQUAL("<sip:anothermiddleproxy.com>", tmpString.data() );
+      
+      CPPUNIT_ASSERT(sipmsg.getPathUri(2, &tmpString)==TRUE);
+      ASSERT_STR_EQUAL("<sip:middleproxy.com>", tmpString.data() );
+ 
+      CPPUNIT_ASSERT(sipmsg.getPathUri(3, &tmpString)==TRUE);
+      ASSERT_STR_EQUAL("<sip:outboundproxy.com>", tmpString.data() );
+       
+      CPPUNIT_ASSERT(sipmsg.getPathUri(4, &tmpString)==TRUE);
+      ASSERT_STR_EQUAL("<sip:last.com>", tmpString.data() );
+ 
+      CPPUNIT_ASSERT(sipmsg.getPathUri(5, &tmpString)==FALSE);
+
+   }
+ 
+   void testRouteFieldManipulations()
+   {
+      // try to add a Route header when there is already one present
+      const char* rawmsg =
+         "INVITE sip:sipx.local SIP/2.0\r\n"
+         "Route: <sip:anothermiddleproxy.com>, <sip:middleproxy.com>\r\n"
+         "Route: <sip:outboundproxy.com>\r\n"
+         "To: sip:sipx.local\r\n"
+         "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+         "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: me@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+ 
+      SipMessage sipmsg(rawmsg, strlen(rawmsg));
+      sipmsg.addRouteUri("sip:homeproxy.com");
+      sipmsg.addLastRouteUri("sip:last.com");
+      CPPUNIT_ASSERT_EQUAL(3, sipmsg.getCountHeaderFields("Route"));
+       
+      UtlString tmpString;
+      CPPUNIT_ASSERT(sipmsg.getRouteUri(0, &tmpString)==TRUE);
+      ASSERT_STR_EQUAL("<sip:homeproxy.com>", tmpString.data() );
+ 
+      CPPUNIT_ASSERT(sipmsg.getRouteUri(1, &tmpString)==TRUE);
+      ASSERT_STR_EQUAL("<sip:anothermiddleproxy.com>", tmpString.data() );
+     
+      CPPUNIT_ASSERT(sipmsg.getRouteUri(2, &tmpString)==TRUE);
+      ASSERT_STR_EQUAL("<sip:middleproxy.com>", tmpString.data() );
+ 
+      CPPUNIT_ASSERT(sipmsg.getRouteUri(3, &tmpString)==TRUE);
+      ASSERT_STR_EQUAL("<sip:outboundproxy.com>", tmpString.data() );
+       
+      CPPUNIT_ASSERT(sipmsg.getRouteUri(4, &tmpString)==TRUE);
+      ASSERT_STR_EQUAL("<sip:last.com>", tmpString.data() );
+ 
+      CPPUNIT_ASSERT(sipmsg.getRouteUri(5, &tmpString)==FALSE);
+   }
+    
+   void test200ResponseToRequestWithPath()
+   {
+      SipMessage finalResponse;
+ 
+      const char* badReferMsg =
+         "REFER sip:sipx.local SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:sipx.local\r\n"
+         "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 REFER\r\n"
+         "Path: <sip:anothermiddleproxy.com>, <sip:middleproxy.com>\r\n"
+         "Path: <sip:outboundproxy.com>\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: me@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+ 
+      // Only REGISTER requests should be allowed to contain path headers.  
+      // Verify that 200 OK to non-REGISTER request does not contain a copy 
+      // of the Path headers
+ 
+      SipMessage badReferSipMsg(badReferMsg, strlen(badReferMsg));
+      finalResponse.setOkResponseData(&badReferSipMsg);
+      CPPUNIT_ASSERT_EQUAL(0, finalResponse.getCountHeaderFields("Path"));
+ 
+      // try to add a Route header when there is already one present
+      const char* goodRegisterMsg =
+         "REGISTER sip:sipx.local SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "From: <sip:test@sipx.local>;tag=94b99ae0-2f816f01-13c4-be5-50f2a8d5-be5\r\n"
+          "To: <sip:test@sipx.local>\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 REGISTER\r\n"
+          "Path: <sip:anothermiddleproxy.com>, <sip:middleproxy.com>\r\n"
+          "Path: <sip:outboundproxy.com>\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: test@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+ 
+      SipMessage goodRegisterSipMsg(goodRegisterMsg, strlen(goodRegisterMsg));
+      finalResponse.setOkResponseData(&goodRegisterSipMsg);
+      CPPUNIT_ASSERT_EQUAL(2, finalResponse.getCountHeaderFields("Path"));
+ 
+      UtlString tmpString;
+      CPPUNIT_ASSERT(finalResponse.getPathUri(0, &tmpString)==TRUE);
+      ASSERT_STR_EQUAL("<sip:anothermiddleproxy.com>", tmpString.data() );
+ 
+      CPPUNIT_ASSERT(finalResponse.getPathUri(1, &tmpString)==TRUE);
+      ASSERT_STR_EQUAL("<sip:middleproxy.com>", tmpString.data() );
+        
+      CPPUNIT_ASSERT(finalResponse.getPathUri(2, &tmpString)==TRUE);
+      ASSERT_STR_EQUAL("<sip:outboundproxy.com>", tmpString.data() );
+ 
+      CPPUNIT_ASSERT(finalResponse.getPathUri(3, &tmpString)==FALSE);
+   }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipMessageTest);

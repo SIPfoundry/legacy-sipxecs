@@ -189,6 +189,7 @@ void readUpdateList(const char* filename,
          "qvalue",
          "instance_id",
          "gruu",
+         "path",
          "primary",
       };
       for (unsigned int i = 0;

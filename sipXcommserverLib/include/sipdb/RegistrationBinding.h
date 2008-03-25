@@ -71,6 +71,9 @@ public:
    const UtlString* getGruu() const;
    void       setGruu(const UtlString& gruu);
    
+   const UtlString* getPath() const;
+   void       setPath(const UtlString& path);
+   
    int        getCseq() const;
    void       setCseq(int cseq);
    void       setCseq(const UtlString& cseq);
@@ -105,6 +108,7 @@ private:
    UtlString* mQvalue;
    UtlString* mInstanceId;
    UtlString* mGruu;
+   UtlString* mPath;
    int        mCseq;
    int        mExpires;
    UtlString* mPrimary;

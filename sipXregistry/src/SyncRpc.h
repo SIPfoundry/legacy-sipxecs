@@ -218,6 +218,7 @@ class SyncRpcReset : public SyncRpcMethod
  *                   string  qvalue
  *                   string  instanceId
  *                   string  gruu
+ *                   string  path
  *                   string  primary
  *                   Int64   updateNumber
  */
@@ -294,6 +295,7 @@ private:
  *                 string  qvalue
  *                 string  instanceId
  *                 string  gruu
+ *                 string  path
  *                 string  primary
  *                 Int64   updateNumber
  *  Outputs:

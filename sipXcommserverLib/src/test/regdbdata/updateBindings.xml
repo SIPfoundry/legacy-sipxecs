@@ -9,6 +9,7 @@
         <expires>100</expires>
         <instance_id></instance_id>
         <gruu></gruu>
+        <path>&lt;sip:pleasevisitme.com&gt;,&lt;sip:metooplease.com&gt;</path>
         <primary>seqOne</primary>
         <update_number>3</update_number>
     </item>

@@ -34,6 +34,7 @@ foreach $registration (sort registration_cmp @registrations) {
 		 &show($registration->{'q'}, 0),
 		 &show($registration->{'instance_id'}, 1),
 		 &show($gruu{$AOR, $registration->{'instance_id'}}, 1),
+		 &show($registration->{'path'}, 1)])
 		 &show($registration->{'callid'}, 1)])
 	    ) . "\n"
 }
@@ -54,6 +55,7 @@ print &p(&table({-border => 1},
 			 'q',
 			 'Instance ID',
 			 'GRUU',
+             'Path',
 			 'Call-Id'
 			 ])), "\n",
 		$table_body)),
@@ -75,6 +77,8 @@ and so will not be assigned GRUUs.
 <br/>
 "GRUU" is the GRUU that was assigned for this contact.
 A GRUU will only be assigned if a <code>+sip.instance</code> was provided.<br/>
+"Path" represents the content of the Path header(s) contained in the 
+REGISTER message.<br/>
 "Call-Id" is the Call-Id of the REGISTER request that established this
 registration.
 Multiple registrations for the same contact with different
@@ -114,7 +118,7 @@ sub registration_cmp {
 sub process_log_file {
     my($log_file) = @_;
     my($contact, $extension, $user_agent, $call_id, $aor, $i,
-       $instance_id, $gruu);
+       $instance_id, $gruu, $path);
 
     # Read through the log file and find all the REGISTERs.
     my($log_line) = '';
@@ -146,6 +150,7 @@ sub process_log_file {
 	    ($registration->{'extension'}) = /\nTo:.*?sips?:(\d+)@/i;
 	    ($registration->{'user_agent'}) = /\nUser-Agent:\s*(.*)\n/i;
 	    ($registration->{'callid'}) = /\nCall-ID:\s*(.*)\n/i;
+	    ($registration->{'path'}) = /\nPath:\s*(.*)\n/i;
 	    ($registration->{'AOR'}) = /\nTo:\s*(.*)\n/i;
 	    ($registration->{'q'}) = $contact =~ /;q=([0-9.]+)/;
 	    ($i) = $contact =~ /;\+sip\.instance=([^;]*)/i;
@@ -183,6 +188,9 @@ sub process_log_file {
 	    ($aor) = /\nTo:\s*(.*)\n/i;
 	    # Remove the to-tag.
 	    $aor =~ s/;tag=[^;]+//;
+
+	    # Get the Path.
+	    ($path) = /\nPath:\s*(.*)\n/i;
 
 	    # Get the GRUU.
 	    ($gruu) = $contact =~ /;gruu=([^;]*)/i;

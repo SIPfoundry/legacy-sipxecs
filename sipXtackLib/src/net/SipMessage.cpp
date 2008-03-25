@@ -974,6 +974,18 @@ void SipMessage::setOkResponseData(const SipMessage* request,
                                    const char* localContact)
 {
    setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
+   // if request contains Path headers and the request is a REGISTER
+   // then copy the Path headers in the response
+   UtlString method;
+   request->getRequestMethod(&method);
+   if( method.compareTo(SIP_REGISTER_METHOD) == 0 )
+   {
+      const char* pathHeaderValue; 
+      for( int index = 0;  (pathHeaderValue = request->getHeaderValue(index, SIP_PATH_FIELD)); index++ )
+      {
+         addHeaderField(SIP_PATH_FIELD, pathHeaderValue);
+      }
+   }
    setResponseData(request, SIP_OK_CODE, SIP_OK_TEXT, localContact);
 }
 
@@ -3517,7 +3529,7 @@ void SipMessage::addRouteUri(const char* routeUri)
 
    //add the updated header
    routeField.insert(0,routeParameter);
-   setRouteField(routeField);
+   insertHeaderField(SIP_ROUTE_FIELD, routeField.data(), 0);
 }
 
 void SipMessage::addLastRouteUri(const char* routeUri)
@@ -3576,6 +3588,7 @@ UtlBoolean SipMessage::getRouteUri(int index, UtlString* routeUri) const
 {
     UtlString routeField;
     UtlBoolean fieldExists = getFieldSubfield(SIP_ROUTE_FIELD, index, routeUri);
+    NameValueTokenizer::frontBackTrim(routeUri, " \t");
     return(fieldExists && !routeUri->isNull());
 }
 
@@ -3730,6 +3743,78 @@ UtlBoolean SipMessage::buildRouteField(UtlString* routeFld) const
    }
     return(recordRouteFound);
 }
+
+UtlBoolean SipMessage::getPathUri(int index, UtlString* pathUri) const
+{
+   UtlString pathField;
+   UtlBoolean fieldExists = getFieldSubfield(SIP_PATH_FIELD, index, pathUri);
+   NameValueTokenizer::frontBackTrim(pathUri, " \t");
+   return(fieldExists && !pathUri->isNull());
+}
+
+void SipMessage::addPathUri(const char* pathUri)
+{
+    UtlString pathField;
+    UtlString pathUriString;
+
+    if(pathUri && *pathUri)
+    {
+       if(strchr(pathUri, '<') == NULL)
+       {
+          pathUriString.append('<');
+          pathUriString.append(pathUri);
+          pathUriString.append('>');
+       }
+       else
+       {
+          pathUriString.append(pathUri);
+       }
+   
+       const char* fieldValue = getHeaderValue(0, SIP_PATH_FIELD);
+       if(fieldValue) 
+       {
+          pathUriString.append(SIP_MULTIFIELD_SEPARATOR);
+          pathUriString.append(fieldValue);
+          removeHeader(SIP_PATH_FIELD, 0);       // Remove the entire header
+       }
+       //add the updated header
+       insertHeaderField(SIP_PATH_FIELD, pathUriString.data(), 0);
+    }
+}    
+
+void SipMessage::addLastPathUri(const char* pathUri)
+{
+    if(pathUri && *pathUri)
+    {
+        int index = 0;
+        const char* pathField = NULL;
+        while ((pathField = getHeaderValue(index, SIP_PATH_FIELD)))
+        {
+            index++;
+        }
+
+        UtlString pathString(pathField ? pathField : "");
+        if(pathField)
+        {
+            // Add a field separator
+           pathString.append(SIP_MULTIFIELD_SEPARATOR);
+        }
+        // Make sure the route is in name-addr format
+        if(strstr(pathUri,"<") <= 0)
+        {
+           pathString.append("<");
+        }
+
+        pathString.append(pathUri);
+        if(strstr(pathUri, ">") <= 0)
+        {
+           pathString.append(">");
+        }
+
+        setHeaderValue(SIP_PATH_FIELD, pathString.data(), index);
+    }
+}
+
 
 void SipMessage::buildReplacesField(UtlString& replacesField,
                                     const char* callId,

@@ -9,6 +9,7 @@
         <expires>100</expires>
         <instance_id></instance_id>
         <gruu></gruu>
+        <path>&lt;sip:pleasevisitme.com&gt;,&lt;sip:metooplease.com&gt;</path>
         <primary>seqOne</primary>
         <update_number>2</update_number>
     </item>
@@ -21,6 +22,7 @@
         <expires>200</expires>
         <instance_id></instance_id>
         <gruu></gruu>
+        <path>&lt;sip:pleasevisitme.com&gt;,&lt;sip:metooplease.com&gt;</path>
         <primary>seqOne</primary>
         <update_number>5</update_number>
     </item>
@@ -33,6 +35,7 @@
         <expires>100</expires>
         <instance_id></instance_id>
         <gruu></gruu>
+        <path>&lt;sip:pleasevisitme.com&gt;,&lt;sip:metooplease.com&gt;</path>
         <primary>seqOne</primary>
         <update_number>3</update_number>
     </item>
@@ -45,6 +48,7 @@
         <expires>200</expires>
         <instance_id></instance_id>
         <gruu></gruu>
+        <path>&lt;sip:pleasevisitme.com&gt;,&lt;sip:metooplease.com&gt;</path>
         <primary>seqTwo</primary>
         <update_number>7</update_number>
     </item>        
@@ -57,6 +61,7 @@
         <expires>100</expires>
         <instance_id></instance_id>
         <gruu></gruu>
+        <path>&lt;sip:pleasevisitme.com&gt;,&lt;sip:metooplease.com&gt;</path>
         <primary>seqOne</primary>
         <update_number>2</update_number>
     </item>
@@ -69,6 +74,7 @@
         <expires>200</expires>
         <instance_id></instance_id>
         <gruu></gruu>
+        <path>&lt;sip:pleasevisitme.com&gt;,&lt;sip:metooplease.com&gt;</path>
         <primary>seqOne</primary>
         <update_number>1</update_number>
     </item>
@@ -81,6 +87,7 @@
         <expires>100</expires>
         <instance_id></instance_id>
         <gruu></gruu>
+        <path>&lt;sip:pleasevisitme.com&gt;,&lt;sip:metooplease.com&gt;</path>
         <primary>seqTwo</primary>
         <update_number>2</update_number>
     </item>

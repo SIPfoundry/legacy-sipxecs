@@ -121,11 +121,13 @@ SipRedirectorRegDB::lookUp(
       UtlString contactKey("contact");
       UtlString expiresKey("expires");
       UtlString qvalueKey("qvalue");
+      UtlString pathKey("path");
       UtlString contact = *((UtlString*) record.findValue(&contactKey));
       UtlString qvalue  = *((UtlString*) record.findValue(&qvalueKey));
+      UtlString pathVector = *((UtlString*) record.findValue(&pathKey));
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "%s::lookUp contact = '%s', qvalue = '%s'",
-                    mLogName.data(), contact.data(), qvalue.data());
+                    "%s::lookUp contact = '%s', qvalue = '%s', path = '%s'",
+                    mLogName.data(), contact.data(), qvalue.data(), pathVector.data() );
       Url contactUri(contact);
 
       // If the contact URI is the same as the request URI, ignore it.
@@ -151,6 +153,23 @@ SipRedirectorRegDB::lookUp(
             contactUri.setUrlParameter("grid", gridParameter);
          }
 
+         // Check if database contained a Path value.  If so, add a Route
+         // header parameter to the contact with the Path vector taken from
+         // the registration data.
+         if (!pathVector.isNull() &&
+              pathVector.compareTo(SPECIAL_IMDB_NULL_VALUE) != 0)
+         {
+            UtlString existingRouteValue;
+            if ( contactUri.getHeaderParameter(SIP_ROUTE_FIELD, existingRouteValue))
+            {
+               // there is already a Route header parameter in the contact; append it to the 
+               // Route derived from the Path vector.
+               pathVector.append(SIP_MULTIFIELD_SEPARATOR);
+               pathVector.append(existingRouteValue);
+            }
+            contactUri.setHeaderParameter(SIP_ROUTE_FIELD, pathVector);
+         }
+         
          // Add the contact.
          addContact(response, requestString, contactUri, mLogName.data());
       }

@@ -26,6 +26,7 @@ typedef struct
    const char* qvalue;
    const char* instance_id;
    const char* gruu;
+   const char* path;
 } RegistrationRow;
 
 RegistrationRow regdata[] =
@@ -38,7 +39,8 @@ RegistrationRow regdata[] =
       "3",
       "",
       "1111",
-      "sip:181@example.com;gruu"
+      "sip:181@example.com;gruu",
+      "<sip:visitme.com>,<sip:overhere.com>,<sip:comemyway.com>"
    },
    {
       "sip:user@example.com",
@@ -48,7 +50,8 @@ RegistrationRow regdata[] =
       "2",
       "0.8",
       "2222",
-      "sip:182@example.com;gruu"
+      "sip:182@example.com;gruu",
+      "<sip:visitme.com>,<sip:overhere.com>,<sip:comemyway.com>"
    },
    {
       "sip:user3@example.com",
@@ -58,7 +61,8 @@ RegistrationRow regdata[] =
       "1",
       "0.2",
       "3333",
-      "sip:183@example.com;gruu"
+      "sip:183@example.com;gruu",
+      "<sip:visitme.com>,<sip:overhere.com>,<sip:comemyway.com>"
    }
 };
    
@@ -111,6 +115,10 @@ public:
             UtlString* gruuValue = new UtlString(regdata[row].gruu);
             regRow.insertKeyAndValue(gruuKey, gruuValue);
             
+            UtlString* pathKey = new UtlString("path");
+            UtlString* pathValue = new UtlString(regdata[row].path);
+            regRow.insertKeyAndValue(pathKey, pathValue);
+            
             registrations.addValue(regRow);
          }
 
@@ -134,6 +142,9 @@ public:
             "<value><struct>\n"
             "<member>\n"
             "<name>gruu</name><value><string>sip:181@example.com;gruu</string></value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>path</name><value><string>&lt;sip:visitme.com&gt;,&lt;sip:overhere.com&gt;,&lt;sip:comemyway.com&gt;</string></value>\n"
             "</member>\n"
             "<member>\n"
             "<name>uri</name><value><string>sip:user1@example.com</string></value>\n"
@@ -162,6 +173,9 @@ public:
             "<name>gruu</name><value><string>sip:182@example.com;gruu</string></value>\n"
             "</member>\n"
             "<member>\n"
+            "<name>path</name><value><string>&lt;sip:visitme.com&gt;,&lt;sip:overhere.com&gt;,&lt;sip:comemyway.com&gt;</string></value>\n"
+            "</member>\n"
+            "<member>\n"
             "<name>uri</name><value><string>sip:user@example.com</string></value>\n"
             "</member>\n"
             "<member>\n"
@@ -186,6 +200,9 @@ public:
             "<value><struct>\n"
             "<member>\n"
             "<name>gruu</name><value><string>sip:183@example.com;gruu</string></value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>path</name><value><string>&lt;sip:visitme.com&gt;,&lt;sip:overhere.com&gt;,&lt;sip:comemyway.com&gt;</string></value>\n"
             "</member>\n"
             "<member>\n"
             "<name>uri</name><value><string>sip:user3@example.com</string></value>\n"

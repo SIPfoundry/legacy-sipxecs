@@ -73,6 +73,7 @@ static UtlString gCseqKey("cseq");
 static UtlString gQvalueKey("qvalue");
 static UtlString gInstanceIdKey("instance_id");
 static UtlString gGruuKey("gruu");
+static UtlString gPathKey("path");
 
 OsMutex         SipRegistrarServer::sLockMutex(OsMutex::Q_FIFO);
 
@@ -347,6 +348,19 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         registerContactURL.removeFieldParameters();
                         UtlString contactWithoutExpires = registerContactURL.toString();
 
+                        // Concatenate all path addresses in a single string.
+                        UtlString pathStr;
+                        UtlString tempPathUriStr;
+                        int tmpPathIndex;
+                        for( tmpPathIndex = 0;  registerMessage.getPathUri(tmpPathIndex, &tempPathUriStr); tmpPathIndex++ )
+                        {
+                           if( tmpPathIndex != 0 )
+                           {
+                              pathStr.append( SIP_MULTIFIELD_SEPARATOR );
+                           }
+                           pathStr.append( tempPathUriStr );
+                        }
+                        
                         // Build the row for the validated contacts hash
                         UtlHashMap registrationRow;
 
@@ -359,6 +373,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                             new UtlString ( registerQvalueStr );
                         UtlString* instanceIdValue = new UtlString ( instanceId );
                         UtlString* gruuValue;
+                        UtlString* pathValue = new UtlString( pathStr );
 
                         // key strings - make shallow copies of static keys
                         UtlString* contactKey = new UtlString( gContactKey );
@@ -366,6 +381,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         UtlString* qvalueKey = new UtlString( gQvalueKey );
                         UtlString* instanceIdKey = new UtlString( gInstanceIdKey );
                         UtlString* gruuKey = new UtlString( gGruuKey );
+                        UtlString* pathKey = new UtlString( gPathKey );
 
                         // Calculate GRUU if gruu is in Supported and +sip.instance is provided.
                         if (!instanceId.isNull() &&
@@ -421,6 +437,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         registrationRow.insertKeyAndValue( qvalueKey, qvalueValue );
                         registrationRow.insertKeyAndValue( instanceIdKey, instanceIdValue );
                         registrationRow.insertKeyAndValue( gruuKey, gruuValue );
+                        registrationRow.insertKeyAndValue( pathKey, pathValue );                        
 
                         registrations.addValue( registrationRow );
                     }
@@ -564,12 +581,14 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                             UtlString qvalue(*(UtlString*)record.findValue(&gQvalueKey));
                             UtlString instance_id(*(UtlString*)record.findValue(&gInstanceIdKey));
                             UtlString gruu(*(UtlString*)record.findValue(&gGruuKey));
+                            UtlString pathValue(*(UtlString*)record.findValue(&gPathKey));
 
                             imdb->updateBinding( toUrl, contact, qvalue
                                                 ,registerCallidStr, registerCseqInt
                                                 ,expirationTime
                                                 ,instance_id
                                                 ,gruu
+                                                ,pathValue
                                                 ,primaryName()
                                                 ,mDbUpdateNumber
                                                 );

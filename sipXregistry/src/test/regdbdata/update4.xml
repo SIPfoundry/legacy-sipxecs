@@ -11,6 +11,7 @@
     <update_number>13</update_number>   <!-- database update number -->
     <instance_id></instance_id>
     <gruu></gruu>
+    <path></path>
   </item>
   <item>
     <callid>02@origin</callid>         <!-- call id of the registration dialog -->
@@ -23,5 +24,6 @@
     <update_number>13</update_number>   <!-- database update number -->
     <instance_id></instance_id>
     <gruu></gruu>
+    <path></path>
   </item>
 </items>

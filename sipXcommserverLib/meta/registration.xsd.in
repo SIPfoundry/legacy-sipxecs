@@ -65,6 +65,7 @@
         <element ref='dmp:expires'/>
         <element ref='dmp:instance_id'/>
         <element ref='dmp:gruu'/>
+        <element ref='dmp:path'/>
         <element ref='dmp:update_number'/>
       </sequence>
     </complexType>
@@ -189,6 +190,14 @@
     <annotation>
       <documentation>
         The GRUU URI assigned by the registrar for this contact.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='path' type='normalizedString'>
+    <annotation>
+      <documentation>
+        Concatenated Path header fields for this contact.
       </documentation>
     </annotation>
   </element>

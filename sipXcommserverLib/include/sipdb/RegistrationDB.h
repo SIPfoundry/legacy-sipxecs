@@ -112,6 +112,7 @@ public:
                        ,const int& expires
                        ,const UtlString& instance_id
                        ,const UtlString& gruu
+                       ,const UtlString& path
                        ,const UtlString& primary
                        ,const Int64& update_number
                        );
@@ -176,6 +177,9 @@ public:
 
     // The GRUU that was assigned to this registration, or the null string
     static const UtlString gGruuKey;
+
+    // The path value that was provided with the registration, or the null string
+    static const UtlString gPathKey;
 
     // The contact of this registration
     static const UtlString gCseqKey;

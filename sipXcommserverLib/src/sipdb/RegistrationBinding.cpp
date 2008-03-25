@@ -34,6 +34,7 @@ RegistrationBinding::RegistrationBinding() :
    mQvalue(NULL),
    mInstanceId(NULL),
    mGruu(NULL),
+   mPath(NULL),
    mCseq(0),
    mExpires(0),
    mPrimary(NULL),
@@ -50,6 +51,7 @@ RegistrationBinding::RegistrationBinding(const UtlHashMap& regData) :
    mQvalue(NULL),
    mInstanceId(NULL),
    mGruu(NULL),
+   mPath(NULL),
    mCseq(0),
    mExpires(0),
    mPrimary(NULL),
@@ -89,6 +91,11 @@ RegistrationBinding::RegistrationBinding(const UtlHashMap& regData) :
    if (gruuStr)
    {
       setGruu(*gruuStr);
+   }
+   UtlString* pathStr = dynamic_cast<UtlString*>(regData.findValue(&RegistrationDB::gPathKey));
+   if (pathStr)
+   {
+      setPath(*pathStr);
    }
    UtlInt* cseq = dynamic_cast<UtlInt*>(regData.findValue(&RegistrationDB::gCseqKey));
    if (cseq)
@@ -162,6 +169,13 @@ void RegistrationBinding::copy(UtlHashMap& map) const
       UtlString* gruuKey = new UtlString(RegistrationDB::gGruuKey);
       UtlString* gruuValue = new UtlString(*mGruu);
       map.insertKeyAndValue(gruuKey, gruuValue);
+   }
+
+   if (mPath)
+   {
+      UtlString* pathKey = new UtlString(RegistrationDB::gPathKey);
+      UtlString* pathValue = new UtlString(*mPath);
+      map.insertKeyAndValue(pathKey, pathValue);
    }
 
    UtlString* cseqKey = new UtlString(RegistrationDB::gCseqKey);
@@ -313,6 +327,23 @@ void RegistrationBinding::setGruu(const UtlString& gruu)
    else
    {
       mGruu = new UtlString(gruu);
+   }
+}
+
+const UtlString* RegistrationBinding::getPath() const
+{
+   return mPath;
+}
+
+void RegistrationBinding::setPath(const UtlString& path)
+{
+   if (mPath) 
+   {
+      *mPath = path;
+   }
+   else
+   {
+      mPath = new UtlString(path);
    }
 }
 

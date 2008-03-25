@@ -31,6 +31,7 @@ class SipUserAgent;
 #define SIP_SESSION_TIMER_EXTENSION "timer"
 #define SIP_REPLACES_EXTENSION "replaces"
 #define SIP_JOIN_EXTENSION "join"
+#define SIP_PATH_EXTENSION "path"
 
 // SIP Methods
 #define SIP_INVITE_METHOD "INVITE"
@@ -104,6 +105,7 @@ class SipUserAgent;
 #define SIP_SHORT_VIA_FIELD "V"
 #define SIP_WARNING_FIELD "WARNING"
 #define SIP_MIN_EXPIRES_FIELD "MIN-EXPIRES"
+#define SIP_PATH_FIELD "PATH"
 
 ///custom fields
 #define SIP_LINE_IDENTIFIER "LINEID"
@@ -1045,6 +1047,11 @@ public:
 
     //@}
 
+    UtlBoolean getPathUri(int index, UtlString* pathUri) const;
+
+    void addPathUri(const char* routeUri);
+
+    void addLastPathUri(const char* pathUri);
 
     //! @name Call control header field accessors
     //@{

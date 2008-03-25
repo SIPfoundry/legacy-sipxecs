@@ -37,6 +37,7 @@ public:
     const char* qvalue;       
     const char* instance_id;
     const char* gruu;
+    const char* path;
     int4 cseq;
     int4 expires;             // Absolute expiration time, seconds since 1/1/1970
     const char* primary;      // The name of the Primary Registrar for this registration
@@ -56,6 +57,7 @@ public:
         // both in registration.xml.
         FIELD(instance_id),
         FIELD(gruu),
+        FIELD(path),
         FIELD(update_number)
       )
     );

@@ -27,6 +27,7 @@ class SipdbDumpTest < Test::Unit::TestCase
        "expired=true",
        "instance_id=",
        "gruu=",
+       "path=",
        "update_number=0x456232bf00000287"]
       assert_equal expected, out.string.strip.split("\t")
   end

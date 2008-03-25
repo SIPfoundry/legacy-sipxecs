@@ -76,6 +76,7 @@ const UtlString RegistrationDB::gContactKey("contact");
 const UtlString RegistrationDB::gQvalueKey("qvalue");
 const UtlString RegistrationDB::gInstanceIdKey("instance_id");
 const UtlString RegistrationDB::gGruuKey("gruu");
+const UtlString RegistrationDB::gPathKey("path");
 const UtlString RegistrationDB::gCseqKey("cseq");
 const UtlString RegistrationDB::gExpiresKey("expires");
 const UtlString RegistrationDB::gPrimaryKey("primary");
@@ -400,6 +401,7 @@ RegistrationDB::insertRow(const UtlHashMap& nvPairs)
     UtlString* callId = (UtlString*) nvPairs.findValue(&gCallidKey);
     UtlString* instanceId = (UtlString*) nvPairs.findValue(&gInstanceIdKey);
     UtlString* gruu = (UtlString*) nvPairs.findValue(&gGruuKey);
+    UtlString* path = (UtlString*) nvPairs.findValue(&gPathKey);
     UtlString* primary = (UtlString*) nvPairs.findValue(&gPrimaryKey);
 
     // Note: identity inferred from the uri
@@ -412,6 +414,7 @@ RegistrationDB::insertRow(const UtlHashMap& nvPairs)
        expStr ? atoi(expStr->data()) : 0,
        instanceId ? *instanceId : nullString,
        gruu ? *gruu : nullString,
+       path ? *path : nullString,
        primary ? *primary : nullString,
        updateNumber
        );
@@ -429,6 +432,7 @@ RegistrationDB::updateBinding(const RegistrationBinding& reg)
                  reg.getExpires(),
                  *(reg.getInstanceId() ? reg.getInstanceId() : &nullString),
                  *(reg.getGruu() ? reg.getGruu() : &nullString),
+                 *(reg.getPath() ? reg.getPath() : &nullString),
                  *(reg.getPrimary() ? reg.getPrimary() : &nullString),
                  reg.getUpdateNumber());
 }
@@ -443,6 +447,7 @@ RegistrationDB::updateBinding( const Url& uri
                               ,const int& expires
                               ,const UtlString& instance_id
                               ,const UtlString& gruu
+                              ,const UtlString& path
                               ,const UtlString& primary
                               ,const Int64& update_number
                               )
@@ -486,6 +491,7 @@ RegistrationDB::updateBinding( const Url& uri
                 row.expires       = expires;
                 row.instance_id   = instance_id;
                 row.gruu          = gruu;
+                row.path          = path;
                 row.primary       = primary;
                 row.update_number = update_number;
                 insert (row);
@@ -500,6 +506,7 @@ RegistrationDB::updateBinding( const Url& uri
                 cursor->expires       = expires;
                 cursor->instance_id   = instance_id;
                 cursor->gruu          = gruu;
+                cursor->path          = path;
                 cursor->primary       = primary;
                 cursor->update_number = update_number;
                 cursor.update();
@@ -884,12 +891,14 @@ RegistrationDB::getUnexpiredContacts (
 
                 UtlString* instanceIdValue = new UtlString(cursor->instance_id);
                 UtlString* gruuValue = new UtlString(cursor->gruu);
+                UtlString* pathValue = new UtlString(cursor->path);
                 OsSysLog::add(FAC_DB, PRI_DEBUG,
                               "RegistrationDB::getUnexpiredContacts Record found "
                               "uri = '%s', contact = '%s', instance_id = '%s', "
                               "gruu = '%s'",
+                              "path = '%s'",
                               uriValue->data(), contactValue->data(),
-                              instanceIdValue->data(), gruuValue->data());
+                              instanceIdValue->data(), gruuValue->data(), pathValue->data());
 
                 // Memory Leak fixes, make shallow copies of static keys
                 UtlString* uriKey = new UtlString(gUriKey);
@@ -903,6 +912,7 @@ RegistrationDB::getUnexpiredContacts (
 
                 UtlString* instanceIdKey = new UtlString(gInstanceIdKey);
                 UtlString* gruuKey = new UtlString(gGruuKey);
+                UtlString* pathKey = new UtlString(gPathKey);
 
                 record.insertKeyAndValue(uriKey, uriValue);
                 record.insertKeyAndValue(callidKey, callidValue);
@@ -915,6 +925,7 @@ RegistrationDB::getUnexpiredContacts (
  
                 record.insertKeyAndValue(instanceIdKey, instanceIdValue);
                 record.insertKeyAndValue(gruuKey, gruuValue);
+                record.insertKeyAndValue(pathKey, pathValue);
 
                 rResultSet.addValue(record);
 
@@ -953,6 +964,7 @@ RegistrationDB::copyRowToRegistrationBinding(dbCursor<RegistrationRow>& cursor) 
    reg->setQvalue(* new UtlString(cursor->qvalue));
    reg->setInstanceId(* new UtlString(cursor->instance_id));
    reg->setGruu(* new UtlString(cursor->gruu));
+   reg->setPath(* new UtlString(cursor->path));
    reg->setCseq(cursor->cseq);
    reg->setExpires(cursor->expires);
    reg->setPrimary(* new UtlString(cursor->primary));
