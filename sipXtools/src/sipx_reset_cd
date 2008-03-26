@@ -1937,7 +1937,7 @@ def Distributed_OnlyServices () :
     if useHASystem and not useMasterHASystem :
         show_progress()
 
-        xmlFiles = [ 'callresolver-agent.process.xml' ]
+        xmlFiles = [ 'sipxcallresolver-agent.process.xml' ]
 
         for i in range(len(xmlFiles)) :
             FILE = PROCESS_D + xmlFiles[i]
