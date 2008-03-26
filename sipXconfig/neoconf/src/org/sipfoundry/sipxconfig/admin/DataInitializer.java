@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.sipfoundry.sipxconfig.common.SystemTaskEntryPoint;
 import org.springframework.context.ApplicationContext;
@@ -19,6 +21,8 @@ import org.springframework.context.ApplicationContextAware;
  * with opportunity to apply a db patch.
  */
 public class DataInitializer implements SystemTaskEntryPoint, ApplicationContextAware {
+    private static final Log LOG = LogFactory.getLog(DataInitializer.class);
+
     private AdminContext m_adminContext;
     private ApplicationContext m_app;
 
@@ -36,6 +40,7 @@ public class DataInitializer implements SystemTaskEntryPoint, ApplicationContext
     }
 
     void initializeData(String task) {
+        LOG.info("Creating task " + task);
         InitializationTask event = new InitializationTask(task);
         m_app.publishEvent(event);
         if (!task.equals("first-run")) {
