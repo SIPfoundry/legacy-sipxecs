@@ -61,6 +61,11 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 
+// Default value for mMaxTcpSocketIdleTime, which is how long a TCP socket
+// can be idle before it is garbage collected.
+// Default value is 5 minutes.
+#define DEFAULT_TCP_SOCKET_IDLE_TIME 300
+
 #define MAXIMUM_SIP_LOG_SIZE 100000
 #define SIP_UA_LOG "sipuseragent.log"
 #define CONFIG_LOG_DIR SIPX_LOGDIR
@@ -202,7 +207,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     mMaxForwards = SIP_DEFAULT_MAX_FORWARDS;
 
     // TCP sockets not used for an hour are garbage collected
-    mMaxTcpSocketIdleTime = 3600;
+    mMaxTcpSocketIdleTime = DEFAULT_TCP_SOCKET_IDLE_TIME;
 
     // INVITE transactions need to stick around for a minimum of
     // 3 minutes
