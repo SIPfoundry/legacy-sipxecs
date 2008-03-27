@@ -120,8 +120,8 @@ protected:
     /// The entry point for the task.
     virtual int run(void* pArg);
 
-    // Do preliminary processing of message to log it,
-    // clean up its data, and extract any needed source address.
+    // Do preliminary processing of a message read from the socket:
+    // log it, clean up its data, and extract any needed source address.
     void preprocessMessage(SipMessage& msg,
                            const UtlString& msgText,
                            int msgLength);
@@ -139,13 +139,27 @@ protected:
     OsSocket::IpProtocolSocketType mSocketType;
     SipUserAgentBase* mpSipUserAgent;
     SipProtocolServerBase* mpSipServer;
+
+    // The name of the remote end of clientSocket, as obtained from
+    // clientSocket.  Null if clientSocket is un-connected.
     UtlString mRemoteHostName;
-    UtlString mRemoteViaAddress;
+    // The address/port of the remote end of clientSocket, as obtained
+    // from clientSocket, which obtains it from the network layer.
     UtlString mRemoteSocketAddress;
-    UtlString mReceivedAddress;
-    int mRemoteViaPort;
     int mRemoteHostPort;
+
+    // The address/port of the remote end of clientSocket, as obtained
+    // from the Via of an incoming message.  Note that this cannot
+    // be trusted unless the connection is authenticated.
+    UtlString mRemoteViaAddress;
+    int mRemoteViaPort;
+
+    // The "send address" extracted from an incoming message.
+    // (Which obtained it from the network layer regarding the socket the
+    // message was read from.)
+    UtlString mReceivedAddress;
     int mRemoteReceivedPort;
+
     long touchedTime;
     OsBSem mSocketLock;
     int mFirstResendTimeoutMs;

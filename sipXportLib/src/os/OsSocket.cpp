@@ -941,8 +941,8 @@ void OsSocket::getRemoteHostIp(struct in_addr* remoteHostAddress,
 
     len = sizeof(struct sockaddr_in);
 
-    if (getpeername(socketDescriptor, (struct sockaddr *)&remoteAddr, &len)
-          != 0)
+    int ret = getpeername(socketDescriptor, (struct sockaddr *)&remoteAddr, &len);
+    if (ret != 0)
     {
         memset(&remoteAddr, 0, len);
     }
@@ -954,7 +954,9 @@ void OsSocket::getRemoteHostIp(struct in_addr* remoteHostAddress,
     {
         UtlString output_address;
         inet_ntoa_pt(remoteAddr.sin_addr, output_address);
-        osPrintf("Remote name: %s\n", output_address.data());
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "OsSocket::getRemoteHostIp Remote name '%s'",
+                      output_address.data());
     }
 #endif
 
@@ -971,17 +973,30 @@ void OsSocket::getRemoteHostIp(UtlString* remoteHostAddress, int* remotePort)
     getRemoteHostIp(&remoteAddr, remotePort);
     remoteHostAddress->remove(0);
     inet_ntoa_pt(remoteAddr, *remoteHostAddress);
+
+    // If querying the network layer did not obtain an address (probably
+    // because the socket is still in the process of connecting), return
+    // the values stored from the connect attempt.
+    if (remoteHostAddress->compareTo("0.0.0.0") == 0)
+    {
+       remoteHostAddress->remove(0);
+       remoteHostAddress->append(mRemoteIpAddress);
+       if (remotePort)
+       {
+          *remotePort = remoteHostPort;
+       }
+    }
 }
 
 void OsSocket::getRemoteHostName(UtlString* remoteHostNameString) const
 {
-        remoteHostNameString->remove(0);
-        remoteHostNameString->append(remoteHostName);
+   remoteHostNameString->remove(0);
+   remoteHostNameString->append(remoteHostName);
 }
 
 int OsSocket::getRemoteHostPort() const
 {
-        return(remoteHostPort);
+   return remoteHostPort;
 }
 
 UtlBoolean OsSocket::getHostIpByName(const char* hostName, UtlString* hostAddress)

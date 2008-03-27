@@ -214,15 +214,15 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
 #     else
 #       error Unsupported target platform.
 #     endif //_VXWORKS
-   }
 
-   if(!isIp && !server)
-   {
-      close();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                    "DNS failed to look up host: '%s'",
-                    serverName);
-      goto EXIT;
+      if (!server)
+      {
+         close();
+         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                       "DNS failed to look up host: '%s'",
+                       serverName);
+         goto EXIT;
+      }
    }
 
    if (!isIp)
@@ -242,6 +242,8 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       serverSockAddr.sin_port = htons(serverPort);
       serverSockAddr.sin_addr.s_addr = inet_addr(serverName);
    }
+   // Set remoteIpAddress.
+   inet_ntoa_pt(serverSockAddr.sin_addr, mRemoteIpAddress);
 
    // Ask the TCP layer to connect
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ connect %d",

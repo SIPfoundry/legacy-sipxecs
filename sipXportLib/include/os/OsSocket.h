@@ -298,17 +298,20 @@ public:
 
 
    virtual void getRemoteHostIp(struct in_addr* remoteHostAddress,
-                        int* remotePort = NULL);
+                                int* remotePort = NULL);
    //:Return remote host ip address
    // Returns the ip address for the host on which the socket on the
    // other end of this socket is bound.
+   // If the socket is in the process of connecting, may return
+   // "0.0.0.0" and 0.
 
    virtual void getRemoteHostIp(UtlString* remoteHostAddress,
-                        int* remotePort = NULL);
+                                int* remotePort = NULL);
    //:Return remote host ip address
    // Returns the ip address for the host on which the socket on the
-   // other end of this socket is bound. The format is of the form:
-   // xx.x.xxx.x
+   // other end of this socket is bound.
+   // If the socket is in the process of connecting, will return the
+   // address and port recorded from the connect attempt.
 
    virtual int getRemoteHostPort() const;
    //:Return the remote port number
@@ -370,12 +373,18 @@ protected:
    static OsBSem mInitializeSem;
    int socketDescriptor;
 
+   // Local and remote port numbers.
    int localHostPort;
    int remoteHostPort;
+   // The local IP address used by this socket.
    UtlString mLocalIp;
+   // The name of the local end, if it was set by the constructor.
    UtlString localHostName;
+   // The name of the remote end.  Null if this is an un-connected socket.
    UtlString remoteHostName;
+   // The IP address of the remote end.  Not set for un-connected sockets.
    UtlString mRemoteIpAddress;
+   // TRUE if the socket is connected to a particular remote end.
    UtlBoolean mIsConnected;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
