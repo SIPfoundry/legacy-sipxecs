@@ -36,8 +36,8 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
-public class SipxProcessContextImpl extends SipxReplicationContextImpl implements
-        BeanFactoryAware, SipxProcessContext, ApplicationListener {
+public class SipxProcessContextImpl extends SipxReplicationContextImpl implements BeanFactoryAware, SipxProcessContext,
+        ApplicationListener {
 
     private SipxProcessModel m_processModel;
     private EventsToServices<Process> m_eventsToServices = new EventsToServices<Process>();
@@ -101,8 +101,7 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
     public ServiceStatus[] getStatus(Location location) {
 
         // Break the result into the keys and values.
-        Map<String, String> result = (Map<String, String>) invokeXmlRpcRequest(location,
-                "getStateAll", new Vector());
+        Map<String, String> result = (Map<String, String>) invokeXmlRpcRequest(location, "getStateAll", new Vector());
 
         // Loop through the key-value pairs and construct the ServiceStatus.
         List<ServiceStatus> serviceStatusList = new ArrayList(result.size());
@@ -119,8 +118,7 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
             Process process = m_processModel.getProcess(name);
             if (process == null) {
                 // Ignore unknown processes
-                LOG.warn("Unknown process name " + name + " received from: "
-                        + location.getProcessMonitorUrl());
+                LOG.warn("Unknown process name " + name + " received from: " + location.getProcessMonitorUrl());
             } else {
                 serviceStatusList.add(new ServiceStatus(process, st));
             }
@@ -138,9 +136,15 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
     }
 
     public void manageServices(Location location, Collection processes, Command command) {
-        for (Iterator i = processes.iterator(); i.hasNext();) {
-            Process process = (Process) i.next();
-            manageService(location, process, command);
+        // HACK: if we are restarting multiple services STOP them all and then START them all
+        if (Command.RESTART.equals(command)) {
+            manageServices(location, processes, Command.STOP);
+            manageServices(location, processes, Command.START);
+        } else {
+            for (Iterator i = processes.iterator(); i.hasNext();) {
+                Process process = (Process) i.next();
+                manageService(location, process, command);
+            }
         }
     }
 
