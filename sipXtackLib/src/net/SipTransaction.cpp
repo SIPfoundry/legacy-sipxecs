@@ -1593,7 +1593,7 @@ void SipTransaction::handleExpiresEvent(const SipMessage& outgoingMessage,
                           "SipTransaction::handleExpiresEvent"
                           " %p canceling expired transaction", this);
 
-            // This transaction has expired cancel it
+            // This transaction has expired; cancel it.
             cancel(userAgent,
                    transactionList);
 
@@ -3926,7 +3926,7 @@ void SipTransaction::cancel(SipUserAgent& userAgent,
 {
     if(mIsServerTransaction)
     {
-        // SHould not get here this is only for kids (i.e. child client transactions)
+        // Should not get here this is only for kids (i.e. child client transactions).
         OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::cancel called on server transaction");
     }
 

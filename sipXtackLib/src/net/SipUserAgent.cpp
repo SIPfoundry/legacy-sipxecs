@@ -3229,14 +3229,14 @@ void SipUserAgent::setDefaultSerialExpiresSeconds(int expiresSeconds)
 
 void SipUserAgent::setMaxTcpSocketIdleTime(int idleTimeSeconds)
 {
-    if(mMinInviteTransactionTimeout < idleTimeSeconds)
+    if(mMinInviteTransactionTimeout <= idleTimeSeconds)
     {
         mMaxTcpSocketIdleTime = idleTimeSeconds;
     }
     else
     {
         OsSysLog::add(FAC_SIP, PRI_ERR, "SipUserAgent::setMaxTcpSocketIdleTime "
-                      "idleTimeSeconds: %d less than mMinInviteTransactionTimeout: %d IGNORED",
+                      "idleTimeSeconds: %d less than mMinInviteTransactionTimeout: %d, ignored",
                       idleTimeSeconds, mMinInviteTransactionTimeout);
     }
 }

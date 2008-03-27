@@ -47,6 +47,9 @@ OsServerTaskWaitable::OsServerTaskWaitable(const UtlString& name,
    }
    mPipeReadingFd = filedes[0];
    mPipeWritingFd = filedes[1];
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                 "OsServerTaskWaitable::_ pipe() opened %d -> %d",
+                 mPipeWritingFd, mPipeReadingFd);
 }
 
 // Destructor
@@ -55,6 +58,9 @@ OsServerTaskWaitable::~OsServerTaskWaitable()
    // Close the pipe.
    close(mPipeReadingFd);
    close(mPipeWritingFd);
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                 "OsServerTaskWaitable::~ closed %d -> %d",
+                 mPipeWritingFd, mPipeReadingFd);
 }
 
 /* ============================ MANIPULATORS ============================== */

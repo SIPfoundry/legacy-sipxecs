@@ -92,7 +92,8 @@ public:
 /* ============================ CREATORS ================================== */
 
    //! Default constructor
-   SipPersistentSubscriptionMgr(/// the "component" name for the table rows
+   SipPersistentSubscriptionMgr(
+      /// the "component" name for the table rows
       const UtlString& component,
       /// the AOR domain name
       const UtlString& domain,

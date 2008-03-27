@@ -115,8 +115,8 @@ UtlBoolean SipProtocolServerBase::send(SipMessage* message,
           UtlString clientNames;
           client->getClientNames(clientNames);
           OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                        "SipProtocolServerBase[%s]::send %p, %s",
-                        getName().data(), client, clientNames.data());
+                        "SipProtocolServerBase[%s]::send %s (%p), %s",
+                        getName().data(), client->getName().data(), client, clientNames.data());
        }
        sendOk = client->sendTo(*message, hostAddress, hostPort);
     }
@@ -274,6 +274,11 @@ SipClient* SipProtocolServerBase::getClient(const char* hostAddress,
    UtlSListIterator iter(mClientList);
    while ((client = dynamic_cast <SipClient*> (iter())))
    {
+      #ifdef TEST_CLIENT_CREATION
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipProtocolServerBase[%s]::getClient examining '%s'",
+                       getName().data(), client->getName().data());
+      #endif
       // Are these the same host?
       if( client->isAcceptableForDestination(hostAddressString, hostPort, localIp) )
       {

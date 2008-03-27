@@ -177,12 +177,13 @@ SipClient::SipClient(OsSocket* socket,
        clientSocket->getRemoteHostIp(&mRemoteSocketAddress, &mRemoteHostPort);
 
        OsSysLog::add(FAC_SIP, PRI_INFO,
-                     "SipClient[%s]::_ created %s %s socket %d: host '%s' port %d",
+                     "SipClient[%s]::_ created %s %s socket %d: host '%s' '%s' port %d, local IP '%s'",
                      mName.data(),
                      OsSocket::ipProtocolString(mSocketType),
                      mbSharedSocket ? "shared" : "unshared",
                      socket->getSocketDescriptor(),
-                     mRemoteHostName.data(), mRemoteHostPort
+                     mRemoteHostName.data(), mRemoteSocketAddress.data(), mRemoteHostPort,
+                     clientSocket->getLocalIp().data()
                      );
    }
 }
@@ -357,7 +358,7 @@ void SipClient::getClientNames(UtlString& clientNames) const
     clientNames.append(":");
     XmlDecimal(clientNames, mRemoteViaPort);
 
-    // recieved address
+    // received address
     clientNames.append(" received address: ");
     clientNames.append(mReceivedAddress);
     clientNames.append(":");
