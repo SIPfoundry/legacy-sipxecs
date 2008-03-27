@@ -171,7 +171,7 @@ pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 %attr(755,root,root) %{_sysconfdir}/sipxpbx/setup.d/sipxcallresolver-setup
 
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/callresolver-config.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxcallresolver-agent-config.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxcallresolver-agent-config
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxcallresolver.process.xml
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxcallresolver-agent.process.xml
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/cdr/*

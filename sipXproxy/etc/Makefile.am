@@ -5,7 +5,7 @@ SUBDIRS = database
 cfgfiles_IN = \
 	authrules.xml.in \
 	callresolver-config.in \
-	sipxcallresolver-agent-config.in \
+	sipxcallresolver-agent-config \
 	sipXproxy-config.in \
 	forwardingrules.xml.in
 
