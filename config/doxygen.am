@@ -9,7 +9,7 @@ doc: @PACKAGE@
 
 @PACKAGE@: Doxyfile
 	rm -rf @PACKAGE@
-	@DOXYGEN@
+	$(DOXYGEN)
 
 Doxyfile: $(top_srcdir)/config/Doxyfile.in Doxyfile.project
 	$(LocalizeSipXconfig) \

@@ -23,9 +23,6 @@ CHECK_GENERATE_MANPAGES
 CHECK_JDK
 CHECK_ANT
 
-# Mysterious requirement to have a DOC var
-AM_CONDITIONAL(DOC, test true = false)
-
 AC_CONFIG_FILES([
   Makefile 
   src/Makefile 

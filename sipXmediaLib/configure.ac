@@ -55,7 +55,7 @@ AC_ARG_ENABLE(local_audio,
 esac],[enable_local_audio=false])
 AM_CONDITIONAL(ENABLE_LOCAL_AUDIO, test x$enable_local_audio = xtrue)
 
-ENABLE_DOXYGEN
+ENABLE_DOC
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 
 CHECK_GIPSNEQ

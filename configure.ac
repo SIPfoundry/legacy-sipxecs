@@ -21,6 +21,8 @@ AC_CONFIG_SUBDIRS(sipXmediaLib)
 AC_CONFIG_SUBDIRS(sipXmediaAdapterLib)
 AC_CONFIG_SUBDIRS(sipXcallLib)
 
+AC_CONFIG_SUBDIRS(doc)
+
 AC_ARG_ENABLE(server, 
   AC_HELP_STRING([--disable-server], 
     [SIP servers, proxy, registrar, webui, mediaserver, etc. ]), 

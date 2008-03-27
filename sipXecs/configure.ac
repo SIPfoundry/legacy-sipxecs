@@ -7,9 +7,6 @@ AC_CONFIG_AUX_DIR(config)
 
 AM_INIT_AUTOMAKE(foreign)
 
-# Mysterious requirement to have a DOC var
-AM_CONDITIONAL(DOC, test true = false)
-
 SFAC_DIST_DIR
 SFAC_CONFIGURE_OPTIONS
 

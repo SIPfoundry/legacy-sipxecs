@@ -14,6 +14,10 @@ EXTRA_DIST = \
     BUILDSTAMP \
     sipxcommserverlib.spec
 
+if DOC
+doc_SUBDIRS=doc
+endif # DOC
+
 SUBDIRS = \
 	. \
 	src \

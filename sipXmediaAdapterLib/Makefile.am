@@ -14,6 +14,10 @@ EXTRA_DIST = \
     BUILDSTAMP \
     sipxmediaadapterlib.spec
 
+if DOC
+doc_SUBDIRS=doc
+endif # DOC
+
 SUBDIRS = \
 	. \
 	interface \

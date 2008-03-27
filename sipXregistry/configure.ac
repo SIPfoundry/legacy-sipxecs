@@ -22,7 +22,7 @@ AX_COMPILER_VENDOR
 AC_PROG_CC
 CHECK_XARGS_REPLACE
 
-ENABLE_DOXYGEN
+ENABLE_DOC
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 
 # Checks for libraries.

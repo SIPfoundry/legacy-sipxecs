@@ -2,7 +2,10 @@
 
 include $(top_srcdir)/config/subdir.am
 
-unconditional_SUBDIRS = . src bin meta etc doc
+unconditional_SUBDIRS = . src bin meta etc 
+if DOC
+doc_SUBDIRS=doc
+endif
 
 editscripts_IN = \
     bin/sipxrls.sh.in

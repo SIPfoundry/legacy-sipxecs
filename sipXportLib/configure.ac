@@ -65,6 +65,7 @@ AC_CONFIG_LINKS(src/os/OsProcessIterator.cpp:$PROCESS_ITERATOR)
 
 AC_CHECK_FUNCS(setenv)
 
+ENABLE_DOC
 ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 

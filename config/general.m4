@@ -205,7 +205,7 @@ AC_DEFUN([CHECK_JDK],
 # ============ J N I =======================
 AC_DEFUN([CHECK_JNI],
 [
-   CHECK_JDK
+   AC_REQUIRE([CHECK_JDK])
 
    JAVA_HOME_INCL=$JAVA_HOME/include
    AC_CHECK_FILE([$JAVA_HOME_INCL/jni.h],
@@ -486,6 +486,7 @@ AC_DEFUN([CHECK_APR],
 # ============ A P A C H E 2 ==================
 AC_DEFUN([CHECK_APACHE2],
 [
+   AC_REQUIRE([CHECK_APR])
    found_apache2_inc="no"
    AC_ARG_WITH([apache-include],
                [--with-apache-include=PATH the apache2 include directory],
@@ -511,8 +512,6 @@ AC_DEFUN([CHECK_APACHE2],
    else
        AC_MSG_ERROR('httpd.h' not found; tried: $apache2_inc_search_path)
    fi
-
-   CHECK_APR
 
    ## Apache httpd executable
    AC_MSG_CHECKING([for Apache2 httpd])
@@ -921,21 +920,18 @@ AC_DEFUN([CHECK_PCRE],
 
 AC_DEFUN([ENABLE_DOXYGEN],
 [
-  AC_ARG_ENABLE(doxygen, [  --enable-doxygen        enable documentation generation with doxygen (yes)], [], [ enable_doxygen=yes])
-  AC_ARG_ENABLE(dot, [  --enable-dot            use 'dot' to generate graphs in doxygen (auto)])
-  AC_ARG_ENABLE(html-docs, [  --enable-html-docs      enable HTML generation with doxygen (yes)], [], [ enable_html_docs=yes])
-  AC_ARG_ENABLE(latex-docs, [  --enable-latex-docs     enable LaTeX documentation generation with doxygen (no)], [], [ enable_latex_docs=no])
-  if test "x$enable_doxygen" = xno; then
-          enable_doc=no
-  else
+  AC_ARG_ENABLE(doxygen, [  --enable-doxygen        enable documentation generation with doxygen (yes)], [enable_doxygen="$enableval"], [ enable_doxygen=yes])
+  AC_ARG_ENABLE(dot, [  --enable-dot            use 'dot' to generate graphs in doxygen (auto)],
+                     [enable_dot="$enableval"], [enable_dot=true])
+  AC_ARG_ENABLE(html-docs, [  --enable-html-docs      enable HTML generation with doxygen (yes)], [enable_html_docs="$enableval"], [ enable_html_docs=yes])
+  AC_ARG_ENABLE(latex-docs, [  --enable-latex-docs     enable LaTeX documentation generation with doxygen (no)], [enable_latex_docs="$enableval"], [ enable_latex_docs=no])
+  if test "x$enable_doxygen" != xno; then
           AC_MSG_CHECKING([for doxygen documentation processor])
           AC_PATH_PROG(DOXYGEN, doxygen, , $PATH)
           if test "x$DOXYGEN" = x; then
                 AC_MSG_WARN([could not find doxygen - disabled])
                 enable_doxygen=no
-                enable_doc=no
           else
-                  enable_doc=yes
                   AC_PATH_PROG(DOT, dot, , $PATH)
           fi
   fi
@@ -947,6 +943,26 @@ AC_DEFUN([ENABLE_DOXYGEN],
           enable_dot=no
   else
           enable_dot=yes
+  fi
+
+  # adjust values from yes/no to those used in doxygen configuration files (true/false)
+  if test "$enable_dot" = "yes"
+  then
+     enable_dot = "true"
+  else
+     enable_dot = "false"
+  fi
+  if test "$enable_html_docs" = "yes"
+  then
+     enable_html_docs = "true"
+  else
+     enable_html_docs = "false"
+  fi
+  if test "$enable_latex_docs" = "yes"
+  then
+     enable_latex_docs = "true"
+  else
+     enable_latex_docs = "false"
   fi
   AC_SUBST(enable_dot)
   AC_SUBST(enable_html_docs)
@@ -1320,7 +1336,7 @@ AC_DEFUN([ENABLE_PROFILE],
 [
   AC_ARG_ENABLE(profile,
                 [  --enable-profile        Enable profiling via gprof (no)],
-                [], [enable_profile=no])
+                [enable_profile="$enableval"], [enable_profile=no])
 
   if test x"$enable_profile" = xyes
   then
@@ -1479,6 +1495,62 @@ AC_DEFUN([CHECK_CRON],
   AC_MSG_RESULT(yes)
 ])
 
+AC_DEFUN([CHECK_XSLTPROC],
+[
+  AC_PATH_PROG([XSLTPROC], [xsltproc])
+  if test x$XSLTPROC = x; then
+    AC_MSG_WARN([not found])
+  fi
+])
+
+AC_DEFUN([CHECK_OPENJADE],
+[
+  AC_PATH_PROG([OPENJADE], [openjade])
+  if test x$OPENJADE = x; then
+    AC_MSG_WARN([not found])
+  fi
+  AC_PATH_PROG([PDFJADETEX], [pdfjadetex])
+  if test x$PDFJADETEX = x; then
+    AC_MSG_WARN([not found])
+  fi
+])
+
+AC_DEFUN([CHECK_DOCBOOKXML],
+[
+  AC_REQUIRE([CHECK_XSLTPROC])
+  AC_REQUIRE([CHECK_OPENJADE])
+
+  if test x$OPENJADE != x -a x$PDFJADETEX != x
+  then
+     xml2pdf_files="/usr/share/sgml/docbook/dsssl-stylesheets/print/docbook.dsl /usr/share/sgml/docbook/dsssl-stylesheets/dtds/decls/xml.dcl /usr/share/sgml/openjade/catalog"
+     AC_MSG_CHECKING("docbook inputs for generating pdf")
+     enable_xml2pdf=yes
+     for f in ${xml2pdf_files}
+     do
+        if ! test -r "$f" 
+        then
+            AC_MSG_WARN("failed to find '$f'")
+            enable_xml2pdf=no
+        fi
+     done
+     test x$enable_xml2pdf = xyes && AC_MSG_RESULT([ok])
+  else
+     enable_xml2pdf=no
+  fi
+
+  test $enable_xml2pdf = no && AC_MSG_WARN([DocBook XML to PDF disabled])
+  AC_SUBST(enable_xml2pdf)
+])
+
+AC_DEFUN([ENABLE_DOC],
+[
+   AC_ARG_ENABLE(doc,
+                 [  --disable-doc controls all documentation building - saves time for developer builds],
+                 [enable_doc="$enableval"], [enable_doc=yes]
+                 )
+   AC_SUBST(enable_doc)
+])
+
 # ============ REQUIRED STUNNEL PKG ==============
 AC_DEFUN([CHECK_STUNNEL],
 [
@@ -1491,6 +1563,8 @@ AC_DEFUN([CHECK_STUNNEL],
 
 AC_DEFUN([CHECK_GENERATE_MANPAGES],
 [
+  AC_REQUIRE([CHECK_XSLTPROC])
+
   AC_MSG_CHECKING([asciidoc])
   AC_PATH_PROG([ASCIIDOC], asciidoc)
   if test x$ASCIIDOC = x; then
@@ -1498,7 +1572,6 @@ AC_DEFUN([CHECK_GENERATE_MANPAGES],
     missing_dependency=yes
   fi
     
-  AC_PATH_PROG([XSLTPROC], xsltproc)
   if test x$XSLTPROC = x; then
     AC_MSG_WARN([xsltproc not found, cannot generate man pages])
     missing_dependency=yes

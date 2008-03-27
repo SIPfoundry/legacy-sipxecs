@@ -1,0 +1,599 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.docbook.org/xml/4.2/docbookx.dtd" [
+<!ENTITY sipxecs "sipXecs">
+<!ENTITY sipxrelease "4.0">
+<!ENTITY sipxsetup "sipXsetup">
+<!ENTITY sipxecspgk "sipxecs rpm">
+<!ENTITY sipxconfig "sipXconfig">
+<!ENTITY sipxsuper "sipXsupervisor">
+]>
+<article lang="en">
+  
+  <!-- 
+    - Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+    - Contributors retain copyright to elements licensed under a Contributor Agreement.
+    - Licensed to the User under the LGPL license.
+  -->
+
+  <title>&sipxecs; Installation, Setup, and Configuration Requirements</title>
+
+  <section>
+    <title>Introduction</title>
+
+    <para>
+      Everything in this note is intended to serve as the basis for a
+      discussion of how to expand and reorganize the installation and
+      configuration of &sipxecs; services to meet the distributed system
+      goals of release &sipxrelease; and beyond.
+    </para>
+
+  </section>
+
+  <section id='scenarios'>
+    <title>Scenarios</title>
+
+    <para>
+      This section is organized as a series of user workflow narratives:
+      steps that a user (usually a &sipxecs; administrator) takes to
+      accomplish some end.  
+    </para>  
+
+    <section id='inst'>
+      <title>Installation</title>
+
+      <section id='inst.single.iso'>
+        <title>Installation of a single system using ISO image</title>
+
+        <para>
+          Our administrator chooses a system that meets the hardware
+          requirements to be the new &sipxecs; server, inserts the &sipxecs;
+          installation CD (or perhaps soon, a DVD) in the drive, and boots
+          from it.  After a prompt to ensure that it is acceptable to
+          re-initialize the system and destroy all data on the drives, the
+          installation run automatically, ejects the installation disk, and
+          reboots.
+        </para>
+
+        <para>
+          Following the reboot, the user is prompted to log in as 'root'
+          using the default 'setup' password, and a single-use script
+          invokes the &sipxsetup; wizard.  See <xref linkend='setup'/> for details
+          of the &sipxsetup; application and what it configures.
+          <emphasis>
+            The single-use script must de-activate itself so that it will not
+            be run on subsequent root logins before it invokes the
+            &sipxsetup; application, since that application may reboot the
+            system.
+          </emphasis>
+        </para>
+
+        <para>
+          After the &sipxsetup; application has established the minimal
+          conditions for operation of &sipxsuper; and &sipxconfig;, it  the &sipxsuper;
+          service has started 
+        </para>
+      </section>
+
+      <section id='inst.single.rpm'>
+        <title>Installation of a system using RPMs</title>
+
+        <para>
+          Installation from RPMs can be done either by installing
+          individual rpms manually, or by configuring the package
+          manager (yum, apt, or whatever) to include a repository
+          containing them and directing the package manager to install the
+          required components.
+        </para>
+
+        <para>
+          The &sipxecspgk; that installs all the &sipxecs;
+          components.  The recommended installation method is to install
+          this umbrella rpm so that all components are installed.
+          <emphasis>Installing a component does not configure any service
+          to automatically start.</emphasis> 
+        </para>
+
+        <para>
+          Following installation, the administrator must run the &sipxsetup;
+          wizard program manually, which configures the minimum system
+          parameters as it does when run in the iso installation.  If all
+          of the minimal parameters are configured, the &sipxsetup; program
+          will configure the &sipxsuper; process to start automatically on
+          the next reboot (and may also start it directly); see <xref
+          linkend='supervisor'/>. 
+        </para>
+
+      </section>
+
+      <section id='sipxconfig.init'>
+        <title>Initial Configuration with &sipxconfig;</title>
+        <para>
+          The first time that the administrator logs in to the &sipxconfig;
+          web user interface, a number of configuration choices must be
+          made that establish the basic system parameters and configure
+          each of the required services.  Until the required services have
+          been configured and activated, ordinary use of the &sipxconfig;
+          administrative and user interfaces is not allowed; only a
+          checklist of the remaining required choices is possible.
+        </para>
+
+        <itemizedlist>
+          <listitem><para>establish superuser password</para></listitem>
+          <listitem><para>configure ntp</para></listitem>
+          <listitem><para>configure dns</para></listitem>
+          <listitem><para>configure dhcp</para></listitem>
+          <listitem><para><emphasis>tbd</emphasis></para></listitem>
+        </itemizedlist>
+
+        <para><emphasis>The list above is incomplete.  In some
+        cases, the user may be allowed to explicitly choose not to
+        configure some of the system services.</emphasis></para>
+
+      </section>
+
+      <section id='inst.cluster'>
+        <title>Installation of a system cluster</title>
+        <para>
+          The installation of a &sipxecs; cluster begins with the
+          installation of the master system: from an iso image (<xref
+          linkend='inst.single.iso'/>) or rpms (<xref
+          linkend='inst.single.rpm'/>).  Once the <link
+          linkend='sipxconfig.init'>initial configuration with
+          &sipxconfig;</link> is complete, the user can choose to <link linkend='dist.add'>add a
+          distributed system to the cluster</link> (a single-system installation
+          is just a degenerate case - a cluster with only one system).
+        </para>
+
+        <section id='dist.add'>
+          <title>Adding a distributed system</title>
+          <para>
+            The configuration operation in &sipxconfig; for adding a new
+            system to the cluster requires:
+            <itemizedlist>
+              <listitem><para>The fully qualified domain name of the new system.</para></listitem>
+              <listitem><para>The IP address of the new system.</para></listitem>
+              <listitem>
+                <para>
+                  The set of services to be run on the new system.  Some
+                  services (such as &sipxsuper; and ntpd) are required on every
+                  system in a cluster.
+                </para>
+                <para>
+                  Additional information may be required depending on what
+                  services are selected.
+                </para>
+              </listitem>
+            </itemizedlist>
+          </para>
+
+          <para>
+            The &sipxconfig; generates the initial configuration for the new
+            system, including: 
+            <itemizedlist>
+              <listitem><para>A TLS/SSL certificate</para></listitem>
+              <listitem><para>The configuration files for the services on the system.</para></listitem>
+            </itemizedlist>
+            When all required information has been provided and this
+            configuration is ready, &sipxconfig; displays a system setup
+            password value for the administrator.  The administrator then
+            <link linkend='inst.dist'>install the distributed system</link>.
+          </para>
+
+        </section>
+
+        <section id='inst.dist'>
+          <title>Installation of a distributed system</title>
+
+          <para>
+            Once the &sipxconfig; has <link linkend='dist.add'>prepared a
+            configuration for the new distributed system</link>, the
+            administrator installs the &sipxecs; software on the new system
+            either <link linkend='inst.single.iso'>from an iso image</link>
+            or <link linkend='inst.single.rpm'>on an existing system from
+            rpms</link>.  The administrator then executes the &sipxsetup;
+            application (if using the iso installer, this happens on the
+            first login as root).  The &sipxsetup; application fetches the
+            prepared configuration from the master system as described in
+            <xref linkend='setup.dist'/>.
+          </para>
+
+        </section>
+
+        <section id='service.add'>
+          <title>Add a Service</title>
+          <para>
+            To add a service to an existing installation, the administrator
+            uses &sipxconfig; to first select the system in the cluster
+            where the service should be added, and configures the service
+            to run on that system.  &sipxconfig; then collects any
+            configuration information needed to initialize that service,
+            and then xxx
+          </para>
+        </section>
+
+      </section>
+    </section>
+
+    <section id='backup'>
+      <title>Configuration Backup and Restore</title>
+      <para>
+        <emphasis>TBD</emphasis> - ideally, it should be possible to back
+        up only the master system to fully preserve all of the
+        configuration for a cluster.  The extent to which the ideal can be
+        acheived is a matter to be studied.
+      </para>
+    </section>
+
+    <section id='upgrade'>
+      <title>Software Upgrade</title>
+      <para>
+        <emphasis>TBD</emphasis> - it is clear that the master must be
+        upgraded first.  The specifics of how and when to propogate
+        upgraded configuration information to distributed systems is a
+        matter to be studied.
+      </para>
+    </section>
+
+  </section>
+
+  <section id='components'>
+    <title>Components</title>
+
+    <para>
+      This section is a functional description of some &sipxecs; components.
+    </para>
+
+    <section id='setup'>
+      <title>&sipxsetup;</title>
+      
+      <para>
+        The &sipxsetup; is an application that gets the information
+        essential to initializing the system and bringing up the &sipxsuper;
+        process manager; it does this by performing a series of
+        steps (described below).  
+
+        <emphasis>
+          The &sipxsetup; can be stopped after any step.  When restarted,
+          it must resume at the first uncompleted step, with all values
+          from earlier steps already saved and working on the system.
+        </emphasis>
+
+      </para>
+
+      <section id='setup.init'>
+
+        <title>Steps</title>
+        <para>
+          The &sipxsetup; steps are:
+        </para>
+
+        <orderedlist>
+          <listitem>
+            <para>Get a new password for the root account</para>
+            <para>The new root password is set immediately to maximize system security.</para>
+            <para>This step is skipped if the root password is not equal to
+            the hardcoded &sipxecs; iso installation root password.</para>
+          </listitem>
+          <listitem>
+            <para>
+              Initialize and start the network.
+            </para>
+            <para>
+              Collect the network parameters:
+              <itemizedlist spacing='compact'>
+                <listitem><para>Host Name</para></listitem>
+                <listitem><para>IP Address</para></listitem>
+                <listitem><para>Netmask</para></listitem>
+                <listitem><para>Default Gateway IP Address</para></listitem>
+              </itemizedlist>
+              It then configures the network using the supplied parameters and
+              attempts to start it.  If the network startup succeeds and appears
+              to be correct (determined by attempting to 'ping' the default
+              gateway), the &sipxsetup; proceeds.  If the network does not
+              appear to be correct, the administrator is offered the choice of
+              reconfiguring the network or shutting down the system at this point
+              so that it can be moved to be connected to the network.
+            </para>
+          </listitem>
+          <listitem>
+            <para>Set the system timezone.</para>
+          </listitem>
+          <listitem>
+            <para>Set the system time.</para>
+          </listitem>
+          <listitem>
+            <para>
+              Select system type.
+            </para>
+            <para>
+              The system type can be:
+              <itemizedlist>
+                <listitem>
+                  <para>
+                    A new installation (either standalone or as the master
+                    system for a new cluster); see <xref linkend='setup.master'/>
+                  </para>
+                </listitem> 
+                <listitem>
+                  <para>
+                    A distributed system to be added to an existing
+                    cluster; see <xref linkend='setup.dist'/>
+                  </para>
+                </listitem>
+              </itemizedlist>
+            </para>
+          </listitem>
+        </orderedlist>
+
+        <section id='setup.master'>
+          <title>New standalone or cluster master system</title>
+
+            <para>
+              For a new (standalone or master) system installation, the
+              &sipxsetup; prompts for the information needed to generate
+              and install a TLS/SSL certificate:
+              <itemizedlist>
+                <listitem><para>SIP Domain Name</para></listitem>
+                <listitem><para>Organization Name</para></listitem>
+                <listitem><para>Section Name</para></listitem>
+                <listitem><para>Country Code</para></listitem>
+                <listitem><para>State or Province</para></listitem>
+                <listitem><para>Locality (city)</para></listitem>
+              </itemizedlist>
+            </para>
+
+            <para>
+              The TLS/SSL parameters are recorded, and then used to
+              generate and install a self-signed CA certificate and a
+              system certificate for the new system signed by that CA
+              certificate. 
+            </para>
+
+            <para>
+              Having set up the network and the TLS/SSL certificate, the
+              minimal conditions are established to begin using
+              &sipxconfig;, so &sipxsetup; completes as described in <xref
+              linkend='setup.fini'/>. 
+            </para>
+
+        </section>
+
+        <section id='setup.dist'>
+          <title>New distributed system</title>
+
+            <para>
+              For a distributed system installation, the existence of the
+              system must already have been configured using &sipxconfig;
+              on the master; see <xref linkend='dist.add'/>.
+            </para>
+
+            <para>
+              When the admistrator chooses the "New distributed system"
+              option, &sipxsetup; prompts for the name of the master
+              system, and for the distributed system setup password
+              supplied by &sipxconfig; when the distributed system was
+              added. 
+            </para>
+
+            <para>
+              Using the provided system name and password, &sipxsetup;
+              contacts an 'initial setup service' interface provided by
+              &sipxconfig; running on the master system.  The new system authenticates
+              itself to that service using the setup password (the
+              connection to the master is encrypted with TLS/SSL).  The
+              initial setup service returns the prepared TLS/SSL certificate/key pair
+              for the new system, which &sipxsetup; installs.
+            </para>
+
+            <para>
+              Having set up the network and the TLS/SSL certificate, the
+              minimal conditions are established to begin using
+              &sipxsuper; as the local agent for &sipxconfig;, so
+              &sipxsetup; completes as described in <xref linkend='setup.fini'/>. 
+            </para>
+
+        </section>
+
+      </section>
+
+      <section id='setup.fini'>
+        <title>Setup Complete</title>
+        <para>
+          When the minimal conditions are established for using
+          &sipxconfig; and &sipxsuper;, the &sipxsetup; application
+          configures the &sipxsuper; to start by default on reboot.
+          &sipxsetup; then gives the user the choice of whether to:
+          <itemizedlist>
+            <listitem><para>exit to the shell</para></listitem>
+            <listitem><para>start the &sipxsuper; service and exit to the shell</para></listitem>
+            <listitem><para>reboot the system</para></listitem>
+          </itemizedlist>
+       </para>
+      </section>
+    </section>
+
+    <section id='supervisor'>
+      <title>&sipxsuper;</title>
+      <para>
+        The &sipxsuper; is the master process management service for all
+        &sipxecs; managed services on a system.  It is configured by the
+        <link linkend='setup'>&sipxsetup; installation program</link>; its
+        only configuration is the system name of the master system for the
+        cluster, and the TLS/SSL certificate that secures all
+        communications with the the &sipxconfig; on that system.
+      </para>
+
+      <section id='replication'>
+        <title>Configuration Replication</title>
+        <para>
+          Replication of configuration information from &sipxconfig;
+        </para>
+      </section>
+
+      <section id='process.def'>
+        <title>Service Definition</title>
+        <para>
+          Each service installs a definition for itself in the
+          /etc/sipxpbx/process.d directory.  The definition is an xml file
+          using the sipXecs-process-01-00 schema.  The service definition
+          specifies the name of the service and has the following major
+          sections: 
+        </para>
+
+        <section id='process.def.cmd'>
+          <title>Service Commands</title>
+          <para>
+            The command section specifies a command to execute for the
+            following standard operations (some are optional): 
+            <itemizedlist>
+              <listitem><para>Test the service configuration.</para></listitem>
+              <listitem><para>Print the service version number.</para></listitem>
+              <listitem><para>Start the service.</para></listitem>
+              <listitem><para>Stop the service.</para></listitem>
+              <listitem><para>Reload the service configuration.</para></listitem>
+            </itemizedlist>
+          </para>
+        </section>
+
+        <section id='process.def.status'>
+          <title>Service Status</title>
+          <para>
+            The status section specifies the following ways for the
+            &sipxsuper; to see the status of the process: 
+            <itemizedlist>
+              <listitem><para>The path to the process id file.</para></listitem>
+              <listitem><para>A path to each log file.</para></listitem>
+            </itemizedlist>
+          </para>
+        </section>
+
+        <section id='process.def.resource'>
+          <title>Service Resources</title>
+          <para>
+            The resources section specifies each of the resources used by
+            the process, and for each whether or not the resource must
+            exist before the process can be started.  The resources can be:
+            <itemizedlist>
+              <listitem><para>A path to a configuration file.</para></listitem>
+              <listitem>
+                <para>
+                  The name of another &sipxecs; service that must be
+                  running before this service is started.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  The name of an in-memory database table that must be
+                  loaded before this service is started. 
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  The name of a postgres database that must exist before
+                  this service is started.  
+                </para>
+              </listitem>
+            </itemizedlist>
+          </para>
+
+          <para>
+            The &sipxsuper; provides a set of XML RPC operations that allow
+            &sipxconfig; to read, create, or modify the resources required
+            by any defined service.  
+            
+            <note>
+              <para>
+                <emphasis>
+                  The &sipxsuper; must not provide any operation that will
+                  create or modify anything on the system that is not
+                  declared as a resource by some service definition, and must
+                  not modify any part of any service definition.  This is
+                  the basis of the system integrity protection.
+                </emphasis>
+              </para>
+            </note>
+          </para>
+
+        </section>
+
+      </section>
+
+      <section id='process.mgmt'>
+        <title>Service Startup and Control</title>
+
+        <para>
+          The &sipxsuper; maintains local state that controls what
+          installed services it should start on the system.  
+          
+          <note>
+            <para>
+              <emphasis>
+                Whether or not a service should be started is not a part
+                of the <link linkend='process.def'>process
+                definition</link>.
+              </emphasis>
+            </para>
+          </note>
+
+          A set of XML RPC operations is provided by &sipxsuper; to allow
+          the &sipxconfig; on the master system to enable and disable
+          services; these operations change the local state so that the
+          &sipxsuper; will always attempt to start the same set of services
+          that were enabled when &sipxconfig; last set them.
+        </para>
+
+        <para>
+          Before attempting to start any service, &sipxsuper;:
+          <orderedlist>
+            <listitem>
+              <para>
+                Checks that each required resource is satisfied.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                If one is defined, it executes the configuration test
+                command defined by the service.  It reads any standard
+                error output and saves it.  The exit status of the test
+                command is checked: 
+                <itemizedlist>
+                  <listitem>
+                    <para>
+                      If the status is negative, the service cannot be
+                      started.  
+                    </para>
+                  </listitem>
+                  <listitem>
+                    <para>
+                      If the status is greater than zero, the service can
+                      be started but its status is marked as having had a
+                      configuration warning.
+                    </para>
+                  </listitem>
+                  <listitem>
+                    <para>
+                      If the status is zero, the service can be started.
+                    </para>
+                  </listitem>
+                </itemizedlist>
+              </para>
+            </listitem>
+          </orderedlist>
+        </para>
+
+        <para>
+          A set of XML RPC operations is provided by &sipxsuper; to
+          provide the current status of each enabled service.
+        </para>
+
+     </section>
+
+    </section>
+
+  </section>
+
+  <!--
+      -*- mode: nXML; auto-fill -*-
+  -->
+</article>

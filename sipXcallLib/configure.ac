@@ -38,7 +38,7 @@ SFAC_LIB_MEDIA
 
 SFAC_FEATURE_SIP_TLS
 
-ENABLE_DOXYGEN
+ENABLE_DOC
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 
 # Conditionally use the GIPS audio libraries
