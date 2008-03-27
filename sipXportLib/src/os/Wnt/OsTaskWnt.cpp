@@ -226,6 +226,27 @@ OsStatus OsTaskWnt::varSet(int* pVar, int value)
    return OS_NOT_YET_IMPLEMENTED;
 }
 
+// Block all signals from the calling thread
+OsStatus OsTaskLinux::blockSignals(void)
+{
+   // I've no idea what to do for Wnt.
+   return OS_NOT_YET_IMPLEMENTED;
+}
+
+// Unblock all signals from the calling thread
+OsStatus OsTaskLinux::unBlockSignals(void)
+{
+   // I've no idea what to do for Wnt.
+   return OS_NOT_YET_IMPLEMENTED;
+}
+
+// Wait for a signal to occur.
+OsStatus OsTaskLinux::awaitSignal(int& sig_num)
+{
+   // I've no idea what to do for Wnt.
+   return OS_NOT_YET_IMPLEMENTED;
+}
+
 // Delay a task from executing fpr the specified number of milliseconds.
 // This routine causes the calling task to relinquish the CPU for the
 // duration specified. This is commonly referred to as manual

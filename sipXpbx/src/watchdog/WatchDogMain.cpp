@@ -12,6 +12,7 @@
 #include <string.h>
 #include <memory>
 #include <pwd.h>
+#include <grp.h>
 #include <signal.h>
 
 // APPLICATION INCLUDES
@@ -538,19 +539,53 @@ void sig_routine(int sig)
 #ifdef DEBUG
        osPrintf("Received unexpected signal %d, shutting down.\n", sig);
 #endif /* DEBUG */
-       OsSysLog::add(FAC_WATCHDOG,PRI_EMERG,"UNEXPECTED SIGNAL: shutting down!");
+       OsSysLog::add(FAC_WATCHDOG,PRI_EMERG,"UNEXPECTED SIGNAL: %d shutting down!", sig);
        break;
     }
     gbDone = TRUE;
 }
 
+
+class SignalTask : public OsTask
+{
+public:
+   SignalTask() : OsTask() {}
+
+   int
+   run(void *pArg)
+   {
+       int sig_num ;
+       OsStatus res ;
+
+       // Wait for a signal.  This will unblock signals
+       // for THIS thread only, so this will be the only thread
+       // to catch an async signal directed to the process 
+       // from the outside.
+       res = awaitSignal(sig_num);
+
+       // Call the original signal handler.  Pass -1 on error from awaitSignal
+       sig_routine( OS_SUCCESS == res ? sig_num : -1);
+       return 0;
+   }
+};
+
 int main(int argc, char* argv[])
 {
+    // Block all signals in this the main thread
+    // Any threads created after this will have all signals masked.
+    OsTask::blockSignals();
+
+    // Create a new task to wait for signals.  Only that task
+    // will ever see a signal from the outside.
+    SignalTask* signalTask = new SignalTask();
+    signalTask->start() ;
+
     // All osPrintf output should go to the console until the log file is initialized.
     enableConsoleOutput(true);
 
     UtlString argString;
     const char * sipxpbxuser = (char *)SIPXPBXUSER;
+    const char * sipxpbxgroup = (char *)SIPXPBXGROUP;
     for (int argIndex = 1; argIndex < argc; argIndex++) 
     {
         bool usageExit = false;
@@ -594,13 +629,76 @@ int main(int argc, char* argv[])
         }
     }
 
-    signal(SIGABRT,sig_routine);
-    signal(SIGTERM,sig_routine);
-    signal(SIGINT,sig_routine);
+    // Drop privileges down to the specified user & group
+    if (NULL == sipxpbxuser || 0 == strlen(sipxpbxuser))
+    {
+       osPrintf("WatchDogMain: Failed to setuid(%s), username not defined.\n",
+          sipxpbxuser);
+       return 2;
+    }
+    if (NULL == sipxpbxgroup || 0 == strlen(sipxpbxgroup))
+    {
+       osPrintf("WatchDogMain: Failed to setgid(%s), groupname not defined.\n",
+          sipxpbxgroup);
+       return 2;
+    }
 
-    //set our exit routine
-    atexit(cleanup);
-    
+    struct group * grp = getgrnam(sipxpbxgroup);
+    if (NULL == grp)
+    {
+       if (0 != errno)
+       {
+          osPrintf("getgrnam(%s) failed, errno = %d.", 
+             sipxpbxgroup, errno);
+       }
+       else
+       {
+          osPrintf(
+             "WatchDogMain: getgrnam(%s) failed, user does not exist.",
+                sipxpbxgroup);
+       }
+       return 3;
+    }
+
+    struct passwd * pwd = getpwnam(sipxpbxuser);
+    if (NULL == pwd)
+    {
+       if (0 != errno)
+       {
+          osPrintf("getpwnam(%s) failed, errno = %d.", 
+             sipxpbxuser, errno);
+       }
+       else
+       {
+          osPrintf(
+             "WatchDogMain: getpwnam(%s) failed, user does not exist.",
+                sipxpbxuser);
+       }
+       return 3;
+    }
+
+    // Change group first, cause once user is changed this cannot be done.
+    if (0 != setgid(grp->gr_gid))
+    {
+       osPrintf("WatchDogMain: setgid(%d) failed, errno = %d.",
+          (int)grp->gr_gid, errno);
+       return 4;
+    }
+
+    if (0 != setuid(pwd->pw_uid))
+    {
+       osPrintf("WatchDogMain: setuid(%d) failed, errno = %d.",
+          (int)pwd->pw_uid, errno);
+       return 4;
+    }
+
+
+# if 0
+// Only output problems.  This keeps the startup output clean.
+    osPrintf("WatchDogMain: Dropped privileges with setuid(%s)/setgid(%s).", 
+       sipxpbxuser, sipxpbxgroup);
+#endif
+                              
     // The location of the watchdog config file might have been supplied on the command-line.
     // Otherwise, the config file is SIPX_CONFDIR/WatchDog.xml.
     if (strWatchDogFilename.isNull())
@@ -615,7 +713,7 @@ int main(int argc, char* argv[])
     if (OS_SUCCESS != rc)
     {
         osPrintf("Error: loadWatchDogXML() failed, rc = %d.\n", (int)rc);
-        return 2;
+        return 5;
     }
 
     // Initialize the log file.
@@ -623,77 +721,41 @@ int main(int argc, char* argv[])
     if (OS_SUCCESS != rc)
     {
         osPrintf("Error: initLogfile() failed, rc = %d.\n", (int)rc);
-        return 3;
+        return 6;
     }
 
     // Now that the log file is initialized, stop sending osPrintf to the console.
     // All relevant log messages from this point on must use OsSysLog::add().
     enableConsoleOutput(false);
+    fflush(NULL); // Flush all output so children don't get a buffer of output
     OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Loaded WatchDog XML from: %s",
                   strWatchDogFilename.data());
+
+    //set our exit routine
+    atexit(cleanup);
     
-    // Drop privileges down to the specified user.
-    if (NULL != sipxpbxuser && 0 != strlen(sipxpbxuser))
+    // Preload the databases.  This ensures that:               
+    //  1. Their reference count does not go to 0 causing an expensive 
+    //  load by another process.  (Notably when the system only has apache 
+    //  running on it; on such a system, the only processes accessing the 
+    //  database would be CGIs, and they are created and destroyed frequently -
+    //  the database would be recreated and reloaded a lot if there were not 
+    //  a process holding the use count above zero.)
+    //
+    //  2. The first touch of each database is performed by a non-root 
+    //  process, thus allowing processes running as root to subsequently 
+    //  access the database  without causing the known fastdb hang problem.  
+    rc = SIPDBManager::getInstance()->preloadAllDatabase();
+    if (OS_SUCCESS == rc)
     {
-        errno = 0;
-        struct passwd * pwd = getpwnam(sipxpbxuser);
-        if (NULL == pwd)
-        {
-            if (0 != errno)
-            {
-                OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
-                              "getpwnam(%s) failed, errno = %d.", sipxpbxuser, errno);
-            }
-            else
-            {
-                OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
-                              "WatchDogMain: getpwnam(%s) failed, user does not exist.",
-                              sipxpbxuser);
-            }
-        }
-        else
-        {
-            errno = 0;
-            if (0 == setuid(pwd->pw_uid))
-            {
-                OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
-                              "WatchDogMain: Drop privileges with setuid() to '%s'.", sipxpbxuser);
-                              
-                // Preload the databases.  This ensures that:               
-                //  1. Their reference count does not go to 0 causing an expensive load by another
-                //     process.  (Notably when the system only has apache running on it; on such a
-                //     system, the only processes accessing the database would be CGIs, and they 
-                //     are created and destroyed frequently - the database would be recreated and 
-                //     reloaded a lot if there were not a process holding the use count above 
-                //     zero.)
-                //  2. The first touch of each database is performed by a non-root process, thus 
-                //     allowing processes running as root to subsequently access the database 
-                //     without causing the known fastdb hang problem.  
-                rc = SIPDBManager::getInstance()->preloadAllDatabase();
-                if (OS_SUCCESS == rc)
-                {
-                    // The databases must be released on exit.
-                    gbPreloadedDatabases = TRUE;
-                    OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Preloaded databases.");
-                }
-                else
-                {
-                   OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
-                                 "WatchDogMain preloadAllDatabase() failed, rc = %d", (int)rc); 
-                }
-            }
-            else
-            {
-               OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
-                              "WatchDogMain: setuid(%d) failed, errno = %d.",
-                             (int)pwd->pw_uid, errno);
-            }
-        }
+       // The databases must be released on exit.
+       gbPreloadedDatabases = TRUE;
+       OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Preloaded databases.");
     }
     else
     {
        OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
-                     "WatchDogMain: Failed to setuid(SIPXPBXUSER), username not defined.\n");
+          "WatchDogMain preloadAllDatabase() failed, rc = %d", (int)rc); 
     }
         
     // Determine the ProcessDefinitions XML file path.
@@ -701,11 +763,13 @@ int main(int argc, char* argv[])
     rc = getProcessXMLPath(watchdogXMLDoc, processXMLPath);
     if (OS_SUCCESS != rc)
     {
-        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "getProcessXMLPath() failed, rc = %d.", (int)rc);
-        return 4; 
+        OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, 
+           "getProcessXMLPath() failed, rc = %d.", (int)rc);
+        return 7; 
     }
-    OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Using ProcessDefinitions XML from: %s", 
-                  processXMLPath.data());
+    OsSysLog::add(FAC_WATCHDOG, PRI_INFO, 
+       "Using ProcessDefinitions XML from: %s", 
+          processXMLPath.data());
 
     // Load the ProcessDefinitions XML file.
     TiXmlDocument processXMLDoc;
@@ -713,17 +777,19 @@ int main(int argc, char* argv[])
     rc = initProcessXMLLayer(processXMLPath, processXMLDoc, gstrErrorMsg);
     if (OS_SUCCESS != rc)
     {
-        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "initProcessXMLLayer() failed, rc = %d, msg='%s'.",
-                      (int)rc, gstrErrorMsg.data());
-        return 5;
+        OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, 
+           "initProcessXMLLayer() failed, rc = %d, msg='%s'.",
+              (int)rc, gstrErrorMsg.data());
+        return 8;
     }
     
     // Get the general Watchdog settings.
     rc = getSettings(watchdogXMLDoc, gnCheckPeriod);
     if (OS_SUCCESS != rc)
     {
-        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "getSettings() failed, rc = %d.", (int)rc);
-        return 6;
+        OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, 
+           "getSettings() failed, rc = %d.", (int)rc);
+        return 9;
     }
     OsSysLog::add(FAC_WATCHDOG, PRI_INFO, 
                   "Process check occurs every %d seconds.", gnCheckPeriod);
@@ -735,11 +801,11 @@ int main(int argc, char* argv[])
         // Apparently this is a common case, so send useful information to the console too.
         // Note that "ProcessDefinitions.xml" is fixed as the last component of the process XML 
         // file name.  See loadProcessXML in processCommon.cpp.
-        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "createProcessList() failed, rc = %d.", (int)rc);        
+        OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "createProcessList() failed, rc = %d.", (int)rc);        
         enableConsoleOutput(true);
         osPrintf("Couldn't load process list: Error in '%s' and/or '%s/ProcessDefinitions.xml'.\n",
                  strWatchDogFilename.data(), processXMLPath.data());
-        return 7;
+        return 10;
     }
     
     // Get the Watchdog XML-RPC server settings.
@@ -748,8 +814,9 @@ int main(int argc, char* argv[])
     rc = initXMLRPCsettings(port, allowedPeers);
     if (OS_SUCCESS != rc)
     {
-        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "initXMLRPCsettings() failed, rc = %d.", (int)rc);
-        return 8;
+        OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, 
+           "initXMLRPCsettings() failed, rc = %d.", (int)rc);
+        return 11;
     }
     
     // Create the "watchdog" which will monitor the process list.

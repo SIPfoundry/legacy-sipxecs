@@ -104,9 +104,6 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-    static void cleanZombieProcess(int signal);
-    //: Clean zombie child processes when they die
-
 };
 
 /* ============================ INLINE METHODS ============================ */

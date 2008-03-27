@@ -9,7 +9,8 @@ bin_PROGRAMS = watchdog
 watchdog_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
-	-DSIPXPBXUSER=\"@SIPXPBXUSER@\"
+	-DSIPXPBXUSER=\"@SIPXPBXUSER@\" \
+	-DSIPXPBXGROUP=\"@SIPXPBXGROUP@\"
 
 watchdog_SOURCES =  \
 	$(top_builddir)/config/sipxpbx-buildstamp.h \

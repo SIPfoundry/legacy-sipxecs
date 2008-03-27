@@ -308,6 +308,52 @@ OsStatus OsTaskLinux::setPriority(int priority)
    return OS_INVALID_PRIORITY;
 }
 
+// Block all signals from the calling thread
+OsStatus OsTaskLinux::blockSignals(void)
+{
+   sigset_t sig_set;
+   int res = -1;
+
+   res = sigfillset(&sig_set);
+   if (res == 0)
+   {
+      res = pthread_sigmask(SIG_BLOCK, &sig_set, NULL);
+   }
+
+   return res == 0 ? OS_SUCCESS : OS_FAILED;
+}
+
+// unblock all signals from the calling thread
+OsStatus OsTaskLinux::unBlockSignals(void)
+{
+   sigset_t sig_set;
+   int res = -1;
+
+   res = sigfillset(&sig_set);
+   if (res == 0)
+   {
+      res = pthread_sigmask(SIG_UNBLOCK, &sig_set, NULL);
+   }
+
+   return res == 0 ? OS_SUCCESS : OS_FAILED;
+}
+
+// Wait for a signal to occur.
+OsStatus OsTaskLinux::awaitSignal(int& sig_num)
+{
+   sigset_t sig_set;
+   int res = -1;
+
+   // Enable all signals
+   res = sigfillset(&sig_set);
+   if (res == 0)
+   {
+      res = sigwait(&sig_set, &sig_num);
+   }
+   
+   return res == 0 ? OS_SUCCESS : OS_FAILED;
+}
+
 // Delay a task from executing for the specified number of milliseconds.
 // This routine causes the calling task to relinquish the CPU for the
 // duration specified. This is commonly referred to as manual

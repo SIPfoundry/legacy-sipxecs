@@ -142,6 +142,16 @@ void OsTaskBase::yield(void)
     OsTask::yield();
 }
 
+OsStatus OsTaskBase::blockSignals(void)
+{
+    return(OsTask::blockSignals());
+}
+
+OsStatus OsTaskBase::unBlockSignals(void)
+{
+    return(OsTask::unBlockSignals());
+}
+
 OsStatus OsTaskBase::delay(const int milliSecs)
 {
     return(OsTask::delay(milliSecs));

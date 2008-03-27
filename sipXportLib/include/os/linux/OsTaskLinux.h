@@ -113,6 +113,27 @@ public:
     * priority.
     */
 
+   /// Block all signals from the calling thread
+   static OsStatus blockSignals(void);
+   /**<
+    * Block all signals from this thread.  Static so "main()" 
+    * can call it to isolate it and all subsequent threads from signals.
+    */
+
+   /// Unblock all signals from the calling thread
+   static OsStatus unBlockSignals(void);
+   /**<
+    * Unblock all signals from this thread.  Static so "main()" 
+    * can call it to unisolate it and all subsequent threads from signals.
+    */
+
+   /// wait for a signal
+   virtual OsStatus awaitSignal(int& sig_num);
+   /**<
+    * Waits for an external signal to occur.  Returns the
+    * signal number that happened in sig_num.
+    */
+
    /// Delay a task from executing for the specified number of milliseconds.
    static OsStatus delay(const int milliSecs);
    /**<

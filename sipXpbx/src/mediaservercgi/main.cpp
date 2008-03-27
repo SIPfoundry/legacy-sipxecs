@@ -8,8 +8,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include <signal.h>
-
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
@@ -21,6 +19,7 @@
 #include "os/OsSysLog.h"
 #include "os/OsDateTime.h"
 #include "os/OsDatagramSocket.h"
+#include "os/OsTask.h"
 #include "cgicc/Cgicc.h"
 #include "sipxcgi/CgiValues.h"
 #include "net/Url.h"
@@ -78,17 +77,9 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-typedef void (*sighandler_t)(int);
-
-// FUNCTIONS
-extern "C" {
-    void  sigHandler( int sig_num );
-    sighandler_t pt_signal( int sig_num, sighandler_t handler );
-}
 // GLOBAL VARIABLE INITIALIZATIONS
 OsMutex*     gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 UtlBoolean   gClosingIMDB = FALSE;
-static UtlBoolean   gInSigHandler = FALSE;
 cgicc::Cgicc *gCgi = NULL;
 CgiValues *gValues = NULL;
 
@@ -119,82 +110,6 @@ closeIMDBConnectionsFromCGI ()
         delete MailboxManager::getInstance();
     }
 
-}
-
-/**
- * Description:
- * This is a replacement for signal() which registers a signal handler but sets
- * a flag causing system calls ( namely read() or getchar() ) not to bail out
- * upon recepit of that signal. We need this behavior, so we must call
- * sigaction() manually.
- */
-sighandler_t
-pt_signal( int sig_num, sighandler_t handler)
-{
-#if defined(__pingtel_on_posix__)
-    struct sigaction action[2];
-    action[0].sa_handler = handler;
-    sigemptyset(&action[0].sa_mask);
-    action[0].sa_flags = 0;
-    sigaction ( sig_num, &action[0], &action[1] );
-    return action[1].sa_handler;
-#else
-    return signal( sig_num, handler );
-#endif
-}
-
-/**
- * Description:
- * This is the signal handler, When called this sets the
- * global gShutdownFlag allowing the main processing
- * loop to exit cleanly.
- */
-void
-sigHandler( int sig_num )
-{
-    if (!gInSigHandler)
-    {
-        // Minimize the chance that we loose log data
-        OsSysLog::flush();
-    }
-
-    if (sig_num == SIGPIPE)
-    {
-        // ignore this one
-        pt_signal( sig_num, SIG_IGN );
-        if (!gInSigHandler)
-        {
-                gInSigHandler = TRUE;
-                OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
-                OsSysLog::flush();
-        }
-    }
-    else
-    {
-        // Unregister interest in the signal to prevent recursive callbacks
-        pt_signal( sig_num, SIG_DFL );
-
-        if (!gInSigHandler)
-        {
-                gInSigHandler = TRUE;
-                if (SIGTERM == sig_num)
-                {
-                   OsSysLog::add( LOG_FACILITY, PRI_INFO, "sigHandler: terminate signal received.");
-                }
-                else
-                {
-                   OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
-                }
-                OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: closing IMDB connections" );
-                OsSysLog::flush();
-        }
-
-        if (!gClosingIMDB)
-        {
-                closeIMDBConnectionsFromCGI();
-                gClosingIMDB = TRUE;
-        }
-    }
 }
 
 OsStatus
@@ -302,26 +217,11 @@ setLogLevel()
 int
 main(int argc, char* argv[])
 {
-    gInSigHandler = FALSE;
+    // Block all signals in this the main thread
+    // Any threads created after this will have all signals masked.
+    OsTask::blockSignals();
 
-    // Register Signal handlers to close IMDB
-    pt_signal(SIGINT,   sigHandler);    // Trap Ctrl-C on NT
-    pt_signal(SIGILL,   sigHandler);
-    pt_signal(SIGABRT,  sigHandler);    // Abort signal 6
-    pt_signal(SIGFPE,   sigHandler);    // Floading Point Exception
-    pt_signal(SIGSEGV,  sigHandler);    // Address access violations signal 11
-    pt_signal(SIGTERM,  sigHandler);    // Trap kill -15 on UNIX
-#if defined(__pingtel_on_posix__)
-    pt_signal(SIGHUP,   sigHandler);    // Hangup
-    pt_signal(SIGQUIT,  sigHandler);
-    pt_signal(SIGPIPE,  SIG_IGN);    // Handle TCP Failure
-    pt_signal(SIGBUS,   sigHandler);
-    pt_signal(SIGSYS,   sigHandler);
-    pt_signal(SIGXCPU,  sigHandler);
-    pt_signal(SIGXFSZ,  sigHandler);
-    pt_signal(SIGUSR1,  sigHandler);
-    pt_signal(SIGUSR2,  sigHandler);
-#endif
+    // This process is now immune from external signals.  Beware!
 
  // set directory for log files
     UtlString logFilePath;

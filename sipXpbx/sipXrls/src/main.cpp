@@ -69,16 +69,7 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-
-typedef void (*sighandler_t)(int);
-
 // FUNCTIONS
-
-extern "C" {
-    void sigHandler(int sig_num);
-    sighandler_t pt_signal(int sig_num, sighandler_t handler);
-}
-
 // FORWARD DECLARATIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -90,57 +81,42 @@ UtlBoolean    gShutdownFlag = FALSE;
 
 /* ============================ FUNCTIONS ================================= */
 
-/**
- * Description:
- * This is a replacement for signal() which registers a signal handler but sets
- * a flag causing system calls (namely read() or getchar()) not to bail out
- * upon recepit of that signal. We need this behavior, so we must call
- * sigaction() manually.
- */
-sighandler_t pt_signal(int sig_num, sighandler_t handler)
+class SignalTask : public OsTask
 {
-#if defined(__pingtel_on_posix__)
-    struct sigaction action[2];
-    action[0].sa_handler = handler;
-    sigemptyset(&action[0].sa_mask);
-    action[0].sa_flags = 0;
-    sigaction (sig_num, &action[0], &action[1]);
-    return action[1].sa_handler;
-#else
-    return signal(sig_num, handler);
-#endif
-}
+public:
+   SignalTask() : OsTask("SignalTask") {}
 
+   int
+   run(void *pArg)
+   {
+       int sig_num ;
+       OsStatus res ;
 
-/**
- * Description:
- * This is the signal handler, When called this sets the
- * global gShutdownFlag allowing the main processing
- * loop to exit cleanly.
- */
-void sigHandler(int sig_num)
-{
-    // set a global shutdown flag
-    gShutdownFlag = TRUE;
-
-    // Unregister interest in the signal to prevent recursive callbacks
-    pt_signal(sig_num, SIG_DFL);
-
-    // Minimize the chance that we loose log data
-    OsSysLog::flush();
-    if (SIGTERM == sig_num)
-    {
-       OsSysLog::add(LOG_FACILITY, PRI_INFO,
-                     "sigHandler: terminate signal received.");
-    }
-    else
-    {
-       OsSysLog::add(LOG_FACILITY, PRI_CRIT,
-                     "sigHandler: caught signal: %d", sig_num);
-    }
-    OsSysLog::flush();
-}
-
+       // Wait for a signal.  This will unblock signals
+       // for THIS thread only, so this will be the only thread
+       // to catch an async signal directed to the process 
+       // from the outside.
+       res = awaitSignal(sig_num);
+       if (res == OS_SUCCESS)
+       {
+          if (SIGTERM == sig_num)
+          {
+             OsSysLog::add( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
+          }
+          else
+          {
+            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
+          }
+       }
+       else
+       {
+            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
+       }
+       // set the global shutdown flag
+       gShutdownFlag = TRUE ;
+       return 0 ;
+   }
+} ;
 
 // Initialize the OsSysLog
 void initSysLog(OsConfigDb* pConfig)
@@ -281,27 +257,18 @@ void initSysLog(OsConfigDb* pConfig)
 //
 int main(int argc, char* argv[])
 {
+
+   // Block all signals in this the main thread.
+   // Any threads created from now on will have all signals masked.
+   OsTask::blockSignals();
+
+   // Create a new task to wait for signals.  Only that task
+   // will ever see a signal from the outside.
+   SignalTask* signalTask = new SignalTask();
+   signalTask->start();
+
    // Configuration Database (used for OsSysLog)
    OsConfigDb configDb;
-
-   // Register Signal handlers so we can perform graceful shutdown
-   pt_signal(SIGINT,   sigHandler);    // Trap Ctrl-C on NT
-   pt_signal(SIGILL,   sigHandler);
-   pt_signal(SIGABRT,  sigHandler);    // Abort signal 6
-   pt_signal(SIGFPE,   sigHandler);    // Floading Point Exception
-   pt_signal(SIGSEGV,  sigHandler);    // Address access violations signal 11
-   pt_signal(SIGTERM,  sigHandler);    // Trap kill -15 on UNIX
-#if defined(__pingtel_on_posix__)
-   pt_signal(SIGHUP,   sigHandler);    // Hangup
-   pt_signal(SIGQUIT,  sigHandler);
-   pt_signal(SIGPIPE,  SIG_IGN);    // Handle TCP Failure
-   pt_signal(SIGBUS,   sigHandler);
-   pt_signal(SIGSYS,   sigHandler);
-   pt_signal(SIGXCPU,  sigHandler);
-   pt_signal(SIGXFSZ,  sigHandler);
-   pt_signal(SIGUSR1,  sigHandler);
-   pt_signal(SIGUSR2,  sigHandler);
-#endif
 
    UtlString argString;
    for (int argIndex = 1; argIndex < argc; argIndex++)
@@ -408,29 +375,36 @@ int main(int argc, char* argv[])
    OsSysLog::add(LOG_FACILITY, PRI_INFO,
                  "Waiting %d sec. before starting operation.",
                  startupWait);
+
    // If we get the shutdown signal during this delay, the signal will
    // terminate the wait.
-   OsTask::delay(startupWait * 1000);
+   for(int i=0; i<startupWait && !gShutdownFlag; i++)
+   {
+      OsTask::delay(1000);
+   }
 
-   // Initialize the ResourceListServer.
-   // (Use tcpPort as the TLS port, too.)
-   ResourceListServer rls(domainName,
+   if (!gShutdownFlag)
+   {
+      // Initialize the ResourceListServer.
+      // (Use tcpPort as the TLS port, too.)
+      ResourceListServer rls(domainName,
                           DIALOG_EVENT_TYPE, DIALOG_EVENT_CONTENT_TYPE,
                           tcpPort, udpPort, tcpPort, bindIp,
                           &resourceListFile,
                           refreshInterval, resubscribeInterval,
                           250, 20, 20, 20, 20);
 
-   // Loop forever until signaled to shut down
-   while (!gShutdownFlag)
-   {
-      OsTask::delay(2000);
-      // See if the list configuration file has changed.
-      rls.getResourceListFileReader().refresh();
-   }
+      // Loop forever until signaled to shut down
+      while (!gShutdownFlag)
+      {
+         OsTask::delay(2000);
+         // See if the list configuration file has changed.
+         rls.getResourceListFileReader().refresh();
+      }
 
-   // Shut down the server.
-   rls.shutdown();
+      // Shut down the server.
+      rls.shutdown();
+   }
 
    // Flush the log file
    OsSysLog::flush();

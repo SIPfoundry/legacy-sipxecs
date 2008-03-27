@@ -49,16 +49,10 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-typedef void (*sighandler_t)(int);
 
 using namespace std ;
 
 // FUNCTIONS
-extern "C" {
-   void  sigHandler( int sig_num );
-   sighandler_t pt_signal( int sig_num, sighandler_t handler );
-}
-
 // FORWARD DECLARATIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -66,7 +60,6 @@ extern "C" {
 // GLOBAL VARIABLE INITIALIZATIONS
 OsServerTask* pServerTask   = NULL;
 UtlBoolean     gShutdownFlag = FALSE;
-UtlBoolean     gClosingIMDB  = FALSE;
 OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 
 /* ============================ FUNCTIONS ================================= */
@@ -84,55 +77,6 @@ closeIMDBConnections ()
    db->releaseAllDatabase();
 
    delete db;
-}
-
-/**
- * Description:
- * This is a replacement for signal() which registers a signal handler but sets
- * a flag causing system calls ( namely read() or getchar() ) not to bail out
- * upon recepit of that signal. We need this behavior, so we must call
- * sigaction() manually.
- */
-sighandler_t
-pt_signal( int sig_num, sighandler_t handler)
-{
-#if defined(__pingtel_on_posix__)
-   struct sigaction action[2];
-   action[0].sa_handler = handler;
-   sigemptyset(&action[0].sa_mask);
-   action[0].sa_flags = 0;
-   sigaction ( sig_num, &action[0], &action[1] );
-   return action[1].sa_handler;
-#else
-   return signal( sig_num, handler );
-#endif
-}
-
-/**
- * Description:
- * This is the signal handler, When called this sets the
- * global gShutdownFlag allowing the main processing
- * loop to exit cleanly.
- */
-void
-sigHandler( int sig_num )
-{
-   // set a global shutdown flag
-   gShutdownFlag = TRUE;
-
-   // Unregister interest in the signal to prevent recursive callbacks
-   pt_signal( sig_num, SIG_DFL );
-
-   // Minimize the chance that we loose log data
-   if (SIGTERM == sig_num)
-   {
-      OsSysLog::add( LOG_FACILITY, PRI_INFO, "sigHandler: terminate signal received.");
-   }
-   else
-   {
-      OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
-   }
-   OsSysLog::flush();
 }
 
 // Initialize the OsSysLog
@@ -262,31 +206,59 @@ initSysLog(OsConfigDb* pConfig)
    }
 }
 
+
+class SignalTask : public OsTask
+{
+public:
+   SignalTask() : OsTask() {}
+
+   int
+   run(void *pArg)
+   {
+       int sig_num ;
+       OsStatus res ;
+
+       // Wait for a signal.  This will unblock signals
+       // for THIS thread only, so this will be the only thread
+       // to catch an async signal directed to the process 
+       // from the outside.
+       res = awaitSignal(sig_num);
+       if (res == OS_SUCCESS)
+       {
+          if (SIGTERM == sig_num)
+          {
+             OsSysLog::add( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
+          }
+          else
+          {
+            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
+          }
+       }
+       else
+       {
+            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
+       }
+       // set the global shutdown flag
+       gShutdownFlag = TRUE ;
+       return 0 ;
+   }
+} ;
+
 /** The main entry point to the sipregistrar */
 int
 main(int argc, char* argv[] )
 {
+   // Block all signals in this the main thread.
+   // Any threads created from now on will have all signals masked.
+   OsTask::blockSignals();
+
+   // Create a new task to wait for signals.  Only that task
+   // will ever see a signal from the outside.
+   SignalTask* signalTask = new SignalTask();
+   signalTask->start();
+
    // Configuration Database (used for OsSysLog)
    OsConfigDb* configDb = new OsConfigDb();
-
-   // Register Signal handlers to close IMDB
-   pt_signal(SIGINT,   sigHandler);    // Trap Ctrl-C on NT
-   pt_signal(SIGILL,   sigHandler);
-   // do not catch SIGABRT - allow assert() to core dump
-   pt_signal(SIGFPE,   sigHandler);    // Floading Point Exception
-   pt_signal(SIGSEGV,  sigHandler);    // Address access violations signal 11
-   pt_signal(SIGTERM,  sigHandler);    // Trap kill -15 on UNIX
-#if defined(__pingtel_on_posix__)
-   pt_signal(SIGHUP,   sigHandler);    // Hangup
-   pt_signal(SIGQUIT,  sigHandler);
-   pt_signal(SIGPIPE,  SIG_IGN);    // Handle TCP Failure
-   pt_signal(SIGBUS,   sigHandler);
-   pt_signal(SIGSYS,   sigHandler);
-   pt_signal(SIGXCPU,  sigHandler);
-   pt_signal(SIGXFSZ,  sigHandler);
-   pt_signal(SIGUSR1,  sigHandler);
-   pt_signal(SIGUSR2,  sigHandler);
-#endif
 
    UtlBoolean interactiveSet = false;
    UtlString argString;

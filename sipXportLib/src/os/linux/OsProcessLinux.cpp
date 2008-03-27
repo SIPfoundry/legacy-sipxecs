@@ -163,7 +163,8 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
 {
     OsStatus retval = OS_FAILED;
 
-    OsUtilLinux::signal(SIGCHLD, cleanZombieProcess);
+    // Ignore SIGCHLD, it will be automatically reaped (POSIX.1-2001 spec)
+    OsUtilLinux::signal(SIGCHLD, SIG_IGN);
 
     //build one string out of the array passed in
     int parameterCount = -1;
@@ -182,7 +183,9 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
         case -1 :   retval = OS_FAILED;
                     break;
         
-        case 0 :    // this is the child process so we need to exec the new
+        case 0 :
+        {
+                    // this is the child process so we need to exec the new
                     // process now it's time to redirect the output, input, and
                     // error streams
 
@@ -191,32 +194,49 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
                     // abstraction layer, and the way threads are implemented on
                     // Linux.
 
-                        if (mStdInputFilename.length())
+                    if (mStdInputFilename.length())
+                    {
+                        if (!freopen(mStdInputFilename.data(),"r",stdin)) 
                         {
-                            if (!freopen(mStdInputFilename.data(),"r",stdin)) 
-                            {
-                                osPrintf("Could not redirect stdInput in OsProcess!");
-                                _exit(1);
-                            }
+                            osPrintf("Could not redirect stdInput in OsProcess!");
+                            _exit(1);
                         }
+                    }
 
-                        if (mStdOutputFilename.length())
+                    if (mStdOutputFilename.length())
+                    {
+                        if (!freopen(mStdOutputFilename.data(),"w",stdout)) 
                         {
-                            if (!freopen(mStdOutputFilename.data(),"w",stdout)) 
-                            {
-                                osPrintf("Could not redirect stdOutput in OsProcess!");
-                                _exit(1);
-                            }
-                        }               
-
-                        if (mStdErrorFilename.length())
-                        {
-                            if (!freopen(mStdErrorFilename.data(),"w",stderr)) 
-                            {
-                                osPrintf("Could not redirect stdError in OsProcess!");
-                                _exit(1);
-                            }
+                            osPrintf("Could not redirect stdOutput in OsProcess!");
+                            _exit(1);
                         }
+                    }               
+
+                    if (mStdErrorFilename.length())
+                    {
+                        if (!freopen(mStdErrorFilename.data(),"w",stderr)) 
+                        {
+                            osPrintf("Could not redirect stdError in OsProcess!");
+                            _exit(1);
+                        }
+                    }
+
+                    // close all other file descriptors that may be open
+                    int max_fd=1023;
+                    struct rlimit limits ;
+                    if(getrlimit(RLIMIT_NOFILE, &limits) == 0)
+                    {
+                       max_fd = limits.rlim_cur - 1 ;
+                    }
+                    for(int i=max_fd; i>2; i--)
+                    {
+                       close(i) ;
+                    }
+
+                    // Clear signal mask so the new process starts with
+                    // a "normal" mask
+                    OsTask::unBlockSignals();
+
 
                     //now apply the env variables the user may have set
                     ApplyEnv();
@@ -232,7 +252,8 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
                     //and it never reaches here hopefully
                     osPrintf("Failed to execute '%s'!\n", rAppName.data());
                     _exit(1);
-    default :   // this is the parent process
+        }
+        default :   // this is the parent process
                     mPID = forkReturnVal;
                     mParentPID = getpid();
 
@@ -354,11 +375,6 @@ UtlBoolean OsProcessLinux::isRunning() const
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-void OsProcessLinux::cleanZombieProcess(int signal)
-{
-   while(waitpid(-1, NULL, WNOHANG) > 0);
-}
 
 /* ============================ FUNCTIONS ================================= */
 

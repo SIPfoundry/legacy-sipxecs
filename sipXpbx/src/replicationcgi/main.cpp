@@ -8,7 +8,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include <signal.h>
 #include <iostream>
 
 // APPLICATION INCLUDES
@@ -18,6 +17,7 @@
 #include "os/OsStatus.h"
 #include "os/OsServerTask.h"
 #include "os/OsSysLog.h"
+#include "os/OsTask.h"
 #include "net/Url.h"
 #include "net/NetBase64Codec.h"
 
@@ -66,14 +66,6 @@ const char* REPLICATION_LOG_FILENAME = "replicationcgi.log";
 
 // STRUCTS
 // TYPEDEFS
-typedef void (*sighandler_t)(int);
-
-// FUNCTIONS
-extern "C" {
-    void  sigHandler( int sig_num );
-    sighandler_t pt_signal( int sig_num, sighandler_t handler );
-}
-
 // FORWARD DECLARATIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -111,60 +103,6 @@ closeIMDBConnectionsFromCGI ()
         delete SIPDBManager::getInstance();
     }
 }
-
-/**
- * Description:
- * This is a replacement for signal() which registers a signal handler but sets
- * a flag causing system calls ( namely read() or getchar() ) not to bail out
- * upon recepit of that signal. We need this behavior, so we must call
- * sigaction() manually.
- */
-sighandler_t
-pt_signal( int sig_num, sighandler_t handler)
-{
-#if defined(__pingtel_on_posix__)
-    struct sigaction action[2];
-    action[0].sa_handler = handler;
-    sigemptyset(&action[0].sa_mask);
-    action[0].sa_flags = 0;
-    sigaction ( sig_num, &action[0], &action[1] );
-    return action[1].sa_handler;
-#else
-    return signal( sig_num, handler );
-#endif
-}
-
-/** 
- * Description: 
- * This is the signal handler, When called this sets the 
- * global gShutdownFlag allowing the main processing
- * loop to exit cleanly.
- */
-void 
-sigHandler( int sig_num )
-{
-    // set a global shutdown flag
-//    gShutdownFlag = TRUE;
-
-    // Unregister interest in the signal to prevent recursive callbacks
-    pt_signal( sig_num, SIG_DFL );
-
-    // Minimize the chance that we loose log data
-    OsSysLog::flush();
-    if (SIGTERM == sig_num)
-    {
-       OsSysLog::add( FAC_REPLICATION_CGI, PRI_INFO, "sigHandler: terminate signal received.");
-    }
-    else
-    {
-       OsSysLog::add( FAC_REPLICATION_CGI, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
-    }
-    OsSysLog::add( FAC_REPLICATION_CGI, PRI_DEBUG, "sigHandler: closing IMDB connections" );
-    OsSysLog::flush();
-
-    closeIMDBConnectionsFromCGI(  );
-}
-
 
 OsStatus getAttributeValue (
             const TiXmlNode& node,
@@ -1026,125 +964,114 @@ void handleInput(const UtlString& importFileName)
 int 
 main( int argc, char *argv[] )
 {
+   // Block all signals in this the main thread
+   // Any threads created after this will have all signals masked.
+   OsTask::blockSignals();
+
+   // As no signal handler or thread waiting on signals created
+   // this process is immune from external signals.  Beware!
+
    OsPathBase logFilePath = SipXecsService::Path(SipXecsService::LogDirType,
-                                                 REPLICATION_LOG_FILENAME);
+                                              REPLICATION_LOG_FILENAME);
 
    gstrError.remove(0);
    
-      // Initialize the logger.
-      OsSysLog::initialize(1024, "replicationcgi" );
-      OsSysLog::setOutputFile(0, logFilePath );
-      OsSysLog::setLoggingPriorityForFacility(FAC_REPLICATION_CGI, DEFAULT_LOG_LEVEL);
-      OsSysLog::add(FAC_REPLICATION_CGI,PRI_INFO, "replication.cgi invoked");
-      OsSysLog::flush();
+   // Initialize the logger.
+   OsSysLog::initialize(1024, "replicationcgi" );
+   OsSysLog::setOutputFile(0, logFilePath );
+   OsSysLog::setLoggingPriorityForFacility(FAC_REPLICATION_CGI, DEFAULT_LOG_LEVEL);
+   OsSysLog::add(FAC_REPLICATION_CGI,PRI_INFO, "replication.cgi invoked");
+   OsSysLog::flush();
 
-      // Register Signal handlers to close IMDB
-      pt_signal(SIGINT,   sigHandler);    // Trap Ctrl-C on NT
-      pt_signal(SIGILL,   sigHandler); 
-      pt_signal(SIGABRT,  sigHandler);    // Abort signal 6
-      pt_signal(SIGFPE,   sigHandler);    // Floading Point Exception
-      pt_signal(SIGSEGV,  sigHandler);    // Address access violations signal 11 
-      pt_signal(SIGTERM,  sigHandler);    // Trap kill -15 on UNIX
-#if defined(__pingtel_on_posix__)
-      pt_signal(SIGHUP,   sigHandler);    // Hangup
-      pt_signal(SIGQUIT,  sigHandler); 
-      pt_signal(SIGPIPE,  SIG_IGN);    // Handle TCP Failure
-      pt_signal(SIGBUS,   sigHandler); 
-      pt_signal(SIGSYS,   sigHandler); 
-      pt_signal(SIGXCPU,  sigHandler); 
-      pt_signal(SIGXFSZ,  sigHandler);
-      pt_signal(SIGUSR1,  sigHandler); 
-      pt_signal(SIGUSR2,  sigHandler); 
-#endif
-      printf("Content-type: text/html \n\n");
+   printf("Content-type: text/html \n\n");
 
-      const char *pUserAgent = getenv("HTTP_USER_AGENT");
-      const char *pRequestMethod = getenv("REQUEST_METHOD");
+   const char *pUserAgent = getenv("HTTP_USER_AGENT");
+   const char *pRequestMethod = getenv("REQUEST_METHOD");
 
-      if( pUserAgent != NULL)
+   if( pUserAgent != NULL)
+   {
+      const char *pContentLength = getenv("CONTENT_LENGTH");
+
+      if( ( pRequestMethod != NULL ) && ( UtlString(pRequestMethod) != "POST" ) )
       {
-         const char *pContentLength = getenv("CONTENT_LENGTH");
+         printf( "This cgi only works with POST data.\n" );
+      } else
+      {
+         if( pContentLength != NULL )
+         {
+            int iContentlength = atoi(pContentLength);
+            char* buff =  new  char[iContentlength];
+            fread(buff, iContentlength, 1, stdin);
 
-         if( ( pRequestMethod != NULL ) && ( UtlString(pRequestMethod) != "POST" ) )
-         {
-            printf( "This cgi only works with POST data.\n" );
-         } else
-         {
-            if( pContentLength != NULL )
+
+            UtlString responseData("");
+
+
+            if( gstrError.length() == 0 )
             {
-               int iContentlength = atoi(pContentLength);
-               char* buff =  new  char[iContentlength];
-               fread(buff, iContentlength, 1, stdin);
-
-
-               UtlString responseData("");
-
-
-               if( gstrError.length() == 0 )
-               {
-                  handleInput( buff );
-               }
-               if( gstrError.length() > 0 )
-               {
-                  //adding header called "ErrorInReplication"
-                  //if there is any error.
-                  responseData.append( gstrError);
-                  OsSysLog::add(FAC_REPLICATION_CGI,PRI_ERR, gstrError.data());
-
-               }else
-               {
-                   responseData.append( "replication was successful");
-                   OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG, "replication was successful");
-
-               }
-               printf("%s", responseData.data());
-
-
-               delete []buff;
+               handleInput( buff );
             }
+            if( gstrError.length() > 0 )
+            {
+               //adding header called "ErrorInReplication"
+               //if there is any error.
+               responseData.append( gstrError);
+               OsSysLog::add(FAC_REPLICATION_CGI,PRI_ERR, gstrError.data());
+
+            }else
+            {
+                responseData.append( "replication was successful");
+                OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG, "replication was successful");
+
+            }
+            printf("%s", responseData.data());
+
+
+            delete []buff;
          }
       }
-      else
-      {
+   }
+   else
+   {
 
-         //executing standalone needs encodedFile to be passed as second argument.
-         printf(" This cgi is being executed from command line, not by a Http Server.\n\n " );
-         // See if we have a specific configuration file to use
-         if( argc > 2 )
+      //executing standalone needs encodedFile to be passed as second argument.
+      printf(" This cgi is being executed from command line, not by a Http Server.\n\n " );
+      // See if we have a specific configuration file to use
+      if( argc > 2 )
+      {
+         if ( UtlString(argv[1]) == "test" )
          {
-            if ( UtlString(argv[1]) == "test" )
+            UtlString responseData("");
+            handleInput( UtlString(argv[2]));
+
+            if( gstrError.length() > 0 )
             {
-               UtlString responseData("");
-               handleInput( UtlString(argv[2]));
+               responseData.append( gstrError);
+               OsSysLog::add(FAC_REPLICATION_CGI,PRI_ERR, gstrError.data());
 
-               if( gstrError.length() > 0 )
-               {
-                  responseData.append( gstrError);
-                  OsSysLog::add(FAC_REPLICATION_CGI,PRI_ERR, gstrError.data());
-
-               }else
-               {
-                  responseData.append( "replication was successful");
-                   OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG, "replication was successful");
-               }
-               printf("%s\n", responseData.data());
+            }else
+            {
+               responseData.append( "replication was successful");
+               OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG, "replication was successful");
             }
-         }else
-         {
-             usage();
+            printf("%s\n", responseData.data());
          }
-      }
-      // now deregister this process's database references from the IMDB
-      closeIMDBConnectionsFromCGI ();
-
-      if (!gstrError.isNull())
-      {
-         OsSysLog::add(FAC_REPLICATION_CGI,PRI_ERR, "%s", gstrError.data());
       }else
       {
-         OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG, "exited main() of replication.cgi");
+          usage();
       }
-      OsSysLog::flush();
+   }
+   // now deregister this process's database references from the IMDB
+   closeIMDBConnectionsFromCGI ();
+
+   if (!gstrError.isNull())
+   {
+      OsSysLog::add(FAC_REPLICATION_CGI,PRI_ERR, "%s", gstrError.data());
+   }else
+   {
+      OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG, "exited main() of replication.cgi");
+   }
+   OsSysLog::flush();
 
    return 0;
 }
