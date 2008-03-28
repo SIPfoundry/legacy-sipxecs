@@ -1,0 +1,40 @@
+
+# G E N E R A L
+version=3.11.1
+top.dir= ./
+src.dir=./
+java=/usr/java/jdk1.5.0_10/jre/bin/java
+java.home=/usr/java/jdk1.5.0_10
+optimize=on
+deprecation=false
+debug=off
+bin.dir=/usr/local/sipx/bin
+lib.dir=/usr/local/sipx/lib
+prefix.dir=/usr/local/sipx
+conf.dir=/usr/local/sipx/etc/sipxpbx
+
+# comma-separated combination of 'lines' 'source' and 'var' only valid
+# when debug is on
+
+# U T I L
+log4j=${src.dir}/lib/log4j-1.2.14.jar
+jainsip=${src.dir}/lib/jain-sip-api-1.2.jar
+nistsip=${src.dir}/lib/jain-sip-ri-1.2.jar
+nistsdp=${src.dir}/lib/nist-sdp-1.0.jar
+dnsjava=${src.dir}/lib/dnsjava-2.0.6.jar
+stun4j=${src.dir}/lib/Stun4J.jar
+commons-collections=${src.dir}/lib/commons-collections-3.2.jar
+commons-digester=${src.dir}/lib/commons-digester-1.8.jar
+commons-beanutils=${src.dir}/lib/commons-beanutils.jar
+commons-logging=${src.dir}/lib/commons-logging-1.1.1.jar
+commons-logging-api=${src.dir}/lib/commons-logging-api-1.1.1.jar
+xml-rpc-common=${src.dir}/lib/xmlrpc-common-3.1.jar
+xml-rpc-server=${src.dir}/lib/xmlrpc-server-3.1.jar
+ws-commons-util=${src.dir}/lib/ws-commons-util-1.0.2.jar
+junit=${src.dir}/lib/junit-3.8.1.jar
+javac.debug=on
+javac.source=1.5
+javac.target=1.5
+javac.deprecation=true 
+javac.optimize=off
+javac.debuglevel=lines,var,source
