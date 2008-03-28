@@ -1,0 +1,13 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Configuration Version</title>
+</head>
+
+<body>
+<p>
+Configuration version:<br/>
+&nbsp;&nbsp;@WCROOT@<br/>
+&nbsp;&nbsp;Revision(s): @SVNVERSION@
+</body>
+</html>

@@ -788,7 +788,8 @@ this response construction, see
 <h2><a name='config'>How this server is configured</a></h2>
 
 <p>
-<a href='sipx-version.cgi'>Display the sipX version running on this server</a>
+<a href='sipx-version.cgi'>Display the sipX version running on this server</a><br />
+<a href='config-version.html'>Display the configuration version running on this server</a>
 </p>
 <p>
 This server uses a

@@ -1,8 +1,8 @@
-# The name by which the update-passtokens script can be executed.
-# This will probably have to be specified, as update-passtokens is not
+# The name by which the setsipxpasswd script can be executed.
+# This will probably have to be specified, as setsipxpasswd is not
 # usually installed.
-# It is available in the source as sipXcommserverLib/doc/update-passtokens.
-UPDATE_PASSTOKENS=update-passtokens
+# It is available in the source as sipXcommserverLib/meta/setsipxpasswd.
+SETSIPXPASSWD=setsipxpasswd
 
 # The names of the destination directories.
 # These values are the defaults for RPM installation, but can be retargeted.
@@ -36,7 +36,7 @@ CONFIG_FILES_EDITED=$(subst .pre,,$(subst sipx_confdir,$(SIPX_CONFDIR),$(wildcar
 DOC_FILES_EDITED=$(subst .pre,,$(subst http_rootdir,$(HTTP_ROOTDIR),$(wildcard http_rootdir/*.pre)))
 SIPDB_FILES_EDITED=$(subst .pre,,$(subst sipx_dbdir,$(SIPX_DATADIR)/sipdb,$(wildcard sipx_dbdir/*.pre)))
 
-install: $(CONFIG_FILES) $(DOC_FILES) $(SIPDB_FILES) $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED) $(SIPX_DATADIR)/sipdb/credential.xml
+install: $(CONFIG_FILES) $(DOC_FILES) $(SIPDB_FILES) $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED) $(SIPX_DATADIR)/sipdb/credential.xml $(HTTP_ROOTDIR)/config-version.html
 
 # Print the lists of files.
 debug:
@@ -100,8 +100,17 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 	[[ $@ != *.cgi ]] || chmod a+x $@
 
 $(SIPX_DATADIR)/sipdb/credential.xml: $(SIPX_DATADIR)/sipdb/credential.xml.in $(SIPX_CONFDIR)/config.defs
-	sh -c \
-		"yes 1234 | $(UPDATE_PASSTOKENS) $< $@"
-	@echo
+	cp $< $@
+	$(SETSIPXPASSWD) --credential $@ 1234
+	chmod a+r $@
+
+$(HTTP_ROOTDIR)/config-version.html: $(HTTP_ROOTDIR)/config-version.html.in
+	WCROOT="$$( svn info | grep '^URL:' )" ;\
+	SVNVERSION=$$( svnversion ) ;\
+	sed \
+		-e 's!@WCROOT@!'"$$WCROOT"'!g' \
+		-e 's!@SVNVERSION@!'$$SVNVERSION'!g' \
+		<$< >$@
+	chmod a+r $@
 
 .PHONY: install debug
