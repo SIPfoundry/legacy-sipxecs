@@ -75,7 +75,7 @@ SetEnvIf User-Agent ".*Mozilla*" \\
 
     RewriteEngine on
     RewriteLog @SIPX_LOGDIR@/httpd_rewrite_log
-    RewriteLogLevel 9
+    RewriteLogLevel 0
      
     RewriteCond  %{QUERY_STRING} ^prefer-language=(.*)$  [nc]
     RewriteRule  ^(.*)\..+?$  $1?   [L,PT,env=prefer-language:%1]
