@@ -50,10 +50,12 @@ public class FirstRunTask implements ApplicationListener {
             return;
         }
         if (m_adminContext.inUpgradePhase()) {
+            LOG.debug("In upgrade phase - skipping initialization");
             // only process this task during normal phase
             return;
         }
         if (checkForTask()) {
+            LOG.info("Handling task " + m_taskName);
             runTask();
             removeTask();
         }

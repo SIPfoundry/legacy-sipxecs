@@ -11,14 +11,18 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 /**
- * Special version of application listener triggered only by the tast with a specified name.
+ * Special version of application listener triggered only by the task with a specified name.
  * InitTaskListener
  */
 public abstract class InitTaskListener implements ApplicationListener {
+    private static final Log LOG = LogFactory.getLog(InitTaskListener.class);
+
     private List<String> m_taskNames;
 
     public void setTaskNames(List<String> taskNames) {
@@ -33,6 +37,7 @@ public abstract class InitTaskListener implements ApplicationListener {
                 throw new IllegalStateException("Task list should not be null.");
             }
             if (m_taskNames.contains(taskName)) {
+                LOG.info("Initialization task " + taskName + " being handled by " + getClass().getName());
                 onInitTask(taskName);
             }
         }
