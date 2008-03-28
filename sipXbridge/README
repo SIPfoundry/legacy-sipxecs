@@ -1,7 +1,6 @@
-THIS IS AN EARLY ALPHA RELEASE. 
+THIS IS AN EARLY RELEASE. 
 
-THIS CODE IS DISTRIBUTED UNDER THE TERMS AND CONDITIONS OF THE GNU 
-LESSER PUBLIC LICENSE.  
+It is not included in the top level build until it achieves a better level of testing (help solicitied).
 
 This is an ITSP (trunking) gateway. It aims to provide media and
 signaling gatewaying between SIP endpoints inside a firewall /NAT and 
@@ -17,6 +16,9 @@ Look at the documentation in schema/sipxbridge.xsd
 and edit /etc/sipxpbx/sipxbridge.xml
 Set up your account information there.
 
+copy config.properties.test to config.properties 
+( this file will be generated from config.properties.in when sipxbridge becomes part of the top level build )
+
 
 
 Start sipx and configure sipx to use sipxbridge
@@ -28,7 +30,13 @@ localIpAddress and port where it an expect to talk to sipxbridge
 
 - Set up a Trunk Gateway to use the unmanaged SBC. You should set up
 the Route field in the Trunk Gateway configuration page to point to the
-host:port address of where sipxbridge runs.
+host:port ( i.e. local address ) of where sipxbridge runs.
+
+Note: If you are running 3.10 stable, you can do the following:
+	- edit /etc/sipxpbx/fallbackrules.xml.in
+	- Add a port following the sipxbridge address for the local side of sipxbridge.
+	- Save a backup copy of this file.
+	- Use sipxproc to restart the SIPRegistrar and SIPXProxy server to make the changes known to sipx.
 
 - Configure a user accounts and phones as usual. 
 For direct inbound dialing, you want to set up an alias corresponding to
@@ -37,14 +45,16 @@ the telephone number.
 - Set up a long distance dial plan with prefix 9 telephone numbers directed
 towards the configured Trunk Gateway.
 
-4. Start sipxbridge using the ant target "sudo ant sipxbridge"
+4. Start sipxbridge using the following command:
+	"sudo ant -Dtop.build.dir=./ -Dsrc.dir=./ -Dbuild.dir=./ sipxbridge"
+	
+   NOTE : It may be convenient to set up a shell alias for the command above.
 
-5. Start your phone and register it with sipx. 
+5. Start your IP phone and register it with sipx (or if it is already up and running, do nothing ). 
 
-6.  Pick up your cell phone and dial your ITSP provided for inbound
-calls. Dial 91your-cellphone-number for outbound calls.
+6.  On your pstn phone, dial your ITSP provided  number for inbound (to sipx) calls. Dial 91your-phone-number for outbound calls.
 
-
+7. Try a few call transfers etc.
 
 
 Warnings and disclaimers

@@ -87,7 +87,7 @@ public class MockSimpleCallSetupTest extends TestCase {
         this.sipxProxy.init(100);
         this.itsp = new MockItsp();
         this.itsp.init(100);
-        Gateway.start();
+        Gateway.startSipListener();
 
     }
 

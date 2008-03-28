@@ -52,7 +52,7 @@ public class SimpleCallSetupTest extends TestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        Gateway.start();
+        Gateway.startSipListener();
         this.sipxProxy = new MockSipxProxy();
         this.sipxProxy.init(100);
 

@@ -10,7 +10,12 @@ import java.io.IOException;
 import java.nio.channels.DatagramChannel;
 import java.util.Vector;
 
+import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
+import javax.sip.Dialog;
+import javax.sip.DialogState;
+import javax.sip.SipException;
+import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
 
@@ -104,9 +109,18 @@ public class RtpSession {
         return rtpBridge;
     }
 
-    public SessionDescription reAssignSessionParameters(
-            SessionDescription sessionDescription) {
-
+    
+    /**
+     * Reassign the session parameters ( possibly putting the media on hold and playing music ).
+     * 
+     * @param sessionDescription
+     * @param dat -- the dialog application data
+     * @return -- the recomputed session description.
+     */
+    public SessionDescription reAssignSessionParameters(Request request, 
+            Dialog dialog) throws SdpParseException , SipException {
+        SessionDescription sessionDescription = SipUtilities
+        .getSessionDescription(request);
         int oldPort = this.getTransmitter().getPort();
         String oldIpAddress = this.getTransmitter().getIpAddress();
 
@@ -132,14 +146,43 @@ public class RtpSession {
                 logger.debug("setting media on hold " + this.toString());
             }
             this.getTransmitter().setOnHold(true);
+            if (Gateway.getMusicOnHoldAddress() != null) {
 
+                /*
+                 * For the standard MOH, the URI is defined to be
+                 * <sip:~~mh~@[domain]>. There is thought that other URIs in
+                 * the ~~mh~ series can be allocated
+                 */
+                Dialog mohDialog;
+                try {
+                    mohDialog = Gateway.getCallControlManager().getBackToBackUserAgent(dialog).
+                        sendInviteToMohServer((SessionDescription)this.getReceiver().getSessionDescription().clone());
+                } catch (CloneNotSupportedException e) {
+                    throw new RuntimeException("Unexpected exception ", e);
+                }
+                DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
+                dat.musicOnHoldDialog = mohDialog;
+                
+                 
+            }
             return this.getReceiver().getSessionDescription();
         } else if (newport == oldPort && oldIpAddress.equals(newIpAddress)) {
             if (attribute == null || attribute.equals("sendrecv")) {
-                logger.debug("No session parameters changed!");
+                logger.debug("Remove media on hold!");
                 SipUtilities.setSessionDescriptionMediaAttribute(this
                         .getReceiver().getSessionDescription(), "sendrecv");
                 this.getTransmitter().setOnHold(false);
+                
+                /*
+                 * TODO.
+                 * If we have an Alive MOH dialog send him a BYE.
+                 */
+                DialogApplicationData dat  = (DialogApplicationData) dialog.getApplicationData();
+                if ( dat.musicOnHoldDialog != null && 
+                        dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
+                    BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+                    b2bua.sendByeToMohServer(dat.musicOnHoldDialog);
+                }
             } else if (attribute.equals("sendonly")) {
                 logger.debug("Setting media on hold.");
                 this.getTransmitter().setOnHold(true);
@@ -154,19 +197,24 @@ public class RtpSession {
                  * generate/obtain MOH media.
                  */
 
-                if ( Gateway.getMusicOnHoldName() == null ) {
-                    SipUtilities.setSessionDescriptionMediaAttribute(this
-                        .getReceiver().getSessionDescription(), "recvonly");
-                } else {
+                
+               
+                if (Gateway.getMusicOnHoldAddress() != null) {
 
-                /*
-                 * For the standard MOH, the URI is defined to be
-                 * <sip:~~mh~@[domain]>. There is thought that other URIs in the
-                 * ~~mh~ series can be allocated
-                 */
-                    throw new RuntimeException("Not yet implemented!");
+                    /*
+                     * For the standard MOH, the URI is defined to be
+                     * <sip:~~mh~@[domain]>. There is thought that other URIs in
+                     * the ~~mh~ series can be allocated
+                     */
+                    Dialog mohDialog = Gateway.getCallControlManager().getBackToBackUserAgent(dialog).
+                        sendInviteToMohServer(this.getReceiver().getSessionDescription());
+                    DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
+                    dat.musicOnHoldDialog = mohDialog;
+                    
+                     
                 }
-
+                SipUtilities.setSessionDescriptionMediaAttribute(this
+                        .getReceiver().getSessionDescription(), "recvonly");
             }
             return this.getReceiver().getSessionDescription();
 

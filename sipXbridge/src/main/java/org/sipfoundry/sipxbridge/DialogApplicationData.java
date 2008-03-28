@@ -45,6 +45,12 @@ class DialogApplicationData {
      * The replaced dialog (for Consultative XFer processing ).
      */
     Dialog replacedDialog;
+    
+    /*
+     * The MOH server dialog
+     */
+    Dialog musicOnHoldDialog;
+    
 
     DialogApplicationData(BackToBackUserAgent backToBackUserAgent) {
         this.backToBackUserAgent = backToBackUserAgent;

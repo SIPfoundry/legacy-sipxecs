@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="itsp-gateway" default="compile" basedir=".">
+<project name="sipxbridge" default="compile" basedir=".">
 <description>
       Build file 
 </description>
@@ -19,31 +19,67 @@
 
 
 
-	<property file="ant-build.properties" />
 
-	<property name="root" value="." />
-	<property name="src" location="${root}/src/main/java;${root}/src/test/java" />
-	<property name="classes" location="${root}/classes" />
-	<property name="doc" location="${root}/doc" />
-	<property name="lib" location="${root}/lib" />
-	<property name="tools" location="${root}/tools" />
-	<property name="junit.reports" value="junit" />
-	<property name="logs" value="logs" />
+	<property file="${top.build.dir}/sipXbridge/config.properties"/>
+  	<import file="ant-targets.xml"/>
+ 	<property name="build.dir" value="${top.build.dir}"/>
+  	<property name="dist.dir" value="${top.build.dir}/dist" />
+  	<property name="test.results.dir" value="${build.dir}/test-results" />
+  	<property name="test.classes.dir" value="${build.dir}/tests"/>
+
+
+  	<!--
+    	- I N I T
+    	- Create output directories.
+    	-->
+  	<target name="init" unless="subdirs"
+    		description="[internal] create standard output directories">
+
+    		<echo>entering ${ant.project.name}</echo>
+    		<mkdir dir="${classes.dir}" />
+    		<mkdir dir="${dist.dir}" />
+    		<mkdir dir="${test.results.dir}"/>
+    		<mkdir dir="${test.classes.dir}"/>
+  	</target>
+
+	 <target name="version.properties"
+    			description="[internal] Generats a properies file w/versioning info">
+
+    		<propertyfile file="${version.file}" comment="xpressa build" >
+        		<entry  key="version"       value="${xpressa.version}" />
+        		<entry  key="buildNumber"   value="${xpressa.build.number}" />
+        		<entry  key="built"         value="now"
+                		type="date"         pattern="MMM dd yyyy HH:mm:ss" />
+       			<entry  key="optionalComment"  value="${xpressa.build.comment}" />
+    		</propertyfile>
+  	</target>
+
+
+
+	<property name="src" location="${src.dir}/src/main/java;${src.dir}/src/test/java" />
+	<property name="classes" location="${classes.dir}" />
+	<property name="doc" location="${src.dir}/doc" />
+	<property name="lib" location="${src.dir}/lib" />
+	<property name="tools" location="${src.dir}/tools" />
+	<property name="junit.reports" value="${src.dir}/junit" />
 
 
 	<path id="project.class.path">
 		<pathelement location="${classes}" />
-		<pathelement location="lib/${log4j}" />
-		<pathelement location="lib/${jainsip}" />
-		<pathelement location="lib/${nistsip}" />
-		<pathelement location="lib/${nistsdp}" />
-		<pathelement location="lib/${junit}" />
-		<pathelement location="lib/${dnsjava}" />
-		<pathelement location="lib/${stun4j}" />
-		<pathelement location="lib/${commons-logging-api}" />
-		<pathelement location="lib/${commons-logging}" />
-		<pathelement location="lib/${commons-digester}" />
-		<pathelement location="lib/${commons-collections}" />
+		<pathelement location="${log4j}" />
+		<pathelement location="${jainsip}" />
+		<pathelement location="${nistsip}" />
+		<pathelement location="${nistsdp}" />
+		<pathelement location="${junit}" />
+		<pathelement location="${dnsjava}" />
+		<pathelement location="${stun4j}" />
+		<pathelement location="${commons-logging-api}" />
+		<pathelement location="${commons-logging}" />
+		<pathelement location="${commons-digester}" />
+		<pathelement location="${commons-collections}" />
+		<pathelement location="${xml-rpc-common}" />
+		<pathelement location="${xml-rpc-server}" />
+		<pathelement location="${ws-commons-util}" />
 	</path>
 	
 	
@@ -68,15 +104,12 @@
 
 
 <!-- unit tests  -->
-<target name="mkdirs">
-<mkdir dir="${logs}" />
-</target>
 
 <target name="mkreportdir">
 <mkdir dir="${junit.reports}" />
 </target>
 
-<target name='test' depends="mkdirs,mkreportdir" description="unit tests">
+<target name='test' depends="mkreportdir" description="unit tests">
 
 <junit fork="yes" showoutput="yes">
 	<classpath refid="project.class.path" />
@@ -92,9 +125,6 @@
 
 <target name="cleanlogs" >
 	<delete failonerror="false">
-	  <fileset dir="./logs" includes="**/*" />
-	</delete>
-	<delete failonerror="false">
 	  <fileset dir="/var/log/sipxpbx" includes="**/*" />
 	</delete>
 </target>
@@ -107,8 +137,8 @@
 
 <!-- Start iBridge -->
 <target name="sipxbridge" description="Start sipXbridge" depends="cleanlogs,compile" >
-    <mkdir dir="./logs" />
      <java fork="yes" classname="org.sipfoundry.sipxbridge.Gateway">
+     	   <arg value="-initOnStartup"/>
            <classpath>
 		  <pathelement location="${classes}" />
                   <fileset dir="lib">

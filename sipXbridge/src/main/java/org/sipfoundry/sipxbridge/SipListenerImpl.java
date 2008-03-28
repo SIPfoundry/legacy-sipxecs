@@ -128,6 +128,8 @@ public class SipListenerImpl implements SipListener {
                 .getHeader(CSeqHeader.NAME);
 
         String method = cseqHeader.getMethod();
+        String callId = SipUtilities.getCallId(response);
+        
 
         try {
 
@@ -138,6 +140,16 @@ public class SipListenerImpl implements SipListener {
                         .getApplicationData() != null;
                 ItspAccountInfo accountInfo = ((TransactionApplicationData) responseEvent
                         .getClientTransaction().getApplicationData()).itspAccountInfo;
+                
+                if (accountInfo.incrementFailureCount(callId) > 2 ) {
+                    if ( logger.isDebugEnabled()) {
+                        logger.debug("SipListenerImpl: could not authenticate with server. " +
+                        		"Here is the response " + response);
+                        return;
+                        
+                    }
+                }
+                
                 SipProvider provider = (SipProvider) responseEvent.getSource();
                 Dialog dialog = responseEvent.getDialog();
                 if (logger.isDebugEnabled()) {

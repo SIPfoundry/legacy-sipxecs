@@ -92,6 +92,7 @@ public class RegistrationManager {
 
         Response response = responseEvent.getResponse();
         if (response.getStatusCode() == Response.OK) {
+            System.out.println("Successfully registered! This will be displayed in sipxconfig");
             ContactHeader contactHeader = (ContactHeader) response
                     .getHeader(ContactHeader.NAME);
             int time = 0;

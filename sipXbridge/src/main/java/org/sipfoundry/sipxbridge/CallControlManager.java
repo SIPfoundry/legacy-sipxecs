@@ -116,12 +116,11 @@ public class CallControlManager {
                 logger.debug("Re-INVITE proessing !! ");
                 DialogApplicationData dat = (DialogApplicationData) dialog
                         .getApplicationData();
-                SessionDescription sessionDescription = SipUtilities
-                        .getSessionDescription(request);
+            
 
                 SessionDescription newDescription = dat.backToBackUserAgent
                         .getRtpBridge().getLanRtpSession(dialog)
-                        .reAssignSessionParameters(sessionDescription);
+                        .reAssignSessionParameters(request,dialog);
                 Response response = ProtocolObjects.messageFactory
                         .createResponse(Response.OK, request);
                 if (newDescription != null) {
@@ -754,15 +753,6 @@ public class CallControlManager {
                      */
                     if (response.getStatusCode() == Response.OK) {
 
-                        /*
-                         * Request referBye = referDialog
-                         * .createRequest(Request.BYE); SipProvider sipProvider =
-                         * ((SIPDialog) referDialog) .getSipProvider();
-                         * ClientTransaction referByeTx = sipProvider
-                         * .getNewClientTransaction(referBye);
-                         * referDialog.sendRequest(referByeTx);
-                         * b2bua.removeDialog(referDialog);
-                         */
                         b2bua.addDialog(dialog);
                         Thread.sleep(200);
                         Request ackRequest = dialog
@@ -772,6 +762,10 @@ public class CallControlManager {
                         dialog.sendAck(ackRequest);
                     }
 
+                } else if ( tad.operation.equals(Operation.SEND_INVITE_TO_MOH_SERVER)){
+                    Request ack = dialog.createAck(((CSeqHeader) response
+                            .getHeader(CSeqHeader.NAME)).getSeqNumber());
+                    dialog.sendAck(ack);
                 } else {
                     logger
                             .fatal("CallControlManager: Unknown Case in if statement ");
@@ -993,4 +987,5 @@ public class CallControlManager {
         
     }
 
+  
 }

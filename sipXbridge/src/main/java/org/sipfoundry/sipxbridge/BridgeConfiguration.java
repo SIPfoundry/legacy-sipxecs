@@ -23,8 +23,9 @@ public class BridgeConfiguration {
     private String logLevel = "INFO";
     private int rtpPortLowerBound = 25000;
     private int rtpPortUpperBound = 25500;
-    private String musicOnHoldName = "~~mh~~";
+    private String musicOnHoldName = "~~mh~";
     private boolean musicOnHoldEnabled = false;
+    private int xmlRpcPort = 8080;
 
     /**
      * @param externalAddress
@@ -206,6 +207,20 @@ public class BridgeConfiguration {
      */
     public boolean isMusicOnHoldSupportEnabled() {
         return musicOnHoldEnabled;
+    }
+
+    /**
+     * @param xmlRpcPort the xmlRpcPort to set
+     */
+    public void setXmlRpcPort(int xmlRpcPort) {
+        this.xmlRpcPort = xmlRpcPort;
+    }
+
+    /**
+     * @return the xmlRpcPort
+     */
+    public int getXmlRpcPort() {
+        return xmlRpcPort;
     }
 
 }

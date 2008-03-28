@@ -9,6 +9,7 @@ package org.sipfoundry.sipxbridge;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -26,10 +27,13 @@ import javax.sip.SipListener;
 import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
+import javax.sip.address.Address;
 import javax.sip.address.Hop;
+import javax.sip.address.SipURI;
 import javax.sip.message.Response;
 
 import net.java.stun4j.StunAddress;
+import net.java.stun4j.StunException;
 import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.ResponseSequenceServer;
 import net.java.stun4j.client.StunDiscoveryReport;
@@ -39,6 +43,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.SimpleLayout;
+import org.apache.xmlrpc.server.PropertyHandlerMapping;
+import org.apache.xmlrpc.server.XmlRpcServer;
+import org.apache.xmlrpc.webserver.WebServer;
 import org.sipfoundry.log4j.SipFoundryAppender;
 import org.sipfoundry.log4j.SipFoundryLayout;
 import org.xbill.DNS.Lookup;
@@ -63,6 +70,7 @@ public class Gateway {
 
     private static String configurationFile = "/etc/sipxpbx/sipxbridge.xml";
 
+    static final String SIPXBRIDGE_USER = "sipxbridge";
     /*
      * The account manager -- tracks user accounts. This is populated by reading
      * the sipxbridge.xml configuration file.
@@ -93,8 +101,6 @@ public class Gateway {
      * Back to back user agent manager.
      */
     private static CallControlManager backToBackUserAgentManager;
-    
-    
 
     /*
      * The Sipx proxy port.
@@ -130,68 +136,75 @@ public class Gateway {
      * A table of timers for re-registration
      */
     public static final Timer timer = new Timer();
-    
-    
+
+    /*
+     * The Music on hold URL
+     */
+    private static Address musicOnHoldAddress;
+
+    /*
+     * The From address of the gateway.
+     */
+    private static Address gatewayFromAddress;
+
+    /*
+     * The MOH URL
+     */
+    private static SipURI musicOnHoldUri;
+
+    /*
+     * THe Webserver for the xml rpc interface.
+     */
+    private static WebServer webServer;
+
+    /*
+     * The Gateway state.
+     */
+    public static GatewayState gatewayState = GatewayState.STOPPED;
 
     static {
-        init();
-    }
-    
-   
-
-    private static void init() {
         try {
-
             logger.addAppender(new SipFoundryAppender(new SipFoundryLayout(),
                     logFile));
 
             ConfigurationParser parser = new ConfigurationParser();
             accountManager = parser.createAccountManager(configurationFile);
-
-            sipSecurityManager = new gov.nist.javax.sip.clientauthutils.SipSecurityManager(
-                    accountManager, ProtocolObjects.headerFactory);
-
             BridgeConfiguration bridgeConfiguration = accountManager
                     .getBridgeConfiguration();
-            int externalPort = bridgeConfiguration.getExternalPort();
-            String externalAddress = bridgeConfiguration.getExternalAddress();
-            System.out.println("External Address:port = " + externalAddress
-                    + ":" + externalPort);
+            InetAddress localAddr = InetAddress.getByName(Gateway
+                    .getLocalAddress());
 
-            ListeningPoint externalUdpListeningPoint = ProtocolObjects.sipStack
-                    .createListeningPoint(externalAddress, externalPort, "udp");
-            ListeningPoint externalTcpListeningPoint = ProtocolObjects.sipStack
-                    .createListeningPoint(externalAddress, externalPort, "tcp");
+            webServer = new WebServer(Gateway.getXmlRpcWebServerPort(),
+                    localAddr);
 
-            externalProvider = ProtocolObjects.sipStack
-                    .createSipProvider(externalUdpListeningPoint);
+            PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
 
-            int localPort = bridgeConfiguration.getLocalPort();
-            String localIpAddress = bridgeConfiguration.getLocalAddress();
-            System.out.println("Local Address:port = " + localIpAddress + ":"
-                    + localPort);
+            handlerMapping.addHandler("sipxbridge",
+                    SipXbridgeXmlRpcHandler.class);
 
-            ListeningPoint internalUdpListeningPoint = ProtocolObjects.sipStack
-                    .createListeningPoint(localIpAddress, localPort, "udp");
+            XmlRpcServer server = webServer.getXmlRpcServer();
 
-            ListeningPoint internalTcpListeningPoint = ProtocolObjects.sipStack
-                    .createListeningPoint(localIpAddress, localPort, "tcp");
+            server.setHandlerMapping(handlerMapping);
+            webServer.start();
 
-            internalProvider = ProtocolObjects.sipStack
-                    .createSipProvider(internalUdpListeningPoint);
+        } catch (Exception ex) {
+            throw new RuntimeException("Bad configuration file");
+        }
+    }
 
-            registrationManager = new RegistrationManager(getWanProvider());
-
-            backToBackUserAgentManager = new CallControlManager();
-
+    public static void discoverPublicAddress()
+            throws GatewayConfigurationException {
+        try {
+            BridgeConfiguration bridgeConfiguration = accountManager
+                    .getBridgeConfiguration();
             String stunServerAddress = bridgeConfiguration
                     .getStunServerAddress();
 
             if (stunServerAddress != null) {
 
                 // Todo -- deal with the situation when this port may be taken.
-                StunAddress localStunAddress = new StunAddress(localIpAddress,
-                        5091);
+                StunAddress localStunAddress = new StunAddress(Gateway
+                        .getLocalAddress(), 5091);
 
                 StunAddress serverStunAddress = new StunAddress(
                         stunServerAddress, STUN_PORT);
@@ -210,13 +223,84 @@ public class Gateway {
                 }
 
             }
+        } catch (Exception ex) {
+            throw new GatewayConfigurationException(
+                    "Error discovering public address", ex);
+        }
+    }
+
+    /**
+     * Initialize the bridge.
+     * 
+     */
+    public static void init() {
+        try {
+            /*
+             * We re-parse the file here because it can change when the bridge
+             * is re-initialized.
+             */
+            ConfigurationParser parser = new ConfigurationParser();
+            accountManager = parser.createAccountManager(configurationFile);
+            BridgeConfiguration bridgeConfiguration = accountManager
+                    .getBridgeConfiguration();
+            InetAddress localAddr = InetAddress.getByName(Gateway
+                    .getLocalAddress());
+
+            sipSecurityManager = new gov.nist.javax.sip.clientauthutils.SipSecurityManager(
+                    accountManager, ProtocolObjects.headerFactory);
+
+            int externalPort = bridgeConfiguration.getExternalPort();
+            String externalAddress = bridgeConfiguration.getExternalAddress();
+            System.out.println("External Address:port = " + externalAddress
+                    + ":" + externalPort);
+
+            ListeningPoint externalUdpListeningPoint = ProtocolObjects.sipStack
+                    .createListeningPoint(externalAddress, externalPort, "udp");
+            ListeningPoint externalTcpListeningPoint = ProtocolObjects.sipStack
+                    .createListeningPoint(externalAddress, externalPort, "tcp");
+
+            externalProvider = ProtocolObjects.sipStack
+                    .createSipProvider(externalUdpListeningPoint);
+
+            int localPort = bridgeConfiguration.getLocalPort();
+            String localIpAddress = bridgeConfiguration.getLocalAddress();
+            System.out.println("Local Address:port = " + localIpAddress + ":"
+                    + localPort);
+
+            SipURI mohUri = accountManager.getBridgeConfiguration()
+                    .getMusicOnHoldName() == null ? null
+                    : ProtocolObjects.addressFactory.createSipURI(
+                            accountManager.getBridgeConfiguration()
+                                    .getMusicOnHoldName(), Gateway
+                                    .getSipxProxyDomain());
+            musicOnHoldAddress = ProtocolObjects.addressFactory
+                    .createAddress(mohUri);
+            String domain = Gateway.getSipxProxyDomain();
+            gatewayFromAddress = ProtocolObjects.addressFactory
+                    .createAddress(ProtocolObjects.addressFactory.createSipURI(
+                            SIPXBRIDGE_USER, domain));
+
+            ListeningPoint internalUdpListeningPoint = ProtocolObjects.sipStack
+                    .createListeningPoint(localIpAddress, localPort, "udp");
+
+            ListeningPoint internalTcpListeningPoint = ProtocolObjects.sipStack
+                    .createListeningPoint(localIpAddress, localPort, "tcp");
+
+            internalProvider = ProtocolObjects.sipStack
+                    .createSipProvider(internalUdpListeningPoint);
+
+            registrationManager = new RegistrationManager(getWanProvider());
+
+            backToBackUserAgentManager = new CallControlManager();
+
             Hop hop = getSipxProxyHop();
             if (hop == null) {
                 System.out
                         .println("Cannot resolve sipx proxy address check config ");
             }
             System.out.println("Proxy assumed to be running at 	" + hop);
-            System.out.println("------- SIPXBRIDGE READY --------");
+
+          
 
         } catch (Exception ex) {
             throw new RuntimeException("Cannot initialize gateway", ex);
@@ -363,16 +447,16 @@ public class Gateway {
     public static String getLogLevel() {
         return accountManager.getBridgeConfiguration().getLogLevel();
     }
-    
+
     /**
      * @return the upper bound of the port range we are allowing for RTP.
      * 
      */
     public static int getRtpPortRangeUpperBound() {
-        
+
         return accountManager.getBridgeConfiguration().getRtpPortUpperBound();
     }
-    
+
     /**
      * @return the lower bound of the port range for RTP.
      */
@@ -380,26 +464,60 @@ public class Gateway {
         return accountManager.getBridgeConfiguration().getRtpPortLowerBound();
     }
 
-    
     /**
-     * @return the Music On Hold server User Name.
+     * Get the MOH server Request URI.
      */
-    public static String getMusicOnHoldName() {
-        return accountManager.getBridgeConfiguration().getMusicOnHoldName();
+    public static SipURI getMusicOnHoldUri() {
+        try {
+            return accountManager.getBridgeConfiguration().getMusicOnHoldName() == null ? null
+                    : ProtocolObjects.addressFactory.createSipURI(
+                            accountManager.getBridgeConfiguration()
+                                    .getMusicOnHoldName(), Gateway
+                                    .getSipxProxyAddress());
+        } catch (Exception ex) {
+            logger.error("Unexpected exception creating Music On Hold URI", ex);
+            throw new RuntimeException("Unexpected exception", ex);
+        }
     }
-  
+
+    /**
+     * @return the Music On Hold server Address.
+     */
+    public static Address getMusicOnHoldAddress() {
+        return musicOnHoldAddress;
+    }
+
+    /**
+     * Get the Gateway Address ( used in From Header ) of requests that
+     * originate from the Gateway.
+     * 
+     * @return an address that can be used in the From Header of request that
+     *         originate from the Gateway.
+     */
+    public static Address getGatewayFromAddress() {
+        return Gateway.gatewayFromAddress;
+
+    }
+
     /**
      * Registers all listeners and starts everything.
      * 
      * @throws Exception
      */
-    public static void start() throws GatewayConfigurationException {
+    public static void startSipListener() throws GatewayConfigurationException {
         try {
             SipListenerImpl listener = new SipListenerImpl();
             getWanProvider().addSipListener(listener);
             getLanProvider().addSipListener(listener);
             ProtocolObjects.start();
-          
+            System.out.println("------- REGISTERING--------");
+            for (ItspAccountInfo itspAccount : Gateway.accountManager
+                    .getItspAccounts()) {
+                if (itspAccount.isRegisterOnInitialization())
+                    Gateway.registrationManager.sendRegistrer(itspAccount);
+            }
+            Gateway.gatewayState = GatewayState.INITIALIZED;
+
         } catch (Exception ex) {
             throw new GatewayConfigurationException(
                     "Could not start gateway -- check configuration", ex);
@@ -407,11 +525,20 @@ public class Gateway {
 
     }
 
-    public static void stop() {
+    public static void start() throws GatewayConfigurationException {
+        if ( Gateway.getState() != GatewayState.STOPPED) {
+            return;
+        }
+        init();
+        discoverPublicAddress();
+        startSipListener();
+    }
+
+    public static synchronized void stop() {
         backToBackUserAgentManager.stop();
         timer.cancel();
         ProtocolObjects.stop();
-
+        Gateway.gatewayState = GatewayState.STOPPED;
     }
 
     /**
@@ -424,7 +551,25 @@ public class Gateway {
         return globalAddress;
     }
 
-    
+    /**
+     * Get the web server port.
+     * 
+     * @return the web server port.
+     */
+    public static int getXmlRpcWebServerPort() {
+        return Gateway.accountManager.getBridgeConfiguration().getXmlRpcPort();
+    }
+
+    /**
+     * Gets the current bridge status.
+     * 
+     * @return
+     */
+    public static GatewayState getState() {
+
+        return Gateway.gatewayState;
+
+    }
 
     /**
      * The main method for the Bridge.
@@ -436,18 +581,12 @@ public class Gateway {
         for (int i = 0; i < args.length; i++) {
             if ("-config".equals(args[i])) {
                 Gateway.configurationFile = args[++i];
-            }
-        }
-        start();
+            } else if ("-initOnStartup".equals(args[i])) {
+                start();
 
-        for (ItspAccountInfo itspAccount : Gateway.accountManager
-                .getItspAccounts()) {
-            if (itspAccount.isRegisterOnInitialization())
-                Gateway.registrationManager.sendRegistrer(itspAccount);
+            }
         }
 
     }
-
-   
 
 }

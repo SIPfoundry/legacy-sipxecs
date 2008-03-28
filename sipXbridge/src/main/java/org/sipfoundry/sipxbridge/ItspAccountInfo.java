@@ -7,6 +7,8 @@
 package org.sipfoundry.sipxbridge;
 
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.TimerTask;
 
 import javax.sip.address.SipURI;
@@ -97,6 +99,11 @@ public class ItspAccountInfo implements
      * Registration Interval (seconds)
      */
     private int registrationInterval = 90;
+    
+    /**
+     * The call Id table.
+     */
+    private HashMap<String,FailureCounter> failureCountTable = new HashMap<String,FailureCounter> ();
 
     /**
      * This task runs periodically depending upon the timeout of the lookup
@@ -125,12 +132,50 @@ public class ItspAccountInfo implements
             } catch (Exception ex) {
                 Gateway.stop();
             }
+            
 
         }
 
     }
+    
+    class FailureCounterScanner extends TimerTask {
+        
+        public FailureCounterScanner() {
+            
+        }
+
+        @Override
+        public void run() {
+           
+            for (Iterator<FailureCounter> it = failureCountTable.values().iterator(); it.hasNext();  ) {
+                FailureCounter fc = it.next();
+                long now = System.currentTimeMillis();
+                if (now - fc.creationTime > 30000) {
+                    it.remove();
+                }
+            }
+        }
+        
+    }
+    
+    class FailureCounter {
+        long  creationTime;
+        int   counter;
+        FailureCounter() {
+            creationTime = System.currentTimeMillis();
+            counter = 0;
+        }
+        
+        int increment() {
+            counter++;
+            return counter;
+        }
+    }
 
     public ItspAccountInfo() {
+        
+        FailureCounterScanner fcs = new FailureCounterScanner();
+        Gateway.timer.schedule(fcs, 5000,5000);
 
     }
 
@@ -322,6 +367,16 @@ public class ItspAccountInfo implements
      */
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public int  incrementFailureCount(String callId) {
+        FailureCounter fc = this.failureCountTable.get(callId);
+        if (fc == null) {
+            fc = new FailureCounter();
+            this.failureCountTable.put(callId, fc);
+        }
+        return fc.increment();
+        
     }
 
 }

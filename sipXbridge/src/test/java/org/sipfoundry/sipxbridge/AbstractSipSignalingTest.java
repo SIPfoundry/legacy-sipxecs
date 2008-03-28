@@ -27,7 +27,7 @@ public abstract class AbstractSipSignalingTest extends TestCase {
 
     @Override
     public void setUp() throws Exception {
-
+        Gateway.start();
         accountManager = Gateway.getAccountManager();
         sipSecurityManager = Gateway.getSipSecurityManager();
         provider = Gateway.getWanProvider();

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sdp.MediaDescription;
@@ -34,6 +35,7 @@ import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
+import javax.sip.address.Address;
 import javax.sip.address.SipURI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
@@ -181,13 +183,7 @@ public class BackToBackUserAgent {
                     .getReplacesDialog(replacesHeader);
 
             if (replacedDialog == null) {
-                Collection<Dialog> dialogs = ((SipStackExt) ProtocolObjects.sipStack)
-                        .getDialogs();
-                for (Dialog dialog : dialogs) {
-                    logger
-                            .debug("BackToBackUserAgent: Here is the dialog table:");
-                    logger.debug("dialog Id = " + dialog.getDialogId());
-                }
+
                 Response response = ProtocolObjects.messageFactory
                         .createResponse(Response.NOT_FOUND, incomingRequest);
                 response.setReasonPhrase("Replaced Dialog not found");
@@ -205,6 +201,20 @@ public class BackToBackUserAgent {
 
             this.pairDialogs(((DialogApplicationData) replacedDialog
                     .getApplicationData()).peerDialog, this.referingDialogPeer);
+
+            Dialog mohDialog = ((DialogApplicationData) referingDialog
+                    .getApplicationData()).musicOnHoldDialog;
+            
+            /*
+             * Tear down the Music On Hold Dialog if any.
+             */
+            if (mohDialog != null
+                    && mohDialog.getState() != DialogState.TERMINATED ) {
+                Request byeRequest = mohDialog.createRequest(Request.BYE);
+                SipProvider mohDialogProvider = ((DialogExt) mohDialog).getSipProvider();
+                ClientTransaction ctx = mohDialogProvider.getNewClientTransaction(byeRequest);
+                mohDialog.sendRequest(ctx);
+            }
 
             /* The replaced dialog is about ready to die so he has no peer */
             ((DialogApplicationData) replacedDialog.getApplicationData()).peerDialog = null;
@@ -626,6 +636,119 @@ public class BackToBackUserAgent {
                 logger.error("Unexpected exception ", e);
             }
         }
+
+    }
+
+    /**
+     * Send an INVITE to the MOH server on SIPX.
+     * 
+     * @return the dialog generated as a result of sending the invite to the MOH
+     *         server.
+     * 
+     */
+    public Dialog sendInviteToMohServer(SessionDescription sessionDescription) {
+
+        Dialog retval = null;
+
+        try {
+
+            SipURI uri = Gateway.getMusicOnHoldUri();
+            SipProvider lanProvider = Gateway.getLanProvider();
+
+            CallIdHeader callIdHeader = lanProvider.getNewCallId();
+
+            CSeqHeader cseqHeader = ProtocolObjects.headerFactory
+                    .createCSeqHeader(1L, Request.INVITE);
+
+            Address gatewayAddress = Gateway.getGatewayFromAddress();
+
+            FromHeader fromHeader = ProtocolObjects.headerFactory
+                    .createFromHeader(gatewayAddress, Long.toString(Math
+                            .abs(new Random().nextLong())));
+
+            Address mohServerAddress = Gateway.getMusicOnHoldAddress();
+
+            ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(
+                    mohServerAddress, null);
+
+            toHeader.removeParameter("tag");
+
+            ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway
+                    .getLanProvider(), Gateway.getSipxProxyTransport());
+
+            List<ViaHeader> viaList = new LinkedList<ViaHeader>();
+
+            viaList.add(viaHeader);
+
+            MaxForwardsHeader maxForwards = ProtocolObjects.headerFactory
+                    .createMaxForwardsHeader(20);
+
+            maxForwards.decrementMaxForwards();
+            Request newRequest = ProtocolObjects.messageFactory.createRequest(
+                    uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
+                    toHeader, viaList, maxForwards);
+            ContactHeader contactHeader = SipUtilities.createContactHeader(
+                    Gateway.SIPXBRIDGE_USER, Gateway.getLanProvider());
+            newRequest.setHeader(contactHeader);
+
+            /*
+             * Create a new client transaction.
+             */
+            ClientTransaction ct = Gateway.getLanProvider()
+                    .getNewClientTransaction(newRequest);
+
+            Dialog outboundDialog = ct.getDialog();
+            DialogApplicationData dialogApplicationData = new DialogApplicationData(
+                    this);
+
+            MediaDescription mediaDescription = (MediaDescription) sessionDescription
+                    .getMediaDescriptions(true).get(0);
+            mediaDescription.setAttribute("a", "recvonly");
+            ContentTypeHeader cth = ProtocolObjects.headerFactory
+                    .createContentTypeHeader("application", "sdp");
+
+            newRequest.setContent(sessionDescription.toString(), cth);
+
+            TransactionApplicationData tad = new TransactionApplicationData(
+                    Operation.SEND_INVITE_TO_MOH_SERVER);
+            tad.isReInvite = false;
+            tad.clientTransaction = ct;
+            tad.clientTransactionProvider = Gateway.getLanProvider();
+            tad.incomingSession = null;
+            tad.outgoingSession = null;
+            tad.serverTransaction = null;
+            tad.serverTransactionProvider = null;
+            tad.backToBackUa = this;
+            ct.setApplicationData(tad);
+            this.addDialog(ct.getDialog());
+
+            ct.sendRequest();
+            retval = ct.getDialog();
+
+        } catch (InvalidArgumentException ex) {
+            logger.error("Unexpected exception encountered");
+            throw new RuntimeException("Unexpected exception encountered", ex);
+        } catch (Exception ex) {
+            logger.error("Unexpected parse exception", ex);
+            if (retval != null)
+                this.dialogTable.remove(retval);
+
+        }
+        return retval;
+    }
+
+    /**
+     * Send a BYE to the Music On Hold Server.
+     * 
+     * @param musicOnHoldDialog
+     * @throws SipException
+     */
+    public void sendByeToMohServer(Dialog musicOnHoldDialog)
+            throws SipException {
+        Request byeRequest = musicOnHoldDialog.createRequest(Request.BYE);
+        SipProvider lanProvider = Gateway.getLanProvider();
+        ClientTransaction ctx = lanProvider.getNewClientTransaction(byeRequest);
+        musicOnHoldDialog.sendRequest(ctx);
 
     }
 
