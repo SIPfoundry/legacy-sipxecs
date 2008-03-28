@@ -1,7 +1,5 @@
 service = sipxcallresolver-agent
 pid     = @SIPX_RUNDIR@/sipxcallresolver-agent.pid
-setuid  = @SIPXPBXUSER@
-setgid  = @SIPXPBXUSER@
 verify  = 2
 debug   = 5
 output  = @SIPX_LOGDIR@/sipxcallresolver-agent.log
