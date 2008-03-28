@@ -21,8 +21,8 @@
 
 
 	<property file="${top.build.dir}/sipXbridge/config.properties"/>
+ 	<property name="build.dir" value="${top.build.dir}/sipXbridge"/>
   	<import file="ant-targets.xml"/>
- 	<property name="build.dir" value="${top.build.dir}"/>
   	<property name="dist.dir" value="${top.build.dir}/dist" />
   	<property name="test.results.dir" value="${build.dir}/test-results" />
   	<property name="test.classes.dir" value="${build.dir}/tests"/>
