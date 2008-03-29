@@ -58,6 +58,7 @@ SFAC_LIB_PORT
 SFAC_FEATURE_SIP_TLS
 
 ENABLE_DOC
+ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 
 ## Sipviewer is written in java and compiled w/ant so allow someone

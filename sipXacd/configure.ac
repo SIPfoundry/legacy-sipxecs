@@ -21,6 +21,7 @@ AC_PROG_CC
 CHECK_XARGS_REPLACE
 
 ENABLE_DOC
+ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 AM_CONDITIONAL(USE_BLDNO, test x$enable_buildnumber = xyes)
 
