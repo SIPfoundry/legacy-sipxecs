@@ -41,6 +41,7 @@ SipUserAgentStateless::SipUserAgentStateless(int sipTcpPort, int sipUdpPort) :
    OsDatagramSocket* serverSocket =
        new OsDatagramSocket(0, NULL,sipUdpPort, NULL);
    mpUdpServer = new SipClientUdp(serverSocket, NULL, this);
+   assert(mpUdpServer->isOk());
    mpUdpServer->start();
 }
 
