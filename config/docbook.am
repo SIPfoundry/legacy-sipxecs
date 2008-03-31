@@ -1,0 +1,72 @@
+##
+## This should be included to build project documentation using docbook
+##
+## The project configure.ac file must include ENABLE_DOC and CHECK_DOCBOOKXML
+##
+## Before the 'include' of this file, define the following variables:
+##
+##   EXTRA_DIST (must have some definition, even if empty, so this can use +=)
+##   CLEANFILES (must have some definition, even if empty, so this can use +=)
+##   DOCBOOK_XML_DOCS = file names of input documents _without_ the .xml suffix
+##
+## Following the 'include' of this file, the variable
+## 
+##   DOCBOOK_OUTPUTS is the list of generated document files to be installed 
+##                   (these are full paths, including $(DESTDIR)
+##
+
+OUTPUT_FORMS=
+
+DOCBOOK_INPUTS=$(foreach doc,$(DOCBOOK_XML_DOCS),$(doc).xml)
+
+EXTRA_DIST+=$(DOCBOOK_INPUTS)
+
+if GENERATE_DOCBOOK_HTML
+
+OUTPUT_FORMS+=.html
+XSL_JADETEX=$(top_srcdir)/config/style.xsl
+
+%.html: %.xml $(XSL_JADETEX)
+	$(XSLTPROC) -o $@ $(XSL_JADETEX) $<
+
+EXTRA_DIST+=$(XSL_JADETEX)
+
+endif # GENERATE_DOCBOOK_HTML
+
+if GENERATE_DOCBOOK_PDF
+
+OUTPUT_FORMS+=.pdf
+
+PDF_CONTROL_FILES= \
+	$(top_srcdir)/config/docbook-html.xsl \
+	$(top_srcdir)/config/docbook-jadetex.dsssl \
+	$(top_srcdir)/config/docbook.mak
+
+EXTRA_DIST+=$(PDF_CONTROL_FILES)
+
+DSSSL_JADETEX=/usr/share/sgml/docbook/dsssl-stylesheets/print/docbook.dsl
+
+PDF_INTERMEDIATE_FORMS=.tex .aux .log .out
+PDF_INTERMEDIATES=$(foreach doc,$(DOCBOOK_XML_DOCS),$(foreach intform,$(PDF_INTERMEDIATE_FORMS),$(doc)$(intform)))
+
+%.tex: %.xml $(DSSSL_JADETEX) $(PDF_CONTROL_FILES)
+	$(OPENJADE) -t tex -d $(DSSSL_JADETEX) -c /usr/share/sgml/openjade/catalog \
+		-o $@ /usr/share/sgml/docbook/dsssl-stylesheets/dtds/decls/xml.dcl $<
+
+%.pdf %.out %.aux %.log: %.tex
+	if [ -e prior.aux ]; then cp -pf prior.aux pprior.aux; fi
+	f=$(shell basename $< .tex).aux; if [ -e $$f ]; then cp -pf $$f prior.aux; fi
+	-$(PDFJADETEX) $< > pdfjadetex.log
+	if ! cmp $(shell basename $< .tex).aux prior.aux > /dev/null 2>&1 && \
+		! cmp $(shell basename $< .tex).aux pprior.aux > /dev/null 2>&1 && \
+		expr $(MAKELEVEL) '<' 4 > /dev/null; then \
+		rm -f $@; \
+		echo "Found undefined references, compiling again..."; \
+		$(MAKE) $@; \
+	fi
+
+CLEANFILES+=$(PDF_INTERMEDIATES)
+
+endif # GENERATE_DOCBOOK_PDF
+
+DOCBOOK_OUTPUTS=$(foreach doc,$(DOCBOOK_XML_DOCS),$(foreach outform,$(OUTPUT_FORMS),$(doc)$(outform)))

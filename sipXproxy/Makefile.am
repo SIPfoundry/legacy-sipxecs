@@ -4,9 +4,7 @@ include config/project.am
 RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM) \
 	$(DEST_RPM)/@PACKAGE@-cdr-$(SIPX_VERSION).$(RPM_TARGET_ARCH).rpm
 
-if DOC
-doc_SUBDIRS=doc
-endif # DOC
+include config/conditional_doc.am
 
 SUBDIRS = \
 	. \

@@ -1,9 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 include config/project.am
 
-if DOC
-doc_SUBDIRS=doc
-endif # DOC
+include config/conditional_doc.am
 
 SUBDIRS = . \
     include \

@@ -9,9 +9,7 @@ if EXAMPLES
 EXAMPLES_OPT = examples
 endif
 
-if DOC
-doc_SUBDIRS=doc
-endif # DOC
+include config/conditional_doc.am
 
 SUBDIRS = \
 	. \

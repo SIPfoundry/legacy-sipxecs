@@ -4,9 +4,7 @@ include config/project.am
 
 RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)
 
-if DOC
-doc_SUBDIRS=doc
-endif # DOC
+include config/conditional_doc.am
 
 SUBDIRS = \
 	. \

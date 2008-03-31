@@ -920,6 +920,7 @@ AC_DEFUN([CHECK_PCRE],
 
 AC_DEFUN([ENABLE_DOXYGEN],
 [
+  AC_REQUIRE([ENABLE_DOC])
   AC_ARG_ENABLE(doxygen, [  --enable-doxygen        enable documentation generation with doxygen (yes)], [enable_doxygen="$enableval"], [ enable_doxygen=yes])
   AC_ARG_ENABLE(dot, [  --enable-dot            use 'dot' to generate graphs in doxygen (auto)],
                      [enable_dot="$enableval"], [enable_dot=true])
@@ -948,21 +949,21 @@ AC_DEFUN([ENABLE_DOXYGEN],
   # adjust values from yes/no to those used in doxygen configuration files (true/false)
   if test "$enable_dot" = "yes"
   then
-     enable_dot = "true"
+     enable_dot="true"
   else
-     enable_dot = "false"
+     enable_dot="false"
   fi
   if test "$enable_html_docs" = "yes"
   then
-     enable_html_docs = "true"
+     enable_html_docs="true"
   else
-     enable_html_docs = "false"
+     enable_html_docs="false"
   fi
   if test "$enable_latex_docs" = "yes"
   then
-     enable_latex_docs = "true"
+     enable_latex_docs="true"
   else
-     enable_latex_docs = "false"
+     enable_latex_docs="false"
   fi
   AC_SUBST(enable_dot)
   AC_SUBST(enable_html_docs)
@@ -1517,6 +1518,7 @@ AC_DEFUN([CHECK_OPENJADE],
 
 AC_DEFUN([CHECK_DOCBOOKXML],
 [
+  AC_REQUIRE([ENABLE_DOC])
   AC_REQUIRE([CHECK_XSLTPROC])
   AC_REQUIRE([CHECK_OPENJADE])
 

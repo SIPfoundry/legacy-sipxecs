@@ -1,0 +1,8 @@
+if DOC
+doc_SUBDIRS=doc
+else
+install: install-doc
+
+install-doc:
+	@INSTALL@ -d $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
+endif # DOC

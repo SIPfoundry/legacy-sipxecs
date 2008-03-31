@@ -14,9 +14,7 @@ EXTRA_DIST = \
     BUILDSTAMP \
     sipxcommserverlib.spec
 
-if DOC
-doc_SUBDIRS=doc
-endif # DOC
+include config/conditional_doc.am
 
 SUBDIRS = \
 	. \

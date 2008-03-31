@@ -3,9 +3,8 @@
 include $(top_srcdir)/config/subdir.am
 
 unconditional_SUBDIRS = . src bin etc
-if DOC
-doc_SUBDIRS=doc
-endif
+
+include config/conditional_doc.am
 
 editscripts_IN = \
     bin/sipxpark.sh.in
