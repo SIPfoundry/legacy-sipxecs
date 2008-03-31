@@ -370,7 +370,9 @@ fi
 sipx-mrtg-init -e > /dev/null
 
 %preun mrtg
-sipx-mrtg-init -d > /dev/null
+if [ "$1" = "0" ] ; then
+  sipx-mrtg-init -d > /dev/null
+fi
 
 %files agent
 %defattr(644,root,root,755)

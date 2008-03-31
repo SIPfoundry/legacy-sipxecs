@@ -139,10 +139,10 @@
     </setting>
   </group>
   <group name="call-pick-up">
-    <setting name="SIP_REDIRECT.180-PICKUP.GLOBAL_CALL_PICKUP_CODE">
+    <setting name="SIP_REDIRECT.180-PICKUP.GLOBAL_CALL_PICKUP_CODE" hidden="yes">
       <profileName>registrar-config.in</profileName>
       <type refid="feature-code" />
-      <value>*79</value>
+      <value></value>
     </setting>
     <setting name="SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE">
       <profileName>registrar-config.in</profileName>
