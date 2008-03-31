@@ -83,7 +83,7 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
     AC_SUBST(SIPX_DBDIR,   [${localstatedir}/sipxdata/sipdb])
     AC_SUBST(SIPX_UPGRADEDIR,[${localstatedir}/sipxdata/upgrade])
     AC_SUBST(SIPX_SCHEMADIR, [${datadir}/sipx/schema])
-    AC_SUBST(SIPX_DOCDIR,  [${datadir}/doc/sipx])
+    AC_SUBST(SIPX_DOCDIR,  [${datadir}/doc/sipxecs])
     AC_SUBST(SIPX_VARDIR,  [${localstatedir}/sipxdata])
     AC_SUBST(SIPX_PROCDIR, [${sysconfdir}/sipxpbx/process.d])
     AC_SUBST(SIPX_SETUPDIR, [${sysconfdir}/sipxpbx/setup.d])

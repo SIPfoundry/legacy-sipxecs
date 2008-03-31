@@ -4,7 +4,7 @@ include $(top_srcdir)/config/subdir.am
 
 unconditional_SUBDIRS = . src bin etc
 
-include config/conditional_doc.am
+include $(top_srcdir)/config/conditional_doc.am
 
 editscripts_IN = \
     bin/sipxdialog.sh.in

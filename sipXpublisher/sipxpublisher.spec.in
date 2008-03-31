@@ -91,7 +91,8 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(644,root,root,755)
 %{_includedir}/statusserver/*
-%doc %{_datadir}/doc/sipx/%name/*
+%docdir @SIPX_DOCDIR@/%name
+@SIPX_DOCDIR@/%name
 
 %pre
 sipx-upgrade -p sipxpublisher -c

@@ -94,11 +94,13 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(644,root,root,755)
-%doc %{_datadir}/doc/sipx/%name/*
+%docdir @SIPX_DOCDIR@/%name
+@SIPX_DOCDIR@/%name
+
 %{_libdir}/libsipXcall.a
 %{_includedir}/cp/*
 %{_includedir}/ps/*
 %{_includedir}/ptapi/*
 %{_includedir}/tao/*
 %{_includedir}/tapi/*
-#%{_includedir}/test/mp/*
+

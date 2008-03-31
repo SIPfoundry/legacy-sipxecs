@@ -36,7 +36,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc %{_datadir}/doc/sipx/*
+%doc @SIPX_DOCDIR@
+@SIPX_DOCDIR@
 
 %post
 
