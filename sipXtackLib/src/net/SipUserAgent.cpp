@@ -206,7 +206,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     mMaxMessageLogSize = MAXIMUM_SIP_LOG_SIZE;
     mMaxForwards = SIP_DEFAULT_MAX_FORWARDS;
 
-    // TCP sockets not used for an hour are garbage collected
+    // Set the idle time after which unused sockets are garbage collected.
     mMaxTcpSocketIdleTime = DEFAULT_TCP_SOCKET_IDLE_TIME;
 
     // INVITE transactions need to stick around for a minimum of
@@ -2612,14 +2612,6 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
             // The attached SipMessageEvent will be deleted below.
          } // End SipMessageEvent::TRANSACTION_RESEND
 
-         // Timeout for garbage collection
-         else if(msgEventType == SipMessageEvent::TRANSACTION_GARBAGE_COLLECTION)
-         {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipUserAgent[%s]::handleMessage garbage collecting",
-                          getName().data());
-         }
-
          // Timeout for an transaction to expire
          else if(msgEventType == SipMessageEvent::TRANSACTION_EXPIRATION)
          {
@@ -2750,6 +2742,9 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
    // that is queued up for us.
    if (getMessageQueue()->isEmpty())
    {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipUserAgent[%s]::handleMessage calling garbageCollection()",
+                    getName().data());
       garbageCollection();
    }
    return(messageProcessed);

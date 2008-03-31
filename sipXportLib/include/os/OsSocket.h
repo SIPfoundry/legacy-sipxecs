@@ -373,18 +373,19 @@ protected:
    static OsBSem mInitializeSem;
    int socketDescriptor;
 
-   // Local and remote port numbers.
+   /// Local port number.
    int localHostPort;
+   /// Remote port number.
    int remoteHostPort;
-   // The local IP address used by this socket.
+   /// The local IP address used by this socket.
    UtlString mLocalIp;
-   // The name of the local end, if it was set by the constructor.
+   /// The name of the local end, if it was set by the constructor.
    UtlString localHostName;
-   // The name of the remote end.  Null if this is an un-connected socket.
+   /// The name of the remote end.  Null if this is an un-connected socket.
    UtlString remoteHostName;
-   // The IP address of the remote end.  Not set for un-connected sockets.
+   /// The IP address of the remote end.  Not set for un-connected sockets.
    UtlString mRemoteIpAddress;
-   // TRUE if the socket is connected to a particular remote end.
+   /// TRUE if the socket is connected to a particular remote end.
    UtlBoolean mIsConnected;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

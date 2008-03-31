@@ -120,19 +120,21 @@ protected:
     /// The entry point for the task.
     virtual int run(void* pArg);
 
-    // Do preliminary processing of a message read from the socket:
-    // log it, clean up its data, and extract any needed source address.
+    /** Do preliminary processing of a message read from the socket:
+     *  log it, clean up its data, and extract any needed source address.
+     */
     void preprocessMessage(SipMessage& msg,
                            const UtlString& msgText,
                            int msgLength);
 
-    // Test whether the socket is ready to read.  (Does not block.)
+    /// Test whether the socket is ready to read.  (Does not block.)
     UtlBoolean isReadyToRead();
-    // Wait until the socket is ready to read (or has an error).
+    /// Wait until the socket is ready to read (or has an error).
     UtlBoolean waitForReadyToRead();
 
-    // Called by the thread to shut the SipClient down and signal its
-    // owning server that it has done so.
+    /** Called by the thread to shut the SipClient down and signal its
+     *  owning server that it has done so.
+     */
     void clientStopSelf();
 
     OsSocket* clientSocket;
@@ -140,23 +142,27 @@ protected:
     SipUserAgentBase* mpSipUserAgent;
     SipProtocolServerBase* mpSipServer;
 
-    // The name of the remote end of clientSocket, as obtained from
-    // clientSocket.  Null if clientSocket is un-connected.
+    /** The name of the remote end of clientSocket, as obtained from
+     *  clientSocket.  Null if clientSocket is un-connected.
+     */
     UtlString mRemoteHostName;
-    // The address/port of the remote end of clientSocket, as obtained
-    // from clientSocket, which obtains it from the network layer.
+    /** The address/port of the remote end of clientSocket, as obtained
+     *  from clientSocket, which obtains it from the network layer.
+     */
     UtlString mRemoteSocketAddress;
     int mRemoteHostPort;
 
-    // The address/port of the remote end of clientSocket, as obtained
-    // from the Via of an incoming message.  Note that this cannot
-    // be trusted unless the connection is authenticated.
+    /** The address/port of the remote end of clientSocket, as obtained
+     *  from the Via of an incoming message.  Note that this cannot
+     *  be trusted unless the connection is authenticated.
+     */
     UtlString mRemoteViaAddress;
     int mRemoteViaPort;
 
-    // The "send address" extracted from an incoming message.
-    // (Which obtained it from the network layer regarding the socket the
-    // message was read from.)
+    /** The "send address" extracted from an incoming message.
+     *  (Which obtained it from the network layer regarding the socket the
+     *  message was read from.)
+     */
     UtlString mReceivedAddress;
     int mRemoteReceivedPort;
 
@@ -164,14 +170,16 @@ protected:
     OsBSem mSocketLock;
     int mFirstResendTimeoutMs;
 
-    // Is this a shared socket?
-    // If true, do not delete or close it.
-    // If false, close it when SipClient terminates.
+    /** Is this a shared socket?
+     *  If true, do not delete or close it.
+     *  If false, close it when SipClient terminates.
+     */
     UtlBoolean mbSharedSocket;
 
-    // Is there buffered outgoing data waiting for the socket to be writable?
-    // If true, wait on socket writable.
-    // If fase, wait on outgoing SIP message in queue.
+    /** Is there buffered outgoing data waiting for the socket to be writable?
+     *  If true, wait on socket writable.
+     *  If false, wait on outgoing SIP message in queue.
+     */
     UtlBoolean mWriteQueued;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

@@ -36,13 +36,12 @@ public:
 
         enum MessageStatusTypes
         {
-                APPLICATION = 0,
-                TRANSPORT_ERROR = 1,
-        AUTHENTICATION_RETRY,
-        SESSION_REINVITE_TIMER,
-        TRANSACTION_GARBAGE_COLLECTION,
-        TRANSACTION_RESEND,
-        TRANSACTION_EXPIRATION
+           APPLICATION = 0,
+           TRANSPORT_ERROR = 1,
+           AUTHENTICATION_RETRY,
+           SESSION_REINVITE_TIMER,
+           TRANSACTION_RESEND,
+           TRANSACTION_EXPIRATION
         };
 
 /* ============================ CREATORS ================================== */
