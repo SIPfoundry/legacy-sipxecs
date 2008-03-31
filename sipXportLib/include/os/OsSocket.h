@@ -274,6 +274,7 @@ public:
    // resides.  This may be the local name, a fully qualified domain name or
    // anything in between. This name may vary on the same host if it is
    // multi-homed, depending upon which NIC the Socket is associated with.
+   // Not fully implemented.
 
    void getLocalHostIp(UtlString* localHostAddress) const;
    //:Return this host's ip address
@@ -380,6 +381,7 @@ protected:
    /// The local IP address used by this socket.
    UtlString mLocalIp;
    /// The name of the local end, if it was set by the constructor.
+   // Not fully implemented.
    UtlString localHostName;
    /// The name of the remote end.  Null if this is an un-connected socket.
    UtlString remoteHostName;

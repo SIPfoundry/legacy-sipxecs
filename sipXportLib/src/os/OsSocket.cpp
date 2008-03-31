@@ -1043,13 +1043,15 @@ UtlBoolean OsSocket::getHostIpByName(const char* hostName, UtlString* hostAddres
    return bSuccess ;
 }
 
+void OsSocket::getLocalHostName(UtlString* name) const
+{
+   *name = localHostName;
+}
 
 void OsSocket::getLocalHostIp(UtlString* localHostAddress) const
 {
     OsSocket::getHostIp(localHostAddress) ;
 }
-
-
 
 int OsSocket::getLocalHostPort() const
 {
