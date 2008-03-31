@@ -147,8 +147,29 @@ UtlBoolean SipProtocolServerBase::startListener()
               strcmp(mProtocolString, SIP_TRANSPORT_TLS) == 0 ?
               static_cast <SipClient*> (new SipClientTls(pSocket, this, mSipUserAgent)) :
               NULL;
-           mServers.insertKeyAndValue(new UtlString(*pKey), pServer);
-           pServer->start();
+
+           if (pServer->isOk())
+           {
+              mServers.insertKeyAndValue(new UtlString(*pKey), pServer);
+              pServer->start();
+              UtlString localName;
+              pSocket->getLocalHostIp(&localName);
+              OsSysLog::add(FAC_SIP, PRI_INFO,
+                            "SipProtocolServerBase[%s]::startListener "
+                            "started server %s for address %s protocol %s",
+                            getName().data(), pServer->getName().data(),
+                            localName.data(), mProtocolString.data());
+           }
+           else
+           {
+              UtlString localName;
+              pSocket->getLocalHostIp(&localName);
+              OsSysLog::add(FAC_SIP, PRI_CRIT,
+                            "SipProtocolServerBase[%s]::startListener "
+                            "unable to start server for address %s protocol %s",
+                            getName().data(),
+                            localName.data(), mProtocolString.data());
+           }
         }
     }
     return(TRUE);
