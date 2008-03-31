@@ -33,34 +33,43 @@ OsServerTaskWaitable::OsServerTaskWaitable(const UtlString& name,
                                            const int priority,
                                            const int options,
                                            const int stackSize) :
-   OsServerTask(name, pArg, maxRequestQMsgs, priority, options, stackSize)
+   OsServerTask(name, pArg, maxRequestQMsgs, priority, options, stackSize),
+   mPipeReadingFd(-1),          // Initialize to invalid state.
+   mPipeWritingFd(-1)
 {
    // Create the pipe which is used to signal that a message is available.
    int filedes[2];
    int ret = pipe(filedes);
-   if (ret != 0)
+   if (ret == 0)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+      mPipeReadingFd = filedes[0];
+      mPipeWritingFd = filedes[1];
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                    "OsServerTaskWaitable::_ pipe() opened %d -> %d",
+                    mPipeWritingFd, mPipeReadingFd);
+   }
+   else
+   {
+      mPipeReadingFd = -1;
+      mPipeWritingFd = -1;
+      OsSysLog::add(FAC_KERNEL, PRI_ERR,
                     "OsServerTaskWaitable::_ pipe() returned %d, errno = %d, getdtablesize() = %d",
                     ret, errno, getdtablesize());
-      assert(FALSE);
    }
-   mPipeReadingFd = filedes[0];
-   mPipeWritingFd = filedes[1];
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                 "OsServerTaskWaitable::_ pipe() opened %d -> %d",
-                 mPipeWritingFd, mPipeReadingFd);
 }
 
 // Destructor
 OsServerTaskWaitable::~OsServerTaskWaitable()
 {
-   // Close the pipe.
-   close(mPipeReadingFd);
-   close(mPipeWritingFd);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                 "OsServerTaskWaitable::~ closed %d -> %d",
-                 mPipeWritingFd, mPipeReadingFd);
+   if (mPipeReadingFd != -1)
+   {
+      // Close the pipe.
+      close(mPipeReadingFd);
+      close(mPipeWritingFd);
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                    "OsServerTaskWaitable::~ closed %d -> %d",
+                    mPipeWritingFd, mPipeReadingFd);
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -92,6 +101,13 @@ OsStatus OsServerTaskWaitable::postMessage(const OsMsg& rMsg, const OsTime& rTim
 int OsServerTaskWaitable::getFd(void) const
 {
    return mPipeReadingFd;
+}
+
+/** Return TRUE if creating the object has succeeded and it can be used.
+ */
+UtlBoolean OsServerTaskWaitable::isOk(void) const
+{
+   return mPipeReadingFd != -1;
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

@@ -374,7 +374,7 @@ long SipClient::getLastTouchedTime() const
 
 UtlBoolean SipClient::isOk()
 {
-   return clientSocket->isOk() && isNotShut();
+   return OsServerTaskWaitable::isOk() && clientSocket->isOk() && isNotShut();
 }
 
 UtlBoolean SipClient::isAcceptableForDestination( const UtlString& hostName, int hostPort, const UtlString& localIp )

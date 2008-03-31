@@ -97,9 +97,10 @@ protected:
     *  exist.
     */
    // Caller must hold mClientLock.
-   SipClient* createClient(const char* hostAddress,
-                           int hostPort,
-                           const char* localIp);
+   // Returns NULL if it is unable to create a client.
+   SipClient* getClientForDestination(const char* hostAddress,
+                                      int hostPort,
+                                      const char* localIp);
 
    // Caller must hold mClientLock.
    void startClients();
@@ -144,9 +145,9 @@ protected:
    UtlHashMap mServers;
 
    // Caller must hold mClientLock.
-   SipClient* getClient(const char* hostAddress,
-                        int hostPort,
-                        const char* localIp);
+   SipClient* findExistingClientForDestination(const char* hostAddress,
+                                               int hostPort,
+                                               const char* localIp);
 
    // Caller must hold mClientLock.
    void deleteClient(SipClient* client);

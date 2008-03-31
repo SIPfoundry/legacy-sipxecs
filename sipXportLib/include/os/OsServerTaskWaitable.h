@@ -70,6 +70,12 @@ public:
     */
    int getFd(void) const;
 
+   /** Return TRUE if creating the object has succeeded and it can be used.
+    *  Return FALSE if creating the object has failed.  (That is, the pipe
+    *  could not be opened.)
+    */
+   UtlBoolean isOk(void) const;
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -91,6 +97,9 @@ protected:
     *  when and only when there is one or more messages in the queue.
     */
    // The file descriptors for reading and writing the pipe.
+   // These are set to -1 if opening the pipe failed.  The OsServerTaskWaitable
+   // is not usable and should be destroyed.  isOk() returns FALSE in this
+   // circumstance.
    int mPipeReadingFd;
    int mPipeWritingFd;
 
