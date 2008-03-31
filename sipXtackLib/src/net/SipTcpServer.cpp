@@ -269,7 +269,6 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
     int msgSubType = eventMessage.getMsgSubType();
     OsPtrMsg *pPtrMsg = NULL;
     
-    
     if (msgType == OsMsg::OS_EVENT)
     {
         // if we are receiving this message, an accept has occurred,
@@ -291,22 +290,37 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
             int hostPort;
             clientSocket->getRemoteHostIp(&hostAddress, &hostPort);
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipTcpServer[%s]::run client: %p %s:%d",
-                          getName().data(),
-                          client, hostAddress.data(), hostPort);
+            if (client->isOk())
+            {
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipTcpServer[%s]::run client created for incoming connection: %s (%p) %s:%d",
+                             getName().data(),
+                             client->getName().data(), client,
+                             hostAddress.data(), hostPort);
 
-            UtlBoolean clientStarted = client->start();
-            if(!clientStarted)
-            {
-                OsSysLog::add(FAC_SIP, PRI_ERR,
-                              "SIP %s Client failed to start",
-                              mpOwner->mProtocolString.data());
+               UtlBoolean clientStarted = client->start();
+               if(!clientStarted)
+               {
+                  OsSysLog::add(FAC_SIP, PRI_ERR,
+                                "SIP %s Client failed to start",
+                                mpOwner->mProtocolString.data());
+               }
+               {
+                  OsLock lock(mpOwner->mClientLock);
+                  mpOwner->addClient(client);
+               }
             }
+            else
             {
-               OsLock lock(mpOwner->mClientLock);
-               mpOwner->addClient(client);
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "SipTcpServer[%s]::run failed to create client for incoming connection: %s:%d",
+                             getName().data(),
+                             hostAddress.data(), hostPort);
+               delete client;
+               delete clientSocket;
             }
+
+            // Tell our caller that we have handled this message.
             bRet = TRUE;
         }
         else
