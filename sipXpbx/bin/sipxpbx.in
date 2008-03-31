@@ -647,6 +647,16 @@ global_hostname_check () {
     return $?
 }
 
+global_maxfds_check () {
+    local fd_max
+    fd_max=16384
+
+    # Try to bump up max fds
+    ulimit -n $fd_max > /dev/null 2>&1
+
+    return $?
+}
+
 log_results () {
     testdate=`date -u +%Y-%m-%dT%H:%M:%S`
     if [ ${STATUS} -ne 0 ]
@@ -681,6 +691,8 @@ do_check() {
     globaltest "ssl" "MUST_PASS" "TLS/SSL configuration"
 
     globaltest "firewall" "MAY_FAIL" "Firewall configuration"
+
+    globaltest "maxfds" "MAY_FAIL" "Per-process file descriptor limits"
 
     module_setup
 
