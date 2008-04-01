@@ -231,7 +231,7 @@ EOF
 
     askfor sipDomainName "SIP domain name" `hostname --domain` 
     askfor server        "Full DNS name for the server" ${Server:-${DefaultServer}} NOSTORE
-    while test $"{caName}" = ${server}
+    while test $"{caName}" = "${server}"
       do
       echo "" 1>&2
       echo "Error: The Server name must not be the same as the CA name." 1>&2
@@ -243,7 +243,7 @@ EOF
 }
 
 ################################################################
-#### GENERATOR FUNTIONS
+#### GENERATOR FUNCTIONS
 #### These perform calculations and create files, 
 #### They never prompt for anything, so that they can be combined
 #### by different action functions.
@@ -471,24 +471,33 @@ EOT
         exit 1
     fi
 
-    ## how to generate pkcs12 certs...
-    #caname="`$openssl x509 -noout -text -in "${caName}.crt" |\
-    #         grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`"
-    #servername="`$openssl x509 -noout -text -in $server.crt |\
-    #           grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`"
-    #echo "Assembling PKCS#12 package"
-    #$openssl pkcs12 -export -in $server.crt -inkey $server.key -certfile "${caName}.crt" -name "$servername" -caname "$caname" -out $server.p12
+    # Generate the pkcs12 format for the cert.
+    echo "______________________________________________________________________"
+    echo ""
+    echo "        Generating PKCS#12 package"
+
+    echo '' \
+    | $openssl pkcs12 -export -out "${server}.pfx" -passout stdin \
+                      -in "${server}.crt" -inkey "${server}.key"  -name "${server}" \
+                      -certfile "${caName}.crt" -caname "${caName}" #1> /dev/null 2>&1
 
     echo "______________________________________________________________________"
     echo ""
-    echo -n "Verify..."
+    echo "        Verify pem format certificates"
+    echo ""
+    local verified=0
+    local vfy
+    echo -n "    ${server}.crt ..."
     $openssl verify \
         -CAfile "${caName}.crt" \
-        $server.crt \
+        "${server}.crt" \
         > /dev/null
+    vfy=$?
+    test ${vfy} -eq 0 && echo "ok" || echo "failed"
+    verified=$(($vfy + $verified))
 
-    if [ $? -eq 0 ]; then
-        echo "Server certificate OK" 1>&2
+    if [ $verified -eq 0 ]; then
+        echo "Server certificates OK" 1>&2
         rm -f ${server}_crt.cfg
     else
         echo "${myName}:Error: Failed to verify resulting X.509 certificate" 1>&2
