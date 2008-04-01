@@ -177,6 +177,16 @@ that the registrar randomizes the expiration time of each register
 request, so it will normally be less than the requested time.
 </p>
 
+<p>
+The authentication nonces provided by sipX are specific to the
+from-tag in the request.  Section 8.1.3.5 of RFC 3261 requires that a
+re-sent request has the same from-tag as the original request, so the
+nonce that sipX returns in a 401/407 response can always be used in a
+re-send of the request.  However, some UAs will incorrectly use a
+different from-tag when resending a REGISTER.  These UAs will not be
+able to register.
+</p>
+
 <!--
 <p>
 If the UA provides a <code>+sip.instance</code> parameter and the

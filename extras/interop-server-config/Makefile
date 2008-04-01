@@ -1,7 +1,8 @@
 # The name by which the setsipxpasswd script can be executed.
 # This will probably have to be specified, as setsipxpasswd is not
 # usually installed.
-# It is available in the source as sipXcommserverLib/meta/setsipxpasswd.
+# It is available in the source as sipXcommserverLib/meta/setsipxpasswd, 
+# http://sipxecs.sipfoundry.org/rep/sipXecs/main/sipXcommserverLib/meta/setsipxpasswd
 SETSIPXPASSWD=setsipxpasswd
 
 # The names of the destination directories.

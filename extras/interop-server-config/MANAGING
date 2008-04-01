@@ -84,12 +84,16 @@ Create an updated working copy of the configuration files:
 
 	svn co -q https://sipxecs.sipfoundry.org/rep/sipXecs/main/extras/interop-server-config
 
+Edit the SETSIPXPASSWD line of ./Makefile to specify the location of
+the setsipxpasswd program.  You may have to load it from the sipX
+source.
+
 Edit the SIPX_USER line of ./Makefile to specify the correct user
 name, the one that is in /etc/passwd -- open-source versions usually
 use the name 'sipx' and commercial versions usually use the name
 'sipxchange'. Edit the SIPX_GROUP line of ../Makefile to specify the
-correct group name, usually the default group of SIPX_GROUP.  In
-systems meant for production or semi-production use, SIPX_GROUP is
+correct group name, usually the default group of the user SIPX_USER.
+In systems meant for production or semi-production use, SIPX_GROUP is
 usually the same as SIPX_USER.
 
 Generate the config.defs file:
