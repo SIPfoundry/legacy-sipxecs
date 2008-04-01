@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Required;
 public class SbcDevice extends Device implements NamedObject {
     private String m_address;
 
+    private int m_port;
+
     private String m_name;
 
     private String m_description;
@@ -59,6 +61,14 @@ public class SbcDevice extends Device implements NamedObject {
 
     public String getAddress() {
         return m_address;
+    }
+
+    public void setPort(int port) {
+        m_port = port;
+    }
+
+    public int getPort() {
+        return m_port;
     }
 
     public void setName(String name) {

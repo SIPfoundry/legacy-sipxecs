@@ -41,6 +41,7 @@
     <property name="name" />
     <property name="description" />
     <property name="address" />
+    <property name="port" />
     <property name="serialNumber" />
     <property name="deviceVersion" column="device_version_id"
       type="org.sipfoundry.sipxconfig.device.DeviceVersion$Type" />

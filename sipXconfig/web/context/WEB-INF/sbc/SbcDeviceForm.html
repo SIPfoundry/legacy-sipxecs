@@ -15,8 +15,18 @@
         description="message:description.address">
         <input jwcid="sbcDeviceAddress@TextField" id="sbcDevice:address"
           value="prop:sbcDevice.address"
-          validators="spring-validators:required"
+          validators="spring-validators:required,validHostOrIp"
           displayName="message:label.address"/>
+      </label>
+      <label jwcid="@common/FieldPanel" for="sbcDevice:port"
+        field="component:sbcDevicePort"
+        label="message:label.port"
+        description="message:description.port">
+        <input jwcid="sbcDevicePort@TextField" id="sbcDevice:port"
+          value="prop:sbcDevice.port"
+          translator="translator:number,pattern=#####"
+          validators="spring-validators:required"
+          displayName="message:label.port"/>
       </label>
       <span jwcid="@If" condition="prop:sbcDevice.model.hasSerialNumber">
         <label jwcid="@common/FieldPanel" for="sbcDevice:serial"
