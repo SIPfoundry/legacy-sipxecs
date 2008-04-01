@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
@@ -146,6 +147,9 @@ public abstract class TestPage extends BasePage {
     @InjectObject(value = "spring:sbcManager")
     public abstract SbcManager getSbcManager();
 
+    @InjectObject(value = "spring:sbcDeviceManager")
+    public abstract SbcDeviceManager getSbcDeviceManager();
+
     @InjectObject(value = "spring:speedDialManager")
     public abstract SpeedDialManager getSpeedDialManager();
 
@@ -168,6 +172,10 @@ public abstract class TestPage extends BasePage {
 
     public void resetInternetCalling() {
         getSbcManager().clear();
+    }
+
+    public void resetSbcDevices() {
+        getSbcDeviceManager().clear();
     }
 
     public void resetPhoneContext() {

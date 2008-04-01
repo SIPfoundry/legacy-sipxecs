@@ -14,19 +14,9 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 public abstract class Sbc extends BeanWithId {
     private boolean m_enabled;
 
-    private String m_address;
-
     private SbcRoutes m_routes;
 
     private SbcDevice m_sbcDevice;
-
-    public String getAddress() {
-        return m_address;
-    }
-
-    public void setAddress(String address) {
-        m_address = address;
-    }
 
     public boolean isEnabled() {
         return m_enabled;
@@ -50,5 +40,14 @@ public abstract class Sbc extends BeanWithId {
 
     public void setSbcDevice(SbcDevice sbcDevice) {
         m_sbcDevice = sbcDevice;
+    }
+
+    /**
+     * Called when SBC device asociated with this SBC gets deleted.
+     * 
+     * @return true if SBC should be deleted as well
+     */
+    public boolean onDeleteSbcDevice() {
+        return true;
     }
 }

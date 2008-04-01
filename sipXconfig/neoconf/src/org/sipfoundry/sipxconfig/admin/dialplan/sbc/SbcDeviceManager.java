@@ -13,6 +13,8 @@ import java.util.Collection;
 import java.util.List;
 
 public interface SbcDeviceManager {
+    public static final String CONTEXT_BEAN_NAME = "sbcDeviceManager";
+    
     List<SbcDevice> getSbcDevices();
 
     SbcDevice getSbcDevice(Integer id);

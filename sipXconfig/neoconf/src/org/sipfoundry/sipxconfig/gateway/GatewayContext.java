@@ -21,6 +21,8 @@ public interface GatewayContext {
 
     List<Gateway> getGatewayByIds(Collection<Integer> gatewayIds);
 
+    <T> List< ? extends T> getGatewayByType(Class<T> type);
+
     Gateway getGateway(Integer id);
 
     FxoPort getPort(Integer id);

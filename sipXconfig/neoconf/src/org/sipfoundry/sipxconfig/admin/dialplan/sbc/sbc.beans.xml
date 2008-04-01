@@ -30,9 +30,13 @@
 
   <bean id="sbcDeviceManagerImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
+    <property name="daoEventPublisher" ref="daoEventPublisher" />
   </bean>
 
-  <bean id="sbcDeviceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+  <bean id="sbcDeviceManagerSbcDeviceDelete" factory-bean="sbcDeviceManagerImpl" factory-method="createSbcDeviceDeleteListener" />
+
+  <bean id="sbcDeviceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
+        depends-on="sbcDeviceManagerSbcDeviceDelete">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager" />
     <property name="target">
       <ref local="sbcDeviceManagerImpl" />
@@ -81,4 +85,34 @@
     <property name="sleepInterval" value="5000" />
   </bean>
 
+  <bean id="sbcMigrationContextImpl"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcMigrationContextImpl">
+    <property name="sbcManager">
+      <ref local="sbcManager" />
+    </property>
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />    
+    <property name="sbcModelSource" ref="nakedSbcModelSource" />
+  </bean>
+
+  <bean id="sbcMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcMigrationContext</value>
+    </property>
+    <property name="target">
+      <ref local="sbcMigrationContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="sbcMigrationTrigger" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcMigrationTrigger">
+    <property name="sbcMigrationContext">
+      <ref local="sbcMigrationContext" />
+    </property>
+    <property name="taskNames">
+      <list>
+        <value>sbc_address_migrate_sbc_device</value>
+      </list>
+    </property>
+  </bean>
 </beans>

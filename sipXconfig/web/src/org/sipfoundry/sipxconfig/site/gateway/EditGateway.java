@@ -22,12 +22,15 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.gateway.FxoPort;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
+import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.sipfoundry.sipxconfig.site.gateway.port.PortSettings;
@@ -47,6 +50,9 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
     @InjectObject(value = "spring:gatewayContext")
     public abstract GatewayContext getGatewayContext();
 
+    @InjectObject(value = "spring:sbcDeviceManager")
+    public abstract SbcDeviceManager getSbcDeviceManager();
+
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
@@ -55,6 +61,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
 
     public abstract void setGatewayId(Integer id);
 
+    @Persist
     public abstract Gateway getGateway();
 
     public abstract void setGateway(Gateway gateway);
@@ -87,6 +94,10 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
 
     public abstract void setActiveSetting(String setting);
 
+    public abstract void setSelectedSbcDevice(SbcDevice selectedSbcDevice);
+
+    public abstract SbcDevice getSelectedSbcDevice();
+
     /**
      * Names of the tabs that are not in navigation components
      */
@@ -114,6 +125,12 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         }
         setGateway(gateway);
         setSettingProperties(getCurrentSettingSetName());
+        if (gateway instanceof SipTrunk) {
+            SbcDevice sbcDevice = ((SipTrunk) gateway).getSbcDevice();
+            if (sbcDevice != null) {
+                setSelectedSbcDevice(sbcDevice);
+            }
+        }
     }
 
     public void editNonSettings(String tabId) {
@@ -148,6 +165,13 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
     public void saveGateway() {
         Gateway gateway = getGateway();
         GatewayContext gatewayContext = getGatewayContext();
+        // set sbc device only for SipTrunk
+        if (gateway instanceof SipTrunk) {
+            SbcDevice sbcDevice = getSelectedSbcDevice();
+            if (sbcDevice != null) {
+                gateway.setSbcDevice(sbcDevice);
+            }
+        }
         gatewayContext.storeGateway(gateway);
         // attach gateway to current rule
         Integer ruleId = getRuleId();

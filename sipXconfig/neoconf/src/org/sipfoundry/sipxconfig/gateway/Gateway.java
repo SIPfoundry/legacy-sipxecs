@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.enums.Enum;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -44,6 +45,8 @@ public class Gateway extends Device implements NamedObject {
     private GatewayCallerAliasInfo m_callerAliasInfo = new GatewayCallerAliasInfo();
 
     private List<FxoPort> m_ports = new ArrayList<FxoPort>();
+
+    private SbcDevice m_sbcDevice;
 
     public Gateway() {
     }
@@ -195,6 +198,14 @@ public class Gateway extends Device implements NamedObject {
      */
     public String getRoute() {
         return null;
+    }
+
+    public SbcDevice getSbcDevice() {
+        return m_sbcDevice;
+    }
+
+    public void setSbcDevice(SbcDevice sbcDevice) {
+        this.m_sbcDevice = sbcDevice;
     }
 
     public GatewayCallerAliasInfo getCallerAliasInfo() {

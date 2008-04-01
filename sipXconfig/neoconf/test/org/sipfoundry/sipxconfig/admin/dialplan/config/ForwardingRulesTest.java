@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.AuxSbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.DefaultSbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
 
@@ -47,7 +48,7 @@ public class ForwardingRulesTest extends XMLTestCase {
             "gander"
         });
 
-        Sbc sbc = configureSbc(new DefaultSbc(), "10.1.2.3", Arrays.asList("*.example.org",
+        Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), Arrays.asList("*.example.org",
                 "*.example.net"), Arrays.asList("10.1.2.3/16"));
 
         SbcManager sbcManager = createNiceMock(SbcManager.class);
@@ -79,7 +80,7 @@ public class ForwardingRulesTest extends XMLTestCase {
             "gander"
         });
 
-        Sbc sbc = configureSbc(new DefaultSbc(), "10.1.2.3", 
+        Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"),
         		new ArrayList<String>(), new ArrayList<String>());
 
         SbcManager sbcManager = createNiceMock(SbcManager.class);
@@ -111,11 +112,11 @@ public class ForwardingRulesTest extends XMLTestCase {
             "gander"
         });
 
-        Sbc sbc = configureSbc(new DefaultSbc(), "10.1.2.3", Arrays.asList("*.example.org",
+        Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), Arrays.asList("*.example.org",
                 "*.example.net"), Arrays.asList("10.1.2.3/16"));
-        Sbc aux1 = configureSbc(new AuxSbc(), "10.1.2.4", Arrays.asList("*.sipfoundry.org",
+        Sbc aux1 = configureSbc(new AuxSbc(), configureSbcDevice("10.1.2.4"), Arrays.asList("*.sipfoundry.org",
                 "*.sipfoundry.net"), new ArrayList<String>());
-        Sbc aux2 = configureSbc(new AuxSbc(), "sbc.example.org", Arrays.asList("*.xxx",
+        Sbc aux2 = configureSbc(new AuxSbc(), configureSbcDevice("sbc.example.org"), Arrays.asList("*.xxx",
                 "*.example.tm"), Arrays.asList("10.4.4.1/24"));
 
         SbcManager sbcManager = createNiceMock(SbcManager.class);
@@ -146,12 +147,12 @@ public class ForwardingRulesTest extends XMLTestCase {
             "gander"
         });
 
-        Sbc sbc = configureSbc(new DefaultSbc(), "10.1.2.3", Arrays.asList("*.example.org",
+        Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), Arrays.asList("*.example.org",
                 "*.example.net"), Arrays.asList("10.1.2.3/16"));
-        Sbc aux1 = configureSbc(new AuxSbc(), "10.1.2.4", Arrays.asList("*.sipfoundry.org",
+        Sbc aux1 = configureSbc(new AuxSbc(), configureSbcDevice("10.1.2.4"), Arrays.asList("*.sipfoundry.org",
                 "*.sipfoundry.net"), new ArrayList<String>());
         aux1.setEnabled(false);
-        Sbc aux2 = configureSbc(new AuxSbc(), "sbc.example.org", Arrays.asList("*.xxx",
+        Sbc aux2 = configureSbc(new AuxSbc(), configureSbcDevice("sbc.example.org"), Arrays.asList("*.xxx",
                 "*.example.tm"), Arrays.asList("10.4.4.1/24"));
         aux2.setEnabled(false);
 
@@ -185,15 +186,21 @@ public class ForwardingRulesTest extends XMLTestCase {
         return rules;
     }
 
-    private static Sbc configureSbc(Sbc sbc, String address, List<String> domains,
+    private static Sbc configureSbc(Sbc sbc, SbcDevice sbcDevice, List<String> domains,
             List<String> subnets) {
         SbcRoutes routes = new SbcRoutes();
         routes.setDomains(domains);
         routes.setSubnets(subnets);
 
         sbc.setRoutes(routes);
-        sbc.setAddress(address);
+        sbc.setSbcDevice(sbcDevice);
         sbc.setEnabled(true);
         return sbc;
+    }
+
+    private static SbcDevice configureSbcDevice(String address) {
+        SbcDevice sbcDevice = new SbcDevice();
+        sbcDevice.setAddress(address);
+        return sbcDevice;
     }
 }

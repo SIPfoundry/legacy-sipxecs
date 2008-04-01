@@ -13,14 +13,12 @@
       </p>
       <table>
         <tbody>
-          <tr jwcid="@common/FieldPanel" for="sbc:address"
-            field="component:sbcAddress"
+          <tr jwcid="@common/FieldPanel" for="sbcDevice"
+            field="ognl:null"
             label="message:label.address"
             description="message:description.address">
-            <input jwcid="sbcAddress@TextField" id="sbc:address" maxlength="255"
-              value="prop:sbc.address"
-              validators="spring-validators:required"
-              displayName="message:label.address"/>
+            <span jwcid="sbcDevice@common/SbcDeviceSelect"
+              selectedSbcDevice="ognl:selectedSbcDevice"/>
           </tr>
         </tbody>
       </table>

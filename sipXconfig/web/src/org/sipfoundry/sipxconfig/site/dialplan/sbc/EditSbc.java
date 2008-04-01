@@ -16,8 +16,10 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.AuxSbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -40,6 +42,10 @@ public abstract class EditSbc extends PageWithCallback implements PageBeginRende
 
     public abstract void setSbc(Sbc sbc);
 
+    public abstract void setSelectedSbcDevice(SbcDevice selectedSbcDevice);
+
+    public abstract SbcDevice getSelectedSbcDevice();
+
     public void pageBeginRender(PageEvent event) {
         if (getSbc() != null) {
             return;
@@ -54,6 +60,10 @@ public abstract class EditSbc extends PageWithCallback implements PageBeginRende
             sbc.setRoutes(new SbcRoutes());
         }
         setSbc(sbc);
+        SbcDevice sbcDevice = sbc.getSbcDevice();
+        if (sbcDevice != null) {
+            setSelectedSbcDevice(sbcDevice);
+        }
     }
 
     public void save() {
@@ -61,6 +71,10 @@ public abstract class EditSbc extends PageWithCallback implements PageBeginRende
             return;
         }
         Sbc sbc = getSbc();
+        if (getSelectedSbcDevice() == null) {
+            throw new UserException(getMessages().getMessage("error.requiredSbc"));
+        }
+        sbc.setSbcDevice(getSelectedSbcDevice());
         getSbcManager().saveSbc(sbc);
         // update IDs of newly saved SBC
         if (getSbcId() == null) {

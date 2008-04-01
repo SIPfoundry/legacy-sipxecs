@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ModelSource;
@@ -38,6 +39,8 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     private GatewayModel m_genericModel;
 
     private GatewayModel m_genericSipTrunk;
+    
+    private SbcDeviceManager m_sbcDeviceManager;
 
     protected void setUp() throws Exception {
         m_appContext = TestHelper.getApplicationContext();
@@ -50,6 +53,8 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         m_genericSipTrunk = m_modelSource.getModel("sipTrunkStandard");
         TestHelper.cleanInsert("ClearDb.xml");
         m_dialPlanContext.resetToFactoryDefault();
+        m_sbcDeviceManager = (SbcDeviceManager) m_appContext
+                .getBean(SbcDeviceManager.CONTEXT_BEAN_NAME);
     }
 
     public void testAddGateway() {
@@ -219,7 +224,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
             Gateway gateway = m_context.newGateway(model);
             String beanId = model.getBeanId();
             assertEquals(gateway.getClass(), m_appContext.getBean(beanId).getClass());
-            if (beanId.equals("gwGeneric")) {
+            if (beanId.equals("gwGeneric") || beanId.equals("gwSipTrunk")) {
                 assertNull(gateway.getSettings());
             } else {
                 assertNotNull(gateway.getSettings());
@@ -266,5 +271,19 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
 
         Gateway gateway = m_context.getGateway(1001);
         assertEquals(1, gateway.getPorts().size());
+    }
+
+    public void testDeleteAssociateSbcDevice() throws Exception {
+        TestHelper.insertFlat("gateway/gateway_sbc_device.db.xml");
+
+        SipTrunk sipTrunk = (SipTrunk) m_context.getGateway(1002);
+        assertNotNull(sipTrunk);
+        assertNotNull(sipTrunk.getSbcDevice());
+        assertEquals("10.1.2.2", sipTrunk.getSbcDevice().getAddress());
+
+        m_sbcDeviceManager.deleteSbcDevice(sipTrunk.getSbcDevice().getId());
+        sipTrunk = (SipTrunk) m_context.getGateway(1002);        
+        assertNotNull(sipTrunk);
+        assertNull(sipTrunk.getSbcDevice());
     }
 }

@@ -10,15 +10,17 @@
 package org.sipfoundry.sipxconfig.site.dialplan.sbc;
 
 import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.dialplan.ActivateDialPlan;
@@ -27,12 +29,13 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
     @InjectObject(value = "spring:sbcManager")
     public abstract SbcManager getSbcManager();
 
-    @InjectPage(value = ActivateDialPlan.PAGE)
-    public abstract ActivateDialPlan getActivateDialPlan();
-
     public abstract Sbc getSbc();
 
     public abstract void setSbc(Sbc sbc);
+
+    public abstract void setSelectedSbcDevice(SbcDevice selectedSbcDevice);
+
+    public abstract SbcDevice getSelectedSbcDevice();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -45,21 +48,30 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
         if (sbc == null) {
             sbc = getSbcManager().loadDefaultSbc();
             setSbc(sbc);
+            SbcDevice sbcDevice = sbc.getSbcDevice();
+            if (sbcDevice != null) {
+                setSelectedSbcDevice(sbcDevice);
+            }
         }
     }
 
-    public IPage activate() {
+    public IPage activate(IRequestCycle cycle) {
         if (!TapestryUtils.isValid(this)) {
             return null;
         }
         saveValid();
 
-        ActivateDialPlan dialPlans = getActivateDialPlan();
+        ActivateDialPlan dialPlans = (ActivateDialPlan) cycle.getPage(ActivateDialPlan.PAGE);
         dialPlans.setReturnPage(this);
         return dialPlans;
     }
 
     private void saveValid() {
-        getSbcManager().saveSbc(getSbc());
+        Sbc sbc = getSbc();
+        if (getSelectedSbcDevice() == null) {
+            throw new UserException(getMessages().getMessage("error.requiredSbc"));
+        }
+        sbc.setSbcDevice(getSelectedSbcDevice());
+        getSbcManager().saveSbc(sbc);
     }
 }

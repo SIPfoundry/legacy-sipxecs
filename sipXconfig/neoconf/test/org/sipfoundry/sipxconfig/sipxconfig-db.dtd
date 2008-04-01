@@ -254,6 +254,7 @@
     keep_digits CDATA #REQUIRED
     address_port CDATA #IMPLIED
     address_transport CDATA #REQUIRED
+    sbc_device_id CDATA #IMPLIED
 >
 
 <!ELEMENT group_storage EMPTY>
@@ -558,6 +559,7 @@
     sbc_id CDATA #REQUIRED
     enabled CDATA #IMPLIED
     address CDATA #IMPLIED
+    sbc_device_id CDATA #IMPLIED
     sbc_type CDATA #REQUIRED
 >
 

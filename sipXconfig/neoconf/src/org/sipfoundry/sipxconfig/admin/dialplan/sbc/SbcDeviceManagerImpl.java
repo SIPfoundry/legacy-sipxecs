@@ -14,6 +14,8 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
+import org.sipfoundry.sipxconfig.common.event.SbcDeviceDeleteListener;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.dao.support.DataAccessUtils;
@@ -27,22 +29,39 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
 
     private BeanFactory m_beanFactory;
 
+    private DaoEventPublisher m_daoEventPublisher;
+
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
+    }
+
     public void clear() {
         Collection<SbcDevice> sbcs = getSbcDevices();
-        getHibernateTemplate().deleteAll(sbcs);
+        for (SbcDevice sbcDevice : sbcs) {
+            deleteSbcDevice(sbcDevice.getId());
+        }
     }
 
     public void deleteSbcDevice(Integer id) {
         SbcDevice sbcDevice = getSbcDevice(id);
+        m_daoEventPublisher.publishDelete(sbcDevice);
         getHibernateTemplate().delete(sbcDevice);
     }
 
     public void deleteSbcDevices(Collection<Integer> ids) {
+        for (Integer id : ids) {
+            SbcDevice sbcDevice = getSbcDevice(id);
+            m_daoEventPublisher.publishDelete(sbcDevice);
+        }
         removeAll(SbcDevice.class, ids);
     }
 
+    public SbcDeviceDeleteListener createSbcDeviceDeleteListener() {
+        return new OnSbcDeviceDelete();
+    }
+
     public Collection<Integer> getAllSbcDeviceIds() {
-        return getHibernateTemplate().findByNamedQuery("sbcIds");        
+        return getHibernateTemplate().findByNamedQuery("sbcIds");
     }
 
     public SbcDevice getSbcDevice(Integer id) {
@@ -103,5 +122,24 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
 
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
+    }
+
+    private List<Sbc> getSbcsForSbcDeviceId(Integer sbcDeviceId) {
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("sbcsForSbcDeviceId", SBC_ID,
+                sbcDeviceId);
+    }
+
+    private class OnSbcDeviceDelete extends SbcDeviceDeleteListener {
+        protected void onSbcDeviceDelete(SbcDevice sbcDevice) {
+            // get all SBCs associated
+            List<Sbc> sbcs = getSbcsForSbcDeviceId(sbcDevice.getId());
+            for (Sbc sbc : sbcs) {
+                if (sbc.onDeleteSbcDevice()) {
+                    getHibernateTemplate().delete(sbc);
+                } else {
+                    getHibernateTemplate().saveOrUpdate(sbc);
+                }
+            }
+        }
     }
 }

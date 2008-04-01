@@ -9,12 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
-import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 
 public class SipTrunk extends Gateway {
     public static final String BEAN_ID = "gwSipTrunk";
-
-    private static final String ROUTE_SETTING = "trunk/route";
 
     public SipTrunk() {
     }
@@ -24,16 +22,11 @@ public class SipTrunk extends Gateway {
     }
 
     @Override
-    protected Setting loadSettings() {
-        return getModelFilesContext().loadModelFile("siptrunk.xml", "commserver");
-    }
-
-    @Override
     public String getRoute() {
-        return getSettingValue(ROUTE_SETTING);
-    }
-
-    public void setRoute(String route) {
-        setSettingValue(ROUTE_SETTING, route);
+        SbcDevice sbcDevice = getSbcDevice();
+        if (sbcDevice != null) {
+            return getSbcDevice().getAddress();            
+        }
+        return null;
     }
 }

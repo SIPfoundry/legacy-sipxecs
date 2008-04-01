@@ -13,6 +13,8 @@ import java.util.Collection;
 import java.util.List;
 
 public interface SbcManager {
+    public static final String CONTEXT_BEAN_NAME = "sbcManager";
+
     DefaultSbc loadDefaultSbc();
 
     List<AuxSbc> loadAuxSbcs();

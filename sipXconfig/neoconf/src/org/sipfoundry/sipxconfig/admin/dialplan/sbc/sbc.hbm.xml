@@ -11,7 +11,7 @@
     </id>
     <discriminator column="sbc_type" type="character" />
     <property name="enabled" />
-    <property name="address" />
+    <many-to-one name="sbcDevice" class="SbcDevice" column="sbc_device_id" unique="true"/>
     <component name="routes" class="SbcRoutes">
       <list name="domains" table="sbc_route_domain">
         <key column="sbc_id" foreign-key="fk_sbc_route_domain_sbc" />
@@ -60,4 +60,14 @@
     <![CDATA[select count (*) from SbcDevice sbc where sbc.name = :sbcName]]>
   </query>
 
+  <query name="sbcsForSbcDeviceId">
+    <![CDATA[from Sbc sbc where sbc.sbcDevice.id = :sbcId]]>
+  </query>
+  
+  <sql-query name="allSbcs">
+    <return-scalar type="int" column="id" />
+    <return-scalar type="string" column="address" />
+    <![CDATA[select sbc_id as id, address
+      	from Sbc sbc]]>
+  </sql-query>
 </hibernate-mapping>

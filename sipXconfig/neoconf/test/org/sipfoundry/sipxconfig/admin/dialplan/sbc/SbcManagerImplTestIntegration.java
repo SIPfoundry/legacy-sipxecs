@@ -15,7 +15,11 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 
 public class SbcManagerImplTestIntegration extends IntegrationTestCase {
+    private static final String QUERY_ADDRESS = "select device.address from sbc_device device, sbc sbc "
+            + " where sbc.sbc_device_id = device.sbc_device_id";
+
     private SbcManager m_sbcManager;
+    private SbcDeviceManager m_sbcDeviceManager;
 
     public void testCreateDefaultSbc() throws Exception {
         loadDataSet("admin/dialplan/sbc/domain.db.xml");
@@ -32,11 +36,13 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testLoadDefaultSbc() throws Exception {
+        loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
         loadDataSet("admin/dialplan/sbc/sbc.db.xml");
         assertEquals(3, countRowsInTable("sbc"));
         Sbc sbc = m_sbcManager.loadDefaultSbc();
         assertNotNull(sbc);
-        assertEquals("10.1.2.3", sbc.getAddress());
+        assertNotNull(sbc.getSbcDevice());
+        assertEquals("10.1.2.3", sbc.getSbcDevice().getAddress());
         assertTrue(sbc.isEnabled());
         SbcRoutes routes = sbc.getRoutes();
         assertNotNull(routes);
@@ -46,6 +52,7 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testLoadAuxSbcs() throws Exception {
+        loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
         loadDataSet("admin/dialplan/sbc/sbc.db.xml");
         assertEquals(3, countRowsInTable("sbc"));
         List<AuxSbc> sbcs = m_sbcManager.loadAuxSbcs();
@@ -53,6 +60,7 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testRemoveAuxSbcs() throws Exception {
+        loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
         loadDataSet("admin/dialplan/sbc/sbc.db.xml");
         assertEquals(3, countRowsInTable("sbc"));
         assertEquals(2, countRowsInTable("sbc_route_subnet"));
@@ -64,6 +72,7 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testClear() throws Exception {
+        loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
         loadDataSet("admin/dialplan/sbc/sbc.db.xml");
         assertEquals(3, countRowsInTable("sbc"));
         assertEquals(2, countRowsInTable("sbc_route_subnet"));
@@ -75,21 +84,26 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testLoadAuxSbc() throws Exception {
+        loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
         loadDataSet("admin/dialplan/sbc/sbc.db.xml");
         assertEquals(3, countRowsInTable("sbc"));
         AuxSbc sbc = m_sbcManager.loadSbc(1001);
 
-        assertEquals("10.1.2.4", sbc.getAddress());
+        assertNotNull(sbc);
+        assertNotNull(sbc.getSbcDevice());
+        assertEquals("10.1.2.4", sbc.getSbcDevice().getAddress());
         assertEquals("10.1.2.5/24", sbc.getRoutes().getSubnets().get(0));
         assertEquals(0, sbc.getRoutes().getDomains().size());
     }
 
     public void testSaveSbc() throws Exception {
         loadDataSet("admin/dialplan/sbc/domain.db.xml");
+        loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
         assertEquals(0, countRowsInTable("sbc"));
         Sbc sbc = m_sbcManager.loadDefaultSbc();
 
-        sbc.setAddress("20.1.1.1");
+        SbcDevice sbcDevice = m_sbcDeviceManager.getSbcDevice(1002);
+        sbc.setSbcDevice(sbcDevice);
         sbc.getRoutes().getDomains().set(0, "*.example.us");
 
         m_sbcManager.saveSbc(sbc);
@@ -100,16 +114,17 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
                 String.class));
         assertEquals("*.example.us", jdbcTemplate.queryForObject(
                 "select domain from sbc_route_domain", null, String.class));
-        assertEquals("20.1.1.1", jdbcTemplate.queryForObject("select address from sbc", null,
-                String.class));
+        assertEquals("10.1.2.5", jdbcTemplate.queryForObject(QUERY_ADDRESS, null, String.class));
     }
 
     public void testSaveAuxSbc() throws Exception {
+        loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
         assertEquals(0, countRowsInTable("sbc"));
         Sbc sbc = new AuxSbc();
         sbc.setRoutes(new SbcRoutes());
 
-        sbc.setAddress("20.1.1.1");
+        SbcDevice sbcDevice = m_sbcDeviceManager.getSbcDevice(1002);
+        sbc.setSbcDevice(sbcDevice);
         sbc.getRoutes().addDomain();
         sbc.getRoutes().getDomains().set(0, "*.example.us");
 
@@ -122,11 +137,46 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
                 String.class));
         assertEquals("*.example.us", jdbcTemplate.queryForObject(
                 "select domain from sbc_route_domain", null, String.class));
-        assertEquals("20.1.1.1", jdbcTemplate.queryForObject("select address from sbc", null,
-                String.class));
+        assertEquals("10.1.2.5", jdbcTemplate.queryForObject(QUERY_ADDRESS, null, String.class));
+    }
+
+    public void testDeleteAssociateSbcDevice() throws Exception {
+        loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
+        loadDataSet("admin/dialplan/sbc/sbc.db.xml");
+        assertEquals(3, countRowsInTable("sbc"));
+
+        Sbc sbc = m_sbcManager.loadDefaultSbc();
+        assertNotNull(sbc);
+        assertNotNull(sbc.getSbcDevice());
+        assertEquals("10.1.2.3", sbc.getSbcDevice().getAddress());
+        assertTrue(sbc.isEnabled());
+        m_sbcDeviceManager.deleteSbcDevice(sbc.getSbcDevice().getId());
+        flush();
+        assertNotNull(sbc);
+        assertNull(sbc.getSbcDevice());
+        assertFalse(sbc.isEnabled());
+        assertEquals(3, countRowsInTable("sbc"));        
+
+        AuxSbc auxSbc = m_sbcManager.loadSbc(1001);
+        assertNotNull(auxSbc);
+        assertNotNull(auxSbc.getSbcDevice());
+        assertEquals("10.1.2.4", auxSbc.getSbcDevice().getAddress());
+        assertTrue(auxSbc.isEnabled());
+        m_sbcDeviceManager.deleteSbcDevice(auxSbc.getSbcDevice().getId());
+        flush();
+        try {
+            auxSbc = m_sbcManager.loadSbc(1001);
+        } catch (Exception ex) {
+            assertTrue(true);
+        }
+        assertEquals(2, countRowsInTable("sbc"));
     }
 
     public void setSbcManager(SbcManager sbcManager) {
         m_sbcManager = sbcManager;
+    }
+
+    public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
+        m_sbcDeviceManager = sbcDeviceManager;
     }
 }

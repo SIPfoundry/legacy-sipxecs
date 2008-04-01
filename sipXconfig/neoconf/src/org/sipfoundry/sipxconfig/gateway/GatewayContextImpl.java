@@ -14,15 +14,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.SbcDeviceDeleteListener;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -126,6 +131,16 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         return gateways;
     }
 
+    public <T> List<T> getGatewayByType(final Class<T> type) {
+        HibernateCallback callback = new HibernateCallback() {
+            public Object doInHibernate(Session session) {
+                Criteria criteria = session.createCriteria(type);
+                return criteria.list();
+            }
+        };
+        return getHibernateTemplate().executeFind(callback);
+    }
+
     /**
      * Returns the list of gateways available for a specific rule
      * 
@@ -193,5 +208,21 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_GATEWAY_ID_BY_SERIAL_NUMBER, "value", serialNumber);
         return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_GATEWAY_ID_BY_SERIAL_NUMBER);
+    }
+
+    public SbcDeviceDeleteListener createSbcDeviceDeleteListener() {
+        return new OnSbcDeviceDelete();
+    }
+
+    private class OnSbcDeviceDelete extends SbcDeviceDeleteListener {
+        protected void onSbcDeviceDelete(SbcDevice sbcDevice) {
+            List<SipTrunk> sipTrunks = getGatewayByType(SipTrunk.class);
+            for (SipTrunk sipTrunk : sipTrunks) {
+                if (sbcDevice.equals(sipTrunk.getSbcDevice())) {
+                    sipTrunk.setSbcDevice(null);
+                    getHibernateTemplate().update(sipTrunk);
+                }
+            }
+        }
     }
 }

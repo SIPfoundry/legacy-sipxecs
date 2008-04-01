@@ -21,6 +21,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.translator.Translator;
 import org.apache.tapestry.form.validator.Validator;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.SerialNumberTranslator;
@@ -50,6 +51,11 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
     public abstract void setAddressTransportModel(IPropertySelectionModel model);
 
     public abstract IPropertySelectionModel getAddressTransportModel();
+
+    @Parameter(required = true)
+    public abstract void setSelectedSbcDevice(SbcDevice selectedSbcDevice);
+
+    public abstract SbcDevice getSelectedSbcDevice();
 
     public void pageBeginRender(PageEvent event) {
         IPropertySelectionModel model = getAddressTransportModel();

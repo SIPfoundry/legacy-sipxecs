@@ -26,6 +26,7 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
         SiteTestHelper.setScriptingEnabled(true);
+        clickLink("resetSbcDevices");
         clickLink("toggleNavigation");
         clickLink("menu.sbcs");
     }

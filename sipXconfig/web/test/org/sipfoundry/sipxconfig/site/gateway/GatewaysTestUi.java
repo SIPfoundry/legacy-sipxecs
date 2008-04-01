@@ -81,18 +81,23 @@ public class GatewaysTestUi extends WebTestCase {
 
         for (String gatewayType : nonRouteGateways) {
             selectOption("selectGatewayModel", gatewayType);
-            assertElementNotPresent("gateway:route");
+            assertElementNotPresent("common_FlexiblePropertySelection");
             clickButton("form:cancel");
         }
 
         selectOption("selectGatewayModel", "SIP trunk");
-        assertElementPresent("gateway:route");
+        assertElementPresent("common_FlexiblePropertySelection");
         tester.setFormElement("gatewayName", "SipTrunkRouteTest");
         tester.setFormElement("gatewayAddress", "1.2.3.4");
-        tester.setFormElement("gatewayRoute", "1.2.3.5");
+        selectOption("common_FlexiblePropertySelection", "Unmanaged SBC");
+        tester.setFormElement("sbcDeviceName", "sbcDeviceForSipTrunk");
+        tester.setFormElement("sbcDeviceAddress", "sbc.example.org");
+        tester.clickButton("form:ok");
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
+        selectOption("common_FlexiblePropertySelection", "sbcDeviceForSipTrunk");
         tester.clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
-
     }
 
     public void testAddGatewaysDuplicateName() throws Exception {

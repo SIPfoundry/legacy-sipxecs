@@ -26,6 +26,8 @@
       type="org.sipfoundry.sipxconfig.device.DeviceVersion$Type" />
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
+	<many-to-one name="sbcDevice" column="sbc_device_id" unique="true"
+	  class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice" />
 
     <component name="callerAliasInfo" class="GatewayCallerAliasInfo">
       <property name="defaultCallerAlias" />
@@ -63,4 +65,13 @@
   <query name="gatewayIdsWithSerialNumber">
     <![CDATA[select g.id from Gateway g where g.serialNumber = :value]]>
   </query>
+
+  <sql-query name="sipTrunks">
+    <return-scalar type="int" column="id" />
+    <return-scalar type="string" column="address" />
+    <![CDATA[select gtw.gateway_id as id, st.value as address
+      	from gateway as gtw, setting_value as st
+      	where gtw.value_storage_id=st.value_storage_id
+      	and st.path='trunk/route';]]>
+  </sql-query>
 </hibernate-mapping>

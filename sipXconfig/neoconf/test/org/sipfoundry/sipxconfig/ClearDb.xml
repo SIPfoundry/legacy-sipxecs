@@ -52,6 +52,9 @@
   <table name="line"/>
   <table name="phone_group"/>
   <table name="line_group"/>
+
+  <table name="sbc_device"/>
+  <table name="sbc"/>
     
   <table name="gateway"/>  
   <table name="fxo_port"/>  
@@ -118,7 +121,4 @@
   <!-- paging group -->
   <table name="paging_group"/>
   <table name="user_paging_group"/>  
-
-  <table name="sbc"/>
-  <table name="sbc_device"/>
 </dataset>

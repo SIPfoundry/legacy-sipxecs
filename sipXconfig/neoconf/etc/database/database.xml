@@ -255,6 +255,8 @@
   <target name="version7" description="upgrade from version 6" unless="version8">
     <antcall target="callgroup-credentials" />
     <antcall target="AA-transfer-out" />
+  	<antcall target="sbc-reference-sbc-device" />
+  	<antcall target="gateway-reference-sbc-device" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -595,6 +597,14 @@
     <mark-patch-applied patch="AA-transfer-out" />
   </target>
 
+  <target name="sbc-reference-sbc-device" unless="sbc-reference-sbc-device">
+	<db-patch patch="sbc-reference-sbc-device"/>
+  </target>
+
+  <target name="gateway-reference-sbc-device" unless="gateway-reference-sbc-device">
+	<db-patch patch="gateway-reference-sbc-device"/>
+  </target>
+	
   <!-- 
     Migration Targets Legend
     
