@@ -2,13 +2,13 @@
 ##
 ##  gen-ssl-keys.sh - generate SSL key and certificate files.
 ##
-##  Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+##  Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 ##  Contributors retain copyright to elements licensed under a Contributor Agreement.
 ##  Licensed to the User under the LGPL license.
 ##
 ##  Derived from:
 ##  CCA -- Trivial Client CA management for testing purposes
-##  Copyright (c) 1998-2001 Ralf S. Engelschall, All Rights Reserved. 
+##  Copyright (c) 1998-2001 Ralf S. Engelschall, All Rights Reserved.
 ##
 
 myName=`basename $0`
@@ -16,7 +16,7 @@ myDir=`dirname $0`
 # default Certificate Authority Expiration is 3 years
 AuthorityDays=3650
 # default server expiration is 3 years
-CertDays=1095 
+CertDays=1095
 
 CAkeyBits=2048
 ServerKeyBits=1024
@@ -46,14 +46,14 @@ WorkDir=${CurrentWorkDir}
 ## The variables that can be set from Defaults:
 ## Name                     Description                             Default Value
 ##
-## countryName              Country Name (2 letter code) 
-## stateOrProvinceName      State or Province Name (full name) 
-## localityName             Locality Name (eg, city) 
-## organizationName         Organization Name (eg, company) 
+## countryName              Country Name (2 letter code)
+## stateOrProvinceName      State or Province Name (full name)
+## localityName             Locality Name (eg, city)
+## organizationName         Organization Name (eg, company)
 ## organizationalUnitName   Organization Unit Name (eg, section)     VoIP Services
-## caName                   CA Common Name (The name for CA)         ca.`hostname --domain` 
+## caName                   CA Common Name (The name for CA)         ca.`hostname --domain`
 ## caEmail                  Email Contact Address for CA             root@${caName}
-## sipDomainName            SIP domain name                          `hostname --domain` 
+## sipDomainName            SIP domain name                          `hostname --domain`
 ## server                   Full DNS name for the server             `hostname --fqdn`
 ## server Server            Common Name (name for Server)            `hostname --fqdn`
 ## serverEmail              Email Contact Address for Server         ${caEmail}
@@ -90,20 +90,20 @@ showUsage()
 
     All of the above accept the optional arguments:
 
-         {-wd|--workdir} <working-directory> 
+         {-wd|--workdir} <working-directory>
 
                  Specifies a directory where all files should be stored:
                  defaults to the current directory.  If specified, then
                  any other file name is relative to this directory.
 
-         {-p|--parameters} <parameter-file> 
+         {-p|--parameters} <parameter-file>
 
                  Specifies a file from which default answers should be read:
                  defaults to ${DefaultDefaults}
 
          {-d|--defaults}
 
-                 Forces the default values to be used with no 
+                 Forces the default values to be used with no
                  interactive prompting.
 
     See @SIPX_DOCDIR@/INSTALL.ssl for details on usage.
@@ -114,7 +114,7 @@ showUsage()
 USAGE
 }
 
-### Prompts for a value for variable, 
+### Prompts for a value for variable,
 ###    the default is the current value if variable is set, and the default argument if not
 ###    the answer is stored in the $Defaults file unless NOSTORE is passed.as the fourth arg.
 askfor () # variable, prompt, default, storeflag
@@ -158,7 +158,7 @@ seedRand()
     if [ ! -f "${randomFile}" ]
     then
         # find some random files
-        # (do not use /dev/random here, because this device 
+        # (do not use /dev/random here, because this device
         # doesn't work as expected on all platforms)
         randfiles=''
         numrandfiles=0
@@ -214,7 +214,7 @@ Identifying information for your private Certificate Authority (CA)
 
 EOF
 
-    askfor caName   "CA Common Name (DNS name for CA)" 
+    askfor caName   "CA Common Name (DNS name for CA)"
     askfor caEmail  "Email Contact Address for CA (name@example.org)" "root@${caName}"
 }
 
@@ -229,13 +229,15 @@ Identifying information for the server:
 
 EOF
 
-    askfor sipDomainName "SIP domain name" `hostname --domain` 
+    askfor sipDomainName "SIP domain name" `hostname --domain`
     askfor server        "Full DNS name for the server" ${Server:-${DefaultServer}} NOSTORE
-    while test $"{caName}" = "${server}"
+    while test $"{caName}" = "${server}" -o "${caName}" = "${sipDomainName}"
       do
       echo "" 1>&2
-      echo "Error: The Server name must not be the same as the CA name." 1>&2
+      echo "Error: The SIP domain name and Server name must be different than the CA name." 1>&2
+      sipDomainName=""
       server=""
+      askfor sipDomainName "SIP domain name" `hostname --domain`
       askfor server "Server Common Name (DNS name for Server)" `hostname --fqdn` NOSTORE
     done
 
@@ -244,7 +246,7 @@ EOF
 
 ################################################################
 #### GENERATOR FUNCTIONS
-#### These perform calculations and create files, 
+#### These perform calculations and create files,
 #### They never prompt for anything, so that they can be combined
 #### by different action functions.
 ################################################################
@@ -263,12 +265,12 @@ EOF
         cat <<EOF
 
   Certificate files for CA '${caName}' already exist
-    ${caName}.key 
+    ${caName}.key
     ${caName}.crt
 
   Using the existing files.
 
-  To generate new CA certificate, delete the existing files and re-execute. 
+  To generate new CA certificate, delete the existing files and re-execute.
 ______________________________________________________________________
 EOF
         return 0
@@ -425,7 +427,7 @@ EOT
         -out ${server}.csr \
         -days ${CertDays} \
         > /dev/null
-       
+
     if [ $? -ne 0 ]; then
         echo "${myName}:Error: Failed to generate certificate signing request" 1>&2
         exit 1
@@ -512,11 +514,11 @@ EOT
 ################################################################
 
 #### Do the one-step self-signed CA and a certificate from it.
-doAll() 
+doAll()
 {
     cat <<EOF
 
-  We need some information from you to generate the certificates: 
+  We need some information from you to generate the certificates:
 
 EOF
 
@@ -525,14 +527,14 @@ EOF
     getServerInfo
 
     seedRand
-    
+
     genCA
     genServerCSR
     signServerCertificate
 
     cat <<EOF
 
-  To install your certificate, run the following command 
+  To install your certificate, run the following command
   as root on the server:
 
     @bindir@/ssl-cert/install-cert.sh
@@ -543,7 +545,7 @@ EOF
 ################################################################
 #### Create a CA
 ################################################################
-doNewCA() 
+doNewCA()
 {
     cat <<EOF
 
@@ -563,15 +565,15 @@ EOF
 
   These files have been created for your private Certificate Authority:
 
-       The root certificate of your CA:   "${caName}.crt" 
+       The root certificate of your CA:   "${caName}.crt"
 
-       You will need to make the "${caName}.crt" file available to 
-       anyone who wishes to be able to validate certificates signed 
+       You will need to make the "${caName}.crt" file available to
+       anyone who wishes to be able to validate certificates signed
        by your CA.
 
              The secret key of your CA:   "${caName}.key"
 
-       You MUST keep the "${caName}.key" file as secure as possible; 
+       You MUST keep the "${caName}.key" file as secure as possible;
        it is the foundation of the security of your CA, and by extension
        anything using certificates signed by your CA.  You may move this
        do removable media; if you do, then when signing keys you must
@@ -581,21 +583,21 @@ EOF
 
        This is used to ensure uniqueness when you regenerate certificates.
 
-  The CA certificate will expire ${cert_expires}; 
+  The CA certificate will expire ${cert_expires};
   you will need to rerun this command to generate a new certificate
   then (or, preferably, before then).
-  
+
 EOF
 }
 
 ################################################################
 #### CSR
 ################################################################
-doCSR() 
+doCSR()
 {
     cat <<EOF
 
-  We need some information from you to generate the certificate signing request: 
+  We need some information from you to generate the certificate signing request:
 
 EOF
 
@@ -620,14 +622,14 @@ Results:
       @bindir@/ssl-cert/install-cert.sh $server
 
   You may also need to install the root certificate from the CA; if this
-  is needed, the install-cert.sh command will detect this and provide 
+  is needed, the install-cert.sh command will detect this and provide
   instructions.
 
 EOF
 
 }
 
-## Extract information from a CSR and present it for approval 
+## Extract information from a CSR and present it for approval
 checkCSR()
 {
     server=`@OPENSSL@ req -in "${csrFile}" -subject -nameopt RFC2253,multiline -noout | perl -ne 'use English; m/^\s+commonName\s+=\s+/ && print $POSTMATCH'`
@@ -649,7 +651,7 @@ EOF
         -text \
         -nameopt RFC2253,multiline \
         -noout \
-    | perl -n -e '/^\s+([0-9a-f]{2}:)+([0-9a-f]{2})?$/i || print;' 
+    | perl -n -e '/^\s+([0-9a-f]{2}:)+([0-9a-f]{2})?$/i || print;'
 
     cat <<EOF
 
@@ -660,7 +662,7 @@ EOF
    with authority ${caName}
 
 EOF
-   
+
     answer=""
     until [ "${answer}" = "yes" -o "${answer}" = "no" ]; do
         echo -n "   Sign Certificate? (yes|no): "
@@ -673,7 +675,7 @@ EOF
 ################################################################
 #### Use a CSR to create a Certificate
 ################################################################
-doSignServer() 
+doSignServer()
 {
     if [ -z "${csrFile}" ]
     then
@@ -681,8 +683,8 @@ doSignServer()
         showUsage
         exit 1
     fi
-    
-    checkCSR 
+
+    checkCSR
     signServerCertificate
 
     cert_expires=`@OPENSSL@ x509 -in "${server}.crt" -noout -enddate | sed 's/notAfter=//'`
@@ -699,9 +701,9 @@ ______________________________________________________________________
 
       @bindir@/ssl-cert/install-cert.sh $server
 
-  The server certificate will expire ${cert_expires}; 
+  The server certificate will expire ${cert_expires};
   you will need to rerun this command to generate new certificates
-  then (or, preferably, before then).  You do not need to create a 
+  then (or, preferably, before then).  You do not need to create a
   new .csr file - you can just resign the same file.
 
 EOF
@@ -830,7 +832,7 @@ do
             Action=USAGE
             break
             ;;
-    esac           
+    esac
 
     shift # always consume 1
 done
