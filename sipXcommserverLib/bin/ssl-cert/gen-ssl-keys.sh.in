@@ -21,6 +21,8 @@ CertDays=1095
 CAkeyBits=2048
 ServerKeyBits=1024
 
+RestrictedCert=""
+
 randomFile=${HOME}/.rnd
 
 # default action - generate self-signed CA certificate and host certificate
@@ -70,11 +72,13 @@ showUsage()
     - A self-signed certificate for a single system:
 
       gen-ssl-keys.sh [ {-s|--server} <server-name> ]
+                      [ {-r|--restricted} ]
 
     - A private key and certificate request for use
       with a public or private certificate authority:
 
       gen-ssl-keys.sh --csr
+                   [ {-r|--restricted} ]
 
     - A private self-signed authority certificate you can use to sign
       certificates for multiple systems:
@@ -85,8 +89,13 @@ showUsage()
       certificate:
 
       gen-ssl-keys.sh --sign <csr-file>
+                      [ {-r|--restricted} ]
                       [ --ca <ca-name> ]
                       [ --ca-key <keyfile> ]
+
+    In each of the above, the --restricted option adds an indication to the
+    the certificate (or request) indicating that its use is restricted to
+    web client, web server, and sip server usage.
 
     All of the above accept the optional arguments:
 
@@ -416,6 +425,7 @@ emailAddress           = ${serverEmail}
 basicConstraints       = CA:FALSE
 subjectAltName         = URI:sip:${sipDomainName},DNS:${server}
 subjectKeyIdentifier   = hash
+${RestrictedCert}
 EOT
 
     $openssl req \
@@ -450,6 +460,7 @@ basicConstraints = CA:false,pathlen:0
 basicConstraints       = CA:FALSE
 subjectAltName         = URI:sip:${sipDomainName},DNS:${server}
 subjectKeyIdentifier   = hash
+${RestrictedCert}
 EOT
 
     $openssl x509 \
@@ -824,12 +835,24 @@ do
             fi
             ;;
 
+        -r|--restricted)
+            ##
+            ## Limit the domain/server certificate to WWW and SIP usage; the oid is:
+            ##   iso(1) identified-organization(3) dod(6) internet(1)
+            ##   security(5) mechanisms(5) pkix(7) id-kp(3) id-kp-sipDomain(20)
+            RestrictedCert="extendedKeyUsage=serverAuth,clientAuth,1.3.6.1.5.5.7.3.20"
+            ;;
+
+        -h|--help)
+            Action=USAGE
+            ;;
 
         *)
             ##
             ## unrecognized argument
             ##
-            Action=USAGE
+            echo "Unrecognized option '$1'; try --help" 1>&2
+            exit 1
             break
             ;;
     esac
