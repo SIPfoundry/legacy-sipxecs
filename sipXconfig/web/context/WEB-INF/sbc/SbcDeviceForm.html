@@ -15,7 +15,7 @@
         description="message:description.address">
         <input jwcid="sbcDeviceAddress@TextField" id="sbcDevice:address" maxlength="40"
           value="prop:sbcDevice.address"
-          validators="spring-validators:required,validHostOrIp"
+          validators="spring-validators:required"
           displayName="message:label.address"/>
       </label>
       <span jwcid="@If" condition="prop:sbcDevice.model.hasSerialNumber">
