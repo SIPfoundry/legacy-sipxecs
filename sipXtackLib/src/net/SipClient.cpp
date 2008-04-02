@@ -79,6 +79,19 @@ SipClientSendMsg::SipClientSendMsg(const unsigned char msgType,
 {
 }
 
+//Constructor for Keep Alive with no actual message
+SipClientSendMsg::SipClientSendMsg(const unsigned char msgType,
+                                   const unsigned char msgSubType,
+                                   const char* address, int port) :
+   OsMsg(msgType, msgSubType),
+   mpMessage(0),
+   mAddress(strdup(address)),
+   mPort(port)
+{
+}
+
+
+
 //:Copy constructor
 SipClientSendMsg::SipClientSendMsg(const SipClientSendMsg& rOsMsg) :
    OsMsg(rOsMsg),
@@ -565,7 +578,22 @@ int SipClient::run(void* runArg)
               readBuffer(0) == '\r' && readBuffer(1) == '\n' &&
               readBuffer(2) == '\r' && readBuffer(3) == '\n'))
          {
-            // The 'message' was a keepalive (CR-LF or CR-LF-CR-LF).
+             // The 'message' was a keepalive (CR-LF or CR-LF-CR-LF).
+             UtlString fromIpAddress;
+             int fromPort;
+             UtlString buffer;
+             int bufferLen;
+
+             // send one CRLF set in the reply
+             buffer.append("\r\n");
+             bufferLen = buffer.length();
+
+             // Get the send address for response.
+             msg->getSendAddress(&fromIpAddress, &fromPort);
+             if ( !portIsValid(fromPort))
+             {
+                 fromPort = defaultPort();
+             }
 
             // Log the message at DEBUG level.
             // Only bother processing if the logs are enabled
@@ -573,11 +601,6 @@ int SipClient::run(void* runArg)
                    || OsSysLog::willLog(FAC_SIP_INCOMING, PRI_DEBUG)
                )
             {
-               // Get the send address.
-               UtlString fromIpAddress;
-               int fromPort;
-               msg->getSendAddress(&fromIpAddress, &fromPort);
-
                UtlString logMessage;
                logMessage.append("Read keepalive message:\n");
                logMessage.append("----Remote Host:");
@@ -596,6 +619,36 @@ int SipClient::run(void* runArg)
 
                // Write the message to the syslog.
                OsSysLog::add(FAC_SIP_INCOMING, PRI_DEBUG, "%s", logMessage.data());
+            }
+
+            // send the CR-LF response message
+            switch (mSocketType)
+            {
+            case OsSocket::TCP:
+            {
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipClient[%s]::run send TCP keep-alive CR-LF response, ",
+                             mName.data());
+               SipClientSendMsg sendMsg(OsMsg::OS_EVENT,
+                                        SipClientSendMsg::SIP_CLIENT_SEND_KEEP_ALIVE,
+                                        fromIpAddress,
+                                        fromPort);
+                handleMessage(sendMsg);
+            }
+               break;
+            case OsSocket::UDP:
+            {
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipClient[%s]::run send UDP keep-alive CR-LF response, ",
+                              mName.data());
+               (dynamic_cast <OsDatagramSocket*> (clientSocket))->write(buffer.data(),
+                                                                        bufferLen, 
+                                                                        fromIpAddress, 
+                                                                        fromPort);
+            }
+               break;
+            default:
+               break;
             }
 
             // Delete the SipMessage allocated above, which is no longer needed.

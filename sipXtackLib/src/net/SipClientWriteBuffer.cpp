@@ -67,16 +67,28 @@ UtlBoolean SipClientWriteBuffer::handleMessage(OsMsg& eventMessage)
       // Continue with shutdown processing.
       messageProcessed = FALSE;
    }
-   else if (msgType == OsMsg::OS_EVENT &&
-            msgSubType == SipClientSendMsg::SIP_CLIENT_SEND)
+   else if (msgType == OsMsg::OS_EVENT 
+           &&  (msgSubType == SipClientSendMsg::SIP_CLIENT_SEND
+             || msgSubType == SipClientSendMsg::SIP_CLIENT_SEND_KEEP_ALIVE))
    {
-      // Queued SIP message to send.
-
-      // Insert the SIP message into the queue, detaching it from
-      // the incoming eventMessage.
-      SipClientSendMsg* sendMsg =
-         dynamic_cast <SipClientSendMsg*> (&eventMessage);
-      insertMessage(sendMsg->detachMessage());
+      // Queued SIP message to send - normal path.
+      if (msgSubType == SipClientSendMsg::SIP_CLIENT_SEND)
+      {
+          // Insert the SIP message into the queue, detaching it from
+          // the incoming eventMessage.
+          SipClientSendMsg* sendMsg =
+             dynamic_cast <SipClientSendMsg*> (&eventMessage);
+          insertMessage(sendMsg->detachMessage());
+      }
+      else // send Keep Alive
+      {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipClientWriteBuffer[%s]::handleMessage send TCP keep-alive CR-LF response, ",
+                        mName.data());
+          UtlString* pKeepAlive;
+          pKeepAlive = new UtlString("\r\n");
+          insertMessage(pKeepAlive);
+      }
 
       // Write what we can.
       writeMore();
@@ -134,6 +146,30 @@ void SipClientWriteBuffer::insertMessage(SipMessage* message)
    }
 }
 
+/// Insert a keep alive message into the buffer.
+void SipClientWriteBuffer::insertMessage(UtlString* keepAlive)
+{
+   UtlBoolean wasEmpty = mWriteBuffer.isEmpty();
+  // NOTE- keep alive works since function only needs UtlContainable
+   // Add the message to the queue.
+   mWriteBuffer.insert(keepAlive);
+
+   // If the buffer was empty, we need to set mWriteString and
+   // mWritePointer.
+   if (wasEmpty)
+   {
+       //const char* keepAliveData = keepAlive->data();
+
+       mWriteString.append(keepAlive->data());
+       mWritePointer = 0;
+   }
+   mWriteQueued = TRUE;
+   // Skip check of internal queue size for keep alives,
+   // count on real messages to watch it
+}
+
+
+
 /// Write as much of the buffered messages as can be written.
 // Executed by the thread.
 void SipClientWriteBuffer::writeMore()
@@ -150,13 +186,26 @@ void SipClientWriteBuffer::writeMore()
          // Pop it and set up to write the next message.
          delete mWriteBuffer.get();
          mWriteString.remove(0);
-         SipMessage* m = dynamic_cast <SipMessage*> (mWriteBuffer.first());
+         UtlContainable* firstWriteString = mWriteBuffer.first();
+         SipMessage* m = dynamic_cast <SipMessage*> (firstWriteString);
          mWritePointer = 0;
          mWriteQueued = m != NULL;
          if (m != NULL)
          {
-            int length;
-            m->getBytes(&mWriteString, &length);
+             // first check if this is a CRLF keepalive response
+             UtlString* keepAlive = dynamic_cast <UtlString*> (firstWriteString);
+             const char* keepAliveData = keepAlive->data();
+             if (*keepAliveData++    == '\r' 
+                 && *keepAliveData++ == '\n'
+                 && *keepAliveData++ ==  0)
+             {
+                 mWriteString.append("\r\n");
+             }
+             else   // normal path
+             {
+                int length;
+                m->getBytes(&mWriteString, &length);
+             }
          }
       }
       else

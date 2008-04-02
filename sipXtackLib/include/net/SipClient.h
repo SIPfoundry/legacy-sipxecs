@@ -203,13 +203,18 @@ public:
 
    enum EventSubTypes
    {
-      SIP_CLIENT_SEND = 1
+       SIP_CLIENT_SEND = 1,
+       SIP_CLIENT_SEND_KEEP_ALIVE = 2
    };
 
    SipClientSendMsg(const unsigned char msgType, const unsigned char msgSubType,
                     const SipMessage& message, const char* address, int port);
      //:Constructor
      // Copies 'message'.
+
+   SipClientSendMsg(const unsigned char msgType, const unsigned char msgSubType,
+                    const char* address, int port);
+     //:Constructor for Keep Alive with no actual message
 
    SipClientSendMsg(const SipClientSendMsg& rOsMsg);
      //:Copy constructor

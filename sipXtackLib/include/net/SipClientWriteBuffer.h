@@ -59,6 +59,9 @@ public:
    /// Insert a message into the buffer.
    virtual void insertMessage(SipMessage* message);
 
+   /// Insert a keep alive message into the buffer.
+   virtual void insertMessage(UtlString* keepAlive);
+
    /// Write as much of the buffered messages as can be written.
    virtual void writeMore();
 

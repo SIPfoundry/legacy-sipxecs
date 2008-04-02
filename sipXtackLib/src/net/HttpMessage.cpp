@@ -1159,6 +1159,8 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
    int residualBytes = allBytes->length(); // passed into this read already in the buffer
    int returnMessageLength = 0;
 
+   int saveCountForKeepAlive = 0;
+
    // Attempt to minimize the number of times that the string gets
    // re-allocated and copied by setting the initial capacity to the
    // requested approximate message size, bufferSize.
@@ -1252,6 +1254,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
          }
 
          bytesTotal += bytesRead;
+         saveCountForKeepAlive = bytesRead;     // save this for keep alive special case
          bytesRead = 0;
 
          if (bytesTotal > 0)
@@ -1402,16 +1405,34 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                   }
                   else
                   {
-                     // end of headers on an unframed socket, but no Content-Length set
-                     // Log and discard the message
-                     OsSysLog::add(FAC_HTTP, PRI_ERR,
-                                   "HttpMessage::read Message has no Content-Length "
-                                   "on unframed socket type %s: '%s'",
-                                   OsSocket::ipProtocolString(socketType), allBytes->data());
-                     allBytes->remove(0);
-
-                     // Close the connection (having lost framing, it is no longer usable)
-                     inSocket->close();
+                      // end of headers on an unframed socket, but no Content-Length set
+                      // Log and discard the message unless it is CR-LR or CR-LF-CR-LF
+                      // assume that those two cases are sip/nat keep alive packets
+                      const char* allBytesData = allBytes->data();
+                     
+                      if ((saveCountForKeepAlive == 2 
+                           && *(allBytesData + 0) == '\r' 
+                           && *(allBytesData + 1) == '\n') 
+                         ||
+                           (saveCountForKeepAlive == 4 
+                            && *(allBytesData + 0) == '\r' 
+                            && *(allBytesData + 1) == '\n'
+                            && *(allBytesData + 2) == '\r' 
+                            && *(allBytesData + 3) == '\n')) 
+                     {
+                         // keep alive received, ok to process and send response
+                     }
+                     else
+                     {
+                         OsSysLog::add(FAC_HTTP, PRI_ERR,
+                                       "HttpMessage::read Message has no Content-Length "
+                                       "on unframed socket type %s: '%s'",
+                                       OsSocket::ipProtocolString(socketType), allBytes->data());
+                         allBytes->remove(0);
+    
+                         // Close the connection (having lost framing, it is no longer usable)
+                         inSocket->close();
+                     }
 
                      // Exit the loop
                      finished = true;
