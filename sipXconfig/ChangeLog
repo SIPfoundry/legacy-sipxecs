@@ -4,8 +4,27 @@ SIPfoundry Issue Tracker at:
         http://track.sipfoundry.org/browse?XCF
 
 
-Version 3.9.8
 
+Version 3.11.1
+
+** Bug
+    * [XCF-1959] - Initialization task error messages/exceptions are not printed to the log
+    * [XCF-2375] - Spelling in StatisticsPage.properties: its, not it's
+    * [XCF-2388] - commas are not handled correctly in Export of user/phone data
+
+** Improvement
+    * [XCF-2149] - SBCs defined under "Devices/SBCs" have to be selectable on the page where "Internet Calling" is configured
+
+** New Feature
+    * [XCF-2301] - allow adding existing phones from User/Phones tab
+
+** Task
+    * [XCF-2029] - remove component and pages declaration from sipxconfig-web.application
+    * [XCF-2318] - upgrade hibernate to 3.2
+    * [XCF-2334] - upgrade junit to 4.4
+
+
+Version 3.9.8
 
 ** Bug
     * [XCF-1997] - Language selection field for User->Personal Attendant needs labels
