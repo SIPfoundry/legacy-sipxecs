@@ -8,19 +8,14 @@ EXTRA_DIST = \
   permission.xml \
   INSTALL.ssl.in
 
-install: install-ssl-doc
-
-.PHONY: install-ssl-doc
-install-ssl-doc: $(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl
-
-$(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl: INSTALL.ssl
-	@INSTALL@ -m u=rw,go=r INSTALL.ssl $(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl
+$(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl: INSTALL.ssl $(DESTDIR)@SIPX_DOCDIR@
+	@INSTALL@ -m u=rw,go=r $< $@
 
 INSTALL.ssl: $(srcdir)/INSTALL.ssl.in
 	$(LocalizeSipXconfig) $(srcdir)/INSTALL.ssl.in > INSTALL.ssl
 
-clean: clean-ssl-doc
+CLEANFILES=INSTALL.ssl
 
-.PHONY: clean-ssl-doc
-clean-ssl-doc:
-	rm -f INSTALL.ssl
+INSTALL_DOC_TARGETS=$(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl
+
+

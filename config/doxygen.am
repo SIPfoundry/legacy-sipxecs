@@ -30,7 +30,7 @@ Doxyfile.project: $(srcdir)/Doxyfile.project.in
 		-e 's,@top_srcdir\@,$(top_srcdir),g' \
 	$< > $@
 
-install: install-doc
+install-data-hook: install-doc
 
 .PHONY: install-doc
 install-doc: @PACKAGE@

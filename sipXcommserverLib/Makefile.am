@@ -30,13 +30,19 @@ SUBDIRS = \
 # present.  In addition, they remove cached IMDB shared memory segments.
 # Those commands need to be retained until all developers are
 # upgraded, which will be at the end of the 3.9 development period.
-install-data-hook:
+install-data-hook: install-common-dirs upgrade-subscription-db
+
+.PHONY: install-common-dirs
+install-common-dirs:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(sysconfdir)/sipxpbx
 	$(INSTALL) -d -m 755 $(DESTDIR)$(datadir)/sipxpbx
 	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/log/sipxpbx
 	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/run/sipxpbx
 	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/sipxdata/tmp
 	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/sipxdata/sipdb
+
+.PHONY: upgrade-subscription-db
+upgrade-subscription-db:
 	SUBSCRIPTION=$(DESTDIR)$(localstatedir)/sipxdata/sipdb/subscription.xml ; \
 	if [ -f $$SUBSCRIPTION ] && \
 	   ! grep '<component>' $$SUBSCRIPTION >/dev/null ; then \
