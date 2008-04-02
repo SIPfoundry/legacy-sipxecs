@@ -4,6 +4,7 @@
 <page-specification class="org.apache.tapestry.pages.Exception">
   <description>Customized exception page</description>
   <inject property="tapestry" object="spring:tapestry"/>
+  <inject property="coreContext" object="spring:coreContext"/>
   <component id="shell" type="Shell">
     <binding name="stylesheets" value="tapestry.getStylesheets(#this)"/>
     <binding name="title" value="message:product.name"/>
