@@ -14,9 +14,6 @@ EXTRA_DIST= \
    SVN-VERSION \
    sipxecs-doc.spec
 
-sipxecs-doc.spec : sipxecs-doc.spec.in
-	$(LocalizeSipXconfig) $(srcdir)/sipxecs-doc.spec.in > sipxecs-doc.spec
-
 CLEANFILES=
 
 if DOC
