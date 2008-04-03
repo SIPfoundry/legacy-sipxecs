@@ -1,5 +1,7 @@
 include config/project.am
 
+RPMS = $(RPM)
+
 OTHER_DOCS = \
 	coding-standard.html \
 	EclipseCDTprojects.txt
