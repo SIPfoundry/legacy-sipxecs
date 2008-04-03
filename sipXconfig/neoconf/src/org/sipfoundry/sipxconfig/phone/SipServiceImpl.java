@@ -37,6 +37,8 @@ public class SipServiceImpl implements SipService {
     
     private static final Log LOG = LogFactory.getLog(SipServiceImpl.class);
 
+    private static final String COLON = ":";
+
     /** Example:  Tue, 15 Nov 1994 08:12:31 GMT */
     private SimpleDateFormat m_dateFormat;
 
@@ -58,7 +60,7 @@ public class SipServiceImpl implements SipService {
             // For now, we never read response and could care less if return
             // address is unattainable.  Next iteration of this SipService
             // may use a real stack w/access to config.defs.
-            nonFatal.printStackTrace();
+            LOG.warn("cannot determine server name", nonFatal);
         }
     }
 
@@ -71,7 +73,7 @@ public class SipServiceImpl implements SipService {
     }
 
     public String getServerVia() {
-        return "SIP/2.0/UDP " + getFromServer() + ";branch="
+        return "SIP/2.0/UDP " + getFromServerName() + COLON + getFromServerPort() + ";branch="
                 + generateBranchId();
     }
 
@@ -100,7 +102,7 @@ public class SipServiceImpl implements SipService {
         if (getFromServerPort() == SipUri.DEFAULT_SIP_PORT) {
             from  = getFromServerName();
         } else {
-            from  = getFromServerName() + ":" + getFromServerPort();
+            from  = getFromServerName() + COLON + getFromServerPort();
         }
         
         return from;
@@ -130,6 +132,10 @@ public class SipServiceImpl implements SipService {
         return m_dateFormat;
     }
 
+    public String getContactUri() {
+        return SipUri.SIP_PREFIX + getFromServerName() + COLON + getFromServerPort();
+    }
+
     public String generateCallId() {
         return "90d3f2-" + generateUniqueId();
     }
@@ -151,9 +157,9 @@ public class SipServiceImpl implements SipService {
         String restartSip = "NOTIFY {0} SIP/2.0\r\n" + "Via: {1}\r\n"
                 + "From: {2}\r\n" + "To: {3}\r\n"
                 + "Date: {4}\r\n" + "Call-ID: {5}\r\n" + "CSeq: 1 NOTIFY\r\n"
-                + "Contact: null\r\n"
+                + "Contact: {6}\r\n"
                 + event
-                + "Content-Length: {6}\r\n" + "\r\n";
+                + "Content-Length: {7}\r\n" + "\r\n";
         Object[] sipParams = new Object[] { 
             getNotifyRequestUri(server, port, userId), 
             getServerVia(),
@@ -161,6 +167,7 @@ public class SipServiceImpl implements SipService {
             uri,
             getCurrentDate(), 
             generateCallId(),
+            getContactUri(),
             String.valueOf(payload.length)
         };
         String header = MessageFormat.format(restartSip, sipParams);
@@ -184,7 +191,7 @@ public class SipServiceImpl implements SipService {
      */
     String getNotifyRequestUri(String registrationServer, String registrationServerPort, String userId) {
         StringBuffer sb = new StringBuffer();        
-        sb.append("sip:").append(userId);
+        sb.append(SipUri.SIP_PREFIX).append(userId);
         // TODO: Should this be outbound proxy
         sb.append('@').append(registrationServer);
         String port = registrationServerPort;
