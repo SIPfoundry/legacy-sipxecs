@@ -92,13 +92,13 @@ AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix w
     if test "x${cppunit_major_min}" = "x" ; then
        cppunit_major_min=0
     fi
-    
+
     cppunit_minor_min=`echo $cppunit_version_min | \
            sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
     if test "x${cppunit_minor_min}" = "x" ; then
        cppunit_minor_min=0
     fi
-    
+
     cppunit_micro_min=`echo $cppunit_version_min | \
            sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
     if test "x${cppunit_micro_min}" = "x" ; then
@@ -122,7 +122,7 @@ AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix w
   fi
 
   if test "x$no_cppunit" = x ; then
-     ifelse([$2], , :, [$2])     
+     ifelse([$2], , :, [$2])
   else
      CPPUNIT_CFLAGS=""
      CPPUNIT_LIBS=""
@@ -590,7 +590,7 @@ AC_DEFUN([CHECK_APACHE2],
                [ apache2_mod_search_path="$withval"
                  apache2_mod_override="$withval"
                 ],
-               [ apache2_mod_search_path="/usr/local/apache2/modules /usr/apache2/modules /etc/httpd/modules /usr/lib/httpd/modules 
+               [ apache2_mod_search_path="/usr/local/apache2/modules /usr/apache2/modules /etc/httpd/modules /usr/lib/httpd/modules
 /usr/lib/apache2-prefork /usr/lib/apache2/modules"
                  apache2_mod_override=""
                 ]
@@ -1199,12 +1199,12 @@ AC_DEFUN([CHECK_NAMED],
       AC_MSG_RESULT([Using named from --with-named $named_program])
       AC_SUBST(NAMED_PROGRAM, $named_program)
     else
-      AC_PATH_PROG([NAMED_PROGRAM], [named], 
+      AC_PATH_PROG([NAMED_PROGRAM], [named],
                    [named],
                    [$PATH:/sbin:/usr/sbin:/usr/local/sbin]
                    )
     fi
-    
+
     if ! test -x $NAMED_PROGRAM; then
         AC_MSG_WARN([Cannot execute $NAMED_PROGRAM.  Tests that require it will not be executed.])
         NAMED_PROGRAM=""
@@ -1237,11 +1237,11 @@ AC_DEFUN([CHECK_RUBY],
   if test "x$RUBY" = "x" ; then
     AC_MSG_ERROR([ruby is required])
   fi
-  
+
   minRubyVersion=[$1]
   AC_MSG_CHECKING([for ruby minimum version $minRubyVersion])
 
-  ## warning about line below: use $ 2 instead of $2 otherwise m4 trys to 
+  ## warning about line below: use $ 2 instead of $2 otherwise m4 trys to
   ## interpret, luckily awk doesn't care
   rubyVersion=`$RUBY --version | awk '{print $ 2}'`
 
@@ -1269,7 +1269,7 @@ cat 1>&2 <<GEMS_HOWTO
 GEMS_HOWTO
     AC_MSG_ERROR([ruby gem command is required])
   fi
-  
+
   AC_MSG_CHECKING([for gem minimum version $minGemVersion])
 
   gemVersion=`$GEM --version`
@@ -1288,7 +1288,7 @@ AC_DEFUN([CHECK_RAKE],
   if test "x$RAKE" = "x" ; then
     AC_MSG_ERROR([rake is required.  type 'gem install rake --no-rdoc'])
   fi
-  
+
   minRakeVersion=[$1]
   AC_MSG_CHECKING([for rake minimum version $minRakeVersion])
 
@@ -1322,7 +1322,7 @@ AC_DEFUN([CHECK_RUBY_GEM],
 [
   rubyGem=[$1]
   AC_MSG_CHECKING([for ruby gem $rubyGem])
-  
+
   if $GEM list --local | egrep "^$rubyGem"
   then
     AC_MSG_RESULT([ok])
@@ -1359,7 +1359,7 @@ AC_DEFUN([CHECK_ODBC],
                 [odbc_homeval=$withval],
                 [odbc_homeval=""]
                 )
-    
+
     # Process the --with-odbc_includedir argument which gives the odbc include
     # directory.
     AC_ARG_WITH(odbc_includedir,
@@ -1443,7 +1443,7 @@ AC_DEFUN([AX_COMPILER_VENDOR],
 #if !($vencpp)
       thisisanerror;
 #endif
-    ])], 
+    ])],
     [ax_cv_]_AC_LANG_ABBREV[_compiler_vendor=`echo $ventest | cut -d: -f1`; break])
   done
  ])
@@ -1476,7 +1476,7 @@ AC_DEFUN([REQUIRE_RPM],
   if ! rpm -q $required_rpm_pkg >/dev/null
   then
     AC_MSG_RESULT(no)
-    AC_MSG_ERROR([Required rpm pkg missing $required_rpm_pkg])    
+    AC_MSG_ERROR([Required rpm pkg missing $required_rpm_pkg])
   fi
   AC_MSG_RESULT(yes)
 ])
@@ -1522,6 +1522,24 @@ AC_DEFUN([CHECK_DOCBOOKXML],
   AC_REQUIRE([CHECK_XSLTPROC])
   AC_REQUIRE([CHECK_OPENJADE])
 
+  if test x$XSLTPROC != x
+  then
+     xml2xhtml_files="/usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl"
+     AC_MSG_CHECKING("docbook inputs for generating xhtml")
+     enable_xml2xhtml=yes
+     for f in ${xml2xhtml_files}
+     do
+        if ! test -r "$f"
+        then
+            AC_MSG_WARN("failed to find '$f'")
+            enable_xml2xhtml=no
+        fi
+     done
+     test x$enable_xml2xhtml = xyes && AC_MSG_RESULT([ok])
+  else
+     enable_xml2xhtml=no
+  fi
+
   if test x$OPENJADE != x -a x$PDFJADETEX != x
   then
      xml2pdf_files="/usr/share/sgml/docbook/dsssl-stylesheets/print/docbook.dsl /usr/share/sgml/docbook/dsssl-stylesheets/dtds/decls/xml.dcl /usr/share/sgml/openjade/catalog"
@@ -1529,7 +1547,7 @@ AC_DEFUN([CHECK_DOCBOOKXML],
      enable_xml2pdf=yes
      for f in ${xml2pdf_files}
      do
-        if ! test -r "$f" 
+        if ! test -r "$f"
         then
             AC_MSG_WARN("failed to find '$f'")
             enable_xml2pdf=no
@@ -1573,7 +1591,7 @@ AC_DEFUN([CHECK_GENERATE_MANPAGES],
     AC_MSG_WARN([asciidoc not found, cannot generate man pages])
     missing_dependency=yes
   fi
-    
+
   if test x$XSLTPROC = x; then
     AC_MSG_WARN([xsltproc not found, cannot generate man pages])
     missing_dependency=yes
@@ -1621,14 +1639,14 @@ AC_DEFUN([CHECK_DATE_PARSE_ARGS],
 
    # this method seems to work on most Linuxes
    date --date="`date +%b\ %e\ %T\ %Y\ %Z`" +%s > /dev/null 2>&1
-   if test $? -eq 0 
+   if test $? -eq 0
    then
       AC_SUBST(DATE_PARSE_ARGS,"--date=")
       AC_MSG_RESULT([--date=])
    else
       # this method works on FreeBSD
       date -j -f "%b %e %T %Y %Z" "`date +%b\ %e\ %T\ %Y\ %Z`" +%s > /dev/null 2>&1
-      if test $? -eq 0 
+      if test $? -eq 0
       then
          AC_SUBST(DATE_PARSE_ARGS,"-j -f \"%b %e %T %Y %Z\" ")
          AC_MSG_RESULT([-j -f \"%b %e %T %Y %Z\"])

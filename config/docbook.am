@@ -1,7 +1,13 @@
 ##
 ## This should be included to build project documentation using docbook
 ##
-## The project configure.ac file must include ENABLE_DOC and CHECK_DOCBOOKXML
+## The project configure.ac file must include:
+##
+##   ENABLE_DOC
+##   CHECK_DOCBOOKXML
+##   AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
+##   AM_CONDITIONAL(GENERATE_DOCBOOK_HTML, test x$enable_xml2xhtml = xyes)
+##   AM_CONDITIONAL(GENERATE_DOCBOOK_PDF, test x$enable_xml2pdf = xyes)
 ##
 ## Before the 'include' of this file, define the following variables:
 ##
@@ -10,8 +16,8 @@
 ##   DOCBOOK_XML_DOCS = file names of input documents _without_ the .xml suffix
 ##
 ## Following the 'include' of this file, the variable
-## 
-##   DOCBOOK_OUTPUTS is the list of generated document files to be installed 
+##
+##   DOCBOOK_OUTPUTS is the list of generated document files to be installed
 ##                   (these are full paths, including $(DESTDIR)
 ##
 
