@@ -45,8 +45,7 @@ OUTPUT_FORMS+=.pdf
 
 PDF_CONTROL_FILES= \
 	$(top_srcdir)/config/docbook-html.xsl \
-	$(top_srcdir)/config/docbook-jadetex.dsssl \
-	$(top_srcdir)/config/docbook.mak
+	$(top_srcdir)/config/docbook-jadetex.dsssl
 
 EXTRA_DIST+=$(PDF_CONTROL_FILES)
 
