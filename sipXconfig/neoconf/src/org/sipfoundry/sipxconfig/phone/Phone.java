@@ -136,10 +136,7 @@ public abstract class Phone extends Device {
 
         Line line = getLine(0);
 
-        // XCF-1059
-        String outboundProxy = m_phoneContext.getPhoneDefaults().getDomainName();
-        String outboundProxyPort = m_phoneContext.getPhoneDefaults().getProxyServerSipPort();
-        m_sip.sendCheckSync(line.getUri(), outboundProxy, outboundProxyPort);
+        m_sip.sendCheckSync(line.getUri());
     }
 
     public String getDescription() {

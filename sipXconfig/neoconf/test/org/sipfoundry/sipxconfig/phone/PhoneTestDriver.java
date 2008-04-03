@@ -94,7 +94,7 @@ public class PhoneTestDriver {
 
         if (users.size() > 0) {
             String uri = users.get(0).getUri("sipfoundry.org");
-            sip.sendCheckSync(uri, "sipfoundry.org", "5555");
+            sip.sendCheckSync(uri);
         }
         sipControl.replay();
         _phone.setSipService(sip);

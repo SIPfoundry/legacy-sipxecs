@@ -68,7 +68,6 @@ public class GrandstreamPhoneTest extends TestCase {
         tester.sipControl = EasyMock.createStrictControl();
         tester.sip = tester.sipControl.createMock(SipService.class);
         tester.sip.sendNotify(EasyMock.eq("\"Joe User\"<sip:juser@sipfoundry.org>"), EasyMock
-                .eq("sipfoundry.org"), (String) EasyMock.eq(null), EasyMock
                 .eq("Content-Type: application/octet-stream\r\nEvent: sys-control\r\n"),
                 resetMatcher());
         tester.sipControl.replay();

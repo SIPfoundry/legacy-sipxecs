@@ -269,8 +269,7 @@ public class GrandstreamPhone extends Phone {
         byte[] resetPayload = new ResetPacket(password, getSerialNumber()).getResetMessage();
         String event = "Content-Type: application/octet-stream\r\n" + "Event: sys-control\r\n";
 
-        getSipService().sendNotify(line.getUri(), info.getRegistrationServer(),
-                info.getRegistrationServerPort(), event, resetPayload);
+        getSipService().sendNotify(line.getUri(), event, resetPayload);
     }
 
     static class GrandstreamSettingExpressionEvaluator implements SettingExpressionEvaluator {

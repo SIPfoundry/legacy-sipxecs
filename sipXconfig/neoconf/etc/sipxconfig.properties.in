@@ -4,6 +4,7 @@
 #                can have a better chance to migrate this file properly
 sip.proxyHost=${PROXY_SERVER_ADDR}
 sip.proxyPort=${PROXY_SERVER_SIP_PORT}
+sip.fromServerName=${MY_FULL_HOSTNAME}
 # BEGIN: do not use
 phoneDefaults.proxyServerAddr=${PROXY_SERVER_ADDR}
 phoneDefaults.proxyServerSipPort=${PROXY_SERVER_SIP_PORT}
