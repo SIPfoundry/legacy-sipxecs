@@ -23,10 +23,7 @@ public class SimpleCallSetupTest extends TestCase {
 
     public void testSendInviteFromSipxProxy() {
         try {
-            Gateway.getRegistrationManager().sendRegistrer(
-                    Gateway.getAccountManager().getDefaultAccount());
-            Thread.sleep(5000);
-
+          
             this.sipxProxy.sendInviteToIbridge();
 
             Thread.sleep(15000);
@@ -52,7 +49,7 @@ public class SimpleCallSetupTest extends TestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        Gateway.startSipListener();
+        Gateway.init();
         this.sipxProxy = new MockSipxProxy();
         this.sipxProxy.init(100);
 

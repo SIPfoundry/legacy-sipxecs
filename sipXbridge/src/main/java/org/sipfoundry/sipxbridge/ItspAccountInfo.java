@@ -7,6 +7,7 @@
 package org.sipfoundry.sipxbridge;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TimerTask;
@@ -17,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.SRVRecord;
+import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
 /**
@@ -100,6 +102,12 @@ public class ItspAccountInfo implements
      */
     private int registrationInterval = 90;
     
+    
+    /*
+     * The state of the account.
+     */
+    private AccountState state = AccountState.INIT;
+    
     /**
      * The call Id table.
      */
@@ -174,9 +182,13 @@ public class ItspAccountInfo implements
 
     public ItspAccountInfo() {
         
-        FailureCounterScanner fcs = new FailureCounterScanner();
-        Gateway.timer.schedule(fcs, 5000,5000);
+       
 
+    }
+    
+    public void startFailureCounterScanner() {
+    	 FailureCounterScanner fcs = new FailureCounterScanner();
+         Gateway.timer.schedule(fcs, 5000,5000);
     }
 
     public String getOutboundProxy() {
@@ -227,6 +239,7 @@ public class ItspAccountInfo implements
     }
 
     public void setOutboundProxy(String resolvedName) {
+    	logger.debug("setOutboundProxy" + resolvedName);
         this.outboundProxy = resolvedName;
 
     }
@@ -235,6 +248,41 @@ public class ItspAccountInfo implements
         Gateway.timer.schedule(new Scanner(), time);
 
     }
+    
+    public void lookupAccount() throws GatewayConfigurationException {
+		try {
+			String outboundDomain = this.getSipDomain();
+			Record[] records = new Lookup("_sip._" + this.getTransport()
+					+ "." + outboundDomain, Type.SRV).run();
+
+			if (records == null || records.length == 0) {
+				// SRV lookup failed, use the outbound proxy directly.
+				logger
+						.debug("SRV lookup returned nothing -- we are going to just use the domain name directly");
+			} else {
+				logger.debug("Did a successful DNS SRV lookup");
+				SRVRecord record = (SRVRecord) records[0];
+				int port = record.getPort();
+				this.setPort(port);
+				long time = record.getTTL() * 1000;
+				String resolvedName = record.getTarget().toString();
+				this.setOutboundProxy(resolvedName);
+				this.startDNSScannerThread(time);
+			}
+
+			
+		} catch (TextParseException ex) {
+
+			throw new GatewayConfigurationException(
+					"Problem with domain name lookup", ex);
+		} catch (RuntimeException ex) {
+			ex.printStackTrace();
+			logger.fatal(
+					"Exception in processing -- could not add ITSP account ",
+					ex);
+			throw ex;
+		}
+	}
 
     public void setOptionsTimerTask(OptionsTimerTask optionsTimerTask) {
         this.optionsTimerTask = optionsTimerTask;
@@ -281,6 +329,7 @@ public class ItspAccountInfo implements
      *            the proxyDomain to set
      */
     public void setProxyDomain(String proxyDomain) {
+    	System.out.println("setProxyDomain " + proxyDomain);
         this.proxyDomain = proxyDomain;
     }
 
@@ -296,6 +345,7 @@ public class ItspAccountInfo implements
      *            the authenticationRealm to set
      */
     public void setAuthenticationRealm(String authenticationRealm) {
+    	logger.debug("setAuthenticationRealm : " + authenticationRealm);
         this.authenticationRealm = authenticationRealm;
     }
 
@@ -375,8 +425,25 @@ public class ItspAccountInfo implements
             fc = new FailureCounter();
             this.failureCountTable.put(callId, fc);
         }
-        return fc.increment();
+        int retval = fc.increment();
+        logger.debug("incrementFailureCount : " + retval);
+        
+        return retval;
         
     }
+
+	/**
+	 * @param state the state to set
+	 */
+	public void setState(AccountState state) {
+		this.state = state;
+	}
+
+	/**
+	 * @return the state
+	 */
+	public AccountState getState() {
+		return state;
+	}
 
 }

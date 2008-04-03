@@ -217,7 +217,7 @@ public class SipUtilities {
         // SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null,
         // itspAccount.getOutboundProxy());
         SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
-                itspAccount.getUserName(), itspAccount.getSipDomain());
+                itspAccount.getUserName(), itspAccount.getOutboundProxy());
 
         SipURI toUri = ProtocolObjects.addressFactory.createSipURI(itspAccount
                 .getUserName(), itspAccount.getSipDomain());

@@ -7,7 +7,11 @@
 package org.sipfoundry.sipxbridge;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.channels.DatagramChannel;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.UUID;
 import java.util.Vector;
 
 import javax.sdp.SdpParseException;
@@ -26,9 +30,12 @@ import org.apache.log4j.Logger;
  * @author M. Ranganathan
  * 
  */
-public class RtpSession {
+public class RtpSession  implements RtpSessionInterface  {
 
-    private static Logger logger = Logger.getLogger(RtpSession.class);
+
+	private static Logger logger = Logger.getLogger(RtpSession.class);
+    
+    private String id ;
 
     /*
      * My endpoint for media.
@@ -40,11 +47,34 @@ public class RtpSession {
      */
     private RtpEndpoint transmitter;
 
-    private RtpBridge rtpBridge;
+    transient RtpBridge rtpBridge;
 
+    public RtpSession() {
+    	id =  "rtp-session:" + Math.abs(new Random().nextLong());
+    	
+    }
+    
+    
     public RtpSession(RtpBridge bridge) {
         this.rtpBridge = bridge;
 
+    }
+    
+    public HashMap<String,Object>  toMap() {
+    	HashMap<String,Object> retval = new HashMap<String,Object>();
+    	retval.put("id", id);
+    	if ( this.receiver != null)
+    		retval.put("receiver", receiver.toMap());
+    	else {
+    		retval.put("receiver", new HashMap<String,Object>());
+    	}
+    	if ( this.transmitter != null) {
+    		retval.put("transmitter", transmitter.toMap());
+    	} else {
+    		retval.put("transmitter", new HashMap<String,Object>());
+    	}
+    	return retval;
+    	
     }
 
     public void setMyEndpoint(RtpEndpoint myEndpoint) {
@@ -87,6 +117,7 @@ public class RtpSession {
                     this.transmitter.getRtpDatagramChannel().close();
                 if (this.transmitter.getRtcpDatagramChannel() != null)
                     this.transmitter.getRtcpDatagramChannel().close();
+                this.transmitter.stopKeepalive();
             }
         } catch (Exception ex) {
             logger.error("Unexpected exception occured", ex);
@@ -95,11 +126,23 @@ public class RtpSession {
     }
 
     public String toString() {
-        return "[ myEndpoint " + this.getReceiver().getIpAddress() + ":"
-                + this.getReceiver().getPort() + "\n" + "hisEndpoint "
-                + this.getTransmitter().getIpAddress() + ":"
-                + this.getTransmitter().getPort() + "]+\n";
-
+    	StringBuffer sbuf = new StringBuffer();
+    	sbuf.append("RtpSession = [ ");
+    	if ( this.receiver != null) {
+    		sbuf.append(" RECEIVER : " + this.getReceiver().getIpAddress() + ":"
+                    + this.getReceiver().getPort() );
+    	} else {
+    		sbuf.append("NO RECEIVER");
+    	}
+    	
+    	if ( this.transmitter  != null) {
+    		sbuf.append( " TRANSMITTER : "+ this.getTransmitter().getIpAddress() + ":"
+                    + this.getTransmitter().getPort()  );
+    	}else {
+    		sbuf.append("NO TRANSMITTER");
+    	}
+    	sbuf.append("]");
+    	return sbuf.toString();
     }
 
     /**
@@ -109,6 +152,10 @@ public class RtpSession {
         return rtpBridge;
     }
 
+    
+    public String getId() {
+    	return this.id;
+    }
     
     /**
      * Reassign the session parameters ( possibly putting the media on hold and playing music ).

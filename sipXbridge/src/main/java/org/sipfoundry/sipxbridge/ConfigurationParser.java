@@ -8,8 +8,10 @@ package org.sipfoundry.sipxbridge;
 
 import java.io.File;
 import java.io.FileReader;
+import java.net.URL;
 
 import org.apache.commons.digester.Digester;
+import org.xml.sax.InputSource;
 
 /**
  * The Parser for the configuration file that the bridge will use.
@@ -54,7 +56,14 @@ public class ConfigurationParser {
         
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "log-level"), "setLogLevel", 0);
-        
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
+        "sip-keepalive-seconds"), "setSipKeepalive", 0);
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
+        "media-keepalive-seconds"), "setMediaKeepalive", 0);
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
+        "xml-rpc-port"), "setXmlRpcPort", 0);
+       
+
         /*
          * ITSP configuration support parameters.
          */
@@ -96,17 +105,19 @@ public class ConfigurationParser {
 
     }
 
-    public AccountManagerImpl createAccountManager(String fileName) {
+    public AccountManagerImpl createAccountManager(String url) {
         // Create a Digester instance
-        Digester d = new Digester();
-        d.setSchema("file:schema/sipxbridge.xsd");
-        addRules(d);
+        Digester digester = new Digester();
+        digester.setSchema("file:schema/sipxbridge.xsd");
+       
+        addRules(digester);
 
         // Process the input file.
         try {
-            java.io.Reader reader = new FileReader(new File(fileName));
-            d.parse(reader);
-            return (AccountManagerImpl) d.getRoot();
+        	System.out.println("URL = " + url);
+        	InputSource inputSource = new InputSource(url);
+        	digester.parse(inputSource);
+            return (AccountManagerImpl) digester.getRoot();
         } catch (java.io.IOException ioe) {
             System.out.println("Error reading input file:" + ioe.getMessage());
             throw new RuntimeException("Intiialzation exception", ioe);

@@ -1,6 +1,6 @@
 THIS IS AN EARLY RELEASE. 
 
-It is not included in the top level build until it achieves a better level of testing (help solicitied).
+It is not included in the top level build until it achieves a better level of testing (help solicited).
 
 This is an ITSP (trunking) gateway. It aims to provide media and
 signaling gatewaying between SIP endpoints inside a firewall /NAT and 

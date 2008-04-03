@@ -30,6 +30,7 @@ commons-logging=${src.dir}/lib/commons-logging-1.1.1.jar
 commons-logging-api=${src.dir}/lib/commons-logging-api-1.1.1.jar
 xml-rpc-common=${src.dir}/lib/xmlrpc-common-3.1.jar
 xml-rpc-server=${src.dir}/lib/xmlrpc-server-3.1.jar
+xml-rpc-client=${src.dir}/lib/xmlrpc-client-3.1.jar
 ws-commons-util=${src.dir}/lib/ws-commons-util-1.0.2.jar
 junit=${src.dir}/lib/junit-3.8.1.jar
 javac.debug=on

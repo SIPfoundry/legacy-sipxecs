@@ -77,8 +77,10 @@
 		<pathelement location="${commons-logging}" />
 		<pathelement location="${commons-digester}" />
 		<pathelement location="${commons-collections}" />
+		<pathelement location="${commons-beanutils}" />
 		<pathelement location="${xml-rpc-common}" />
 		<pathelement location="${xml-rpc-server}" />
+		<pathelement location="${xml-rpc-client}" />
 		<pathelement location="${ws-commons-util}" />
 	</path>
 	
@@ -136,7 +138,7 @@
 </target>
 
 <!-- Start iBridge -->
-<target name="sipxbridge" description="Start sipXbridge" depends="cleanlogs,compile" >
+<target name="sipxbridge" description="Start sipXbridge" depends="clean,cleanlogs,compile" >
      <java fork="yes" classname="org.sipfoundry.sipxbridge.Gateway">
      	   <arg value="-initOnStartup"/>
            <classpath>
@@ -148,5 +150,35 @@
      </java>
 </target>
 	
+
+<!-- These targets are for testing only -->
+
+<target name="test1" description="Start sipXbridge" depends="clean,cleanlogs,compile" >
+     <java fork="yes" classname="org.sipfoundry.sipxbridge.Gateway">
+     	   <arg value="-initOnStartup"/>
+	   <arg value="-config" />
+	   <arg value="file:///etc/sipxpbx/sipxbridge-test1.xml" />
+           <classpath>
+		  <pathelement location="${classes}" />
+                  <fileset dir="lib">
+                         <include name="**/*.jar" />
+                  </fileset>
+           </classpath>
+     </java>
+</target>
+
+<target name="test2" description="Start sipXbridge" depends="clean,cleanlogs,compile" >
+     <java fork="yes" classname="org.sipfoundry.sipxbridge.Gateway">
+     	   <arg value="-initOnStartup"/>
+	   <arg value="-config" />
+	   <arg value="file:///etc/sipxpbx/sipxbridge-test2.xml" />
+           <classpath>
+		  <pathelement location="${classes}" />
+                  <fileset dir="lib">
+                         <include name="**/*.jar" />
+                  </fileset>
+           </classpath>
+     </java>
+</target>
 
 </project>

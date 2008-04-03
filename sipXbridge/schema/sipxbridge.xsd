@@ -102,14 +102,33 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-
-			<xs:element name="media-gateway-url" type="xs:string"
-				maxOccurs="1" minOccurs="0">
+			
+			
+			<xs:element name="sip-keepalive-seconds" type="xs:integer"
+				minOccurs="0" maxOccurs="1" default="20">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						The HTTP URL for an external media gateway ( if
-						one is configured ). XML RPC requests use this
-						URL.
+						Keepalive timer for SIP Signaling. Sipxbridge will re-register with each
+						ITSP to keep the NAT pinhone open
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			
+			<xs:element name="media-keepalive-seconds" type="xs:integer"
+				minOccurs="0" maxOccurs="1" default="2">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Keepalive timer for RTP. Each RTP stream facing the ITSP will
+						start a timer that runs with this timeout (in seconds).
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			
+			<xs:element name="xml-rpc-port" type="xs:integer"
+				maxOccurs="1" minOccurs="0" default="8080">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Port for external XML RPC requests to be directed.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -131,6 +150,7 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			
 			<xs:element name="log-level" maxOccurs="1" minOccurs="0"
 				default="INFO">
 				<xs:annotation>

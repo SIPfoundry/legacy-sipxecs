@@ -117,10 +117,9 @@ public class CallControlManager {
                 DialogApplicationData dat = (DialogApplicationData) dialog
                         .getApplicationData();
             
-
-                SessionDescription newDescription = dat.backToBackUserAgent
-                        .getRtpBridge().getLanRtpSession(dialog)
-                        .reAssignSessionParameters(request,dialog);
+                RtpSession lanRtpSession = dat.rtpSession;
+                SessionDescription newDescription = lanRtpSession.reAssignSessionParameters(request, dialog);
+              
                 Response response = ProtocolObjects.messageFactory
                         .createResponse(Response.OK, request);
                 if (newDescription != null) {
@@ -152,8 +151,7 @@ public class CallControlManager {
 
                 btobua = Gateway.getCallControlManager()
                         .getBackToBackUserAgent(provider, request, dialog);
-                DialogApplicationData dat = new DialogApplicationData(btobua);
-                dialog.setApplicationData(dat);
+                DialogApplicationData.attach(btobua, dialog);
             }
 
             // This method was seen from the LAN side.
@@ -375,23 +373,7 @@ public class CallControlManager {
                  * Setting this to null here handles the case of Re-invitations.
                  */
                 dat.lastResponse = null;
-
-                BackToBackUserAgent b2bua = dat.backToBackUserAgent;
-
-                /*
-                 * Check if early media thread is running and if not kick it off
-                 * to allow inbound NAT traffic.
-                 */
-                SipURI incomingAckUri = (SipURI) requestEvent.getRequest()
-                        .getRequestURI();
-
-                if (b2bua.getRtpBridge().isEarlyMedia()
-                        && !b2bua.getRtpBridge().getWanRtpSession(
-                                requestEvent.getDialog()).getTransmitter()
-                                .isEarlyMediaStarted())
-                    b2bua.getRtpBridge().getWanRtpSession(
-                            requestEvent.getDialog()).getTransmitter()
-                            .startEarlyMediaThead();
+                
             }
 
         } catch (Exception ex) {
@@ -496,6 +478,7 @@ public class CallControlManager {
         ServerTransaction serverTransaction = null;
         SipProvider provider = (SipProvider) responseEvent.getSource();
         Response response = responseEvent.getResponse();
+        logger.debug("processInviteResponse : " + ((SIPResponse) response).getFirstLine());
 
         Dialog dialog = responseEvent.getDialog();
         try {
@@ -627,19 +610,26 @@ public class CallControlManager {
                         newSd = SdpFactory.getInstance()
                                 .createSessionDescription(
                                         new String(response.getRawContent()));
-                        RtpSession rtpSession = b2bua.getRtpBridge()
-                                .getRtpSession(dialog);
+                        DialogApplicationData dialogApplicationData = (DialogApplicationData) dialog.getApplicationData();
+                        
+                        RtpSession rtpSession = dialogApplicationData.rtpSession;
                         RtpEndpoint hisEndpoint = null;
                         if (rtpSession != null) {
                             hisEndpoint = rtpSession.getTransmitter();
                         }
 
-                        if (hisEndpoint == null)
-                            hisEndpoint = new RtpEndpoint(true, true);
+                        if (hisEndpoint == null) {
+                            hisEndpoint = new RtpEndpoint(true);
+                          
+                            
+                            
+                        }
 
                         tad.outgoingSession.setRemoteEndpoint(hisEndpoint);
                         hisEndpoint.setSessionDescription(sessionDescription);
-
+                        if ( tad.operation == Operation.SEND_INVITE_TO_ITSP)
+                        	hisEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec());
+                        
                         RtpEndpoint incomingEndpoint = tad.incomingSession
                                 .getReceiver();
 
@@ -648,15 +638,7 @@ public class CallControlManager {
                         newResponse.setContent(newSd.toString(), cth);
                         tad.backToBackUa.getRtpBridge().start();
 
-                        /*
-                         * Start early media as soon as we see SDP.
-                         */
-                        if (tad.backToBackUa.getRtpBridge().isEarlyMedia()) {
-
-                            tad.incomingSession.getTransmitter()
-                                    .startEarlyMediaThead();
-
-                        }
+                       
 
                     }
                     if (logger.isDebugEnabled()
@@ -693,9 +675,9 @@ public class CallControlManager {
                                 .getInstance().createSessionDescription(
                                         new String(response.getRawContent()));
                         logger.debug("Processing ReferRedirection Response");
-
-                        RtpSession rtpSession = b2bua.getRtpBridge()
-                                .getRtpSession(referDialog);
+                      
+                        RtpSession rtpSession = ((DialogApplicationData) referDialog.getApplicationData()).rtpSession;
+                       
                         if (rtpSession != null) {
 
                             /*
@@ -708,8 +690,8 @@ public class CallControlManager {
                              * Grab the RTP session previously pointed at by the
                              * REFER dialog.
                              */
-                            b2bua.getRtpBridge().setRtpSession(dialog,
-                                    rtpSession);
+                            b2bua.getRtpBridge().addRtpSession(rtpSession);
+                            ((DialogApplicationData)dialog.getApplicationData()).rtpSession = rtpSession;
                         } else {
                             logger
                                     .debug("Processing ReferRedirection: Could not find RtpSession for referred dialog");
@@ -761,6 +743,12 @@ public class CallControlManager {
                                         .getSeqNumber());
                         dialog.sendAck(ackRequest);
                     }
+                    /*
+                     * If there is a Music on hold dialog -- tear it down
+                     */
+                     if ( dat.musicOnHoldDialog != null && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
+                    	 this.getBackToBackUserAgent(dialog).sendByeToMohServer(dat.musicOnHoldDialog);
+                     }
 
                 } else if ( tad.operation.equals(Operation.SEND_INVITE_TO_MOH_SERVER)){
                     Request ack = dialog.createAck(((CSeqHeader) response
@@ -876,9 +864,8 @@ public class CallControlManager {
 
                 b2bua = new BackToBackUserAgent(provider, request, dialog,
                         accountInfo);
-                DialogApplicationData dialogApplicationData = new DialogApplicationData(
-                        b2bua);
-                dialog.setApplicationData(dialogApplicationData);
+               
+                DialogApplicationData.attach(b2bua, dialog);
 
                 this.backToBackUserAgentTable.put(callId, b2bua);
             }
