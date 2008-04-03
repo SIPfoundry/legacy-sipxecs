@@ -1275,6 +1275,7 @@
           </option>
         </enum>
       </type>
+      <value>0</value>
     </setting>
     <setting name="TraceLevel">
       <label>Trace Level</label>
