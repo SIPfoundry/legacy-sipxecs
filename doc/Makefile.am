@@ -1,3 +1,5 @@
+RPM_TARGET_ARCH=noarch
+
 include config/project.am
 
 RPMS = $(RPM)
@@ -33,5 +35,3 @@ install: $(foreach doc,$(DOCBOOK_OUTPUTS) $(OTHER_DOCS),$(DESTDIR)@SIPX_DOCDIR@/
 
 $(foreach doc,$(DOCBOOK_OUTPUTS) $(OTHER_DOCS),$(DESTDIR)@SIPX_DOCDIR@/$(doc)) : $(DESTDIR)@SIPX_DOCDIR@/% : %
 	$(INSTALL) -D -m 644 $< $@;
-
-RPM_TARGET_ARCH=noarch
