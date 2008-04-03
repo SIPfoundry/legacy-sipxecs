@@ -103,6 +103,11 @@ protected:
    int mPipeReadingFd;
    int mPipeWritingFd;
 
+   /// The limit we allow for fd's returned by pipe().
+   //  fdLimit allows us to enforce some headroom in fd allocation
+   //  between the fd's assigned by SipClient's and getdtablesize().
+   static const int sFdLimit;
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 

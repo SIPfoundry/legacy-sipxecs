@@ -20,7 +20,15 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+
+// Limit on the fd's to allow to be allocated for a pipe().
+// Approximately this number of fd's will always be available for
+// other purposes.
+#define FD_HEADROOM 20
+
 // STATIC VARIABLE INITIALIZATIONS
+
+const int OsServerTaskWaitable::sFdLimit = getdtablesize() - FD_HEADROOM;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -40,20 +48,39 @@ OsServerTaskWaitable::OsServerTaskWaitable(const UtlString& name,
    // Create the pipe which is used to signal that a message is available.
    int filedes[2];
    int ret = pipe(filedes);
+   // Check for success.
    if (ret == 0)
    {
-      mPipeReadingFd = filedes[0];
-      mPipeWritingFd = filedes[1];
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                    "OsServerTaskWaitable::_ pipe() opened %d -> %d",
-                    mPipeWritingFd, mPipeReadingFd);
+      // Check if fd's are too large.
+      if (filedes[0] <= sFdLimit && filedes[1] <= sFdLimit)
+      {
+         // Everything is OK.
+         mPipeReadingFd = filedes[0];
+         mPipeWritingFd = filedes[1];
+         OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                       "OsServerTaskWaitable::_ pipe() opened %d -> %d",
+                       mPipeWritingFd, mPipeReadingFd);
+      }
+      else
+      {
+         // fd's are too large and are encroaching on the fd 'headroom'.
+         close(filedes[0]);
+         close(filedes[1]);
+         mPipeReadingFd = -1;
+         mPipeWritingFd = -1;
+         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                       "OsServerTaskWaitable::_ "
+                       "pipe() returned %d -> %d, which exceeds sFdLimit = %d",
+                       filedes[1], filedes[0], sFdLimit);
+      }
    }
    else
    {
       mPipeReadingFd = -1;
       mPipeWritingFd = -1;
       OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                    "OsServerTaskWaitable::_ pipe() returned %d, errno = %d, getdtablesize() = %d",
+                    "OsServerTaskWaitable::_ "
+                    "pipe() returned %d, errno = %d, getdtablesize() = %d",
                     ret, errno, getdtablesize());
    }
 }
