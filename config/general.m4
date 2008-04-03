@@ -1530,7 +1530,8 @@ AC_DEFUN([CHECK_DOCBOOKXML],
   else
      enable_xml2xhtml=no
   fi
-  test $enable_xml2html = no && AC_MSG_WARN([DocBook XML to XHTML disabled])
+  test x$enable_xml2xhtml = xno && AC_MSG_WARN([DocBook XML to XHTML disabled])
+  AC_SUBST(enable_xml2xhtml)
 
   if test x$OPENJADE != x -a x$PDFJADETEX != x
   then
