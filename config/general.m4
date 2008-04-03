@@ -1499,21 +1499,12 @@ AC_DEFUN([CHECK_CRON],
 AC_DEFUN([CHECK_XSLTPROC],
 [
   AC_PATH_PROG([XSLTPROC], [xsltproc])
-  if test x$XSLTPROC = x; then
-    AC_MSG_WARN([not found])
-  fi
 ])
 
 AC_DEFUN([CHECK_OPENJADE],
 [
   AC_PATH_PROG([OPENJADE], [openjade])
-  if test x$OPENJADE = x; then
-    AC_MSG_WARN([not found])
-  fi
   AC_PATH_PROG([PDFJADETEX], [pdfjadetex])
-  if test x$PDFJADETEX = x; then
-    AC_MSG_WARN([not found])
-  fi
 ])
 
 AC_DEFUN([CHECK_DOCBOOKXML],
@@ -1539,6 +1530,7 @@ AC_DEFUN([CHECK_DOCBOOKXML],
   else
      enable_xml2xhtml=no
   fi
+  test $enable_xml2html = no && AC_MSG_WARN([DocBook XML to XHTML disabled])
 
   if test x$OPENJADE != x -a x$PDFJADETEX != x
   then
