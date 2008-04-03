@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.phone;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Formatter;
 
 import junit.framework.TestCase;
 
@@ -44,60 +43,34 @@ public class SipServiceImplTest extends TestCase {
         EasyMock.verify(m_domainManager);
     }
 
-    public void testBranchId() {
-        Formatter f1 = new Formatter();
-        m_sip.formatServerVia(f1);
+    public void testBranchId() throws Exception {
+        StringBuilder f1 = new StringBuilder();
+        m_sip.formatHeaders(f1, "sip:user@example.org", "Event: check-sync\r\n", 20);
 
-        Formatter f2 = new Formatter();
-        m_sip.formatServerVia(f2);
+        StringBuilder f2 = new StringBuilder();
+        m_sip.formatHeaders(f2, "sip:user@example.org", "Event: check-sync\r\n", 20);
 
         // branch id should make these differ
-        assertNotSame(f1.toString(), f2.toString());
-    }
-
-    public void testGetVia() {
-        String expectedVia = "Via: SIP/2.0/UDP config.example.org:5061;branch=[0-9a-f]{1,16}\r\n";
-
-        Formatter f1 = new Formatter();
-        m_sip.formatServerVia(f1);
-
-        String actualVia = f1.toString();
-
-        assertTrue("Via must match the pattern", actualVia.matches(expectedVia));
-    }
-
-    public void testDefaultFromPort() {
-        m_sip.setFromServerName("donut");
-        assertEquals("sip:sipuaconfig@donut:5061", m_sip.getServerUri());
-        m_sip.setProxyPort(5000);
-        assertEquals("sip:sipuaconfig@donut:5000", m_sip.getServerUri());
+        assertFalse(f1.toString().equals(f2.toString()));
     }
 
     public void testCreateHeader() throws Exception {
-        String expectedHeader = "NOTIFY sip:user@example.org:5061 SIP/2.0\r\n"
-                + "Via: SIP/2.0/UDP config.example.org:5061;branch=[0-9a-f]{1,16}\r\n"
-                + "From: sip:sipuaconfig@config.example.org:5061\r\n" + "To: sip:user@example.com\r\n"
+        String expectedHeader = "NOTIFY sip:user@example.org SIP/2.0\r\n"
+                + "Via: SIP/2.0/UDP proxy.example.org:5061;branch=[0-9a-f]{1,16}\r\n"
+                + "From: sip:sipuaconfig@config.example.org\r\n" + "To: sip:user@example.org\r\n"
                 + "Date: [A-z]{3}, \\d{1,2} [A-z]{3} \\d{4} \\d{2}:\\d{2}:\\d{2} GMT\r\n"
                 + "Call-ID: 90d3f2-[0-9a-f]{1,16}\r\n" + "CSeq: 1 NOTIFY\r\n"
-                + "Contact: sip:config.example.org:5061\r\n" + "Event: check-sync\r\n" + "Content-Length: 20\r\n\r\n";
+                + "Contact: sip:proxy.example.org:5061\r\n" + "Event: check-sync\r\n" + "Content-Length: 20\r\n\r\n";
 
         StringBuilder f = new StringBuilder();
-        m_sip.formatSipHeaders(f, "sip:user@example.com", "example.org", 5061, "Event: check-sync\r\n", 20);
+        m_sip.formatHeaders(f, "sip:user@example.org", "Event: check-sync\r\n", 20);
         String sipHeaders = f.toString();
 
         System.err.println(expectedHeader);
         System.err.println(sipHeaders);
 
+        //assertEquals(expectedHeader, sipHeaders);
         assertTrue(sipHeaders.matches(expectedHeader));
-
-    }
-
-    public void testGetNotifyRequestUri() {
-        String actual = m_sip.getNotifyRequestUri("a", "b.com", 5060);
-        assertEquals("sip:a@b.com", actual);
-
-        actual = m_sip.getNotifyRequestUri("a", "b.com", 5061);
-        assertEquals("sip:a@b.com:5061", actual);
     }
 
     public void REQUIRES_RUNNING_PROXY_testSend() throws Exception {
