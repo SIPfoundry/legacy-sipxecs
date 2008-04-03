@@ -264,9 +264,74 @@ if [ -f %{configfile} ]; then
     fi
   ) >%{configfile}
   rm -f %{configfile}.DAEMON
-  # Restart sendmail so the configuration takes effect.
-  /sbin/service sendmail restart >/dev/null
 fi
+
+# Edit sendmail.mc to set various parameters to ensure prompt
+# processing of mail.
+%define mcfile /etc/sysconfig/sendmail
+if [ -f %{mcfile} ]; then
+  # Save the current %{mcfile}, if we haven't saved one before.
+  if [ ! -f %{mcfile}.pre-sipX ]; then
+    cp %{mcfile} %{mcfile}.pre-sipX
+  fi
+ 
+  # Assemble sed commands to delete existing definitions of the parameters.
+  # Assemble temporary file containing lines to be appended.
+  SCRIPTFILE=`mktemp /tmp/tfile.XXXXXXXXXX`
+  APPENDFILE=`mktemp /tmp/tfile.XXXXXXXXXX`
+  COMMON_TIMEOUT=1m
+
+  cat <<EOF >$APPENDFILE
+#
+# Configured by sipX PBX: @PACKAGE@ @VERSION@ %{buildno}
+EOF
+
+  while read PARAMETER VALUE
+  do
+    echo "/^define(\`$PARAMETER',/d" >>$SCRIPTFILE
+    echo "define(\`$PARAMETER', \`$VALUE')dnl" >>$APPENDFILE
+  done <<EOF
+  confMCI_CACHE_TIMEOUT $COMMON_TIMEOUT
+  confTO_INITIAL $COMMON_TIMEOUT
+  confTO_CONNECT $COMMON_TIMEOUT
+  confTO_ACONNECT $COMMON_TIMEOUT
+  confTO_HELO $COMMON_TIMEOUT
+  confTO_MAIL $COMMON_TIMEOUT
+  confTO_RCPT $COMMON_TIMEOUT
+  confTO_DATAINIT $COMMON_TIMEOUT
+  confTO_DATABLOCK $COMMON_TIMEOUT
+  confTO_DATAFINAL $COMMON_TIMEOUT
+  confTO_RSET $COMMON_TIMEOUT
+  confTO_QUIT $COMMON_TIMEOUT
+  confTO_MISC $COMMON_TIMEOUT
+  confTO_COMMAND $COMMON_TIMEOUT
+  confTO_IDENT $COMMON_TIMEOUT
+  confTO_FILEOPEN $COMMON_TIMEOUT
+  confTO_LHLO $COMMON_TIMEOUT
+  confTO_AUTH $COMMON_TIMEOUT
+  confTO_STARTTLS $COMMON_TIMEOUT
+  confTO_CONTROL $COMMON_TIMEOUT
+  confTO_QUEUERETURN 1d
+  confTO_QUEUERETURN_DSN 1h
+  confTO_QUEUEWARN 2d
+EOF
+
+  <%{mcfile} \
+  sed -f $SCRIPTFILE |
+  cat - $APPENDFILE \
+  >%{mcfile}.new
+
+  mv %{mcfile} %{mcfile}.old
+  mv %{mcfile}.new %{mcfile}
+
+  rm -f $SCRIPTFILE $APPENDFILE
+
+  # Rebuild sendmail.cf.  (sendmail will be restarted later.)
+  make -C /etc/mail >/dev/null
+fi
+
+# Restart sendmail so the configuration takes effect.
+/sbin/service sendmail restart >/dev/null
 
 %preun
 # see http://fedoraproject.org/wiki/Packaging/ScriptletSnippets
