@@ -316,8 +316,10 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
                              "SipTcpServer[%s]::run failed to create client for incoming connection: %s:%d",
                              getName().data(),
                              hostAddress.data(), hostPort);
+               // Note that destroying 'client' also destroys 'clientSocket'
+               // because clientSocket is unshared and so client owns
+               // clientSocket.
                delete client;
-               delete clientSocket;
             }
 
             // Tell our caller that we have handled this message.
