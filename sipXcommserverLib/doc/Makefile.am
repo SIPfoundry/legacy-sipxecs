@@ -8,6 +8,8 @@ EXTRA_DIST = \
   permission.xml \
   INSTALL.ssl.in
 
+install-data-hook: $(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl
+
 $(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl: INSTALL.ssl $(DESTDIR)@SIPX_DOCDIR@
 	@INSTALL@ -m u=rw,go=r $< $@
 
