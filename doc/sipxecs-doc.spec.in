@@ -1,6 +1,7 @@
 Name: @PACKAGE@
 Version: @VERSION@
 Release: %{buildno}
+BuildArch: noarch
 
 # do not build a debuginfo package
 %define debug_package %{nil}
