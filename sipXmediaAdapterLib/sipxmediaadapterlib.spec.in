@@ -84,7 +84,7 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(644,root,root,755)
 %doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
-%doc @SIPX_DOCDIR@/%name
+%docdir @SIPX_DOCDIR@/%name
 @SIPX_DOCDIR@/%name
 
 # %attr(755,root,root) %{_libdir}/debug/usr/lib/libsipXmediaProcessing.so*
