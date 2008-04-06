@@ -243,6 +243,7 @@ Any SIP UA can call a registered UA by calling its AOR,
 <li><a href='#dialog'>Dialog Event Package</a></li>
 <li><a href='#ISN'>ISN Dialing</a></li>
 <li><a href='#moh'>Music on Hold</a></li>
+<li><a href='#double-hold'>Double-Hold Scenarios</a></li>
 <li><a href='#ENUM'>ENUM Dialing</a></li>
 <li><a href='#JOIN'>Ad-hoc Conferencing</a></li>
 <li><a href='#SRV'>DNS SRV Record Processing</a></li>
@@ -585,7 +586,46 @@ can use the URI <code>sip:~~mh~@@SIPXCHANGE_DOMAIN_NAME@</code> as an
 audio source.
 </p>
 
-<h3><a name='ENUM'>16</a>. ENUM Dialing</h3>
+<h3><a name='double-hold'>16</a>. Double-Hold Scenarios</h3>
+
+<p>
+The purpose of these tests is to verify that two UAs can handle when
+both UAs put the opposite ends of one call on hold.  It is most
+informative when both UAs are configured to generate
+<a href='#moh'>music-on-hold</a>.
+</p>
+
+<p>
+First test:
+
+<ol>
+<li>Call from the first UA to the second UA.
+<li>At the first UA, put the call on hold.
+<li>The second UA should receive music-on-hold.
+<li>At the second UA, put the call on hold.
+<li>At the second UA, take the call off hold.
+<li>The second UA should receive music-on-hold.
+<li>At the first UA, take the call off hold.
+<li>The UAs should pass audio in both directions.
+</ol>
+</p>
+
+<p>
+Second test:
+
+<ol>
+<li>Call from the first UA to the second UA.
+<li>At the first UA, put the call on hold.
+<li>The second UA should receive music-on-hold.
+<li>At the second UA, put the call on hold.
+<li>At the first UA, take the call off hold.
+<li>The first UA should receive music-on-hold.
+<li>At the second UA, take the call off hold.
+<li>The UAs should pass audio in both directions.
+</ol>
+</p>
+
+<h3><a name='ENUM'>17</a>. ENUM Dialing</h3>
 
 <p>
 This server supports ENUM dialing using the "official" public enum
@@ -605,7 +645,7 @@ Additional ENUM test numbers can be found at
 <a href="http://www.enum-test.at/index_en.html"><code>http://www.enum-test.at/index_en.html</code></a>.
 </p>
 
-<h3><a name='JOIN'>17</a>. Ad-hoc Conferencing</h3>
+<h3><a name='JOIN'>18</a>. Ad-hoc Conferencing</h3>
 
 <p>
 Ad-hoc conferencing is useful in call-control applications.
@@ -640,7 +680,7 @@ and whether the second UA generates
 dialog event notices with usable endpoint identification.
 </p>
 
-<h3><a name='SRV'>18</a>. DNS SRV Record Processing</h3>
+<h3><a name='SRV'>19</a>. DNS SRV Record Processing</h3>
 
 <p>
 This server also supports the SIP domains
@@ -653,7 +693,7 @@ names in place of <code>@SIPXCHANGE_DOMAIN_NAME@</code> to place calls
 in all of the tests.
 </p>
 
-<h3><a name='BLF'>19</a>. BLF (Busy Lamp Field) and Dialog-Event Resource Lists</h3>
+<h3><a name='BLF'>20</a>. BLF (Busy Lamp Field) and Dialog-Event Resource Lists</h3>
 
 <p>
 Some UAs can subscribe to a resource list of dialog events to obtain
@@ -689,7 +729,7 @@ not work consistently with any sipX feature that requires dialog events,
 including call pick-up.
 </p>
 
-<h3><a name='two-dialog-subs'>20</a>. Multiple Dialog Event Subscriptions</h3>
+<h3><a name='two-dialog-subs'>21</a>. Multiple Dialog Event Subscriptions</h3>
 
 <p>
 SIP requires that a UA can support multiple subscriptions to its
@@ -724,7 +764,7 @@ Answer the call at the first UA.
 The second UA's BLF should indicate that the first UA is busy.
 </p>
 
-<h3><a name='BLF-status'>21</a>. BLF Status Display</h3>
+<h3><a name='BLF-status'>22</a>. BLF Status Display</h3>
 
 <p>
 This test shows whether a UA sends comprehensive status information,
@@ -781,7 +821,7 @@ At the first UA, hang up the call.
 The third UA should show the first and second UAs as idle.
 </p>
 
-<h3><a name='loopdetected'>22</a>. Proxy Loop Detection</h3>
+<h3><a name='loopdetected'>23</a>. Proxy Loop Detection</h3>
 
 <p>
 Any call to <code>9001</code> will return a 482 Loop Detected error.  As a
