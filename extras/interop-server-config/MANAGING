@@ -104,6 +104,11 @@ Generate the config.defs file:
 
 Edit /etc/sipxpbx/config.defs for any needed customization.
 
+Note that config.defs by default sets the SIP domain name of the
+server to `hostname -f`, and from that generates the UDP-only and
+TCP-only names.  The following steps edit those names into the
+user-visible files.
+
 Generate the remainder of the configuration files:
 
 	sudo make install
