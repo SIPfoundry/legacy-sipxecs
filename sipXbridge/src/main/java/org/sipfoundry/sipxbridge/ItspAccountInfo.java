@@ -138,7 +138,8 @@ public class ItspAccountInfo implements
                         proxyHop);
                 Gateway.timer.schedule(new Scanner(), time);
             } catch (Exception ex) {
-                Gateway.stop();
+            	logger.error("Error looking up domain " + "_sip._" + getTransport() + "."
+                        + getSipDomain());
             }
             
 

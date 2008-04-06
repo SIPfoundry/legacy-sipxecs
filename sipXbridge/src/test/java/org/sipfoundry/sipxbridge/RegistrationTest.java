@@ -68,7 +68,7 @@ public class RegistrationTest extends AbstractSipSignalingTest {
                     ItspAccountInfo itspAccount = ((TransactionApplicationData) responseEvent
                             .getClientTransaction().getApplicationData()).itspAccountInfo;
                     ClientTransaction newClientTransaction = Gateway
-                            .getSipSecurityManager().handleChallenge(response,
+                            .getAuthenticationHelper().handleChallenge(response,
                                     responseEvent.getClientTransaction(),
                                     (SipProvider) responseEvent.getSource());
                     newClientTransaction.sendRequest();

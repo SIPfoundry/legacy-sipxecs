@@ -479,7 +479,7 @@ public class SipUtilities {
             // request.setHeader(routeHeader);
 
             Collection<AuthorizationHeader> authHeaders = Gateway
-                    .getSipSecurityManager().getCachedAuthorizationHeaders(
+                    .getAuthenticationHelper().getCachedAuthorizationHeaders(
                             itspAccount, itspAccount.getUserName());
 
             if (authHeaders != null) {

@@ -176,7 +176,7 @@ public class SipListenerImpl implements SipListener {
 					b2bua.removeDialog(dialog);
 
 				ClientTransaction newClientTransaction = Gateway
-						.getSipSecurityManager().handleChallenge(response,
+						.getAuthenticationHelper().handleChallenge(response,
 								responseEvent.getClientTransaction(), provider);
 
 				// Handle authenitcation responses locally.

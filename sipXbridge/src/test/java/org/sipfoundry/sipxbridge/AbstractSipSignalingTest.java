@@ -23,14 +23,12 @@ import junit.framework.TestCase;
 public abstract class AbstractSipSignalingTest extends TestCase {
     protected AccountManagerImpl accountManager = null;
     protected SipProvider provider;
-    protected SipSecurityManager sipSecurityManager;
-
+   
     @Override
     public void setUp() throws Exception {
         Gateway.start();
         accountManager = Gateway.getAccountManager();
-        sipSecurityManager = Gateway.getSipSecurityManager();
-        provider = Gateway.getWanProvider();
+         provider = Gateway.getWanProvider();
         provider.addSipListener(getSipListener());
 
     }

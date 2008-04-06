@@ -54,6 +54,7 @@ import org.xbill.DNS.SRVRecord;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
+import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.clientauthutils.*;
 
 import junit.framework.TestCase;
@@ -80,7 +81,7 @@ public class Gateway {
 	/*
 	 * The security manager - handles wrapping credentials etc.
 	 */
-	private static SipSecurityManager sipSecurityManager;
+	private static AuthenticationHelper authenticationHelper;
 
 	/*
 	 * The registration manager.
@@ -281,7 +282,7 @@ public class Gateway {
 			InetAddress localAddr = InetAddress.getByName(Gateway
 					.getLocalAddress());
 
-			sipSecurityManager = new gov.nist.javax.sip.clientauthutils.SipSecurityManager(
+			authenticationHelper = ((SipStackExt)ProtocolObjects.sipStack).getAuthenticationHelper(
 					accountManager, ProtocolObjects.headerFactory);
 
 			int externalPort = bridgeConfiguration.getExternalPort();
@@ -350,8 +351,8 @@ public class Gateway {
 		return registrationManager;
 	}
 
-	public static SipSecurityManager getSipSecurityManager() {
-		return sipSecurityManager;
+	public static AuthenticationHelper getAuthenticationHelper() {
+		return authenticationHelper;
 	}
 
 	public static SipProvider getWanProvider() {
@@ -424,8 +425,7 @@ public class Gateway {
 		} catch (TextParseException ex) {
 			logger
 					.error("Problem looking up proxy address -- stopping gateway");
-			Gateway.stop();
-			throw new RuntimeException("Problem looking up proxy address");
+			return null;
 		}
 
 	}
@@ -570,7 +570,7 @@ public class Gateway {
 					if (itspAccount.isRegisterOnInitialization()) {
 						if (itspAccount.getState() == AccountState.AUTHENTICATION_FAILED) {
 							Gateway.stop();
-							System.out.println("Authentication Failure with ITSP account");
+							System.out.println("Authentication Failure with ITSP account check account info.");
 							throw new GatewayConfigurationException(
 									"Authentication failure ");
 						} else if ( itspAccount.getState() != AccountState.AUTHENTICATED){
