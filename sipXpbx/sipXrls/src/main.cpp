@@ -388,11 +388,11 @@ int main(int argc, char* argv[])
       // Initialize the ResourceListServer.
       // (Use tcpPort as the TLS port, too.)
       ResourceListServer rls(domainName,
-                          DIALOG_EVENT_TYPE, DIALOG_EVENT_CONTENT_TYPE,
-                          tcpPort, udpPort, tcpPort, bindIp,
-                          &resourceListFile,
-                          refreshInterval, resubscribeInterval,
-                          250, 20, 20, 20, 20);
+                             DIALOG_EVENT_TYPE, DIALOG_EVENT_CONTENT_TYPE,
+                             tcpPort, udpPort, tcpPort, bindIp,
+                             &resourceListFile,
+                             refreshInterval, resubscribeInterval,
+                             250, 20, 20, 20, 20);
 
       // Loop forever until signaled to shut down
       while (!gShutdownFlag)
