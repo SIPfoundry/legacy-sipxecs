@@ -111,8 +111,8 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(644,root,root,755)
 %docdir doc
-%docdir ${_datadir}/doc/sipxecs/%name
-@SIPX_DOCDIR@/%name
+%docdir %{_datadir}/doc/sipxecs/%name
+%{_datadir}/doc/sipxecs/%name
 
 %attr(755,root,root) %{_libdir}/libsipXunit.la
 %attr(755,root,root) %{_libdir}/libsipXunit.a
