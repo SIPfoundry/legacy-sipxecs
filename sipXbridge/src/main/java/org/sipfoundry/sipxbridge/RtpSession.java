@@ -30,261 +30,287 @@ import org.apache.log4j.Logger;
  * @author M. Ranganathan
  * 
  */
-public class RtpSession  implements RtpSessionInterface  {
-
+public class RtpSession implements RtpSessionInterface {
 
 	private static Logger logger = Logger.getLogger(RtpSession.class);
-    
-    private String id ;
 
-    /*
-     * My endpoint for media.
-     */
-    private RtpEndpoint receiver;
+	private String id;
 
-    /*
-     * The remote endpoint for media.
-     */
-    private RtpEndpoint transmitter;
+	/*
+	 * My endpoint for media.
+	 */
+	private RtpEndpoint receiver;
 
-    transient RtpBridge rtpBridge;
+	/*
+	 * The remote endpoint for media.
+	 */
+	private RtpEndpoint transmitter;
 
-    public RtpSession() {
-    	id =  "rtp-session:" + Math.abs(new Random().nextLong());
-    	
-    }
-    
-    
-    public RtpSession(RtpBridge bridge) {
-        this.rtpBridge = bridge;
+	transient RtpBridge rtpBridge;
 
-    }
-    
-    public HashMap<String,Object>  toMap() {
-    	HashMap<String,Object> retval = new HashMap<String,Object>();
-    	retval.put("id", id);
-    	if ( this.receiver != null)
-    		retval.put("receiver", receiver.toMap());
-    	else {
-    		retval.put("receiver", new HashMap<String,Object>());
-    	}
-    	if ( this.transmitter != null) {
-    		retval.put("transmitter", transmitter.toMap());
-    	} else {
-    		retval.put("transmitter", new HashMap<String,Object>());
-    	}
-    	return retval;
-    	
-    }
+	public RtpSession() {
+		id = "rtp-session:" + Math.abs(new Random().nextLong());
 
-    public void setMyEndpoint(RtpEndpoint myEndpoint) {
-        this.receiver = myEndpoint;
-        myEndpoint.setRtpSession(this);
-    }
+	}
 
-    public RtpEndpoint getReceiver() {
-        return receiver;
-    }
+	public RtpSession(RtpBridge bridge) {
+		this.rtpBridge = bridge;
 
-    /**
-     * Set the remote endpoint and connect the datagram socket to the remote
-     * socket address.
-     * 
-     * @param hisEndpoint
-     */
-    public void setRemoteEndpoint(RtpEndpoint hisEndpoint) {
+	}
 
-        this.transmitter = hisEndpoint;
-        hisEndpoint.setRtpSession(this);
+	public HashMap<String, Object> toMap() {
+		HashMap<String, Object> retval = new HashMap<String, Object>();
+		retval.put("id", id);
+		if (this.receiver != null)
+			retval.put("receiver", receiver.toMap());
+		else {
+			retval.put("receiver", new HashMap<String, Object>());
+		}
+		if (this.transmitter != null) {
+			retval.put("transmitter", transmitter.toMap());
+		} else {
+			retval.put("transmitter", new HashMap<String, Object>());
+		}
+		return retval;
 
-    }
+	}
 
-    public RtpEndpoint getTransmitter() {
-        return transmitter;
-    }
+	public void setMyEndpoint(RtpEndpoint myEndpoint) {
+		this.receiver = myEndpoint;
+		myEndpoint.setRtpSession(this);
+	}
 
-    public void close() {
-        logger.debug("Closing channel : " + this.receiver);
-        try {
-            if (this.receiver != null) {
-                if (this.receiver.getRtpDatagramChannel() != null)
-                    this.receiver.getRtpDatagramChannel().close();
-                if (this.receiver.getRtcpDatagramChannel() != null)
-                    this.receiver.getRtcpDatagramChannel().close();
-            }
-            if (this.transmitter != null) {
-                if (this.transmitter.getRtpDatagramChannel() != null)
-                    this.transmitter.getRtpDatagramChannel().close();
-                if (this.transmitter.getRtcpDatagramChannel() != null)
-                    this.transmitter.getRtcpDatagramChannel().close();
-                this.transmitter.stopKeepalive();
-            }
-        } catch (Exception ex) {
-            logger.error("Unexpected exception occured", ex);
-        }
+	public RtpEndpoint getReceiver() {
+		return receiver;
+	}
 
-    }
+	/**
+	 * Set the remote endpoint and connect the datagram socket to the remote
+	 * socket address.
+	 * 
+	 * @param hisEndpoint
+	 */
+	public void setRemoteEndpoint(RtpEndpoint hisEndpoint) {
 
-    public String toString() {
-    	StringBuffer sbuf = new StringBuffer();
-    	sbuf.append("RtpSession = [ ");
-    	if ( this.receiver != null) {
-    		sbuf.append(" RECEIVER : " + this.getReceiver().getIpAddress() + ":"
-                    + this.getReceiver().getPort() );
-    	} else {
-    		sbuf.append("NO RECEIVER");
-    	}
-    	
-    	if ( this.transmitter  != null) {
-    		sbuf.append( " TRANSMITTER : "+ this.getTransmitter().getIpAddress() + ":"
-                    + this.getTransmitter().getPort()  );
-    	}else {
-    		sbuf.append("NO TRANSMITTER");
-    	}
-    	sbuf.append("]");
-    	return sbuf.toString();
-    }
+		this.transmitter = hisEndpoint;
+		hisEndpoint.setRtpSession(this);
 
-    /**
-     * @return the rtpBridge
-     */
-    public RtpBridge getRtpBridge() {
-        return rtpBridge;
-    }
+	}
 
-    
-    public String getId() {
-    	return this.id;
-    }
-    
-    /**
-     * Reassign the session parameters ( possibly putting the media on hold and playing music ).
-     * 
-     * @param sessionDescription
-     * @param dat -- the dialog application data
-     * @return -- the recomputed session description.
-     */
-    public SessionDescription reAssignSessionParameters(Request request, 
-            Dialog dialog) throws SdpParseException , SipException {
-        SessionDescription sessionDescription = SipUtilities
-        .getSessionDescription(request);
-        int oldPort = this.getTransmitter().getPort();
-        String oldIpAddress = this.getTransmitter().getIpAddress();
+	public RtpEndpoint getTransmitter() {
+		return transmitter;
+	}
 
-        int newport = SipUtilities
-                .getSessionDescriptionMediaPort(sessionDescription);
-        String newIpAddress = SipUtilities
-                .getSessionDescriptionMediaIpAddress(sessionDescription);
+	public void close() {
+		logger.debug("Closing channel : " + this.receiver);
+		try {
+			if (this.receiver != null) {
+				if (this.receiver.getRtpDatagramChannel() != null)
+					this.receiver.getRtpDatagramChannel().close();
+				if (this.receiver.getRtcpDatagramChannel() != null)
+					this.receiver.getRtcpDatagramChannel().close();
+			}
+			if (this.transmitter != null) {
+				if (this.transmitter.getRtpDatagramChannel() != null)
+					this.transmitter.getRtpDatagramChannel().close();
+				if (this.transmitter.getRtcpDatagramChannel() != null)
+					this.transmitter.getRtcpDatagramChannel().close();
+				this.transmitter.stopKeepalive();
+			}
+		} catch (Exception ex) {
+			logger.error("Unexpected exception occured", ex);
+		}
 
-        String attribute = SipUtilities
-                .getSessionDescriptionMediaAttribute(sessionDescription);
+	}
 
-        if (newIpAddress.equals("0.0.0.0") && newport == oldPort) {
-            /*
-             * RFC2543 specified that placing a user on hold was accomplished by
-             * setting the connection address to 0.0.0.0. This has been
-             * deprecated, since it doesn't allow for RTCP to be used with held
-             * streams, and breaks with connection oriented media. However, a UA
-             * MUST be capable of receiving SDP with a connection address of
-             * 0.0.0.0, in which case it means that neither RTP nor RTCP should
-             * be sent to the peer.
-             */
-            if (logger.isDebugEnabled()) {
-                logger.debug("setting media on hold " + this.toString());
-            }
-            this.getTransmitter().setOnHold(true);
-            if (Gateway.getMusicOnHoldAddress() != null) {
+	public String toString() {
+		StringBuffer sbuf = new StringBuffer();
+		sbuf.append("RtpSession = [ ");
+		if (this.receiver != null) {
+			sbuf.append(" RECEIVER : " + this.getReceiver().getIpAddress()
+					+ ":" + this.getReceiver().getPort());
+		} else {
+			sbuf.append("NO RECEIVER");
+		}
 
-                /*
-                 * For the standard MOH, the URI is defined to be
-                 * <sip:~~mh~@[domain]>. There is thought that other URIs in
-                 * the ~~mh~ series can be allocated
-                 */
-                Dialog mohDialog;
-                try {
-                    mohDialog = Gateway.getCallControlManager().getBackToBackUserAgent(dialog).
-                        sendInviteToMohServer((SessionDescription)this.getReceiver().getSessionDescription().clone());
-                } catch (CloneNotSupportedException e) {
-                    throw new RuntimeException("Unexpected exception ", e);
-                }
-                DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
-                dat.musicOnHoldDialog = mohDialog;
-                
-                 
-            }
-            return this.getReceiver().getSessionDescription();
-        } else if (newport == oldPort && oldIpAddress.equals(newIpAddress)) {
-            if (attribute == null || attribute.equals("sendrecv")) {
-                logger.debug("Remove media on hold!");
-                SipUtilities.setSessionDescriptionMediaAttribute(this
-                        .getReceiver().getSessionDescription(), "sendrecv");
-                this.getTransmitter().setOnHold(false);
-                
-                /*
-                 * TODO.
-                 * If we have an Alive MOH dialog send him a BYE.
-                 */
-                DialogApplicationData dat  = (DialogApplicationData) dialog.getApplicationData();
-                if ( dat.musicOnHoldDialog != null && 
-                        dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
-                    BackToBackUserAgent b2bua = dat.backToBackUserAgent;
-                    b2bua.sendByeToMohServer(dat.musicOnHoldDialog);
-                }
-            } else if (attribute.equals("sendonly")) {
-                logger.debug("Setting media on hold.");
-                this.getTransmitter().setOnHold(true);
-                /*
-                 * Whenever the phone puts an external call on hold, it sends a
-                 * re-INVITE to the gateway with "a=sendonly". Normally, the
-                 * gateway would respond with "a=recvonly". However, if the
-                 * gateway desires to generate MOH for the call, it can generate
-                 * SDP specifying "a=inactive". To the phone, this makes it
-                 * appear that the external end of the call has also put the
-                 * call on hold, and it should cause the phone to not
-                 * generate/obtain MOH media.
-                 */
+		if (this.transmitter != null) {
+			sbuf.append(" TRANSMITTER : "
+					+ this.getTransmitter().getIpAddress() + ":"
+					+ this.getTransmitter().getPort());
+		} else {
+			sbuf.append("NO TRANSMITTER");
+		}
+		sbuf.append("]");
+		return sbuf.toString();
+	}
 
-                
-               
-                if (Gateway.getMusicOnHoldAddress() != null) {
+	/**
+	 * @return the rtpBridge
+	 */
+	public RtpBridge getRtpBridge() {
+		return rtpBridge;
+	}
 
-                    /*
-                     * For the standard MOH, the URI is defined to be
-                     * <sip:~~mh~@[domain]>. There is thought that other URIs in
-                     * the ~~mh~ series can be allocated
-                     */
-                    Dialog mohDialog = Gateway.getCallControlManager().getBackToBackUserAgent(dialog).
-                        sendInviteToMohServer(this.getReceiver().getSessionDescription());
-                    DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
-                    dat.musicOnHoldDialog = mohDialog;
-                    
-                     
-                }
-                SipUtilities.setSessionDescriptionMediaAttribute(this
-                        .getReceiver().getSessionDescription(), "recvonly");
-            }
-            return this.getReceiver().getSessionDescription();
+	public String getId() {
+		return this.id;
+	}
 
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger
-                        .debug("Changing Session Parameters -- this is not yet supported oldIpAddress = "
-                                + oldIpAddress
-                                + " oldPort = "
-                                + oldPort
-                                + " newIp = "
-                                + newIpAddress
-                                + " newPort = "
-                                + newport);
-            }
+	/**
+	 * Reassign the session parameters ( possibly putting the media on hold and
+	 * playing music ).
+	 * 
+	 * @param sessionDescription
+	 * @param dat --
+	 *            the dialog application data
+	 * @return -- the recomputed session description.
+	 */
+	public SessionDescription reAssignSessionParameters(Request request,
+			Dialog dialog) throws SdpParseException, SipException {
+		SessionDescription sessionDescription = SipUtilities
+				.getSessionDescription(request);
+		int oldPort = this.getTransmitter().getPort();
+		String oldIpAddress = this.getTransmitter().getIpAddress();
 
-            SessionDescription retval = this.getReceiver()
-                    .getSessionDescription();
-            this.getTransmitter().setIpAddress(newIpAddress);
-            this.getTransmitter().setPort(newport);
-            return retval;
-        }
+		int newport = SipUtilities
+				.getSessionDescriptionMediaPort(sessionDescription);
+		String newIpAddress = SipUtilities
+				.getSessionDescriptionMediaIpAddress(sessionDescription);
 
-    }
+		/*
+		 * Get the a media attribute -- CAUTION - this only takes care of the
+		 * first media. Question - what to do when only one media stream is put
+		 * on hold?
+		 */
+		String mediaAttribute = SipUtilities
+				.getSessionDescriptionMediaAttribute(sessionDescription);
+
+		String sessionAttribute = SipUtilities
+				.getSessionDescriptionAttribute(sessionDescription);
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("mediaAttribute = " + mediaAttribute);
+			logger.debug("sessionAttribute = " + sessionAttribute);
+		}
+
+		if (newIpAddress.equals("0.0.0.0") && newport == oldPort) {
+			/*
+			 * RFC2543 specified that placing a user on hold was accomplished by
+			 * setting the connection address to 0.0.0.0. This has been
+			 * deprecated, since it doesn't allow for RTCP to be used with held
+			 * streams, and breaks with connection oriented media. However, a UA
+			 * MUST be capable of receiving SDP with a connection address of
+			 * 0.0.0.0, in which case it means that neither RTP nor RTCP should
+			 * be sent to the peer.
+			 */
+			if (logger.isDebugEnabled()) {
+				logger.debug("setting media on hold " + this.toString());
+			}
+			this.getTransmitter().setOnHold(true);
+			if (Gateway.getMusicOnHoldAddress() != null) {
+
+				/*
+				 * For the standard MOH, the URI is defined to be
+				 * <sip:~~mh~@[domain]>. There is thought that other URIs in the
+				 * ~~mh~ series can be allocated
+				 */
+				Dialog mohDialog;
+				try {
+					mohDialog = Gateway.getCallControlManager()
+							.getBackToBackUserAgent(dialog)
+							.sendInviteToMohServer(
+									(SessionDescription) this.getReceiver()
+											.getSessionDescription().clone());
+				} catch (CloneNotSupportedException e) {
+					throw new RuntimeException("Unexpected exception ", e);
+				}
+				DialogApplicationData dat = (DialogApplicationData) dialog
+						.getApplicationData();
+				dat.musicOnHoldDialog = mohDialog;
+
+			}
+			return this.getReceiver().getSessionDescription();
+		} else if (newport == oldPort && oldIpAddress.equals(newIpAddress)) {
+			if (mediaAttribute == null
+					&& sessionAttribute == null
+					|| (mediaAttribute != null && mediaAttribute
+							.equals("sendrecv"))
+					|| (sessionAttribute != null && sessionAttribute
+							.equals("sendrecv"))) {
+				logger.debug("Remove media on hold!");
+				SipUtilities.setSessionDescriptionMediaAttribute(this
+						.getReceiver().getSessionDescription(), "sendrecv");
+				this.getTransmitter().setOnHold(false);
+
+				DialogApplicationData dat = (DialogApplicationData) dialog
+						.getApplicationData();
+				if (dat.musicOnHoldDialog != null
+						&& dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
+					BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+					b2bua.sendByeToMohServer(dat.musicOnHoldDialog);
+				}
+			} else if ((mediaAttribute != null && mediaAttribute
+					.equals("sendonly"))
+					|| (sessionAttribute != null && sessionAttribute
+							.equals("sendonly"))) {
+				logger.debug("Setting media on hold.");
+				this.getTransmitter().setOnHold(true);
+				/*
+				 * Whenever the phone puts an external call on hold, it sends a
+				 * re-INVITE to the gateway with "a=sendonly". Normally, the
+				 * gateway would respond with "a=recvonly". However, if the
+				 * gateway desires to generate MOH for the call, it can generate
+				 * SDP specifying "a=inactive". To the phone, this makes it
+				 * appear that the external end of the call has also put the
+				 * call on hold, and it should cause the phone to not
+				 * generate/obtain MOH media.
+				 */
+				if (Gateway.getMusicOnHoldAddress() != null) {
+					Dialog mohDialog;
+					try {
+						mohDialog = Gateway.getCallControlManager()
+								.getBackToBackUserAgent(dialog)
+								.sendInviteToMohServer(
+										(SessionDescription) this.getReceiver()
+												.getSessionDescription()
+												.clone());
+					} catch (CloneNotSupportedException e) {
+						throw new RuntimeException("Unexpected exception ", e);
+					}
+					DialogApplicationData dat = (DialogApplicationData) dialog
+							.getApplicationData();
+					dat.musicOnHoldDialog = mohDialog;
+				}
+
+				if (sessionAttribute.equals("sendonly")) {
+					SipUtilities.setSessionDescriptionAttribute("recvonly",
+							this.getReceiver().getSessionDescription());
+				} else {
+					SipUtilities.setSessionDescriptionMediaAttribute(this
+							.getReceiver().getSessionDescription(), "recvonly");
+				}
+			}
+			return this.getReceiver().getSessionDescription();
+
+		} else {
+			if (logger.isDebugEnabled()) {
+				logger
+						.debug("Changing Session Parameters -- this is not yet supported oldIpAddress = "
+								+ oldIpAddress
+								+ " oldPort = "
+								+ oldPort
+								+ " newIp = "
+								+ newIpAddress
+								+ " newPort = "
+								+ newport);
+			}
+
+			SessionDescription retval = this.getReceiver()
+					.getSessionDescription();
+			this.getTransmitter().setIpAddress(newIpAddress);
+			this.getTransmitter().setPort(newport);
+			return retval;
+		}
+
+	}
 
 }

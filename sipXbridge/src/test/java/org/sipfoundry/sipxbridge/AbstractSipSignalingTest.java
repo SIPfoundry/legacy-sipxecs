@@ -21,25 +21,16 @@ import gov.nist.javax.sip.clientauthutils.*;
 import junit.framework.TestCase;
 
 public abstract class AbstractSipSignalingTest extends TestCase {
-    protected AccountManagerImpl accountManager = null;
-    protected SipProvider provider;
    
     @Override
     public void setUp() throws Exception {
         Gateway.start();
-        accountManager = Gateway.getAccountManager();
-         provider = Gateway.getWanProvider();
-        provider.addSipListener(getSipListener());
-
     }
 
     @Override
     public void tearDown() throws Exception {
-        provider.removeSipListener(this.getSipListener());
-        Gateway.stop();
+         Gateway.stop();
 
     }
-
-    public abstract SipListener getSipListener();
 
 }

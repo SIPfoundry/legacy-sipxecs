@@ -60,6 +60,10 @@ public class SipListenerImpl implements SipListener {
 
 	private static Logger logger = Logger.getLogger(SipListenerImpl.class);
 
+	/**
+	 * Handle a Dialog Terminated event. Cleans up all the resources associated 
+	 * with a Dialog.
+	 */
 	public void processDialogTerminated(DialogTerminatedEvent dte) {
 
 		CallIdHeader cid = dte.getDialog().getCallId();
@@ -69,6 +73,24 @@ public class SipListenerImpl implements SipListener {
 			b2bua.removeDialog(dte.getDialog());
 
 		}
+		DialogApplicationData dat = DialogApplicationData.get(dte.getDialog());
+		if (dat != null && dat.musicOnHoldDialog != null
+				&& dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
+			try {
+				SipProvider provider = ((DialogExt) dat.musicOnHoldDialog)
+						.getSipProvider();
+				Request byeRequest = dat.musicOnHoldDialog
+						.createRequest(Request.BYE);
+				ClientTransaction ctx = provider
+						.getNewClientTransaction(byeRequest);
+				dat.musicOnHoldDialog.sendRequest(ctx);
+			} catch (Exception ex) {
+				logger.error("Exception in dialog termination processing", ex);
+			}
+
+		}
+		String callId = dte.getDialog().getCallId().getCallId();
+		Gateway.getAuthenticationHelper().removeCachedAuthenticationHeaders(callId);
 
 	}
 
@@ -177,7 +199,8 @@ public class SipListenerImpl implements SipListener {
 
 				ClientTransaction newClientTransaction = Gateway
 						.getAuthenticationHelper().handleChallenge(response,
-								responseEvent.getClientTransaction(), provider);
+								responseEvent.getClientTransaction(), provider,
+								method.equals(Request.REGISTER) ? 0 : -1);
 
 				// Handle authenitcation responses locally.
 
@@ -283,7 +306,7 @@ public class SipListenerImpl implements SipListener {
 				}
 			}
 		} catch (Exception ex) {
-			logger.error("Error processing timeout event",ex);
+			logger.error("Error processing timeout event", ex);
 		}
 
 	}
