@@ -584,7 +584,7 @@ public class BackToBackUserAgent {
 						incomingRequestURI.getUser(), Gateway
 								.getSipxProxyAddress());
 			} else {
-				uri = ProtocolObjects.addressFactory.createSipURI("operator",
+				uri = ProtocolObjects.addressFactory.createSipURI(this.itspAccountInfo.getAutoAttendantName(),
 						Gateway.getSipxProxyAddress());
 			}
 

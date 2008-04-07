@@ -90,14 +90,11 @@ public class ConfigurationParser {
         digester.addCallMethod(
                 String.format("%s/%s", ITSP_CONFIG, "use-rport"),
                 "setRportUsed", 0, new Class[] { Boolean.class });
+        
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
-                "route-inbound-calls-to-auto-attendant"),
-                "setInboundCallsRoutedToAutoAttendant", 0,
-                new Class[] { Boolean.class });
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
-                "route-inbound-calls-to-auto-attendant"),
-                "setInboundCallsRoutedToAutoAttendant", 0,
-                new Class[] { Boolean.class });
+                "route-inbound-calls-to-extension"),
+                "setAutoAttendantName", 0,
+                new Class[] { String.class });
 
         
         

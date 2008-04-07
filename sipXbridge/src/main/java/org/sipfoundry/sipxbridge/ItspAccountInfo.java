@@ -83,10 +83,9 @@ public class ItspAccountInfo implements
     private boolean rportUsed = false;
 
     /**
-     * Route the request to the Auto attendant.
+     * Route inbound calls to auto attendant.
      */
-    private boolean inboundCallsRoutedToAutoAttendant = true;
-
+    private String autoAttendantName = null;
     /**
      * Whether or not to register on gateway initialization
      */
@@ -294,9 +293,18 @@ public class ItspAccountInfo implements
     }
 
     public boolean isInboundCallsRoutedToAutoAttendant() {
-        return inboundCallsRoutedToAutoAttendant;
+        return this.autoAttendantName != null;
+    }
+    
+    public void setAutoAttendantName( String autoAttendantName) {
+    	this.autoAttendantName = autoAttendantName;
     }
 
+    public String getAutoAttendantName() {
+    	return this.autoAttendantName;
+    }
+    
+    
     public int getRegistrationInterval() {
         return registrationInterval;
     }
@@ -395,14 +403,7 @@ public class ItspAccountInfo implements
         this.rportUsed = rportUsed;
     }
 
-    /**
-     * @param inboundCallsRoutedToAutoAttendant
-     *            the inboundCallsRoutedToAutoAttendant to set
-     */
-    public void setInboundCallsRoutedToAutoAttendant(
-            boolean inboundCallsRoutedToAutoAttendant) {
-        this.inboundCallsRoutedToAutoAttendant = inboundCallsRoutedToAutoAttendant;
-    }
+   
 
     /**
      * @param globalAddressingUsed

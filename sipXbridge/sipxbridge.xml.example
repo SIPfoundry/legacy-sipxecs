@@ -6,7 +6,6 @@
 	<local-address>192.168.5.240</local-address>
 	<local-port>5090</local-port>
 	<sipx-proxy-domain>example.com</sipx-proxy-domain>
-	<auto-attendant-name>operator</auto-attendant-name>
 	<music-on-hold-support-enabled>true</music-on-hold-support-enabled>
 	<log-level>DEBUG</log-level>
 </bridge-configuration>
@@ -15,7 +14,7 @@
 <itsp-account>
 	<use-global-addressing>false</use-global-addressing>
 	<use-rport>false</use-rport>
-	<route-inbound-calls-to-auto-attendant>true</route-inbound-calls-to-auto-attendant>
+	<route-inbound-calls-to-extension>operator</route-inbound-calls-to-extension>
 	<outbound-proxy>did.voip.les.net</outbound-proxy>
 	<proxy-domain>did.voip.les.net</proxy-domain>
 	<authentication-realm>did.voip.les.net</authentication-realm>
