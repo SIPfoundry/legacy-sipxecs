@@ -1507,12 +1507,43 @@ AC_DEFUN([CHECK_OPENJADE],
   AC_PATH_PROG([PDFJADETEX], [pdfjadetex])
 ])
 
-AC_DEFUN([CHECK_DOCBOOKXML],
+AC_DEFUN([CHECK_HTML2TXT],
+[
+   AC_REQUIRE([ENABLE_DOC])
+   AC_REQUIRE([CHECK_DOCBOOK2HTML])
+   # This relies on docbook->html, and then a converter from html->txt
+   HTML2TXT=
+   AC_PATH_PROG([ELINKS],[elinks])
+   if test x$ELINKS != x
+   then
+       HTML2TXT="$ELINKS -dump -no-home -no-references -no-numbering"
+   else
+      AC_PATH_PROG([W3M],[w3m])
+      if test x$W3M != x
+      then
+          HTML2TXT="$W3M -dump"
+      else
+          AC_PATH_PROG([LYNX],[lynx])
+          if test x$LYNX != x
+          then
+              HTML2TXT="$LYNX -dump"
+          fi
+      fi
+   fi
+   if test "$HTML2TXT" != ""
+   then
+      enable_xml2txt=yes
+   else
+      enable_xml2txt=no
+   fi
+   AC_SUBST(enable_xml2txt)
+   AC_SUBST(HTML2TXT)
+])
+
+AC_DEFUN([CHECK_DOCBOOK2HTML],
 [
   AC_REQUIRE([ENABLE_DOC])
   AC_REQUIRE([CHECK_XSLTPROC])
-  AC_REQUIRE([CHECK_OPENJADE])
-
   if test x$XSLTPROC != x
   then
      xml2xhtml_files="/usr/share/sgml/docbook/xsl-stylesheets/xhtml/docbook.xsl"
@@ -1532,6 +1563,12 @@ AC_DEFUN([CHECK_DOCBOOKXML],
   fi
   test x$enable_xml2xhtml = xno && AC_MSG_WARN([DocBook XML to XHTML disabled])
   AC_SUBST(enable_xml2xhtml)
+])
+
+AC_DEFUN([CHECK_DOCBOOK2PDF],
+[
+  AC_REQUIRE([ENABLE_DOC])
+  AC_REQUIRE([CHECK_OPENJADE])
 
   if test x$OPENJADE != x -a x$PDFJADETEX != x
   then
@@ -1553,6 +1590,18 @@ AC_DEFUN([CHECK_DOCBOOKXML],
 
   test $enable_xml2pdf = no && AC_MSG_WARN([DocBook XML to PDF disabled])
   AC_SUBST(enable_xml2pdf)
+])
+
+AC_DEFUN([CHECK_DOCBOOKXML],
+[
+  AC_REQUIRE([ENABLE_DOC])
+  AC_REQUIRE([CHECK_DOCBOOK2HTML])
+  AC_REQUIRE([CHECK_HTML2TXT])
+  if test x$enable_xml2xhtml != xyes
+  then
+      enable_xml2txt=no
+  fi
+  AC_REQUIRE([CHECK_DOCBOOK2PDF])
 ])
 
 AC_DEFUN([ENABLE_DOC],

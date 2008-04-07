@@ -7,6 +7,7 @@
 ##   CHECK_DOCBOOKXML
 ##   AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 ##   AM_CONDITIONAL(GENERATE_DOCBOOK_HTML, test x$enable_xml2xhtml = xyes)
+##   AM_CONDITIONAL(GENERATE_DOCBOOK_TXT, test x$enable_xml2xtxt = xyes)
 ##   AM_CONDITIONAL(GENERATE_DOCBOOK_PDF, test x$enable_xml2pdf = xyes)
 ##
 ## Before the 'include' of this file, define the following variables:
@@ -18,7 +19,7 @@
 ## Following the 'include' of this file, the variable
 ##
 ##   DOCBOOK_OUTPUTS is the list of generated document files to be installed
-##                   (these are full paths, including $(DESTDIR)
+##                   (these are full paths, including $(DESTDIR) )
 ##
 
 OUTPUT_FORMS=
@@ -38,6 +39,15 @@ XSL_JADETEX=$(top_srcdir)/config/style.xsl
 EXTRA_DIST+=$(XSL_JADETEX)
 
 endif # GENERATE_DOCBOOK_HTML
+
+if GENERATE_DOCBOOK_TXT
+
+OUTPUT_FORMS+=.txt
+
+%.txt: %.html
+	$(HTML2TXT) $< > $@
+
+endif # GENERATE_DOCBOOK_TXT
 
 if GENERATE_DOCBOOK_PDF
 
