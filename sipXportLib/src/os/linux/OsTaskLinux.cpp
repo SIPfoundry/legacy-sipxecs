@@ -345,11 +345,12 @@ OsStatus OsTaskLinux::awaitSignal(int& sig_num)
    int res = -1;
 
    // Enable all signals
-   res = sigfillset(&sig_set);
-   if (res == 0)
+   sigfillset(&sig_set);
+   do
    {
       res = sigwait(&sig_set, &sig_num);
-   }
+   } while (res == EINTR); // bug in older glibc sometimes returns EINTR here
+   errno = res;            // set errno so it can be seen outside this function
    
    return res == 0 ? OS_SUCCESS : OS_FAILED;
 }

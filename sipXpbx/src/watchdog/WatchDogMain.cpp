@@ -562,6 +562,10 @@ public:
        // to catch an async signal directed to the process 
        // from the outside.
        res = awaitSignal(sig_num);
+       if (res != OS_SUCCESS)
+       {
+          OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"awaitSignal() errno=%d", errno);
+       }
 
        // Call the original signal handler.  Pass -1 on error from awaitSignal
        sig_routine( OS_SUCCESS == res ? sig_num : -1);
