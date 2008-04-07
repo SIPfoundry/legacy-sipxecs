@@ -20,6 +20,7 @@ SCRIPT_TEMPLATES = \
 	sipx-snapshot.in \
 	sipx-backup.in \
 	sipx-restore.in \
+	sipx-sendmail-configure.in \
 	sipxlocalization.in \
 	blat.in \
 	check-fqdn.in \
