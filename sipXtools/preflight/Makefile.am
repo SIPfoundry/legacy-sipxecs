@@ -13,7 +13,8 @@ EXTRA_DIST = \
   Preflight.nsi.in \
   icons \
   src \
-  lib
+  lib \
+  bin
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = config.properties

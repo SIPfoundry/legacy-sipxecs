@@ -8,9 +8,10 @@
   <property name="build.dir" value="${top.build.dir}/preflight"/>
   <property name="one-jar.dist.dir" value="${build.dir}/dist"/>
   <property name="compiler" value="${cc}"/>
-  <property name="prebuilt.windows.launcher" value="bin/Preflight.exe"/>
 
   <import file="ant-targets.xml"/>
+
+  <property name="prebuilt.windows.launcher" value="${src.dir}/bin/Preflight.exe"/>
 
   <property name="preflight.lib.dir" value="${lib.dir}/preflight"/>
 
@@ -178,6 +179,7 @@
   </target>
 
   <target name="test-for-prebuilt-windows-launcher">
+    <echo> Looking for: ${prebuilt.windows.launcher} </echo>
     <condition property="prebuilt.windows.launcher.found">
       <available file="${prebuilt.windows.launcher}"/>
     </condition>
