@@ -147,7 +147,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libsipXcommserver.a
 %{_libdir}/libsipXcommserverTest.la
 %{_libdir}/libsipXcommserverTest.a
-%docdir @SIPX_DOCDIR@/%name
+%docdir ${_datadir}/doc/sipxecs/%name
 @SIPX_DOCDIR@/%name
 
 %{_includedir}/configrpc/*
