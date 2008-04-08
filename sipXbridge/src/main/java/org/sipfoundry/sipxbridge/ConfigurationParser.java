@@ -49,20 +49,20 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "sipx-proxy-domain"), "setSipxProxyDomain", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-        "rtp-port-range"), "setPortRange", 0);
+                "rtp-port-range"), "setPortRange", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-        "music-on-hold-support-enabled"), "setMusicOnHoldSupportEnabled",
-        0, new Class[] { Boolean.class });
-        
+                "music-on-hold-support-enabled"),
+                "setMusicOnHoldSupportEnabled", 0,
+                new Class[] { Boolean.class });
+
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "log-level"), "setLogLevel", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-        "sip-keepalive-seconds"), "setSipKeepalive", 0);
+                "sip-keepalive-seconds"), "setSipKeepalive", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-        "media-keepalive-seconds"), "setMediaKeepalive", 0);
+                "media-keepalive-seconds"), "setMediaKeepalive", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-        "xml-rpc-port"), "setXmlRpcPort", 0);
-       
+                "xml-rpc-port"), "setXmlRpcPort", 0);
 
         /*
          * ITSP configuration support parameters.
@@ -90,15 +90,10 @@ public class ConfigurationParser {
         digester.addCallMethod(
                 String.format("%s/%s", ITSP_CONFIG, "use-rport"),
                 "setRportUsed", 0, new Class[] { Boolean.class });
-        
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
-                "route-inbound-calls-to-extension"),
-                "setAutoAttendantName", 0,
-                new Class[] { String.class });
 
-        
-        
-        
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
+                "route-inbound-calls-to-extension"), "setAutoAttendantName", 0,
+                new Class[] { String.class });
 
     }
 
@@ -106,14 +101,14 @@ public class ConfigurationParser {
         // Create a Digester instance
         Digester digester = new Digester();
         digester.setSchema("file:schema/sipxbridge.xsd");
-       
+
         addRules(digester);
 
         // Process the input file.
         try {
-        	System.out.println("URL = " + url);
-        	InputSource inputSource = new InputSource(url);
-        	digester.parse(inputSource);
+            System.out.println("URL = " + url);
+            InputSource inputSource = new InputSource(url);
+            digester.parse(inputSource);
             return (AccountManagerImpl) digester.getRoot();
         } catch (java.io.IOException ioe) {
             System.out.println("Error reading input file:" + ioe.getMessage());

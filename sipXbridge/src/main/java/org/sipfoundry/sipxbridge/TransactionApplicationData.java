@@ -31,13 +31,13 @@ class TransactionApplicationData {
      * The incoming session. This is associated with the incoming invite. It is
      * completed when the response is forwarded.
      */
-    RtpSession incomingSession;
+    Sym incomingSession;
     /*
      * The Pending outgoing session ( awaiting completion after the response
      * comes in ). This is associated with the outgoing invite and is completed
      * when the response containing the sdp answer comes in.
      */
-    RtpSession outgoingSession;
+    Sym outgoingSession;
 
     /*
      * The ITSP account information.

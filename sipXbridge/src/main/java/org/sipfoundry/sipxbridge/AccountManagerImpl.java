@@ -27,159 +27,166 @@ import gov.nist.javax.sip.clientauthutils.*;
  * 
  */
 public class AccountManagerImpl implements
-		gov.nist.javax.sip.clientauthutils.AccountManager {
+        gov.nist.javax.sip.clientauthutils.AccountManager {
 
-	private static Logger logger = Logger.getLogger(AccountManagerImpl.class);
+    private static Logger logger = Logger.getLogger(AccountManagerImpl.class);
 
-	private Hashtable<String, ItspAccountInfo> itspAccounts = new Hashtable<String, ItspAccountInfo>();
+    private Hashtable<String, ItspAccountInfo> itspAccounts = new Hashtable<String, ItspAccountInfo>();
 
-	/*
-	 * A concurrent hash map is need here because of dynamic updates of these
-	 * records. It is read by the AddressResolver of the JAIN-SIP stack.
-	 */
-	private ConcurrentMap<String, HopImpl> domainNameToProxyAddressMap = new ConcurrentHashMap<String, HopImpl>();
+    /*
+     * A concurrent hash map is need here because of dynamic updates of these
+     * records. It is read by the AddressResolver of the JAIN-SIP stack.
+     */
+    private ConcurrentMap<String, HopImpl> domainNameToProxyAddressMap = new ConcurrentHashMap<String, HopImpl>();
 
-	/*
-	 * The reverse name lookup map
-	 */
-	private ConcurrentMap<String, String> addressToDomainNameMap = new ConcurrentHashMap<String, String>();
+    /*
+     * The reverse name lookup map
+     */
+    private ConcurrentMap<String, String> addressToDomainNameMap = new ConcurrentHashMap<String, String>();
 
-	private BridgeConfiguration bridgeConfiguration;
+    private BridgeConfiguration bridgeConfiguration;
 
-	public AccountManagerImpl() {
+    public AccountManagerImpl() {
 
-	}
+    }
 
-	/**
-	 * Add the Bridge config.
-	 */
-	public void setBridgeConfiguration(BridgeConfiguration bridgeConfiguration) {
-		this.bridgeConfiguration = bridgeConfiguration;
-	}
+    /**
+     * Add the Bridge config.
+     */
+    public void setBridgeConfiguration(BridgeConfiguration bridgeConfiguration) {
+        this.bridgeConfiguration = bridgeConfiguration;
+    }
 
-	/**
-	 * @return the bridgeConfiguration
-	 */
-	public BridgeConfiguration getBridgeConfiguration() {
-		return bridgeConfiguration;
-	}
+    /**
+     * @return the bridgeConfiguration
+     */
+    public BridgeConfiguration getBridgeConfiguration() {
+        return bridgeConfiguration;
+    }
 
-	/**
-	 * Add an ITSP account to the databse.
-	 */
-	public void addItspAccount(ItspAccountInfo accountInfo)
-			throws GatewayConfigurationException {
+    /**
+     * Add an ITSP account to the databse.
+     */
+    public void addItspAccount(ItspAccountInfo accountInfo)
+            throws GatewayConfigurationException {
 
-		String key = accountInfo.getSipDomain();
-		this.itspAccounts.put(key, accountInfo);
+        String key = accountInfo.getSipDomain();
+        this.itspAccounts.put(key, accountInfo);
 
-	}
+    }
 
-	public void lookupItspAccountAddresses()
-			throws GatewayConfigurationException {
-		try {
-			for (ItspAccountInfo accountInfo : this.getItspAccounts()) {
-				accountInfo.lookupAccount();
-				this.addressToDomainNameMap.put(InetAddress.getByName(
-						accountInfo.getOutboundProxy()).getHostAddress(),
-						accountInfo.getSipDomain());
+    public void lookupItspAccountAddresses()
+            throws GatewayConfigurationException {
+        try {
+            for (ItspAccountInfo accountInfo : this.getItspAccounts()) {
+                accountInfo.lookupAccount();
+                this.addressToDomainNameMap.put(InetAddress.getByName(
+                        accountInfo.getOutboundProxy()).getHostAddress(),
+                        accountInfo.getSipDomain());
 
-				this.domainNameToProxyAddressMap.put(
-						accountInfo.getSipDomain(), new HopImpl(InetAddress
-								.getByName(accountInfo.getOutboundProxy())
-								.getHostAddress(), accountInfo.getProxyPort(),
-								accountInfo.getTransport()));
-			}
-		} catch (Exception ex) {
-			throw new GatewayConfigurationException(
-					"Check configuration of ITSP Accounts ", ex);
-		}
-	}
+                this.domainNameToProxyAddressMap.put(
+                        accountInfo.getSipDomain(), new HopImpl(InetAddress
+                                .getByName(accountInfo.getOutboundProxy())
+                                .getHostAddress(), accountInfo.getProxyPort(),
+                                accountInfo.getTransport(), accountInfo));
+            }
+        } catch (Exception ex) {
+            throw new GatewayConfigurationException(
+                    "Check configuration of ITSP Accounts ", ex);
+        }
+    }
 
-	/**
-	 * Start the failure timout timers for each of the accounts we manage.
-	 */
-	public void startAuthenticationFailureTimers() {
-		
-		for (ItspAccountInfo itspAccountInfo : this.getItspAccounts()) {
-			itspAccountInfo.startFailureCounterScanner();
-		}
-	}
+    /**
+     * Start the failure timout timers for each of the accounts we manage.
+     */
+    public void startAuthenticationFailureTimers() {
 
-	/**
-	 * Update the mapping in our table ( after an srv rescan )
-	 */
-	public void setHopToItsp(String domain, HopImpl proxyHop) {
-		this.addressToDomainNameMap.put(proxyHop.getHost(), domain);
+        for (ItspAccountInfo itspAccountInfo : this.getItspAccounts()) {
+            itspAccountInfo.startFailureCounterScanner();
+        }
+    }
 
-		this.domainNameToProxyAddressMap.put(domain, proxyHop);
-	}
+    /**
+     * Update the mapping in our table ( after an srv rescan )
+     */
+    public void setHopToItsp(String domain, HopImpl proxyHop) {
+        this.addressToDomainNameMap.put(proxyHop.getHost(), domain);
 
-	/**
-	 * Get the default outbound ITSP account for outbound calls.
-	 */
-	public ItspAccountInfo getDefaultAccount() {
-		return itspAccounts.values().iterator().next();
-	}
+        this.domainNameToProxyAddressMap.put(domain, proxyHop);
+    }
 
-	/**
-	 * Get the outbound ITSP account for a specific outbund SipURI.
-	 */
-	public ItspAccountInfo getAccount(SipURI sipUri) {
-		for (ItspAccountInfo accountInfo : itspAccounts.values()) {
-			if (accountInfo.getProxyDomain().equals(sipUri.getHost())) {
-				return accountInfo;
-			}
-		}
-		return getDefaultAccount();
-	}
+    /**
+     * Get the default outbound ITSP account for outbound calls.
+     */
+    public ItspAccountInfo getDefaultAccount() {
+        return itspAccounts.values().iterator().next();
+    }
 
-	/**
-	 * Get the user creds for a userName:domainName pair.
-	 * 
-	 * @param userName -
-	 *            the name of the user for whom we want the acct.
-	 * @param domainName -
-	 *            the domain name for which we want creds.
-	 * 
-	 */
-	public UserCredentials getCredentials(String domainName) {
+    /**
+     * Get the outbound ITSP account for a specific outbund SipURI.
+     */
+    public ItspAccountInfo getAccount(SipURI sipUri) {
+        for (ItspAccountInfo accountInfo : itspAccounts.values()) {
+            if (accountInfo.getProxyDomain().equals(sipUri.getHost())) {
+                return accountInfo;
+            }
+        }
+        return null;
+    }
 
-		UserCredentials retval = this.itspAccounts.get(domainName);
-		if (retval == null) {
-			// Maybe he is coming in with an address instead of a domain name.
-			// do a reverse lookup.
-			String realDomainName = this.addressToDomainNameMap.get(domainName);
-			if (realDomainName == null) {
-				logger.debug("No creds found for " + domainName);
+    /**
+     * Get the user creds for a userName:domainName pair.
+     * 
+     * @param userName -
+     *            the name of the user for whom we want the acct.
+     * @param domainName -
+     *            the domain name for which we want creds.
+     * 
+     */
+    public UserCredentials getCredentials(String domainName) {
 
-			} else {
-				retval = this.itspAccounts.get(realDomainName);
-			}
-		}
-		return retval;
+        UserCredentials retval = this.itspAccounts.get(domainName);
+        if (retval == null) {
+            // Maybe he is coming in with an address instead of a domain name.
+            // do a reverse lookup.
+            String realDomainName = this.addressToDomainNameMap.get(domainName);
+            if (realDomainName == null) {
+                logger.debug("No creds found for " + domainName);
 
-	}
+            } else {
+                retval = this.itspAccounts.get(realDomainName);
+            }
+        }
+        return retval;
 
-	/**
-	 * Get a collection of Itsp accounts.
-	 * 
-	 * @return
-	 */
-	public Collection<ItspAccountInfo> getItspAccounts() {
+    }
 
-		return itspAccounts.values();
-	}
+    /**
+     * Get a collection of Itsp accounts.
+     * 
+     * @return
+     */
+    public Collection<ItspAccountInfo> getItspAccounts() {
 
-	/**
-	 * Resolves hop to ITSP account.
-	 * 
-	 * @param host
-	 * @return hop to the itsp account.
-	 */
+        return itspAccounts.values();
+    }
 
-	public HopImpl getHopToItsp(String host) {
-		return this.domainNameToProxyAddressMap.get(host);
-	}
+    /**
+     * Resolves hop to ITSP account.
+     * 
+     * @param host
+     * @return hop to the itsp account.
+     */
+
+    public HopImpl getHopToItsp(String host) {
+        return this.domainNameToProxyAddressMap.get(host);
+    }
+
+    public ItspAccountInfo getItspAccount(String host, int port) {
+        for ( HopImpl hop : this.domainNameToProxyAddressMap.values()) {
+            if ( hop.getHost().equals(host) && hop.getPort() == port ) return hop.getItspAccountInfo();
+        }
+        return null;
+    }
 
 }

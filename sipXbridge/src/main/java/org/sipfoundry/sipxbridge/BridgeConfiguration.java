@@ -7,9 +7,9 @@
 package org.sipfoundry.sipxbridge;
 
 /**
- * A class that represents the configuration of the SipxBridge.
- * IMPORTANT -- the methods of this class are tied to sipxbridge.xsd. Do not change 
- * method names or signatures unless you also edit schema/sipxbridge.xsd.
+ * A class that represents the configuration of the SipxBridge. IMPORTANT -- the
+ * methods of this class are tied to sipxbridge.xsd. Do not change method names
+ * or signatures unless you also edit schema/sipxbridge.xsd.
  * 
  * 
  * @author M. Ranganathan
@@ -29,7 +29,7 @@ public class BridgeConfiguration {
     private String musicOnHoldName = "~~mh~";
     private boolean musicOnHoldEnabled = false;
     private int xmlRpcPort = 8080;
-    private int sipKeepalive = 20*1000; // Miliseconds for SIP keepalive.
+    private int sipKeepalive = 20 * 1000; // Miliseconds for SIP keepalive.
     private int mediaKeepalive = 160; // milisec for media keepalive.
 
     /**
@@ -138,8 +138,6 @@ public class BridgeConfiguration {
         return stunServerAddress;
     }
 
-    
-
     /**
      * @param logLevel
      *            the logLevel to set
@@ -189,19 +187,19 @@ public class BridgeConfiguration {
         return this.rtpPortUpperBound;
     }
 
-    
-   
-    
-    /** 
+    /**
      * @return Return the MOH UserName or null if no MOH is supported.
      */
     public String getMusicOnHoldName() {
-        if ( !this.isMusicOnHoldSupportEnabled()) return null;
-        else  return this.musicOnHoldName;
+        if (!this.isMusicOnHoldSupportEnabled())
+            return null;
+        else
+            return this.musicOnHoldName;
     }
 
     /**
-     * @param musicOnHoldEnabled the musicOnHoldEnabled to set
+     * @param musicOnHoldEnabled
+     *            the musicOnHoldEnabled to set
      */
     public void setMusicOnHoldSupportEnabled(boolean musicOnHoldEnabled) {
         this.musicOnHoldEnabled = musicOnHoldEnabled;
@@ -215,7 +213,8 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param xmlRpcPort the xmlRpcPort to set
+     * @param xmlRpcPort
+     *            the xmlRpcPort to set
      */
     public void setXmlRpcPort(int xmlRpcPort) {
         this.xmlRpcPort = xmlRpcPort;
@@ -228,32 +227,34 @@ public class BridgeConfiguration {
         return xmlRpcPort;
     }
 
-	/**
-	 * @param sipKeepalive the sipKeepalive to set
-	 */
-	public void setSipKeepalive(int sipKeepalive) {
-		this.sipKeepalive = sipKeepalive*1000;
-	}
+    /**
+     * @param sipKeepalive
+     *            the sipKeepalive to set
+     */
+    public void setSipKeepalive(int sipKeepalive) {
+        this.sipKeepalive = sipKeepalive * 1000;
+    }
 
-	/**
-	 * @return the sipKeepalive
-	 */
-	public int getSipKeepalive() {
-		return sipKeepalive;
-	}
+    /**
+     * @return the sipKeepalive
+     */
+    public int getSipKeepalive() {
+        return sipKeepalive;
+    }
 
-	/**
-	 * @param mediaKeepalive the mediaKeepalive to set
-	 */
-	public void setMediaKeepalive(int mediaKeepalive) {
-		this.mediaKeepalive = mediaKeepalive*1000;
-	}
+    /**
+     * @param mediaKeepalive
+     *            the mediaKeepalive to set
+     */
+    public void setMediaKeepalive(int mediaKeepalive) {
+        this.mediaKeepalive = mediaKeepalive * 1000;
+    }
 
-	/**
-	 * @return the mediaKeepalive
-	 */
-	public int getMediaKeepalive() {
-		return mediaKeepalive;
-	}
+    /**
+     * @return the mediaKeepalive
+     */
+    public int getMediaKeepalive() {
+        return mediaKeepalive;
+    }
 
 }

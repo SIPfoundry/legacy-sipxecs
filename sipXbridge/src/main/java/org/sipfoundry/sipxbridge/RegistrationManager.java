@@ -26,14 +26,14 @@ import javax.sip.message.Response;
  */
 public class RegistrationManager {
     private SipProvider provider;
-    
 
     public RegistrationManager(SipProvider sipProvider) {
         this.provider = sipProvider;
 
     }
 
-    public void sendRegistrer(ItspAccountInfo itspAccount) throws SipException,GatewayConfigurationException {
+    public void sendRegistrer(ItspAccountInfo itspAccount) throws SipException,
+            GatewayConfigurationException {
         Request request = SipUtilities.createRegistrationRequest(provider,
                 itspAccount);
         ClientTransaction ct = provider.getNewClientTransaction(request);
@@ -41,7 +41,6 @@ public class RegistrationManager {
                 Operation.SEND_REGISTER);
         itspAccount.setState(AccountState.AUTHENTICATING);
         tad.itspAccountInfo = itspAccount;
-      
 
         ct.setApplicationData(tad);
         ct.sendRequest();
@@ -102,7 +101,6 @@ public class RegistrationManager {
                     .getHeader(ContactHeader.NAME);
             int time = 0;
 
-          
             if (contactHeader != null)
                 time = contactHeader.getExpires();
             else
@@ -130,24 +128,25 @@ public class RegistrationManager {
              * Gateway.timer.schedule(ttask, 60 * 1000); }
              */
 
-        }  else {
-        	  ItspAccountInfo itspAccount = ((TransactionApplicationData) ct
-                      .getApplicationData()).itspAccountInfo;
-              itspAccount.setState(AccountState.AUTHENTICATION_FAILED);
+        } else {
+            ItspAccountInfo itspAccount = ((TransactionApplicationData) ct
+                    .getApplicationData()).itspAccountInfo;
+            itspAccount.setState(AccountState.AUTHENTICATION_FAILED);
         }
     }
-    
+
     /**
-     * Handle a timeout event ( happens when you pont this to a non existant ITSP ).
+     * Handle a timeout event ( happens when you pont this to a non existant
+     * ITSP ).
      * 
      * @param timeoutEvent
      */
     public void processTimeout(TimeoutEvent timeoutEvent) {
-    	ClientTransaction ctx = timeoutEvent.getClientTransaction();
-    	ItspAccountInfo itspAccount = ((TransactionApplicationData) ctx
+        ClientTransaction ctx = timeoutEvent.getClientTransaction();
+        ItspAccountInfo itspAccount = ((TransactionApplicationData) ctx
                 .getApplicationData()).itspAccountInfo;
         itspAccount.setState(AccountState.AUTHENTICATION_FAILED);
-    	
+
     }
 
 }

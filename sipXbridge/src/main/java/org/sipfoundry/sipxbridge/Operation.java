@@ -15,10 +15,7 @@ package org.sipfoundry.sipxbridge;
  * 
  */
 public enum Operation {
-    REFER_INVITE_TO_SIPX_PROXY, PROCESS_BYE, SEND_DEREGISTER, 
-    SEND_INVITE_TO_ITSP, SEND_INVITE_TO_SIPX_PROXY, 
-    SEND_REGISTER_QUERY, SEND_REGISTER, SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP,
-    SPIRAL_CONSULTATION_TRANSFER_INVITE_TO_ITSP, SEND_INVITE_TO_MOH_SERVER;
+    REFER_INVITE_TO_SIPX_PROXY, PROCESS_BYE, SEND_DEREGISTER, SEND_INVITE_TO_ITSP, SEND_INVITE_TO_SIPX_PROXY, SEND_REGISTER_QUERY, SEND_REGISTER, SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP, SPIRAL_CONSULTATION_TRANSFER_INVITE_TO_ITSP, SEND_INVITE_TO_MOH_SERVER;
 
     @Override
     public String toString() {
@@ -41,7 +38,7 @@ public enum Operation {
         } else if (this
                 .equals(Operation.SPIRAL_CONSULTATION_TRANSFER_INVITE_TO_ITSP)) {
             return "SpiralConsultationTransferInviteToItsp";
-        } else if ( this.equals(Operation.SEND_INVITE_TO_MOH_SERVER)) {
+        } else if (this.equals(Operation.SEND_INVITE_TO_MOH_SERVER)) {
             return "SendInviteToMohServer";
         } else {
             return null;

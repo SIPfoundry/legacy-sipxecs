@@ -19,7 +19,7 @@ import javax.sip.message.Response;
  * 
  */
 class DialogApplicationData {
-	
+
     /*
      * Whether or not to forward requests to the PeerDialogs of this dialog (
      * assuming the state of the Dialog is not TERMINATED).
@@ -45,43 +45,39 @@ class DialogApplicationData {
      * The replaced dialog (for Consultative XFer processing ).
      */
     Dialog replacedDialog;
-    
+
     /*
      * The MOH server dialog
      */
     Dialog musicOnHoldDialog;
 
+    public Sym rtpSession;
 
-	public RtpSession rtpSession;
-    
-	
-	private DialogApplicationData() {
-		
-	}
-	
-	
-	
+    private DialogApplicationData() {
+
+    }
+
     /**
-	 * Conveniance methods
-	 */
-	public static Dialog getPeerDialog(Dialog dialog) {
-		return ((DialogApplicationData) dialog.getApplicationData()).peerDialog;
-	}
+     * Conveniance methods
+     */
+    public static Dialog getPeerDialog(Dialog dialog) {
+        return ((DialogApplicationData) dialog.getApplicationData()).peerDialog;
+    }
 
-	public static RtpSession getRtpSession(Dialog dialog ) {
-		return ((DialogApplicationData) dialog.getApplicationData()).rtpSession;
-	}
-	
-	public static DialogApplicationData attach(BackToBackUserAgent backToBackUserAgent, Dialog dialog) {
-		DialogApplicationData dat = new DialogApplicationData();
-		dat.backToBackUserAgent = backToBackUserAgent;
-		dialog.setApplicationData(dat);
-		return dat;
-	}
-	
-	public static DialogApplicationData get(Dialog dialog) {
-		return (DialogApplicationData) dialog.getApplicationData();
-	}
-    
+    public static Sym getRtpSession(Dialog dialog) {
+        return ((DialogApplicationData) dialog.getApplicationData()).rtpSession;
+    }
+
+    public static DialogApplicationData attach(
+            BackToBackUserAgent backToBackUserAgent, Dialog dialog) {
+        DialogApplicationData dat = new DialogApplicationData();
+        dat.backToBackUserAgent = backToBackUserAgent;
+        dialog.setApplicationData(dat);
+        return dat;
+    }
+
+    public static DialogApplicationData get(Dialog dialog) {
+        return (DialogApplicationData) dialog.getApplicationData();
+    }
 
 }

@@ -20,11 +20,17 @@ public class HopImpl implements Hop {
     private String host;
     private int port;
     private String transport;
+    private ItspAccountInfo itspAccountInfo;
 
     public HopImpl(String host, int port, String transport) {
         this.host = host;
         this.port = port;
         this.transport = transport;
+    }
+    
+    public HopImpl( String host, int port, String transport, ItspAccountInfo itspAccountInfo) {
+        this(host,port,transport);
+        this.itspAccountInfo = itspAccountInfo;
     }
 
     public String getHost() {
@@ -42,6 +48,10 @@ public class HopImpl implements Hop {
     @Override
     public String toString() {
         return host + ":" + port + "/" + transport;
+    }
+
+    public ItspAccountInfo getItspAccountInfo() {
+        return this.itspAccountInfo;
     }
 
 }

@@ -12,7 +12,7 @@ package org.sipfoundry.sipxbridge;
  * @author M. Ranganathan.
  * 
  */
-public enum RtpBridgeState {
+public enum BridgeState {
     INITIAL, RUNNING, PAUSED, TERMINATED;
 
     @Override

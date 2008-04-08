@@ -100,17 +100,16 @@ public class ItspAccountInfo implements
      * Registration Interval (seconds)
      */
     private int registrationInterval = 90;
-    
-    
+
     /*
      * The state of the account.
      */
     private AccountState state = AccountState.INIT;
-    
+
     /**
      * The call Id table.
      */
-    private HashMap<String,FailureCounter> failureCountTable = new HashMap<String,FailureCounter> ();
+    private HashMap<String, FailureCounter> failureCountTable = new HashMap<String, FailureCounter>();
 
     /**
      * This task runs periodically depending upon the timeout of the lookup
@@ -132,30 +131,30 @@ public class ItspAccountInfo implements
                 setOutboundProxy(resolvedName);
                 HopImpl proxyHop = new HopImpl(InetAddress.getByName(
                         getOutboundProxy()).getHostAddress(), getProxyPort(),
-                        getTransport());
+                        getTransport(), ItspAccountInfo.this);
                 Gateway.getAccountManager().setHopToItsp(getSipDomain(),
                         proxyHop);
                 Gateway.timer.schedule(new Scanner(), time);
             } catch (Exception ex) {
-            	logger.error("Error looking up domain " + "_sip._" + getTransport() + "."
-                        + getSipDomain());
+                logger.error("Error looking up domain " + "_sip._"
+                        + getTransport() + "." + getSipDomain());
             }
-            
 
         }
 
     }
-    
+
     class FailureCounterScanner extends TimerTask {
-        
+
         public FailureCounterScanner() {
-            
+
         }
 
         @Override
         public void run() {
-           
-            for (Iterator<FailureCounter> it = failureCountTable.values().iterator(); it.hasNext();  ) {
+
+            for (Iterator<FailureCounter> it = failureCountTable.values()
+                    .iterator(); it.hasNext();) {
                 FailureCounter fc = it.next();
                 long now = System.currentTimeMillis();
                 if (now - fc.creationTime > 30000) {
@@ -163,17 +162,18 @@ public class ItspAccountInfo implements
                 }
             }
         }
-        
+
     }
-    
+
     class FailureCounter {
-        long  creationTime;
-        int   counter;
+        long creationTime;
+        int counter;
+
         FailureCounter() {
             creationTime = System.currentTimeMillis();
             counter = 0;
         }
-        
+
         int increment() {
             counter++;
             return counter;
@@ -181,14 +181,12 @@ public class ItspAccountInfo implements
     }
 
     public ItspAccountInfo() {
-        
-       
 
     }
-    
+
     public void startFailureCounterScanner() {
-    	 FailureCounterScanner fcs = new FailureCounterScanner();
-         Gateway.timer.schedule(fcs, 5000,5000);
+        FailureCounterScanner fcs = new FailureCounterScanner();
+        Gateway.timer.schedule(fcs, 5000, 5000);
     }
 
     public String getOutboundProxy() {
@@ -239,7 +237,7 @@ public class ItspAccountInfo implements
     }
 
     public void setOutboundProxy(String resolvedName) {
-    	logger.debug("setOutboundProxy" + resolvedName);
+        logger.debug("setOutboundProxy" + resolvedName);
         this.outboundProxy = resolvedName;
 
     }
@@ -248,41 +246,40 @@ public class ItspAccountInfo implements
         Gateway.timer.schedule(new Scanner(), time);
 
     }
-    
+
     public void lookupAccount() throws GatewayConfigurationException {
-		try {
-			String outboundDomain = this.getSipDomain();
-			Record[] records = new Lookup("_sip._" + this.getTransport()
-					+ "." + outboundDomain, Type.SRV).run();
+        try {
+            String outboundDomain = this.getSipDomain();
+            Record[] records = new Lookup("_sip._" + this.getTransport() + "."
+                    + outboundDomain, Type.SRV).run();
 
-			if (records == null || records.length == 0) {
-				// SRV lookup failed, use the outbound proxy directly.
-				logger
-						.debug("SRV lookup returned nothing -- we are going to just use the domain name directly");
-			} else {
-				logger.debug("Did a successful DNS SRV lookup");
-				SRVRecord record = (SRVRecord) records[0];
-				int port = record.getPort();
-				this.setPort(port);
-				long time = record.getTTL() * 1000;
-				String resolvedName = record.getTarget().toString();
-				this.setOutboundProxy(resolvedName);
-				this.startDNSScannerThread(time);
-			}
+            if (records == null || records.length == 0) {
+                // SRV lookup failed, use the outbound proxy directly.
+                logger
+                        .debug("SRV lookup returned nothing -- we are going to just use the domain name directly");
+            } else {
+                logger.debug("Did a successful DNS SRV lookup");
+                SRVRecord record = (SRVRecord) records[0];
+                int port = record.getPort();
+                this.setPort(port);
+                long time = record.getTTL() * 1000;
+                String resolvedName = record.getTarget().toString();
+                this.setOutboundProxy(resolvedName);
+                this.startDNSScannerThread(time);
+            }
 
-			
-		} catch (TextParseException ex) {
+        } catch (TextParseException ex) {
 
-			throw new GatewayConfigurationException(
-					"Problem with domain name lookup", ex);
-		} catch (RuntimeException ex) {
-			ex.printStackTrace();
-			logger.fatal(
-					"Exception in processing -- could not add ITSP account ",
-					ex);
-			throw ex;
-		}
-	}
+            throw new GatewayConfigurationException(
+                    "Problem with domain name lookup", ex);
+        } catch (RuntimeException ex) {
+            ex.printStackTrace();
+            logger.fatal(
+                    "Exception in processing -- could not add ITSP account ",
+                    ex);
+            throw ex;
+        }
+    }
 
     public void setOptionsTimerTask(OptionsTimerTask optionsTimerTask) {
         this.optionsTimerTask = optionsTimerTask;
@@ -295,16 +292,15 @@ public class ItspAccountInfo implements
     public boolean isInboundCallsRoutedToAutoAttendant() {
         return this.autoAttendantName != null;
     }
-    
-    public void setAutoAttendantName( String autoAttendantName) {
-    	this.autoAttendantName = autoAttendantName;
+
+    public void setAutoAttendantName(String autoAttendantName) {
+        this.autoAttendantName = autoAttendantName;
     }
 
     public String getAutoAttendantName() {
-    	return this.autoAttendantName;
+        return this.autoAttendantName;
     }
-    
-    
+
     public int getRegistrationInterval() {
         return registrationInterval;
     }
@@ -338,7 +334,7 @@ public class ItspAccountInfo implements
      *            the proxyDomain to set
      */
     public void setProxyDomain(String proxyDomain) {
-    	System.out.println("setProxyDomain " + proxyDomain);
+        System.out.println("setProxyDomain " + proxyDomain);
         this.proxyDomain = proxyDomain;
     }
 
@@ -354,7 +350,7 @@ public class ItspAccountInfo implements
      *            the authenticationRealm to set
      */
     public void setAuthenticationRealm(String authenticationRealm) {
-    	logger.debug("setAuthenticationRealm : " + authenticationRealm);
+        logger.debug("setAuthenticationRealm : " + authenticationRealm);
         this.authenticationRealm = authenticationRealm;
     }
 
@@ -403,8 +399,6 @@ public class ItspAccountInfo implements
         this.rportUsed = rportUsed;
     }
 
-   
-
     /**
      * @param globalAddressingUsed
      *            the globalAddressingUsed to set
@@ -421,7 +415,7 @@ public class ItspAccountInfo implements
         this.userName = userName;
     }
 
-    public int  incrementFailureCount(String callId) {
+    public int incrementFailureCount(String callId) {
         FailureCounter fc = this.failureCountTable.get(callId);
         if (fc == null) {
             fc = new FailureCounter();
@@ -429,23 +423,24 @@ public class ItspAccountInfo implements
         }
         int retval = fc.increment();
         logger.debug("incrementFailureCount : " + retval);
-        
+
         return retval;
-        
+
     }
 
-	/**
-	 * @param state the state to set
-	 */
-	public void setState(AccountState state) {
-		this.state = state;
-	}
+    /**
+     * @param state
+     *            the state to set
+     */
+    public void setState(AccountState state) {
+        this.state = state;
+    }
 
-	/**
-	 * @return the state
-	 */
-	public AccountState getState() {
-		return state;
-	}
+    /**
+     * @return the state
+     */
+    public AccountState getState() {
+        return state;
+    }
 
 }

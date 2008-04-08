@@ -22,7 +22,7 @@ class PendingSdpAnswer {
      * The outgoing rtp session ( this is fixed up when we get an sdp response).
      */
 
-    RtpSession outgoingSession;
+    Sym outgoingSession;
 
     /*
      * The Sdp Offer that was sent to us from the Client Tx.

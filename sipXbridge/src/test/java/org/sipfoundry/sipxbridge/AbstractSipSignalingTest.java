@@ -21,7 +21,7 @@ import gov.nist.javax.sip.clientauthutils.*;
 import junit.framework.TestCase;
 
 public abstract class AbstractSipSignalingTest extends TestCase {
-   
+
     @Override
     public void setUp() throws Exception {
         Gateway.start();
@@ -29,7 +29,7 @@ public abstract class AbstractSipSignalingTest extends TestCase {
 
     @Override
     public void tearDown() throws Exception {
-         Gateway.stop();
+        Gateway.stop();
 
     }
 

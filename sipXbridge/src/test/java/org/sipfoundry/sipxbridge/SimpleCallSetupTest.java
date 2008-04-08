@@ -23,7 +23,7 @@ public class SimpleCallSetupTest extends TestCase {
 
     public void testSendInviteFromSipxProxy() {
         try {
-          
+
             this.sipxProxy.sendInviteToIbridge();
 
             Thread.sleep(15000);

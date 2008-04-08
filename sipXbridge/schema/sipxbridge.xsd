@@ -84,16 +84,6 @@
 				</xs:annotation>
 			</xs:element>
 
-			<xs:element name="route-inbound-calls-to-extension" type="xs:string"
-				maxOccurs="1" minOccurs="0" >
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						Where to send inbound calls. If nothing is specified, inbound calls are 
-						directly routed to the specified number in the inbound request. 
-						You can specify the SIPX auto attendant name  ( operator ) here.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 
 			<xs:element name="stun-server-address" type="xs:string"
 				maxOccurs="1" minOccurs="0" default="stun01.sipphone.com">
@@ -134,6 +124,18 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+
+			<xs:element name="max-number-of-concurrent-calls" type="xs:integer"
+				maxOccurs="1" minOccurs="0" default="-1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The maximum number of concurrent calls allowed via the given
+						bridge overall. "-1" means "infinity".  
+						When the limit is reached, sipxbridge will return "Service Unavailable".
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
 			<xs:element name="music-on-hold-support-enabled" type="xs:boolean"
 				maxOccurs="1" minOccurs="0" default="false">
 				<xs:annotation>
@@ -188,6 +190,18 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
+			<xs:element name="max-number-of-concurrent-calls" type="xs:integer"
+				maxOccurs="1" minOccurs="0" default="-1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The maximum number of concurrent calls allowed via the given
+						ITSP. "-1" means "infinity".  This is a way of doing 
+						a coarse granuarity of QOS on the ITSP. When the limit is 
+						reached, sipxbridge will return "Service Unavailable".
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
 			<xs:element name="outbound-proxy" type="xs:string"
 				maxOccurs="1" minOccurs="1">
 				<xs:annotation>
@@ -266,6 +280,16 @@
 			</xs:element>
 
 
+			<xs:element name="route-inbound-calls-to-extension" type="xs:string"
+				maxOccurs="1" minOccurs="0" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Where to send inbound calls. If nothing is specified, inbound calls are 
+						directly routed to the specified number in the inbound request. 
+						You can specify the SIPX auto attendant name  ( operator ) here.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 
 			<xs:element name="use-rport" type="xs:boolean" maxOccurs="1" minOccurs="0"
 				default="false">

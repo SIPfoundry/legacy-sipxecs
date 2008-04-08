@@ -88,7 +88,8 @@ public class CallControlManager {
     }
 
     /**
-     * Processes an incoming invite from the PBX side.
+     * Processes an incoming invite from the PBX or from the ITSP side.
+     * 
      * 
      * @param requestEvent
      */
@@ -116,10 +117,11 @@ public class CallControlManager {
                 logger.debug("Re-INVITE proessing !! ");
                 DialogApplicationData dat = (DialogApplicationData) dialog
                         .getApplicationData();
-            
-                RtpSession lanRtpSession = dat.rtpSession;
-                SessionDescription newDescription = lanRtpSession.reAssignSessionParameters(request, dialog);
-              
+
+                Sym lanRtpSession = dat.rtpSession;
+                SessionDescription newDescription = lanRtpSession
+                        .reAssignSessionParameters(request, dialog);
+
                 Response response = ProtocolObjects.messageFactory
                         .createResponse(Response.OK, request);
                 if (newDescription != null) {
@@ -150,25 +152,28 @@ public class CallControlManager {
             } else {
 
                 btobua = Gateway.getCallControlManager()
-                        .getBackToBackUserAgent(provider, request, dialog);
+                        .getBackToBackUserAgent(
+                                provider,
+                                request,
+                                dialog,
+                                Gateway.getLanProvider() == requestEvent
+                                        .getSource());
+                /*
+                 * Make sure we know about the incoming request. Otherwise we
+                 * return an error here.
+                 */
+                if (btobua == null) {
+                    Response response = ProtocolObjects.messageFactory
+                            .createResponse(Response.BAD_GATEWAY, request);
+                    serverTransaction.sendResponse(response);
+                    return;
+                }
                 DialogApplicationData.attach(btobua, dialog);
             }
 
             // This method was seen from the LAN side.
             // Create a WAN side association and send the INVITE on its way.
             if (provider == Gateway.getLanProvider()) {
-
-                ItspAccountInfo itspAccountInfo = Gateway.getAccountManager()
-                        .getAccount((SipURI) request.getRequestURI());
-                if (itspAccountInfo == null) {
-                    Response response = ProtocolObjects.messageFactory
-                            .createResponse(Response.NOT_FOUND,
-                                    serverTransaction.getRequest());
-                    response.setReasonPhrase("ITSP Account not found ");
-                    serverTransaction.sendResponse(response);
-                    return;
-                }
-
                 String toDomain = Gateway.getAccountManager().getAccount(
                         (SipURI) request.getRequestURI()).getSipDomain();
 
@@ -373,7 +378,7 @@ public class CallControlManager {
                  * Setting this to null here handles the case of Re-invitations.
                  */
                 dat.lastResponse = null;
-                
+
             }
 
         } catch (Exception ex) {
@@ -478,7 +483,8 @@ public class CallControlManager {
         ServerTransaction serverTransaction = null;
         SipProvider provider = (SipProvider) responseEvent.getSource();
         Response response = responseEvent.getResponse();
-        logger.debug("processInviteResponse : " + ((SIPResponse) response).getFirstLine());
+        logger.debug("processInviteResponse : "
+                + ((SIPResponse) response).getFirstLine());
 
         Dialog dialog = responseEvent.getDialog();
         try {
@@ -579,9 +585,20 @@ public class CallControlManager {
 
                     String user = ((SipURI) toHeader.getAddress().getURI())
                             .getUser();
-                    ContactHeader contactHeader = SipUtilities
-                            .createContactHeader(user,
-                                    tad.serverTransactionProvider);
+                    ContactHeader contactHeader = null;
+
+                    /*
+                     * Set the contact address for the OK. Note that ITSP may
+                     * want global addressing.
+                     */
+                    if (tad.operation == Operation.SEND_INVITE_TO_ITSP) {
+                        contactHeader = SipUtilities.createContactHeader(user,
+                                tad.serverTransactionProvider);
+                    } else {
+                        contactHeader = SipUtilities.createContactHeader(
+                                tad.serverTransactionProvider,
+                                tad.itspAccountInfo);
+                    }
 
                     newResponse.setHeader(contactHeader);
                     ToHeader newToHeader = (ToHeader) newResponse
@@ -610,35 +627,33 @@ public class CallControlManager {
                         newSd = SdpFactory.getInstance()
                                 .createSessionDescription(
                                         new String(response.getRawContent()));
-                        DialogApplicationData dialogApplicationData = (DialogApplicationData) dialog.getApplicationData();
-                        
-                        RtpSession rtpSession = dialogApplicationData.rtpSession;
-                        RtpEndpoint hisEndpoint = null;
+                        DialogApplicationData dialogApplicationData = (DialogApplicationData) dialog
+                                .getApplicationData();
+
+                        Sym rtpSession = dialogApplicationData.rtpSession;
+                        SymEndpoint hisEndpoint = null;
                         if (rtpSession != null) {
                             hisEndpoint = rtpSession.getTransmitter();
                         }
 
                         if (hisEndpoint == null) {
-                            hisEndpoint = new RtpEndpoint(true);
-                          
-                            
-                            
+                            hisEndpoint = new SymEndpoint(true);
+
                         }
 
                         tad.outgoingSession.setRemoteEndpoint(hisEndpoint);
                         hisEndpoint.setSessionDescription(sessionDescription);
-                        if ( tad.operation == Operation.SEND_INVITE_TO_ITSP)
-                        	hisEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec());
-                        
-                        RtpEndpoint incomingEndpoint = tad.incomingSession
+                        if (tad.operation == Operation.SEND_INVITE_TO_ITSP)
+                            hisEndpoint.setMaxSilence(Gateway
+                                    .getMediaKeepaliveMilisec());
+
+                        SymEndpoint incomingEndpoint = tad.incomingSession
                                 .getReceiver();
 
                         incomingEndpoint.setSessionDescription(newSd);
 
                         newResponse.setContent(newSd.toString(), cth);
                         tad.backToBackUa.getRtpBridge().start();
-
-                       
 
                     }
                     if (logger.isDebugEnabled()
@@ -675,9 +690,10 @@ public class CallControlManager {
                                 .getInstance().createSessionDescription(
                                         new String(response.getRawContent()));
                         logger.debug("Processing ReferRedirection Response");
-                      
-                        RtpSession rtpSession = ((DialogApplicationData) referDialog.getApplicationData()).rtpSession;
-                       
+
+                        Sym rtpSession = ((DialogApplicationData) referDialog
+                                .getApplicationData()).rtpSession;
+
                         if (rtpSession != null) {
 
                             /*
@@ -690,8 +706,9 @@ public class CallControlManager {
                              * Grab the RTP session previously pointed at by the
                              * REFER dialog.
                              */
-                            b2bua.getRtpBridge().addRtpSession(rtpSession);
-                            ((DialogApplicationData)dialog.getApplicationData()).rtpSession = rtpSession;
+                            b2bua.getRtpBridge().addSymSession(rtpSession);
+                            ((DialogApplicationData) dialog
+                                    .getApplicationData()).rtpSession = rtpSession;
                         } else {
                             logger
                                     .debug("Processing ReferRedirection: Could not find RtpSession for referred dialog");
@@ -746,11 +763,14 @@ public class CallControlManager {
                     /*
                      * If there is a Music on hold dialog -- tear it down
                      */
-                     if ( dat.musicOnHoldDialog != null && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
-                    	 this.getBackToBackUserAgent(dialog).sendByeToMohServer(dat.musicOnHoldDialog);
-                     }
+                    if (dat.musicOnHoldDialog != null
+                            && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
+                        this.getBackToBackUserAgent(dialog).sendByeToMohServer(
+                                dat.musicOnHoldDialog);
+                    }
 
-                } else if ( tad.operation.equals(Operation.SEND_INVITE_TO_MOH_SERVER)){
+                } else if (tad.operation
+                        .equals(Operation.SEND_INVITE_TO_MOH_SERVER)) {
                     Request ack = dialog.createAck(((CSeqHeader) response
                             .getHeader(CSeqHeader.NAME)).getSeqNumber());
                     dialog.sendAck(ack);
@@ -849,22 +869,41 @@ public class CallControlManager {
      */
 
     public BackToBackUserAgent getBackToBackUserAgent(SipProvider provider,
-            Request request, Dialog dialog) throws Exception {
+            Request request, Dialog dialog, boolean callOriginatedFromLan)
+            throws Exception {
 
         String callId = SipUtilities.getCallId(request);
         // BackToBackUserAgent b2bua = callTable.get(callId);
         BackToBackUserAgent b2bua = null;
         try {
 
-            ItspAccountInfo accountInfo = Gateway.getAccountManager()
-                    .getAccount((SipURI) request.getRequestURI());
+            ItspAccountInfo accountInfo = null;
+            if (callOriginatedFromLan) {
+                accountInfo = Gateway.getAccountManager().getAccount(
+                        (SipURI) request.getRequestURI());
+            } else {
+                /*
+                 * Check the Via header of the inbound request to see if this
+                 * is an account we know about (TODO -- do a better job of 
+                 * authenticating inbound requests ).
+                 */
+                ViaHeader viaHeader = (ViaHeader) request
+                        .getHeader(ViaHeader.NAME);
+                String host = viaHeader.getHost();
+                int port = viaHeader.getPort();
+                accountInfo = Gateway.getAccountManager().getItspAccount(host,
+                        port);
+            }
+            if (accountInfo == null)
+                return null;
+
             if (this.backToBackUserAgentTable.containsKey(callId)) {
                 b2bua = this.backToBackUserAgentTable.get(callId);
             } else {
 
                 b2bua = new BackToBackUserAgent(provider, request, dialog,
                         accountInfo);
-               
+
                 DialogApplicationData.attach(b2bua, dialog);
 
                 this.backToBackUserAgentTable.put(callId, b2bua);
@@ -943,36 +982,36 @@ public class CallControlManager {
 
     }
 
-    
     /**
-     * Remove all the records in the back to back user agent table corresponsing to a given
-     * B2BUA.
+     * Remove all the records in the back to back user agent table corresponsing
+     * to a given B2BUA.
      * 
      * @param backToBackUserAgent
      */
     public void removeBackToBackUserAgent(
             BackToBackUserAgent backToBackUserAgent) {
-         for ( Iterator<String> keyIterator = this.backToBackUserAgentTable.keySet().iterator();
-                 keyIterator.hasNext(); ) {
-             String key = keyIterator.next();
-             if ( this.backToBackUserAgentTable.get(key) == backToBackUserAgent) {
-                 keyIterator.remove();
-             }
-         }
-         
-         logger.debug("CallControlManager: removeBackToBackUserAgent() after removal " + this.backToBackUserAgentTable);
-        
+        for (Iterator<String> keyIterator = this.backToBackUserAgentTable
+                .keySet().iterator(); keyIterator.hasNext();) {
+            String key = keyIterator.next();
+            if (this.backToBackUserAgentTable.get(key) == backToBackUserAgent) {
+                keyIterator.remove();
+            }
+        }
+
+        logger
+                .debug("CallControlManager: removeBackToBackUserAgent() after removal "
+                        + this.backToBackUserAgentTable);
+
     }
-    
+
     /**
      * Dump the B2BUA table for memory debugging.
      */
-    
+
     void dumpBackToBackUATable() {
-        
+
         logger.debug("B2BUATable = " + this.backToBackUserAgentTable);
-        
+
     }
 
-  
 }

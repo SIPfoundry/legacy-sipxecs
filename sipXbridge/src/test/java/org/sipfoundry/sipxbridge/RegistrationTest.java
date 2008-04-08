@@ -36,15 +36,12 @@ import org.sipfoundry.sipxbridge.*;
 import junit.framework.TestCase;
 
 public class RegistrationTest extends AbstractSipSignalingTest {
-  
 
-  
     public void setUp() throws Exception {
         super.setUp();
 
     }
 
-   
     public void tearDown() throws Exception {
         super.tearDown();
 
@@ -53,12 +50,12 @@ public class RegistrationTest extends AbstractSipSignalingTest {
     public void testRegistration() throws Exception {
 
         Thread.sleep(5000);
-        for (ItspAccountInfo itspAccount : Gateway.getAccountManager().getItspAccounts()) { 
-        	if  (itspAccount.getState() != AccountState.AUTHENTICATED) {
-        		fail("Could not REGISTER");
-        	}
+        for (ItspAccountInfo itspAccount : Gateway.getAccountManager()
+                .getItspAccounts()) {
+            if (itspAccount.getState() != AccountState.AUTHENTICATED) {
+                fail("Could not REGISTER");
+            }
         }
     }
-
 
 }
