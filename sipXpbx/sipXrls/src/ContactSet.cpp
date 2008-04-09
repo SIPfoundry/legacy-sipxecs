@@ -26,6 +26,12 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+
+// Number of milliseconds to wait after terminating subscriptions to a
+// contact before initiating a subscription that might reach the same
+// UA.
+#define SUBSCRIPTION_WAIT 100
+
 // STATIC VARIABLE INITIALIZATIONS
 
 const UtlContainableType ContactSet::TYPE = "ContactSet";
@@ -454,6 +460,17 @@ void ContactSet::updateSubscriptions()
    // Now that we have a clean list of callid_contacts, update
    // SubscriptionSets to match it.
 
+   // If we both terminate subscriptions and create subscriptions,
+   // wait a short while to allow the terminations to complete.  This
+   // should not be necessary, but it makes life easier on Polycom
+   // phones which (at this time) cannot support two subscriptions at
+   // a time, and if the termination of the old subscription arrives
+   // after the initiation of the new subscription, the new
+   // subscription will be lost.
+   // This variable tracks whether such a wait is needed before a 
+   // subscription is started.
+   bool subscription_ended_but_no_wait_done_yet = false;
+
    // Iterate through the list of SubscriptionSets and remove any that aren't
    // in callid_contacts.
    {
@@ -467,6 +484,7 @@ void ContactSet::updateSubscriptions()
                           "ContactSet::updateSubscriptions deleting subscription for '%s' in mUri = '%s'",
                           ss->data(), mUri.data());
             mSubscriptionSets.destroy(ss);
+	    subscription_ended_but_no_wait_done_yet = true;
          }
       }
    }
@@ -482,6 +500,19 @@ void ContactSet::updateSubscriptions()
       {
          if (!mSubscriptionSets.find(callid_contact))
          {
+	    // If we both terminate subscriptions and create subscriptions,
+	    // wait a short while to allow the terminations to complete.
+            #if SUBSCRIPTION_WAIT > 0
+               if (subscription_ended_but_no_wait_done_yet)
+               {
+                  OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                                "ContactSet::updateSubscriptions waiting for %d msec",
+                                SUBSCRIPTION_WAIT);
+                  OsTask::delay(SUBSCRIPTION_WAIT);
+                  subscription_ended_but_no_wait_done_yet = false;
+               }
+            #endif
+
             OsSysLog::add(FAC_RLS, PRI_DEBUG,
                           "ContactSet::updateSubscriptions adding subscription for '%s' in mUri = '%s'",
                           callid_contact->data(), mUri.data());

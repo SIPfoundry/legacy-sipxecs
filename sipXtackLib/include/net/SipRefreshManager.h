@@ -128,7 +128,7 @@ public:
 
     //! End the SIP refresh (registration or subscription) indicated by 
     /*! the dialog handle.  If the given dialogHandle is an early dialog it
-     *  will end any established or early dialog subscriptions.  Typically 
+     *  will end any established subscriptions.  Typically 
      *  the application SHOULD use the established dialog handle.  This
      *  method can also be used to end one of the dialogs if multiple
      *  subsription dialogs were created as a result of a single 
