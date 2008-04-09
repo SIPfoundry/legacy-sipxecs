@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -71,14 +71,14 @@ public class ManagePhonesTestUi extends WebTestCase {
         int allTableCount = SiteTestHelper.getRowCount(tester, "phone:list");
 
         // empty group, no users
-        selectOption("groupFilter", "seedGroup0");
+        selectOption("group:filter", "seedGroup0");
         SiteTestHelper.submitNoButton(tester);
         SiteTestHelper.assertNoException(tester);
         int emptyTableCount = SiteTestHelper.getRowCount(tester, "phone:list");
         assertTrue(allTableCount > emptyTableCount);
 
         // back to all users
-        selectOption("groupFilter", "- all -");
+        selectOption("group:filter", "- all -");
         SiteTestHelper.submitNoButton(tester);
         int allTableCountAgain = SiteTestHelper.getRowCount(tester, "phone:list");
         assertEquals(allTableCount, allTableCountAgain);

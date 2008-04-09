@@ -10,11 +10,11 @@
 package org.sipfoundry.sipxconfig.site.dialplan.sbc;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.html.Table;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import com.meterware.httpunit.WebTable;
 
 public class InternetCallingTestUi extends WebTestCase {
     public static Test suite() throws Exception {
@@ -29,7 +29,7 @@ public class InternetCallingTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
 
         // assumption true for list bridges at least
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
 
         clickLink("resetInternetCalling");
         clickLink("InternetCalling");
@@ -54,22 +54,22 @@ public class InternetCallingTestUi extends WebTestCase {
         selectOption("common_FlexiblePropertySelection", "Unmanaged SBC");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
-        setFormElement("sbcDeviceName", "sbcDevice1");
-        setFormElement("sbcDeviceAddress", "sbc.example.org");
+        setTextField("sbcDeviceName", "sbcDevice1");
+        setTextField("sbcDeviceAddress", "sbc.example.org");
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
         selectOption("common_FlexiblePropertySelection", "sbcDevice1");
 
-        WebTable auxSbcsTable = getDialog().getWebTableBySummaryOrId("sbc:list");
+        Table auxSbcsTable = tester.getTable("sbc:list");
         assertEquals(1, auxSbcsTable.getRowCount());
 
         // add aditional SBC
         clickLink("sbc:add");
         SiteTestHelper.assertNoUserError(tester);
         selectOption("common_FlexiblePropertySelection", "Unmanaged SBC");
-        setFormElement("sbcDeviceName", "sbcDevice2");
-        setFormElement("sbcDeviceAddress", "sbc.example.net");
+        setTextField("sbcDeviceName", "sbcDevice2");
+        setTextField("sbcDeviceAddress", "sbc.example.net");
         clickButton("form:ok");
         selectOption("common_FlexiblePropertySelection", "sbcDevice2");
         clickButton("form:ok");
@@ -77,14 +77,14 @@ public class InternetCallingTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
 
         // check number of rows in the table after SBC added
-        auxSbcsTable = getDialog().getWebTableBySummaryOrId("sbc:list");
+        auxSbcsTable = tester.getTable("sbc:list");
         assertEquals(2, auxSbcsTable.getRowCount());
         assertTextInTable("sbc:list", "sbc.example.net");
 
         // check number of rows in the table after SBC is deleted
         SiteTestHelper.selectRow(tester, 0, true);
         clickButton("sbc:delete");
-        auxSbcsTable = getDialog().getWebTableBySummaryOrId("sbc:list");
+        auxSbcsTable = tester.getTable("sbc:list");
         assertEquals(1, auxSbcsTable.getRowCount());
         assertTextNotInTable("sbc:list", "sbc.example.net");
     }

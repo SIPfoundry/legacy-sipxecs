@@ -14,7 +14,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -32,7 +32,7 @@ public class PinTokenChangeServletTestUi extends WebTestCase {
     }
     
     public void testUserPinChange() throws Exception {
-        String baseurl = getTestContext().getBaseUrl();
+        String baseurl = getTestContext().getBaseUrl().toExternalForm();
         String urlString = baseurl + "api/change-pintoken";
         URL url = new URL(urlString);
         URLConnection connection = url.openConnection();

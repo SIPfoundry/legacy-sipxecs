@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.net.URL;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;

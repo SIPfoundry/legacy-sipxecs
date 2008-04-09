@@ -13,7 +13,7 @@ import junit.framework.Test;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 public class EditPermissionTestUi extends WebTestCase {
 
@@ -23,19 +23,19 @@ public class EditPermissionTestUi extends WebTestCase {
 
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        tester.beginAt(SiteTestHelper.TEST_PAGE_URL);
-        clickLink("toggleAdmin");
+        SiteTestHelper.home(tester);
+        tester.clickLink("toggleNavigation");        
         clickLink("menu.permissions");
     }
 
     public void testAddDuplicateCustomPermission() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLink("permissions:add");
-        setFormElement("label", "duplicate");
+        setTextField("label", "duplicate");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
         clickLink("permissions:add");
-        setFormElement("label", "duplicate");
+        setTextField("label", "duplicate");
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);        
     }

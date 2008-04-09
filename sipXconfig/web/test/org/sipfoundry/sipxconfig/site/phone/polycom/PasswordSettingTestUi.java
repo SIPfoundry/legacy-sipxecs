@@ -10,11 +10,10 @@
 package org.sipfoundry.sipxconfig.site.phone.polycom;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.phone.PhoneTestHelper;
-import org.w3c.dom.Element;
 
 public class PasswordSettingTestUi extends WebTestCase {
  
@@ -25,7 +24,6 @@ public class PasswordSettingTestUi extends WebTestCase {
     }
     
     protected void setUp() throws Exception {
-        super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
         m_helper = new PhoneTestHelper(tester);
         m_helper.reset();
@@ -37,12 +35,11 @@ public class PasswordSettingTestUi extends WebTestCase {
     
     public void testEditSipSetttings() {
         m_helper.seedLine(1);
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("ManagePhones");        
         clickLinkWithText(SiteTestHelper.TEST_USER);
         clickLinkWithText("Credentials");
         clickLink("setting:toggle");
-        Element passwordField = getDialog().getElement("setting:password");    
-        assertEquals("password", passwordField.getAttribute("type"));
+        assertEquals("password", getElementAttributByXPath("//input[@id='setting:password']", "type"));
     }
 }

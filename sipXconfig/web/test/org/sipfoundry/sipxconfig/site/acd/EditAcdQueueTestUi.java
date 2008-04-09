@@ -10,13 +10,11 @@
 package org.sipfoundry.sipxconfig.site.acd;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.ExpectedRow;
-import net.sourceforge.jwebunit.ExpectedTable;
+import net.sourceforge.jwebunit.html.Row;
+import net.sourceforge.jwebunit.html.Table;
 
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class EditAcdQueueTestUi extends ListWebTestCase {
     public static Test suite() throws Exception {
@@ -53,13 +51,7 @@ public class EditAcdQueueTestUi extends ListWebTestCase {
 
     protected void setAddParams(String[] names, String[] values) {
         super.setAddParams(names, values);
-        initUploadFields();
-    }
-
-    protected void initUploadFields() {
-        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
-                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
-                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        SiteTestHelper.initUploadFields(tester, "EditAcdQueueTestUi");
     }
 
     public void testDisplayEdit() throws Exception {
@@ -99,7 +91,7 @@ public class EditAcdQueueTestUi extends ListWebTestCase {
         selectOption("enumListenOnChangeField", "Queue");
 
         // re-initialize upload fields as previous set refreshes page
-        initUploadFields();
+        SiteTestHelper.initUploadFields(tester, "EditAcdQueueTestUi");
 
         selectOption("enumField", "Q1");
         clickButton("form:ok");
@@ -108,11 +100,11 @@ public class EditAcdQueueTestUi extends ListWebTestCase {
 
         assertEquals(3, SiteTestHelper.getRowCount(tester, getTableId()));
         clickLink("linkColumn");
-        ExpectedTable expectedTable = new ExpectedTable();
-        expectedTable.appendRow(new ExpectedRow(new String[] {
+        Table expectedTable = new Table();
+        expectedTable.appendRow(new Row(new String[] {
             "Q1", "description 1", ""
         }));
-        expectedTable.appendRow(new ExpectedRow(new String[] {
+        expectedTable.appendRow(new Row(new String[] {
             "Q2", "description 2", "Q1"
         }));
 

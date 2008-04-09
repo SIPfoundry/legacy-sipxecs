@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -44,7 +44,7 @@ public class PhoneModelsTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         clickLink("group:edit");
         SiteTestHelper.assertNoException(getTester());
-        assertFormElementEquals("name", "seedGroup0");
+        assertTextFieldEquals("item:name", "seedGroup0");
         clickButton("form:ok");
         assertLinkPresentWithText("Polycom SoundPoint IP 300");
     }

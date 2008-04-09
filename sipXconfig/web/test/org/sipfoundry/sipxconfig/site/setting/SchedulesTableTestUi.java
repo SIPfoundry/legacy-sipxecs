@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.setting;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -24,7 +24,7 @@ public class SchedulesTableTestUi extends WebTestCase {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
     }
 
     public void testAddDeleteForwardingRulesUserSchedule() throws Exception {
@@ -36,14 +36,14 @@ public class SchedulesTableTestUi extends WebTestCase {
         //go to schedules and add "userSchedule" schedule
         clickLink("link:schedules");
         clickLink("link:addSchedule");
-        setFormElement("item:name", "userSchedule");
+        setTextField("item:name", "userSchedule");
         clickLink("addPeriod");
         submit("form:ok");
 
         //go to rings and add ring with "userSchedule" schedule
         clickLink("link:forwarding");
         clickLink("addRingLink");
-        setFormElement("forward", "200");
+        setTextField("forward", "200");
         selectOption("schedule", "userSchedule");
         submit("form:apply");
 
@@ -56,7 +56,7 @@ public class SchedulesTableTestUi extends WebTestCase {
 
         //go to rings and assume ring switched to "Always" schedules
         clickLink("link:forwarding");
-        SiteTestHelper.assertOptionSelected(getTester(), "schedule", "Always");
+        getTester().assertSelectedOptionEquals("schedule", "Always");
 
         //cleanup (delete ring)
         clickLinkWithText("Delete");
@@ -71,20 +71,20 @@ public class SchedulesTableTestUi extends WebTestCase {
         //go to groups and create "newGroup" group
         clickLink("menu.userGroups");
         clickLink("AddGroup");
-        setFormElement("item:name", "newGroup");
+        setTextField("item:name", "newGroup");
         submit("form:ok");
 
         //create "groupSchedule" schedule for "newGroup" group
         clickLinkWithText("newGroup");
         clickLink("group:addSchedules");
-        setFormElement("item:name", "groupSchedule");
+        setTextField("item:name", "groupSchedule");
         clickLink("addPeriod");
         submit("form:ok");
 
         //edit test user and assing it to newly created group
         clickLink("menu.users");
         clickLinkWithText("testuser");
-        setFormElement("groups", "newGroup");
+        setTextField("groups", "newGroup");
         submit("form:ok");
 
         //login as the testuser, create new ring and assing it to groupSchedule
@@ -94,7 +94,7 @@ public class SchedulesTableTestUi extends WebTestCase {
         clickLink("toggleNavigation");
         clickLink("menu.callForwarding");
         clickLink("addRingLink");
-        setFormElement("forward", "200");
+        setTextField("forward", "200");
         selectOption("schedule", "groupSchedule");
         submit("form:apply");
 
@@ -115,7 +115,7 @@ public class SchedulesTableTestUi extends WebTestCase {
         clickLink("loginFirstTestUser");
         clickLink("toggleNavigation");
         clickLink("menu.callForwarding");
-        SiteTestHelper.assertOptionSelected(getTester(), "schedule", "Always");
+        getTester().assertSelectedOptionEquals("schedule", "Always");
 
         //cleanup (delete ring)
         clickLinkWithText("Delete");
@@ -131,7 +131,7 @@ public class SchedulesTableTestUi extends WebTestCase {
         clickLink("menu.dialPlans");
         clickLink("link:schedules");
         clickLink("addSchedule");
-        setFormElement("item:name", "dialPlanSchedule");
+        setTextField("item:name", "dialPlanSchedule");
         clickLink("addPeriod");
         submit("form:ok");
 
@@ -139,7 +139,7 @@ public class SchedulesTableTestUi extends WebTestCase {
         clickLink("link:dialingRules");
         selectOption("rule:type", "Custom");
         checkCheckbox("item:enabled");
-        setFormElement("item:name", "customRule");
+        setTextField("item:name", "customRule");
         selectOption("schedule", "dialPlanSchedule");
         submit("form:ok");
 
@@ -152,7 +152,7 @@ public class SchedulesTableTestUi extends WebTestCase {
 
         //go back to dialing plans and check that "customRule" rule switched to "Always" schedule
         clickLinkWithText("customRule");
-        SiteTestHelper.assertOptionSelected(getTester(), "schedule", "Always");
+        getTester().assertSelectedOptionEquals("schedule", "Always");
 
         //cleanup (delete custom rule)
         submit("form:cancel");

@@ -14,8 +14,6 @@ import junit.framework.Test;
 import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class EditBridgeTestUi extends ListWebTestCase {
 
@@ -32,14 +30,12 @@ public class EditBridgeTestUi extends ListWebTestCase {
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("resetConferenceBridgeContext");
         clickLink("EditBridge");
         setWorkingForm("form");
-        setFormElement("name", "bridge_test");
-        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
-                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
-                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        setTextField("name", "bridge_test");
+        SiteTestHelper.initUploadFields(tester, "EditBridgeTestUi");
         clickButton("form:apply");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
@@ -62,16 +58,12 @@ public class EditBridgeTestUi extends ListWebTestCase {
     }
 
     protected void clickAddLink() throws Exception {
-        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
-                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
-                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        SiteTestHelper.initUploadFields(tester, "EditBridgeTestUi");
         super.clickAddLink();
     }
 
     protected void clickDeleteButton() {
-        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
-                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
-                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        SiteTestHelper.initUploadFields(tester, "EditBridgeTestUi");
         super.clickDeleteButton();
     }
 }

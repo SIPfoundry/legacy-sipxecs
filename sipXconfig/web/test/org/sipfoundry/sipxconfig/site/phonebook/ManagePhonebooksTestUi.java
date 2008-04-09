@@ -10,11 +10,10 @@
 package org.sipfoundry.sipxconfig.site.phonebook;
 
 import junit.framework.Test;
+import net.sourceforge.jwebunit.junit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTester;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import net.sourceforge.jwebunit.WebTestCase;
-import net.sourceforge.jwebunit.WebTester;
 
 public class ManagePhonebooksTestUi extends WebTestCase {
 
@@ -48,8 +47,8 @@ public class ManagePhonebooksTestUi extends WebTestCase {
     public static void seedPhonebook(WebTester tester, String name) {        
         SiteTestHelper.home(tester);
         tester.clickLink("link:phonebook");        
-        SiteTestHelper.initUploadFields(tester.getDialog().getForm(), "EditPhonebook");
-        tester.setFormElement("name", name);
+        SiteTestHelper.initUploadFields(tester, "EditPhonebook");
+        tester.setTextField("name", name);
         tester.clickButton("form:apply");        
     }
 }

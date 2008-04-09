@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.phone.PhoneTestHelper;

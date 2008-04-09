@@ -13,7 +13,8 @@ import java.io.File;
 import java.io.IOException;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
+
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
@@ -37,7 +38,7 @@ public class RestorePageTestUi extends WebTestCase {
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("toggleNavigation");
         clickLink("menu.restore");
         SiteTestHelper.assertNoException(getTester());
@@ -130,7 +131,7 @@ public class RestorePageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         assertElementPresent("configuration");
         assertElementPresent("voicemail");
-        assertSubmitButtonValue("uploadbutton", "Restore");
+        assertButtonPresentWithText("Restore");
     }
 
     public void testShowLogPage() throws Exception {

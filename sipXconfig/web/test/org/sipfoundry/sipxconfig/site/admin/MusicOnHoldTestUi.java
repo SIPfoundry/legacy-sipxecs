@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.site.admin;
 import java.io.File;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
@@ -31,18 +31,18 @@ public class MusicOnHoldTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
         m_tempFile = File.createTempFile("MusicOnHoldTestUi", null);
         m_wavFile = new File(TestUtil.getTestSourceDirectory(EditAutoAttendantTestUi.class) + "/"
-                + EditAutoAttendantTestUi.PROMPT_TEST_FILE );
+                + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
     }
 
     public void testDisplay() throws Exception {
         clickLink("MusicOnHold");
         SiteTestHelper.assertNoException(tester);
-        getDialog().getForm().setParameter("promptUpload", m_tempFile);
+        SiteTestHelper.setUpload(tester, "promptUpload", m_tempFile);
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
-        getDialog().getForm().setParameter("promptUpload", m_wavFile);
+        SiteTestHelper.setUpload(tester, "promptUpload", m_wavFile);
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
-        assertOptionEquals("prompt", m_wavFile.getName());
+        assertSelectedOptionEquals("prompt", m_tempFile.getName());
     }
 }

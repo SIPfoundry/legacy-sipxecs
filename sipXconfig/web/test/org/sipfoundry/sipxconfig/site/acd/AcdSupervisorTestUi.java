@@ -13,7 +13,7 @@ import junit.framework.Test;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 public class AcdSupervisorTestUi extends WebTestCase {
     private static String[] NAVIGATION_LINKS = { 
@@ -70,13 +70,13 @@ public class AcdSupervisorTestUi extends WebTestCase {
     
     public void testMultipleServers() {
         clickLink("acdServerPage");
-        setFormElement("hostField", "localhost0");
+        setTextField("hostField", "localhost0");
         clickButton("form:apply");
 
         logout(); // kludge edit page persists id, clear it
 
         clickLink("acdServerPage");
-        setFormElement("hostField", "localhost1");
+        setTextField("hostField", "localhost1");
         clickButton("form:apply");
 
         logout(); // clears acd server id in session

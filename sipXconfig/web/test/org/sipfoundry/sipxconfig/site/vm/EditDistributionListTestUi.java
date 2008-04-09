@@ -13,7 +13,7 @@ import junit.framework.Test;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 public class EditDistributionListTestUi extends WebTestCase {
     final String NEW_USER_USERNAME[] = {
@@ -36,7 +36,7 @@ public class EditDistributionListTestUi extends WebTestCase {
 
     private void goToDistributionListsPage() {
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("resetVoicemail");
         clickLink("loginFirstTestUser");
         clickLink("toggleNavigation");
@@ -46,18 +46,18 @@ public class EditDistributionListTestUi extends WebTestCase {
 
     public void testSetListWithValidUser() throws Exception {
         SiteTestHelper.assertNoException(getTester());
-        setFormElement("subject", "200");
+        setTextField("subject", "200");
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
-        assertFormElementEquals("subject", "200");
+        assertTextFieldEquals("subject", "200");
     }
 
     public void testNonExistentUser() throws Exception {
         SiteTestHelper.assertNoException(tester);
-        setFormElement("subject", "2000000000");
+        setTextField("subject", "2000000000");
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
-        assertFormElementEquals("subject", "2000000000");
+        assertTextFieldEquals("subject", "2000000000");
     }
 
     public void testSetListWithValidUserAndNoVoicemailPermission() throws Exception {
@@ -68,10 +68,10 @@ public class EditDistributionListTestUi extends WebTestCase {
         goToDistributionListsPage();
 
         SiteTestHelper.assertNoException(tester);
-        setFormElement("subject", "1111");
+        setTextField("subject", "1111");
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
-        assertFormElementEquals("subject", "1111");
+        assertTextFieldEquals("subject", "1111");
     }
 
     public void testSetListWithTwoValidUsers() throws Exception {
@@ -80,12 +80,12 @@ public class EditDistributionListTestUi extends WebTestCase {
         goToDistributionListsPage();
 
         SiteTestHelper.assertNoException(tester);
-        setFormElement("subject", "200");
-        setFormElement("subject_0", "2222");
+        setTextField("subject", "200");
+        setTextField("subject_0", "2222");
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
-        assertFormElementEquals("subject", "200");
-        assertFormElementEquals("subject_0", "2222");
+        assertTextFieldEquals("subject", "200");
+        assertTextFieldEquals("subject_0", "2222");
     }
 
     public void testSetOneListWithTwoValidUsers() throws Exception {
@@ -93,10 +93,10 @@ public class EditDistributionListTestUi extends WebTestCase {
         goToDistributionListsPage();
 
         SiteTestHelper.assertNoException(tester);
-        setFormElement("subject", "200 2222");
+        setTextField("subject", "200 2222");
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
-        assertFormElementEquals("subject", "200 2222");
+        assertTextFieldEquals("subject", "200 2222");
     }
 
     public void testSetTwoListsWithTwoValidUsers() throws Exception {
@@ -104,12 +104,12 @@ public class EditDistributionListTestUi extends WebTestCase {
         goToDistributionListsPage();
 
         SiteTestHelper.assertNoException(tester);
-        setFormElement("subject", "200");
-        setFormElement("subject_0", "2222");
+        setTextField("subject", "200");
+        setTextField("subject_0", "2222");
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
-        assertFormElementEquals("subject", "200");
-        assertFormElementEquals("subject_0", "2222");
+        assertTextFieldEquals("subject", "200");
+        assertTextFieldEquals("subject_0", "2222");
     }
 
     private void setNoVoicemailPermission(int i) {
@@ -125,10 +125,10 @@ public class EditDistributionListTestUi extends WebTestCase {
     private void addNewUser(int i) {
         SiteTestHelper.home(tester);
         clickLink("NewUser");
-        setFormElement("userId", NEW_USER_USERNAME[i]);
-        setFormElement("password", NEW_USER_PWORD);
-        setFormElement("confirmPassword", NEW_USER_PWORD);
-        setFormElement("aliases", NEW_USER_ALIASES[i]);
+        setTextField("userId", NEW_USER_USERNAME[i]);
+        setTextField("password", NEW_USER_PWORD);
+        setTextField("confirmPassword", NEW_USER_PWORD);
+        setTextField("aliases", NEW_USER_ALIASES[i]);
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
         SiteTestHelper.assertNoException(tester);

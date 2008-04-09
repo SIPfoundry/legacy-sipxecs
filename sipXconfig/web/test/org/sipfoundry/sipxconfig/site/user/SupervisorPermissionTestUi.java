@@ -13,7 +13,7 @@ import junit.framework.Test;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 public class SupervisorPermissionTestUi extends WebTestCase {
     public static Test suite() throws Exception {
@@ -41,12 +41,12 @@ public class SupervisorPermissionTestUi extends WebTestCase {
 
     public void testSetGroups() throws Exception {
         gotoTestUserPermissionPage();
-        setFormElement("supervisorForGroups", "group1");
+        setTextField("supervisorForGroups", "group1");
         clickButton("form:apply");
         gotoTestUserPermissionPage();
-        setFormElement("supervisorForGroups", "group2");
+        setTextField("supervisorForGroups", "group2");
         clickButton("form:apply");
         gotoTestUserPermissionPage();
-        assertFormElementEquals("supervisorForGroups", "group2");
+        assertTextFieldEquals("supervisorForGroups", "group2");
     }
 }

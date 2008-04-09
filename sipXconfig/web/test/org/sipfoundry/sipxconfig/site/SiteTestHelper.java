@@ -14,31 +14,29 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Properties;
 
 import junit.extensions.TestDecorator;
-import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
-
-import com.meterware.httpunit.HttpUnitOptions;
-import com.meterware.httpunit.WebForm;
-import com.meterware.httpunit.WebResponse;
-
-import net.sourceforge.jwebunit.HttpUnitDialog;
-import net.sourceforge.jwebunit.WebTestCase;
-import net.sourceforge.jwebunit.WebTester;
+import net.sourceforge.jwebunit.html.Cell;
+import net.sourceforge.jwebunit.html.Row;
+import net.sourceforge.jwebunit.html.Table;
+import net.sourceforge.jwebunit.htmlunit.HtmlUnitDialog;
+import net.sourceforge.jwebunit.junit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTester;
+import net.sourceforge.jwebunit.util.TestContext;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.sipfoundry.sipxconfig.test.TestUtil;
-import org.w3c.dom.Element;
 
 public class SiteTestHelper {
 
@@ -56,12 +54,12 @@ public class SiteTestHelper {
     public static final String ROW_CHECKBOX = "checkbox";
 
     private static String s_buildDir;
-    
+
     private static final String BASE_URL_RUNNING_WHEN_RUNNING_FROM_ANT = "http://localhost:9999/sipxconfig";
 
     /**
-     * Very convenient when running test site from and ("ant run") and testing
-     * individual web tests from eclipse, not whole test suite.
+     * Very convenient when running test site from and ("ant run") and testing individual web
+     * tests from eclipse, not whole test suite.
      */
     private static String s_baseUrl = BASE_URL_RUNNING_WHEN_RUNNING_FROM_ANT;
 
@@ -99,7 +97,10 @@ public class SiteTestHelper {
             int e = totalFailures(result);
             super.run(result);
             if (e < totalFailures(result)) {
-                ((WebTestCase) getTest()).getDialog().dumpResponse();
+                WebTester tester = ((WebTestCase) getTest()).getTester();
+                if (tester != null) {
+                    System.err.println(tester.getPageSource());
+                }
             }
         }
 
@@ -113,17 +114,15 @@ public class SiteTestHelper {
      */
     public static void home(WebTester tester) {
         home(tester, true);
-
     }
 
     /**
-     * Go to TestPage.html. Log in if the login arg is true. Includes hack for slow machines. And
-     * disables javascript be default too
+     * Go to TestPage.html. Log in if the login arg is true. And disables javascript be default
+     * too
      */
     public static void home(WebTester tester, boolean login) {
-
         // default is to disable javascript, re-enable at will
-        setScriptingEnabled(false);
+        setScriptingEnabled(tester, false);
 
         tester.beginAt(TEST_PAGE_URL);
 
@@ -135,12 +134,6 @@ public class SiteTestHelper {
             tester.clickLink("login");
         }
         tester.clickLink("hideNavigation");
-        // HACK: Webunit doesn't appear to fully load page, especially
-        // when the machine you're running it on is slow and you're
-        // running a batch of tests, calling beginAt("/") twice seems
-        // to get webunit to catch up.
-        tester.beginAt(TEST_PAGE_URL);
-        assertNoException(tester);
     }
 
     /**
@@ -149,9 +142,8 @@ public class SiteTestHelper {
     public static void assertNoException(WebTester tester) {
         try {
             tester.assertElementNotPresent("exceptionDisplay");
-            Assert.assertFalse("Exception".equals(tester.getDialog().getResponsePageTitle()));
         } catch (AssertionFailedError e) {
-            tester.dumpResponse(System.err);
+            System.err.println(tester.getPageSource());
             throw e;
         }
     }
@@ -162,20 +154,12 @@ public class SiteTestHelper {
      */
     public static void assertNoUserError(WebTester tester) {
         assertNoException(tester);
-        Element element = tester.getDialog().getElement("user:error");
-        if (null != element) {
-            tester.dumpResponse(System.err);
-            Assert.fail("User error on page: " + element.getFirstChild().getNodeValue());
-        }
+        tester.assertElementNotPresent("user:error");
     }
 
     public static void assertUserError(WebTester tester) {
         assertNoException(tester);
-        Element element = tester.getDialog().getElement("user:error");
-        if (null == element) {
-            tester.dumpResponse(System.err);
-            Assert.fail("Expected user error on the page.");
-        }
+        tester.assertElementPresent("user:error");
     }
 
     /**
@@ -183,7 +167,8 @@ public class SiteTestHelper {
      * table header.
      */
     public static int getRowCount(WebTester tester, String table) {
-        return tester.getDialog().getWebTableBySummaryOrId(table).getRowCount();
+        tester.assertTablePresent(table);
+        return tester.getTable(table).getRowCount();
     }
 
     /**
@@ -227,6 +212,10 @@ public class SiteTestHelper {
         tester.assertCheckboxNotSelected(field);
     }
 
+    public static void assertTextFieldEmpty(WebTester tester, String field) {
+        tester.assertTextFieldEquals(field, StringUtils.EMPTY);
+    }
+
     /**
      * Translates between Tapestry index and normal index
      * 
@@ -239,11 +228,6 @@ public class SiteTestHelper {
             suffix = "_" + (index - 1);
         }
         return id + suffix;
-    }
-
-    public static void assertOptionSelected(WebTester tester, String formElement, String expected) {
-        String value = tester.getDialog().getSelectedOption(formElement);
-        Assert.assertEquals(expected, value);
     }
 
     public static String getBaseUrl() {
@@ -268,8 +252,7 @@ public class SiteTestHelper {
      */
     public static String getArtificialSystemRootDirectory() {
         if (null == s_artificialSystemRoot) {
-            s_artificialSystemRoot = TestUtil.getTestOutputDirectory("web")
-                    + "/artificial-system-root";
+            s_artificialSystemRoot = TestUtil.getTestOutputDirectory("web") + "/artificial-system-root";
         }
         return s_artificialSystemRoot;
     }
@@ -336,8 +319,7 @@ public class SiteTestHelper {
         sysProps.setProperty("localTftp.uploadDirectory", systemDirectory + "/tftproot");
         sysProps.setProperty("vxml.promptsDirectory", systemDirectory + "/prompts");
         sysProps.setProperty("vxml.scriptsDirectory", systemDirectory + "/aa_vxml");
-        sysProps.setProperty("orbitsGenerator.audioDirectory", systemDirectory
-                + "/parkserver/music");
+        sysProps.setProperty("orbitsGenerator.audioDirectory", systemDirectory + "/parkserver/music");
         sysProps.setProperty("acdQueue.audioDirectory", systemDirectory + "/acd/audio");
         sysProps.setProperty("pagingConfiguration.audioDirectory", systemDirectory + "/sipxpage/music");
         TestUtil.saveSysDirProperties(sysProps, args[0]);
@@ -352,8 +334,7 @@ public class SiteTestHelper {
     private static Properties getSystemProperties() {
         if (s_sysProps == null) {
             s_sysProps = new Properties();
-            File sipxconfig = new File(getBuildDirectory()
-                    + "/tests/war/WEB-INF/classes/sipxconfig.properties");
+            File sipxconfig = new File(getBuildDirectory() + "/tests/war/WEB-INF/classes/sipxconfig.properties");
             try {
                 InputStream sipxconfigSteam = new FileInputStream(sipxconfig);
                 s_sysProps.load(sipxconfigSteam);
@@ -362,33 +343,6 @@ public class SiteTestHelper {
             }
         }
         return s_sysProps;
-    }
-
-    /**
-     * Utility function to click on Tapestry submit forms without a button
-     * 
-     * Make JWebUnit happy: it does not know we submitted form request independently, we need to
-     * reinject the response back into the dialog. I could not find any reasonable way of doing
-     * that, so I used reflection to set private field. I guess being able to test more pages is
-     * the most important factor here.
-     * 
-     * There is no guarantee that it will work with new version of Tapestry or JWebUnit
-     * 
-     */
-    public static void submitNoButton(WebTester tester) throws Exception {
-        // submit the form after setting hidden field
-        HttpUnitDialog dialog = tester.getDialog();
-        WebForm form = dialog.getForm();
-
-        WebResponse response = form.submitNoButton();
-
-        // set response directly in current JWebUnit object
-        Class klass = dialog.getClass();
-        Field respField = klass.getDeclaredField("resp");
-        respField.setAccessible(true);
-        respField.set(dialog, response);
-
-        Assert.assertSame(tester.getDialog().getResponse(), response);
     }
 
     public static void seedUser(WebTester tester) {
@@ -407,10 +361,18 @@ public class SiteTestHelper {
         SiteTestHelper.home(tester);
         for (int i = 0; i < count; i++) {
             tester.clickLink(pageLinkId);
-            tester.setFormElement("name", "seedGroup" + i);
+            tester.setTextField("item:name", "seedGroup" + i);
             tester.clickButton("form:ok");
             SiteTestHelper.home(tester);
         }
+    }
+
+    /**
+     * Utility function to click on Tapestry submit forms without a button
+     */
+    public static void submitNoButton(WebTester tester) throws Exception {
+        // submit the form after setting hidden field
+        tester.submit();
     }
 
     /**
@@ -424,38 +386,73 @@ public class SiteTestHelper {
      * @param form form for which upload fields will be initialized
      * @param fileNamePrefix at least 3 chatracters - use test name
      */
-    public static void initUploadFields(WebForm form, String fileNamePrefix) {
+    public static void initUploadFields(WebTester tester, String fileNamePrefix) {
+        tester.assertFormPresent();
+
         try {
             File file = File.createTempFile(fileNamePrefix, null);
-            String[] parameterNames = form.getParameterNames();
-            for (int i = 0; i < parameterNames.length; i++) {
-                String paramName = parameterNames[i];
-                if (paramName.startsWith("promptUpload")) {
-                    form.setParameter(paramName, file);
-                }
-            }
+            // TODO - checks if it's needed
+            // String[] parameterNames = form.getParameterNames();
+            // for (int i = 0; i < parameterNames.length; i++) {
+            // String paramName = parameterNames[i];
+            // if (paramName.startsWith("promptUpload")) {
+            // form.setParameter(paramName, file);
+            // }
+            // }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void initUploadFieldsWithFile(WebForm form, String filePath) {
-        File file = new File(filePath);
-        String[] parameterNames = form.getParameterNames();
-        for (int i = 0; i < parameterNames.length; i++) {
-            String paramName = parameterNames[i];
-            if (paramName.startsWith("promptUpload")) {
-                form.setParameter(paramName, file);
-            }
-        }
+    public static void initUploadFieldsWithFile(WebTester tester, String filePath) {
+        // TODO: check if needed
+        // File file = new File(filePath);
+        // String[] parameterNames = form.getParameterNames();
+        // for (int i = 0; i < parameterNames.length; i++) {
+        // String paramName = parameterNames[i];
+        // if (paramName.startsWith("promptUpload")) {
+        // form.setParameter(paramName, file);
+        // }
+        // }
     }
 
     /**
      * Turn on/off javascript, make sure to restore state to true after you're done
      */
-    public static boolean setScriptingEnabled(boolean enabled) {
-        boolean old = HttpUnitOptions.isScriptingEnabled();
-        HttpUnitOptions.setScriptingEnabled(enabled);
-        return old;
+    public static boolean setScriptingEnabled(WebTester tester, boolean enabled) {
+        // FIXME: always switch off - dojo is not parsed correctly
+        tester.setScriptingEnabled(enabled);
+        return false;
+    }
+
+    public static String getCellAsText(Table table, int i, int j) {
+        ArrayList rows = table.getRows();
+        Row row = (Row) rows.get(i);
+        Cell cell = (Cell) row.getCells().get(j);
+        return cell.getValue();
+    }
+
+    public static int getColumnCount(Table table) {
+        ArrayList rows = table.getRows();
+        Row row = (Row) rows.get(0);
+        return row.getCellCount();
+    }
+
+    @SuppressWarnings("deprecation")
+    public static void clickSubmitLink(WebTester tester, String linkName) {
+        TestContext testContext = tester.getTestContext();
+        HtmlUnitDialog dialog = (HtmlUnitDialog) tester.getDialog();
+
+        tester.submit();
+    }
+
+    public static void setUpload(WebTester tester, String element, File f) {
+        // TODO: implement this
+        // assertTrue(getDialog().getForm().hasParameterNamed("promptUpload"));
+        // getDialog().getForm().setParameter("promptUpload", f);
+    }
+
+    public static void dumpPage(WebTester webTester) {
+        System.err.println(webTester.getPageSource());
     }
 }

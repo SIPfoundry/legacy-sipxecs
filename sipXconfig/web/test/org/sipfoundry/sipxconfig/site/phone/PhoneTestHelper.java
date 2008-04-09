@@ -9,7 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
-import net.sourceforge.jwebunit.WebTester;
+
+import net.sourceforge.jwebunit.junit.WebTester;
 
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -49,7 +50,7 @@ public class PhoneTestHelper {
             String serNum = "000000000000" + i;
             endpoint[i].setSerialNumber(serNum.substring(serNum.length() - 12));
             m_tester.clickLink("NewPhone");
-            m_tester.setFormElement("serialNumber", endpoint[i].getSerialNumber());
+            m_tester.setTextField("phone:serialNumber", endpoint[i].getSerialNumber());
             m_tester.clickButton("form:ok");
             SiteTestHelper.home(m_tester);
 	    }

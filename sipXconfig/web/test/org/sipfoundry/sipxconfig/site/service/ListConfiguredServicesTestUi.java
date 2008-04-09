@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.service;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -24,7 +24,7 @@ public class ListConfiguredServicesTestUi extends WebTestCase {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("resetConfiguredServices");
         clickLink("link:configuredServices");
     }
@@ -46,8 +46,8 @@ public class ListConfiguredServicesTestUi extends WebTestCase {
     private void seedNtpService(String name) {
         selectOption("newService", "NTP");
         assertElementPresent("server:form");
-        setFormElement("name", name);
-        setFormElement("address", "1.1.1.1");
+        setTextField("name", name);
+        setTextField("address", "1.1.1.1");
         clickButton("form:ok");        
     }
 

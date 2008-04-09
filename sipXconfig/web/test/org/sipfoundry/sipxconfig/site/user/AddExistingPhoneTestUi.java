@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.phone.PhoneTestHelper;
@@ -42,9 +42,9 @@ public class AddExistingPhoneTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
         clickLink("addUser");
         SiteTestHelper.assertNoUserError(tester);
-        setFormElement("userId", "test_user");
-        setFormElement("cp:password", "123");
-        setFormElement("cp:confirmPassword", "123");
+        setTextField("userId", "test_user");
+        setTextField("cp:password", "123");
+        setTextField("cp:confirmPassword", "123");
         submit("form:ok");
         
         //assign created phone to user

@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -23,7 +23,7 @@ public class EditCallGroupTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.seedUser(getTester());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("resetCallGroupContext");
         clickLink("NewCallGroup");
         setFormData();
@@ -91,7 +91,6 @@ public class EditCallGroupTestUi extends WebTestCase {
     }
 
     private void addUser() throws Exception {
-        // SiteTestHelper.clickSubmitLink(getTester(), "addRow");
         clickLink("callgroup:addRing");
 
         clickButton("user:search");
@@ -100,23 +99,23 @@ public class EditCallGroupTestUi extends WebTestCase {
     }
 
     private void setFormData() {
-        setFormElement("name", "testName");
-        setFormElement("extension", "123");
+        setTextField("item:name", "testName");
+        setTextField("item:extension", "123");
     }
 
     /** Make sure that one cannot enable 2 huntgroups with the same name */
     public void testEnableDuplicate() throws Exception {
-        checkCheckbox("enabled");
-        setFormElement("name", "xxxx");
-        setFormElement("extension", "123");
+        checkCheckbox("item:enabled");
+        setTextField("item:name", "xxxx");
+        setTextField("item:extension", "123");
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
 
         clickLink("callgroups:add");
-        checkCheckbox("enabled");
-        setFormElement("name", "xxxx");
-        setFormElement("extension", "123");
+        checkCheckbox("item:enabled");
+        setTextField("item:name", "xxxx");
+        setTextField("item:extension", "123");
         clickButton("form:ok");
         // this time we expect page will complain
         SiteTestHelper.assertUserError(tester);

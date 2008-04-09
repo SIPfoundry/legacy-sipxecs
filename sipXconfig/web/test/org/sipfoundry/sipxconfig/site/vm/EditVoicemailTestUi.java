@@ -13,7 +13,7 @@ import junit.framework.Test;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 public class EditVoicemailTestUi extends WebTestCase {
 
@@ -25,7 +25,7 @@ public class EditVoicemailTestUi extends WebTestCase {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
         SiteTestHelper.home(getTester());    
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("resetVoicemail");
         clickLink("loginFirstTestUser");              
         clickLink("ManageVoicemail");
@@ -33,7 +33,7 @@ public class EditVoicemailTestUi extends WebTestCase {
     }
     
     public void testSave() throws Exception {
-        setFormElement("subject", "edit test");
+        setTextField("subject", "edit test");
         clickButton("form:ok");
         assertTextInTable("voicemail:list", "edit test");
     }

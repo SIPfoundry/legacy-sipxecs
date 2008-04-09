@@ -10,11 +10,10 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.html.Table;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import com.meterware.httpunit.WebTable;
 
 public class JobStatusPageTestUi extends WebTestCase {
     public static Test suite() throws Exception {
@@ -33,18 +32,18 @@ public class JobStatusPageTestUi extends WebTestCase {
         clickLink("jobs:populate");
         clickLink("JobStatusPage");
         SiteTestHelper.assertNoException(tester);
-        WebTable table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
+        Table table = tester.getTable("jobs:list");
         assertEquals(5, table.getRowCount());
 
         // refresh table
         submit("refresh");
         // clickButton("Refresh");
-        table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
+        table = tester.getTable("jobs:list");
         assertEquals(5, table.getRowCount());
 
-        // remove finishedjobs
+        // remove finished jobs
         submit("remove");
-        table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
+        table = tester.getTable("jobs:list");
         assertEquals(4, table.getRowCount());
     }
 
@@ -52,12 +51,12 @@ public class JobStatusPageTestUi extends WebTestCase {
         clickLink("jobs:populate");
         clickLink("JobStatusPage");
         SiteTestHelper.assertNoException(tester);
-        WebTable table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
+        Table table = tester.getTable("jobs:list");
         assertEquals(5, table.getRowCount());
 
-        // remove finishedjobs
+        // remove finished jobs
         submit("clear");
-        table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
+        table = tester.getTable("jobs:list");
         assertEquals(1, table.getRowCount());
     }
 }

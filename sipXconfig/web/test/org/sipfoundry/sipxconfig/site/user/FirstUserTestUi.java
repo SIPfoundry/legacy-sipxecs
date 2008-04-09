@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -55,8 +55,8 @@ public class FirstUserTestUi extends WebTestCase {
 
         // Fill in the PIN and create the superadmin user
         final String PIN = "ch33zeW1z";
-        setFormElement("password", PIN);
-        setFormElement("confirmPassword", PIN);
+        setTextField("cp:password", PIN);
+        setTextField("cp:confirmPassword", PIN);
         clickButton("form:apply");
         assertCopacetic();
 

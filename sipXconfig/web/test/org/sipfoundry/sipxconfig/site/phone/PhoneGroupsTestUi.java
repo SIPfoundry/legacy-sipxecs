@@ -10,13 +10,13 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class PhoneGroupsTestUi extends WebTestCase {
 
-    PhoneTestHelper tester;
+    private PhoneTestHelper m_phoneTester;
 
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(PhoneGroupsTestUi.class);
@@ -25,12 +25,12 @@ public class PhoneGroupsTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        tester = new PhoneTestHelper(getTester());
+        m_phoneTester = new PhoneTestHelper(getTester());
     }
 
     public void testDisplay() {
-        tester.reset();
-        tester.seedGroup(2);
+        m_phoneTester.reset();
+        m_phoneTester.seedGroup(2);
         SiteTestHelper.home(getTester());
         clickLink("PhoneGroups");
         SiteTestHelper.assertNoException(getTester());
@@ -45,8 +45,8 @@ public class PhoneGroupsTestUi extends WebTestCase {
     }
 
     public void testMoveGroups() {
-        tester.reset();
-        tester.seedGroup(3);
+        m_phoneTester.reset();
+        m_phoneTester.seedGroup(3);
         SiteTestHelper.home(getTester());
         clickLink("PhoneGroups");
         SiteTestHelper.selectRow(getTester(), 1, true);
@@ -81,8 +81,8 @@ public class PhoneGroupsTestUi extends WebTestCase {
     }
 
     public void testDelete() {
-        tester.reset();
-        tester.seedGroup(3);
+        m_phoneTester.reset();
+        m_phoneTester.seedGroup(3);
         SiteTestHelper.home(getTester());
         clickLink("PhoneGroups");
         SiteTestHelper.selectRow(getTester(), 1, true);

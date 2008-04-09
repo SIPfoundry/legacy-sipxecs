@@ -10,12 +10,11 @@
 package org.sipfoundry.sipxconfig.site.dialplan;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.html.Table;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.gateway.GatewaysTestUi;
-
-import com.meterware.httpunit.WebTable;
 
 /**
  * DialPlanEditTestUi
@@ -66,7 +65,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
         clickLink("resetDialPlans");
         SiteTestHelper.assertNoException(tester);
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("FlexibleDialPlan");
     }
 
@@ -78,7 +77,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         }
         clickButton("dialplan:delete");
         // should be empty now
-        WebTable rulesTable = getDialog().getWebTableBySummaryOrId("dialplan:list");
+        Table rulesTable = getTable("dialplan:list");
         assertEquals(1, rulesTable.getRowCount());
         // test revert
         clickLink("dialplan:revert");
@@ -91,7 +90,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         for (int i = 0; i < DEFAULTS.length; i++) {
             String name = DEFAULTS[i][0];
             clickLinkWithText(name);
-            assertFormElementEquals("name", name);
+            assertTextFieldEquals("name", name);
             assertElementPresent("item:name");
             assertElementPresent("item:enabled");
             assertElementPresent("item:description");
@@ -103,12 +102,12 @@ public class DialPlanEditTestUi extends WebTestCase {
             if (!name.startsWith("Voicemail") && !name.startsWith("AutoAttendant")) {
                 checkGateways();
             }
-            setFormElement("name", "");
+            setTextField("name", "");
             clickButton("form:ok");
             // if validation kicks in we are on the same page
             SiteTestHelper.assertNoException(tester);
             SiteTestHelper.assertUserError(tester);
-            setFormElement("name", name + "changed");
+            setTextField("name", name + "changed");
             clickButton("form:ok");
             // a link corresponding to new name should be in now
             SiteTestHelper.assertNoException(tester);
@@ -128,12 +127,12 @@ public class DialPlanEditTestUi extends WebTestCase {
             assertLinkPresent("pattern:add");
             assertElementPresent("schedule");
 
-            setFormElement("name", row[0]);
-            setFormElement("description", row[2]);
+            setTextField("name", row[0]);
+            setTextField("description", row[2]);
             // dial pattern prefix
-            setFormElement(SiteTestHelper.getIndexedId("prefix", 0), "333");
+            setTextField(SiteTestHelper.getIndexedId("prefix", 0), "333");
             // call pattern prefix
-            setFormElement(SiteTestHelper.getIndexedId("prefix", 1), "444");
+            setTextField(SiteTestHelper.getIndexedId("prefix", 1), "444");
 
             checkAddDeletePattern();
 
@@ -152,10 +151,10 @@ public class DialPlanEditTestUi extends WebTestCase {
             String description = "international description" + i;
             selectOption("ruleTypeSelection", "International");
 
-            setFormElement("name", name);
-            setFormElement("description", description);
+            setTextField("name", name);
+            setTextField("description", description);
             // dial pattern prefix
-            setFormElement("longDistancePrefix", "100" + i);
+            setTextField("longDistancePrefix", "100" + i);
 
             clickButton("form:ok");
 
@@ -169,11 +168,11 @@ public class DialPlanEditTestUi extends WebTestCase {
             String[] row = NAMES[i];
             selectOption("ruleTypeSelection", "Attendant");
 
-            setFormElement("name", row[0]);
-            setFormElement("description", row[2]);
+            setTextField("name", row[0]);
+            setTextField("description", row[2]);
             // dial pattern prefix
-            setFormElement("extension", "33344" + i);
-            setFormElement("autoAttendantAliases", "");
+            setTextField("extension", "33344" + i);
+            setTextField("autoAttendantAliases", "");
 
             clickButton("form:ok");
             SiteTestHelper.assertNoException(tester);
@@ -198,10 +197,10 @@ public class DialPlanEditTestUi extends WebTestCase {
         SiteTestHelper.selectRow(tester, 0, true);
         clickButton("dialplan:move:down");
         SiteTestHelper.assertNoException(getTester());
-        WebTable rulesTable = getTester().getDialog().getWebTableBySummaryOrId("dialplan:list");
-        assertEquals(DEFAULTS[0][0], rulesTable.getCellAsText(2, 1));
-        assertEquals(DEFAULTS[1][0], rulesTable.getCellAsText(1, 1));
-        assertEquals(DEFAULTS[2][0], rulesTable.getCellAsText(3, 1));
+        Table rulesTable = getTable("dialplan:list");
+        assertEquals(DEFAULTS[0][0], SiteTestHelper.getCellAsText(rulesTable, 2, 1));
+        assertEquals(DEFAULTS[1][0], SiteTestHelper.getCellAsText(rulesTable, 1, 1));
+        assertEquals(DEFAULTS[2][0], SiteTestHelper.getCellAsText(rulesTable, 3, 1));
     }
 
     private void checkAddDeletePattern() throws Exception {
@@ -259,10 +258,10 @@ public class DialPlanEditTestUi extends WebTestCase {
 
         // move down one row - no other changes expected
         clickButton("gateway:moveDown");
-        WebTable gatewayTable = getTester().getDialog().getWebTableBySummaryOrId("list:gateway");
-        assertEquals(gateways[0][0], gatewayTable.getCellAsText(2, 1));
-        assertEquals(gateways[1][0], gatewayTable.getCellAsText(1, 1));
-        assertEquals(gateways[2][0], gatewayTable.getCellAsText(3, 1));
+        Table gatewayTable = getTable("list:gateway");
+        assertEquals(gateways[0][0], SiteTestHelper.getCellAsText(gatewayTable, 2, 1));
+        assertEquals(gateways[1][0], SiteTestHelper.getCellAsText(gatewayTable, 1, 1));
+        assertEquals(gateways[2][0], SiteTestHelper.getCellAsText(gatewayTable, 3, 1));
 
         // click the gateway link - and then click cancel
         clickLinkWithText(gateways[0][0]);
@@ -282,16 +281,16 @@ public class DialPlanEditTestUi extends WebTestCase {
         selectOption("actionSelection", gateways[0][0]);
         SiteTestHelper.assertNoException(tester);
         assertEquals(2, SiteTestHelper.getRowCount(tester, "list:gateway"));
-        gatewayTable = getTester().getDialog().getWebTableBySummaryOrId("list:gateway");
-        assertEquals(gateways[0][0], gatewayTable.getCellAsText(1, 1));
+        gatewayTable = getTable("list:gateway");
+        assertEquals(gateways[0][0], SiteTestHelper.getCellAsText(gatewayTable, 1, 1));
     }
 
     public void testAddDeleteCustomSchedule() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLinkWithText("Schedules");
         clickLinkWithText("Add Schedule");
-        setFormElement("name", "customRuleSchedule");
-        setFormElement("description", "Schedule for a custom rule");
+        setTextField("name", "customRuleSchedule");
+        setTextField("description", "Schedule for a custom rule");
         clickLink("addPeriod");
         clickButton("form:ok");
         checkCheckbox("checkbox");
@@ -303,14 +302,14 @@ public class DialPlanEditTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         clickLinkWithText("Schedules");
         clickLinkWithText("Add Schedule");
-        setFormElement("name", "generalSchedule");
-        setFormElement("description", "Schedule for a rule");
+        setTextField("name", "generalSchedule");
+        setTextField("description", "Schedule for a rule");
         clickLink("addPeriod");
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
         clickLinkWithText("Add Schedule");
-        setFormElement("name", "generalSchedule");
+        setTextField("name", "generalSchedule");
         clickLink("addPeriod");
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);

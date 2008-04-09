@@ -12,7 +12,8 @@ package org.sipfoundry.sipxconfig.upload;
 import java.io.File;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.html.Table;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -38,14 +39,14 @@ public class ManageUploadTestUi extends WebTestCase {
         seedUpload();
         SiteTestHelper.home(tester);
         clickLink("link:upload");
-        int tableCount = SiteTestHelper.getRowCount(tester, "upload:list");        
+        int tableCount = SiteTestHelper.getRowCount(tester, "upload:list");
         assertEquals(2, tableCount);
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:delete");
-        int nextTableCount = SiteTestHelper.getRowCount(tester, "upload:list");        
+        int nextTableCount = SiteTestHelper.getRowCount(tester, "upload:list");
         assertEquals(1, nextTableCount);
     }
-    
+
     public void testEmptyActivation() throws Exception {
         seedUpload();
         SiteTestHelper.home(tester);
@@ -53,7 +54,7 @@ public class ManageUploadTestUi extends WebTestCase {
         clickButton("upload:activate");
         SiteTestHelper.assertNoException(tester);
     }
-    
+
     public void testActivation() throws Exception {
         seedUpload();
         SiteTestHelper.home(tester);
@@ -62,14 +63,14 @@ public class ManageUploadTestUi extends WebTestCase {
         // activate
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:activate");
-        String[][] sparseTableCellValues = getDialog().getSparseTableBySummaryOrId("upload:list");
-        assertEquals("Active", sparseTableCellValues[1][1]);
+        Table table = getTable("upload:list");
+        assertEquals("Active", SiteTestHelper.getCellAsText(table, 1, 1));
 
         // inactivate
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:inactivate");
-        sparseTableCellValues = getDialog().getSparseTableBySummaryOrId("upload:list");
-        assertEquals("Inactive", sparseTableCellValues[1][1]);
+        table = getTable("upload:list");
+        assertEquals("Inactive", SiteTestHelper.getCellAsText(table, 1, 1));
     }
     
     public void testActivationOfActiveDeviceFiles() throws Exception {
@@ -80,23 +81,21 @@ public class ManageUploadTestUi extends WebTestCase {
         // activate once
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:activate");
-        String[][] sparseTableCellValues = getDialog().getSparseTableBySummaryOrId("upload:list");
-        assertEquals("Active", sparseTableCellValues[1][1]);
+        String actual = SiteTestHelper.getCellAsText(getTable("upload:list"), 1, 1);
+        assertEquals("Active", actual);
         
-        // activate a second time (should cause user error but no exception)
+        // activate a second time (should cause BySummaryOrIduser error but no exception)
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:activate");
         SiteTestHelper.assertNoException(tester);
-        //SiteTestHelper.assertUserError(tester);
     }
-    
+
     private void seedUpload() throws Exception {
         clickLink("link:newUpload");
-        setFormElement("name", "manage uploads seed");
-        clickButton("form:apply");        
+        setTextField("name", "manage uploads seed");
+        clickButton("form:apply");
         File f = File.createTempFile("manage-upload", ".dat");
-        assertTrue(getDialog().getForm().hasParameterNamed("promptUpload"));
-        getDialog().getForm().setParameter("promptUpload", f);
+        SiteTestHelper.setUpload(tester, "promptUpload", f);
         clickButton("form:ok");
     }
 }

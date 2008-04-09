@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.dialplan;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.gateway.GatewaysTestUi;
@@ -32,43 +32,43 @@ public class DialingRuleTestUi extends WebTestCase {
     public void testScheduleTimeFormat() {
         clickLink("FlexibleDialPlan");
         SiteTestHelper.assertNoException(getTester());
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("link:schedules");
         clickLink("addSchedule");
-        setFormElement("name", "TestSchedule1");
+        setTextField("name", "TestSchedule1");
         clickLink("addPeriod");
-        setFormElement("from", "9:15 AM");
-        setFormElement("to", "6:15 PM");
+        setTextField("from", "9:15 AM");
+        setTextField("to", "6:15 PM");
         clickButton("form:ok");
 
-        getTestContext().getWebClient().setHeaderField("Accept-Language", "de");
+        getTestContext().addRequestHeader("Accept-Language", "de");
         clickLinkWithText("TestSchedule1");
-        assertFormElementEquals("from", "09:15");
-        assertFormElementEquals("to", "18:15");
+        assertTextFieldEquals("from", "09:15");
+        assertTextFieldEquals("to", "18:15");
         clickButton("form:ok");
 
-        getTestContext().getWebClient().setHeaderField("Accept-Language", "en");
+        getTestContext().addRequestHeader("Accept-Language", "en");
         clickLinkWithText("TestSchedule1");
-        assertFormElementEquals("from", "9:15 AM");
-        assertFormElementEquals("to", "6:15 PM");
+        assertTextFieldEquals("from", "9:15 AM");
+        assertTextFieldEquals("to", "6:15 PM");
     }
 
     public void testAddExistingGatewayNewRule() {
         String[] gatewayNames = GatewaysTestUi.addTestGateways(getTester(), 1);
         SiteTestHelper.home(getTester());
-        boolean scripting = SiteTestHelper.setScriptingEnabled(true);
+        boolean scripting = SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("FlexibleDialPlan");
         SiteTestHelper.assertNoException(getTester());
         selectOption("ruleTypeSelection", "Custom");
         assertEquals(1, SiteTestHelper.getRowCount(tester, "list:gateway"));
 
         SiteTestHelper.assertNoException(tester);
-        setFormElement("name", "DialingRulesTestUi_custom");
+        setTextField("name", "DialingRulesTestUi_custom");
         // try adding existing gateways
         selectOption("actionSelection", gatewayNames[0]);
         SiteTestHelper.assertNoException(tester);
         assertEquals(2, SiteTestHelper.getRowCount(tester, "list:gateway"));
-        SiteTestHelper.setScriptingEnabled(scripting);
+        SiteTestHelper.setScriptingEnabled(tester, scripting);
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
     }
@@ -76,7 +76,7 @@ public class DialingRuleTestUi extends WebTestCase {
     public void testAddExistingGatewayExistingRule() {
         String[] gatewayNames = GatewaysTestUi.addTestGateways(getTester(), 1);
         SiteTestHelper.home(getTester());
-        boolean scripting = SiteTestHelper.setScriptingEnabled(true);
+        boolean scripting = SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("FlexibleDialPlan");
         SiteTestHelper.assertNoException(getTester());
         clickLinkWithText("Emergency");
@@ -86,7 +86,7 @@ public class DialingRuleTestUi extends WebTestCase {
         selectOption("actionSelection", gatewayNames[0]);
         SiteTestHelper.assertNoException(tester);
         assertEquals(2, SiteTestHelper.getRowCount(tester, "list:gateway"));
-        SiteTestHelper.setScriptingEnabled(scripting);
+        SiteTestHelper.setScriptingEnabled(tester, scripting);
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
     }
@@ -99,7 +99,7 @@ public class DialingRuleTestUi extends WebTestCase {
         clickLinkWithText("Voicemail");
         SiteTestHelper.assertNoException(tester);
         // it's a submit link: uses java script, does not have id
-        setFormElement("name", "");
+        setTextField("name", "");
         clickButton("form:ok");
         // should fail with the error message
         SiteTestHelper.assertUserError(tester);

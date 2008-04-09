@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.setting;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -43,9 +43,9 @@ public class GroupSettingsTestUi extends WebTestCase {
         clickLink("UserGroups");
         clickLinkWithText("seedGroup0");
         clickLink("group:edit");
-        assertFormElementEquals("name", "seedGroup0");
+        assertTextFieldEquals("name", "seedGroup0");
         // Pick a group name that is very unlikely to collide with any previous names
-        setFormElement("name", "edit-seed-test-" + System.currentTimeMillis());
+        setTextField("name", "edit-seed-test-" + System.currentTimeMillis());
         clickButton("form:ok");
         SiteTestHelper.assertNoException(getTester());
         assertLinkPresent("group:edit");

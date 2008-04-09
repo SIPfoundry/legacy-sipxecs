@@ -10,11 +10,9 @@
 package org.sipfoundry.sipxconfig.site.acd;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class EditAcdAgentTestUi extends WebTestCase {
     public static Test suite() throws Exception {
@@ -24,7 +22,7 @@ public class EditAcdAgentTestUi extends WebTestCase {
     public void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("seedTestUser");
         clickLink("resetAcdContext");
         clickLink("acdServerPage");
@@ -55,7 +53,7 @@ public class EditAcdAgentTestUi extends WebTestCase {
         assertEquals(2, SiteTestHelper.getRowCount(tester, "agent:list"));
 
         SiteTestHelper.selectRow(tester, 0, true);
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAcdAgent");
+        SiteTestHelper.initUploadFields(tester, "EditAcdAgent");
         clickButton("agent:delete");
 
         SiteTestHelper.assertNoException(tester);
@@ -71,11 +69,11 @@ public class EditAcdAgentTestUi extends WebTestCase {
         assertEquals(count + 1, SiteTestHelper.getRowCount(tester, "agent:list"));
 
         SiteTestHelper.selectRow(tester, 0, true);
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAcdAgent");
+        SiteTestHelper.initUploadFields(tester, "EditAcdAgent");        
         clickButton("agent:moveDown");
         SiteTestHelper.assertRowNotSelected(tester, 0);
         SiteTestHelper.assertRowSelected(tester, 1);
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAcdAgent");
+        SiteTestHelper.initUploadFields(tester, "EditAcdAgent");
         clickButton("agent:moveUp");
         SiteTestHelper.assertRowSelected(tester, 0);
         SiteTestHelper.assertRowNotSelected(tester, 1);
@@ -86,7 +84,7 @@ public class EditAcdAgentTestUi extends WebTestCase {
     }
 
     private void addAgent(int i) throws Exception {
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAcdAgent");
+        SiteTestHelper.initUploadFields(tester, "EditAcdAgent");
         clickLink("agent:add");
         SiteTestHelper.assertNoException(tester);
         clickButton("user:search");
@@ -96,9 +94,7 @@ public class EditAcdAgentTestUi extends WebTestCase {
     }
 
     private void setFormData() {
-        setFormElement("name", "testName");
-        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
-                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
-                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        setTextField("item:name", "testName");
+        SiteTestHelper.initUploadFields(tester, "EditAcdAgent");
     }
 }

@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.line;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.phone.PhoneTestHelper;
@@ -47,12 +47,12 @@ public class AddExternalLineTestUi extends WebTestCase {
     
     public void testAddExternalLine() {
         clickLink("AddExternalLine");        
-        setFormElement("displayName", "Dil Bert");
-        setFormElement("userId", "dilbert");
-        setFormElement("password", "1234");
-        setFormElement("confirmPassword", "1234");
-        setFormElement("registrationServer", "frakenberry.org");
-        setFormElement("voiceMail", "2000");
+        setTextField("displayName", "Dil Bert");
+        setTextField("userId", "dilbert");
+        setTextField("password", "1234");
+        setTextField("confirmPassword", "1234");
+        setTextField("registrationServer", "frakenberry.org");
+        setTextField("voiceMail", "2000");
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
@@ -70,13 +70,13 @@ public class AddExternalLineTestUi extends WebTestCase {
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
 
-        setFormElement("userId", "dilbert");
+        setTextField("userId", "dilbert");
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
 
-        setFormElement("password", "1");
-        setFormElement("confirmPassword", "1");
-        setFormElement("registrationServer", "fwd.org");
+        setTextField("password", "1");
+        setTextField("confirmPassword", "1");
+        setTextField("registrationServer", "fwd.org");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
         

@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.user_portal;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -53,25 +53,25 @@ public class UserCallForwardingTestUi extends WebTestCase {
     public void _testAddAddress() throws Exception {
         SiteTestHelper.home(getTester());
         tester.clickLink("resetCallForwarding");
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         tester.clickLink("loginFirstTestUser");
         clickLink("UserCallForwarding");
 
         // Javascript submit link
         clickLink("addRingLink");        
-        setFormElement("number", "123");
+        setTextField("number", "123");
         clickButton("form:apply");
         assertElementPresent("user:success");
 
-        setFormElement("number", "@.%^&");
+        setTextField("number", "@.%^&");
         clickButton("form:apply");
         assertElementPresent("user:error");
 
-        setFormElement("number", "john@example.com");
+        setTextField("number", "john@example.com");
         clickButton("form:apply");
         assertElementPresent("user:success");
 
-        setFormElement("number", "john@example@bogus.com");
+        setTextField("number", "john@example@bogus.com");
         clickButton("form:apply");
         assertElementPresent("user:error");
 
@@ -82,15 +82,15 @@ public class UserCallForwardingTestUi extends WebTestCase {
 
     public void _testAddSchedule() throws Exception {
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("loginFirstTestUser");
         clickLink("toggleNavigation");
         clickLink("menu.callForwarding");
         clickLink("link:forwarding");
         clickLink("addRingLink");
 
-        assertOptionEquals("schedule", "Always");
-        setFormElement("number", "222");
+        assertSelectedOptionEquals("schedule", "Always");
+        setTextField("number", "222");
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
         clickLinkWithText("Delete");
@@ -100,7 +100,7 @@ public class UserCallForwardingTestUi extends WebTestCase {
         clickLink("menu.callForwarding");
         clickLink("link:schedules");
         clickLinkWithText("Add Schedule");
-        setFormElement("name", "schedule");
+        setTextField("name", "schedule");
         clickLink("addPeriod");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
@@ -115,15 +115,15 @@ public class UserCallForwardingTestUi extends WebTestCase {
         clickLink("menu.callForwarding");
         clickLink("link:forwarding");
         clickLink("addRingLink");
-        setFormElement("number", "@#$%");
+        setTextField("number", "@#$%");
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
 
-        setFormElement("number", "222@q.c");
+        setTextField("number", "222@q.c");
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
 
-        setFormElement("number", "222");
+        setTextField("number", "222");
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
 

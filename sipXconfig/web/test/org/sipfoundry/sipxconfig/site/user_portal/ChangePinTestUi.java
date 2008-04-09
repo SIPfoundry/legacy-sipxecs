@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.user_portal;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.TestPage;
@@ -94,9 +94,9 @@ public class ChangePinTestUi extends WebTestCase {
     }
     
     private void changePin(String oldPin, String newPin, String newPinRepeated) {
-        setFormElement("currentPin", oldPin);
-        setFormElement("password", newPin);
-        setFormElement("confirmPassword", newPinRepeated);
+        setTextField("currentPin", oldPin);
+        setTextField("password", newPin);
+        setTextField("confirmPassword", newPinRepeated);
         clickButton("form:apply");        
     }
     

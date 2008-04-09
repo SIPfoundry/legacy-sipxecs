@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -21,7 +21,7 @@ public class BackupPageTestUi extends WebTestCase {
 
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.home(getTester());
+        SiteTestHelper.home(tester);
         clickLink("BackupPage");
     }
 
@@ -30,43 +30,42 @@ public class BackupPageTestUi extends WebTestCase {
      * would have to send mock backup shell script to artificial root.
      */
     public void testBackupNow() {
-        SiteTestHelper.assertNoException(getTester());
+        SiteTestHelper.assertNoException(tester);
         clickButton("backup:now");
-        SiteTestHelper.assertNoException(getTester());
+        SiteTestHelper.assertNoException(tester);
     }
 
     /**
      * Does not check if backup was successful - just checks if no Tapestry exceptions show up
      */
     public void testOk() {
-        SiteTestHelper.assertNoException(getTester());
-        checkCheckbox("checkVoicemail");
-        checkCheckbox("checkConfigs");
-        selectOption("limitCount", "10");
+        SiteTestHelper.assertNoException(tester);
+        checkCheckbox("backup:check:voicemail");
+        checkCheckbox("backup:check:configs");
+        selectOption("backup:limit", "10");
         checkCheckbox("dailyScheduleEnabled");
         selectOption("dailyScheduledDay", "Wednesday");
-        setFormElement("dailyScheduledTime", "3:24 AM");
+        setTextField("dailyScheduledTime", "3:24 AM");
         clickButton("backup:ok");
-        SiteTestHelper.assertNoException(getTester());
-        assertCheckboxSelected("checkVoicemail");
-        assertCheckboxSelected("checkConfigs");
-        assertOptionEquals("limitCount", "10");
+        SiteTestHelper.assertNoUserError(tester);
+        assertCheckboxSelected("backup:check:voicemail");
+        assertCheckboxSelected("backup:check:configs");
+        assertSelectedOptionEquals("backup:limit", "10");
         assertCheckboxSelected("dailyScheduleEnabled");
-        assertOptionEquals("dailyScheduledDay", "Wednesday");
-        assertFormElementEquals("dailyScheduledTime", "3:24 AM");
+        assertSelectedOptionEquals("dailyScheduledDay", "Wednesday");
+        assertTextFieldEquals("dailyScheduledTime", "3:24 AM");
     }
 
     public void testEmptyTime() {
-        SiteTestHelper.assertNoException(getTester());
-        checkCheckbox("checkVoicemail");
-        checkCheckbox("checkConfigs");
-        selectOption("limitCount", "10");
+        SiteTestHelper.assertNoException(tester);
+        checkCheckbox("backup:check:voicemail");
+        checkCheckbox("backup:check:configs");
+        selectOption("backup:limit", "10");
         checkCheckbox("dailyScheduleEnabled");
         selectOption("dailyScheduledDay", "Wednesday");
-        setFormElement("dailyScheduledTime", "");
+        setTextField("dailyScheduledTime", "");
         clickButton("backup:ok");
-        SiteTestHelper.assertNoException(getTester());
-        SiteTestHelper.assertUserError(getTester());
+        SiteTestHelper.assertUserError(tester);
     }
 
     /**
@@ -84,16 +83,16 @@ public class BackupPageTestUi extends WebTestCase {
      */
     public void testLocaleTimeFormat() {
         SiteTestHelper.assertNoException(tester);
-        setFormElement("dailyScheduledTime", "3:24 AM");
+        setTextField("dailyScheduledTime", "3:24 AM");
 
-        getTestContext().getWebClient().setHeaderField("Accept-Language", "de");
+        getTestContext().addRequestHeader("Accept-Language", "de");
         clickButton("backup:ok");
         SiteTestHelper.assertNoException(getTester());
-        tester.assertFormElementEquals("dailyScheduledTime", "03:24");
+        tester.assertTextFieldEquals("dailyScheduledTime", "03:24");
 
-        getTestContext().getWebClient().setHeaderField("Accept-Language", "en");
+        getTestContext().addRequestHeader("Accept-Language", "en");
         clickButton("backup:ok");
         SiteTestHelper.assertNoException(getTester());
-        tester.assertFormElementEquals("dailyScheduledTime", "3:24 AM");
+        tester.assertTextFieldEquals("dailyScheduledTime", "3:24 AM");
     }
 }

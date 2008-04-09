@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.TestPage;
@@ -39,12 +39,12 @@ public class NewUserTestUi extends WebTestCase {
 
         SiteTestHelper.home(tester);
         clickLink("NewUser");
-        setFormElement("userId", NEW_USER_USERNAME);
-        setFormElement("firstName", NEW_USER_FNAME);
-        setFormElement("lastName", NEW_USER_LNAME);
-        setFormElement("password", NEW_USER_PWORD);
-        setFormElement("confirmPassword", NEW_USER_PWORD);
-        setFormElement("aliases", NEW_USER_ALIASES);
+        setTextField("userId", NEW_USER_USERNAME);
+        setTextField("firstName", NEW_USER_FNAME);
+        setTextField("lastName", NEW_USER_LNAME);
+        setTextField("password", NEW_USER_PWORD);
+        setTextField("confirmPassword", NEW_USER_PWORD);
+        setTextField("aliases", NEW_USER_ALIASES);
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
         SiteTestHelper.assertNoException(tester);
@@ -70,9 +70,9 @@ public class NewUserTestUi extends WebTestCase {
         for (int i = 0; i < NEW_USER_USERNAME.length; i++) {
             SiteTestHelper.home(tester);
             clickLink("NewUser");
-            setFormElement("userId", NEW_USER_USERNAME[i]);
-            setFormElement("password", NEW_USER_PWORD);
-            setFormElement("confirmPassword", NEW_USER_PWORD);
+            setTextField("userId", NEW_USER_USERNAME[i]);
+            setTextField("password", NEW_USER_PWORD);
+            setTextField("confirmPassword", NEW_USER_PWORD);
             clickButton("form:apply");
             SiteTestHelper.assertNoUserError(tester);
             SiteTestHelper.assertNoException(tester);
@@ -82,7 +82,7 @@ public class NewUserTestUi extends WebTestCase {
         clickLink("ManageUsers");
 
         clickLinkWithText(NEW_USER_USERNAME[0]);
-        setFormElement("userId", NEW_USER_USERNAME[1]);
+        setTextField("userId", NEW_USER_USERNAME[1]);
         clickButton("form:apply");
 
         SiteTestHelper.assertUserError(tester);
@@ -95,9 +95,9 @@ public class NewUserTestUi extends WebTestCase {
 
         clickLink("ManageUsers");
         clickLink("AddUser");
-        setFormElement("userId", NEW_USER_USERNAME);
-        setFormElement("password", NEW_USER_PWORD);
-        setFormElement("confirmPassword", NEW_USER_PWORD);
+        setTextField("userId", NEW_USER_USERNAME);
+        setTextField("password", NEW_USER_PWORD);
+        setTextField("confirmPassword", NEW_USER_PWORD);
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
         SiteTestHelper.assertNoException(tester);
@@ -105,9 +105,9 @@ public class NewUserTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
         clickLink("ManageUsers");
         clickLink("AddUser");
-        setFormElement("userId", NEW_USER_USERNAME);
-        setFormElement("password", NEW_USER_PWORD);
-        setFormElement("confirmPassword", NEW_USER_PWORD);
+        setTextField("userId", NEW_USER_USERNAME);
+        setTextField("password", NEW_USER_PWORD);
+        setTextField("confirmPassword", NEW_USER_PWORD);
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
         SiteTestHelper.assertNoException(tester);
@@ -116,29 +116,29 @@ public class NewUserTestUi extends WebTestCase {
     public void testStay() {
         clickLink("ManageUsers");
         clickLink("AddUser");
-        setFormElement("userId", "x");
-        setFormElement("password", "1234");
-        setFormElement("confirmPassword", "1234");
-        setFormElement("aliases", "aa bb cc");
+        setTextField("userId", "x");
+        setTextField("password", "1234");
+        setTextField("confirmPassword", "1234");
+        setTextField("aliases", "aa bb cc");
         checkCheckbox("stay");        
         clickButton("form:ok");
         assertElementPresent("user:success");  
         
         // Make sure all the correct fields are empty
-        assertFormElementEmpty("lastName");
-        assertFormElementEmpty("firstName");        
-        assertFormElementEmpty("emailAddress");
+        SiteTestHelper.assertTextFieldEmpty(tester, "lastName");
+        SiteTestHelper.assertTextFieldEmpty(tester, "firstName");        
+        SiteTestHelper.assertTextFieldEmpty(tester, "emailAddress");
         assertCheckboxNotSelected("attachVoicemailToEmail");
-        assertFormElementEmpty("alternateEmailAddress");
+        SiteTestHelper.assertTextFieldEmpty(tester, "alternateEmailAddress");
         assertCheckboxNotSelected("attachVoicemailToAlternateEmail");
-        assertFormElementEmpty("password");
-        assertFormElementEmpty("confirmPassword");
-        assertFormElementEmpty("groups");
-        assertFormElementEmpty("aliases");
+        SiteTestHelper.assertTextFieldEmpty(tester, "password");
+        SiteTestHelper.assertTextFieldEmpty(tester, "confirmPassword");
+        SiteTestHelper.assertTextFieldEmpty(tester, "groups");
+        SiteTestHelper.assertTextFieldEmpty(tester, "aliases");
         
-        setFormElement("userId", "y");
-        setFormElement("password", "1234");
-        setFormElement("confirmPassword", "1234");
+        setTextField("userId", "y");
+        setTextField("password", "1234");
+        setTextField("confirmPassword", "1234");
         uncheckCheckbox("stay");        
         clickButton("form:ok");
         assertElementNotPresent("user:success");        
@@ -156,12 +156,12 @@ public class NewUserTestUi extends WebTestCase {
     public void testAddGroups() {
         clickLink("ManageUsers");
         clickLink("AddUser");
-        setFormElement("userId", "x");
-        setFormElement("password", "1234");
-        setFormElement("confirmPassword", "1234");
-        setFormElement("groups", "a b c");
+        setTextField("userId", "x");
+        setTextField("password", "1234");
+        setTextField("confirmPassword", "1234");
+        setTextField("groups", "a b c");
         clickButton("form:apply");
-        assertFormElementEquals("groups", "a b c");
+        assertTextFieldEquals("groups", "a b c");
     }
     
     public void testExtensionPoolLink() {

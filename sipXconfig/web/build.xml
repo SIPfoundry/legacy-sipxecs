@@ -95,14 +95,18 @@
     <pathelement path="${commons-digester.jar}"/>
     <pathelement path="${easymock.jar}"/>
     <pathelement path="${easymockclassextension.jar}"/>
-    <pathelement path="${httpunit.jar}"/>
-    <pathelement path="${jwebunit.jar}"/>
+    <pathelement path="${commons-httpclient.jar}"/>
+    <pathelement path="${htmlunit.jar}"/>
+    <pathelement path="${jwebunit-core.jar}"/>
+    <pathelement path="${jwebunit-htmlunit-plugin.jar}"/>
+    <pathelement path="${regexp.jar}"/>
     <pathelement path="${js.jar}"/>
     <pathelement path="${jetty.jar}"/>
     <pathelement path="${servlet.jsp.jar}"/>
     <pathelement path="${jasper-runtime.jar}"/>
     <pathelement path="${jasper-compiler.jar}"/>
-    <pathelement path="${tidy.jar}"/>
+    <pathelement path="${nekohtml.jar}"/>
+    <pathelement path="${cssparser.jar}"/>
     <pathelement path="${commons-codec.jar}"/>
   </path>
   <property name="classpath" refid="base.path"/>

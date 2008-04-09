@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -34,7 +34,7 @@ public class EditPhoneSettingsTestUi extends WebTestCase {
     }
 
     public void testEditSettting() {
-        final String outboundProxyField = "stringField";
+        final String outboundProxyField = "setting:outboundProxyPort";
 
         m_helper.seedPhone(1);
         clickLink("ManagePhones");
@@ -42,7 +42,7 @@ public class EditPhoneSettingsTestUi extends WebTestCase {
         // NOTE: AcmePhone only setting
         clickLinkWithText("Servers");
         String proxy = String.valueOf(System.currentTimeMillis());
-        setFormElement(outboundProxyField, proxy);
+        setTextField(outboundProxyField, proxy);
         clickButton("setting:ok");
 
         // verify setting sticks
@@ -50,6 +50,6 @@ public class EditPhoneSettingsTestUi extends WebTestCase {
         clickLink("ManagePhones");
         clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
         clickLinkWithText("Servers");
-        assertFormElementEquals(outboundProxyField, proxy);
+        assertTextFieldEquals(outboundProxyField, proxy);
     }
 }

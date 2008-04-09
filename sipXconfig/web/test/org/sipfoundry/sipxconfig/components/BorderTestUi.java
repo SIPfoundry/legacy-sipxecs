@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.components;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -55,7 +55,7 @@ public class BorderTestUi extends WebTestCase {
         assertElementPresent("loginForm");
         SiteTestHelper.assertNoUserError(getTester());
     }
-    
+
     public void testHelp() {
         clickLink("toggleNavigation");
         assertLinkPresent("link.help");

@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -31,11 +31,11 @@ public class EditPhoneTestUi extends WebTestCase {
         m_helper.seedPhone(1);
         clickLink("ManagePhones");        
         clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
-        setFormElement("serialNumber", "a00000000000");
+        setTextField("phone:serialNumber", "a00000000000");
     }
 
     public void testEditPhone() {
-        setFormElement("serialNumber", "a00000000001");
+        setTextField("phone:serialNumber", "a00000000001");
         clickButton("form:ok");
         String[][] table = new String[][] {
             { "a00000000001", "", "Acme" },                
@@ -51,7 +51,7 @@ public class EditPhoneTestUi extends WebTestCase {
     public void testGenerateProfiles() {
         clickButton("generateProfile");
         // check for confirm screen
-        assertCheckboxSelected("restart");
+        assertCheckboxSelected("restart:checkbox");
         clickButton("generate:ok");
         assertElementPresent("user:success");
     }

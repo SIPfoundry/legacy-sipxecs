@@ -9,14 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
-import net.sourceforge.jwebunit.ExpectedRow;
-import net.sourceforge.jwebunit.ExpectedTable;
-import net.sourceforge.jwebunit.WebTestCase;
+import java.util.List;
+
+import net.sourceforge.jwebunit.html.Cell;
+import net.sourceforge.jwebunit.html.Row;
+import net.sourceforge.jwebunit.html.Table;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.meterware.httpunit.WebForm;
 
 /**
  * Support for testing screens (or parts of the screen) that display table with add, delete, move
@@ -51,7 +53,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         SiteTestHelper.home(getTester());
         
         // assumption true for list bridges at least
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         
         clickLink(m_resetLink);
         clickLink(m_pageLink);
@@ -114,11 +116,11 @@ public abstract class ListWebTestCase extends WebTestCase {
 
     public void testAdd() throws Exception {
         final int count = 5;
-        ExpectedTable expected = new ExpectedTable();
+        Table expected = new Table();
         for (int i = 0; i < count; i++) {
             String[] values = getParamValues(i);
             addItem(getParamNames(), values);
-            expected.appendRow(new ExpectedRow(getExpectedTableRow(values)));
+            expected.appendRow(new Row(getExpectedTableRow(values)));
         }
         assertEquals(count + 1, SiteTestHelper.getRowCount(tester, getTableId()));
         if (m_exactCheck) {
@@ -137,7 +139,7 @@ public abstract class ListWebTestCase extends WebTestCase {
 
         String[] names = getParamNames();
         for (int i = 0; i < names.length; i++) {
-            assertFormElementEquals(names[i], values[i]);
+            assertTextFieldEquals(names[i], values[i]);
         }
     }
 
@@ -146,13 +148,13 @@ public abstract class ListWebTestCase extends WebTestCase {
             2, 4
         };
         final int count = 5;
-        ExpectedTable expected = new ExpectedTable();
+        Table expected = new Table();
 
         for (int i = 0; i < count; i++) {
             String[] values = getParamValues(i);
             addItem(getParamNames(), values);
             if (!ArrayUtils.contains(toBeRemoved, i)) {
-                expected.appendRow(new ExpectedRow(getExpectedTableRow(values)));
+                expected.appendRow(new Row(getExpectedTableRow(values)));
             }
         }
         // remove 2nd and 4th
@@ -192,22 +194,23 @@ public abstract class ListWebTestCase extends WebTestCase {
         clickLink(buildId("add"));
     }
 
-    private void assertTableRowsExist(String tableId, ExpectedTable expected) {
-        for (int i = 0; i < expected.getExpectedStrings().length; i++) {
-            assertTextInTable(tableId, expected.getExpectedStrings()[i][0]);
+    private void assertTableRowsExist(String tableId, Table expected) {
+        for (Row row : (List<Row>) expected.getRows()) {
+            for (Cell cell : (List<Cell>) row.getCells()) {
+                assertTextInTable(tableId, cell.getValue());                
+            }
         }
     }
 
     /**
-     * Overwrite this to set any aditional params
+     * Overwrite this to set any additional params
      * 
      * @param names
      * @param values
      */
     protected void setAddParams(String[] names, String[] values) {
-        WebForm form = getDialog().getForm();
         for (int i = 0; i < names.length; i++) {
-            form.setParameter(names[i], values[i]);
+            setTextField(names[i], values[i]);
         }
     }
 

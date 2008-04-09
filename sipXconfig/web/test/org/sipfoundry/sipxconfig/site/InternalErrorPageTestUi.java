@@ -11,7 +11,7 @@ package org.sipfoundry.sipxconfig.site;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 public class InternalErrorPageTestUi extends WebTestCase {
     public static Test suite() throws Exception {

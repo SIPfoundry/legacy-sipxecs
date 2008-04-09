@@ -57,8 +57,8 @@ public class ListParkOrbitsTestUi extends ListWebTestCase {
     }
 
     protected void setAddParams(String[] names, String[] values) {
-        super.setAddParams(names, values);
-        getDialog().getForm().setParameter("promptUpload", m_tempFile);
+        super.setAddParams(names, values);        
+        SiteTestHelper.setUpload(tester, "promptUpload", m_tempFile);
     }
 
     public void testParkOrbitDefaults() {

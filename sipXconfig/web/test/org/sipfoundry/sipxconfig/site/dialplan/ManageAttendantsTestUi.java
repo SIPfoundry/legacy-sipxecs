@@ -10,10 +10,9 @@
 package org.sipfoundry.sipxconfig.site.dialplan;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ManageAttendantsTestUi extends WebTestCase {
 
@@ -51,10 +50,8 @@ public class ManageAttendantsTestUi extends WebTestCase {
         seedAttendants(2);
         clickLinkWithText("ManageAttendantsTestUi 1");
         assertElementPresent("attendant:menuItems");
-        setFormElement("name", "Name edited");
-        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
-                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
-                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        setTextField("name", "Name edited");
+        SiteTestHelper.initUploadFields(tester, "ManageAttendantsTestUi");
         clickButton("form:ok");
         String[][] expectedData = {
             // Name Ext Description
@@ -87,11 +84,9 @@ public class ManageAttendantsTestUi extends WebTestCase {
     private void seedAttendants(int count) {
         for (int i = 0; i < count; i++) {
             clickLink("addAttendant");
-            setFormElement("name", "ManageAttendantsTestUi " + i);
-            setFormElement("description", SEED_DESCRIPTION);
-            SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
-                    .getTestSourceDirectory(EditAutoAttendantTestUi.class)
-                    + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+            setTextField("name", "ManageAttendantsTestUi " + i);
+            setTextField("description", SEED_DESCRIPTION);
+            SiteTestHelper.initUploadFields(tester, "ManageAttendantsTestUi");
             clickButton("form:ok");
             SiteTestHelper.assertNoException(tester);
         }

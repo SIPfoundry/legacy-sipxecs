@@ -10,11 +10,10 @@
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.html.Table;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import com.meterware.httpunit.WebTable;
 
 public class RegistrationsTestUi extends WebTestCase {
 
@@ -52,14 +51,14 @@ public class RegistrationsTestUi extends WebTestCase {
         clickLink("setting:toggle");
         SiteTestHelper.assertNoException(tester);
         assertTablePresent("registrations:list");
-        WebTable table = getDialog().getWebTableBySummaryOrId("registrations:list");
-        assertEquals(4, table.getColumnCount());
+        Table table = getTable("registrations:list");
+        assertEquals(4, SiteTestHelper.getColumnCount(table));
         
         // hide primary column
         clickLink("setting:toggle");
         SiteTestHelper.assertNoException(tester);
         assertTablePresent("registrations:list");
-        table = getDialog().getWebTableBySummaryOrId("registrations:list");
-        assertEquals(3, table.getColumnCount());
+        table = getTable("registrations:list");
+        assertEquals(3, SiteTestHelper.getColumnCount(table));
     }
 }

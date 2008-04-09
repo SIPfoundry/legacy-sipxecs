@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.dialplan;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -32,10 +32,10 @@ public class EditAttendantDefaultsTestUi extends WebTestCase {
     public void testEditSetting() {
         clickLink("defaultAttendantGroup");
         SiteTestHelper.assertNoException(tester);
-        setFormElement("integerField_0", "5");
+        setTextField("integerField_0", "5");
         clickButton("setting:apply");
         SiteTestHelper.assertNoException(tester);
-        assertFormElementEquals("integerField_0", "5");
+        assertTextFieldEquals("integerField_0", "5");
         clickButton("setting:cancel");
         assertTablePresent("list:attendant");
     }

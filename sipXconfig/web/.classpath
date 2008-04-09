@@ -14,14 +14,13 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-pool-1.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock-2.2.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/httpunit-1.6.2.jar" sourcepath="/LIB_SRC/httpunit/src.zip"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/htmlunit-1.14.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar" sourcepath="/LIB_SRC/oro/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javassist-3.6.ga.jar" sourcepath="/LIB_SRC/javassist/3.0/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.14.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/ognl-2.7.2.jar" sourcepath="LIB_SRC/ognl/ognl-2.6.7-dist.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jar" sourcepath="JRE_SRC"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/tidy-04aug2000r6.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/jwebunit-1.2.jar" sourcepath="LIB_SRC/jwebunit/src.zip">
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/jwebunit-core-1.4.1.jar" sourcepath="/LIB_SRC/jwebunit/1.4.1/jwebunit-1.4.1-sources.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="http://jwebunit.sourceforge.net/apidocs"/>
 		</attributes>
@@ -44,7 +43,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/hivemind-1.1.1.jar" sourcepath="LIB_SRC/hivemind/1.1.1/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/hivemind-lib-1.1.1.jar" sourcepath="LIB_SRC/hivemind/1.1.1/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-4.1.5.jar" sourcepath="/LIB_SRC/tapestry/4.1.5/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/js-1.6R5.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/js-1.7R1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-annotations-4.1.5.jar" sourcepath="/LIB_SRC/tapestry/4.1.5/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.2-504.jdbc3.jar" sourcepath="/LIB_SRC/pgsql/8.2/src.zip"/>
@@ -52,6 +51,10 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/restlet-noelios-impl-1.0.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/restlet-spring-1.0.1.jar" sourcepath="/LIB_SRC/restlet/1.0.1/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/restlet-servlet-2.4-1.0.1.jar" sourcepath="/LIB_SRC/restlet/1.0.1/src.zip"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/jwebunit-htmlunit-plugin-1.4.1.jar" sourcepath="/LIB_SRC/jwebunit/1.4.1/src/jwebunit-htmlunit-plugin-1.4.1-sources.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/regexp-1.3.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-httpclient-3.0.1.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/nekohtml-0.9.5.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/backport-util-concurrent-3.1.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

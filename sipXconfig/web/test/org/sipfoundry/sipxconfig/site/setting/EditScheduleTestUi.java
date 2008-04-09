@@ -13,7 +13,7 @@ import junit.framework.Test;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 public class EditScheduleTestUi extends WebTestCase {
 
@@ -25,7 +25,7 @@ public class EditScheduleTestUi extends WebTestCase {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("loginFirstTestUser");
         clickLink("toggleNavigation");
         clickLink("menu.callForwarding");
@@ -35,7 +35,7 @@ public class EditScheduleTestUi extends WebTestCase {
     public void testAddDeleteSchedule() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLinkWithText("Add Schedule");
-        setFormElement("name", "schedule");
+        setTextField("item:name", "schedule");
         clickLink("addPeriod");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
@@ -47,18 +47,18 @@ public class EditScheduleTestUi extends WebTestCase {
     public void testAddSchedulesWithPeriodsThatOverlap() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLinkWithText("Add Schedule");
-        setFormElement("name", "schedule_overlap");
+        setTextField("item:name", "schedule_overlap");
         clickLink("addPeriod");
         selectOption("day", "Monday");
-        setFormElement("from", "9:00 AM");
-        setFormElement("to", "11:00 AM");
+        setTextField("from", "9:00 AM");
+        setTextField("to", "11:00 AM");
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
 
         clickLink("addPeriod");
         selectOption("day_0", "Monday");
-        setFormElement("from_0", "7:00 AM");
-        setFormElement("to_0", "10:00 AM");
+        setTextField("from_0", "7:00 AM");
+        setTextField("to_0", "10:00 AM");
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
         clickButton("form:cancel");
@@ -70,11 +70,11 @@ public class EditScheduleTestUi extends WebTestCase {
     public void testAddSchedulesWithStartHourGreaterThanStopHour() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLinkWithText("Add Schedule");
-        setFormElement("name", "schedule_startstop");
+        setTextField("name", "schedule_startstop");
         clickLink("addPeriod");
         selectOption("day", "Monday");
-        setFormElement("from", "11:00 AM");
-        setFormElement("to", "9:00 AM");
+        setTextField("from", "11:00 AM");
+        setTextField("to", "9:00 AM");
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
         clickButton("form:cancel");
@@ -84,7 +84,7 @@ public class EditScheduleTestUi extends WebTestCase {
     public void testAddSchedulesWithNoPeriodDefined() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLinkWithText("Add Schedule");
-        setFormElement("name", "schedule_noperiod");
+        setTextField("name", "schedule_noperiod");
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
         clickButton("form:cancel");
@@ -94,12 +94,12 @@ public class EditScheduleTestUi extends WebTestCase {
     public void testAddSchedulesWithSameName() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLinkWithText("Add Schedule");
-        setFormElement("name", "schedule");
+        setTextField("name", "schedule");
         clickLink("addPeriod");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
         clickLinkWithText("Add Schedule");
-        setFormElement("name", "schedule");
+        setTextField("name", "schedule");
         clickLink("addPeriod");
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);

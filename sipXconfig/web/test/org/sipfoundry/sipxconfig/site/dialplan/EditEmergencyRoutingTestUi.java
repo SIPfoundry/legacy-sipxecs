@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.dialplan;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.gateway.GatewaysTestUi;
@@ -36,7 +36,7 @@ public class EditEmergencyRoutingTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
         clickLink("EmergencyRouting");
         assertLinkPresent("erouting:addException");
-        setFormElement("externalNumber", "33");
+        setTextField("externalNumber", "33");
         clickButton("form:apply");
     }
 
@@ -45,13 +45,13 @@ public class EditEmergencyRoutingTestUi extends WebTestCase {
         GatewaysTestUi.addTestGateways(getTester(), 3);
         SiteTestHelper.home(getTester());
         clickLink("EmergencyRouting");        
-        setFormElement(SiteTestHelper.getIndexedId("externalNumber", 0), "12");
+        setTextField(SiteTestHelper.getIndexedId("externalNumber", 0), "12");
         clickLink("erouting:addException");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
-        setFormElement(SiteTestHelper.getIndexedId("externalNumber", 0), "33");
-        setFormElement(SiteTestHelper.getIndexedId("externalNumber", 1), "911");
-        setFormElement("callers", "11, 22");
+        setTextField(SiteTestHelper.getIndexedId("externalNumber", 0), "33");
+        setTextField(SiteTestHelper.getIndexedId("externalNumber", 1), "911");
+        setTextField("callers", "11, 22");
         clickButton("form:apply");
     }
     

@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -31,9 +31,9 @@ public class SnapshotPageTestUi extends WebTestCase {
      */
     public void testDisplay() {
         SiteTestHelper.assertNoException(getTester());
-        assertCheckboxSelected("wwwCheck");
-        assertCheckboxSelected("logsCheck");
-        assertCheckboxNotSelected("credentialsCheck");
+        assertCheckboxSelected("snaphot:www");
+        assertCheckboxSelected("snaphot:logs");
+        assertCheckboxNotSelected("snaphot:credentials");
         clickButton("form:apply");
         SiteTestHelper.assertNoException(getTester());
         SiteTestHelper.assertUserError(getTester());

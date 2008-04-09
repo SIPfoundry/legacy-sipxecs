@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
@@ -41,9 +41,9 @@ public class PagingGroupsPageTestUi extends WebTestCase {
         assertElementPresent("enableGroup");
         assertCheckboxSelected("enableGroup");
         assertElementPresent("number");
-        assertFormElementEquals("number", "1");
+        assertTextFieldEquals("number", "1");
         assertElementPresent("description");
-        assertFormElementEquals("description", "test group");
+        assertTextFieldEquals("description", "test group");
         assertButtonPresent("form:cancel");
         clickButton("form:cancel");
     }
@@ -54,17 +54,17 @@ public class PagingGroupsPageTestUi extends WebTestCase {
         assertElementPresent("enableGroup");
         checkCheckbox("enableGroup");
         assertElementPresent("number");
-        setFormElement("number", "1");
+        setTextField("number", "1");
         assertElementPresent("description");
-        setFormElement("description", "test group");
+        setTextField("description", "test group");
         assertElementPresent("enableGroup");
         assertCheckboxSelected("enableGroup");
         assertElementPresent("number");
-        assertFormElementEquals("number", "1");
+        assertTextFieldEquals("number", "1");
         assertElementPresent("description");
-        assertFormElementEquals("description", "test group");
+        assertTextFieldEquals("description", "test group");
         assertFormElementPresent("prompt");
-        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+        SiteTestHelper.initUploadFieldsWithFile(tester, TestUtil
                 .getTestSourceDirectory(EditAutoAttendantTestUi.class)
                 + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
         assertButtonPresent("form:ok");
@@ -93,16 +93,16 @@ public class PagingGroupsPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
         assertLinkPresent("link.addPagingGroup");
         clickLink("link.addPagingGroup");
-        setFormElement("number", "1");
-        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+        setTextField("number", "1");
+        SiteTestHelper.initUploadFieldsWithFile(tester, TestUtil
                 .getTestSourceDirectory(EditAutoAttendantTestUi.class)
                 + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
         clickButton("form:ok");
 
         SiteTestHelper.assertNoUserError(tester);
         clickLink("link.addPagingGroup");
-        setFormElement("number", "1");
-        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+        setTextField("number", "1");
+        SiteTestHelper.initUploadFieldsWithFile(tester, TestUtil
                 .getTestSourceDirectory(EditAutoAttendantTestUi.class)
                 + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
         clickButton("form:ok");
@@ -119,9 +119,9 @@ public class PagingGroupsPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
         assertLinkPresent("link.addPagingGroup");
         clickLink("link.addPagingGroup");
-        setFormElement("number", "2");
-        setFormElement("description", description.toString());
-        SiteTestHelper.initUploadFieldsWithFile(getDialog().getForm(), TestUtil
+        setTextField("number", "2");
+        setTextField("description", description.toString());
+        SiteTestHelper.initUploadFieldsWithFile(tester, TestUtil
                 .getTestSourceDirectory(EditAutoAttendantTestUi.class)
                 + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
         clickButton("form:ok");

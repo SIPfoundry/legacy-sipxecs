@@ -12,9 +12,8 @@ import junit.framework.Test;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import com.meterware.httpunit.WebTable;
-
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.html.Table;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 public class EditSbcDeviceTestUi extends WebTestCase {
     public static Test suite() throws Exception {
@@ -25,7 +24,7 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("resetSbcDevices");
         clickLink("toggleNavigation");
         clickLink("menu.sbcs");
@@ -35,21 +34,21 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
         assertTablePresent("list:sbc");
-        WebTable sbcsTable = getDialog().getWebTableBySummaryOrId("list:sbc");
+        Table sbcsTable = getTable("list:sbc");
         assertEquals(1, sbcsTable.getRowCount());
 
         selectOption("PropertySelection", "Unmanaged SBC");
-        setFormElement("sbcDeviceName", "sbc1");
-        setFormElement("sbcDeviceAddress", "10.1.1.1");
+        setTextField("sbcDeviceName", "sbc1");
+        setTextField("sbcDeviceAddress", "10.1.1.1");
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
-        sbcsTable = getDialog().getWebTableBySummaryOrId("list:sbc");
+        sbcsTable = getTable("list:sbc");
         assertEquals(2, sbcsTable.getRowCount());
 
         checkCheckbox("checkbox");
         clickButton("list:sbc:delete");
-        sbcsTable = getDialog().getWebTableBySummaryOrId("list:sbc");
+        sbcsTable = getTable("list:sbc");
         assertEquals(1, sbcsTable.getRowCount());
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
@@ -60,13 +59,13 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
 
         selectOption("PropertySelection", "Unmanaged SBC");
-        setFormElement("sbcDeviceName", "uniqueSbcName");
-        setFormElement("sbcDeviceAddress", "10.1.1.2");
+        setTextField("sbcDeviceName", "uniqueSbcName");
+        setTextField("sbcDeviceAddress", "10.1.1.2");
         clickButton("form:ok");
 
         selectOption("PropertySelection", "Unmanaged SBC");
-        setFormElement("sbcDeviceName", "uniqueSbcName");
-        setFormElement("sbcDeviceAddress", "10.1.1.3");
+        setTextField("sbcDeviceName", "uniqueSbcName");
+        setTextField("sbcDeviceAddress", "10.1.1.3");
         clickButton("form:ok");
 
         SiteTestHelper.assertUserError(tester);

@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -36,7 +36,7 @@ public class NewPhoneTestUi extends WebTestCase {
 
     public void testAddPhone() {
         clickLink("NewPhone");
-        setFormElement("serialNumber", "000000000000");
+        setTextField("phone:serialNumber", "000000000000");
         clickButton("form:ok");
         String[][] table = new String[][] {
             {
@@ -48,12 +48,12 @@ public class NewPhoneTestUi extends WebTestCase {
 
     public void testSaveAndStay() {
         clickLink("NewPhone");
-        setFormElement("serialNumber", "000000000000");
-        checkCheckbox("stay");
+        setTextField("phone:serialNumber", "000000000000");
+        checkCheckbox("phone:stay");
         clickButton("form:ok");
-        assertCheckboxSelected("stay");
+        assertCheckboxSelected("phone:stay");
         // should clear the form
-        assertEquals("", getDialog().getFormParameterValue("serialNumber"));
+        assertTextFieldEquals("", "phone:serialNumber");
 
         clickButton("form:cancel");
         String[][] table = new String[][] {
@@ -72,24 +72,24 @@ public class NewPhoneTestUi extends WebTestCase {
         SiteTestHelper.assertUserError(tester);
 
         // wrong chars and wrong number
-        setFormElement("serialNumber", "x");
+        setTextField("phone:serialNumber", "x");
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
 
         // 12 digits, but not valid chars
-        setFormElement("serialNumber", "123456789abx");
+        setTextField("phone:serialNumber", "123456789abx");
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
 
         // 16 correct digits - not OK we only accept 12
-        setFormElement("serialNumber", "123456789abcdef");
+        setTextField("phone:serialNumber", "123456789abcdef");
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
 
         SiteTestHelper.home(getTester());
         clickLink("NewPhone");
         // finally got it right
-        setFormElement("serialNumber", "123456789abc");
+        setTextField("phone:serialNumber", "123456789abc");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
     }

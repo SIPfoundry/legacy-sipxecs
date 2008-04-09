@@ -9,7 +9,7 @@
 package org.sipfoundry.sipxconfig.upload;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -28,13 +28,13 @@ public class EditUploadTestUi extends WebTestCase {
     }
 
     public void testNewUpload() throws Exception {
-        setFormElement("name", "new upload");
-        assertFalse(getDialog().getForm().hasParameterNamed("promptUpload"));
+        setTextField("name", "new upload");
+        assertElementNotPresentByXPath("//input[@name='promptUpload']");
         assertButtonNotPresent("upload:activate");
         assertButtonNotPresent("upload:inactivate");
         clickButton("form:apply");
 
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "new-upload-test");
+        SiteTestHelper.initUploadFields(tester, "new-upload-test");
         clickButton("form:apply");
 
         SiteTestHelper.assertNoException(tester);
@@ -43,10 +43,10 @@ public class EditUploadTestUi extends WebTestCase {
     }
 
     public void testActivate() throws Exception {
-        setFormElement("name", "new upload");
-        assertFalse(getDialog().getForm().hasParameterNamed("promptUpload"));
+        setTextField("name", "new upload");
+        assertElementNotPresentByXPath("//input[@name='promptUpload']");
         clickButton("form:apply");
-        SiteTestHelper.initUploadFields(getDialog().getForm(), "new-upload-test");
+        SiteTestHelper.initUploadFields(tester, "new-upload-test");
         assertButtonNotPresent("upload:inactivate");
         assertButtonPresent("upload:activate");
         clickButton("upload:activate");
@@ -56,7 +56,7 @@ public class EditUploadTestUi extends WebTestCase {
     }
     
     public void testCancel() throws Exception {
-        setFormElement("name", "cancelled");
+        setTextField("name", "cancelled");
         clickButton("form:cancel");
         assertTextNotPresent("cancelled");       
     }       

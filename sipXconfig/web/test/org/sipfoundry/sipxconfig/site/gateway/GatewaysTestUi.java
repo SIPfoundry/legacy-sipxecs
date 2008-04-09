@@ -12,12 +12,11 @@ package org.sipfoundry.sipxconfig.site.gateway;
 import java.util.Arrays;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
-import net.sourceforge.jwebunit.WebTester;
+import net.sourceforge.jwebunit.html.Table;
+import net.sourceforge.jwebunit.junit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTester;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import com.meterware.httpunit.WebTable;
 
 /**
  * GatewaysTestUi
@@ -31,7 +30,7 @@ public class GatewaysTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("resetDialPlans");
     }
 
@@ -39,13 +38,14 @@ public class GatewaysTestUi extends WebTestCase {
         clickLink("ListGateways");
 
         assertTablePresent("list:gateway");
-        WebTable gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
+        Table gatewaysTable = getTable("list:gateway");
         // make sure it's sorted by name
         clickLinkWithText("Name");
-        int lastColumn = gatewaysTable.getColumnCount() - 1;
+        int lastColumn = SiteTestHelper.getColumnCount(gatewaysTable);
         assertEquals(4, lastColumn);
 
-        selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
+        selectOption("selectGatewayModel", "Unmanaged gateway");
+        tester.submit();
 
         addGateway(null);
         // if validation works we are still on the same page
@@ -53,19 +53,21 @@ public class GatewaysTestUi extends WebTestCase {
 
         addGateway("bongo");
         assertTablePresent("list:gateway");
-        gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
+        gatewaysTable = getTable("list:gateway");
         // we should have 2 gateway now
         assertEquals(2, gatewaysTable.getRowCount());
-        assertEquals("bongoDescription", gatewaysTable.getCellAsText(1, lastColumn));
+        assertEquals("bongoDescription", SiteTestHelper.getCellAsText(gatewaysTable, 1,
+                lastColumn));
 
         selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
 
         addGateway("kuku");
 
-        gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
+        gatewaysTable = getTable("list:gateway");
         // we should have 2 gateway now
         assertEquals(3, gatewaysTable.getRowCount());
-        assertEquals("kukuDescription", gatewaysTable.getCellAsText(2, lastColumn));
+        assertEquals("kukuDescription", SiteTestHelper
+                .getCellAsText(gatewaysTable, 2, lastColumn));
     }
 
     /**
@@ -87,11 +89,11 @@ public class GatewaysTestUi extends WebTestCase {
 
         selectOption("selectGatewayModel", "SIP trunk");
         assertElementPresent("common_FlexiblePropertySelection");
-        tester.setFormElement("gatewayName", "SipTrunkRouteTest");
-        tester.setFormElement("gatewayAddress", "1.2.3.4");
+        tester.setTextField("gatewayName", "SipTrunkRouteTest");
+        tester.setTextField("gatewayAddress", "1.2.3.4");
         selectOption("common_FlexiblePropertySelection", "Unmanaged SBC");
-        tester.setFormElement("sbcDeviceName", "sbcDeviceForSipTrunk");
-        tester.setFormElement("sbcDeviceAddress", "sbc.example.org");
+        tester.setTextField("sbcDeviceName", "sbcDeviceForSipTrunk");
+        tester.setTextField("sbcDeviceAddress", "sbc.example.org");
         tester.clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
@@ -114,7 +116,7 @@ public class GatewaysTestUi extends WebTestCase {
         addTestGateways(getTester(), 10);
 
         assertTablePresent("list:gateway");
-        WebTable gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
+        Table gatewaysTable = getTable("list:gateway");
         assertEquals(11, gatewaysTable.getRowCount());
 
         SiteTestHelper.selectRow(tester, 0, true);
@@ -123,7 +125,7 @@ public class GatewaysTestUi extends WebTestCase {
 
         SiteTestHelper.assertNoUserError(tester);
         assertTablePresent("list:gateway");
-        gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
+        gatewaysTable = getTable("list:gateway");
         assertEquals(9, gatewaysTable.getRowCount());
 
         for (int i = 0; i < 8; i++) {
@@ -132,13 +134,15 @@ public class GatewaysTestUi extends WebTestCase {
         clickButton("list:gateway:delete");
 
         assertTablePresent("list:gateway");
-        gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
+        gatewaysTable = getTable("list:gateway");
         assertEquals(1, gatewaysTable.getRowCount());
     }
 
     public void testValidateDescription() {
         clickLink("ListGateways");
-        selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
+        selectOption("selectGatewayModel", "Unmanaged gateway");
+        tester.submit();
+        
         addGateway("bongo");
         clickLinkWithText("bongo");
         int limit = 255; // postgres database field size
@@ -146,11 +150,11 @@ public class GatewaysTestUi extends WebTestCase {
         Arrays.fill(descriptionToLong, 'x');
         char[] descriptionOk = new char[limit];
         Arrays.fill(descriptionOk, 'x');
-        setFormElement("gatewayDescription", new String(descriptionToLong));
+        setTextField("gateway:description", new String(descriptionToLong));
         tester.clickButton("form:ok");
         // there should be an error now
         assertTextPresent("Enter at most");
-        setFormElement("gatewayDescription", new String(descriptionOk));
+        setTextField("gateway:description", new String(descriptionOk));
         tester.clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
         // we should not get error this time
@@ -177,11 +181,11 @@ public class GatewaysTestUi extends WebTestCase {
         };
 
         if (null != name) {
-            tester.setFormElement("gatewayName", row[0]);
-            tester.setFormElement("gatewayAddress", row[1]);
-            tester.setFormElement("gatewayDescription", row[3]);
+            tester.setTextField("gateway:name", row[0]);
+            tester.setTextField("gateway:address", row[1]);
+            tester.setTextField("gateway:description", row[3]);
         }
-        tester.clickButton("form:ok");
+        tester.submit("form:ok");
         return row;
     }
 
@@ -191,13 +195,14 @@ public class GatewaysTestUi extends WebTestCase {
      * @param counter number of gateways to add - names gateway0..gateway'count-1'
      */
     public static String[] addTestGateways(WebTester tester, int counter) {
-        boolean scripting = SiteTestHelper.setScriptingEnabled(true);
+        boolean scripting = SiteTestHelper.setScriptingEnabled(tester, true);
         String[] names = new String[counter];
 
         tester.clickLink("ListGateways");
 
         for (int i = 0; i < counter; i++) {
-            tester.selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
+            tester.selectOption("selectGatewayModel", "Unmanaged gateway");
+            tester.submit();
 
             // Give the new gateway a name that is extremely unlikely to collide
             // with any existing gateway names
@@ -205,7 +210,7 @@ public class GatewaysTestUi extends WebTestCase {
 
             names[i] = addGateway(tester, name)[0];
         }
-        SiteTestHelper.setScriptingEnabled(scripting);
+        SiteTestHelper.setScriptingEnabled(tester, scripting);
         return names;
     }
 }

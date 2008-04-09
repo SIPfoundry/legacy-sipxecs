@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.site.gateway.port;
 
 import junit.framework.Test;
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -23,7 +23,7 @@ public class PortSettingsTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(true);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("NewFxo");
     }
     
@@ -34,7 +34,7 @@ public class PortSettingsTestUi extends WebTestCase {
         clickLink("addPort");
         assertElementPresent("settingsForm");        
         assertElementPresent("setting:ProtocolType");  // TP260 port setting
-        setFormElement("integerField", "2");
+        setTextField("integerField", "2");
         clickButton("setting:ok");
         SiteTestHelper.assertNoException(tester);        
         clickLink("tab:ports");
