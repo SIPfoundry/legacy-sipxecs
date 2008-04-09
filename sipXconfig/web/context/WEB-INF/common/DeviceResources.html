@@ -1,7 +1,7 @@
-<div class="help" jwcid="@If" condition="ognl:render" element="div">
+<div class="help" jwcid="@If" condition="ognl:render">
   <b><span key="msg.resources">Device resources</span></b>
   <ul>
-    <li jwcid="@For" element="li"
+    <li jwcid="@For"
       source="ognl:deviceDescriptor.resources"
       value="ognl:resource">
       <a jwcid="@common/DownloadLink"

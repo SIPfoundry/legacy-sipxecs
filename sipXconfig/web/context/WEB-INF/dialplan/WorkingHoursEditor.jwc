@@ -4,7 +4,7 @@
 <component-specification class="org.apache.tapestry.BaseComponent" allow-body="yes" allow-informal-parameters="yes">
   <description>Panel for editing working hours for a single day in a week.</description>
   <parameter name="workingHours"  required="yes" />
-  <component id="dayLabel" type="InsertText">
+  <component id="dayLabel" type="Insert">
     <binding name="value" value="getMessage('label.' + workingHours.day.name)"/>
   </component>
   <component id="enabled" type="Checkbox">

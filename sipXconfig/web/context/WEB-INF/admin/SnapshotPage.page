@@ -45,14 +45,13 @@
   </component>
   <component id="ifResultsPresent" type="If">
     <binding name="condition" value="snapshotFile != null"/>
-    <binding name="element" value="literal:p"/>
   </component>
   <component id="snapshotLink" type="common/DownloadLink">
     <binding name="fileName" value="snapshotFile.name"/>
     <binding name="dirName" value="snapshotFile.parentFile.path"/>
     <binding name="contentType" value="literal:tar/x-gzip"/>
   </component>
-  <component id="linkText" type="InsertText">
+  <component id="linkText" type="Insert">
     <binding name="value" value="snapshotFile.name"/>
   </component>
 </page-specification>

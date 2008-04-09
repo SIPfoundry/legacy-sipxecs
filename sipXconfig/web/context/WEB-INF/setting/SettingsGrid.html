@@ -4,8 +4,7 @@
       <th jwcid="@For"
         source="ognl:setting.settingNames"
         value="ognl:currentColumn"
-        volatile="true"
-        element="th">
+        volatile="true">
         <span jwcid="@Insert" value="ognl:currentColumnLabel"/>
       </th>
     </tr>
@@ -14,13 +13,11 @@
     <tr jwcid="@For"
       source="ognl:indices"
       value="ognl:currentIndex"
-      volatile="true"
-      element="tr">
+      volatile="true">
       <td jwcid="@For"
         source="ognl:setting.settingNames"
         value="ognl:currentColumn"
-        volatile="true"
-        element="td">
+        volatile="true">
         <span jwcid="@setting/SettingEditor"
           setting="ognl:currentSetting"
           enabled="ognl:enabled"

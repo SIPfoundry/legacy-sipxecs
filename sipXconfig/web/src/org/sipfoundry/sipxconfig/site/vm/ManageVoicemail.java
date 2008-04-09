@@ -239,18 +239,18 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         }
     }
 
-    public static class VoicemailRowInfo implements RowInfo<Voicemail> {
+    public static class VoicemailRowInfo implements RowInfo {
         private VoicemailSource m_source;
         
         VoicemailRowInfo(VoicemailSource source) {
             m_source = source;
         }
 
-        public Object getSelectId(Voicemail row) {
-            return m_source.getVoicemailId(row);
+        public Object getSelectId(Object row) {
+            return m_source.getVoicemailId((Voicemail) row);
         }
 
-        public boolean isSelectable(Voicemail row) {
+        public boolean isSelectable(Object row) {
             return true;
         }        
     }

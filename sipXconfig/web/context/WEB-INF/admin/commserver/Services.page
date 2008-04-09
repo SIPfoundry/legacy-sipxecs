@@ -41,10 +41,6 @@
     <binding name="onchange" value="literal:javascript:this.form.submit();" />
   </component>
 
-  <component id="renderLocation" type="If">
-    <binding name="condition" value="sipxProcessContext.locations.length > 1" />
-  </component>
-
   <component id="tableView" type="common/Table">
     <binding name="source" value="serviceStatus" />
     <binding name="selections" value="bean:selections" />

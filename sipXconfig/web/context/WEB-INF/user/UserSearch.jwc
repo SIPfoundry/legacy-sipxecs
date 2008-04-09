@@ -20,12 +20,6 @@
   <!--
       - C O M P O N E N T S
       -->
-  <component id="renderSimpleSearch" type="If">
-    <binding name="condition" value="simpleSearch"/>
-  </component>
-  <component id="renderAdvancedSearch" type="If">
-    <binding name="condition" value="!simpleSearch"/>
-  </component>
   <!-- simple search -->
   <component id="queryLabel" type="common/FieldPanel">
     <binding name="field" value="components.query"/>

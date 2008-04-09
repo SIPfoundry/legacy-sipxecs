@@ -16,13 +16,13 @@ import org.sipfoundry.sipxconfig.components.RowInfo;
  * Default implementation of information about a row the Table component needs
  * to know to operate
  */
-public class SimpleRowInfo implements RowInfo<PrimaryKeySource> {
+public class SimpleRowInfo implements RowInfo {
 
-    public Object getSelectId(PrimaryKeySource row) {
-        return row.getPrimaryKey();
+    public Object getSelectId(Object row) {
+        return ((PrimaryKeySource) row).getPrimaryKey();
     }
 
-    public boolean isSelectable(PrimaryKeySource row) {
+    public boolean isSelectable(Object row) {
         return true;
     }
 }

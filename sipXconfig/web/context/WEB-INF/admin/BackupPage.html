@@ -1,9 +1,9 @@
 <div jwcid="@common/Border">
   <h2><span key="title">Backup</span></h2>
-  <span jwcid="ifInitialDescription">
+  <p jwcid="@If" condition="ognl:backupFiles.empty">
     <div jwcid="@common/QuickHelp" value="message:description" />
-  </span>
-  <p jwcid="ifResultsPresent">
+  </p>
+  <p jwcid="@Else">
     <span key="backupCompleted">Success...</span>
     <div jwcid="@common/QuickHelp" value="message:helpText" />
     <ul>
@@ -55,11 +55,11 @@
     <div jwcid="@common/QuickHelp" value="message:msg.schedule" />
     <fieldset>
       <legend><span key="label.schedule">Schedule</span></legend>
-      <span jwcid="schedules">
+      <p jwcid="schedules">
         <input jwcid="dailyScheduleEnabled" type="checkbox" />
         <select jwcid="dailyScheduledDay" />
         <input jwcid="dailyScheduledTime" />
-      </span>
+      </p>
       <ul class="form-actions">
         <li><input jwcid="ok" id="backup:ok" type="submit" value="OK" /></li>
       </ul>

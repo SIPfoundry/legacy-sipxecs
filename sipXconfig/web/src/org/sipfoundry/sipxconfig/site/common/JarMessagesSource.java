@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hivemind.Messages;
@@ -81,7 +82,7 @@ public class JarMessagesSource implements LanguageSupport {
         }
 
         String resourceName = resource.getName();
-        String basename = resourceName.substring(0, resourceName.lastIndexOf('.'));
+        String basename = StringUtils.substringBeforeLast(resourceName, ".");
         LocalizedNameGenerator localizedNameGenerator = new LocalizedNameGenerator(basename, locale, ".properties");
 
         List<Resource> localizedNameList = new ArrayList<Resource>();

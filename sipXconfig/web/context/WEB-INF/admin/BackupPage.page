@@ -42,31 +42,21 @@
     <binding name="listener" value="listener:backup"/>
     <binding name="value" value="message:backupNow"/>
   </component>
-  <component id="ifResultsPresent" type="If">
-    <binding name="condition" value="!backupFiles.empty"/>
-    <binding name="element" value="literal:p"/>
-  </component>
-  <component id="ifInitialDescription" type="If">
-    <binding name="condition" value="backupFiles.empty"/>
-    <binding name="element" value="literal:p"/>
-  </component>
   <component id="results" type="For">
     <binding name="source" value="backupFiles"/>
     <binding name="value" value="backupFile"/>
-    <binding name="element" value="literal:li"/>
   </component>
   <component id="link" type="common/DownloadLink">
     <binding name="fileName" value="backupFile.name"/>
     <binding name="dirName" value="backupFile.parentFile.path"/>
     <binding name="contentType" value="literal:tar/x-gzip"/>
   </component>
-  <component id="linkText" type="InsertText">
+  <component id="linkText" type="Insert">
     <binding name="value" value="backupFile.path"/>
   </component>
   <component id="schedules" type="For">
     <binding name="source" value="backupPlan.schedules"/>
     <binding name="value" value="schedule"/>
-    <binding name="element" value="literal:br"/>
   </component>
   <component id="dailyScheduleEnabled" type="Checkbox">
     <binding name="value" value="schedule.enabled"/>

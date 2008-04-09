@@ -26,7 +26,7 @@
         listener="listener:onSave"
         callback="ognl:callback">
         <span jwcid="@If" condition="ognl:! upload.isNew()">
-          <li jwcid="@If" condition="ognl:upload.deployed" element="li">
+          <li jwcid="@If" condition="ognl:upload.deployed">
             <input id="upload:inactivate"
               jwcid="inactivate@Submit"
               selected="ognl:active"
@@ -34,7 +34,7 @@
               value="message:label.inactivate" 
               listener="ognl:components.applyOkCancel.listeners.onApply" />
           </li>
-          <li jwcid="@Else" element="li">
+          <li jwcid="@Else">
             <input id="upload:activate"
               jwcid="activate@Submit"
               selected="ognl:active"

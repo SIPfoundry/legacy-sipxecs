@@ -36,24 +36,21 @@
 	</table>
     <ul class="component-submit">
         <li jwcid="ifRenderDelete@If"
-           condition="ognl:acdAgentId == null"
-           element="literal:li">
+           condition="ognl:acdAgentId == null">
            <input jwcid="delete@Submit" type="submit" id="queue:delete" name=""
               selected="ognl:rowsToDelete"
               tag="ognl:selections.allSelected"
               value="message:button.delete"/>
         </li>
         <li jwcid="ifRenderMoveUp@If"
-           condition="ognl:acdAgentId != null"
-           element="literal:li">
+           condition="ognl:acdAgentId != null">
            <input jwcid="moveUp@Submit" type="submit" id="agent:moveUp"
               selected="ognl:rowsToMoveUp"
               tag="ognl:selections.allSelected"
               value="message:button.moveUp"/>
         </li>
         <li jwcid="ifRenderMoveDown@If"
-           condition="ognl:acdAgentId != null"
-           element="literal:li">
+           condition="ognl:acdAgentId != null">
            <input jwcid="moveDown@Submit" type="submit" id="agent:moveDown"
               selected="ognl:rowsToMoveDown"
               tag="ognl:selections.allSelected"

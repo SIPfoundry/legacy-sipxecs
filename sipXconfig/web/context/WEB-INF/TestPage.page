@@ -129,7 +129,6 @@
   <component id="generateLinks" type="For">
     <binding name="source" value="@org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet@iterator()"/>
     <binding name="value" value="dataSet"/>
-    <binding name="element" value="literal:ul"/>
   </component>
   <component id="generateLink" type="DirectLink">
     <binding name="listener" value="listener:generateDataSet"/>

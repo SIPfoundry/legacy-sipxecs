@@ -19,7 +19,6 @@
   
   <!-- C O M P O N E N T S  -->
   <component id="tableElement" type="Any" inherit-informal-parameters="yes">
-    <binding name="element" value="literal:table"/>
   </component>
   <component id="ifRenderPages" type="If">
     <binding name="condition" value="usePager"/>

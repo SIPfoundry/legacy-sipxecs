@@ -72,7 +72,6 @@ public abstract class ListPermissions extends BasePage {
         }
     }
 
-
     public String getCurrentLabel() {
         return getCurrentRow().getLabel(getLocale());
     }
@@ -80,17 +79,17 @@ public abstract class ListPermissions extends BasePage {
     public Collection getAllSelected() {
         return getSelections().getAllSelected();
     }
-    
+
     /**
      * Only custom permissions are selectable.
      */
-    public static class PermissionRowInfo implements RowInfo<Permission> {
-        public boolean isSelectable(Permission row) {
-            return !row.isBuiltIn();
+    public static class PermissionRowInfo implements RowInfo {
+        public boolean isSelectable(Object row) {
+            return !((Permission) row).isBuiltIn();
         }
 
-        public Object getSelectId(Permission row) {
-            return row.getPrimaryKey();
+        public Object getSelectId(Object row) {
+            return ((Permission) row).getPrimaryKey();
         }
     }
 }

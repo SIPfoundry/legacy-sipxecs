@@ -165,7 +165,7 @@ public abstract class AttendantMenuPanel extends BaseComponent {
      * Let's you set keys on map entries without losing your place in the iteration thru the map.
      * This is handy in tapestry when you iterate thru a list and your key values can change.
      */
-    static class AttendantMenuItemMapAdapter {
+    public static class AttendantMenuItemMapAdapter {
 
         private Map<DialPad, AttendantMenuItem> m_menuItems;
 

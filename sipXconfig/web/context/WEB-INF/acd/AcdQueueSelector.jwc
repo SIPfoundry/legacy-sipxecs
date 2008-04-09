@@ -35,8 +35,4 @@
     <binding name="model" value="bean:queueSelectionModel" />
     <binding name="onchange" value="literal:javascript:this.form.submit();"/>
   </component>
-  
-  <component id="renderQueueFilter" type="If">
-    <binding name="condition" value="show" />
-  </component>  
 </component-specification>

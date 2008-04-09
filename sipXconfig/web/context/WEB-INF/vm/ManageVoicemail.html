@@ -54,7 +54,7 @@
         <li>
           <span jwcid="@phone/GroupActions" actionModel="ognl:actionModel" selectedIds="ognl:selections.allSelected"/>
         </li>
-        <li jwcid="@If" condition="ognl:folderId.equals('deleted')" element="li">
+        <li jwcid="@If" condition="ognl:folderId.equals('deleted')">
           <input id="delete:voicemail" jwcid="deleteVoicemail@Submit" listener="listener:delete"
             value="message:button.delete"/>
           <span jwcid="@common/Confirm" component="component:deleteVoicemail" prompt="message:confirm.delete"/>

@@ -28,6 +28,9 @@ public abstract class WaitingPage extends UserBasePage implements PageEndRenderL
     @Asset("/images/loading.gif")
     public abstract IAsset getLoadingImage();
 
+    @Asset("context:/WEB-INF/admin/WaitingPage.script")
+    public abstract IAsset getWaitingScript();
+
     @Persist(value = "client")
     public abstract WaitingListener getWaitingListener();
 

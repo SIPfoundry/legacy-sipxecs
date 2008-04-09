@@ -13,6 +13,8 @@ import java.text.Format;
 import java.util.Date;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IAsset;
+import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Message;
 import org.apache.tapestry.annotations.Parameter;
@@ -22,6 +24,9 @@ import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticResult.
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class DiagnosticDetail extends BaseComponent {
+    @Asset("context:/WEB-INF/admin/configdiag/DiagnosticDetail.script")
+    public abstract IAsset getScript();
+
     @Parameter
     public abstract ConfigurationDiagnostic getTest();
 

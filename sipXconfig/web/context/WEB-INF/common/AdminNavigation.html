@@ -23,11 +23,11 @@
   <li>
   <a><span key="menu.section.admin">Features</span></a>
     <ul>
-      <li jwcid="@If" element="li" condition="ognl:acdContext.enabled">
+      <li jwcid="@If" condition="ognl:acdContext.enabled">
         <a jwcid="@PageLink" id="menu.acd" page="acd/ListAcdServers"><span key="menu.acd">ACD</span></a>
       </li>
       <!-- does not used "presenceServer.enabled" because AcdPresenceServer page requires ACD to be available as well -->
-      <li jwcid="@If" element="li" condition="ognl: acdContext.enabled">
+      <li jwcid="@If" condition="ognl: acdContext.enabled">
         <a jwcid="@PageLink" id="menu.acdPresence" page="acd/AcdPresenceServer"><span key="menu.acdPresence">ACD Presence</span></a>
       </li>
       <li><a jwcid="@PageLink" id="menu.attendants" page="dialplan/ManageAttendants"><span key="menu.attendants">Auto Attendants</span></a></li>
@@ -58,15 +58,15 @@
   <li>
     <a><span key="menu.section.diag">Diagnostics</span></a>
     <ul>
-      <li jwcid="@If" element="li" condition="ognl:coreContext.debug">
+      <li jwcid="@If" condition="ognl:coreContext.debug">
           <a jwcid="@PageLink" id="menu.testpage" page="TestPage"><span key="menu.testpage">Tests</span></a>
       </li>
       <li><a jwcid="@PageLink" id="menu.registrations" page="admin/commserver/Registrations"><span key="menu.registrations">Registrations</span></a></li>
       <li><a jwcid="@PageLink" id="menu.cdr" page="cdr/CdrPage"><span key="menu.cdr">Calls</span></a></li>
-      <li jwcid="@If" element="li" condition="ognl:monitoringContext.enabled">
+      <li jwcid="@If" condition="ognl:monitoringContext.enabled">
         <a jwcid="@PageLink" id="menu.statistics" page="admin/StatisticsPage"><span key="menu.statistics">Statistics</span></a>
       </li>
-      <li jwcid="@If" element="li" condition="ognl:acdContext.enabled">
+      <li jwcid="@If" condition="ognl:acdContext.enabled">
         <a jwcid="@PageLink" id="menu.acdHistory" page="acd/AcdHistoryPage"><span key="menu.acdHistory">ACD Calls</span></a>
       </li>
       <li><a jwcid="@PageLink" id="menu.jobs" page="admin/JobStatusPage"><span key="menu.jobs">Job Status</span></a></li>

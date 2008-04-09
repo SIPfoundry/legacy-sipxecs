@@ -6,12 +6,8 @@
   <input-symbol key="component" required="yes" />
   <input-symbol key="prompt" required="yes" />
   
-  <let key="formObject">
-    document.${component.form.name}
-  </let>
-  
   <let key="button">
-    ${formObject}.elements['${component.name}']
+    dojo.byId('${component.clientId}')
   </let>  
   
   <body>

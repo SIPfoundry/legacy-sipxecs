@@ -14,13 +14,13 @@
       <form jwcid="@Form" id="backups:form" delegate="bean:validator">
         <fieldset>
           <table>
-            <span jwcid="@Foreach" source="ognl:backups" value="ognl:currentFolder">
+            <span jwcid="@For" source="ognl:backups" value="ognl:currentFolder" renderTag="false">
               <tr>
                 <td colspan="2"><span jwcid="@Insert" value="ognl:currentFolderName"/>
               </tr>
               <tr>
-                <td jwcid="@Foreach" source="ognl:backupTypes" value="ognl:currentType" element="td">
-                  <span jwcid="@If" condition="ognl:currentFolder[currentType]">
+                <td jwcid="@For" source="ognl:backupTypes" value="ognl:currentType">
+                  <span jwcid="@If" condition="ognl:currentFolder[currentType]" renderTag="false">
                     <span jwcid="defaultValue@Checkbox" value="ognl:selections.selected[currentFolder[currentType].file]"/>
                     <span jwcid="@common/DownloadLink" fileName="" dirName="ognl:currentFolder[currentType].file.path" contentType="literal:tar/x-gzip">
                       <span jwcid="@Insert" value="ognl:currentBackupName"/>

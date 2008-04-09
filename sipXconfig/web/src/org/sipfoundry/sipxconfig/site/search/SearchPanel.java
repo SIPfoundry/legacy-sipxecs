@@ -11,12 +11,16 @@ package org.sipfoundry.sipxconfig.site.search;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.ComponentClass;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class SearchPanel extends BaseComponent {
+    @Asset(value = "context:/WEB-INF/search/SearchPanel.script")
+    public abstract IAsset getScript();
 
     public abstract String getQuery();
 

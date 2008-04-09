@@ -10,7 +10,7 @@
     <binding name="tag" value="!toggle"/>
     <binding name="selected" value="toggle"/>
   </component>
-  <component id="toggleText" type="InsertText">
+  <component id="toggleText" type="Insert">
     <binding name="value" value="toggle?labelOn:labelOff"/>
   </component>
 </component-specification>

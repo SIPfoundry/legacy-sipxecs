@@ -5,7 +5,7 @@
     <span jwcid="@Insert" value="ognl:phone.model.label"/>
   </p>
   <form jwcid="@Form">
-    <p jwcid="@If" condition="ognl:phoneModel.versions.length > 0" element="p">
+    <p jwcid="@If" condition="ognl:phoneModel.versions.length > 0">
       <strong><span key="label.firmware">Firmware Version</span>:</strong>&nbsp;
       <span jwcid="selectVersion@PropertySelection"
         model="bean:versions"

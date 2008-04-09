@@ -11,14 +11,14 @@
         <tbody>
           <tr>
             <td colspan="4">
-              <span jwcid="@InsertText" value="ognl:firstCallMsg">Your extension will ring first.</span>
+              <span jwcid="@Insert" value="ognl:firstCallMsg">Your extension will ring first.</span>
             </td>
           </tr>
           <!-- iterate here -->            
           <tr jwcid="@For" source="ognl:rings" value="ognl:ring" index="ognl:index" volatile="true">
             <span jwcid="@user_portal/RingEditor" ring="ognl:ring" index="ognl:index" deleteListener="listener:deleteRing" availableSchedules="ognl:availableSchedules"/>
           </tr>
-          <tr jwcid="@If" condition="ognl:hasVoiceMail" element="tr">
+          <tr jwcid="@If" condition="ognl:hasVoiceMail">
             <td colspan="4">
               <span key="msg.voicemail">If no-one answers your call will be forwarded to Voicemail.</span>
             </td>

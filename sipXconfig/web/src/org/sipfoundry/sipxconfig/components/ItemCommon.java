@@ -10,6 +10,11 @@
 package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.Parameter;
 
+@ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class ItemCommon extends BaseComponent {
+    @Parameter(required = true)
+    public abstract Object getItem();
 }

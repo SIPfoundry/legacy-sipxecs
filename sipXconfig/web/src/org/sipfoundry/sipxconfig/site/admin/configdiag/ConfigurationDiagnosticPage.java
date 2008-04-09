@@ -13,6 +13,8 @@ import java.text.DateFormat;
 import java.text.Format;
 import java.util.List;
 
+import org.apache.tapestry.IAsset;
+import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.bean.EvenOdd;
@@ -25,6 +27,9 @@ import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticContext
 public abstract class ConfigurationDiagnosticPage extends BasePage implements
         PageBeginRenderListener {
     public static final String PAGE = "admin/configdiag/ConfigurationDiagnosticPage";
+
+    @Asset("context:/WEB-INF/admin/configdiag/ConfigurationDiagnosticPage.script")
+    public abstract IAsset getScript();
 
     @InjectObject(value = "spring:configurationDiagnosticContext")
     public abstract ConfigurationDiagnosticContext getConfigurationDiagnosticContext();

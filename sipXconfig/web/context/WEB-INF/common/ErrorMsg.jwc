@@ -16,7 +16,7 @@
   <component id="hasSuccess" type="If">
     <binding name="condition" value="validator.hasSuccess"/>
   </component>
-  <component id="firstSuccess" type="InsertText">
+  <component id="firstSuccess" type="Insert">
     <binding name="value" value="validator.success"/>
   </component>
 </component-specification>

@@ -15,7 +15,7 @@
   <inject property="sipxProcessContext" object="spring:sipxProcessContext"/>
   <property name="restartLater" initial-value="false"/>
   
-  <component id="reminder" type="InsertText">
+  <component id="reminder" type="Insert">
     <binding name="value" value="reminderMsg"/>
   </component>
   <component id="checkRestartLater" type="Checkbox">
