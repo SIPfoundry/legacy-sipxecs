@@ -309,8 +309,11 @@ public class Gateway {
                             accountManager.getBridgeConfiguration()
                                     .getMusicOnHoldName(), Gateway
                                     .getSipxProxyDomain());
-            musicOnHoldAddress = ProtocolObjects.addressFactory
+            if (mohUri != null)  {
+                musicOnHoldAddress = ProtocolObjects.addressFactory
                     .createAddress(mohUri);
+            }
+            
             String domain = Gateway.getSipxProxyDomain();
             gatewayFromAddress = ProtocolObjects.addressFactory
                     .createAddress(ProtocolObjects.addressFactory.createSipURI(
