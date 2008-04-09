@@ -110,10 +110,16 @@ public:
    bool isEncrypted() const;
 
    /// Test whether or not the given name is the SSL client that sent this request.
-   bool isTrustedPeer( const UtlString& peername ) const;
+   bool isTrustedPeer( const UtlString&  peername ///< name of the peer to check
+                      ) const;
    /**<
     * This tests the host identity provided by the SSL handshake; it does not
     * test the HTTP user identity.
+    *
+    * @NOTE All subjectAltName values are case-folded to lower case: @see OsSSL::peerIdentity
+    *
+    * @TODO This should allow selection limited by the name type
+    *
     * @returns
     * - true if the connection is SSL and the peername matches a name in the peer certificate.
     * - false if not.

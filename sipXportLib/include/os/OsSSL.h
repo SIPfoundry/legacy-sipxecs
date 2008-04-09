@@ -71,12 +71,22 @@ class OsSSL
                             ,UtlSList*  altNames   /**< UtlStrings for verfied subjectAltNames
                                                     *   are added to this - caller must free them.
                                                     */
-                            ,UtlString* commonName ///< the Subject name is returned here
+                            ,UtlString* commonName /**< the Subject name is returned here.
+                                                    *   this should not be used if there are any
+                                                    *   altName values.
+                                                    */
                             );
    /**<
     * Usually, the names in the altNames will be easier to parse and use than commonName
     * Either or both of altNames or commonName may be NULL, in which case no names are returned;
     * the return value still indicates the trust relationship with the peer certificate.
+    *
+    * @NOTE All name values taken from the cert have been changed to all lower case; this is
+    *       not completely correct (it should be sensitive to the type), but will do for now.
+    *
+    * @TODO This should allow selection based on the type of the subjectAltName, and should.
+    *       adjust case sensitivity by type.
+    *
     * @returns
     * - true if the connection peer is validated by a trusted authority
     * - false if not, in which case no names are returned.

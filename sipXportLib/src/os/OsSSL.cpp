@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -70,10 +70,10 @@ OsSSL::OsSSL(const char* authorityPath,
       // only enable loading of error strings when debugging.
       // Perhaps this should be conditional?
       SSL_load_error_strings();
-   
+
       sInitialized = true;
    }
-   
+
    mCTX = SSL_CTX_new(SSLv23_method());
 
    if (mCTX)
@@ -83,7 +83,7 @@ OsSSL::OsSSL(const char* authorityPath,
                                         authorityPath ? authorityPath : defaultAuthorityPath)
           > 0)
       {
-         
+
          if (SSL_CTX_use_certificate_file(mCTX,
                                           publicCertificateFile
                                           ? publicCertificateFile
@@ -120,7 +120,7 @@ OsSSL::OsSSL(const char* authorityPath,
                                      SSL_VERIFY_PEER + SSL_VERIFY_CLIENT_ONCE,
                                      verifyCallback
                                      );
-                  
+
                   // disable server connection caching
                   // TODO: Investigate turning this on...
                   SSL_CTX_set_session_cache_mode(mCTX, SSL_SESS_CACHE_OFF);
@@ -191,7 +191,7 @@ OsSSL::~OsSSL()
 }
 
 /* ============================ MANIPULATORS ============================== */
- 
+
 /* ============================ ACCESSORS ================================= */
 
 /// Get an SSL server connection handle
@@ -261,8 +261,7 @@ void OsSSL::logConnectParams(const OsSysLogFacility facility, ///< callers facil
       char* subjectStr = NULL;
       char* issuerStr = NULL;
 
-      UtlString* subjectAltNameURI = NULL;
-      UtlString* subjectAltNameDNS = NULL;
+      UtlString altNames;
 
       // Extract the subject and issuer information about the peer
       // and the certificate validation result.  Neither of these
@@ -275,11 +274,11 @@ void OsSSL::logConnectParams(const OsSysLogFacility facility, ///< callers facil
          subjectStr = X509_NAME_oneline(X509_get_subject_name(peer_cert),0,0);
          issuerStr = X509_NAME_oneline(X509_get_issuer_name(peer_cert),0,0);
 
-         // Look for the subjectAltName URI or DNS attributes      
+         // Look for the subjectAltName URI or DNS attributes
          GENERAL_NAMES* names;
          names = (GENERAL_NAMES*)X509_get_ext_d2i(peer_cert, NID_subject_alt_name, NULL, NULL);
          for(int i = 0; i < sk_GENERAL_NAME_num(names); i++)
-         {  
+         {
             GENERAL_NAME* name = sk_GENERAL_NAME_value(names, i);
 
             switch (name->type)
@@ -287,14 +286,22 @@ void OsSSL::logConnectParams(const OsSysLogFacility facility, ///< callers facil
             case GEN_DNS:
             {
                ASN1_IA5STRING* uri = name->d.uniformResourceIdentifier;
-               subjectAltNameDNS = new UtlString((const char*)(uri->data),uri->length);
+               if (!altNames.isNull())
+               {
+                  altNames.append(",");
+               }
+               altNames.append((const char*)(uri->data),uri->length);
             }
             break;
-         
+
             case GEN_URI:
             {
                ASN1_IA5STRING* uri = name->d.uniformResourceIdentifier;
-               subjectAltNameURI = new UtlString((const char*)(uri->data),uri->length);
+               if (!altNames.isNull())
+               {
+                  altNames.append(",");
+               }
+               altNames.append((const char*)(uri->data),uri->length);
             }
             break;
 
@@ -305,7 +312,7 @@ void OsSSL::logConnectParams(const OsSysLogFacility facility, ///< callers facil
          }
          sk_GENERAL_NAME_pop_free(names, GENERAL_NAME_free);
       }
-      
+
       // Get the name of the encryption applied to the connection
       const char* cipher = SSL_get_cipher(connection);
 
@@ -313,15 +320,13 @@ void OsSSL::logConnectParams(const OsSysLogFacility facility, ///< callers facil
                     "%s SSL Connection:\n"
                     "   status:  %s\n"
                     "   peer:    '%s'\n"
-                    "   alt URI: '%s'\n"
-                    "   alt DNS: '%s'\n"
+                    "   alt names: %s\n"
                     "   cipher:  '%s'\n"
                     "   issuer:  '%s'",
                     callerMsg,
                     validity == X509_V_OK ? "Verified" : "NOT VERIFIED",
                     subjectStr ? subjectStr : "",
-                    subjectAltNameURI ? subjectAltNameURI->data() : "",
-                    subjectAltNameDNS ? subjectAltNameDNS->data() : "",
+                    altNames.isNull() ? "" : altNames.data(),
                     cipher     ? cipher     : "",
                     issuerStr  ? issuerStr  : ""
                     );
@@ -334,14 +339,6 @@ void OsSSL::logConnectParams(const OsSysLogFacility facility, ///< callers facil
       if (issuerStr)
       {
          OPENSSL_free(issuerStr);
-      }
-      if (subjectAltNameDNS)
-      {
-         delete subjectAltNameDNS;
-      }
-      if (subjectAltNameURI)
-      {
-         delete subjectAltNameURI;
       }
       if (peer_cert)
       {
@@ -385,7 +382,7 @@ bool OsSSL::peerIdentity( SSL*       connection ///< SSL connection to be descri
    {
       commonName->remove(0);
    }
-   
+
    if (connection)
    {
       // Extract the subject and issuer information about the peer
@@ -398,8 +395,10 @@ bool OsSSL::peerIdentity( SSL*       connection ///< SSL connection to be descri
          if (X509_V_OK == SSL_get_verify_result(connection))
          {
             peerCertTrusted = true;
-         
+
             char* subjectStr = X509_NAME_oneline(X509_get_subject_name(peer_cert),NULL,0);
+
+            // @TODO this should also enforce any extendedKeyUsage limitations
 
 #           ifdef TEST_DEBUG
             debugMsg.append("OsSSL::peerIdentity verified");
@@ -417,31 +416,39 @@ bool OsSSL::peerIdentity( SSL*       connection ///< SSL connection to be descri
                debugMsg.append(subjectStr);
                debugMsg.append("'");
 #              endif
-               OPENSSL_free(subjectStr);               
+               OPENSSL_free(subjectStr);
             }
-            
+
             if (altNames)
             {
-               // Look for the subjectAltName attributes      
+               // Look for the subjectAltName attributes
                GENERAL_NAMES* names;
                names = (GENERAL_NAMES*)X509_get_ext_d2i(peer_cert, NID_subject_alt_name, NULL, NULL);
 
                for(int i = 0; i < sk_GENERAL_NAME_num(names); i++)
-               {  
-                  GENERAL_NAME* name = sk_GENERAL_NAME_value(names, i);
-                  ASN1_IA5STRING* uri;
-               
+               {
+                  GENERAL_NAME*   name = sk_GENERAL_NAME_value(names, i);
+                  ASN1_IA5STRING* nameValue;
+                  UtlString*      normalizedName;
+
                   switch (name->type)
                   {
                   case GEN_DNS:
                   case GEN_URI:
-                     uri = name->d.uniformResourceIdentifier;
-                     altNames->append(new UtlString((const char*)(uri->data),uri->length));
+                     nameValue = name->d.uniformResourceIdentifier;
+                     normalizedName
+                        = new UtlString((const char*)(nameValue->data),nameValue->length);
+                     // @TODO: We should parse this value before adjusting the case,
+                     //        but that requires doing it at a higher level in the stack
+                     //        where we can parse a URL, and we don't yet have selection
+                     //        based on type anyway.
+                     normalizedName->toLower();
 #                    ifdef TEST_DEBUG
                      debugMsg.append(" '");
-                     debugMsg.append((const char*)(uri->data),uri->length);
+                     debugMsg.append(*normalizedName);
                      debugMsg.append("'");
 #                    endif
+                     altNames->append(normalizedName);
                      break;
 
                   default:
@@ -449,7 +456,7 @@ bool OsSSL::peerIdentity( SSL*       connection ///< SSL connection to be descri
                      break;
                   }
                }
-            sk_GENERAL_NAME_pop_free(names, GENERAL_NAME_free);
+               sk_GENERAL_NAME_pop_free(names, GENERAL_NAME_free);
             }
 #           ifdef TEST_DEBUG
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "%s", debugMsg.data());
@@ -457,14 +464,14 @@ bool OsSSL::peerIdentity( SSL*       connection ///< SSL connection to be descri
          }
          else
          {
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSSL::peerIdentity peer not validated");
+            OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsSSL::peerIdentity peer not validated");
          }
 
          X509_free(peer_cert);
       }
       else
       {
-         OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSSL::peerIdentity no peer certificate");
+         OsSysLog::add(FAC_KERNEL, PRI_WARNING, "OsSSL::peerIdentity no peer certificate");
       }
    }
    else
@@ -528,9 +535,9 @@ int OsSSL::verifyCallback(int valid,            // validity so far from openssl
    else
    {
       // log the details of why openssl thinks this is not valid
-      char issuer[256]; 
-      char subject[256]; 
-      
+      char issuer[256];
+      char subject[256];
+
       X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer));
       X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject));
       OsSysLog::add(FAC_KERNEL, PRI_ERR,
