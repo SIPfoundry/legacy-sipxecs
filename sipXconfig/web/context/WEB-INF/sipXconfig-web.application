@@ -10,7 +10,6 @@
     <meta key="org.apache.tapestry.component-class-packages" value="org.sipfoundry.sipxconfig.site"/>
     
     <library id="contrib" specification-path="/org/apache/tapestry/contrib/Contrib.library"/>
-	<library id="tacos" specification-path="/net/sf/tacos/Tacos.library"/>
 	
 	<!-- DO NOT define any pages or components in this file. They should be
 	     referenced by their fully qualified name wherever they are used. -->

@@ -18,10 +18,12 @@ import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.components.Block;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.web.WebRequest;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.VersionInfo;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycleImpl;
 import org.sipfoundry.sipxconfig.site.UserSession;
@@ -115,13 +117,13 @@ public class BorderTest extends TestCase {
         }
 
         public void setNavigationBlock(Block block) {
-            
+
         }
-        
+
         public Block getNavigationBlock() {
             return null;
         }
-        
+
         public boolean isLoginRequired() {
             return m_loginRequired;
         }
@@ -165,6 +167,40 @@ public class BorderTest extends TestCase {
 
         public SkinControl getSkin() {
             return null;
+        }
+        public String getClientId() {
+            return m_clientId;
+        }
+
+        public void setClientId(String id) {
+            m_clientId = id;
+        }
+
+        public String getBaseUrl() {
+            return null;
+        }
+
+        public String getHelpLink(Integer... versionIds) {
+            return null;
+        }
+
+        public WebRequest getRequest() {
+            return null;
+        }
+
+        public TapestryContext getTapestry() {
+            return null;
+        }
+
+        public boolean getUseDojo() {
+            return false;
+        }
+
+        public VersionInfo getVersionInfo() {
+            return null;
+        }
+
+        public void setBaseUrl(String baseUrl) {
         }
     }
 }

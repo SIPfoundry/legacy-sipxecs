@@ -1,28 +1,27 @@
-<html jwcid="shell">
-  <span jwcid="@If" condition="prop:useDojo">
-    <script type="text/javascript">    
-djConfig = { isDebug: false,
-    disableFlashStorage: true,
-    baseRelativePath: "js/dojo",
-    parseWidgets: false,
-    preventBackButtonFix: false};
-    </script>
-    <script jwcid="@Any" type="text/javascript" src="ognl:baseURL + '/js/dojo/dojo.js'"></script>
-  </span>
+<html jwcid="shell@Shell"
+    stylesheets="ognl:stylesheets"
+    disableCaching="ognl:true"
+    title="message:product.name"
+    renderBaseTag="ognl:tapestry.renderBaseTag">
   <body jwcid="@Body">
     <div jwcid="@If" condition="prop:userSession.navigationVisible">
       <div id="banner">
         <div id="logo">&nbsp;</div>
       	<div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
         <div id="banner-links">
-              <a jwcid="@PageLink" class="linkHome" id="link.home" page="Home"><span key="link.home">Home</span></a>
-              <a jwcid="helpLink" class="linkHelp" id="link.help"><span key="link.help">Online Help</span></a>
-              <a jwcid="logoutLink" class="linkLogout" id="link.logout"><span key="link.logout">Logout</span></a>
-          <span jwcid="@If" condition="prop:userSession.admin">
-              <span jwcid="@search/SearchPanel"/>
-          </span>
+            <a jwcid="@PageLink" class="linkHome" id="link.home" page="Home"><span key="link.home">Home</span></a>
+            <a jwcid="helpLink@GenericLink" class="linkHelp" id="link.help"
+                target="sipxconfig-help" 
+                href="ognl:getHelpLink(versionInfo.versionIds)">
+                <span key="link.help">Online Help</span>
+            </a>
+            <a jwcid="logoutLink@DirectLink" class="linkLogout" id="link.logout" listener="listener:logout">
+                <span key="link.logout">Logout</span>
+            </a>
+            <span jwcid="@If" condition="ognl:userSession.admin">
+                <span jwcid="@search/SearchPanel"/>
+            </span>
         </div>
-
       </div>
       <div id="navigation">
         <span jwcid="@If" condition="prop:userSession.admin">

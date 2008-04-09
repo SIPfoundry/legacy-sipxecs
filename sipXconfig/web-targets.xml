@@ -23,6 +23,7 @@
 
   <path id="web.runtime.dependencies">
     <path refid="spring.runtime.dependencies"/>
+    <pathelement path="${backport-util-concurrent.jar}"/>
     <pathelement path="${bsf.jar}"/>
     <pathelement path="${commons-beanutils.jar}"/>
     <pathelement path="${commons-collections.jar}"/>
@@ -61,6 +62,7 @@
     <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
   
     <copy todir="${dest.dir}${sipxpbx.data.dir}/lib">
+      <fileset file="${backport-util-concurrent.jar}"/>
       <fileset file="${tapestry.jar}"/>
       <fileset file="${tapestry-contrib.jar}"/>
       <fileset file="${tapestry-checkboxes.jar}"/>

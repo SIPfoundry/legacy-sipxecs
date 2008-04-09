@@ -9,24 +9,31 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
-import java.util.Iterator;
-import java.util.Map;
+import java.util.Collection;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IExternalPage;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.Tapestry;
+import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectState;
+import org.apache.tapestry.annotations.Message;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.callback.ExternalCallback;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.components.Block;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.engine.ILink;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageValidateListener;
 import org.apache.tapestry.link.StaticLink;
+import org.apache.tapestry.web.WebRequest;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.VersionInfo;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
@@ -36,76 +43,104 @@ import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.common.LeftNavigation;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
 
-public abstract class Border extends BaseComponent implements PageValidateListener {
-    private VersionInfo m_version = new VersionInfo();
+@ComponentClass(allowInformalParameters = false)
+public abstract class Border extends BaseComponent implements PageValidateListener, PageBeginRenderListener {
+    @InjectObject(value = "spring:versionInfo")
+    public abstract VersionInfo getVersionInfo();
 
+    @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
-    
+
+    @InjectObject(value = "spring:tapestry")
+    public abstract TapestryContext getTapestry();
+
+    @InjectObject(value = "infrastructure:request")
+    public abstract WebRequest getRequest();
+
+    @InjectObject(value = "service:sipxconfig.ApplicationLifecycle")
+    public abstract ApplicationLifecycle getApplicationLifecycle();
+
+    @InjectObject(value = "engine-service:restart")
+    public abstract IEngineService getRestartService();
+
+    @InjectState(value = "userSession")
+    public abstract UserSession getUserSession();
+
     /**
      * When true - page does not require login
      */
+    @Parameter(defaultValue = "true")
     public abstract boolean isLoginRequired();
-
-    public abstract UserSession getUserSession();
-
-    public abstract ApplicationLifecycle getApplicationLifecycle();
 
     /**
      * When true - only SUPER can see the pages, when false END_USER is accepted as well as admin
      */
+    @Parameter(defaultValue = "true")
     public abstract boolean isRestricted();
 
-    public abstract IEngineService getRestartService();
+    @Deprecated
+    @Parameter(defaultValue = "false")
+    public abstract boolean getUseDojo();
+
+    @Message
+    public abstract String getHelpLink(Integer... versionIds);
 
     /**
      * Gets the {@code Block} being used as the navigation area.
+     * 
      * @return the {@code Block} that will be rendered in the navigation area.
      */
     public abstract Block getNavigationBlock();
 
     /**
      * Sets a {@code Block} component to be used as the left navigation block.
+     * 
      * @param navigationBlock The {@code Block} to render in the navigation area.
      */
     public abstract void setNavigationBlock(Block navigationBlock);
-    
+
+    public abstract String getBaseUrl();
+
+    public abstract void setBaseUrl(String baseUrl);
+
+    public void pageBeginRender(PageEvent event) {
+        if (getBaseUrl() == null) {
+            String baseUrl = getRequest().getContextPath();
+            setBaseUrl(baseUrl);
+        }
+    }
+
     @Override
     protected void prepareForRender(IRequestCycle cycle) {
         if (getNavigationBlock() == null) {
-            Map topLevelComponents = getPage().getComponents();
+            Collection<IComponent> topLevelComponents = getPage().getComponents().values();
             Block navigationBlock = searchForNavigationBlock(topLevelComponents);
-
-            if (navigationBlock == null) {
-                Iterator components = topLevelComponents.entrySet().iterator();
-                while (components.hasNext() && navigationBlock == null) {
-                    IComponent component = (IComponent) ((Map.Entry) components.next()).getValue();
-                    navigationBlock = searchForNavigationBlock(component.getComponents());
-                }
-            }
-
             setNavigationBlock(navigationBlock);
-        }            
+        }
     }
-    
-    private Block searchForNavigationBlock(Map components) {
-        Block navigationBlock = null;
-        Iterator componentIterator = components.entrySet().iterator();
-        while (componentIterator.hasNext() && navigationBlock == null) {
-            Map.Entry entry = (Map.Entry) componentIterator.next();
-            IComponent component = (IComponent) entry.getValue();
-            if (component instanceof LeftNavigation) {
-                navigationBlock = (LeftNavigation) component;
+
+    // FIXME: change to search by name - it's kept in the hashmap by name
+    private Block searchForNavigationBlock(Collection<IComponent> components) {
+        for (IComponent value : components) {
+            if (value instanceof LeftNavigation) {
+                return (LeftNavigation) value;
             }
         }
-        
-        return navigationBlock;
+        for (IComponent value : components) {
+            Block navigationBlock = searchForNavigationBlock(value.getComponents().values());
+            if (navigationBlock != null) {
+                return navigationBlock;
+            }
+        }
+
+        return null;
     }
-    
+
     public void pageValidate(PageEvent event) {
         if (!isLoginRequired()) {
             return;
         }
-        
+
         // If there are no users, then we need to create the first user
         if (getCoreContext().getUsersCount() == 0) {
             throw new PageRedirectException(FirstUser.PAGE);
@@ -116,7 +151,7 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         if (!user.isLoggedIn()) {
             redirectToLogin(getPage(), event.getRequestCycle());
         }
-        
+
         // If the logged-in user is not an admin, and this page is restricted, then
         // redirect the user to the home page since they are not worthy.
         // (We should probably use an error page instead of just tossing them home.)
@@ -124,7 +159,7 @@ public abstract class Border extends BaseComponent implements PageValidateListen
             throw new PageRedirectException(Home.PAGE);
         }
     }
-    
+
     public ILink logout(IRequestCycle cycle) {
         getApplicationLifecycle().logout();
         return new StaticLink(cycle.getAbsoluteURL("/"));
@@ -132,27 +167,28 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     protected void redirectToLogin(IPage page, IRequestCycle cycle) {
         LoginPage login = (LoginPage) page.getRequestCycle().getPage(LoginPage.PAGE);
-        conditionallySetLoginCallback(login, page, cycle);        
+        conditionallySetLoginCallback(login, page, cycle);
         throw new PageRedirectException(login);
     }
-    
+
     private void conditionallySetLoginCallback(LoginPage login, IPage page, IRequestCycle cycle) {
         // If page service is calling page, you're probably logged out and user could be
         // looking at a very different page then what gets interpretted from this callback
-        // because all session data is lost. 
+        // because all session data is lost.
         //
         // If your page can safely handle this, consider refactoring border component to accept a
-        // component parameter to circumvent this constraint.  Warning: this means your page 
+        // component parameter to circumvent this constraint. Warning: this means your page
         // either doesn't use session variabled OR can safely recover when session is lost
         //
-        String serviceName = cycle.getService().getName(); 
-        if (Tapestry.EXTERNAL_SERVICE.equals(serviceName)) {                
+        String serviceName = cycle.getService().getName();
+        if (Tapestry.EXTERNAL_SERVICE.equals(serviceName)) {
             ICallback callback = new ExternalCallback((IExternalPage) page, cycle.getListenerParameters());
-            login.setCallback(callback);            
+            login.setCallback(callback);
         }
     }
 
-    public VersionInfo getVersionInfo() {
-        return m_version;
+    public IAsset[] getStylesheets() {
+        return getTapestry().getStylesheets(this);
     }
+
 }

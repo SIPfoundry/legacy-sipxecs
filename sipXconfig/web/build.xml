@@ -24,7 +24,6 @@
     <pathelement path="${tapestry-contrib.jar}"/>
     <pathelement path="${tapestry-prop.jar}"/>
     <pathelement path="${tapestry-annotations.jar}"/>
-    <pathelement path="${tacos.jar}"/>
     <pathelement path="${ognl.jar}"/>
     <pathelement path="${restlet.jar}"/>
     <pathelement path="${restlet-impl.jar}"/>
@@ -40,6 +39,7 @@
     <pathelement path="${acegi-security.jar}"/>
     <pathelement path="${aopalliance.jar}"/>
     <pathelement path="${asm.jar}"/>
+    <pathelement path="${backport-util-concurrent.jar}"/>
     <pathelement path="${bsf.jar}"/>
     <pathelement path="${cglib.jar}"/>
     <pathelement path="${commons-beanutils.jar}"/>
@@ -249,7 +249,7 @@
       <fileset file="${tapestry-contrib.jar}"/>
       <fileset file="${tapestry-prop.jar}"/>
       <fileset file="${tapestry-annotations.jar}"/>
-      <fileset file="${tacos.jar}"/>
+      <fileset file="${backport-util-concurrent.jar}"/>
       <fileset file="${ognl.jar}"/>
       <!-- SOAP -->
       <fileset file="${axis.jar}"/>
