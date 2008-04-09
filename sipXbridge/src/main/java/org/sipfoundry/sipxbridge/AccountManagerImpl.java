@@ -129,7 +129,7 @@ public class AccountManagerImpl implements
         for (ItspAccountInfo accountInfo : itspAccounts.values()) {
             if (accountInfo.getProxyDomain().equals(sipUri.getHost())) {
                 return accountInfo;
-            }
+            } 
         }
         return null;
     }
@@ -183,8 +183,10 @@ public class AccountManagerImpl implements
     }
 
     public ItspAccountInfo getItspAccount(String host, int port) {
+        int nport = port == -1 ? 5060 : port;
+        
         for ( HopImpl hop : this.domainNameToProxyAddressMap.values()) {
-            if ( hop.getHost().equals(host) && hop.getPort() == port ) return hop.getItspAccountInfo();
+            if ( hop.getHost().equals(host) && hop.getPort() == nport ) return hop.getItspAccountInfo();
         }
         return null;
     }
