@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import javax.sdp.Attribute;
 import javax.sdp.Connection;
 import javax.sdp.MediaDescription;
 import javax.sdp.Origin;
@@ -160,7 +161,7 @@ public class SipUtilities {
                 return ch;
 
             } else {
-            
+
                 ContactHeader contactHeader = ProtocolObjects.headerFactory
                         .createContactHeader();
                 SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(
@@ -533,13 +534,26 @@ public class SipUtilities {
         }
     }
 
-    public static String getSessionDescriptionMediaAttribute(
+    public static String getSessionDescriptionMediaAttributeDuplexity(
             SessionDescription sessionDescription) {
+        String retval = null;
         try {
 
-            MediaDescription mediaDescription = (MediaDescription) sessionDescription
+            MediaDescription md = (MediaDescription) sessionDescription
                     .getMediaDescriptions(true).get(0);
-            return mediaDescription.getAttribute("a");
+            for (Object obj : md.getAttributes(false)) {
+                Attribute attr = (Attribute) obj;
+                if (attr.getName().equals("sendrecv"))
+                    return "sendrecv";
+                else if (attr.getName().equals("sendonly"))
+                    return "sendonly";
+                else if (attr.getName().equals("recvonly"))
+                    return "recvonly";
+                else if (attr.getName().equals("inactive"))
+                    return "inactive";
+
+            }
+            return null;
         } catch (Exception ex) {
             throw new RuntimeException("Malformatted sdp", ex);
         }

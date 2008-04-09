@@ -117,10 +117,11 @@
 			</xs:element>
 			
 			<xs:element name="xml-rpc-port" type="xs:integer"
-				maxOccurs="1" minOccurs="0" default="8080">
+				maxOccurs="1" minOccurs="0" >
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						Port for external XML RPC requests to be directed.
+						Port for external XML RPC requests to be directed. If this is missing
+						then the xml rpc server is not started.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -175,7 +176,8 @@
 				default="/var/log/sipxpbx">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						Log directory. Defaults to /var/log/sipxbpx.
+						Log directory. Defaults to /var/log/sipxbpx. The log file name is hard coded
+						to "sipxbridge.log"
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>

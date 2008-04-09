@@ -164,7 +164,7 @@ public class Sym implements SymInterface {
      *            the dialog application data
      * @return -- the recomputed session description.
      */
-    public SessionDescription reAssignSessionParameters(Request request,
+    SessionDescription reAssignSessionParameters(Request request,
             Dialog dialog) throws SdpParseException, SipException {
         SessionDescription sessionDescription = SipUtilities
                 .getSessionDescription(request);
@@ -181,8 +181,9 @@ public class Sym implements SymInterface {
          * first media. Question - what to do when only one media stream is put
          * on hold?
          */
+        
         String mediaAttribute = SipUtilities
-                .getSessionDescriptionMediaAttribute(sessionDescription);
+                .getSessionDescriptionMediaAttributeDuplexity(sessionDescription);
 
         String sessionAttribute = SipUtilities
                 .getSessionDescriptionAttribute(sessionDescription);

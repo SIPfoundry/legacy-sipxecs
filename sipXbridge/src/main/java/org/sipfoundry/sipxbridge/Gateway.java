@@ -124,11 +124,6 @@ public class Gateway {
     private static String globalAddress;
 
     /*
-     * The log file
-     */
-    protected static final String logFile = "/var/log/sipxpbx/sipxbridge.log";
-
-    /*
      * The stun port
      */
     private static final int STUN_PORT = 3478;
@@ -163,6 +158,8 @@ public class Gateway {
      */
     public static GatewayState state = GatewayState.STOPPED;
 
+    private static String logFile;
+
     /*
      * The time for REGISTER requests.
      */
@@ -187,27 +184,30 @@ public class Gateway {
     public static void startXmlRpcServer() {
         try {
 
-            logger.addAppender(new SipFoundryAppender(new SipFoundryLayout(),
-                    logFile));
-
             ConfigurationParser parser = new ConfigurationParser();
             accountManager = parser.createAccountManager(configurationFile);
+            Gateway.logFile =  accountManager.getBridgeConfiguration()
+            .getLogFileDirectory()
+            + "/sipxbridge.log";
+            logger.addAppender(new SipFoundryAppender(new SipFoundryLayout(),
+                   Gateway.logFile));
             BridgeConfiguration bridgeConfiguration = accountManager
                     .getBridgeConfiguration();
             InetAddress localAddr = InetAddress.getByName(Gateway
                     .getLocalAddress());
+            if (Gateway.getXmlRpcWebServerPort() != 0) {
+                webServer = new WebServer(Gateway.getXmlRpcWebServerPort(),
+                        localAddr);
 
-            webServer = new WebServer(Gateway.getXmlRpcWebServerPort(),
-                    localAddr);
+                PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
 
-            PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
+                handlerMapping.addHandler("sipXbridge", SipXbridgeServer.class);
 
-            handlerMapping.addHandler("sipXbridge", SipXbridgeServer.class);
+                XmlRpcServer server = webServer.getXmlRpcServer();
 
-            XmlRpcServer server = webServer.getXmlRpcServer();
-
-            server.setHandlerMapping(handlerMapping);
-            webServer.start();
+                server.setHandlerMapping(handlerMapping);
+                webServer.start();
+            }
 
         } catch (Exception ex) {
             logger.error("Error starting xml rpc server", ex);
@@ -309,11 +309,11 @@ public class Gateway {
                             accountManager.getBridgeConfiguration()
                                     .getMusicOnHoldName(), Gateway
                                     .getSipxProxyDomain());
-            if (mohUri != null)  {
+            if (mohUri != null) {
                 musicOnHoldAddress = ProtocolObjects.addressFactory
-                    .createAddress(mohUri);
+                        .createAddress(mohUri);
             }
-            
+
             String domain = Gateway.getSipxProxyDomain();
             gatewayFromAddress = ProtocolObjects.addressFactory
                     .createAddress(ProtocolObjects.addressFactory.createSipURI(
@@ -666,23 +666,42 @@ public class Gateway {
         return Gateway.state;
 
     }
-
+  
+    /**
+     * Get the log file name.
+     * 
+     * @return the log file name
+     * 
+     */
+    public static String getLogFile() {
+        return Gateway.logFile;
+     }
+    
+    
     /**
      * The main method for the Bridge.
      * 
      * @param args
      */
     public static void main(String[] args) throws Exception {
-        Gateway.startXmlRpcServer();
+        boolean initOnStart = false;
+       
+        /*
+         * Read the input args.
+         */
         for (int i = 0; i < args.length; i++) {
             if ("-config".equals(args[i])) {
                 Gateway.configurationFile = args[++i];
             } else if ("-initOnStartup".equals(args[i])) {
-                start();
+                initOnStart = true;
 
             }
         }
+        Gateway.startXmlRpcServer();
+        if ( initOnStart )  Gateway.start();
 
     }
+
+  
 
 }

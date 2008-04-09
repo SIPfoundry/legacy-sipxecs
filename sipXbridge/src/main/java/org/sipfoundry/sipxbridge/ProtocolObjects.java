@@ -78,7 +78,7 @@ public class ProtocolObjects {
                     .setAddressResolver(new ProxyAddressResolver());
             // UNCOMMENT
             ((SipStackImpl) sipStack).addLogAppender(new SipFoundryAppender(
-                    new SipFoundryLayout(), Gateway.logFile));
+                    new SipFoundryLayout(), Gateway.getLogFile()));
 
         } catch (Exception ex) {
             throw new RuntimeException("Error loading factories", ex);

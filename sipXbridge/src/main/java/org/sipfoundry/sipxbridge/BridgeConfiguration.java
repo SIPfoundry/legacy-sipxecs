@@ -28,9 +28,10 @@ public class BridgeConfiguration {
     private int rtpPortUpperBound = 25500;
     private String musicOnHoldName = "~~mh~";
     private boolean musicOnHoldEnabled = false;
-    private int xmlRpcPort = 8080;
+    private int xmlRpcPort = 0;
     private int sipKeepalive = 20 * 1000; // Miliseconds for SIP keepalive.
     private int mediaKeepalive = 160; // milisec for media keepalive.
+    private String logFileDirectory = "/var/log/sipxpbx";
 
     /**
      * @param externalAddress
@@ -255,6 +256,20 @@ public class BridgeConfiguration {
      */
     public int getMediaKeepalive() {
         return mediaKeepalive;
+    }
+
+    /**
+     * @param logFileName the logFileName to set
+     */
+    public void setLogFileDirectory(String logFileDirectory) {
+        this.logFileDirectory = logFileDirectory;
+    }
+
+    /**
+     * @return the logFileName
+     */
+    public String getLogFileDirectory() {
+        return logFileDirectory;
     }
 
 }
