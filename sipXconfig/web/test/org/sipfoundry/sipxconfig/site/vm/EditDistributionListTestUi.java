@@ -116,21 +116,20 @@ public class EditDistributionListTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
         clickLink("ManageUsers");
 
-        clickLinkWithText(NEW_USER_USERNAME[i]);
-        clickLinkWithText("permission");
-        uncheckCheckbox("booleanField_9");
+        clickLinkWithExactText(NEW_USER_USERNAME[i]);
+        clickLink("link:permission.label");
+        uncheckCheckbox("setting:Voicemail");
         clickButton("setting:ok");
     }
 
     private void addNewUser(int i) {
         SiteTestHelper.home(tester);
         clickLink("NewUser");
-        setTextField("userId", NEW_USER_USERNAME[i]);
-        setTextField("password", NEW_USER_PWORD);
-        setTextField("confirmPassword", NEW_USER_PWORD);
-        setTextField("aliases", NEW_USER_ALIASES[i]);
+        setTextField("user:userId", NEW_USER_USERNAME[i]);
+        setTextField("cp:password", NEW_USER_PWORD);
+        setTextField("cp:confirmPassword", NEW_USER_PWORD);
+        setTextField("user:aliases", NEW_USER_ALIASES[i]);
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
-        SiteTestHelper.assertNoException(tester);
     }
 }

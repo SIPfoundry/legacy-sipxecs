@@ -31,7 +31,6 @@ public class EditAcdAgentTestUi extends WebTestCase {
         clickLink("queue:add");
         setFormData();
         clickButton("form:apply");
-        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
         clickLink("link:agents");
     }
@@ -53,7 +52,6 @@ public class EditAcdAgentTestUi extends WebTestCase {
         assertEquals(2, SiteTestHelper.getRowCount(tester, "agent:list"));
 
         SiteTestHelper.selectRow(tester, 0, true);
-        SiteTestHelper.initUploadFields(tester, "EditAcdAgent");
         clickButton("agent:delete");
 
         SiteTestHelper.assertNoException(tester);
@@ -69,11 +67,9 @@ public class EditAcdAgentTestUi extends WebTestCase {
         assertEquals(count + 1, SiteTestHelper.getRowCount(tester, "agent:list"));
 
         SiteTestHelper.selectRow(tester, 0, true);
-        SiteTestHelper.initUploadFields(tester, "EditAcdAgent");        
         clickButton("agent:moveDown");
         SiteTestHelper.assertRowNotSelected(tester, 0);
         SiteTestHelper.assertRowSelected(tester, 1);
-        SiteTestHelper.initUploadFields(tester, "EditAcdAgent");
         clickButton("agent:moveUp");
         SiteTestHelper.assertRowSelected(tester, 0);
         SiteTestHelper.assertRowNotSelected(tester, 1);
@@ -84,17 +80,16 @@ public class EditAcdAgentTestUi extends WebTestCase {
     }
 
     private void addAgent(int i) throws Exception {
-        SiteTestHelper.initUploadFields(tester, "EditAcdAgent");
-        clickLink("agent:add");
-        SiteTestHelper.assertNoException(tester);
-        clickButton("user:search");
+        setWorkingForm("agentsForm");
+        SiteTestHelper.clickSubmitLink(tester, "agent:add");
+        SiteTestHelper.assertNoUserError(tester);
+        submit("user:search");
         SiteTestHelper.selectRow(tester, i, true);
-        clickButton("user:select");
+        submit("user:select");
         SiteTestHelper.assertNoException(tester);
     }
 
     private void setFormData() {
         setTextField("item:name", "testName");
-        SiteTestHelper.initUploadFields(tester, "EditAcdAgent");
     }
 }

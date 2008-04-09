@@ -32,10 +32,10 @@ public class EditAttendantDefaultsTestUi extends WebTestCase {
     public void testEditSetting() {
         clickLink("defaultAttendantGroup");
         SiteTestHelper.assertNoException(tester);
-        setTextField("integerField_0", "5");
+        setTextField("setting:interDigitTimeout", "5");
         clickButton("setting:apply");
         SiteTestHelper.assertNoException(tester);
-        assertTextFieldEquals("integerField_0", "5");
+        assertTextFieldEquals("setting:interDigitTimeout", "5");
         clickButton("setting:cancel");
         assertTablePresent("list:attendant");
     }

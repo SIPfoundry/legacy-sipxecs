@@ -32,8 +32,9 @@ public class StatisticsPageTestUi extends WebTestCase {
         clickLink("link.configureHosts");
         assertElementPresent("hosts:list");
         assertLinkPresentWithText("host.example.org");
-        clickLinkWithText("host.example.org");
-
+        clickLink("editRowLink");
+        setWorkingForm("targets");
+        
         // select targets
         SiteTestHelper.selectRow(tester, 1, true);
         SiteTestHelper.selectRow(tester, 2, true);
@@ -46,8 +47,7 @@ public class StatisticsPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
 
         clickLink("menu.statistics");
-        selectOption("PropertySelection", "host.example.org");
-        SiteTestHelper.submitNoButton(tester);
+        SiteTestHelper.selectOption(tester, "PropertySelection", "host.example.org");
         assertLinkPresent("link.configureTargets");
         assertLinkPresent("link.configureHosts");
         assertLinkPresent("report0");// summary report
@@ -72,8 +72,7 @@ public class StatisticsPageTestUi extends WebTestCase {
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
         SiteTestHelper.assertNoException(tester);
-        selectOption("PropertySelection", "host.example.org");
-        SiteTestHelper.submitNoButton(tester);
+        SiteTestHelper.selectOption(tester, "PropertySelection", "host.example.org");
         assertLinkPresent("report0");// summary report
         assertLinkPresent("report1");
         assertLinkPresent("report2");
@@ -84,8 +83,7 @@ public class StatisticsPageTestUi extends WebTestCase {
         assertLinkPresent("image2");
 
         // remove all targets to monitor
-        selectOption("PropertySelection", "host.example.org");
-        SiteTestHelper.submitNoButton(tester);
+        SiteTestHelper.selectOption(tester, "PropertySelection", "host.example.org");
         clickLink("link.configureTargets");
         SiteTestHelper.selectRow(tester, 3, false);
         SiteTestHelper.selectRow(tester, 4, false);

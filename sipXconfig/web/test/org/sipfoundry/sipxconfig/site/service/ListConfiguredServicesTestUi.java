@@ -38,16 +38,16 @@ public class ListConfiguredServicesTestUi extends WebTestCase {
         seedNtpService("new ntp service");
         assertElementPresent("service:list");
         String[][] expected = new String[][] {
-                {"new ntp service", "Enabled", "1.1.1.1", "NTP" }
+                {"unchecked", "new ntp service", "Enabled", "1.1.1.1", "NTP" }
         };
         assertTableRowsEqual("service:list", 1, expected);        
     }
     
     private void seedNtpService(String name) {
-        selectOption("newService", "NTP");
+        SiteTestHelper.selectOption(tester, "newService", "NTP");
         assertElementPresent("server:form");
-        setTextField("name", name);
-        setTextField("address", "1.1.1.1");
+        setTextField("item:name", name);
+        setTextField("service:address", "1.1.1.1");
         clickButton("form:ok");        
     }
 

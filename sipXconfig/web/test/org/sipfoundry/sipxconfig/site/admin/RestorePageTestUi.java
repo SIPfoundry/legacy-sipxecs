@@ -66,6 +66,7 @@ public class RestorePageTestUi extends WebTestCase {
     public void testRestoreTwoVoicemailBackups() throws Exception {
         SiteTestHelper.assertNoException(getTester());
         clickLink("link:restore");
+        setWorkingForm("Form");
         checkCheckbox("defaultValue");
         checkCheckbox("defaultValue_2");
         assertButtonPresent("backups:restore");
@@ -76,6 +77,7 @@ public class RestorePageTestUi extends WebTestCase {
     public void testRestoreThreeBackups() throws Exception {
         SiteTestHelper.assertNoException(getTester());
         clickLink("link:restore");
+        setWorkingForm("Form");
         SiteTestHelper.assertNoException(getTester());
         checkCheckbox("defaultValue");
         checkCheckbox("defaultValue_1");
@@ -88,6 +90,7 @@ public class RestorePageTestUi extends WebTestCase {
     public void testRestoreWithNoSelections() throws Exception {
         SiteTestHelper.assertNoException(getTester());
         clickLink("link:restore");
+        setWorkingForm("Form");        
         SiteTestHelper.assertNoException(getTester());
         checkCheckbox("defaultValue");
         uncheckCheckbox("defaultValue");
@@ -128,10 +131,11 @@ public class RestorePageTestUi extends WebTestCase {
     public void testUploadPage() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:upload");
+        setWorkingForm("upload");        
         SiteTestHelper.assertNoException(tester);
         assertElementPresent("configuration");
         assertElementPresent("voicemail");
-        assertButtonPresentWithText("Restore");
+        assertButtonPresent("backups:uploadbutton");
     }
 
     public void testShowLogPage() throws Exception {

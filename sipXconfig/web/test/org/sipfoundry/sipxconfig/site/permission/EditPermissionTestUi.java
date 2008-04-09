@@ -26,6 +26,7 @@ public class EditPermissionTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
         tester.clickLink("toggleNavigation");        
         clickLink("menu.permissions");
+        setWorkingForm("Form");
     }
 
     public void testAddDuplicateCustomPermission() throws Exception {

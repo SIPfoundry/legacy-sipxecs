@@ -32,6 +32,8 @@ import org.sipfoundry.sipxconfig.security.AuthenticationDaoImpl;
  */
 public class JettyTestSetup extends TestSetup {
 
+    private static boolean START_SERVER = true;
+
     private static final int MONITOR_PORT = 9998;
 
     private static final String MONITOR_KEY = "sipxconfig";
@@ -61,7 +63,7 @@ public class JettyTestSetup extends TestSetup {
      * First test will start server, subsequent tests will use shared server instance.
      */
     protected void setUp() throws Exception {
-        if (m_server == null) {
+        if (START_SERVER && m_server == null) {
             m_server = startServer();
         }
     }
@@ -143,8 +145,7 @@ public class JettyTestSetup extends TestSetup {
      */
     public static class JettyTestWebConfiguration extends JettyWebConfiguration {
         public void configureClassPath() throws Exception {
-            getWebApplicationContext().addClassPath(
-                    SiteTestHelper.getArtificialSystemRootDirectory() + "/etc");
+            getWebApplicationContext().addClassPath(SiteTestHelper.getArtificialSystemRootDirectory() + "/etc");
         }
 
     }

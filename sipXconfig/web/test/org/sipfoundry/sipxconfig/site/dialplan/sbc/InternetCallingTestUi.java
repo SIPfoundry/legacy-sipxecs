@@ -42,7 +42,7 @@ public class InternetCallingTestUi extends WebTestCase {
         assertElementNotPresent("sbc:list");
 
         // try toglling
-        clickLink("setting:toggle");
+        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
 
         assertLinkPresent("sbc:add");
         assertElementPresent("sbc:list");
@@ -51,15 +51,13 @@ public class InternetCallingTestUi extends WebTestCase {
         // it's going to fails since SBC address is needed
         SiteTestHelper.assertUserError(tester);
 
-        selectOption("common_FlexiblePropertySelection", "Unmanaged SBC");
-        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "Unmanaged SBC");
         SiteTestHelper.assertNoUserError(tester);
-        setTextField("sbcDeviceName", "sbcDevice1");
-        setTextField("sbcDeviceAddress", "sbc.example.org");
+        setTextField("sbcDevice:name", "sbcDevice1");
+        setTextField("sbcDevice:address", "sbc.example.org");
         clickButton("form:ok");
-        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
-        selectOption("common_FlexiblePropertySelection", "sbcDevice1");
+        SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "sbcDevice1");
 
         Table auxSbcsTable = tester.getTable("sbc:list");
         assertEquals(1, auxSbcsTable.getRowCount());
@@ -67,13 +65,12 @@ public class InternetCallingTestUi extends WebTestCase {
         // add aditional SBC
         clickLink("sbc:add");
         SiteTestHelper.assertNoUserError(tester);
-        selectOption("common_FlexiblePropertySelection", "Unmanaged SBC");
-        setTextField("sbcDeviceName", "sbcDevice2");
-        setTextField("sbcDeviceAddress", "sbc.example.net");
+        SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "Unmanaged SBC");
+        setTextField("sbcDevice:name", "sbcDevice2");
+        setTextField("sbcDevice:address", "sbc.example.net");
         clickButton("form:ok");
-        selectOption("common_FlexiblePropertySelection", "sbcDevice2");
+        SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "sbcDevice2");
         clickButton("form:ok");
-        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
 
         // check number of rows in the table after SBC added

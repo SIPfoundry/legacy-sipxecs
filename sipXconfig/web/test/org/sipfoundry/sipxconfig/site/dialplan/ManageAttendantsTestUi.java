@@ -13,6 +13,7 @@ import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ManageAttendantsTestUi extends WebTestCase {
 
@@ -36,11 +37,11 @@ public class ManageAttendantsTestUi extends WebTestCase {
         String[][] expectedData = {
             // Name Ext Description
             {
-                "ManageAttendantsTestUi 0", SEED_DESCRIPTION
+                "unchecked", "ManageAttendantsTestUi 0", SEED_DESCRIPTION
             }, {
-                "ManageAttendantsTestUi 1", SEED_DESCRIPTION
+                "unchecked", "ManageAttendantsTestUi 1", SEED_DESCRIPTION
             }, {
-                "ManageAttendantsTestUi 2", SEED_DESCRIPTION
+                "unchecked", "ManageAttendantsTestUi 2", SEED_DESCRIPTION
             }
         };
         assertTableRowsEqual("list:attendant", 1, expectedData);
@@ -50,15 +51,17 @@ public class ManageAttendantsTestUi extends WebTestCase {
         seedAttendants(2);
         clickLinkWithText("ManageAttendantsTestUi 1");
         assertElementPresent("attendant:menuItems");
-        setTextField("name", "Name edited");
-        SiteTestHelper.initUploadFields(tester, "ManageAttendantsTestUi");
+        setTextField("item:name", "Name edited");
+        String file = TestUtil.getTestSourceDirectory(EditAutoAttendantTestUi.class) + "/"
+                + EditAutoAttendantTestUi.PROMPT_TEST_FILE;
+        setTextField("promptUpload", file);
         clickButton("form:ok");
         String[][] expectedData = {
             // Name Ext Description
             {
-                "ManageAttendantsTestUi 0", SEED_DESCRIPTION
+                "unchecked", "ManageAttendantsTestUi 0", SEED_DESCRIPTION
             }, {
-                "Name edited", SEED_DESCRIPTION
+                "unchecked", "Name edited", SEED_DESCRIPTION
             }
         };
         assertTableRowsEqual("list:attendant", 1, expectedData);
@@ -73,9 +76,9 @@ public class ManageAttendantsTestUi extends WebTestCase {
         String[][] expectedData = {
             // Name Ext Description
             {
-                "ManageAttendantsTestUi 0", SEED_DESCRIPTION
+                "unchecked", "ManageAttendantsTestUi 0", SEED_DESCRIPTION
             }, {
-                "ManageAttendantsTestUi 2", SEED_DESCRIPTION
+                "unchecked", "ManageAttendantsTestUi 2", SEED_DESCRIPTION
             }
         };
         assertTableRowsEqual("list:attendant", 1, expectedData);
@@ -84,11 +87,13 @@ public class ManageAttendantsTestUi extends WebTestCase {
     private void seedAttendants(int count) {
         for (int i = 0; i < count; i++) {
             clickLink("addAttendant");
-            setTextField("name", "ManageAttendantsTestUi " + i);
-            setTextField("description", SEED_DESCRIPTION);
-            SiteTestHelper.initUploadFields(tester, "ManageAttendantsTestUi");
+            setTextField("item:name", "ManageAttendantsTestUi " + i);
+            setTextField("item:description", SEED_DESCRIPTION);
+            String file = TestUtil.getTestSourceDirectory(EditAutoAttendantTestUi.class) + "/"
+                    + EditAutoAttendantTestUi.PROMPT_TEST_FILE;
+            setTextField("promptUpload", file);
             clickButton("form:ok");
-            SiteTestHelper.assertNoException(tester);
+            SiteTestHelper.assertNoUserError(tester);
         }
     }
 }

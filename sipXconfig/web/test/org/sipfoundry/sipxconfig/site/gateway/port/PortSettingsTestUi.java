@@ -31,10 +31,11 @@ public class PortSettingsTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         clickLink("tab:ports");
         assertEquals(1, SiteTestHelper.getRowCount(tester, "line:list"));  // 1 is header
-        clickLink("addPort");
-        assertElementPresent("settingsForm");        
+        setWorkingForm("Form");
+        SiteTestHelper.clickSubmitLink(tester, "addPort");
+        setWorkingForm("settingsForm");        
         assertElementPresent("setting:ProtocolType");  // TP260 port setting
-        setTextField("integerField", "2");
+        setTextField("setting:MaxChannel", "22");
         clickButton("setting:ok");
         SiteTestHelper.assertNoException(tester);        
         clickLink("tab:ports");
@@ -44,7 +45,8 @@ public class PortSettingsTestUi extends WebTestCase {
     public void testDeletePort() {
         SiteTestHelper.assertNoException(tester);
         clickLink("tab:ports");
-        clickLink("addPort");
+        setWorkingForm("Form");
+        SiteTestHelper.clickSubmitLink(tester, "addPort");
         clickButton("setting:ok");        
         clickLink("tab:ports");
         assertEquals(2, SiteTestHelper.getRowCount(tester, "line:list"));

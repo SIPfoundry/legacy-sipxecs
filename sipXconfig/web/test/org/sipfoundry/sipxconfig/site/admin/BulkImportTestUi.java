@@ -37,8 +37,7 @@ public class BulkImportTestUi extends WebTestCase {
 
     public void testExport() {
         clickLink("link:export");
-        assertElementPresent("export:now");
-        submit("export");
+        submit("export:now");
 
         SiteTestHelper.assertNoException(getTester());
         assertLinkPresent("exportFile");

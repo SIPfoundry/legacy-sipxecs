@@ -23,6 +23,7 @@ public class ListAcdServersTestUi extends ListWebTestCase {
         super("listAcdServers", "resetAcdContext", "server");
         setHasDuplicate(false);
         setExactCheck(true);
+        setAddLinkSubmit(true);
     }
 
     protected String[] getParamNames() {
@@ -40,8 +41,11 @@ public class ListAcdServersTestUi extends ListWebTestCase {
     public void testDisplayEdit() throws Exception {
         clickAddLink();
         SiteTestHelper.assertNoException(tester);
-        assertButtonPresent("form:ok");
-        assertButtonPresent("form:cancel");
+        setWorkingForm("form");
+        assertFormElementPresent("hostField");
+        assertFormElementPresent("portField");
+        assertFormElementPresent("form:ok");
+        assertFormElementPresent("form:cancel");
     }
 
     public void testPresenceServerLink() throws Exception {

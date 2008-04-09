@@ -26,19 +26,21 @@ import junit.framework.TestSuite;
 import net.sourceforge.jwebunit.html.Cell;
 import net.sourceforge.jwebunit.html.Row;
 import net.sourceforge.jwebunit.html.Table;
-import net.sourceforge.jwebunit.htmlunit.HtmlUnitDialog;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 import net.sourceforge.jwebunit.junit.WebTester;
-import net.sourceforge.jwebunit.util.TestContext;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.form.FormConstants;
+import org.junit.Assert;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class SiteTestHelper {
+
+    private static final String UPLOAD_PARAM = "promptUpload";
 
     /**
      * Same userName that TestPage creates. thought of referencing static variable but may pull in
@@ -143,18 +145,27 @@ public class SiteTestHelper {
         try {
             tester.assertElementNotPresent("exceptionDisplay");
         } catch (AssertionFailedError e) {
-            System.err.println(tester.getPageSource());
+            dumpPage(tester);
             throw e;
         }
     }
 
     /**
      * Works only for pages that use "user:error:text" id to display user errors. All pages with
-     * ErrorMsg component belong to this category.
+     * ErrorMsg component belong to this category. It does check for tapestry errors as well: no
+     * need to call assertNoException.
+     * 
+     * Handling errors is kind of strange: there is no easy way to get text by id, so we do not
+     * bother unless we discover that there is "user:error" in the page.
      */
     public static void assertNoUserError(WebTester tester) {
         assertNoException(tester);
-        tester.assertElementNotPresent("user:error");
+        try {
+            tester.assertElementNotPresent("user:error");
+        } catch (AssertionFailedError e) {
+            String text = tester.getElementTextByXPath("//span[@id='user:error']");
+            Assert.fail("User error: <" + text + ">");
+        }
     }
 
     public static void assertUserError(WebTester tester) {
@@ -361,6 +372,7 @@ public class SiteTestHelper {
         SiteTestHelper.home(tester);
         for (int i = 0; i < count; i++) {
             tester.clickLink(pageLinkId);
+            tester.setWorkingForm("groupForm");
             tester.setTextField("item:name", "seedGroup" + i);
             tester.clickButton("form:ok");
             SiteTestHelper.home(tester);
@@ -368,52 +380,18 @@ public class SiteTestHelper {
     }
 
     /**
-     * Utility function to click on Tapestry submit forms without a button
-     */
-    public static void submitNoButton(WebTester tester) throws Exception {
-        // submit the form after setting hidden field
-        tester.submit();
-    }
-
-    /**
      * Initializes upload elements on the form using ad hoc created temporary file.
-     * 
-     * Tapestry forms that contain Upload elements cannot be tested by HTTPUnit unless upload
-     * elements are initialized. Looks like HTTPUnit never bother to submit this fields if they
-     * are empty which does not stop tapestry from trying to parse them. NullPointerException in
-     * Upload.rewindFormComponent is the usual sign that this is a problem.
      * 
      * @param form form for which upload fields will be initialized
      * @param fileNamePrefix at least 3 chatracters - use test name
      */
     public static void initUploadFields(WebTester tester, String fileNamePrefix) {
-        tester.assertFormPresent();
-
         try {
             File file = File.createTempFile(fileNamePrefix, null);
-            // TODO - checks if it's needed
-            // String[] parameterNames = form.getParameterNames();
-            // for (int i = 0; i < parameterNames.length; i++) {
-            // String paramName = parameterNames[i];
-            // if (paramName.startsWith("promptUpload")) {
-            // form.setParameter(paramName, file);
-            // }
-            // }
+            tester.setTextField(UPLOAD_PARAM, file.getAbsolutePath());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static void initUploadFieldsWithFile(WebTester tester, String filePath) {
-        // TODO: check if needed
-        // File file = new File(filePath);
-        // String[] parameterNames = form.getParameterNames();
-        // for (int i = 0; i < parameterNames.length; i++) {
-        // String paramName = parameterNames[i];
-        // if (paramName.startsWith("promptUpload")) {
-        // form.setParameter(paramName, file);
-        // }
-        // }
     }
 
     /**
@@ -421,7 +399,7 @@ public class SiteTestHelper {
      */
     public static boolean setScriptingEnabled(WebTester tester, boolean enabled) {
         // FIXME: always switch off - dojo is not parsed correctly
-        tester.setScriptingEnabled(enabled);
+        tester.setScriptingEnabled(false);
         return false;
     }
 
@@ -440,19 +418,21 @@ public class SiteTestHelper {
 
     @SuppressWarnings("deprecation")
     public static void clickSubmitLink(WebTester tester, String linkName) {
-        TestContext testContext = tester.getTestContext();
-        HtmlUnitDialog dialog = (HtmlUnitDialog) tester.getDialog();
-
-        tester.submit();
-    }
-
-    public static void setUpload(WebTester tester, String element, File f) {
-        // TODO: implement this
-        // assertTrue(getDialog().getForm().hasParameterNamed("promptUpload"));
-        // getDialog().getForm().setParameter("promptUpload", f);
+        tester.setTextField(FormConstants.SUBMIT_NAME_PARAMETER, linkName);
+        tester.submitForm();
     }
 
     public static void dumpPage(WebTester webTester) {
         System.err.println(webTester.getPageSource());
+    }
+
+    public static void selectOption(WebTester tester, String selectName, String label) {
+        tester.selectOption(selectName, label);
+        tester.submitForm();
+    }
+
+    public static void selectOptionByValue(WebTester tester, String selectName, String value) {
+        tester.selectOptionByValue(selectName, value);
+        tester.submitForm();
     }
 }

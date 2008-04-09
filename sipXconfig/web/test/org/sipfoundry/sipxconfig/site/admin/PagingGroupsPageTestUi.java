@@ -17,17 +17,19 @@ import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class PagingGroupsPageTestUi extends WebTestCase {
+    private String m_fileName = TestUtil.getTestSourceDirectory(EditAutoAttendantTestUi.class)
+            + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE;
+
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(PagingGroupsPageTestUi.class);
     }
 
     public void setUp() {
         reloadPage();
+        deleteAllGroups();
     }
 
     public void testPagingGroups() throws Exception {
-        deleteAllGroups();
-        reloadPage();
         createGroup();
         reloadPage();
         editGroup();
@@ -37,56 +39,45 @@ public class PagingGroupsPageTestUi extends WebTestCase {
 
     private void editGroup() {
         assertLinkPresentWithText("1");
-        clickLinkWithText("1");
-        assertElementPresent("enableGroup");
+        clickLink("editRowLink");
+        setWorkingForm("Form");
         assertCheckboxSelected("enableGroup");
-        assertElementPresent("number");
         assertTextFieldEquals("number", "1");
-        assertElementPresent("description");
         assertTextFieldEquals("description", "test group");
         assertButtonPresent("form:cancel");
         clickButton("form:cancel");
     }
 
     private void createGroup() {
-        assertLinkPresent("link.addPagingGroup");
         clickLink("link.addPagingGroup");
-        assertElementPresent("enableGroup");
+        SiteTestHelper.assertNoUserError(tester);
+        setWorkingForm("Form");
         checkCheckbox("enableGroup");
-        assertElementPresent("number");
         setTextField("number", "1");
-        assertElementPresent("description");
         setTextField("description", "test group");
-        assertElementPresent("enableGroup");
-        assertCheckboxSelected("enableGroup");
-        assertElementPresent("number");
-        assertTextFieldEquals("number", "1");
-        assertElementPresent("description");
-        assertTextFieldEquals("description", "test group");
-        assertFormElementPresent("prompt");
-        SiteTestHelper.initUploadFieldsWithFile(tester, TestUtil
-                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
-                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        setTextField("promptUpload", m_fileName);
         assertButtonPresent("form:ok");
         clickButton("form:ok");
     }
 
     private void reloadPage() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.home(getTester());
+        SiteTestHelper.home(tester);
         clickLink("toggleNavigation");
         clickLink("menu.pagingGroups");
     }
 
     private void deleteAllGroups() {
-        int rowCount = SiteTestHelper.getRowCount(getTester(), "pagingGroups:list");
-        if (rowCount > 1) {
-            for (int i = 1; i < rowCount; i++) {
-                SiteTestHelper.selectRow(getTester(), i - 1, true);
-            }
-            clickButton("pagingGroups:delete");
-            assertEquals(SiteTestHelper.getRowCount(getTester(), "pagingGroups:list"), 1);
+        setWorkingForm("pagingGroups");
+        int rowCount = SiteTestHelper.getRowCount(tester, "pagingGroups:list");
+        if (rowCount <= 1) {
+            return;
         }
+        for (int i = 0; i < rowCount - 1; i++) {
+            SiteTestHelper.selectRow(tester, i, true);
+        }
+        clickButton("pagingGroups:delete");
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "pagingGroups:list"));
     }
 
     public void testAddPagingGroupWithSameNumber() throws Exception {
@@ -94,17 +85,13 @@ public class PagingGroupsPageTestUi extends WebTestCase {
         assertLinkPresent("link.addPagingGroup");
         clickLink("link.addPagingGroup");
         setTextField("number", "1");
-        SiteTestHelper.initUploadFieldsWithFile(tester, TestUtil
-                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
-                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        setTextField("promptUpload", m_fileName);
         clickButton("form:ok");
 
         SiteTestHelper.assertNoUserError(tester);
         clickLink("link.addPagingGroup");
         setTextField("number", "1");
-        SiteTestHelper.initUploadFieldsWithFile(tester, TestUtil
-                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
-                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        setTextField("promptUpload", m_fileName);
         clickButton("form:ok");
 
         SiteTestHelper.assertUserError(tester);
@@ -112,7 +99,7 @@ public class PagingGroupsPageTestUi extends WebTestCase {
 
     public void testPagingDescriptionMax255Characters() throws Exception {
         StringBuilder description = new StringBuilder();
-        for (int i=0; i< 256; i++) {
+        for (int i = 0; i < 256; i++) {
             description.append("a");
         }
 
@@ -121,9 +108,7 @@ public class PagingGroupsPageTestUi extends WebTestCase {
         clickLink("link.addPagingGroup");
         setTextField("number", "2");
         setTextField("description", description.toString());
-        SiteTestHelper.initUploadFieldsWithFile(tester, TestUtil
-                .getTestSourceDirectory(EditAutoAttendantTestUi.class)
-                + "/" + EditAutoAttendantTestUi.PROMPT_TEST_FILE);
+        setTextField("promptUpload", m_fileName);
         clickButton("form:ok");
 
         SiteTestHelper.assertUserError(tester);

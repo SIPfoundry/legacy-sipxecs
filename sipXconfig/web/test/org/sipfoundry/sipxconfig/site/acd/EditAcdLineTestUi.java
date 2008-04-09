@@ -37,7 +37,7 @@ public class EditAcdLineTestUi extends ListWebTestCase {
 
     protected String[] getParamNames() {
         return new String[] {
-            "name", "extension", "description"
+            "item:name", "item:extension", "item:description"
         };
     }
 

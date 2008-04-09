@@ -41,17 +41,16 @@ public class GatewaysTestUi extends WebTestCase {
         Table gatewaysTable = getTable("list:gateway");
         // make sure it's sorted by name
         clickLinkWithText("Name");
-        int lastColumn = SiteTestHelper.getColumnCount(gatewaysTable);
+        int lastColumn = SiteTestHelper.getColumnCount(gatewaysTable) - 1;
         assertEquals(4, lastColumn);
 
-        selectOption("selectGatewayModel", "Unmanaged gateway");
-        tester.submit();
+        SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
 
         addGateway(null);
-        // if validation works we are still on the same page
-        assertTableNotPresent("list:gateway");
+        SiteTestHelper.assertUserError(tester);
 
         addGateway("bongo");
+        SiteTestHelper.assertNoUserError(tester);
         assertTablePresent("list:gateway");
         gatewaysTable = getTable("list:gateway");
         // we should have 2 gateway now
@@ -59,7 +58,7 @@ public class GatewaysTestUi extends WebTestCase {
         assertEquals("bongoDescription", SiteTestHelper.getCellAsText(gatewaysTable, 1,
                 lastColumn));
 
-        selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
+        SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
 
         addGateway("kuku");
 
@@ -82,32 +81,31 @@ public class GatewaysTestUi extends WebTestCase {
                 "AudioCodes TP260", "Unmanaged gateway"};
 
         for (String gatewayType : nonRouteGateways) {
-            selectOption("selectGatewayModel", gatewayType);
+            SiteTestHelper.selectOption(tester, "selectGatewayModel", gatewayType);
             assertElementNotPresent("common_FlexiblePropertySelection");
             clickButton("form:cancel");
         }
 
-        selectOption("selectGatewayModel", "SIP trunk");
+        SiteTestHelper.selectOption(tester, "selectGatewayModel", "SIP trunk");        
         assertElementPresent("common_FlexiblePropertySelection");
-        tester.setTextField("gatewayName", "SipTrunkRouteTest");
-        tester.setTextField("gatewayAddress", "1.2.3.4");
-        selectOption("common_FlexiblePropertySelection", "Unmanaged SBC");
-        tester.setTextField("sbcDeviceName", "sbcDeviceForSipTrunk");
-        tester.setTextField("sbcDeviceAddress", "sbc.example.org");
+        tester.setTextField("gateway:name", "SipTrunkRouteTest");
+        tester.setTextField("gateway:address", "1.2.3.4");
+        SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "Unmanaged SBC");
+        tester.setTextField("sbcDevice:name", "sbcDeviceForSipTrunk");
+        tester.setTextField("sbcDevice:address", "sbc.example.org");
         tester.clickButton("form:ok");
-        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
-        selectOption("common_FlexiblePropertySelection", "sbcDeviceForSipTrunk");
+        SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "sbcDeviceForSipTrunk");
         tester.clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
     }
 
     public void testAddGatewaysDuplicateName() throws Exception {
         clickLink("ListGateways");
-        selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
+        SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
         addGateway(getTester(), "dupname");
         SiteTestHelper.assertNoException(tester);
-        selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
+        SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
         addGateway(getTester(), "dupname");
         SiteTestHelper.assertUserError(tester);
     }
@@ -140,8 +138,7 @@ public class GatewaysTestUi extends WebTestCase {
 
     public void testValidateDescription() {
         clickLink("ListGateways");
-        selectOption("selectGatewayModel", "Unmanaged gateway");
-        tester.submit();
+        SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
         
         addGateway("bongo");
         clickLinkWithText("bongo");
@@ -177,13 +174,13 @@ public class GatewaysTestUi extends WebTestCase {
      */
     public static String[] addGateway(WebTester tester, String name) {
         String[] row = new String[] {
-            name + "Name", name + "Address", "Unmanaged gateway", name + "Description"
+            "unchecked", name + "Name", name + "Address", "Unmanaged gateway", name + "Description"
         };
 
         if (null != name) {
-            tester.setTextField("gateway:name", row[0]);
-            tester.setTextField("gateway:address", row[1]);
-            tester.setTextField("gateway:description", row[3]);
+            tester.setTextField("gateway:name", row[1]);
+            tester.setTextField("gateway:address", row[2]);
+            tester.setTextField("gateway:description", row[4]);
         }
         tester.submit("form:ok");
         return row;
@@ -201,14 +198,13 @@ public class GatewaysTestUi extends WebTestCase {
         tester.clickLink("ListGateways");
 
         for (int i = 0; i < counter; i++) {
-            tester.selectOption("selectGatewayModel", "Unmanaged gateway");
-            tester.submit();
+            SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
 
             // Give the new gateway a name that is extremely unlikely to collide
             // with any existing gateway names
             String name = "gateway" + i + Long.toString(System.currentTimeMillis());
 
-            names[i] = addGateway(tester, name)[0];
+            names[i] = addGateway(tester, name)[1];
         }
         SiteTestHelper.setScriptingEnabled(tester, scripting);
         return names;

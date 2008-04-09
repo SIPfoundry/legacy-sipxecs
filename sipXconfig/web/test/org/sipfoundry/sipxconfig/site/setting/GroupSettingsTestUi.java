@@ -43,9 +43,9 @@ public class GroupSettingsTestUi extends WebTestCase {
         clickLink("UserGroups");
         clickLinkWithText("seedGroup0");
         clickLink("group:edit");
-        assertTextFieldEquals("name", "seedGroup0");
+        assertTextFieldEquals("item:name", "seedGroup0");
         // Pick a group name that is very unlikely to collide with any previous names
-        setTextField("name", "edit-seed-test-" + System.currentTimeMillis());
+        setTextField("item:name", "edit-seed-test-" + System.currentTimeMillis());
         clickButton("form:ok");
         SiteTestHelper.assertNoException(getTester());
         assertLinkPresent("group:edit");
@@ -57,8 +57,8 @@ public class GroupSettingsTestUi extends WebTestCase {
         clickLinkWithText("seedGroup0");
         assertLinkPresent("link:schedules.label");
         clickLink("group:addSchedules");
-        assertFormElementPresent("name");
-        assertFormElementPresent("description");
+        assertFormElementPresent("item:name");
+        assertFormElementPresent("item:description");
         assertLinkPresent("addPeriod");
         assertButtonPresent("form:ok");
         assertButtonPresent("form:apply");

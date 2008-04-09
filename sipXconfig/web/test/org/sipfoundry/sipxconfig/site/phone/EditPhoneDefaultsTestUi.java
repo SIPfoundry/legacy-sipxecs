@@ -32,10 +32,12 @@ public class EditPhoneDefaultsTestUi extends WebTestCase {
         tester.seedGroup(1);
         clickLink("PhoneGroups");
         clickLinkWithText("seedGroup0");
-        clickLinkWithText("Polycom SoundPoint IP 300/301");        
-        checkCheckbox("booleanField"); //24HourFormat
+        clickLinkWithText("Polycom SoundPoint IP 300/301");
+        setWorkingForm("settingsForm");
+        checkCheckbox("setting:24HourClock");
         clickButton("setting:ok");
         clickLinkWithText("Polycom SoundPoint IP 300/301");        
-        assertCheckboxSelected("booleanField");
+        setWorkingForm("settingsForm");
+        assertCheckboxSelected("setting:24HourClock");
     }
 }

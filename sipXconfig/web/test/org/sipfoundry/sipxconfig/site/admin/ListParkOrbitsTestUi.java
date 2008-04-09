@@ -40,7 +40,7 @@ public class ListParkOrbitsTestUi extends ListWebTestCase {
 
     protected String[] getParamNames() {
         return new String[] {
-            "name", "extension", "description",
+            "item:name", "item:extension", "item:description",
         };
     }
 
@@ -52,22 +52,22 @@ public class ListParkOrbitsTestUi extends ListWebTestCase {
 
     protected Object[] getExpectedTableRow(String[] paramValues) {
         return new Object[] {
-            paramValues[0], "Disabled", paramValues[1], m_tempFile.getName()
+            "unchecked", paramValues[0], "Disabled", paramValues[1], m_tempFile.getName()
         };
     }
 
     protected void setAddParams(String[] names, String[] values) {
-        super.setAddParams(names, values);        
-        SiteTestHelper.setUpload(tester, "promptUpload", m_tempFile);
+        super.setAddParams(names, values);
+        setTextField("promptUpload", m_tempFile.getAbsolutePath());
     }
 
     public void testParkOrbitDefaults() {
         clickLink("orbits:defaults");
         SiteTestHelper.assertNoException(tester);
-        checkCheckbox("booleanField");
+        checkCheckbox("setting:enableTimeout");
         clickButton("setting:apply");
         SiteTestHelper.assertNoException(tester);
-        assertCheckboxSelected("booleanField");
+        assertCheckboxSelected("setting:enableTimeout");
         clickButton("setting:cancel");
         assertTablePresent("orbits:list");
     }

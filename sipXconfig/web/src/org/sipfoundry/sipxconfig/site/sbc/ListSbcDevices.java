@@ -95,6 +95,7 @@ public abstract class ListSbcDevices extends BasePage {
         DeviceDescriptorSelectionModel model = new DeviceDescriptorSelectionModel();
         model.setModelSource(getSbcDeviceModelSource());
         model.setExtraLabel(getMessages().getMessage("prompt.addNew"));
+        model.setExtraOption(null);
         return model;
     }
 

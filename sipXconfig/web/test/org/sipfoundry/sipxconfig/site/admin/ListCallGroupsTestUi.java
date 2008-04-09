@@ -29,7 +29,7 @@ public class ListCallGroupsTestUi extends ListWebTestCase {
 
     protected String[] getParamNames() {
         return new String[] {
-            "name", "extension", "description"
+            "item:name", "item:extension", "item:description"
         };
     }
 
@@ -40,11 +40,12 @@ public class ListCallGroupsTestUi extends ListWebTestCase {
     }
 
     protected Object[] getExpectedTableRow(String[] paramValues) {
-        Object[] expected = new Object[4];
-        expected[0] = paramValues[0];
-        expected[1] = "Disabled";
-        expected[2] = paramValues[1];
-        expected[3] = paramValues[2];
+        Object[] expected = new Object[5];
+        expected[0] = "unchecked";
+        expected[1] = paramValues[0];
+        expected[2] = "Disabled";
+        expected[3] = paramValues[1];
+        expected[4] = paramValues[2];
         return expected;
     }
 

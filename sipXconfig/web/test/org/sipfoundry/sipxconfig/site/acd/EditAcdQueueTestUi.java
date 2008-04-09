@@ -39,7 +39,7 @@ public class EditAcdQueueTestUi extends ListWebTestCase {
 
     protected String[] getParamNames() {
         return new String[] {
-            "name", "description"
+            "item:name", "item:description"
         };
     }
 
@@ -51,7 +51,6 @@ public class EditAcdQueueTestUi extends ListWebTestCase {
 
     protected void setAddParams(String[] names, String[] values) {
         super.setAddParams(names, values);
-        SiteTestHelper.initUploadFields(tester, "EditAcdQueueTestUi");
     }
 
     public void testDisplayEdit() throws Exception {
@@ -74,38 +73,37 @@ public class EditAcdQueueTestUi extends ListWebTestCase {
         clickAddLink();
 
         setAddParams(new String[] {
-            "name", "description"
+            "item:name", "item:description"
         }, new String[] {
             "Q1", "description 1"
         });
         clickButton("form:ok");
-        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
 
         clickAddLink();
         setAddParams(new String[] {
-            "name", "description"
+            "item:name", "item:description"
         }, new String[] {
             "Q2", "description 2"
         });
-        selectOption("enumListenOnChangeField", "Queue");
+        selectOption("setting:overflow-type", "Queue");
+        tester.submitForm();
 
         // re-initialize upload fields as previous set refreshes page
-        SiteTestHelper.initUploadFields(tester, "EditAcdQueueTestUi");
 
-        selectOption("enumField", "Q1");
+        selectOption("setting:overflow-typeValue", "Q1");
         clickButton("form:ok");
-        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
 
         assertEquals(3, SiteTestHelper.getRowCount(tester, getTableId()));
-        clickLink("linkColumn");
+        setWorkingForm("queuesForm");
+        SiteTestHelper.clickSubmitLink(tester, "linkColumn");
         Table expectedTable = new Table();
         expectedTable.appendRow(new Row(new String[] {
-            "Q1", "description 1", ""
+            "unchecked", "Q1", "description 1", ""
         }));
         expectedTable.appendRow(new Row(new String[] {
-            "Q2", "description 2", "Q1"
+            "unchecked", "Q2", "description 2", "Q1"
         }));
 
         assertTableRowsEqual(getTableId(), 1, expectedTable);

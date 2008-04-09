@@ -33,7 +33,7 @@ public class EditVoicemailTestUi extends WebTestCase {
     }
     
     public void testSave() throws Exception {
-        setTextField("subject", "edit test");
+        setTextField("vm:subject", "edit test");
         clickButton("form:ok");
         assertTextInTable("voicemail:list", "edit test");
     }

@@ -27,13 +27,11 @@ public class EditAutoAttendantTestUi extends WebTestCase {
 
     static public final String PROMPT_TEST_FILE = "thankyou_goodbye.wav";
 
-    private static final String KEYS = "0123456789*#";
-
     private static final String[][] FACTORY_DEFAULT = {
         {
-            KEYS, "Repeat Prompt", ""
+            "unchecked", "*", "Repeat Prompt", ""
         }, {
-            KEYS, "Operator", ""
+            "unchecked", "0", "Operator", ""
         }
     };
 
@@ -57,9 +55,6 @@ public class EditAutoAttendantTestUi extends WebTestCase {
 
         setTextField("item:name", "New Attendant");
         setTextField("item:description", "created by EditAutoAttendantTestUi.testNewAttendant");
-        // need to test by uploading file, this alone will not work: selectOption("prompt",
-        // PROMPT_TEST_FILE);
-        SiteTestHelper.initUploadFields(tester, "EditAutoAttendantTestUI");
         clickButton("form:apply");
         SiteTestHelper.assertNoException(tester);
     }
@@ -71,11 +66,10 @@ public class EditAutoAttendantTestUi extends WebTestCase {
 
         setTextField("item:name", "Upload Prompt Test");
         setTextField("item:description", "created by EditAutoAttendantTestUi.testUpload");
-        String actualFilename = TestUtil.getTestSourceDirectory(getClass()) + "/"
-                + PROMPT_TEST_FILE;
+        String actualFilename = TestUtil.getTestSourceDirectory(getClass()) + "/" + PROMPT_TEST_FILE;
         File actualFile = new File(actualFilename);
         assertTrue(actualFile.exists());
-        SiteTestHelper.setUpload(tester, "promptUpload", actualFile);
+        setTextField("promptUpload", actualFile.getAbsolutePath());
         clickButton("form:apply");
         SiteTestHelper.assertNoException(tester);
         assertTrue(expectedFile.exists());
@@ -86,9 +80,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         seedPromptFile();
         clickLink("NewAutoAttendant");
         selectOption("addMenuItemAction", "Voicemail Login");
-        SiteTestHelper.initUploadFields(tester, "EditAutoAttendantTestUI");
         clickButton("attendant:addMenuItem");
-        SiteTestHelper.initUploadFields(tester, "EditAutoAttendantTestUI");
         clickButton("attendant:reset");
         assertTableRowsEqual("attendant:menuItems", 1, FACTORY_DEFAULT);
     }
@@ -97,13 +89,12 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         seedPromptFile();
         clickLink("NewAutoAttendant");
         assertElementPresent("attendant:form");
-        SiteTestHelper.initUploadFields(tester, "EditAutoAttendantTestUI");
         SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
 
         clickButton("attendant:removeMenuItems");
         String[][] expectedMenuItems = {
             {
-                KEYS, "Operator", ""
+                "unchecked", "0", "Operator", ""
             },
         };
         assertTablePresent("attendant:menuItems");
@@ -117,39 +108,42 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         clickLink("NewAutoAttendant");
         assertElementPresent("attendant:form");
 
+        setTextField("item:name", "New Attendant");
+        String actualFilename = TestUtil.getTestSourceDirectory(getClass()) + "/" + PROMPT_TEST_FILE;
+        File actualFile = new File(actualFilename);
+        assertTrue(actualFile.exists());
+        setTextField("promptUpload", actualFile.getAbsolutePath());
+
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+
         selectOption("addMenuItemAction", "Auto Attendant");
-        SiteTestHelper.initUploadFields(tester, "EditAutoAttendantTestUI");
-        clickButton("attendant:addMenuItem");
+        submit("attendant:addMenuItem");
+        SiteTestHelper.assertNoUserError(tester);
+
         selectOption("attendantParameter", "New Attendant");
-        SiteTestHelper.initUploadFields(tester, "EditAutoAttendantTestUI");
         clickButton("form:apply");
 
         Table expected = new Table(FACTORY_DEFAULT);
         String[][] defaultMenuItems = {
             {
-                KEYS, "Auto Attendant", "select...New Attendant"
+                "unchecked", "1", "Auto Attendant", "New Attendant"
             },
         };
         expected.appendRows(defaultMenuItems);
         assertTableRowsEqual("attendant:menuItems", 1, expected);
-        tester.assertSelectedOptionEquals("attendantParameter", "New Attendant");
+        assertSelectedOptionEquals("attendantParameter", "New Attendant");
 
         selectOption("addMenuItemAction", "Deposit Voicemail");
-        SiteTestHelper.initUploadFields(tester, "EditAutoAttendantTestUI");
         clickButton("attendant:addMenuItem");
         setTextField("extensionParameter", "3232");
-        SiteTestHelper.initUploadFields(tester, "EditAutoAttendantTestUI");
         clickButton("form:apply");
 
         String[][] vmDepositRow = {
-            // 3rd column - curious why text fields do not show up text in table when
-            // all other form elements do. May be related to webunit version.
             {
-                KEYS, "Deposit Voicemail", ""
+                "unchecked", "2", "Deposit Voicemail", "3232"
             },
         };
-        // verify 3rd column data here
-        assertTextFieldEquals("extensionParameter", "3232");
 
         expected.appendRows(vmDepositRow);
         assertTableRowsEqual("attendant:menuItems", 1, expected);
@@ -170,9 +164,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         seedPromptFile();
         tester.clickLink("NewAutoAttendant");
         tester.setTextField("item:name", "New Attendant");
-        tester.setTextField("item:description",
-                "created by EditAutoAttendantTestUi.seedAutoAttendant");
-        SiteTestHelper.initUploadFields(tester, "EditAutoAttendantTestUI");
+        tester.setTextField("item:description", "created by EditAutoAttendantTestUi.seedAutoAttendant");
         tester.clickButton("form:apply");
     }
 

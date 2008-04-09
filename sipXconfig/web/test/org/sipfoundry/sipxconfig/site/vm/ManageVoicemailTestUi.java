@@ -75,7 +75,7 @@ public class ManageVoicemailTestUi extends WebTestCase {
     }
     
     private void actionSelection(Class groupAction, String action) {
-        setTextField("actionSelection", groupAction.getName() + action);        
+        SiteTestHelper.selectOptionByValue(tester, "actionSelection", groupAction.getName() + action);        
     }
     
     public void testEdit() throws Exception {
@@ -116,17 +116,20 @@ public class ManageVoicemailTestUi extends WebTestCase {
         DateFormat fmt = TapestryUtils.getDateFormat(Locale.getDefault());
         gotoManageVoicemail();
         String[][] forwardedMessage = {{
-            "Fwd:Voice Message 00000014 \n Voice Message 00000014", 
-            "200 \n Yellowthroat Warbler - 200", 
-            fmt.format(TestUtil.localizeDateTime("2/9/07 6:03:00 PM EST")) + "\n " 
+            "unchecked",
+            "Fwd:Voice Message 00000014 Voice Message 00000014", 
+            "200 Yellowthroat Warbler - 200", 
+            fmt.format(TestUtil.localizeDateTime("2/9/07 6:03:00 PM EST")) + " " 
               + fmt.format(TestUtil.localizeDateTime("2/9/07 3:40:00 PM EST")), 
             "6 seconds",
             ""
         }};
+
         assertTableRowsEqual("voicemail:list", 3, forwardedMessage);
         checkCheckbox("checkbox_0");
         actionSelection(MoveVoicemailAction.class, "saved");
         clickLink("link:saved");
+        
         assertTableRowsEqual("voicemail:list", 2, forwardedMessage);
     }
     
@@ -147,8 +150,8 @@ public class ManageVoicemailTestUi extends WebTestCase {
     
     private void login(String username, String password) {
         assertElementPresent("loginForm");
-        setTextField("userName", username);
-        setTextField("loginPassword", password);
+        setTextField("j_username", username);
+        setTextField("j_password", password);
         clickButton("login:submit");        
     }
 }

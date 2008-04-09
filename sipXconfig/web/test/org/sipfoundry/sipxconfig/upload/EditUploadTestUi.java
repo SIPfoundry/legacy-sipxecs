@@ -28,7 +28,7 @@ public class EditUploadTestUi extends WebTestCase {
     }
 
     public void testNewUpload() throws Exception {
-        setTextField("name", "new upload");
+        setTextField("item:name", "new upload");
         assertElementNotPresentByXPath("//input[@name='promptUpload']");
         assertButtonNotPresent("upload:activate");
         assertButtonNotPresent("upload:inactivate");
@@ -37,13 +37,13 @@ public class EditUploadTestUi extends WebTestCase {
         SiteTestHelper.initUploadFields(tester, "new-upload-test");
         clickButton("form:apply");
 
-        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
         // download file link implies file uploaded ok
         assertLinkPresentWithText("Download");
     }
 
     public void testActivate() throws Exception {
-        setTextField("name", "new upload");
+        setTextField("item:name", "new upload");
         assertElementNotPresentByXPath("//input[@name='promptUpload']");
         clickButton("form:apply");
         SiteTestHelper.initUploadFields(tester, "new-upload-test");
@@ -56,7 +56,7 @@ public class EditUploadTestUi extends WebTestCase {
     }
     
     public void testCancel() throws Exception {
-        setTextField("name", "cancelled");
+        setTextField("item:name", "cancelled");
         clickButton("form:cancel");
         assertTextNotPresent("cancelled");       
     }       

@@ -31,41 +31,38 @@ public class EditSbcDeviceTestUi extends WebTestCase {
     }
 
     public void testAddDeleteSbc() throws Exception {
-        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
         assertTablePresent("list:sbc");
         Table sbcsTable = getTable("list:sbc");
         assertEquals(1, sbcsTable.getRowCount());
 
-        selectOption("PropertySelection", "Unmanaged SBC");
-        setTextField("sbcDeviceName", "sbc1");
-        setTextField("sbcDeviceAddress", "10.1.1.1");
+        SiteTestHelper.selectOption(tester, "PropertySelection", "Unmanaged SBC");
+        setTextField("sbcDevice:name", "sbc1");
+        setTextField("sbcDevice:address", "10.1.1.1");
         clickButton("form:ok");
-        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
         sbcsTable = getTable("list:sbc");
         assertEquals(2, sbcsTable.getRowCount());
 
+        setWorkingForm("Form");
         checkCheckbox("checkbox");
         clickButton("list:sbc:delete");
+        SiteTestHelper.assertNoUserError(tester);
         sbcsTable = getTable("list:sbc");
         assertEquals(1, sbcsTable.getRowCount());
-        SiteTestHelper.assertNoException(tester);
-        SiteTestHelper.assertNoUserError(tester);
     }
 
     public void testAddSbcWithSameName() throws Exception {
-        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
 
-        selectOption("PropertySelection", "Unmanaged SBC");
-        setTextField("sbcDeviceName", "uniqueSbcName");
-        setTextField("sbcDeviceAddress", "10.1.1.2");
+        SiteTestHelper.selectOption(tester, "PropertySelection", "Unmanaged SBC");
+        setTextField("sbcDevice:name", "uniqueSbcName");
+        setTextField("sbcDevice:address", "10.1.1.2");
         clickButton("form:ok");
 
-        selectOption("PropertySelection", "Unmanaged SBC");
-        setTextField("sbcDeviceName", "uniqueSbcName");
-        setTextField("sbcDeviceAddress", "10.1.1.3");
+        SiteTestHelper.selectOption(tester, "PropertySelection", "Unmanaged SBC");
+        setTextField("sbcDevice:name", "uniqueSbcName");
+        setTextField("sbcDevice:address", "10.1.1.3");
         clickButton("form:ok");
 
         SiteTestHelper.assertUserError(tester);

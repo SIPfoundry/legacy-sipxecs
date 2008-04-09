@@ -27,7 +27,7 @@ public class ListBridgesTestUi extends ListWebTestCase {
 
     protected String[] getParamNames() {
         return new String[] {
-            "name", "host", "description"
+            "item:name", "bridge:host", "item:description"
         };
     }
 
@@ -37,17 +37,13 @@ public class ListBridgesTestUi extends ListWebTestCase {
         };
     }
 
-    protected void setAddParams(String[] names, String[] values) {
-        super.setAddParams(names, values);
-        // make sure that all uploads are happy and set to something
-        SiteTestHelper.initUploadFields(tester, "ListBridgesTestUi");
-    }
-
     protected Object[] getExpectedTableRow(String[] paramValues) {
-        return ArrayUtils.add(paramValues, 1, "Disabled");
+        Object[] expectedTableRow = super.getExpectedTableRow(paramValues);
+        return ArrayUtils.add(expectedTableRow, 2, "Disabled");
     }
 
     public void setUp() {
         super.setUp();
+        setAddLinkSubmit(true);
     }
 }

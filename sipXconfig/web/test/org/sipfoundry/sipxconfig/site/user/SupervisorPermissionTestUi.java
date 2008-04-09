@@ -33,9 +33,9 @@ public class SupervisorPermissionTestUi extends WebTestCase {
     }
     
     private void gotoTestUserPermissionPage() {
-        tester.beginAt(SiteTestHelper.TEST_PAGE_URL);
+        SiteTestHelper.home(tester);
         clickLink("ManageUsers");
-        clickLinkWithText(SiteTestHelper.TEST_USER);        
+        clickLink("userNameLink");        
         clickLink("groupSupervisorLink");                
     }
 

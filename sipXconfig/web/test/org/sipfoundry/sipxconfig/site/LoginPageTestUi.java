@@ -44,8 +44,7 @@ public class LoginPageTestUi extends WebTestCase {
         clickButton("login:submit");
                 
         // we are on the home page now - no errors no login form
-        SiteTestHelper.assertNoException(getTester());
-        assertElementNotPresent("user:error");        
+        SiteTestHelper.assertNoUserError(getTester());
         assertFormNotPresent("loginForm");
     }
     
@@ -58,14 +57,13 @@ public class LoginPageTestUi extends WebTestCase {
         clickButton("login:submit");
         
         // still on the same page
-        SiteTestHelper.assertNoException(getTester());
         assertElementPresent("loginForm");
-        assertElementPresent("user:error");
+        SiteTestHelper.assertUserError(getTester());
     }
     
     public void testLoginBlankPassword() throws Exception {
         setTextField("j_username", TestPage.TEST_USER_USERNAME);
         clickButton("login:submit");        
-        assertElementPresent("user:error");
+        SiteTestHelper.assertUserError(getTester());
     }
 }

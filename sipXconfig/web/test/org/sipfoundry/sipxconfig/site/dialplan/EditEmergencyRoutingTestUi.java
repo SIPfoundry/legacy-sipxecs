@@ -36,7 +36,7 @@ public class EditEmergencyRoutingTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
         clickLink("EmergencyRouting");
         assertLinkPresent("erouting:addException");
-        setTextField("externalNumber", "33");
+        setTextField("erouting:emergencyNumber", "33");
         clickButton("form:apply");
     }
 
@@ -44,17 +44,17 @@ public class EditEmergencyRoutingTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
         GatewaysTestUi.addTestGateways(getTester(), 3);
         SiteTestHelper.home(getTester());
-        clickLink("EmergencyRouting");        
-        setTextField(SiteTestHelper.getIndexedId("externalNumber", 0), "12");
+        clickLink("EmergencyRouting");
+        setWorkingForm("form");
+        setTextField("erouting:emergencyNumber", "12");
         clickLink("erouting:addException");
-        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
-        setTextField(SiteTestHelper.getIndexedId("externalNumber", 0), "33");
-        setTextField(SiteTestHelper.getIndexedId("externalNumber", 1), "911");
-        setTextField("callers", "11, 22");
+        setTextField("erouting:emergencyNumber", "33");
+        setTextField("exception:callers", "11, 22");
+        setTextField("exception:externalNumber", "911");
         clickButton("form:apply");
     }
-    
+
     public void testActivateWithErrors() {
         assertLinkPresent("erouting:addException");
         clickButton("form:apply");

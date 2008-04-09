@@ -26,15 +26,15 @@ public class EditPhonebookTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
         clickLink("link:phonebookReset");
         clickLink("link:phonebook");
-        SiteTestHelper.initUploadFields(tester, "EditPhonebook");        
+        setWorkingForm("phonebookForm");
     }
 
     public void testApplyOkOnNew() {
         SiteTestHelper.home(getTester());
         clickLink("link:managePhonebooks");
         clickLink("addPhonebook");
-        SiteTestHelper.initUploadFields(tester, "EditPhonebook");
-        setTextField("name", "test-phonebook");
+        setWorkingForm("phonebookForm");
+        setTextField("item:name", "test-phonebook");
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
         clickButton("form:ok");

@@ -47,8 +47,7 @@ public class ManagePhonebooksTestUi extends WebTestCase {
     public static void seedPhonebook(WebTester tester, String name) {        
         SiteTestHelper.home(tester);
         tester.clickLink("link:phonebook");        
-        SiteTestHelper.initUploadFields(tester, "EditPhonebook");
-        tester.setTextField("name", name);
+        tester.setTextField("item:name", name);
         tester.clickButton("form:apply");        
     }
 }

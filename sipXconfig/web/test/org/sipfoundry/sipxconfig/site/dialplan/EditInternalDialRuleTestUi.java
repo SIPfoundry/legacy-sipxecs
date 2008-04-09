@@ -22,27 +22,27 @@ public class EditInternalDialRuleTestUi extends WebTestCase {
     
     public void testHostnameRequiredForExternalVoicemailServer() {
         navigateToVoicemailRule();
-        setTextField("name", "EditInternalDialRuleTest_HostnameMissing");
-        setTextField("voiceMail", "111");
-        selectOption("mediaServer", EXCHANGE_VOICEMAIL_NAME);
+        setTextField("item:name", "EditInternalDialRuleTest_HostnameMissing");
+        setTextField("dialplan:voiceMail", "111");
+        selectOption("dialplan:mediaServer", EXCHANGE_VOICEMAIL_NAME);
         clickButton("form:apply");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertUserError(tester);
         
         navigateToVoicemailRule();
-        setTextField("name", "EditInternalDialRuleTest_HostnamePresent");
-        setTextField("voiceMail", "112");
-        selectOption("mediaServer", EXCHANGE_VOICEMAIL_NAME);
-        setTextField("mediaServerHostname", "!@#$%");
+        setTextField("item:name", "EditInternalDialRuleTest_HostnamePresent");
+        setTextField("dialplan:voiceMail", "112");
+        selectOption("dialplan:mediaServer", EXCHANGE_VOICEMAIL_NAME);
+        setTextField("dialplan:externalVoicemailServerAddress", "!@#$%");
         clickButton("form:apply");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertUserError(tester);
         
         navigateToVoicemailRule();
-        setTextField("name", "EditInternalDialRuleTest_InternalServer");
-        setTextField("voiceMail", "113");
-        selectOption("mediaServer", EXCHANGE_VOICEMAIL_NAME);
-        setTextField("mediaServerHostname", "exchange.test.com");
+        setTextField("item:name", "EditInternalDialRuleTest_InternalServer");
+        setTextField("dialplan:voiceMail", "113");
+        selectOption("dialplan:mediaServer", EXCHANGE_VOICEMAIL_NAME);
+        setTextField("dialplan:externalVoicemailServerAddress", "exchange.test.com");
         clickButton("form:apply");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
@@ -50,9 +50,9 @@ public class EditInternalDialRuleTestUi extends WebTestCase {
     
     public void testHostnameNotRequiredForInternalVoicemailServer() {
         navigateToVoicemailRule();
-        setTextField("name", "EditInternalDialRuleTest_HostnameMissing");
-        setTextField("voiceMail", "111");
-        selectOption("mediaServer", SIPX_VOICEMAIL_NAME);
+        setTextField("item:name", "EditInternalDialRuleTest_HostnameMissing");
+        setTextField("dialplan:voiceMail", "111");
+        selectOption("dialplan:mediaServer", SIPX_VOICEMAIL_NAME);
         clickButton("form:apply");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
@@ -63,7 +63,7 @@ public class EditInternalDialRuleTestUi extends WebTestCase {
         SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("FlexibleDialPlan");
         SiteTestHelper.assertNoException(getTester());
-        selectOption("ruleTypeSelection", "Voicemail");
+        SiteTestHelper.selectOption(tester, "rule:type", "Voicemail");
         SiteTestHelper.assertNoException(tester);
     }
 }

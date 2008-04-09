@@ -64,15 +64,15 @@ public class ManageUploadTestUi extends WebTestCase {
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:activate");
         Table table = getTable("upload:list");
-        assertEquals("Active", SiteTestHelper.getCellAsText(table, 1, 1));
+        assertEquals("Active", SiteTestHelper.getCellAsText(table, 1, 2));
 
         // inactivate
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:inactivate");
         table = getTable("upload:list");
-        assertEquals("Inactive", SiteTestHelper.getCellAsText(table, 1, 1));
+        assertEquals("Inactive", SiteTestHelper.getCellAsText(table, 1, 2));
     }
-    
+
     public void testActivationOfActiveDeviceFiles() throws Exception {
         seedUpload();
         SiteTestHelper.home(tester);
@@ -81,9 +81,9 @@ public class ManageUploadTestUi extends WebTestCase {
         // activate once
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:activate");
-        String actual = SiteTestHelper.getCellAsText(getTable("upload:list"), 1, 1);
+        String actual = SiteTestHelper.getCellAsText(getTable("upload:list"), 1, 2);
         assertEquals("Active", actual);
-        
+
         // activate a second time (should cause BySummaryOrIduser error but no exception)
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:activate");
@@ -92,10 +92,11 @@ public class ManageUploadTestUi extends WebTestCase {
 
     private void seedUpload() throws Exception {
         clickLink("link:newUpload");
-        setTextField("name", "manage uploads seed");
+        SiteTestHelper.assertNoException(tester);
+        setTextField("item:name", "manage uploads seed");
         clickButton("form:apply");
         File f = File.createTempFile("manage-upload", ".dat");
-        SiteTestHelper.setUpload(tester, "promptUpload", f);
+        setTextField("promptUpload", f.getAbsolutePath());                
         clickButton("form:ok");
     }
 }

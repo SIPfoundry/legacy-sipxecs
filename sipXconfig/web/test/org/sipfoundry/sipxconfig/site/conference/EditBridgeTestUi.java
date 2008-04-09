@@ -25,6 +25,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
         super("EditBridge", "resetConferenceBridgeContext", "conference");
         setHasDuplicate(false);
         setExactCheck(false);
+        setAddLinkSubmit(true);
     }
 
     public void setUp() {
@@ -34,16 +35,14 @@ public class EditBridgeTestUi extends ListWebTestCase {
         clickLink("resetConferenceBridgeContext");
         clickLink("EditBridge");
         setWorkingForm("form");
-        setTextField("name", "bridge_test");
-        SiteTestHelper.initUploadFields(tester, "EditBridgeTestUi");
+        setTextField("item:name", "bridge_test");
         clickButton("form:apply");
-        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
     }
 
     protected String[] getParamNames() {
         return new String[] {
-            "name", "extension", "description"
+            "item:name", "item:extension", "item:description"
         };
     }
 
@@ -54,16 +53,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
     }
 
     protected Object[] getExpectedTableRow(String[] paramValues) {
-        return ArrayUtils.add(paramValues, 1, "false");
-    }
-
-    protected void clickAddLink() throws Exception {
-        SiteTestHelper.initUploadFields(tester, "EditBridgeTestUi");
-        super.clickAddLink();
-    }
-
-    protected void clickDeleteButton() {
-        SiteTestHelper.initUploadFields(tester, "EditBridgeTestUi");
-        super.clickDeleteButton();
+        Object[] expected = super.getExpectedTableRow(paramValues);
+        return ArrayUtils.add(expected, 2, "Disabled");
     }
 }

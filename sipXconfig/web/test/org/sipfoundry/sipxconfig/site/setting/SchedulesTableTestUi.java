@@ -17,148 +17,142 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 public class SchedulesTableTestUi extends WebTestCase {
 
     public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditScheduleTestUi.class);
+        return SiteTestHelper.webTestSuite(SchedulesTableTestUi.class);
     }
 
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.home(getTester());
+        SiteTestHelper.home(tester);
+        clickLink("resetDialPlans");
+        clickLink("resetCallForwarding");
+        SiteTestHelper.home(tester);
         SiteTestHelper.setScriptingEnabled(tester, true);
     }
 
     public void testAddDeleteForwardingRulesUserSchedule() throws Exception {
-        //login as the test user and go to call forwarding page
+        // login as the test user and go to call forwarding page
         clickLink("loginFirstTestUser");
         clickLink("toggleNavigation");
         clickLink("menu.callForwarding");
 
-        //go to schedules and add "userSchedule" schedule
+        // go to schedules and add "userSchedule" schedule
         clickLink("link:schedules");
         clickLink("link:addSchedule");
         setTextField("item:name", "userSchedule");
-        clickLink("addPeriod");
+        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
         submit("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
 
-        //go to rings and add ring with "userSchedule" schedule
+        // go to rings and add ring with "userSchedule" schedule
         clickLink("link:forwarding");
-        clickLink("addRingLink");
+        SiteTestHelper.clickSubmitLink(tester, "addRingLink");
         setTextField("forward", "200");
         selectOption("schedule", "userSchedule");
         submit("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
 
-        //go to schedules and delete "userSchedule" schedule
+        // go to schedules and delete "userSchedule" schedule
         clickLink("link:schedules");
-        int rowCount = SiteTestHelper.getRowCount(getTester(), "schedule:list");
-        assertEquals(2, rowCount);
-        SiteTestHelper.selectRow(getTester(), 1, true);
+        int rowCount = SiteTestHelper.getRowCount(tester, "schedule:list");
+        assertEquals(3, rowCount);
+        SiteTestHelper.selectRow(tester, 0, true);
         submit("schedule:delete");
 
-        //go to rings and assume ring switched to "Always" schedules
+        // go to rings and assume ring switched to "Always" schedules
         clickLink("link:forwarding");
-        getTester().assertSelectedOptionEquals("schedule", "Always");
+        assertSelectedOptionEquals("schedule", "Always");
 
-        //cleanup (delete ring)
+        // cleanup (delete ring)
         clickLinkWithText("Delete");
         submit("form:apply");
     }
 
     public void testAddDeleteForwardingRulesGroupSchedule() throws Exception {
-        //login as superadmin
-        clickLink("login");
-        clickLink("toggleNavigation");
+        SiteTestHelper.home(tester);
 
-        //go to groups and create "newGroup" group
-        clickLink("menu.userGroups");
-        clickLink("AddGroup");
-        setTextField("item:name", "newGroup");
-        submit("form:ok");
+        SiteTestHelper.seedGroup(tester, "NewUserGroup", 1);
 
-        //create "groupSchedule" schedule for "newGroup" group
-        clickLinkWithText("newGroup");
+        clickLink("UserGroups");
+        clickLinkWithExactText("seedGroup0");
+        
+        clickLink("link:schedules.label");
         clickLink("group:addSchedules");
         setTextField("item:name", "groupSchedule");
-        clickLink("addPeriod");
+        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
         submit("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
 
-        //edit test user and assing it to newly created group
-        clickLink("menu.users");
-        clickLinkWithText("testuser");
-        setTextField("groups", "newGroup");
+        // edit test user and assing it to newly created group
+        SiteTestHelper.home(tester);
+        clickLink("ManageUsers");
+        clickLinkWithExactText("testuser");
+        setTextField("gms:groups", "seedGroup0");
         submit("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
 
-        //login as the testuser, create new ring and assing it to groupSchedule
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.home(getTester());
+        // login as the testuser, create new ring and assing it to groupSchedule
+        SiteTestHelper.home(tester, false);
         clickLink("loginFirstTestUser");
         clickLink("toggleNavigation");
         clickLink("menu.callForwarding");
-        clickLink("addRingLink");
+        SiteTestHelper.clickSubmitLink(tester, "addRingLink");
         setTextField("forward", "200");
         selectOption("schedule", "groupSchedule");
         submit("form:apply");
 
-        //login as the superadmin and delete groupSchedule
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.home(getTester());
-        clickLink("login");
-        clickLink("toggleNavigation");
-        clickLink("menu.userGroups");
-        int rowCount = SiteTestHelper.getRowCount(getTester(), "group:list");
-        assertEquals(2, rowCount);
-        SiteTestHelper.selectRow(getTester(), 1, true);
-        submit("group:delete");
+        // edit test user and remove the group
+        SiteTestHelper.home(tester);
+        clickLink("ManageUsers");
+        clickLinkWithExactText("testuser");
+        setTextField("gms:groups", "");
+        submit("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
 
-        //login back as testuser and check that ring is switched to Always schedule
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.home(getTester());
+        // login back as testuser and check that ring is switched to Always schedule
+        SiteTestHelper.home(tester);
         clickLink("loginFirstTestUser");
         clickLink("toggleNavigation");
         clickLink("menu.callForwarding");
-        getTester().assertSelectedOptionEquals("schedule", "Always");
+        tester.assertSelectedOptionEquals("schedule", "Always");
 
-        //cleanup (delete ring)
+        // cleanup (delete ring)
         clickLinkWithText("Delete");
         submit("form:apply");
     }
 
     public void testAddDeleteDialingPlansSchedule() {
-        // login as superadmin
-        clickLink("login");
-        clickLink("toggleNavigation");
+        SiteTestHelper.home(tester);
 
-        //go to dial plans page and create "dialPlanSchedule" schedule
-        clickLink("menu.dialPlans");
+        // go to dial plans page and create "dialPlanSchedule" schedule
+        clickLink("FlexibleDialPlan");
         clickLink("link:schedules");
         clickLink("addSchedule");
         setTextField("item:name", "dialPlanSchedule");
-        clickLink("addPeriod");
+        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
         submit("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
 
-        //go to dialing rules, create new "customRule" custom rule and associate it with "dialPlanSchedule" schedule
+        // go to dialing rules, create new "customRule" custom rule and associate it with
+        // "dialPlanSchedule" schedule
         clickLink("link:dialingRules");
-        selectOption("rule:type", "Custom");
+        SiteTestHelper.selectOption(tester, "rule:type", "Custom");
         checkCheckbox("item:enabled");
         setTextField("item:name", "customRule");
         selectOption("schedule", "dialPlanSchedule");
         submit("form:ok");
 
-        //go to schedules and delete "dialPlanSchedule" schedule
+        // go to schedules and delete "dialPlanSchedule" schedule
         clickLink("link:schedules");
-        int rowCount = SiteTestHelper.getRowCount(getTester(), "schedule:list");
-        assertEquals(2, rowCount);
-        SiteTestHelper.selectRow(getTester(), 1, true);
+        int rowCount = SiteTestHelper.getRowCount(tester, "schedule:list");
+        assertEquals(3, rowCount);
+        SiteTestHelper.selectRow(tester, 0, true);
         submit("schedule:delete");
 
-        //go back to dialing plans and check that "customRule" rule switched to "Always" schedule
+        SiteTestHelper.home(tester);
+        clickLink("FlexibleDialPlan");
+        // go back to dialing plans and check that "customRule" rule switched to "Always" schedule
         clickLinkWithText("customRule");
-        getTester().assertSelectedOptionEquals("schedule", "Always");
-
-        //cleanup (delete custom rule)
-        submit("form:cancel");
-        rowCount = SiteTestHelper.getRowCount(getTester(), "dialplan:list");
-        assertEquals(2, rowCount);
-        SiteTestHelper.selectRow(getTester(), 1, true);
-        submit("dialplan:delete");
+        tester.assertSelectedOptionEquals("schedule", "Always");
     }
 }

@@ -36,9 +36,9 @@ public class PhoneGroupsTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         String[][] table = new String[][] {
             {
-                "1. seedGroup0", ""
+                "unchecked", "1. seedGroup0", ""
             }, {
-                "2. seedGroup1", ""
+                "unchecked", "2. seedGroup1", ""
             },
         };
         assertTableRowsEqual("group:list", 2, table);
@@ -56,11 +56,11 @@ public class PhoneGroupsTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         String[][] tableUp = new String[][] {
             {
-                "1. seedGroup1", ""
+                "checked", "1. seedGroup1", ""
             }, {
-                "2. seedGroup0", ""
+                "unchecked", "2. seedGroup0", ""
             }, {
-                "3. seedGroup2", ""
+                "unchecked", "3. seedGroup2", ""
             },
         };
         assertTableRowsEqual("group:list", 2, tableUp);
@@ -70,11 +70,11 @@ public class PhoneGroupsTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         String[][] tableDown = new String[][] {
             {
-                "1. seedGroup0", ""
+                "unchecked", "1. seedGroup0", ""
             }, {
-                "2. seedGroup1", ""
+                "checked", "2. seedGroup1", ""
             }, {
-                "3. seedGroup2", ""
+                "unchecked", "3. seedGroup2", ""
             },
         };
         assertTableRowsEqual("group:list", 2, tableDown);
@@ -90,9 +90,9 @@ public class PhoneGroupsTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         String[][] table = new String[][] {
             {
-                "1. seedGroup0", ""
+                "unchecked", "1. seedGroup0", ""
             }, {
-                "2. seedGroup2", ""
+                "unchecked", "2. seedGroup2", ""
             },
         };
         assertTableRowsEqual("group:list", 2, table);

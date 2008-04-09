@@ -71,15 +71,13 @@ public class ManagePhonesTestUi extends WebTestCase {
         int allTableCount = SiteTestHelper.getRowCount(tester, "phone:list");
 
         // empty group, no users
-        selectOption("group:filter", "seedGroup0");
-        SiteTestHelper.submitNoButton(tester);
+        SiteTestHelper.selectOption(tester, "group:filter", "seedGroup0");
         SiteTestHelper.assertNoException(tester);
         int emptyTableCount = SiteTestHelper.getRowCount(tester, "phone:list");
         assertTrue(allTableCount > emptyTableCount);
 
         // back to all users
-        selectOption("group:filter", "- all -");
-        SiteTestHelper.submitNoButton(tester);
+        SiteTestHelper.selectOption(tester, "group:filter", "- all -");
         int allTableCountAgain = SiteTestHelper.getRowCount(tester, "phone:list");
         assertEquals(allTableCount, allTableCountAgain);
     }

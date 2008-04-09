@@ -19,7 +19,6 @@ import net.sourceforge.jwebunit.junit.WebTestCase;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
-
 /**
  * Support for testing screens (or parts of the screen) that display table with add, delete, move
  * etc. capability
@@ -41,6 +40,7 @@ public abstract class ListWebTestCase extends WebTestCase {
     private boolean m_hasDuplicate = true;
     private boolean m_hasMove = false;
     private boolean m_exactCheck = true;
+    private boolean m_addLinkSubmit = false;
 
     public ListWebTestCase(String pageLink, String resetLink, String idPrefix) {
         m_pageLink = pageLink;
@@ -51,10 +51,10 @@ public abstract class ListWebTestCase extends WebTestCase {
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        
+
         // assumption true for list bridges at least
         SiteTestHelper.setScriptingEnabled(tester, true);
-        
+
         clickLink(m_resetLink);
         clickLink(m_pageLink);
     }
@@ -86,7 +86,7 @@ public abstract class ListWebTestCase extends WebTestCase {
      * @return array of values that correspond to what we need to see in the table
      */
     protected Object[] getExpectedTableRow(String[] paramValues) {
-        return paramValues;
+        return ArrayUtils.add(paramValues, 0, "unchecked");
     }
 
     protected String buildId(String id) {
@@ -120,7 +120,8 @@ public abstract class ListWebTestCase extends WebTestCase {
         for (int i = 0; i < count; i++) {
             String[] values = getParamValues(i);
             addItem(getParamNames(), values);
-            expected.appendRow(new Row(getExpectedTableRow(values)));
+            Row row = new Row(getExpectedTableRow(values));
+            expected.appendRow(row);
         }
         assertEquals(count + 1, SiteTestHelper.getRowCount(tester, getTableId()));
         if (m_exactCheck) {
@@ -167,8 +168,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
         SiteTestHelper.assertNoException(tester);
 
-        assertEquals(count + 1 - toBeRemoved.length, SiteTestHelper.getRowCount(tester,
-                getTableId()));
+        assertEquals(count + 1 - toBeRemoved.length, SiteTestHelper.getRowCount(tester, getTableId()));
         if (m_exactCheck) {
             assertTableRowsEqual(getTableId(), 1, expected);
         }
@@ -182,22 +182,25 @@ public abstract class ListWebTestCase extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         assertEquals(names.length, values.length);
         clickAddLink();
-        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
         setAddParams(names, values);
         clickButton("form:ok");
-        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
     }
 
     protected void clickAddLink() throws Exception {
-        clickLink(buildId("add"));
+        String addLinkId = buildId("add");
+        if (m_addLinkSubmit) {
+            SiteTestHelper.clickSubmitLink(tester, addLinkId);
+        } else {
+            clickLink(addLinkId);
+        }
     }
 
     private void assertTableRowsExist(String tableId, Table expected) {
         for (Row row : (List<Row>) expected.getRows()) {
             for (Cell cell : (List<Cell>) row.getCells()) {
-                assertTextInTable(tableId, cell.getValue());                
+                assertTextInTable(tableId, cell.getValue());
             }
         }
     }
@@ -220,6 +223,10 @@ public abstract class ListWebTestCase extends WebTestCase {
 
     public void setHasMove(boolean hasMove) {
         m_hasMove = hasMove;
+    }
+
+    public void setAddLinkSubmit(boolean addLinkSubmit) {
+        m_addLinkSubmit = addLinkSubmit;
     }
 
     public void setExactCheck(boolean exactCheck) {

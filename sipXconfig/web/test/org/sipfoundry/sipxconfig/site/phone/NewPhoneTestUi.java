@@ -53,7 +53,7 @@ public class NewPhoneTestUi extends WebTestCase {
         clickButton("form:ok");
         assertCheckboxSelected("phone:stay");
         // should clear the form
-        assertTextFieldEquals("", "phone:serialNumber");
+        assertTextFieldEquals("phone:serialNumber", "");
 
         clickButton("form:cancel");
         String[][] table = new String[][] {

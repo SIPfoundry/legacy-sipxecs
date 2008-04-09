@@ -42,7 +42,7 @@ public class JobStatusPageTestUi extends WebTestCase {
         assertEquals(5, table.getRowCount());
 
         // remove finished jobs
-        submit("remove");
+        submit("jobs:remove");
         table = tester.getTable("jobs:list");
         assertEquals(4, table.getRowCount());
     }
@@ -55,7 +55,7 @@ public class JobStatusPageTestUi extends WebTestCase {
         assertEquals(5, table.getRowCount());
 
         // remove finished jobs
-        submit("clear");
+        submit("jobs:clear");
         table = tester.getTable("jobs:list");
         assertEquals(1, table.getRowCount());
     }

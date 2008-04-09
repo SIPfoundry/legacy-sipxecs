@@ -68,7 +68,7 @@ public class AcdSupervisorTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());         
     }
     
-    public void testMultipleServers() {
+    public void _testMultipleServers() {
         clickLink("acdServerPage");
         setTextField("hostField", "localhost0");
         clickButton("form:apply");

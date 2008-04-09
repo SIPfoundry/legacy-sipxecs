@@ -91,7 +91,7 @@ public class EditCallGroupTestUi extends WebTestCase {
     }
 
     private void addUser() throws Exception {
-        clickLink("callgroup:addRing");
+        SiteTestHelper.clickSubmitLink(tester, "callgroup:addRing");
 
         clickButton("user:search");
         SiteTestHelper.selectRow(tester, 0, true);
@@ -99,6 +99,7 @@ public class EditCallGroupTestUi extends WebTestCase {
     }
 
     private void setFormData() {
+        setWorkingForm("form");
         setTextField("item:name", "testName");
         setTextField("item:extension", "123");
     }

@@ -94,9 +94,9 @@ public class ChangePinTestUi extends WebTestCase {
     }
     
     private void changePin(String oldPin, String newPin, String newPinRepeated) {
-        setTextField("currentPin", oldPin);
-        setTextField("password", newPin);
-        setTextField("confirmPassword", newPinRepeated);
+        setTextField("changePin:currentPin", oldPin);
+        setTextField("cp:password", newPin);
+        setTextField("cp:confirmPassword", newPinRepeated);
         clickButton("form:apply");        
     }
     

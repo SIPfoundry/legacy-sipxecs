@@ -34,9 +34,9 @@ public class EditScheduleTestUi extends WebTestCase {
 
     public void testAddDeleteSchedule() throws Exception {
         SiteTestHelper.assertNoException(tester);
-        clickLinkWithText("Add Schedule");
+        clickLink("link:addSchedule");
         setTextField("item:name", "schedule");
-        clickLink("addPeriod");
+        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
         checkCheckbox("checkbox");
@@ -46,16 +46,16 @@ public class EditScheduleTestUi extends WebTestCase {
 
     public void testAddSchedulesWithPeriodsThatOverlap() throws Exception {
         SiteTestHelper.assertNoException(tester);
-        clickLinkWithText("Add Schedule");
+        clickLink("link:addSchedule");
         setTextField("item:name", "schedule_overlap");
-        clickLink("addPeriod");
+        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
         selectOption("day", "Monday");
         setTextField("from", "9:00 AM");
         setTextField("to", "11:00 AM");
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
 
-        clickLink("addPeriod");
+        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
         selectOption("day_0", "Monday");
         setTextField("from_0", "7:00 AM");
         setTextField("to_0", "10:00 AM");
@@ -69,9 +69,9 @@ public class EditScheduleTestUi extends WebTestCase {
 
     public void testAddSchedulesWithStartHourGreaterThanStopHour() throws Exception {
         SiteTestHelper.assertNoException(tester);
-        clickLinkWithText("Add Schedule");
-        setTextField("name", "schedule_startstop");
-        clickLink("addPeriod");
+        clickLink("link:addSchedule");
+        setTextField("item:name", "schedule_startstop");
+        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
         selectOption("day", "Monday");
         setTextField("from", "11:00 AM");
         setTextField("to", "9:00 AM");
@@ -83,8 +83,8 @@ public class EditScheduleTestUi extends WebTestCase {
 
     public void testAddSchedulesWithNoPeriodDefined() throws Exception {
         SiteTestHelper.assertNoException(tester);
-        clickLinkWithText("Add Schedule");
-        setTextField("name", "schedule_noperiod");
+        clickLink("link:addSchedule");
+        setTextField("item:name", "schedule_noperiod");
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
         clickButton("form:cancel");
@@ -93,14 +93,14 @@ public class EditScheduleTestUi extends WebTestCase {
 
     public void testAddSchedulesWithSameName() throws Exception {
         SiteTestHelper.assertNoException(tester);
-        clickLinkWithText("Add Schedule");
-        setTextField("name", "schedule");
-        clickLink("addPeriod");
+        clickLink("link:addSchedule");
+        setTextField("item:name", "schedule");
+        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
-        clickLinkWithText("Add Schedule");
-        setTextField("name", "schedule");
-        clickLink("addPeriod");
+        clickLink("link:addSchedule");
+        setTextField("item:name", "schedule");
+        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
     }

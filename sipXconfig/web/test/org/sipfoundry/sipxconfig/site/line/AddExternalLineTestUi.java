@@ -47,18 +47,18 @@ public class AddExternalLineTestUi extends WebTestCase {
     
     public void testAddExternalLine() {
         clickLink("AddExternalLine");        
-        setTextField("displayName", "Dil Bert");
-        setTextField("userId", "dilbert");
-        setTextField("password", "1234");
-        setTextField("confirmPassword", "1234");
-        setTextField("registrationServer", "frakenberry.org");
-        setTextField("voiceMail", "2000");
+        setTextField("line:displayName", "Dil Bert");
+        setTextField("line:userId", "dilbert");
+        setTextField("cp:password", "1234");
+        setTextField("cp:confirmPassword", "1234");
+        setTextField("line:registrationServer", "frakenberry.org");
+        setTextField("line:voiceMail", "2000");
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
         assertTablePresent("line:list");
         assertEquals(SiteTestHelper.getRowCount(tester, "line:list"), 2); // 1 plus header
-        assertTextPresent("\"Dil Bert\"&lt;sip:dilbert@frakenberry.org&gt;");
+        assertLinkPresentWithText("\"Dil Bert\"<sip:dilbert@frakenberry.org>", 0);
     }
     
     public void testAddExternalLineWithError() {
@@ -70,13 +70,13 @@ public class AddExternalLineTestUi extends WebTestCase {
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
 
-        setTextField("userId", "dilbert");
+        setTextField("line:userId", "dilbert");
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
 
-        setTextField("password", "1");
-        setTextField("confirmPassword", "1");
-        setTextField("registrationServer", "fwd.org");
+        setTextField("cp:password", "1");
+        setTextField("cp:confirmPassword", "1");
+        setTextField("line:registrationServer", "fwd.org");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
         
