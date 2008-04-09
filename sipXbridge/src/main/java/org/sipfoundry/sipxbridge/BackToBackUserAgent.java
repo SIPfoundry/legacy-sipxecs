@@ -461,6 +461,7 @@ public class BackToBackUserAgent {
                         .createHeader("Replaces", decodedReplaces);
             }
             uri.removeParameter("Replaces");
+            ((gov.nist.javax.sip.address.SipURIExt) uri).removeHeaders();
 
             Request newRequest = dialog.createRequest(Request.INVITE);
             newRequest.setRequestURI(uri);
