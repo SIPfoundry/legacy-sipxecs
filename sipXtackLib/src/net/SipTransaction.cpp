@@ -702,11 +702,8 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
     // Look at the request and figure out how to route it.
     else
     {
-        // For INVITE, process header parameters in the request uri
-        if (0 == method.compareTo(SIP_INVITE_METHOD))
-        {
-           request.applyTargetUriHeaderParams();
-        }
+        // process header parameters in the request uri
+        request.applyTargetUriHeaderParams();
 
         // Use the proxy only for requests
         userAgent.getProxyServer(0, &toAddress, &port, &protocol);
