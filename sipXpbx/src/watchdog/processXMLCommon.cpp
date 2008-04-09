@@ -974,7 +974,10 @@ OsStatus findSubDocs(OsPath &path, TiXmlDocument &rootDoc, ProcessSubDoc addSubD
         // iterator doesn't appear to load full path, it's just the file name
         bool success = subdoc.LoadFile(pathCopy + OsPath::separator + subdocName);
         if (!success) {
-            status = OS_FAILED;
+            // failed to load the process xml file.  Log the issue, skip over it and continue.
+            OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Failed to load process xml file %s", subdocName.data());
+
+            status = subdocs.findNext(subdocName);
         } else {
             TiXmlElement *subroot = subdoc.RootElement();
             if (subroot != NULL) {
@@ -986,7 +989,8 @@ OsStatus findSubDocs(OsPath &path, TiXmlDocument &rootDoc, ProcessSubDoc addSubD
                   status = (*addSubDoc)(rootDoc, subdoc);
                }
             } else {
-               status = OS_FAILED;
+               // Invalid document format.  Log the issue and continue to the next process xml file.
+               OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Invalid process xml file %s", subdocName.data());
             }
             if (status == OS_SUCCESS) 
             {
