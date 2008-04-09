@@ -16,9 +16,8 @@ import org.apache.commons.lang.enums.EnumUtils;
 import org.apache.tapestry.form.IPropertySelectionModel;
 
 /**
- * EnumPropertySelectionModel Similar to the class from Tapestry with the same
- * name, but can be used in as a bean. Does not support bundles. Use either
- * setOptions or setEnumClass but not both
+ * EnumPropertySelectionModel Similar to the class from Tapestry with the same name, but can be
+ * used in as a bean. Does not support bundles. Use either setOptions or setEnumClass but not both
  * 
  * @see org.apache.tapestry.form.EnumPropertySelectionModel
  */
@@ -54,5 +53,9 @@ public class EnumPropertySelectionModel implements IPropertySelectionModel {
     public Object translateValue(String value) {
         int i = Integer.parseInt(value);
         return m_options[i];
+    }
+
+    public boolean isDisabled(int index) {
+        return false;
     }
 }

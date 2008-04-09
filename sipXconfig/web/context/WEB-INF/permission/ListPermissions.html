@@ -21,8 +21,7 @@
     <table jwcid="@common/Table" id="permissions:list"
       source="prop:permissionManager.callPermissions"
       columns="* label,defaultValue,description"
-      class="bean:rowClass.next"
-      row="prop:currentRow"
+      row="ognl:currentRow"
       converter="bean:converter"
       selections="bean:selections"
       rowInfo="bean:rowInfo">

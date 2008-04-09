@@ -14,8 +14,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 /**
  * LenSelectionModel
  * 
- * Supports selecting number of digits from withing the specified, inclusive
- * range
+ * Supports selecting number of digits from withing the specified, inclusive range
  */
 public class LenSelectionModel implements IPropertySelectionModel {
     private int m_min;
@@ -62,4 +61,7 @@ public class LenSelectionModel implements IPropertySelectionModel {
         m_min = min;
     }
 
+    public boolean isDisabled(int index) {
+        return false;
+    }
 }

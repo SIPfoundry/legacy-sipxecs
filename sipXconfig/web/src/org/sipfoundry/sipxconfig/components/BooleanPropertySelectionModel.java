@@ -12,37 +12,40 @@ package org.sipfoundry.sipxconfig.components;
 import org.apache.tapestry.form.IPropertySelectionModel;
 
 /**
- * Implementation of IPropertySelectionModel Tapestry interface, which allows
- * two custom Strings to be used as labels for a property of type Boolean.
- * Can be used as a bean
+ * Implementation of IPropertySelectionModel Tapestry interface, which allows two custom Strings
+ * to be used as labels for a property of type Boolean. Can be used as a bean
  * 
  * @see org.apache.tapestry.form.IPropertySelectionModel
  */
 public class BooleanPropertySelectionModel implements IPropertySelectionModel {
 
-    private boolean[] m_values = {false, true};
-    private String[] m_labels = {"False", "True"};
+    private boolean[] m_values = {
+        false, true
+    };
+    private String[] m_labels = {
+        "False", "True"
+    };
 
     public BooleanPropertySelectionModel() {
-        
+
     }
-    
+
     public BooleanPropertySelectionModel(String first, String second) {
-        
+
         m_labels[0] = first;
         m_labels[1] = second;
     }
 
     public void setFalseLabel(String label) {
-        
+
         m_labels[0] = label;
     }
-    
+
     public void setTrueLabel(String label) {
-        
+
         m_labels[1] = label;
     }
-    
+
     public String getLabel(int index) {
 
         return m_labels[index];
@@ -69,4 +72,7 @@ public class BooleanPropertySelectionModel implements IPropertySelectionModel {
         return m_values[index];
     }
 
+    public boolean isDisabled(int arg0) {
+        return false;
+    }
 }

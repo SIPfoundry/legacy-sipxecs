@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.components;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.IPropertySelectionRenderer;
 import org.apache.tapestry.form.PropertySelection;
@@ -23,6 +24,9 @@ import org.apache.tapestry.form.PropertySelection;
 public abstract class FlexiblePropertySelection extends PropertySelection {
 
     public abstract IPropertySelectionRenderer getRenderer();
+
+    @Parameter(defaultValue = "false")
+    public abstract boolean getSubmitOnChange();
 
     protected void renderFormComponent(IMarkupWriter writer, IRequestCycle cycle) {
         IPropertySelectionRenderer renderer = getRenderer();

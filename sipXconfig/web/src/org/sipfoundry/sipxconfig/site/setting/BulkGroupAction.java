@@ -57,4 +57,8 @@ public abstract class BulkGroupAction implements OptionAdapter, IActionListener 
     public String getSuccessMsg(Messages messages) {
         return messages.getMessage("msg.actionSuccess");
     }
+
+    public String getMethodName() {
+        return null;
+    }
 }

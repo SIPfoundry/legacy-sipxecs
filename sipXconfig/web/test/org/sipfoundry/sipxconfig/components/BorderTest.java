@@ -109,7 +109,8 @@ public class BorderTest extends TestCase {
         private final boolean m_restricted;
         private final boolean m_loginRequired;
         private final UserSession m_userSession;
-        
+        private String m_clientId;
+
         MockBorder(boolean restricted, boolean loginRequired, UserSession userSession) {
             m_restricted = restricted;
             m_loginRequired = loginRequired;

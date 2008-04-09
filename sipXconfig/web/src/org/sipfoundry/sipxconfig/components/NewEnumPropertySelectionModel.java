@@ -46,4 +46,8 @@ public class NewEnumPropertySelectionModel<E extends Enum<E>> implements IProper
         int i = Integer.parseInt(value);
         return m_options[i];
     }
+
+    public boolean isDisabled(int index) {
+        return false;
+    }
 }

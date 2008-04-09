@@ -75,4 +75,8 @@ public class AdaptedSelectionModel implements IPropertySelectionModel {
         }
         return m_adapter;
     }
+
+    public boolean isDisabled(int arg0) {
+        return false;
+    }
 }

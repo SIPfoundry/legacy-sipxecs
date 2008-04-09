@@ -64,4 +64,8 @@ public class GatewaySelectionModel implements IPropertySelectionModel {
         }
         throw new IllegalArgumentException(value + " is not a valid gateway id");
     }
+
+    public boolean isDisabled(int index) {
+        return false;
+    }
 }

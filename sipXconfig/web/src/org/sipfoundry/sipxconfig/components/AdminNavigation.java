@@ -11,6 +11,6 @@ package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.BaseComponent;
 
-public class AdminNavigation extends BaseComponent {
+public abstract class AdminNavigation extends BaseComponent {
 
 }

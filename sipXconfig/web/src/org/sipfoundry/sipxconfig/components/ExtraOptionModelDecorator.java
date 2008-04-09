@@ -74,4 +74,11 @@ public class ExtraOptionModelDecorator implements IPropertySelectionModel {
         setModel(model);
         return this;
     }
+
+    public boolean isDisabled(int index) {
+        if (index == 0) {
+            return false;
+        }
+        return m_model.isDisabled(index - 1);
+    }
 }

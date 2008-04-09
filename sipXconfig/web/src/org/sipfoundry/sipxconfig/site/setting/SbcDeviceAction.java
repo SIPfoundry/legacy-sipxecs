@@ -50,4 +50,8 @@ public abstract class SbcDeviceAction implements OptionAdapter, IActionListener 
     public String squeezeOption(Object option_, int index_) {
         return getClass().getName() + m_sbcDevice.getId();
     }
+
+    public String getMethodName() {
+        return null;
+    }
 }

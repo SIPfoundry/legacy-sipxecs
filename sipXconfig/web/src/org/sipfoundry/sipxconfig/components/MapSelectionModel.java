@@ -65,4 +65,8 @@ public class MapSelectionModel implements IPropertySelectionModel {
         int index = Integer.parseInt(value);
         return getOption(index);
     }
+    
+    public boolean isDisabled(int index) {
+        return false;
+    }
 }

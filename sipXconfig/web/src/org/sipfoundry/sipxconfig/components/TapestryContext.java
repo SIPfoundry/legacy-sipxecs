@@ -182,6 +182,10 @@ public class TapestryContext {
                 m_validator.record(new ValidatorException(e.getMessage()));
             }
         }
+
+        public String getMethodName() {
+            return m_listener.getMethodName();
+        }
     }
 
     /**
