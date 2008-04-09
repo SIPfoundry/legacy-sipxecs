@@ -50,3 +50,6 @@ fc8 fc7 fc6 : $(CUSTOM_PACKAGES)
 
 .PHONY: rhel5 centos5 rhel4
 rhel5 centos5 rhel4 : w3c-libwww $(CUSTOM_PACKAGES)
+
+.PHONY: conference
+conference : freeswitch

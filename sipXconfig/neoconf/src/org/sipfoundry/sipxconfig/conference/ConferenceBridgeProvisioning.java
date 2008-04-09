@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.conference;
 
 import java.io.Serializable;
 
-public interface ConferenceBridgeProvisioning {
+import org.springframework.context.ApplicationListener;
+
+public interface ConferenceBridgeProvisioning extends ApplicationListener {
     void deploy(Serializable bridgeId);
 }

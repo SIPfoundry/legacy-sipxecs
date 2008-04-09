@@ -89,6 +89,9 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
     AC_SUBST(SIPX_SETUPDIR, [${sysconfdir}/sipxpbx/setup.d])
     AC_SUBST(SIPX_VARLIB,  [${localstatedir}/lib/sipxpbx])
 
+    # Freeswitch prefix directory
+    AC_SUBST(FREESWITCH_PREFIX,  [/usr/local/freeswitch])
+
     # temporary - see http://track.sipfoundry.org/browse/XPB-33
     AC_SUBST(SIPX_VXMLDATADIR,[${localstatedir}/sipxdata/mediaserver/data])
 

@@ -43,11 +43,18 @@
     <property name="lineSeparator" value="lf"/>
   </module>
   
+  <!-- Setup exclusions / suppressions                       -->
+  <!-- http://checkstyle.sourceforge.net/config.html#Filters -->
+  <module name="SuppressionFilter">
+    <property name="file" value="${top.dir}/meta/checkstyle-suppressions.xml"/>
+  </module>
+
   <!-- Checks that property files contain the same keys.         -->
   <!-- See http://checkstyle.sf.net/config_misc.html#Translation -->
   <!-- module name="Translation"/-->
   
   <module name="TreeWalker">
+  
     <!-- Checks for Javadoc comments.                     -->
     <!-- See http://checkstyle.sf.net/config_javadoc.html -->
     <module name="JavadocStyle">

@@ -16,6 +16,7 @@ Url:      http://www.sipfoundry.org/
 %define sipxpbxvarlib %{_var}/lib/sipxpbx
 %define sipxconfiglib %{_datadir}/sipxpbx/lib
 %define tftproot /tftpboot
+%define freeswitchdir @FREESWITCH_PREFIX@
 
 # Should match sipXlib.m4:SIPX_CONFIGPHONEDIR
 %define phonedir %{_localstatedir}/sipxdata/configserver/phone
@@ -117,6 +118,15 @@ Summary: Configures/enables MRTG monitoring for %{name}
 %description mrtg
 * installs and configures sipXconfig integration for MRTG
 
+%package conference
+Requires: freeswitch
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Provides conference bridge server for %{name}
+
+%description conference
+* installs and configures freeswitch conference bridge into sipXecs
+
 %package agent
 Requires: sipxcommserverlib
 Requires: ruby
@@ -165,7 +175,7 @@ run on the same machine it's default setup it to point to localhost.
 
 %build
 
-%configure --enable-rpmbuild --enable-reports --enable-agent @CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild --enable-reports --enable-agent --enable-conference @CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
@@ -368,6 +378,21 @@ fi
 
 %post mrtg
 sipx-mrtg-init -e > /dev/null
+
+%files conference
+%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
+%config(noreplace) %{sipxpbxconf}/process.d/freeswitch.process.xml
+%{sipxpbxconf}/freeswitch_config.defs
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{freeswitchdir}
+%{freeswitchdir}/conf/freeswitch.xml.in
+%{freeswitchdir}/conf/modules.conf.xml.in
+%{freeswitchdir}/conf/xml_rpc.conf.xml.in
+%{freeswitchdir}/conf/sofia.conf.xml.in
+%{freeswitchdir}/conf/conference.conf.xml.in
+%attr(755,root,root) /usr/bin/freeswitch.sh
+
+%post conference
+freeswitch.sh --configtest
 
 %preun mrtg
 if [ "$1" = "0" ] ; then

@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.conference;
 
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
@@ -49,29 +50,41 @@ public class BridgeTest extends BeanWithSettingsTestCase {
         assertTrue(bridge.getConferences().isEmpty());
         assertNull(c.getBridge());
     }
-
-    public void testGetDefaults() {
-        final String audioDir = "/really/strange/directory";
-
-        IMocksControl defaultsCtrl = EasyMock.createControl();
-        DeviceDefaults defaults = defaultsCtrl.createMock(DeviceDefaults.class);
-        defaults.getDomainName();
-        defaultsCtrl.andReturn("xyz.org");
-        defaultsCtrl.replay();
-
+    
+    public void testAccessors()
+    {
         Bridge bridge = new Bridge();
-        initializeBeanWithSettings(bridge);
-        bridge.setAudioDirectory(audioDir);
-
-        bridge.setSystemDefaults(defaults);
-
-        assertEquals("xyz.org", bridge.getSettingValue(Bridge.SIP_DOMAIN));
-
-        FileSetting settingType = (FileSetting) bridge.getSettings().getSetting(
-                "bridge-bridge/BOSTON_BRIDGE_HOLD_MUSIC").getType();
-
-        assertEquals(audioDir, settingType.getDirectory());
-
-        defaultsCtrl.verify();
-    }
+        bridge.setModelFilesContext(TestHelper.getModelFilesContext());
+        DeviceDefaults dd = new DeviceDefaults() ;
+        dd.setDomainManager(TestHelper.getTestDomainManager("example.com")) ;
+        bridge.setSystemDefaults(dd);
+        assertTrue(bridge.getConferences().isEmpty());
+        bridge.initialize() ;    
+        
+        assertEquals(bridge.getHost(), null);
+        assertEquals(bridge.getPort(), 0);
+        assertEquals(bridge.getSipDomain(), "example.com");
+        assertEquals(bridge.getSipPort(), 15060);
+        assertEquals(bridge.getDescription(), null);
+        assertEquals(bridge.isEnabled(), false);
+        assertEquals(bridge.getName(), null);
+        assertEquals(bridge.getServiceUri(), "http://null:0/RPC2");
+        
+        bridge.setHost("bridge") ;
+        bridge.setPort(8080) ;
+        bridge.setDescription("Example Bridge");
+        bridge.setEnabled(true);
+        bridge.setName("foo");
+        bridge.setAudioDirectory("/tmp") ;
+        
+        assertEquals(bridge.getHost(), "bridge");
+        assertEquals(bridge.getPort(), 8080);
+        assertEquals(bridge.getSipDomain(), "example.com");
+        assertEquals(bridge.getSipPort(), 15060);
+        assertEquals(bridge.getDescription(), "Example Bridge");
+        assertEquals(bridge.isEnabled(), true);
+        assertEquals(bridge.getName(), "foo");
+        assertEquals(bridge.getServiceUri(), "http://bridge:8080/RPC2");
+        assertEquals(bridge.getAudioDirectory(), "/tmp");
+    }    
 }

@@ -1,0 +1,5 @@
+SUBDIRS = \
+	etc \
+	local \
+	bin
+

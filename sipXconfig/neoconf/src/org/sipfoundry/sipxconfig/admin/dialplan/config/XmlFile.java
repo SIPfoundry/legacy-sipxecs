@@ -42,11 +42,19 @@ public abstract class XmlFile implements ConfigurationFile {
      */
     public void write(Writer writer) throws IOException {
         Document document = getDocument();
+        OutputFormat format = createFormat();
+        XMLWriter xmlWriter = new XMLWriter(writer, format);
+        xmlWriter.write(document);
+    }
+
+    /**
+     * Overwrite to prepare XML format for this file.
+     */
+    public OutputFormat createFormat() {
         OutputFormat format = new OutputFormat();
         format.setNewlines(true);
         format.setIndent(true);
-        XMLWriter xmlWriter = new XMLWriter(writer, format);
-        xmlWriter.write(document);
+        return format;
     }
 
     /**

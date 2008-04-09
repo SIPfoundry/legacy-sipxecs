@@ -218,7 +218,6 @@ wwwcontent = \
 	stdprompts/beep.wav \
 	stdprompts/c.wav \
 	stdprompts/cancelled.wav \
-	stdprompts/cb_welcome.wav \
 	stdprompts/colon.wav \
 	stdprompts/comment_options.wav \
 	stdprompts/confirm_new_passwd.wav \
@@ -522,6 +521,16 @@ wwwcontent = \
 	stdprompts/you_have.wav \
 	stdprompts/your_active_greeting_is.wav \
 	stdprompts/z.wav \
+        stdprompts/conf/conf-alone.wav \
+        stdprompts/conf/conf-bad-pin.wav \
+        stdprompts/conf/conf-goodby.wav \
+        stdprompts/conf/conf-is-locked.wav \
+        stdprompts/conf/conf-kicked.wav \
+        stdprompts/conf/conf-locked.wav \
+        stdprompts/conf/conf-muted.wav \
+        stdprompts/conf/conf-pin.wav \
+        stdprompts/conf/conf-unmuted.wav \
+        stdprompts/conf/conf-welcome.wav \
 	vm_vxml/activategreeting.vxml \
 	vm_vxml/changepin.vxml \
 	vm_vxml/error_handler.vxml \

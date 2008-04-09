@@ -16,44 +16,83 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.configdb.ConfigDbParameter;
 import org.sipfoundry.sipxconfig.admin.commserver.configdb.ConfigDbSettingAdaptor;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.setting.ProfileNameHandler;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
-import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
+import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcClientInterceptor;
+
+import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implements
         ConferenceBridgeProvisioning {
-    private SipxReplicationContext m_sipxReplicationContext;
 
+    protected static final Log LOG = LogFactory.getLog(ConferenceBridgeProvisioningImpl.class);
+    private SipxReplicationContext m_sipxReplicationContext;
+    private JobContext m_jobContext;
+
+    public interface FreeSWITCHFunctions {
+        void freeswitch_api(String funcion, String params);
+    }
+    
     public void deploy(Serializable bridgeId) {
         Bridge bridge = (Bridge) getHibernateTemplate().load(Bridge.class, bridgeId);
-        // get settings for bridge and all conferences
-
-        XmlRpcProxyFactoryBean factory = new XmlRpcProxyFactoryBean();
-        factory.setServiceInterface(ConfigDbParameter.class);
-        factory.setServiceUrl(bridge.getServiceUri());
-        factory.afterPropertiesSet();
-        ConfigDbParameter configDb = (ConfigDbParameter) factory.getObject();
-        ConfigDbSettingAdaptor adaptor = new ConfigDbSettingAdaptor();
-        adaptor.setConfigDbParameter(configDb);
-        deploy(bridge, adaptor);
-        generateAdmissionData();
+        List conferences = getHibernateTemplate().loadAll(Conference.class);
+        generateAdmissionData(bridge, conferences);
+        generateConfigurationData(bridge, conferences);        
+        m_sipxReplicationContext.publishEvent(new ConferenceConfigReplicatedEvent(this, bridge.getServiceUri()));
         m_sipxReplicationContext.generate(DataSet.ALIAS);
     }
+    
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof ConferenceConfigReplicatedEvent) {
+            boolean success = false;
+            Serializable jobId = m_jobContext.schedule("FreeSWITCH reload configuration");
+            try {
+                m_jobContext.start(jobId);
+                String serviceUrl = ((ConferenceConfigReplicatedEvent) event).getServiceUrl();
+                XmlRpcClientInterceptor interceptor = new XmlRpcClientInterceptor();
+                interceptor.setServiceInterface(FreeSWITCHFunctions.class);
+                interceptor.setServiceUrl(serviceUrl);
+                interceptor.afterPropertiesSet();
 
-    void generateAdmissionData() {
-        List conferences = getHibernateTemplate().loadAll(Conference.class);
+                FreeSWITCHFunctions proxy = (FreeSWITCHFunctions) ProxyFactory.getProxy(FreeSWITCHFunctions.class,
+                    interceptor);
+                        
+                proxy.freeswitch_api("reloadxml", "");
+                success = true;
+            } finally {
+                if (success) {
+                    m_jobContext.success(jobId);
+                } else {
+                    m_jobContext.failure(jobId, null, null);
+                }                
+            }
+        }
+    }
+    
+
+    void generateAdmissionData(Bridge bridge, List conferences) {
         ConferenceAdmission admission = new ConferenceAdmission();
         admission.generate(conferences);
         m_sipxReplicationContext.replicate(admission);
+    }
+    
+    void generateConfigurationData(Bridge bridge, List conferences) {
+        ConferenceConfiguration configuration = new ConferenceConfiguration(bridge);
+        configuration.generate(conferences);
+        m_sipxReplicationContext.replicate(configuration);
     }
 
     void deploy(Bridge bridge, ConfigDbSettingAdaptor adaptor) {
@@ -71,20 +110,23 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
         adaptor.set("bbridge.conf", allSettings);
         getHibernateTemplate().saveOrUpdateAll(conferences);
     }
-
+ 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
     }
+    
+    public void setJobContext(JobContext jobContext) {
+        m_jobContext = jobContext;
+    }    
 
     public static class BostonBridgeFilter implements SettingFilter {
-        private static final String PREFIX = "BOSTON_BRIDGE";
-
+        private static final String PREFIX = "fs-conf";
         public boolean acceptSetting(Setting root_, Setting setting) {
             String profileName = setting.getProfileName();
             return profileName.startsWith(PREFIX);
         }
     }
-
+    
     public static class ConferenceProfileName implements ProfileNameHandler {
         private static final char SEPARATOR = '.';
         private final String m_conferenceName;

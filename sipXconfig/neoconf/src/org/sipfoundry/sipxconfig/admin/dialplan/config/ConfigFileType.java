@@ -22,7 +22,8 @@ public final class ConfigFileType extends Enum {
     public static final ConfigFileType AUTH_RULES = new ConfigFileType("authrules.xml");
     public static final ConfigFileType ORBITS = new ConfigFileType("orbits.xml");
     public static final ConfigFileType E911_RULES = new ConfigFileType("e911rules.xml");
-    public static final ConfigFileType CONFERENCES = new ConfigFileType("conferences.xml");
+    public static final ConfigFileType CONFERENCE_ADDMINSION = new ConfigFileType("conference_addmission.xml");
+    public static final ConfigFileType CONFERENCE_CONFIGURATION = new ConfigFileType("conference_configuration.xml");
     public static final ConfigFileType ATTENDANT_SCHEDULE = new ConfigFileType("attendant_schedule.xml");
     public static final ConfigFileType ORGANIZATION_PREFS = new ConfigFileType("organizationprefs.xml");
     public static final ConfigFileType RESOURCE_LISTS = new ConfigFileType("resource-lists.xml");

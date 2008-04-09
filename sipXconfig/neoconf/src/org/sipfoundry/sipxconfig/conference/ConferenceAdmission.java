@@ -17,23 +17,25 @@ import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
 public class ConferenceAdmission extends XmlFile {
-
-    private String m_configDirectory;
+    private static final String NAME = "name";
+    private String m_configDirectory; 
 
     private Document m_document;
 
     public Document getDocument() {
         return m_document;
     }
-
+    
     public void generate(List conferences) {
         m_document = FACTORY.createDocument();
-        Element parent = m_document.addElement("conferences");
-        CollectionUtils.forAllDo(conferences, new BuildConferenceElem(parent));
+        Element context = m_document.addElement("context");
+        context.addAttribute(NAME, "default");
+        CollectionUtils.forAllDo(conferences, new BuildConferenceElem(context));
     }
 
     private static class BuildConferenceElem implements Closure {
@@ -48,15 +50,23 @@ public class ConferenceAdmission extends XmlFile {
             if (!conference.isEnabled()) {
                 return;
             }
-            Element confElem = m_parent.addElement("conference");
-            confElem.addElement("id").setText(conference.getName());
-            confElem.addElement("extension").setText(conference.getExtension());
-            confElem.addElement("value").setText(conference.getRemoteAdmitSecret());
-            confElem.addElement("organizer-access-code").setText(
-                    conference.getOrganizerAccessCode());
-            confElem.addElement("participant-access-code").setText(
-                    conference.getParticipantAccessCode());
-            confElem.addElement("conference-uri").setText(conference.getUri());
+            
+            // Application data: name@profile+pin            
+            String applicationData = conference.getName();
+            applicationData = applicationData + "@" + conference.getExtension();
+            String accessCode = conference.getParticipantAccessCode();
+            if (accessCode != null && accessCode.length() > 0) {
+                applicationData = applicationData + "+" + accessCode;
+            }
+        
+            m_parent.addElement("extension")
+                .addAttribute(NAME, conference.getExtension())
+                .addElement("condition")
+                .addAttribute("field", "destination_number")
+                .addAttribute("expression", "^" + conference.getName() + "$")
+                .addElement("action")
+                .addAttribute("application", "conference")
+                .addAttribute("data", applicationData);
         }
     }
 
@@ -70,11 +80,19 @@ public class ConferenceAdmission extends XmlFile {
         writeToFile(parent, getType().getName());
     }
 
+    @Override
+    public OutputFormat createFormat() {
+        OutputFormat format = OutputFormat.createPrettyPrint();
+        format.setOmitEncoding(true);
+        format.setSuppressDeclaration(true);
+        return format;
+    }
+
     public void setConfigDirectory(String configDirectory) {
         m_configDirectory = configDirectory;
     }
 
     public ConfigFileType getType() {
-        return ConfigFileType.CONFERENCES;
+        return ConfigFileType.CONFERENCE_ADDMINSION;
     }
 }

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration name="conference.conf" description="sipX MeetMe Audio Conference">
+  <caller-controls>
+    <group name="sipx-default">
+      <control action="mute" digits="1"/>
+      <control action="deaf mute" digits="2"/>
+      <control action="energy up" digits="3"/>
+      <control action="enery equ" digits="4"/>
+      <control action="energy dn" digits="5"/>
+      <control action="vol talk up" digits="9"/>
+      <control action="vol talk zero" digits="#"/>
+      <control action="vol talk down" digits="*"/>
+      <control action="vol listen up" digits="6"/>
+      <control action="vol listen zero" digits="7"/>
+      <control action="vol listen down" digits="8"/>
+      <control action="hangup" digits="0"/>
+    </group>
+  </caller-controls>
+  <profiles>
+    <profile name="default">
+      <param name="domain" value="example.com"/>
+      <param name="caller-controls" value="sipx-default"/>
+      <param name="rate" value="8000"/>
+      <param name="interval" value="20"/>
+      <param name="energy-level" value="300"/>
+      <param name="sound-prefix"/>
+      <param name="ack-sound" value="beep.wav"/>
+      <param name="nack-sound" value="beep.wav"/>
+      <param name="mute-sound" value="conf/conf-muted.wav"/>
+      <param name="unmute-sound" value="conf/unmuted.wav"/>
+      <param name="alone-sound" value="conf/conf-alone.wav"/>
+      <param name="enter-sound" value="beep.wav"/>
+      <param name="exit-sound" value="beep.wav"/>
+      <param name="kicked-sound" value="conf/kicked.wav"/>
+      <param name="locked-sound" value="conf/locked.wav"/>
+      <param name="max-members-sound" value="conf/locked.wav"/>
+      <param name="is-locked-sound" value="conf/conf-islocked.wav"/>
+      <param name="is-unlocked-sound" value="beep.wav"/>
+      <param name="pin-sound" value="conf/conf-pin.wav"/>
+      <param name="bad-pin-sound" value="conf/conf-bad-pin.wav"/>
+    </profile>
+    <profile name="234">
+      <param name="domain" value="example.com"/>
+      <param name="caller-controls" value="sipx-default"/>
+      <param name="rate" value="8000"/>
+      <param name="interval" value="20"/>
+      <param name="energy-level" value="300"/>
+      <param name="sound-prefix"/>
+      <param name="ack-sound" value="beep.wav"/>
+      <param name="nack-sound" value="beep.wav"/>
+      <param name="mute-sound" value="conf/conf-muted.wav"/>
+      <param name="unmute-sound" value="conf/unmuted.wav"/>
+      <param name="alone-sound" value="conf/conf-alone.wav"/>
+      <param name="enter-sound" value="beep.wav"/>
+      <param name="exit-sound" value="beep.wav"/>
+      <param name="kicked-sound" value="conf/kicked.wav"/>
+      <param name="locked-sound" value="conf/locked.wav"/>
+      <param name="max-members-sound" value="conf/locked.wav"/>
+      <param name="is-locked-sound" value="conf/conf-islocked.wav"/>
+      <param name="is-unlocked-sound" value="beep.wav"/>
+      <param name="pin-sound" value="conf/conf-pin.wav"/>
+      <param name="bad-pin-sound" value="conf/conf-bad-pin.wav"/>
+      <param name="max-members" value="4"/>
+    </profile>
+  </profiles>
+</configuration>

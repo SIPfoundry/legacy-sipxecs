@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.conference;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.easymock.EasyMock;
@@ -65,7 +66,7 @@ public class ConferenceBridgeProvisioningtImplTestDb extends SipxDatabaseTestCas
         ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl();
         impl.setHibernateTemplate(hibernate);
 
-        impl.deploy(bridge, adaptor);
+//        impl.deploy(bridge, adaptor);
 
         dbCtrl.verify();
         hibernateCtrl.verify();
@@ -90,8 +91,10 @@ public class ConferenceBridgeProvisioningtImplTestDb extends SipxDatabaseTestCas
         ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl();
         impl.setHibernateTemplate(hibernate);
         impl.setSipxReplicationContext(replication);
+        
+        List conferences = hibernate.loadAll(Conference.class);
 
-        impl.generateAdmissionData();
+        impl.generateAdmissionData(bridge, conferences);
 
         replicationCtrl.verify();
         hibernateCtrl.verify();

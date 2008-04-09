@@ -17,6 +17,8 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 
+import org.springframework.context.ApplicationEvent;
+
 public class LazyConferenceBridgeProvisioningImpl implements ConferenceBridgeProvisioning {
     private Set m_servers = new HashSet();
 
@@ -93,4 +95,10 @@ public class LazyConferenceBridgeProvisioningImpl implements ConferenceBridgePro
         m_servers.add(bridgeId);
         notify();
     }
+    
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (m_target != null) {
+            m_target.onApplicationEvent(event);
+        }
+    }    
 }

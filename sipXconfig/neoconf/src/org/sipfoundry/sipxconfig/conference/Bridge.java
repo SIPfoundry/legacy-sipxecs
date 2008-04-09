@@ -28,10 +28,23 @@ public class Bridge extends BeanWithSettings implements NamedObject {
     public static final String BEAN_NAME = "conferenceBridge";
     
     public static final String CONFERENCES_PROP = "conferences";
-    public static final String SERVICE_URI_PROP = "serviceUri";
+    public static final String SERVICE_URI_PROP = "serviceUri";    
+    public static final String SIP_DOMAIN = "fs-conf-bridge/sip-domain";
+    public static final String SIP_PORT = "fs-conf-bridge/sip-port";
     
-    public static final String SIP_DOMAIN = "bridge-bridge/BOSTON_BRIDGE_SIP_DOMAIN";
-
+    public static final String CALL_CONTROL_MUTE = "fs-conf-bridge/dtmf-commands/mute";
+    public static final String CALL_CONTROL_DEAF_MUTE = "fs-conf-bridge/dtmf-commands/deaf-mute";
+    public static final String CALL_CONTROL_ENERGY_UP = "fs-conf-bridge/dtmf-commands/energy/up";
+    public static final String CALL_CONTROL_ENERGY_RESET = "fs-conf-bridge/dtmf-commands/energy/reset";
+    public static final String CALL_CONTROL_ENERGY_DOWN = "fs-conf-bridge/dtmf-commands/energy/down";
+    public static final String CALL_CONTROL_VOLUME_UP = "fs-conf-bridge/dtmf-commands/volume-listen/up";
+    public static final String CALL_CONTROL_VOLUME_RESET = "fs-conf-bridge/dtmf-commands/volume-listen/reset";
+    public static final String CALL_CONTROL_VOLUME_DOWN = "fs-conf-bridge/dtmf-commands/volume-listen/down";
+    public static final String CALL_CONTROL_TALK_UP = "fs-conf-bridge/dtmf-commands/volume-talk/up";
+    public static final String CALL_CONTROL_TALK_RESET = "fs-conf-bridge/dtmf-commands/volume-talk/reset";
+    public static final String CALL_CONTROL_TALK_DOWN = "fs-conf-bridge/dtmf-commands/volume-talk/down";
+    public static final String CALL_CONTROL_HANGUP = "fs-conf-bridge/dtmf-commands/hungup";
+       
     private boolean m_enabled;
 
     private String m_name;
@@ -47,10 +60,7 @@ public class Bridge extends BeanWithSettings implements NamedObject {
     private int m_port;
 
     private String m_host;
-
-    /** location - host:port of the admission server */
-    private String m_admissionServer;
-        
+            
     public void initialize() {
         addDefaultBeanSettingHandler(new BridgeDefaults(this));
     }
@@ -82,6 +92,14 @@ public class Bridge extends BeanWithSettings implements NamedObject {
     public void setPort(int port) {
         m_port = port;
     }
+
+    public String getSipDomain() {
+        return getSettingValue(SIP_DOMAIN);
+    }
+
+    public int getSipPort() {
+        return Integer.parseInt(getSettingValue(SIP_PORT));
+    }
     
     @Override
     protected Setting loadSettings() {
@@ -104,15 +122,7 @@ public class Bridge extends BeanWithSettings implements NamedObject {
         conference.setBridge(null);
         getConferences().remove(conference);
     }
-
-    public void setAdmissionServer(String admissionServer) {
-        m_admissionServer = admissionServer;
-    }
-
-    public String getAdmissionServer() {
-        return m_admissionServer;
-    }
-
+    
     // trivial get/set
     public String getDescription() {
         return m_description;
@@ -153,6 +163,10 @@ public class Bridge extends BeanWithSettings implements NamedObject {
     public void setAudioDirectory(String audioDirectory) {
         m_audioDirectory = audioDirectory;
     }
+    
+    public String getAudioDirectory() {
+        return m_audioDirectory;
+    }
 
     @Override
     public void setSettings(Setting settings) {
@@ -174,6 +188,6 @@ public class Bridge extends BeanWithSettings implements NamedObject {
         Object[] params = new Object[] {
             m_host, Integer.toString(m_port)
         };
-        return MessageFormat.format("https://{0}:{1}/RPC2", params);
-    }
+        return MessageFormat.format("http://{0}:{1}/RPC2", params);
+    }    
 }

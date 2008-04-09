@@ -17,7 +17,8 @@ RPMS = \
 	$(DEST_RPM)/@PACKAGE@-tftp-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
 	$(DEST_RPM)/@PACKAGE@-ftp-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
 	$(DEST_RPM)/@PACKAGE@-agent-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
-	$(DEST_RPM)/@PACKAGE@-report-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm
+	$(DEST_RPM)/@PACKAGE@-report-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
+        $(DEST_RPM)/@PACKAGE@-conference-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm
 
 if REPORTS
 REPORTS_OPT = report
@@ -27,6 +28,10 @@ if AGENT
 AGENT_OPT = agent
 endif
 
+if CONFERENCE
+CONFERENCE_OPT = conference
+endif
+
 SUBDIRS = \
 	. \
 	bin \
@@ -34,8 +39,9 @@ SUBDIRS = \
 	web \
 	meta \
 	plugins \
-	$(REPORTS_OPT) \
-	$(AGENT_OPT)
+	$(REPORTS_OPT)\
+	$(AGENT_OPT)\
+	$(CONFERENCE_OPT)
 
 install-exec-hook :
 	$(ANT_CMD) $(ANT_FLAGS) remove-jars
@@ -62,6 +68,7 @@ EXTRA_DIST = \
     meta \
     agent \
     report \
+    conference \
     lib
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make

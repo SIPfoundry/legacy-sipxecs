@@ -45,10 +45,13 @@ public class ConferenceAdmissionTest extends XMLTestCase {
             Conference conference = conferenceCtrl.createMock(Conference.class);
 
             conference.getName();
-            conferenceCtrl.andReturn(DATA[i][0]);
+            conferenceCtrl.andReturn(DATA[i][0]).anyTimes();
 
             conference.getExtension();
             conferenceCtrl.andReturn(DATA[i][1]);
+
+            conference.getExtension();
+            conferenceCtrl.andReturn(DATA[i][1]);            
 
             conference.getOrganizerAccessCode();
             conferenceCtrl.andReturn(DATA[i][2]);
@@ -69,18 +72,15 @@ public class ConferenceAdmissionTest extends XMLTestCase {
             m_conferences.add(conference);
             conferenceCtrl.replay();
         }
-
     }
     
-    public void testNop() {        
-    }
-
     public void testGenerate() throws Exception {
         ConferenceAdmission admission = new ConferenceAdmission();
         admission.generate(m_conferences);
         String generatedXml = admission.getFileContent();
+        System.err.println(generatedXml);
         InputStream referenceXml = ConferenceAdmissionTest.class
-                .getResourceAsStream("conferences.test.xml");
+                .getResourceAsStream("conference_admit.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
     }
 }
