@@ -7,13 +7,13 @@
   </table>
   <ul jwcid="actions@Block" class="component-submit">
     <li>
-      <input id="signInButton" jwcid="signInButton@tacos:AjaxSubmit"
+      <input id="signInButton" jwcid="signInButton@Submit"
         updateComponents="ognl:{'refreshedContent'}"
         listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signIn)"
         value="message:signIn"/>
     </li>
     <li>
-      <input id="signOutButton" jwcid="signOutButton@tacos:AjaxSubmit"
+      <input id="signOutButton" jwcid="signOutButton@Submit"
         updateComponents="ognl:{'refreshedContent'}"
         listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signOut)"
         value="message:signOut"/>

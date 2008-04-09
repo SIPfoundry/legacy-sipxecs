@@ -521,23 +521,23 @@ div.col
 	width:25em;
 }
 
-div.auto_complete {
+div.autocomplete {
   width: 350px;
 }
 
-div.auto_complete ul {
+div.autocomplete ul {
   margin:0;
   padding:0;
   width:100%;
   list-style-type:none;
 }
 
-div.auto_complete ul li {
+div.autocomplete ul li {
   margin:0;
   padding:3px;
 }
 
-div.auto_complete ul strong.highlight {
+div.autocomplete ul strong.highlight {
   margin:0;
   padding:0;
 }

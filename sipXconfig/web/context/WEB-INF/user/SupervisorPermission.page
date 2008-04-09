@@ -21,7 +21,7 @@
     <binding name="description" value="message:description.supervisorForGroups"/>
     <binding name="label" value="message:label.supervisorForGroups"/>
   </component>
-  <component id="supervisorForGroups" type="tacos:Autocompleter">
+  <component id="supervisorForGroups" type="Suggest">
     <binding name="value" value="supervisorForGroupsString"/>
     <binding name="size" value="50"/>
     <binding name="listSource" value="groupCandidates"/>

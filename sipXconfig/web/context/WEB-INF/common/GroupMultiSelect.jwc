@@ -6,7 +6,7 @@
   <parameter name="source"/>
   <parameter name="value"/>
   <property name="groupCandidates"/>
-  <component id="groups" type="tacos:Autocompleter">
+  <component id="groups" type="Suggest">
     <binding name="value" value="value"/>
     <binding name="size" value="50"/>
     <binding name="listSource" value="groupCandidates"/>

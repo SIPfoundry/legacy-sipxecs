@@ -1,32 +1,23 @@
 <html jwcid="@Shell" stylesheets="ognl:tapestry.getStylesheets(#this)" title="message:product.name">
-    <script type="text/javascript">
-	djConfig = { isDebug: false,
-    disableFlashStorage: true,
-    baseRelativePath: "js/dojo",
-    parseWidgets: false,
-    preventBackButtonFix: false};
-    </script>
-    <script jwcid="@Any" type="text/javascript" src="ognl:webRequest.contextPath + '/js/dojo/dojo.js'"></script>
-	<body jwcid="body@Body" id="body">
-	<span jwcid="@Script" script="literal:WaitingPage.script"/>
-	  <div id="banner">
-		<div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
-	  </div>
-	  <span jwcid="@common/QuickHelp" value="message:waiting.quick.help"/>
-	  <div id="waiting">
-		<h2>
-		<img jwcid="@Image" image="asset:loadingImage"  />
-		<span key="restartServer">Server is restarting</span>
-		</h2>
-	  </div>
-      <form jwcid="actionForm@tacos:AjaxForm" id="actionForm" delegate="bean:validator" >
-        <input jwcid="performAction@tacos:AjaxEventSubmit" id="performAction" updateComponents="ognl:{'refreshComp'}"/>
+    <body jwcid="body@Body" id="body">
+        <span jwcid="@Script" script="asset:waitingScript"/>
+        <div id="banner">
+            <div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
+        </div>
 
-        <span jwcid="refreshComp@Any" id="refreshComp">
-		<span jwcid="@If" condition="ognl:pageRendered">
-			<span jwcid="@InvokeListener" listener="listener:onLoad"/>
-	        </span>
-        </span>
-	  </form>
-	</body>
+        <div id="contentContainer">
+            <span jwcid="@common/QuickHelp" value="message:waiting.quick.help"/>
+            <div id="waiting">
+                <h2>
+                    <img jwcid="@Image" image="asset:loadingImage"  />
+                    <span key="restartServer">Server is restarting</span>
+                </h2>
+            </div>
+            <form jwcid="actionForm@Form" id="actionForm" delegate="bean:validator" async="ognl:true">
+                <span jwcid="@If" condition="ognl:pageRendered">
+                    <span jwcid="@InvokeListener" listener="listener:onLoad"/>
+                </span>
+            </form>
+        </div>
+    </body>
 </html>

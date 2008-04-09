@@ -249,19 +249,19 @@ form.with-sections legend
 	color: #000033;
 }
 
-div.auto_complete {
+div.autocomplete {
   background: #fff;
 }
 
-div.auto_complete ul {
+div.autocomplete ul {
   border:1px solid #888;
 }
 
-div.auto_complete ul li.selected {
+div.autocomplete ul li.selected {
   background-color: #ffb;
 }
 
-div.auto_complete ul strong.highlight {
+div.autocomplete ul strong.highlight {
   color: #800;
 }
 

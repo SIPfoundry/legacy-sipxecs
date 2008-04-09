@@ -40,8 +40,7 @@
         label="message:label.groups"
         description="message:description.groups"
         field="ognl:null">  <!-- Bug, give the right value for field, and autocomplete renders double -->
-        <td class="auto_complete"
-          jwcid="groups@tacos:Autocompleter"
+        <input jwcid="groups@Suggest"
           value="ognl:groupsString"
           listSource="ognl:groupCandidates"
           size="50"

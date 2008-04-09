@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
+import org.apache.tapestry.annotations.EventListener;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -47,6 +48,7 @@ public abstract class WaitingPage extends UserBasePage implements PageEndRenderL
      * This method is called immediately after the waiting page (WaitingPage.html) is loaded in
      * the browser using Tacos mechanism
      */
+    @EventListener(elements = "", events = "onLoad")
     public void onLoad() {
         WaitingListener waitingListener = getWaitingListener();
         if (waitingListener != null) {

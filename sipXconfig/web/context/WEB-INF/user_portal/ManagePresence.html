@@ -20,11 +20,11 @@
       </span>
       <ul jwcid="actions@Block">
         <li>
-          <input jwcid="signInButton@tacos:AjaxSubmit" id="signInButton" value="message:button.SignIn"
+          <input jwcid="signInButton@Submit" id="signInButton" value="message:button.SignIn"
             listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signIn)"
             updateComponents="ognl:{'refreshedContent'}"
           />
-          <input jwcid="signOutButton@tacos:AjaxSubmit" id="signOutButton" value="message:button.SignOut"
+          <input jwcid="signOutButton@Submit" id="signOutButton" value="message:button.SignOut"
             listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signOut)"
             updateComponents="ognl:{'refreshedContent'}"
           />

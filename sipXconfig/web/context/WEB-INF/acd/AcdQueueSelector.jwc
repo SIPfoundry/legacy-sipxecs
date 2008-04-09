@@ -28,13 +28,11 @@
   </bean>
 
   <!-- C O M P O N E N T S -->
-  <component id="queueFilterSubmitEvent" type="tacos:AjaxEventSubmit"></component>
 
-  <!--  FIXME: onChange should trigger AJAX submit but tacos:AjaxEventSubmit for some reason was not working properly -->
+  <!-- FIXME: use Ajax submit/even listener -->
   <component id="queueFilter" type="PropertySelection">
     <inherited-binding name="value" parameter-name="acdQueueUri" />
     <binding name="model" value="bean:queueSelectionModel" />
-    <!--  binding name="eventListener" value="literal:onchange=components.queueFilterSubmitEvent" /-->
     <binding name="onchange" value="literal:javascript:this.form.submit();"/>
   </component>
   

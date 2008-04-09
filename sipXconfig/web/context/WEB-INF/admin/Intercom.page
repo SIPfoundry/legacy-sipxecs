@@ -38,7 +38,7 @@
     <binding name="label" value="message:label.groups" />
     <binding name="description" value="message:description.groups" />
   </component>
-  <component id="groups" type="tacos:Autocompleter">
+  <component id="groups" type="Suggest">
     <binding name="value" value="groupsString" />
     <binding name="size" value="50" />
     <binding name="listSource" value="groupCandidates" />

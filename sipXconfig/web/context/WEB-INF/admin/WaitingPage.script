@@ -45,7 +45,6 @@ function onTimeout(){
 	setTimeout('makeRequest()', 5000);
 }
 function restartAndVerify(){
-   document.AjaxFormSubmit_actionForm('submit');
    makeRequest();
 }
 window.onload=restartAndVerify;
