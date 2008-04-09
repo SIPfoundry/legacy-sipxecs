@@ -1,10 +1,10 @@
 <span jwcid="@Script" script="DiagnosticDetail.script" rowId="ognl:rowId" />
-<tr jwcid="@Any" class="prop:rowClass">
+<tr jwcid="@Any" class="ognl:rowClass">
   <td id="ognl:'test' + rowId + 'Name'" jwcid="@Any">
     <span jwcid="@Insert" value="ognl:test.label"/>
   </td>
   <td>
-    <span jwcid="@Insert" value="prop:lastRunTime"/>  
+    <span jwcid="@Insert" value="ognl:lastRunTime"/>  
   </td>
   <td style="width: 10em;">
     <span jwcid="@Any" class="ognl:'status-' + test.result.status">
@@ -12,7 +12,7 @@
     </span>
   </td>
 </tr>
-<tr jwcid="@If" condition="ognl:renderResult" element="tr" class="prop:rowClass">
+<tr jwcid="@If" condition="ognl:renderResult" element="tr" class="ognl:rowClass">
   <td colspan="3" class="settingDescription">
      <img src="/sipxconfig/images/bullet_error.png" align="top" /> <b><span jwcid="@Insert" value="ognl:test.result.message"/></b><br/>
      <span jwcid="@Insert" value="ognl:test.result.description"/>

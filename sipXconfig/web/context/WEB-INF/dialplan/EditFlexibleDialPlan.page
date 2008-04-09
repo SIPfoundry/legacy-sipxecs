@@ -3,7 +3,7 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditFlexibleDialPlan">
   <bean name="typeFormat" class="org.sipfoundry.sipxconfig.components.EnumFormat"
     lifecycle="page">
-    <set name="messages" value="prop:messages" />
+    <set name="messages" value="messages" />
     <set name="prefix" value="literal:type" />
   </bean>
 </page-specification>

@@ -1,6 +1,6 @@
 <div jwcid="@common/Border">
   <h2><span key="title">Restore</span></h2>
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'restore', 'upload', 'log'}" selectedTab="prop:tab"/>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'restore', 'upload', 'log'}" selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
@@ -49,13 +49,13 @@
               field="component:configuration"
                   label="message:backup.CONFIGURATION">
                   <td jwcid="configuration@Upload"
-                file="prop:uploadConfigurationFile" />
+                file="ognl:uploadConfigurationFile" />
             </tr>
             <tr jwcid="@common/FieldPanel"
               field="component:voicemail"
                   label="message:backup.VOICEMAIL">
                   <td jwcid="voicemail@Upload"
-                file="prop:uploadVoicemailFile" />
+                file="ognl:uploadVoicemailFile" />
             </tr>
           </table>
         </fieldset>

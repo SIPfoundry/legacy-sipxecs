@@ -6,54 +6,54 @@
         <span jwcid="@common/QuickHelp" value="message:quick.help.personalAttendant"/>
       </span>
       <div jwcid="@common/LeftNavigation" renderCondition="ognl:renderCondition">
-        <span jwcid="@setting/SettingsNavigation" bean="prop:bean"
-          activeSetting="prop:activeSetting" groupsToHide="literal:personal-attendant"
+        <span jwcid="@setting/SettingsNavigation" bean="ognl:bean"
+          activeSetting="ognl:activeSetting" groupsToHide="literal:personal-attendant"
           editSettingsListener="listener:editSettings">
-          <span jwcid="@common/Tab" isActive="prop:identificationTabActive">
+          <span jwcid="@common/Tab" isActive="ognl:identificationTabActive">
             <a jwcid="editUserLink@DirectLink" listener="listener:editUser"
-              parameters="prop:bean.id">
+              parameters="ognl:bean.id">
               <span key="link.identification">Identification</span>
             </a>
           </span>
-          <span jwcid="@common/Tab" isActive="prop:phonesTabActive">
+          <span jwcid="@common/Tab" isActive="ognl:phonesTabActive">
             <a jwcid="userPhonedLink@DirectLink" listener="listener:editUserPhones"
-              parameters="prop:bean.id">
+              parameters="ognl:bean.id">
               <span key="link.phones">Phones</span>
             </a>
           </span>
-          <span jwcid="@common/Tab" isActive="prop:callForwardingTabActive">
+          <span jwcid="@common/Tab" isActive="ognl:callForwardingTabActive">
             <a jwcid="callForwardingLink@DirectLink"
-              listener="listener:editCallForwarding" parameters="prop:bean.id">
+              listener="listener:editCallForwarding" parameters="ognl:bean.id">
               <span key="link.forwarding">Call Forwarding</span>
             </a>
           </span>
-          <span jwcid="@common/Tab" isActive="prop:userSchedulesTabActive">
+          <span jwcid="@common/Tab" isActive="ognl:userSchedulesTabActive">
             <a jwcid="userSchedulesLink@DirectLink"
-              listener="listener:editSchedules" parameters="prop:bean.id">
+              listener="listener:editSchedules" parameters="ognl:bean.id">
               <span key="link.schedules">Schedules</span>
             </a>
           </span>
-          <span jwcid="@common/Tab" isActive="prop:speedDialTabActive">
+          <span jwcid="@common/Tab" isActive="ognl:speedDialTabActive">
             <a jwcid="speedDialLink@DirectLink" listener="listener:editSpeedDial"
-              parameters="prop:bean.id">
+              parameters="ognl:bean.id">
               <span key="link.speedDial">Speed Dial</span>
             </a>
           </span>
-          <span jwcid="@common/Tab" isActive="prop:supervisorTabActive">
+          <span jwcid="@common/Tab" isActive="ognl:supervisorTabActive">
             <a id="groupSupervisorLink" jwcid="supervisorPermissionLink@DirectLink"
-              listener="listener:editSupervisorPermission" parameters="prop:bean.id">
+              listener="listener:editSupervisorPermission" parameters="ognl:bean.id">
               <span key="link.supervisor">Group Supervisor</span>
             </a>
           </span>
-          <span jwcid="@common/Tab" isActive="prop:personalAttendantTabActive">
+          <span jwcid="@common/Tab" isActive="ognl:personalAttendantTabActive">
             <a id="personalAttendantLink" jwcid="personalAttendantLink@DirectLink"
-              listener="listener:editPersonalAttendant" parameters="prop:bean.id">
+              listener="listener:editPersonalAttendant" parameters="ognl:bean.id">
               <span key="link.attendant">Personal Attendant</span>
             </a>
           </span>
-          <span jwcid="@common/Tab" isActive="prop:registrationsTabActive">
+          <span jwcid="@common/Tab" isActive="ognl:registrationsTabActive">
             <a id="userRegistrationsLink" jwcid="userRegistrationsLink@DirectLink"
-              listener="listener:viewUserRegistrations" parameters="prop:bean.id">
+              listener="listener:viewUserRegistrations" parameters="ognl:bean.id">
               <span key="link.registrations">Registrations</span>
             </a>
           </span>

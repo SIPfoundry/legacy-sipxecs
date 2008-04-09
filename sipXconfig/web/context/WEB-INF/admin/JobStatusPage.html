@@ -2,7 +2,7 @@
   <h2><span key="title">Job Status</span></h2>
   <form jwcid="@common/AutoRefreshForm" actionBlock="component:actions">
     <table jwcid="@contrib:TableView" id="jobs:list" class="component"
-      source="prop:jobs" pageSize="-1"
+      source="ognl:jobs" pageSize="-1"
       columns="* name,=startColumn,=stopColumn,status,error:errorMsg">
       <thead>
         <tr>
@@ -12,14 +12,14 @@
       <tbody>
         <span jwcid="@contrib:TableRows"
           class="ognl:beans.rowClass.next"
-          row="prop:job"
+          row="ognl:job"
           volatile="ognl:true">
           <span jwcid="@contrib:TableValues"/>
         </span>
       </tbody>
       <span jwcid="statusColumnValue@Block">
-        <span jwcid="@Insert" value="prop:job.status" format="bean:statusFormat"/>          
-      </span>            
+        <span jwcid="@Insert" value="ognl:job.status" format="bean:statusFormat"/>
+      </span>
     </table>
     <ul jwcid="actions@Block">
       <li>

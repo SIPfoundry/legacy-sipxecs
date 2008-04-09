@@ -2,7 +2,7 @@
   <h2>
     <span key="title"/>
   </h2>
-  <span jwcid="@common/TabNavigation" tabNames="ognl:availableTabNames" selectedTab="prop:tab"/>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:availableTabNames" selectedTab="ognl:tab"/>
   <div id="settings-content">  
     <span jwcid="@common/ErrorMsg"/>
     <form jwcid="@Form" delegate="bean:validator">
@@ -13,16 +13,16 @@
 <div jwcid="infoTab@Block">
   <fieldset>
     <table>
-      <span jwcid="@vm/MailboxPreferencesForm" preferences="prop:mailboxPreferences"/>
+      <span jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences"/>
       <tr jwcid="pin@user/ConfirmPassword"
-        password="prop:pin"
+        password="ognl:pin"
         passwordDisplayName="message:label.pin"
         confirmPasswordDisplayName="message:label.pin2"
         passwordMismatchMessage="message:error.pinMismatch">
       </tr>
     </table>
   </fieldset>
-  <ul jwcid="@common/FormActions" listener="listener:save" callback="prop:callback"/>
+  <ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>
 </div>
 <div jwcid="menuTab@Block">
    <span jwcid="@common/QuickHelp" value="message:quick.help"/>
@@ -67,7 +67,7 @@
     minKey="1"
     maxKey="9"
     extensionOnly="ognl:true" />
-    <ul jwcid="@common/FormActions" listener="listener:save" callback="prop:callback"/>
+    <ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>
 </div>
 
 <div jwcid="distributionListsTab@Block">
@@ -76,5 +76,14 @@
   </div>
   <p><span key="description.editDistributionLists"/></p>
   <span jwcid="@vm/DistributionListComponent"
-    user="prop:user"/>
+    user="ognl:user"/>
+</div>
+
+<div jwcid="distributionListsTab@Block">
+  <div class="help">        
+    <span key="description.extensions"/>
+  </div>
+  <p><span key="description.editDistributionLists"/></p>
+  <span jwcid="@vm/DistributionListComponent"
+    user="ognl:user"/>
 </div>

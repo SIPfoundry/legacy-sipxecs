@@ -23,7 +23,7 @@
         <input jwcid="performAction@tacos:AjaxEventSubmit" id="performAction" updateComponents="ognl:{'refreshComp'}"/>
 
         <span jwcid="refreshComp@Any" id="refreshComp">
-		<span jwcid="@If" condition="prop:pageRendered">
+		<span jwcid="@If" condition="ognl:pageRendered">
 			<span jwcid="@InvokeListener" listener="listener:onLoad"/>
 	        </span>
         </span>

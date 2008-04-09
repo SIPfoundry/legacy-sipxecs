@@ -11,15 +11,15 @@
 					<tbody>
 						<tr jwcid="@common/FieldPanel" for="vm:subject" field="component:subject" description="message:subject.description"
                    label="message:subject.label">
-							<td>
-								<input jwcid="subject@TextField" id="vm:subject" maxlength="40" type="text" value="prop:voicemail.subject"
+              <td>
+                <input jwcid="subject@TextField" id="vm:subject" maxlength="40" type="text" value="ognl:voicemail.subject"
                       validators="validators:required"/>
 							</td>
 						</tr>
 					</tbody>
 				</table>
 			</fieldset>
-      <span jwcid="@common/FormActions" listener="listener:save" callback="prop:callback"/>
+      <span jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>
     </form>
   </div>
 </div>

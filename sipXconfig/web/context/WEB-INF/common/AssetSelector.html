@@ -2,29 +2,29 @@
   <tr>
     <td>
       <span jwcid="@If" condition="ognl:assetExists and !selectable">
-        <span jwcid="@Insert" value="prop:asset"/>
+        <span jwcid="@Insert" value="ognl:asset"/>
       </span>
-      <span jwcid="@If" condition="prop:selectable">      
+      <span jwcid="@If" condition="ognl:selectable">
         <input id="ognl:id" jwcid="prompt@PropertySelection"
           model="ognl:tapestry.instructUserToSelect(assetSelectionModel, messages)"
-          value="prop:asset"
+          value="ognl:asset"
           onchange="ognl:submitOnChange ? 'javascript:this.form.submit();' : ''"
-          disabled="prop:disabled"/>
+          disabled="ognl:disabled"/>
       </span>
     </td>
     <td>
-      <span jwcid="@If" condition="prop:assetExists">
+      <span jwcid="@If" condition="ognl:assetExists">
         <a jwcid="downloadLink@common/DownloadLink" id="link:download"
-          dirName="prop:assetDir"
-          fileName="prop:asset"
-          contentType="prop:contentType">
-          <span jwcid="@Insert" value="prop:downloadLabel"/>
+          dirName="ognl:assetDir"
+          fileName="ognl:asset"
+          contentType="ognl:contentType">
+          <span jwcid="@Insert" value="ognl:downloadLabel"/>
         </a>
       </span>
     </td>
     <td>
       <span jwcid="@If" condition="ognl:assetExists and !selectable">
-        <a jwcid="deleteLink@LinkSubmit" tag="prop:asset" selected="prop:deleteAsset" disabled="prop:disabled">
+        <a jwcid="deleteLink@LinkSubmit" tag="ognl:asset" selected="ognl:deleteAsset" disabled="ognl:disabled">
           <span key="link.delete">Delete</span>
         </a>
       </span>
@@ -33,8 +33,8 @@
   <tr>
     <td colspan="3">
       <span jwcid="@If" condition="ognl:!assetExists or selectable">
-        <input type="file" jwcid="promptUpload@Upload" 
-          file="prop:uploadAsset" disabled="prop:disabled"/>
+        <input type="file" jwcid="promptUpload@Upload"
+          file="ognl:uploadAsset" disabled="ognl:disabled"/>
       </span>
     </td>
   </tr>

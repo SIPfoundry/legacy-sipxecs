@@ -1,25 +1,25 @@
 <span jwcid="$content$">
-  <span jwcid="@If" condition="prop:mailboxManager.enabled">
+  <span jwcid="@If" condition="ognl:mailboxManager.enabled">
     <tr jwcid="@common/FieldPanel" for="user:activeGreeting" field="component:activeGreeting" label="message:label.activeGreeting"
         description="message:description.activeGreeting">
-      <select jwcid="activeGreeting@PropertySelection" id="user:activeGreeting" value="prop:preferences.activeGreeting"
-        model="prop:activeGreetingModel"/>
+      <select jwcid="activeGreeting@PropertySelection" id="user:activeGreeting" value="ognl:preferences.activeGreeting"
+        model="ognl:activeGreetingModel"/>
     </tr>
     <tr jwcid="@common/FieldPanel" for="user:emailAddress" field="component:emailAddress" label="message:label.emailAddress"
         description="message:description.emailAddress">
-      <input jwcid="emailAddress@TextField" id="user:emailAddress" value="prop:preferences.emailAddress" validators="validators:email"/>
+      <input jwcid="emailAddress@TextField" id="user:emailAddress" value="ognl:preferences.emailAddress" validators="validators:email"/>
     </tr>
     <tr jwcid="@common/FieldPanel" for="user:attachVoicemailToEmail" field="component:attachVoicemailToEmail" label="message:label.attachVoicemailToEmail"
         description="message:description.attachVoicemailToEmail">
-      <checkbox jwcid="attachVoicemailToEmail@Checkbox" id="user:attachVoicemailToEmail" value="prop:preferences.attachVoicemailToEmail"/>
+      <checkbox jwcid="attachVoicemailToEmail@Checkbox" id="user:attachVoicemailToEmail" value="ognl:preferences.attachVoicemailToEmail"/>
     </tr>
     <tr jwcid="@common/FieldPanel" for="user:alternateEmailAddress" field="component:alternateEmailAddress" label="message:label.alternateEmailAddress"
         description="message:description.alternateEmailAddress">
-      <input jwcid="alternateEmailAddress@TextField" id="user:alternateEmailAddress" value="prop:preferences.alternateEmailAddress" validators="validators:email"/>
+      <input jwcid="alternateEmailAddress@TextField" id="user:alternateEmailAddress" value="ognl:preferences.alternateEmailAddress" validators="validators:email"/>
     </tr>
     <tr jwcid="@common/FieldPanel" for="user:attachVoicemailToAlternateEmail" field="component:attachVoicemailToAlternateEmail" label="message:label.attachVoicemailToAlternateEmail"
         description="message:description.attachVoicemailToAlternateEmail">
-      <checkbox jwcid="attachVoicemailToAlternateEmail@Checkbox" id="user:attachVoicemailToAlternateEmail" value="prop:preferences.attachVoicemailToAlternateEmail"/>
+      <checkbox jwcid="attachVoicemailToAlternateEmail@Checkbox" id="user:attachVoicemailToAlternateEmail" value="ognl:preferences.attachVoicemailToAlternateEmail"/>
     </tr>
   </span>
   <span jwcid="@Else">
@@ -28,15 +28,15 @@
         <div class="not-available" id="mailbox:disabled">
           <span><span key="message.voicemailDisabled"/></span>
           <ul>
-            <li><label class="settingLabel"><span key="label.emailAddress"/></label> - 
+            <li><label class="settingLabel"><span key="label.emailAddress"/></label> -
               <span class="settingDescription"><span key="description.emailAddress"/></span></li>
-            <li><label class="settingLabel"><span key="label.activeGreeting"/></label> - 
+            <li><label class="settingLabel"><span key="label.activeGreeting"/></label> -
               <span class="settingDescription"><span key="description.activeGreeting"/></span></li>
-            <li><label class="settingLabel"><span key="label.attachVoicemailToEmail"/></label> - 
+            <li><label class="settingLabel"><span key="label.attachVoicemailToEmail"/></label> -
               <span class="settingDescription"><span key="description.attachVoicemailToEmail"/></span></li>
           </ul>
         </div>
-      </td>  
+      </td>
     </tr>
   </span>
 </span>

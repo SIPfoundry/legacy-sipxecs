@@ -1,6 +1,6 @@
 <div jwcid="@common/Border">
   <h2><span key="title">Dial Plans</span></h2>
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'dialingRules','schedules'}" selectedTab="prop:tab"/>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'dialingRules','schedules'}" selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
@@ -32,26 +32,26 @@
       </ul>
       <table jwcid="@common/Table" id="dialplan:list"
         columns="* !name,!enabled,!type,!description,!schedule"
-        source="prop:dialPlanContext.rules"
-        row="prop:currentRow"
+        source="ognl:dialPlanContext.rules"
+        row="ognl:currentRow"
         selections="bean:selections">
         <tr jwcid="nameColumnValue@Block">
           <td jwcid="editRowLink@DirectLink"
             listener="listener:edit"
             parameters="ognl:currentRow.id">
-            <span jwcid="@Insert" value="prop:currentRow.name"/>
+            <span jwcid="@Insert" value="ognl:currentRow.name"/>
           </td>
         </tr>
         <tr jwcid="enabledColumnValue@Block">
-          <td jwcid="@common/EnabledColumn" value="prop:currentRow.enabled"/>
+          <td jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
         </tr>
         <tr jwcid="typeColumnValue@Block">
-          <td jwcid="@Insert" value="prop:currentRow.type" format="bean:typeFormat"/>
+          <td jwcid="@Insert" value="ognl:currentRow.type" format="bean:typeFormat"/>
         </tr>
         <tr jwcid="scheduleColumnValue@Block">
           <span jwcid="@If" condition="ognl:currentRow.schedule!=null">
             <td jwcid="editScheduleRow@DirectLink" listener="listener:editSchedule" parameters="ognl:currentRow.schedule.id">
-              <span jwcid="@Insert" value="prop:currentRow.schedule.name"/>
+              <span jwcid="@Insert" value="ognl:currentRow.schedule.name"/>
             </td>
           </span>
           <span jwcid="@Else">
@@ -62,14 +62,14 @@
       <ul class="component-submit">
         <li>
           <input jwcid="duplicate@Submit" id="dialplan:duplicate"
-            selected="prop:rowsToDuplicate"
-            tag="prop:allSelected"
+            selected="ognl:rowsToDuplicate"
+            tag="ognl:allSelected"
             value="message:button.duplicate" />
         </li>
         <li>
           <input jwcid="delete@Submit" id="dialplan:delete"
-            selected="prop:selectedRows"
-            tag="prop:allSelected"
+            selected="ognl:selectedRows"
+            tag="ognl:allSelected"
             value="message:button.delete" />
           <span jwcid="@common/Confirm"
             component="component:delete"
@@ -77,14 +77,14 @@
         </li>
         <li>
           <input jwcid="moveUp@Submit" id="dialplan:move:up"
-            selected="prop:rowsToMoveUp"
-            tag="prop:allSelected"
+            selected="ognl:rowsToMoveUp"
+            tag="ognl:allSelected"
             value="message:button.moveUp" />
         </li>
         <li>
           <input jwcid="moveDown@Submit" id="dialplan:move:down"
-            selected="prop:rowsToMoveDown"
-            tag="prop:allSelected"
+            selected="ognl:rowsToMoveDown"
+            tag="ognl:allSelected"
             value="message:button.moveDown" />
         </li>
       </ul>

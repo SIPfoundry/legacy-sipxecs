@@ -1,16 +1,16 @@
 <table jwcid="@common/StatsTable" id="cdr:stats:list" class="component"
-  source="prop:source"
+  source="ognl:source"
   columns="caller, callee, =startTimeColumn, duration, termination"
-  row="prop:row"
+  row="ognl:row"
   usePager="true">
   <span jwcid="terminationColumnValue@Block">
-    <span jwcid="@Insert" 
-      value="prop:row.termination" 
+    <span jwcid="@Insert"
+      value="ognl:row.termination"
       format="bean:terminationFormat" />
   </span>
   <span jwcid="durationColumnValue@Block">
     <span jwcid="@Insert"
-      value="prop:row.duration"
+      value="ognl:row.duration"
       format="bean:durationFormat" />
   </span>
 </table>

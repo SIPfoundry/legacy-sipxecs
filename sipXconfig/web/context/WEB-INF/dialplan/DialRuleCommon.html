@@ -7,7 +7,7 @@
 	<span jwcid="@If" condition="ognl:!(rule instanceof org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule)">
       <fieldset>
         <label><span key="schedule"/></label>
-        <span jwcid="@user_portal/ScheduleSelector" scheduleContainer="prop:rule" availableSchedules="ognl:availableSchedules"/>
+        <span jwcid="@user_portal/ScheduleSelector" scheduleContainer="ognl:rule" availableSchedules="ognl:availableSchedules"/>
 	  </fieldset>
 	</span>
     <span jwcid="renderGateways">

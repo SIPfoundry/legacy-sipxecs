@@ -9,32 +9,32 @@
       <li>
         <select jwcid="newService@PropertySelection"
           model="ognl:serviceSelectionModel"
-          value="ognl:serviceDescriptor"                  
+          value="ognl:serviceDescriptor"
           onchange="literal:javascript:this.form.submit();"/>
       </li>
     </ul>
     <fieldset>
-      <table jwcid="@common/Table" id="service:list" source="prop:serviceManager.services"
-        row="prop:currentRow" columns="literal:* !name,!enabled,address:address,!descriptor.label" 
-        selections="prop:selections" converter="prop:converter">
+      <table jwcid="@common/Table" id="service:list" source="ognl:serviceManager.services"
+        row="ognl:currentRow" columns="literal:* !name,!enabled,address:address,!descriptor.label" 
+        selections="ognl:selections" converter="ognl:converter">
         <tr jwcid="nameColumnValue@Block">
-          <span jwcid="@DirectLink" listener="listener:edit" parameters="prop:currentRow.id"><span jwcid="@Insert" value="prop:currentRow.name"/></span>
+          <span jwcid="@DirectLink" listener="listener:edit" parameters="ognl:currentRow.id"><span jwcid="@Insert" value="ognl:currentRow.name"/></span>
         </tr>
         <tr jwcid="enabledColumnValue@Block">
-          <td jwcid="@common/EnabledColumn" value="prop:currentRow.enabled"/>
+          <td jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
         </tr>
       </table>
     <ul class="component-submit">
       <li>
-        <input jwcid="delete@Submit" id="service:delete" 
-          selected="prop:rowsToDelete"
-          tag="prop:selections.allSelected"
+        <input jwcid="delete@Submit" id="service:delete"
+          selected="ognl:rowsToDelete"
+          tag="ognl:selections.allSelected"
           value="message:button.delete" />
-        <span jwcid="@common/Confirm" 
+        <span jwcid="@common/Confirm"
           component="component:delete"
-          prompt="message:confirm.delete"/>                    
+          prompt="message:confirm.delete"/>
       </li>
     </ul>
-    </fieldset>    
+    </fieldset>
   </form>
 </div>

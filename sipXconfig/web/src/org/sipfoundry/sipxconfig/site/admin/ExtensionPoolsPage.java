@@ -27,7 +27,7 @@ public abstract class ExtensionPoolsPage extends PageWithCallback {
     @InjectObject(value = "spring:extensionPoolContext")
     public abstract ExtensionPoolContext getExtensionPoolContext();
 
-    @InitialValue(value = "prop:extensionPoolContext.userExtensionPool")
+    @InitialValue(value = "ognl:extensionPoolContext.userExtensionPool")
     public abstract ExtensionPool getUserExtensionPool();
 
     @Bean

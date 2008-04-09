@@ -8,10 +8,10 @@
 <span jwcid="@common/ErrorMsg"/>
 <form jwcid="form@Form" delegate="bean:validator"
   listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)">
-  <fieldset  jwcid="common@common/ItemCommon" item="prop:callGroup"
+  <fieldset  jwcid="common@common/ItemCommon" item="ognl:callGroup"
     useExtension="ognl:true" nameValidator="spring-validators:required,validSipUserId"/>
-  <fieldset jwcid="ringTable@admin/UserRingTable" rings="prop:callGroup.rings"
-    idConverter="prop:idConverter"/>
+  <fieldset jwcid="ringTable@admin/UserRingTable" rings="ognl:callGroup.rings"
+    idConverter="ognl:idConverter"/>
   <fieldset>
     <table>
       <tr jwcid="@common/FieldPanel"
@@ -21,7 +21,7 @@
         field="component:voicemailFallback">
         <td jwcid="voicemailFallback@Checkbox"
           id="callgroup:voicemailFallback"
-          value="prop:callGroup.voicemailFallback"
+          value="ognl:callGroup.voicemailFallback"
           displayName="message:label.voicemailFallback"
           onchange="javascript:this.form.submit();"
         />
@@ -34,7 +34,7 @@
           field="component:fallbackDestination">
           <td jwcid="fallbackDestination@TextField"
             id="callgroup:fallbackDestination"
-            value="prop:callGroup.fallbackDestination"
+            value="ognl:callGroup.fallbackDestination"
             validators="spring-validators:validPhoneOrAor"
             displayName="message:label.fallbackDestination"/>
         </tr>
@@ -46,7 +46,7 @@
         field="component:userForward">
         <td jwcid="userForward@Checkbox"
           id="callgroup:userForward"
-          value="prop:callGroup.userForward"
+          value="ognl:callGroup.userForward"
           displayName="message:label.userForward"
         />
       </tr>

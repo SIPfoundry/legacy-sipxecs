@@ -2,7 +2,7 @@
   <span jwcid="@common/QuickHelp" value="message:quick.help"/>
   <form jwcid="@Form" delegate="ognl:page.validator" listener="listener:submit">
     <ul class="component-links">      
-      <li><a jwcid="addRingLink@LinkSubmit" selected="prop:action" tag="add">
+      <li><a jwcid="addRingLink@LinkSubmit" selected="ognl:action" tag="add">
         <span key="add">Add Number</span></a>
       </li>
     </ul>
@@ -11,14 +11,14 @@
         <tbody>
           <tr>
             <td colspan="4">
-              <span jwcid="@InsertText" value="prop:firstCallMsg">Your extension will ring first.</span>
+              <span jwcid="@InsertText" value="ognl:firstCallMsg">Your extension will ring first.</span>
             </td>
           </tr>
           <!-- iterate here -->            
-          <tr jwcid="@For" source="prop:rings" value="prop:ring" index="prop:index" volatile="true">
-            <span jwcid="@user_portal/RingEditor" ring="prop:ring" index="prop:index" deleteListener="listener:deleteRing" availableSchedules="prop:availableSchedules"/>
+          <tr jwcid="@For" source="ognl:rings" value="ognl:ring" index="ognl:index" volatile="true">
+            <span jwcid="@user_portal/RingEditor" ring="ognl:ring" index="ognl:index" deleteListener="listener:deleteRing" availableSchedules="ognl:availableSchedules"/>
           </tr>
-          <tr jwcid="@If" condition="prop:hasVoiceMail" element="tr">
+          <tr jwcid="@If" condition="ognl:hasVoiceMail" element="tr">
             <td colspan="4">
               <span key="msg.voicemail">If no-one answers your call will be forwarded to Voicemail.</span>
             </td>

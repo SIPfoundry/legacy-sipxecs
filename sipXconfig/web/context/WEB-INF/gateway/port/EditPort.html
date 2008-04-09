@@ -1,6 +1,6 @@
 <div jwcid="@common/Border">
-  <span jwcid="@gateway/port/PortNavigation" bean="prop:port"/>
+  <span jwcid="@gateway/port/PortNavigation" bean="ognl:port"/>
   <form jwcid="@Form" delegate="bean:validator" id="line:edit">
     <ul jwcid="@common/FormActions" listener="listener:apply"/>
   </form>
-</div>        
+</div>

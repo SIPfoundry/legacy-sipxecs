@@ -6,11 +6,11 @@
       label="message:label.serialNumber"
       field="component:serialNumber"
       description="message:description.serialNumber">
-        <td jwcid="serialNumber@TextField" 
+        <td jwcid="serialNumber@TextField"
           id="phone:serialNumber"
           value="ognl:phone.serialNumber"
-          validators="prop:serialNumberValidators"
-          translator="prop:serialNumberTranslator"
+          validators="ognl:serialNumberValidators"
+          translator="ognl:serialNumberTranslator"
           displayName="message:label.serialNumber"/>
     </tr>
     <tr jwcid="@common/FieldPanel"
@@ -28,7 +28,7 @@
         for="phone:version"
         label="message:label.firmwareVersion"
         field="component:selectVersion">
-        
+
         <td jwcid="selectVersion@PropertySelection"
           model="bean:versions"
           value="ognl:phone.deviceVersion"
@@ -40,7 +40,7 @@
         label="message:label.groups"
         description="message:description.groups"
         field="ognl:null">  <!-- Bug, give the right value for field, and autocomplete renders double -->
-        <td class="auto_complete" 
+        <td class="auto_complete"
           jwcid="groups@tacos:Autocompleter"
           value="ognl:groupsString"
           listSource="ognl:groupCandidates"

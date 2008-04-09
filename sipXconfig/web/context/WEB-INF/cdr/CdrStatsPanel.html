@@ -7,7 +7,7 @@
 </ul>  
 <form jwcid="@common/AutoRefreshForm">
   <ul class="component-submit">
-    <li><span jwcid="@cdr/CdrFilter" cdrSearch="prop:cdrSearch"/></li>
+    <li><span jwcid="@cdr/CdrFilter" cdrSearch="ognl:cdrSearch"/></li>
   </ul>
-  <table jwcid="@cdr/CdrTable" source="prop:cdrTableModel"/>
+  <table jwcid="@cdr/CdrTable" source="ognl:cdrTableModel"/>
 </form>

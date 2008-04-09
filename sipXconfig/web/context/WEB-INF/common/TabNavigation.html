@@ -1,19 +1,19 @@
 <span jwcid="$content$">
   <div jwcid="@common/LeftNavigation" renderCondition="ognl:renderCondition">
     <span jwcid="@common/TabControl">
-      <span jwcid="@For" source="prop:tabNames" value="prop:currentTab">
+      <span jwcid="@For" source="ognl:tabNames" value="ognl:currentTab">
         <span jwcid="@common/Tab" isActive="ognl:currentTab.equals(selectedTab)">
           <span jwcid="@If" condition="ognl:submit" volatile="ognl:true">
             <a href="#" jwcid="@DirectLink" listener="listener:submitAndActivateTab"
-              parameters="prop:currentTab" id="ognl:'link:' + currentTab">
-                <span jwcid="@Insert" value="prop:currentTabLabel"/>
-            </a>        
+              parameters="ognl:currentTab" id="ognl:'link:' + currentTab">
+                <span jwcid="@Insert" value="ognl:currentTabLabel"/>
+            </a>
           </span>
           <span jwcid="@Else" volatile="ognl:true">
             <a href="#" jwcid="@DirectLink" listener="listener:activateTab"
-              parameters="prop:currentTab" id="ognl:'link:' + currentTab">
-                <span jwcid="@Insert" value="prop:currentTabLabel"/>
-            </a>        
+              parameters="ognl:currentTab" id="ognl:'link:' + currentTab">
+                <span jwcid="@Insert" value="ognl:currentTabLabel"/>
+            </a>
           </span>
         </span>
       </span>

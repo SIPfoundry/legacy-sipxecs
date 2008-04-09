@@ -1,16 +1,15 @@
-<div class="help" jwcid="@If" condition="prop:render" element="div">
+<div class="help" jwcid="@If" condition="ognl:render" element="div">
   <span key="msg.preview">To download device configuration files click on the links below:</span>
   <ul>
     <li jwcid="@For" element="li"
-      source="prop:device.profileTypes"
-      value="prop:profileType" 
-      index="prop:index">
+      source="ognl:device.profileTypes"
+      value="ognl:profileType"
+      index="ognl:index">
       <a jwcid="@common/ProfileLink"
-      	device="prop:device"
-      	profileIndex="prop:index"
-      	>
-        <span jwcid="@Insert" value="prop:profileType.name"/>
+        device="ognl:device"
+        profileIndex="ognl:index">
+        <span jwcid="@Insert" value="ognl:profileType.name"/>
       </a>
     </li>
   </ul>
-</div>        
+</div>

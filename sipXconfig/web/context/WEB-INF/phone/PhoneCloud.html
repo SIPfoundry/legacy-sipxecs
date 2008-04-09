@@ -1,5 +1,5 @@
 <span jwcid="header@Block">
-  <span jwcid="@Insert" value="prop:title"/>
+  <span jwcid="@Insert" value="ognl:title"/>
 </span>
 <span jwcid="footer@Block">
   <span jwcid="@Form">
@@ -10,9 +10,9 @@
   </a>
 </span>
 <span jwcid="@common/Cloud" header="component:header" footer="component:footer">
-  <span jwcid="@For" source="prop:phones" value="prop:phone">
-    <a jwcid="@DirectLink" listener="listener:edit" parameters="prop:phone.id">
-      <span jwcid="@Insert" value="prop:phone.serialNumber"/>, 
+  <span jwcid="@For" source="ognl:phones" value="ognl:phone">
+    <a jwcid="@DirectLink" listener="listener:edit" parameters="ognl:phone.id">
+      <span jwcid="@Insert" value="ognl:phone.serialNumber"/>,
     </a>
   </span>
   <a jwcid="@PageLink" page="phone/ManagePhones">

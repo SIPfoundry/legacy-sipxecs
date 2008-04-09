@@ -4,55 +4,55 @@
   </span>
   <h1>
     <span key="title.manageVoicemail"/> -
-    <span jwcid="@Insert" value="prop:folderLabel"/> </h1>
-  <span jwcid="@common/TabNavigation" tabNames="prop:folderIds" selectedTab="prop:folderId"/>  
+    <span jwcid="@Insert" value="ognl:folderLabel"/> </h1>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:folderIds" selectedTab="ognl:folderId"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <form jwcid="@Form" id="voicemail:form" delegate="bean:validator">
-      <table jwcid="@common/Table" id="voicemail:list" class="component" source="ognl:voicemails" selections="prop:selections"
-        columns="* !subject,!from,!timestamp,!duration,!play" converter="prop:converter" row="prop:voicemail"
-        usePager="ognl:true" rowInfo="prop:rowInfo" rowClass="prop:rowClass">
+      <table jwcid="@common/Table" id="voicemail:list" class="component" source="ognl:voicemails" selections="ognl:selections"
+        columns="* !subject,!from,!timestamp,!duration,!play" converter="ognl:converter" row="ognl:voicemail"
+        usePager="ognl:true" rowInfo="ognl:rowInfo" rowClass="ognl:rowClass">
         <span jwcid="subjectColumnValue@Block">
           <a jwcid="@DirectLink" listener="listener:edit" parameters="ognl:voicemailSource.getVoicemailId(voicemail)">
-            <span jwcid="@Insert" value="prop:voicemail.subject"/>
+            <span jwcid="@Insert" value="ognl:voicemail.subject"/>
           </a>
           <span jwcid="@If" condition="ognl:voicemail.forwarded">
             <br/>
-            <span jwcid="@Insert" value="prop:voicemail.forwardedDescriptor.subject" class="fwd-voicemail"/>            
+            <span jwcid="@Insert" value="ognl:voicemail.forwardedDescriptor.subject" class="fwd-voicemail"/>
           </span>
         </span>
         <span jwcid="fromColumnValue@Block">
-          <span jwcid="@Any" title="prop:voicemail.descriptor.from">
-            <span jwcid="@Insert" value="prop:voicemail.descriptor.fromBrief"/>
+          <span jwcid="@Any" title="ognl:voicemail.descriptor.from">
+            <span jwcid="@Insert" value="ognl:voicemail.descriptor.fromBrief"/>
           </span>
           <span jwcid="@If" condition="ognl:voicemail.forwarded">
             <br/>
-            <span jwcid="@Insert" value="prop:voicemail.forwardedDescriptor.fromBrief" class="fwd-voicemail"/>            
+            <span jwcid="@Insert" value="ognl:voicemail.forwardedDescriptor.fromBrief" class="fwd-voicemail"/>
           </span>
         </span>
         <span jwcid="timestampColumnValue@Block">
-          <span jwcid="@Insert" value="prop:voicemail.descriptor.timestamp" format="ognl:tapestry.date(locale)"></span>
+          <span jwcid="@Insert" value="ognl:voicemail.descriptor.timestamp" format="ognl:tapestry.date(locale)"></span>
           <span jwcid="@If" condition="ognl:voicemail.forwarded">
             <br/>
-            <span jwcid="@Insert" value="prop:voicemail.forwardedDescriptor.timestamp" format="ognl:tapestry.date(locale)" class="fwd-voicemail"/>            
+            <span jwcid="@Insert" value="ognl:voicemail.forwardedDescriptor.timestamp" format="ognl:tapestry.date(locale)" class="fwd-voicemail"/>
           </span>
         </span>
         <span jwcid="durationColumnValue@Block">
-          <span jwcid="@Insert" value="prop:voicemail.descriptor.durationMillis" format="bean:durationFormat"/>
+          <span jwcid="@Insert" value="ognl:voicemail.descriptor.durationMillis" format="bean:durationFormat"/>
           <span jwcid="@If" condition="ognl:voicemail.forwarded">
             <br/>
-            <span jwcid="@Insert" value="prop:voicemail.forwardedDescriptor.durationMillis" format="bean:durationFormat" class="fwd-voicemail"/>            
+            <span jwcid="@Insert" value="ognl:voicemail.forwardedDescriptor.durationMillis" format="bean:durationFormat" class="fwd-voicemail"/>
           </span>
         </span>
         <span jwcid="playColumnValue@Block">
-          <a jwcid="@ServiceLink" service="literal:playvoicemail" parameters="prop:playVoicemailInfo">
+          <a jwcid="@ServiceLink" service="literal:playvoicemail" parameters="ognl:playVoicemailInfo">
             <img jwcid="@Image" image="asset:playVoicemailAsset" alt="play"/>
           </a>
         </span>
       </table>
       <ul class="component-submit">
         <li>
-          <span jwcid="@phone/GroupActions" actionModel="prop:actionModel" selectedIds="prop:selections.allSelected"/>
+          <span jwcid="@phone/GroupActions" actionModel="ognl:actionModel" selectedIds="ognl:selections.allSelected"/>
         </li>
         <li jwcid="@If" condition="ognl:folderId.equals('deleted')" element="li">
           <input id="delete:voicemail" jwcid="deleteVoicemail@Submit" listener="listener:delete"

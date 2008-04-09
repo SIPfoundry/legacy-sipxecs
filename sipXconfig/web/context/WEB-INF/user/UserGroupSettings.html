@@ -13,17 +13,17 @@
   </span>
   <span jwcid="@common/ErrorMsg"/>
   <div jwcid="@common/LeftNavigation">
-    <span jwcid="settingsNavigation@setting/SettingsNavigation" bean="prop:bean"
-      source="prop:settings.values" activeSetting="prop:parentSetting"
+    <span jwcid="settingsNavigation@setting/SettingsNavigation" bean="ognl:bean"
+      source="ognl:settings.values" activeSetting="ognl:parentSetting"
       editSettingsListener="listener:editGroupSettings">
-      <span jwcid="@common/Tab" isActive="prop:scheduleTabActive">
+      <span jwcid="@common/Tab" isActive="ognl:scheduleTabActive">
         <a id="link:schedules.label" jwcid="editSchedule@DirectLink" listener="listener:editSchedule">
           <span key="link.schedules">Schedules</span>
         </a>
       </span>
     </span>
   </div>
-  <span jwcid="@If" condition="prop:scheduleTabActive">
+  <span jwcid="@If" condition="ognl:scheduleTabActive">
     <span jwcid="@common/QuickHelp" value="message:quick.help.schedule"/>
     <form jwcid="userSchedules@Form" delegate="bean:validator">
       <ul class="component-links">
@@ -44,7 +44,7 @@
     </form>
   </span>
   <span jwcid="@Else">
-    <span jwcid="settingsForm@setting/SettingsForm" settings="prop:parentSetting"
+    <span jwcid="settingsForm@setting/SettingsForm" settings="ognl:parentSetting"
       cancelListener="listener:cancel" okListener="listener:ok"
       applyListener="listener:apply" validator="bean:validator"
       requiredEnabled="literal:false"/>

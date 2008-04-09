@@ -1,5 +1,5 @@
 <div jwcid="@common/Border" restricted="false" useDojo="ognl:true">
-  <span jwcid="@user/UserNavigation" bean="prop:user" renderCondition="ognl:userSession.admin" />
+  <span jwcid="@user/UserNavigation" bean="ognl:user" renderCondition="ognl:userSession.admin" />
   <h2 jwcid="@If" condition="ognl:!userSession.admin" element="h2">
     <span key="title">User Schedules</span>
   </h2>

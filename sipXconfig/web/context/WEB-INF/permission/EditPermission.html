@@ -10,32 +10,32 @@
           label="message:label.label"
           description="message:description.label">
           <td jwcid="label@TextField"
-            value="prop:label"
+            value="ognl:label"
             displayName="message:label.label"
             validators="validators:required,maxLength=255"
-            disabled="prop:permission.builtIn" />
+            disabled="ognl:permission.builtIn" />
         </tr>
         <tr jwcid="@common/FieldPanel"
           field="component:description"
           label="message:label.description">
           <td jwcid="description@TextArea"
-            cols="45" rows="5" 
-            value="prop:description"
+            cols="45" rows="5"
+            value="ognl:description"
             displayName="message:label.description"
             validators="validators:maxLength=255"
-            disabled="prop:permission.builtIn" />          
+            disabled="ognl:permission.builtIn" />
         </tr>
         <tr jwcid="@common/FieldPanel"
-          field="component:defaultValue"  
-          label="message:label.defaultValue"  
+          field="component:defaultValue"
+          label="message:label.defaultValue"
           description="message:description.defaultValue">
           <td jwcid="defaultValue@Checkbox"
-            value="prop:permission.defaultValue" 
-            disabled="prop:permission.builtIn" />
+            value="ognl:permission.defaultValue"
+            disabled="ognl:permission.builtIn" />
         </tr>
       </tbody>
     </table>
     </fieldset>
-    <ul jwcid="formActions@common/FormActions" callback="prop:callback" listener="listener:commit" />
+    <ul jwcid="formActions@common/FormActions" callback="ognl:callback" listener="listener:commit" />
   </form>
 </div>

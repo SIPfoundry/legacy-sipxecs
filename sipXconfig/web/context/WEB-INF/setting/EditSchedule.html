@@ -10,7 +10,7 @@
 	     <span jwcid="@common/ItemCommon" item="ognl:schedule" nameValidator="spring-validators:required,noWhitespace" useEnabled="literal:false" useExtension="literal:false"/>
 		  <ul class="component-links">
 			<li>
-				<a jwcid="addPeriod@LinkSubmit" selected="prop:action" tag="add"><span key="add">Add Period</span></a>
+				<a jwcid="addPeriod@LinkSubmit" selected="ognl:action" tag="add"><span key="add">Add Period</span></a>
 			</li>
 		  </ul>
 	      <fieldset>
@@ -23,6 +23,6 @@
 	          </tbody>
 	        </table>
 	      </fieldset>	      
-	    <span jwcid="@common/FormActions" callback="prop:callback" listener="listener:commit"/>
+	    <span jwcid="@common/FormActions" callback="ognl:callback" listener="listener:commit"/>
 	  </form>	  
     </div>

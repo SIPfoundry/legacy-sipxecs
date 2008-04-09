@@ -1,14 +1,14 @@
 <tr jwcid="dateTimeLabel@common/FieldPanel" for="datetime:date"
   field="component:datePicker"
-  label="prop:label">
-  <input jwcid="datePicker@DatePicker" id="datetime:date" 
+  label="ognl:label">
+  <input jwcid="datePicker@DatePicker" id="datetime:date"
     validators="validators:required"
-    value="prop:date" 
-    displayName="prop:label" />
+    value="ognl:date"
+    displayName="ognl:label" />
   <input jwcid="timePicker@TextField" id="datetime:time"
     validators="validators:required"
     translator="hivemind:spring:timeOfDayTranslator"
-    value="prop:time"
+    value="ognl:time"
     displayWidth="8"
-    displayName="prop:label"/>
+    displayName="ognl:label"/>
 </tr>

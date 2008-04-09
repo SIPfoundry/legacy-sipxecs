@@ -7,7 +7,7 @@
   <table jwcid="@contrib:TableView"
     id="hosts:list"
     class="component"
-    source="prop:hosts"
+    source="ognl:hosts"
     pageSize="-1"
     columns="!hostName">
     <thead>
@@ -25,8 +25,8 @@
     <span jwcid="hostNameColumnValue@Block">
       <span jwcid="editRowLink@DirectLink"
           listener="listener:editHostConfiguration"
-          parameters="prop:currentRow.hostName">
-        <span jwcid="@Insert" value="prop:currentRow.hostName"/>
+          parameters="ognl:currentRow.hostName">
+        <span jwcid="@Insert" value="ognl:currentRow.hostName"/>
       </span>
     </span>
     </tbody>

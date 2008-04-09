@@ -35,7 +35,7 @@
     <binding name="value" value="backupPlan.voicemail"/>
   </component>
   <component id="limitCount" type="PropertySelection">
-    <binding name="model" value="prop:backupLimitSelectionModel"/>
+    <binding name="model" value="ognl:backupLimitSelectionModel"/>
     <binding name="value" value="backupPlan.limitedCount"/>
   </component>
   <component id="backup" type="Submit">

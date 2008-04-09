@@ -40,7 +40,7 @@
           <tr>
           <td align="left" valign="top">
             <fieldset>
-              <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="prop:index">
+              <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="ognl:index">
                 <span jwcid="@If" condition="ognl:evenIndex">
                   <b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)"/></b><br/>
                   <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:{currentBean.targetTitle, host}" id="ognl:'image' + index">
@@ -53,7 +53,7 @@
           </td>
           <td align="left" valign="top">
             <fieldset>
-              <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="prop:index">
+              <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="ognl:index">
                 <span jwcid="@If" condition="ognl:!evenIndex">
                   <b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)"/></b><br/>
                   <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:{currentBean.targetTitle, host}" id="ognl:'image' + index">
@@ -69,7 +69,7 @@
       </span>
       <span jwcid="@Else">
         <fieldset>
-          <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="prop:index">
+          <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="ognl:index">
             <b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)" /></b><br/>
             <span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" /><br/>
             <span jwcid="@Insert" value="ognl:currentBean.htmlDetails" raw="true" /><br/>

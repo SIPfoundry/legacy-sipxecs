@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 
-<component-specification allow-body="no" allow-informal-parameters="no" 
+<component-specification allow-body="no" allow-informal-parameters="no"
   class="org.sipfoundry.sipxconfig.site.acd.AcdStatsPanel">
 
   <description>Table that displays ACD stats for an agent</description>
@@ -15,13 +15,13 @@
   <!-- P R O P E R T I E S -->
   <property name="selectedAcdQueueUri" initial-value="acdQueueUri"/>
   <property name="row" />
-  
+
   <!--  B E A N S -->
   <bean name="durationFormat" class="org.sipfoundry.sipxconfig.components.MillisDurationFormat"
     lifecycle="page">
     <!-- 0 - day, 1 - hour, 2 - minute etc. -->
     <set name="maxField" value="2" />
-    <set name="locale" value="prop:page.locale"/>
+    <set name="locale" value="page.locale"/>
   </bean>
   <bean name="stateFormat" class="org.sipfoundry.sipxconfig.components.EnumFormat"
     lifecycle="page">
@@ -34,7 +34,7 @@
     <binding name="acdServerId" value="acdServerId" />
     <binding name="acdQueueUri" value="selectedAcdQueueUri"/>
     <binding name="queues" value="acdStatistics.getQueuesStats(acdServerId)"/>
-    <binding name="show" value="showQueueSelector" />        
+    <binding name="show" value="showQueueSelector" />
   </component>
 
   <component id="tableView" type="common/StatsTable">

@@ -4,11 +4,11 @@
   <span jwcid="@common/ErrorMsg" />
   <form jwcid="@Form" delegate="bean:validator">
     <ul class="component-links">
-      <li jwcid="@common/ToggleLink" toggle="prop:advanced"></li>
+      <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
     </ul>
     <fieldset>
       <p>
-        <input jwcid="@Checkbox" value="prop:sbc.enabled" id="sbc:enabled"/>
+        <input jwcid="@Checkbox" value="ognl:sbc.enabled" id="sbc:enabled"/>
         <label for="sbc:enabled"><span key="label.enableInternetCalling"/></label>
       </p>
       <table>
@@ -29,15 +29,15 @@
       addLinkLabel="message:link.addDomain"
       itemDisplayName="message:label.domain"
       validators="spring-validators:required,validDnsWildcard"
-      source="prop:sbc.routes.domains"/>
+      source="ognl:sbc.routes.domains"/>
     <div jwcid="@common/QuickHelp" value="message:help.subnets"/>
     <fieldset jwcid="@common/ListPanel"
-      label="message:label.subnets" 
+      label="message:label.subnets"
       addLinkLabel="message:link.addSubnet"
       itemDisplayName="message:label.subnet"
       validators="spring-validators:required,validIPv4subnet"
-      source="prop:sbc.routes.subnets"/>
-    <fieldset jwcid="@If" condition="prop:advanced">
+      source="ognl:sbc.routes.subnets"/>
+    <fieldset jwcid="@If" condition="ognl:advanced">
       <div jwcid="@dialplan/sbc/ListSbcs" validator="bean:validator"/>
     </fieldset>
     <span jwcid="@common/FormActions" listener="listener:activate"/>

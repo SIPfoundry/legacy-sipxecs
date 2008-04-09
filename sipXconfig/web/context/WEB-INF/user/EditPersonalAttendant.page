@@ -5,7 +5,7 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.user.EditPersonalAttendant">
   <bean name="languageSelectionModel"
     class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
-    <set name="model" value="prop:languageList"/>
+    <set name="model" value="ognl:languageList"/>
     <set name="extraLabel" value="message:label.default"/>
     <set name="extraOption" value="ognl:null"/>
   </bean>

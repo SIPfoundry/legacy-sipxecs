@@ -2,8 +2,7 @@
     <legend><span key="section">ACD Lines</span></legend>
     <ul class="component-links">
         <li jwcid="ifRenderAddLink@If"
-           condition="ognl:addListener != null"
-           element="literal:li">
+           condition="ognl:addListener != null" renderTag="ognl:true">
            <a jwcid="addLink@DirectLink" id="queue:add" href="#"
               listener="ognl:addListener">
               <span key="add_link">Add New Line</span>
@@ -11,10 +10,10 @@
         </li>
     </ul>
 	<table jwcid="tableView@common/Table" id="queue:list" class="component"
-	   source="prop:queues"
+	   source="ognl:queues"
 	   columns="literal:* name:name,description:description,overflowQueue:overflowQueue"
-	   row="prop:currentRow"
-	   converter="prop:converter"
+	   row="ognl:currentRow"
+	   converter="ognl:converter"
 	   selections="ognl:selections"
 	   usePager="ognl:false">
 		<span jwcid="nameColumnValue@Block">
@@ -40,7 +39,7 @@
            condition="ognl:acdAgentId == null"
            element="literal:li">
            <input jwcid="delete@Submit" type="submit" id="queue:delete" name=""
-              selected="prop:rowsToDelete"
+              selected="ognl:rowsToDelete"
               tag="ognl:selections.allSelected"
               value="message:button.delete"/>
         </li>
@@ -48,7 +47,7 @@
            condition="ognl:acdAgentId != null"
            element="literal:li">
            <input jwcid="moveUp@Submit" type="submit" id="agent:moveUp"
-              selected="prop:rowsToMoveUp"
+              selected="ognl:rowsToMoveUp"
               tag="ognl:selections.allSelected"
               value="message:button.moveUp"/>
         </li>
@@ -56,7 +55,7 @@
            condition="ognl:acdAgentId != null"
            element="literal:li">
            <input jwcid="moveDown@Submit" type="submit" id="agent:moveDown"
-              selected="prop:rowsToMoveDown"
+              selected="ognl:rowsToMoveDown"
               tag="ognl:selections.allSelected"
               value="message:button.moveDown"/>
         </li>

@@ -1,6 +1,6 @@
 <div jwcid="@common/Border" restricted="false" useDojo="true">
   <span jwcid="@common/QuickHelp" value="message:quick.help" />
-  <span jwcid="@user/UserNavigation" bean="prop:user" renderCondition="ognl:userSession.admin" />
+  <span jwcid="@user/UserNavigation" bean="ognl:user" renderCondition="ognl:userSession.admin" />
   <span jwcid="@If" condition="ognl:!userSession.admin">
     <h2><span key="title">Speed Dial</span></h2>    
   </span>

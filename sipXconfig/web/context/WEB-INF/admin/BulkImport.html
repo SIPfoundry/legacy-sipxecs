@@ -1,5 +1,5 @@
 <div jwcid="@common/Border">
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'import', 'export'}" selectedTab="prop:tab"/>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'import', 'export'}" selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />

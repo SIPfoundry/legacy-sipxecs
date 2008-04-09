@@ -2,7 +2,7 @@
   <span jwcid="@user/UserNavigation" bean="ognl:user"/>
   <form jwcid="@Form" validator="bean:validator">
     <fieldset jwcid="@setting/SettingsFieldset"
-      settings="prop:parentSetting"/>
+      settings="ognl:parentSetting"/>
     <fieldset>
       <table>
       <tr jwcid="@common/FieldPanel" field="component:overrideLanguage"
@@ -35,7 +35,7 @@
       maxKey="9"
       extensionOnly="ognl:true" />
 
-    <ul jwcid="@common/FormActions" callback="prop:callback" listener="listener:commit"/>
+    <ul jwcid="@common/FormActions" callback="ognl:callback" listener="listener:commit"/>
   </form>
 </div> 
 

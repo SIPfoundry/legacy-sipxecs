@@ -1,11 +1,11 @@
 <div jwcid="@common/Border">
-  <span jwcid="@user/UserNavigation" bean="prop:user" activeSetting="prop:parentSetting">
-    <span jwcid="@Insert" value="prop:parentSettingDescription"/>
+  <span jwcid="@user/UserNavigation" bean="ognl:user" activeSetting="ognl:parentSetting">
+    <span jwcid="@Insert" value="ognl:parentSettingDescription"/>
   </span>
   <span jwcid="@setting/SettingsForm"
-    settings="prop:parentSetting"
+    settings="ognl:parentSetting"
     cancelListener="listener:cancel"
     okListener="listener:ok"
     applyListener="listener:apply"
-    validator="bean:validator"/>  
-</div>   
+    validator="bean:validator"/>
+</div>

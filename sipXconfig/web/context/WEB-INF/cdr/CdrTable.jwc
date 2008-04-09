@@ -5,9 +5,9 @@
   <bean name="durationFormat" class="org.sipfoundry.sipxconfig.components.MillisDurationFormat"
     lifecycle="page">
     <set name="maxField" value="2" />
-    <set name="locale" value="prop:page.locale"/>
+    <set name="locale" value="page.locale"/>
     <set name="showZero" value="true" />
-  </bean>  
+  </bean>
   <bean name="terminationFormat" class="org.sipfoundry.sipxconfig.components.NewEnumFormat"
     lifecycle="page">
     <set name="messages" value="messages" />

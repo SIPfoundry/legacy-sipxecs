@@ -6,19 +6,19 @@
       </a>
     </li>
   </ul>
-  <table jwcid="@common/Table" id="line:list" 
-    source="prop:ports" 
+  <table jwcid="@common/Table" id="line:list"
+    source="ognl:ports"
     columns="* !index,!name"
-    selections="prop:selections" 
-    row="prop:port">
+    selections="ognl:selections"
+    row="ognl:port">
     <span jwcid="indexColumnValue@Block">
-     <span jwcid="@Insert" value="prop:index"/>
+     <span jwcid="@Insert" value="ognl:index"/>
     </span>
     <span jwcid="nameColumnValue@Block">
-      <a href="#" jwcid="@DirectLink" 
-     	  listener="prop:editPortListener" 
-        parameters="prop:port.id">
-          <span jwcid="@Insert" value="prop:port.label"/>
+      <a href="#" jwcid="@DirectLink"
+        listener="ognl:editPortListener"
+        parameters="ognl:port.id">
+          <span jwcid="@Insert" value="ognl:port.label"/>
       </a>
     </span>
   </table>

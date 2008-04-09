@@ -1,30 +1,30 @@
 <div jwcid="@common/Border">
-    <span jwcid="@gateway/GatewayNavigation" gateway="prop:gateway" dialingRuleId="prop:ruleId"/>
+    <span jwcid="@gateway/GatewayNavigation" gateway="ognl:gateway" dialingRuleId="ognl:ruleId"/>
     <div jwcid="@common/LeftNavigation" renderCondition="ognl:!gateway.isNew()">
-      <span jwcid="@setting/SettingsNavigation" bean="prop:gateway" 
-          editSettingsListener="listener:editSettings" activeSetting="prop:currentSettingSet">
-        <span jwcid="@For" source="prop:tabNames" value="prop:currentTab">
+      <span jwcid="@setting/SettingsNavigation" bean="ognl:gateway" 
+          editSettingsListener="listener:editSettings" activeSetting="ognl:currentSettingSet">
+        <span jwcid="@For" source="ognl:tabNames" value="ognl:currentTab">
             <span jwcid="@common/Tab" isActive="ognl:currentTab.equals(activeTab)">
-              <a jwcid="@DirectLink" id="ognl:'tab:' + currentTab" listener="listener:editNonSettings" parameters="prop:currentTab">
+              <a jwcid="@DirectLink" id="ognl:'tab:' + currentTab" listener="listener:editNonSettings" parameters="ognl:currentTab">
                 <span jwcid="@Insert" value="ognl:messages.getMessage('tab.' + currentTab)"/>
               </a>
             </span>
         </span>
       </span>
     </div>
-    <div jwcid="@common/ProfilePreview" device="prop:gateway"/>
-    <div jwcid="@common/DeviceResources" deviceDescriptor="prop:gateway.model" />
+    <div jwcid="@common/ProfilePreview" device="ognl:gateway"/>
+    <div jwcid="@common/DeviceResources" deviceDescriptor="ognl:gateway.model" />
   
   <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:gateway.isNew()?'':'div'">
     <form jwcid="@Form" delegate="bean:validator" id="gateway">
-      <span jwcid="@Hidden" value="prop:activeTab"/>
+      <span jwcid="@Hidden" value="ognl:activeTab"/>
 
       <div jwcid="configBlock@Block">
-        <fieldset jwcid="@gateway/GatewayForm" gateway="prop:gateway" selectedSbcDevice="ognl:selectedSbcDevice" />
+        <fieldset jwcid="@gateway/GatewayForm" gateway="ognl:gateway" selectedSbcDevice="ognl:selectedSbcDevice" />
       </div>
 
       <div jwcid="gcaiBlock@Block">
-        <fieldset jwcid="@gateway/GatewayCallerAliasInfoPanel" gcai="prop:gateway.callerAliasInfo"/>
+        <fieldset jwcid="@gateway/GatewayCallerAliasInfoPanel" gcai="ognl:gateway.callerAliasInfo"/>
       </div>
 
       <div jwcid="dialplanBlock@Block">
@@ -36,7 +36,7 @@
                 label="message:label.prefix"
                 description="message:description.prefix">
                 <input jwcid="gatewayPrefix@TextField" id="gateway:prefix" maxlength="10"
-                  value="prop:gateway.prefix"
+                  value="ognl:gateway.prefix"
                   validators="spring-validators:validSipUserId"
                   displayName="message:label.prefix"/>
               </label>
@@ -47,24 +47,24 @@
         <fieldset jwcid="@dialplan/DialRulesPanel" gateway="ognl:gateway" />
 
       </div>
-      
+
       <div jwcid="portsBlock@Block">
-      	<fieldset jwcid="@gateway/port/GatewayPorts" 
-          gateway="prop:gateway"
+        <fieldset jwcid="@gateway/port/GatewayPorts"
+          gateway="ognl:gateway"
           editPortListener="listener:editPort"
           addPortListener="listener:addPort"/>
-      	
+
       </div>
-      
+
       <div jwcid="settingsBlock@Block">
-          <fieldset jwcid="@setting/SettingsFieldset" settings="prop:currentSettingSet"/>
+          <fieldset jwcid="@setting/SettingsFieldset" settings="ognl:currentSettingSet"/>
       </div>
                   
       <span jwcid="@common/ErrorMsg"/>
       <span jwcid="@RenderBlock" block="ognl:components.get(activeTab + 'Block')"/>
       <ul jwcid="@common/FormActions"
         listener="listener:saveGateway"
-        callback="prop:callback"/>
-    </form>    
+        callback="ognl:callback"/>
+    </form>
   </div>
 </div>

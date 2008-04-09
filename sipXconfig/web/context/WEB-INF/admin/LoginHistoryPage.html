@@ -10,17 +10,17 @@
                   label="message:logs.type">
               <span jwcid="type@PropertySelection" model="ognl:logTypeModel" value="ognl:logType"/>
             </tr>
-            <tr jwcid="startDate@common/DateTimeEditor" datetime="prop:startDate" label="message:logs.startDate" />
-            <tr jwcid="endDate@common/DateTimeEditor" datetime="prop:endDate" label="message:logs.endDate" />
+            <tr jwcid="startDate@common/DateTimeEditor" datetime="ognl:startDate" label="message:logs.startDate" />
+            <tr jwcid="endDate@common/DateTimeEditor" datetime="ognl:endDate" label="message:logs.endDate" />
             <tr jwcid="@common/FieldPanel"
               field="component:user"
                   label="message:logs.user">
-              <td jwcid="user@TextField" value="prop:queryUser" displayName="message:logs.user" />
+              <td jwcid="user@TextField" value="ognl:queryUser" displayName="message:logs.user" />
             </tr>
             <tr jwcid="@common/FieldPanel"
               field="component:remoteip"
                   label="message:logs.ip">
-              <td jwcid="remoteip@TextField" value="prop:queryIp" displayName="message:logs.ip" validators="spring-validators:validHostOrIp"/>
+              <td jwcid="remoteip@TextField" value="ognl:queryIp" displayName="message:logs.ip" validators="spring-validators:validHostOrIp"/>
             </tr>
             <tr>
               <td>
@@ -34,7 +34,7 @@
             <tr jwcid="@common/FieldPanel"
               field="component:logs"
                   label="">
-              <td jwcid="logs@TextArea" rows="30" cols="100" readonly="readonly" value="prop:loginHistory"/>
+              <td jwcid="logs@TextArea" rows="30" cols="100" readonly="readonly" value="ognl:loginHistory"/>
             </tr>        
           </table>
         </fieldset>

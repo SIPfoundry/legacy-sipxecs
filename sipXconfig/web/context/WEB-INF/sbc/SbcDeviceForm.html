@@ -5,7 +5,7 @@
         field="component:sbcDeviceName"
         label="message:label.name">
         <input jwcid="sbcDeviceName@TextField" id="sbcDevice:name" maxlength="40"
-          value="prop:sbcDevice.name"
+          value="ognl:sbcDevice.name"
           validators="validators:required"
           displayName="message:label.name"/>
       </label>
@@ -14,7 +14,7 @@
         label="message:label.address"
         description="message:description.address">
         <input jwcid="sbcDeviceAddress@TextField" id="sbcDevice:address"
-          value="prop:sbcDevice.address"
+          value="ognl:sbcDevice.address"
           validators="spring-validators:required,validHostOrIp"
           displayName="message:label.address"/>
       </label>
@@ -24,20 +24,20 @@
         description="message:description.port"
         defaultValue="5060">
         <input jwcid="sbcDevicePort@TextField" id="sbcDevice:port"
-          value="prop:sbcDevice.port"
+          value="ognl:sbcDevice.port"
           translator="translator:number,pattern=#####"
           validators="spring-validators:required"
           displayName="message:label.port"/>
       </label>
-      <span jwcid="@If" condition="prop:sbcDevice.model.hasSerialNumber">
+      <span jwcid="@If" condition="ognl:sbcDevice.model.hasSerialNumber">
         <label jwcid="@common/FieldPanel" for="sbcDevice:serial"
           field="component:sbcDeviceSerial"
           label="message:label.serial"
           description="message:description.serial">
           <input jwcid="sbcDeviceSerial@TextField" id="sbcDevice:serial" maxlength="40"
-            value="prop:sbcDevice.serialNumber"
-            validators="prop:serialNumberValidators"
-            translator="prop:serialNumberTranslator"
+            value="ognl:sbcDevice.serialNumber"
+            validators="ognl:serialNumberValidators"
+            translator="ognl:serialNumberTranslator"
             displayName="message:label.serial"/>
         </label>
       </span>
@@ -45,7 +45,7 @@
         field="component:sbcDeviceDescription"
         label="message:label.description">
         <textarea jwcid="sbcDeviceDescription@TextArea" id="sbcDevice:description" cols="60" rows="5"
-          value="prop:sbcDevice.description"
+          value="ognl:sbcDevice.description"
           validators="spring-validators:validFieldSize"
           displayName="message:label.description"/>
       </label>

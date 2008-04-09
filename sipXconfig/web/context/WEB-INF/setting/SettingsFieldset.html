@@ -1,20 +1,20 @@
-<ul jwcid="@If" condition="prop:renderAdvancedToggle" element="ul" class="component-links">
-  <li jwcid="@common/ToggleLink" toggle="prop:showAdvanced"/>
+<ul jwcid="@If" condition="ognl:renderAdvancedToggle" element="ul" class="component-links">
+  <li jwcid="@common/ToggleLink" toggle="ognl:showAdvanced"/>
 </ul>
 <fieldset>
   <table>
-    <tbody>      
-      <span jwcid="@For" 
-        source="prop:flattenedSettings" 
-        value="prop:currentSetting" 
+    <tbody>
+      <span jwcid="@For"
+        source="ognl:flattenedSettings"
+        value="ognl:currentSetting"
         volatile="true">
-        <tr jwcid="@RenderBlock" block="prop:currentBlock" />
+        <tr jwcid="@RenderBlock" block="ognl:currentBlock" />
       </span>
     </tbody>
   </table>
 </fieldset>
 <div jwcid="groupBlock@Block">
-  <span jwcid="@If" condition="prop:renderGroup">
+  <span jwcid="@If" condition="ognl:renderGroup">
     <tr>
       <td colspan="2">
         <h3><label jwcid="@Insert" value="ognl:label"/></h3>
@@ -24,25 +24,25 @@
   </span>
 </div>
 <div jwcid="settingBlock@Block">
-  <span jwcid="@If" condition="prop:renderSetting">
+  <span jwcid="@If" condition="ognl:renderSetting">
     <span jwcid="@setting/SettingEditor"
-      setting="prop:currentSetting"
-      enabled="prop:settingEnabled"
-      requiredEnabled="prop:requiredEnabled"
-      messageSource="prop:messageSource" />
+      setting="ognl:currentSetting"
+      enabled="ognl:settingEnabled"
+      requiredEnabled="ognl:requiredEnabled"
+      messageSource="ognl:messageSource" />
   </span>
   <span jwcid="@Else">
-    <span jwcid="@Hidden" value="prop:currentSetting.value"/>
+    <span jwcid="@Hidden" value="ognl:currentSetting.value"/>
   </span>
 </div>
 <div jwcid="arrayBlock@Block">
   <tr>
     <td colspan="2">
       <span jwcid="@setting/SettingsGrid"
-        setting="prop:currentSetting"
-        enabled="prop:enabled"
-        requiredEnabled="prop:requiredEnabled"
-        messageSource="prop:messageSource" />
+        setting="ognl:currentSetting"
+        enabled="ognl:enabled"
+        requiredEnabled="ognl:requiredEnabled"
+        messageSource="ognl:messageSource" />
     </td>
   </tr>
 </div>

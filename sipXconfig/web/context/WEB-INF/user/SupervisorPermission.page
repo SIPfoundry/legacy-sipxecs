@@ -12,9 +12,9 @@
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
   </component>
-  <!-- 
+  <!--
     - Tacos/Tapestry Bug
-    - give the right value for field, and autocomplete renders double 
+    - give the right value for field, and autocomplete renders double
     -->
   <component id="supervisorForGroupsField" type="common/FieldPanel">
     <binding name="field" value="components.supervisorForGroupsX"/>

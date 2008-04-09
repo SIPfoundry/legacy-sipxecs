@@ -1,5 +1,5 @@
 <ul class="component-links">
-  <li jwcid="@common/ToggleLink" toggle="prop:advanced"></li>
+  <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
 </ul>
 <fieldset>
   <table>
@@ -8,7 +8,7 @@
         field="component:gatewayName"
         label="message:label.name">
         <input jwcid="gatewayName@TextField" id="gateway:name" maxlength="255"
-          value="prop:gateway.name"
+          value="ognl:gateway.name"
           validators="validators:required"
           displayName="message:label.name"/>
       </label>
@@ -17,17 +17,17 @@
         label="message:label.address"
         description="message:description.address">
         <input jwcid="gatewayAddress@TextField" id="gateway:address" maxlength="255"
-          value="prop:gateway.address"
+          value="ognl:gateway.address"
           validators="spring-validators:required,validHostOrIp"
           displayName="message:label.address"/>
       </label>
-      <span jwcid="@If" condition="prop:advanced">
+      <span jwcid="@If" condition="ognl:advanced">
         <label jwcid="@common/FieldPanel" for="gateway:addressPort"
           field="component:gatewayAddressPort"
           label="message:label.addressPort"
           description="message:description.addressPort">
           <input jwcid="gatewayAddressPort@TextField" id="gateway:addressPort" maxlength="255"
-            value="prop:gateway.addressPort"
+            value="ognl:gateway.addressPort"
             validators="validators:required,min=0[%label.invalidformat],max=65534[%label.invalidformat]"
             translator="translator:number,omitZero=false"
             displayName="message:label.addressPort"/>
@@ -38,19 +38,19 @@
           description="message:description.addressTransport">
           <select jwcid="gatewayAddressTransport@PropertySelection"
             id="gateway:addressTransport"
-            value="prop:gateway.addressTransport"
-            model="prop:addressTransportModel" />
+            value="ognl:gateway.addressTransport"
+            model="ognl:addressTransportModel" />
         </label>
       </span>
-      <span jwcid="@If" condition="prop:gateway.model.hasSerialNumber">
+      <span jwcid="@If" condition="ognl:gateway.model.hasSerialNumber">
         <label jwcid="@common/FieldPanel" for="gateway:serial"
           field="component:gatewaySerial"
           label="message:label.serial"
           description="message:description.serial">
           <input jwcid="gatewaySerial@TextField" id="gateway:serial" maxlength="255"
-            value="prop:gateway.serialNumber"
-            validators="prop:serialNumberValidators"
-            translator="prop:serialNumberTranslator"
+            value="ognl:gateway.serialNumber"
+            validators="ognl:serialNumberValidators"
+            translator="ognl:serialNumberTranslator"
             displayName="message:label.serial"/>
         </label>
       </span>
@@ -58,7 +58,7 @@
         field="component:gatewayDescription"
         label="message:label.description">
         <textarea jwcid="gatewayDescription@TextArea" id="gateway:description" cols="60" rows="5"
-          value="prop:gateway.description"
+          value="ognl:gateway.description"
           validators="spring-validators:validFieldSize"
           displayName="message:label.description"/>
       </label>

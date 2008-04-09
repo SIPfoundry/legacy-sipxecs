@@ -20,7 +20,7 @@
     lifecycle="page">
     <!-- 0 - day, 1 - hour, 2 - minute etc. -->
     <set name="maxField" value="2" />
-    <set name="locale" value="prop:page.locale"/>    
+    <set name="locale" value="page.locale"/>
   </bean>
   <bean name="stateFormat" class="org.sipfoundry.sipxconfig.components.EnumFormat"
     lifecycle="page">
@@ -33,7 +33,7 @@
     <binding name="acdServerId" value="acdServerId" />
     <binding name="acdQueueUri" value="selectedAcdQueueUri"/>
     <binding name="queues" value="acdStatistics.getQueuesStats(acdServerId)"/>
-    <binding name="show" value="showQueueSelector" />        
+    <binding name="show" value="showQueueSelector" />
   </component>
 
   <component id="tableView" type="common/StatsTable">

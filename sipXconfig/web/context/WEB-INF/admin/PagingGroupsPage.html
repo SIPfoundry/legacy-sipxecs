@@ -19,7 +19,7 @@
         	  field="component:prefix"
         	  label="message:label.prefix">
             <input jwcid="prefix@TextField" id="prefix"
-              value="prop:prefix"
+              value="ognl:prefix"
               validators="spring-validators:required,noWhitespace,validFieldSize"
               displayName="message:label.prefix"/>
             <input jwcid="save@Submit" id="pagingGroups:save"
@@ -31,18 +31,18 @@
     </span>
 	<table jwcid="@common/Table" id="pagingGroups:list"
         columns="* pageGroupNumber,enabled,!userCount,description"
-        source="prop:groups"
-        row="prop:currentRow"
+        source="ognl:groups"
+        row="ognl:currentRow"
         selections="bean:selections">
       <tr jwcid="pageGroupNumberColumnValue@Block">
         <td jwcid="editRowLink@DirectLink"
           listener="listener:editPagingGroup"
           parameters="ognl:currentRow.id">
-          <span jwcid="@Insert" value="prop:currentRow.pageGroupNumber"/>
+          <span jwcid="@Insert" value="ognl:currentRow.pageGroupNumber"/>
       	</td>
       </tr>
       <tr jwcid="enabledColumnValue@Block">
-        <td jwcid="@common/EnabledColumn" value="prop:currentRow.enabled"/>
+        <td jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
       </tr>
       <tr jwcid="userCountColumnValue@Block">
         <td jwcid="@Insert" value="ognl:currentRow.users.size()"/>
@@ -60,8 +60,8 @@
       <li>
         <input jwcid="delete@Submit" id="pagingGroups:delete" 
           listener="listener:delete"
-          selected="prop:selectedRows"
-          tag="prop:allSelected"
+          selected="ognl:selectedRows"
+          tag="ognl:allSelected"
           value="message:button.delete" />
         <span jwcid="@common/Confirm"
           component="component:delete"

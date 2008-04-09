@@ -1,12 +1,12 @@
 <div jwcid="@common/Border">
   <h2><span key="title">Auto Attendant Defaults</span></h2>
   <div jwcid="@common/LeftNavigation">
-    <span jwcid="settingsNavigation@setting/SettingsNavigation" bean="prop:bean"
-      source="prop:settings.values" activeSetting="prop:parentSetting"
+    <span jwcid="settingsNavigation@setting/SettingsNavigation" bean="ognl:bean"
+      source="ognl:settings.values" activeSetting="ognl:parentSetting"
       editSettingsListener="listener:editGroupSettings"/>
   </div>
-  <span jwcid="settingsForm@setting/SettingsForm" settings="prop:parentSetting"
+  <span jwcid="settingsForm@setting/SettingsForm" settings="ognl:parentSetting"
     cancelListener="listener:cancel" okListener="listener:ok"
     applyListener="listener:apply" validator="bean:validator"
     requiredEnabled="literal:false"/>
-</div>   
+</div>

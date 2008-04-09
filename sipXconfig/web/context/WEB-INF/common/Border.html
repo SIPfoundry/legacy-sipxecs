@@ -4,7 +4,7 @@
     title="message:product.name"
     renderBaseTag="ognl:tapestry.renderBaseTag">
   <body jwcid="@Body">
-    <div jwcid="@If" condition="prop:userSession.navigationVisible">
+    <div jwcid="@If" condition="ognl:userSession.navigationVisible">
       <div id="banner">
         <div id="logo">&nbsp;</div>
       	<div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
@@ -24,7 +24,7 @@
         </div>
       </div>
       <div id="navigation">
-        <span jwcid="@If" condition="prop:userSession.admin">
+        <span jwcid="@If" condition="ognl:userSession.admin">
           <span jwcid="@common/AdminNavigation">Navigation bar goes here.</span>
         </span>
         <span jwcid="@Else">
@@ -40,7 +40,7 @@
             &nbsp; <!-- to ensure this block is never empty, so it has the min width -->                
         </div>
         <div id="content">            
-            <span jwcid="@If" condition="prop:userSession.admin">
+            <span jwcid="@If" condition="ognl:userSession.admin">
                 <span jwcid="@admin/StatusWarning"/>
             </span>       
             <span jwcid="@RenderBody">Page content goes here.</span>

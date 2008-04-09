@@ -27,14 +27,14 @@
       </thead>
       <tbody>
         <tr jwcid="@For" index="ognl:currentRowId"
-          source="prop:configurationTests" 
+          source="ognl:configurationTests" 
           volatile="ognl:true"
-          value="prop:configurationTest">
+          value="ognl:configurationTest">
           <td jwcid="@admin/configdiag/DiagnosticDetail"
-            test="prop:configurationTest"
-            dateFormat="prop:dateFormat"
+            test="ognl:configurationTest"
+            dateFormat="ognl:dateFormat"
             rowClass="ognl:rowClass.next"
-            rowId="prop:currentRowId"
+            rowId="ognl:currentRowId"
             />
         </tr>
       </tbody>

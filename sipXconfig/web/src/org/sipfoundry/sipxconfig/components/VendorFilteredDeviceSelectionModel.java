@@ -43,8 +43,7 @@ public class VendorFilteredDeviceSelectionModel implements IPropertySelectionMod
         Object[] objectsArray = objects.toArray();
         for (Object object : objectsArray) {
             DeviceDescriptor descriptor = (DeviceDescriptor) object;
-            if (descriptor != null && descriptor.getVendor() != null
-                    && descriptor.getVendor().equals(m_vendorFilter)) {
+            if (descriptor != null && descriptor.getVendor() != null && descriptor.getVendor().equals(m_vendorFilter)) {
                 returnedObjectsList.add(object);
             }
         }
@@ -126,5 +125,9 @@ public class VendorFilteredDeviceSelectionModel implements IPropertySelectionMod
     public Object translateValue(String value) {
         int index = Integer.parseInt(value);
         return getOption(index);
+    }
+
+    public boolean isDisabled(int index) {
+        return false;
     }
 }

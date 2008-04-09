@@ -1,31 +1,31 @@
 <fieldset>
-  <legend><span jwcid="@Insert" value="prop:label"/></legend>
-  <ul class="component-links">      
+  <legend><span jwcid="@Insert" value="ognl:label"/></legend>
+  <ul class="component-links">
     <li>
-      <a jwcid="addLink@LinkSubmit" selected="prop:add" tag="ognl:true">
-        <span jwcid="@Insert" value="prop:addLinkLabel">Add</span>
+      <a jwcid="addLink@LinkSubmit" selected="ognl:add" tag="ognl:true">
+        <span jwcid="@Insert" value="ognl:addLinkLabel">Add</span>
       </a>
     </li>
   </ul>
-  <span jwcid="@Hidden" value="prop:size"/>
+  <span jwcid="@Hidden" value="ognl:size"/>
   <table>
     <tbody>
       <tr jwcid="@For"
-        source="prop:source"
-        value="prop:value"
-        index="prop:index"
+        source="ognl:source"
+        value="ognl:value"
+        index="ognl:index"
         volatile="true"
         element="tr">
         <td>
-          <input jwcid="@TextField" 
-            value="prop:value" 
-            validators="prop:validators"
-            displayName="prop:itemDisplayName" />
+          <input jwcid="@TextField"
+            value="ognl:value"
+            validators="ognl:validators"
+            displayName="ognl:itemDisplayName" />
         </td>
         <td>
-          <a jwcid="deleteLink@LinkSubmit" selected="prop:removeIndex" tag="prop:index">
+          <a jwcid="deleteLink@LinkSubmit" selected="ognl:removeIndex" tag="ognl:index">
             <span key="button.delete">Delete</span>
-          </a>  
+          </a>
         </td>
       </tr>
     </tbody>

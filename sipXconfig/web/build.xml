@@ -22,7 +22,6 @@
     <pathelement path="${hivemind.jar}"/>
     <pathelement path="${hivemind-lib.jar}"/>
     <pathelement path="${tapestry-contrib.jar}"/>
-    <pathelement path="${tapestry-prop.jar}"/>
     <pathelement path="${tapestry-annotations.jar}"/>
     <pathelement path="${ognl.jar}"/>
     <pathelement path="${restlet.jar}"/>
@@ -247,7 +246,6 @@
       <fileset file="${hivemind.jar}"/>
       <fileset file="${hivemind-lib.jar}"/>
       <fileset file="${tapestry-contrib.jar}"/>
-      <fileset file="${tapestry-prop.jar}"/>
       <fileset file="${tapestry-annotations.jar}"/>
       <fileset file="${backport-util-concurrent.jar}"/>
       <fileset file="${ognl.jar}"/>
