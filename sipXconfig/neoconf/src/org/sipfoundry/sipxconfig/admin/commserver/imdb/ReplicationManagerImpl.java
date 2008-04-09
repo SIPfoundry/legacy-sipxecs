@@ -93,7 +93,7 @@ public class ReplicationManagerImpl implements ReplicationManager {
      */
     boolean postData(String url, byte[] xmlData) throws IOException {
         if (!m_enabled) {
-            LOG.warn("Replication disabled. Typical of a test environment");
+            LOG.debug("Replication disabled. Typical of a test environment");
             return true;
         }
         
