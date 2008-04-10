@@ -139,6 +139,9 @@ protected:
 
     static OsMutex sLockMutex;
 
+    /// An additional contact to be added to all success responses, if not null.
+    UtlString mAdditionalContact;
+
     /// Set the largest update number in the local database for this registrar as primary
     void setDbUpdateNumber(Int64 dbUpdateNumber);
 

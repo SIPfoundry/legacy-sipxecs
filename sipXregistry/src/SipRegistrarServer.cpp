@@ -159,6 +159,39 @@ SipRegistrarServer::initialize(
         mSipUserAgent->setHostAliases(hostAliases);    
     }
 
+    // Get the additional contact setting.
+    pOsConfigDb->get("SIP_REGISTRAR_ADDITIONAL_CONTACT", mAdditionalContact);
+    if (!mAdditionalContact.isNull())
+    {
+       // Validate mAdditionalContact:  parses as a name-addr, there is no
+       // trailing stuff, and it has an Expires header-parameter composed
+       // of digits with value >= 1.
+       Url url;
+       UtlString remainder, param;
+       if (!(   url.fromString(mAdditionalContact, Url::NameAddr, &remainder)
+             && remainder.isNull()
+             && url.getFieldParameter("expires", param)
+             && !param.isNull()
+             && strspn(param.data(), "0123456789") == param.length()
+             && atoi(param.data()) >= 1))
+       {
+          OsSysLog::add(FAC_SIP, PRI_ERR,
+                        "SipRegistrarServer::initialize remainder '%s', param '%s'",
+                        remainder.data(), param.data());
+          OsSysLog::add(FAC_SIP, PRI_ERR,
+                        "SipRegistrarServer::initialize fromString %d",
+                        url.fromString(mAdditionalContact, Url::NameAddr, &remainder));
+          OsSysLog::add(FAC_SIP, PRI_ERR,
+                        "SipRegistrarServer::initialize getFieldParameter %d",
+                        url.getFieldParameter("expires", param));
+          OsSysLog::add(FAC_SIP, PRI_ERR,
+                        "SipRegistrarServer::initialize Invalid value for SIP_REGISTRAR_ADDITIONAL_CONTACT: '%s'",
+                        mAdditionalContact.data());
+          // If value is invalid, make it null.
+          mAdditionalContact.remove(0);
+       }
+    }
+
     /*
      * Unused Authentication Directives
      *
@@ -1105,8 +1138,15 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                                }
                             }
 
-                            finalResponse.setContactField(contactUri.toString(),i);
+                            finalResponse.setContactField(contactUri.toString(), i);
                           }
+                        }
+
+                        // Add the testing contact, if it is set.
+                        if (!mAdditionalContact.isNull())
+                        {
+                           finalResponse.setContactField(mAdditionalContact,
+                                                         numRegistrations);
                         }
                     }
                     break;
