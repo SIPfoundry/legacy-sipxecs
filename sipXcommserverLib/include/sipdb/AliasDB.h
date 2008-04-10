@@ -49,6 +49,9 @@ public:
     // Domain Serialization/Deserialization
     OsStatus store();
 
+    // One step closer to common load/store code
+    UtlBoolean insertRow ( const UtlHashMap& nvPairs );
+
     // Insert or update a row in the Aliases database.
     // Note: since because aliasIdentities can have multiple
     // contacts, we need to pass an update hint default false
@@ -90,9 +93,6 @@ protected:
 
     // Singleton Constructor is private
     AliasDB ( const UtlString& name );
-
-    // One step closer to common load/store code
-    UtlBoolean insertRow ( const UtlHashMap& nvPairs );
 
     // There is only one singleton in this design
     static AliasDB* spInstance;

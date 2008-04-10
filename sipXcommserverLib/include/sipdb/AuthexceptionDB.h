@@ -49,6 +49,9 @@ public:
     // Serialization
     OsStatus store();
 
+    // One step closer to common load/store code
+    UtlBoolean insertRow ( const UtlHashMap& nvPairs );
+
     // Insert or update a row in the ExternalForwarding database.
     UtlBoolean insertRow ( const UtlString& rUser );
 
@@ -76,9 +79,6 @@ protected:
 
     // Singleton Constructor is private
     AuthexceptionDB ( const UtlString& name = "authexception" );
-
-    // One step closer to common load/store code
-    UtlBoolean insertRow ( const UtlHashMap& nvPairs );
 
     // There is only one singleton in this design
     static AuthexceptionDB* spInstance;

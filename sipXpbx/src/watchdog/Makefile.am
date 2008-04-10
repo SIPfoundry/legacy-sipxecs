@@ -20,6 +20,8 @@ watchdog_SOURCES =  \
    WatchDogMain.cpp \
    MonitoredProcess.cpp \
 	ProcMgmtRpc.cpp \
+	ImdbRpc.cpp \
+	FileRpc.cpp \
 	DependencyList.cpp \
 	processXMLCommon.cpp \
    WatchDog.cpp
@@ -33,6 +35,8 @@ noinst_HEADERS = \
 	FailureReporterBase.h \
 	MonitoredProcess.h \
 	ProcMgmtRpc.h \
+	ImdbRpc.h \
+	FileRpc.h \
 	DependencyList.h \
 	processXMLCommon.h \
 	WatchDog.h

@@ -18,6 +18,8 @@
 #include "os/OsDateTime.h"
 #include "net/XmlRpcDispatch.h"
 #include "ProcMgmtRpc.h"
+#include "ImdbRpc.h"
+#include "FileRpc.h"
 #include "utl/UtlBool.h"
 
 // EXTERNAL FUNCTIONS
@@ -31,8 +33,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-WatchDog::WatchDog(int nWatchInterval,MonitoredProcess **processList,int processCount,
-                   const int port,UtlSList& allowedPeers) :
+WatchDog::WatchDog(int nWatchInterval, 	MonitoredProcess **processList,int processCount,
+                   const int port, UtlSList& allowedPeers) :
 mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
 mpWatchDogTimer(NULL),
 mXmlRpcPort(port),
@@ -189,6 +191,15 @@ void WatchDog::startRpcServer()
    ProcMgmtRpcRestart::registerSelf(*this);
    ProcMgmtRpcRestartAll::registerSelf(*this);
    ProcMgmtRpcGetAliasByPID::registerSelf(*this);
+
+   ImdbRpcReplaceTable::registerSelf(*this);
+   ImdbRpcRetrieveTable::registerSelf(*this);
+   ImdbRpcAddTableRecords::registerSelf(*this);
+   ImdbRpcDeleteTableRecords::registerSelf(*this);
+
+   FileRpcReplaceFile::registerSelf(*this);
+
+   
 }
 
 /* ============================ ACCESSORS ================================= */

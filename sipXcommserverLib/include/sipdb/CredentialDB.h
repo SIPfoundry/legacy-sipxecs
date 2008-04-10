@@ -59,6 +59,8 @@ class CredentialDB
                           const UtlString& authType = "DIGEST"
                           );
 
+    UtlBoolean insertRow ( const UtlHashMap& nvPairs );
+
     void removeRows (const Url& uri,
                      const UtlString& realm
                      );
@@ -150,8 +152,6 @@ class CredentialDB
 
     // Singleton Constructor is private
     CredentialDB( const UtlString& name = "credentials" );
-
-    UtlBoolean insertRow ( const UtlHashMap& nvPairs );
 
     static CredentialDB* spInstance;
 

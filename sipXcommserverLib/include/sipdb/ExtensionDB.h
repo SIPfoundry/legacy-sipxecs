@@ -50,6 +50,9 @@ public:
     // Domain Serialization/Deserialization
     OsStatus store();
 
+    // One step closer to common load/store code
+    UtlBoolean insertRow ( const UtlHashMap& nvPairs );
+
     // insert or update a row in the Extensiones database.
     UtlBoolean insertRow (
         const Url& uri,
@@ -87,9 +90,6 @@ protected:
 
     // Singleton Constructor is private
     ExtensionDB ( const UtlString& name );
-
-    // One step closer to common load/store code
-    UtlBoolean insertRow ( const UtlHashMap& nvPairs );
 
     // There is only one singleton in this design
     static ExtensionDB* spInstance;

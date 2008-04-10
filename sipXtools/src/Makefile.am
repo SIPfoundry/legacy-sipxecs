@@ -8,7 +8,8 @@ SUBDIRS = \
 LOCAL_SHELLSCRIPTS = \
 	expire-spread \
 	monitor-spread \
-	sipxproc
+	sipxproc \
+	sipxreplicate
 
 EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)
 

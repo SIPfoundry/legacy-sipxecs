@@ -340,6 +340,7 @@ AliasDB::insertRow (
             insert (row);
         }
 
+        result = TRUE;
         // Commit rows to memory - multiprocess workaround
         m_pFastDB->detach(0);
 

@@ -54,6 +54,8 @@ public:
         const Url& uri,
         const UtlString& permission );
 
+    UtlBoolean insertRow ( const UtlHashMap& nvPairs );
+
     // Query interface always used cursor now
     void getPermissions (
         const Url& identity,
@@ -94,9 +96,6 @@ protected:
 
     // Singleton Constructor is private
     PermissionDB ( const UtlString& name );
-
-    // One step closer to common load/store code
-    UtlBoolean insertRow ( const UtlHashMap& nvPairs );
 
     // There is only one singleton in this design
     static PermissionDB* spInstance;
