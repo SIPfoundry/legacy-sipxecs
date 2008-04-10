@@ -388,7 +388,6 @@ sipx-mrtg-init -e > /dev/null
 %{freeswitchdir}/conf/modules.conf.xml.in
 %{freeswitchdir}/conf/xml_rpc.conf.xml.in
 %{freeswitchdir}/conf/sofia.conf.xml.in
-%{freeswitchdir}/conf/conference.conf.xml.in
 %attr(755,root,root) /usr/bin/freeswitch.sh
 
 %post conference
