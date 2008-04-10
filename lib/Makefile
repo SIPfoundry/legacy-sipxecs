@@ -35,6 +35,7 @@ AC_TARGETS = \
 	ruby-postgres \
 	w3c-libwww \
 	xerces-c \
+	freeswitch \
 	rrdtool
 
 .PHONY: $(AC_TARGETS)
