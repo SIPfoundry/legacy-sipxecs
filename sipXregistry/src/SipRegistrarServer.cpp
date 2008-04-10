@@ -9,6 +9,7 @@
 
 // SYSTEM INCLUDES
 #include <stdlib.h>
+#include <string.h>
 
 // APPLICATION INCLUDES
 #include "os/OsDateTime.h"
@@ -416,9 +417,11 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         UtlString* gruuKey = new UtlString( gGruuKey );
                         UtlString* pathKey = new UtlString( gPathKey );
 
-                        // Calculate GRUU if gruu is in Supported and +sip.instance is provided.
-                        if (!instanceId.isNull() &&
-                            registerMessage.isInSupportedField("gruu"))
+                        // Calculate GRUU if +sip.instance is provided.
+                        // Note a GRUU is constructed even if the UA does not
+                        // support GRUU itself -- other UAs can discover the
+                        // GRUU via the reg event package.
+                        if (!instanceId.isNull())
                         {
                            // Hash the GRUU base, the AOR, and IID to
                            // get the variable part of the GRUU.
@@ -1049,6 +1052,8 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                                                                              registrations
                            );
 
+                        bool requestSupportsGruu =
+                           message.isInSupportedField("gruu");
                         int numRegistrations = registrations.getSize();
                         for ( int i = 0 ; i<numRegistrations; i++ )
                         {
@@ -1127,14 +1132,15 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                                UtlString* gruu =
                                   dynamic_cast<UtlString*> (record.findValue(&gruuKey));
                                // Only add the "gruu" parameter if the GRUU is
-                               // non-null.
-                               if (!gruu->isNull())
+                               // non-null and the request includes "Supported:
+                               // gruu".
+                               if (requestSupportsGruu && !gruu->isNull())
                                {
                                   // Prepend "sip:" to the GRUU, since it is stored
                                   // in the database in identity form.
                                   UtlString temp("sip:");
                                   temp.append(*gruu);
-                                  contactUri.setFieldParameter("gruu", temp);
+                                  contactUri.setFieldParameter("pub-gruu", temp);
                                }
                             }
 
