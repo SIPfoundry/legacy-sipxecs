@@ -195,17 +195,6 @@ public:
      * If the values have display name components that contain commas (legal), it
      * is safest to do a complete parse of the Urls.  The nextUri parameter provides
      * a straightforward way to accomplish this by returning any part of the input string
-     * that follows a trailing comma after the first url in the string has been parsed:
-     *
-     * @code
-     * UtlString nextUrl;
-     * for 
-     * @endcode
-     *
-     * Many header field are defined to allow multiple comma-separated Url values.
-     * If the values have display name components that contain commas (legal), it
-     * is safest to do a complete parse of the Urls.  The nextUri parameter provides
-     * a straightforward way to accomplish this by returning any part of the input string
      * that follows a trailing comma after the first url in the string has been parsed.
      * In the following example, assume that 'someMethod' fills its argument UtlString
      * with some header field value that may have multiple URL values (such as
