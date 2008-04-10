@@ -193,6 +193,8 @@ public class Sym implements SymInterface {
             logger.debug("sessionAttribute = " + sessionAttribute);
         }
 
+        String attribute = sessionAttribute != null? sessionAttribute : mediaAttribute;
+        
         if (newIpAddress.equals("0.0.0.0") && newport == oldPort) {
             /*
              * RFC2543 specified that placing a user on hold was accomplished by
@@ -231,15 +233,11 @@ public class Sym implements SymInterface {
             }
             return this.getReceiver().getSessionDescription();
         } else if (newport == oldPort && oldIpAddress.equals(newIpAddress)) {
-            if (mediaAttribute == null
-                    && sessionAttribute == null
-                    || (mediaAttribute != null && mediaAttribute
-                            .equals("sendrecv"))
-                    || (sessionAttribute != null && sessionAttribute
-                            .equals("sendrecv"))) {
+            if (attribute == null 
+                   ||  attribute.equals("sendrecv")) {
                 logger.debug("Remove media on hold!");
                 SipUtilities.setSessionDescriptionMediaAttribute(this
-                        .getReceiver().getSessionDescription(), "sendrecv");
+                        .getReceiver().getSessionDescription(),"recvonly", "sendrecv");
                 this.getTransmitter().setOnHold(false);
 
                 DialogApplicationData dat = (DialogApplicationData) dialog
@@ -249,10 +247,8 @@ public class Sym implements SymInterface {
                     BackToBackUserAgent b2bua = dat.backToBackUserAgent;
                     b2bua.sendByeToMohServer(dat.musicOnHoldDialog);
                 }
-            } else if ((mediaAttribute != null && mediaAttribute
-                    .equals("sendonly"))
-                    || (sessionAttribute != null && sessionAttribute
-                            .equals("sendonly"))) {
+            } else if (attribute != null && attribute
+                    .equals("sendonly")) {
                 logger.debug("Setting media on hold.");
                 this.getTransmitter().setOnHold(true);
                 /*
@@ -282,12 +278,12 @@ public class Sym implements SymInterface {
                     dat.musicOnHoldDialog = mohDialog;
                 }
 
-                if (sessionAttribute.equals("sendonly")) {
+                if (sessionAttribute != null && sessionAttribute.equals("sendonly")) {
                     SipUtilities.setSessionDescriptionAttribute("recvonly",
                             this.getReceiver().getSessionDescription());
                 } else {
                     SipUtilities.setSessionDescriptionMediaAttribute(this
-                            .getReceiver().getSessionDescription(), "recvonly");
+                            .getReceiver().getSessionDescription(), "sendrecv", "recvonly");
                 }
             }
             return this.getReceiver().getSessionDescription();

@@ -63,7 +63,8 @@ public class ConfigurationParser {
                 "media-keepalive-seconds"), "setMediaKeepalive", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "xml-rpc-port"), "setXmlRpcPort", 0);
-
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
+        "log-directory"), "setLogFileDirectory", 0);
         /*
          * ITSP configuration support parameters.
          */
@@ -94,6 +95,7 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "route-inbound-calls-to-extension"), "setAutoAttendantName", 0,
                 new Class[] { String.class });
+        
 
     }
 

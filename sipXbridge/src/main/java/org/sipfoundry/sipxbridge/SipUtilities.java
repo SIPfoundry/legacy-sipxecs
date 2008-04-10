@@ -571,12 +571,21 @@ public class SipUtilities {
     }
 
     public static void setSessionDescriptionMediaAttribute(
-            SessionDescription sessionDescription, String attributeValue) {
+            SessionDescription sessionDescription, String originalAttribute,
+            String attributeValue) {
 
         try {
-            MediaDescription mediaDescription = (MediaDescription) sessionDescription
+
+            MediaDescription md = (MediaDescription) sessionDescription
                     .getMediaDescriptions(true).get(0);
-            mediaDescription.setAttribute("a", attributeValue);
+            for (Object obj : md.getAttributes(false)) {
+                Attribute attr = (Attribute) obj;
+                if (attr.getName().equals(originalAttribute))
+                    attr.setName(attributeValue);
+                return;
+
+            }
+
         } catch (Exception ex) {
             throw new RuntimeException("Malformatted sdp", ex);
         }
