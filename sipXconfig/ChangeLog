@@ -4,7 +4,6 @@ SIPfoundry Issue Tracker at:
         http://track.sipfoundry.org/browse?XCF
 
 
-
 Version 3.11.1
 
 ** Bug
@@ -22,6 +21,18 @@ Version 3.11.1
     * [XCF-2029] - remove component and pages declaration from sipxconfig-web.application
     * [XCF-2318] - upgrade hibernate to 3.2
     * [XCF-2334] - upgrade junit to 4.4
+
+
+Version 3.10.1
+
+** Bug
+    * [XCF-2315] - 'Configuration Tests' page blinks displaying a description in the table during auto-refresh of the page.
+    * [XCF-2382] - Pressing "0" on users who have not set up their personal AA causes hangup on callers
+    * [XCF-2383] - sipXconfig restarts all the processes every time PBX gets started
+    * [XCF-2397] - upgrading sipx disables MRTG monitoring UI (Diagnostics/Statistics menu missing)
+
+** Task
+    * [XCF-2403] - Hide Global Pick up from sipXconfig Web UI
 
 
 Version 3.9.8

@@ -22,11 +22,11 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
+
 
 // DO_NEXT: Move extension-related classes into this package and move any bean definitions into
 // this beans.xml.
@@ -35,7 +35,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
  * AliasManagerImpl: manages all SIP aliases
  */
 public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasManager,
-        ApplicationListener {
+        BeanFactoryAware {
     public static final String CONTEXT_BEAN_NAME = "aliasManagerImpl";
     private static final Log LOG = LogFactory.getLog(AliasManagerImpl.class);
     private Collection m_aliasOwners;
@@ -138,14 +138,9 @@ public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasMa
         return m_aliasOwners;
     }
 
-    /**
-     * Updates reference to bean factory and cleans the cache of alias owners
-     */
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ContextRefreshedEvent) {
-            ContextRefreshedEvent cre = (ContextRefreshedEvent) event;
-            m_beanFactory = cre.getApplicationContext();
-            m_aliasOwners = null;
-        }
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
+        m_aliasOwners = null;
     }
+
 }

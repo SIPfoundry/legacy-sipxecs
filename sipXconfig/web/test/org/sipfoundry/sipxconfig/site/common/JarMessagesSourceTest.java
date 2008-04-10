@@ -52,6 +52,7 @@ public class JarMessagesSourceTest extends TestCase {
     }
 
     public void testGetMessagesForSupportedLanguageWithoutRegion() {
+        // configure mock
         m_mockPage.getLocale();
         EasyMock.expectLastCall().andReturn(Locale.FRENCH).anyTimes();
         EasyMock.replay(m_mockPage);
@@ -61,6 +62,7 @@ public class JarMessagesSourceTest extends TestCase {
     }
     
     public void testGetMessagesForSupportedLanguageWithRegion() {
+        // configure mock
         m_mockPage.getLocale();
         EasyMock.expectLastCall().andReturn(Locale.CANADA_FRENCH).anyTimes();
         EasyMock.replay(m_mockPage);

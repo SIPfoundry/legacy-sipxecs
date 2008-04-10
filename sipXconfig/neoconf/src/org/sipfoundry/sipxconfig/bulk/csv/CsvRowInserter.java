@@ -274,6 +274,9 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
     }
 
     Line addLine(Phone phone, User user) {
+        if (user == null) {
+            return null;
+        }
         for (Line l : phone.getLines()) {
             User candidate = l.getUser();
             if (candidate != null && candidate.equals(user)) {
@@ -282,9 +285,7 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
             }
         }
         Line line = phone.createLine();
-        if (user != null) {
-            line.setUser(user);
-        }
+        line.setUser(user);
         phone.addLine(line);
         return line;
     }

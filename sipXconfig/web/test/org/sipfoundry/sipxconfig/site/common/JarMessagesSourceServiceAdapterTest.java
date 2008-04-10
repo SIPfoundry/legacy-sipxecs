@@ -30,17 +30,25 @@ public class JarMessagesSourceServiceAdapterTest extends TestCase {
     
     protected void setUp() throws Exception {
         m_out = new JarMessagesSourceServiceAdapter();
-        
+
         m_context = new DefaultJarMessagesSourceContext();
         URL resource = getClass().getClassLoader().getResource("org/sipfoundry/sipxconfig/site/common/JarMessagesSourceTest.class");
         String path = new File(resource.getFile()).getParent();
         m_context.setLocalizationPackageRoot(path);
-        
+
         m_jarMessagesSource = new JarMessagesSource();
         m_jarMessagesSource.setContext(m_context);
 
         m_out.setJarMessagesSource(m_jarMessagesSource);
         
+        m_out.setSystemMessagesSource(new ComponentMessagesSource() {
+            public Messages getMessages(IComponent component) {
+                Properties messageProps = new Properties();
+                messageProps.put("unsupported.message.id", "Unsupported message");
+                return new ComponentMessages(Locale.ENGLISH, messageProps);
+            }
+        });
+
         Creator creator = new Creator();
         m_component = (ConfigurationDiagnosticPage)creator.newInstance(ConfigurationDiagnosticPage.class);
         m_mockPage = EasyMock.createNiceMock(IPage.class);
@@ -50,7 +58,7 @@ public class JarMessagesSourceServiceAdapterTest extends TestCase {
         specification.setSpecificationLocation(new FileResource("context:/WEB-INF/admin/configdiag/ConfigurationDiagnosticPage.page"));
         PropertyUtils.write(m_component, "specification", specification);
     }
-    
+
     public void testGetMessagesForSupportedLanguageWithoutRegion() {
         m_mockPage.getLocale();
         EasyMock.expectLastCall().andReturn(Locale.FRENCH).anyTimes();
@@ -59,7 +67,7 @@ public class JarMessagesSourceServiceAdapterTest extends TestCase {
         Messages messages = m_out.getMessages(m_component);
         assertEquals("My French Title", messages.getMessage("title"));
     }
-    
+
     public void testGetMessagesForSupportedLanguageWithRegion() {
         m_mockPage.getLocale();
         EasyMock.expectLastCall().andReturn(Locale.CANADA_FRENCH).anyTimes();
@@ -68,7 +76,16 @@ public class JarMessagesSourceServiceAdapterTest extends TestCase {
         Messages messages = m_out.getMessages(m_component);
         assertEquals("My Canadian French Title", messages.getMessage("title"));
     }
-    
+
+    public void testGetMessageForUnsupportedMessageId() {
+        m_mockPage.getLocale();
+        EasyMock.expectLastCall().andReturn(Locale.FRENCH).anyTimes();
+        EasyMock.replay(m_mockPage);
+
+        Messages messages = m_out.getMessages(m_component);
+        assertEquals("Unsupported message", messages.getMessage("unsupported.message.id"));
+    }
+
     public void testGetMessagesForUnsupportedLanguage() {
         m_out.setSystemMessagesSource(new ComponentMessagesSource() {
             public Messages getMessages(IComponent component) {
@@ -77,7 +94,7 @@ public class JarMessagesSourceServiceAdapterTest extends TestCase {
                 return new ComponentMessages(Locale.PRC, messageProps);
             }
         });
-        
+
         EasyMock.reset(m_mockPage);
         m_mockPage.getLocale();
         EasyMock.expectLastCall().andReturn(Locale.PRC).anyTimes();

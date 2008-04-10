@@ -105,38 +105,34 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(rowShort));
 
         String[] rowAuthRealmMatch = {
-            "authMatch", "sipfoundry.org#12345678901234567890123456789012", "", "", "", "", "",
-            "", "001122334466", "polycom300", "yellow phone", ""
+            "authMatch", "sipfoundry.org#12345678901234567890123456789012", "", "", "", "", "", "", "001122334466",
+            "polycom300", "yellow phone", ""
         };
         assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(rowAuthRealmMatch));
 
         String[] rowAuthRealmNotMatched = {
-            "authNotMatch", "shipfoundry.org#12345678901234567890123456789012", "", "", "", "",
-            "", "", "001122334466", "polycom300", "yellow phone", ""
+            "authNotMatch", "shipfoundry.org#12345678901234567890123456789012", "", "", "", "", "", "", "001122334466",
+            "polycom300", "yellow phone", ""
         };
-        assertEquals(RowInserter.RowStatus.WARNING_PIN_RESET, impl
-                .checkRowData(rowAuthRealmNotMatched));
+        assertEquals(RowInserter.RowStatus.WARNING_PIN_RESET, impl.checkRowData(rowAuthRealmNotMatched));
 
         String[] rowHashTooShort = {
-            "hashTooShort", "sipfoundry.org#12345678", "", "", "", "", "", "", "001122334466",
-            "polycom300", "yellow phone", ""
+            "hashTooShort", "sipfoundry.org#12345678", "", "", "", "", "", "", "001122334466", "polycom300",
+            "yellow phone", ""
         };
         assertEquals(RowInserter.RowStatus.WARNING_PIN_RESET, impl.checkRowData(rowHashTooShort));
 
         String[] rowSuperadminhashpinsuccess = {
-            "superadmin", "sipfoundry.org#12345678901234567890123456789012", "", "", "", "", "",
-            "", "001122334466", "polycom300", "yellow phone", ""
+            "superadmin", "sipfoundry.org#12345678901234567890123456789012", "", "", "", "", "", "", "001122334466",
+            "polycom300", "yellow phone", ""
         };
-        assertEquals(RowInserter.RowStatus.SUCCESS, impl
-                .checkRowData(rowSuperadminhashpinsuccess));
+        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(rowSuperadminhashpinsuccess));
 
         superadmin.setPintoken("49b45dc98f67624e117a86ea4c9dc0da");
         String[] rowSuperadminclearpinsuccess = {
-            "superadmin", "1234", "", "", "", "", "", "", "001122334466", "polycom300",
-            "yellow phone", ""
+            "superadmin", "1234", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
         };
-        assertEquals(RowInserter.RowStatus.SUCCESS, impl
-                .checkRowData(rowSuperadminclearpinsuccess));
+        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(rowSuperadminclearpinsuccess));
 
         //
         // Changes made allow either username or serialnumber to be blank, not both.
@@ -150,11 +146,11 @@ public class CsvRowInserterTest extends TestCase {
 
         verify(domainManager);
     }
-    
+
     public void testDataToString() {
         CsvRowInserter impl = new CsvRowInserter();
 
-        assertEquals("", impl.dataToString(new String[0]));        
+        assertEquals("", impl.dataToString(new String[0]));
 
         String[] row = Index.newRow();
         assertEquals("", impl.dataToString(row));
@@ -208,8 +204,7 @@ public class CsvRowInserterTest extends TestCase {
 
     public void testPhoneFromRowNew() {
         final String[] phoneRow1 = new String[] {
-            "", "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone",
-            "phone in John room"
+            "", "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone", "phone in John room"
         };
 
         Phone phone = new TestPhone();
@@ -243,8 +238,7 @@ public class CsvRowInserterTest extends TestCase {
 
     public void testPhoneFromRowSpaces() {
         final String[] phoneRow1 = new String[] {
-            "", "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone",
-            "phone in John room"
+            "", "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone", "phone in John room"
         };
 
         Phone phone = new TestPhone();
@@ -328,6 +322,16 @@ public class CsvRowInserterTest extends TestCase {
         User newuser = new TestUser(1);
         Line newline = impl.addLine(phone, newuser);
         assertNotSame(expected, newline);
+    }
+
+    public void testAddLineNoUser() {
+        CsvRowInserter impl = new CsvRowInserter();
+        Phone phone = new TestPhone();
+        phone.setModel(new PhoneModel("test"));
+
+        Line nullUserLine = impl.addLine(phone, null);
+        assertNull(nullUserLine);
+        assertEquals(0, phone.getLines().size());
     }
 
     private class TestUser extends User {
