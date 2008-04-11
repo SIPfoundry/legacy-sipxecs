@@ -10,23 +10,17 @@
 package org.sipfoundry.sipxconfig.conference;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.configdb.ConfigDbSettingAdaptor;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.setting.ProfileNameHandler;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
-import org.sipfoundry.sipxconfig.setting.SettingUtil;
 import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcClientInterceptor;
@@ -69,8 +63,8 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
 
                 FreeSWITCHFunctions proxy = (FreeSWITCHFunctions) ProxyFactory.getProxy(FreeSWITCHFunctions.class,
                     interceptor);
-                        
-                proxy.freeswitch_api("reloadxml", "");
+                
+                requestConfigUpdate(proxy);                        
                 success = true;
             } finally {
                 if (success) {
@@ -94,23 +88,11 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
         configuration.generate(conferences);
         m_sipxReplicationContext.replicate(configuration);
     }
-
-    void deploy(Bridge bridge, ConfigDbSettingAdaptor adaptor) {
-        // TODO - need to remove deleted conferences
-        Collection allSettings = new ArrayList();
-        Setting settings = bridge.getSettings();
-        SettingFilter bbFilter = new BostonBridgeFilter();
-        allSettings.addAll(SettingUtil.filter(bbFilter, settings));
-        // collect all settings from and push them to adaptor
-        Set conferences = bridge.getConferences();
-        for (Iterator i = conferences.iterator(); i.hasNext();) {
-            Conference conference = (Conference) i.next();
-            conference.generateRemoteAdmitSecret();
-        }
-        adaptor.set("bbridge.conf", allSettings);
-        getHibernateTemplate().saveOrUpdateAll(conferences);
+    
+    void requestConfigUpdate(FreeSWITCHFunctions proxy) {                
+        proxy.freeswitch_api("reloadxml", "");
     }
- 
+
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
     }

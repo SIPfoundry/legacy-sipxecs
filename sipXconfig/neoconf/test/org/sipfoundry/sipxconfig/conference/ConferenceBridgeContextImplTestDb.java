@@ -85,7 +85,8 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("conference/participants.db.xml");
         Conference conference = m_context.loadConference(new Integer(3001));
 
-        assertEquals("conf_3001", conference.getName());
+        assertEquals("conf_name_3001", conference.getName());
+        assertEquals("conf_desc_3001", conference.getDescription());
     }
 
     public void testClear() throws Exception {
@@ -106,9 +107,9 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("conference/participants.db.xml");
 
         // conference names are aliases
-        assertTrue(m_context.isAliasInUse("conf_3001"));
-        assertTrue(m_context.isAliasInUse("conf_3002"));
-        assertTrue(m_context.isAliasInUse("conf_3003"));
+        assertTrue(m_context.isAliasInUse("conf_name_3001"));
+        assertTrue(m_context.isAliasInUse("conf_name_3002"));
+        assertTrue(m_context.isAliasInUse("conf_name_3003"));
 
         // conference extensions are aliases
         assertTrue(m_context.isAliasInUse("1699"));
@@ -124,9 +125,9 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("conference/participants.db.xml");
 
         // conference names are aliases
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("conf_3001").size() == 1);
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("conf_3002").size() == 1);
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("conf_3003").size() == 1);
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("conf_name_3001").size() == 1);
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("conf_name_3002").size() == 1);
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("conf_name_3003").size() == 1);
 
         // conference extensions are aliases
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("1699").size() == 1);

@@ -7,5 +7,5 @@
 <suppressions>
     <suppress checks="MethodNameCheck"
               files="ConferenceBridgeProvisioningImpl.java"
-              lines="44-48"/>
+              lines="38-42"/>
 </suppressions>
