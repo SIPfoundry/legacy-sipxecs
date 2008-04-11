@@ -169,24 +169,21 @@ SipRegistrarServer::initialize(
        // of digits with value >= 1.
        Url url;
        UtlString remainder, param;
-       if (!(   url.fromString(mAdditionalContact, Url::NameAddr, &remainder)
-             && remainder.isNull()
-             && url.getFieldParameter("expires", param)
-             && !param.isNull()
-             && strspn(param.data(), "0123456789") == param.length()
-             && atoi(param.data()) >= 1))
+       if (   url.fromString(mAdditionalContact, Url::NameAddr, &remainder)
+           && remainder.isNull()
+           && url.getFieldParameter("expires", param)
+           && !param.isNull()
+           && strspn(param.data(), "0123456789") == param.length()
+           && atoi(param.data()) >= 1)
+       {
+          OsSysLog::add(FAC_SIP, PRI_INFO,
+                        "SipRegistrarServer::initialize adding SIP_REGISTRAR_ADDITIONAL_CONTACT: '%s'",
+                        mAdditionalContact.data());
+       }
+       else
        {
           OsSysLog::add(FAC_SIP, PRI_ERR,
-                        "SipRegistrarServer::initialize remainder '%s', param '%s'",
-                        remainder.data(), param.data());
-          OsSysLog::add(FAC_SIP, PRI_ERR,
-                        "SipRegistrarServer::initialize fromString %d",
-                        url.fromString(mAdditionalContact, Url::NameAddr, &remainder));
-          OsSysLog::add(FAC_SIP, PRI_ERR,
-                        "SipRegistrarServer::initialize getFieldParameter %d",
-                        url.getFieldParameter("expires", param));
-          OsSysLog::add(FAC_SIP, PRI_ERR,
-                        "SipRegistrarServer::initialize Invalid value for SIP_REGISTRAR_ADDITIONAL_CONTACT: '%s'",
+                        "SipRegistrarServer::initialize Invalid value for SIP_REGISTRAR_ADDITIONAL_CONTACT: '%s', ignoring",
                         mAdditionalContact.data());
           // If value is invalid, make it null.
           mAdditionalContact.remove(0);
@@ -449,7 +446,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            // Use 8 bytes, to avoid collisions when there are less than 2^32 registrations.
                            hash.remove(16);
                            // Now construct the GRUU URI,
-                           // "gruu~XXXXXXXXXXXXXXXX@[principal SIP domain]".
+                           // "~~gr~XXXXXXXXXXXXXXXX@[principal SIP domain]".
                            // That is what we store in IMDB, so it can be
                            // searched for by the redirector, since it searches
                            // for the "identity" part of the URI, which does
