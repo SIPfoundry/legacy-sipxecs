@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="sipxbridge" default="compile" basedir=".">
+<project name="sipxbridge" default="jar" basedir=".">
 <description>
       Build file 
 </description>
@@ -26,6 +26,33 @@
   	<property name="dist.dir" value="${top.build.dir}/dist" />
   	<property name="test.results.dir" value="${build.dir}/test-results" />
   	<property name="test.classes.dir" value="${build.dir}/tests"/>
+	<property name="src" location="${src.dir}/src/main/java;${src.dir}/src/test/java" />
+	<property name="classes" location="${classes.dir}" />
+	<property name="doc" location="${src.dir}/doc" />
+	<property name="lib" location="${src.dir}/lib" />
+	<property name="tools" location="${src.dir}/tools" />
+	<property name="junit.reports" value="${src.dir}/junit" />
+
+<!-- The libraries -->
+	<path id="project.class.path">
+		<pathelement location="${classes}" />
+		<pathelement location="${log4j}" />
+		<pathelement location="${jainsip}" />
+		<pathelement location="${nistsip}" />
+		<pathelement location="${nistsdp}" />
+		<pathelement location="${junit}" />
+		<pathelement location="${dnsjava}" />
+		<pathelement location="${stun4j}" />
+		<pathelement location="${commons-logging-api}" />
+		<pathelement location="${commons-logging}" />
+		<pathelement location="${commons-digester}" />
+		<pathelement location="${commons-collections}" />
+		<pathelement location="${commons-beanutils}" />
+		<pathelement location="${xml-rpc-common}" />
+		<pathelement location="${xml-rpc-server}" />
+		<pathelement location="${xml-rpc-client}" />
+		<pathelement location="${ws-commons-util}" />
+	</path>
 
 
   	<!--
@@ -55,40 +82,7 @@
   	</target>
 
 
-
-	<property name="src" location="${src.dir}/src/main/java;${src.dir}/src/test/java" />
-	<property name="classes" location="${classes.dir}" />
-	<property name="doc" location="${src.dir}/doc" />
-	<property name="lib" location="${src.dir}/lib" />
-	<property name="tools" location="${src.dir}/tools" />
-	<property name="junit.reports" value="${src.dir}/junit" />
-
-
-	<path id="project.class.path">
-		<pathelement location="${classes}" />
-		<pathelement location="${log4j}" />
-		<pathelement location="${jainsip}" />
-		<pathelement location="${nistsip}" />
-		<pathelement location="${nistsdp}" />
-		<pathelement location="${junit}" />
-		<pathelement location="${dnsjava}" />
-		<pathelement location="${stun4j}" />
-		<pathelement location="${commons-logging-api}" />
-		<pathelement location="${commons-logging}" />
-		<pathelement location="${commons-digester}" />
-		<pathelement location="${commons-collections}" />
-		<pathelement location="${commons-beanutils}" />
-		<pathelement location="${xml-rpc-common}" />
-		<pathelement location="${xml-rpc-server}" />
-		<pathelement location="${xml-rpc-client}" />
-		<pathelement location="${ws-commons-util}" />
-	</path>
-	
-	
-
-
-
-	
+<!-- Compile the soruce code -->
 
 	<target name="compile"  description="compile the source">
 		<!-- Compile the java code from ${src} into ${classes} -->
@@ -103,6 +97,39 @@
 				<enable />
 			</assertions>
 	</target>
+
+<!-- BUILD a Jar file -->
+	<target name="jar" depends="compile" description="create a jar file" >
+		<jar jarfile="${build.dir}/dist/sipXbridge.jar">
+			<fileset dir="${classes}" >
+				<include name="**/*.class" />
+			</fileset>
+		</jar>
+	</target>
+
+ <!--  I N S T A L L -->
+     <target name="install">
+    	<mkdir dir="${sipxbridge.lib.dir}"/>
+    	<copy file="${build.dir}/dist/sipXbridge.jar" todir="${sipxbridge.lib.dir}"/>
+    	<copy todir="${sipxbridge.lib.dir}">
+		<fileset file="${log4j}" />
+		<fileset file="${jainsip}" />
+		<fileset file="${nistsip}" />
+		<fileset file="${nistsdp}" />
+		<fileset file="${junit}" />
+		<fileset file="${dnsjava}" />
+		<fileset file="${stun4j}" />
+		<fileset file="${commons-logging-api}" />
+		<fileset file="${commons-logging}" />
+		<fileset file="${commons-digester}" />
+		<fileset file="${commons-collections}" />
+		<fileset file="${commons-beanutils}" />
+		<fileset file="${xml-rpc-common}" />
+		<fileset file="${xml-rpc-server}" />
+		<fileset file="${xml-rpc-client}" />
+		<fileset file="${ws-commons-util}" />
+    	</copy>
+  </target>
 
 
 <!-- unit tests  -->

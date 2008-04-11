@@ -19,6 +19,10 @@ AC_CONFIG_SRCDIR([src])
 SFAC_INIT_FLAGS
 CHECK_GENERATE_MANPAGES
 
+# Jar files to all of sipXbridge. 
+AC_SUBST(SIPXBRIDGE_LIBDIR, [${SIPX_DATADIR}/sipXbridge/lib])
+
+
 # Java
 CHECK_JDK
 CHECK_ANT

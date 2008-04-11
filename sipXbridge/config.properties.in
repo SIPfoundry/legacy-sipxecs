@@ -12,6 +12,7 @@ bin.dir=@bindir@
 lib.dir=@libdir@
 prefix.dir=@prefix@
 conf.dir=@SIPX_CONFDIR@
+sipxbridge.lib.dir=@SIPXBRIDGE_LIBDIR@
 
 # comma-separated combination of 'lines' 'source' and 'var' only valid
 # when debug is on

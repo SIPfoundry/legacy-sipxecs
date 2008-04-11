@@ -7,32 +7,20 @@
 package org.sipfoundry.sipxbridge;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
-import java.nio.channels.spi.SelectorProvider;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.TimerTask;
-import java.util.UUID;
 import java.util.Vector;
-import java.util.concurrent.Semaphore;
 
-import javax.sdp.Attribute;
 import javax.sdp.Connection;
 import javax.sdp.MediaDescription;
 import javax.sdp.Origin;
-import javax.sdp.SdpException;
-import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
 
 import org.apache.commons.beanutils.PropertyUtils;

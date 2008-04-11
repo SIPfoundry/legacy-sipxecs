@@ -45,8 +45,17 @@ the telephone number.
 - Set up a long distance dial plan with prefix 9 telephone numbers directed
 towards the configured Trunk Gateway.
 
-4. Start sipxbridge using the following command:
+4. This project is still being integrated with sipxconfig. 
+   Until that process is complete, start sipxbridge using the following command:
+
 	"sudo ant -Dtop.build.dir=./ -Dsrc.dir=./ -Dbuild.dir=./ sipxbridge"
+ 
+  If you want to redfine where your configuration file and log files go:
+
+	"sudo ant -Dtop.build.dir=./ -Dsrc.dir=./ -Dbuild.dir=./ -Dconf.dir=your-confdir -Dlog.dir=your-log-dir sipxbridge"
+
+  Note that the configuration file name is always sipxbridge.xml and note that the log file name is always sipxbridge.log. 
+  Only the directories where they go is configurable.
 	
    NOTE : It may be convenient to set up a shell alias for the command above.
 

@@ -31,7 +31,7 @@ public class BridgeConfiguration {
     private int xmlRpcPort = 0;
     private int sipKeepalive = 20 * 1000; // Miliseconds for SIP keepalive.
     private int mediaKeepalive = 160; // milisec for media keepalive.
-    private String logFileDirectory = "/var/log/sipxpbx";
+    private String logFileDirectory = "/var/log/sipxpbx/";
 
     /**
      * @param externalAddress

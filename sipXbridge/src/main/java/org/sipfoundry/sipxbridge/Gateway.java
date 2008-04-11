@@ -187,10 +187,11 @@ public class Gateway {
             ConfigurationParser parser = new ConfigurationParser();
             accountManager = parser.createAccountManager(configurationFile);
             Gateway.logFile =  accountManager.getBridgeConfiguration()
-            .getLogFileDirectory()
-            + "/sipxbridge.log";
+                .getLogFileDirectory()+ "/sipxbridge.log";
             logger.addAppender(new SipFoundryAppender(new SipFoundryLayout(),
-                   Gateway.logFile));
+                    accountManager.getBridgeConfiguration()
+                            .getLogFileDirectory()
+                            + "/sipxbridge.log"));
             BridgeConfiguration bridgeConfiguration = accountManager
                     .getBridgeConfiguration();
             InetAddress localAddr = InetAddress.getByName(Gateway
@@ -666,7 +667,7 @@ public class Gateway {
         return Gateway.state;
 
     }
-  
+
     /**
      * Get the log file name.
      * 
@@ -675,33 +676,27 @@ public class Gateway {
      */
     public static String getLogFile() {
         return Gateway.logFile;
-     }
-    
-    
+    }
+
     /**
      * The main method for the Bridge.
      * 
      * @param args
      */
     public static void main(String[] args) throws Exception {
-        boolean initOnStart = false;
-       
-        /*
-         * Read the input args.
-         */
-        for (int i = 0; i < args.length; i++) {
-            if ("-config".equals(args[i])) {
-                Gateway.configurationFile = args[++i];
-            } else if ("-initOnStartup".equals(args[i])) {
-                initOnStart = true;
+        try {
+            boolean initOnStart = true;
 
-            }
+            Gateway.configurationFile = System.getProperty("conf.dir",
+                    "/etc/sipxpbx")
+                    + "/sipxbridge.xml";
+            Gateway.startXmlRpcServer();
+            if (initOnStart)
+                Gateway.start();
+        } catch (Throwable ex) {
+            ex.printStackTrace();
         }
-        Gateway.startXmlRpcServer();
-        if ( initOnStart )  Gateway.start();
 
     }
-
-  
 
 }
