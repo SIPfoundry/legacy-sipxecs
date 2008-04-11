@@ -15,6 +15,7 @@ Password=
 
 DefaultPrefix="/"
 DefaultComponents="sipXproxy sipregistrar"
+AllComponents=FALSE
 Components=""
 
 dump=cat
@@ -69,6 +70,10 @@ do
             fi
             ;;
             
+        -a|--all-components)
+            AllComponents=TRUE
+            ;;
+
         -c|--component)
             if [ $# -lt 2 ]
             then
@@ -120,14 +125,43 @@ do
     shift # always consume 1
 done
 
-if [ -z "${Components}" ]
-then
-    Components=${DefaultComponents}
-fi
-
 if [ -z "${Prefix}" ]
 then
     Prefix=${DefaultPrefix}
+fi
+
+getAllComponents() {
+    case ${Action} in
+        USAGE)
+            ;;
+
+        SERVER)
+            echo "the --all-components option is not yet available for remote servers" 1>&2
+            exit 1
+            ;;
+
+        LOCAL)
+            TMP=`mktemp -t sipx-trace.components.XXXXXX`
+            trap "rm $TMP* 2>/dev/null" 0
+            for prefix in ${Prefix}
+            do
+                for c in ${prefix}/var/log/sipxpbx/*.log${LogExtension}
+                do
+                    basename $c .log${LogExtension} >> $TMP
+                done
+            done
+            Components=`sort -u $TMP`
+            rm -f $TMP
+            ;;
+    esac
+}
+
+if [ ${AllComponents} = TRUE ]
+then
+    getAllComponents
+elif [ -z "${Components}" ]
+then
+    Components=${DefaultComponents}
 fi
 
 if [ "${Token}" = "(" -a ${Action} != USAGE ]
@@ -166,6 +200,7 @@ grepLog() { # prefix
     done
 }
 
+
 case ${Action} in
     USAGE)
         cat <<USAGE
@@ -175,7 +210,7 @@ Usage:
    ${MyName} <options> <token>...
 
    options:
-           [ {-c|--component} <component-name> ]...
+           { {-a|--all-components} | {-c|--component} <component-name> ... }
            [ { {-P|--prefix} <prefix-dir> }* | { {-s|--server} <server> }* ]
            [-o|--output]
            [-h|--help]
