@@ -91,9 +91,9 @@ company.
 </p>
 
 <p>
-However, some information about your use of this server will be
-visible to the public through normal SIP capabilities and
-through the various CGIs linked to on these pages.
+Information about your use of this server is
+visible to the public through debugging interfaces provided here, and
+through normal SIP capabilities.
 </p>
 
 <p>
@@ -103,8 +103,7 @@ use only under the SIPit rules.
 </blockquote>
 
 <p>
-Once you have used this server to verify your implementation's basic
-functionality, you should consider attending
+You should bring your implementation to
 <a href="https://www.sipit.net/Main_Page">SIPit</a> to do
 thorough interoperability testing with dozens of other implementations.
 </p>
@@ -221,6 +220,13 @@ A call to "<code>sip:100@@SIPXCHANGE_DOMAIN_NAME@</code>" will be answered by an
 auto-attendant.
 Any SIP UA can call a registered UA by calling its AOR,
 "<code>sip:1<span class='group'>gg</span>n@@SIPXCHANGE_DOMAIN_NAME@</code>".
+</p>
+
+<h2>Tracing</h2>
+
+<p>
+There is an experimental interface you can use
+to <a href='trace.cgi'>trace the message flow in this system</a>.
 </p>
 
 <hr />
