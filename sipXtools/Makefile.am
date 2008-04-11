@@ -3,8 +3,7 @@ include config/project.am
 
 SUBDIRS = \
 	src \
-	preflight \
-	sipviewer
+	preflight
 
 EXTRA_DIST = \
     config/sipX-config.in \
