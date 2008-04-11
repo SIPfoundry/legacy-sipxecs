@@ -29,7 +29,6 @@ AC_CONFIG_FILES([
   src/test/Makefile 
   src/man/Makefile 
   preflight/Makefile
-  sipviewer/Makefile
 ])
 
 AC_OUTPUT
