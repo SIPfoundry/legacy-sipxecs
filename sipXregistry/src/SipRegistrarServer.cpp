@@ -1,3 +1,4 @@
+#define GRUU_WORKAROUND
 // 
 //
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
@@ -1051,6 +1052,11 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 
                         bool requestSupportsGruu =
                            message.isInSupportedField("gruu");
+#ifdef GRUU_WORKAROUND
+                        // Workaround causes GRUU to be sent even if
+                        // "Supported: gruu" was not in request.
+                        requestSupportsGruu = true;
+#endif
                         int numRegistrations = registrations.getSize();
                         for ( int i = 0 ; i<numRegistrations; i++ )
                         {
@@ -1138,6 +1144,12 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                                   UtlString temp("sip:");
                                   temp.append(*gruu);
                                   contactUri.setFieldParameter("pub-gruu", temp);
+#ifdef GRUU_WORKAROUND
+                                  // Workaround causes GRUU to be sent in the
+                                  // 'gruu' parameter as well, for
+                                  // backward compatibility.
+                                  contactUri.setFieldParameter("gruu", temp);
+#endif
                                }
                             }
 
@@ -1276,8 +1288,8 @@ SipRegistrarServer::isAuthorized(
     }
     else
     {
-        // realm and auth type should be default for server!!!!!!!!!!
-        // if URI not defined in DB, the user is not authorized to modify bindings - NOT DOING ANYMORE
+        // Realm and auth type should be default for server.
+        // If URI not defined in DB, the user is not authorized to modify bindings - NOT DOING ANYMORE
         // check if we requested authentication and this is the req with
         // authorization,validate the authorization
         OsSysLog::add( FAC_AUTH, PRI_DEBUG,
