@@ -11,13 +11,14 @@
 #define _SipRegistrar_h_
 
 // SYSTEM INCLUDES
-#include <sipdb/RegistrationDB.h>
 
 // APPLICATION INCLUDES
+#include "net/SipUserAgent.h"
 #include "os/OsDefs.h"
 #include "os/OsBSem.h"
 #include "os/OsRWMutex.h"
-#include "net/SipServerBase.h"
+#include "os/OsServerTask.h"
+#include "sipdb/RegistrationDB.h"
 #include "utl/UtlHashMap.h"
 #include "utl/PluginHooks.h"
 
@@ -49,7 +50,7 @@ class UtlSListIterator;
  * This is the top level thread in the service; it spawns
  * all other threads and controls which are started at which time.
  */
-class SipRegistrar : public OsServerTask // should be SipServerBase ?
+class SipRegistrar : public OsServerTask
 {
    friend class ApplyUpdatesTest;
 

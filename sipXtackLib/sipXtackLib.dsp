@@ -305,10 +305,6 @@ SOURCE=.\src\net\SipRefreshMgr.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\net\SipServerBase.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\net\SipServerBroker.cpp
 # End Source File
 # Begin Source File
@@ -606,10 +602,6 @@ SOURCE=.\include\net\SipRefreshManager.h
 # Begin Source File
 
 SOURCE=.\include\net\SipRefreshMgr.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\net\SipServerBase.h
 # End Source File
 # Begin Source File
 

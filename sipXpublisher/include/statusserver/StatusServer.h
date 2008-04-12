@@ -15,7 +15,8 @@
 
 // APPLICATION INCLUDES
 #include "os/OsBSem.h"
-#include "net/SipServerBase.h"
+#include "os/OsServerTask.h"
+#include "net/SipUserAgent.h"
 #include "statusserver/PluginXmlParser.h"
 
 // DEFINES

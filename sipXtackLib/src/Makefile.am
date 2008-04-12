@@ -111,7 +111,6 @@ libsipXtack_la_SOURCES =  \
     net/SipRequestContext.cpp \
     net/SipResourceList.cpp \
     net/SipServerBroker.cpp \
-    net/SipServerBase.cpp \
     net/SipSession.cpp \
     net/SipSrvLookup.cpp \
     net/SipSubscribeClient.cpp \
