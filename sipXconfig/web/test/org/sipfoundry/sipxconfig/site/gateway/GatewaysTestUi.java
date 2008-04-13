@@ -55,8 +55,7 @@ public class GatewaysTestUi extends WebTestCase {
         gatewaysTable = getTable("list:gateway");
         // we should have 2 gateway now
         assertEquals(2, gatewaysTable.getRowCount());
-        assertEquals("bongoDescription", SiteTestHelper.getCellAsText(gatewaysTable, 1,
-                lastColumn));
+        assertEquals("bongoDescription", SiteTestHelper.getCellAsText(gatewaysTable, 1, lastColumn));
 
         SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
 
@@ -65,20 +64,37 @@ public class GatewaysTestUi extends WebTestCase {
         gatewaysTable = getTable("list:gateway");
         // we should have 2 gateway now
         assertEquals(3, gatewaysTable.getRowCount());
-        assertEquals("kukuDescription", SiteTestHelper
-                .getCellAsText(gatewaysTable, 2, lastColumn));
+        assertEquals("kukuDescription", SiteTestHelper.getCellAsText(gatewaysTable, 2, lastColumn));
+    }
+
+    public void testEditGatewaySettings() throws Exception {
+        clickLink("ListGateways");
+        SiteTestHelper.selectOption(tester, "selectGatewayModel", "AudioCodes MP114 FXO");
+        setTextField("gateway:name", "EditGatewaySettingsTest");
+        setTextField("gateway:address", "1.2.3.4");
+        setTextField("gateway:serial", "123456654321");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+
+        clickLink("link:Network.label");
+        SiteTestHelper.assertNoUserError(tester);
+        setTextField("setting:DNSPriServerIP", "4.3.2.1");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+        assertTextFieldEquals("setting:DNSPriServerIP", "4.3.2.1");
     }
 
     /**
-     * Tests that only a SIP Trunk gateway has the additional "Route" field on its Configuration tab,
-     * and no other gateway type has it.
+     * Tests that only a SIP Trunk gateway has the additional "Route" field on its Configuration
+     * tab, and no other gateway type has it.
      */
     public void testSipTrunkRouteField() throws Exception {
         clickLink("ListGateways");
 
-        String[] nonRouteGateways = {"Acme 1000", "AudioCodes MP114 FXO",
-                "AudioCodes MP118 FXO", "AudioCodes Mediant",
-                "AudioCodes TP260", "Unmanaged gateway"};
+        String[] nonRouteGateways = {
+            "Acme 1000", "AudioCodes MP114 FXO", "AudioCodes MP118 FXO", "AudioCodes Mediant",
+            "AudioCodes TP260", "Unmanaged gateway"
+        };
 
         for (String gatewayType : nonRouteGateways) {
             SiteTestHelper.selectOption(tester, "selectGatewayModel", gatewayType);
@@ -86,17 +102,18 @@ public class GatewaysTestUi extends WebTestCase {
             clickButton("form:cancel");
         }
 
-        SiteTestHelper.selectOption(tester, "selectGatewayModel", "SIP trunk");        
-        assertElementPresent("common_FlexiblePropertySelection");
-        tester.setTextField("gateway:name", "SipTrunkRouteTest");
-        tester.setTextField("gateway:address", "1.2.3.4");
+        SiteTestHelper.selectOption(tester, "selectGatewayModel", "SIP trunk");
+        setTextField("gateway:name", "SipTrunkRouteTest");
+        setTextField("gateway:address", "1.2.3.4");
+        // FIXME: apply should not be necessary see: XCF-2444
+        clickButton("form:apply");
         SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "Unmanaged SBC");
-        tester.setTextField("sbcDevice:name", "sbcDeviceForSipTrunk");
-        tester.setTextField("sbcDevice:address", "sbc.example.org");
-        tester.clickButton("form:ok");
+        setTextField("sbcDevice:name", "sbcDeviceForSipTrunk");
+        setTextField("sbcDevice:address", "sbc.example.org");
+        clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
         SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "sbcDeviceForSipTrunk");
-        tester.clickButton("form:ok");
+        clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
     }
 
@@ -139,7 +156,7 @@ public class GatewaysTestUi extends WebTestCase {
     public void testValidateDescription() {
         clickLink("ListGateways");
         SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
-        
+
         addGateway("bongo");
         clickLinkWithText("bongo");
         int limit = 255; // postgres database field size
@@ -160,7 +177,7 @@ public class GatewaysTestUi extends WebTestCase {
 
     /**
      * Fills and submits edit gateway form
-     *
+     * 
      * @param name response after clicking submit button
      */
     private void addGateway(String name) {
@@ -169,7 +186,7 @@ public class GatewaysTestUi extends WebTestCase {
 
     /**
      * Static version to be called from other tests
-     *
+     * 
      * @param name response after clicking submit button
      */
     public static String[] addGateway(WebTester tester, String name) {
@@ -188,7 +205,7 @@ public class GatewaysTestUi extends WebTestCase {
 
     /**
      * Adds number of test gateways to test
-     *
+     * 
      * @param counter number of gateways to add - names gateway0..gateway'count-1'
      */
     public static String[] addTestGateways(WebTester tester, int counter) {

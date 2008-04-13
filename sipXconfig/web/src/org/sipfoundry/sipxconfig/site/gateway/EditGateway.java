@@ -61,7 +61,6 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
 
     public abstract void setGatewayId(Integer id);
 
-    @Persist
     public abstract Gateway getGateway();
 
     public abstract void setGateway(Gateway gateway);
