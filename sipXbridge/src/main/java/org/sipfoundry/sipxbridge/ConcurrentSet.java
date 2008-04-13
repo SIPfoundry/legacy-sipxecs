@@ -1,27 +1,34 @@
 package org.sipfoundry.sipxbridge;
 
 /**
- * This little utility is because java 5 does not support concurrent sets.
+ * Symhis little utility is because java 5 does not support concurrent sets.
  * 
  */
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
 
-class ConcurrentSet<T> implements Set<T> {
+class ConcurrentSet implements Set<Sym> {
 
-    ConcurrentHashMap<T, T> map = new ConcurrentHashMap<T, T>();
+    ConcurrentHashMap<String, Sym> map = new ConcurrentHashMap<String, Sym>();
+    private Bridge bridge;
+    
+    public ConcurrentSet(Bridge bridge) {
+        this.bridge = bridge;
+    }
 
-    public boolean add(T element) {
-        map.put(element, element);
+    public boolean add(Sym element) {
+        map.put(element.getId(), element);
+        if ( element.getBridge() != null  && element.getBridge() != this.bridge) {
+            element.getBridge().removeSym(element);
+        }
+        element.setBridge(this.bridge);
         return true;
     }
 
-    public boolean addAll(Collection<? extends T> collection) {
-        for (T t : collection) {
+    public boolean addAll(Collection<? extends Sym> collection) {
+        for (Sym t : collection) {
             this.add(t);
         }
         return true;
@@ -32,12 +39,12 @@ class ConcurrentSet<T> implements Set<T> {
     }
 
     public boolean contains(Object obj) {
-        return map.containsKey(obj);
+        return map.containsKey(((Sym)obj).getId());
 
     }
 
     public boolean containsAll(Collection<?> collection) {
-        Set<T> set = map.keySet();
+        Collection<Sym> set = map.values();
         return set.containsAll(collection);
     }
 
@@ -45,13 +52,14 @@ class ConcurrentSet<T> implements Set<T> {
         return map.isEmpty();
     }
 
-    public Iterator<T> iterator() {
+    public Iterator<Sym> iterator() {
 
-        return map.keySet().iterator();
+        return map.values().iterator();
     }
 
     public boolean remove(Object obj) {
-        this.map.remove(obj);
+        this.map.remove(((Sym)obj).getId());
+        ((Sym)obj).setBridge(null);
         return true;
     }
 
@@ -75,8 +83,12 @@ class ConcurrentSet<T> implements Set<T> {
         return this.map.keySet().toArray();
     }
 
-    public <T> T[] toArray(T[] array) {
+    public  Sym[] toArray(Sym[] array) {
         return this.map.keySet().toArray(array);
+    }
+
+    public <T> T[] toArray(T[] array) {
+        return map.values().toArray(array);
     }
 
 }

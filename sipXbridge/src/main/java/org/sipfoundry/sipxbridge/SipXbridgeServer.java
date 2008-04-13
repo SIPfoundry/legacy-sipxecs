@@ -243,33 +243,7 @@ public class SipXbridgeServer implements Symmitron {
         }
     }
 
-    public Map<String, Object> pairSyms(String controllerHandle,
-            String rtpSessionId1, String rtpSessionId2, boolean parityFlag) {
-        try {
-            this.checkForControllerReboot(controllerHandle);
-
-            Sym rtpSession1 = this.sessionMap.get(rtpSessionId1);
-            Sym rtpSession2 = this.sessionMap.get(rtpSessionId2);
-            if (rtpSession1 == null || rtpSession2 == null) {
-                return createErrorMap(SESSION_NOT_FOUND,
-                        "Invalid rtpSession Id");
-            }
-
-            Bridge rtpBridge = new Bridge(parityFlag);
-            rtpBridge.addSymSession(rtpSession1);
-            rtpBridge.addSymSession(rtpSession2);
-
-            this.bridgeMap.put(rtpBridge.getId(), rtpBridge);
-
-            Map<String, Object> retval = createSuccessMap();
-
-            retval.put(BRIDGE_ID, rtpBridge.getId());
-            return retval;
-        } catch (Exception ex) {
-            return createErrorMap(PROCESSING_ERROR, ex.getMessage());
-        }
-
-    }
+   
 
     public Map<String, Object> setDestination(String controllerHandle,
             String rtpSessionId, Map<String, Object> rtpEndpointMap,
@@ -330,7 +304,7 @@ public class SipXbridgeServer implements Symmitron {
                         "Could not find Bridge for ID " + bridgeId);
             }
             rtpBridge.stop();
-            for (Sym rtpSession : rtpBridge.getSessionTable()) {
+            for (Sym rtpSession : rtpBridge.getSessions()) {
                 String key = rtpSession.getId();
                 this.sessionMap.remove(key);
             }
@@ -379,7 +353,7 @@ public class SipXbridgeServer implements Symmitron {
                         "Specified RTP Session was not found " + rtpSessionId);
             }
 
-            rtpBridge.removeSymSession(rtpSession);
+            rtpBridge.removeSym(rtpSession);
             return this.createSuccessMap();
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
@@ -422,7 +396,7 @@ public class SipXbridgeServer implements Symmitron {
                         "Specified RTP Session was not found " + rtpSessionId);
             }
 
-            rtpBridge.addSymSession(rtpSession);
+            rtpBridge.addSym(rtpSession);
             return this.createSuccessMap();
         } catch (Exception ex) {
             logger.error("Processing Error", ex);

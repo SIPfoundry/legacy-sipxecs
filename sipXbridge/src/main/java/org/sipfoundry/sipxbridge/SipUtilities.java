@@ -116,16 +116,9 @@ public class SipUtilities {
 
             } else {
                 // Check -- what other parameters need to be set for NAT
-                // traversal
-                // here?
+                // traversal here?
 
-                sipProvider.getListeningPoint(itspAccount.getTransport())
-                        .setSentBy(
-                                Gateway.getGlobalAddress()
-                                        + ":"
-                                        + sipProvider.getListeningPoint(
-                                                itspAccount.getTransport())
-                                                .getPort());
+              
                 return ProtocolObjects.headerFactory.createViaHeader(Gateway
                         .getGlobalAddress(), sipProvider.getListeningPoint(
                         itspAccount.getTransport()).getPort(), itspAccount
@@ -158,6 +151,7 @@ public class SipUtilities {
                         .createAddress(sipUri);
                 ContactHeader ch = ProtocolObjects.headerFactory
                         .createContactHeader(address);
+                ch.removeParameter("expires");
                 return ch;
 
             } else {
@@ -171,6 +165,7 @@ public class SipUtilities {
                 Address address = ProtocolObjects.addressFactory
                         .createAddress(sipUri);
                 contactHeader.setAddress(address);
+                contactHeader.removeParameter("expires");
                 return contactHeader;
             }
         } catch (Exception ex) {

@@ -40,7 +40,7 @@ import org.apache.log4j.Logger;
 public class Bridge {
     private static Logger logger = Logger.getLogger(Bridge.class);
 
-    private ConcurrentSet<Sym> sessions = new ConcurrentSet<Sym>();
+    private ConcurrentSet sessions = new ConcurrentSet(this);
 
     private boolean started;
 
@@ -164,15 +164,14 @@ public class Bridge {
                                          * can change while in progress. This is
                                          * not relevant for the LAN side.
                                          */
-                                        if (rtpSession.getTransmitter() != null
-                                                && rtpSession.getTransmitter()
-                                                        .isKeepaliveStarted()) {
-                                            rtpSession.getTransmitter()
-                                                    .setPort(
-                                                            datagramChannel
-                                                                    .socket()
-                                                                    .getPort());
-                                        }
+                                        /*
+                                         * if (rtpSession.getTransmitter() !=
+                                         * null && rtpSession.getTransmitter()
+                                         * .isKeepaliveStarted()) {
+                                         * rtpSession.getTransmitter() .setPort(
+                                         * datagramChannel .socket()
+                                         * .getRemoteSocketAddress()); }
+                                         */
                                         continue;
                                     }
                                     SymEndpoint writeChannel = rtpSession
@@ -267,6 +266,14 @@ public class Bridge {
 
     }
 
+    // ///////////////////////////////////////////////////////////////////////////////////
+    // Private methods.
+    // ///////////////////////////////////////////////////////////////////////////////////
+    void setState(BridgeState newState) {
+        this.state = newState;
+
+    }
+
     // /////////////////////////////////////////////////////////////////////////////////
     // Constructors.
     // /////////////////////////////////////////////////////////////////////////////////
@@ -275,7 +282,7 @@ public class Bridge {
      * Default constructor.
      */
     public Bridge(boolean maintainPortParity) {
-        this.parityFlag  = maintainPortParity;
+        this.parityFlag = maintainPortParity;
         id = "bridge:" + Long.toString(Math.abs(new Random().nextLong()));
     }
 
@@ -321,7 +328,13 @@ public class Bridge {
         return this.id;
     }
 
-    public void start() {
+    /**
+     * Starts the data shuffler running
+     * 
+     * 
+     */
+
+    public void start() throws IllegalStateException {
         if (started)
             return;
         else
@@ -334,6 +347,10 @@ public class Bridge {
 
     }
 
+    /**
+     * Stops the data shuffler from running and kills all syms.
+     * 
+     */
     public void stop() {
 
         for (Sym rtpSession : this.sessions) {
@@ -347,6 +364,11 @@ public class Bridge {
 
     }
 
+    /**
+     * Pauses the bridge.
+     * 
+     * 
+     */
     public void pause() {
 
         if (this.state == BridgeState.PAUSED)
@@ -360,6 +382,12 @@ public class Bridge {
 
     }
 
+    /**
+     * Resumes the operation of the bridge.
+     * 
+     * 
+     */
+
     public void resume() {
         if (this.state == BridgeState.RUNNING)
             return;
@@ -371,51 +399,57 @@ public class Bridge {
         }
     }
 
-    public void setEarlyMedia(boolean earlyMediaFlag) {
-        this.earlyMedia = earlyMediaFlag;
-
-    }
-
-    public boolean isEarlyMedia() {
-        return this.earlyMedia;
-    }
-
-    public void setState(BridgeState newState) {
-        this.state = newState;
-
-    }
-
+   
+    /**
+     * Gets the current state.
+     * 
+     * @return
+     */
     public BridgeState getState() {
         return this.state;
     }
 
-    public void addSymSession(Sym rtpSession) {
-        String key = rtpSession.getId();
+    public void addSym(Sym rtpSession) {
         this.sessions.add(rtpSession);
         this.initializeSelectors = true;
-        rtpSession.rtpBridge = this;
+        rtpSession.setBridge(this);
+        if (logger.isDebugEnabled()) {
+            logger.debug("addSymSession : " + rtpSession);
+            logger.debug("addSymSession : " + this);
+        }
     }
 
-    public void removeSymSession(Sym rtpSession) {
+    /**
+     * Remove a Sym from this bridge.
+     * 
+     * @param rtpSession
+     */
+    public void removeSym(Sym rtpSession) {
         logger.debug("RtpBridge: removing RtpSession " + rtpSession.getId());
         this.sessions.remove(rtpSession);
         this.initializeSelectors = true;
+        if (logger.isDebugEnabled()) {
+            logger.debug("removeSymSession : " + rtpSession);
+            logger.debug("removeSymSession : " + this);
+        }
+    }
+
+    public Set<Sym> getSessions() {
+        return this.sessions;
     }
 
     @Override
     public String toString() {
         StringBuffer retval = new StringBuffer();
+        retval.append("Bridge = [ \n");
+        retval.append("id = " + this.getId() + "\n");
         for (Sym rtpSession : this.sessions) {
             retval.append("{\n");
-            retval.append(rtpSession.getId() + "\n");
             retval.append(rtpSession);
             retval.append("}\n");
         }
+        retval.append(" ] \n");
         return retval.toString();
-    }
-
-    public Set<Sym> getSessionTable() {
-        return this.sessions;
     }
 
 }

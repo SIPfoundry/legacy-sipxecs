@@ -46,7 +46,7 @@ public class Sym implements SymInterface {
      */
     private SymEndpoint transmitter;
 
-    transient Bridge rtpBridge;
+    private transient Bridge bridge;
 
     public Sym() {
         id = "sym:" + Math.abs(new Random().nextLong());
@@ -54,7 +54,7 @@ public class Sym implements SymInterface {
     }
 
     public Sym(Bridge bridge) {
-        this.rtpBridge = bridge;
+        this.bridge = bridge;
 
     }
 
@@ -126,6 +126,7 @@ public class Sym implements SymInterface {
     public String toString() {
         StringBuffer sbuf = new StringBuffer();
         sbuf.append("RtpSession = [ ");
+        sbuf.append("id = " + this.id);
         if (this.receiver != null) {
             sbuf.append(" RECEIVER : " + this.getReceiver().getIpAddress()
                     + ":" + this.getReceiver().getPort());
@@ -134,11 +135,11 @@ public class Sym implements SymInterface {
         }
 
         if (this.transmitter != null) {
-            sbuf.append(" TRANSMITTER : "
+            sbuf.append(": TRANSMITTER : "
                     + this.getTransmitter().getIpAddress() + ":"
                     + this.getTransmitter().getPort());
         } else {
-            sbuf.append("NO TRANSMITTER");
+            sbuf.append(": NO TRANSMITTER ");
         }
         sbuf.append("]");
         return sbuf.toString();
@@ -147,8 +148,8 @@ public class Sym implements SymInterface {
     /**
      * @return the rtpBridge
      */
-    public Bridge getRtpBridge() {
-        return rtpBridge;
+    public Bridge getBridge() {
+        return bridge;
     }
 
     public String getId() {
@@ -308,6 +309,13 @@ public class Sym implements SymInterface {
             return retval;
         }
 
+    }
+
+    /**
+     * @param rtpBridge the rtpBridge to set
+     */
+    public void setBridge(Bridge bridge) {
+        this.bridge = bridge;
     }
 
 }

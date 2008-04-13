@@ -706,7 +706,7 @@ public class CallControlManager {
                              * Grab the RTP session previously pointed at by the
                              * REFER dialog.
                              */
-                            b2bua.getRtpBridge().addSymSession(rtpSession);
+                            b2bua.getRtpBridge().addSym(rtpSession);
                             ((DialogApplicationData) dialog
                                     .getApplicationData()).rtpSession = rtpSession;
                         } else {

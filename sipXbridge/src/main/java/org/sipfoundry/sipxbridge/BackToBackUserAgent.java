@@ -124,13 +124,13 @@ public class BackToBackUserAgent {
                 SymEndpoint endpoint = new SymEndpoint(false);
                 endpoint.setIpAddress(Gateway.getLocalAddress());
                 rtpSession.setMyEndpoint(endpoint);
-                this.getRtpBridge().addSymSession(rtpSession);
+                this.getRtpBridge().addSym(rtpSession);
                 dialogApplicationData.rtpSession = rtpSession;
                 SessionDescription sd = SdpFactory.getInstance()
                         .createSessionDescription(
                                 this.rtpBridge.sessionDescription.toString());
                 rtpSession.getReceiver().setSessionDescription(sd);
-                this.rtpBridge.addSymSession(rtpSession);
+                this.rtpBridge.addSym(rtpSession);
 
             }
             return dialogApplicationData.rtpSession;
@@ -163,7 +163,8 @@ public class BackToBackUserAgent {
                         .createSessionDescription(
                                 this.rtpBridge.sessionDescription.toString());
                 rtpSession.getReceiver().setSessionDescription(sd);
-                this.rtpBridge.addSymSession(rtpSession);
+                DialogApplicationData.get(dialog).rtpSession = rtpSession;
+                this.rtpBridge.addSym(rtpSession);
             }
             return rtpSession;
         } catch (SdpParseException ex) {
@@ -294,8 +295,7 @@ public class BackToBackUserAgent {
              * a new bridge.
              */
             this.getRtpBridge().pause();
-            Set<Sym> myrtpSessions = this.getRtpBridge()
-                    .getSessionTable();
+            Set<Sym> myrtpSessions = this.getRtpBridge().getSessions();
             this.rtpBridge.initializeSelectors = true;
 
             DialogApplicationData replacedDialogApplicationData = (DialogApplicationData) replacedDialog
@@ -303,24 +303,34 @@ public class BackToBackUserAgent {
             Bridge hisRtpBridge = replacedDialogApplicationData.backToBackUserAgent
                     .getRtpBridge();
             hisRtpBridge.pause();
-            Set<Sym> hisRtpSessions = hisRtpBridge.getSessionTable();
-
-            Set<Sym> mergedRtpSessions = new HashSet<Sym>();
-            mergedRtpSessions.addAll(myrtpSessions);
-            mergedRtpSessions.addAll(hisRtpSessions);
-            mergedRtpSessions.remove(DialogApplicationData
-                    .getRtpSession(replacedDialog));
-            mergedRtpSessions.remove(DialogApplicationData
-                    .getRtpSession(referingDialog));
-
+            Set<Sym> hisRtpSessions = hisRtpBridge.getSessions();
+            Bridge newRtpBridge = new Bridge(true);
+          
+            
+            for (Sym sym: myrtpSessions) {
+                if ( sym != DialogApplicationData
+                    .getRtpSession(replacedDialog) && sym != DialogApplicationData
+                            .getRtpSession(referingDialog)) {
+                    newRtpBridge.addSym(sym);
+                }
+            }
+            
+            for ( Sym sym : hisRtpSessions) {
+                if ( sym != DialogApplicationData
+                        .getRtpSession(replacedDialog) && sym != DialogApplicationData
+                                .getRtpSession(referingDialog)) {
+                        newRtpBridge.addSym(sym);
+                 }
+            }
             if (logger.isDebugEnabled()) {
-                logger.debug("mergedRtpSessionMap = " + mergedRtpSessions);
+                logger.debug("---> After replacement :");
+                logger.debug("newRtpBridge = " + newRtpBridge);
+                logger.debug("myRtpBridge = " + this.getRtpBridge());
+                logger.debug("hisRtpBridge = " + hisRtpBridge);
             }
-
-            for (Sym rtpSession : mergedRtpSessions) {
-                myrtpSessions.remove(rtpSession);
-                hisRtpSessions.remove(rtpSession);
-            }
+            
+           
+            
             /*
              * Let the RTP Bridge initialize its selector table.
              */
@@ -328,10 +338,13 @@ public class BackToBackUserAgent {
 
             this.rtpBridge.resume();
             hisRtpBridge.resume();
-            Bridge newRtpBridge = new Bridge(mergedRtpSessions);
+           
             newRtpBridge.start();
 
-            logger.debug("replacedDialog State " + replacedDialog.getState());
+            if (logger.isDebugEnabled()) {
+                logger.debug("replacedDialog State "
+                        + replacedDialog.getState());
+            }
 
             if (replacedDialog.getState() != DialogState.TERMINATED) {
                 Request byeRequest = replacedDialog.createRequest(Request.BYE);
@@ -563,7 +576,8 @@ public class BackToBackUserAgent {
      * @param serverTransaction --
      *            The SIP Server transaction that we created to service this
      *            request.
-     * @param itspAccountInfo -- the ITSP account that is sending this inbound request.
+     * @param itspAccountInfo --
+     *            the ITSP account that is sending this inbound request.
      */
 
     public void sendInviteToSipxProxy(RequestEvent requestEvent,
@@ -661,7 +675,7 @@ public class BackToBackUserAgent {
             tad.isReInvite = false;
             tad.clientTransaction = ct;
             tad.clientTransactionProvider = Gateway.getLanProvider();
-            tad.incomingSession = this.getWanRtpSession(inboundDialog);
+            tad.incomingSession = incomingSession;
             tad.outgoingSession = this.getLanRtpSession(outboundDialog);
             tad.serverTransaction = serverTransaction;
             tad.serverTransactionProvider = Gateway.getWanProvider();
@@ -962,7 +976,7 @@ public class BackToBackUserAgent {
                 /*
                  * The RTP session now belongs to the ClientTransaction.
                  */
-                this.rtpBridge.addSymSession(rtpSession);
+                this.rtpBridge.addSym(rtpSession);
                 this.rtpBridge.resume(); /* Resume operation. */
 
             } else {
