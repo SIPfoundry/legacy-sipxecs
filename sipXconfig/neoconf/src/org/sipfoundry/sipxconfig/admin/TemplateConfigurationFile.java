@@ -9,13 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -79,16 +76,4 @@ public abstract class TemplateConfigurationFile implements ConfigurationFile {
         }
 
     }
-
-    public void writeToFile(File configDir, String filename) throws IOException {
-        FileWriter writer = null;
-        try {
-            File outputFile = new File(configDir, filename);
-            writer = new FileWriter(outputFile);
-            write(writer);
-        } finally {
-            IOUtils.closeQuietly(writer);
-        }
-    }
-
 }

@@ -40,7 +40,7 @@ public class FileSystemProfileLocationTest extends TestCase {
         for (byte b = 0; b < 4; b++) {
             output.write(2 * b);
         }
-        output.close();
+        location.closeOutput(output);
 
         File profile = new File(m_parentDir, "abc.txt");
 

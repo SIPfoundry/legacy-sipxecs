@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.collections.Closure;
@@ -23,14 +21,13 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
 public class ConferenceAdmission extends XmlFile {
     private static final String NAME = "name";
-    private String m_configDirectory; 
 
     private Document m_document;
 
     public Document getDocument() {
         return m_document;
     }
-    
+
     public void generate(List conferences) {
         m_document = FACTORY.createDocument();
         Element context = m_document.addElement("context");
@@ -50,34 +47,20 @@ public class ConferenceAdmission extends XmlFile {
             if (!conference.isEnabled()) {
                 return;
             }
-            
-            // Application data: name@profile+pin            
+
+            // Application data: name@profile+pin
             String applicationData = conference.getName();
             applicationData = applicationData + "@" + conference.getExtension();
             String accessCode = conference.getParticipantAccessCode();
             if (accessCode != null && accessCode.length() > 0) {
                 applicationData = applicationData + "+" + accessCode;
             }
-        
-            m_parent.addElement("extension")
-                .addAttribute(NAME, conference.getExtension())
-                .addElement("condition")
-                .addAttribute("field", "destination_number")
-                .addAttribute("expression", "^" + conference.getName() + "$")
-                .addElement("action")
-                .addAttribute("application", "conference")
-                .addAttribute("data", applicationData);
-        }
-    }
 
-    /**
-     * Writes to file in a specified directory
-     * 
-     * @throws IOException
-     */
-    public void writeToFile() throws IOException {
-        File parent = new File(m_configDirectory);
-        writeToFile(parent, getType().getName());
+            m_parent.addElement("extension").addAttribute(NAME, conference.getExtension()).addElement(
+                    "condition").addAttribute("field", "destination_number").addAttribute("expression",
+                    "^" + conference.getName() + "$").addElement("action").addAttribute("application",
+                    "conference").addAttribute("data", applicationData);
+        }
     }
 
     @Override
@@ -86,10 +69,6 @@ public class ConferenceAdmission extends XmlFile {
         format.setOmitEncoding(true);
         format.setSuppressDeclaration(true);
         return format;
-    }
-
-    public void setConfigDirectory(String configDirectory) {
-        m_configDirectory = configDirectory;
     }
 
     public ConfigFileType getType() {

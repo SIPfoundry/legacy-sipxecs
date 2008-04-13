@@ -15,6 +15,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 
+import org.apache.commons.io.IOUtils;
+
 /**
  * Temporary profile location implemented as String: it is used mostly as a stub in testing
  * profile generation.
@@ -46,5 +48,9 @@ public class MemoryProfileLocation implements ProfileLocation {
             // UTF-8 is one of the standard encodings... this should never happen
             throw new RuntimeException(e);
         }
+    }
+
+    public void closeOutput(OutputStream stream) {
+        IOUtils.closeQuietly(stream);
     }
 }

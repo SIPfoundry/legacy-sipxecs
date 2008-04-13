@@ -17,6 +17,7 @@ import java.io.OutputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,5 +58,9 @@ public class FileSystemProfileLocation implements ProfileLocation {
         String profileFilename = FilenameUtils.concat(m_parentDir, profileName);
         File profileFile = new File(profileFilename);
         return profileFile;
+    }
+
+    public void closeOutput(OutputStream stream) {
+        IOUtils.closeQuietly(stream);
     }
 }

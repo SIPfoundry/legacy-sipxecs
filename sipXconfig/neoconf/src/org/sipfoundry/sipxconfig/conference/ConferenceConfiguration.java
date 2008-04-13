@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.collections.Closure;
@@ -37,7 +35,6 @@ public class ConferenceConfiguration extends XmlFile {
     private static final String DEFAULT_AUDIO_ENTER_PIN = "conf/conf-pin.wav";
     private static final String DEFAULT_AUDIO_BAD_PIN = "conf/conf-bad-pin.wav";
           
-    private String m_configDirectory;
     private Bridge m_bridge;
 
     private Document m_document;
@@ -157,26 +154,12 @@ public class ConferenceConfiguration extends XmlFile {
     }
     
 
-    /**
-     * Writes to file in a specified directory
-     * 
-     * @throws IOException
-     */
-    public void writeToFile() throws IOException {
-        File parent = new File(m_configDirectory);
-        writeToFile(parent, getType().getName());
-    }
-
     @Override
     public OutputFormat createFormat() {
         OutputFormat format = OutputFormat.createPrettyPrint();
         format.setOmitEncoding(true);
         format.setSuppressDeclaration(true);
         return format;
-    }
-
-    public void setConfigDirectory(String configDirectory) {
-        m_configDirectory = configDirectory;
     }
 
     public ConfigFileType getType() {

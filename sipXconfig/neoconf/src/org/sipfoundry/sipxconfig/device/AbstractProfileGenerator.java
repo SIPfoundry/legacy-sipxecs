@@ -29,7 +29,8 @@ public abstract class AbstractProfileGenerator implements ProfileGenerator {
         copy(location, m_templateRoot, inputFileName, outputFileName);
     }
 
-    public void copy(ProfileLocation location, String inputDirPath, String inputFileName, String outputFileName) {
+    public void copy(ProfileLocation location, String inputDirPath, String inputFileName,
+            String outputFileName) {
         if (outputFileName == null) {
             return;
         }
@@ -43,7 +44,7 @@ public abstract class AbstractProfileGenerator implements ProfileGenerator {
             throw new RuntimeException(e);
         } finally {
             IOUtils.closeQuietly(input);
-            IOUtils.closeQuietly(output);
+            location.closeOutput(output);
         }
     }
 
@@ -66,10 +67,9 @@ public abstract class AbstractProfileGenerator implements ProfileGenerator {
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-            IOUtils.closeQuietly(wtr);
+            location.closeOutput(wtr);
         }
     }
 
-    protected abstract void generateProfile(ProfileContext context, OutputStream out)
-        throws IOException;
+    protected abstract void generateProfile(ProfileContext context, OutputStream out) throws IOException;
 }

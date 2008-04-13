@@ -3,7 +3,6 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <bean id="orbitsGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits">
-    <property name="configDirectory" value="${sysdir.etc}" />
   </bean>
 
   <bean id="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit"

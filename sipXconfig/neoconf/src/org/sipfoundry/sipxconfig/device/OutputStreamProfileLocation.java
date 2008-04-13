@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.device;
 
 import java.io.OutputStream;
 
+import org.apache.commons.io.IOUtils;
+
 public class OutputStreamProfileLocation implements ProfileLocation {
 
     private OutputStream m_stream;
@@ -25,5 +27,9 @@ public class OutputStreamProfileLocation implements ProfileLocation {
 
     public void removeProfile(String profileName) {
         // do nothing
+    }
+
+    public void closeOutput(OutputStream stream) {
+        IOUtils.closeQuietly(stream);
     }
 }

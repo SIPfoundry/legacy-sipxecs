@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -26,7 +24,6 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
  * 
  */
 public class EmergencyRoutingRules extends XmlFile {
-    private static final String E911RULES_XML = "e911rules.xml";
     private static final String E911RULES_NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/urle911-00-00";
 
     private Document m_document;
@@ -114,17 +111,6 @@ public class EmergencyRoutingRules extends XmlFile {
             Element urlParams = transform.addElement("urlparams");
             urlParams.setText(transport);
         }
-    }
-
-    /**
-     * Writes to file in a specified directory
-     * 
-     * @param configDirectory configureation directory
-     * @throws IOException
-     */
-    public void writeToFile(String configDirectory) throws IOException {
-        File parent = new File(configDirectory);
-        writeToFile(parent, E911RULES_XML);
     }
 
     public ConfigFileType getType() {

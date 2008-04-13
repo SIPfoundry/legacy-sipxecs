@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -23,9 +22,6 @@ import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 
 public class Orbits extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/orbits-00-00";
-    private static final String FILENAME = "orbits.xml";
-
-    private String m_configDirectory;
 
     private String m_audioDirectory;
 
@@ -80,26 +76,12 @@ public class Orbits extends XmlFile {
         }
     }
 
-    /**
-     * Writes to file in a specified directory
-     * 
-     * @throws IOException
-     */
-    public void writeToFile() throws IOException {
-        File parent = new File(m_configDirectory);
-        writeToFile(parent, FILENAME);
-    }
-
     public String getAudioDirectory() {
         return m_audioDirectory;
     }
 
     public void setAudioDirectory(String audioDirectory) {
         m_audioDirectory = audioDirectory;
-    }
-
-    public void setConfigDirectory(String configDirectory) {
-        m_configDirectory = configDirectory;
     }
 
     public ConfigFileType getType() {
