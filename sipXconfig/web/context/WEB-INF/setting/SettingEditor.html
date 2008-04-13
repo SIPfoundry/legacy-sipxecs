@@ -57,7 +57,7 @@
     submitOnChange="ognl:false"
     enabled="ognl:enabled" />
 </span>
-<span jwcid="@If" condition="ognl:decorated">
+<span jwcid="ifDecorated@If" condition="ognl:decorated" renderTag="ognl:false">
   <span jwcid="@common/FieldPanel"
     field="ognl:formComponent"
     label="ognl:label"
@@ -67,6 +67,6 @@
     <span jwcid="field@RenderBlock" block="ognl:widgetBlock"/>
   </span>
 </span>
-<span jwcid="@Else">
+<span jwcid="elseNotDecorated@Else" renderTag="ognl:false">
   <span jwcid="@RenderBlock" block="ognl:widgetBlock"/>
 </span>

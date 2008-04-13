@@ -1,20 +1,21 @@
-<ul jwcid="@If" condition="ognl:renderAdvancedToggle" class="component-links">
+<ul jwcid="ifToggle@If" condition="ognl:renderAdvancedToggle" class="component-links">
   <li jwcid="@common/ToggleLink" toggle="ognl:showAdvanced"/>
 </ul>
 <fieldset>
   <table>
     <tbody>
-      <span jwcid="@For"
+      <span jwcid="forSetting@For"
         source="ognl:flattenedSettings"
         value="ognl:currentSetting"
-        volatile="true">
+        volatile="ognl:true"
+        renderTag="ognl:false">
         <tr jwcid="@RenderBlock" block="ognl:currentBlock" />
       </span>
     </tbody>
   </table>
 </fieldset>
 <div jwcid="groupBlock@Block">
-  <span jwcid="@If" condition="ognl:renderGroup">
+  <span jwcid="ifGroup@If" condition="ognl:renderGroup" renderTag="ognl:false">
     <tr>
       <td colspan="2">
         <h3><label jwcid="@Insert" value="ognl:label"/></h3>
@@ -24,15 +25,15 @@
   </span>
 </div>
 <div jwcid="settingBlock@Block">
-  <span jwcid="@If" condition="ognl:renderSetting">
+  <span jwcid="ifRender@If" condition="ognl:renderSetting" renderTag="ognl:false">
     <span jwcid="@setting/SettingEditor"
       setting="ognl:currentSetting"
       enabled="ognl:settingEnabled"
       requiredEnabled="ognl:requiredEnabled"
       messageSource="ognl:messageSource" />
   </span>
-  <span jwcid="@Else">
-    <span jwcid="@Hidden" value="ognl:currentSetting.value"/>
+  <span jwcid="elseHide@Else" renderTag="ognl:false">
+    <span jwcid="hiddenValue@Hidden" value="ognl:currentSetting.value"/>
   </span>
 </div>
 <div jwcid="arrayBlock@Block">

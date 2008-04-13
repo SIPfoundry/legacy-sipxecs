@@ -1,19 +1,19 @@
 <div jwcid="@common/Border">
   
-    <div jwcid="@common/LeftNavigation" renderCondition="ognl:!sbcDevice.isNew()">
-      <span jwcid="@setting/SettingsNavigation" bean="ognl:sbcDevice"
-        editSettingsListener="listener:editSettings" activeSetting="ognl:currentSettingSet">
-        <span jwcid="@For" source="ognl:tabNames" value="ognl:currentTab">
-          <span jwcid="@common/Tab" isActive="ognl:currentTab.equals(activeTab)">
-            <a jwcid="@DirectLink" id="ognl:'tab:' + currentTab" listener="listener:editNonSettings" parameters="ognl:currentTab">
-              <span jwcid="@Insert" value="ognl:messages.getMessage('tab.' + currentTab)"/>
-            </a>
-          </span>
+  <div jwcid="@common/LeftNavigation" renderCondition="ognl:!sbcDevice.isNew()">
+    <span jwcid="@setting/SettingsNavigation" bean="ognl:sbcDevice"
+      editSettingsListener="listener:editSettings" activeSetting="ognl:currentSettingSet">
+      <span jwcid="@For" source="ognl:tabNames" value="ognl:currentTab" renderTag="ognl:false">
+        <span jwcid="@common/Tab" isActive="ognl:currentTab.equals(activeTab)">
+          <a jwcid="@DirectLink" id="ognl:'tab:' + currentTab" listener="listener:editNonSettings" parameters="ognl:currentTab">
+            <span jwcid="@Insert" value="ognl:messages.getMessage('tab.' + currentTab)"/>
+          </a>
         </span>
       </span>
-    </div>
-    <div jwcid="@common/ProfilePreview" device="ognl:sbcDevice"/>
-    <div jwcid="@common/DeviceResources" deviceDescriptor="ognl:sbcDevice.model" />
+    </span>
+  </div>
+  <div jwcid="@common/ProfilePreview" device="ognl:sbcDevice"/>
+  <div jwcid="@common/DeviceResources" deviceDescriptor="ognl:sbcDevice.model" />
   
   <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:sbcDevice.isNew()?'':'div'">
     <form jwcid="@Form" delegate="bean:validator" id="sbc">
