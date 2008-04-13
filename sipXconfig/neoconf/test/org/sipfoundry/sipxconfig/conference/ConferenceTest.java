@@ -14,7 +14,6 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
-import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 
 public class ConferenceTest extends BeanWithSettingsTestCase {
     private Conference m_conf;

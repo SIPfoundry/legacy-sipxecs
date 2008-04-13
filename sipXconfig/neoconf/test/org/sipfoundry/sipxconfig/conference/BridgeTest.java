@@ -9,12 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import org.easymock.classextension.EasyMock;
-import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 
 public class BridgeTest extends BeanWithSettingsTestCase {
 

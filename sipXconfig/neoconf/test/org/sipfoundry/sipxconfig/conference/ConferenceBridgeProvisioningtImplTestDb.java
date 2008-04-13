@@ -10,19 +10,13 @@
 package org.sipfoundry.sipxconfig.conference;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.easymock.EasyMock;
-import org.easymock.IArgumentMatcher;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.configdb.ConfigDbParameter;
-import org.sipfoundry.sipxconfig.admin.commserver.configdb.ConfigDbSettingAdaptor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class ConferenceBridgeProvisioningtImplTestDb extends SipxDatabaseTestCase {
