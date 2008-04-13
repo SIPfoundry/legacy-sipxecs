@@ -112,6 +112,7 @@ public class PhoneTestDriver {
         defaults.setProxyServerSipPort("5555");
         defaults.setAuthorizationRealm("realm.sipfoundry.org");
         defaults.setSipxServer(SipxServerTest.setUpSipxServer());
+        defaults.setLogDirectory("/var/log/sipxpbx");
         ServiceManager serviceManager = EasyMock.createNiceMock(ServiceManager.class);
         EasyMock.replay(serviceManager);
         defaults.setServiceManager(serviceManager);

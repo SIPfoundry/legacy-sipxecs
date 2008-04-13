@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.setting.SettingUtil;
 /**
  * State used by profile generator
  */
-public class ProfileContext {
+public class ProfileContext<T extends Device> {
     /**
      * Shows all settings and groups in a flat collection
      */
@@ -40,11 +40,11 @@ public class ProfileContext {
         }
     };
 
-    private Device m_device;
+    private T m_device;
 
     private String m_profileTemplate;
 
-    public ProfileContext(Device device, String profileTemplate) {
+    public ProfileContext(T device, String profileTemplate) {
         m_device = device;
         m_profileTemplate = profileTemplate;
     }
@@ -58,7 +58,7 @@ public class ProfileContext {
         return context;
     }
 
-    public Device getDevice() {
+    public T getDevice() {
         return m_device;
     }
     
@@ -67,7 +67,7 @@ public class ProfileContext {
     }
 
     /**
-     * Velocity macro convienence method. Recursive list of all settings, ignoring groups
+     * Velocity macro convenience method. Recursive list of all settings, ignoring groups
      */
     public Collection getRecursiveSettings(Setting group) {
         return SettingUtil.filter(RECURSIVE_SETTINGS, group);
@@ -78,7 +78,7 @@ public class ProfileContext {
     }
 
     /**
-     * Velocity macro convienence method for accessing endpoint settings
+     * Velocity macro convenience method for accessing end point settings
      */
     public Setting getEndpointSettings() {
         return m_device.getSettings();

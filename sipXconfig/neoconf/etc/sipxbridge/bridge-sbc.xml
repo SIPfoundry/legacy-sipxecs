@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="bridge-configuration">
+    <label>SIP</label>
+    <setting name="external-address">
+      <label>External address</label>
+      <description>The ITSP facing address. The ITSP will send signaling here.</description>
+    </setting>
+    <setting name="external-port">
+      <label>External port</label>
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>5080</value>
+      <description>The ITSP facing port. The ITSP will send signaling here.</description>
+    </setting>
+    <setting name="local-address" hidden="yes">
+      <type>
+        <string required="yes"></string>
+      </type>
+      <description>The SIPX proxy facing address. The SIPX proxy will send signaling here.</description>
+    </setting>
+    <setting name="local-port" hidden="yes">
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>5090</value>
+      <description>The SIPX proxy facing port. The SIPX proxy will send signaling here.</description>
+    </setting>
+    <setting name="sipx-proxy-domain" hidden="yes">
+      <description>The sipXecs proxy domain.</description>
+    </setting>
+    <setting name="stun-server-address">
+      <label>STUN server</label>
+      <value>stun01.sipphone.com</value>
+      <description>The stun server address used to determine the global address of the bridge.</description>
+    </setting>
+    <setting name="sip-keepalive-seconds" advanced="yes">
+      <label>Signaling keep-alive interval</label>
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>20</value>
+      <description>
+        Keepalive timer for SIP Signaling. sipXbridge will re-register with each ITSP to keep the NAT pinhole open
+      </description>
+    </setting>
+    <setting name="media-keepalive-seconds" advanced="yes">
+      <label>Media keep-alive interval</label>
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>2</value>
+      <description>
+        Keepalive timer for RTP. Each RTP stream facing the ITSP will start a timer that runs with this timeout (in
+        seconds).
+      </description>
+    </setting>
+    <setting name="xml-rpc-port" advanced="yes">
+      <label>API port</label>
+      <type>
+        <integer />
+      </type>
+      <description>
+        Port for external XML/RPC requests to be directed. If not specified, the XML RPC server is not started.
+      </description>
+    </setting>
+    <setting name="max-number-of-concurrent-calls">
+      <label>Maximum calls</label>
+      <type>
+        <integer required="yes" min="-1" />
+      </type>
+      <value>-1</value>
+      <description>
+        The maximum number of concurrent calls allowed via the given bridge overall. "-1" means "infinity". When the
+        limit is reached, sipxbridge will return "Service Unavailable".
+      </description>
+    </setting>
+    <setting name="music-on-hold-support-enabled">
+      <label>Music on hold</label>
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>false</value>
+      <description>
+        If checked sipXbridge Music On Hold support is enabled. Phones should disable their MOH support if sipXbridge
+        support for MOH is enabled.
+      </description>
+    </setting>
+    <setting name="rtp-port-range-start" advanced="yes">
+      <label>Start RTP port</label>
+      <profileName>$ignore$</profileName>
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>25000</value>
+      <description>Start of the RTP ports range.</description>
+    </setting>
+    <setting name="rtp-port-range-end" advanced="yes">
+      <label>End RTP port</label>
+      <profileName>$ignore$</profileName>
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>25500</value>
+      <description>End of the RTP ports range.</description>
+    </setting>
+    <setting name="rtp-port-range" hidden="yes"></setting>
+    <setting name="log-level" advanced="yes">
+      <label>Logging level</label>
+      <type>
+        <enum>
+          <option>
+            <value>INFO</value>
+          </option>
+          <option>
+            <value>WARN</value>
+          </option>
+          <option>
+            <value>ERROR</value>
+          </option>
+          <option>
+            <value>DEBUG</value>
+          </option>
+        </enum>
+      </type>
+      <value>INFO</value>
+      <description>Log configuration. Defaults to INFO level.</description>
+    </setting>
+    <setting name="log-directory" hidden="yes">
+      <description>
+        Log directory. Defaults to /var/log/sipxbpx/. The log file name is hard coded to "sipxbridge.log". Please
+        specify the slash at the end of the directory name.
+      </description>
+    </setting>
+  </group>
+</model>

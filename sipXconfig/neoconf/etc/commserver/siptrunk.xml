@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="switch">
+    <boolean>
+      <true>
+        <value>true</value>
+      </true>
+      <false>
+        <value>false</value>
+      </false>
+    </boolean>
+  </type>
+  <group name="itsp-account">
+    <label>ITSP Account</label>
+    <description>The information that is specific to a given ITSP account.</description>
+    <setting name="max-number-of-concurrent-calls" advanced="yes">
+      <label>Maximum calls</label>
+      <type>
+        <integer min="-1" />
+      </type>
+      <value>-1</value>
+      <description>
+        The maximum number of concurrent calls allowed via the given ITSP. "-1" means "infinity". This is a way of doing
+        a coarse granularity of QOS on the ITSP. When the limit is reached, sipXbridge will return "Service
+        Unavailable".
+      </description>
+    </setting>
+    <setting name="outbound-proxy" hidden="yes">
+      <description></description>
+    </setting>
+    <setting name="outbound-transport" hidden="yes">
+      <type>
+        <enum>
+          <option>
+            <value>udp</value>
+          </option>
+          <option>
+            <value>tcp</value>
+          </option>
+        </enum>
+      </type>
+      <value>udp</value>
+      <description>The outbound proxy transport.</description>
+    </setting>
+    <setting name="proxy-domain" advanced="yes">
+      <description>The outbound proxy address.</description>
+    </setting>
+    <setting name="authentication-realm" advanced="yes">
+      <!-- FIXME -->
+      <description>sipXbridge should just take it from authentication challenge</description>
+    </setting>
+    <setting name="user-name">
+      <label>User</label>
+      <type>
+        <string required="yes"></string>
+      </type>
+      <description>The user name attached to the account.</description>
+    </setting>
+    <setting name="password">
+      <label>Password</label>
+      <type>
+        <string password="yes"></string>
+      </type>
+      <description>The password for the account.</description>
+    </setting>
+    <setting name="display-name" advanced="yes">
+      <label>Display name</label>
+      <description>The optional display name for this account.</description>
+    </setting>
+    <setting name="use-global-addressing" advanced="yes">
+      <label>Global addressing</label>
+      <type refid="switch" />
+      <value>false</value>
+      <description>If checked, use the stun determined global address.</description>
+    </setting>
+    <setting name="route-inbound-calls-to-extension">
+      <label>Incoming calls destination</label>
+      <value>operator</value>
+      <description>
+        Determines where to send inbound calls. If empty, inbound calls are directly routed to the specified number in
+        the inbound request and have to be redirected by aliases or dial plan rules.
+      </description>
+    </setting>
+    <setting name="use-rport" advanced="yes">
+      <label>Rport parameter</label>
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
+    <setting name="register-on-initialization" advanced="yes">
+      <label>Register on initialization</label>
+      <type refid="switch"></type>
+      <value>true</value>
+    </setting>
+  </group>
+</model>

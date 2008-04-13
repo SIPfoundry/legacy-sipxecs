@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
+
+  <bridge-configuration>
+    <external-address>10.1.1.5</external-address>
+    <external-port>5080</external-port>
+    <local-address>192.168.5.240</local-address>
+    <local-port>5090</local-port>
+    <sipx-proxy-domain>sipfoundry.org</sipx-proxy-domain>
+    <stun-server-address>stun01.sipphone.com</stun-server-address>
+    <sip-keepalive-seconds>20</sip-keepalive-seconds>
+    <media-keepalive-seconds>2</media-keepalive-seconds>
+    <xml-rpc-port></xml-rpc-port>
+    <max-number-of-concurrent-calls>-1</max-number-of-concurrent-calls>
+    <music-on-hold-support-enabled>false</music-on-hold-support-enabled>
+    <rtp-port-range>25000:25500</rtp-port-range>
+    <log-level>INFO</log-level>
+    <log-directory>/var/log/sipxpbx/</log-directory>
+  </bridge-configuration>
+
+  <itsp-account>
+    <max-number-of-concurrent-calls>-1</max-number-of-concurrent-calls>
+    <outbound-proxy>itsp.example.com</outbound-proxy>
+    <outbound-transport>udp</outbound-transport>
+    <proxy-domain>itsp.example.com</proxy-domain>
+    <authentication-realm>itsp.example.com</authentication-realm>
+    <user-name>juser</user-name>
+    <password>1234</password>
+    <display-name>John User</display-name>
+    <use-global-addressing>false</use-global-addressing>
+    <route-inbound-calls-to-extension>operator</route-inbound-calls-to-extension>
+    <use-rport>false</use-rport>
+    <register-on-initialization>true</register-on-initialization>
+  </itsp-account>
+
+</sipxbridge-config>

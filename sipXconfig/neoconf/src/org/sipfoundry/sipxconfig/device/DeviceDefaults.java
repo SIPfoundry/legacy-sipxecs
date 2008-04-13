@@ -54,6 +54,8 @@ public class DeviceDefaults {
     private ServiceManager m_serviceManager;
 
     private String m_defaultNtpService = "pool.ntp.org";
+    
+    private String m_logDirectory;
 
     public void setDefaultNtpService(String defaultNtpService) {
         m_defaultNtpService = defaultNtpService;
@@ -220,5 +222,13 @@ public class DeviceDefaults {
 
     public SipxServer getSipxServer() {
         return m_sipxServer;
+    }
+    
+    public void setLogDirectory(String logDirectory) {
+        m_logDirectory = logDirectory;
+    }
+
+    public String getLogDirectory() {
+        return m_logDirectory;
     }
 }

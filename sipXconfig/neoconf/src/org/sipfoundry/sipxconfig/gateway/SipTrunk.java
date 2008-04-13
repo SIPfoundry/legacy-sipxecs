@@ -9,18 +9,31 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SipTrunk extends Gateway {
     public static final String BEAN_ID = "gwSipTrunk";
 
     private static final int DEFAULT_PORT = 5060;
-    
+
     public SipTrunk() {
     }
 
     public SipTrunk(GatewayModel model) {
         super(model);
+    }
+
+    @Override
+    protected Setting loadSettings() {
+        return getModelFilesContext().loadModelFile("siptrunk.xml", "commserver");
+    }
+
+    @Override
+    public void initialize() {
+        addDefaultBeanSettingHandler(new Defaults(this));
     }
 
     @Override
@@ -32,9 +45,38 @@ public class SipTrunk extends Gateway {
                 route.append(':');
                 route.append(sbcDevice.getPort());
             }
-            
+
             return route.toString();
         }
         return null;
+    }
+
+    public static class Defaults {
+        private final SipTrunk m_trunk;
+
+        public Defaults(SipTrunk trunk) {
+            m_trunk = trunk;
+        }
+
+        @SettingEntry(path = "itsp-account/outbound-transport")
+        public String getOutboundTransport() {
+            AddressTransport transport = m_trunk.getAddressTransport();
+            if (transport.equals(AddressTransport.NONE)) {
+                return StringUtils.EMPTY;
+            }
+            return transport.getName();
+        }
+
+        @SettingEntry(paths = {
+            "itsp-account/outbound-proxy", "itsp-account/authentication-realm", "itsp-account/proxy-domain"
+        })
+        public String getOutboundProxy() {
+            return m_trunk.getAddress();
+        }
+
+        @SettingEntry(path = "itsp-account/outbound-proxy-port")
+        public int getOutboundProxyPort() {
+            return m_trunk.getAddressPort();
+        }
     }
 }

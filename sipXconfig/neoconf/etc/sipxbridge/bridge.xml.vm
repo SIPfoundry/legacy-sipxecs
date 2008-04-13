@@ -1,0 +1,27 @@
+## Velocity macros
+## emit 'setting value' pair - skipping _ignored_ settings
+#macro(emit_setting $s)
+#if($s.ProfileName != '$ignore$')
+    <${s.ProfileName}>$!{s.Value}</${s.ProfileName}>
+#end
+#end
+## emit setting line for every setting in the group
+#macro(emit_group $g)
+  <${g.ProfileName}>
+#foreach ($s in $g.Values)
+#emit_setting($s)
+#end
+  </${g.ProfileName}>
+#end
+<?xml version="1.0" ?>
+<sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
+
+#set($bc = $sbc.Settings.getSetting("bridge-configuration"))
+#emit_group($bc)
+
+#foreach ($trunk in $trunks)
+#set($itsp = $trunk.Settings.getSetting("itsp-account"))
+#emit_group($itsp)
+
+#end
+</sipxbridge-config>
