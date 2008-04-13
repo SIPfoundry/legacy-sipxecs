@@ -59,6 +59,9 @@
 
        <filemap identifier="sipxpage.properties.in"
         	location="@SIPX_CONFDIR@/sipxpage.properties.in" />                
+
+       <filemap identifier="sipxbridge.xml"
+        	location="@SIPX_CONFDIR@/sipxbridge.xml" />                
                 
       <databasemap identifier="credential"      location="credential" />
       <databasemap identifier="alias"           location="alias" />

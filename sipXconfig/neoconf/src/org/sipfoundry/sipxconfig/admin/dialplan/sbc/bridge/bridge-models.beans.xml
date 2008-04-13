@@ -4,14 +4,15 @@
 
   <bean id="sipXbridgeProfileLocation" class="org.sipfoundry.sipxconfig.device.ReplicatedProfileLocation">
     <property name="replicationContext" ref="sipxReplicationContext" />
-    <!-- FIXME: needs to add file type -->
+    <property name="type" value="SBC_BRIDGE_CONFIG" />
   </bean>
 
   <bean id="sipXbridgeSbcModel" parent="abstractSbcModel">
     <property name="beanId" value="sbcSipXbridge" />
     <property name="label" value="sipXbridge" />
     <property name="modelDir" value="sipXbridge" />
-    <property name="serialNumberPattern" value=""/>
+    <property name="serialNumberPattern" value="" />
+    <property name="defaultProfileLocation" ref="sipXbridgeProfileLocation" />
   </bean>
 
   <bean id="sbcSipXbridge" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc" scope="prototype"
