@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.device;
 
 import java.io.OutputStream;
 
+import junit.framework.JUnit4TestAdapter;
+
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -25,6 +27,10 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 
 public class ReplicatedProfileLocationTest {
+    public static junit.framework.Test suite() {
+        return new JUnit4TestAdapter(ReplicatedProfileLocationTest.class);
+    }
+
     @Test
     public void testGetOutput() throws Exception {
         ConfigurationFile config = new InMemoryConfiguration(ConfigFileType.ORBITS, "abcd");

@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.components;
 
 import java.util.Locale;
 
+import junit.framework.JUnit4TestAdapter;
+
 import org.apache.hivemind.ApplicationRuntimeException;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IComponent;
@@ -39,6 +41,10 @@ public class UserExceptionFilterTest {
         // I am calling it here explicitly, not to make it faster, but to better expose the reason
         // why the test is slow
         Locale.getAvailableLocales();
+    }
+
+    public static junit.framework.Test suite() {
+        return new JUnit4TestAdapter(UserExceptionFilterTest.class);
     }
 
     @Test

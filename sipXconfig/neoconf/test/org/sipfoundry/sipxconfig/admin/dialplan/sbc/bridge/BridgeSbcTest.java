@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import junit.framework.JUnit4TestAdapter;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,9 +34,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class BridgeSbcTest {
-
     private BridgeSbc m_sbc;
     private MemoryProfileLocation m_location;
+
+    public static junit.framework.Test suite() {
+        return new JUnit4TestAdapter(BridgeSbcTest.class);
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -69,7 +74,7 @@ public class BridgeSbcTest {
         gatewayContext.getGatewayByType(SipTrunk.class);
         expectLastCall().andReturn(Arrays.asList(sipTrunk));
         replay(gatewayContext);
-        
+
         m_sbc.setGatewayContext(gatewayContext);
     }
 
