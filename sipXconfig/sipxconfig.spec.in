@@ -260,9 +260,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/mitel/*
 %config(noreplace) %{sipxpbxconf}/nortel/*
 %config(noreplace) %{sipxpbxconf}/nt1535/*
-%config(noreplace) %{sipxpbxconf}/sipxvxml/*
+%config(noreplace) %{sipxpbxconf}/sipxbridge/*
 %config(noreplace) %{sipxpbxconf}/sipxconference/*
 %config(noreplace) %{sipxpbxconf}/sipxpark/*
+%config(noreplace) %{sipxpbxconf}/sipxvxml/*
 %config(noreplace) %{sipxpbxconf}/test.d/*
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
 %config(noreplace) %{sipxpbxconf}/mailbox/*
