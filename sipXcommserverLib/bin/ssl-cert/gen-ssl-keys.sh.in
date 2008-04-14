@@ -40,6 +40,7 @@ DefaultDefaults=SSL_DEFAULTS
 Defaults=""
 
 DefaultServer=`hostname --fqdn`
+SipDomainName=""
 
 CurrentWorkDir=`pwd`
 WorkDir=${CurrentWorkDir}
@@ -72,6 +73,7 @@ showUsage()
     - A self-signed certificate for a single system:
 
       gen-ssl-keys.sh [ {-s|--server} <server-name> ]
+                      [ {-D|--domain} <sip-domain-name> ]
                       [ {-r|--restricted} ]
 
     - A private key and certificate request for use
@@ -238,6 +240,10 @@ Identifying information for the server:
 
 EOF
 
+    if [ -n "${SipDomainName}" ]
+    then
+        sipDomainName="${SipDomainName}"
+    fi
     askfor sipDomainName "SIP domain name" `hostname --domain`
     askfor server        "Full DNS name for the server" ${Server:-${DefaultServer}} NOSTORE
     while test $"{caName}" = "${server}" -o "${caName}" = "${sipDomainName}"
@@ -816,6 +822,21 @@ do
                 break
             else
                 Server=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -D|--domain)
+            ##
+            ## Set the name of the sip domain uri
+            ##
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <domain-name> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                SipDomainName=${2}
                 shift # consume the switch ( for n values, consume n-1 )
             fi
             ;;
