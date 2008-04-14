@@ -483,8 +483,7 @@ SipUserAgent::~SipUserAgent()
 
     if(mSipTcpServer)
     {
-       //mSipTcpServer->shutdownListener();
-       mSipTcpServer->requestShutdown();
+       // Destructor stops tasks, cleans up directly
        delete mSipTcpServer;
        mSipTcpServer = NULL;
     }

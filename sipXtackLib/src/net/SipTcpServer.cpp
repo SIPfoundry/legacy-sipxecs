@@ -170,7 +170,7 @@ UtlBoolean SipTcpServer::createServerSocket(const char* szBindAddr,
 SipTcpServer::~SipTcpServer()
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipClientTcp[%s]::~ called",
+                  "SipTcpServer[%s]::~ called",
                   mName.data());
 
     if (mpServerBrokerListener)

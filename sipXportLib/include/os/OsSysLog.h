@@ -427,7 +427,7 @@ public:
 
    static UtlBoolean willLog(OsSysLogFacility facility, OsSysLogPriority priority) ;
      //:Determine if a message of a given facility/priority will be logged or
-     //:digarded.
+     //:discarded
 
    static int getNumFacilities();
      //:Return the number of available facilities.

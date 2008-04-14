@@ -21,6 +21,8 @@
 #include <os/OsConfigDb.h>
 #include <os/OsSocket.h>
 #include <os/OsTask.h>
+#include <os/OsTimerTask.h>
+#include <os/OsStunAgentTask.h>
 #include <net/SipUserAgent.h>
 #include <net/NameValueTokenizer.h>
 #include <xmlparser/tinyxml.h>
@@ -303,18 +305,10 @@ public:
    }
 } ;
 
+
 int
-main( int argc, char* argv[] )
+proxy( int argc, char* argv[] )
 {
-   // Block all signals in this the main thread.
-   // Any threads created after this will have all signals masked.
-   OsTask::blockSignals();
-
-   // Create a new task to wait for signals.  Only that task
-   // will ever see a signal from the outside.
-   SignalTask* signalTask = new SignalTask();
-   signalTask->start() ;
-
    UtlBoolean interactiveSet = false;
    UtlString argString;
    for(int argIndex = 1; argIndex < argc; argIndex++)
@@ -726,7 +720,7 @@ main( int argc, char* argv[] )
     
 
     // Start the sip stack
-    SipUserAgent sipUserAgent(
+    SipUserAgent* pSipUserAgent = new SipUserAgent(
         proxyTcpPort,
         proxyUdpPort,
         proxyTlsPort,
@@ -753,21 +747,21 @@ main( int argc, char* argv[] )
         TRUE,  // Perform message checks 
         TRUE); // Use symmetric signaling
 
-    if (!sipUserAgent.isOk())
+    if (!pSipUserAgent->isOk())
     {
         OsSysLog::add(FAC_SIP, PRI_EMERG, "SipUserAgent reported a problem, setting shutdown flags...");
         gShutdownFlag = TRUE ;
     }
-    sipUserAgent.setDnsSrvTimeout(dnsSrvTimeout);
-    sipUserAgent.setMaxSrvRecords(maxNumSrvRecords);
-    sipUserAgent.setUserAgentHeaderProperty("sipXecs/sipXproxy");
-    sipUserAgent.setMaxForwards(maxForwards);
-    sipUserAgent.setDefaultExpiresSeconds(defaultExpires);
-    sipUserAgent.setDefaultSerialExpiresSeconds(defaultSerialExpires);
-    sipUserAgent.setMaxTcpSocketIdleTime(staleTcpTimeout);
-    sipUserAgent.setHostAliases(hostAliases);
-    sipUserAgent.setRecurseOnlyOne300Contact(recurseOnlyOne300);
-    // Do not start the sipUserAgent until its message listeners are
+    pSipUserAgent->setDnsSrvTimeout(dnsSrvTimeout);
+    pSipUserAgent->setMaxSrvRecords(maxNumSrvRecords);
+    pSipUserAgent->setUserAgentHeaderProperty("sipXecs/sipXproxy");
+    pSipUserAgent->setMaxForwards(maxForwards);
+    pSipUserAgent->setDefaultExpiresSeconds(defaultExpires);
+    pSipUserAgent->setDefaultSerialExpiresSeconds(defaultSerialExpires);
+    pSipUserAgent->setMaxTcpSocketIdleTime(staleTcpTimeout);
+    pSipUserAgent->setHostAliases(hostAliases);
+    pSipUserAgent->setRecurseOnlyOne300Contact(recurseOnlyOne300);
+    // Do not start the SipUserAgent until its message listeners are
     // set up by the creation of the SipRouter below.
     
     UtlString buffer;
@@ -794,14 +788,14 @@ main( int argc, char* argv[] )
        int protocol = OsSocket::UDP;
        UtlString domainName;
        int port;
-       sipUserAgent.getViaInfo(protocol, domainName, port);
+       pSipUserAgent->getViaInfo(protocol, domainName, port);
 
        char portString[12];
        sprintf(portString,":%d", port);
        domainName.append(portString);
        
        // and start the observer
-       cseObserver = new SipXProxyCseObserver(sipUserAgent, domainName, pEventWriter);
+       cseObserver = new SipXProxyCseObserver(*pSipUserAgent, domainName, pEventWriter);
        cseObserver->start();
     }
     else
@@ -819,15 +813,15 @@ main( int argc, char* argv[] )
 
     // Create a router to route stuff either
     // to a local server or on out to the real world
-    SipRouter router(sipUserAgent, 
+    SipRouter* pRouter = new SipRouter(*pSipUserAgent, 
                     forwardingRules,
                     configDb);
 
     // Start the router running
-    router.start();
+    pRouter->start();
 
     // All is in readiness... Let the proxying begin...
-    sipUserAgent.start();
+    pSipUserAgent->start();
 
     // Do not exit, let the proxy do its stuff
     while( !gShutdownFlag )
@@ -855,9 +849,9 @@ main( int argc, char* argv[] )
                 else
                 {
 #if 0
-                    sipUserAgent.printStatus();
+                    pSipUserAgent->printStatus();
 #endif
-                    sipUserAgent.getMessageLog(buffer);
+                    pSipUserAgent->getMessageLog(buffer);
                     printf("=================>\n%s\n", buffer.data());
                 }
             }
@@ -869,16 +863,13 @@ main( int argc, char* argv[] )
     }
  
     // This is a server task so gracefully shutdown the
-    // router task using the waitForShutdown method, this
-    // will implicitly request a shutdown for us if one is
-    // not already in progress
-    router.requestShutdown();
+    // router task by deleting it.
+    delete pRouter ;
 
     // Stop the SipUserAgent.
-    sipUserAgent.shutdown();
-
-    // now deregister this process's database references from the IMDB
-    closeIMDBConnections();
+    pSipUserAgent->shutdown();
+    // And delete it, too.
+    delete pSipUserAgent ;
 
     // flush and close the call state event log
     if (enableCallStateLogObserver || enableCallStateDbObserver)
@@ -892,10 +883,34 @@ main( int argc, char* argv[] )
          delete pEventWriter;
       }
     }
-    
-    // Flush the log file
-    OsSysLog::add(FAC_SIP, PRI_NOTICE, "Exiting") ;
-    OsSysLog::flush();
 
-    return 1;
+    // End the singleton threads.
+    OsTimerTask::destroyTimerTask();
+    OsStunAgentTask::releaseInstance();
+
+    return 0 ;
+}
+
+int
+main(int argc, char* argv[] )
+{
+   // Block all signals in this the main thread.
+   // Any threads created after this will have all signals masked.
+   OsTask::blockSignals();
+
+   // Create a new task to wait for signals.  Only that task
+   // will ever see a signal from the outside.
+   SignalTask* signalTask = new SignalTask();
+   signalTask->start() ;
+
+   proxy(argc, argv) ;
+
+   // now deregister this process's database references from the IMDB
+   closeIMDBConnections();
+
+   // Flush the log file
+   OsSysLog::add(FAC_SIP, PRI_NOTICE, "Exiting") ;
+   OsSysLog::flush();
+
+   return 0;
 }
