@@ -16,10 +16,7 @@
 
   <!-- C O M P O N E N T S -->
 
-  <component id="border" type="common/Border">
-    <binding name="useDojo"
-      value="tab == 'agentsStats' || tab == 'callsStats' || tab == 'queuesStats'" />
-  </component>
+  <component id="border" type="common/Border" />
 
   <component id="tabs" type="common/TabNavigation">
     <binding name="tabNames"

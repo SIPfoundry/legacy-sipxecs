@@ -5,7 +5,6 @@
 
   <inject property="acdContext" object="spring:acdContext" />
   <inject property="acdStatistics" object="spring:acdStatistics" />
-  <inject property="tapestry" object="spring:tapestry" />
 
   <property name="acdQueueId" persist="session" />
   <property name="acdQueue" />
@@ -55,9 +54,8 @@
   </component>
 
   <component id="acdAgentsPanel" type="acd/AcdAgentsPanel">
-    <binding name="addListener"
-      value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.addAgent)" />
-    <binding name="selectListener" value="listeners.editAgent" />
+    <binding name="addListener" value="listener:addAgent" />
+    <binding name="selectListener" value="listener:editAgent" />
     <binding name="agents" value="acdQueue.agents" />
     <binding name="acdQueueId" value="acdQueueId" />
     <binding name="changed" value="changed" />

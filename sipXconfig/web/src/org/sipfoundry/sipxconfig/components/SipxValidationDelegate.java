@@ -10,11 +10,14 @@
 package org.sipfoundry.sipxconfig.components;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.valid.IValidator;
 import org.apache.tapestry.valid.ValidationDelegate;
+import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.common.UserException;
 
 /**
  * SipXconfig version of the validator. It does not decorate labels. SipxValidationDelegate
@@ -38,22 +41,20 @@ public class SipxValidationDelegate extends ValidationDelegate {
         m_suffix = suffix;
     }
 
-    public void writeLabelPrefix(IFormComponent component, IMarkupWriter writer,
-            IRequestCycle cycle) {
+    public void writeLabelPrefix(IFormComponent component, IMarkupWriter writer, IRequestCycle cycle) {
         if (m_decorateLabels) {
             super.writeLabelPrefix(component, writer, cycle);
         }
     }
 
-    public void writeLabelSuffix(IFormComponent component, IMarkupWriter writer,
-            IRequestCycle cycle) {
+    public void writeLabelSuffix(IFormComponent component, IMarkupWriter writer, IRequestCycle cycle) {
         if (m_decorateLabels) {
             super.writeLabelSuffix(component, writer, cycle);
         }
     }
 
-    public void writeSuffix(IMarkupWriter writer, IRequestCycle cycle_,
-            IFormComponent component_, IValidator validator_) {
+    public void writeSuffix(IMarkupWriter writer, IRequestCycle cycle_, IFormComponent component_,
+            IValidator validator_) {
         if (isInError()) {
             writer.printRaw("&nbsp;");
             writer.begin("span");
@@ -83,5 +84,26 @@ public class SipxValidationDelegate extends ValidationDelegate {
 
     public boolean getHasSuccess() {
         return !getHasErrors() && StringUtils.isNotBlank(m_success);
+    }
+
+    public void record(UserException e, Messages messages) {
+        String msg = getFormattedMsg(e, messages);
+        ValidatorException ve = new ValidatorException(msg);
+        record(ve);
+    }
+
+    /**
+     * Prepares message to be recorded as validation exception
+     * 
+     * @param e user exception
+     * @param messages optional reference to message store
+     * @return user visible message
+     */
+    private String getFormattedMsg(UserException e, Messages messages) {
+        String msg = e.getMessage();
+        if (messages == null) {
+            return msg;
+        }
+        return TapestryUtils.getMessage(messages, msg, msg);
     }
 }

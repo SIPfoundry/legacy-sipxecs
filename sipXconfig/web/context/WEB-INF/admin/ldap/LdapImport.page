@@ -6,9 +6,6 @@
   <inject property="ldapImportManager" object="spring:ldapImportManager" />
   <inject property="ldapManager" object="spring:ldapManager" />
 
-  <inject property="tapestry" object="spring:tapestry" />
-
-
   <property name="schedule" />
 
   <!--
@@ -24,21 +21,18 @@
   </component>
   <component id="import" type="Submit">
     <binding name="value" value="message:label.import" />
-    <binding name="listener"
-      value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.importLdap)" />
+    <binding name="listener" value="listener:importLdap" />
   </component>
   <component id="verify" type="Submit">
     <binding name="value" value="message:label.verify" />
-    <binding name="listener"
-      value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.verifyLdap)" />
+    <binding name="listener" value="listener:verifyLdap" />
   </component>
 
   <component id="scheduleEditor" type="common/ScheduleEditor">
     <binding name="schedule" value="schedule" />
   </component>
   <component id="applySchedule" type="Submit">
-    <binding name="listener"
-      value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.applySchedule)" />
+    <binding name="listener" value="listener:applySchedule" />
     <binding name="value" value="message:button.apply" />
   </component>
 

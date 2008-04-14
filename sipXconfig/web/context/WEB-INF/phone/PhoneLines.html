@@ -12,14 +12,14 @@
         </li>
         <li>
           <a id="AddUser" jwcid="addLineLink@DirectLink"
-            listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.addLine)"
+            listener="listener:addLine"
             parameters="ognl:phone.id">
             <span key="link.AddLine">Add Line</span>
           </a>
         </li>
         <li jwcid="@If" condition="ognl:externalLinesSupported">
           <a id="AddExternalLine" jwcid="addExternalLineLink@DirectLink"
-            listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.addExternalLine)"
+            listener="listener:addExternalLine"
             parameters="ognl:phone.id">
             <span key="link.AddExternal">Add External Line</span>
           </a>
@@ -58,13 +58,13 @@
       </ul>
       <ul class="form-actions">
         <li>
-          <input type="submit" jwcid="@Submit" listener="ognl:listeners.ok" value="message:button.ok"/>
+          <input type="submit" jwcid="@Submit" listener="listener:ok" value="message:button.ok"/>
         </li>
         <li>
-          <input type="submit" jwcid="@Submit" listener="ognl:listeners.apply" value="message:button.apply"/>
+          <input type="submit" jwcid="@Submit" listener="listener:apply" value="message:button.apply"/>
         </li>
         <li>
-          <input type="submit" jwcid="@Submit" listener="ognl:listeners.cancel" value="message:button.cancel"/>
+          <input type="submit" jwcid="@Submit" listener="listener:cancel" value="message:button.cancel"/>
         </li>
       </ul>
     </form>

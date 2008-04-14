@@ -38,6 +38,6 @@
     <binding name="value" value="returnToEditPhone"/>
   </component>
   <component id="select" type="Submit">
-    <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.select)"/>
+    <binding name="listener" value="listener:select"/>
   </component>
 </page-specification>

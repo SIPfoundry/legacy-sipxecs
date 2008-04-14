@@ -34,7 +34,7 @@ public class UserException extends RuntimeException {
         m_message = message;
         m_params = params;
     }
-    
+
     public String getMessage() {
         if (m_message != null) {
             return MessageFormat.format(m_message, m_params);

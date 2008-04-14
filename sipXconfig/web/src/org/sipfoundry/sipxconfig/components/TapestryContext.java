@@ -18,15 +18,10 @@ import java.util.Locale;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hivemind.ApplicationRuntimeException;
 import org.apache.hivemind.Messages;
-import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IComponent;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.valid.IValidationDelegate;
-import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.site.skin.SkinControl;
@@ -71,8 +66,7 @@ public class TapestryContext {
      * Add a option to the dropdown model with a label to instruct the user to make a selection.
      * If not item is selected, your business object method will be explicitly set to null
      */
-    public IPropertySelectionModel instructUserToSelect(IPropertySelectionModel model,
-            Messages messages) {
+    public IPropertySelectionModel instructUserToSelect(IPropertySelectionModel model, Messages messages) {
         return addExtraOption(model, messages, "prompt.select");
     }
 
@@ -80,112 +74,14 @@ public class TapestryContext {
      * Add a option to the dropdown model with a label to instruct the user to make a selection.
      * If not item is selected, your business object method will be explicitly set to null
      */
-    public IPropertySelectionModel addExtraOption(IPropertySelectionModel model,
-            Messages messages, String extraKey) {
+    public IPropertySelectionModel addExtraOption(IPropertySelectionModel model, Messages messages,
+            String extraKey) {
         ExtraOptionModelDecorator decorated = new ExtraOptionModelDecorator();
         decorated.setExtraLabel(messages.getMessage(extraKey));
         decorated.setExtraOption(null);
         decorated.setModel(model);
 
         return decorated;
-    }
-
-    /**
-     * Translates UserExceptions into form errors instead redirecting to an error page.
-     */
-    public IActionListener treatUserExceptionAsValidationError(IValidationDelegate validator,
-            IActionListener listener) {
-        return new UserExceptionAdapter(validator, listener);
-    }
-
-    /**
-     * Translates UserExceptions into form errors instead redirecting to an error page.
-     */
-    public IActionListener treatUserExceptionAsValidationError(IComponent component,
-            IActionListener listener) {
-        return new UserExceptionAdapter(TapestryUtils.getValidator(component), listener);
-    }
-
-    /**
-     * Translates UserExceptions into localized form errors instead redirecting to an error page.
-     */
-    public IActionListener treatUserExceptionAsValidationError(IValidationDelegate validator,
-            IActionListener listener, Messages messages) {
-        return new UserExceptionAdapter(validator, listener, messages);
-    }
-
-    /**
-     * Translates UserExceptions into localized form errors instead redirecting to an error page.
-     */
-    public IActionListener treatUserExceptionAsValidationError(IComponent component,
-            IActionListener listener, Messages messages) {
-        return new UserExceptionAdapter(TapestryUtils.getValidator(component), listener, messages);
-    }
-            
-    static class UserExceptionAdapter implements IActionListener {
-
-        private IActionListener m_listener;
-
-        private IValidationDelegate m_validator;
-        
-        private Messages m_messages;
-        
-        UserExceptionAdapter(IValidationDelegate validator, IActionListener listener) {
-            this(validator, listener, null);
-        }
-
-        UserExceptionAdapter(IValidationDelegate validator, IActionListener listener, Messages messages) {
-            m_listener = listener;
-            m_validator = validator;
-            m_messages = messages;
-        }
-
-        public void actionTriggered(IComponent component, IRequestCycle cycle) {
-            try {
-                m_listener.actionTriggered(component, cycle);
-            } catch (ApplicationRuntimeException are) {
-                UserException cause = getUserExceptionCause(are);
-                if (cause != null) {
-                    recordUserException(cause);
-                } else {
-                    throw are;
-                }
-            } catch (UserException ue) {
-                recordUserException(ue);
-            }
-        }
-
-        /**
-         * Starting with Tapestry 4, Listeners wrap exceptions with ApplicationRuntimeException.
-         * We have to prepare for many levels of exceptions as listeners are often wrapped by
-         * other listeners
-         */
-        UserException getUserExceptionCause(ApplicationRuntimeException e) {
-            Throwable t = e.getCause();
-            if (t instanceof UserException) {
-                return (UserException) t;
-            }
-            if (t instanceof ApplicationRuntimeException && t != e) {
-                // recurse
-                return getUserExceptionCause((ApplicationRuntimeException) t);
-            }
-            return null;
-        }
-
-        private void recordUserException(UserException e) {
-            if (m_messages != null && e.getCause() != null) {
-                m_validator.record(new ValidatorException(m_messages.format(e.getMessage(),
-                        e.getCause().getMessage())));
-            } else if (m_messages != null) {
-                m_validator.record(new ValidatorException(m_messages.getMessage(e.getMessage())));
-            } else {
-                m_validator.record(new ValidatorException(e.getMessage()));
-            }
-        }
-
-        public String getMethodName() {
-            return m_listener.getMethodName();
-        }
     }
 
     /**
@@ -208,8 +104,8 @@ public class TapestryContext {
     }
 
     public IAsset[] getStylesheets(IComponent component) {
-        String userAgent = component.getPage().getRequestCycle().getInfrastructure().getRequest()
-                .getHeader("user-agent");
+        String userAgent = component.getPage().getRequestCycle().getInfrastructure().getRequest().getHeader(
+                "user-agent");
         return m_skinControl.getStylesheetAssets(userAgent);
     }
 

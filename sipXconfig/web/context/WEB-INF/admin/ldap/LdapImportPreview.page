@@ -38,12 +38,12 @@
 
   <component id="ok" type="Submit">
     <binding name="value" value="message:button.ok" />
-    <binding name="listener" value="listeners.ok" />
+    <binding name="listener" value="listener:ok" />
   </component>
 
   <component id="next" type="Submit">
     <binding name="value" value="message:button.next" />
-    <binding name="listener" value="listeners.next" />
+    <binding name="listener" value="listener:next" />
   </component>
 
   <component id="ifRenderNext" type="If">
@@ -56,7 +56,7 @@
 
   <component id="previous" type="Submit">
     <binding name="value" value="message:button.previous" />
-    <binding name="listener" value="listeners.previous" />
+    <binding name="listener" value="listener:previous" />
   </component>
 
   <component id="firstNamePanel" type="common/FieldPanel">

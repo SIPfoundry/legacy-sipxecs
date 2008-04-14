@@ -38,14 +38,14 @@
         <input id="upload:activate"
           jwcid="activate@Submit"
           value="message:button.activate"
-          listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.activate)"/>
+          listener="listener:activate"/>
         <span jwcid="@common/Confirm" component="component:activate" prompt="message:confirm.activate"/>
       </li>
       <li>
         <input id="upload:inactivate"
           jwcid="inactivate@Submit"
           value="message:button.inactivate"
-          listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.inactivate)"/>
+          listener="listener:inactivate"/>
         <span jwcid="@common/Confirm" component="component:inactivate" prompt="message:confirm.inactivate"/>
       </li>
     </ul>

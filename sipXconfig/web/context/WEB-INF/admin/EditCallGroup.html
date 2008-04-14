@@ -7,7 +7,7 @@
 <h2 id="callgroup:edit"><span key="title">Call group</span></h2>
 <span jwcid="@common/ErrorMsg"/>
 <form jwcid="form@Form" delegate="bean:validator"
-  listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)">
+  listener="listener:formSubmit">
   <fieldset  jwcid="common@common/ItemCommon" item="ognl:callGroup"
     useExtension="ognl:true" nameValidator="spring-validators:required,validSipUserId"/>
   <fieldset jwcid="ringTable@admin/UserRingTable" rings="ognl:callGroup.rings"

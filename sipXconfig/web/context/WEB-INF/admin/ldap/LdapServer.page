@@ -18,7 +18,9 @@
   <!--
     - B E A N S
   -->
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate">
+    <set name="messages" value="ognl:messages"/>
+  </bean>
 
   <!--
     - C O M P O N E N T S
@@ -34,8 +36,7 @@
 
   <component id="applyConnectionParams" type="Submit">
     <binding name="value" value="message:label.continue" />
-    <binding name="action"
-      value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.applyConnectionParams, messages)" />
+    <binding name="action"value="listener:applyConnectionParams" />
   </component>
 
   <!-- object class selection stage -->
@@ -45,8 +46,7 @@
   </component>
   <component id="applyObjectClassesSelection" type="Submit">
     <binding name="value" value="message:label.continue" />
-    <binding name="action"
-      value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.applyObjectClassesSelection)" />
+    <binding name="action" value="listener:applyObjectClassesSelection" />
   </component>
 
   <!-- attribute mapping stage -->
@@ -59,8 +59,7 @@
   </component>
   <component id="applyAttrMap" type="Submit">
     <binding name="value" value="message:label.continue" />
-    <binding name="action"
-      value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.applyAttrMap)" />
+    <binding name="action" value="listener:applyAttrMap" />
   </component>
 
   <component id="tabContent" type="RenderBlock">

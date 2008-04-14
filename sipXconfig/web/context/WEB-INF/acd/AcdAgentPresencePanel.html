@@ -9,13 +9,13 @@
     <li>
       <input id="signInButton" jwcid="signInButton@Submit"
         updateComponents="ognl:{'refreshedContent'}"
-        listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signIn)"
+        listener="listener:signIn"
         value="message:signIn"/>
     </li>
     <li>
       <input id="signOutButton" jwcid="signOutButton@Submit"
         updateComponents="ognl:{'refreshedContent'}"
-        listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signOut)"
+        listener="listener:signOut"
         value="message:signOut"/>
     </li>
   </ul>

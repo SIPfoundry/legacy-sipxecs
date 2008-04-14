@@ -16,7 +16,7 @@
      -->
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
-    <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.submit)"/>
+    <binding name="listener" value="listener:submit"/>
   </component>
   <component id="import" type="Submit">
     <binding name="value" value="message:label.import"/>

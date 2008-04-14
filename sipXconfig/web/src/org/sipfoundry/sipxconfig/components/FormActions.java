@@ -14,7 +14,9 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IBinding;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.listener.ListenerInvoker;
 import org.apache.tapestry.valid.IValidationDelegate;
 
 public abstract class FormActions extends BaseComponent {
@@ -30,6 +32,9 @@ public abstract class FormActions extends BaseComponent {
     public abstract String getSuccessMessage();
 
     public abstract SipxValidationDelegate getValidator();
+    
+    @InjectObject(value = "infrastructure:listenerInvoker")
+    public abstract ListenerInvoker getListenerInvoker();
 
     public void onOk(IRequestCycle cycle) {
         apply(cycle);
@@ -51,10 +56,9 @@ public abstract class FormActions extends BaseComponent {
     }
 
     private void apply(IRequestCycle cycle) {
-        SipxValidationDelegate validator = getSipxValidator();
         IActionListener listener = getListener();
-        IActionListener adapter = new TapestryContext.UserExceptionAdapter(validator, listener);
-        adapter.actionTriggered(this, cycle);
+        getListenerInvoker().invokeListener(listener, this, cycle);
+        SipxValidationDelegate validator = getSipxValidator();
         String msg = StringUtils.defaultIfEmpty(getSuccessMessage(), getMessages().getMessage(
                 "user.success"));
         validator.recordSuccess(msg);
@@ -66,7 +70,7 @@ public abstract class FormActions extends BaseComponent {
 
     private SipxValidationDelegate getSipxValidator() {
         SipxValidationDelegate validator = getValidator();
-        // for compatibility - we should require passing validator explicitely
+        // for compatibility - we should require passing validator explicitly
         if (validator == null) {
             validator = (SipxValidationDelegate) TapestryUtils.getValidator(getPage());
         }

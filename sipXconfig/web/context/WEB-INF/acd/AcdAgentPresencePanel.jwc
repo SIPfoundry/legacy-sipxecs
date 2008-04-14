@@ -8,7 +8,6 @@
 
   <inject property="acdContext" object="spring:acdContext"/>
   <inject property="coreContext" object="spring:coreContext"/>
-  <inject property="tapestry" object="spring:tapestry"/>
   <inject property="presenceServer" object="spring:presenceServer"/>
 
   <parameter name="users" default-value="acdContext.usersWithAgents"/>

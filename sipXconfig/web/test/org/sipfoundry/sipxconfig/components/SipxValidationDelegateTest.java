@@ -9,9 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.util.Locale;
+
 import junit.framework.TestCase;
 
+import org.apache.hivemind.impl.AbstractMessages;
 import org.apache.tapestry.valid.ValidationConstraint;
+import org.sipfoundry.sipxconfig.common.UserException;
 
 public class SipxValidationDelegateTest extends TestCase {
     public void testGetHasSuccess() {
@@ -29,5 +33,51 @@ public class SipxValidationDelegateTest extends TestCase {
         delegate.recordSuccess("bongo");
         delegate.record("error", ValidationConstraint.CONSISTENCY);
         assertFalse(delegate.getHasSuccess());
-    }    
+    }
+
+    public void testRecord() {
+        UserException exception = new UserException("Error message");
+
+        SipxValidationDelegate delegate = new SipxValidationDelegate();
+        delegate.record(exception, null);
+        assertEquals("Error message", delegate.getFirstError().toString());
+    }
+
+    public void testRecordWithMessage() {
+        UserException exception = new UserException("error");
+
+        SipxValidationDelegate delegate = new SipxValidationDelegate();
+        delegate.record(exception, new DummyMessages());
+        assertEquals("Error message", delegate.getFirstError().toString());
+    }
+
+    public void testRecordWithMissingMessage() {
+        UserException exception = new UserException("Another error");
+
+        SipxValidationDelegate delegate = new SipxValidationDelegate();
+        delegate.record(exception, new DummyMessages());
+        assertEquals("Another error", delegate.getFirstError().toString());
+    }
+
+    public void testRecordWithMessageAndCause() {
+        RuntimeException cause = new RuntimeException("Something happened");
+        UserException exception = new UserException(cause);
+
+        SipxValidationDelegate delegate = new SipxValidationDelegate();
+        delegate.record(exception, new DummyMessages());
+        assertEquals("Something happened", delegate.getFirstError().toString());
+    }
+
+    private class DummyMessages extends AbstractMessages {
+        protected Locale getLocale() {
+            return Locale.US;
+        }
+
+        protected String findMessage(String key) {
+            if (key.equals("error")) {
+                return "Error message";
+            }
+            return null;
+        }
+    }
 }

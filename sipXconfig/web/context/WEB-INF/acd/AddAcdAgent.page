@@ -9,7 +9,6 @@
   -->
   <inject property="acdContext" object="spring:acdContext" />
   <inject property="coreContext" object="spring:coreContext" />
-  <inject property="tapestry" object="spring:tapestry" />
 
   <property name="acdQueueId" persist="session" />
 
@@ -25,15 +24,14 @@
     <binding name="delegate" value="bean:validator" />
   </component>
   <component id="searchForm" type="user/UserSearch">
-    <binding name="cancelListener" value="listeners.cancel" />
+    <binding name="cancelListener" value="listener:cancel" />
     <binding name="simpleSearch" value="true" />
   </component>
   <component id="searchResults" type="user/UserSearchResults">
     <binding name="users" value="components.searchForm.users" />
   </component>
   <component id="select" type="Submit">
-    <binding name="listener"
-      value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.select)" />
+    <binding name="listener" value="listener:select" />
     <binding name="label" value="message:button.select" />
   </component>
 </page-specification>

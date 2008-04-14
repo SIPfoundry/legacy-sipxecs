@@ -29,8 +29,7 @@
   </component>
 
   <component id="formActions" type="common/FormActions">
-    <binding name="listener"
-      value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.apply)" />
+    <binding name="listener" value="listener:apply" />
     <binding name="callback" value="callback" />
   </component>
 

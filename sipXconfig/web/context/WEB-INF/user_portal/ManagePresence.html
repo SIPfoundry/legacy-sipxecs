@@ -21,11 +21,11 @@
       <ul jwcid="actions@Block">
         <li>
           <input jwcid="signInButton@Submit" id="signInButton" value="message:button.SignIn"
-            listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signIn)"
+            listener="listener:signIn"
             updateComponents="ognl:{'refreshedContent'}"
           />
           <input jwcid="signOutButton@Submit" id="signOutButton" value="message:button.SignOut"
-            listener="ognl:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.signOut)"
+            listener="listener:signOut"
             updateComponents="ognl:{'refreshedContent'}"
           />
         </li>
