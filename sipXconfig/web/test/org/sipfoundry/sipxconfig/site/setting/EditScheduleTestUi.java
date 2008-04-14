@@ -104,4 +104,16 @@ public class EditScheduleTestUi extends WebTestCase {
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
     }
+
+    public void testAddDeleteScheduleWithSpacesInName() throws Exception {
+        SiteTestHelper.assertNoException(tester);
+        clickLink("link:addSchedule");
+        setTextField("item:name", "schedule name with spaces");
+        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
+        clickButton("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
+        checkCheckbox("checkbox");
+        clickButton("schedule:delete");
+        SiteTestHelper.assertNoUserError(tester);
+    }
 }

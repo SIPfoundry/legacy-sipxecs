@@ -7,7 +7,7 @@
 	  </h2>      	
 	  <span jwcid="@common/ErrorMsg"></span>
 	  <form jwcid="@Form" delegate="bean:validator" listener="listener:submit">
-	     <span jwcid="@common/ItemCommon" item="ognl:schedule" nameValidator="spring-validators:required,noWhitespace" useEnabled="literal:false" useExtension="literal:false"/>
+	     <span jwcid="@common/ItemCommon" item="ognl:schedule" nameValidator="spring-validators:required" useEnabled="literal:false" useExtension="literal:false"/>
 		  <ul class="component-links">
 			<li>
 				<a jwcid="addPeriod@LinkSubmit" selected="ognl:action" tag="add"><span key="add">Add Period</span></a>
