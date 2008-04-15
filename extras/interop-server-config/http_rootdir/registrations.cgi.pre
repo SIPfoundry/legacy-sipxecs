@@ -119,7 +119,7 @@ foreach $registration (sort registration_cmp @registrations) {
                     ($registration->{'instance_id'}
                      ? [
                         &show($registration->{'instance_id'}, 1),
-                        &show($registration->{'gruu'}, 1)
+                        &show('sip:' . $registration->{'gruu'}, 1)
                         ]
                      : '<font color="red">+sip.instance parameter required for gruu; none seen</font>'
 
@@ -271,7 +271,7 @@ sub findUserAgentValues {
 # Escape HTML special characters.
 # Put <wbr/> tags between individual characters, so fields fold, if requested
 # by second argument.
-# Replace empty strings with &nbsp; so their borders how in IE.
+# Replace empty strings with &nbsp; so their borders show in IE.
 # Put into code font, if requested by second argument.
 sub show {
     my($string, $code) = @_;

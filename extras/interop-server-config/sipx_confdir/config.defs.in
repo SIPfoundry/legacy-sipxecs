@@ -17,8 +17,8 @@
 SIPXCHANGE_DOMAIN_NAME=`hostname -f`
 # SIPXCHANGE_DOMAIN_NAME=`hostname -d`
 # Special values for the aliases used by the interop configuration:
-INTEROP_ALIAS_UDP="int-udp.`hostname -d`"
-INTEROP_ALIAS_TCP="int-tcp.`hostname -d`"
+INTEROP_ALIAS_UDP="udp.${SIPXCHANGE_DOMAIN_NAME}`"
+INTEROP_ALIAS_TCP="tcp.${SIPXCHANGE_DOMAIN_NAME}`"
 
 #### Core Limit
 # Control whether or not core files are saved in a server failure.

@@ -69,7 +69,8 @@ This server is restarted once a week, at 00:00 Sunday UTC.
 The restart process takes approximately 2 minutes.
 </p>
 <p>
-<a href='sipx-version.cgi'>Display the sipX version running on this server</a>
+<a href='sipx-version.cgi'>Display the sipX version running on this server</a><br />
+<a href='config-version.html'>Display the configuration version running on this server</a>
 </p>
 <p>
 This server is freely available to all, <strong>but Pingtel does not
@@ -177,7 +178,8 @@ request, so it will normally be less than the requested time.
 </p>
 
 <p>
-The authentication nonces provided by sipX are specific to the
+The <a name="nonces">authentication nonces</a> provided by sipX are
+specific to the
 from-tag in the request.  Section 8.1.3.5 of RFC 3261 requires that a
 re-sent request has the same from-tag as the original request, so the
 nonce that sipX returns in a 401/407 response can always be used in a
@@ -198,20 +200,19 @@ assign a GRUU to the UA.
 </p>
 -->
 
-<!--
 <p>
 The registrar returns to the UA a fictitious contact from another UA
-with a very short expiration time.  (This behavior is allowed by
+with a <a name="expiration">very short expiration time</a>.
+(This behavior is allowed by
 <a href="http://www.ietf.org/rfc/rfc3261.txt">RFC 3261</a>.)
-(This feature is not yet implemented.)
 Some UAs respond incorrectly to the short expiration time by
 immediately re-registering.
-A <font color='red'>red</font> value in the "CSeq" column means that
+A <font color='red'>red</font> value in the "CSeq" column of the 
+<a href="registrations.cgi">registrations page</a> means that
 the UA has incorrectly sent more than 2
-registrations in the last 5 minutes, which probably indicates it has
+registrations in the last 5 minutes, which  indicates it probably has
 this error.
 </p>
--->
 
 <h2>Confirming Basic Functionality</h2>
 
@@ -231,7 +232,7 @@ to <a href='trace.cgi'>trace the message flow in this system</a>.
 
 <hr />
 
-<h2>The Tests</h2>
+<h2><a name="Tests">The Tests</a></h2>
 
 <ol>
 <li><a href='#MWI'>DTMF Generation and Message Waiting Indication (MWI)</a></li>
