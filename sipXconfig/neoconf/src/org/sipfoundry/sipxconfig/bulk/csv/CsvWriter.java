@@ -18,7 +18,6 @@ public class CsvWriter {
     private Writer m_writer;
 
     public CsvWriter(Writer writer) {
-        super();
         m_writer = writer;
     }
 

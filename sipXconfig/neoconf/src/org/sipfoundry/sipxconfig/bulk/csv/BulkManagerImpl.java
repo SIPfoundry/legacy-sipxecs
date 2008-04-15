@@ -15,14 +15,15 @@ import java.io.IOException;
 import java.io.Reader;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.bulk.BulkParser;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class BulkManagerImpl extends HibernateDaoSupport implements BulkManager {
-    private CsvParser m_csvParser;
+    private BulkParser m_csvParser;
 
     private CsvRowInserter m_rowInserter;
 
-    public void setCsvParser(CsvParser csvParser) {
+    public void setCsvParser(BulkParser csvParser) {
         m_csvParser = csvParser;
     }
 

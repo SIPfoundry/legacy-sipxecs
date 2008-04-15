@@ -11,9 +11,13 @@ package org.sipfoundry.sipxconfig.bulk.csv;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
+
+import org.apache.commons.collections.Closure;
+import org.sipfoundry.sipxconfig.bulk.BulkParser;
 
 public class CsvParserImplTest extends TestCase {
     public static final String[] NAMES = {
@@ -23,14 +27,13 @@ public class CsvParserImplTest extends TestCase {
     public static final String[] DESCRIPTIONS = {
         "Room", "Green", "", "", ""
     };
-    
-    
+
     public void testParseLineEmpty() {
         CsvParserImpl parser = new CsvParserImpl();
         String[] row = parser.parseLine("");
-        assertEquals(0, row.length);        
+        assertEquals(0, row.length);
     }
-    
+
     public void testParseLineNoQuotes() {
         CsvParserImpl parser = new CsvParserImpl();
         String[] row = parser.parseLine("a,bbb,c");
@@ -39,7 +42,7 @@ public class CsvParserImplTest extends TestCase {
         assertEquals("bbb", row[1]);
         assertEquals("c", row[2]);
     }
-    
+
     public void testParseLineStartWithEmpty() {
         CsvParserImpl parser = new CsvParserImpl();
         String[] row = parser.parseLine(",a,bbb,ccc c");
@@ -49,7 +52,7 @@ public class CsvParserImplTest extends TestCase {
         assertEquals("bbb", row[2]);
         assertEquals("ccc c", row[3]);
     }
-    
+
     public void testParseLineEndWithEmpty() {
         CsvParserImpl parser = new CsvParserImpl();
         String[] row = parser.parseLine("a,bbb,ccc c,");
@@ -59,7 +62,7 @@ public class CsvParserImplTest extends TestCase {
         assertEquals("ccc c", row[2]);
         assertEquals("", row[3]);
     }
-    
+
     public void testParseLineQuotes() {
         CsvParserImpl parser = new CsvParserImpl();
         String[] row = parser.parseLine("a,\"bbb\",c,\"\"");
@@ -69,7 +72,7 @@ public class CsvParserImplTest extends TestCase {
         assertEquals("c", row[2]);
         assertEquals("", row[3]);
     }
-    
+
     public void testParseLineQuotedFieldSeparator() {
         CsvParserImpl parser = new CsvParserImpl();
         String[] row = parser.parseLine("a,\"bb,b\",c");
@@ -78,7 +81,7 @@ public class CsvParserImplTest extends TestCase {
         assertEquals("bb,b", row[1]);
         assertEquals("c", row[2]);
     }
-    
+
     public void testParseLineQuotedQuote() {
         CsvParserImpl parser = new CsvParserImpl();
         String[] row = parser.parseLine("a,\"b\"bb\",c");
@@ -90,10 +93,16 @@ public class CsvParserImplTest extends TestCase {
 
     public void testParse() {
         assertEquals(NAMES.length, DESCRIPTIONS.length);
-        
-        CsvParser parser = new CsvParserImpl();
+
+        BulkParser parser = new CsvParserImpl();
         InputStream cutsheet = getClass().getResourceAsStream("cutsheet.csv");
-        List rows = parser.parse(new InputStreamReader(cutsheet));
+        final List<String[]> rows = new ArrayList<String[]>();
+        Closure add = new Closure() {
+            public void execute(Object item) {
+                rows.add((String[]) item);
+            }
+        };
+        parser.parse(new InputStreamReader(cutsheet), add);
         // there are 6 rows - we expect that the header row is always skipped
         assertEquals(NAMES.length, rows.size());
         for (int i = 0; i < NAMES.length; i++) {

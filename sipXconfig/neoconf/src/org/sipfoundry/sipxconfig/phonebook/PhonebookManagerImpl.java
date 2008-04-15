@@ -10,10 +10,11 @@
 package org.sipfoundry.sipxconfig.phonebook;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,7 +25,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.collections.Closure;
-import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -37,11 +37,8 @@ import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Searcher;
 import org.apache.lucene.store.RAMDirectory;
-import org.sipfoundry.sipxconfig.bulk.csv.CsvParser;
-import org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl;
-import org.sipfoundry.sipxconfig.bulk.vcard.VcardParser;
+import org.sipfoundry.sipxconfig.bulk.BulkParser;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
@@ -50,24 +47,22 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.sipfoundry.sipxconfig.common.DaoUtils.checkDuplicates;
+import static org.sipfoundry.sipxconfig.common.DaoUtils.requireOneOrZero;
 
-public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> implements
-        PhonebookManager, DaoEventListener {
+public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> implements PhonebookManager,
+        DaoEventListener {
     private static final String NAME = "name";
     private static final String FIELD_ID = "id";
     private static final String FIELD_CONTENT = "content";
-    private static final String VCARD_HEADER = "BEGIN:vCard";
-    private static final String VCARD_FOOTER = "END:vCard";
-    private static final String VCARD_VERSION = "VERSION:" + "2.1";
-    private static final String VCARD_USER_NAME = "N:";
-    private static final String VCARD_PHONE = "TEL;";
-    private static final String NEW_LINE = "\n";
-    private static final String SEMICOLON = ";";
 
     private boolean m_phonebookManagementEnabled;
     private String m_externalUsersDirectory;
     private CoreContext m_coreContext;
-    private String m_telType;
+
+    private BulkParser m_csvParser;
+    private BulkParser m_vcardParser;
+    private VcardWriter m_vcardWriter;
 
     public Collection<Phonebook> getPhonebooks() {
         Collection<Phonebook> books = getHibernateTemplate().loadAll(Phonebook.class);
@@ -90,8 +85,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public void savePhonebook(Phonebook phonebook) {
-        DaoUtils.checkDuplicates(getHibernateTemplate(), Phonebook.class, phonebook, NAME,
-                new DuplicatePhonebookName());
+        checkDuplicates(getHibernateTemplate(), Phonebook.class, phonebook, NAME, new DuplicatePhonebookName());
         getHibernateTemplate().saveOrUpdate(phonebook);
     }
 
@@ -109,6 +103,14 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         m_coreContext = coreContext;
     }
 
+    public void setCsvParser(BulkParser csvParser) {
+        m_csvParser = csvParser;
+    }
+
+    public void setVcardParser(BulkParser vcardParser) {
+        m_vcardParser = vcardParser;
+    }
+
     /**
      * Where external user lists are kept. Callers can assume directory exists already
      */
@@ -122,8 +124,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         File d = new File(dir);
         if (!d.exists()) {
             if (!d.mkdirs()) {
-                throw new RuntimeException(new IOException("Could not create directory "
-                        + d.getAbsolutePath()));
+                throw new RuntimeException(new IOException("Could not create directory " + d.getAbsolutePath()));
             }
         }
         return dir;
@@ -135,14 +136,13 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     public Phonebook getPhonebookByName(String name) {
         String query = "phoneBookByName";
-        Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam(query,
-                NAME, name);
-        return DaoUtils.requireOneOrZero(books, query);
+        Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam(query, NAME, name);
+        return requireOneOrZero(books, query);
     }
 
     public Collection<Phonebook> getPhonebooksByUser(User consumer) {
-        Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "phoneBooksByUser", "userId", consumer.getId());
+        Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam("phoneBooksByUser",
+                "userId", consumer.getId());
         return books;
     }
 
@@ -171,31 +171,27 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             }
         }
 
-        String csvFilename = phonebook.getMembersCsvFilename();
-        if (csvFilename != null) {
-            File f = new File(new File(m_externalUsersDirectory), csvFilename);
-            CsvParser parser = new CsvParserImpl();
-            try {
-                parser.parse(new FileReader(f), new CsvPhonebookEntryMaker(entries));
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        try {
+            String csvFilename = phonebook.getMembersCsvFilename();
+            addEntriesFromFile(entries, csvFilename, m_csvParser);
 
-        String vcardFilename = phonebook.getMembersVcardFilename();
-        if (vcardFilename != null) {
-            File f = new File(new File(m_externalUsersDirectory), vcardFilename);
-            VcardParser parser = new VcardParser(getTelType());
-            try {
-                parser.parse(new FileReader(f), new CsvPhonebookEntryMaker(entries));
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
+            String vcardFilename = phonebook.getMembersVcardFilename();
+            addEntriesFromFile(entries, vcardFilename, m_vcardParser);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         List<PhonebookEntry> finalList = new ArrayList(entries.values());
         Collections.sort(finalList, new PhoneEntryComparator());
         return finalList;
+    }
+
+    private void addEntriesFromFile(Map<String, PhonebookEntry> entries, String csvFilename, BulkParser parser)
+        throws IOException {
+        if (csvFilename != null) {
+            File f = new File(new File(m_externalUsersDirectory), csvFilename);
+            parser.parse(new FileReader(f), new CsvPhonebookEntryMaker(entries));
+        }
     }
 
     /**
@@ -252,8 +248,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     /*
      * @param queryString A case-insensitive query string
      */
-    private List<Document> doSearch(Searcher searcher, String queryString) throws IOException,
-            ParseException {
+    private List<Document> doSearch(Searcher searcher, String queryString) throws IOException, ParseException {
         Term searchTerm = new Term(FIELD_CONTENT, queryString.toLowerCase());
         Query query = new PrefixQuery(searchTerm);
         Hits hits = searcher.search(query);
@@ -338,7 +333,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     public static class StringArrayPhonebookEntry implements PhonebookEntry {
         private String[] m_row;
 
-        StringArrayPhonebookEntry(String[] row) {
+        StringArrayPhonebookEntry(String... row) {
             if (row.length < 3) {
                 throw new CsvFileFormatError();
             }
@@ -393,10 +388,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             getHibernateTemplate().update(group);
             if (User.GROUP_RESOURCE_ID.equals(group.getResource())) {
                 for (Phonebook book : getPhonebooks()) {
-                    DataCollectionUtil.removeByPrimaryKey(book.getConsumers(), group
-                            .getPrimaryKey());
-                    DataCollectionUtil.removeByPrimaryKey(book.getMembers(), group
-                            .getPrimaryKey());
+                    DataCollectionUtil.removeByPrimaryKey(book.getConsumers(), group.getPrimaryKey());
+                    DataCollectionUtil.removeByPrimaryKey(book.getMembers(), group.getPrimaryKey());
                     savePhonebook(book);
                 }
             }
@@ -414,35 +407,15 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         m_phonebookManagementEnabled = phonebookManagementEnabled;
     }
 
-    public String getTelType() {
-        return m_telType;
+    public void setVcardWriter(VcardWriter vcardWriter) {
+        m_vcardWriter = vcardWriter;
     }
 
-    public void setTelType(String type) {
-        m_telType = type;
-    }
-
-    public void exportPhonebook(Collection<PhonebookEntry> entries, File file) throws Exception {
-        try {
-            FileWriter writer = new FileWriter(file);
-            for (PhonebookEntry entry : entries) {
-                if (StringUtils.isNotEmpty(entry.getFirstName())
-                        || StringUtils.isNotEmpty(entry.getLastName())) {
-                    writer.write(VCARD_HEADER + NEW_LINE);
-                    writer.write(VCARD_VERSION + NEW_LINE);
-                    writer.write(VCARD_USER_NAME
-                            + StringUtils.defaultString(entry.getFirstName()) + SEMICOLON
-                            + StringUtils.defaultString(entry.getLastName()) + SEMICOLON
-                            + SEMICOLON + SEMICOLON + NEW_LINE);
-                    writer.write(VCARD_PHONE + getTelType().toUpperCase() + ":"
-                            + entry.getNumber() + NEW_LINE);
-                    writer.write(VCARD_FOOTER + NEW_LINE + NEW_LINE);
-                }
-            }
-            writer.flush();
-            writer.close();
-        } catch (Exception e) {
-            throw e;
+    public void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out) throws IOException {
+        Writer writer = new OutputStreamWriter(out, "UTF-8");
+        for (PhonebookEntry entry : entries) {
+            m_vcardWriter.write(writer, entry);
         }
+        writer.flush();
     }
 }

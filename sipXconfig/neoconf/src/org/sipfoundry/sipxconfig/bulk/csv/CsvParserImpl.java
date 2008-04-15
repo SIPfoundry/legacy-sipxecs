@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.collections.Closure;
+import org.sipfoundry.sipxconfig.bulk.BulkParser;
 
 /**
  * Very simple CSV parser. Always skips headers, field quote is optional and only matters on field
@@ -23,7 +24,7 @@ import org.apache.commons.collections.Closure;
  * 
  * TODO: Switch to commons CSV parser once it's available
  */
-public class CsvParserImpl implements CsvParser {
+public class CsvParserImpl implements BulkParser {
 
     static final char FIELD_SEPARATOR = ',';
     static final char FIELD_QUOTE = '"';

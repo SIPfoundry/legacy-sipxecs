@@ -25,7 +25,6 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 
 public abstract class UserPhonebookPage extends UserBasePage implements PageBeginRenderListener {
-    
     private static final String SEPARATOR = ", ";
     private static final String EXTENSION_PATTERN = "\\d*";
     private static final String UNKNOWN = "label.unknown";
@@ -35,7 +34,7 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
 
     @InjectObject("spring:phonebookManager")
     public abstract PhonebookManager getPhonebookManager();
-    
+
     public abstract void setQuery(String query);
 
     public abstract String getQuery();
@@ -45,6 +44,7 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
     public abstract void setPhonebookEntries(Collection<PhonebookEntry> entries);
 
     public abstract PhonebookEntry getPhonebookEntry();
+
     public abstract void setPhonebookEntry(PhonebookEntry entry);
 
     public void pageBeginRender(PageEvent event) {
@@ -77,7 +77,7 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
                 extensionBuffer.append(getPhonebookEntry().getNumber());
             }
         }
-        
+
         if (extensionBuffer.length() == 0) {
             extensionBuffer.append(getMessages().getMessage(UNKNOWN));
         }
@@ -101,15 +101,13 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
                 extensionBuffer.append(getPhonebookEntry().getNumber());
             }
         }
-        
+
         if (extensionBuffer.length() == 0) {
             extensionBuffer.append(getMessages().getMessage(UNKNOWN));
         }
 
         return extensionBuffer.toString();
     }
-
-    
 
     /**
      * Filters the phonebook entries based on the value of getQuery()
@@ -125,7 +123,7 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
         setQuery(StringUtils.EMPTY);
         initializeEntries();
     }
-    
+
     private Collection<Phonebook> getPhonebooks() {
         User user = getUser();
         return getPhonebookManager().getPhonebooksByUser(user);
@@ -134,7 +132,7 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
     private User getUserForEntry(PhonebookEntry entry) {
         return getCoreContext().loadUserByUserName(entry.getNumber());
     }
-    
+
     private void parseExtensionsForUser(User user, StringBuffer extensionBuffer) {
         if (user.getName().matches(EXTENSION_PATTERN)) {
             extensionBuffer.append(user.getName());
@@ -149,7 +147,7 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
             }
         }
     }
-    
+
     private void parseSipIdsForUser(User user, StringBuffer extensionBuffer) {
         if (!user.getName().matches(EXTENSION_PATTERN)) {
             extensionBuffer.append(user.getName());

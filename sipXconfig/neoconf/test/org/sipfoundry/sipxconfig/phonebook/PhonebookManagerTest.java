@@ -9,18 +9,24 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl;
+import org.sipfoundry.sipxconfig.bulk.vcard.VcardParserImpl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.CsvFileFormatError;
@@ -132,6 +138,7 @@ public class PhonebookManagerTest extends TestCase {
 
     public void testGetCsvFile() {
         PhonebookManagerImpl context = new PhonebookManagerImpl();
+        context.setCsvParser(new CsvParserImpl());
         String dir = TestUtil.getTestSourceDirectory(getClass());
         context.setExternalUsersDirectory(dir);
 
@@ -151,6 +158,9 @@ public class PhonebookManagerTest extends TestCase {
 
     public void testGetVCardFile() {
         PhonebookManagerImpl context = new PhonebookManagerImpl();
+        VcardParserImpl impl = new VcardParserImpl();
+        impl.setTelType("work");
+        context.setVcardParser(impl);
         String dir = TestUtil.getTestSourceDirectory(getClass());
         context.setExternalUsersDirectory(dir);
 
@@ -164,9 +174,30 @@ public class PhonebookManagerTest extends TestCase {
         }
 
         phonebook.setMembersVcardFilename("phonebook.vcf");
-        context.setTelType("work");
         Collection<PhonebookEntry> entries = context.getEntries(phonebook);
         assertEquals(1, entries.size());
+    }
+
+    public void testExportVCard() throws Exception {
+        VcardWriter vcardWriter = new VcardWriter();
+        PhonebookManagerImpl context = new PhonebookManagerImpl();
+        context.setVcardWriter(vcardWriter);
+        vcardWriter.setTelType("work");
+
+        ByteArrayOutputStream empty = new ByteArrayOutputStream();
+        context.exportPhonebook(Collections.<PhonebookEntry> emptyList(), empty);
+
+        PhonebookEntry e1 = new StringArrayPhonebookEntry("Jean Luc", "Picard", "1234");
+        PhonebookEntry e2 = new StringArrayPhonebookEntry("Luke", "Skywalker", "1235");
+        PhonebookEntry e3 = new StringArrayPhonebookEntry("", "", "1235");
+
+        ByteArrayOutputStream actual = new ByteArrayOutputStream();
+        context.exportPhonebook(Arrays.asList(e1, e2, e3), actual);
+
+        InputStream expectedStream = getClass().getResourceAsStream("export.test.vcf");
+        assertNotNull(expectedStream);
+        String expected = IOUtils.toString(expectedStream);
+        assertEquals(expected, actual.toString("UTF-8"));
     }
 
     public void testSearch() {
@@ -194,22 +225,22 @@ public class PhonebookManagerTest extends TestCase {
         String username = testHelper.getUserByUsername(testEntry.getNumber()).getUserName();
 
         // test searching by username in all lowercase
-        Collection<PhonebookEntry> entriesThatMatchUsername = out.search(Collections
-                .singletonList(new Phonebook()), username.toLowerCase());
+        Collection<PhonebookEntry> entriesThatMatchUsername = out.search(Collections.singletonList(new Phonebook()),
+                username.toLowerCase());
 
         assertEquals(1, entriesThatMatchUsername.size());
         assertTrue(entriesThatMatchUsername.contains(testEntry));
 
         // test searching by username in all caps
-        Collection<PhonebookEntry> entriesThatMatchUsernameCaps = out.search(Collections
-                .singletonList(new Phonebook()), username.toUpperCase());
+        Collection<PhonebookEntry> entriesThatMatchUsernameCaps = out.search(
+                Collections.singletonList(new Phonebook()), username.toUpperCase());
 
         assertEquals(1, entriesThatMatchUsernameCaps.size());
         assertTrue(entriesThatMatchUsernameCaps.contains(testEntry));
 
         // test searching by first name
-        Collection<PhonebookEntry> entriesThatMatchFirstName = out.search(Collections
-                .singletonList(new Phonebook()), testEntry.getFirstName());
+        Collection<PhonebookEntry> entriesThatMatchFirstName = out.search(Collections.singletonList(new Phonebook()),
+                testEntry.getFirstName());
 
         assertEquals(1, entriesThatMatchFirstName.size());
         assertTrue(entriesThatMatchFirstName.contains(testEntry));
@@ -222,8 +253,8 @@ public class PhonebookManagerTest extends TestCase {
                 lastNameCount++;
             }
         }
-        Collection<PhonebookEntry> entriesThatMatchLastName = out.search(Collections
-                .singletonList(new Phonebook()), testEntry.getLastName());
+        Collection<PhonebookEntry> entriesThatMatchLastName = out.search(Collections.singletonList(new Phonebook()),
+                testEntry.getLastName());
 
         assertEquals(lastNameCount, entriesThatMatchLastName.size());
         assertTrue(entriesThatMatchLastName.contains(testEntry));
@@ -244,15 +275,13 @@ public class PhonebookManagerTest extends TestCase {
             }
         }
 
-        Collection<PhonebookEntry> entriesThatMatchAlias = out.search(Collections
-                .singletonList(new Phonebook()), userWithAlias.getAliases().iterator().next());
+        Collection<PhonebookEntry> entriesThatMatchAlias = out.search(Collections.singletonList(new Phonebook()),
+                userWithAlias.getAliases().iterator().next());
 
         assertEquals(1, entriesThatMatchAlias.size());
-        assertTrue(entriesThatMatchAlias.contains(testHelper.getEntryByNumber(userWithAlias
-                .getUserName())));
+        assertTrue(entriesThatMatchAlias.contains(testHelper.getEntryByNumber(userWithAlias.getUserName())));
 
         out.search(Collections.singletonList(new Phonebook()), "300");
         out.search(Collections.singletonList(new Phonebook()), "nulluser");
-
     }
 }
