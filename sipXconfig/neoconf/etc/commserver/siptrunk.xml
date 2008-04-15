@@ -18,25 +18,25 @@
     <setting name="max-number-of-concurrent-calls" advanced="yes">
       <label>Maximum calls</label>
       <type>
-        <integer min="-1" />
+        <integer />
       </type>
-      <value>-1</value>
       <description>
-        The maximum number of concurrent calls allowed via the given ITSP. "-1" means "infinity". This is a way of doing
-        a coarse granularity of QOS on the ITSP. When the limit is reached, sipXbridge will return "Service
-        Unavailable".
+        The maximum number of concurrent calls allowed via the given ITSP. This is a way of doing a coarse granularity
+        of QOS on a per ITSP basis. When the limit is reached, sipXbridge will return "Service Unavailable".
       </description>
     </setting>
-    <setting name="outbound-proxy" hidden="yes">
-      <description></description>
+    <setting name="outbound-proxy" hidden="yes" advanced="yes">
+      <description>If the ITSP specifies an outbound proxy, enter it here.</description>
     </setting>
-    <setting name="outbound-transport" hidden="yes">
+    <setting name="outbound-transport" hidden="no" advanced="yes">
       <type>
         <enum>
           <option>
+            <label>UDP</label>
             <value>udp</value>
           </option>
           <option>
+            <label>TCP</label>
             <value>tcp</value>
           </option>
         </enum>
@@ -48,8 +48,7 @@
       <description>The outbound proxy address.</description>
     </setting>
     <setting name="authentication-realm" advanced="yes">
-      <!-- FIXME -->
-      <description>sipXbridge should just take it from authentication challenge</description>
+      <description>If undefined, sipxbridge will read the domain from the authentication challenge.</description>
     </setting>
     <setting name="user-name">
       <label>User</label>
@@ -73,7 +72,7 @@
       <label>Global addressing</label>
       <type refid="switch" />
       <value>false</value>
-      <description>If checked, use the stun determined global address.</description>
+      <description>If checked, use the stun determined global address for SIP signaling and SDP.</description>
     </setting>
     <setting name="route-inbound-calls-to-extension">
       <label>Incoming calls destination</label>
@@ -92,6 +91,44 @@
       <label>Register on initialization</label>
       <type refid="switch"></type>
       <value>true</value>
+      <description>Defines whether or not to register with the given ITSP on initialization.</description>
+    </setting>
+    <setting name="sip-keepalive-method" advanced="yes">
+      <label>Method to use for SIP keepalive.</label>
+      <type>
+        <enum>
+          <option>
+            <value>REGISTER</value>
+          </option>
+          <option>
+            <value>OPTIONS</value>
+          </option>
+          <option>
+            <value>CR-LF</value>
+          </option>
+        </enum>
+      </type>
+      <description>
+        Defines the mechanism to use for SIP keepalive. If undefined, REGISTER is used if the account is marked
+        register-on-initialization else, if OPTIONS is Supported, OPTIONS is used else CR-LF is used.
+      </description>
+    </setting>
+    <setting name="rtp-keepalive-method" advanced="yes">
+      <label>Method to use for RTP keepalive.</label>
+      <type>
+        <enum>
+          <option>
+            <label>Use empty packet</label>
+            <value>USE-EMPTY-PACKET</value>
+          </option>
+          <option>
+            <label>Replay last sent packet</label>
+            <value>REPLAY-LAST-SENT-PACKET</value>
+          </option>
+        </enum>
+      </type>
+      <value>USE-EMPTY-PACKET</value>
+      <description>Defines the mechanism to use for RTP keepalive.</description>
     </setting>
   </group>
 </model>

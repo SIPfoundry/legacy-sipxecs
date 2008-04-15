@@ -70,12 +70,12 @@
     <setting name="max-number-of-concurrent-calls">
       <label>Maximum calls</label>
       <type>
-        <integer required="yes" min="-1" />
+        <integer />
       </type>
-      <value>-1</value>
       <description>
-        The maximum number of concurrent calls allowed via the given bridge overall. "-1" means "infinity". When the
-        limit is reached, sipxbridge will return "Service Unavailable".
+        The maximum number of concurrent calls allowed via the given bridge overall. When the limit is reached,
+        sipxbridge will return "Service Unavailable". If nothing is specified, no limit is placed on the max number of
+        concurrent calls.
       </description>
     </setting>
     <setting name="music-on-hold-support-enabled">
@@ -115,6 +115,27 @@
       <description>End of the RTP ports range.</description>
     </setting>
     <setting name="rtp-port-range" hidden="yes"></setting>
+    <setting name="allowed-codec-name" advanced="yes">
+      <label>Allowed Codec Name</label>
+      <type>
+        <enum>
+          <option>
+            <value>PCMU</value>
+          </option>
+          <option>
+            <value>G729</value>
+          </option>
+          <option>
+            <value>G723</value>
+          </option>
+        </enum>
+      </type>
+      <value>PCMU</value>
+      <description>
+        The codec for the SDP Offer that is allowable. Because sipxbridge does not support media transcoding, in to
+        support call transfers, we need to restrict the all codec for call setups in the SDP offer to this value.
+      </description>
+    </setting>
     <setting name="log-level" advanced="yes">
       <label>Logging level</label>
       <type>
@@ -136,11 +157,9 @@
       <value>INFO</value>
       <description>Log configuration. Defaults to INFO level.</description>
     </setting>
+
     <setting name="log-directory" hidden="yes">
-      <description>
-        Log directory. Defaults to /var/log/sipxbpx/. The log file name is hard coded to "sipxbridge.log". Please
-        specify the slash at the end of the directory name.
-      </description>
+      <description>Log directory. The log file name is hard coded to "sipxbridge.log".</description>
     </setting>
   </group>
 </model>

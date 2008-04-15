@@ -2,7 +2,9 @@
 ## emit 'setting value' pair - skipping _ignored_ settings
 #macro(emit_setting $s)
 #if($s.ProfileName != '$ignore$')
+#if(${s.Value})
     <${s.ProfileName}>$!{s.Value}</${s.ProfileName}>
+#end    
 #end
 #end
 ## emit setting line for every setting in the group

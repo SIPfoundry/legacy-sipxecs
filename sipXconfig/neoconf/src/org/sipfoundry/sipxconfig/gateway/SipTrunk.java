@@ -67,8 +67,7 @@ public class SipTrunk extends Gateway {
             return transport.getName();
         }
 
-        @SettingEntry(paths = { "itsp-account/outbound-proxy", "itsp-account/authentication-realm",
-                "itsp-account/proxy-domain" })
+        @SettingEntry(paths = { "itsp-account/outbound-proxy", "itsp-account/proxy-domain" })
         public String getOutboundProxy() {
             return m_trunk.getAddress();
         }
