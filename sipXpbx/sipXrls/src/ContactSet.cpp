@@ -502,7 +502,8 @@ void ContactSet::updateSubscriptions()
          {
 	    // If we both terminate subscriptions and create subscriptions,
 	    // wait a short while to allow the terminations to complete.
-            #if SUBSCRIPTION_WAIT > 0
+            if (SUBSCRIPTION_WAIT > 0)
+            {
                if (subscription_ended_but_no_wait_done_yet)
                {
                   OsSysLog::add(FAC_RLS, PRI_DEBUG,
@@ -511,7 +512,7 @@ void ContactSet::updateSubscriptions()
                   OsTask::delay(SUBSCRIPTION_WAIT);
                   subscription_ended_but_no_wait_done_yet = false;
                }
-            #endif
+            }
 
             OsSysLog::add(FAC_RLS, PRI_DEBUG,
                           "ContactSet::updateSubscriptions adding subscription for '%s' in mUri = '%s'",
