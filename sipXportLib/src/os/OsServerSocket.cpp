@@ -45,10 +45,10 @@
 
 // CONSTANTS
 
-#define SOCKET_LEN_TYPE
 #ifdef __pingtel_on_posix__
-#undef SOCKET_LEN_TYPE
-#define SOCKET_LEN_TYPE (socklen_t *)
+typedef socklen_t SocketLenType;
+#else
+typedef int SocketLenType;
 #endif
 
 // STATIC VARIABLE INITIALIZATIONS
@@ -67,7 +67,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
    int error = 0;
    socketDescriptor = 0;
    struct sockaddr_in localAddr;
-   int addrSize;
+   SocketLenType addrSize;
 
    // Windows specific startup
    if(!OsSocket::socketInit())
@@ -152,9 +152,9 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
       goto EXIT;
    }
 
-   addrSize = sizeof(struct sockaddr_in);
+   addrSize = sizeof (struct sockaddr_in);
    error = getsockname(socketDescriptor,
-                           (struct sockaddr*) &localAddr, SOCKET_LEN_TYPE &addrSize);
+                       (struct sockaddr*) &localAddr, &addrSize);
    if (error) {
       error = OsSocketGetERRNO();
       OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: getsockname call failed with error: %d=0x%x",
@@ -202,10 +202,10 @@ OsConnectionSocket* OsServerSocket::accept()
 
    /* Block while waiting for a client to connect. */
    struct sockaddr_in clientSocketAddr;
-   int clientAddrLength = sizeof clientSocketAddr;
+   SocketLenType clientAddrLength = sizeof (clientSocketAddr);
    int clientSocket = ::accept(socketDescriptor,
-                     (struct sockaddr*) &clientSocketAddr,
-                     SOCKET_LEN_TYPE &clientAddrLength);
+                               (struct sockaddr*) &clientSocketAddr,
+                               &clientAddrLength);
    if (clientSocket < 0)
    {
       int error = OsSocketGetERRNO();
