@@ -18,6 +18,7 @@
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="coreContext" ref="coreContext"/>
     <property name="phonebookManagementEnabled" value="true" />
+	<property name="telType" value="work" />
   </bean>
 
 </beans>

@@ -1,0 +1,23 @@
+BEGIN:vCard
+VERSION:3.0
+N:Picard;Jean Luc;captain;Cpt.;of USS Enterprise
+TEL;TYPE=work,BBS:1234
+END:vCard
+
+BEGIN:vCard
+VERSION:2.1
+N:Skywalker;Luke;jedi knight;Mr.;
+TEL;mobile;work:1235
+END:vCard
+
+BEGIN:vCard
+VERSION:2.1
+N:;;;;
+TEL;TYPE=work,BBS:1234
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+N:Vader;Darth;evil jedi;;
+TEL;mobile:1235
+END:vCard

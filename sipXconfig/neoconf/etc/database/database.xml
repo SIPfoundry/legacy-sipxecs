@@ -258,6 +258,7 @@
   	<antcall target="sbc-reference-sbc-device" />
   	<antcall target="gateway-reference-sbc-device" />
     <antcall target="sbc-device-add-port" />
+    <antcall target="user-vcard-file"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -610,6 +611,10 @@
     <db-patch patch="sbc-device-add-port"/>
   </target>
 	
+  <target name="user-vcard-file" unless="user-vcard-file">
+    <db-patch patch="user-vcard-file"/>
+  </target>
+
   <!-- 
     Migration Targets Legend
     

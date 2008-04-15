@@ -149,6 +149,26 @@ public class PhonebookManagerTest extends TestCase {
         assertEquals(1, entries.size());
     }
 
+    public void testGetVCardFile() {
+        PhonebookManagerImpl context = new PhonebookManagerImpl();
+        String dir = TestUtil.getTestSourceDirectory(getClass());
+        context.setExternalUsersDirectory(dir);
+
+        Phonebook phonebook = new Phonebook();
+        phonebook.setMembersVcardFilename("bogus.vcf");
+        try {
+            context.getEntries(phonebook);
+            fail();
+        } catch (RuntimeException expected) {
+            assertTrue(true);
+        }
+
+        phonebook.setMembersVcardFilename("phonebook.vcf");
+        context.setTelType("work");
+        Collection<PhonebookEntry> entries = context.getEntries(phonebook);
+        assertEquals(1, entries.size());
+    }
+
     public void testSearch() {
         final PhonebookTestHelper testHelper = new PhonebookTestHelper();
 

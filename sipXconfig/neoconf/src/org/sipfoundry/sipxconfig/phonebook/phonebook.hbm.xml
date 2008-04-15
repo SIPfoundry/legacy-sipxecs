@@ -10,6 +10,7 @@
       </generator>
     </id>
     <property name="membersCsvFilename"/>
+	<property name="membersVcardFilename"/>
 	<property name="name"/>
 	<property name="description"/>	  
     <set name="consumers" table="phonebook_consumer">

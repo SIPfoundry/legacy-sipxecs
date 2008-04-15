@@ -28,23 +28,34 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public abstract class EditPhonebook extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "phonebook/EditPhonebook";
+
     public abstract PhonebookManager getPhonebookManager();
+
     public abstract SettingDao getSettingDao();
+
     public abstract CoreContext getCoreContext();
+
     public abstract Phonebook getPhonebook();
-    public abstract void setPhonebook(Phonebook phonebook);    
+
+    public abstract void setPhonebook(Phonebook phonebook);
+
     public abstract String getMemberGroupsString();
+
     public abstract void setMemberGroupsString(String groups);
+
     public abstract String getConsumerGroupsString();
+
     public abstract void setConsumerGroupsString(String groups);
+
     public abstract void setPhonebookId(Integer phonebookId);
+
     public abstract Integer getPhonebookId();
-    
+
     public void savePhonebook() {
         if (!TapestryUtils.isValid(this)) {
             return;
         }
-        
+
         Phonebook phonebook = getPhonebook();
 
         String groupsString = getMemberGroupsString();
@@ -63,24 +74,36 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
         getPhonebookManager().savePhonebook(phonebook);
         setPhonebookId(phonebook.getId());
     }
-    
-    public File getPhonebookFile() {
+
+    public File getPhonebookCsvFile() {
         String assetFilename = getPhonebook().getMembersCsvFilename();
         if (assetFilename == null) {
             return null;
         }
         return new File(getPhonebookDirectory(), assetFilename);
     }
-    
-    public void setPhonebookFile(File phonebook) {
+
+    public void setPhonebookCsvFile(File phonebook) {
         getPhonebook().setMembersCsvFilename(phonebook.getName());
     }
-    
+
+    public File getPhonebookVcardFile() {
+        String assetFilename = getPhonebook().getMembersVcardFilename();
+        if (assetFilename == null) {
+            return null;
+        }
+        return new File(getPhonebookDirectory(), assetFilename);
+    }
+
+    public void setPhonebookVcardFile(File phonebook) {
+        getPhonebook().setMembersVcardFilename(phonebook.getName());
+    }
+
     public File getPhonebookDirectory() {
         File d = new File(getPhonebookManager().getExternalUsersDirectory());
         return d;
     }
-    
+
     public void pageBeginRender(PageEvent arg0) {
         Phonebook phonebook = getPhonebook();
         if (phonebook == null) {
@@ -88,17 +111,17 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
             if (phonebookId == null) {
                 phonebook = new Phonebook();
             } else {
-                phonebook = getPhonebookManager().getPhonebook(phonebookId);                
+                phonebook = getPhonebookManager().getPhonebook(phonebookId);
             }
-            setPhonebook(phonebook);            
+            setPhonebook(phonebook);
 
             Set<Group> members = phonebook.getMembers();
             String membersString = BeanWithGroups.getGroupsAsString(members);
-            setMemberGroupsString(membersString);    
-            
+            setMemberGroupsString(membersString);
+
             Set<Group> consumers = phonebook.getConsumers();
             String consumersString = BeanWithGroups.getGroupsAsString(consumers);
-            setConsumerGroupsString(consumersString);    
+            setConsumerGroupsString(consumersString);
         }
     }
 }

@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.phonebook;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.collections.Closure;
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -37,6 +39,7 @@ import org.apache.lucene.search.Searcher;
 import org.apache.lucene.store.RAMDirectory;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvParser;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl;
+import org.sipfoundry.sipxconfig.bulk.vcard.VcardParser;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -53,10 +56,18 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     private static final String NAME = "name";
     private static final String FIELD_ID = "id";
     private static final String FIELD_CONTENT = "content";
+    private static final String VCARD_HEADER = "BEGIN:vCard";
+    private static final String VCARD_FOOTER = "END:vCard";
+    private static final String VCARD_VERSION = "VERSION:" + "2.1";
+    private static final String VCARD_USER_NAME = "N:";
+    private static final String VCARD_PHONE = "TEL;";
+    private static final String NEW_LINE = "\n";
+    private static final String SEMICOLON = ";";
 
     private boolean m_phonebookManagementEnabled;
     private String m_externalUsersDirectory;
     private CoreContext m_coreContext;
+    private String m_telType;
 
     public Collection<Phonebook> getPhonebooks() {
         Collection<Phonebook> books = getHibernateTemplate().loadAll(Phonebook.class);
@@ -164,6 +175,17 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         if (csvFilename != null) {
             File f = new File(new File(m_externalUsersDirectory), csvFilename);
             CsvParser parser = new CsvParserImpl();
+            try {
+                parser.parse(new FileReader(f), new CsvPhonebookEntryMaker(entries));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        String vcardFilename = phonebook.getMembersVcardFilename();
+        if (vcardFilename != null) {
+            File f = new File(new File(m_externalUsersDirectory), vcardFilename);
+            VcardParser parser = new VcardParser(getTelType());
             try {
                 parser.parse(new FileReader(f), new CsvPhonebookEntryMaker(entries));
             } catch (FileNotFoundException e) {
@@ -390,5 +412,37 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     public void setPhonebookManagementEnabled(final boolean phonebookManagementEnabled) {
         m_phonebookManagementEnabled = phonebookManagementEnabled;
+    }
+
+    public String getTelType() {
+        return m_telType;
+    }
+
+    public void setTelType(String type) {
+        m_telType = type;
+    }
+
+    public void exportPhonebook(Collection<PhonebookEntry> entries, File file) throws Exception {
+        try {
+            FileWriter writer = new FileWriter(file);
+            for (PhonebookEntry entry : entries) {
+                if (StringUtils.isNotEmpty(entry.getFirstName())
+                        || StringUtils.isNotEmpty(entry.getLastName())) {
+                    writer.write(VCARD_HEADER + NEW_LINE);
+                    writer.write(VCARD_VERSION + NEW_LINE);
+                    writer.write(VCARD_USER_NAME
+                            + StringUtils.defaultString(entry.getFirstName()) + SEMICOLON
+                            + StringUtils.defaultString(entry.getLastName()) + SEMICOLON
+                            + SEMICOLON + SEMICOLON + NEW_LINE);
+                    writer.write(VCARD_PHONE + getTelType().toUpperCase() + ":"
+                            + entry.getNumber() + NEW_LINE);
+                    writer.write(VCARD_FOOTER + NEW_LINE + NEW_LINE);
+                }
+            }
+            writer.flush();
+            writer.close();
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }
