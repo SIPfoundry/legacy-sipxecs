@@ -4,7 +4,7 @@
       <table jwcid="tableElement" class="component">
         <thead>
           <tr>
-            <th align="center">
+            <th jwcid="@If" condition="ognl:selections != null" align="center">
               <span jwcid="@contrib:ControlCheckbox"/>
             </th>
             <th jwcid="tableColumns"/>
@@ -19,7 +19,7 @@
         </tfoot>
         <tbody>
           <tr jwcid="tableRows">          
-            <td align="center">
+            <td  jwcid="@If" condition="ognl:selections != null" align="center">
               <span jwcid="renderSelectedRow"><span jwcid="selectedRow"/></span>              
             </td>
             <td jwcid="tableValues"/>

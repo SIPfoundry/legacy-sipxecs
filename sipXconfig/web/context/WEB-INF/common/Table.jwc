@@ -15,8 +15,9 @@
   <parameter name="row" required="no"/>
   <parameter name="rowInfo" required="no" default-value="bean:defaultRowInfo" />
   <parameter name="rowClass" required="no" default-value="bean:rowClass" />
-  <parameter name="selections" required="yes" />
+  <parameter name="selections" required="no" />
   <parameter name="usePager" required="no" default-value="false" />
+  <parameter name="volatile" required="no" default-value="false" />
   <inject property="tableVariables" object="spring:tableVariables" />
 
   <!-- B E A N S -->
@@ -42,6 +43,7 @@
   <component id="tableColumns" type="contrib:TableColumns" />
   <component id="tableRows" type="contrib:TableRows">
     <inherited-binding name="row" parameter-name="row" />
+    <inherited-binding name="volatile" parameter-name="volatile" />
     <binding name="class" value="rowClass.next" />
     <inherited-binding name="converter" parameter-name="converter" />
   </component>
