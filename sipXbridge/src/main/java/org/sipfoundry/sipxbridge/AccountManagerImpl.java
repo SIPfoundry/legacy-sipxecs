@@ -127,7 +127,8 @@ public class AccountManagerImpl implements
      */
     public ItspAccountInfo getAccount(SipURI sipUri) {
         for (ItspAccountInfo accountInfo : itspAccounts.values()) {
-            if (accountInfo.getProxyDomain().equals(sipUri.getHost())) {
+            
+            if (sipUri.getHost().endsWith(accountInfo.getProxyDomain())) {
                 return accountInfo;
             } 
         }
