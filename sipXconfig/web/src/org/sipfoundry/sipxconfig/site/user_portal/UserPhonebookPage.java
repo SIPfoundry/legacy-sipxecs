@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.site.user_portal;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -17,18 +18,29 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hivemind.Messages;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.valid.ValidationConstraint;
+import org.apache.tapestry.web.WebResponse;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 
 public abstract class UserPhonebookPage extends UserBasePage implements PageBeginRenderListener {
+    private static final Log LOG = LogFactory.getLog(UserPhonebookPage.class);
+
+    @InjectObject(value = "service:tapestry.globals.WebResponse")
+    public abstract WebResponse getResponse();
+
     @InjectObject("spring:phonebookManager")
     public abstract PhonebookManager getPhonebookManager();
 
@@ -37,6 +49,7 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
 
     public abstract String getQuery();
 
+    @Persist
     public abstract Collection<PhonebookEntry> getPhonebookEntries();
 
     public abstract void setPhonebookEntries(Collection<PhonebookEntry> entries);
@@ -152,6 +165,22 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
             }
 
             return StringUtils.join(aliases, ", ");
+        }
+    }
+
+    public void export() {
+        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
+        try {
+            String name = String.format("phonebook_%s.vcf", getUser().getUserName());
+            OutputStream stream = TapestryUtils.getResponseOutputStream(getResponse(), name, "text/x-vcard");
+            Collection<PhonebookEntry> entries = getPhonebookEntries();
+            getPhonebookManager().exportPhonebook(entries, stream);
+            stream.close();
+        } catch (IOException e) {
+            LOG.error("Cannot export phonebook", e);
+            Messages messages = getMessages();
+            validator.record(messages.format("msg.exportError", e.getLocalizedMessage()),
+                    ValidationConstraint.CONSISTENCY);
         }
     }
 }

@@ -1,6 +1,7 @@
 <div jwcid="@common/Border" restricted="false">
   <h2><span key="title">User Phonebook</span></h2>
-  <form jwcid="@Form">
+  <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="@Form" delegate="bean:validator">
     <fieldset>
       <table>
         <tr jwcid="@common/FieldPanel" for="userPhonebook:query"
@@ -13,7 +14,24 @@
         </tr>
       </table>
     </fieldset>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="@Submit" id="userPhonebook:search" value="message:button.search"
+          action="listener:search" updateComponents="phonebook"/>
+      </li>
+      <li>
+        <input jwcid="@Submit" id="userPhonebook:cancel" value="message:button.reset"
+          action="listener:reset" updateComponents="phonebook, query"/>
+      </li>
+    </ul>
     <fieldset jwcid="phonebook@Any">
+      <ul class="component-links">
+        <li>
+          <a jwcid="export@common/ExportLink" id="cdr:export" listener="listener:export">
+             <span key="link.export">Export</span>
+          </a>
+        </li>
+      </ul>
       <table jwcid="@common/Table" id="userPhonebook:phonebookTable"
         source="ognl:phonebookEntries"
         columns="* firstName,lastName,extensions,sipIds"
@@ -28,15 +46,5 @@
         </span>
       </table>
     </fieldset>
-    <ul class="component-submit">
-      <li>
-        <input jwcid="@Submit" id="userPhonebook:search" value="message:button.search"
-          action="listener:search" updateComponents="phonebook"/>
-      </li>
-      <li>
-        <input jwcid="@Submit" id="userPhonebook:cancel" value="message:button.reset"
-          action="listener:reset" updateComponents="phonebook, query"/>
-      </li>
-    </ul>
   </form>
 </div>

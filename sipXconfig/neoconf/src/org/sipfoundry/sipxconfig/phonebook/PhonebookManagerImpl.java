@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
-import static org.apache.commons.lang.StringUtils.defaultString;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -87,7 +85,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public void savePhonebook(Phonebook phonebook) {
-        checkDuplicates(getHibernateTemplate(), Phonebook.class, phonebook, NAME, new DuplicatePhonebookName());
+        checkDuplicates(getHibernateTemplate(), Phonebook.class, phonebook, NAME,
+                new DuplicatePhonebookName());
         getHibernateTemplate().saveOrUpdate(phonebook);
     }
 
@@ -126,7 +125,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         File d = new File(dir);
         if (!d.exists()) {
             if (!d.mkdirs()) {
-                throw new RuntimeException(new IOException("Could not create directory " + d.getAbsolutePath()));
+                throw new RuntimeException(new IOException("Could not create directory "
+                        + d.getAbsolutePath()));
             }
         }
         return dir;
@@ -143,8 +143,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public Collection<Phonebook> getPhonebooksByUser(User consumer) {
-        Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam("phoneBooksByUser",
-                "userId", consumer.getId());
+        Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "phoneBooksByUser", "userId", consumer.getId());
         return books;
     }
 
@@ -299,10 +299,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         }
     }
 
-    static class PhoneEntryComparator implements Comparator {
-        public int compare(Object arg0, Object arg1) {
-            PhonebookEntry a = (PhonebookEntry) arg0;
-            PhonebookEntry b = (PhonebookEntry) arg1;
+    static class PhoneEntryComparator implements Comparator<PhonebookEntry> {
+        public int compare(PhonebookEntry a, PhonebookEntry b) {
             int cmp = defaultString(a.getLastName()).compareTo(defaultString(b.getLastName()));
             if (cmp == 0) {
                 cmp = defaultString(a.getFirstName()).compareTo(defaultString(b.getFirstName()));
