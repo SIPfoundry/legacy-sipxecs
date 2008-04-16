@@ -30,6 +30,7 @@ import javax.sip.TransactionTerminatedEvent;
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
+import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import net.java.stun4j.StunAddress;
@@ -38,6 +39,7 @@ import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.ResponseSequenceServer;
 import net.java.stun4j.client.StunDiscoveryReport;
 
+import org.apache.log4j.Appender;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -165,10 +167,6 @@ public class Gateway {
      */
     private static final int MAX_REGISTRATION_TIMER = 10000;
 
-    /**
-     * This is a static class - nobody calls this method.
-     * 
-     */
     private Gateway() {
 
     }
@@ -186,12 +184,15 @@ public class Gateway {
 
             ConfigurationParser parser = new ConfigurationParser();
             accountManager = parser.createAccountManager(configurationFile);
-            Gateway.logFile =  accountManager.getBridgeConfiguration()
-                .getLogFileDirectory()+ "/sipxbridge.log";
-            logger.addAppender(new SipFoundryAppender(new SipFoundryLayout(),
+            Gateway.logFile = accountManager.getBridgeConfiguration()
+                    .getLogFileDirectory()
+                    + "/sipxbridge.log";
+            Appender appender = new SipFoundryAppender(new SipFoundryLayout(),
                     accountManager.getBridgeConfiguration()
                             .getLogFileDirectory()
-                            + "/sipxbridge.log"));
+                            + "/sipxbridge.log");
+
+            logger.addAppender(appender);
             BridgeConfiguration bridgeConfiguration = accountManager
                     .getBridgeConfiguration();
             InetAddress localAddr = InetAddress.getByName(Gateway
@@ -225,9 +226,15 @@ public class Gateway {
         }
     }
 
+    /**
+     * Discover our public address using stun.
+     * 
+     * @throws GatewayConfigurationException
+     */
     public static void discoverPublicAddress()
             throws GatewayConfigurationException {
         try {
+
             BridgeConfiguration bridgeConfiguration = accountManager
                     .getBridgeConfiguration();
             String stunServerAddress = bridgeConfiguration
@@ -237,20 +244,28 @@ public class Gateway {
 
                 // Todo -- deal with the situation when this port may be taken.
                 StunAddress localStunAddress = new StunAddress(Gateway
-                        .getLocalAddress(), 5091);
+                        .getLocalAddress(), STUN_PORT);
 
                 StunAddress serverStunAddress = new StunAddress(
                         stunServerAddress, STUN_PORT);
 
                 NetworkConfigurationDiscoveryProcess addressDiscovery = new NetworkConfigurationDiscoveryProcess(
                         localStunAddress, serverStunAddress);
+                java.util.logging.LogManager logManager = java.util.logging.LogManager
+                        .getLogManager();
+                java.util.logging.Logger log = logManager
+                        .getLogger(NetworkConfigurationDiscoveryProcess.class
+                                .getName());
+                log.setLevel(java.util.logging.Level.OFF);
+
                 addressDiscovery.start();
                 StunDiscoveryReport report = addressDiscovery
                         .determineAddress();
-                System.out.println("Stun report = " + report);
+                // System.out.println("Stun report = " + report);
                 globalAddress = report.getPublicAddress().getSocketAddress()
                         .getAddress().getHostAddress();
-                if (report.getPublicAddress().getPort() != 5091) {
+                logger.debug("Stun report = " + report);
+                if (report.getPublicAddress().getPort() != STUN_PORT) {
                     System.out
                             .println("WARNING External port != internal port ");
                 }
@@ -260,6 +275,30 @@ public class Gateway {
             throw new GatewayConfigurationException(
                     "Error discovering public address", ex);
         }
+    }
+
+    /**
+     * Start timer to rediscover our public address.
+     * 
+     */
+    public static void startRediscoveryTimer() {
+        int rediscoveryTime = Gateway.accountManager.getBridgeConfiguration()
+                .getGlobalAddressRediscoveryPeriod();
+        TimerTask ttask = new TimerTask() {
+
+            @Override
+            public void run() {
+                try {
+                    Gateway.discoverPublicAddress();
+                } catch (Exception ex) {
+                    logger.error("Error re-discovering public address");
+                }
+
+            }
+
+        };
+        Gateway.timer.schedule(ttask, rediscoveryTime * 1000,
+                rediscoveryTime * 1000);
     }
 
     /**
@@ -508,6 +547,16 @@ public class Gateway {
     }
 
     /**
+     * Get the sip keepalive
+     * 
+     * @return
+     */
+    public static int getSipKeepaliveSeconds() {
+        return Gateway.accountManager.getBridgeConfiguration()
+                .getSipKeepalive();
+    }
+
+    /**
      * Get the MOH server Request URI.
      */
     public static SipURI getMusicOnHoldUri() {
@@ -550,9 +599,12 @@ public class Gateway {
 
             for (ItspAccountInfo itspAccount : Gateway.accountManager
                     .getItspAccounts()) {
-                if (itspAccount.isRegisterOnInitialization())
+                if (itspAccount.isRegisterOnInitialization()) {
                     Gateway.registrationManager.sendRegistrer(itspAccount);
+                }
+
             }
+
             /*
              * Wait for successful registration.
              */
@@ -588,6 +640,18 @@ public class Gateway {
                 if (allAuthenticated) {
                     System.out.println("---- SIPXBRIDGE READY ----");
                     Gateway.state = GatewayState.INITIALIZED;
+                    for (ItspAccountInfo itspAccount : Gateway
+                            .getAccountManager().getItspAccounts()) {
+                        if (itspAccount.getSipKeepaliveMethod().equals(
+                                Request.OPTIONS)) {
+                            itspAccount.startOptionsTimerTask();
+
+                        } else if (itspAccount.getSipKeepaliveMethod().equals(
+                                "CR-LF")) {
+                            itspAccount.startCrLfTimerTask();
+
+                        }
+                    }
                     return;
                 } else {
                     Gateway.stop();
@@ -626,6 +690,7 @@ public class Gateway {
         Gateway.state = GatewayState.INITIALIZING;
         init();
         discoverPublicAddress();
+        startRediscoveryTimer();
         startSipListener();
         registerWithItsp();
     }

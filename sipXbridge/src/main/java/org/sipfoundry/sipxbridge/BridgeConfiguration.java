@@ -6,6 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import java.net.InetAddress;
+
 /**
  * A class that represents the configuration of the SipxBridge. IMPORTANT -- the
  * methods of this class are tied to sipxbridge.xsd. Do not change method names
@@ -21,7 +23,6 @@ public class BridgeConfiguration {
     private int externalPort = 5080;
     private int localPort = 5090;
     private String sipxProxyDomain;
-    private String autoAttendantName = null;
     private String stunServerAddress = "stun01.sipphone.com";
     private String logLevel = "INFO";
     private int rtpPortLowerBound = 25000;
@@ -32,13 +33,21 @@ public class BridgeConfiguration {
     private int sipKeepalive = 20 * 1000; // Miliseconds for SIP keepalive.
     private int mediaKeepalive = 160; // milisec for media keepalive.
     private String logFileDirectory = "/var/log/sipxpbx/";
+    private int globalAddressRediscoveryPeriod = 30;
+    private String codecName = "PCMU";
 
     /**
      * @param externalAddress
      *            the externalAddress to set
      */
     public void setExternalAddress(String externalAddress) {
-        this.externalAddress = externalAddress;
+        try {
+            this.externalAddress = InetAddress.getByName(externalAddress)
+                    .getHostAddress();
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("invalid address : "
+                    + externalAddress);
+        }
     }
 
     /**
@@ -53,7 +62,13 @@ public class BridgeConfiguration {
      *            the localAddress to set
      */
     public void setLocalAddress(String localAddress) {
-        this.localAddress = localAddress;
+        try {
+            this.localAddress = InetAddress.getByName(localAddress)
+                    .getHostAddress();
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("invalid address : "
+                    + externalAddress);
+        }
     }
 
     /**
@@ -109,21 +124,6 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param autoAttendantName
-     *            the autoAttendantName to set
-     */
-    public void setAutoAttendantName(String autoAttendantName) {
-        this.autoAttendantName = autoAttendantName;
-    }
-
-    /**
-     * @return the autoAttendantName
-     */
-    public String getAutoAttendantName() {
-        return autoAttendantName;
-    }
-
-    /**
      * @param stunServerAddress
      *            the stunServerAddress to set
      */
@@ -137,6 +137,20 @@ public class BridgeConfiguration {
      */
     public String getStunServerAddress() {
         return stunServerAddress;
+    }
+
+    /**
+     * set the global address rediscovery period.
+     */
+    public void setGlobalAddressRediscoveryPeriod(int period) {
+        this.globalAddressRediscoveryPeriod = period;
+    }
+
+    /**
+     * @return the globalAddressRediscoveryPeriod
+     */
+    public int getGlobalAddressRediscoveryPeriod() {
+        return globalAddressRediscoveryPeriod;
     }
 
     /**
@@ -233,7 +247,7 @@ public class BridgeConfiguration {
      *            the sipKeepalive to set
      */
     public void setSipKeepalive(int sipKeepalive) {
-        this.sipKeepalive = sipKeepalive * 1000;
+        this.sipKeepalive = sipKeepalive;
     }
 
     /**
@@ -259,7 +273,8 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param logFileName the logFileName to set
+     * @param logFileName
+     *            the logFileName to set
      */
     public void setLogFileDirectory(String logFileDirectory) {
         this.logFileDirectory = logFileDirectory;
@@ -270,6 +285,14 @@ public class BridgeConfiguration {
      */
     public String getLogFileDirectory() {
         return logFileDirectory;
+    }
+
+    public void setCodecName(String codecName) {
+        this.codecName = codecName;
+    }
+
+    public String getCodecName() {
+        return this.codecName;
     }
 
 }

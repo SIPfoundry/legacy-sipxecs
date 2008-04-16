@@ -99,7 +99,7 @@ public class ItspAccountInfo implements
     /**
      * Registration Interval (seconds)
      */
-    private int registrationInterval = 90;
+    private int registrationInterval = 120;
 
     /*
      * The state of the account.
@@ -111,6 +111,10 @@ public class ItspAccountInfo implements
      */
     private HashMap<String, FailureCounter> failureCountTable = new HashMap<String, FailureCounter>();
 
+    private String sipKeepaliveMethod = "REGISTER";
+
+    private CrLfTimerTask crlfTimerTask;
+
     /**
      * This task runs periodically depending upon the timeout of the lookup
      * specified.
@@ -120,8 +124,8 @@ public class ItspAccountInfo implements
 
         public void run() {
             try {
-                Record[] records = new Lookup("_sip._" + getTransport() + "."
-                        + getSipDomain(), Type.SRV).run();
+                Record[] records = new Lookup("_sip._" + getOutboundTransport()
+                        + "." + getSipDomain(), Type.SRV).run();
                 logger.debug("Did a successful DNS SRV lookup");
                 SRVRecord record = (SRVRecord) records[0];
                 int port = record.getPort();
@@ -131,13 +135,13 @@ public class ItspAccountInfo implements
                 setOutboundProxy(resolvedName);
                 HopImpl proxyHop = new HopImpl(InetAddress.getByName(
                         getOutboundProxy()).getHostAddress(), getProxyPort(),
-                        getTransport(), ItspAccountInfo.this);
+                        getOutboundTransport(), ItspAccountInfo.this);
                 Gateway.getAccountManager().setHopToItsp(getSipDomain(),
                         proxyHop);
                 Gateway.timer.schedule(new Scanner(), time);
             } catch (Exception ex) {
                 logger.error("Error looking up domain " + "_sip._"
-                        + getTransport() + "." + getSipDomain());
+                        + getOutboundTransport() + "." + getSipDomain());
             }
 
         }
@@ -190,7 +194,11 @@ public class ItspAccountInfo implements
     }
 
     public String getOutboundProxy() {
-        return outboundProxy;
+        if (outboundProxy != null)
+            return outboundProxy;
+        else
+            return this.getSipDomain();
+
     }
 
     public int getProxyPort() {
@@ -211,10 +219,6 @@ public class ItspAccountInfo implements
 
     public String getSipDomain() {
         return proxyDomain;
-    }
-
-    public String getTransport() {
-        return this.outboundTransport;
     }
 
     public boolean isGlobalAddressingUsed() {
@@ -250,8 +254,9 @@ public class ItspAccountInfo implements
     public void lookupAccount() throws GatewayConfigurationException {
         try {
             String outboundDomain = this.getSipDomain();
-            Record[] records = new Lookup("_sip._" + this.getTransport() + "."
-                    + outboundDomain, Type.SRV).run();
+            Record[] records = new Lookup("_sip._"
+                    + this.getOutboundTransport() + "." + outboundDomain,
+                    Type.SRV).run();
 
             if (records == null || records.length == 0) {
                 // SRV lookup failed, use the outbound proxy directly.
@@ -281,12 +286,18 @@ public class ItspAccountInfo implements
         }
     }
 
-    public void setOptionsTimerTask(OptionsTimerTask optionsTimerTask) {
-        this.optionsTimerTask = optionsTimerTask;
+    public void startOptionsTimerTask() {
+        this.optionsTimerTask = new OptionsTimerTask(Gateway.getWanProvider(),
+                this);
+        Gateway.timer.schedule(optionsTimerTask, Gateway
+                .getSipKeepaliveSeconds() * 1000);
     }
 
-    public OptionsTimerTask getOptionsTimerTask() {
-        return optionsTimerTask;
+    public void destroyOptionsTimerTask() {
+        if (this.optionsTimerTask != null) {
+            this.optionsTimerTask.cancel();
+            this.optionsTimerTask = null;
+        }
     }
 
     public boolean isInboundCallsRoutedToAutoAttendant() {
@@ -334,7 +345,7 @@ public class ItspAccountInfo implements
      *            the proxyDomain to set
      */
     public void setProxyDomain(String proxyDomain) {
-        System.out.println("setProxyDomain " + proxyDomain);
+        logger.debug("setProxyDomain " + proxyDomain);
         this.proxyDomain = proxyDomain;
     }
 
@@ -355,10 +366,19 @@ public class ItspAccountInfo implements
     }
 
     /**
+     * Note that authentication realm is an optional configuration parameter. We
+     * return the authenticationRealm if set else we return the outbound proxy
+     * if set else we return the domain.
+     * 
      * @return the authenticationRealm
      */
     public String getAuthenticationRealm() {
-        return authenticationRealm;
+        if (authenticationRealm != null)
+            return authenticationRealm;
+        else if (outboundProxy != null)
+            return outboundProxy;
+        else
+            return proxyDomain;
     }
 
     /**
@@ -441,6 +461,30 @@ public class ItspAccountInfo implements
      */
     public AccountState getState() {
         return state;
+    }
+
+   
+
+    /**
+     * @param sipKeepaliveMethod
+     *            the sipKeepaliveMethod to set
+     */
+    public void setSipKeepaliveMethod(String sipKeepaliveMethod) {
+        this.sipKeepaliveMethod = sipKeepaliveMethod;
+    }
+
+    /**
+     * @return the sipKeepaliveMethod
+     */
+    public String getSipKeepaliveMethod() {
+        return sipKeepaliveMethod;
+    }
+
+    public void startCrLfTimerTask() {
+        this.crlfTimerTask = new CrLfTimerTask(Gateway.getWanProvider(), this);
+        Gateway.timer.schedule(crlfTimerTask, Gateway
+                .getSipKeepaliveSeconds() * 1000);
+        
     }
 
 }

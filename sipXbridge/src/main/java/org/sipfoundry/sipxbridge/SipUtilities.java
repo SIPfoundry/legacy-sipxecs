@@ -104,7 +104,7 @@ public class SipUtilities {
         try {
             if (!itspAccount.isGlobalAddressingUsed()) {
                 ListeningPoint listeningPoint = sipProvider
-                        .getListeningPoint(itspAccount.getTransport());
+                        .getListeningPoint(itspAccount.getOutboundTransport());
                 String host = listeningPoint.getIPAddress();
                 int port = listeningPoint.getPort();
                 ViaHeader viaHeader = ProtocolObjects.headerFactory
@@ -121,8 +121,8 @@ public class SipUtilities {
               
                 return ProtocolObjects.headerFactory.createViaHeader(Gateway
                         .getGlobalAddress(), sipProvider.getListeningPoint(
-                        itspAccount.getTransport()).getPort(), itspAccount
-                        .getTransport(), null);
+                        itspAccount.getOutboundTransport()).getPort(), itspAccount
+                        .getOutboundTransport(), null);
 
             }
 
@@ -161,7 +161,7 @@ public class SipUtilities {
                 SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(
                         itspAccount.getUserName(), Gateway.getGlobalAddress());
                 sipUri.setPort(provider.getListeningPoint(
-                        itspAccount.getTransport()).getPort());
+                        itspAccount.getOutboundTransport()).getPort());
                 Address address = ProtocolObjects.addressFactory
                         .createAddress(sipUri);
                 contactHeader.setAddress(address);
@@ -208,12 +208,16 @@ public class SipUtilities {
     private static Request createRegistrationRequestTemplate(
             ItspAccountInfo itspAccount, SipProvider sipProvider)
             throws ParseException, InvalidArgumentException {
+        
+        String proxy = itspAccount.getOutboundProxy();
+        
         SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null,
-                itspAccount.getSipDomain());
-        // SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null,
-        // itspAccount.getOutboundProxy());
+                proxy);
+        if ( itspAccount.getOutboundTransport().equalsIgnoreCase("tcp")) {
+            requestUri.setTransportParam("tcp");
+        }
         SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
-                itspAccount.getUserName(), itspAccount.getOutboundProxy());
+                itspAccount.getUserName(), itspAccount.getSipDomain());
 
         SipURI toUri = ProtocolObjects.addressFactory.createSipURI(itspAccount
                 .getUserName(), itspAccount.getSipDomain());
@@ -373,11 +377,12 @@ public class SipUtilities {
             ContactHeader contactHeader = createContactHeader(sipProvider,
                     itspAccount);
             contactHeader.removeParameter("expires");
-            // ((SipURI)contactHeader.getAddress().getURI()).setParameter("rinstance",
-            // "7738");
+            
             request.addHeader(contactHeader);
+            int registrationTimer = itspAccount.getSipKeepaliveMethod().equals(Request.REGISTER) ?
+                            Gateway.getSipKeepaliveSeconds() : itspAccount.getRegistrationInterval();
             ExpiresHeader expiresHeader = ProtocolObjects.headerFactory
-                    .createExpiresHeader(itspAccount.getRegistrationInterval());
+                    .createExpiresHeader(registrationTimer);
             request.addHeader(expiresHeader);
             return request;
         } catch (ParseException ex) {
@@ -420,24 +425,25 @@ public class SipUtilities {
     }
 
     public static Request createInviteRequest(SipProvider sipProvider,
-            ItspAccountInfo itspAccount, String user, String toUser,
+            ItspAccountInfo itspAccount, String user,FromHeader fromHeader, String toUser,
             String toDomain, boolean isphone)
             throws GatewayConfigurationException {
         try {
 
             SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(
                     user, itspAccount.getSipDomain());
+            if ( itspAccount.getOutboundTransport().equals("tcp")) {
+                requestUri.setTransportParam("tcp");
+            }
+            
             if (isphone) {
 
                 requestUri.setUserParam("phone");
             }
 
-            SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
-                    itspAccount.getUserName(), itspAccount.getSipDomain());
-
-            FromHeader fromHeader = ProtocolObjects.headerFactory
-                    .createFromHeader(ProtocolObjects.addressFactory
-                            .createAddress(fromUri), new Long(Math
+          
+            
+            fromHeader.setTag(new Long(Math
                             .abs(new java.util.Random().nextLong())).toString());
 
             SipURI toUri = ProtocolObjects.addressFactory.createSipURI(toUser,
@@ -469,7 +475,7 @@ public class SipUtilities {
                     itspAccount.getOutboundProxy());
             routeURI.setLrParam();
             routeURI.setPort(itspAccount.getProxyPort());
-            routeURI.setTransportParam(itspAccount.getTransport());
+            routeURI.setTransportParam(itspAccount.getOutboundTransport());
             Address address = ProtocolObjects.addressFactory
                     .createAddress(routeURI);
             // request.setHeader(routeHeader);

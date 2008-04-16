@@ -29,10 +29,7 @@ public class OptionsTimerTask extends TimerTask {
 
     public OptionsTimerTask(SipProvider provider, ItspAccountInfo itspAccount) {
 
-        if (itspAccount.getOptionsTimerTask() != null) {
-            itspAccount.getOptionsTimerTask().cancel();
-        }
-        itspAccount.setOptionsTimerTask(this);
+       
         this.provider = provider;
         this.itspAccount = itspAccount;
 

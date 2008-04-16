@@ -491,7 +491,7 @@ public class SymEndpoint implements SymEndpointInterface {
     public void setMaxSilence(int maxSilence) {
         logger.debug("RtpEndpoint : setMaxSilence " + maxSilence);
         if (this.earlyMediaStarted) {
-            logger.warn("early media started !", new Exception());
+            logger.debug("early media started !");
             return;
         }
         this.maxSilence = maxSilence;

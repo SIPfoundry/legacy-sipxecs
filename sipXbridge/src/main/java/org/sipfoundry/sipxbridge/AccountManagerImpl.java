@@ -70,7 +70,7 @@ public class AccountManagerImpl implements
     public void addItspAccount(ItspAccountInfo accountInfo)
             throws GatewayConfigurationException {
 
-        String key = accountInfo.getSipDomain();
+        String key = accountInfo.getAuthenticationRealm();
         this.itspAccounts.put(key, accountInfo);
 
     }
@@ -88,7 +88,7 @@ public class AccountManagerImpl implements
                         accountInfo.getSipDomain(), new HopImpl(InetAddress
                                 .getByName(accountInfo.getOutboundProxy())
                                 .getHostAddress(), accountInfo.getProxyPort(),
-                                accountInfo.getTransport(), accountInfo));
+                                accountInfo.getOutboundTransport(), accountInfo));
             }
         } catch (Exception ex) {
             throw new GatewayConfigurationException(

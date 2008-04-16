@@ -875,8 +875,9 @@ public class BackToBackUserAgent {
                     .getRequestURI();
 
             String user = incomingRequestUri.getUser();
+            FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(FromHeader.NAME).clone();
             Request outgoingRequest = SipUtilities.createInviteRequest(
-                    itspProvider, itspAccountInfo, user, toUser, toDomain,
+                    itspProvider, itspAccountInfo, user, fromHeader, toUser, toDomain,
                     isphone);
             ClientTransaction ct = itspProvider
                     .getNewClientTransaction(outgoingRequest);
@@ -906,7 +907,7 @@ public class BackToBackUserAgent {
             outgoingRequest.setContent(sd.toString(), cth);
 
             ListeningPoint lp = itspProvider
-                    .getListeningPoint(this.itspAccountInfo.getTransport());
+                    .getListeningPoint(this.itspAccountInfo.getOutboundTransport());
             String sentBy = lp.getSentBy();
             if (this.getItspAccountInfo().isGlobalAddressingUsed()) {
                 lp.setSentBy(Gateway.getGlobalAddress() + ":" + lp.getPort());

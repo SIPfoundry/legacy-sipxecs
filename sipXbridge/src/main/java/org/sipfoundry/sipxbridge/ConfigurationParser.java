@@ -47,6 +47,11 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "stun-server-address"), "setStunServerAddress", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
+                "stun-interval"), "setGlobalAddressRediscoveryPeriod", 0,
+                new Class[] { Integer.class });
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
+                "allowed-codec-name"), "setCodecName", 0);
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "sipx-proxy-domain"), "setSipxProxyDomain", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "rtp-port-range"), "setPortRange", 0);
@@ -58,13 +63,16 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "log-level"), "setLogLevel", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-                "sip-keepalive-seconds"), "setSipKeepalive", 0);
+                "sip-keepalive-seconds"), 
+                "setSipKeepalive", 0, new Class[] { Integer.class });
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-                "media-keepalive-seconds"), "setMediaKeepalive", 0);
+                "media-keepalive-seconds"), "setMediaKeepalive", 
+                0, new Class[] { Integer.class });
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-                "xml-rpc-port"), "setXmlRpcPort", 0);
+                "log-directory"), "setLogFileDirectory", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-        "log-directory"), "setLogFileDirectory", 0);
+        "xml-rpc-port"), "setXmlRpcPort", 0, new Class[] { Integer.class });
+
         /*
          * ITSP configuration support parameters.
          */
@@ -86,6 +94,9 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "display-name"), "setDisplayName", 0);
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
+            "sip-keepalive-method"), "setSipKeepaliveMethod", 0);
+        
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "use-global-addressing"), "setGlobalAddressingUsed", 0,
                 new Class[] { Boolean.class });
         digester.addCallMethod(
@@ -95,7 +106,12 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "route-inbound-calls-to-extension"), "setAutoAttendantName", 0,
                 new Class[] { String.class });
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
+                "register-on-initialization"), "setRegisterOnInitialization",
+                0, new Class[] { Boolean.class });
+       
         
+       
 
     }
 

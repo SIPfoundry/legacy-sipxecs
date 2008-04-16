@@ -38,7 +38,8 @@
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						The ITSP facing address. The ITSP will send
-						signaling here.
+						signaling here. If sipxbridge is running behind a NAT this is the
+						a private address.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -49,7 +50,7 @@
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						The ITSP facing port. The ITSP will send
-						signaling here.
+						signaling here. 
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -76,24 +77,13 @@
 				minOccurs="1" maxOccurs="1">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						The SIPX proxy domain ( this should be
-						configurable as a global - not a user settable
-						parameter) . For the prototype configure
-						manually.
+						The SIPX proxy domain. This is normally set by sipxconfig.
+						If you are starting sipxbridge manually, you need to fill in this field.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 
 
-			<xs:element name="stun-server-address" type="xs:string"
-				maxOccurs="1" minOccurs="0" default="stun01.sipphone.com">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						The stun server address used to determine the
-						global address of the birdge.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			
 			
 			<xs:element name="sip-keepalive-seconds" type="xs:integer"
@@ -120,19 +110,21 @@
 				maxOccurs="1" minOccurs="0"   >
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						Port for external XML RPC requests to be directed. If not specified,
+						Port for external XML RPC requests to be directed. The XML rpc server allows
+						for external control of the media bridging capabilities of sipxbridge. If not specified,
 						the XML RPC server is not started.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 
 			<xs:element name="max-number-of-concurrent-calls" type="xs:integer"
-				maxOccurs="1" minOccurs="0" default="-1">
+				maxOccurs="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						The maximum number of concurrent calls allowed via the given
-						bridge overall. "-1" means "infinity".  
-						When the limit is reached, sipxbridge will return "Service Unavailable".
+						The maximum number of concurrent calls allowed via sipxbridge
+						bridge overall. If undefined no limit is imposed.
+						When the limit is reached, sipxbridge will return 
+						"Service Unavailable".
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -147,6 +139,8 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+
+
 			<xs:element name="rtp-port-range" type="xs:string"
 				maxOccurs="1" minOccurs="0" default="25000:25500">
 				<xs:annotation>
@@ -155,6 +149,7 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+
 			
 			<xs:element name="log-level" maxOccurs="1" minOccurs="0"
 				default="INFO">
@@ -172,12 +167,55 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
-			<xs:element name="log-directory" type="xs:string" maxOccurs="1" minOccurs="0" 
-				default="/var/log/sipxpbx/">
+
+			<xs:element name="allowed-codec-name" maxOccurs="1" minOccurs="0"
+				default="PCMU">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						Log directory. Defaults to /var/log/sipxbpx/. The log file name is hard coded
-						to "sipxbridge.log". Please specify the slash at the end of the directory name.
+						The codec for the Sdp Offer that is allowable. 
+						Because sipxbridge does not support media transcoding, 
+						in to support call transfers, we need to 
+						restrict the all codec for call setups in the SDP offer to this value. 
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="PCMU" />
+						<xs:enumeration value="G729" />
+						<xs:enumeration value="G723" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+
+			<xs:element name="stun-server-address" type="xs:string"
+				maxOccurs="1" minOccurs="0" default="stun01.sipphone.com">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The stun server address used to determine the
+						global address of the bridge. If this is not present
+						then stun01.sipphone.com is used for global address discovery.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="stun-interval" type="xs:integer" default="30" >
+				<xs:restriction base="xs:positiveInteger" >
+					<xs:minInclusiveValue = "10" />
+				</xs:restriction>
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The rediscovery period (seconds) used to determine if the NAT has
+						rebooted and aquired a new global IP address. 
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="log-directory" type="xs:string" maxOccurs="1" minOccurs="0" 
+				default="/var/log/sipxpbx">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Log directory. Defaults to /var/log/sipxbpx. The log file name is hard coded
+						to "sipxbridge.log". 
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -192,23 +230,26 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="max-number-of-concurrent-calls" type="xs:integer"
-				maxOccurs="1" minOccurs="0" default="-1">
+			<xs:element name="max-number-of-concurrent-calls" type="xs:positiveInteger"
+				maxOccurs="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						The maximum number of concurrent calls allowed via the given
-						ITSP. "-1" means "infinity".  This is a way of doing 
-						a coarse granuarity of QOS on the ITSP. When the limit is 
-						reached, sipxbridge will return "Service Unavailable".
+						ITSP. If this tag is not present, it means no restriction is imposed.  
+						This is a way of doing a coarse granuarity of QOS on the ITSP. 
+						When the limit is reached, sipxbridge will return "Service Unavailable"
+						for any further calls directed at this ITSP.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 
 			<xs:element name="outbound-proxy" type="xs:string"
-				maxOccurs="1" minOccurs="1">
+				maxOccurs="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						The outbound proxy address.
+						The outbound proxy. If not specified,
+						the proxy domain is used to look up the outbound
+						proxy.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -223,11 +264,11 @@
 			</xs:element>
 
 			<xs:element name="proxy-domain" type="xs:string"
-				maxOccurs="1" minOccurs="0">
+				maxOccurs="1" minOccurs="1">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						The domain for the SIP Register Request defaults
-						to outbound proxy.
+						to the proxy domain.  This is a required parameter.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -236,8 +277,8 @@
 				maxOccurs="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						The domain for the SIP authentication realm
-						defaults to outbound-proxy.
+						The Digest authentication realm.
+						This is the realm present in the authentication challenge.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -246,7 +287,7 @@
 				minOccurs="1">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						The user name attached to the account.
+						The authentication user name attached to the account.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -282,6 +323,7 @@
 			</xs:element>
 
 
+
 			<xs:element name="route-inbound-calls-to-extension" type="xs:string"
 				maxOccurs="1" minOccurs="0" >
 				<xs:annotation>
@@ -312,6 +354,40 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="sip-keepalive-method"
+				type="xs:string" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						 Defines the mechanism to use for SIP keepalive.  If undefined,
+       						 REGISTER is used if the account is marked register-on-initialization
+        					 else, if OPTIONS is Supported, OPTIONS is used else CR-LF is used.
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="REGISTER" />
+						<xs:enumeration value="OPTIONS" />
+						<xs:enumeration value="CR-LF" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="rtp-keepalive-method"
+				type="xs:string" default="USE-EMPTY-PACKET" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						 Defines the mechanism to use for RTP keepalive.  If undefined,
+						 empty UDP packets are used. 
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="USE-EMPTY-PACKET" />
+						<xs:enumeration value="REPLAY-LAST-SENT-PACKET" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+
+			
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

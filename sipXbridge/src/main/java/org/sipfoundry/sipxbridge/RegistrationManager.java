@@ -113,20 +113,7 @@ public class RegistrationManager {
                 TimerTask ttask = new RegistrationTimerTask(itspAccount);
                 Gateway.timer.schedule(ttask, time * 1000);
             }
-            /*
-             * boolean sendOptions = false; for ( java.util.ListIterator
-             * allowHeaders = response.getHeaders(AllowHeader.NAME);
-             * allowHeaders != null && allowHeaders.hasNext(); ) { AllowHeader
-             * allowHeader = (AllowHeader) allowHeaders.next(); if (
-             * allowHeader.getMethod().equals(Request.OPTIONS)) { sendOptions =
-             * true; } }
-             * 
-             * SipProvider provider = (SipProvider) responseEvent.getSource();
-             * 
-             * if ( sendOptions) { TimerTask ttask = new
-             * OptionsTimerTask(provider,itspAccount);
-             * Gateway.timer.schedule(ttask, 60 * 1000); }
-             */
+            
 
         } else {
             ItspAccountInfo itspAccount = ((TransactionApplicationData) ct

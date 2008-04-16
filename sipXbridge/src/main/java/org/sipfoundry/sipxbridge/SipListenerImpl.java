@@ -188,8 +188,7 @@ public class SipListenerImpl implements SipListener {
 
                 }
 
-                if (method.equals(Request.REGISTER))
-                    return;
+                if (method.equals(Request.REGISTER) || method.equals(Request.OPTIONS)) return;
             }
 
             if (response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED
