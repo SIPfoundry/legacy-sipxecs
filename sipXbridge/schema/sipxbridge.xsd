@@ -181,6 +181,7 @@
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
 						<xs:enumeration value="PCMU" />
+						<xs:enumeration value="PCMA" />
 						<xs:enumeration value="G729" />
 						<xs:enumeration value="G723" />
 					</xs:restriction>

@@ -8,12 +8,14 @@ package org.sipfoundry.sipxbridge;
 
 import java.text.ParseException;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
 import javax.sdp.Attribute;
 import javax.sdp.Connection;
+import javax.sdp.Media;
 import javax.sdp.MediaDescription;
 import javax.sdp.Origin;
 import javax.sdp.SdpException;
@@ -118,11 +120,10 @@ public class SipUtilities {
                 // Check -- what other parameters need to be set for NAT
                 // traversal here?
 
-              
                 return ProtocolObjects.headerFactory.createViaHeader(Gateway
                         .getGlobalAddress(), sipProvider.getListeningPoint(
-                        itspAccount.getOutboundTransport()).getPort(), itspAccount
-                        .getOutboundTransport(), null);
+                        itspAccount.getOutboundTransport()).getPort(),
+                        itspAccount.getOutboundTransport(), null);
 
             }
 
@@ -208,12 +209,12 @@ public class SipUtilities {
     private static Request createRegistrationRequestTemplate(
             ItspAccountInfo itspAccount, SipProvider sipProvider)
             throws ParseException, InvalidArgumentException {
-        
+
         String proxy = itspAccount.getOutboundProxy();
-        
+
         SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null,
                 proxy);
-        if ( itspAccount.getOutboundTransport().equalsIgnoreCase("tcp")) {
+        if (itspAccount.getOutboundTransport().equalsIgnoreCase("tcp")) {
             requestUri.setTransportParam("tcp");
         }
         SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
@@ -377,10 +378,11 @@ public class SipUtilities {
             ContactHeader contactHeader = createContactHeader(sipProvider,
                     itspAccount);
             contactHeader.removeParameter("expires");
-            
+
             request.addHeader(contactHeader);
-            int registrationTimer = itspAccount.getSipKeepaliveMethod().equals(Request.REGISTER) ?
-                            Gateway.getSipKeepaliveSeconds() : itspAccount.getRegistrationInterval();
+            int registrationTimer = itspAccount.getSipKeepaliveMethod().equals(
+                    Request.REGISTER) ? Gateway.getSipKeepaliveSeconds()
+                    : itspAccount.getRegistrationInterval();
             ExpiresHeader expiresHeader = ProtocolObjects.headerFactory
                     .createExpiresHeader(registrationTimer);
             request.addHeader(expiresHeader);
@@ -424,27 +426,17 @@ public class SipUtilities {
 
     }
 
-    public static Request createInviteRequest(SipProvider sipProvider,
-            ItspAccountInfo itspAccount, String user,FromHeader fromHeader, String toUser,
-            String toDomain, boolean isphone)
+    public static Request createInviteRequest(SipURI requestUri,
+            SipProvider sipProvider,
+            ItspAccountInfo itspAccount, String user, FromHeader fromHeader,
+            String toUser, String toDomain, boolean isphone)
             throws GatewayConfigurationException {
         try {
 
-            SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(
-                    user, itspAccount.getSipDomain());
-            if ( itspAccount.getOutboundTransport().equals("tcp")) {
-                requestUri.setTransportParam("tcp");
-            }
             
-            if (isphone) {
 
-                requestUri.setUserParam("phone");
-            }
-
-          
-            
-            fromHeader.setTag(new Long(Math
-                            .abs(new java.util.Random().nextLong())).toString());
+            fromHeader.setTag(new Long(Math.abs(new java.util.Random()
+                    .nextLong())).toString());
 
             SipURI toUri = ProtocolObjects.addressFactory.createSipURI(toUser,
                     toDomain);
@@ -510,6 +502,35 @@ public class SipUtilities {
                 .createSessionDescription(messageString);
         return sd;
 
+    }
+
+    public static SessionDescription cleanSessionDescription(
+            SessionDescription sessionDescription, String codec) {
+        try {
+            
+            Vector mediaDescriptions = sessionDescription
+                    .getMediaDescriptions(true);
+
+            for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
+
+                MediaDescription mediaDescription = (MediaDescription) it
+                        .next();
+                String attribute = mediaDescription.getAttribute("rtpmap");
+                String[] attributes = attribute.split(" ");
+                String[] pt = attributes[1].split("/");
+                logger.debug("pt == " + pt[0]);
+                if (!pt[0].equals(codec)) {
+                    it.remove();
+                    logger.debug("stripping");
+                }
+
+            }
+            
+            return sessionDescription;
+        } catch (Exception ex) {
+            logger.fatal("Unexpected exception!", ex);
+            throw new RuntimeException("Unexpected exception cleaning SDP", ex);
+        }
     }
 
     public static String getSessionDescriptionMediaIpAddress(

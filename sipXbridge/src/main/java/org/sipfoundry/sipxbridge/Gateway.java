@@ -722,6 +722,15 @@ public class Gateway {
     }
 
     /**
+     * Get the codec name.
+     * 
+     * @return
+     */
+    public static String getCodecName() {
+        return Gateway.getAccountManager().getBridgeConfiguration().getCodecName();
+    }
+    
+    /**
      * The main method for the Bridge.
      * 
      * @param args
@@ -741,5 +750,7 @@ public class Gateway {
         }
 
     }
+
+   
 
 }

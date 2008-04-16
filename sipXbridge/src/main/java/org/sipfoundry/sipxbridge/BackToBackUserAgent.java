@@ -646,10 +646,12 @@ public class BackToBackUserAgent {
              */
             SessionDescription sessionDescription = SipUtilities
                     .getSessionDescription(request);
+            SipUtilities.cleanSessionDescription(sessionDescription,Gateway.getCodecName() );
 
             SymEndpoint rtpEndpoint = new SymEndpoint(true);
             if ( ! this.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
-                rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(),this.itspAccountInfo.getRtpKeepaliveMethod());
+                rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(),
+                        this.itspAccountInfo.getRtpKeepaliveMethod());
             }
             Sym incomingSession = this.getWanRtpSession(inboundDialog);
             incomingSession.setRemoteEndpoint(rtpEndpoint);
@@ -879,7 +881,7 @@ public class BackToBackUserAgent {
             String user = incomingRequestUri.getUser();
             FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(FromHeader.NAME).clone();
             Request outgoingRequest = SipUtilities.createInviteRequest(
-                    itspProvider, itspAccountInfo, user, fromHeader, toUser, toDomain,
+                    incomingRequestUri, itspProvider, itspAccountInfo, user, fromHeader, toUser, toDomain,
                     isphone);
             ClientTransaction ct = itspProvider
                     .getNewClientTransaction(outgoingRequest);
@@ -894,6 +896,8 @@ public class BackToBackUserAgent {
 
             SipUtilities.fixupSdpAddresses(sd, itspAccountInfo
                     .isGlobalAddressingUsed());
+            
+            SipUtilities.cleanSessionDescription(sd, Gateway.getCodecName());
 
             /*
              * Indicate that we will be transmitting first.
