@@ -359,12 +359,12 @@
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						 Defines the mechanism to use for SIP keepalive.  If undefined,
-       						 REGISTER is used if the account is marked register-on-initialization
-        					 else, if OPTIONS is Supported, OPTIONS is used else CR-LF is used.
+       						 empty SIP packets (CR-LF) is used for SIP keepalive.
 					</xs:documentation>
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
+						<xs:enumeration value="NONE" />
 						<xs:enumeration value="REGISTER" />
 						<xs:enumeration value="OPTIONS" />
 						<xs:enumeration value="CR-LF" />
