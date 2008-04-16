@@ -111,9 +111,11 @@ public class ItspAccountInfo implements
      */
     private HashMap<String, FailureCounter> failureCountTable = new HashMap<String, FailureCounter>();
 
-    private String sipKeepaliveMethod = "REGISTER";
+    private String sipKeepaliveMethod = "CR-LF";
 
     private CrLfTimerTask crlfTimerTask;
+    
+    private String rtpKeepaliveMethod = "EMPTY-UDP-PACKET";
 
     /**
      * This task runs periodically depending upon the timeout of the lookup
@@ -485,6 +487,20 @@ public class ItspAccountInfo implements
         Gateway.timer.schedule(crlfTimerTask, Gateway
                 .getSipKeepaliveSeconds() * 1000);
         
+    }
+
+    /**
+     * @param rtpKeepaliveMethod the rtpKeepaliveMethod to set
+     */
+    public void setRtpKeepaliveMethod(String rtpKeepaliveMethod) {
+        this.rtpKeepaliveMethod = rtpKeepaliveMethod;
+    }
+
+    /**
+     * @return the rtpKeepaliveMethod
+     */
+    public String getRtpKeepaliveMethod() {
+        return rtpKeepaliveMethod;
     }
 
 }

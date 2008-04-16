@@ -643,9 +643,12 @@ public class CallControlManager {
 
                         tad.outgoingSession.setRemoteEndpoint(hisEndpoint);
                         hisEndpoint.setSessionDescription(sessionDescription);
-                        if (tad.operation == Operation.SEND_INVITE_TO_ITSP)
-                            hisEndpoint.setMaxSilence(Gateway
+                        if (tad.operation == Operation.SEND_INVITE_TO_ITSP) {
+                            if ( ! tad.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
+                                hisEndpoint.setMaxSilence(Gateway
                                     .getMediaKeepaliveMilisec());
+                            }
+                        }
 
                         SymEndpoint incomingEndpoint = tad.incomingSession
                                 .getReceiver();

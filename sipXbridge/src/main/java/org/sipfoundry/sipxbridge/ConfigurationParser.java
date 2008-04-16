@@ -94,6 +94,9 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "display-name"), "setDisplayName", 0);
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
+                "rtp-keepalive-method"), "setRtpKeepaliveMethod", 0);
+        
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
             "sip-keepalive-method"), "setSipKeepaliveMethod", 0);
         
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,

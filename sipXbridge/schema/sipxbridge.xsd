@@ -381,6 +381,7 @@
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
+						<xs:enumeration value="NONE" />
 						<xs:enumeration value="USE-EMPTY-PACKET" />
 						<xs:enumeration value="REPLAY-LAST-SENT-PACKET" />
 					</xs:restriction>

@@ -648,7 +648,9 @@ public class BackToBackUserAgent {
                     .getSessionDescription(request);
 
             SymEndpoint rtpEndpoint = new SymEndpoint(true);
-            rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec());
+            if ( ! this.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
+                rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec());
+            }
             Sym incomingSession = this.getWanRtpSession(inboundDialog);
             incomingSession.setRemoteEndpoint(rtpEndpoint);
 
@@ -973,7 +975,9 @@ public class BackToBackUserAgent {
                 SymEndpoint rtpEndpoint = new SymEndpoint(true);
                 rtpSession.setRemoteEndpoint(rtpEndpoint);
                 rtpEndpoint.setSessionDescription(sessionDescription);
-                rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec());
+                if (! tad.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
+                    rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec());
+                }
                 /*
                  * The RTP session now belongs to the ClientTransaction.
                  */
