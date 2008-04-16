@@ -247,7 +247,7 @@ public class SipXbridgeServer implements Symmitron {
 
     public Map<String, Object> setDestination(String controllerHandle,
             String rtpSessionId, Map<String, Object> rtpEndpointMap,
-            int keepAliveTime, boolean useLastSentForKeepalive,
+            int keepAliveTime, String keepaliveMethod,
             byte[] keepAlivePacketData, boolean autoDiscoverFlag) {
         this.checkForControllerReboot(controllerHandle);
 
@@ -262,8 +262,8 @@ public class SipXbridgeServer implements Symmitron {
             SymEndpoint rtpEndpoint = new SymEndpoint(true);
             rtpEndpoint.setPort(port);
             rtpEndpoint.setIpAddress(ipAddress);
-            rtpEndpoint.setMaxSilence(keepAliveTime);
-            rtpEndpoint.setUseLastSentForKeepAlive(useLastSentForKeepalive);
+            rtpEndpoint.setMaxSilence(keepAliveTime,keepaliveMethod);
+           
             rtpEndpoint.setKeepalivePayload(keepAlivePacketData);
             rtpEndpoint.setRemoteAddressAutoDiscovery(autoDiscoverFlag);
             return retval;

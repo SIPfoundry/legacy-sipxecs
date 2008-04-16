@@ -330,7 +330,7 @@ public interface Symmitron {
      */
     public Map<String, Object> setDestination(String controllerHandle,
             String symId, Map<String, Object> symEndpoint,
-            int keepAliveTime, boolean useLastSentForKeepalive,
+            int keepAliveTime, String keepaliveMethod,
             byte[] keepAlivePacketData, boolean autoLearnDestination );
 
     

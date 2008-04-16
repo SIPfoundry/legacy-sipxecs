@@ -646,7 +646,7 @@ public class CallControlManager {
                         if (tad.operation == Operation.SEND_INVITE_TO_ITSP) {
                             if ( ! tad.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
                                 hisEndpoint.setMaxSilence(Gateway
-                                    .getMediaKeepaliveMilisec());
+                                    .getMediaKeepaliveMilisec(),tad.itspAccountInfo.getRtpKeepaliveMethod());
                             }
                         }
 

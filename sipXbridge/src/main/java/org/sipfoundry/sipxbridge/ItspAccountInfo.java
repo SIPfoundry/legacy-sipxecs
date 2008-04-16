@@ -115,7 +115,7 @@ public class ItspAccountInfo implements
 
     private CrLfTimerTask crlfTimerTask;
     
-    private String rtpKeepaliveMethod = "EMPTY-UDP-PACKET";
+    private String rtpKeepaliveMethod = "USE-EMPTY-PACKET";
 
     /**
      * This task runs periodically depending upon the timeout of the lookup

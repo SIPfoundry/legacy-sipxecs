@@ -93,13 +93,14 @@ public class SymEndpoint implements SymEndpointInterface {
 
     private long lastPacketSentTime;
 
-    private boolean useLastSentForKeepalive;
 
     private byte[] keepalivePayload = null;
 
     private ByteBuffer keepAliveBuffer = ByteBuffer.allocate(0);
     
     private boolean remoteAddressAutoDiscoverFlag  = false;
+
+    private String keepaliveMethod = "USE-EMPTY-PACKET";
 
     class EarlyMediaSender extends TimerTask {
 
@@ -121,7 +122,8 @@ public class SymEndpoint implements SymEndpointInterface {
                 if (now - lastPacketSentTime < Gateway
                         .getMediaKeepaliveMilisec())
                     return;
-                if (useLastSentForKeepalive || keepalivePayload == null) {
+                if (keepaliveMethod.equals("REPLAY-LAST-SENT-PACKET") ||
+                        keepaliveMethod.equals("USE-EMPTY-PACKET") ) {
                     rtpDatagramChannel.send(keepAliveBuffer, rtpSocketAddress);
                 } else if (keepalivePayload != null) {
                     RtpPacket rtpPacket = createRtpPacket();
@@ -442,7 +444,7 @@ public class SymEndpoint implements SymEndpointInterface {
         if (logger.isDebugEnabled())
             logger.debug("Sending to " + this.rtpSocketAddress);
         this.lastPacketSentTime = System.currentTimeMillis();
-        if (this.useLastSentForKeepalive) {
+        if (keepaliveMethod.equals("REPLAY-LAST-SENT-PACKET")) {
             this.keepAliveBuffer = byteBuffer;
         }
         this.rtpDatagramChannel.send(byteBuffer, this.rtpSocketAddress);
@@ -488,21 +490,18 @@ public class SymEndpoint implements SymEndpointInterface {
         this.port = port;
     }
 
-    public void setMaxSilence(int maxSilence) {
+    public void setMaxSilence(int maxSilence, String keepaliveMethod) {
         logger.debug("RtpEndpoint : setMaxSilence " + maxSilence);
         if (this.earlyMediaStarted) {
             logger.debug("early media started !");
             return;
         }
         this.maxSilence = maxSilence;
-        if (maxSilence != 0)
+        this.keepaliveMethod   = keepaliveMethod ;
+        if (maxSilence != 0 && ! keepaliveMethod.equals("NONE"))
             this.startKeepaliveTimer();
     }
 
-    public void setUseLastSentForKeepAlive(boolean useLastSentForKeepalive) {
-        this.useLastSentForKeepalive = useLastSentForKeepalive;
-
-    }
 
     public void setKeepalivePayload(byte[] keepAlivePacketData) {
         this.keepalivePayload = keepAlivePacketData;
