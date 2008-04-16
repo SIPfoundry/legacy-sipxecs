@@ -7,17 +7,9 @@
 package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.DialogExt;
-import gov.nist.javax.sip.header.Via;
-import gov.nist.javax.sip.stack.SIPClientTransaction;
 
 import java.text.ParseException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
 
-import javax.sdp.MediaDescription;
-import javax.sdp.SdpFactory;
-import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;
@@ -33,19 +25,11 @@ import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
 import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionTerminatedEvent;
-import javax.sip.TransactionUnavailableException;
-import javax.sip.address.SipURI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
-import javax.sip.header.ContentTypeHeader;
-import javax.sip.header.FromHeader;
-import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.ToHeader;
-import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
-
-import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 

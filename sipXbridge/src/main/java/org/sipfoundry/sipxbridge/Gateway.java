@@ -7,44 +7,27 @@
 
 package org.sipfoundry.sipxbridge;
 
-import java.io.File;
-import java.io.FileInputStream;
+import gov.nist.javax.sip.SipStackExt;
+import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
+
 import java.net.InetAddress;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.sip.ClientTransaction;
-import javax.sip.DialogTerminatedEvent;
-import javax.sip.IOExceptionEvent;
 import javax.sip.ListeningPoint;
-import javax.sip.RequestEvent;
-import javax.sip.ResponseEvent;
 import javax.sip.SipException;
-import javax.sip.SipListener;
 import javax.sip.SipProvider;
-import javax.sip.TimeoutEvent;
-import javax.sip.TransactionTerminatedEvent;
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
 import javax.sip.message.Request;
-import javax.sip.message.Response;
 
 import net.java.stun4j.StunAddress;
-import net.java.stun4j.StunException;
 import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
-import net.java.stun4j.client.ResponseSequenceServer;
 import net.java.stun4j.client.StunDiscoveryReport;
 
 import org.apache.log4j.Appender;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.SimpleLayout;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
@@ -55,11 +38,6 @@ import org.xbill.DNS.Record;
 import org.xbill.DNS.SRVRecord;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
-
-import gov.nist.javax.sip.SipStackExt;
-import gov.nist.javax.sip.clientauthutils.*;
-
-import junit.framework.TestCase;
 
 /**
  * The main class
