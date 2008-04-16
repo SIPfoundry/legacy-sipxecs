@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
+import static org.apache.commons.lang.StringUtils.defaultString;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
