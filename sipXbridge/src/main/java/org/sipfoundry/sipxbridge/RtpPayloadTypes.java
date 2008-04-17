@@ -6,6 +6,7 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import java.util.HashSet;
 import java.util.Hashtable;
 
 import org.apache.log4j.Logger;
@@ -20,6 +21,8 @@ public class RtpPayloadTypes {
 
     private static Hashtable<String, Integer> payloadTypes = new Hashtable<String, Integer>();
 
+    private static HashSet<Integer> payloadTypeByInt = new HashSet<Integer>();
+    
     private static Logger logger = Logger.getLogger(RtpPayloadTypes.class);
 
     static {
@@ -37,11 +40,17 @@ public class RtpPayloadTypes {
         payloadTypes.put("DVI4", 16);
         payloadTypes.put("G729", 18);
         payloadTypes.put("G726-32", 17); // Phoney
+        payloadTypeByInt.addAll(payloadTypes.values());
 
     }
 
     public static boolean isPayload(String payloadType) {
         return payloadTypes.containsKey(payloadType.toUpperCase());
+    }
+    
+    public static boolean isPayload(int payloadType) {
+        return payloadTypeByInt.contains(payloadType);
+        
     }
     
     public static int getPayloadType(String payloadType) {

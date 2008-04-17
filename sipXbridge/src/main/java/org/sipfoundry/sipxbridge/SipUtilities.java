@@ -525,7 +525,8 @@ public class SipUtilities {
     /**
      * Cleans the Session description to include only the specified
      * codec.This processing can be applied on the outbound INVITE
-     * to make sure that call transfers will work.
+     * to make sure that call transfers will work. It removes all the
+     * SRTP related fields as well.
      * 
      * @param sessionDescription
      * @param codec
@@ -535,13 +536,22 @@ public class SipUtilities {
             SessionDescription sessionDescription, String codec) {
         try {
 
+          
             Vector mediaDescriptions = sessionDescription
                     .getMediaDescriptions(true);
 
+            int keeper = RtpPayloadTypes.getPayloadType(codec);
+            
             for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
 
                 MediaDescription mediaDescription = (MediaDescription) it
                         .next();
+                Vector formats = mediaDescription.getMedia().getMediaFormats(true);
+                for ( Iterator it1 = formats.iterator(); it1.hasNext();) {
+                    Object format = it1.next();
+                    int fmt = new Integer(format.toString());
+                    if ( fmt != keeper && RtpPayloadTypes.isPayload(fmt)) it1.remove();
+                }
                 Vector attributes = mediaDescription.getAttributes(true);
 
                 for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
