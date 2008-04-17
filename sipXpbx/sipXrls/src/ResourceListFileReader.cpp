@@ -109,8 +109,19 @@ OsStatus ResourceListFileReader::initialize()
                {
                   // User missing or null.
                   OsSysLog::add(FAC_RLS, PRI_ERR,
-                                "main "
                                 "user attribute of <list> was missing or null");
+                  list_valid = false;
+                  ret = OS_FAILED;
+               }
+
+               // Process the 'user-cons' attribute.
+               const char* user_cons_attribute =
+                  list_element->Attribute("user-cons");
+               if (!user_cons_attribute || *user_cons_attribute == '\0')
+               {
+                  // user-cons missing or null.
+                  OsSysLog::add(FAC_RLS, PRI_ERR,
+                                "user-cons attribute of <list> was missing or null");
                   list_valid = false;
                   ret = OS_FAILED;
                }
@@ -120,7 +131,9 @@ OsStatus ResourceListFileReader::initialize()
                {
                   // Add this resource list to the set of all resource lists.
                   // (No NAME XML for the resource list.)
-                  mResourceListSet->addResourceList(user_attribute, "");
+                  mResourceListSet->addResourceList(user_attribute,
+                                                    user_cons_attribute,
+                                                    "");
                   OsTask::delay(addDelay);
 
                   // Find all the <resource> children and add them to the

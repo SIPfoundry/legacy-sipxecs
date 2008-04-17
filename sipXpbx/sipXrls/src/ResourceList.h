@@ -45,8 +45,10 @@ class ResourceList : public UtlContainableAtomic
    //! Construct a resource list.
    ResourceList(/// The parent ResourceListSet.
                 ResourceListSet* resourceListSet,
-                /// The user-part of the resource list URI.
-                const char* userPart);
+                /// The user-part of the resource list URI for "full" events.
+                const char* userPart,
+                /// The user-part of the resource list URI for "consolidated" events.
+                const char* userPartCons);
 
    virtual ~ResourceList();
 
@@ -106,8 +108,10 @@ class ResourceList : public UtlContainableAtomic
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
 
-   //! The userPart for the resource list.
+   //! The user-part for the resource list URI for "full" events.
    UtlString mUserPart;
+   //! The user-part for the resource list URI for "consolidated" events.
+   UtlString mUserPartCons;
 
    //! Resource list name, the URI of the resource list showing the sipX domain
    UtlString mResourceListName;

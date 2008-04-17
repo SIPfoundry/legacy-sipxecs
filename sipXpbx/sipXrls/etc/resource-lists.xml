@@ -8,7 +8,7 @@
   - Both the list and the resource have <name> elements.
   -->
 
-<lists xmlns="http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-00">
+<lists xmlns="http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01">
   <list user="~~rl~1">
     <name xml:lang="en">Buddy List</name>
     <name xml:lang="fr">Liste d'amis</name>

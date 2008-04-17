@@ -109,11 +109,12 @@ void ResourceListSet::refreshAllResources()
 
 // Create and add a resource list.
 void ResourceListSet::addResourceList(const char* user,
+                                      const char* userCons,
                                       const char* nameXml)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceListSet::addResourceList this = %p, user = '%s', nameXml = '%s'",
-                 this, user, nameXml);
+                 "ResourceListSet::addResourceList this = %p, user = '%s', userCons = '%s', nameXml = '%s'",
+                 this, user, userCons, nameXml);
 
    // Serialize access to the ResourceListSet.
    OsLock lock(mSemaphore);
@@ -122,7 +123,7 @@ void ResourceListSet::addResourceList(const char* user,
    if (!findResourceList(user))
    {
       // Create the resource list.
-      ResourceList* resourceList = new ResourceList(this, user);
+      ResourceList* resourceList = new ResourceList(this, user, userCons);
 
       // Update the version number for consolidated events if it is too
       // small for an existing subscription to this URI.

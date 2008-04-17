@@ -3,9 +3,9 @@
   - XML Schema for sipX resource list definitions
   -->
 <schema
-    xmlns:r='http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-00'
+    xmlns:r='http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01'
     xmlns:sip='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
-    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01'
     xmlns='http://www.w3.org/2001/XMLSchema'
     >
 
@@ -53,6 +53,9 @@
 	   should not contain any (URI) escapes or characters
 	   requiring escaping (within URIs). -->
       <attribute name="user" type="string" use="required" />
+      <!-- 'uri-cons' is the user-part of the URI for "consolidated"
+	   (Broadworks-style) resource list events. -->
+      <attribute name="user-cons" type="string" use="required" />
       <!-- 'version', 'fullState', and 'cid' are omitted. -->
       <anyAttribute processContents="lax" />
     </complexType>

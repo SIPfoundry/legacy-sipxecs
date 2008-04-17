@@ -96,8 +96,10 @@ class ResourceListServer : public UtlContainableAtomic
    void refreshAllResources();
 
    //! Create and add a resource list.
-   void addResourceList(/// The user-part of the resource list URI.
+   void addResourceList(/// The user-part of the resource list URI for "full" events.
                         const char* user,
+                        /// The user-part of the resource list URI for "consolidated" events.
+                        const char* userCons,
                         /// The XML for the name of the resource list.
                         const char* nameXml);
 
@@ -281,9 +283,10 @@ inline void ResourceListServer::refreshAllResources()
 
 // Create and add a resource list.
 inline void ResourceListServer::addResourceList(const char* user,
+                                                const char* userCons,
                                                 const char* nameXml)
 {
-   mResourceListSet.addResourceList(user, nameXml);
+   mResourceListSet.addResourceList(user, userCons, nameXml);
 }
 
 // Delete all resources from a resource list.

@@ -45,30 +45,33 @@ const UtlContainableType ResourceList::TYPE = "ResourceList";
 
 // Constructor
 ResourceList::ResourceList(ResourceListSet* resourceListSet,
-                           const char* userPart) :
+                           const char* userPart,
+                           const char* userPartCons) :
    mUserPart(userPart),
+   mUserPartCons(userPartCons),
    mVersion(0),
    mResourceListSet(resourceListSet)
 {
-   // Compose the resource list name.
+   // Compose the resource list names.
    mResourceListName = "sip:";
    mResourceListName.append(mUserPart);
    mResourceListName.append("@");
    mResourceListName.append(getResourceListServer()->getDomainName());
+
    mResourceListNameCons = "sip:";
-   mResourceListNameCons.append(mUserPart);
-   mResourceListNameCons.append("c@");
+   mResourceListNameCons.append(mUserPartCons);
+   mResourceListNameCons.append("@");
    mResourceListNameCons.append(getResourceListServer()->getDomainName());
-   // Compose the resource list URI as it will appear in the SUBSCRIBE.
+
+   // Compose the resource list URIs as they will appear in the SUBSCRIBE.
    mResourceListUri = "sip:";
    mResourceListUri.append(mUserPart);
    mResourceListUri.append("@");
    mResourceListUri.append(getResourceListServer()->getServerLocalHostPart());
-   // Compose the resource list URI for the "consolidated" events,
-   // by appending "c" to the user-part.
+
    mResourceListUriCons = "sip:";
-   mResourceListUriCons.append(mUserPart);
-   mResourceListUriCons.append("c@");
+   mResourceListUriCons.append(mUserPartCons);
+   mResourceListUriCons.append("@");
    mResourceListUriCons.append(getResourceListServer()->getServerLocalHostPart());
 
    // Initialize mVersion by looking up the next allowed version
@@ -77,13 +80,17 @@ ResourceList::ResourceList(ResourceListSet* resourceListSet,
       getResourceListServer()->getSubscriptionMgr().
       getNextAllowedVersion(mResourceListUri);
 
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceList::_ this = %p, mUserPart = '%s', mResourceListName = '%s', mResourceListUri = '%s', mUserPartCons = '%s', mResourceListNameCons = '%s', mResourceListUriCons = '%s', mVersion = %d",
+                 this,
+                 mUserPart.data(),
+                 mResourceListName.data(), mResourceListUri.data(),
+                 mUserPartCons.data(),
+                 mResourceListNameCons.data(), mResourceListUriCons.data(),
+                 mVersion);
+
    // Publish the new list.
    setToBePublished();
-
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceList:: this = %p, mUserPart = '%s', mResourceListName = '%s', mResourceListUri = '%s', mVersion = %d",
-                 this, mUserPart.data(), mResourceListName.data(),
-                 mResourceListUri.data(), mVersion);
 }
 
 // Destructor

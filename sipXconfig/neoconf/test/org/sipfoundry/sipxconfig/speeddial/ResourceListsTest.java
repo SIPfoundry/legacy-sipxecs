@@ -136,7 +136,7 @@ public class ResourceListsTest extends XMLTestCase {
         rl.generate(null);
         String fileContent = rl.getFileContent();
         assertXMLEqual(
-                "<lists xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-00\"/>",
+                "<lists xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01\"/>",
                 fileContent);
         coreContextControl.verify();
     }
@@ -166,7 +166,7 @@ public class ResourceListsTest extends XMLTestCase {
         int m_id;
 
         public DummyUser(int id) {
-            char c = (char) ('a' + id);
+            char c = (char) ('a' - 1 + id);
             setUserName("user_" + c);
             m_id = id;
         }

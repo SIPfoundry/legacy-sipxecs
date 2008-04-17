@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -18,6 +20,7 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
@@ -26,10 +29,19 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
 
     public static final String PAGE = "user/EditUser";
 
+    @InjectObject(value = "spring:speedDialManager")
+    public abstract SpeedDialManager getSpeedDialManager();
+    
+    @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
 
+    @InjectObject(value = "spring:settingDao")
     public abstract SettingDao getSettingDao();
 
+    @InjectObject(value = "spring:mailboxManager")
+    public abstract MailboxManager getMailboxManager();
+    
+    @Persist
     public abstract Integer getUserId();
 
     public abstract void setUserId(Integer userId);
@@ -37,8 +49,6 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
     public abstract User getUser();
 
     public abstract void setUser(User user);
-
-    public abstract MailboxManager getMailboxManager();
 
     public abstract MailboxPreferences getMailboxPreferences();
 
@@ -60,6 +70,9 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
             Mailbox mailbox = mmgr.getMailbox(user.getUserName());
             mmgr.saveMailboxPreferences(mailbox, getMailboxPreferences());
         }
+        
+        // update resource lists in case username hs changed
+        getSpeedDialManager().activateResourceList();
     }
 
     public void pageBeginRender(PageEvent event_) {

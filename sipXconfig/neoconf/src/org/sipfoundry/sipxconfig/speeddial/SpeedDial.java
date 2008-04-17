@@ -58,10 +58,9 @@ public class SpeedDial extends BeanWithId {
      */
     public String getResourceListId(boolean consolidated) {
         StringBuilder listId = new StringBuilder("~~rl~");
-        listId.append(getUser().getId());
-        if (consolidated) {
-            listId.append('c');
-        }
+        listId.append(consolidated ? 'C' : 'F');
+        listId.append('~');
+        listId.append(getUser().getUserName());
         return listId.toString();
     }
 

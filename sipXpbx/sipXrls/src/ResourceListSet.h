@@ -93,8 +93,10 @@ class ResourceListSet : public UtlContainableAtomic
 
    //! Create and add a resource list.
    //  May be called externally.
-   void addResourceList(/// The user-part of the resource list URI.
+   void addResourceList(/// The user-part of the resource list URI for "full" events.
                         const char* user,
+                        /// The user-part of the resource list URI for "consolidated" events.
+                        const char* userCons,
                         /// The XML for the name of the resource list.
                         const char* nameXml);
 

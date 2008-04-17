@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class ResourceLists extends XmlFile {
-    private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-00";
+    private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01";
 
     private Document m_document;
 
@@ -68,6 +68,7 @@ public class ResourceLists extends XmlFile {
     private Element createListForUser(Element lists, SpeedDial speedDial) {
         Element list = lists.addElement("list");
         list.addAttribute("user", speedDial.getResourceListId(false));
+        list.addAttribute("user-cons", speedDial.getResourceListId(true));
         addNameElement(list, speedDial.getResourceListName());
         return list;
     }

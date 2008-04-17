@@ -20,11 +20,14 @@ public class SpeedDialTest extends TestCase {
             public Integer getId() {
                 return 115;
             }
+            public String getUserName() {
+                return "test_user";
+            }
         };
 
         SpeedDial sd = new SpeedDial();
         sd.setUser(user);
-        assertEquals("~~rl~115", sd.getResourceListId(false));
-        assertEquals("~~rl~115c", sd.getResourceListId(true));
+        assertEquals("~~rl~F~test_user", sd.getResourceListId(false));
+        assertEquals("~~rl~C~test_user", sd.getResourceListId(true));
     }
 }
