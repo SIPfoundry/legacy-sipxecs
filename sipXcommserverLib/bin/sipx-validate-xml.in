@@ -103,10 +103,6 @@ fi
 if [ "${SchemaFile}" = "" ]
 then
   SchemaFile=`mktemp -t sipx-validate-xml.cat.XXXXXX`
-  if [ "${Action}" != "GENCAT" ]
-  then
-      trap "rm $SchemaFile 2>/dev/null" 0
-  fi
   echo "# Created from ${SchemaDir}/*.xsd on `date`." >${SchemaFile}
   for xsd in ${SchemaDir}/*.xsd
   do
@@ -143,6 +139,11 @@ case $Action in
         done
         ;;
 esac
+
+if [ "${Action}" != "GENCAT" ]
+then
+    rm -f "$SchemaFile" 
+fi
 
 if [ ${ExitStatus} -ne 0 ]
 then
