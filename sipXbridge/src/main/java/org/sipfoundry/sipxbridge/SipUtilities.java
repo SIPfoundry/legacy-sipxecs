@@ -719,9 +719,9 @@ public class SipUtilities {
         }
     }
 
-    public static SipProvider getPeerProvider(SipProvider provider) {
+    public static SipProvider getPeerProvider(SipProvider provider, String transport) {
         if (provider == Gateway.getLanProvider())
-            return Gateway.getWanProvider();
+            return Gateway.getWanProvider(transport);
         else
             return Gateway.getLanProvider();
     }

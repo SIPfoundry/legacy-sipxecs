@@ -414,12 +414,12 @@ public class CallControlManager {
             TransactionApplicationData tad = (TransactionApplicationData) inviteServerTransaction
                     .getApplicationData();
             ClientTransaction ct = tad.clientTransaction;
-
+            ItspAccountInfo itspAccount = btobua.getItspAccountInfo();
             if (ct.getState() == TransactionState.CALLING
                     || ct.getState() == TransactionState.PROCEEDING) {
                 Request cancelRequest = ct.createCancel();
                 SipProvider provider = SipUtilities
-                        .getPeerProvider((SipProvider) requestEvent.getSource());
+                        .getPeerProvider((SipProvider) requestEvent.getSource(),itspAccount.getOutboundTransport());
                 ClientTransaction clientTransaction = provider
                         .getNewClientTransaction(cancelRequest);
                 clientTransaction.sendRequest();
@@ -434,7 +434,7 @@ public class CallControlManager {
                     Request byeRequest = peerDialog.createRequest(Request.BYE);
                     SipProvider provider = SipUtilities
                             .getPeerProvider((SipProvider) requestEvent
-                                    .getSource());
+                                    .getSource(),itspAccount.getOutboundTransport());
                     ClientTransaction byeCt = provider
                             .getNewClientTransaction(byeRequest);
                     peerDialog.sendRequest(byeCt);

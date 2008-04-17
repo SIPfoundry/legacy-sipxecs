@@ -77,6 +77,11 @@ public class Gateway {
      * External provider.
      */
     private static SipProvider externalProvider;
+    
+    /*
+     * External 
+     */
+    private static SipProvider externalTlsProvider;
 
     /*
      * Back to back user agent manager.
@@ -317,6 +322,8 @@ public class Gateway {
 
             externalProvider = ProtocolObjects.sipStack
                     .createSipProvider(externalUdpListeningPoint);
+            
+            externalTlsProvider = ProtocolObjects.sipStack.createSipProvider(externalTlsListeningPoint);
 
             int localPort = bridgeConfiguration.getLocalPort();
             String localIpAddress = bridgeConfiguration.getLocalAddress();
@@ -348,7 +355,7 @@ public class Gateway {
             internalProvider = ProtocolObjects.sipStack
                     .createSipProvider(internalUdpListeningPoint);
 
-            registrationManager = new RegistrationManager(getWanProvider());
+            registrationManager = new RegistrationManager(getWanProvider("udp"));
 
             backToBackUserAgentManager = new CallControlManager();
 
@@ -378,8 +385,9 @@ public class Gateway {
         return authenticationHelper;
     }
 
-    public static SipProvider getWanProvider() {
-        return externalProvider;
+    public static SipProvider getWanProvider(String transport) {
+        if ( transport.equalsIgnoreCase("tls")) return externalTlsProvider;
+        else return externalProvider;
     }
 
     public static SipProvider getLanProvider() {
@@ -653,7 +661,8 @@ public class Gateway {
     public static void startSipListener() throws GatewayConfigurationException {
         try {
             SipListenerImpl listener = new SipListenerImpl();
-            getWanProvider().addSipListener(listener);
+            getWanProvider("udp").addSipListener(listener);
+            getWanProvider("tls").addSipListener(listener);
             getLanProvider().addSipListener(listener);
             ProtocolObjects.start();
         } catch (Exception ex) {

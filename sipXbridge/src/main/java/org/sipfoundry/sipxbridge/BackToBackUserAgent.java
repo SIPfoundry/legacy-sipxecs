@@ -696,7 +696,7 @@ public class BackToBackUserAgent {
             tad.incomingSession = incomingSession;
             tad.outgoingSession = this.getLanRtpSession(outboundDialog);
             tad.serverTransaction = serverTransaction;
-            tad.serverTransactionProvider = Gateway.getWanProvider();
+            tad.serverTransactionProvider = Gateway.getWanProvider(itspAccountInfo.getOutboundTransport());
             tad.backToBackUa = this;
             tad.itspAccountInfo = this.itspAccountInfo;
             ct.setApplicationData(tad);
@@ -857,7 +857,7 @@ public class BackToBackUserAgent {
             boolean isphone) throws GatewayConfigurationException, SipException {
         Request incomingRequest = serverTransaction.getRequest();
         Dialog incomingDialog = serverTransaction.getDialog();
-        SipProvider itspProvider = Gateway.getWanProvider();
+        SipProvider itspProvider = Gateway.getWanProvider(itspAccountInfo.getOutboundTransport());
 
         boolean spiral = false;
 
@@ -1089,7 +1089,7 @@ public class BackToBackUserAgent {
 
             Request bye = peer.createRequest(Request.BYE);
             if (this.itspAccountInfo != null
-                    && provider == Gateway.getWanProvider()) {
+                    && provider == Gateway.getWanProvider(itspAccountInfo.getOutboundTransport())) {
                 FromHeader fromHeader = (FromHeader) bye
                         .getHeader(FromHeader.NAME);
                 try {

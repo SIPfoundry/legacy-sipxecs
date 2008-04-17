@@ -289,7 +289,7 @@ public class ItspAccountInfo implements
     }
 
     public void startOptionsTimerTask() {
-        this.optionsTimerTask = new OptionsTimerTask(Gateway.getWanProvider(),
+        this.optionsTimerTask = new OptionsTimerTask(Gateway.getWanProvider("udp"),
                 this);
         Gateway.timer.schedule(optionsTimerTask, Gateway
                 .getSipKeepaliveSeconds() * 1000);
@@ -483,7 +483,7 @@ public class ItspAccountInfo implements
     }
 
     public void startCrLfTimerTask() {
-        this.crlfTimerTask = new CrLfTimerTask(Gateway.getWanProvider(), this);
+        this.crlfTimerTask = new CrLfTimerTask(Gateway.getWanProvider("udp"), this);
         Gateway.timer.schedule(crlfTimerTask, Gateway
                 .getSipKeepaliveSeconds() * 1000);
         
