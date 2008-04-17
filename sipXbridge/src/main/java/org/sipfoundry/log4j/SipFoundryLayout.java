@@ -30,7 +30,7 @@ public class SipFoundryLayout extends Layout {
 
     public SipFoundryLayout() {
         super();
-        dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'");
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         hostName = Hostname.get();
         facility = "JAVA"; // Can be set from the property
