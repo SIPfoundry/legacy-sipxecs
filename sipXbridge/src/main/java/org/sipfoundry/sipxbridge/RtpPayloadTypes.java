@@ -36,9 +36,14 @@ public class RtpPayloadTypes {
         payloadTypes.put("G728", 15);
         payloadTypes.put("DVI4", 16);
         payloadTypes.put("G729", 18);
+        payloadTypes.put("G726-32", 17); // Phoney
 
     }
 
+    public static boolean isPayload(String payloadType) {
+        return payloadTypes.containsKey(payloadType.toUpperCase());
+    }
+    
     public static int getPayloadType(String payloadType) {
         if (payloadTypes.containsKey(payloadType.toUpperCase())) {
             return payloadTypes.get(payloadType.toUpperCase());

@@ -218,10 +218,10 @@ public class SipUtilities {
             requestUri.setTransportParam("tcp");
         }
         SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
-                itspAccount.getUserName(), itspAccount.getSipDomain());
+                itspAccount.getUserName(), proxy);
 
         SipURI toUri = ProtocolObjects.addressFactory.createSipURI(itspAccount
-                .getUserName(), itspAccount.getSipDomain());
+                .getUserName(), proxy);
 
         Address fromAddress = ProtocolObjects.addressFactory
                 .createAddress(fromUri);
@@ -427,13 +427,28 @@ public class SipUtilities {
     }
 
     public static Request createInviteRequest(SipURI requestUri,
-            SipProvider sipProvider,
-            ItspAccountInfo itspAccount, String user, FromHeader fromHeader,
-            String toUser, String toDomain, boolean isphone)
+            SipProvider sipProvider, ItspAccountInfo itspAccount, String user,
+            FromHeader from, String toUser, String toDomain, boolean isphone)
             throws GatewayConfigurationException {
         try {
+            FromHeader fromHeader = null;
 
-            
+            /*
+             * If the account requires a register on init, then use the From
+             * header that was Registered.
+             */
+            if (itspAccount.isRegisterOnInitialization()) {
+                SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
+                        itspAccount.getUserName(), itspAccount.getSipDomain());
+
+                fromHeader = ProtocolObjects.headerFactory.createFromHeader(
+                        ProtocolObjects.addressFactory.createAddress(fromUri),
+                        new Long(Math.abs(new java.util.Random().nextLong()))
+                                .toString());
+
+            } else {
+                fromHeader = from;
+            }
 
             fromHeader.setTag(new Long(Math.abs(new java.util.Random()
                     .nextLong())).toString());
@@ -504,10 +519,20 @@ public class SipUtilities {
 
     }
 
+    
+    /**
+     * Cleans the Session description to include only the specified
+     * codec.This processing can be applied on the outbound INVITE
+     * to make sure that call transfers will work.
+     * 
+     * @param sessionDescription
+     * @param codec
+     * @return
+     */
     public static SessionDescription cleanSessionDescription(
             SessionDescription sessionDescription, String codec) {
         try {
-            
+
             Vector mediaDescriptions = sessionDescription
                     .getMediaDescriptions(true);
 
@@ -515,22 +540,49 @@ public class SipUtilities {
 
                 MediaDescription mediaDescription = (MediaDescription) it
                         .next();
-                String attribute = mediaDescription.getAttribute("rtpmap");
-                String[] attributes = attribute.split(" ");
-                String[] pt = attributes[1].split("/");
-                logger.debug("pt == " + pt[0]);
-                if (!pt[0].equals(codec)) {
-                    it.remove();
-                    logger.debug("stripping");
+                Vector attributes = mediaDescription.getAttributes(true);
+
+                for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
+                    Attribute attr = (Attribute) it1.next();
+                    if (attr.getName().equals("rtpmap")) {
+                        String attribute = attr.getValue();
+                        String[] attrs = attribute.split(" ");
+                        String[] pt = attrs[1].split("/");
+                        logger.debug("pt == " + pt[0]);
+                        if (RtpPayloadTypes.isPayload(pt[0]) && !pt[0].equalsIgnoreCase(codec)) {
+                            it1.remove();
+                        }
+                    }
                 }
 
             }
-            
-            return sessionDescription;
+            if (sessionDescription.getMediaDescriptions(false) == null) {
+                return null;
+            } else {
+                return sessionDescription;
+            }
         } catch (Exception ex) {
             logger.fatal("Unexpected exception!", ex);
             throw new RuntimeException("Unexpected exception cleaning SDP", ex);
         }
+    }
+
+    public static String getCodecName(Response response) {
+        try {
+            SessionDescription sd = getSessionDescription(response);
+            Vector mediaDescriptions = sd.getMediaDescriptions(true);
+            MediaDescription mediaDescription = (MediaDescription) sd
+                    .getMediaDescriptions(true).get(0);
+            String attribute = mediaDescription.getAttribute("rtpmap");
+            String[] attributes = attribute.split(" ");
+            String[] pt = attributes[1].split("/");
+            return pt[0];
+
+        } catch (Exception ex) {
+            logger.fatal("Unexpected exception!", ex);
+            throw new RuntimeException("Unexpected exception cleaning SDP", ex);
+        }
+
     }
 
     public static String getSessionDescriptionMediaIpAddress(

@@ -51,8 +51,9 @@ class DialogApplicationData {
      */
     Dialog musicOnHoldDialog;
 
-    public Sym rtpSession;
+    Sym rtpSession;
 
+    
     private DialogApplicationData() {
 
     }
@@ -79,5 +80,7 @@ class DialogApplicationData {
     public static DialogApplicationData get(Dialog dialog) {
         return (DialogApplicationData) dialog.getApplicationData();
     }
+
+   
 
 }

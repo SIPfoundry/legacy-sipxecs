@@ -107,8 +107,14 @@ public class RegistrationManager {
                 time = ct.getRequest().getExpires().getExpires();
             ItspAccountInfo itspAccount = ((TransactionApplicationData) ct
                     .getApplicationData()).itspAccountInfo;
+            if ( itspAccount.getSipKeepaliveMethod().equals("REGISTER")) {
+                time = ct.getRequest().getExpires().getExpires();
+            }
+            
+         
             itspAccount.setState(AccountState.AUTHENTICATED);
-
+            
+            
             if (time > 0) {
                 TimerTask ttask = new RegistrationTimerTask(itspAccount);
                 Gateway.timer.schedule(ttask, time * 1000);

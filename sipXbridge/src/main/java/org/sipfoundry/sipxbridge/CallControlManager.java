@@ -562,6 +562,7 @@ public class CallControlManager {
                      */
                     dat.lastResponse = response;
                     dat.backToBackUserAgent = b2bua;
+                  
                     dialog.setApplicationData(dat);
 
                     /*
@@ -682,7 +683,8 @@ public class CallControlManager {
                     ContentTypeHeader cth = (ContentTypeHeader) response
                             .getHeader(ContentTypeHeader.NAME);
                     Dialog referDialog = tad.referingDialog;
-
+                    
+                    
                     if (response.getRawContent() != null
                             && cth.getContentType().equals("application")
                             && cth.getContentSubType().equals("sdp")) {

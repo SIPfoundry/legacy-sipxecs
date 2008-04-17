@@ -129,7 +129,7 @@ public class BackToBackUserAgent {
                 SessionDescription sd = SdpFactory.getInstance()
                         .createSessionDescription(
                                 this.rtpBridge.sessionDescription.toString());
-                rtpSession.getReceiver().setSessionDescription(sd);
+                rtpSession.getReceiver().setSessionDescription(SipUtilities.cleanSessionDescription(sd,Gateway.getCodecName()));
                 this.rtpBridge.addSym(rtpSession);
 
             }
@@ -162,7 +162,7 @@ public class BackToBackUserAgent {
                 SessionDescription sd = SdpFactory.getInstance()
                         .createSessionDescription(
                                 this.rtpBridge.sessionDescription.toString());
-                rtpSession.getReceiver().setSessionDescription(sd);
+                rtpSession.getReceiver().setSessionDescription(SipUtilities.cleanSessionDescription(sd,Gateway.getCodecName()));
                 DialogApplicationData.get(dialog).rtpSession = rtpSession;
                 this.rtpBridge.addSym(rtpSession);
             }
@@ -305,22 +305,21 @@ public class BackToBackUserAgent {
             hisRtpBridge.pause();
             Set<Sym> hisRtpSessions = hisRtpBridge.getSessions();
             Bridge newRtpBridge = new Bridge(true);
-          
-            
-            for (Sym sym: myrtpSessions) {
-                if ( sym != DialogApplicationData
-                    .getRtpSession(replacedDialog) && sym != DialogApplicationData
-                            .getRtpSession(referingDialog)) {
+
+            for (Sym sym : myrtpSessions) {
+                if (sym != DialogApplicationData.getRtpSession(replacedDialog)
+                        && sym != DialogApplicationData
+                                .getRtpSession(referingDialog)) {
                     newRtpBridge.addSym(sym);
                 }
             }
-            
-            for ( Sym sym : hisRtpSessions) {
-                if ( sym != DialogApplicationData
-                        .getRtpSession(replacedDialog) && sym != DialogApplicationData
+
+            for (Sym sym : hisRtpSessions) {
+                if (sym != DialogApplicationData.getRtpSession(replacedDialog)
+                        && sym != DialogApplicationData
                                 .getRtpSession(referingDialog)) {
-                        newRtpBridge.addSym(sym);
-                 }
+                    newRtpBridge.addSym(sym);
+                }
             }
             if (logger.isDebugEnabled()) {
                 logger.debug("---> After replacement :");
@@ -328,9 +327,7 @@ public class BackToBackUserAgent {
                 logger.debug("myRtpBridge = " + this.getRtpBridge());
                 logger.debug("hisRtpBridge = " + hisRtpBridge);
             }
-            
-           
-            
+
             /*
              * Let the RTP Bridge initialize its selector table.
              */
@@ -338,7 +335,7 @@ public class BackToBackUserAgent {
 
             this.rtpBridge.resume();
             hisRtpBridge.resume();
-           
+
             newRtpBridge.start();
 
             if (logger.isDebugEnabled()) {
@@ -498,9 +495,10 @@ public class BackToBackUserAgent {
                     .createContentTypeHeader("application", "sdp");
 
             Sym lanRtpSession = this.getLanRtpSession(dialog);
-
-            newRequest.setContent(lanRtpSession.getReceiver()
-                    .getSessionDescription().toString(), cth);
+            SessionDescription sd = SipUtilities.cleanSessionDescription(
+                    lanRtpSession.getReceiver().getSessionDescription(),
+                    Gateway.getCodecName());
+            newRequest.setContent(sd, cth);
             /*
              * Create a new client transaction.
              */
@@ -646,10 +644,26 @@ public class BackToBackUserAgent {
              */
             SessionDescription sessionDescription = SipUtilities
                     .getSessionDescription(request);
-            SipUtilities.cleanSessionDescription(sessionDescription,Gateway.getCodecName() );
+            if (Gateway.getCodecName() != null) {
+                SessionDescription newSd = SipUtilities
+                        .cleanSessionDescription(sessionDescription, Gateway
+                                .getCodecName());
+
+                if (newSd == null) {
+                    Response response = ProtocolObjects.messageFactory
+                            .createResponse(Response.NOT_ACCEPTABLE_HERE,
+                                    request);
+                    response.setReasonPhrase("Only " + Gateway.getCodecName()
+                            + " supported ");
+                    serverTransaction.sendResponse(response);
+                    return;
+
+                }
+                logger.debug("Clean session description = " + sessionDescription);
+            }
 
             SymEndpoint rtpEndpoint = new SymEndpoint(true);
-            if ( ! this.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
+            if (!this.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
                 rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(),
                         this.itspAccountInfo.getRtpKeepaliveMethod());
             }
@@ -879,10 +893,11 @@ public class BackToBackUserAgent {
                     .getRequestURI();
 
             String user = incomingRequestUri.getUser();
-            FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(FromHeader.NAME).clone();
+            FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(
+                    FromHeader.NAME).clone();
             Request outgoingRequest = SipUtilities.createInviteRequest(
-                    incomingRequestUri, itspProvider, itspAccountInfo, user, fromHeader, toUser, toDomain,
-                    isphone);
+                    incomingRequestUri, itspProvider, itspAccountInfo, user,
+                    fromHeader, toUser, toDomain, isphone);
             ClientTransaction ct = itspProvider
                     .getNewClientTransaction(outgoingRequest);
             Dialog outboundDialog = ct.getDialog();
@@ -896,9 +911,20 @@ public class BackToBackUserAgent {
 
             SipUtilities.fixupSdpAddresses(sd, itspAccountInfo
                     .isGlobalAddressingUsed());
-            
-            SipUtilities.cleanSessionDescription(sd, Gateway.getCodecName());
 
+            if (Gateway.getCodecName() != null) {
+                SessionDescription newSd = SipUtilities
+                        .cleanSessionDescription(sd, Gateway.getCodecName());
+                if (newSd == null) {
+                    Response response = ProtocolObjects.messageFactory
+                            .createResponse(Response.NOT_ACCEPTABLE_HERE,
+                                    incomingRequest);
+                    serverTransaction.sendResponse(response);
+                    return;
+                }
+            }
+
+            logger.debug("sd after strip  " + sd );
             /*
              * Indicate that we will be transmitting first.
              */
@@ -913,7 +939,8 @@ public class BackToBackUserAgent {
             outgoingRequest.setContent(sd.toString(), cth);
 
             ListeningPoint lp = itspProvider
-                    .getListeningPoint(this.itspAccountInfo.getOutboundTransport());
+                    .getListeningPoint(this.itspAccountInfo
+                            .getOutboundTransport());
             String sentBy = lp.getSentBy();
             if (this.getItspAccountInfo().isGlobalAddressingUsed()) {
                 lp.setSentBy(Gateway.getGlobalAddress() + ":" + lp.getPort());
@@ -979,8 +1006,10 @@ public class BackToBackUserAgent {
                 SymEndpoint rtpEndpoint = new SymEndpoint(true);
                 rtpSession.setRemoteEndpoint(rtpEndpoint);
                 rtpEndpoint.setSessionDescription(sessionDescription);
-                if (! tad.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
-                    rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(),tad.itspAccountInfo.getRtpKeepaliveMethod());
+                if (!tad.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
+                    rtpEndpoint.setMaxSilence(Gateway
+                            .getMediaKeepaliveMilisec(), tad.itspAccountInfo
+                            .getRtpKeepaliveMethod());
                 }
                 /*
                  * The RTP session now belongs to the ClientTransaction.
