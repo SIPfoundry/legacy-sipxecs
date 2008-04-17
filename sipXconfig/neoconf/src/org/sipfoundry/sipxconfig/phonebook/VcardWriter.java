@@ -30,7 +30,7 @@ public class VcardWriter {
         writer.write("VERSION:2.1\n");
         String firstName = StringUtils.defaultString(entry.getFirstName());
         String lastName = StringUtils.defaultString(entry.getLastName());
-        formatter.format("N:%s:%s:::\n", lastName, firstName);
+        formatter.format("N:%s;%s;;;\n", lastName, firstName);
         formatter.format("TEL;%s:%s\n", m_telType, entry.getNumber());
         writer.write("END:vCard\n\n");
     }

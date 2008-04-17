@@ -1,12 +1,12 @@
 BEGIN:vCard
 VERSION:2.1
-N:Picard:Jean Luc:::
+N:Picard;Jean Luc;;;
 TEL;WORK:1234
 END:vCard
 
 BEGIN:vCard
 VERSION:2.1
-N:Skywalker:Luke:::
+N:Skywalker;Luke;;;
 TEL;WORK:1235
 END:vCard
 

@@ -10,10 +10,12 @@
 package org.sipfoundry.sipxconfig.phonebook;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,6 +65,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     private BulkParser m_csvParser;
     private BulkParser m_vcardParser;
     private VcardWriter m_vcardWriter;
+    private String m_vcardEncoding;
+    private String m_csvEncoding;
 
     public Collection<Phonebook> getPhonebooks() {
         Collection<Phonebook> books = getHibernateTemplate().loadAll(Phonebook.class);
@@ -85,8 +89,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public void savePhonebook(Phonebook phonebook) {
-        checkDuplicates(getHibernateTemplate(), Phonebook.class, phonebook, NAME,
-                new DuplicatePhonebookName());
+        checkDuplicates(getHibernateTemplate(), Phonebook.class, phonebook, NAME, new DuplicatePhonebookName());
         getHibernateTemplate().saveOrUpdate(phonebook);
     }
 
@@ -108,8 +111,16 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         m_csvParser = csvParser;
     }
 
+    public void setCvsEncoding(String cvsEncoding) {
+        m_csvEncoding = cvsEncoding;
+    }
+
     public void setVcardParser(BulkParser vcardParser) {
         m_vcardParser = vcardParser;
+    }
+
+    public void setVcardEncoding(String vcardEncoding) {
+        m_vcardEncoding = vcardEncoding;
     }
 
     /**
@@ -125,8 +136,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         File d = new File(dir);
         if (!d.exists()) {
             if (!d.mkdirs()) {
-                throw new RuntimeException(new IOException("Could not create directory "
-                        + d.getAbsolutePath()));
+                throw new RuntimeException(new IOException("Could not create directory " + d.getAbsolutePath()));
             }
         }
         return dir;
@@ -143,8 +153,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public Collection<Phonebook> getPhonebooksByUser(User consumer) {
-        Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "phoneBooksByUser", "userId", consumer.getId());
+        Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam("phoneBooksByUser",
+                "userId", consumer.getId());
         return books;
     }
 
@@ -175,10 +185,10 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
         try {
             String csvFilename = phonebook.getMembersCsvFilename();
-            addEntriesFromFile(entries, csvFilename, m_csvParser);
+            addEntriesFromFile(entries, csvFilename, m_csvEncoding, m_csvParser);
 
             String vcardFilename = phonebook.getMembersVcardFilename();
-            addEntriesFromFile(entries, vcardFilename, m_vcardParser);
+            addEntriesFromFile(entries, vcardFilename, m_vcardEncoding, m_vcardParser);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -188,12 +198,14 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         return finalList;
     }
 
-    private void addEntriesFromFile(Map<String, PhonebookEntry> entries, String csvFilename, BulkParser parser)
-        throws IOException {
-        if (csvFilename != null) {
-            File f = new File(new File(m_externalUsersDirectory), csvFilename);
-            parser.parse(new FileReader(f), new CsvPhonebookEntryMaker(entries));
+    private void addEntriesFromFile(Map<String, PhonebookEntry> entries, String name, String encoding,
+            BulkParser parser) throws IOException {
+        if (name == null) {
+            return;
         }
+        File f = new File(m_externalUsersDirectory, name);
+        Reader fileReader = new InputStreamReader(new FileInputStream(f), encoding);
+        parser.parse(fileReader, new CsvPhonebookEntryMaker(entries));
     }
 
     /**
@@ -412,7 +424,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out) throws IOException {
-        Writer writer = new OutputStreamWriter(out, "UTF-8");
+        Writer writer = new OutputStreamWriter(out, m_vcardEncoding);
         for (PhonebookEntry entry : entries) {
             m_vcardWriter.write(writer, entry);
         }

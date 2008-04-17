@@ -139,6 +139,7 @@ public class PhonebookManagerTest extends TestCase {
     public void testGetCsvFile() {
         PhonebookManagerImpl context = new PhonebookManagerImpl();
         context.setCsvParser(new CsvParserImpl());
+        context.setCvsEncoding("UTF-8");
         String dir = TestUtil.getTestSourceDirectory(getClass());
         context.setExternalUsersDirectory(dir);
 
@@ -163,6 +164,7 @@ public class PhonebookManagerTest extends TestCase {
         context.setVcardParser(impl);
         String dir = TestUtil.getTestSourceDirectory(getClass());
         context.setExternalUsersDirectory(dir);
+        context.setVcardEncoding("US-ASCII");
 
         Phonebook phonebook = new Phonebook();
         phonebook.setMembersVcardFilename("bogus.vcf");
@@ -182,6 +184,7 @@ public class PhonebookManagerTest extends TestCase {
         VcardWriter vcardWriter = new VcardWriter();
         PhonebookManagerImpl context = new PhonebookManagerImpl();
         context.setVcardWriter(vcardWriter);
+        context.setVcardEncoding("US-ASCII");
         vcardWriter.setTelType("work");
 
         ByteArrayOutputStream empty = new ByteArrayOutputStream();
