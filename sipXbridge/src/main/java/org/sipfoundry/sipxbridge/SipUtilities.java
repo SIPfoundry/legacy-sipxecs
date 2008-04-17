@@ -148,6 +148,7 @@ public class SipUtilities {
                 SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(
                         itspAccount.getUserName(), ipAddress);
                 sipUri.setPort(port);
+                sipUri.setTransportParam(itspAccount.getOutboundTransport());
                 Address address = ProtocolObjects.addressFactory
                         .createAddress(sipUri);
                 ContactHeader ch = ProtocolObjects.headerFactory
@@ -163,6 +164,7 @@ public class SipUtilities {
                         itspAccount.getUserName(), Gateway.getGlobalAddress());
                 sipUri.setPort(provider.getListeningPoint(
                         itspAccount.getOutboundTransport()).getPort());
+                sipUri.setTransportParam(itspAccount.getOutboundTransport());
                 Address address = ProtocolObjects.addressFactory
                         .createAddress(sipUri);
                 contactHeader.setAddress(address);
