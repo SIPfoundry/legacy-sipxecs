@@ -244,8 +244,20 @@ public class User extends BeanWithGroups implements NamedObject {
         }
     }
 
+    /**
+     * Creates long version of user SIP URI (with display name)
+     */
     public String getUri(String domainName) {
         return SipUri.format(this, domainName);
+    }
+
+    /**
+     * Creates short version of user SIP URI (without display name)
+     * 
+     * sip:user@example.com
+     */
+    public String getAddrSpec(String domainName) {
+        return SipUri.format(m_userName, domainName, false);
     }
 
     @Override
@@ -331,8 +343,7 @@ public class User extends BeanWithGroups implements NamedObject {
     private Setting retrieveSettingForSettingPath(String path, String name) {
         Setting setting = getSettings().getSetting(path);
         if (setting == null) {
-            throw new IllegalArgumentException("Setting " + name
-                    + " does not exist in user setting model");
+            throw new IllegalArgumentException("Setting " + name + " does not exist in user setting model");
         }
         return setting;
     }
@@ -365,8 +376,7 @@ public class User extends BeanWithGroups implements NamedObject {
 
     public void addSupervisorForGroup(Group group) {
         if (group.isNew()) {
-            throw new RuntimeException(
-                    "Group needs to be saved before it can be added to the set.");
+            throw new RuntimeException("Group needs to be saved before it can be added to the set.");
         }
         if (m_supervisorForGroups == null) {
             m_supervisorForGroups = new HashSet();

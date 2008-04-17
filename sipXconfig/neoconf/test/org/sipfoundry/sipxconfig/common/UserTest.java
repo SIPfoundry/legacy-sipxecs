@@ -53,6 +53,20 @@ public class UserTest extends TestCase {
         assertEquals("\"First Last\"<sip:username@mycomp.com>", uri);
     }
 
+    public void testGetAddrSpec() {
+        User user = new User();
+        user.setUserName("username");
+        String uri = user.getAddrSpec("mycomp.com");
+
+        assertEquals("sip:username@mycomp.com", uri);
+
+        user.setLastName("Last");
+        user.setFirstName("First");
+        uri = user.getAddrSpec("mycomp.com");
+        assertEquals("sip:username@mycomp.com", uri);
+    }
+
+    
     /** Test that setting a typical PIN yields expected results */
     public void testSetPin() throws Exception {
         checkSetPin("pin");

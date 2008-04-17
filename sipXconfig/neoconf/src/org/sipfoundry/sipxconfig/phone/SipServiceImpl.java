@@ -60,15 +60,15 @@ public class SipServiceImpl implements SipService {
         m_serverName = serverName;
     }
 
-    public void sendCheckSync(String uri) {
-        sendNotify(uri, "Event: check-sync\r\n", ArrayUtils.EMPTY_BYTE_ARRAY);
+    public void sendCheckSync(String addrSpec) {
+        sendNotify(addrSpec, "Event: check-sync\r\n", ArrayUtils.EMPTY_BYTE_ARRAY);
     }
 
-    public void sendNotify(String uri, String event, byte[] payload) {
+    public void sendNotify(String addrSpec, String event, byte[] payload) {
         try {
             ByteArrayOutputStream msgStream = new ByteArrayOutputStream();
             Writer msgWriter = new OutputStreamWriter(msgStream, CharEncoding.US_ASCII);
-            formatHeaders(msgWriter, uri, event, payload.length);
+            formatHeaders(msgWriter, addrSpec, event, payload.length);
             msgWriter.flush();
             msgStream.write(payload);
             send(msgStream.toByteArray());
@@ -96,18 +96,18 @@ public class SipServiceImpl implements SipService {
      * phone.
      * 
      * @param buf buffer into which the message headers are formatter
-     * @param uri usually user SIP URI
+     * @param addSpec usually user short version of SIP URI (no display name)
      * @param event additional headers (usually just Event header)
      * @param payloadLen length of the payload (in bytes)
      */
-    void formatHeaders(Appendable buf, String uri, String event, int payloadLen) throws IOException {
+    void formatHeaders(Appendable buf, String addSpec, String event, int payloadLen) throws IOException {
         long uniqueId = generateUniqueId();
         Formatter f = new Formatter(buf, Locale.US);
-        f.format("NOTIFY %s SIP/2.0\r\n", uri);
+        f.format("NOTIFY %s SIP/2.0\r\n", addSpec);
         f.format("Via: SIP/2.0/UDP %s:%d;branch=%x\r\n", m_proxyHost, m_proxyPort, uniqueId);
         String from = SipUri.format("sipuaconfig", m_serverName, SipUri.OMIT_SIP_PORT);
         f.format("From: %s\r\n", from);
-        f.format("To: %s\r\n", uri);
+        f.format("To: %s\r\n", addSpec);
 
         Calendar c = Calendar.getInstance(GMT, Locale.US);
         // date format Tue, 15 Nov 1994 08:12:31 GMT

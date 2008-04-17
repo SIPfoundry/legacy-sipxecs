@@ -93,7 +93,7 @@ public class PhoneTestDriver {
         sip = sipControl.createMock(SipService.class);
 
         if (users.size() > 0) {
-            String uri = users.get(0).getUri("sipfoundry.org");
+            String uri = users.get(0).getAddrSpec("sipfoundry.org");
             sip.sendCheckSync(uri);
         }
         sipControl.replay();

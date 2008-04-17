@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.phone;
  * Sip utility service functions complete w/server current configuration
  */
 public interface SipService {
-    public void sendCheckSync(String uri);
+    public void sendCheckSync(String addrSpec);
 
-    public void sendNotify(String uri, String event, byte[] payload);
+    public void sendNotify(String addrSpec, String event, byte[] payload);
 }

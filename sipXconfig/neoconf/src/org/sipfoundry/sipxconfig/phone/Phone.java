@@ -136,7 +136,7 @@ public abstract class Phone extends Device {
 
         Line line = getLine(0);
 
-        m_sip.sendCheckSync(line.getUri());
+        m_sip.sendCheckSync(line.getAddrSpec());
     }
 
     public String getDescription() {
