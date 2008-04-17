@@ -58,12 +58,13 @@ else
     # no tokens submitted.
     # generate the form page
     print $query->header();
-    print $query->start_html(-title=>'Interop Online Trace');
+    my $pageName=server_name() . ' Trace';
+    print $query->start_html(-title=>$pageName);
     print $query->a({href=>'http://www.pingtel.com/'},
                     '<img src="logo_pingtel.gif" alt="Pingtel Corp." border="0" height="53 width="133" align="left" />',
                     '<br/>'
                    );
-    print $query->h1($query->a({href=>'/'},'Interop Online'), 'Trace');
+    print $query->h1($pageName);
     print $query->hr();
     print $query->blockquote(
        'Any information you obtain about other users of this server you may use only under the ',
