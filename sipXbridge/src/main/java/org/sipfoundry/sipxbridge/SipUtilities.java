@@ -536,7 +536,8 @@ public class SipUtilities {
             SessionDescription sessionDescription, String codec) {
         try {
 
-          
+            boolean found = false;
+            
             Vector mediaDescriptions = sessionDescription
                     .getMediaDescriptions(true);
 
@@ -551,6 +552,7 @@ public class SipUtilities {
                     Object format = it1.next();
                     int fmt = new Integer(format.toString());
                     if ( fmt != keeper && RtpPayloadTypes.isPayload(fmt)) it1.remove();
+                    else if ( fmt == keeper ) found = true;
                 }
                 Vector attributes = mediaDescription.getAttributes(true);
 
@@ -572,7 +574,7 @@ public class SipUtilities {
                 }
 
             }
-            if (sessionDescription.getMediaDescriptions(false) == null) {
+            if (!found) {
                 return null;
             } else {
                 return sessionDescription;

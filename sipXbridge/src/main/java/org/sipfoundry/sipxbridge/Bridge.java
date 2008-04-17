@@ -375,13 +375,7 @@ public class Bridge {
             return;
         else if (this.state == BridgeState.RUNNING) {
             this.state = BridgeState.PAUSED;
-            try {
-                // Allow loop to complete execution - empty stuff out
-                // to avoid messing up codec on other end.
-                Thread.sleep(200);
-            } catch (Exception ex) {
-                
-            }
+            
         } else {
             throw new IllegalStateException("Cannot pause bridge in "
                     + this.state);
