@@ -544,7 +544,7 @@ public class SipUtilities {
 
                 for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
                     Attribute attr = (Attribute) it1.next();
-                    if (attr.getName().equals("rtpmap")) {
+                    if (attr.getName().equalsIgnoreCase("rtpmap")) {
                         String attribute = attr.getValue();
                         String[] attrs = attribute.split(" ");
                         String[] pt = attrs[1].split("/");
@@ -552,6 +552,10 @@ public class SipUtilities {
                         if (RtpPayloadTypes.isPayload(pt[0]) && !pt[0].equalsIgnoreCase(codec)) {
                             it1.remove();
                         }
+                    } else if ( attr.getName().equalsIgnoreCase("crypto")) {
+                        it1.remove();
+                    } else if ( attr.getName().equalsIgnoreCase("encryption")) {
+                        it1.remove();
                     }
                 }
 

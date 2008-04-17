@@ -5,13 +5,15 @@ package org.sipfoundry.sipxbridge;
  * 
  */
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 class ConcurrentSet implements Set<Sym> {
 
-    ConcurrentHashMap<String, Sym> map = new ConcurrentHashMap<String, Sym>();
+    Map<String, Sym> map = new ConcurrentHashMap<String, Sym>();
     private Bridge bridge;
     
     public ConcurrentSet(Bridge bridge) {

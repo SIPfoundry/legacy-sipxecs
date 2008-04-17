@@ -312,6 +312,8 @@ public class Gateway {
                     .createListeningPoint(externalAddress, externalPort, "udp");
             ListeningPoint externalTcpListeningPoint = ProtocolObjects.sipStack
                     .createListeningPoint(externalAddress, externalPort, "tcp");
+            ListeningPoint externalTlsListeningPoint = ProtocolObjects.sipStack
+                .createListeningPoint(externalAddress, externalPort + 1, "tls");
 
             externalProvider = ProtocolObjects.sipStack
                     .createSipProvider(externalUdpListeningPoint);

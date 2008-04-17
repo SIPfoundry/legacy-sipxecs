@@ -370,11 +370,18 @@ public class Bridge {
      * 
      */
     public void pause() {
-
+        
         if (this.state == BridgeState.PAUSED)
             return;
         else if (this.state == BridgeState.RUNNING) {
             this.state = BridgeState.PAUSED;
+            try {
+                // Allow loop to complete execution - empty stuff out
+                // to avoid messing up codec on other end.
+                Thread.sleep(200);
+            } catch (Exception ex) {
+                
+            }
         } else {
             throw new IllegalStateException("Cannot pause bridge in "
                     + this.state);
@@ -393,6 +400,7 @@ public class Bridge {
             return;
         else if (this.state == BridgeState.PAUSED) {
             this.state = BridgeState.RUNNING;
+            
         } else {
             throw new IllegalStateException(" Cannot resume bridge in "
                     + this.state);
