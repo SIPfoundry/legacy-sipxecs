@@ -18,6 +18,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
@@ -42,6 +43,8 @@ public class IpDialogPhone extends Phone {
     public static final String MWI_SUBSCRIBE_SETTING = "registrationAndProxy/mwiReqUri";
     public static final String MOH_SETTING = "registrationAndProxy/mohServer";
     public static final String VOICEMAIL_ACCESS_NUMBER_SETTING = "registrationAndProxy/voiceMailServerAddress";
+    public static final String PRESENCE_SERVER_SETTING = "registrationAndProxy/presenceServer";
+    public static final String RLS_SETTING = "presence/sipRlsUri";
 
     private static final int PHONEBOOK_MAX = 10;
     private static final int SPEEDDIAL_MAX = 16;
@@ -51,8 +54,8 @@ public class IpDialogPhone extends Phone {
 
     @Override
     public void initialize() {
-        IpDialogDefaults defaults = new IpDialogDefaults(getPhoneContext().getPhoneDefaults(),
-                this);
+        SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
+        IpDialogPhoneDefaults defaults = new IpDialogPhoneDefaults(getPhoneContext().getPhoneDefaults(), speedDial);
         addDefaultBeanSettingHandler(defaults);
     }
 
@@ -89,14 +92,25 @@ public class IpDialogPhone extends Phone {
 
     }
 
-    public static class IpDialogDefaults {
-        private DeviceDefaults m_defaults;
-        private IpDialogPhone m_phone;
+    public static class IpDialogPhoneDefaults {
 
-        IpDialogDefaults(DeviceDefaults defaults, IpDialogPhone phone) {
+        private DeviceDefaults m_defaults;
+        private SpeedDial m_speedDial;
+
+        IpDialogPhoneDefaults(DeviceDefaults defaults, SpeedDial speedDial) {
             m_defaults = defaults;
-            m_phone = phone;
+            m_speedDial = speedDial;
         }
+
+        @SettingEntry(path = RLS_SETTING)
+        public String getRLSUri() {
+
+            if (m_speedDial != null && m_speedDial.isBlf()) {
+                return SipUri.format(m_speedDial.getResourceListId(true), m_defaults.getDomainName(), false);
+            }
+            return null;
+        }
+
     }
 
     public static class IpDialogLineDefaults {
@@ -182,6 +196,12 @@ public class IpDialogPhone extends Phone {
             return defaults.getSipxServer().getMusicOnHoldUri(defaults.getDomainName());
         }
 
+        @SettingEntry(path = PRESENCE_SERVER_SETTING)
+        public String getPresenceServer() {
+            DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
+            return defaults.getDomainName();
+        }
+
     }
 
     public void restart() {
@@ -192,8 +212,8 @@ public class IpDialogPhone extends Phone {
         private SpeedDial m_speedDial;
         private Collection<PhonebookEntry> m_phoneBook;
 
-        public IpDialogContext(IpDialogPhone device, SpeedDial speedDial,
-                Collection<PhonebookEntry> phoneBook, String profileTemplate) {
+        public IpDialogContext(IpDialogPhone device, SpeedDial speedDial, Collection<PhonebookEntry> phoneBook,
+                String profileTemplate) {
             super(device, profileTemplate);
             m_speedDial = speedDial;
             m_phoneBook = trim(phoneBook);
@@ -271,5 +291,4 @@ public class IpDialogPhone extends Phone {
         }
 
     }
-
 }

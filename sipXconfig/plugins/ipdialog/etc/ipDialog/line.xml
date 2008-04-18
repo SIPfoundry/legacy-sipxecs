@@ -195,13 +195,23 @@
     </setting>
 
     <setting name="presenceServer">
-      <label>Presence Server</label>
+      <label>PUBLISH/SIMPLE Server</label>
       <type>
         <ipaddr />
       </type>
       <value></value>
       <description>
         Address used for sending SUBSCRIBE requests for presence event &lt;br/&gt; ( &lt; presenceServer &gt; )
+        &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="sipUsePublish">
+      <label>PUBLISH?</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+	If checked, the phone publishes the present status for this user &lt;br/&gt; ( &lt; sipUsePublish &gt; )
         &lt;br/&gt;
       </description>
     </setting>

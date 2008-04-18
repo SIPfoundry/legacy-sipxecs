@@ -913,119 +913,21 @@
       </setting>
     </group>
 
-    <!--
-      <setting name="autocfgClientCertHttps">
-      <label>Autoconfig Client Cert HTTP/HTTPS Url</label>
-      <type>
-      <string />
-      </type>
-      <value></value>
-      <description>Autoconfig Client Certificte HTTP/HTTPS Url ( &lt; autocfgClientCertHttps &gt; ) &lt;br/&gt; </description>
-      </setting>
-      
-      <setting name="autocfgClientPrivkeyHttps">
-      <label>Autoconfig Client Private Key HTTP/HTTPS Url</label>
-      <type>
-      <string />
-      </type>
-      <value></value>
-      <description>Autoconfig Client Private Key HTTP/HTTPS Url ( &lt; autocfgClientPrivkeyHttps &gt; ) &lt;br/&gt; </description>
-      </setting>
-      
-      <setting name="autocfgCACertHttps">
-      <label>Autoconfig CA Cert HTTP/HTTPS Url</label>
-      <type>
-      <string />
-      </type>
-      <value></value>
-      <description>Autoconfig CA Certificate HTTP/HTTPS Url ( &lt; autocfgCACertHttps &gt; ) &lt;br/&gt; </description>
-      </setting>
-    -->
-
   </group>
 
   <group name="presence">
     <label>Presence</label>
-    <setting name="presenceOption">
-      <label>Presence</label>
+    <setting name="sipRlsUri">
+      <label>RLS Subscription URI</label>
       <type>
-        <enum>
-          <option>
-            <value>publishWithSimple</value>
-          </option>
-          <option>
-            <value>dialogEvent</value>
-          </option>
-        </enum>
+        <string />
       </type>
-      <value>dialogEvent</value>
+      <value></value>
       <description>
-        If publishWithSimple is selected, the phone uses PUBLISH/SIMPLE based presence with 'presence' event. If
-        dialogEvent is selected, the phone uses dialog event based package for presence monitoring &lt;br/&gt; ( &lt;
-        presence &gt; ) &lt;br/&gt;
+        URI that the phone subscribes to get BLF SIP Events &lt;br/&gt; ( &lt; sipRlsUri &gt; ) &lt;br/&gt;
       </description>
     </setting>
   </group>
-
-  <!--
-    <group name="intercom">
-    <label>Intercom</label>		
-    <setting name="intercomOption">
-    <label>Intercom Option</label>
-    <type>
-    <enum>
-    <option>
-    <value>callInfoHeader</value>
-    </option>
-    <option>
-    <value>alertInfoHeader</value>
-    </option>
-    <option>
-    <value>intercomPrefix</value>
-    </option>
-    </enum>
-    </type>
-    <value>callInfoHeader</value>
-    <description>
-    Intercom Options
-    &lt;br/&gt; </description>
-    </setting>
-    
-    <setting name="alertInfoSecret">
-    <label>Alert-Info Secret</label>
-    <type>
-    <string />
-    </type>
-    <value></value>
-    <description>
-    Alert-Info Secret
-    &lt;br/&gt; </description>
-    </setting>
-    
-    <setting name="intercomPrefixValue">
-    <label>Intercom Prefix Value</label>
-    <type>
-    <string />
-    </type>
-    <value></value>
-    <description>
-    Intercom Prefix Value
-    &lt;br/&gt; </description>
-    </setting>
-    
-    <setting name="intercomTimeout">
-    <label>Intercom Timeout(sec)</label>
-    <type>
-    <integer />
-    </type>
-    <value>15</value>
-    <description>
-    Intercom Timeout(sec)
-    &lt;br/&gt; </description>
-    </setting>
-    </group>
-    
-  -->
 
   <group name="memKeys">
     <label>Memory Keys</label>
@@ -1042,7 +944,19 @@
         </enum>
       </type>
       <value>1</value>
+      <description>
+        Select line to be used for making outgoing calls when onhook, and for sending subscription for presence or
+        dialog event.
+      </description>
     </setting>
+
+    <setting name="simpleMem1">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>If checked, the phone sends presence event subscribe for this MEM entry. &lt;br/&gt;</description>
+    </setting>
+
 
     <setting name="mem2">
       <label>MEM 2</label>
@@ -1057,6 +971,13 @@
         </enum>
       </type>
       <value>1</value>
+    </setting>
+
+    <setting name="simpleMem2">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
     </setting>
 
     <setting name="mem3">
@@ -1074,6 +995,13 @@
       <value>1</value>
     </setting>
 
+    <setting name="simpleMem3">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
     <setting name="mem4">
       <label>MEM 4</label>
       <type>
@@ -1087,6 +1015,13 @@
         </enum>
       </type>
       <value>1</value>
+    </setting>
+
+    <setting name="simpleMem4">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
     </setting>
 
     <setting name="mem5">
@@ -1104,6 +1039,13 @@
       <value>1</value>
     </setting>
 
+    <setting name="simpleMem5">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
     <setting name="mem6">
       <label>MEM 6</label>
       <type>
@@ -1117,6 +1059,13 @@
         </enum>
       </type>
       <value>1</value>
+    </setting>
+
+    <setting name="simpleMem6">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
     </setting>
 
     <setting name="mem7">
@@ -1134,6 +1083,13 @@
       <value>1</value>
     </setting>
 
+    <setting name="simpleMem7">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
     <setting name="mem8">
       <label>MEM 8</label>
       <type>
@@ -1147,6 +1103,13 @@
         </enum>
       </type>
       <value>1</value>
+    </setting>
+
+    <setting name="simpleMem8">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
     </setting>
 
     <setting name="mem9">
@@ -1164,6 +1127,13 @@
       <value>1</value>
     </setting>
 
+    <setting name="simpleMem9">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
     <setting name="mem10">
       <label>MEM 10</label>
       <type>
@@ -1177,6 +1147,13 @@
         </enum>
       </type>
       <value>1</value>
+    </setting>
+
+    <setting name="simpleMem10">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
     </setting>
 
     <setting name="mem11">
@@ -1194,6 +1171,13 @@
       <value>1</value>
     </setting>
 
+    <setting name="simpleMem11">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
     <setting name="mem12">
       <label>MEM 12</label>
       <type>
@@ -1207,6 +1191,13 @@
         </enum>
       </type>
       <value>1</value>
+    </setting>
+
+    <setting name="simpleMem12">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
     </setting>
 
     <setting name="mem13">
@@ -1224,6 +1215,13 @@
       <value>1</value>
     </setting>
 
+    <setting name="simpleMem13">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
     <setting name="mem14">
       <label>MEM 14</label>
       <type>
@@ -1237,6 +1235,13 @@
         </enum>
       </type>
       <value>1</value>
+    </setting>
+
+    <setting name="simpleMem14">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
     </setting>
 
     <setting name="mem15">
@@ -1254,6 +1259,13 @@
       <value>1</value>
     </setting>
 
+    <setting name="simpleMem15">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
     <setting name="mem16">
       <label>MEM 16</label>
       <type>
@@ -1267,10 +1279,13 @@
         </enum>
       </type>
       <value>1</value>
-      <description>
-        Select line to be used for making outgoing calls when onhook, and for sending subscription for presence or
-        dialog event
-      </description>
+    </setting>
+
+    <setting name="simpleMem16">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
     </setting>
   </group>
 

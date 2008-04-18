@@ -178,19 +178,14 @@
 #end
 #end
 </autoconfig> 
-<presence>
 #set ($group = $cfg.EndpointSettings.getSetting('presence'))
 #foreach ($setting in $cfg.getSettings($group))
 #if($setting.Value.trim())
-#if($setting.ProfileName == "presenceOption")
-<$!{setting.Value}>TRUE</$!{setting.Value}>
-#set ($pres = $!{setting.Value})
-#else
+<presence>
 <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
-#end
-#end
-#end        
 </presence>
+#end
+#end
 #set ($group = $cfg.EndpointSettings.getSetting('memKeys'))
 #foreach ($setting in $cfg.getSettings($group))
 #if($setting.ProfileName == "mem1")
@@ -225,56 +220,168 @@
 #set ($memLine15 = $!{setting.Value})
 #elseif($setting.ProfileName == "mem16")
 #set ($memLine16 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem1")
+#set ($memSimple1 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem2")
+#set ($memSimple2 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem3")
+#set ($memSimple3 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem4")
+#set ($memSimple4 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem5")
+#set ($memSimple5 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem6")
+#set ($memSimple6 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem7")
+#set ($memSimple7 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem8")
+#set ($memSimple8 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem9")
+#set ($memSimple9 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem10")
+#set ($memSimple10 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem11")
+#set ($memSimple11 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem12")
+#set ($memSimple12 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem13")
+#set ($memSimple13 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem14")
+#set ($memSimple14 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem15")
+#set ($memSimple15 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem16")
+#set ($memSimple16 = $!{setting.Value})
 #end
+#end
+#if($memSimple1.trim() == "TRUE")
+#set ($memSimple1 = 1)
+#elseif($memSimple1.trim() == "FALSE")
+#set ($memSimple1 = 0)
+#end
+#if($memSimple2.trim() == "TRUE")
+#set ($memSimple2 = 1)
+#elseif($memSimple2.trim() == "FALSE")
+#set ($memSimple2 = 0)
+#end
+#if($memSimple3.trim() == "TRUE")
+#set ($memSimple3 = 1)
+#elseif($memSimple3.trim() == "FALSE")
+#set ($memSimple3 = 0)
+#end
+#if($memSimple4.trim() == "TRUE")
+#set ($memSimple4 = 1)
+#elseif($memSimple4.trim() == "FALSE")
+#set ($memSimple4 = 0)
+#end
+#if($memSimple5.trim() == "TRUE")
+#set ($memSimple5 = 1)
+#elseif($memSimple5.trim() == "FALSE")
+#set ($memSimple5 = 0)
+#end
+#if($memSimple6.trim() == "TRUE")
+#set ($memSimple6 = 1)
+#elseif($memSimple6.trim() == "FALSE")
+#set ($memSimple6 = 0)
+#end
+#if($memSimple7.trim() == "TRUE")
+#set ($memSimple7 = 1)
+#elseif($memSimple7.trim() == "FALSE")
+#set ($memSimple7 = 0)
+#end
+#if($memSimple8.trim() == "TRUE")
+#set ($memSimple8 = 1)
+#elseif($memSimple8.trim() == "FALSE")
+#set ($memSimple8 = 0)
+#end
+#if($memSimple9.trim() == "TRUE")
+#set ($memSimple9 = 1)
+#elseif($memSimple9.trim() == "FALSE")
+#set ($memSimple9 = 0)
+#end
+#if($memSimple10.trim() == "TRUE")
+#set ($memSimple10 = 1)
+#elseif($memSimple10.trim() == "FALSE")
+#set ($memSimple10 = 0)
+#end
+#if($memSimple11.trim() == "TRUE")
+#set ($memSimple11 = 1)
+#elseif($memSimple11.trim() == "FALSE")
+#set ($memSimple11 = 0)
+#end
+#if($memSimple12.trim() == "TRUE")
+#set ($memSimple12 = 1)
+#elseif($memSimple12.trim() == "FALSE")
+#set ($memSimple12 = 0)
+#end
+#if($memSimple13.trim() == "TRUE")
+#set ($memSimple13 = 1)
+#elseif($memSimple13.trim() == "FALSE")
+#set ($memSimple13 = 0)
+#end
+#if($memSimple14.trim() == "TRUE")
+#set ($memSimple14 = 1)
+#elseif($memSimple14.trim() == "FALSE")
+#set ($memSimple14 = 0)
+#end
+#if($memSimple15.trim() == "TRUE")
+#set ($memSimple15 = 1)
+#elseif($memSimple15.trim() == "FALSE")
+#set ($memSimple15 = 0)
+#end
+#if($memSimple16.trim() == "TRUE")
+#set ($memSimple16 = 1)
+#elseif($memSimple16.trim() == "FALSE")
+#set ($memSimple16 = 0)
 #end
 #if($memName1.trim() && $memNum1.trim())
 <memKeys>
-<mem1>${memName1}^${memNum1}^${memLine1}^${memPre1}</mem1>
+<mem1>${memName1}^${memNum1}^${memLine1}^${memPre1}^${memSimple1}</mem1>
 #end
 #if($memName2.trim() && $memNum2.trim())
-<mem2>${memName2}^${memNum2}^${memLine2}^${memPre2}</mem2>
+<mem2>${memName2}^${memNum2}^${memLine2}^${memPre2}^${memSimple2}</mem2>
 #end
 #if($memName3.trim() && $memNum3.trim())
-<mem3>${memName3}^${memNum3}^${memLine3}^${memPre3}</mem3>
+<mem3>${memName3}^${memNum3}^${memLine3}^${memPre3}^${memSimple3}</mem3>
 #end
 #if($memName4.trim() && $memNum4.trim())
-<mem4>${memName4}^${memNum4}^${memLine4}^${memPre4}</mem4>
+<mem4>${memName4}^${memNum4}^${memLine4}^${memPre4}^${memSimple4}</mem4>
 #end
 #if($memName5.trim() && $memNum5.trim())
-<mem5>${memName5}^${memNum5}^${memLine5}^${memPre5}</mem5>
+<mem5>${memName5}^${memNum5}^${memLine5}^${memPre5}^${memSimple5}</mem5>
 #end
 #if($memName6.trim() && $memNum6.trim())
-<mem6>${memName6}^${memNum6}^${memLine6}^${memPre6}</mem6>
+<mem6>${memName6}^${memNum6}^${memLine6}^${memPre6}^${memSimple6}</mem6>
 #end
 #if($memName7.trim() && $memNum7.trim())
-<mem7>${memName7}^${memNum7}^${memLine7}^${memPre7}</mem7>
+<mem7>${memName7}^${memNum7}^${memLine7}^${memPre7}^${memSimple7}</mem7>
 #end
 #if($memName8.trim() && $memNum8.trim())
-<mem8>${memName8}^${memNum8}^${memLine8}^${memPre8}</mem8>
+<mem8>${memName8}^${memNum8}^${memLine8}^${memPre8}^${memSimple8}</mem8>
 #end
 #if($memName9.trim() && $memNum9.trim())
-<mem9>${memName9}^${memNum9}^${memLine9}^${memPre9}</mem9>
+<mem9>${memName9}^${memNum9}^${memLine9}^${memPre9}^${memSimple9}</mem9>
 #end
 #if($memName10.trim() && $memNum10.trim())
-<mem10>${memName10}^${memNum10}^${memLine10}^${memPre10}</mem10>
+<mem10>${memName10}^${memNum10}^${memLine10}^${memPre10}^${memSimple10}</mem10>
 #end
 #if($memName11.trim() && $memNum11.trim())
-<mem11>${memName11}^${memNum11}^${memLine11}^${memPre11}</mem11>
+<mem11>${memName11}^${memNum11}^${memLine11}^${memPre11}^${memSimple11}</mem11>
 #end
 #if($memName12.trim() && $memNum12.trim())
-<mem12>${memName12}^${memNum12}^${memLine12}^${memPre12}</mem12>
+<mem12>${memName12}^${memNum12}^${memLine12}^${memPre12}^${memSimple12}</mem12>
 #end
 #if($memName13.trim() && $memNum13.trim())
-<mem13>${memName13}^${memNum13}^${memLine13}^${memPre13}</mem13>
+<mem13>${memName13}^${memNum13}^${memLine13}^${memPre13}^${memSimple13}</mem13>
 #end
 #if($memName14.trim() && $memNum14.trim())
-<mem14>${memName14}^${memNum14}^${memLine14}^${memPre14}</mem14>
+<mem14>${memName14}^${memNum14}^${memLine14}^${memPre14}^${memSimple14}</mem14>
 #end
 #if($memName15.trim() && $memNum15.trim())
-<mem15>${memName15}^${memNum15}^${memLine15}^${memPre15}</mem15>
+<mem15>${memName15}^${memNum15}^${memLine15}^${memPre15}^${memSimple15}</mem15>
 #end
 #if($memName16.trim() && $memNum16.trim())
-<mem16>${memName16}^${memNum16}^${memLine16}^${memPre16}</mem16>
+<mem16>${memName16}^${memNum16}^${memLine16}^${memPre16}^${memSimple16}</mem16>
 #end
 #if($memName1.trim() && $memNum1.trim())
 </memKeys>
@@ -398,6 +505,8 @@
 #set ($onlyOnce_1 = "0")
 #elseif($setting.ProfileName == "usePreloadedRoute")
 #set ($usePreloadedRoute_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "sipUsePublish")
+#set ($sipUsePublish_1 = $!{setting.Value})
 #end
 #else
 #if($setting.ProfileName == "authname")
@@ -512,6 +621,8 @@
 #set ($useOnlyUdpSrv_2 = $!{setting.Value})
 #elseif($setting.ProfileName == "usePreloadedRoute")
 #set ($usePreloadedRoute_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "sipUsePublish")
+#set ($sipUsePublish_2 = $!{setting.Value})
 #end
 #end
 #end
@@ -710,10 +821,9 @@
 <voiceMailServerAddress>$voiceMailServerAddress_1</voiceMailServerAddress>
 #end
 #if($presenceServer_1.trim())
-#if($pres == "publishWithSimple")
 <presenceServer>$presenceServer_1</presenceServer>
 #end
-#end
+<sipUsePublish>$sipUsePublish_1</sipUsePublish>
 #if($conferenceServerAddress_1.trim())
 <conferenceServerAddress>$conferenceServerAddress_1</conferenceServerAddress>
 #end
@@ -944,10 +1054,9 @@
 <voiceMailServerAddress>$voiceMailServerAddress_2</voiceMailServerAddress>
 #end
 #if($presenceServer_2.trim())
-#if($pres == "publishWithSimple")
 <presenceServer>$presenceServer_2</presenceServer>
 #end
-#end
+<sipUsePublish>$sipUsePublish_2</sipUsePublish>
 #if($conferenceServerAddress_2.trim())
 <conferenceServerAddress>$conferenceServerAddress_2</conferenceServerAddress>
 #end

@@ -27,9 +27,6 @@
 <autoConfigPath>SipTone/config</autoConfigPath>
 <autoConfigEveryBoot>TRUE</autoConfigEveryBoot>
 </autoconfig> 
-<presence>
-<dialogEvent>TRUE</dialogEvent>
-</presence>
 </phoneSettings> 
 <sipAccounts>
 <account_L1>
@@ -63,6 +60,8 @@
 <mwiSubscribe>TRUE</mwiSubscribe>
 <mwiReqUri>juser@sipfoundry.org</mwiReqUri>
 <voiceMailServerAddress>101@sipfoundry.org</voiceMailServerAddress>
+<presenceServer>sipfoundry.org</presenceServer>
+<sipUsePublish>FALSE</sipUsePublish>
 <mohServer>sip:~~mh~@sipfoundry.org</mohServer>
 <enableTlsSecurity>FALSE</enableTlsSecurity>
 <offhookOnRefer>FALSE</offhookOnRefer>
