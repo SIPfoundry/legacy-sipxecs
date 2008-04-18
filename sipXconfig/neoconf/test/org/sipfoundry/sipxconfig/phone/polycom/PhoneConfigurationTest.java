@@ -73,7 +73,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
 
         
         InputStream expectedPhoneStream = getClass().getResourceAsStream(
-                "expected-phone-2.2.0.cfg.xml");
+                "expected-phone-3.0.0.cfg.xml");
         assertEquals(IOUtils.toString(expectedPhoneStream), m_location.toString());
         expectedPhoneStream.close();
     }

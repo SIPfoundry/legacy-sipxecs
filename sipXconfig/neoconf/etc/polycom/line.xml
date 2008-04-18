@@ -27,6 +27,29 @@
       <value>private</value>
     </setting>
     <setting name="lcs" unless="1.6" hidden="yes"></setting>
+    <setting name="bargeInEnabled" unless="1.6">
+      <type><boolean /></type>
+      <value>0</value>
+    </setting>
+    <setting name="csta" unless="1.6">
+      <type>
+        <enum>
+          <option>
+            <label>Use phone setting</label>
+            <value></value>
+          </option>
+          <option>
+            <label>Enabled</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>Disabled</label>
+            <value>0</value>
+          </option>
+        </enum>
+      </type>
+      <value></value>
+    </setting>
     <setting name="thirdPartyName">
       <type />
       <value />

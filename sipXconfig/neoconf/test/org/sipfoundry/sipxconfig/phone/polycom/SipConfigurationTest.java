@@ -62,7 +62,7 @@ public class SipConfigurationTest extends XMLTestCase {
 
         m_pg.generate(m_location, cfg, null, "profile");
 
-        InputStream expected = getClass().getResourceAsStream("expected-sip-2.2.2.cfg.xml");
+        InputStream expected = getClass().getResourceAsStream("expected-sip-3.0.0.cfg.xml");
 
         assertEquals(IOUtils.toString(expected), m_location.toString());
         expected.close();

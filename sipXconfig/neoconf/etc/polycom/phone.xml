@@ -36,11 +36,23 @@
     </group>
   </group>
   <group name="up">
+    <setting name="analogHeadsetOption" unless="1.6">
+        <type>
+            <boolean />
+        </type>
+        <value>0</value>
+    </setting>
     <setting name="headsetMode">
       <type>
         <boolean />
       </type>
       <value>0</value>
+    </setting>
+    <setting name="handsfreeMode" unless="1.6">
+        <type>
+            <boolean />
+        </type>
+        <value>1</value>
     </setting>
     <setting name="useDirectoryNames">
       <type>
@@ -433,6 +445,80 @@
       </setting>
     </group>
   </group>
+   <group name="qualityMonitoring" unless="1.6">
+    <group name="collector">
+      <setting name="enable.periodic">
+        <type><boolean /></type>
+        <value>0</value>
+      </setting>
+      <setting name="enable.session">
+        <type><boolean /></type>
+        <value>0</value>
+      </setting>
+      <setting name="enable.triggeredPeriodic">
+        <type>
+            <enum>
+                <option>
+                    <label>None</label>
+                    <value>0</value>
+                </option>
+                <option>
+                    <label>Critical</label>
+                    <value>1</value>
+                </option>
+                <option>
+                    <label>Warning or Critical</label>
+                    <value>2</value>
+                </option>
+            </enum>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="period">
+        <type>
+          <integer min="5" max="20" />
+        </type>
+        <value>20</value>
+      </setting>
+      <group name="alert">
+        <setting name="moslq.threshold.warning">
+          <type>
+            <integer min="15" max="40" />
+          </type>
+        </setting>
+        <setting name="moslq.threshold.critical">
+          <type>
+            <integer min="15" max="40" />
+          </type>
+        </setting>
+        <setting name="delay.threshold.warning">
+          <type>
+            <integer min="10" max="2000" />
+          </type>
+        </setting>
+        <setting name="delay.threshold.critical">
+          <type>
+            <integer min="10" max="2000" />
+          </type>
+        </setting>
+      </group>
+      <group name="server">
+        <setting name="address">
+          <type><string /></type>
+        </setting>
+        <setting name="port">
+          <type><integer min="0" max="65535"/></type>
+          <value>5060</value>
+        </setting>
+      </group>
+    </group>
+    <group name="rtcpxr">
+      <setting name="enable">
+        <type><boolean /></type>
+        <value>0</value>
+      </setting>
+    </group>
+  </group>
   <group name="qos">
     <group name="ethernet">
       <setting name="rtp.user_priority">
@@ -646,15 +732,15 @@
   <group name="tcpIpApp.keepalive.tcp" unless="1.6">
     <setting name="idleTransmitInterval">
       <type>
-        <integer />
+        <integer min="10" max="7200" />
       </type>
-      <value></value>
+      <value>30</value>
     </setting>
     <setting name="noResponseTrasmitInterval">
       <type>
-        <integer />
+        <integer min="5" max="120" />
       </type>
-      <value></value>
+      <value>20</value>
     </setting>
     <setting name="sip.tls.enable">
       <type>
@@ -764,6 +850,18 @@
         <boolean />
       </type>
       <value />
+    </setting>
+    <setting name="singleKeyPressConference" unless="1.6">
+      <type><boolean /></type>
+      <value>0</value>
+    </setting>
+    <setting name="localConferenceCallHold" unless="1.6">
+      <type><boolean /></type>
+      <value>0</value>
+    </setting>
+    <setting name="disableAutoResumeCentralConference" unless="1.6">
+        <type><boolean /></type>
+        <value>0</value>
     </setting>
     <group name="shared">
       <setting name="disableDivert">
@@ -1212,6 +1310,24 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="nway-conference" unless="1.6">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="call-recording" unless="1.6">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="corporate-directory" unless="1.6">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
   </group>
   <group name="mb">
     <setting name="proxy">
@@ -1316,6 +1432,10 @@
       </setting>
     </group>
     <group name="protocol">
+      <setting name="csta" unless="1.6">
+        <type><boolean/></type>
+        <value>0</value>
+      </setting>
       <setting name="useRFC2543hold">
         <type>
           <boolean />
