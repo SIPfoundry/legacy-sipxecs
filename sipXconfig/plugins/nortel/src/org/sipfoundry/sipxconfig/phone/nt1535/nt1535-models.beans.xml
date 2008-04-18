@@ -4,14 +4,14 @@
 <beans>
   <bean id="nt1535Model" abstract="true" parent="abstractPhoneModel">
     <property name="beanId" value="nt1535" />
-    <property name="label" value="Nortel 1535 Video" />
+    <property name="label" value="Nortel IP Phone 1535" />
     <property name="maxLineCount" value="1" />
     <property name="vendor" value="LG-Nortel" />
   </bean>
 
    <!-- models -->
   <bean id="nortel1535" parent="nt1535Model">
-    <property name="label" value="Nortel 1535 Video" />
+    <property name="label" value="Nortel IP Phone 1535" />
     <property name="maxLineCount" value="1" />
   </bean>
 
@@ -24,6 +24,6 @@
   <bean id="nt1535Firmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
     <property name="beanId" value="zipUpload" />
     <property name="modelFilePath" value="nt1535/upload.xml" />
-    <property name="label" value="Nortel 1535 Video" />
+    <property name="label" value="Nortel IP Phone 1535" />
   </bean>
 </beans>

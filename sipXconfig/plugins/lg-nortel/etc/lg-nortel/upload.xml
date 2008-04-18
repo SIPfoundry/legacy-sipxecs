@@ -8,7 +8,7 @@
     </file>
   </type>
   <group name="firmware">
-    <label>LG-Nortel Firmware</label>
+    <label>LG Nortel Firmware</label>
     <description></description>
     <setting name="sip.zip">
       <label>Firmware Archive (zip)</label>
