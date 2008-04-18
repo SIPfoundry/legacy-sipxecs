@@ -184,18 +184,14 @@ public class DHCP {
                 serverSocket.receive(incoming);
             } catch (IOException e) {
                 if (responseReceived) {
-                    if (multipleResponses) {
-                        return MULTIPLE_SERVERS_FAILURE;
-                    } else {
-                        results = validateOfferMessage(offerMessage, xid, serverAddress, journalService);
-                        if (results == NONE) {
-                            assignedAddress[0] = offerMessage.getYiaddr();
-                        } else if (results == IGNORE) {
-                            journalService.println("  Read timeout: " + e.getMessage());
-                            results = TIMEOUT_FAILURE;
-                        }
-                        return results;
+                    results = validateOfferMessage(offerMessage, xid, serverAddress, journalService);
+                    if (results == NONE) {
+                        assignedAddress[0] = offerMessage.getYiaddr();
+                    } else if (results == IGNORE) {
+                        journalService.println("  Read timeout: " + e.getMessage());
+                        results = TIMEOUT_FAILURE;
                     }
+                    return results;
                 } else {
                     journalService.println("  Read timeout: " + e.getMessage());
                     return TIMEOUT_FAILURE;
@@ -323,16 +319,12 @@ public class DHCP {
                 serverSocket.receive(incoming);
             } catch (IOException e) {
                 if (responseReceived) {
-                    if (multipleResponses) {
-                        return MULTIPLE_SERVERS_FAILURE;
-                    } else {
-                        results = processAck(ackMessage, xid, networkResources, journalService);
-                        if (results == IGNORE) {
-                            journalService.println("  Read timeout: " + e.getMessage());
-                            results = TIMEOUT_FAILURE;
-                        }
-                        return results;
+                    results = processAck(ackMessage, xid, networkResources, journalService);
+                    if (results == IGNORE) {
+                        journalService.println("  Read timeout: " + e.getMessage());
+                        results = TIMEOUT_FAILURE;
                     }
+                    return results;
                 } else {
                     journalService.println("  Read timeout: " + e.getMessage());
                     return TIMEOUT_FAILURE;
@@ -490,16 +482,12 @@ public class DHCP {
             } catch (IOException e) {
                 serverSocket.close();
                 if (responseReceived) {
-                    if (multipleResponses) {
-                        return MULTIPLE_SERVERS_FAILURE;
-                    } else {
-                        results = processAck(ackMessage, xid, networkResources, journalService);
-                        if (results == IGNORE) {
-                            journalService.println("  Read timeout: " + e.getMessage());
-                            results = TIMEOUT_FAILURE;
-                        }
-                        return results;
+                    results = processAck(ackMessage, xid, networkResources, journalService);
+                    if (results == IGNORE) {
+                        journalService.println("  Read timeout: " + e.getMessage());
+                        results = TIMEOUT_FAILURE;
                     }
+                    return results;
                 } else {
                     journalService.println("  Read timeout: " + e.getMessage());
                     return TIMEOUT_FAILURE;
