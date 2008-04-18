@@ -1,8 +1,8 @@
 FS_VER = 1.0
-FS_REL = beta2-2.1
+FS_REL = rc3.1
 FS_URL=http://files.freeswitch.org
 
-SRC = $(LIBSRC)/freeswitch-1.0.beta2.tar.bz2
+SRC = $(LIBSRC)/freeswitch-1.0.rc3.tar.gz
 
 RPM = $(DEST_RPM)/freeswitch-$(FS_VER).$(FS_REL).@RPM_TARGET_ARCH@.rpm
 SRPM = $(DEST_RPM)/freeswitch-$(FS_VER).$(FS_REL).src.rpm
