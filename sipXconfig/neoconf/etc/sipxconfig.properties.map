@@ -1,0 +1,3 @@
+# Delete parameters that refer to removed Spring beans
+- : domainInitializer.initialDomain=${SIPXCHANGE_DOMAIN_NAME}
+- : coreContextImpl.authorizationRealm=${SIPXCHANGE_REALM}
