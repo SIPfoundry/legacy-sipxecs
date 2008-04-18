@@ -18,20 +18,39 @@ import net.sourceforge.jwebunit.junit.WebTester;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertNoException;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertNoUserError;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertUserError;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getBaseUrl;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getCellAsText;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getColumnCount;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.home;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.selectRow;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.webTestSuite;
+
 /**
  * GatewaysTestUi
  */
 public class GatewaysTestUi extends WebTestCase {
     public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(GatewaysTestUi.class);
+        return webTestSuite(GatewaysTestUi.class);
     }
 
     @Override
     protected void setUp() throws Exception {
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.home(getTester());
+        getTestContext().setBaseUrl(getBaseUrl());
+        home(tester);
         SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("resetDialPlans");
+    }
+
+    public void testLinks() {
+        clickLink("ListGateways");
+        clickLink("link:dialPlans");
+        assertNoException(tester);
+        assertTablePresent("dialplan:list");
+        clickLink("link:gateways");
+        assertTablePresent("list:gateway");
     }
 
     public void testAddGateways() throws Exception {
@@ -41,21 +60,21 @@ public class GatewaysTestUi extends WebTestCase {
         Table gatewaysTable = getTable("list:gateway");
         // make sure it's sorted by name
         clickLinkWithText("Name");
-        int lastColumn = SiteTestHelper.getColumnCount(gatewaysTable) - 1;
+        int lastColumn = getColumnCount(gatewaysTable) - 1;
         assertEquals(4, lastColumn);
 
         SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
 
         addGateway(null);
-        SiteTestHelper.assertUserError(tester);
+        assertUserError(tester);
 
         addGateway("bongo");
-        SiteTestHelper.assertNoUserError(tester);
+        assertNoUserError(tester);
         assertTablePresent("list:gateway");
         gatewaysTable = getTable("list:gateway");
         // we should have 2 gateway now
         assertEquals(2, gatewaysTable.getRowCount());
-        assertEquals("bongoDescription", SiteTestHelper.getCellAsText(gatewaysTable, 1, lastColumn));
+        assertEquals("bongoDescription", getCellAsText(gatewaysTable, 1, lastColumn));
 
         SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
 
@@ -64,7 +83,7 @@ public class GatewaysTestUi extends WebTestCase {
         gatewaysTable = getTable("list:gateway");
         // we should have 2 gateway now
         assertEquals(3, gatewaysTable.getRowCount());
-        assertEquals("kukuDescription", SiteTestHelper.getCellAsText(gatewaysTable, 2, lastColumn));
+        assertEquals("kukuDescription", getCellAsText(gatewaysTable, 2, lastColumn));
     }
 
     public void testEditGatewaySettings() throws Exception {
@@ -74,13 +93,13 @@ public class GatewaysTestUi extends WebTestCase {
         setTextField("gateway:address", "1.2.3.4");
         setTextField("gateway:serial", "123456654321");
         clickButton("form:apply");
-        SiteTestHelper.assertNoUserError(tester);
+        assertNoUserError(tester);
 
         clickLink("link:Network.label");
-        SiteTestHelper.assertNoUserError(tester);
+        assertNoUserError(tester);
         setTextField("setting:DNSPriServerIP", "4.3.2.1");
         clickButton("form:apply");
-        SiteTestHelper.assertNoUserError(tester);
+        assertNoUserError(tester);
         assertTextFieldEquals("setting:DNSPriServerIP", "4.3.2.1");
     }
 
@@ -92,8 +111,8 @@ public class GatewaysTestUi extends WebTestCase {
         clickLink("ListGateways");
 
         String[] nonRouteGateways = {
-            "Acme 1000", "AudioCodes MP114 FXO", "AudioCodes MP118 FXO", "AudioCodes Mediant",
-            "AudioCodes TP260", "Unmanaged gateway"
+            "Acme 1000", "AudioCodes MP114 FXO", "AudioCodes MP118 FXO", "AudioCodes Mediant", "AudioCodes TP260",
+            "Unmanaged gateway"
         };
 
         for (String gatewayType : nonRouteGateways) {
@@ -111,40 +130,40 @@ public class GatewaysTestUi extends WebTestCase {
         setTextField("sbcDevice:name", "sbcDeviceForSipTrunk");
         setTextField("sbcDevice:address", "sbc.example.org");
         clickButton("form:ok");
-        SiteTestHelper.assertNoUserError(tester);
+        assertNoUserError(tester);
         SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "sbcDeviceForSipTrunk");
         clickButton("form:ok");
-        SiteTestHelper.assertNoUserError(tester);
+        assertNoUserError(tester);
     }
 
     public void testAddGatewaysDuplicateName() throws Exception {
         clickLink("ListGateways");
         SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
-        addGateway(getTester(), "dupname");
-        SiteTestHelper.assertNoException(tester);
+        addGateway(tester, "dupname");
+        assertNoException(tester);
         SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
-        addGateway(getTester(), "dupname");
-        SiteTestHelper.assertUserError(tester);
+        addGateway(tester, "dupname");
+        assertUserError(tester);
     }
 
     public void testDeleteGateways() throws Exception {
-        addTestGateways(getTester(), 10);
+        addTestGateways(tester, 10);
 
         assertTablePresent("list:gateway");
         Table gatewaysTable = getTable("list:gateway");
         assertEquals(11, gatewaysTable.getRowCount());
 
-        SiteTestHelper.selectRow(tester, 0, true);
-        SiteTestHelper.selectRow(tester, 1, true);
+        selectRow(tester, 0, true);
+        selectRow(tester, 1, true);
         clickButton("list:gateway:delete");
 
-        SiteTestHelper.assertNoUserError(tester);
+        assertNoUserError(tester);
         assertTablePresent("list:gateway");
         gatewaysTable = getTable("list:gateway");
         assertEquals(9, gatewaysTable.getRowCount());
 
         for (int i = 0; i < 8; i++) {
-            SiteTestHelper.selectRow(tester, i, true);
+            selectRow(tester, i, true);
         }
         clickButton("list:gateway:delete");
 
@@ -170,7 +189,7 @@ public class GatewaysTestUi extends WebTestCase {
         assertTextPresent("Enter at most");
         setTextField("gateway:description", new String(descriptionOk));
         tester.clickButton("form:ok");
-        SiteTestHelper.assertNoException(tester);
+        assertNoException(tester);
         // we should not get error this time
         assertTablePresent("list:gateway");
     }
@@ -181,7 +200,7 @@ public class GatewaysTestUi extends WebTestCase {
      * @param name response after clicking submit button
      */
     private void addGateway(String name) {
-        addGateway(getTester(), name);
+        addGateway(tester, name);
     }
 
     /**

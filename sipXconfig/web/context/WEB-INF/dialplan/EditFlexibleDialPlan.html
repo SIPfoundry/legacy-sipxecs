@@ -9,8 +9,12 @@
     <div class="help">
       <b><span key="label.quickLinks">Quick Links</span></b>
       <ul>
-        <li><a href="#" jwcid="@PageLink" page="gateway/ListGateways"><span key="link.gateways">Gateways</span></a></li>
-        <li><a href="#" jwcid="@PageLink" page="permission/ListPermissions"><span key="link.permissions">Permissions</span></a></li>
+        <li><a jwcid="@PageLink" page="gateway/ListGateways" id="link:gateways">
+          <span key="link.gateways">Gateways</span></a>
+        </li>
+        <li><a jwcid="@PageLink" page="permission/ListPermissions" id="link:permissions">
+          <span key="link.permissions">Permissions</span></a>
+        </li>
       </ul>
     </div>
     <div jwcid="@common/QuickHelp" value="message:quick.help"/>

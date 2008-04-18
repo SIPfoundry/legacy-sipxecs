@@ -31,9 +31,6 @@
   <component id="gatewayTable" type="gateway/GatewayTable">
     <binding name="gatewayCollection" value="gatewayContext.gateways" />
   </component>
-  <component id="dialPlansLink" type="PageLink">
-    <binding name="page" value="literal:EditFlexibleDialPlan" />
-  </component>
   <component id="deleteButton" type="Submit">
     <binding name="selected" value="gatewaysToDelete" />
     <binding name="tag" value="components.gatewayTable.selections.allSelected" />
