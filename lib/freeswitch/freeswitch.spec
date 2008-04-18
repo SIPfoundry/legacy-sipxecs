@@ -1,4 +1,4 @@
-%define _prefix   /opt/freeswitch
+%define _prefix   /usr/local/freeswitch
 %define prefix    %{_prefix}
 
 Name:         freeswitch
@@ -285,6 +285,7 @@ userdel freeswitch
 %config(noreplace) %attr(0640, freeswitch, daemon) %{prefix}/conf/*.ttml
 %config(noreplace) %attr(0640, freeswitch, daemon) %{prefix}/conf/*.xml
 %config(noreplace) %attr(0640, freeswitch, daemon) %{prefix}/conf/*.conf
+%config(noreplace) %attr(0640, freeswitch, daemon) %{prefix}/conf/autoload_configs/acl.conf.xml
 %config(noreplace) %attr(0640, freeswitch, daemon) %{prefix}/conf/autoload_configs/alsa.conf.xml
 %config(noreplace) %attr(0640, freeswitch, daemon) %{prefix}/conf/autoload_configs/conference.conf.xml
 %config(noreplace) %attr(0640, freeswitch, daemon) %{prefix}/conf/autoload_configs/console.conf.xml

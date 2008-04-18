@@ -1,5 +1,5 @@
 FS_VER = 1.0
-FS_REL = rc3.1
+FS_REL = rc3-1
 FS_URL=http://files.freeswitch.org
 
 SRC = $(LIBSRC)/freeswitch-1.0.rc3.tar.gz
@@ -18,6 +18,12 @@ all : $(RPMS)
 
 $(SRC) :
 	$(DOWNLOAD_FILE) $@ $(FS_URL)/`basename $@`
+	pushd $(LIBSRC) && tar -xzf $(SRC) && popd
+	cp $(srcdir)/patches/bootstrap.sh $(LIBSRC)/freeswitch-1.0.rc3
+	rm $(SRC)
+	pushd $(LIBSRC) && tar -czf $(SRC) freeswitch-1.0.rc3 && popd
+	rm -rf $(LIBSRC)/freeswitch-1.0.rc3
+
 
 .PHONY: build-rpms
 build-rpms: $(SRC) $(srcdir)/freeswitch.spec 
