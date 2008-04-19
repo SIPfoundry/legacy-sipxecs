@@ -21,10 +21,10 @@ public class CiscoplusPhoneTest extends TestCase {
     private CiscoplusPhone m_phone;
 
     protected void setUp() {
-        CiscoplusModel model = new CiscoplusModel("ciscoplusPhone");
+        CiscoplusModel model = new CiscoplusModel("ciscoplus");
         model.setMaxLineCount(3);
         model.setModelId("ciscoplus7961G");
-        model.setProfileTemplate("ciscoplusPhone/config.vm");
+        model.setProfileTemplate("ciscoplus/config.vm");
         m_phone = new CiscoplusPhone();
         m_phone.setModel(model);
         PhoneTestDriver.supplyTestData(m_phone);
