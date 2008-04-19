@@ -108,6 +108,7 @@ AC_CONFIG_FILES([
     conference/local/Makefile
     plugins/Makefile
     plugins/aastra/Makefile
+    plugins/ciscoplus/Makefile
     plugins/clearone/Makefile
     plugins/hitachi/Makefile
     plugins/ipdialog/Makefile

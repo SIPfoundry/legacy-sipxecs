@@ -1,5 +1,6 @@
 SUBDIRS = \
 	aastra \
+	ciscoplus \
 	clearone \
 	hitachi \
 	ipdialog \

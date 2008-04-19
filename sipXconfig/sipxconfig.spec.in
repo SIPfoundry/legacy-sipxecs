@@ -245,8 +245,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/acd/*
 %config(noreplace) %{sipxpbxconf}/audiocodes/*
 %config(noreplace) %{sipxpbxconf}/ciscoAta/*
-%config(noreplace) %{sipxpbxconf}/clearone/*
 %config(noreplace) %{sipxpbxconf}/ciscoIp/*
+%config(noreplace) %{sipxpbxconf}/ciscoplus/*
+%config(noreplace) %{sipxpbxconf}/clearone/*
 %config(noreplace) %{sipxpbxconf}/commserver/*
 %config(noreplace) %{sipxpbxconf}/database/*
 %config(noreplace) %{sipxpbxconf}/region_*/*
