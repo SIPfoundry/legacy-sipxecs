@@ -27,9 +27,11 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 public class CiscoplusPhone extends Ciscoplus {
 
     private static final String USER_ID_SETTING = "sipLines/name";
-    private static final String DISPLAY_NAME_SETTING = "sipLines/authName";
+    private static final String AUTH_NAME_SETTING = "sipLines/authName";
+    private static final String DISPLAY_NAME_SETTING = "sipLines/displayName";
     private static final String PASSWORD_SETTING = "sipLines/authPassword";
-    private static final String REGISTRATION_SERVER_SETTING = "Proxy_and_Registration/Proxy";
+    private static final String PROXY_SETTING = "sipLines/proxy";
+    private static final String PROXY_PORT_SETTING = "sipLines/port";
 
     public CiscoplusPhone() {
     }
@@ -76,7 +78,7 @@ public class CiscoplusPhone extends Ciscoplus {
             m_line = line;
         }
 
-        @SettingEntry(path = USER_ID_SETTING)
+        @SettingEntry(paths = { USER_ID_SETTING, AUTH_NAME_SETTING })
         public String getUserName() {
             String userName = null;
             User user = m_line.getUser();
@@ -106,10 +108,16 @@ public class CiscoplusPhone extends Ciscoplus {
             return password;
         }
 
-        @SettingEntry(path = REGISTRATION_SERVER_SETTING)
+        @SettingEntry(path = PROXY_SETTING)
         public String getRegistrationServer() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getDomainName();
+        }
+
+        @SettingEntry(path = PROXY_PORT_SETTING)
+        public String getRegistrationServerPort() {
+            DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
+            return defaults.getProxyServerSipPort();
         }
     }
 
@@ -122,7 +130,8 @@ public class CiscoplusPhone extends Ciscoplus {
         line.setSettingValue(DISPLAY_NAME_SETTING, externalLine.getDisplayName());
         line.setSettingValue(USER_ID_SETTING, externalLine.getUserId());
         line.setSettingValue(PASSWORD_SETTING, externalLine.getPassword());
-        line.setSettingValue(REGISTRATION_SERVER_SETTING, externalLine.getRegistrationServer());
+        line.setSettingValue(PROXY_SETTING, externalLine.getRegistrationServer());
+        line.setSettingValue(PROXY_PORT_SETTING, externalLine.getRegistrationServerPort());
     }
 
     /**
@@ -135,7 +144,8 @@ public class CiscoplusPhone extends Ciscoplus {
         info.setDisplayName(line.getSettingValue(DISPLAY_NAME_SETTING));
         info.setUserId(line.getSettingValue(USER_ID_SETTING));
         info.setPassword(line.getSettingValue(PASSWORD_SETTING));
-        info.setRegistrationServer(line.getSettingValue(REGISTRATION_SERVER_SETTING));
+        info.setRegistrationServer(line.getSettingValue(PROXY_SETTING));
+        info.setRegistrationServerPort(line.getSettingValue(PROXY_PORT_SETTING));
         return info;
     }
 }

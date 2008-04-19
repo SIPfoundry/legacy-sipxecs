@@ -126,16 +126,16 @@
    <line button="1">
     <featureID></featureID>
     <featureLabel></featureLabel>
-    <proxy></proxy>
-    <port></port>
-    <name></name>
-    <displayName></displayName>
+    <proxy>sipfoundry.org</proxy>
+    <port>5555</port>
+    <name>juser</name>
+    <displayName>Joe User</displayName>
     <autoAnswer>
      <autoAnswerEnabled>2</autoAnswerEnabled>
     </autoAnswer>
     <callWaiting>3</callWaiting>
-    <authName></authName>
-    <authPassword></authPassword>
+    <authName>juser</authName>
+    <authPassword>1234</authPassword>
     <sharedLine>false</sharedLine>
     <messageWaitingLampPolicy>1</messageWaitingLampPolicy>
     <messagesNumber></messagesNumber>
