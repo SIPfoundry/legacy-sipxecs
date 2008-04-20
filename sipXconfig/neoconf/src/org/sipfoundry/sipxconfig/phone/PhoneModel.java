@@ -18,8 +18,12 @@ public class PhoneModel extends DeviceDescriptor {
     private int m_maxLineCount = DEFAULT_MAX_LINES;
 
     private boolean m_externalLinesSupported = true;
-        
+
     private boolean m_isEmergencyConfigurable;
+
+    private String m_settingsFile = "phone.xml";
+
+    private String m_lineSettingsFile = "line.xml";
 
     public PhoneModel() {
     }
@@ -55,7 +59,7 @@ public class PhoneModel extends DeviceDescriptor {
     public boolean isExternalLinesSupported() {
         return m_externalLinesSupported;
     }
-    
+
     /**
      * Will device configure itself with 911-like settings by default if dial plans are configured
      * appropriately as described in emergency dial plan configuration web page.
@@ -63,8 +67,24 @@ public class PhoneModel extends DeviceDescriptor {
     public boolean isEmergencyConfigurable() {
         return m_isEmergencyConfigurable;
     }
-    
+
     public void setEmergencyConfigurable(boolean isEmergencyConfigurable) {
-        m_isEmergencyConfigurable = isEmergencyConfigurable;   
+        m_isEmergencyConfigurable = isEmergencyConfigurable;
+    }
+
+    public String getSettingsFile() {
+        return m_settingsFile;
+    }
+
+    public void setSettingsFile(String settingsFile) {
+        m_settingsFile = settingsFile;
+    }
+
+    public String getLineSettingsFile() {
+        return m_lineSettingsFile;
+    }
+
+    public void setLineSettingsFile(String lineSettingsFile) {
+        m_lineSettingsFile = lineSettingsFile;
     }
 }

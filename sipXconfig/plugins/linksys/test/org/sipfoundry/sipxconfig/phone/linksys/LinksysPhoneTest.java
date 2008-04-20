@@ -24,7 +24,8 @@ public class LinksysPhoneTest extends TestCase {
         LinksysModel model = new LinksysModel("linksysPhone");
         model.setMaxLineCount(3);
         model.setModelId("linksys942");
-        model.setProfileTemplate("linksysPhone/config.vm");
+        model.setProfileTemplate("linksys/config.vm");
+        model.setModelDir("linksys");
         m_phone = new LinksysPhone();
         m_phone.setModel(model);
         PhoneTestDriver.supplyTestData(m_phone);

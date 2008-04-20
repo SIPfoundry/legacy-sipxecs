@@ -14,12 +14,11 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 /**
  * Static differences in linksys models
  */
-public final class LinksysModel extends PhoneModel {
+public class LinksysModel extends PhoneModel {
 
-    
-    public LinksysModel() {        
+    public LinksysModel() {
     }
-    
+
     public LinksysModel(String beanId) {
         super(beanId);
     }

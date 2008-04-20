@@ -76,12 +76,14 @@ public abstract class Phone extends Device {
     }
 
     protected Setting loadSettings() {
-        return getModelFilesContext().loadDynamicModelFile("phone.xml", getModel().getModelDir(),
+        PhoneModel model = getModel();
+        return getModelFilesContext().loadDynamicModelFile(model.getSettingsFile(), model.getModelDir(),
                 getSettingsEvaluator());
     }
 
     protected Setting loadLineSettings() {
-        return getModelFilesContext().loadDynamicModelFile("line.xml", getModel().getModelDir(),
+        PhoneModel model = getModel();
+        return getModelFilesContext().loadDynamicModelFile(model.getLineSettingsFile(), model.getModelDir(),
                 getSettingsEvaluator());
     }
 

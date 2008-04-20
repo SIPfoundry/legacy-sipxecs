@@ -255,8 +255,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/hitachi/*
 %config(noreplace) %{sipxpbxconf}/ipDialog/*
 %config(noreplace) %{sipxpbxconf}/lg-nortel/*
-%config(noreplace) %{sipxpbxconf}/linksysPhone/*
-%config(noreplace) %{sipxpbxconf}/linksysAta/*
+%config(noreplace) %{sipxpbxconf}/linksys/*
 %config(noreplace) %{sipxpbxconf}/process.d/sipxconfig.process.xml
 %config(noreplace) %{sipxpbxconf}/polycom/*
 %config(noreplace) %{sipxpbxconf}/snom/*
