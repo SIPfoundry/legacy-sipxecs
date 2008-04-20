@@ -193,7 +193,7 @@ Voice-Message: 0/0 (0/0)\r\n";
          int nextNotifyCseq;
          UtlString nextNotifyMethod;
          nextNotify.getCSeqField(&nextNotifyCseq, &nextNotifyMethod);
-         CPPUNIT_ASSERT(nextNotifyCseq == 0);
+         CPPUNIT_ASSERT(nextNotifyCseq == 1);
          ASSERT_STR_EQUAL(SIP_NOTIFY_METHOD, nextNotifyMethod);
          UtlString nextNotifyDialogHandle;
          nextNotify.getDialogHandle(nextNotifyDialogHandle);
@@ -225,7 +225,7 @@ Voice-Message: 0/0 (0/0)\r\n";
          UtlString arrayNotify0Method;
          CPPUNIT_ASSERT(notify0FromArray->getCSeqField(&arrayNotify0Cseq, 
                                                        &arrayNotify0Method));
-         CPPUNIT_ASSERT(arrayNotify0Cseq == 1);
+         CPPUNIT_ASSERT(arrayNotify0Cseq == 2);
          UtlString arrayNotify0DialogHandle;
          notify0FromArray->getDialogHandle(arrayNotify0DialogHandle);
          ASSERT_STR_EQUAL(mgrEstablishedDialogHandle, arrayNotify0DialogHandle);

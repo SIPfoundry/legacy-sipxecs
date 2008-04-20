@@ -795,7 +795,7 @@ public:
          int firstNotifyCseq;
          firstNotifyRequest->getCSeqField(&firstNotifyCseq, NULL);
          CPPUNIT_ASSERT(firstSubCseq == 1);
-         CPPUNIT_ASSERT(firstNotifyCseq == 0);
+         CPPUNIT_ASSERT(firstNotifyCseq == 1);
 
          // The refresh manager should re-SUBSCRIBE
          // Wait for the next notify request and subscribe response
@@ -1900,7 +1900,7 @@ public:
          int firstNotifyCseq;
          firstNotifyRequest->getCSeqField(&firstNotifyCseq, NULL);
          CPPUNIT_ASSERT(firstSubCseq == 1);
-         CPPUNIT_ASSERT(firstNotifyCseq == 0);
+         CPPUNIT_ASSERT(firstNotifyCseq == 1);
 
          // The refresh manager should re-SUBSCRIBE
          // Wait for the next notify request and subscribe response

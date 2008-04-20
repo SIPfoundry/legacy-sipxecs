@@ -60,8 +60,9 @@ SipDialog::SipDialog(const SipMessage* initialMessage,
            mLocalField.getFieldParameter("tag", mLocalTag);
            initialMessage->getCSeqField(&mInitialRemoteCseq, &mInitialMethod);
            mLastRemoteCseq = mInitialRemoteCseq;
-           mLastLocalCseq = -1;
-           mInitialLocalCseq = -1;
+           // Start local CSeq's at 1, because some UAs cannot handle 0.
+           mLastLocalCseq = 0;
+           mInitialLocalCseq = 0;
        }
 
        if(!initialMessage->isResponse())
@@ -95,9 +96,10 @@ SipDialog::SipDialog(const SipMessage* initialMessage,
    {
        // Insert dummy values into fields that aren't automatically initialized.
        mLocalInitiatedDialog = FALSE;
-       mLastLocalCseq = -1;
+       // Start local CSeq's at 1, because some UAs cannot handle 0.
+       mLastLocalCseq = 0;
        mLastRemoteCseq = -1;
-       mInitialLocalCseq = -1;
+       mInitialLocalCseq = 0;
        mInitialRemoteCseq = -1;
    }
 
@@ -115,9 +117,10 @@ SipDialog::SipDialog(const char* callId,
     mLocalField = Url(localField);
     mLocalField.getFieldParameter("tag", mLocalTag);
 
-    mInitialLocalCseq = -1;
+    // Start local CSeq's at 1, because some UAs cannot handle 0.
+    mInitialLocalCseq = 0;
     mInitialRemoteCseq = -1;
-    mLastLocalCseq = -1;
+    mLastLocalCseq = 0;
     mLastRemoteCseq = -1;
     mDialogState = DIALOG_UNKNOWN;
 }
