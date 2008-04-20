@@ -4,7 +4,6 @@
 <beans>
   <bean id="LinksysModel" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysModel" parent="abstractPhoneModel"
     abstract="true">
-	<property name="vendor" value="Linksys"/>
   </bean>
 
   <bean id="linksysPhoneStandard" abstract="true" parent="LinksysModel">
@@ -37,8 +36,27 @@
     <property name="label" value="Linksys SPA962" />
     <property name="maxLineCount" value="6" />
   </bean>
+  <bean id="linksysAtaStandard" abstract="true" parent="LinksysModel">
+    <property name="beanId" value="linksysPhone" />
+    <property name="modelDir" value="linksysAta" />
+    <property name="profileTemplate" value="linksysAta/config.vm" />
+  </bean>
+  <bean id="linksys2102" parent="linksysAtaStandard">
+    <property name="label" value="Linksys Ata2102" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+  <bean id="linksys3102" parent="linksysAtaStandard">
+    <property name="label" value="Linksys Ata3102" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+  <bean id="linksys8000" parent="linksysAtaStandard">
+    <property name="label" value="Linksys SPA8000" />
+    <property name="maxLineCount" value="8" />
+  </bean>
 
-  <bean id="linksysPhone" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysPhone" singleton="false"
-    parent="abstractPhone">
+  <bean id="linksysPhone" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysPhone" singleton="false" parent="abstractPhone">
+  </bean>
+
+  <bean id="linksysAta" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysAta" singleton="false" parent="abstractPhone">
   </bean>
 </beans>

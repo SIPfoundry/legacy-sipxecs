@@ -4,6 +4,11 @@
   <property name="plugin.models.dir" value="etc/linksysPhone" />
   <property name="plugin.name" value="linksys-phones" />
 
+  <property name="project.dir" value="plugins/linksys" />
+  <property name="plugin.models.dir" value="etc/linksysAta" />
+  <property name="plugin.name" value="linksys-atas" />
+
+
   <import file="../plugins.build.xml" />
 
 </project>

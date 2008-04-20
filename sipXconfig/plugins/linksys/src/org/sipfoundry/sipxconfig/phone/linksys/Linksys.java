@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.phone.linksys;
 import org.sipfoundry.sipxconfig.phone.Phone;
 
 /**
- * Support for linksys 941/942
+ * Support for linksys 941/942,ata2102/3102,spa8000
  */
 public abstract class Linksys extends Phone {
 
