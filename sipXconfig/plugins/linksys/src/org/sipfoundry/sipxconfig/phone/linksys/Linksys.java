@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.phone.linksys;
 
+import java.io.File;
+
+import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Phone;
 
 /**
@@ -35,5 +38,24 @@ public abstract class Linksys extends Phone {
     @Override
     public void restart() {
         sendCheckSyncToFirstLine();
+    }
+
+    /**
+     * Copy common configuration file.
+     */
+    @Override
+    protected void copyFiles(ProfileLocation location) {
+        LinksysModel model = getModel();
+        String defaultConfigName = model.getDefaultConfigName();
+        if (null == defaultConfigName) {
+            return;
+        }
+        String sourceDefaultName = model.getModelDir() + File.separator + "default.cfg";
+        getProfileGenerator().copy(location, sourceDefaultName, defaultConfigName);
+    }
+
+    @Override
+    public String getProfileFilename() {
+        return "spa" + getSerialNumber() + ".cfg";
     }
 }

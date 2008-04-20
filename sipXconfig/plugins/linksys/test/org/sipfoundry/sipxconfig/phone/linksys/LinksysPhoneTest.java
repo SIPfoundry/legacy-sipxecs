@@ -14,11 +14,16 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class LinksysPhoneTest extends TestCase {
 
-    private LinksysPhone m_phone;
+    private Linksys m_phone;
 
     protected void setUp() {
         LinksysModel model = new LinksysModel("linksysPhone");
@@ -26,6 +31,7 @@ public class LinksysPhoneTest extends TestCase {
         model.setModelId("linksys942");
         model.setProfileTemplate("linksys/config.vm");
         model.setModelDir("linksys");
+        model.setPsn("942");
         m_phone = new LinksysPhone();
         m_phone.setModel(model);
         PhoneTestDriver.supplyTestData(m_phone);
@@ -37,8 +43,24 @@ public class LinksysPhoneTest extends TestCase {
 
     public void testGenerate7960Profiles() throws Exception {
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
-        m_phone.generateProfiles(location);
+        m_phone.generateFiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("spa942.cfg"));
         assertEquals(expected, location.toString());
+    }
+
+    public void testCopyProfile() {
+        ProfileGenerator pg = createMock(ProfileGenerator.class);
+        pg.copy(null, "linksys/default.cfg", "spa942.cfg");
+        replay(pg);
+
+        m_phone.setProfileGenerator(pg);
+        m_phone.copyFiles(null);
+
+        verify(pg);
+    }
+
+    public void testGetProfileFilename() {
+        m_phone.setSerialNumber("112233445566");
+        assertEquals("spa112233445566.cfg", m_phone.getProfileFilename());
     }
 }

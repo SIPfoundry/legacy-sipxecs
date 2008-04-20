@@ -39,15 +39,6 @@ public class LinksysPhone extends Linksys {
         line.addDefaultBeanSettingHandler(new LinksysLineDefaults(line));
     }
 
-    @Override
-    public String getProfileFilename() {
-        return "spa" + getSerialNumber() + ".cfg";
-    }
-
-    public int getMaxLineCount() {
-        return getModel().getMaxLineCount();
-    }
-
     public Collection<Setting> getProfileLines() {
         int lineCount = getModel().getMaxLineCount();
         List<Setting> linesSettings = new ArrayList<Setting>(getMaxLineCount());
