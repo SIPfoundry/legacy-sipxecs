@@ -50,8 +50,18 @@ class DialogApplicationData {
      * The MOH server dialog
      */
     Dialog musicOnHoldDialog;
+    
+    /*
+     * Rtp session associated with this call leg.
+     */
 
     Sym rtpSession;
+    
+    /*
+     * The Codec for the Rtp session (extracted from the Response).
+     * That was negotiated for the call setup.
+     */
+    String codecName;
 
     
     private DialogApplicationData() {

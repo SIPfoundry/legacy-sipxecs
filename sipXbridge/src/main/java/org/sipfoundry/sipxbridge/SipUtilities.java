@@ -522,6 +522,7 @@ public class SipUtilities {
     }
 
     
+    
     /**
      * Cleans the Session description to include only the specified
      * codec.This processing can be applied on the outbound INVITE
@@ -587,6 +588,8 @@ public class SipUtilities {
 
     public static String getCodecName(Response response) {
         try {
+            if ( response.getContentLength().getContentLength() == 0 ) return null;
+            
             SessionDescription sd = getSessionDescription(response);
             Vector mediaDescriptions = sd.getMediaDescriptions(true);
             MediaDescription mediaDescription = (MediaDescription) sd

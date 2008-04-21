@@ -1,0 +1,56 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: Native ITSP bridging solution for sipX
+License: LGPL
+Group:    Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org/sipXtools
+
+Source: %name-%version.tar.gz
+
+Requires: sipxcommserverlib >= 3.11
+# does not work with w/gcj - require -ibm or -sun depending on a platform
+%ifarch ppc ppc64
+Requires: java-ibm >= 1.5
+
+# required. this handle certs when using ibm's jvm
+# note anaconda in fc6ppc doesn't seem to know to pull this in
+# could be the bizarre versioning (i.e. lack of it)
+Requires: java-ibm-unrestricted
+
+%else
+Requires: java-sun >= 1.5
+%endif
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+Native ITSP bridging solution for SIPX PBX.
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make all
+
+%install
+
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
+%attr(755,root,root) %{_bindir}
+%attr(644,root,root) %{_libdir}/sipxbridge
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxbridge
+%{_mandir}/man1

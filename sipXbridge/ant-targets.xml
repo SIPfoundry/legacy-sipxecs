@@ -24,7 +24,8 @@
     -  test.classes         = Patterset of explicit junit tests for quick test
     -  regression.classes   = Patterset of explicit junit tests for full regression test
     -->
-  <property file="${top.build.dir}/config.properties"/>
+  <!-- property file="${top.build.dir}/sipXbridge/config.properties"/ -->
+  <property file="${build.dir}/config.properties"/>
   <property name="classes.dir" value="${build.dir}/classes" />
   <property name="dist.dir" value="${build.dir}/dist" />
   <property name="api.dir" value="${dist.dir}/api" />
@@ -72,6 +73,16 @@
       <javac bootclasspath="${classes.zip}"/>
     </presetdef -->
   </target>
+
+  <!--
+    - Use this variable when copying anything at install time.
+    -   Example: tofile="${dest.dir}${lib.dir}/myfile"
+    -
+    - at least 1 case where this is overridden is when 'make rpm'
+    - want to 'install' into a staging area first. I define it here
+    - empty just so it's clear this is the default value.
+    -->
+  <property name="dest.dir" value=""/>
 
 
   <!--

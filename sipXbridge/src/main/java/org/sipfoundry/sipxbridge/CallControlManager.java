@@ -549,6 +549,15 @@ public class CallControlManager {
                  */
                 TransactionApplicationData tad = (TransactionApplicationData) responseEvent
                         .getClientTransaction().getApplicationData();
+                
+                String codecName = null;
+                
+                if ( response.getStatusCode() == 200) {
+                        // The response has the codec name that we use for all subsequent transfers.
+                        codecName =  SipUtilities.getCodecName(response);
+                        logger.debug("processResponse: codecName " + codecName);
+                        if ( codecName != null ) dat.codecName = codecName;                   
+                }
 
                 /*
                  * The TransactionApplicationData will indicate what the OK is
@@ -562,7 +571,7 @@ public class CallControlManager {
                      */
                     dat.lastResponse = response;
                     dat.backToBackUserAgent = b2bua;
-                  
+                   
                     dialog.setApplicationData(dat);
 
                     /*

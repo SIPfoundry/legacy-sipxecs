@@ -1,6 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-
-include $(top_srcdir)/config/subdir.am
+include config/project.am
 include ant-targets.am
 
 editscripts_IN = \
@@ -17,14 +16,23 @@ editscripts :
 
 install-exec-hook : editscripts
 
+RPMS=$(RPM)
+
 .PHONY : editscripts
 EXTRA_DIST = \
   README \
-  $(editscripts_IN) \
-  $(bin_SCRIPTS) \
-  config.properties.in \
+  config/sipX-config.in \
+  config/sipX-buildstamp.cpp.in \
+  config/sipX-buildstamp.h.in \
+  config/svn-version \
   ant-targets.xml \
   build.xml \
+  CONTRIBUTORS \
+  BUILDSTAMP \
+  SVN-VERSION \
+  LICENSE \
+  config.properties.in \
+  ant-targets.xml \
   src \
   lib
 

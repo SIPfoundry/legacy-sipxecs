@@ -129,7 +129,9 @@ public class BackToBackUserAgent {
                 SessionDescription sd = SdpFactory.getInstance()
                         .createSessionDescription(
                                 this.rtpBridge.sessionDescription.toString());
-                rtpSession.getReceiver().setSessionDescription(SipUtilities.cleanSessionDescription(sd,Gateway.getCodecName()));
+                rtpSession.getReceiver().setSessionDescription(
+                        SipUtilities.cleanSessionDescription(sd, Gateway
+                                .getCodecName()));
                 this.rtpBridge.addSym(rtpSession);
 
             }
@@ -162,7 +164,9 @@ public class BackToBackUserAgent {
                 SessionDescription sd = SdpFactory.getInstance()
                         .createSessionDescription(
                                 this.rtpBridge.sessionDescription.toString());
-                rtpSession.getReceiver().setSessionDescription(SipUtilities.cleanSessionDescription(sd,Gateway.getCodecName()));
+                rtpSession.getReceiver().setSessionDescription(
+                        SipUtilities.cleanSessionDescription(sd, Gateway
+                                .getCodecName()));
                 DialogApplicationData.get(dialog).rtpSession = rtpSession;
                 this.rtpBridge.addSym(rtpSession);
             }
@@ -326,6 +330,10 @@ public class BackToBackUserAgent {
                 logger.debug("newRtpBridge = " + newRtpBridge);
                 logger.debug("myRtpBridge = " + this.getRtpBridge());
                 logger.debug("hisRtpBridge = " + hisRtpBridge);
+                logger.debug("replaced codec = "
+                        + DialogApplicationData.get(replacedDialog).codecName);
+                logger.debug("refering codec = "
+                        + DialogApplicationData.get(referingDialog).codecName);
             }
 
             /*
@@ -510,16 +518,21 @@ public class BackToBackUserAgent {
             DialogApplicationData dialogApplicationData = (DialogApplicationData) dialog
                     .getApplicationData();
 
+            newDialogApplicationData.codecName = dialogApplicationData.codecName;
             newDialogApplicationData.peerDialog = dialogApplicationData.peerDialog;
             newDialogApplicationData.musicOnHoldDialog = dialogApplicationData.musicOnHoldDialog;
-            logger.debug("referInviteToSipxProxy peerDialog = "
-                    + newDialogApplicationData.peerDialog);
+            if (logger.isDebugEnabled()) {
+                logger.debug("referInviteToSipxProxy peerDialog = "
+                        + newDialogApplicationData.peerDialog);
+            }
 
             this.referingDialogPeer = dialogApplicationData.peerDialog;
 
             DialogApplicationData dat = (DialogApplicationData) this.referingDialogPeer
                     .getApplicationData();
             dat.peerDialog = ct.getDialog();
+            
+            dat.codecName = dialogApplicationData.codecName;
 
             /*
              * We terminate the dialog. There is no peer.
@@ -659,7 +672,8 @@ public class BackToBackUserAgent {
                     return;
 
                 }
-                logger.debug("Clean session description = " + sessionDescription);
+                logger.debug("Clean session description = "
+                        + sessionDescription);
             }
 
             SymEndpoint rtpEndpoint = new SymEndpoint(true);
@@ -696,7 +710,8 @@ public class BackToBackUserAgent {
             tad.incomingSession = incomingSession;
             tad.outgoingSession = this.getLanRtpSession(outboundDialog);
             tad.serverTransaction = serverTransaction;
-            tad.serverTransactionProvider = Gateway.getWanProvider(itspAccountInfo.getOutboundTransport());
+            tad.serverTransactionProvider = Gateway
+                    .getWanProvider(itspAccountInfo.getOutboundTransport());
             tad.backToBackUa = this;
             tad.itspAccountInfo = this.itspAccountInfo;
             ct.setApplicationData(tad);
@@ -857,7 +872,8 @@ public class BackToBackUserAgent {
             boolean isphone) throws GatewayConfigurationException, SipException {
         Request incomingRequest = serverTransaction.getRequest();
         Dialog incomingDialog = serverTransaction.getDialog();
-        SipProvider itspProvider = Gateway.getWanProvider(itspAccountInfo.getOutboundTransport());
+        SipProvider itspProvider = Gateway.getWanProvider(itspAccountInfo
+                .getOutboundTransport());
 
         boolean spiral = false;
 
@@ -924,7 +940,7 @@ public class BackToBackUserAgent {
                 }
             }
 
-            logger.debug("sd after strip  " + sd );
+            logger.debug("sd after strip  " + sd);
             /*
              * Indicate that we will be transmitting first.
              */
@@ -1089,7 +1105,8 @@ public class BackToBackUserAgent {
 
             Request bye = peer.createRequest(Request.BYE);
             if (this.itspAccountInfo != null
-                    && provider == Gateway.getWanProvider(itspAccountInfo.getOutboundTransport())) {
+                    && provider == Gateway.getWanProvider(itspAccountInfo
+                            .getOutboundTransport())) {
                 FromHeader fromHeader = (FromHeader) bye
                         .getHeader(FromHeader.NAME);
                 try {

@@ -20,7 +20,7 @@
 
 
 
-	<property file="${top.build.dir}/sipXbridge/config.properties"/>
+	<property name="top.build.dir" value="${basedir}" />
  	<property name="build.dir" value="${top.build.dir}/sipXbridge"/>
   	<import file="ant-targets.xml"/>
   	<property name="dist.dir" value="${top.build.dir}/dist" />
@@ -100,6 +100,7 @@
 
 <!-- BUILD a Jar file -->
 	<target name="jar" depends="compile" description="create a jar file" >
+		<mkdir dir="${build.dir}/dist" />
 		<jar jarfile="${build.dir}/dist/sipXbridge.jar">
 			<fileset dir="${classes}" >
 				<include name="**/*.class" />
@@ -109,9 +110,9 @@
 
  <!--  I N S T A L L -->
      <target name="install">
-    	<mkdir dir="${sipxbridge.lib.dir}"/>
-    	<copy file="${build.dir}/dist/sipXbridge.jar" todir="${sipxbridge.lib.dir}"/>
-    	<copy todir="${sipxbridge.lib.dir}">
+    	<mkdir dir="${dest.dir}${sipxbridge.lib.dir}"/>
+    	<copy file="${build.dir}/dist/sipXbridge.jar" todir="${dest.dir}${sipxbridge.lib.dir}"/>
+    	<copy todir="${dest.dir}${sipxbridge.lib.dir}">
 		<fileset file="${log4j}" />
 		<fileset file="${jainsip}" />
 		<fileset file="${nistsip}" />
