@@ -74,8 +74,6 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
  * TestPage page
  */
 public abstract class TestPage extends BasePage {
-    private static final Log LOG = LogFactory.getLog(TestPage.class);
-
     public static final String PAGE = "TestPage";
 
     public static final int JOBS = 4;
@@ -98,6 +96,8 @@ public abstract class TestPage extends BasePage {
     public static final String PA_PERMISSION = "permission/application/personal-auto-attendant";
     public static final String USER_WITHOUT_PA_PERMISSION = "testUserWithoutAutoAttendantPermission";
     public static final String USER_WITH_PA_PERMISSION = "testUserWithAutoAttendantPermission";
+
+    private static final Log LOG = LogFactory.getLog(TestPage.class);
 
     public abstract DialPlanContext getDialPlanContext();
 
