@@ -8,11 +8,14 @@
  */
 package org.sipfoundry.sipxconfig.phone.aastra;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.io.*;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
@@ -75,7 +78,7 @@ public class AastraPhoneTest extends TestCase {
     }
 
     // FIXME: this test is failing - no speeddial generated
-    public void _testSpeeddialWithLines() throws Exception {
+/*    public void _testSpeeddialWithLines() throws Exception {
         Button[] buttons = new Button[] {
             new Button("jeo", "jeo@example.com"), new Button("Daffy Duck", "130")
         };
@@ -112,10 +115,10 @@ public class AastraPhoneTest extends TestCase {
         assertEquals("add 3 1 130", actualLines[i + 2]);
 
         phoneContextControl.verify();
-    }
+    }*/
 
     // FIXME: this test is failing - no speeddial generated
-    public void _testSpeeddialNoLines() throws Exception {
+/*    public void _testSpeeddialNoLines() throws Exception {
         Button[] buttons = new Button[] {
             new Button("jeo", "jeo@example.com"), new Button("Daffy Duck", "130")
         };
@@ -146,7 +149,7 @@ public class AastraPhoneTest extends TestCase {
         assertEquals("add 2 1 130", actualLines[i + 2]);
 
         phoneContextControl.verify();
-    }
+    }*/
 
     private int find(String[] lines, String match) {
         for (int i = 0; i < lines.length; i++) {
@@ -155,5 +158,46 @@ public class AastraPhoneTest extends TestCase {
             }
         }
         return -1;
+    }
+
+    public void testGenerateTypicalProfile() throws Exception {
+        PhoneModel aastraModel = new PhoneModel("aastra");
+        aastraModel.setProfileTemplate("aastra/aastra.cfg.vm");
+        aastraModel.setMaxLineCount(9);
+        AastraPhone phone = new AastraPhone();
+        phone.setModel(aastraModel);
+
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+
+        supplyTestData(phone);
+
+        phone.setSerialNumber("0011aabb4050");
+        phone.getProfileTypes()[0].generate(phone, location);
+        
+        assertEquals(1, phone.getProfileTypes().length);
+        assertEquals("0011aabb4050.cfg", phone.getProfileTypes()[0].getName());
+
+
+        //InputStream expectedProfile = getClass().getResourceAsStream("aastra.cfg");
+        //assertNotNull(expectedProfile);
+        //assertEquals(expectedProfile, location.toString());
+    }
+
+    private void supplyTestData(AastraPhone phone) {
+        User u1 = new User();
+        u1.setUserName("juser");
+        u1.setFirstName("Joe");
+        u1.setLastName("User");
+        u1.setSipPassword("1234");
+
+        User u2 = new User();
+        u2.setUserName("buser");
+        u2.setSipPassword("abcdef");
+        u2.addAlias("432");
+
+        // call this to inject dummy data
+        PhoneTestDriver.supplyTestData(phone, Arrays.asList(new User[] {
+            u1, u2
+        }));
     }
 }

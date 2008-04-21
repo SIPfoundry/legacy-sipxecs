@@ -15,6 +15,17 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class AastraLineDefaults {
 
+    private static final String SIP_USER_NAME = "sip_id/user_name";
+    private static final String SIP_AUTH_NAME = "sip_id/auth_name";
+    private static final String SIP_AUTH_PASSWD = "sip_id/password";
+    private static final String SIP_SCREEN_NAME = "sip_id/screen_name";
+    private static final String SIP_SCREEN_NAME2 = "sip_id/screen_name2";
+    private static final String SIP_DISPLAY_NAME = "sip_id/display_name"; 
+    private static final String PROXY_IP = "server/proxyIp" ; 
+    private static final String PROXY_PORT = "server/proxy_port" ; 
+    private static final String REGISTRAR_IP = "server/registrar_ip" ; 
+    private static final String REGISTRAR_PORT = "server/registrar_port" ; 
+
     private DeviceDefaults m_defaults;
     private Line m_line;
 
@@ -23,12 +34,12 @@ public class AastraLineDefaults {
         m_line = line;
     }
 
-    @SettingEntry(path = AastraPhone.AUTHORIZATION_ID_PATH)
+    @SettingEntry(path = SIP_AUTH_NAME)
     public String getAuthorizationId() {
         return getAddress();
     }
 
-    @SettingEntry(path = AastraPhone.USER_ID_PATH)
+    @SettingEntry(path = SIP_USER_NAME)
     public String getAddress() {
         User u = m_line.getUser();
         if (u != null) {
@@ -37,7 +48,7 @@ public class AastraLineDefaults {
         return null;
     }
 
-    @SettingEntry(path = AastraPhone.PASSWORD_PATH)
+    @SettingEntry(path = SIP_AUTH_PASSWD)
     public String getAuthorizationPassword() {
         User u = m_line.getUser();
         if (u != null) {
@@ -46,7 +57,7 @@ public class AastraLineDefaults {
         return null;
     }
 
-    @SettingEntry(path = AastraPhone.DISPLAY_NAME_PATH)
+    @SettingEntry(path = SIP_DISPLAY_NAME)
     public String getDisplayName() {
         User u = m_line.getUser();
         if (u != null) {
@@ -55,11 +66,40 @@ public class AastraLineDefaults {
         return null;
     }
 
-    @SettingEntry(path = AastraPhone.REGISTRATION_PATH)
+    @SettingEntry(path = SIP_SCREEN_NAME)
+    public String getScreenName() {
+        User u = m_line.getUser();
+        if (u != null) {
+            return u.getUserName() + "@" + getRegistrationServer();
+            //return u.getFirstName();
+        }
+        return null;
+    }
+
+    @SettingEntry(path = SIP_SCREEN_NAME2)
+    public String getScreenName2() {
+        User u = m_line.getUser();
+        if (u != null) {
+            return u.getDisplayName() ; 
+            //return u.getLastName();
+        }
+        return null;
+    }
+
+    @SettingEntry(paths = { REGISTRAR_IP, PROXY_IP })
     public String getRegistrationServer() {
         User u = m_line.getUser();
         if (u != null) {
             return m_line.getPhoneContext().getPhoneDefaults().getDomainName();
+        }
+        return null;
+    }
+
+    @SettingEntry(paths = { REGISTRAR_PORT, PROXY_PORT })
+    public String getProxyPort() {
+        User u = m_line.getUser();
+        if (u != null) {
+            return m_line.getPhoneContext().getPhoneDefaults().getProxyServerSipPort();
         }
         return null;
     }

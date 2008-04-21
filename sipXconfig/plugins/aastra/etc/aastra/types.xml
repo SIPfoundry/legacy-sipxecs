@@ -1,3 +1,23 @@
+<type id="lan_port">
+  <enum>
+    <option>
+       <value>0</value>
+    </option>
+    <option>
+       <value>1</value>
+    </option>
+    <option>
+       <value>2</value>
+    </option>
+    <option>
+       <value>3</value>
+    </option>
+    <option>
+       <value>4</value>
+    </option>
+  </enum>
+</type>
+
 <type id="resync-mode">
   <enum>
     <option>
@@ -14,6 +34,7 @@
     </option>
   </enum>
 </type>
+
 <type id="country-tone">
   <enum>
     <option>
@@ -44,6 +65,31 @@
 </type>
 <type id="global-tone">
   <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+    <option>
+      <value>4</value>
+    </option>
+    <option>
+      <value>5</value>
+    </option>
+  </enum>
+</type>
+<type id="line-tone">
+  <enum>
+    <option>
+      <value>-1</value>
+    </option>
     <option>
       <value>0</value>
     </option>
@@ -155,3 +201,141 @@
     </option>
   </enum>
 </type>
+
+<type id="outgoing-intercom-type">
+  <enum>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+  </enum>
+</type>
+
+<type id="alert-community-tone">
+  <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+    <option>
+      <value>4</value>
+    </option>
+    <option>
+      <value>5</value>
+    </option>
+  </enum>
+</type>
+
+<type id="time-format">
+  <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+  </enum>
+</type>
+
+<type id="date-format">
+  <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+    <option>
+      <value>4</value>
+    </option>
+    <option>
+      <value>5</value>
+    </option>
+    <option>
+      <value>6</value>
+    </option>
+    <option>
+      <value>7</value>
+    </option>
+  </enum>
+</type>
+
+<type id="dst-type">
+  <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+  </enum>
+</type>
+
+<type id="transport-protocol">
+  <enum>
+    <option>
+       <value>0</value>
+    </option>
+    <option>
+       <value>1</value>
+    </option>
+    <option>
+       <value>2</value>
+    </option>
+    <option>
+       <value>4</value>
+    </option>
+  </enum>
+</type>
+<type id="dtmf-method">
+  <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+  </enum>
+</type>
+<type id="rtp-encryption">
+  <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+  </enum>
+</type>
+
