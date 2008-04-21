@@ -46,6 +46,7 @@ function onTimeout(){
 }
 function restartAndVerify(){
    makeRequest();
+   tapestry.event1669941903("");
 }
 window.onload=restartAndVerify;
 ]]>
