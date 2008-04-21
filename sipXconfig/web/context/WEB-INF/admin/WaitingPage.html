@@ -10,8 +10,12 @@
           <div id="content">
             <span jwcid="@common/QuickHelp" value="message:waiting.quick.help"/>
             <div id="waiting">
+                <span jwcid="@contrib:XTile"
+                    listener="listener:handleWaitingListener"
+                    sendName="triggerWaitingListener"
+                    receiveName="onWaitingListenerResponse" />
                 <h2>
-                    <img jwcid="@Image" image="asset:loadingImage"  />
+                    <img jwcid="@Image" image="asset:loadingImage" />
                     <span key="restartServer">Server is restarting</span>
                 </h2>
             </div>

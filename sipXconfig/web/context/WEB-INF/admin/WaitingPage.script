@@ -7,10 +7,10 @@
 <![CDATA[
 dojo.require("dojo.io.*");
 dojo.require("dojo.io.ScriptSrcIO");
+
 var waitForServerDown = true;
 var timeToExpire = 0;
 var targetUrl = location.href;
-
 
 function makeRequest() {
     dojo.io.bind({
@@ -44,11 +44,12 @@ function onTimeout(){
 	waitForServerDown = false;
 	setTimeout('makeRequest()', 5000);
 }
-function restartAndVerify(){
-   makeRequest();
-   tapestry.event1669941903("");
+function onWaitingListenerResponse() {
 }
-window.onload=restartAndVerify;
 ]]>
 </body>
+<initialization>
+   makeRequest();
+   triggerWaitingListener();
+</initialization>
 </script>

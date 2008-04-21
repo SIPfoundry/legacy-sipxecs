@@ -17,12 +17,16 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.admin.WaitingListener;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
@@ -51,6 +55,7 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.search.IndexManager;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 import org.sipfoundry.sipxconfig.site.admin.commserver.ReplicationData;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
 import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
@@ -69,6 +74,7 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
  * TestPage page
  */
 public abstract class TestPage extends BasePage {
+    private static final Log LOG = LogFactory.getLog(TestPage.class);
 
     public static final String PAGE = "TestPage";
 
@@ -155,6 +161,9 @@ public abstract class TestPage extends BasePage {
 
     @InjectObject(value = "spring:pagingContext")
     public abstract PagingContext getPagingContext();
+
+    @InjectPage(value = WaitingPage.PAGE)
+    public abstract WaitingPage getWaitingPage();
 
     public void resetServiceManager() {
         getServiceManager().clear();
@@ -276,8 +285,7 @@ public abstract class TestPage extends BasePage {
         user.setUserName(userName);
         user.setFirstName(firstName);
         user.setLastName(TEST_USER_LASTNAME);
-        user.setAliasesString(userName.equals(TEST_USER_USERNAME) ? TEST_USER_ALIASES
-                : EMPTY_STRING);
+        user.setAliasesString(userName.equals(TEST_USER_USERNAME) ? TEST_USER_ALIASES : EMPTY_STRING);
         user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
         getCoreContext().saveUser(user);
         return user;
@@ -439,7 +447,7 @@ public abstract class TestPage extends BasePage {
         page.setDataSetName(setName);
         return page;
     }
-    
+
     public void loginUserWithDisabledVoicemailPermission() {
         // reload from db, ensures spring has injected permission manager
         User user = getCoreContext().loadUser(createTestUserIfMissing().getId());
@@ -454,8 +462,7 @@ public abstract class TestPage extends BasePage {
         try {
             FileUtils.deleteDirectory(existing);
         } catch (IOException e) {
-            throw new RuntimeException(
-                    "Could not delete mailstore " + existing.getAbsolutePath(), e);
+            throw new RuntimeException("Could not delete mailstore " + existing.getAbsolutePath(), e);
         }
     }
 
@@ -468,26 +475,35 @@ public abstract class TestPage extends BasePage {
         try {
             FileUtils.cleanDirectory(existing);
         } catch (IOException e) {
-            throw new RuntimeException("Could not clean existing sample voicemail store "
-                    + existing.getAbsolutePath());
+            throw new RuntimeException("Could not clean existing sample voicemail store " + existing.getAbsolutePath());
         }
 
         Class manageVmTestUiClass;
         try {
-            manageVmTestUiClass = Class
-                    .forName("org.sipfoundry.sipxconfig.site.vm.ManageVoicemailTestUi");
+            manageVmTestUiClass = Class.forName("org.sipfoundry.sipxconfig.site.vm.ManageVoicemailTestUi");
         } catch (ClassNotFoundException e1) {
             throw new RuntimeException("Cannot access ui test directory via test class resource");
         }
-        File original = new File(TestUtil.getTestSourceDirectory(manageVmTestUiClass)
-                + "/mailstore");
+        File original = new File(TestUtil.getTestSourceDirectory(manageVmTestUiClass) + "/mailstore");
         try {
             FileUtils.copyDirectory(original, existing);
         } catch (IOException e) {
-            String msg = String.format(
-                    "Could not reset sample voicemail store from original '%s' to '%s'", original
-                            .getAbsolutePath(), existing.getAbsolutePath());
+            String msg = String.format("Could not reset sample voicemail store from original '%s' to '%s'", original
+                    .getAbsolutePath(), existing.getAbsolutePath());
             throw new RuntimeException(msg);
         }
+    }
+
+    private static final class LogWaitingListener implements WaitingListener, Serializable {
+        public void afterResponseSent() {
+            LOG.warn("delayed action triggered");
+        }
+    }
+
+    public IPage testWaitingPage() {
+        WaitingPage waitingPage = getWaitingPage();
+        WaitingListener waitingListener = new LogWaitingListener();
+        waitingPage.setWaitingListener(waitingListener);
+        return waitingPage;
     }
 }
