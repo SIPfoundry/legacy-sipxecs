@@ -31,7 +31,7 @@ EXTRA_DIST = \
   BUILDSTAMP \
   SVN-VERSION \
   LICENSE \
-  config.properties.in \
+  config.properties \
   ant-targets.xml \
   sipxbridge.spec \
   src \
